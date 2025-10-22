@@ -21,6 +21,12 @@ jobs:
           cd backend
           composer install --no-progress --no-interaction --prefer-dist
 
+      - name: Copy .env and Generate App Key (Backend)
+        run: |
+          cd backend
+          cp .env.example .env
+          php artisan key:generate
+
       - name: Run Laravel Tests (Backend)
         run: |
           cd backend
