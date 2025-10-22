@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\SocialUser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use App\Services\PadronService;  // Importa el servicio
 
 class SocialUserController extends Controller
 {
@@ -24,7 +24,7 @@ class SocialUserController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
-        $socialUsers = SocialUser::with(['centro', 'profesionalReferencia'])
+        $socialUsers = SocialUser::with(['centro', 'profesionalReferencia', 'addressType'])
             ->when($request->has('ruu_only'), function ($query) {
                 $query->ruu();  // Scope para subconjunto RUU
             })
@@ -49,7 +49,7 @@ class SocialUserController extends Controller
             'first_name' => 'nullable|string|max:100',
             'last_name1' => 'nullable|string|max:100',
             'last_name2' => 'nullable|string|max:100',
-            'dni_nie_pasaporte' => 'nullable|string|max:20|unique:social_users,dni_nie_pasaporte',  // Nullable, unique solo si presente
+            'dni_nie_pasaporte' => 'nullable|string|max:20|unique:social_users,dni_nie_pasaporte',  // DNI/NIE/pasaporte
             'situacion_administrativa' => 'nullable|in:activa,inactiva,suspendida',
             'numero_tarjeta_sanitaria' => 'nullable|string|max:20|unique:social_users,numero_tarjeta_sanitaria',
             'pais_origen' => 'nullable|string|max:100',
@@ -63,7 +63,15 @@ class SocialUserController extends Controller
             'profesional_referencia_id' => 'nullable|exists:professionals,id',
             'tiene_representante_legal' => 'nullable|boolean',
             'representante_legal_id' => 'nullable|exists:social_users,id',
-            'identificacion_desconocida' => 'nullable|boolean',  // Opcional, se setea auto si DNI null
+            'identificacion_desconocida' => 'nullable|boolean',
+            'address_type_id' => 'nullable|exists:address_types,id',
+            'street_name' => 'nullable|string|max:255',
+            'street_number' => 'nullable|string|max:10',
+            'additional_info' => 'nullable|string|max:255',
+            'postal_code' => 'nullable|string|max:10',
+            'city' => 'nullable|string|max:100',
+            'region' => 'nullable|string|max:100',
+            'country' => 'nullable|string|max:100|default:Spain',
         ]);
 
         // Lógica para identificacion_desconocida: Si DNI null o vacío, set true
@@ -71,7 +79,35 @@ class SocialUserController extends Controller
             $validated['identificacion_desconocida'] = true;
         }
 
-    // Calcula requiere_permiso_especial si fecha presente
+        // Búsqueda en padrón (flexible por ID o nombre + fecha)
+        $padronService = new PadronService();
+        $padronResult = $padronService->searchResidency($validated);
+
+        if (!$padronResult['valid']) {
+            return response()->json([
+                'error' => 'No empadronado en Madrid o error en validación',
+                'details' => $padronResult['error'] ?? 'No coincidencias',
+                'matches' => $padronResult['matches'],  // Para front seleccionar si ambigüedad
+            ], 422);
+        }
+
+        // Maneja matches (toma el primero si único, o error para ambigüedad)
+        if (count($padronResult['matches']) > 1) {
+            return response()->json([
+                'error' => 'Múltiples coincidencias en padrón. Selecciona en la interfaz.',
+                'matches' => $padronResult['matches'],  // Incluye historial_id
+            ], 409);  // Conflict for ambiguity
+        }
+
+        $match = $padronResult['matches'][0] ?? [];
+        $validated = array_merge($validated, [
+            'postal_code' => $match['direccion']['postal_code'] ?? null,
+            'city' => $match['direccion']['city'] ?? 'Madrid',
+            'identificacion_historial' => $match['historial_id'] ?? [$validated['dni_nie_pasaporte'] ?? null],  // Versionado
+            // Otros campos del match, ej: direccion completa
+        ]);
+
+        // Calcula requiere_permiso_especial si fecha presente
         if (!empty($validated['fecha_nacimiento'])) {
             $fechaNac = new \DateTime($validated['fecha_nacimiento']);
             $edad = $fechaNac->diff(new \DateTime())->y;
@@ -80,11 +116,9 @@ class SocialUserController extends Controller
 
         $socialUser = SocialUser::create($validated);
 
-        // Logging exitoso
-        Log::info('SocialUser creado exitosamente', [
+        Log::info('SocialUser creado', [
             'id' => $socialUser->id,
             'user_id' => auth()->id(),
-            'action' => 'create_success',
         ]);
 
         return response()->json($socialUser, 201);
@@ -103,12 +137,11 @@ class SocialUserController extends Controller
             'ip' => $request->ip(),
         ]);
 
-        // Chequeo de permiso especial por fila
         if ($socialUser->requiere_permiso_especial && !auth()->user()->can('access-special', $socialUser)) {
             return response()->json(['error' => 'Permiso especial requerido para este registro'], 403);
         }
 
-        $socialUser->load(['centro', 'profesionalReferencia', 'audits']);  // Incluye historial de auditing
+        $socialUser->load(['centro', 'profesionalReferencia', 'addressType', 'audits']);
 
         return response()->json($socialUser);
     }
@@ -118,6 +151,7 @@ class SocialUserController extends Controller
      */
     public function update(Request $request, SocialUser $socialUser)
     {
+        // Logging de intento de actualización
         Log::info('Intento de actualización social_user', [
             'id' => $socialUser->id,
             'user_id' => auth()->id(),
@@ -144,14 +178,54 @@ class SocialUserController extends Controller
             'tiene_representante_legal' => 'nullable|boolean',
             'representante_legal_id' => 'nullable|exists:social_users,id',
             'identificacion_desconocida' => 'nullable|boolean',
+            'address_type_id' => 'nullable|exists:address_types,id',
+            'street_name' => 'nullable|string|max:255',
+            'street_number' => 'nullable|string|max:10',
+            'additional_info' => 'nullable|string|max:255',
+            'postal_code' => 'nullable|string|max:10',
+            'city' => 'nullable|string|max:100',
+            'region' => 'nullable|string|max:100',
+            'country' => 'nullable|string|max:100|default:Spain',
         ]);
 
-        // Lógica para identificacion_desconocida en update: Si DNI se hace null o vacío, set true
+        // Lógica para identificacion_desconocida
         if (empty($validated['dni_nie_pasaporte'])) {
             $validated['identificacion_desconocida'] = true;
         }
 
-        // Recalcula permiso especial si fecha cambia
+        // Búsqueda en padrón si ID cambia o presente
+        if (!empty($validated['dni_nie_pasaporte']) || $request->has('dni_nie_pasaporte')) {
+            $padronService = new PadronService();
+            $padronResult = $padronService->searchResidency($validated);
+
+            if (!$padronResult['valid']) {
+                return response()->json([
+                    'error' => 'No empadronado en Madrid o error en validación',
+                    'details' => $padronResult['error'] ?? 'No coincidencias',
+                    'matches' => $padronResult['matches'],
+                ], 422);
+            }
+
+            // Maneja matches
+            if (count($padronResult['matches']) > 1) {
+                return response()->json([
+                    'error' => 'Múltiples coincidencias. Selecciona en la interfaz.',
+                    'matches' => $padronResult['matches'],
+                ], 409);
+            }
+
+            $match = $padronResult['matches'][0] ?? [];
+            $validated = array_merge($validated, [
+                'postal_code' => $match['direccion']['postal_code'] ?? null,
+                'city' => $match['direccion']['city'] ?? 'Madrid',
+                'identificacion_historial' => array_merge(
+                    $socialUser->identificacion_historial ?? [],
+                    $match['historial_id'] ?? [$validated['dni_nie_pasaporte']]
+                ),
+            ]);
+        }
+
+        // Recalcula permiso especial
         if (isset($validated['fecha_nacimiento'])) {
             $fechaNac = new \DateTime($validated['fecha_nacimiento']);
             $edad = $fechaNac->diff(new \DateTime())->y;
@@ -177,7 +251,6 @@ class SocialUserController extends Controller
      */
     public function destroy(SocialUser $socialUser, Request $request)
     {
-        // Logging de intento de eliminación
         Log::info('Intento de eliminación social_user', [
             'id' => $socialUser->id,
             'user_id' => auth()->id(),
@@ -185,17 +258,15 @@ class SocialUserController extends Controller
             'ip' => $request->ip(),
         ]);
 
-        // Chequeo de permiso especial
         if ($socialUser->requiere_permiso_especial && !auth()->user()->can('delete-special', $socialUser)) {
-            return response()->json(['error' => 'Permiso especial requerido para eliminar este registro'], 403);
+            return response()->json(['error' => 'Permiso especial requerido'], 403);
         }
 
-        $socialUser->delete();  // Soft delete si agregas SoftDeletes trait
+        $socialUser->delete();
 
-        Log::info('SocialUser eliminado exitosamente', [
+        Log::info('SocialUser eliminado', [
             'id' => $socialUser->id,
             'user_id' => auth()->id(),
-            'action' => 'delete_success',
         ]);
 
         return response()->json(null, 204);

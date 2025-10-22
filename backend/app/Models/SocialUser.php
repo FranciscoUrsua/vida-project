@@ -19,6 +19,7 @@ class SocialUser extends Model implements AuditableContract
         'last_name1',
         'last_name2',
         'identificacion_desconocida',
+        'identificacion_historial',
         'dni_nie_pasaporte',
         'situacion_administrativa',
         'numero_tarjeta_sanitaria',
@@ -38,6 +39,7 @@ class SocialUser extends Model implements AuditableContract
 
     protected $casts = [
         'fecha_nacimiento' => 'date',
+        'identificacion_historial' => 'array',
         'requiere_permiso_especial' => 'boolean',
     ];
 
@@ -46,6 +48,7 @@ class SocialUser extends Model implements AuditableContract
         'last_name1',
         'last_name2',
         'identificacion_desconocida',
+        'identificacion_historial',
         'dni_nie_pasaporte',
         'fecha_nacimiento',
         'correo',
