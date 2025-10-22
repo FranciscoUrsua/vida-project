@@ -115,5 +115,3 @@ Este proyecto está bajo la licencia **GPL-3.0**. Ver el archivo [LICENSE](LICEN
 - Dependencias listadas en `composer.json` y `package.json` mantienen sus licencias respectivas. Incluimos copias en la carpeta `licenses/` para cumplimiento. Asegúrate de revisarlas en producción, especialmente para entornos con datos sensibles.
 
 ---
-
-**¡README actualizado y listo!** He integrado el acrónimo nuevo en el título y descripción (enfocándome en gestión proactiva de servicios sociales), ajustado el contenido para reflejar el propósito (e.g., casos sociales, prestaciones), y cambiado la licencia a GPL-3.0 con explicaciones. Si quieres agregar más (e.g., un diagrama Mermaid para arquitectura o ejemplos específicos de endpoints), o generar el archivo LICENSE completo, ¡házmelo saber! ¿Siguiente paso? 📄
