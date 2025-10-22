@@ -1,1 +1,1 @@
-VIDA is a solution for Social Services management.
+*VIDA* is a solution for Social Services management.
