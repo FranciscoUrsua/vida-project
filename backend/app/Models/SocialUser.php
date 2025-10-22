@@ -23,7 +23,8 @@ class SocialUser extends Model implements AuditableContract
         'dni_nie_pasaporte',
         'situacion_administrativa',
         'numero_tarjeta_sanitaria',
-        'pais_origen',
+        'pais_origen_id',
+        'region_id',
         'fecha_nacimiento',
         'sexo',
         'estado_civil',
@@ -82,4 +83,15 @@ class SocialUser extends Model implements AuditableContract
     {
         return $this->fecha_nacimiento->gt(now()->subYears(18));
     }
+
+    public function paisOrigen()
+    {
+        return $this->belongsTo(Country::class, 'pais_origen_id');
+    }
+
+    public function region()
+    {
+        return $this->belongsTo(Region::class, 'region_id');
+    }
+
 }

@@ -24,7 +24,7 @@ class SocialUserController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
-        $socialUsers = SocialUser::with(['centro', 'profesionalReferencia', 'addressType'])
+        $socialUsers = SocialUser::with(['centro', 'profesionalReferencia', 'addressType', 'paisOrigen', 'region'])->paginate(10)
             ->when($request->has('ruu_only'), function ($query) {
                 $query->ruu();  // Scope para subconjunto RUU
             })
@@ -52,7 +52,8 @@ class SocialUserController extends Controller
             'dni_nie_pasaporte' => 'nullable|string|max:20|unique:social_users,dni_nie_pasaporte',  // DNI/NIE/pasaporte
             'situacion_administrativa' => 'nullable|in:activa,inactiva,suspendida',
             'numero_tarjeta_sanitaria' => 'nullable|string|max:20|unique:social_users,numero_tarjeta_sanitaria',
-            'pais_origen' => 'nullable|string|max:100',
+            'pais_origen_id' => 'nullable|exists:countries,id',
+            'region_id' => 'nullable|exists:regions,id',
             'fecha_nacimiento' => 'nullable|date|before:today',
             'sexo' => 'nullable|in:M,F,Otro,No especificado',
             'estado_civil' => 'nullable|in:soltero,casado,divorciado,viudo,otro',
@@ -70,8 +71,7 @@ class SocialUserController extends Controller
             'additional_info' => 'nullable|string|max:255',
             'postal_code' => 'nullable|string|max:10',
             'city' => 'nullable|string|max:100',
-            'region' => 'nullable|string|max:100',
-            'country' => 'nullable|string|max:100|default:Spain',
+            'country' => 'nullable|exists:countries,id',
         ]);
 
         // Lógica para identificacion_desconocida: Si DNI null o vacío, set true
@@ -166,7 +166,7 @@ class SocialUserController extends Controller
             'dni_nie_pasaporte' => ['nullable', 'string', 'max:20', Rule::unique('social_users')->ignore($socialUser->id)],
             'situacion_administrativa' => 'nullable|in:activa,inactiva,suspendida',
             'numero_tarjeta_sanitaria' => ['nullable', 'string', 'max:20', Rule::unique('social_users')->ignore($socialUser->id)],
-            'pais_origen' => 'nullable|string|max:100',
+            'pais_origen_id' => 'nullable|exists:countries,id',
             'fecha_nacimiento' => 'nullable|date|before:today',
             'sexo' => 'nullable|in:M,F,Otro,No especificado',
             'estado_civil' => 'nullable|in:soltero,casado,divorciado,viudo,otro',
@@ -184,8 +184,8 @@ class SocialUserController extends Controller
             'additional_info' => 'nullable|string|max:255',
             'postal_code' => 'nullable|string|max:10',
             'city' => 'nullable|string|max:100',
-            'region' => 'nullable|string|max:100',
-            'country' => 'nullable|string|max:100|default:Spain',
+            'region_id' => 'nullable|exists:regions,id',
+            'country' => 'nullable|exists:countries,id',
         ]);
 
         // Lógica para identificacion_desconocida
