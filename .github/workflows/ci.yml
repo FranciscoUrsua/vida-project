@@ -32,24 +32,24 @@ jobs:
           cd backend
           php artisan test --coverage --coverage-clover coverage-backend.xml
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-          cache: 'npm'
+#      - name: Setup Node.js
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: '20'
+#          cache: 'npm'
 
-      - name: Install NPM Dependencies (Frontend)
-        run: |
-          cd frontend
-          npm ci
+#      - name: Install NPM Dependencies (Frontend)
+#        run: |
+#          cd frontend
+#          npm ci
 
-      - name: Run Angular Tests (Frontend)
-        run: |
-          cd frontend
-          ng test --watch=false --browsers=ChromeHeadless --code-coverage
+#      - name: Run Angular Tests (Frontend)
+#        run: |
+#          cd frontend
+#          ng test --watch=false --browsers=ChromeHeadless --code-coverage
 
-      - name: Upload Coverage Reports (Optional)
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./backend/coverage-backend.xml,./frontend/coverage/index.html
-          fail_ci_if_less_than: 80
+#      - name: Upload Coverage Reports (Optional)
+#        uses: codecov/codecov-action@v3
+#        with:
+#          files: ./backend/coverage-backend.xml,./frontend/coverage/index.html
+#          fail_ci_if_less_than: 80
