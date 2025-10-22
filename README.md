@@ -1,4 +1,3 @@
-*VIDA* is a solution for Social Services management.
 # VIDA - Visión Integral de Derechos y Atención Social
 
 [![Laravel](https://img.shields.io/badge/Laravel-10.x-red.svg)](https://laravel.com) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org) [![Angular](https://img.shields.io/badge/Angular-17-green.svg)](https://angular.io) [![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
