@@ -20,7 +20,8 @@ class SocialUser extends Model implements AuditableContract
         'last_name2',
         'identificacion_desconocida',
         'identificacion_historial',
-        'dni_nie_pasaporte',
+        'tipo_documento',
+        'numero_id',
         'situacion_administrativa',
         'numero_tarjeta_sanitaria',
         'pais_origen_id',
@@ -50,7 +51,8 @@ class SocialUser extends Model implements AuditableContract
         'last_name2',
         'identificacion_desconocida',
         'identificacion_historial',
-        'dni_nie_pasaporte',
+        'tipo_documento',
+        'numero_id',
         'fecha_nacimiento',
         'correo',
         'telefono',
@@ -93,5 +95,11 @@ class SocialUser extends Model implements AuditableContract
     {
         return $this->belongsTo(Region::class, 'region_id');
     }
+
+    public function getFullIdAttribute()
+    {
+        return $this->tipo_documento ? $this->tipo_documento . '-' . $this->numero_id : null;
+    }
+
 
 }

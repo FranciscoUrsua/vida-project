@@ -35,18 +35,28 @@ class PadronService
         ]);
 
         if ($this->mockMode) {
+            return [
+                'valid' => true,
+                'matches' => [],
+                'error' => null
+            ];
+
+
+
             $matches = [];
 
             if ($id) {
-                // Mock por ID: Siempre match
-                $matches[] = [
-                    'id' => 'mock_' . uniqid(),
-                    'full_name' => $nombre ?: 'Mock User',
-                    'identificacion' => $id,
-                    'empadronado' => true,
-                    'direccion' => ['postal_code' => '28001', 'city' => 'Madrid'],
-                    'match_score' => 100,
-                    'historial_id' => [$id],  // Simula historial
+                // Mock por ID: Siempre single match
+                $matches = [
+                    [
+                        'id' => 'mock_' . uniqid(),
+                        'full_name' => $nombre ?: 'Mock User',
+                        'identificacion' => $id,
+                        'empadronado' => true,
+                        'direccion' => ['postal_code' => '28001', 'city' => 'Madrid'],
+                        'match_score' => 100,
+                        'historial_id' => [$id],
+                    ]
                 ];
             } else {
                 // Mock por nombre + fecha: Múltiples si ambigüedad
@@ -54,11 +64,11 @@ class PadronService
                     [
                         'id' => 'mock_1',
                         'full_name' => $nombre,
-                        'identificacion' => '87654321X (NIE histórico)',  // Simula NIE previo
+                        'identificacion' => '87654321X (NIE histórico)',
                         'empadronado' => true,
                         'direccion' => ['postal_code' => '28013', 'city' => 'Madrid'],
                         'match_score' => 90,
-                        'historial_id' => ['87654321X', '12345678Z'],  // Historial
+                        'historial_id' => ['87654321X', '12345678Z'],
                     ],
                     [
                         'id' => 'mock_2',
@@ -71,7 +81,6 @@ class PadronService
                     ],
                 ];
             }
-
             return [
                 'valid' => !empty($matches),
                 'matches' => $matches,
