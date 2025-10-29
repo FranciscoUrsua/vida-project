@@ -1,1 +1,1 @@
-{"first_name":"Juan","last_name1":"P\u00e9rez","tipo_documento":"dni","numero_id":"12345678Z","situacion_administrativa":"activa","pais_origen_id":1,"fecha_nacimiento":"1990-01-01T00:00:00.000000Z","lugar_empadronamiento":"Madrid","identificacion_historial":["12345678Z"],"requiere_permiso_especial":false,"updated_at":"2025-10-28T11:50:06.000000Z","created_at":"2025-10-28T11:50:06.000000Z","id":9}
+{"message":"La letra del DNI no coincide con el c\u00e1lculo.","errors":{"numero_id":["La letra del DNI no coincide con el c\u00e1lculo."]}}

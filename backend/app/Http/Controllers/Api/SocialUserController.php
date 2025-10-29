@@ -206,11 +206,9 @@ class SocialUserController extends Controller
             'first_name' => 'nullable|string|max:100',
             'last_name1' => 'nullable|string|max:100',
             'last_name2' => 'nullable|string|max:100',
-            'dni_nie_pasaporte' => ['nullable', 'string', 'max:20', Rule::unique('social_users')->ignore($socialUser->id)],
+            'numero_id' => ['nullable', 'string', 'max:20', Rule::unique('social_users')->ignore($socialUser->id)],
             'situacion_administrativa' => 'nullable|in:activa,inactiva,suspendida',
-            'numero_tarjeta_sanitaria' => ['nullable', 'string', 'max:20', Rule::unique('social_users')->ignore($socialUser->id)],
             'pais_origen_id' => 'nullable|exists:countries,id',
-            'region_id' => 'nullable|exists:regions,id',
             'fecha_nacimiento' => 'nullable|date|before:today',
             'sexo' => 'nullable|in:M,F,Otro,No especificado',
             'estado_civil' => 'nullable|in:soltero,casado,divorciado,viudo,otro',
@@ -232,12 +230,12 @@ class SocialUserController extends Controller
         ]);
 
         // Lógica para identificacion_desconocida
-        if (empty($validated['dni_nie_pasaporte'])) {
+        if (empty($validated['numero_id'])) {
             $validated['identificacion_desconocida'] = true;
         }
 
         // Búsqueda en padrón si ID cambia o presente
-        if (!empty($validated['dni_nie_pasaporte']) || $request->has('dni_nie_pasaporte')) {
+        if (!empty($validated['numero_id']) || $request->has('numero_id')) {
             $padronService = new PadronService();
             $padronResult = $padronService->searchResidency($validated);
 
@@ -263,7 +261,7 @@ class SocialUserController extends Controller
                 'city' => $match['direccion']['city'] ?? 'Madrid',
                 'identificacion_historial' => array_merge(
                     $socialUser->identificacion_historial ?? [],
-                    $match['historial_id'] ?? [$validated['dni_nie_pasaporte']]
+                    $match['historial_id'] ?? [$validated['numero_id']]
                 ),
             ]);
         }
