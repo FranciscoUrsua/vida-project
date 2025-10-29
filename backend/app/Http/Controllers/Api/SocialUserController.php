@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use App\Services\PadronService;
-use App\Services\DomicilioValidatorService;  // Importa el servicio de domicilio
+use App\Services\DomicilioValidatorService;
+use App\Rules\ValidarIdentificacionEspanola;
 
 class SocialUserController extends Controller
 {
@@ -17,7 +18,6 @@ class SocialUserController extends Controller
      */
     public function index(Request $request)
     {
-        // Logging de acceso (para datos personales)
         Log::info('Acceso a social_users - Listado', [
             'user_id' => auth()->id(),
             'action' => 'read_all',
@@ -25,11 +25,11 @@ class SocialUserController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
-        $socialUsers = SocialUser::with(['centro', 'profesionalReferencia', 'addressType', 'paisOrigen', 'region'])
+        $socialUsers = SocialUser::with(['centro', 'profesionalReferencia', 'addressType', 'paisOrigen'])
             ->when($request->has('ruu_only'), function ($query) {
-                $query->ruu();  // Scope para subconjunto RUU
+                $query->ruu();
             })
-            ->paginate(10);  // Quita duplicado
+            ->paginate(10);
 
         return response()->json($socialUsers);
     }
@@ -39,7 +39,6 @@ class SocialUserController extends Controller
      */
     public function store(Request $request)
     {
-        // Logging de intento de creación
         Log::info('Intento de creación social_user', [
             'user_id' => auth()->id(),
             'action' => 'create',
@@ -50,17 +49,15 @@ class SocialUserController extends Controller
             'first_name' => 'nullable|string|max:100',
             'last_name1' => 'nullable|string|max:100',
             'last_name2' => 'nullable|string|max:100',
-            'tipo_documento' => 'nullable|in:dni,nie,pasaporte,otro',  // Nuevo
+            'tipo_documento' => 'nullable|in:dni,nie,pasaporte,otro',
             'numero_id' => [
                 'nullable',
                 'string',
                 'max:20',
-                new ValidarIdentificacionEspanola(request('tipo_documento')),  // Usa tipo para validación
+                new ValidarIdentificacionEspanola(request('tipo_documento')),
+                Rule::unique('social_users', 'numero_id'),
             ],
-            'situacion_administrativa' => 'nullable|in:activa,inactiva,suspendida',
-            'numero_tarjeta_sanitaria' => 'nullable|string|max:20|unique:social_users,numero_tarjeta_sanitaria',
             'pais_origen_id' => 'nullable|exists:countries,id',
-            'region_id' => 'nullable|exists:regions,id',
             'fecha_nacimiento' => 'nullable|date|before:today',
             'sexo' => 'nullable|in:M,F,Otro,No especificado',
             'estado_civil' => 'nullable|in:soltero,casado,divorciado,viudo,otro',
@@ -81,14 +78,14 @@ class SocialUserController extends Controller
             'city' => 'nullable|string|max:100',
         ]);
 
-        // Lógica para identificacion_desconocida: Si numero_id null o vacío, set true
+        // Lógica para identificacion_desconocida
         if (empty($validated['numero_id'])) {
             $validated['identificacion_desconocida'] = true;
         }
 
-        // Búsqueda en padrón (usa numero_id y tipo_documento)
+        // Búsqueda en padrón
         $padronData = [
-            'dni_nie_pasaporte' => $validated['numero_id'],  # Usa numero_id como DNI/NIE/pasaporte
+            'dni_nie_pasaporte' => $validated['numero_id'],
             'first_name' => $validated['first_name'],
             'last_name1' => $validated['last_name1'],
             'last_name2' => $validated['last_name2'],
@@ -96,7 +93,7 @@ class SocialUserController extends Controller
         ];
 
         $padronService = new PadronService();
-        $padronResult = $padronService->searchResidency($padronData);  # Pasa data con numero_id
+        $padronResult = $padronService->searchResidency($padronData);
 
         if (!$padronResult['valid']) {
             return response()->json([
@@ -106,7 +103,6 @@ class SocialUserController extends Controller
             ], 422);
         }
 
-        // Maneja matches
         if (count($padronResult['matches']) > 1) {
             return response()->json([
                 'error' => 'Múltiples coincidencias. Selecciona en la interfaz.',
@@ -118,10 +114,45 @@ class SocialUserController extends Controller
         $validated = array_merge($validated, [
             'postal_code' => $match['direccion']['postal_code'] ?? null,
             'city' => $match['direccion']['city'] ?? 'Madrid',
-            'identificacion_historial' => $match['historial_id'] ?? [$validated['numero_id'] ?? null],  # Usa numero_id
+            'identificacion_historial' => $match['historial_id'] ?? [$validated['numero_id'] ?? null],
         ]);
 
-        // Calcula requiere_permiso_especial si fecha presente
+        // Validación de domicilio
+        $domicilioData = [
+            'street_type' => $validated['street_type'] ?? '',
+            'street_name' => $validated['street_name'] ?? '',
+            'street_number' => $validated['street_number'] ?? '',
+            'additional_info' => $validated['additional_info'] ?? '',
+            'postal_code' => $validated['postal_code'] ?? '',
+            'city' => $validated['city'] ?? 'Madrid',
+        ];
+
+        Log::info('Domicilio data recibida', $domicilioData);
+
+        if (!empty($domicilioData['street_name']) && !empty($domicilioData['street_number'])) {
+            Log::info('Llamando servicio domicilio');
+
+            $validatorService = new DomicilioValidatorService();
+            $result = $validatorService->validateDomicilio($domicilioData);
+
+            Log::info('Resultado domicilio', $result);
+
+            if (!$result['valid']) {
+                return response()->json([
+                    'error' => 'Dirección no válida o fuera de Madrid',
+                    'details' => $result['error'],
+                ], 422);
+            }
+
+            $validated = array_merge($validated, $result['address_data'], [
+                'lat' => $result['coords']['lat'] ?? null,
+                'lng' => $result['coords']['lng'] ?? null,
+            ]);
+        } else {
+            Log::info('Domicilio saltado - campos insuficientes');
+        }
+
+        // Calcula requiere_permiso_especial
         if (!empty($validated['fecha_nacimiento'])) {
             $fechaNac = new \DateTime($validated['fecha_nacimiento']);
             $edad = $fechaNac->diff(new \DateTime())->y;
@@ -137,12 +168,12 @@ class SocialUserController extends Controller
 
         return response()->json($socialUser, 201);
     }
+
     /**
      * Display the specified resource.
      */
     public function show(SocialUser $socialUser, Request $request)
     {
-        // Logging de acceso a fila específica
         Log::info('Acceso a social_user específico', [
             'id' => $socialUser->id,
             'user_id' => auth()->id(),
@@ -154,7 +185,7 @@ class SocialUserController extends Controller
             return response()->json(['error' => 'Permiso especial requerido para este registro'], 403);
         }
 
-        $socialUser->load(['centro', 'profesionalReferencia', 'addressType', 'paisOrigen', 'region', 'audits']);
+        $socialUser->load(['centro', 'profesionalReferencia', 'addressType', 'paisOrigen', 'audits']);
 
         return response()->json($socialUser);
     }
@@ -164,7 +195,6 @@ class SocialUserController extends Controller
      */
     public function update(Request $request, SocialUser $socialUser)
     {
-        // Logging de intento de actualización
         Log::info('Intento de actualización social_user', [
             'id' => $socialUser->id,
             'user_id' => auth()->id(),
@@ -176,13 +206,7 @@ class SocialUserController extends Controller
             'first_name' => 'nullable|string|max:100',
             'last_name1' => 'nullable|string|max:100',
             'last_name2' => 'nullable|string|max:100',
-            'tipo_documento' => 'nullable|in:dni,nie,pasaporte,otro',  # Nuevo
-            'numero_id' => [
-                'nullable',
-                'string',
-                'max:20',
-                new ValidarIdentificacionEspanola(request('tipo_documento')),  # Usa tipo
-            ],
+            'dni_nie_pasaporte' => ['nullable', 'string', 'max:20', Rule::unique('social_users')->ignore($socialUser->id)],
             'situacion_administrativa' => 'nullable|in:activa,inactiva,suspendida',
             'numero_tarjeta_sanitaria' => ['nullable', 'string', 'max:20', Rule::unique('social_users')->ignore($socialUser->id)],
             'pais_origen_id' => 'nullable|exists:countries,id',
@@ -208,22 +232,14 @@ class SocialUserController extends Controller
         ]);
 
         // Lógica para identificacion_desconocida
-        if (empty($validated['numero_id'])) {
+        if (empty($validated['dni_nie_pasaporte'])) {
             $validated['identificacion_desconocida'] = true;
         }
 
-        // Búsqueda en padrón si numero_id cambia o presente
-        if (!empty($validated['numero_id']) || $request->has('numero_id')) {
-            $padronData = [
-                'dni_nie_pasaporte' => $validated['numero_id'],  # Usa numero_id
-                'first_name' => $validated['first_name'],
-                'last_name1' => $validated['last_name1'],
-                'last_name2' => $validated['last_name2'],
-                'fecha_nacimiento' => $validated['fecha_nacimiento'],
-            ];
-
+        // Búsqueda en padrón si ID cambia o presente
+        if (!empty($validated['dni_nie_pasaporte']) || $request->has('dni_nie_pasaporte')) {
             $padronService = new PadronService();
-            $padronResult = $padronService->searchResidency($padronData);
+            $padronResult = $padronService->searchResidency($validated);
 
             if (!$padronResult['valid']) {
                 return response()->json([
@@ -247,7 +263,7 @@ class SocialUserController extends Controller
                 'city' => $match['direccion']['city'] ?? 'Madrid',
                 'identificacion_historial' => array_merge(
                     $socialUser->identificacion_historial ?? [],
-                    $match['historial_id'] ?? [$validated['numero_id']]
+                    $match['historial_id'] ?? [$validated['dni_nie_pasaporte']]
                 ),
             ]);
         }

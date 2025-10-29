@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable;
+use App\Traits\HasValidatableAddress;
 
 class SocialUser extends Model implements AuditableContract
 {
@@ -37,12 +38,19 @@ class SocialUser extends Model implements AuditableContract
         'tiene_representante_legal',
         'representante_legal_id',
         'requiere_permiso_especial',
+        'lat',
+        'lng',
+        'direccion_validada',
+        'formatted_address',
     ];
 
     protected $casts = [
         'fecha_nacimiento' => 'date',
         'identificacion_historial' => 'array',
         'requiere_permiso_especial' => 'boolean',
+        'lat' => 'decimal:8',
+        'lng' => 'decimal:8',
+        'direccion_validada' => 'boolean',
     ];
 
     protected $auditable = [
@@ -56,6 +64,8 @@ class SocialUser extends Model implements AuditableContract
         'fecha_nacimiento',
         'correo',
         'telefono',
+        'lat', 'lng',
+        'formatted_address',
     ];
 
     // Relaciones
