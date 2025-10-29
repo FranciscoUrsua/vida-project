@@ -9,37 +9,32 @@ class Centro extends Model
 {
     use HasFactory;
 
+    // Opcional: Especifica para claridad
+    protected $table = 'centros';
+
     protected $fillable = [
-        'entidad_id',
-        'nombre',
-        'tipo_servicio',
-        'capacidad',
-        'direccion',
+        'tipo', 'nombre', 'direccion_postal', 'telefono', 'email_contacto', 'director_id', 'campos_especificos'
     ];
 
-    // Relaciones
-    public function entidad()
+    protected $casts = [
+        'campos_especificos' => 'array',
+        'director_id' => 'integer',
+    ];
+
+    public function director()
     {
-        return $this->belongsTo(Entidad::class);
+        return $this->hasOne(Director::class);
     }
 
-    public function servicios()
+    public function profesionales()
     {
-        return $this->hasMany(Servicio::class);
+        return $this->belongsToMany(Profesional::class)->withTimestamps();
     }
 
-    public function socialUsers()
+    public function scopeActivos($query)
     {
-        return $this->hasMany(SocialUser::class, 'centro_adscripcion_id');
-    }
-
-    public function professionals()
-    {
-        return $this->hasMany(Professional::class, 'centro_unidad_id');
-    }
-
-    public function directors()
-    {
-        return $this->hasMany(Director::class, 'centro_id');
+        return $query->whereHas('director', function ($q) {
+            $q->whereNull('fecha_baja');
+        });
     }
 }
