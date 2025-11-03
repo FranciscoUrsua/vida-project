@@ -40,6 +40,52 @@ class DirectorController extends Controller
         return response()->json($director->load(['profesional', 'centro']), 201);
     }
 
+    /**
+     * Muestra un director específico con sus relaciones.
+     */
+    public function show(Director $director): JsonResponse
+    {
+        return response()->json($director->load([
+            'profesional',  // Relación belongsTo con Profesional (detalles del director)
+            'centro'  // Relación belongsTo con Centro (contexto del centro dirigido)
+        ]));
+    }
+
+    /**
+     * Actualiza un director (e.g., fecha_baja o re-asignación limitada).
+     * Nota: Para cambios mayores (e.g., nuevo centro), usa store nuevo.
+     */
+    public function update(Request $request, Director $director): JsonResponse
+    {
+        $validated = $request->validate([
+            'fecha_baja' => [
+                'nullable',
+                'date',
+                'after:fecha_alta',  // Debe ser después de fecha_alta
+                Rule::when($request->has('fecha_baja'), function ($rule) use ($director) {
+                    return $rule->where('id', $director->id);  // Solo actualiza si no baja ya
+                }),
+            ],
+            // Opcional: Si permites re-asignar centro (cambia FK)
+            'centro_id' => 'sometimes|nullable|exists:centros,id',
+        ]);
+
+        $director->update($validated);
+
+        // Si se actualiza centro_id, actualiza referencia en centro
+        if ($request->filled('centro_id')) {
+            $nuevoCentro = Centro::findOrFail($validated['centro_id']);
+            $nuevoCentro->update(['director_id' => $director->id]);
+        }
+
+        // Si fecha_baja seteada, llama darDeBaja para lógica extra (opcional)
+        if ($request->filled('fecha_baja')) {
+            $director->darDeBaja($validated['fecha_baja']);
+        }
+
+        return response()->json($director->fresh()->load(['profesional', 'centro']));
+    }
+
     // Baja
     public function darDeBaja(Request $request, Director $director): JsonResponse
     {
