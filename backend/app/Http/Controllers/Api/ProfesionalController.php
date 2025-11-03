@@ -31,11 +31,43 @@ class ProfesionalController extends Controller
         return response()->json($profesional->load(['titulacion']), 201);
     }
 
-    // show, update, destroy similares... (omito por brevedad; usa $profesional->update($validated))
+    public function update(Request $request, Profesional $profesional): JsonResponse
+    {
+        $validated = $request->validate(array_merge(
+            [
+                'nombre' => 'sometimes|string|max:100',
+                'apellido1' => 'sometimes|string|max:100',
+                'apellido2' => 'nullable|string|max:100',
+                'email' => 'sometimes|email|unique:profesionales,email,' . $profesional->id,
+                'telefono' => 'sometimes|string|max:20',
+                'titulacion_id' => 'nullable|exists:titulaciones,id',
+                'centros_ids' => 'nullable|array',
+                'centros_ids.*' => 'exists:centros,id',
+            ],
+            Profesional::identityValidationRules()  // Ajusta unique para update
+        ));
+
+        $profesional->update($validated);
+        if ($request->has('centros_ids')) {
+            $profesional->centros()->sync($request->input('centros_ids', []));  // Sync: asigna/desa asigna centros
+        }
+        return response()->json($profesional->fresh()->load(['titulacion', 'centros']));
+    }
+
+    public function show(Profesional $profesional): JsonResponse
+    {
+        return response()->json($profesional->load([
+            'titulacion',  // Relación con Titulacion
+            'centros',  // Relación N:N con Centros (incluye pivot timestamps si needed)
+            'directores'  // Relación hasMany con Director (muestra centros dirigidos)
+        ]));
+    }
+
 
     public function destroy(Profesional $profesional): JsonResponse
     {
         $profesional->delete();
         return response()->json(null, 204);
     }
+
 }

@@ -28,7 +28,9 @@ class Profesional extends Model
 
     public function centros()
     {
-        return $this->belongsToMany(Centro::class)->withTimestamps();
+        return $this->belongsToMany(Centro::class, 'centro_profesional')
+                    ->withTimestamps()  // Incluye created_at/updated_at del pivot para fecha asignación
+                    ->withPivot('created_at');  // Opcional: campos extras del pivot
     }
 
     public function directores()
