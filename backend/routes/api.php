@@ -19,3 +19,5 @@ Route::apiResource('centros', CentroController::class);
 Route::apiResource('directores', DirectorController::class)->only(['index', 'store', 'show', 'destroy']); // Solo básicos
 Route::post('directores/{director}/baja', [DirectorController::class, 'darDeBaja']);
 Route::apiResource('tipos-centro', TipoCentroController::class);
+Route::apiResource('prestaciones', PrestacionController::class);
+

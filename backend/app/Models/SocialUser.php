@@ -79,6 +79,14 @@ class SocialUser extends Model implements AuditableContract
         return $this->belongsTo(Centro::class, 'centro_adscripcion_id');
     }
 
+    public function prestaciones()
+    {
+        return $this->belongsToMany(Prestacion::class, 'prestacion_social_user')
+                    ->withTimestamps()
+                    ->withPivot('fecha_fin');  // Incluye fecha_fin del pivot
+    }
+
+
     public function profesionalReferencia()
     {
         return $this->belongsTo(Professional::class, 'profesional_referencia_id');
