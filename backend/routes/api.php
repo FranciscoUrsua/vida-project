@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\CentroController;
 use App\Http\Controllers\Api\ProfesionalController;
 use App\Http\Controllers\Api\DirectorController;
 use App\Http\Controllers\Api\TipoCentroController;
-
+use App\Http\Controllers\Api\PrestacionController; 
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('social-users', \App\Http\Controllers\Api\SocialUserController::class);
