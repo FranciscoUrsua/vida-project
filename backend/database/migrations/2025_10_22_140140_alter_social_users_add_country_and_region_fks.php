@@ -30,26 +30,6 @@ return new class extends Migration
             });
         }
 
-        // Para ruu (mismos cambios)
-        Schema::table('ruu', function (Blueprint $table) {
-            $table->unsignedBigInteger('pais_origen_id')->nullable()->after('numero_tarjeta_sanitaria');
-            $table->unsignedBigInteger('region_id')->nullable()->after('lugar_empadronamiento');
-
-            $table->foreign('pais_origen_id')->references('id')->on('countries');
-            $table->foreign('region_id')->references('id')->on('regions');
-        });
-
-        if (Schema::hasColumn('ruu', 'pais_origen')) {
-            Schema::table('ruu', function (Blueprint $table) {
-                $table->dropColumn('pais_origen');
-            });
-        }
-
-        if (Schema::hasColumn('ruu', 'region')) {
-            Schema::table('ruu', function (Blueprint $table) {
-                $table->dropColumn('region');
-            });
-        }
     }
 
     public function down(): void
@@ -63,12 +43,5 @@ return new class extends Migration
             $table->dropColumn(['pais_origen_id', 'region_id']);
         });
 
-        Schema::table('ruu', function (Blueprint $table) {
-            $table->string('pais_origen')->nullable()->after('numero_tarjeta_sanitaria');
-            $table->string('region')->nullable()->after('lugar_empadronamiento');
-            $table->dropForeign(['pais_origen_id']);
-            $table->dropForeign(['region_id']);
-            $table->dropColumn(['pais_origen_id', 'region_id']);
-        });
     }
 };

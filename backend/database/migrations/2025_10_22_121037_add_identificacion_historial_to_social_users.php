@@ -15,9 +15,6 @@ return new class extends Migration
             $table->json('identificacion_historial')->nullable()->after('dni_nie_pasaporte');
         });
 
-        Schema::table('ruu', function (Blueprint $table) {
-            $table->json('identificacion_historial')->nullable()->after('dni_nie_pasaporte');
-        });
     }
 
     /**
@@ -29,8 +26,5 @@ return new class extends Migration
             $table->dropColumn('identificacion_historial');
         });
 
-        Schema::table('ruu', function (Blueprint $table) {
-            $table->dropColumn('identificacion_historial');
-        });
     }
 };

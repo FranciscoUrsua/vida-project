@@ -17,7 +17,7 @@ return new class extends Migration
 
         // Pobla datos existentes: Copia a numero_id, set tipo por defecto 'dni' (asumiendo formato DNI)
         DB::statement("
-            UPDATE social_users 
+            UPDATE social_users
             SET numero_id = dni_nie_pasaporte,
                 tipo_documento = 'dni'
             WHERE dni_nie_pasaporte IS NOT NULL
@@ -39,7 +39,7 @@ return new class extends Migration
         });
 
         DB::statement("
-            UPDATE social_users 
+            UPDATE social_users
             SET dni_nie_pasaporte = numero_id
             WHERE numero_id IS NOT NULL
         ");
