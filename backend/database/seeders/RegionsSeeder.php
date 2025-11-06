@@ -10,42 +10,34 @@ class RegionsSeeder extends Seeder
 {
     public function run(): void
     {
-        $spain = Country::where('iso_code', 'ES')->first();
-
-        if (!$spain) {
-            // Si no existe España, créala o salta
-            throw new \Exception('País España no encontrado. Ejecuta CountriesSeeder primero.');
-        }
+        $spainId = Country::where('iso_code', 'ES')->firstOrFail()->id;
 
         $regions = [
-            ['name' => 'Andalucía', 'code' => 'AN'],
-            ['name' => 'Aragón', 'code' => 'AR'],
-            ['name' => 'Principado de Asturias', 'code' => 'AS'],
-            ['name' => 'Illes Balears', 'code' => 'IB'],
-            ['name' => 'Canarias', 'code' => 'CN'],
-            ['name' => 'Cantabria', 'code' => 'CB'],
-            ['name' => 'Castilla y León', 'code' => 'CL'],
-            ['name' => 'Castilla-La Mancha', 'code' => 'CM'],
-            ['name' => 'Catalunya', 'code' => 'CT'],
-            ['name' => 'Comunitat Valenciana', 'code' => 'VC'],
-            ['name' => 'Extremadura', 'code' => 'EX'],
-            ['name' => 'Galicia', 'code' => 'GA'],
-            ['name' => 'Comunidad de Madrid', 'code' => 'MD'],
-            ['name' => 'Región de Murcia', 'code' => 'MC'],
-            ['name' => 'Comunidad Foral de Navarra', 'code' => 'NC'],
-            ['name' => 'País Vasco', 'code' => 'PV'],
-            ['name' => 'La Rioja', 'code' => 'RI'],
-            ['name' => 'Ceuta', 'code' => 'CE'],
-            ['name' => 'Melilla', 'code' => 'ML'],
+            ['name' => 'Andalucía', 'code' => 'AN', 'country_id' => $spainId],
+            ['name' => 'Aragón', 'code' => 'AR', 'country_id' => $spainId],
+            ['name' => 'Principado de Asturias', 'code' => 'AS', 'country_id' => $spainId],
+            ['name' => 'Illes Balears', 'code' => 'IB', 'country_id' => $spainId],
+            ['name' => 'Islas Canarias', 'code' => 'CN', 'country_id' => $spainId],
+            ['name' => 'Cantabria', 'code' => 'CB', 'country_id' => $spainId],
+            ['name' => 'Castilla y León', 'code' => 'CL', 'country_id' => $spainId],
+            ['name' => 'Castilla-La Mancha', 'code' => 'CM', 'country_id' => $spainId],
+            ['name' => 'Cataluña', 'code' => 'CT', 'country_id' => $spainId],
+            ['name' => 'Comunidad Valenciana', 'code' => 'VC', 'country_id' => $spainId],
+            ['name' => 'Extremadura', 'code' => 'EX', 'country_id' => $spainId],
+            ['name' => 'Galicia', 'code' => 'GA', 'country_id' => $spainId],
+            ['name' => 'Comunidad de Madrid', 'code' => 'MD', 'country_id' => $spainId],
+            ['name' => 'Región de Murcia', 'code' => 'MC', 'country_id' => $spainId],
+            ['name' => 'Comunidad Foral de Navarra', 'code' => 'NC', 'country_id' => $spainId],
+            ['name' => 'País Vasco', 'code' => 'PV', 'country_id' => $spainId],
+            ['name' => 'La Rioja', 'code' => 'RI', 'country_id' => $spainId],
+            ['name' => 'Ciudad Autónoma de Ceuta', 'code' => 'CE', 'country_id' => $spainId],
+            ['name' => 'Ciudad Autónoma de Melilla', 'code' => 'ML', 'country_id' => $spainId],
         ];
 
         foreach ($regions as $region) {
-            Region::updateOrCreate(
-                ['code' => $region['code']],  // Unique por code
-                [
-                    'name' => $region['name'],
-                    'country_id' => $spain->id,
-                ]
+            Region::firstOrCreate(
+                ['code' => $region['code']],
+                $region
             );
         }
     }

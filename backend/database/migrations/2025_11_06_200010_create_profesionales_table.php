@@ -10,16 +10,16 @@ return new class extends Migration
     {
         Schema::create('profesionales', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', 100); // Unificado; ajusta a nombre1/nombre2 si necesitas tres campos
+            $table->string('nombre', 100);
             $table->string('apellido1', 100);
-            $table->string('apellido2', 100)->nullable(); // Opcional en España
-            $table->string('tipo_id', 10); // e.g., 'DNI', 'NIE'
-            $table->string('numero_id', 20)->unique(); // e.g., '12345678A'
+            $table->string('apellido2', 100)->nullable();
+            $table->string('tipo_id', 10);
+            $table->string('numero_id', 20)->unique();
             $table->string('email', 255)->unique();
             $table->string('telefono', 20)->nullable();
-            $table->foreignId('titulacion_id')->constrained('titulaciones')->onDelete('set null');
+            $table->foreignId('titulacion_id')->nullable()->constrained('titulaciones')->onDelete('set null');
             $table->timestamps();
-            $table->softDeletes(); // Para RGPD
+            $table->softDeletes();
         });
     }
 

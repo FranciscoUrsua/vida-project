@@ -13,8 +13,8 @@ return new class extends Migration
             $table->string('nombre');
             $table->text('descripcion');
             $table->enum('categoria', ['basica', 'especializada', 'complementaria']);
-            $table->json('requisitos')->nullable();  // Array de condiciones
-            $table->integer('duracion_meses')->nullable();  // En meses
+            $table->json('requisitos')->nullable();
+            $table->integer('duracion_meses')->nullable();
             $table->decimal('costo', 8, 2)->nullable();
             $table->timestamps();
         });

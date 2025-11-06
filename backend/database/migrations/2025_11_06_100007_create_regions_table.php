@@ -10,12 +10,10 @@ return new class extends Migration
     {
         Schema::create('regions', function (Blueprint $table) {
             $table->id();
-            $table->string('name');  // ej: 'Comunidad de Madrid'
-            $table->string('code', 2)->unique();  // Código autonómico, ej: 'MD'
-            $table->unsignedBigInteger('country_id');  // FK a countries (España por defecto)
+            $table->string('name');
+            $table->string('code', 2)->unique();
+            $table->foreignId('country_id')->constrained('countries')->onDelete('cascade');
             $table->timestamps();
-
-            $table->foreign('country_id')->references('id')->on('countries')->onDelete('cascade');
         });
     }
 

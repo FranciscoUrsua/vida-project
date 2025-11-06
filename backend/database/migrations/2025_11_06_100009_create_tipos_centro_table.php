@@ -8,16 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('titulaciones', function (Blueprint $table) {
+        Schema::create('tipos_centro', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', 255); // e.g., 'Grado en Trabajo Social'
+            $table->string('nombre', 100);
             $table->text('descripcion')->nullable();
+            $table->boolean('plazas');
+            $table->integer('numero_plazas')->nullable();
+            $table->text('criterio_asignacion_plazas')->nullable();
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('titulaciones');
+        Schema::dropIfExists('tipos_centro');
     }
 };

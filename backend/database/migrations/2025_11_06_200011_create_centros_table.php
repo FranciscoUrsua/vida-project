@@ -15,9 +15,13 @@ return new class extends Migration
             $table->text('direccion_postal');
             $table->string('telefono', 20);
             $table->string('email_contacto', 255)->nullable();
-            $table->unsignedBigInteger('director_id')->nullable(); // Sin constrained aún
+            $table->unsignedBigInteger('director_id')->nullable()->index(); // Campo preparado, constraint se agrega después
             $table->json('campos_especificos')->nullable();
+            $table->decimal('lat', 10, 8)->nullable();
+            $table->decimal('lng', 11, 8)->nullable();
+            $table->boolean('direccion_validada')->default(false);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -26,4 +30,3 @@ return new class extends Migration
         Schema::dropIfExists('centros');
     }
 };
-
