@@ -19,7 +19,7 @@ return new class extends Migration
         DB::statement("
             UPDATE social_users 
             SET numero_id = dni_nie_pasaporte,
-                tipo_documento = 'dni'  # Default; ajusta con lógica si tienes datos para detectar tipo
+                tipo_documento = 'dni'
             WHERE dni_nie_pasaporte IS NOT NULL
         ");
 
@@ -28,22 +28,6 @@ return new class extends Migration
             $table->dropColumn('dni_nie_pasaporte');
         });
 
-        // Para ruu (mismos cambios)
-        Schema::table('ruu', function (Blueprint $table) {
-            $table->enum('tipo_documento', ['dni', 'nie', 'pasaporte', 'otro'])->nullable()->after('dni_nie_pasaporte');
-            $table->string('numero_id')->nullable()->after('tipo_documento');
-        });
-
-        DB::statement("
-            UPDATE ruu 
-            SET numero_id = dni_nie_pasaporte,
-                tipo_documento = 'dni'
-            WHERE dni_nie_pasaporte IS NOT NULL
-        ");
-
-        Schema::table('ruu', function (Blueprint $table) {
-            $table->dropColumn('dni_nie_pasaporte');
-        });
     }
 
     public function down(): void
