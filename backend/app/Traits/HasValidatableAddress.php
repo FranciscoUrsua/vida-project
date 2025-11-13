@@ -3,8 +3,8 @@
 namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Validation\ValidationException;
 use App\Services\DomicilioValidatorService;
+use Illuminate\Support\Facades\Log;
 
 trait HasValidatableAddress
 {
@@ -13,21 +13,21 @@ trait HasValidatableAddress
         static::saving(function (Model $model) {
             $addressArray = $model->buildAddressArray();
             if (!empty($addressArray)) {
-                try {
-                    $service = app(DomicilioValidatorService::class);
-                    $validated = $service->validate($addressArray);
-                    $model->lat = $validated['latitude'] ?? null;
-                    $model->lng = $validated['longitude'] ?? null;
+                $service = app(DomicilioValidatorService::class);
+                $validated = $service->validate($addressArray);
+
+                if ($validated['success']) {
+                    $model->lat = $validated['latitude'];
+                    $model->lng = $validated['longitude'];
                     $model->direccion_validada = true;
-                    if (isset($validated['formatted_address'])) {
-                        $model->formatted_address = $validated['formatted_address'];
-                    }
-                } catch (ValidationException $e) {
+                    $model->formatted_address = $validated['formatted_address'] ?? null;
+                } else {
                     $model->direccion_validada = false;
                     $model->lat = null;
                     $model->lng = null;
                     $model->formatted_address = null;
-                    throw $e;
+                    Log::warning('Dirección no validada: ' . ($validated['error'] ?? 'Desconocido') . ' para ' . $model->getTable() . ' ID ' . $model->id);
+                    // Opcional: Si config throw_on_no_match = true, throw ValidationException::withMessages(['address' => $validated['error']]);
                 }
             } else {
                 $model->direccion_validada = false;
@@ -38,7 +38,7 @@ trait HasValidatableAddress
         });
     }
 
-    // buildAddressArray y buildAddressArrayFromComponents permanecen iguales (model-specific)
+    // buildAddressArray y buildAddressArrayFromComponents sin cambios
     protected function buildAddressArray(): array
     {
         return [
@@ -65,18 +65,5 @@ trait HasValidatableAddress
             'city' => $components['city'] ?? 'Madrid',
             'country' => $components['country'] ?? 'España',
         ];
-    }
-
-    // Método público para validación manual (e.g., desde controlador)
-    public function validateAddressManually(): void
-    {
-        $service = app(DomicilioValidatorService::class);
-        $validated = $service->validate($this->buildAddressArray());
-        $this->update([
-            'lat' => $validated['latitude'],
-            'lng' => $validated['longitude'],
-            'direccion_validada' => true,
-            'formatted_address' => $validated['formatted_address'] ?? null,
-        ]);
     }
 }
