@@ -21,6 +21,7 @@ class Profesional extends Model
 
     protected $casts = [
         'titulacion_id' => 'integer',
+        'sexo' => 'string',
     ];
 
     protected static function boot()
