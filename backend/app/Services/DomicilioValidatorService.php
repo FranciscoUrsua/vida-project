@@ -18,6 +18,12 @@ class DomicilioValidatorService
         ];
     }
 
+    /**
+     * Valida y geocodea usando API de Datos Abiertos Madrid.
+     * @param array $addressArray
+     * @return array ['latitude', 'longitude', 'formatted_address']
+     * @throws ValidationException
+     */
     public function validate(array $addressArray): array
     {
         $addressString = $this->buildAddressString($addressArray);
@@ -26,16 +32,16 @@ class DomicilioValidatorService
             throw ValidationException::withMessages(['address' => 'Dirección incompleta.']);
         }
 
-        // Mock para seeds/dev/testing (evita API calls)
+        // Mock para seeds/dev/testing (evita API calls y errores)
         if (app()->environment('seeding', 'testing')) {
             return [
-                'latitude' => 40.4168,
+                'latitude' => 40.4168, // Madrid centro
                 'longitude' => -3.7038,
                 'formatted_address' => $addressString,
             ];
         }
 
-        // Endpoint correcto para Geonames Madrid (direcciones)
+        // Endpoint para Geonames Madrid (direcciones)
         $response = Http::get('https://datos.madrid.es/api/v1/datos/geonames/search', [
             'query' => urlencode($addressString),
             'start' => 0,
@@ -50,9 +56,9 @@ class DomicilioValidatorService
         }
 
         $contentType = $response->header('Content-Type');
-        if (strpos($contentType, 'application/json') === false) {
+        if (strpos($contentType ?? '', 'application/json') === false) {
             throw ValidationException::withMessages([
-                'address' => 'Respuesta no JSON de API Madrid. Posible endpoint inválido.',
+                'address' => 'Respuesta no JSON de API Madrid.',
             ]);
         }
 
@@ -63,20 +69,20 @@ class DomicilioValidatorService
             ]);
         }
 
-        $firstResult = $data['@graph'][0];
+        $firstResult = $data['@graph'][0] ?? null;
         if (!$firstResult) {
             throw ValidationException::withMessages(['address' => 'No geonames result.']);
         }
 
-        // Extrae lat/lng (formato Madrid: 'location' array con 'lat', 'lng')
+        // Extrae lat/lng (formato Madrid API)
         $location = $firstResult['location'] ?? null;
         if (!$location || !isset($location['lat'], $location['lng']) || !is_numeric($location['lat']) || !is_numeric($location['lng'])) {
             throw ValidationException::withMessages(['address' => 'Geolocalización no disponible en result.']);
         }
 
-        $formattedAddress = $firstResult['title'] ?? $addressString; // Title es formatted
+        $formattedAddress = $firstResult['title'] ?? $addressString;
         $postalCode = $firstResult['postal code'] ?? $addressArray['postal_code'];
-        $districtName = $firstResult['district']['name'] ?? $firstResult['district'] ?? null; // district obj o string
+        $districtName = $firstResult['district']['name'] ?? ($firstResult['district'] ?? null); // district obj o string
 
         // Validar bounds Madrid
         if (
@@ -108,5 +114,52 @@ class DomicilioValidatorService
         ];
     }
 
-    // ... (buildAddressString y postalMatchesDistrito sin cambios, como en propuesta anterior)
+    /**
+     * Construye string de búsqueda para API.
+     */
+    private function buildAddressString(array $addressArray): string
+    {
+        return trim(implode(', ', array_filter([
+            $addressArray['street_type'] . ' ' . $addressArray['street_name'],
+            $addressArray['street_number'],
+            $addressArray['additional_info'],
+            $addressArray['postal_code'] . ' ' . $addressArray['city'],
+            $addressArray['country'],
+        ])));
+    }
+
+    /**
+     * Valida si postal coincide con distrito (rangos reales Madrid).
+     */
+    private function postalMatchesDistrito(string $postal, ?Distrito $distrito): bool
+    {
+        if (!$distrito) return true;
+
+        $rangos = [
+            '01' => fn($p) => in_array($p, ['28012', '28013', '28014']), // Centro
+            '02' => fn($p) => in_array($p, ['28005', '28045']), // Arganzuela
+            '03' => fn($p) => in_array($p, ['28009', '28028']), // Retiro
+            '04' => fn($p) => in_array($p, ['28006', '28001']), // Salamanca
+            '05' => fn($p) => in_array($p, ['28036', '28002']), // Chamartín
+            '06' => fn($p) => in_array($p, ['28020', '28046']), // Tetuán
+            '07' => fn($p) => in_array($p, ['28004', '28010']), // Chamberí
+            '08' => fn($p) => in_array($p, ['28035', '28039', '28048']), // Fuencarral - El Pardo
+            '09' => fn($p) => in_array($p, ['28008', '28040', '28023']), // Moncloa - Aravaca
+            '10' => fn($p) => in_array($p, ['28024', '28041', '28047']), // Latina
+            '11' => fn($p) => in_array($p, ['28025', '28044']), // Carabanchel
+            '12' => fn($p) => in_array($p, ['28026']), // Usera
+            '13' => fn($p) => in_array($p, ['28018', '28031']), // Puente de Vallecas
+            '14' => fn($p) => in_array($p, ['28030', '28043']), // Moratalaz
+            '15' => fn($p) => in_array($p, ['28022', '28027']), // Ciudad Lineal
+            '16' => fn($p) => in_array($p, ['28050', '28042']), // Hortaleza
+            '17' => fn($p) => in_array($p, ['28021', '28031']), // Villaverde
+            '18' => fn($p) => in_array($p, ['28031']), // Villa de Vallecas
+            '19' => fn($p) => in_array($p, ['28017']), // Vicálvaro
+            '20' => fn($p) => in_array($p, ['28022', '28032']), // San Blas - Canillejas
+            '21' => fn($p) => in_array($p, ['28042']), // Barajas
+        ];
+
+        $matcher = $rangos[$distrito->codigo] ?? fn($p) => true;
+        return $matcher($postal);
+    }
 }
