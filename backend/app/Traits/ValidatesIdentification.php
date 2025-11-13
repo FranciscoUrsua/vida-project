@@ -15,17 +15,22 @@ trait ValidatesIdentification
     {
         static::saving(function (Model $model) {
             if ($model->identificacion_desconocida) {
-                $model->identificacion_validada = false; // Skip validación, pero marca como no validada
+                $model->identificacion_validada = false;
                 return;
             }
 
-            if (!$model->numero_id || !$model->tipo_documento) {
+            // Flexible: Chequea tipo_documento o tipo_id
+            $tipoCampo = property_exists($model, 'tipo_documento') ? 'tipo_documento' : (property_exists($model, 'tipo_id') ? 'tipo_id' : null);
+            $numeroCampo = 'numero_id'; // Consistente
+
+            if (!$tipoCampo || !$model->$numeroCampo || !$model->$tipoCampo) {
+                Log::warning('Campos ID obligatorios faltantes en ' . $model->getTable() . ': tipo=' . ($model->$tipoCampo ?? 'null') . ', numero=' . ($model->$numeroCampo ?? 'null'));
                 throw ValidationException::withMessages([
                     'numero_id' => 'Número de ID y tipo son obligatorios.',
                 ]);
             }
 
-            $validation = $model->validateIdentification($model->tipo_documento, $model->numero_id);
+            $validation = $model->validateIdentification($model->$tipoCampo, $model->$numeroCampo);
 
             if (!$validation['success']) {
                 Log::warning('ID inválido bloqueado: ' . $validation['error'] . ' para ' . $model->getTable() . ' ID ' . ($model->id ?? 'new'));
@@ -36,7 +41,7 @@ trait ValidatesIdentification
 
             $model->identificacion_validada = true;
 
-            // Hash para RGPD en historial (manejo robusto de string/null)
+            // Hash para RGPD en historial (manejo robusto)
             $historialRaw = $model->identificacion_historial;
             $historial = [];
             if (is_string($historialRaw)) {
@@ -44,9 +49,9 @@ trait ValidatesIdentification
                 $historial = is_array($decoded) ? $decoded : [];
             } elseif (is_array($historialRaw)) {
                 $historial = $historialRaw;
-            } // Null → []
+            }
 
-            $historial[now()->format('Y-m')] = Hash::make($model->numero_id);
+            $historial[now()->format('Y-m')] = Hash::make($model->$numeroCampo);
             $model->identificacion_historial = $historial;
         });
     }
@@ -63,12 +68,15 @@ trait ValidatesIdentification
 
         switch ($tipo) {
             case 'dni':
+            case 'DNI':
                 return $this->validateDni($numero);
 
             case 'nie':
+            case 'NIE':
                 return $this->validateNie($numero);
 
             case 'pasaporte':
+            case 'Pasaporte':
                 return $this->validatePasaporte($numero);
 
             case 'otro':
@@ -105,7 +113,7 @@ trait ValidatesIdentification
         }
 
         $numero = str_replace(['X', 'Y', 'Z'], [0, 1, 2], $nie);
-        $numero = substr($numero, 0, -1); // Sin letra final
+        $numero = substr($numero, 0, -1);
         $letra = substr($nie, -1);
 
         $checksum = (int) $numero % 23;
