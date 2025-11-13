@@ -19,14 +19,17 @@ trait ValidatesIdentification
                 return;
             }
 
-            if (!$model->tipo_documento || !$model->$numero_id) {
-                Log::warning('Campos ID obligatorios faltantes en ' . $model->getTable() . ': tipo=' . ($model->$tipoCampo ?? 'null') . ', numero=' . ($model->$numeroCampo ?? 'null'));
+            $tipo = $model->tipo_documento;
+            $numero = $model->numero_id;
+
+            if (!$tipo || !$numero) {
+                Log::warning('Campos ID obligatorios faltantes en ' . $model->getTable() . ': tipo=' . ($tipo ?? 'null') . ', numero=' . ($numero ?? 'null'));
                 throw ValidationException::withMessages([
                     'numero_id' => 'Número de ID y tipo son obligatorios.',
                 ]);
             }
 
-            $validation = $model->validateIdentification($model->$tipo_documento, $model->$numero_id);
+            $validation = $model->validateIdentification($tipo, $numero);
 
             if (!$validation['success']) {
                 Log::warning('ID inválido bloqueado: ' . $validation['error'] . ' para ' . $model->getTable() . ' ID ' . ($model->id ?? 'new'));
