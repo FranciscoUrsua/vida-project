@@ -2,70 +2,81 @@
 
 namespace App\Traits;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\ValidationException;
 use App\Services\DomicilioValidatorService;
-use Illuminate\Support\Facades\Log;
 
 trait HasValidatableAddress
 {
-    /**
-     * Valida y geocodea la dirección, guarda coords si válido.
-     *
-     * @param array $data Campos de dirección
-     * @return bool true si válido, false si error (setea flags)
-     */
-    public function validateAndGeocodeAddress(array $data): bool
+    protected static function bootHasValidatableAddress()
     {
-        $domicilioData = [
-            'street_type' => $data['street_type'] ?? '',
-            'street_name' => $data['street_name'] ?? '',
-            'street_number' => $data['street_number'] ?? '',
-            'additional_info' => $data['additional_info'] ?? '',
-            'postal_code' => $data['postal_code'] ?? '',
-            'city' => $data['city'] ?? 'Madrid',
+        static::saving(function (Model $model) {
+            $addressArray = $model->buildAddressArray();
+            if (!empty($addressArray)) {
+                try {
+                    $service = app(DomicilioValidatorService::class);
+                    $validated = $service->validate($addressArray);
+                    $model->lat = $validated['latitude'] ?? null;
+                    $model->lng = $validated['longitude'] ?? null;
+                    $model->direccion_validada = true;
+                    if (isset($validated['formatted_address'])) {
+                        $model->formatted_address = $validated['formatted_address'];
+                    }
+                } catch (ValidationException $e) {
+                    $model->direccion_validada = false;
+                    $model->lat = null;
+                    $model->lng = null;
+                    $model->formatted_address = null;
+                    throw $e;
+                }
+            } else {
+                $model->direccion_validada = false;
+                $model->lat = null;
+                $model->lng = null;
+                $model->formatted_address = null;
+            }
+        });
+    }
+
+    // buildAddressArray y buildAddressArrayFromComponents permanecen iguales (model-specific)
+    protected function buildAddressArray(): array
+    {
+        return [
+            'street_type' => $this->street_type,
+            'street_name' => $this->street_name,
+            'street_number' => $this->street_number,
+            'additional_info' => $this->additional_info,
+            'postal_code' => $this->postal_code,
+            'distrito_id' => $this->distrito_id,
+            'city' => $this->city ?? 'Madrid',
+            'country' => $this->country ?? 'España',
         ];
+    }
 
-        Log::info('Validando domicilio en model', $domicilioData);
+    public function buildAddressArrayFromComponents(array $components): array
+    {
+        return [
+            'street_type' => $components['street_type'] ?? null,
+            'street_name' => $components['street_name'] ?? null,
+            'street_number' => $components['street_number'] ?? null,
+            'additional_info' => $components['additional_info'] ?? null,
+            'postal_code' => $components['postal_code'] ?? null,
+            'distrito_id' => $components['distrito_id'] ?? null,
+            'city' => $components['city'] ?? 'Madrid',
+            'country' => $components['country'] ?? 'España',
+        ];
+    }
 
-        if (empty($domicilioData['street_name']) || empty($domicilioData['street_number'])) {
-            $this->direccion_validada = false;
-            $this->formatted_address = null;
-            $this->lat = null;
-            $this->lng = null;
-            Log::info('Domicilio saltado - campos insuficientes');
-            return false;
-        }
-
-        $validatorService = new DomicilioValidatorService();
-        $result = $validatorService->validateDomicilio($domicilioData);
-
-        Log::info('Resultado validación domicilio', $result);
-
-        if (!$result['valid']) {
-            $this->direccion_validada = false;
-            $this->formatted_address = null;
-            $this->lat = null;
-            $this->lng = null;
-            Log::error('Domicilio inválido', ['error' => $result['error']]);
-            return false;
-        }
-
-        // Guarda en el model
-        $this->direccion_validada = true;
-        $this->formatted_address = $result['formatted_address'] ?? implode(', ', array_filter([
-            $domicilioData['street_type'] . ' ' . $domicilioData['street_name'],
-            $domicilioData['street_number'],
-            $domicilioData['additional_info'],
-            $domicilioData['postal_code'] . ' ' . $domicilioData['city']
-        ]));
-        $this->lat = $result['coords']['lat'] ?? null;
-        $this->lng = $result['coords']['lng'] ?? null;
-
-        Log::info('Domicilio georeferenciado', [
-            'lat' => $this->lat,
-            'lng' => $this->lng,
-            'formatted_address' => $this->formatted_address,
+    // Método público para validación manual (e.g., desde controlador)
+    public function validateAddressManually(): void
+    {
+        $service = app(DomicilioValidatorService::class);
+        $validated = $service->validate($this->buildAddressArray());
+        $this->update([
+            'lat' => $validated['latitude'],
+            'lng' => $validated['longitude'],
+            'direccion_validada' => true,
+            'formatted_address' => $validated['formatted_address'] ?? null,
         ]);
-
-        return true;
     }
 }

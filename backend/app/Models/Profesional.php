@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Traits\ValidatesIdentification;
+
 class Profesional extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, ValidatesIdentification;
 
     // FIX: Especifica el nombre de tabla en plural español
     protected $table = 'profesionales';
@@ -20,6 +22,12 @@ class Profesional extends Model
     protected $casts = [
         'titulacion_id' => 'integer',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::bootValidatesIdentification(); // Llama explícito si boot custom
+    }
 
     public function titulacion()
     {
@@ -46,4 +54,5 @@ class Profesional extends Model
             'fecha_alta' => $fechaAlta,
         ]);
     }
+
 }

@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable;
 use App\Traits\HasValidatableAddress;
+use App\Traits\ValidatesIdentification;
 
 class SocialUser extends Model implements AuditableContract
 {
-    use HasFactory, Auditable;
+    use HasFactory, SoftDeletes, Auditable, HasValidatableAddress, ValidatesIdentification;
 
     protected $table = 'social_users';
 
@@ -72,6 +73,12 @@ class SocialUser extends Model implements AuditableContract
         'lat', 'lng',
         'formatted_address',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::bootValidatesIdentification(); // Llama explícito si boot custom
+    }
 
     // Relaciones
     public function centro()
