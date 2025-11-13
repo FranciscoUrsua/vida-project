@@ -36,8 +36,16 @@ trait ValidatesIdentification
 
             $model->identificacion_validada = true;
 
-            // Hash para RGPD en historial
-            $historial = $model->identificacion_historial ?? [];
+            // Hash para RGPD en historial (manejo robusto de string/null)
+            $historialRaw = $model->identificacion_historial;
+            $historial = [];
+            if (is_string($historialRaw)) {
+                $decoded = json_decode($historialRaw, true);
+                $historial = is_array($decoded) ? $decoded : [];
+            } elseif (is_array($historialRaw)) {
+                $historial = $historialRaw;
+            } // Null → []
+
             $historial[now()->format('Y-m')] = Hash::make($model->numero_id);
             $model->identificacion_historial = $historial;
         });
