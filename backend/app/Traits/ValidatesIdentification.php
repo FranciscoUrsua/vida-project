@@ -19,18 +19,14 @@ trait ValidatesIdentification
                 return;
             }
 
-            // Flexible: Chequea tipo_documento o tipo_id
-            $tipoCampo = property_exists($model, 'tipo_documento') ? 'tipo_documento' : (property_exists($model, 'tipo_id') ? 'tipo_id' : null);
-            $numeroCampo = 'numero_id'; // Consistente
-
-            if (!$tipoCampo || !$model->$numeroCampo || !$model->$tipoCampo) {
+            if (!$model->tipo_documento || !$model->$numero_id) {
                 Log::warning('Campos ID obligatorios faltantes en ' . $model->getTable() . ': tipo=' . ($model->$tipoCampo ?? 'null') . ', numero=' . ($model->$numeroCampo ?? 'null'));
                 throw ValidationException::withMessages([
                     'numero_id' => 'Número de ID y tipo son obligatorios.',
                 ]);
             }
 
-            $validation = $model->validateIdentification($model->$tipoCampo, $model->$numeroCampo);
+            $validation = $model->validateIdentification($model->$tipo_documento, $model->$numero_id);
 
             if (!$validation['success']) {
                 Log::warning('ID inválido bloqueado: ' . $validation['error'] . ' para ' . $model->getTable() . ' ID ' . ($model->id ?? 'new'));
@@ -51,7 +47,7 @@ trait ValidatesIdentification
                 $historial = $historialRaw;
             }
 
-            $historial[now()->format('Y-m')] = Hash::make($model->$numeroCampo);
+            $historial[now()->format('Y-m')] = Hash::make($model->$numero_id);
             $model->identificacion_historial = $historial;
         });
     }
