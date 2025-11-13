@@ -13,11 +13,12 @@ return new class extends Migration
             $table->string('nombre', 100);
             $table->string('apellido1', 100);
             $table->string('apellido2', 100)->nullable();
-            $table->string('tipo_id', 10);
+            $table->enum('tipo_documento', ['DNI', 'NIE', 'PASAPORTE', 'OTRO'])->nullable(); // CAMBIADO: tipo_documento enum
             $table->string('numero_id', 20)->unique();
             $table->string('email', 255)->unique();
             $table->string('telefono', 20)->nullable();
             $table->enum('sexo', ['M', 'F', 'D'])->nullable();
+            $table->boolean('identificacion_validada')->default(false); // Flag de validación
             $table->foreignId('titulacion_id')->nullable()->constrained('titulaciones')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
