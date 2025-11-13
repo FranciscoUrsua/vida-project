@@ -44,6 +44,7 @@ return new class extends Migration
             $table->decimal('lat', 10, 8)->nullable();
             $table->decimal('lng', 11, 8)->nullable();
             $table->boolean('direccion_validada')->default(false);
+            $table->boolean('identificacion_validada')->default(false); // AGREGADO
             $table->string('formatted_address')->nullable();
             $table->timestamps();
             $table->softDeletes();
