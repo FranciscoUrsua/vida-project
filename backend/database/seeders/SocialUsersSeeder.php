@@ -85,7 +85,7 @@ class SocialUsersSeeder extends Seeder
                 'requiere_permiso_especial' => true,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'nie',
-                'numero_id' => 'Y1234553T', // VÁLIDO NIE (mod=19, 'T')
+                'numero_id' => 'X8241245T', // VÁLIDO NIE (mod=19, 'T')
                 'lat' => 40.4319,
                 'lng' => -3.7003,
                 'direccion_validada' => false,
