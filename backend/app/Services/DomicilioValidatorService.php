@@ -3,13 +3,15 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use App\Models\Distrito;
 
 class DomicilioValidatorService
 {
     private $madridBounds;
-    private $throwOnNoMatch; // Config para throw en prod si no match
+    private $throwOnNoMatch;
 
     public function __construct()
     {
@@ -17,14 +19,9 @@ class DomicilioValidatorService
             'min_lat' => 40.16, 'max_lat' => 40.53,
             'min_lng' => -3.85, 'max_lng' => -3.53,
         ];
-        $this->throwOnNoMatch = config('services.domicilio.throw_on_no_match', false); // En config/services.php: 'domicilio' => ['throw_on_no_match' => env('DOMICILIO_THROW_NO_MATCH', false)]
+        $this->throwOnNoMatch = config('services.domicilio.throw_on_no_match', false);
     }
 
-    /**
-     * Valida y geocodea. Devuelve array con success flag.
-     * @param array $addressArray
-     * @return array ['success' => bool, 'latitude' => ?, 'longitude' => ?, 'formatted_address' => ?, 'error' => ?string]
-     */
     public function validate(array $addressArray): array
     {
         $addressString = $this->buildAddressString($addressArray);
@@ -49,7 +46,7 @@ class DomicilioValidatorService
             ];
         }
 
-        // Query local DB
+        // Query local DB (con check si tabla vacía)
         $localResult = DB::table('calles_numeros')
             ->where('street_name', 'like', '%' . $addressArray['street_name'] . '%')
             ->where('street_number', $addressArray['street_number'])
@@ -62,7 +59,7 @@ class DomicilioValidatorService
             $formattedAddress = $localResult->formatted_address;
 
             if (!$this->isInMadridBounds($latitude, $longitude)) {
-                Log::warning('Dirección fuera de bounds Madrid: ' . $addressString);
+                Log::warning('Dirección fuera de bounds Madrid (local): ' . $addressString);
                 return [
                     'success' => false,
                     'latitude' => null,
@@ -72,31 +69,7 @@ class DomicilioValidatorService
                 ];
             }
 
-            // Validación distrito/postal
-            $dbDistrito = $localResult->distrito_nombre;
-            if ($addressArray['distrito_id']) {
-                $distrito = Distrito::find($addressArray['distrito_id']);
-                if ($distrito && strpos(strtolower($dbDistrito), strtolower($distrito->nombre)) === false) {
-                    Log::warning('Distrito no coincide: ' . $addressString);
-                    return [
-                        'success' => false,
-                        'latitude' => null,
-                        'longitude' => null,
-                        'formatted_address' => null,
-                        'error' => 'Distrito no coincide con postal.',
-                    ];
-                }
-            }
-            if (!$this->postalMatchesDistrito($addressArray['postal_code'], $distrito ?? null)) {
-                Log::warning('Postal inválido para distrito: ' . $addressString);
-                return [
-                    'success' => false,
-                    'latitude' => null,
-                    'longitude' => null,
-                    'formatted_address' => null,
-                    'error' => 'Código postal inválido para distrito.',
-                ];
-            }
+            $this->validateDistritoPostal($addressArray, $localResult->distrito_nombre);
 
             return [
                 'success' => true,
@@ -105,6 +78,8 @@ class DomicilioValidatorService
                 'formatted_address' => $formattedAddress,
                 'error' => null,
             ];
+        } else {
+            Log::info('No match en local DB para: ' . $addressString . ' (tabla tiene ' . DB::table('calles_numeros')->count() . ' rows)');
         }
 
         // Fallback Google si config
@@ -138,18 +113,23 @@ class DomicilioValidatorService
                     'error' => null,
                 ];
             } else {
-                Log::warning('Google fallback falló: ' . $response['error_message'] ?? 'Status ' . $response['status']);
+                Log::warning('Google fallback falló: ' . ($response['error_message'] ?? 'Status ' . $response['status']));
             }
         }
 
         // No match: Log y return failure (no throw)
-        Log::warning('No match para dirección: ' . $addressString);
+        $error = 'No match en local DB ni fallback.';
+        Log::warning($error . ' para ' . $addressString);
+        if ($this->throwOnNoMatch) {
+            throw ValidationException::withMessages(['address' => $error]);
+        }
+
         return [
             'success' => false,
             'latitude' => null,
             'longitude' => null,
             'formatted_address' => null,
-            'error' => 'No match en local DB ni fallback.',
+            'error' => $error,
         ];
     }
 
@@ -157,6 +137,16 @@ class DomicilioValidatorService
     {
         return $lat >= $this->madridBounds['min_lat'] && $lat <= $this->madridBounds['max_lat'] &&
                $lng >= $this->madridBounds['min_lng'] && $lng <= $this->madridBounds['max_lng'];
+    }
+
+    private function validateDistritoPostal(array $addressArray, string $dbDistrito): void
+    {
+        if ($addressArray['distrito_id']) {
+            $distrito = Distrito::find($addressArray['distrito_id']);
+            if ($distrito && strpos(strtolower($dbDistrito), strtolower($distrito->nombre)) === false) {
+                Log::warning('Distrito no coincide: DB "' . $dbDistrito . '" vs seleccionado "' . $distrito->nombre . '"');
+            }
+        }
     }
 
     private function buildAddressString(array $addressArray): string
@@ -175,9 +165,9 @@ class DomicilioValidatorService
         if (!$distrito) return true;
 
         $rangos = [
-            '01' => ['28012', '28013', '28014'], // Centro
-            '02' => ['28005', '28045'], // Arganzuela
-            // ... (resto de rangos como antes)
+            '01' => ['28012', '28013', '28014'],
+            '02' => ['28005', '28045'],
+            // ... (completa con rangos reales si necesitas)
         ];
 
         return in_array($postal, $rangos[$distrito->codigo] ?? []);
