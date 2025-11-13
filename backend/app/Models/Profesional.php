@@ -16,12 +16,24 @@ class Profesional extends Model
     protected $table = 'profesionales';
 
     protected $fillable = [
-        'nombre', 'apellido1', 'apellido2', 'tipo_id', 'numero_id', 'email', 'telefono', 'titulacion_id'
+        'nombre',
+        'apellido1',
+        'apellido2',
+        'tipo_documento',
+        'numero_id',
+        'email',
+        'telefono',
+        'sexo',
+        'identificacion_validada',
+        'identificacion_historial',
+        'titulacion_id',
     ];
 
     protected $casts = [
         'titulacion_id' => 'integer',
         'sexo' => 'string',
+        'identificacion_validada' => 'boolean',
+        'identificacion_historial' => 'array',
     ];
 
     protected static function boot()

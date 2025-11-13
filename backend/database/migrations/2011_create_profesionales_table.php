@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('telefono', 20)->nullable();
             $table->enum('sexo', ['M', 'F', 'D'])->nullable();
             $table->boolean('identificacion_validada')->default(false); // Flag de validación
+            $table->json('identificacion_historial')->nullable();
             $table->foreignId('titulacion_id')->nullable()->constrained('titulaciones')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
