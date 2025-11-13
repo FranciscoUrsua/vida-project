@@ -34,7 +34,7 @@ class SocialUsersSeeder extends Seeder
                 'lugar_empadronamiento' => 'Madrid, España',
                 // Georeferenciación split
                 'street_type' => 'Calle',
-                'street_name' => 'Piedra', // Limpiado: "de la Piedra" → "Piedra"
+                'street_name' => 'Piedra', // Limpiado
                 'street_number' => '5',
                 'additional_info' => '2ºA',
                 'postal_code' => '28005',
@@ -49,7 +49,7 @@ class SocialUsersSeeder extends Seeder
                 'requiere_permiso_especial' => false,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'dni',
-                'numero_id' => '12345678A',
+                'numero_id' => '12345678Z', // VÁLIDO DNI (checksum Z)
                 'lat' => 40.4025,
                 'lng' => -3.6914,
                 'direccion_validada' => true,
@@ -85,7 +85,7 @@ class SocialUsersSeeder extends Seeder
                 'requiere_permiso_especial' => true,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'nie',
-                'numero_id' => 'Y1234567',
+                'numero_id' => 'Y1234567T', // VÁLIDO NIE (checksum T)
                 'lat' => 40.4319,
                 'lng' => -3.7003,
                 'direccion_validada' => false,
@@ -106,7 +106,7 @@ class SocialUsersSeeder extends Seeder
                 'lugar_empadronamiento' => 'Madrid, España',
                 // Georeferenciación split
                 'street_type' => 'Calle',
-                'street_name' => 'Remonta', // Limpiado: "de la Remonta" → "Remonta"
+                'street_name' => 'Remonta', // Limpiado
                 'street_number' => '8',
                 'additional_info' => 'Esc. 1',
                 'postal_code' => '28039',
@@ -121,7 +121,7 @@ class SocialUsersSeeder extends Seeder
                 'requiere_permiso_especial' => false,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'pasaporte',
-                'numero_id' => 'AB123456',
+                'numero_id' => 'ABC123456', // VÁLIDO Pasaporte (3 letras + 6 dígitos)
                 'lat' => 40.4890,
                 'lng' => -3.6906,
                 'direccion_validada' => true,
@@ -157,7 +157,7 @@ class SocialUsersSeeder extends Seeder
                 'requiere_permiso_especial' => false,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'dni',
-                'numero_id' => '44556677B',
+                'numero_id' => '87654321R', // VÁLIDO DNI (checksum R para 87654321 % 23 = 17)
                 'lat' => 40.3856,
                 'lng' => -3.7471,
                 'direccion_validada' => false,
@@ -191,9 +191,9 @@ class SocialUsersSeeder extends Seeder
                 'profesional_referencia_id' => $profIds[4] ?? 5, // Laura Gómez
                 'tiene_representante_legal' => false,
                 'requiere_permiso_especial' => true,
-                'identificacion_desconocida' => true, // Caso especial
+                'identificacion_desconocida' => true, // Skip validación ID
                 'tipo_documento' => 'dni',
-                'numero_id' => '99887766C',
+                'numero_id' => null, // Null si desconocida
                 'lat' => null,
                 'lng' => null,
                 'direccion_validada' => false,
