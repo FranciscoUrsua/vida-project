@@ -29,7 +29,7 @@ class ProfesionalesSeeder extends Seeder
                 'apellido1' => 'Martínez',
                 'apellido2' => 'Rodríguez',
                 'tipo_documento' => 'DNI',
-                'numero_id' => '87654321R', // Válido
+                'numero_id' => '27960822K', // Válido
                 'email' => 'carlos.martinez@madrid.es',
                 'telefono' => '+34 912 345 679',
                 'sexo' => 'M',
@@ -40,7 +40,7 @@ class ProfesionalesSeeder extends Seeder
                 'apellido1' => 'Pérez',
                 'apellido2' => 'Sánchez',
                 'tipo_documento' => 'NIE',
-                'numero_id' => 'Y1234567T', // Válido
+                'numero_id' => 'Y1439277C', // Válido
                 'email' => 'maria.perez@madrid.es',
                 'telefono' => '+34 912 345 680',
                 'sexo' => 'F',
@@ -51,7 +51,7 @@ class ProfesionalesSeeder extends Seeder
                 'apellido1' => 'López',
                 'apellido2' => null,
                 'tipo_documento' => 'DNI',
-                'numero_id' => '44556677L', // Válido
+                'numero_id' => '69818411W', // Válido
                 'email' => 'david.lopez@madrid.es',
                 'telefono' => '+34 912 345 681',
                 'sexo' => 'M',
