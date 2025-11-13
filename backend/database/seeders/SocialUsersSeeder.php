@@ -7,6 +7,7 @@ use App\Models\SocialUser;
 use App\Models\Region;
 use App\Models\Centro;
 use App\Models\Profesional;
+use App\Models\Distrito; // Para distrito_id
 use Illuminate\Support\Facades\Hash; // Para DNI hash si usas en modelo
 
 class SocialUsersSeeder extends Seeder
@@ -16,6 +17,7 @@ class SocialUsersSeeder extends Seeder
         $madridId = Region::where('code', 'MD')->firstOrFail()->id;
         $centroIds = Centro::pluck('id')->toArray();
         $profIds = Profesional::pluck('id')->toArray();
+        $distritoIds = Distrito::pluck('id', 'codigo')->toArray(); // Map código a ID
 
         $socialUsers = [
             [
@@ -24,13 +26,21 @@ class SocialUsersSeeder extends Seeder
                 'last_name2' => 'Hernández',
                 'situacion_administrativa' => 'activa',
                 'numero_tarjeta_sanitaria' => '1234567890123',
-                'pais_origen_id' => 1, // España (asumiendo ID de ES)
+                'pais_origen_id' => 1, // España
                 'region_id' => $madridId,
                 'fecha_nacimiento' => '1985-03-15',
                 'sexo' => 'F',
                 'estado_civil' => 'divorced',
                 'lugar_empadronamiento' => 'Madrid, España',
+                // Georeferenciación split
+                'street_type' => 'Calle',
+                'street_name' => 'Piedra', // Limpiado: "de la Piedra" → "Piedra"
+                'street_number' => '5',
+                'additional_info' => '2ºA',
+                'postal_code' => '28005',
+                'distrito_id' => $distritoIds['02'] ?? 2, // Arganzuela
                 'city' => 'Madrid',
+                'country' => 'España',
                 'correo' => 'maria.gonzalez@example.com',
                 'telefono' => '+34 699 123 456',
                 'centro_adscripcion_id' => $centroIds[0] ?? 1, // Arganzuela
@@ -39,11 +49,11 @@ class SocialUsersSeeder extends Seeder
                 'requiere_permiso_especial' => false,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'dni',
-                'numero_id' => '12345678A', // Hash en modelo para privacidad
-                'lat' => 40.4168,
-                'lng' => -3.7038,
+                'numero_id' => '12345678A',
+                'lat' => 40.4025,
+                'lng' => -3.6914,
                 'direccion_validada' => true,
-                'formatted_address' => 'Calle Ficticia 123, Madrid',
+                'formatted_address' => 'Calle Piedra 5, 28005 Madrid',
                 'identificacion_historial' => json_encode(['2024-01' => 'DNI verificado']),
             ],
             [
@@ -52,26 +62,34 @@ class SocialUsersSeeder extends Seeder
                 'last_name2' => null,
                 'situacion_administrativa' => 'activa',
                 'numero_tarjeta_sanitaria' => '9876543210987',
-                'pais_origen_id' => 157, // México (ID aproximado de lista ISO)
+                'pais_origen_id' => 157, // México
                 'region_id' => $madridId,
                 'fecha_nacimiento' => '1990-07-22',
                 'sexo' => 'M',
                 'estado_civil' => 'single',
                 'lugar_empadronamiento' => 'Madrid, España',
+                // Georeferenciación split
+                'street_type' => 'Calle',
+                'street_name' => 'Almagro', // Sin "de "
+                'street_number' => '3',
+                'additional_info' => null,
+                'postal_code' => '28010',
+                'distrito_id' => $distritoIds['07'] ?? 7, // Chamberí
                 'city' => 'Madrid',
+                'country' => 'España',
                 'correo' => 'juan.lopez@example.com',
                 'telefono' => '+34 699 789 012',
                 'centro_adscripcion_id' => $centroIds[1] ?? 2, // Chamberí
                 'profesional_referencia_id' => $profIds[1] ?? 2, // Carlos Martínez
                 'tiene_representante_legal' => false,
-                'requiere_permiso_especial' => true, // Ej: menor
+                'requiere_permiso_especial' => true,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'nie',
                 'numero_id' => 'Y1234567',
                 'lat' => 40.4319,
                 'lng' => -3.7003,
                 'direccion_validada' => false,
-                'formatted_address' => 'Av. Ficticia 456, Madrid',
+                'formatted_address' => 'Calle Almagro 3, 28010 Madrid',
                 'identificacion_historial' => json_encode(['2025-01' => 'NIE renovado']),
             ],
             [
@@ -86,20 +104,28 @@ class SocialUsersSeeder extends Seeder
                 'sexo' => 'F',
                 'estado_civil' => 'widowed',
                 'lugar_empadronamiento' => 'Madrid, España',
+                // Georeferenciación split
+                'street_type' => 'Calle',
+                'street_name' => 'Remonta', // Limpiado: "de la Remonta" → "Remonta"
+                'street_number' => '8',
+                'additional_info' => 'Esc. 1',
+                'postal_code' => '28039',
+                'distrito_id' => $distritoIds['08'] ?? 8, // Fuencarral - El Pardo
                 'city' => 'Madrid',
+                'country' => 'España',
                 'correo' => 'elena.martin@example.com',
                 'telefono' => '+34 699 345 678',
                 'centro_adscripcion_id' => $centroIds[2] ?? 3, // Fuencarral
                 'profesional_referencia_id' => $profIds[2] ?? 3, // María Pérez
                 'tiene_representante_legal' => true,
                 'requiere_permiso_especial' => false,
-                'identificacion_desconocida' => true,
+                'identificacion_desconocida' => false,
                 'tipo_documento' => 'pasaporte',
                 'numero_id' => 'AB123456',
                 'lat' => 40.4890,
                 'lng' => -3.6906,
                 'direccion_validada' => true,
-                'formatted_address' => 'Calle Mayor 789, Madrid',
+                'formatted_address' => 'Calle Remonta 8, 28039 Madrid',
                 'identificacion_historial' => json_encode(['2024-06' => 'Pasaporte expirado']),
             ],
             [
@@ -108,13 +134,21 @@ class SocialUsersSeeder extends Seeder
                 'last_name2' => 'Ortega',
                 'situacion_administrativa' => 'inactiva',
                 'numero_tarjeta_sanitaria' => '7891234567891',
-                'pais_origen_id' => 170, // Perú (ID aproximado)
+                'pais_origen_id' => 170, // Perú
                 'region_id' => $madridId,
                 'fecha_nacimiento' => '2000-05-05',
                 'sexo' => 'M',
                 'estado_civil' => 'single',
                 'lugar_empadronamiento' => 'Madrid, España',
+                // Georeferenciación split
+                'street_type' => 'Calle',
+                'street_name' => 'Poveda', // Sin "de la "
+                'street_number' => '2',
+                'additional_info' => null,
+                'postal_code' => '28047',
+                'distrito_id' => $distritoIds['10'] ?? 10, // Latina
                 'city' => 'Madrid',
+                'country' => 'España',
                 'correo' => null,
                 'telefono' => '+34 699 901 234',
                 'centro_adscripcion_id' => $centroIds[3] ?? 4, // Latina
@@ -127,7 +161,7 @@ class SocialUsersSeeder extends Seeder
                 'lat' => 40.3856,
                 'lng' => -3.7471,
                 'direccion_validada' => false,
-                'formatted_address' => 'Plaza Ficticia 1, Madrid',
+                'formatted_address' => 'Calle Poveda 2, 28047 Madrid',
                 'identificacion_historial' => json_encode([]),
             ],
             [
@@ -142,20 +176,28 @@ class SocialUsersSeeder extends Seeder
                 'sexo' => 'F',
                 'estado_civil' => 'married',
                 'lugar_empadronamiento' => 'Madrid, España',
+                // Georeferenciación split (caso desconocido)
+                'street_type' => null,
+                'street_name' => 'dirección desconocida',
+                'street_number' => null,
+                'additional_info' => null,
+                'postal_code' => null,
+                'distrito_id' => null,
                 'city' => 'Madrid',
+                'country' => 'España',
                 'correo' => 'sofia.torres@example.com',
                 'telefono' => '+34 699 567 890',
                 'centro_adscripcion_id' => $centroIds[4] ?? 5, // Usera
                 'profesional_referencia_id' => $profIds[4] ?? 5, // Laura Gómez
                 'tiene_representante_legal' => false,
-                'requiere_permiso_especial' => true, // Dependencia
-                'identificacion_desconocida' => false,
+                'requiere_permiso_especial' => true,
+                'identificacion_desconocida' => true, // Caso especial
                 'tipo_documento' => 'dni',
                 'numero_id' => '99887766C',
-                'lat' => 40.3880,
-                'lng' => -3.7222,
-                'direccion_validada' => true,
-                'formatted_address' => 'Calle Usera 101, Madrid',
+                'lat' => null,
+                'lng' => null,
+                'direccion_validada' => false,
+                'formatted_address' => null,
                 'identificacion_historial' => json_encode(['2025-02' => 'DNI actualizado']),
             ],
         ];

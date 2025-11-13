@@ -11,16 +11,18 @@ class DatabaseSeeder extends Seeder
         $this->call([
 
             // Autenticación, acceso y permisos
+            AuditsSeeder::class,
             AuthAppUsersSeeder::class,
             CacheTablesSeeder::class,
             QueueTablesSeeder::class,
             PersonalAccessTokensSeeder::class,
-            AuditsSeeder::class,
+
 
             // Auxiliares
             CountriesSeeder::class,
             RegionsSeeder::class,
             TitulacionesSeeder::class,
+            DistritosSeeder::class,
 
             // Entidades principales
             ProfesionalesSeeder::class,
@@ -28,7 +30,7 @@ class DatabaseSeeder extends Seeder
             PrestacionesSeeder::class,
             SocialUsersSeeder::class,
             DirectoresSeeder::class,
-            
+
             // Pivot
             CentroProfesionalSeeder::class,
 
