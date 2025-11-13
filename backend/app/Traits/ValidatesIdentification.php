@@ -50,7 +50,7 @@ trait ValidatesIdentification
                 $historial = $historialRaw;
             }
 
-            $historial[now()->format('Y-m')] = Hash::make($model->$numero_id);
+            $historial[now()->format('Y-m')] = Hash::make($numero);
             $model->identificacion_historial = $historial;
         });
     }
