@@ -7,8 +7,8 @@ use App\Models\SocialUser;
 use App\Models\Region;
 use App\Models\Centro;
 use App\Models\Profesional;
-use App\Models\Distrito; // Para distrito_id
-use Illuminate\Support\Facades\Hash; // Para DNI hash si usas en modelo
+use App\Models\Distrito;
+use Illuminate\Support\Facades\Hash;
 
 class SocialUsersSeeder extends Seeder
 {
@@ -17,7 +17,7 @@ class SocialUsersSeeder extends Seeder
         $madridId = Region::where('code', 'MD')->firstOrFail()->id;
         $centroIds = Centro::pluck('id')->toArray();
         $profIds = Profesional::pluck('id')->toArray();
-        $distritoIds = Distrito::pluck('id', 'codigo')->toArray(); // Map código a ID
+        $distritoIds = Distrito::pluck('id', 'codigo')->toArray();
 
         $socialUsers = [
             [
@@ -34,7 +34,7 @@ class SocialUsersSeeder extends Seeder
                 'lugar_empadronamiento' => 'Madrid, España',
                 // Georeferenciación split
                 'street_type' => 'Calle',
-                'street_name' => 'Piedra', // Limpiado
+                'street_name' => 'Piedra',
                 'street_number' => '5',
                 'additional_info' => '2ºA',
                 'postal_code' => '28005',
@@ -43,13 +43,13 @@ class SocialUsersSeeder extends Seeder
                 'country' => 'España',
                 'correo' => 'maria.gonzalez@example.com',
                 'telefono' => '+34 699 123 456',
-                'centro_adscripcion_id' => $centroIds[0] ?? 1, // Arganzuela
-                'profesional_referencia_id' => $profIds[0] ?? 1, // Ana García
+                'centro_adscripcion_id' => $centroIds[0] ?? 1,
+                'profesional_referencia_id' => $profIds[0] ?? 1,
                 'tiene_representante_legal' => false,
                 'requiere_permiso_especial' => false,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'dni',
-                'numero_id' => '12345678Z', // VÁLIDO DNI (checksum Z)
+                'numero_id' => '12345678Z', // Válido (mod=14, 'Z')
                 'lat' => 40.4025,
                 'lng' => -3.6914,
                 'direccion_validada' => true,
@@ -70,7 +70,7 @@ class SocialUsersSeeder extends Seeder
                 'lugar_empadronamiento' => 'Madrid, España',
                 // Georeferenciación split
                 'street_type' => 'Calle',
-                'street_name' => 'Almagro', // Sin "de "
+                'street_name' => 'Almagro',
                 'street_number' => '3',
                 'additional_info' => null,
                 'postal_code' => '28010',
@@ -79,13 +79,13 @@ class SocialUsersSeeder extends Seeder
                 'country' => 'España',
                 'correo' => 'juan.lopez@example.com',
                 'telefono' => '+34 699 789 012',
-                'centro_adscripcion_id' => $centroIds[1] ?? 2, // Chamberí
-                'profesional_referencia_id' => $profIds[1] ?? 2, // Carlos Martínez
+                'centro_adscripcion_id' => $centroIds[1] ?? 2,
+                'profesional_referencia_id' => $profIds[1] ?? 2,
                 'tiene_representante_legal' => false,
                 'requiere_permiso_especial' => true,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'nie',
-                'numero_id' => 'Y1234567T', // VÁLIDO NIE (checksum T)
+                'numero_id' => 'Y1234553T', // VÁLIDO NIE (mod=19, 'T')
                 'lat' => 40.4319,
                 'lng' => -3.7003,
                 'direccion_validada' => false,
@@ -106,7 +106,7 @@ class SocialUsersSeeder extends Seeder
                 'lugar_empadronamiento' => 'Madrid, España',
                 // Georeferenciación split
                 'street_type' => 'Calle',
-                'street_name' => 'Remonta', // Limpiado
+                'street_name' => 'Remonta',
                 'street_number' => '8',
                 'additional_info' => 'Esc. 1',
                 'postal_code' => '28039',
@@ -115,13 +115,13 @@ class SocialUsersSeeder extends Seeder
                 'country' => 'España',
                 'correo' => 'elena.martin@example.com',
                 'telefono' => '+34 699 345 678',
-                'centro_adscripcion_id' => $centroIds[2] ?? 3, // Fuencarral
-                'profesional_referencia_id' => $profIds[2] ?? 3, // María Pérez
+                'centro_adscripcion_id' => $centroIds[2] ?? 3,
+                'profesional_referencia_id' => $profIds[2] ?? 3,
                 'tiene_representante_legal' => true,
                 'requiere_permiso_especial' => false,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'pasaporte',
-                'numero_id' => 'ABC123456', // VÁLIDO Pasaporte (3 letras + 6 dígitos)
+                'numero_id' => 'ABC123456', // Válido
                 'lat' => 40.4890,
                 'lng' => -3.6906,
                 'direccion_validada' => true,
@@ -142,7 +142,7 @@ class SocialUsersSeeder extends Seeder
                 'lugar_empadronamiento' => 'Madrid, España',
                 // Georeferenciación split
                 'street_type' => 'Calle',
-                'street_name' => 'Poveda', // Sin "de la "
+                'street_name' => 'Poveda',
                 'street_number' => '2',
                 'additional_info' => null,
                 'postal_code' => '28047',
@@ -151,13 +151,13 @@ class SocialUsersSeeder extends Seeder
                 'country' => 'España',
                 'correo' => null,
                 'telefono' => '+34 699 901 234',
-                'centro_adscripcion_id' => $centroIds[3] ?? 4, // Latina
-                'profesional_referencia_id' => $profIds[3] ?? 4, // David López
+                'centro_adscripcion_id' => $centroIds[3] ?? 4,
+                'profesional_referencia_id' => $profIds[3] ?? 4,
                 'tiene_representante_legal' => false,
                 'requiere_permiso_especial' => false,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'dni',
-                'numero_id' => '87654321R', // VÁLIDO DNI (checksum R para 87654321 % 23 = 17)
+                'numero_id' => '87654321R', // Válido (mod=17, 'R')
                 'lat' => 40.3856,
                 'lng' => -3.7471,
                 'direccion_validada' => false,
@@ -187,13 +187,13 @@ class SocialUsersSeeder extends Seeder
                 'country' => 'España',
                 'correo' => 'sofia.torres@example.com',
                 'telefono' => '+34 699 567 890',
-                'centro_adscripcion_id' => $centroIds[4] ?? 5, // Usera
-                'profesional_referencia_id' => $profIds[4] ?? 5, // Laura Gómez
+                'centro_adscripcion_id' => $centroIds[4] ?? 5,
+                'profesional_referencia_id' => $profIds[4] ?? 5,
                 'tiene_representante_legal' => false,
                 'requiere_permiso_especial' => true,
-                'identificacion_desconocida' => true, // Skip validación ID
+                'identificacion_desconocida' => true,
                 'tipo_documento' => 'dni',
-                'numero_id' => null, // Null si desconocida
+                'numero_id' => null,
                 'lat' => null,
                 'lng' => null,
                 'direccion_validada' => false,
