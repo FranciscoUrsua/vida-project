@@ -12,10 +12,18 @@ return new class extends Migration
             $table->id();
             $table->string('tipo', 50);
             $table->string('nombre', 255);
-            $table->text('direccion_postal');
+            // Georeferenciación split
+            $table->string('street_type')->nullable();
+            $table->string('street_name')->nullable();
+            $table->string('street_number')->nullable();
+            $table->string('additional_info')->nullable();
+            $table->string('postal_code', 5)->nullable();
+            $table->foreignId('distrito_id')->nullable()->constrained('distritos')->onDelete('set null');
+            $table->string('city')->default('Madrid');
+            $table->string('country')->default('España');
             $table->string('telefono', 20);
             $table->string('email_contacto', 255)->nullable();
-            $table->unsignedBigInteger('director_id')->nullable()->index(); // Campo preparado, constraint se agrega después
+            $table->unsignedBigInteger('director_id')->nullable()->index();
             $table->json('campos_especificos')->nullable();
             $table->decimal('lat', 10, 8)->nullable();
             $table->decimal('lng', 11, 8)->nullable();

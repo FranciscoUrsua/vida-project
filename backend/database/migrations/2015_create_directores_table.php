@@ -19,7 +19,7 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        // Romper ciclo: Agregar constraint a centros.director_id ahora que directores existe
+        // Agregar FK inversa a centros.director_id
         Schema::table('centros', function (Blueprint $table) {
             $table->foreign('director_id')->references('id')->on('directores')->onDelete('set null');
         });
@@ -27,11 +27,9 @@ return new class extends Migration
 
     public function down(): void
     {
-        // Revertir constraint primero
         Schema::table('centros', function (Blueprint $table) {
             $table->dropForeign(['director_id']);
         });
-
         Schema::dropIfExists('directores');
     }
 };

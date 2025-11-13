@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -19,10 +18,18 @@ return new class extends Migration
             $table->foreignId('pais_origen_id')->nullable()->constrained('countries')->onDelete('set null');
             $table->foreignId('region_id')->nullable()->constrained('regions')->onDelete('set null');
             $table->date('fecha_nacimiento')->nullable();
-            $table->enum('sexo', ['M', 'F', 'Other', 'Not specified'])->nullable();
+            $table->enum('sexo', ['M', 'F', 'D'])->nullable();
             $table->enum('estado_civil', ['single', 'married', 'divorced', 'widowed', 'other'])->nullable();
             $table->string('lugar_empadronamiento')->nullable();
-            $table->string('city')->nullable(); // Asumido de geolocation
+            // Georeferenciación split
+            $table->string('street_type')->nullable();
+            $table->string('street_name')->nullable();
+            $table->string('street_number')->nullable();
+            $table->string('additional_info')->nullable();
+            $table->string('postal_code', 5)->nullable();
+            $table->foreignId('distrito_id')->nullable()->constrained('distritos')->onDelete('set null');
+            $table->string('city')->default('Madrid');
+            $table->string('country')->default('España');
             $table->string('correo')->unique()->nullable();
             $table->string('telefono')->nullable();
             $table->foreignId('centro_adscripcion_id')->nullable()->constrained('centros')->onDelete('set null');

@@ -8,8 +8,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        $table = 'audits'; // Asumiendo config('audit.drivers.database.table', 'audits')
-        $morphPrefix = 'user'; // Asumiendo config
+        $table = 'audits';
+        $morphPrefix = 'user';
         Schema::create($table, function (Blueprint $table) use ($morphPrefix) {
             $table->bigIncrements('id');
             $table->string($morphPrefix . '_type')->nullable();
