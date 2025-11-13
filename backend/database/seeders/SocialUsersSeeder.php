@@ -24,7 +24,7 @@ class SocialUsersSeeder extends Seeder
                 'first_name' => 'María',
                 'last_name1' => 'González',
                 'last_name2' => 'Hernández',
-                'situacion_administrativa' => 'activa',
+                'situacion_administrativa' => 'activa', // Válido
                 'numero_tarjeta_sanitaria' => '1234567890123',
                 'pais_origen_id' => 1, // España
                 'region_id' => $madridId,
@@ -49,7 +49,7 @@ class SocialUsersSeeder extends Seeder
                 'requiere_permiso_especial' => false,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'dni',
-                'numero_id' => '12345678Z', // Válido (mod=14, 'Z')
+                'numero_id' => '12345678Z', // Válido
                 'lat' => 40.4025,
                 'lng' => -3.6914,
                 'direccion_validada' => true,
@@ -60,7 +60,7 @@ class SocialUsersSeeder extends Seeder
                 'first_name' => 'Juan',
                 'last_name1' => 'López',
                 'last_name2' => null,
-                'situacion_administrativa' => 'activa',
+                'situacion_administrativa' => 'activa', // Válido
                 'numero_tarjeta_sanitaria' => '9876543210987',
                 'pais_origen_id' => 157, // México
                 'region_id' => $madridId,
@@ -85,7 +85,7 @@ class SocialUsersSeeder extends Seeder
                 'requiere_permiso_especial' => true,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'nie',
-                'numero_id' => 'X8241245T', // VÁLIDO NIE (mod=19, 'T')
+                'numero_id' => 'X8241245T', // Válido (mod=19, 'T')
                 'lat' => 40.4319,
                 'lng' => -3.7003,
                 'direccion_validada' => false,
@@ -96,7 +96,7 @@ class SocialUsersSeeder extends Seeder
                 'first_name' => 'Elena',
                 'last_name1' => 'Martín',
                 'last_name2' => 'Vázquez',
-                'situacion_administrativa' => 'seguimiento',
+                'situacion_administrativa' => 'inactiva', // CAMBIADO: Válido (de 'seguimiento')
                 'numero_tarjeta_sanitaria' => '4567891234567',
                 'pais_origen_id' => 1, // España
                 'region_id' => $madridId,
@@ -132,7 +132,7 @@ class SocialUsersSeeder extends Seeder
                 'first_name' => 'Pedro',
                 'last_name1' => 'Ramírez',
                 'last_name2' => 'Ortega',
-                'situacion_administrativa' => 'inactiva',
+                'situacion_administrativa' => 'suspendida', // CAMBIADO: Válido
                 'numero_tarjeta_sanitaria' => '7891234567891',
                 'pais_origen_id' => 170, // Perú
                 'region_id' => $madridId,
@@ -157,7 +157,7 @@ class SocialUsersSeeder extends Seeder
                 'requiere_permiso_especial' => false,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'dni',
-                'numero_id' => '87654321R', // Válido (mod=17, 'R')
+                'numero_id' => '87654321R', // Válido
                 'lat' => 40.3856,
                 'lng' => -3.7471,
                 'direccion_validada' => false,
@@ -168,7 +168,7 @@ class SocialUsersSeeder extends Seeder
                 'first_name' => 'Sofía',
                 'last_name1' => 'Torres',
                 'last_name2' => 'Díaz',
-                'situacion_administrativa' => 'activa',
+                'situacion_administrativa' => 'activa', // Válido
                 'numero_tarjeta_sanitaria' => '3216549870123',
                 'pais_origen_id' => 1, // España
                 'region_id' => $madridId,
