@@ -28,8 +28,10 @@ return new class extends Migration
             $table->decimal('lat', 10, 8)->nullable();
             $table->decimal('lng', 11, 8)->nullable();
             $table->boolean('direccion_validada')->default(false);
+            $table->string('formatted_address')->nullable(); // AGREGADO: Para address formatted de API
             $table->timestamps();
             $table->softDeletes();
+            $table->index(['distrito_id', 'postal_code']);
         });
     }
 
