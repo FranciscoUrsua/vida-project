@@ -157,7 +157,7 @@ class SocialUsersSeeder extends Seeder
                 'requiere_permiso_especial' => false,
                 'identificacion_desconocida' => false,
                 'tipo_documento' => 'dni',
-                'numero_id' => '87654321R', // Válido
+                'numero_id' => '07680130Q', // Válido
                 'lat' => 40.3856,
                 'lng' => -3.7471,
                 'direccion_validada' => false,
@@ -193,7 +193,7 @@ class SocialUsersSeeder extends Seeder
                 'requiere_permiso_especial' => true,
                 'identificacion_desconocida' => true,
                 'tipo_documento' => 'dni',
-                'numero_id' => null,
+                'numero_id' => '21660239N',
                 'lat' => null,
                 'lng' => null,
                 'direccion_validada' => false,
