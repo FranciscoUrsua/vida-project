@@ -47,6 +47,7 @@ return [
         'url' => OwenIt\Auditing\Resolvers\UrlResolver::class,
         'user' => function () {
             return auth()->user(); // Default: simple y compatible. Soporta guards web/api.
+        }
     ],
 
     /*
