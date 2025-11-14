@@ -47,11 +47,7 @@ class DomicilioValidatorService
         }
 
         // Query local DB (con check si tabla vacía)
-        $localResult = DB::table('calles_numeros')
-            ->where('street_name', 'like', '%' . $addressArray['street_name'] . '%')
-            ->where('street_number', $addressArray['street_number'])
-            ->where('postal_code', $addressArray['postal_code'])
-            ->first();
+        $localResult = false;
 
         if ($localResult) {
             $latitude = $localResult->lat;
