@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use App\Traits\HasValidatableAddress; // Trait para validación de dirección (geocoding y bounds)
 use App\Traits\ValidatesIdentification; // Trait para validación de ID (DNI/NIE/Pasaporte + checksum)
 use App\Traits\Versionable; // Trait para versionado
@@ -136,7 +137,7 @@ class SocialUser extends Model implements Auditable
     }
 
     // Relación morph para audits
-    public function audits()
+    public function audits(): MorphMany
     {
         return $this->morphMany(\OwenIt\Auditing\Models\Audit::class, 'auditable');
     }
