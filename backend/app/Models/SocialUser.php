@@ -17,6 +17,7 @@ class SocialUser extends Model //implements Auditable
     use HasFactory, SoftDeletes, HasValidatableAddress, ValidatesIdentification, Versionable;
 
     protected $fillable = [
+        'created_by', 'updated_by',
         'first_name',
         'last_name1',
         'last_name2',
@@ -91,6 +92,16 @@ class SocialUser extends Model //implements Auditable
     protected $auditEvents = ['created', 'updated', 'deleted', 'restored', 'retrieved'];
 
     // Relaciones
+    public function creator()
+    {
+        return $this->belongsTo(AppUser::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(AppUser::class, 'updated_by');
+    }
+
     public function paisOrigen()
     {
         return $this->belongsTo(Country::class, 'pais_origen_id');
