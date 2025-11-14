@@ -9,7 +9,7 @@ use App\Traits\HasValidatableAddress; // Trait para validación de dirección (g
 use App\Traits\ValidatesIdentification; // Trait para validación de ID (DNI/NIE/Pasaporte + checksum)
 use App\Traits\Versionable; // Trait para versionado
 use OwenIt\Auditing\Contracts\Auditable;
-use OwenIt\Auditing\Auditable as AuditableTrait
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
 class SocialUser extends Model implements Auditable
 {
