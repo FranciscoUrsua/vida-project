@@ -45,9 +45,6 @@ return [
         'ip_address' => OwenIt\Auditing\Resolvers\IpAddressResolver::class,
         'user_agent' => OwenIt\Auditing\Resolvers\UserAgentResolver::class,
         'url' => OwenIt\Auditing\Resolvers\UrlResolver::class,
-        'user' => function () {
-            return auth()->user(); // Default: simple y compatible. Soporta guards web/api.
-        }
     ],
 
     /*
@@ -131,7 +128,7 @@ return [
     |
     */
 
-    'timestamps' => true,
+    'timestamps' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -197,5 +194,5 @@ return [
     |
     */
 
-    'console' => true,
+    'console' => false,
 ];
