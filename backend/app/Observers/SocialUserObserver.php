@@ -4,52 +4,47 @@ namespace App\Observers;
 
 use App\Models\SocialUser;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 
 class SocialUserObserver
 {
+    public function retrieved(SocialUser $socialUser)
+    {
+        $this->auditAccess($socialUser, 'retrieved');
+    }
+
     public function creating(SocialUser $socialUser)
     {
-        $socialUser->audits->push([
-            'event' => 'created',
-            'user_type' => get_class(Auth::user()),
-            'user_id' => Auth::id(),
-            'old_values' => null,
-            'new_values' => $socialUser->toArray(),
-        ]);
+        $this->auditAccess($socialUser, 'created');
+        $socialUser->created_by = Auth::id() ?? null;
+        $socialUser->updated_by = $socialUser->created_by;
     }
 
     public function updating(SocialUser $socialUser)
     {
-        $old = $socialUser->getOriginal();
-        $new = $socialUser->toArray();
-        $socialUser->audits->push([
-            'event' => 'updated',
-            'user_type' => get_class(Auth::user()),
-            'user_id' => Auth::id(),
-            'old_values' => $old,
-            'new_values' => $new,
-        ]);
+        $this->auditAccess($socialUser, 'updated');
+        $socialUser->updated_by = Auth::id() ?? null;
     }
 
     public function deleting(SocialUser $socialUser)
     {
-        $socialUser->audits->push([
-            'event' => 'deleted',
-            'user_type' => get_class(Auth::user()),
-            'user_id' => Auth::id(),
-            'old_values' => $socialUser->toArray(),
-            'new_values' => null,
-        ]);
+        $this->auditAccess($socialUser, 'deleted');
     }
 
-    public function restored(SocialUser $socialUser)
+    public function restoring(SocialUser $socialUser)
     {
-        $socialUser->audits->push([
-            'event' => 'restored',
-            'user_type' => get_class(Auth::user()),
-            'user_id' => Auth::id(),
-            'old_values' => null,
-            'new_values' => $socialUser->toArray(),
-        ]);
+        $this->auditAccess($socialUser, 'restored');
+    }
+
+    // Lógica privada para audit + motivo
+    private function auditAccess(SocialUser $socialUser, string $event)
+    {
+        // Trigger manual de audit si no es automático (para retrieved)
+        if ($event === 'retrieved') {
+            $socialUser->audit('retrieved', $socialUser->getOriginal());
+        }
+
+        // Chequea si acceso no-asignado (ajusta lógica a tu campo 'asignado_a' o similar en SocialUser)
+
     }
 }

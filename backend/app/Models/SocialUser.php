@@ -9,10 +9,11 @@ use App\Traits\HasValidatableAddress; // Trait para validación de dirección (g
 use App\Traits\ValidatesIdentification; // Trait para validación de ID (DNI/NIE/Pasaporte + checksum)
 use App\Traits\Versionable; // Trait para versionado
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait
 
 class SocialUser extends Model implements Auditable
 {
-    use HasFactory, SoftDeletes, HasValidatableAddress, ValidatesIdentification, Versionable, \OwenIt\Auditing\Auditable; // Traits activan validaciones en saving
+    use HasFactory, SoftDeletes, HasValidatableAddress, ValidatesIdentification, Versionable, AuditableTrait;
 
     protected $fillable = [
         'first_name',
@@ -85,12 +86,8 @@ class SocialUser extends Model implements Auditable
 
     protected $auditExclude = ['identificacion_historial'];
 
-    protected $auditEvents = [
-        'created',
-        'updated',
-        'deleted',
-        'restored',
-    ];
+    // Audita TODO: CRUD + retrieved (lecturas)
+    protected $auditEvents = ['created', 'updated', 'deleted', 'restored', 'retrieved'];
 
     // Relaciones
     public function paisOrigen()
@@ -126,6 +123,22 @@ class SocialUser extends Model implements Auditable
     public function versions(): MorphMany
     {
         return $this->morphMany(Version::class, 'versionable');
+    }
+
+    // Transforma para agregar tags/motivo (se setea via observer)
+    public function transformAudit(array $data): array
+    {
+        // Si hay tags con motivo, los preserva
+        if (isset($data['tags']) && is_string($data['tags'])) {
+            $data['tags'] = $data['tags']; // Ya JSON
+        }
+        return parent::transformAudit($data);
+    }
+
+    // Relación morph para audits
+    public function audits()
+    {
+        return $this->morphMany(\OwenIt\Auditing\Models\Audit::class, 'auditable');
     }
 
 }

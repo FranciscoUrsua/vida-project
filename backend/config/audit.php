@@ -24,14 +24,7 @@ return [
     |
     */
 
-    'user' => [
-        'morph_prefix' => 'user',
-        'guards' => [
-            'web',
-            'api',
-        ],
-        'resolver' => OwenIt\Auditing\Resolvers\UserResolver::class,
-    ],
+    'user_morph_prefix' => 'user',
 
     /*
     |--------------------------------------------------------------------------
@@ -43,11 +36,11 @@ return [
     */
     'resolvers' => [
         'user' => function () {
-            return auth()->user(); // Retorna modelo o null; compatible con guards web/api/Sanctum
+            return auth()->check() ? auth()->user() : null; // Simple, evita loop en Tinker
         },
-        'ip_address' => OwenIt\Auditing\Resolvers\IpAddressResolver::class,
-        'user_agent' => OwenIt\Auditing\Resolvers\UserAgentResolver::class,
-        'url' => OwenIt\Auditing\Resolvers\UrlResolver::class,
+        'ip_address' => function () { return request()->ip() ?? '127.0.0.1'; },
+        'user_agent' => function () { return request()->userAgent() ?? 'Symfony (Tinker)'; },
+        'url' => function () { return request()->fullUrl() ?? 'tinker'; },
     ],
 
     /*
@@ -64,6 +57,7 @@ return [
         'updated',
         'deleted',
         'restored',
+        'retrieved',
     ],
 
     /*
@@ -131,7 +125,7 @@ return [
     |
     */
 
-    'timestamps' => false,
+    'timestamps' => true,
 
     /*
     |--------------------------------------------------------------------------
