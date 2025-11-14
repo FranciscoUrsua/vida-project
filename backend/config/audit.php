@@ -45,6 +45,9 @@ return [
         'ip_address' => OwenIt\Auditing\Resolvers\IpAddressResolver::class,
         'user_agent' => OwenIt\Auditing\Resolvers\UserAgentResolver::class,
         'url' => OwenIt\Auditing\Resolvers\UrlResolver::class,
+        'user' => function () {
+            return auth()->user() ?? request()->user(); // Captura de request en web/API
+        },
     ],
 
     /*

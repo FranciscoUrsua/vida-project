@@ -83,6 +83,8 @@ class SocialUser extends Model implements Auditable
 
     ];
 
+    protected $auditExclude = ['identificacion_historial'];
+
     // Relaciones
     public function paisOrigen()
     {
@@ -117,6 +119,13 @@ class SocialUser extends Model implements Auditable
     public function versions(): MorphMany
     {
         return $this->morphMany(Version::class, 'versionable');
+    }
+
+    public function transformAudit(array $data)
+    {
+        $data['user_id'] = auth()->id() ?? $this->updated_by ?? null; // Usa tu campo updated_by si existe
+        $data['user_type'] = get_class(auth()->user() ?? new class {}); // Ajusta a tu modelo
+        return parent::transformAudit($data);
     }
 
 }
