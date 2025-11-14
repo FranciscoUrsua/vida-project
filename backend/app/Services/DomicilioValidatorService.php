@@ -75,7 +75,7 @@ class DomicilioValidatorService
                 'error' => null,
             ];
         } else {
-            Log::info('No match en local DB para: ' . $addressString . ' (tabla tiene ' . DB::table('calles_numeros')->count() . ' rows)');
+            Log::info('No match en local DB para: ' . $addressString );
         }
 
         // Fallback Google si config
