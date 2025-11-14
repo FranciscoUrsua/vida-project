@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Traits\HasValidatableAddress;
+use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Centro extends Model
 {
-    use HasFactory, HasValidatableAddress;
+    use HasFactory, SoftDeletes, HasValidatableAddress, Versionable;
 
     protected $table = 'centros';
 
@@ -53,6 +55,11 @@ class Centro extends Model
         return $query->whereHas('director', function ($q) {
             $q->whereNull('fecha_baja');
         });
+    }
+
+    public function versions(): MorphMany
+    {
+        return $this->morphMany(Version::class, 'versionable');
     }
 
 }

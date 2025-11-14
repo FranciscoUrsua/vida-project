@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use App\Traits\ValidatesIdentification;
+use App\Traits\Versionable;
 
 class Profesional extends Model
 {
-    use HasFactory, SoftDeletes, ValidatesIdentification;
+    use HasFactory, SoftDeletes, ValidatesIdentification, Versionable;
 
     // FIX: Especifica el nombre de tabla en plural español
     protected $table = 'profesionales';
@@ -66,6 +67,11 @@ class Profesional extends Model
             'centro_id' => $centro->id,
             'fecha_alta' => $fechaAlta,
         ]);
+    }
+
+    public function versions(): MorphMany
+    {
+        return $this->morphMany(Version::class, 'versionable');
     }
 
 }

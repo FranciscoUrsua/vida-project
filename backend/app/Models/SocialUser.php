@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\HasValidatableAddress; // Trait para validación de dirección (geocoding y bounds)
 use App\Traits\ValidatesIdentification; // Trait para validación de ID (DNI/NIE/Pasaporte + checksum)
+use App\Traits\Versionable; // Trait para versionado
 
 class SocialUser extends Model
 {
-    use HasFactory, SoftDeletes, HasValidatableAddress, ValidatesIdentification; // Traits activan validaciones en saving
+    use HasFactory, SoftDeletes, HasValidatableAddress, ValidatesIdentification, Versionable; // Traits activan validaciones en saving
 
     protected $fillable = [
         'first_name',
@@ -59,9 +60,26 @@ class SocialUser extends Model
         'requiere_permiso_especial' => 'boolean',
         'identificacion_desconocida' => 'boolean',
         'tipo_documento' => 'string',
-        'lat' => 'decimal:8',
-        'lng' => 'decimal:8',
+        'lat' => 'encrypted:decimal:8',
+        'lng' => 'encrypted:decimal:8',
         'direccion_validada' => 'boolean',
+// ENCRIPTACIÓN: Casts para fields sensibles (auto encrypt/decrypt)
+        'first_name' => 'encrypted',
+        'last_name1' => 'encrypted',
+        'last_name2' => 'encrypted',
+        'numero_tarjeta_sanitaria' => 'encrypted',
+        'lugar_empadronamiento' => 'encrypted',
+        'numero_id' => 'encrypted', // DNI hashed ya, pero extra encrypt
+        'correo' => 'encrypted',
+        'telefono' => 'encrypted',
+        'street_type' => 'encrypted',
+        'street_name' => 'encrypted',
+        'street_number' => 'encrypted',
+        'additional_info' => 'encrypted',
+        'postal_code' => 'encrypted',
+        'city' => 'encrypted',
+        'formatted_address' => 'encrypted',
+
     ];
 
     // Relaciones
@@ -94,4 +112,10 @@ class SocialUser extends Model
     {
         return $this->belongsTo(Distrito::class);
     }
+
+    public function versions(): MorphMany
+    {
+        return $this->morphMany(Version::class, 'versionable');
+    }
+
 }
