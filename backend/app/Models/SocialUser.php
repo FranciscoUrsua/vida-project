@@ -85,6 +85,13 @@ class SocialUser extends Model implements Auditable
 
     protected $auditExclude = ['identificacion_historial'];
 
+    protected $auditEvents = [
+        'created',
+        'updated',
+        'deleted',
+        'restored',
+    ];
+
     // Relaciones
     public function paisOrigen()
     {
