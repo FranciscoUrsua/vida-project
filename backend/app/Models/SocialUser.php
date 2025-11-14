@@ -119,15 +119,5 @@ class SocialUser extends Model implements Auditable
     public function versions(): MorphMany
     {
         return $this->morphMany(Version::class, 'versionable');
-    }
-
-    public function transformAudit(array $data): array
-    {
-        $user = Auth::user(); // O auth()->user(), pero Auth:: es más explícito
-        $data['user_id'] = $user ? $user->id : ($this->updated_by ?? null); // Prioriza auth, fallback a updated_by
-        $data['user_type'] = $user ? get_class($user) : null; // Null si no hay user, evita clase anónima
-
-        return parent::transformAudit($data); // O $this->transformAudit(array $data) si es recursivo, pero parent es correcto
-    }
 
 }
