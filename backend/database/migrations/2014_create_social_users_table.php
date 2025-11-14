@@ -10,6 +10,8 @@ return new class extends Migration
     {
         Schema::create('social_users', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
             $table->text('first_name')->nullable(); // Text para encrypted string
             $table->text('last_name1')->nullable();
             $table->text('last_name2')->nullable();
@@ -49,11 +51,19 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->index('distrito_id');
+            $table->index('created_by');
+            $table->index('updated_by');
+            $table->foreign('created_by')->references('id')->on('app_users')->onDelete('set null');
+            $table->foreign('updated_by')->references('id')->on('app_users')->onDelete('set null');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('social_users');
+        Schema::table('social_users', function (Blueprint $table) {
+            $table->dropForeign(['created_by']);
+            $table->dropForeign(['updated_by']);
+            $table->dropColumn(['created_by', 'updated_by']);
+        });
     }
 };
