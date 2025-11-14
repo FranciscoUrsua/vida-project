@@ -42,6 +42,9 @@ return [
     |
     */
     'resolvers' => [
+        'user' => function () {
+            return auth()->user(); // Retorna modelo o null; compatible con guards web/api/Sanctum
+        },
         'ip_address' => OwenIt\Auditing\Resolvers\IpAddressResolver::class,
         'user_agent' => OwenIt\Auditing\Resolvers\UserAgentResolver::class,
         'url' => OwenIt\Auditing\Resolvers\UrlResolver::class,
@@ -194,5 +197,5 @@ return [
     |
     */
 
-    'console' => false,
+    'console' => true,
 ];
