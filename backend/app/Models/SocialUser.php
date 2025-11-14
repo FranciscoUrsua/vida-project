@@ -119,5 +119,6 @@ class SocialUser extends Model implements Auditable
     public function versions(): MorphMany
     {
         return $this->morphMany(Version::class, 'versionable');
+    }
 
 }
