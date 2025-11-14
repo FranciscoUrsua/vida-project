@@ -6,14 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use App\Modules\Intervencion\Models\Valoracion;
 use App\Modules\Intervencion\Models\TipoFicha;
-use App\Modules\Common\Traits\HasDocuments; // Para docs futuros en fichas
-use App\Modules\Common\Traits\Encryptable; // Encriptar datos JSON sensibles
+//use App\Modules\Common\Traits\HasDocuments; // Para docs futuros en fichas
+//use App\Modules\Common\Traits\Encryptable; // Encriptar datos JSON sensibles
 
-class Ficha extends Model
+class Ficha extends Model implements Auditable
 {
-    use HasFactory, SoftDeletes, HasDocuments, Encryptable;
+    use HasFactory, SoftDeletes, HasDocuments, Encryptable, \OwenIt\Auditing\Auditable;
 
     protected $fillable = [
         'valoracion_id',

@@ -6,15 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use OwenIt\Auditing\Contracts\Auditable;
 use App\Modules\Intervencion\Models\Historia;
 use App\Models\Profesional; // Asume en app/Models
 use App\Modules\Intervencion\Models\Ficha; // Preparado para hasMany
-use App\Modules\Common\Traits\HasDocuments; // Para docs (e.g., PDF de valoración)
-use App\Modules\Common\Traits\Encryptable; // Para encriptar resumen si sensible
+//use App\Modules\Common\Traits\HasDocuments; // Para docs (e.g., PDF de valoración)
+//use App\Modules\Common\Traits\Encryptable; // Para encriptar resumen si sensible
 
-class Valoracion extends Model
+class Valoracion extends Model implements Auditable
 {
-    use HasFactory, HasDocuments, Encryptable;
+    use HasFactory, HasDocuments, Encryptable \OwenIt\Auditing\Auditable;
 
     protected $fillable = [
         'historia_id',

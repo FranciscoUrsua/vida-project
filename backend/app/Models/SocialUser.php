@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\HasValidatableAddress; // Trait para validación de dirección (geocoding y bounds)
 use App\Traits\ValidatesIdentification; // Trait para validación de ID (DNI/NIE/Pasaporte + checksum)
 use App\Traits\Versionable; // Trait para versionado
+use OwenIt\Auditing\Contracts\Auditable;
 
-class SocialUser extends Model
+class SocialUser extends Model implements Auditable
 {
-    use HasFactory, SoftDeletes, HasValidatableAddress, ValidatesIdentification, Versionable; // Traits activan validaciones en saving
+    use HasFactory, SoftDeletes, HasValidatableAddress, ValidatesIdentification, Versionable, \OwenIt\Auditing\Auditable; // Traits activan validaciones en saving
 
     protected $fillable = [
         'first_name',

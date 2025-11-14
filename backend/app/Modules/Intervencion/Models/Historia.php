@@ -6,15 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use OwenIt\Auditing\Contracts\Auditable;
 use App\Models\SocialUser; // Asume modelo auxiliar en app/Models para social_users
 use App\Models\Centro; // Asume modelo auxiliar en app/Models para centros
 use App\Models\Profesional; // Asume modelo auxiliar en app/Models para profesionales
-use App\Modules\Common\Traits\HasDocuments; // Para docs futuros (morphMany Documento)
-use App\Modules\Common\Traits\Encryptable; // Para encriptación en metadatos si sensibles
+//use App\Modules\Common\Traits\HasDocuments; // Para docs futuros (morphMany Documento)
+//use App\Modules\Common\Traits\Encryptable; // Para encriptación en metadatos si sensibles
 
-class Historia extends Model
+class Historia extends Model implements Auditable
 {
-    use HasFactory, HasDocuments, Encryptable;
+    use HasFactory, HasDocuments, Encryptable, OwenIt\Auditing\Auditable;
 
     protected $fillable = [
         'social_user_id',

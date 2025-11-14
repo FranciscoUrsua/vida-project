@@ -11,7 +11,7 @@ use App\Http\Controllers\Api\TipoCentroController;
 use App\Http\Controllers\Api\PrestacionController; 
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('social-users', \App\Http\Controllers\Api\SocialUserController::class);
+    Route::apiResource('audits', AuditController::class)->only(['index', 'show']);
 });
 
 Route::apiResource('profesionales', ProfesionalController::class);

@@ -25,7 +25,7 @@ return [
     */
 
     'user' => [
-        'morph_prefix' => 'user',
+        'morph_prefix' => 'app_user',
         'guards' => [
             'web',
             'api',
@@ -128,7 +128,7 @@ return [
     |
     */
 
-    'timestamps' => false,
+    'timestamps' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -151,7 +151,7 @@ return [
     |
     */
 
-    'driver' => 'database',
+    'driver' => 'eloquent',
 
     /*
     |--------------------------------------------------------------------------
@@ -163,7 +163,7 @@ return [
     */
 
     'drivers' => [
-        'database' => [
+        'eloquent' => [
             'table' => 'audits',
             'connection' => null,
         ],
