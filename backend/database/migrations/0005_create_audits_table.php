@@ -16,8 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger($morphPrefix . '_id')->nullable();
             $table->string('event');
             $table->morphs('auditable');
-            $table->text('old_values')->nullable();
-            $table->text('new_values')->nullable();
+            $table->text('old_values')->nullable()->change();
+            $table->text('new_values')->nullable()->change();
             $table->text('url')->nullable();
             $table->ipAddress('ip_address')->nullable();
             $table->string('user_agent', 1023)->nullable();

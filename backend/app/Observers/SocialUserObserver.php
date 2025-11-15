@@ -6,6 +6,7 @@ use App\Models\AppUser; // Tu modelo de AppUser
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Crypt;
 
 class SocialUserObserver
 {
@@ -54,14 +55,20 @@ class SocialUserObserver
     // Lógica privada para insert en audits
     private function logAudit(SocialUser $socialUser, string $event, array $old = [], array $new = [])
     {
-        $appUser = Auth::user(); // Puede ser null en Tinker
+        $appUser = Auth::user();
 
-        // Motivo opcional: Solo si acceso no-asignado (ajusta 'asignado_a' a tu campo FK en SocialUser)
+        // Encripta old_values y new_values (JSON -> encrypt)
+        $oldEncrypted = !empty($old) ? Crypt::encrypt(json_encode($old)) : null;
+        $newEncrypted = !empty($new) ? Crypt::encrypt(json_encode($new)) : null;
+
+        // Motivo para accesos restringidos (sin cambios)
         $tags = [];
         $currentUserId = Auth::id();
         if ($currentUserId && isset($socialUser->asignado_a) && $socialUser->asignado_a !== $currentUserId) {
             $tags['motivo'] = Request::input('motivo') ?? 'Acceso no autorizado sin justificación';
         }
+        // Extensión para VDG/menores: Si protegido, fuerza motivo
+
 
         DB::table('audits')->insert([
             'user_type' => $appUser ? AppUser::class : null,
@@ -69,12 +76,12 @@ class SocialUserObserver
             'event' => $event,
             'auditable_type' => SocialUser::class,
             'auditable_id' => $socialUser->id,
-            'old_values' => !empty($old) ? json_encode($old) : null,
-            'new_values' => !empty($new) ? json_encode($new) : null,
+            'old_values' => $oldEncrypted, // Ahora encriptado
+            'new_values' => $newEncrypted, // Consistente
             'url' => Request::fullUrl() ?? 'tinker',
             'ip_address' => Request::ip() ?? '127.0.0.1',
             'user_agent' => Request::userAgent() ?? 'Symfony (Tinker)',
-            'tags' => !empty($tags) ? json_encode($tags) : null,
+            'tags' => !empty($tags) ? json_encode($tags) : null, // Tags no sensibles, plano OK
             'created_at' => now(),
             'updated_at' => now(),
         ]);
