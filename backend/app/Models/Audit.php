@@ -1,89 +1,74 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Crypt; // Para decrypt en PHP
+use Illuminate\Database\Eloquent\Builder; // Para scope
 
 class Audit extends Model
 {
-    use HasFactory;
-
     protected $table = 'audits';
-    protected $guarded = [];
+    protected $guarded = []; // Permite mass-assignment para audits
 
-    protected $fillable = [
-        'user_type',
-        'user_id',
-        'event',
-        'auditable_type',
-        'auditable_id',
-        'old_values',
-        'new_values',
-        'url',
-        'ip_address',
-        'user_agent',
-        'tags',
-    ];
-
-    protected $casts = [
-        'old_values' => 'array', // JSON old data
-        'new_values' => 'array', // JSON new data
-    ];
-
-    // Scope para desencriptar valores (solo si autorizado)
-    public function scopeWithDecryptedValues($query, bool $authorized = false)
+    // Scope: Filtra y prepara para desencriptación (no desencripta aquí, solo flag)
+    public function scopeWithDecryptedValues(Builder $query, bool $authorized = false): Builder
     {
-        if ($authorized) {
-            return $query->addSelect([
-                'old_values_decrypted' => DB::raw("pgp_sym_decrypt(old_values::bytea, '" . config('app.key') . "')::text"),
-                'new_values_decrypted' => DB::raw("pgp_sym_decrypt(new_values::bytea, '" . config('app.key') . "')::text"),
-            ]);
+        // Si no autorizado, devuelve sin cambios (valores encriptados)
+        if (!$authorized) {
+            return $query->select('*'); // O select sin decrypted fields
         }
-        return $query; // Sin desencriptar si no autorizado
+
+        // Si autorizado, selecciona todo (desencriptaremos en accessors post-load)
+        return $query->select('*');
     }
 
-    // Accessors para JSON parsed (en PHP, post-query)
-    public function getOldValuesDecryptedAttribute()
+    // Accessor para old_values desencriptado (solo si autorizado, pero chequea en runtime)
+    public function getOldValuesDecryptedAttribute(): ?array
     {
-        return $this->old_values ? json_decode(Crypt::decrypt($this->old_values), true) : null;
+        if (!$this->old_values) {
+            return null;
+        }
+
+        // Chequea autorización en runtime (e.g., via Auth o policy; ajusta a tu lógica)
+        $authorized = auth()->user()?->can('viewAudits') ?? false; // Asume policy 'viewAudits'
+        if (!$authorized) {
+            return ['error' => 'Acceso denegado: autorización requerida']; // O null/throw
+        }
+
+        try {
+            $decrypted = Crypt::decrypt($this->old_values);
+            return json_decode($decrypted, true) ?: [];
+        } catch (\Exception $e) {
+            // Loggea error (clave inválida o corrupta)
+            \Log::error('Error desencriptando old_values en audit ID ' . $this->id . ': ' . $e->getMessage());
+            return ['error' => 'Datos corruptos o clave inválida'];
+        }
     }
 
-    public function getNewValuesDecryptedAttribute()
+    // Accessor para new_values desencriptado (similar)
+    public function getNewValuesDecryptedAttribute(): ?array
     {
-        return $this->new_values ? json_decode(Crypt::decrypt($this->new_values), true) : null;
+        if (!$this->new_values) {
+            return null;
+        }
+
+        $authorized = auth()->user()?->can('viewAudits') ?? false;
+        if (!$authorized) {
+            return ['error' => 'Acceso denegado: autorización requerida'];
+        }
+
+        try {
+            $decrypted = Crypt::decrypt($this->new_values);
+            return json_decode($decrypted, true) ?: [];
+        } catch (\Exception $e) {
+            \Log::error('Error desencriptando new_values en audit ID ' . $this->id . ': ' . $e->getMessage());
+            return ['error' => 'Datos corruptos o clave inválida'];
+        }
     }
 
-
-    // Relación polimórfica al modelo auditado (SocialUser, Centro, etc.)
-    public function auditable(): MorphTo
+    // Relación inversa para auditable (e.g., SocialUser)
+    public function auditable()
     {
         return $this->morphTo();
-    }
-
-    // Relación al usuario que hizo la acción (AppUser)
-    public function user(): MorphTo
-    {
-        return $this->morphTo('user');
-    }
-
-    // Scope para audits de una entidad específica
-    public function scopeForEntity($query, string $modelClass)
-    {
-        return $query->where('auditable_type', $modelClass);
-    }
-
-    // Scope por event
-    public function scopeByEvent($query, string $event)
-    {
-        return $query->where('event', $event);
-    }
-
-    // Scope por user
-    public function scopeByUser($query, int $userId)
-    {
-        return $query->where('user_id', $userId);
     }
 }

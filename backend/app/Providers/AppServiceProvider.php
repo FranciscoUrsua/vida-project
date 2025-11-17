@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Models\SocialUser;
-use App\Observers\SocialUserObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        SocialUser::observe(SocialUserObserver::class);
+        // No necesitas registrar el observer; el trait lo maneja
+        // Para inyección de servicio (opcional, si usas DI en controllers)
+        $this->app->singleton(AuditService::class, function ($app) {
+            return new AuditService();
+        });
     }
 }

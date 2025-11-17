@@ -9,12 +9,13 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use App\Traits\HasValidatableAddress; // Trait para validación de dirección (geocoding y bounds)
 use App\Traits\ValidatesIdentification; // Trait para validación de ID (DNI/NIE/Pasaporte + checksum)
 use App\Traits\Versionable; // Trait para versionado
+use App\Common\Traits\Auditable;
 // use OwenIt\Auditing\Contracts\Auditable;
 // use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class SocialUser extends Model //implements Auditable
+class SocialUser extends Model 
 {
-    use HasFactory, SoftDeletes, HasValidatableAddress, ValidatesIdentification, Versionable;
+    use HasFactory, SoftDeletes, HasValidatableAddress, ValidatesIdentification, Versionable, Auditable;
 
     protected $fillable = [
         'created_by', 'updated_by',
@@ -147,11 +148,4 @@ class SocialUser extends Model //implements Auditable
         return parent::transformAudit($data);
     }
 
-    /*
-    // Relación morph para audits
-    public function audits(): MorphMany
-    {
-        return $this->morphMany(\OwenIt\Auditing\Models\Audit::class, 'auditable');
-    }
-    */
 }
