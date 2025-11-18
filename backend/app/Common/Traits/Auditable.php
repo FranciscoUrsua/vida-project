@@ -1,6 +1,7 @@
 <?php
 namespace App\Common\Traits;
 
+use App\Common\Models\Audit;
 use App\Common\Services\AuditService;
 use Illuminate\Database\Eloquent\Model;
 
@@ -43,6 +44,6 @@ trait Auditable
     // Relación morph a audits (reutilizable)
     public function audits()
     {
-        return $this->morphMany(\App\Models\Audit::class, 'auditable'); // Asume modelo Audit
+        return $this->morphMany(Audit::class, 'auditable'); // Asume modelo Audit
     }
 }

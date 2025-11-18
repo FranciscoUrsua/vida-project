@@ -1,5 +1,5 @@
 <?php
-namespace App\Models;
+namespace App\Common\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt; // Para decrypt en PHP

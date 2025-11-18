@@ -2,7 +2,7 @@
 namespace App\Common\Services;
 
 use App\Models\AppUser; // Ajusta a tu modelo de AppUser
-use App\Models\Audit; // Si creaste el modelo Audit; sino, usa DB::table('audits')
+use App\Models\Common\Audit; // Si creaste el modelo Audit; sino, usa DB::table('audits')
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
