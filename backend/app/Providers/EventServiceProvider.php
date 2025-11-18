@@ -10,8 +10,6 @@ use App\Models\SocialUser;
 use App\Models\Centro;
 use App\Models\Profesional;
 use App\Observers\SocialUserObserver;
-use App\Observers\CentroObserver;
-use App\Observers\ProfesionalObserver;
 
 class EventServiceProvider extends ServiceProvider
 {
