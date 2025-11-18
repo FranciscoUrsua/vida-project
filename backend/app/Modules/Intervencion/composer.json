@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/intervencion",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "app\\Modules\\\\Intervencion\\": "app/",
+            "app\\Modules\\\\Intervencion\\Database\\Factories\\": "database/factories/",
+            "app\\Modules\\\\Intervencion\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "app\\Modules\\\\Intervencion\\Tests\\": "tests/"
+        }
+    }
+}
