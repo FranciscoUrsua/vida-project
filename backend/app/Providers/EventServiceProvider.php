@@ -5,10 +5,8 @@ namespace App\Providers;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
+
 use App\Models\SocialUser;
-use App\Models\Centro;
-use App\Models\Profesional;
 use App\Observers\SocialUserObserver;
 
 class EventServiceProvider extends ServiceProvider
