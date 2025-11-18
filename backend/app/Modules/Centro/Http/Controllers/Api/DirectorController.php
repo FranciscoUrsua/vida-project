@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Modules\Centro\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Director;
-use App\Models\Profesional;
-use App\Models\Centro;
+use App\Modules\Centro\Models\Director;
+use App\Modules\Centro\Models\Profesional;
+use App\Modules\Centro\Models\Centro;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 

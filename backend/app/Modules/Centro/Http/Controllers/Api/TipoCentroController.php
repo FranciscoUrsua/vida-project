@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Modules\Centro\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\TipoCentro;
+use App\Modules\Centro\Models\TipoCentro;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
