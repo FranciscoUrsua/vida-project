@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Centro\Models;
 
 use App\Traits\HasValidatableAddress;
 use App\Traits\Versionable;
