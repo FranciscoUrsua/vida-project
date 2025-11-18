@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Models\SocialUser;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +20,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $commonTraits = [
+            \App\Common\Traits\Auditable::class,
+            \App\Common\Traits\Versionable::class,
+        ];
+
         // No necesitas registrar el observer; el trait lo maneja
         // Para inyección de servicio (opcional, si usas DI en controllers)
         $this->app->singleton(AuditService::class, function ($app) {
