@@ -13,7 +13,7 @@ return [
     | Default module namespace.
     |
     */
-    'namespace' => 'Modules\\',
+    'namespace' => null,
 
     /*
     |--------------------------------------------------------------------------
@@ -242,7 +242,6 @@ return [
     'scan' => [
         'enabled' => true,
         'paths' => [
-            base_path('app/Modules'),
             base_path('Modules'),
         ],
     ],
