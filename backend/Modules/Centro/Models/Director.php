@@ -4,40 +4,83 @@ namespace Modules\Centro\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Common\Traits\Versionable; // Para trazabilidad de cambios en asignaciones
+use Modules\Centro\Models\Centro;
+use Modules\Centro\Models\Profesional;
 
 class Director extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Versionable;
 
-    // Opcional: Especifica
     protected $table = 'directores';
 
-    protected $fillable = ['profesional_id', 'centro_id', 'fecha_alta', 'fecha_baja'];
+    protected $fillable = [
+        'profesional_id',
+        'centro_id',
+        'fecha_alta',
+        'fecha_baja',
+    ];
 
     protected $casts = [
         'fecha_alta' => 'date',
         'fecha_baja' => 'date',
     ];
 
-    public function profesional()
+    /**
+     * Relación con el profesional (empleado asignado como director).
+     */
+    public function profesional(): BelongsTo
     {
-        return $this->belongsTo(Profesional::class);
+        return $this->belongsTo(Profesional::class, 'profesional_id');
     }
 
-    public function centro()
+    /**
+     * Relación con el centro (asignación histórica).
+     */
+    public function centro(): BelongsTo
     {
-        return $this->belongsTo(Centro::class);
+        return $this->belongsTo(Centro::class, 'centro_id');
     }
 
+    /**
+     * Scope para directores activos (sin fecha_baja y no soft-deleted).
+     */
     public function scopeActivos($query)
     {
-        return $query->whereNull('fecha_baja');
+        return $query->whereNull('fecha_baja')
+                     ->whereNull('deleted_at');
     }
 
-    public function darDeBaja($fechaBaja)
+    /**
+     * Scope para directores en una fecha específica (e.g., histórico).
+     */
+    public function scopeEnFecha($query, $fecha)
     {
-        $this->update(['fecha_baja' => $fechaBaja]);
-        $this->centro->update(['director_id' => null]);
+        return $query->where('fecha_alta', '<=', $fecha)
+                     ->where(function ($q) use ($fecha) {
+                         $q->whereNull('fecha_baja')
+                           ->orWhere('fecha_baja', '>', $fecha);
+                     })
+                     ->whereNull('deleted_at');
+    }
+
+    /**
+     * Accesor para verificar si es el director actual.
+     */
+    public function getEsActualAttribute(): bool
+    {
+        return is_null($this->fecha_baja) && is_null($this->deleted_at);
+    }
+
+    /**
+     * Método para obtener el director actual de un centro (estático para conveniencia).
+     */
+    public static function directorActualDelCentro($centroId)
+    {
+        return static::activos()
+                     ->where('centro_id', $centroId)
+                     ->first();
     }
 }
