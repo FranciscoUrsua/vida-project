@@ -13,15 +13,18 @@ return new class extends Migration
             $table->foreignId('profesional_id')->constrained('profesionales')->onDelete('cascade');
             $table->foreignId('centro_id')->constrained('centros')->onDelete('cascade');
             $table->date('fecha_alta');
-            $table->date('fecha_baja')->nullable();
-            $table->unique(['profesional_id', 'centro_id']);
+            $table->date('fecha_baja')->nullable(); // Permite directores actuales (sin baja)
             $table->timestamps();
             $table->softDeletes();
+            // Constraints y índices
+            $table->unique(['profesional_id', 'centro_id']); // Evita asignaciones duplicadas por centro-profesional
+            $table->index(['fecha_alta', 'fecha_baja']); // Para queries históricas (e.g., directores activos en una fecha)
         });
 
-        // Agregar FK inversa a centros.director_id
+        // Agregar FK inversa en centros.director_id (apunta al director actual/activo)
         Schema::table('centros', function (Blueprint $table) {
             $table->foreign('director_id')->references('id')->on('directores')->onDelete('set null');
+            $table->index('director_id'); // Para joins eficientes
         });
     }
 
@@ -29,6 +32,7 @@ return new class extends Migration
     {
         Schema::table('centros', function (Blueprint $table) {
             $table->dropForeign(['director_id']);
+            $table->dropIndex(['director_id']); // Limpia el index agregado
         });
         Schema::dropIfExists('directores');
     }
