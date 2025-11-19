@@ -1,31 +1,32 @@
 <?php
 
-namespace Modules\Centro\Database\Seeders;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use Illuminate\Database\Seeder;
-use Modules\Centro\Models\CentroProfesional; // Asume modelo para pivot
-use Modules\Centro\Models\Centro;
-use Modules\Centro\Models\Profesional;
-
-class CentroProfesionalSeeder extends Seeder
+return new class extends Migration
 {
-    public function run(): void
+    public function up(): void
     {
-        $centroIds = Centro::pluck('id')->toArray();
-        $profIds = Profesional::pluck('id')->toArray();
-
-        $asignaciones = [
-            ['centro_id' => $centroIds[0] ?? 1, 'profesional_id' => $profIds[0] ?? 1], // Ana en Arganzuela
-            ['centro_id' => $centroIds[0] ?? 1, 'profesional_id' => $profIds[2] ?? 3], // María también en Arganzuela
-            ['centro_id' => $centroIds[1] ?? 2, 'profesional_id' => $profIds[1] ?? 2], // Carlos en Chamberí
-            ['centro_id' => $centroIds[4] ?? 5, 'profesional_id' => $profIds[4] ?? 5], // Laura en Usera
-            ['centro_id' => $centroIds[2] ?? 3, 'profesional_id' => $profIds[3] ?? 4], // David en Fuencarral
-        ];
-
-        foreach ($asignaciones as $asign) {
-            CentroProfesional::firstOrCreate(
-                ['centro_id' => $asign['centro_id'], 'profesional_id' => $asign['profesional_id']]
-            );
-        }
+        Schema::create('centro_profesional', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('profesional_id')->constrained('profesionales')->onDelete('cascade');
+            $table->foreignId('centro_id')->constrained('centros')->onDelete('cascade');
+            $table->date('fecha_alta');
+            $table->date('fecha_baja')->nullable(); // Permite asignaciones actuales (sin baja)
+            $table->timestamps();
+            $table->softDeletes();
+            // Constraints e índices: unique por par profesional-centro para evitar duplicados concurrentes;
+            // histórico se maneja con múltiples filas cerradas por fecha_baja
+            $table->unique(['profesional_id', 'centro_id']); // Asume no re-asignaciones solapadas; ajusta si necesitas múltiples periodos
+            $table->index(['fecha_alta', 'fecha_baja']); // Para queries históricas (e.g., profesionales activos en fecha X)
+            $table->index(['centro_id', 'fecha_alta']); // Para "quién trabajaba en centro en fecha"
+            $table->index(['profesional_id', 'fecha_alta']); // Para "historial de paso por centros del profesional"
+        });
     }
-}
+
+    public function down(): void
+    {
+        Schema::dropIfExists('centro_profesional');
+    }
+};
