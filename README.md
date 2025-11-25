@@ -1,6 +1,6 @@
 # VIDA - Visión Integral de Derechos y Atención Social
 
-[![Laravel](https://img.shields.io/badge/Laravel-10.x-red.svg)](https://laravel.com) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org) [![Angular](https://img.shields.io/badge/Angular-17-green.svg)](https://angular.io) [![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![Laravel](https://img.shields.io/badge/Laravel-10.x-red.svg)](https://laravel.com) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org) [![Livewire](https://img.shields.io/badge/Livewire-3.x-blueviolet.svg)](https://livewire.laravel.com) [![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple.svg)](https://getbootstrap.com) [![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
 ## Introducción
 
@@ -14,8 +14,8 @@
 
 ### Historia y Milestones
 - **Inicio (2025)**: Desarrollo inicial del backend con Laravel y PostgreSQL para manejar la lógica de gestión de casos y prestaciones sociales.
-- **Fase actual**: Backend funcional con endpoints API para valoraciones y flujos de atención. Frontend en Angular planeado para la siguiente iteración (en desarrollo inicial).
-- **Próximos pasos**: Integración del frontend con interfaces intuitivas para trabajadores sociales, pruebas con casos reales y despliegue en entornos seguros (e.g., cloud con cumplimiento RGPD).
+- **Fase actual**: Backend funcional con endpoints API para valoraciones y flujos de atención. Frontend con Livewire y Bootstrap 5 para interfaces reactivas y accesibles (en desarrollo inicial).
+- **Próximos pasos**: Implementación de componentes Livewire para formularios dinámicos y dashboards, pruebas con casos reales y despliegue en entornos seguros (e.g., cloud con cumplimiento RGPD).
 
 Este proyecto está en etapa temprana de desarrollo, pero ya cuenta con una base sólida en el backend adaptada a necesidades reales de servicios sociales. ¡Colabora con nosotros para fortalecer su impacto en la atención social!
 
@@ -24,7 +24,6 @@ Este proyecto está en etapa temprana de desarrollo, pero ya cuenta con una base
 ### Requisitos del Sistema
 - **PHP**: Versión 8.2 o superior.
 - **Composer**: Para manejar dependencias de Laravel.
-- **Node.js y npm**: Para el frontend en Angular (una vez implementado).
 - **PostgreSQL**: Versión 15 o superior (recomendado para entornos con datos sensibles, con encriptación).
 - **Servidor web**: Apache/Nginx o el servidor de desarrollo de Laravel (incluido).
 - **Opcional**: Docker para entornos de contenedores; herramientas de cumplimiento como RGPD-checker.
@@ -34,7 +33,8 @@ Este proyecto está en etapa temprana de desarrollo, pero ya cuenta con una base
 |------------|---------|-------------|
 | Laravel | 10.x | Framework backend principal para lógica de gestión social. |
 | PostgreSQL | 15+ | Base de datos relacional para almacenamiento seguro de casos y prestaciones. |
-| Angular | 17+ | Framework frontend (planeado) para interfaces accesibles. |
+| Livewire | 3.x | Framework frontend reactivo integrado con Laravel para componentes dinámicos. |
+| Bootstrap 5 | 5.x | Framework CSS para interfaces responsivas y accesibles. |
 | Eloquent ORM | Incluido en Laravel | Para interacciones seguras con DB, con soporte para roles de usuarios. |
 
 ### Instrucciones de Instalación
@@ -60,15 +60,16 @@ Este proyecto está en etapa temprana de desarrollo, pero ya cuenta con una base
    php artisan db:seed  # Opcional, para datos de prueba anónimos
    ```
 
-5. **Para el frontend (Angular - en desarrollo)**:
-   - Una vez disponible: `npm install` y `ng serve`.
-   - Por ahora, usa herramientas como Postman para probar el backend.
+5. **Instala paquetes frontend (Livewire y Bootstrap)**:
+   - Livewire: `composer require livewire/livewire`
+   - Bootstrap: Inclúyelo via CDN en layouts Blade o instala via npm si prefieres assets compilados: `npm install bootstrap`.
+   - Publica assets si usas Vite: `npm install && npm run build`.
 
 6. **Inicia el servidor de desarrollo**:
    ```
    php artisan serve
    ```
-   Accede a `http://127.0.0.1:8000` para el backend.
+   Accede a `http://127.0.0.1:8000` para el backend y frontend integrado.
 
 **Notas**: Asegúrate de tener PostgreSQL corriendo localmente o en un servicio seguro como ElephantSQL. Si usas Docker, revisa el `docker-compose.yml` (por implementar). Cumple con RGPD para datos personales.
 
@@ -84,15 +85,25 @@ Este proyecto está en etapa temprana de desarrollo, pero ya cuenta con una base
 
 ### Casos de Uso Ejemplo
 - **Valoración de necesidades**: Usa el endpoint `/api/casos?filter=prioridad` para obtener casos sociales filtrados de PostgreSQL.
-- **Ejemplo de código (PHP/Laravel)**:
+- **Ejemplo de código (PHP/Laravel con Livewire)**:
   ```php
-  // En un controlador de casos sociales
-  public function index(Request $request) {
-      $casos = DB::table('casos_sociales')->where('prioridad', 'alta')->with('prestaciones')->get();
-      return response()->json($casos);
+  // En un componente Livewire (e.g., resources/views/livewire/caso-lista.blade.php)
+  class CasoLista extends Component
+  {
+      public $casos;
+
+      public function mount()
+      {
+          $this->casos = DB::table('casos_sociales')->where('prioridad', 'alta')->with('prestaciones')->get();
+      }
+
+      public function render()
+      {
+          return view('livewire.caso-lista');
+      }
   }
   ```
-- **Próximo: Integración con Angular**: Un componente para formulario de valoración y dashboard de atención social via HTTPClient.
+- **Próximo: Integración con Livewire**: Componentes para formularios de valoración y dashboards interactivos, estilizados con Bootstrap 5.
 
 Para más detalles, consulta la documentación de API (por generar con Scribe).
 
@@ -108,7 +119,8 @@ Este proyecto está bajo la licencia **GPL-3.0**. Ver el archivo [LICENSE](LICEN
 - **Código de VIDA**: GPL-3.0 (copyleft: protege el acceso abierto y la mejora comunitaria).
 - **Laravel**: MIT License.
 - **PostgreSQL**: PostgreSQL License (similar a BSD).
-- **Angular**: MIT License.
+- **Livewire**: MIT License.
+- **Bootstrap 5**: MIT License.
 
 ### Terceros
 - Dependencias listadas en `composer.json` y `package.json` mantienen sus licencias respectivas. Incluimos copias en la carpeta `licenses/` para cumplimiento. Asegúrate de revisarlas en producción, especialmente para entornos con datos sensibles.
