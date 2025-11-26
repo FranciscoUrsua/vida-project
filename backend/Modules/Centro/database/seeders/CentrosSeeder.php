@@ -16,8 +16,9 @@ class CentrosSeeder extends Seeder
 
         $centros = [
             [
-                'tipo' => $tipoIds[0] ?? 1, // Básicos
+                'tipo_centro_id' => $tipoIds[0] ?? 1, // Básicos
                 'nombre' => 'Centro Municipal de Servicios Sociales de Arganzuela',
+                'estado' => 'activo',
                 'street_type' => 'Calle',
                 'street_name' => 'Piedra', // Limpiado: "de la Piedra" → "Piedra"
                 'street_number' => '5',
@@ -29,14 +30,16 @@ class CentrosSeeder extends Seeder
                 'telefono' => '+34 915 555 100',
                 'email_contacto' => 'arganzuela@madrid.es',
                 'director_id' => null,
-                'campos_especificos' => json_encode(['distrito' => 'Arganzuela', 'capacidad' => 150]),
+                'personal' => null,
+                'datos_especificos' => json_encode(['distrito' => 'Arganzuela', 'capacidad' => 150]),
                 'lat' => 40.4025,
                 'lng' => -3.6914,
                 'direccion_validada' => true,
             ],
             [
-                'tipo' => $tipoIds[1] ?? 2, // Día para Mayores
+                'tipo_centro_id' => $tipoIds[1] ?? 2, // Día para Mayores
                 'nombre' => 'Centro de Mayores de Chamberí',
+                'estado' => 'activo',
                 'street_type' => 'Calle',
                 'street_name' => 'Almagro', // Sin "de " prefiijo
                 'street_number' => '3',
@@ -48,14 +51,16 @@ class CentrosSeeder extends Seeder
                 'telefono' => '+34 915 555 200',
                 'email_contacto' => 'chamberi.mayores@madrid.es',
                 'director_id' => null,
-                'campos_especificos' => json_encode(['programas' => ['teleasistencia', 'talleres']]),
+                'personal' => null,
+                'datos_especificos' => json_encode(['programas' => ['teleasistencia', 'talleres']]),
                 'lat' => 40.4319,
                 'lng' => -3.7003,
                 'direccion_validada' => true,
             ],
             [
-                'tipo' => $tipoIds[2] ?? 3, // Acogida Familiar
+                'tipo_centro_id' => $tipoIds[2] ?? 3, // Acogida Familiar
                 'nombre' => 'Centro de Apoyo Familiar de Fuencarral-El Pardo',
+                'estado' => 'activo',
                 'street_type' => 'Calle',
                 'street_name' => 'Remonta', // Limpiado: "de la Remonta" → "Remonta"
                 'street_number' => '8',
@@ -67,14 +72,16 @@ class CentrosSeeder extends Seeder
                 'telefono' => '+34 915 555 300',
                 'email_contacto' => 'fuencarral.familias@madrid.es',
                 'director_id' => null,
-                'campos_especificos' => json_encode(['enfoque' => 'PISO', 'menores' => true]),
+                'personal' => null,
+                'datos_especificos' => json_encode(['enfoque' => 'PISO', 'menores' => true]),
                 'lat' => 40.4890,
                 'lng' => -3.6906,
                 'direccion_validada' => true,
             ],
             [
-                'tipo' => $tipoIds[3] ?? 4, // Especializada
+                'tipo_centro_id' => $tipoIds[3] ?? 4, // Especializada
                 'nombre' => 'Centro de Intervención en Género de Latina',
+                'estado' => 'activo',
                 'street_type' => 'Calle',
                 'street_name' => 'Poveda', // Sin "de la "
                 'street_number' => '2',
@@ -86,14 +93,16 @@ class CentrosSeeder extends Seeder
                 'telefono' => '+34 915 555 400',
                 'email_contacto' => 'latina.genero@madrid.es',
                 'director_id' => null,
-                'campos_especificos' => json_encode(['especialidad' => 'Violencia de Género', 'urgencias' => true]),
+                'personal' => null,
+                'datos_especificos' => json_encode(['especialidad' => 'Violencia de Género', 'urgencias' => true]),
                 'lat' => 40.3856,
                 'lng' => -3.7471,
                 'direccion_validada' => true,
             ],
             [
-                'tipo' => $tipoIds[0] ?? 1, // Básicos
+                'tipo_centro_id' => $tipoIds[0] ?? 1, // Básicos
                 'nombre' => 'Centro de Servicios Sociales de Usera',
+                'estado' => 'activo',
                 'street_type' => 'Calle',
                 'street_name' => 'Pedro Roldán', // Sin "de "
                 'street_number' => '7',
@@ -105,7 +114,8 @@ class CentrosSeeder extends Seeder
                 'telefono' => '+34 915 555 500',
                 'email_contacto' => 'usera@madrid.es',
                 'director_id' => null,
-                'campos_especificos' => json_encode(['distrito' => 'Usera', 'inmigrantes' => true]),
+                'personal' => null,
+                'datos_especificos' => json_encode(['distrito' => 'Usera', 'inmigrantes' => true]),
                 'lat' => 40.3880,
                 'lng' => -3.7222,
                 'direccion_validada' => true,
