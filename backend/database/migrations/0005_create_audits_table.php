@@ -10,14 +10,16 @@ return new class extends Migration
     {
         $table = 'audits';
         $morphPrefix = 'user';
+
         Schema::create($table, function (Blueprint $table) use ($morphPrefix) {
             $table->bigIncrements('id');
             $table->string($morphPrefix . '_type')->nullable();
             $table->unsignedBigInteger($morphPrefix . '_id')->nullable();
             $table->string('event');
             $table->morphs('auditable');
-            $table->text('old_values')->nullable()->change();
-            $table->text('new_values')->nullable()->change();
+            // Cambio clave: Usa ->nullable() para campos nuevos, no ->change()
+            $table->text('old_values')->nullable();
+            $table->text('new_values')->nullable();
             $table->text('url')->nullable();
             $table->ipAddress('ip_address')->nullable();
             $table->string('user_agent', 1023)->nullable();
