@@ -14,7 +14,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="/">
-                <img src="{{ asset('assets/images/madrid-escudo.png') }}" alt="Escudo de Madrid" class="me-2 rounded">  <!-- Sube tu imagen aquí -->
+                <img src="{{ asset('images/VIDALogo.png') }}" alt="VIDA logo" class="me-2 rounded">  <!-- Sube tu imagen aquí -->
                 <span class="fw-bold">VIDA</span>
                 <small class="text-light ms-1">Visión Integral de Derechos y Atención Social</small>
             </a>
