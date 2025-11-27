@@ -4,14 +4,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 
-use App\Http\Controllers\Api\CentroController;
+use Modules\Centro\Http\Controllers\CentroController;
 use App\Http\Controllers\Api\ProfesionalController;
-use App\Http\Controllers\Api\DirectorController;
-use App\Http\Controllers\Api\TipoCentroController;
+use Modules\Centro\Http\Controllers\DirectorController;
+use Modules\Centro\Http\Controllers\TipoCentroController;
 use App\Http\Controllers\Api\PrestacionController; 
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('audits', AuditController::class)->only(['index', 'show']);
+//    Route::apiResource('audits', AuditController::class)->only(['index', 'show']);
 });
 
 Route::apiResource('profesionales', ProfesionalController::class);

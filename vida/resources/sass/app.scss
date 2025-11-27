@@ -1,0 +1,120 @@
+// ==========================================================================
+// Fuentes Lato Locales (WOFF2 para offline)
+// ==========================================================================
+@font-face {
+  font-family: 'Lato';
+  src: url('../fonts/lato/Lato-Thin.woff2') format('woff2');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lato';
+  src: url('../fonts/lato/Lato-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lato';
+  src: url('../fonts/lato/Lato-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lato';
+  src: url('../fonts/lato/Lato-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lato';
+  src: url('../fonts/lato/Lato-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+// Itálicas (agrega más si necesitas)
+@font-face {
+  font-family: 'Lato';
+  src: url('../fonts/lato/Lato-LightItalic.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lato';
+  src: url('../fonts/lato/Lato-RegularItalic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lato';
+  src: url('../fonts/lato/Lato-BoldItalic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+// ==========================================================================
+// Importa Funciones de Bootstrap PRIMERO (antes de variables custom)
+// ==========================================================================
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";  // Opcional: para mixins
+
+// ==========================================================================
+// Tus Variables Custom (sobrescriben Bootstrap)
+// ==========================================================================
+// Variables de Tipografía
+$font-family-sans-serif: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+$font-weight-thin: 100;
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-bold: 700;
+$font-weight-black: 900;
+$font-style-italic: italic;
+$font-style-normal: normal;
+$headings-font-family: $font-family-sans-serif;
+$headings-font-weight: $font-weight-black;
+$headings-line-height: 1.2;
+$headings-margin-bottom: $spacer * 0.5;
+$body-font-family: $font-family-sans-serif;
+$body-font-weight: $font-weight-normal;
+$body-line-height: 1.5;
+
+// Colores (tu código completo aquí)
+$primary: #003DF6;
+$primary-50: #144cf6;
+// ... (pega todo el bloque de colores: primary, secondary, success, etc.)
+$info: #4FC3F7;  // Azul claro coherente
+// ... (resto de info-50 a info-900, warning, grises, black/white)
+
+// Otras Variables (tu código: spacer, border-radius, etc.)
+$spacer: 1rem;
+// ... (pega spacers, box-shadow, etc.)
+
+// Variables Adicionales para Texto
+$text-thin: $font-weight-thin;
+$text-light: $font-weight-light;
+$text-bold: $font-weight-bold;
+$text-italic: $font-style-italic;
+
+// ==========================================================================
+// Importa el Resto de Bootstrap (ahora con variables sobrescritas)
+// ==========================================================================
+@import "bootstrap/scss/variables";  // Re-importa para aplicar overrides
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/root";
+@import "bootstrap/scss/utilities";
+@import "bootstrap/scss/bootstrap";  // Compila todo
+
+// Estilos custom adicionales para VIDA (opcional)
+.vida-hero {
+  background: linear-gradient(135deg, $primary 0%, darken($primary, 10%) 100%);
+  color: $white;
+}
