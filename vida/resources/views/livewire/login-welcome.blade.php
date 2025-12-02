@@ -1,4 +1,3 @@
-{{-- resources/views/livewire/login-welcome.blade.php --}}
 <div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
     <div class="container">
         <div class="row justify-content-center">

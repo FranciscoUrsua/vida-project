@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'class_namespace' => 'App\\Livewire',
+    'class_namespace' => 'App\\Http\\Livewire',
 
     /*
     |---------------------------------------------------------------------------
@@ -183,8 +183,4 @@ return [
     */
 
     'release_token' => 'a',
-
-    'asset_url' => env('APP_URL', 'https://vida.kansa.app'),  // Usa tu dominio
-    'middleware_group' => ['web'],  // Asegura grupo web para rutas
-
 ];

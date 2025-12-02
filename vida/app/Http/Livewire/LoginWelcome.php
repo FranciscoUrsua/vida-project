@@ -23,7 +23,6 @@ class LoginWelcome extends Component
 
         try {
             if (Auth::attempt(['email' => $this->username, 'password' => $this->password])) {
-                // Redirect to dashboard or intended route after successful login
                 return redirect()->intended('/dashboard');
             } else {
                 $this->errorMessage = 'Credenciales inválidas. Inténtalo de nuevo.';
