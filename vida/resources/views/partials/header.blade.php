@@ -8,21 +8,21 @@
         </a>
 
         {{-- Título del módulo (centro, responsive) --}}
-        <span class="navbar-text mx-auto d-none d-lg-block">
+        <span class="navbar-text mx-auto d-none d-lg-block text-dark fw-bold">
             @if (isset($modulo) && !empty($modulo))
                 {{ $modulo }}
             @else
                 VIDA: Gestión de Servicios Sociales
             @endif
-            <small class="d-block text-muted mt-1">
-                {{ now()->locale('es')->format('d \d\e F \d\e Y') }} - {{ now()->format('H:i') }}
+            <small class="d-block text-muted mt-1 fw-normal">
+                {{ now()->locale('es')->format('d \d\e F \d\e Y') }}
             </small>
         </span>
 
         {{-- Icons de notificaciones (derecha, antes del usuario) --}}
         <div class="d-flex align-items-center me-3">
             {{-- Mensajes --}}
-            <div class="position-relative me-2">
+            <div class="position-relative mx-2">
                 <i class="bi bi-envelope fs-5 text-primary" style="cursor: pointer;" title="Mensajes"></i>
                 @if (($unreadMessages ?? 0) > 0)
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -33,7 +33,7 @@
             </div>
 
             {{-- Información --}}
-            <div class="position-relative me-2">
+            <div class="position-relative mx-2">
                 <i class="bi bi-info-circle fs-5 text-primary" style="cursor: pointer;" title="Información"></i>
                 @if (($unreadInfo ?? 0) > 0)
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -44,7 +44,7 @@
             </div>
 
             {{-- Alertas --}}
-            <div class="position-relative me-2">
+            <div class="position-relative mx-2">
                 <i class="bi bi-bell fs-5 text-primary" style="cursor: pointer;" title="Alertas"></i>
                 @if (($unreadAlerts ?? 0) > 0)
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -57,7 +57,7 @@
 
         {{-- Usuario con dropdown --}}
         <div class="dropdown">
-            <a class="btn btn-outline-primary dropdown-toggle d-flex align-items-center px-0" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <a class="btn btn-outline-primary dropdown-toggle d-flex align-items-center px-0 border-0" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-person-circle me-2"></i>
                 {{ auth()->user()->name ?? 'Usuario Invitado' }}
             </a>
