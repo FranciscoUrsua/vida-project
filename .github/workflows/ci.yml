@@ -40,7 +40,7 @@ jobs:
           debug: true
           script: |
             # Navegar al directorio de despliegue
-            cd /var/www/vida
+            cd /var/www/vida-project
             
             # Hacer pull de los cambios (asumiendo que el repo está clonado como git)
             sudo -u www-data git pull origin main
