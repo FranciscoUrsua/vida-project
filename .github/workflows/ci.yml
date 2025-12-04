@@ -66,5 +66,5 @@ jobs:
             # sudo supervisorctl restart all  # Descomenta si aplica
             
             # Asegurar permisos
-            sudo chown -R jupiter:www-data /var/www/vida/storage /var/www/vida/bootstrap/cache
-            sudo chmod -R 775 /var/www/vida/storage /var/www/vida/bootstrap/cache
+            # sudo chown -R jupiter:www-data /var/www/vida/storage /var/www/vida/bootstrap/cache
+            # sudo chmod -R 775 /var/www/vida/storage /var/www/vida/bootstrap/cache
