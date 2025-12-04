@@ -40,24 +40,24 @@ jobs:
           debug: true
           script: |
             # Navegar al directorio de despliegue
-            cd /var/www/vida-project
+            cd /var/www/vida-project/vida
             
             # Hacer pull de los cambios (asumiendo que el repo está clonado como git)
-            sudo -u www-data git pull origin main
+            git pull origin main
             
             # Instalar/actualizar dependencias (sin dev para producción)
-            sudo -u www-data composer install --no-dev --optimize-autoloader --no-interaction
+            composer install --no-dev --optimize-autoloader --no-interaction
             
             # Limpiar cachés de Laravel para asegurar cambios
-            sudo -u www-data php artisan cache:clear
-            sudo -u www-data php artisan config:clear
-            sudo -u www-data php artisan route:clear
-            sudo -u www-data php artisan view:clear
+            php artisan cache:clear
+            php artisan config:clear
+            php artisan route:clear
+            php artisan view:clear
             
             # Recrear cachés optimizados
-            sudo -u www-data php artisan config:cache
-            sudo -u www-data php artisan route:cache
-            sudo -u www-data php artisan view:cache
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
             
             # Migraciones si es necesario (ejecutar solo si hay cambios en DB)
             # sudo -u www-data php artisan migrate --force
@@ -66,5 +66,5 @@ jobs:
             # sudo supervisorctl restart all  # Descomenta si aplica
             
             # Asegurar permisos
-            # sudo chown -R jupiter:www-data /var/www/vida/storage /var/www/vida/bootstrap/cache
-            # sudo chmod -R 775 /var/www/vida/storage /var/www/vida/bootstrap/cache
+            sudo chown -R jupiter:www-data /var/www/vida/storage /var/www/vida/bootstrap/cache
+            sudo chmod -R 775 /var/www/vida/storage /var/www/vida/bootstrap/cache
