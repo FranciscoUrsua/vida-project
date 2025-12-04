@@ -1,55 +1,74 @@
-name: CI
+name: CI/CD
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Para monorepo completo
-
+          fetch-depth: 0 # Para monorepo completo
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-
       - name: Install Composer Dependencies (Backend)
         run: |
-          cd backend
+          cd vida
           composer install --no-progress --no-interaction --prefer-dist
-
-      - name: Copy .env and Generate App Key (Backend)
+      - name: Run Tests
         run: |
-          cd backend
-          cp .env.example .env
-          php artisan key:generate
+          cd vida
+          php artisan test --no-coverage
 
-      - name: Run Laravel Tests (Backend)
-        run: |
-          cd backend
-          php artisan test --coverage --coverage-clover coverage-backend.xml
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-#      - name: Setup Node.js
-#        uses: actions/setup-node@v3
-#        with:
-#          node-version: '20'
-#          cache: 'npm'
-
-#      - name: Install NPM Dependencies (Frontend)
-#        run: |
-#          cd frontend
-#          npm ci
-
-#      - name: Run Angular Tests (Frontend)
-#        run: |
-#          cd frontend
-#          ng test --watch=false --browsers=ChromeHeadless --code-coverage
-
-#      - name: Upload Coverage Reports (Optional)
-#        uses: codecov/codecov-action@v3
-#        with:
-#          files: ./backend/coverage-backend.xml,./frontend/coverage/index.html
-#          fail_ci_if_less_than: 80
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # Navegar al directorio de despliegue
+            cd /var/www/vida
+            
+            # Hacer pull de los cambios (asumiendo que el repo está clonado como git)
+            sudo -u www-data git pull origin main
+            
+            # Instalar/actualizar dependencias (sin dev para producción)
+            sudo -u www-data composer install --no-dev --optimize-autoloader --no-interaction
+            
+            # Limpiar cachés de Laravel para asegurar cambios
+            sudo -u www-data php artisan cache:clear
+            sudo -u www-data php artisan config:clear
+            sudo -u www-data php artisan route:clear
+            sudo -u www-data php artisan view:clear
+            
+            # Recrear cachés optimizados
+            sudo -u www-data php artisan config:cache
+            sudo -u www-data php artisan route:cache
+            sudo -u www-data php artisan view:cache
+            
+            # Migraciones si es necesario (ejecutar solo si hay cambios en DB)
+            # sudo -u www-data php artisan migrate --force
+            
+            # Opcional: Reiniciar queues si usas Horizon/Supervisor
+            # sudo supervisorctl restart all  # Descomenta si aplica
+            
+            # Asegurar permisos
+            sudo chown -R jupiter:www-data /var/www/vida/storage /var/www/vida/bootstrap/cache
+            sudo chmod -R 775 /var/www/vida/storage /var/www/vida/bootstrap/cache
