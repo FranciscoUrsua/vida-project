@@ -37,6 +37,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
+          debug: true
           script: |
             # Navegar al directorio de despliegue
             cd /var/www/vida
