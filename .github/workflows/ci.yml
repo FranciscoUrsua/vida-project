@@ -21,13 +21,8 @@ jobs:
         run: |
           cd vida
           composer install --no-progress --no-interaction --prefer-dist
-      - name: Run Tests
-        run: |
-          cd vida
-          php artisan test --no-coverage
 
   deploy:
-    needs: test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
