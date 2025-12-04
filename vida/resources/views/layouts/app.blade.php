@@ -1,56 +1,51 @@
+{{-- resources/views/layouts/app.blade.php --}}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'VIDA - Visión Integral de Derechos y Atención Social')</title>
+    <title>VIDA - @yield('title', 'Visión Integral de Derechos y Atención Social')</title>
+    
+    {{-- Livewire Styles --}}
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-    <!-- Livewire Styles (para componentes reactivos) -->
     @livewireStyles
-    @yield('styles')  <!-- Para estilos extras por página -->
+    @yield('styles')
+    {{-- Bootstrap Icons para iconos en sidebar/menús --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    {{-- Meta adicionales para SEO/compatibilidad --}}
+    <meta name="description" content="Plataforma de gestión de servicios sociales del Ayuntamiento de Madrid.">
 </head>
-<body>
-    <!-- Navbar (Header) -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="/">
-                <img src="{{ asset('images/VIDALogo.png') }}" alt="VIDA logo" class="me-2 rounded">  <!-- Sube tu imagen aquí -->
-                <span class="fw-bold">VIDA</span>
-                <small class="text-light ms-1">Visión Integral de Derechos y Atención Social</small>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/dashboard">Dashboard</a>  <!-- Ruta futura para Livewire -->
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://github.com/tu-usuario/vida-project">GitHub</a>
-                    </li>
-                </ul>
+<body class="d-flex flex-column min-vh-100 bg-light">
+    {{-- Header: Incluido como partial para reutilización --}}
+    @include('partials.header')
+    
+    <div class="d-flex flex-grow-1">
+        {{-- Sidebar: Colapsable, incluido como partial --}}
+        @include('partials.sidebar')
+        
+        {{-- Main Content: Área principal con breadcrumbs opcional --}}
+        <main class="flex-grow-1 p-0">
+            {{-- Breadcrumbs dinámico (opcional, via yield) --}}
+            @yield('breadcrumbs')
+            
+            {{-- Contenido principal --}}
+            <div class="container-fluid p-4">
+                @yield('content')
             </div>
-        </div>
-    </nav>
-
-    <!-- Contenido Principal (Yield) -->
-    <main class="flex-shrink-0">
-        @yield('content')
-    </main>
-
-    <!-- Footer -->
-    <footer class="mt-auto py-4">
-        <div class="container text-center">
-            <p class="mb-0">&copy; 2025 VIDA - Proyecto open-source basado en el Ayuntamiento de Madrid. Licencia GPL-3.0.</p>
-            <p class="small text-muted">Inspirado en el Plan Estratégico de Servicios Sociales 2023-2027 y Guía de Prestaciones 2024.</p>
-        </div>
-    </footer>
-
+        </main>
+    </div>
+    
+    {{-- Footer: Incluido como partial --}}
+    @include('partials.footer')
+    
+    {{-- Scripts: Al final para performance --}}    
+    {{-- Livewire Scripts --}}
     @livewireScripts
-    @yield('scripts')  <!-- Para scripts extras por página -->
+    
+    {{-- Opcional: Alpine.js para interacciones en sidebar (toggle, etc.) --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    {{-- JS adicional por página --}}
+    @yield('scripts')
 </body>
 </html>
