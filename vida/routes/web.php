@@ -15,13 +15,16 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 });
 
-Route::post('/logout', function (Request $request) {  // Ahora $request es instancia
+Route::post('/logout', function (Request $request) {
+    // Logout del guard web (maneja sesiones y transient tokens)
     Auth::guard('web')->logout();
 
-    $request->user()?->currentAccessToken()?->delete();
-
+    // Limpia la sesión (esto revoca transient tokens vía cookies)
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    return redirect('/');  // O route('login')
+    // Opcional: Si usas PersonalAccessTokens (no transient), revócalos
+    // $request->user()?->tokens()->delete();  // Descomenta si aplica
+
+    return redirect('/');  // O route('login') / tu welcome
 })->middleware('auth:sanctum')->name('logout');
