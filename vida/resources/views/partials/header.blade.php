@@ -57,7 +57,7 @@
 
         {{-- Usuario con dropdown --}}
         <div class="dropdown">
-            <a class="btn btn-outline-primary dropdown-toggle d-flex align-items-center px-0 border-0" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <a class="btn btn-outline-primary dropdown-toggle d-flex align-items-center px-3 border-0" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-person-circle me-2"></i>
                 {{ auth()->user()->name ?? 'Usuario Invitado' }}
             </a>
