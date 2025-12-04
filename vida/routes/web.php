@@ -13,9 +13,16 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 });
 
-Route::post('/logout', function () {
-    Auth::logout();
-    request()->session()->invalidate();
-    request()->session()->regenerateToken();
-    return redirect('/');  // O tu pantalla de login
+Route::post('/logout', function (Request $request) {
+    // Logout del guard web (sesiones)
+    Auth::guard('web')->logout();
+
+    // Revoca el token actual de Sanctum (para SPA/API)
+    $request->user()?->currentAccessToken()?->delete();
+
+    // Limpia la sesión (estándar para web)
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return redirect('/');  // O a tu ruta de login/welcome, e.g., route('login')
 })->middleware('auth:sanctum')->name('logout');
