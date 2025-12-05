@@ -4,7 +4,7 @@ Este archivo contiene avisos de copyright, atribución y disclaimers adicionales
 
 ## Copyright del Proyecto
 
-Código Fuente y Documentación: Copyright © 2025 Francisco Ursua (y colaboradores). Todos los derechos reservados salvo lo indicado en la licencia Apache 2.0.
+Código Fuente y Documentación: Copyright © 2025 Francisco Ursúa (y colaboradores). Todos los derechos reservados salvo lo indicado en la licencia Apache 2.0.
 
 ## Elementos Gráficos
 
