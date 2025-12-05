@@ -1,20 +1,24 @@
 {{-- Footer: Fijo en bottom --}}
-<footer class="bg-white border-top mt-auto">
-    <div class="container-fluid py-3">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <small class="text-muted">
-                    &copy; {{ date('Y') }} Ayuntamiento de Madrid. Todos los derechos reservados.<br>
-                    Plataforma VIDA v{{ config('app.version', '1.0') }} | Desarrollado para Servicios Sociales.
-                </small>
-            </div>
-            <div class="col-md-6 text-md-end">
-                <small class="text-muted">
-                    <a href="/privacy" class="text-decoration-none">Política de Privacidad (RGPD)</a> | 
-                    <a href="/contact" class="text-decoration-none">Contacto</a> | 
-                    <a href="mailto:zrm@ggd.amsterdam.nl" class="text-decoration-none">Soporte</a>
-                </small>
-            </div>
+{{-- resources/views/partials/footer.blade.php --}}
+<footer class="bg-secondary text-white py-3 mt-auto">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap">
+        <div class="text-left mb-2 mb-md-0">
+            <span>&copy; 2025 Francisco Ursúa (y colaboradores). Todos los derechos reservados salvo lo indicado en la licencia Apache 2.0.</span>
         </div>
+        <nav class="text-end mb-2 mb-md-0">
+            <ul class="list-inline mb-0">
+                <li class="list-inline-item">
+                    <a href="/docs" class="text-white text-decoration-none">Documentación</a>
+                </li>
+                <li class="list-inline-item mx-2">|</li>
+                <li class="list-inline-item">
+                    <a href="/uso" class="text-white text-decoration-none">Términos de uso</a>
+                </li>
+                <li class="list-inline-item mx-2">|</li>
+                <li class="list-inline-item">
+                    <a href="/ayuda" class="text-white text-decoration-none">Ayuda</a>
+                </li>
+            </ul>
+        </nav>
     </div>
 </footer>
