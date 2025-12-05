@@ -1,12 +1,12 @@
-# VIDA - Visión Integral de Derechos y Atención Social
+# VIDA 360 - Visión Integral de la Persona en Atención Social
 
 [![Laravel](https://img.shields.io/badge/Laravel-10.x-red.svg)](https://laravel.com) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org) [![Livewire](https://img.shields.io/badge/Livewire-3.x-blueviolet.svg)](https://livewire.laravel.com) [![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple.svg)](https://getbootstrap.com) [![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
 ## Introducción
 
-**VIDA: Visión Integral de Derechos y Atención Social** es una plataforma para una gestión proactiva de servicios sociales. Diseñada para empoderar a trabajadores sociales, administradores y entidades públicas, VIDA facilita la coordinación, valoración y entrega de prestaciones y recursos sociales, asegurando un enfoque centrado en los derechos de las personas y comunidades vulnerables.
+**VIDA 360 - Visión Integral de la Persona en Atención Social** es una plataforma para una gestión proactiva de servicios sociales. Diseñada para empoderar a trabajadores sociales, administradores y entidades públicas, VIDA facilita la coordinación, valoración y entrega de prestaciones y recursos sociales, asegurando un enfoque centrado en los derechos de las personas y comunidades vulnerables.
 
-### ¿Qué resuelve VIDA?
+### ¿Qué resuelve VIDA 360?
 - **Coordinación integral**: Integra múltiples fuentes de datos (e.g., solicitudes de prestaciones, evaluaciones de necesidades) en un flujo unificado para una atención social eficiente y personalizada.
 - **Gestión proactiva**: Soporte para valoraciones preventivas, seguimiento de intervenciones y alertas en tiempo real, reduciendo burocracia y mejorando la respuesta a demandas sociales.
 - **Inclusión y equidad**: Herramientas para garantizar el acceso a derechos sociales, con énfasis en diversidad, privacidad y escalabilidad para entornos locales o autonómicos.
@@ -114,9 +114,9 @@ Para más detalles, consulta la documentación de API (por generar con Scribe).
 
 ## Licencias
 
-Este proyecto está bajo la licencia **GPL-3.0**. Ver el archivo [LICENSE](LICENSE) para detalles completos. Esto aplica al código original de VIDA; las dependencias mantienen sus licencias respectivas (ver abajo). La GPL-3.0 asegura que cualquier modificación o distribución se comparta libremente, promoviendo la colaboración en servicios sociales.
+Este proyecto está bajo la licencia **GPL-3.0**. Ver el archivo [LICENSE](LICENSE) para detalles completos. Esto aplica al código original de VIDA 360; las dependencias mantienen sus licencias respectivas (ver abajo). La GPL-3.0 asegura que cualquier modificación o distribución se comparta libremente, promoviendo la colaboración en servicios sociales.
 
-- **Código de VIDA**: GPL-3.0 (copyleft: protege el acceso abierto y la mejora comunitaria).
+- **Código de VIDA 360**: GPL-3.0 (copyleft: protege el acceso abierto y la mejora comunitaria).
 - **Laravel**: MIT License.
 - **PostgreSQL**: PostgreSQL License (similar a BSD).
 - **Livewire**: MIT License.
