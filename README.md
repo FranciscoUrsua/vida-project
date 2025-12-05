@@ -1,6 +1,6 @@
 # VIDA 360 - Visión Integral de la Persona en Atención Social
 
-[![Laravel](https://img.shields.io/badge/Laravel-10.x-red.svg)](https://laravel.com) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org) [![Livewire](https://img.shields.io/badge/Livewire-3.x-blueviolet.svg)](https://livewire.laravel.com) [![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple.svg)](https://getbootstrap.com) [![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![Laravel](https://img.shields.io/badge/Laravel-10.x-red.svg)](https://laravel.com) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org) [![Livewire](https://img.shields.io/badge/Livewire-3.x-blueviolet.svg)](https://livewire.laravel.com) [![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple.svg)](https://getbootstrap.com) [![License: Apache-2.0](https://img.shields.io/badge/License-Apachev2-blue.svg)](LICENSE)
 
 ## Introducción
 
@@ -114,9 +114,9 @@ Para más detalles, consulta la documentación de API (por generar con Scribe).
 
 ## Licencias
 
-Este proyecto está bajo la licencia **GPL-3.0**. Ver el archivo [LICENSE](LICENSE) para detalles completos. Esto aplica al código original de VIDA 360; las dependencias mantienen sus licencias respectivas (ver abajo). La GPL-3.0 asegura que cualquier modificación o distribución se comparta libremente, promoviendo la colaboración en servicios sociales.
+Este proyecto está bajo la licencia Apache 2.0. Ver el archivo LICENSE.md para detalles completos. Esto aplica al código original de VIDA 360; las dependencias mantienen sus licencias respectivas (ver abajo). La Apache 2.0 es permisiva y compatible con proyectos open-source, permitiendo uso comercial con atribución.
 
-- **Código de VIDA 360**: GPL-3.0 (copyleft: protege el acceso abierto y la mejora comunitaria).
+- **Código de VIDA 360**: Apache 2.0.
 - **Laravel**: MIT License.
 - **PostgreSQL**: PostgreSQL License (similar a BSD).
 - **Livewire**: MIT License.
