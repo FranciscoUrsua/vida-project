@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('centros', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tipo_centro_id')->constrained('tipos_centros')->onDelete('restrict'); // Evita borrar tipos con centros
+            $table->foreignId('tipo_centro_id')->constrained('tipos_centros')->onDelete('restrict');
             $table->string('nombre', 255);
             $table->enum('estado', ['activo', 'inactivo'])->default('activo');
             // Campos de georeferenciación (alineados con HasValidatableAddress trait)
@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('additional_info')->nullable();
             $table->string('postal_code')->nullable();
             $table->foreignId('distrito_id')->nullable()->constrained('distritos')->onDelete('set null');
+            $table->foreignUuid('unidad_organizativa_id')->constrained()->onDelete('restrict');
             $table->string('city')->default('Madrid');
             $table->string('country')->default('España');
             $table->decimal('lat', 10, 8)->nullable();
@@ -38,6 +39,7 @@ return new class extends Migration
             $table->softDeletes();
             // Índices para rendimiento (búsquedas geo y por nombre)
             $table->index(['distrito_id', 'postal_code']);
+            $table->index(['unidad_organizativa_id', 'activo']);
             $table->index('nombre');
             $table->index('tipo_centro_id');
             $table->index('estado');

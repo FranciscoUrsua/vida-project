@@ -30,6 +30,7 @@ class Centro extends Model
         'additional_info',
         'postal_code',
         'distrito_id',
+        'unidad_organizativa_id',
         'city',
         'country',
         'telefono',
@@ -70,6 +71,14 @@ class Centro extends Model
     public function distrito(): BelongsTo
     {
         return $this->belongsTo(Distrito::class);
+    }
+
+    /**
+     * Relación con la unidad organizativa.
+     */
+    public function unidadOrganizativa()
+    {
+        return $this->belongsTo(UnidadOrganizativa::class);
     }
 
     /**
@@ -129,6 +138,13 @@ class Centro extends Model
     public function scopeEnDistrito($query, $distritoId)
     {
         return $query->where('distrito_id', $distritoId);
+    }
+
+    // Scope para centros activos en OA descendientes
+    public function scopeEnOa($query, UnidadOrganizativa $oa)
+    {
+        $descOas = $oa->descendientes()->pluck('id')->concat([$oa->id]);
+        return $query->whereIn('unidad_organizativa_id', $descOas)->where('activo', true);
     }
 
     /**
