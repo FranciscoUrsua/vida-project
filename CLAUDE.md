@@ -73,7 +73,7 @@ Two self-booting Eloquent traits applied to all non-auxiliary models:
 - `Modules/Centro/Routes/api.php` — Module-local routes for centros, directores, tipos-centros, centro-profesionales; all protected with `auth:sanctum`.
 - **Routing overlap**: Both `routes/api.php` and the Centro module define centros/directores routes. The module routes are auth-protected; this suggests an in-progress migration to fully secured module-owned routes.
 - `routes/api_intervencion.php` — Planned intervention routes; all commented out.
-- `SANCTUM_STATEFUL_DOMAINS=localhost:4200` in `.env` — configured for a planned Angular SPA front-end.
+- `SANCTUM_STATEFUL_DOMAINS=localhost:4200` in `.env` — legacy config from when an Angular SPA was planned; frontend is now Livewire.
 
 ### Frontend
 - Blade/Livewire hybrid. Alpine.js (CDN) handles DOM interactions. Only `LoginWelcome` is currently implemented as a Livewire component.
