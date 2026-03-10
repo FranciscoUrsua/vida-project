@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use App\Traits\HasValidatableAddress; // Trait para validación de dirección (geocoding y bounds)
 use App\Traits\ValidatesIdentification; // Trait para validación de ID (DNI/NIE/Pasaporte + checksum)
-use App\Traits\Versionable; // Trait para versionado
+use App\Common\Traits\Versionable; // Trait para versionado
 use App\Common\Traits\Auditable;
 // use OwenIt\Auditing\Contracts\Auditable;
 // use OwenIt\Auditing\Auditable as AuditableTrait;

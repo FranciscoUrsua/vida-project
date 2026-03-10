@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use App\Traits\ValidatesIdentification;
-use App\Traits\Versionable;
+use App\Common\Traits\Versionable;
 
 class Profesional extends Model
 {
