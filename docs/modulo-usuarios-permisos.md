@@ -112,6 +112,7 @@ El sistema define **7 roles** iniciales. Los roles son configurables desde el ba
 - Agenda propia con gestión de citas individuales y grupales.
 - Firma integrada de informes sociales.
 - Acceso a datos de categoría especial de ciudadanos especialmente protegidos, previa identificación por su DG correspondiente y con las restricciones del Nivel 3.
+- **Anotaciones privadas:** puede crear, leer y eliminar anotaciones de uso estrictamente personal. Una anotación privada no forma parte de la Historia Social visible, no es accesible por ningún otro usuario (incluido el supervisor) y nunca es visible para el ciudadano. Es la UO mínima posible: el propio usuario. Ver sección 4.7.
 
 **Ámbito por UO:** Gestión completa en su UO; consulta libre fuera de ella (salvo colectivos protegidos).
 
@@ -280,6 +281,19 @@ El backoffice de usuarios y permisos debe ofrecer:
 - Seeders de roles: `Database\Seeders\RolesSeeder`
 - Policies: `App\Policies\HistoriaSocialPolicy`, `App\Policies\ApuntePolicy`, etc.
 - Controladores de backoffice: `App\Http\Controllers\Admin\`
+
+### 4.7 Anotaciones privadas del profesional
+
+Las anotaciones privadas son un caso especial dentro del tipo `Anotacion` del modelo de apuntes. Son notas de uso estrictamente personal del trabajador social — observaciones que no están listas para incorporarse a la Historia Social, o que por su naturaleza no deben hacerlo (por ejemplo, hipótesis de trabajo, alertas personales para próximas entrevistas).
+
+Sus reglas son distintas al resto de apuntes:
+
+- **Solo el autor puede crearlas, leerlas y eliminarlas.** Ningún otro usuario tiene acceso, independientemente de su rol o jerarquía. Esto incluye al supervisor.
+- **No forman parte de la Historia Social visible.** No aparecen en ninguna vista de la Historia accesible a otros profesionales ni al ciudadano.
+- **No están sujetas a la auditoría visible** del TSR (principio 3.5), aunque sí al log técnico de base de datos (principio 4.3) por razones de seguridad y trazabilidad interna.
+- **No son exportables** ni aparecen en informes generados.
+
+**Implicación de implementación:** el campo `privada` (boolean) en la entidad `Apunte` distingue este tipo. Las Policies deben incluir una verificación explícita: si `apunte.privada === true`, solo el `apunte.profesional_id` tiene acceso, sin excepción. Esta regla tiene precedencia sobre cualquier otra regla de acceso.
 
 ---
 
