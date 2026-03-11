@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
 
         // 4. Usuario administrador con rol de sistema
         // IMPORTANTE: cambiar la contraseña tras el primer acceso
-        $admin = User::factory()->create([
+        $admin = User::create([
             'name'     => 'Administrador VIDA',
             'email'    => 'admin@vida.local',
             'password' => bcrypt('Vida360!Admin'),
