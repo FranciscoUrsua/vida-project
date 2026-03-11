@@ -147,7 +147,87 @@ La integración técnica de canales es incremental: las decisiones sobre cada ca
 
 ---
 
-## 4. Decisiones pendientes de desarrollo
+## 4. Principios técnicos de desarrollo
+
+### 4.1 API First
+
+Todas las entidades del sistema deben exponer una API REST con operaciones CRUD completas. Los flujos de trabajo principales —apertura de Historia, creación de plan, registro de seguimiento, derivación— deben tener también endpoints API para ser lanzados y consultados programáticamente. El frontend Livewire y cualquier integración externa consumen la misma API, sin atajos internos que la bypaseen.
+
+### 4.2 El pasado es inmutable
+
+El sistema debe ser capaz de conocer el estado de cualquier entidad en cualquier momento del pasado: qué prestaciones recibía un ciudadano hace un año, qué profesional tenía asignado un centro, cuál era el contenido de un plan de intervención en una fecha concreta. Esto se implementa mediante **lectura histórica**, nunca mediante reversión. El pasado no se modifica: los registros históricos son inmutables una vez creados. Cualquier cambio genera un nuevo estado, no sobreescribe el anterior.
+
+### 4.3 Todo logado
+
+Todo acceso y operación sobre las tablas de gestión de servicios sociales queda registrado con: usuario, timestamp, operación realizada y resultado (éxito o fallo). Este log es la base técnica de la auditoría visible descrita en el principio 3.5. Las tablas maestras (catálogos, configuraciones de sistema) quedan excluidas de este requisito.
+
+### 4.4 Español por defecto
+
+El español es el idioma del proyecto en todos sus niveles:
+
+- **Interfaz y datos**: todo lo que percibe el ciudadano o el profesional está en español.
+- **Código fuente**: nombres de entidades, variables, métodos, clases, rutas, migraciones y comentarios se escriben en español. Se evitan mezclas de idiomas que dificulten la lectura.
+- **Excepciones justificadas**: términos técnicos del framework o la industria sin traducción natural establecida (e.g., `middleware`, `seeder`, `trait`) pueden mantenerse en inglés.
+
+### 4.5 Código comentado y documentado
+
+Todo el código debe comentarse siguiendo los estándares de la industria, compatibles con **PHPDoc**:
+
+- Cabecera de clase: propósito, autor, fecha, referencias relevantes.
+- Cabecera de método o función: descripción, parámetros (`@param`), valor de retorno (`@return`), excepciones posibles (`@throws`).
+- Comentarios inline para lógica no evidente: el código describe *qué* hace; los comentarios explican *por qué*.
+
+Un código sin comentar no está terminado. Las revisiones deben incluir la calidad de la documentación como criterio.
+
+### 4.6 Tests automatizados como parte del desarrollo
+
+Los tests no son una fase posterior al desarrollo, son parte de él. Cada endpoint de API debe tener tests que verifiquen el comportamiento esperado en casos normales y en casos de error. Los flujos de trabajo principales deben tener tests de integración que los cubran de extremo a extremo.
+
+Laravel ofrece soporte nativo para testing con PHPUnit y Pest. La estrategia concreta de testing —qué se testea, cómo se organiza, qué nivel de cobertura se persigue— se definirá antes de abordar cada módulo funcional, de forma que los tests sean útiles y mantenibles, no una carga burocrática.
+
+### 4.7 Gestión de errores y formato de respuestas API consistente
+
+Todos los endpoints de la API deben devolver respuestas con estructura consistente: código HTTP correcto, cuerpo con formato uniforme, mensaje de error descriptivo cuando corresponda y referencia al recurso implicado. No hay margen para que cada endpoint invente su propio formato de respuesta. Este estándar debe definirse una vez y aplicarse mediante un mecanismo centralizado (handler de excepciones, response macro o similar).
+
+### 4.8 Separación explícita de configuración por entorno
+
+Debe estar documentado y acordado qué tipo de configuración va en cada capa:
+
+- **`.env`**: credenciales, conexiones, valores que varían entre entornos de despliegue.
+- **Base de datos** (tablas de configuración): parámetros que varían entre ayuntamientos o que deben ser modificables sin redespliegue (colectivos protegidos, catálogos, umbrales).
+- **Código fuente**: constantes que no varían entre instalaciones.
+
+Ningún valor que pueda variar entre ayuntamientos debe estar hardcodeado en el código fuente.
+
+### 4.9 Preferir paquetes consolidados sobre desarrollo propio
+
+El valor diferencial de VIDA está en el modelo de dominio: cómo representa la intervención social, cómo gestiona la Historia, cómo conecta prestaciones con ciudadanos. Todo lo que no es lógica específica de servicios sociales debe resolverse preferentemente con paquetes consolidados del ecosistema Laravel, evitando reinventar soluciones a problemas genéricos ya resueltos.
+
+**Usar paquetes para** funcionalidades transversales: autenticación, autorización, auditoría, versionado histórico, generación de documentos, testing, importación/exportación de ficheros.
+
+**Desarrollar código propio para** la lógica específica del dominio de servicios sociales, donde ningún paquete genérico puede capturar adecuadamente los requisitos: el modelo de Historia Social, el ciclo de intervención, el matching de identidades, los colectivos protegidos configurables.
+
+Antes de adoptar un paquete, evaluar: mantenimiento activo en el repositorio, compatibilidad con la versión de Laravel en uso, licencia compatible con Apache 2.0, y coste de sustitución si el paquete queda abandonado. Un paquete que deja de mantenerse puede convertirse en un problema de seguridad o en un bloqueo para actualizar el framework.
+
+### 4.10 Protección frente al acceso privilegiado no autorizado
+
+El riesgo de acceso indebido a datos sensibles no proviene solo de usuarios externos, sino también de usuarios técnicos internos con privilegios elevados: administradores de base de datos, desarrolladores, personal de operaciones. En un sistema que gestiona datos de colectivos especialmente vulnerables —donde la exposición de una dirección puede tener consecuencias físicas para una persona— este riesgo debe tratarse explícitamente.
+
+Ninguna medida técnica elimina este riesgo por completo si alguien con acceso privilegiado tiene motivación para abusar de él. El objetivo es reducir al mínimo la superficie de ataque, hacer el abuso difícil de ejecutar y prácticamente imposible de ocultar.
+
+Las medidas que se combinan para conseguirlo son:
+
+**Cifrado en reposo para datos sensibles.** Los campos más críticos —datos de contacto y localización de colectivos especialmente protegidos— se cifran a nivel de columna en PostgreSQL mediante `pgcrypto`. Las claves de cifrado no están disponibles en entornos de desarrollo ni accesibles para administradores de base de datos. El descifrado ocurre exclusivamente en la capa de aplicación, donde se aplican las reglas de autorización. Un acceso directo a la base de datos que bypasee la API devuelve texto ilegible.
+
+**Separación estricta de entornos.** Los desarrolladores no tienen acceso directo a la base de datos de producción. Esta restricción es técnica, no solo una política: las credenciales de producción son inaccesibles para el equipo de desarrollo. El entorno de desarrollo trabaja siempre con datos anonimizados o sintéticos, nunca con datos reales de ciudadanos.
+
+**Auditoría de base de datos independiente de la aplicación.** PostgreSQL registra qué usuario de base de datos ejecutó qué consulta y cuándo, con independencia de si el acceso se produjo a través de la API o directamente. Este log es inaccesible para los propios desarrolladores y constituye una segunda capa de trazabilidad que complementa la auditoría de aplicación descrita en el principio 3.5.
+
+**Mínimo privilegio y doble autorización para accesos a producción.** El número de personas con acceso privilegiado a la base de datos de producción debe ser el mínimo operativamente necesario. Todo acceso a producción sigue un procedimiento documentado que requiere doble autorización y queda registrado. La existencia de estos registros, y el hecho de que los implicados saben que existen, tiene un efecto disuasorio que complementa las medidas técnicas.
+
+---
+
+## 5. Decisiones pendientes de desarrollo
 
 Las siguientes áreas están identificadas como complejas y se abordarán en fases posteriores, una vez consolidada la funcionalidad principal:
 
