@@ -1,0 +1,70 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Para monorepo completo
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+      - name: Install Composer Dependencies (Backend)
+        run: |
+          cd vida
+          composer install --no-progress --no-interaction --prefer-dist
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          debug: true
+          script: |
+            # Navegar al directorio de despliegue
+            cd /var/www/vida-project/vida
+            
+            # Hacer pull de los cambios (asumiendo que el repo está clonado como git)
+            git pull origin main
+            
+            # Instalar/actualizar dependencias (sin dev para producción)
+            composer install --no-dev --optimize-autoloader --no-interaction
+            
+            # Limpiar cachés de Laravel para asegurar cambios
+            php artisan cache:clear
+            php artisan config:clear
+            php artisan route:clear
+            php artisan view:clear
+            
+            # Recrear cachés optimizados
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            
+            # Migraciones si es necesario (ejecutar solo si hay cambios en DB)
+            # sudo -u www-data php artisan migrate --force
+            
+            # Opcional: Reiniciar queues si usas Horizon/Supervisor
+            # sudo supervisorctl restart all  # Descomenta si aplica
+            
+            # Asegurar permisos
+            sudo chown -R jupiter:www-data /var/www/vida-project/vida/storage /var/www/vida-project/vida/bootstrap/cache
+            sudo chmod -R 775 /var/www/vida-project/vida/storage /var/www/vida-project/vida/bootstrap/cache

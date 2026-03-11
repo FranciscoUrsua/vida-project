@@ -1,0 +1,23 @@
+# Laravel
+/vendor
+/node_modules
+.env
+.env.backup
+/storage/*.key
+/storage/logs/**/*.log
+/public/hot
+/public/storage
+/bootstrap/cache/*
+/.phpunit.result.cache
+
+# Angular
+/dist
+/coverage
+/node_modules
+.angular/cache
+.nx/cache
+
+# General
+*.log
+.DS_Store
+Thumbs.db
