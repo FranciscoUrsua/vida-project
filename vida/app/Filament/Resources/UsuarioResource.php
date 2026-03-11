@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UsuarioResource\Pages;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
-use App\Models\UsuarioUoRol;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
@@ -18,7 +17,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Spatie\Permission\Models\Role;
 
 /**
  * Resource Filament para gestionar Usuarios del sistema.
@@ -77,7 +75,7 @@ class UsuarioResource extends Resource
                 ]),
 
             Section::make('Adscripciones a Unidades Organizativas')
-                ->description('Cada adscripción vincula al usuario con una UO, un rol y un tipo de vínculo laboral, con fechas de vigencia.')
+                ->description('Cada adscripción vincula al usuario con una UO y un tipo de vínculo laboral. Los roles del usuario aplican globalmente; la UO define dónde tiene acceso completo.')
                 ->schema([
                     Repeater::make('adscripciones')
                         ->relationship('adscripciones')
@@ -87,11 +85,6 @@ class UsuarioResource extends Resource
                                 ->label('Unidad Organizativa')
                                 ->options(fn () => UnidadOrganizativa::activas()->orderBy('nombre')->pluck('nombre', 'id'))
                                 ->searchable()
-                                ->required(),
-
-                            Select::make('rol_id')
-                                ->label('Rol en esta UO')
-                                ->options(fn () => Role::orderBy('name')->pluck('name', 'id'))
                                 ->required(),
 
                             Select::make('tipo_vinculo')

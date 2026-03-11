@@ -85,13 +85,13 @@ class UnidadOrganizativa extends Model
 
     /**
      * Usuarios (profesionales) actualmente adscritos a esta UO.
-     * La adscripción pasa por la tabla pivot `usuario_uo_rol`.
+     * La adscripción pasa por la tabla pivot `usuario_uo`.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     * @return HasMany<UsuarioUo>
      */
     public function usuarios(): HasMany
     {
-        return $this->hasMany(UsuarioUoRol::class, 'unidad_organizativa_id');
+        return $this->hasMany(UsuarioUo::class, 'unidad_organizativa_id');
     }
 
     // -------------------------------------------------------------------------

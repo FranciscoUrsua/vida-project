@@ -5,7 +5,7 @@ namespace Tests\Feature\Policies;
 use App\Models\AccesoProtegido;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
-use App\Models\UsuarioUoRol;
+use App\Models\UsuarioUo;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -194,10 +194,9 @@ class HistoriaSocialPolicyTest extends TestCase
 
         $usuario->assignRole($rol);
 
-        UsuarioUoRol::create([
+        UsuarioUo::create([
             'usuario_id'             => $usuario->id,
             'unidad_organizativa_id' => $uo->id,
-            'rol_id'                 => $rol->id,
             'tipo_vinculo'           => 'interno',
             'fecha_inicio'           => Carbon::today(),
             'fecha_fin'              => null,

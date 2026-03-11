@@ -19,7 +19,7 @@ use Spatie\Permission\Traits\HasRoles;
  *
  * Los permisos se gestionan mediante Spatie laravel-permission (HasRoles).
  * El ámbito de datos sobre el que puede ejercer esos permisos lo delimita
- * la adscripción a Unidades Organizativas (tabla usuario_uo_rol).
+ * la adscripción a Unidades Organizativas (tabla usuario_uo).
  *
  * @property int $id
  * @property string $name
@@ -81,17 +81,17 @@ class User extends Authenticatable
     /**
      * Todas las adscripciones a UO del usuario (históricas y vigentes).
      *
-     * @return HasMany<UsuarioUoRol>
+     * @return HasMany<UsuarioUo>
      */
     public function adscripciones(): HasMany
     {
-        return $this->hasMany(UsuarioUoRol::class, 'usuario_id');
+        return $this->hasMany(UsuarioUo::class, 'usuario_id');
     }
 
     /**
      * Únicamente las adscripciones vigentes (fecha_fin null o futura).
      *
-     * @return HasMany<UsuarioUoRol>
+     * @return HasMany<UsuarioUo>
      */
     public function adscripcionesVigentes(): HasMany
     {

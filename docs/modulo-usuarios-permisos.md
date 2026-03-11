@@ -208,16 +208,17 @@ unidades_organizativas
 - activa (boolean)
 - created_at, updated_at
 
-usuario_uo_rol  (tabla pivot de adscripción)
+usuario_uo  (tabla pivot de adscripción usuario–UO)
 - id
 - usuario_id (FK a users)
 - unidad_organizativa_id (FK a unidades_organizativas)
-- rol_id (FK a roles de Spatie)
 - tipo_vinculo (interno / contratado)
 - fecha_inicio
 - fecha_fin (nullable)
 - created_at, updated_at
 ```
+
+Los roles se gestionan en `model_has_roles` (Spatie). Un usuario puede tener múltiples roles globales independientemente de sus adscripciones a UO.
 
 Los permisos atómicos y los roles los gestiona Spatie en sus tablas propias (`roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions`).
 
@@ -276,7 +277,7 @@ El backoffice de usuarios y permisos debe ofrecer:
 *(Se completará a medida que avance la implementación)*
 
 - Modelo de UO: `App\Models\UnidadOrganizativa`
-- Pivot de adscripción: `App\Models\UsuarioUoRol`
+- Pivot de adscripción: `App\Models\UsuarioUo`
 - Seeders de permisos: `Database\Seeders\PermisosSeeder`
 - Seeders de roles: `Database\Seeders\RolesSeeder`
 - Policies: `App\Policies\HistoriaSocialPolicy`, `App\Policies\ApuntePolicy`, etc.
