@@ -4,7 +4,7 @@
 
 ## Introducción
 
-**VIDA 360 - Visión Integral de la Persona en Atención Social** es una plataforma para una gestión proactiva de servicios sociales. Diseñada para empoderar a trabajadores sociales, administradores y entidades públicas, VIDA facilita la coordinación, valoración y entrega de prestaciones y recursos sociales, asegurando un enfoque centrado en los derechos de las personas y comunidades vulnerables.
+**VIDA 360 - Visión Integral de la Persona en Atención Social** es una plataforma para una gestión proactiva de servicios sociales. Diseñada para empoderar a trabajadores sociales, administradores y entidades públicas, VIDA facilita la coordinación, valoración y entrega de prestaciones y recursos sociales, asegurando un enfoque centrado en los derechos de las personas y comunidades vulnerables. 
 
 ### ¿Qué resuelve VIDA 360?
 - **Coordinación integral**: Integra múltiples fuentes de datos (e.g., solicitudes de prestaciones, evaluaciones de necesidades) en un flujo unificado para una atención social eficiente y personalizada.
