@@ -35,13 +35,15 @@ class DatabaseSeeder extends Seeder
         // 3. Estructura de Unidades Organizativas de ejemplo
         $this->call(UoSeeder::class);
 
-        // 4. Usuario de desarrollo con rol de administrador
+        // 4. Usuario administrador con rol de sistema
+        // IMPORTANTE: cambiar la contraseña tras el primer acceso
         $admin = User::factory()->create([
-            'name'  => 'Administrador VIDA',
-            'email' => 'admin@vida.local',
+            'name'     => 'Administrador VIDA',
+            'email'    => 'admin@vida.local',
+            'password' => bcrypt('Vida360!Admin'),
         ]);
         $admin->assignRole('adm_sistema');
 
-        $this->command->info('✓ Usuario administrador creado: admin@vida.local');
+        $this->command->info('✓ Usuario administrador creado: admin@vida.local / Vida360!Admin');
     }
 }
