@@ -1,0 +1,123 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\UnidadOrganizativaResource\Pages;
+use App\Models\UnidadOrganizativa;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * Resource Filament para gestionar Unidades Organizativas.
+ *
+ * Accesible en /admin/unidades-organizativas.
+ */
+class UnidadOrganizativaResource extends Resource
+{
+    protected static ?string $model = UnidadOrganizativa::class;
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-office-2';
+    protected static ?string $navigationLabel = 'Unidades Organizativas';
+    protected static string|\UnitEnum|null $navigationGroup = 'Organización';
+    protected static ?string $modelLabel = 'Unidad Organizativa';
+    protected static ?string $pluralModelLabel = 'Unidades Organizativas';
+    protected static ?int $navigationSort = 1;
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema->components([
+            TextInput::make('nombre')
+                ->label('Nombre')
+                ->required()
+                ->maxLength(200)
+                ->columnSpanFull(),
+
+            Select::make('tipo')
+                ->label('Tipo')
+                ->required()
+                ->options(fn () => DB::table('tipos_unidad_organizativa')
+                    ->orderBy('nombre')
+                    ->pluck('nombre', 'codigo')
+                    ->toArray()),
+
+            Select::make('parent_id')
+                ->label('UO padre')
+                ->placeholder('— Sin padre (nodo raíz) —')
+                ->options(fn () => UnidadOrganizativa::activas()
+                    ->orderBy('nombre')
+                    ->pluck('nombre', 'id')
+                    ->toArray())
+                ->searchable()
+                ->nullable(),
+
+            Toggle::make('activa')
+                ->label('Activa')
+                ->default(true),
+        ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('nombre')
+                    ->label('Nombre')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('tipo')
+                    ->label('Tipo')
+                    ->badge()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('padre.nombre')
+                    ->label('UO padre')
+                    ->placeholder('—')
+                    ->sortable(),
+
+                Tables\Columns\IconColumn::make('activa')
+                    ->label('Activa')
+                    ->boolean(),
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Creada')
+                    ->dateTime('d/m/Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                Tables\Filters\TernaryFilter::make('activa')
+                    ->label('Estado')
+                    ->trueLabel('Solo activas')
+                    ->falseLabel('Solo inactivas'),
+
+                Tables\Filters\SelectFilter::make('tipo')
+                    ->label('Tipo')
+                    ->options(fn () => DB::table('tipos_unidad_organizativa')
+                        ->orderBy('nombre')
+                        ->pluck('nombre', 'codigo')
+                        ->toArray()),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
+            ->defaultSort('nombre');
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index'  => Pages\ListUnidadesOrganizativas::route('/'),
+            'create' => Pages\CreateUnidadOrganizativa::route('/create'),
+            'edit'   => Pages\EditUnidadOrganizativa::route('/{record}/edit'),
+        ];
+    }
+}
