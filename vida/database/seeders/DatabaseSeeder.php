@@ -40,7 +40,7 @@ class DatabaseSeeder extends Seeder
         $admin = User::create([
             'name'              => 'Administrador VIDA',
             'email'             => 'admin@vida.local',
-            'password'          => bcrypt('Vida360!Admin'),
+            'password'          => 'Vida360!Admin',
             'email_verified_at' => now(),
         ]);
         $admin->assignRole('adm_sistema');
