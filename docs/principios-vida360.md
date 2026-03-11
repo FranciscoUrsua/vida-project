@@ -225,6 +225,46 @@ Las medidas que se combinan para conseguirlo son:
 
 **Mínimo privilegio y doble autorización para accesos a producción.** El número de personas con acceso privilegiado a la base de datos de producción debe ser el mínimo operativamente necesario. Todo acceso a producción sigue un procedimiento documentado que requiere doble autorización y queda registrado. La existencia de estos registros, y el hecho de que los implicados saben que existen, tiene un efecto disuasorio que complementa las medidas técnicas.
 
+### 4.11 Abstracción y configuración frente a desarrollos ad hoc
+
+Cuando varias entidades o flujos comparten una estructura común con variantes, se desarrolla un módulo general configurable desde el backoffice en lugar de módulos separados para cada caso. La variación se modela como configuración, no como código.
+
+Ejemplos concretos que aplican este principio:
+
+**Centros:** El Ayuntamiento de Madrid gestiona más de 15 tipos de centros con características distintas — centros de servicios sociales, de mayores, de jóvenes, de atención a la mujer, de día, residenciales. Se desarrolla un único módulo de centros con un sistema de tipos configurables que permite modelar cada variante: atributos específicos, capacidades, servicios asociados, requisitos de personal. Añadir un nuevo tipo de centro es una operación de configuración, no de desarrollo.
+
+**Planes de Intervención:** El PISO de ASP y los planes de especializada comparten la misma estructura fundamental. Las variantes — campos específicos de recogida de información, prestaciones disponibles, flujo de aprobación — se modelan como configuración del tipo de plan. Se desarrolla un único módulo de planes de intervención configurable por tipo.
+
+Este principio aplica de forma general a cualquier entidad del sistema donde se detecte el patrón "varios casos con estructura común y variantes específicas". La regla práctica es: antes de crear un nuevo módulo, verificar si existe uno existente que pueda extenderse mediante configuración.
+
+El límite de este principio es la complejidad de configuración: un módulo genérico no debe volverse tan complejo de configurar que en la práctica resulte inusable. Cuando la variación entre casos es tan profunda que la configuración no la puede absorber sin perder coherencia, el desarrollo específico es la decisión correcta.
+
+### 4.12 Ningún valor de negocio hardcodeado en el código
+
+Los nombres de entidades, valores de parámetros, reglas de negocio, umbrales, categorías y cualquier otro dato que pueda cambiar a lo largo de la vida del sistema deben residir en la base de datos o en configuración, nunca en el código fuente. Un cambio en un valor de negocio no debe requerir la intervención de un desarrollador.
+
+Este principio complementa el 4.11 —que opera a nivel de estructura de módulos— y lo extiende al nivel de los datos concretos. Ejemplos de lo que no debe estar hardcodeado: los estados posibles de una Historia Social, los tipos de documentos requeridos en una prestación, los umbrales de alerta en un seguimiento, las categorías del catálogo de prestaciones, los roles de usuario y sus permisos.
+
+El criterio práctico es: si un responsable funcional del ayuntamiento necesita cambiar este valor, debe poder hacerlo desde el backoffice sin llamar a nadie.
+
+### 4.13 VIDA no es un sistema de analítica, pero debe facilitarla
+
+La analítica de datos —informes estadísticos, cuadros de mando estratégicos, análisis de tendencias— se realiza fuera de VIDA, en las herramientas y procesos que cada organización tenga para ello: extracción de datos, construcción de datasets, volcado a un datalake, generación de informes. No es objeto de VIDA implementar estas funciones.
+
+Sí es objeto de VIDA **hacer que esa analítica sea posible y de calidad**. Para ello, VIDA debe mantener un catálogo de entidades y atributos que documente qué datos están disponibles, cómo están estructurados y qué significan. Este catálogo es la interfaz entre el sistema de gestión y los sistemas de analítica, y debe tratarse como documentación de primer nivel, no como un añadido posterior.
+
+### 4.14 La variable sexo se recoge siempre que sea pertinente
+
+Todas las entidades que representen personas deben incluir la variable sexo cuando sea relevante para la gestión o para el análisis posterior. La desagregación por sexo es un criterio fundamental para los informes estratégicos de servicios sociales —detección de desigualdades, análisis de acceso a prestaciones, evaluación de impacto— y su ausencia en el dato de origen hace imposible recuperarla después.
+
+La variable sexo se recoge conforme a la normativa vigente, respetando las posibilidades de cambio legal de sexo registral contempladas en el principio 3.1.
+
+### 4.15 Geoposicionamiento de todas las entidades con expresión física
+
+Toda entidad que tenga una localización física —centros de servicios sociales, domicilios de ciudadanos, zonas de actuación de equipos— debe incluir coordenadas geográficas desde el momento de su creación. La ciudad es el espacio de trabajo de los servicios sociales municipales, y disponer de esta dimensión espacial desde el principio es crítico para la toma de decisiones estratégicas: distribución territorial de recursos, detección de zonas de alta demanda, planificación de nuevos centros, análisis de accesibilidad.
+
+Añadir el geoposicionamiento a posteriori sobre datos ya existentes es costoso e inexacto. Es un dato que se recoge en el momento de alta de la entidad o no se recoge bien nunca.
+
 ---
 
 ## 5. Decisiones pendientes de desarrollo
