@@ -1,0 +1,47 @@
+<?php
+
+namespace Modules\Usuarios\Providers;
+
+use App\Models\Apunte;
+use App\Models\HistoriaSocial;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\ServiceProvider;
+use Modules\Usuarios\Policies\ApuntePolicy;
+use Modules\Usuarios\Policies\HistoriaSocialPolicy;
+
+/**
+ * Provider del módulo Usuarios.
+ *
+ * Registra las Policies de autorización y carga las migraciones del módulo.
+ */
+class UsuariosServiceProvider extends ServiceProvider
+{
+    /**
+     * Nombre del módulo.
+     */
+    protected string $moduleName = 'Usuarios';
+
+    /**
+     * Registra servicios en el contenedor.
+     *
+     * @return void
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    /**
+     * Arranca los servicios del módulo y registra las Policies.
+     *
+     * @return void
+     */
+    public function boot(): void
+    {
+        $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));
+
+        // Registrar Policies de autorización del módulo
+        Gate::policy(HistoriaSocial::class, HistoriaSocialPolicy::class);
+        Gate::policy(Apunte::class, ApuntePolicy::class);
+    }
+}

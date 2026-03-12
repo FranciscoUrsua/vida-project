@@ -2,18 +2,14 @@
 
 namespace App\Providers;
 
-use App\Models\Apunte;
-use App\Models\HistoriaSocial;
-use App\Policies\ApuntePolicy;
-use App\Policies\HistoriaSocialPolicy;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 /**
  * Proveedor principal de servicios de la aplicación.
  *
- * Registra las Policies de autorización que implementan el modelo
- * de acceso de VIDA 360 (docs/modulo-usuarios-permisos.md § 4.4).
+ * Las Policies de autorización se registran en el módulo Usuarios
+ * (Modules\Usuarios\Providers\UsuariosServiceProvider).
+ * Este provider mantiene solo los registros globales de la aplicación.
  */
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,13 +24,12 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Arranca los servicios de la aplicación y registra las Policies.
+     * Arranca los servicios de la aplicación.
      *
      * @return void
      */
     public function boot(): void
     {
-        Gate::policy(HistoriaSocial::class, HistoriaSocialPolicy::class);
-        Gate::policy(Apunte::class, ApuntePolicy::class);
+        //
     }
 }

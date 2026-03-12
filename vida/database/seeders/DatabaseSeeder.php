@@ -9,11 +9,9 @@ use Illuminate\Database\Seeder;
 /**
  * Seeder principal de la base de datos.
  *
- * Orquesta la ejecución de todos los seeders en el orden correcto:
- * primero los catálogos y configuración (permisos, roles, UO),
- * luego los datos de ejemplo.
- *
- * El orden importa: RolesSeeder depende de PermisosSeeder.
+ * Orquesta la ejecución de todos los seeders en el orden correcto.
+ * El orden importa: RolesSeeder depende de PermisosSeeder,
+ * y los seeders de módulos deben ejecutarse después de los del core.
  */
 class DatabaseSeeder extends Seeder
 {
@@ -35,7 +33,10 @@ class DatabaseSeeder extends Seeder
         // 3. Estructura de Unidades Organizativas de ejemplo
         $this->call(UoSeeder::class);
 
-        // 4. Usuario administrador con rol de sistema
+        // 4. Datos del módulo Organizacion (configuracion, colectivos, distritos, etc.)
+        $this->call(\Modules\Organizacion\Database\Seeders\OrganizacionSeeder::class);
+
+        // 5. Usuario administrador con rol de sistema
         // IMPORTANTE: cambiar la contraseña tras el primer acceso
         $admin = User::create([
             'name'              => 'Administrador VIDA',
