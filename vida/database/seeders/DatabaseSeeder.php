@@ -36,7 +36,12 @@ class DatabaseSeeder extends Seeder
         // 4. Datos del módulo Organizacion (configuracion, colectivos, distritos, etc.)
         $this->call(\Modules\Organizacion\Database\Seeders\OrganizacionSeeder::class);
 
-        // 5. Usuario administrador con rol de sistema
+        // 5. Catálogos del módulo Profesional
+        $this->call(CargosSeeder::class);
+        $this->call(TitulacionesSeeder::class);
+        $this->call(TiposRelacionProfesionalSeeder::class);
+
+        // 6. Usuario administrador con rol de sistema
         // IMPORTANTE: cambiar la contraseña tras el primer acceso
         $admin = User::create([
             'name'              => 'Administrador VIDA',

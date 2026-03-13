@@ -7,30 +7,35 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use Spatie\Permission\Models\Role;
 
 /**
  * Historial de roles de un usuario.
  *
- * Registra qué roles ha tenido el usuario a lo largo del tiempo.
- * Es COMPLEMENTARIO a la tabla model_has_roles de Spatie:
- * - Spatie gestiona los roles activos en este momento.
- * - Esta tabla mantiene el historial con fechas de vigencia.
+ * Es la FUENTE DE VERDAD para la asignación de roles.
+ * model_has_roles de Spatie es el estado derivado activo, optimizado
+ * para la evaluación rápida de can() en cada request.
  *
- * Cuando se crea un UsuarioRol con fecha_fin null, el Observer
- * asigna automáticamente el rol en Spatie. Cuando se establece
- * fecha_fin, el Observer revoca el rol en Spatie si ya no hay
- * ningún UsuarioRol vigente para ese rol.
+ * El campo `estado` gestiona el flujo de aprobación previa:
+ * - pendiente_aprobacion: asignación solicitada, aún no activa en Spatie.
+ * - activo: vigente, sincronizado en model_has_roles.
+ * - inactivo: revocado, eliminado de model_has_roles.
+ *
+ * El Observer mantiene model_has_roles sincronizado con los cambios
+ * en esta tabla.
  *
  * @property int $id
- * @property int $user_id
- * @property string $rol Nombre del rol de Spatie
+ * @property int $usuario_id
+ * @property int $rol_id
  * @property \Illuminate\Support\Carbon $fecha_inicio
  * @property \Illuminate\Support\Carbon|null $fecha_fin
+ * @property int|null $asignado_por
+ * @property string $estado  pendiente_aprobacion|activo|inactivo
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  *
  * @see \Modules\Usuarios\Observers\UsuarioRolObserver
- * @see docs/modulo-usuarios-permisos.md sección 4.2
+ * @see docs/modulo-usuarios-permisos.md secciones 4.2 y 4.3
  */
 class UsuarioRol extends Model
 {
@@ -39,10 +44,12 @@ class UsuarioRol extends Model
 
     /** @var list<string> */
     protected $fillable = [
-        'user_id',
-        'rol',
+        'usuario_id',
+        'rol_id',
         'fecha_inicio',
         'fecha_fin',
+        'asignado_por',
+        'estado',
     ];
 
     /** @var array<string, string> */
@@ -56,8 +63,6 @@ class UsuarioRol extends Model
     // -------------------------------------------------------------------------
 
     /**
-     * Registra el observer para mantener Spatie sincronizado.
-     *
      * @return void
      */
     protected static function booted(): void
@@ -76,7 +81,27 @@ class UsuarioRol extends Model
      */
     public function usuario(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'usuario_id');
+    }
+
+    /**
+     * Rol de Spatie asignado.
+     *
+     * @return BelongsTo<Role, UsuarioRol>
+     */
+    public function rol(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'rol_id');
+    }
+
+    /**
+     * Usuario que realizó la asignación.
+     *
+     * @return BelongsTo<User, UsuarioRol>
+     */
+    public function asignadoPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'asignado_por');
     }
 
     // -------------------------------------------------------------------------
@@ -84,17 +109,29 @@ class UsuarioRol extends Model
     // -------------------------------------------------------------------------
 
     /**
-     * Filtra únicamente los registros de rol vigentes:
-     * aquellos donde fecha_fin es null o todavía no ha llegado.
+     * Registros de rol vigentes (activos con fecha válida).
      *
      * @param Builder<UsuarioRol> $consulta
      * @return Builder<UsuarioRol>
      */
     public function scopeVigentes(Builder $consulta): Builder
     {
-        return $consulta->where(function (Builder $q) {
-            $q->whereNull('fecha_fin')
-              ->orWhere('fecha_fin', '>=', Carbon::today());
-        });
+        return $consulta
+            ->where('estado', 'activo')
+            ->where(function (Builder $q) {
+                $q->whereNull('fecha_fin')
+                  ->orWhere('fecha_fin', '>=', Carbon::today());
+            });
+    }
+
+    /**
+     * Registros pendientes de aprobación.
+     *
+     * @param Builder<UsuarioRol> $consulta
+     * @return Builder<UsuarioRol>
+     */
+    public function scopePendientes(Builder $consulta): Builder
+    {
+        return $consulta->where('estado', 'pendiente_aprobacion');
     }
 }

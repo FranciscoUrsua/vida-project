@@ -4,6 +4,7 @@ namespace Modules\Usuarios\Traits;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\Usuarios\Models\UsuarioRol;
+use Spatie\Permission\Models\Role;
 
 /**
  * Trait que añade al User la lógica de historial de roles.
@@ -27,17 +28,27 @@ trait TieneRoles
      */
     public function historialRoles(): HasMany
     {
-        return $this->hasMany(UsuarioRol::class, 'user_id');
+        return $this->hasMany(UsuarioRol::class, 'usuario_id');
     }
 
     /**
-     * Únicamente los registros de rol vigentes.
+     * Únicamente los registros de rol vigentes (activos con fecha válida).
      *
      * @return HasMany<UsuarioRol>
      */
     public function rolesVigentes(): HasMany
     {
         return $this->historialRoles()->vigentes();
+    }
+
+    /**
+     * Registros de rol pendientes de aprobación.
+     *
+     * @return HasMany<UsuarioRol>
+     */
+    public function rolesPendientes(): HasMany
+    {
+        return $this->historialRoles()->pendientes();
     }
 
     // -------------------------------------------------------------------------
@@ -51,13 +62,19 @@ trait TieneRoles
      * Útil cuando la sincronización de Spatie pudiera estar desactualizada,
      * o para consultas históricas.
      *
-     * @param string $rol Nombre del rol, ej: 'intervencion'
+     * @param string $rolNombre Nombre del rol, ej: 'intervencion'
      * @return bool
      */
-    public function tieneRolVigente(string $rol): bool
+    public function tieneRolVigente(string $rolNombre): bool
     {
+        $rol = Role::findByName($rolNombre);
+
+        if (! $rol) {
+            return false;
+        }
+
         return $this->rolesVigentes()
-            ->where('rol', $rol)
+            ->where('rol_id', $rol->id)
             ->exists();
     }
 

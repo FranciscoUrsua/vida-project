@@ -14,30 +14,32 @@ use Modules\Usuarios\Models\UsuarioRol;
  * el HISTORIAL.
  *
  * Reglas de sincronización:
- * - Al crear un UsuarioRol con fecha_fin null → asignar rol en Spatie.
- * - Al actualizar un UsuarioRol con fecha_fin → revocar en Spatie
- *   si no hay otros UsuarioRol vigentes para ese rol.
+ * - Al crear un UsuarioRol con estado=activo y fecha vigente → assignRole.
+ * - Al aprobar una asignación (estado: pendiente_aprobacion → activo) → assignRole.
+ * - Al revocar (estado → inactivo) o caducar (fecha_fin en el pasado) → removeRole
+ *   si no hay otro UsuarioRol vigente para ese rol en ese usuario.
  *
  * @see \Modules\Usuarios\Models\UsuarioRol
+ * @see docs/modulo-usuarios-permisos.md sección 4.3
  */
 class UsuarioRolObserver
 {
     /**
      * Sincroniza Spatie al crear un nuevo registro de rol.
      *
-     * Si el nuevo rol es vigente (fecha_fin null o futura), se asigna
-     * en Spatie para que los permisos queden activos inmediatamente.
+     * Solo sincroniza si el estado es activo y la fecha es vigente.
+     * Los registros pendientes de aprobación NO se sincronizan.
      *
      * @param UsuarioRol $usuarioRol
      * @return void
      */
     public function created(UsuarioRol $usuarioRol): void
     {
-        $esVigente = $usuarioRol->fecha_fin === null
-            || Carbon::parse($usuarioRol->fecha_fin)->isFuture()
-            || Carbon::parse($usuarioRol->fecha_fin)->isToday();
+        if ($usuarioRol->estado !== 'activo') {
+            return;
+        }
 
-        if ($esVigente) {
+        if ($this->esVigente($usuarioRol)) {
             $usuarioRol->usuario->assignRole($usuarioRol->rol);
         }
     }
@@ -45,26 +47,39 @@ class UsuarioRolObserver
     /**
      * Sincroniza Spatie al actualizar un registro de rol.
      *
-     * Si se ha establecido fecha_fin (el rol ha caducado), comprueba si
-     * hay algún otro registro vigente para ese rol. Si no lo hay, revoca
-     * el rol en Spatie.
+     * Gestiona tres casos:
+     * 1. Aprobación: estado pendiente_aprobacion → activo → assignRole.
+     * 2. Caducidad: fecha_fin establecida en el pasado → removeRole si no hay otro vigente.
+     * 3. Revocación: estado → inactivo → removeRole si no hay otro vigente.
      *
      * @param UsuarioRol $usuarioRol
      * @return void
      */
     public function updated(UsuarioRol $usuarioRol): void
     {
-        $seFinalizo = $usuarioRol->wasChanged('fecha_fin')
-            && $usuarioRol->fecha_fin !== null
-            && Carbon::parse($usuarioRol->fecha_fin)->isPast();
+        $estadoCambio = $usuarioRol->wasChanged('estado');
+        $fechaCambio  = $usuarioRol->wasChanged('fecha_fin');
 
-        if (! $seFinalizo) {
+        // Caso 1: acaba de ser aprobada
+        if ($estadoCambio && $usuarioRol->estado === 'activo') {
+            if ($this->esVigente($usuarioRol)) {
+                $usuarioRol->usuario->assignRole($usuarioRol->rol);
+            }
             return;
         }
 
-        // ¿Hay otro UsuarioRol vigente para este rol en este usuario?
-        $hayOtroVigente = UsuarioRol::where('user_id', $usuarioRol->user_id)
-            ->where('rol', $usuarioRol->rol)
+        // Caso 2 y 3: revocación o caducidad
+        $seRevoco  = $estadoCambio && $usuarioRol->estado === 'inactivo';
+        $seCaduco  = $fechaCambio
+            && $usuarioRol->fecha_fin !== null
+            && Carbon::parse($usuarioRol->fecha_fin)->isPast();
+
+        if (! $seRevoco && ! $seCaduco) {
+            return;
+        }
+
+        $hayOtroVigente = UsuarioRol::where('usuario_id', $usuarioRol->usuario_id)
+            ->where('rol_id', $usuarioRol->rol_id)
             ->where('id', '!=', $usuarioRol->id)
             ->vigentes()
             ->exists();
@@ -72,5 +87,19 @@ class UsuarioRolObserver
         if (! $hayOtroVigente) {
             $usuarioRol->usuario->removeRole($usuarioRol->rol);
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers privados
+    // -------------------------------------------------------------------------
+
+    /**
+     * Comprueba si la fecha de vigencia del registro es válida (hoy o futura).
+     */
+    private function esVigente(UsuarioRol $usuarioRol): bool
+    {
+        return $usuarioRol->fecha_fin === null
+            || Carbon::parse($usuarioRol->fecha_fin)->isFuture()
+            || Carbon::parse($usuarioRol->fecha_fin)->isToday();
     }
 }

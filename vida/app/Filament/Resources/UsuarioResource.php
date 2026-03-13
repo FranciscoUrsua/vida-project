@@ -17,6 +17,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Modules\Usuarios\Models\Profesional;
 
 /**
  * Resource Filament para gestionar Usuarios del sistema.
@@ -41,10 +42,29 @@ class UsuarioResource extends Resource
     {
         return $schema->components([
 
+            Section::make('Perfil profesional')
+                ->description('Vincula esta cuenta con el perfil organizativo del profesional. Déjalo vacío para perfiles estrictamente técnicos sin función asistencial.')
+                ->schema([
+                    Select::make('profesional_id')
+                        ->label('Profesional vinculado')
+                        ->options(
+                            fn () => Profesional::activos()
+                                ->orderBy('apellido1')
+                                ->get()
+                                ->mapWithKeys(fn (Profesional $p) => [
+                                    $p->id => trim("{$p->apellido1} {$p->apellido2}, {$p->nombre}"),
+                                ])
+                        )
+                        ->searchable()
+                        ->nullable()
+                        ->placeholder('Sin profesional vinculado (perfil técnico)')
+                        ->helperText('Solo los perfiles técnicos sin función asistencial (adm_sistema) pueden no tener profesional.'),
+                ]),
+
             Section::make('Datos de acceso')
                 ->schema([
                     TextInput::make('name')
-                        ->label('Nombre completo')
+                        ->label('Nombre de usuario')
                         ->required()
                         ->maxLength(255),
 
@@ -92,6 +112,7 @@ class UsuarioResource extends Resource
                                 ->options([
                                     'interno'    => 'Interno (funcionario / laboral)',
                                     'contratado' => 'Contratado (empresa externa)',
+                                    'externo'    => 'Externo (colaboración puntual)',
                                 ])
                                 ->default('interno')
                                 ->required(),

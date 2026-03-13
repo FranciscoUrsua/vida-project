@@ -257,7 +257,7 @@ El **scoping por UO** no lo resuelve ningún paquete: se construye encima de Spa
 usuarios
 - id
 - profesional_id (FK a profesionales, nullable)
-- nombre
+- name
 - email
 - password
 - email_verified_at
@@ -376,7 +376,7 @@ Las anotaciones privadas son un caso especial dentro del tipo `Anotacion` del mo
 *(Se completará a medida que avance la implementación)*
 
 - Modelo de Usuario: `App\Models\Usuario`
-- Modelo de Profesional: `App\Models\Profesional`
+- Modelo de Profesional: `Modules\Usuarios\Models\Profesional`
 - Modelo de UO: `App\Models\UnidadOrganizativa`
 - Pivot de adscripción a UO: `App\Models\UsuarioUo`
 - Pivot de roles con historial: `App\Models\UsuarioRol`
