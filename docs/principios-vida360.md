@@ -265,6 +265,16 @@ Toda entidad que tenga una localización física —centros de servicios sociale
 
 Añadir el geoposicionamiento a posteriori sobre datos ya existentes es costoso e inexacto. Es un dato que se recoge en el momento de alta de la entidad o no se recoge bien nunca.
 
+### 4.16 Filament para configuración, Livewire para operación y supervisión
+
+El sistema utiliza dos herramientas de frontend con perfiles distintos y complementarios. El criterio de asignación no es por entidad sino por capa de abstracción:
+
+- **Filament resuelve la capa de configuración**: qué puede existir, cómo se estructura y qué reglas aplican. Ejemplos: configuración de horarios y plantillas de agenda, gestión del catálogo de centros, alta y adscripción de usuarios, parámetros del sistema, catálogos configurables. Es la herramienta adecuada para perfiles administrativos (adm_sistema, adm_usuarios) realizando tareas de gestión de datos estructurados con baja frecuencia de uso.
+
+- **Livewire resuelve la capa de operación y supervisión**: qué está ocurriendo, qué hace cada profesional con esa estructura, y cómo supervisa un responsable el trabajo de su equipo. Ejemplos: el calendario vivo de citas de un profesional, la vista de agendas del equipo desde la perspectiva del director, la gestión activa de una Historia Social, el seguimiento de intervenciones en curso. Es la herramienta adecuada para el trabajo diario de los profesionales de servicios sociales.
+
+Una misma entidad puede tener representación en ambas capas con propósitos distintos. La agenda existe en Filament como plantilla de configuración (horario laboral, bloques de atención, días festivos) y en Livewire como calendario operativo (citas concretas, huecos disponibles, ausencias). Esto no es duplicidad: son dos vistas de la misma entidad para dos tipos de tarea radicalmente distintos.
+
 ---
 
 ## 5. Decisiones pendientes de desarrollo
