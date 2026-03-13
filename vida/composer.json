@@ -29,8 +29,14 @@
             "App\\": "app/",
             "Modules\\Organizacion\\": "Modules/Organizacion/app/",
             "Modules\\Organizacion\\Database\\": "Modules/Organizacion/database/",
+            "Modules\\Organizacion\\Database\\Seeders\\": "Modules/Organizacion/database/seeders/",
+            "Modules\\Organizacion\\Database\\Migrations\\": "Modules/Organizacion/database/migrations/",
+            "Modules\\Organizacion\\Database\\Factories\\": "Modules/Organizacion/database/factories/",
             "Modules\\Usuarios\\": "Modules/Usuarios/app/",
             "Modules\\Usuarios\\Database\\": "Modules/Usuarios/database/",
+            "Modules\\Usuarios\\Database\\Seeders\\": "Modules/Usuarios/database/seeders/",
+            "Modules\\Usuarios\\Database\\Migrations\\": "Modules/Usuarios/database/migrations/",
+            "Modules\\Usuarios\\Database\\Factories\\": "Modules/Usuarios/database/factories/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
