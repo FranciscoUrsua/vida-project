@@ -79,7 +79,7 @@ class UsuarioResource extends Resource
                         ->label('Contraseña')
                         ->password()
                         ->revealable()
-                        ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
+                        ->dehydrateStateUsing(fn ($state) => filled($state) ? $state : null)
                         ->dehydrated(fn ($state) => filled($state))
                         ->required(fn (string $operation) => $operation === 'create')
                         ->hint(fn (string $operation) => $operation === 'edit' ? 'Deja en blanco para no cambiarla' : ''),

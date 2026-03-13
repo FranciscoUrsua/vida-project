@@ -68,7 +68,7 @@ class ConfiguracionRolResource extends Resource
                     ->label('Rol')
                     ->sortable(),
 
-                Tables\Columns\BadgeColumn::make('nivel_supervision')
+                Tables\Columns\TextColumn::make('nivel_supervision')->badge()
                     ->label('Nivel de supervisión')
                     ->formatStateUsing(fn (string $state) => match ($state) {
                         'aprobacion_previa'  => 'Aprobación previa',
