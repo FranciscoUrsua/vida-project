@@ -37,6 +37,11 @@
             "Modules\\Usuarios\\Database\\Seeders\\": "Modules/Usuarios/database/seeders/",
             "Modules\\Usuarios\\Database\\Migrations\\": "Modules/Usuarios/database/migrations/",
             "Modules\\Usuarios\\Database\\Factories\\": "Modules/Usuarios/database/factories/",
+            "Modules\\Centro\\": "Modules/Centro/app/",
+            "Modules\\Centro\\Database\\": "Modules/Centro/database/",
+            "Modules\\Centro\\Database\\Seeders\\": "Modules/Centro/database/seeders/",
+            "Modules\\Centro\\Database\\Migrations\\": "Modules/Centro/database/migrations/",
+            "Modules\\Centro\\Database\\Factories\\": "Modules/Centro/database/factories/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }

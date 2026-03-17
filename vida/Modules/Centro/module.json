@@ -1,0 +1,9 @@
+{
+    "name": "Centro",
+    "alias": "centro",
+    "description": "Gestión de centros de servicios sociales, plazas y actividades",
+    "keywords": [],
+    "priority": 0,
+    "providers": [],
+    "files": []
+}
