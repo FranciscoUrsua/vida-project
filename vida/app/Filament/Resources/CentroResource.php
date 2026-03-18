@@ -19,7 +19,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\Centro;
-use Modules\Centro\Models\Prestacion;
+use Modules\Prestaciones\Models\Prestacion;
 use Modules\Centro\Models\SegmentoPoblacion;
 use Modules\Organizacion\Models\Distrito;
 
@@ -166,7 +166,7 @@ class CentroResource extends Resource
                     CheckboxList::make('prestaciones')
                         ->label('Prestaciones que ofrece')
                         ->relationship('prestaciones', 'nombre')
-                        ->options(fn () => Prestacion::where('activo', true)->orderBy('nombre')->pluck('nombre', 'id'))
+                        ->options(fn () => Prestacion::activas()->orderBy('nombre')->pluck('nombre', 'id'))
                         ->columns(2),
                 ]),
 

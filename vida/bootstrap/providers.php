@@ -6,4 +6,5 @@ return [
     Modules\Organizacion\Providers\OrganizacionServiceProvider::class,
     Modules\Usuarios\Providers\UsuariosServiceProvider::class,
     Modules\Centro\Providers\CentroServiceProvider::class,
+    Modules\Prestaciones\Providers\PrestacionesServiceProvider::class,
 ];

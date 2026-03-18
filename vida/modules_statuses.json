@@ -1,5 +1,6 @@
 {
     "Organizacion": true,
     "Usuarios": true,
-    "Centro": true
+    "Centro": true,
+    "Prestaciones": true
 }
