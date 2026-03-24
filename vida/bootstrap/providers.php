@@ -7,4 +7,5 @@ return [
     Modules\Usuarios\Providers\UsuariosServiceProvider::class,
     Modules\Centro\Providers\CentroServiceProvider::class,
     Modules\Prestaciones\Providers\PrestacionesServiceProvider::class,
+    Modules\Mensajes\Providers\MensajesServiceProvider::class,
 ];

@@ -1,0 +1,101 @@
+<?php
+
+namespace Modules\Mensajes\Livewire;
+
+use Livewire\Attributes\Computed;
+use Livewire\Component;
+use Modules\Mensajes\Enums\DestinatarioType;
+use Modules\Mensajes\Enums\EstadoAlerta;
+use Modules\Mensajes\Enums\TipoAlerta;
+use Modules\Mensajes\Models\Alerta;
+use Modules\Mensajes\Services\AlertaService;
+
+/**
+ * Bandeja de alertas del profesional autenticado.
+ *
+ * Muestra alertas pendientes ordenadas por prioridad:
+ * primero alertas (requieren reconocimiento), luego avisos.
+ * Dentro de cada grupo, ordenadas por expiración ascendente.
+ */
+class BandejaAlertas extends Component
+{
+    public ?int $alertaConfirmandoId = null;
+
+    public function mount(): void
+    {
+        abort_unless(auth()->check(), 401);
+    }
+
+    #[Computed]
+    public function alertas(): \Illuminate\Database\Eloquent\Collection
+    {
+        $usuario = auth()->user();
+
+        return Alerta::where('estado', EstadoAlerta::Pendiente)
+            ->where(function ($query) use ($usuario) {
+                // Alertas directas
+                $query->where(function ($q) use ($usuario) {
+                    $q->where('destinatario_type', DestinatarioType::Usuario)
+                        ->where('destinatario_usuario_id', $usuario->id);
+                })
+                // Alertas por rol+UO del usuario
+                ->orWhere(function ($q) use ($usuario) {
+                    $q->where('destinatario_type', DestinatarioType::RolUo)
+                        ->whereIn('destinatario_rol', $usuario->getRoleNames()->all())
+                        ->whereHas('destinatarioUo', function ($uoQuery) use ($usuario) {
+                            $uoQuery->whereHas('usuarios', function ($uq) use ($usuario) {
+                                $uq->where('usuario_id', $usuario->id);
+                            });
+                        });
+                });
+            })
+            ->orderByRaw("CASE WHEN tipo = 'alerta' THEN 0 ELSE 1 END")
+            ->orderBy('expira_en')
+            ->with(['destinatarioUo'])
+            ->get();
+    }
+
+    /**
+     * Solicita confirmación antes de reconocer una alerta.
+     */
+    public function confirmarReconocimiento(int $alertaId): void
+    {
+        $this->alertaConfirmandoId = $alertaId;
+    }
+
+    /**
+     * Reconoce (o descarta) la alerta confirmada.
+     */
+    public function reconocer(AlertaService $alertaService): void
+    {
+        if (! $this->alertaConfirmandoId) {
+            return;
+        }
+
+        $alerta = Alerta::findOrFail($this->alertaConfirmandoId);
+
+        $alertaService->reconocer(
+            $alerta,
+            auth()->user(),
+            request()->ip() ?? ''
+        );
+
+        $this->alertaConfirmandoId = null;
+
+        // Invalidar computed para refrescar la lista
+        unset($this->alertas);
+    }
+
+    /**
+     * Cancela el diálogo de confirmación.
+     */
+    public function cancelarReconocimiento(): void
+    {
+        $this->alertaConfirmandoId = null;
+    }
+
+    public function render(): \Illuminate\View\View
+    {
+        return view('mensajes::livewire.bandeja-alertas');
+    }
+}

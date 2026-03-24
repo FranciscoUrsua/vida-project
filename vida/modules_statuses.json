@@ -2,5 +2,6 @@
     "Organizacion": true,
     "Usuarios": true,
     "Centro": true,
-    "Prestaciones": true
+    "Prestaciones": true,
+    "Mensajes": true
 }

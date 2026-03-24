@@ -1,0 +1,9 @@
+{
+    "name": "Mensajes",
+    "alias": "mensajes",
+    "description": "Módulo de mensajería interna y alertas del sistema para VIDA 360",
+    "keywords": [],
+    "priority": 0,
+    "providers": [],
+    "files": []
+}

@@ -12,6 +12,7 @@
         "laravel/tinker": "^2.10.1",
         "livewire/livewire": "^4.2",
         "nwidart/laravel-modules": "^12.0",
+        "spatie/laravel-medialibrary": "^11.21",
         "spatie/laravel-permission": "^7.2",
         "staudenmeir/laravel-adjacency-list": "^1.25"
     },
@@ -47,6 +48,11 @@
             "Modules\\Prestaciones\\Database\\Seeders\\": "Modules/Prestaciones/database/Seeders/",
             "Modules\\Prestaciones\\Database\\Migrations\\": "Modules/Prestaciones/database/migrations/",
             "Modules\\Prestaciones\\Database\\Factories\\": "Modules/Prestaciones/database/factories/",
+            "Modules\\Mensajes\\": "Modules/Mensajes/app/",
+            "Modules\\Mensajes\\Database\\": "Modules/Mensajes/database/",
+            "Modules\\Mensajes\\Database\\Seeders\\": "Modules/Mensajes/database/seeders/",
+            "Modules\\Mensajes\\Database\\Migrations\\": "Modules/Mensajes/database/migrations/",
+            "Modules\\Mensajes\\Database\\Factories\\": "Modules/Mensajes/database/factories/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
@@ -54,7 +60,8 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/",
-            "Modules\\Usuarios\\Tests\\": "Modules/Usuarios/tests/"
+            "Modules\\Usuarios\\Tests\\": "Modules/Usuarios/tests/",
+            "Modules\\Mensajes\\Tests\\": "Modules/Mensajes/tests/"
         }
     },
     "scripts": {
