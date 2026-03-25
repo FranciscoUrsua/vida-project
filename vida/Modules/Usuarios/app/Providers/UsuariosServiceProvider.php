@@ -40,7 +40,12 @@ class UsuariosServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));
 
-        // Registrar Policies de autorización del módulo
+        // Registrar Policies de autorización del módulo.
+        // HistoriaSocial y Apunte son stubs temporales en App\Models hasta que
+        // se implemente Modules\Intervencion. Las Policies viven aquí porque
+        // implementan el modelo de permisos de rol definido en este módulo
+        // (docs/modulo-usuarios-permisos.md). Cuando Intervencion exista,
+        // mover las policies y este registro a IntevencionServiceProvider.
         Gate::policy(HistoriaSocial::class, HistoriaSocialPolicy::class);
         Gate::policy(Apunte::class, ApuntePolicy::class);
     }

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Schema;
  * iniciales (pendiente, aprobado, denegado) se corresponden con las
  * fases del flujo definido en el documento de especificación.
  *
- * @see \App\Policies\HistoriaSocialPolicy
+ * @see \Modules\Usuarios\Policies\HistoriaSocialPolicy
  * @see docs/modulo-usuarios-permisos.md sección 3
  */
 return new class extends Migration

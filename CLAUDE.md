@@ -74,6 +74,9 @@ Two self-booting Eloquent traits applied to all non-auxiliary models:
 - SCSS + Bootstrap 5 compiled through Vite. Local fonts in `resources/fonts/` for offline capability.
 - Filament for backoffice admin.
 
+### Filament Resources — centralización deliberada
+All Filament Resources live in `app/Filament/Resources/` (not inside their respective modules). This is a conscious architectural decision: keeping them in one place simplifies `AdminPanelProvider` registration and avoids the need for each module to auto-discover its resources. The trade-off is that the UI layer is centralized while the domain logic (models, migrations, services) is modular. **Do not move Resources into modules** unless we decide to change this convention globally.
+
 
 ## Environment
 
