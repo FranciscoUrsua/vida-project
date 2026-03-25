@@ -53,11 +53,21 @@ class SesionActividad extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
+    /**
+     * Actividad a la que pertenece esta sesión.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Actividad, self>
+     */
     public function actividad(): BelongsTo
     {
         return $this->belongsTo(Actividad::class, 'actividad_id');
     }
 
+    /**
+     * Prescripciones dirigidas a esta sesión de actividad.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\Prescripcion, self>
+     */
     public function prescripciones(): HasMany
     {
         return $this->hasMany(Prescripcion::class, 'destino_id')
@@ -71,6 +81,8 @@ class SesionActividad extends Model
     /**
      * Plazas disponibles: aforo efectivo menos prescripciones activas o asignadas.
      * Usa el aforo de la sesión si está definido, o el de la actividad como fallback.
+     *
+     * @return int
      */
     public function getAforoDisponibleAttribute(): int
     {
@@ -91,6 +103,12 @@ class SesionActividad extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
+    /**
+     * Filtra sesiones con estado programada.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
     public function scopeProgramadas(Builder $query): Builder
     {
         return $query->where('estado', 'programada');

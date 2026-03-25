@@ -78,51 +78,101 @@ class Centro extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
+    /**
+     * Unidad organizativa a la que pertenece el centro.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\UnidadOrganizativa, self>
+     */
     public function unidadOrganizativa(): BelongsTo
     {
         return $this->belongsTo(UnidadOrganizativa::class, 'unidad_organizativa_id');
     }
 
+    /**
+     * Distrito municipal donde se ubica el centro.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Organizacion\Models\Distrito, self>
+     */
     public function distrito(): BelongsTo
     {
         return $this->belongsTo(Distrito::class, 'distrito_id');
     }
 
+    /**
+     * Colecciones de plazas del centro.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\ColeccionPlazas, self>
+     */
     public function coleccionesPlazas(): HasMany
     {
         return $this->hasMany(ColeccionPlazas::class, 'centro_id');
     }
 
+    /**
+     * Actividades programadas en el centro.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\Actividad, self>
+     */
     public function actividades(): HasMany
     {
         return $this->hasMany(Actividad::class, 'centro_id');
     }
 
+    /**
+     * Historial de directores del centro.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\DirectorCentro, self>
+     */
     public function directores(): HasMany
     {
         return $this->hasMany(DirectorCentro::class, 'centro_id');
     }
 
+    /**
+     * Personas de contacto adicionales del centro.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\ContactoCentro, self>
+     */
     public function contactos(): HasMany
     {
         return $this->hasMany(ContactoCentro::class, 'centro_id');
     }
 
+    /**
+     * Inscripciones de ciudadanos al centro.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\InscripcionCentro, self>
+     */
     public function inscripciones(): HasMany
     {
         return $this->hasMany(InscripcionCentro::class, 'centro_id');
     }
 
+    /**
+     * Redes a las que pertenece el centro.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Modules\Centro\Models\Red, self>
+     */
     public function redes(): BelongsToMany
     {
         return $this->belongsToMany(Red::class, 'red_centro', 'centro_id', 'red_id');
     }
 
+    /**
+     * Segmentos de población a los que atiende el centro.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Modules\Centro\Models\SegmentoPoblacion, self>
+     */
     public function segmentosPoblacion(): BelongsToMany
     {
         return $this->belongsToMany(SegmentoPoblacion::class, 'centro_segmento_poblacion', 'centro_id', 'segmento_poblacion_id');
     }
 
+    /**
+     * Prestaciones vinculadas al centro.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Modules\Centro\Models\Prestacion, self>
+     */
     public function prestaciones(): BelongsToMany
     {
         return $this->belongsToMany(Prestacion::class, 'centro_prestacion', 'centro_id', 'prestacion_id');
@@ -132,6 +182,12 @@ class Centro extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
+    /**
+     * Filtra centros activos y sin fecha de baja.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
     public function scopeActivos(Builder $query): Builder
     {
         return $query->where('activo', true)->whereNull('fecha_baja');

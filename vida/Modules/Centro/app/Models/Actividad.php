@@ -63,16 +63,31 @@ class Actividad extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
+    /**
+     * Centro en el que se desarrolla la actividad.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Centro, self>
+     */
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class, 'centro_id');
     }
 
+    /**
+     * Tipo de actividad que clasifica esta actividad.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\TipoActividad, self>
+     */
     public function tipoActividad(): BelongsTo
     {
         return $this->belongsTo(TipoActividad::class, 'tipo_actividad_id');
     }
 
+    /**
+     * Sesiones concretas planificadas para esta actividad.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\SesionActividad, self>
+     */
     public function sesiones(): HasMany
     {
         return $this->hasMany(SesionActividad::class, 'actividad_id');
@@ -82,6 +97,12 @@ class Actividad extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
+    /**
+     * Filtra actividades activas y sin fecha de baja.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
     public function scopeActivas(Builder $query): Builder
     {
         return $query->where('activa', true)->whereNull('fecha_baja');

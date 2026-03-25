@@ -46,11 +46,21 @@ class InscripcionCentro extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
+    /**
+     * Centro al que está inscrito el ciudadano.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Centro, self>
+     */
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class, 'centro_id');
     }
 
+    /**
+     * Ciudadano inscrito en el centro.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Ciudadano, self>
+     */
     public function ciudadano(): BelongsTo
     {
         return $this->belongsTo(Ciudadano::class, 'ciudadano_id');
@@ -60,6 +70,12 @@ class InscripcionCentro extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
+    /**
+     * Filtra inscripciones activas y sin fecha de baja.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
     public function scopeActivas(Builder $query): Builder
     {
         return $query->where('activa', true)->whereNull('fecha_baja');

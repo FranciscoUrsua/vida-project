@@ -59,27 +59,52 @@ class ColeccionPlazas extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
+    /**
+     * Centro al que pertenece la colección de plazas.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Centro, self>
+     */
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class, 'centro_id');
     }
 
+    /**
+     * Espacios físicos que componen esta colección.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\Espacio, self>
+     */
     public function espacios(): HasMany
     {
         return $this->hasMany(Espacio::class, 'coleccion_plazas_id');
     }
 
+    /**
+     * Plazas individuales de todos los espacios de la colección.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<\Modules\Centro\Models\Plaza, \Modules\Centro\Models\Espacio, self>
+     */
     public function plazas(): HasManyThrough
     {
         return $this->hasManyThrough(Plaza::class, Espacio::class, 'coleccion_plazas_id', 'espacio_id');
     }
 
+    /**
+     * Prescripciones dirigidas a esta colección de plazas.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\Prescripcion, self>
+     */
     public function prescripciones(): HasMany
     {
         return $this->hasMany(Prescripcion::class, 'destino_id')
             ->where('tipo_destino', 'coleccion_plazas');
     }
 
+    /**
+     * Lista de espera asociada a esta colección de plazas.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\Modules\Centro\Models\ListaEspera, self>
+     */
     public function listaEspera(): HasOne
     {
         return $this->hasOne(ListaEspera::class, 'coleccion_plazas_id');
@@ -91,6 +116,8 @@ class ColeccionPlazas extends Model
 
     /**
      * Número de plazas con estado 'libre' en esta colección.
+     *
+     * @return int
      */
     public function getPlazasDisponiblesAttribute(): int
     {
@@ -101,6 +128,12 @@ class ColeccionPlazas extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
+    /**
+     * Filtra colecciones de plazas activas.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
     public function scopeActivas(Builder $query): Builder
     {
         return $query->where('activa', true);

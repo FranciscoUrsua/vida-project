@@ -65,21 +65,41 @@ class Prescripcion extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
+    /**
+     * Profesional que emite la prescripción.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Usuarios\Models\Profesional, self>
+     */
     public function profesional(): BelongsTo
     {
         return $this->belongsTo(Profesional::class, 'profesional_id');
     }
 
+    /**
+     * Ciudadano beneficiario de la prescripción.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Ciudadano, self>
+     */
     public function ciudadano(): BelongsTo
     {
         return $this->belongsTo(Ciudadano::class, 'ciudadano_id');
     }
 
+    /**
+     * Plaza concreta asignada (nullable hasta la asignación efectiva).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Plaza, self>
+     */
     public function plaza(): BelongsTo
     {
         return $this->belongsTo(Plaza::class, 'plaza_id');
     }
 
+    /**
+     * Registro de lista de espera generado por esta prescripción.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\Modules\Centro\Models\ListaEspera, self>
+     */
     public function listaEspera(): HasOne
     {
         return $this->hasOne(ListaEspera::class, 'prescripcion_id');
@@ -88,6 +108,8 @@ class Prescripcion extends Model
     /**
      * Resuelve el destino de la prescripción según tipo_destino.
      * Devuelve la ColeccionPlazas o la SesionActividad correspondiente.
+     *
+     * @return \Modules\Centro\Models\ColeccionPlazas|\Modules\Centro\Models\SesionActividad|null
      */
     public function destino(): ColeccionPlazas|SesionActividad|null
     {
@@ -102,11 +124,23 @@ class Prescripcion extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
+    /**
+     * Filtra prescripciones con estado activa.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
     public function scopeActivas(Builder $query): Builder
     {
         return $query->where('estado', 'activa');
     }
 
+    /**
+     * Filtra prescripciones con estado pendiente.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
     public function scopePendientes(Builder $query): Builder
     {
         return $query->where('estado', 'pendiente');

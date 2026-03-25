@@ -7,6 +7,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Persona de contacto adicional de un centro.
+ *
+ * Complementa los datos de contacto del propio centro con personas
+ * responsables de áreas específicas (coordinación, admisiones, etc.).
+ *
+ * @property int $id
+ * @property int $centro_id
+ * @property string $nombre
+ * @property string|null $rol
+ * @property string|null $telefono
+ * @property string|null $email
+ * @property bool $activo
+ * @property string|null $notas
  */
 class ContactoCentro extends Model
 {
@@ -26,6 +38,11 @@ class ContactoCentro extends Model
         'activo' => 'boolean',
     ];
 
+    /**
+     * Centro al que pertenece este contacto.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Centro, self>
+     */
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class, 'centro_id');

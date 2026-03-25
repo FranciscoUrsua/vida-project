@@ -101,6 +101,11 @@ class Prestacion extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
+    /**
+     * Tipos de centro vinculados a esta prestación.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<PrestacionTipoCentro, self>
+     */
     public function tiposCentro(): HasMany
     {
         return $this->hasMany(PrestacionTipoCentro::class, 'prestacion_id');
@@ -110,16 +115,34 @@ class Prestacion extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
+    /**
+     * Filtra prestaciones activas.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
     public function scopeActivas(Builder $query): Builder
     {
         return $query->where('activa', true);
     }
 
+    /**
+     * Filtra prestaciones de tipo servicio (no económicas).
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
     public function scopeDeServicio(Builder $query): Builder
     {
         return $query->where('tipo_prestacion', 'servicio');
     }
 
+    /**
+     * Filtra prestaciones de tipo económico.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
     public function scopeEconomicas(Builder $query): Builder
     {
         return $query->where('tipo_prestacion', 'economica');

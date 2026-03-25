@@ -39,12 +39,20 @@ class Mensaje extends Model implements HasMedia
     // Medialibrary
     // -------------------------------------------------------------------------
 
+    /**
+     * Registra la colección de adjuntos del mensaje en disco local.
+     */
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('adjuntos_mensaje')
             ->useDisk('local');
     }
 
+    /**
+     * Sin conversiones de imagen para documentos adjuntos.
+     *
+     * @param \Spatie\MediaLibrary\MediaCollections\Models\Media|null $media
+     */
     public function registerMediaConversions(?Media $media = null): void
     {
         // Sin conversiones por defecto para documentos adjuntos
@@ -54,25 +62,41 @@ class Mensaje extends Model implements HasMedia
     // Relaciones
     // -------------------------------------------------------------------------
 
-    /** @return BelongsTo<MensajeHilo, Mensaje> */
+    /**
+     * Hilo de conversación al que pertenece el mensaje.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<MensajeHilo, self>
+     */
     public function hilo(): BelongsTo
     {
         return $this->belongsTo(MensajeHilo::class, 'hilo_id');
     }
 
-    /** @return BelongsTo<User, Mensaje> */
+    /**
+     * Usuario que envió el mensaje.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
+     */
     public function remitente(): BelongsTo
     {
         return $this->belongsTo(User::class, 'remitente_id');
     }
 
-    /** @return HasMany<MensajeReferenciaCiudadano> */
+    /**
+     * Referencias a ciudadanos mencionados en el mensaje.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<MensajeReferenciaCiudadano, self>
+     */
     public function referenciasCiudadano(): HasMany
     {
         return $this->hasMany(MensajeReferenciaCiudadano::class, 'mensaje_id');
     }
 
-    /** @return HasMany<MensajeRegistroHistoria> */
+    /**
+     * Registros del mensaje incorporados a Historias Sociales de ciudadanos.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<MensajeRegistroHistoria, self>
+     */
     public function registrosHistoria(): HasMany
     {
         return $this->hasMany(MensajeRegistroHistoria::class, 'mensaje_id');

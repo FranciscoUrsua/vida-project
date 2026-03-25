@@ -36,13 +36,21 @@ class MensajeReferenciaCiudadano extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
-    /** @return BelongsTo<Mensaje, MensajeReferenciaCiudadano> */
+    /**
+     * Mensaje que origina esta referencia.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Mensaje, self>
+     */
     public function mensaje(): BelongsTo
     {
         return $this->belongsTo(Mensaje::class, 'mensaje_id');
     }
 
-    /** @return BelongsTo<Ciudadano, MensajeReferenciaCiudadano> */
+    /**
+     * Ciudadano referenciado en el mensaje.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Ciudadano, self>
+     */
     public function ciudadano(): BelongsTo
     {
         return $this->belongsTo(Ciudadano::class, 'ciudadano_id');

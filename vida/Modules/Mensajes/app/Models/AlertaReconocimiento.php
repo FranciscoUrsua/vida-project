@@ -40,13 +40,21 @@ class AlertaReconocimiento extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
-    /** @return BelongsTo<Alerta, AlertaReconocimiento> */
+    /**
+     * Alerta a la que pertenece este reconocimiento.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Alerta, self>
+     */
     public function alerta(): BelongsTo
     {
         return $this->belongsTo(Alerta::class, 'alerta_id');
     }
 
-    /** @return BelongsTo<User, AlertaReconocimiento> */
+    /**
+     * Usuario que realizó el reconocimiento.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
+     */
     public function usuario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'usuario_id');

@@ -54,6 +54,11 @@ class ListaEspera extends Model
     // Validación en modelo
     // -------------------------------------------------------------------------
 
+    /**
+     * Registra el hook de validación que impide mezclar ámbito local y de red.
+     *
+     * @return void
+     */
     protected static function booted(): void
     {
         static::saving(function (self $registro) {
@@ -78,21 +83,41 @@ class ListaEspera extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
+    /**
+     * Prescripción que originó la entrada en lista de espera.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Prescripcion, self>
+     */
     public function prescripcion(): BelongsTo
     {
         return $this->belongsTo(Prescripcion::class, 'prescripcion_id');
     }
 
+    /**
+     * Colección de plazas de ámbito local (mutuamente excluyente con red).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\ColeccionPlazas, self>
+     */
     public function coleccionPlazas(): BelongsTo
     {
         return $this->belongsTo(ColeccionPlazas::class, 'coleccion_plazas_id');
     }
 
+    /**
+     * Red de centros de ámbito compartido (mutuamente excluyente con coleccionPlazas).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Red, self>
+     */
     public function red(): BelongsTo
     {
         return $this->belongsTo(Red::class, 'red_id');
     }
 
+    /**
+     * Profesional al que se notificará cuando haya plaza disponible.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Usuarios\Models\Profesional, self>
+     */
     public function profesionalAlerta(): BelongsTo
     {
         return $this->belongsTo(Profesional::class, 'profesional_alerta_id');
@@ -102,6 +127,12 @@ class ListaEspera extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
+    /**
+     * Filtra registros de lista de espera con estado activa.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
     public function scopeActivas(Builder $query): Builder
     {
         return $query->where('estado', 'activa');

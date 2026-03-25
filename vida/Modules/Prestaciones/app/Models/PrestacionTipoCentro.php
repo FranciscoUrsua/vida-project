@@ -18,6 +18,11 @@ class PrestacionTipoCentro extends Model
 
     protected $fillable = ['prestacion_id', 'tipo_centro'];
 
+    /**
+     * Prestación a la que pertenece este tipo de centro.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Prestacion, self>
+     */
     public function prestacion(): BelongsTo
     {
         return $this->belongsTo(Prestacion::class, 'prestacion_id');

@@ -47,19 +47,31 @@ class MensajeRegistroHistoria extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
-    /** @return BelongsTo<Mensaje, MensajeRegistroHistoria> */
+    /**
+     * Mensaje original cuyo contenido se incorporó al expediente.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Mensaje, self>
+     */
     public function mensaje(): BelongsTo
     {
         return $this->belongsTo(Mensaje::class, 'mensaje_id');
     }
 
-    /** @return BelongsTo<Ciudadano, MensajeRegistroHistoria> */
+    /**
+     * Ciudadano cuyo expediente recibió el registro.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Ciudadano, self>
+     */
     public function ciudadano(): BelongsTo
     {
         return $this->belongsTo(Ciudadano::class, 'ciudadano_id');
     }
 
-    /** @return BelongsTo<User, MensajeRegistroHistoria> */
+    /**
+     * Profesional que incorporó el mensaje al expediente.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
+     */
     public function registradoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'registrado_por_id');

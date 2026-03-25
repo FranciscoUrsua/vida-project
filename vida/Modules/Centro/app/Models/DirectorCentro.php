@@ -51,6 +51,11 @@ class DirectorCentro extends Model
     // Validación en modelo
     // -------------------------------------------------------------------------
 
+    /**
+     * Registra el hook de validación que impide mezclar director interno y externo.
+     *
+     * @return void
+     */
     protected static function booted(): void
     {
         static::saving(function (self $director) {
@@ -77,11 +82,21 @@ class DirectorCentro extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
+    /**
+     * Centro que dirige este registro.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Centro, self>
+     */
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class, 'centro_id');
     }
 
+    /**
+     * Profesional interno vinculado como director (nullable para directores externos).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Usuarios\Models\Profesional, self>
+     */
     public function profesional(): BelongsTo
     {
         return $this->belongsTo(Profesional::class, 'profesional_id');
@@ -91,6 +106,12 @@ class DirectorCentro extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
+    /**
+     * Filtra el director actualmente en activo (sin fecha de fin).
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
     public function scopeActivo(Builder $query): Builder
     {
         return $query->whereNull('fecha_fin');

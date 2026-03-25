@@ -30,19 +30,31 @@ class MensajeHilo extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
-    /** @return HasMany<MensajeParticipante> */
+    /**
+     * Participantes del hilo de conversación.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<MensajeParticipante, self>
+     */
     public function participantes(): HasMany
     {
         return $this->hasMany(MensajeParticipante::class, 'hilo_id');
     }
 
-    /** @return HasMany<Mensaje> */
+    /**
+     * Mensajes del hilo ordenados cronológicamente.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Mensaje, self>
+     */
     public function mensajes(): HasMany
     {
         return $this->hasMany(Mensaje::class, 'hilo_id')->orderBy('created_at');
     }
 
-    /** @return BelongsTo<User, MensajeHilo> */
+    /**
+     * Usuario que creó el hilo de conversación.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
+     */
     public function creadoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'creado_por_id');

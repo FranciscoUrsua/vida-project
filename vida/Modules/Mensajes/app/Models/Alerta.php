@@ -65,30 +65,51 @@ class Alerta extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
-    /** @return HasMany<AlertaReconocimiento> */
+    /**
+     * Reconocimientos registrados para esta alerta.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<AlertaReconocimiento, self>
+     */
     public function reconocimientos(): HasMany
     {
         return $this->hasMany(AlertaReconocimiento::class, 'alerta_id');
     }
 
-    /** @return BelongsTo<User, Alerta> */
+    /**
+     * Usuario al que va dirigida la alerta (cuando el destinatario es un usuario concreto).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
+     */
     public function destinatarioUsuario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'destinatario_usuario_id');
     }
 
-    /** @return BelongsTo<UnidadOrganizativa, Alerta> */
+    /**
+     * Unidad organizativa destinataria (cuando el destinatario es un rol+UO).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<UnidadOrganizativa, self>
+     */
     public function destinatarioUo(): BelongsTo
     {
         return $this->belongsTo(UnidadOrganizativa::class, 'destinatario_uo_id');
     }
 
-    /** @return BelongsTo<User, Alerta> */
+    /**
+     * Usuario al que fue escalada la alerta tras vencer el plazo de reconocimiento.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
+     */
     public function escaladaA(): BelongsTo
     {
         return $this->belongsTo(User::class, 'escalada_a_usuario_id');
     }
 
+    /**
+     * Entidad que originó la alerta (relación polimórfica).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo<\Illuminate\Database\Eloquent\Model, self>
+     */
     public function origen(): MorphTo
     {
         return $this->morphTo();
@@ -98,7 +119,12 @@ class Alerta extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
-    /** @param Builder<Alerta> $query */
+    /**
+     * Filtra alertas en estado pendiente.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
     public function scopePendientes(Builder $query): Builder
     {
         return $query->where('estado', EstadoAlerta::Pendiente);
@@ -107,7 +133,8 @@ class Alerta extends Model
     /**
      * Alertas de tipo 'alerta' con el plazo de reconocimiento vencido.
      *
-     * @param Builder<Alerta> $query
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
      */
     public function scopeVencidas(Builder $query): Builder
     {

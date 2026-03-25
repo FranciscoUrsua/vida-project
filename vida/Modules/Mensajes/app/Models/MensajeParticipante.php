@@ -41,13 +41,21 @@ class MensajeParticipante extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
-    /** @return BelongsTo<MensajeHilo, MensajeParticipante> */
+    /**
+     * Hilo de mensajes al que pertenece esta participación.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<MensajeHilo, self>
+     */
     public function hilo(): BelongsTo
     {
         return $this->belongsTo(MensajeHilo::class, 'hilo_id');
     }
 
-    /** @return BelongsTo<User, MensajeParticipante> */
+    /**
+     * Usuario participante del hilo.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
+     */
     public function usuario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'usuario_id');

@@ -45,6 +45,11 @@ class Red extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
+    /**
+     * Centros que pertenecen a esta red.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Modules\Centro\Models\Centro, self>
+     */
     public function centros(): BelongsToMany
     {
         return $this->belongsToMany(Centro::class, 'red_centro', 'red_id', 'centro_id');
@@ -54,6 +59,12 @@ class Red extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
+    /**
+     * Filtra redes activas.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
     public function scopeActivas(Builder $query): Builder
     {
         return $query->where('activa', true);
