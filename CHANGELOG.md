@@ -78,69 +78,11 @@ Registro de cambios agrupado por módulo y área funcional, en orden cronológic
 
 ---
 
-## Módulo Ciudadanos (SocialUsers) — 2025-11-13 a 2025-11-14
-
-### Nuevas funcionalidades
-- Modelo `Ciudadano` / `SocialUser` con cifrado AES-256 transparente en todos los campos PII (nombres, DNI, dirección, contacto, coordenadas) mediante cast `'encrypted'` de Laravel.
-- Flag `requiere_permiso_especial` para colectivos protegidos (menores, víctimas de violencia de género); comprobación en controladores via `can()`.
-- Trait `ValidatesIdentification`: validación de NIF/NIE/pasaporte español.
-- Servicio `DomicilioValidatorService`: integración con callejero municipal de Madrid para validación de domicilios.
-- Versionado automático de documento de identidad mediante trait `Versionable` (snapshot JSON en tabla `versiones`).
-
-### Auditoría
-- Sistema de auditoría propio (`AuditService` + trait `Auditable`) en sustitución de `owen-it/laravel-auditing`.
-- Trazabilidad RGPD completa: operaciones CRUD registradas en tabla `audits` con valores anteriores/nuevos, usuario actuante, IP y user agent.
-- Cifrado de `old_values` en tabla `audits`.
-
-### Refactorizaciones
-- Modelos `Audit` y `Version` movidos a `App\Common`.
-- Eliminación de tabla `calles_numeros` (reemplazada por servicio externo).
-
----
-
-## Módulo Centro (versión inicial) — 2025-11-13 a 2025-12-09
-
-### Nuevas funcionalidades
-- Modelos `Centro`, `Director`, `TipoCentro`, `CentroProfesional` con seeders de datos iniciales.
-- Controladores API: centros, directores.
-- Campo `formatted_address` en tabla `centros` generado por `DomicilioValidatorService`.
-- Relación polimórfica de versionado aplicada a `Centro`.
-
----
-
-## Módulo Profesionales (versión inicial) — 2025-11-13
-
-### Nuevas funcionalidades
-- Modelo `Profesional` con validación de documento de identidad.
-- Seeders de profesionales de prueba.
-
----
-
-## Módulo Organización / Estructura territorial — 2025-11-13
-
-### Nuevas funcionalidades
-- Modelo `Distrito` con controlador.
-- Lógica de estandarización de países y comunidades autónomas españolas.
-- Migraciones refactorizadas con numeración de orden de dependencia.
-
----
-
-## Módulo Historia Social / Intervención — 2025-11-04 a 2025-11-05
-
-### Nuevas funcionalidades (borrador)
-- Módulo `Intervencion` con modelo `Historia` y ruta API.
-- Borradores de `Fichas` y `Valoraciones`.
-
----
-
 ## Infraestructura y configuración inicial — 2025-10-22 a 2025-12-05
 
 ### Setup del proyecto
 - Scaffolding inicial Laravel (renombrado carpeta `backend/ → vida/`).
 - Configuración de CI/CD (GitHub Actions → rama `master`).
-- Bootstrap 5 + VIDA Logo + pantalla de login/bienvenida.
-- Prototipo inicial de dashboard.
-- Header y footer Blade (`layouts/app.blade.php`, partials).
 - Documentación: `README.md`, `LICENSE.md`, `NOTICE.md`, `CLAUDE.md`, `principios-vida360.md`.
 - Principios técnicos de desarrollo y convenciones de abstracción.
 
