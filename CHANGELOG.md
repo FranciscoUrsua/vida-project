@@ -4,6 +4,29 @@ Registro de cambios agrupado por módulo y área funcional, en orden cronológic
 
 ---
 
+## Módulo Agenda — Fase 1 — 2026-04-07
+
+### Nuevas funcionalidades
+- Estructura completa del módulo `Modules/Agenda/` con provider, autoload PSR-4 y registro en `modules_statuses.json`.
+- **9 enums PHP** con `label()` en español: `ModoAgenda`, `EstadoCuadrante`, `EstadoSlot`, `EstadoCita`, `OrigenCita`, `TipoExcepcion`, `OrigenExcepcion`, `OrigenPermitidoSlot`, `MotivoReasignacion`.
+- **11 migrations** en orden estricto de dependencias: `horarios_centro`, `tipos_slot`, `perfiles_horario_profesional`, `excepciones_profesional`, `cuadrantes_mes`, `lineas_cuadrante`, `slots`, `citas`, `reasignaciones_cita`, `eventos_agenda`, `evento_usuario`.
+- **9 modelos Eloquent** con relaciones, scopes y casts de enums/JSON: `HorarioCentro`, `TipoSlot`, `PerfilHorarioProfesional`, `ExcepcionProfesional`, `CuadranteMes`, `LineaCuadrante`, `Slot`, `Cita`, `ReasignacionCita`, `EventoAgenda`.
+- **5 Filament Resources** en `app/Filament/Resources/` (grupo *Agenda*):
+  - Configuración: `HorarioCentroResource` (con `TiposSlotsRelationManager`), `TipoSlotResource`, `PerfilHorarioProfesionalResource`.
+  - Supervisión: `CuadranteMesResource` (con `LineasCuadranteRelationManager` + acción *Publicar*), `ExcepcionProfesionalResource`.
+- **Seeder** `AgendaSeeder`: crea un `HorarioCentro` y tres `TipoSlot` de ejemplo para el primer centro disponible. Integrado en `DatabaseSeeder`.
+- **Servicios esqueleto**: `DisponibilidadService`, `CuadranteGeneratorService`, `SlotMaterializadorService`, `GestionAusenciaService`.
+- **`SlotExpirationJob`** registrado en el scheduler (`dailyAt('20:00')`).
+- Paquetes añadidos: `spatie/period` ^2.4, `simshaun/recurr` ^5.0.
+
+### Pendiente (fases posteriores)
+- Componentes Livewire: agenda del profesional, gestión de ausencias, cuadrante del centro.
+- Lógica interna de servicios y del job de expiración.
+- Componente IA de generación de cuadrantes (diferido explícitamente).
+- Endpoint API de recepción de citas externas (módulo Integraciones).
+
+---
+
 ## [Sin versión] — 2026-03-25
 
 ### Documentación general
