@@ -3,5 +3,6 @@
     "Usuarios": true,
     "Centro": true,
     "Prestaciones": true,
-    "Mensajes": true
+    "Mensajes": true,
+    "Agenda": true
 }

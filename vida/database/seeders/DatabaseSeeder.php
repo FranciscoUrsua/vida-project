@@ -36,6 +36,9 @@ class DatabaseSeeder extends Seeder
         // 4. Datos del módulo Organizacion (configuracion, colectivos, distritos, etc.)
         $this->call(\Modules\Organizacion\Database\Seeders\OrganizacionSeeder::class);
 
+        // 5b. Datos del módulo Agenda (horarios y tipos de slot de ejemplo)
+        $this->call(\Modules\Agenda\Database\Seeders\AgendaSeeder::class);
+
         // 5. Catálogos del módulo Profesional
         $this->call(CargosSeeder::class);
         $this->call(TitulacionesSeeder::class);

@@ -1,0 +1,79 @@
+<?php
+
+namespace Modules\Agenda\Models;
+
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Centro\Models\Centro;
+
+/**
+ * Línea del cuadrante: asignación de un profesional en un día concreto.
+ *
+ * Define la franja horaria real de trabajo de un profesional en un día,
+ * incorporando las particularidades de su perfil. Las excepciones pueden
+ * anular la línea correspondiente.
+ *
+ * @property int $id
+ * @property int $cuadrante_mes_id
+ * @property int $usuario_id
+ * @property int $centro_id
+ * @property \Illuminate\Support\Carbon $fecha
+ * @property array $franjas
+ * @property bool $anulada
+ * @property int|null $excepcion_id
+ */
+class LineaCuadrante extends Model
+{
+    protected $table = 'lineas_cuadrante';
+
+    protected $guarded = [];
+
+    protected $casts = [
+        'fecha'   => 'date',
+        'franjas' => 'array',
+        'anulada' => 'boolean',
+    ];
+
+    public function cuadranteMes(): BelongsTo
+    {
+        return $this->belongsTo(CuadranteMes::class, 'cuadrante_mes_id');
+    }
+
+    public function usuario(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'usuario_id');
+    }
+
+    public function centro(): BelongsTo
+    {
+        return $this->belongsTo(Centro::class);
+    }
+
+    public function slots(): HasMany
+    {
+        return $this->hasMany(Slot::class, 'linea_cuadrante_id');
+    }
+
+    public function excepcion(): BelongsTo
+    {
+        return $this->belongsTo(ExcepcionProfesional::class, 'excepcion_id');
+    }
+
+    public function scopeActivas(Builder $query): Builder
+    {
+        return $query->where('anulada', false);
+    }
+
+    public function scopeDelDia(Builder $query, $fecha): Builder
+    {
+        return $query->where('fecha', $fecha);
+    }
+
+    public function scopeDelProfesional(Builder $query, int $usuarioId): Builder
+    {
+        return $query->where('usuario_id', $usuarioId);
+    }
+}

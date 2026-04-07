@@ -1,0 +1,11 @@
+{
+    "name": "Agenda",
+    "alias": "agenda",
+    "description": "Gestión de citas, agendas y cuadrantes de los centros de servicios sociales",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+
+    ],
+    "files": []
+}
