@@ -1,0 +1,9 @@
+{
+    "name": "Documentos",
+    "alias": "documentos",
+    "description": "Custodia de documentos externos y generación y firma de informes profesionales",
+    "keywords": [],
+    "priority": 0,
+    "providers": [],
+    "files": []
+}

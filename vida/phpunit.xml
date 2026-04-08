@@ -13,6 +13,7 @@
             <directory>Modules/Usuarios/tests/Feature</directory>
             <directory>Modules/Prestaciones/tests/Feature</directory>
             <directory>Modules/Mensajes/tests/Feature</directory>
+            <directory>Modules/Documentos/tests/Feature</directory>
         </testsuite>
     </testsuites>
     <source>

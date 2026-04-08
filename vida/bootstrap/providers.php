@@ -9,4 +9,5 @@ return [
     Modules\Prestaciones\Providers\PrestacionesServiceProvider::class,
     Modules\Mensajes\Providers\MensajesServiceProvider::class,
     Modules\Agenda\Providers\AgendaServiceProvider::class,
+    Modules\Documentos\Providers\DocumentosServiceProvider::class,
 ];
