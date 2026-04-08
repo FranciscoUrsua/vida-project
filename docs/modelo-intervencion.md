@@ -187,7 +187,7 @@ Una Historia Social puede tener varios planes activos simultáneamente, cada uno
 - `fecha_firma` (nullable hasta firma)
 - `fecha_cierre` (nullable)
 - `motivo_cierre` (enum: `objetivos_cumplidos`, `abandono`, `derivacion`, `fallecimiento`, `otros`)
-- `objetivos` (pendiente de decisión — ver sección 5.5)
+- `objetivos` (texto libre — fase inicial; se prevé evolución a lista estructurada con indicadores medibles en fases posteriores)
 - `version` (integer — control de revisiones)
 - `created_at`, `updated_at`
 
@@ -201,23 +201,59 @@ Cada revisión sustancial del plan que requiera nueva firma genera un nuevo regi
 
 ### 5.4 Versionado y revisiones
 
-El plan no se edita destructivamente. Cuando se modifica, se incrementa `version` y la versión anterior queda archivada. La tabla `RevisionPlan` registra el historial de modificaciones: `plan_id`, `version_anterior`, `version_nueva`, `profesional_id`, `fecha`, `motivo_revision`.
+El plan no se edita destructivamente. Cuando se modifica, se incrementa `version` y la versión anterior queda archivada. La tabla `RevisionPlan` registra el historial de modificaciones: `plan_id`, `version_anterior`, `version_nueva`, `profesional_id`, `fecha`, `motivo_revision`, `seguimiento_id` (FK nullable — si la revisión tiene origen en un seguimiento concreto).
 
-### 5.5 Visibilidad entre niveles
+### 5.5 Modificación del plan como resultado de un seguimiento
+
+Un seguimiento puede concluir con la decisión de modificar el plan. El flujo es:
+
+1. El TSR cierra el seguimiento y marca que requiere revisión del plan.
+2. Se crea una nueva versión del plan (`version` incrementa, la anterior queda archivada) con el `seguimiento_id` registrado en `RevisionPlan` como origen trazable.
+3. La nueva versión pasa a estado `borrador` hasta obtener la firma de ambas partes.
+4. Se genera un nuevo registro `FirmaPlan` para esta versión. El plan no pasa a `activo` hasta que ambas firmas estén recogidas.
+
+### 5.6 Visibilidad entre niveles
 
 Los profesionales con rol de intervención tienen acceso de lectura a los planes de otros profesionales y servicios sobre el mismo ciudadano. Este principio es operativamente crítico: el TSR necesita saber lo acordado con Infancia, y el trabajador social de Infancia necesita ver si el ciudadano percibe una ayuda de comedor gestionada desde ASP. La restricción de acceso como mecanismo de "propiedad" profesional no está soportada por el sistema (ver `principios-vida360.md`, sección 3.4).
 
-### 5.6 Decisión pendiente: modelo de objetivos
+---
 
-Queda pendiente decidir cómo se modelan los objetivos del plan: texto libre, lista estructurada con indicadores medibles, o modelo híbrido. Esta decisión afecta a cómo se registra el progreso en los seguimientos y cómo se determina el cierre por objetivos cumplidos.
+## 6. Entidad: SeguimientoPlan
+
+El seguimiento es el registro de una sesión de revisión del Plan de Intervención. Se genera a partir de una entrevista de tipo `seguimiento` y queda vinculado al plan mediante un apunte.
+
+### 6.1 Atributos
+
+- `id`
+- `plan_id` (FK)
+- `entrevista_id` (FK — la entrevista de seguimiento que lo origina)
+- `profesional_id` (FK)
+- `fecha`
+- `avances` (texto libre — progreso observado respecto a los objetivos del plan)
+- `objetivos_cumplidos` (texto libre — objetivos que se consideran alcanzados en este seguimiento)
+- `incidencias` (texto libre, nullable — circunstancias relevantes que han afectado al desarrollo del plan)
+- `nuevas_prestaciones` (JSON array de IDs del catálogo, nullable — prestaciones iniciadas como resultado de este seguimiento)
+- `requiere_revision_plan` (boolean — indica si este seguimiento ha derivado en una modificación del plan)
+- `fecha_siguiente_seguimiento` (date, nullable — fijada por el TSR al cerrar el seguimiento)
+- `created_at`, `updated_at`
+
+### 6.2 Programación del siguiente seguimiento
+
+Cuando el TSR fija `fecha_siguiente_seguimiento`, el sistema solicita al módulo de Agenda la creación de una cita para esa fecha con el mismo profesional y ciudadano, usando el tipo de slot `entrevista_seguimiento`. La cita se crea en estado `reservado` en el slot correspondiente. Si no existe disponibilidad en esa fecha, el sistema advierte al TSR sin bloquear el guardado del seguimiento.
+
+La integración sigue el mismo mecanismo que cualquier otra cita del sistema: el módulo de Intervención solicita la cita al módulo de Agenda a través de su interfaz interna; no crea registros de agenda directamente.
+
+### 6.3 Nuevas prestaciones en el seguimiento
+
+Las prestaciones iniciadas durante un seguimiento se registran como referencias al catálogo (`nuevas_prestaciones`), no como texto libre, para mantener la trazabilidad analítica. Cada prestación referenciada genera el mismo flujo que una prestación iniciada en cualquier otro contexto: se registra en la Historia Social y, si procede, se vincula al expediente administrativo correspondiente.
 
 ---
 
-## 6. Entidad: Apunte
+## 7. Entidad: Apunte
 
 El apunte es el mecanismo de asociación de elementos heterogéneos al Plan de Intervención. Es un nodo de conexión que puede apuntar a entidades muy diversas: entrevistas, documentos, derivaciones, seguimientos o anotaciones sin entidad vinculada.
 
-### 6.1 Atributos
+### 7.1 Atributos
 
 - `id`
 - `plan_id` (FK)
@@ -228,7 +264,7 @@ El apunte es el mecanismo de asociación de elementos heterogéneos al Plan de I
 - `contenido` (texto, nullable — para anotaciones sin entidad vinculada)
 - `visibilidad` (enum: `privada`, `profesionales`, `ciudadano`)
 
-### 6.2 Tres niveles de visibilidad
+### 7.2 Tres niveles de visibilidad
 
 **`privada`**: solo visible para el autor. Nunca accesible para otros profesionales, aunque asuman el caso. Es el espacio de trabajo personal del profesional: observaciones preliminares, hipótesis de trabajo, notas de cautela. Siendo esto conocido por todos los profesionales del sistema, cada uno valora conscientemente qué registra como privado y qué registra como visible para quien le suceda. Las anotaciones privadas no se transfieren al cambiar de profesional responsable.
 
@@ -236,40 +272,42 @@ El apunte es el mecanismo de asociación de elementos heterogéneos al Plan de I
 
 **`ciudadano`**: visible también para el ciudadano a través de su carpeta ciudadana (cuando esa integración esté activa). Documentos entregados, acuerdos firmados, prestaciones activas.
 
-### 6.3 Visibilidad ciudadana y derecho de acceso
+### 7.3 Visibilidad ciudadana y derecho de acceso
 
 La visibilidad `profesionales` no equivale a "el ciudadano nunca puede ver esto". Significa que ese contenido no se muestra en la carpeta ciudadana de forma automática. El ciudadano tiene derecho de acceso a su historia social completa si lo solicita formalmente, conforme al RGPD. Ese ejercicio es un proceso administrativo diferente, no una funcionalidad de la plataforma. Esta distinción debe ser conocida por todos los profesionales del sistema.
 
 ---
 
-## 7. Decisiones de diseño transversales
+## 8. Decisiones de diseño transversales
 
-### 7.1 Configurabilidad como principio
+### 8.1 Configurabilidad como principio
 
 El modelo de valoración y el modelo de plan no están hardcodeados. Ambos son configurables desde el backoffice para permitir evolución metodológica sin desarrollo. Un sistema hardcodeado para el modelo actual sería deuda técnica desde el primer día.
 
-### 7.2 Coste de la configurabilidad
+### 8.2 Coste de la configurabilidad
 
 La configurabilidad tiene un coste real que se asume explícitamente: el frontend debe renderizar formularios dinámicamente a partir de schemas, la validación debe interpretarse en tiempo de ejecución, las migraciones cuando cambia un schema son delicadas, y el backoffice de configuración es en sí mismo una pieza de software no trivial. El retorno —un sistema que sobrevive a cambios metodológicos sin depender del equipo de desarrollo— es positivo en el horizonte temporal de un sistema municipal (10-15 años).
 
-### 7.3 Captura de información: calidad sobre exhaustividad
+### 8.3 Captura de información: calidad sobre exhaustividad
 
 El sistema prioriza un núcleo mínimo de campos verdaderamente necesarios para decisiones y prestaciones, combinado con notas de texto libre por ficha como espacio de trabajo principal durante la entrevista. El profesional convierte esas notas en estructura al finalizar la sesión. Un JSON con texto rico es recuperable analíticamente; un campo vacío no lo es.
 
-### 7.4 IA como asistente, no como árbitro
+### 8.4 IA como asistente, no como árbitro
 
 Toda funcionalidad de IA en este módulo requiere validación explícita del profesional antes de producir cualquier efecto. El sistema hace siempre visible cuándo una sugerencia proviene de un componente de IA (ver `principios-vida360.md`, sección 3.9).
 
+### 8.5 Integración entre módulos: Intervención y Agenda
+
+El módulo de Intervención no gestiona directamente slots ni citas. Toda solicitud de cita (desde el SIA, desde el cierre de un seguimiento, o desde cualquier otro punto del flujo) se realiza a través de la interfaz del módulo de Agenda. El módulo de Intervención es consumidor de Agenda, nunca escribe en sus tablas directamente. Esto incluye la programación del siguiente seguimiento: `fecha_siguiente_seguimiento` en `SeguimientoPlan` es la intención del profesional; la cita resultante pertenece al módulo de Agenda.
+
 ---
 
-## 8. Decisiones pendientes
+## 9. Decisiones pendientes
 
-- **Modelo de objetivos del plan**: texto libre, lista estructurada con indicadores medibles, o híbrido. Afecta al modelo de seguimiento y al criterio de cierre por objetivos cumplidos.
-- **Modelo de seguimiento del plan**: qué estructura tiene un registro de seguimiento, si los seguimientos son periódicos programados o a demanda, y si el ciudadano puede solicitar un seguimiento.
+- **Modelo de objetivos del plan — evolución futura**: en la fase inicial los objetivos son texto libre. Se prevé incorporar en fases posteriores una lista estructurada de objetivos con indicadores medibles, que permita registrar el progreso de forma cuantitativa y determinar el cierre por objetivos cumplidos de manera más precisa.
 - **Pilotaje de la Self-Sufficient Matrix (SSM)**: la arquitectura la soporta como un `tipo_ficha` configurable. La decisión de adopción, pilotaje y formación es organizativa, no técnica.
-- **Integración con el módulo de citas y agendas**: el flujo SIA → cita → entrevista depende de decisiones que se tomarán en el módulo específico de citas.
-- **Asistencia de IA durante la entrevista**: se ha evaluado la posibilidad de que la IA analice las notas en tiempo real para sugerir preguntas y proponer estructura de fichas. Descartado para la fase inicial por complejidad de implementación. A retomar cuando el flujo base esté consolidado. Los requisitos de diseño ya están documentados en el historial de decisiones del proyecto.
-- **Transcripción automática de audio**: evaluada y descartada como flujo estándar. Razones principales: riesgo de inhibición de información sensible, complejidad del consentimiento informado en contextos de vulnerabilidad, dificultades con personas con problemas de lenguaje, y coste de mantenimiento de un modelo local con calidad suficiente. Puede reconsiderarse como opción voluntaria para tipos específicos de entrevista.
+- **Asistencia de IA durante la entrevista**: se ha evaluado la posibilidad de que la IA analice las notas en tiempo real para sugerir preguntas al profesional y proponer estructura de fichas. Descartado para la fase inicial por complejidad de implementación. Los requisitos de diseño están documentados en el historial de decisiones del proyecto. A retomar cuando el flujo base esté consolidado.
+- **Transcripción automática de audio**: evaluada y descartada como flujo estándar. Razones principales: riesgo de inhibición de información sensible por parte del ciudadano al saber que se graba, complejidad del consentimiento informado en contextos de vulnerabilidad, dificultades técnicas con personas con problemas de lenguaje (colectivo frecuente), y coste de mantenimiento de un modelo local con calidad suficiente. Puede reconsiderarse como opción voluntaria para tipos específicos de entrevista en fases posteriores.
 
 ---
 
