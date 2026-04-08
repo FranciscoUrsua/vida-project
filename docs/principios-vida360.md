@@ -54,37 +54,65 @@ VIDA distingue explícitamente entre tres situaciones competenciales, que implic
 
 Muchas prestaciones municipales se prestan a través de empresas o entidades contratadas, que disponen de sus propios sistemas de información. El intercambio de datos con estos proveedores se realiza habitualmente mediante ficheros periódicos (Excel mensual de personas atendidas, para control de facturación). VIDA debe ser capaz de importar estos ficheros, hacer *matching* con ciudadanos existentes en el sistema y registrar la actividad para completar la visión 360.
 
+### 2.3 VIDA no es un gestor de expedientes administrativos
+
+Las prestaciones económicas y algunas prestaciones de servicio con mayor complejidad administrativa se gestionan a través de un sistema de expedientes administrativos propio del Ayuntamiento. VIDA interactúa con ese sistema para tres operaciones concretas: iniciar una solicitud, consultar el estado de tramitación e incorporar la resolución a la Historia Social. La tramitación interna del expediente es responsabilidad del gestor externo, no de VIDA.
+
 ---
 
-## 3. Principios de diseño del sistema
+## 3. Principios de diseño
 
 ### 3.1 Sin valores de negocio hardcodeados
 
-Ningún valor de dominio con posibilidad de evolución debe estar hardcodeado en el código fuente ni en migraciones de base de datos como constante inmutable. Los catálogos, estructuras de valoración, plantillas de planes y clasificaciones deben ser configurables desde backoffice, de forma que la evolución metodológica no requiera trabajo de desarrollo.
-
-Este principio no implica que todo sea configurable: los valores que el propio código necesita conocer para tomar decisiones de lógica de negocio pueden y deben modelarse como enums (ver principio 3.10). El principio aplica a los valores puramente descriptivos o clasificatorios.
+Los catálogos, estructuras de valoración, plantillas de planes y clasificaciones son configurables desde backoffice sin necesidad de desarrollo. Este principio no aplica a valores que el código necesita conocer para tomar decisiones de lógica de negocio — esos van como enums PHP (ver principio 3.10).
 
 ### 3.2 Diferimiento explícito sobre ambigüedad
 
-Cuando una decisión de diseño no está madura, se documenta explícitamente como diferida con su justificación, en lugar de resolverla prematuramente o dejarla abierta. Las decisiones diferidas son ciudadanas de primera clase en la documentación.
+Las decisiones no maduras se documentan explícitamente como diferidas con su justificación, en lugar de resolverlas prematuramente o ignorarlas. Las decisiones diferidas son ciudadanas de primera clase en la documentación: tienen su sección, su justificación y su condición de resolución.
 
 ### 3.3 Separación de dimensiones en permisos
 
-El rol (qué puede hacer un usuario) y la Unidad Organizativa (dónde puede hacerlo) son dimensiones independientes que se evalúan secuencialmente. Un mismo profesional puede tener roles distintos en distintas UO. Esta separación es estructural y no debe colapsarse en una única tabla de asignación.
+El rol (¿qué puede hacer?) y la UO (¿dónde puede hacerlo?) son dimensiones independientes que se evalúan secuencialmente. Un mismo profesional puede tener roles distintos en distintas UO. Esta separación estructural no debe colapsarse en una única dimensión.
 
-### 3.4 Evitar enums para valores inestables
+### 3.4 El expediente pertenece al ciudadano, no al profesional
 
-Los enums de base de datos se reservan para valores con alta estabilidad estructural. Para clasificaciones con más de dos o tres valores o con posibilidad razonable de evolución, se prefieren catálogos en tabla. Ver principio 3.10 para la distinción completa.
+El expediente social no es "propiedad" del trabajador social que lo gestiona. Pertenece al ciudadano. Este principio tiene consecuencias concretas sobre el modelo de acceso:
 
-### 3.5 Patrones transversales sobre soluciones por entidad
+- Cualquier trabajador social identificado en el sistema puede consultar una Historia Social.
+- Solo el profesional asignado a una prestación concreta puede editarla.
+- El acceso a información no está regulado por departamento, sino por necesidad asistencial. Un profesional de un departamento puede necesitar conocer si existe intervención activa en otro departamento con la misma persona.
 
-Los problemas que se repiten en múltiples módulos (versionado histórico, permisos, auditoría) se resuelven con un patrón único aplicado de forma consistente, no módulo a módulo. El patrón de versionado polimórfico mediante snapshots JSON es el ejemplo canónico: se define una vez y se aplica a todas las entidades que necesitan trazabilidad histórica.
+La restricción de acceso como mecanismo de "propiedad" del profesional sobre su trabajo es un uso incorrecto del principio de privacidad y no debe estar soportado por el sistema.
 
-### 3.6 Adaptador como patrón por defecto para integraciones
+### 3.5 Seguridad por responsabilidad, no por obstáculos
 
-Toda integración con sistemas externos (otras administraciones, proveedores, registros autonómicos) se implementa mediante el patrón adaptador, con un adaptador mock activo por defecto. Esto aísla las dependencias externas y permite desarrollo y pruebas sin conexiones reales.
+El acceso a la información del ciudadano no se protege principalmente mediante barreras de acceso, sino mediante trazabilidad y responsabilidad. El principio rector es: **acceso amplio, auditoría total, visibilidad de la traza**.
 
-### 3.7 Modelo de planes de intervención
+**Acceso:** cualquier profesional con rol `intervencion` puede leer cualquier Historia Social, independientemente de su UO. La edición sigue restringida por el binomio rol+UO. El acceso de lectura no requiere justificación previa.
+
+**Trazabilidad:** todas las operaciones sobre datos de ciudadanos quedan registradas, incluidas las de lectura. No existe acceso anónimo ni acceso sin huella en el sistema.
+
+**Visibilidad de la traza con dos niveles:**
+- El **TSR responsable** ve proactivamente las operaciones recientes sobre las historias de las que es responsable. El sistema se lo muestra sin que tenga que buscarlo, para que pueda detectar accesos no justificados.
+- El **supervisor de UO** puede consultar, bajo demanda, todas las operaciones realizadas sobre ciudadanos relacionados con su UO.
+
+Este modelo convierte la auditoría en un instrumento de *accountability* profesional y cultura organizativa, no solo de cumplimiento normativo. La transparencia interna es la mejor garantía de un uso responsable de la información.
+
+**Excepción — colectivos especialmente protegidos:** este principio no aplica para los colectivos definidos en el principio 3.6. Para ellos, la responsabilidad a posteriori no es suficiente dado el nivel de sensibilidad de los datos: se requiere autorización previa incluso para accesos de lectura.
+
+### 3.6 Auditoría visible, no solo técnica
+
+Todo acceso a un expediente queda registrado: quién ha accedido, cuándo y qué ha hecho (lectura o edición). Este registro no es solo un log técnico interno: el trabajador social de referencia puede consultarlo desde la ficha de la persona. Si detecta un acceso que no comprende, puede preguntar al profesional que lo realizó.
+
+Este mecanismo convierte la auditoría en un instrumento de *accountability* profesional y de cultura organizativa, no solo de cumplimiento normativo. La transparencia interna es la mejor garantía de un uso responsable de la información.
+
+### 3.7 Colectivos especialmente protegidos: configurables, no hardcodeados
+
+Determinados colectivos requieren un nivel de protección adicional en el acceso a su información. Actualmente son las **mujeres víctimas de violencia de género** y los **menores**. El acceso a sus expedientes requiere autorización previa explícita, incluso para operaciones de solo lectura.
+
+El diseño debe implementar este mecanismo de forma **configurable**: una tabla de colectivos protegidos con sus niveles de acceso requeridos, de forma que añadir un nuevo colectivo sea una operación de configuración y no de desarrollo. El middleware de autorización consulta dinámicamente esta tabla. Cualquier implementación que hardcodee los colectivos protegidos debe ser considerada deuda técnica a corregir.
+
+### 3.8 Modelo de planes de intervención
 
 Una Historia Social puede tener varios **Planes de Intervención** activos simultáneamente, cada uno con su responsable y su ciclo de vida independiente:
 
@@ -94,7 +122,7 @@ Una Historia Social puede tener varios **Planes de Intervención** activos simul
 
 Las **derivaciones a especializada son prestaciones**. Se registran en el plan de ASP como una prestación más del catálogo. Esto crea automáticamente el vínculo trazable entre el plan general y el plan específico: el plan de especializada nace como consecuencia de una prestación de derivación en el plan de ASP. Consultando el plan de ASP se puede ver de un vistazo todo lo que está activo con una persona.
 
-### 3.8 Interoperabilidad pragmática
+### 3.9 Interoperabilidad pragmática
 
 El sistema soporta dos modos de intercambio con sistemas externos —otras administraciones, gestores de expedientes, proveedores de servicios externalizados:
 
@@ -103,62 +131,114 @@ El sistema soporta dos modos de intercambio con sistemas externos —otras admin
 
 Ambos modos son realidades permanentes, no soluciones provisionales. El diseño debe tratarlos como ciudadanos de primera clase, no como parches.
 
-### 3.9 La IA asiste, nunca decide
+### 3.10 La IA asiste, nunca decide
 
 Ningún componente de inteligencia artificial en VIDA puede tomar decisiones sobre personas. La IA puede analizar situaciones, clasificar demandas, sugerir prestaciones adecuadas, detectar patrones o estructurar información no estructurada, pero toda acción con consecuencias para el ciudadano requiere validación explícita de un profesional. El sistema debe hacer visible cuándo una recomendación o clasificación proviene de un componente de IA, para que el profesional pueda valorarla como tal y no asumirla acríticamente.
 
 Este principio aplica a cualquier funcionalidad de IA presente o futura: el asistente del SIA, la estructuración de notas en fichas, la detección de alertas, la sugerencia de prestaciones en planes de intervención, o cualquier otro componente.
 
-### 3.10 Enums para lógica, catálogos configurables para clasificación
+### 3.11 Análisis de sesgo obligatorio antes de cualquier implantación de IA
 
-Este principio establece cómo modelar los conjuntos de valores cerrados en función de su naturaleza real.
+Toda funcionalidad que incorpore inteligencia artificial debe ir precedida de un **análisis de posibles sesgos**, documentado y revisable. Este análisis debe considerar específicamente el impacto sobre los colectivos atendidos: personas con bajo nivel de alfabetización, hablantes no nativos de español, personas mayores, personas con discapacidad, personas en situación de exclusión social.
 
-**Usar enum PHP/migración** cuando:
-- El código necesita conocer el valor para tomar una decisión de lógica de negocio (`match`, `if`, filtro con comportamiento diferenciado).
-- El conjunto de valores es estructuralmente estable (cambiar uno implica cambiar lógica de código).
-- El número de valores es pequeño y semánticamente claro.
+Una tecnología que produce peores resultados para parte de la población atendida no puede implantarse aunque mejore los resultados medios. La mejora tecnológica no puede traducirse en peor atención para las personas más vulnerables, que son precisamente el público central de los servicios sociales.
 
-Ejemplos en VIDA: `tipo_prestacion` (`servicio` | `economica`), `nivel_garantia` (`garantizada` | `condicionada`), `sexo`, `visibilidad_apunte`.
+### 3.12 Multicanalidad como derecho, no como ventaja
 
-**Usar tabla `catalogos_sistema`** cuando:
-- El valor es puramente descriptivo o clasificatorio: el código nunca toma decisiones basándose en él.
-- El valor se usa para poblar selects, filtros de búsqueda o etiquetas en la UI.
-- Es razonable que un administrador funcional pueda añadir, renombrar u ordenar valores sin necesidad de un deploy.
+El ciudadano tiene derecho a elegir el canal de comunicación con los servicios sociales. El sistema debe aspirar a soportar múltiples canales —presencial, telefónico, mensajería instantánea, digital— sin que ninguno de ellos ofrezca mejor atención o tiempos de respuesta más rápidos a quienes tienen más competencias tecnológicas. La multicanalidad es una herramienta de equidad, no de eficiencia selectiva.
 
-Ejemplos en VIDA: `objetivo_general` de prestaciones, `nivel_atencion`, `competencia`, `forma_gestion`, `financiacion`, categorías específicas del catálogo.
+La apertura de canales digitales no puede convertirse en un carril preferente para ciudadanos con mayores capacidades tecnológicas. Cuando se incorpore un nuevo canal, debe acompañarse de vías de interacción equivalentes y accesibles para personas con menos competencias digitales.
 
-**La tabla `catalogos_sistema`** tiene la siguiente estructura:
+### 3.13 Toda interacción forma parte de la Historia Social, independientemente del canal
 
-```
-catalogos_sistema
-──────────────────────────────────────────
-grupo     string  — identificador del catálogo (ej: 'prestacion.objetivo_general')
-clave     string  — valor interno usado en la BD y el código (ej: '01')
-etiqueta  string  — texto visible en la UI (ej: 'Acceso, información y valoración')
-orden     int     — para control de presentación
-activo    boolean — baja lógica sin borrado físico
-```
+Una llamada telefónica, una visita presencial o un mensaje de WhatsApp tienen el mismo valor asistencial que una interacción a través de una plataforma digital. El profesional es responsable de registrar en VIDA las interacciones que se producen por canales no integrados técnicamente. El sistema debe facilitar ese registro —minimizando la fricción para el profesional— y no ignorar lo que no puede capturar automáticamente.
 
-**Restricción crítica:** los valores de `catalogos_sistema` **nunca** pueden ser referenciados por nombre en lógica de negocio. Si el código necesita distinguir entre dos valores de un catálogo para hacer algo diferente, ese catálogo debe ser un enum, no una entrada en `catalogos_sistema`. Violar esta restricción introduce bugs silenciosos ante cualquier cambio de etiqueta o clave desde backoffice.
-
-Filament gestiona `catalogos_sistema` como pantalla de configuración general, junto con otros parámetros del sistema (nombre de la entidad, municipio, etc.).
-
-### 3.11 Colectivos protegidos como configuración
-
-Los colectivos con acceso restringido a su expediente (actualmente mujeres víctimas de violencia de género y menores) se gestionan mediante una tabla de configuración, no mediante código hardcodeado. Añadir un nuevo colectivo protegido es una operación de configuración, no de desarrollo. El middleware de autorización consulta dinámicamente esta tabla.
-
-### 3.12 Filament para configuración, Livewire para operación
-
-Filament gestiona las capas de configuración y backoffice: catálogos, plantillas, parámetros del sistema, usuarios y permisos. Livewire gestiona las capas operativas y de supervisión: el trabajo diario de los profesionales con ciudadanos, planes, apuntes y agenda. Esta separación es estructural y no debe mezclarse.
+La integración técnica de canales es incremental: las decisiones sobre cada canal (centralización, gestión de identidad, trazabilidad) deben tomarse antes de su implementación. Ningún canal puede implantarse si no garantiza que las interacciones quedan registradas en la Historia Social y que el acceso cumple con los principios de privacidad y auditoría establecidos en este documento.
 
 ---
 
-## 4. Colectivos con necesidades específicas de diseño
+## 4. Principios técnicos
 
-### 4.1 Personas Sin Hogar (PSH)
+### 4.1 Colectivos con necesidades específicas de modelado
 
-Las PSH no tienen domicilio fijo, lo que invalida el criterio territorial habitual de asignación de TSR y centro. El sistema debe permitir registrar a una persona sin domicilio y asignarle un centro de referencia por criterios alternativos (centro de acogida, zona de intervención de calle, etc.). Este es un caso de excepción estructural, no un subtipo de ciudadano.
+**PSH:** las personas sin hogar no tienen domicilio fijo. El sistema permite registro sin domicilio y asignación por criterios alternativos (coordenadas del lugar habitual de pernocta, zona de intervención del equipo de calle). Es una excepción estructural al modelo de ciudadano, no un subtipo: el mismo modelo admite ambas situaciones mediante campos opcionales y nivel de identificación configurable.
 
-### 4.2 Víctimas de Violencia de Género (VVG)
+**VVG:** las víctimas de violencia de género tienen circuito de acceso independiente. La consulta al padrón **no se lanza** para este colectivo (no basta con ignorar la respuesta — la consulta misma no debe realizarse para no dejar traza en los logs del padrón). El domicilio registrado en VIDA puede diferir intencionadamente del padrón. La Historia Social es única; el circuito diferenciado afecta al flujo de acceso, no a la estructura del expediente.
 
-Las VVG tienen circuito de acceso independiente por razones de seguridad. Su expediente requiere nivel de acceso especial (ver principio 3.11). La integración con ASP se produce cuando la situación está estabilizada, pero el seguimiento especializado continúa en paralelo. La Historia Social es única; el circuito diferenciado afecta al flujo de acceso, no a la estructura del expediente.
+### 4.2 Sin valores de negocio hardcodeados (técnico)
+
+Complementa el principio 3.1 con la distinción técnica concreta: usar **enum PHP** cuando el código toma decisiones basándose en el valor (`match`, `if`). Usar **`catalogos_sistema`** cuando el valor es puramente descriptivo o clasificatorio y el código no lo referencia directamente. Los valores de `catalogos_sistema` **nunca** pueden referenciarse por nombre en lógica de negocio — si eso ocurre, el valor debe convertirse en enum.
+
+### 4.3 Pasado inmutable
+
+Ningún dato histórico se sobrescribe. Los cambios generan nuevas versiones; los errores se corrigen con trazabilidad explícita (campo `tipo_actualizacion`: `modificacion` vs `correccion`). En cualquier momento debe ser posible reconstruir el estado de cualquier entidad en una fecha pasada.
+
+### 4.4 Todo logado
+
+Toda operación sobre datos de ciudadanos queda registrada con usuario, timestamp, operación y resultado. Esto incluye operaciones de lectura. El log técnico (`audits`) es la fuente de verdad para la auditoría; la traza visible para el TSR y el supervisor es una proyección de ese log orientada al uso profesional.
+
+### 4.5 API First
+
+Todas las entidades del sistema disponen de una API REST completa. La API no es solo para el frontend: es el mecanismo por el que sistemas externos autorizados consultan o actúan sobre VIDA. La autorización para sistemas externos opera en dos capas independientes: sistema cliente (OAuth2/API keys con scopes) y usuario actuante (token que identifica al profesional que realiza la acción).
+
+### 4.6 Adaptador como patrón por defecto para integraciones
+
+Toda integración con sistemas externos se implementa mediante el patrón adaptador con mock activo por defecto. Ningún módulo funcional conoce la implementación concreta de una integración — solo la interfaz. Cambiar de mock a real es una operación de configuración, no de desarrollo.
+
+### 4.7 Español por defecto
+
+Todo el código, comentarios, nombres de entidades, mensajes de error y documentación están en español. Las excepciones son los nombres de librerías y frameworks externos, y los términos técnicos sin traducción establecida.
+
+### 4.8 Código comentado
+
+PHPDoc obligatorio en todas las cabeceras de clase y método público: descripción, `@param`, `@return`, `@throws` donde aplique. Los comentarios explican el *por qué*, no el *qué*.
+
+### 4.9 Tests automatizados como parte del desarrollo
+
+Los tests no son una fase posterior. Cada módulo tiene su estrategia de testing definida antes de la implementación. Las Policies de autorización tienen cobertura de test obligatoria.
+
+### 4.10 Cifrado en aplicación para datos sensibles
+
+Los datos del ciudadano se cifran en la capa de aplicación antes de persistirse. Las claves residen en el `.env` o en un gestor de secretos externo, nunca en la base de datos. Un acceso directo a la BD sin las claves de aplicación devuelve texto ilegible. Los campos cifrados no son buscables directamente: las búsquedas operan sobre hashes deterministas almacenados en columnas auxiliares.
+
+### 4.11 Abstracción y configuración sobre proliferación de módulos
+
+Un módulo genérico configurable es preferible a múltiples módulos específicos. El módulo de centros gestiona los 15+ tipos de centros municipales mediante configuración, no mediante código separado por tipo. El módulo de planes de intervención gestiona tanto el plan de ASP como los planes de especializada mediante configuración del tipo de plan.
+
+### 4.12 Filament para configuración, Livewire para operación
+
+**Filament** gestiona la capa de configuración y backoffice: catálogos, plantillas, parámetros del sistema, usuarios y permisos. **Livewire** gestiona las capas operativas: el trabajo diario de los profesionales con ciudadanos, planes, apuntes y agenda. Esta separación es estructural y no debe mezclarse.
+
+### 4.13 Variable sexo en todas las entidades personales
+
+El campo `sexo` se recoge en todas las entidades que representen personas físicas, desde el momento de su alta en el sistema.
+
+### 4.14 Geoposicionamiento en todas las entidades con expresión física
+
+Las coordenadas geográficas (latitud, longitud) se incluyen en todas las entidades que tienen expresión física: ciudadanos (domicilio), unidades de convivencia, centros, servicios. La geocodificación a partir de dirección postal se realiza mediante el adaptador `GeocodificacionInterface`, con mock activo por defecto.
+
+### 4.15 Preferir paquetes consolidados para funcionalidades transversales
+
+Para funcionalidades transversales (roles/permisos, jerarquías, adjuntos, auditoría), se prefieren paquetes consolidados del ecosistema Laravel sobre implementaciones propias. La lógica de dominio específica de VIDA sí se implementa en código propio.
+
+### 4.16 Comunicación entre principios: justificación propia
+
+Las decisiones de diseño se justifican por sus propios méritos. No se referencian fracasos o precedentes negativos como justificación de una decisión actual.
+
+---
+
+## 5. Decisiones pendientes de desarrollo
+
+Las siguientes áreas están identificadas como complejas y se abordarán en fases posteriores, una vez consolidada la funcionalidad principal:
+
+- **Matching y deduplicación de identidades**: estrategia para gestionar cambios de documento identificativo, cambios de nombre/sexo y posibles duplicidades.
+- **Interfaz con el gestor de expedientes administrativos**: integración para iniciar solicitudes, consultar estados e incorporar resoluciones a la Historia Social.
+- **Integración con la carpeta ciudadana del ayuntamiento**: exposición de APIs para publicar información y documentos.
+- **Integración con el RAG del SIA**: incorporación de la herramienta de asistencia al profesional del SIA como capa opcional de apoyo.
+- **Importación de ficheros de proveedores externos**: módulo de importación con matching automático y resolución manual de conflictos.
+- **Integración técnica de canales de comunicación**: definición de arquitectura para cada canal (mensajería, notificaciones, acceso ciudadano), garantizando trazabilidad y cumplimiento de privacidad antes de su implementación.
+- **Análisis de sesgo para componentes de IA**: metodología y criterios específicos para evaluar el impacto de cada componente de IA sobre los distintos colectivos atendidos.
+
+---
+
+*Documento elaborado en fase de diseño del proyecto. Versión inicial: marzo 2026. Actualizado: abril 2026.*
