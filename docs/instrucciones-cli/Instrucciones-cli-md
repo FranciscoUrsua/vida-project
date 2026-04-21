@@ -1,0 +1,1 @@
+Esta carpeta contiene los ficheros de instrucciones para Claude CLI que vamos generando en el desarrollo del proyecto. Sirven como referencia, y para permitir a CLI acceder a ellos, tener contexto y si es preciso recuperar algunas de las instrucciones. Por ejemplo, volver a pasar los tests funcionales de un módulo.
