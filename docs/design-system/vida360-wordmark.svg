@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 64" width="240" height="64">
+  <g transform="translate(32 32)" fill="none" stroke-linecap="round">
+    <circle r="26" stroke="#2A5B8A" stroke-width="3.5"></circle>
+    <circle r="17" stroke="#2A5B8A" stroke-width="3.5"></circle>
+    <circle r="8" stroke="#C76E4A" stroke-width="3.5"></circle>
+  </g>
+  <text x="72" y="42" font-family="&#39;Source Serif 4&#39;, Georgia, serif" font-weight="700" font-size="34" letter-spacing="-0.01em" fill="#1D160E">VIDA</text>
+  <text x="164" y="42" font-family="&#39;Source Sans 3&#39;, sans-serif" font-weight="400" font-size="34" letter-spacing="0" fill="#6A5F4C">360</text>
+</svg>
