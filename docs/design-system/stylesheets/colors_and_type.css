@@ -1,0 +1,141 @@
+/* =============================================================================
+   VIDA 360 — Design Tokens
+   Import into any artifact: <link rel="stylesheet" href="colors_and_type.css">
+   Fonts: Source Sans 3, Source Serif 4, JetBrains Mono (Google Fonts).
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* --- Brand ----------------------------------------------------------- */
+  --color-primary:        #2A5B8A;  /* Azul Retiro — primary action, focus */
+  --color-primary-hover:  #24507A;
+  --color-primary-press:  #1E4568;
+  --color-primary-soft:   #E3ECF5;  /* 12% tint surface */
+  --color-primary-ink:    #163A5C;  /* text on primary-soft */
+
+  --color-accent:         #C76E4A;  /* Terracotta Madrileña — highlights */
+  --color-accent-hover:   #B15F3E;
+  --color-accent-soft:    #F5E4D9;
+  --color-accent-ink:     #7F3E22;
+
+  /* --- Neutrals (warm, sepia-tinged) ---------------------------------- */
+  --color-paper:          #FAF7F1;  /* app background */
+  --color-sand:           #F2EADA;  /* section hero / table header bg */
+  --color-surface:        #FFFFFF;  /* card / panel background */
+
+  --color-ink-900:        #1D160E;  /* primary text */
+  --color-ink-800:        #2E2519;
+  --color-ink-700:        #4A3F2E;  /* secondary text */
+  --color-ink-600:        #6A5F4C;  /* muted text, metadata */
+  --color-ink-500:        #8C8270;  /* placeholder */
+  --color-ink-400:        #B4AB97;  /* disabled, empty-state glyph */
+  --color-ink-300:        #D7CFBE;  /* strong divider */
+  --color-ink-200:        #E6E1D8;  /* default divider, border */
+  --color-ink-100:        #F2EEE5;  /* subtle divider */
+
+  /* --- Semantic ------------------------------------------------------- */
+  --color-success:        #4B8A5B;
+  --color-success-soft:   #E2EEE4;
+  --color-success-ink:    #2F5A39;
+
+  --color-warning:        #B8852F;
+  --color-warning-soft:   #F5EBD4;
+  --color-warning-ink:    #7A5818;
+
+  --color-danger:         #B0432E;
+  --color-danger-soft:    #F5DFD8;
+  --color-danger-ink:     #7A2D1E;
+
+  --color-info:           #3F6E99;
+  --color-info-soft:      #E1EAF2;
+  --color-info-ink:       #274863;
+
+  --color-protected:      #6B3D6B;  /* colectivos especialmente protegidos */
+  --color-protected-soft: #EDE1ED;
+  --color-protected-ink:  #4A2A4A;
+
+  /* --- Type ----------------------------------------------------------- */
+  --font-sans:    'Source Sans 3', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif:   'Source Serif 4', ui-serif, Georgia, 'Times New Roman', serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Base size ramp */
+  --fs-12:        12px;
+  --fs-13:        13px;
+  --fs-14:        14px;
+  --fs-16:        16px;   /* body default */
+  --fs-18:        18px;
+  --fs-20:        20px;
+  --fs-24:        24px;
+  --fs-30:        30px;
+  --fs-36:        36px;
+  --fs-48:        48px;
+
+  /* Semantic type roles */
+  --display-1-size: 48px; --display-1-lh: 1.1;  --display-1-weight: 700; --display-1-tracking: -0.015em;
+  --display-2-size: 36px; --display-2-lh: 1.15; --display-2-weight: 700; --display-2-tracking: -0.01em;
+  --h1-size:        30px; --h1-lh: 1.25; --h1-weight: 700;
+  --h2-size:        24px; --h2-lh: 1.3;  --h2-weight: 600;
+  --h3-size:        20px; --h3-lh: 1.35; --h3-weight: 600;
+  --h4-size:        18px; --h4-lh: 1.4;  --h4-weight: 600;
+  --body-size:      16px; --body-lh: 1.5; --body-weight: 400;
+  --body-sm-size:   14px; --body-sm-lh: 1.5;
+  --meta-size:      13px; --meta-lh: 1.45; --meta-weight: 500;
+  --micro-size:     12px; --micro-lh: 1.4;  --micro-weight: 600;  /* chip labels */
+  --code-size:      13px; --code-lh: 1.45;
+
+  /* --- Spacing (4-pt) ------------------------------------------------- */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  24px;
+  --space-6:  32px;
+  --space-7:  48px;
+  --space-8:  64px;
+  --space-9:  96px;
+
+  /* --- Radii ---------------------------------------------------------- */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   14px;
+  --radius-pill: 999px;
+
+  /* --- Shadow --------------------------------------------------------- */
+  --shadow-1: 0 1px 2px rgba(29, 22, 14, .04), 0 1px 3px rgba(29, 22, 14, .06);
+  --shadow-2: 0 8px 24px rgba(29, 22, 14, .08), 0 2px 6px rgba(29, 22, 14, .05);
+  --shadow-focus: 0 0 0 2px var(--color-paper), 0 0 0 4px var(--color-primary);
+
+  /* --- Motion --------------------------------------------------------- */
+  --motion-fast:   120ms;
+  --motion-base:   160ms;
+  --motion-slow:   240ms;
+  --ease-standard: cubic-bezier(.2, .6, .2, 1);
+
+  /* --- Layout --------------------------------------------------------- */
+  --sidebar-w: 240px;
+  --header-h:  56px;
+  --content-max: 1280px;
+}
+
+/* --- Base ------------------------------------------------------------ */
+html { font-family: var(--font-sans); color: var(--color-ink-900); background: var(--color-paper); }
+body { margin: 0; font-size: var(--body-size); line-height: var(--body-lh); font-weight: var(--body-weight); -webkit-font-smoothing: antialiased; }
+
+/* --- Semantic roles -------------------------------------------------- */
+.display-1 { font-family: var(--font-serif); font-size: var(--display-1-size); line-height: var(--display-1-lh); font-weight: var(--display-1-weight); letter-spacing: var(--display-1-tracking); }
+.display-2 { font-family: var(--font-serif); font-size: var(--display-2-size); line-height: var(--display-2-lh); font-weight: var(--display-2-weight); letter-spacing: var(--display-2-tracking); }
+h1, .h1 { font-size: var(--h1-size); line-height: var(--h1-lh); font-weight: var(--h1-weight); margin: 0; }
+h2, .h2 { font-size: var(--h2-size); line-height: var(--h2-lh); font-weight: var(--h2-weight); margin: 0; }
+h3, .h3 { font-size: var(--h3-size); line-height: var(--h3-lh); font-weight: var(--h3-weight); margin: 0; }
+h4, .h4 { font-size: var(--h4-size); line-height: var(--h4-lh); font-weight: var(--h4-weight); margin: 0; }
+p, .body { font-size: var(--body-size); line-height: var(--body-lh); margin: 0; }
+.body-sm { font-size: var(--body-sm-size); line-height: var(--body-sm-lh); }
+.meta { font-size: var(--meta-size); line-height: var(--meta-lh); font-weight: var(--meta-weight); color: var(--color-ink-600); }
+.micro { font-size: var(--micro-size); line-height: var(--micro-lh); font-weight: var(--micro-weight); text-transform: none; letter-spacing: 0; }
+code, .code { font-family: var(--font-mono); font-size: var(--code-size); line-height: var(--code-lh); }
+
+/* --- Focus ring (keyboard only) -------------------------------------- */
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; border-radius: var(--radius-sm); }
