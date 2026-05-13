@@ -224,3 +224,329 @@ Cuando los módulos de API estén implementados, los controladores API usarán e
 - Panel de estadísticas de actividad por UO (análisis agregado, no registro individual) — diferido.
 - Alertas automáticas al supervisor cuando se detectan patrones anómalos (accesos masivos, accesos fuera de horario reiterados) — diferido.
 - Integración con sistemas externos de SIEM o gestión de logs corporativos — diferido.
+
+---
+
+## 10. Tests funcionales
+
+> Los tests se organizan por componente / área funcional. Se usa la nomenclatura `it('...')` al estilo Pest para que puedan trasladarse directamente a código. Cada test declara su clase sugerida, los actores necesarios y el comportamiento esperado.
+>
+> **Actores reutilizados en los tests:**
+> - `$profesional` — usuario con rol `profesional`, sin asignación de referencia sobre el ciudadano del test.
+> - `$tsr` — trabajador social de referencia asignado al ciudadano del test.
+> - `$supervisor` — usuario con rol `supervision`, UO jerárquicamente superior a la del profesional.
+> - `$supervisor_otra_uo` — supervisor de una UO sin relación jerárquica con el profesional.
+> - `$adm` — usuario con rol `adm_sistema`.
+> - `$ciudadano` — registro de ciudadano con modelo auditable.
+> - `$ciudadano_protegido` — ciudadano perteneciente a un colectivo especialmente protegido.
+
+---
+
+### 10.1 `AuditService` — Registro de accesos
+
+**Clase sugerida:** `AuditServiceTest`
+
+```
+it('registra un acceso de lectura con todos los campos obligatorios rellenos')
+```
+- **Dado** `$profesional` autenticado y `$ciudadano`.
+- **Cuando** se llama a `AuditService::registrarAcceso($profesional, $ciudadano, 'ver')`.
+- **Entonces** existe exactamente un registro en `audits` con `user_id = $profesional->id`, `accion = 'ver'`, `auditable_type = Ciudadano::class`, `auditable_id = $ciudadano->id`, `ciudadano_id = $ciudadano->id`, `ip` no nulo y `created_at` con timestamp reciente.
+
+---
+
+```
+it('resuelve ciudadano_id desde el modelo cuando no se pasa explícitamente')
+```
+- **Dado** un `$apunte` asociado a `$ciudadano` cuyo `getCiudadanoId()` devuelve `$ciudadano->id`.
+- **Cuando** se llama a `AuditService::registrarAcceso($profesional, $apunte, 'ver')` sin pasar `$ciudadanoId`.
+- **Entonces** el registro tiene `ciudadano_id = $ciudadano->id`.
+
+---
+
+```
+it('usa el ciudadano_id explícito con prioridad sobre el resuelto por el modelo')
+```
+- **Dado** un `$apunte` cuyo `getCiudadanoId()` devuelve `$ciudadano->id`.
+- **Cuando** se llama pasando `ciudadanoId: 9999` explícitamente.
+- **Entonces** el registro tiene `ciudadano_id = 9999`.
+
+---
+
+```
+it('enriquece el contexto con canal web y ruta actual automáticamente')
+```
+- **Dado** una petición HTTP activa a una ruta conocida.
+- **Cuando** se registra cualquier acceso.
+- **Entonces** el campo `contexto` del registro contiene `canal = 'web'` y la ruta de la petición actual.
+
+---
+
+```
+it('omite el registro si no hay usuario autenticado y no se fuerza actuante')
+```
+- **Dado** que no hay sesión autenticada (contexto de consola).
+- **Cuando** el `AuditObserver` intenta registrar un evento `created` en un modelo auditable.
+- **Entonces** no se crea ningún registro en `audits`.
+
+---
+
+```
+it('no genera registro de auditoría al leer registros de la tabla audits')
+```
+- **Dado** `$supervisor` autenticado.
+- **Cuando** se consultan registros de `audits` (p.ej. listado en `AuditResource`).
+- **Entonces** el conteo de `audits` no aumenta como consecuencia de esa lectura.
+
+---
+
+### 10.2 `AuditObserver` — Escrituras automáticas
+
+**Clase sugerida:** `AuditObserverTest`
+
+```
+it('registra acción crear con snapshot en datos_despues al persistir un modelo auditable')
+```
+- **Dado** `$profesional` autenticado.
+- **Cuando** se crea un nuevo `$apunte` (modelo con trait `Auditable`).
+- **Entonces** existe un registro con `accion = 'crear'`, `datos_antes = null` y `datos_despues` conteniendo los campos auditables del apunte recién creado.
+
+---
+
+```
+it('registra acción editar con diff correcto en datos_antes y datos_despues')
+```
+- **Dado** `$apunte` existente con `observacion = 'texto original'`.
+- **Cuando** `$profesional` actualiza `observacion` a `'texto modificado'`.
+- **Entonces** el registro tiene `accion = 'editar'`, `datos_antes` con `observacion = 'texto original'` y `datos_despues` con `observacion = 'texto modificado'`. Los campos no modificados no aparecen en el diff.
+
+---
+
+```
+it('registra acción eliminar con snapshot en datos_antes al borrar un modelo auditable')
+```
+- **Dado** `$apunte` existente.
+- **Cuando** `$profesional` lo elimina.
+- **Entonces** existe un registro con `accion = 'eliminar'`, `datos_antes` con el snapshot del apunte y `datos_despues = null`.
+
+---
+
+```
+it('excluye los campos no auditables del snapshot aunque estén en fillable')
+```
+- **Dado** un modelo que sobreescribe `camposAuditables()` excluyendo el campo `token_interno`.
+- **Cuando** se crea o edita ese modelo.
+- **Entonces** `datos_despues` no contiene la clave `token_interno`.
+
+---
+
+```
+it('no genera registros de auditoría por eager loading interno de Eloquent')
+```
+- **Dado** un modelo con relaciones cargadas automáticamente al acceder a una propiedad.
+- **Cuando** se accede a esa relación sin interacción explícita de usuario.
+- **Entonces** no se crea ningún registro adicional en `audits`.
+
+---
+
+### 10.3 Vista contextual en la ficha del ciudadano
+
+**Clase sugerida:** `PanelAccesosRecentesTest`
+
+```
+it('el TSR asignado ve todos los accesos al expediente del ciudadano')
+```
+- **Dado** tres registros en `audits` para `$ciudadano`: uno de `$tsr`, uno de `$profesional` y uno de `$supervisor`.
+- **Cuando** `$tsr` abre la ficha de `$ciudadano`.
+- **Entonces** el panel muestra los tres registros.
+
+---
+
+```
+it('el supervisor de la UO ve todos los accesos al expediente del ciudadano')
+```
+- **Dado** los mismos tres registros anteriores.
+- **Cuando** `$supervisor` abre la ficha de `$ciudadano`.
+- **Entonces** el panel muestra los tres registros.
+
+---
+
+```
+it('un profesional no asignado solo ve sus propios accesos al expediente')
+```
+- **Dado** un registro de `$tsr` y otro de `$profesional` para `$ciudadano`.
+- **Cuando** `$profesional` (no es el TSR) abre la ficha de `$ciudadano`.
+- **Entonces** el panel muestra únicamente el registro de `$profesional`, no el de `$tsr`.
+
+---
+
+```
+it('el panel muestra como máximo 10 accesos recientes por defecto')
+```
+- **Dado** 15 registros en `audits` para `$ciudadano`.
+- **Cuando** `$tsr` abre la ficha.
+- **Entonces** el panel renderiza exactamente 10 filas, correspondientes a los 10 más recientes.
+
+---
+
+```
+it('no expone IP ni user_agent en la vista contextual de la ficha')
+```
+- **Dado** registros con IP y user_agent rellenos.
+- **Cuando** `$tsr` consulta el panel de accesos recientes.
+- **Entonces** el HTML renderizado no contiene ninguna dirección IP ni cadena de user_agent.
+
+---
+
+```
+it('los accesos del propio usuario autenticado se presentan con marcador visual diferenciado')
+```
+- **Dado** un registro de `$tsr` y otro de `$profesional` para `$ciudadano`.
+- **Cuando** `$tsr` abre la ficha.
+- **Entonces** la fila correspondiente al propio `$tsr` contiene el atributo o clase CSS que identifica el acceso propio; la fila de `$profesional` no lo contiene.
+
+---
+
+### 10.4 Visor de supervisión (`AuditResource`)
+
+**Clase sugerida:** `AuditResourceTest`
+
+```
+it('un profesional sin rol supervision no puede acceder al AuditResource')
+```
+- **Dado** `$profesional` autenticado.
+- **Cuando** intenta acceder a la URL del `AuditResource` en Filament.
+- **Entonces** recibe respuesta 403 o es redirigido sin ver registros.
+
+---
+
+```
+it('el supervisor solo ve registros de profesionales de su UO y sus descendientes')
+```
+- **Dado** un registro de `$profesional` (UO hija del supervisor) y un registro de un profesional de una UO sin relación jerárquica.
+- **Cuando** `$supervisor` lista el `AuditResource`.
+- **Entonces** solo aparece el registro de `$profesional`; el de la UO no relacionada no es visible.
+
+---
+
+```
+it('adm_sistema ve registros de todas las UOs sin restricción de scope')
+```
+- **Dado** registros de profesionales de tres UOs distintas sin relación jerárquica entre sí.
+- **Cuando** `$adm` lista el `AuditResource`.
+- **Entonces** los tres registros son visibles.
+
+---
+
+```
+it('el AuditResource no expone acciones de creación, edición ni eliminación')
+```
+- **Dado** `$supervisor` autenticado con acceso al visor.
+- **Cuando** se inspecciona el `AuditResource`.
+- **Entonces** no existen `CreateAction`, `EditAction` ni `DeleteAction` registradas en el resource.
+
+---
+
+```
+it('la consulta sin filtro de rango de fechas no devuelve resultados y muestra aviso')
+```
+- **Dado** `$supervisor` en el visor sin aplicar ningún filtro.
+- **Cuando** se ejecuta la consulta.
+- **Entonces** la tabla no devuelve registros y se muestra un mensaje que indica que el filtro de rango de fechas es obligatorio.
+
+---
+
+```
+it('el filtro de rango de fechas rechaza rangos superiores a 90 días')
+```
+- **Dado** `$supervisor` aplica un rango de 91 días.
+- **Cuando** se ejecuta la consulta.
+- **Entonces** se muestra un error de validación y no se devuelven resultados.
+
+---
+
+```
+it('la exportación sin filtro de rango de fechas activo queda bloqueada')
+```
+- **Dado** `$supervisor` sin filtro de fechas activo.
+- **Cuando** intenta exportar.
+- **Entonces** la acción de exportar no está disponible o devuelve error de validación.
+
+---
+
+```
+it('exportar registros genera a su vez un registro de auditoría con acción exportar')
+```
+- **Dado** `$supervisor` con filtro de fechas válido.
+- **Cuando** ejecuta la exportación.
+- **Entonces** se crea un nuevo registro en `audits` con `accion = 'exportar'`, `user_id = $supervisor->id` y `auditable_type` referenciando `AuditResource`.
+
+---
+
+```
+it('la vista de detalle muestra el diff lado a lado para registros de acción editar')
+```
+- **Dado** un registro con `accion = 'editar'`, `datos_antes` y `datos_despues` rellenos.
+- **Cuando** `$supervisor` abre el detalle de ese registro.
+- **Entonces** la vista renderiza los dos snapshots en columnas comparables con los campos modificados identificados.
+
+---
+
+### 10.5 `AuditPurgeCommand` — Retención
+
+**Clase sugerida:** `AuditPurgeCommandTest`
+
+```
+it('elimina registros cuya created_at supera el período de retención configurado')
+```
+- **Dado** retención configurada a 30 días y un registro con `created_at = now()->subDays(31)`.
+- **Cuando** se ejecuta `AuditPurgeCommand`.
+- **Entonces** ese registro ya no existe en `audits`.
+
+---
+
+```
+it('preserva registros dentro del período de retención')
+```
+- **Dado** retención configurada a 30 días y un registro con `created_at = now()->subDays(29)`.
+- **Cuando** se ejecuta `AuditPurgeCommand`.
+- **Entonces** ese registro sigue existiendo en `audits`.
+
+---
+
+```
+it('la purga es la única vía legítima de DELETE sobre audits')
+```
+- Verificación arquitectural: en ningún controlador, servicio ni resource existe una llamada directa a `Audit::destroy()`, `Audit::delete()` o equivalente fuera de `AuditPurgeCommand`.
+- **Entonces** la búsqueda estática de esas llamadas en el código fuente (excluyendo `AuditPurgeCommand`) no produce resultados.
+
+---
+
+### 10.6 Colectivos protegidos
+
+**Clase sugerida:** `AuditAccesoRestringidoTest`
+
+```
+it('el acceso autorizado a un ciudadano protegido se registra con acción acceso_restringido')
+```
+- **Dado** `$ciudadano_protegido` y `$profesional` con permiso de acceso a colectivos protegidos.
+- **Cuando** el flujo de autorización del Módulo Ciudadanía concede el acceso.
+- **Entonces** el registro tiene `accion = 'acceso_restringido'` y el `contexto` incluye `motivo_declarado` y `autorizado_por`.
+
+---
+
+```
+it('el acceso denegado a un ciudadano protegido también queda registrado')
+```
+- **Dado** `$ciudadano_protegido` y `$profesional` sin permiso suficiente.
+- **Cuando** el flujo de autorización deniega el acceso.
+- **Entonces** existe un registro con `accion = 'acceso_restringido'` y el `contexto` refleja que el acceso fue denegado, sin que el profesional haya podido ver datos del ciudadano.
+
+---
+
+```
+it('el servicio de urgencia con acceso preautorizado genera registro con indicación de régimen de emergencia')
+```
+- **Dado** un servicio configurado como servicio de urgencia con acceso preautorizado.
+- **Cuando** un profesional de ese servicio accede a `$ciudadano_protegido`.
+- **Entonces** el registro tiene `accion = 'acceso_restringido'` y el `contexto` incluye la indicación del régimen de emergencia.
