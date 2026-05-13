@@ -1,85 +1,107 @@
-# CLAUDE.md
+# CLAUDE.md — VIDA 360
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Instrucciones permanentes para Claude CLI en el proyecto VIDA 360.
+Este fichero se aplica a todas las sesiones sin necesidad de repetirlo en cada prompt.
 
-## Project Overview
+---
 
-**VIDA 360** (Visión Integral de la Persona en Atención Social) is a social services management platform for the Ayuntamiento de Madrid. It manages beneficiary case histories, assessments, social benefits, and service centers for social workers.
+## 1. Antes de tocar cualquier fichero
 
-The Laravel application lives in the `vida/` subdirectory. All commands below should be run from `vida/`.
+1. `git pull origin main` — siempre como primer paso, sin excepciones.
+2. Leer `docs/principios-vida360.md` — referencia de decisiones arquitectónicas y restricciones de dominio.
+3. Leer `docs/documentacion-proyecto.md` — arquitectura general, modelos y convenciones.
+4. Si la tarea afecta a un módulo específico, leer `docs/modulo-{nombre}.md` antes de escribir código.
+5. Si existe un fichero en `docs/instrucciones-cli/` para la tarea, leerlo íntegramente antes de actuar.
 
-## Commands
+---
 
-```bash
-# Full setup from scratch
-composer run setup
+## 2. Convenciones de código
 
-# Start all dev processes concurrently (web server, queue, log tailer, Vite HMR)
-composer run dev
+### General
+- Estándar PSR-12 en todo el código PHP.
+- Nombres de variables, métodos y clases en inglés. Comentarios y PHPDoc en español.
+- No usar `bcrypt()` manual; el cast `hashed` del modelo lo gestiona.
+- No usar `factory()` en seeders de producción; usar `Model::create()` con datos explícitos.
 
-# Run tests (uses SQLite in-memory — never touches PostgreSQL)
-composer run test
+### PHPDoc y comentarios
+- PHPDoc obligatorio en todas las clases: descripción, `@property` de campos relevantes, `@throws` si aplica.
+- PHPDoc obligatorio en todos los métodos públicos: descripción, `@param`, `@return`.
+- Comentario inline obligatorio en lógica compleja o no evidente. Si el código necesita explicación, la lleva.
+- En modelos con restricciones de dominio críticas (como `ColectivoProtegido`), documentar explícitamente
+  la razón de la restricción en el PHPDoc de clase y en el método que la implementa.
 
-# Frontend only
-npm run dev      # Vite HMR dev server
-npm run build    # Production build
+### Modelos Eloquent
+- Soft deletes en todas las entidades sensibles. No hay hard deletes en producción.
+- Enums PHP solo cuando el código toma decisiones basándose en el valor (principio 3.10).
+- Campos clasificatorios sin lógica de negocio → `catalogos_sistema`, nunca enum.
+- Los valores de `catalogos_sistema` nunca se referencian en `match`/`if`/`switch`.
+- Versionado polimórfico mediante trait `Versionable` en todas las entidades no auxiliares (principio 3.5).
 
-# Utility scripts (from repo root)
-bash bash_scripts/clearCaches.sh     # Clear all Laravel + autoload caches
-bash bash_scripts/reiniciaServer.sh  # Kill and restart artisan serve
-```
+### Arquitectura de módulos
+- Módulos nwidart v12: código en `Modules/NombreModulo/app/`; providers en `bootstrap/providers.php`.
+- Filament Resources centralizados en `app/Filament/Resources/` — decisión arquitectónica deliberada, no moverlos.
+- Filament para configuración y backoffice. Livewire para operación diaria de profesionales (principio 3.12).
+- Toda integración con sistemas externos mediante adaptador con mock activo por defecto (principio 3.6).
 
-## Architecture
+### Tests
+- Base de datos de test: PostgreSQL (`vida_testing`). No usar SQLite.
+- Tests escritos antes o en paralelo a la implementación, nunca después.
+- Cada test describe comportamiento observable desde fuera, no detalles de implementación.
+- Incluir casos que deben fallar, no solo happy path.
+- Para tests críticos de seguridad o dominio: verificar también en negativo (el test debe fallar
+  si se elimina la restricción que protege).
 
-### Directory Layout
-- `app/` — Core application code (models, controllers, traits, services)
-- `Modules/` — Self-contained domain modules (each has their own Models, Controllers, Requests, Resources, Routes, Providers, migrations)
-- `routes/` — Web and API route definitions
-- `database/migrations/` — Numbered to enforce dependency order (0001–4001); Centro module migrations were moved here from `Modules/Centro/`
-- `resources/views/` — Blade templates using a partial-based layout (`layouts/app.blade.php` → `partials/header`, `sidebar`, `footer`)
-- `docs/` — Architecture and requirements documents (Spanish)
+---
 
-### Modular Structure
-Modules are registered in `modules_statuses.json`:
-- **`Modules/Usuario/`** — System users (social workers, admins); authenticatable via Sanctum
-- **`Modules/Centro/`** — Social service centers domain;
+## 3. Restricciones de dominio críticas
 
-### Two Distinct User Types
-- **`Usuario`** — Staff who log in to the system (`app_users` table, `Authenticatable` + `HasApiTokens`)
-- **`Ciudadano`** — Beneficiaries/citizens receiving services (`social_users` table, not authenticatable)
+Estas restricciones nunca pueden relajarse sin decisión explícita documentada:
 
-### Organizational Hierarchy
-**`UnidadOrganizativa`** (`unidades_organizativas`, UUID PK) models the administrative tree (departments, services, units). It is self-referential (`parent_id`) with auto-calculated `nivel`. Uses a PostgreSQL recursive CTE for `descendientes()`. `Centro` and `Usuario` belong to an `UnidadOrganizativa`. Cycles in the hierarchy are blocked at model level.
+- **Colectivos protegidos:** no tienen baja lógica. `ColectivoProtegido::delete()` lanza `LogicException`.
+  Ver principio 3.11 y `docs/instrucciones-cli/organizacion-colectivos-tests.md`.
+- **Anotaciones privadas:** solo accesibles por su autor. Sin excepciones de rol ni jerarquía.
+- **Consulta al padrón para VVG:** nunca se lanza. Ver principio 4.1.
+- **La IA asiste, nunca decide:** ningún componente de IA ejecuta acciones con consecuencias
+  sobre personas sin validación explícita de un profesional. Ver principio 3.9.
+- **El pasado es inmutable:** los cambios de estado generan nuevos registros, no sobrescriben. Ver principio 4.2.
 
-### Cross-Cutting Traits
-Two self-booting Eloquent traits applied to all non-auxiliary models:
+---
 
-- **`App\Common\Traits\Auditable`** — Hooks into `retrieved`, `created`, `updated`, `deleted`, `restored` to write every data operation to the `audits` table via `AuditService`. Tracks old/new values, acting user, IP, and user agent. Required by GDPR/RGPD rules in `docs/Requisitos.md`.
-- **`App\Common\Traits\Versionable`** — On `created`/`updating`, inserts a full JSON snapshot into the `versions` table (polymorphic). Enables history of identity document changes (e.g., passport → NIE → DNI).
+## 4. Al finalizar cada sesión
 
-### Privacy and Security
-- All PII fields in `Ciudadano` use Laravel's `'encrypted'` cast (AES-256 transparent encryption at the application level): names, ID numbers, address components, contact details, coordinates.
-- `requiere_permiso_especial` flag on `Ciudadano` gates access to protected individuals (minors, domestic violence victims). Controllers enforce this via `can()` checks before returning or modifying data.
-- Soft deletes everywhere — no hard deletes on sensitive data.
+1. Añadir entrada a `CHANGELOG.md` con:
+   - Fecha
+   - Módulo o área afectada
+   - Lista de cambios realizados (migraciones, modelos, recursos, tests)
+   - Decisiones de implementación tomadas que no estaban en las instrucciones
+2. `git add -A`
+3. `git commit -m "<tipo>(<módulo>): <descripción concisa>"` — formato conventional commits.
+   Ejemplos de tipo: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`.
+4. `git push origin main`
 
-### Service Layer
-- **`PadronService`** — Integrates with Madrid's municipal residents register (Padrón). Currently runs in `mockMode`; production POSTs to an authenticated external API.
-- **`AuditService`** — Centralized audit log writer; registered as singleton in `AppServiceProvider`.
+---
 
-### API and Routing
-- `routes/api.php` — Main API routes (profesionales, centros, directores, prestaciones); currently missing auth middleware on most routes.
+## 5. Mapa de documentación
 
-### Frontend
-- Blade/Livewire hybrid. Alpine.js (CDN) handles DOM interactions. Only `LoginWelcome` is currently implemented as a Livewire component.
-- SCSS + Bootstrap 5 compiled through Vite. Local fonts in `resources/fonts/` for offline capability.
-- Filament for backoffice admin.
+| Documento | Cuándo leerlo |
+|---|---|
+| `docs/principios-vida360.md` | Siempre, antes de cualquier sesión |
+| `docs/documentacion-proyecto.md` | Siempre, antes de cualquier sesión |
+| `docs/modulo-{nombre}.md` | Antes de tocar ese módulo |
+| `docs/instrucciones-cli/{fichero}.md` | Cuando se indique explícitamente en el prompt |
+| `CHANGELOG.md` | Para entender el estado actual antes de una sesión de continuación |
 
-### Filament Resources — centralización deliberada
-All Filament Resources live in `app/Filament/Resources/` (not inside their respective modules). This is a conscious architectural decision: keeping them in one place simplifies `AdminPanelProvider` registration and avoids the need for each module to auto-discover its resources. The trade-off is that the UI layer is centralized while the domain logic (models, migrations, services) is modular. **Do not move Resources into modules** unless we decide to change this convention globally.
+---
 
+## 6. Estructura de instrucciones CLI
 
-## Environment
+Las instrucciones detalladas de cada tarea están en `docs/instrucciones-cli/`.
+Cuando el prompt diga *"ejecuta las instrucciones de X"*, leer ese fichero antes de actuar.
 
-- Dev uses PostgreSQL (`DB_CONNECTION=pgsql`, `DB_DATABASE=vida`)
-- Tests use SQLite in-memory (`phpunit.xml` sets `DB_CONNECTION=sqlite`, `DB_DATABASE=:memory:`)
-- `.env.example` defaults to SQLite for easy local setup
+Ficheros disponibles:
+
+| Fichero | Contenido |
+|---|---|
+| `organizacion-colectivos-tests.md` | Inmutabilidad de colectivos protegidos + 13 tests funcionales |
+| `usuarios-tests.md` | 18 tests funcionales (TF-USU-16/17 pendientes de revisión Intervención) |
+| `prestaciones-tests.md` | 13 tests funcionales (TF-PRE-13 parcial, pendiente Intervención) |
