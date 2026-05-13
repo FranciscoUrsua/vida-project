@@ -80,6 +80,11 @@ class Slot extends Model
         return $query->where('estado', EstadoSlot::BloqueadoUrgencia->value);
     }
 
+    public function scopeAnulados(Builder $query): Builder
+    {
+        return $query->where('estado', EstadoSlot::Anulado);
+    }
+
     public function scopeDelDia(Builder $query, $fecha): Builder
     {
         return $query->where('fecha', $fecha);

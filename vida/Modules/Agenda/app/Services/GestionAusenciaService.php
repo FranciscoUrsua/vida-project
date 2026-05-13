@@ -10,18 +10,17 @@ use Modules\Agenda\Models\Slot;
 
 /**
  * Gestiona el flujo cuando un profesional no se presenta.
- *
- * Marca citas del día como no_show_profesional.
- * Devuelve slots de urgencia disponibles para reasignación (modos estándar/avanzado).
- * En modo básico, devuelve cualquier slot disponible de otros profesionales.
+ * - Las citas confirmadas del día pasan a estado 'cancelada' con motivo descriptivo.
+ * - Los slots disponibles y bloqueado_urgencia de esas fechas pasan a estado 'anulado'.
+ * - Los slots en estado 'reservado' (con cita) no se anulan hasta que la cita sea cancelada.
+ * - Genera alerta al supervisor con la lista de citas canceladas pendientes de reagendización.
+ * - En modos estandar/avanzado, devuelve slots de urgencia disponibles para reasignación.
+ * - En modo basico, devuelve slots disponibles de otros profesionales.
  */
 class GestionAusenciaService
 {
     /**
      * Procesa la ausencia de un profesional en una fecha concreta.
-     *
-     * Marca sus citas del día como no_show_profesional y devuelve
-     * los slots candidatos para reasignación.
      *
      * @param  int    $usuarioId ID del profesional ausente
      * @param  int    $centroId  ID del centro
