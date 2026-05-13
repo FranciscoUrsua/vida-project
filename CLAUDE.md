@@ -8,10 +8,11 @@ Este fichero se aplica a todas las sesiones sin necesidad de repetirlo en cada p
 ## 1. Antes de tocar cualquier fichero
 
 1. `git pull origin main` — siempre como primer paso, sin excepciones.
-2. Leer `docs/principios-vida360.md` — referencia de decisiones arquitectónicas y restricciones de dominio.
-3. Leer `docs/documentacion-proyecto.md` — arquitectura general, modelos y convenciones.
-4. Si la tarea afecta a un módulo específico, leer `docs/modulo-{nombre}.md` antes de escribir código.
-5. Si existe un fichero en `docs/instrucciones-cli/` para la tarea, leerlo íntegramente antes de actuar.
+2. Leer `SESSION.md` — resume el estado actual y el siguiente paso recomendado.
+3. Leer `docs/principios-vida360.md` — referencia de decisiones arquitectónicas y restricciones de dominio.
+4. Leer `docs/documentacion-proyecto.md` — arquitectura general, modelos y convenciones.
+5. Si la tarea afecta a un módulo específico, leer `docs/modulo-{nombre}.md` antes de escribir código.
+6. Si existe un fichero en `docs/instrucciones-cli/` para la tarea, leerlo íntegramente antes de actuar.
 
 ---
 
@@ -75,24 +76,41 @@ Estas restricciones nunca pueden relajarse sin decisión explícita documentada:
    - Lista de cambios realizados (migraciones, modelos, recursos, tests)
    - Decisiones de implementación tomadas que no estaban en las instrucciones
 2. Si durante la sesión han surgido decisiones postergadas, integraciones pendientes,
-   o ideas no implementadas, añadirlas a `docs/BACKLOG.md` con fecha y módulo afectado.
+   o ideas no implementadas, añadirlas a `BACKLOG.md` con fecha y módulo afectado.
    No esperar a que lo haga el desarrollador: si algo ha quedado pendiente, va al BACKLOG.
-3. `git add -A`
-4. `git commit -m "<tipo>(<módulo>): <descripción concisa>"` — formato conventional commits.
+3. Actualizar `SESSION.md` con:
+   - Qué tarea se acaba de completar (una línea)
+   - En qué punto exacto está el proyecto
+   - Cuál es el siguiente paso concreto recomendado
+   - Cualquier contexto relevante para retomar sin fricción
+   SESSION.md se actualiza al terminar cada tarea significativa (implementar un módulo,
+   añadir tests, aplicar un conjunto de cambios), no al final del día de trabajo.
+   Sobreescribir el contenido anterior: SESSION.md refleja solo el estado actual,
+   el historial está en CHANGELOG.md.
+4. `git add -A`
+5. `git commit -m "<tipo>(<módulo>): <descripción concisa>"` — formato conventional commits.
    Ejemplos de tipo: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`.
-5. `git push origin main`
+6. `git push origin main`
 
 ---
 
 ## 5. Mapa de documentación
 
+### Raíz del proyecto
+| Documento | Cuándo leerlo |
+|---|---|
+| `SESSION.md` | Siempre, como segundo paso tras el pull |
+| `CHANGELOG.md` | Para entender el estado actual antes de una sesión de continuación |
+| `BACKLOG.md` | Cuando se quiera consultar deuda técnica o ideas pendientes |
+
+### docs/
 | Documento | Cuándo leerlo |
 |---|---|
 | `docs/principios-vida360.md` | Siempre, antes de cualquier sesión |
 | `docs/documentacion-proyecto.md` | Siempre, antes de cualquier sesión |
+| `docs/decisiones-tecnicas.md` | Antes de tomar decisiones de arquitectura o elegir herramientas |
 | `docs/modulo-{nombre}.md` | Antes de tocar ese módulo |
 | `docs/instrucciones-cli/{fichero}.md` | Cuando se indique explícitamente en el prompt |
-| `CHANGELOG.md` | Para entender el estado actual antes de una sesión de continuación |
 
 ---
 
