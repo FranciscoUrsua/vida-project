@@ -7,7 +7,7 @@ Este fichero se aplica a todas las sesiones sin necesidad de repetirlo en cada p
 
 ## 1. Antes de tocar cualquier fichero
 
-1. `git pull origin main` — siempre como primer paso, sin excepciones.
+1. `git pull origin master` — siempre como primer paso, sin excepciones.
 2. Leer `docs/principios-vida360.md` — referencia de decisiones arquitectónicas y restricciones de dominio.
 3. Leer `docs/documentacion-proyecto.md` — arquitectura general, modelos y convenciones.
 4. Si la tarea afecta a un módulo específico, leer `docs/modulo-{nombre}.md` antes de escribir código.
@@ -77,7 +77,7 @@ Estas restricciones nunca pueden relajarse sin decisión explícita documentada:
 2. `git add -A`
 3. `git commit -m "<tipo>(<módulo>): <descripción concisa>"` — formato conventional commits.
    Ejemplos de tipo: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`.
-4. `git push origin main`
+4. `git push origin master`
 
 ---
 
@@ -98,10 +98,3 @@ Estas restricciones nunca pueden relajarse sin decisión explícita documentada:
 Las instrucciones detalladas de cada tarea están en `docs/instrucciones-cli/`.
 Cuando el prompt diga *"ejecuta las instrucciones de X"*, leer ese fichero antes de actuar.
 
-Ficheros disponibles:
-
-| Fichero | Contenido |
-|---|---|
-| `organizacion-colectivos-tests.md` | Inmutabilidad de colectivos protegidos + 13 tests funcionales |
-| `usuarios-tests.md` | 18 tests funcionales (TF-USU-16/17 pendientes de revisión Intervención) |
-| `prestaciones-tests.md` | 13 tests funcionales (TF-PRE-13 parcial, pendiente Intervención) |
