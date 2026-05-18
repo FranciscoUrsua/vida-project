@@ -4,6 +4,15 @@ Registro de cambios agrupado por módulo y área funcional, en orden cronológic
 
 ---
 
+## Módulo Documentos — Verificación de tests — 2026-05-18
+
+### Verificación
+- 20/20 tests funcionales (TF-DOC-01 a TF-DOC-20) verificados y pasando en `vida_testing`.
+- Los servicios (`ServicioAlmacenamiento`, `ServicioGeneracionPDF`, `ServicioFirmaInforme`, `ResolverEstiloInforme`) ya estaban implementados en sesiones anteriores.
+- `docs/modulo-documentos.md` actualizado con tabla de estado y marcadores ✅. Estado cambiado a "Implementado".
+
+---
+
 ## Módulo Centros — Fase 2 — 2026-05-18
 
 ### Nuevas funcionalidades

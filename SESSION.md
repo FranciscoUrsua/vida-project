@@ -4,16 +4,15 @@ _Actualizado: 2026-05-18_
 
 ## Tarea completada
 
-Tests funcionales del módulo Centros: 31 tests escritos y ejecutados, todos pasan ✅.
+Tests funcionales del módulo Documentos verificados: 20/20 tests ya implementados pasan sin cambios.
 
 ## Estado actual
 
-- **Módulo Centros — tests funcionales:** 31 tests, 31 pasan ✅, 0 pendientes, 0 fallos.
-- **Suite completa:** 139 tests, 0 fallos, 30 incompletos (pendientes de Agenda de sesión anterior).
-- `PrescripcionService` implementado: ciclo de vida de prescripciones (asignación, lista de espera, liberación, cancelación).
-- Métodos añadidos a modelos: `Centro::directorActivo()`, `ColeccionPlazas::plazasDisponibles()`, `Red::plazasLibresTotal()`, `Actividad::verificarInscripcionCentro()`.
-- Dos migraciones pendientes de commit (drop_distrito, create_ambitos_territoriales) incluidas en el commit de esta sesión.
-- `docs/modulo-centros.md` actualizado con tabla de estado y marcadores ✅ por test.
+- **Módulo Documentos — tests funcionales:** 20 tests, 20 pasan ✅, 0 pendientes, 0 fallos.
+- **Módulo Centros — tests funcionales:** 31 tests, 31 pasan ✅ (sesión anterior).
+- **Suite completa:** 170 tests (19 nuevos docs + 31 centros + 120 previos), 0 fallos, 30 incompletos (pendientes de Agenda).
+- `docs/modulo-documentos.md` actualizado con tabla de estado y marcadores ✅ por test.
+- `docs/modulo-centros.md` actualizado con resultados (sesión anterior).
 
 ## Siguiente paso recomendado
 
@@ -25,7 +24,6 @@ Lógica a implementar:
 
 ## Contexto relevante
 
-- Tests de Centros usan PostgreSQL (`vida_testing`), no SQLite (hay una anotación incorrecta en el documento funcional v1.1 que dice SQLite — los tests están escritos con `RefreshDatabase` sobre pgsql, coherente con el resto del proyecto).
-- `PrescripcionService::liberarPlaza()` actualiza `ListaEspera.profesional_alerta_id` pero NO cambia el estado de la Prescripción — la asignación es siempre explícita y profesional.
-- El TSR activo del ciudadano se resuelve mediante `setTsrResolver(callable)` — en producción deberá conectarse al módulo Ciudadanía cuando esté disponible.
-- `ColeccionPlazas::listaEspera()` es `HasOne` en el modelo (una entrada por prescripción). Las consultas sobre múltiples entradas de lista de espera de una colección se hacen directamente sobre `ListaEspera::where('coleccion_plazas_id', ...)`.
+- Los tests de Documentos ya estaban implementados en una sesión anterior y los servicios estaban completos.
+- `PrescripcionService::liberarPlaza()` usa `setTsrResolver(callable)` para el TSR activo del ciudadano — en producción conectar con módulo Ciudadanía cuando esté disponible.
+- Tests de Centro y Documentos usan PostgreSQL (`vida_testing`). El documento `modulo-documentos.md` mencionaba SQLite incorrectamente — los tests se ejecutan sobre pgsql.

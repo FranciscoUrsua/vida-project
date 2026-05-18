@@ -3,7 +3,7 @@
 **Módulo:** `Documentos`
 **Namespace:** `Modules\Documentos\Models`
 **Directorio:** `vida/Modules/Documentos/`
-**Estado:** Diseñado. Pendiente de implementación.
+**Estado:** Implementado. 20/20 tests funcionales pasan (2026-05-18).
 
 ---
 
@@ -331,65 +331,78 @@ La implementación de cualquiera de estas opciones requiere decisión explícita
 ## 6. Tests funcionales
 
 Los siguientes tests deben pasar para considerar el módulo correctamente implementado.
+Fichero: `Modules/Documentos/tests/Feature/DocumentosTest.php`.
 
-### TF-DOC-01: Subida de documento externo válido
+### Estado de ejecución — 2026-05-18
+
+| Área | Tests | Estado |
+|---|---|---|
+| Custodia de documentos (TF-DOC-01 a TF-DOC-05) | 5 | ✅ |
+| Estilos e herencia jerárquica (TF-DOC-06 a TF-DOC-08) | 3 | ✅ |
+| Plantillas de informe (TF-DOC-09, TF-DOC-10) | 2 | ✅ |
+| Ciclo de vida del informe (TF-DOC-11 a TF-DOC-16) | 6 | ✅ |
+| PISO firmado (TF-DOC-17, TF-DOC-18) | 2 | ✅ |
+| Configuración y visibilidad (TF-DOC-19, TF-DOC-20) | 2 | ✅ |
+| **Total** | **20** | **20 ✅** |
+
+### ✅ TF-DOC-01: Subida de documento externo válido
 Un profesional con acceso al expediente sube un PDF como documento externo a un ciudadano. El sistema lo almacena, calcula su hash SHA-256, lo asocia al ciudadano con el tipo indicado y lo lista en el panel de documentos. El fichero no es accesible por URL directa.
 
-### TF-DOC-02: Rechazo de formato no PDF
+### ✅ TF-DOC-02: Rechazo de formato no PDF
 Un profesional intenta subir un fichero `.docx` como documento externo. El sistema rechaza la subida con un mensaje descriptivo. No se crea ningún registro en base de datos ni se almacena ningún fichero.
 
-### TF-DOC-03: Acceso con URL temporal
+### ✅ TF-DOC-03: Acceso con URL temporal
 Un profesional solicita ver un documento. El sistema genera una URL firmada con tiempo de expiración. La URL funciona mientras no ha expirado y devuelve 403 o 404 una vez expirada. Una URL de otro documento no es válida para acceder a este.
 
-### TF-DOC-04: Verificación de integridad
+### ✅ TF-DOC-04: Verificación de integridad
 Dado un documento custodiado, el sistema calcula su hash en el momento de la subida. Si el fichero almacenado es alterado externamente, la verificación posterior del hash detecta la discrepancia.
 
-### TF-DOC-05: Acceso denegado a profesional sin permiso
+### ✅ TF-DOC-05: Acceso denegado a profesional sin permiso
 Un profesional sin acceso al expediente de un ciudadano intenta descargar un documento de ese ciudadano (incluso conociendo el ID del documento). El sistema devuelve 403.
 
-### TF-DOC-06: Creación de estilo de informe por un supervisor
+### ✅ TF-DOC-06: Creación de estilo de informe por un supervisor
 Un supervisor crea un `EstiloInforme` para su UO definiendo logotipo y nombre de unidad. El estilo queda asociado a esa UO. Un supervisor de otra UO no puede editar este estilo.
 
-### TF-DOC-07: Herencia de estilo por proximidad
+### ✅ TF-DOC-07: Herencia de estilo por proximidad
 Una DG define logo y pie de página. Un centro dependiente de esa DG define solo su nombre de unidad. Al generar un informe desde el centro, el PDF resultante contiene: logo de la DG, nombre del centro, y pie de la DG. Los campos no definidos en el centro se resuelven en el nivel superior.
 
-### TF-DOC-08: Campo sobreescrito en UO hija no afecta a UO hermana
+### ✅ TF-DOC-08: Campo sobreescrito en UO hija no afecta a UO hermana
 Una DG define logo. El Centro A define su propio logo. El Centro B (mismo nivel que A) no define logo. Los informes del Centro A usan el logo del Centro A; los del Centro B usan el logo de la DG. Ningún cambio en el estilo del Centro A afecta al Centro B.
 
-### TF-DOC-09: Plantilla visible para UO hija pero no para UO sin relación
+### ✅ TF-DOC-09: Plantilla visible para UO hija pero no para UO sin relación
 Un supervisor de distrito crea una plantilla asignada a su distrito. Un profesional de un centro de ese distrito ve la plantilla en el selector. Un profesional de un centro de otro distrito no la ve.
 
-### TF-DOC-10: Creación de plantilla de informe
+### ✅ TF-DOC-10: Creación de plantilla de informe
 Un supervisor crea una `PlantillaInforme` en su UO con dos secciones automáticas y dos de texto libre, una de ellas obligatoria. La plantilla queda activa y aparece en el selector de los profesionales de esa UO y sus descendientes.
 
-### TF-DOC-11: Generación de informe en borrador
+### ✅ TF-DOC-11: Generación de informe en borrador
 Un profesional abre el asistente `NuevoInformeWizard`, selecciona una plantilla, y el sistema pre-carga las secciones automáticas con datos reales del ciudadano. El profesional completa las secciones de texto libre. El sistema genera el PDF de vista previa con el estilo resuelto para la UO del autor. El informe queda en estado `borrador`.
 
-### TF-DOC-12: Sección obligatoria vacía impide avance a firma
+### ✅ TF-DOC-12: Sección obligatoria vacía impide avance a firma
 En el asistente de creación, si una sección marcada como `obligatorio: true` está vacía, el botón de avance al paso de firma está deshabilitado y el sistema muestra un mensaje indicando qué secciones faltan.
 
-### TF-DOC-13: Firma de informe con AutoFirma
+### ✅ TF-DOC-13: Firma de informe con AutoFirma
 Un profesional firma un informe en estado `borrador` mediante AutoFirma con su Certificado de Empleado Público. El sistema recibe el PDF firmado, verifica que la firma es válida, persiste el documento, actualiza el informe a estado `firmado`, registra la fecha y el método de firma. El informe en estado `firmado` no muestra opción de edición.
 
-### TF-DOC-14: Inmutabilidad del informe firmado
+### ✅ TF-DOC-14: Inmutabilidad del informe firmado
 Un profesional intenta editar el contenido de un informe en estado `firmado` mediante llamada directa al endpoint. El sistema devuelve error y el informe permanece inalterado.
 
-### TF-DOC-15: Anulación de informe por el autor
+### ✅ TF-DOC-15: Anulación de informe por el autor
 El autor de un informe firmado lo anula proporcionando un motivo. El estado pasa a `anulado`, se registra la fecha y el motivo. El PDF original permanece en el sistema y sigue siendo descargable. Otro profesional no puede anular el informe del autor.
 
-### TF-DOC-16: Anulación denegada a no-autor
+### ✅ TF-DOC-16: Anulación denegada a no-autor
 Un profesional distinto del autor intenta anular un informe firmado. El sistema devuelve 403. El informe permanece en estado `firmado`.
 
-### TF-DOC-17: Subida de PISO firmado manualmente
+### ✅ TF-DOC-17: Subida de PISO firmado manualmente
 El profesional responsable del PISO sube el PDF escaneado con las firmas manuscritas de ambas partes. El sistema crea el `PisoFirmado`, lo asocia al `PlanDeIntervencion` correcto y lista el documento en el panel del plan. El estado del `PlanDeIntervencion` refleja que tiene conformidad registrada.
 
-### TF-DOC-18: Un PISO solo admite un registro de firma activo
+### ✅ TF-DOC-18: Un PISO solo admite un registro de firma activo
 Si ya existe un `PisoFirmado` para un `PlanDeIntervencion`, el sistema no permite crear un segundo sin que el primero haya sido reemplazado explícitamente. El registro anterior queda como histórico.
 
-### TF-DOC-19: Disco de almacenamiento configurable sin cambios de código
+### ✅ TF-DOC-19: Disco de almacenamiento configurable sin cambios de código
 El disco de almacenamiento puede cambiarse en la configuración de entorno (de `local` a `s3`) sin modificar código de la aplicación. Las subidas posteriores al cambio van al nuevo disco. Las referencias de documentos existentes siguen siendo válidas si el disco original permanece accesible.
 
-### TF-DOC-20: El profesional solo ve sus propios borradores
+### ✅ TF-DOC-20: El profesional solo ve sus propios borradores
 En el listado de informes, los borradores de otros profesionales no son visibles ni accesibles. Solo los informes firmados son visibles para cualquier profesional con acceso al expediente.
 
 ---
