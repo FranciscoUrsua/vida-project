@@ -4,6 +4,36 @@ Registro de cambios agrupado por módulo y área funcional, en orden cronológic
 
 ---
 
+## Módulo Agenda — Fase 2 — 2026-05-18
+
+### Nuevas funcionalidades
+- **`SlotMaterializadorService::materializar()`** implementado: genera `Slot` al publicar un `CuadranteMes`.
+  - Busca `HorarioCentro` vigente para el primer día del mes del cuadrante.
+  - Comprueba que cada día de `LineaCuadrante` sea laborable según `dias_laborables`.
+  - Intersecta la franja del profesional con la ventana de atención del centro (buffer inicio/fin).
+  - Aplica `porcentaje_urgencias` con redondeo `floor`; slots normales primero, urgencias al final.
+  - Bulk insert (`Slot::insert()`) por cuadrante.
+- **9 factories** para todos los modelos del módulo Agenda (`SlotFactory`, `CuadranteMesFactory`, `LineaCuadranteFactory`, `HorarioCentroFactory`, `TipoSlotFactory`, `PerfilHorarioProfesionalFactory`, `ExcepcionProfesionalFactory`, `CitaFactory`, `EventoAgendaFactory`).
+- **10 clases de test funcionales** con 44 tests (PF-01 a PF-10) basados en `docs/modulo-agenda.md §8`.
+  - 14 tests pasan ✅; 30 pendientes ⏳ a la espera de servicios restantes.
+- `docs/modulo-agenda.md` actualizado con tabla de estado por área y marcador ✅/⏳ en cada test individual.
+- Corregida indentación en `autoload-dev` de `composer.json` (entrada `Modules\\Agenda\\Tests\\`).
+
+### Decisiones de implementación
+- Los campos `time` de PostgreSQL se recuperan como `"HH:MM:SS"`; las aserciones de hora usan `assertStringStartsWith()` en lugar de comparación exacta.
+- `CuadranteMes::slots()` (`hasManyThrough`) requiere `select('slots.fecha')` para evitar columna ambigua al hacer `pluck('fecha')`.
+
+---
+
+## Módulo Agenda — Patch 01 — 2026-05-13
+
+### Correcciones de modelo
+- Añadido `EstadoSlot::Anulado` para distinguir slots invalidados activamente por una `ExcepcionProfesional` posterior a la publicación del cuadrante (vs. `Expirado`, que implica tiempo pasado sin uso).
+- Añadido `Slot::scopeAnulados()`.
+- Actualizado docblock de `GestionAusenciaService` con el flujo correcto.
+
+---
+
 ## Módulo Agenda — Fase 1 — 2026-04-07
 
 ### Nuevas funcionalidades

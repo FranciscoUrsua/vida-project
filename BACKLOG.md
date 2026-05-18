@@ -146,6 +146,20 @@ con indicadores medibles. Diferido a fases posteriores.
 
 ---
 
+**Implementar servicios pendientes del módulo Agenda (30 tests bloqueados)** — 2026-05-18
+`Módulo: Agenda`
+Tras implementar `SlotMaterializadorService`, quedan pendientes:
+- `CuadranteGeneratorService` (bloquea PF-03.1, PF-03.4, PF-03.5, PF-10.1)
+- `DisponibilidadService` (bloquea PF-04.2, PF-09.1, PF-09.2)
+- `SlotExpirationJob` (bloquea PF-04.4, PF-04.5, PF-06.3)
+- Lógica de ciclo de vida de `Cita` (bloquea PF-05.1, PF-05.2, PF-05.4–PF-05.8)
+- Bloqueo de slots al crear `EventoAgenda` (bloquea PF-04.3, PF-08.1–PF-08.4)
+- `GestionAusenciaService` (bloquea PF-06.1, PF-06.2, PF-07.1–PF-07.5)
+- Validación de solapamiento en `PerfilHorarioProfesional` (bloquea PF-02.3)
+Ver `docs/modulo-agenda.md §8` para detalle de cada test.
+
+---
+
 **Estrategia de onboarding de un centro nuevo en el módulo Agenda** — (desde `docs/modulo-agenda.md`)
 `Módulo: Agenda`
 Definir la configuración mínima necesaria para activar el módulo en un centro nuevo y
