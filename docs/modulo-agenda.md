@@ -563,26 +563,42 @@ Siguiendo el Principio 3.12. El `modo_agenda` del centro determina qué elemento
 
 Las pruebas están organizadas por área funcional. Para cada prueba se indica el **contexto** necesario, los **pasos** y el **resultado esperado**. Las pruebas marcadas con ⚠️ han revelado durante su redacción aspectos a aclarar o posibles huecos en las especificaciones — se documentan al final de esta sección.
 
+**Última ejecución:** 2026-05-18 — `php vendor/bin/phpunit --testsuite=Feature --filter="Modules\\Agenda"`
+**Resultado:** 44 tests — 7 pasan ✅ — 37 pendientes ⏳ — 0 fallos ❌
+
+| Área | Pasan | Pendientes | Pendiente de implementar |
+|---|---|---|---|
+| PF-01 Configuración horario | 2/4 | 2/4 | `SlotMaterializadorService` |
+| PF-02 Perfil horario | 0/3 | 3/3 | `SlotMaterializadorService`, validación solapamiento |
+| PF-03 Cuadrante mensual | 1/5 | 4/5 | `CuadranteGeneratorService`, `SlotMaterializadorService` |
+| PF-04 Slots y disponibilidad | 0/5 | 5/5 | `SlotMaterializadorService`, `DisponibilidadService`, `SlotExpirationJob` |
+| PF-05 Ciclo de vida cita | 1/8 | 7/8 | lógica ciclo vida `Cita` |
+| PF-06 No-show ciudadano | 0/3 | 3/3 | flujo no-show, `SlotExpirationJob` |
+| PF-07 No-show profesional | 0/5 | 5/5 | `GestionAusenciaService` |
+| PF-08 Eventos de agenda | 0/4 | 4/4 | lógica bloqueo slots en `EventoAgenda` |
+| PF-09 Profesionales itinerantes | 0/2 | 2/2 | `DisponibilidadService` |
+| PF-10 Integridad y casos límite | 3/5 | 2/5 | `CuadranteGeneratorService`, `SlotMaterializadorService` |
+
 ---
 
 ### PF-01 — Configuración de horario de centro
 
-**PF-01.1 — Horario con buffer de inicio**
+**PF-01.1 ⏳ — Horario con buffer de inicio**
 Contexto: centro en modo `estandar`, horario de atención al público de 9:00 a 14:00, buffer de inicio de 30 minutos.
 Pasos: publicar cuadrante y materializar slots para un día laborable.
 Esperado: el primer slot disponible comienza a las 9:30, no a las 9:00. No existen slots entre 9:00 y 9:30.
 
-**PF-01.2 — Solo un horario vigente por centro**
+**PF-01.2 ✅ — Solo un horario vigente por centro**
 Contexto: centro con horario A vigente hasta el 31 de agosto y horario B vigente desde el 1 de septiembre.
 Pasos: consultar el horario vigente el 1 de septiembre.
 Esperado: el sistema devuelve el horario B. El horario A no aparece como vigente.
 
-**PF-01.3 — Horario de verano sin fecha de fin**
+**PF-01.3 ✅ — Horario de verano sin fecha de fin**
 Contexto: centro con un único horario sin `vigente_hasta` (null).
 Pasos: consultar el horario vigente para cualquier fecha futura.
 Esperado: el sistema devuelve ese horario indefinidamente. No hay error por `vigente_hasta` null.
 
-**PF-01.4 — Día no laborable**
+**PF-01.4 ⏳ — Día no laborable**
 Contexto: horario con `dias_laborables = [1,2,3,4,5]` (L-V).
 Pasos: materializar slots para un sábado.
 Esperado: no se generan slots para ese día.
@@ -591,17 +607,17 @@ Esperado: no se generan slots para ese día.
 
 ### PF-02 — Perfil horario del profesional
 
-**PF-02.1 — Profesional con horario reducido**
+**PF-02.1 ⏳ — Profesional con horario reducido**
 Contexto: centro con atención de 8:30 a 15:00. Profesional con perfil horario de 9:30 a 14:00 (conciliación familiar).
 Pasos: materializar slots para ese profesional en un día laborable.
 Esperado: los slots del profesional comienzan a las 9:30 (más el buffer si aplica). No existen slots para ese profesional entre 8:30 y 9:30.
 
-**PF-02.2 — Profesional itinerante en dos centros**
+**PF-02.2 ⏳ — Profesional itinerante en dos centros**
 Contexto: profesional con perfil en Centro A (L-X, 9:00-14:00) y perfil en Centro B (J-V, 9:00-14:00).
 Pasos: materializar cuadrantes de ambos centros para el mismo mes.
 Esperado: el profesional tiene slots en Centro A los lunes, martes y miércoles, y slots en Centro B los jueves y viernes. No hay solapamiento.
 
-**PF-02.3 ⚠️ — Solapamiento de perfiles en el mismo centro**
+**PF-02.3 ⏳⚠️ — Solapamiento de perfiles en el mismo centro**
 Contexto: se intenta crear un segundo perfil activo para el mismo profesional y centro, con fechas solapadas.
 Pasos: intentar guardar el segundo perfil.
 Esperado: el sistema rechaza la operación con mensaje de error indicando que ya existe un perfil activo para ese profesional en ese centro en ese período.
@@ -611,27 +627,27 @@ Esperado: el sistema rechaza la operación con mensaje de error indicando que ya
 
 ### PF-03 — Cuadrante mensual
 
-**PF-03.1 — Generación de borrador en modo estándar**
+**PF-03.1 ⏳ — Generación de borrador en modo estándar**
 Contexto: centro en modo `estandar` con tres profesionales con perfiles activos.
 Pasos: solicitar generación del cuadrante para el mes siguiente.
 Esperado: se crea un `CuadranteMes` en estado `borrador` con `generado_automaticamente = false`. Se generan `LineaCuadrante` para cada profesional en cada día laborable del mes. El cuadrante no tiene efecto sobre los slots (aún no publicado).
 
-**PF-03.2 — Publicación del cuadrante**
+**PF-03.2 ⏳ — Publicación del cuadrante**
 Contexto: cuadrante en estado `borrador`.
 Pasos: el supervisor publica el cuadrante.
 Esperado: el estado cambia a `publicado`. Se registran `publicado_en` y `publicado_por_id`. Se materializan los slots del mes.
 
-**PF-03.3 — No se puede publicar un cuadrante si ya existe uno publicado para ese centro y mes**
+**PF-03.3 ✅ — No se puede publicar un cuadrante si ya existe uno publicado para ese centro y mes**
 Contexto: ya existe un `CuadranteMes` en estado `publicado` para el Centro A en enero 2026.
 Pasos: intentar publicar un segundo cuadrante para el mismo centro y mes.
 Esperado: el sistema rechaza la operación. ⚠️ *Este caso no está explícitamente cubierto en las especificaciones. El índice unique sobre `(centro_id, anyo, mes)` en la tabla impide duplicados en base de datos, pero la capa de aplicación debería dar un mensaje comprensible al supervisor.*
 
-**PF-03.4 — Generación automática en modo básico**
+**PF-03.4 ⏳ — Generación automática en modo básico**
 Contexto: centro en modo `basico`.
 Pasos: el job de inicio de mes se ejecuta.
 Esperado: se crea y publica automáticamente un `CuadranteMes` con `generado_automaticamente = true`. El supervisor no ha tenido que hacer nada. El cuadrante refleja el horario estándar del centro para todos los profesionales activos.
 
-**PF-03.5 — Excepción conocida incorporada en el borrador**
+**PF-03.5 ⏳ — Excepción conocida incorporada en el borrador**
 Contexto: profesional con una `ExcepcionProfesional` de tipo `vacaciones` del día 10 al 20 del mes que se va a generar.
 Pasos: generar el cuadrante del mes.
 Esperado: las `LineaCuadrante` del profesional para los días 10 al 20 aparecen con `anulada = true` y `excepcion_id` referenciando la excepción. No se generan slots para esas fechas.
@@ -640,27 +656,27 @@ Esperado: las `LineaCuadrante` del profesional para los días 10 al 20 aparecen 
 
 ### PF-04 — Slots y disponibilidad
 
-**PF-04.1 — Materialización correcta de slots**
+**PF-04.1 ⏳ — Materialización correcta de slots**
 Contexto: horario de atención de 9:00 a 14:00, buffer de inicio 30 minutos, tipo de slot "Entrevista TSR" de 45 minutos, porcentaje de urgencias 20%. La franja útil es de 9:30 a 14:00 = 270 minutos → 6 slots de 45 minutos.
 Pasos: materializar slots para un día con un profesional con jornada completa.
 Esperado: se generan 6 slots de 45 minutos entre 9:30 y 14:00. El 20% de 6 = 1,2 → **redondeo hacia abajo = 1 slot** en estado `bloqueado_urgencia`. Los 5 restantes en estado `disponible`. La regla de redondeo es siempre hacia el entero inferior (`floor`).
 
-**PF-04.2 — Slots de urgencia no visibles en canal externo**
+**PF-04.2 ⏳ — Slots de urgencia no visibles en canal externo**
 Contexto: slot en estado `bloqueado_urgencia`.
 Pasos: consultar disponibilidad a través del canal API externo.
 Esperado: el slot no aparece en la respuesta. Solo aparecen slots en estado `disponible` cuyo `tipo_slot.origen_permitido` es `api_externa` o `ambos`.
 
-**PF-04.3 — Slot bloqueado por evento**
+**PF-04.3 ⏳ — Slot bloqueado por evento**
 Contexto: slot en estado `disponible` a las 10:00. Se crea un `EventoAgenda` que cubre las 10:00-11:00 para ese profesional.
 Pasos: crear el evento.
 Esperado: el slot de las 10:00 cambia a estado `bloqueado_evento`. El slot ya no aparece como disponible para reserva.
 
-**PF-04.4 — Expiración de slot de urgencia no consumido**
+**PF-04.4 ⏳ — Expiración de slot de urgencia no consumido**
 Contexto: slot en estado `bloqueado_urgencia` para las 10:00 de hoy. La hora ha pasado sin que se haya asignado.
 Pasos: el `SlotExpirationJob` se ejecuta.
 Esperado: el slot pasa a estado `expirado`. No se realiza ninguna acción sobre el profesional ni sobre otras entidades.
 
-**PF-04.5 — Expiración de slot disponible no reservado**
+**PF-04.5 ⏳ — Expiración de slot disponible no reservado**
 Contexto: slot en estado `disponible` para las 11:00 de hoy. La hora ha pasado sin reserva.
 Pasos: el `SlotExpirationJob` se ejecuta.
 Esperado: el slot pasa a estado `no_ocupado`.
@@ -669,42 +685,42 @@ Esperado: el slot pasa a estado `no_ocupado`.
 
 ### PF-05 — Ciclo de vida de una cita
 
-**PF-05.1 — Creación de cita desde canal interno**
+**PF-05.1 ⏳ — Creación de cita desde canal interno**
 Contexto: slot en estado `disponible`.
 Pasos: el profesional o supervisor crea una cita asociando un ciudadano al slot.
 Esperado: se crea la `Cita` en estado `confirmada` con `origen = interno`. El slot asociado cambia a estado `reservado`.
 
-**PF-05.2 — Creación de cita desde API externa**
+**PF-05.2 ⏳ — Creación de cita desde API externa**
 Contexto: slot disponible cuyo `tipo_slot.origen_permitido = ambos`.
 Pasos: el sistema externo envía una petición `POST /api/v1/agenda/citas` con los datos del slot y un `referencia_externa`.
 Esperado: se crea la `Cita` con `origen = api_externa` y `referencia_externa` registrada. El slot pasa a `reservado`.
 
-**PF-05.3 — Intento de cita sobre slot no disponible desde API externa**
+**PF-05.3 ✅ — Intento de cita sobre slot no disponible desde API externa**
 Contexto: slot en estado `reservado` (ya tiene cita).
 Pasos: la API externa intenta crear una segunda cita sobre el mismo slot.
 Esperado: el sistema rechaza la petición con error apropiado (HTTP 409 o similar). No se crea ninguna cita. El slot permanece en `reservado`.
 
-**PF-05.4 — Intento de cita sobre slot de urgencia desde API externa**
+**PF-05.4 ⏳ — Intento de cita sobre slot de urgencia desde API externa**
 Contexto: slot en estado `bloqueado_urgencia`.
 Pasos: la API externa intenta crear una cita sobre ese slot.
 Esperado: el sistema rechaza la petición. Los slots de urgencia no son visibles ni reservables desde el canal externo.
 
-**PF-05.5 — Marcado de cita como completada**
+**PF-05.5 ⏳ — Marcado de cita como completada**
 Contexto: cita en estado `confirmada`, la hora ha llegado.
 Pasos: el profesional marca la cita como completada.
 Esperado: la cita pasa a estado `completada`. Se registra `completada_en`. Si `tipo_slot.genera_apunte_automatico = true`, el módulo Intervención crea el apunte correspondiente en la Historia Social.
 
-**PF-05.6 — Cancelación de cita activa**
+**PF-05.6 ⏳ — Cancelación de cita activa**
 Contexto: cita en estado `confirmada`, la hora aún no ha llegado.
 Pasos: el supervisor cancela la cita indicando un motivo.
 Esperado: la cita pasa a estado `cancelada`. Se registran `cancelado_por_id` y `motivo_cancelacion`. El slot vuelve a estado `disponible`. Si la cita tenía `origen = api_externa`, se notifica al sistema externo.
 
-**PF-05.7 — Cancelación de cita cuya hora ya ha pasado**
+**PF-05.7 ⏳ — Cancelación de cita cuya hora ya ha pasado**
 Contexto: cita en estado `confirmada` para las 10:00 de hoy. Son las 11:00.
 Pasos: el supervisor cancela la cita.
 Esperado: el sistema permite la cancelación retroactiva. Antes de ejecutarla, comprueba si existen apuntes en Historia Social o actividades asociadas a esa cita. Si los hay, los muestra al supervisor en una pantalla de confirmación para que tome una decisión informada. Si el supervisor confirma, la cita pasa a `cancelada`. El slot, cuya hora ya ha pasado, permanece en estado `no_ocupado` (no vuelve a `disponible`). Si la cita tenía `origen = api_externa`, se notifica al sistema externo.
 
-**PF-05.8 — Cancelación retroactiva con apuntes asociados**
+**PF-05.8 ⏳ — Cancelación retroactiva con apuntes asociados**
 Contexto: cita completada hace dos días con un apunte en Historia Social generado automáticamente.
 Pasos: el supervisor intenta cancelar la cita.
 Esperado: el sistema muestra al supervisor los apuntes y actividades vinculadas a la cita antes de permitir la cancelación. El aviso es explícito: "Esta cita tiene 1 apunte asociado en Historia Social. ¿Desea continuar con la cancelación?" El supervisor puede cancelar la acción o confirmar. Si confirma, la cita pasa a `cancelada` pero los apuntes ya existentes en Historia Social **no se eliminan** — su existencia queda registrada como contexto. Esta cautela previene errores como cancelar la cita equivocada o anular registros clínicos por error.
@@ -713,17 +729,17 @@ Esperado: el sistema muestra al supervisor los apuntes y actividades vinculadas 
 
 ### PF-06 — No-show del ciudadano
 
-**PF-06.1 — Registro de no-show**
+**PF-06.1 ⏳ — Registro de no-show**
 Contexto: cita en estado `confirmada` para las 10:00. El ciudadano no se presenta.
 Pasos: el profesional marca manualmente la cita como no-show.
 Esperado: la cita pasa a estado `no_show_ciudadano`. El slot permanece como estaba (no vuelve a `disponible` — la franja ya ha pasado o está en curso). Se registra la incidencia para estadísticas.
 
-**PF-06.2 — No-show con cancelación anticipada: reasignación del slot**
+**PF-06.2 ⏳ — No-show con cancelación anticipada: reasignación del slot**
 Contexto: el ciudadano llama con unas horas de antelación para cancelar su cita de las 16:00. El slot está en estado `reservado`.
 Pasos: el profesional o supervisor registra la cancelación por parte del ciudadano y libera el slot.
 Esperado: la cita pasa a estado `cancelada` con `motivo_cancelacion` indicando cancelación por el ciudadano. El slot vuelve a estado `disponible`. Puede asignarse a un ciudadano que acuda sin cita previa o gestionarse como disponibilidad ordinaria. Este caso se diferencia del no-show puro en que hay margen de actuación.
 
-**PF-06.3 — No-show en el momento: el profesional dedica el hueco a otras tareas**
+**PF-06.3 ⏳ — No-show en el momento: el profesional dedica el hueco a otras tareas**
 Contexto: el ciudadano no se presenta a su cita de las 10:00. El profesional espera el tiempo razonable y lo registra como no-show.
 Pasos: el profesional marca la cita como `no_show_ciudadano`.
 Esperado: la cita pasa a estado `no_show_ciudadano`. El slot permanece en `reservado` — no se libera porque la franja ya está en curso o ha pasado y el profesional la ha dedicado a otras tareas. No se requiere ninguna acción adicional del sistema. El slot expirará a `no_ocupado` cuando el job de expiración lo procese al final del día.
@@ -732,29 +748,29 @@ Esperado: la cita pasa a estado `no_show_ciudadano`. El slot permanece en `reser
 
 ### PF-07 — No-show del profesional y reasignación
 
-**PF-07.1 — Registro de ausencia sobrevenida**
+**PF-07.1 ⏳ — Registro de ausencia sobrevenida**
 Contexto: profesional con tres citas confirmadas para hoy.
 Pasos: el supervisor registra la ausencia del profesional para hoy.
 Esperado: las tres citas pasan a estado `cancelada` (no `no_show_profesional` — ver nota). Se genera una alerta al supervisor del centro listando las citas canceladas y pendientes de reagendización. El sistema presenta los slots de urgencia disponibles para facilitar la reasignación (modos `estandar` y `avanzado`).
 
 *Nota sobre el estado:* una ausencia sobrevenida no es un no-show en el sentido de incumplimiento del profesional, sino una circunstancia que genera cancelaciones que deben reagendarse. El estado `cancelada` con un `motivo_cancelacion` descriptivo ("ausencia del profesional") refleja mejor la realidad que `no_show_profesional`, que queda reservado para situaciones de abandono sin justificación. Esta distinción es relevante para las estadísticas.
 
-**PF-07.2 — Reasignación de cita a slot de urgencia**
+**PF-07.2 ⏳ — Reasignación de cita a slot de urgencia**
 Contexto: cita en estado `no_show_profesional`. Existe un slot de urgencia disponible en otro profesional para una franja compatible.
 Pasos: el supervisor selecciona el slot de urgencia y confirma la reasignación.
 Esperado: se crea un registro `ReasignacionCita` vinculando la cita original con el nuevo slot. La cita vuelve a estado `confirmada` con el nuevo profesional. El slot de urgencia pasa a estado `reservado`. El slot original permanece en su estado (el profesional estuvo ausente). Se genera alerta al profesional nuevo y, si hay canal disponible, al ciudadano.
 
-**PF-07.3 — No hay slots de urgencia disponibles**
+**PF-07.3 ⏳ — No hay slots de urgencia disponibles**
 Contexto: cita en estado `no_show_profesional`. No hay slots de urgencia disponibles en el centro para esa franja.
 Pasos: el supervisor intenta gestionar la reasignación.
 Esperado: el sistema informa de que no hay slots de urgencia disponibles. El supervisor puede buscar slots ordinarios disponibles de otros profesionales o dejar la cita en estado `no_show_profesional` para gestionarla después.
 
-**PF-07.4 — Reasignación en modo básico**
+**PF-07.4 ⏳ — Reasignación en modo básico**
 Contexto: centro en modo `basico`. Profesional ausente con citas.
 Pasos: el supervisor gestiona la ausencia.
 Esperado: el sistema muestra las citas afectadas. El supervisor puede reasignar cada una manualmente a un slot disponible de cualquier otro profesional. No hay filtro de urgencias porque el modo básico no tiene slots de urgencia.
 
-**PF-07.5 — Excepción registrada tras publicación del cuadrante**
+**PF-07.5 ⏳ — Excepción registrada tras publicación del cuadrante**
 Contexto: cuadrante publicado para el mes actual. El día 15 se registra una baja médica para un profesional a partir del día 20.
 Pasos: el supervisor crea una `ExcepcionProfesional` con `afecta_disponibilidad = true` para los días 20-31.
 Esperado: las `LineaCuadrante` del profesional para los días 20-31 se marcan como `anulada = true`. Los slots ya materializados para esas fechas que estaban en estado `disponible` o `bloqueado_urgencia` pasan al nuevo estado `anulado`. Las citas ya confirmadas en esas fechas pasan a estado `cancelada` con motivo "excepción del profesional". Se genera una alerta al supervisor listando las citas canceladas y pendientes de reagendización. Los slots en estado `reservado` (con cita) no se anulan automáticamente hasta que la cita sea cancelada o reasignada.
@@ -765,22 +781,22 @@ Esperado: las `LineaCuadrante` del profesional para los días 20-31 se marcan co
 
 ### PF-08 — Eventos de agenda
 
-**PF-08.1 — Creación de evento sin conflicto**
+**PF-08.1 ⏳ — Creación de evento sin conflicto**
 Contexto: profesional con slots disponibles en la franja 10:00-11:00. Se crea un evento de reunión de equipo para esa franja.
 Pasos: el supervisor crea el evento con ese profesional convocado.
 Esperado: los slots de la franja 10:00-11:00 de ese profesional pasan a `bloqueado_evento`. El evento aparece en el calendario del profesional.
 
-**PF-08.2 — Creación de evento con cita ya confirmada**
+**PF-08.2 ⏳ — Creación de evento con cita ya confirmada**
 Contexto: profesional con una cita confirmada a las 10:30. Se intenta crear un evento que cubre 10:00-11:00.
 Pasos: el supervisor crea el evento.
 Esperado: el sistema crea el evento pero genera un aviso indicando que existe una cita confirmada afectada. No bloquea la creación. El supervisor decide si cancela la cita manualmente. Los slots disponibles de la franja (los que no tenían cita) pasan a `bloqueado_evento`; el slot con cita permanece en `reservado`.
 
-**PF-08.3 — Conflicto de espacio físico**
+**PF-08.3 ⏳ — Conflicto de espacio físico**
 Contexto: sala A del centro reservada por un evento de 10:00 a 11:00. Se intenta crear un segundo evento en la misma sala y franja.
 Pasos: el supervisor crea el segundo evento con sala A.
 Esperado: el sistema genera un aviso de conflicto de espacio pero no bloquea la creación. El segundo evento queda registrado con sala A. Ambos eventos tienen el mismo espacio asignado y el sistema lo registra con el aviso correspondiente.
 
-**PF-08.4 — Evento en modo básico**
+**PF-08.4 ⏳ — Evento en modo básico**
 Contexto: centro en modo `basico`. El supervisor quiere bloquear a dos profesionales de 11:00 a 12:00 por una reunión.
 Pasos: el supervisor usa el formulario simplificado de evento: selecciona profesionales, franja horaria y motivo de lista corta.
 Esperado: se crea el evento. Los slots de esa franja para esos profesionales pasan a `bloqueado_evento`. No se solicita espacio ni confirmación de asistencia.
@@ -789,12 +805,12 @@ Esperado: se crea el evento. Los slots de esa franja para esos profesionales pas
 
 ### PF-09 — Profesionales itinerantes
 
-**PF-09.1 — Disponibilidad solo en el centro correcto**
+**PF-09.1 ⏳ — Disponibilidad solo en el centro correcto**
 Contexto: profesional itinerante con perfil en Centro A (lunes) y Centro B (martes).
 Pasos: consultar disponibilidad del profesional en Centro A un martes.
 Esperado: no hay slots disponibles en Centro A ese martes — el profesional está asignado al Centro B ese día.
 
-**PF-09.2 — Excepción que afecta a un centro, no al otro**
+**PF-09.2 ⏳ — Excepción que afecta a un centro, no al otro**
 Contexto: profesional itinerante. Se registra una excepción de formación para el Centro A el día 15.
 Pasos: consultar disponibilidad del profesional en Centro B el día 15.
 Esperado: la disponibilidad en Centro B no se ve afectada. La excepción tiene `centro_id` de Centro A y solo afecta a ese centro. ⚠️ *Hay que verificar que `GestionAusenciaService` y `DisponibilidadService` siempre filtran por `centro_id` y no solo por `usuario_id` al gestionar excepciones.*
@@ -803,27 +819,27 @@ Esperado: la disponibilidad en Centro B no se ve afectada. La excepción tiene `
 
 ### PF-10 — Integridad y casos límite
 
-**PF-10.1 — Cuadrante sin profesionales**
+**PF-10.1 ⏳ — Cuadrante sin profesionales**
 Contexto: centro sin ningún `PerfilHorarioProfesional` activo.
 Pasos: intentar generar el cuadrante del mes.
 Esperado: el sistema genera un cuadrante vacío (sin líneas) o informa de que no hay profesionales con perfil activo. No produce error.
 
-**PF-10.2 — Tipo de slot con duración mayor que la franja de atención**
+**PF-10.2 ⏳ — Tipo de slot con duración mayor que la franja de atención**
 Contexto: horario de atención de 9:30 a 10:00 (30 minutos). Tipo de slot de 45 minutos.
 Pasos: materializar slots.
 Esperado: no se genera ningún slot para ese tipo de slot en esa franja — no cabe. El sistema registra internamente la incoherencia. La validación visual y el aviso al supervisor se implementarán en la fase de diseño del frontend: el formulario de configuración verificará en tiempo real que la duración de cada tipo de slot es compatible con la franja de atención y el buffer definidos, mostrando un aviso antes de guardar. También se incluirá el caso análogo de un slot cuya hora de inicio queda fuera del horario de atención (ej. tipo de slot configurado para las 17:00 cuando la jornada termina a las 15:00).
 
-**PF-10.3 — Cambio de modo de agenda de básico a estándar**
+**PF-10.3 ✅ — Cambio de modo de agenda de básico a estándar**
 Contexto: centro que lleva tres meses en modo `basico` con cuadrantes generados automáticamente, citas registradas y eventos simplificados.
 Pasos: el supervisor cambia `modo_agenda` a `estandar`.
 Esperado: todos los datos históricos permanecen intactos. El próximo cuadrante deberá generarse y publicarse manualmente. Los eventos simplificados del pasado siguen visibles en el histórico. No se produce ningún error de integridad de datos.
 
-**PF-10.4 — Slot asociado a una cita eliminada por soft delete**
+**PF-10.4 ✅ — Slot asociado a una cita eliminada por soft delete**
 Contexto: cita en estado `cancelada`, eliminada por soft delete.
 Pasos: consultar el slot asociado.
 Esperado: el slot existe y su estado refleja el último estado coherente (debería haber vuelto a `disponible` en el momento de la cancelación, o a `no_ocupado` si la hora ya había pasado). La cita es recuperable desde el histórico con soft delete.
 
-**PF-10.5 — Dos cuadrantes en el mismo centro y mes** ⚠️
+**PF-10.5 ✅⚠️ — Dos cuadrantes en el mismo centro y mes**
 Contexto: existe un cuadrante publicado. Se intenta crear un segundo cuadrante para el mismo centro y mes.
 Pasos: crear el segundo cuadrante.
 Esperado: el índice unique sobre `(centro_id, anyo, mes)` impide la creación a nivel de base de datos. La capa de aplicación debe capturar esta excepción y mostrar un mensaje comprensible.

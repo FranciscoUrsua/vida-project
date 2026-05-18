@@ -4,10 +4,12 @@ namespace Modules\Agenda\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Agenda\Database\Factories\CitaFactory;
 use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Enums\OrigenCita;
 use Modules\Centro\Models\Centro;
@@ -41,7 +43,13 @@ use Modules\Centro\Models\Ciudadano;
  */
 class Cita extends Model
 {
+    use HasFactory;
     use SoftDeletes;
+
+    protected static function newFactory(): CitaFactory
+    {
+        return CitaFactory::new();
+    }
 
     protected $table = 'citas';
 

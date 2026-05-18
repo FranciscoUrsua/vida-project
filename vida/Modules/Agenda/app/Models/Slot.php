@@ -4,9 +4,11 @@ namespace Modules\Agenda\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Modules\Agenda\Database\Factories\SlotFactory;
 use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Espacio;
@@ -31,6 +33,13 @@ use Modules\Centro\Models\Espacio;
  */
 class Slot extends Model
 {
+    use HasFactory;
+
+    protected static function newFactory(): SlotFactory
+    {
+        return SlotFactory::new();
+    }
+
     protected $table = 'slots';
 
     protected $guarded = [];

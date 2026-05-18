@@ -4,10 +4,12 @@ namespace Modules\Agenda\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Agenda\Database\Factories\EventoAgendaFactory;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Espacio;
 
@@ -35,7 +37,13 @@ use Modules\Centro\Models\Espacio;
  */
 class EventoAgenda extends Model
 {
+    use HasFactory;
     use SoftDeletes;
+
+    protected static function newFactory(): EventoAgendaFactory
+    {
+        return EventoAgendaFactory::new();
+    }
 
     protected $table = 'eventos_agenda';
 

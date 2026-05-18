@@ -4,9 +4,11 @@ namespace Modules\Agenda\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Agenda\Database\Factories\PerfilHorarioProfesionalFactory;
 use Modules\Centro\Models\Centro;
 
 /**
@@ -29,6 +31,13 @@ use Modules\Centro\Models\Centro;
  */
 class PerfilHorarioProfesional extends Model
 {
+    use HasFactory;
+
+    protected static function newFactory(): PerfilHorarioProfesionalFactory
+    {
+        return PerfilHorarioProfesionalFactory::new();
+    }
+
     protected $table = 'perfiles_horario_profesional';
 
     protected $guarded = [];

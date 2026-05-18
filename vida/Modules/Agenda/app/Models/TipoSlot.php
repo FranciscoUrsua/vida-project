@@ -3,9 +3,11 @@
 namespace Modules\Agenda\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Agenda\Database\Factories\TipoSlotFactory;
 use Modules\Agenda\Enums\OrigenPermitidoSlot;
 
 /**
@@ -27,6 +29,13 @@ use Modules\Agenda\Enums\OrigenPermitidoSlot;
  */
 class TipoSlot extends Model
 {
+    use HasFactory;
+
+    protected static function newFactory(): TipoSlotFactory
+    {
+        return TipoSlotFactory::new();
+    }
+
     protected $table = 'tipos_slot';
 
     protected $guarded = [];

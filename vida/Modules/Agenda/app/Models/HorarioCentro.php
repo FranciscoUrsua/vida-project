@@ -3,10 +3,12 @@
 namespace Modules\Agenda\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Agenda\Database\Factories\HorarioCentroFactory;
 use Modules\Agenda\Enums\ModoAgenda;
 use Modules\Centro\Models\Centro;
 
@@ -35,7 +37,13 @@ use Modules\Centro\Models\Centro;
  */
 class HorarioCentro extends Model
 {
+    use HasFactory;
     use SoftDeletes;
+
+    protected static function newFactory(): HorarioCentroFactory
+    {
+        return HorarioCentroFactory::new();
+    }
 
     protected $table = 'horarios_centro';
 

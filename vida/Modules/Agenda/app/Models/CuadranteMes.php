@@ -4,10 +4,12 @@ namespace Modules\Agenda\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Modules\Agenda\Database\Factories\CuadranteMesFactory;
 use Modules\Agenda\Enums\EstadoCuadrante;
 use Modules\Centro\Models\Centro;
 
@@ -31,6 +33,13 @@ use Modules\Centro\Models\Centro;
  */
 class CuadranteMes extends Model
 {
+    use HasFactory;
+
+    protected static function newFactory(): CuadranteMesFactory
+    {
+        return CuadranteMesFactory::new();
+    }
+
     protected $table = 'cuadrantes_mes';
 
     protected $guarded = [];

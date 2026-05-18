@@ -4,8 +4,10 @@ namespace Modules\Agenda\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Modules\Agenda\Database\Factories\ExcepcionProfesionalFactory;
 use Modules\Agenda\Enums\OrigenExcepcion;
 use Modules\Agenda\Enums\TipoExcepcion;
 use Modules\Centro\Models\Centro;
@@ -31,6 +33,13 @@ use Modules\Centro\Models\Centro;
  */
 class ExcepcionProfesional extends Model
 {
+    use HasFactory;
+
+    protected static function newFactory(): ExcepcionProfesionalFactory
+    {
+        return ExcepcionProfesionalFactory::new();
+    }
+
     protected $table = 'excepciones_profesional';
 
     protected $guarded = [];
