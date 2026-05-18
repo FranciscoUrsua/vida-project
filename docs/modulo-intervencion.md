@@ -311,4 +311,236 @@ El módulo de Intervención no gestiona directamente slots ni citas. Toda solici
 
 ---
 
+## 10. Tests funcionales
+
+Los tests de esta sección cubren el comportamiento de modelos, políticas y reglas de negocio implementables en la fase actual. Los tests que dependen de componentes Livewire, de la integración real con Agenda o de decisiones de diseño pendientes están marcados explícitamente con su bloqueo.
+
+Convención de nomenclatura: `TF-INT-XX`. Los tests se ejecutan con:
+
+```bash
+php artisan test --filter=Intervencion
+```
+
+---
+
+### Grupo A — Visibilidad de apuntes
+
+Estos tests verifican la regla más crítica del módulo: la privacidad estricta de las anotaciones personales. Se verifica tanto a nivel de scope de base de datos como a nivel de política de autorización. Ambos niveles son necesarios; ninguno es suficiente por sí solo.
+
+**TF-INT-A01 — Apunte privado invisible para otros profesionales en el scope**
+- Precondición: profesionales A y B, plan activo
+- Acción: A crea apunte con `visibilidad = privada`; se llama a `Apunte::visiblesParaUsuario($idB)`
+- Resultado: el apunte no aparece en el resultado; `Apunte::visiblesParaUsuario($idA)` sí lo incluye
+
+**TF-INT-A02 — La política deniega la visualización de apunte privado a otro profesional**
+- Precondición: apunte privado de usuario A
+- Acción: `Gate::forUser($usuarioB)->allows('view', $apuntePrivado)`
+- Resultado: `false` — incluso si B tiene rol supervisor
+
+**TF-INT-A03 — Apunte de visibilidad profesionales visible para cualquier profesional**
+- Precondición: apunte con `visibilidad = profesionales` creado por A
+- Acción: `Apunte::visiblesParaUsuario($idB)`
+- Resultado: el apunte aparece
+
+**TF-INT-A04 — Solo el autor puede editar su apunte**
+- Precondición: apunte con `visibilidad = profesionales` de usuario A
+- Acción: `Gate::forUser($usuarioB)->allows('update', $apunte)`
+- Resultado: `false`; `Gate::forUser($usuarioA)->allows('update', $apunte)` devuelve `true`
+
+**TF-INT-A05 — Apunte con visibilidad profesionales no es eliminable ni por su autor**
+- Precondición: apunte con `visibilidad = profesionales`
+- Acción: `Gate::forUser($autor)->allows('delete', $apunte)`
+- Resultado: `false`; el mismo apunte con `visibilidad = privada` devuelve `true`
+
+**TF-INT-A06 — Apuntes privados no se transfieren al reasignar profesional responsable**
+- Precondición: plan con profesional responsable A, que tiene dos apuntes: uno privado y uno de visibilidad profesionales
+- Acción: se cambia `profesional_responsable_id` del plan a B; se llama a `Apunte::visiblesParaUsuario($idB)` sobre el plan
+- Resultado: solo aparece el apunte de visibilidad `profesionales`; el privado no es accesible para B
+
+**TF-INT-A07 — El scope no filtra apuntes de visibilidad ciudadano para profesionales**
+- Precondición: apunte con `visibilidad = ciudadano` en un plan
+- Acción: `Apunte::visiblesParaUsuario($idProfesional)`
+- Resultado: el apunte aparece — la visibilidad `ciudadano` no restringe el acceso a profesionales, solo amplía el acceso al ciudadano
+
+---
+
+### Grupo B — Versionado e integridad del plan
+
+**TF-INT-B01 — crearNuevaVersion incrementa version y archiva la anterior**
+- Precondición: plan en estado `activo` con `version = 1`
+- Acción: `$plan->crearNuevaVersion('Cambio de circunstancias', $profesionalId)`
+- Resultado: la instancia devuelta tiene `version = 2` y estado `borrador`; el plan original en BD tiene estado `en_revision`
+
+**TF-INT-B02 — crearNuevaVersion crea registro en revisiones_plan**
+- Precondición: plan activo
+- Acción: `$plan->crearNuevaVersion('motivo', $profesionalId)`
+- Resultado: existe un registro en `revisiones_plan` con `version_anterior = 1`, `version_nueva = 2`, `profesional_id` y `motivo_revision` correctos
+
+**TF-INT-B03 — crearNuevaVersion registra el seguimiento de origen cuando se proporciona**
+- Precondición: plan activo, seguimiento existente con `requiere_revision_plan = true`
+- Acción: `$plan->crearNuevaVersion('motivo', $profesionalId, $seguimientoId)`
+- Resultado: el registro en `revisiones_plan` tiene `seguimiento_id` igual al del seguimiento proporcionado
+
+**TF-INT-B04 — estaFirmado devuelve false sin firmas**
+- Precondición: plan con `version = 1`, sin registros en `firmas_plan` para esa versión
+- Acción: `$plan->estaFirmado()`
+- Resultado: `false`
+
+**TF-INT-B05 — estaFirmado devuelve false con solo una firma**
+- Precondición: `FirmaPlan` con `version = 1`, `firma_ciudadano` rellena, `firma_profesional` nula
+- Acción: `$plan->estaFirmado()`
+- Resultado: `false`
+
+**TF-INT-B06 — estaFirmado devuelve true con ambas firmas en la versión correcta**
+- Precondición: `FirmaPlan` con `version = 1`, ambos campos de firma rellenos
+- Acción: `$plan->estaFirmado()`
+- Resultado: `true`
+
+**TF-INT-B07 — estaFirmado evalúa la versión actual, no versiones anteriores**
+- Precondición: plan en `version = 2`; existe `FirmaPlan` con `version = 1` con ambas firmas, pero no hay `FirmaPlan` para `version = 2`
+- Acción: `$plan->estaFirmado()`
+- Resultado: `false` — la firma de una versión anterior no valida la nueva versión
+
+**TF-INT-B08 — Un plan borrador no puede tener estado activo sin firma**
+- Precondición: plan en estado `borrador`
+- Acción: intentar establecer `estado = activo` directamente sin llamar a `crearNuevaVersion` ni registrar firma
+- Resultado: el modelo lanza una excepción o la validación impide el cambio de estado (según el mecanismo de protección elegido en la implementación)
+- *Nota: este test asume que el modelo implementa protección de estado. Si la protección es solo a nivel de UI, anotar como limitación.*
+
+**TF-INT-B09 — Planes especializados mantienen referencia al plan ASP de origen**
+- Precondición: plan general ASP activo
+- Acción: crear un plan especializado con `plan_asp_id` apuntando al plan ASP
+- Resultado: `$planEspecializado->planAsp` devuelve el plan ASP; `$planAsp->planesEspecializados` incluye el plan especializado
+
+---
+
+### Grupo C — Seguimiento
+
+**TF-INT-C01 — Seguimiento sin requiere_revision_plan no altera el estado del plan**
+- Precondición: plan activo en `version = 1`
+- Acción: crear `SeguimientoPlan` con `requiere_revision_plan = false`
+- Resultado: el plan mantiene `version = 1` y estado `activo`; no existe ningún registro nuevo en `revisiones_plan`
+
+**TF-INT-C02 — nuevas_prestaciones se almacena y recupera como array**
+- Precondición: ninguna
+- Acción: crear seguimiento con `nuevas_prestaciones = [1, 4, 7]`; recuperar de BD
+- Resultado: `$seguimiento->nuevas_prestaciones` es un array PHP `[1, 4, 7]`, no una cadena JSON
+
+**TF-INT-C03 — solicitarCitaSiguiente existe y es callable sin excepción**
+- Precondición: seguimiento con `fecha_siguiente_seguimiento` rellena
+- Acción: `$seguimiento->solicitarCitaSiguiente()`
+- Resultado: no lanza excepción; el método existe y es un stub documentado
+
+**TF-INT-C04 — Seguimiento queda vinculado a su entrevista de origen**
+- Precondición: entrevista de tipo `seguimiento`, plan activo
+- Acción: crear `SeguimientoPlan` con `entrevista_id` de la entrevista
+- Resultado: `$seguimiento->entrevista` devuelve la entrevista correcta; `$entrevista->seguimientoPlan` devuelve el seguimiento
+
+---
+
+### Grupo D — Valoración y fichas
+
+**TF-INT-D01 — Ficha almacena y recupera datos como array**
+- Precondición: tipo de ficha con schema válido, valoración existente
+- Acción: crear `Ficha` con `datos = ['ingresos_mensuales_hogar' => 850, 'numero_personas_dependientes' => 3]`; recuperar de BD
+- Resultado: `$ficha->datos` es un array PHP con esos valores
+
+**TF-INT-D02 — Ficha con notas y sin datos es válida**
+- Precondición: valoración existente
+- Acción: crear `Ficha` con `notas = 'El ciudadano comenta que...'` y `datos = null`
+- Resultado: la ficha se guarda sin errores; `$ficha->completada` es `false`
+
+**TF-INT-D03 — TipoValoracion devuelve sus fichas en orden configurado**
+- Precondición: tipo de valoración con tres fichas asociadas en orden 2, 0, 1
+- Acción: `$tipoValoracion->tipoValoracionFichas()->orderBy('orden')->get()`
+- Resultado: las fichas aparecen en orden ascendente de `orden`
+
+**TF-INT-D04 — Valoración en borrador puede tener fichas incompletas**
+- Precondición: tipo de valoración con dos fichas, una obligatoria
+- Acción: crear valoración con estado `borrador`; crear solo la ficha no obligatoria
+- Resultado: la valoración se guarda sin errores en estado `borrador`
+
+**TF-INT-D05 — Una entrevista puede existir sin valoración asociada**
+- Precondición: ninguna
+- Acción: crear entrevista de tipo `informativa` sin crear valoración
+- Resultado: `$entrevista->valoracion` devuelve `null`; la entrevista existe correctamente
+
+---
+
+### Grupo E — Entrevista
+
+**TF-INT-E01 — Entrevista sin cita_id es válida**
+- Precondición: historia social existente, profesional
+- Acción: crear entrevista con `cita_id = null`
+- Resultado: la entrevista se guarda sin errores
+
+**TF-INT-E02 — Entrevista puede existir sin plan asociado**
+- Precondición: ninguna
+- Acción: crear entrevista con `plan_intervencion_id = null`
+- Resultado: la entrevista se guarda sin errores; `$entrevista->planDeIntervencion` devuelve `null`
+
+**TF-INT-E03 — Entrevista de tipo inicial puede generar valoración**
+- Precondición: entrevista de tipo `inicial`, tipo de valoración existente
+- Acción: crear `Valoracion` con `entrevista_id` de la entrevista
+- Resultado: `$entrevista->valoracion` devuelve la valoración; `$valoracion->entrevista` devuelve la entrevista
+
+---
+
+### Grupo F — Contacto SIA
+
+**TF-INT-F01 — Registro SIA con clasificacion otra_administracion no requiere urgencia**
+- Precondición: ninguna
+- Acción: crear `SiaContacto` con `clasificacion = otra_administracion` y `urgencia = null`
+- Resultado: el registro se guarda sin errores
+
+**TF-INT-F02 — Scope competenciaMunicipal filtra correctamente**
+- Precondición: tres registros SIA: dos con `competencia_municipal`, uno con `otra_administracion`
+- Acción: `SiaContacto::competenciaMunicipal()->count()`
+- Resultado: devuelve 2
+
+---
+
+### Grupo G — Integridad de configuración
+
+**TF-INT-G01 — TipoFicha con schema JSON inválido no puede guardarse**
+- Precondición: ninguna
+- Acción: intentar crear `TipoFicha` con `schema = 'esto no es json{'`
+- Resultado: falla con error de validación antes de llegar a BD
+
+**TF-INT-G02 — El seeder produce exactamente los registros esperados**
+- Precondición: BD limpia
+- Acción: ejecutar `IntervencionSeeder`
+- Resultado: existen 3 registros en `tipo_fichas`, 1 en `tipo_valoraciones`, 3 en `tipo_valoracion_fichas`; el schema de cada ficha es un array válido con al menos un campo
+
+**TF-INT-G03 — TipoFicha inactivo no aparece en scopes de fichas activas**
+- Precondición: dos tipos de ficha, uno con `activo = false`
+- Acción: `TipoFicha::activos()->get()`
+- Resultado: solo aparece el tipo de ficha activo
+
+---
+
+### Tests pendientes de implementación futura
+
+Los siguientes tests están definidos pero no pueden ejecutarse en la fase actual por las razones indicadas.
+
+**TF-INT-PEND-01 — Flujo completo inicial: SIA → cita → entrevista → valoración**
+- Bloqueado por: componentes Livewire operativos no implementados en fase actual
+
+**TF-INT-PEND-02 — Flujo de seguimiento desde interfaz: entrevista → seguimiento → programación cita siguiente**
+- Bloqueado por: componentes Livewire + integración real con módulo Agenda (`solicitarCitaSiguiente` es stub)
+
+**TF-INT-PEND-03 — Modificación de plan tras seguimiento genera nueva firma requerida**
+- Bloqueado por: componentes Livewire + flujo de firma no implementado en fase actual
+
+**TF-INT-PEND-04 — Visibilidad ciudadano en carpeta ciudadana**
+- Bloqueado por: módulo de carpeta ciudadana no implementado
+
+**TF-INT-PEND-05 — Objetivos del plan con estructura de indicadores medibles**
+- Bloqueado por: decisión de diseño pendiente (sección 9, modelo de objetivos — evolución futura)
+
+**TF-INT-PEND-06 — SSM como tipo de ficha configurable y su integración en el flujo de valoración**
+- Bloqueado por: decisión organizativa pendiente (sección 9, pilotaje SSM)
+
+---
+
 *Documento elaborado en fase de diseño conceptual. Versión inicial: marzo 2026.*
