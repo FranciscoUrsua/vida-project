@@ -4,6 +4,30 @@ Registro de cambios agrupado por módulo y área funcional, en orden cronológic
 
 ---
 
+## Módulo Centros — Fase 2 — 2026-05-18
+
+### Nuevas funcionalidades
+- **`PrescripcionService`**: gestiona el ciclo de vida de prescripciones de plazas.
+  - `crear()`: asigna plaza libre o pone en lista de espera según disponibilidad.
+  - `liberarPlaza()`: marca la plaza como libre y actualiza `profesional_alerta_id` en `ListaEspera` usando un resolver de TSR inyectable (preparado para integración con módulo Ciudadanía).
+  - `cancelar()`: cancela la prescripción y libera la plaza asignada si la hubiera.
+- **Métodos añadidos a modelos existentes**:
+  - `Centro::directorActivo()` — devuelve el `DirectorCentro` activo (sin `fecha_fin`).
+  - `ColeccionPlazas::plazasDisponibles()` — cuenta plazas libres; devuelve 0 si la colección está inactiva. El accessor `plazas_disponibles` delega a este método.
+  - `Red::plazasLibresTotal()` — agrega plazas libres de todos los centros de la red (solo colecciones activas).
+  - `Actividad::verificarInscripcionCentro(int $ciudadanoId)` — lanza `InvalidArgumentException` si la actividad requiere inscripción previa y el ciudadano no la tiene activa.
+- **31 tests funcionales** en `Modules/Centro/tests/Feature/` (7 clases), todos pasan ✅:
+  - `CentroUoTest` (3 tests), `AmbitoTerritorialTest` (6), `RedCentrosTest` (6), `ColeccionPlazasTest` (3), `PrescripcionTest` (5), `InscripcionCentroTest` (5), `DirectorCentroTest` (3).
+- Migraciones pendientes commiteadas: `drop_distrito_from_centros_table`, `create_ambitos_territoriales_table`.
+- `docs/modulo-centros.md` actualizado con tabla de estado y marcadores ✅ por test.
+- `phpunit.xml` y `composer.json` actualizados con la suite de tests del módulo Centro.
+
+### Decisiones de implementación
+- El TSR activo se resuelve mediante `PrescripcionService::setTsrResolver(callable)` en lugar de una dependencia directa al módulo Ciudadanía (aún no implementado). En producción se conectará mediante un adaptador.
+- `ColeccionPlazas::listaEspera()` sigue siendo `HasOne` (una entrada por prescripción); las consultas de múltiples entradas de una colección se hacen con `ListaEspera::where('coleccion_plazas_id', ...)`.
+
+---
+
 ## Módulo Agenda — Fase 2 — 2026-05-18
 
 ### Nuevas funcionalidades

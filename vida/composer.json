@@ -76,7 +76,8 @@
             "Modules\\Usuarios\\Tests\\": "Modules/Usuarios/tests/",
             "Modules\\Mensajes\\Tests\\": "Modules/Mensajes/tests/",
             "Modules\\Documentos\\Tests\\": "Modules/Documentos/tests/",
-            "Modules\\Agenda\\Tests\\": "Modules/Agenda/tests/"
+            "Modules\\Agenda\\Tests\\": "Modules/Agenda/tests/",
+            "Modules\\Centro\\Tests\\": "Modules/Centro/tests/"
         }
     },
     "scripts": {

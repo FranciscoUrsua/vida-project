@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Red de centros con pool de plazas o lista de espera compartida.
@@ -53,6 +54,29 @@ class Red extends Model
     public function centros(): BelongsToMany
     {
         return $this->belongsToMany(Centro::class, 'red_centro', 'red_id', 'centro_id');
+    }
+
+    // -------------------------------------------------------------------------
+    // Métodos de disponibilidad
+    // -------------------------------------------------------------------------
+
+    /**
+     * Total de plazas con estado 'libre' en todos los centros de la red.
+     * Solo cuenta colecciones activas.
+     *
+     * @return int
+     */
+    public function plazasLibresTotal(): int
+    {
+        return (int) DB::table('plazas')
+            ->join('espacios', 'espacios.id', '=', 'plazas.espacio_id')
+            ->join('colecciones_plazas', 'colecciones_plazas.id', '=', 'espacios.coleccion_plazas_id')
+            ->join('red_centro', 'red_centro.centro_id', '=', 'colecciones_plazas.centro_id')
+            ->where('red_centro.red_id', $this->id)
+            ->where('plazas.estado', 'libre')
+            ->where('colecciones_plazas.activa', true)
+            ->whereNull('plazas.deleted_at')
+            ->count();
     }
 
     // -------------------------------------------------------------------------

@@ -146,6 +146,15 @@ con indicadores medibles. Diferido a fases posteriores.
 
 ---
 
+**Conectar PrescripcionService al TSR activo del ciudadano** — 2026-05-18
+`Módulo: Centros / Ciudadanía`
+`PrescripcionService::liberarPlaza()` usa un resolver inyectable para el TSR activo del ciudadano.
+En producción debe conectarse al módulo Ciudadanía (o al registro de HistoriaSocial del módulo Intervención)
+cuando esté disponible. Actualmente el resolver por defecto devuelve null (sin actualización de alerta).
+Ref: `Modules/Centro/app/Services/PrescripcionService.php` — método `setTsrResolver`.
+
+---
+
 **Implementar servicios pendientes del módulo Agenda (30 tests bloqueados)** — 2026-05-18
 `Módulo: Agenda`
 Tras implementar `SlotMaterializadorService`, quedan pendientes:

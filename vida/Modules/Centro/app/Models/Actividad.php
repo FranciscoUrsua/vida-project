@@ -94,6 +94,34 @@ class Actividad extends Model
     }
 
     // -------------------------------------------------------------------------
+    // Métodos de negocio
+    // -------------------------------------------------------------------------
+
+    /**
+     * Verifica que el ciudadano tiene inscripción activa en este centro.
+     * Solo aplica si requiere_inscripcion_centro = true.
+     *
+     * @throws \InvalidArgumentException Si se requiere inscripción y el ciudadano no la tiene.
+     */
+    public function verificarInscripcionCentro(int $ciudadanoId): void
+    {
+        if (! $this->requiere_inscripcion_centro) {
+            return;
+        }
+
+        $tieneInscripcion = InscripcionCentro::where('centro_id', $this->centro_id)
+            ->where('ciudadano_id', $ciudadanoId)
+            ->activas()
+            ->exists();
+
+        if (! $tieneInscripcion) {
+            throw new \InvalidArgumentException(
+                'El ciudadano no tiene inscripción activa en el centro. La actividad requiere inscripción previa.'
+            );
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Scopes
     // -------------------------------------------------------------------------
 

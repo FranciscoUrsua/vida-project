@@ -3,7 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CentroResource\Pages;
+use App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager;
 use App\Filament\Resources\CentroResource\RelationManagers\ColeccionesPlazasRelationManager;
+use App\Models\UnidadOrganizativa;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
@@ -19,9 +21,8 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\Centro;
-use Modules\Prestaciones\Models\Prestacion;
 use Modules\Centro\Models\SegmentoPoblacion;
-use Modules\Organizacion\Models\Distrito;
+use Modules\Prestaciones\Models\Prestacion;
 
 class CentroResource extends Resource
 {
@@ -63,6 +64,14 @@ class CentroResource extends Resource
                         ->required()
                         ->default('municipal_directo'),
 
+                    Select::make('unidad_organizativa_id')
+                        ->label('Unidad organizativa')
+                        ->relationship('unidadOrganizativa', 'nombre')
+                        ->searchable()
+                        ->preload()
+                        ->nullable()
+                        ->placeholder('Sin unidad asignada'),
+
                     Toggle::make('activo')
                         ->label('Activo')
                         ->default(true),
@@ -81,13 +90,6 @@ class CentroResource extends Resource
                         ->label('Código postal')
                         ->maxLength(10)
                         ->nullable(),
-
-                    Select::make('distrito_id')
-                        ->label('Distrito')
-                        ->options(fn () => Distrito::where('activo', true)->orderBy('nombre')->pluck('nombre', 'id'))
-                        ->searchable()
-                        ->nullable()
-                        ->placeholder('Sin distrito asignado'),
 
                     TextInput::make('coordenadas')
                         ->label('Coordenadas')
@@ -201,8 +203,8 @@ class CentroResource extends Resource
                         default                => ucfirst($state),
                     }),
 
-                Tables\Columns\TextColumn::make('distrito.nombre')
-                    ->label('Distrito')
+                Tables\Columns\TextColumn::make('unidadOrganizativa.nombre')
+                    ->label('Unidad organizativa')
                     ->sortable()
                     ->toggleable(),
 
@@ -222,10 +224,6 @@ class CentroResource extends Resource
                     ]),
 
                 Tables\Filters\TernaryFilter::make('activo')->label('Estado'),
-
-                Tables\Filters\SelectFilter::make('distrito_id')
-                    ->label('Distrito')
-                    ->relationship('distrito', 'nombre'),
             ])
             ->actions([
                 EditAction::make(),
@@ -237,6 +235,7 @@ class CentroResource extends Resource
     public static function getRelationManagers(): array
     {
         return [
+            AmbitosTerritorialesRelationManager::class,
             ColeccionesPlazasRelationManager::class,
         ];
     }

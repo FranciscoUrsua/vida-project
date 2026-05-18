@@ -111,17 +111,30 @@ class ColeccionPlazas extends Model
     }
 
     // -------------------------------------------------------------------------
-    // Accesores
+    // Accesores y métodos de disponibilidad
     // -------------------------------------------------------------------------
 
     /**
      * Número de plazas con estado 'libre' en esta colección.
+     * Devuelve 0 si la colección está inactiva.
      *
      * @return int
      */
+    public function plazasDisponibles(): int
+    {
+        if (! $this->activa) {
+            return 0;
+        }
+
+        return $this->plazas()->where('estado', 'libre')->count();
+    }
+
+    /**
+     * @deprecated Usar plazasDisponibles(). Se mantiene como alias para compatibilidad.
+     */
     public function getPlazasDisponiblesAttribute(): int
     {
-        return $this->plazas()->where('estado', 'libre')->count();
+        return $this->plazasDisponibles();
     }
 
     // -------------------------------------------------------------------------

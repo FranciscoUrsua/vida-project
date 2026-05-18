@@ -16,7 +16,8 @@ use Modules\Organizacion\Models\Distrito;
  * Centro de servicios sociales.
  *
  * Unidad operativa donde se prestan los servicios municipales.
- * Pertenece a una UnidadOrganizativa y se ubica en un Distrito.
+ * Pertenece a una UnidadOrganizativa. El ámbito territorial se modela
+ * a través de AmbitoTerritorial (tabla ambitos_territoriales).
  *
  * tipo_gestion: municipal_directo | municipal_concertado | privado_concertado | privado_puro
  *
@@ -27,7 +28,6 @@ use Modules\Organizacion\Models\Distrito;
  * @property int|null $unidad_organizativa_id
  * @property string|null $direccion
  * @property string|null $codigo_postal
- * @property int|null $distrito_id
  * @property string|null $coordenadas
  * @property string|null $telefono
  * @property string|null $email
@@ -53,7 +53,6 @@ class Centro extends Model
         'unidad_organizativa_id',
         'direccion',
         'codigo_postal',
-        'distrito_id',
         'coordenadas',
         'telefono',
         'email',
@@ -89,9 +88,17 @@ class Centro extends Model
     }
 
     /**
-     * Distrito municipal donde se ubica el centro.
+     * Ámbitos territoriales de atención del centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Organizacion\Models\Distrito, self>
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\AmbitoTerritorial, self>
+     */
+    public function ambitosTeritoriales(): HasMany
+    {
+        return $this->hasMany(AmbitoTerritorial::class, 'centro_id');
+    }
+
+    /**
+     * @deprecated distrito_id fue eliminado en v1.1. Usar ambitosTeritoriales() en su lugar.
      */
     public function distrito(): BelongsTo
     {
@@ -176,6 +183,36 @@ class Centro extends Model
     public function prestaciones(): BelongsToMany
     {
         return $this->belongsToMany(Prestacion::class, 'centro_prestacion', 'centro_id', 'prestacion_id');
+    }
+
+    // -------------------------------------------------------------------------
+    // Métodos de negocio
+    // -------------------------------------------------------------------------
+
+    /**
+     * Devuelve el DirectorCentro activo (fecha_fin null), o null si no lo hay.
+     *
+     * @return \Modules\Centro\Models\DirectorCentro|null
+     */
+    public function directorActivo(): ?DirectorCentro
+    {
+        return $this->directores()->activo()->first();
+    }
+
+    /**
+     * Nombra un nuevo director cerrando el activo actual (si existe).
+     *
+     * $datos debe incluir los campos de DirectorCentro (profesional_id o nombre/telefono/email)
+     * y opcionalmente fecha_inicio (por defecto hoy).
+     */
+    public function nombrarDirector(array $datos): DirectorCentro
+    {
+        $this->directores()->whereNull('fecha_fin')->update(['fecha_fin' => today()]);
+
+        return $this->directores()->create(array_merge(
+            ['fecha_inicio' => today()],
+            $datos,
+        ));
     }
 
     // -------------------------------------------------------------------------

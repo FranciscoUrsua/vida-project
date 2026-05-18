@@ -432,27 +432,47 @@ Los tipos de gestión, los modos de acceso y los tipos de ámbito territorial se
 
 ## 9. Tests funcionales
 
-Los tests validan el comportamiento del módulo, no su implementación interna. Se escriben como tests de feature en Laravel (`tests/Feature/Modules/Centro/`), usando la base de datos SQLite en memoria según la configuración del proyecto.
+Los tests validan el comportamiento del módulo, no su implementación interna. Se escriben como tests de feature en Laravel (`Modules/Centro/tests/Feature/`), usando PostgreSQL (`vida_testing`) según la configuración del proyecto.
+
+### Estado de ejecución — 2026-05-18
+
+| Área | Tests | Pasan | Pendientes |
+|---|---|---|---|
+| 9.1 Centro y UO | 3 | 3 ✅ | 0 |
+| 9.2 Ámbito territorial | 6 | 6 ✅ | 0 |
+| 9.3 Red de centros | 6 | 6 ✅ | 0 |
+| 9.4 Colección de plazas | 3 | 3 ✅ | 0 |
+| 9.5 Prescripción | 5 | 5 ✅ | 0 |
+| 9.6 Inscripción en centro | 5 | 5 ✅ | 0 |
+| 9.7 Director del centro | 3 | 3 ✅ | 0 |
+| **Total** | **31** | **31 ✅** | **0** |
+
+Implementaciones añadidas para dar soporte a los tests:
+- `Centro::directorActivo()` — devuelve el `DirectorCentro` con `fecha_fin = null`.
+- `ColeccionPlazas::plazasDisponibles()` — cuenta plazas libres; devuelve 0 si la colección está inactiva.
+- `Red::plazasLibresTotal()` — agrega plazas libres de todas las colecciones activas de los centros de la red.
+- `Actividad::verificarInscripcionCentro(int $ciudadanoId)` — lanza `InvalidArgumentException` si la actividad requiere inscripción y el ciudadano no la tiene activa.
+- `PrescripcionService` — gestiona el ciclo de vida: asignación inmediata si hay plaza libre, lista de espera si no la hay, liberación de plaza con actualización del TSR alerta, cancelación.
 
 ### 9.1 Centro y UO
 
 ```
 CentroUoTest
 
-- un_centro_puede_pertenecer_a_una_uo
-  Dado un centro con unidad_organizativa_id válido
-  Cuando se accede a $centro->unidadOrganizativa
-  Entonces devuelve la UO correcta
+✅ un_centro_puede_pertenecer_a_una_uo
+   Dado un centro con unidad_organizativa_id válido
+   Cuando se accede a $centro->unidadOrganizativa
+   Entonces devuelve la UO correcta
 
-- un_centro_puede_existir_sin_uo
-  Dado un centro con unidad_organizativa_id null
-  Cuando se guarda
-  Entonces no hay error de validación
+✅ un_centro_puede_existir_sin_uo
+   Dado un centro con unidad_organizativa_id null
+   Cuando se guarda
+   Entonces no hay error de validación
 
-- la_uo_de_un_centro_puede_cambiarse
-  Dado un centro asignado a la UO A
-  Cuando se actualiza unidad_organizativa_id a la UO B
-  Entonces $centro->fresh()->unidadOrganizativa->id === UO_B
+✅ la_uo_de_un_centro_puede_cambiarse
+   Dado un centro asignado a la UO A
+   Cuando se actualiza unidad_organizativa_id a la UO B
+   Entonces $centro->fresh()->unidadOrganizativa->id === UO_B
 ```
 
 ### 9.2 Ámbito territorial
@@ -460,35 +480,35 @@ CentroUoTest
 ```
 AmbitoTerritorialTest
 
-- un_centro_puede_tener_ambito_ciudad_completa
-  Dado un centro sin ámbitos previos
-  Cuando se crea un AmbitoTerritorial con tipo = ciudad_completa
-  Entonces $centro->ambitosTeritoriales()->count() === 1
+✅ un_centro_puede_tener_ambito_ciudad_completa
+   Dado un centro sin ámbitos previos
+   Cuando se crea un AmbitoTerritorial con tipo = ciudad_completa
+   Entonces $centro->ambitosTeritoriales()->count() === 1
 
-- ciudad_completa_no_puede_coexistir_con_otros_ambitos
-  Dado un centro con tipo = ciudad_completa
-  Cuando se intenta añadir un segundo ámbito de cualquier tipo
-  Entonces se lanza una excepción de validación
+✅ ciudad_completa_no_puede_coexistir_con_otros_ambitos
+   Dado un centro con tipo = ciudad_completa
+   Cuando se intenta añadir un segundo ámbito de cualquier tipo
+   Entonces se lanza una excepción de validación
 
-- un_centro_puede_tener_multiples_ambitos_de_demarcacion
-  Dado un centro sin ámbitos
-  Cuando se crean dos AmbitoTerritorial de tipo demarcacion_oficial con distintos referencia_id
-  Entonces $centro->ambitosTeritoriales()->count() === 2
+✅ un_centro_puede_tener_multiples_ambitos_de_demarcacion
+   Dado un centro sin ámbitos
+   Cuando se crean dos AmbitoTerritorial de tipo demarcacion_oficial con distintos referencia_id
+   Entonces $centro->ambitosTeritoriales()->count() === 2
 
-- un_centro_puede_combinar_tipos_de_ambito
-  Dado un centro sin ámbitos
-  Cuando se crea un ámbito demarcacion_oficial y otro barrios
-  Entonces ambos se guardan sin error
+✅ un_centro_puede_combinar_tipos_de_ambito
+   Dado un centro sin ámbitos
+   Cuando se crea un ámbito demarcacion_oficial y otro barrios
+   Entonces ambos se guardan sin error
 
-- un_ambito_tipo_poligono_requiere_geojson
-  Dado un AmbitoTerritorial con tipo = poligono_gis y geojson null
-  Cuando se intenta guardar
-  Entonces se lanza una excepción de validación
+✅ un_ambito_tipo_poligono_requiere_geojson
+   Dado un AmbitoTerritorial con tipo = poligono_gis y geojson null
+   Cuando se intenta guardar
+   Entonces se lanza una excepción de validación
 
-- eliminar_un_ambito_no_afecta_al_centro
-  Dado un centro con dos ámbitos
-  Cuando se elimina uno
-  Entonces el centro sigue activo y tiene un ámbito
+✅ eliminar_un_ambito_no_afecta_al_centro
+   Dado un centro con dos ámbitos
+   Cuando se elimina uno
+   Entonces el centro sigue activo y tiene un ámbito
 ```
 
 ### 9.3 Red de centros
@@ -496,35 +516,35 @@ AmbitoTerritorialTest
 ```
 RedCentrosTest
 
-- una_red_puede_crearse_sin_centros
-  Dado los datos mínimos de una red
-  Cuando se guarda
-  Entonces $red->exists === true y $red->centros()->count() === 0
+✅ una_red_puede_crearse_sin_centros
+   Dado los datos mínimos de una red
+   Cuando se guarda
+   Entonces $red->exists === true y $red->centros()->count() === 0
 
-- un_centro_puede_unirse_a_una_red
-  Dado una red y un centro existentes
-  Cuando se ejecuta $red->centros()->attach($centro)
-  Entonces $red->centros()->count() === 1
+✅ un_centro_puede_unirse_a_una_red
+   Dado una red y un centro existentes
+   Cuando se ejecuta $red->centros()->attach($centro)
+   Entonces $red->centros()->count() === 1
 
-- un_centro_puede_pertenecer_a_varias_redes
-  Dado un centro y dos redes
-  Cuando el centro se une a ambas redes
-  Entonces $centro->redes()->count() === 2
+✅ un_centro_puede_pertenecer_a_varias_redes
+   Dado un centro y dos redes
+   Cuando el centro se une a ambas redes
+   Entonces $centro->redes()->count() === 2
 
-- una_red_agrega_plazas_libres_de_sus_centros
-  Dado una red con dos centros, cada uno con una colección de plazas con 3 plazas libres
-  Cuando se consulta la disponibilidad agregada de la red
-  Entonces el total de plazas libres es 6
+✅ una_red_agrega_plazas_libres_de_sus_centros
+   Dado una red con dos centros, cada uno con una colección de plazas con 3 plazas libres
+   Cuando se consulta la disponibilidad agregada de la red
+   Entonces el total de plazas libres es 6
 
-- una_red_inactiva_no_aparece_en_consultas_de_disponibilidad
-  Dado una red con activa = false
-  Cuando se consulta disponibilidad de redes activas
-  Entonces la red no aparece en los resultados
+✅ una_red_inactiva_no_aparece_en_consultas_de_disponibilidad
+   Dado una red con activa = false
+   Cuando se consulta disponibilidad de redes activas
+   Entonces la red no aparece en los resultados
 
-- desligar_un_centro_de_una_red_no_elimina_el_centro
-  Dado una red con un centro
-  Cuando se ejecuta $red->centros()->detach($centro)
-  Entonces $red->centros()->count() === 0 y el centro sigue existiendo
+✅ desligar_un_centro_de_una_red_no_elimina_el_centro
+   Dado una red con un centro
+   Cuando se ejecuta $red->centros()->detach($centro)
+   Entonces $red->centros()->count() === 0 y el centro sigue existiendo
 ```
 
 ### 9.4 Colección de plazas y disponibilidad
@@ -532,20 +552,20 @@ RedCentrosTest
 ```
 ColeccionPlazasTest
 
-- la_capacidad_refleja_el_total_de_plazas
-  Dado una colección con capacidad = 10
-  Cuando se crean 10 plazas asociadas
-  Entonces $coleccion->plazas()->count() === 10
+✅ la_capacidad_refleja_el_total_de_plazas
+   Dado una colección con capacidad = 10
+   Cuando se crean 10 plazas asociadas
+   Entonces $coleccion->plazas()->count() === 10
 
-- plazas_disponibles_excluye_ocupadas_y_en_mantenimiento
-  Dado una colección con 5 plazas: 2 libres, 2 ocupadas, 1 en mantenimiento
-  Cuando se consulta $coleccion->plazasDisponibles()
-  Entonces devuelve 2
+✅ plazas_disponibles_excluye_ocupadas_y_en_mantenimiento
+   Dado una colección con 5 plazas: 2 libres, 2 ocupadas, 1 en mantenimiento
+   Cuando se consulta $coleccion->plazasDisponibles()
+   Entonces devuelve 2
 
-- una_coleccion_inactiva_no_ofrece_plazas_disponibles
-  Dado una colección con activa = false y 3 plazas libres
-  Cuando se consulta disponibilidad
-  Entonces devuelve 0
+✅ una_coleccion_inactiva_no_ofrece_plazas_disponibles
+   Dado una colección con activa = false y 3 plazas libres
+   Cuando se consulta disponibilidad
+   Entonces devuelve 0
 ```
 
 ### 9.5 Prescripción y lista de espera
@@ -553,32 +573,32 @@ ColeccionPlazasTest
 ```
 PrescripcionTest
 
-- una_prescripcion_a_coleccion_con_plaza_libre_queda_asignada
-  Dado una colección con al menos una plaza libre
-  Cuando se crea una prescripción hacia esa colección
-  Entonces el estado es asignada y plaza_id no es null
+✅ una_prescripcion_a_coleccion_con_plaza_libre_queda_asignada
+   Dado una colección con al menos una plaza libre
+   Cuando se crea una prescripción hacia esa colección
+   Entonces el estado es asignada y plaza_id no es null
 
-- una_prescripcion_a_coleccion_sin_plazas_entra_en_lista_de_espera
-  Dado una colección con todas las plazas ocupadas
-  Cuando se crea una prescripción hacia esa colección con modo lista_espera
-  Entonces el estado es en_lista_espera y se crea un registro ListaEspera
+✅ una_prescripcion_a_coleccion_sin_plazas_entra_en_lista_de_espera
+   Dado una colección con todas las plazas ocupadas
+   Cuando se crea una prescripción hacia esa colección con modo lista_espera
+   Entonces el estado es en_lista_espera y se crea un registro ListaEspera
 
-- al_liberarse_una_plaza_se_genera_alerta_al_tsr_activo
-  Dado una prescripción en lista de espera con TSR A
-  Y el TSR activo del ciudadano es ahora B (cambio posterior)
-  Cuando se marca una plaza como libre
-  Entonces la alerta se envía al TSR B, no al TSR A
+✅ al_liberarse_una_plaza_se_genera_alerta_al_tsr_activo
+   Dado una prescripción en lista de espera con TSR A
+   Y el TSR activo del ciudadano es ahora B (cambio posterior)
+   Cuando se marca una plaza como libre
+   Entonces la alerta se envía al TSR B, no al TSR A
 
-- la_asignacion_no_es_automatica_al_liberarse_plaza
-  Dado una prescripción en lista de espera
-  Cuando se libera una plaza
-  Entonces el estado de la prescripción sigue siendo en_lista_espera (no asignada)
-  Y existe una alerta pendiente de revisión profesional
+✅ la_asignacion_no_es_automatica_al_liberarse_plaza
+   Dado una prescripción en lista de espera
+   Cuando se libera una plaza
+   Entonces el estado de la prescripción sigue siendo en_lista_espera (no asignada)
+   Y existe una alerta pendiente de revisión profesional
 
-- cancelar_una_prescripcion_libera_la_plaza
-  Dado una prescripción activa con plaza asignada
-  Cuando se cancela la prescripción
-  Entonces la plaza vuelve a estado libre
+✅ cancelar_una_prescripcion_libera_la_plaza
+   Dado una prescripción activa con plaza asignada
+   Cuando se cancela la prescripción
+   Entonces la plaza vuelve a estado libre
 ```
 
 ### 9.6 Inscripción en centro
@@ -586,32 +606,32 @@ PrescripcionTest
 ```
 InscripcionCentroTest
 
-- un_ciudadano_puede_inscribirse_en_un_centro
-  Dado un ciudadano y un centro con inscripcion_libre = true
-  Cuando se crea una InscripcionCentro
-  Entonces $inscripcion->activa === true
+✅ un_ciudadano_puede_inscribirse_en_un_centro
+   Dado un ciudadano y un centro con inscripcion_libre = true
+   Cuando se crea una InscripcionCentro
+   Entonces $inscripcion->activa === true
 
-- la_baja_de_inscripcion_es_siempre_explicita
-  Dado una inscripción activa
-  Cuando pasa el tiempo sin ninguna acción
-  Entonces la inscripción sigue activa (no caduca)
+✅ la_baja_de_inscripcion_es_siempre_explicita
+   Dado una inscripción activa
+   Cuando pasa el tiempo sin ninguna acción
+   Entonces la inscripción sigue activa (no caduca)
 
-- dar_de_baja_una_inscripcion_la_desactiva
-  Dado una inscripción activa
-  Cuando se establece fecha_baja y activa = false
-  Entonces $inscripcion->activa === false
+✅ dar_de_baja_una_inscripcion_la_desactiva
+   Dado una inscripción activa
+   Cuando se establece fecha_baja y activa = false
+   Entonces $inscripcion->activa === false
 
-- actividad_con_flag_requiere_inscripcion_bloquea_sin_inscripcion
-  Dado una actividad con requiere_inscripcion_centro = true
-  Y un ciudadano sin InscripcionCentro activa en ese centro
-  Cuando se intenta crear una prescripción o inscripción a la actividad
-  Entonces se lanza una excepción de validación
+✅ actividad_con_flag_requiere_inscripcion_bloquea_sin_inscripcion
+   Dado una actividad con requiere_inscripcion_centro = true
+   Y un ciudadano sin InscripcionCentro activa en ese centro
+   Cuando se intenta crear una prescripción o inscripción a la actividad
+   Entonces se lanza una excepción de validación
 
-- actividad_con_flag_requiere_inscripcion_permite_con_inscripcion_activa
-  Dado una actividad con requiere_inscripcion_centro = true
-  Y un ciudadano con InscripcionCentro activa en ese centro
-  Cuando se crea la prescripción o inscripción
-  Entonces se crea correctamente sin error
+✅ actividad_con_flag_requiere_inscripcion_permite_con_inscripcion_activa
+   Dado una actividad con requiere_inscripcion_centro = true
+   Y un ciudadano con InscripcionCentro activa en ese centro
+   Cuando se crea la prescripción o inscripción
+   Entonces se crea correctamente sin error
 ```
 
 ### 9.7 Director del centro
@@ -619,20 +639,20 @@ InscripcionCentroTest
 ```
 DirectorCentroTest
 
-- un_centro_tiene_un_unico_director_activo
-  Dado un centro con dos registros DirectorCentro: uno con fecha_fin null y otro con fecha_fin pasada
-  Cuando se consulta $centro->directorActivo()
-  Entonces devuelve el que tiene fecha_fin null
+✅ un_centro_tiene_un_unico_director_activo
+   Dado un centro con dos registros DirectorCentro: uno con fecha_fin null y otro con fecha_fin pasada
+   Cuando se consulta $centro->directorActivo()
+   Entonces devuelve el que tiene fecha_fin null
 
-- al_nombrar_nuevo_director_el_anterior_recibe_fecha_fin
-  Dado un centro con director activo A
-  Cuando se nombra director B
-  Entonces el director A tiene fecha_fin = hoy y el director B tiene fecha_fin null
+✅ al_nombrar_nuevo_director_el_anterior_recibe_fecha_fin
+   Dado un centro con director activo A
+   Cuando se nombra director B
+   Entonces el director A tiene fecha_fin = hoy y el director B tiene fecha_fin null
 
-- director_externo_no_puede_tener_profesional_id
-  Dado un DirectorCentro con nombre externo y profesional_id relleno simultáneamente
-  Cuando se intenta guardar
-  Entonces se lanza una excepción de validación
+✅ director_externo_no_puede_tener_profesional_id
+   Dado un DirectorCentro con nombre externo y profesional_id relleno simultáneamente
+   Cuando se intenta guardar
+   Entonces se lanza una excepción de validación
 ```
 
 ---
