@@ -4,6 +4,37 @@ Registro de cambios agrupado por módulo y área funcional, en orden cronológic
 
 ---
 
+## Módulo Intervención — Fase 1 — 2026-05-18
+
+### Nuevas funcionalidades
+
+- **Módulo `Modules/Intervencion/`** creado desde cero con estructura completa nwidart v12.
+- **9 enums PHP**: `EstadoPlan`, `TipoPlan`, `MotivoCierre`, `VisibilidadApunte`, `TipoApunte`, `TipoEntrevista`, `EstadoValoracion`, `ClasificacionSia`, `UrgenciaSia`.
+- **12 migraciones** en orden estricto de dependencias: `tipo_fichas`, `tipo_valoraciones`, `tipo_valoracion_fichas`, `entrevistas`, `valoraciones`, `fichas`, `planes_intervencion` (con FK auto-referencial `plan_asp_id`), `firmas_plan`, `seguimientos_plan`, `revisiones_plan`, `plan_apuntes`, `sia_contactos`.
+- **11 modelos Eloquent**: `TipoFicha`, `TipoValoracion`, `TipoValoracionFicha`, `Entrevista`, `Valoracion`, `Ficha`, `PlanDeIntervencion`, `FirmaPlan`, `RevisionPlan`, `SeguimientoPlan`, `Apunte`, `SiaContacto`.
+  - `PlanDeIntervencion::crearNuevaVersion()`: genera nueva versión del plan, archiva la anterior como `en_revision`, registra la revisión en `revisiones_plan`.
+  - `PlanDeIntervencion::estaFirmado()`: verifica firma del plan filtrando por `plan_id + version` actuales.
+  - Guard de DomainException en `PlanDeIntervencion`: impide cambiar estado a `activo` sin firma cuando el plan ya existe.
+  - `Apunte::scopeVisiblesParaUsuario()`: excluye apuntes privados de otros autores.
+  - `TipoFicha::setSchemaAttribute()`: valida JSON a nivel de mutador (no de evento saving).
+  - `SeguimientoPlan::solicitarCitaSiguiente()`: stub documentado, integración con Agenda pendiente.
+  - `SiaContacto::scopeCompetenciaMunicipal()`: filtra por clasificación.
+- **`ApuntePolicy`**: view/update/delete con regla de privacidad absoluta para apuntes de nivel `privada`.
+- **9 factories** con estados nombrados para todos los modelos del módulo.
+- **`IntervencionSeeder`**: crea 3 `tipo_fichas`, 1 `tipo_valoracion`, 3 entradas pivot.
+- **35 tests funcionales** (TF-INT-A01 a G03) en 7 clases, todos pasan ✅:
+  - `VisibilidadApuntesTest` (7), `VersionadoPlanTest` (9), `SeguimientoTest` (4), `ValoracionFichasTest` (5), `EntrevistaTest` (3), `ContactoSiaTest` (2), `ConfiguracionTest` (3).
+- `docs/modulo-intervencion.md` actualizado con tabla de resultados y marcadores ✅ por test.
+
+### Decisiones de implementación
+
+- La tabla `plan_apuntes` (no `apuntes`) evita conflicto con el stub `App\Models\Apunte` que ya usa la tabla `apuntes` para los tests del módulo Usuarios. Los dos modelos conviven hasta que se complete la migración definitiva del stub.
+- La validación de JSON en `TipoFicha` se implementa en `setSchemaAttribute()` porque el cast `'array'` de Eloquent transforma el string antes de que se dispare el evento `saving`, haciendo la validación en ese evento inefectiva.
+- El guard de firma en `PlanDeIntervencion` solo aplica a updates (`$plan->exists = true`); permite crear planes con `estado = activo` directamente para fixtures y seeders.
+- `SeguimientoPlan::solicitarCitaSiguiente()` es un stub con comentario explícito; se implementará con la integración del módulo Agenda (ver principio 8.5 del módulo).
+
+---
+
 ## Módulo Documentos — Verificación de tests — 2026-05-18
 
 ### Verificación

@@ -4,15 +4,15 @@ _Actualizado: 2026-05-18_
 
 ## Tarea completada
 
-Tests funcionales del módulo Documentos verificados: 20/20 tests ya implementados pasan sin cambios.
+Tests funcionales del módulo Intervención implementados: 35/35 tests pasan (Grupos A–G, TF-INT-A01 a G03).
 
 ## Estado actual
 
-- **Módulo Documentos — tests funcionales:** 20 tests, 20 pasan ✅, 0 pendientes, 0 fallos.
+- **Módulo Intervención — tests funcionales:** 35 tests, 35 pasan ✅, 0 pendientes, 0 fallos.
+- **Módulo Documentos — tests funcionales:** 20 tests, 20 pasan ✅ (sesión anterior).
 - **Módulo Centros — tests funcionales:** 31 tests, 31 pasan ✅ (sesión anterior).
-- **Suite completa:** 170 tests (19 nuevos docs + 31 centros + 120 previos), 0 fallos, 30 incompletos (pendientes de Agenda).
-- `docs/modulo-documentos.md` actualizado con tabla de estado y marcadores ✅ por test.
-- `docs/modulo-centros.md` actualizado con resultados (sesión anterior).
+- **Suite completa:** 142 tests pasan, 0 fallos, 30 incompletos (pendientes de Agenda).
+- `docs/modulo-intervencion.md` actualizado con tabla de resultados y marcadores ✅ por test.
 
 ## Siguiente paso recomendado
 
@@ -24,6 +24,8 @@ Lógica a implementar:
 
 ## Contexto relevante
 
-- Los tests de Documentos ya estaban implementados en una sesión anterior y los servicios estaban completos.
-- `PrescripcionService::liberarPlaza()` usa `setTsrResolver(callable)` para el TSR activo del ciudadano — en producción conectar con módulo Ciudadanía cuando esté disponible.
-- Tests de Centro y Documentos usan PostgreSQL (`vida_testing`). El documento `modulo-documentos.md` mencionaba SQLite incorrectamente — los tests se ejecutan sobre pgsql.
+- El módulo Intervención usa la tabla `plan_apuntes` (no `apuntes`) para los apuntes de planes, evitando conflicto con el stub `App\Models\Apunte` que usa la tabla `apuntes`.
+- La policy de `Modules\Intervencion\Models\Apunte` se registra en `IntervencionServiceProvider`; la policy del stub `App\Models\Apunte` sigue en `UsuariosServiceProvider`.
+- `TipoFicha::setSchemaAttribute()` valida JSON a nivel de mutador (no de evento `saving`) porque el cast 'array' transformaría el string antes de que el evento pudiese inspeccionarlo.
+- `PlanDeIntervencion` guard de firma solo aplica a updates (`$plan->exists = true`); la creación directa con `estado = activo` está permitida para fixtures de test y seeders.
+- `SeguimientoPlan::solicitarCitaSiguiente()` es un stub; se implementará con la integración del módulo Agenda.

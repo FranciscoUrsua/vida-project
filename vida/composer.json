@@ -66,6 +66,11 @@
             "Modules\\Documentos\\Database\\Seeders\\": "Modules/Documentos/database/seeders/",
             "Modules\\Documentos\\Database\\Migrations\\": "Modules/Documentos/database/migrations/",
             "Modules\\Documentos\\Database\\Factories\\": "Modules/Documentos/database/factories/",
+            "Modules\\Intervencion\\": "Modules/Intervencion/app/",
+            "Modules\\Intervencion\\Database\\": "Modules/Intervencion/database/",
+            "Modules\\Intervencion\\Database\\Seeders\\": "Modules/Intervencion/database/seeders/",
+            "Modules\\Intervencion\\Database\\Migrations\\": "Modules/Intervencion/database/migrations/",
+            "Modules\\Intervencion\\Database\\Factories\\": "Modules/Intervencion/database/factories/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
@@ -77,7 +82,8 @@
             "Modules\\Mensajes\\Tests\\": "Modules/Mensajes/tests/",
             "Modules\\Documentos\\Tests\\": "Modules/Documentos/tests/",
             "Modules\\Agenda\\Tests\\": "Modules/Agenda/tests/",
-            "Modules\\Centro\\Tests\\": "Modules/Centro/tests/"
+            "Modules\\Centro\\Tests\\": "Modules/Centro/tests/",
+            "Modules\\Intervencion\\Tests\\": "Modules/Intervencion/tests/"
         }
     },
     "scripts": {

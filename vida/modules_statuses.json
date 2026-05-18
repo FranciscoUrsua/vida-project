@@ -5,5 +5,6 @@
     "Prestaciones": true,
     "Mensajes": true,
     "Agenda": true,
-    "Documentos": true
+    "Documentos": true,
+    "Intervencion": true
 }

@@ -16,6 +16,7 @@
             <directory>Modules/Documentos/tests/Feature</directory>
             <directory>Modules/Agenda/tests/Feature</directory>
             <directory>Modules/Centro/tests/Feature</directory>
+            <directory>Modules/Intervencion/tests/Feature</directory>
         </testsuite>
     </testsuites>
     <source>

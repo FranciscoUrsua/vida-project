@@ -1,0 +1,11 @@
+{
+    "name": "Intervencion",
+    "alias": "intervencion",
+    "description": "Gestión del ciclo de intervención social: entrevistas, valoraciones, planes PISO y seguimiento",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+
+    ],
+    "files": []
+}
