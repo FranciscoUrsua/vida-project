@@ -221,9 +221,9 @@ Las coordenadas geográficas (latitud, longitud) se incluyen en todas las entida
 
 Para funcionalidades transversales (roles/permisos, jerarquías, adjuntos, auditoría), se prefieren paquetes consolidados del ecosistema Laravel sobre implementaciones propias. La lógica de dominio específica de VIDA sí se implementa en código propio.
 
-### 4.16 Comunicación entre principios: justificación propia
+### 4.16 La IA propone, el equipo valida
 
-Las decisiones de diseño se justifican por sus propios méritos. No se referencian fracasos o precedentes negativos como justificación de una decisión actual.
+Las herramientas de IA (Claude CLI, etc.) pueden generar código, tests y documentación, pero cualquier decisión con consecuencias —arquitectónicas, de modelado, de comportamiento— debe ser visible y revisable por el equipo. Ninguna sesión de generación de código cierra sin entrada en el CHANGELOG.md. Las instrucciones enviadas a la IA se conservan en docs/instrucciones-cli/ para que la cadena instrucción → código generado → cambios registrados sea reconstruible en cualquier momento. Ver decisiones-tecnicas.md, sección 6, para los mecanismos concretos.
 
 ---
 
