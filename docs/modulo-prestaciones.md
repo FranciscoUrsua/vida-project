@@ -179,477 +179,351 @@ El módulo expone sus datos a través del modelo Eloquent `Prestacion`. No se de
 
 **Vigencia temporal de prestaciones:** el modelo actual no incluye fechas de inicio y fin de vigencia a nivel de registro (solo baja lógica). Si el catálogo evolucionase con prestaciones de vigencia acotada (convocatorias anuales, por ejemplo), se añadirían `vigencia_desde` y `vigencia_hasta`. Se difiere hasta que el caso de uso concreto lo requiera.
 
-## # Tests funcionales: Módulo Prestaciones
+## Tests funcionales — Módulo Prestaciones
 
-## Convenciones del proyecto
+### Convenciones
+**Requisito:** sección del documento de diseño que origina el test.
+**Dado:** estado del sistema antes de ejecutar el test (fixtures, usuarios, datos).
+**Cuando:** acción que se ejecuta.
+**Entonces:** resultado esperado que debe verificarse.
+Los tests se agrupan por clase de test. Primero los tests de modelo y catálogo, después los de versionado, después los de seeder, después los de interfaz Filament y finalmente los de consulta desde otros módulos.
 
-- **Framework:** PHPUnit con atributo `#[Test]`. No usar Pest.
-- **Base de datos:** PostgreSQL (`vida_testing`). No usar SQLite.
-- **Ubicación:** `tests/Feature/Modules/Prestaciones/`
-- **Patrón:** Given / When / Then. Cada test describe comportamiento observable desde fuera, no detalles de implementación.
-- **Negativo obligatorio:** los tests de restricciones de dominio deben verificarse también en negativo (el test debe fallar si se elimina la validación que protege).
-- **Factories:** crear factories para `Prestacion`, `PrestacionTipoCentro` y `CatalogoSistema` si no existen. Para seeders de producción usar `Model::create()` con datos explícitos.
+### Grupo 1 — CatalogoSistema
 
----
+Requisito de referencia: § 6 — catálogos del sistema.
+Valida el modelo `CatalogoSistema` como fuente de valores para selects en el módulo Prestaciones.
 
-## Actores reutilizados
 
-Definir en un `setUp()` base o trait compartido:
+**T-PRE-01 — Crear una entrada de catálogo con todos sus campos**
+Requisito: § 6 — modelo CatalogoSistema.
+Dado: ninguna entrada previa en el grupo `'prestacion.objetivo_general'`.
+Cuando: se crea una entrada con `grupo = 'prestacion.objetivo_general'`, `clave = '01'`, `etiqueta = 'Acceso, información y valoración'`, `orden = 1`, `activo = true`.
+Entonces: existe exactamente una fila en `catalogos_sistema` con esos valores.
 
-- `$admin` — usuario con rol `adm_sistema`, acceso completo al panel Filament.
-- `$gestor` — usuario con rol de gestión funcional, puede editar el catálogo pero no configuración del sistema.
-- `$profesional` — usuario operativo (trabajador social), acceso solo lectura al catálogo.
+**T-PRE-02 — Constraint único por grupo+clave**
+Requisito: § 6 — integridad del catálogo.
+Dado: una entrada con `grupo = 'prestacion.competencia'`, `clave = 'municipal'`.
+Cuando: se intenta insertar una segunda entrada con el mismo `grupo` y `clave`.
+Entonces: se lanza una excepción de constraint único de base de datos.
 
----
+**T-PRE-03 — opcionesParaSelect devuelve array ordenado por campo `orden`**
+Requisito: § 6 — helper para selects en Filament.
+Dado: tres entradas en `catalogos_sistema` para el grupo `'prestacion.nivel_atencion'` con órdenes 3, 1, 2.
+Cuando: se llama a `CatalogoSistema::opcionesParaSelect('prestacion.nivel_atencion')`.
+Entonces: devuelve un array asociativo `[clave => etiqueta]` con exactamente tres entradas, ordenadas por el campo `orden` de menor a mayor.
 
-## Clase 1: `CatalogoSistemaTest`
+**T-PRE-04 — opcionesParaSelect excluye entradas inactivas**
+Requisito: § 6 — solo valores activos deben aparecer en selects.
+Dado: dos entradas en el mismo grupo: una con `activo = true` y otra con `activo = false`.
+Cuando: se llama a `CatalogoSistema::opcionesParaSelect()` con ese grupo.
+Entonces: el array resultante contiene solo la entrada activa.
 
-Valida el modelo `CatalogoSistema` y su uso como fuente de valores para selects.
+**T-PRE-05 — opcionesParaSelect devuelve array vacío para grupo inexistente**
+Requisito: § 6 — ausencia de datos no debe lanzar excepción.
+Dado: ninguna entrada en `catalogos_sistema` para el grupo `'grupo.inexistente'`.
+Cuando: se llama a `CatalogoSistema::opcionesParaSelect('grupo.inexistente')`.
+Entonces: devuelve un array vacío sin lanzar excepción.
 
----
-
-```
-se_puede_crear_una_entrada_de_catalogo_con_todos_sus_campos
-```
-- **Dado** ninguna entrada previa en el grupo `'prestacion.objetivo_general'`.
-- **Cuando** se crea una entrada con `grupo = 'prestacion.objetivo_general'`, `clave = '01'`, `etiqueta = 'Acceso, información y valoración'`, `orden = 1`, `activo = true`.
-- **Entonces** existe exactamente una fila en `catalogos_sistema` con esos valores.
-
----
-
-```
-no_pueden_existir_dos_entradas_con_el_mismo_grupo_y_clave
-```
-- **Dado** una entrada con `grupo = 'prestacion.competencia'`, `clave = 'municipal'`.
-- **Cuando** se intenta insertar una segunda entrada con el mismo `grupo` y `clave`.
-- **Entonces** se lanza una excepción de constraint único de base de datos.
-
----
-
-```
-opciones_para_select_devuelve_array_clave_etiqueta_ordenado
-```
-- **Dado** tres entradas en `catalogos_sistema` para el grupo `'prestacion.nivel_atencion'` con órdenes 3, 1, 2.
-- **Cuando** se llama a `CatalogoSistema::opcionesParaSelect('prestacion.nivel_atencion')`.
-- **Entonces** devuelve un array asociativo `[clave => etiqueta]` con exactamente tres entradas, ordenadas por el campo `orden` de menor a mayor.
+**T-PRE-06 — Desactivar una entrada no la borra físicamente**
+Requisito: § 6 — las bajas son lógicas.
+Dado: una entrada con `activo = true`.
+Cuando: se actualiza `activo = false`.
+Entonces: la fila sigue existiendo en la tabla y puede recuperarse con `CatalogoSistema::find($id)`.
 
 ---
 
-```
-opciones_para_select_excluye_entradas_inactivas
-```
-- **Dado** dos entradas en el mismo grupo: una con `activo = true` y otra con `activo = false`.
-- **Cuando** se llama a `CatalogoSistema::opcionesParaSelect()` con ese grupo.
-- **Entonces** el array resultante contiene solo la entrada activa.
+### Grupo 2 — PrestacionModel: creación, validaciones y scopes
+
+Requisito de referencia: § 3, § 4 — modelo de datos y scopes.
+Valida la creación, validación de enums, campos JSONB y scopes del modelo `Prestacion`.
+
+
+**T-PRE-07 — Crear una prestación con los campos mínimos obligatorios**
+Requisito: § 3 — campos requeridos del catálogo.
+Dado: los datos mínimos: `codigo = '010101'`, `nombre = 'Servicio de información'`, `tipo_prestacion = 'servicio'`, `nivel_garantia = 'garantizada'`.
+Cuando: se llama a `Prestacion::create([...])`.
+Entonces: existe un registro en `prestaciones` con esos valores y `activa = true` por defecto.
+
+**T-PRE-08 — tipo_prestacion solo acepta valores del enum**
+Requisito: § 3 — enum `tipo_prestacion` restringido a `servicio` o `economica`.
+Dado: una prestación en construcción.
+Cuando: se intenta asignar `tipo_prestacion = 'otro_valor'` y se guarda.
+Entonces: la operación falla con error de base de datos.
+
+**T-PRE-09 — nivel_garantia solo acepta valores del enum**
+Requisito: § 3 — enum `nivel_garantia` restringido a `garantizada` o `condicionada`.
+Dado: una prestación en construcción.
+Cuando: se intenta asignar `nivel_garantia = 'parcial'` y se guarda.
+Entonces: la operación falla con error de base de datos.
+
+**T-PRE-10 — El código de prestación es único**
+Requisito: § 3 — integridad del catálogo oficial.
+Dado: una prestación con `codigo = '010101'` ya persistida.
+Cuando: se intenta crear otra prestación con el mismo `codigo`.
+Entonces: se lanza una excepción de constraint único de base de datos.
+
+**T-PRE-11 — `poblacion_destinataria` se almacena y recupera como array**
+Requisito: § 3 — campo JSONB con cast `array`.
+Dado: una prestación con `poblacion_destinataria = ['infancia', 'familia']`.
+Cuando: se recupera con `Prestacion::find($id)`.
+Entonces: `$prestacion->poblacion_destinataria` es un array PHP con los valores `'infancia'` y `'familia'`.
+
+**T-PRE-12 — `modalidades` se almacena y recupera como array**
+Requisito: § 3 — campo JSONB con cast `array`.
+Dado: una prestación con `modalidades = ['presencial', 'telematica']`.
+Cuando: se recupera con `Prestacion::find($id)`.
+Entonces: `$prestacion->modalidades` es un array PHP con ambos valores.
+
+**T-PRE-13 — scope `activas` filtra solo prestaciones con `activa = true`**
+Requisito: § 4 — scope de filtrado por estado activo.
+Dado: dos prestaciones: una con `activa = true` y otra con `activa = false`.
+Cuando: se ejecuta `Prestacion::activas()->get()`.
+Entonces: el resultado contiene solo la prestación activa.
+
+**T-PRE-14 — scope `deServicio` filtra solo tipo servicio**
+Requisito: § 4 — scope de filtrado por tipo de prestación.
+Dado: una prestación de tipo `'servicio'` y otra de tipo `'economica'`.
+Cuando: se ejecuta `Prestacion::deServicio()->get()`.
+Entonces: el resultado contiene solo la de tipo `'servicio'`.
+
+**T-PRE-15 — scope `economicas` filtra solo tipo económica**
+Requisito: § 4 — scope de filtrado por tipo de prestación.
+Dado: una prestación de tipo `'servicio'` y otra de tipo `'economica'`.
+Cuando: se ejecuta `Prestacion::economicas()->get()`.
+Entonces: el resultado contiene solo la de tipo `'economica'`.
+
+**T-PRE-16 — La baja lógica (`activa = false`) no borra el registro físicamente**
+Requisito: § 3 — distinción entre baja lógica funcional y soft delete de Eloquent.
+Dado: una prestación activa persistida.
+Cuando: se actualiza `activa = false`.
+Entonces: la fila sigue existiendo en la tabla y es recuperable directamente por `id`.
+Nota: `activa` es un campo de negocio, distinto del soft delete de Eloquent (`deleted_at`). Ambos pueden coexistir.
 
 ---
 
-```
-opciones_para_select_devuelve_array_vacio_para_grupo_inexistente
-```
-- **Dado** ninguna entrada en `catalogos_sistema` para el grupo `'grupo.inexistente'`.
-- **Cuando** se llama a `CatalogoSistema::opcionesParaSelect('grupo.inexistente')`.
-- **Entonces** devuelve un array vacío sin lanzar excepción.
+### Grupo 3 — PrestacionTipoCentro: relación con tipos de centro
+
+Requisito de referencia: § 3 — relación entre prestación y tipos de centro que la ofrecen.
+Valida la tabla `prestacion_tipo_centro` y sus constraints.
+
+
+**T-PRE-17 — Una prestación puede tener múltiples tipos de centro**
+Requisito: § 3 — relación `hasMany` con tipos de centro.
+Dado: una prestación persistida.
+Cuando: se crean dos registros en `prestacion_tipo_centro` con `tipo_centro = 'css_general'` y `'centro_dia'`.
+Entonces: `$prestacion->tiposCentro()->count()` devuelve 2.
+
+**T-PRE-18 — No pueden existir dos registros con la misma prestación y tipo de centro**
+Requisito: § 3 — constraint único en `prestacion_tipo_centro`.
+Dado: una prestación con un registro en `prestacion_tipo_centro` para `tipo_centro = 'css_general'`.
+Cuando: se intenta insertar un segundo registro con la misma `prestacion_id` y el mismo `tipo_centro`.
+Entonces: se lanza una excepción de constraint único de base de datos.
+
+**T-PRE-19 — Borrar físicamente una prestación elimina en cascada sus tipos de centro**
+Requisito: § 3 — integridad referencial.
+Dado: una prestación con dos registros en `prestacion_tipo_centro`.
+Cuando: se borra físicamente la prestación (`forceDelete()`).
+Entonces: los registros asociados en `prestacion_tipo_centro` desaparecen de la tabla (cascade FK).
+Nota: el soft delete (Eloquent `delete()`) no dispara el cascade de FK. El borrado en cascada solo actúa sobre borrado físico.
 
 ---
 
-```
-desactivar_una_entrada_no_la_borra_fisicamente
-```
-- **Dado** una entrada con `activo = true`.
-- **Cuando** se actualiza `activo = false`.
-- **Entonces** la fila sigue existiendo en la tabla y puede recuperarse con `CatalogoSistema::withoutGlobalScopes()->find($id)`.
+### Grupo 4 — PrestacionVersionado: trait Versionable
+
+Requisito de referencia: § 5 — historial de cambios mediante trait `Versionable`.
+Valida que el trait genera snapshots correctamente al actualizar el modelo `Prestacion`.
+
+
+**T-PRE-20 — Crear una prestación no genera versión inicial**
+Requisito: § 5 — el trait solo actúa en `updating`, no en `creating`.
+Dado: ningún registro en `versiones` para Prestacion.
+Cuando: se crea una prestación nueva con `Prestacion::create([...])`.
+Entonces: no existe ninguna entrada en `versiones` para ese registro.
+
+**T-PRE-21 — Actualizar una prestación genera un snapshot en `versiones`**
+Requisito: § 5 — cada `update` genera una versión del estado anterior.
+Dado: una prestación con `nombre = 'Nombre original'` persistida.
+Cuando: se actualiza `nombre = 'Nombre modificado'`.
+Entonces: existe exactamente un registro en `versiones` con `versionable_type = Prestacion::class`, `versionable_id` correcto, y `datos['nombre'] = 'Nombre original'`.
+
+**T-PRE-22 — El snapshot contiene el estado completo anterior, no solo el campo modificado**
+Requisito: § 5 — el snapshot es un dump completo de todos los atributos del modelo antes del cambio.
+Dado: una prestación con múltiples campos rellenos (`codigo`, `nombre`, `tipo_prestacion`, `nivel_garantia`).
+Cuando: se actualiza únicamente el campo `nombre`.
+Entonces: el snapshot en `versiones` contiene todos los campos que tenía la prestación antes del cambio.
+
+**T-PRE-23 — Múltiples ediciones generan múltiples versiones**
+Requisito: § 5 — una versión por cada `update`.
+Dado: una prestación que se edita tres veces consecutivas.
+Cuando: se recuperan sus versiones con `$prestacion->versiones()->orderBy('id')->get()`.
+Entonces: existen tres registros, y el campo `datos` de cada uno refleja el estado anterior a cada edición respectiva.
+
+**T-PRE-24 — Se puede reconstruir el estado de una prestación en una fecha pasada**
+Requisito: § 5 — el historial de versiones permite reconstruir el estado en cualquier momento.
+Dado: una prestación editada en T1 (A → B) y luego en T2 (B → C).
+Cuando: se consulta la versión con `created_at <= T1`.
+Entonces: el snapshot recuperado corresponde al estado A (capturado en T1 al pasar a B).
+
+**T-PRE-25 — Dar de baja una prestación genera una versión con `activa = true` en el snapshot**
+Requisito: § 5 — el snapshot preserva el estado anterior, incluido el campo `activa`.
+Dado: una prestación con `activa = true`.
+Cuando: se actualiza `activa = false`.
+Entonces: el snapshot en `versiones` contiene `activa = true` (el estado previo a la baja).
 
 ---
 
-## Clase 2: `PrestacionModelTest`
+### Grupo 5 — PrestacionSeeder: carga inicial e idempotencia
 
-Valida la creación, validación de enums, relaciones y scopes del modelo `Prestacion`.
+Requisito de referencia: § 8 — seeders del módulo y carga inicial del catálogo.
+Valida que los seeders cargan los datos correctamente y pueden ejecutarse múltiples veces sin duplicados.
 
----
 
-```
-se_puede_crear_una_prestacion_con_los_campos_minimos_obligatorios
-```
-- **Dado** los datos mínimos: `codigo = '010101'`, `nombre = 'Servicio de información'`, `tipo_prestacion = 'servicio'`, `nivel_garantia = 'garantizada'`.
-- **Cuando** se llama a `Prestacion::create([...])`.
-- **Entonces** existe un registro en `prestaciones` con esos valores y `activa = true` por defecto.
+**T-PRE-26 — El seeder de catálogos carga los ocho objetivos generales**
+Requisito: § 8 — `CatalogosSistemaSeeder` carga el grupo `prestacion.objetivo_general`.
+Dado: la tabla `catalogos_sistema` vacía.
+Cuando: se ejecuta `CatalogosSistemaSeeder`.
+Entonces: existen exactamente 8 entradas en el grupo `'prestacion.objetivo_general'` con claves del `'01'` al `'08'`.
 
----
+**T-PRE-27 — El seeder de catálogos es idempotente**
+Requisito: § 8 — el seeder usa `updateOrCreate` y no duplica registros.
+Dado: el seeder ya ejecutado una vez.
+Cuando: se ejecuta `CatalogosSistemaSeeder` una segunda vez.
+Entonces: el número de entradas en `catalogos_sistema` no cambia.
 
-```
-tipo_prestacion_solo_acepta_valores_del_enum
-```
-- **Dado** una prestación en construcción.
-- **Cuando** se intenta asignar `tipo_prestacion = 'otro_valor'` y se guarda.
-- **Entonces** la operación falla con error de base de datos o validación antes de persistir.
+**T-PRE-28 — El seeder de prestaciones carga las prestaciones del catálogo**
+Requisito: § 8 — `PrestacionesSeeder` carga las prestaciones del catálogo oficial.
+Dado: la tabla `prestaciones` vacía y `catalogos_sistema` ya poblada.
+Cuando: se ejecuta `PrestacionesSeeder`.
+Entonces: `Prestacion::count()` devuelve 49 (implementación actual; el catálogo completo comprende 112 prestaciones).
 
----
+**T-PRE-29 — El seeder de prestaciones es idempotente**
+Requisito: § 8 — el seeder usa `updateOrCreate` y no duplica registros.
+Dado: el seeder de prestaciones ya ejecutado una vez.
+Cuando: se ejecuta `PrestacionesSeeder` una segunda vez.
+Entonces: `Prestacion::count()` sigue devolviendo el mismo número.
 
-```
-nivel_garantia_solo_acepta_valores_del_enum
-```
-- **Dado** una prestación en construcción.
-- **Cuando** se intenta asignar `nivel_garantia = 'parcial'` y se guarda.
-- **Entonces** la operación falla con error de base de datos o validación antes de persistir.
+**T-PRE-30 — Todas las prestaciones del seeder tienen los campos obligatorios**
+Requisito: § 3, § 8 — integridad de los datos cargados.
+Dado: el seeder de prestaciones ejecutado.
+Cuando: se consultan todas las prestaciones.
+Entonces: ninguna tiene `codigo`, `nombre`, `tipo_prestacion` o `nivel_garantia` nulos o vacíos.
 
----
-
-```
-el_codigo_de_prestacion_es_unico
-```
-- **Dado** una prestación con `codigo = '010101'` ya persistida.
-- **Cuando** se intenta crear otra prestación con el mismo `codigo`.
-- **Entonces** se lanza una excepción de constraint único de base de datos.
-
----
-
-```
-poblacion_destinataria_se_almacena_y_recupera_como_array
-```
-- **Dado** una prestación con `poblacion_destinataria = ['infancia', 'familia']`.
-- **Cuando** se recupera con `Prestacion::find($id)`.
-- **Entonces** `$prestacion->poblacion_destinataria` es un array PHP con los valores `'infancia'` y `'familia'`.
+**T-PRE-31 — Los códigos del seeder son únicos**
+Requisito: § 3, § 8 — el campo `codigo` es la clave de negocio del catálogo.
+Dado: el seeder de prestaciones ejecutado.
+Cuando: se agrupan las prestaciones por `codigo`.
+Entonces: todos los grupos tienen exactamente un registro (no hay códigos duplicados).
 
 ---
 
-```
-modalidades_se_almacena_y_recupera_como_array
-```
-- **Dado** una prestación con `modalidades = ['presencial', 'telematica']`.
-- **Cuando** se recupera con `Prestacion::find($id)`.
-- **Entonces** `$prestacion->modalidades` es un array PHP con ambos valores.
+### Grupo 6 — PrestacionFilamentResource: CRUD e interfaz de administración
+
+Requisito de referencia: § 7 — interfaz de gestión del catálogo en Filament.
+Valida el ciclo CRUD, validaciones del formulario, filtros de tabla y el toggle de estado.
+
+
+**T-PRE-32 — Un admin puede listar prestaciones en Filament**
+Requisito: § 7 — listado del catálogo en el panel de administración.
+Dado: un usuario autenticado y cinco prestaciones en la base de datos.
+Cuando: se accede a la página de listado del recurso `PrestacionResource`.
+Entonces: las cinco prestaciones aparecen en la tabla.
+
+**T-PRE-33 — El listado filtra correctamente por tipo de prestación**
+Requisito: § 7 — filtro por `tipo_prestacion` en la tabla.
+Dado: un admin autenticado, tres prestaciones de tipo `'servicio'` y dos de tipo `'economica'`.
+Cuando: se aplica el filtro `tipo_prestacion = 'economica'`.
+Entonces: el listado muestra exactamente dos prestaciones.
+
+**T-PRE-34 — El listado filtra correctamente por `activa`**
+Requisito: § 7 — filtro ternario de estado activo/inactivo.
+Dado: un admin autenticado, dos prestaciones con `activa = true` y una con `activa = false`.
+Cuando: se aplica el filtro `activa = false`.
+Entonces: el listado muestra exactamente una prestación.
+
+**T-PRE-35 — Un admin puede crear una prestación desde Filament**
+Requisito: § 7 — formulario de creación.
+Dado: un admin autenticado y la tabla `prestaciones` vacía.
+Cuando: se envía el formulario de creación con datos válidos (código, nombre, tipo, nivel de garantía).
+Entonces: existe un registro en `prestaciones` con los datos enviados.
+
+**T-PRE-36 — El formulario rechaza una prestación sin nombre**
+Requisito: § 7 — validación de campo requerido.
+Dado: un admin autenticado.
+Cuando: se envía el formulario de creación sin el campo `nombre`.
+Entonces: el formulario devuelve error de validación en `nombre` y no se crea ningún registro.
+
+**T-PRE-37 — El formulario rechaza un código duplicado**
+Requisito: § 7 — validación `unique` en el campo `codigo`.
+Dado: un admin autenticado y una prestación con `codigo = '010101'` ya existente.
+Cuando: se envía el formulario de creación con `codigo = '010101'`.
+Entonces: el formulario devuelve error de validación en `codigo` y no se crea un segundo registro.
+
+**T-PRE-38 — Un admin puede editar una prestación desde Filament**
+Requisito: § 7 — formulario de edición.
+Dado: un admin autenticado y una prestación con `nombre = 'Nombre original'`.
+Cuando: se envía el formulario de edición con `nombre = 'Nombre actualizado'`.
+Entonces: `$prestacion->fresh()->nombre` devuelve `'Nombre actualizado'`.
+
+**T-PRE-39 — Editar desde Filament genera una versión en `versiones`**
+Requisito: § 5, § 7 — el trait `Versionable` actúa al guardar desde Filament.
+Dado: un admin autenticado y una prestación existente.
+Cuando: se guarda cualquier cambio desde el formulario de edición.
+Entonces: se genera al menos un registro en `versiones` para esa prestación.
+
+**T-PRE-40 — El toggle de `activa` en el listado cambia el estado de la prestación**
+Requisito: § 7 — `ToggleColumn` inline en la tabla.
+Dado: un admin autenticado y una prestación con `activa = true`.
+Cuando: se activa el toggle de `activa` en la fila de esa prestación.
+Entonces: `$prestacion->fresh()->activa` devuelve `false`.
+
+**T-PRE-41 — La pestaña de historial muestra las versiones de una prestación** _(pendiente)_
+Requisito: § 7 — `VersionesRelationManager` en la página de edición.
+Dado: un admin autenticado y una prestación editada dos veces.
+Cuando: se abre la página de edición y se accede a la sección de historial.
+Entonces: se muestran dos entradas de historial.
+Pendiente: requiere testar el `RelationManager` anidado en la página de edición. Se implementará cuando se disponga del patrón de test para RelationManagers en Filament 5.
+
+**T-PRE-42 — Un profesional sin rol admin no puede acceder al recurso en Filament** _(pendiente)_
+Requisito: § 7 — control de acceso al catálogo de administración.
+Dado: un usuario sin rol de administración.
+Cuando: se intenta acceder a la URL de gestión del recurso `PrestacionResource`.
+Entonces: la respuesta es 403 o redirección a login.
+Pendiente: requiere implementar control de acceso basado en roles en `AdminPanelProvider` o mediante `canViewAny` en `PrestacionResource`.
 
 ---
 
-```
-scope_activas_filtra_solo_prestaciones_con_activa_true
-```
-- **Dado** dos prestaciones: una con `activa = true` y otra con `activa = false`.
-- **Cuando** se ejecuta `Prestacion::activas()->get()`.
-- **Entonces** el resultado contiene solo la prestación activa.
-
----
-
-```
-scope_de_servicio_filtra_solo_tipo_servicio
-```
-- **Dado** una prestación de tipo `'servicio'` y otra de tipo `'economica'`.
-- **Cuando** se ejecuta `Prestacion::deServicio()->get()`.
-- **Entonces** el resultado contiene solo la de tipo `'servicio'`.
-
----
-
-```
-scope_economicas_filtra_solo_tipo_economica
-```
-- **Dado** una prestación de tipo `'servicio'` y otra de tipo `'economica'`.
-- **Cuando** se ejecuta `Prestacion::economicas()->get()`.
-- **Entonces** el resultado contiene solo la de tipo `'economica'`.
-
----
-
-```
-la_baja_logica_no_borra_el_registro_fisicamente
-```
-- **Dado** una prestación activa persistida.
-- **Cuando** se actualiza `activa = false`.
-- **Entonces** la fila sigue existiendo en la tabla y es recuperable por ID sin soft delete adicional.
-
-> **Nota:** `activa` es un campo de negocio (baja lógica funcional), distinto del soft delete de Eloquent (`deleted_at`). Ambos pueden coexistir: una prestación puede estar inactiva funcionalmente y aun así no estar soft-deleted. Verificar que la relación entre ambos campos es coherente.
-
----
-
-## Clase 3: `PrestacionTipoCentroTest`
-
-Valida la relación entre prestaciones y tipos de centro.
-
----
-
-```
-una_prestacion_puede_tener_multiples_tipos_de_centro
-```
-- **Dado** una prestación persistida.
-- **Cuando** se crean dos registros en `prestacion_tipo_centro` con `tipo_centro = 'css_general'` y `tipo_centro = 'centro_dia'` para esa prestación.
-- **Entonces** `$prestacion->tiposCentro()->count()` devuelve 2.
-
----
-
-```
-no_pueden_existir_dos_registros_con_la_misma_prestacion_y_tipo_centro
-```
-- **Dado** una prestación con un registro en `prestacion_tipo_centro` para `tipo_centro = 'css_general'`.
-- **Cuando** se intenta insertar un segundo registro con la misma `prestacion_id` y el mismo `tipo_centro`.
-- **Entonces** se lanza una excepción de constraint único de base de datos.
-
----
-
-```
-eliminar_una_prestacion_elimina_en_cascada_sus_tipos_de_centro
-```
-- **Dado** una prestación con dos registros en `prestacion_tipo_centro`.
-- **Cuando** se elimina la prestación (soft delete).
-- **Entonces** los registros asociados en `prestacion_tipo_centro` ya no son accesibles para la prestación eliminada.
-
-> **Aclaración para la implementación:** verificar si el cascadeOnDelete actúa sobre soft deletes o solo sobre borrado físico. Si actúa solo en borrado físico, los registros huérfanos de `prestacion_tipo_centro` deben manejarse de forma explícita (observer o evento del modelo).
-
----
-
-## Clase 4: `PrestacionVersionadoTest`
-
-Valida que el trait `Versionable` funciona correctamente sobre el modelo `Prestacion`.
-
----
-
-```
-crear_una_prestacion_no_genera_version_inicial
-```
-- **Dado** ningún registro en `versiones` para Prestacion.
-- **Cuando** se crea una prestación nueva con `Prestacion::create([...])`.
-- **Entonces** no existe ninguna entrada en `versiones` para ese registro (el trait captura el estado *anterior*, y en la creación no hay estado anterior).
-
-> **Verificar:** revisar el comportamiento actual del trait `Versionable` en el proyecto para `created`. Si el trait sí genera snapshot en created, ajustar este test a la convención del proyecto.
-
----
-
-```
-actualizar_una_prestacion_genera_un_snapshot_en_versiones
-```
-- **Dado** una prestación con `nombre = 'Nombre original'` persistida.
-- **Cuando** se actualiza `nombre = 'Nombre modificado'`.
-- **Entonces** existe exactamente un registro en `versiones` con `versionable_type` = clase de `Prestacion`, `versionable_id` = id de la prestación, y el campo `datos` contiene el JSON con `nombre = 'Nombre original'`.
-
----
-
-```
-el_snapshot_contiene_el_estado_completo_anterior_no_solo_el_campo_modificado
-```
-- **Dado** una prestación con múltiples campos rellenos (al menos `codigo`, `nombre`, `tipo_prestacion`, `nivel_garantia`).
-- **Cuando** se actualiza únicamente el campo `nombre`.
-- **Entonces** el snapshot en `versiones` contiene todos los campos que tenía la prestación antes del cambio, no solo `nombre`.
-
----
-
-```
-multiples_ediciones_generan_multiples_versiones_ordenadas_cronologicamente
-```
-- **Dado** una prestación que se edita tres veces consecutivas.
-- **Cuando** se recuperan sus versiones con `$prestacion->versions()->orderBy('created_at')->get()`.
-- **Entonces** existen tres registros, y el campo `datos` de cada uno refleja el estado anterior a cada edición respectiva.
-
----
-
-```
-se_puede_reconstruir_el_estado_de_una_prestacion_en_una_fecha_pasada
-```
-- **Dado** una prestación editada en `T1` (estado A → estado B) y luego editada en `T2` (estado B → estado C).
-- **Cuando** se consulta la versión vigente en un instante entre `T1` y `T2`.
-- **Entonces** el snapshot recuperado corresponde al estado B (el más reciente anterior al instante consultado).
-
----
-
-```
-dar_de_baja_una_prestacion_genera_una_version_con_activa_true_en_el_snapshot
-```
-- **Dado** una prestación con `activa = true`.
-- **Cuando** se actualiza `activa = false`.
-- **Entonces** se genera un snapshot en `versiones` que contiene `activa = true` (el estado anterior).
-
----
-
-## Clase 5: `PrestacionSeederTest`
-
-Valida que los seeders cargan los datos correctamente y son idempotentes.
-
----
-
-```
-el_seeder_de_catalogos_carga_los_ocho_objetivos_generales
-```
-- **Dado** la tabla `catalogos_sistema` vacía.
-- **Cuando** se ejecuta `CatalogosSistemaSeeder`.
-- **Entonces** existen exactamente 8 entradas en el grupo `'prestacion.objetivo_general'` con claves del `'01'` al `'08'`.
-
----
-
-```
-el_seeder_de_catalogos_es_idempotente
-```
-- **Dado** el seeder ya ejecutado una vez.
-- **Cuando** se ejecuta `CatalogosSistemaSeeder` una segunda vez.
-- **Entonces** el número de entradas en `catalogos_sistema` no cambia (no se duplican registros).
-
----
-
-```
-el_seeder_de_prestaciones_carga_las_112_prestaciones
-```
-- **Dado** la tabla `prestaciones` vacía y `catalogos_sistema` ya poblada.
-- **Cuando** se ejecuta `PrestacionesSeeder`.
-- **Entonces** `Prestacion::count()` devuelve 112.
-
----
-
-```
-el_seeder_de_prestaciones_es_idempotente
-```
-- **Dado** el seeder de prestaciones ya ejecutado una vez.
-- **Cuando** se ejecuta `PrestacionesSeeder` una segunda vez.
-- **Entonces** `Prestacion::count()` sigue devolviendo 112.
-
----
-
-```
-todas_las_prestaciones_del_seeder_tienen_codigo_nombre_tipo_y_nivel_garantia
-```
-- **Dado** el seeder de prestaciones ejecutado.
-- **Cuando** se consultan todas las prestaciones.
-- **Entonces** ninguna prestación tiene `codigo`, `nombre`, `tipo_prestacion` o `nivel_garantia` nulos o vacíos.
-
----
-
-```
-los_codigos_del_seeder_son_unicos
-```
-- **Dado** el seeder de prestaciones ejecutado.
-- **Cuando** se agrupa por `codigo` y se cuenta.
-- **Entonces** todos los grupos tienen exactamente un registro (no hay códigos duplicados).
-
----
-
-## Clase 6: `PrestacionFilamentResourceTest`
-
-Valida el comportamiento del recurso Filament para la gestión del catálogo. Usar `Livewire::test()` o el helper de Filament para simular la interacción con el panel.
-
----
-
-```
-un_admin_puede_listar_prestaciones_en_filament
-```
-- **Dado** `$admin` autenticado y cinco prestaciones en la base de datos.
-- **Cuando** se accede a la página de listado del recurso `PrestacionResource`.
-- **Entonces** la respuesta HTTP es 200 y las cinco prestaciones aparecen en la tabla.
-
----
-
-```
-un_admin_puede_crear_una_prestacion_desde_filament
-```
-- **Dado** `$admin` autenticado y la tabla `prestaciones` vacía.
-- **Cuando** se envía el formulario de creación con datos válidos (código, nombre, tipo, nivel de garantía).
-- **Entonces** existe un registro en `prestaciones` con los datos enviados.
-
----
-
-```
-el_formulario_de_filament_rechaza_una_prestacion_sin_nombre
-```
-- **Dado** `$admin` autenticado.
-- **Cuando** se envía el formulario de creación sin el campo `nombre`.
-- **Entonces** el formulario devuelve un error de validación en el campo `nombre` y no se crea ningún registro.
-
----
-
-```
-el_formulario_de_filament_rechaza_un_codigo_duplicado
-```
-- **Dado** `$admin` autenticado y una prestación con `codigo = '010101'` ya existente.
-- **Cuando** se envía el formulario de creación con `codigo = '010101'`.
-- **Entonces** el formulario devuelve error de validación en `codigo` y no se crea un segundo registro.
-
----
-
-```
-un_admin_puede_editar_una_prestacion_desde_filament
-```
-- **Dado** `$admin` autenticado y una prestación existente con `nombre = 'Nombre original'`.
-- **Cuando** se envía el formulario de edición con `nombre = 'Nombre actualizado'`.
-- **Entonces** `$prestacion->fresh()->nombre` devuelve `'Nombre actualizado'`.
-
----
-
-```
-editar_desde_filament_genera_una_version_en_versiones
-```
-- **Dado** `$admin` autenticado y una prestación existente.
-- **Cuando** se guarda cualquier cambio desde el formulario de edición de Filament.
-- **Entonces** se genera al menos un registro en `versiones` para esa prestación.
-
----
-
-```
-el_listado_de_filament_filtra_correctamente_por_tipo_prestacion
-```
-- **Dado** `$admin` autenticado, tres prestaciones de tipo `'servicio'` y dos de tipo `'economica'`.
-- **Cuando** se aplica el filtro `tipo_prestacion = 'economica'` en el listado.
-- **Entonces** el listado muestra exactamente dos prestaciones.
-
----
-
-```
-el_listado_de_filament_filtra_correctamente_por_activa
-```
-- **Dado** `$admin` autenticado, dos prestaciones con `activa = true` y una con `activa = false`.
-- **Cuando** se aplica el filtro `activa = false` en el listado.
-- **Entonces** el listado muestra exactamente una prestación.
-
----
-
-```
-el_toggle_de_activa_en_el_listado_cambia_el_estado_de_la_prestacion
-```
-- **Dado** `$admin` autenticado y una prestación con `activa = true`.
-- **Cuando** se activa el toggle inline de `activa` en la fila de esa prestación.
-- **Entonces** `$prestacion->fresh()->activa` devuelve `false`.
-
----
-
-```
-la_pestaña_de_historial_muestra_las_versiones_de_una_prestacion
-```
-- **Dado** `$admin` autenticado y una prestación que ha sido editada dos veces (tiene dos entradas en `versiones`).
-- **Cuando** se abre la página de edición y se accede a la pestaña o sección de historial.
-- **Entonces** se muestran dos entradas de historial con sus fechas correspondientes.
-
-un_profesional_no_puede_acceder_al_recurso_de_gestion_en_filament
-```
-- **Dado** `$profesional` autenticado (sin rol de administración).
-- **Cuando** se intenta acceder a la URL de gestión del recurso `PrestacionResource` en Filament.
-- **Entonces** la respuesta es 403 o redirección a login/unauthorized.
-
----
-
-## Clase 7: `PrestacionConsultaTest`
-
-Valida el consumo del catálogo desde otros módulos (lectura directa vía modelo Eloquent).
-
-**se_pueden_buscar_prestaciones_por_nombre_parcial**
-```
-- **Dado** tres prestaciones con nombres `'Servicio de información'`, `'Ayuda de urgencia'`, `'Información y orientación'`.
-- **Cuando** se ejecuta `Prestacion::activas()->where('nombre', 'like', '%información%')->get()`.
-- **Entonces** el resultado contiene exactamente dos prestaciones.
-
-**se_pueden_filtrar_prestaciones_por_objetivo_general**
-```
-- **Dado** cuatro prestaciones: dos con `objetivo_general = '01'` y dos con `objetivo_general = '03'`.
-- **Cuando** se consulta `Prestacion::activas()->where('objetivo_general', '01')->get()`.
-- **Entonces** el resultado contiene exactamente dos prestaciones.
-
-**se_puede_obtener_la_lista_de_tipos_de_centro_de_una_prestacion**
-```
-- **Dado** una prestación con dos tipos de centro asociados (`'css_general'` y `'centro_dia'`).
-- **Cuando** se accede a `$prestacion->tiposCentro`.
-- **Entonces** la colección contiene exactamente dos registros con los `tipo_centro` esperados.
-
-**una_prestacion_inactiva_no_aparece_en_consultas_con_scope_activas**
-```
-- **Dado** una prestación con `activa = false`.
-- **Cuando** se ejecuta `Prestacion::activas()->get()`.
-- **Entonces** la prestación inactiva no aparece en los resultados.
-
-**una_prestacion_inactiva_es_recuperable_directamente_por_id**
-```
-- **Dado** una prestación con `activa = false` y `id` conocido.
-- **Cuando** se ejecuta `Prestacion::find($id)`.
-- **Entonces** se recupera la prestación sin error (la baja lógica no impide la consulta directa).
-Este test es importante para garantizar que Intervención puede seguir accediendo a prestaciones históricas dadas de baja al reconstruir un plan antiguo.
+### Grupo 7 — PrestacionConsulta: lectura desde otros módulos
+
+Requisito de referencia: § Consumo desde otros módulos.
+Valida el consumo del catálogo vía modelo Eloquent, sin interfaz de usuario.
+
+
+**T-PRE-43 — Se pueden buscar prestaciones por nombre parcial**
+Requisito: consumo desde SIA — búsqueda textual en el catálogo.
+Dado: tres prestaciones con nombres `'Servicio de información'`, `'Ayuda de urgencia'`, `'Información y orientación'`.
+Cuando: se ejecuta `Prestacion::activas()->where('nombre', 'ilike', '%información%')->get()`.
+Entonces: el resultado contiene exactamente dos prestaciones.
+
+**T-PRE-44 — Se pueden filtrar prestaciones por objetivo general**
+Requisito: consumo desde SIA — filtrado por área temática.
+Dado: cuatro prestaciones: dos con `objetivo_general = '01'` y dos con `objetivo_general = '03'`.
+Cuando: se consulta `Prestacion::activas()->where('objetivo_general', '01')->get()`.
+Entonces: el resultado contiene exactamente dos prestaciones.
+
+**T-PRE-45 — Se puede obtener la lista de tipos de centro de una prestación**
+Requisito: consumo desde Centros — relación `tiposCentro`.
+Dado: una prestación con dos tipos de centro asociados (`'css_general'` y `'centro_dia'`).
+Cuando: se accede a `$prestacion->tiposCentro`.
+Entonces: la colección contiene exactamente dos registros con los `tipo_centro` esperados.
+
+**T-PRE-46 — Una prestación inactiva no aparece en consultas con scope `activas`**
+Requisito: consumo — el scope `activas` filtra las dadas de baja.
+Dado: una prestación con `activa = false`.
+Cuando: se ejecuta `Prestacion::activas()->get()`.
+Entonces: la prestación inactiva no aparece en los resultados.
+
+**T-PRE-47 — Una prestación inactiva es recuperable directamente por `id`**
+Requisito: consumo desde Intervención — los planes históricos deben poder acceder a prestaciones dadas de baja.
+Dado: una prestación con `activa = false` e `id` conocido.
+Cuando: se ejecuta `Prestacion::find($id)`.
+Entonces: se recupera la prestación sin error (la baja lógica no impide la consulta directa).

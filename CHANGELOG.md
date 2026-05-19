@@ -2,6 +2,36 @@
 
 ---
 
+## Módulo Prestaciones — Tests funcionales — 2026-05-19
+
+### Tests implementados (45 tests, 45 pasan ✅; 2 pendientes)
+
+- **Grupos 1–4 (modelo y versionado):** añadidos a `PrestacionesTest.php` (preexistente).
+  - T-PRE-01 a T-PRE-06: `CatalogoSistema` — creación, constraint único, `opcionesParaSelect` (orden, filtro inactivos, grupo inexistente, baja lógica).
+  - T-PRE-07 a T-PRE-16: `PrestacionModel` — creación mínima, enums, código único, JSONB array, scopes, baja lógica.
+  - T-PRE-17 a T-PRE-19: `PrestacionTipoCentro` — relación `hasMany`, constraint único, cascade en `forceDelete`.
+  - T-PRE-20 a T-PRE-25: `PrestacionVersionado` — no crea versión en `create`, snapshot completo, múltiples versiones, reconstrucción por fecha, baja lógica en snapshot.
+- **Grupo 5 (seeder):** fichero nuevo `PrestacionSeederTest.php`.
+  - T-PRE-26 a T-PRE-31: carga de 8 objetivos generales, idempotencia catálogo, carga de 49 prestaciones (49 implementadas del catálogo de 112), idempotencia prestaciones, campos obligatorios, unicidad de códigos.
+- **Grupo 6 (Filament):** fichero nuevo `PrestacionFilamentResourceTest.php`.
+  - T-PRE-32 a T-PRE-40: listado, filtros por tipo y activa, creación, validación nombre requerido, código duplicado, edición, versión en Filament, toggle inline.
+  - T-PRE-41 (historial RelationManager) y T-PRE-42 (acceso por rol): pendientes — documentados en spec con motivo.
+- **Grupo 7 (consulta):** fichero nuevo `PrestacionConsultaTest.php`.
+  - T-PRE-43 a T-PRE-47: búsqueda por nombre, filtro por objetivo, tipos de centro, inactiva no aparece en scope, inactiva recuperable por id.
+
+### Reformateo de `docs/modulo-prestaciones.md`
+
+- La sección de tests usa ahora el mismo formato que `docs/modulo-mensajes.md`: IDs `T-PRE-XX`, grupos `### Grupo N — ClassName`, formato `Dado:` / `Cuando:` / `Entonces:` sin bloques de código ni separadores entre tests individuales.
+
+### Decisiones de implementación
+
+- El seeder tiene 49 prestaciones; T-PRE-28 aserta 49, no 112 (el catálogo completo comprende 112; la diferencia se anota en el spec).
+- El soft delete no dispara el cascade FK de `prestacion_tipo_centro`; T-PRE-19 usa `forceDelete()` con nota explicativa.
+- `ToggleColumn` en Filament 5 requiere `->call('updateTableColumnState', ...)` en lugar de `callTableColumnAction` — patrón documentado en el test.
+- Los Grupos 1–4 se acumulan en el fichero preexistente para no duplicar contexto; los Grupos 5–7 son ficheros independientes por coherencia con los otros módulos.
+
+---
+
 ## Módulo Mensajes — Tests funcionales — 2026-05-19
 
 ### Tests implementados (31/31 pasan ✅)

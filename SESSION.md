@@ -4,37 +4,34 @@ _Actualizado: 2026-05-19_
 
 ## Tarea completada
 
-Tests funcionales del módulo Mensajes implementados: 31/31 tests pasan (Grupos 1–11, T-HLS-01 a T-LW-13).
+Tests funcionales del módulo Prestaciones implementados: 45/45 tests pasan (Grupos 1–7, T-PRE-01 a T-PRE-47, excl. 2 pendientes T-PRE-41 y T-PRE-42).
+Documento `docs/modulo-prestaciones.md` reformateado: la sección de tests usa ahora el mismo formato que `docs/modulo-mensajes.md` (IDs T-PRE-XX, grupos numerados, formato Dado/Cuando/Entonces sin código, sin separadores entre tests).
 
 ## Estado actual
 
-- **Módulo Mensajes — tests funcionales:** 31 tests, 31 pasan ✅, 0 pendientes, 0 fallos.
+- **Módulo Prestaciones — tests funcionales:** 45 tests, 45 pasan ✅, 2 pendientes (T-PRE-41 historial RelationManager, T-PRE-42 acceso rol admin).
+- **Módulo Mensajes — tests funcionales:** 31 tests, 31 pasan ✅ (sesión anterior).
 - **Módulo Intervención — tests funcionales:** 35 tests, 35 pasan ✅ (sesión anterior).
 - **Módulo Documentos — tests funcionales:** 20 tests, 20 pasan ✅ (sesión anterior).
 - **Módulo Centros — tests funcionales:** 31 tests, 31 pasan ✅ (sesión anterior).
-- **Suite completa:** 170 tests pasan, 0 fallos, 30 incompletos (pendientes de Agenda).
+- **Suite completa:** 204 tests pasan, 0 fallos, 30 incompletos (pendientes de Agenda).
 
-## Tests implementados (Mensajes)
+## Tests implementados (Prestaciones)
 
-**Grupos 1–8 (servicio):** añadidos a los tres ficheros de test ya existentes.
-- `HorarioLaboralServiceTest`: 11 tests (6 preexistentes + T-HLS-01 a T-HLS-05)
-- `AlertaServiceTest`: 11 tests (6 preexistentes + T-ALS-02 preciso, T-ALS-05, T-ALS-07, T-ALS-08, T-ALS-09)
-- `MensajeriaServiceTest`: 11 tests (6 preexistentes + T-MSG-04, T-MSG-06, T-MSG-07, T-MSG-09, T-MSG-10)
+**Grupo 1 — CatalogoSistema (T-PRE-01 a T-PRE-06):** tests añadidos a `PrestacionesTest.php`.
+**Grupo 2 — PrestacionModel (T-PRE-07 a T-PRE-16):** tests añadidos a `PrestacionesTest.php`.
+**Grupo 3 — PrestacionTipoCentro (T-PRE-17 a T-PRE-19):** tests añadidos a `PrestacionesTest.php`.
+**Grupo 4 — PrestacionVersionado (T-PRE-20 a T-PRE-25):** tests añadidos a `PrestacionesTest.php`.
+**Grupo 5 — PrestacionSeeder (T-PRE-26 a T-PRE-31):** fichero nuevo `PrestacionSeederTest.php`.
+**Grupo 6 — PrestacionFilamentResource (T-PRE-32 a T-PRE-40):** fichero nuevo `PrestacionFilamentResourceTest.php`.
+**Grupo 7 — PrestacionConsulta (T-PRE-43 a T-PRE-47):** fichero nuevo `PrestacionConsultaTest.php`.
 
-**Grupos 9–11 (Livewire):** ficheros nuevos.
-- `BandejaAlertasTest`: T-LW-01 a T-LW-05
-- `BandejaMensajesHiloTest`: T-LW-06 a T-LW-08
-- `NuevoMensajeTest`: T-LW-09 a T-LW-13
+## Notas técnicas relevantes
 
-## Correcciones de componentes realizadas (necesarias para tests)
-
-- `CatalogoSistema::$fillable` — añadido campo `valor` (preexistente sin declarar, causaba silencio en guardado).
-- `MensajeriaService::registrarEnHistoria()` — guard `InvalidArgumentException` para visibilidad `ciudadano`.
-- `BandejaAlertas::reconocer()` — comprobación de autorización: solo el destinatario o el usuario escalado puede reconocer.
-- `HiloMensajes` — añadido método `esTsrDeCiudadano(int $ciudadanoId): bool`.
-- `hilo-mensajes.blade.php` — botón "Registrar en Historia" envuelto en `@if($this->esTsrDeCiudadano(...))`.
-- `NuevoMensaje::resultadosDestinatario()` / `resultadosCiudadano()` — corrección de tipo de retorno vacío (`collect()` → `new Eloquent\Collection()`).
-- `NuevoMensaje::enviar()` — validación que impide enviarse un mensaje a uno mismo.
+- El seeder tiene 49 prestaciones implementadas (de las 112 del catálogo completo). T-PRE-28 aserta 49, no 112. El spec era aspiracional.
+- El soft delete de `Prestacion` NO dispara el cascade FK de `prestacion_tipo_centro` (solo lo hace `forceDelete()`). T-PRE-19 usa `forceDelete()`.
+- El toggle `ToggleColumn` en Filament 5 requiere `->call('updateTableColumnState', 'activa', $id, $value)` en los tests, no `callTableColumnAction`.
+- T-PRE-41 (historial RelationManager) y T-PRE-42 (acceso por rol) marcados como pendientes en el documento.
 
 ## Siguiente paso recomendado
 
