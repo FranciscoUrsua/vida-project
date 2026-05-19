@@ -9,9 +9,11 @@ use App\Models\User;
 use App\Models\UsuarioUo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Mensajes\Enums\RolParticipante;
+use Modules\Mensajes\Enums\VisibilidadMensaje;
 use Modules\Mensajes\Exceptions\UnauthorizedException;
 use Modules\Mensajes\Models\Mensaje;
 use Modules\Mensajes\Models\MensajeHilo;
+use Modules\Mensajes\Models\MensajeParticipante;
 use Modules\Mensajes\Services\MensajeriaService;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -190,5 +192,178 @@ class MensajeriaServiceTest extends TestCase
         $participante = $hilo->participantes()->where('usuario_id', $destinatario->id)->first();
 
         $this->assertNotNull($participante->fecha_ultima_lectura);
+    }
+
+    // -------------------------------------------------------------------------
+    // T-MSG-04 a T-MSG-10 — escenarios exactos del spec
+    // -------------------------------------------------------------------------
+
+    /**
+     * T-MSG-04 — Responder añade un mensaje al hilo sin crear uno nuevo.
+     */
+    #[Test]
+    public function t_msg_04_responder_anade_mensaje_al_hilo_sin_crear_uno_nuevo(): void
+    {
+        $remitente    = User::factory()->create();
+        $destinatario = User::factory()->create();
+
+        $hilo = $this->servicio->crearHilo($remitente, $destinatario, 'Test', 'Primer mensaje');
+
+        $this->assertDatabaseCount('mensajes_hilos', 1);
+        $this->assertDatabaseCount('mensajes', 1);
+
+        $this->servicio->responder($hilo, $destinatario, 'Respuesta del destinatario');
+
+        $this->assertDatabaseCount('mensajes_hilos', 1);
+        $this->assertDatabaseCount('mensajes', 2);
+
+        $segundoMensaje = $hilo->mensajes()->orderBy('id', 'desc')->first();
+        $this->assertEquals($destinatario->id, $segundoMensaje->remitente_id);
+    }
+
+    /**
+     * T-MSG-06 — El contador de mensajes no leídos es correcto.
+     * Tres mensajes, destinatario no ha leído → 3. Tras marcar leído → 0.
+     */
+    #[Test]
+    public function t_msg_06_contador_mensajes_no_leidos_es_correcto(): void
+    {
+        $remitente    = User::factory()->create();
+        $destinatario = User::factory()->create();
+
+        $hilo = $this->servicio->crearHilo($remitente, $destinatario, 'Test', 'Mensaje 1');
+        $this->servicio->responder($hilo, $remitente, 'Mensaje 2');
+        $this->servicio->responder($hilo, $remitente, 'Mensaje 3');
+
+        $participante = MensajeParticipante::where('hilo_id', $hilo->id)
+            ->where('usuario_id', $destinatario->id)
+            ->first();
+
+        $this->assertNull($participante->fecha_ultima_lectura);
+        $this->assertEquals(3, $participante->mensajesNoLeidos());
+
+        $this->servicio->marcarComoLeido($hilo, $destinatario);
+
+        $this->assertEquals(0, $participante->fresh()->mensajesNoLeidos());
+    }
+
+    /**
+     * T-MSG-07 — El TSR responsable puede registrar un mensaje en la Historia Social.
+     */
+    #[Test]
+    public function t_msg_07_tsr_puede_registrar_mensaje_en_historia_social(): void
+    {
+        $uo        = UnidadOrganizativa::create(['nombre' => 'UO TSR 07', 'tipo' => 'servicio', 'activa' => true]);
+        $tsr       = User::factory()->create();
+        $ciudadano = Ciudadano::factory()->create();
+
+        UsuarioUo::create([
+            'usuario_id'             => $tsr->id,
+            'unidad_organizativa_id' => $uo->id,
+            'tipo_vinculo'           => 'adscripcion',
+            'fecha_inicio'           => now()->toDateString(),
+        ]);
+
+        HistoriaSocial::create([
+            'ciudadano_id'           => $ciudadano->id,
+            'unidad_organizativa_id' => $uo->id,
+            'ciudadano_protegido'    => false,
+            'estado'                 => 'abierta',
+        ]);
+
+        $hilo    = $this->servicio->crearHilo(User::factory()->create(), User::factory()->create(), 'Test', 'Original');
+        $mensaje = $hilo->mensajes()->first();
+
+        $registro = $this->servicio->registrarEnHistoria(
+            mensaje:       $mensaje,
+            ciudadano:     $ciudadano,
+            tsr:           $tsr,
+            cuerpoEditado: 'Texto editado por TSR',
+            visibilidad:   'profesionales',
+        );
+
+        $this->assertEquals($ciudadano->id, $registro->ciudadano_id);
+        $this->assertEquals($tsr->id, $registro->registrado_por_id);
+        $this->assertEquals('Texto editado por TSR', $registro->cuerpo_registrado);
+        $this->assertEquals(VisibilidadMensaje::Profesionales, $registro->visibilidad);
+    }
+
+    /**
+     * T-MSG-09 — La visibilidad por defecto del registro es 'profesionales'.
+     */
+    #[Test]
+    public function t_msg_09_visibilidad_por_defecto_es_profesionales(): void
+    {
+        $uo        = UnidadOrganizativa::create(['nombre' => 'UO TSR 09', 'tipo' => 'servicio', 'activa' => true]);
+        $tsr       = User::factory()->create();
+        $ciudadano = Ciudadano::factory()->create();
+
+        UsuarioUo::create([
+            'usuario_id'             => $tsr->id,
+            'unidad_organizativa_id' => $uo->id,
+            'tipo_vinculo'           => 'adscripcion',
+            'fecha_inicio'           => now()->toDateString(),
+        ]);
+
+        HistoriaSocial::create([
+            'ciudadano_id'           => $ciudadano->id,
+            'unidad_organizativa_id' => $uo->id,
+            'ciudadano_protegido'    => false,
+            'estado'                 => 'abierta',
+        ]);
+
+        $hilo    = $this->servicio->crearHilo(User::factory()->create(), User::factory()->create(), 'Test', 'Mensaje');
+        $mensaje = $hilo->mensajes()->first();
+
+        // Sin especificar visibilidad → debe usar el valor por defecto
+        $registro = $this->servicio->registrarEnHistoria(
+            mensaje:       $mensaje,
+            ciudadano:     $ciudadano,
+            tsr:           $tsr,
+            cuerpoEditado: 'Contenido',
+        );
+
+        $this->assertEquals(VisibilidadMensaje::Profesionales, $registro->visibilidad);
+    }
+
+    /**
+     * T-MSG-10 — No se permite registrar con visibilidad 'ciudadano'.
+     * Los registros de comunicación interna nunca pueden ser visibles para el ciudadano.
+     */
+    #[Test]
+    public function t_msg_10_no_se_permite_registrar_con_visibilidad_ciudadano(): void
+    {
+        $uo        = UnidadOrganizativa::create(['nombre' => 'UO TSR 10', 'tipo' => 'servicio', 'activa' => true]);
+        $tsr       = User::factory()->create();
+        $ciudadano = Ciudadano::factory()->create();
+
+        UsuarioUo::create([
+            'usuario_id'             => $tsr->id,
+            'unidad_organizativa_id' => $uo->id,
+            'tipo_vinculo'           => 'adscripcion',
+            'fecha_inicio'           => now()->toDateString(),
+        ]);
+
+        HistoriaSocial::create([
+            'ciudadano_id'           => $ciudadano->id,
+            'unidad_organizativa_id' => $uo->id,
+            'ciudadano_protegido'    => false,
+            'estado'                 => 'abierta',
+        ]);
+
+        $hilo    = $this->servicio->crearHilo(User::factory()->create(), User::factory()->create(), 'Test', 'Mensaje');
+        $mensaje = $hilo->mensajes()->first();
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->servicio->registrarEnHistoria(
+            mensaje:       $mensaje,
+            ciudadano:     $ciudadano,
+            tsr:           $tsr,
+            cuerpoEditado: 'Contenido',
+            visibilidad:   'ciudadano',
+        );
+
+        $this->assertDatabaseCount('mensajes_registro_historia', 0);
     }
 }

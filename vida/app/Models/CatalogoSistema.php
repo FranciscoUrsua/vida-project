@@ -32,7 +32,7 @@ class CatalogoSistema extends Model
 {
     protected $table = 'catalogos_sistema';
 
-    protected $fillable = ['grupo', 'clave', 'etiqueta', 'orden', 'activo'];
+    protected $fillable = ['grupo', 'clave', 'etiqueta', 'valor', 'orden', 'activo'];
 
     protected $casts = ['activo' => 'boolean', 'orden' => 'integer'];
 

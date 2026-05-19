@@ -4,6 +4,7 @@ namespace Modules\Mensajes\Livewire;
 
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Illuminate\Auth\Access\AuthorizationException;
 use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\TipoAlerta;
@@ -73,6 +74,14 @@ class BandejaAlertas extends Component
         }
 
         $alerta = Alerta::findOrFail($this->alertaConfirmandoId);
+
+        // Solo el destinatario original o el usuario al que fue escalada puede reconocerla
+        if ($alerta->destinatario_type === DestinatarioType::Usuario
+            && $alerta->destinatario_usuario_id !== auth()->id()
+            && $alerta->escalada_a_usuario_id !== auth()->id()
+        ) {
+            throw new AuthorizationException('No estás autorizado para reconocer esta alerta.');
+        }
 
         $alertaService->reconocer(
             $alerta,

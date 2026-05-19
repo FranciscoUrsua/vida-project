@@ -25,12 +25,14 @@
                                     <i class="bi bi-person"></i>
                                     Ciudadano #{{ $ref->ciudadano_id }}
                                 </span>
+                                @if($this->esTsrDeCiudadano($ref->ciudadano_id))
                                 <button wire:click="abrirModalHistoria({{ $mensaje->id }}, {{ $ref->ciudadano_id }})"
                                         class="btn btn-sm btn-link p-0 ms-1
                                                {{ $esMio ? 'text-white' : 'text-primary' }}"
                                         title="Registrar en Historia Social">
                                     <i class="bi bi-journal-plus"></i>
                                 </button>
+                                @endif
                             </div>
                         @endforeach
 

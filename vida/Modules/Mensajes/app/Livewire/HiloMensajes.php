@@ -2,6 +2,7 @@
 
 namespace Modules\Mensajes\Livewire;
 
+use App\Models\HistoriaSocial;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -118,6 +119,23 @@ class HiloMensajes extends Component
         $this->cerrarModalHistoria();
 
         $this->dispatch('registro-historia-creado');
+    }
+
+    /**
+     * Comprueba si el usuario autenticado es TSR responsable del ciudadano.
+     *
+     * Se entiende como TSR el profesional cuya UO tiene asignada la Historia Social
+     * del ciudadano y el profesional tiene adscripción activa a esa UO.
+     */
+    public function esTsrDeCiudadano(int $ciudadanoId): bool
+    {
+        return HistoriaSocial::where('ciudadano_id', $ciudadanoId)
+            ->whereHas('unidadOrganizativa', function ($query) {
+                $query->whereHas('usuarios', function ($q) {
+                    $q->where('usuario_id', auth()->id());
+                });
+            })
+            ->exists();
     }
 
     /**

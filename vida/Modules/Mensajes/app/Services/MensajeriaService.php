@@ -91,6 +91,12 @@ class MensajeriaService
             throw UnauthorizedException::noEsTsr($tsr->id, $ciudadano->id);
         }
 
+        if (! in_array($visibilidad, ['privada', 'profesionales'], true)) {
+            throw new \InvalidArgumentException(
+                "La visibilidad '$visibilidad' no está permitida para registros en Historia Social."
+            );
+        }
+
         return MensajeRegistroHistoria::create([
             'mensaje_id'        => $mensaje->id,
             'ciudadano_id'      => $ciudadano->id,

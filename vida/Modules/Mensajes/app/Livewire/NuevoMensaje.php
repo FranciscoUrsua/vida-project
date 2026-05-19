@@ -51,7 +51,7 @@ class NuevoMensaje extends Component
     public function resultadosDestinatario(): \Illuminate\Database\Eloquent\Collection
     {
         if (strlen($this->busquedaDestinatario) < 2) {
-            return collect();
+            return new \Illuminate\Database\Eloquent\Collection();
         }
 
         $query = User::where('id', '!=', auth()->id())
@@ -91,7 +91,7 @@ class NuevoMensaje extends Component
     public function resultadosCiudadano(): \Illuminate\Database\Eloquent\Collection
     {
         if (strlen($this->busquedaCiudadano) < 2) {
-            return collect();
+            return new \Illuminate\Database\Eloquent\Collection();
         }
 
         // Solo ciudadanos con historia social accesible por el usuario
@@ -121,10 +121,19 @@ class NuevoMensaje extends Component
     public function enviar(MensajeriaService $mensajeriaService): void
     {
         $this->validate([
-            'destinatarioId' => 'required|integer|exists:users,id',
-            'asunto'         => 'required|string|max:255',
-            'cuerpo'         => 'required|string|max:10000',
-            'adjuntos.*'     => 'file|max:10240',
+            'destinatarioId' => [
+                'required',
+                'integer',
+                'exists:users,id',
+                function ($attribute, $value, $fail) {
+                    if ((int) $value === auth()->id()) {
+                        $fail('No puedes enviarte un mensaje a ti mismo.');
+                    }
+                },
+            ],
+            'asunto'     => 'required|string|max:255',
+            'cuerpo'     => 'required|string|max:10000',
+            'adjuntos.*' => 'file|max:10240',
         ]);
 
         $destinatario = User::findOrFail($this->destinatarioId);

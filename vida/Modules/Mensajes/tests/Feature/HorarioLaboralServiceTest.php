@@ -138,4 +138,107 @@ class HorarioLaboralServiceTest extends TestCase
         $this->assertEquals(0, $resultado->minute);
         $this->assertEquals($desde->toDateString(), $resultado->toDateString());
     }
+
+    // -------------------------------------------------------------------------
+    // T-HLS-01 a T-HLS-05 — escenarios exactos del spec
+    // -------------------------------------------------------------------------
+
+    /**
+     * T-HLS-01 — Vencimiento dentro del mismo día laboral.
+     * Dado lunes 09:00, se esperan exactamente 4h: lunes 13:00.
+     */
+    #[Test]
+    public function t_hls_01_vencimiento_dentro_del_mismo_dia_laboral(): void
+    {
+        $this->crearHorarioDefecto();
+
+        $servicio = new HorarioLaboralService();
+
+        $lunes9  = now()->startOfWeek()->setTime(9, 0);
+        $resultado = $servicio->calcularExpiracion($lunes9);
+
+        $this->assertEquals($lunes9->toDateString(), $resultado->toDateString());
+        $this->assertEquals(13, $resultado->hour);
+        $this->assertEquals(0, $resultado->minute);
+    }
+
+    /**
+     * T-HLS-02 — Vencimiento con desbordamiento al día siguiente.
+     * Lunes 15:30: quedan 1,5h hasta las 17:00; faltan 2,5h → martes 10:30.
+     */
+    #[Test]
+    public function t_hls_02_vencimiento_con_desbordamiento_al_dia_siguiente(): void
+    {
+        $this->crearHorarioDefecto();
+
+        $servicio = new HorarioLaboralService();
+
+        $lunes1530 = now()->startOfWeek()->setTime(15, 30);
+        $resultado  = $servicio->calcularExpiracion($lunes1530);
+
+        $martes = $lunes1530->copy()->addDay();
+        $this->assertEquals($martes->toDateString(), $resultado->toDateString());
+        $this->assertEquals(10, $resultado->hour);
+        $this->assertEquals(30, $resultado->minute);
+    }
+
+    /**
+     * T-HLS-03 — Vencimiento saltando el fin de semana.
+     * Viernes 16:00: queda 1h hoy; faltan 3h → lunes siguiente 11:00.
+     */
+    #[Test]
+    public function t_hls_03_vencimiento_saltando_fin_de_semana(): void
+    {
+        $this->crearHorarioDefecto();
+
+        $servicio = new HorarioLaboralService();
+
+        $viernes16 = now()->startOfWeek()->addDays(4)->setTime(16, 0);
+        $resultado  = $servicio->calcularExpiracion($viernes16);
+
+        $lunesSig = $viernes16->copy()->addDays(3)->setTime(11, 0);
+        $this->assertEquals($lunesSig->toDateString(), $resultado->toDateString());
+        $this->assertEquals(11, $resultado->hour);
+        $this->assertEquals(0, $resultado->minute);
+    }
+
+    /**
+     * T-HLS-04 — Alerta creada fuera de horario laboral.
+     * Lunes 20:00: cómputo empieza en martes 08:00 → martes 12:00.
+     */
+    #[Test]
+    public function t_hls_04_alerta_creada_fuera_de_horario_laboral(): void
+    {
+        $this->crearHorarioDefecto();
+
+        $servicio = new HorarioLaboralService();
+
+        $lunes20 = now()->startOfWeek()->setTime(20, 0);
+        $resultado = $servicio->calcularExpiracion($lunes20);
+
+        $martes = $lunes20->copy()->addDay();
+        $this->assertEquals($martes->toDateString(), $resultado->toDateString());
+        $this->assertEquals(12, $resultado->hour);
+        $this->assertEquals(0, $resultado->minute);
+    }
+
+    /**
+     * T-HLS-05 — Alerta creada en fin de semana.
+     * Sábado 10:00: cómputo empieza en lunes siguiente 08:00 → lunes 12:00.
+     */
+    #[Test]
+    public function t_hls_05_alerta_creada_en_fin_de_semana(): void
+    {
+        $this->crearHorarioDefecto();
+
+        $servicio = new HorarioLaboralService();
+
+        $sabado10 = now()->startOfWeek()->addDays(5)->setTime(10, 0);
+        $resultado  = $servicio->calcularExpiracion($sabado10);
+
+        $lunesSig = $sabado10->copy()->addDays(2)->setTime(12, 0);
+        $this->assertEquals($lunesSig->toDateString(), $resultado->toDateString());
+        $this->assertEquals(12, $resultado->hour);
+        $this->assertEquals(0, $resultado->minute);
+    }
 }

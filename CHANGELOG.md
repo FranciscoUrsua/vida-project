@@ -1,5 +1,34 @@
 # CHANGELOG — VIDA 360
 
+---
+
+## Módulo Mensajes — Tests funcionales — 2026-05-19
+
+### Tests implementados (31/31 pasan ✅)
+
+- **Grupos 1–8 (servicio):** incorporados a los tres ficheros de test preexistentes.
+  - `HorarioLaboralServiceTest`: +5 tests (T-HLS-01 a T-HLS-05) con escenarios exactos del spec (09:00→13:00, 15:30→10:30, viernes→lunes, fuera-horario, fin-de-semana).
+  - `AlertaServiceTest`: +5 tests (T-ALS-02 con tiempo fijado, T-ALS-05 unicidad, T-ALS-07 warning log, T-ALS-08 sin segundo nivel, T-ALS-09 destinatarios rol+UO).
+  - `MensajeriaServiceTest`: +5 tests (T-MSG-04 respuesta, T-MSG-06 contador no-leídos, T-MSG-07 TSR registra, T-MSG-09 visibilidad defecto, T-MSG-10 visibilidad ciudadano prohibida).
+- **Grupos 9–11 (Livewire):** tres ficheros nuevos.
+  - `BandejaAlertasTest` (T-LW-01 a T-LW-05): aislamiento, alertas por rol+UO, reconocimiento, control de autorización, ordenación.
+  - `BandejaMensajesHiloTest` (T-LW-06 a T-LW-08): hilos propios, archivado, visibilidad botón TSR.
+  - `NuevoMensajeTest` (T-LW-09 a T-LW-13): filtro rol+UO, validaciones de asunto/cuerpo/destinatario, auto-mensaje prohibido.
+
+### Correcciones en componentes existentes
+
+- `CatalogoSistema::$fillable` — añadido `valor` (bug preexistente: campo no declarado, se perdía silenciosamente en `create()`).
+- `MensajeriaService::registrarEnHistoria()` — guard `InvalidArgumentException` para visibilidad `ciudadano` (el enum no la incluye; antes lanzaba `ValueError` de PHP en lugar de error semántico del dominio).
+- `BandejaAlertas::reconocer()` — comprobación de autorización: solo el `destinatario_usuario_id` o el `escalada_a_usuario_id` puede reconocer; lanza `AuthorizationException` (→ 403) en caso contrario.
+- `HiloMensajes` — método `esTsrDeCiudadano(int $ciudadanoId): bool` añadido; view `hilo-mensajes.blade.php` protege el botón "Registrar en Historia Social" con `@if($this->esTsrDeCiudadano(...))`.
+- `NuevoMensaje` — corregido tipo de retorno vacío en `resultadosDestinatario()` y `resultadosCiudadano()` (`collect()` → `new Eloquent\Collection()`); añadida validación que impide seleccionar al propio usuario como destinatario.
+
+### Decisiones de implementación
+
+- Los tests de servicio se añaden a los ficheros preexistentes (no se crean ficheros duplicados); los preexistentes ya cubrían el contrato general, los nuevos verifican los escenarios exactos del spec con valores concretos.
+- Los tests Livewire son los primeros del proyecto; usan `Livewire::actingAs()` + `->test()` con la API de Livewire v4.
+- `BandejaMensajesHiloTest` agrupa los tests de `BandejaMensajes` e `HiloMensajes` en un único fichero (solo 3 tests; separar habría sido prematuramente verboso).
+
 Registro de cambios agrupado por módulo y área funcional, en orden cronológico descendente.
 
 ---
