@@ -2,6 +2,40 @@
 
 ---
 
+## Módulo Usuarios — Tests funcionales fase 2 — 2026-05-19
+
+### Tests implementados (23 tests pasan ✅; 1 pendiente)
+
+- **Grupo A — Historial de roles (TF-USU-19 a TF-USU-23):** fichero nuevo `UsuarioRolTest.php`.
+  - TF-USU-19 a TF-USU-22: creación con estado activo → Observer sincroniza `model_has_roles`; cierre con `fecha_fin`; historial preservado; varios roles activos simultáneos.
+  - TF-USU-23: comando `usuarios:reconciliar-roles` — resincroniza `model_has_roles` a partir de `usuario_rol` vigente.
+- **Grupo B — Jerarquía UO (TF-USU-24 a TF-USU-28):** fichero nuevo `UnidadOrganizativaTest.php`.
+  - TF-USU-24 a TF-USU-27: `children`, `descendants`, `tieneAccesoGestionA()` con relación padre-descendiente y con UO paralela.
+  - TF-USU-28: desactivar UO preserva adscripciones históricas.
+- **Grupo C — Adscripción UO (TF-USU-29 a TF-USU-31):** incorporados a `UnidadOrganizativaTest.php`.
+  - TF-USU-29 a TF-USU-30: usuario adscrito a varias UOs; historial de adscripciones con fechas de vigencia.
+  - TF-USU-31: pendiente — no existe Policy/Service para autorizar adscripción; marcado `markTestIncomplete`.
+- **Grupo D — Supervisión de asignación (TF-USU-32 a TF-USU-35):** incorporados a `UsuarioRolTest.php`.
+  - TF-USU-32 a TF-USU-35: `pendiente_aprobacion` no activa rol; aprobación activa; denegación no activa; `alerta_supervisada` activa inmediatamente.
+- **Grupo E — Modelo Profesional (TF-USU-36 a TF-USU-40):** fichero nuevo `ProfesionalTest.php`.
+  - TF-USU-36 a TF-USU-40: Profesional sin Usuario; Usuario sin Profesional; navegación bidireccional; `cargo_id` obligatorio (DB constraint); campo `organizacion` nullable para internos.
+- **Grupo F — Versionado Profesional (TF-USU-41 a TF-USU-42):** incorporados a `ProfesionalTest.php`.
+  - TF-USU-41 a TF-USU-42: versión con `versionable_type`; snapshot completo (no solo diff).
+
+### Infraestructura nueva
+
+- **`Modules/Usuarios/app/Console/Commands/ReconciliarRoles.php`:** comando `usuarios:reconciliar-roles`. Asigna roles vigentes de `usuario_rol` a Spatie y revoca los huérfanos. Registrado en `UsuariosServiceProvider`.
+- **`App\Models\UnidadOrganizativa::isDescendantOf()`:** método añadido. Usa `ancestors()` (CTE recursiva de staudenmeir) para comprobar si una UO es descendiente de otra. Nota: la WHERE clause no puede usar prefijo de tabla en el contexto externo de la CTE.
+- **`TieneUO::unidadesOrganizativas()`:** relación `BelongsToMany` añadida (a través de `usuario_uo`). Permite `$user->unidadesOrganizativas()->count()`.
+
+### Decisiones de implementación
+
+- TF-USU-20 usa `fecha_fin = ayer` (no hoy): el Observer comprueba `isPast()` que es `false` para today; la semantica correcta de "cerrar" un rol es fecha_fin en el pasado.
+- TF-USU-31 marcado `markTestIncomplete`: la restricción de ámbito en adscripción requiere una capa de servicio o Policy que no existe aún.
+- `isDescendantOf()` en `UnidadOrganizativa` es nueva infraestructura necesaria — el paquete staudenmeir no la incluye (solo `isChildOf()` y `isParentOf()`).
+
+---
+
 ## Módulo Prestaciones — Tests funcionales — 2026-05-19
 
 ### Tests implementados (45 tests, 45 pasan ✅; 2 pendientes)

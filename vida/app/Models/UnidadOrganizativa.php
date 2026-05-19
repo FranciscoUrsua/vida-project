@@ -105,6 +105,23 @@ class UnidadOrganizativa extends Model
     // -------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------
+    // Métodos de dominio
+    // -------------------------------------------------------------------------
+
+    /**
+     * Comprueba si esta UO es descendiente del nodo dado.
+     * Útil para verificar ámbitos de supervisión jerárquica.
+     *
+     * @param UnidadOrganizativa $ancestor UO ancestro a comprobar
+     * @return bool
+     */
+    public function isDescendantOf(UnidadOrganizativa $ancestor): bool
+    {
+        // La CTE de staudenmeir expone las columnas sin prefijo de tabla en el contexto externo
+        return $this->ancestors()->where('id', $ancestor->id)->exists();
+    }
+
+    // -------------------------------------------------------------------------
     // Scopes
     // -------------------------------------------------------------------------
 

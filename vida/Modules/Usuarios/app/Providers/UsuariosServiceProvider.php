@@ -6,6 +6,7 @@ use App\Models\Apunte;
 use App\Models\HistoriaSocial;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Modules\Usuarios\Console\Commands\ReconciliarRoles;
 use Modules\Usuarios\Policies\ApuntePolicy;
 use Modules\Usuarios\Policies\HistoriaSocialPolicy;
 
@@ -39,6 +40,10 @@ class UsuariosServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));
+
+        $this->commands([
+            ReconciliarRoles::class,
+        ]);
 
         // Registrar Policies de autorización del módulo.
         // HistoriaSocial y Apunte son stubs temporales en App\Models hasta que

@@ -4,34 +4,38 @@ _Actualizado: 2026-05-19_
 
 ## Tarea completada
 
-Tests funcionales del módulo Prestaciones implementados: 45/45 tests pasan (Grupos 1–7, T-PRE-01 a T-PRE-47, excl. 2 pendientes T-PRE-41 y T-PRE-42).
-Documento `docs/modulo-prestaciones.md` reformateado: la sección de tests usa ahora el mismo formato que `docs/modulo-mensajes.md` (IDs T-PRE-XX, grupos numerados, formato Dado/Cuando/Entonces sin código, sin separadores entre tests).
+Tests funcionales del módulo Usuarios fase 2 implementados: 23/24 tests pasan (TF-USU-19 a TF-USU-42, excl. 1 pendiente TF-USU-31).
 
 ## Estado actual
 
-- **Módulo Prestaciones — tests funcionales:** 45 tests, 45 pasan ✅, 2 pendientes (T-PRE-41 historial RelationManager, T-PRE-42 acceso rol admin).
+- **Módulo Usuarios fase 2 — tests funcionales:** 23 tests pasan ✅, 1 pendiente (TF-USU-31 adscripción fuera de ámbito — requiere Policy/Service).
+- **Módulo Prestaciones — tests funcionales:** 45 tests, 45 pasan ✅, 2 pendientes (T-PRE-41, T-PRE-42).
 - **Módulo Mensajes — tests funcionales:** 31 tests, 31 pasan ✅ (sesión anterior).
 - **Módulo Intervención — tests funcionales:** 35 tests, 35 pasan ✅ (sesión anterior).
 - **Módulo Documentos — tests funcionales:** 20 tests, 20 pasan ✅ (sesión anterior).
 - **Módulo Centros — tests funcionales:** 31 tests, 31 pasan ✅ (sesión anterior).
-- **Suite completa:** 204 tests pasan, 0 fallos, 30 incompletos (pendientes de Agenda).
+- **Suite completa:** 258 tests pasan, 0 fallos, 31 incompletos (pendientes de Agenda + 3 pendientes anteriores).
 
-## Tests implementados (Prestaciones)
+## Tests implementados (Usuarios fase 2)
 
-**Grupo 1 — CatalogoSistema (T-PRE-01 a T-PRE-06):** tests añadidos a `PrestacionesTest.php`.
-**Grupo 2 — PrestacionModel (T-PRE-07 a T-PRE-16):** tests añadidos a `PrestacionesTest.php`.
-**Grupo 3 — PrestacionTipoCentro (T-PRE-17 a T-PRE-19):** tests añadidos a `PrestacionesTest.php`.
-**Grupo 4 — PrestacionVersionado (T-PRE-20 a T-PRE-25):** tests añadidos a `PrestacionesTest.php`.
-**Grupo 5 — PrestacionSeeder (T-PRE-26 a T-PRE-31):** fichero nuevo `PrestacionSeederTest.php`.
-**Grupo 6 — PrestacionFilamentResource (T-PRE-32 a T-PRE-40):** fichero nuevo `PrestacionFilamentResourceTest.php`.
-**Grupo 7 — PrestacionConsulta (T-PRE-43 a T-PRE-47):** fichero nuevo `PrestacionConsultaTest.php`.
+**Grupo A — UsuarioRol historial (TF-USU-19 a TF-USU-23):** fichero nuevo `UsuarioRolTest.php`.
+**Grupo B — Jerarquía UO (TF-USU-24 a TF-USU-28):** fichero nuevo `UnidadOrganizativaTest.php`.
+**Grupo C — Adscripción UO (TF-USU-29 a TF-USU-31):** añadidos a `UnidadOrganizativaTest.php`.
+**Grupo D — Supervisión roles (TF-USU-32 a TF-USU-35):** añadidos a `UsuarioRolTest.php`.
+**Grupo E — Modelo Profesional (TF-USU-36 a TF-USU-40):** fichero nuevo `ProfesionalTest.php`.
+**Grupo F — Versionado Profesional (TF-USU-41 a TF-USU-42):** añadidos a `ProfesionalTest.php`.
+
+## Infraestructura nueva creada
+
+- `Modules/Usuarios/app/Console/Commands/ReconciliarRoles.php` — comando `usuarios:reconciliar-roles`.
+- `App\Models\UnidadOrganizativa::isDescendantOf()` — usa `ancestors()` de staudenmeir (CTE recursiva).
+- `TieneUO::unidadesOrganizativas()` — `BelongsToMany` a través de `usuario_uo`.
 
 ## Notas técnicas relevantes
 
-- El seeder tiene 49 prestaciones implementadas (de las 112 del catálogo completo). T-PRE-28 aserta 49, no 112. El spec era aspiracional.
-- El soft delete de `Prestacion` NO dispara el cascade FK de `prestacion_tipo_centro` (solo lo hace `forceDelete()`). T-PRE-19 usa `forceDelete()`.
-- El toggle `ToggleColumn` en Filament 5 requiere `->call('updateTableColumnState', 'activa', $id, $value)` en los tests, no `callTableColumnAction`.
-- T-PRE-41 (historial RelationManager) y T-PRE-42 (acceso por rol) marcados como pendientes en el documento.
+- El Observer de UsuarioRol usa `isPast()` para detectar fecha_fin en el pasado. `isPast()` devuelve false para today, así que `fecha_fin = hoy` NO revoca el rol. TF-USU-20 usa `subDay()`.
+- `isDescendantOf()` en la CTE de staudenmeir no puede usar prefijo de tabla en el WHERE externo (`'id'`, no `'unidades_organizativas.id'`).
+- El estado `denegado` en `UsuarioRol` no coincide con `activo` ni `inactivo` en el Observer, por lo que no dispara ninguna sincronización con Spatie.
 
 ## Siguiente paso recomendado
 

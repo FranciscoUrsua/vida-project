@@ -5,6 +5,7 @@ namespace Modules\Usuarios\Traits;
 use App\Models\UnidadOrganizativa;
 use App\Models\UsuarioUo;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -39,6 +40,22 @@ trait TieneUO
     public function adscripcionesVigentes(): HasMany
     {
         return $this->adscripciones()->vigentes();
+    }
+
+    /**
+     * Unidades Organizativas a las que el usuario está adscrito (historial completo).
+     * Relación muchos-a-muchos a través de la tabla usuario_uo.
+     *
+     * @return BelongsToMany<UnidadOrganizativa>
+     */
+    public function unidadesOrganizativas(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            UnidadOrganizativa::class,
+            'usuario_uo',
+            'usuario_id',
+            'unidad_organizativa_id'
+        );
     }
 
     // -------------------------------------------------------------------------

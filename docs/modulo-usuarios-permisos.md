@@ -775,31 +775,31 @@ Estos tests verifican que el trait `Versionable` genera snapshots correctos.
 
 | Test | Descripción | Estado |
 |---|---|---|
-| TF-USU-19 | Asignar rol crea registro en usuario_rol con estado activo | ⏳ |
-| TF-USU-20 | Cerrar rol establece fecha_fin y lo elimina de Spatie | ⏳ |
-| TF-USU-21 | Historial de roles se preserva al reasignar el mismo rol | ⏳ |
-| TF-USU-22 | Usuario puede tener varios roles activos simultáneamente | ⏳ |
-| TF-USU-23 | Comando de reconciliación sincroniza model_has_roles | ⏳ |
-| TF-USU-24 | UO puede tener UO hijas | ⏳ |
-| TF-USU-25 | Descendientes de UO incluyen todos los niveles | ⏳ |
-| TF-USU-26 | Usuario adscrito a UO padre tiene visibilidad sobre UO hijas | ⏳ |
-| TF-USU-27 | Usuario no tiene visibilidad sobre UO paralelas | ⏳ |
-| TF-USU-28 | Desactivar UO no elimina adscripciones existentes | ⏳ |
-| TF-USU-29 | Usuario puede estar adscrito a más de una UO | ⏳ |
-| TF-USU-30 | Adscripción mantiene historial con fechas de vigencia | ⏳ |
-| TF-USU-31 | adm_usuarios no puede adscribir fuera de su ámbito | ⏳ |
-| TF-USU-32 | Rol con aprobación requerida crea solicitud pendiente | ⏳ |
-| TF-USU-33 | Aprobar solicitud pendiente activa rol en Spatie | ⏳ |
-| TF-USU-34 | Denegar solicitud no activa el rol | ⏳ |
-| TF-USU-35 | Rol con alerta supervisada se activa inmediatamente | ⏳ |
-| TF-USU-36 | Profesional puede existir sin usuario | ⏳ |
-| TF-USU-37 | Usuario puede existir sin profesional | ⏳ |
-| TF-USU-38 | Relación usuario–profesional es navegable en ambos sentidos | ⏳ |
-| TF-USU-39 | Cargo de profesional es obligatorio | ⏳ |
-| TF-USU-40 | Campo organizacion relevante solo para externos | ⏳ |
-| TF-USU-41 | Modificar profesional crea versión con estado anterior | ⏳ |
-| TF-USU-42 | Snapshot de versión contiene estado completo, no solo diff | ⏳ |
-| **Total** | | **24 ⏳** |
+| TF-USU-19 | Asignar rol crea registro en usuario_rol con estado activo | ✅ |
+| TF-USU-20 | Cerrar rol establece fecha_fin y lo elimina de Spatie | ✅ |
+| TF-USU-21 | Historial de roles se preserva al reasignar el mismo rol | ✅ |
+| TF-USU-22 | Usuario puede tener varios roles activos simultáneamente | ✅ |
+| TF-USU-23 | Comando de reconciliación sincroniza model_has_roles | ✅ |
+| TF-USU-24 | UO puede tener UO hijas | ✅ |
+| TF-USU-25 | Descendientes de UO incluyen todos los niveles | ✅ |
+| TF-USU-26 | Usuario adscrito a UO padre tiene visibilidad sobre UO hijas | ✅ |
+| TF-USU-27 | Usuario no tiene visibilidad sobre UO paralelas | ✅ |
+| TF-USU-28 | Desactivar UO no elimina adscripciones existentes | ✅ |
+| TF-USU-29 | Usuario puede estar adscrito a más de una UO | ✅ |
+| TF-USU-30 | Adscripción mantiene historial con fechas de vigencia | ✅ |
+| TF-USU-31 | adm_usuarios no puede adscribir fuera de su ámbito | _(pendiente)_ No existe Policy/Service para autorización de adscripción. |
+| TF-USU-32 | Rol con aprobación requerida crea solicitud pendiente | ✅ |
+| TF-USU-33 | Aprobar solicitud pendiente activa rol en Spatie | ✅ |
+| TF-USU-34 | Denegar solicitud no activa el rol | ✅ |
+| TF-USU-35 | Rol con alerta supervisada se activa inmediatamente | ✅ |
+| TF-USU-36 | Profesional puede existir sin usuario | ✅ |
+| TF-USU-37 | Usuario puede existir sin profesional | ✅ |
+| TF-USU-38 | Relación usuario–profesional es navegable en ambos sentidos | ✅ |
+| TF-USU-39 | Cargo de profesional es obligatorio | ✅ |
+| TF-USU-40 | Campo organizacion relevante solo para externos | ✅ |
+| TF-USU-41 | Modificar profesional crea versión con estado anterior | ✅ |
+| TF-USU-42 | Snapshot de versión contiene estado completo, no solo diff | ✅ |
+| **Total** | | **23 ✅, 1 pendiente** |
 
 ---
 
