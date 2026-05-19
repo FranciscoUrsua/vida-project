@@ -479,6 +479,328 @@ El campo `datos` guarda siempre el snapshot completo, no el diff. Guardar solo l
 - **Profesionales de servicios externalizados:** el personal de servicios de ayuda a domicilio y otros proveedores complejos se contempla en fases futuras. La estructura de `tipos_relacion_profesional` y el campo `organizacion` están preparados para absorberlos cuando llegue el momento.
 - **Número de empleado:** si se confirma la integración con el sistema de RRHH del ayuntamiento, añadir `numero_empleado` a `profesionales` para facilitar la sincronización con LDAP/AD.
 
+
+## 7. Tests funcionales — Módulo Usuarios (fase 2)
+
+### TF-USU-19 a TF-USU-42
+
+> Este fichero especifica los tests funcionales derivados de las decisiones de diseño
+> del hilo de usuarios (marzo 2026). Complementa `docs/instrucciones-cli/usuarios-tests.md`
+> (TF-USU-01 a TF-USU-18). La implementación la realiza Claude CLI.
+>
+> Añadir estos tests a `docs/instrucciones-cli/usuarios-tests.md` y actualizar
+> `docs/modulo-usuarios-permisos.md` con la tabla de estado una vez implementados.
+
+---
+
+### Convenciones
+
+- **Framework:** PHPUnit con atributo `#[Test]`. No usar Pest.
+- **Base de datos:** PostgreSQL (`vida_testing`). No usar SQLite.
+- **Ubicación:** `Modules/Usuarios/tests/Feature/`
+- **Patrón:** Dado / Cuando / Entonces.
+- **Negativo obligatorio:** los tests de restricciones de dominio deben verificarse también
+  en negativo (el test debe fallar si se elimina la validación que protege).
+
+---
+
+### Actores reutilizados
+
+Definir en un `setUp()` base o trait compartido:
+
+- `$admin` — usuario con rol `adm_sistema`.
+- `$adm_usuarios` — usuario con rol `adm_usuarios`, adscrito a una UO concreta.
+- `$profesional` — usuario con rol `intervencion`, adscrito a la misma UO que `$adm_usuarios`.
+- `$supervisor` — usuario con rol `supervision`, adscrito a la UO padre de la anterior.
+- `$uo_raiz` — UO sin parent_id (nodo raíz).
+- `$uo_hija` — UO con `parent_id = $uo_raiz->id`.
+- `$uo_nieta` — UO con `parent_id = $uo_hija->id`.
+
+---
+
+### Grupo A — Historial de roles (`UsuarioRol`)
+
+Estos tests verifican que la asignación de roles mantiene historial completo y que
+la tabla `usuario_rol` es la fuente de verdad.
+
+---
+
+**TF-USU-19 — Asignar un rol crea un registro en usuario_rol con fecha_inicio y estado activo**
+
+- **Dado** `$profesional` sin roles asignados.
+- **Cuando** se crea un registro en `usuario_rol` con `usuario_id = $profesional->id`,
+  `rol_id` del rol `intervencion`, `fecha_inicio = hoy`, `fecha_fin = null`,
+  `estado = activo`.
+- **Entonces** existe exactamente un registro en `usuario_rol` con esos valores
+  y `$profesional->hasRole('intervencion')` devuelve `true`.
+
+---
+
+**TF-USU-20 — Cerrar un rol establece fecha_fin y lo elimina de Spatie**
+
+- **Dado** `$profesional` con rol `intervencion` activo en `usuario_rol`.
+- **Cuando** se actualiza el registro con `fecha_fin = hoy`.
+- **Entonces** `$profesional->fresh()->hasRole('intervencion')` devuelve `false`
+  y el registro en `usuario_rol` conserva `fecha_inicio` original con `fecha_fin = hoy`.
+
+---
+
+**TF-USU-21 — El historial de roles se preserva al reasignar el mismo rol**
+
+- **Dado** `$profesional` con un registro en `usuario_rol` con `fecha_fin` pasada (rol anterior).
+- **Cuando** se crea un nuevo registro en `usuario_rol` para el mismo rol con nueva `fecha_inicio`.
+- **Entonces** existen dos registros en `usuario_rol` para ese usuario y ese rol.
+  El primero tiene `fecha_fin` pasada. El segundo tiene `fecha_fin = null` y estado activo.
+  `$profesional->fresh()->hasRole('intervencion')` devuelve `true`.
+
+---
+
+**TF-USU-22 — Un usuario puede tener varios roles activos simultáneamente**
+
+- **Dado** `$profesional` sin roles.
+- **Cuando** se crean dos registros activos en `usuario_rol`: uno para `intervencion`
+  y otro para `adm_usuarios`.
+- **Entonces** `$profesional->fresh()->hasRole('intervencion')` devuelve `true`
+  y `$profesional->fresh()->hasRole('adm_usuarios')` devuelve `true`.
+
+---
+
+**TF-USU-23 — El comando de reconciliación sincroniza model_has_roles con usuario_rol**
+
+- **Dado** `$profesional` con rol `intervencion` activo en `usuario_rol`
+  pero sin entrada en `model_has_roles` (simulando desincronización).
+- **Cuando** se ejecuta `Artisan::call('usuarios:reconciliar-roles')`.
+- **Entonces** `$profesional->fresh()->hasRole('intervencion')` devuelve `true`.
+
+---
+
+### Grupo B — Jerarquía de Unidades Organizativas
+
+Estos tests verifican el modelo de árbol y las consultas de descendencia.
+
+---
+
+**TF-USU-24 — Una UO puede tener UO hijas**
+
+- **Dado** `$uo_raiz` y `$uo_hija` con `parent_id = $uo_raiz->id`.
+- **Cuando** se consulta `$uo_raiz->children`.
+- **Entonces** la colección contiene `$uo_hija` y solo ella.
+
+---
+
+**TF-USU-25 — Los descendientes de una UO incluyen todos los niveles inferiores**
+
+- **Dado** `$uo_raiz`, `$uo_hija` y `$uo_nieta` encadenadas.
+- **Cuando** se consulta `$uo_raiz->descendants`.
+- **Entonces** la colección contiene tanto `$uo_hija` como `$uo_nieta`.
+
+---
+
+**TF-USU-26 — Un usuario adscrito a una UO padre tiene visibilidad sobre UO hijas**
+
+- **Dado** `$supervisor` adscrito a `$uo_raiz` con rol `supervision`.
+  `$profesional` adscrito a `$uo_nieta` con rol `intervencion`.
+- **Cuando** se evalúa si `$supervisor` tiene acceso al ámbito de `$uo_nieta`.
+- **Entonces** el resultado es `true` porque `$uo_nieta` es descendiente de `$uo_raiz`.
+
+---
+
+**TF-USU-27 — Un usuario no tiene visibilidad sobre UO que no son descendientes suyas**
+
+- **Dado** `$uo_paralela` con el mismo `parent_id` que `$uo_hija` (hermana, no descendiente).
+  `$adm_usuarios` adscrito a `$uo_hija`.
+- **Cuando** se evalúa si `$adm_usuarios` tiene acceso al ámbito de `$uo_paralela`.
+- **Entonces** el resultado es `false`.
+
+---
+
+**TF-USU-28 — Desactivar una UO no elimina las adscripciones existentes**
+
+- **Dado** `$uo_hija` activa con `$profesional` adscrito.
+- **Cuando** se actualiza `$uo_hija` con `activa = false`.
+- **Entonces** el registro en `usuario_uo` sigue existiendo.
+  La UO aparece como inactiva pero el historial no se borra.
+
+---
+
+### Grupo C — Adscripción a Unidades Organizativas (`UsuarioUo`)
+
+---
+
+**TF-USU-29 — Un usuario puede estar adscrito a más de una UO simultáneamente**
+
+- **Dado** `$profesional` sin adscripciones.
+- **Cuando** se crean dos registros en `usuario_uo`: uno para `$uo_hija`
+  y otro para `$uo_nieta`, ambos con `fecha_fin = null`.
+- **Entonces** `$profesional->unidadesOrganizativas()->count()` devuelve 2.
+
+---
+
+**TF-USU-30 — La adscripción tiene fechas de vigencia y mantiene historial**
+
+- **Dado** `$profesional` con una adscripción a `$uo_hija` con `fecha_fin` pasada.
+- **Cuando** se crea una nueva adscripción a `$uo_hija` con nueva `fecha_inicio`.
+- **Entonces** existen dos registros en `usuario_uo` para ese usuario y esa UO.
+  Solo el más reciente tiene `fecha_fin = null`.
+
+---
+
+**TF-USU-31 — adm_usuarios no puede adscribir usuarios a UO fuera de su ámbito**
+
+- **Dado** `$adm_usuarios` adscrito a `$uo_hija`. `$uo_raiz` es la UO padre (fuera de su ámbito).
+- **Cuando** `$adm_usuarios` intenta crear una adscripción de `$profesional` a `$uo_raiz`.
+- **Entonces** la operación lanza una excepción de autorización o devuelve error 403.
+
+---
+
+### Grupo D — Supervisión en asignación de roles
+
+Estos tests verifican el mecanismo de control de privilegios en la asignación de roles.
+
+---
+
+**TF-USU-32 — Asignar un rol de aprobación requerida crea una solicitud pendiente**
+
+- **Dado** rol `supervision` con `nivel_supervision = aprobacion_previa` en `configuracion_roles`.
+  `$adm_usuarios` intenta asignar ese rol a `$profesional`.
+- **Cuando** se crea el registro en `usuario_rol` con `estado = pendiente_aprobacion`.
+- **Entonces** `$profesional->fresh()->hasRole('supervision')` devuelve `false`
+  (el rol no está activo en Spatie hasta la aprobación).
+  Existe un registro en `usuario_rol` con `estado = pendiente_aprobacion`.
+
+---
+
+**TF-USU-33 — Aprobar una solicitud pendiente activa el rol en Spatie**
+
+- **Dado** un registro en `usuario_rol` con `estado = pendiente_aprobacion` para el rol `supervision`.
+- **Cuando** el supervisor aprueba la solicitud actualizando `estado = activo`.
+- **Entonces** `$profesional->fresh()->hasRole('supervision')` devuelve `true`.
+
+---
+
+**TF-USU-34 — Denegar una solicitud pendiente no activa el rol**
+
+- **Dado** un registro en `usuario_rol` con `estado = pendiente_aprobacion` para el rol `supervision`.
+- **Cuando** el supervisor deniega la solicitud actualizando `estado = denegado`.
+- **Entonces** `$profesional->fresh()->hasRole('supervision')` devuelve `false`.
+  El registro en `usuario_rol` permanece con `estado = denegado` para trazabilidad.
+
+---
+
+**TF-USU-35 — Asignar un rol de alerta supervisada lo activa inmediatamente**
+
+- **Dado** rol `intervencion` con `nivel_supervision = alerta_supervisada` en `configuracion_roles`.
+- **Cuando** se crea el registro en `usuario_rol` con `estado = activo`.
+- **Entonces** `$profesional->fresh()->hasRole('intervencion')` devuelve `true` de inmediato,
+  sin necesidad de aprobación previa.
+
+---
+
+### Grupo E — Modelo Profesional
+
+Estos tests verifican la entidad `Profesional` y su relación con `Usuario`.
+
+---
+
+**TF-USU-36 — Un profesional puede existir sin usuario asociado**
+
+- **Dado** ningún usuario creado.
+- **Cuando** se crea un `Profesional` con `usuario_id = null` y todos los campos obligatorios.
+- **Entonces** el registro se guarda sin error. `Profesional::find($id)->usuario` devuelve `null`.
+
+---
+
+**TF-USU-37 — Un usuario puede existir sin profesional asociado**
+
+- **Dado** ningún profesional creado.
+- **Cuando** se crea un `Usuario` con `profesional_id = null`.
+- **Entonces** el registro se guarda sin error. `Usuario::find($id)->profesional` devuelve `null`.
+
+---
+
+**TF-USU-38 — La relación usuario–profesional es navegable en ambos sentidos**
+
+- **Dado** `$profesional` y `$usuario` con `profesional_id = $profesional->id`.
+- **Cuando** se navega `$usuario->profesional` y `$profesional->usuario`.
+- **Entonces** `$usuario->profesional->id === $profesional->id`
+  y `$profesional->usuario->id === $usuario->id`.
+
+---
+
+**TF-USU-39 — El cargo de un profesional referencia el catálogo y es obligatorio**
+
+- **Dado** ningún `Cargo` creado.
+- **Cuando** se intenta crear un `Profesional` con `cargo_id = null`.
+- **Entonces** se lanza una excepción de validación o constraint de base de datos.
+
+---
+
+**TF-USU-40 — El campo organizacion es relevante solo para profesionales externos**
+
+- **Dado** un `TipoRelacionProfesional` con `es_externo = true` y otro con `es_externo = false`.
+- **Cuando** se crea un `Profesional` con el tipo externo y `organizacion = 'Cruz Roja'`.
+- **Entonces** `$profesional->organizacion === 'Cruz Roja'`.
+- **Y cuando** se crea un `Profesional` con el tipo interno y `organizacion = null`.
+- **Entonces** el registro se guarda sin error (el campo es nullable para internos).
+
+---
+
+### Grupo F — Versionado de Profesional
+
+Estos tests verifican que el trait `Versionable` genera snapshots correctos.
+
+---
+
+**TF-USU-41 — Modificar un profesional crea una versión con el estado anterior**
+
+- **Dado** `$profesional` con `cargo_id = $cargo_a->id`.
+- **Cuando** se actualiza `cargo_id = $cargo_b->id`.
+- **Entonces** existe un registro en `versiones` con `versionable_type = 'Profesional'`,
+  `versionable_id = $profesional->id`, y `datos` (JSON) con `cargo_id = $cargo_a->id`
+  (el estado anterior al cambio).
+  El registro principal tiene `cargo_id = $cargo_b->id`.
+
+---
+
+**TF-USU-42 — El snapshot de versión contiene el estado completo del registro, no solo el diff**
+
+- **Dado** `$profesional` con varios campos rellenos (`nombre`, `cargo_id`, `tipo_relacion_id`, etc.).
+- **Cuando** se actualiza únicamente `cargo_id`.
+- **Entonces** el registro en `versiones` tiene en `datos` todos los campos del profesional
+  en su estado anterior, no solo `cargo_id`.
+
+---
+
+### Tabla de estado inicial
+
+| Test | Descripción | Estado |
+|---|---|---|
+| TF-USU-19 | Asignar rol crea registro en usuario_rol con estado activo | ⏳ |
+| TF-USU-20 | Cerrar rol establece fecha_fin y lo elimina de Spatie | ⏳ |
+| TF-USU-21 | Historial de roles se preserva al reasignar el mismo rol | ⏳ |
+| TF-USU-22 | Usuario puede tener varios roles activos simultáneamente | ⏳ |
+| TF-USU-23 | Comando de reconciliación sincroniza model_has_roles | ⏳ |
+| TF-USU-24 | UO puede tener UO hijas | ⏳ |
+| TF-USU-25 | Descendientes de UO incluyen todos los niveles | ⏳ |
+| TF-USU-26 | Usuario adscrito a UO padre tiene visibilidad sobre UO hijas | ⏳ |
+| TF-USU-27 | Usuario no tiene visibilidad sobre UO paralelas | ⏳ |
+| TF-USU-28 | Desactivar UO no elimina adscripciones existentes | ⏳ |
+| TF-USU-29 | Usuario puede estar adscrito a más de una UO | ⏳ |
+| TF-USU-30 | Adscripción mantiene historial con fechas de vigencia | ⏳ |
+| TF-USU-31 | adm_usuarios no puede adscribir fuera de su ámbito | ⏳ |
+| TF-USU-32 | Rol con aprobación requerida crea solicitud pendiente | ⏳ |
+| TF-USU-33 | Aprobar solicitud pendiente activa rol en Spatie | ⏳ |
+| TF-USU-34 | Denegar solicitud no activa el rol | ⏳ |
+| TF-USU-35 | Rol con alerta supervisada se activa inmediatamente | ⏳ |
+| TF-USU-36 | Profesional puede existir sin usuario | ⏳ |
+| TF-USU-37 | Usuario puede existir sin profesional | ⏳ |
+| TF-USU-38 | Relación usuario–profesional es navegable en ambos sentidos | ⏳ |
+| TF-USU-39 | Cargo de profesional es obligatorio | ⏳ |
+| TF-USU-40 | Campo organizacion relevante solo para externos | ⏳ |
+| TF-USU-41 | Modificar profesional crea versión con estado anterior | ⏳ |
+| TF-USU-42 | Snapshot de versión contiene estado completo, no solo diff | ⏳ |
+| **Total** | | **24 ⏳** |
+
 ---
 
 *Documento elaborado en fase de diseño del proyecto. Actualizado en marzo 2026 con las decisiones del hilo de diseño del módulo de usuarios.*
