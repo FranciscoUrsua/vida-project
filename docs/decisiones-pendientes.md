@@ -1,9 +1,9 @@
 # Decisiones pendientes — VIDA 360
 
 > Inventario de decisiones pospostas durante el análisis funcional, organizado por módulo.
-> Generado: mayo 2026. Fuente: revisión de `docs/`, `BACKLOG.md` y `CHANGELOG.md`.
+> Generado: mayo 2026. Actualizado: mayo 2026. Fuente: revisión de `docs/`, `BACKLOG.md` y `CHANGELOG.md`.
 
-**Total: 30 decisiones** — 5 bloqueantes · 13 técnicas/organizativas · 12 diferidas a fases posteriores
+**Total: 31 decisiones** — 4 bloqueantes · 14 técnicas/organizativas · 13 diferidas a fases posteriores
 
 ---
 
@@ -20,13 +20,16 @@
 
 ## Módulo Agenda
 
+> **Fase 1 completa (mayo 2026):** toda la lógica de dominio está implementada y los 45 tests funcionales pasan. La decisión A-01 queda cerrada. Las pendientes restantes son de interfaz, integraciones externas y documentación de adopción.
+
 | # | Decisión | Tipo | Notas |
 |---|---|---|---|
-| A-01 | **Servicios pendientes de implementación** (30 tests bloqueados) | 🔴 bloqueante | Faltan: `CuadranteGeneratorService`, `DisponibilidadService`, `SlotExpirationJob`, lógica ciclo de vida de `Cita`, bloqueo de slots en `EventoAgenda`, `GestionAusenciaService`, validación de solapamiento en `PerfilHorarioProfesional`. Ver `docs/modulo-agenda.md §8`. |
 | A-02 | **Visibilidad del cuadrante para el propio profesional** | 🔵 técnica | Qué parte del cuadrante puede ver y editar el profesional sobre el suyo propio (solicitud de cambio de franja, visualización de compañeros). Diferido al diseño de la interfaz Livewire. |
 | A-03 | **Integración RRHH vía API para excepciones de profesional** | 🔵 técnica | Campo `origen = api_rrhh` en `ExcepcionProfesional` preparado; adaptador mock activo. Diferido hasta identificar el sistema de RRHH del municipio adoptante. |
 | A-04 | **Onboarding de un centro nuevo en el módulo Agenda** | ⚪ diferida | Configuración mínima necesaria para activar el módulo en un centro nuevo y comportamiento del sistema si no existe `HorarioCentro`. Diferido al diseño de la interfaz de onboarding. |
 | A-05 | **Estrategia de migración entre modos de agenda** | ⚪ diferida | La subida de modo `basico` → `estandar` es compatible sin transformación de datos. Documentar explícitamente en la guía de adopción. |
+| A-06 | **Interfaz Livewire / Filament del módulo Agenda** | 🔵 técnica | Pendiente de implementar toda la capa de presentación: vista de agenda del profesional, gestión de ausencias, cuadrante del supervisor, formularios de eventos. Ver `docs/modulo-agenda.md §5`. |
+| A-07 | **Generación IA de cuadrantes (modo avanzado)** | ⚪ diferida | Diseño del componente IA: modelo, inputs, outputs, criterios de calidad. Requiere datos históricos suficientes. Diferido hasta que el módulo lleve al menos un año en producción. |
 
 ---
 
@@ -109,7 +112,7 @@
 
 | Módulo | Bloqueantes | Técnicas/Org. | Diferidas | Total |
 |---|---|---|---|---|
-| Agenda | 1 | 2 | 2 | **5** |
+| Agenda | — | 3 | 3 | **6** *(A-01 cerrado; A-06, A-07 añadidos)* |
 | Intervención | — | 1 | 3 | **4** |
 | Centros | 1 | 1 | 1 | **3** |
 | Prestaciones | 1 | 1 | — | **2** |
@@ -117,7 +120,7 @@
 | Mensajes y alertas | — | 1 | 2 | **3** |
 | Integraciones | 1 | 3 | — | **6** (*+ 2 org.)* |
 | Transversal | — | 1 | 5 | **6** |
-| **Total** | **5** | **11** | **13** | **30** |
+| **Total** | **4** | **14** | **13** | **31** |
 
 ---
 
