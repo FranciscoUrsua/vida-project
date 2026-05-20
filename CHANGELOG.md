@@ -2,6 +2,25 @@
 
 ---
 
+## Módulo Agenda — No-show del ciudadano (PF-06) — 2026-05-20
+
+### Implementación
+
+- **`Modules/Agenda/app/Models/Cita.php`** — método añadido:
+  - `noShowCiudadano()`: transiciona la cita a `no_show_ciudadano` sin tocar el slot. El slot permanece `reservado`; el `SlotExpirationJob` lo transitará a `no_ocupado` al final del día.
+
+### Tests desbloqueados (3 tests pasan ahora ✅)
+
+- **PF-06.1** — No-show registrado después de que la franja ha pasado: cita → `no_show_ciudadano`, slot permanece `reservado`.
+- **PF-06.2** — Cancelación anticipada del ciudadano (con margen): reutiliza `cancelar()` con slot futuro → cita `cancelada`, slot `disponible`.
+- **PF-06.3** — No-show en el momento (franja en curso): idéntico a PF-06.1; slot permanece `reservado` hasta que el job lo expire.
+
+### Estado de la suite
+
+258 tests pasan ✅ — 0 fallos — 17 incompletos (eran 20 antes de esta sesión).
+
+---
+
 ## Módulo Agenda — Ciclo de vida de Cita — 2026-05-20
 
 ### Implementación

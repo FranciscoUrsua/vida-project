@@ -136,6 +136,17 @@ class Cita extends Model
     // =========================================================================
 
     /**
+     * Registra el no-show del ciudadano sin modificar el slot.
+     *
+     * El slot permanece en 'reservado'; el SlotExpirationJob lo transitará
+     * a 'no_ocupado' cuando la franja haya expirado al final del día.
+     */
+    public function noShowCiudadano(): void
+    {
+        $this->update(['estado' => EstadoCita::NoShowCiudadano->value]);
+    }
+
+    /**
      * Marca la cita como completada y registra el momento exacto.
      */
     public function completar(): void
