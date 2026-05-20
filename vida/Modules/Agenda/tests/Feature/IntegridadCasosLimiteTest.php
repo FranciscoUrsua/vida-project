@@ -16,6 +16,7 @@ use Modules\Agenda\Models\HorarioCentro;
 use Modules\Agenda\Models\LineaCuadrante;
 use Modules\Agenda\Models\Slot;
 use Modules\Agenda\Models\TipoSlot;
+use Modules\Agenda\Services\CuadranteGeneratorService;
 use Modules\Agenda\Services\SlotMaterializadorService;
 use Modules\Centro\Models\Centro;
 use PHPUnit\Framework\Attributes\Test;
@@ -53,9 +54,32 @@ class IntegridadCasosLimiteTest extends TestCase
     #[Test]
     public function test_pf_10_1_centro_sin_profesionales_cuadrante_vacio(): void
     {
-        $this->markTestIncomplete(
-            'PF-10.1: pendiente de implementar CuadranteGeneratorService::generarBorrador()'
-        );
+        $centro = $this->crearCentro();
+
+        HorarioCentro::create([
+            'centro_id'             => $centro->id,
+            'nombre'                => 'Horario',
+            'dias_laborables'       => [1, 2, 3, 4, 5],
+            'hora_apertura'         => '08:00',
+            'hora_cierre'           => '19:00',
+            'hora_inicio_atencion'  => '09:00',
+            'hora_fin_atencion'     => '14:00',
+            'buffer_inicio_minutos' => 0,
+            'buffer_fin_minutos'    => 0,
+            'vigente_desde'         => '2026-01-01',
+            'vigente_hasta'         => null,
+            'modo_agenda'           => 'estandar',
+            'activo'                => true,
+        ]);
+
+        // Sin perfiles de profesionales
+        $cuadrante = $this->crearCuadrante($centro, 2026, 6);
+
+        // No debe lanzar ningún error
+        (new CuadranteGeneratorService())->generarBorrador($cuadrante);
+
+        $this->assertEquals(0, $cuadrante->lineas()->count(), 'Sin profesionales no debe generarse ninguna línea');
+        $this->assertEquals(EstadoCuadrante::Borrador, $cuadrante->estado, 'El cuadrante debe permanecer en borrador');
     }
 
     // =========================================================================

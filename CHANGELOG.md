@@ -2,6 +2,33 @@
 
 ---
 
+## Módulo Agenda — CuadranteGeneratorService — 2026-05-20
+
+### Servicio implementado
+
+- **`Modules/Agenda/app/Services/CuadranteGeneratorService.php`** — implementación completa de los dos métodos:
+  - `generarBorrador(CuadranteMes $cuadrante)`: itera cada día laborable del mes según `HorarioCentro.dias_laborables`, crea una `LineaCuadrante` por profesional activo aplicando su `PerfilHorarioProfesional.horario_habitual`. Las `ExcepcionProfesional` que cubren el día se incorporan marcando la línea con `anulada = true` y `excepcion_id`. Usa `insert()` bulk para eficiencia.
+  - `generarYPublicarAutomaticamente(Centro $centro, int $anyo, int $mes)`: crea el `CuadranteMes` con `generado_automaticamente = true`, llama a `generarBorrador`, lo publica y delega en `SlotMaterializadorService::materializar()`.
+
+### Tests desbloqueados (4 tests pasan ahora ✅)
+
+- **PF-03.1** — Generación en modo estándar crea borrador: 3 profesionales × 22 días laborables de junio 2026 = 66 líneas; estado `borrador`; 0 slots.
+- **PF-03.4** — Modo básico genera y publica automáticamente: cuadrante con `generado_automaticamente = true`, estado `publicado`, líneas generadas.
+- **PF-03.5** — Excepciones previas generan líneas anuladas: excepción del 10 al 20 de junio → 8 días laborables anulados con `excepcion_id` correcto; 14 líneas activas.
+- **PF-10.1** — Centro sin profesionales produce cuadrante vacío sin error: 0 líneas, sin excepción.
+
+### Decisiones de implementación
+
+- Los keys del JSON `horario_habitual` se convierten a string al hacer cast `'array'` en PHP. La búsqueda usa `(string)$dia->isoWeekday()` para evitar miss por tipo.
+- Las excepciones se cargan en bloque y se agrupan por `usuario_id` antes del bucle principal (evita N+1).
+- Se usa solapamiento de períodos para filtrar perfiles vigentes: `vigente_desde <= $ultimoDia AND (vigente_hasta IS NULL OR vigente_hasta >= $primerDia)`.
+
+### Estado de la suite
+
+258 tests pasan ✅ — 0 fallos — 27 incompletos (eran 31 antes de esta sesión).
+
+---
+
 ## Módulo Usuarios — Tests funcionales fase 2 — 2026-05-19
 
 ### Tests implementados (23 tests pasan ✅; 1 pendiente)
