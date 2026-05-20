@@ -179,7 +179,14 @@ Toda operación sobre datos de ciudadanos queda registrada con usuario, timestam
 
 ### 4.5 API First
 
-Todas las entidades del sistema disponen de una API REST completa. La API no es solo para el frontend: es el mecanismo por el que sistemas externos autorizados consultan o actúan sobre VIDA. La autorización para sistemas externos opera en dos capas independientes: sistema cliente (OAuth2/API keys con scopes) y usuario actuante (token que identifica al profesional que realiza la acción).
+Todas las entidades del sistema disponen de una API REST completa. La API no es solo para el frontend: es el mecanismo por el que sistemas externos autorizados consultan o actúan sobre VIDA.
+
+La API se estructura en cuatro facetas con contratos diferenciados por audiencia: operacional (proveedores, otras administraciones, sistemas municipales), analítica (datalake, inteligencia de negocio), pública (portal de datos abiertos) y ciudadano (carpeta social ciudadana).
+
+La autorización para sistemas externos opera en dos capas independientes: sistema cliente (OAuth2 client credentials con scopes) y usuario actuante (token que identifica al profesional que realiza la acción, con su rol). Para usuarios externos al Ayuntamiento, el sistema cliente declara el rol del usuario actuante; los scopes del cliente acotan qué roles puede declarar. Sin la capa de usuario actuante, un sistema externo podría actuar sin trazabilidad real.
+
+El compromiso de compatibilidad hacia atrás de la v1 es de mínimo 10 años. Una nueva versión de la API solo se crea si existe una nueva versión de VIDA que la justifique.
+Ver docs/api.md para el diseño completo.
 
 ### 4.6 Adaptador como patrón por defecto para integraciones
 
@@ -224,6 +231,12 @@ Para funcionalidades transversales (roles/permisos, jerarquías, adjuntos, audit
 ### 4.16 La IA propone, el equipo valida
 
 Las herramientas de IA (Claude CLI, etc.) pueden generar código, tests y documentación, pero cualquier decisión con consecuencias —arquitectónicas, de modelado, de comportamiento— debe ser visible y revisable por el equipo. Ninguna sesión de generación de código cierra sin entrada en el CHANGELOG.md. Las instrucciones enviadas a la IA se conservan en docs/instrucciones-cli/ para que la cadena instrucción → código generado → cambios registrados sea reconstruible en cualquier momento. Ver decisiones-tecnicas.md, sección 6, para los mecanismos concretos.
+
+### 4.17 Anonimización como capacidad transversal
+
+La anonimización y seudonimización no son funcionalidades de un módulo concreto: son una capacidad del sistema que se aplica en cualquier contexto donde el acceso a datos personales completos no sea necesario ni apropiado. Esto incluye la supervisión interna, la extracción analítica, la publicación en portales de datos abiertos y cualquier otro escenario de acceso restringido.
+El sistema define tres niveles estándar: seudonimización (reversible, para contextos internos), generalización (irreversible, para analítica interna) y k-anonimato (para datos públicos). La elección del nivel y la configuración concreta de cada campo se gestionan mediante perfiles configurables desde el backoffice, sin necesidad de desarrollo.
+La anonimización es parte del cumplimiento del RGPD por diseño (privacy by design): ofrecer el nivel mínimo de datos necesario para cada finalidad no es una restricción, es un principio de diseño. Ver docs/anonimizacion.md.
 
 ---
 
