@@ -172,3 +172,36 @@ docs/instrucciones-cli/2024-11-auditoria-implementacion-service.md
 **Propósito:** tener la referencia exacta de qué se le pidió a la IA en cada ocasión. Junto con el CHANGELOG, permite reconstruir la cadena: *instrucción recibida → código generado → cambios registrados*. Si el código generado no corresponde a lo que se pidió, la discrepancia es detectable sin ambigüedad.
 
 **Qué incluir en cada fichero:** el prompt o instrucciones tal como se enviaron, sin editar. Si hubo iteraciones o correcciones en la misma sesión, incluirlas todas en orden.
+
+### 7. Anonimización y seudonimización
+
+Fecha de decisión: 2026-05-21
+
+Contexto: diseño de la API y de las capacidades de extracción analítica y publicación de datos abiertos.
+
+**Decisión**
+
+La anonimización se implementa como una capa de transformación independiente — AnonimizadorService — que actúa después del descifrado de campos sensibles y antes de serializar la respuesta o el fichero de extracción. Es transparente para el código consumidor.
+
+Se definen tres niveles técnicos: seudonimización, generalización y k-anonimato. Su aplicación se configura mediante perfiles versionados gestionados desde el backoffice de API. Ver docs/anonimizacion.md para la especificación completa.
+
+**Decisiones técnicas concretas**
+
+**Seudonimización:** alias opaco y consistente por ciudadano (CIU-{hash}). La tabla de correspondencias alias → ciudadano_id nunca sale del sistema. La reversión requiere el permiso atómico ciudadano.revelar_identidad, queda registrada en auditoría con justificación obligatoria.
+
+**Generalización de dirección:** se mantiene a nivel de nombre de calle sin número de portal, o con rango de portales si la calle tiene suficiente densidad de población. No se degrada a barrio o distrito salvo que sea necesario para el k-anonimato. Justificación: la precisión territorial es relevante para la toma de decisiones de recursos.
+
+**K-anonimato:** se aplica exclusivamente en jobs asíncronos de extracción, nunca en tiempo real. Valor de K configurable por perfil; K=10 por defecto para datos abiertos. El job no entrega el fichero si no supera la validación. Un job que falla la validación queda en estado error_k_anonimato y genera alerta al responsable técnico.
+
+**Integración con cifrado existente:** los campos marcados para cifrado en los modelos (principio 4.10) son la fuente de verdad para identificar qué campos son candidatos a anonimización. No se duplica configuración.
+
+**Perfiles versionados:** cada perfil tiene un campo version. Las extracciones registran la versión aplicada. Es posible reconstruir qué transformación se aplicó a cualquier extracción pasada.
+
+**Alternativas descartadas**
+
+**Anonimización a nivel de base de datos** (vistas materializadas anonimizadas): descartada porque no permite la reversibilidad controlada del Nivel 1 ni la flexibilidad de perfiles por caso de uso.
+Anonimización en el datalake (transformar los datos al llegar al datalake, no al salir de VIDA): descartada porque implica que datos personales completos viajan hasta el datalake. La transformación debe ocurrir antes de que el dato abandone el perímetro de VIDA.
+
+**Decisiones pendientes**
+
+Ver sección 8 de docs/anonimizacion.md.
