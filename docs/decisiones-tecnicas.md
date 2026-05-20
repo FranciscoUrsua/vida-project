@@ -249,26 +249,24 @@ No se crea un módulo nwidart para la API.
 ### Estructura resultante
 
 app/
-├── Models/
-│   └── Api/
-│       ├── ClienteApi.php
-│       ├── ClienteApiScope.php
-│       ├── ClienteApiRolPermitido.php
-│       └── PerfilAnonimizacion.php
-├── Services/
-│   └── Api/
-│       ├── AnonimizadorService.php
-│       ├── GestorClientesApi.php
-│       └── ValidadorKAnonimato.php
-├── Filament/
-│   └── Resources/
-│       └── ApiAdmin/
-│           ├── ClienteApiResource.php
-│           ├── PerfilAnonimizacionResource.php
-│           └── ...
-└── Providers/
-    └── Filament/
-        ├── AdminPanelProvider.php
-        └── ApiAdminPanelProvider.php
-
-
+  Models/
+    Api/
+      ClienteApi.php
+      ClienteApiScope.php
+      ClienteApiRolPermitido.php
+      PerfilAnonimizacion.php
+  Services/
+    Api/
+      AnonimizadorService.php
+      GestorClientesApi.php
+      ValidadorKAnonimato.php
+  Filament/
+    Resources/
+      ApiAdmin/
+        ClienteApiResource.php
+        PerfilAnonimizacionResource.php
+        (resto de resources del panel de API)
+  Providers/
+    Filament/
+      AdminPanelProvider.php
+      ApiAdminPanelProvider.php
