@@ -173,6 +173,8 @@ docs/instrucciones-cli/2024-11-auditoria-implementacion-service.md
 
 **Qué incluir en cada fichero:** el prompt o instrucciones tal como se enviaron, sin editar. Si hubo iteraciones o correcciones en la misma sesión, incluirlas todas en orden.
 
+---
+
 ### 7. Anonimización y seudonimización
 
 Fecha de decisión: 2026-05-21
@@ -184,6 +186,8 @@ Contexto: diseño de la API y de las capacidades de extracción analítica y pub
 La anonimización se implementa como una capa de transformación independiente — AnonimizadorService — que actúa después del descifrado de campos sensibles y antes de serializar la respuesta o el fichero de extracción. Es transparente para el código consumidor.
 
 Se definen tres niveles técnicos: seudonimización, generalización y k-anonimato. Su aplicación se configura mediante perfiles versionados gestionados desde el backoffice de API. Ver docs/anonimizacion.md para la especificación completa.
+
+```
 
 **Decisiones técnicas concretas**
 
