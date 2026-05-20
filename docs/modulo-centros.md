@@ -1,25 +1,29 @@
-# Módulo de Centros — VIDA 360
-## Documento funcional v1.1 · Mayo 2026
+# Módulo de Centros y Servicios — VIDA 360
+## Documento funcional v1.2 · Mayo 2026
 
-> **Cambios respecto a v1.0**: se añade la relación de pertenencia del centro a una Unidad Organizativa, el modelo de ámbito territorial, y la entidad Red de Centros como agregador de recursos. Se añade sección de tests funcionales.
+> **Cambios respecto a v1.1**: se incorpora la entidad `Servicio` como recurso paralelo a `Centro` en el catálogo. Se añaden las entidades `ResponsableServicio`, `ProfesionalServicio` y `SolicitudServicio`. Se corrige la referencia a PostgreSQL en la sección de tests (la v1.1 indicaba incorrectamente SQLite). Se añaden los grupos de tests funcionales 9.8 y 9.9.
 
 ---
 
 ## 1. Introducción y propósito del módulo
 
-El módulo de Centros de VIDA 360 resuelve dos necesidades complementarias: proporcionar al profesional un catálogo operativo de todos los centros y recursos disponibles en el sistema municipal de servicios sociales, y gestionar la disponibilidad de plazas, la inscripción en centros y la participación en actividades, ya sea por acceso libre o por prescripción desde un plan de intervención.
+El módulo gestiona los dos tipos de recursos que un profesional puede asignar a un ciudadano desde un plan de intervención: **centros** y **servicios**.
 
-Un centro, en el contexto de VIDA 360, es cualquier equipamiento con presencia física que ofrece prestaciones sociales a un segmento de la población. Esta definición es amplia de forma deliberada: incluye tanto los Centros de Servicios Sociales de Atención Social Primaria como los centros de acogida, centros de día, pisos tutelados, centros de emergencia o pensiones y hoteles habilitados puntualmente para alojamiento de emergencia.
+Un **centro** es un equipamiento físico que atiende presencialmente al ciudadano — ofrece plazas, organiza actividades, tiene horario y personal en un lugar concreto.
 
-El módulo no es un gestor de centros en sentido pleno. La gestión operativa interna de cada centro (espacios físicos, control de asistencia, certificados, recursos materiales) corresponde a las herramientas especializadas de cada servicio. VIDA 360 gestiona lo que es relevante para el profesional de servicios sociales: saber qué hay disponible, poder prescribir, y hacer seguimiento de las prescripciones activas.
+Un **servicio** es un nodo de tramitación — gestiona prestaciones administrativas que se resuelven como expedientes, dentro o fuera de VIDA 360, sin atención presencial directa en el recurso. El ciudadano no acude al servicio; el servicio tramita en su nombre.
+
+Ambos comparten su presencia en el catálogo de recursos y su papel como destino de una acción dentro del plan de intervención, pero su naturaleza operativa es distinta y se modelan por separado.
+
+El módulo no gestiona la operativa interna de centros (espacios, asistencia, certificados) ni la tramitación interna de servicios (expedientes, resoluciones). VIDA 360 gestiona lo relevante para el profesional: qué hay disponible, cómo asignarlo, y cómo hacer seguimiento.
 
 ---
 
-## 2. Conceptos clave
+## 2. Conceptos clave — Centros
 
 ### 2.1 Centro
 
-Un centro es la entidad raíz del módulo. Se define por los siguientes rasgos:
+Un centro es la entidad raíz de la parte de equipamientos del módulo. Se define por los siguientes rasgos:
 
 - Tiene un lugar físico con una dirección postal.
 - Pertenece a una Unidad Organizativa del sistema.
@@ -53,91 +57,97 @@ El ámbito territorial de un centro define la población a la que atiende geogr�
 
 El ámbito puede expresarse de varias formas, no mutuamente excluyentes:
 
-- **Toda la ciudad**: el centro atiende sin restricción territorial (p. ej., un recurso especializado de referencia municipal).
+- **Toda la ciudad**: el centro atiende sin restricción territorial.
 - **Demarcación oficial**: el centro atiende a ciudadanos de un distrito o conjunto de distritos concretos.
 - **Barrios o secciones censales**: dos centros se reparten un distrito por unidades sub-distritales.
-- **Polígono GIS**: el ámbito queda definido por una geometría geográfica precisa. Útil para repartos irregulares no alineados con demarcaciones administrativas.
+- **Polígono GIS**: el ámbito queda definido por una geometría geográfica precisa.
 
-El modelo almacena el ámbito como una colección de registros `AmbitoTerritorial` asociados al centro, cada uno con su tipo y su referencia. Esto permite combinar tipos (p. ej., tres distritos completos más dos barrios concretos de un cuarto distrito).
+El modelo almacena el ámbito como una colección de registros `AmbitoTerritorial` asociados al centro. Esto permite combinar tipos (p. ej., tres distritos completos más dos barrios concretos de un cuarto distrito).
 
-> **Nota de diseño**: el procesamiento de polígonos GIS requiere la extensión PostGIS en PostgreSQL. Para implementaciones sin PostGIS, el tipo `poligono` se almacena como GeoJSON en un campo `json` sin capacidad de consulta espacial nativa. La consulta espacial avanzada (¿qué centro atiende esta dirección?) se difiere al módulo de Integraciones.
+> **Nota de diseño**: la consulta espacial avanzada (qué centro atiende esta dirección) se difiere al módulo de Integraciones. Los polígonos GIS se almacenan como GeoJSON sin capacidad de consulta espacial nativa hasta entonces.
 
 ### 2.4 Red de centros
 
-Una red de centros es una agrupación de centros que expone sus plazas de forma agregada. Su propósito es exclusivamente operativo: cuando un profesional no puede asignar a un ciudadano a un centro concreto (por falta de plazas disponibles, por ejemplo), puede operar sobre la red y ver disponibilidad consolidada de todos sus centros miembros.
+Una red de centros agrupa centros que exponen sus plazas de forma consolidada. Su propósito es operativo: permite al profesional ver disponibilidad agregada de todos sus centros miembros sin revisarlos individualmente.
 
-La red no tiene personalidad organizativa propia, no tiene director, no tiene personal. Es un agregador. Cualquier profesional con perfil de intervención puede operar sobre los recursos de una red igual que sobre los de un centro individual.
-
-Un centro puede pertenecer a varias redes simultáneamente. Las redes no tienen jerarquía entre sí.
-
-Un ejemplo real: la Red Municipal de Atención a Personas Sin Hogar agrupa varios centros de acogida. Al prescribir alojamiento, el profesional puede ver las plazas libres de toda la red en una sola pantalla y asignar la más adecuada al perfil de la persona.
+La red no tiene personalidad organizativa propia ni personal asignado. Es un agregador. Un centro puede pertenecer a varias redes simultáneamente.
 
 ### 2.5 Colección de plazas
 
-Las plazas se agrupan en colecciones dentro de cada centro. Una colección define un tipo homogéneo de plaza y un modo de acceso. Un mismo centro puede tener varias colecciones con tipos y modos de acceso distintos.
+Las plazas se agrupan en colecciones dentro de cada centro por tipo y modo de acceso. Un mismo centro puede tener varias colecciones.
 
-Dentro de cada colección, las plazas se organizan en dos niveles:
+Jerarquía dentro de una colección:
+- **Espacio**: unidad física (dormitorio, habitación, módulo). Tipo, capacidad, accesibilidad, restricción de género.
+- **Plaza**: unidad mínima asignable a una persona. Una cama doble es un espacio con dos plazas, no una plaza con capacidad dos.
 
-- **Espacio**: unidad física (dormitorio, habitación, módulo). Tiene tipo, capacidad, atributos de accesibilidad y restricción de género.
-- **Plaza**: unidad mínima asignable a una persona. Tiene estado (libre, ocupada, reservada, en mantenimiento).
+Tipos de plaza: `pernocta` · `dia`.
 
-La plaza es siempre la unidad de asignación a una persona. Para asignación a parejas o familias, el espacio contiene varias plazas y se asignan las necesarias dentro del mismo espacio.
-
-> **Nota de diseño**: Una cama doble se modela como un espacio con dos plazas, no como una plaza con capacidad dos.
-
-Tipos de plaza:
-- **Pernocta**: alojamiento con pernoctación. Requiere la jerarquía completa hasta nivel de plaza individual.
-- **Día**: atención diurna sin pernoctación. Jerarquía más plana.
-
-Modos de acceso (se definen por colección, no por centro):
-- **Libre**: cualquier persona puede solicitar directamente una plaza.
-- **Prescripción directa**: requiere prescripción desde un plan de intervención. Asignación inmediata si hay disponibilidad.
-- **Prescripción con lista de espera**: igual que el anterior, pero cuando no hay disponibilidad la persona entra en lista de espera.
+Modos de acceso (por colección, no por centro): `libre` · `prescripcion_directa` · `prescripcion_lista_espera`.
 
 ### 2.6 Actividades
 
-Un centro puede organizar actividades: talleres, charlas, seminarios, grupos de apoyo, cursos, etc. Las actividades son independientes de las plazas: un centro puede tener solo plazas, solo actividades, o ambas. Un centro sin plazas puede existir si su función es exclusivamente la organización de actividades.
+Un centro puede organizar actividades (talleres, charlas, seminarios, grupos de apoyo, cursos). Son independientes de las plazas; un centro puede tener solo actividades.
 
-Cada actividad tiene su propio modo de acceso:
-- **Libre**: cualquier ciudadano puede inscribirse directamente.
-- **Prescripción**: solo acceden personas derivadas desde un plan de intervención.
-- **Mixta**: hay aforo reservado para prescripciones y aforo libre para inscripción directa. El control opera por separado para cada cupo.
+Modos de acceso: `libre` · `prescripcion` · `mixta`.
 
-Las actividades no tienen periodicidad modelada en el sistema. Se materializan en **sesiones** convocadas de forma explícita. La inscripción apunta siempre a una sesión concreta, no a la actividad en abstracto.
-
-VIDA 360 gestiona las inscripciones y el control de aforo por sesión. Todo lo demás (espacios, recursos, control de asistencia, certificados) corresponde a las herramientas propias del centro.
+Las actividades se materializan en **sesiones** convocadas explícitamente. La inscripción apunta siempre a una sesión concreta. VIDA 360 gestiona inscripciones y control de aforo por sesión; la gestión operativa interna (recursos, asistencia, certificados) corresponde al centro.
 
 ### 2.7 Inscripción en centro
 
-Algunos centros, como los centros municipales de mayores, requieren que el ciudadano esté registrado en el centro antes de acceder a sus actividades. La inscripción es un registro propio, independiente de cualquier actividad o plaza concreta.
+Algunos centros requieren que el ciudadano esté registrado antes de acceder a sus actividades. La inscripción es indefinida y la baja es siempre explícita. El centro se configura como inscripción libre o por adscripción territorial.
 
-El acceso es voluntario y a iniciativa del ciudadano. El centro puede configurarse de dos formas:
-- **Inscripción libre**: el ciudadano elige el centro en el que desea registrarse.
-- **Inscripción por domicilio**: el ciudadano debe registrarse en el centro que le corresponde según su domicilio.
+### 2.8 Prescripción de centros
 
-La inscripción es indefinida: no tiene fecha de caducidad. La baja es siempre explícita.
+Una prescripción vincula a un ciudadano con una colección de plazas o una sesión de actividad desde un plan de intervención. Puede realizarla el profesional de primaria o el de especializada.
 
-Cuando una actividad tiene activo el flag `requiere_inscripcion_centro`, el sistema verifica la existencia de una inscripción activa antes de procesar la inscripción o la prescripción.
+Estados: `pendiente` → `en_lista_espera` → `asignada` → `activa` → `finalizada` / `cancelada`.
 
-### 2.8 Prescripción
-
-Una prescripción es la indicación, dentro de un plan de intervención, de que una persona acceda a una plaza o a una sesión de actividad concreta. Puede realizarla tanto el profesional de atención primaria como el de atención especializada.
-
-La prescripción no debe confundirse con la derivación. La **derivación** es el traslado de un ciudadano de atención primaria a un programa de atención especializada, gestionada en el módulo de Intervención. La **prescripción** es una acción dentro del plan de intervención que apunta a un recurso concreto (plaza o actividad).
-
-Estados de una prescripción: `pendiente` → `en_lista_espera` → `asignada` → `activa` → `finalizada` / `cancelada`.
-
-Cuando no hay disponibilidad, la persona entra en lista de espera. Cuando se libera una plaza, el sistema genera una alerta al TSR activo del ciudadano en ese momento. El profesional revisa, reclasifica si procede, y confirma o cancela la asignación. **La asignación nunca es automática.**
-
-> **Nota**: Si el TSR de referencia ha cambiado desde la prescripción original, la alerta se envía al TSR activo en el momento en que se libera la plaza, no al profesional que realizó la prescripción.
+Cuando no hay disponibilidad, la persona entra en lista de espera. Al liberarse una plaza, el sistema genera una alerta al TSR activo del ciudadano en ese momento. **La asignación nunca es automática.**
 
 ---
 
-## 3. Modelo de datos
+## 3. Conceptos clave — Servicios
 
-### 3.1 Centro
+### 3.1 Servicio
 
-Entidad raíz del módulo.
+Un servicio es un nodo de tramitación de prestaciones. A diferencia del centro, no tiene presencia física relevante para el ciudadano: la atención no se produce en el recurso sino que el servicio gestiona el expediente en nombre del ciudadano.
+
+Características definitorias:
+
+- Pertenece a una UO (**obligatorio**, no nullable). Su dirección de referencia es la de su UO.
+- Tramita una o más prestaciones del catálogo. El conjunto de prestaciones que tramita un servicio es su razón de ser.
+- Tiene profesionales asignados, pero sin gestión de agenda ni control de carga de trabajo en VIDA 360.
+- Tiene un responsable con un cargo definido a nivel de servicio (ver 3.2).
+- No tiene plazas, espacios, actividades, ni inscripciones de ciudadanos.
+
+Cuando un TSR asigna desde un plan de intervención una prestación que corresponde a un servicio, se genera una `SolicitudServicio` dirigida a ese servicio. El responsable del servicio ve la solicitud en su bandeja. La tramitación posterior puede ocurrir dentro de VIDA 360 (como expediente administrativo) o fuera (derivación a otra administración); en ambos casos el seguimiento corresponde al módulo de Intervención, no a este módulo.
+
+### 3.2 Responsable del servicio
+
+Cada servicio tiene un cargo definido a nivel de servicio: el nombre del cargo es un atributo del servicio, no del profesional que lo ocupa. El cargo pertenece al servicio; el profesional lo asume al ser nombrado responsable y lo deja al cesar.
+
+Ejemplo: "Jefe de Servicio de Ayuda a Domicilio" es el cargo del Servicio de Ayuda a Domicilio. Quien ocupe ese servicio ostentará ese título mientras lo dirija.
+
+El historial de responsables sigue el patrón de `DirectorCentro`: registro con `fecha_inicio` y `fecha_fin`, siendo el activo el que tiene `fecha_fin = null`. A diferencia de `DirectorCentro`, el responsable del servicio es siempre un profesional de VIDA 360 (no hay figura de contacto externo).
+
+### 3.3 SolicitudServicio
+
+Cuando un TSR prescribe una prestación asociada a un servicio, se genera automáticamente una `SolicitudServicio`. Esta entidad:
+
+- Referencia al ciudadano, al plan de intervención, a la prestación solicitada y al servicio destinatario.
+- Tiene un estado que refleja el avance de la tramitación.
+- Es visible para el responsable del servicio y para los profesionales asignados al mismo.
+- Las anotaciones de seguimiento (actualizaciones de estado, notas de tramitación) **no pertenecen a este módulo**: son hechos de la historia social del ciudadano y se gestionan en el módulo de Intervención. Una anotación de un profesional del servicio sobre una solicitud genera una alerta al TSR vía módulo de Mensajes.
+
+Estados de `SolicitudServicio`: `pendiente` · `en_tramite` · `resuelta` · `denegada` · `derivada_externa`.
+
+> **Nota de diseño**: la distinción entre tramitación interna (expediente en VIDA) y tramitación externa (derivación a otra administración) no afecta al modelo de `SolicitudServicio` en este módulo. Ambos casos producen el mismo objeto; la diferencia se refleja en el estado y en las anotaciones del módulo de Intervención.
+
+---
+
+## 4. Modelo de datos — Centros
+
+### 4.1 Centro
 
 | Atributo | Tipo | Notas |
 |---|---|---|
@@ -152,42 +162,33 @@ Entidad raíz del módulo.
 | telefono | string | |
 | email | string | |
 | web | string | Nullable |
-| horario | json | Solo para visualización. Se desarrollará en el módulo de Agenda |
+| horario | json | Solo para visualización. Gestión completa en módulo de Agenda |
 | inscripcion_libre | boolean | `true` = libre elección · `false` = adscripción por domicilio |
 | activo | boolean | |
 | fecha_alta | date | |
 | fecha_baja | date | Nullable |
-| notas | text | Nullable. Información adicional para el profesional |
+| notas | text | Nullable |
 
-Relaciones N:M:
-- `centro_segmento_poblacion` → catálogo de segmentos de población
-- `centro_prestacion` → catálogo de prestaciones
-- `red_centro` → redes a las que pertenece el centro
+Relaciones N:M: `centro_segmento_poblacion` · `centro_prestacion` · `red_centro`.
+Relaciones 1:N: `ambitos_territoriales` · `colecciones_plazas` · `actividades` · `directores` · `contactos` · `inscripciones`.
 
-Relaciones 1:N:
-- `ambitos_territoriales` → colección de ámbitos territoriales del centro
+> El campo `distrito_id` presente en versiones anteriores queda eliminado. El distrito se expresa como `AmbitoTerritorial` de tipo `demarcacion_oficial`.
 
-> **Nota**: el campo `distrito_id` presente en versiones anteriores queda eliminado. El distrito, si aplica, se expresa como un registro `AmbitoTerritorial` de tipo `demarcacion_oficial`. Esta normalización evita la redundancia entre el distrito único y la colección de ámbitos cuando un centro atiende varios distritos.
-
-### 3.2 AmbitoTerritorial
-
-Define el ámbito geográfico de atención de un centro. Un centro puede tener varios registros, combinando tipos distintos.
+### 4.2 AmbitoTerritorial
 
 | Atributo | Tipo | Notas |
 |---|---|---|
 | id | PK | |
 | centro_id | FK | |
 | tipo | enum | `ciudad_completa` · `demarcacion_oficial` · `barrios` · `secciones_censales` · `poligono_gis` |
-| descripcion | string | Nombre legible del ámbito. Ej: "Distrito de Vallecas" |
-| referencia_id | integer | Nullable. ID de la entidad referenciada (distrito, barrio, sección censal) según tipo |
-| referencia_tipo | string | Nullable. Nombre de la entidad referenciada. Ej: `Distrito`, `Barrio` |
+| descripcion | string | Nombre legible. Ej: "Distrito de Vallecas" |
+| referencia_id | integer | Nullable. ID de la entidad referenciada según tipo |
+| referencia_tipo | string | Nullable. Ej: `Distrito`, `Barrio` |
 | geojson | json | Nullable. Solo para tipo `poligono_gis` |
 
-Cuando `tipo = ciudad_completa`, el resto de campos son null: el ámbito es todo el municipio sin restricción. Solo puede existir un registro de este tipo por centro.
+Reglas: `ciudad_completa` no puede coexistir con otros ámbitos del mismo centro. `poligono_gis` requiere `geojson`.
 
-### 3.3 Red
-
-Agregador de centros para exposición de pool de plazas común. Sin personalidad organizativa propia.
+### 4.3 Red
 
 | Atributo | Tipo | Notas |
 |---|---|---|
@@ -199,75 +200,69 @@ Agregador de centros para exposición de pool de plazas común. Sin personalidad
 | fecha_alta | date | |
 | fecha_baja | date | Nullable |
 
-Relación N:M con `Centro` via tabla pivote `red_centro`. Un centro puede pertenecer a varias redes.
+Relación N:M con `Centro` via `red_centro`.
 
-### 3.4 ColeccionPlazas
-
-| Atributo | Tipo | Notas |
-|---|---|---|
-| id | PK | |
-| centro_id | FK | |
-| nombre | string | Ej: "Plazas de acogida", "Centro de día" |
-| tipo_plaza | enum | `pernocta` · `dia` |
-| modo_acceso | enum | `libre` · `prescripcion_directa` · `prescripcion_lista_espera` |
-| capacidad | integer | Número total de plazas |
-| activa | boolean | |
-| fecha_alta | date | |
-| fecha_baja | date | Nullable |
-| notas | text | Nullable |
-
-### 3.5 Espacio
-
-Unidad física dentro de una colección de plazas.
-
-| Atributo | Tipo | Notas |
-|---|---|---|
-| id | PK | |
-| coleccion_plazas_id | FK | |
-| nombre | string | Ej: "Dormitorio 3", "Habitación 12", "Módulo B" |
-| tipo_espacio_id | FK | Catálogo backoffice: dormitorio individual, compartido, familiar... |
-| capacidad | integer | Número de plazas que contiene |
-| planta | string | Nullable |
-| accesible | boolean | Adaptado para movilidad reducida |
-| genero | enum | `mixto` · `mujeres` · `hombres`. Nullable para centros sin restricción |
-| activo | boolean | |
-| notas | text | Nullable. Características especiales |
-
-### 3.6 Plaza
-
-Unidad mínima asignable a una persona.
-
-| Atributo | Tipo | Notas |
-|---|---|---|
-| id | PK | |
-| espacio_id | FK | |
-| nombre | string | Ej: "Cama 1", "Cama 2" |
-| estado | enum | `libre` · `ocupada` · `reservada` · `mantenimiento` |
-| activa | boolean | |
-
-El estado se mantiene desnormalizado para consultas rápidas de disponibilidad. La ocupación efectiva se rastrea a través de la `Prescripcion` activa que apunta a la plaza.
-
-### 3.7 Actividad
+### 4.4 ColeccionPlazas
 
 | Atributo | Tipo | Notas |
 |---|---|---|
 | id | PK | |
 | centro_id | FK | |
 | nombre | string | |
-| tipo_actividad_id | FK | Catálogo backoffice: taller, charla, seminario, grupo de apoyo... |
-| descripcion | text | Nullable |
-| modo_acceso | enum | `libre` · `prescripcion` · `mixta` |
-| aforo_total | integer | Nullable. Si no hay límite de aforo |
-| aforo_prescripcion | integer | Nullable. Solo relevante si `modo_acceso = mixta` |
-| requiere_inscripcion_centro | boolean | Si `true`, el ciudadano debe tener `InscripcionCentro` activa |
+| tipo_plaza | enum | `pernocta` · `dia` |
+| modo_acceso | enum | `libre` · `prescripcion_directa` · `prescripcion_lista_espera` |
+| capacidad | integer | |
 | activa | boolean | |
 | fecha_alta | date | |
 | fecha_baja | date | Nullable |
 | notas | text | Nullable |
 
-### 3.8 SesionActividad
+### 4.5 Espacio
 
-Materialización concreta de una actividad en el tiempo. El control de aforo opera a nivel de sesión.
+| Atributo | Tipo | Notas |
+|---|---|---|
+| id | PK | |
+| coleccion_plazas_id | FK | |
+| nombre | string | |
+| tipo_espacio_id | FK | Catálogo backoffice |
+| capacidad | integer | |
+| planta | string | Nullable |
+| accesible | boolean | |
+| genero | enum | `mixto` · `mujeres` · `hombres`. Nullable |
+| activo | boolean | |
+| notas | text | Nullable |
+
+### 4.6 Plaza
+
+| Atributo | Tipo | Notas |
+|---|---|---|
+| id | PK | |
+| espacio_id | FK | |
+| nombre | string | |
+| estado | enum | `libre` · `ocupada` · `reservada` · `mantenimiento` |
+| activa | boolean | |
+
+Estado desnormalizado para consultas rápidas. La ocupación efectiva se rastrea via `Prescripcion` activa.
+
+### 4.7 Actividad
+
+| Atributo | Tipo | Notas |
+|---|---|---|
+| id | PK | |
+| centro_id | FK | |
+| nombre | string | |
+| tipo_actividad_id | FK | Catálogo backoffice |
+| descripcion | text | Nullable |
+| modo_acceso | enum | `libre` · `prescripcion` · `mixta` |
+| aforo_total | integer | Nullable |
+| aforo_prescripcion | integer | Nullable. Solo si `modo_acceso = mixta` |
+| requiere_inscripcion_centro | boolean | |
+| activa | boolean | |
+| fecha_alta | date | |
+| fecha_baja | date | Nullable |
+| notas | text | Nullable |
+
+### 4.8 SesionActividad
 
 | Atributo | Tipo | Notas |
 |---|---|---|
@@ -276,14 +271,12 @@ Materialización concreta de una actividad en el tiempo. El control de aforo ope
 | fecha | date | |
 | hora_inicio | time | |
 | hora_fin | time | Nullable |
-| aforo_total | integer | Nullable. Sobreescribe el de la actividad si se especifica |
-| aforo_prescripcion | integer | Nullable. Sobreescribe el de la actividad si se especifica |
+| aforo_total | integer | Nullable. Sobreescribe el de la actividad |
+| aforo_prescripcion | integer | Nullable. Sobreescribe el de la actividad |
 | estado | enum | `programada` · `celebrada` · `cancelada` |
 | notas | text | Nullable |
 
-### 3.9 InscripcionCentro
-
-Registro de un ciudadano en un centro, independiente de cualquier plaza o actividad.
+### 4.9 InscripcionCentro
 
 | Atributo | Tipo | Notas |
 |---|---|---|
@@ -296,9 +289,7 @@ Registro de un ciudadano en un centro, independiente de cualquier plaza o activi
 | activa | boolean | |
 | notas | text | Nullable |
 
-### 3.10 DirectorCentro
-
-Historial de responsables del centro.
+### 4.10 DirectorCentro
 
 | Atributo | Tipo | Notas |
 |---|---|---|
@@ -309,352 +300,494 @@ Historial de responsables del centro.
 | telefono | string | Nullable. Si es persona externa |
 | email | string | Nullable. Si es persona externa |
 | fecha_inicio | date | |
-| fecha_fin | date | Nullable. Cargo activo si null |
+| fecha_fin | date | Nullable. Activo si null |
 | notas | text | Nullable |
 
-O bien `profesional_id` tiene valor, o bien los campos de contacto externo — nunca ambos. Validación a nivel de aplicación. El registro activo es el que tiene `fecha_fin = null`.
+`profesional_id` y campos de contacto externo son mutuamente excluyentes. Validación a nivel de aplicación.
 
-### 3.11 ContactoCentro
-
-Directorio de personas de contacto operativo del centro sin cuenta en VIDA 360. Puede haber varios activos simultáneamente.
+### 4.11 ContactoCentro
 
 | Atributo | Tipo | Notas |
 |---|---|---|
 | id | PK | |
 | centro_id | FK | |
 | nombre | string | |
-| rol | string | Ej: "Coordinador", "Trabajador social de referencia" |
+| rol | string | |
 | telefono | string | Nullable |
 | email | string | Nullable |
 | activo | boolean | |
 | notas | text | Nullable |
 
-### 3.12 Prescripcion
-
-Vincula un ciudadano, desde un plan de intervención, con una colección de plazas o una sesión de actividad.
+### 4.12 Prescripcion
 
 | Atributo | Tipo | Notas |
 |---|---|---|
 | id | PK | |
-| profesional_id | FK | Profesional que realiza la prescripción |
+| profesional_id | FK | |
 | ciudadano_id | FK | |
-| plan_intervencion_id | FK | Nullable. Si viene de un plan de intervención activo |
+| plan_intervencion_id | FK | Nullable |
 | tipo_destino | enum | `coleccion_plazas` · `sesion_actividad` |
 | destino_id | integer | FK polimórfica según `tipo_destino` |
-| plaza_id | FK | Nullable. Se asigna cuando hay plaza concreta disponible |
+| plaza_id | FK | Nullable. Plaza concreta asignada |
 | estado | enum | `pendiente` · `en_lista_espera` · `asignada` · `activa` · `finalizada` · `cancelada` |
 | fecha_prescripcion | date | |
 | fecha_asignacion | date | Nullable |
-| fecha_inicio | date | Nullable. Inicio efectivo de uso |
-| fecha_fin | date | Nullable. Fin efectivo o previsto |
+| fecha_inicio | date | Nullable |
+| fecha_fin | date | Nullable |
 | motivo_cancelacion | text | Nullable |
 | notas | text | Nullable |
 
-### 3.13 ListaEspera
-
-Posición en lista de espera asociada a una prescripción sin disponibilidad inmediata.
+### 4.13 ListaEspera
 
 | Atributo | Tipo | Notas |
 |---|---|---|
 | id | PK | |
 | prescripcion_id | FK | |
-| coleccion_plazas_id | FK | Nullable. Si la lista opera a nivel de colección |
-| red_id | FK | Nullable. Si la lista opera a nivel de red |
-| posicion | integer | Posición en la lista. Se recalcula cuando hay movimientos |
+| coleccion_plazas_id | FK | Nullable. Lista a nivel de colección |
+| red_id | FK | Nullable. Lista a nivel de red |
+| posicion | integer | Se recalcula ante movimientos |
 | fecha_entrada | datetime | |
-| fecha_alerta | datetime | Nullable. Última vez que se notificó al profesional |
-| profesional_alerta_id | FK | TSR activo en el momento de generar la alerta |
+| fecha_alerta | datetime | Nullable |
+| profesional_alerta_id | FK | TSR activo en el momento de la alerta |
 | estado | enum | `activa` · `asignada` · `cancelada` |
 
-O bien `coleccion_plazas_id` tiene valor, o bien `red_id` — nunca ambos. Cuando se libera una plaza, el sistema notifica al TSR activo del ciudadano, que puede no coincidir con el profesional que realizó la prescripción original.
+`coleccion_plazas_id` y `red_id` son mutuamente excluyentes.
 
 ---
 
-## 4. Tablas pivote y relaciones N:M
+## 5. Modelo de datos — Servicios
+
+### 5.1 Servicio
+
+| Atributo | Tipo | Notas |
+|---|---|---|
+| id | PK | |
+| nombre | string | |
+| nombre_corto | string | |
+| unidad_organizativa_id | FK | Obligatorio. No nullable |
+| cargo_nombre | string | Nombre del cargo del responsable. Ej: "Jefe de Servicio de Ayuda a Domicilio" |
+| descripcion | text | Nullable |
+| activo | boolean | |
+| fecha_alta | date | |
+| fecha_baja | date | Nullable |
+| notas | text | Nullable |
+
+Relaciones N:M: `servicio_prestacion` → catálogo de prestaciones.
+Relaciones 1:N: `responsables` · `profesionales` · `solicitudes`.
+
+La dirección de referencia del servicio se obtiene de su UO. No tiene dirección propia.
+
+### 5.2 ResponsableServicio
+
+Historial de responsables del servicio. El cargo es fijo en el servicio; lo que cambia es el profesional que lo ocupa.
+
+| Atributo | Tipo | Notas |
+|---|---|---|
+| id | PK | |
+| servicio_id | FK | |
+| profesional_id | FK | Siempre un profesional de VIDA 360. No nullable |
+| fecha_inicio | date | |
+| fecha_fin | date | Nullable. Activo si null |
+| notas | text | Nullable |
+
+El registro activo es el que tiene `fecha_fin = null`. Solo puede haber un responsable activo por servicio. Al nombrar uno nuevo, el anterior recibe `fecha_fin = hoy`.
+
+A diferencia de `DirectorCentro`, no existe la figura de responsable externo: el responsable de un servicio es siempre un profesional con cuenta en VIDA 360.
+
+### 5.3 ProfesionalServicio (tabla pivote)
+
+Profesionales asignados al servicio. Sin atributos de carga ni agenda.
+
+| Atributo | Tipo | Notas |
+|---|---|---|
+| servicio_id | FK | |
+| profesional_id | FK | |
+| fecha_alta | date | |
+| fecha_baja | date | Nullable |
+
+Un profesional puede estar asignado a varios servicios simultáneamente.
+
+### 5.4 SolicitudServicio
+
+Generada automáticamente cuando un TSR prescribe desde un plan de intervención una prestación asociada a un servicio.
+
+| Atributo | Tipo | Notas |
+|---|---|---|
+| id | PK | |
+| servicio_id | FK | |
+| ciudadano_id | FK | |
+| profesional_id | FK | TSR que genera la solicitud |
+| plan_intervencion_id | FK | Nullable |
+| prestacion_id | FK | Prestación solicitada |
+| estado | enum | `pendiente` · `en_tramite` · `resuelta` · `denegada` · `derivada_externa` |
+| fecha_solicitud | date | |
+| fecha_resolucion | date | Nullable |
+| notas | text | Nullable. Nota inicial del TSR |
+
+Las anotaciones de seguimiento posteriores (del TSR o de los profesionales del servicio) pertenecen al módulo de Intervención como hechos de la historia social del ciudadano. Una anotación de un profesional del servicio genera una alerta al TSR vía módulo de Mensajes.
+
+---
+
+## 6. Tablas pivote y relaciones N:M
 
 | Tabla pivote | Propósito |
 |---|---|
-| `red_centro` | Vincula redes con centros. Un centro puede pertenecer a varias redes. |
+| `red_centro` | Vincula redes con centros. |
 | `centro_segmento_poblacion` | Segmentos de población atendidos por el centro. |
-| `centro_prestacion` | Prestaciones ofrecidas por el centro según catálogo transversal. |
+| `centro_prestacion` | Prestaciones ofrecidas por el centro. |
+| `servicio_prestacion` | Prestaciones tramitadas por el servicio. Referencia simple al catálogo. |
 
 ---
 
-## 5. Catálogo y configuración backoffice
-
-Las siguientes entidades son configurables desde backoffice (Filament) sin necesidad de desarrollo:
+## 7. Catálogo y configuración backoffice
 
 | Entidad catálogo | Descripción |
 |---|---|
-| `TipoEspacio` | Tipos de espacio físico: dormitorio individual, compartido, habitación doble, módulo familiar, etc. |
-| `TipoActividad` | Tipos de actividad: taller, charla, seminario, grupo de apoyo, curso, etc. |
-| `SegmentoPoblacion` | Colectivos atendidos: personas sin hogar, mayores, VVG, menores, personas con discapacidad, etc. |
-| `Prestacion` | Catálogo transversal compartido con el módulo de Intervención. Una prestación puede estar cubierta por plazas, actividades o simplemente por atención en cita. |
+| `TipoEspacio` | Tipos de espacio físico: dormitorio individual, compartido, familiar... |
+| `TipoActividad` | Tipos de actividad: taller, charla, seminario, grupo de apoyo... |
+| `SegmentoPoblacion` | Colectivos atendidos: PSH, mayores, VVG, menores, discapacidad... |
+| `Prestacion` | Catálogo transversal. Compartido con módulo de Intervención y módulo de Prestaciones. |
 
-Los tipos de gestión, los modos de acceso y los tipos de ámbito territorial se modelan como enums al ser valores de alta estabilidad estructural.
-
----
-
-## 6. Relación con otros módulos
-
-- **Módulo de Intervención**: la `Prescripcion` se crea en el contexto de un `PlanIntervencion`. Las plazas y actividades son destinos posibles de una prescripción, al mismo nivel que una derivación a atención especializada.
-- **Módulo de Organización (UOs)**: todo centro pertenece a una UO vía `unidad_organizativa_id`. El módulo de Centros añade los datos operativos que no caben en la estructura de UOs: plazas, actividades, inscripciones, ámbito territorial, directorio de contactos.
-- **Módulo de Agenda**: el horario detallado de centros, la gestión de citas y la disponibilidad en tiempo real se diseñarán conjuntamente con el módulo de Agenda.
-- **Módulo de Ciudadanía**: `InscripcionCentro` y `Prescripcion` referencian al ciudadano por su identificador interno.
-- **Módulo de Usuarios**: `DirectorCentro` puede referenciar a un `Profesional` del módulo de Usuarios.
-- **Módulo de Integraciones**: la consulta espacial avanzada (qué centro atiende una dirección concreta) se implementará como un servicio en el módulo de Integraciones, consumiendo los registros `AmbitoTerritorial` del centro.
+Gestionables desde Filament (backoffice): `Centro`, `Red`, `ColeccionPlazas`, `Servicio`, y todos los catálogos anteriores.
 
 ---
 
-## 7. Decisiones diferidas con rationale
+## 8. Relación con otros módulos
 
-**Gestión presupuestaria de centros privados puros**: los centros de tipo `privado_puro` (pensiones, hoteles) requieren un modelo de gestión del coste por plaza contratada y su distribución presupuestaria anual entre los recursos habilitados. Se difiere a fase posterior por complejidad y dependencia de procesos administrativos externos.
-
-**Horario detallado y disponibilidad en tiempo real**: el campo `horario` en `Centro` se mantiene como JSON para visualización. La gestión completa de franjas horarias, citas y disponibilidad se abordará en el módulo de Agenda para evitar duplicidad de decisiones de diseño.
-
-**Gestión interna de actividades**: VIDA 360 no gestiona espacios físicos, recursos materiales, ediciones, control de asistencia ni emisión de certificados. Esta funcionalidad corresponde a herramientas especializadas de gestión de centros. El límite del sistema es la inscripción y el control de aforo.
-
-**Consulta espacial GIS**: los polígonos en `AmbitoTerritorial` se almacenan como GeoJSON. La consulta «qué centro atiende esta dirección» requiere PostGIS o un servicio de geocodificación inversa y se difiere al módulo de Integraciones.
-
-**Portal ciudadano**: la inscripción en centros y en actividades de libre acceso puede tener en el futuro un flujo de autoservicio desde el portal ciudadano. El modelo actual no anticipa este canal pero tampoco lo impide: `InscripcionCentro` no tiene dependencia del canal de creación.
-
----
-
-## 8. Principios de diseño aplicados
-
-- **Sin valores de negocio hardcodeados**: tipos de espacio, tipos de actividad, segmentos de población y prestaciones son configurables desde backoffice.
-- **Diferimiento explícito sobre ambigüedad**: las funcionalidades no maduras están identificadas y documentadas con su rationale.
-- **Separación de responsabilidades**: VIDA 360 gestiona la prescripción y el seguimiento; los sistemas propios de cada centro gestionan su operativa interna.
-- **Filament para configuración, Livewire para operación**: el catálogo de centros, tipos y prestaciones se gestiona en la capa Filament. La prescripción, consulta de disponibilidad y gestión de listas de espera se implementan en la capa Livewire.
-- **Historial con fecha_inicio/fecha_fin**: los cambios en `DirectorCentro` siguen el patrón de históricos consistente con el resto de módulos del sistema.
+- **Módulo de Intervención**: `Prescripcion` y `SolicitudServicio` se crean en el contexto de un `PlanIntervencion`. Las anotaciones de seguimiento sobre solicitudes de servicio son hechos de la historia social y pertenecen a Intervención.
+- **Módulo de Organización (UOs)**: centros y servicios pertenecen a UOs. Los servicios heredan la dirección de su UO.
+- **Módulo de Mensajes**: las anotaciones de profesionales de servicio sobre solicitudes generan alertas al TSR vía este módulo.
+- **Módulo de Agenda**: el horario detallado de centros y la gestión de citas se diseñarán en este módulo.
+- **Módulo de Ciudadanía**: `InscripcionCentro`, `Prescripcion` y `SolicitudServicio` referencian al ciudadano.
+- **Módulo de Usuarios**: `DirectorCentro`, `ResponsableServicio` y `ProfesionalServicio` referencian a `Profesional`.
+- **Módulo de Integraciones**: consulta espacial avanzada sobre `AmbitoTerritorial`; tramitación externa de solicitudes de servicio.
+- **Módulo de Prestaciones**: `servicio_prestacion` referencia el catálogo. Los atributos de cada prestación (plazos, requisitos, documentación) se enriquecen en ese módulo.
 
 ---
 
-## 9. Tests funcionales
+## 9. Decisiones diferidas con rationale
 
-Los tests validan el comportamiento del módulo, no su implementación interna. Se escriben como tests de feature en Laravel (`Modules/Centro/tests/Feature/`), usando PostgreSQL (`vida_testing`) según la configuración del proyecto.
+**Gestión presupuestaria de centros privados puros**: coste por plaza contratada y distribución presupuestaria anual. Pendiente de diseño por dependencia de procesos administrativos externos.
 
-### Estado de ejecución — 2026-05-18
+**Horario detallado**: el campo `horario` en `Centro` es JSON para visualización. La gestión completa va en el módulo de Agenda.
 
-| Área | Tests | Pasan | Pendientes |
-|---|---|---|---|
-| 9.1 Centro y UO | 3 | 3 ✅ | 0 |
-| 9.2 Ámbito territorial | 6 | 6 ✅ | 0 |
-| 9.3 Red de centros | 6 | 6 ✅ | 0 |
-| 9.4 Colección de plazas | 3 | 3 ✅ | 0 |
-| 9.5 Prescripción | 5 | 5 ✅ | 0 |
-| 9.6 Inscripción en centro | 5 | 5 ✅ | 0 |
-| 9.7 Director del centro | 3 | 3 ✅ | 0 |
-| **Total** | **31** | **31 ✅** | **0** |
+**Gestión interna de actividades**: espacios, recursos, asistencia y certificados corresponden a herramientas especializadas del centro. VIDA 360 llega hasta inscripción y control de aforo.
 
-Implementaciones añadidas para dar soporte a los tests:
-- `Centro::directorActivo()` — devuelve el `DirectorCentro` con `fecha_fin = null`.
-- `ColeccionPlazas::plazasDisponibles()` — cuenta plazas libres; devuelve 0 si la colección está inactiva.
-- `Red::plazasLibresTotal()` — agrega plazas libres de todas las colecciones activas de los centros de la red.
-- `Actividad::verificarInscripcionCentro(int $ciudadanoId)` — lanza `InvalidArgumentException` si la actividad requiere inscripción y el ciudadano no la tiene activa.
-- `PrescripcionService` — gestiona el ciclo de vida: asignación inmediata si hay plaza libre, lista de espera si no la hay, liberación de plaza con actualización del TSR alerta, cancelación.
+**Consulta espacial GIS**: los polígonos en `AmbitoTerritorial` se almacenan como GeoJSON. La consulta «qué centro atiende esta dirección» se difiere al módulo de Integraciones.
 
-### 9.1 Centro y UO
+**Tramitación interna vs. externa de solicitudes de servicio**: ambos casos producen el mismo objeto `SolicitudServicio`. La diferencia se refleja en el estado y en las anotaciones del módulo de Intervención. El mecanismo de integración con sistemas externos de tramitación corresponde al módulo de Integraciones.
+
+**Carga de trabajo y asignación en servicios**: en esta versión VIDA 360 no gestiona la distribución de solicitudes entre los profesionales del servicio ni su carga de trabajo. El responsable del servicio ve la bandeja y gestiona la asignación fuera del sistema.
+
+**Portal ciudadano**: inscripciones en centros y actividades de libre acceso podrían tener flujo de autoservicio en el futuro. El modelo actual no lo impide.
+
+---
+
+## 10. Principios de diseño aplicados
+
+- **Sin valores de negocio hardcodeados**: tipos de espacio, actividad, segmentos y prestaciones son configurables desde backoffice.
+- **Separación de responsabilidades**: las anotaciones sobre solicitudes de servicio pertenecen a Intervención (son hechos de la historia social), no a este módulo.
+- **Entidades paralelas con naturaleza distinta**: `Centro` y `Servicio` son recursos del mismo catálogo pero con modelos operativos diferentes. No se fuerza una jerarquía artificial entre ellos.
+- **Filament para configuración, Livewire para operación**.
+- **Historial con fecha_inicio/fecha_fin**: patrón consistente en `DirectorCentro` y `ResponsableServicio`.
+
+---
+
+## 11. Tests funcionales
+
+Los tests validan comportamiento, no implementación interna. Se escriben como tests de feature en Laravel (`tests/Feature/Modules/Centro/`), usando **PostgreSQL** (base de datos configurada en `.env.testing`). Usan el trait `RefreshDatabase`.
+
+### 11.1 Centro y UO
 
 ```
 CentroUoTest
 
-✅ un_centro_puede_pertenecer_a_una_uo
-   Dado un centro con unidad_organizativa_id válido
-   Cuando se accede a $centro->unidadOrganizativa
-   Entonces devuelve la UO correcta
+- un_centro_puede_pertenecer_a_una_uo
+  Dado un centro con unidad_organizativa_id válido
+  Cuando se accede a $centro->unidadOrganizativa
+  Entonces devuelve la UO correcta
 
-✅ un_centro_puede_existir_sin_uo
-   Dado un centro con unidad_organizativa_id null
-   Cuando se guarda
-   Entonces no hay error de validación
+- un_centro_puede_existir_sin_uo
+  Dado un centro con unidad_organizativa_id null
+  Cuando se guarda
+  Entonces no hay error de validación
 
-✅ la_uo_de_un_centro_puede_cambiarse
-   Dado un centro asignado a la UO A
-   Cuando se actualiza unidad_organizativa_id a la UO B
-   Entonces $centro->fresh()->unidadOrganizativa->id === UO_B
+- la_uo_de_un_centro_puede_cambiarse
+  Dado un centro asignado a la UO A
+  Cuando se actualiza unidad_organizativa_id a la UO B
+  Entonces $centro->fresh()->unidadOrganizativa->id === UO_B
 ```
 
-### 9.2 Ámbito territorial
+### 11.2 Ámbito territorial
 
 ```
 AmbitoTerritorialTest
 
-✅ un_centro_puede_tener_ambito_ciudad_completa
-   Dado un centro sin ámbitos previos
-   Cuando se crea un AmbitoTerritorial con tipo = ciudad_completa
-   Entonces $centro->ambitosTeritoriales()->count() === 1
+- un_centro_puede_tener_ambito_ciudad_completa
+  Dado un centro sin ámbitos previos
+  Cuando se crea un AmbitoTerritorial con tipo = ciudad_completa
+  Entonces $centro->ambitosTeritoriales()->count() === 1
 
-✅ ciudad_completa_no_puede_coexistir_con_otros_ambitos
-   Dado un centro con tipo = ciudad_completa
-   Cuando se intenta añadir un segundo ámbito de cualquier tipo
-   Entonces se lanza una excepción de validación
+- ciudad_completa_no_puede_coexistir_con_otros_ambitos
+  Dado un centro con tipo = ciudad_completa
+  Cuando se intenta añadir un segundo ámbito de cualquier tipo
+  Entonces se lanza InvalidArgumentException
 
-✅ un_centro_puede_tener_multiples_ambitos_de_demarcacion
-   Dado un centro sin ámbitos
-   Cuando se crean dos AmbitoTerritorial de tipo demarcacion_oficial con distintos referencia_id
-   Entonces $centro->ambitosTeritoriales()->count() === 2
+- un_centro_puede_tener_multiples_ambitos_de_demarcacion
+  Dado un centro sin ámbitos
+  Cuando se crean dos AmbitoTerritorial de tipo demarcacion_oficial con distintos referencia_id
+  Entonces $centro->ambitosTeritoriales()->count() === 2
 
-✅ un_centro_puede_combinar_tipos_de_ambito
-   Dado un centro sin ámbitos
-   Cuando se crea un ámbito demarcacion_oficial y otro barrios
-   Entonces ambos se guardan sin error
+- un_centro_puede_combinar_tipos_de_ambito
+  Dado un centro sin ámbitos
+  Cuando se crea un ámbito demarcacion_oficial y otro barrios
+  Entonces ambos se guardan sin error
 
-✅ un_ambito_tipo_poligono_requiere_geojson
-   Dado un AmbitoTerritorial con tipo = poligono_gis y geojson null
-   Cuando se intenta guardar
-   Entonces se lanza una excepción de validación
+- un_ambito_tipo_poligono_requiere_geojson
+  Dado un AmbitoTerritorial con tipo = poligono_gis y geojson null
+  Cuando se intenta guardar
+  Entonces se lanza InvalidArgumentException
 
-✅ eliminar_un_ambito_no_afecta_al_centro
-   Dado un centro con dos ámbitos
-   Cuando se elimina uno
-   Entonces el centro sigue activo y tiene un ámbito
+- eliminar_un_ambito_no_afecta_al_centro
+  Dado un centro con dos ámbitos
+  Cuando se elimina uno
+  Entonces el centro sigue activo y tiene un ámbito
 ```
 
-### 9.3 Red de centros
+### 11.3 Red de centros
 
 ```
 RedCentrosTest
 
-✅ una_red_puede_crearse_sin_centros
-   Dado los datos mínimos de una red
-   Cuando se guarda
-   Entonces $red->exists === true y $red->centros()->count() === 0
+- una_red_puede_crearse_sin_centros
+  Dado los datos mínimos de una red
+  Cuando se guarda
+  Entonces $red->exists === true y $red->centros()->count() === 0
 
-✅ un_centro_puede_unirse_a_una_red
-   Dado una red y un centro existentes
-   Cuando se ejecuta $red->centros()->attach($centro)
-   Entonces $red->centros()->count() === 1
+- un_centro_puede_unirse_a_una_red
+  Dado una red y un centro existentes
+  Cuando se ejecuta $red->centros()->attach($centro)
+  Entonces $red->centros()->count() === 1
 
-✅ un_centro_puede_pertenecer_a_varias_redes
-   Dado un centro y dos redes
-   Cuando el centro se une a ambas redes
-   Entonces $centro->redes()->count() === 2
+- un_centro_puede_pertenecer_a_varias_redes
+  Dado un centro y dos redes
+  Cuando el centro se une a ambas
+  Entonces $centro->redes()->count() === 2
 
-✅ una_red_agrega_plazas_libres_de_sus_centros
-   Dado una red con dos centros, cada uno con una colección de plazas con 3 plazas libres
-   Cuando se consulta la disponibilidad agregada de la red
-   Entonces el total de plazas libres es 6
+- una_red_agrega_plazas_libres_de_sus_centros
+  Dado una red con dos centros, cada uno con 3 plazas libres
+  Cuando se consulta la disponibilidad agregada de la red
+  Entonces el total es 6
 
-✅ una_red_inactiva_no_aparece_en_consultas_de_disponibilidad
-   Dado una red con activa = false
-   Cuando se consulta disponibilidad de redes activas
-   Entonces la red no aparece en los resultados
+- una_red_inactiva_no_aparece_en_consultas_de_disponibilidad
+  Dado una red con activa = false
+  Cuando se consulta disponibilidad de redes activas
+  Entonces la red no aparece
 
-✅ desligar_un_centro_de_una_red_no_elimina_el_centro
-   Dado una red con un centro
-   Cuando se ejecuta $red->centros()->detach($centro)
-   Entonces $red->centros()->count() === 0 y el centro sigue existiendo
+- desligar_un_centro_de_una_red_no_elimina_el_centro
+  Dado una red con un centro
+  Cuando se ejecuta $red->centros()->detach($centro)
+  Entonces el centro sigue existiendo
 ```
 
-### 9.4 Colección de plazas y disponibilidad
+### 11.4 Colección de plazas y disponibilidad
 
 ```
 ColeccionPlazasTest
 
-✅ la_capacidad_refleja_el_total_de_plazas
-   Dado una colección con capacidad = 10
-   Cuando se crean 10 plazas asociadas
-   Entonces $coleccion->plazas()->count() === 10
+- la_capacidad_refleja_el_total_de_plazas
+  Dado una colección con capacidad = 10 y 10 plazas asociadas
+  Entonces $coleccion->plazas()->count() === 10
 
-✅ plazas_disponibles_excluye_ocupadas_y_en_mantenimiento
-   Dado una colección con 5 plazas: 2 libres, 2 ocupadas, 1 en mantenimiento
-   Cuando se consulta $coleccion->plazasDisponibles()
-   Entonces devuelve 2
+- plazas_disponibles_excluye_ocupadas_y_en_mantenimiento
+  Dado una colección con 2 libres, 2 ocupadas, 1 en mantenimiento
+  Cuando se consulta $coleccion->plazasDisponibles()
+  Entonces devuelve 2
 
-✅ una_coleccion_inactiva_no_ofrece_plazas_disponibles
-   Dado una colección con activa = false y 3 plazas libres
-   Cuando se consulta disponibilidad
-   Entonces devuelve 0
+- una_coleccion_inactiva_no_ofrece_plazas_disponibles
+  Dado una colección con activa = false y 3 plazas libres
+  Cuando se consulta disponibilidad
+  Entonces devuelve 0
 ```
 
-### 9.5 Prescripción y lista de espera
+### 11.5 Prescripción y lista de espera
 
 ```
 PrescripcionTest
 
-✅ una_prescripcion_a_coleccion_con_plaza_libre_queda_asignada
-   Dado una colección con al menos una plaza libre
-   Cuando se crea una prescripción hacia esa colección
-   Entonces el estado es asignada y plaza_id no es null
+- una_prescripcion_a_coleccion_con_plaza_libre_queda_asignada
+  Dado una colección con al menos una plaza libre
+  Cuando se crea una prescripción
+  Entonces estado = asignada y plaza_id != null
 
-✅ una_prescripcion_a_coleccion_sin_plazas_entra_en_lista_de_espera
-   Dado una colección con todas las plazas ocupadas
-   Cuando se crea una prescripción hacia esa colección con modo lista_espera
-   Entonces el estado es en_lista_espera y se crea un registro ListaEspera
+- una_prescripcion_a_coleccion_sin_plazas_entra_en_lista_de_espera
+  Dado una colección con todas las plazas ocupadas
+  Cuando se crea una prescripción con modo lista_espera
+  Entonces estado = en_lista_espera y existe registro ListaEspera
 
-✅ al_liberarse_una_plaza_se_genera_alerta_al_tsr_activo
-   Dado una prescripción en lista de espera con TSR A
-   Y el TSR activo del ciudadano es ahora B (cambio posterior)
-   Cuando se marca una plaza como libre
-   Entonces la alerta se envía al TSR B, no al TSR A
+- al_liberarse_una_plaza_se_genera_alerta_al_tsr_activo
+  Dado una prescripción en lista de espera con TSR A
+  Y el TSR activo del ciudadano es ahora B
+  Cuando se libera una plaza
+  Entonces la alerta se envía a B, no a A
 
-✅ la_asignacion_no_es_automatica_al_liberarse_plaza
-   Dado una prescripción en lista de espera
-   Cuando se libera una plaza
-   Entonces el estado de la prescripción sigue siendo en_lista_espera (no asignada)
-   Y existe una alerta pendiente de revisión profesional
+- la_asignacion_no_es_automatica_al_liberarse_plaza
+  Dado una prescripción en lista de espera
+  Cuando se libera una plaza
+  Entonces estado sigue siendo en_lista_espera
+  Y existe una alerta pendiente de revisión
 
-✅ cancelar_una_prescripcion_libera_la_plaza
-   Dado una prescripción activa con plaza asignada
-   Cuando se cancela la prescripción
-   Entonces la plaza vuelve a estado libre
+- cancelar_una_prescripcion_libera_la_plaza
+  Dado una prescripción activa con plaza asignada
+  Cuando se cancela
+  Entonces la plaza vuelve a estado libre
 ```
 
-### 9.6 Inscripción en centro
+### 11.6 Inscripción en centro
 
 ```
 InscripcionCentroTest
 
-✅ un_ciudadano_puede_inscribirse_en_un_centro
-   Dado un ciudadano y un centro con inscripcion_libre = true
-   Cuando se crea una InscripcionCentro
-   Entonces $inscripcion->activa === true
+- un_ciudadano_puede_inscribirse_en_un_centro
+  Dado un ciudadano y un centro con inscripcion_libre = true
+  Cuando se crea una InscripcionCentro
+  Entonces $inscripcion->activa === true
 
-✅ la_baja_de_inscripcion_es_siempre_explicita
-   Dado una inscripción activa
-   Cuando pasa el tiempo sin ninguna acción
-   Entonces la inscripción sigue activa (no caduca)
+- la_baja_de_inscripcion_es_siempre_explicita
+  Dado una inscripción activa sin acción posterior
+  Entonces la inscripción sigue activa (no caduca)
 
-✅ dar_de_baja_una_inscripcion_la_desactiva
-   Dado una inscripción activa
-   Cuando se establece fecha_baja y activa = false
-   Entonces $inscripcion->activa === false
+- dar_de_baja_una_inscripcion_la_desactiva
+  Dado una inscripción activa
+  Cuando se establece fecha_baja y activa = false
+  Entonces $inscripcion->activa === false
 
-✅ actividad_con_flag_requiere_inscripcion_bloquea_sin_inscripcion
-   Dado una actividad con requiere_inscripcion_centro = true
-   Y un ciudadano sin InscripcionCentro activa en ese centro
-   Cuando se intenta crear una prescripción o inscripción a la actividad
-   Entonces se lanza una excepción de validación
+- actividad_con_flag_requiere_inscripcion_bloquea_sin_inscripcion
+  Dado una actividad con requiere_inscripcion_centro = true
+  Y un ciudadano sin InscripcionCentro activa
+  Cuando se intenta prescribir o inscribir
+  Entonces se lanza InvalidArgumentException
 
-✅ actividad_con_flag_requiere_inscripcion_permite_con_inscripcion_activa
-   Dado una actividad con requiere_inscripcion_centro = true
-   Y un ciudadano con InscripcionCentro activa en ese centro
-   Cuando se crea la prescripción o inscripción
-   Entonces se crea correctamente sin error
+- actividad_con_flag_requiere_inscripcion_permite_con_inscripcion_activa
+  Dado una actividad con requiere_inscripcion_centro = true
+  Y un ciudadano con InscripcionCentro activa
+  Cuando se crea la prescripción
+  Entonces se crea sin error
 ```
 
-### 9.7 Director del centro
+### 11.7 Director del centro
 
 ```
 DirectorCentroTest
 
-✅ un_centro_tiene_un_unico_director_activo
-   Dado un centro con dos registros DirectorCentro: uno con fecha_fin null y otro con fecha_fin pasada
-   Cuando se consulta $centro->directorActivo()
-   Entonces devuelve el que tiene fecha_fin null
+- un_centro_tiene_un_unico_director_activo
+  Dado dos DirectorCentro: uno con fecha_fin null y otro con fecha_fin pasada
+  Cuando se consulta $centro->directorActivo()
+  Entonces devuelve el que tiene fecha_fin null
 
-✅ al_nombrar_nuevo_director_el_anterior_recibe_fecha_fin
-   Dado un centro con director activo A
-   Cuando se nombra director B
-   Entonces el director A tiene fecha_fin = hoy y el director B tiene fecha_fin null
+- al_nombrar_nuevo_director_el_anterior_recibe_fecha_fin
+  Dado un centro con director activo A
+  Cuando se nombra director B
+  Entonces A tiene fecha_fin = hoy y B tiene fecha_fin null
 
-✅ director_externo_no_puede_tener_profesional_id
-   Dado un DirectorCentro con nombre externo y profesional_id relleno simultáneamente
-   Cuando se intenta guardar
-   Entonces se lanza una excepción de validación
+- director_externo_no_puede_tener_profesional_id
+  Dado un DirectorCentro con nombre externo y profesional_id relleno
+  Cuando se intenta guardar
+  Entonces se lanza InvalidArgumentException
+```
+
+### 11.8 Servicio
+
+```
+ServicioTest
+
+- un_servicio_requiere_uo
+  Dado un Servicio sin unidad_organizativa_id
+  Cuando se intenta guardar
+  Entonces se lanza un error de validación
+
+- un_servicio_tiene_cargo_definido
+  Dado un Servicio con cargo_nombre = "Jefe de Servicio de Ayuda a Domicilio"
+  Cuando se accede a $servicio->cargo_nombre
+  Entonces devuelve el valor correcto
+
+- un_servicio_puede_tener_multiples_prestaciones
+  Dado un Servicio y tres Prestacion del catálogo
+  Cuando se asocian las tres al servicio
+  Entonces $servicio->prestaciones()->count() === 3
+
+- un_servicio_no_tiene_plazas_ni_actividades
+  Dado un Servicio creado correctamente
+  Entonces no tiene método coleccionesPlazas ni actividades
+
+- un_profesional_puede_asignarse_a_varios_servicios
+  Dado un Profesional y dos Servicios
+  Cuando se asigna el profesional a ambos servicios
+  Entonces el profesional aparece en $servicioA->profesionales y en $servicioB->profesionales
+```
+
+### 11.9 Responsable de servicio
+
+```
+ResponsableServicioTest
+
+- un_servicio_tiene_un_unico_responsable_activo
+  Dado dos ResponsableServicio para el mismo servicio:
+    uno con fecha_fin null y otro con fecha_fin pasada
+  Cuando se consulta $servicio->responsableActivo()
+  Entonces devuelve el que tiene fecha_fin null
+
+- al_nombrar_nuevo_responsable_el_anterior_recibe_fecha_fin
+  Dado un servicio con responsable activo A
+  Cuando se nombra responsable B mediante $servicio->nombrarResponsable($profesionalB)
+  Entonces A tiene fecha_fin = hoy y B tiene fecha_fin null
+
+- el_responsable_de_servicio_siempre_es_profesional_vida360
+  Dado un ResponsableServicio con profesional_id null
+  Cuando se intenta guardar
+  Entonces se lanza un error de validación
+
+- el_cargo_del_responsable_se_toma_del_servicio
+  Dado un Servicio con cargo_nombre = "Jefe de Departamento X"
+  Y un ResponsableServicio activo
+  Cuando se consulta el cargo del responsable
+  Entonces devuelve "Jefe de Departamento X" (del servicio, no del profesional)
+```
+
+### 11.10 Solicitud de servicio
+
+```
+SolicitudServicioTest
+
+- prescribir_prestacion_de_servicio_genera_solicitud
+  Dado un Servicio que tramita la Prestacion P
+  Y un TSR con un plan de intervención activo para un ciudadano
+  Cuando el TSR prescribe la Prestacion P
+  Entonces se crea una SolicitudServicio con estado = pendiente
+    dirigida al servicio correcto
+
+- la_solicitud_referencia_prestacion_ciudadano_y_profesional
+  Dado una SolicitudServicio creada
+  Cuando se accede a sus relaciones
+  Entonces $solicitud->prestacion, $solicitud->ciudadano y $solicitud->profesional
+    devuelven los objetos correctos
+
+- el_estado_de_una_solicitud_puede_actualizarse
+  Dado una SolicitudServicio con estado = pendiente
+  Cuando se actualiza a en_tramite
+  Entonces $solicitud->fresh()->estado === 'en_tramite'
+
+- una_solicitud_resuelta_registra_fecha_resolucion
+  Dado una SolicitudServicio pendiente
+  Cuando se actualiza a resuelta
+  Entonces $solicitud->fecha_resolucion === today()
+
+- cancelar_plan_no_elimina_solicitudes_existentes
+  Dado un plan de intervención con una SolicitudServicio asociada
+  Cuando se cancela el plan
+  Entonces la solicitud sigue existiendo con su estado actual
 ```
 
 ---
 
-*Documento elaborado en fase de diseño del proyecto VIDA 360. Versión 1.1 — Mayo 2026.*
+*Documento elaborado en fase de diseño del proyecto VIDA 360. Versión 1.2 — Mayo 2026.*
