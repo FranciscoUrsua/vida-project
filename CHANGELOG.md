@@ -2,6 +2,50 @@
 
 ---
 
+## Módulo Agenda — Slots, disponibilidad, eventos, itinerantes (PF-04, PF-08, PF-09) — 2026-05-20
+
+### Implementación
+
+- **`Modules/Agenda/app/Jobs/SlotExpirationJob.php`** — implementado `handle()`:
+  - `bloqueado_urgencia` + fecha pasada → `expirado`.
+  - `disponible` + fecha pasada → `no_ocupado`.
+  - `reservado` + fecha pasada + sin cita activa (no-show ciudadano) → `no_ocupado`.
+
+- **`Modules/Agenda/app/Services/DisponibilidadService.php`** — implementado `obtenerSlots()`:
+  - Filtra por `usuario_id`, `centro_id`, `tipo_slot_id` y rango de fechas.
+  - `incluirUrgencias = false` (defecto): solo slots `disponible`. Ideal para canal externo.
+  - `incluirUrgencias = true`: incluye también `bloqueado_urgencia`. Para canal interno y supervisores.
+
+- **`Modules/Agenda/app/Models/EventoAgenda.php`** — métodos nuevos:
+  - `agregarProfesionales(array $usuarioIds)`: convoca a los profesionales al evento, bloquea sus slots `disponible` en la franja del evento (`→ bloqueado_evento`), y devuelve mapa de citas confirmadas afectadas (conflictos). Los slots `reservado` no se tocan.
+  - `detectarConflictoEspacio()`: devuelve `true` si el `espacio_id` del evento está ocupado por otro evento simultáneo. El sistema avisa pero no bloquea la creación.
+
+### Tests desbloqueados (11 tests pasan ahora ✅)
+
+- **PF-04.2** — Urgencias no visibles en consulta externa: `DisponibilidadService` filtra `bloqueado_urgencia` por defecto.
+- **PF-04.3** — Evento bloquea slots disponibles de la franja: `agregarProfesionales` marca `bloqueado_evento`.
+- **PF-04.4** — Job expira slots de urgencia no consumidos: `bloqueado_urgencia` → `expirado`.
+- **PF-04.5** — Job marca disponibles expirados: `disponible` → `no_ocupado`.
+- **PF-08.1** — Evento sin conflicto: 2 slots en franja → `bloqueado_evento`; slot fuera de franja intacto.
+- **PF-08.2** — Evento sobre cita confirmada: slot `reservado` no se bloquea; devuelve cita en conflictos.
+- **PF-08.3** — Conflicto de espacio: ambos eventos creados sin excepción; `detectarConflictoEspacio()` detecta solapamiento.
+- **PF-08.4** — Modo básico: evento sin espacio bloquea slots igual que modo estándar.
+- **PF-09.1** — Itinerante sin disponibilidad en centro incorrecto: filtro `centro_id` devuelve vacío.
+- **PF-09.2** — Excepción de un centro no afecta al otro: `ExcepcionProfesionalObserver` filtra por `centro_id`.
+- (PF-04.1 ya pasaba; PF-04-PF-09 completos salvo PF-02.3 y TF-USU-31)
+
+### Decisiones de implementación
+
+- `agregarProfesionales()` usa `syncWithoutDetaching` para ser idempotente si se llama varias veces con el mismo profesional.
+- El tipo hint de `DisponibilidadService` usa `Carbon\Carbon` (clase base) en lugar de `Illuminate\Support\Carbon` (extensión) para evitar errores de tipo en contextos donde se pasa la instancia base.
+- `detectarConflictoEspacio()` usa overlap estándar: `hora_inicio < otro.hora_fin AND hora_fin > otro.hora_inicio`.
+
+### Estado de la suite
+
+258 tests pasan ✅ — 0 fallos — 2 incompletos (PF-02.3, TF-USU-31).
+
+---
+
 ## Módulo Agenda — No-show del profesional (PF-07) — 2026-05-20
 
 ### Implementación

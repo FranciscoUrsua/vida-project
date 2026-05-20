@@ -3,15 +3,18 @@
 namespace Modules\Agenda\Tests\Feature;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Agenda\Enums\EstadoCuadrante;
 use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Agenda\Jobs\SlotExpirationJob;
 use Modules\Agenda\Models\CuadranteMes;
+use Modules\Agenda\Models\EventoAgenda;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Agenda\Models\LineaCuadrante;
 use Modules\Agenda\Models\Slot;
 use Modules\Agenda\Models\TipoSlot;
+use Modules\Agenda\Services\DisponibilidadService;
 use Modules\Agenda\Services\SlotMaterializadorService;
 use Modules\Centro\Models\Centro;
 use PHPUnit\Framework\Attributes\Test;
@@ -110,9 +113,98 @@ class SlotsDisponibilidadTest extends TestCase
     #[Test]
     public function test_pf_04_2_urgencias_no_visibles_en_consulta_externa(): void
     {
-        $this->markTestIncomplete(
-            'PF-04.2: pendiente de implementar DisponibilidadService::obtenerSlots()'
+        $usuario = User::factory()->create();
+        $centro  = Centro::create([
+            'nombre'       => 'Centro PF-04.2',
+            'tipo_gestion' => 'municipal_directo',
+            'fecha_alta'   => now()->toDateString(),
+        ]);
+
+        $horario = HorarioCentro::create([
+            'centro_id'             => $centro->id,
+            'nombre'                => 'Horario',
+            'dias_laborables'       => [1, 2, 3, 4, 5],
+            'hora_apertura'         => '08:00',
+            'hora_cierre'           => '18:00',
+            'hora_inicio_atencion'  => '09:00',
+            'hora_fin_atencion'     => '13:00',
+            'buffer_inicio_minutos' => 0,
+            'buffer_fin_minutos'    => 0,
+            'vigente_desde'         => '2026-01-01',
+            'vigente_hasta'         => null,
+            'modo_agenda'           => 'estandar',
+            'activo'                => true,
+        ]);
+
+        $tipoSlot = TipoSlot::create([
+            'horario_centro_id'        => $horario->id,
+            'nombre'                   => 'Cita estándar',
+            'duracion_minutos'         => 30,
+            'requiere_espacio'         => false,
+            'porcentaje_urgencias'     => 10,
+            'origen_permitido'         => 'ambos',
+            'genera_apunte_automatico' => false,
+            'activo'                   => true,
+        ]);
+
+        $cuadrante = CuadranteMes::create([
+            'centro_id'               => $centro->id,
+            'anyo'                    => 2026,
+            'mes'                     => 6,
+            'estado'                  => EstadoCuadrante::Publicado->value,
+            'generado_con_ia'         => false,
+            'generado_automaticamente' => false,
+            'publicado_en'            => now(),
+        ]);
+
+        $linea = LineaCuadrante::create([
+            'cuadrante_mes_id' => $cuadrante->id,
+            'usuario_id'       => $usuario->id,
+            'centro_id'        => $centro->id,
+            'fecha'            => '2026-06-10',
+            'franjas'          => [['inicio' => '09:00', 'fin' => '13:00']],
+            'anulada'          => false,
+        ]);
+
+        $slotDisponible = Slot::create([
+            'linea_cuadrante_id' => $linea->id,
+            'usuario_id'         => $usuario->id,
+            'centro_id'          => $centro->id,
+            'tipo_slot_id'       => $tipoSlot->id,
+            'fecha'              => '2026-06-10',
+            'hora_inicio'        => '09:00',
+            'hora_fin'           => '09:30',
+            'estado'             => EstadoSlot::Disponible->value,
+        ]);
+
+        $slotUrgencia = Slot::create([
+            'linea_cuadrante_id' => $linea->id,
+            'usuario_id'         => $usuario->id,
+            'centro_id'          => $centro->id,
+            'tipo_slot_id'       => $tipoSlot->id,
+            'fecha'              => '2026-06-10',
+            'hora_inicio'        => '12:30',
+            'hora_fin'           => '13:00',
+            'estado'             => EstadoSlot::BloqueadoUrgencia->value,
+        ]);
+
+        $service = new DisponibilidadService();
+        $fecha   = Carbon::parse('2026-06-10');
+
+        // Canal externo: solo ve slots disponibles
+        $sinUrgencias = $service->obtenerSlots(
+            $usuario->id, $centro->id, $tipoSlot->id, $fecha, $fecha
         );
+        $this->assertCount(1, $sinUrgencias);
+        $this->assertEquals($slotDisponible->id, $sinUrgencias->first()->id);
+
+        // Canal interno: incluye urgencias
+        $conUrgencias = $service->obtenerSlots(
+            $usuario->id, $centro->id, $tipoSlot->id, $fecha, $fecha,
+            incluirUrgencias: true
+        );
+        $this->assertCount(2, $conUrgencias);
+        $this->assertTrue($conUrgencias->contains('id', $slotUrgencia->id));
     }
 
     // =========================================================================
@@ -122,9 +214,98 @@ class SlotsDisponibilidadTest extends TestCase
     #[Test]
     public function test_pf_04_3_crear_evento_bloquea_slots_disponibles(): void
     {
-        $this->markTestIncomplete(
-            'PF-04.3: pendiente de implementar lógica de bloqueo de slots al crear EventoAgenda'
-        );
+        $usuario    = User::factory()->create();
+        $supervisor = User::factory()->create();
+        $centro     = Centro::create([
+            'nombre'       => 'Centro PF-04.3',
+            'tipo_gestion' => 'municipal_directo',
+            'fecha_alta'   => now()->toDateString(),
+        ]);
+
+        $cuadrante = CuadranteMes::create([
+            'centro_id'               => $centro->id,
+            'anyo'                    => 2026,
+            'mes'                     => 6,
+            'estado'                  => EstadoCuadrante::Publicado->value,
+            'generado_con_ia'         => false,
+            'generado_automaticamente' => false,
+            'publicado_en'            => now(),
+        ]);
+
+        $horario = HorarioCentro::create([
+            'centro_id'             => $centro->id,
+            'nombre'                => 'Horario',
+            'dias_laborables'       => [1, 2, 3, 4, 5],
+            'hora_apertura'         => '08:00',
+            'hora_cierre'           => '18:00',
+            'hora_inicio_atencion'  => '09:00',
+            'hora_fin_atencion'     => '14:00',
+            'buffer_inicio_minutos' => 0,
+            'buffer_fin_minutos'    => 0,
+            'vigente_desde'         => '2026-01-01',
+            'vigente_hasta'         => null,
+            'modo_agenda'           => 'estandar',
+            'activo'                => true,
+        ]);
+
+        $tipoSlot = TipoSlot::create([
+            'horario_centro_id'        => $horario->id,
+            'nombre'                   => 'Cita',
+            'duracion_minutos'         => 60,
+            'requiere_espacio'         => false,
+            'porcentaje_urgencias'     => 0,
+            'origen_permitido'         => 'ambos',
+            'genera_apunte_automatico' => false,
+            'activo'                   => true,
+        ]);
+
+        $linea = LineaCuadrante::create([
+            'cuadrante_mes_id' => $cuadrante->id,
+            'usuario_id'       => $usuario->id,
+            'centro_id'        => $centro->id,
+            'fecha'            => '2026-06-10',
+            'franjas'          => [['inicio' => '09:00', 'fin' => '14:00']],
+            'anulada'          => false,
+        ]);
+
+        // Slot disponible en la franja del evento (10:00-11:00)
+        $slotAfectado = Slot::create([
+            'linea_cuadrante_id' => $linea->id,
+            'usuario_id'         => $usuario->id,
+            'centro_id'          => $centro->id,
+            'tipo_slot_id'       => $tipoSlot->id,
+            'fecha'              => '2026-06-10',
+            'hora_inicio'        => '10:00',
+            'hora_fin'           => '11:00',
+            'estado'             => EstadoSlot::Disponible->value,
+        ]);
+
+        // Slot fuera de la franja del evento
+        $slotFuera = Slot::create([
+            'linea_cuadrante_id' => $linea->id,
+            'usuario_id'         => $usuario->id,
+            'centro_id'          => $centro->id,
+            'tipo_slot_id'       => $tipoSlot->id,
+            'fecha'              => '2026-06-10',
+            'hora_inicio'        => '11:00',
+            'hora_fin'           => '12:00',
+            'estado'             => EstadoSlot::Disponible->value,
+        ]);
+
+        $evento = EventoAgenda::create([
+            'centro_id'     => $centro->id,
+            'tipo_evento'   => 'reunion_equipo',
+            'titulo'        => 'Reunión de coordinación',
+            'fecha'         => '2026-06-10',
+            'hora_inicio'   => '10:00',
+            'hora_fin'      => '11:00',
+            'creado_por_id' => $supervisor->id,
+        ]);
+
+        $evento->agregarProfesionales([$usuario->id]);
+
+        $this->assertEquals(EstadoSlot::BloqueadoEvento, $slotAfectado->fresh()->estado);
+        $this->assertEquals(EstadoSlot::Disponible, $slotFuera->fresh()->estado);
     }
 
     // =========================================================================
@@ -135,15 +316,10 @@ class SlotsDisponibilidadTest extends TestCase
     public function test_pf_04_4_job_expiracion_marca_urgencias_expiradas(): void
     {
         $slot = Slot::factory()->urgencia()->create([
-            'fecha'      => now()->subDay()->toDateString(),
+            'fecha'       => now()->subDay()->toDateString(),
             'hora_inicio' => '10:00',
-            'hora_fin'   => '10:45',
+            'hora_fin'    => '10:45',
         ]);
-
-        // SlotExpirationJob es aún un esqueleto; marcamos como pendiente
-        $this->markTestIncomplete(
-            'PF-04.4: pendiente de implementar SlotExpirationJob::handle()'
-        );
 
         (new SlotExpirationJob())->handle();
 
@@ -158,15 +334,11 @@ class SlotsDisponibilidadTest extends TestCase
     public function test_pf_04_5_job_expiracion_marca_disponibles_no_ocupados(): void
     {
         $slot = Slot::factory()->create([
-            'fecha'      => now()->subDay()->toDateString(),
+            'fecha'       => now()->subDay()->toDateString(),
             'hora_inicio' => '10:00',
-            'hora_fin'   => '10:45',
-            'estado'     => EstadoSlot::Disponible->value,
+            'hora_fin'    => '10:45',
+            'estado'      => EstadoSlot::Disponible->value,
         ]);
-
-        $this->markTestIncomplete(
-            'PF-04.5: pendiente de implementar SlotExpirationJob::handle()'
-        );
 
         (new SlotExpirationJob())->handle();
 

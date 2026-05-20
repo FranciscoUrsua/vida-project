@@ -9,7 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Modules\Agenda\Database\Factories\EventoAgendaFactory;
+use Modules\Agenda\Enums\EstadoCita;
+use Modules\Agenda\Enums\EstadoSlot;
+use Modules\Agenda\Models\Cita;
+use Modules\Agenda\Models\Slot;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Espacio;
 
@@ -88,5 +93,72 @@ class EventoAgenda extends Model
     public function scopeDelProfesional(Builder $query, int $usuarioId): Builder
     {
         return $query->whereHas('profesionales', fn (Builder $q) => $q->where('users.id', $usuarioId));
+    }
+
+    /**
+     * Convoca a los profesionales al evento y bloquea sus slots disponibles.
+     *
+     * Para cada profesional, marca como 'bloqueado_evento' todos los slots
+     * en estado 'disponible' cuya hora_inicio cae dentro de la franja del evento.
+     * Los slots en estado 'reservado' no se bloquean; las citas confirmadas
+     * afectadas se devuelven como conflictos para que el supervisor las gestione.
+     *
+     * @param  array<int> $usuarioIds IDs de los profesionales a convocar
+     * @return array<int, Collection<int, Cita>> Mapa usuarioId → citas en conflicto
+     */
+    public function agregarProfesionales(array $usuarioIds): array
+    {
+        $conflictos = [];
+        $fechaStr   = $this->fecha->toDateString();
+
+        foreach ($usuarioIds as $usuarioId) {
+            $this->profesionales()->syncWithoutDetaching([$usuarioId]);
+
+            Slot::where('usuario_id', $usuarioId)
+                ->where('centro_id', $this->centro_id)
+                ->where('fecha', $fechaStr)
+                ->where('hora_inicio', '>=', $this->hora_inicio)
+                ->where('hora_inicio', '<', $this->hora_fin)
+                ->where('estado', EstadoSlot::Disponible->value)
+                ->update(['estado' => EstadoSlot::BloqueadoEvento->value]);
+
+            $citasAfectadas = Cita::where('profesional_id', $usuarioId)
+                ->where('centro_id', $this->centro_id)
+                ->where('fecha', $fechaStr)
+                ->where('hora_inicio', '>=', $this->hora_inicio)
+                ->where('hora_inicio', '<', $this->hora_fin)
+                ->where('estado', EstadoCita::Confirmada->value)
+                ->get();
+
+            if ($citasAfectadas->isNotEmpty()) {
+                $conflictos[$usuarioId] = $citasAfectadas;
+            }
+        }
+
+        return $conflictos;
+    }
+
+    /**
+     * Comprueba si el espacio asignado al evento ya está ocupado por otro evento simultáneo.
+     *
+     * Solo aplica cuando el evento tiene espacio_id. Si dos eventos comparten
+     * espacio y sus franjas se solapan, el sistema debe avisar al supervisor
+     * pero no bloquear la creación del evento (principio de aviso sin bloqueo).
+     *
+     * @return bool true si existe conflicto de espacio
+     */
+    public function detectarConflictoEspacio(): bool
+    {
+        if (! $this->espacio_id) {
+            return false;
+        }
+
+        return EventoAgenda::where('espacio_id', $this->espacio_id)
+            ->where('fecha', $this->fecha->toDateString())
+            ->where('id', '!=', $this->id)
+            ->whereNull('deleted_at')
+            ->where('hora_inicio', '<', $this->hora_fin)
+            ->where('hora_fin', '>', $this->hora_inicio)
+            ->exists();
     }
 }
