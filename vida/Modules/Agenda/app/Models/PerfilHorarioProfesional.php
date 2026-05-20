@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use LogicException;
 use Modules\Agenda\Database\Factories\PerfilHorarioProfesionalFactory;
 use Modules\Centro\Models\Centro;
 
@@ -36,6 +37,35 @@ class PerfilHorarioProfesional extends Model
     protected static function newFactory(): PerfilHorarioProfesionalFactory
     {
         return PerfilHorarioProfesionalFactory::new();
+    }
+
+    /**
+     * Valida que no exista ya un perfil activo para la misma combinación
+     * (usuario_id, centro_id) antes de persistir.
+     *
+     * La restricción se aplica en capa de aplicación (no en BD) porque un
+     * profesional puede tener varios perfiles históricos inactivos para el
+     * mismo centro, y solo uno vigente y activo a la vez.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (PerfilHorarioProfesional $perfil) {
+            if (! $perfil->activo) {
+                return;
+            }
+
+            $existe = static::where('usuario_id', $perfil->usuario_id)
+                ->where('centro_id', $perfil->centro_id)
+                ->where('activo', true)
+                ->when($perfil->exists, fn (Builder $q) => $q->where('id', '!=', $perfil->id))
+                ->exists();
+
+            if ($existe) {
+                throw new LogicException(
+                    'Ya existe un perfil horario activo para este profesional en este centro.'
+                );
+            }
+        });
     }
 
     protected $table = 'perfiles_horario_profesional';

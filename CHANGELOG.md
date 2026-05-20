@@ -2,6 +2,26 @@
 
 ---
 
+## Módulo Agenda — Validación solapamiento perfiles horarios (PF-02.3) — 2026-05-20
+
+### Implementación
+
+- **`Modules/Agenda/app/Models/PerfilHorarioProfesional.php`** — añadido `booted()` con evento `saving`:
+  - Lanza `LogicException` si se intenta persistir un perfil con `activo = true` cuando ya existe otro perfil activo para la misma combinación `(usuario_id, centro_id)`.
+  - Los perfiles inactivos no aplican la restricción y no bloquean la creación de un activo.
+  - Se usa `when($perfil->exists, ...)` para distinguir entre `creating` (sin id) y `updating` (excluye self).
+
+### Tests añadidos (2 tests pasan ahora ✅)
+
+- **PF-02.3** — Segundo perfil activo mismo profesional+centro lanza `LogicException`.
+- **PF-02.3 negativo** — Perfil inactivo en la misma combo no impide crear un activo.
+
+### Estado de la suite
+
+259 tests pasan ✅ — 0 fallos — 1 incompleto (TF-USU-31 en módulo Usuarios).
+
+---
+
 ## Módulo Agenda — Slots, disponibilidad, eventos, itinerantes (PF-04, PF-08, PF-09) — 2026-05-20
 
 ### Implementación

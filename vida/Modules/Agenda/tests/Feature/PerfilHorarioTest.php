@@ -236,13 +236,25 @@ class PerfilHorarioTest extends TestCase
         $usuario = User::factory()->create();
         $centro  = $this->crearCentro();
 
-        // Primer perfil activo: ok
+        // Primer perfil activo: se crea sin problema
         $this->crearPerfil($usuario, $centro);
 
-        // Segundo perfil activo para el mismo profesional y centro: debe fallar en capa de aplicación.
-        // La validación no existe aún en el modelo; se marca como pendiente.
-        $this->markTestIncomplete(
-            'PF-02.3: pendiente de implementar validación de solapamiento en PerfilHorarioProfesional'
-        );
+        // Segundo perfil activo para el mismo profesional y centro: debe lanzar LogicException
+        $this->expectException(\LogicException::class);
+        $this->crearPerfil($usuario, $centro);
+    }
+
+    #[Test]
+    public function test_pf_02_3_perfil_inactivo_no_bloquea_activo(): void
+    {
+        // Verificación en negativo: un perfil inactivo para el mismo combo no impide crear un activo
+        $usuario = User::factory()->create();
+        $centro  = $this->crearCentro('Centro negativo');
+
+        $this->crearPerfil($usuario, $centro, ['activo' => false]);
+
+        // No debe lanzar excepción — el perfil inactivo no bloquea
+        $perfil = $this->crearPerfil($usuario, $centro);
+        $this->assertTrue($perfil->activo);
     }
 }

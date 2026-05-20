@@ -4,38 +4,27 @@ _Actualizado: 2026-05-20_
 
 ## Tarea completada
 
-PF-04 (slots y disponibilidad) + PF-08 (eventos de agenda) + PF-09 (itinerantes) implementados.
-Suite: **258 pasan, 0 fallos, 2 incompletos**.
+PF-02.3 (validación solapamiento perfiles horarios) implementado. Suite: **259 pasan, 0 fallos, 1 incompleto**.
 
 ## Estado actual
 
-- **Módulo Agenda — tests funcionales:** 44 tests — 42 pasan ✅ — 1 pendiente ⏳ — 0 fallos.
-- **Suite completa:** 258 tests pasan ✅ — 0 fallos — 2 incompletos.
+- **Módulo Agenda — tests funcionales:** 45 tests — 45 pasan ✅ — 0 pendientes — 0 fallos.
+- **Suite completa:** 259 tests pasan ✅ — 0 fallos — 1 incompleto (TF-USU-31).
 
 ## Qué se implementó en esta sesión
 
-**`SlotExpirationJob::handle()`** — `Modules/Agenda/app/Jobs/SlotExpirationJob.php`:
-- `bloqueado_urgencia` + fecha pasada → `expirado`.
-- `disponible` + fecha pasada → `no_ocupado`.
-- `reservado` sin cita activa + fecha pasada → `no_ocupado` (no-shows de ciudadano).
+**`PerfilHorarioProfesional::booted()`** — `Modules/Agenda/app/Models/PerfilHorarioProfesional.php`:
+- Evento `saving`: si `activo = true`, comprueba que no exista otro perfil activo para el mismo `(usuario_id, centro_id)`. Si existe, lanza `LogicException`.
+- Usa `when($perfil->exists, ...)` para excluir el propio registro en updates.
 
-**`DisponibilidadService::obtenerSlots()`** — `Modules/Agenda/app/Services/DisponibilidadService.php`:
-- Filtra por profesional, centro, tipo y rango de fechas.
-- `incluirUrgencias` controla visibilidad de slots `bloqueado_urgencia`.
-
-**`EventoAgenda::agregarProfesionales()`** + **`detectarConflictoEspacio()`** — `Modules/Agenda/app/Models/EventoAgenda.php`:
-- Bloquea slots `disponible` en la franja del evento; devuelve citas en conflicto.
-- Detecta solapamiento de espacio físico sin bloquear la creación.
-
-## Tests incompletos restantes (2)
+## Test incompleto restante (1)
 
 | Test | Módulo | Requiere |
 |---|---|---|
-| PF-02.3 | Agenda/PerfilHorario | Validación de solapamiento en `PerfilHorarioProfesional` |
-| TF-USU-31 | Usuarios | Policy/Service para autorización de adscripción de usuario a UO fuera de su ámbito |
+| TF-USU-31 | Usuarios | Policy/Service que impide a `administrador_usuarios` adscribir usuarios a UO fuera de su ámbito jerárquico |
 
 ## Siguiente paso recomendado
 
-**PF-02.3** — Implementar validación de solapamiento en `PerfilHorarioProfesional`: que no se permita crear un segundo perfil activo para el mismo profesional y centro si los días laborables solapan con un perfil ya activo. Requiere un `saving` observer o una regla de validación en el modelo.
+**TF-USU-31** — El único test pendiente en toda la suite. Requiere implementar la validación en `UsuarioUoPolicy` (o un Service dedicado) que compruebe que el usuario que intenta adscribir otro a una UO tiene autoridad jerárquica sobre esa UO.
 
-O bien **TF-USU-31** — Implementar la policy que impide que un usuario con rol `administrador_usuarios` adscribirá usuarios a UO fuera de su ámbito jerárquico. Requiere validación en `UsuarioUoPolicy` o un Service dedicado.
+Leer `Modules/Usuarios/tests/Feature/UnidadOrganizativaTest.php` para ver el contexto exacto del test antes de actuar.
