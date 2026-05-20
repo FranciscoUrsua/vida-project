@@ -185,6 +185,46 @@ Las decisiones de arquitectura actuales no deben cerrar esta puerta.
 
 ---
 
+**Calibración del valor K en perfiles de anonimización** — 2026-05-21
+'Transversal / API'
+K=10 como valor por defecto para datos abiertos es conservador. Evaluar si perfiles
+de investigación con convenio pueden usar K=5 con salvaguardas adicionales.
+Requiere consulta con el Delegado de Protección de Datos.
+
+---
+
+**Tratamiento de colectivos protegidos en extracciones anonimizadas** — 2026-05-21
+'Transversal / API'
+Definir si los registros de ciudadanos de colectivos protegidos (VVG, PSH) se excluyen
+de extracciones de Nivel 2 y 3 incluso después de anonimizar, o si la anonimización
+es garantía suficiente. Requiere análisis legal y consulta con DPD.
+
+---
+
+**Generalización de ubicación para PSH en extracciones analíticas** — 2026-05-21
+'Transversal / API'
+Las PSH tienen coordenadas de pernocta, no dirección postal. Definir cómo se
+generaliza este campo en extracciones: zona, distrito de intervención, o supresión
+si la densidad es insuficiente para garantizar k-anonimato.
+
+---
+
+**Validación formal del proceso de k-anonimato por el DPD** — 2026-05-21
+'Transversal / API'
+Antes de la primera publicación en el portal de datos abiertos, someter el proceso
+de k-anonimato a revisión formal por el Delegado de Protección de Datos.
+Bloqueante para la activación del perfil datos_abiertos.
+
+---
+
+**Sandbox de API** — 2026-05-20
+'API'
+Entorno separado con datos ficticios para desarrollo de integraciones externas.
+Diferido hasta que haya un integrador externo real que lo necesite.
+Prerequisito: factories y seeders completos para todas las entidades principales.
+
+---
+
 ## Convenciones de este fichero
 
 - Añadir entradas con fecha en formato `YYYY-MM-DD`.
