@@ -235,7 +235,9 @@ Las herramientas de IA (Claude CLI, etc.) pueden generar código, tests y docume
 ### 4.17 Anonimización como capacidad transversal
 
 La anonimización y seudonimización no son funcionalidades de un módulo concreto: son una capacidad del sistema que se aplica en cualquier contexto donde el acceso a datos personales completos no sea necesario ni apropiado. Esto incluye la supervisión interna, la extracción analítica, la publicación en portales de datos abiertos y cualquier otro escenario de acceso restringido.
+
 El sistema define tres niveles estándar: seudonimización (reversible, para contextos internos), generalización (irreversible, para analítica interna) y k-anonimato (para datos públicos). La elección del nivel y la configuración concreta de cada campo se gestionan mediante perfiles configurables desde el backoffice, sin necesidad de desarrollo.
+
 La anonimización es parte del cumplimiento del RGPD por diseño (privacy by design): ofrecer el nivel mínimo de datos necesario para cada finalidad no es una restricción, es un principio de diseño. Ver docs/anonimizacion.md.
 
 ---
