@@ -175,7 +175,7 @@ docs/instrucciones-cli/2024-11-auditoria-implementacion-service.md
 
 ---
 
-### 7. Anonimización y seudonimización
+## 7. Anonimización y seudonimización
 
 Fecha de decisión: 2026-05-21
 
@@ -187,9 +187,9 @@ La anonimización se implementa como una capa de transformación independiente �
 
 Se definen tres niveles técnicos: seudonimización, generalización y k-anonimato. Su aplicación se configura mediante perfiles versionados gestionados desde el backoffice de API. Ver docs/anonimizacion.md para la especificación completa.
 
-```
+---
 
-**Decisiones técnicas concretas**
+### Decisiones técnicas concretas
 
 **Seudonimización:** alias opaco y consistente por ciudadano (CIU-{hash}). La tabla de correspondencias alias → ciudadano_id nunca sale del sistema. La reversión requiere el permiso atómico ciudadano.revelar_identidad, queda registrada en auditoría con justificación obligatoria.
 
@@ -201,10 +201,14 @@ Se definen tres niveles técnicos: seudonimización, generalización y k-anonima
 
 **Perfiles versionados:** cada perfil tiene un campo version. Las extracciones registran la versión aplicada. Es posible reconstruir qué transformación se aplicó a cualquier extracción pasada.
 
-**Alternativas descartadas**
+---
+
+### Alternativas descartadas
 
 **Anonimización a nivel de base de datos** (vistas materializadas anonimizadas): descartada porque no permite la reversibilidad controlada del Nivel 1 ni la flexibilidad de perfiles por caso de uso.
 Anonimización en el datalake (transformar los datos al llegar al datalake, no al salir de VIDA): descartada porque implica que datos personales completos viajan hasta el datalake. La transformación debe ocurrir antes de que el dato abandone el perímetro de VIDA.
+
+---
 
 **Decisiones pendientes**
 
