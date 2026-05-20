@@ -213,3 +213,62 @@ Anonimización en el datalake (transformar los datos al llegar al datalake, no a
 **Decisiones pendientes**
 
 Ver sección 8 de docs/anonimizacion.md.
+
+---
+
+## Sección 8 — Ubicación de los modelos de infraestructura de API
+
+Fecha de decisión: 2026-05-21
+Contexto: durante el diseño del backoffice de API surgió la pregunta de si los modelos relacionados con la gestión de clientes API y perfiles de anonimización debían vivir en un módulo nwidart (Modules/Api/) o en el núcleo de la aplicación (app/Models/Api/).
+
+---
+
+### Decisión
+Los modelos de infraestructura de API — ClienteApi, ClienteApiScope, ClienteApiRolPermitido, PerfilAnonimizacion y sus relaciones — viven en app/Models/Api/, con sus servicios asociados en app/Services/Api/. El ApiAdminPanelProvider vive en app/Providers/Filament/, junto al AdminPanelProvider existente.
+
+No se crea un módulo nwidart para la API.
+
+---
+
+### Justificación
+
+**Naturaleza transversal, no de dominio.** Los módulos nwidart existentes (Ciudadanía, Intervención, Organización, Centros) encapsulan dominios funcionales con entidades, flujos y pantallas propios. Los modelos de API son infraestructura de integración transversal — los necesita el middleware de autenticación que se ejecuta en cada request de cualquier módulo, no un dominio funcional concreto. Esta naturaleza es análoga a User o Audit, que también viven en el núcleo por ser transversales.
+
+**Coherencia con decisiones existentes.** El CHANGELOG documenta fricciones reales con namespaces y autoload de módulos nwidart, especialmente cuando un módulo necesita ser conocido por otros módulos o por el núcleo. Los modelos de API estarían en esa situación por definición. La misma lógica que llevó a centralizar los Resources de Filament en app/Filament/Resources/ aplica aquí.
+
+**Simplicidad.** No hay lógica de dominio compleja que justifique el overhead de un módulo nwidart completo — provider, registro en bootstrap, estructura de carpetas duplicada. La ganancia en organización no compensa la fricción añadida.
+
+---
+
+### Alternativa descartada
+
+**Modules/Api/ con módulo nwidart completo**: descartado por las razones anteriores. La consistencia visual de tener todo en Modules/ no compensa la fricción de autoload y namespaces documentada en el proyecto, y la naturaleza transversal de estos modelos los hace más afines al núcleo que a los módulos funcionales.
+
+--- 
+
+### Estructura resultante
+
+app/
+├── Models/
+│   └── Api/
+│       ├── ClienteApi.php
+│       ├── ClienteApiScope.php
+│       ├── ClienteApiRolPermitido.php
+│       └── PerfilAnonimizacion.php
+├── Services/
+│   └── Api/
+│       ├── AnonimizadorService.php
+│       ├── GestorClientesApi.php
+│       └── ValidadorKAnonimato.php
+├── Filament/
+│   └── Resources/
+│       └── ApiAdmin/
+│           ├── ClienteApiResource.php
+│           ├── PerfilAnonimizacionResource.php
+│           └── ...
+└── Providers/
+    └── Filament/
+        ├── AdminPanelProvider.php
+        └── ApiAdminPanelProvider.php
+
+
