@@ -3,17 +3,21 @@
 namespace Modules\Agenda\Models;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Agenda\Database\Factories\CitaFactory;
 use Modules\Agenda\Enums\EstadoCita;
+use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Agenda\Enums\OrigenCita;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Ciudadano;
+use Modules\Intervencion\Models\Apunte;
 
 /**
  * Reserva de un slot con un ciudadano concreto.
@@ -125,5 +129,64 @@ class Cita extends Model
     public function scopePendientesReasignacion(Builder $query): Builder
     {
         return $query->where('estado', EstadoCita::NoShowProfesional->value);
+    }
+
+    // =========================================================================
+    // Acciones de ciclo de vida
+    // =========================================================================
+
+    /**
+     * Marca la cita como completada y registra el momento exacto.
+     */
+    public function completar(): void
+    {
+        $this->update([
+            'estado'        => EstadoCita::Completada->value,
+            'completada_en' => now(),
+        ]);
+    }
+
+    /**
+     * Cancela la cita y ajusta el estado del slot según si la franja ha pasado.
+     *
+     * Si la hora de inicio del slot ya ha transcurrido, el slot queda en
+     * 'no_ocupado'; si aún no ha llegado, vuelve a 'disponible'.
+     *
+     * @param  User   $canceladoPor Usuario que ejecuta la cancelación
+     * @param  string $motivo       Motivo de la cancelación
+     */
+    public function cancelar(User $canceladoPor, string $motivo): void
+    {
+        $slot       = Slot::findOrFail($this->slot_id);
+        $horarioSlot = Carbon::parse($slot->fecha->toDateString() . ' ' . $slot->hora_inicio);
+        $slotPasado  = now()->isAfter($horarioSlot);
+
+        $slot->update([
+            'estado' => $slotPasado
+                ? EstadoSlot::NoOcupado->value
+                : EstadoSlot::Disponible->value,
+        ]);
+
+        $this->update([
+            'estado'             => EstadoCita::Cancelada->value,
+            'cancelado_por_id'   => $canceladoPor->id,
+            'motivo_cancelacion' => $motivo,
+        ]);
+    }
+
+    // =========================================================================
+    // Relaciones adicionales
+    // =========================================================================
+
+    /**
+     * Apuntes de Historia Social vinculados a esta cita (polimórficos).
+     *
+     * Permite detectar apuntes existentes antes de una cancelación retroactiva.
+     *
+     * @return MorphMany<Apunte>
+     */
+    public function apuntes(): MorphMany
+    {
+        return $this->morphMany(Apunte::class, 'apuntable');
     }
 }

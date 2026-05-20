@@ -26,6 +26,23 @@ class CitaCicloVidaTest extends TestCase
         ]);
     }
 
+    /** Datos mínimos para crear una Cita sobre un slot dado. */
+    private function datosCita(Slot $slot, array $override = []): array
+    {
+        return array_merge([
+            'slot_id'        => $slot->id,
+            'ciudadano_id'   => \App\Models\Ciudadano::factory()->create()->id,
+            'profesional_id' => $slot->usuario_id,
+            'tipo_slot_id'   => $slot->tipo_slot_id,
+            'centro_id'      => $slot->centro_id,
+            'fecha'          => $slot->fecha->toDateString(),
+            'hora_inicio'    => $slot->hora_inicio,
+            'hora_fin'       => $slot->hora_fin,
+            'estado'         => EstadoCita::Confirmada->value,
+            'origen'         => OrigenCita::Interno->value,
+        ], $override);
+    }
+
     // =========================================================================
     // PF-05.1 — Crear una cita interna cambia el slot a reservado
     // =========================================================================
@@ -33,8 +50,16 @@ class CitaCicloVidaTest extends TestCase
     #[Test]
     public function test_pf_05_1_crear_cita_interna_cambia_slot_a_reservado(): void
     {
-        $this->markTestIncomplete(
-            'PF-05.1: pendiente de implementar lógica que actualiza slot.estado al crear Cita'
+        $slot     = Slot::factory()->create(); // estado = disponible
+        $datos    = $this->datosCita($slot);
+
+        $cita = Cita::create($datos);
+
+        $this->assertEquals(EstadoCita::Confirmada, $cita->estado);
+        $this->assertEquals(
+            EstadoSlot::Reservado,
+            $slot->fresh()->estado,
+            'El slot debe pasar a reservado al crear la cita'
         );
     }
 
@@ -45,9 +70,17 @@ class CitaCicloVidaTest extends TestCase
     #[Test]
     public function test_pf_05_2_cita_externa_registra_referencia(): void
     {
-        $this->markTestIncomplete(
-            'PF-05.2: pendiente de implementar lógica de Cita desde api_externa con validación de origen_permitido'
-        );
+        $slot  = Slot::factory()->create();
+        $datos = $this->datosCita($slot, [
+            'origen'             => OrigenCita::ApiExterna->value,
+            'referencia_externa' => 'REF-EXT-0001',
+        ]);
+
+        $cita = Cita::create($datos);
+
+        $this->assertEquals(OrigenCita::ApiExterna, $cita->origen);
+        $this->assertEquals('REF-EXT-0001', $cita->referencia_externa);
+        $this->assertEquals(EstadoSlot::Reservado, $slot->fresh()->estado);
     }
 
     // =========================================================================
@@ -102,9 +135,12 @@ class CitaCicloVidaTest extends TestCase
     #[Test]
     public function test_pf_05_4_no_cita_externa_sobre_slot_urgencia(): void
     {
-        $this->markTestIncomplete(
-            'PF-05.4: pendiente de implementar validación de origen_permitido al crear Cita'
-        );
+        $slot  = Slot::factory()->urgencia()->create();
+        $datos = $this->datosCita($slot, ['origen' => OrigenCita::ApiExterna->value]);
+
+        $this->expectException(\LogicException::class);
+
+        Cita::create($datos);
     }
 
     // =========================================================================
@@ -114,9 +150,15 @@ class CitaCicloVidaTest extends TestCase
     #[Test]
     public function test_pf_05_5_completar_cita_registra_timestamp(): void
     {
-        $this->markTestIncomplete(
-            'PF-05.5: pendiente de implementar flujo de completado con evento hacia módulo Intervención'
-        );
+        $cita = Cita::factory()->create(); // confirmada
+
+        $this->assertNull($cita->completada_en, 'Antes de completar no debe haber timestamp');
+
+        $cita->completar();
+
+        $citaFresh = $cita->fresh();
+        $this->assertEquals(EstadoCita::Completada, $citaFresh->estado);
+        $this->assertNotNull($citaFresh->completada_en, 'Debe registrarse el momento de completado');
     }
 
     // =========================================================================
@@ -126,8 +168,29 @@ class CitaCicloVidaTest extends TestCase
     #[Test]
     public function test_pf_05_6_cancelar_cita_libera_slot(): void
     {
-        $this->markTestIncomplete(
-            'PF-05.6: pendiente de implementar servicio de cancelación que actualiza slot.estado'
+        // Slot con fecha en el futuro: la hora no ha pasado aún
+        $slot = Slot::factory()->create([
+            'fecha'      => now()->addDay()->toDateString(),
+            'hora_inicio' => '10:00',
+            'hora_fin'   => '10:45',
+        ]);
+        $datos = $this->datosCita($slot);
+
+        // Al crear la cita, el observer marca el slot como reservado
+        $cita = Cita::create($datos);
+        $this->assertEquals(EstadoSlot::Reservado, $slot->fresh()->estado);
+
+        $supervisor = User::factory()->create();
+        $cita->cancelar($supervisor, 'Agenda incompatible');
+
+        $citaFresh = $cita->fresh();
+        $this->assertEquals(EstadoCita::Cancelada, $citaFresh->estado);
+        $this->assertEquals($supervisor->id, $citaFresh->cancelado_por_id);
+        $this->assertEquals('Agenda incompatible', $citaFresh->motivo_cancelacion);
+        $this->assertEquals(
+            EstadoSlot::Disponible,
+            $slot->fresh()->estado,
+            'El slot futuro debe volver a disponible tras la cancelación'
         );
     }
 
@@ -138,8 +201,30 @@ class CitaCicloVidaTest extends TestCase
     #[Test]
     public function test_pf_05_7_cancelacion_retroactiva_slot_queda_no_ocupado(): void
     {
-        $this->markTestIncomplete(
-            'PF-05.7: pendiente de implementar flujo de cancelación retroactiva'
+        // Slot con fecha en el pasado: la hora ya transcurrió
+        $slot = Slot::factory()->create([
+            'fecha'      => now()->subDay()->toDateString(),
+            'hora_inicio' => '09:00',
+            'hora_fin'   => '09:45',
+        ]);
+        $datos = $this->datosCita($slot, [
+            'fecha'      => $slot->fecha->toDateString(),
+            'hora_inicio' => '09:00',
+            'hora_fin'   => '09:45',
+        ]);
+
+        $cita = Cita::create($datos);
+        // Verificamos que el slot quedó como reservado tras crear la cita
+        $this->assertEquals(EstadoSlot::Reservado, $slot->fresh()->estado);
+
+        $supervisor = User::factory()->create();
+        $cita->cancelar($supervisor, 'Cancelación retroactiva');
+
+        $this->assertEquals(EstadoCita::Cancelada, $cita->fresh()->estado);
+        $this->assertEquals(
+            EstadoSlot::NoOcupado,
+            $slot->fresh()->estado,
+            'El slot cuya hora ya pasó debe quedar en no_ocupado, no volver a disponible'
         );
     }
 
@@ -150,8 +235,34 @@ class CitaCicloVidaTest extends TestCase
     #[Test]
     public function test_pf_05_8_cancelacion_retroactiva_informa_apuntes(): void
     {
-        $this->markTestIncomplete(
-            'PF-05.8: pendiente de implementar consulta de apuntes previos a cancelación retroactiva'
+        // Cita completada con apunte vinculado en Historia Social
+        $cita = Cita::factory()->completada()->create([
+            'fecha' => now()->subDays(2)->toDateString(),
+        ]);
+
+        // Apunte creado automáticamente al completar la cita (polimórfico vía apuntable)
+        $apunte = \Modules\Intervencion\Models\Apunte::factory()->create([
+            'apuntable_type' => Cita::class,
+            'apuntable_id'   => $cita->id,
+        ]);
+
+        // Antes de cancelar: el servicio detecta el apunte asociado
+        $this->assertCount(
+            1,
+            $cita->apuntes,
+            'Debe detectarse el apunte vinculado a la cita antes de la cancelación'
+        );
+
+        // El supervisor confirma y cancela
+        $supervisor = User::factory()->create();
+        $cita->cancelar($supervisor, 'Error de registro — cita duplicada');
+
+        $this->assertEquals(EstadoCita::Cancelada, $cita->fresh()->estado);
+
+        // Los apuntes existentes NO se eliminan al cancelar la cita
+        $this->assertTrue(
+            \Modules\Intervencion\Models\Apunte::where('id', $apunte->id)->exists(),
+            'Los apuntes de Historia Social deben permanecer intactos tras la cancelación'
         );
     }
 }

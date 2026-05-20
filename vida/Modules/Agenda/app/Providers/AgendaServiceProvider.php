@@ -3,6 +3,8 @@
 namespace Modules\Agenda\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Modules\Agenda\Models\Cita;
+use Modules\Agenda\Observers\CitaObserver;
 
 /**
  * Provider del módulo Agenda.
@@ -21,5 +23,7 @@ class AgendaServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));
+
+        Cita::observe(CitaObserver::class);
     }
 }

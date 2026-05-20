@@ -2,6 +2,37 @@
 
 ---
 
+## Módulo Agenda — Ciclo de vida de Cita — 2026-05-20
+
+### Implementación
+
+- **`Modules/Agenda/app/Observers/CitaObserver.php`** — Observer nuevo:
+  - `creating`: lanza `LogicException` si se intenta reservar un slot `bloqueado_urgencia` desde canal `api_externa`.
+  - `created`: actualiza el slot asociado a estado `reservado` tras crear la cita.
+
+- **`Modules/Agenda/app/Models/Cita.php`** — métodos y relación añadidos:
+  - `completar()`: transiciona a `completada` y registra `completada_en = now()`.
+  - `cancelar(User $canceladoPor, string $motivo)`: cancela la cita y ajusta el slot según si su hora_inicio ya ha pasado (`no_ocupado`) o no (`disponible`). Usa `Slot::findOrFail` para garantizar estado fresco.
+  - `apuntes()`: `MorphMany` hacia `Apunte` (Intervención) via `apuntable`, para detectar apuntes vinculados antes de una cancelación retroactiva.
+
+- **`Modules/Agenda/app/Providers/AgendaServiceProvider.php`** — registra `Cita::observe(CitaObserver::class)` en `boot()`.
+
+### Tests desbloqueados (7 tests pasan ahora ✅)
+
+- **PF-05.1** — Crear cita interna → slot pasa a `reservado` (Observer::created).
+- **PF-05.2** — Cita externa registra `referencia_externa` y slot queda `reservado`.
+- **PF-05.4** — Intento de cita externa sobre slot urgencia → `LogicException` (Observer::creating).
+- **PF-05.5** — `completar()` registra `completada_en` y transiciona a `completada`.
+- **PF-05.6** — `cancelar()` con slot futuro → slot vuelve a `disponible`.
+- **PF-05.7** — `cancelar()` con slot pasado → slot queda en `no_ocupado`.
+- **PF-05.8** — `apuntes()` detecta apuntes vinculados; la cancelación no los elimina.
+
+### Estado de la suite
+
+258 tests pasan ✅ — 0 fallos — 20 incompletos (eran 27 antes de esta sesión).
+
+---
+
 ## Módulo Agenda — CuadranteGeneratorService — 2026-05-20
 
 ### Servicio implementado

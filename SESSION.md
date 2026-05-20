@@ -4,47 +4,49 @@ _Actualizado: 2026-05-20_
 
 ## Tarea completada
 
-`CuadranteGeneratorService` implementado: 4 tests desbloqueados (PF-03.1, PF-03.4, PF-03.5, PF-10.1).
+Ciclo de vida de Cita implementado: 7 tests desbloqueados (PF-05.1, PF-05.2, PF-05.4, PF-05.5, PF-05.6, PF-05.7, PF-05.8).
 
 ## Estado actual
 
-- **Módulo Agenda — CuadranteGeneratorService:** ✅ `generarBorrador` y `generarYPublicarAutomaticamente` implementados.
-- **Módulo Agenda — tests funcionales:** 44 tests — 11 pasan ✅ — 33 pendientes ⏳ — 0 fallos.
-- **Módulo Usuarios fase 2 — tests funcionales:** 23 tests pasan ✅, 1 pendiente (TF-USU-31).
-- **Módulo Prestaciones — tests funcionales:** 45 tests, 45 pasan ✅.
-- **Módulo Mensajes — tests funcionales:** 31 tests, 31 pasan ✅.
-- **Módulo Intervención — tests funcionales:** 35 tests, 35 pasan ✅.
-- **Módulo Documentos — tests funcionales:** 20 tests, 20 pasan ✅.
-- **Módulo Centros — tests funcionales:** 31 tests, 31 pasan ✅.
-- **Suite completa:** 258 tests pasan ✅ — 0 fallos — 27 incompletos.
+- **Módulo Agenda — tests funcionales:** 44 tests — 18 pasan ✅ — 26 pendientes ⏳ — 0 fallos.
+- **Módulo Usuarios fase 2:** 23 tests pasan ✅, 1 pendiente (TF-USU-31).
+- **Módulo Prestaciones:** 45 tests pasan ✅.
+- **Módulo Mensajes:** 31 tests pasan ✅.
+- **Módulo Intervención:** 35 tests pasan ✅.
+- **Módulo Documentos:** 20 tests pasan ✅.
+- **Módulo Centros:** 31 tests pasan ✅.
+- **Suite completa:** 258 tests pasan ✅ — 0 fallos — 20 incompletos.
 
 ## Qué se implementó en esta sesión
 
-**`CuadranteGeneratorService`** — `Modules/Agenda/app/Services/CuadranteGeneratorService.php`:
+**`CitaObserver`** — `Modules/Agenda/app/Observers/CitaObserver.php`:
+- `creating`: rechaza reserva de slot urgencia desde canal externo (`LogicException`).
+- `created`: actualiza slot a `reservado` al crear la cita.
 
-- `generarBorrador(CuadranteMes $cuadrante)`:
-  - Resuelve `HorarioCentro` vigente para el primer día del mes.
-  - Carga `PerfilHorarioProfesional` activos cuya vigencia solapa el mes.
-  - Carga `ExcepcionProfesional` del período agrupadas por `usuario_id`.
-  - Por cada día laborable (según `dias_laborables`) y cada profesional: crea `LineaCuadrante` con las `franjas` del perfil. Si existe excepción que cubre el día → `anulada = true`, `excepcion_id` referenciado. Usa `insert()` bulk.
+**Cita model** — métodos añadidos:
+- `completar()`: transiciona a `completada`, registra `completada_en`.
+- `cancelar(User, string)`: ajusta el slot según si su hora ya pasó → `no_ocupado` (retroactiva) o `disponible` (futura).
+- `apuntes()`: `MorphMany` hacia `Apunte` de Intervención via `apuntable`.
 
-- `generarYPublicarAutomaticamente(Centro $centro, int $anyo, int $mes)`:
-  - Crea el `CuadranteMes` con `generado_automaticamente = true`.
-  - Llama a `generarBorrador`, publica y materializa slots.
-
-**Tests actualizados:**
-- `CuadranteMesTest.php`: PF-03.1, PF-03.4, PF-03.5 implementados con helpers `crearHorario` y `crearPerfil`.
-- `IntegridadCasosLimiteTest.php`: PF-10.1 implementado.
+**AgendaServiceProvider**: registra `Cita::observe(CitaObserver::class)`.
 
 ## Notas técnicas relevantes
 
-- `horario_habitual` JSON: los keys son siempre strings en PHP tras el cast `'array'`. Usar `(string)$dia->isoWeekday()` para lookups.
-- Filtrado de perfiles/excepciones: solapamiento de períodos (`vigente_desde <= $ultimoDia AND vigente_hasta >= $primerDia`).
-- Excepciones se pre-cargan en bulk y se agrupan (`groupBy('usuario_id')`) antes del bucle. No hay N+1.
-- Junio 2026 (L-V): 22 días laborables. Excepción 10-20 junio: 8 días laborables afectados.
+- El Observer usa `Slot::find($cita->slot_id)` en `creating` (sin lanzar si null, por si el slot no existe todavía en edge cases de factory). En `created` usa `Slot::where()->update()` (raw, sin disparar eventos de Slot).
+- `cancelar()` usa `Slot::findOrFail($this->slot_id)` en lugar de `$this->slot` para garantizar estado fresco de DB.
+- El test PF-05.3 ya pasaba antes (DB unique constraint en slot_id); los 7 desbloqueados son PF-05.1/2/4/5/6/7/8.
+- PF-05.8 crea un `Apunte` via factory de Intervención (`PlanDeIntervencion::factory()`) con `apuntable_type = Cita::class`. Confirma que `$cita->apuntes` es accesible y que `cancelar()` no destruye los apuntes.
 
 ## Siguiente paso recomendado
 
-Implementar **`SlotMaterializadorService`** para los tests pendientes del área PF-01 (buffer de inicio), PF-02 (perfiles horarios), PF-04 (slots y disponibilidad). El servicio ya tiene implementación base — los tests pendientes necesitan lógica adicional en buffers y disponibilidad.
+Los 20 tests pendientes se distribuyen:
+- **PF-01** (2): buffer de inicio, día no laborable → `SlotMaterializadorService` ya implementado; buffer en PF-01.1 está pendiente de verificar con test actualizado.
+- **PF-02** (3): perfiles horarios, solapamiento de perfiles.
+- **PF-04** (5): slots y disponibilidad → `DisponibilidadService`, `SlotExpirationJob`.
+- **PF-06** (3): no-show del ciudadano.
+- **PF-07** (5): no-show del profesional → `GestionAusenciaService`.
+- **PF-08** (4): eventos de agenda → lógica bloqueo slots en `EventoAgenda`.
+- **PF-09** (2): profesionales itinerantes.
+- **PF-10** (1): slot mayor que franja → ya implementado en SlotMaterializadorService (pasa en PF-10.2).
 
-O bien implementar el flujo de **ciclo de vida de Cita** (PF-05), que tiene la mayor concentración de tests pendientes (7 de 8).
+Siguiente bloque natural: **PF-06 (no-show ciudadano)** — 3 tests, lógica de ciclo de vida en Cita que ya tiene los métodos base implementados. O bien **PF-04** para unbloquear SlotExpirationJob + DisponibilidadService.
