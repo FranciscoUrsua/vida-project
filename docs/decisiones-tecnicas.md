@@ -270,3 +270,60 @@ app/
     Filament/
       AdminPanelProvider.php
       ApiAdminPanelProvider.php
+
+---
+
+## Sección 9 — Geocodificación y modelo canónico de dirección
+
+Fecha de decisión: 2026-05-21
+
+**Contexto:** el modelo de dirección en texto libre presenta limitaciones para anonimización, análisis territorial y cualquier funcionalidad futura que dependa de coordenadas. Se decide adoptar un modelo estructurado con normalización automática mediante un servicio de geocodificación desacoplado del proveedor concreto.
+
+**Decisión** 
+La dirección se almacena en dos representaciones simultáneas: el texto libre original (direccion_texto, siempre conservado) y los campos estructurados extraídos por el geocoder. La normalización es best-effort y nunca bloquea el guardado.
+
+El geocoder es un servicio de infraestructura interno — no una integración externa — con interfaz GeocodificadorInterface y adaptadores intercambiables. El proveedor activo se configura en configuracion_sistema con la clave geocoder.proveedor. Cambiar de proveedor es una operación de backoffice sin necesidad de código ni despliegue.
+
+Ver docs/geocodificacion.md para la especificación completa.
+
+### Decisiones técnicas concretas
+
+**Modelo de dirección como trait.** Los campos estructurados se implementan en el trait TieneDireccion, aplicable a cualquier entidad que tenga dirección (Ciudadano, Centro, entidades futuras). No hay tabla centralizada de direcciones — son atributos de las entidades.
+
+**Campos del modelo canónico:** direccion_texto, direccion_normalizada (boolean), tipo_via, nombre_via, tipo_numeracion (enum: numero/sin_numero/km), numero, portal, escalera, piso, puerta, codigo_postal, municipio, coordenadas_lat, coordenadas_lng, geocoder_proveedor, origen_direccion (enum: profesional/padron/geocodificacion).
+
+**Flujo de normalización.** El observer DireccionObserver invoca el geocoder al guardar con timeout de 3 segundos. Si falla, guarda solo direccion_texto con direccion_normalizada = false y encola un job de reintento. El job NormalizarDireccionJob procesa pendientes en cola de baja prioridad con backoff exponencial.
+
+**Prioridad de fuentes.** Las direcciones procedentes del padrón llegan ya estructuradas y no pasan por el geocoder — origen_direccion = padron. El geocoder solo actúa sobre direcciones introducidas manualmente.
+
+**Geocoder mock para v1.** El adaptador MockGeocodificador implementa un parser de texto libre con reglas para extraer tipo de vía, nombre y número, más coordenadas aleatorias dentro del bbox de Madrid (lat: 40.31–40.53, lng: -3.83– -3.52). Permite desarrollar y testear toda la lógica dependiente de coordenadas sin servicios externos. Ver docs/geocodificacion.md, sección 5.
+
+**Geocoder de referencia para producción.** La Base de Datos Ciudad (BDC) del Ayuntamiento de Madrid. Adaptador pendiente de implementación.
+
+### Alternativas descartadas
+
+**Texto libre puro (modelo anterior):** descartado porque impide la anonimización fiable de direcciones (no se puede aplicar calle_sin_numero sobre texto no estructurado) y bloquea cualquier funcionalidad territorial futura.
+
+**Normalización solo en el geocoder externo sin almacenar estructura localmente:** descartada porque crearía dependencia de disponibilidad del geocoder para cualquier consulta de dirección. La estructura normalizada se almacena en VIDA y el geocoder solo se invoca en el momento del alta o modificación.
+
+**Tipo Point de PostGIS para coordenadas:** evaluado y diferido. Añade complejidad de infraestructura (requiere extensión PostGIS en la BD) pero habilita consultas de proximidad eficientes a escala. Registrado como decisión pendiente para cuando las funcionalidades territoriales lo justifiquen.
+
+### Impacto en módulos existentes
+
+**Ciudadanía:** Ciudadano adopta el trait TieneDireccion. La dirección del SIA se normaliza automáticamente. Excepción: PSH tienen campos de coordenadas de pernocta independientes del modelo de dirección postal.
+
+**Centros:** Centro adopta el trait TieneDireccion.
+
+**Anonimización:** la normalización es prerequisito para aplicar calle_sin_numero en perfiles de Nivel 2 y 3. Las entidades con direccion_normalizada = false reciben supresión completa de dirección en extracciones anonimizadas.
+
+**Intervención, Documentos, Agenda:** sin impacto directo en v1. Futuras funcionalidades de proximidad dependerán de coordenadas fiables.
+
+### Decisiones pendientes
+
+- Implementación del adaptador BDC. Bloqueante para coordenadas reales en producción.
+
+- Tratamiento de múltiples candidatas cuando el geocoder devuelve resultados ambiguos.
+
+- Bbox configurable por municipio en configuracion_sistema para portabilidad fuera de Madrid.
+
+- Evaluación de PostGIS cuando las consultas geoespaciales lo justifiquen.
