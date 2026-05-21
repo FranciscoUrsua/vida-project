@@ -4,29 +4,44 @@ _Actualizado: 2026-05-21_
 
 ## Tarea completada
 
-Entidad `Servicio` implementada completa (Fase 2 del módulo Centro): 5 migraciones, 3 modelos, 14 tests funcionales — todos pasan.
+Sistema de geocodificación con modelo canónico de dirección implementado completo:
+trait `TieneDireccion`, servicio, mock adaptador, observer, job y 18 tests — todos pasan.
 
 ## Estado actual
 
-- **Módulo Centro — Servicio:** implementado al 100% según §3, §5 y §11.8–11.10 del documento funcional v1.2.
-- **Suite completa:** 272 tests pasan ✅ — 0 fallos — 1 incompleto (TF-USU-31).
+- **Geocodificación:** implementada al 100% según `docs/geocodificacion.md`.
+  Aplicada a `Ciudadano` y `Centro`. Mock activo por defecto. 2 migraciones.
+- **Suite completa:** 290 tests pasan ✅ — 0 fallos — 1 incompleto (TF-USU-31).
 
 ## Qué se implementó en esta sesión
 
-**Limpieza:**
-- Eliminado `Modules/Centro/app/Models/Ciudadano.php` (artefacto temporal). Corregidos
-  5 archivos en Centro, Agenda y Documentos para usar `App\Models\Ciudadano` directamente.
+**Enums:**
+- `App\Enums\OrigenDireccion` — profesional, padron, geocodificacion.
+- `App\Enums\TipoNumeracion` — numero, sin_numero, km.
 
-**Migraciones** (en `database/migrations/`):
-- `servicios`, `servicio_prestacion`, `responsables_servicio`, `profesional_servicio`, `solicitudes_servicio`.
+**Trait:**
+- `App\Traits\TieneDireccion` — casts, `direccionFormateada()`, `scopeSinNormalizar()`.
 
-**Modelos** (en `Modules/Centro/app/Models/`):
-- `Servicio` — con `Versionable`, `SoftDeletes`, validación UO obligatoria, `nombrarResponsable()`.
-- `ResponsableServicio` — sin figura de responsable externo, accesor `cargo_nombre` desde el servicio.
-- `SolicitudServicio` — `fecha_resolucion` automática al pasar a `resuelta`.
+**Servicio:**
+- `GeocodificadorInterface`, `ResultadoGeocodificacion`, `GeocodificadorService`, `MockGeocodificador`.
 
-**Tests** (en `Modules/Centro/tests/Feature/`):
-- `ServicioTest`, `ResponsableServicioTest`, `SolicitudServicioTest` — 14 tests, todos pasan.
+**Observer y job:**
+- `DireccionObserver` — geocodifica en `creating`/`updating` para origen profesional.
+- `NormalizarDireccionJob` — reintento asíncrono en cola `low`.
+
+**Provider:**
+- `GeocodificacionServiceProvider` — binding + observer en Ciudadano y Centro.
+- Registrado en `bootstrap/providers.php` + `app/helpers.php` en autoload.
+
+**Migraciones:**
+- `add_direccion_canonica_to_ciudadanos_table` — renombra `domicilio`, elimina lat/lng genéricas, añade 14 campos.
+- `add_direccion_canonica_to_centros_table` — añade los mismos 14 campos a centros.
+
+**Modelos actualizados:**
+- `App\Models\Ciudadano` y `Modules\Centro\Models\Centro` — `TieneDireccion` + `$fillable` actualizado.
+
+**Tests (18, todos pasan):**
+- `DireccionObserverTest` (5), `MockGeocodificadorParserTest` (11).
 
 ## Test incompleto restante (1)
 

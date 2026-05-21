@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\TieneDireccion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -26,7 +27,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $apellido2  Cifrado
  * @property string $fecha_nacimiento Cifrada
  * @property string $sexo
- * @property string|null $domicilio  Cifrado
+ * @property string|null $direccion_texto  Cifrada — texto libre original
+ * @property bool        $direccion_normalizada
  * @property bool $activo
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
@@ -39,6 +41,7 @@ class Ciudadano extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use TieneDireccion;
 
     /** @var string */
     protected $table = 'ciudadanos';
@@ -51,9 +54,24 @@ class Ciudadano extends Model
         'apellido2',
         'fecha_nacimiento',
         'sexo',
-        'domicilio',
-        'latitud',
-        'longitud',
+        // Dirección canónica — campos del trait TieneDireccion
+        'direccion_texto',
+        'direccion_normalizada',
+        'origen_direccion',
+        'tipo_via',
+        'nombre_via',
+        'tipo_numeracion',
+        'numero',
+        'portal',
+        'escalera',
+        'piso',
+        'puerta',
+        'codigo_postal',
+        'municipio',
+        'coordenadas_lat',
+        'coordenadas_lng',
+        'geocoder_proveedor',
+        // Contacto
         'telefono',
         'email',
         'nivel_identificacion',
@@ -63,13 +81,14 @@ class Ciudadano extends Model
 
     /** @var array<string, string> */
     protected $casts = [
-        'nombre'           => 'encrypted',
-        'apellido1'        => 'encrypted',
-        'apellido2'        => 'encrypted',
-        'fecha_nacimiento' => 'encrypted',
-        'domicilio'        => 'encrypted',
-        'telefono'         => 'encrypted',
-        'email'            => 'encrypted',
-        'activo'           => 'boolean',
+        'nombre'            => 'encrypted',
+        'apellido1'         => 'encrypted',
+        'apellido2'         => 'encrypted',
+        'fecha_nacimiento'  => 'encrypted',
+        'direccion_texto'   => 'encrypted',
+        'telefono'          => 'encrypted',
+        'email'             => 'encrypted',
+        'activo'            => 'boolean',
+        // TieneDireccion inyecta sus propios casts via initializeTieneDireccion()
     ];
 }

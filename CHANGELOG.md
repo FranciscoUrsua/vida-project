@@ -2,6 +2,82 @@
 
 ---
 
+## Geocodificación y modelo canónico de dirección — 2026-05-21
+
+### Descripción
+
+Implementación completa del sistema de geocodificación con adaptador mock activo por defecto.
+Aplicado al modelo `Ciudadano` y `Centro`. El sistema es extensible a cualquier entidad futura
+con dirección postal mediante el trait `TieneDireccion`.
+
+### Enums añadidos
+
+- **`App\Enums\OrigenDireccion`** — `profesional | padron | geocodificacion`
+- **`App\Enums\TipoNumeracion`** — `numero | sin_numero | km`
+
+### Trait añadido
+
+- **`App\Traits\TieneDireccion`** — inyecta casts, método `direccionFormateada()` y scope
+  `scopeSinNormalizar()` a los modelos con dirección postal.
+
+### Servicio de geocodificación
+
+- **`GeocodificadorInterface`** — contrato uniforme para todos los adaptadores.
+- **`ResultadoGeocodificacion`** — DTO inmutable con todos los campos estructurados.
+- **`GeocodificadorService`** — fachada que lee el proveedor activo de `configuracion_sistema`
+  y delega en el adaptador correspondiente. Fallback al mock si el proveedor no está disponible.
+- **`MockGeocodificador`** — adaptador de desarrollo con parser de texto libre en 5 pasos
+  (tipo vía, número, nombre vía, complementos, código postal) y coordenadas aleatorias
+  dentro del bbox del municipio de Madrid.
+
+### Observer y job
+
+- **`DireccionObserver`** — geocodifica en los eventos `creating`/`updating` cuando
+  `origen_direccion = profesional`. Las direcciones del padrón no pasan por el geocoder.
+  Encola `NormalizarDireccionJob` en cola `low` si el geocoder falla o el guardado es sin red.
+- **`NormalizarDireccionJob`** — job de reintento asíncrono para entidades cuya normalización
+  quedó pendiente.
+
+### Provider y autoload
+
+- **`GeocodificacionServiceProvider`** — registra el binding y conecta el observer a
+  `Ciudadano` y `Centro`.
+- Registrado en `bootstrap/providers.php`.
+- `app/helpers.php` con `configuracion_sistema()` añadido al autoload de `composer.json`.
+
+### Migraciones
+
+- `2026_05_21_110001_add_direccion_canonica_to_ciudadanos_table.php` — renombra `domicilio`
+  a `direccion_texto`, elimina `latitud`/`longitud` genéricas, añade 14 campos canónicos.
+- `2026_05_21_110002_add_direccion_canonica_to_centros_table.php` — añade los mismos 14
+  campos canónicos a la tabla `centros`.
+
+### Modelos actualizados
+
+- **`App\Models\Ciudadano`** — añadido `TieneDireccion`, actualizado `$fillable` con los
+  campos canónicos.
+- **`Modules\Centro\Models\Centro`** — añadido `TieneDireccion`, actualizado `$fillable`.
+
+### Tests añadidos — 18 tests, todos pasan ✅
+
+- **`DireccionObserverTest`** (5 tests) — integración observer + mock geocoder.
+- **`MockGeocodificadorParserTest`** (11 tests) — parser unitario del mock (sin BD).
+- Corrección de bug: flag `/u` en regex del parser para reconocer `sin número` con UTF-8.
+- Corrección de bug: observer inicializa `direccion_normalizada = false` en `creating`
+  cuando no geocodifica, para que el modelo en memoria refleje el default de BD.
+
+### Decisiones de implementación
+
+- Los campos de dirección se almacenan en la tabla de la entidad (no hay tabla centralizada).
+- El proveedor activo se lee de `configuracion_sistema('geocoder.proveedor', 'mock')`.
+- `NormalizarDireccionJob` en cola `low` — no bloquea el flujo del profesional.
+
+### Estado de la suite
+
+290 tests pasan ✅ — 0 fallos — 1 incompleto (TF-USU-31 en módulo Usuarios).
+
+---
+
 ## Módulo Centro — Entidad Servicio (Fase 2) — 2026-05-21
 
 ### Limpieza previa

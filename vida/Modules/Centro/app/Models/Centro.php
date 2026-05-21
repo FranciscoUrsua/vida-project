@@ -3,6 +3,7 @@
 namespace Modules\Centro\Models;
 
 use App\Models\UnidadOrganizativa;
+use App\Traits\TieneDireccion;
 use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -26,9 +27,9 @@ use Modules\Organizacion\Models\Distrito;
  * @property string|null $nombre_corto
  * @property string $tipo_gestion
  * @property int|null $unidad_organizativa_id
- * @property string|null $direccion
+ * @property string|null $direccion_texto
+ * @property bool        $direccion_normalizada
  * @property string|null $codigo_postal
- * @property string|null $coordenadas
  * @property string|null $telefono
  * @property string|null $email
  * @property string|null $web
@@ -42,6 +43,7 @@ use Modules\Organizacion\Models\Distrito;
 class Centro extends Model
 {
     use SoftDeletes;
+    use TieneDireccion;
     use Versionable;
 
     protected $table = 'centros';
@@ -51,9 +53,24 @@ class Centro extends Model
         'nombre_corto',
         'tipo_gestion',
         'unidad_organizativa_id',
-        'direccion',
+        // Dirección canónica — campos del trait TieneDireccion
+        'direccion_texto',
+        'direccion_normalizada',
+        'origen_direccion',
+        'tipo_via',
+        'nombre_via',
+        'tipo_numeracion',
+        'numero',
+        'portal',
+        'escalera',
+        'piso',
+        'puerta',
         'codigo_postal',
-        'coordenadas',
+        'municipio',
+        'coordenadas_lat',
+        'coordenadas_lng',
+        'geocoder_proveedor',
+        // Contacto y configuración
         'telefono',
         'email',
         'web',
