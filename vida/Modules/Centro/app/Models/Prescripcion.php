@@ -2,6 +2,7 @@
 
 namespace Modules\Centro\Models;
 
+use App\Models\Ciudadano;
 use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -78,7 +79,7 @@ class Prescripcion extends Model
     /**
      * Ciudadano beneficiario de la prescripción.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Ciudadano, self>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Ciudadano, self>
      */
     public function ciudadano(): BelongsTo
     {

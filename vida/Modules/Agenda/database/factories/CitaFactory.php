@@ -10,7 +10,6 @@ use Modules\Agenda\Models\Cita;
 use Modules\Agenda\Models\Slot;
 use Modules\Agenda\Models\TipoSlot;
 use Modules\Centro\Models\Centro;
-use Modules\Centro\Models\Ciudadano;
 
 class CitaFactory extends Factory
 {

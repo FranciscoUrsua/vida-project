@@ -2,6 +2,56 @@
 
 ---
 
+## Módulo Centro — Entidad Servicio (Fase 2) — 2026-05-21
+
+### Limpieza previa
+
+- **Eliminado** `Modules/Centro/app/Models/Ciudadano.php` — artefacto temporal que
+  solo extendía `App\Models\Ciudadano` sin añadir nada. Creaba acoplamiento innecesario
+  entre módulos.
+- **Corregidos** 5 archivos que lo referenciaban para usar `App\Models\Ciudadano` directamente:
+  `InscripcionCentro.php`, `Prescripcion.php`, `Cita.php`, `CitaFactory.php`, `Informe.php`.
+
+### Migraciones añadidas
+
+- `2026_05_21_100001_create_servicios_table.php` — entidad principal con FK obligatoria a UO.
+- `2026_05_21_100002_create_servicio_prestacion_table.php` — pivot N:M servicio ↔ prestación.
+- `2026_05_21_100003_create_responsables_servicio_table.php` — historial de responsables (fecha_inicio/fecha_fin).
+- `2026_05_21_100004_create_profesional_servicio_table.php` — pivot profesionales asignados al servicio.
+- `2026_05_21_100005_create_solicitudes_servicio_table.php` — solicitudes de tramitación con FK real a `planes_intervencion`.
+
+### Modelos añadidos
+
+- **`Modules/Centro/app/Models/Servicio.php`** — `Versionable`, `SoftDeletes`. Validación en
+  `booted()` que garantiza `unidad_organizativa_id` obligatorio. Relaciones: `prestaciones()`,
+  `responsables()`, `profesionales()`, `solicitudes()`. Métodos de dominio: `responsableActivo()`,
+  `nombrarResponsable()`.
+- **`Modules/Centro/app/Models/ResponsableServicio.php`** — Validación en `booted()` que impide
+  `profesional_id = null` (no existe la figura de responsable externo). Accesor `cargo_nombre`
+  que delega en `$this->servicio->cargo_nombre`.
+- **`Modules/Centro/app/Models/SolicitudServicio.php`** — Hook `saving` que registra automáticamente
+  `fecha_resolucion = today()` al transicionar a estado `resuelta`.
+
+### Tests añadidos — 14 tests, todos pasan ✅
+
+- **`ServicioTest`** (5 tests) — §11.8 del documento funcional.
+- **`ResponsableServicioTest`** (4 tests) — §11.9 del documento funcional.
+- **`SolicitudServicioTest`** (5 tests) — §11.10 del documento funcional.
+
+### Decisiones de implementación
+
+- `plan_intervencion_id` en `solicitudes_servicio` tiene FK real a `planes_intervencion`
+  con `nullOnDelete()` — el módulo Intervención ya está implementado, a diferencia de
+  `prescripciones` donde la FK fue declarada sin constraint.
+- `profesional_servicio` usa `id` auto-increment como PK (no compuesta) para permitir
+  historial de asignaciones de un mismo profesional al mismo servicio en períodos distintos.
+
+### Estado de la suite
+
+272 tests pasan ✅ — 0 fallos — 1 incompleto (TF-USU-31 en módulo Usuarios).
+
+---
+
 ## Módulo Agenda — Validación solapamiento perfiles horarios (PF-02.3) — 2026-05-20
 
 ### Implementación

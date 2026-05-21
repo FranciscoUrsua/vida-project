@@ -16,7 +16,7 @@ use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Agenda\Enums\OrigenCita;
 use Modules\Centro\Models\Centro;
-use Modules\Centro\Models\Ciudadano;
+use App\Models\Ciudadano;
 use Modules\Intervencion\Models\Apunte;
 
 /**

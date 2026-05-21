@@ -2,6 +2,7 @@
 
 namespace Modules\Centro\Models;
 
+use App\Models\Ciudadano;
 use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -59,7 +60,7 @@ class InscripcionCentro extends Model
     /**
      * Ciudadano inscrito en el centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Ciudadano, self>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Ciudadano, self>
      */
     public function ciudadano(): BelongsTo
     {

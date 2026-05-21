@@ -63,7 +63,7 @@ class Informe extends Model
 
     public function ciudadano(): BelongsTo
     {
-        return $this->belongsTo(\Modules\Centro\Models\Ciudadano::class, 'ciudadano_id');
+        return $this->belongsTo(\App\Models\Ciudadano::class, 'ciudadano_id');
     }
 
     public function autor(): BelongsTo
