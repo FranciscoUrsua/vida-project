@@ -29,6 +29,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $sexo
  * @property string|null $direccion_texto  Cifrada — texto libre original
  * @property bool        $direccion_normalizada
+ * @property string|null $documento_identidad  Cifrado
+ * @property bool        $es_vvg
+ * @property bool        $es_psh
+ * @property bool        $colectivo_extra_protegido
+ * @property string|null $colectivo_principal
+ * @property string|null $zona_intervencion
+ * @property float|null  $pernocta_lat
+ * @property float|null  $pernocta_lng
  * @property bool $activo
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
@@ -74,21 +82,34 @@ class Ciudadano extends Model
         // Contacto
         'telefono',
         'email',
+        'documento_identidad',
         'nivel_identificacion',
         'contexto_alta',
         'activo',
+        // Colectivos especiales (anonimización)
+        'es_vvg',
+        'es_psh',
+        'colectivo_extra_protegido',
+        'colectivo_principal',
+        'zona_intervencion',
+        'pernocta_lat',
+        'pernocta_lng',
     ];
 
     /** @var array<string, string> */
     protected $casts = [
-        'nombre'            => 'encrypted',
-        'apellido1'         => 'encrypted',
-        'apellido2'         => 'encrypted',
-        'fecha_nacimiento'  => 'encrypted',
-        'direccion_texto'   => 'encrypted',
-        'telefono'          => 'encrypted',
-        'email'             => 'encrypted',
-        'activo'            => 'boolean',
+        'nombre'                    => 'encrypted',
+        'apellido1'                 => 'encrypted',
+        'apellido2'                 => 'encrypted',
+        'fecha_nacimiento'          => 'encrypted',
+        'direccion_texto'           => 'encrypted',
+        'telefono'                  => 'encrypted',
+        'email'                     => 'encrypted',
+        'documento_identidad'       => 'encrypted',
+        'activo'                    => 'boolean',
+        'es_vvg'                    => 'boolean',
+        'es_psh'                    => 'boolean',
+        'colectivo_extra_protegido' => 'boolean',
         // TieneDireccion inyecta sus propios casts via initializeTieneDireccion()
     ];
 }

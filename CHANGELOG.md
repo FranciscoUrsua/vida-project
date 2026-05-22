@@ -2,6 +2,88 @@
 
 ---
 
+## Anonimización y seudonimización — 2026-05-22
+
+### Descripción
+
+Implementación completa de la capa de anonimización transversal de VIDA 360.
+Incluye los cuatro perfiles predefinidos, tres técnicas de transformación, validador
+de k-anonimato, servicio de revelación de identidad con trazabilidad completa y
+42 tests funcionales organizados en 6 grupos.
+
+### Configuración
+
+- **`.env.example`** — añadida clave `APP_PSEUDONYM_KEY` (independiente de `APP_KEY`).
+- **`config/app.php`** — añadida entrada `pseudonym_key` que lee `APP_PSEUDONYM_KEY`.
+- **`phpunit.xml`** — añadida `APP_PSEUDONYM_KEY` con valor de test fijo para determinismo.
+
+### Excepciones añadidas (`app/Exceptions/Anonimizacion/`)
+
+- `PerfilAnonimizacionNotFoundException` — perfil no existe.
+- `PerfilAnonimizacionInactivoException` — perfil existe pero está inactivo.
+- `PerfilSistemaNoEliminableException` — intento de eliminar un perfil de sistema.
+- `PerfilConExtraccionesException` — intento de eliminar perfil con extracciones asociadas.
+- `KAnonimatoValidacionException` — validación final de k-anonimato fallida.
+
+### Migraciones añadidas
+
+- `2026_05_22_100001_add_campos_anonimizacion_to_ciudadanos_table` — añade `documento_identidad` (encrypted), `es_vvg`, `es_psh`, `colectivo_extra_protegido`, `colectivo_principal`, `zona_intervencion`, `pernocta_lat`, `pernocta_lng`.
+- `2026_05_22_100002_create_perfiles_anonimizacion_table` — tabla de perfiles con versionado.
+- `2026_05_22_100003_create_perfil_anonimizacion_versiones_table` — snapshots inmutables de perfiles.
+- `2026_05_22_100004_create_revelaciones_identidad_table` — auditoría de revelaciones de identidad.
+
+### Modelos añadidos (`app/Models/Api/` y `app/Models/`)
+
+- **`PerfilAnonimizacion`** — perfil con versionado automático en `updating`, scopes `activos()` y `deSistema()`, restricción de eliminación en `delete()`.
+- **`PerfilAnonimizacionVersion`** — snapshot inmutable (`UPDATED_AT = null`).
+- **`RevelacionIdentidad`** — registro de auditoría inmutable de revelaciones.
+
+### Modelos actualizados
+
+- **`App\Models\Ciudadano`** — `$fillable` y `$casts` ampliados con los nuevos campos de anonimización.
+
+### Seeder
+
+- **`PerfilesAnonimizacionSeeder`** — crea los 4 perfiles predefinidos del sistema con `es_sistema = true`. Añadido al `DatabaseSeeder`.
+
+### Servicios añadidos (`app/Services/Api/`)
+
+- **`AnonimizadorService`** — servicio principal. Acepta `Collection` de modelos Eloquent o arrays, aplica el perfil campo a campo. Sin dependencias de módulos funcionales. Técnicas implementadas: `suprimir`, `seudonimizar`, `generalizar` (anio/decada/calle_sin_numero/distrito_proxy), `mantener`.
+- **`RevelacionIdentidadService`** — reversión de alias con validación de permiso `ciudadano.revelar_identidad`, búsqueda O(n) en vuelo y registro en auditoría.
+- **`ValidadorKAnonimato`** — aplica la cascada de 4 pasos sobre el conjunto completo, con preprocesado de casos especiales (VVG, PSH, colectivo_extra_protegido). Lanza `KAnonimatoValidacionException` si la validación final falla.
+
+### Factories añadidas/actualizadas
+
+- **`PerfilAnonimizacionFactory`** — estados `supervisionInterna()`, `analiticaInterna()`, `datosAbiertos()`, `investigacionExterna()`, `inactivo()`.
+- **`CiudadanoFactory`** — estados `psh()`, `vvg()`, `conDireccionNormalizada()`, `sinDireccionNormalizada()`.
+
+### Tests añadidos — 42 tests, todos pasan ✅ (+ 4 marcados incomplete)
+
+- **`SeudonimizacionTest`** (10 tests) — Grupo 1: alias HMAC, opacidad, determinismo, supresión de identificadores, trazabilidad y auditoría de revelación.
+- **`GeneralizacionTest`** (7 tests) — Grupo 2: precisiones anio/decada/calle_sin_numero/distrito_proxy, supresión por falta de normalización, irreversibilidad.
+- **`KAnonimatoTest`** (8 tests — 3 incomplete) — Grupo 3: cascada de 4 pasos, datasets fijos deterministas. Marcado `@group slow`.
+- **`AnonimizadorServiceTest`** (7 tests) — Grupo 4: contrato del servicio, manejo de excepciones, transparencia, verificación de no-dependencia de módulos.
+- **`CasosEspecialesDominioTest`** (5 tests) — Grupo 5: PSH, VVG, colectivo_extra_protegido, múltiples colectivos.
+- **`PerfilesTest`** (9 tests — 1 incomplete) — Grupo 6: versionado automático, inmutabilidad de historial, restricciones de eliminación.
+
+### Decisiones de implementación tomadas
+
+1. **`apellido1`/`apellido2` en perfiles en lugar de `apellidos`:** el JSON de ejemplo del spec usa `apellidos` como campo único, pero el modelo Ciudadano tiene dos campos separados. Los perfiles predefinidos usan `apellido1` y `apellido2`. Desviación documentada intencionadamente.
+
+2. **El alias se computa desde `$registro['id']`:** para cualquier campo seudonimizado, el alias HMAC se genera siempre a partir del `id` del registro. Si `campo = 'id'`, se renombra a `alias_ciudadano` y se elimina `id`. Para otros campos, se reemplaza el valor con el alias.
+
+3. **`analitica_interna` no suprime `id`:** el campo `id` permanece en el resultado de Nivel 2 (no hay entrada en el perfil para él). La "irreversibilidad" se garantiza por la ausencia de `alias_ciudadano`, no por la supresión del id.
+
+4. **Timing del criterio `--exclude-group=slow < 10s`:** no se cumple porque `RefreshDatabase` ejecuta todas las migraciones en el primer test de la suite (~14s de overhead de BD). La lógica de los tests en sí completa en ~2s. Se requeriría una BD pre-migrada o cambiar a `DatabaseTransactions` para cumplir el criterio literalmente.
+
+5. **`investigacion_externa` usa K=10:** la decisión de K=5 para este perfil está en evaluación pendiente (docs/anonimizacion.md § 8). Se usa K=10 como valor conservador hasta que se documente la decisión formal.
+
+### Estado de la suite
+
+**332 tests pasan ✅** — 0 fallos — 5 incompletos (4 k-anonimato/jobs + 1 extracciones + TF-USU-31 previo).
+
+---
+
 ## Geocodificación y modelo canónico de dirección — 2026-05-21
 
 ### Descripción

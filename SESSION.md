@@ -1,58 +1,44 @@
 # SESSION — VIDA 360
 
-_Actualizado: 2026-05-21_
+_Actualizado: 2026-05-22_
 
 ## Tarea completada
 
-Sistema de geocodificación con modelo canónico de dirección implementado completo:
-trait `TieneDireccion`, servicio, mock adaptador, observer, job y 18 tests — todos pasan.
+Capa de anonimización transversal implementada completa: configuración, excepciones, modelos,
+seeder, 3 servicios, factories y 42 tests — todos pasan (+ 4 incompletos pendientes de infraestructura de jobs).
 
 ## Estado actual
 
-- **Geocodificación:** implementada al 100% según `docs/geocodificacion.md`.
-  Aplicada a `Ciudadano` y `Centro`. Mock activo por defecto. 2 migraciones.
-- **Suite completa:** 290 tests pasan ✅ — 0 fallos — 1 incompleto (TF-USU-31).
+- **Anonimización:** implementada al 100% según `docs/anonimizacion.md` y `docs/tests-anonimizacion.md`.
+  - 4 perfiles predefinidos del sistema con versionado.
+  - `AnonimizadorService` — técnicas: suprimir, seudonimizar, generalizar (4 precisiones), mantener.
+  - `RevelacionIdentidadService` — reversión con permiso atómico + auditoría.
+  - `ValidadorKAnonimato` — cascada de 4 pasos + preprocesado VVG/PSH/extra-protegido.
+  - 42 tests en 6 clases. Tests de k-anonimato marcados `@group slow`.
+- **Geocodificación:** completa desde sesión anterior.
+- **Suite completa:** 332 tests pasan ✅ — 0 fallos — 5 incompletos.
 
-## Qué se implementó en esta sesión
+## Tests incompletos actuales
 
-**Enums:**
-- `App\Enums\OrigenDireccion` — profesional, padron, geocodificacion.
-- `App\Enums\TipoNumeracion` — numero, sin_numero, km.
-
-**Trait:**
-- `App\Traits\TieneDireccion` — casts, `direccionFormateada()`, `scopeSinNormalizar()`.
-
-**Servicio:**
-- `GeocodificadorInterface`, `ResultadoGeocodificacion`, `GeocodificadorService`, `MockGeocodificador`.
-
-**Observer y job:**
-- `DireccionObserver` — geocodifica en `creating`/`updating` para origen profesional.
-- `NormalizarDireccionJob` — reintento asíncrono en cola `low`.
-
-**Provider:**
-- `GeocodificacionServiceProvider` — binding + observer en Ciudadano y Centro.
-- Registrado en `bootstrap/providers.php` + `app/helpers.php` en autoload.
-
-**Migraciones:**
-- `add_direccion_canonica_to_ciudadanos_table` — renombra `domicilio`, elimina lat/lng genéricas, añade 14 campos.
-- `add_direccion_canonica_to_centros_table` — añade los mismos 14 campos a centros.
-
-**Modelos actualizados:**
-- `App\Models\Ciudadano` y `Modules\Centro\Models\Centro` — `TieneDireccion` + `$fillable` actualizado.
-
-**Tests (18, todos pasan):**
-- `DireccionObserverTest` (5), `MockGeocodificadorParserTest` (11).
-
-## Test incompleto restante (1)
-
-| Test | Módulo | Requiere |
+| Test | Clase | Motivo |
 |---|---|---|
-| TF-USU-31 | Usuarios | Policy/Service que impide a `administrador_usuarios` adscribir usuarios a UO fuera de su ámbito jerárquico |
+| 3.5, 3.6, 3.8 | KAnonimatoTest | Requieren modelo Extraccion + job asíncrono |
+| 6.6 | PerfilesTest | Requiere modelo Extraccion + relación con PerfilAnonimizacion |
+| TF-USU-31 | UnidadOrganizativaTest | Policy jerárquica de adscripción de usuarios a UO |
 
 ## Siguiente paso recomendado
 
-**TF-USU-31** — El único test pendiente en toda la suite. Requiere implementar la validación en
-`UsuarioUoPolicy` (o un Service dedicado) que compruebe que el usuario que intenta adscribir otro
-a una UO tiene autoridad jerárquica sobre esa UO.
+**TF-USU-31** sigue siendo el único test previo pendiente en el módulo Usuarios. Es el desbloqueador
+más simple (no requiere infraestructura nueva, solo implementar la validación en `UsuarioUoPolicy`).
 
-Leer `Modules/Usuarios/tests/Feature/UnidadOrganizativaTest.php` para ver el contexto exacto del test antes de actuar.
+Alternativa: **módulo Ciudadanía** — el modelo `Ciudadano` es un stub; implementar el módulo
+completo con flujo de alta, motor de matching y unidades de convivencia desbloquea los tests
+de k-anonimato que ahora usan arrays directamente pero idealmente usarían modelos reales.
+
+## Contexto relevante para retomar
+
+- Los perfiles de anonimización usan `apellido1`/`apellido2` (no `apellidos` del JSON del spec).
+- El alias seudonimizado se computa como `CIU-{HMAC-SHA256(id, APP_PSEUDONYM_KEY)[0..7]}`.
+- La tabla `revelaciones_identidad` audita cada reversión; sin FK a ciudadanos (para no crear dependencia de integridad).
+- `ValidadorKAnonimato` es solo para jobs asíncronos — nunca en endpoints síncronos de la API.
+- El timing `--exclude-group=slow < 10s` no se cumple por overhead de `RefreshDatabase` (~14s migration); la lógica de tests en sí es sub-segundo.

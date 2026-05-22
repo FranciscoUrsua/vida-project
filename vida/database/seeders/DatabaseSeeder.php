@@ -44,6 +44,9 @@ class DatabaseSeeder extends Seeder
         $this->call(TitulacionesSeeder::class);
         $this->call(TiposRelacionProfesionalSeeder::class);
 
+        // 5c. Perfiles de anonimización predefinidos del sistema
+        $this->call(PerfilesAnonimizacionSeeder::class);
+
         // 6. Usuario administrador con rol de sistema
         // IMPORTANTE: cambiar la contraseña tras el primer acceso
         $admin = User::create([

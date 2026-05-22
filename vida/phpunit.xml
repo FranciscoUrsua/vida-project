@@ -42,5 +42,6 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <env name="APP_PSEUDONYM_KEY" value="clave_test_fija_para_seudonimizacion_vida360"/>
     </php>
 </phpunit>

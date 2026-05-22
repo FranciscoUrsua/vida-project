@@ -106,6 +106,13 @@ return [
     ],
 
     /*
+     * Clave HMAC para seudonimización de ciudadanos.
+     * Independiente de APP_KEY para que una rotación de clave de aplicación
+     * no invalide los alias existentes. Ver docs/anonimizacion.md § 3.1.
+     */
+    'pseudonym_key' => env('APP_PSEUDONYM_KEY', ''),
+
+    /*
     |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
