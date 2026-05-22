@@ -7,7 +7,7 @@ Este fichero se aplica a todas las sesiones sin necesidad de repetirlo en cada p
 
 ## 1. Antes de tocar cualquier fichero
 
-1. `git pull origin main` — siempre como primer paso, sin excepciones.
+1. `git pull origin master` — siempre como primer paso, sin excepciones.
 2. Leer `SESSION.md` — resume el estado actual y el siguiente paso recomendado.
 3. Leer `docs/principios-vida360.md` — referencia de decisiones arquitectónicas y restricciones de dominio.
 4. Leer `docs/documentacion-proyecto.md` — arquitectura general, modelos y convenciones.
