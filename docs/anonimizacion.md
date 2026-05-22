@@ -36,7 +36,11 @@ VIDA emplea cuatro técnicas complementarias, aplicables en distintas combinacio
 
 Sustituye los identificadores directos (nombre, DNI, teléfono, email) por un alias opaco y **consistente**: la misma persona siempre recibe el mismo alias dentro de un contexto dado. Por ejemplo, el ciudadano con id interno 4821 siempre aparece como `CIU-4f7a3b`.
 
-La seudonimización es **reversible** si se tiene acceso a la tabla de correspondencias. Por esta razón, en sentido legal sigue siendo un dato personal — la persona sigue siendo identificable para quien posee esa tabla. Su uso está indicado para contextos internos donde la reversibilidad controlada tiene valor: un supervisor puede operar con aliases y, si surge una razón legítima, solicitar la revelación de identidad con trazabilidad completa del acceso.
+**Algoritmo de generación del alias:** HMAC-SHA256 del `ciudadano_id` usando una clave `APP_PSEUDONYM_KEY` almacenada en `.env`, separada de `APP_KEY` para que una rotación de clave de aplicación no invalide los alias existentes. El alias tiene el formato `CIU-` seguido de los primeros 8 caracteres del hash en hexadecimal. El alias se computa en vuelo — no se almacena en base de datos, lo que elimina una tabla de datos sensibles.
+
+La **tabla de correspondencias** existe para la búsqueda inversa: dado un alias que aparece en un log o en un informe, localizar al ciudadano. Se implementa como una consulta que aplica el mismo HMAC sobre todos los `ciudadano_id` activos, no como una tabla precalculada.
+
+La seudonimización es **reversible** si se tiene la `APP_PSEUDONYM_KEY`. Por esta razón, en sentido legal sigue siendo un dato personal — la persona sigue siendo identificable para quien posee esa clave. Su uso está indicado para contextos internos donde la reversibilidad controlada tiene valor: un supervisor puede operar con aliases y, si surge una razón legítima, solicitar la revelación de identidad con trazabilidad completa del acceso.
 
 ### 3.2 Supresión
 
@@ -48,22 +52,26 @@ Se usa en combinación con otras técnicas, no como técnica única.
 
 Reduce la precisión de los atributos cuasi-identificadores hasta un nivel en que dejan de ser discriminantes. No elimina el dato — lo hace menos preciso.
 
-Ejemplos de generalización en VIDA:
+Niveles de generalización definidos en VIDA por campo:
 
-| Campo original | Generalización aplicada |
-|---|---|
-| Fecha de nacimiento exacta | Año de nacimiento, o rango decenal (1940-1949) |
-| Dirección completa con número | Nombre de calle sin número, o calle con rango de portales si la calle es larga |
-| Código postal | Barrio o distrito |
-| Sexo | Se mantiene — baja cardinalidad, pero necesario para análisis |
+| Campo | Nivel 1 de generalización | Nivel 2 de generalización |
+|---|---|---|
+| `fecha_nacimiento` | Año (`anio`): 1943 | Década (`decada`): "1940-1949" |
+| `nombre_via` + `numero` | Calle sin número (`calle_sin_numero`): "Calle Gran Vía" | — (ver cascada k-anonimato) |
+| `codigo_postal` | Distrito proxy (`distrito_proxy`): primeros 3 dígitos, "280" | — |
+| `sexo` | Se mantiene — baja cardinalidad, necesario para análisis | — |
 
-La generalización de la dirección merece atención específica: la precisión territorial es **relevante para la toma de decisiones** (distribución de recursos por zona, detección de concentraciones de necesidad). La estrategia no es degradar a distrito o barrio, sino mantener la calle con la menor precisión que elimine el riesgo — sin número de portal, o con un rango de portales si la calle tiene suficiente densidad de población.
+La generalización de la dirección merece atención específica: la precisión territorial es **relevante para la toma de decisiones** (distribución de recursos por zona, detección de concentraciones de necesidad). La estrategia no es degradar a barrio o distrito desde el principio, sino mantener la calle sin número como primer nivel. Solo la cascada de k-anonimato degrada más si es necesario.
+
+**Prerequisito:** la generalización de dirección requiere que el campo `direccion_normalizada` sea `true`. Si la dirección no está normalizada por el geocoder, se aplica supresión completa en lugar de generalización. Ver `docs/geocodificacion.md`.
 
 ### 3.4 K-anonimato
 
-Garantiza que cada combinación de atributos cuasi-identificadores aparece **al menos K veces** en el conjunto de datos. Si una combinación aparece menos de K veces, se generaliza o suprime hasta que se cumpla el umbral.
+Garantiza que cada combinación de atributos cuasi-identificadores aparece **al menos K veces** en el conjunto de datos. Si una combinación aparece menos de K veces, se generaliza o suprime según la cascada definida hasta que se cumpla el umbral.
 
-Ejemplo con K=5: si en el conjunto de datos solo hay 3 mujeres entre 80 y 89 años en una calle concreta, sus registros se generalizan — quizá a nivel de barrio — hasta que haya al menos 5 personas con ese perfil combinado.
+Ejemplo con K=5: si en el conjunto de datos solo hay 3 mujeres en la década 1940-1949 en la "Calle Mayor", sus registros se generalizan — el campo de calle pasa a `distrito_proxy` — hasta que haya al menos 5 personas con ese perfil combinado.
+
+**Cuasi-identificadores en VIDA:** los cuatro atributos que se evalúan en el k-anonimato son `sexo`, `rango_edad` (fecha generalizada), `calle_generalizada` (nombre de calle o distrito proxy según el nivel de generalización alcanzado) y `colectivo_principal`. La elección de estos cuatro responde a que son los atributos que, combinados, tienen mayor capacidad discriminante en el contexto de servicios sociales.
 
 El k-anonimato no se puede aplicar registro a registro: requiere procesar el conjunto completo de datos para evaluar las combinaciones. Esto lo hace apropiado para extracciones asíncronas (jobs) pero no para respuestas síncronas de la API.
 
@@ -144,8 +152,10 @@ Los perfiles pueden crearse y modificarse desde el backoffice. Crear un perfil n
     { "campo": "telefono", "tecnica": "suprimir" },
     { "campo": "email", "tecnica": "suprimir" },
     { "campo": "fecha_nacimiento", "tecnica": "generalizar", "precision": "anio" },
-    { "campo": "direccion", "tecnica": "generalizar", "precision": "calle_sin_numero" },
-    { "campo": "codigo_postal", "tecnica": "generalizar", "precision": "barrio" },
+    { "campo": "nombre_via", "tecnica": "generalizar", "precision": "calle_sin_numero",
+      "prerequisito": "direccion_normalizada", "fallback": "suprimir" },
+    { "campo": "numero", "tecnica": "suprimir" },
+    { "campo": "codigo_postal", "tecnica": "generalizar", "precision": "distrito_proxy" },
     { "campo": "sexo", "tecnica": "mantener" }
   ],
   "k_anonimato": null
@@ -188,6 +198,38 @@ La reversibilidad de la seudonimización requiere una tabla de correspondencias 
 ### 6.4 Versionado de perfiles
 
 Cada perfil tiene un campo `version` que se incrementa con cada modificación. Las extracciones registran la versión del perfil aplicada. Esto garantiza que es posible reconstruir qué transformación se aplicó a cualquier extracción pasada.
+
+### 6.5 Cuasi-identificadores y cascada de generalización para k-anonimato
+
+**Cuasi-identificadores evaluados:**
+
+Los cuatro atributos que se evalúan en la fase de k-anonimato son, por orden de capacidad discriminante:
+
+1. `sexo`
+2. `rango_edad` — fecha de nacimiento ya generalizada (`anio` o `decada`)
+3. `calle_generalizada` — `nombre_via` sin número, o `distrito_proxy` si ya se generalizó más
+4. `colectivo_principal` — colectivo de atención principal del ciudadano
+
+**Cascada de generalización cuando una combinación no alcanza K:**
+
+Cuando una combinación de cuasi-identificadores aparece menos de K veces en el conjunto, se aplica la siguiente cascada en orden estricto, sin saltarse pasos:
+
+| Paso | Acción |
+|---|---|
+| 1 | `rango_edad`: pasar de precisión `anio` a `decada` |
+| 2 | `calle_generalizada`: pasar de `calle_sin_numero` a `distrito_proxy` (primeros 3 dígitos del CP) |
+| 3 | `colectivo_principal`: suprimir |
+| 4 | Registro completo: suprimir del resultado |
+
+El criterio del orden es minimizar la pérdida de información analítica: se generaliza primero lo que menos utilidad pierde. La edad en décadas sigue siendo útil; perder la calle es más costoso pero necesario si la densidad es insuficiente.
+
+Tras cada paso se reevalúa el conjunto completo. Si tras el paso 4 siguen existiendo combinaciones problemáticas (lo que no debería ocurrir una vez suprimidos los registros individuales), el job falla con estado `error_k_anonimato`.
+
+**Casos especiales en la cascada:**
+
+- **VVG:** los campos de dirección se suprimen desde el inicio, sin pasar por la cascada. No se generaliza — se suprime directamente.
+- **PSH:** no tienen `nombre_via` ni `codigo_postal`. El campo equivalente es `zona_intervencion`, que se incluye como cuasi-identificador sustituto y se suprime si la combinación no alcanza K.
+- **Colectivos extra-protegidos:** `colectivo_principal` se suprime desde el inicio (paso 0), sin esperar a que la cascada lo alcance.
 
 ---
 
