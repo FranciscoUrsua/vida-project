@@ -10,9 +10,11 @@ Este fichero se aplica a todas las sesiones sin necesidad de repetirlo en cada p
 1. `git pull origin master` — siempre como primer paso, sin excepciones.
 2. Leer `SESSION.md` — resume el estado actual y el siguiente paso recomendado.
 3. Leer `docs/principios-vida360.md` — referencia de decisiones arquitectónicas y restricciones de dominio.
-4. Leer `docs/documentacion-proyecto.md` — arquitectura general, modelos y convenciones.
-5. Si la tarea afecta a un módulo específico, leer `docs/modulo-{nombre}.md` antes de escribir código.
-6. Si existe un fichero en `docs/instrucciones-cli/` para la tarea, leerlo íntegramente antes de actuar.
+4. Leer `docs/decisiones-tecnicas.md` — decisiones técnicas que ya se han tomado, para no contradecirlas ni replantearlas inútilmente.
+5. Leer `docs/documentacion-proyecto.md` — arquitectura general, modelos y convenciones.
+6. Leer `docs/design-system/SKILL.md` - desing-system, antes de cualquier tarea de UI, Blade o Filament.
+7. Si la tarea afecta a un módulo específico, leer `docs/modulo-{nombre}.md` antes de escribir código.
+8. Si existe un fichero en `docs/instrucciones-cli/` para la tarea, leerlo íntegramente antes de actuar.
 
 ---
 
@@ -58,6 +60,7 @@ Este fichero se aplica a todas las sesiones sin necesidad de repetirlo en cada p
 
 Estas restricciones nunca pueden relajarse sin decisión explícita documentada:
 
+- **Colectivos protegidos:** no son accesibles fuera de la Unidad Orgánica responsable salvo aprobación explícita de un responsable de la UO.
 - **Colectivos protegidos:** no tienen baja lógica. `ColectivoProtegido::delete()` lanza `LogicException`.
   Ver principio 3.11 y `docs/instrucciones-cli/organizacion-colectivos-tests.md`.
 - **Anotaciones privadas:** solo accesibles por su autor. Sin excepciones de rol ni jerarquía.
@@ -65,6 +68,7 @@ Estas restricciones nunca pueden relajarse sin decisión explícita documentada:
 - **La IA asiste, nunca decide:** ningún componente de IA ejecuta acciones con consecuencias
   sobre personas sin validación explícita de un profesional. Ver principio 3.9.
 - **El pasado es inmutable:** los cambios de estado generan nuevos registros, no sobrescriben. Ver principio 4.2.
+- **Seguridad en datos personales:** los datos personales de ciudadanos se guardan cifrados en la BBDD, sin excepción.
 
 ---
 
