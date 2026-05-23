@@ -36,18 +36,31 @@ class DatabaseSeeder extends Seeder
         // 4. Datos del módulo Organizacion (configuracion, colectivos, distritos, etc.)
         $this->call(\Modules\Organizacion\Database\Seeders\OrganizacionSeeder::class);
 
-        // 5b. Datos del módulo Agenda (horarios y tipos de slot de ejemplo)
-        $this->call(\Modules\Agenda\Database\Seeders\AgendaSeeder::class);
-
         // 5. Catálogos del módulo Profesional
         $this->call(CargosSeeder::class);
         $this->call(TitulacionesSeeder::class);
         $this->call(TiposRelacionProfesionalSeeder::class);
 
-        // 5c. Perfiles de anonimización predefinidos del sistema
+        // 6. Módulo Centro: catálogos base + 3 centros de ejemplo + red
+        $this->call(\Modules\Centro\Database\Seeders\CentroSeeder::class);
+
+        // 7. Módulo Prestaciones: catálogos del sistema y prestaciones de cartera
+        $this->call(\Modules\Prestaciones\Database\Seeders\CatalogosSistemaSeeder::class);
+        $this->call(\Modules\Prestaciones\Database\Seeders\PrestacionesSeeder::class);
+
+        // 8. Módulo Agenda: horario y tipos de slot de ejemplo (requiere centros)
+        $this->call(\Modules\Agenda\Database\Seeders\AgendaSeeder::class);
+
+        // 9. Módulo Documentos: catálogos y plantilla de informe de ejemplo
+        $this->call(\Modules\Documentos\Database\Seeders\DocumentosSeeder::class);
+
+        // 10. Módulo Intervención: tipos de ficha y valoración
+        $this->call(\Modules\Intervencion\Database\Seeders\IntervencionSeeder::class);
+
+        // 11. Perfiles de anonimización predefinidos del sistema
         $this->call(PerfilesAnonimizacionSeeder::class);
 
-        // 6. Usuario administrador con rol de sistema
+        // 12. Usuario administrador con rol de sistema
         // IMPORTANTE: cambiar la contraseña tras el primer acceso
         $admin = User::firstOrCreate(
             ['email' => 'admin@vida.local'],
