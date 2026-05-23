@@ -2,6 +2,46 @@
 
 ---
 
+## Seeders — revisión y completado — 2026-05-23
+
+### Módulo afectado
+`Modules/Centro`, `Modules/Intervencion`, `database/seeders`
+
+### Cambios realizados
+
+- **`Modules/Centro/database/seeders/CentroSeeder.php`** — creado desde cero.
+  Seeder idempotente que siembra los catálogos base del módulo Centro y datos de ejemplo:
+  - 7 tipos de espacio físico (dormitorio individual, compartido, adaptado, sala común,
+    despacho profesional, sala de actividades, módulo familiar).
+  - 6 tipos de actividad (taller de empleo, grupo terapéutico, deportiva, formación,
+    cultural/ocio, acompañamiento social).
+  - 6 segmentos de población (personas sin hogar, personas mayores, menores y familia,
+    discapacidad, VVG, atención primaria general).
+  - 3 centros de ejemplo: Albergue Municipal San Isidro (municipal directo, personas sin
+    hogar), Albergue Municipal Vallecas (municipal concertado, personas sin hogar), Centro
+    de Día Retiro (municipal directo, personas mayores).
+  - 1 red: Red de Albergues Municipales, que agrupa los dos albergues.
+
+- **`database/seeders/DatabaseSeeder.php`** — actualizado.
+  Tres seeders de módulo que existían pero no estaban registrados se incorporan en el orden
+  correcto de dependencias: `CentroSeeder` (paso 6), `CatalogosSistemaSeeder` y
+  `PrestacionesSeeder` (paso 7), `AgendaSeeder` movido al paso 8 (requiere centros previos),
+  `DocumentosSeeder` (paso 9), `IntervencionSeeder` (paso 10).
+
+- **`Modules/Intervencion/database/seeders/IntervencionSeeder.php`** — corregido.
+  Todos los `Model::create()` reemplazados por `firstOrCreate()` para garantizar idempotencia.
+  La ejecución repetida ya no genera registros duplicados.
+
+### Decisiones de implementación
+
+- El `AgendaSeeder` dependía en silencio de que existieran centros en la BD (fallaba con
+  `warn` si no había ninguno). Al colocar `CentroSeeder` antes, la dependencia queda resuelta.
+- Los dos albergues se adscriben al "Departamento de Atención Primaria" (UO creada por
+  `UoSeeder`) porque no existe una UO propia para recursos de acogida en la estructura mínima.
+  Se puede ajustar cuando se amplíe la jerarquía organizativa.
+
+---
+
 ## Anonimización y seudonimización — 2026-05-22
 
 ### Descripción

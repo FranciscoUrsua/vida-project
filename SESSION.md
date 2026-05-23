@@ -1,21 +1,25 @@
 # SESSION — VIDA 360
 
-_Actualizado: 2026-05-22_
+_Actualizado: 2026-05-23_
 
 ## Tarea completada
 
-Capa de anonimización transversal implementada completa: configuración, excepciones, modelos,
-seeder, 3 servicios, factories y 42 tests — todos pasan (+ 4 incompletos pendientes de infraestructura de jobs).
+Seeders de todos los módulos revisados y corregidos: nuevo CentroSeeder completo,
+tres seeders huérfanos conectados al DatabaseSeeder, e IntervencionSeeder corregido
+para ser idempotente.
 
 ## Estado actual
 
-- **Anonimización:** implementada al 100% según `docs/anonimizacion.md` y `docs/tests-anonimizacion.md`.
-  - 4 perfiles predefinidos del sistema con versionado.
-  - `AnonimizadorService` — técnicas: suprimir, seudonimizar, generalizar (4 precisiones), mantener.
-  - `RevelacionIdentidadService` — reversión con permiso atómico + auditoría.
-  - `ValidadorKAnonimato` — cascada de 4 pasos + preprocesado VVG/PSH/extra-protegido.
-  - 42 tests en 6 clases. Tests de k-anonimato marcados `@group slow`.
-- **Geocodificación:** completa desde sesión anterior.
+- **Seeders:** todos los módulos tienen seeder y están registrados en DatabaseSeeder.
+  - `CentroSeeder` — nuevo: 7 tipos de espacio, 6 tipos de actividad, 6 segmentos de
+    población, 3 centros de ejemplo (Albergue San Isidro, Albergue Vallecas, Centro de
+    Día Retiro), 1 red (Red de Albergues Municipales con los dos albergues).
+  - `DatabaseSeeder` — añadidos en orden: CentroSeeder, CatalogosSistemaSeeder,
+    PrestacionesSeeder, AgendaSeeder (que ya dependía de centros), DocumentosSeeder,
+    IntervencionSeeder.
+  - `IntervencionSeeder` — corregido: `create()` → `firstOrCreate()` en todos los modelos.
+  - Suite completa idempotente: `db:seed` puede ejecutarse múltiples veces sin duplicados.
+- **Anonimización:** implementada al 100% (ver sesión 2026-05-22).
 - **Suite completa:** 332 tests pasan ✅ — 0 fallos — 5 incompletos.
 
 ## Tests incompletos actuales
@@ -28,17 +32,17 @@ seeder, 3 servicios, factories y 42 tests — todos pasan (+ 4 incompletos pendi
 
 ## Siguiente paso recomendado
 
-**TF-USU-31** sigue siendo el único test previo pendiente en el módulo Usuarios. Es el desbloqueador
-más simple (no requiere infraestructura nueva, solo implementar la validación en `UsuarioUoPolicy`).
+**TF-USU-31** sigue siendo el desbloqueador más simple: implementar la validación jerárquica
+en `UsuarioUoPolicy` sin infraestructura nueva.
 
-Alternativa: **módulo Ciudadanía** — el modelo `Ciudadano` es un stub; implementar el módulo
-completo con flujo de alta, motor de matching y unidades de convivencia desbloquea los tests
-de k-anonimato que ahora usan arrays directamente pero idealmente usarían modelos reales.
+Alternativa: **módulo Ciudadanía** — el modelo `Ciudadano` es un stub; implementarlo completo
+(alta, motor de matching, unidades de convivencia) desbloquea los tests de k-anonimato
+pendientes y es el paso natural para activar los módulos de Intervención y Agenda.
 
 ## Contexto relevante para retomar
 
+- Los centros de ejemplo del seeder usan como UO el "Departamento de Atención Primaria"
+  (los albergues) y las UOs "CSS Arganzuela" / "CSS Retiro" (el Centro de Día). Si se
+  resetea la BD, `db:seed` recrea todo en el orden correcto.
 - Los perfiles de anonimización usan `apellido1`/`apellido2` (no `apellidos` del JSON del spec).
 - El alias seudonimizado se computa como `CIU-{HMAC-SHA256(id, APP_PSEUDONYM_KEY)[0..7]}`.
-- La tabla `revelaciones_identidad` audita cada reversión; sin FK a ciudadanos (para no crear dependencia de integridad).
-- `ValidadorKAnonimato` es solo para jobs asíncronos — nunca en endpoints síncronos de la API.
-- El timing `--exclude-group=slow < 10s` no se cumple por overhead de `RefreshDatabase` (~14s migration); la lógica de tests en sí es sub-segundo.
