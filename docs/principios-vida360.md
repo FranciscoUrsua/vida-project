@@ -155,6 +155,20 @@ Una llamada telefónica, una visita presencial o un mensaje de WhatsApp tienen e
 
 La integración técnica de canales es incremental: las decisiones sobre cada canal (centralización, gestión de identidad, trazabilidad) deben tomarse antes de su implementación. Ningún canal puede implantarse si no garantiza que las interacciones quedan registradas en la Historia Social y que el acceso cumple con los principios de privacidad y auditoría establecidos en este documento.
 
+### 3.14 Separación entre indicadores operativos y analítica de negocio
+
+Los dashboards del sistema (backoffice y front operativo) pueden mostrar indicadores de estado calculados directamente desde la base de datos del sistema mediante consultas simples. Esta práctica es legítima y no constituye una duplicación de la capa analítica.
+
+El criterio que separa ambos dominios es funcional, no técnico:
+
+**Va en el sistema operativo** si el dato responde a una pregunta que requiere una acción inmediata dentro de la propia aplicación: reasignar un caso, aprobar un rol, actuar sobre una lista de espera. El indicador es un acceso rápido, no un fin en sí mismo; debe tener siempre un destino al que lleva dentro de VIDA.
+
+**Va en Power BI / datalake** si el dato responde a una pregunta de planificación, evaluación o rendición de cuentas: evolución temporal, comparativas entre UOs, tiempo medio de espera, perfiles de demanda. Estas preguntas no desencadenan ninguna acción dentro de la aplicación; su destino natural es una reunión, un informe o una decisión de política.
+
+**Test de comprobación**: cuando el usuario ve el número, ¿hay algo en VIDA en lo que pueda hacer clic a continuación? Si sí, el indicador pertenece al sistema. Si la respuesta natural es "voy a comentarlo en el comité" o "voy a exportar esto", pertenece a Power BI.
+
+Este principio protege el backlog: la petición de añadir un indicador al dashboard se evalúa siempre con este criterio, no con criterios de complejidad técnica.
+
 ---
 
 ## 4. Principios técnicos
@@ -256,4 +270,4 @@ Las siguientes áreas están identificadas como complejas y se abordarán en fas
 
 ---
 
-*Documento elaborado en fase de diseño del proyecto. Versión inicial: marzo 2026. Actualizado: abril 2026.*
+*Documento elaborado en fase de diseño del proyecto. Versión inicial: marzo 2026. Actualizado: mayo 2026.*
