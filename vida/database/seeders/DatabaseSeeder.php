@@ -49,14 +49,18 @@ class DatabaseSeeder extends Seeder
 
         // 6. Usuario administrador con rol de sistema
         // IMPORTANTE: cambiar la contraseña tras el primer acceso
-        $admin = User::create([
-            'name'              => 'Administrador VIDA',
-            'email'             => 'admin@vida.local',
-            'password'          => 'Vida360!Admin',
-            'email_verified_at' => now(),
-        ]);
-        $admin->assignRole('adm_sistema');
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@vida.local'],
+            [
+                'name'              => 'Administrador VIDA',
+                'password'          => 'Vida360!Admin',
+                'email_verified_at' => now(),
+            ]
+        );
+        if (! $admin->hasRole('adm_sistema')) {
+            $admin->assignRole('adm_sistema');
+        }
 
-        $this->command->info('✓ Usuario administrador creado: admin@vida.local / Vida360!Admin');
+        $this->command->info('✓ Usuario administrador: admin@vida.local / Vida360!Admin');
     }
 }
