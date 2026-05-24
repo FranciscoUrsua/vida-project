@@ -61,7 +61,8 @@ class FilamentPanelAccessTest extends TestCase
     {
         $response = $this->actingAs($this->sinRol)->get('/admin');
 
-        $response->assertForbidden();
+        // El middleware cierra la sesión y redirige al login (no 403)
+        $response->assertRedirect('/admin/login');
     }
 
     #[Test]
@@ -93,7 +94,8 @@ class FilamentPanelAccessTest extends TestCase
     {
         $response = $this->actingAs($this->intervencion)->get('/admin');
 
-        $response->assertForbidden();
+        // El middleware cierra la sesión y redirige al login (no 403)
+        $response->assertRedirect('/admin/login');
     }
 
     // -------------------------------------------------------------------------
