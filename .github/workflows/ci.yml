@@ -48,10 +48,6 @@ jobs:
             # Instalar/actualizar dependencias (sin dev para producción)
             composer install --no-dev --optimize-autoloader --no-interaction
 
-            # Compilar assets frontend (Vite)
-            npm ci --prefer-offline
-            npm run build
-
             # Limpiar cachés de Laravel para asegurar cambios
             php artisan cache:clear
             php artisan config:clear
