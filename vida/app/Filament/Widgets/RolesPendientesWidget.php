@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use Filament\Actions\Action;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -34,7 +35,7 @@ class RolesPendientesWidget extends BaseWidget
                     ->sortable(),
             ])
             ->actions([
-                Tables\Actions\Action::make('aprobar')
+                Action::make('aprobar')
                     ->label('Aprobar')
                     ->icon('heroicon-o-check')
                     ->color('success')
