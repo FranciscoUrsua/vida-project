@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\HorarioCentroResource\RelationManagers;
 
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
@@ -114,7 +115,7 @@ class TiposSlotsRelationManager extends RelationManager
                     ->alignCenter(),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
             ->actions([
                 EditAction::make(),

@@ -7,6 +7,7 @@ use App\Models\CatalogoSistema;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TimePicker;
+use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -81,7 +82,7 @@ class ConfiguracionHorarioLaboralResource extends Resource
                     ->limit(80),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
             ]);
     }
 

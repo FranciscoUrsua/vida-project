@@ -8,6 +8,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Actions\Action;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Table;
 use Modules\Documentos\Enums\OrigenDocumento;
 use Modules\Documentos\Models\Documento;
@@ -157,9 +159,9 @@ class DocumentoResource extends Resource
                     ->relationship('tipo', 'etiqueta'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                ViewAction::make(),
 
-                Tables\Actions\Action::make('ver_fichero')
+                Action::make('ver_fichero')
                     ->label('Ver PDF')
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('gray')

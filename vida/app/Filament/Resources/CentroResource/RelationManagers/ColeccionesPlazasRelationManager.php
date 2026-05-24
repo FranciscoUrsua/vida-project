@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CentroResource\RelationManagers;
 
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
@@ -106,7 +107,7 @@ class ColeccionesPlazasRelationManager extends RelationManager
                     ->alignCenter(),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
             ->actions([
                 EditAction::make(),

@@ -11,7 +11,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Tables\Actions\Action as TableAction;
+use Filament\Actions\Action as TableAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Support\HtmlString;
@@ -231,7 +232,7 @@ class InformeResource extends Resource
                     ->relationship('autor', 'name'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                ViewAction::make(),
 
                 TableAction::make('anular')
                     ->label('Anular')

@@ -13,7 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Tables\Table;
 use Modules\Agenda\Enums\EstadoCuadrante;
 use Modules\Agenda\Models\CuadranteMes;
