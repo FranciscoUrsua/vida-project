@@ -90,4 +90,25 @@ class RolResource extends Resource
             'edit'   => Pages\EditRol::route('/{record}/edit'),
         ];
     }
+
+    // Solo adm_sistema puede ver y modificar la matriz de roles y permisos.
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasRole('adm_sistema') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->hasRole('adm_sistema') ?? false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->hasRole('adm_sistema') ?? false;
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->hasRole('adm_sistema') ?? false;
+    }
 }

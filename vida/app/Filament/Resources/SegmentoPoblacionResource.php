@@ -14,9 +14,11 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\SegmentoPoblacion;
+use App\Filament\Concerns\AutorizaGestion;
 
 class SegmentoPoblacionResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = SegmentoPoblacion::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-group';

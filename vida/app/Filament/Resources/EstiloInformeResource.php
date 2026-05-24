@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Documentos\Models\EstiloInforme;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Gestión del estilo formal de informes por Unidad Organizativa.
@@ -26,6 +27,7 @@ use Modules\Documentos\Models\EstiloInforme;
  */
 class EstiloInformeResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = EstiloInforme::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-paint-brush';

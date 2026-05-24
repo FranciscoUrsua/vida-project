@@ -14,6 +14,7 @@ use Filament\Tables\Table;
 use Modules\Documentos\Enums\OrigenDocumento;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Services\ServicioAlmacenamiento;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Visor de documentos custodiados en el sistema.
@@ -26,6 +27,7 @@ use Modules\Documentos\Services\ServicioAlmacenamiento;
  */
 class DocumentoResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = Documento::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-paper-clip';
@@ -36,10 +38,6 @@ class DocumentoResource extends Resource
     protected static ?int $navigationSort = 40;
 
     /** Los documentos se suben desde el flujo operativo, no desde el backoffice. */
-    public static function canCreate(): bool
-    {
-        return false;
-    }
 
     public static function infolist(Schema $schema): Schema
     {

@@ -18,9 +18,11 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Centro\Models\Centro;
+use App\Filament\Concerns\AutorizaGestion;
 
 class PerfilHorarioProfesionalResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = PerfilHorarioProfesional::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-circle';

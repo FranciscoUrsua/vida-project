@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Organizacion\Models\Zona;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión del catálogo de zonas territoriales.
@@ -23,6 +24,7 @@ use Modules\Organizacion\Models\Zona;
  */
 class ZonaResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = Zona::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map-pin';

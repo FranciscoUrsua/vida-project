@@ -14,9 +14,11 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\TipoEspacio;
+use App\Filament\Concerns\AutorizaGestion;
 
 class TipoEspacioResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = TipoEspacio::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-home';

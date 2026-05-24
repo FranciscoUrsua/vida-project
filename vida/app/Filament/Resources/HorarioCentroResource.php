@@ -21,9 +21,11 @@ use Filament\Tables\Table;
 use Modules\Agenda\Enums\ModoAgenda;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Centro\Models\Centro;
+use App\Filament\Concerns\AutorizaGestion;
 
 class HorarioCentroResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = HorarioCentro::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clock';

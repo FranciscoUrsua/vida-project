@@ -14,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Usuarios\Models\UsuarioRol;
 use Spatie\Permission\Models\Role;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: supervisión del historial de asignaciones de rol.
@@ -25,6 +26,7 @@ use Spatie\Permission\Models\Role;
  */
 class UsuarioRolResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = UsuarioRol::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';

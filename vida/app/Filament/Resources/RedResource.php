@@ -16,9 +16,11 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Red;
+use App\Filament\Concerns\AutorizaGestion;
 
 class RedResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = Red::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-link';

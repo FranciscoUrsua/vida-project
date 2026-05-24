@@ -19,9 +19,11 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Prestaciones\Models\Prestacion;
+use App\Filament\Concerns\AutorizaGestion;
 
 class PrestacionResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = Prestacion::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';

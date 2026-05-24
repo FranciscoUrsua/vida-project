@@ -13,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Usuarios\Models\ConfiguracionRol;
 use Spatie\Permission\Models\Role;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: nivel de supervisión requerido por cada rol.
@@ -27,6 +28,7 @@ use Spatie\Permission\Models\Role;
  */
 class ConfiguracionRolResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = ConfiguracionRol::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';

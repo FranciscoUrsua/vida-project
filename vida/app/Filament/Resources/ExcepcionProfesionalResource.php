@@ -20,9 +20,11 @@ use Modules\Agenda\Enums\OrigenExcepcion;
 use Modules\Agenda\Enums\TipoExcepcion;
 use Modules\Agenda\Models\ExcepcionProfesional;
 use Modules\Centro\Models\Centro;
+use App\Filament\Concerns\AutorizaGestion;
 
 class ExcepcionProfesionalResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = ExcepcionProfesional::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-exclamation-triangle';

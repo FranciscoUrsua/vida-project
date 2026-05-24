@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Organizacion\Models\ColectivoProtegido;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión del catálogo de colectivos especialmente protegidos.
@@ -22,6 +23,7 @@ use Modules\Organizacion\Models\ColectivoProtegido;
  */
 class ColectivoProtegidoResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = ColectivoProtegido::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';

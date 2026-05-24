@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Organizacion\Models\ServicioEmergenciaPreautorizado;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión del catálogo de servicios de emergencia preautorizados.
@@ -25,6 +26,7 @@ use Modules\Organizacion\Models\ServicioEmergenciaPreautorizado;
  */
 class ServicioEmergenciaResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = ServicioEmergenciaPreautorizado::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-bell-alert';

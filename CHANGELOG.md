@@ -2,6 +2,60 @@
 
 ---
 
+## Filament — autorización del panel — 2026-05-24
+
+### Módulos afectados
+`app/Models/User`, `app/Filament/Concerns`, `app/Filament/Resources/*`, `tests/Feature`
+
+### Cambios realizados
+
+- **`app/Models/User.php`** — implementa `FilamentUser`.
+  Añadido `canAccessPanel(Panel $panel): bool` restringiendo el acceso al panel a los roles
+  `adm_sistema`, `supervision` y `adm_usuarios`. El resto de roles (intervencion, tramitacion,
+  consulta_profesional, consulta_basica) y los usuarios sin rol quedan fuera del panel.
+
+- **`app/Filament/Concerns/AutorizaGestion.php`** — creado.
+  Trait reutilizable que sobreescribe los cuatro métodos de autorización de Filament Resource
+  (`canViewAny`, `canCreate`, `canEdit`, `canDelete`) restringiéndolos a `adm_sistema` y
+  `adm_usuarios`.
+
+- **27 Resources estándar** — añadido `use AutorizaGestion;`.
+  CargoResource, CentroResource, ColectivoProtegidoResource, ConfiguracionHorarioLaboralResource,
+  ConfiguracionOrganizacionResource, ConfiguracionRolResource, CuadranteMesResource,
+  DistritoResource, DocumentoResource, EstiloInformeResource, ExcepcionProfesionalResource,
+  HorarioCentroResource, InformeResource, PerfilHorarioProfesionalResource,
+  PlantillaInformeResource, PrestacionResource, RedResource, SegmentoPoblacionResource,
+  ServicioEmergenciaResource, TipoActividadResource, TipoEspacioResource,
+  TipoRelacionProfesionalResource, TipoSlotResource, TitulacionResource,
+  UnidadOrganizativaResource, UsuarioRolResource, ZonaResource.
+  Los métodos `canCreate(): bool { return false; }` de DocumentoResource e InformeResource
+  han sido eliminados (ya no son necesarios; el trait los sustituye con la lógica de roles).
+
+- **`RolResource`** — autorización manual: `adm_sistema` exclusivo en los 4 métodos can*.
+
+- **`UsuarioResource`** — autorización manual: `adm_sistema + adm_usuarios` para
+  canViewAny/canCreate/canEdit; `adm_sistema` solo para canDelete.
+
+- **`ProfesionalResource`** — mismo esquema que UsuarioResource.
+
+- **`LogAlertasResource`** — autorización manual: `adm_sistema + supervision` para canViewAny;
+  canCreate/canEdit/canDelete → false (recurso de solo lectura).
+
+- **`tests/Feature/FilamentPanelAccessTest.php`** — creado.
+  14 tests PHPUnit (atributo `#[Test]`, RefreshDatabase, PostgreSQL vida_testing).
+  Grupos: A (acceso al panel), B (RolResource), C (UsuarioResource), D (LogAlertasResource).
+  Todos pasan ✅.
+
+### Decisiones de implementación
+
+- `canAccessPanel` devuelve 403 (no redirect) para usuarios autenticados sin permiso de panel.
+  El redirect a login solo se produce para usuarios no autenticados (comportamiento del
+  middleware `Authenticate` de Filament). Los tests verifican `assertForbidden()` en esos casos.
+- La autorización vía `can*()` en Resources es más directa que registrar Policies; no se han
+  creado Policies de Filament para no añadir indirección innecesaria.
+
+---
+
 ## Backoffice Filament — restyling con design system — 2026-05-24
 
 ### Módulos afectados

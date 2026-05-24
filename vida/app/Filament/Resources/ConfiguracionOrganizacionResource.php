@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Organizacion\Models\Configuracion;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión de la configuración general de la organización.
@@ -24,6 +25,7 @@ use Modules\Organizacion\Models\Configuracion;
  */
 class ConfiguracionOrganizacionResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = Configuracion::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';

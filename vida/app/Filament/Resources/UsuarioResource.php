@@ -184,4 +184,25 @@ class UsuarioResource extends Resource
             'edit'   => Pages\EditUsuario::route('/{record}/edit'),
         ];
     }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
+    }
+
+    /** Solo adm_sistema puede eliminar usuarios. */
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->hasRole('adm_sistema') ?? false;
+    }
 }

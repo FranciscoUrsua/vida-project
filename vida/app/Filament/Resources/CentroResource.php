@@ -23,9 +23,11 @@ use Filament\Tables\Table;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\SegmentoPoblacion;
 use Modules\Prestaciones\Models\Prestacion;
+use App\Filament\Concerns\AutorizaGestion;
 
 class CentroResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = Centro::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-office-2';

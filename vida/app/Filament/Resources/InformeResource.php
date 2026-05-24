@@ -20,6 +20,7 @@ use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Enums\TipoInforme;
 use Modules\Documentos\Models\Informe;
 use Modules\Documentos\Services\ServicioFirmaInforme;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Supervisión y gestión operativa de informes profesionales.
@@ -30,6 +31,7 @@ use Modules\Documentos\Services\ServicioFirmaInforme;
  */
 class InformeResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = Informe::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-check';
@@ -40,10 +42,6 @@ class InformeResource extends Resource
     protected static ?int $navigationSort = 30;
 
     /** Los informes se crean desde el flujo operativo (Livewire), no desde el backoffice. */
-    public static function canCreate(): bool
-    {
-        return false;
-    }
 
     public static function infolist(Schema $schema): Schema
     {

@@ -17,9 +17,11 @@ use Filament\Tables\Table;
 use Modules\Agenda\Enums\OrigenPermitidoSlot;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Agenda\Models\TipoSlot;
+use App\Filament\Concerns\AutorizaGestion;
 
 class TipoSlotResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = TipoSlot::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-squares-2x2';

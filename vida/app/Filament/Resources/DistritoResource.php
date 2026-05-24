@@ -13,6 +13,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Organizacion\Models\Distrito;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión del catálogo de distritos municipales.
@@ -21,6 +22,7 @@ use Modules\Organizacion\Models\Distrito;
  */
 class DistritoResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = Distrito::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map';

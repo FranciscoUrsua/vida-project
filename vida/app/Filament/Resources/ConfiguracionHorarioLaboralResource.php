@@ -13,6 +13,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Recurso de configuración del horario laboral por defecto.
@@ -23,6 +24,7 @@ use Filament\Tables\Table;
  */
 class ConfiguracionHorarioLaboralResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = CatalogoSistema::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clock';

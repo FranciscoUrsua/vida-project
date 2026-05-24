@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Usuarios\Models\Cargo;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión del catálogo de cargos profesionales.
@@ -22,6 +23,7 @@ use Modules\Usuarios\Models\Cargo;
  */
 class CargoResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = Cargo::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-briefcase';

@@ -13,6 +13,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Usuarios\Models\TipoRelacionProfesional;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión del catálogo de tipos de relación profesional.
@@ -21,6 +22,7 @@ use Modules\Usuarios\Models\TipoRelacionProfesional;
  */
 class TipoRelacionProfesionalResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = TipoRelacionProfesional::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-link';

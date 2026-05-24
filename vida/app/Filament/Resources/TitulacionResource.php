@@ -13,6 +13,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Usuarios\Models\Titulacion;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión del catálogo de titulaciones académicas.
@@ -21,6 +22,7 @@ use Modules\Usuarios\Models\Titulacion;
  */
 class TitulacionResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = Titulacion::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-academic-cap';

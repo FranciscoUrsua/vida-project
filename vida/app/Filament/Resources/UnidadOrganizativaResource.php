@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Resource Filament para gestionar Unidades Organizativas.
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\DB;
  */
 class UnidadOrganizativaResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = UnidadOrganizativa::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-office-2';

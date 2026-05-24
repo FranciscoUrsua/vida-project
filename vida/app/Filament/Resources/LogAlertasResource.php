@@ -117,10 +117,24 @@ class LogAlertasResource extends Resource
         ];
     }
 
-    /**
-     * Este recurso es de solo lectura.
-     */
+    /** Solo adm_sistema y supervision pueden ver el log de alertas. */
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'supervision']) ?? false;
+    }
+
+    // Recurso de solo lectura: no se permite crear, editar ni eliminar alertas.
     public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return false;
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
     {
         return false;
     }

@@ -17,6 +17,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Documentos\Enums\TipoInforme;
 use Modules\Documentos\Models\PlantillaInforme;
+use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Gestión de plantillas de informe profesional.
@@ -27,6 +28,7 @@ use Modules\Documentos\Models\PlantillaInforme;
  */
 class PlantillaInformeResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = PlantillaInforme::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';

@@ -14,9 +14,11 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\TipoActividad;
+use App\Filament\Concerns\AutorizaGestion;
 
 class TipoActividadResource extends Resource
 {
+    use AutorizaGestion;
     protected static ?string $model = TipoActividad::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-academic-cap';

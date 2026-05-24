@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -38,7 +40,7 @@ use Spatie\Permission\Traits\HasRoles;
  *
  * @see docs/modulo-usuarios-permisos.md sección 1.1
  */
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory;
@@ -70,6 +72,18 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password'          => 'hashed',
         ];
+    }
+
+    // -------------------------------------------------------------------------
+    // Filament
+    // -------------------------------------------------------------------------
+
+    /**
+     * Solo roles de gestión y supervisión pueden acceder al panel de administración.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->hasAnyRole(['adm_sistema', 'supervision', 'adm_usuarios']);
     }
 
     // -------------------------------------------------------------------------
