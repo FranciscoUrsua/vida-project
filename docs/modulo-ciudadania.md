@@ -341,6 +341,19 @@ En entornos de desarrollo y pruebas, los adaptadores mock devuelven datos fictic
 - **Reversión de fusiones:** definir el proceso de reversión de una fusión errónea y quién puede autorizarla.
 - **Acceso ciudadano a sus propios datos:** cuando se implemente la carpeta ciudadana y el rol 0, revisar qué datos de Capa 1 y Capa 2 son visibles para el propio ciudadano.
 - **Sincronización con HSU-CM:** definir qué datos se sincronizan con la Historia Social Única de la Comunidad de Madrid y con qué frecuencia, cuando esa integración esté disponible.
+- **Genograma:** se prevé incorporar en el futuro una representación gráfica 
+  de las relaciones entre ciudadanos a partir de `ciudadano_relaciones` y 
+  `unidad_convivencia_miembros`. El modelo actual es compatible con esta 
+  funcionalidad. Decisiones pendientes antes de implementar:
+  - Añadir `tipo_dinamica` (opcional) en `ciudadano_relaciones` para representar 
+    la calidad del vínculo (conflictivo, distante, fusionado…).
+  - Añadir `fecha_fallecimiento` en `ciudadanos`.
+  - Valorar nodos "ligeros" para personas significativas no registradas como 
+    ciudadanos activos (fallecidos, no residentes…).
+  - Definir si se implementa un genograma clásico (solo personas y relaciones) 
+    o un ecomapa que incluya nodos no personales como prestaciones, centros o 
+    recursos comunitarios, y en ese caso qué entidades se representan y con qué 
+    propósito.
 
 ---
 
