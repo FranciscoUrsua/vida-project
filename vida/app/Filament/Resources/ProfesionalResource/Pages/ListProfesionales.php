@@ -4,7 +4,7 @@ namespace App\Filament\Resources\ProfesionalResource\Pages;
 
 use App\Filament\Resources\ProfesionalResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\Pages\ListRecords;
 
 class ListProfesionales extends ListRecords
 {

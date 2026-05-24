@@ -4,7 +4,7 @@ namespace App\Filament\Resources\PrestacionResource\Pages;
 
 use App\Filament\Resources\PrestacionResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\Pages\ListRecords;
 
 class ListPrestaciones extends ListRecords
 {

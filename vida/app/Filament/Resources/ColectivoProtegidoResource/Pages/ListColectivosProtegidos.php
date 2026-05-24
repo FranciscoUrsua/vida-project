@@ -4,7 +4,7 @@ namespace App\Filament\Resources\ColectivoProtegidoResource\Pages;
 
 use App\Filament\Resources\ColectivoProtegidoResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\Pages\ListRecords;
 
 class ListColectivosProtegidos extends ListRecords
 {

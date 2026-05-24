@@ -4,7 +4,7 @@ namespace App\Filament\Resources\CentroResource\Pages;
 
 use App\Filament\Resources\CentroResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\Pages\ListRecords;
 
 class ListCentros extends ListRecords
 {

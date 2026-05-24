@@ -4,7 +4,7 @@ namespace App\Filament\Resources\CargoResource\Pages;
 
 use App\Filament\Resources\CargoResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\Pages\ListRecords;
 
 class ListCargos extends ListRecords
 {

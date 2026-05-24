@@ -4,7 +4,7 @@ namespace App\Filament\Resources\ConfiguracionRolResource\Pages;
 
 use App\Filament\Resources\ConfiguracionRolResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\Pages\ListRecords;
 
 class ListConfiguracionRol extends ListRecords
 {

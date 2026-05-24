@@ -4,7 +4,7 @@ namespace App\Filament\Resources\HorarioCentroResource\Pages;
 
 use App\Filament\Resources\HorarioCentroResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\Pages\ListRecords;
 
 class ListHorariosCentro extends ListRecords
 {

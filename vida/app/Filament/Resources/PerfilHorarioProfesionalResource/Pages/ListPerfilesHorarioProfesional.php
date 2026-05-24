@@ -4,7 +4,7 @@ namespace App\Filament\Resources\PerfilHorarioProfesionalResource\Pages;
 
 use App\Filament\Resources\PerfilHorarioProfesionalResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\Pages\ListRecords;
 
 class ListPerfilesHorarioProfesional extends ListRecords
 {

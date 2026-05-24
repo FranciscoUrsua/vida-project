@@ -4,7 +4,7 @@ namespace App\Filament\Resources\ServicioEmergenciaResource\Pages;
 
 use App\Filament\Resources\ServicioEmergenciaResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\Pages\ListRecords;
 
 class ListServiciosEmergencia extends ListRecords
 {

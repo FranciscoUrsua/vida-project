@@ -4,7 +4,7 @@ namespace App\Filament\Resources\ExcepcionProfesionalResource\Pages;
 
 use App\Filament\Resources\ExcepcionProfesionalResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\Pages\ListRecords;
 
 class ListExcepcionesProfesional extends ListRecords
 {

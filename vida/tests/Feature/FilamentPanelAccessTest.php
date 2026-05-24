@@ -181,4 +181,25 @@ class FilamentPanelAccessTest extends TestCase
 
         $response->assertForbidden();
     }
+
+    // -------------------------------------------------------------------------
+    // Grupo E — ListRecords authorizeAccess: acceso directo por URL
+    // -------------------------------------------------------------------------
+
+    #[Test]
+    public function supervision_no_puede_acceder_directamente_por_url_a_recurso_restringido(): void
+    {
+        // Verifica que ListRecords::authorizeAccess() bloquea aunque el nav esté oculto
+        $response = $this->actingAs($this->supervision)->get('/admin/cargos');
+
+        $response->assertForbidden();
+    }
+
+    #[Test]
+    public function adm_sistema_puede_acceder_directamente_por_url_a_cualquier_recurso(): void
+    {
+        $response = $this->actingAs($this->admSistema)->get('/admin/cargos');
+
+        $response->assertSuccessful();
+    }
 }
