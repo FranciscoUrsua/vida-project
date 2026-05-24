@@ -25,11 +25,11 @@ class ConfiguracionHorarioLaboralResource extends Resource
     protected static ?string $model = CatalogoSistema::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clock';
-    protected static string|\UnitEnum|null $navigationGroup = 'Mensajería';
+    protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
     protected static ?string $navigationLabel = 'Horario laboral';
     protected static ?string $modelLabel = 'Configuración de horario laboral';
     protected static ?string $pluralModelLabel = 'Configuración de horario laboral';
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 20;
 
     public static function form(Schema $schema): Schema
     {

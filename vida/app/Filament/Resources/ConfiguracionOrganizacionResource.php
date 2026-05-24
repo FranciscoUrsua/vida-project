@@ -28,11 +28,11 @@ class ConfiguracionOrganizacionResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
     protected static ?string $navigationLabel = 'Configuración';
-    protected static string|\UnitEnum|null $navigationGroup = 'Configuración';
+    protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
     protected static ?string $modelLabel = 'Parámetro';
     protected static ?string $pluralModelLabel = 'Configuración';
     protected static ?string $slug = 'configuracion-organizacion';
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
     {

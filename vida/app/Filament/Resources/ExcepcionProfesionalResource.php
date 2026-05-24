@@ -27,11 +27,11 @@ class ExcepcionProfesionalResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-exclamation-triangle';
     protected static ?string $navigationLabel = 'Excepciones de profesionales';
-    protected static string|\UnitEnum|null $navigationGroup = 'Agenda';
+    protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
     protected static ?string $navigationParentItem = 'Supervisión';
     protected static ?string $modelLabel = 'Excepción';
     protected static ?string $pluralModelLabel = 'Excepciones de profesionales';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 60;
 
     public static function form(Schema $schema): Schema
     {

@@ -34,7 +34,7 @@ class ConfiguracionRolResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Organización';
     protected static ?string $modelLabel = 'Configuración de rol';
     protected static ?string $pluralModelLabel = 'Supervisión de roles';
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 50;
 
     public static function form(Schema $schema): Schema
     {

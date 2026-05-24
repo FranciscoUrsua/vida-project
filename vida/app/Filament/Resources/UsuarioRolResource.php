@@ -33,7 +33,7 @@ class UsuarioRolResource extends Resource
     protected static ?string $modelLabel = 'Asignación de rol';
     protected static ?string $pluralModelLabel = 'Historial de roles';
     protected static ?string $slug = 'usuario-roles';
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 40;
 
     public static function form(Schema $schema): Schema
     {

@@ -29,7 +29,7 @@ class PrestacionResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
     protected static ?string $modelLabel = 'Prestación';
     protected static ?string $pluralModelLabel = 'Prestaciones';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
     {

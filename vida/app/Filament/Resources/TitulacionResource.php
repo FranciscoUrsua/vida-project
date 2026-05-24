@@ -25,10 +25,10 @@ class TitulacionResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-academic-cap';
     protected static ?string $navigationLabel = 'Titulaciones';
-    protected static string|\UnitEnum|null $navigationGroup = 'Profesionales';
+    protected static string|\UnitEnum|null $navigationGroup = 'Organización';
     protected static ?string $modelLabel = 'Titulación';
     protected static ?string $pluralModelLabel = 'Titulaciones';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 90;
 
     public static function form(Schema $schema): Schema
     {

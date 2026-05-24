@@ -21,10 +21,10 @@ class TipoEspacioResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-home';
     protected static ?string $navigationLabel = 'Tipos de espacio';
-    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos de centros';
+    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
     protected static ?string $modelLabel = 'Tipo de espacio';
     protected static ?string $pluralModelLabel = 'Tipos de espacio';
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 70;
 
     public static function form(Schema $schema): Schema
     {

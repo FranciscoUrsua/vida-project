@@ -26,11 +26,11 @@ class ColectivoProtegidoResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
     protected static ?string $navigationLabel = 'Colectivos protegidos';
-    protected static string|\UnitEnum|null $navigationGroup = 'Configuración';
+    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
     protected static ?string $modelLabel = 'Colectivo protegido';
     protected static ?string $pluralModelLabel = 'Colectivos protegidos';
     protected static ?string $slug = 'colectivos-protegidos';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 50;
 
     public static function form(Schema $schema): Schema
     {

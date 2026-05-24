@@ -28,10 +28,10 @@ class DocumentoResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-paper-clip';
     protected static ?string $navigationLabel = 'Documentos';
-    protected static string|\UnitEnum|null $navigationGroup = 'Documentos e Informes';
+    protected static string|\UnitEnum|null $navigationGroup = 'Informes y plantillas';
     protected static ?string $modelLabel = 'Documento';
     protected static ?string $pluralModelLabel = 'Documentos';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 40;
 
     /** Los documentos se suben desde el flujo operativo, no desde el backoffice. */
     public static function canCreate(): bool

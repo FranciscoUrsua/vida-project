@@ -25,11 +25,11 @@ class PerfilHorarioProfesionalResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-circle';
     protected static ?string $navigationLabel = 'Perfiles horarios';
-    protected static string|\UnitEnum|null $navigationGroup = 'Agenda';
+    protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
     protected static ?string $navigationParentItem = 'Configuración';
     protected static ?string $modelLabel = 'Perfil horario';
     protected static ?string $pluralModelLabel = 'Perfiles horarios';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 50;
 
     public static function form(Schema $schema): Schema
     {

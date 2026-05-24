@@ -33,10 +33,10 @@ class InformeResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-check';
     protected static ?string $navigationLabel = 'Informes';
-    protected static string|\UnitEnum|null $navigationGroup = 'Documentos e Informes';
+    protected static string|\UnitEnum|null $navigationGroup = 'Informes y plantillas';
     protected static ?string $modelLabel = 'Informe';
     protected static ?string $pluralModelLabel = 'Informes';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 30;
 
     /** Los informes se crean desde el flujo operativo (Livewire), no desde el backoffice. */
     public static function canCreate(): bool

@@ -21,10 +21,10 @@ class TipoActividadResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-academic-cap';
     protected static ?string $navigationLabel = 'Tipos de actividad';
-    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos de centros';
+    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
     protected static ?string $modelLabel = 'Tipo de actividad';
     protected static ?string $pluralModelLabel = 'Tipos de actividad';
-    protected static ?int $navigationSort = 11;
+    protected static ?int $navigationSort = 80;
 
     public static function form(Schema $schema): Schema
     {

@@ -21,10 +21,10 @@ class SegmentoPoblacionResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationLabel = 'Segmentos de población';
-    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos de centros';
+    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
     protected static ?string $modelLabel = 'Segmento de población';
     protected static ?string $pluralModelLabel = 'Segmentos de población';
-    protected static ?int $navigationSort = 12;
+    protected static ?int $navigationSort = 60;
 
     public static function form(Schema $schema): Schema
     {

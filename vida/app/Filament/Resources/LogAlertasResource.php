@@ -23,11 +23,11 @@ class LogAlertasResource extends Resource
     protected static ?string $model = Alerta::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-bell-alert';
-    protected static string|\UnitEnum|null $navigationGroup = 'Mensajería';
+    protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
     protected static ?string $navigationLabel = 'Log de alertas';
     protected static ?string $modelLabel = 'Alerta';
     protected static ?string $pluralModelLabel = 'Log de alertas';
-    protected static ?int $navigationSort = 11;
+    protected static ?int $navigationSort = 70;
 
     public static function table(Table $table): Table
     {

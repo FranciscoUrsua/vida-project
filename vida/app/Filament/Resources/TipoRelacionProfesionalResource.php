@@ -25,10 +25,10 @@ class TipoRelacionProfesionalResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-link';
     protected static ?string $navigationLabel = 'Tipos de relación';
-    protected static string|\UnitEnum|null $navigationGroup = 'Profesionales';
+    protected static string|\UnitEnum|null $navigationGroup = 'Organización';
     protected static ?string $modelLabel = 'Tipo de relación';
     protected static ?string $pluralModelLabel = 'Tipos de relación';
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 100;
 
     public static function form(Schema $schema): Schema
     {

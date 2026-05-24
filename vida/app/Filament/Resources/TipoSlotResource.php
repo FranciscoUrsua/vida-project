@@ -24,11 +24,11 @@ class TipoSlotResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-squares-2x2';
     protected static ?string $navigationLabel = 'Tipos de slot';
-    protected static string|\UnitEnum|null $navigationGroup = 'Agenda';
+    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
     protected static ?string $navigationParentItem = 'Configuración';
     protected static ?string $modelLabel = 'Tipo de slot';
     protected static ?string $pluralModelLabel = 'Tipos de slot';
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 40;
 
     public static function form(Schema $schema): Schema
     {
