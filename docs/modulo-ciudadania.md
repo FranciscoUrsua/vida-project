@@ -90,6 +90,7 @@ El historial completo de documentos de identidad queda preservado: cuando alguie
 
 ### 3.3 Relaciones entre ciudadanos
 
+
 ```
 ciudadano_relaciones
 - id
@@ -98,18 +99,24 @@ ciudadano_relaciones
 - tipo_relacion (string — configurable desde backoffice)
 - fecha_inicio (date)
 - fecha_fin (date nullable)
-- es_bidireccional (boolean default false)
 - observaciones (text nullable)
 - timestamps
 ```
 
-El catálogo de `tipos_relacion` es configurable: cónyuge, hijo/a, padre/madre, tutor legal, representante, cuidador principal, pareja de hecho, acogido... Esto resuelve de forma unificada tanto las relaciones familiares como las de representación legal o informal.
+El catálogo de `tipos_relacion` es configurable desde el backoffice. Cada tipo define su recíproco mediante el campo `tipo_reciproco`: cuando se crea la relación "A es padre de B", el sistema genera automáticamente "B es hijo de A". Las relaciones simétricas (cónyuge, pareja_de_hecho) se reciprocan con el mismo tipo.
+
+Ejemplos del catálogo inicial: cónyuge, pareja_de_hecho, hijo/a, padre/madre, hermano/a, tutor_legal, tutelado, cuidador_principal, persona_cuidada, acogedor, acogido, representante, representado.
+
+La reciprocidad automática la gestiona el trait `TieneRelacionesReciprocas` aplicado al modelo `CiudadanoRelacion`. El trait intercepta la creación de una relación y genera el registro inverso en la misma transacción. Si se elimina o cierra (fecha_fin) una relación, el trait aplica el mismo cambio al registro recíproco.
+
+Esta tabla es la fuente única de verdad sobre el vínculo entre dos ciudadanos. No existe ningún otro lugar en el modelo donde se registre el rol de una persona respecto a otra.
 
 ### 3.4 Unidad de convivencia
 
-La unidad de convivencia tiene identidad propia porque es la unidad de referencia para prestaciones económicas y para la intervención familiar. No es simplemente un grupo de relaciones.
+La unidad de convivencia tiene identidad propia porque es la unidad de referencia para el cálculo de prestaciones económicas y para la intervención familiar. No es simplemente un grupo de relaciones — es una entidad con domicilio, fechas de vigencia y composición propia.
 
 ```
+
 unidades_convivencia
 - id
 - domicilio (text encriptado)
@@ -125,13 +132,23 @@ unidad_convivencia_miembros
 - id
 - unidad_convivencia_id (FK)
 - ciudadano_id (FK)
-- rol_en_unidad (string configurable: titular / cónyuge / hijo / acogido / otro...)
 - fecha_inicio (date)
 - fecha_fin (date nullable)
 - fuente (string: manual / padron / importacion)
 - verificado (boolean default false)
 - timestamps
+
 ```
+
+**Sobre cuándo crear una unidad de convivencia:** un ciudadano se da de alta siempre sin unidad de convivencia. La unidad se crea únicamente cuando es relevante modelar la convivencia, en estos casos:
+
+- Al dar de alta a un conviviente (por ejemplo, un hijo) para vincularlo al caso del ciudadano.
+- Al tramitar una prestación económica que requiere conocer la composición e ingresos del hogar.
+- Cuando la intervención es de carácter familiar, no individual.
+
+**Sobre el rol dentro de la unidad:** la unidad de convivencia no registra el rol de cada miembro. Quién es hijo de quién, quién es tutor de quién, se lee de `ciudadano_relaciones`. Cuando se añade un miembro a una unidad de convivencia, el profesional debe asegurarse de que la relación entre ese ciudadano y los demás miembros existe en la tabla de relaciones; si no existe, la crea en ese momento.
+
+**Sobre la titularidad y los planes:** no existe un "titular de la unidad". Los Planes de Intervención y las prestaciones se asignan siempre a personas concretas, nunca a la unidad. La titularidad de una prestación vincula al ciudadano titular con su unidad de convivencia por navegación (prestación → titular → unidad de convivencia). El interlocutor natural con el trabajador social es la persona que tiene un Plan de Intervención abierto.
 
 Un ciudadano puede pertenecer a más de una unidad de convivencia a lo largo del tiempo, y excepcionalmente a más de una simultáneamente (menores con custodia compartida en dos domicilios).
 
@@ -331,6 +348,7 @@ En entornos de desarrollo y pruebas, los adaptadores mock devuelven datos fictic
 - `Modules\Ciudadania\Services\MotorMatching`
 - `Modules\Ciudadania\Services\FusionCiudadanos`
 - `Modules\Ciudadania\Livewire\AltaCiudadano`
+- `Modules\Ciudadania\Traits\TieneRelacionesReciprocas`
 
 ---
 
