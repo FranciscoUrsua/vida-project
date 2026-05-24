@@ -2,6 +2,73 @@
 
 ---
 
+## Backoffice Filament — restyling con design system — 2026-05-24
+
+### Módulos afectados
+`app/Filament`, `resources/css/filament`, `vite.config.js`, `app/Providers/Filament`
+
+### Cambios realizados
+
+- **`resources/css/filament/admin/theme.css`** — creado.
+  Aplica los tokens del design system al panel Filament mediante variables CSS:
+  paleta primaria Azul Retiro (#2A5B8A con escala completa), fondos en papel cálido (#FAF7F1),
+  tipografía Source Sans 3 (texto) + JetBrains Mono (códigos/IDs), sidebar blanco con borde
+  cálido, topbar, tabla con cabecera arena, cards, badges, botones primarios, inputs y
+  focus ring de accesibilidad obligatorio (2px #2A5B8A).
+
+- **`vite.config.js`** — `resources/css/filament/admin/theme.css` añadido al input de Vite.
+
+- **`app/Providers/Filament/AdminPanelProvider.php`** — actualizado.
+  Añadido `->viteTheme('resources/css/filament/admin/theme.css')`. Color base cambiado de
+  Amber a Blue (las variables CSS del tema toman precedencia). Widgets y pages por defecto
+  de Filament eliminados; el panel usa ahora el Dashboard y widgets custom por auto-discovery.
+
+- **`app/Filament/Pages/Dashboard.php`** — creado.
+  Sustituye el dashboard por defecto de Filament. Título "Panel principal", 4 columnas,
+  lista explícita de los 4 widgets custom. Icono y etiqueta de navegación propios.
+
+- **`app/Filament/Widgets/EstadoSistemaWidget.php`** — creado.
+  StatsOverview con 4 contadores: prestaciones activas, centros/redes, profesionales activos,
+  roles pendientes de aprobación. Usa `Prestacion::activas()`, `Profesional::activos()`,
+  `UsuarioRol::pendientes()` (scopes existentes en los modelos).
+
+- **`app/Filament/Widgets/RolesPendientesWidget.php`** — creado.
+  Tabla de `UsuarioRol::pendientes()` con acción de aprobación inline.
+  Adaptado: el spec usaba `HistorialRolUsuario` (no existe); se usa el modelo correcto
+  `UsuarioRol` con la misma interfaz.
+
+- **`app/Filament/Widgets/AlertasSistemaWidget.php`** — creado.
+  Tabla de `Alerta` filtrada por origen backoffice (`sistema` + `UsuarioRol::class`)
+  usando `->pendientes()` (scope con enum `EstadoAlerta::Pendiente`). Límite 10 alertas.
+
+- **`app/Filament/Widgets/ActividadCatalogosWidget.php`** — creado (stub).
+  El spec requería `App\Models\Audit` que no existe en el proyecto. El widget devuelve
+  tabla vacía con mensaje informativo. Marcado con `// TODO:`.
+
+- **31 Filament Resources** — grupos de navegación reorganizados en exactamente 4 grupos:
+  - `Catálogos` (10): Prestacion, Centro, Red, TipoSlot, ColectivoProtegido,
+    SegmentoPoblacion, TipoEspacio, TipoActividad, Distrito, Zona.
+  - `Organización` (10): UnidadOrganizativa, Profesional, Usuario, UsuarioRol,
+    ConfiguracionRol, ServicioEmergencia, Rol, Cargo, Titulacion, TipoRelacionProfesional.
+  - `Informes y plantillas` (4): PlantillaInforme, EstiloInforme, Informe, Documento.
+  - `Sistema` (7): ConfiguracionOrganizacion, ConfiguracionHorarioLaboral, HorarioCentro,
+    CuadranteMes, PerfilHorarioProfesional, ExcepcionProfesional, LogAlertas.
+
+### Decisiones de implementación
+
+1. **`HistorialRolUsuario` no existe:** el spec del widget usaba este nombre; el modelo real
+   es `UsuarioRol`. Se adapta el widget sin crear un alias.
+2. **`App\Models\Audit` no existe:** no hay paquete de auditoría instalado. `ActividadCatalogosWidget`
+   queda como stub funcional. Pendiente en BACKLOG.
+3. **`$navigationIcon` en Filament v5** requiere `string|\BackedEnum|null` (no `?string`).
+   Corregido en `Dashboard.php` al detectar el error fatal en tiempo de arranque.
+4. **`getColumns()` en Filament v5** devuelve `int|array` (no `int|string|array`). Corregido.
+5. **Resources no mencionados en el spec** (Cargo, Titulacion, TipoRelacion, Distrito, Zona,
+   HorarioCentro, CuadranteMes, PerfilHorario, ExcepcionProfesional, Informe, Documento,
+   LogAlertas) asignados a los grupos más afines para completar la reorganización a 4 grupos.
+
+---
+
 ## Seeders — revisión y completado — 2026-05-23
 
 ### Módulo afectado

@@ -1,25 +1,28 @@
 # SESSION — VIDA 360
 
-_Actualizado: 2026-05-23_
+_Actualizado: 2026-05-24_
 
 ## Tarea completada
 
-Seeders de todos los módulos revisados y corregidos: nuevo CentroSeeder completo,
-tres seeders huérfanos conectados al DatabaseSeeder, e IntervencionSeeder corregido
-para ser idempotente.
+Restyling completo del backoffice Filament: tema visual con design system de VIDA 360,
+dashboard de inicio con 4 widgets, navegación reorganizada en 4 grupos sobre 31 Resources.
 
 ## Estado actual
 
-- **Seeders:** todos los módulos tienen seeder y están registrados en DatabaseSeeder.
-  - `CentroSeeder` — nuevo: 7 tipos de espacio, 6 tipos de actividad, 6 segmentos de
-    población, 3 centros de ejemplo (Albergue San Isidro, Albergue Vallecas, Centro de
-    Día Retiro), 1 red (Red de Albergues Municipales con los dos albergues).
-  - `DatabaseSeeder` — añadidos en orden: CentroSeeder, CatalogosSistemaSeeder,
-    PrestacionesSeeder, AgendaSeeder (que ya dependía de centros), DocumentosSeeder,
-    IntervencionSeeder.
-  - `IntervencionSeeder` — corregido: `create()` → `firstOrCreate()` en todos los modelos.
-  - Suite completa idempotente: `db:seed` puede ejecutarse múltiples veces sin duplicados.
-- **Anonimización:** implementada al 100% (ver sesión 2026-05-22).
+- **Backoffice Filament — restyling:**
+  - `resources/css/filament/admin/theme.css` — creado: Azul Retiro (#2A5B8A), papel cálido
+    (#FAF7F1), tipografía Source Sans 3 + JetBrains Mono, sidebar, topbar, tablas, cards,
+    badges, botones, inputs, focus ring de accesibilidad.
+  - `vite.config.js` — theme.css añadido al input de Vite.
+  - `AdminPanelProvider` — `->viteTheme()` registrado, color base Blue, widgets y pages
+    por defecto sustituidos por los custom.
+  - `app/Filament/Pages/Dashboard.php` — panel principal con título "Panel principal".
+  - 4 widgets en `app/Filament/Widgets/`: EstadoSistemaWidget (contadores de configuración),
+    RolesPendientesWidget (UsuarioRol::pendientes()), AlertasSistemaWidget (Alerta scope),
+    ActividadCatalogosWidget (stub con TODO — requiere modelo Audit).
+  - 31 Resources reorganizados en exactamente 4 grupos: Catálogos (10 resources),
+    Organización (10), Informes y plantillas (4), Sistema (7).
+- **Seeders:** todos los módulos con seeder e idempotentes (sesión 2026-05-23).
 - **Suite completa:** 332 tests pasan ✅ — 0 fallos — 5 incompletos.
 
 ## Tests incompletos actuales
@@ -32,17 +35,15 @@ para ser idempotente.
 
 ## Siguiente paso recomendado
 
-**TF-USU-31** sigue siendo el desbloqueador más simple: implementar la validación jerárquica
-en `UsuarioUoPolicy` sin infraestructura nueva.
+**Compilar los assets** con `npm run build` para que el theme.css se sirva en producción.
+En local se puede usar `npm run dev` para verificar visualmente el restyling.
 
-Alternativa: **módulo Ciudadanía** — el modelo `Ciudadano` es un stub; implementarlo completo
-(alta, motor de matching, unidades de convivencia) desbloquea los tests de k-anonimato
-pendientes y es el paso natural para activar los módulos de Intervención y Agenda.
+Después: **TF-USU-31** — implementar la validación jerárquica en `UsuarioUoPolicy`.
 
 ## Contexto relevante para retomar
 
-- Los centros de ejemplo del seeder usan como UO el "Departamento de Atención Primaria"
-  (los albergues) y las UOs "CSS Arganzuela" / "CSS Retiro" (el Centro de Día). Si se
-  resetea la BD, `db:seed` recrea todo en el orden correcto.
-- Los perfiles de anonimización usan `apellido1`/`apellido2` (no `apellidos` del JSON del spec).
-- El alias seudonimizado se computa como `CIU-{HMAC-SHA256(id, APP_PSEUDONYM_KEY)[0..7]}`.
+- `ActividadCatalogosWidget` devuelve tabla vacía con un mensaje informativo hasta que se
+  instale un paquete de auditoría (owen-it/laravel-auditing o similar). Ver BACKLOG.md.
+- El tipo `$navigationIcon` en Filament v5 es `string|\BackedEnum|null` (no `?string`).
+- El tipo de retorno de `getColumns()` en Dashboard es `int|array` (no `int|string|array`).
+- Los centres de ejemplo del seeder usan UO "Departamento de Atención Primaria".
