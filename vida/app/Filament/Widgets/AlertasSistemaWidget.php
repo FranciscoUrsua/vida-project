@@ -18,6 +18,11 @@ class AlertasSistemaWidget extends BaseWidget
     protected int | string | array $columnSpan = 2;
     protected static ?string $heading = 'Alertas del sistema';
 
+    public static function canView(): bool
+    {
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'supervision']) ?? false;
+    }
+
     public function table(Table $table): Table
     {
         return $table

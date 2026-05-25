@@ -19,6 +19,11 @@ class ActividadCatalogosWidget extends BaseWidget
     protected int | string | array $columnSpan = 'full';
     protected static ?string $heading = 'Actividad reciente en catálogos';
 
+    public static function canView(): bool
+    {
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
+    }
+
     public function table(Table $table): Table
     {
         // TODO: sustituir por la query real cuando exista App\Models\Audit

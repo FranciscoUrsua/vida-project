@@ -18,6 +18,11 @@ class RolesPendientesWidget extends BaseWidget
     protected int | string | array $columnSpan = 2;
     protected static ?string $heading = 'Roles pendientes de aprobación';
 
+    public static function canView(): bool
+    {
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
+    }
+
     public function table(Table $table): Table
     {
         return $table
@@ -40,6 +45,7 @@ class RolesPendientesWidget extends BaseWidget
                     ->icon('heroicon-o-check')
                     ->color('success')
                     ->requiresConfirmation()
+                    ->authorize(fn () => auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false)
                     ->action(fn ($record) => $record->aprobar(auth()->user())),
             ])
             ->emptyStateHeading('No hay roles pendientes')

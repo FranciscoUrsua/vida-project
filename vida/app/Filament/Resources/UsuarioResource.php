@@ -171,7 +171,8 @@ class UsuarioResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->authorize(fn () => auth()->user()?->hasRole('adm_sistema') ?? false),
             ])
             ->defaultSort('name');
     }

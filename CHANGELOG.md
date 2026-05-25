@@ -2,6 +2,38 @@
 
 ---
 
+## Filament — auditoría y cierre de brechas de seguridad en widgets y acciones de tabla — 2026-05-25
+
+### Módulos afectados
+`app/Filament/Widgets/*`, `app/Filament/Resources/UsuarioResource.php`, `app/Filament/Resources/ProfesionalResource.php`
+
+### Cambios realizados
+
+- **4 Dashboard widgets** — añadido `canView()` con restricción de rol:
+  - `EstadoSistemaWidget`: visible solo para `adm_sistema` y `adm_usuarios`.
+  - `RolesPendientesWidget`: visible solo para `adm_sistema` y `adm_usuarios`.
+  - `AlertasSistemaWidget`: visible solo para `adm_sistema` y `supervision`.
+  - `ActividadCatalogosWidget`: visible solo para `adm_sistema` y `adm_usuarios`.
+
+- **`RolesPendientesWidget`** — añadido `->authorize()` a la acción "Aprobar".
+  Sin este guard, un usuario `supervision` podría invocar la acción vía petición directa aunque
+  el widget estuviera oculto. Ahora la autorización se verifica también en servidor.
+
+- **`UsuarioResource` + `ProfesionalResource`** — añadido `->authorize()` al `DeleteAction` de tabla.
+  `canDelete()` ya devolvía `false` para `adm_usuarios`, pero la tabla mostraba el botón y no
+  bloqueaba la ejecución de la acción Livewire. La brecha cerraba solo al navegar a la página
+  de edición (EditRecord::authorizeAccess). Ahora el borrado queda bloqueado tanto en UI como
+  en servidor para cualquier rol distinto de `adm_sistema`.
+
+### Decisiones de implementación
+
+- `->authorize(Closure)` en Filament v5 Actions bloquea tanto la visibilidad del botón como
+  la ejecución de la acción en servidor (InteractsWithActions::callMountedAction verifica
+  `isAuthorized()` antes de ejecutar). Es la barrera correcta para acciones de tabla inline.
+- Los 16 tests de `FilamentPanelAccessTest` siguen pasando sin cambios.
+
+---
+
 ## Filament — autorización del panel — 2026-05-24
 
 ### Módulos afectados
