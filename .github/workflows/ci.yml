@@ -23,6 +23,7 @@ jobs:
           composer install --no-progress --no-interaction --prefer-dist
 
   deploy:
+    needs: test
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
@@ -68,3 +69,6 @@ jobs:
             # Asegurar permisos
             sudo chown -R jupiter:www-data /var/www/vida-project/vida/storage /var/www/vida-project/vida/bootstrap/cache
             sudo chmod -R 775 /var/www/vida-project/vida/storage /var/www/vida-project/vida/bootstrap/cache
+
+            # Reiniciar PHP-FPM para limpiar el opcache (imprescindible para que los cambios de .php surtan efecto)
+            sudo systemctl restart php8.3-fpm
