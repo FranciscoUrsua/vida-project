@@ -2,6 +2,45 @@
 
 ---
 
+## Acceso del rol `supervision` al backoffice Filament — 2026-05-25
+
+### Módulos afectados
+`app/Filament/Resources/CentroResource`, `RedResource`, `ProfesionalResource`,
+`PlantillaInformeResource`, `EstiloInformeResource`, `InformeResource`, `DocumentoResource`
+
+### Cambios realizados
+
+- Añadida `canViewAny()` (solo lectura) para el rol `supervision` en los 7 resources indicados,
+  sobreescribiendo el trait `AutorizaGestion` donde era necesario.
+- **Catálogos / Centros**: supervision hereda el `modifyQueryUsing` ya existente que filtra por
+  `unidad_organizativa_id` del subtree de UO del usuario.
+- **Catálogos / Redes**: nuevo `modifyQueryUsing` que muestra solo las redes que contienen al
+  menos un centro perteneciente al subtree de UO del usuario.
+- **Organización / Profesionales**: nuevo `modifyQueryUsing` que muestra los profesionales cuya
+  cuenta de acceso (`usuario`) tiene una adscripción **vigente** en alguna UO del subtree.
+- **Informes y plantillas / Plantillas e Informes**: supervision hereda el `modifyQueryUsing`
+  existente (filtra por `unidad_organizativa_id` de la plantilla). Para Informes, nuevo
+  `modifyQueryUsing` que filtra por `plantilla.unidad_organizativa_id`.
+- **Informes y plantillas / Estilos**: supervision hereda el `modifyQueryUsing` existente.
+- **Informes y plantillas / Documentos**: nuevo `modifyQueryUsing` que filtra por adscripciones
+  del usuario que subió el documento.
+- Acción `anular` de `InformeResource` restringida explícitamente a `adm_sistema`/`adm_usuarios`
+  mediante `->authorize()`.
+- Los permisos de escritura (crear, editar, eliminar) permanecen exclusivos de `adm_sistema`
+  y `adm_usuarios` en todos los resources.
+
+### Decisiones de implementación
+
+- El scoping de Profesionales va por adscripciones **vigentes** (fecha_fin nula o futura),
+  no por el historial completo. Profesionales sin cuenta de sistema no son visibles para
+  supervision (son irrelevantes para su función supervisora).
+- El scoping de Documentos va por el uploader (historial completo, sin filtro de vigencia)
+  para no perder documentos de profesionales que han cambiado de UO.
+- Redes: se filtra por centros del subtree porque las redes no tienen `unidad_organizativa_id`
+  propio.
+
+---
+
 ## Seguridad en profundidad para datos sensibles de ciudadanos — 2026-05-25
 
 ### Módulos afectados

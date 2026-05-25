@@ -15,6 +15,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
 use Modules\Usuarios\Models\Titulacion;
@@ -166,6 +167,23 @@ class ProfesionalResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = auth()->user();
+                if ($user->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
+                    return;
+                }
+                // supervision: solo profesionales adscritos a su subtree de UO
+                $uoIds = $user->uoSubtreeIds();
+                if (empty($uoIds)) {
+                    $query->whereRaw('1 = 0');
+                    return;
+                }
+                $query->whereHas('usuario', function (Builder $q) use ($uoIds) {
+                    $q->whereHas('adscripciones', function (Builder $q2) use ($uoIds) {
+                        $q2->whereIn('unidad_organizativa_id', $uoIds)->vigentes();
+                    });
+                });
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('nombre_completo')
                     ->label('Nombre')
@@ -221,7 +239,7 @@ class ProfesionalResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
     }
 
     public static function canCreate(): bool

@@ -244,6 +244,12 @@ class CentroResource extends Resource
             ->defaultSort('nombre');
     }
 
+    /** supervision puede ver centros de su subtree; solo adm_* puede gestionar. */
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
+    }
+
     /** adm_usuarios solo gestiona centros de su subtree de UO. */
     public static function canEdit(Model $record): bool
     {

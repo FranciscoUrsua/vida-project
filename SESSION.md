@@ -4,33 +4,22 @@ _Actualizado: 2026-05-25_
 
 ## Tarea completada
 
-Implementación de estrategia de seguridad en profundidad para datos sensibles:
-GlobalScope `AmbitoUoScope`, Policies completas, servicios de dominio con autorización
-y suite de tests de autorización (18 tests nuevos, todos verdes).
+Habilitado el rol `supervision` en el backoffice Filament: acceso de solo lectura
+a Centros, Redes, Profesionales, Plantillas de informe, Estilos de informe, Informes
+y Documentos, todos filtrados por el subtree de UO del usuario.
 
 ## Estado actual
 
-- **Seguridad en profundidad para datos de ciudadanos — completa:**
-  - `AmbitoUoScope` filtra automáticamente HistoriaSocial, Apunte, Ciudadano y PlanDeIntervencion
-    por ámbito de UO del usuario. Sin login: no filtra. adm_sistema: no filtra.
-    Desactivable con `withoutGlobalScope(AmbitoUoScope::class)`.
-  - **Policies** con 3 pasos: permiso atómico → ámbito UO (subtree) → colectivo protegido.
-    - `HistoriaSocialPolicy`: reescrita con `viewAny/view/create/update/delete`.
-    - `ApuntePolicy`: regla absoluta de privacidad (precedencia total sobre cualquier rol).
-    - `CiudadanoPolicy` (nueva): ámbito vía Historia Social activa.
-    - `PlanDeIntervencionPolicy` (nueva): ámbito vía Historia Social del plan.
-  - **Servicios de dominio** con par (GlobalScope + Policy):
-    - `Modules/Intervencion/Services/HistoriaSocialService`
-    - `Modules/Intervencion/Services/ApunteService`
-    - `Modules/Intervencion/Services/PlanDeIntervencionService`
-    - `app/Services/CiudadanoService`
-  - **Seeders actualizados**: nuevos permisos `ciudadano.leer/eliminar`, `historia.crear/eliminar`,
-    `apunte.leer/editar/eliminar`, `plan.leer/eliminar` (idempotentes).
-  - **18 tests** en `tests/Feature/AutorizacionDatosTest.php` — todos pasan ✅.
+- **Acceso supervision al backoffice — completo:**
+  - `canViewAny()` añadido (o sobreescrito) en 7 resources.
+  - `modifyQueryUsing` nuevo o heredado en todos, con scoping por subtree de UO.
+  - Escritura (crear/editar/eliminar/anular) bloqueada para supervision en todos los casos.
+
+- **Seguridad en profundidad para datos de ciudadanos — completa** (sesión anterior):
+  - `AmbitoUoScope`, Policies completas, servicios de dominio y 18 tests de autorización.
 
 - **Autorización del panel Filament — completa** (sesión anterior).
-- **Backoffice Filament — restyling:** completado (sesión 2026-05-24).
-- **Seeders:** todos idempotentes (sesión 2026-05-23).
+- **Backoffice Filament — restyling:** completado (2026-05-24).
 - **Suite completa:** ~375 tests pasan (9 fallos pre-existentes en PrestacionFilamentResourceTest) ✅.
 
 ## Tests incompletos actuales
@@ -48,18 +37,13 @@ un profesional solo puede ser adscrito a una UO descendiente de la UO del usuari
 la operación. Tests ya documentados en `docs/instrucciones-cli/usuarios-tests.md`.
 
 Alternativa: **Módulo Ciudadania** — implementar el modelo Ciudadano completo con toda la lógica
-de dominio (deduplicación, niveles de identificación, historial de datos), ya que el stub en
-`App\Models\Ciudadano` tiene el scope y la Policy pero no tiene lógica de negocio.
+de dominio (deduplicación, niveles de identificación, historial de datos).
 
 ## Contexto relevante para retomar
 
-- Los cambios están staged pero NO commiteados (dejar para revisión del desarrollador).
-- `app/Services/HistoriaSocialService` (stub existente de integración con Mensajes) convive con
-  `Modules/Intervencion/Services/HistoriaSocialService` (nuevo, de seguridad). Deben fusionarse
+- `app/Services/HistoriaSocialService` (stub de integración con Mensajes) convive con
+  `Modules/Intervencion/Services/HistoriaSocialService` (de seguridad). Deben fusionarse
   cuando se consolide el módulo Intervencion.
-- La restricción de "Nivel 2 = solo lectura fuera de UO" se aplica en la Policy, no en el scope.
-  El scope solo limita el browse automático (listados); la Policy controla el acceso individual.
 - Los 9 fallos de PrestacionFilamentResourceTest: "Invalid Livewire snapshot structure" —
-  es un problema pre-existente de setup de tests, no del código de producción.
-- `CentroResource`, `EstiloInformeResource` y `UsuarioRolResource` tienen cambios pendientes
-  de commit de la sesión anterior (scoping por UO en queries de tabla).
+  problema pre-existente de setup de tests, no del código de producción.
+- La restricción "Nivel 2 = solo lectura fuera de UO" se aplica en la Policy, no en el scope.

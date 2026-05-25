@@ -191,6 +191,12 @@ class PlantillaInformeResource extends Resource
         ];
     }
 
+    /** supervision puede ver plantillas de su subtree (solo lectura); adm_* puede gestionar. */
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
+    }
+
     /** adm_usuarios solo puede editar plantillas de su propio subtree de UO. */
     public static function canEdit(Model $record): bool
     {

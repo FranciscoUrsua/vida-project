@@ -15,6 +15,7 @@ use Filament\Actions\Action as TableAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
 use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Enums\TipoInforme;
@@ -136,9 +137,28 @@ class InformeResource extends Resource
         ]);
     }
 
+    /** supervision puede ver informes de su subtree (solo lectura); adm_* puede gestionar. */
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
+    }
+
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = auth()->user();
+                if ($user->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
+                    return;
+                }
+                // supervision: solo informes cuya plantilla pertenece a su subtree de UO
+                $uoIds = $user->uoSubtreeIds();
+                if (empty($uoIds)) {
+                    $query->whereRaw('1 = 0');
+                    return;
+                }
+                $query->whereHas('plantilla', fn (Builder $q) => $q->whereIn('unidad_organizativa_id', $uoIds));
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('ciudadano.nombre')
                     ->label('Nombre')
@@ -237,6 +257,7 @@ class InformeResource extends Resource
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->visible(fn (Informe $record) => $record->estaFirmado())
+                    ->authorize(fn () => auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false)
                     ->form([
                         Textarea::make('motivo')
                             ->label('Motivo de anulación')
