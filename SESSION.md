@@ -4,7 +4,8 @@ _Actualizado: 2026-05-25_
 
 ## Tarea completada
 
-Auditoría de seguridad del panel Filament y cierre de brechas en widgets y acciones de tabla.
+Scoping por UO en UsuarioResource y PlantillaInformeResource: adm_usuarios solo ve y gestiona
+datos de su propio subtree jerárquico de UOs.
 
 ## Estado actual
 
@@ -14,8 +15,9 @@ Auditoría de seguridad del panel Filament y cierre de brechas en widgets y acci
   - 4 Resources con auth manual según rol especial (Rol, Usuario, Profesional, LogAlertas).
   - Middleware `FilamentAuthenticate` redirige a login en lugar de 403 para usuarios sin acceso al panel.
   - `ListRecords` base class personalizada: cierra el bypass por URL directa (authorizeAccess).
-  - 4 widgets con `canView()` por rol (ver CHANGELOG 2026-05-25).
-  - `DeleteAction` de tabla autorizado server-side en UsuarioResource y ProfesionalResource.
+  - 4 widgets con `canView()` por rol; `DeleteAction` de tabla autorizado server-side.
+  - **Scoping por UO** en UsuarioResource y PlantillaInformeResource: adm_usuarios ve y gestiona
+    solo datos de su subtree jerárquico. `TieneUO::uoSubtreeIds()` centraliza el cálculo.
   - 16 tests en `tests/Feature/FilamentPanelAccessTest.php` — todos pasan ✅.
 
 - **Backoffice Filament — restyling:** completado (sesión 2026-05-24).

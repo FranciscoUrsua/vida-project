@@ -15,6 +15,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Modules\Documentos\Enums\TipoInforme;
 use Modules\Documentos\Models\PlantillaInforme;
 use App\Filament\Concerns\AutorizaGestion;
@@ -61,9 +63,15 @@ class PlantillaInformeResource extends Resource
 
                     Select::make('unidad_organizativa_id')
                         ->label('Unidad Organizativa de alcance')
-                        ->options(fn () => UnidadOrganizativa::where('activa', true)
-                            ->orderBy('nombre')
-                            ->pluck('nombre', 'id'))
+                        ->options(function () {
+                            $user = auth()->user();
+                            $base = UnidadOrganizativa::where('activa', true)->orderBy('nombre');
+                            if ($user?->hasRole('adm_sistema')) {
+                                return $base->pluck('nombre', 'id');
+                            }
+                            $uoIds = $user?->uoSubtreeIds() ?? [];
+                            return $base->whereIn('id', $uoIds)->pluck('nombre', 'id');
+                        })
                         ->searchable()
                         ->required()
                         ->helperText('La plantilla estará disponible para esta UO y todas sus descendientes.'),
@@ -101,6 +109,18 @@ class PlantillaInformeResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = auth()->user();
+                if ($user->hasRole('adm_sistema')) {
+                    return;
+                }
+                $uoIds = $user->uoSubtreeIds();
+                if (empty($uoIds)) {
+                    $query->whereRaw('1 = 0');
+                    return;
+                }
+                $query->whereIn('unidad_organizativa_id', $uoIds);
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
                     ->label('Nombre')
@@ -147,7 +167,17 @@ class PlantillaInformeResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->authorize(function (Model $record) {
+                        $user = auth()->user();
+                        if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
+                            return false;
+                        }
+                        if ($user->hasRole('adm_sistema')) {
+                            return true;
+                        }
+                        return in_array($record->unidad_organizativa_id, $user->uoSubtreeIds());
+                    }),
             ])
             ->defaultSort('nombre');
     }
@@ -159,5 +189,31 @@ class PlantillaInformeResource extends Resource
             'create' => Pages\CreatePlantillaInforme::route('/create'),
             'edit'   => Pages\EditPlantillaInforme::route('/{record}/edit'),
         ];
+    }
+
+    /** adm_usuarios solo puede editar plantillas de su propio subtree de UO. */
+    public static function canEdit(Model $record): bool
+    {
+        $user = auth()->user();
+        if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
+            return false;
+        }
+        if ($user->hasRole('adm_sistema')) {
+            return true;
+        }
+        return in_array($record->unidad_organizativa_id, $user->uoSubtreeIds());
+    }
+
+    /** adm_usuarios solo puede borrar plantillas de su propio subtree de UO. */
+    public static function canDelete(Model $record): bool
+    {
+        $user = auth()->user();
+        if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
+            return false;
+        }
+        if ($user->hasRole('adm_sistema')) {
+            return true;
+        }
+        return in_array($record->unidad_organizativa_id, $user->uoSubtreeIds());
     }
 }

@@ -17,6 +17,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Modules\Usuarios\Models\Profesional;
 
 /**
@@ -103,7 +104,15 @@ class UsuarioResource extends Resource
                         ->schema([
                             Select::make('unidad_organizativa_id')
                                 ->label('Unidad Organizativa')
-                                ->options(fn () => UnidadOrganizativa::activas()->orderBy('nombre')->pluck('nombre', 'id'))
+                                ->options(function () {
+                                    $user = auth()->user();
+                                    $base = UnidadOrganizativa::activas()->orderBy('nombre');
+                                    if ($user?->hasRole('adm_sistema')) {
+                                        return $base->pluck('nombre', 'id');
+                                    }
+                                    $uoIds = $user?->uoSubtreeIds() ?? [];
+                                    return $base->whereIn('id', $uoIds)->pluck('nombre', 'id');
+                                })
                                 ->searchable()
                                 ->required(),
 
@@ -137,6 +146,18 @@ class UsuarioResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = auth()->user();
+                if ($user->hasRole('adm_sistema')) {
+                    return;
+                }
+                $uoIds = $user->uoSubtreeIds();
+                if (empty($uoIds)) {
+                    $query->whereRaw('1 = 0');
+                    return;
+                }
+                $query->whereHas('adscripcionesVigentes', fn ($q) => $q->whereIn('unidad_organizativa_id', $uoIds));
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre')
@@ -198,7 +219,16 @@ class UsuarioResource extends Resource
 
     public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
+        $user = auth()->user();
+        if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
+            return false;
+        }
+        if ($user->hasRole('adm_sistema')) {
+            return true;
+        }
+        // adm_usuarios: solo puede editar usuarios adscritos a su subtree de UO
+        $uoIds = $user->uoSubtreeIds();
+        return $record->adscripcionesVigentes()->whereIn('unidad_organizativa_id', $uoIds)->exists();
     }
 
     /** Solo adm_sistema puede eliminar usuarios. */

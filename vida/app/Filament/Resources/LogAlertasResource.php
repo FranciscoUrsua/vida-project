@@ -42,10 +42,7 @@ class LogAlertasResource extends Resource
                 }
 
                 // supervision ve únicamente alertas destinadas a su UO o descendientes
-                $uoIds = $user->uosActivas()
-                    ->flatMap(fn ($uo) => $uo->descendantsAndSelf()->pluck('id'))
-                    ->unique()
-                    ->all();
+                $uoIds = $user->uoSubtreeIds();
 
                 if (empty($uoIds)) {
                     $query->whereRaw('1 = 0');

@@ -2,6 +2,42 @@
 
 ---
 
+## Filament — scoping por UO en UsuarioResource y PlantillaInformeResource — 2026-05-25
+
+### Módulos afectados
+`Modules/Usuarios/app/Traits/TieneUO`, `app/Filament/Resources/UsuarioResource`,
+`app/Filament/Resources/PlantillaInformeResource`, `app/Filament/Resources/LogAlertasResource`
+
+### Cambios realizados
+
+- **`TieneUO::uoSubtreeIds()`** — nuevo método helper que devuelve los IDs de todas las UOs
+  del usuario (propias + descendientes). Centraliza la lógica que estaba inline en LogAlertasResource.
+
+- **`LogAlertasResource`** — refactorizado para usar `$user->uoSubtreeIds()` (sin cambio de comportamiento).
+
+- **`UsuarioResource`**:
+  - `modifyQueryUsing`: adm_usuarios solo ve usuarios con adscripción vigente en su subtree de UO.
+  - `canEdit()`: adm_usuarios solo puede editar usuarios adscritos a su subtree (protege URL directa).
+  - Select de UO en el repeater de adscripciones: opciones filtradas al subtree del usuario que edita.
+  - `DeleteAction` ya tenía `->authorize()` de sesión anterior (solo adm_sistema puede borrar).
+
+- **`PlantillaInformeResource`**:
+  - `modifyQueryUsing`: adm_usuarios solo ve plantillas cuya UO pertenece a su subtree.
+  - `canEdit()`: adm_usuarios solo puede editar plantillas de su subtree (protege URL directa).
+  - `canDelete()`: mismo criterio.
+  - `DeleteAction`: `->authorize()` con comprobación de subtree.
+  - Select de UO en el formulario: opciones filtradas al subtree del usuario.
+
+### Decisiones de implementación
+
+- adm_sistema mantiene visibilidad y gestión total en ambos recursos (sin filtro).
+- adm_usuarios ve y gestiona solo el ámbito de sus UOs. Si no tiene UOs activas, la query
+  devuelve cero resultados (whereRaw('1 = 0')).
+- El scoping del formulario de adscripciones impide adscribir usuarios a UOs fuera del ámbito,
+  pero no modifica adscripciones históricas ya existentes fuera del subtree.
+
+---
+
 ## Filament — auditoría y cierre de brechas de seguridad en widgets y acciones de tabla — 2026-05-25
 
 ### Módulos afectados

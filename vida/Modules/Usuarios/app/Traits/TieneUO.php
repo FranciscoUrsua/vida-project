@@ -127,6 +127,21 @@ trait TieneUO
     }
 
     /**
+     * Devuelve los IDs de todas las UOs gestionadas por el usuario: las suyas propias
+     * y todas sus descendientes. Útil para filtrar queries de backoffice por ámbito.
+     *
+     * @return array<int>
+     */
+    public function uoSubtreeIds(): array
+    {
+        return $this->uosActivas()
+            ->flatMap(fn (UnidadOrganizativa $uo) => $uo->descendantsAndSelf()->pluck('id'))
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
      * Indica si el usuario puede acceder en consulta libre a la UO indicada.
      *
      * Cualquier usuario autenticado puede consultar en otras UO
