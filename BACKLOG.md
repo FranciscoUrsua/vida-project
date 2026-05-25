@@ -225,6 +225,34 @@ Prerequisito: factories y seeders completos para todas las entidades principales
 
 ---
 
+---
+
+**Fusionar app/Services/HistoriaSocialService con Modules/Intervencion/Services/HistoriaSocialService** — 2026-05-25
+`Intervencion`
+Actualmente coexisten dos HistoriaSocialService con namespaces distintos. El de App\Services es
+un stub de integración con el módulo de Mensajes. El de Modules\Intervencion\Services es la capa
+de seguridad nueva. Cuando se consolide el módulo Intervencion, deben fusionarse en uno solo.
+
+---
+
+**Módulo Ciudadania — implementar Ciudadano completo** — 2026-05-25
+`Ciudadania` (pendiente de crear)
+El modelo App\Models\Ciudadano es un stub que ya tiene AmbitoUoScope y CiudadanoPolicy
+pero no tiene lógica de negocio real (deduplicación por documento, niveles de identificación,
+historial de cambios en datos personales, relaciones con Historia Social, etc.).
+La referencia definitiva es Modules\Ciudadania\Models\Ciudadano (módulo pendiente de crear).
+
+---
+
+**Revisar permisos nuevos en UI Livewire** — 2026-05-25
+`Ciudadania / Intervencion`
+Los nuevos permisos `ciudadano.leer`, `ciudadano.eliminar`, `historia.crear`, `historia.eliminar`,
+`apunte.leer`, `apunte.editar`, `apunte.eliminar`, `plan.leer`, `plan.eliminar` están creados
+en el seeder y asignados a los roles, pero ningún componente Livewire los verifica todavía
+porque esa UI no existe aún. Al implementar cada vista, verificar que se usan los permisos correctos.
+
+---
+
 ## Convenciones de este fichero
 
 - Añadir entradas con fecha en formato `YYYY-MM-DD`.

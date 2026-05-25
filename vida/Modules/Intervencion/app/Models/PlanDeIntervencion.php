@@ -3,6 +3,7 @@
 namespace Modules\Intervencion\Models;
 
 use App\Models\HistoriaSocial;
+use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -50,6 +51,14 @@ class PlanDeIntervencion extends Model
         return PlanDeIntervencionFactory::new();
     }
 
+    /**
+     * Columna de FK a historias_sociales usada por AmbitoUoScope.
+     * El ámbito de UO se resuelve vía Historia Social del plan.
+     *
+     * @var string
+     */
+    public string $ambitoHistoriaColumn = 'historia_id';
+
     protected $table = 'planes_intervencion';
 
     protected $fillable = [
@@ -79,6 +88,9 @@ class PlanDeIntervencion extends Model
 
     protected static function booted(): void
     {
+        // Registrar el Global Scope de ámbito de UO para filtrado automático.
+        static::addGlobalScope(new AmbitoUoScope());
+
         // Impide activar un plan sin firma cuando se ACTUALIZA el estado a activo.
         // No aplica al crear un plan nuevo directamente con estado=activo
         // (esa protección corresponde al flujo de UI o a la lógica de firma explícita).

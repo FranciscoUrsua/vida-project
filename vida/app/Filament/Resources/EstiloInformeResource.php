@@ -15,6 +15,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Modules\Documentos\Models\EstiloInforme;
 use App\Filament\Concerns\AutorizaGestion;
 
@@ -97,6 +99,13 @@ class EstiloInformeResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = auth()->user();
+                if ($user->hasRole('adm_sistema')) return;
+                $uoIds = $user->uoSubtreeIds();
+                if (empty($uoIds)) { $query->whereRaw('1 = 0'); return; }
+                $query->whereIn('unidad_organizativa_id', $uoIds);
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('unidadOrganizativa.nombre')
                     ->label('Unidad Organizativa')
@@ -132,7 +141,8 @@ class EstiloInformeResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->authorize(fn (Model $record) => static::canDelete($record)),
             ])
             ->defaultSort('unidadOrganizativa.nombre');
     }
@@ -145,4 +155,15 @@ class EstiloInformeResource extends Resource
             'edit'   => Pages\EditEstiloInforme::route('/{record}/edit'),
         ];
     }
+
+    /** adm_usuarios solo gestiona estilos de su subtree de UO. */
+    public static function canEdit(Model $record): bool
+    {
+        $user = auth()->user();
+        if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) return false;
+        if ($user->hasRole('adm_sistema')) return true;
+        return in_array($record->unidad_organizativa_id, $user->uoSubtreeIds());
+    }
+
+    public static function canDelete(Model $record): bool { return static::canEdit($record); }
 }

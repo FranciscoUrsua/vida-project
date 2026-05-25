@@ -33,29 +33,38 @@ class PermisosSeeder extends Seeder
         // -----------------------------------------------------------------
         ['ciudadano.ver_ficha',          'Ver la ficha básica del ciudadano (datos de identificación)'],
         ['ciudadano.ver_datos_contacto', 'Ver datos de contacto y localización del ciudadano'],
+        ['ciudadano.leer',               'Leer la ficha completa del ciudadano (alias de ver_ficha para Policies de seguridad)'],
         ['ciudadano.crear',              'Dar de alta un nuevo ciudadano en el sistema'],
         ['ciudadano.editar',             'Modificar datos de identificación del ciudadano'],
+        ['ciudadano.eliminar',           'Eliminar (baja lógica) un ciudadano del sistema'],
 
         // -----------------------------------------------------------------
         // Historia Social
         // -----------------------------------------------------------------
         ['historia.leer',   'Consultar el contenido de una Historia Social'],
         ['historia.abrir',  'Abrir una nueva Historia Social'],
+        ['historia.crear',  'Crear una nueva Historia Social (alias de historia.abrir para Policies de seguridad)'],
         ['historia.editar', 'Editar el contenido de una Historia Social asignada'],
         ['historia.cerrar', 'Cerrar o reactivar una Historia Social'],
+        ['historia.eliminar', 'Eliminar (baja lógica) una Historia Social'],
 
         // -----------------------------------------------------------------
         // Apunte (acto profesional)
         // -----------------------------------------------------------------
-        ['apunte.crear',      'Crear apuntes en una Historia Social'],
+        ['apunte.crear',       'Crear apuntes en una Historia Social'],
+        ['apunte.leer',        'Leer apuntes en una Historia Social (alias compuesto de leer_propio + leer_ajeno)'],
         ['apunte.leer_propio', 'Leer los propios apuntes'],
-        ['apunte.leer_ajeno', 'Leer apuntes de otros profesionales en una Historia Social'],
+        ['apunte.leer_ajeno',  'Leer apuntes de otros profesionales en una Historia Social'],
+        ['apunte.editar',      'Editar apuntes propios en una Historia Social'],
+        ['apunte.eliminar',    'Eliminar apuntes propios en una Historia Social'],
 
         // -----------------------------------------------------------------
         // Plan de Intervención
         // -----------------------------------------------------------------
-        ['plan.crear',  'Crear un Plan de Intervención'],
-        ['plan.editar', 'Editar un Plan de Intervención existente'],
+        ['plan.leer',     'Consultar un Plan de Intervención'],
+        ['plan.crear',    'Crear un Plan de Intervención'],
+        ['plan.editar',   'Editar un Plan de Intervención existente'],
+        ['plan.eliminar', 'Eliminar (baja lógica) un Plan de Intervención'],
 
         // -----------------------------------------------------------------
         // Prestaciones

@@ -44,6 +44,56 @@ class Apunte extends Model
 
     protected $table = 'plan_apuntes';
 
+    // -------------------------------------------------------------------------
+    // Ciclo de vida
+    // -------------------------------------------------------------------------
+
+    /**
+     * Registra el Global Scope de ámbito de UO para filtrado automático.
+     *
+     * El filtro se aplica vía plan_id → planes_intervencion.historia_id →
+     * historias_sociales.unidad_organizativa_id. Este modelo usa una subquery
+     * de dos niveles en lugar del AmbitoUoScope genérico.
+     *
+     * Para los apuntes privados (visibilidad=Privada), el acceso del usuario
+     * actual se garantiza añadiendo la condición OR autor_id = :id.
+     *
+     * @return void
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('ambito_uo', function (Builder $builder) {
+            // Sin usuario autenticado → no filtrar
+            if (! auth()->check()) {
+                return;
+            }
+
+            $usuario = auth()->user();
+
+            // adm_sistema → acceso global
+            if ($usuario->hasRole('adm_sistema')) {
+                return;
+            }
+
+            $uoIds = $usuario->uoSubtreeIds();
+
+            $builder->where(function (Builder $q) use ($uoIds, $usuario) {
+                // Condición A: el plan del apunte pertenece a una Historia en el ámbito de UO
+                $q->whereIn('plan_apuntes.plan_id', function ($sub) use ($uoIds) {
+                    $sub->select('planes_intervencion.id')
+                        ->from('planes_intervencion')
+                        ->join('historias_sociales', 'historias_sociales.id', '=', 'planes_intervencion.historia_id')
+                        ->whereIn('historias_sociales.unidad_organizativa_id', $uoIds)
+                        ->whereNull('planes_intervencion.deleted_at')
+                        ->whereNull('historias_sociales.deleted_at');
+                });
+
+                // Condición B: el apunte es del propio usuario (privados solo visibles para el autor)
+                $q->orWhere('plan_apuntes.autor_id', $usuario->id);
+            });
+        });
+    }
+
     protected $fillable = [
         'plan_id',
         'autor_id',

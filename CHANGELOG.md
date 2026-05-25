@@ -2,6 +2,98 @@
 
 ---
 
+## Seguridad en profundidad para datos sensibles de ciudadanos — 2026-05-25
+
+### Módulos afectados
+`app/Models/Scopes/`, `app/Models/HistoriaSocial`, `app/Models/Apunte`, `app/Models/Ciudadano`,
+`Modules/Intervencion/Models/PlanDeIntervencion`, `Modules/Intervencion/Models/Apunte`,
+`Modules/Usuarios/Policies/`, `Modules/Intervencion/Policies/`, `app/Policies/`,
+`Modules/Intervencion/Services/`, `app/Services/`, `database/seeders/`,
+`tests/Feature/AutorizacionDatosTest.php`
+
+### Cambios realizados
+
+**Fase 1 — Policies completas para modelos sensibles**
+
+- **`Modules/Usuarios/Policies/HistoriaSocialPolicy`** — reescrita con los tres pasos estándar:
+  1. permiso atómico (`historia.leer/crear/editar/eliminar`), 2. ámbito de UO subtree (`uoSubtreeIds`),
+  3. colectivo protegido con AccesoProtegido. Añadidos `viewAny`, `delete`. supervision bloqueada en escritura.
+- **`Modules/Usuarios/Policies/ApuntePolicy`** — reescrita con regla absoluta de privacidad (precedencia total),
+  permisos atómicos (`apunte.leer/crear/editar/eliminar`) y comprobación de Historia Social para ámbito de UO.
+- **`app/Policies/CiudadanoPolicy`** (nueva) — tres pasos: permiso atómico, UO vía Historia Social activa,
+  colectivo protegido con AccesoProtegido. supervision bloqueada en escritura.
+- **`Modules/Intervencion/Policies/PlanDeIntervencionPolicy`** (nueva) — tres pasos: permiso atómico,
+  UO vía Historia Social del plan, colectivo protegido. supervision bloqueada en escritura.
+- **`Modules/Usuarios/Providers/UsuariosServiceProvider`** — registra `CiudadanoPolicy`.
+- **`Modules/Intervencion/Providers/IntervencionServiceProvider`** — registra `PlanDeIntervencionPolicy`.
+
+**Fase 2 — Global Scope de ámbito de UO**
+
+- **`app/Models/Scopes/AmbitoUoScope`** (nuevo) — scope reutilizable con tres estrategias:
+  - directa (FK a UO), vía Historia Social (FK a historias_sociales), ciudadano (PK propia)
+  - Sin usuario autenticado: no filtra. adm_sistema: no filtra. Desactivable con `withoutGlobalScope`.
+- **`app/Models/HistoriaSocial`** — aplica `AmbitoUoScope` en `booted()`.
+- **`app/Models/Apunte`** — aplica `AmbitoUoScope` en `booted()` (estrategia via Historia Social).
+- **`app/Models/Ciudadano`** — aplica `AmbitoUoScope` en `booted()` (estrategia ciudadano).
+- **`Modules/Intervencion/Models/PlanDeIntervencion`** — aplica `AmbitoUoScope` en `booted()`.
+- **`Modules/Intervencion/Models/Apunte`** — aplica scope inline vía subquery de dos niveles
+  (plan → historia → UO) más cláusula OR para privados del propio usuario.
+
+**Fase 3 — Servicios de dominio**
+
+- **`Modules/Intervencion/Services/HistoriaSocialService`** (nuevo) — `crear/actualizar/eliminar`.
+- **`Modules/Intervencion/Services/ApunteService`** (nuevo) — `crear/actualizar/eliminar`.
+- **`Modules/Intervencion/Services/PlanDeIntervencionService`** (nuevo) — `crear/actualizar/eliminar`.
+- **`app/Services/CiudadanoService`** (nuevo) — `crear/actualizar/eliminar`.
+
+**Fase 4 — Filament Resources**
+
+- No se eliminaron métodos `canXxx` de ningún Resource porque ninguno de los Resources existentes
+  gestiona datos sensibles de ciudadanos (HistoriaSocial, Apunte, Ciudadano, PlanDeIntervencion).
+  Esos modelos se gestionan vía Livewire para operación diaria, no Filament.
+  Los Resources de backoffice (CentroResource, UsuarioResource, etc.) mantienen sus métodos correctamente.
+
+**Fase 5 — Tests**
+
+- **`tests/Feature/AutorizacionDatosTest.php`** (nuevo) — 18 tests en PostgreSQL que cubren:
+  GlobalScope (4 tests), Policies positivos (4 tests), Policies negativos (7 tests), Servicios (2 tests).
+  Resultado: 18/18 PASS.
+
+**Seeders**
+
+- **`database/seeders/PermisosSeeder`** — añadidos nuevos permisos: `ciudadano.leer/eliminar`,
+  `historia.crear/eliminar`, `apunte.leer/editar/eliminar`, `plan.leer/eliminar`.
+  Los nuevos permisos son idempotentes (`firstOrCreate`).
+- **`database/seeders/RolesSeeder`** — todos los roles actualizados con los nuevos permisos.
+  `adm_sistema` y `supervision` actualizados para reflejar que supervision tiene solo lectura.
+
+**Factories**
+
+- **`database/factories/HistoriaSocialFactory`** (nuevo).
+- **`database/factories/UnidadOrganizativaFactory`** (nuevo).
+- **`database/factories/AccesoProtegidoFactory`** (nuevo).
+
+### Decisiones de implementación
+
+- Los permisos `historia.crear` y `historia.abrir` coexisten como alias; se mantienen ambos
+  para compatibilidad con el código existente.
+- El `AmbitoUoScope` no implementa un segundo filtro de colectivos protegidos al nivel de query
+  porque esa lógica es delegada a la Policy (evitar duplicación y complejidad de subqueries).
+- La restricción de Nivel 2 (consulta libre fuera de UO) se aplica mediante la Policy, no el scope;
+  el scope solo limita el browse automático (listados).
+- `Modules\Intervencion\Models\Apunte` usa un scope inline en lugar del AmbitoUoScope genérico
+  porque requiere join de dos niveles (plan → historia).
+- Los Resources de Filament con `canXxx` propios son todos de backoffice y se mantienen intactos.
+
+### Recursos Filament pendientes de migrar al servicio de dominio
+
+Los siguientes Resources acceden a modelos sensibles (indirectamente) y en el futuro deberían
+usar los servicios de dominio cuando se implemente la interfaz Livewire:
+- Ningún Resource Filament accede actualmente a HistoriaSocial, Apunte, Ciudadano ni PlanDeIntervencion.
+- `app/Services/HistoriaSocialService` (stub existente) debe fusionarse con `Modules/Intervencion/Services/HistoriaSocialService` cuando se consolide el módulo Intervencion.
+
+---
+
 ## Filament — scoping por UO en UsuarioResource y PlantillaInformeResource — 2026-05-25
 
 ### Módulos afectados

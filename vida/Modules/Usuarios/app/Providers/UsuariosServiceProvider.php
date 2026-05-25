@@ -3,7 +3,9 @@
 namespace Modules\Usuarios\Providers;
 
 use App\Models\Apunte;
+use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
+use App\Policies\CiudadanoPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Modules\Usuarios\Console\Commands\ReconciliarRoles;
@@ -53,5 +55,6 @@ class UsuariosServiceProvider extends ServiceProvider
         // mover las policies y este registro a IntevencionServiceProvider.
         Gate::policy(HistoriaSocial::class, HistoriaSocialPolicy::class);
         Gate::policy(Apunte::class, ApuntePolicy::class);
+        Gate::policy(Ciudadano::class, CiudadanoPolicy::class);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\AmbitoUoScope;
 use App\Traits\TieneDireccion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -51,8 +52,30 @@ class Ciudadano extends Model
     use SoftDeletes;
     use TieneDireccion;
 
+    /**
+     * Columna PK del ciudadano usada por AmbitoUoScope.
+     * El ámbito de UO se resuelve buscando Historias Sociales del ciudadano.
+     *
+     * @var string
+     */
+    public string $ambitoCiudadanoPk = 'id';
+
     /** @var string */
     protected $table = 'ciudadanos';
+
+    // -------------------------------------------------------------------------
+    // Ciclo de vida
+    // -------------------------------------------------------------------------
+
+    /**
+     * Registra el Global Scope de ámbito de UO para filtrado automático.
+     *
+     * @return void
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new AmbitoUoScope());
+    }
 
     /** @var list<string> */
     protected $fillable = [

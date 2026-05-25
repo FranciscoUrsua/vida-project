@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\AmbitoUoScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -38,6 +39,13 @@ class HistoriaSocial extends Model
     use HasFactory;
     use SoftDeletes;
 
+    /**
+     * Columna de FK a unidades_organizativas usada por AmbitoUoScope.
+     *
+     * @var string
+     */
+    public string $ambitoUoColumn = 'unidad_organizativa_id';
+
     /** @var string Tabla de base de datos (provisional) */
     protected $table = 'historias_sociales';
 
@@ -53,6 +61,20 @@ class HistoriaSocial extends Model
     protected $casts = [
         'ciudadano_protegido' => 'boolean',
     ];
+
+    // -------------------------------------------------------------------------
+    // Ciclo de vida
+    // -------------------------------------------------------------------------
+
+    /**
+     * Registra el Global Scope de ámbito de UO para filtrado automático.
+     *
+     * @return void
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new AmbitoUoScope());
+    }
 
     // -------------------------------------------------------------------------
     // Relaciones

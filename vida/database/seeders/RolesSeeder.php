@@ -32,21 +32,32 @@ class RolesSeeder extends Seeder
         // -----------------------------------------------------------------
         // ROL 1: Administración del Sistema
         // Acceso global, configuración de toda la aplicación.
+        // Nota: adm_sistema NO tiene acceso privilegiado sobre datos de ciudadanos;
+        // también debe pasar los filtros de UO y colectivo protegido (principio 3.3).
         // -----------------------------------------------------------------
         'adm_sistema' => [
             'ciudadano.ver_ficha',
             'ciudadano.ver_datos_contacto',
+            'ciudadano.leer',
             'ciudadano.crear',
             'ciudadano.editar',
+            'ciudadano.eliminar',
             'historia.leer',
             'historia.abrir',
+            'historia.crear',
             'historia.editar',
             'historia.cerrar',
+            'historia.eliminar',
             'apunte.crear',
+            'apunte.leer',
             'apunte.leer_propio',
             'apunte.leer_ajeno',
+            'apunte.editar',
+            'apunte.eliminar',
+            'plan.leer',
             'plan.crear',
             'plan.editar',
+            'plan.eliminar',
             'prestacion.asignar',
             'usuario.crear',
             'usuario.editar',
@@ -61,12 +72,16 @@ class RolesSeeder extends Seeder
         // -----------------------------------------------------------------
         // ROL 2: Supervisión
         // Lectura de su ámbito, auditoría, aprobación de accesos protegidos.
+        // Solo lectura sobre datos de ciudadanos — nunca escritura.
         // -----------------------------------------------------------------
         'supervision' => [
             'ciudadano.ver_ficha',
             'ciudadano.ver_datos_contacto',
+            'ciudadano.leer',
             'historia.leer',
+            'apunte.leer',
             'apunte.leer_ajeno',
+            'plan.leer',
             'trazabilidad.consultar',
             'colectivo_protegido.aprobar_acceso',
         ],
@@ -88,13 +103,21 @@ class RolesSeeder extends Seeder
         'intervencion' => [
             'ciudadano.ver_ficha',
             'ciudadano.ver_datos_contacto',
+            'ciudadano.leer',
+            'ciudadano.crear',
+            'ciudadano.editar',
             'historia.leer',
             'historia.abrir',
+            'historia.crear',
             'historia.editar',
             'historia.cerrar',
             'apunte.crear',
+            'apunte.leer',
             'apunte.leer_propio',
             'apunte.leer_ajeno',
+            'apunte.editar',
+            'apunte.eliminar',
+            'plan.leer',
             'plan.crear',
             'plan.editar',
             'prestacion.asignar',
@@ -109,9 +132,11 @@ class RolesSeeder extends Seeder
         'tramitacion' => [
             'ciudadano.ver_ficha',
             'ciudadano.ver_datos_contacto',
+            'ciudadano.leer',
             'ciudadano.crear',
             'ciudadano.editar',
             'historia.abrir',
+            'historia.crear',
             'historia.cerrar',
             'prestacion.asignar',
         ],
@@ -122,9 +147,12 @@ class RolesSeeder extends Seeder
         // -----------------------------------------------------------------
         'consulta_profesional' => [
             'ciudadano.ver_ficha',
+            'ciudadano.leer',
             'historia.leer',
             'apunte.crear',      // Registro de resultado de cita como intervención puntual
+            'apunte.leer',
             'apunte.leer_propio',
+            'plan.leer',
         ],
 
         // -----------------------------------------------------------------
@@ -133,6 +161,7 @@ class RolesSeeder extends Seeder
         // -----------------------------------------------------------------
         'consulta_basica' => [
             'ciudadano.ver_ficha',
+            'ciudadano.leer',
             'ciudadano.editar',  // Modificar datos de identificación básicos
         ],
     ];

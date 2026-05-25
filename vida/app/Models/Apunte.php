@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\AmbitoUoScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,6 +40,14 @@ class Apunte extends Model
     use HasFactory;
     use SoftDeletes;
 
+    /**
+     * Columna de FK a historias_sociales usada por AmbitoUoScope.
+     * El ámbito de UO se resuelve vía Historia Social.
+     *
+     * @var string
+     */
+    public string $ambitoHistoriaColumn = 'historia_social_id';
+
     /** @var string Tabla de base de datos (provisional) */
     protected $table = 'apuntes';
 
@@ -54,6 +63,23 @@ class Apunte extends Model
     protected $casts = [
         'privada' => 'boolean',
     ];
+
+    // -------------------------------------------------------------------------
+    // Ciclo de vida
+    // -------------------------------------------------------------------------
+
+    /**
+     * Registra el Global Scope de ámbito de UO y el filtro de privacidad.
+     *
+     * El AmbitoUoScope filtra por Historia Social. Para los apuntes privados,
+     * el acceso se controla mediante la Policy (regla absoluta de autor).
+     *
+     * @return void
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new AmbitoUoScope());
+    }
 
     // -------------------------------------------------------------------------
     // Relaciones
