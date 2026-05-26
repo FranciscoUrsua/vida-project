@@ -6,7 +6,9 @@ use App\Models\Scopes\AmbitoUoScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Escalas\Models\PaseEscala;
 
 /**
  * Modelo stub de Historia Social.
@@ -88,5 +90,16 @@ class HistoriaSocial extends Model
     public function unidadOrganizativa(): BelongsTo
     {
         return $this->belongsTo(UnidadOrganizativa::class, 'unidad_organizativa_id');
+    }
+
+    /**
+     * Pases de escala registrados en esta historia social.
+     * Filtrar por tipo_escala_id para obtener la serie temporal de un instrumento concreto.
+     *
+     * @return HasMany<PaseEscala, HistoriaSocial>
+     */
+    public function pasesEscala(): HasMany
+    {
+        return $this->hasMany(PaseEscala::class, 'historia_id');
     }
 }

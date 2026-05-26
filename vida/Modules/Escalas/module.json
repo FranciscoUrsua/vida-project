@@ -1,0 +1,9 @@
+{
+    "name": "Escalas",
+    "alias": "escalas",
+    "description": "Instrumentos estandarizados de valoración (Barthel, Pfeiffer, Lawton-Brody) y registro de pases por ciudadano",
+    "keywords": [],
+    "priority": 0,
+    "providers": [],
+    "files": []
+}

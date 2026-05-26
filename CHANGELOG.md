@@ -2,6 +2,47 @@
 
 ---
 
+## Módulo Escalas fase 1 — 2026-05-26
+
+### Módulos afectados
+`Modules/Escalas` (nuevo), `app/Models/HistoriaSocial`
+
+### Cambios realizados
+
+**Módulo nuevo:** `Modules/Escalas`
+- Migraciones: `tipo_escalas` y `pases_escala` (FK a `tipo_escalas`, `historias_sociales`, `users`, `fichas`, `entrevistas`)
+- Enum `EstadoPase` (`borrador` / `completado`)
+- Modelo `TipoEscala`:
+  - Casts `array` para `schema`, `rangos_interpretacion`, `contextos`
+  - Validación de schema al guardar (secciones, ítems, opciones mínimas) en `booted()`
+  - Validación de rangos al guardar (sin huecos ni solapamientos)
+  - Inmutabilidad de `codigo` y opciones de ítems existentes con pases asociados
+  - Scope `scopeAplicables`
+- Modelo `PaseEscala`:
+  - Inmutabilidad de `score_total`, `scores_seccion` e `interpretacion_codigo` en estado `completado`
+  - Métodos `calcularScores()`, `asignarInterpretacion()`, `completar()`
+- Factories: `TipoEscalaFactory` y `PaseEscalaFactory`
+- `EscalaSeeder`: Barthel, Pfeiffer SPMSQ, Lawton-Brody AIVD (idempotente vía `updateOrCreate`)
+- `TipoEscalaResource` en Filament: tabla con filtros, formulario en 3 pestañas (datos, estructura, rangos)
+- 18 tests funcionales pasando (TF-ESC-A01…C04)
+
+**Modelo existente modificado:** `App\Models\HistoriaSocial`
+- Añadida relación `pasesEscala(): HasMany`
+
+**Infraestructura:**
+- `Modules/Escalas/app/Providers/EscalasServiceProvider` registrado en `bootstrap/providers.php`
+- PSR-4 añadido en `composer.json` para `Modules\Escalas\`
+- Tests añadidos a `phpunit.xml`
+- `module.json` creado (requerido por `nwidart/laravel-modules`)
+
+### Decisiones de implementación
+- `fuente` definida como `text` (no `varchar(200)`) porque las citas bibliográficas completas superan ese límite
+- La comparación de estado en el observer usa `getOriginal('estado') === EstadoPase::Completado` (enum casteado) en lugar del valor string raw, porque Laravel 12 aplica casts en `getOriginal()`
+- `TipoEscalaResource` en grupo 'Catálogos' (el grupo 'Configuración' de las instrucciones no existe en el proyecto; se usó el grupo más próximo)
+- `TipoFichaResource` referenciado en las instrucciones no existe aún; sort 90 provisional
+
+---
+
 ## Acceso del rol `supervision` al backoffice Filament — 2026-05-25
 
 ### Módulos afectados

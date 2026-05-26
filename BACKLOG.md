@@ -146,6 +146,34 @@ con indicadores medibles. Diferido a fases posteriores.
 
 ---
 
+**Módulo Escalas fase 2 — Livewire de aplicación del pase** — 2026-05-26
+`Módulo: Escalas / Intervención`
+Componente Livewire para aplicar un pase de escala desde la Historia Social del ciudadano:
+selección de instrumento, presentación sección a sección, confirmación de instrucciones si
+`confirmar_instrucciones=true`, cierre del pase con cálculo de scores, y visualización del
+historial de pases por escala ordenado cronológicamente.
+Bloqueante: definir el punto de entrada desde la Historia Social (¿pestaña independiente?
+¿acción en la ficha de valoración?).
+
+---
+
+**Clarificación licencia Zarit ZBI** — 2026-05-26
+`Módulo: Escalas`
+Contactar con Steven Zarit (Pennsylvania State University) para confirmar si el uso en un
+sistema público municipal de servicios sociales no comercial está cubierto por la excepción
+de uso clínico. Si se confirma, añadir al `EscalaSeeder`.
+Ref: `docs/modulo-escala.md §7.2`.
+
+---
+
+**Clarificación licencia GDS de Yesavage** — 2026-05-26
+`Módulo: Escalas`
+Aclarar si la versión original de 30 ítems (1983) está en dominio público y si la traducción
+española validada es de libre uso en contexto público no comercial.
+Ref: `docs/modulo-escala.md §7.2`.
+
+---
+
 **Conectar PrescripcionService al TSR activo del ciudadano** — 2026-05-18
 `Módulo: Centros / Ciudadanía`
 `PrescripcionService::liberarPlaza()` usa un resolver inyectable para el TSR activo del ciudadano.

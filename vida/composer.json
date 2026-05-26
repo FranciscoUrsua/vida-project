@@ -74,6 +74,11 @@
             "Modules\\Intervencion\\Database\\Seeders\\": "Modules/Intervencion/database/seeders/",
             "Modules\\Intervencion\\Database\\Migrations\\": "Modules/Intervencion/database/migrations/",
             "Modules\\Intervencion\\Database\\Factories\\": "Modules/Intervencion/database/factories/",
+            "Modules\\Escalas\\": "Modules/Escalas/app/",
+            "Modules\\Escalas\\Database\\": "Modules/Escalas/database/",
+            "Modules\\Escalas\\Database\\Seeders\\": "Modules/Escalas/database/seeders/",
+            "Modules\\Escalas\\Database\\Migrations\\": "Modules/Escalas/database/migrations/",
+            "Modules\\Escalas\\Database\\Factories\\": "Modules/Escalas/database/factories/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
@@ -86,7 +91,8 @@
             "Modules\\Documentos\\Tests\\": "Modules/Documentos/tests/",
             "Modules\\Agenda\\Tests\\": "Modules/Agenda/tests/",
             "Modules\\Centro\\Tests\\": "Modules/Centro/tests/",
-            "Modules\\Intervencion\\Tests\\": "Modules/Intervencion/tests/"
+            "Modules\\Intervencion\\Tests\\": "Modules/Intervencion/tests/",
+            "Modules\\Escalas\\Tests\\": "Modules/Escalas/tests/"
         }
     },
     "scripts": {

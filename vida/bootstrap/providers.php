@@ -11,5 +11,6 @@ return [
     Modules\Agenda\Providers\AgendaServiceProvider::class,
     Modules\Documentos\Providers\DocumentosServiceProvider::class,
     Modules\Intervencion\Providers\IntervencionServiceProvider::class,
+    Modules\Escalas\Providers\EscalasServiceProvider::class,
     App\Providers\GeocodificacionServiceProvider::class,
 ];
