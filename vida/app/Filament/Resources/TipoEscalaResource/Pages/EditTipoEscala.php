@@ -4,7 +4,9 @@ namespace App\Filament\Resources\TipoEscalaResource\Pages;
 
 use App\Filament\Resources\TipoEscalaResource;
 use Filament\Actions\DeleteAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
 
 class EditTipoEscala extends EditRecord
 {
@@ -35,5 +37,21 @@ class EditTipoEscala extends EditRecord
         unset($data['secciones_escala'], $data['rangos'], $data['nota_interpretacion']);
 
         return $data;
+    }
+
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        try {
+            return parent::handleRecordUpdate($record, $data);
+        } catch (\InvalidArgumentException $e) {
+            Notification::make()
+                ->danger()
+                ->title('Error en los datos de la escala')
+                ->body($e->getMessage())
+                ->persistent()
+                ->send();
+
+            $this->halt();
+        }
     }
 }
