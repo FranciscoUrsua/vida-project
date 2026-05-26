@@ -83,7 +83,7 @@ class TipoEscalaResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
-                Tables\Actions\Action::make('desactivar')
+                \Filament\Actions\Action::make('desactivar')
                     ->label('Desactivar')
                     ->icon('heroicon-o-eye-slash')
                     ->color('warning')
