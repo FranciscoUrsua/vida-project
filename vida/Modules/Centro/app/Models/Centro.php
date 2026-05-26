@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Organizacion\Models\Distrito;
+use Modules\Prestaciones\Models\Prestacion;
 
 /**
  * Centro de servicios sociales.
@@ -195,7 +196,7 @@ class Centro extends Model
     /**
      * Prestaciones vinculadas al centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Modules\Centro\Models\Prestacion, self>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Modules\Prestaciones\Models\Prestacion, self>
      */
     public function prestaciones(): BelongsToMany
     {
