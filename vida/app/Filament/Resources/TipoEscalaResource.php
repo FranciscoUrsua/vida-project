@@ -30,7 +30,7 @@ class TipoEscalaResource extends Resource
 
     protected static ?string $model = TipoEscala::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-list';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
     protected static ?string $navigationLabel = 'Tipos de escala';
     protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
     protected static ?string $modelLabel = 'Tipo de escala';

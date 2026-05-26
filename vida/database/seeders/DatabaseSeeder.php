@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -57,23 +56,13 @@ class DatabaseSeeder extends Seeder
         // 10. Módulo Intervención: tipos de ficha y valoración
         $this->call(\Modules\Intervencion\Database\Seeders\IntervencionSeeder::class);
 
-        // 11. Perfiles de anonimización predefinidos del sistema
+        // 11. Módulo Escalas: instrumentos de valoración (Barthel, Pfeiffer, Lawton-Brody)
+        $this->call(\Modules\Escalas\Database\Seeders\EscalaSeeder::class);
+
+        // 13. Perfiles de anonimización predefinidos del sistema
         $this->call(PerfilesAnonimizacionSeeder::class);
 
-        // 12. Usuario administrador con rol de sistema
-        // IMPORTANTE: cambiar la contraseña tras el primer acceso
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@vida.local'],
-            [
-                'name'              => 'Administrador VIDA',
-                'password'          => 'Vida360!Admin',
-                'email_verified_at' => now(),
-            ]
-        );
-        if (! $admin->hasRole('adm_sistema')) {
-            $admin->assignRole('adm_sistema');
-        }
-
-        $this->command->info('✓ Usuario administrador: admin@vida.local / Vida360!Admin');
+        // 14. Usuarios de desarrollo con sus roles y adscripciones a UO
+        $this->call(UsuariosSeeder::class);
     }
 }
