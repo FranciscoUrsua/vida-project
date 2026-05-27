@@ -158,7 +158,7 @@ class TipoEscalaResource extends Resource
                                 ->label('Secciones e ítems')
                                 ->blocks([
                                     Builder\Block::make('seccion')
-                                        ->label(fn (array $state): string =>
+                                        ->label(fn (?array $state): string =>
                                             filled($state['titulo'] ?? null)
                                                 ? $state['titulo']
                                                 : 'Nueva sección'
