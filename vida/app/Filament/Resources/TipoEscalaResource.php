@@ -7,6 +7,8 @@ use App\Filament\Resources\TipoEscalaResource\Pages;
 use App\Models\CatalogoSistema;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Builder;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -152,73 +154,133 @@ class TipoEscalaResource extends Resource
 
                     Tab::make('Estructura')
                         ->schema([
-                            Repeater::make('secciones_escala')
-                                ->label('Secciones')
-                                ->reorderable()
-                                ->reorderableWithDragAndDrop()
-                                ->addActionLabel('Añadir sección')
-                                ->schema([
-                                    TextInput::make('titulo')
-                                        ->label('Título de sección')
-                                        ->required(),
-
-                                    TextInput::make('id')
-                                        ->label('ID de sección')
-                                        ->required()
-                                        ->helperText('Identificador único. No modificar una vez que existan pases.'),
-
-                                    TextInput::make('orden')
-                                        ->label('Orden')
-                                        ->numeric()
-                                        ->required(),
-
-                                    Textarea::make('instrucciones')
-                                        ->label('Instrucciones de sección')
-                                        ->helperText('Se muestran al profesional al entrar en esta sección.')
-                                        ->rows(2),
-
-                                    Repeater::make('items')
-                                        ->label('Ítems')
-                                        ->reorderable()
-                                        ->reorderableWithDragAndDrop()
-                                        ->addActionLabel('Añadir ítem')
+                            Builder::make('schema')
+                                ->label('Secciones e ítems')
+                                ->blocks([
+                                    Builder\Block::make('seccion')
+                                        ->label(fn (array $state): string =>
+                                            filled($state['titulo'] ?? null)
+                                                ? $state['titulo']
+                                                : 'Nueva sección'
+                                        )
+                                        ->icon('heroicon-o-list-bullet')
                                         ->schema([
-                                            TextInput::make('id')
-                                                ->label('ID de ítem')
+
+                                            Placeholder::make('aviso_inmutabilidad')
+                                                ->content('Este instrumento tiene pases registrados. Los ítems y opciones existentes no se pueden modificar para preservar la integridad del historial. Solo es posible añadir nuevas secciones o ítems.')
+                                                ->visible(fn (?TipoEscala $record): bool =>
+                                                    $record !== null && $record->pases()->exists()
+                                                ),
+
+                                            TextInput::make('titulo')
+                                                ->label('Título de la sección')
                                                 ->required()
-                                                ->helperText('Identificador único. No modificar si ya existen pases.'),
-
-                                            TextInput::make('texto')
-                                                ->label('Texto del ítem')
-                                                ->required(),
-
-                                            TextInput::make('orden')
-                                                ->label('Orden')
-                                                ->numeric()
-                                                ->required(),
+                                                ->maxLength(200)
+                                                ->live(onBlur: true),
 
                                             Textarea::make('instrucciones')
-                                                ->label('Instrucciones del ítem')
-                                                ->rows(2),
+                                                ->label('Instrucciones de sección')
+                                                ->hint('Se muestran al profesional al entrar en esta sección. Opcional.')
+                                                ->rows(3)
+                                                ->nullable(),
 
-                                            Repeater::make('opciones')
-                                                ->label('Opciones')
-                                                ->addActionLabel('Añadir opción')
-                                                ->minItems(2)
+                                            Repeater::make('items')
+                                                ->label('Ítems')
+                                                ->addActionLabel('Añadir ítem')
+                                                ->collapsible()
+                                                ->cloneable()
+                                                ->reorderableWithDragAndDrop()
+                                                ->itemLabel(fn (array $state): ?string => $state['texto'] ?? null)
                                                 ->schema([
-                                                    TextInput::make('valor')
-                                                        ->label('Valor')
-                                                        ->numeric()
-                                                        ->integer()
-                                                        ->required(),
 
-                                                    TextInput::make('etiqueta')
-                                                        ->label('Etiqueta')
-                                                        ->required(),
-                                                ])
-                                                ->columns(2),
+                                                    TextInput::make('texto')
+                                                        ->label('Texto del ítem')
+                                                        ->required()
+                                                        ->maxLength(500)
+                                                        ->disabled(fn (?TipoEscala $record): bool =>
+                                                            $record !== null && $record->pases()->exists()
+                                                        )
+                                                        ->live(onBlur: true),
+
+                                                    Textarea::make('instrucciones')
+                                                        ->label('Instrucciones del ítem')
+                                                        ->hint('Criterio de puntuación visible durante el pase. Opcional.')
+                                                        ->rows(2)
+                                                        ->nullable(),
+
+                                                    Repeater::make('opciones')
+                                                        ->label('Opciones de respuesta')
+                                                        ->addActionLabel('Añadir opción')
+                                                        ->reorderableWithDragAndDrop(false)
+                                                        ->columns(2)
+                                                        ->schema([
+                                                            TextInput::make('valor')
+                                                                ->label('Valor numérico')
+                                                                ->numeric()
+                                                                ->integer()
+                                                                ->required(),
+                                                            TextInput::make('etiqueta')
+                                                                ->label('Etiqueta')
+                                                                ->required()
+                                                                ->maxLength(100),
+                                                        ])
+                                                        ->minItems(2)
+                                                        ->disabled(fn (?TipoEscala $record): bool =>
+                                                            $record !== null && $record->pases()->exists()
+                                                        ),
+                                                ]),
                                         ]),
-                                ]),
+                                ])
+                                ->collapsible()
+                                ->collapsed()
+                                ->cloneable()
+                                ->reorderableWithDragAndDrop()
+                                ->addActionLabel('Añadir sección')
+                                ->hint('Arrastra para reordenar secciones. Haz clic en el título para expandir.')
+                                ->afterStateHydrated(function (Builder $component, ?array $state): void {
+                                    if (empty($state)) {
+                                        $component->state([]);
+                                        return;
+                                    }
+
+                                    $builderState = collect($state['secciones'] ?? [])
+                                        ->map(fn (array $seccion) => [
+                                            'type' => 'seccion',
+                                            'data' => $seccion,
+                                        ])
+                                        ->values()
+                                        ->all();
+
+                                    $component->state($builderState);
+                                })
+                                ->dehydrateStateUsing(function (?array $state): array {
+                                    if (empty($state)) {
+                                        return ['secciones' => []];
+                                    }
+
+                                    $secciones = collect($state)
+                                        ->filter(fn ($block) => ($block['type'] ?? null) === 'seccion')
+                                        ->map(function (array $block, int $si) {
+                                            $seccion = $block['data'];
+                                            $seccion['id']    ??= 'sec_' . ($si + 1);
+                                            $seccion['orden']   = $si + 1;
+
+                                            $seccion['items'] = collect($seccion['items'] ?? [])
+                                                ->map(function (array $item, int $ii) use ($si) {
+                                                    $item['id']    ??= 'item_' . ($si + 1) . '_' . ($ii + 1);
+                                                    $item['orden']   = $ii + 1;
+                                                    return $item;
+                                                })
+                                                ->values()
+                                                ->all();
+
+                                            return $seccion;
+                                        })
+                                        ->values()
+                                        ->all();
+
+                                    return ['secciones' => $secciones];
+                                }),
                         ]),
 
                     Tab::make('Rangos e interpretación')

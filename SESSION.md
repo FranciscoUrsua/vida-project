@@ -1,25 +1,25 @@
 # SESSION — VIDA 360
 
-_Actualizado: 2026-05-26_
+_Actualizado: 2026-05-27_
 
 ## Tarea completada
 
-Módulo Escalas fase 1: modelos, migraciones, seeder (Barthel + Pfeiffer + Lawton-Brody),
-`TipoEscalaResource` en Filament y 18 tests funcionales pasando (TF-ESC-A01…C04).
+Escalas — UX diseñador de secciones mejorada con Builder nativo Filament.
+Pestaña «Estructura» de `TipoEscalaResource` refactorizada de `Repeater` triple anidado a `Builder` con bloque `seccion` colapsable, labels dinámicos, hydration/dehydration correctos y condición de inmutabilidad basada en pases existentes.
 
 ## Estado actual
 
-- **Módulo Escalas fase 1 — completo:**
-  - Tablas `tipo_escalas` y `pases_escala` migradas en dev y test.
-  - `TipoEscala` con validación de schema/rangos, inmutabilidad de código e ítems con pases.
-  - `PaseEscala` con cálculo de scores, asignación de interpretación y cierre (`completar()`).
-  - `EscalaSeeder` idempotente con los 3 instrumentos de libre uso.
-  - `TipoEscalaResource` en Filament (grupo Catálogos), formulario en 3 pestañas.
-  - Relación `pasesEscala()` añadida a `HistoriaSocial`.
+- **Módulo Escalas fase 1 + UX builder — completo:**
+  - `TipoEscalaResource` pestaña «Estructura» usa `Builder` nativo con bloque `seccion`.
+  - Transformación `afterStateHydrated` / `dehydrateStateUsing` entre formato modelo y formato Builder.
+  - IDs de sección e ítem generados automáticamente en `dehydrateStateUsing`.
+  - Inmutabilidad con closure `$record->pases()->exists()` en texto e opciones de ítems.
+  - `Placeholder` de aviso cuando existen pases.
+  - 18 tests funcionales pasando (TF-ESC-A01…C04).
 
 - **Acceso supervision al backoffice — completo** (sesión anterior).
 - **Seguridad en profundidad para datos de ciudadanos — completa** (sesión anterior).
-- **Suite completa:** ~393 tests pasan (18 nuevos de Escalas + los anteriores).
+- **Suite completa:** ~393 tests pasan.
 
 ## Tests incompletos actuales
 
@@ -44,9 +44,6 @@ usuario que opera).
 
 - `EscalaSeeder` NO está incluido en `DatabaseSeeder` aún. Ejecutar manualmente o añadirlo
   cuando se decida el orden de seeders del módulo Escalas respecto a Intervencion.
-- `TipoEscalaResource` usa grupo de navegación 'Catálogos' (el grupo 'Configuración' de las
-  instrucciones no existe en el proyecto). Si se crea ese grupo en el futuro, moverlo.
+- `TipoEscalaResource` usa grupo de navegación 'Informes y plantillas'.
 - Los 9 fallos de `PrestacionFilamentResourceTest`: "Invalid Livewire snapshot structure" —
   problema pre-existente de setup de tests, no del código de producción.
-- La corrección del FK `Modules\Centro\Models\Prestacion` → `Modules\Prestaciones\Models\Prestacion`
-  en `Centro.php` se aplicó al inicio de esta sesión (commit `1027dbc`).

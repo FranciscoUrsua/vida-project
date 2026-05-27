@@ -2,6 +2,29 @@
 
 ---
 
+## Escalas — UX diseñador de secciones — 2026-05-27
+
+### Módulos afectados
+`app/Filament/Resources/TipoEscalaResource` (único fichero modificado)
+
+### Cambios realizados
+
+- Pestaña «Estructura» refactorizada: `Repeater` exterior de tres niveles reemplazado por `Builder` nativo de Filament con un único tipo de bloque `seccion`.
+- Transformación `afterStateHydrated` / `dehydrateStateUsing` para convertir entre la estructura del modelo (`['secciones' => [...]]`) y la estructura interna del `Builder` (`[['type' => 'seccion', 'data' => [...]], ...]`).
+- Generación automática de IDs de sección (`sec_N`) e ítem (`item_N_M`) en `dehydrateStateUsing` si aún no tienen ID.
+- Condición de inmutabilidad corregida: `->disabledOn('edit')` reemplazado por closure `fn (?TipoEscala $record) => $record !== null && $record->pases()->exists()` en `TextInput::make('texto')` del ítem y `Repeater::make('opciones')`.
+- `Placeholder` de aviso añadido al inicio del bloque cuando existen pases, explicando la restricción de edición.
+- Labels dinámicos: sección muestra su `titulo` en el header colapsado; ítem muestra el `texto` de la pregunta.
+- Bloques colapsados por defecto (`->collapsed()`), drag-and-drop y clonable en el `Builder`.
+- `Repeater` interior de ítems: `->collapsible()`, `->cloneable()`, `->itemLabel()`.
+- Imports añadidos: `Filament\Forms\Components\Builder`, `Filament\Forms\Components\Placeholder`.
+
+### Decisiones de implementación
+- El campo `id` y `orden` ya no se exponen como inputs visibles al administrador; se generan/calculan automáticamente en `dehydrateStateUsing`.
+- 18 tests existentes siguen pasando sin cambios.
+
+---
+
 ## Módulo Escalas fase 1 — 2026-05-26
 
 ### Módulos afectados
