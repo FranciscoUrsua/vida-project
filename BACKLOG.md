@@ -70,6 +70,11 @@ disponible en el municipio adoptante.
 
 ---
 
+**Customizador de marca (logo, colores, tipografía)** — mayo 2026
+Permitir que cada municipio que adopte VIDA 360 adapte la apariencia visual a su imagen corporativa sin tocar código: logo, color primario, color secundario y tipografía (Google Fonts). Los cambios deben aplicarse tanto al backoffice Filament como a la superficie operativa Livewire.
+
+---
+
 # 🔧 DEUDA TÉCNICA Y DECISIONES PENDIENTES
 
 > Implementaciones con diseño claro pero momento postergado, o decisiones de diseño
