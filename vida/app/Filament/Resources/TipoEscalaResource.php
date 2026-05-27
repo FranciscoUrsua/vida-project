@@ -239,33 +239,41 @@ class TipoEscalaResource extends Resource
                                 ->hint('Arrastra para reordenar secciones. Haz clic en el título para expandir.')
                                 ->afterStateHydrated(function (Builder $component, ?array $state): void {
                                     if (empty($state)) {
-                                        $component->state([]);
+                                        $component->rawState([]);
                                         return;
                                     }
 
-                                    $builderState = collect($state['secciones'] ?? [])
-                                        ->map(fn (array $seccion) => [
-                                            'type' => 'seccion',
-                                            'data' => $seccion,
-                                        ])
-                                        ->values()
-                                        ->all();
+                                    // Mirroring Builder's own setUp() hook: assign a UUID per block
+                                    // so drag-and-drop can identify blocks by string key, not integer.
+                                    $items = [];
+                                    foreach ($state['secciones'] ?? [] as $seccion) {
+                                        $uuid = $component->generateUuid();
+                                        if ($uuid) {
+                                            $items[$uuid] = ['type' => 'seccion', 'data' => $seccion];
+                                        } else {
+                                            $items[] = ['type' => 'seccion', 'data' => $seccion];
+                                        }
+                                    }
 
-                                    $component->state($builderState);
+                                    $component->rawState($items);
                                 })
                                 ->dehydrateStateUsing(function (?array $state): array {
                                     if (empty($state)) {
                                         return ['secciones' => []];
                                     }
 
+                                    // $state has UUID string keys; ->values() resets to 0-based
+                                    // indices so $si/$ii are correct integers for ID generation.
                                     $secciones = collect($state)
                                         ->filter(fn ($block) => ($block['type'] ?? null) === 'seccion')
+                                        ->values()
                                         ->map(function (array $block, int $si) {
                                             $seccion = $block['data'];
                                             $seccion['id']    ??= 'sec_' . ($si + 1);
                                             $seccion['orden']   = $si + 1;
 
                                             $seccion['items'] = collect($seccion['items'] ?? [])
+                                                ->values()
                                                 ->map(function (array $item, int $ii) use ($si) {
                                                     $item['id']    ??= 'item_' . ($si + 1) . '_' . ($ii + 1);
                                                     $item['orden']   = $ii + 1;
