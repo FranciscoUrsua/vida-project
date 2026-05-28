@@ -3,7 +3,7 @@
 **Módulo:** `Documentos`
 **Namespace:** `Modules\Documentos\Models`
 **Directorio:** `vida/Modules/Documentos/`
-**Estado:** Implementado. 20/20 tests funcionales pasan (2026-05-18).
+**Estado:** Implementado. 25/25 tests funcionales pasan (última actualización: mayo 2026).
 
 ---
 
@@ -23,9 +23,7 @@ El Plan de Intervención (PISO) es un caso especial: requiere firma del profesio
 
 - **Almacenamiento desacoplado.** Los ficheros nunca se sirven desde rutas públicas. Todo acceso pasa por un controlador que verifica permisos y genera URLs firmadas temporales. El disco de almacenamiento es configurable por entorno (local en desarrollo, S3-compatible o SFTP en producción) sin cambios de código.
 - **Integridad verificable.** Todo documento custodiado incluye un hash SHA-256 calculado en el momento de la subida. Cualquier alteración posterior del fichero es detectable.
-- **Inmutabilidad de lo firmado.** Un informe en estado `firmado` no puede editarse ni eliminarse. Solo puede ser anulado por el propio autor, con registro de motivo, generando un nuevo estado `anulado`. El fichero original permanece en el sistema.
-- **La responsabilidad de autoría es personal.** El informe profesional es un acto personalísimo del profesional colegiado que lo firma, no de la institución. El sistema no ofrece mecanismo alternativo de firma para informes profesionales. No existe fallback de firma manuscrita para este tipo de documentos.
-- **Filament para configuración, Livewire para operación** (Principio 3.12). Las plantillas de informe se configuran desde Filament. La creación, edición y firma de informes concretos se realiza desde interfaces Livewire.
+- **Inmutabilidad de lo firmado.** Un informe en estado `firmado` no puede editarse ni eliminarse.
 
 ---
 
@@ -34,94 +32,60 @@ El Plan de Intervención (PISO) es un caso especial: requiere firma del profesio
 ### 2.1 Documento
 
 **Tabla:** `documentos`
-**Descripción:** Fichero custodiado en el sistema. Puede ser un documento subido externamente o el PDF resultante de un informe generado. Asociado polimórficamente a cualquier entidad del sistema.
+**Descripción:** Fichero custodiado en el sistema. Puede ser un documento externo subido por un profesional o el PDF generado al firmar un informe.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | bigint PK | |
-| `documentable_type` | string | Tipo de entidad asociada (Ciudadano, UnidadConvivencia, HistoriaSocial…) |
-| `documentable_id` | bigint | ID de la entidad asociada |
-| `tipo_documento_id` | bigint FK | Ref. `catalogos_sistema` — tipo de documento (informe médico, DNI, certificado…) |
-| `origen` | enum | `externo` / `generado` |
-| `nombre_original` | string | Nombre del fichero tal como fue subido |
-| `ruta_almacenamiento` | string | Ruta interna en el disco configurado. Nunca pública. |
-| `disco` | string | Identificador del disco Laravel Filesystem (`local`, `s3`, `sftp`…) |
-| `mime_type` | string | Tipo MIME verificado en subida |
-| `tamano_bytes` | bigint | Tamaño del fichero en bytes |
-| `hash_sha256` | string | Hash de integridad calculado en subida |
-| `subido_por` | bigint FK | Ref. `users` — profesional que realizó la subida |
-| `descripcion` | text nullable | Descripción libre opcional |
+| `ciudadano_id` | bigint FK nullable | Ciudadano al que pertenece el documento |
+| `unidad_convivencia_id` | bigint FK nullable | Unidad de convivencia (alternativa a ciudadano_id) |
+| `tipo` | varchar(100) | Clave de `catalogos_sistema` grupo `documento.tipo` |
+| `nombre_original` | varchar(255) | Nombre del fichero tal como lo subió el profesional |
+| `ruta_almacenamiento` | varchar(500) | Ruta interna en el disco configurado |
+| `disco` | varchar(50) | Disco Laravel en el que se almacenó |
+| `mime_type` | varchar(100) | MIME verificado en el momento de la subida |
+| `tamanyo_bytes` | bigint | Tamaño del fichero |
+| `hash_sha256` | char(64) | Hash para verificación de integridad |
+| `subido_por` | bigint FK | Ref. `users` |
 | `created_at` / `updated_at` | timestamp | |
-
-**Relaciones:**
-
-| Método | Tipo | Descripción |
-|---|---|---|
-| `documentable()` | `MorphTo` | Entidad a la que pertenece el documento |
-| `tipo()` | `BelongsTo<CatalogoSistema>` | Tipo de documento |
-| `subidoPor()` | `BelongsTo<User>` | Profesional que subió el documento |
-| `informe()` | `HasOne<Informe>` | Informe profesional asociado, si lo hay |
-
-**Scopes:**
-- `scopeExternos()` — solo documentos de origen externo
-- `scopeGenerados()` — solo PDFs generados por el sistema
-
-**Nota:** los documentos de origen `externo` solo admiten PDF. Otros formatos (imágenes de documentos de identidad, etc.) se convierten a PDF en el momento de la subida o se rechazan con mensaje descriptivo.
-
----
 
 ### 2.2 EstiloInforme
 
 **Tabla:** `estilos_informe`
-**Descripción:** Define el aspecto formal de los informes generados por una Unidad Organizativa. Los campos se heredan por proximidad ascendente en la jerarquía de UOs: para cada campo, el sistema utiliza el valor definido en la UO más cercana al autor del informe que lo tenga establecido. Una UO puede sobreescribir campos concretos (p.ej. añadir el logotipo del centro) sin afectar a los campos que no define, que siguen resolviéndose en niveles superiores.
-
-La tipografía no forma parte de esta entidad: es una configuración transversal gestionada por el administrador del sistema.
+**Descripción:** Define el aspecto formal de los informes generados desde una UO. Los campos son independientes entre sí: cada UO hija puede sobreescribir campos concretos sin afectar a los demás.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | bigint PK | |
-| `unidad_organizativa_id` | bigint FK unique | Ref. `unidades_organizativas` — una UO tiene como máximo un estilo |
-| `logo_cabecera` | string nullable | Ruta al fichero de logotipo institucional (disco configurado) |
-| `nombre_unidad_cabecera` | string nullable | Nombre de la unidad a mostrar en cabecera (p.ej. «Centro de SS de Vallecas») |
-| `direccion_cabecera` | string nullable | Dirección postal a mostrar en cabecera |
-| `telefono_cabecera` | string nullable | Teléfono de contacto a mostrar en cabecera |
-| `html_pie` | text nullable | HTML de pie de página libre: puede incluir textos legales, webs, redes, etc. |
-| `creado_por` | bigint FK | Ref. `users` — supervisor que creó o modificó este estilo |
+| `unidad_organizativa_id` | bigint FK unique | UO propietaria de este estilo |
+| `logo_path` | varchar(500) nullable | Ruta al logotipo |
+| `nombre_cabecera` | varchar(200) nullable | Nombre de la unidad a mostrar en cabecera |
+| `direccion_cabecera` | varchar(300) nullable | Dirección postal |
+| `telefono_cabecera` | varchar(50) nullable | Teléfono de contacto |
+| `html_pie` | text nullable | HTML de pie de página |
+| `creado_por` | bigint FK | Ref. `users` |
 | `created_at` / `updated_at` | timestamp | |
 
-**Relaciones:**
-
-| Método | Tipo | Descripción |
-|---|---|---|
-| `unidadOrganizativa()` | `BelongsTo<UnidadOrganizativa>` | UO propietaria de este estilo |
-| `creadoPor()` | `BelongsTo<User>` | Supervisor autor |
-
-**Servicio de resolución:** `ResolverEstiloInforme` recibe la UO del autor y recorre la cadena de ancestros (vía `laravel-adjacency-list`) hasta encontrar valor para cada campo. El resultado se cachea por UO con TTL configurable. En ausencia de cualquier estilo en la jerarquía, se aplican los valores por defecto definidos en configuración del sistema.
-
-**Filament:** `EstiloInformeResource` (grupo *Diseño de informes*) — accesible solo para usuarios con rol supervisor o administrador. Cada supervisor solo puede editar el estilo de su propia UO y las descendientes bajo su responsabilidad.
-
----
+**Resolución jerárquica:** `ResolverEstiloInforme` recorre la cadena de ancestros de la UO del autor (vía `laravel-adjacency-list`) hasta encontrar valor para cada campo. Resultado cacheado por UO con TTL configurable.
 
 ### 2.3 PlantillaInforme
 
 **Tabla:** `plantillas_informe`
-**Descripción:** Plantilla configurable para la generación de informes profesionales. Define la estructura del informe y las secciones que lo componen. El aspecto formal (cabeceras, logotipos, pies) lo aporta `EstiloInforme` en el momento de la generación — la plantilla es independiente del estilo.
-
-Las plantillas tienen **alcance jerárquico**: una plantilla creada en una UO está disponible para todos los profesionales de esa UO y de todas sus descendientes. Un supervisor crea la plantilla al nivel adecuado para que llegue exactamente a los profesionales que deben usarla.
+**Descripción:** Plantilla configurable para la generación de informes profesionales. Define la estructura del informe mediante secciones. El aspecto formal lo aporta `EstiloInforme` en el momento de la generación.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | bigint PK | |
-| `unidad_organizativa_id` | bigint FK | Ref. `unidades_organizativas` — UO desde la que es visible hacia abajo |
-| `nombre` | string | Nombre de la plantilla (p.ej. «Informe Social de Valoración») |
+| `unidad_organizativa_id` | bigint FK | UO desde la que es visible hacia abajo |
+| `nombre` | varchar(200) | Nombre de la plantilla |
 | `descripcion` | text nullable | Descripción para el profesional en el selector |
 | `tipo_informe` | enum | `informe_social` / `informe_psicologico` / `informe_juridico` / `otro` |
-| `secciones` | jsonb | Array ordenado de secciones (ver estructura más abajo) |
-| `activa` | boolean | Solo las plantillas activas aparecen en el selector operativo |
-| `creada_por` | bigint FK | Ref. `users` — supervisor autor |
+| `secciones` | jsonb | Array ordenado de secciones (cast: `array`) |
+| `activa` | boolean | Solo las activas aparecen en el selector operativo |
+| `creada_por` | bigint FK | Ref. `users` |
 | `created_at` / `updated_at` | timestamp | |
 
-**Estructura del campo `secciones` (JSON):**
+**Estructura del campo `secciones`:**
 
 ```json
 [
@@ -137,118 +101,91 @@ Las plantillas tienen **alcance jerárquico**: una plantilla creada en una UO es
     "titulo": "Situación actual",
     "tipo": "texto_libre",
     "instrucciones": "Describa la situación actual de la persona...",
-    "contenido_plantilla": "<p>En relación a {{ nombre_ciudadano }}, con expediente n.º {{ numero_expediente }}...</p>",
+    "contenido_plantilla": "<p>En relación a {{ nombre_ciudadano }}...</p>",
     "obligatorio": true
-  },
-  {
-    "id": "valoracion",
-    "titulo": "Valoración profesional",
-    "tipo": "texto_libre",
-    "instrucciones": "Incluya el diagnóstico social y la valoración técnica.",
-    "contenido_plantilla": null,
-    "obligatorio": true
-  },
-  {
-    "id": "prestaciones_activas",
-    "titulo": "Prestaciones en vigor",
-    "tipo": "automatico",
-    "fuente": "historia_social.prestaciones_activas",
-    "editable": false
   }
 ]
 ```
 
-Los tipos de sección son `automatico` (datos pre-cargados desde la Historia Social, no editables por el profesional) y `texto_libre` (campo redactable). Las secciones de tipo `texto_libre` pueden incluir el campo opcional `contenido_plantilla` con HTML y merge tags (sintaxis `{{ clave }}`). El campo es nullable — si se omite, el profesional redacta desde cero al generar el informe.
+Los tipos de sección son `automatico` (datos pre-cargados desde la Historia Social, no editables por el profesional) y `texto_libre` (campo redactable con soporte de merge tags).
 
-**Merge tags en plantillas de texto libre.** Las secciones de tipo `texto_libre` pueden incorporar variables dinámicas mediante merge tags (sintaxis `{{ clave }}`). El catálogo de variables disponibles está centralizado en `Modules\Documentos\Support\MergeTagsCatalogo`. La sustitución se realiza en `ResolverFuentesInforme::resolverMergeTags()` al generar el PDF. Las variables de escalas de valoración (Barthel, Pfeiffer, Lawton-Brody) se resuelven buscando el pase completado más reciente de cada instrumento en la Historia Social del ciudadano.
+El campo `contenido_plantilla` de las secciones de tipo `texto_libre` almacena HTML con nodos de merge tag de TipTap. Se sustituyen en `ResolverFuentesInforme::resolverMergeTags()` al generar el informe.
 
-**Relaciones:**
+**Fuentes disponibles para secciones automáticas:**
 
-| Método | Tipo | Descripción |
-|---|---|---|
-| `unidadOrganizativa()` | `BelongsTo<UnidadOrganizativa>` | UO desde la que la plantilla es visible |
-| `informes()` | `HasMany<Informe>` | Informes generados con esta plantilla |
-| `creadaPor()` | `BelongsTo<User>` | Supervisor autor |
+| Clave | Descripción |
+|---|---|
+| `ciudadano.datos_basicos` | Nombre, NIF, fecha de nacimiento, dirección |
+| `ciudadano.datos_contacto` | Teléfono, email |
+| `ciudadano.unidad_convivencia` | Miembros de la unidad de convivencia |
+| `historia_social.resumen` | Resumen y motivo de apertura |
+| `historia_social.prestaciones_activas` | Prestaciones activas del plan vigente |
+| `historia_social.prestaciones_historico` | Historial completo de prestaciones |
+| `historia_social.plan_activo` | Objetivos del plan de intervención activo |
+| `escalas.barthel_ultimo` | Último pase Barthel (score e interpretación) |
+| `escalas.pfeiffer_ultimo` | Último pase Pfeiffer SPMSQ |
+| `escalas.lawton_ultimo` | Último pase Lawton-Brody |
+| `escalas.historico_barthel` | Histórico de pases Barthel |
+| `profesional.datos` | Nombre, cargo, número de colegiado, centro |
 
-**Scopes:**
-- `scopeVisiblesParaUo($uoId)` — devuelve plantillas activas cuya UO es la indicada o cualquiera de sus ancestros; es el scope que usa el selector del `NuevoInformeWizard`
+**Scopes:** `scopeVisiblesParaUo($uoId)` — plantillas activas cuya UO es la indicada o cualquiera de sus ancestros.
 
-**Filament:** `PlantillaInformeResource` (grupo *Diseño de informes*) — accesible solo para usuarios con rol supervisor o administrador. Cada supervisor solo puede crear y editar plantillas en su propia UO y las descendientes bajo su responsabilidad.
-
----
-
-### 2.3 Informe
+### 2.4 Informe
 
 **Tabla:** `informes`
-**Descripción:** Instancia concreta de un informe profesional. Nace como borrador, pasa por edición y culmina con la firma del profesional autor. Una vez firmado, el informe queda vinculado a un `Documento` que contiene el PDF final.
+**Descripción:** Instancia concreta de un informe profesional. Nace como borrador y culmina con la firma del autor.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | bigint PK | |
 | `plantilla_id` | bigint FK | Ref. `plantillas_informe` |
-| `historia_social_id` | bigint FK nullable | Historia Social a la que pertenece este informe |
-| `ciudadano_id` | bigint FK | Ciudadano al que se refiere el informe |
-| `autor_id` | bigint FK | Ref. `users` — profesional autor y firmante |
+| `historia_social_id` | bigint FK nullable | |
+| `ciudadano_id` | bigint FK | |
+| `autor_id` | bigint FK | Ref. `users` |
 | `estado` | enum | `borrador` / `firmado` / `anulado` |
-| `contenido` | jsonb | Contenido actual del informe por secciones (mapa `seccion_id → texto`) |
-| `documento_id` | bigint FK nullable | Ref. `documentos` — PDF firmado; null hasta firma |
-| `firmado_en` | timestamp nullable | Momento de la firma |
+| `contenido` | jsonb | Mapa `seccion_id → texto` con el contenido del informe |
+| `documento_id` | bigint FK nullable | PDF firmado; null hasta firma |
+| `firmado_en` | timestamp nullable | |
 | `metodo_firma` | enum nullable | `autofirma_certificado_empleado_publico` |
-| `numero_colegiado_firmante` | string nullable | Nº de colegiación del autor en el momento de la firma |
+| `numero_colegiado_firmante` | varchar nullable | |
 | `motivo_anulacion` | text nullable | Obligatorio si estado = `anulado` |
 | `anulado_en` | timestamp nullable | |
 | `created_at` / `updated_at` | timestamp | |
 
-**Transiciones de estado:**
+**Transiciones:** `borrador → firmado` (requiere PDF y certificado válido) · `firmado → anulado` (solo el autor, con motivo). Un informe anulado no puede reabrirse.
 
-```
-borrador → firmado     (acción: firmar con AutoFirma; requiere PDF generado y certificado válido)
-firmado  → anulado     (acción: anular; solo el autor; requiere motivo; el documento PDF permanece)
-```
-
-No existen otras transiciones. Un informe anulado no puede reabrirse — si es necesario, se crea un nuevo borrador.
-
-**Relaciones:**
-
-| Método | Tipo | Descripción |
-|---|---|---|
-| `plantilla()` | `BelongsTo<PlantillaInforme>` | |
-| `historiaSocial()` | `BelongsTo<HistoriaSocial>` | |
-| `ciudadano()` | `BelongsTo<Ciudadano>` | |
-| `autor()` | `BelongsTo<User>` | |
-| `documento()` | `BelongsTo<Documento>` | PDF firmado |
-
-**Scopes:**
-- `scopeBorradores()` — estado `borrador`
-- `scopeFirmados()` — estado `firmado`
-- `scopeDeAutor($userId)` — informes de un profesional concreto
-
----
-
-### 2.4 PisoFirmado
+### 2.5 PisoFirmado
 
 **Tabla:** `piso_firmados`
-**Descripción:** Custodia del Plan de Intervención (PISO) con doble firma. En v1.0 la doble firma se resuelve fuera del sistema digital: el PDF se imprime, ambas partes firman manuscritamente, y la copia escaneada se sube aquí. El registro vincula el documento custodiado con el `PlanDeIntervencion` correspondiente y deja constancia de quién realizó la subida y cuándo.
+**Descripción:** Custodia del PISO con doble firma manuscrita escaneada. Un `PlanDeIntervencion` puede tener como máximo un `PisoFirmado` activo.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | bigint PK | |
-| `plan_de_intervencion_id` | bigint FK | Ref. `planes_de_intervencion` |
-| `documento_id` | bigint FK | Ref. `documentos` — PDF escaneado con firmas manuscritas |
-| `subido_por` | bigint FK | Ref. `users` — profesional que subió el escáner |
-| `metodo_conformidad_ciudadano` | enum | `manuscrita_escaneada` *(único valor en v1.0)* |
-| `observaciones` | text nullable | Observaciones opcionales del profesional |
+| `plan_de_intervencion_id` | bigint FK | |
+| `documento_id` | bigint FK | PDF escaneado |
+| `subido_por` | bigint FK | Ref. `users` |
+| `metodo_conformidad_ciudadano` | enum | `manuscrita_escaneada` |
+| `observaciones` | text nullable | |
 | `created_at` / `updated_at` | timestamp | |
 
-**Relaciones:**
+### 2.6 ParametroInforme
 
-| Método | Tipo | Descripción |
+**Tabla:** `parametros_informe`
+**Descripción:** Par clave/valor configurable por el administrador. Permite crear variables auxiliares en plantillas de informe sin modificar código. Los valores se cachean con TTL de 1 hora; la caché se invalida automáticamente al guardar o borrar un parámetro.
+
+| Campo | Tipo | Descripción |
 |---|---|---|
-| `planDeIntervencion()` | `BelongsTo<PlanDeIntervencion>` | |
-| `documento()` | `BelongsTo<Documento>` | |
-| `subidoPor()` | `BelongsTo<User>` | |
+| `id` | bigint PK | |
+| `clave` | varchar(100) unique | Nombre del merge tag: `ciudad`, `web_municipal`, etc. Solo minúsculas, números y guiones bajos. |
+| `etiqueta` | varchar(200) | Texto legible que aparece en el autocompletado del editor |
+| `valor` | text | Valor que se sustituye al generar el informe |
+| `descripcion` | text nullable | Para qué se usa; solo visible en backoffice |
+| `created_at` / `updated_at` | timestamp | |
 
-**Nota:** un `PlanDeIntervencion` puede tener como máximo un `PisoFirmado` activo. Si el plan se revisa y requiere nueva firma, el registro anterior no se elimina — queda como histórico y el nuevo sustituye al activo.
+Los parámetros son **globales** (un único valor por instalación). La variante por UO está documentada en BACKLOG como evolución futura.
+
+**Seeder de parámetros de ejemplo:** `ciudad`, `nombre_sistema`, `web_municipal`, `telefono_atencion`.
 
 ---
 
@@ -256,162 +193,127 @@ No existen otras transiciones. Un informe anulado no puede reabrirse — si es n
 
 ### ServicioAlmacenamiento
 
-Abstracción sobre Laravel Filesystem. Centraliza la subida, descarga y eliminación lógica de ficheros. Nunca expone rutas directas; genera URLs temporales firmadas para servir ficheros al navegador.
-
-Responsabilidades: validar tipo MIME, calcular hash SHA-256, determinar el disco activo desde configuración, construir la ruta interna siguiendo la convención `documentos/{año}/{mes}/{uuid}.pdf`.
+Abstracción sobre Laravel Filesystem. Centraliza subida, descarga y eliminación lógica. Genera URLs temporales firmadas. Valida tipo MIME, calcula hash SHA-256, construye ruta interna `documentos/{año}/{mes}/{uuid}.pdf`.
 
 ### ServicioGeneracionPDF
 
-Genera el PDF de un informe a partir de su contenido y la plantilla asociada. Combina los datos automáticos (extraídos de la Historia Social mediante el resolver de fuentes) con el texto libre del profesional, aplica la cabecera y pie corporativos definidos en la plantilla, y produce el PDF mediante `barryvdh/laravel-dompdf`.
-
-El PDF generado se almacena como borrador hasta que el profesional lo firma. El PDF de borrador es sobrescribible (el profesional puede generar una vista previa iterativa); el PDF final firmado es inmutable.
+Genera el PDF a partir del contenido del informe y la plantilla. Combina datos automáticos (vía `ResolverFuentesInforme`) con texto libre del profesional, aplica cabecera y pie de `EstiloInforme`, produce el PDF mediante `barryvdh/laravel-dompdf`. El PDF de borrador es sobrescribible; el PDF firmado es inmutable.
 
 ### ServicioFirmaInforme
 
-Coordina el proceso de firma mediante AutoFirma. Recibe el PDF en borrador, invoca la API JavaScript de AutoFirma en el cliente (integración Livewire), recibe el PDF firmado con firma CAdES embebida, verifica que la firma es válida, extrae el número de colegiado del certificado si está presente, y persiste el documento firmado llamando a `ServicioAlmacenamiento`.
+Coordina la firma con AutoFirma (integración Livewire). Recibe el PDF de borrador, invoca AutoFirma en el cliente, recibe el PDF firmado con firma CAdES, verifica validez, extrae número de colegiado del certificado, persiste el documento via `ServicioAlmacenamiento`.
 
 ### ResolverFuentesInforme
 
-Resuelve las fuentes de datos automáticas declaradas en las secciones de tipo `automatico` de una `PlantillaInforme`. Dado un `ciudadano_id` y una referencia de fuente (p.ej. `historia_social.prestaciones_activas`), devuelve los datos estructurados listos para renderizar en el PDF. Centraliza la lógica de extracción de datos para que las plantillas sean declarativas.
+Resuelve todas las variables que pueden aparecer en las plantillas de informe. Opera con tres categorías de variables, en orden de prioridad decreciente:
+
+**1. Tags contextuales** (mayor prioridad) — dependen del ciudadano, profesional y fecha del informe concreto. Se construyen en `construirMapaValores()` a partir de las entidades del expediente. Incluyen: datos del ciudadano, del expediente, de las escalas de valoración (último pase de Barthel, Pfeiffer y Lawton-Brody), del plan de intervención activo, del profesional autor y del centro.
+
+**2. Variables dinámicas de sistema** — calculadas en tiempo de ejecución, iguales para todos los informes. Implementadas en `VariablesDinamicas::resolver()`. Variables disponibles: `fecha_hoy` (dd/mm/aaaa), `año_actual`, `mes_actual` (nombre del mes en español).
+
+**3. Parámetros configurables** (menor prioridad) — leídos de `parametros_informe` vía `ParametroInforme::comoMapa()` con caché de 1 hora. Ejemplos: `ciudad`, `web_municipal`, `telefono_atencion`.
+
+En caso de colisión de clave, los tags contextuales siempre ganan frente a los parámetros configurables. Esto garantiza que ningún administrador puede romper un informe creando un parámetro `nombre_ciudadano`.
+
+El método `resolverMergeTags(string $html, int $ciudadanoId, int $profesionalId, Carbon $fechaInforme): string` sustituye todos los tags en el HTML de una sección y devuelve el HTML con los valores reales.
+
+### MergeTagsCatalogo
+
+Clase de soporte que centraliza el catálogo de variables disponibles en el editor de plantillas. `todos()` devuelve el array `['clave' => 'etiqueta']` que consume `RichEditor::mergeTags()` en Filament. Incluye las tres categorías: tags contextuales (estáticos), variables dinámicas de sistema (vía `VariablesDinamicas::etiquetas()`), y parámetros configurables (leídos de BD con caché).
+
+### VariablesDinamicas
+
+Clase de soporte sin estado. `etiquetas()` devuelve el mapa de claves y descripciones para el editor. `resolver()` devuelve el mapa de claves y valores calculados en tiempo de ejecución.
 
 ---
 
 ## 4. Interfaces de usuario
 
-### Filament (backoffice / configuración)
+### Filament (backoffice)
 
-Dos grupos de navegación diferenciados en el backoffice:
+Grupo de navegación **«Informes y Plantillas»** (accesible a supervisores y administradores):
 
-**Grupo *Diseño de informes*** (accesible a supervisores y administradores):
-- **`EstiloInformeResource`** — gestión del estilo formal por UO: logotipo, nombre de unidad, dirección, pie de página. El supervisor ve y edita solo los estilos de su UO y sus descendientes. Incluye vista previa del aspecto resultante.
-- **`PlantillaInformeResource`** — CRUD de plantillas de informe con selección de UO de alcance. Editor de secciones con vista previa del esquema JSON. Activación/desactivación de plantillas. El supervisor ve y edita solo las plantillas de su UO y sus descendientes.
+- **`EstiloInformeResource`** — gestión del estilo formal por UO. El supervisor ve y edita solo los estilos de su UO y sus descendientes. Incluye vista previa del aspecto resultante.
+- **`PlantillaInformeResource`** — CRUD de plantillas. Editor de secciones con `Builder` de Filament v5: secciones colapsables con drag-and-drop, campo `RichEditor` con merge tags nativos para secciones de tipo `texto_libre`, `Select` de fuentes para secciones de tipo `automatico`. Layout: datos generales en dos columnas, bloque de secciones a ancho completo.
+- **`InformeResource`** — listado de informes con filtros por estado y autor.
+- **`DocumentoResource`** — listado de documentos custodiados.
+- **`TipoEscalaResource`** — ver módulo Escalas.
+- **`ParametroInformeResource`** — gestión de parámetros configurables de plantillas. Accesible solo a `adm_sistema`. Formulario con validación de formato de clave (`/^[a-z][a-z0-9_]*$/`).
 
-**Grupo *Configuración del sistema*** (accesible solo a administradores):
-- **`ConfiguracionTipografiaResource`** — selección de la familia tipográfica y tamaños base para todos los informes generados. Transversal a toda la organización.
+Grupo **«Sistema»** (solo administradores):
+
+- **`ConfiguracionTipografiaResource`** — tipografía base para todos los informes generados.
 
 ### Livewire (operativo)
 
-- **`DocumentosCiudadanoComponent`** — panel de documentos asociados a un ciudadano. Lista de documentos con tipo, fecha y profesional que los subió. Acciones: subir nuevo documento externo (con validación de tipo y tamaño), previsualizar (URL firmada temporal), descargar.
-- **`NuevoInformeWizard`** — asistente de creación de informe. Pasos: (1) selección de plantilla, (2) pre-carga automática de datos y edición de secciones de texto libre, (3) vista previa del PDF generado, (4) firma con AutoFirma. El informe no avanza al paso 4 si hay secciones obligatorias vacías.
-- **`InformesHistorialComponent`** — listado de informes de una Historia Social, con estado, autor y fecha. Acciones sobre informes firmados: ver PDF, anular (solo el autor, con campo de motivo obligatorio).
-- **`PisoFirmadoUploadComponent`** — subida del PISO con doble firma manuscrita. Se activa desde el `PlanDeIntervencion` cuando está en estado que requiere conformidad. Sube el PDF escaneado y registra el `PisoFirmado`.
+- **`DocumentosCiudadanoComponent`** — panel de documentos de un ciudadano. Subida, previsualización (URL firmada temporal), descarga.
+- **`NuevoInformeWizard`** — asistente en 4 pasos: selección de plantilla → edición de secciones de texto libre → vista previa PDF → firma con AutoFirma. Las secciones `automatico` se pre-cargan y no son editables. No avanza al paso 4 si hay secciones `obligatorio: true` vacías.
+- **`InformesHistorialComponent`** — listado de informes de una Historia Social. Acciones sobre informes firmados: ver PDF, anular (solo el autor, con motivo obligatorio).
+- **`PisoFirmadoUploadComponent`** — subida del PISO escaneado con doble firma manuscrita.
 
 ---
 
-## 5. Decisiones de diseño y pendientes
+## 5. Decisiones de diseño
 
-**Estilo de informe con herencia jerárquica por campos independientes.** En lugar de una cabecera monolítica por plantilla, el aspecto formal se gestiona mediante `EstiloInforme` vinculado a la UO del autor. La herencia opera campo a campo: para cada campo (logo, nombre de unidad, dirección, pie), el sistema busca el valor en la UO del autor y sube por la jerarquía hasta encontrarlo. Esto permite que una Dirección General defina el logo institucional y un centro defina solo su nombre, sin conflicto. La resolución se realiza en el momento de la generación del PDF y se cachea por UO.
+**Estilo con herencia jerárquica por campos independientes.** Para cada campo del estilo, el sistema busca valor en la UO del autor y sube por la jerarquía hasta encontrarlo. Esto permite que una Dirección General defina el logo y un centro defina solo su nombre, sin conflicto.
 
-**Alcance jerárquico de plantillas.** Las plantillas se crean al nivel de UO adecuado y son visibles para todos los profesionales de esa UO y sus descendientes. Un supervisor de distrito puede crear plantillas para todos los centros del distrito; un supervisor de centro puede crear plantillas solo para su centro.
+**Parámetros configurables globales en v1.0.** Los parámetros de `parametros_informe` tienen un único valor por instalación. Variables como `{{ distrito }}` que podrían necesitar valores distintos por UO quedan documentadas en BACKLOG como evolución futura: añadir `unidad_organizativa_id nullable` con resolución jerárquica idéntica a `EstiloInforme`.
 
-**Tipografía transversal gestionada por el administrador del sistema.** La familia tipográfica y los tamaños base son únicos para toda la organización. No es sobreescribible por UO.
+**Prioridad de resolución de merge tags.** Tags contextuales > variables dinámicas de sistema > parámetros configurables. Los tags contextuales siempre ganan.
 
-**Firma electrónica del profesional — AutoFirma con Certificado de Empleado Público.** El informe profesional es un acto personalísimo del autor colegiado (Principio deontológico del Trabajo Social: el informe «elabora y firma con carácter exclusivo» el profesional). Un sello de órgano no es sustituto válido. No se implementa fallback de firma manuscrita para informes profesionales, ya que abriría la puerta a prácticas que diluyen la responsabilidad de autoría.
+**Campo `secciones` con cast `array`.** El modelo `PlantillaInforme` tiene `'secciones' => 'array'` en `$casts`. Sin este cast, Eloquent devuelve el campo como string JSON y el Repeater/Builder de Filament explota con `foreach() argument must be of type array|object, string given`.
 
-**PISO en v1.0 — impresión y firma manuscrita.** La doble firma (profesional + ciudadano) que requiere el PISO no tiene solución técnica satisfactoria sin dependencias externas significativas. En v1.0 se implementa el flujo de impresión + escáner + custodia del documento.
+**Versiones de `PlantillaInforme`.** No se implementa versionado. Si una plantilla cambia, los informes ya generados conservan el contenido con el que fueron creados (campo `contenido` en `Informe`).
 
-**Solo PDF como formato de custodia.** Todos los documentos se almacenan en PDF, independientemente del formato original. Documentos subidos en otros formatos se rechazan con mensaje claro.
+**Firma del ciudadano en el PISO.** En v1.0, solo firma manuscrita escaneada. Opciones futuras documentadas: Cl@ve Firma (requiere Nivel Avanzado y despliegue limitado actualmente), firma biométrica en tablet (dependencia de hardware), OTP como evidencia de consentimiento (menor fricción, no es firma cualificada).
 
-**Hash SHA-256 obligatorio.** Calculado en subida y verificable a demanda. No es firma, pero sí evidencia de integridad suficiente para el contexto.
+**Publicación en carpeta ciudadana.** Pendiente de diseño de integración con `CarpetaCiudadanaInterface` (Módulo Integraciones).
 
-### Decisiones pendientes
-
-**Firma electrónica del ciudadano en el PISO (evolución futura).** Se han evaluado tres alternativas en la fase de diseño:
-
-- *Cl@ve Firma:* solución más robusta jurídicamente. Requiere que el ciudadano tenga registro de Nivel Avanzado en Cl@ve. Cl@ve PIN/Permanente/Móvil **no constituye firma** — es solo autenticación. Cl@ve Firma tiene despliegue limitado actualmente y requiere integración con la plataforma del Estado. Candidata principal para una iteración futura una vez que el despliegue de Cl@ve Firma sea más amplio.
-- *Firma biométrica en tablet/Wacom:* captura la firma como imagen; suficiente para el contexto de servicios sociales pero introduce dependencia de hardware. Válida como complemento para ciudadanos sin Cl@ve.
-- *OTP como evidencia de consentimiento:* el ciudadano recibe un código SMS al teléfono registrado en VIDA 360 y lo introduce para confirmar el PISO. No es firma electrónica cualificada pero es evidencia documentada de consentimiento informado. La solución de menor fricción para ciudadanos sin Cl@ve.
-
-La implementación de cualquiera de estas opciones requiere decisión explícita antes de su desarrollo.
-
-**Conversión de formatos en subida.** Se ha optado por solo admitir PDF en v1.0. Si en el futuro se decide aceptar otros formatos (JPG, PNG para DNIs, DOCX para informes externos), debe definirse la estrategia de conversión automática.
-
-**Publicación en carpeta ciudadana.** Los informes firmados en estado `publicado` deberían ser accesibles desde la carpeta ciudadana del Ayuntamiento. La integración con `CarpetaCiudadanaInterface` (Módulo Integraciones) está pendiente de diseño.
-
-**Número máximo de documentos por ciudadano / cuotas de almacenamiento.** No definido. Se recomienda establecer límites operativos antes de la puesta en producción.
+**Cuotas de almacenamiento.** No definidas. Establecer límites operativos antes de producción.
 
 ---
 
 ## 6. Tests funcionales
 
-Los siguientes tests deben pasar para considerar el módulo correctamente implementado.
-Fichero: `Modules/Documentos/tests/Feature/DocumentosTest.php`.
+Fichero: `Modules/Documentos/tests/Feature/DocumentosTest.php`
 
-### Estado de ejecución — 2026-05-28
+### Estado de ejecución — mayo 2026
 
 | Área | Tests | Estado |
 |---|---|---|
-| Custodia de documentos (TF-DOC-01 a TF-DOC-05) | 5 | ✅ |
-| Estilos e herencia jerárquica (TF-DOC-06 a TF-DOC-08) | 3 | ✅ |
-| Plantillas de informe (TF-DOC-09, TF-DOC-10) | 2 | ✅ |
-| Ciclo de vida del informe (TF-DOC-11 a TF-DOC-16) | 6 | ✅ |
-| PISO firmado (TF-DOC-17, TF-DOC-18) | 2 | ✅ |
-| Configuración y visibilidad (TF-DOC-19, TF-DOC-20) | 2 | ✅ |
-| Merge tags (TF-DOC-21) | 1 | ✅ |
-| **Total** | **21** | **21 ✅** |
+| Custodia de documentos (TF-DOC-01 a 05) | 5 | ✅ |
+| Estilos e herencia jerárquica (TF-DOC-06 a 08) | 3 | ✅ |
+| Plantillas de informe (TF-DOC-09, 10) | 2 | ✅ |
+| Ciclo de vida del informe (TF-DOC-11 a 16) | 6 | ✅ |
+| PISO firmado (TF-DOC-17, 18) | 2 | ✅ |
+| Configuración y visibilidad (TF-DOC-19, 20) | 2 | ✅ |
+| Merge tags contextuales (TF-DOC-21) | 1 | ✅ |
+| Variables auxiliares (TF-DOC-22 a 25) | 4 | ✅ |
+| **Total** | **25** | **25 ✅** |
 
-### ✅ TF-DOC-01: Subida de documento externo válido
-Un profesional con acceso al expediente sube un PDF como documento externo a un ciudadano. El sistema lo almacena, calcula su hash SHA-256, lo asocia al ciudadano con el tipo indicado y lo lista en el panel de documentos. El fichero no es accesible por URL directa.
+### TF-DOC-01 a TF-DOC-20
 
-### ✅ TF-DOC-02: Rechazo de formato no PDF
-Un profesional intenta subir un fichero `.docx` como documento externo. El sistema rechaza la subida con un mensaje descriptivo. No se crea ningún registro en base de datos ni se almacena ningún fichero.
+*(Tests de la implementación inicial — sin cambios respecto a la versión anterior del documento.)*
 
-### ✅ TF-DOC-03: Acceso con URL temporal
-Un profesional solicita ver un documento. El sistema genera una URL firmada con tiempo de expiración. La URL funciona mientras no ha expirado y devuelve 403 o 404 una vez expirada. Una URL de otro documento no es válida para acceder a este.
+### ✅ TF-DOC-21 — Merge tags contextuales se sustituyen al generar contenido
 
-### ✅ TF-DOC-04: Verificación de integridad
-Dado un documento custodiado, el sistema calcula su hash en el momento de la subida. Si el fichero almacenado es alterado externamente, la verificación posterior del hash detecta la discrepancia.
+Dado un ciudadano «María López» con expediente «EXP-2026-001» y un `PaseEscala` Barthel completado con `score_total=75`; una sección `texto_libre` con `contenido_plantilla` que contiene `{{ nombre_ciudadano }}`, `{{ numero_expediente }}` y `{{ score_barthel }}`. Cuando se llama a `ResolverFuentesInforme::resolverMergeTags()`. Entonces el HTML resultante contiene «María López», «EXP-2026-001» y «75»; no contiene ningún tag sin sustituir.
 
-### ✅ TF-DOC-05: Acceso denegado a profesional sin permiso
-Un profesional sin acceso al expediente de un ciudadano intenta descargar un documento de ese ciudadano (incluso conociendo el ID del documento). El sistema devuelve 403.
+### ✅ TF-DOC-22 — Variables dinámicas de sistema se resuelven correctamente
 
-### ✅ TF-DOC-06: Creación de estilo de informe por un supervisor
-Un supervisor crea un `EstiloInforme` para su UO definiendo logotipo y nombre de unidad. El estilo queda asociado a esa UO. Un supervisor de otra UO no puede editar este estilo.
+Dado ningún parámetro en BD; HTML con `{{ fecha_hoy }}` y `{{ año_actual }}`. Cuando se llama a `resolverMergeTags()`. Entonces `{{ fecha_hoy }}` se sustituye por la fecha de hoy en formato dd/mm/aaaa; `{{ año_actual }}` por el año actual como string de 4 dígitos.
 
-### ✅ TF-DOC-07: Herencia de estilo por proximidad
-Una DG define logo y pie de página. Un centro dependiente de esa DG define solo su nombre de unidad. Al generar un informe desde el centro, el PDF resultante contiene: logo de la DG, nombre del centro, y pie de la DG. Los campos no definidos en el centro se resuelven en el nivel superior.
+### ✅ TF-DOC-23 — Parámetro configurable se resuelve en el informe
 
-### ✅ TF-DOC-08: Campo sobreescrito en UO hija no afecta a UO hermana
-Una DG define logo. El Centro A define su propio logo. El Centro B (mismo nivel que A) no define logo. Los informes del Centro A usan el logo del Centro A; los del Centro B usan el logo de la DG. Ningún cambio en el estilo del Centro A afecta al Centro B.
+Dado un `ParametroInforme` con `clave='ciudad'` y `valor='Madrid'`; HTML con `{{ ciudad }}`. Cuando se llama a `resolverMergeTags()`. Entonces `{{ ciudad }}` se sustituye por «Madrid».
 
-### ✅ TF-DOC-09: Plantilla visible para UO hija pero no para UO sin relación
-Un supervisor de distrito crea una plantilla asignada a su distrito. Un profesional de un centro de ese distrito ve la plantilla en el selector. Un profesional de un centro de otro distrito no la ve.
+### ✅ TF-DOC-24 — Tag contextual tiene prioridad sobre parámetro configurable
 
-### ✅ TF-DOC-10: Creación de plantilla de informe
-Un supervisor crea una `PlantillaInforme` en su UO con dos secciones automáticas y dos de texto libre, una de ellas obligatoria. La plantilla queda activa y aparece en el selector de los profesionales de esa UO y sus descendientes.
+Dado un `ParametroInforme` con `clave='nombre_ciudadano'` y `valor='VALOR_TRAMPA'`; ciudadano con nombre «María López». Cuando se llama a `resolverMergeTags()` con HTML que contiene `{{ nombre_ciudadano }}`. Entonces el resultado contiene «María López», no «VALOR_TRAMPA».
 
-### ✅ TF-DOC-11: Generación de informe en borrador
-Un profesional abre el asistente `NuevoInformeWizard`, selecciona una plantilla, y el sistema pre-carga las secciones automáticas con datos reales del ciudadano. El profesional completa las secciones de texto libre. El sistema genera el PDF de vista previa con el estilo resuelto para la UO del autor. El informe queda en estado `borrador`.
+### ✅ TF-DOC-25 — Clave de parámetro con formato inválido no puede guardarse
 
-### ✅ TF-DOC-12: Sección obligatoria vacía impide avance a firma
-En el asistente de creación, si una sección marcada como `obligatorio: true` está vacía, el botón de avance al paso de firma está deshabilitado y el sistema muestra un mensaje indicando qué secciones faltan.
-
-### ✅ TF-DOC-13: Firma de informe con AutoFirma
-Un profesional firma un informe en estado `borrador` mediante AutoFirma con su Certificado de Empleado Público. El sistema recibe el PDF firmado, verifica que la firma es válida, persiste el documento, actualiza el informe a estado `firmado`, registra la fecha y el método de firma. El informe en estado `firmado` no muestra opción de edición.
-
-### ✅ TF-DOC-14: Inmutabilidad del informe firmado
-Un profesional intenta editar el contenido de un informe en estado `firmado` mediante llamada directa al endpoint. El sistema devuelve error y el informe permanece inalterado.
-
-### ✅ TF-DOC-15: Anulación de informe por el autor
-El autor de un informe firmado lo anula proporcionando un motivo. El estado pasa a `anulado`, se registra la fecha y el motivo. El PDF original permanece en el sistema y sigue siendo descargable. Otro profesional no puede anular el informe del autor.
-
-### ✅ TF-DOC-16: Anulación denegada a no-autor
-Un profesional distinto del autor intenta anular un informe firmado. El sistema devuelve 403. El informe permanece en estado `firmado`.
-
-### ✅ TF-DOC-17: Subida de PISO firmado manualmente
-El profesional responsable del PISO sube el PDF escaneado con las firmas manuscritas de ambas partes. El sistema crea el `PisoFirmado`, lo asocia al `PlanDeIntervencion` correcto y lista el documento en el panel del plan. El estado del `PlanDeIntervencion` refleja que tiene conformidad registrada.
-
-### ✅ TF-DOC-18: Un PISO solo admite un registro de firma activo
-Si ya existe un `PisoFirmado` para un `PlanDeIntervencion`, el sistema no permite crear un segundo sin que el primero haya sido reemplazado explícitamente. El registro anterior queda como histórico.
-
-### ✅ TF-DOC-19: Disco de almacenamiento configurable sin cambios de código
-El disco de almacenamiento puede cambiarse en la configuración de entorno (de `local` a `s3`) sin modificar código de la aplicación. Las subidas posteriores al cambio van al nuevo disco. Las referencias de documentos existentes siguen siendo válidas si el disco original permanece accesible.
-
-### ✅ TF-DOC-20: El profesional solo ve sus propios borradores
-En el listado de informes, los borradores de otros profesionales no son visibles ni accesibles. Solo los informes firmados son visibles para cualquier profesional con acceso al expediente.
-
-### ✅ TF-DOC-21: Los merge tags se sustituyen correctamente al generar el contenido
-Dado un ciudadano y un pase de Barthel completado, cuando se llama a `ResolverFuentesInforme::resolverMergeTags()` con un HTML que contiene `{{ nombre_ciudadano }}` y `{{ score_barthel }}`, el HTML resultante contiene el nombre real del ciudadano y el score numérico, y no contiene ningún tag sin sustituir de la forma `{{ ... }}`.
+Dado ningún parámetro existente. Cuando se intenta crear un `ParametroInforme` con `clave='Mi Ciudad'` (contiene espacio). Entonces falla la validación; no se crea ningún registro.
 
 ---
 
@@ -420,7 +322,8 @@ Dado un ciudadano y un pase de Barthel completado, cuando se llama a `ResolverFu
 | Módulo | Dependencia |
 |---|---|
 | Organización | `UnidadOrganizativa` — jerarquía para resolución de estilos y alcance de plantillas |
-| Ciudadanía | `Ciudadano`, `UnidadConvivencia` — entidades documentable |
-| Intervención | `HistoriaSocial`, `PlanDeIntervencion` — entidades documentable y fuentes de datos para informes |
-| Usuarios y Permisos | `User` — autor, firmante, control de acceso; rol supervisor para gestión de estilos y plantillas |
+| Ciudadanía | `Ciudadano`, `UnidadConvivencia` — entidades documentables |
+| Intervención | `HistoriaSocial`, `PlanDeIntervencion` — fuentes de datos para informes |
+| Escalas | `PaseEscala`, `TipoEscala` — scores de valoración disponibles como merge tags |
+| Usuarios y Permisos | `User` — autor, firmante, control de acceso |
 | Integraciones | `CarpetaCiudadanaInterface` — publicación futura de informes firmados (pendiente) |
