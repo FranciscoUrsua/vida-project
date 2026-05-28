@@ -2,6 +2,19 @@
 
 ---
 
+## Documentos — Bugfix: Repeater de secciones falla al editar PlantillaInforme — 2026-05-28
+
+### Módulo afectado
+`app/Filament/Resources/PlantillaInformeResource/Pages/EditPlantillaInforme.php`
+
+### Cambios realizados
+
+- Eliminados `mutateFormDataBeforeFill` y `mutateFormDataBeforeSave` en `EditPlantillaInforme`.
+- Ambos métodos eran residuo del campo `secciones` anterior (Textarea JSON): serializaban el array a string al cargar y lo deserializaban al guardar.
+- Con el campo migrado a Repeater, el cast `'array'` del modelo gestiona la serialización directamente. Inyectar un string en el Repeater causaba `foreach() argument must be of type array|object, string given` en `Repeater.php:828`.
+
+---
+
 ## Backoffice — Reorganización de navegación en 6 grupos conceptuales — 2026-05-28
 
 ### Módulos afectados

@@ -4,7 +4,7 @@ _Actualizado: 2026-05-28_
 
 ## Tarea completada
 
-Navegación Filament reorganizada en 6 grupos conceptuales.
+Bugfix: Repeater de secciones en PlantillaInforme falla al editar. Causa: `mutateFormDataBeforeFill` residual del antiguo Textarea JSON serializaba el array a string antes de pasárselo al Repeater. Eliminados `mutateFormDataBeforeFill` y `mutateFormDataBeforeSave` en `EditPlantillaInforme`.
 27 Resources actualizados (solo `$navigationGroup`, `$navigationSort`, `$navigationLabel`).
 `$navigationParentItem` eliminado de HorarioCentro y PerfilHorario para que sean items directos.
 
