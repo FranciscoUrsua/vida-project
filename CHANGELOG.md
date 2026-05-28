@@ -2,6 +2,29 @@
 
 ---
 
+## Documentos — Merge tags en editor de plantillas — 2026-05-28
+
+### Módulos afectados
+`Modules/Documentos/app/Support/MergeTagsCatalogo` (nuevo),
+`app/Filament/Resources/PlantillaInformeResource`,
+`Modules/Documentos/app/Services/ResolverFuentesInforme`,
+`Modules/Escalas/app/Models/TipoEscala`,
+`Modules/Documentos/tests/Feature/DocumentosTest`,
+`docs/modulo-documentos.md`
+
+### Cambios realizados
+
+- `MergeTagsCatalogo` creado con 26 variables agrupadas por categoría (ciudadano, expediente, valoración, plan, profesional/centro, informe).
+- `PlantillaInformeResource`: campo `secciones` convertido de Textarea JSON a `Repeater` tipado con dos tipos de bloque (`automatico` y `texto_libre`) y visibilidad condicional. El bloque `texto_libre` incluye `RichEditor` con merge tags del catálogo.
+- `ResolverFuentesInforme`: añadidos `resolverMergeTags()`, `construirMapaValores()` y `ultimoPaseCompletado()`. Variables pendientes de módulo Intervención devuelven `'—'`.
+- `TipoEscala::codigoId()`: scope estático con caché de un día para resolver código → id sin queries repetidas.
+- Test TF-DOC-21 añadido y pasando. Total: 21/21 tests del módulo.
+
+### Variables que devuelven `'—'` (pendiente módulo Intervención)
+`numero_expediente`, `motivo_demanda`, `lista_prestaciones`, `fecha_inicio_plan`, `objetivos_plan`, `cargo_profesional`, `numero_colegiado`, `nombre_centro`, `direccion_centro`, `telefono_centro`.
+
+---
+
 ## Escalas — Bugfix drag-and-drop Builder — 2026-05-28
 
 ### Módulos afectados

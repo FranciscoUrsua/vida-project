@@ -286,6 +286,20 @@ porque esa UI no existe aún. Al implementar cada vista, verificar que se usan l
 
 ---
 
+---
+
+**Merge tags — variables pendientes de módulo Intervención** — 2026-05-28
+`Documentos`
+Las siguientes variables del `MergeTagsCatalogo` devuelven `'—'` porque dependen de
+relaciones/modelos del módulo Intervención aún no disponibles:
+- `numero_expediente`, `motivo_demanda` — campo en HistoriaSocial stub (pendiente de implementación completa)
+- `lista_prestaciones`, `fecha_inicio_plan`, `objetivos_plan` — requieren modelo `PlanDeIntervencion`
+- `cargo_profesional`, `numero_colegiado` — requieren campos extendidos en Profesional
+- `nombre_centro`, `direccion_centro`, `telefono_centro` — requieren relación `User→Centro` en módulo Usuarios
+Al implementar cada módulo, completar `ResolverFuentesInforme::construirMapaValores()` con el valor real.
+
+---
+
 ## Convenciones de este fichero
 
 - Añadir entradas con fecha en formato `YYYY-MM-DD`.

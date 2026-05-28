@@ -20,9 +20,13 @@ use Modules\Documentos\Models\Informe;
 use Modules\Documentos\Models\PisoFirmado;
 use Modules\Documentos\Models\PlantillaInforme;
 use Modules\Documentos\Services\ResolverEstiloInforme;
+use Modules\Documentos\Services\ResolverFuentesInforme;
 use Modules\Documentos\Services\ServicioAlmacenamiento;
 use Modules\Documentos\Services\ServicioFirmaInforme;
 use Modules\Documentos\Services\ServicioGeneracionPDF;
+use Modules\Escalas\Enums\EstadoPase;
+use Modules\Escalas\Models\PaseEscala;
+use Modules\Escalas\Models\TipoEscala;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -814,6 +818,63 @@ class DocumentosTest extends TestCase
 
         // El fichero debe existir en el disco alternativo, no en el local
         Storage::disk($discoAlternativo)->assertExists($documento->ruta_almacenamiento);
+    }
+
+    // =========================================================================
+    // TF-DOC-21: Los merge tags se sustituyen correctamente al generar el contenido
+    // =========================================================================
+
+    #[Test]
+    public function test_tf_doc_21_merge_tags_se_sustituyen_en_contenido_plantilla(): void
+    {
+        $uo = $this->crearUo('CSS Test Merge Tags');
+
+        // Ciudadano con nombre conocido
+        $ciudadano = \App\Models\Ciudadano::factory()->create([
+            'nombre'    => 'María',
+            'apellido1' => 'López',
+            'apellido2' => null,
+        ]);
+
+        // Historia Social vinculada al ciudadano
+        $historia = \App\Models\HistoriaSocial::create([
+            'ciudadano_id'           => $ciudadano->id,
+            'unidad_organizativa_id' => $uo->id,
+            'ciudadano_protegido'    => false,
+            'estado'                 => 'abierta',
+        ]);
+
+        // TipoEscala Barthel con schema mínimo válido
+        $barthel = TipoEscala::factory()->create([
+            'codigo' => 'barthel',
+            'activa' => true,
+        ]);
+
+        $profesional = $this->crearUser();
+
+        // Pase completado de Barthel con score conocido
+        PaseEscala::create([
+            'tipo_escala_id'        => $barthel->id,
+            'historia_id'           => $historia->id,
+            'profesional_id'        => $profesional->id,
+            'fecha'                 => now()->toDateString(),
+            'estado'                => EstadoPase::Completado->value,
+            'respuestas'            => [],
+            'scores_seccion'        => [],
+            'score_total'           => 75,
+            'interpretacion_codigo' => 'moderada',
+        ]);
+
+        $html = '<p>D./Dña. {{ nombre_ciudadano }}, Barthel: {{ score_barthel }}.</p>';
+
+        $servicio   = app(ResolverFuentesInforme::class);
+        $resultado  = $servicio->resolverMergeTags($html, $ciudadano->id, $profesional->id, now());
+
+        $this->assertStringContainsString('María López', $resultado);
+        $this->assertStringContainsString('75', $resultado);
+
+        // Ningún tag sin sustituir debe quedar en el HTML
+        $this->assertStringNotContainsString('{{', $resultado, 'El HTML no debe contener tags sin sustituir.');
     }
 
     // =========================================================================

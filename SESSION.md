@@ -4,10 +4,17 @@ _Actualizado: 2026-05-28_
 
 ## Tarea completada
 
-Escalas — Bugfix TypeError en Builder tras drag-and-drop.
-`afterStateHydrated` y `dehydrateStateUsing` en `TipoEscalaResource` reforzados con guardias `is_array()` para descartar valores enteros que Filament inyecta en el estado post-drag. 18 tests pasan.
+Documentos — Merge tags en editor de plantillas de informe.
+`PlantillaInformeResource` convertido a Repeater tipado. `RichEditor` con `mergeTags()` añadido a secciones `texto_libre`. `MergeTagsCatalogo` con 26 variables. `ResolverFuentesInforme::resolverMergeTags()` implementado. `TipoEscala::codigoId()` añadido. 21/21 tests pasando.
 
 ## Estado actual
+
+- **Módulo Documentos — merge tags en plantillas — completo:**
+  - `MergeTagsCatalogo`: 26 variables (ciudadano, expediente, valoración, plan, profesional, informe).
+  - `PlantillaInformeResource`: Repeater tipado con bloques `automatico` / `texto_libre`; `RichEditor` con merge tags en `texto_libre`.
+  - `ResolverFuentesInforme::resolverMergeTags()`: sustitución `{{ clave }}` en HTML; variables de Intervención devuelven `'—'` hasta que el módulo esté disponible.
+  - `TipoEscala::codigoId()`: lookup código → id con caché de un día.
+  - 21/21 tests del módulo Documentos pasan; 18/18 de Escalas pasan.
 
 - **Módulo Escalas fase 1 + UX builder — completo:**
   - `TipoEscalaResource` pestaña «Estructura» usa `Builder` nativo con bloque `seccion`.

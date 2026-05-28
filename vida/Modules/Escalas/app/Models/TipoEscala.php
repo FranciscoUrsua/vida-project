@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 use Modules\Escalas\Database\Factories\TipoEscalaFactory;
 
 /**
@@ -212,6 +213,24 @@ class TipoEscala extends Model
                 );
             }
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Métodos estáticos
+    // -------------------------------------------------------------------------
+
+    /**
+     * Devuelve el id del TipoEscala con el código dado, desde caché.
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
+    public static function codigoId(string $codigo): int
+    {
+        return Cache::remember(
+            "tipo_escala_id_{$codigo}",
+            now()->addDay(),
+            fn () => static::where('codigo', $codigo)->firstOrFail()->id
+        );
     }
 
     // -------------------------------------------------------------------------

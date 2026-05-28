@@ -6,12 +6,15 @@ use App\Filament\Resources\PlantillaInformeResource\Pages;
 use App\Models\UnidadOrganizativa;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -19,6 +22,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Documentos\Enums\TipoInforme;
 use Modules\Documentos\Models\PlantillaInforme;
+use Modules\Documentos\Support\MergeTagsCatalogo;
 use App\Filament\Concerns\AutorizaGestion;
 
 /**
@@ -86,14 +90,74 @@ class PlantillaInformeResource extends Resource
 
             Section::make('Secciones del informe')
                 ->schema([
-                    Textarea::make('secciones')
-                        ->label('Secciones (JSON)')
-                        ->rows(12)
-                        ->required()
-                        ->helperText(
-                            'Array JSON de secciones. Tipos: "automatico" (con "fuente") y "texto_libre" (con "instrucciones" y "obligatorio"). ' .
-                            'Ejemplo: [{"id":"valoracion","titulo":"Valoración","tipo":"texto_libre","instrucciones":"...","obligatorio":true}]'
-                        ),
+                    Repeater::make('secciones')
+                        ->label('Secciones')
+                        ->schema([
+                            TextInput::make('id')
+                                ->label('Identificador')
+                                ->required()
+                                ->placeholder('Ej: situacion_actual')
+                                ->helperText('Identificador único de la sección. Sin espacios ni acentos.'),
+
+                            TextInput::make('titulo')
+                                ->label('Título')
+                                ->required()
+                                ->placeholder('Ej: Situación actual'),
+
+                            Select::make('tipo')
+                                ->label('Tipo de sección')
+                                ->options([
+                                    'automatico'  => 'Automática (datos de Historia Social)',
+                                    'texto_libre' => 'Texto libre (redacción del profesional)',
+                                ])
+                                ->required()
+                                ->live(),
+
+                            TextInput::make('fuente')
+                                ->label('Fuente de datos')
+                                ->placeholder('Ej: ciudadano.datos_basicos')
+                                ->helperText('Referencia de datos a pre-cargar automáticamente.')
+                                ->visible(fn (Get $get): bool => $get('tipo') === 'automatico'),
+
+                            Toggle::make('editable')
+                                ->label('Editable por el profesional')
+                                ->default(false)
+                                ->visible(fn (Get $get): bool => $get('tipo') === 'automatico'),
+
+                            Textarea::make('instrucciones')
+                                ->label('Instrucciones para el profesional')
+                                ->rows(3)
+                                ->nullable()
+                                ->helperText('Texto de ayuda que verá el profesional al redactar esta sección.')
+                                ->visible(fn (Get $get): bool => $get('tipo') === 'texto_libre'),
+
+                            RichEditor::make('contenido_plantilla')
+                                ->label('Contenido base de la sección')
+                                ->hint('Escribe {{ para insertar una variable dinámica, o usa el botón «Insertar variable» de la barra de herramientas.')
+                                ->hintIcon('heroicon-o-information-circle')
+                                ->mergeTags(MergeTagsCatalogo::todos())
+                                ->toolbarButtons([
+                                    ['bold', 'italic', 'underline', 'strike'],
+                                    ['h2', 'h3'],
+                                    ['bulletList', 'orderedList', 'blockquote'],
+                                    ['undo', 'redo'],
+                                ])
+                                ->nullable()
+                                ->columnSpanFull()
+                                ->visible(fn (Get $get): bool => $get('tipo') === 'texto_libre'),
+
+                            Toggle::make('obligatorio')
+                                ->label('Sección obligatoria')
+                                ->default(true)
+                                ->helperText('El profesional no podrá firmar el informe si esta sección está vacía.')
+                                ->visible(fn (Get $get): bool => $get('tipo') === 'texto_libre'),
+                        ])
+                        ->columns(2)
+                        ->reorderableWithDragAndDrop()
+                        ->collapsible()
+                        ->cloneable()
+                        ->addActionLabel('Añadir sección')
+                        ->required(),
                 ]),
 
             Section::make('Estado')

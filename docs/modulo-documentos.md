@@ -137,6 +137,7 @@ Las plantillas tienen **alcance jerárquico**: una plantilla creada en una UO es
     "titulo": "Situación actual",
     "tipo": "texto_libre",
     "instrucciones": "Describa la situación actual de la persona...",
+    "contenido_plantilla": "<p>En relación a {{ nombre_ciudadano }}, con expediente n.º {{ numero_expediente }}...</p>",
     "obligatorio": true
   },
   {
@@ -144,6 +145,7 @@ Las plantillas tienen **alcance jerárquico**: una plantilla creada en una UO es
     "titulo": "Valoración profesional",
     "tipo": "texto_libre",
     "instrucciones": "Incluya el diagnóstico social y la valoración técnica.",
+    "contenido_plantilla": null,
     "obligatorio": true
   },
   {
@@ -156,7 +158,9 @@ Las plantillas tienen **alcance jerárquico**: una plantilla creada en una UO es
 ]
 ```
 
-Los tipos de sección son `automatico` (datos pre-cargados desde la Historia Social, no editables por el profesional) y `texto_libre` (campo redactable).
+Los tipos de sección son `automatico` (datos pre-cargados desde la Historia Social, no editables por el profesional) y `texto_libre` (campo redactable). Las secciones de tipo `texto_libre` pueden incluir el campo opcional `contenido_plantilla` con HTML y merge tags (sintaxis `{{ clave }}`). El campo es nullable — si se omite, el profesional redacta desde cero al generar el informe.
+
+**Merge tags en plantillas de texto libre.** Las secciones de tipo `texto_libre` pueden incorporar variables dinámicas mediante merge tags (sintaxis `{{ clave }}`). El catálogo de variables disponibles está centralizado en `Modules\Documentos\Support\MergeTagsCatalogo`. La sustitución se realiza en `ResolverFuentesInforme::resolverMergeTags()` al generar el PDF. Las variables de escalas de valoración (Barthel, Pfeiffer, Lawton-Brody) se resuelven buscando el pase completado más reciente de cada instrumento en la Historia Social del ciudadano.
 
 **Relaciones:**
 
@@ -333,7 +337,7 @@ La implementación de cualquiera de estas opciones requiere decisión explícita
 Los siguientes tests deben pasar para considerar el módulo correctamente implementado.
 Fichero: `Modules/Documentos/tests/Feature/DocumentosTest.php`.
 
-### Estado de ejecución — 2026-05-18
+### Estado de ejecución — 2026-05-28
 
 | Área | Tests | Estado |
 |---|---|---|
@@ -343,7 +347,8 @@ Fichero: `Modules/Documentos/tests/Feature/DocumentosTest.php`.
 | Ciclo de vida del informe (TF-DOC-11 a TF-DOC-16) | 6 | ✅ |
 | PISO firmado (TF-DOC-17, TF-DOC-18) | 2 | ✅ |
 | Configuración y visibilidad (TF-DOC-19, TF-DOC-20) | 2 | ✅ |
-| **Total** | **20** | **20 ✅** |
+| Merge tags (TF-DOC-21) | 1 | ✅ |
+| **Total** | **21** | **21 ✅** |
 
 ### ✅ TF-DOC-01: Subida de documento externo válido
 Un profesional con acceso al expediente sube un PDF como documento externo a un ciudadano. El sistema lo almacena, calcula su hash SHA-256, lo asocia al ciudadano con el tipo indicado y lo lista en el panel de documentos. El fichero no es accesible por URL directa.
@@ -404,6 +409,9 @@ El disco de almacenamiento puede cambiarse en la configuración de entorno (de `
 
 ### ✅ TF-DOC-20: El profesional solo ve sus propios borradores
 En el listado de informes, los borradores de otros profesionales no son visibles ni accesibles. Solo los informes firmados son visibles para cualquier profesional con acceso al expediente.
+
+### ✅ TF-DOC-21: Los merge tags se sustituyen correctamente al generar el contenido
+Dado un ciudadano y un pase de Barthel completado, cuando se llama a `ResolverFuentesInforme::resolverMergeTags()` con un HTML que contiene `{{ nombre_ciudadano }}` y `{{ score_barthel }}`, el HTML resultante contiene el nombre real del ciudadano y el score numérico, y no contiene ningún tag sin sustituir de la forma `{{ ... }}`.
 
 ---
 
