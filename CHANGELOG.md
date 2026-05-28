@@ -2,6 +2,24 @@
 
 ---
 
+## Escalas — Bugfix drag-and-drop Builder — 2026-05-28
+
+### Módulos afectados
+`app/Filament/Resources/TipoEscalaResource` (único fichero modificado)
+
+### Cambios realizados
+
+- Bugfix: `TipoEscalaResource` — TypeError al expandir bloque Builder tras drag-and-drop.
+  Causa: estado post-drag contenía valores no-array (índices enteros). Corrección: guardias `is_array()`
+  en `afterStateHydrated` y `dehydrateStateUsing`.
+- `afterStateHydrated` ahora acepta `mixed $state` y re-normaliza si Filament entrega estado plano
+  post-drag; si ya está en formato Builder no transforma.
+- `dehydrateStateUsing` ahora acepta `mixed $state` y descarta con `is_array($block)` cualquier valor
+  no-array antes de acceder a `['type']`; también descarta bloques con `$block['data']` no-array.
+- 18 tests de EscalaTest siguen pasando.
+
+---
+
 ## Escalas — UX diseñador de secciones — 2026-05-27
 
 ### Módulos afectados

@@ -1,11 +1,11 @@
 # SESSION — VIDA 360
 
-_Actualizado: 2026-05-27_
+_Actualizado: 2026-05-28_
 
 ## Tarea completada
 
-Escalas — UX diseñador de secciones mejorada con Builder nativo Filament.
-Pestaña «Estructura» de `TipoEscalaResource` refactorizada de `Repeater` triple anidado a `Builder` con bloque `seccion` colapsable, labels dinámicos, hydration/dehydration correctos y condición de inmutabilidad basada en pases existentes.
+Escalas — Bugfix TypeError en Builder tras drag-and-drop.
+`afterStateHydrated` y `dehydrateStateUsing` en `TipoEscalaResource` reforzados con guardias `is_array()` para descartar valores enteros que Filament inyecta en el estado post-drag. 18 tests pasan.
 
 ## Estado actual
 
