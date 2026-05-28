@@ -93,6 +93,11 @@ class PlantillaInformeResource extends Resource
                 ->schema([
                     Repeater::make('secciones')
                         ->label('Secciones')
+                        ->itemLabel(fn (array $state): ?string =>
+                            filled($state['titulo'] ?? null)
+                                ? $state['titulo']
+                                : 'Nueva sección'
+                        )
                         ->schema([
                             TextInput::make('id')
                                 ->label('Identificador')
@@ -103,7 +108,8 @@ class PlantillaInformeResource extends Resource
                             TextInput::make('titulo')
                                 ->label('Título')
                                 ->required()
-                                ->placeholder('Ej: Situación actual'),
+                                ->placeholder('Ej: Situación actual')
+                                ->live(onBlur: true),
 
                             Select::make('tipo')
                                 ->label('Tipo de sección')
@@ -114,10 +120,25 @@ class PlantillaInformeResource extends Resource
                                 ->required()
                                 ->live(),
 
-                            TextInput::make('fuente')
+                            Select::make('fuente')
                                 ->label('Fuente de datos')
-                                ->placeholder('Ej: ciudadano.datos_basicos')
-                                ->helperText('Referencia de datos a pre-cargar automáticamente.')
+                                ->required()
+                                ->options([
+                                    'ciudadano.datos_basicos'                => 'Ciudadano — Datos básicos (nombre, NIF, fecha nacimiento, dirección)',
+                                    'ciudadano.datos_contacto'               => 'Ciudadano — Datos de contacto (teléfono, email)',
+                                    'ciudadano.unidad_convivencia'           => 'Ciudadano — Unidad de convivencia',
+                                    'historia_social.resumen'                => 'Historia Social — Resumen y motivo de apertura',
+                                    'historia_social.prestaciones_activas'   => 'Historia Social — Prestaciones activas del plan vigente',
+                                    'historia_social.prestaciones_historico' => 'Historia Social — Historial completo de prestaciones',
+                                    'historia_social.plan_activo'            => 'Historia Social — Plan de intervención activo (objetivos)',
+                                    'escalas.barthel_ultimo'                 => 'Escalas — Último pase Barthel (score e interpretación)',
+                                    'escalas.pfeiffer_ultimo'                => 'Escalas — Último pase Pfeiffer SPMSQ (score e interpretación)',
+                                    'escalas.lawton_ultimo'                  => 'Escalas — Último pase Lawton-Brody (score e interpretación)',
+                                    'escalas.historico_barthel'              => 'Escalas — Histórico de pases Barthel',
+                                    'profesional.datos'                      => 'Profesional — Datos del autor (nombre, cargo, colegiado, centro)',
+                                ])
+                                ->searchable()
+                                ->native(false)
                                 ->visible(fn (Get $get): bool => $get('tipo') === 'automatico'),
 
                             Toggle::make('editable')
