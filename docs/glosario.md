@@ -14,7 +14,8 @@
 
 **Definición de referencia:** Toda persona con vecindad administrativa en la Comunidad de Madrid, o en las circunstancias específicas recogidas en el Art. 4 de la Ley 12/2022 (españoles en el exterior, solicitantes de asilo, menores en tránsito, personas en urgencia social). En el sistema CIVIS del Ayuntamiento de Madrid se denomina *usuario/a del Sistema Público de Servicios Sociales* y dispone de un código NI-HSU-CM.
 
-**Implicaciones para VIDA:** Es la entidad central del sistema. Toda interacción, Historia Social, prestación o acto profesional está vinculada a un ciudadano. El ciudadano es la unidad de continuidad, no el caso ni el profesional.
+**Implicaciones para VIDA:** Es la entidad central del sistema. Toda interacción, Historia Social, prestación o acto profesional está vinculada a un ciudadano. Toda persona que interactúa con VIDA 360, independientemente de la intensidad de esa interacción. El registro genera un identificador único permanente. Las capas de datos (situación social, historia social) se activan por decisión profesional
+según el contexto de alta; no son consecuencia automática del registro.
 
 **Decisiones de modelado:**
 - Entidad `Ciudadano` con identificador único interno, independiente del documento de identidad.
@@ -93,15 +94,37 @@
 
 ### Ficha Social
 
-**Definición de referencia:** Registro de datos individualizado del ciudadano, con código de identificación municipal y NI-HSU-CM. Recoge: datos de identidad, domicilio y contacto; código de identificación; fechas de apertura, actualización y cierre; centro de servicios sociales de referencia; profesionales intervinientes; motivos de consulta; datos familiares, sanitarios, económicos, laborales, educativos; intervenciones anteriores; datos de la unidad de convivencia y red de apoyo (Art. 4, Decreto 51/2023).
+**⚠️ Término con dos acepciones en VIDA 360 — leer con atención.**
 
-**Implicaciones para VIDA:** La Ficha Social es distinta de la Historia Social. La Ficha recoge los datos del ciudadano; la Historia recoge el proceso de intervención. Todo ciudadano registrado tiene Ficha; no todo ciudadano tiene Historia abierta.
+---
+
+**Acepción 1 — Término legal (Decreto 51/2023):**
+Documento que reúne los datos de identidad, contacto y situación social del ciudadano. En VIDA, esta acepción corresponde a la combinación de la Capa 1 (tabla `ciudadanos`) y la Capa 2 (tabla `ciudadano_fichas`). La "Ficha Social" en sentido legal no tiene entidad propia en el modelo — es una vista conceptual sobre dos capas de datos. Se usa este término cuando se habla del sistema en términos
+legales o en comunicación con la Comunidad de Madrid (HSU-CM).
+
+> **Nota:** La definición del Decreto 51/2023 incluye tanto datos de identidad como datos socioeconómicos y familiares. En VIDA estos están en capas separadas con distintos niveles de acceso, lo que es más restrictivo y más correcto que tratar ambas cosas como un bloque único.
+
+---
+
+**Acepción 2 — Instrumento de valoración (módulo Intervención):**
+Formulario configurable que el TSR cumplimenta durante una valoración estructurada. En el código se denomina `Ficha` y `TipoFicha`, viven en el módulo Intervención y son completamente distintas de los datos de identidad del ciudadano. Su resultado son los registros de **situación social** (Capa 2).
+
+---
+
+**Regla para evitar confusión en conversaciones técnicas:**
+
+| Concepto | Término correcto en VIDA | Nunca llamar |
+|---|---|---|
+| Nombre, domicilio, teléfono del ciudadano | "datos de identificación" o simplemente el nombre del campo | "ficha", "ficha del ciudadano" |
+| Capa 2 (situación socioeconómica versionada) | "situación social" | "ficha social" (salvo contexto legal) |
+| Formulario de valoración del TSR | "ficha de valoración" o "`Ficha` del módulo Intervención" | confundir con los datos de identidad |
+| Término legal del Decreto 51/2023 | "Ficha Social (legal)" | aplicar como nombre interno de ninguna clase o tabla |
 
 **Decisiones de modelado:**
-- La `FichaSocial` es la capa de datos del `Ciudadano` en el contexto de servicios sociales: datos socioeconómicos, familiares, sanitarios relevantes para la intervención.
-- Los campos de la ficha son dinámicos y configurables (principio 4.11): distintos tipos de ficha (económica, familiar, de vivienda, de salud) con sus campos propios.
+- `CiudadanoSituacion` (tabla `ciudadano_fichas`) — situación social versionada. Ver `docs/modulo-ciudadania.md`, sección 3.5.
+- Los campos de situación son dinámicos y configurables (principio 4.11).
 - Campos sensibles cifrados en reposo (principio 4.10).
-
+- **No todo ciudadano registrado tiene situación social.** Solo existe cuando hay o ha habido un proceso de intervención activo.
 ---
 
 ### Apunte (acto profesional)
