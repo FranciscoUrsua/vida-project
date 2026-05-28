@@ -89,6 +89,7 @@ class PlantillaInformeResource extends Resource
                 ]),
 
             Section::make('Secciones del informe')
+                ->columnSpanFull()
                 ->schema([
                     Repeater::make('secciones')
                         ->label('Secciones')
@@ -152,7 +153,7 @@ class PlantillaInformeResource extends Resource
                                 ->helperText('El profesional no podrá firmar el informe si esta sección está vacía.')
                                 ->visible(fn (Get $get): bool => $get('tipo') === 'texto_libre'),
                         ])
-                        ->columns(2)
+                        ->columns(1)
                         ->reorderableWithDragAndDrop()
                         ->collapsible()
                         ->cloneable()
