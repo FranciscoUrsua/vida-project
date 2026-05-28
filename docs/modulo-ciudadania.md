@@ -1,9 +1,9 @@
 # Módulo: Ciudadanía — VIDA 360
 
-> Este documento describe el modelo conceptual y las decisiones de implementación del módulo Ciudadanía de VIDA 360. El ciudadano es la entidad central de todo el sistema: la unidad de continuidad alrededor de la cual se organizan historias, fichas, planes, prestaciones y actos profesionales.
->
-> Debe leerse junto a `docs/principios.md`, `docs/glosario.md` y `docs/modulo-integraciones.md`.
+Ciudadano en VIDA 360 es toda persona que interactúa con el sistema, independientemente de la intensidad de esa interacción. Incluye desde quien se inscribe puntualmente en una actividad de un centro hasta quien tiene un expediente de intervención social activo con TSR asignado. El registro en VIDA genera siempre un identificador único interno, pero no implica necesariamente la apertura de una
+situación social ni de una Historia Social — esas capas se activan por decisión profesional explícita en contextos predefinidos.
 
+El ciudadano es la unidad de continuidad del sistema: una misma persona puede ser primero asistente ocasional a actividades de un Centro, después beneficiaria de prestaciones y más delante titular de un expediente de intervención activo. El identificador nunca cambia; las capas de datos que se activan sobre él sí pueden cambiar a lo largo del tiempo.
 ---
 
 ## 1. Principios rectores del módulo
@@ -20,18 +20,51 @@
 
 ---
 
+## 1.1 Espectro de registro: del ciudadano ocasional al expediente activo
+
+No todo ciudadano registrado en VIDA tiene el mismo perfil de datos ni el mismo recorrido. El campo `contexto_alta` determina qué datos son obligatorios en el momento del registro, qué capas se activan automáticamente y qué operaciones son posibles sobre ese registro.
+
+Se definen los siguientes contextos de alta, configurables desde el backoffice:
+
+| Contexto | Quién lo usa | Datos mínimos requeridos | Situación social (Capa 2) | Historia social (Capa 3) |
+|---|---|---|---|---|
+| `actividad_centro` | Supervisor, TSR, auxiliar | Nombre + contacto básico | No se crea | No se crea |
+| `representante` | TSR, tramitación | Nombre + documento | No se crea | No se crea |
+| `asp_primera_atencion` | TSR, tramitación | Nombre + domicilio + contacto | Se crea al abrir Historia | Se crea por el TSR |
+| `equipo_calle_psh` | TSR de calle | Alias + coordenadas | Se crea al abrir Historia | Se crea por el TSR |
+| `circuito_vvg` | TSR, tramitación VVG | Nombre + contacto seguro | Se crea al abrir Historia | Se crea por el TSR |
+
+**Reglas estructurales:**
+
+- El registro de un ciudadano **nunca abre una Historia Social de forma automática**. La apertura de Historia es siempre un acto profesional explícito del TSR, en los contextos que lo permiten (`asp_primera_atencion`, `equipo_calle_psh`, `circuito_vvg`).
+- Un ciudadano registrado en contexto `actividad_centro` **computa en las estadísticas de personas atendidas** del centro, aunque no tenga Historia Social.
+- Su actividad en el sistema (inscripciones, asistencias) queda registrada y es accesible si posteriormente se abre una Historia Social, aportando contexto longitudinal al profesional.
+- El caso paradigmático es el de una persona mayor que accede a un Centro de Mayores para actividades (contexto `actividad_centro`, sin Historia), y que con el tiempo puede desarrollar necesidades de dependencia que justifican la apertura de Historia. El identificador de ciudadano es el mismo en todo momento; la actividad acumulada —incluyendo inscripciones y asistencias anteriores— es visible para el TSR cuando se abre la Historia.
+
+**Sobre la Capa 2:** la situación social no se crea en el momento del alta en todos los contextos. En `actividad_centro` y `representante`, el ciudadano existe en la Capa 1 (identificación y contacto) sin Capa 2. La situación social se crea cuando un TSR inicia el proceso de valoración, típicamente en el contexto de apertura de Historia.
+
+---
+
 ## 2. Capas de datos del ciudadano
 
 Los datos del ciudadano se organizan en tres capas con distintos niveles de acceso y distintas entidades en el modelo:
 
-**Capa 1 — Identificación y contacto (cabecera)**
+### Capa 1 — Identificación y contacto (cabecera)
 Nombre, fecha de nacimiento, sexo, domicilio, teléfono, email, documentos de identidad. Accesible para un conjunto amplio de roles: `tramitacion`, `consulta_basica`, `intervencion` y superiores. Es la capa que permite citar a una persona, verificar su identidad o localizarla.
 
-**Capa 2 — Ficha social**
-Situación familiar, económica, laboral, de vivienda, de salud relevante para la intervención. Las fichas reflejan situaciones: el estado del mundo en un momento dado. Son versionadas: cada cambio de situación genera una nueva versión con fecha de inicio, y la anterior recibe fecha de fin. Accesible para roles de intervención y superiores.
+### Capa 2 — Situación social
+Situación familiar, económica, laboral, de vivienda, de salud relevante para la intervención. La situación social refleja el estado del mundo en un momento dado. Es versionada: cada cambio genera una nueva versión con fecha de inicio, y la anterior recibe fecha de fin. 
 
-**Capa 3 — Historia social**
+**No existe para todos los ciudadanos registrados:** solo se crea cuando un TSR inicia un proceso de intervención. Accesible para roles de intervención y superiores.
+
+> **Nota terminológica:** esta capa no es "la ficha del ciudadano". Los datos de identificación y contacto (nombre, domicilio, teléfono) viven en la Capa 1, en
+> la tabla `ciudadanos`, y no tienen nombre de capa propio en la UI — se muestran directamente sin etiqueta. El término "Ficha Social" se reserva para su acepción
+> legal (Decreto 51/2023); ver `docs/glosario.md`.
+
+### Capa 3 — Historia social
 El conjunto de sucesos: entrevistas, valoraciones, apuntes, planes, seguimientos, derivaciones. La historia recoge eventos, no estados. Con las restricciones adicionales de colectivos especialmente protegidos definidas en `docs/modulo-usuarios-permisos.md`. Accesible para roles de intervención y superiores, con las restricciones de colectivos protegidos.
+
+**Sobre la activación de capas según el contexto de alta:** No todos los ciudadanos registrados tienen las tres capas activas. La Capa 1 (identificación) existe para cualquier ciudadano desde el momento del registro. La Capa 2 (situación social) y la Capa 3 (historia social) solo se crean en contextos de intervención activa. Ver sección 1.1 para los contextos de alta y sus implicaciones.
 
 ---
 
@@ -56,7 +89,7 @@ ciudadanos
 - telefono (string encriptado nullable)
 - email (string encriptado nullable)
 - nivel_identificacion (string: identificado / probable / no_identificado)
-- contexto_alta (string — vincula al contexto que determinó los requisitos de alta)
+- contexto_alta (string — contexto en el que se creó el registro; determina los datos mínimos requeridos y las capas activables. Valores predefinidos: `actividad_centro` / `representante` / `asp_primera_atencion` / `equipo_calle_psh` / `circuito_vvg`. Catálogo ampliable desde el backoffice)
 - activo (boolean default true)
 - timestamps
 - softDeletes
@@ -89,7 +122,6 @@ El catálogo de tipos de identificador es configurable desde el backoffice. Un N
 El historial completo de documentos de identidad queda preservado: cuando alguien pasa de pasaporte a NIE y después a DNI, los tres registros permanecen con sus fechas de vigencia.
 
 ### 3.3 Relaciones entre ciudadanos
-
 
 ```
 ciudadano_relaciones
@@ -154,9 +186,11 @@ Un ciudadano puede pertenecer a más de una unidad de convivencia a lo largo del
 
 Los miembros importados desde el padrón se marcan con `fuente: padron` y `verificado: false` hasta confirmación del profesional.
 
-### 3.5 Fichas sociales (Capa 2)
+### 3.5 Situación social (Capa 2)
 
-Las fichas reflejan situaciones. Son versionadas: cada cambio genera una nueva versión.
+Los registros de situación social reflejan el estado del mundo en un momento dado. Son versionados: cada cambio genera una nueva versión.
+
+> **Clase PHP:** `CiudadanoSituacion` (renombrada desde `CiudadanoFicha`). La tabla en base de datos mantiene el nombre `ciudadano_fichas` por compatibilidad con migraciones existentes, pero toda referencia en código nuevo debe usar `CiudadanoSituacion`.
 
 ```
 ciudadano_fichas
@@ -324,7 +358,7 @@ Los campos cifrados no son buscables directamente. Las búsquedas de duplicados 
 
 ### 7.2 Versionado
 
-El versionado de fichas sigue el patrón de filas con `fecha_inicio` / `fecha_fin`. La versión activa es la que tiene `fecha_fin` null. Las consultas históricas filtran por fecha.
+El versionado de la situación social sigue el patrón de filas con `fecha_inicio` /`fecha_fin`. La versión activa es la que tiene `fecha_fin` null. Las consultas históricas filtran por fecha.
 
 Para los datos de la tabla `ciudadanos` (Capa 1), los cambios se registran en una tabla de auditoría `ciudadanos_auditoria` con el valor anterior, el nuevo valor, el tipo de cambio (modificacion / correccion), el usuario y el timestamp.
 
@@ -343,7 +377,7 @@ En entornos de desarrollo y pruebas, los adaptadores mock devuelven datos fictic
 - `Modules\Ciudadania\Models\CiudadanoRelacion`
 - `Modules\Ciudadania\Models\UnidadConvivencia`
 - `Modules\Ciudadania\Models\UnidadConvivenciaMiembro`
-- `Modules\Ciudadania\Models\CiudadanoFicha`
+- `Modules\Ciudadania\Models\CiudadanoSituacion`  ← renombrada desde CiudadanoFicha
 - `Modules\Ciudadania\Services\NormalizadorCiudadano`
 - `Modules\Ciudadania\Services\MotorMatching`
 - `Modules\Ciudadania\Services\FusionCiudadanos`
@@ -354,7 +388,7 @@ En entornos de desarrollo y pruebas, los adaptadores mock devuelven datos fictic
 
 ## 8. Decisiones pendientes
 
-- **Esquemas de fichas por tipo:** definir la estructura de datos de cada tipo de ficha (económica, familiar, de vivienda, de salud, laboral) antes de implementar el módulo de intervención.
+- **Esquemas de situación social por tipo:** definir la estructura de datos de cada tipo de situación (económica, familiar, de vivienda, de salud, laboral) antes de implementar el módulo de intervención.
 - **Umbrales del motor de matching:** calibrar los umbrales de score una vez disponibles datos reales de prueba.
 - **Reversión de fusiones:** definir el proceso de reversión de una fusión errónea y quién puede autorizarla.
 - **Acceso ciudadano a sus propios datos:** cuando se implemente la carpeta ciudadana y el rol 0, revisar qué datos de Capa 1 y Capa 2 son visibles para el propio ciudadano.
