@@ -28,7 +28,7 @@ class LogAlertasResource extends Resource
     protected static ?string $navigationLabel = 'Log de alertas';
     protected static ?string $modelLabel = 'Alerta';
     protected static ?string $pluralModelLabel = 'Log de alertas';
-    protected static ?int $navigationSort = 70;
+    protected static ?int $navigationSort = 5;
 
     public static function table(Table $table): Table
     {

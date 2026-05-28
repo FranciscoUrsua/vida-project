@@ -32,7 +32,7 @@ class ConfiguracionHorarioLaboralResource extends Resource
     protected static ?string $navigationLabel = 'Horario laboral';
     protected static ?string $modelLabel = 'Configuración de horario laboral';
     protected static ?string $pluralModelLabel = 'Configuración de horario laboral';
-    protected static ?int $navigationSort = 20;
+    protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema
     {

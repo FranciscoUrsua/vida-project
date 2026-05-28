@@ -32,11 +32,11 @@ class ConfiguracionRolResource extends Resource
     protected static ?string $model = ConfiguracionRol::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
-    protected static ?string $navigationLabel = 'Supervisión de roles';
-    protected static string|\UnitEnum|null $navigationGroup = 'Organización';
+    protected static ?string $navigationLabel = 'Roles y permisos';
+    protected static string|\UnitEnum|null $navigationGroup = 'Usuarios y Profesionales';
     protected static ?string $modelLabel = 'Configuración de rol';
     protected static ?string $pluralModelLabel = 'Supervisión de roles';
-    protected static ?int $navigationSort = 50;
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

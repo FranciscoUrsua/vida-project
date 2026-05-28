@@ -29,10 +29,10 @@ class ZonaResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map-pin';
     protected static ?string $navigationLabel = 'Zonas';
-    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static string|\UnitEnum|null $navigationGroup = 'Organización';
     protected static ?string $modelLabel = 'Zona';
     protected static ?string $pluralModelLabel = 'Zonas';
-    protected static ?int $navigationSort = 100;
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

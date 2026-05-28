@@ -26,10 +26,10 @@ class RedResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-link';
     protected static ?string $navigationLabel = 'Redes';
-    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static string|\UnitEnum|null $navigationGroup = 'Centros y Servicios';
     protected static ?string $modelLabel = 'Red';
     protected static ?string $pluralModelLabel = 'Redes';
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

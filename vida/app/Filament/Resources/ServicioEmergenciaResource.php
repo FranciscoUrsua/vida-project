@@ -31,11 +31,11 @@ class ServicioEmergenciaResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-bell-alert';
     protected static ?string $navigationLabel = 'Servicios de emergencia';
-    protected static string|\UnitEnum|null $navigationGroup = 'Organización';
+    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
     protected static ?string $modelLabel = 'Servicio de emergencia';
     protected static ?string $pluralModelLabel = 'Servicios de emergencia';
     protected static ?string $slug = 'servicios-emergencia';
-    protected static ?int $navigationSort = 60;
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

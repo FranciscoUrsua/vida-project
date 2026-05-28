@@ -32,7 +32,7 @@ class UnidadOrganizativaResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Organización';
     protected static ?string $modelLabel = 'Unidad Organizativa';
     protected static ?string $pluralModelLabel = 'Unidades Organizativas';
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

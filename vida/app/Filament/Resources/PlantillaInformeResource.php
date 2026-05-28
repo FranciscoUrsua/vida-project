@@ -39,10 +39,10 @@ class PlantillaInformeResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationLabel = 'Plantillas de informe';
-    protected static string|\UnitEnum|null $navigationGroup = 'Informes y plantillas';
+    protected static string|\UnitEnum|null $navigationGroup = 'Informes y Plantillas';
     protected static ?string $modelLabel = 'Plantilla de informe';
     protected static ?string $pluralModelLabel = 'Plantillas de informe';
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

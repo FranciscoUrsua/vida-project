@@ -34,10 +34,10 @@ class CentroResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-office-2';
     protected static ?string $navigationLabel = 'Centros';
-    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static string|\UnitEnum|null $navigationGroup = 'Centros y Servicios';
     protected static ?string $modelLabel = 'Centro';
     protected static ?string $pluralModelLabel = 'Centros';
-    protected static ?int $navigationSort = 20;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

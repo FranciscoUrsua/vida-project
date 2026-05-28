@@ -2,6 +2,29 @@
 
 ---
 
+## Backoffice — Reorganización de navegación en 6 grupos conceptuales — 2026-05-28
+
+### Módulos afectados
+`app/Filament/Resources/` (27 Resources — solo propiedades de navegación)
+
+### Cambios realizados
+
+- Navegación reorganizada en 6 grupos: **Organización**, **Centros y Servicios**, **Catálogos**, **Informes y Plantillas**, **Usuarios y Profesionales**, **Sistema**.
+- **Organización**: UnidadOrganizativa (1), Distrito (2), Zona (3). Distrito y Zona trasladados desde «Catálogos».
+- **Centros y Servicios**: Prestaciones (1), Centros (2), Redes (3). Grupo nuevo; los tres trasladados desde «Catálogos».
+- **Catálogos**: SegmentoPoblacion (1), ColectivoProtegido (2), ServicioEmergencia (3), TipoEspacio (4), TipoActividad (5), Cargo (6), Titulacion (7), TipoRelacion (8). ServicioEmergencia trasladado desde «Organización»; Cargo, Titulacion y TipoRelacion desde «Organización» (antes grupo implícito «Profesionales»).
+- **Informes y Plantillas**: PlantillaInforme (1), EstiloInforme (2), Informe (3), Documento (4), TipoEscala (5). Nombre de grupo homogeneizado a mayúscula en «Plantillas». TipoEscala era el único cambio de sort.
+- **Usuarios y Profesionales**: Profesional (1), Usuario (2), ConfiguracionRol label→«Roles y permisos» (3), UsuarioRol label→«Supervisión de roles» (4). Grupo nuevo; todos trasladados desde «Organización».
+- **Sistema**: Configuración (1), HorarioCentro (2), PerfilHorario (3), HorarioLaboral (4), LogAlertas (5). Ya estaban en «Sistema»; se ajustaron sorts y se eliminó `$navigationParentItem` de HorarioCentro y PerfilHorario para que aparezcan como items directos del grupo en lugar de sub-items anidados.
+
+### Decisiones de implementación
+
+- `ServicioResource` y `HistorialRolResource` no existen aún en el codebase; se omiten del menú hasta que se implementen.
+- `RolResource` (label «Roles y permisos», grupo «Organización», sort 70) no estaba en la tabla de cambios; se deja sin modificar para no introducir cambios fuera del alcance.
+- Los 9 fallos de `PrestacionFilamentResourceTest` son pre-existentes («Invalid Livewire snapshot structure») y no están relacionados con esta sesión.
+
+---
+
 ## Documentos — Merge tags en editor de plantillas — 2026-05-28
 
 ### Módulos afectados

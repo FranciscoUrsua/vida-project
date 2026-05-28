@@ -31,10 +31,9 @@ class HorarioCentroResource extends Resource
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clock';
     protected static ?string $navigationLabel = 'Horarios de centro';
     protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
-    protected static ?string $navigationParentItem = 'Configuración';
     protected static ?string $modelLabel = 'Horario de centro';
     protected static ?string $pluralModelLabel = 'Horarios de centro';
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

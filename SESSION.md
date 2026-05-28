@@ -4,29 +4,21 @@ _Actualizado: 2026-05-28_
 
 ## Tarea completada
 
-Documentos — Merge tags en editor de plantillas de informe.
-`PlantillaInformeResource` convertido a Repeater tipado. `RichEditor` con `mergeTags()` añadido a secciones `texto_libre`. `MergeTagsCatalogo` con 26 variables. `ResolverFuentesInforme::resolverMergeTags()` implementado. `TipoEscala::codigoId()` añadido. 21/21 tests pasando.
+Navegación Filament reorganizada en 6 grupos conceptuales.
+27 Resources actualizados (solo `$navigationGroup`, `$navigationSort`, `$navigationLabel`).
+`$navigationParentItem` eliminado de HorarioCentro y PerfilHorario para que sean items directos.
 
 ## Estado actual
 
-- **Módulo Documentos — merge tags en plantillas — completo:**
-  - `MergeTagsCatalogo`: 26 variables (ciudadano, expediente, valoración, plan, profesional, informe).
-  - `PlantillaInformeResource`: Repeater tipado con bloques `automatico` / `texto_libre`; `RichEditor` con merge tags en `texto_libre`.
-  - `ResolverFuentesInforme::resolverMergeTags()`: sustitución `{{ clave }}` en HTML; variables de Intervención devuelven `'—'` hasta que el módulo esté disponible.
-  - `TipoEscala::codigoId()`: lookup código → id con caché de un día.
-  - 21/21 tests del módulo Documentos pasan; 18/18 de Escalas pasan.
+- **Navegación Filament — completa:**
+  - 6 grupos: Organización, Centros y Servicios, Catálogos, Informes y Plantillas, Usuarios y Profesionales, Sistema.
+  - `ServicioResource` y `HistorialRolResource` no existen aún; se añadirán cuando se implementen sus módulos.
+  - `RolResource` permanece en «Organización» sin cambios (no estaba en la tabla de cambios).
+  - 376 tests pasan; 9 fallos pre-existentes en `PrestacionFilamentResourceTest` (problema de setup, no de código de producción).
 
-- **Módulo Escalas fase 1 + UX builder — completo:**
-  - `TipoEscalaResource` pestaña «Estructura» usa `Builder` nativo con bloque `seccion`.
-  - Transformación `afterStateHydrated` / `dehydrateStateUsing` entre formato modelo y formato Builder.
-  - IDs de sección e ítem generados automáticamente en `dehydrateStateUsing`.
-  - Inmutabilidad con closure `$record->pases()->exists()` en texto e opciones de ítems.
-  - `Placeholder` de aviso cuando existen pases.
-  - 18 tests funcionales pasando (TF-ESC-A01…C04).
-
-- **Acceso supervision al backoffice — completo** (sesión anterior).
-- **Seguridad en profundidad para datos de ciudadanos — completa** (sesión anterior).
-- **Suite completa:** ~393 tests pasan.
+- **Módulo Documentos — merge tags en plantillas — completo** (sesión anterior).
+- **Módulo Escalas fase 1 + UX builder — completo** (sesión anterior).
+- **Suite completa:** ~376 tests pasan.
 
 ## Tests incompletos actuales
 
@@ -49,8 +41,7 @@ usuario que opera).
 
 ## Contexto relevante para retomar
 
-- `EscalaSeeder` NO está incluido en `DatabaseSeeder` aún. Ejecutar manualmente o añadirlo
-  cuando se decida el orden de seeders del módulo Escalas respecto a Intervencion.
-- `TipoEscalaResource` usa grupo de navegación 'Informes y plantillas'.
-- Los 9 fallos de `PrestacionFilamentResourceTest`: "Invalid Livewire snapshot structure" —
-  problema pre-existente de setup de tests, no del código de producción.
+- `EscalaSeeder` NO está incluido en `DatabaseSeeder` aún.
+- `TipoEscalaResource` usa grupo «Informes y Plantillas» (mayúscula en P tras esta sesión).
+- Los 9 fallos de `PrestacionFilamentResourceTest`: "Invalid Livewire snapshot structure" — problema pre-existente de setup de tests.
+- Grupos de navegación actuales: Organización, Centros y Servicios, Catálogos, Informes y Plantillas, Usuarios y Profesionales, Sistema.

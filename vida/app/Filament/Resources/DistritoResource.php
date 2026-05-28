@@ -27,10 +27,10 @@ class DistritoResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map';
     protected static ?string $navigationLabel = 'Distritos';
-    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static string|\UnitEnum|null $navigationGroup = 'Organización';
     protected static ?string $modelLabel = 'Distrito';
     protected static ?string $pluralModelLabel = 'Distritos';
-    protected static ?int $navigationSort = 90;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

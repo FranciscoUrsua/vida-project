@@ -34,10 +34,10 @@ class EstiloInformeResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-paint-brush';
     protected static ?string $navigationLabel = 'Estilos de informe';
-    protected static string|\UnitEnum|null $navigationGroup = 'Informes y plantillas';
+    protected static string|\UnitEnum|null $navigationGroup = 'Informes y Plantillas';
     protected static ?string $modelLabel = 'Estilo de informe';
     protected static ?string $pluralModelLabel = 'Estilos de informe';
-    protected static ?int $navigationSort = 20;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

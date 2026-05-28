@@ -28,10 +28,10 @@ class CargoResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-briefcase';
     protected static ?string $navigationLabel = 'Cargos';
-    protected static string|\UnitEnum|null $navigationGroup = 'Organización';
+    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
     protected static ?string $modelLabel = 'Cargo';
     protected static ?string $pluralModelLabel = 'Cargos';
-    protected static ?int $navigationSort = 80;
+    protected static ?int $navigationSort = 6;
 
     public static function form(Schema $schema): Schema
     {

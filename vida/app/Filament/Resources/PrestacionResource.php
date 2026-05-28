@@ -28,10 +28,10 @@ class PrestacionResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
     protected static ?string $navigationLabel = 'Prestaciones';
-    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static string|\UnitEnum|null $navigationGroup = 'Centros y Servicios';
     protected static ?string $modelLabel = 'Prestación';
     protected static ?string $pluralModelLabel = 'Prestaciones';
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

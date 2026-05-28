@@ -32,12 +32,12 @@ class UsuarioRolResource extends Resource
     protected static ?string $model = UsuarioRol::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
-    protected static ?string $navigationLabel = 'Historial de roles';
-    protected static string|\UnitEnum|null $navigationGroup = 'Organización';
+    protected static ?string $navigationLabel = 'Supervisión de roles';
+    protected static string|\UnitEnum|null $navigationGroup = 'Usuarios y Profesionales';
     protected static ?string $modelLabel = 'Asignación de rol';
     protected static ?string $pluralModelLabel = 'Historial de roles';
     protected static ?string $slug = 'usuario-roles';
-    protected static ?int $navigationSort = 40;
+    protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema
     {

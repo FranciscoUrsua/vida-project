@@ -32,7 +32,7 @@ class ColectivoProtegidoResource extends Resource
     protected static ?string $modelLabel = 'Colectivo protegido';
     protected static ?string $pluralModelLabel = 'Colectivos protegidos';
     protected static ?string $slug = 'colectivos-protegidos';
-    protected static ?int $navigationSort = 50;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

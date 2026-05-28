@@ -26,7 +26,7 @@ class SegmentoPoblacionResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
     protected static ?string $modelLabel = 'Segmento de población';
     protected static ?string $pluralModelLabel = 'Segmentos de población';
-    protected static ?int $navigationSort = 60;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

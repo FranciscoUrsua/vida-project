@@ -34,10 +34,10 @@ class TipoEscalaResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
     protected static ?string $navigationLabel = 'Tipos de escala';
-    protected static string|\UnitEnum|null $navigationGroup = 'Informes y plantillas';
+    protected static string|\UnitEnum|null $navigationGroup = 'Informes y Plantillas';
     protected static ?string $modelLabel = 'Tipo de escala';
     protected static ?string $pluralModelLabel = 'Tipos de escala';
-    protected static ?int $navigationSort = 90;
+    protected static ?int $navigationSort = 5;
 
     // -------------------------------------------------------------------------
     // Listado

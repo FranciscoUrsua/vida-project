@@ -26,7 +26,7 @@ class TipoEspacioResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
     protected static ?string $modelLabel = 'Tipo de espacio';
     protected static ?string $pluralModelLabel = 'Tipos de espacio';
-    protected static ?int $navigationSort = 70;
+    protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema
     {
