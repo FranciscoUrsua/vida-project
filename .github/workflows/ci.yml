@@ -43,25 +43,20 @@ jobs:
             # Navegar al directorio de despliegue
             cd /var/www/vida-project/vida
             
-            # Hacer pull de los cambios (asumiendo que el repo está clonado como git)
+            # Hacer pull de los cambios 
             git pull origin master
             
             # Instalar/actualizar dependencias (sin dev para producción)
             composer install --no-dev --optimize-autoloader --no-interaction
 
+            # Build frontend
+            npm ci --no-audit --no-fund --silent || npm install --no-audit --no-fund --silent
+            npm run build
+
             # Limpiar cachés de Laravel para asegurar cambios
-            php artisan cache:clear
-            php artisan config:clear
-            php artisan route:clear
-            php artisan view:clear
-            
-            # Recrear cachés optimizados
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
-            
-            # Migraciones si es necesario (ejecutar solo si hay cambios en DB)
-            # sudo -u www-data php artisan migrate --force
             
             # Opcional: Reiniciar queues si usas Horizon/Supervisor
             # sudo supervisorctl restart all  # Descomenta si aplica
