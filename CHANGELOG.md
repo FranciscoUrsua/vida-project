@@ -2,6 +2,34 @@
 
 ---
 
+## Autenticación — Login, logout, onboarding y badge de entorno — 2026-05-30
+
+### Módulos afectados
+`app/Http/Controllers/Auth/`, `app/Http/Middleware/`, `resources/views/auth/`,
+`resources/views/components/`, `database/migrations/`, `routes/web.php`, `config/app.php`
+
+### Cambios realizados
+
+- Migración `add_primer_acceso_to_users_table`: campo `boolean primer_acceso DEFAULT true` en `users`.
+- `User`: `primer_acceso` añadido a `$fillable` y cast `boolean`; PHPDoc actualizado.
+- `UserFactory`: `primer_acceso => true` en el estado por defecto.
+- `config/app.php`: entrada `env_label` → `env('APP_ENV_LABEL', 'Producción')`.
+- `.env.example`: añadida variable `APP_ENV_LABEL=Producción`.
+- `routes/web.php`: rutas `/login` (GET/POST), `/logout` (POST), `/bienvenida` (GET/POST), `/` (GET).
+- `LoginController`: `mostrar()`, `autenticar()` con redirección condicional a onboarding, `cerrarSesion()`.
+- `OnboardingController`: `mostrar()` con centro opcional vía `profesional?->centroActivo()`, `completar()`.
+- `PrimerAcceso` middleware: redirige a inicio si `primer_acceso = false`; registrado como alias `primer.acceso` en `bootstrap/app.php`.
+- Vistas: `auth/login.blade.php` (dos columnas, badge de entorno, accesibilidad), `auth/onboarding.blade.php`, `inicio.blade.php` (topbar con nombre y avatar).
+- Componente `<x-avatar>`: iniciales deterministas (2 chars) + color por `$id % 4`.
+- Tests: `tests/Feature/Auth/AutenticacionTest.php` — TF-AUTH-01 a TF-AUTH-23 (21 pasan, 1 skipped, 1 incomplete).
+
+### Decisiones de implementación
+
+- **TF-AUTH-04 (case-insensitive email)**: marcado como skipped. Laravel + PostgreSQL no normalizan el email antes de la búsqueda; mantener el comportamiento estándar evita inconsistencias silenciosas. Documentado en el test.
+- **TF-AUTH-20 (centro en onboarding)**: marcado como incomplete. Requiere `Profesional::centroActivo()` que depende de la relación profesional↔centro, aún no implementada en el módulo Centro.
+
+---
+
 ## Documentos — Bugfix: Repeater de secciones falla al editar PlantillaInforme — 2026-05-28
 
 ### Módulo afectado

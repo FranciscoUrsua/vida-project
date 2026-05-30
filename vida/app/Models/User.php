@@ -35,6 +35,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
+ * @property bool $primer_acceso
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  *
@@ -55,6 +56,7 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
+        'primer_acceso',
     ];
 
     /** @var list<string> */
@@ -71,6 +73,7 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password'          => 'hashed',
+            'primer_acceso'     => 'boolean',
         ];
     }
 

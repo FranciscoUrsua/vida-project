@@ -105,6 +105,8 @@ return [
         ),
     ],
 
+    'env_label' => env('APP_ENV_LABEL', 'Producción'),
+
     /*
      * Clave HMAC para seudonimización de ciudadanos.
      * Independiente de APP_KEY para que una rotación de clave de aplicación

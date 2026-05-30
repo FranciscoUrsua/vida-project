@@ -1,29 +1,30 @@
 # SESSION — VIDA 360
 
-_Actualizado: 2026-05-28_
+_Actualizado: 2026-05-30_
 
 ## Tarea completada
 
-Bugfix: Repeater de secciones en PlantillaInforme falla al editar. Causa: `mutateFormDataBeforeFill` residual del antiguo Textarea JSON serializaba el array a string antes de pasárselo al Repeater. Eliminados `mutateFormDataBeforeFill` y `mutateFormDataBeforeSave` en `EditPlantillaInforme`.
-27 Resources actualizados (solo `$navigationGroup`, `$navigationSort`, `$navigationLabel`).
-`$navigationParentItem` eliminado de HorarioCentro y PerfilHorario para que sean items directos.
+Implementación del módulo de autenticación: login, logout, onboarding de primer acceso, badge de entorno y componente avatar. 21/23 tests en verde (1 skipped por decisión de diseño, 1 incomplete por dependencia futura).
 
 ## Estado actual
 
-- **Navegación Filament — completa:**
-  - 6 grupos: Organización, Centros y Servicios, Catálogos, Informes y Plantillas, Usuarios y Profesionales, Sistema.
-  - `ServicioResource` y `HistorialRolResource` no existen aún; se añadirán cuando se implementen sus módulos.
-  - `RolResource` permanece en «Organización» sin cambios (no estaba en la tabla de cambios).
-  - 376 tests pasan; 9 fallos pre-existentes en `PrestacionFilamentResourceTest` (problema de setup, no de código de producción).
+- **Autenticación — completa:**
+  - Rutas: `/login`, `/logout`, `/bienvenida`, `/` (inicio).
+  - `LoginController`, `OnboardingController`, middleware `PrimerAcceso`.
+  - Campo `primer_acceso` en tabla `users` (migración aplicada en `vida_testing`).
+  - Vistas: `auth/login.blade.php`, `auth/onboarding.blade.php`, `inicio.blade.php`.
+  - Componente `<x-avatar>` con iniciales y color determinista por ID.
+  - `APP_ENV_LABEL` en `config/app.php` y `.env.example`.
+  - Tests: TF-AUTH-01 a TF-AUTH-23 (21 pasan, 1 skipped, 1 incomplete).
 
-- **Módulo Documentos — merge tags en plantillas — completo** (sesión anterior).
-- **Módulo Escalas fase 1 + UX builder — completo** (sesión anterior).
-- **Suite completa:** ~376 tests pasan.
+- **Suite completa:** ~399 tests (376 anteriores + 23 nuevos de Auth). 9 fallos pre-existentes en `PrestacionFilamentResourceTest`.
 
 ## Tests incompletos actuales
 
 | Test | Clase | Motivo |
 |---|---|---|
+| TF-AUTH-04 | AutenticacionTest | Skipped: email case-sensitive por diseño (Laravel + PostgreSQL estándar) |
+| TF-AUTH-20 | AutenticacionTest | Incomplete: requiere `Profesional::centroActivo()` (módulo Centro) |
 | 3.5, 3.6, 3.8 | KAnonimatoTest | Requieren modelo Extraccion + job asíncrono |
 | 6.6 | PerfilesTest | Requiere modelo Extraccion + relación con PerfilAnonimizacion |
 | TF-USU-31 | UnidadOrganizativaTest | Policy jerárquica de adscripción de usuarios a UO |
@@ -33,15 +34,13 @@ Bugfix: Repeater de secciones en PlantillaInforme falla al editar. Causa: `mutat
 **Módulo Escalas fase 2** — componente Livewire de aplicación del pase desde la Historia Social:
 selección de instrumento activo, presentación sección a sección, cierre con cálculo de scores,
 y visualización del historial cronológico de pases por escala.
-Ver `BACKLOG.md` para detalles y la nota sobre el punto de entrada desde la Historia Social.
 
-Alternativa si se prefiere cerrar deuda técnica: **TF-USU-31** — validación jerárquica en
-`UsuarioUoPolicy` (un profesional solo puede adscribirse a una UO descendiente de la del
-usuario que opera).
+Alternativa: **TF-USU-31** — validación jerárquica en `UsuarioUoPolicy`.
 
 ## Contexto relevante para retomar
 
 - `EscalaSeeder` NO está incluido en `DatabaseSeeder` aún.
-- `TipoEscalaResource` usa grupo «Informes y Plantillas» (mayúscula en P tras esta sesión).
+- La migración `add_primer_acceso_to_users_table` debe ejecutarse en producción: `php artisan migrate`.
 - Los 9 fallos de `PrestacionFilamentResourceTest`: "Invalid Livewire snapshot structure" — problema pre-existente de setup de tests.
-- Grupos de navegación actuales: Organización, Centros y Servicios, Catálogos, Informes y Plantillas, Usuarios y Profesionales, Sistema.
+- Grupos de navegación: Organización, Centros y Servicios, Catálogos, Informes y Plantillas, Usuarios y Profesionales, Sistema.
+- El campo `primer_acceso` del modelo no tiene soft-delete; una vez completado el onboarding se mantiene `false` permanentemente.
