@@ -286,8 +286,6 @@ porque esa UI no existe aún. Al implementar cada vista, verificar que se usan l
 
 ---
 
----
-
 **Merge tags — variables pendientes de módulo Intervención** — 2026-05-28
 `Documentos`
 Las siguientes variables del `MergeTagsCatalogo` devuelven `'—'` porque dependen de
@@ -297,6 +295,12 @@ relaciones/modelos del módulo Intervención aún no disponibles:
 - `cargo_profesional`, `numero_colegiado` — requieren campos extendidos en Profesional
 - `nombre_centro`, `direccion_centro`, `telefono_centro` — requieren relación `User→Centro` en módulo Usuarios
 Al implementar cada módulo, completar `ResolverFuentesInforme::construirMapaValores()` con el valor real.
+
+---
+
+**Semántica temporal en el log de accesos**
+'Usuarios'
+El log debe mostrar la UO del usuario en el momento del acceso, no la actual. Dos opciones de implementación: (a) snapshot de unidad_organizativa_id en la tabla de auditoría en el momento del acceso — preferida, dato inmutable; (b) reconstrucción a posteriori consultando usuario_uo por fecha — más frágil. Pendiente de decidir en el diseño del módulo de auditoría. En la UI, considerar nota discreta al expandir un registro cuando el centro del log difiere del centro actual del profesional.
 
 ---
 
