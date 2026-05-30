@@ -53,6 +53,11 @@ Este fichero se aplica a todas las sesiones sin necesidad de repetirlo en cada p
 - Incluir casos que deben fallar, no solo happy path.
 - Para tests críticos de seguridad o dominio: verificar también en negativo (el test debe fallar
   si se elimina la restricción que protege).
+- Al finalizar una tarea, ejecutar únicamente los tests del módulo o grupo
+  correspondiente (`--filter=NombreModulo` o la ruta concreta del fichero).
+  No ejecutar la suite completa (`php artisan test` sin filtro) al finalizar.
+  La suite completa se pasa a discreción: antes de merge a main, tras sesiones
+  que hayan tocado código transversal, o cuando SESSION.md indique que procede.
 
 ---
 
@@ -130,3 +135,5 @@ Ficheros disponibles:
 | `organizacion-colectivos-tests.md` | Inmutabilidad de colectivos protegidos + 13 tests funcionales |
 | `usuarios-tests.md` | 18 tests funcionales (TF-USU-16/17 pendientes de revisión Intervención) |
 | `prestaciones-tests.md` | 13 tests funcionales (TF-PRE-13 parcial, pendiente Intervención) |
+| `autenticacion-tests.md` | 23 tests funcionales de login, logout y onboarding (TF-AUTH-01 a TF-AUTH-23) |
+| `autenticacion-implementacion.md` | Instrucciones paso a paso para implementar login, onboarding y componente avatar |
