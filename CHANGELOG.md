@@ -2,6 +2,22 @@
 
 ---
 
+## Autenticación — Ajustes login v2 — 2026-05-31
+
+### Módulos afectados
+`app/helpers.php`, `resources/views/auth/login.blade.php`, `tests/Feature/Auth/LoginTest.php`
+
+### Cambiado
+- Login: saludo dinámico por hora del día (`Buenos días` / `Buenas tardes` / `Buenas noches`)
+  en lugar de "Bienvenido" — evita género en profesión mayoritariamente femenina.
+- Login: texto de acceso restringido actualizado con instrucción accionable para usuarios sin credenciales.
+
+### Añadido
+- Helper `saludo()` en `app/helpers.php`.
+- 5 tests en `tests/Feature/Auth/LoginTest.php` (todos pasan).
+
+---
+
 ## Autenticación — Login, logout, onboarding y badge de entorno — 2026-05-30
 
 ### Módulos afectados

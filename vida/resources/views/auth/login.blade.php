@@ -35,7 +35,7 @@
                     <span class="pill">Centros</span>
                 </div>
                 <p class="access-note">
-                    🔒 Acceso restringido a personal autorizado del Área de Servicios Sociales.
+                    Acceso restringido a personal autorizado.<br>
                     Si no dispones de credenciales, contacta con tu responsable de unidad.
                 </p>
             </div>
@@ -50,7 +50,7 @@
                     <span class="badge bg-secondary env-badge">{{ config('app.env_label') }}</span>
                 </div>
 
-                <h2 class="fw-semibold mb-1 fs-5">Bienvenido</h2>
+                <h2 class="fw-semibold mb-1 fs-5">{{ saludo() }}</h2>
                 <p class="text-muted small mb-4">Introduce tus credenciales para acceder</p>
 
                 @if ($errors->any())

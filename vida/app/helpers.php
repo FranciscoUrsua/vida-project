@@ -24,3 +24,20 @@ if (!function_exists('configuracion_sistema')) {
         }
     }
 }
+
+if (! function_exists('saludo')) {
+    /**
+     * Devuelve un saludo apropiado según la hora del día.
+     * Evita el uso de género en la bienvenida.
+     */
+    function saludo(): string
+    {
+        $hora = now()->hour;
+
+        return match(true) {
+            $hora >= 6 && $hora < 14  => 'Buenos días',
+            $hora >= 14 && $hora < 21 => 'Buenas tardes',
+            default                    => 'Buenas noches',
+        };
+    }
+}
