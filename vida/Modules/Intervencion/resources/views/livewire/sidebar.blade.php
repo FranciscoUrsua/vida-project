@@ -47,17 +47,40 @@
 
     </nav>
 
-    {{-- Pie: avatar y datos del profesional --}}
+    {{-- Pie: avatar, datos del profesional y menú de sesión --}}
     <div class="op-sidebar-footer">
-        <div class="d-flex align-items-center gap-2">
-            <x-avatar :usuario="auth()->user()" />
-            <div class="min-w-0">
-                <div class="op-user-name">{{ auth()->user()->name }}</div>
-                <div class="op-user-role">
-                    Intervención
-                    {{-- TODO: · CSS cuando Profesional::centroActivo() esté implementado --}}
+        <div class="dropdown dropup w-100">
+            <button class="d-flex align-items-center gap-2 w-100 bg-transparent border-0 p-0 text-start"
+                    style="cursor: pointer;"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                <x-avatar :usuario="auth()->user()" />
+                <div class="min-w-0 flex-1">
+                    <div class="op-user-name">{{ auth()->user()->name }}</div>
+                    <div class="op-user-role">
+                        Intervención
+                        {{-- TODO: · CSS cuando Profesional::centroActivo() esté implementado --}}
+                    </div>
                 </div>
-            </div>
+                <i class="bi bi-three-dots-vertical" style="font-size: 0.8rem; color: var(--op-ink-muted); flex-shrink: 0;"></i>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-start shadow-sm" style="min-width: 180px; font-size: 0.82rem;">
+                <li>
+                    <span class="dropdown-item-text text-muted" style="font-size: 0.72rem;">
+                        {{ auth()->user()->email }}
+                    </span>
+                </li>
+                <li><hr class="dropdown-divider my-1"></li>
+                <li>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="dropdown-item text-danger">
+                            <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+                        </button>
+                    </form>
+                </li>
+            </ul>
         </div>
     </div>
 
