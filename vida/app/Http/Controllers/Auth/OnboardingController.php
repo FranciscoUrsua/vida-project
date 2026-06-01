@@ -18,17 +18,28 @@ class OnboardingController extends Controller
     public function mostrar()
     {
         $usuario = Auth::user();
-        $centro = $usuario->profesional?->centroActivo()?->nombre;
+        // TODO: $centro = $usuario->profesional?->centroActivo()?->nombre
+        //       cuando Profesional::centroActivo() esté implementado en el módulo Centro.
+        $centro = null;
 
         return view('auth.onboarding', compact('usuario', 'centro'));
     }
 
     /**
-     * Marca el onboarding como completado y redirige a inicio.
+     * Marca el onboarding como completado y redirige al destino según rol.
      */
     public function completar(Request $request)
     {
-        Auth::user()->update(['primer_acceso' => false]);
+        $usuario = Auth::user();
+        $usuario->update(['primer_acceso' => false]);
+
+        if ($usuario->hasAnyRole(['adm_sistema', 'supervision', 'adm_usuarios'])) {
+            return redirect('/admin');
+        }
+
+        if ($usuario->hasRole('intervencion')) {
+            return redirect()->route('intervencion.agenda.index');
+        }
 
         return redirect()->route('inicio');
     }
