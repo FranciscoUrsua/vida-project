@@ -41,6 +41,10 @@ class OnboardingController extends Controller
             return redirect()->route('intervencion.agenda.index');
         }
 
+        if ($usuario->roles()->count() === 0) {
+            return redirect()->route('sin-rol');
+        }
+
         return redirect()->route('inicio');
     }
 }

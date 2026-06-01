@@ -73,6 +73,10 @@ class LoginController extends Controller
             return route('intervencion.agenda.index');
         }
 
+        if ($usuario->roles()->count() === 0) {
+            return route('sin-rol');
+        }
+
         return route('inicio');
     }
 
