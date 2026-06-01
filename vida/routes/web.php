@@ -17,25 +17,8 @@ Route::post('/bienvenida', [OnboardingController::class, 'completar'])
     ->name('onboarding.completar')
     ->middleware(['auth', 'primer.acceso']);
 
-// Raíz protegida — redirige al destino correcto según rol
-Route::middleware('auth')->get('/', function () {
-    $usuario = auth()->user();
-
-    if ($usuario->hasAnyRole(['adm_sistema', 'supervision', 'adm_usuarios'])) {
-        return redirect('/admin');
-    }
-
-    if ($usuario->hasRole('intervencion')) {
-        return redirect()->route('intervencion.agenda.index');
-    }
-
-    if ($usuario->roles()->count() === 0) {
-        return redirect()->route('sin-rol');
-    }
-
-    // Otros roles sin pantalla operativa asignada todavía
-    return view('inicio');
-})->name('inicio');
+// Raíz protegida
+Route::middleware('auth')->get('/', fn () => view('inicio'))->name('inicio');
 
 // Pantalla de usuario sin rol — accesible con auth pero sin middleware tiene.rol
 Route::middleware('auth')->get('/sin-rol', fn () => view('errors.sin-rol'))->name('sin-rol');
