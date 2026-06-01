@@ -55,9 +55,7 @@
                 <div class="op-user-name">{{ auth()->user()->name }}</div>
                 <div class="op-user-role">
                     Intervención
-                    @if(auth()->user()->profesional?->centroActivo())
-                        · {{ auth()->user()->profesional->centroActivo()->nombre }}
-                    @endif
+                    {{-- TODO: · CSS cuando Profesional::centroActivo() esté implementado --}}
                 </div>
             </div>
         </div>
