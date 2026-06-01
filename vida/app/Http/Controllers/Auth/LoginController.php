@@ -51,7 +51,7 @@ class LoginController extends Controller
             return redirect()->route('sin-rol');
         }
 
-        return redirect()->intended($this->destino());
+        return redirect($this->destino());
     }
 
     /**
