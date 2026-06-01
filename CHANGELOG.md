@@ -2,6 +2,35 @@
 
 ---
 
+## UI Intervención — Entrega 3: Pantalla del ciudadano y herramientas — 2026-06-01
+
+### Módulos afectados
+`Modules/Intervencion`, `Modules/Escalas`, `app/Models/HistoriaSocial`, `app/Models/Scopes`
+
+### Añadido
+
+- `TipoApunte` enum extendido con: `Valoracion`, `Escala`, `GestionCoordinacion`, `PlanIntervencion`.
+- `HistoriaSocial::ciudadano()` relationship añadida.
+- Rutas `/intervencion/ciudadano/{historia}`, `/ciudadano/{historia}/valoracion` y `/ciudadano/{historia}/escala`.
+- `CiudadanoPage`: pantalla principal de trabajo con timeline de HS, UC colapsable,
+  7 herramientas (4 inline + 3 a pantalla completa), banda PISO activo.
+- Herramientas inline: entrevista, anotación, derivación, gestión/coordinación.
+- Herramientas pantalla completa: `RegistrarValoracionPage` y `RegistrarEscalaPage`.
+- `calcularScoreEscala()`: suma `valor × peso` de cada ítem respondido.
+- 23 nuevos tests TF-LW-CIU-01..23, todos en verde.
+
+### Decisiones de implementación
+
+- `crearDerivacion()` crea solo el Apunte (tipo `derivacion`); la tabla `derivaciones` no existe.
+  TODO: añadir modelo y tabla Derivacion cuando esté disponible.
+- `HistoriaSocial::ciudadano()` usa `withoutGlobalScope` en las consultas de CiudadanoPage
+  para no romper el ámbito UO de la Historia.
+- `pisoActivo` y `apuntesHS` usan `withoutGlobalScopes()` porque el acceso ya fue verificado
+  por la policy en el middleware de la ruta.
+- El botón "Ver PISO" está deshabilitado con TODO: Entrega 4.
+
+---
+
 ## UI Intervención — Entrega 2: Mis casos, Buscar ciudadano y Buzón — 2026-06-01
 
 ### Módulos afectados

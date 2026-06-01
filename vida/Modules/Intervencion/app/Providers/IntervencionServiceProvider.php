@@ -7,7 +7,10 @@ use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
+use Modules\Intervencion\Http\Livewire\CiudadanoPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
+use Modules\Intervencion\Http\Livewire\RegistrarEscalaPage;
+use Modules\Intervencion\Http\Livewire\RegistrarValoracionPage;
 use Modules\Intervencion\Http\Livewire\Sidebar;
 use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\PlanDeIntervencion;
@@ -52,5 +55,8 @@ class IntervencionServiceProvider extends ServiceProvider
         Livewire::component('intervencion.agenda-page', AgendaPage::class);
         Livewire::component('intervencion.mis-casos-page', MisCasosPage::class);
         Livewire::component('intervencion.buscar-ciudadano-page', BuscarCiudadanoPage::class);
+        Livewire::component('intervencion.ciudadano-page', CiudadanoPage::class);
+        Livewire::component('intervencion.registrar-valoracion-page', RegistrarValoracionPage::class);
+        Livewire::component('intervencion.registrar-escala-page', RegistrarEscalaPage::class);
     }
 }

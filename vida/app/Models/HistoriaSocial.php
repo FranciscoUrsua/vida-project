@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Scopes\AmbitoUoScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Ciudadano;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -81,6 +82,17 @@ class HistoriaSocial extends Model
     // -------------------------------------------------------------------------
     // Relaciones
     // -------------------------------------------------------------------------
+
+    /**
+     * Ciudadano titular de la Historia Social.
+     * Sin FK en la migración (TODO: módulo Ciudadanía), por eso sin withoutGlobalScope.
+     *
+     * @return BelongsTo<Ciudadano, HistoriaSocial>
+     */
+    public function ciudadano(): BelongsTo
+    {
+        return $this->belongsTo(Ciudadano::class, 'ciudadano_id');
+    }
 
     /**
      * UO responsable de la Historia Social.

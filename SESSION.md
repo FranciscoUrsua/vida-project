@@ -4,53 +4,40 @@ _Actualizado: 2026-06-01_
 
 ## Tarea completada
 
-Implementación de la Entrega 2 del interfaz operativo de Intervención: pantallas Mis casos,
-Buscar ciudadano y Buzón de alertas/mensajes. 23/23 tests nuevos en verde,
-69 tests del módulo Intervención pasan.
+Implementación de la Entrega 3 del interfaz operativo de Intervención: pantalla del ciudadano
+con timeline de Historia Social, 7 herramientas de registro (4 inline + 3 pantalla completa).
+23/23 tests nuevos en verde. 92 tests del módulo Intervención pasan.
 
 ## Estado actual
 
-- **UI Intervención Entrega 2 — completa:**
-  - Rutas `/intervencion/casos`, `/intervencion/mensajes`, `/intervencion/buscar`.
-  - `MisCasosPage`: tabla paginada de planes activos con semáforo de seguimiento,
-    filtros por estado, derivación especializada y cabecera PISO configurable.
-  - `BuscarCiudadanoPage`: búsqueda por alias/nombre con tres niveles de acceso
-    (propio/otra UO/protegido). Modal de solicitud + Alerta al supervisor.
-  - `BuzonPage` (Mensajes): tres pestañas (Alertas/Avisos/Mensajes),
-    reconocimiento de alertas, respuesta a hilos.
-  - `CatalogoSistema::valor(clave, defecto)` añadido al modelo.
-  - Tests TF-LW-CAS-01..07, TF-LW-BUS-01..10, TF-LW-BUZ-01..06 en verde.
+- **UI Intervención Entrega 3 — completa:**
+  - `CiudadanoPage`: pantalla principal con timeline HS, UC colapsable, cuadrícula de herramientas.
+  - Herramientas inline: entrevista, anotación, derivación, gestión/coordinación.
+  - `RegistrarValoracionPage` y `RegistrarEscalaPage`: pantallas completas con formularios dinámicos.
+  - `calcularScoreEscala()`: suma `valor × peso` por ítem del schema.
+  - `TipoApunte` extendido con: `Valoracion`, `Escala`, `GestionCoordinacion`, `PlanIntervencion`.
+  - Tests TF-LW-CIU-01..23 en verde.
 
-- **UI Intervención Entrega 1 — completa** (sin cambios):
-  - Layout `operativo.blade.php`, sidebar con poll, AgendaPage con vistas día/semana/mes.
-  - Tests TF-LW-AGE-01..14 en verde.
+- **UI Intervención Entrega 2 — completa** (MisCasosPage, BuscarCiudadanoPage, BuzonPage).
+- **UI Intervención Entrega 1 — completa** (AgendaPage, Sidebar, layout operativo).
+- **Autenticación — completa**.
 
-- **Autenticación — completa** (sin cambios).
+## Pendientes conocidos
 
-- **Suite completa:** 9 fallos pre-existentes en `PrestacionFilamentResourceTest`.
-  Los tests de la entrega 2 pasan limpiamente en ejecución aislada.
-
-## Limitaciones conocidas (pendientes Entrega 3 o backlog)
-
-| Componente | Limitación | TODO |
-|---|---|---|
-| `BuscarCiudadanoPage` | Búsqueda por nombre sobre datos cifrados carga ≤500 registros y filtra en PHP | Índice hash determinista |
-| `BuscarCiudadanoPage` | Búsqueda por doc/hsu devuelve vacío | Tabla `ciudadano_identificadores` |
-| `BuscarCiudadanoPage` | Acceso nivel 2 se loguea con `\Log::info()` | Tabla `audits` |
-| `AgendaPage` | 4 KPIs devuelven 0 | Conectar con módulos Agenda y Mensajes |
-| Sidebar | `centroActivo()` no implementado en Profesional | Módulo Centro |
-| `BuscarCiudadanoPage` | Enlace "Ir a Historia Social" apunta a `#` | Entrega 3 |
+| Componente | Pendiente |
+|---|---|
+| `CiudadanoPage` | "Ver PISO" → Entrega 4 |
+| `crearDerivacion()` | Tabla `derivaciones` no existe — solo crea Apunte |
+| UC | Tabla `unidades_convivencia` no existe — stub visible |
+| Herramienta Informes | Stub "en construcción" — integración Documentos pendiente |
 
 ## Siguiente paso recomendado
 
-**UI Intervención — Entrega 3**: pantalla del ciudadano y herramientas de trabajo
-(Historia Social, Plan de Intervención, apuntes, escalas).
-Instrucciones en `docs/instrucciones-cli/ui-intervencion-entrega3.md`.
+**UI Intervención — Entrega 4** o cualquier otra tarea de backlog según prioridad.
+La suite de las 3 entregas tiene 92 tests en verde.
 
 ## Contexto relevante para retomar
 
-- `reconocerAlerta()` actualiza `estado = EstadoAlerta::Reconocida` (no `reconocida_en` — no existe).
-- `MisCasosPage` usa `DB::table()` para evitar `AmbitoUoScope` en el query principal.
-- `BuzonPage` vive en `Modules/Mensajes/app/Http/Livewire/` y se registra en `MensajesServiceProvider`.
-- Los componentes Livewire de Entrega 2 se registran en `IntervencionServiceProvider::boot()`.
-- Los 9 fallos de `PrestacionFilamentResourceTest`: "Invalid Livewire snapshot structure" — pre-existente.
+- `Apunte` usa `plan_id` (NOT NULL) → siempre requiere un plan activo para crear apuntes.
+- `withoutGlobalScopes()` en `apuntesHS` y `pisoActivo` es deliberado: la policy ya verificó acceso.
+- Los 9 fallos de `PrestacionFilamentResourceTest` son pre-existentes.
