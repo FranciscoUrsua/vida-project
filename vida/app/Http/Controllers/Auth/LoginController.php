@@ -51,7 +51,29 @@ class LoginController extends Controller
             return redirect()->route('sin-rol');
         }
 
-        return redirect()->intended(route('inicio'));
+        return redirect()->intended($this->destino());
+    }
+
+    /**
+     * Determina la ruta de destino tras el login según el rol del usuario.
+     *
+     * - Roles de backoffice (adm_sistema, supervision, adm_usuarios) → /admin
+     * - Rol intervencion → agenda operativa
+     * - Cualquier otro → pantalla de inicio genérica
+     */
+    private function destino(): string
+    {
+        $usuario = Auth::user();
+
+        if ($usuario->hasAnyRole(['adm_sistema', 'supervision', 'adm_usuarios'])) {
+            return '/admin';
+        }
+
+        if ($usuario->hasRole('intervencion')) {
+            return route('intervencion.agenda.index');
+        }
+
+        return route('inicio');
     }
 
     /**
