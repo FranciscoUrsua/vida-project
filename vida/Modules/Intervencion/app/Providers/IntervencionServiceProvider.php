@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
+use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
+use Modules\Intervencion\Http\Livewire\MisCasosPage;
 use Modules\Intervencion\Http\Livewire\Sidebar;
 use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\PlanDeIntervencion;
@@ -48,5 +50,7 @@ class IntervencionServiceProvider extends ServiceProvider
 
         Livewire::component('intervencion.sidebar', Sidebar::class);
         Livewire::component('intervencion.agenda-page', AgendaPage::class);
+        Livewire::component('intervencion.mis-casos-page', MisCasosPage::class);
+        Livewire::component('intervencion.buscar-ciudadano-page', BuscarCiudadanoPage::class);
     }
 }

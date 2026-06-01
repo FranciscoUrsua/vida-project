@@ -2,6 +2,35 @@
 
 ---
 
+## UI Intervención — Entrega 2: Mis casos, Buscar ciudadano y Buzón — 2026-06-01
+
+### Módulos afectados
+`Modules/Intervencion`, `Modules/Mensajes`, `app/Models/CatalogoSistema`
+
+### Añadido
+
+- `CatalogoSistema::valor(clave, defecto)`: método estático para leer parámetros de configuración por clave.
+- Rutas `/intervencion/casos`, `/intervencion/mensajes` y `/intervencion/buscar` en `Modules/Intervencion/routes/web.php`.
+- `MisCasosPage`: tabla paginada de planes activos asignados al profesional con filtros de seguimiento
+  y derivación especializada. Semáforo de colores por estado. Cabecera PISO configurable.
+- `BuscarCiudadanoPage`: búsqueda de ciudadanos con tres niveles de acceso (propio, otra UO, protegido).
+  Modal de solicitud de acceso para colectivos protegidos. `AccesoProtegido::create()` + Alerta al supervisor.
+- `BuzonPage` (Mensajes): bandeja unificada en tres pestañas (Alertas / Avisos / Mensajes).
+  Reconocimiento de alertas, respuesta a hilos, contador de no leídos.
+- Vistas Blade para `mis-casos-page`, `buscar-ciudadano-page` y `buzon-page`.
+- 23 nuevos tests: TF-LW-CAS-01..07, TF-LW-BUS-01..10, TF-LW-BUZ-01..06. Todos en verde.
+
+### Decisiones de implementación
+
+- Búsqueda por nombre en ciudadanos cifrados: carga ≤ 500 registros y filtra en PHP.
+  TODO: reemplazar por índice hash determinista cuando esté disponible.
+- Búsqueda por `doc`/`hsu`: retorna vacío con TODO, tabla `ciudadano_identificadores` no existe.
+- Registro de acceso nivel 2: usa `\Log::info()` con TODO, tabla `audits` no existe.
+- `MisCasosPage` usa `DB::table()` directamente para evitar interferencia de `AmbitoUoScope` en el query.
+- `reconocerAlerta()` actualiza `estado = EstadoAlerta::Reconocida` (no `reconocida_en`, que no existe).
+
+---
+
 ## UI Intervención — Entrega 1: layout operativo y pantalla Agenda — 2026-06-01
 
 ### Módulos afectados

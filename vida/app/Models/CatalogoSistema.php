@@ -61,6 +61,19 @@ class CatalogoSistema extends Model
     }
 
     /**
+     * Devuelve la etiqueta de un valor del catálogo por clave única.
+     * Útil para parámetros de configuración global (clave única entre todos los grupos).
+     *
+     * @param string $clave Clave única del catálogo
+     * @param string $defecto Valor por defecto si la clave no existe o está inactiva
+     * @return string
+     */
+    public static function valor(string $clave, string $defecto = ''): string
+    {
+        return static::where('clave', $clave)->where('activo', true)->value('etiqueta') ?? $defecto;
+    }
+
+    /**
      * Devuelve las opciones de un grupo filtradas por prefijo de clave.
      * Útil para cargar subcategorías dependientes de una categoría padre.
      *

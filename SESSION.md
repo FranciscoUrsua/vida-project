@@ -4,61 +4,53 @@ _Actualizado: 2026-06-01_
 
 ## Tarea completada
 
-Implementación de la Entrega 1 del interfaz operativo de Intervención: layout base con
-sidebar persistente y pantalla de Agenda (vistas día, semana, mes). 14/14 tests nuevos
-en verde, 52 tests del módulo Intervención pasan, sin regresiones en la suite completa.
+Implementación de la Entrega 2 del interfaz operativo de Intervención: pantallas Mis casos,
+Buscar ciudadano y Buzón de alertas/mensajes. 23/23 tests nuevos en verde,
+69 tests del módulo Intervención pasan.
 
 ## Estado actual
 
-- **UI Intervención Entrega 1 — completa:**
-  - Middleware `role:intervencion` registrado en `bootstrap/app.php`.
-  - Rutas protegidas bajo `auth + role:intervencion`: `/intervencion` y `/intervencion/agenda`.
-  - Layout `resources/views/layouts/operativo.blade.php` con sidebar de 196px.
-  - Livewire `Sidebar` con badges de notificaciones y casos activos (poll 300s).
-  - Livewire `AgendaPage` con vistas día/semana/mes, navegación de fechas y 4 KPIs.
-  - Fixture de citas determinista para desarrollo hasta conectar con módulo Agenda.
-  - `IntervencionSidebarDataService` para contadores del sidebar.
-  - Tests TF-LW-AGE-01 a TF-LW-AGE-14 pasando.
+- **UI Intervención Entrega 2 — completa:**
+  - Rutas `/intervencion/casos`, `/intervencion/mensajes`, `/intervencion/buscar`.
+  - `MisCasosPage`: tabla paginada de planes activos con semáforo de seguimiento,
+    filtros por estado, derivación especializada y cabecera PISO configurable.
+  - `BuscarCiudadanoPage`: búsqueda por alias/nombre con tres niveles de acceso
+    (propio/otra UO/protegido). Modal de solicitud + Alerta al supervisor.
+  - `BuzonPage` (Mensajes): tres pestañas (Alertas/Avisos/Mensajes),
+    reconocimiento de alertas, respuesta a hilos.
+  - `CatalogoSistema::valor(clave, defecto)` añadido al modelo.
+  - Tests TF-LW-CAS-01..07, TF-LW-BUS-01..10, TF-LW-BUZ-01..06 en verde.
 
-- **Autenticación — completa** (estado anterior, sin cambios):
-  - Rutas: `/login`, `/logout`, `/bienvenida`, `/`.
-  - `LoginController`, `OnboardingController`, middleware `PrimerAcceso`.
-  - Componente `<x-avatar>`.
+- **UI Intervención Entrega 1 — completa** (sin cambios):
+  - Layout `operativo.blade.php`, sidebar con poll, AgendaPage con vistas día/semana/mes.
+  - Tests TF-LW-AGE-01..14 en verde.
 
-- **Suite completa:** 416 tests. 9 fallos pre-existentes en `PrestacionFilamentResourceTest`
-  (problema conocido de setup de tests de Filament).
+- **Autenticación — completa** (sin cambios).
 
-## Tests incompletos actuales
+- **Suite completa:** 9 fallos pre-existentes en `PrestacionFilamentResourceTest`.
+  Los tests de la entrega 2 pasan limpiamente en ejecución aislada.
 
-| Test | Clase | Motivo |
+## Limitaciones conocidas (pendientes Entrega 3 o backlog)
+
+| Componente | Limitación | TODO |
 |---|---|---|
-| TF-AUTH-04 | AutenticacionTest | Skipped: email case-sensitive por diseño |
-| TF-AUTH-20 | AutenticacionTest | Incomplete: requiere `Profesional::centroActivo()` (módulo Centro) |
-| 3.5, 3.6, 3.8 | KAnonimatoTest | Requieren modelo Extraccion + job asíncrono |
-| 6.6 | PerfilesTest | Requiere modelo Extraccion + relación con PerfilAnonimizacion |
-| TF-USU-31 | UnidadOrganizativaTest | Policy jerárquica de adscripción de usuarios a UO |
-
-## KPIs pendientes de conectar en AgendaPage
-
-Los 4 KPIs de la pantalla Agenda devuelven 0 y tienen comentario `// TODO:`:
-- **Alertas sin reconocer**: conectar con módulo Mensajes
-- **Seguimientos vencidos**: conectar con planes activos del módulo Intervención
-- **Citas**: conectar con módulo Agenda (tabla `citas`, `profesional_id = Auth::id()`)
-- **Mensajes sin leer**: conectar con módulo Mensajes
+| `BuscarCiudadanoPage` | Búsqueda por nombre sobre datos cifrados carga ≤500 registros y filtra en PHP | Índice hash determinista |
+| `BuscarCiudadanoPage` | Búsqueda por doc/hsu devuelve vacío | Tabla `ciudadano_identificadores` |
+| `BuscarCiudadanoPage` | Acceso nivel 2 se loguea con `\Log::info()` | Tabla `audits` |
+| `AgendaPage` | 4 KPIs devuelven 0 | Conectar con módulos Agenda y Mensajes |
+| Sidebar | `centroActivo()` no implementado en Profesional | Módulo Centro |
+| `BuscarCiudadanoPage` | Enlace "Ir a Historia Social" apunta a `#` | Entrega 3 |
 
 ## Siguiente paso recomendado
 
-**UI Intervención — Entrega 2**: pantallas de Mis casos (lista de ciudadanos asignados
-con filtros y badge de seguimientos vencidos) y Alertas/mensajes (bandeja unificada).
-Instrucciones en `docs/instrucciones-cli/ui-intervencion-entrega2.md`.
-
-Alternativa: conectar los KPIs de AgendaPage con los módulos reales (Agenda, Mensajes).
+**UI Intervención — Entrega 3**: pantalla del ciudadano y herramientas de trabajo
+(Historia Social, Plan de Intervención, apuntes, escalas).
+Instrucciones en `docs/instrucciones-cli/ui-intervencion-entrega3.md`.
 
 ## Contexto relevante para retomar
 
-- El sidebar muestra `centroActivo()` del profesional; este método no existe aún en
-  `Profesional`. En la vista Blade se usa `?->centroActivo()` — null-safe, no rompe.
-- Los componentes Livewire del módulo se registran en `IntervencionServiceProvider::boot()`.
-- El layout `operativo.blade.php` usa `{{ $slot }}` (Livewire v4) — no `@yield`.
-- La fixture de citas es determinista: `crc32($fecha) % 3` citas por día; útil para tests.
+- `reconocerAlerta()` actualiza `estado = EstadoAlerta::Reconocida` (no `reconocida_en` — no existe).
+- `MisCasosPage` usa `DB::table()` para evitar `AmbitoUoScope` en el query principal.
+- `BuzonPage` vive en `Modules/Mensajes/app/Http/Livewire/` y se registra en `MensajesServiceProvider`.
+- Los componentes Livewire de Entrega 2 se registran en `IntervencionServiceProvider::boot()`.
 - Los 9 fallos de `PrestacionFilamentResourceTest`: "Invalid Livewire snapshot structure" — pre-existente.

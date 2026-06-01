@@ -16,6 +16,7 @@ use Modules\Intervencion\Http\Livewire\AgendaPage;
 Route::middleware(['auth', 'role:intervencion'])->prefix('intervencion')->name('intervencion.')->group(function () {
     Route::get('/', fn () => redirect()->route('intervencion.agenda.index'));
     Route::get('/agenda', AgendaPage::class)->name('agenda.index');
-    // Las rutas de Mis casos, Alertas/mensajes y Buscar ciudadano
-    // se añadirán en Entrega 2 y 3.
+    Route::get('/casos', \Modules\Intervencion\Http\Livewire\MisCasosPage::class)->name('casos.index');
+    Route::get('/mensajes', \Modules\Mensajes\Http\Livewire\BuzonPage::class)->name('mensajes.index');
+    Route::get('/buscar', \Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage::class)->name('buscar.index');
 });
