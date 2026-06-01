@@ -45,6 +45,12 @@ class LoginController extends Controller
             return redirect()->route('onboarding');
         }
 
+        // Solo redirigir a sin-rol a usuarios asistenciales (con profesional_id)
+        // Los perfiles técnicos sin profesional (adm_sistema) no pasan por este flujo
+        if (Auth::user()->profesional_id !== null && Auth::user()->roles()->count() === 0) {
+            return redirect()->route('sin-rol');
+        }
+
         return redirect()->intended(route('inicio'));
     }
 

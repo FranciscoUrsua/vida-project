@@ -12,6 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Modules\Usuarios\Models\Profesional;
 use Modules\Usuarios\Traits\TieneRoles;
 use Modules\Usuarios\Traits\TieneUO;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -75,6 +76,28 @@ class User extends Authenticatable implements FilamentUser
             'password'          => 'hashed',
             'primer_acceso'     => 'boolean',
         ];
+    }
+
+    // -------------------------------------------------------------------------
+    // Ciclo de vida
+    // -------------------------------------------------------------------------
+
+    /**
+     * Asigna automáticamente el rol consulta_basica al crear un usuario sin roles.
+     *
+     * Solo aplica a usuarios con profesional_id (función asistencial).
+     * Los perfiles técnicos sin profesional (adm_sistema) se gestionan manualmente.
+     */
+    protected static function booted(): void
+    {
+        static::created(function (User $user): void {
+            if ($user->roles()->count() === 0
+                && $user->profesional_id !== null
+                && Role::where('name', 'consulta_basica')->exists()
+            ) {
+                $user->assignRole('consulta_basica');
+            }
+        });
     }
 
     // -------------------------------------------------------------------------

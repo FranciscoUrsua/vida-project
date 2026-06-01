@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UsuarioResource\Pages;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
@@ -92,7 +93,13 @@ class UsuarioResource extends Resource
                     CheckboxList::make('roles')
                         ->label('Roles asignados')
                         ->relationship('roles', 'name')
-                        ->columns(2),
+                        ->columns(2)
+                        ->required()
+                        ->validationMessages([
+                            'required' => 'El usuario debe tener al menos un rol asignado.',
+                        ])
+                        ->helperText('Si no estás seguro, asigna "Consulta básica" como mínimo.')
+                        ->default(fn () => Role::where('name', 'consulta_basica')->pluck('id')->toArray()),
                 ]),
 
             Section::make('Adscripciones a Unidades Organizativas')

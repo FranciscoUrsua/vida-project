@@ -19,3 +19,6 @@ Route::post('/bienvenida', [OnboardingController::class, 'completar'])
 
 // Raíz protegida
 Route::get('/', fn () => view('inicio'))->name('inicio')->middleware('auth');
+
+// Pantalla de usuario sin rol — accesible con auth pero sin middleware tiene.rol
+Route::middleware('auth')->get('/sin-rol', fn () => view('errors.sin-rol'))->name('sin-rol');
