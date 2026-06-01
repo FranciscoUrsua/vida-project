@@ -1,46 +1,64 @@
 # SESSION — VIDA 360
 
-_Actualizado: 2026-05-30_
+_Actualizado: 2026-06-01_
 
 ## Tarea completada
 
-Implementación del módulo de autenticación: login, logout, onboarding de primer acceso, badge de entorno y componente avatar. 21/23 tests en verde (1 skipped por decisión de diseño, 1 incomplete por dependencia futura).
+Implementación de la Entrega 1 del interfaz operativo de Intervención: layout base con
+sidebar persistente y pantalla de Agenda (vistas día, semana, mes). 14/14 tests nuevos
+en verde, 52 tests del módulo Intervención pasan, sin regresiones en la suite completa.
 
 ## Estado actual
 
-- **Autenticación — completa:**
-  - Rutas: `/login`, `/logout`, `/bienvenida`, `/` (inicio).
-  - `LoginController`, `OnboardingController`, middleware `PrimerAcceso`.
-  - Campo `primer_acceso` en tabla `users` (migración aplicada en `vida_testing`).
-  - Vistas: `auth/login.blade.php`, `auth/onboarding.blade.php`, `inicio.blade.php`.
-  - Componente `<x-avatar>` con iniciales y color determinista por ID.
-  - `APP_ENV_LABEL` en `config/app.php` y `.env.example`.
-  - Tests: TF-AUTH-01 a TF-AUTH-23 (21 pasan, 1 skipped, 1 incomplete).
+- **UI Intervención Entrega 1 — completa:**
+  - Middleware `role:intervencion` registrado en `bootstrap/app.php`.
+  - Rutas protegidas bajo `auth + role:intervencion`: `/intervencion` y `/intervencion/agenda`.
+  - Layout `resources/views/layouts/operativo.blade.php` con sidebar de 196px.
+  - Livewire `Sidebar` con badges de notificaciones y casos activos (poll 300s).
+  - Livewire `AgendaPage` con vistas día/semana/mes, navegación de fechas y 4 KPIs.
+  - Fixture de citas determinista para desarrollo hasta conectar con módulo Agenda.
+  - `IntervencionSidebarDataService` para contadores del sidebar.
+  - Tests TF-LW-AGE-01 a TF-LW-AGE-14 pasando.
 
-- **Suite completa:** ~399 tests (376 anteriores + 23 nuevos de Auth). 9 fallos pre-existentes en `PrestacionFilamentResourceTest`.
+- **Autenticación — completa** (estado anterior, sin cambios):
+  - Rutas: `/login`, `/logout`, `/bienvenida`, `/`.
+  - `LoginController`, `OnboardingController`, middleware `PrimerAcceso`.
+  - Componente `<x-avatar>`.
+
+- **Suite completa:** 416 tests. 9 fallos pre-existentes en `PrestacionFilamentResourceTest`
+  (problema conocido de setup de tests de Filament).
 
 ## Tests incompletos actuales
 
 | Test | Clase | Motivo |
 |---|---|---|
-| TF-AUTH-04 | AutenticacionTest | Skipped: email case-sensitive por diseño (Laravel + PostgreSQL estándar) |
+| TF-AUTH-04 | AutenticacionTest | Skipped: email case-sensitive por diseño |
 | TF-AUTH-20 | AutenticacionTest | Incomplete: requiere `Profesional::centroActivo()` (módulo Centro) |
 | 3.5, 3.6, 3.8 | KAnonimatoTest | Requieren modelo Extraccion + job asíncrono |
 | 6.6 | PerfilesTest | Requiere modelo Extraccion + relación con PerfilAnonimizacion |
 | TF-USU-31 | UnidadOrganizativaTest | Policy jerárquica de adscripción de usuarios a UO |
 
+## KPIs pendientes de conectar en AgendaPage
+
+Los 4 KPIs de la pantalla Agenda devuelven 0 y tienen comentario `// TODO:`:
+- **Alertas sin reconocer**: conectar con módulo Mensajes
+- **Seguimientos vencidos**: conectar con planes activos del módulo Intervención
+- **Citas**: conectar con módulo Agenda (tabla `citas`, `profesional_id = Auth::id()`)
+- **Mensajes sin leer**: conectar con módulo Mensajes
+
 ## Siguiente paso recomendado
 
-**Módulo Escalas fase 2** — componente Livewire de aplicación del pase desde la Historia Social:
-selección de instrumento activo, presentación sección a sección, cierre con cálculo de scores,
-y visualización del historial cronológico de pases por escala.
+**UI Intervención — Entrega 2**: pantallas de Mis casos (lista de ciudadanos asignados
+con filtros y badge de seguimientos vencidos) y Alertas/mensajes (bandeja unificada).
+Instrucciones en `docs/instrucciones-cli/ui-intervencion-entrega2.md`.
 
-Alternativa: **TF-USU-31** — validación jerárquica en `UsuarioUoPolicy`.
+Alternativa: conectar los KPIs de AgendaPage con los módulos reales (Agenda, Mensajes).
 
 ## Contexto relevante para retomar
 
-- `EscalaSeeder` NO está incluido en `DatabaseSeeder` aún.
-- La migración `add_primer_acceso_to_users_table` debe ejecutarse en producción: `php artisan migrate`.
-- Los 9 fallos de `PrestacionFilamentResourceTest`: "Invalid Livewire snapshot structure" — problema pre-existente de setup de tests.
-- Grupos de navegación: Organización, Centros y Servicios, Catálogos, Informes y Plantillas, Usuarios y Profesionales, Sistema.
-- El campo `primer_acceso` del modelo no tiene soft-delete; una vez completado el onboarding se mantiene `false` permanentemente.
+- El sidebar muestra `centroActivo()` del profesional; este método no existe aún en
+  `Profesional`. En la vista Blade se usa `?->centroActivo()` — null-safe, no rompe.
+- Los componentes Livewire del módulo se registran en `IntervencionServiceProvider::boot()`.
+- El layout `operativo.blade.php` usa `{{ $slot }}` (Livewire v4) — no `@yield`.
+- La fixture de citas es determinista: `crc32($fecha) % 3` citas por día; útil para tests.
+- Los 9 fallos de `PrestacionFilamentResourceTest`: "Invalid Livewire snapshot structure" — pre-existente.

@@ -2,6 +2,43 @@
 
 ---
 
+## UI Intervención — Entrega 1: layout operativo y pantalla Agenda — 2026-06-01
+
+### Módulos afectados
+`Modules/Intervencion`, `resources/views/layouts/`, `bootstrap/app.php`
+
+### Añadido
+
+- `bootstrap/app.php`: alias de middleware `role`, `permission` y `role_or_permission`
+  de Spatie laravel-permission registrados en la aplicación.
+- `Modules/Intervencion/routes/web.php`: rutas protegidas `auth + role:intervencion`
+  (`/intervencion` → redirect, `/intervencion/agenda` → AgendaPage).
+- `IntervencionServiceProvider`: carga de rutas, vistas y registro de componentes Livewire.
+- `resources/views/layouts/operativo.blade.php`: layout base con sidebar de 196px,
+  área principal flexible y Livewire wired.
+- `Modules/Intervencion/app/Services/IntervencionSidebarDataService`: contadores de
+  alertas directas, mensajes no leídos y casos activos para los badges del sidebar.
+- `Modules/Intervencion/app/Http/Livewire/Sidebar`: componente sidebar con polling 300s,
+  4 ítems de navegación, badges y avatar del profesional.
+- `Modules/Intervencion/app/Http/Livewire/AgendaPage`: pantalla completa con vistas día,
+  semana y mes; navegación de fechas; 4 KPIs; fixture de citas para desarrollo.
+- Vistas Blade para `sidebar` y `agenda-page` bajo `intervencion::livewire.*`.
+- `Modules/Intervencion/tests/Feature/Livewire/AgendaPageTest`: 14 tests funcionales
+  (TF-LW-AGE-01 a TF-LW-AGE-14), todos en verde.
+
+### Decisiones de implementación
+
+- El sidebar usa `DestinatarioType::Usuario` para contar solo alertas directas;
+  las alertas por rol+UO se tratan en la bandeja completa (Entrega 2).
+- Los KPIs de citas, seguimientos y mensajes devuelven 0 con comentario `// TODO:`
+  hasta que los módulos Agenda y Mensajes exporten los métodos necesarios.
+- La fixture de citas es determinista (basada en `crc32($fecha)`) para que los tests
+  sean predecibles sin necesitar el módulo Agenda completo.
+- La adscripción UO en tests se crea con `UsuarioUo::create()` porque el BelongsToMany
+  de `TieneUO` no declara `withPivot()` para las columnas adicionales del pivot.
+
+---
+
 ## Autenticación — Ajustes login v2 — 2026-05-31
 
 ### Módulos afectados

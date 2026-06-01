@@ -1,0 +1,66 @@
+{{-- Sidebar operativo de Intervención --}}
+{{-- Se refresca cada 5 minutos (wire:poll.300s) --}}
+<aside class="op-sidebar" wire:poll.300s>
+
+    {{-- Logo --}}
+    <div class="op-sidebar-logo d-flex align-items-center gap-2">
+        <i class="ti ti-heart-handshake op-logo-icon"></i>
+        <span class="op-logo-name">{{ config('app.name') }}</span>
+    </div>
+
+    {{-- Navegación principal --}}
+    <nav class="op-nav" aria-label="Navegación principal">
+
+        <a href="{{ route('intervencion.agenda.index') }}"
+           class="op-nav-item {{ request()->routeIs('intervencion.agenda*') ? 'activo' : '' }}"
+           aria-current="{{ request()->routeIs('intervencion.agenda*') ? 'page' : 'false' }}">
+            <i class="bi bi-calendar3 op-nav-icon"></i>
+            <span>Agenda</span>
+        </a>
+
+        <a href="#"
+           class="op-nav-item {{ request()->routeIs('intervencion.casos*') ? 'activo' : '' }}"
+           aria-current="{{ request()->routeIs('intervencion.casos*') ? 'page' : 'false' }}">
+            <i class="bi bi-people-fill op-nav-icon"></i>
+            <span>Mis casos</span>
+            @if($this->datos['casos'] > 0)
+                <span class="op-nav-badge">{{ $this->datos['casos'] }}</span>
+            @endif
+        </a>
+
+        <a href="#"
+           class="op-nav-item {{ request()->routeIs('intervencion.alertas*') || request()->routeIs('intervencion.mensajes*') ? 'activo' : '' }}"
+           aria-current="{{ request()->routeIs('intervencion.alertas*') || request()->routeIs('intervencion.mensajes*') ? 'page' : 'false' }}">
+            <i class="bi bi-bell-fill op-nav-icon"></i>
+            <span>Alertas y mensajes</span>
+            @if($this->datos['notificaciones'] > 0)
+                <span class="op-nav-badge alerta">{{ $this->datos['notificaciones'] }}</span>
+            @endif
+        </a>
+
+        <a href="#"
+           class="op-nav-item {{ request()->routeIs('intervencion.buscar*') ? 'activo' : '' }}"
+           aria-current="{{ request()->routeIs('intervencion.buscar*') ? 'page' : 'false' }}">
+            <i class="bi bi-search op-nav-icon"></i>
+            <span>Buscar ciudadano/a</span>
+        </a>
+
+    </nav>
+
+    {{-- Pie: avatar y datos del profesional --}}
+    <div class="op-sidebar-footer">
+        <div class="d-flex align-items-center gap-2">
+            <x-avatar :usuario="auth()->user()" />
+            <div class="min-w-0">
+                <div class="op-user-name">{{ auth()->user()->name }}</div>
+                <div class="op-user-role">
+                    Intervención
+                    @if(auth()->user()->profesional?->centroActivo())
+                        · {{ auth()->user()->profesional->centroActivo()->nombre }}
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+</aside>
