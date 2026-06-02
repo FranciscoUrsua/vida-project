@@ -18,7 +18,7 @@
             <span>Agenda</span>
         </a>
 
-        <a href="#"
+        <a href="{{ route('intervencion.casos.index') }}"
            class="op-nav-item {{ request()->routeIs('intervencion.casos*') ? 'activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.casos*') ? 'page' : 'false' }}">
             <i class="bi bi-people-fill op-nav-icon"></i>
@@ -28,7 +28,7 @@
             @endif
         </a>
 
-        <a href="#"
+        <a href="{{ route('intervencion.mensajes.index') }}"
            class="op-nav-item {{ request()->routeIs('intervencion.alertas*') || request()->routeIs('intervencion.mensajes*') ? 'activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.alertas*') || request()->routeIs('intervencion.mensajes*') ? 'page' : 'false' }}">
             <i class="bi bi-bell-fill op-nav-icon"></i>
@@ -38,7 +38,7 @@
             @endif
         </a>
 
-        <a href="#"
+        <a href="{{ route('intervencion.buscar.index') }}"
            class="op-nav-item {{ request()->routeIs('intervencion.buscar*') ? 'activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.buscar*') ? 'page' : 'false' }}">
             <i class="bi bi-search op-nav-icon"></i>
