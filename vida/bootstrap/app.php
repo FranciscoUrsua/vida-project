@@ -11,11 +11,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+    $middleware->trustProxies(at: '*');
+    
+    // tus alias existentes...
         $middleware->alias([
-            'primer.acceso'     => \App\Http\Middleware\PrimerAcceso::class,
-            'tiene.rol'         => \App\Http\Middleware\EnsureTieneRol::class,
-            'role'              => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'permission'        => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'primer.acceso'      => \App\Http\Middleware\PrimerAcceso::class,
+            'tiene.rol'          => \App\Http\Middleware\EnsureTieneRol::class,
+            'role'               => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission'         => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
     })
