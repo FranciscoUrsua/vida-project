@@ -13,7 +13,7 @@ use Modules\Intervencion\Http\Livewire\AgendaPage;
 |
 */
 
-Route::middleware(['auth', 'tiene.rol', 'role:intervencion'])->prefix('intervencion')->name('intervencion.')->group(function () {
+Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion'])->prefix('intervencion')->name('intervencion.')->group(function () {
     Route::get('/', fn () => redirect()->route('intervencion.agenda.index'));
     Route::get('/agenda', AgendaPage::class)->name('agenda.index');
     Route::get('/casos', \Modules\Intervencion\Http\Livewire\MisCasosPage::class)->name('casos.index');

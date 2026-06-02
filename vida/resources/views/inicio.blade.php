@@ -1,21 +1,3 @@
-@php
-    $usuario = Auth::user();
-
-    if ($usuario->hasAnyRole(['adm_sistema', 'supervision', 'adm_usuarios'])) {
-        header('Location: /admin');
-        exit;
-    }
-
-    if ($usuario->hasRole('intervencion')) {
-        header('Location: ' . route('intervencion.agenda.index'));
-        exit;
-    }
-
-    if ($usuario->roles()->count() === 0) {
-        header('Location: ' . route('sin-rol'));
-        exit;
-    }
-@endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
