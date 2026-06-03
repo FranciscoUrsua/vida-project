@@ -1,6 +1,6 @@
 # VIDA 360 - Visión Integral de la Persona en Atención Social
 
-[![Laravel](https://img.shields.io/badge/Laravel-10.x-red.svg)](https://laravel.com) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org) [![Livewire](https://img.shields.io/badge/Livewire-3.x-blueviolet.svg)](https://livewire.laravel.com) [![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple.svg)](https://getbootstrap.com) [![License: Apache-2.0](https://img.shields.io/badge/License-Apachev2-blue.svg)](LICENSE)
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org) [![Livewire](https://img.shields.io/badge/Livewire-3.x-blueviolet.svg)](https://livewire.laravel.com) [![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple.svg)](https://getbootstrap.com) [![License: Apache-2.0](https://img.shields.io/badge/License-Apachev2-blue.svg)](LICENSE)
 
 ## Introducción
 
@@ -31,7 +31,7 @@ Este proyecto está en etapa temprana de desarrollo, pero ya cuenta con una base
 ### Dependencias Principales
 | Componente | Versión | Descripción |
 |------------|---------|-------------|
-| Laravel | 10.x | Framework backend principal para lógica de gestión social. |
+| Laravel | 12.x | Framework backend principal para lógica de gestión social. |
 | PostgreSQL | 15+ | Base de datos relacional para almacenamiento seguro de casos y prestaciones. |
 | Livewire | 3.x | Framework frontend reactivo integrado con Laravel para componentes dinámicos. |
 | Bootstrap 5 | 5.x | Framework CSS para interfaces responsivas y accesibles. |
