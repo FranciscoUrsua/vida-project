@@ -48,11 +48,11 @@ class DemoWorldBuilder
      */
     public function build(array $worldConfig): array
     {
-        $unidades      = $this->buildCentros($worldConfig['centros']);
+        $unidades = $this->buildCentros($worldConfig['centros']);
         $profesionales = $this->buildProfesionales($worldConfig['profesionales'], $unidades);
 
         return [
-            'unidades'      => $unidades,
+            'unidades' => $unidades,
             'profesionales' => $profesionales,
         ];
     }
@@ -75,10 +75,10 @@ class DemoWorldBuilder
             $tipoUo = $centro['tipo'] === 'asp' ? 'css' : 'especializada';
 
             $uo = UnidadOrganizativa::create([
-                'nombre'    => $centro['nombre'],
-                'tipo'      => $tipoUo,
+                'nombre' => $centro['nombre'],
+                'tipo' => $tipoUo,
                 'parent_id' => null,
-                'activa'    => true,
+                'activa' => true,
             ]);
 
             $unidades[$centro['id']] = $uo;
@@ -115,10 +115,10 @@ class DemoWorldBuilder
             $user = User::updateOrCreate(
                 ['email' => $profConfig['login']],
                 [
-                    'name'               => $profConfig['nombre'],
-                    'password'           => 'demo1234',
-                    'email_verified_at'  => now(),
-                    'primer_acceso'      => false,
+                    'name' => $profConfig['nombre'],
+                    'password' => 'demo1234',
+                    'email_verified_at' => now(),
+                    'primer_acceso' => false,
                 ]
             );
 
@@ -129,12 +129,12 @@ class DemoWorldBuilder
 
             UsuarioUo::updateOrCreate(
                 [
-                    'usuario_id'            => $user->id,
+                    'usuario_id' => $user->id,
                     'unidad_organizativa_id' => $uoId,
                 ],
                 [
                     'tipo_vinculo' => 'interno',
-                    'fecha_inicio'  => today(),
+                    'fecha_inicio' => today(),
                 ]
             );
 

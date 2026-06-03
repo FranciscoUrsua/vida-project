@@ -99,7 +99,7 @@ class DemoResetCommand extends Command
         try {
             $worldConfig = $loader->load($worldName);
         } catch (\InvalidArgumentException $e) {
-            $this->error('Error de validación: ' . $e->getMessage());
+            $this->error('Error de validación: '.$e->getMessage());
 
             return self::FAILURE;
         }
@@ -129,14 +129,14 @@ class DemoResetCommand extends Command
 
                 // Verificar invariantes
                 $this->info('Verificando invariantes de dominio...');
-                $checker     = new DemoInvariantChecker();
+                $checker = new DemoInvariantChecker;
                 $violaciones = $checker->check();
 
                 if (! empty($violaciones)) {
                     $this->error('Violaciones de invariantes detectadas:');
 
                     foreach ($violaciones as $violacion) {
-                        $this->error('  ' . $violacion);
+                        $this->error('  '.$violacion);
                     }
 
                     throw new \RuntimeException('El mundo generado viola invariantes de dominio.');
@@ -145,11 +145,11 @@ class DemoResetCommand extends Command
                 $this->info('Invariantes verificadas: sin violaciones.');
             });
         } catch (\RuntimeException $e) {
-            $this->error('Reset fallido (rollback): ' . $e->getMessage());
+            $this->error('Reset fallido (rollback): '.$e->getMessage());
 
             return self::FAILURE;
         } catch (\Throwable $e) {
-            $this->error('Error inesperado (rollback): ' . $e->getMessage());
+            $this->error('Error inesperado (rollback): '.$e->getMessage());
             $this->error($e->getTraceAsString());
 
             return self::FAILURE;
@@ -171,8 +171,8 @@ class DemoResetCommand extends Command
         $this->newLine();
         $this->line("Mundo: <comment>{$worldConfig['meta']['nombre']}</comment>");
         $this->line("Descripción: {$worldConfig['meta']['descripcion']}");
-        $this->line('Centros: ' . count($worldConfig['centros']));
-        $this->line('Profesionales: ' . count($worldConfig['profesionales']));
+        $this->line('Centros: '.count($worldConfig['centros']));
+        $this->line('Profesionales: '.count($worldConfig['profesionales']));
 
         $totalCiudadanos = 0;
 
@@ -205,6 +205,7 @@ class DemoResetCommand extends Command
         foreach (self::TABLAS_TRUNCAR as $tabla) {
             if (! in_array($tabla, $nombresExistentes, true)) {
                 $this->warn("  Tabla '{$tabla}' no existe — omitida.");
+
                 continue;
             }
 

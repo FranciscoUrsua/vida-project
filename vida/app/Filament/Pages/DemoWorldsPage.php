@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Console\Commands\DemoResetCommand;
 use Database\Seeders\Demo\DemoWorldLoader;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Artisan;
  * en producción).
  *
  * @see DemoWorldLoader
- * @see \App\Console\Commands\DemoResetCommand
+ * @see DemoResetCommand
  */
 class DemoWorldsPage extends Page
 {
@@ -53,7 +54,7 @@ class DemoWorldsPage extends Page
      */
     public function getViewData(): array
     {
-        $loader = new DemoWorldLoader();
+        $loader = new DemoWorldLoader;
         $worldNames = $loader->listWorlds();
 
         $worlds = [];
@@ -71,24 +72,24 @@ class DemoWorldsPage extends Page
                 }
 
                 $worlds[] = [
-                    'id'           => $name,
-                    'nombre'       => $config['meta']['nombre'],
-                    'descripcion'  => $config['meta']['descripcion'],
-                    'centros'      => count($config['centros']),
+                    'id' => $name,
+                    'nombre' => $config['meta']['nombre'],
+                    'descripcion' => $config['meta']['descripcion'],
+                    'centros' => count($config['centros']),
                     'profesionales' => count($config['profesionales']),
-                    'ciudadanos'   => $totalCiudadanos,
-                    'reset_cada'   => $config['meta']['reset_cada'],
+                    'ciudadanos' => $totalCiudadanos,
+                    'reset_cada' => $config['meta']['reset_cada'],
                 ];
             } catch (\InvalidArgumentException) {
                 // YAML inválido — omitir sin romper la página
                 $worlds[] = [
-                    'id'           => $name,
-                    'nombre'       => $name,
-                    'descripcion'  => '⚠ YAML con errores de validación',
-                    'centros'      => 0,
+                    'id' => $name,
+                    'nombre' => $name,
+                    'descripcion' => '⚠ YAML con errores de validación',
+                    'centros' => 0,
                     'profesionales' => 0,
-                    'ciudadanos'   => 0,
-                    'reset_cada'   => '-',
+                    'ciudadanos' => 0,
+                    'reset_cada' => '-',
                 ];
             }
         }
@@ -112,8 +113,8 @@ class DemoWorldsPage extends Page
             ->requiresConfirmation()
             ->modalHeading("¿Cargar el mundo '{$worldId}'?")
             ->modalDescription(
-                'Esta operación destruirá TODOS los ciudadanos, historias sociales, planes, ' .
-                'entrevistas y seguimientos actuales, y reconstruirá el entorno desde el YAML seleccionado. ' .
+                'Esta operación destruirá TODOS los ciudadanos, historias sociales, planes, '.
+                'entrevistas y seguimientos actuales, y reconstruirá el entorno desde el YAML seleccionado. '.
                 'Esta acción no se puede deshacer.'
             )
             ->modalSubmitActionLabel('Sí, resetear entorno')

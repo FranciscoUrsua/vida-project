@@ -49,15 +49,15 @@ class DemoValidateCommand extends Command
         try {
             $worldConfig = $loader->load($worldName);
         } catch (\InvalidArgumentException $e) {
-            $this->error('Validación fallida: ' . $e->getMessage());
+            $this->error('Validación fallida: '.$e->getMessage());
 
             return self::FAILURE;
         }
 
         $this->info("Mundo '{$worldConfig['meta']['nombre']}' es válido.");
         $this->line("  Descripción: {$worldConfig['meta']['descripcion']}");
-        $this->line('  Centros: ' . count($worldConfig['centros']));
-        $this->line('  Profesionales: ' . count($worldConfig['profesionales']));
+        $this->line('  Centros: '.count($worldConfig['centros']));
+        $this->line('  Profesionales: '.count($worldConfig['profesionales']));
 
         $totalCiudadanos = 0;
 

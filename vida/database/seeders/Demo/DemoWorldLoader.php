@@ -23,7 +23,7 @@ class DemoWorldLoader
 
     /**
      * @param string|null $worldsDir Ruta al directorio de mundos (null = default)
-     * @param callable|null $output  Callable para avisos no fatales (p.ej. $this->warn(...))
+     * @param callable|null $output Callable para avisos no fatales (p.ej. $this->warn(...))
      */
     public function __construct(?string $worldsDir = null, ?callable $output = null)
     {
@@ -61,13 +61,13 @@ class DemoWorldLoader
 
         return [
             'meta' => [
-                'nombre'      => $raw['meta']['nombre'],
+                'nombre' => $raw['meta']['nombre'],
                 'descripcion' => $raw['meta']['descripcion'],
-                'reset_cada'  => $raw['meta']['reset_cada'] ?? 'por demanda',
+                'reset_cada' => $raw['meta']['reset_cada'] ?? 'por demanda',
             ],
-            'centros'       => $raw['centros'],
+            'centros' => $raw['centros'],
             'profesionales' => $raw['profesionales'],
-            'escenarios'    => $raw['escenarios'] ?? [],
+            'escenarios' => $raw['escenarios'] ?? [],
         ];
     }
 
@@ -97,7 +97,7 @@ class DemoWorldLoader
     /**
      * Valida la estructura del array YAML cargado.
      *
-     * @param mixed  $raw       Datos parseados del YAML
+     * @param mixed $raw Datos parseados del YAML
      * @param string $worldName Nombre del mundo (para mensajes de error)
      *
      * @throws \InvalidArgumentException Si alguna validación falla
@@ -145,7 +145,7 @@ class DemoWorldLoader
 
             if (! in_array($centro['tipo'], ['asp', 'especializada'], true)) {
                 throw new \InvalidArgumentException(
-                    "[{$worldName}] Centro #{$pos} (id={$centro['id']}): " .
+                    "[{$worldName}] Centro #{$pos} (id={$centro['id']}): ".
                     "tipo '{$centro['tipo']}' no permitido. Valores válidos: 'asp', 'especializada'."
                 );
             }
@@ -160,7 +160,7 @@ class DemoWorldLoader
             );
         }
 
-        $rolesValidos      = ['supervisor', 'intervencion', 'consulta_basica'];
+        $rolesValidos = ['supervisor', 'intervencion', 'consulta_basica'];
         $profesionalesLogins = [];
 
         foreach ($raw['profesionales'] as $idx => $prof) {
@@ -176,14 +176,14 @@ class DemoWorldLoader
 
             if (! in_array($prof['rol'], $rolesValidos, true)) {
                 throw new \InvalidArgumentException(
-                    "[{$worldName}] Profesional #{$pos} (login={$prof['login']}): " .
-                    "rol '{$prof['rol']}' no permitido. Válidos: " . implode(', ', $rolesValidos) . "."
+                    "[{$worldName}] Profesional #{$pos} (login={$prof['login']}): ".
+                    "rol '{$prof['rol']}' no permitido. Válidos: ".implode(', ', $rolesValidos).'.'
                 );
             }
 
             if (! in_array($prof['centro'], $centroIds, true)) {
                 throw new \InvalidArgumentException(
-                    "[{$worldName}] Profesional #{$pos} (login={$prof['login']}): " .
+                    "[{$worldName}] Profesional #{$pos} (login={$prof['login']}): ".
                     "centro '{$prof['centro']}' no existe en la sección 'centros'."
                 );
             }
@@ -222,7 +222,7 @@ class DemoWorldLoader
 
             if (! in_array($login, $profesionalesLogins, true)) {
                 throw new \InvalidArgumentException(
-                    "[{$worldName}] Escenario #{$pos}: profesional '{$login}' " .
+                    "[{$worldName}] Escenario #{$pos}: profesional '{$login}' ".
                     "no está declarado en la sección 'profesionales'."
                 );
             }
@@ -231,14 +231,15 @@ class DemoWorldLoader
 
             if ($rolDelProfesional !== 'intervencion') {
                 throw new \InvalidArgumentException(
-                    "[{$worldName}] Escenario #{$pos}: profesional '{$login}' " .
-                    "tiene rol '{$rolDelProfesional}'. Solo profesionales con rol 'intervencion' " .
-                    "pueden tener escenarios de ciudadanos."
+                    "[{$worldName}] Escenario #{$pos}: profesional '{$login}' ".
+                    "tiene rol '{$rolDelProfesional}'. Solo profesionales con rol 'intervencion' ".
+                    'pueden tener escenarios de ciudadanos.'
                 );
             }
 
             if (empty($escenario['ciudadanos']) || ! is_array($escenario['ciudadanos'])) {
                 $this->warn("[{$worldName}] Escenario #{$pos} ({$login}): no tiene ciudadanos definidos.");
+
                 continue;
             }
 
@@ -249,16 +250,16 @@ class DemoWorldLoader
 
                 if (empty($ciudadanoEntry['escenario'])) {
                     throw new \InvalidArgumentException(
-                        "[{$worldName}] Escenario #{$pos} ({$login}), ciudadano #{$cpos}: " .
+                        "[{$worldName}] Escenario #{$pos} ({$login}), ciudadano #{$cpos}: ".
                         "campo 'escenario' obligatorio."
                     );
                 }
 
                 if (! in_array($ciudadanoEntry['escenario'], $escenariosValidos, true)) {
                     throw new \InvalidArgumentException(
-                        "[{$worldName}] Escenario #{$pos} ({$login}), ciudadano #{$cpos}: " .
-                        "escenario '{$ciudadanoEntry['escenario']}' no válido. " .
-                        "Válidos: " . implode(', ', $escenariosValidos) . "."
+                        "[{$worldName}] Escenario #{$pos} ({$login}), ciudadano #{$cpos}: ".
+                        "escenario '{$ciudadanoEntry['escenario']}' no válido. ".
+                        'Válidos: '.implode(', ', $escenariosValidos).'.'
                     );
                 }
 
@@ -266,7 +267,7 @@ class DemoWorldLoader
 
                 if (! is_int($cantidad) || $cantidad < 1) {
                     throw new \InvalidArgumentException(
-                        "[{$worldName}] Escenario #{$pos} ({$login}), ciudadano #{$cpos}: " .
+                        "[{$worldName}] Escenario #{$pos} ({$login}), ciudadano #{$cpos}: ".
                         "'cantidad' debe ser un entero >= 1."
                     );
                 }

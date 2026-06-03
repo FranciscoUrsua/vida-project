@@ -24,9 +24,9 @@ class TrayectoriaNueva extends TrayectoriaActiva
     /**
      * Construye la trayectoria nueva para un ciudadano.
      *
-     * @param Ciudadano         $ciudadano Ciudadano sobre el que construir la trayectoria
-     * @param User              $tsr       Profesional responsable (rol intervencion)
-     * @param UnidadOrganizativa $uo       Unidad Organizativa del profesional
+     * @param Ciudadano $ciudadano Ciudadano sobre el que construir la trayectoria
+     * @param User $tsr Profesional responsable (rol intervencion)
+     * @param UnidadOrganizativa $uo Unidad Organizativa del profesional
      */
     public function construir(Ciudadano $ciudadano, User $tsr, UnidadOrganizativa $uo): void
     {
@@ -35,13 +35,13 @@ class TrayectoriaNueva extends TrayectoriaActiva
 
         if ($auxiliar !== null) {
             SiaContacto::create([
-                'ciudadano_id'        => $ciudadano->id,
-                'auxiliar_id'         => $auxiliar->id,
-                'fecha_hora'          => now()->subDays(rand(5, 20)),
-                'canal'               => 'presencial',
+                'ciudadano_id' => $ciudadano->id,
+                'auxiliar_id' => $auxiliar->id,
+                'fecha_hora' => now()->subDays(rand(5, 20)),
+                'canal' => 'presencial',
                 'descripcion_demanda' => fake('es_ES')->sentence(),
-                'clasificacion'       => ClasificacionSia::CompetenciaMunicipal,
-                'urgencia'            => UrgenciaSia::Ordinario,
+                'clasificacion' => ClasificacionSia::CompetenciaMunicipal,
+                'urgencia' => UrgenciaSia::Ordinario,
             ]);
         } else {
             $this->warn("  [TrayectoriaNueva] Sin auxiliar en UO {$uo->nombre} — SiaContacto omitido.");
@@ -49,20 +49,20 @@ class TrayectoriaNueva extends TrayectoriaActiva
 
         // 2. Historia Social abierta recientemente (3-15 días atrás)
         $historia = HistoriaSocial::withoutGlobalScopes()->create([
-            'ciudadano_id'           => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         // 3. Entrevista inicial reciente
         Entrevista::create([
-            'historia_id'    => $historia->id,
+            'historia_id' => $historia->id,
             'profesional_id' => $tsr->id,
-            'fecha_hora'     => now()->subDays(rand(3, 15)),
-            'modalidad'      => 'presencial',
-            'tipo'           => TipoEntrevista::Inicial,
-            'estado'         => 'realizada',
+            'fecha_hora' => now()->subDays(rand(3, 15)),
+            'modalidad' => 'presencial',
+            'tipo' => TipoEntrevista::Inicial,
+            'estado' => 'realizada',
         ]);
 
         // Sin plan ni seguimientos — caso en fase de valoración inicial

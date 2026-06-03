@@ -5,6 +5,7 @@ namespace Database\Seeders\Demo;
 use App\Models\Ciudadano;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
+use App\Models\UsuarioUo;
 use Database\Seeders\Demo\Scenarios\TrayectoriaActiva;
 use Database\Seeders\Demo\Scenarios\TrayectoriaCerrada;
 use Database\Seeders\Demo\Scenarios\TrayectoriaCompleja;
@@ -25,10 +26,10 @@ class DemoScenarioBuilder
 {
     /** @var array<string, class-string> Mapeo nombre YAML → clase de escenario */
     private const ESCENARIOS = [
-        'activa'   => TrayectoriaActiva::class,
-        'cerrada'  => TrayectoriaCerrada::class,
-        'nueva'    => TrayectoriaNueva::class,
-        'urgente'  => TrayectoriaUrgente::class,
+        'activa' => TrayectoriaActiva::class,
+        'cerrada' => TrayectoriaCerrada::class,
+        'nueva' => TrayectoriaNueva::class,
+        'urgente' => TrayectoriaUrgente::class,
         'compleja' => TrayectoriaCompleja::class,
     ];
 
@@ -52,10 +53,8 @@ class DemoScenarioBuilder
      * 3. Construye la trayectoria correspondiente
      *
      * @param list<array{profesional: string, ciudadanos: list<array{escenario: string, cantidad: int}>}> $scenariosConfig
-     * @param array<string, User>                $profesionales Indexado por login
-     * @param array<string, UnidadOrganizativa>  $unidades      Indexado por id YAML
-     *
-     * @return void
+     * @param array<string, User> $profesionales Indexado por login
+     * @param array<string, UnidadOrganizativa> $unidades Indexado por id YAML
      */
     public function buildScenarios(array $scenariosConfig, array $profesionales, array $unidades): void
     {
@@ -64,10 +63,11 @@ class DemoScenarioBuilder
 
         foreach ($scenariosConfig as $escenarioConfig) {
             $login = $escenarioConfig['profesional'];
-            $tsr   = $profesionales[$login] ?? null;
+            $tsr = $profesionales[$login] ?? null;
 
             if ($tsr === null) {
                 $this->warn("  [DemoScenarioBuilder] Profesional '{$login}' no encontrado — escenario omitido.");
+
                 continue;
             }
 
@@ -75,17 +75,19 @@ class DemoScenarioBuilder
 
             if ($uo === null) {
                 $this->warn("  [DemoScenarioBuilder] No se encontró UO para '{$login}' — escenario omitido.");
+
                 continue;
             }
 
             foreach ($escenarioConfig['ciudadanos'] as $ciudadanoEntry) {
                 $nombreEscenario = $ciudadanoEntry['escenario'];
-                $cantidad        = $ciudadanoEntry['cantidad'];
+                $cantidad = $ciudadanoEntry['cantidad'];
 
                 $clase = self::ESCENARIOS[$nombreEscenario] ?? null;
 
                 if ($clase === null) {
                     $this->warn("  [DemoScenarioBuilder] Escenario '{$nombreEscenario}' desconocido — omitido.");
+
                     continue;
                 }
 
@@ -113,22 +115,22 @@ class DemoScenarioBuilder
     private function crearCiudadano(): Ciudadano
     {
         return Ciudadano::withoutGlobalScopes()->create([
-            'nombre'             => fake('es_ES')->firstName(),
-            'apellido1'          => fake('es_ES')->lastName(),
-            'apellido2'          => fake('es_ES')->lastName(),
-            'fecha_nacimiento'   => fake()->dateTimeBetween('-80 years', '-18 years')->format('Y-m-d'),
-            'sexo'               => fake()->randomElement(['M', 'F']),
-            'direccion_texto'    => 'C/ ' . fake('es_ES')->streetName() . ', Madrid',
+            'nombre' => fake('es_ES')->firstName(),
+            'apellido1' => fake('es_ES')->lastName(),
+            'apellido2' => fake('es_ES')->lastName(),
+            'fecha_nacimiento' => fake()->dateTimeBetween('-80 years', '-18 years')->format('Y-m-d'),
+            'sexo' => fake()->randomElement(['M', 'F']),
+            'direccion_texto' => 'C/ '.fake('es_ES')->streetName().', Madrid',
             'nivel_identificacion' => 'identificado',
-            'activo'             => true,
+            'activo' => true,
         ]);
     }
 
     /**
      * Construye el mapa login → UO a partir de las adscripciones en BD.
      *
-     * @param array<string, User>                $profesionales
-     * @param array<string, UnidadOrganizativa>  $unidades
+     * @param array<string, User> $profesionales
+     * @param array<string, UnidadOrganizativa> $unidades
      *
      * @return array<string, UnidadOrganizativa> Indexado por login
      */
@@ -144,7 +146,7 @@ class DemoScenarioBuilder
         $resultado = [];
 
         foreach ($profesionales as $login => $user) {
-            $adscripcion = \App\Models\UsuarioUo::where('usuario_id', $user->id)
+            $adscripcion = UsuarioUo::where('usuario_id', $user->id)
                 ->whereIn('unidad_organizativa_id', array_keys($uosPorId))
                 ->first();
 

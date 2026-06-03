@@ -4,6 +4,7 @@ namespace Tests\Feature\Demo;
 
 use Database\Seeders\Demo\DemoWorldLoader;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -28,7 +29,7 @@ class DemoWorldLoaderTest extends TestCase
     #[Test]
     public function tf_demo_01_loader_carga_ci_minimo_sin_errores(): void
     {
-        $loader = new DemoWorldLoader();
+        $loader = new DemoWorldLoader;
         $config = $loader->load('ci_minimo');
 
         $this->assertArrayHasKey('meta', $config);
@@ -59,7 +60,7 @@ class DemoWorldLoaderTest extends TestCase
         $loader = new DemoWorldLoader(sys_get_temp_dir());
 
         // Crear un YAML temporal con un profesional que referencia un centro inexistente
-        $yaml = <<<YAML
+        $yaml = <<<'YAML'
 meta:
   nombre: "Test"
   descripcion: "Test de centro inexistente"
@@ -79,7 +80,7 @@ profesionales:
 escenarios: []
 YAML;
 
-        $tempFile = sys_get_temp_dir() . '/centro_inexistente.yaml';
+        $tempFile = sys_get_temp_dir().'/centro_inexistente.yaml';
         file_put_contents($tempFile, $yaml);
 
         try {
@@ -105,7 +106,7 @@ YAML;
 
         $loader = new DemoWorldLoader(sys_get_temp_dir());
 
-        $yaml = <<<YAML
+        $yaml = <<<'YAML'
 meta:
   nombre: "Test"
   descripcion: "Test consulta basica en escenarios"
@@ -129,7 +130,7 @@ escenarios:
         cantidad: 1
 YAML;
 
-        $tempFile = sys_get_temp_dir() . '/consulta_basica_escenarios.yaml';
+        $tempFile = sys_get_temp_dir().'/consulta_basica_escenarios.yaml';
         file_put_contents($tempFile, $yaml);
 
         try {
@@ -155,7 +156,7 @@ YAML;
 
         $loader = new DemoWorldLoader(sys_get_temp_dir());
 
-        $yaml = <<<YAML
+        $yaml = <<<'YAML'
 meta:
   nombre: "Test"
   descripcion: "Test supervisor en escenarios"
@@ -179,7 +180,7 @@ escenarios:
         cantidad: 1
 YAML;
 
-        $tempFile = sys_get_temp_dir() . '/supervisor_escenarios.yaml';
+        $tempFile = sys_get_temp_dir().'/supervisor_escenarios.yaml';
         file_put_contents($tempFile, $yaml);
 
         try {
@@ -204,7 +205,7 @@ YAML;
         $this->app['env'] = 'production';
         app()->bind('env', fn () => 'production');
 
-        $exitCode = \Illuminate\Support\Facades\Artisan::call('demo:reset', ['--world' => 'ci_minimo']);
+        $exitCode = Artisan::call('demo:reset', ['--world' => 'ci_minimo']);
 
         $this->assertSame(1, $exitCode);
     }
@@ -220,7 +221,7 @@ YAML;
     #[Test]
     public function tf_demo_06_demo_validate_codigo_0_con_yaml_valido(): void
     {
-        $exitCode = \Illuminate\Support\Facades\Artisan::call('demo:validate', ['world' => 'ci_minimo']);
+        $exitCode = Artisan::call('demo:validate', ['world' => 'ci_minimo']);
 
         $this->assertSame(0, $exitCode);
     }
@@ -236,7 +237,7 @@ YAML;
     #[Test]
     public function tf_demo_07_demo_validate_codigo_1_con_yaml_invalido(): void
     {
-        $exitCode = \Illuminate\Support\Facades\Artisan::call('demo:validate', ['world' => 'mundo_que_no_existe_xyz']);
+        $exitCode = Artisan::call('demo:validate', ['world' => 'mundo_que_no_existe_xyz']);
 
         $this->assertSame(1, $exitCode);
     }
@@ -259,9 +260,9 @@ YAML;
     public function tf_demo_08_demo_reset_crea_uos_correctas(): void
     {
         $this->markTestIncomplete(
-            'TF-DEMO-08: Test de integración pesado. ' .
-            'Requiere entorno de demo aislado con roles Spatie sembrados y ' .
-            'verificación de que APP_ENV !== testing no bloquea el comando. ' .
+            'TF-DEMO-08: Test de integración pesado. '.
+            'Requiere entorno de demo aislado con roles Spatie sembrados y '.
+            'verificación de que APP_ENV !== testing no bloquea el comando. '.
             'Pendiente de implementar — ver BACKLOG.md.'
         );
     }
@@ -278,8 +279,8 @@ YAML;
     public function tf_demo_09_demo_reset_crea_profesionales_con_roles(): void
     {
         $this->markTestIncomplete(
-            'TF-DEMO-09: Test de integración pesado. ' .
-            'Requiere roles Spatie sembrados y entorno de demo aislado. ' .
+            'TF-DEMO-09: Test de integración pesado. '.
+            'Requiere roles Spatie sembrados y entorno de demo aislado. '.
             'Pendiente de implementar — ver BACKLOG.md.'
         );
     }
@@ -296,8 +297,8 @@ YAML;
     public function tf_demo_10_demo_reset_genera_ciudadanos_con_escenario_correcto(): void
     {
         $this->markTestIncomplete(
-            'TF-DEMO-10: Test de integración pesado. ' .
-            'Requiere entorno de demo aislado y datos de ciudadanos. ' .
+            'TF-DEMO-10: Test de integración pesado. '.
+            'Requiere entorno de demo aislado y datos de ciudadanos. '.
             'Pendiente de implementar — ver BACKLOG.md.'
         );
     }
@@ -314,8 +315,8 @@ YAML;
     public function tf_demo_11_invariantes_no_violados_tras_reset(): void
     {
         $this->markTestIncomplete(
-            'TF-DEMO-11: Test de integración pesado. ' .
-            'Requiere entorno de demo aislado para verificar DemoInvariantChecker. ' .
+            'TF-DEMO-11: Test de integración pesado. '.
+            'Requiere entorno de demo aislado para verificar DemoInvariantChecker. '.
             'Pendiente de implementar — ver BACKLOG.md.'
         );
     }
@@ -332,8 +333,8 @@ YAML;
     public function tf_demo_12_trayectoria_compleja_falla_con_uo_no_especializada(): void
     {
         $this->markTestIncomplete(
-            'TF-DEMO-12: Test de integración pesado. ' .
-            'Requiere instanciar UO en BD y verificar LogicException de TrayectoriaCompleja. ' .
+            'TF-DEMO-12: Test de integración pesado. '.
+            'Requiere instanciar UO en BD y verificar LogicException de TrayectoriaCompleja. '.
             'Pendiente de implementar — ver BACKLOG.md.'
         );
     }
