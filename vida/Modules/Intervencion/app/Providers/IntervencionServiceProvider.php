@@ -2,7 +2,9 @@
 
 namespace Modules\Intervencion\Providers;
 
+use App\Models\HistoriaSocial;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
@@ -36,6 +38,10 @@ class IntervencionServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));
+
+        // El binding ignora el AmbitoUoScope para que la policy pueda emitir 403
+        // en lugar de 404 cuando el usuario no tiene acceso al recurso.
+        Route::bind('historia', fn ($value) => HistoriaSocial::withoutGlobalScopes()->findOrFail($value));
 
         $this->loadViewsFrom(module_path($this->moduleName, 'resources/views'), 'intervencion');
 

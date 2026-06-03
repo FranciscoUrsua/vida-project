@@ -3,6 +3,8 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
+use Database\Seeders\PermisosSeeder;
+use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -25,6 +27,9 @@ class AutenticacionTest extends TestCase
     {
         parent::setUp();
 
+        $this->seed(PermisosSeeder::class);
+        $this->seed(RolesSeeder::class);
+
         $this->usuario = User::factory()->create([
             'name' => 'Juana López García',
             'email' => 'juana@madrid.es',
@@ -32,6 +37,10 @@ class AutenticacionTest extends TestCase
             'email_verified_at' => now(),
             'primer_acceso' => false,
         ]);
+
+        // Sin rol, el login y la ruta / redirigen a /sin-rol en lugar de a inicio.
+        // consulta_basica es el rol mínimo que conduce a route('inicio').
+        $this->usuario->assignRole('consulta_basica');
     }
 
     // =========================================================================
@@ -200,6 +209,7 @@ class AutenticacionTest extends TestCase
             'password' => 'otrapass',
             'primer_acceso' => false,
         ]);
+        $usuarioB->assignRole('consulta_basica');
 
         // 5 intentos fallidos para usuario_a
         for ($i = 0; $i < 5; $i++) {
@@ -336,6 +346,7 @@ class AutenticacionTest extends TestCase
     public function tf_auth_21_completar_onboarding_marca_primer_acceso_como_false(): void
     {
         $nuevo = User::factory()->create(['primer_acceso' => true]);
+        $nuevo->assignRole('consulta_basica');
 
         $respuesta = $this->actingAs($nuevo)->post('/bienvenida');
 

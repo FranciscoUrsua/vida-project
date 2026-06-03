@@ -6,6 +6,8 @@ use App\Filament\Resources\PrestacionResource\Pages\CreatePrestacion;
 use App\Filament\Resources\PrestacionResource\Pages\EditPrestacion;
 use App\Filament\Resources\PrestacionResource\Pages\ListPrestaciones;
 use App\Models\User;
+use Database\Seeders\PermisosSeeder;
+use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Modules\Prestaciones\Models\Prestacion;
@@ -21,6 +23,26 @@ use Tests\TestCase;
 class PrestacionFilamentResourceTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(PermisosSeeder::class);
+        $this->seed(RolesSeeder::class);
+    }
+
+    /**
+     * Crea un usuario con rol adm_sistema para acceder al panel Filament.
+     * Sin este rol, canAccessPanel() devuelve false y el componente no monta.
+     */
+    private function crearAdmin(): User
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('adm_sistema');
+
+        return $admin;
+    }
 
     private function prestacionBase(array $overrides = []): array
     {
@@ -40,7 +62,7 @@ class PrestacionFilamentResourceTest extends TestCase
     #[Test]
     public function un_admin_puede_listar_prestaciones_en_filament(): void
     {
-        $admin = User::factory()->create();
+        $admin = $this->crearAdmin();
 
         $prestaciones = collect(range(1, 5))->map(fn ($i) => Prestacion::create(
             $this->prestacionBase(['codigo' => "P000{$i}", 'nombre' => "Prestación {$i}"])
@@ -54,7 +76,7 @@ class PrestacionFilamentResourceTest extends TestCase
     #[Test]
     public function el_listado_de_filament_filtra_correctamente_por_tipo_prestacion(): void
     {
-        $admin = User::factory()->create();
+        $admin = $this->crearAdmin();
 
         Prestacion::create($this->prestacionBase(['codigo' => 'SRV01', 'tipo_prestacion' => 'servicio']));
         Prestacion::create($this->prestacionBase(['codigo' => 'SRV02', 'tipo_prestacion' => 'servicio']));
@@ -71,7 +93,7 @@ class PrestacionFilamentResourceTest extends TestCase
     #[Test]
     public function el_listado_de_filament_filtra_correctamente_por_activa(): void
     {
-        $admin = User::factory()->create();
+        $admin = $this->crearAdmin();
 
         Prestacion::create($this->prestacionBase(['codigo' => 'ACT01', 'activa' => true]));
         Prestacion::create($this->prestacionBase(['codigo' => 'ACT02', 'activa' => true]));
@@ -90,7 +112,7 @@ class PrestacionFilamentResourceTest extends TestCase
     #[Test]
     public function un_admin_puede_crear_una_prestacion_desde_filament(): void
     {
-        $admin = User::factory()->create();
+        $admin = $this->crearAdmin();
 
         Livewire::actingAs($admin)
             ->test(CreatePrestacion::class)
@@ -112,7 +134,7 @@ class PrestacionFilamentResourceTest extends TestCase
     #[Test]
     public function el_formulario_de_filament_rechaza_una_prestacion_sin_nombre(): void
     {
-        $admin = User::factory()->create();
+        $admin = $this->crearAdmin();
 
         Livewire::actingAs($admin)
             ->test(CreatePrestacion::class)
@@ -131,7 +153,7 @@ class PrestacionFilamentResourceTest extends TestCase
     #[Test]
     public function el_formulario_de_filament_rechaza_un_codigo_duplicado(): void
     {
-        $admin = User::factory()->create();
+        $admin = $this->crearAdmin();
         Prestacion::create($this->prestacionBase(['codigo' => '010101']));
 
         Livewire::actingAs($admin)
@@ -155,7 +177,7 @@ class PrestacionFilamentResourceTest extends TestCase
     #[Test]
     public function un_admin_puede_editar_una_prestacion_desde_filament(): void
     {
-        $admin = User::factory()->create();
+        $admin = $this->crearAdmin();
         $prestacion = Prestacion::create($this->prestacionBase(['nombre' => 'Nombre original']));
 
         Livewire::actingAs($admin)
@@ -170,7 +192,7 @@ class PrestacionFilamentResourceTest extends TestCase
     #[Test]
     public function editar_desde_filament_genera_una_version_en_versiones(): void
     {
-        $admin = User::factory()->create();
+        $admin = $this->crearAdmin();
         $prestacion = Prestacion::create($this->prestacionBase());
 
         $this->assertDatabaseCount('versiones', 0);
@@ -195,7 +217,7 @@ class PrestacionFilamentResourceTest extends TestCase
     #[Test]
     public function el_toggle_de_activa_en_el_listado_cambia_el_estado_de_la_prestacion(): void
     {
-        $admin = User::factory()->create();
+        $admin = $this->crearAdmin();
         $prestacion = Prestacion::create($this->prestacionBase(['activa' => true]));
 
         // ToggleColumn usa updateTableColumnState (no callTableColumnAction)

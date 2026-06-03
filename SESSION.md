@@ -4,10 +4,14 @@ _Actualizado: 2026-06-03_
 
 ## Tarea completada
 
-Instalación y configuración completa del tooling de calidad: PHPStan/Larastan, Pint, Rector y CI pipeline.
-Primera ejecución de Pint aplicada a todo el proyecto (~240 ficheros reformateados). PHPStan pasa limpio con baseline.
+Corrección de los 17 tests fallidos de la suite (Bloque Auth 7 + Bloque Prestaciones Filament 9 + Bloque CiudadanoPage 1). Suite pasa a 488 tests, 0 fallos.
 
 ## Estado actual
+
+### Tests — 0 fallos
+- Suite: 488 tests, 0 fallos, 6 pendientes (deuda documentada), 1 incompleto (centroActivo pendiente).
+- Los tests de Filament (`PrestacionFilamentResourceTest`) requieren `adm_sistema` en el usuario y siembra de roles.
+- El binding `historia` en `IntervencionServiceProvider` usa `withoutGlobalScopes()` para que la policy emita 403 en lugar de 404.
 
 ### Tooling de calidad — operativo
 - `composer analyse` → PHPStan nivel 6, pasa sin errores (baseline de 772 errores heredados).

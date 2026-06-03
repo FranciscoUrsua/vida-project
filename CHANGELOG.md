@@ -2,6 +2,37 @@
 
 ---
 
+## Corrección de 17 tests fallidos — 2026-06-03
+
+### Módulos afectados
+`tests/Feature/Auth`, `Modules/Prestaciones/tests`, `Modules/Intervencion/tests`, `Modules/Intervencion/app/Providers`
+
+### Bloque 1 — AutenticacionTest (7 tests corregidos)
+
+- `setUp()` siembra `PermisosSeeder` + `RolesSeeder` y asigna rol `consulta_basica` a `$this->usuario`.
+- `tf_auth_11`: `$usuarioB` recibe `assignRole('consulta_basica')` tras crearse.
+- `tf_auth_21`: `$nuevo` recibe `assignRole('consulta_basica')` antes de completar onboarding.
+- **Causa raíz:** sin rol, `destino()` en `LoginController` y la ruta `/` redirigen a `sin-rol` en lugar de `inicio`.
+
+### Bloque 2 — PrestacionFilamentResourceTest (9 tests corregidos)
+
+- Añadido `setUp()` que siembra `PermisosSeeder` + `RolesSeeder`.
+- Añadido helper privado `crearAdmin()` que crea usuario con rol `adm_sistema`.
+- Los 9 tests sustituyen `User::factory()->create()` por `$this->crearAdmin()`.
+- **Causa raíz:** sin rol `adm_sistema`, `canAccessPanel()` devuelve false y el componente Livewire/Filament no monta → null → errores de método sobre null.
+
+### Bloque 3 — CiudadanoPageTest (1 test corregido)
+
+- `IntervencionServiceProvider::boot()`: añadido `Route::bind('historia', ...)` que resuelve `HistoriaSocial` usando `withoutGlobalScopes()`.
+- **Causa raíz:** `SubstituteBindings` (en el middleware `web`) resuelve el modelo antes de que los middlewares de rol y policy tengan oportunidad de ejecutarse. El `AmbitoUoScope` filtraba el registro haciéndolo invisible para el usuario sin acceso → 404 en lugar de 403.
+
+### Decisiones de implementación
+
+- `consulta_basica` es el rol mínimo que conduce a `route('inicio')` sin disparar redirecciones a `/admin` ni a `/intervencion/agenda`. Tests de Auth usan siempre este rol.
+- El binding de `historia` sin scope sigue el principio "binding encuentra, policy decide" — el modelo siempre se resuelve y la policy emite el 403 correspondiente. El middleware `role:intervencion` también puede emitir 403 antes que la policy cuando el usuario no tiene ese rol.
+
+---
+
 ## Tooling de calidad de código — 2026-06-03
 
 ### Módulos afectados
