@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Modules\Escalas\Database\Factories\PaseEscalaFactory;
 use Modules\Escalas\Enums\EstadoPase;
@@ -23,7 +24,7 @@ use Modules\Escalas\Enums\EstadoPase;
  * @property int $tipo_escala_id
  * @property int $historia_id
  * @property int $profesional_id
- * @property \Illuminate\Support\Carbon $fecha
+ * @property Carbon $fecha
  * @property array $respuestas
  * @property int|null $score_total
  * @property array|null $scores_seccion
@@ -56,10 +57,10 @@ class PaseEscala extends Model
     ];
 
     protected $casts = [
-        'respuestas'     => 'array',
+        'respuestas' => 'array',
         'scores_seccion' => 'array',
-        'fecha'          => 'date',
-        'estado'         => EstadoPase::class,
+        'fecha' => 'date',
+        'estado' => EstadoPase::class,
     ];
 
     // -------------------------------------------------------------------------
@@ -68,8 +69,6 @@ class PaseEscala extends Model
 
     /**
      * Los campos de score son inmutables en un pase completado.
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -94,21 +93,19 @@ class PaseEscala extends Model
     /**
      * Suma los valores de todas las respuestas y calcula los scores por sección.
      * No persiste; llamar a save() después si se desea guardar.
-     *
-     * @return void
      */
     public function calcularScores(): void
     {
-        $total      = 0;
+        $total = 0;
         $porSeccion = [];
 
         foreach ($this->respuestas as $secId => $items) {
-            $subtotal           = array_sum($items);
+            $subtotal = array_sum($items);
             $porSeccion[$secId] = $subtotal;
-            $total             += $subtotal;
+            $total += $subtotal;
         }
 
-        $this->score_total    = $total;
+        $this->score_total = $total;
         $this->scores_seccion = $porSeccion;
     }
 
@@ -116,8 +113,6 @@ class PaseEscala extends Model
      * Busca el rango de interpretación que corresponde al score_total y asigna su código.
      * Si no encuentra ningún rango, deja interpretacion_codigo como null.
      * No persiste.
-     *
-     * @return void
      */
     public function asignarInterpretacion(): void
     {
@@ -126,12 +121,13 @@ class PaseEscala extends Model
         foreach ($rangos as $rango) {
             if ($this->score_total >= $rango['desde'] && $this->score_total <= $rango['hasta']) {
                 $this->interpretacion_codigo = $rango['codigo'];
+
                 return;
             }
         }
 
         Log::warning('PaseEscala: score_total fuera de rango de interpretación', [
-            'pase_id'     => $this->id,
+            'pase_id' => $this->id,
             'score_total' => $this->score_total,
         ]);
 
@@ -142,16 +138,15 @@ class PaseEscala extends Model
      * Orquesta el cierre del pase: valida respuestas, calcula scores, persiste.
      *
      * @throws \LogicException Si falta respuesta para algún ítem del schema.
-     * @return void
      */
     public function completar(): void
     {
-        $schema  = $this->tipoEscala->schema;
+        $schema = $this->tipoEscala->schema;
         $faltantes = [];
 
         foreach ($schema['secciones'] as $seccion) {
             foreach ($seccion['items'] as $item) {
-                $secId  = $seccion['id'];
+                $secId = $seccion['id'];
                 $itemId = $item['id'];
 
                 if (! isset($this->respuestas[$secId][$itemId])) {
@@ -162,7 +157,7 @@ class PaseEscala extends Model
 
         if (! empty($faltantes)) {
             throw new \LogicException(
-                'Faltan respuestas para los siguientes ítems: ' . implode(', ', $faltantes)
+                'Faltan respuestas para los siguientes ítems: '.implode(', ', $faltantes)
             );
         }
 
@@ -210,9 +205,6 @@ class PaseEscala extends Model
     // Factory
     // -------------------------------------------------------------------------
 
-    /**
-     * @return PaseEscalaFactory
-     */
     protected static function newFactory(): PaseEscalaFactory
     {
         return PaseEscalaFactory::new();

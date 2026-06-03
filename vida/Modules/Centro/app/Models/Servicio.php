@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Modules\Prestaciones\Models\Prestacion;
 use Modules\Usuarios\Models\Profesional;
 
@@ -32,8 +33,8 @@ use Modules\Usuarios\Models\Profesional;
  * @property string $cargo_nombre
  * @property string|null $descripcion
  * @property bool $activo
- * @property \Illuminate\Support\Carbon $fecha_alta
- * @property \Illuminate\Support\Carbon|null $fecha_baja
+ * @property Carbon $fecha_alta
+ * @property Carbon|null $fecha_baja
  * @property string|null $notas
  */
 class Servicio extends Model
@@ -56,7 +57,7 @@ class Servicio extends Model
     ];
 
     protected $casts = [
-        'activo'     => 'boolean',
+        'activo' => 'boolean',
         'fecha_alta' => 'date',
         'fecha_baja' => 'date',
     ];
@@ -67,8 +68,6 @@ class Servicio extends Model
 
     /**
      * Garantiza que la UO es obligatoria antes de persistir.
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -89,7 +88,7 @@ class Servicio extends Model
      * Unidad organizativa a la que pertenece el servicio.
      * La dirección de referencia se obtiene de esta UO.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\UnidadOrganizativa, self>
+     * @return BelongsTo<UnidadOrganizativa, self>
      */
     public function unidadOrganizativa(): BelongsTo
     {
@@ -99,7 +98,7 @@ class Servicio extends Model
     /**
      * Historial de responsables del servicio.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\ResponsableServicio, self>
+     * @return HasMany<ResponsableServicio, self>
      */
     public function responsables(): HasMany
     {
@@ -109,7 +108,7 @@ class Servicio extends Model
     /**
      * Profesionales actualmente asignados al servicio (sin fecha de baja).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Modules\Usuarios\Models\Profesional, self>
+     * @return BelongsToMany<Profesional, self>
      */
     public function profesionales(): BelongsToMany
     {
@@ -119,13 +118,13 @@ class Servicio extends Model
             'servicio_id',
             'profesional_id'
         )->withPivot(['fecha_alta', 'fecha_baja'])
-         ->whereNull('profesional_servicio.fecha_baja');
+            ->whereNull('profesional_servicio.fecha_baja');
     }
 
     /**
      * Prestaciones que tramita este servicio.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Modules\Prestaciones\Models\Prestacion, self>
+     * @return BelongsToMany<Prestacion, self>
      */
     public function prestaciones(): BelongsToMany
     {
@@ -140,7 +139,7 @@ class Servicio extends Model
     /**
      * Solicitudes de tramitación dirigidas a este servicio.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\SolicitudServicio, self>
+     * @return HasMany<SolicitudServicio, self>
      */
     public function solicitudes(): HasMany
     {
@@ -153,8 +152,6 @@ class Servicio extends Model
 
     /**
      * Devuelve el ResponsableServicio activo (fecha_fin null), o null si no hay ninguno.
-     *
-     * @return \Modules\Centro\Models\ResponsableServicio|null
      */
     public function responsableActivo(): ?ResponsableServicio
     {
@@ -165,10 +162,6 @@ class Servicio extends Model
      * Nombra un nuevo responsable cerrando el activo actual (si existe).
      *
      * El nombre del cargo se toma de $this->cargo_nombre.
-     *
-     * @param  \Modules\Usuarios\Models\Profesional  $profesional
-     * @param  string|null  $notas
-     * @return \Modules\Centro\Models\ResponsableServicio
      */
     public function nombrarResponsable(Profesional $profesional, ?string $notas = null): ResponsableServicio
     {
@@ -176,8 +169,8 @@ class Servicio extends Model
 
         return $this->responsables()->create([
             'profesional_id' => $profesional->id,
-            'fecha_inicio'   => today(),
-            'notas'          => $notas,
+            'fecha_inicio' => today(),
+            'notas' => $notas,
         ]);
     }
 
@@ -188,8 +181,9 @@ class Servicio extends Model
     /**
      * Filtra servicios activos y sin fecha de baja.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeActivos(Builder $query): Builder
     {

@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\ExcepcionProfesionalResource\Pages;
 
 use App\Filament\Resources\ExcepcionProfesionalResource;
-use Filament\Actions\CreateAction;
 use App\Filament\Resources\Pages\ListRecords;
+use Filament\Actions\CreateAction;
 
 class ListExcepcionesProfesional extends ListRecords
 {

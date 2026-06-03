@@ -20,19 +20,19 @@ class HorarioLaboralServiceTest extends TestCase
 
     private function crearHorarioDefecto(
         string $inicio = '08:00',
-        string $fin    = '17:00',
-        array  $dias   = [1, 2, 3, 4, 5]
+        string $fin = '17:00',
+        array $dias = [1, 2, 3, 4, 5]
     ): void {
         CatalogoSistema::create([
-            'grupo'    => 'sistema.configuracion',
-            'clave'    => 'horario_laboral_defecto',
+            'grupo' => 'sistema.configuracion',
+            'clave' => 'horario_laboral_defecto',
             'etiqueta' => 'Horario laboral por defecto',
-            'valor'    => json_encode([
-                'inicio'      => $inicio,
-                'fin'         => $fin,
+            'valor' => json_encode([
+                'inicio' => $inicio,
+                'fin' => $fin,
                 'dias_semana' => $dias,
             ]),
-            'orden'  => 1,
+            'orden' => 1,
             'activo' => true,
         ]);
     }
@@ -42,10 +42,10 @@ class HorarioLaboralServiceTest extends TestCase
     {
         $this->crearHorarioDefecto();
 
-        $servicio = new HorarioLaboralService();
+        $servicio = new HorarioLaboralService;
 
         // Lunes 10:00 + 4h laborales = Lunes 14:00
-        $desde   = now()->startOfWeek()->setTime(10, 0); // Lunes
+        $desde = now()->startOfWeek()->setTime(10, 0); // Lunes
         $resultado = $servicio->calcularExpiracion($desde);
 
         $this->assertEquals(14, $resultado->hour);
@@ -61,9 +61,9 @@ class HorarioLaboralServiceTest extends TestCase
         // - Faltan 1h para mañana: 08:00 + 1h = 09:00
         $this->crearHorarioDefecto();
 
-        $servicio = new HorarioLaboralService();
+        $servicio = new HorarioLaboralService;
 
-        $desde   = now()->startOfWeek()->setTime(14, 0); // Lunes 14:00
+        $desde = now()->startOfWeek()->setTime(14, 0); // Lunes 14:00
         $resultado = $servicio->calcularExpiracion($desde);
 
         $esperado = $desde->copy()->addDay()->setTime(9, 0); // Martes 09:00
@@ -78,9 +78,9 @@ class HorarioLaboralServiceTest extends TestCase
         // Las 4h se cuentan íntegramente desde 08:00 del día siguiente: 08:00 + 4h = 12:00
         $this->crearHorarioDefecto();
 
-        $servicio = new HorarioLaboralService();
+        $servicio = new HorarioLaboralService;
 
-        $desde   = now()->startOfWeek()->setTime(17, 30); // Lunes 17:30 (pasado el fin)
+        $desde = now()->startOfWeek()->setTime(17, 30); // Lunes 17:30 (pasado el fin)
         $resultado = $servicio->calcularExpiracion($desde);
 
         $esperado = $desde->copy()->addDay()->setTime(12, 0); // Martes 12:00
@@ -96,11 +96,11 @@ class HorarioLaboralServiceTest extends TestCase
         // - Falta 1h el lunes: 08:00 + 1h = 09:00
         $this->crearHorarioDefecto();
 
-        $servicio = new HorarioLaboralService();
+        $servicio = new HorarioLaboralService;
 
         // Obtener el próximo viernes
         $viernes = now()->startOfWeek()->addDays(4)->setTime(14, 0); // Viernes 14:00
-        $resultado  = $servicio->calcularExpiracion($viernes);
+        $resultado = $servicio->calcularExpiracion($viernes);
 
         // Debe ser el lunes siguiente a las 09:00
         $lunesSiguiente = $viernes->copy()->addDays(3)->setTime(9, 0);
@@ -113,9 +113,9 @@ class HorarioLaboralServiceTest extends TestCase
     {
         // Sin entrada en catalogos_sistema, usa 08:00-17:00 L-V
 
-        $servicio = new HorarioLaboralService();
+        $servicio = new HorarioLaboralService;
 
-        $desde   = now()->startOfWeek()->setTime(10, 0); // Lunes 10:00
+        $desde = now()->startOfWeek()->setTime(10, 0); // Lunes 10:00
         $resultado = $servicio->calcularExpiracion($desde);
 
         $this->assertEquals(14, $resultado->hour);
@@ -128,10 +128,10 @@ class HorarioLaboralServiceTest extends TestCase
         // Horario especial: 09:00-14:00 (jornada de 5h)
         $this->crearHorarioDefecto('09:00', '14:00');
 
-        $servicio = new HorarioLaboralService();
+        $servicio = new HorarioLaboralService;
 
         // Lunes 10:00 + 4h laborales = 14:00 (justo al límite)
-        $desde   = now()->startOfWeek()->setTime(10, 0);
+        $desde = now()->startOfWeek()->setTime(10, 0);
         $resultado = $servicio->calcularExpiracion($desde);
 
         $this->assertEquals(14, $resultado->hour);
@@ -152,9 +152,9 @@ class HorarioLaboralServiceTest extends TestCase
     {
         $this->crearHorarioDefecto();
 
-        $servicio = new HorarioLaboralService();
+        $servicio = new HorarioLaboralService;
 
-        $lunes9  = now()->startOfWeek()->setTime(9, 0);
+        $lunes9 = now()->startOfWeek()->setTime(9, 0);
         $resultado = $servicio->calcularExpiracion($lunes9);
 
         $this->assertEquals($lunes9->toDateString(), $resultado->toDateString());
@@ -171,10 +171,10 @@ class HorarioLaboralServiceTest extends TestCase
     {
         $this->crearHorarioDefecto();
 
-        $servicio = new HorarioLaboralService();
+        $servicio = new HorarioLaboralService;
 
         $lunes1530 = now()->startOfWeek()->setTime(15, 30);
-        $resultado  = $servicio->calcularExpiracion($lunes1530);
+        $resultado = $servicio->calcularExpiracion($lunes1530);
 
         $martes = $lunes1530->copy()->addDay();
         $this->assertEquals($martes->toDateString(), $resultado->toDateString());
@@ -191,10 +191,10 @@ class HorarioLaboralServiceTest extends TestCase
     {
         $this->crearHorarioDefecto();
 
-        $servicio = new HorarioLaboralService();
+        $servicio = new HorarioLaboralService;
 
         $viernes16 = now()->startOfWeek()->addDays(4)->setTime(16, 0);
-        $resultado  = $servicio->calcularExpiracion($viernes16);
+        $resultado = $servicio->calcularExpiracion($viernes16);
 
         $lunesSig = $viernes16->copy()->addDays(3)->setTime(11, 0);
         $this->assertEquals($lunesSig->toDateString(), $resultado->toDateString());
@@ -211,7 +211,7 @@ class HorarioLaboralServiceTest extends TestCase
     {
         $this->crearHorarioDefecto();
 
-        $servicio = new HorarioLaboralService();
+        $servicio = new HorarioLaboralService;
 
         $lunes20 = now()->startOfWeek()->setTime(20, 0);
         $resultado = $servicio->calcularExpiracion($lunes20);
@@ -231,10 +231,10 @@ class HorarioLaboralServiceTest extends TestCase
     {
         $this->crearHorarioDefecto();
 
-        $servicio = new HorarioLaboralService();
+        $servicio = new HorarioLaboralService;
 
         $sabado10 = now()->startOfWeek()->addDays(5)->setTime(10, 0);
-        $resultado  = $servicio->calcularExpiracion($sabado10);
+        $resultado = $servicio->calcularExpiracion($sabado10);
 
         $lunesSig = $sabado10->copy()->addDays(2)->setTime(12, 0);
         $this->assertEquals($lunesSig->toDateString(), $resultado->toDateString());

@@ -11,6 +11,7 @@ use Modules\Agenda\Models\LineaCuadrante;
 class LineasCuadranteRelationManager extends RelationManager
 {
     protected static string $relationship = 'lineas';
+
     protected static ?string $title = 'Líneas del cuadrante';
 
     public function form(Schema $schema): Schema

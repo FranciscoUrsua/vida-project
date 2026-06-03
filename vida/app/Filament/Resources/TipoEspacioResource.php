@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\TipoEspacioResource\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -14,18 +15,23 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\TipoEspacio;
-use App\Filament\Concerns\AutorizaGestion;
 
 class TipoEspacioResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = TipoEspacio::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-home';
+
     protected static ?string $navigationLabel = 'Tipos de espacio';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
+
     protected static ?string $modelLabel = 'Tipo de espacio';
+
     protected static ?string $pluralModelLabel = 'Tipos de espacio';
+
     protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema
@@ -77,9 +83,9 @@ class TipoEspacioResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListTiposEspacio::route('/'),
+            'index' => Pages\ListTiposEspacio::route('/'),
             'create' => Pages\CreateTipoEspacio::route('/create'),
-            'edit'   => Pages\EditTipoEspacio::route('/{record}/edit'),
+            'edit' => Pages\EditTipoEspacio::route('/{record}/edit'),
         ];
     }
 }

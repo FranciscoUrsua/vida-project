@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Modules\Usuarios\Models\Profesional;
 use Modules\Usuarios\Traits\TieneRoles;
 use Modules\Usuarios\Traits\TieneUO;
@@ -33,12 +34,12 @@ use Spatie\Permission\Traits\HasRoles;
  * @property int|null $profesional_id
  * @property string $name
  * @property string $email
- * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
  * @property bool $primer_acceso
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  *
  * @see docs/modulo-usuarios-permisos.md sección 1.1
  */
@@ -46,10 +47,11 @@ class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use HasRoles;
     use Notifiable;
-    use TieneUO;
     use TieneRoles;
+    use TieneUO;
 
     /** @var list<string> */
     protected $fillable = [
@@ -73,8 +75,8 @@ class User extends Authenticatable implements FilamentUser
     {
         return [
             'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
-            'primer_acceso'     => 'boolean',
+            'password' => 'hashed',
+            'primer_acceso' => 'boolean',
         ];
     }
 

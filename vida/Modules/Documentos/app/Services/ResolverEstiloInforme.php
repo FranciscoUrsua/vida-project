@@ -53,7 +53,7 @@ class ResolverEstiloInforme
             ->keyBy('unidad_organizativa_id');
 
         $resultado = [];
-        $defecto   = config('documentos.estilo_defecto', []);
+        $defecto = config('documentos.estilo_defecto', []);
 
         foreach (self::CAMPOS as $campo) {
             $valor = null;

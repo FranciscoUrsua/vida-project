@@ -15,9 +15,9 @@ class TipoFichaFactory extends Factory
     public function definition(): array
     {
         return [
-            'nombre'      => fake()->words(3, true),
+            'nombre' => fake()->words(3, true),
             'descripcion' => fake()->optional()->sentence(),
-            'schema'      => [
+            'schema' => [
                 ['nombre' => 'campo_prueba', 'tipo' => 'text', 'obligatorio' => false, 'orden' => 1],
             ],
             'activo' => true,

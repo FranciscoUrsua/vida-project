@@ -28,7 +28,7 @@ class TipoValoracionFicha extends Model
     ];
 
     protected $casts = [
-        'orden'      => 'integer',
+        'orden' => 'integer',
         'obligatoria' => 'boolean',
     ];
 

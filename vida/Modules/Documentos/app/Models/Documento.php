@@ -41,8 +41,8 @@ class Documento extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'origen'        => OrigenDocumento::class,
-        'tamano_bytes'  => 'integer',
+        'origen' => OrigenDocumento::class,
+        'tamano_bytes' => 'integer',
     ];
 
     public function documentable(): MorphTo

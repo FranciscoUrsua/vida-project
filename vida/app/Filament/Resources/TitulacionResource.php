@@ -2,18 +2,18 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\TitulacionResource\Pages;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Usuarios\Models\Titulacion;
-use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión del catálogo de titulaciones académicas.
@@ -23,13 +23,19 @@ use App\Filament\Concerns\AutorizaGestion;
 class TitulacionResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = Titulacion::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-academic-cap';
+
     protected static ?string $navigationLabel = 'Titulaciones';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
+
     protected static ?string $modelLabel = 'Titulación';
+
     protected static ?string $pluralModelLabel = 'Titulaciones';
+
     protected static ?int $navigationSort = 7;
 
     public static function form(Schema $schema): Schema
@@ -81,9 +87,9 @@ class TitulacionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListTitulaciones::route('/'),
+            'index' => Pages\ListTitulaciones::route('/'),
             'create' => Pages\CreateTitulacion::route('/create'),
-            'edit'   => Pages\EditTitulacion::route('/{record}/edit'),
+            'edit' => Pages\EditTitulacion::route('/{record}/edit'),
         ];
     }
 }

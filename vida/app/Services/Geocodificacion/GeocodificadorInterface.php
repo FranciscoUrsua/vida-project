@@ -17,7 +17,8 @@ interface GeocodificadorInterface
      * Normaliza una dirección en texto libre extrayendo sus campos estructurados
      * y calculando coordenadas geográficas.
      *
-     * @param  string $direccionTexto Texto libre tal como lo introduce el profesional.
+     * @param string $direccionTexto Texto libre tal como lo introduce el profesional.
+     *
      * @return ResultadoGeocodificacion Siempre devuelve un resultado — nunca lanza excepción.
      */
     public function normalizar(string $direccionTexto): ResultadoGeocodificacion;

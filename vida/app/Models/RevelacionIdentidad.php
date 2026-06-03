@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Registro de auditoría de una revelación de identidad.
@@ -16,13 +17,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * son parte del cumplimiento RGPD para el Nivel 1 de anonimización.
  * Ver docs/anonimizacion.md § 6.3.
  *
- * @property int    $id
- * @property int    $usuario_id
- * @property string $accion        Siempre 'revelar_identidad'
- * @property string $alias         El alias CIU-{...} que se resolvió
- * @property int    $ciudadano_id  El ciudadano cuya identidad se reveló
+ * @property int $id
+ * @property int $usuario_id
+ * @property string $accion Siempre 'revelar_identidad'
+ * @property string $alias El alias CIU-{...} que se resolvió
+ * @property int $ciudadano_id El ciudadano cuya identidad se reveló
  * @property string $justificacion
- * @property \Illuminate\Support\Carbon $created_at
+ * @property Carbon $created_at
  */
 class RevelacionIdentidad extends Model
 {

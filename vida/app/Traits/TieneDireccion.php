@@ -19,38 +19,36 @@ use Illuminate\Database\Eloquent\Builder;
  *
  * Ver docs/geocodificacion.md § 3.2 y docs/decisiones-tecnicas.md § 9.
  *
- * @property string|null         $direccion_texto
- * @property bool                $direccion_normalizada
+ * @property string|null $direccion_texto
+ * @property bool $direccion_normalizada
  * @property OrigenDireccion|null $origen_direccion
- * @property string|null         $tipo_via
- * @property string|null         $nombre_via
+ * @property string|null $tipo_via
+ * @property string|null $nombre_via
  * @property TipoNumeracion|null $tipo_numeracion
- * @property string|null         $numero
- * @property string|null         $portal
- * @property string|null         $escalera
- * @property string|null         $piso
- * @property string|null         $puerta
- * @property string|null         $codigo_postal
- * @property string|null         $municipio
- * @property float|null          $coordenadas_lat
- * @property float|null          $coordenadas_lng
- * @property string|null         $geocoder_proveedor
+ * @property string|null $numero
+ * @property string|null $portal
+ * @property string|null $escalera
+ * @property string|null $piso
+ * @property string|null $puerta
+ * @property string|null $codigo_postal
+ * @property string|null $municipio
+ * @property float|null $coordenadas_lat
+ * @property float|null $coordenadas_lng
+ * @property string|null $geocoder_proveedor
  */
 trait TieneDireccion
 {
     /**
      * Inyecta los casts de los campos de dirección al instanciar el modelo.
-     *
-     * @return void
      */
     public function initializeTieneDireccion(): void
     {
         $this->mergeCasts([
             'direccion_normalizada' => 'boolean',
-            'tipo_numeracion'       => TipoNumeracion::class,
-            'origen_direccion'      => OrigenDireccion::class,
-            'coordenadas_lat'       => 'float',
-            'coordenadas_lng'       => 'float',
+            'tipo_numeracion' => TipoNumeracion::class,
+            'origen_direccion' => OrigenDireccion::class,
+            'coordenadas_lat' => 'float',
+            'coordenadas_lng' => 'float',
         ]);
     }
 
@@ -63,12 +61,10 @@ trait TieneDireccion
      *
      * Construye la representación a partir de los campos normalizados cuando
      * están disponibles. Usa el texto libre como fallback.
-     *
-     * @return string
      */
     public function direccionFormateada(): string
     {
-        if (!$this->direccion_normalizada || empty($this->nombre_via)) {
+        if (! $this->direccion_normalizada || empty($this->nombre_via)) {
             return $this->direccion_texto ?? '';
         }
 
@@ -87,9 +83,9 @@ trait TieneDireccion
         }
 
         $complemento = implode(' ', array_filter([
-            $this->portal   ? 'Portal ' . $this->portal   : null,
-            $this->escalera ? 'Esc. '   . $this->escalera : null,
-            $this->piso     ? $this->piso . 'º'            : null,
+            $this->portal ? 'Portal '.$this->portal : null,
+            $this->escalera ? 'Esc. '.$this->escalera : null,
+            $this->piso ? $this->piso.'º' : null,
             $this->puerta,
         ]));
 
@@ -100,7 +96,7 @@ trait TieneDireccion
         $linea = implode(' ', $partes);
 
         if ($this->codigo_postal || $this->municipio) {
-            $linea .= ', ' . implode(' ', array_filter([$this->codigo_postal, $this->municipio]));
+            $linea .= ', '.implode(' ', array_filter([$this->codigo_postal, $this->municipio]));
         }
 
         return $linea;
@@ -113,7 +109,8 @@ trait TieneDireccion
     /**
      * Filtra entidades cuya dirección aún no ha sido normalizada por el geocoder.
      *
-     * @param  Builder<static> $query
+     * @param Builder<static> $query
+     *
      * @return Builder<static>
      */
     public function scopeSinNormalizar(Builder $query): Builder

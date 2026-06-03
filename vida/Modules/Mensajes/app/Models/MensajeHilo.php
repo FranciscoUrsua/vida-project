@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 
 /**
  * Hilo de conversación entre dos profesionales.
@@ -14,8 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int $id
  * @property string $asunto
  * @property int $creado_por_id
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class MensajeHilo extends Model
 {
@@ -33,7 +34,7 @@ class MensajeHilo extends Model
     /**
      * Participantes del hilo de conversación.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<MensajeParticipante, self>
+     * @return HasMany<MensajeParticipante, self>
      */
     public function participantes(): HasMany
     {
@@ -43,7 +44,7 @@ class MensajeHilo extends Model
     /**
      * Mensajes del hilo ordenados cronológicamente.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Mensaje, self>
+     * @return HasMany<Mensaje, self>
      */
     public function mensajes(): HasMany
     {
@@ -53,7 +54,7 @@ class MensajeHilo extends Model
     /**
      * Usuario que creó el hilo de conversación.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
+     * @return BelongsTo<User, self>
      */
     public function creadoPor(): BelongsTo
     {

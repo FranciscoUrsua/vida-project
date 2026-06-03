@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Anonimizacion;
 
-use App\Exceptions\Anonimizacion\PerfilAnonimizacionNotFoundException;
 use App\Models\Ciudadano;
 use App\Models\RevelacionIdentidad;
 use App\Models\User;
@@ -10,7 +9,6 @@ use App\Services\Api\AnonimizadorService;
 use App\Services\Api\RevelacionIdentidadService;
 use Database\Factories\PerfilAnonimizacionFactory;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
@@ -27,12 +25,13 @@ class SeudonimizacionTest extends TestCase
     use RefreshDatabase;
 
     private AnonimizadorService $servicio;
+
     private RevelacionIdentidadService $revelacion;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->servicio   = app(AnonimizadorService::class);
+        $this->servicio = app(AnonimizadorService::class);
         $this->revelacion = app(RevelacionIdentidadService::class);
     }
 
@@ -43,7 +42,7 @@ class SeudonimizacionTest extends TestCase
     #[Test]
     public function el_alias_es_determinista(): void
     {
-        $perfil  = \Database\Factories\PerfilAnonimizacionFactory::new()->supervisionInterna()->create();
+        $perfil = PerfilAnonimizacionFactory::new()->supervisionInterna()->create();
         $registro = collect([['id' => 4821, 'nombre' => 'María', 'fecha_nacimiento' => '1980-01-01']]);
 
         $resultado1 = $this->servicio->anonimizar($registro, 'supervision_interna');
@@ -62,11 +61,11 @@ class SeudonimizacionTest extends TestCase
     #[Test]
     public function el_alias_es_opaco(): void
     {
-        \Database\Factories\PerfilAnonimizacionFactory::new()->supervisionInterna()->create();
+        PerfilAnonimizacionFactory::new()->supervisionInterna()->create();
         $registro = collect([['id' => 4821, 'nombre' => 'María García']]);
 
         $resultado = $this->servicio->anonimizar($registro, 'supervision_interna');
-        $alias     = $resultado->first()['alias_ciudadano'];
+        $alias = $resultado->first()['alias_ciudadano'];
 
         $this->assertStringNotContainsString('4821', $alias);
         $this->assertStringNotContainsString('María', $alias);
@@ -81,7 +80,7 @@ class SeudonimizacionTest extends TestCase
     #[Test]
     public function ciudadanos_distintos_tienen_alias_distintos(): void
     {
-        \Database\Factories\PerfilAnonimizacionFactory::new()->supervisionInterna()->create();
+        PerfilAnonimizacionFactory::new()->supervisionInterna()->create();
         $registros = collect([
             ['id' => 1, 'nombre' => 'Ana'],
             ['id' => 2, 'nombre' => 'Luis'],
@@ -102,7 +101,7 @@ class SeudonimizacionTest extends TestCase
     #[Test]
     public function cambiar_la_clave_invalida_los_alias(): void
     {
-        \Database\Factories\PerfilAnonimizacionFactory::new()->supervisionInterna()->create();
+        PerfilAnonimizacionFactory::new()->supervisionInterna()->create();
         $registro = collect([['id' => 4821, 'nombre' => 'María']]);
 
         Config::set('app.pseudonym_key', 'clave_original');
@@ -121,16 +120,16 @@ class SeudonimizacionTest extends TestCase
     #[Test]
     public function la_seudonimizacion_suprime_los_identificadores_directos(): void
     {
-        \Database\Factories\PerfilAnonimizacionFactory::new()->supervisionInterna()->create();
+        PerfilAnonimizacionFactory::new()->supervisionInterna()->create();
         $registro = collect([[
-            'id'                  => 4821,
-            'nombre'              => 'María',
-            'apellido1'           => 'García',
-            'apellido2'           => 'López',
+            'id' => 4821,
+            'nombre' => 'María',
+            'apellido1' => 'García',
+            'apellido2' => 'López',
             'documento_identidad' => '12345678A',
-            'telefono'            => '600000000',
-            'email'               => 'maria@example.com',
-            'fecha_nacimiento'    => '1980-01-01',
+            'telefono' => '600000000',
+            'email' => 'maria@example.com',
+            'fecha_nacimiento' => '1980-01-01',
         ]]);
 
         $resultado = $this->servicio->anonimizar($registro, 'supervision_interna')->first();
@@ -152,14 +151,14 @@ class SeudonimizacionTest extends TestCase
     #[Test]
     public function los_datos_no_identificativos_se_preservan_en_nivel_1(): void
     {
-        \Database\Factories\PerfilAnonimizacionFactory::new()->supervisionInterna()->create();
+        PerfilAnonimizacionFactory::new()->supervisionInterna()->create();
         $registro = collect([[
-            'id'               => 4821,
-            'nombre'           => 'María',
+            'id' => 4821,
+            'nombre' => 'María',
             'fecha_nacimiento' => '1980-07-15',
-            'sexo'             => 'mujer',
+            'sexo' => 'mujer',
             'tipo_intervencion' => 'urgente',
-            'estado_caso'      => 'abierto',
+            'estado_caso' => 'abierto',
         ]]);
 
         $resultado = $this->servicio->anonimizar($registro, 'supervision_interna')->first();
@@ -178,11 +177,11 @@ class SeudonimizacionTest extends TestCase
     public function la_tabla_de_correspondencias_permite_la_reversion(): void
     {
         $ciudadano = Ciudadano::factory()->create(['activo' => true]);
-        $permiso   = Permission::firstOrCreate(['name' => 'ciudadano.revelar_identidad', 'guard_name' => 'web']);
-        $usuario   = User::factory()->create();
+        $permiso = Permission::firstOrCreate(['name' => 'ciudadano.revelar_identidad', 'guard_name' => 'web']);
+        $usuario = User::factory()->create();
         $usuario->givePermissionTo($permiso);
 
-        $alias = 'CIU-' . substr(hash_hmac('sha256', (string) $ciudadano->id, config('app.pseudonym_key')), 0, 8);
+        $alias = 'CIU-'.substr(hash_hmac('sha256', (string) $ciudadano->id, config('app.pseudonym_key')), 0, 8);
 
         $encontrado = $this->revelacion->revelarPorAlias($alias, $usuario->id, 'Revisión de caso');
 
@@ -212,19 +211,19 @@ class SeudonimizacionTest extends TestCase
     public function la_reversion_queda_registrada_en_auditoria(): void
     {
         $ciudadano = Ciudadano::factory()->create(['activo' => true]);
-        $permiso   = Permission::firstOrCreate(['name' => 'ciudadano.revelar_identidad', 'guard_name' => 'web']);
-        $usuario   = User::factory()->create();
+        $permiso = Permission::firstOrCreate(['name' => 'ciudadano.revelar_identidad', 'guard_name' => 'web']);
+        $usuario = User::factory()->create();
         $usuario->givePermissionTo($permiso);
 
-        $alias = 'CIU-' . substr(hash_hmac('sha256', (string) $ciudadano->id, config('app.pseudonym_key')), 0, 8);
+        $alias = 'CIU-'.substr(hash_hmac('sha256', (string) $ciudadano->id, config('app.pseudonym_key')), 0, 8);
 
         $this->revelacion->revelarPorAlias($alias, $usuario->id, 'revisión de caso');
 
         $this->assertDatabaseHas('revelaciones_identidad', [
-            'usuario_id'    => $usuario->id,
-            'accion'        => 'revelar_identidad',
-            'alias'         => $alias,
-            'ciudadano_id'  => $ciudadano->id,
+            'usuario_id' => $usuario->id,
+            'accion' => 'revelar_identidad',
+            'alias' => $alias,
+            'ciudadano_id' => $ciudadano->id,
             'justificacion' => 'revisión de caso',
         ]);
 

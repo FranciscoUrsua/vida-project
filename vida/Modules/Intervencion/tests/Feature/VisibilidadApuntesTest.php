@@ -32,10 +32,10 @@ class VisibilidadApuntesTest extends TestCase
         parent::setUp();
 
         $this->uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Test Visibilidad',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Test Visibilidad',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
     }
 
@@ -46,30 +46,30 @@ class VisibilidadApuntesTest extends TestCase
     private function crearPlan(): PlanDeIntervencion
     {
         $historia = HistoriaSocial::create([
-            'ciudadano_id'           => 1,
+            'ciudadano_id' => 1,
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         return PlanDeIntervencion::create([
-            'historia_id'                => $historia->id,
-            'tipo'                       => 'general_asp',
+            'historia_id' => $historia->id,
+            'tipo' => 'general_asp',
             'profesional_responsable_id' => User::factory()->create()->id,
-            'estado'                     => 'borrador',
-            'fecha_inicio'               => today()->toDateString(),
-            'version'                    => 1,
+            'estado' => 'borrador',
+            'fecha_inicio' => today()->toDateString(),
+            'version' => 1,
         ]);
     }
 
     private function crearApunte(PlanDeIntervencion $plan, User $autor, VisibilidadApunte $visibilidad): Apunte
     {
         return Apunte::create([
-            'plan_id'     => $plan->id,
-            'autor_id'    => $autor->id,
-            'fecha'       => today()->toDateString(),
-            'tipo'        => 'anotacion',
-            'contenido'   => 'Contenido de prueba',
+            'plan_id' => $plan->id,
+            'autor_id' => $autor->id,
+            'fecha' => today()->toDateString(),
+            'tipo' => 'anotacion',
+            'contenido' => 'Contenido de prueba',
             'visibilidad' => $visibilidad,
         ]);
     }
@@ -86,7 +86,7 @@ class VisibilidadApuntesTest extends TestCase
     {
         $usuarioA = User::factory()->create();
         $usuarioB = User::factory()->create();
-        $plan     = $this->crearPlan();
+        $plan = $this->crearPlan();
 
         $apuntePrivado = $this->crearApunte($plan, $usuarioA, VisibilidadApunte::Privada);
 
@@ -108,7 +108,7 @@ class VisibilidadApuntesTest extends TestCase
 
         // B tiene rol supervisor (si spatie/permission está activo en tests)
         // La policy no depende de roles: el bloqueo es absoluto por diseño
-        $plan          = $this->crearPlan();
+        $plan = $this->crearPlan();
         $apuntePrivado = $this->crearApunte($plan, $usuarioA, VisibilidadApunte::Privada);
 
         $this->assertFalse(
@@ -130,7 +130,7 @@ class VisibilidadApuntesTest extends TestCase
     {
         $usuarioA = User::factory()->create();
         $usuarioB = User::factory()->create();
-        $plan     = $this->crearPlan();
+        $plan = $this->crearPlan();
 
         $apunte = $this->crearApunte($plan, $usuarioA, VisibilidadApunte::Profesionales);
 
@@ -147,7 +147,7 @@ class VisibilidadApuntesTest extends TestCase
     {
         $usuarioA = User::factory()->create();
         $usuarioB = User::factory()->create();
-        $plan     = $this->crearPlan();
+        $plan = $this->crearPlan();
 
         $apunte = $this->crearApunte($plan, $usuarioA, VisibilidadApunte::Profesionales);
 
@@ -169,10 +169,10 @@ class VisibilidadApuntesTest extends TestCase
     public function apunte_profesionales_no_es_eliminable_ni_por_su_autor(): void
     {
         $autor = User::factory()->create();
-        $plan  = $this->crearPlan();
+        $plan = $this->crearPlan();
 
         $apunteProfesionales = $this->crearApunte($plan, $autor, VisibilidadApunte::Profesionales);
-        $apuntePrivado       = $this->crearApunte($plan, $autor, VisibilidadApunte::Privada);
+        $apuntePrivado = $this->crearApunte($plan, $autor, VisibilidadApunte::Privada);
 
         $this->assertFalse(
             Gate::forUser($autor)->allows('delete', $apunteProfesionales),
@@ -195,22 +195,22 @@ class VisibilidadApuntesTest extends TestCase
         $profesionalB = User::factory()->create();
 
         $historia = HistoriaSocial::create([
-            'ciudadano_id'           => 2,
+            'ciudadano_id' => 2,
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         $plan = PlanDeIntervencion::create([
-            'historia_id'                => $historia->id,
-            'tipo'                       => 'general_asp',
+            'historia_id' => $historia->id,
+            'tipo' => 'general_asp',
             'profesional_responsable_id' => $profesionalA->id,
-            'estado'                     => 'borrador',
-            'fecha_inicio'               => today()->toDateString(),
-            'version'                    => 1,
+            'estado' => 'borrador',
+            'fecha_inicio' => today()->toDateString(),
+            'version' => 1,
         ]);
 
-        $apuntePrivado       = $this->crearApunte($plan, $profesionalA, VisibilidadApunte::Privada);
+        $apuntePrivado = $this->crearApunte($plan, $profesionalA, VisibilidadApunte::Privada);
         $apunteProfesionales = $this->crearApunte($plan, $profesionalA, VisibilidadApunte::Profesionales);
 
         // Simular reasignación del responsable del plan
@@ -230,9 +230,9 @@ class VisibilidadApuntesTest extends TestCase
     #[Test]
     public function apunte_ciudadano_visible_para_profesionales(): void
     {
-        $usuarioA    = User::factory()->create();
+        $usuarioA = User::factory()->create();
         $profesional = User::factory()->create();
-        $plan        = $this->crearPlan();
+        $plan = $this->crearPlan();
 
         $apunteCiudadano = $this->crearApunte($plan, $usuarioA, VisibilidadApunte::Ciudadano);
 

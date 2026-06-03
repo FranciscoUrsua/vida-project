@@ -26,6 +26,7 @@ class VersionadoPlanTest extends TestCase
     use RefreshDatabase;
 
     private UnidadOrganizativa $uo;
+
     private User $profesional;
 
     protected function setUp(): void
@@ -33,10 +34,10 @@ class VersionadoPlanTest extends TestCase
         parent::setUp();
 
         $this->uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Test Versionado',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Test Versionado',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $this->profesional = User::factory()->create();
@@ -49,19 +50,19 @@ class VersionadoPlanTest extends TestCase
     private function crearPlanActivo(): PlanDeIntervencion
     {
         $historia = HistoriaSocial::create([
-            'ciudadano_id'           => fake()->numberBetween(1, 9999),
+            'ciudadano_id' => fake()->numberBetween(1, 9999),
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         return PlanDeIntervencion::create([
-            'historia_id'                => $historia->id,
-            'tipo'                       => TipoPlan::GeneralAsp,
+            'historia_id' => $historia->id,
+            'tipo' => TipoPlan::GeneralAsp,
             'profesional_responsable_id' => $this->profesional->id,
-            'estado'                     => EstadoPlan::Activo->value,
-            'fecha_inicio'               => today()->toDateString(),
-            'version'                    => 1,
+            'estado' => EstadoPlan::Activo->value,
+            'fecha_inicio' => today()->toDateString(),
+            'version' => 1,
         ]);
     }
 
@@ -119,16 +120,16 @@ class VersionadoPlanTest extends TestCase
         $plan = $this->crearPlanActivo();
 
         $entrevista = Entrevista::factory()->seguimiento()->create([
-            'historia_id'    => $plan->historia_id,
+            'historia_id' => $plan->historia_id,
             'profesional_id' => $this->profesional->id,
         ]);
 
         $seguimiento = SeguimientoPlan::create([
-            'plan_id'               => $plan->id,
-            'entrevista_id'         => $entrevista->id,
-            'profesional_id'        => $this->profesional->id,
-            'fecha'                 => today()->toDateString(),
-            'avances'               => 'Progreso observado',
+            'plan_id' => $plan->id,
+            'entrevista_id' => $entrevista->id,
+            'profesional_id' => $this->profesional->id,
+            'fecha' => today()->toDateString(),
+            'avances' => 'Progreso observado',
             'requiere_revision_plan' => true,
         ]);
 
@@ -159,9 +160,9 @@ class VersionadoPlanTest extends TestCase
         $plan = $this->crearPlanActivo();
 
         FirmaPlan::create([
-            'plan_id'           => $plan->id,
-            'version'           => 1,
-            'firma_ciudadano'   => 'firma_blob_ciudadano',
+            'plan_id' => $plan->id,
+            'version' => 1,
+            'firma_ciudadano' => 'firma_blob_ciudadano',
             'firma_profesional' => null,
         ]);
 
@@ -177,9 +178,9 @@ class VersionadoPlanTest extends TestCase
         $plan = $this->crearPlanActivo();
 
         FirmaPlan::create([
-            'plan_id'           => $plan->id,
-            'version'           => 1,
-            'firma_ciudadano'   => 'firma_ciudadano_v1',
+            'plan_id' => $plan->id,
+            'version' => 1,
+            'firma_ciudadano' => 'firma_ciudadano_v1',
             'firma_profesional' => 'firma_profesional_v1',
         ]);
 
@@ -196,9 +197,9 @@ class VersionadoPlanTest extends TestCase
 
         // Existe firma para la versión 1 con ambas partes
         FirmaPlan::create([
-            'plan_id'           => $plan->id,
-            'version'           => 1,
-            'firma_ciudadano'   => 'firma_ciudadano_v1',
+            'plan_id' => $plan->id,
+            'version' => 1,
+            'firma_ciudadano' => 'firma_ciudadano_v1',
             'firma_profesional' => 'firma_profesional_v1',
         ]);
 
@@ -219,19 +220,19 @@ class VersionadoPlanTest extends TestCase
     public function plan_borrador_no_puede_activarse_sin_firma(): void
     {
         $historia = HistoriaSocial::create([
-            'ciudadano_id'           => fake()->numberBetween(1, 9999),
+            'ciudadano_id' => fake()->numberBetween(1, 9999),
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         $plan = PlanDeIntervencion::create([
-            'historia_id'                => $historia->id,
-            'tipo'                       => TipoPlan::GeneralAsp,
+            'historia_id' => $historia->id,
+            'tipo' => TipoPlan::GeneralAsp,
             'profesional_responsable_id' => $this->profesional->id,
-            'estado'                     => EstadoPlan::Borrador,
-            'fecha_inicio'               => today()->toDateString(),
-            'version'                    => 1,
+            'estado' => EstadoPlan::Borrador,
+            'fecha_inicio' => today()->toDateString(),
+            'version' => 1,
         ]);
 
         $this->expectException(\DomainException::class);
@@ -248,20 +249,20 @@ class VersionadoPlanTest extends TestCase
         $planAsp = $this->crearPlanActivo();
 
         $historia = HistoriaSocial::create([
-            'ciudadano_id'           => fake()->numberBetween(1, 9999),
+            'ciudadano_id' => fake()->numberBetween(1, 9999),
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         $planEspecializado = PlanDeIntervencion::create([
-            'historia_id'                => $historia->id,
-            'tipo'                       => TipoPlan::Especializado,
+            'historia_id' => $historia->id,
+            'tipo' => TipoPlan::Especializado,
             'profesional_responsable_id' => $this->profesional->id,
-            'plan_asp_id'                => $planAsp->id,
-            'estado'                     => EstadoPlan::Borrador,
-            'fecha_inicio'               => today()->toDateString(),
-            'version'                    => 1,
+            'plan_asp_id' => $planAsp->id,
+            'estado' => EstadoPlan::Borrador,
+            'fecha_inicio' => today()->toDateString(),
+            'version' => 1,
         ]);
 
         // Verificar relación desde el plan especializado hacia el ASP

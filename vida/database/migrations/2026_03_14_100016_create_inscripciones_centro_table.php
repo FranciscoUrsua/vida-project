@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\InscripcionCentro;
 
 /**
  * Inscripciones de ciudadanos a centros.
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Schema;
  * Es requisito para actividades con `requiere_inscripcion_centro = true`.
  * Historial acumulativo: no se borran, se cierran con fecha_baja.
  *
- * @see Modules\Centro\Models\InscripcionCentro
+ * @see InscripcionCentro
  */
 return new class extends Migration
 {

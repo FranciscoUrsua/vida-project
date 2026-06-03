@@ -31,7 +31,7 @@ class DistritosSeeder extends Seeder
         ['nombre' => 'Chamartín',          'codigo' => '05', 'latitud' => 40.4607, 'longitud' => -3.6768],
         ['nombre' => 'Tetuán',             'codigo' => '06', 'latitud' => 40.4617, 'longitud' => -3.7017],
         ['nombre' => 'Chamberí',           'codigo' => '07', 'latitud' => 40.4404, 'longitud' => -3.7004],
-        ['nombre' => 'Fuencarral-El Pardo','codigo' => '08', 'latitud' => 40.5052, 'longitud' => -3.7248],
+        ['nombre' => 'Fuencarral-El Pardo', 'codigo' => '08', 'latitud' => 40.5052, 'longitud' => -3.7248],
         ['nombre' => 'Moncloa-Aravaca',    'codigo' => '09', 'latitud' => 40.4366, 'longitud' => -3.7392],
         ['nombre' => 'Latina',             'codigo' => '10', 'latitud' => 40.4053, 'longitud' => -3.7464],
         ['nombre' => 'Carabanchel',        'codigo' => '11', 'latitud' => 40.3835, 'longitud' => -3.7417],
@@ -43,14 +43,12 @@ class DistritosSeeder extends Seeder
         ['nombre' => 'Villaverde',         'codigo' => '17', 'latitud' => 40.3551, 'longitud' => -3.6977],
         ['nombre' => 'Villa de Vallecas',  'codigo' => '18', 'latitud' => 40.3729, 'longitud' => -3.6235],
         ['nombre' => 'Vicálvaro',          'codigo' => '19', 'latitud' => 40.4052, 'longitud' => -3.6055],
-        ['nombre' => 'San Blas-Canillejas','codigo' => '20', 'latitud' => 40.4391, 'longitud' => -3.6152],
+        ['nombre' => 'San Blas-Canillejas', 'codigo' => '20', 'latitud' => 40.4391, 'longitud' => -3.6152],
         ['nombre' => 'Barajas',            'codigo' => '21', 'latitud' => 40.4791, 'longitud' => -3.5792],
     ];
 
     /**
      * Crea los 21 distritos de Madrid si no existen.
-     *
-     * @return void
      */
     public function run(): void
     {
@@ -61,6 +59,6 @@ class DistritosSeeder extends Seeder
             );
         }
 
-        $this->command->info('✓ ' . count(self::DISTRITOS) . ' distritos de Madrid creados.');
+        $this->command->info('✓ '.count(self::DISTRITOS).' distritos de Madrid creados.');
     }
 }

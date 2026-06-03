@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\ConfiguracionOrganizacionResource\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -14,7 +15,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Organizacion\Models\Configuracion;
-use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión de la configuración general de la organización.
@@ -26,14 +26,21 @@ use App\Filament\Concerns\AutorizaGestion;
 class ConfiguracionOrganizacionResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = Configuracion::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
+
     protected static ?string $navigationLabel = 'Configuración';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
+
     protected static ?string $modelLabel = 'Parámetro';
+
     protected static ?string $pluralModelLabel = 'Configuración';
+
     protected static ?string $slug = 'configuracion-organizacion';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
@@ -50,10 +57,10 @@ class ConfiguracionOrganizacionResource extends Resource
                     Select::make('tipo')
                         ->label('Tipo de dato')
                         ->options([
-                            'texto'    => 'Texto',
-                            'numero'   => 'Número',
+                            'texto' => 'Texto',
+                            'numero' => 'Número',
                             'booleano' => 'Booleano',
-                            'json'     => 'JSON',
+                            'json' => 'JSON',
                         ])
                         ->required()
                         ->default('texto'),
@@ -83,11 +90,11 @@ class ConfiguracionOrganizacionResource extends Resource
                     ->label('Tipo')
                     ->badge()
                     ->color(fn (string $state) => match ($state) {
-                        'texto'    => 'gray',
-                        'numero'   => 'info',
+                        'texto' => 'gray',
+                        'numero' => 'info',
                         'booleano' => 'warning',
-                        'json'     => 'success',
-                        default    => 'gray',
+                        'json' => 'success',
+                        default => 'gray',
                     }),
 
                 Tables\Columns\TextColumn::make('valor')
@@ -103,10 +110,10 @@ class ConfiguracionOrganizacionResource extends Resource
                 Tables\Filters\SelectFilter::make('tipo')
                     ->label('Tipo')
                     ->options([
-                        'texto'    => 'Texto',
-                        'numero'   => 'Número',
+                        'texto' => 'Texto',
+                        'numero' => 'Número',
                         'booleano' => 'Booleano',
-                        'json'     => 'JSON',
+                        'json' => 'JSON',
                     ]),
             ])
             ->actions([
@@ -119,9 +126,9 @@ class ConfiguracionOrganizacionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListConfiguracion::route('/'),
+            'index' => Pages\ListConfiguracion::route('/'),
             'create' => Pages\CreateConfiguracion::route('/create'),
-            'edit'   => Pages\EditConfiguracion::route('/{record}/edit'),
+            'edit' => Pages\EditConfiguracion::route('/{record}/edit'),
         ];
     }
 }

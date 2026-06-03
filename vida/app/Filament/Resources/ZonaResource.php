@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\ZonaResource\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -15,7 +16,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Organizacion\Models\Zona;
-use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión del catálogo de zonas territoriales.
@@ -25,13 +25,19 @@ use App\Filament\Concerns\AutorizaGestion;
 class ZonaResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = Zona::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map-pin';
+
     protected static ?string $navigationLabel = 'Zonas';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Organización';
+
     protected static ?string $modelLabel = 'Zona';
+
     protected static ?string $pluralModelLabel = 'Zonas';
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
@@ -102,9 +108,9 @@ class ZonaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListZonas::route('/'),
+            'index' => Pages\ListZonas::route('/'),
             'create' => Pages\CreateZona::route('/create'),
-            'edit'   => Pages\EditZona::route('/{record}/edit'),
+            'edit' => Pages\EditZona::route('/{record}/edit'),
         ];
     }
 }

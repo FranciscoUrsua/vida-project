@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\ExcepcionProfesionalResource\Pages;
 use App\Models\User;
 use Filament\Actions\DeleteAction;
@@ -20,19 +21,25 @@ use Modules\Agenda\Enums\OrigenExcepcion;
 use Modules\Agenda\Enums\TipoExcepcion;
 use Modules\Agenda\Models\ExcepcionProfesional;
 use Modules\Centro\Models\Centro;
-use App\Filament\Concerns\AutorizaGestion;
 
 class ExcepcionProfesionalResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = ExcepcionProfesional::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-exclamation-triangle';
+
     protected static ?string $navigationLabel = 'Excepciones de profesionales';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
+
     protected static ?string $navigationParentItem = 'Supervisión';
+
     protected static ?string $modelLabel = 'Excepción';
+
     protected static ?string $pluralModelLabel = 'Excepciones de profesionales';
+
     protected static ?int $navigationSort = 60;
 
     public static function form(Schema $schema): Schema
@@ -86,8 +93,8 @@ class ExcepcionProfesionalResource extends Resource
                         ->rows(2)
                         ->nullable()
                         ->helperText(
-                            'Solo informar si la excepción es parcial (afecta a una franja del día, no al día completo). ' .
-                            'Dejar vacío para excepción de día completo. ' .
+                            'Solo informar si la excepción es parcial (afecta a una franja del día, no al día completo). '.
+                            'Dejar vacío para excepción de día completo. '.
                             'Formato: [{"inicio": "09:00", "fin": "14:00"}]'
                         ),
 
@@ -130,13 +137,13 @@ class ExcepcionProfesionalResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn (TipoExcepcion $state) => $state->label())
                     ->color(fn (TipoExcepcion $state) => match ($state) {
-                        TipoExcepcion::BajaMedica       => 'danger',
-                        TipoExcepcion::Vacaciones        => 'info',
-                        TipoExcepcion::DiaLibre          => 'success',
-                        TipoExcepcion::Formacion         => 'warning',
-                        TipoExcepcion::ReduccionJornada  => 'primary',
-                        TipoExcepcion::Guardia           => 'gray',
-                        TipoExcepcion::Otros             => 'gray',
+                        TipoExcepcion::BajaMedica => 'danger',
+                        TipoExcepcion::Vacaciones => 'info',
+                        TipoExcepcion::DiaLibre => 'success',
+                        TipoExcepcion::Formacion => 'warning',
+                        TipoExcepcion::ReduccionJornada => 'primary',
+                        TipoExcepcion::Guardia => 'gray',
+                        TipoExcepcion::Otros => 'gray',
                     }),
 
                 Tables\Columns\TextColumn::make('fecha_inicio')
@@ -158,7 +165,7 @@ class ExcepcionProfesionalResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn (OrigenExcepcion $state) => $state->label())
                     ->color(fn (OrigenExcepcion $state) => match ($state) {
-                        OrigenExcepcion::Manual  => 'gray',
+                        OrigenExcepcion::Manual => 'gray',
                         OrigenExcepcion::ApiRrhh => 'info',
                     }),
 
@@ -202,9 +209,9 @@ class ExcepcionProfesionalResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListExcepcionesProfesional::route('/'),
+            'index' => Pages\ListExcepcionesProfesional::route('/'),
             'create' => Pages\CreateExcepcionProfesional::route('/create'),
-            'edit'   => Pages\EditExcepcionProfesional::route('/{record}/edit'),
+            'edit' => Pages\EditExcepcionProfesional::route('/{record}/edit'),
         ];
     }
 }

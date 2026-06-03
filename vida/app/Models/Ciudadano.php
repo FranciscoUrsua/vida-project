@@ -7,6 +7,7 @@ use App\Traits\TieneDireccion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Modelo stub de Ciudadano.
@@ -23,25 +24,25 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property int $id
  * @property string|null $alias
- * @property string $nombre          Cifrado
- * @property string $apellido1       Cifrado
- * @property string|null $apellido2  Cifrado
+ * @property string $nombre Cifrado
+ * @property string $apellido1 Cifrado
+ * @property string|null $apellido2 Cifrado
  * @property string $fecha_nacimiento Cifrada
  * @property string $sexo
- * @property string|null $direccion_texto  Cifrada — texto libre original
- * @property bool        $direccion_normalizada
- * @property string|null $documento_identidad  Cifrado
- * @property bool        $es_vvg
- * @property bool        $es_psh
- * @property bool        $colectivo_extra_protegido
+ * @property string|null $direccion_texto Cifrada — texto libre original
+ * @property bool $direccion_normalizada
+ * @property string|null $documento_identidad Cifrado
+ * @property bool $es_vvg
+ * @property bool $es_psh
+ * @property bool $colectivo_extra_protegido
  * @property string|null $colectivo_principal
  * @property string|null $zona_intervencion
- * @property float|null  $pernocta_lat
- * @property float|null  $pernocta_lng
+ * @property float|null $pernocta_lat
+ * @property float|null $pernocta_lng
  * @property bool $activo
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon|null $deleted_at
  *
  * @todo Mover a Modules\Ciudadania\Models\Ciudadano y completar
  *       con todos los atributos, relaciones y lógica de dominio.
@@ -55,8 +56,6 @@ class Ciudadano extends Model
     /**
      * Columna PK del ciudadano usada por AmbitoUoScope.
      * El ámbito de UO se resuelve buscando Historias Sociales del ciudadano.
-     *
-     * @var string
      */
     public string $ambitoCiudadanoPk = 'id';
 
@@ -69,12 +68,10 @@ class Ciudadano extends Model
 
     /**
      * Registra el Global Scope de ámbito de UO para filtrado automático.
-     *
-     * @return void
      */
     protected static function booted(): void
     {
-        static::addGlobalScope(new AmbitoUoScope());
+        static::addGlobalScope(new AmbitoUoScope);
     }
 
     /** @var list<string> */
@@ -121,17 +118,17 @@ class Ciudadano extends Model
 
     /** @var array<string, string> */
     protected $casts = [
-        'nombre'                    => 'encrypted',
-        'apellido1'                 => 'encrypted',
-        'apellido2'                 => 'encrypted',
-        'fecha_nacimiento'          => 'encrypted',
-        'direccion_texto'           => 'encrypted',
-        'telefono'                  => 'encrypted',
-        'email'                     => 'encrypted',
-        'documento_identidad'       => 'encrypted',
-        'activo'                    => 'boolean',
-        'es_vvg'                    => 'boolean',
-        'es_psh'                    => 'boolean',
+        'nombre' => 'encrypted',
+        'apellido1' => 'encrypted',
+        'apellido2' => 'encrypted',
+        'fecha_nacimiento' => 'encrypted',
+        'direccion_texto' => 'encrypted',
+        'telefono' => 'encrypted',
+        'email' => 'encrypted',
+        'documento_identidad' => 'encrypted',
+        'activo' => 'boolean',
+        'es_vvg' => 'boolean',
+        'es_psh' => 'boolean',
         'colectivo_extra_protegido' => 'boolean',
         // TieneDireccion inyecta sus propios casts via initializeTieneDireccion()
     ];

@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $capacidad
  * @property string|null $planta
  * @property bool $accesible
- * @property string|null $genero  mixto | mujeres | hombres | null
+ * @property string|null $genero mixto | mujeres | hombres | null
  * @property bool $activo
  * @property string|null $notas
  */
@@ -45,7 +45,7 @@ class Espacio extends Model
     protected $casts = [
         'capacidad' => 'integer',
         'accesible' => 'boolean',
-        'activo'    => 'boolean',
+        'activo' => 'boolean',
     ];
 
     // -------------------------------------------------------------------------
@@ -55,7 +55,7 @@ class Espacio extends Model
     /**
      * Colección de plazas a la que pertenece este espacio.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\ColeccionPlazas, self>
+     * @return BelongsTo<ColeccionPlazas, self>
      */
     public function coleccionPlazas(): BelongsTo
     {
@@ -65,7 +65,7 @@ class Espacio extends Model
     /**
      * Tipo de espacio que clasifica este espacio físico.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\TipoEspacio, self>
+     * @return BelongsTo<TipoEspacio, self>
      */
     public function tipoEspacio(): BelongsTo
     {
@@ -75,7 +75,7 @@ class Espacio extends Model
     /**
      * Plazas individuales contenidas en este espacio.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\Plaza, self>
+     * @return HasMany<Plaza, self>
      */
     public function plazas(): HasMany
     {
@@ -89,8 +89,9 @@ class Espacio extends Model
     /**
      * Filtra espacios accesibles para personas con movilidad reducida.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeAccesibles(Builder $query): Builder
     {
@@ -100,9 +101,9 @@ class Espacio extends Model
     /**
      * Filtra espacios compatibles con el género indicado (incluye mixtos y sin género).
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @param  string  $genero
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopePorGenero(Builder $query, string $genero): Builder
     {

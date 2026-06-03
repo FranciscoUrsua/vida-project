@@ -5,13 +5,14 @@ namespace Modules\Intervencion\Http\Livewire;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
-use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Modules\Escalas\Enums\EstadoPase;
+use Modules\Escalas\Models\PaseEscala;
 use Modules\Escalas\Models\TipoEscala;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\TipoApunte;
@@ -23,10 +24,8 @@ use Modules\Intervencion\Models\Entrevista;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\SeguimientoPlan;
 use Modules\Intervencion\Models\TipoFicha;
-use Modules\Intervencion\Models\Valoracion;
 use Modules\Intervencion\Models\TipoValoracion;
-use Modules\Escalas\Models\PaseEscala;
-use Modules\Escalas\Enums\EstadoPase;
+use Modules\Intervencion\Models\Valoracion;
 
 /**
  * Pantalla principal de trabajo con el ciudadano.
@@ -60,32 +59,32 @@ class CiudadanoPage extends Component
 
     /** @var array<string, mixed> */
     public array $formEntrevista = [
-        'tipo'                      => 'seguimiento',
-        'modalidad'                 => 'presencial',
-        'notas'                     => '',
-        'generar_valoracion'        => false,
-        'programar_seguimiento'     => false,
+        'tipo' => 'seguimiento',
+        'modalidad' => 'presencial',
+        'notas' => '',
+        'generar_valoracion' => false,
+        'programar_seguimiento' => false,
         'fecha_siguiente_seguimiento' => '',
     ];
 
     /** @var array<string, mixed> */
     public array $formAnotacion = [
-        'contenido'   => '',
+        'contenido' => '',
         'visibilidad' => 'profesionales',
     ];
 
     /** @var array<string, mixed> */
     public array $formDerivacion = [
         'servicio_receptor_id' => '',
-        'urgencia'             => 'ordinaria',
-        'motivo'               => '',
+        'urgencia' => 'ordinaria',
+        'motivo' => '',
     ];
 
     /** @var array<string, mixed> */
     public array $formGestion = [
-        'tipo_gestion'          => '',
-        'recurso_interlocutor'  => '',
-        'descripcion'           => '',
+        'tipo_gestion' => '',
+        'recurso_interlocutor' => '',
+        'descripcion' => '',
     ];
 
     /** @var array<string, mixed> */
@@ -104,8 +103,6 @@ class CiudadanoPage extends Component
 
     /**
      * Ciudadano titular de la Historia Social.
-     *
-     * @return Ciudadano|null
      */
     #[Computed]
     public function ciudadano(): ?Ciudadano
@@ -140,8 +137,6 @@ class CiudadanoPage extends Component
 
     /**
      * Plan general ASP activo más reciente de la Historia Social.
-     *
-     * @return PlanDeIntervencion|null
      */
     #[Computed]
     public function pisoActivo(): ?PlanDeIntervencion
@@ -180,16 +175,11 @@ class CiudadanoPage extends Component
     // Métodos de UI
     // -------------------------------------------------------------------------
 
-    /** @return void */
     public function toggleUC(): void
     {
         $this->ucExpandida = ! $this->ucExpandida;
     }
 
-    /**
-     * @param int $apunteId
-     * @return void
-     */
     public function toggleApunte(int $apunteId): void
     {
         $this->apuntesExpandidos[$apunteId] = ! ($this->apuntesExpandidos[$apunteId] ?? false);
@@ -197,7 +187,6 @@ class CiudadanoPage extends Component
 
     /**
      * @param string $filtro 'todos' | 'plan' | 'entrevista'
-     * @return void
      */
     public function setFiltroHS(string $filtro): void
     {
@@ -205,16 +194,11 @@ class CiudadanoPage extends Component
         unset($this->apuntesHS);
     }
 
-    /**
-     * @param string $herramienta
-     * @return void
-     */
     public function seleccionarHerramienta(string $herramienta): void
     {
         $this->herramientaActiva = $herramienta;
     }
 
-    /** @return void */
     public function cancelarHerramienta(): void
     {
         $this->herramientaActiva = null;
@@ -226,44 +210,42 @@ class CiudadanoPage extends Component
 
     /**
      * Guarda una entrevista y su apunte asociado.
-     *
-     * @return void
      */
     public function guardarEntrevista(): void
     {
         $plan = $this->pisoActivo;
 
         $entrevista = Entrevista::create([
-            'historia_id'         => $this->historia->id,
-            'profesional_id'      => Auth::id(),
-            'cita_id'             => null,
-            'plan_intervencion_id'=> $plan?->id,
-            'fecha_hora'          => now()->toDateTimeString(),
-            'modalidad'           => $this->formEntrevista['modalidad'],
-            'tipo'                => TipoEntrevista::from($this->formEntrevista['tipo']),
-            'notas_generales'     => $this->formEntrevista['notas'] ?: null,
-            'estado'              => 'realizada',
+            'historia_id' => $this->historia->id,
+            'profesional_id' => Auth::id(),
+            'cita_id' => null,
+            'plan_intervencion_id' => $plan?->id,
+            'fecha_hora' => now()->toDateTimeString(),
+            'modalidad' => $this->formEntrevista['modalidad'],
+            'tipo' => TipoEntrevista::from($this->formEntrevista['tipo']),
+            'notas_generales' => $this->formEntrevista['notas'] ?: null,
+            'estado' => 'realizada',
         ]);
 
         if ($plan) {
             Apunte::create([
-                'plan_id'        => $plan->id,
-                'autor_id'       => Auth::id(),
-                'fecha'          => today()->toDateString(),
-                'tipo'           => TipoApunte::Entrevista,
+                'plan_id' => $plan->id,
+                'autor_id' => Auth::id(),
+                'fecha' => today()->toDateString(),
+                'tipo' => TipoApunte::Entrevista,
                 'apuntable_type' => Entrevista::class,
-                'apuntable_id'   => $entrevista->id,
-                'contenido'      => $this->formEntrevista['notas'] ?: null,
-                'visibilidad'    => VisibilidadApunte::Profesionales,
+                'apuntable_id' => $entrevista->id,
+                'contenido' => $this->formEntrevista['notas'] ?: null,
+                'visibilidad' => VisibilidadApunte::Profesionales,
             ]);
 
             // Programar siguiente seguimiento si se indicó
             if ($this->formEntrevista['programar_seguimiento'] && $this->formEntrevista['fecha_siguiente_seguimiento']) {
                 SeguimientoPlan::create([
-                    'plan_id'                     => $plan->id,
-                    'entrevista_id'               => $entrevista->id,
-                    'profesional_id'              => Auth::id(),
-                    'fecha'                       => today()->toDateString(),
+                    'plan_id' => $plan->id,
+                    'entrevista_id' => $entrevista->id,
+                    'profesional_id' => Auth::id(),
+                    'fecha' => today()->toDateString(),
                     'fecha_siguiente_seguimiento' => $this->formEntrevista['fecha_siguiente_seguimiento'],
                 ]);
             }
@@ -276,8 +258,6 @@ class CiudadanoPage extends Component
 
     /**
      * Guarda una anotación en la Historia Social.
-     *
-     * @return void
      */
     public function guardarAnotacion(): void
     {
@@ -285,11 +265,11 @@ class CiudadanoPage extends Component
 
         if ($plan) {
             Apunte::create([
-                'plan_id'     => $plan->id,
-                'autor_id'    => Auth::id(),
-                'fecha'       => today()->toDateString(),
-                'tipo'        => TipoApunte::Anotacion,
-                'contenido'   => $this->formAnotacion['contenido'],
+                'plan_id' => $plan->id,
+                'autor_id' => Auth::id(),
+                'fecha' => today()->toDateString(),
+                'tipo' => TipoApunte::Anotacion,
+                'contenido' => $this->formAnotacion['contenido'],
                 'visibilidad' => VisibilidadApunte::from($this->formAnotacion['visibilidad']),
             ]);
         }
@@ -303,8 +283,6 @@ class CiudadanoPage extends Component
      * Crea una derivación (apunte de tipo derivacion).
      * La tabla derivaciones no existe todavía — se registra como apunte.
      * TODO: crear modelo Derivacion y tabla derivaciones cuando esté disponible.
-     *
-     * @return void
      */
     public function crearDerivacion(): void
     {
@@ -312,13 +290,13 @@ class CiudadanoPage extends Component
 
         if ($plan) {
             Apunte::create([
-                'plan_id'     => $plan->id,
-                'autor_id'    => Auth::id(),
-                'fecha'       => today()->toDateString(),
-                'tipo'        => TipoApunte::Derivacion,
-                'contenido'   => trim(
-                    'Urgencia: ' . ($this->formDerivacion['urgencia'] ?? '') . "\n" .
-                    'Motivo: ' . ($this->formDerivacion['motivo'] ?? '')
+                'plan_id' => $plan->id,
+                'autor_id' => Auth::id(),
+                'fecha' => today()->toDateString(),
+                'tipo' => TipoApunte::Derivacion,
+                'contenido' => trim(
+                    'Urgencia: '.($this->formDerivacion['urgencia'] ?? '')."\n".
+                    'Motivo: '.($this->formDerivacion['motivo'] ?? '')
                 ),
                 'visibilidad' => VisibilidadApunte::Profesionales,
             ]);
@@ -331,8 +309,6 @@ class CiudadanoPage extends Component
 
     /**
      * Guarda una gestión / coordinación como apunte.
-     *
-     * @return void
      */
     public function guardarGestion(): void
     {
@@ -340,13 +316,13 @@ class CiudadanoPage extends Component
 
         if ($plan) {
             Apunte::create([
-                'plan_id'     => $plan->id,
-                'autor_id'    => Auth::id(),
-                'fecha'       => today()->toDateString(),
-                'tipo'        => TipoApunte::GestionCoordinacion,
-                'contenido'   => trim(
-                    'Tipo: ' . ($this->formGestion['tipo_gestion'] ?? '') . "\n" .
-                    'Interlocutor: ' . ($this->formGestion['recurso_interlocutor'] ?? '') . "\n" .
+                'plan_id' => $plan->id,
+                'autor_id' => Auth::id(),
+                'fecha' => today()->toDateString(),
+                'tipo' => TipoApunte::GestionCoordinacion,
+                'contenido' => trim(
+                    'Tipo: '.($this->formGestion['tipo_gestion'] ?? '')."\n".
+                    'Interlocutor: '.($this->formGestion['recurso_interlocutor'] ?? '')."\n".
                     $this->formGestion['descripcion']
                 ),
                 'visibilidad' => VisibilidadApunte::Profesionales,
@@ -361,10 +337,7 @@ class CiudadanoPage extends Component
     /**
      * Guarda una valoración y su apunte asociado (desde RegistrarValoracionPage).
      *
-     * @param int $tipoFichaId
      * @param array<string, mixed> $datos
-     * @param int|null $entrevistaId
-     * @return void
      */
     public function guardarValoracion(int $tipoFichaId, array $datos, ?int $entrevistaId = null): void
     {
@@ -372,13 +345,13 @@ class CiudadanoPage extends Component
         $plan = $this->pisoActivo;
 
         $valoracion = Valoracion::create([
-            'historia_id'       => $this->historia->id,
-            'entrevista_id'     => $entrevistaId,
-            'profesional_id'    => Auth::id(),
-            'tipo_valoracion_id'=> $tipoVal?->id ?? 1,
-            'fecha'             => today()->toDateString(),
-            'estado'            => 'completada',
-            'resumen'           => implode(' | ', array_map(
+            'historia_id' => $this->historia->id,
+            'entrevista_id' => $entrevistaId,
+            'profesional_id' => Auth::id(),
+            'tipo_valoracion_id' => $tipoVal?->id ?? 1,
+            'fecha' => today()->toDateString(),
+            'estado' => 'completada',
+            'resumen' => implode(' | ', array_map(
                 fn ($k, $v) => "$k: $v",
                 array_keys($datos),
                 $datos
@@ -387,14 +360,14 @@ class CiudadanoPage extends Component
 
         if ($plan) {
             Apunte::create([
-                'plan_id'        => $plan->id,
-                'autor_id'       => Auth::id(),
-                'fecha'          => today()->toDateString(),
-                'tipo'           => TipoApunte::Valoracion,
+                'plan_id' => $plan->id,
+                'autor_id' => Auth::id(),
+                'fecha' => today()->toDateString(),
+                'tipo' => TipoApunte::Valoracion,
                 'apuntable_type' => Valoracion::class,
-                'apuntable_id'   => $valoracion->id,
-                'contenido'      => 'Valoración registrada.',
-                'visibilidad'    => VisibilidadApunte::Profesionales,
+                'apuntable_id' => $valoracion->id,
+                'contenido' => 'Valoración registrada.',
+                'visibilidad' => VisibilidadApunte::Profesionales,
             ]);
         }
 
@@ -405,9 +378,7 @@ class CiudadanoPage extends Component
     /**
      * Guarda un pase de escala y su apunte asociado (desde RegistrarEscalaPage).
      *
-     * @param int $tipoEscalaId
      * @param array<string, mixed> $respuestas [item_id => valor]
-     * @return void
      */
     public function guardarEscala(int $tipoEscalaId, array $respuestas): void
     {
@@ -418,24 +389,24 @@ class CiudadanoPage extends Component
 
         $pase = PaseEscala::create([
             'tipo_escala_id' => $tipoEscalaId,
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => Auth::id(),
-            'fecha'          => today()->toDateString(),
-            'respuestas'     => $respuestas,
-            'score_total'    => $scoreTotal,
-            'estado'         => EstadoPase::Completado,
+            'fecha' => today()->toDateString(),
+            'respuestas' => $respuestas,
+            'score_total' => $scoreTotal,
+            'estado' => EstadoPase::Completado,
         ]);
 
         if ($plan) {
             Apunte::create([
-                'plan_id'        => $plan->id,
-                'autor_id'       => Auth::id(),
-                'fecha'          => today()->toDateString(),
-                'tipo'           => TipoApunte::Escala,
+                'plan_id' => $plan->id,
+                'autor_id' => Auth::id(),
+                'fecha' => today()->toDateString(),
+                'tipo' => TipoApunte::Escala,
                 'apuntable_type' => PaseEscala::class,
-                'apuntable_id'   => $pase->id,
-                'contenido'      => "{$tipoEscala->nombre}: puntuación {$scoreTotal}",
-                'visibilidad'    => VisibilidadApunte::Profesionales,
+                'apuntable_id' => $pase->id,
+                'contenido' => "{$tipoEscala->nombre}: puntuación {$scoreTotal}",
+                'visibilidad' => VisibilidadApunte::Profesionales,
             ]);
         }
 
@@ -449,7 +420,6 @@ class CiudadanoPage extends Component
      *
      * @param array<string, mixed> $schema
      * @param array<string, mixed> $respuestas
-     * @return int
      */
     public function calcularScoreEscala(array $schema, array $respuestas): int
     {
@@ -457,17 +427,15 @@ class CiudadanoPage extends Component
         foreach ($schema['secciones'] ?? [] as $seccion) {
             foreach ($seccion['items'] ?? [] as $item) {
                 $valor = (int) ($respuestas[$item['id']] ?? 0);
-                $peso  = (int) ($item['peso'] ?? 1);
+                $peso = (int) ($item['peso'] ?? 1);
                 $total += $valor * $peso;
             }
         }
+
         return $total;
     }
 
-    /**
-     * @return \Illuminate\View\View
-     */
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('intervencion::livewire.ciudadano-page');
     }

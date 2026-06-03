@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\CuadranteMesResource\Pages;
 use App\Filament\Resources\CuadranteMesResource\RelationManagers\LineasCuadranteRelationManager;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
@@ -13,24 +15,29 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Actions\Action;
 use Filament\Tables\Table;
 use Modules\Agenda\Enums\EstadoCuadrante;
 use Modules\Agenda\Models\CuadranteMes;
 use Modules\Centro\Models\Centro;
-use App\Filament\Concerns\AutorizaGestion;
 
 class CuadranteMesResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = CuadranteMes::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-calendar-days';
+
     protected static ?string $navigationLabel = 'Cuadrantes mensuales';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
+
     protected static ?string $navigationParentItem = 'Supervisión';
+
     protected static ?string $modelLabel = 'Cuadrante mensual';
+
     protected static ?string $pluralModelLabel = 'Cuadrantes mensuales';
+
     protected static ?int $navigationSort = 40;
 
     public static function form(Schema $schema): Schema
@@ -57,15 +64,15 @@ class CuadranteMesResource extends Resource
                     Select::make('mes')
                         ->label('Mes')
                         ->options([
-                            1  => 'Enero',
-                            2  => 'Febrero',
-                            3  => 'Marzo',
-                            4  => 'Abril',
-                            5  => 'Mayo',
-                            6  => 'Junio',
-                            7  => 'Julio',
-                            8  => 'Agosto',
-                            9  => 'Septiembre',
+                            1 => 'Enero',
+                            2 => 'Febrero',
+                            3 => 'Marzo',
+                            4 => 'Abril',
+                            5 => 'Mayo',
+                            6 => 'Junio',
+                            7 => 'Julio',
+                            8 => 'Agosto',
+                            9 => 'Septiembre',
                             10 => 'Octubre',
                             11 => 'Noviembre',
                             12 => 'Diciembre',
@@ -109,7 +116,7 @@ class CuadranteMesResource extends Resource
 
                 Tables\Columns\TextColumn::make('mes_anyo')
                     ->label('Período')
-                    ->getStateUsing(fn (CuadranteMes $r) => ($mesesEs[$r->mes] ?? $r->mes) . ' ' . $r->anyo)
+                    ->getStateUsing(fn (CuadranteMes $r) => ($mesesEs[$r->mes] ?? $r->mes).' '.$r->anyo)
                     ->sortable(query: fn ($query, $direction) => $query->orderBy('anyo', $direction)->orderBy('mes', $direction)),
 
                 Tables\Columns\TextColumn::make('estado')
@@ -117,8 +124,8 @@ class CuadranteMesResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn (EstadoCuadrante $state) => $state->label())
                     ->color(fn (EstadoCuadrante $state) => match ($state) {
-                        EstadoCuadrante::Borrador  => 'gray',
-                        EstadoCuadrante::Revision  => 'warning',
+                        EstadoCuadrante::Borrador => 'gray',
+                        EstadoCuadrante::Revision => 'warning',
                         EstadoCuadrante::Publicado => 'success',
                     }),
 
@@ -169,8 +176,8 @@ class CuadranteMesResource extends Resource
                     ->modalDescription('Al publicar el cuadrante, quedará visible para el equipo. Esta acción no materializa los slots todavía (pendiente de implementación del SlotMaterializadorService).')
                     ->action(function (CuadranteMes $record) {
                         $record->update([
-                            'estado'           => EstadoCuadrante::Publicado->value,
-                            'publicado_en'     => now(),
+                            'estado' => EstadoCuadrante::Publicado->value,
+                            'publicado_en' => now(),
                             'publicado_por_id' => auth()->id(),
                         ]);
                     }),
@@ -191,9 +198,9 @@ class CuadranteMesResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListCuadrantesMes::route('/'),
+            'index' => Pages\ListCuadrantesMes::route('/'),
             'create' => Pages\CreateCuadranteMes::route('/create'),
-            'edit'   => Pages\EditCuadranteMes::route('/{record}/edit'),
+            'edit' => Pages\EditCuadranteMes::route('/{record}/edit'),
         ];
     }
 }

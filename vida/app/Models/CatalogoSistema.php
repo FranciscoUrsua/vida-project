@@ -21,12 +21,12 @@ use Illuminate\Database\Eloquent\Model;
  *   CatalogoSistema::opcionesParaSelect('prestacion.objetivo_general')
  *   // → ['01' => 'Acceso, información y valoración', ...]
  *
- * @property int    $id
+ * @property int $id
  * @property string $grupo
  * @property string $clave
  * @property string $etiqueta
- * @property int    $orden
- * @property bool   $activo
+ * @property int $orden
+ * @property bool $activo
  */
 class CatalogoSistema extends Model
 {
@@ -66,7 +66,6 @@ class CatalogoSistema extends Model
      *
      * @param string $clave Clave única del catálogo
      * @param string $defecto Valor por defecto si la clave no existe o está inactiva
-     * @return string
      */
     public static function valor(string $clave, string $defecto = ''): string
     {
@@ -85,7 +84,7 @@ class CatalogoSistema extends Model
     public static function opcionesParaSelectConPrefijo(string $grupo, string $prefijo): array
     {
         return static::deGrupo($grupo)
-            ->where('clave', 'like', $prefijo . '%')
+            ->where('clave', 'like', $prefijo.'%')
             ->pluck('etiqueta', 'clave')
             ->all();
     }

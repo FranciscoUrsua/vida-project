@@ -3,9 +3,12 @@
 namespace App\Jobs;
 
 use App\Enums\OrigenDireccion;
+use App\Observers\DireccionObserver;
 use App\Services\Geocodificacion\GeocodificadorInterface;
+use App\Traits\TieneDireccion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -25,7 +28,7 @@ use Illuminate\Queue\SerializesModels;
  *
  * Ver docs/geocodificacion.md § 4.2.
  *
- * @see \App\Observers\DireccionObserver
+ * @see DireccionObserver
  */
 class NormalizarDireccionJob implements ShouldQueue
 {
@@ -41,11 +44,11 @@ class NormalizarDireccionJob implements ShouldQueue
     public int $maxExceptions = 3;
 
     /**
-     * @param  string    $claseModelo FQCN del modelo a normalizar.
-     * @param  int|string $modeloId   Identificador del registro.
+     * @param string $claseModelo FQCN del modelo a normalizar.
+     * @param int|string $modeloId Identificador del registro.
      */
     public function __construct(
-        private readonly string     $claseModelo,
+        private readonly string $claseModelo,
         private readonly int|string $modeloId,
     ) {}
 
@@ -65,13 +68,10 @@ class NormalizarDireccionJob implements ShouldQueue
      * Recupera el modelo, verifica que aún necesita normalización y llama
      * al geocoder. Si tiene éxito, guarda los campos estructurados sin pasar
      * por el DireccionObserver (para evitar bucle).
-     *
-     * @param  GeocodificadorInterface $geocodificador
-     * @return void
      */
     public function handle(GeocodificadorInterface $geocodificador): void
     {
-        /** @var \Illuminate\Database\Eloquent\Model|\App\Traits\TieneDireccion|null $modelo */
+        /** @var Model|TieneDireccion|null $modelo */
         $modelo = ($this->claseModelo)::find($this->modeloId);
 
         if ($modelo === null || $modelo->direccion_normalizada || empty($modelo->direccion_texto)) {
@@ -80,8 +80,9 @@ class NormalizarDireccionJob implements ShouldQueue
 
         $resultado = $geocodificador->normalizar((string) $modelo->direccion_texto);
 
-        if (!$resultado->exito) {
+        if (! $resultado->exito) {
             $this->fail(new \RuntimeException($resultado->errorMensaje ?? 'Error desconocido del geocoder'));
+
             return;
         }
 
@@ -89,20 +90,20 @@ class NormalizarDireccionJob implements ShouldQueue
         $modelo->withoutEvents(function () use ($modelo, $resultado) {
             $modelo->update([
                 'direccion_normalizada' => true,
-                'tipo_via'             => $resultado->tipoVia,
-                'nombre_via'           => $resultado->nombreVia,
-                'tipo_numeracion'      => $resultado->tipoNumeracion,
-                'numero'               => $resultado->numero,
-                'portal'               => $resultado->portal,
-                'escalera'             => $resultado->escalera,
-                'piso'                 => $resultado->piso,
-                'puerta'               => $resultado->puerta,
-                'codigo_postal'        => $resultado->codigoPostal ?? $modelo->codigo_postal,
-                'municipio'            => $resultado->municipio,
-                'coordenadas_lat'      => $resultado->latitud,
-                'coordenadas_lng'      => $resultado->longitud,
-                'geocoder_proveedor'   => $resultado->proveedor,
-                'origen_direccion'     => OrigenDireccion::Geocodificacion,
+                'tipo_via' => $resultado->tipoVia,
+                'nombre_via' => $resultado->nombreVia,
+                'tipo_numeracion' => $resultado->tipoNumeracion,
+                'numero' => $resultado->numero,
+                'portal' => $resultado->portal,
+                'escalera' => $resultado->escalera,
+                'piso' => $resultado->piso,
+                'puerta' => $resultado->puerta,
+                'codigo_postal' => $resultado->codigoPostal ?? $modelo->codigo_postal,
+                'municipio' => $resultado->municipio,
+                'coordenadas_lat' => $resultado->latitud,
+                'coordenadas_lng' => $resultado->longitud,
+                'geocoder_proveedor' => $resultado->proveedor,
+                'origen_direccion' => OrigenDireccion::Geocodificacion,
             ]);
         });
     }

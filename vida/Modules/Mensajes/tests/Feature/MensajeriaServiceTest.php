@@ -12,7 +12,6 @@ use Modules\Mensajes\Enums\RolParticipante;
 use Modules\Mensajes\Enums\VisibilidadMensaje;
 use Modules\Mensajes\Exceptions\UnauthorizedException;
 use Modules\Mensajes\Models\Mensaje;
-use Modules\Mensajes\Models\MensajeHilo;
 use Modules\Mensajes\Models\MensajeParticipante;
 use Modules\Mensajes\Services\MensajeriaService;
 use PHPUnit\Framework\Attributes\Test;
@@ -30,7 +29,7 @@ class MensajeriaServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->servicio = new MensajeriaService();
+        $this->servicio = new MensajeriaService;
     }
 
     // -------------------------------------------------------------------------
@@ -40,63 +39,63 @@ class MensajeriaServiceTest extends TestCase
     #[Test]
     public function crear_hilo_genera_dos_participantes(): void
     {
-        $remitente   = User::factory()->create();
+        $remitente = User::factory()->create();
         $destinatario = User::factory()->create();
 
         $hilo = $this->servicio->crearHilo(
-            remitente:    $remitente,
+            remitente: $remitente,
             destinatario: $destinatario,
-            asunto:       'Consulta sobre expediente',
-            cuerpo:       'Hola, necesito información.',
+            asunto: 'Consulta sobre expediente',
+            cuerpo: 'Hola, necesito información.',
         );
 
         $this->assertDatabaseCount('mensajes_participantes', 2);
 
         $this->assertDatabaseHas('mensajes_participantes', [
-            'hilo_id'    => $hilo->id,
+            'hilo_id' => $hilo->id,
             'usuario_id' => $remitente->id,
-            'rol'        => RolParticipante::RemitenteInicial->value,
+            'rol' => RolParticipante::RemitenteInicial->value,
         ]);
 
         $this->assertDatabaseHas('mensajes_participantes', [
-            'hilo_id'    => $hilo->id,
+            'hilo_id' => $hilo->id,
             'usuario_id' => $destinatario->id,
-            'rol'        => RolParticipante::Participante->value,
+            'rol' => RolParticipante::Participante->value,
         ]);
     }
 
     #[Test]
     public function crear_hilo_crea_el_primer_mensaje(): void
     {
-        $remitente   = User::factory()->create();
+        $remitente = User::factory()->create();
         $destinatario = User::factory()->create();
 
         $hilo = $this->servicio->crearHilo(
-            remitente:    $remitente,
+            remitente: $remitente,
             destinatario: $destinatario,
-            asunto:       'Test',
-            cuerpo:       'Primer mensaje del hilo',
+            asunto: 'Test',
+            cuerpo: 'Primer mensaje del hilo',
         );
 
         $this->assertDatabaseHas('mensajes', [
-            'hilo_id'      => $hilo->id,
+            'hilo_id' => $hilo->id,
             'remitente_id' => $remitente->id,
-            'cuerpo'       => 'Primer mensaje del hilo',
+            'cuerpo' => 'Primer mensaje del hilo',
         ]);
     }
 
     #[Test]
     public function crear_hilo_con_ciudadano_referenciado_crea_la_referencia(): void
     {
-        $remitente   = User::factory()->create();
+        $remitente = User::factory()->create();
         $destinatario = User::factory()->create();
-        $ciudadano    = Ciudadano::factory()->create();
+        $ciudadano = Ciudadano::factory()->create();
 
         $this->servicio->crearHilo(
-            remitente:    $remitente,
+            remitente: $remitente,
             destinatario: $destinatario,
-            asunto:       'Sobre ciudadano',
-            cuerpo:       'Referenciando al ciudadano',
+            asunto: 'Sobre ciudadano',
+            cuerpo: 'Referenciando al ciudadano',
             ciudadanoIds: [$ciudadano->id],
         );
 
@@ -112,10 +111,10 @@ class MensajeriaServiceTest extends TestCase
     #[Test]
     public function registrar_en_historia_lanza_excepcion_si_usuario_no_es_tsr(): void
     {
-        $remitente   = User::factory()->create();
+        $remitente = User::factory()->create();
         $destinatario = User::factory()->create();
-        $noTsr        = User::factory()->create();
-        $ciudadano    = Ciudadano::factory()->create();
+        $noTsr = User::factory()->create();
+        $ciudadano = Ciudadano::factory()->create();
 
         $hilo = $this->servicio->crearHilo($remitente, $destinatario, 'Test', 'Cuerpo');
         $mensaje = $hilo->mensajes()->first();
@@ -123,9 +122,9 @@ class MensajeriaServiceTest extends TestCase
         $this->expectException(UnauthorizedException::class);
 
         $this->servicio->registrarEnHistoria(
-            mensaje:       $mensaje,
-            ciudadano:     $ciudadano,
-            tsr:           $noTsr,
+            mensaje: $mensaje,
+            ciudadano: $ciudadano,
+            tsr: $noTsr,
             cuerpoEditado: 'Versión editada',
         );
     }
@@ -134,33 +133,33 @@ class MensajeriaServiceTest extends TestCase
     public function registrar_en_historia_crea_registro_con_cuerpo_editado(): void
     {
         // Crear UO, ciudadano e historia social asignada a la UO del TSR
-        $uo        = UnidadOrganizativa::create(['nombre' => 'UO TSR', 'tipo' => 'servicio', 'activa' => true]);
-        $tsr       = User::factory()->create();
-        $ciudadano  = Ciudadano::factory()->create();
+        $uo = UnidadOrganizativa::create(['nombre' => 'UO TSR', 'tipo' => 'servicio', 'activa' => true]);
+        $tsr = User::factory()->create();
+        $ciudadano = Ciudadano::factory()->create();
 
         UsuarioUo::create([
-            'usuario_id'             => $tsr->id,
+            'usuario_id' => $tsr->id,
             'unidad_organizativa_id' => $uo->id,
-            'tipo_vinculo'           => 'adscripcion',
-            'fecha_inicio'           => now()->toDateString(),
+            'tipo_vinculo' => 'adscripcion',
+            'fecha_inicio' => now()->toDateString(),
         ]);
 
         HistoriaSocial::create([
-            'ciudadano_id'             => $ciudadano->id,
-            'unidad_organizativa_id'   => $uo->id,
-            'ciudadano_protegido'      => false,
-            'estado'                   => 'abierta',
+            'ciudadano_id' => $ciudadano->id,
+            'unidad_organizativa_id' => $uo->id,
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
-        $remitente   = User::factory()->create();
+        $remitente = User::factory()->create();
         $destinatario = User::factory()->create();
-        $hilo         = $this->servicio->crearHilo($remitente, $destinatario, 'Asunto', 'Mensaje original');
-        $mensaje      = $hilo->mensajes()->first();
+        $hilo = $this->servicio->crearHilo($remitente, $destinatario, 'Asunto', 'Mensaje original');
+        $mensaje = $hilo->mensajes()->first();
 
         $registro = $this->servicio->registrarEnHistoria(
-            mensaje:       $mensaje,
-            ciudadano:     $ciudadano,
-            tsr:           $tsr,
+            mensaje: $mensaje,
+            ciudadano: $ciudadano,
+            tsr: $tsr,
             cuerpoEditado: 'Versión editada por el TSR',
         );
 
@@ -168,8 +167,8 @@ class MensajeriaServiceTest extends TestCase
         $this->assertNotEquals($mensaje->cuerpo, $registro->cuerpo_registrado);
 
         $this->assertDatabaseHas('mensajes_registro_historia', [
-            'mensaje_id'        => $mensaje->id,
-            'ciudadano_id'      => $ciudadano->id,
+            'mensaje_id' => $mensaje->id,
+            'ciudadano_id' => $ciudadano->id,
             'registrado_por_id' => $tsr->id,
             'cuerpo_registrado' => 'Versión editada por el TSR',
         ]);
@@ -182,7 +181,7 @@ class MensajeriaServiceTest extends TestCase
     #[Test]
     public function marcar_como_leido_actualiza_fecha_ultima_lectura(): void
     {
-        $remitente   = User::factory()->create();
+        $remitente = User::factory()->create();
         $destinatario = User::factory()->create();
 
         $hilo = $this->servicio->crearHilo($remitente, $destinatario, 'Test', 'Hola');
@@ -204,7 +203,7 @@ class MensajeriaServiceTest extends TestCase
     #[Test]
     public function t_msg_04_responder_anade_mensaje_al_hilo_sin_crear_uno_nuevo(): void
     {
-        $remitente    = User::factory()->create();
+        $remitente = User::factory()->create();
         $destinatario = User::factory()->create();
 
         $hilo = $this->servicio->crearHilo($remitente, $destinatario, 'Test', 'Primer mensaje');
@@ -228,7 +227,7 @@ class MensajeriaServiceTest extends TestCase
     #[Test]
     public function t_msg_06_contador_mensajes_no_leidos_es_correcto(): void
     {
-        $remitente    = User::factory()->create();
+        $remitente = User::factory()->create();
         $destinatario = User::factory()->create();
 
         $hilo = $this->servicio->crearHilo($remitente, $destinatario, 'Test', 'Mensaje 1');
@@ -253,33 +252,33 @@ class MensajeriaServiceTest extends TestCase
     #[Test]
     public function t_msg_07_tsr_puede_registrar_mensaje_en_historia_social(): void
     {
-        $uo        = UnidadOrganizativa::create(['nombre' => 'UO TSR 07', 'tipo' => 'servicio', 'activa' => true]);
-        $tsr       = User::factory()->create();
+        $uo = UnidadOrganizativa::create(['nombre' => 'UO TSR 07', 'tipo' => 'servicio', 'activa' => true]);
+        $tsr = User::factory()->create();
         $ciudadano = Ciudadano::factory()->create();
 
         UsuarioUo::create([
-            'usuario_id'             => $tsr->id,
+            'usuario_id' => $tsr->id,
             'unidad_organizativa_id' => $uo->id,
-            'tipo_vinculo'           => 'adscripcion',
-            'fecha_inicio'           => now()->toDateString(),
+            'tipo_vinculo' => 'adscripcion',
+            'fecha_inicio' => now()->toDateString(),
         ]);
 
         HistoriaSocial::create([
-            'ciudadano_id'           => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
-        $hilo    = $this->servicio->crearHilo(User::factory()->create(), User::factory()->create(), 'Test', 'Original');
+        $hilo = $this->servicio->crearHilo(User::factory()->create(), User::factory()->create(), 'Test', 'Original');
         $mensaje = $hilo->mensajes()->first();
 
         $registro = $this->servicio->registrarEnHistoria(
-            mensaje:       $mensaje,
-            ciudadano:     $ciudadano,
-            tsr:           $tsr,
+            mensaje: $mensaje,
+            ciudadano: $ciudadano,
+            tsr: $tsr,
             cuerpoEditado: 'Texto editado por TSR',
-            visibilidad:   'profesionales',
+            visibilidad: 'profesionales',
         );
 
         $this->assertEquals($ciudadano->id, $registro->ciudadano_id);
@@ -294,32 +293,32 @@ class MensajeriaServiceTest extends TestCase
     #[Test]
     public function t_msg_09_visibilidad_por_defecto_es_profesionales(): void
     {
-        $uo        = UnidadOrganizativa::create(['nombre' => 'UO TSR 09', 'tipo' => 'servicio', 'activa' => true]);
-        $tsr       = User::factory()->create();
+        $uo = UnidadOrganizativa::create(['nombre' => 'UO TSR 09', 'tipo' => 'servicio', 'activa' => true]);
+        $tsr = User::factory()->create();
         $ciudadano = Ciudadano::factory()->create();
 
         UsuarioUo::create([
-            'usuario_id'             => $tsr->id,
+            'usuario_id' => $tsr->id,
             'unidad_organizativa_id' => $uo->id,
-            'tipo_vinculo'           => 'adscripcion',
-            'fecha_inicio'           => now()->toDateString(),
+            'tipo_vinculo' => 'adscripcion',
+            'fecha_inicio' => now()->toDateString(),
         ]);
 
         HistoriaSocial::create([
-            'ciudadano_id'           => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
-        $hilo    = $this->servicio->crearHilo(User::factory()->create(), User::factory()->create(), 'Test', 'Mensaje');
+        $hilo = $this->servicio->crearHilo(User::factory()->create(), User::factory()->create(), 'Test', 'Mensaje');
         $mensaje = $hilo->mensajes()->first();
 
         // Sin especificar visibilidad → debe usar el valor por defecto
         $registro = $this->servicio->registrarEnHistoria(
-            mensaje:       $mensaje,
-            ciudadano:     $ciudadano,
-            tsr:           $tsr,
+            mensaje: $mensaje,
+            ciudadano: $ciudadano,
+            tsr: $tsr,
             cuerpoEditado: 'Contenido',
         );
 
@@ -333,35 +332,35 @@ class MensajeriaServiceTest extends TestCase
     #[Test]
     public function t_msg_10_no_se_permite_registrar_con_visibilidad_ciudadano(): void
     {
-        $uo        = UnidadOrganizativa::create(['nombre' => 'UO TSR 10', 'tipo' => 'servicio', 'activa' => true]);
-        $tsr       = User::factory()->create();
+        $uo = UnidadOrganizativa::create(['nombre' => 'UO TSR 10', 'tipo' => 'servicio', 'activa' => true]);
+        $tsr = User::factory()->create();
         $ciudadano = Ciudadano::factory()->create();
 
         UsuarioUo::create([
-            'usuario_id'             => $tsr->id,
+            'usuario_id' => $tsr->id,
             'unidad_organizativa_id' => $uo->id,
-            'tipo_vinculo'           => 'adscripcion',
-            'fecha_inicio'           => now()->toDateString(),
+            'tipo_vinculo' => 'adscripcion',
+            'fecha_inicio' => now()->toDateString(),
         ]);
 
         HistoriaSocial::create([
-            'ciudadano_id'           => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
-        $hilo    = $this->servicio->crearHilo(User::factory()->create(), User::factory()->create(), 'Test', 'Mensaje');
+        $hilo = $this->servicio->crearHilo(User::factory()->create(), User::factory()->create(), 'Test', 'Mensaje');
         $mensaje = $hilo->mensajes()->first();
 
         $this->expectException(\InvalidArgumentException::class);
 
         $this->servicio->registrarEnHistoria(
-            mensaje:       $mensaje,
-            ciudadano:     $ciudadano,
-            tsr:           $tsr,
+            mensaje: $mensaje,
+            ciudadano: $ciudadano,
+            tsr: $tsr,
             cuerpoEditado: 'Contenido',
-            visibilidad:   'ciudadano',
+            visibilidad: 'ciudadano',
         );
 
         $this->assertDatabaseCount('mensajes_registro_historia', 0);

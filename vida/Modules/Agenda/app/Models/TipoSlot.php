@@ -41,12 +41,12 @@ class TipoSlot extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'duracion_minutos'        => 'integer',
-        'requiere_espacio'        => 'boolean',
-        'porcentaje_urgencias'    => 'integer',
-        'origen_permitido'        => OrigenPermitidoSlot::class,
+        'duracion_minutos' => 'integer',
+        'requiere_espacio' => 'boolean',
+        'porcentaje_urgencias' => 'integer',
+        'origen_permitido' => OrigenPermitidoSlot::class,
         'genera_apunte_automatico' => 'boolean',
-        'activo'                  => 'boolean',
+        'activo' => 'boolean',
     ];
 
     public function horarioCentro(): BelongsTo

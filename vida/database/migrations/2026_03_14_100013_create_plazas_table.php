@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\Plaza;
 
 /**
  * Plazas individuales dentro de un espacio.
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * estado valores: libre | ocupada | reservada | mantenimiento
  *
- * @see Modules\Centro\Models\Plaza
+ * @see Plaza
  */
 return new class extends Migration
 {

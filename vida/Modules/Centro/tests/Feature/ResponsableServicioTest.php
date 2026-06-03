@@ -29,12 +29,12 @@ class ResponsableServicioTest extends TestCase
         );
 
         return Servicio::create([
-            'nombre'                 => 'Servicio de Prueba',
-            'nombre_corto'           => 'SDP',
+            'nombre' => 'Servicio de Prueba',
+            'nombre_corto' => 'SDP',
             'unidad_organizativa_id' => $uo->id,
-            'cargo_nombre'           => $cargoNombre,
-            'activo'                 => true,
-            'fecha_alta'             => today()->toDateString(),
+            'cargo_nombre' => $cargoNombre,
+            'activo' => true,
+            'fecha_alta' => today()->toDateString(),
         ]);
     }
 
@@ -47,13 +47,13 @@ class ResponsableServicioTest extends TestCase
         );
 
         return Profesional::create([
-            'nombre'           => $nombre,
-            'apellido1'        => 'Apellido',
-            'sexo'             => 'M',
-            'cargo_id'         => $cargo->id,
+            'nombre' => $nombre,
+            'apellido1' => 'Apellido',
+            'sexo' => 'M',
+            'cargo_id' => $cargo->id,
             'tipo_relacion_id' => $tipoRelacion->id,
-            'fecha_inicio'     => today()->toDateString(),
-            'activo'           => true,
+            'fecha_inicio' => today()->toDateString(),
+            'activo' => true,
         ]);
     }
 
@@ -64,23 +64,23 @@ class ResponsableServicioTest extends TestCase
     #[Test]
     public function un_servicio_tiene_un_unico_responsable_activo(): void
     {
-        $servicio     = $this->crearServicio();
-        $profesional  = $this->crearProfesional();
+        $servicio = $this->crearServicio();
+        $profesional = $this->crearProfesional();
 
         // Responsable inactivo (con fecha_fin pasada).
         ResponsableServicio::create([
-            'servicio_id'    => $servicio->id,
+            'servicio_id' => $servicio->id,
             'profesional_id' => $profesional->id,
-            'fecha_inicio'   => today()->subYear()->toDateString(),
-            'fecha_fin'      => today()->subMonth()->toDateString(),
+            'fecha_inicio' => today()->subYear()->toDateString(),
+            'fecha_fin' => today()->subMonth()->toDateString(),
         ]);
 
         // Responsable activo (sin fecha_fin).
         $responsableActual = ResponsableServicio::create([
-            'servicio_id'    => $servicio->id,
+            'servicio_id' => $servicio->id,
             'profesional_id' => $profesional->id,
-            'fecha_inicio'   => today()->toDateString(),
-            'fecha_fin'      => null,
+            'fecha_inicio' => today()->toDateString(),
+            'fecha_fin' => null,
         ]);
 
         $activo = $servicio->responsableActivo();
@@ -96,7 +96,7 @@ class ResponsableServicioTest extends TestCase
     #[Test]
     public function al_nombrar_nuevo_responsable_el_anterior_recibe_fecha_fin(): void
     {
-        $servicio     = $this->crearServicio();
+        $servicio = $this->crearServicio();
         $profesionalA = $this->crearProfesional('Ana');
         $profesionalB = $this->crearProfesional('Berta');
 
@@ -127,9 +127,9 @@ class ResponsableServicioTest extends TestCase
         $servicio = $this->crearServicio();
 
         ResponsableServicio::create([
-            'servicio_id'    => $servicio->id,
+            'servicio_id' => $servicio->id,
             'profesional_id' => null,
-            'fecha_inicio'   => today()->toDateString(),
+            'fecha_inicio' => today()->toDateString(),
         ]);
     }
 
@@ -141,8 +141,8 @@ class ResponsableServicioTest extends TestCase
     public function el_cargo_del_responsable_se_toma_del_servicio(): void
     {
         $cargoEsperado = 'Jefe de Departamento X';
-        $servicio      = $this->crearServicio($cargoEsperado);
-        $profesional   = $this->crearProfesional();
+        $servicio = $this->crearServicio($cargoEsperado);
+        $profesional = $this->crearProfesional();
 
         $responsable = $servicio->nombrarResponsable($profesional);
 

@@ -5,6 +5,7 @@ namespace Modules\Mensajes\Models;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Mensajes\Enums\TipoReconocimiento;
 
 /**
@@ -14,7 +15,7 @@ use Modules\Mensajes\Enums\TipoReconocimiento;
  * @property int $alerta_id
  * @property int $usuario_id
  * @property TipoReconocimiento $tipo
- * @property \Illuminate\Support\Carbon $reconocida_en
+ * @property Carbon $reconocida_en
  * @property string|null $ip_address
  */
 class AlertaReconocimiento extends Model
@@ -32,7 +33,7 @@ class AlertaReconocimiento extends Model
     ];
 
     protected $casts = [
-        'tipo'         => TipoReconocimiento::class,
+        'tipo' => TipoReconocimiento::class,
         'reconocida_en' => 'datetime',
     ];
 
@@ -43,7 +44,7 @@ class AlertaReconocimiento extends Model
     /**
      * Alerta a la que pertenece este reconocimiento.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Alerta, self>
+     * @return BelongsTo<Alerta, self>
      */
     public function alerta(): BelongsTo
     {
@@ -53,7 +54,7 @@ class AlertaReconocimiento extends Model
     /**
      * Usuario que realizó el reconocimiento.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
+     * @return BelongsTo<User, self>
      */
     public function usuario(): BelongsTo
     {

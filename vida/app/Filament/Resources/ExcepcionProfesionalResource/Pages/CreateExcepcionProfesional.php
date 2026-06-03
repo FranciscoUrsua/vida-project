@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ExcepcionProfesionalResource\Pages;
 
 use App\Filament\Resources\ExcepcionProfesionalResource;
 use Filament\Resources\Pages\CreateRecord;
+use Modules\Agenda\Enums\OrigenExcepcion;
 
 class CreateExcepcionProfesional extends CreateRecord
 {
@@ -12,7 +13,7 @@ class CreateExcepcionProfesional extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['creado_por_id'] = auth()->id();
-        $data['origen'] = \Modules\Agenda\Enums\OrigenExcepcion::Manual->value;
+        $data['origen'] = OrigenExcepcion::Manual->value;
 
         return $data;
     }

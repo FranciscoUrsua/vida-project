@@ -6,6 +6,7 @@ use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Usuarios\Models\Profesional;
 
 /**
@@ -23,8 +24,8 @@ use Modules\Usuarios\Models\Profesional;
  * @property int $profesional_alerta_id
  * @property string $estado
  * @property int $posicion
- * @property \Illuminate\Support\Carbon $fecha_entrada
- * @property \Illuminate\Support\Carbon|null $fecha_alerta
+ * @property Carbon $fecha_entrada
+ * @property Carbon|null $fecha_alerta
  */
 class ListaEspera extends Model
 {
@@ -46,8 +47,8 @@ class ListaEspera extends Model
 
     protected $casts = [
         'fecha_entrada' => 'datetime',
-        'fecha_alerta'  => 'datetime',
-        'posicion'      => 'integer',
+        'fecha_alerta' => 'datetime',
+        'posicion' => 'integer',
     ];
 
     // -------------------------------------------------------------------------
@@ -56,14 +57,12 @@ class ListaEspera extends Model
 
     /**
      * Registra el hook de validación que impide mezclar ámbito local y de red.
-     *
-     * @return void
      */
     protected static function booted(): void
     {
         static::saving(function (self $registro) {
             $tieneColeccion = ! empty($registro->coleccion_plazas_id);
-            $tieneRed       = ! empty($registro->red_id);
+            $tieneRed = ! empty($registro->red_id);
 
             if ($tieneColeccion && $tieneRed) {
                 throw new \InvalidArgumentException(
@@ -86,7 +85,7 @@ class ListaEspera extends Model
     /**
      * Prescripción que originó la entrada en lista de espera.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Prescripcion, self>
+     * @return BelongsTo<Prescripcion, self>
      */
     public function prescripcion(): BelongsTo
     {
@@ -96,7 +95,7 @@ class ListaEspera extends Model
     /**
      * Colección de plazas de ámbito local (mutuamente excluyente con red).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\ColeccionPlazas, self>
+     * @return BelongsTo<ColeccionPlazas, self>
      */
     public function coleccionPlazas(): BelongsTo
     {
@@ -106,7 +105,7 @@ class ListaEspera extends Model
     /**
      * Red de centros de ámbito compartido (mutuamente excluyente con coleccionPlazas).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Red, self>
+     * @return BelongsTo<Red, self>
      */
     public function red(): BelongsTo
     {
@@ -116,7 +115,7 @@ class ListaEspera extends Model
     /**
      * Profesional al que se notificará cuando haya plaza disponible.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Usuarios\Models\Profesional, self>
+     * @return BelongsTo<Profesional, self>
      */
     public function profesionalAlerta(): BelongsTo
     {
@@ -130,12 +129,12 @@ class ListaEspera extends Model
     /**
      * Filtra registros de lista de espera con estado activa.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeActivas(Builder $query): Builder
     {
         return $query->where('estado', 'activa');
     }
-
 }

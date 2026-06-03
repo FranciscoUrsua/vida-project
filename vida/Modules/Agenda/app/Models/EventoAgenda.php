@@ -9,12 +9,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Modules\Agenda\Database\Factories\EventoAgendaFactory;
 use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Enums\EstadoSlot;
-use Modules\Agenda\Models\Cita;
-use Modules\Agenda\Models\Slot;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Espacio;
 
@@ -33,7 +32,7 @@ use Modules\Centro\Models\Espacio;
  * @property string $tipo_evento
  * @property string $titulo
  * @property string|null $descripcion
- * @property \Illuminate\Support\Carbon $fecha
+ * @property Carbon $fecha
  * @property string $hora_inicio
  * @property string $hora_fin
  * @property int|null $espacio_id
@@ -103,13 +102,14 @@ class EventoAgenda extends Model
      * Los slots en estado 'reservado' no se bloquean; las citas confirmadas
      * afectadas se devuelven como conflictos para que el supervisor las gestione.
      *
-     * @param  array<int> $usuarioIds IDs de los profesionales a convocar
+     * @param array<int> $usuarioIds IDs de los profesionales a convocar
+     *
      * @return array<int, Collection<int, Cita>> Mapa usuarioId → citas en conflicto
      */
     public function agregarProfesionales(array $usuarioIds): array
     {
         $conflictos = [];
-        $fechaStr   = $this->fecha->toDateString();
+        $fechaStr = $this->fecha->toDateString();
 
         foreach ($usuarioIds as $usuarioId) {
             $this->profesionales()->syncWithoutDetaching([$usuarioId]);

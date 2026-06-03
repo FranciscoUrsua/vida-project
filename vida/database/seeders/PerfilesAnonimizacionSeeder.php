@@ -35,11 +35,11 @@ class PerfilesAnonimizacionSeeder extends Seeder
         PerfilAnonimizacion::firstOrCreate(
             ['nombre' => 'supervision_interna'],
             [
-                'nivel'      => 1,
-                'version'    => 1,
-                'estado'     => 'activo',
+                'nivel' => 1,
+                'version' => 1,
+                'estado' => 'activo',
                 'es_sistema' => true,
-                'campos'     => [
+                'campos' => [
                     ['campo' => 'id',                  'tecnica' => 'seudonimizar'],
                     ['campo' => 'nombre',              'tecnica' => 'suprimir'],
                     ['campo' => 'apellido1',           'tecnica' => 'suprimir'],
@@ -64,11 +64,11 @@ class PerfilesAnonimizacionSeeder extends Seeder
         PerfilAnonimizacion::firstOrCreate(
             ['nombre' => 'analitica_interna'],
             [
-                'nivel'      => 2,
-                'version'    => 1,
-                'estado'     => 'activo',
+                'nivel' => 2,
+                'version' => 1,
+                'estado' => 'activo',
                 'es_sistema' => true,
-                'campos'     => [
+                'campos' => [
                     ['campo' => 'nombre',              'tecnica' => 'suprimir'],
                     ['campo' => 'apellido1',           'tecnica' => 'suprimir'],
                     ['campo' => 'apellido2',           'tecnica' => 'suprimir'],
@@ -76,16 +76,16 @@ class PerfilesAnonimizacionSeeder extends Seeder
                     ['campo' => 'telefono',            'tecnica' => 'suprimir'],
                     ['campo' => 'email',               'tecnica' => 'suprimir'],
                     [
-                        'campo'    => 'fecha_nacimiento',
-                        'tecnica'  => 'generalizar',
+                        'campo' => 'fecha_nacimiento',
+                        'tecnica' => 'generalizar',
                         'precision' => 'anio',
                     ],
                     [
-                        'campo'        => 'nombre_via',
-                        'tecnica'      => 'generalizar',
-                        'precision'    => 'calle_sin_numero',
+                        'campo' => 'nombre_via',
+                        'tecnica' => 'generalizar',
+                        'precision' => 'calle_sin_numero',
                         'prerequisito' => 'direccion_normalizada',
-                        'fallback'     => 'suprimir',
+                        'fallback' => 'suprimir',
                     ],
                     ['campo' => 'numero',   'tecnica' => 'suprimir'],
                     ['campo' => 'portal',   'tecnica' => 'suprimir'],
@@ -93,8 +93,8 @@ class PerfilesAnonimizacionSeeder extends Seeder
                     ['campo' => 'piso',     'tecnica' => 'suprimir'],
                     ['campo' => 'puerta',   'tecnica' => 'suprimir'],
                     [
-                        'campo'    => 'codigo_postal',
-                        'tecnica'  => 'generalizar',
+                        'campo' => 'codigo_postal',
+                        'tecnica' => 'generalizar',
                         'precision' => 'distrito_proxy',
                     ],
                     ['campo' => 'sexo', 'tecnica' => 'mantener'],
@@ -113,11 +113,11 @@ class PerfilesAnonimizacionSeeder extends Seeder
         PerfilAnonimizacion::firstOrCreate(
             ['nombre' => 'datos_abiertos'],
             [
-                'nivel'      => 3,
-                'version'    => 1,
-                'estado'     => 'activo',
+                'nivel' => 3,
+                'version' => 1,
+                'estado' => 'activo',
                 'es_sistema' => true,
-                'campos'     => [
+                'campos' => [
                     ['campo' => 'nombre',              'tecnica' => 'suprimir'],
                     ['campo' => 'apellido1',           'tecnica' => 'suprimir'],
                     ['campo' => 'apellido2',           'tecnica' => 'suprimir'],
@@ -125,16 +125,16 @@ class PerfilesAnonimizacionSeeder extends Seeder
                     ['campo' => 'telefono',            'tecnica' => 'suprimir'],
                     ['campo' => 'email',               'tecnica' => 'suprimir'],
                     [
-                        'campo'    => 'fecha_nacimiento',
-                        'tecnica'  => 'generalizar',
+                        'campo' => 'fecha_nacimiento',
+                        'tecnica' => 'generalizar',
                         'precision' => 'anio',
                     ],
                     [
-                        'campo'        => 'nombre_via',
-                        'tecnica'      => 'generalizar',
-                        'precision'    => 'calle_sin_numero',
+                        'campo' => 'nombre_via',
+                        'tecnica' => 'generalizar',
+                        'precision' => 'calle_sin_numero',
                         'prerequisito' => 'direccion_normalizada',
-                        'fallback'     => 'suprimir',
+                        'fallback' => 'suprimir',
                     ],
                     ['campo' => 'numero',   'tecnica' => 'suprimir'],
                     ['campo' => 'portal',   'tecnica' => 'suprimir'],
@@ -142,8 +142,8 @@ class PerfilesAnonimizacionSeeder extends Seeder
                     ['campo' => 'piso',     'tecnica' => 'suprimir'],
                     ['campo' => 'puerta',   'tecnica' => 'suprimir'],
                     [
-                        'campo'    => 'codigo_postal',
-                        'tecnica'  => 'generalizar',
+                        'campo' => 'codigo_postal',
+                        'tecnica' => 'generalizar',
                         'precision' => 'distrito_proxy',
                     ],
                     ['campo' => 'sexo', 'tecnica' => 'mantener'],
@@ -166,11 +166,11 @@ class PerfilesAnonimizacionSeeder extends Seeder
         PerfilAnonimizacion::firstOrCreate(
             ['nombre' => 'investigacion_externa'],
             [
-                'nivel'      => 3,
-                'version'    => 1,
-                'estado'     => 'activo',
+                'nivel' => 3,
+                'version' => 1,
+                'estado' => 'activo',
                 'es_sistema' => true,
-                'campos'     => [
+                'campos' => [
                     ['campo' => 'nombre',              'tecnica' => 'suprimir'],
                     ['campo' => 'apellido1',           'tecnica' => 'suprimir'],
                     ['campo' => 'apellido2',           'tecnica' => 'suprimir'],
@@ -178,16 +178,16 @@ class PerfilesAnonimizacionSeeder extends Seeder
                     ['campo' => 'telefono',            'tecnica' => 'suprimir'],
                     ['campo' => 'email',               'tecnica' => 'suprimir'],
                     [
-                        'campo'    => 'fecha_nacimiento',
-                        'tecnica'  => 'generalizar',
+                        'campo' => 'fecha_nacimiento',
+                        'tecnica' => 'generalizar',
                         'precision' => 'anio',
                     ],
                     [
-                        'campo'        => 'nombre_via',
-                        'tecnica'      => 'generalizar',
-                        'precision'    => 'calle_sin_numero',
+                        'campo' => 'nombre_via',
+                        'tecnica' => 'generalizar',
+                        'precision' => 'calle_sin_numero',
                         'prerequisito' => 'direccion_normalizada',
-                        'fallback'     => 'suprimir',
+                        'fallback' => 'suprimir',
                     ],
                     ['campo' => 'numero',   'tecnica' => 'suprimir'],
                     ['campo' => 'portal',   'tecnica' => 'suprimir'],
@@ -195,8 +195,8 @@ class PerfilesAnonimizacionSeeder extends Seeder
                     ['campo' => 'piso',     'tecnica' => 'suprimir'],
                     ['campo' => 'puerta',   'tecnica' => 'suprimir'],
                     [
-                        'campo'    => 'codigo_postal',
-                        'tecnica'  => 'generalizar',
+                        'campo' => 'codigo_postal',
+                        'tecnica' => 'generalizar',
                         'precision' => 'distrito_proxy',
                     ],
                     ['campo' => 'sexo', 'tecnica' => 'mantener'],

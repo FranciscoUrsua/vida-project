@@ -23,12 +23,13 @@ class DisponibilidadService
      * internamente. Pasar `$incluirUrgencias = true` para incluirlos
      * (canal interno, reasignaciones supervisadas).
      *
-     * @param  int    $usuarioId        ID del profesional
-     * @param  int    $centroId         ID del centro
-     * @param  int    $tipoSlotId       ID del tipo de slot
-     * @param  Carbon $desde            Fecha de inicio del período (inclusive)
-     * @param  Carbon $hasta            Fecha de fin del período (inclusive)
-     * @param  bool   $incluirUrgencias Si se incluyen los slots de urgencia
+     * @param int $usuarioId ID del profesional
+     * @param int $centroId ID del centro
+     * @param int $tipoSlotId ID del tipo de slot
+     * @param Carbon $desde Fecha de inicio del período (inclusive)
+     * @param Carbon $hasta Fecha de fin del período (inclusive)
+     * @param bool $incluirUrgencias Si se incluyen los slots de urgencia
+     *
      * @return Collection<int, Slot>
      */
     public function obtenerSlots(

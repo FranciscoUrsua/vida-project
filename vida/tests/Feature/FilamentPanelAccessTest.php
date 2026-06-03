@@ -7,7 +7,6 @@ use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 /**
@@ -28,9 +27,13 @@ class FilamentPanelAccessTest extends TestCase
     use RefreshDatabase;
 
     private User $sinRol;
+
     private User $admSistema;
+
     private User $supervision;
+
     private User $admUsuarios;
+
     private User $intervencion;
 
     protected function setUp(): void
@@ -40,8 +43,8 @@ class FilamentPanelAccessTest extends TestCase
         $this->seed(PermisosSeeder::class);
         $this->seed(RolesSeeder::class);
 
-        $this->sinRol      = User::factory()->create();
-        $this->admSistema  = User::factory()->create();
+        $this->sinRol = User::factory()->create();
+        $this->admSistema = User::factory()->create();
         $this->supervision = User::factory()->create();
         $this->admUsuarios = User::factory()->create();
         $this->intervencion = User::factory()->create();

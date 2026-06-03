@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Modules\Agenda\Database\Factories\HorarioCentroFactory;
 use Modules\Agenda\Enums\ModoAgenda;
 use Modules\Centro\Models\Centro;
@@ -29,8 +30,8 @@ use Modules\Centro\Models\Centro;
  * @property string $hora_fin_atencion
  * @property int $buffer_inicio_minutos
  * @property int $buffer_fin_minutos
- * @property \Illuminate\Support\Carbon $vigente_desde
- * @property \Illuminate\Support\Carbon|null $vigente_hasta
+ * @property Carbon $vigente_desde
+ * @property Carbon|null $vigente_hasta
  * @property ModoAgenda $modo_agenda
  * @property bool $activo
  * @property string|null $notas
@@ -50,13 +51,13 @@ class HorarioCentro extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'dias_laborables'        => 'array',
-        'vigente_desde'          => 'date',
-        'vigente_hasta'          => 'date',
-        'modo_agenda'            => ModoAgenda::class,
-        'activo'                 => 'boolean',
-        'buffer_inicio_minutos'  => 'integer',
-        'buffer_fin_minutos'     => 'integer',
+        'dias_laborables' => 'array',
+        'vigente_desde' => 'date',
+        'vigente_hasta' => 'date',
+        'modo_agenda' => ModoAgenda::class,
+        'activo' => 'boolean',
+        'buffer_inicio_minutos' => 'integer',
+        'buffer_fin_minutos' => 'integer',
     ];
 
     public function centro(): BelongsTo

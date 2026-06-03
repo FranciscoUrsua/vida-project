@@ -35,13 +35,10 @@ class DireccionObserver
      *
      * Inicializa siempre direccion_normalizada a false para que el modelo
      * en memoria refleje el default de la columna si no se geocodifica.
-     *
-     * @param  Model $model
-     * @return void
      */
     public function creating(Model $model): void
     {
-        if (!array_key_exists('direccion_normalizada', $model->getAttributes())) {
+        if (! array_key_exists('direccion_normalizada', $model->getAttributes())) {
             $model->direccion_normalizada = false;
         }
         $this->intentarNormalizar($model);
@@ -49,9 +46,6 @@ class DireccionObserver
 
     /**
      * Encola el job de reintento si el guardado inicial no normalizó la dirección.
-     *
-     * @param  Model $model
-     * @return void
      */
     public function created(Model $model): void
     {
@@ -62,13 +56,10 @@ class DireccionObserver
      * Intenta geocodificar antes de actualizar el registro.
      *
      * Solo actúa si cambió el texto de la dirección o el origen.
-     *
-     * @param  Model $model
-     * @return void
      */
     public function updating(Model $model): void
     {
-        if (!$model->isDirty(['direccion_texto', 'origen_direccion'])) {
+        if (! $model->isDirty(['direccion_texto', 'origen_direccion'])) {
             return;
         }
         $this->intentarNormalizar($model);
@@ -76,9 +67,6 @@ class DireccionObserver
 
     /**
      * Encola el job de reintento si la actualización no normalizó la dirección.
-     *
-     * @param  Model $model
-     * @return void
      */
     public function updated(Model $model): void
     {
@@ -97,13 +85,10 @@ class DireccionObserver
      *
      * El timeout de 3 segundos se aplica a nivel de conexión HTTP en los adaptadores
      * reales. El mock responde instantáneamente.
-     *
-     * @param  Model $model
-     * @return void
      */
     private function intentarNormalizar(Model $model): void
     {
-        if (!$this->debeGeocodificar($model)) {
+        if (! $this->debeGeocodificar($model)) {
             return;
         }
 
@@ -118,15 +103,12 @@ class DireccionObserver
 
     /**
      * Encola NormalizarDireccionJob si la dirección sigue pendiente de normalización.
-     *
-     * @param  Model $model
-     * @return void
      */
     private function encolarSiPendiente(Model $model): void
     {
         if (
             $this->debeGeocodificar($model) &&
-            !$model->direccion_normalizada
+            ! $model->direccion_normalizada
         ) {
             NormalizarDireccionJob::dispatch(get_class($model), $model->getKey())
                 ->onQueue('low');
@@ -137,14 +119,11 @@ class DireccionObserver
      * Determina si el modelo debe pasar por el geocoder.
      *
      * Solo geocodifica cuando el origen es 'profesional' y hay texto de dirección.
-     *
-     * @param  Model $model
-     * @return bool
      */
     private function debeGeocodificar(Model $model): bool
     {
         return $model->origen_direccion === OrigenDireccion::Profesional
-            && !empty($model->direccion_texto);
+            && ! empty($model->direccion_texto);
     }
 
     /**
@@ -152,31 +131,28 @@ class DireccionObserver
      *
      * No llama a save() — el resultado se persistirá con el save() que desencadenó
      * el evento creating/updating.
-     *
-     * @param  Model                   $model
-     * @param  ResultadoGeocodificacion $resultado
-     * @return void
      */
     private function aplicarResultado(Model $model, ResultadoGeocodificacion $resultado): void
     {
-        if (!$resultado->exito) {
+        if (! $resultado->exito) {
             $model->direccion_normalizada = false;
+
             return;
         }
 
         $model->direccion_normalizada = true;
-        $model->tipo_via             = $resultado->tipoVia;
-        $model->nombre_via           = $resultado->nombreVia;
-        $model->tipo_numeracion      = $resultado->tipoNumeracion;
-        $model->numero               = $resultado->numero;
-        $model->portal               = $resultado->portal;
-        $model->escalera             = $resultado->escalera;
-        $model->piso                 = $resultado->piso;
-        $model->puerta               = $resultado->puerta;
-        $model->codigo_postal        = $resultado->codigoPostal ?? $model->codigo_postal;
-        $model->municipio            = $resultado->municipio;
-        $model->coordenadas_lat      = $resultado->latitud;
-        $model->coordenadas_lng      = $resultado->longitud;
-        $model->geocoder_proveedor   = $resultado->proveedor;
+        $model->tipo_via = $resultado->tipoVia;
+        $model->nombre_via = $resultado->nombreVia;
+        $model->tipo_numeracion = $resultado->tipoNumeracion;
+        $model->numero = $resultado->numero;
+        $model->portal = $resultado->portal;
+        $model->escalera = $resultado->escalera;
+        $model->piso = $resultado->piso;
+        $model->puerta = $resultado->puerta;
+        $model->codigo_postal = $resultado->codigoPostal ?? $model->codigo_postal;
+        $model->municipio = $resultado->municipio;
+        $model->coordenadas_lat = $resultado->latitud;
+        $model->coordenadas_lng = $resultado->longitud;
+        $model->geocoder_proveedor = $resultado->proveedor;
     }
 }

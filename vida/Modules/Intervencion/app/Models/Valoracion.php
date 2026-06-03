@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Modules\Intervencion\Database\Factories\ValoracionFactory;
 use Modules\Intervencion\Enums\EstadoValoracion;
 
@@ -23,7 +24,7 @@ use Modules\Intervencion\Enums\EstadoValoracion;
  * @property int|null $entrevista_id
  * @property int $profesional_id
  * @property int $tipo_valoracion_id
- * @property \Illuminate\Support\Carbon $fecha
+ * @property Carbon $fecha
  * @property EstadoValoracion $estado
  * @property string|null $resumen
  */
@@ -49,7 +50,7 @@ class Valoracion extends Model
     ];
 
     protected $casts = [
-        'fecha'  => 'date',
+        'fecha' => 'date',
         'estado' => EstadoValoracion::class,
     ];
 

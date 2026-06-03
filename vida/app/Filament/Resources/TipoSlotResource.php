@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\TipoSlotResource\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -17,19 +18,25 @@ use Filament\Tables\Table;
 use Modules\Agenda\Enums\OrigenPermitidoSlot;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Agenda\Models\TipoSlot;
-use App\Filament\Concerns\AutorizaGestion;
 
 class TipoSlotResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = TipoSlot::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-squares-2x2';
+
     protected static ?string $navigationLabel = 'Tipos de slot';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
+
     protected static ?string $navigationParentItem = 'Configuración';
+
     protected static ?string $modelLabel = 'Tipo de slot';
+
     protected static ?string $pluralModelLabel = 'Tipos de slot';
+
     protected static ?int $navigationSort = 40;
 
     public static function form(Schema $schema): Schema
@@ -77,7 +84,7 @@ class TipoSlotResource extends Resource
                         ->minValue(0)
                         ->maxValue(100)
                         ->helperText(
-                            'Porcentaje de slots de este tipo reservados para urgencias. ' .
+                            'Porcentaje de slots de este tipo reservados para urgencias. '.
                             'Los slots de urgencia son visibles internamente pero no se exponen al canal externo.'
                         ),
 
@@ -137,9 +144,9 @@ class TipoSlotResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn (OrigenPermitidoSlot $state) => $state->label())
                     ->color(fn (OrigenPermitidoSlot $state) => match ($state) {
-                        OrigenPermitidoSlot::Interno    => 'gray',
+                        OrigenPermitidoSlot::Interno => 'gray',
                         OrigenPermitidoSlot::ApiExterna => 'warning',
-                        OrigenPermitidoSlot::Ambos      => 'success',
+                        OrigenPermitidoSlot::Ambos => 'success',
                     }),
 
                 Tables\Columns\IconColumn::make('genera_apunte_automatico')
@@ -169,9 +176,9 @@ class TipoSlotResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListTiposSlot::route('/'),
+            'index' => Pages\ListTiposSlot::route('/'),
             'create' => Pages\CreateTipoSlot::route('/create'),
-            'edit'   => Pages\EditTipoSlot::route('/{record}/edit'),
+            'edit' => Pages\EditTipoSlot::route('/{record}/edit'),
         ];
     }
 }

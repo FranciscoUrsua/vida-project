@@ -70,7 +70,7 @@ return new class extends Migration
         });
 
         // Check constraint: integridad de destinatario
-        \DB::statement("
+        DB::statement("
             ALTER TABLE alertas
             ADD CONSTRAINT chk_alertas_destinatario CHECK (
                 (destinatario_type = 'usuario' AND destinatario_usuario_id IS NOT NULL)

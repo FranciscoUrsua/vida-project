@@ -4,6 +4,7 @@ namespace Modules\Organizacion\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * Modelo de Servicio de Emergencia Preautorizado.
@@ -18,8 +19,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $nombre
  * @property string|null $descripcion
  * @property bool $activo
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  *
  * @see docs/modulo-usuarios-permisos.md sección 3
  */
@@ -44,6 +45,7 @@ class ServicioEmergenciaPreautorizado extends Model
      * Filtra únicamente los servicios activos.
      *
      * @param Builder<ServicioEmergenciaPreautorizado> $consulta
+     *
      * @return Builder<ServicioEmergenciaPreautorizado>
      */
     public function scopeActivos(Builder $consulta): Builder

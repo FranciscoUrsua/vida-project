@@ -18,15 +18,15 @@ class SiaContactoFactory extends Factory
     public function definition(): array
     {
         return [
-            'ciudadano_id'              => Ciudadano::factory(),
-            'auxiliar_id'               => User::factory(),
-            'fecha_hora'                => now()->toDateTimeString(),
-            'canal'                     => 'presencial',
-            'descripcion_demanda'       => fake()->sentence(),
-            'clasificacion'             => ClasificacionSia::CompetenciaMunicipal,
-            'informacion_prestada'      => null,
-            'urgencia'                  => null,
-            'cita_id'                   => null,
+            'ciudadano_id' => Ciudadano::factory(),
+            'auxiliar_id' => User::factory(),
+            'fecha_hora' => now()->toDateTimeString(),
+            'canal' => 'presencial',
+            'descripcion_demanda' => fake()->sentence(),
+            'clasificacion' => ClasificacionSia::CompetenciaMunicipal,
+            'informacion_prestada' => null,
+            'urgencia' => null,
+            'cita_id' => null,
             'prestaciones_identificadas' => null,
         ];
     }
@@ -45,8 +45,8 @@ class SiaContactoFactory extends Factory
     public function otraAdministracion(): static
     {
         return $this->state([
-            'clasificacion'        => ClasificacionSia::OtraAdministracion,
-            'urgencia'             => null,
+            'clasificacion' => ClasificacionSia::OtraAdministracion,
+            'urgencia' => null,
             'informacion_prestada' => fake()->paragraph(),
         ]);
     }

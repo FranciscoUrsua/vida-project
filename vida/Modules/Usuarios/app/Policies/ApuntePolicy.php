@@ -44,9 +44,6 @@ class ApuntePolicy
 
     /**
      * Decide si el usuario puede listar apuntes.
-     *
-     * @param User $usuario
-     * @return bool
      */
     public function viewAny(User $usuario): bool
     {
@@ -58,10 +55,6 @@ class ApuntePolicy
      *
      * Regla absoluta (precedencia total): si el apunte es privado,
      * solo el autor tiene acceso, sin importar su rol.
-     *
-     * @param User $usuario
-     * @param Apunte $apunte
-     * @return bool
      */
     public function view(User $usuario, Apunte $apunte): bool
     {
@@ -83,9 +76,6 @@ class ApuntePolicy
      * Decide si el usuario puede crear un nuevo apunte.
      *
      * El rol supervision no puede crear apuntes.
-     *
-     * @param User $usuario
-     * @return bool
      */
     public function create(User $usuario): bool
     {
@@ -102,10 +92,6 @@ class ApuntePolicy
      *
      * Regla absoluta: si el apunte es privado, solo el autor puede editarlo.
      * Para apuntes no privados: permiso editar + ser el autor del apunte.
-     *
-     * @param User $usuario
-     * @param Apunte $apunte
-     * @return bool
      */
     public function update(User $usuario, Apunte $apunte): bool
     {
@@ -128,10 +114,6 @@ class ApuntePolicy
      * Decide si el usuario puede eliminar el apunte.
      *
      * Regla absoluta: si el apunte es privado, solo el autor puede eliminarlo.
-     *
-     * @param User $usuario
-     * @param Apunte $apunte
-     * @return bool
      */
     public function delete(User $usuario, Apunte $apunte): bool
     {
@@ -158,10 +140,6 @@ class ApuntePolicy
      *
      * Si el apunte no tiene historia_social_id cargada, concede acceso por defecto
      * (evitar N+1 en contextos donde la relación ya está cargada o no existe).
-     *
-     * @param User $usuario
-     * @param Apunte $apunte
-     * @return bool
      */
     private function estaEnAmbitoUo(User $usuario, Apunte $apunte): bool
     {

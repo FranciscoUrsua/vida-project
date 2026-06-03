@@ -12,6 +12,6 @@ namespace Modules\Mensajes\Enums;
  */
 enum TipoAlerta: string
 {
-    case Aviso  = 'aviso';
+    case Aviso = 'aviso';
     case Alerta = 'alerta';
 }

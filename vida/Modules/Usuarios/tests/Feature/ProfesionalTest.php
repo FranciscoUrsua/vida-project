@@ -3,6 +3,7 @@
 namespace Modules\Usuarios\Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
@@ -29,6 +30,7 @@ class ProfesionalTest extends TestCase
      * Crea los catálogos mínimos necesarios para instanciar un Profesional.
      *
      * @param array<string, mixed> $overrides
+     *
      * @return array{cargo: Cargo, tipo_relacion: TipoRelacionProfesional, datos: array<string, mixed>}
      */
     private function catalogosBase(array $overrides = []): array
@@ -36,19 +38,19 @@ class ProfesionalTest extends TestCase
         $cargo = Cargo::create(['nombre' => 'Trabajador/a Social', 'activo' => true]);
 
         $tipoRelacion = TipoRelacionProfesional::create([
-            'nombre'      => 'Funcionario/a de carrera',
-            'es_externo'  => false,
-            'activo'      => true,
+            'nombre' => 'Funcionario/a de carrera',
+            'es_externo' => false,
+            'activo' => true,
         ]);
 
         $datos = array_merge([
-            'nombre'           => 'Ana',
-            'apellido1'        => 'García',
-            'sexo'             => 'F',
-            'cargo_id'         => $cargo->id,
+            'nombre' => 'Ana',
+            'apellido1' => 'García',
+            'sexo' => 'F',
+            'cargo_id' => $cargo->id,
             'tipo_relacion_id' => $tipoRelacion->id,
-            'fecha_inicio'     => today(),
-            'activo'           => true,
+            'fecha_inicio' => today(),
+            'activo' => true,
         ], $overrides);
 
         return compact('cargo', 'tipoRelacion', 'datos');
@@ -84,7 +86,7 @@ class ProfesionalTest extends TestCase
         ['datos' => $datos] = $this->catalogosBase();
 
         $profesional = Profesional::create($datos);
-        $usuario     = User::factory()->create(['profesional_id' => $profesional->id]);
+        $usuario = User::factory()->create(['profesional_id' => $profesional->id]);
 
         $this->assertEquals($profesional->id, $usuario->profesional->id);
         $this->assertEquals($usuario->id, $profesional->usuario->id);
@@ -95,7 +97,7 @@ class ProfesionalTest extends TestCase
     {
         ['datos' => $datos] = $this->catalogosBase(['cargo_id' => null]);
 
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         Profesional::create($datos);
     }
@@ -106,34 +108,34 @@ class ProfesionalTest extends TestCase
         $cargo = Cargo::create(['nombre' => 'Abogado/a', 'activo' => true]);
 
         $tipoExterno = TipoRelacionProfesional::create([
-            'nombre'     => 'Empresa externa',
+            'nombre' => 'Empresa externa',
             'es_externo' => true,
-            'activo'     => true,
+            'activo' => true,
         ]);
         $tipoInterno = TipoRelacionProfesional::create([
-            'nombre'     => 'Funcionario/a de carrera',
+            'nombre' => 'Funcionario/a de carrera',
             'es_externo' => false,
-            'activo'     => true,
+            'activo' => true,
         ]);
 
         $base = [
-            'nombre'       => 'Carlos',
-            'apellido1'    => 'López',
-            'sexo'         => 'M',
-            'cargo_id'     => $cargo->id,
+            'nombre' => 'Carlos',
+            'apellido1' => 'López',
+            'sexo' => 'M',
+            'cargo_id' => $cargo->id,
             'fecha_inicio' => today(),
-            'activo'       => true,
+            'activo' => true,
         ];
 
         $externo = Profesional::create(array_merge($base, [
             'tipo_relacion_id' => $tipoExterno->id,
-            'organizacion'     => 'Cruz Roja',
+            'organizacion' => 'Cruz Roja',
         ]));
 
         $interno = Profesional::create(array_merge($base, [
-            'nombre'           => 'Laura',
+            'nombre' => 'Laura',
             'tipo_relacion_id' => $tipoInterno->id,
-            'organizacion'     => null,
+            'organizacion' => null,
         ]));
 
         $this->assertEquals('Cruz Roja', $externo->organizacion);
@@ -159,7 +161,7 @@ class ProfesionalTest extends TestCase
         $this->assertDatabaseCount('versiones', 1);
         $this->assertDatabaseHas('versiones', [
             'versionable_type' => Profesional::class,
-            'versionable_id'   => $profesional->id,
+            'versionable_id' => $profesional->id,
         ]);
 
         $version = $profesional->versiones()->first();
@@ -171,7 +173,7 @@ class ProfesionalTest extends TestCase
     public function el_snapshot_de_version_contiene_el_estado_completo_no_solo_el_diff(): void
     {
         ['cargo' => $cargoA, 'datos' => $datos] = $this->catalogosBase([
-            'apellido1'    => 'Martínez',
+            'apellido1' => 'Martínez',
             'email_profesional' => 'ana@ayuntamiento.es',
         ]);
         $cargoB = Cargo::create(['nombre' => 'Educador/a Social', 'activo' => true]);

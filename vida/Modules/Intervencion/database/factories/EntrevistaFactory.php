@@ -24,22 +24,22 @@ class EntrevistaFactory extends Factory
         );
 
         $historia = HistoriaSocial::create([
-            'ciudadano_id'           => fake()->numberBetween(1, 9999),
+            'ciudadano_id' => fake()->numberBetween(1, 9999),
             'unidad_organizativa_id' => $uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         return [
-            'historia_id'         => $historia->id,
-            'profesional_id'      => User::factory(),
-            'cita_id'             => null,
+            'historia_id' => $historia->id,
+            'profesional_id' => User::factory(),
+            'cita_id' => null,
             'plan_intervencion_id' => null,
-            'fecha_hora'          => now()->toDateTimeString(),
-            'modalidad'           => 'presencial',
-            'tipo'                => TipoEntrevista::Inicial,
-            'notas_generales'     => null,
-            'estado'              => 'realizada',
+            'fecha_hora' => now()->toDateTimeString(),
+            'modalidad' => 'presencial',
+            'tipo' => TipoEntrevista::Inicial,
+            'notas_generales' => null,
+            'estado' => 'realizada',
         ];
     }
 

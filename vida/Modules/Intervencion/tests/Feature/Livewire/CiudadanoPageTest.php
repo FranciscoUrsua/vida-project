@@ -10,7 +10,6 @@ use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-use Modules\Escalas\Database\Seeders\EscalaSeeder;
 use Modules\Escalas\Enums\EstadoPase;
 use Modules\Escalas\Models\PaseEscala;
 use Modules\Escalas\Models\TipoEscala;
@@ -19,10 +18,11 @@ use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Enums\VisibilidadApunte;
 use Modules\Intervencion\Http\Livewire\CiudadanoPage;
+use Modules\Intervencion\Http\Livewire\RegistrarValoracionPage;
 use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\Entrevista;
 use Modules\Intervencion\Models\PlanDeIntervencion;
-use Modules\Intervencion\Models\SeguimientoPlan;
+use Modules\Intervencion\Models\TipoFicha;
 use Modules\Intervencion\Models\TipoValoracion;
 use Modules\Intervencion\Models\Valoracion;
 use PHPUnit\Framework\Attributes\Test;
@@ -40,8 +40,11 @@ class CiudadanoPageTest extends TestCase
     use RefreshDatabase;
 
     private UnidadOrganizativa $uo;
+
     private User $usuario;
+
     private HistoriaSocial $historia;
+
     private PlanDeIntervencion $piso;
 
     protected function setUp(): void
@@ -52,41 +55,41 @@ class CiudadanoPageTest extends TestCase
         $this->seed(RolesSeeder::class);
 
         $this->uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Test CiudadanoPage',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Test CiudadanoPage',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $this->usuario = User::create([
-            'name'              => 'TSR Prueba',
-            'email'             => 'ciudadano-page@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'TSR Prueba',
+            'email' => 'ciudadano-page@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
 
         $this->usuario->assignRole('intervencion');
 
         UsuarioUo::create([
-            'usuario_id'             => $this->usuario->id,
+            'usuario_id' => $this->usuario->id,
             'unidad_organizativa_id' => $this->uo->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         $this->historia = HistoriaSocial::create([
-            'ciudadano_id'           => 9001,
+            'ciudadano_id' => 9001,
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         $this->piso = PlanDeIntervencion::factory()->create([
-            'historia_id'                => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_responsable_id' => $this->usuario->id,
-            'tipo'                       => TipoPlan::GeneralAsp,
-            'estado'                     => EstadoPlan::Activo,
+            'tipo' => TipoPlan::GeneralAsp,
+            'estado' => EstadoPlan::Activo,
         ]);
     }
 
@@ -94,14 +97,13 @@ class CiudadanoPageTest extends TestCase
      * Crea un apunte en el plan activo de la Historia Social.
      *
      * @param array<string, mixed> $attrs
-     * @return Apunte
      */
     private function crearApunte(array $attrs = []): Apunte
     {
         return Apunte::factory()->create(array_merge([
-            'plan_id'     => $this->piso->id,
-            'autor_id'    => $this->usuario->id,
-            'tipo'        => TipoApunte::Anotacion,
+            'plan_id' => $this->piso->id,
+            'autor_id' => $this->usuario->id,
+            'tipo' => TipoApunte::Anotacion,
             'visibilidad' => VisibilidadApunte::Profesionales,
         ], $attrs));
     }
@@ -117,11 +119,11 @@ class CiudadanoPageTest extends TestCase
     public function ruta_aplica_policy_y_devuelve_403_sin_acceso(): void
     {
         $usuarioSinPermiso = User::create([
-            'name'              => 'Sin Permiso',
-            'email'             => 'sinpermiso@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Sin Permiso',
+            'email' => 'sinpermiso@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
 
         $this->actingAs($usuarioSinPermiso)
@@ -165,11 +167,11 @@ class CiudadanoPageTest extends TestCase
     public function apunte_privado_de_otro_profesional_no_aparece(): void
     {
         $otro = User::create([
-            'name'              => 'Otro Prof',
-            'email'             => 'otro-prof@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Otro Prof',
+            'email' => 'otro-prof@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
 
         $this->crearApunte(['autor_id' => $otro->id, 'visibilidad' => VisibilidadApunte::Privada]);
@@ -275,10 +277,10 @@ class CiudadanoPageTest extends TestCase
     public function piso_activo_null_sin_plan_activo(): void
     {
         $historiaVacia = HistoriaSocial::create([
-            'ciudadano_id'           => 9002,
+            'ciudadano_id' => 9002,
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         $componente = Livewire::actingAs($this->usuario)
@@ -305,13 +307,13 @@ class CiudadanoPageTest extends TestCase
             ->call('guardarEntrevista');
 
         $this->assertDatabaseHas('entrevistas', [
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->usuario->id,
         ]);
 
         $this->assertDatabaseHas('plan_apuntes', [
-            'plan_id'  => $this->piso->id,
-            'tipo'     => TipoApunte::Entrevista->value,
+            'plan_id' => $this->piso->id,
+            'tipo' => TipoApunte::Entrevista->value,
             'autor_id' => $this->usuario->id,
         ]);
     }
@@ -331,7 +333,7 @@ class CiudadanoPageTest extends TestCase
             ->call('guardarEntrevista');
 
         $this->assertDatabaseHas('seguimientos_plan', [
-            'plan_id'                    => $this->piso->id,
+            'plan_id' => $this->piso->id,
             'fecha_siguiente_seguimiento' => $fechaSig,
         ]);
     }
@@ -349,11 +351,11 @@ class CiudadanoPageTest extends TestCase
             ->call('guardarAnotacion');
 
         $this->assertDatabaseHas('plan_apuntes', [
-            'plan_id'     => $this->piso->id,
-            'tipo'        => TipoApunte::Anotacion->value,
+            'plan_id' => $this->piso->id,
+            'tipo' => TipoApunte::Anotacion->value,
             'visibilidad' => VisibilidadApunte::Privada->value,
-            'autor_id'    => $this->usuario->id,
-            'contenido'   => 'Nota privada de prueba.',
+            'autor_id' => $this->usuario->id,
+            'contenido' => 'Nota privada de prueba.',
         ]);
     }
 
@@ -364,18 +366,18 @@ class CiudadanoPageTest extends TestCase
     public function apunte_privado_no_visible_para_otro_profesional(): void
     {
         $otro = User::create([
-            'name'              => 'Otro Prof 14',
-            'email'             => 'otro14@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Otro Prof 14',
+            'email' => 'otro14@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
         $otro->assignRole('intervencion');
         UsuarioUo::create([
-            'usuario_id'             => $otro->id,
+            'usuario_id' => $otro->id,
             'unidad_organizativa_id' => $this->uo->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         // Crear apunte privado como el usuario principal
@@ -406,8 +408,8 @@ class CiudadanoPageTest extends TestCase
 
         $this->assertDatabaseHas('plan_apuntes', [
             'plan_id' => $this->piso->id,
-            'tipo'    => TipoApunte::Derivacion->value,
-            'autor_id'=> $this->usuario->id,
+            'tipo' => TipoApunte::Derivacion->value,
+            'autor_id' => $this->usuario->id,
         ]);
     }
 
@@ -426,8 +428,8 @@ class CiudadanoPageTest extends TestCase
 
         $this->assertDatabaseHas('plan_apuntes', [
             'plan_id' => $this->piso->id,
-            'tipo'    => TipoApunte::GestionCoordinacion->value,
-            'autor_id'=> $this->usuario->id,
+            'tipo' => TipoApunte::GestionCoordinacion->value,
+            'autor_id' => $this->usuario->id,
         ]);
     }
 
@@ -470,8 +472,8 @@ class CiudadanoPageTest extends TestCase
     #[Test]
     public function guardar_valoracion_crea_valoracion_y_apunte(): void
     {
-        $tipoVal    = TipoValoracion::factory()->create();
-        $tipoFicha  = \Modules\Intervencion\Models\TipoFicha::factory()->create();
+        $tipoVal = TipoValoracion::factory()->create();
+        $tipoFicha = TipoFicha::factory()->create();
 
         $page = Livewire::actingAs($this->usuario)
             ->test(CiudadanoPage::class, ['historia' => $this->historia]);
@@ -479,14 +481,14 @@ class CiudadanoPageTest extends TestCase
         $page->instance()->guardarValoracion($tipoFicha->id, ['campo_prueba' => 'valor_prueba']);
 
         $this->assertDatabaseHas('valoraciones', [
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->usuario->id,
         ]);
 
         $this->assertDatabaseHas('plan_apuntes', [
             'plan_id' => $this->piso->id,
-            'tipo'    => TipoApunte::Valoracion->value,
-            'autor_id'=> $this->usuario->id,
+            'tipo' => TipoApunte::Valoracion->value,
+            'autor_id' => $this->usuario->id,
         ]);
     }
 
@@ -497,10 +499,10 @@ class CiudadanoPageTest extends TestCase
     public function guardar_valoracion_vincula_entrevista(): void
     {
         TipoValoracion::factory()->create();
-        $tipoFicha = \Modules\Intervencion\Models\TipoFicha::factory()->create();
+        $tipoFicha = TipoFicha::factory()->create();
 
         $entrevista = Entrevista::factory()->create([
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->usuario->id,
         ]);
 
@@ -510,7 +512,7 @@ class CiudadanoPageTest extends TestCase
         $page->instance()->guardarValoracion($tipoFicha->id, [], $entrevista->id);
 
         $this->assertDatabaseHas('valoraciones', [
-            'historia_id'   => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'entrevista_id' => $entrevista->id,
         ]);
     }
@@ -568,8 +570,8 @@ class CiudadanoPageTest extends TestCase
     {
         // Sin tipo_ficha, el componente monta pero tipoFicha es null
         $componente = Livewire::actingAs($this->usuario)
-            ->test(\Modules\Intervencion\Http\Livewire\RegistrarValoracionPage::class, [
-                'historia'   => $this->historia,
+            ->test(RegistrarValoracionPage::class, [
+                'historia' => $this->historia,
                 'tipo_ficha' => null,
             ]);
 

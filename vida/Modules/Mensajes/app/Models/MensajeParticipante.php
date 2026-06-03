@@ -5,6 +5,7 @@ namespace Modules\Mensajes\Models;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Mensajes\Enums\RolParticipante;
 
 /**
@@ -14,8 +15,8 @@ use Modules\Mensajes\Enums\RolParticipante;
  * @property int $hilo_id
  * @property int $usuario_id
  * @property RolParticipante $rol
- * @property \Illuminate\Support\Carbon|null $fecha_ultima_lectura
- * @property \Illuminate\Support\Carbon|null $archivado_en
+ * @property Carbon|null $fecha_ultima_lectura
+ * @property Carbon|null $archivado_en
  */
 class MensajeParticipante extends Model
 {
@@ -32,9 +33,9 @@ class MensajeParticipante extends Model
     ];
 
     protected $casts = [
-        'rol'                  => RolParticipante::class,
+        'rol' => RolParticipante::class,
         'fecha_ultima_lectura' => 'datetime',
-        'archivado_en'         => 'datetime',
+        'archivado_en' => 'datetime',
     ];
 
     // -------------------------------------------------------------------------
@@ -44,7 +45,7 @@ class MensajeParticipante extends Model
     /**
      * Hilo de mensajes al que pertenece esta participación.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<MensajeHilo, self>
+     * @return BelongsTo<MensajeHilo, self>
      */
     public function hilo(): BelongsTo
     {
@@ -54,7 +55,7 @@ class MensajeParticipante extends Model
     /**
      * Usuario participante del hilo.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
+     * @return BelongsTo<User, self>
      */
     public function usuario(): BelongsTo
     {

@@ -1,5 +1,6 @@
 <?php
 
+use App\Traits\TieneDireccion;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * Ver docs/geocodificacion.md § 3.1 y docs/decisiones-tecnicas.md § 9.
  *
- * @see \App\Traits\TieneDireccion
+ * @see TieneDireccion
  */
 return new class extends Migration
 {

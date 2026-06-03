@@ -26,8 +26,6 @@ class UsuariosServiceProvider extends ServiceProvider
 
     /**
      * Registra servicios en el contenedor.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -36,8 +34,6 @@ class UsuariosServiceProvider extends ServiceProvider
 
     /**
      * Arranca los servicios del módulo y registra las Policies.
-     *
-     * @return void
      */
     public function boot(): void
     {

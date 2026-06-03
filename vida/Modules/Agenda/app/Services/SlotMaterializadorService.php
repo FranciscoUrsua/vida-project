@@ -22,8 +22,9 @@ class SlotMaterializadorService
     /**
      * Genera todos los slots de las líneas activas del cuadrante publicado.
      *
-     * @param  CuadranteMes $cuadrante Cuadrante (idealmente en estado 'publicado')
-     * @return int                     Número de slots creados
+     * @param CuadranteMes $cuadrante Cuadrante (idealmente en estado 'publicado')
+     *
+     * @return int Número de slots creados
      */
     public function materializar(CuadranteMes $cuadrante): int
     {
@@ -49,11 +50,11 @@ class SlotMaterializadorService
 
         // Effective attention window in minutes since midnight, after applying buffers
         $atencionInicioMin = $this->toMinutes($horario->hora_inicio_atencion) + $horario->buffer_inicio_minutos;
-        $atencionFinMin    = $this->toMinutes($horario->hora_fin_atencion)    - $horario->buffer_fin_minutos;
+        $atencionFinMin = $this->toMinutes($horario->hora_fin_atencion) - $horario->buffer_fin_minutos;
 
         $diasLaborables = $horario->dias_laborables;
         $slotsParaCrear = [];
-        $now            = now();
+        $now = now();
 
         foreach ($cuadrante->lineas()->activas()->get() as $linea) {
             // ISO weekday: 1 = Monday … 7 = Sunday
@@ -65,18 +66,18 @@ class SlotMaterializadorService
             foreach ($tiposSlot as $tipoSlot) {
                 foreach ($linea->franjas as $franja) {
                     $franjaInicioMin = $this->toMinutes($franja['inicio']);
-                    $franjaFinMin    = $this->toMinutes($franja['fin']);
+                    $franjaFinMin = $this->toMinutes($franja['fin']);
 
                     // Intersect the professional's franja with the center's effective window
                     $ventanaInicioMin = max($franjaInicioMin, $atencionInicioMin);
-                    $ventanaFinMin    = min($franjaFinMin, $atencionFinMin);
+                    $ventanaFinMin = min($franjaFinMin, $atencionFinMin);
 
                     if ($ventanaInicioMin >= $ventanaFinMin) {
                         continue;
                     }
 
                     $minutosDisponibles = $ventanaFinMin - $ventanaInicioMin;
-                    $totalSlots         = intdiv($minutosDisponibles, $tipoSlot->duracion_minutos);
+                    $totalSlots = intdiv($minutosDisponibles, $tipoSlot->duracion_minutos);
 
                     if ($totalSlots === 0) {
                         continue;
@@ -116,16 +117,16 @@ class SlotMaterializadorService
     ): array {
         return [
             'linea_cuadrante_id' => $linea->id,
-            'usuario_id'         => $linea->usuario_id,
-            'centro_id'          => $linea->centro_id,
-            'tipo_slot_id'       => $tipoSlot->id,
-            'fecha'              => $linea->fecha->toDateString(),
-            'hora_inicio'        => $this->fromMinutes($inicioMin),
-            'hora_fin'           => $this->fromMinutes($inicioMin + $tipoSlot->duracion_minutos),
-            'estado'             => $estado->value,
-            'espacio_id'         => null,
-            'created_at'         => $now,
-            'updated_at'         => $now,
+            'usuario_id' => $linea->usuario_id,
+            'centro_id' => $linea->centro_id,
+            'tipo_slot_id' => $tipoSlot->id,
+            'fecha' => $linea->fecha->toDateString(),
+            'hora_inicio' => $this->fromMinutes($inicioMin),
+            'hora_fin' => $this->fromMinutes($inicioMin + $tipoSlot->duracion_minutos),
+            'estado' => $estado->value,
+            'espacio_id' => null,
+            'created_at' => $now,
+            'updated_at' => $now,
         ];
     }
 

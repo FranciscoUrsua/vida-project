@@ -5,8 +5,10 @@ namespace Modules\Usuarios\Tests\Feature\Policies;
 use App\Models\Apunte;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
-use App\Models\UsuarioUo;
 use App\Models\User;
+use App\Models\UsuarioUo;
+use Database\Seeders\PermisosSeeder;
+use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use PHPUnit\Framework\Attributes\Test;
@@ -29,14 +31,14 @@ class ApuntePolicyTest extends TestCase
     {
         parent::setUp();
 
-        $this->seed(\Database\Seeders\PermisosSeeder::class);
-        $this->seed(\Database\Seeders\RolesSeeder::class);
+        $this->seed(PermisosSeeder::class);
+        $this->seed(RolesSeeder::class);
 
         $this->uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Pruebas',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Pruebas',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
     }
 
@@ -60,7 +62,7 @@ class ApuntePolicyTest extends TestCase
     #[Test]
     public function autor_puede_leer_su_propia_anotacion_privada(): void
     {
-        $autor  = $this->crearProfesionalEnUo('intervencion', $this->uo);
+        $autor = $this->crearProfesionalEnUo('intervencion', $this->uo);
         $apunte = $this->crearApuntePrivado($autor);
 
         $this->assertTrue(
@@ -75,9 +77,9 @@ class ApuntePolicyTest extends TestCase
     #[Test]
     public function administrador_no_puede_leer_anotacion_privada_de_otro(): void
     {
-        $autor         = $this->crearProfesionalEnUo('intervencion', $this->uo);
+        $autor = $this->crearProfesionalEnUo('intervencion', $this->uo);
         $administrador = $this->crearProfesionalEnUo('adm_sistema', $this->uo);
-        $apunte        = $this->crearApuntePrivado($autor);
+        $apunte = $this->crearApuntePrivado($autor);
 
         $this->assertFalse(
             $administrador->can('view', $apunte),
@@ -91,9 +93,9 @@ class ApuntePolicyTest extends TestCase
     #[Test]
     public function supervisor_no_puede_leer_anotacion_privada_de_otro(): void
     {
-        $autor      = $this->crearProfesionalEnUo('intervencion', $this->uo);
+        $autor = $this->crearProfesionalEnUo('intervencion', $this->uo);
         $supervisor = $this->crearProfesionalEnUo('supervision', $this->uo);
-        $apunte     = $this->crearApuntePrivado($autor);
+        $apunte = $this->crearApuntePrivado($autor);
 
         $this->assertFalse(
             $supervisor->can('view', $apunte),
@@ -107,9 +109,9 @@ class ApuntePolicyTest extends TestCase
     #[Test]
     public function nadie_puede_eliminar_anotacion_privada_ajena(): void
     {
-        $autor         = $this->crearProfesionalEnUo('intervencion', $this->uo);
+        $autor = $this->crearProfesionalEnUo('intervencion', $this->uo);
         $administrador = $this->crearProfesionalEnUo('adm_sistema', $this->uo);
-        $apunte        = $this->crearApuntePrivado($autor);
+        $apunte = $this->crearApuntePrivado($autor);
 
         $this->assertFalse(
             $administrador->can('delete', $apunte),
@@ -124,20 +126,20 @@ class ApuntePolicyTest extends TestCase
     public function apunte_no_privado_puede_ser_leido_por_otro_profesional(): void
     {
         $historia = HistoriaSocial::create([
-            'ciudadano_id'           => 1,
+            'ciudadano_id' => 1,
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
-        $autor  = $this->crearProfesionalEnUo('intervencion', $this->uo);
+        $autor = $this->crearProfesionalEnUo('intervencion', $this->uo);
         $colega = $this->crearProfesionalEnUo('intervencion', $this->uo);
 
         $apunte = Apunte::create([
             'historia_social_id' => $historia->id,
-            'profesional_id'     => $autor->id,
-            'tipo'               => 'anotacion',
-            'privada'            => false,
+            'profesional_id' => $autor->id,
+            'tipo' => 'anotacion',
+            'privada' => false,
         ]);
 
         $this->assertTrue(
@@ -153,15 +155,15 @@ class ApuntePolicyTest extends TestCase
     private function crearProfesionalEnUo(string $nombreRol, UnidadOrganizativa $uo): User
     {
         $usuario = User::factory()->create();
-        $rol     = Role::findByName($nombreRol, 'web');
+        $rol = Role::findByName($nombreRol, 'web');
         $usuario->assignRole($rol);
 
         UsuarioUo::create([
-            'usuario_id'             => $usuario->id,
+            'usuario_id' => $usuario->id,
             'unidad_organizativa_id' => $uo->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => Carbon::today(),
-            'fecha_fin'              => null,
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => Carbon::today(),
+            'fecha_fin' => null,
         ]);
 
         return $usuario;
@@ -170,17 +172,17 @@ class ApuntePolicyTest extends TestCase
     private function crearApuntePrivado(User $autor): Apunte
     {
         $historia = HistoriaSocial::create([
-            'ciudadano_id'           => fake()->numberBetween(1, 9999),
+            'ciudadano_id' => fake()->numberBetween(1, 9999),
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         return Apunte::create([
             'historia_social_id' => $historia->id,
-            'profesional_id'     => $autor->id,
-            'tipo'               => 'anotacion',
-            'privada'            => true,
+            'profesional_id' => $autor->id,
+            'tipo' => 'anotacion',
+            'privada' => true,
         ]);
     }
 }

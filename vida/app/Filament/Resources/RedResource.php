@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\RedResource\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -17,18 +18,23 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Red;
-use App\Filament\Concerns\AutorizaGestion;
 
 class RedResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = Red::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-link';
+
     protected static ?string $navigationLabel = 'Redes';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Centros y Servicios';
+
     protected static ?string $modelLabel = 'Red';
+
     protected static ?string $pluralModelLabel = 'Redes';
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
@@ -91,6 +97,7 @@ class RedResource extends Resource
                 $uoIds = $user->uoSubtreeIds();
                 if (empty($uoIds)) {
                     $query->whereRaw('1 = 0');
+
                     return;
                 }
                 $query->whereHas('centros', fn (Builder $q) => $q->whereIn('unidad_organizativa_id', $uoIds));
@@ -125,9 +132,9 @@ class RedResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListRedes::route('/'),
+            'index' => Pages\ListRedes::route('/'),
             'create' => Pages\CreateRed::route('/create'),
-            'edit'   => Pages\EditRed::route('/{record}/edit'),
+            'edit' => Pages\EditRed::route('/{record}/edit'),
         ];
     }
 }

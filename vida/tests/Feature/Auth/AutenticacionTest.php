@@ -26,11 +26,11 @@ class AutenticacionTest extends TestCase
         parent::setUp();
 
         $this->usuario = User::factory()->create([
-            'name'              => 'Juana López García',
-            'email'             => 'juana@madrid.es',
-            'password'          => 'secreto123',
+            'name' => 'Juana López García',
+            'email' => 'juana@madrid.es',
+            'password' => 'secreto123',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
     }
 
@@ -64,7 +64,7 @@ class AutenticacionTest extends TestCase
     public function tf_auth_03_login_exitoso_con_email_y_password_correctos(): void
     {
         $respuesta = $this->post('/login', [
-            'email'    => 'juana@madrid.es',
+            'email' => 'juana@madrid.es',
             'password' => 'secreto123',
         ]);
 
@@ -89,7 +89,7 @@ class AutenticacionTest extends TestCase
         $sesionAntes = session()->getId();
 
         $this->post('/login', [
-            'email'    => 'juana@madrid.es',
+            'email' => 'juana@madrid.es',
             'password' => 'secreto123',
         ]);
 
@@ -105,7 +105,7 @@ class AutenticacionTest extends TestCase
     public function tf_auth_06_login_fallido_con_password_incorrecta(): void
     {
         $respuesta = $this->post('/login', [
-            'email'    => 'juana@madrid.es',
+            'email' => 'juana@madrid.es',
             'password' => 'incorrecta',
         ]);
 
@@ -118,7 +118,7 @@ class AutenticacionTest extends TestCase
     public function tf_auth_07_login_fallido_con_email_inexistente(): void
     {
         $respuesta = $this->post('/login', [
-            'email'    => 'noexiste@madrid.es',
+            'email' => 'noexiste@madrid.es',
             'password' => 'cualquiera',
         ]);
 
@@ -136,7 +136,7 @@ class AutenticacionTest extends TestCase
     public function tf_auth_08_login_fallido_con_campos_vacios(): void
     {
         $respuesta = $this->post('/login', [
-            'email'    => '',
+            'email' => '',
             'password' => '',
         ]);
 
@@ -149,7 +149,7 @@ class AutenticacionTest extends TestCase
     public function tf_auth_09_el_email_debe_tener_formato_valido(): void
     {
         $respuesta = $this->post('/login', [
-            'email'    => 'noesuncorreo',
+            'email' => 'noesuncorreo',
             'password' => 'cualquiera',
         ]);
 
@@ -168,7 +168,7 @@ class AutenticacionTest extends TestCase
         RateLimiter::clear('login');
 
         $datos = [
-            'email'    => 'juana@madrid.es',
+            'email' => 'juana@madrid.es',
             'password' => 'incorrecta',
         ];
 
@@ -196,22 +196,22 @@ class AutenticacionTest extends TestCase
         RateLimiter::clear('login');
 
         $usuarioB = User::factory()->create([
-            'email'         => 'pedro@madrid.es',
-            'password'      => 'otrapass',
+            'email' => 'pedro@madrid.es',
+            'password' => 'otrapass',
             'primer_acceso' => false,
         ]);
 
         // 5 intentos fallidos para usuario_a
         for ($i = 0; $i < 5; $i++) {
             $this->post('/login', [
-                'email'    => 'juana@madrid.es',
+                'email' => 'juana@madrid.es',
                 'password' => 'incorrecta',
             ]);
         }
 
         // El intento de usuario_b no debe estar bloqueado
         $respuesta = $this->post('/login', [
-            'email'    => 'pedro@madrid.es',
+            'email' => 'pedro@madrid.es',
             'password' => 'otrapass',
         ]);
 
@@ -298,13 +298,13 @@ class AutenticacionTest extends TestCase
     public function tf_auth_18_usuario_nuevo_ve_pantalla_de_onboarding_tras_login(): void
     {
         $nuevo = User::factory()->create([
-            'email'         => 'nuevo@madrid.es',
-            'password'      => 'secreto123',
+            'email' => 'nuevo@madrid.es',
+            'password' => 'secreto123',
             'primer_acceso' => true,
         ]);
 
         $respuesta = $this->post('/login', [
-            'email'    => 'nuevo@madrid.es',
+            'email' => 'nuevo@madrid.es',
             'password' => 'secreto123',
         ]);
 
@@ -315,7 +315,7 @@ class AutenticacionTest extends TestCase
     public function tf_auth_19_usuario_recurrente_va_directamente_a_inicio(): void
     {
         $respuesta = $this->post('/login', [
-            'email'    => 'juana@madrid.es',
+            'email' => 'juana@madrid.es',
             'password' => 'secreto123',
         ]);
 

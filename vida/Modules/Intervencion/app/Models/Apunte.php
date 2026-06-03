@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 use Modules\Intervencion\Database\Factories\ApunteFactory;
 use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\VisibilidadApunte;
@@ -26,7 +27,7 @@ use Modules\Intervencion\Enums\VisibilidadApunte;
  * @property int $id
  * @property int $plan_id
  * @property int $autor_id
- * @property \Illuminate\Support\Carbon $fecha
+ * @property Carbon $fecha
  * @property TipoApunte $tipo
  * @property string|null $apuntable_type
  * @property int|null $apuntable_id
@@ -57,8 +58,6 @@ class Apunte extends Model
      *
      * Para los apuntes privados (visibilidad=Privada), el acceso del usuario
      * actual se garantiza añadiendo la condición OR autor_id = :id.
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -106,8 +105,8 @@ class Apunte extends Model
     ];
 
     protected $casts = [
-        'fecha'       => 'date',
-        'tipo'        => TipoApunte::class,
+        'fecha' => 'date',
+        'tipo' => TipoApunte::class,
         'visibilidad' => VisibilidadApunte::class,
     ];
 
@@ -133,8 +132,6 @@ class Apunte extends Model
 
     /**
      * Entidad concreta vinculada (polimórfica).
-     *
-     * @return MorphTo
      */
     public function apuntable(): MorphTo
     {
@@ -150,16 +147,12 @@ class Apunte extends Model
      *
      * Los apuntes privados solo son visibles para su autor.
      * Los apuntes de visibilidad profesionales o ciudadano son visibles para todos.
-     *
-     * @param Builder $query
-     * @param int $usuarioId
-     * @return Builder
      */
     public function scopeVisiblesParaUsuario(Builder $query, int $usuarioId): Builder
     {
         return $query->where(function (Builder $q) use ($usuarioId) {
             $q->where('visibilidad', '!=', VisibilidadApunte::Privada->value)
-              ->orWhere('autor_id', $usuarioId);
+                ->orWhere('autor_id', $usuarioId);
         });
     }
 }

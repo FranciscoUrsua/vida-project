@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Usuarios\Models\Profesional;
 
 /**
  * Migración: tabla de profesionales.
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Schema;
  * Usa SoftDeletes: no se eliminan registros de personas que han
  * participado en actividades con ciudadanos.
  *
- * @see \Modules\Usuarios\Models\Profesional
+ * @see Profesional
  * @see docs/modulo-usuarios-permisos.md sección 5.2
  */
 return new class extends Migration

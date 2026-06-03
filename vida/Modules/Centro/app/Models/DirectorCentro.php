@@ -6,6 +6,7 @@ use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Usuarios\Models\Profesional;
 
 /**
@@ -22,8 +23,8 @@ use Modules\Usuarios\Models\Profesional;
  * @property string|null $nombre
  * @property string|null $telefono
  * @property string|null $email
- * @property \Illuminate\Support\Carbon $fecha_inicio
- * @property \Illuminate\Support\Carbon|null $fecha_fin
+ * @property Carbon $fecha_inicio
+ * @property Carbon|null $fecha_fin
  */
 class DirectorCentro extends Model
 {
@@ -44,7 +45,7 @@ class DirectorCentro extends Model
 
     protected $casts = [
         'fecha_inicio' => 'date',
-        'fecha_fin'    => 'date',
+        'fecha_fin' => 'date',
     ];
 
     // -------------------------------------------------------------------------
@@ -53,14 +54,12 @@ class DirectorCentro extends Model
 
     /**
      * Registra el hook de validación que impide mezclar director interno y externo.
-     *
-     * @return void
      */
     protected static function booted(): void
     {
         static::saving(function (self $director) {
-            $tieneInterno  = ! empty($director->profesional_id);
-            $tieneExterno  = ! empty($director->nombre)
+            $tieneInterno = ! empty($director->profesional_id);
+            $tieneExterno = ! empty($director->nombre)
                 || ! empty($director->email)
                 || ! empty($director->telefono);
 
@@ -85,7 +84,7 @@ class DirectorCentro extends Model
     /**
      * Centro que dirige este registro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Centro, self>
+     * @return BelongsTo<Centro, self>
      */
     public function centro(): BelongsTo
     {
@@ -95,7 +94,7 @@ class DirectorCentro extends Model
     /**
      * Profesional interno vinculado como director (nullable para directores externos).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Usuarios\Models\Profesional, self>
+     * @return BelongsTo<Profesional, self>
      */
     public function profesional(): BelongsTo
     {
@@ -109,8 +108,9 @@ class DirectorCentro extends Model
     /**
      * Filtra el director actualmente en activo (sin fecha de fin).
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeActivo(Builder $query): Builder
     {

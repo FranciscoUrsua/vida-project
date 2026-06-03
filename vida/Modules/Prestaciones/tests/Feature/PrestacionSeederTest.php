@@ -26,7 +26,7 @@ class PrestacionSeederTest extends TestCase
     #[Test]
     public function el_seeder_de_catalogos_carga_los_ocho_objetivos_generales(): void
     {
-        (new CatalogosSistemaSeeder())->run();
+        (new CatalogosSistemaSeeder)->run();
 
         $objetivos = CatalogoSistema::where('grupo', 'prestacion.objetivo_general')->get();
 
@@ -39,10 +39,10 @@ class PrestacionSeederTest extends TestCase
     #[Test]
     public function el_seeder_de_catalogos_es_idempotente(): void
     {
-        (new CatalogosSistemaSeeder())->run();
+        (new CatalogosSistemaSeeder)->run();
         $conteo = CatalogoSistema::count();
 
-        (new CatalogosSistemaSeeder())->run();
+        (new CatalogosSistemaSeeder)->run();
 
         $this->assertEquals($conteo, CatalogoSistema::count());
     }
@@ -54,8 +54,8 @@ class PrestacionSeederTest extends TestCase
     #[Test]
     public function el_seeder_de_prestaciones_carga_las_prestaciones_esperadas(): void
     {
-        (new CatalogosSistemaSeeder())->run();
-        (new PrestacionesSeeder())->run();
+        (new CatalogosSistemaSeeder)->run();
+        (new PrestacionesSeeder)->run();
 
         // El seeder tiene 49 prestaciones implementadas del catálogo oficial
         $this->assertEquals(49, Prestacion::count());
@@ -64,11 +64,11 @@ class PrestacionSeederTest extends TestCase
     #[Test]
     public function el_seeder_de_prestaciones_es_idempotente(): void
     {
-        (new CatalogosSistemaSeeder())->run();
-        (new PrestacionesSeeder())->run();
+        (new CatalogosSistemaSeeder)->run();
+        (new PrestacionesSeeder)->run();
         $conteo = Prestacion::count();
 
-        (new PrestacionesSeeder())->run();
+        (new PrestacionesSeeder)->run();
 
         $this->assertEquals($conteo, Prestacion::count());
     }
@@ -76,8 +76,8 @@ class PrestacionSeederTest extends TestCase
     #[Test]
     public function todas_las_prestaciones_del_seeder_tienen_campos_obligatorios(): void
     {
-        (new CatalogosSistemaSeeder())->run();
-        (new PrestacionesSeeder())->run();
+        (new CatalogosSistemaSeeder)->run();
+        (new PrestacionesSeeder)->run();
 
         $invalidas = Prestacion::whereNull('codigo')
             ->orWhereNull('nombre')
@@ -93,11 +93,11 @@ class PrestacionSeederTest extends TestCase
     #[Test]
     public function los_codigos_del_seeder_son_unicos(): void
     {
-        (new CatalogosSistemaSeeder())->run();
-        (new PrestacionesSeeder())->run();
+        (new CatalogosSistemaSeeder)->run();
+        (new PrestacionesSeeder)->run();
 
-        $total    = Prestacion::count();
-        $unicos   = Prestacion::distinct('codigo')->count();
+        $total = Prestacion::count();
+        $unicos = Prestacion::distinct('codigo')->count();
 
         $this->assertEquals($total, $unicos);
     }

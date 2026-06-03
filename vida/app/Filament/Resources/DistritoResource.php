@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\DistritoResource\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -13,7 +14,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Organizacion\Models\Distrito;
-use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión del catálogo de distritos municipales.
@@ -23,13 +23,19 @@ use App\Filament\Concerns\AutorizaGestion;
 class DistritoResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = Distrito::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map';
+
     protected static ?string $navigationLabel = 'Distritos';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Organización';
+
     protected static ?string $modelLabel = 'Distrito';
+
     protected static ?string $pluralModelLabel = 'Distritos';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
@@ -99,9 +105,9 @@ class DistritoResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListDistritos::route('/'),
+            'index' => Pages\ListDistritos::route('/'),
             'create' => Pages\CreateDistrito::route('/create'),
-            'edit'   => Pages\EditDistrito::route('/{record}/edit'),
+            'edit' => Pages\EditDistrito::route('/{record}/edit'),
         ];
     }
 }

@@ -25,8 +25,6 @@ class UoSeeder extends Seeder
 {
     /**
      * Crea los tipos de UO y la estructura mínima de ejemplo.
-     *
-     * @return void
      */
     public function run(): void
     {
@@ -36,8 +34,6 @@ class UoSeeder extends Seeder
 
     /**
      * Inserta el catálogo configurable de tipos de Unidad Organizativa.
-     *
-     * @return void
      */
     private function crearTipos(): void
     {
@@ -64,8 +60,6 @@ class UoSeeder extends Seeder
 
     /**
      * Crea la jerarquía de UO de ejemplo para desarrollo.
-     *
-     * @return void
      */
     private function crearEstructura(): void
     {

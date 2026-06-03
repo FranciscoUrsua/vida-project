@@ -2,18 +2,18 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\TipoRelacionProfesionalResource\Pages;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Usuarios\Models\TipoRelacionProfesional;
-use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión del catálogo de tipos de relación profesional.
@@ -23,13 +23,19 @@ use App\Filament\Concerns\AutorizaGestion;
 class TipoRelacionProfesionalResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = TipoRelacionProfesional::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-link';
+
     protected static ?string $navigationLabel = 'Tipos de relación';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
+
     protected static ?string $modelLabel = 'Tipo de relación';
+
     protected static ?string $pluralModelLabel = 'Tipos de relación';
+
     protected static ?int $navigationSort = 8;
 
     public static function form(Schema $schema): Schema
@@ -92,9 +98,9 @@ class TipoRelacionProfesionalResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListTiposRelacion::route('/'),
+            'index' => Pages\ListTiposRelacion::route('/'),
             'create' => Pages\CreateTipoRelacion::route('/create'),
-            'edit'   => Pages\EditTipoRelacion::route('/{record}/edit'),
+            'edit' => Pages\EditTipoRelacion::route('/{record}/edit'),
         ];
     }
 }

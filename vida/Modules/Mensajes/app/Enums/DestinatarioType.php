@@ -12,5 +12,5 @@ namespace Modules\Mensajes\Enums;
 enum DestinatarioType: string
 {
     case Usuario = 'usuario';
-    case RolUo   = 'rol_uo';
+    case RolUo = 'rol_uo';
 }

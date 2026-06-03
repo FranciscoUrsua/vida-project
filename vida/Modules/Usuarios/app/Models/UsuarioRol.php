@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use Modules\Usuarios\Observers\UsuarioRolObserver;
 use Spatie\Permission\Models\Role;
 
 /**
@@ -27,14 +28,14 @@ use Spatie\Permission\Models\Role;
  * @property int $id
  * @property int $usuario_id
  * @property int $rol_id
- * @property \Illuminate\Support\Carbon $fecha_inicio
- * @property \Illuminate\Support\Carbon|null $fecha_fin
+ * @property Carbon $fecha_inicio
+ * @property Carbon|null $fecha_fin
  * @property int|null $asignado_por
- * @property string $estado  pendiente_aprobacion|activo|inactivo
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property string $estado pendiente_aprobacion|activo|inactivo
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  *
- * @see \Modules\Usuarios\Observers\UsuarioRolObserver
+ * @see UsuarioRolObserver
  * @see docs/modulo-usuarios-permisos.md secciones 4.2 y 4.3
  */
 class UsuarioRol extends Model
@@ -55,19 +56,16 @@ class UsuarioRol extends Model
     /** @var array<string, string> */
     protected $casts = [
         'fecha_inicio' => 'date',
-        'fecha_fin'    => 'date',
+        'fecha_fin' => 'date',
     ];
 
     // -------------------------------------------------------------------------
     // Boot: registrar observer
     // -------------------------------------------------------------------------
 
-    /**
-     * @return void
-     */
     protected static function booted(): void
     {
-        static::observe(\Modules\Usuarios\Observers\UsuarioRolObserver::class);
+        static::observe(UsuarioRolObserver::class);
     }
 
     // -------------------------------------------------------------------------
@@ -112,6 +110,7 @@ class UsuarioRol extends Model
      * Registros de rol vigentes (activos con fecha válida).
      *
      * @param Builder<UsuarioRol> $consulta
+     *
      * @return Builder<UsuarioRol>
      */
     public function scopeVigentes(Builder $consulta): Builder
@@ -120,7 +119,7 @@ class UsuarioRol extends Model
             ->where('estado', 'activo')
             ->where(function (Builder $q) {
                 $q->whereNull('fecha_fin')
-                  ->orWhere('fecha_fin', '>=', Carbon::today());
+                    ->orWhere('fecha_fin', '>=', Carbon::today());
             });
     }
 
@@ -128,6 +127,7 @@ class UsuarioRol extends Model
      * Registros pendientes de aprobación.
      *
      * @param Builder<UsuarioRol> $consulta
+     *
      * @return Builder<UsuarioRol>
      */
     public function scopePendientes(Builder $consulta): Builder

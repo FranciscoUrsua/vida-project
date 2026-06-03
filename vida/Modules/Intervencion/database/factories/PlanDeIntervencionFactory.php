@@ -25,25 +25,25 @@ class PlanDeIntervencionFactory extends Factory
         );
 
         $historia = HistoriaSocial::create([
-            'ciudadano_id'           => fake()->numberBetween(1, 9999),
+            'ciudadano_id' => fake()->numberBetween(1, 9999),
             'unidad_organizativa_id' => $uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         return [
-            'historia_id'                => $historia->id,
-            'tipo'                       => TipoPlan::GeneralAsp,
-            'servicio_especializado_id'  => null,
+            'historia_id' => $historia->id,
+            'tipo' => TipoPlan::GeneralAsp,
+            'servicio_especializado_id' => null,
             'profesional_responsable_id' => User::factory(),
-            'plan_asp_id'                => null,
-            'estado'                     => EstadoPlan::Borrador,
-            'fecha_inicio'               => today()->toDateString(),
-            'fecha_firma'                => null,
-            'fecha_cierre'               => null,
-            'motivo_cierre'              => null,
-            'objetivos'                  => fake()->paragraph(),
-            'version'                    => 1,
+            'plan_asp_id' => null,
+            'estado' => EstadoPlan::Borrador,
+            'fecha_inicio' => today()->toDateString(),
+            'fecha_firma' => null,
+            'fecha_cierre' => null,
+            'motivo_cierre' => null,
+            'objetivos' => fake()->paragraph(),
+            'version' => 1,
         ];
     }
 

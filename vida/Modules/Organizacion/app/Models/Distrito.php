@@ -5,6 +5,7 @@ namespace Modules\Organizacion\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Modelo de Distrito municipal.
@@ -20,8 +21,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property float|null $latitud
  * @property float|null $longitud
  * @property bool $activo
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  *
  * @see docs/glosario.md § Distrito
  */
@@ -41,9 +42,9 @@ class Distrito extends Model
 
     /** @var array<string, string> */
     protected $casts = [
-        'latitud'  => 'decimal:7',
+        'latitud' => 'decimal:7',
         'longitud' => 'decimal:7',
-        'activo'   => 'boolean',
+        'activo' => 'boolean',
     ];
 
     /**
@@ -60,6 +61,7 @@ class Distrito extends Model
      * Filtra únicamente los distritos activos.
      *
      * @param Builder<Distrito> $consulta
+     *
      * @return Builder<Distrito>
      */
     public function scopeActivos(Builder $consulta): Builder

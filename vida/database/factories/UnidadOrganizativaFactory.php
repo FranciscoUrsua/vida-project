@@ -23,17 +23,15 @@ class UnidadOrganizativaFactory extends Factory
     public function definition(): array
     {
         return [
-            'nombre'    => 'CSS ' . fake()->city(),
-            'tipo'      => 'centro',
+            'nombre' => 'CSS '.fake()->city(),
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ];
     }
 
     /**
      * UO inactiva.
-     *
-     * @return static
      */
     public function inactiva(): static
     {
@@ -42,15 +40,12 @@ class UnidadOrganizativaFactory extends Factory
 
     /**
      * UO hija de otra UO.
-     *
-     * @param UnidadOrganizativa $padre
-     * @return static
      */
     public function hijaDeUo(UnidadOrganizativa $padre): static
     {
         return $this->state([
             'parent_id' => $padre->id,
-            'tipo'      => 'departamento',
+            'tipo' => 'departamento',
         ]);
     }
 }

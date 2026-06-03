@@ -32,29 +32,28 @@ use App\Enums\TipoNumeracion;
 final class ResultadoGeocodificacion
 {
     public function __construct(
-        public readonly bool             $exito,
-        public readonly ?string          $tipoVia,
-        public readonly ?string          $nombreVia,
-        public readonly ?TipoNumeracion  $tipoNumeracion,
-        public readonly ?string          $numero,
-        public readonly ?string          $portal,
-        public readonly ?string          $escalera,
-        public readonly ?string          $piso,
-        public readonly ?string          $puerta,
-        public readonly ?string          $codigoPostal,
-        public readonly ?string          $municipio,
-        public readonly ?float           $latitud,
-        public readonly ?float           $longitud,
-        public readonly string           $proveedor,
-        public readonly ?string          $errorMensaje = null,
+        public readonly bool $exito,
+        public readonly ?string $tipoVia,
+        public readonly ?string $nombreVia,
+        public readonly ?TipoNumeracion $tipoNumeracion,
+        public readonly ?string $numero,
+        public readonly ?string $portal,
+        public readonly ?string $escalera,
+        public readonly ?string $piso,
+        public readonly ?string $puerta,
+        public readonly ?string $codigoPostal,
+        public readonly ?string $municipio,
+        public readonly ?float $latitud,
+        public readonly ?float $longitud,
+        public readonly string $proveedor,
+        public readonly ?string $errorMensaje = null,
     ) {}
 
     /**
      * Crea un resultado de fallo.
      *
-     * @param  string $proveedor    Identificador del adaptador.
-     * @param  string $errorMensaje Descripción del fallo.
-     * @return self
+     * @param string $proveedor Identificador del adaptador.
+     * @param string $errorMensaje Descripción del fallo.
      */
     public static function fallo(string $proveedor, string $errorMensaje): self
     {

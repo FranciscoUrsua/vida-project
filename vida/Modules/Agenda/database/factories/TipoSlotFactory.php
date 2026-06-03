@@ -14,15 +14,15 @@ class TipoSlotFactory extends Factory
     public function definition(): array
     {
         return [
-            'horario_centro_id'        => HorarioCentroFactory::new(),
-            'nombre'                   => 'Atención general',
-            'descripcion'              => null,
-            'duracion_minutos'         => 45,
-            'requiere_espacio'         => false,
-            'porcentaje_urgencias'     => 0,
-            'origen_permitido'         => OrigenPermitidoSlot::Ambos->value,
+            'horario_centro_id' => HorarioCentroFactory::new(),
+            'nombre' => 'Atención general',
+            'descripcion' => null,
+            'duracion_minutos' => 45,
+            'requiere_espacio' => false,
+            'porcentaje_urgencias' => 0,
+            'origen_permitido' => OrigenPermitidoSlot::Ambos->value,
             'genera_apunte_automatico' => false,
-            'activo'                   => true,
+            'activo' => true,
         ];
     }
 

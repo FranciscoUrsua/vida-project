@@ -24,15 +24,17 @@ class UnidadOrganizativaTest extends TestCase
     use RefreshDatabase;
 
     private UnidadOrganizativa $uo_raiz;
+
     private UnidadOrganizativa $uo_hija;
+
     private UnidadOrganizativa $uo_nieta;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->uo_raiz  = UnidadOrganizativa::create(['nombre' => 'Ayuntamiento', 'tipo' => 'ayuntamiento', 'activa' => true]);
-        $this->uo_hija  = UnidadOrganizativa::create(['nombre' => 'DG Servicios Sociales', 'tipo' => 'dg', 'parent_id' => $this->uo_raiz->id, 'activa' => true]);
+        $this->uo_raiz = UnidadOrganizativa::create(['nombre' => 'Ayuntamiento', 'tipo' => 'ayuntamiento', 'activa' => true]);
+        $this->uo_hija = UnidadOrganizativa::create(['nombre' => 'DG Servicios Sociales', 'tipo' => 'dg', 'parent_id' => $this->uo_raiz->id, 'activa' => true]);
         $this->uo_nieta = UnidadOrganizativa::create(['nombre' => 'CSS Arganzuela', 'tipo' => 'centro', 'parent_id' => $this->uo_hija->id, 'activa' => true]);
     }
 
@@ -64,9 +66,9 @@ class UnidadOrganizativaTest extends TestCase
         $supervisor = User::factory()->create();
 
         UsuarioUo::create([
-            'usuario_id'               => $supervisor->id,
-            'unidad_organizativa_id'   => $this->uo_raiz->id,
-            'fecha_inicio'             => today(),
+            'usuario_id' => $supervisor->id,
+            'unidad_organizativa_id' => $this->uo_raiz->id,
+            'fecha_inicio' => today(),
         ]);
 
         $this->assertTrue($supervisor->tieneAccesoGestionA($this->uo_nieta));
@@ -76,18 +78,18 @@ class UnidadOrganizativaTest extends TestCase
     public function un_usuario_no_tiene_visibilidad_sobre_uo_que_no_son_descendientes_suyas(): void
     {
         $uo_paralela = UnidadOrganizativa::create([
-            'nombre'    => 'DG Mayores',
-            'tipo'      => 'dg',
+            'nombre' => 'DG Mayores',
+            'tipo' => 'dg',
             'parent_id' => $this->uo_raiz->id,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $admUsuarios = User::factory()->create();
 
         UsuarioUo::create([
-            'usuario_id'               => $admUsuarios->id,
-            'unidad_organizativa_id'   => $this->uo_hija->id,
-            'fecha_inicio'             => today(),
+            'usuario_id' => $admUsuarios->id,
+            'unidad_organizativa_id' => $this->uo_hija->id,
+            'fecha_inicio' => today(),
         ]);
 
         $this->assertFalse($admUsuarios->tieneAccesoGestionA($uo_paralela));
@@ -99,15 +101,15 @@ class UnidadOrganizativaTest extends TestCase
         $profesional = User::factory()->create();
 
         UsuarioUo::create([
-            'usuario_id'               => $profesional->id,
-            'unidad_organizativa_id'   => $this->uo_hija->id,
-            'fecha_inicio'             => today(),
+            'usuario_id' => $profesional->id,
+            'unidad_organizativa_id' => $this->uo_hija->id,
+            'fecha_inicio' => today(),
         ]);
 
         $this->uo_hija->update(['activa' => false]);
 
         $this->assertDatabaseHas('usuario_uo', [
-            'usuario_id'             => $profesional->id,
+            'usuario_id' => $profesional->id,
             'unidad_organizativa_id' => $this->uo_hija->id,
         ]);
         $this->assertFalse($this->uo_hija->fresh()->activa);
@@ -123,15 +125,15 @@ class UnidadOrganizativaTest extends TestCase
         $profesional = User::factory()->create();
 
         UsuarioUo::create([
-            'usuario_id'               => $profesional->id,
-            'unidad_organizativa_id'   => $this->uo_hija->id,
-            'fecha_inicio'             => today(),
+            'usuario_id' => $profesional->id,
+            'unidad_organizativa_id' => $this->uo_hija->id,
+            'fecha_inicio' => today(),
         ]);
 
         UsuarioUo::create([
-            'usuario_id'               => $profesional->id,
-            'unidad_organizativa_id'   => $this->uo_nieta->id,
-            'fecha_inicio'             => today(),
+            'usuario_id' => $profesional->id,
+            'unidad_organizativa_id' => $this->uo_nieta->id,
+            'fecha_inicio' => today(),
         ]);
 
         $this->assertEquals(2, $profesional->unidadesOrganizativas()->count());
@@ -143,17 +145,17 @@ class UnidadOrganizativaTest extends TestCase
         $profesional = User::factory()->create();
 
         UsuarioUo::create([
-            'usuario_id'               => $profesional->id,
-            'unidad_organizativa_id'   => $this->uo_hija->id,
-            'fecha_inicio'             => today()->subYear(),
-            'fecha_fin'                => today()->subMonth(),
+            'usuario_id' => $profesional->id,
+            'unidad_organizativa_id' => $this->uo_hija->id,
+            'fecha_inicio' => today()->subYear(),
+            'fecha_fin' => today()->subMonth(),
         ]);
 
         UsuarioUo::create([
-            'usuario_id'               => $profesional->id,
-            'unidad_organizativa_id'   => $this->uo_hija->id,
-            'fecha_inicio'             => today(),
-            'fecha_fin'                => null,
+            'usuario_id' => $profesional->id,
+            'unidad_organizativa_id' => $this->uo_hija->id,
+            'fecha_inicio' => today(),
+            'fecha_fin' => null,
         ]);
 
         $registros = UsuarioUo::where('usuario_id', $profesional->id)->get();
@@ -167,7 +169,7 @@ class UnidadOrganizativaTest extends TestCase
     public function adm_usuarios_no_puede_adscribir_usuarios_a_uo_fuera_de_su_ambito(): void
     {
         $this->markTestIncomplete(
-            'TF-USU-31: pendiente de implementar Policy/Service para autorización de adscripción. ' .
+            'TF-USU-31: pendiente de implementar Policy/Service para autorización de adscripción. '.
             'No existe ningún mecanismo que impida crear un UsuarioUo desde código arbitrario.'
         );
     }

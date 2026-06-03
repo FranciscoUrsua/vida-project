@@ -16,20 +16,20 @@ class ExcepcionProfesionalFactory extends Factory
     public function definition(): array
     {
         return [
-            'usuario_id'            => User::factory(),
-            'centro_id'             => fn () => Centro::create([
-                'nombre'       => 'Centro ' . fake()->unique()->numerify('###'),
+            'usuario_id' => User::factory(),
+            'centro_id' => fn () => Centro::create([
+                'nombre' => 'Centro '.fake()->unique()->numerify('###'),
                 'tipo_gestion' => 'municipal_directo',
-                'fecha_alta'   => now()->toDateString(),
+                'fecha_alta' => now()->toDateString(),
             ])->id,
-            'tipo'                  => TipoExcepcion::DiaLibre->value,
-            'fecha_inicio'          => now()->toDateString(),
-            'fecha_fin'             => now()->toDateString(),
+            'tipo' => TipoExcepcion::DiaLibre->value,
+            'fecha_inicio' => now()->toDateString(),
+            'fecha_fin' => now()->toDateString(),
             'afecta_disponibilidad' => true,
-            'franja_afectada'       => null,
-            'origen'                => OrigenExcepcion::Manual->value,
-            'creado_por_id'         => User::factory(),
-            'notas'                 => null,
+            'franja_afectada' => null,
+            'origen' => OrigenExcepcion::Manual->value,
+            'creado_por_id' => User::factory(),
+            'notas' => null,
         ];
     }
 
@@ -41,15 +41,15 @@ class ExcepcionProfesionalFactory extends Factory
     public function vacaciones(int $dias = 7): static
     {
         return $this->state([
-            'tipo'       => TipoExcepcion::Vacaciones->value,
-            'fecha_fin'  => now()->addDays($dias)->toDateString(),
+            'tipo' => TipoExcepcion::Vacaciones->value,
+            'fecha_fin' => now()->addDays($dias)->toDateString(),
         ]);
     }
 
     public function formacion(): static
     {
         return $this->state([
-            'tipo'                  => TipoExcepcion::Formacion->value,
+            'tipo' => TipoExcepcion::Formacion->value,
             'afecta_disponibilidad' => false,
         ]);
     }

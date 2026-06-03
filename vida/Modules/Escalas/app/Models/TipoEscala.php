@@ -5,6 +5,7 @@ namespace Modules\Escalas\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Cache;
 use Modules\Escalas\Database\Factories\TipoEscalaFactory;
@@ -49,10 +50,10 @@ class TipoEscala extends Model
     ];
 
     protected $casts = [
-        'schema'                  => 'array',
-        'rangos_interpretacion'   => 'array',
-        'contextos'               => 'array',
-        'activa'                  => 'boolean',
+        'schema' => 'array',
+        'rangos_interpretacion' => 'array',
+        'contextos' => 'array',
+        'activa' => 'boolean',
         'confirmar_instrucciones' => 'boolean',
     ];
 
@@ -62,8 +63,6 @@ class TipoEscala extends Model
 
     /**
      * Registra validaciones de integridad y restricciones de inmutabilidad.
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -103,7 +102,6 @@ class TipoEscala extends Model
     /**
      * Valida que el schema tenga al menos una sección con ítems y opciones suficientes.
      *
-     * @param mixed $schema
      * @throws \InvalidArgumentException
      */
     private static function validarSchema(mixed $schema): void
@@ -138,7 +136,6 @@ class TipoEscala extends Model
     /**
      * Valida que los rangos de interpretación no tengan huecos ni solapamientos.
      *
-     * @param mixed $rangosInterpretacion
      * @throws \InvalidArgumentException
      */
     private static function validarRangos(mixed $rangosInterpretacion): void
@@ -159,7 +156,7 @@ class TipoEscala extends Model
         usort($rangos, fn ($a, $b) => $a['desde'] <=> $b['desde']);
 
         for ($i = 0; $i < count($rangos) - 1; $i++) {
-            $actual    = $rangos[$i];
+            $actual = $rangos[$i];
             $siguiente = $rangos[$i + 1];
 
             if ($actual['hasta'] >= $siguiente['desde']) {
@@ -168,7 +165,7 @@ class TipoEscala extends Model
                 );
             }
 
-            if ($actual['hasta'] + 1 < $siguiente['desde']) {
+            if ($siguiente['desde'] > $actual['hasta'] + 1) {
                 throw new \InvalidArgumentException(
                     "Existe un hueco entre los rangos: entre {$actual['hasta']} y {$siguiente['desde']}."
                 );
@@ -180,8 +177,6 @@ class TipoEscala extends Model
      * Verifica que los ítems ya existentes en el schema no hayan sido modificados.
      * Se permite añadir nuevas secciones o ítems al final.
      *
-     * @param array $schemaOriginal
-     * @param array $schemaNuevo
      * @throws \LogicException
      */
     private static function validarInmutabilidadItems(array $schemaOriginal, array $schemaNuevo): void
@@ -222,7 +217,7 @@ class TipoEscala extends Model
     /**
      * Devuelve el id del TipoEscala con el código dado, desde caché.
      *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @throws ModelNotFoundException
      */
     public static function codigoId(string $codigo): int
     {
@@ -241,6 +236,7 @@ class TipoEscala extends Model
      * Escalas disponibles para aplicar a un ciudadano.
      *
      * @param Builder<self> $query
+     *
      * @return Builder<self>
      */
     public function scopeAplicables(Builder $query): Builder
@@ -266,9 +262,6 @@ class TipoEscala extends Model
     // Factory
     // -------------------------------------------------------------------------
 
-    /**
-     * @return TipoEscalaFactory
-     */
     protected static function newFactory(): TipoEscalaFactory
     {
         return TipoEscalaFactory::new();

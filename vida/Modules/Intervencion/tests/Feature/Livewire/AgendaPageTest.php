@@ -5,7 +5,6 @@ namespace Modules\Intervencion\Tests\Feature\Livewire;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Models\UsuarioUo;
-use Carbon\Carbon;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -39,33 +38,31 @@ class AgendaPageTest extends TestCase
 
     /**
      * Crea un usuario con rol intervencion y UO asignada.
-     *
-     * @return User
      */
     private function crearUsuarioIntervencion(): User
     {
         $uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Test Agenda',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Test Agenda',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $usuario = User::create([
-            'name'              => 'Técnico Test',
-            'email'             => 'tsr-test@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Técnico Test',
+            'email' => 'tsr-test@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
 
         $usuario->assignRole('intervencion');
 
         UsuarioUo::create([
-            'usuario_id'             => $usuario->id,
+            'usuario_id' => $usuario->id,
             'unidad_organizativa_id' => $uo->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         return $usuario;
@@ -73,17 +70,15 @@ class AgendaPageTest extends TestCase
 
     /**
      * Crea un usuario sin rol intervencion.
-     *
-     * @return User
      */
     private function crearUsuarioSinRol(): User
     {
         return User::create([
-            'name'              => 'Sin Rol Test',
-            'email'             => 'sinrol@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Sin Rol Test',
+            'email' => 'sinrol@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
     }
 

@@ -15,15 +15,15 @@ class CiudadanoFactory extends Factory
     public function definition(): array
     {
         return [
-            'nombre'                    => fake()->firstName(),
-            'apellido1'                 => fake()->lastName(),
-            'apellido2'                 => fake()->optional()->lastName(),
-            'fecha_nacimiento'          => fake()->date('Y-m-d', '-18 years'),
-            'sexo'                      => fake()->randomElement(['hombre', 'mujer', 'otro']),
-            'nivel_identificacion'      => 'basico',
-            'activo'                    => true,
-            'es_vvg'                    => false,
-            'es_psh'                    => false,
+            'nombre' => fake()->firstName(),
+            'apellido1' => fake()->lastName(),
+            'apellido2' => fake()->optional()->lastName(),
+            'fecha_nacimiento' => fake()->date('Y-m-d', '-18 years'),
+            'sexo' => fake()->randomElement(['hombre', 'mujer', 'otro']),
+            'nivel_identificacion' => 'basico',
+            'activo' => true,
+            'es_vvg' => false,
+            'es_psh' => false,
             'colectivo_extra_protegido' => false,
         ];
     }
@@ -35,10 +35,10 @@ class CiudadanoFactory extends Factory
     public function vvg(): static
     {
         return $this->state([
-            'es_vvg'                => true,
+            'es_vvg' => true,
             'direccion_normalizada' => true,
-            'nombre_via'            => fake()->streetName(),
-            'codigo_postal'         => '28' . fake()->numerify('###'),
+            'nombre_via' => fake()->streetName(),
+            'codigo_postal' => '28'.fake()->numerify('###'),
         ]);
     }
 
@@ -48,11 +48,11 @@ class CiudadanoFactory extends Factory
     public function psh(): static
     {
         return $this->state([
-            'es_psh'              => true,
+            'es_psh' => true,
             'nivel_identificacion' => 'no_identificado',
-            'zona_intervencion'   => fake()->randomElement(['Centro', 'Lavapiés', 'Malasaña', 'Carabanchel']),
-            'pernocta_lat'        => fake()->latitude(40.31, 40.53),
-            'pernocta_lng'        => fake()->longitude(-3.83, -3.52),
+            'zona_intervencion' => fake()->randomElement(['Centro', 'Lavapiés', 'Malasaña', 'Carabanchel']),
+            'pernocta_lat' => fake()->latitude(40.31, 40.53),
+            'pernocta_lng' => fake()->longitude(-3.83, -3.52),
         ]);
     }
 
@@ -63,17 +63,17 @@ class CiudadanoFactory extends Factory
     {
         return $this->state([
             'direccion_normalizada' => true,
-            'origen_direccion'      => 'profesional',
-            'tipo_via'              => 'Calle',
-            'nombre_via'            => fake()->streetName(),
-            'tipo_numeracion'       => 'numero',
-            'numero'                => (string) fake()->buildingNumber(),
-            'portal'                => null,
-            'escalera'              => null,
-            'piso'                  => fake()->randomElement(['1', '2', '3', null]),
-            'puerta'                => fake()->randomElement(['izq', 'dcha', null]),
-            'codigo_postal'         => '28' . fake()->numerify('###'),
-            'municipio'             => 'Madrid',
+            'origen_direccion' => 'profesional',
+            'tipo_via' => 'Calle',
+            'nombre_via' => fake()->streetName(),
+            'tipo_numeracion' => 'numero',
+            'numero' => (string) fake()->buildingNumber(),
+            'portal' => null,
+            'escalera' => null,
+            'piso' => fake()->randomElement(['1', '2', '3', null]),
+            'puerta' => fake()->randomElement(['izq', 'dcha', null]),
+            'codigo_postal' => '28'.fake()->numerify('###'),
+            'municipio' => 'Madrid',
         ]);
     }
 
@@ -84,7 +84,7 @@ class CiudadanoFactory extends Factory
     {
         return $this->state([
             'direccion_normalizada' => false,
-            'direccion_texto'       => fake()->address(),
+            'direccion_texto' => fake()->address(),
         ]);
     }
 }

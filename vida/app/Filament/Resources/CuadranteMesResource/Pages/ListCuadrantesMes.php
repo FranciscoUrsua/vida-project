@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\CuadranteMesResource\Pages;
 
 use App\Filament\Resources\CuadranteMesResource;
-use Filament\Actions\CreateAction;
 use App\Filament\Resources\Pages\ListRecords;
+use Filament\Actions\CreateAction;
 
 class ListCuadrantesMes extends ListRecords
 {

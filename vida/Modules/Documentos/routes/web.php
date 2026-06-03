@@ -30,10 +30,10 @@ Route::middleware(['auth', 'signed'])
         }
 
         return response($contenido, 200, [
-            'Content-Type'        => $documento->mime_type,
-            'Content-Disposition' => 'inline; filename="' . rawurlencode($documento->nombre_original) . '"',
-            'Content-Length'      => $documento->tamano_bytes,
-            'Cache-Control'       => 'no-store, no-cache, must-revalidate',
+            'Content-Type' => $documento->mime_type,
+            'Content-Disposition' => 'inline; filename="'.rawurlencode($documento->nombre_original).'"',
+            'Content-Length' => $documento->tamano_bytes,
+            'Cache-Control' => 'no-store, no-cache, must-revalidate',
             'X-Content-Type-Options' => 'nosniff',
         ]);
     })

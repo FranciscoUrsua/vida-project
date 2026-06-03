@@ -26,20 +26,13 @@ use Modules\Intervencion\Services\IntervencionSidebarDataService;
  */
 class IntervencionServiceProvider extends ServiceProvider
 {
-    /** @var string */
     protected string $moduleName = 'Intervencion';
 
-    /**
-     * @return void
-     */
     public function register(): void
     {
         $this->app->singleton(IntervencionSidebarDataService::class);
     }
 
-    /**
-     * @return void
-     */
     public function boot(): void
     {
         $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));

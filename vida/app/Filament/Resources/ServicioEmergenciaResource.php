@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\ServicioEmergenciaResource\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -14,7 +15,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Organizacion\Models\ServicioEmergenciaPreautorizado;
-use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión del catálogo de servicios de emergencia preautorizados.
@@ -27,14 +27,21 @@ use App\Filament\Concerns\AutorizaGestion;
 class ServicioEmergenciaResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = ServicioEmergenciaPreautorizado::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-bell-alert';
+
     protected static ?string $navigationLabel = 'Servicios de emergencia';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
+
     protected static ?string $modelLabel = 'Servicio de emergencia';
+
     protected static ?string $pluralModelLabel = 'Servicios de emergencia';
+
     protected static ?string $slug = 'servicios-emergencia';
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
@@ -90,9 +97,9 @@ class ServicioEmergenciaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListServiciosEmergencia::route('/'),
+            'index' => Pages\ListServiciosEmergencia::route('/'),
             'create' => Pages\CreateServicioEmergencia::route('/create'),
-            'edit'   => Pages\EditServicioEmergencia::route('/{record}/edit'),
+            'edit' => Pages\EditServicioEmergencia::route('/{record}/edit'),
         ];
     }
 }

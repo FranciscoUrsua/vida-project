@@ -2,6 +2,7 @@
 
 namespace Modules\Agenda\Models;
 
+use App\Models\Ciudadano;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,7 +17,6 @@ use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Agenda\Enums\OrigenCita;
 use Modules\Centro\Models\Centro;
-use App\Models\Ciudadano;
 use Modules\Intervencion\Models\Apunte;
 
 /**
@@ -60,9 +60,9 @@ class Cita extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'fecha'        => 'date',
-        'estado'       => EstadoCita::class,
-        'origen'       => OrigenCita::class,
+        'fecha' => 'date',
+        'estado' => EstadoCita::class,
+        'origen' => OrigenCita::class,
         'completada_en' => 'datetime',
     ];
 
@@ -152,7 +152,7 @@ class Cita extends Model
     public function completar(): void
     {
         $this->update([
-            'estado'        => EstadoCita::Completada->value,
+            'estado' => EstadoCita::Completada->value,
             'completada_en' => now(),
         ]);
     }
@@ -163,14 +163,14 @@ class Cita extends Model
      * Si la hora de inicio del slot ya ha transcurrido, el slot queda en
      * 'no_ocupado'; si aún no ha llegado, vuelve a 'disponible'.
      *
-     * @param  User   $canceladoPor Usuario que ejecuta la cancelación
-     * @param  string $motivo       Motivo de la cancelación
+     * @param User $canceladoPor Usuario que ejecuta la cancelación
+     * @param string $motivo Motivo de la cancelación
      */
     public function cancelar(User $canceladoPor, string $motivo): void
     {
-        $slot       = Slot::findOrFail($this->slot_id);
-        $horarioSlot = Carbon::parse($slot->fecha->toDateString() . ' ' . $slot->hora_inicio);
-        $slotPasado  = now()->isAfter($horarioSlot);
+        $slot = Slot::findOrFail($this->slot_id);
+        $horarioSlot = Carbon::parse($slot->fecha->toDateString().' '.$slot->hora_inicio);
+        $slotPasado = now()->isAfter($horarioSlot);
 
         $slot->update([
             'estado' => $slotPasado
@@ -179,8 +179,8 @@ class Cita extends Model
         ]);
 
         $this->update([
-            'estado'             => EstadoCita::Cancelada->value,
-            'cancelado_por_id'   => $canceladoPor->id,
+            'estado' => EstadoCita::Cancelada->value,
+            'cancelado_por_id' => $canceladoPor->id,
             'motivo_cancelacion' => $motivo,
         ]);
     }

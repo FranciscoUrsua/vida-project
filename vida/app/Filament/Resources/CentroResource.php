@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\CentroResource\Pages;
 use App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager;
 use App\Filament\Resources\CentroResource\RelationManagers\ColeccionesPlazasRelationManager;
-use App\Models\UnidadOrganizativa;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
@@ -25,18 +25,23 @@ use Illuminate\Database\Eloquent\Model;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\SegmentoPoblacion;
 use Modules\Prestaciones\Models\Prestacion;
-use App\Filament\Concerns\AutorizaGestion;
 
 class CentroResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = Centro::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-office-2';
+
     protected static ?string $navigationLabel = 'Centros';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Centros y Servicios';
+
     protected static ?string $modelLabel = 'Centro';
+
     protected static ?string $pluralModelLabel = 'Centros';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
@@ -60,10 +65,10 @@ class CentroResource extends Resource
                     Select::make('tipo_gestion')
                         ->label('Tipo de gestión')
                         ->options([
-                            'municipal_directo'    => 'Municipal directo',
+                            'municipal_directo' => 'Municipal directo',
                             'municipal_concertado' => 'Municipal concertado',
-                            'privado_concertado'   => 'Privado concertado',
-                            'privado_puro'         => 'Privado puro',
+                            'privado_concertado' => 'Privado concertado',
+                            'privado_puro' => 'Privado puro',
                         ])
                         ->required()
                         ->default('municipal_directo'),
@@ -184,9 +189,15 @@ class CentroResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $user = auth()->user();
-                if ($user->hasRole('adm_sistema')) return;
+                if ($user->hasRole('adm_sistema')) {
+                    return;
+                }
                 $uoIds = $user->uoSubtreeIds();
-                if (empty($uoIds)) { $query->whereRaw('1 = 0'); return; }
+                if (empty($uoIds)) {
+                    $query->whereRaw('1 = 0');
+
+                    return;
+                }
                 $query->whereIn('unidad_organizativa_id', $uoIds);
             })
             ->columns([
@@ -200,18 +211,18 @@ class CentroResource extends Resource
                     ->label('Tipo de gestión')
                     ->badge()
                     ->color(fn (string $state) => match ($state) {
-                        'municipal_directo'    => 'primary',
+                        'municipal_directo' => 'primary',
                         'municipal_concertado' => 'info',
-                        'privado_concertado'   => 'warning',
-                        'privado_puro'         => 'gray',
-                        default                => 'gray',
+                        'privado_concertado' => 'warning',
+                        'privado_puro' => 'gray',
+                        default => 'gray',
                     })
                     ->formatStateUsing(fn (string $state) => match ($state) {
-                        'municipal_directo'    => 'Municipal directo',
+                        'municipal_directo' => 'Municipal directo',
                         'municipal_concertado' => 'Municipal concertado',
-                        'privado_concertado'   => 'Privado concertado',
-                        'privado_puro'         => 'Privado puro',
-                        default                => ucfirst($state),
+                        'privado_concertado' => 'Privado concertado',
+                        'privado_puro' => 'Privado puro',
+                        default => ucfirst($state),
                     }),
 
                 Tables\Columns\TextColumn::make('unidadOrganizativa.nombre')
@@ -228,10 +239,10 @@ class CentroResource extends Resource
                 Tables\Filters\SelectFilter::make('tipo_gestion')
                     ->label('Tipo de gestión')
                     ->options([
-                        'municipal_directo'    => 'Municipal directo',
+                        'municipal_directo' => 'Municipal directo',
                         'municipal_concertado' => 'Municipal concertado',
-                        'privado_concertado'   => 'Privado concertado',
-                        'privado_puro'         => 'Privado puro',
+                        'privado_concertado' => 'Privado concertado',
+                        'privado_puro' => 'Privado puro',
                     ]),
 
                 Tables\Filters\TernaryFilter::make('activo')->label('Estado'),
@@ -254,12 +265,20 @@ class CentroResource extends Resource
     public static function canEdit(Model $record): bool
     {
         $user = auth()->user();
-        if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) return false;
-        if ($user->hasRole('adm_sistema')) return true;
+        if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
+            return false;
+        }
+        if ($user->hasRole('adm_sistema')) {
+            return true;
+        }
+
         return in_array($record->unidad_organizativa_id, $user->uoSubtreeIds());
     }
 
-    public static function canDelete(Model $record): bool { return static::canEdit($record); }
+    public static function canDelete(Model $record): bool
+    {
+        return static::canEdit($record);
+    }
 
     public static function getRelationManagers(): array
     {
@@ -272,9 +291,9 @@ class CentroResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListCentros::route('/'),
+            'index' => Pages\ListCentros::route('/'),
             'create' => Pages\CreateCentro::route('/create'),
-            'edit'   => Pages\EditCentro::route('/{record}/edit'),
+            'edit' => Pages\EditCentro::route('/{record}/edit'),
         ];
     }
 }

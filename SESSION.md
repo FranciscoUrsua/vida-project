@@ -1,25 +1,24 @@
 # SESSION — VIDA 360
 
-_Actualizado: 2026-06-01_
+_Actualizado: 2026-06-03_
 
 ## Tarea completada
 
-Implementación de la Entrega 3 del interfaz operativo de Intervención: pantalla del ciudadano
-con timeline de Historia Social, 7 herramientas de registro (4 inline + 3 pantalla completa).
-23/23 tests nuevos en verde. 92 tests del módulo Intervención pasan.
+Instalación y configuración completa del tooling de calidad: PHPStan/Larastan, Pint, Rector y CI pipeline.
+Primera ejecución de Pint aplicada a todo el proyecto (~240 ficheros reformateados). PHPStan pasa limpio con baseline.
 
 ## Estado actual
 
-- **UI Intervención Entrega 3 — completa:**
-  - `CiudadanoPage`: pantalla principal con timeline HS, UC colapsable, cuadrícula de herramientas.
-  - Herramientas inline: entrevista, anotación, derivación, gestión/coordinación.
-  - `RegistrarValoracionPage` y `RegistrarEscalaPage`: pantallas completas con formularios dinámicos.
-  - `calcularScoreEscala()`: suma `valor × peso` por ítem del schema.
-  - `TipoApunte` extendido con: `Valoracion`, `Escala`, `GestionCoordinacion`, `PlanIntervencion`.
-  - Tests TF-LW-CIU-01..23 en verde.
+### Tooling de calidad — operativo
+- `composer analyse` → PHPStan nivel 6, pasa sin errores (baseline de 772 errores heredados).
+- `composer format` → Pint formatea; `composer format-check` verifica (para CI).
+- `composer rector-dry` → Rector en modo seco para revisar propuestas de refactoring.
+- `.github/workflows/quality.yml` → CI ejecuta Pint + PHPStan en cada push/PR.
 
-- **UI Intervención Entrega 2 — completa** (MisCasosPage, BuscarCiudadanoPage, BuzonPage).
-- **UI Intervención Entrega 1 — completa** (AgendaPage, Sidebar, layout operativo).
+### UI Intervención
+- **Entrega 3 — completa**: CiudadanoPage con timeline HS, 7 herramientas, 92 tests en verde.
+- **Entrega 2 — completa** (MisCasosPage, BuscarCiudadanoPage, BuzonPage).
+- **Entrega 1 — completa** (AgendaPage, Sidebar, layout operativo).
 - **Autenticación — completa**.
 
 ## Pendientes conocidos
@@ -30,14 +29,16 @@ con timeline de Historia Social, 7 herramientas de registro (4 inline + 3 pantal
 | `crearDerivacion()` | Tabla `derivaciones` no existe — solo crea Apunte |
 | UC | Tabla `unidades_convivencia` no existe — stub visible |
 | Herramienta Informes | Stub "en construcción" — integración Documentos pendiente |
+| `nunomaduro/larastan` | Abandonado upstream — migrar a `larastan/larastan` en próxima sesión de deps |
+| PHPStan baseline | 772 errores heredados — reducir progresivamente, nunca añadir nuevos |
 
 ## Siguiente paso recomendado
 
-**UI Intervención — Entrega 4** o cualquier otra tarea de backlog según prioridad.
-La suite de las 3 entregas tiene 92 tests en verde.
+**UI Intervención — Entrega 4** o reducción progresiva del baseline de PHPStan.
+Si se toca código nuevo, ejecutar `composer format-check && composer analyse` antes de commitear.
 
 ## Contexto relevante para retomar
 
 - `Apunte` usa `plan_id` (NOT NULL) → siempre requiere un plan activo para crear apuntes.
 - `withoutGlobalScopes()` en `apuntesHS` y `pisoActivo` es deliberado: la policy ya verificó acceso.
-- Los 9 fallos de `PrestacionFilamentResourceTest` son pre-existentes.
+- Los 9 fallos de `PrestacionFilamentResourceTest` son pre-existentes (no relacionados con este tooling).

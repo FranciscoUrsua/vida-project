@@ -14,25 +14,25 @@ class CuadranteMesFactory extends Factory
     public function definition(): array
     {
         return [
-            'centro_id'               => fn () => Centro::create([
-                'nombre'       => 'Centro ' . fake()->unique()->numerify('###'),
+            'centro_id' => fn () => Centro::create([
+                'nombre' => 'Centro '.fake()->unique()->numerify('###'),
                 'tipo_gestion' => 'municipal_directo',
-                'fecha_alta'   => now()->toDateString(),
+                'fecha_alta' => now()->toDateString(),
             ])->id,
-            'anyo'                    => now()->year,
-            'mes'                     => now()->month,
-            'estado'                  => EstadoCuadrante::Borrador->value,
-            'generado_con_ia'         => false,
+            'anyo' => now()->year,
+            'mes' => now()->month,
+            'estado' => EstadoCuadrante::Borrador->value,
+            'generado_con_ia' => false,
             'generado_automaticamente' => false,
-            'publicado_en'            => null,
-            'publicado_por_id'        => null,
+            'publicado_en' => null,
+            'publicado_por_id' => null,
         ];
     }
 
     public function publicado(): static
     {
         return $this->state([
-            'estado'       => EstadoCuadrante::Publicado->value,
+            'estado' => EstadoCuadrante::Publicado->value,
             'publicado_en' => now(),
         ]);
     }
@@ -40,9 +40,9 @@ class CuadranteMesFactory extends Factory
     public function automatico(): static
     {
         return $this->state([
-            'estado'                  => EstadoCuadrante::Publicado->value,
+            'estado' => EstadoCuadrante::Publicado->value,
             'generado_automaticamente' => true,
-            'publicado_en'            => now(),
+            'publicado_en' => now(),
         ]);
     }
 }

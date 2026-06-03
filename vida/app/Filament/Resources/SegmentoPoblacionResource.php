@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\SegmentoPoblacionResource\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -14,18 +15,23 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\SegmentoPoblacion;
-use App\Filament\Concerns\AutorizaGestion;
 
 class SegmentoPoblacionResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = SegmentoPoblacion::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
+
     protected static ?string $navigationLabel = 'Segmentos de población';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
+
     protected static ?string $modelLabel = 'Segmento de población';
+
     protected static ?string $pluralModelLabel = 'Segmentos de población';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
@@ -83,9 +89,9 @@ class SegmentoPoblacionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListSegmentosPoblacion::route('/'),
+            'index' => Pages\ListSegmentosPoblacion::route('/'),
             'create' => Pages\CreateSegmentoPoblacion::route('/create'),
-            'edit'   => Pages\EditSegmentoPoblacion::route('/{record}/edit'),
+            'edit' => Pages\EditSegmentoPoblacion::route('/{record}/edit'),
         ];
     }
 }

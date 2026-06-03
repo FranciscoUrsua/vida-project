@@ -18,6 +18,7 @@ use Filament\Tables\Table;
 class ColeccionesPlazasRelationManager extends RelationManager
 {
     protected static string $relationship = 'coleccionesPlazas';
+
     protected static ?string $title = 'Colecciones de plazas';
 
     public function form(Schema $schema): Schema
@@ -36,7 +37,7 @@ class ColeccionesPlazasRelationManager extends RelationManager
                         ->label('Tipo de plaza')
                         ->options([
                             'pernocta' => 'Pernocta (alojamiento nocturno)',
-                            'dia'      => 'Día (atención diurna)',
+                            'dia' => 'Día (atención diurna)',
                         ])
                         ->required()
                         ->default('pernocta'),
@@ -44,9 +45,9 @@ class ColeccionesPlazasRelationManager extends RelationManager
                     Select::make('modo_acceso')
                         ->label('Modo de acceso')
                         ->options([
-                            'libre'                      => 'Libre',
-                            'prescripcion_directa'       => 'Prescripción directa',
-                            'prescripcion_lista_espera'  => 'Prescripción con lista de espera',
+                            'libre' => 'Libre',
+                            'prescripcion_directa' => 'Prescripción directa',
+                            'prescripcion_lista_espera' => 'Prescripción con lista de espera',
                         ])
                         ->required()
                         ->default('prescripcion_directa'),
@@ -84,17 +85,17 @@ class ColeccionesPlazasRelationManager extends RelationManager
                     ->badge()
                     ->formatStateUsing(fn (string $state) => match ($state) {
                         'pernocta' => 'Pernocta',
-                        'dia'      => 'Día',
-                        default    => ucfirst($state),
+                        'dia' => 'Día',
+                        default => ucfirst($state),
                     }),
 
                 Tables\Columns\TextColumn::make('modo_acceso')
                     ->label('Acceso')
                     ->formatStateUsing(fn (string $state) => match ($state) {
-                        'libre'                     => 'Libre',
-                        'prescripcion_directa'      => 'Prescripción directa',
+                        'libre' => 'Libre',
+                        'prescripcion_directa' => 'Prescripción directa',
                         'prescripcion_lista_espera' => 'Con lista de espera',
-                        default                     => ucfirst($state),
+                        default => ucfirst($state),
                     }),
 
                 Tables\Columns\TextColumn::make('capacidad')

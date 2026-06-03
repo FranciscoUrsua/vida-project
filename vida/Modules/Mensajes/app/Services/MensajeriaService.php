@@ -23,7 +23,7 @@ class MensajeriaService
     /**
      * Crea un hilo nuevo y envía el primer mensaje.
      *
-     * @param int[] $ciudadanoIds   IDs de ciudadanos referenciados en el mensaje
+     * @param int[] $ciudadanoIds IDs de ciudadanos referenciados en el mensaje
      * @param UploadedFile[] $adjuntos
      */
     public function crearHilo(
@@ -35,21 +35,21 @@ class MensajeriaService
         array $adjuntos = []
     ): MensajeHilo {
         $hilo = MensajeHilo::create([
-            'asunto'        => $asunto,
+            'asunto' => $asunto,
             'creado_por_id' => $remitente->id,
         ]);
 
         // Crear los dos participantes del hilo
         MensajeParticipante::create([
-            'hilo_id'    => $hilo->id,
+            'hilo_id' => $hilo->id,
             'usuario_id' => $remitente->id,
-            'rol'        => RolParticipante::RemitenteInicial,
+            'rol' => RolParticipante::RemitenteInicial,
         ]);
 
         MensajeParticipante::create([
-            'hilo_id'    => $hilo->id,
+            'hilo_id' => $hilo->id,
             'usuario_id' => $destinatario->id,
-            'rol'        => RolParticipante::Participante,
+            'rol' => RolParticipante::Participante,
         ]);
 
         $this->crearMensaje($hilo, $remitente, $cuerpo, $ciudadanoIds, $adjuntos);
@@ -98,12 +98,12 @@ class MensajeriaService
         }
 
         return MensajeRegistroHistoria::create([
-            'mensaje_id'        => $mensaje->id,
-            'ciudadano_id'      => $ciudadano->id,
+            'mensaje_id' => $mensaje->id,
+            'ciudadano_id' => $ciudadano->id,
             'registrado_por_id' => $tsr->id,
             'cuerpo_registrado' => $cuerpoEditado,
-            'visibilidad'       => VisibilidadMensaje::from($visibilidad),
-            'registrado_en'     => now(),
+            'visibilidad' => VisibilidadMensaje::from($visibilidad),
+            'registrado_en' => now(),
         ]);
     }
 
@@ -133,14 +133,14 @@ class MensajeriaService
         array $adjuntos
     ): Mensaje {
         $mensaje = Mensaje::create([
-            'hilo_id'      => $hilo->id,
+            'hilo_id' => $hilo->id,
             'remitente_id' => $remitente->id,
-            'cuerpo'       => $cuerpo,
+            'cuerpo' => $cuerpo,
         ]);
 
         foreach ($ciudadanoIds as $ciudadanoId) {
             MensajeReferenciaCiudadano::create([
-                'mensaje_id'   => $mensaje->id,
+                'mensaje_id' => $mensaje->id,
                 'ciudadano_id' => $ciudadanoId,
             ]);
         }

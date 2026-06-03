@@ -2,12 +2,13 @@
 
 namespace Modules\Mensajes\Livewire;
 
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
-use Illuminate\Auth\Access\AuthorizationException;
 use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\EstadoAlerta;
-use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Models\Alerta;
 use Modules\Mensajes\Services\AlertaService;
 
@@ -28,7 +29,7 @@ class BandejaAlertas extends Component
     }
 
     #[Computed]
-    public function alertas(): \Illuminate\Database\Eloquent\Collection
+    public function alertas(): Collection
     {
         $usuario = auth()->user();
 
@@ -40,15 +41,15 @@ class BandejaAlertas extends Component
                         ->where('destinatario_usuario_id', $usuario->id);
                 })
                 // Alertas por rol+UO del usuario
-                ->orWhere(function ($q) use ($usuario) {
-                    $q->where('destinatario_type', DestinatarioType::RolUo)
-                        ->whereIn('destinatario_rol', $usuario->getRoleNames()->all())
-                        ->whereHas('destinatarioUo', function ($uoQuery) use ($usuario) {
-                            $uoQuery->whereHas('usuarios', function ($uq) use ($usuario) {
-                                $uq->where('usuario_id', $usuario->id);
+                    ->orWhere(function ($q) use ($usuario) {
+                        $q->where('destinatario_type', DestinatarioType::RolUo)
+                            ->whereIn('destinatario_rol', $usuario->getRoleNames()->all())
+                            ->whereHas('destinatarioUo', function ($uoQuery) use ($usuario) {
+                                $uoQuery->whereHas('usuarios', function ($uq) use ($usuario) {
+                                    $uq->where('usuario_id', $usuario->id);
+                                });
                             });
-                        });
-                });
+                    });
             })
             ->orderByRaw("CASE WHEN tipo = 'alerta' THEN 0 ELSE 1 END")
             ->orderBy('expira_en')
@@ -103,7 +104,7 @@ class BandejaAlertas extends Component
         $this->alertaConfirmandoId = null;
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('mensajes::livewire.bandeja-alertas');
     }

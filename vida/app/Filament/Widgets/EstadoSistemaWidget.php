@@ -17,7 +17,8 @@ use Modules\Usuarios\Models\UsuarioRol;
 class EstadoSistemaWidget extends BaseWidget
 {
     protected static ?int $sort = 1;
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
 
     public static function canView(): bool
     {
@@ -28,11 +29,11 @@ class EstadoSistemaWidget extends BaseWidget
     {
         return [
             Stat::make('Prestaciones activas', Prestacion::activas()->count())
-                ->description('de ' . Prestacion::count() . ' en catálogo')
+                ->description('de '.Prestacion::count().' en catálogo')
                 ->icon('heroicon-o-list-bullet'),
 
             Stat::make('Centros', Centro::count())
-                ->description('en ' . Red::count() . ' redes')
+                ->description('en '.Red::count().' redes')
                 ->icon('heroicon-o-building-library'),
 
             Stat::make('Profesionales activos', Profesional::activos()->count())

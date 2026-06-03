@@ -46,7 +46,7 @@ class EscalarAlertasVencidasJob implements ShouldQueue
             } catch (\Throwable $e) {
                 Log::error('Error al escalar alerta', [
                     'alerta_id' => $alerta->id,
-                    'error'     => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
         }

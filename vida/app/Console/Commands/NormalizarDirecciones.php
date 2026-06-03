@@ -2,8 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Ciudadano;
 use App\Services\Geocodificacion\GeocodificadorInterface;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
+use Modules\Centro\Models\Centro;
 
 /**
  * Comando artisan para normalización masiva de direcciones pendientes.
@@ -34,15 +37,12 @@ class NormalizarDirecciones extends Command
      * @var array<string, class-string>
      */
     private const ENTIDADES = [
-        'ciudadano' => \App\Models\Ciudadano::class,
-        'centro'    => \Modules\Centro\Models\Centro::class,
+        'ciudadano' => Ciudadano::class,
+        'centro' => Centro::class,
     ];
 
     /**
      * Ejecuta el comando.
-     *
-     * @param  GeocodificadorInterface $geocodificador
-     * @return int
      */
     public function handle(GeocodificadorInterface $geocodificador): int
     {
@@ -52,7 +52,8 @@ class NormalizarDirecciones extends Command
         $entidades = $this->resolverEntidades($entidadClave);
 
         if (empty($entidades)) {
-            $this->error('Entidad no reconocida. Valores válidos: ' . implode(', ', array_keys(self::ENTIDADES)));
+            $this->error('Entidad no reconocida. Valores válidos: '.implode(', ', array_keys(self::ENTIDADES)));
+
             return self::FAILURE;
         }
 
@@ -66,11 +67,7 @@ class NormalizarDirecciones extends Command
     /**
      * Procesa todos los registros de una entidad.
      *
-     * @param  string                   $clave
-     * @param  class-string             $claseModelo
-     * @param  GeocodificadorInterface  $geocodificador
-     * @param  bool                     $soloPendientes
-     * @return void
+     * @param class-string $claseModelo
      */
     private function procesarEntidad(
         string $clave,
@@ -86,13 +83,14 @@ class NormalizarDirecciones extends Command
             $consulta->sinNormalizar();
         }
 
-        $total    = $consulta->count();
+        $total = $consulta->count();
         $procesados = 0;
-        $exitosos   = 0;
-        $fallidos   = 0;
+        $exitosos = 0;
+        $fallidos = 0;
 
         if ($total === 0) {
-            $this->line("  Sin registros pendientes.");
+            $this->line('  Sin registros pendientes.');
+
             return;
         }
 
@@ -107,6 +105,7 @@ class NormalizarDirecciones extends Command
                 if (empty($registro->direccion_texto)) {
                     $procesados++;
                     $barra->advance();
+
                     continue;
                 }
 
@@ -117,19 +116,19 @@ class NormalizarDirecciones extends Command
                         $registro->withoutEvents(function () use ($registro, $resultado) {
                             $registro->update([
                                 'direccion_normalizada' => true,
-                                'tipo_via'             => $resultado->tipoVia,
-                                'nombre_via'           => $resultado->nombreVia,
-                                'tipo_numeracion'      => $resultado->tipoNumeracion,
-                                'numero'               => $resultado->numero,
-                                'portal'               => $resultado->portal,
-                                'escalera'             => $resultado->escalera,
-                                'piso'                 => $resultado->piso,
-                                'puerta'               => $resultado->puerta,
-                                'codigo_postal'        => $resultado->codigoPostal ?? $registro->codigo_postal,
-                                'municipio'            => $resultado->municipio,
-                                'coordenadas_lat'      => $resultado->latitud,
-                                'coordenadas_lng'      => $resultado->longitud,
-                                'geocoder_proveedor'   => $resultado->proveedor,
+                                'tipo_via' => $resultado->tipoVia,
+                                'nombre_via' => $resultado->nombreVia,
+                                'tipo_numeracion' => $resultado->tipoNumeracion,
+                                'numero' => $resultado->numero,
+                                'portal' => $resultado->portal,
+                                'escalera' => $resultado->escalera,
+                                'piso' => $resultado->piso,
+                                'puerta' => $resultado->puerta,
+                                'codigo_postal' => $resultado->codigoPostal ?? $registro->codigo_postal,
+                                'municipio' => $resultado->municipio,
+                                'coordenadas_lat' => $resultado->latitud,
+                                'coordenadas_lng' => $resultado->longitud,
+                                'geocoder_proveedor' => $resultado->proveedor,
                             ]);
                         });
                         $exitosos++;
@@ -160,7 +159,6 @@ class NormalizarDirecciones extends Command
      *
      * Si no se especifica entidad, procesa todas.
      *
-     * @param  string|null $clave
      * @return array<string, class-string>
      */
     private function resolverEntidades(?string $clave): array
@@ -171,7 +169,7 @@ class NormalizarDirecciones extends Command
 
         $claveLower = strtolower($clave);
 
-        if (!isset(self::ENTIDADES[$claveLower])) {
+        if (! isset(self::ENTIDADES[$claveLower])) {
             return [];
         }
 
@@ -181,8 +179,7 @@ class NormalizarDirecciones extends Command
     /**
      * Devuelve el total de registros en la colección para el throttle condicional.
      *
-     * @param  \Illuminate\Database\Eloquent\Collection $registros
-     * @return int
+     * @param Collection $registros
      */
     private function getTotalRegistros($registros): int
     {

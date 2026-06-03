@@ -2,20 +2,20 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\DocumentoResource\Pages;
+use Filament\Actions\Action;
+use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Modules\Documentos\Enums\OrigenDocumento;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Services\ServicioAlmacenamiento;
-use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Visor de documentos custodiados en el sistema.
@@ -29,17 +29,22 @@ use App\Filament\Concerns\AutorizaGestion;
 class DocumentoResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = Documento::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-paper-clip';
+
     protected static ?string $navigationLabel = 'Documentos';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Informes y Plantillas';
+
     protected static ?string $modelLabel = 'Documento';
+
     protected static ?string $pluralModelLabel = 'Documentos';
+
     protected static ?int $navigationSort = 4;
 
     /** Los documentos se suben desde el flujo operativo, no desde el backoffice. */
-
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
@@ -58,7 +63,7 @@ class DocumentoResource extends Resource
                         ->formatStateUsing(fn (OrigenDocumento $state) => $state->label())
                         ->badge()
                         ->color(fn (OrigenDocumento $state) => match ($state) {
-                            OrigenDocumento::Externo  => 'info',
+                            OrigenDocumento::Externo => 'info',
                             OrigenDocumento::Generado => 'success',
                         }),
 
@@ -122,6 +127,7 @@ class DocumentoResource extends Resource
                 $uoIds = $user->uoSubtreeIds();
                 if (empty($uoIds)) {
                     $query->whereRaw('1 = 0');
+
                     return;
                 }
                 $query->whereHas('subidoPor', function (Builder $q) use ($uoIds) {
@@ -145,7 +151,7 @@ class DocumentoResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn (OrigenDocumento $state) => $state->label())
                     ->color(fn (OrigenDocumento $state) => match ($state) {
-                        OrigenDocumento::Externo  => 'info',
+                        OrigenDocumento::Externo => 'info',
                         OrigenDocumento::Generado => 'success',
                     }),
 
@@ -187,8 +193,7 @@ class DocumentoResource extends Resource
                     ->label('Ver PDF')
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('gray')
-                    ->url(fn (Documento $record): string =>
-                        app(ServicioAlmacenamiento::class)->urlTemporal($record, 60)
+                    ->url(fn (Documento $record): string => app(ServicioAlmacenamiento::class)->urlTemporal($record, 60)
                     )
                     ->openUrlInNewTab(),
             ])
@@ -199,7 +204,7 @@ class DocumentoResource extends Resource
     {
         return [
             'index' => Pages\ListDocumentos::route('/'),
-            'view'  => Pages\ViewDocumento::route('/{record}'),
+            'view' => Pages\ViewDocumento::route('/{record}'),
         ];
     }
 
@@ -209,18 +214,19 @@ class DocumentoResource extends Resource
             return "{$bytes} B";
         }
         if ($bytes < 1048576) {
-            return round($bytes / 1024, 1) . ' KB';
+            return round($bytes / 1024, 1).' KB';
         }
-        return round($bytes / 1048576, 2) . ' MB';
+
+        return round($bytes / 1048576, 2).' MB';
     }
 
     private static function etiquetaTipo(string $fqcn): string
     {
         return match (true) {
             str_contains($fqcn, 'Ciudadano') => 'Ciudadano',
-            str_contains($fqcn, 'Informe')   => 'Informe',
-            str_contains($fqcn, 'Historia')  => 'Historia social',
-            default                           => class_basename($fqcn),
+            str_contains($fqcn, 'Informe') => 'Informe',
+            str_contains($fqcn, 'Historia') => 'Historia social',
+            default => class_basename($fqcn),
         };
     }
 }

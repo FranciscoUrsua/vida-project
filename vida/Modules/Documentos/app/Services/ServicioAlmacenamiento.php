@@ -2,7 +2,6 @@
 
 namespace Modules\Documentos\Services;
 
-use App\Models\CatalogoSistema;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
@@ -24,12 +23,11 @@ class ServicioAlmacenamiento
     /**
      * Guarda un fichero PDF y retorna el Documento persistido.
      *
-     * @param  UploadedFile           $fichero      Fichero recibido del formulario
-     * @param  string                 $contexto     Nombre del tipo de documento (clave en catalogos_sistema)
-     * @param  int                    $subidoPor    ID del usuario que realiza la subida
-     * @param  int                    $tipoDocId    ID del registro en catalogos_sistema
-     * @param  object                 $documentable Entidad a la que se asocia el documento
-     * @return Documento
+     * @param UploadedFile $fichero Fichero recibido del formulario
+     * @param string $contexto Nombre del tipo de documento (clave en catalogos_sistema)
+     * @param int $subidoPor ID del usuario que realiza la subida
+     * @param int $tipoDocId ID del registro en catalogos_sistema
+     * @param object $documentable Entidad a la que se asocia el documento
      *
      * @throws \InvalidArgumentException si el fichero no es un PDF
      */
@@ -42,17 +40,17 @@ class ServicioAlmacenamiento
     ): Documento {
         if ($fichero->getMimeType() !== 'application/pdf') {
             throw new \InvalidArgumentException(
-                "Solo se admiten ficheros PDF. El fichero '{$fichero->getClientOriginalName()}' " .
+                "Solo se admiten ficheros PDF. El fichero '{$fichero->getClientOriginalName()}' ".
                 "es de tipo '{$fichero->getMimeType()}'."
             );
         }
 
-        $disco   = config('documentos.disco', 'local');
-        $anyo    = now()->format('Y');
-        $mes     = now()->format('m');
-        $uuid    = Str::uuid()->toString();
-        $ruta    = "documentos/{$anyo}/{$mes}/{$uuid}.pdf";
-        $hash    = hash('sha256', file_get_contents($fichero->getRealPath()));
+        $disco = config('documentos.disco', 'local');
+        $anyo = now()->format('Y');
+        $mes = now()->format('m');
+        $uuid = Str::uuid()->toString();
+        $ruta = "documentos/{$anyo}/{$mes}/{$uuid}.pdf";
+        $hash = hash('sha256', file_get_contents($fichero->getRealPath()));
 
         Storage::disk($disco)->putFileAs(
             "documentos/{$anyo}/{$mes}",
@@ -61,29 +59,28 @@ class ServicioAlmacenamiento
         );
 
         return Documento::create([
-            'documentable_type'   => get_class($documentable),
-            'documentable_id'     => $documentable->getKey(),
-            'tipo_documento_id'   => $tipoDocId,
-            'origen'              => OrigenDocumento::Externo->value,
-            'nombre_original'     => $fichero->getClientOriginalName(),
+            'documentable_type' => get_class($documentable),
+            'documentable_id' => $documentable->getKey(),
+            'tipo_documento_id' => $tipoDocId,
+            'origen' => OrigenDocumento::Externo->value,
+            'nombre_original' => $fichero->getClientOriginalName(),
             'ruta_almacenamiento' => $ruta,
-            'disco'               => $disco,
-            'mime_type'           => $fichero->getMimeType(),
-            'tamano_bytes'        => $fichero->getSize(),
-            'hash_sha256'         => $hash,
-            'subido_por'          => $subidoPor,
+            'disco' => $disco,
+            'mime_type' => $fichero->getMimeType(),
+            'tamano_bytes' => $fichero->getSize(),
+            'hash_sha256' => $hash,
+            'subido_por' => $subidoPor,
         ]);
     }
 
     /**
      * Guarda un PDF ya generado internamente (informes firmados).
      *
-     * @param  string $contenidoPdf  Contenido binario del PDF
-     * @param  int    $subidoPor     ID del usuario
-     * @param  int    $tipoDocId     ID del tipo en catalogos_sistema
-     * @param  object $documentable  Entidad asociada
-     * @param  string $nombreOriginal Nombre de fichero
-     * @return Documento
+     * @param string $contenidoPdf Contenido binario del PDF
+     * @param int $subidoPor ID del usuario
+     * @param int $tipoDocId ID del tipo en catalogos_sistema
+     * @param object $documentable Entidad asociada
+     * @param string $nombreOriginal Nombre de fichero
      */
     public function guardarGenerado(
         string $contenidoPdf,
@@ -92,27 +89,27 @@ class ServicioAlmacenamiento
         object $documentable,
         string $nombreOriginal
     ): Documento {
-        $disco   = config('documentos.disco', 'local');
-        $anyo    = now()->format('Y');
-        $mes     = now()->format('m');
-        $uuid    = Str::uuid()->toString();
-        $ruta    = "documentos/{$anyo}/{$mes}/{$uuid}.pdf";
-        $hash    = hash('sha256', $contenidoPdf);
+        $disco = config('documentos.disco', 'local');
+        $anyo = now()->format('Y');
+        $mes = now()->format('m');
+        $uuid = Str::uuid()->toString();
+        $ruta = "documentos/{$anyo}/{$mes}/{$uuid}.pdf";
+        $hash = hash('sha256', $contenidoPdf);
 
         Storage::disk($disco)->put($ruta, $contenidoPdf);
 
         return Documento::create([
-            'documentable_type'   => get_class($documentable),
-            'documentable_id'     => $documentable->getKey(),
-            'tipo_documento_id'   => $tipoDocId,
-            'origen'              => OrigenDocumento::Generado->value,
-            'nombre_original'     => $nombreOriginal,
+            'documentable_type' => get_class($documentable),
+            'documentable_id' => $documentable->getKey(),
+            'tipo_documento_id' => $tipoDocId,
+            'origen' => OrigenDocumento::Generado->value,
+            'nombre_original' => $nombreOriginal,
             'ruta_almacenamiento' => $ruta,
-            'disco'               => $disco,
-            'mime_type'           => 'application/pdf',
-            'tamano_bytes'        => strlen($contenidoPdf),
-            'hash_sha256'         => $hash,
-            'subido_por'          => $subidoPor,
+            'disco' => $disco,
+            'mime_type' => 'application/pdf',
+            'tamano_bytes' => strlen($contenidoPdf),
+            'hash_sha256' => $hash,
+            'subido_por' => $subidoPor,
         ]);
     }
 
@@ -121,15 +118,11 @@ class ServicioAlmacenamiento
      *
      * En discos que soportan URLs temporales (S3, etc.) usa temporaryUrl().
      * En disco local (desarrollo) genera una URL firmada de Laravel.
-     *
-     * @param  Documento $documento
-     * @param  int       $minutosExpiracion
-     * @return string
      */
     public function urlTemporal(Documento $documento, int $minutosExpiracion = 30): string
     {
         $expiracion = now()->addMinutes($minutosExpiracion);
-        $disco      = Storage::disk($documento->disco);
+        $disco = Storage::disk($documento->disco);
 
         try {
             return $disco->temporaryUrl($documento->ruta_almacenamiento, $expiracion);

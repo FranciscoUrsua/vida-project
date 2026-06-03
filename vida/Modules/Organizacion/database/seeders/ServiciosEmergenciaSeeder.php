@@ -21,8 +21,6 @@ class ServiciosEmergenciaSeeder extends Seeder
 {
     /**
      * Crea el servicio SAMUR Social si no existe.
-     *
-     * @return void
      */
     public function run(): void
     {
@@ -30,7 +28,7 @@ class ServiciosEmergenciaSeeder extends Seeder
             ['nombre' => 'SAMUR Social'],
             [
                 'descripcion' => 'Servicio de Atención Municipal de Urgencias y Rescate Social del Ayuntamiento de Madrid. Atiende situaciones de emergencia social en la vía pública las 24 horas del día.',
-                'activo'      => true,
+                'activo' => true,
             ]
         );
 

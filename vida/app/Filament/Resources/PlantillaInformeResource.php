@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\PlantillaInformeResource\Pages;
 use App\Models\UnidadOrganizativa;
 use Filament\Actions\DeleteAction;
@@ -23,7 +24,6 @@ use Illuminate\Database\Eloquent\Model;
 use Modules\Documentos\Enums\TipoInforme;
 use Modules\Documentos\Models\PlantillaInforme;
 use Modules\Documentos\Support\MergeTagsCatalogo;
-use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Gestión de plantillas de informe profesional.
@@ -35,13 +35,19 @@ use App\Filament\Concerns\AutorizaGestion;
 class PlantillaInformeResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = PlantillaInforme::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
+
     protected static ?string $navigationLabel = 'Plantillas de informe';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Informes y Plantillas';
+
     protected static ?string $modelLabel = 'Plantilla de informe';
+
     protected static ?string $pluralModelLabel = 'Plantillas de informe';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
@@ -74,6 +80,7 @@ class PlantillaInformeResource extends Resource
                                 return $base->pluck('nombre', 'id');
                             }
                             $uoIds = $user?->uoSubtreeIds() ?? [];
+
                             return $base->whereIn('id', $uoIds)->pluck('nombre', 'id');
                         })
                         ->searchable()
@@ -93,8 +100,7 @@ class PlantillaInformeResource extends Resource
                 ->schema([
                     Repeater::make('secciones')
                         ->label('Secciones')
-                        ->itemLabel(fn (array $state): ?string =>
-                            filled($state['titulo'] ?? null)
+                        ->itemLabel(fn (array $state): ?string => filled($state['titulo'] ?? null)
                                 ? $state['titulo']
                                 : 'Nueva sección'
                         )
@@ -114,7 +120,7 @@ class PlantillaInformeResource extends Resource
                             Select::make('tipo')
                                 ->label('Tipo de sección')
                                 ->options([
-                                    'automatico'  => 'Automática (datos de Historia Social)',
+                                    'automatico' => 'Automática (datos de Historia Social)',
                                     'texto_libre' => 'Texto libre (redacción del profesional)',
                                 ])
                                 ->required()
@@ -124,18 +130,18 @@ class PlantillaInformeResource extends Resource
                                 ->label('Fuente de datos')
                                 ->required()
                                 ->options([
-                                    'ciudadano.datos_basicos'                => 'Ciudadano — Datos básicos (nombre, NIF, fecha nacimiento, dirección)',
-                                    'ciudadano.datos_contacto'               => 'Ciudadano — Datos de contacto (teléfono, email)',
-                                    'ciudadano.unidad_convivencia'           => 'Ciudadano — Unidad de convivencia',
-                                    'historia_social.resumen'                => 'Historia Social — Resumen y motivo de apertura',
-                                    'historia_social.prestaciones_activas'   => 'Historia Social — Prestaciones activas del plan vigente',
+                                    'ciudadano.datos_basicos' => 'Ciudadano — Datos básicos (nombre, NIF, fecha nacimiento, dirección)',
+                                    'ciudadano.datos_contacto' => 'Ciudadano — Datos de contacto (teléfono, email)',
+                                    'ciudadano.unidad_convivencia' => 'Ciudadano — Unidad de convivencia',
+                                    'historia_social.resumen' => 'Historia Social — Resumen y motivo de apertura',
+                                    'historia_social.prestaciones_activas' => 'Historia Social — Prestaciones activas del plan vigente',
                                     'historia_social.prestaciones_historico' => 'Historia Social — Historial completo de prestaciones',
-                                    'historia_social.plan_activo'            => 'Historia Social — Plan de intervención activo (objetivos)',
-                                    'escalas.barthel_ultimo'                 => 'Escalas — Último pase Barthel (score e interpretación)',
-                                    'escalas.pfeiffer_ultimo'                => 'Escalas — Último pase Pfeiffer SPMSQ (score e interpretación)',
-                                    'escalas.lawton_ultimo'                  => 'Escalas — Último pase Lawton-Brody (score e interpretación)',
-                                    'escalas.historico_barthel'              => 'Escalas — Histórico de pases Barthel',
-                                    'profesional.datos'                      => 'Profesional — Datos del autor (nombre, cargo, colegiado, centro)',
+                                    'historia_social.plan_activo' => 'Historia Social — Plan de intervención activo (objetivos)',
+                                    'escalas.barthel_ultimo' => 'Escalas — Último pase Barthel (score e interpretación)',
+                                    'escalas.pfeiffer_ultimo' => 'Escalas — Último pase Pfeiffer SPMSQ (score e interpretación)',
+                                    'escalas.lawton_ultimo' => 'Escalas — Último pase Lawton-Brody (score e interpretación)',
+                                    'escalas.historico_barthel' => 'Escalas — Histórico de pases Barthel',
+                                    'profesional.datos' => 'Profesional — Datos del autor (nombre, cargo, colegiado, centro)',
                                 ])
                                 ->searchable()
                                 ->native(false)
@@ -203,6 +209,7 @@ class PlantillaInformeResource extends Resource
                 $uoIds = $user->uoSubtreeIds();
                 if (empty($uoIds)) {
                     $query->whereRaw('1 = 0');
+
                     return;
                 }
                 $query->whereIn('unidad_organizativa_id', $uoIds);
@@ -218,10 +225,10 @@ class PlantillaInformeResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn (TipoInforme $state) => $state->label())
                     ->color(fn (TipoInforme $state) => match ($state) {
-                        TipoInforme::InformeSocial      => 'info',
+                        TipoInforme::InformeSocial => 'info',
                         TipoInforme::InformePsicologico => 'warning',
-                        TipoInforme::InformeJuridico    => 'primary',
-                        TipoInforme::Otro               => 'gray',
+                        TipoInforme::InformeJuridico => 'primary',
+                        TipoInforme::Otro => 'gray',
                     }),
 
                 Tables\Columns\TextColumn::make('unidadOrganizativa.nombre')
@@ -262,6 +269,7 @@ class PlantillaInformeResource extends Resource
                         if ($user->hasRole('adm_sistema')) {
                             return true;
                         }
+
                         return in_array($record->unidad_organizativa_id, $user->uoSubtreeIds());
                     }),
             ])
@@ -271,9 +279,9 @@ class PlantillaInformeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListPlantillasInforme::route('/'),
+            'index' => Pages\ListPlantillasInforme::route('/'),
             'create' => Pages\CreatePlantillaInforme::route('/create'),
-            'edit'   => Pages\EditPlantillaInforme::route('/{record}/edit'),
+            'edit' => Pages\EditPlantillaInforme::route('/{record}/edit'),
         ];
     }
 
@@ -293,6 +301,7 @@ class PlantillaInformeResource extends Resource
         if ($user->hasRole('adm_sistema')) {
             return true;
         }
+
         return in_array($record->unidad_organizativa_id, $user->uoSubtreeIds());
     }
 
@@ -306,6 +315,7 @@ class PlantillaInformeResource extends Resource
         if ($user->hasRole('adm_sistema')) {
             return true;
         }
+
         return in_array($record->unidad_organizativa_id, $user->uoSubtreeIds());
     }
 }

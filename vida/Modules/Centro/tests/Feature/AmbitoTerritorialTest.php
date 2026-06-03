@@ -20,9 +20,9 @@ class AmbitoTerritorialTest extends TestCase
     private function crearCentro(): Centro
     {
         return Centro::create([
-            'nombre'       => 'Centro de prueba',
+            'nombre' => 'Centro de prueba',
             'tipo_gestion' => 'municipal_directo',
-            'fecha_alta'   => today()->toDateString(),
+            'fecha_alta' => today()->toDateString(),
         ]);
     }
 
@@ -36,8 +36,8 @@ class AmbitoTerritorialTest extends TestCase
         $centro = $this->crearCentro();
 
         AmbitoTerritorial::create([
-            'centro_id'   => $centro->id,
-            'tipo'        => 'ciudad_completa',
+            'centro_id' => $centro->id,
+            'tipo' => 'ciudad_completa',
             'descripcion' => 'Todo el municipio',
         ]);
 
@@ -56,15 +56,15 @@ class AmbitoTerritorialTest extends TestCase
         $centro = $this->crearCentro();
 
         AmbitoTerritorial::create([
-            'centro_id'   => $centro->id,
-            'tipo'        => 'ciudad_completa',
+            'centro_id' => $centro->id,
+            'tipo' => 'ciudad_completa',
             'descripcion' => 'Todo el municipio',
         ]);
 
         // Intentar añadir un segundo ámbito de cualquier tipo debe lanzar excepción.
         AmbitoTerritorial::create([
-            'centro_id'   => $centro->id,
-            'tipo'        => 'demarcacion_oficial',
+            'centro_id' => $centro->id,
+            'tipo' => 'demarcacion_oficial',
             'descripcion' => 'Distrito de Arganzuela',
         ]);
     }
@@ -79,16 +79,16 @@ class AmbitoTerritorialTest extends TestCase
         $centro = $this->crearCentro();
 
         AmbitoTerritorial::create([
-            'centro_id'    => $centro->id,
-            'tipo'         => 'demarcacion_oficial',
-            'descripcion'  => 'Distrito de Arganzuela',
+            'centro_id' => $centro->id,
+            'tipo' => 'demarcacion_oficial',
+            'descripcion' => 'Distrito de Arganzuela',
             'referencia_id' => 1,
         ]);
 
         AmbitoTerritorial::create([
-            'centro_id'    => $centro->id,
-            'tipo'         => 'demarcacion_oficial',
-            'descripcion'  => 'Distrito de Retiro',
+            'centro_id' => $centro->id,
+            'tipo' => 'demarcacion_oficial',
+            'descripcion' => 'Distrito de Retiro',
             'referencia_id' => 2,
         ]);
 
@@ -105,14 +105,14 @@ class AmbitoTerritorialTest extends TestCase
         $centro = $this->crearCentro();
 
         AmbitoTerritorial::create([
-            'centro_id'   => $centro->id,
-            'tipo'        => 'demarcacion_oficial',
+            'centro_id' => $centro->id,
+            'tipo' => 'demarcacion_oficial',
             'descripcion' => 'Distrito de Arganzuela',
         ]);
 
         AmbitoTerritorial::create([
-            'centro_id'   => $centro->id,
-            'tipo'        => 'barrios',
+            'centro_id' => $centro->id,
+            'tipo' => 'barrios',
             'descripcion' => 'Barrio de Lavapiés',
         ]);
 
@@ -131,10 +131,10 @@ class AmbitoTerritorialTest extends TestCase
         $centro = $this->crearCentro();
 
         AmbitoTerritorial::create([
-            'centro_id'   => $centro->id,
-            'tipo'        => 'poligono_gis',
+            'centro_id' => $centro->id,
+            'tipo' => 'poligono_gis',
             'descripcion' => 'Polígono sur',
-            'geojson'     => null,
+            'geojson' => null,
         ]);
     }
 
@@ -148,14 +148,14 @@ class AmbitoTerritorialTest extends TestCase
         $centro = $this->crearCentro();
 
         $a1 = AmbitoTerritorial::create([
-            'centro_id'   => $centro->id,
-            'tipo'        => 'demarcacion_oficial',
+            'centro_id' => $centro->id,
+            'tipo' => 'demarcacion_oficial',
             'descripcion' => 'Distrito A',
         ]);
 
         AmbitoTerritorial::create([
-            'centro_id'   => $centro->id,
-            'tipo'        => 'demarcacion_oficial',
+            'centro_id' => $centro->id,
+            'tipo' => 'demarcacion_oficial',
             'descripcion' => 'Distrito B',
         ]);
 

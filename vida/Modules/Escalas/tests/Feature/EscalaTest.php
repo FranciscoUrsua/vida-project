@@ -10,7 +10,6 @@ use Modules\Escalas\Database\Seeders\EscalaSeeder;
 use Modules\Escalas\Enums\EstadoPase;
 use Modules\Escalas\Models\PaseEscala;
 use Modules\Escalas\Models\TipoEscala;
-use Modules\Intervencion\Database\Factories\FichaFactory;
 use Modules\Intervencion\Models\Ficha;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -25,7 +24,9 @@ class EscalaTest extends TestCase
     use RefreshDatabase;
 
     private UnidadOrganizativa $uo;
+
     private User $profesional;
+
     private HistoriaSocial $historia;
 
     protected function setUp(): void
@@ -33,19 +34,19 @@ class EscalaTest extends TestCase
         parent::setUp();
 
         $this->uo = UnidadOrganizativa::create([
-            'nombre'    => 'UO Test Escalas',
-            'tipo'      => 'centro',
+            'nombre' => 'UO Test Escalas',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $this->profesional = User::factory()->create();
 
         $this->historia = HistoriaSocial::create([
-            'ciudadano_id'           => 1001,
+            'ciudadano_id' => 1001,
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
     }
 
@@ -62,9 +63,9 @@ class EscalaTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         TipoEscala::create([
-            'nombre'                => 'Escala Prueba',
-            'codigo'                => 'prueba_invalida',
-            'schema'                => ['sin_secciones' => []],
+            'nombre' => 'Escala Prueba',
+            'codigo' => 'prueba_invalida',
+            'schema' => ['sin_secciones' => []],
             'rangos_interpretacion' => [
                 'rangos' => [['desde' => 0, 'hasta' => 100, 'etiqueta' => 'Total', 'codigo' => 'total']],
             ],
@@ -144,7 +145,7 @@ class EscalaTest extends TestCase
 
         PaseEscala::factory()->create([
             'tipo_escala_id' => $escala->id,
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
         ]);
 
@@ -165,9 +166,9 @@ class EscalaTest extends TestCase
 
         PaseEscala::factory()->create([
             'tipo_escala_id' => $escala->id,
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
-            'respuestas'     => ['sec_1' => ['item_1_1' => 5, 'item_1_2' => 10]],
+            'respuestas' => ['sec_1' => ['item_1_1' => 5, 'item_1_2' => 10]],
         ]);
 
         $schemaModificado = $escala->schema;
@@ -195,11 +196,11 @@ class EscalaTest extends TestCase
 
         $pase = PaseEscala::create([
             'tipo_escala_id' => $escala->id,
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
-            'fecha'          => today(),
-            'respuestas'     => ['sec_1' => ['item_1_1' => 5]],
-            'estado'         => EstadoPase::Borrador,
+            'fecha' => today(),
+            'respuestas' => ['sec_1' => ['item_1_1' => 5]],
+            'estado' => EstadoPase::Borrador,
         ]);
 
         $this->assertDatabaseHas('pases_escala', ['id' => $pase->id]);
@@ -216,11 +217,11 @@ class EscalaTest extends TestCase
 
         $pase = PaseEscala::create([
             'tipo_escala_id' => $escala->id,
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
-            'fecha'          => today(),
-            'respuestas'     => ['sec_1' => ['item_1_1' => 5]],
-            'estado'         => EstadoPase::Borrador,
+            'fecha' => today(),
+            'respuestas' => ['sec_1' => ['item_1_1' => 5]],
+            'estado' => EstadoPase::Borrador,
         ]);
 
         $this->expectException(\LogicException::class);
@@ -240,11 +241,11 @@ class EscalaTest extends TestCase
 
         $pase = new PaseEscala([
             'tipo_escala_id' => $escala->id,
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
-            'fecha'          => today(),
-            'respuestas'     => ['sec_1' => ['item_1_1' => 10, 'item_1_2' => 5]],
-            'estado'         => EstadoPase::Borrador,
+            'fecha' => today(),
+            'respuestas' => ['sec_1' => ['item_1_1' => 10, 'item_1_2' => 5]],
+            'estado' => EstadoPase::Borrador,
         ]);
 
         $pase->calcularScores();
@@ -262,19 +263,19 @@ class EscalaTest extends TestCase
             'schema' => [
                 'secciones' => [
                     [
-                        'id'     => 'sec_1',
+                        'id' => 'sec_1',
                         'titulo' => 'Sección 1',
-                        'orden'  => 1,
-                        'items'  => [
+                        'orden' => 1,
+                        'items' => [
                             ['id' => 'item_1_1', 'texto' => 'Ítem 1', 'orden' => 1, 'opciones' => [['valor' => 0], ['valor' => 5], ['valor' => 10]]],
                             ['id' => 'item_1_2', 'texto' => 'Ítem 2', 'orden' => 2, 'opciones' => [['valor' => 0], ['valor' => 5], ['valor' => 10]]],
                         ],
                     ],
                     [
-                        'id'     => 'sec_2',
+                        'id' => 'sec_2',
                         'titulo' => 'Sección 2',
-                        'orden'  => 2,
-                        'items'  => [
+                        'orden' => 2,
+                        'items' => [
                             ['id' => 'item_2_1', 'texto' => 'Ítem 3', 'orden' => 1, 'opciones' => [['valor' => 0], ['valor' => 5], ['valor' => 10]]],
                         ],
                     ],
@@ -290,11 +291,11 @@ class EscalaTest extends TestCase
 
         $pase = new PaseEscala([
             'tipo_escala_id' => $escala->id,
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
-            'fecha'          => today(),
-            'respuestas'     => ['sec_1' => ['item_1_1' => 10, 'item_1_2' => 5], 'sec_2' => ['item_2_1' => 0]],
-            'estado'         => EstadoPase::Borrador,
+            'fecha' => today(),
+            'respuestas' => ['sec_1' => ['item_1_1' => 10, 'item_1_2' => 5], 'sec_2' => ['item_2_1' => 0]],
+            'estado' => EstadoPase::Borrador,
         ]);
 
         $pase->calcularScores();
@@ -319,12 +320,12 @@ class EscalaTest extends TestCase
 
         $pase = new PaseEscala([
             'tipo_escala_id' => $escala->id,
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
-            'fecha'          => today(),
-            'respuestas'     => [],
-            'estado'         => EstadoPase::Borrador,
-            'score_total'    => 15,
+            'fecha' => today(),
+            'respuestas' => [],
+            'estado' => EstadoPase::Borrador,
+            'score_total' => 15,
         ]);
         $pase->setRelation('tipoEscala', $escala);
 
@@ -340,9 +341,9 @@ class EscalaTest extends TestCase
     public function score_total_de_pase_completado_es_inmutable(): void
     {
         $pase = PaseEscala::factory()->completado()->create([
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
-            'score_total'    => 15,
+            'score_total' => 15,
         ]);
 
         $this->expectException(\LogicException::class);
@@ -362,18 +363,18 @@ class EscalaTest extends TestCase
 
         $pase = PaseEscala::create([
             'tipo_escala_id' => $escala->id,
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
-            'fecha'          => today(),
-            'respuestas'     => [],
-            'estado'         => EstadoPase::Borrador,
-            'ficha_id'       => null,
-            'entrevista_id'  => null,
+            'fecha' => today(),
+            'respuestas' => [],
+            'estado' => EstadoPase::Borrador,
+            'ficha_id' => null,
+            'entrevista_id' => null,
         ]);
 
         $this->assertDatabaseHas('pases_escala', [
-            'id'            => $pase->id,
-            'ficha_id'      => null,
+            'id' => $pase->id,
+            'ficha_id' => null,
             'entrevista_id' => null,
         ]);
     }
@@ -390,12 +391,12 @@ class EscalaTest extends TestCase
 
         $pase = PaseEscala::create([
             'tipo_escala_id' => $escala->id,
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
-            'fecha'          => today(),
-            'respuestas'     => [],
-            'estado'         => EstadoPase::Borrador,
-            'ficha_id'       => $ficha->id,
+            'fecha' => today(),
+            'respuestas' => [],
+            'estado' => EstadoPase::Borrador,
+            'ficha_id' => $ficha->id,
         ]);
 
         $ficha->update(['completada' => true]);
@@ -417,21 +418,21 @@ class EscalaTest extends TestCase
 
         PaseEscala::factory()->completado()->create([
             'tipo_escala_id' => $escala->id,
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
-            'fecha'          => '2025-06-15',
+            'fecha' => '2025-06-15',
         ]);
         PaseEscala::factory()->completado()->create([
             'tipo_escala_id' => $escala->id,
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
-            'fecha'          => '2026-01-20',
+            'fecha' => '2026-01-20',
         ]);
         PaseEscala::factory()->completado()->create([
             'tipo_escala_id' => $escala->id,
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
-            'fecha'          => '2025-01-10',
+            'fecha' => '2025-01-10',
         ]);
 
         $pases = $this->historia
@@ -452,22 +453,22 @@ class EscalaTest extends TestCase
     public function pases_de_distintos_ciudadanos_no_se_mezclan(): void
     {
         $historia2 = HistoriaSocial::create([
-            'ciudadano_id'           => 2002,
+            'ciudadano_id' => 2002,
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         $escala = TipoEscala::factory()->create();
 
         PaseEscala::factory()->completado()->count(2)->create([
             'tipo_escala_id' => $escala->id,
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
         ]);
         PaseEscala::factory()->completado()->count(2)->create([
             'tipo_escala_id' => $escala->id,
-            'historia_id'    => $historia2->id,
+            'historia_id' => $historia2->id,
             'profesional_id' => $this->profesional->id,
         ]);
 
@@ -521,23 +522,23 @@ class EscalaTest extends TestCase
         return [
             'secciones' => [
                 [
-                    'id'    => 'sec_1',
+                    'id' => 'sec_1',
                     'titulo' => 'Sección',
-                    'orden'  => 1,
+                    'orden' => 1,
                     'items' => [
                         [
-                            'id'       => 'item_1',
-                            'texto'    => 'Ítem 1',
-                            'orden'    => 1,
+                            'id' => 'item_1',
+                            'texto' => 'Ítem 1',
+                            'orden' => 1,
                             'opciones' => [
                                 ['valor' => 0, 'etiqueta' => 'No'],
                                 ['valor' => 1, 'etiqueta' => 'Sí'],
                             ],
                         ],
                         [
-                            'id'       => 'item_2',
-                            'texto'    => 'Ítem 2',
-                            'orden'    => 2,
+                            'id' => 'item_2',
+                            'texto' => 'Ítem 2',
+                            'orden' => 2,
                             'opciones' => [
                                 ['valor' => 0, 'etiqueta' => 'No'],
                                 ['valor' => 1, 'etiqueta' => 'Sí'],

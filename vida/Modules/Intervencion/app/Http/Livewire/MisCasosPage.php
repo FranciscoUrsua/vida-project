@@ -3,11 +3,10 @@
 namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\CatalogoSistema;
-use App\Models\Scopes\AmbitoUoScope;
-use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -49,16 +48,30 @@ class MisCasosPage extends Component
     // Hooks de actualización de propiedades
     // -------------------------------------------------------------------------
 
-    /** @return void */
-    public function updatedFiltroSeguimiento(): void { $this->resetPage(); }
-    /** @return void */
-    public function updatedFiltroPiso(): void { $this->resetPage(); }
-    /** @return void */
-    public function updatedFiltroEsp(): void { $this->resetPage(); }
-    /** @return void */
-    public function updatedOrdenarPor(): void { $this->resetPage(); }
-    /** @return void */
-    public function updatedBusqueda(): void { $this->resetPage(); }
+    public function updatedFiltroSeguimiento(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFiltroPiso(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFiltroEsp(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedOrdenarPor(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedBusqueda(): void
+    {
+        $this->resetPage();
+    }
 
     // -------------------------------------------------------------------------
     // Nombre configurable del plan ASP
@@ -67,8 +80,6 @@ class MisCasosPage extends Component
     /**
      * Etiqueta configurable del tipo de plan general (PISO o nombre alternativo).
      * Se lee del catálogo de sistema para permitir cambio sin deploy.
-     *
-     * @return string
      */
     public function nombrePlanAsp(): string
     {
@@ -84,8 +95,6 @@ class MisCasosPage extends Component
      *
      * Cada fila contiene los datos del plan general ASP activo y el
      * siguiente seguimiento programado (o null si no existe).
-     *
-     * @return LengthAwarePaginator
      */
     #[Computed]
     public function casos(): LengthAwarePaginator
@@ -144,7 +153,7 @@ class MisCasosPage extends Component
 
         // Orden por seguimiento (vencido → próximo → programado → sin) o por nombre
         if ($this->ordenarPor === 'seg') {
-            $query->orderByRaw("
+            $query->orderByRaw('
                 CASE
                     WHEN seg.fecha_siguiente_seguimiento < CURRENT_DATE THEN 0
                     WHEN seg.fecha_siguiente_seguimiento BETWEEN CURRENT_DATE AND CURRENT_DATE + 7 THEN 1
@@ -152,7 +161,7 @@ class MisCasosPage extends Component
                     ELSE 3
                 END ASC,
                 seg.fecha_siguiente_seguimiento ASC NULLS LAST
-            ");
+            ');
         } else {
             $query->orderBy('pi.historia_id');
         }
@@ -160,10 +169,7 @@ class MisCasosPage extends Component
         return $query->paginate($this->porPagina);
     }
 
-    /**
-     * @return \Illuminate\View\View
-     */
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('intervencion::livewire.mis-casos-page');
     }

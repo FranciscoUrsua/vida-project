@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Anonimizacion;
 
-use App\Models\Ciudadano;
+use App\Models\Api\PerfilAnonimizacion;
 use App\Services\Api\AnonimizadorService;
 use Database\Factories\PerfilAnonimizacionFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -41,10 +41,10 @@ class GeneralizacionTest extends TestCase
     {
         PerfilAnonimizacionFactory::new()->analiticaInterna()->create();
         $registro = $this->registroSimple([
-            'nombre'           => 'Ana',
-            'apellido1'        => 'Pérez',
+            'nombre' => 'Ana',
+            'apellido1' => 'Pérez',
             'fecha_nacimiento' => '1943-07-15',
-            'sexo'             => 'mujer',
+            'sexo' => 'mujer',
         ]);
 
         $resultado = $this->servicio->anonimizar($registro, 'analitica_interna')->first();
@@ -60,19 +60,19 @@ class GeneralizacionTest extends TestCase
     #[Test]
     public function generaliza_fecha_nacimiento_a_decada(): void
     {
-        \App\Models\Api\PerfilAnonimizacion::create([
-            'nombre'     => 'perfil_decada_test',
-            'nivel'      => 2,
-            'version'    => 1,
-            'estado'     => 'activo',
+        PerfilAnonimizacion::create([
+            'nombre' => 'perfil_decada_test',
+            'nivel' => 2,
+            'version' => 1,
+            'estado' => 'activo',
             'es_sistema' => false,
-            'campos'     => [
+            'campos' => [
                 ['campo' => 'fecha_nacimiento', 'tecnica' => 'generalizar', 'precision' => 'decada'],
             ],
             'k_valor' => null,
         ]);
 
-        $registro  = $this->registroSimple(['fecha_nacimiento' => '1943-07-15']);
+        $registro = $this->registroSimple(['fecha_nacimiento' => '1943-07-15']);
         $resultado = $this->servicio->anonimizar($registro, 'perfil_decada_test')->first();
 
         $this->assertSame('1940-1949', $resultado['rango_edad']);
@@ -88,18 +88,18 @@ class GeneralizacionTest extends TestCase
     {
         PerfilAnonimizacionFactory::new()->analiticaInterna()->create();
         $registro = $this->registroSimple([
-            'nombre'                => 'Ana',
-            'apellido1'             => 'Pérez',
-            'tipo_via'              => 'Calle',
-            'nombre_via'            => 'Gran Vía',
-            'numero'                => '28',
-            'piso'                  => '3',
-            'puerta'                => 'izq',
-            'portal'                => null,
-            'escalera'              => null,
+            'nombre' => 'Ana',
+            'apellido1' => 'Pérez',
+            'tipo_via' => 'Calle',
+            'nombre_via' => 'Gran Vía',
+            'numero' => '28',
+            'piso' => '3',
+            'puerta' => 'izq',
+            'portal' => null,
+            'escalera' => null,
             'direccion_normalizada' => true,
-            'fecha_nacimiento'      => '1980-01-01',
-            'sexo'                  => 'mujer',
+            'fecha_nacimiento' => '1980-01-01',
+            'sexo' => 'mujer',
         ]);
 
         $resultado = $this->servicio->anonimizar($registro, 'analitica_interna')->first();
@@ -122,13 +122,13 @@ class GeneralizacionTest extends TestCase
     {
         PerfilAnonimizacionFactory::new()->analiticaInterna()->create();
         $registro = $this->registroSimple([
-            'nombre'                => 'Ana',
-            'apellido1'             => 'Pérez',
-            'nombre_via'            => 'Calle Mayor',
-            'codigo_postal'         => '28013',
+            'nombre' => 'Ana',
+            'apellido1' => 'Pérez',
+            'nombre_via' => 'Calle Mayor',
+            'codigo_postal' => '28013',
             'direccion_normalizada' => false,
-            'fecha_nacimiento'      => '1980-01-01',
-            'sexo'                  => 'mujer',
+            'fecha_nacimiento' => '1980-01-01',
+            'sexo' => 'mujer',
         ]);
 
         $resultado = $this->servicio->anonimizar($registro, 'analitica_interna')->first();
@@ -145,11 +145,11 @@ class GeneralizacionTest extends TestCase
     {
         PerfilAnonimizacionFactory::new()->analiticaInterna()->create();
         $registro = $this->registroSimple([
-            'nombre'           => 'Ana',
-            'apellido1'        => 'Pérez',
-            'codigo_postal'    => '28013',
+            'nombre' => 'Ana',
+            'apellido1' => 'Pérez',
+            'codigo_postal' => '28013',
             'fecha_nacimiento' => '1980-01-01',
-            'sexo'             => 'mujer',
+            'sexo' => 'mujer',
         ]);
 
         $resultado = $this->servicio->anonimizar($registro, 'analitica_interna')->first();
@@ -167,14 +167,14 @@ class GeneralizacionTest extends TestCase
     {
         PerfilAnonimizacionFactory::new()->analiticaInterna()->create();
         $registro = $this->registroSimple([
-            'nombre'              => 'Ana',
-            'apellido1'           => 'Pérez',
-            'apellido2'           => 'García',
+            'nombre' => 'Ana',
+            'apellido1' => 'Pérez',
+            'apellido2' => 'García',
             'documento_identidad' => '12345678A',
-            'telefono'            => '600000000',
-            'email'               => 'ana@example.com',
-            'fecha_nacimiento'    => '1980-01-01',
-            'sexo'                => 'mujer',
+            'telefono' => '600000000',
+            'email' => 'ana@example.com',
+            'fecha_nacimiento' => '1980-01-01',
+            'sexo' => 'mujer',
         ]);
 
         $resultado = $this->servicio->anonimizar($registro, 'analitica_interna')->first();
@@ -198,10 +198,10 @@ class GeneralizacionTest extends TestCase
     {
         PerfilAnonimizacionFactory::new()->analiticaInterna()->create();
         $registro = $this->registroSimple([
-            'nombre'           => 'Ana',
-            'apellido1'        => 'Pérez',
+            'nombre' => 'Ana',
+            'apellido1' => 'Pérez',
             'fecha_nacimiento' => '1980-01-01',
-            'sexo'             => 'mujer',
+            'sexo' => 'mujer',
         ]);
 
         $resultado = $this->servicio->anonimizar($registro, 'analitica_interna')->first();

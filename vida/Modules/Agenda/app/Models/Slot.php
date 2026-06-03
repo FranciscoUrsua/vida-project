@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 use Modules\Agenda\Database\Factories\SlotFactory;
 use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Centro\Models\Centro;
@@ -25,7 +26,7 @@ use Modules\Centro\Models\Espacio;
  * @property int $usuario_id
  * @property int $centro_id
  * @property int $tipo_slot_id
- * @property \Illuminate\Support\Carbon $fecha
+ * @property Carbon $fecha
  * @property string $hora_inicio
  * @property string $hora_fin
  * @property EstadoSlot $estado
@@ -45,7 +46,7 @@ class Slot extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'fecha'  => 'date',
+        'fecha' => 'date',
         'estado' => EstadoSlot::class,
     ];
 

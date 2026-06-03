@@ -15,7 +15,9 @@ use Modules\Usuarios\Models\UsuarioRol;
 class RolesPendientesWidget extends BaseWidget
 {
     protected static ?int $sort = 2;
-    protected int | string | array $columnSpan = 2;
+
+    protected int|string|array $columnSpan = 2;
+
     protected static ?string $heading = 'Roles pendientes de aprobación';
 
     public static function canView(): bool

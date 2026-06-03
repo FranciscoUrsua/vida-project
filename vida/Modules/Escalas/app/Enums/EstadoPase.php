@@ -9,6 +9,6 @@ namespace Modules\Escalas\Enums;
  */
 enum EstadoPase: string
 {
-    case Borrador   = 'borrador';
+    case Borrador = 'borrador';
     case Completado = 'completado';
 }

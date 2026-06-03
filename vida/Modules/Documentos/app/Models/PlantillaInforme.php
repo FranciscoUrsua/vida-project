@@ -35,8 +35,8 @@ class PlantillaInforme extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'secciones'    => 'array',
-        'activa'       => 'boolean',
+        'secciones' => 'array',
+        'activa' => 'boolean',
         'tipo_informe' => TipoInforme::class,
     ];
 

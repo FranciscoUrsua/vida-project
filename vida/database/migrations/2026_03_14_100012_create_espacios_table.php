@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\Espacio;
 
 /**
  * Espacios físicos dentro de una colección de plazas.
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * genero valores: mixto | mujeres | hombres (nullable = sin restricción de género)
  *
- * @see Modules\Centro\Models\Espacio
+ * @see Espacio
  */
 return new class extends Migration
 {

@@ -14,5 +14,4 @@ class EditPlantillaInforme extends EditRecord
     {
         return [DeleteAction::make()];
     }
-
 }

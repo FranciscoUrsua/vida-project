@@ -3,10 +3,8 @@
 namespace Modules\Agenda\Tests\Feature;
 
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Agenda\Enums\EstadoCuadrante;
-use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Agenda\Models\CuadranteMes;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Agenda\Models\LineaCuadrante;
@@ -23,9 +21,9 @@ class HorarioCentroTest extends TestCase
     private function crearCentro(string $nombre = 'Centro de Prueba'): Centro
     {
         return Centro::create([
-            'nombre'       => $nombre,
+            'nombre' => $nombre,
             'tipo_gestion' => 'municipal_directo',
-            'fecha_alta'   => now()->toDateString(),
+            'fecha_alta' => now()->toDateString(),
         ]);
     }
 
@@ -39,54 +37,54 @@ class HorarioCentroTest extends TestCase
         $centro = $this->crearCentro();
 
         $horario = HorarioCentro::create([
-            'centro_id'             => $centro->id,
-            'nombre'                => 'Horario estándar',
-            'dias_laborables'       => [1, 2, 3, 4, 5],
-            'hora_apertura'         => '08:00',
-            'hora_cierre'           => '19:00',
-            'hora_inicio_atencion'  => '09:00',
-            'hora_fin_atencion'     => '14:00',
+            'centro_id' => $centro->id,
+            'nombre' => 'Horario estándar',
+            'dias_laborables' => [1, 2, 3, 4, 5],
+            'hora_apertura' => '08:00',
+            'hora_cierre' => '19:00',
+            'hora_inicio_atencion' => '09:00',
+            'hora_fin_atencion' => '14:00',
             'buffer_inicio_minutos' => 30,
-            'buffer_fin_minutos'    => 0,
-            'vigente_desde'         => '2026-01-01',
-            'vigente_hasta'         => null,
-            'modo_agenda'           => 'estandar',
-            'activo'                => true,
+            'buffer_fin_minutos' => 0,
+            'vigente_desde' => '2026-01-01',
+            'vigente_hasta' => null,
+            'modo_agenda' => 'estandar',
+            'activo' => true,
         ]);
 
         TipoSlot::create([
-            'horario_centro_id'        => $horario->id,
-            'nombre'                   => 'Entrevista',
-            'duracion_minutos'         => 45,
-            'requiere_espacio'         => false,
-            'porcentaje_urgencias'     => 0,
-            'origen_permitido'         => 'ambos',
+            'horario_centro_id' => $horario->id,
+            'nombre' => 'Entrevista',
+            'duracion_minutos' => 45,
+            'requiere_espacio' => false,
+            'porcentaje_urgencias' => 0,
+            'origen_permitido' => 'ambos',
             'genera_apunte_automatico' => false,
-            'activo'                   => true,
+            'activo' => true,
         ]);
 
-        $usuario   = User::factory()->create();
+        $usuario = User::factory()->create();
         $cuadrante = CuadranteMes::create([
-            'centro_id'               => $centro->id,
-            'anyo'                    => 2026,
-            'mes'                     => 6,
-            'estado'                  => EstadoCuadrante::Publicado->value,
-            'generado_con_ia'         => false,
+            'centro_id' => $centro->id,
+            'anyo' => 2026,
+            'mes' => 6,
+            'estado' => EstadoCuadrante::Publicado->value,
+            'generado_con_ia' => false,
             'generado_automaticamente' => false,
-            'publicado_en'            => now(),
+            'publicado_en' => now(),
         ]);
 
         // 2026-06-01 is a Monday
         LineaCuadrante::create([
             'cuadrante_mes_id' => $cuadrante->id,
-            'usuario_id'       => $usuario->id,
-            'centro_id'        => $centro->id,
-            'fecha'            => '2026-06-01',
-            'franjas'          => [['inicio' => '09:00', 'fin' => '14:00']],
-            'anulada'          => false,
+            'usuario_id' => $usuario->id,
+            'centro_id' => $centro->id,
+            'fecha' => '2026-06-01',
+            'franjas' => [['inicio' => '09:00', 'fin' => '14:00']],
+            'anulada' => false,
         ]);
 
-        (new SlotMaterializadorService())->materializar($cuadrante);
+        (new SlotMaterializadorService)->materializar($cuadrante);
 
         $slots = $cuadrante->slots()->orderBy('hora_inicio')->get();
 
@@ -112,36 +110,36 @@ class HorarioCentroTest extends TestCase
 
         // Horario A: vigente enero-agosto
         HorarioCentro::create([
-            'centro_id'            => $centro->id,
-            'nombre'               => 'Horario A',
-            'dias_laborables'      => [1, 2, 3, 4, 5],
-            'hora_apertura'        => '08:00',
-            'hora_cierre'          => '19:00',
+            'centro_id' => $centro->id,
+            'nombre' => 'Horario A',
+            'dias_laborables' => [1, 2, 3, 4, 5],
+            'hora_apertura' => '08:00',
+            'hora_cierre' => '19:00',
             'hora_inicio_atencion' => '09:00',
-            'hora_fin_atencion'    => '14:00',
+            'hora_fin_atencion' => '14:00',
             'buffer_inicio_minutos' => 0,
-            'buffer_fin_minutos'   => 0,
-            'vigente_desde'        => '2026-01-01',
-            'vigente_hasta'        => '2026-08-31',
-            'modo_agenda'          => 'estandar',
-            'activo'               => true,
+            'buffer_fin_minutos' => 0,
+            'vigente_desde' => '2026-01-01',
+            'vigente_hasta' => '2026-08-31',
+            'modo_agenda' => 'estandar',
+            'activo' => true,
         ]);
 
         // Horario B: vigente desde septiembre, sin fecha fin
         $horarioB = HorarioCentro::create([
-            'centro_id'            => $centro->id,
-            'nombre'               => 'Horario B',
-            'dias_laborables'      => [1, 2, 3, 4, 5],
-            'hora_apertura'        => '08:00',
-            'hora_cierre'          => '19:00',
+            'centro_id' => $centro->id,
+            'nombre' => 'Horario B',
+            'dias_laborables' => [1, 2, 3, 4, 5],
+            'hora_apertura' => '08:00',
+            'hora_cierre' => '19:00',
             'hora_inicio_atencion' => '09:00',
-            'hora_fin_atencion'    => '14:00',
+            'hora_fin_atencion' => '14:00',
             'buffer_inicio_minutos' => 0,
-            'buffer_fin_minutos'   => 0,
-            'vigente_desde'        => '2026-09-01',
-            'vigente_hasta'        => null,
-            'modo_agenda'          => 'estandar',
-            'activo'               => true,
+            'buffer_fin_minutos' => 0,
+            'vigente_desde' => '2026-09-01',
+            'vigente_hasta' => null,
+            'modo_agenda' => 'estandar',
+            'activo' => true,
         ]);
 
         // scopeVigentes usa now(); para esta prueba lo forzamos con la fecha 01/09/2026
@@ -164,19 +162,19 @@ class HorarioCentroTest extends TestCase
         $centro = $this->crearCentro();
 
         $horario = HorarioCentro::create([
-            'centro_id'            => $centro->id,
-            'nombre'               => 'Horario indefinido',
-            'dias_laborables'      => [1, 2, 3, 4, 5],
-            'hora_apertura'        => '08:00',
-            'hora_cierre'          => '19:00',
+            'centro_id' => $centro->id,
+            'nombre' => 'Horario indefinido',
+            'dias_laborables' => [1, 2, 3, 4, 5],
+            'hora_apertura' => '08:00',
+            'hora_cierre' => '19:00',
             'hora_inicio_atencion' => '09:00',
-            'hora_fin_atencion'    => '14:00',
+            'hora_fin_atencion' => '14:00',
             'buffer_inicio_minutos' => 0,
-            'buffer_fin_minutos'   => 0,
-            'vigente_desde'        => '2020-01-01',
-            'vigente_hasta'        => null,
-            'modo_agenda'          => 'estandar',
-            'activo'               => true,
+            'buffer_fin_minutos' => 0,
+            'vigente_desde' => '2020-01-01',
+            'vigente_hasta' => null,
+            'modo_agenda' => 'estandar',
+            'activo' => true,
         ]);
 
         // Avanzamos 5 años en el futuro
@@ -198,54 +196,54 @@ class HorarioCentroTest extends TestCase
         $centro = $this->crearCentro();
 
         $horario = HorarioCentro::create([
-            'centro_id'             => $centro->id,
-            'nombre'                => 'Horario L-V',
-            'dias_laborables'       => [1, 2, 3, 4, 5],
-            'hora_apertura'         => '08:00',
-            'hora_cierre'           => '19:00',
-            'hora_inicio_atencion'  => '09:00',
-            'hora_fin_atencion'     => '14:00',
+            'centro_id' => $centro->id,
+            'nombre' => 'Horario L-V',
+            'dias_laborables' => [1, 2, 3, 4, 5],
+            'hora_apertura' => '08:00',
+            'hora_cierre' => '19:00',
+            'hora_inicio_atencion' => '09:00',
+            'hora_fin_atencion' => '14:00',
             'buffer_inicio_minutos' => 0,
-            'buffer_fin_minutos'    => 0,
-            'vigente_desde'         => '2026-01-01',
-            'vigente_hasta'         => null,
-            'modo_agenda'           => 'estandar',
-            'activo'                => true,
+            'buffer_fin_minutos' => 0,
+            'vigente_desde' => '2026-01-01',
+            'vigente_hasta' => null,
+            'modo_agenda' => 'estandar',
+            'activo' => true,
         ]);
 
         TipoSlot::create([
-            'horario_centro_id'        => $horario->id,
-            'nombre'                   => 'Entrevista',
-            'duracion_minutos'         => 45,
-            'requiere_espacio'         => false,
-            'porcentaje_urgencias'     => 0,
-            'origen_permitido'         => 'ambos',
+            'horario_centro_id' => $horario->id,
+            'nombre' => 'Entrevista',
+            'duracion_minutos' => 45,
+            'requiere_espacio' => false,
+            'porcentaje_urgencias' => 0,
+            'origen_permitido' => 'ambos',
             'genera_apunte_automatico' => false,
-            'activo'                   => true,
+            'activo' => true,
         ]);
 
-        $usuario   = User::factory()->create();
+        $usuario = User::factory()->create();
         $cuadrante = CuadranteMes::create([
-            'centro_id'               => $centro->id,
-            'anyo'                    => 2026,
-            'mes'                     => 6,
-            'estado'                  => EstadoCuadrante::Publicado->value,
-            'generado_con_ia'         => false,
+            'centro_id' => $centro->id,
+            'anyo' => 2026,
+            'mes' => 6,
+            'estado' => EstadoCuadrante::Publicado->value,
+            'generado_con_ia' => false,
             'generado_automaticamente' => false,
-            'publicado_en'            => now(),
+            'publicado_en' => now(),
         ]);
 
         // 2026-06-06 is a Saturday (isoWeekday = 6)
         LineaCuadrante::create([
             'cuadrante_mes_id' => $cuadrante->id,
-            'usuario_id'       => $usuario->id,
-            'centro_id'        => $centro->id,
-            'fecha'            => '2026-06-06',
-            'franjas'          => [['inicio' => '09:00', 'fin' => '14:00']],
-            'anulada'          => false,
+            'usuario_id' => $usuario->id,
+            'centro_id' => $centro->id,
+            'fecha' => '2026-06-06',
+            'franjas' => [['inicio' => '09:00', 'fin' => '14:00']],
+            'anulada' => false,
         ]);
 
-        $creados = (new SlotMaterializadorService())->materializar($cuadrante);
+        $creados = (new SlotMaterializadorService)->materializar($cuadrante);
 
         $this->assertEquals(0, $creados, 'No deben generarse slots para un sábado');
         $this->assertEquals(0, $cuadrante->slots()->count());

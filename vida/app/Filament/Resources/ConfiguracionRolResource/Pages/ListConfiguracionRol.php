@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\ConfiguracionRolResource\Pages;
 
 use App\Filament\Resources\ConfiguracionRolResource;
-use Filament\Actions;
 use App\Filament\Resources\Pages\ListRecords;
+use Filament\Actions;
 
 class ListConfiguracionRol extends ListRecords
 {

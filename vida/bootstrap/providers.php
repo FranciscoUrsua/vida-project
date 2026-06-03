@@ -1,16 +1,29 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\Filament\AdminPanelProvider;
+use App\Providers\GeocodificacionServiceProvider;
+use Modules\Agenda\Providers\AgendaServiceProvider;
+use Modules\Centro\Providers\CentroServiceProvider;
+use Modules\Documentos\Providers\DocumentosServiceProvider;
+use Modules\Escalas\Providers\EscalasServiceProvider;
+use Modules\Intervencion\Providers\IntervencionServiceProvider;
+use Modules\Mensajes\Providers\MensajesServiceProvider;
+use Modules\Organizacion\Providers\OrganizacionServiceProvider;
+use Modules\Prestaciones\Providers\PrestacionesServiceProvider;
+use Modules\Usuarios\Providers\UsuariosServiceProvider;
+
 return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\Filament\AdminPanelProvider::class,
-    Modules\Organizacion\Providers\OrganizacionServiceProvider::class,
-    Modules\Usuarios\Providers\UsuariosServiceProvider::class,
-    Modules\Centro\Providers\CentroServiceProvider::class,
-    Modules\Prestaciones\Providers\PrestacionesServiceProvider::class,
-    Modules\Mensajes\Providers\MensajesServiceProvider::class,
-    Modules\Agenda\Providers\AgendaServiceProvider::class,
-    Modules\Documentos\Providers\DocumentosServiceProvider::class,
-    Modules\Intervencion\Providers\IntervencionServiceProvider::class,
-    Modules\Escalas\Providers\EscalasServiceProvider::class,
-    App\Providers\GeocodificacionServiceProvider::class,
+    AppServiceProvider::class,
+    AdminPanelProvider::class,
+    OrganizacionServiceProvider::class,
+    UsuariosServiceProvider::class,
+    CentroServiceProvider::class,
+    PrestacionesServiceProvider::class,
+    MensajesServiceProvider::class,
+    AgendaServiceProvider::class,
+    DocumentosServiceProvider::class,
+    IntervencionServiceProvider::class,
+    EscalasServiceProvider::class,
+    GeocodificacionServiceProvider::class,
 ];

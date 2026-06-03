@@ -15,7 +15,7 @@ class CreateTipoEscala extends CreateRecord
     {
         $data['schema'] = ['secciones' => $data['secciones_escala'] ?? []];
         $data['rangos_interpretacion'] = [
-            'rangos'              => $data['rangos'] ?? [],
+            'rangos' => $data['rangos'] ?? [],
             'nota_interpretacion' => $data['nota_interpretacion'] ?? null,
         ];
 
@@ -37,6 +37,7 @@ class CreateTipoEscala extends CreateRecord
                 ->send();
 
             $this->halt();
+            throw new \LogicException('unreachable');
         }
     }
 }

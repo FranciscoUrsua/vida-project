@@ -21,11 +21,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * Los únicos enums son tipo_prestacion y nivel_garantia porque el código
  * toma decisiones de lógica de negocio basándose en ellos (principio 3.10).
  *
- * @property int         $id
- * @property string      $codigo
- * @property string      $nombre
- * @property string      $tipo_prestacion    servicio|economica
- * @property string      $nivel_garantia     garantizada|condicionada
+ * @property int $id
+ * @property string $codigo
+ * @property string $nombre
+ * @property string $tipo_prestacion servicio|economica
+ * @property string $nivel_garantia garantizada|condicionada
  * @property string|null $objetivo_general
  * @property string|null $categoria_especifica
  * @property string|null $nivel_atencion
@@ -33,8 +33,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $forma_gestion
  * @property string|null $financiacion
  * @property string|null $ambito_territorial
- * @property array|null  $poblacion_destinataria
- * @property array|null  $modalidades
+ * @property array|null $poblacion_destinataria
+ * @property array|null $modalidades
  * @property string|null $finalidad
  * @property string|null $descripcion
  * @property string|null $requisitos
@@ -50,7 +50,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $proveedor
  * @property string|null $financiacion_detalle
  * @property string|null $informacion_complementaria
- * @property bool        $activa
+ * @property bool $activa
  */
 class Prestacion extends Model
 {
@@ -93,8 +93,8 @@ class Prestacion extends Model
 
     protected $casts = [
         'poblacion_destinataria' => 'array',
-        'modalidades'            => 'array',
-        'activa'                 => 'boolean',
+        'modalidades' => 'array',
+        'activa' => 'boolean',
     ];
 
     // -------------------------------------------------------------------------
@@ -104,7 +104,7 @@ class Prestacion extends Model
     /**
      * Tipos de centro vinculados a esta prestación.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<PrestacionTipoCentro, self>
+     * @return HasMany<PrestacionTipoCentro, self>
      */
     public function tiposCentro(): HasMany
     {
@@ -118,8 +118,9 @@ class Prestacion extends Model
     /**
      * Filtra prestaciones activas.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeActivas(Builder $query): Builder
     {
@@ -129,8 +130,9 @@ class Prestacion extends Model
     /**
      * Filtra prestaciones de tipo servicio (no económicas).
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeDeServicio(Builder $query): Builder
     {
@@ -140,8 +142,9 @@ class Prestacion extends Model
     /**
      * Filtra prestaciones de tipo económico.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeEconomicas(Builder $query): Builder
     {

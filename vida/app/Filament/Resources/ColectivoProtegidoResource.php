@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\ColectivoProtegidoResource\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -14,7 +15,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Organizacion\Models\ColectivoProtegido;
-use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: gestión del catálogo de colectivos especialmente protegidos.
@@ -24,14 +24,21 @@ use App\Filament\Concerns\AutorizaGestion;
 class ColectivoProtegidoResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = ColectivoProtegido::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
+
     protected static ?string $navigationLabel = 'Colectivos protegidos';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
+
     protected static ?string $modelLabel = 'Colectivo protegido';
+
     protected static ?string $pluralModelLabel = 'Colectivos protegidos';
+
     protected static ?string $slug = 'colectivos-protegidos';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
@@ -93,9 +100,9 @@ class ColectivoProtegidoResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListColectivosProtegidos::route('/'),
+            'index' => Pages\ListColectivosProtegidos::route('/'),
             'create' => Pages\CreateColectivoProtegido::route('/create'),
-            'edit'   => Pages\EditColectivoProtegido::route('/{record}/edit'),
+            'edit' => Pages\EditColectivoProtegido::route('/{record}/edit'),
         ];
     }
 }

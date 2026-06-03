@@ -3,9 +3,11 @@
 namespace App\Livewire\Admin;
 
 use App\Models\UnidadOrganizativa;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Collection;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -21,7 +23,7 @@ use Livewire\Component;
  * Accesible únicamente para usuarios con el permiso `configuracion.acceder`
  * (docs/modulo-usuarios-permisos.md § 4.5).
  *
- * @see \App\Models\UnidadOrganizativa
+ * @see UnidadOrganizativa
  * @see resources/views/livewire/admin/gestor-unidades-organizativas.blade.php
  */
 class GestorUnidadesOrganizativas extends Component
@@ -56,8 +58,7 @@ class GestorUnidadesOrganizativas extends Component
      * Valida que el usuario autenticado tiene el permiso requerido.
      * Livewire llama a este método al montar el componente.
      *
-     * @return void
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function mount(): void
     {
@@ -82,7 +83,7 @@ class GestorUnidadesOrganizativas extends Component
     public function arbolUo(): Collection
     {
         if (! empty($this->busqueda)) {
-            return UnidadOrganizativa::where('nombre', 'ilike', '%' . $this->busqueda . '%')
+            return UnidadOrganizativa::where('nombre', 'ilike', '%'.$this->busqueda.'%')
                 ->with('padre')
                 ->orderBy('nombre')
                 ->get();
@@ -126,8 +127,6 @@ class GestorUnidadesOrganizativas extends Component
 
     /**
      * Abre el formulario para crear una nueva UO.
-     *
-     * @return void
      */
     public function abrirFormularioCreacion(): void
     {
@@ -139,24 +138,21 @@ class GestorUnidadesOrganizativas extends Component
      * Abre el formulario cargando los datos de una UO existente para editarla.
      *
      * @param int $id ID de la UO a editar
-     * @return void
      */
     public function abrirFormularioEdicion(int $id): void
     {
         $uo = UnidadOrganizativa::findOrFail($id);
 
-        $this->editandoId  = $uo->id;
-        $this->nombre      = $uo->nombre;
-        $this->tipo        = $uo->tipo;
-        $this->parentId    = $uo->parent_id;
+        $this->editandoId = $uo->id;
+        $this->nombre = $uo->nombre;
+        $this->tipo = $uo->tipo;
+        $this->parentId = $uo->parent_id;
 
         $this->mostrarFormulario = true;
     }
 
     /**
      * Guarda la UO (crea o actualiza según si hay editandoId).
-     *
-     * @return void
      */
     public function guardar(): void
     {
@@ -181,7 +177,6 @@ class GestorUnidadesOrganizativas extends Component
      * El historial de adscripciones y la estructura quedan preservados.
      *
      * @param int $id ID de la UO a desactivar
-     * @return void
      */
     public function desactivar(int $id): void
     {
@@ -195,7 +190,6 @@ class GestorUnidadesOrganizativas extends Component
      * Reactiva una UO previamente desactivada.
      *
      * @param int $id ID de la UO a reactivar
-     * @return void
      */
     public function reactivar(int $id): void
     {
@@ -207,8 +201,6 @@ class GestorUnidadesOrganizativas extends Component
 
     /**
      * Cierra el formulario sin guardar.
-     *
-     * @return void
      */
     public function cancelar(): void
     {
@@ -222,10 +214,8 @@ class GestorUnidadesOrganizativas extends Component
 
     /**
      * Renderiza el componente.
-     *
-     * @return \Illuminate\View\View
      */
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('livewire.admin.gestor-unidades-organizativas');
     }
@@ -242,19 +232,19 @@ class GestorUnidadesOrganizativas extends Component
     private function validar(): array
     {
         return $this->validate([
-            'nombre'   => ['required', 'string', 'max:200'],
-            'tipo'     => [
+            'nombre' => ['required', 'string', 'max:200'],
+            'tipo' => [
                 'required',
                 'string',
                 Rule::exists('tipos_unidad_organizativa', 'codigo'),
             ],
             'parentId' => ['nullable', 'integer', 'exists:unidades_organizativas,id'],
         ], [
-            'nombre.required'   => 'El nombre de la UO es obligatorio.',
-            'nombre.max'        => 'El nombre no puede superar los 200 caracteres.',
-            'tipo.required'     => 'Debe seleccionar un tipo de UO.',
-            'tipo.exists'       => 'El tipo seleccionado no es válido.',
-            'parentId.exists'   => 'La UO padre seleccionada no existe.',
+            'nombre.required' => 'El nombre de la UO es obligatorio.',
+            'nombre.max' => 'El nombre no puede superar los 200 caracteres.',
+            'tipo.required' => 'Debe seleccionar un tipo de UO.',
+            'tipo.exists' => 'El tipo seleccionado no es válido.',
+            'parentId.exists' => 'La UO padre seleccionada no existe.',
         ]);
 
         // Nota: Livewire valida con las claves de propiedades (camelCase),
@@ -263,14 +253,12 @@ class GestorUnidadesOrganizativas extends Component
 
     /**
      * Resetea los campos del formulario a sus valores iniciales.
-     *
-     * @return void
      */
     private function resetFormulario(): void
     {
         $this->editandoId = null;
-        $this->nombre     = '';
-        $this->tipo       = '';
-        $this->parentId   = null;
+        $this->nombre = '';
+        $this->tipo = '';
+        $this->parentId = null;
     }
 }

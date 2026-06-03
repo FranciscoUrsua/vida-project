@@ -4,6 +4,7 @@ namespace Modules\Documentos\Database\Seeders;
 
 use App\Models\CatalogoSistema;
 use App\Models\UnidadOrganizativa;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Modules\Documentos\Enums\TipoInforme;
 use Modules\Documentos\Models\PlantillaInforme;
@@ -63,39 +64,41 @@ class DocumentosSeeder extends Seeder
 
         if (! $uoRaiz) {
             $this->command?->warn('No existe UO raíz. La plantilla de ejemplo no se crea.');
+
             return;
         }
 
         // El admin del sistema (primer usuario) o null
-        $adminId = \App\Models\User::orderBy('id')->value('id') ?? null;
+        $adminId = User::orderBy('id')->value('id') ?? null;
 
         if (! $adminId) {
             $this->command?->warn('No existe ningún usuario. La plantilla de ejemplo no se crea.');
+
             return;
         }
 
         PlantillaInforme::create([
-            'nombre'                 => 'Plantilla de ejemplo — Informe Social',
-            'descripcion'            => 'Plantilla básica de informe social con datos del ciudadano y sección de valoración libre. Inactiva — actívela y adapte las secciones antes de usar en producción.',
-            'tipo_informe'           => TipoInforme::InformeSocial->value,
+            'nombre' => 'Plantilla de ejemplo — Informe Social',
+            'descripcion' => 'Plantilla básica de informe social con datos del ciudadano y sección de valoración libre. Inactiva — actívela y adapte las secciones antes de usar en producción.',
+            'tipo_informe' => TipoInforme::InformeSocial->value,
             'unidad_organizativa_id' => $uoRaiz->id,
-            'secciones'              => [
+            'secciones' => [
                 [
-                    'id'          => 'datos_ciudadano',
-                    'titulo'      => 'Datos del ciudadano',
-                    'tipo'        => 'automatico',
-                    'fuente'      => 'ciudadano.datos_basicos',
+                    'id' => 'datos_ciudadano',
+                    'titulo' => 'Datos del ciudadano',
+                    'tipo' => 'automatico',
+                    'fuente' => 'ciudadano.datos_basicos',
                     'obligatorio' => false,
                 ],
                 [
-                    'id'          => 'valoracion',
-                    'titulo'      => 'Valoración',
-                    'tipo'        => 'texto_libre',
+                    'id' => 'valoracion',
+                    'titulo' => 'Valoración',
+                    'tipo' => 'texto_libre',
                     'instrucciones' => 'Describa la situación social del ciudadano y el resultado de la valoración profesional.',
                     'obligatorio' => true,
                 ],
             ],
-            'activa'    => false,
+            'activa' => false,
             'creada_por' => $adminId,
         ]);
     }

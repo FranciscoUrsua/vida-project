@@ -41,7 +41,7 @@ class Ficha extends Model
     ];
 
     protected $casts = [
-        'datos'      => 'array',
+        'datos' => 'array',
         'completada' => 'boolean',
     ];
 

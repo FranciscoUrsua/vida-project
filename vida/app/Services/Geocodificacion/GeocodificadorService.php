@@ -34,13 +34,13 @@ class GeocodificadorService implements GeocodificadorInterface
     /**
      * Normaliza la dirección delegando en el adaptador activo.
      *
-     * @param  string $direccionTexto Texto libre tal como lo introduce el profesional.
-     * @return ResultadoGeocodificacion
+     * @param string $direccionTexto Texto libre tal como lo introduce el profesional.
      */
     public function normalizar(string $direccionTexto): ResultadoGeocodificacion
     {
         $proveedor = configuracion_sistema('geocoder.proveedor', 'mock');
         $adaptador = $this->resolverAdaptador((string) $proveedor);
+
         return $adaptador->normalizar($direccionTexto);
     }
 
@@ -50,8 +50,7 @@ class GeocodificadorService implements GeocodificadorInterface
      * Si el proveedor configurado no tiene adaptador registrado, cae al mock
      * para no bloquear el sistema.
      *
-     * @param  string $proveedor Clave de configuración del proveedor.
-     * @return GeocodificadorInterface
+     * @param string $proveedor Clave de configuración del proveedor.
      */
     private function resolverAdaptador(string $proveedor): GeocodificadorInterface
     {
@@ -60,7 +59,7 @@ class GeocodificadorService implements GeocodificadorInterface
         try {
             return app($clase);
         } catch (BindingResolutionException) {
-            return new MockGeocodificador();
+            return new MockGeocodificador;
         }
     }
 }

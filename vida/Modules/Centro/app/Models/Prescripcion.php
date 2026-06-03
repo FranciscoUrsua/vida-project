@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Modules\Usuarios\Models\Profesional;
 
 /**
@@ -28,9 +29,9 @@ use Modules\Usuarios\Models\Profesional;
  * @property int $destino_id
  * @property int|null $plaza_id
  * @property string $estado
- * @property \Illuminate\Support\Carbon $fecha_prescripcion
- * @property \Illuminate\Support\Carbon|null $fecha_inicio
- * @property \Illuminate\Support\Carbon|null $fecha_fin
+ * @property Carbon $fecha_prescripcion
+ * @property Carbon|null $fecha_inicio
+ * @property Carbon|null $fecha_fin
  */
 class Prescripcion extends Model
 {
@@ -57,9 +58,9 @@ class Prescripcion extends Model
 
     protected $casts = [
         'fecha_prescripcion' => 'date',
-        'fecha_asignacion'   => 'date',
-        'fecha_inicio'       => 'date',
-        'fecha_fin'          => 'date',
+        'fecha_asignacion' => 'date',
+        'fecha_inicio' => 'date',
+        'fecha_fin' => 'date',
     ];
 
     // -------------------------------------------------------------------------
@@ -69,7 +70,7 @@ class Prescripcion extends Model
     /**
      * Profesional que emite la prescripción.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Usuarios\Models\Profesional, self>
+     * @return BelongsTo<Profesional, self>
      */
     public function profesional(): BelongsTo
     {
@@ -79,7 +80,7 @@ class Prescripcion extends Model
     /**
      * Ciudadano beneficiario de la prescripción.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Ciudadano, self>
+     * @return BelongsTo<Ciudadano, self>
      */
     public function ciudadano(): BelongsTo
     {
@@ -89,7 +90,7 @@ class Prescripcion extends Model
     /**
      * Plaza concreta asignada (nullable hasta la asignación efectiva).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Plaza, self>
+     * @return BelongsTo<Plaza, self>
      */
     public function plaza(): BelongsTo
     {
@@ -99,7 +100,7 @@ class Prescripcion extends Model
     /**
      * Registro de lista de espera generado por esta prescripción.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\Modules\Centro\Models\ListaEspera, self>
+     * @return HasOne<ListaEspera, self>
      */
     public function listaEspera(): HasOne
     {
@@ -109,15 +110,13 @@ class Prescripcion extends Model
     /**
      * Resuelve el destino de la prescripción según tipo_destino.
      * Devuelve la ColeccionPlazas o la SesionActividad correspondiente.
-     *
-     * @return \Modules\Centro\Models\ColeccionPlazas|\Modules\Centro\Models\SesionActividad|null
      */
     public function destino(): ColeccionPlazas|SesionActividad|null
     {
         return match ($this->tipo_destino) {
             'coleccion_plazas' => ColeccionPlazas::find($this->destino_id),
             'sesion_actividad' => SesionActividad::find($this->destino_id),
-            default            => null,
+            default => null,
         };
     }
 
@@ -128,8 +127,9 @@ class Prescripcion extends Model
     /**
      * Filtra prescripciones con estado activa.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeActivas(Builder $query): Builder
     {
@@ -139,8 +139,9 @@ class Prescripcion extends Model
     /**
      * Filtra prescripciones con estado pendiente.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopePendientes(Builder $query): Builder
     {

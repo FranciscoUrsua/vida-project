@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\Red;
 
 /**
  * Redes de centros.
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Schema;
  * una lista de espera unificada. Por ejemplo, "Red de Albergues
  * Municipales" o "Red de Centros de Día para Mayores".
  *
- * @see Modules\Centro\Models\Red
+ * @see Red
  */
 return new class extends Migration
 {

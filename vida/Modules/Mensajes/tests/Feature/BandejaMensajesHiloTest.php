@@ -30,7 +30,7 @@ class BandejaMensajesHiloTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->servicio = new MensajeriaService();
+        $this->servicio = new MensajeriaService;
     }
 
     // -------------------------------------------------------------------------
@@ -93,21 +93,21 @@ class BandejaMensajesHiloTest extends TestCase
         $ciudadano = Ciudadano::factory()->create();
 
         // Profesional A: TSR responsable del ciudadano
-        $uoA      = UnidadOrganizativa::create(['nombre' => 'UO A LW08', 'tipo' => 'servicio', 'activa' => true]);
+        $uoA = UnidadOrganizativa::create(['nombre' => 'UO A LW08', 'tipo' => 'servicio', 'activa' => true]);
         $usuarioA = User::factory()->create();
 
         UsuarioUo::create([
-            'usuario_id'             => $usuarioA->id,
+            'usuario_id' => $usuarioA->id,
             'unidad_organizativa_id' => $uoA->id,
-            'tipo_vinculo'           => 'adscripcion',
-            'fecha_inicio'           => now()->toDateString(),
+            'tipo_vinculo' => 'adscripcion',
+            'fecha_inicio' => now()->toDateString(),
         ]);
 
         HistoriaSocial::create([
-            'ciudadano_id'           => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uoA->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         // Profesional B: no es TSR del ciudadano
@@ -115,7 +115,7 @@ class BandejaMensajesHiloTest extends TestCase
 
         // Hilo de A (con referencia al ciudadano)
         $otroUsuario = User::factory()->create();
-        $hiloA       = $this->servicio->crearHilo($usuarioA, $otroUsuario, 'Hilo de A', 'Mensaje', [$ciudadano->id]);
+        $hiloA = $this->servicio->crearHilo($usuarioA, $otroUsuario, 'Hilo de A', 'Mensaje', [$ciudadano->id]);
 
         // Hilo de B (con referencia al mismo ciudadano)
         $hiloB = $this->servicio->crearHilo($usuarioB, $otroUsuario, 'Hilo de B', 'Mensaje B', [$ciudadano->id]);

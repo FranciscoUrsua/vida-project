@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Usuarios\Models\ConfiguracionRol;
 
 /**
  * Migración: tabla de configuración de roles.
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Schema;
  * - alerta_supervisada: la asignación es efectiva inmediatamente y
  *   se genera una alerta que el supervisor debe reconocer. Resto de roles.
  *
- * @see \Modules\Usuarios\Models\ConfiguracionRol
+ * @see ConfiguracionRol
  * @see docs/modulo-usuarios-permisos.md sección 2.8
  */
 return new class extends Migration

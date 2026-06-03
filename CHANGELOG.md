@@ -2,6 +2,36 @@
 
 ---
 
+## Tooling de calidad de código — 2026-06-03
+
+### Módulos afectados
+Proyecto global (tooling, no lógica de negocio)
+
+### Añadido
+
+- `nunomaduro/larastan` v3.10 + `phpstan/phpstan` v2.2 instalados como dev.
+- `phpstan.neon`: configuración nivel 6, paths `app/` y `Modules/`, excluye migraciones y seeders.
+- `phpstan-baseline.neon`: baseline con 772 errores heredados (a reducir progresivamente).
+- `rector/rector` v2.4 + `driftingly/rector-laravel` v2.5 instalados como dev.
+- `rector.php`: PHP 8.3, sets CODE_QUALITY / DEAD_CODE / EARLY_RETURN / TYPE_DECLARATION / LARAVEL_120, excluye Filament y migraciones.
+- `pint.json`: preset laravel con reglas adicionales (ordered_imports, no_unused_imports, phpdoc_align…).
+- `.github/workflows/quality.yml`: CI que ejecuta Pint y PHPStan en cada push/PR a master.
+- Scripts en `composer.json`: `analyse`, `analyse-ci`, `format`, `format-check`, `rector`, `rector-dry`.
+- `.gitignore` de `vida/` actualizado: excluye `.phpstan-cache/` y `.rector-cache/`.
+
+### Cambios de código
+
+- Primera ejecución de Pint: ~240 ficheros reformateados (imports ordenados, espaciado binario, phpdoc, etc.).
+- `CreateTipoEscala::handleRecordCreation()` y `EditTipoEscala::handleRecordUpdate()`: añadido `throw new \LogicException('unreachable')` tras `$this->halt()` para satisfacer PHPStan (error `return.missing` no ignorable).
+
+### Decisiones de implementación
+
+- Se instaló `driftingly/rector-laravel` adicional porque `rector/rector` no incluye los sets de Laravel.
+- El paquete `nunomaduro/larastan` está marcado como abandonado upstream; el sucesor es `larastan/larastan`. Se mantiene el actual hasta que haya una sesión de actualización de dependencias planificada.
+- `checkMissingIterableValueType` eliminado de `phpstan.neon`: parámetro inválido en PHPStan v2.
+
+---
+
 ## UI Intervención — Entrega 3: Pantalla del ciudadano y herramientas — 2026-06-01
 
 ### Módulos afectados

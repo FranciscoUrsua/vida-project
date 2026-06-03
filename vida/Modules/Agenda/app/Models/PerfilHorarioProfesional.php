@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use LogicException;
 use Modules\Agenda\Database\Factories\PerfilHorarioProfesionalFactory;
 use Modules\Centro\Models\Centro;
@@ -25,8 +26,8 @@ use Modules\Centro\Models\Centro;
  * @property int $centro_id
  * @property float $jornada_semanal_horas
  * @property array $horario_habitual
- * @property \Illuminate\Support\Carbon $vigente_desde
- * @property \Illuminate\Support\Carbon|null $vigente_hasta
+ * @property Carbon $vigente_desde
+ * @property Carbon|null $vigente_hasta
  * @property bool $activo
  * @property string|null $notas
  */
@@ -73,11 +74,11 @@ class PerfilHorarioProfesional extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'horario_habitual'      => 'array',
+        'horario_habitual' => 'array',
         'jornada_semanal_horas' => 'decimal:2',
-        'vigente_desde'         => 'date',
-        'vigente_hasta'         => 'date',
-        'activo'                => 'boolean',
+        'vigente_desde' => 'date',
+        'vigente_hasta' => 'date',
+        'activo' => 'boolean',
     ];
 
     public function usuario(): BelongsTo

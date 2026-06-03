@@ -5,6 +5,7 @@ namespace Modules\Centro\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Usuarios\Models\Profesional;
 
 /**
@@ -23,8 +24,8 @@ use Modules\Usuarios\Models\Profesional;
  * @property int $id
  * @property int $servicio_id
  * @property int $profesional_id
- * @property \Illuminate\Support\Carbon $fecha_inicio
- * @property \Illuminate\Support\Carbon|null $fecha_fin
+ * @property Carbon $fecha_inicio
+ * @property Carbon|null $fecha_fin
  * @property string|null $notas
  */
 class ResponsableServicio extends Model
@@ -41,7 +42,7 @@ class ResponsableServicio extends Model
 
     protected $casts = [
         'fecha_inicio' => 'date',
-        'fecha_fin'    => 'date',
+        'fecha_fin' => 'date',
     ];
 
     // -------------------------------------------------------------------------
@@ -53,8 +54,6 @@ class ResponsableServicio extends Model
      *
      * No existe la figura de responsable externo en un servicio (a diferencia
      * de DirectorCentro, que sí admite personas de contacto externas).
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -74,7 +73,7 @@ class ResponsableServicio extends Model
     /**
      * Servicio al que pertenece este registro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Servicio, self>
+     * @return BelongsTo<Servicio, self>
      */
     public function servicio(): BelongsTo
     {
@@ -84,7 +83,7 @@ class ResponsableServicio extends Model
     /**
      * Profesional que ejerce como responsable en este período.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Usuarios\Models\Profesional, self>
+     * @return BelongsTo<Profesional, self>
      */
     public function profesional(): BelongsTo
     {
@@ -99,8 +98,6 @@ class ResponsableServicio extends Model
      * Nombre del cargo del responsable, tomado del servicio.
      *
      * El cargo pertenece al servicio, no al profesional que lo ocupa.
-     *
-     * @return string
      */
     public function getCargoNombreAttribute(): string
     {
@@ -114,8 +111,9 @@ class ResponsableServicio extends Model
     /**
      * Filtra el responsable actualmente en activo (sin fecha de fin).
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeActivo(Builder $query): Builder
     {

@@ -19,7 +19,7 @@ use Modules\Usuarios\Models\UsuarioRol;
  * - Al revocar (estado → inactivo) o caducar (fecha_fin en el pasado) → removeRole
  *   si no hay otro UsuarioRol vigente para ese rol en ese usuario.
  *
- * @see \Modules\Usuarios\Models\UsuarioRol
+ * @see UsuarioRol
  * @see docs/modulo-usuarios-permisos.md sección 4.3
  */
 class UsuarioRolObserver
@@ -29,9 +29,6 @@ class UsuarioRolObserver
      *
      * Solo sincroniza si el estado es activo y la fecha es vigente.
      * Los registros pendientes de aprobación NO se sincronizan.
-     *
-     * @param UsuarioRol $usuarioRol
-     * @return void
      */
     public function created(UsuarioRol $usuarioRol): void
     {
@@ -51,26 +48,24 @@ class UsuarioRolObserver
      * 1. Aprobación: estado pendiente_aprobacion → activo → assignRole.
      * 2. Caducidad: fecha_fin establecida en el pasado → removeRole si no hay otro vigente.
      * 3. Revocación: estado → inactivo → removeRole si no hay otro vigente.
-     *
-     * @param UsuarioRol $usuarioRol
-     * @return void
      */
     public function updated(UsuarioRol $usuarioRol): void
     {
         $estadoCambio = $usuarioRol->wasChanged('estado');
-        $fechaCambio  = $usuarioRol->wasChanged('fecha_fin');
+        $fechaCambio = $usuarioRol->wasChanged('fecha_fin');
 
         // Caso 1: acaba de ser aprobada
         if ($estadoCambio && $usuarioRol->estado === 'activo') {
             if ($this->esVigente($usuarioRol)) {
                 $usuarioRol->usuario->assignRole($usuarioRol->rol);
             }
+
             return;
         }
 
         // Caso 2 y 3: revocación o caducidad
-        $seRevoco  = $estadoCambio && $usuarioRol->estado === 'inactivo';
-        $seCaduco  = $fechaCambio
+        $seRevoco = $estadoCambio && $usuarioRol->estado === 'inactivo';
+        $seCaduco = $fechaCambio
             && $usuarioRol->fecha_fin !== null
             && Carbon::parse($usuarioRol->fecha_fin)->isPast();
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\UnidadOrganizativa;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Schema;
  * a tipos_unidad_organizativa.codigo) para mantener el catálogo
  * configurable sin enums cerrados (principio 4.12).
  *
- * @see \App\Models\UnidadOrganizativa
+ * @see UnidadOrganizativa
  * @see docs/modulo-usuarios-permisos.md sección 1.2
  */
 return new class extends Migration

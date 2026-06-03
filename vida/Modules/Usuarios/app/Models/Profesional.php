@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Perfil organizativo de una persona en el sistema.
@@ -29,7 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $nombre
  * @property string $apellido1
  * @property string|null $apellido2
- * @property string $sexo  M|F|D
+ * @property string $sexo M|F|D
  * @property int $cargo_id
  * @property string|null $categoria_profesional
  * @property int|null $titulacion_id
@@ -38,19 +39,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $email_profesional
  * @property string|null $telefono_profesional
  * @property string|null $extension
- * @property \Illuminate\Support\Carbon $fecha_inicio
- * @property \Illuminate\Support\Carbon|null $fecha_fin
+ * @property Carbon $fecha_inicio
+ * @property Carbon|null $fecha_fin
  * @property bool $activo
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon|null $deleted_at
  *
  * @see docs/modulo-usuarios-permisos.md sección 5
  */
 class Profesional extends Model
 {
-    use Versionable;
     use SoftDeletes;
+    use Versionable;
 
     /** @var string */
     protected $table = 'profesionales';
@@ -77,8 +78,8 @@ class Profesional extends Model
     /** @var array<string, string> */
     protected $casts = [
         'fecha_inicio' => 'date',
-        'fecha_fin'    => 'date',
-        'activo'       => 'boolean',
+        'fecha_fin' => 'date',
+        'activo' => 'boolean',
     ];
 
     // -------------------------------------------------------------------------
@@ -131,8 +132,6 @@ class Profesional extends Model
 
     /**
      * Nombre completo: nombre + apellido1 [+ apellido2].
-     *
-     * @return string
      */
     public function getNombreCompletoAttribute(): string
     {
@@ -147,6 +146,7 @@ class Profesional extends Model
      * Solo profesionales activos.
      *
      * @param Builder<Profesional> $consulta
+     *
      * @return Builder<Profesional>
      */
     public function scopeActivos(Builder $consulta): Builder

@@ -5,9 +5,11 @@ namespace Modules\Documentos\Services;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
 use Modules\Documentos\Support\MergeTagsCatalogo;
 use Modules\Escalas\Enums\EstadoPase;
+use Modules\Escalas\Models\PaseEscala;
 use Modules\Escalas\Models\TipoEscala;
 
 /**
@@ -24,9 +26,10 @@ class ResolverFuentesInforme
     /**
      * Resuelve los datos de una fuente automática para un ciudadano.
      *
-     * @param  string $fuente      Referencia de fuente (ej: 'ciudadano.datos_basicos')
-     * @param  int    $ciudadanoId ID del ciudadano
-     * @return array               Datos estructurados para renderizar
+     * @param string $fuente Referencia de fuente (ej: 'ciudadano.datos_basicos')
+     * @param int $ciudadanoId ID del ciudadano
+     *
+     * @return array Datos estructurados para renderizar
      *
      * @todo Implementar cuando el módulo Intervención esté disponible.
      */
@@ -39,11 +42,9 @@ class ResolverFuentesInforme
      * Sustituye los merge tags en el contenido HTML de una sección de plantilla,
      * devolviendo el HTML con los valores reales del informe.
      *
-     * @param  string $html           HTML con tags {{ clave }} de TipTap
-     * @param  int    $ciudadanoId
-     * @param  int    $profesionalId
-     * @param  Carbon $fechaInforme
-     * @return string                 HTML con valores sustituidos
+     * @param string $html HTML con tags {{ clave }} de TipTap
+     *
+     * @return string HTML con valores sustituidos
      */
     public function resolverMergeTags(
         string $html,
@@ -54,8 +55,8 @@ class ResolverFuentesInforme
         $valores = $this->construirMapaValores($ciudadanoId, $profesionalId, $fechaInforme);
 
         foreach ($valores as $clave => $valor) {
-            $html = str_replace('{{ ' . $clave . ' }}', e((string) $valor), $html);
-            $html = str_replace('{{' . $clave . '}}', e((string) $valor), $html);
+            $html = str_replace('{{ '.$clave.' }}', e((string) $valor), $html);
+            $html = str_replace('{{'.$clave.'}}', e((string) $valor), $html);
         }
 
         return $html;
@@ -73,7 +74,7 @@ class ResolverFuentesInforme
         int $profesionalId,
         Carbon $fechaInforme
     ): array {
-        $ciudadano   = Ciudadano::findOrFail($ciudadanoId);
+        $ciudadano = Ciudadano::findOrFail($ciudadanoId);
         $profesional = User::findOrFail($profesionalId);
 
         // HistoriaSocial: query directa para evitar dependencia del módulo Intervención
@@ -82,12 +83,12 @@ class ResolverFuentesInforme
             ->latest()
             ->first();
 
-        $ultimoBarthel  = $this->ultimoPaseCompletado($historia, 'barthel');
+        $ultimoBarthel = $this->ultimoPaseCompletado($historia, 'barthel');
         $ultimoPfeiffer = $this->ultimoPaseCompletado($historia, 'pfeiffer_spmsq');
-        $ultimoLawton   = $this->ultimoPaseCompletado($historia, 'lawton_brody');
+        $ultimoLawton = $this->ultimoPaseCompletado($historia, 'lawton_brody');
 
         $nombreCompleto = trim(
-            $ciudadano->nombre . ' ' . $ciudadano->apellido1 . ' ' . ($ciudadano->apellido2 ?? '')
+            $ciudadano->nombre.' '.$ciudadano->apellido1.' '.($ciudadano->apellido2 ?? '')
         );
 
         $fechaNac = $ciudadano->fecha_nacimiento
@@ -96,60 +97,56 @@ class ResolverFuentesInforme
 
         return [
             // Ciudadano
-            'nombre_ciudadano'        => $nombreCompleto ?: '—',
-            'fecha_nacimiento'        => $fechaNac?->format('d/m/Y') ?? '—',
-            'edad'                    => $fechaNac ? (string) $fechaNac->age : '—',
-            'nie_nif'                 => $ciudadano->documento_identidad ?? '—',
-            'direccion'               => $ciudadano->direccion_texto ?? '—',
-            'telefono'                => $ciudadano->telefono ?? '—',
+            'nombre_ciudadano' => $nombreCompleto ?: '—',
+            'fecha_nacimiento' => $fechaNac?->format('d/m/Y') ?? '—',
+            'edad' => $fechaNac ? (string) $fechaNac->age : '—',
+            'nie_nif' => $ciudadano->documento_identidad ?? '—',
+            'direccion' => $ciudadano->direccion_texto ?? '—',
+            'telefono' => $ciudadano->telefono ?? '—',
 
             // Expediente — pendiente hasta módulo Intervención (BACKLOG)
-            'numero_expediente'       => '—',
-            'fecha_apertura'          => $historia?->created_at->format('d/m/Y') ?? '—',
-            'motivo_demanda'          => '—',
+            'numero_expediente' => '—',
+            'fecha_apertura' => $historia?->created_at->format('d/m/Y') ?? '—',
+            'motivo_demanda' => '—',
 
             // Valoración — Barthel
-            'fecha_valoracion'        => $ultimoBarthel?->fecha->format('d/m/Y') ?? '—',
-            'score_barthel'           => $ultimoBarthel !== null ? (string) $ultimoBarthel->score_total : '—',
-            'interpretacion_barthel'  => $ultimoBarthel?->interpretacion_codigo ?? '—',
+            'fecha_valoracion' => $ultimoBarthel?->fecha->format('d/m/Y') ?? '—',
+            'score_barthel' => $ultimoBarthel !== null ? (string) $ultimoBarthel->score_total : '—',
+            'interpretacion_barthel' => $ultimoBarthel?->interpretacion_codigo ?? '—',
 
             // Valoración — Pfeiffer
-            'score_pfeiffer'          => $ultimoPfeiffer !== null ? (string) $ultimoPfeiffer->score_total : '—',
+            'score_pfeiffer' => $ultimoPfeiffer !== null ? (string) $ultimoPfeiffer->score_total : '—',
             'interpretacion_pfeiffer' => $ultimoPfeiffer?->interpretacion_codigo ?? '—',
 
             // Valoración — Lawton-Brody
-            'score_lawton'            => $ultimoLawton !== null ? (string) $ultimoLawton->score_total : '—',
-            'interpretacion_lawton'   => $ultimoLawton?->interpretacion_codigo ?? '—',
+            'score_lawton' => $ultimoLawton !== null ? (string) $ultimoLawton->score_total : '—',
+            'interpretacion_lawton' => $ultimoLawton?->interpretacion_codigo ?? '—',
 
             // Plan de intervención — pendiente hasta módulo Intervención (BACKLOG)
-            'lista_prestaciones'      => '—',
-            'fecha_inicio_plan'       => '—',
-            'objetivos_plan'          => '—',
+            'lista_prestaciones' => '—',
+            'fecha_inicio_plan' => '—',
+            'objetivos_plan' => '—',
 
             // Profesional — campos extendidos pendientes de módulo Usuarios completo (BACKLOG)
-            'nombre_profesional'      => $profesional->name,
-            'cargo_profesional'       => '—',
-            'numero_colegiado'        => '—',
+            'nombre_profesional' => $profesional->name,
+            'cargo_profesional' => '—',
+            'numero_colegiado' => '—',
 
             // Centro — pendiente de relación User→Centro en módulo Usuarios (BACKLOG)
-            'nombre_centro'           => '—',
-            'direccion_centro'        => '—',
-            'telefono_centro'         => '—',
+            'nombre_centro' => '—',
+            'direccion_centro' => '—',
+            'telefono_centro' => '—',
 
             // Informe
-            'fecha_informe'           => $fechaInforme->format('d/m/Y'),
+            'fecha_informe' => $fechaInforme->format('d/m/Y'),
         ];
     }
 
     /**
      * Devuelve el pase completado más reciente de una escala dada para una Historia Social.
      * Devuelve null si no hay historia, si no existe la escala, o si no hay pases completados.
-     *
-     * @param  HistoriaSocial|null $historia
-     * @param  string              $codigoEscala
-     * @return \Modules\Escalas\Models\PaseEscala|null
      */
-    private function ultimoPaseCompletado(?HistoriaSocial $historia, string $codigoEscala): ?\Modules\Escalas\Models\PaseEscala
+    private function ultimoPaseCompletado(?HistoriaSocial $historia, string $codigoEscala): ?PaseEscala
     {
         if (! $historia) {
             return null;
@@ -157,7 +154,7 @@ class ResolverFuentesInforme
 
         try {
             $tipoId = TipoEscala::codigoId($codigoEscala);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
+        } catch (ModelNotFoundException) {
             return null;
         }
 

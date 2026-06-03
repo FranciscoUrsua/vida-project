@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Usuarios\Models\Titulacion;
 
 /**
  * Migración: catálogo de titulaciones académicas.
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
  * Catálogo configurable desde el backoffice.
  * Ejemplos: Grado en Trabajo Social, Grado en Psicología.
  *
- * @see \Modules\Usuarios\Models\Titulacion
+ * @see Titulacion
  * @see docs/modulo-usuarios-permisos.md sección 5.2
  */
 return new class extends Migration

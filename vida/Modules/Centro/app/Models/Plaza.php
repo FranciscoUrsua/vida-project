@@ -49,7 +49,7 @@ class Plaza extends Model
     /**
      * Espacio físico en el que se encuentra la plaza.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Espacio, self>
+     * @return BelongsTo<Espacio, self>
      */
     public function espacio(): BelongsTo
     {
@@ -59,7 +59,7 @@ class Plaza extends Model
     /**
      * Prescripción activa en esta plaza.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\Modules\Centro\Models\Prescripcion, self>
+     * @return HasOne<Prescripcion, self>
      */
     public function prescripcion(): HasOne
     {
@@ -74,8 +74,9 @@ class Plaza extends Model
     /**
      * Filtra plazas con estado libre.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeLibres(Builder $query): Builder
     {
@@ -85,8 +86,9 @@ class Plaza extends Model
     /**
      * Filtra plazas con estado ocupada.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeOcupadas(Builder $query): Builder
     {

@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Modules\Mensajes\Livewire\NuevoMensaje;
 use PHPUnit\Framework\Attributes\Test;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 /**
@@ -33,29 +34,29 @@ class NuevoMensajeTest extends TestCase
         $uo1 = UnidadOrganizativa::create(['nombre' => 'UO1 LW09', 'tipo' => 'servicio', 'activa' => true]);
         $uo2 = UnidadOrganizativa::create(['nombre' => 'UO2 LW09', 'tipo' => 'servicio', 'activa' => true]);
 
-        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'trabajador_social', 'guard_name' => 'web']);
-        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'educador_social',   'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'trabajador_social', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'educador_social',   'guard_name' => 'web']);
 
-        $ts1      = User::factory()->create(['name' => 'Kandidat TS Uno']);
-        $ts2      = User::factory()->create(['name' => 'Kandidat TS Dos']);
+        $ts1 = User::factory()->create(['name' => 'Kandidat TS Uno']);
+        $ts2 = User::factory()->create(['name' => 'Kandidat TS Dos']);
         $educador = User::factory()->create(['name' => 'Kandidat EDU']);
         $tsOtraUo = User::factory()->create(['name' => 'Kandidat TSO Otra']);
         $remitente = User::factory()->create(['name' => 'Remitente Fijo']);
 
         foreach ([$ts1, $ts2, $educador] as $u) {
             UsuarioUo::create([
-                'usuario_id'             => $u->id,
+                'usuario_id' => $u->id,
                 'unidad_organizativa_id' => $uo1->id,
-                'tipo_vinculo'           => 'adscripcion',
-                'fecha_inicio'           => now()->toDateString(),
+                'tipo_vinculo' => 'adscripcion',
+                'fecha_inicio' => now()->toDateString(),
             ]);
         }
 
         UsuarioUo::create([
-            'usuario_id'             => $tsOtraUo->id,
+            'usuario_id' => $tsOtraUo->id,
             'unidad_organizativa_id' => $uo2->id,
-            'tipo_vinculo'           => 'adscripcion',
-            'fecha_inicio'           => now()->toDateString(),
+            'tipo_vinculo' => 'adscripcion',
+            'fecha_inicio' => now()->toDateString(),
         ]);
 
         $ts1->assignRole('trabajador_social');
@@ -80,7 +81,7 @@ class NuevoMensajeTest extends TestCase
     #[Test]
     public function t_lw_10_formulario_no_se_envia_sin_asunto(): void
     {
-        $remitente    = User::factory()->create();
+        $remitente = User::factory()->create();
         $destinatario = User::factory()->create();
 
         Livewire::actingAs($remitente)
@@ -100,7 +101,7 @@ class NuevoMensajeTest extends TestCase
     #[Test]
     public function t_lw_11_formulario_no_se_envia_sin_cuerpo(): void
     {
-        $remitente    = User::factory()->create();
+        $remitente = User::factory()->create();
         $destinatario = User::factory()->create();
 
         Livewire::actingAs($remitente)

@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\UsuarioRolResource\Pages;
 
+use App\Filament\Resources\Pages\ListRecords;
 use App\Filament\Resources\UsuarioRolResource;
 use Filament\Actions;
-use App\Filament\Resources\Pages\ListRecords;
 
 class ListUsuarioRoles extends ListRecords
 {

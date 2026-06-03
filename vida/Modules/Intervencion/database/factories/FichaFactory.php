@@ -19,9 +19,9 @@ class FichaFactory extends Factory
         return [
             'valoracion_id' => Valoracion::factory(),
             'tipo_ficha_id' => TipoFicha::factory(),
-            'datos'         => null,
-            'notas'         => null,
-            'completada'    => false,
+            'datos' => null,
+            'notas' => null,
+            'completada' => false,
         ];
     }
 
@@ -31,7 +31,7 @@ class FichaFactory extends Factory
     public function completada(): static
     {
         return $this->state([
-            'datos'      => ['campo_prueba' => fake()->sentence()],
+            'datos' => ['campo_prueba' => fake()->sentence()],
             'completada' => true,
         ]);
     }

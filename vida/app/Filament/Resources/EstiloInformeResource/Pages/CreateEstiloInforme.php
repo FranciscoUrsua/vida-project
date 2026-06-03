@@ -12,6 +12,7 @@ class CreateEstiloInforme extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['creado_por'] = auth()->id();
+
         return $data;
     }
 }

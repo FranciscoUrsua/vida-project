@@ -18,15 +18,15 @@ class SeguimientoPlanFactory extends Factory
     public function definition(): array
     {
         return [
-            'plan_id'                    => PlanDeIntervencion::factory(),
-            'entrevista_id'              => Entrevista::factory()->seguimiento(),
-            'profesional_id'             => User::factory(),
-            'fecha'                      => today()->toDateString(),
-            'avances'                    => fake()->paragraph(),
-            'objetivos_cumplidos'        => null,
-            'incidencias'                => null,
-            'nuevas_prestaciones'        => null,
-            'requiere_revision_plan'     => false,
+            'plan_id' => PlanDeIntervencion::factory(),
+            'entrevista_id' => Entrevista::factory()->seguimiento(),
+            'profesional_id' => User::factory(),
+            'fecha' => today()->toDateString(),
+            'avances' => fake()->paragraph(),
+            'objetivos_cumplidos' => null,
+            'incidencias' => null,
+            'nuevas_prestaciones' => null,
+            'requiere_revision_plan' => false,
             'fecha_siguiente_seguimiento' => null,
         ];
     }

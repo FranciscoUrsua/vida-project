@@ -6,7 +6,6 @@ use App\Services\Api\AnonimizadorService;
 use App\Services\Api\ValidadorKAnonimato;
 use Database\Factories\PerfilAnonimizacionFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Collection;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -19,12 +18,13 @@ class CasosEspecialesDominioTest extends TestCase
     use RefreshDatabase;
 
     private AnonimizadorService $servicio;
+
     private ValidadorKAnonimato $validador;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->servicio  = app(AnonimizadorService::class);
+        $this->servicio = app(AnonimizadorService::class);
         $this->validador = app(ValidadorKAnonimato::class);
     }
 
@@ -38,15 +38,15 @@ class CasosEspecialesDominioTest extends TestCase
         PerfilAnonimizacionFactory::new()->analiticaInterna()->create();
 
         $registro = collect([[
-            'id'              => 1,
-            'nombre'          => 'Paco',
-            'apellido1'       => 'Sin',
-            'es_psh'          => true,
-            'pernocta_lat'    => 40.41,
-            'pernocta_lng'    => -3.70,
+            'id' => 1,
+            'nombre' => 'Paco',
+            'apellido1' => 'Sin',
+            'es_psh' => true,
+            'pernocta_lat' => 40.41,
+            'pernocta_lng' => -3.70,
             'zona_intervencion' => 'Lavapiés',
             'fecha_nacimiento' => '1975-03-10',
-            'sexo'            => 'hombre',
+            'sexo' => 'hombre',
         ]]);
 
         // TODO: La supresión de pernocta_lat/lng requiere que el perfil
@@ -72,12 +72,12 @@ class CasosEspecialesDominioTest extends TestCase
         PerfilAnonimizacionFactory::new()->supervisionInterna()->create();
 
         $registro = collect([[
-            'id'                  => 42,
-            'nombre'              => 'Paco',
-            'apellido1'           => 'Sin',
-            'es_psh'              => true,
+            'id' => 42,
+            'nombre' => 'Paco',
+            'apellido1' => 'Sin',
+            'es_psh' => true,
             'nivel_identificacion' => 'no_identificado',
-            'alias_operativo'     => 'Paco el del puente',
+            'alias_operativo' => 'Paco el del puente',
         ]]);
 
         $resultado = $this->servicio->anonimizar($registro, 'supervision_interna')->first();
@@ -105,28 +105,28 @@ class CasosEspecialesDominioTest extends TestCase
         // lo que hace que el grupo tenga 2 registros y ninguno sea suprimido por k-anonimato.
         $registros = collect([
             [
-                'id'                    => 1,
-                'nombre'                => 'Ana',
-                'apellido1'             => 'Vvg',
-                'es_vvg'                => true,
-                'nombre_via'            => 'Recurso de Acogida Secreta',
-                'codigo_postal'         => '28013',
+                'id' => 1,
+                'nombre' => 'Ana',
+                'apellido1' => 'Vvg',
+                'es_vvg' => true,
+                'nombre_via' => 'Recurso de Acogida Secreta',
+                'codigo_postal' => '28013',
                 'direccion_normalizada' => true,
-                'fecha_nacimiento'      => '1985-06-20',
-                'sexo'                  => 'mujer',
-                'anio_nacimiento'       => 1985,
+                'fecha_nacimiento' => '1985-06-20',
+                'sexo' => 'mujer',
+                'anio_nacimiento' => 1985,
             ],
             [
-                'id'                    => 2,
-                'nombre'                => 'Carmen',
-                'apellido1'             => 'Vvg',
-                'es_vvg'                => true,
-                'nombre_via'            => 'Centro de Emergencias Oculto',
-                'codigo_postal'         => '28020',
+                'id' => 2,
+                'nombre' => 'Carmen',
+                'apellido1' => 'Vvg',
+                'es_vvg' => true,
+                'nombre_via' => 'Centro de Emergencias Oculto',
+                'codigo_postal' => '28020',
                 'direccion_normalizada' => true,
-                'fecha_nacimiento'      => '1985-03-10',
-                'sexo'                  => 'mujer',
-                'anio_nacimiento'       => 1985,
+                'fecha_nacimiento' => '1985-03-10',
+                'sexo' => 'mujer',
+                'anio_nacimiento' => 1985,
             ],
         ]);
 
@@ -152,22 +152,22 @@ class CasosEspecialesDominioTest extends TestCase
         $k = 2;
         $registros = collect([
             [
-                'id'                        => 1,
-                'sexo'                      => 'mujer',
-                'anio_nacimiento'           => 1980,
-                'nombre_via'                => 'Calle A',
-                'colectivo_principal'       => 'PROTEGIDO',
+                'id' => 1,
+                'sexo' => 'mujer',
+                'anio_nacimiento' => 1980,
+                'nombre_via' => 'Calle A',
+                'colectivo_principal' => 'PROTEGIDO',
                 'colectivo_extra_protegido' => true,
-                'codigo_postal'             => '28001',
+                'codigo_postal' => '28001',
             ],
             [
-                'id'                        => 2,
-                'sexo'                      => 'mujer',
-                'anio_nacimiento'           => 1981,
-                'nombre_via'                => 'Calle A',
-                'colectivo_principal'       => 'PROTEGIDO',
+                'id' => 2,
+                'sexo' => 'mujer',
+                'anio_nacimiento' => 1981,
+                'nombre_via' => 'Calle A',
+                'colectivo_principal' => 'PROTEGIDO',
                 'colectivo_extra_protegido' => true,
-                'codigo_postal'             => '28001',
+                'codigo_postal' => '28001',
             ],
         ]);
 
@@ -175,7 +175,7 @@ class CasosEspecialesDominioTest extends TestCase
 
         foreach ($resultado as $r) {
             $this->assertArrayNotHasKey('colectivo_principal', $r,
-                'colectivo_extra_protegido debe suprimir colectivo_principal desde el inicio, ' .
+                'colectivo_extra_protegido debe suprimir colectivo_principal desde el inicio, '.
                 'sin esperar a la cascada');
         }
     }
@@ -194,32 +194,32 @@ class CasosEspecialesDominioTest extends TestCase
         // (que solo usaría zona_intervencion como sustituto). Debe aplicarse VVG.
         $registros = collect([
             [
-                'id'                    => 1,
-                'nombre'                => 'Test',
-                'apellido1'             => 'Multiple',
-                'es_psh'                => true,
-                'es_vvg'                => true,
-                'nombre_via'            => 'Recurso Secreto',
-                'codigo_postal'         => '28001',
+                'id' => 1,
+                'nombre' => 'Test',
+                'apellido1' => 'Multiple',
+                'es_psh' => true,
+                'es_vvg' => true,
+                'nombre_via' => 'Recurso Secreto',
+                'codigo_postal' => '28001',
                 'direccion_normalizada' => true,
-                'zona_intervencion'     => 'Centro',
-                'fecha_nacimiento'      => '1975-01-01',
-                'sexo'                  => 'mujer',
-                'anio_nacimiento'       => 1975,
+                'zona_intervencion' => 'Centro',
+                'fecha_nacimiento' => '1975-01-01',
+                'sexo' => 'mujer',
+                'anio_nacimiento' => 1975,
             ],
             [
-                'id'                    => 2,
-                'nombre'                => 'Otra',
-                'apellido1'             => 'Multiple',
-                'es_psh'                => true,
-                'es_vvg'                => true,
-                'nombre_via'            => 'Otro Recurso',
-                'codigo_postal'         => '28002',
+                'id' => 2,
+                'nombre' => 'Otra',
+                'apellido1' => 'Multiple',
+                'es_psh' => true,
+                'es_vvg' => true,
+                'nombre_via' => 'Otro Recurso',
+                'codigo_postal' => '28002',
                 'direccion_normalizada' => true,
-                'zona_intervencion'     => 'Centro',
-                'fecha_nacimiento'      => '1975-06-01',
-                'sexo'                  => 'mujer',
-                'anio_nacimiento'       => 1975,
+                'zona_intervencion' => 'Centro',
+                'fecha_nacimiento' => '1975-06-01',
+                'sexo' => 'mujer',
+                'anio_nacimiento' => 1975,
             ],
         ]);
 

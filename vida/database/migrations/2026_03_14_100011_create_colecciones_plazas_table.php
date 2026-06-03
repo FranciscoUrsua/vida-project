@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\ColeccionPlazas;
 
 /**
  * Colecciones de plazas de un centro.
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Schema;
  * tipo_plaza valores: pernocta | dia
  * modo_acceso valores: libre | prescripcion_directa | prescripcion_lista_espera
  *
- * @see Modules\Centro\Models\ColeccionPlazas
+ * @see ColeccionPlazas
  */
 return new class extends Migration
 {

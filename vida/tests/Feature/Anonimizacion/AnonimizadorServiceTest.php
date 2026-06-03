@@ -36,7 +36,7 @@ class AnonimizadorServiceTest extends TestCase
     public function acepta_coleccion_y_devuelve_coleccion_de_arrays(): void
     {
         PerfilAnonimizacionFactory::new()->analiticaInterna()->create();
-        $n         = 5;
+        $n = 5;
         $registros = collect(array_map(
             fn (int $i) => ['id' => $i, 'nombre' => "Persona {$i}", 'apellido1' => 'Test', 'fecha_nacimiento' => '1980-01-01', 'sexo' => 'mujer'],
             range(1, $n)

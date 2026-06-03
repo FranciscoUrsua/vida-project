@@ -25,17 +25,15 @@ class HistoriaSocialFactory extends Factory
     public function definition(): array
     {
         return [
-            'ciudadano_id'           => fake()->numberBetween(1, 99999),
+            'ciudadano_id' => fake()->numberBetween(1, 99999),
             'unidad_organizativa_id' => UnidadOrganizativa::factory(),
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ];
     }
 
     /**
      * Historia de ciudadano especialmente protegido.
-     *
-     * @return static
      */
     public function ciudadanoProtegido(): static
     {
@@ -44,9 +42,6 @@ class HistoriaSocialFactory extends Factory
 
     /**
      * Historia asociada a una UO específica.
-     *
-     * @param UnidadOrganizativa $uo
-     * @return static
      */
     public function enUo(UnidadOrganizativa $uo): static
     {

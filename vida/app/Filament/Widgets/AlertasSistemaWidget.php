@@ -15,7 +15,9 @@ use Modules\Usuarios\Models\UsuarioRol;
 class AlertasSistemaWidget extends BaseWidget
 {
     protected static ?int $sort = 3;
-    protected int | string | array $columnSpan = 2;
+
+    protected int|string|array $columnSpan = 2;
+
     protected static ?string $heading = 'Alertas del sistema';
 
     public static function canView(): bool

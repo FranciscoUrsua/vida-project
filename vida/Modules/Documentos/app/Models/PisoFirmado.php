@@ -38,7 +38,7 @@ class PisoFirmado extends Model
     {
         // La relación apunta al modelo stub — se actualizará cuando el módulo
         // Intervención lo implemente con su modelo real.
-        return $this->belongsTo(\App\Models\User::class, 'plan_de_intervencion_id');
+        return $this->belongsTo(User::class, 'plan_de_intervencion_id');
     }
 
     public function documento(): BelongsTo

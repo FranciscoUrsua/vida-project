@@ -52,12 +52,12 @@ class HistoriaSocialService
             ->orderBy('registrado_en')
             ->get()
             ->map(fn (MensajeRegistroHistoria $registro) => [
-                'tipo'        => 'comunicacion_interna',
-                'fecha'       => $registro->registrado_en,
-                'autor'       => $registro->registradoPor->name,
-                'contenido'   => $registro->cuerpo_registrado,
+                'tipo' => 'comunicacion_interna',
+                'fecha' => $registro->registrado_en,
+                'autor' => $registro->registradoPor->name,
+                'contenido' => $registro->cuerpo_registrado,
                 'visibilidad' => $registro->visibilidad->value,
-                'origen'      => $registro,
+                'origen' => $registro,
             ]);
 
         return $apuntes->merge($comunicacionesInternas)->sortBy('fecha')->values();

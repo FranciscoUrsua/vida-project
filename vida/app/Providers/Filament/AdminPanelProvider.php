@@ -33,7 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 fn (): HtmlString => new HtmlString(
-                    '<link rel="stylesheet" href="' . asset('css/filament-vida.css') . '">'
+                    '<link rel="stylesheet" href="'.asset('css/filament-vida.css').'">'
                 )
             )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')

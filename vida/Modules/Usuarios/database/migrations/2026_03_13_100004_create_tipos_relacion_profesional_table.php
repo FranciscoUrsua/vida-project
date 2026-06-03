@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Usuarios\Models\TipoRelacionProfesional;
 
 /**
  * Migración: catálogo de tipos de relación profesional.
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Schema;
  * El campo `es_externo` determina si el campo `organizacion` en Profesional
  * es relevante (para personal de empresas externas o voluntarios).
  *
- * @see \Modules\Usuarios\Models\TipoRelacionProfesional
+ * @see TipoRelacionProfesional
  * @see docs/modulo-usuarios-permisos.md sección 5.2
  */
 return new class extends Migration

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Intervencion\Database\Factories\SiaContactoFactory;
 use Modules\Intervencion\Enums\ClasificacionSia;
 use Modules\Intervencion\Enums\UrgenciaSia;
@@ -22,7 +23,7 @@ use Modules\Intervencion\Enums\UrgenciaSia;
  * @property int $id
  * @property int $ciudadano_id
  * @property int $auxiliar_id
- * @property \Illuminate\Support\Carbon $fecha_hora
+ * @property Carbon $fecha_hora
  * @property string $canal
  * @property string $descripcion_demanda
  * @property ClasificacionSia $clasificacion
@@ -56,9 +57,9 @@ class SiaContacto extends Model
     ];
 
     protected $casts = [
-        'fecha_hora'                => 'datetime',
-        'clasificacion'             => ClasificacionSia::class,
-        'urgencia'                  => UrgenciaSia::class,
+        'fecha_hora' => 'datetime',
+        'clasificacion' => ClasificacionSia::class,
+        'urgencia' => UrgenciaSia::class,
         'prestaciones_identificadas' => 'array',
     ];
 
@@ -88,9 +89,6 @@ class SiaContacto extends Model
 
     /**
      * Solo contactos de competencia municipal.
-     *
-     * @param Builder $query
-     * @return Builder
      */
     public function scopeCompetenciaMunicipal(Builder $query): Builder
     {

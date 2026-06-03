@@ -4,7 +4,6 @@ namespace App\Filament\Resources\PrestacionResource\RelationManagers;
 
 use Filament\Actions\Action;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -42,7 +41,7 @@ class VersionesRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('datos')
                     ->label('Campos guardados')
-                    ->formatStateUsing(fn ($state) => is_array($state) ? count($state) . ' campos' : '—')
+                    ->formatStateUsing(fn ($state) => is_array($state) ? count($state).' campos' : '—')
                     ->alignCenter(),
             ])
             ->defaultSort('created_at', 'desc')

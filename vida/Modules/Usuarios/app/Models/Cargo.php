@@ -5,6 +5,7 @@ namespace Modules\Usuarios\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Catálogo de cargos profesionales.
@@ -16,8 +17,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $nombre
  * @property string|null $descripcion
  * @property bool $activo
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  *
  * @see docs/modulo-usuarios-permisos.md sección 5.2
  */
@@ -60,6 +61,7 @@ class Cargo extends Model
      * Solo cargos activos.
      *
      * @param Builder<Cargo> $consulta
+     *
      * @return Builder<Cargo>
      */
     public function scopeActivos(Builder $consulta): Builder

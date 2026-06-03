@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\PerfilHorarioProfesionalResource\Pages;
 use App\Models\User;
 use Filament\Actions\DeleteAction;
@@ -9,8 +10,8 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -18,18 +19,23 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Centro\Models\Centro;
-use App\Filament\Concerns\AutorizaGestion;
 
 class PerfilHorarioProfesionalResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = PerfilHorarioProfesional::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-circle';
+
     protected static ?string $navigationLabel = 'Perfiles horarios';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
+
     protected static ?string $modelLabel = 'Perfil horario';
+
     protected static ?string $pluralModelLabel = 'Perfiles horarios';
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
@@ -68,7 +74,7 @@ class PerfilHorarioProfesionalResource extends Resource
                         ->nullable()
                         ->columnSpanFull()
                         ->helperText(
-                            'Formato JSON por día de semana (1=Lunes ... 7=Domingo). ' .
+                            'Formato JSON por día de semana (1=Lunes ... 7=Domingo). '.
                             'Ejemplo: {"1": [{"inicio": "09:00", "fin": "14:00"}, {"inicio": "15:00", "fin": "17:00"}], "2": [...]}'
                         ),
                 ]),
@@ -153,9 +159,9 @@ class PerfilHorarioProfesionalResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListPerfilesHorarioProfesional::route('/'),
+            'index' => Pages\ListPerfilesHorarioProfesional::route('/'),
             'create' => Pages\CreatePerfilHorarioProfesional::route('/create'),
-            'edit'   => Pages\EditPerfilHorarioProfesional::route('/{record}/edit'),
+            'edit' => Pages\EditPerfilHorarioProfesional::route('/{record}/edit'),
         ];
     }
 }

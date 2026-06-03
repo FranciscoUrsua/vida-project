@@ -6,8 +6,10 @@ use App\Models\AccesoProtegido;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Mensajes\Enums\DestinatarioType;
@@ -60,8 +62,6 @@ class BuscarCiudadanoPage extends Component
 
     /**
      * Ejecuta la búsqueda y llena $resultados con los ciudadanos encontrados.
-     *
-     * @return void
      */
     public function buscar(): void
     {
@@ -90,13 +90,12 @@ class BuscarCiudadanoPage extends Component
     /**
      * Busca ciudadanos cuyo alias contiene el término dado.
      *
-     * @param string $termino
-     * @return \Illuminate\Database\Eloquent\Collection<int, Ciudadano>
+     * @return Collection<int, Ciudadano>
      */
-    private function buscarPorAlias(string $termino): \Illuminate\Database\Eloquent\Collection
+    private function buscarPorAlias(string $termino): Collection
     {
         return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
-            ->where('alias', 'ilike', '%' . $termino . '%')
+            ->where('alias', 'ilike', '%'.$termino.'%')
             ->where('activo', true)
             ->limit(50)
             ->get();
@@ -108,7 +107,6 @@ class BuscarCiudadanoPage extends Component
      *
      * TODO: reemplazar por búsqueda en índice hash cuando esté disponible.
      *
-     * @param string $termino
      * @return array<int, Ciudadano>
      */
     private function buscarPorNombre(string $termino): array
@@ -121,8 +119,9 @@ class BuscarCiudadanoPage extends Component
             ->get()
             ->filter(function (Ciudadano $c) use ($terminoNorm): bool {
                 $nombreCompleto = mb_strtolower(
-                    trim(($c->nombre ?? '') . ' ' . ($c->apellido1 ?? '') . ' ' . ($c->apellido2 ?? ''))
+                    trim(($c->nombre ?? '').' '.($c->apellido1 ?? '').' '.($c->apellido2 ?? ''))
                 );
+
                 return str_contains($nombreCompleto, $terminoNorm);
             })
             ->take(50)
@@ -136,8 +135,8 @@ class BuscarCiudadanoPage extends Component
      *
      * TODO: implementar cuando exista la tabla ciudadano_identificadores.
      *
-     * @param string $termino
      * @param string $tipo 'doc' | 'hsu'
+     *
      * @return array<int, never>
      */
     private function buscarPorIdentificador(string $termino, string $tipo): array
@@ -149,8 +148,8 @@ class BuscarCiudadanoPage extends Component
     /**
      * Resuelve el nivel de acceso y construye los datos de un resultado.
      *
-     * @param Ciudadano $ciudadano
      * @param array<int> $uoIds UOs vigentes del profesional
+     *
      * @return array<string, mixed>
      */
     private function resolverResultado(Ciudadano $ciudadano, array $uoIds): array
@@ -159,12 +158,12 @@ class BuscarCiudadanoPage extends Component
         if ($ciudadano->colectivo_extra_protegido) {
             return [
                 'ciudadano_id' => $ciudadano->id,
-                'nombre'       => $ciudadano->nombre . ' ' . $ciudadano->apellido1,
-                'alias'        => $ciudadano->alias,
-                'nivel'        => 3,
-                'historia_id'  => null,
+                'nombre' => $ciudadano->nombre.' '.$ciudadano->apellido1,
+                'alias' => $ciudadano->alias,
+                'nivel' => 3,
+                'historia_id' => null,
                 // No se expone domicilio para ciudadanos protegidos (principio 3.7)
-                'domicilio'    => null,
+                'domicilio' => null,
             ];
         }
 
@@ -182,11 +181,11 @@ class BuscarCiudadanoPage extends Component
 
         return [
             'ciudadano_id' => $ciudadano->id,
-            'nombre'       => $ciudadano->nombre . ' ' . $ciudadano->apellido1 . ($ciudadano->apellido2 ? ' ' . $ciudadano->apellido2 : ''),
-            'alias'        => $ciudadano->alias,
-            'nivel'        => $nivel,
-            'historia_id'  => $historia?->id,
-            'domicilio'    => $ciudadano->colectivo_extra_protegido ? null : null, // cifrado, TODO: mostrar si nivel 1
+            'nombre' => $ciudadano->nombre.' '.$ciudadano->apellido1.($ciudadano->apellido2 ? ' '.$ciudadano->apellido2 : ''),
+            'alias' => $ciudadano->alias,
+            'nivel' => $nivel,
+            'historia_id' => $historia?->id,
+            'domicilio' => $ciudadano->colectivo_extra_protegido ? null : null, // cifrado, TODO: mostrar si nivel 1
         ];
     }
 
@@ -199,18 +198,15 @@ class BuscarCiudadanoPage extends Component
      * El campo audits no existe aún — se registra en el log de la aplicación.
      *
      * TODO: conectar con tabla audits cuando esté disponible.
-     *
-     * @param int $historiaId
-     * @return void
      */
     public function registrarAccesoNivel2(int $historiaId): void
     {
         // TODO: conectar con tabla audits cuando esté disponible
         Log::info('acceso_nivel2', [
             'auditable_type' => 'HistoriaSocial',
-            'auditable_id'   => $historiaId,
-            'event'          => 'acceso_nivel2',
-            'user_id'        => Auth::id(),
+            'auditable_id' => $historiaId,
+            'event' => 'acceso_nivel2',
+            'user_id' => Auth::id(),
         ]);
 
         // La navegación a la Historia Social es Entrega 3
@@ -223,9 +219,6 @@ class BuscarCiudadanoPage extends Component
 
     /**
      * Abre el modal de solicitud de acceso para un ciudadano protegido.
-     *
-     * @param int $ciudadanoId
-     * @return void
      */
     public function abrirModalSolicitud(int $ciudadanoId): void
     {
@@ -236,8 +229,6 @@ class BuscarCiudadanoPage extends Component
 
     /**
      * Cierra el modal sin enviar.
-     *
-     * @return void
      */
     public function cerrarModalSolicitud(): void
     {
@@ -251,15 +242,12 @@ class BuscarCiudadanoPage extends Component
      *
      * Registra el AccesoProtegido y envía una alerta al supervisor de la UO
      * responsable de la Historia Social del ciudadano.
-     *
-     * @param int $ciudadanoId
-     * @param string $justificacion
-     * @return void
      */
     public function solicitarAcceso(int $ciudadanoId, string $justificacion): void
     {
         if (strlen(trim($justificacion)) < 20) {
             $this->addError('justificacion', 'La justificación debe tener al menos 20 caracteres.');
+
             return;
         }
 
@@ -271,25 +259,25 @@ class BuscarCiudadanoPage extends Component
 
         // Registrar la solicitud
         AccesoProtegido::create([
-            'usuario_id'    => Auth::id(),
-            'ciudadano_id'  => $ciudadanoId,
-            'solicitante_id'=> Auth::id(),
+            'usuario_id' => Auth::id(),
+            'ciudadano_id' => $ciudadanoId,
+            'solicitante_id' => Auth::id(),
             'justificacion' => $justificacion,
-            'estado'        => 'pendiente',
+            'estado' => 'pendiente',
         ]);
 
         // Enviar alerta al supervisor de la UO responsable
         if ($historia !== null) {
             Alerta::create([
-                'tipo'                    => TipoAlerta::Alerta,
-                'origen_type'             => AccesoProtegido::class,
-                'origen_id'               => 0,
-                'titulo'                  => 'Solicitud de acceso a ciudadano protegido',
-                'cuerpo'                  => 'El profesional ' . Auth::user()->name . ' solicita acceso. Justificación: ' . $justificacion,
-                'destinatario_type'       => DestinatarioType::RolUo,
-                'destinatario_rol'        => 'supervision',
-                'destinatario_uo_id'      => $historia->unidad_organizativa_id,
-                'estado'                  => 'pendiente',
+                'tipo' => TipoAlerta::Alerta,
+                'origen_type' => AccesoProtegido::class,
+                'origen_id' => 0,
+                'titulo' => 'Solicitud de acceso a ciudadano protegido',
+                'cuerpo' => 'El profesional '.Auth::user()->name.' solicita acceso. Justificación: '.$justificacion,
+                'destinatario_type' => DestinatarioType::RolUo,
+                'destinatario_rol' => 'supervision',
+                'destinatario_uo_id' => $historia->unidad_organizativa_id,
+                'estado' => 'pendiente',
             ]);
         }
 
@@ -298,10 +286,7 @@ class BuscarCiudadanoPage extends Component
         $this->justificacion = '';
     }
 
-    /**
-     * @return \Illuminate\View\View
-     */
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('intervencion::livewire.buscar-ciudadano-page');
     }

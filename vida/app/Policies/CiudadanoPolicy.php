@@ -44,9 +44,6 @@ class CiudadanoPolicy
 
     /**
      * Decide si el usuario puede listar ciudadanos.
-     *
-     * @param User $usuario
-     * @return bool
      */
     public function viewAny(User $usuario): bool
     {
@@ -57,10 +54,6 @@ class CiudadanoPolicy
      * Decide si el usuario puede consultar la ficha del ciudadano.
      *
      * Evaluación en tres pasos estándar más verificación de colectivo protegido.
-     *
-     * @param User $usuario
-     * @param Ciudadano $ciudadano
-     * @return bool
      */
     public function view(User $usuario, Ciudadano $ciudadano): bool
     {
@@ -86,9 +79,6 @@ class CiudadanoPolicy
      * Decide si el usuario puede crear un ciudadano.
      *
      * El rol supervision no puede crear ciudadanos.
-     *
-     * @param User $usuario
-     * @return bool
      */
     public function create(User $usuario): bool
     {
@@ -105,10 +95,6 @@ class CiudadanoPolicy
      *
      * La edición solo está permitida dentro del ámbito de UO del usuario.
      * El rol supervision no puede editar.
-     *
-     * @param User $usuario
-     * @param Ciudadano $ciudadano
-     * @return bool
      */
     public function update(User $usuario, Ciudadano $ciudadano): bool
     {
@@ -138,10 +124,6 @@ class CiudadanoPolicy
      * Decide si el usuario puede eliminar (baja lógica) el ciudadano.
      *
      * La eliminación solo está permitida dentro del ámbito de UO del usuario.
-     *
-     * @param User $usuario
-     * @param Ciudadano $ciudadano
-     * @return bool
      */
     public function delete(User $usuario, Ciudadano $ciudadano): bool
     {
@@ -175,10 +157,6 @@ class CiudadanoPolicy
      *
      * Si el ciudadano pertenece a un colectivo especialmente protegido,
      * requiere aprobación vigente de acceso (Nivel 3).
-     *
-     * @param User $usuario
-     * @param Ciudadano $ciudadano
-     * @return bool
      */
     private function resolverConsultaExterna(User $usuario, Ciudadano $ciudadano): bool
     {
@@ -193,7 +171,7 @@ class CiudadanoPolicy
             ->where('estado', 'aprobado')
             ->where(function ($consulta) {
                 $consulta->whereNull('acceso_valido_hasta')
-                         ->orWhere('acceso_valido_hasta', '>=', now());
+                    ->orWhere('acceso_valido_hasta', '>=', now());
             })
             ->exists();
     }
@@ -203,9 +181,6 @@ class CiudadanoPolicy
      *
      * Devuelve la Historia Social más reciente y activa del ciudadano,
      * que determina a qué UO pertenece funcionalmente.
-     *
-     * @param Ciudadano $ciudadano
-     * @return HistoriaSocial|null
      */
     private function obtenerHistoriaPrincipal(Ciudadano $ciudadano): ?HistoriaSocial
     {

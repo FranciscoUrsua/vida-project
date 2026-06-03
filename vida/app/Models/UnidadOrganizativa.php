@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
 
 /**
@@ -30,9 +31,9 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
  * @property string $tipo Código del tipo (ej: 'ayuntamiento', 'dg', 'departamento', 'centro')
  * @property int|null $parent_id
  * @property bool $activa
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon|null $deleted_at
  *
  * @see docs/modulo-usuarios-permisos.md sección 1.2
  */
@@ -113,7 +114,6 @@ class UnidadOrganizativa extends Model
      * Útil para verificar ámbitos de supervisión jerárquica.
      *
      * @param UnidadOrganizativa $ancestor UO ancestro a comprobar
-     * @return bool
      */
     public function isDescendantOf(UnidadOrganizativa $ancestor): bool
     {
@@ -129,6 +129,7 @@ class UnidadOrganizativa extends Model
      * Filtra únicamente las UO marcadas como activas.
      *
      * @param Builder<UnidadOrganizativa> $consulta
+     *
      * @return Builder<UnidadOrganizativa>
      */
     public function scopeActivas(Builder $consulta): Builder
@@ -140,6 +141,7 @@ class UnidadOrganizativa extends Model
      * Filtra UO raíz (sin padre).
      *
      * @param Builder<UnidadOrganizativa> $consulta
+     *
      * @return Builder<UnidadOrganizativa>
      */
     public function scopeRaiz(Builder $consulta): Builder

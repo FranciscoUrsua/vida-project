@@ -25,17 +25,15 @@ trait Versionable
 {
     /**
      * Registra el hook de versionado al arrancar el modelo.
-     *
-     * @return void
      */
     protected static function bootVersionable(): void
     {
         static::updating(function ($model) {
             Version::create([
                 'versionable_type' => $model->getMorphClass(),
-                'versionable_id'   => $model->getKey(),
-                'datos'            => $model->getOriginal(),
-                'usuario_id'       => auth()->id(),
+                'versionable_id' => $model->getKey(),
+                'datos' => $model->getOriginal(),
+                'usuario_id' => auth()->id(),
             ]);
         });
     }

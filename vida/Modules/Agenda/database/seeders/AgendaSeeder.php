@@ -28,57 +28,58 @@ class AgendaSeeder extends Seeder
 
         if (! $centro) {
             $this->command->warn('AgendaSeeder: no hay centros en la BD. Omitiendo seeder.');
+
             return;
         }
 
         $horario = HorarioCentro::firstOrCreate(
             ['centro_id' => $centro->id, 'nombre' => 'Horario general'],
             [
-                'dias_laborables'        => [1, 2, 3, 4, 5],
-                'hora_apertura'          => '09:00',
-                'hora_cierre'            => '19:00',
-                'hora_inicio_atencion'   => '09:00',
-                'hora_fin_atencion'      => '19:00',
-                'buffer_inicio_minutos'  => 0,
-                'buffer_fin_minutos'     => 0,
-                'vigente_desde'          => now()->toDateString(),
-                'vigente_hasta'          => null,
-                'modo_agenda'            => ModoAgenda::Estandar->value,
-                'activo'                 => true,
-                'notas'                  => null,
+                'dias_laborables' => [1, 2, 3, 4, 5],
+                'hora_apertura' => '09:00',
+                'hora_cierre' => '19:00',
+                'hora_inicio_atencion' => '09:00',
+                'hora_fin_atencion' => '19:00',
+                'buffer_inicio_minutos' => 0,
+                'buffer_fin_minutos' => 0,
+                'vigente_desde' => now()->toDateString(),
+                'vigente_hasta' => null,
+                'modo_agenda' => ModoAgenda::Estandar->value,
+                'activo' => true,
+                'notas' => null,
             ]
         );
 
         $tipos = [
             [
-                'nombre'                  => 'Entrevista TSR',
-                'descripcion'             => 'Entrevista con el Trabajador Social de Referencia.',
-                'duracion_minutos'        => 45,
-                'requiere_espacio'        => false,
-                'porcentaje_urgencias'    => 20,
-                'origen_permitido'        => OrigenPermitidoSlot::Ambos->value,
+                'nombre' => 'Entrevista TSR',
+                'descripcion' => 'Entrevista con el Trabajador Social de Referencia.',
+                'duracion_minutos' => 45,
+                'requiere_espacio' => false,
+                'porcentaje_urgencias' => 20,
+                'origen_permitido' => OrigenPermitidoSlot::Ambos->value,
                 'genera_apunte_automatico' => false,
-                'activo'                  => true,
+                'activo' => true,
             ],
             [
-                'nombre'                  => 'Primera atención SIA',
-                'descripcion'             => 'Primera atención en el Servicio de Información y Asesoramiento.',
-                'duracion_minutos'        => 30,
-                'requiere_espacio'        => false,
-                'porcentaje_urgencias'    => 30,
-                'origen_permitido'        => OrigenPermitidoSlot::Ambos->value,
+                'nombre' => 'Primera atención SIA',
+                'descripcion' => 'Primera atención en el Servicio de Información y Asesoramiento.',
+                'duracion_minutos' => 30,
+                'requiere_espacio' => false,
+                'porcentaje_urgencias' => 30,
+                'origen_permitido' => OrigenPermitidoSlot::Ambos->value,
                 'genera_apunte_automatico' => false,
-                'activo'                  => true,
+                'activo' => true,
             ],
             [
-                'nombre'                  => 'Reunión de coordinación',
-                'descripcion'             => 'Reunión interna de coordinación de equipo o con entidades externas.',
-                'duracion_minutos'        => 60,
-                'requiere_espacio'        => true,
-                'porcentaje_urgencias'    => 0,
-                'origen_permitido'        => OrigenPermitidoSlot::Interno->value,
+                'nombre' => 'Reunión de coordinación',
+                'descripcion' => 'Reunión interna de coordinación de equipo o con entidades externas.',
+                'duracion_minutos' => 60,
+                'requiere_espacio' => true,
+                'porcentaje_urgencias' => 0,
+                'origen_permitido' => OrigenPermitidoSlot::Interno->value,
                 'genera_apunte_automatico' => false,
-                'activo'                  => true,
+                'activo' => true,
             ],
         ];
 
@@ -97,11 +98,11 @@ class AgendaSeeder extends Seeder
 
             if (! $existe) {
                 DB::table('catalogos_sistema')->insert([
-                    'grupo'    => 'tipo_evento_agenda',
-                    'clave'    => 'reunion_equipo',
+                    'grupo' => 'tipo_evento_agenda',
+                    'clave' => 'reunion_equipo',
                     'etiqueta' => 'Reunión de equipo',
-                    'orden'    => 1,
-                    'activo'   => true,
+                    'orden' => 1,
+                    'activo' => true,
                 ]);
             }
         }

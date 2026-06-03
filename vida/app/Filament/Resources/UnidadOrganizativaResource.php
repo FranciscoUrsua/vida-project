@@ -2,20 +2,19 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\UnidadOrganizativaResource\Pages;
 use App\Models\UnidadOrganizativa;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
-use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Resource Filament para gestionar Unidades Organizativas.
@@ -25,13 +24,19 @@ use App\Filament\Concerns\AutorizaGestion;
 class UnidadOrganizativaResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = UnidadOrganizativa::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-office-2';
+
     protected static ?string $navigationLabel = 'Unidades Organizativas';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Organización';
+
     protected static ?string $modelLabel = 'Unidad Organizativa';
+
     protected static ?string $pluralModelLabel = 'Unidades Organizativas';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
@@ -119,9 +124,9 @@ class UnidadOrganizativaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListUnidadesOrganizativas::route('/'),
+            'index' => Pages\ListUnidadesOrganizativas::route('/'),
             'create' => Pages\CreateUnidadOrganizativa::route('/create'),
-            'edit'   => Pages\EditUnidadOrganizativa::route('/{record}/edit'),
+            'edit' => Pages\EditUnidadOrganizativa::route('/{record}/edit'),
         ];
     }
 }

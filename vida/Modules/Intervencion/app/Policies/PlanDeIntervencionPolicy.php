@@ -2,9 +2,12 @@
 
 namespace Modules\Intervencion\Policies;
 
+use App\Models\AccesoProtegido;
+use App\Models\HistoriaSocial;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Modules\Intervencion\Models\PlanDeIntervencion;
+use Modules\Usuarios\Policies\HistoriaSocialPolicy;
 
 /**
  * Policy de autorización para el Plan de Intervención.
@@ -23,7 +26,7 @@ use Modules\Intervencion\Models\PlanDeIntervencion;
  * Caso especial — adm_sistema: también debe pasar los filtros de UO y colectivo protegido.
  *
  * @see docs/modulo-intervencion.md
- * @see \Modules\Usuarios\Policies\HistoriaSocialPolicy
+ * @see HistoriaSocialPolicy
  */
 class PlanDeIntervencionPolicy
 {
@@ -43,9 +46,6 @@ class PlanDeIntervencionPolicy
 
     /**
      * Decide si el usuario puede listar Planes de Intervención.
-     *
-     * @param User $usuario
-     * @return bool
      */
     public function viewAny(User $usuario): bool
     {
@@ -56,10 +56,6 @@ class PlanDeIntervencionPolicy
      * Decide si el usuario puede consultar el Plan de Intervención.
      *
      * Evaluación en tres pasos: permiso → ámbito UO → colectivo protegido.
-     *
-     * @param User $usuario
-     * @param PlanDeIntervencion $plan
-     * @return bool
      */
     public function view(User $usuario, PlanDeIntervencion $plan): bool
     {
@@ -92,9 +88,6 @@ class PlanDeIntervencionPolicy
      * Decide si el usuario puede crear un Plan de Intervención.
      *
      * El rol supervision no puede crear planes.
-     *
-     * @param User $usuario
-     * @return bool
      */
     public function create(User $usuario): bool
     {
@@ -111,10 +104,6 @@ class PlanDeIntervencionPolicy
      *
      * La edición solo está permitida dentro del ámbito de UO del usuario.
      * El rol supervision no puede editar.
-     *
-     * @param User $usuario
-     * @param PlanDeIntervencion $plan
-     * @return bool
      */
     public function update(User $usuario, PlanDeIntervencion $plan): bool
     {
@@ -146,10 +135,6 @@ class PlanDeIntervencionPolicy
      * Decide si el usuario puede eliminar (baja lógica) el Plan de Intervención.
      *
      * La eliminación solo está permitida dentro del ámbito de UO del usuario.
-     *
-     * @param User $usuario
-     * @param PlanDeIntervencion $plan
-     * @return bool
      */
     public function delete(User $usuario, PlanDeIntervencion $plan): bool
     {
@@ -186,24 +171,20 @@ class PlanDeIntervencionPolicy
      *
      * Si el ciudadano asociado a la Historia es especialmente protegido,
      * se requiere aprobación vigente (Nivel 3).
-     *
-     * @param User $usuario
-     * @param \App\Models\HistoriaSocial $historia
-     * @return bool
      */
-    private function resolverConsultaExterna(User $usuario, \App\Models\HistoriaSocial $historia): bool
+    private function resolverConsultaExterna(User $usuario, HistoriaSocial $historia): bool
     {
         if (! $historia->ciudadano_protegido) {
             return true; // Nivel 2: consulta libre
         }
 
         // Nivel 3: ciudadano protegido → requiere aprobación vigente
-        return \App\Models\AccesoProtegido::where('usuario_id', $usuario->id)
+        return AccesoProtegido::where('usuario_id', $usuario->id)
             ->where('ciudadano_id', $historia->ciudadano_id)
             ->where('estado', 'aprobado')
             ->where(function ($consulta) {
                 $consulta->whereNull('acceso_valido_hasta')
-                         ->orWhere('acceso_valido_hasta', '>=', now());
+                    ->orWhere('acceso_valido_hasta', '>=', now());
             })
             ->exists();
     }

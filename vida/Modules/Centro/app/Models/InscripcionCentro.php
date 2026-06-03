@@ -7,6 +7,7 @@ use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Inscripción de un ciudadano a un centro.
@@ -17,8 +18,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $centro_id
  * @property int $ciudadano_id
- * @property \Illuminate\Support\Carbon $fecha_alta
- * @property \Illuminate\Support\Carbon|null $fecha_baja
+ * @property Carbon $fecha_alta
+ * @property Carbon|null $fecha_baja
  * @property bool $activa
  */
 class InscripcionCentro extends Model
@@ -40,7 +41,7 @@ class InscripcionCentro extends Model
     protected $casts = [
         'fecha_alta' => 'date',
         'fecha_baja' => 'date',
-        'activa'     => 'boolean',
+        'activa' => 'boolean',
     ];
 
     // -------------------------------------------------------------------------
@@ -50,7 +51,7 @@ class InscripcionCentro extends Model
     /**
      * Centro al que está inscrito el ciudadano.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Centro, self>
+     * @return BelongsTo<Centro, self>
      */
     public function centro(): BelongsTo
     {
@@ -60,7 +61,7 @@ class InscripcionCentro extends Model
     /**
      * Ciudadano inscrito en el centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Ciudadano, self>
+     * @return BelongsTo<Ciudadano, self>
      */
     public function ciudadano(): BelongsTo
     {
@@ -74,12 +75,12 @@ class InscripcionCentro extends Model
     /**
      * Filtra inscripciones activas y sin fecha de baja.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeActivas(Builder $query): Builder
     {
         return $query->where('activa', true)->whereNull('fecha_baja');
     }
-
 }

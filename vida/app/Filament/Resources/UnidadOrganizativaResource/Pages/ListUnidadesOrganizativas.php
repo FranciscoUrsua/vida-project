@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\UnidadOrganizativaResource\Pages;
 
+use App\Filament\Resources\Pages\ListRecords;
 use App\Filament\Resources\UnidadOrganizativaResource;
 use Filament\Actions;
-use App\Filament\Resources\Pages\ListRecords;
 
 class ListUnidadesOrganizativas extends ListRecords
 {

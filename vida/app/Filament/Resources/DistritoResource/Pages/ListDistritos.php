@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\DistritoResource\Pages;
 
 use App\Filament\Resources\DistritoResource;
-use Filament\Actions;
 use App\Filament\Resources\Pages\ListRecords;
+use Filament\Actions;
 
 class ListDistritos extends ListRecords
 {

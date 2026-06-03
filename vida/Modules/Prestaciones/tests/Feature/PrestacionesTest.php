@@ -5,9 +5,10 @@ namespace Modules\Prestaciones\Tests\Feature;
 use App\Models\CatalogoSistema;
 use App\Models\Version;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Prestaciones\Models\Prestacion;
-use Modules\Prestaciones\Models\PrestacionTipoCentro;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -28,11 +29,11 @@ class PrestacionesTest extends TestCase
     private function prestacionBase(array $overrides = []): array
     {
         return array_merge([
-            'codigo'          => '010101',
-            'nombre'          => 'Servicio de información y asesoramiento',
+            'codigo' => '010101',
+            'nombre' => 'Servicio de información y asesoramiento',
             'tipo_prestacion' => 'servicio',
-            'nivel_garantia'  => 'garantizada',
-            'activa'          => true,
+            'nivel_garantia' => 'garantizada',
+            'activa' => true,
         ], $overrides);
     }
 
@@ -46,9 +47,9 @@ class PrestacionesTest extends TestCase
         $prestacion = Prestacion::create($this->prestacionBase());
 
         $this->assertDatabaseHas('prestaciones', [
-            'codigo'          => '010101',
+            'codigo' => '010101',
             'tipo_prestacion' => 'servicio',
-            'nivel_garantia'  => 'garantizada',
+            'nivel_garantia' => 'garantizada',
         ]);
 
         $this->assertTrue($prestacion->activa);
@@ -58,10 +59,10 @@ class PrestacionesTest extends TestCase
     public function se_puede_crear_una_prestacion_economica(): void
     {
         $prestacion = Prestacion::create($this->prestacionBase([
-            'codigo'          => '020301',
-            'nombre'          => 'Ayuda de Emergencia Social',
+            'codigo' => '020301',
+            'nombre' => 'Ayuda de Emergencia Social',
             'tipo_prestacion' => 'economica',
-            'nivel_garantia'  => 'condicionada',
+            'nivel_garantia' => 'condicionada',
         ]));
 
         $this->assertEquals('economica', $prestacion->tipo_prestacion);
@@ -75,10 +76,10 @@ class PrestacionesTest extends TestCase
     #[Test]
     public function tipo_prestacion_rechaza_valores_fuera_del_enum(): void
     {
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         Prestacion::create($this->prestacionBase([
-            'codigo'          => '999999',
+            'codigo' => '999999',
             'tipo_prestacion' => 'invalido',
         ]));
     }
@@ -86,10 +87,10 @@ class PrestacionesTest extends TestCase
     #[Test]
     public function nivel_garantia_rechaza_valores_fuera_del_enum(): void
     {
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         Prestacion::create($this->prestacionBase([
-            'codigo'         => '999998',
+            'codigo' => '999998',
             'nivel_garantia' => 'invalido',
         ]));
     }
@@ -215,19 +216,19 @@ class PrestacionesTest extends TestCase
     public function se_puede_crear_una_entrada_de_catalogo_con_todos_sus_campos(): void
     {
         CatalogoSistema::create([
-            'grupo'    => 'prestacion.objetivo_general',
-            'clave'    => '01',
+            'grupo' => 'prestacion.objetivo_general',
+            'clave' => '01',
             'etiqueta' => 'Acceso, información y valoración',
-            'orden'    => 1,
-            'activo'   => true,
+            'orden' => 1,
+            'activo' => true,
         ]);
 
         $this->assertDatabaseHas('catalogos_sistema', [
-            'grupo'    => 'prestacion.objetivo_general',
-            'clave'    => '01',
+            'grupo' => 'prestacion.objetivo_general',
+            'clave' => '01',
             'etiqueta' => 'Acceso, información y valoración',
-            'orden'    => 1,
-            'activo'   => true,
+            'orden' => 1,
+            'activo' => true,
         ]);
     }
 
@@ -236,7 +237,7 @@ class PrestacionesTest extends TestCase
     {
         CatalogoSistema::create(['grupo' => 'prestacion.competencia', 'clave' => 'municipal', 'etiqueta' => 'Municipal', 'orden' => 1, 'activo' => true]);
 
-        $this->expectException(\Illuminate\Database\UniqueConstraintViolationException::class);
+        $this->expectException(UniqueConstraintViolationException::class);
 
         CatalogoSistema::create(['grupo' => 'prestacion.competencia', 'clave' => 'municipal', 'etiqueta' => 'Municipal duplicado', 'orden' => 2, 'activo' => true]);
     }
@@ -274,7 +275,7 @@ class PrestacionesTest extends TestCase
     {
         Prestacion::create($this->prestacionBase(['codigo' => '010101']));
 
-        $this->expectException(\Illuminate\Database\UniqueConstraintViolationException::class);
+        $this->expectException(UniqueConstraintViolationException::class);
 
         Prestacion::create($this->prestacionBase(['codigo' => '010101', 'nombre' => 'Duplicado']));
     }
@@ -341,7 +342,7 @@ class PrestacionesTest extends TestCase
         $prestacion = Prestacion::create($this->prestacionBase());
         $prestacion->tiposCentro()->create(['tipo_centro' => 'css_general']);
 
-        $this->expectException(\Illuminate\Database\UniqueConstraintViolationException::class);
+        $this->expectException(UniqueConstraintViolationException::class);
 
         $prestacion->tiposCentro()->create(['tipo_centro' => 'css_general']);
     }
@@ -370,8 +371,8 @@ class PrestacionesTest extends TestCase
     public function el_snapshot_contiene_el_estado_completo_anterior_no_solo_el_campo_modificado(): void
     {
         $prestacion = Prestacion::create($this->prestacionBase([
-            'codigo'         => 'SNAP01',
-            'nombre'         => 'Nombre completo',
+            'codigo' => 'SNAP01',
+            'nombre' => 'Nombre completo',
             'tipo_prestacion' => 'servicio',
             'nivel_garantia' => 'garantizada',
         ]));

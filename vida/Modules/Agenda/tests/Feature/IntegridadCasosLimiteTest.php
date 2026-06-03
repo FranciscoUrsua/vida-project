@@ -2,9 +2,11 @@
 
 namespace Modules\Agenda\Tests\Feature;
 
+use App\Models\Ciudadano;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Enums\EstadoCuadrante;
 use Modules\Agenda\Enums\EstadoSlot;
@@ -29,20 +31,20 @@ class IntegridadCasosLimiteTest extends TestCase
     private function crearCentro(string $nombre = 'Centro de Prueba'): Centro
     {
         return Centro::create([
-            'nombre'       => $nombre,
+            'nombre' => $nombre,
             'tipo_gestion' => 'municipal_directo',
-            'fecha_alta'   => now()->toDateString(),
+            'fecha_alta' => now()->toDateString(),
         ]);
     }
 
     private function crearCuadrante(Centro $centro, int $anyo = 2026, int $mes = 1, array $override = []): CuadranteMes
     {
         return CuadranteMes::create(array_merge([
-            'centro_id'               => $centro->id,
-            'anyo'                    => $anyo,
-            'mes'                     => $mes,
-            'estado'                  => EstadoCuadrante::Borrador->value,
-            'generado_con_ia'         => false,
+            'centro_id' => $centro->id,
+            'anyo' => $anyo,
+            'mes' => $mes,
+            'estado' => EstadoCuadrante::Borrador->value,
+            'generado_con_ia' => false,
             'generado_automaticamente' => false,
         ], $override));
     }
@@ -57,26 +59,26 @@ class IntegridadCasosLimiteTest extends TestCase
         $centro = $this->crearCentro();
 
         HorarioCentro::create([
-            'centro_id'             => $centro->id,
-            'nombre'                => 'Horario',
-            'dias_laborables'       => [1, 2, 3, 4, 5],
-            'hora_apertura'         => '08:00',
-            'hora_cierre'           => '19:00',
-            'hora_inicio_atencion'  => '09:00',
-            'hora_fin_atencion'     => '14:00',
+            'centro_id' => $centro->id,
+            'nombre' => 'Horario',
+            'dias_laborables' => [1, 2, 3, 4, 5],
+            'hora_apertura' => '08:00',
+            'hora_cierre' => '19:00',
+            'hora_inicio_atencion' => '09:00',
+            'hora_fin_atencion' => '14:00',
             'buffer_inicio_minutos' => 0,
-            'buffer_fin_minutos'    => 0,
-            'vigente_desde'         => '2026-01-01',
-            'vigente_hasta'         => null,
-            'modo_agenda'           => 'estandar',
-            'activo'                => true,
+            'buffer_fin_minutos' => 0,
+            'vigente_desde' => '2026-01-01',
+            'vigente_hasta' => null,
+            'modo_agenda' => 'estandar',
+            'activo' => true,
         ]);
 
         // Sin perfiles de profesionales
         $cuadrante = $this->crearCuadrante($centro, 2026, 6);
 
         // No debe lanzar ningún error
-        (new CuadranteGeneratorService())->generarBorrador($cuadrante);
+        (new CuadranteGeneratorService)->generarBorrador($cuadrante);
 
         $this->assertEquals(0, $cuadrante->lineas()->count(), 'Sin profesionales no debe generarse ninguna línea');
         $this->assertEquals(EstadoCuadrante::Borrador, $cuadrante->estado, 'El cuadrante debe permanecer en borrador');
@@ -93,46 +95,46 @@ class IntegridadCasosLimiteTest extends TestCase
         $centro = $this->crearCentro();
 
         $horario = HorarioCentro::create([
-            'centro_id'             => $centro->id,
-            'nombre'                => 'Horario corto',
-            'dias_laborables'       => [1, 2, 3, 4, 5],
-            'hora_apertura'         => '09:00',
-            'hora_cierre'           => '11:00',
-            'hora_inicio_atencion'  => '09:30',
-            'hora_fin_atencion'     => '10:00',
+            'centro_id' => $centro->id,
+            'nombre' => 'Horario corto',
+            'dias_laborables' => [1, 2, 3, 4, 5],
+            'hora_apertura' => '09:00',
+            'hora_cierre' => '11:00',
+            'hora_inicio_atencion' => '09:30',
+            'hora_fin_atencion' => '10:00',
             'buffer_inicio_minutos' => 0,
-            'buffer_fin_minutos'    => 0,
-            'vigente_desde'         => '2026-01-01',
-            'vigente_hasta'         => null,
-            'modo_agenda'           => 'estandar',
-            'activo'                => true,
+            'buffer_fin_minutos' => 0,
+            'vigente_desde' => '2026-01-01',
+            'vigente_hasta' => null,
+            'modo_agenda' => 'estandar',
+            'activo' => true,
         ]);
 
         TipoSlot::create([
-            'horario_centro_id'        => $horario->id,
-            'nombre'                   => 'Sesión larga',
-            'duracion_minutos'         => 45,
-            'requiere_espacio'         => false,
-            'porcentaje_urgencias'     => 0,
-            'origen_permitido'         => 'ambos',
+            'horario_centro_id' => $horario->id,
+            'nombre' => 'Sesión larga',
+            'duracion_minutos' => 45,
+            'requiere_espacio' => false,
+            'porcentaje_urgencias' => 0,
+            'origen_permitido' => 'ambos',
             'genera_apunte_automatico' => false,
-            'activo'                   => true,
+            'activo' => true,
         ]);
 
-        $usuario   = User::factory()->create();
+        $usuario = User::factory()->create();
         $cuadrante = $this->crearCuadrante($centro, 2026, 6);
 
         // 2026-06-01 is a Monday
         LineaCuadrante::create([
             'cuadrante_mes_id' => $cuadrante->id,
-            'usuario_id'       => $usuario->id,
-            'centro_id'        => $centro->id,
-            'fecha'            => '2026-06-01',
-            'franjas'          => [['inicio' => '09:00', 'fin' => '11:00']],
-            'anulada'          => false,
+            'usuario_id' => $usuario->id,
+            'centro_id' => $centro->id,
+            'fecha' => '2026-06-01',
+            'franjas' => [['inicio' => '09:00', 'fin' => '11:00']],
+            'anulada' => false,
         ]);
 
-        $creados = (new SlotMaterializadorService())->materializar($cuadrante);
+        $creados = (new SlotMaterializadorService)->materializar($cuadrante);
 
         $this->assertEquals(0, $creados, 'Un TipoSlot de 45 min no cabe en una franja útil de 30 min');
     }
@@ -147,25 +149,25 @@ class IntegridadCasosLimiteTest extends TestCase
         $centro = $this->crearCentro();
 
         $horario = HorarioCentro::create([
-            'centro_id'            => $centro->id,
-            'nombre'               => 'Horario básico',
-            'dias_laborables'      => [1, 2, 3, 4, 5],
-            'hora_apertura'        => '08:00',
-            'hora_cierre'          => '19:00',
+            'centro_id' => $centro->id,
+            'nombre' => 'Horario básico',
+            'dias_laborables' => [1, 2, 3, 4, 5],
+            'hora_apertura' => '08:00',
+            'hora_cierre' => '19:00',
             'hora_inicio_atencion' => '09:00',
-            'hora_fin_atencion'    => '14:00',
+            'hora_fin_atencion' => '14:00',
             'buffer_inicio_minutos' => 0,
-            'buffer_fin_minutos'   => 0,
-            'vigente_desde'        => now()->toDateString(),
-            'vigente_hasta'        => null,
-            'modo_agenda'          => ModoAgenda::Basico->value,
-            'activo'               => true,
+            'buffer_fin_minutos' => 0,
+            'vigente_desde' => now()->toDateString(),
+            'vigente_hasta' => null,
+            'modo_agenda' => ModoAgenda::Basico->value,
+            'activo' => true,
         ]);
 
         $cuadrante = $this->crearCuadrante($centro, 2026, 1, [
-            'estado'                  => EstadoCuadrante::Publicado->value,
+            'estado' => EstadoCuadrante::Publicado->value,
             'generado_automaticamente' => true,
-            'publicado_en'            => now(),
+            'publicado_en' => now(),
         ]);
 
         // Crear algunos slots directamente
@@ -201,20 +203,20 @@ class IntegridadCasosLimiteTest extends TestCase
     #[Test]
     public function test_pf_10_4_soft_delete_cita_slot_intacto(): void
     {
-        $ciudadano   = \App\Models\Ciudadano::factory()->create();
-        $slot        = Slot::factory()->reservado()->create();
+        $ciudadano = Ciudadano::factory()->create();
+        $slot = Slot::factory()->reservado()->create();
 
         $cita = Cita::create([
-            'slot_id'        => $slot->id,
-            'ciudadano_id'   => $ciudadano->id,
+            'slot_id' => $slot->id,
+            'ciudadano_id' => $ciudadano->id,
             'profesional_id' => $slot->usuario_id,
-            'tipo_slot_id'   => $slot->tipo_slot_id,
-            'centro_id'      => $slot->centro_id,
-            'fecha'          => $slot->fecha,
-            'hora_inicio'    => $slot->hora_inicio,
-            'hora_fin'       => $slot->hora_fin,
-            'estado'         => EstadoCita::Cancelada->value,
-            'origen'         => OrigenCita::Interno->value,
+            'tipo_slot_id' => $slot->tipo_slot_id,
+            'centro_id' => $slot->centro_id,
+            'fecha' => $slot->fecha,
+            'hora_inicio' => $slot->hora_inicio,
+            'hora_fin' => $slot->hora_fin,
+            'estado' => EstadoCita::Cancelada->value,
+            'origen' => OrigenCita::Interno->value,
         ]);
 
         // Hacemos soft delete de la cita
@@ -245,15 +247,15 @@ class IntegridadCasosLimiteTest extends TestCase
         $this->expectException(QueryException::class);
 
         // Inserción directa que viola la restricción unique (centro_id, anyo, mes)
-        \Illuminate\Support\Facades\DB::table('cuadrantes_mes')->insert([
-            'centro_id'               => $centro->id,
-            'anyo'                    => 2026,
-            'mes'                     => 1,
-            'estado'                  => EstadoCuadrante::Borrador->value,
-            'generado_con_ia'         => false,
+        DB::table('cuadrantes_mes')->insert([
+            'centro_id' => $centro->id,
+            'anyo' => 2026,
+            'mes' => 1,
+            'estado' => EstadoCuadrante::Borrador->value,
+            'generado_con_ia' => false,
             'generado_automaticamente' => false,
-            'created_at'              => now(),
-            'updated_at'              => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         $this->assertEquals(

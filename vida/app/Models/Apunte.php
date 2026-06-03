@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Modelo stub de Apunte (acto profesional).
@@ -28,9 +29,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $profesional_id Usuario autor del apunte
  * @property string $tipo Tipo de apunte (configurable)
  * @property bool $privada Si true, solo el autor tiene acceso
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon|null $deleted_at
  *
  * @todo Mover a Modules\Intervencion\Models\Apunte y completar
  *       con todos los atributos, relaciones y tipos configurables.
@@ -43,8 +44,6 @@ class Apunte extends Model
     /**
      * Columna de FK a historias_sociales usada por AmbitoUoScope.
      * El ámbito de UO se resuelve vía Historia Social.
-     *
-     * @var string
      */
     public string $ambitoHistoriaColumn = 'historia_social_id';
 
@@ -73,12 +72,10 @@ class Apunte extends Model
      *
      * El AmbitoUoScope filtra por Historia Social. Para los apuntes privados,
      * el acceso se controla mediante la Policy (regla absoluta de autor).
-     *
-     * @return void
      */
     protected static function booted(): void
     {
-        static::addGlobalScope(new AmbitoUoScope());
+        static::addGlobalScope(new AmbitoUoScope);
     }
 
     // -------------------------------------------------------------------------

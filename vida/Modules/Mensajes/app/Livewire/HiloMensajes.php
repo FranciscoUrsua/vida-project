@@ -2,7 +2,9 @@
 
 namespace Modules\Mensajes\Livewire;
 
+use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -25,14 +27,20 @@ class HiloMensajes extends Component
     use WithFileUploads;
 
     public int $hiloId;
+
     public string $respuesta = '';
+
     public array $adjuntos = [];
 
     // Estado del modal "Registrar en Historia Social"
     public bool $mostrarModalHistoria = false;
+
     public ?int $mensajeParaHistoriaId = null;
+
     public ?int $ciudadanoSeleccionadoId = null;
+
     public string $cuerpoEditado = '';
+
     public string $visibilidadSeleccionada = 'profesionales';
 
     public function mount(int $hiloId): void
@@ -68,7 +76,7 @@ class HiloMensajes extends Component
         );
 
         $this->respuesta = '';
-        $this->adjuntos  = [];
+        $this->adjuntos = [];
 
         unset($this->hilo);
     }
@@ -80,19 +88,19 @@ class HiloMensajes extends Component
     {
         $mensaje = Mensaje::findOrFail($mensajeId);
 
-        $this->mensajeParaHistoriaId    = $mensajeId;
-        $this->ciudadanoSeleccionadoId   = $ciudadanoId;
-        $this->cuerpoEditado             = $mensaje->cuerpo;
-        $this->visibilidadSeleccionada   = 'profesionales';
-        $this->mostrarModalHistoria      = true;
+        $this->mensajeParaHistoriaId = $mensajeId;
+        $this->ciudadanoSeleccionadoId = $ciudadanoId;
+        $this->cuerpoEditado = $mensaje->cuerpo;
+        $this->visibilidadSeleccionada = 'profesionales';
+        $this->mostrarModalHistoria = true;
     }
 
     public function cerrarModalHistoria(): void
     {
-        $this->mostrarModalHistoria    = false;
-        $this->mensajeParaHistoriaId   = null;
-        $this->ciudadanoSeleccionadoId  = null;
-        $this->cuerpoEditado           = '';
+        $this->mostrarModalHistoria = false;
+        $this->mensajeParaHistoriaId = null;
+        $this->ciudadanoSeleccionadoId = null;
+        $this->cuerpoEditado = '';
     }
 
     /**
@@ -101,12 +109,12 @@ class HiloMensajes extends Component
     public function confirmarRegistroHistoria(MensajeriaService $mensajeriaService): void
     {
         $this->validate([
-            'cuerpoEditado'           => 'required|string|max:10000',
+            'cuerpoEditado' => 'required|string|max:10000',
             'visibilidadSeleccionada' => 'required|in:privada,profesionales',
         ]);
 
-        $mensaje    = Mensaje::findOrFail($this->mensajeParaHistoriaId);
-        $ciudadano  = \App\Models\Ciudadano::findOrFail($this->ciudadanoSeleccionadoId);
+        $mensaje = Mensaje::findOrFail($this->mensajeParaHistoriaId);
+        $ciudadano = Ciudadano::findOrFail($this->ciudadanoSeleccionadoId);
 
         $mensajeriaService->registrarEnHistoria(
             $mensaje,
@@ -147,11 +155,11 @@ class HiloMensajes extends Component
     {
         return [
             VisibilidadMensaje::Profesionales->value => 'Profesionales',
-            VisibilidadMensaje::Privada->value        => 'Privada (solo yo)',
+            VisibilidadMensaje::Privada->value => 'Privada (solo yo)',
         ];
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('mensajes::livewire.hilo-mensajes');
     }

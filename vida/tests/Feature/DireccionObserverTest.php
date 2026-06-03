@@ -31,13 +31,13 @@ class DireccionObserverTest extends TestCase
     public function guardar_ciudadano_con_origen_profesional_rellena_campos_estructurados(): void
     {
         $ciudadano = Ciudadano::create([
-            'nombre'           => 'Juan',
-            'apellido1'        => 'García',
+            'nombre' => 'Juan',
+            'apellido1' => 'García',
             'fecha_nacimiento' => '1990-01-01',
-            'sexo'             => 'hombre',
-            'direccion_texto'  => 'C/ Mayor 15, Madrid 28013',
+            'sexo' => 'hombre',
+            'direccion_texto' => 'C/ Mayor 15, Madrid 28013',
             'origen_direccion' => OrigenDireccion::Profesional,
-            'activo'           => true,
+            'activo' => true,
         ]);
 
         $this->assertTrue($ciudadano->direccion_normalizada);
@@ -57,13 +57,13 @@ class DireccionObserverTest extends TestCase
     public function el_tipo_numeracion_se_establece_correctamente_para_numero_normal(): void
     {
         $ciudadano = Ciudadano::create([
-            'nombre'           => 'Ana',
-            'apellido1'        => 'Martínez',
+            'nombre' => 'Ana',
+            'apellido1' => 'Martínez',
             'fecha_nacimiento' => '1985-05-20',
-            'sexo'             => 'mujer',
-            'direccion_texto'  => 'Avenida Castellana 100',
+            'sexo' => 'mujer',
+            'direccion_texto' => 'Avenida Castellana 100',
             'origen_direccion' => OrigenDireccion::Profesional,
-            'activo'           => true,
+            'activo' => true,
         ]);
 
         $this->assertTrue($ciudadano->direccion_normalizada);
@@ -79,21 +79,21 @@ class DireccionObserverTest extends TestCase
     public function guardar_ciudadano_con_origen_padron_no_invoca_el_geocoder(): void
     {
         $ciudadano = Ciudadano::create([
-            'nombre'            => 'María',
-            'apellido1'         => 'López',
-            'fecha_nacimiento'  => '1975-03-12',
-            'sexo'              => 'mujer',
-            'direccion_texto'   => 'C/ Alcalá 50',
-            'origen_direccion'  => OrigenDireccion::Padron,
+            'nombre' => 'María',
+            'apellido1' => 'López',
+            'fecha_nacimiento' => '1975-03-12',
+            'sexo' => 'mujer',
+            'direccion_texto' => 'C/ Alcalá 50',
+            'origen_direccion' => OrigenDireccion::Padron,
             // Campos pre-rellenados por el padrón — no deben ser sobrescritos
-            'tipo_via'          => 'Calle',
-            'nombre_via'        => 'Alcalá',
-            'numero'            => '50',
-            'tipo_numeracion'   => TipoNumeracion::Numero,
-            'coordenadas_lat'   => 40.4200000,
-            'coordenadas_lng'   => -3.7000000,
+            'tipo_via' => 'Calle',
+            'nombre_via' => 'Alcalá',
+            'numero' => '50',
+            'tipo_numeracion' => TipoNumeracion::Numero,
+            'coordenadas_lat' => 40.4200000,
+            'coordenadas_lng' => -3.7000000,
             'direccion_normalizada' => true,
-            'activo'            => true,
+            'activo' => true,
         ]);
 
         // Las coordenadas exactas del padrón se conservan sin modificar
@@ -113,11 +113,11 @@ class DireccionObserverTest extends TestCase
     public function guardar_ciudadano_sin_direccion_no_produce_error(): void
     {
         $ciudadano = Ciudadano::create([
-            'nombre'           => 'Pedro',
-            'apellido1'        => 'Sánchez',
+            'nombre' => 'Pedro',
+            'apellido1' => 'Sánchez',
             'fecha_nacimiento' => '2000-08-30',
-            'sexo'             => 'hombre',
-            'activo'           => true,
+            'sexo' => 'hombre',
+            'activo' => true,
         ]);
 
         $this->assertFalse($ciudadano->direccion_normalizada);
@@ -132,17 +132,17 @@ class DireccionObserverTest extends TestCase
     public function actualizar_direccion_texto_re_geocodifica(): void
     {
         $ciudadano = Ciudadano::create([
-            'nombre'           => 'Carlos',
-            'apellido1'        => 'Ruiz',
+            'nombre' => 'Carlos',
+            'apellido1' => 'Ruiz',
             'fecha_nacimiento' => '1988-11-11',
-            'sexo'             => 'hombre',
-            'activo'           => true,
+            'sexo' => 'hombre',
+            'activo' => true,
         ]);
 
         $this->assertFalse($ciudadano->direccion_normalizada);
 
         $ciudadano->update([
-            'direccion_texto'  => 'Plaza Mayor 1, 28012 Madrid',
+            'direccion_texto' => 'Plaza Mayor 1, 28012 Madrid',
             'origen_direccion' => OrigenDireccion::Profesional,
         ]);
 

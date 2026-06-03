@@ -14,6 +14,6 @@ namespace Modules\Mensajes\Enums;
  */
 enum VisibilidadMensaje: string
 {
-    case Privada        = 'privada';
-    case Profesionales  = 'profesionales';
+    case Privada = 'privada';
+    case Profesionales = 'profesionales';
 }

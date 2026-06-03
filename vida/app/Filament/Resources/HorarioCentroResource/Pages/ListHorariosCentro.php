@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\HorarioCentroResource\Pages;
 
 use App\Filament\Resources\HorarioCentroResource;
-use Filament\Actions\CreateAction;
 use App\Filament\Resources\Pages\ListRecords;
+use Filament\Actions\CreateAction;
 
 class ListHorariosCentro extends ListRecords
 {

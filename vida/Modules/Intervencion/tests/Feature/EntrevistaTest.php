@@ -23,7 +23,9 @@ class EntrevistaTest extends TestCase
     use RefreshDatabase;
 
     private UnidadOrganizativa $uo;
+
     private User $profesional;
+
     private HistoriaSocial $historia;
 
     protected function setUp(): void
@@ -31,19 +33,19 @@ class EntrevistaTest extends TestCase
         parent::setUp();
 
         $this->uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Test Entrevista',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Test Entrevista',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $this->profesional = User::factory()->create();
 
         $this->historia = HistoriaSocial::create([
-            'ciudadano_id'           => fake()->numberBetween(1, 9999),
+            'ciudadano_id' => fake()->numberBetween(1, 9999),
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
     }
 
@@ -58,13 +60,13 @@ class EntrevistaTest extends TestCase
     public function entrevista_sin_cita_id_es_valida(): void
     {
         $entrevista = Entrevista::create([
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
-            'cita_id'        => null,
-            'fecha_hora'     => now()->toDateTimeString(),
-            'modalidad'      => 'domicilio',
-            'tipo'           => 'urgencia',
-            'estado'         => 'realizada',
+            'cita_id' => null,
+            'fecha_hora' => now()->toDateTimeString(),
+            'modalidad' => 'domicilio',
+            'tipo' => 'urgencia',
+            'estado' => 'realizada',
         ]);
 
         $this->assertNotNull($entrevista->id, 'La entrevista sin cita_id debe guardarse sin errores');
@@ -78,14 +80,14 @@ class EntrevistaTest extends TestCase
     public function entrevista_puede_existir_sin_plan_asociado(): void
     {
         $entrevista = Entrevista::create([
-            'historia_id'         => $this->historia->id,
-            'profesional_id'      => $this->profesional->id,
-            'cita_id'             => null,
+            'historia_id' => $this->historia->id,
+            'profesional_id' => $this->profesional->id,
+            'cita_id' => null,
             'plan_intervencion_id' => null,
-            'fecha_hora'          => now()->toDateTimeString(),
-            'modalidad'           => 'presencial',
-            'tipo'                => 'inicial',
-            'estado'              => 'realizada',
+            'fecha_hora' => now()->toDateTimeString(),
+            'modalidad' => 'presencial',
+            'tipo' => 'inicial',
+            'estado' => 'realizada',
         ]);
 
         $this->assertNotNull($entrevista->id, 'La entrevista debe guardarse sin errores');
@@ -99,28 +101,28 @@ class EntrevistaTest extends TestCase
     public function entrevista_inicial_puede_generar_valoracion(): void
     {
         $tipoValoracion = TipoValoracion::create([
-            'nombre'   => 'Valoración inicial ASP',
+            'nombre' => 'Valoración inicial ASP',
             'contexto' => 'ASP',
-            'activo'   => true,
+            'activo' => true,
         ]);
 
         $entrevista = Entrevista::create([
-            'historia_id'    => $this->historia->id,
+            'historia_id' => $this->historia->id,
             'profesional_id' => $this->profesional->id,
-            'cita_id'        => null,
-            'fecha_hora'     => now()->toDateTimeString(),
-            'modalidad'      => 'presencial',
-            'tipo'           => 'inicial',
-            'estado'         => 'realizada',
+            'cita_id' => null,
+            'fecha_hora' => now()->toDateTimeString(),
+            'modalidad' => 'presencial',
+            'tipo' => 'inicial',
+            'estado' => 'realizada',
         ]);
 
         $valoracion = Valoracion::create([
-            'historia_id'        => $this->historia->id,
-            'entrevista_id'      => $entrevista->id,
-            'profesional_id'     => $this->profesional->id,
+            'historia_id' => $this->historia->id,
+            'entrevista_id' => $entrevista->id,
+            'profesional_id' => $this->profesional->id,
             'tipo_valoracion_id' => $tipoValoracion->id,
-            'fecha'              => today()->toDateString(),
-            'estado'             => EstadoValoracion::Borrador,
+            'fecha' => today()->toDateString(),
+            'estado' => EstadoValoracion::Borrador,
         ]);
 
         $this->assertEquals(

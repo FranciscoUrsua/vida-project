@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Anonimizacion;
 
-use App\Exceptions\Anonimizacion\PerfilConExtraccionesException;
 use App\Exceptions\Anonimizacion\PerfilSistemaNoEliminableException;
 use App\Models\Api\PerfilAnonimizacion;
 use App\Models\Api\PerfilAnonimizacionVersion;
@@ -115,9 +114,9 @@ class PerfilesTest extends TestCase
     public static function perfilesSistema(): array
     {
         return [
-            'supervision_interna'   => ['supervision_interna'],
-            'analitica_interna'     => ['analitica_interna'],
-            'datos_abiertos'        => ['datos_abiertos'],
+            'supervision_interna' => ['supervision_interna'],
+            'analitica_interna' => ['analitica_interna'],
+            'datos_abiertos' => ['datos_abiertos'],
             'investigacion_externa' => ['investigacion_externa'],
         ];
     }
@@ -127,13 +126,13 @@ class PerfilesTest extends TestCase
     public function perfiles_de_sistema_no_pueden_eliminarse(string $nombre): void
     {
         $perfil = PerfilAnonimizacion::create([
-            'nombre'     => $nombre,
-            'nivel'      => 2,
-            'version'    => 1,
-            'estado'     => 'activo',
+            'nombre' => $nombre,
+            'nivel' => 2,
+            'version' => 1,
+            'estado' => 'activo',
             'es_sistema' => true,
-            'campos'     => [['campo' => 'nombre', 'tecnica' => 'suprimir']],
-            'k_valor'    => null,
+            'campos' => [['campo' => 'nombre', 'tecnica' => 'suprimir']],
+            'k_valor' => null,
         ]);
 
         $this->expectException(PerfilSistemaNoEliminableException::class);
@@ -163,8 +162,8 @@ class PerfilesTest extends TestCase
     public function perfil_personalizado_con_extracciones_no_puede_eliminarse(): void
     {
         $this->markTestIncomplete(
-            'Pendiente: requiere implementación del modelo Extraccion y su relación ' .
-            'con PerfilAnonimizacion. Ver docs/anonimizacion.md § 6.4 y ' .
+            'Pendiente: requiere implementación del modelo Extraccion y su relación '.
+            'con PerfilAnonimizacion. Ver docs/anonimizacion.md § 6.4 y '.
             'PerfilAnonimizacion::delete() — línea con TODO sobre extracciones.'
         );
     }

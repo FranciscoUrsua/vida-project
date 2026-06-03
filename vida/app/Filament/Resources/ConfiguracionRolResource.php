@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\ConfiguracionRolResource\Pages;
-use Filament\Forms\Components\Select;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -13,7 +14,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Usuarios\Models\ConfiguracionRol;
 use Spatie\Permission\Models\Role;
-use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: nivel de supervisión requerido por cada rol.
@@ -29,13 +29,19 @@ use App\Filament\Concerns\AutorizaGestion;
 class ConfiguracionRolResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = ConfiguracionRol::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
+
     protected static ?string $navigationLabel = 'Roles y permisos';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Usuarios y Profesionales';
+
     protected static ?string $modelLabel = 'Configuración de rol';
+
     protected static ?string $pluralModelLabel = 'Supervisión de roles';
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
@@ -53,8 +59,8 @@ class ConfiguracionRolResource extends Resource
                     Select::make('nivel_supervision')
                         ->label('Nivel de supervisión')
                         ->options([
-                            'aprobacion_previa'   => 'Aprobación previa — la asignación no es efectiva hasta que el supervisor la aprueba',
-                            'alerta_supervisada'  => 'Alerta supervisada — efectiva inmediatamente, el supervisor recibe una alerta',
+                            'aprobacion_previa' => 'Aprobación previa — la asignación no es efectiva hasta que el supervisor la aprueba',
+                            'alerta_supervisada' => 'Alerta supervisada — efectiva inmediatamente, el supervisor recibe una alerta',
                         ])
                         ->required()
                         ->default('alerta_supervisada'),
@@ -73,14 +79,14 @@ class ConfiguracionRolResource extends Resource
                 Tables\Columns\TextColumn::make('nivel_supervision')->badge()
                     ->label('Nivel de supervisión')
                     ->formatStateUsing(fn (string $state) => match ($state) {
-                        'aprobacion_previa'  => 'Aprobación previa',
+                        'aprobacion_previa' => 'Aprobación previa',
                         'alerta_supervisada' => 'Alerta supervisada',
-                        default              => $state,
+                        default => $state,
                     })
                     ->color(fn (string $state) => match ($state) {
-                        'aprobacion_previa'  => 'danger',
+                        'aprobacion_previa' => 'danger',
                         'alerta_supervisada' => 'warning',
-                        default              => 'gray',
+                        default => 'gray',
                     }),
             ])
             ->actions([
@@ -93,9 +99,9 @@ class ConfiguracionRolResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListConfiguracionRol::route('/'),
+            'index' => Pages\ListConfiguracionRol::route('/'),
             'create' => Pages\CreateConfiguracionRol::route('/create'),
-            'edit'   => Pages\EditConfiguracionRol::route('/{record}/edit'),
+            'edit' => Pages\EditConfiguracionRol::route('/{record}/edit'),
         ];
     }
 }

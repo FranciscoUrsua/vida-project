@@ -5,6 +5,7 @@ namespace Modules\Usuarios\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Catálogo de titulaciones académicas.
@@ -15,8 +16,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property string $nombre
  * @property bool $activo
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  *
  * @see docs/modulo-usuarios-permisos.md sección 5.2
  */
@@ -58,6 +59,7 @@ class Titulacion extends Model
      * Solo titulaciones activas.
      *
      * @param Builder<Titulacion> $consulta
+     *
      * @return Builder<Titulacion>
      */
     public function scopeActivas(Builder $consulta): Builder

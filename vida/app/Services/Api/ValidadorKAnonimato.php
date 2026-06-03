@@ -37,7 +37,8 @@ class ValidadorKAnonimato
      * - colectivo_extra_protegido = true: suprimir colectivo_principal desde el inicio
      *
      * @param Collection<int, array<string, mixed>> $registros
-     * @param int                                   $k         Umbral mínimo de apariciones
+     * @param int $k Umbral mínimo de apariciones
+     *
      * @return Collection<int, array<string, mixed>>
      *
      * @throws KAnonimatoValidacionException Si tras la cascada completa aún hay combinaciones < K
@@ -58,18 +59,19 @@ class ValidadorKAnonimato
         // Cascada paso 3: suprimir colectivo_principal
         $dados = $this->aplicarPasoEnCascada($dados, $k, function (array $r): array {
             unset($r['colectivo_principal']);
+
             return $r;
         });
 
         // Cascada paso 4: suprimir el registro completo
         $llavesFiltrar = $this->obtenerLlavesCombinacionesProblematicas($dados, $k);
         $dados = $dados->filter(
-            fn (array $r) => !in_array($this->obtenerLlaveCombinacion($r), $llavesFiltrar, true)
+            fn (array $r) => ! in_array($this->obtenerLlaveCombinacion($r), $llavesFiltrar, true)
         )->values();
 
         // Validación final: si aún hay combinaciones < K, el job no puede continuar
         $llavesFinal = $this->obtenerLlavesCombinacionesProblematicas($dados, $k);
-        if (!empty($llavesFinal)) {
+        if (! empty($llavesFinal)) {
             throw new KAnonimatoValidacionException($llavesFinal);
         }
 
@@ -80,8 +82,9 @@ class ValidadorKAnonimato
      * Aplica una transformación solo a los registros pertenecientes a combinaciones < K,
      * luego reevalúa el conjunto completo.
      *
-     * @param Collection<int, array<string, mixed>>                  $registros
-     * @param callable(array<string, mixed>): array<string, mixed>   $transformacion
+     * @param Collection<int, array<string, mixed>> $registros
+     * @param callable(array<string, mixed>): array<string, mixed> $transformacion
+     *
      * @return Collection<int, array<string, mixed>>
      */
     private function aplicarPasoEnCascada(Collection $registros, int $k, callable $transformacion): Collection
@@ -96,6 +99,7 @@ class ValidadorKAnonimato
             if (in_array($this->obtenerLlaveCombinacion($r), $llavesproblematicas, true)) {
                 return $transformacion($r);
             }
+
             return $r;
         });
     }
@@ -104,12 +108,13 @@ class ValidadorKAnonimato
      * Aplica los casos especiales de dominio antes de la cascada.
      *
      * @param array<string, mixed> $registro
+     *
      * @return array<string, mixed>
      */
     private function preprocesarEspeciales(array $registro): array
     {
         // VVG: suprimir todos los campos de dirección desde el inicio
-        if (!empty($registro['es_vvg'])) {
+        if (! empty($registro['es_vvg'])) {
             unset(
                 $registro['nombre_via'],
                 $registro['tipo_via'],
@@ -126,7 +131,7 @@ class ValidadorKAnonimato
         }
 
         // Colectivo extra-protegido: suprimir colectivo_principal en paso 0
-        if (!empty($registro['colectivo_extra_protegido'])) {
+        if (! empty($registro['colectivo_extra_protegido'])) {
             unset($registro['colectivo_principal']);
         }
 
@@ -137,19 +142,21 @@ class ValidadorKAnonimato
      * Convierte rango_edad de precisión anio (integer de 4 dígitos) a decada (string).
      *
      * @param array<string, mixed> $registro
+     *
      * @return array<string, mixed>
      */
     private function generalizarRangoEdad(array $registro): array
     {
         // Solo actúa si rango_edad es un entero de 4 dígitos (precisión año)
-        if (!isset($registro['anio_nacimiento']) || !is_int($registro['anio_nacimiento'])) {
+        if (! isset($registro['anio_nacimiento']) || ! is_int($registro['anio_nacimiento'])) {
             return $registro;
         }
 
-        $anio         = $registro['anio_nacimiento'];
+        $anio = $registro['anio_nacimiento'];
         $decadaInicio = (int) floor($anio / 10) * 10;
-        $registro['rango_edad'] = "{$decadaInicio}-" . ($decadaInicio + 9);
+        $registro['rango_edad'] = "{$decadaInicio}-".($decadaInicio + 9);
         unset($registro['anio_nacimiento']);
+
         return $registro;
     }
 
@@ -157,20 +164,22 @@ class ValidadorKAnonimato
      * Generaliza calle de nombre_via a distrito_proxy (primeros 3 dígitos del CP).
      *
      * @param array<string, mixed> $registro
+     *
      * @return array<string, mixed>
      */
     private function generalizarCalle(array $registro): array
     {
-        if (!isset($registro['nombre_via'])) {
+        if (! isset($registro['nombre_via'])) {
             return $registro;
         }
 
         // Intentar construir distrito_proxy desde codigo_postal si aún no existe
-        if (!isset($registro['distrito_proxy']) && isset($registro['codigo_postal'])) {
+        if (! isset($registro['distrito_proxy']) && isset($registro['codigo_postal'])) {
             $registro['distrito_proxy'] = substr((string) $registro['codigo_postal'], 0, 3);
         }
 
         unset($registro['nombre_via'], $registro['tipo_via']);
+
         return $registro;
     }
 
@@ -183,15 +192,15 @@ class ValidadorKAnonimato
      */
     private function obtenerLlaveCombinacion(array $registro): string
     {
-        if (!empty($registro['es_psh'])) {
+        if (! empty($registro['es_psh'])) {
             $calle = $registro['zona_intervencion'] ?? null;
         } else {
             $calle = $registro['nombre_via'] ?? $registro['distrito_proxy'] ?? null;
         }
 
         return serialize([
-            'sexo'               => $registro['sexo'] ?? null,
-            'rango_edad'         => $registro['anio_nacimiento'] ?? $registro['rango_edad'] ?? null,
+            'sexo' => $registro['sexo'] ?? null,
+            'rango_edad' => $registro['anio_nacimiento'] ?? $registro['rango_edad'] ?? null,
             'calle_generalizada' => $calle,
             'colectivo_principal' => $registro['colectivo_principal'] ?? null,
         ]);
@@ -201,6 +210,7 @@ class ValidadorKAnonimato
      * Devuelve las claves serializadas de combinaciones que aparecen < K veces.
      *
      * @param Collection<int, array<string, mixed>> $registros
+     *
      * @return list<string>
      */
     private function obtenerLlavesCombinacionesProblematicas(Collection $registros, int $k): array

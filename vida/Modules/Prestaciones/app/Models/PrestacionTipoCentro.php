@@ -21,7 +21,7 @@ class PrestacionTipoCentro extends Model
     /**
      * Prestación a la que pertenece este tipo de centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Prestacion, self>
+     * @return BelongsTo<Prestacion, self>
      */
     public function prestacion(): BelongsTo
     {

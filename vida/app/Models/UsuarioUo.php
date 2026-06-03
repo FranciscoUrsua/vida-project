@@ -23,10 +23,10 @@ use Illuminate\Support\Carbon;
  * @property int $usuario_id
  * @property int $unidad_organizativa_id
  * @property string $tipo_vinculo
- * @property \Illuminate\Support\Carbon $fecha_inicio
- * @property \Illuminate\Support\Carbon|null $fecha_fin
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $fecha_inicio
+ * @property Carbon|null $fecha_fin
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class UsuarioUo extends Model
 {
@@ -47,7 +47,7 @@ class UsuarioUo extends Model
     /** @var array<string, string> Conversiones de tipo */
     protected $casts = [
         'fecha_inicio' => 'date',
-        'fecha_fin'    => 'date',
+        'fecha_fin' => 'date',
     ];
 
     // -------------------------------------------------------------------------
@@ -83,13 +83,14 @@ class UsuarioUo extends Model
      * aquellas donde fecha_fin es null o todavía no ha llegado.
      *
      * @param Builder<UsuarioUo> $consulta
+     *
      * @return Builder<UsuarioUo>
      */
     public function scopeVigentes(Builder $consulta): Builder
     {
         return $consulta->where(function (Builder $q) {
             $q->whereNull('fecha_fin')
-              ->orWhere('fecha_fin', '>=', Carbon::today());
+                ->orWhere('fecha_fin', '>=', Carbon::today());
         });
     }
 }

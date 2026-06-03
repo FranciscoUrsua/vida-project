@@ -4,15 +4,19 @@ namespace Modules\Documentos\Tests\Feature;
 
 use App\Models\CatalogoSistema;
 use App\Models\Ciudadano;
+use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Enums\MetodoConformidadCiudadano;
+use Modules\Documentos\Enums\OrigenDocumento;
 use Modules\Documentos\Enums\TipoInforme;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\EstiloInforme;
@@ -47,10 +51,10 @@ class DocumentosTest extends TestCase
     private function crearUo(string $nombre, ?UnidadOrganizativa $parent = null): UnidadOrganizativa
     {
         return UnidadOrganizativa::create([
-            'nombre'    => $nombre,
-            'tipo'      => 'centro',
+            'nombre' => $nombre,
+            'tipo' => 'centro',
             'parent_id' => $parent?->id,
-            'activa'    => true,
+            'activa' => true,
         ]);
     }
 
@@ -78,19 +82,19 @@ class DocumentosTest extends TestCase
         $usuario = $this->crearUser();
 
         return PlantillaInforme::create([
-            'nombre'                 => 'Plantilla de prueba ' . Str::random(4),
-            'tipo_informe'           => TipoInforme::InformeSocial->value,
+            'nombre' => 'Plantilla de prueba '.Str::random(4),
+            'tipo_informe' => TipoInforme::InformeSocial->value,
             'unidad_organizativa_id' => $uoId,
-            'secciones'              => $secciones ?: [
+            'secciones' => $secciones ?: [
                 [
-                    'id'          => 'valoracion',
-                    'titulo'      => 'Valoración',
-                    'tipo'        => 'texto_libre',
+                    'id' => 'valoracion',
+                    'titulo' => 'Valoración',
+                    'tipo' => 'texto_libre',
                     'instrucciones' => 'Detalle la situación.',
                     'obligatorio' => true,
                 ],
             ],
-            'activa'    => $activa,
+            'activa' => $activa,
             'creada_por' => $usuario->id,
         ]);
     }
@@ -98,11 +102,11 @@ class DocumentosTest extends TestCase
     private function crearInformeBorrador(PlantillaInforme $plantilla, Ciudadano $ciudadano, User $autor): Informe
     {
         return Informe::create([
-            'plantilla_id'  => $plantilla->id,
-            'ciudadano_id'  => $ciudadano->id,
-            'autor_id'      => $autor->id,
-            'estado'        => EstadoInforme::Borrador->value,
-            'contenido'     => ['valoracion' => 'Valoración de prueba.'],
+            'plantilla_id' => $plantilla->id,
+            'ciudadano_id' => $ciudadano->id,
+            'autor_id' => $autor->id,
+            'estado' => EstadoInforme::Borrador->value,
+            'contenido' => ['valoracion' => 'Valoración de prueba.'],
         ]);
     }
 
@@ -110,9 +114,9 @@ class DocumentosTest extends TestCase
     private function pdfBase64(): string
     {
         $contenido = "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
-            . "2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
-            . "3 0 obj<</Type/Page/MediaBox[0 0 595 842]>>endobj\n"
-            . "xref\n0 4\ntrailer<</Size 4/Root 1 0 R>>\nstartxref\n%%EOF";
+            ."2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
+            ."3 0 obj<</Type/Page/MediaBox[0 0 595 842]>>endobj\n"
+            ."xref\n0 4\ntrailer<</Size 4/Root 1 0 R>>\nstartxref\n%%EOF";
 
         return base64_encode($contenido);
     }
@@ -139,13 +143,13 @@ class DocumentosTest extends TestCase
         Storage::fake('local');
         config(['documentos.disco' => 'local']);
 
-        $usuario    = $this->crearUser();
-        $ciudadano  = $this->crearCiudadano();
-        $tipo       = $this->crearTipoDoc();
-        $fichero    = $this->uploadedPdf('informe.pdf');
+        $usuario = $this->crearUser();
+        $ciudadano = $this->crearCiudadano();
+        $tipo = $this->crearTipoDoc();
+        $fichero = $this->uploadedPdf('informe.pdf');
 
-        $servicio   = app(ServicioAlmacenamiento::class);
-        $documento  = $servicio->guardar($fichero, 'informe_externo', $usuario->id, $tipo->id, $ciudadano);
+        $servicio = app(ServicioAlmacenamiento::class);
+        $documento = $servicio->guardar($fichero, 'informe_externo', $usuario->id, $tipo->id, $ciudadano);
 
         $this->assertInstanceOf(Documento::class, $documento);
         $this->assertEquals($ciudadano->id, $documento->documentable_id);
@@ -170,10 +174,10 @@ class DocumentosTest extends TestCase
         Storage::fake('local');
         config(['documentos.disco' => 'local']);
 
-        $usuario   = $this->crearUser();
+        $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
-        $tipo      = $this->crearTipoDoc();
-        $fichero   = UploadedFile::fake()->create(
+        $tipo = $this->crearTipoDoc();
+        $fichero = UploadedFile::fake()->create(
             'documento.docx',
             10,
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
@@ -203,28 +207,28 @@ class DocumentosTest extends TestCase
         // Este test verifica el comportamiento del fallback de URL firmada de Laravel.
 
         $ciudadano = $this->crearCiudadano();
-        $tipo      = $this->crearTipoDoc();
-        $usuario   = $this->crearUser();
+        $tipo = $this->crearTipoDoc();
+        $usuario = $this->crearUser();
 
         // Crear Documento de prueba directamente (sin pasar por el servicio de almacenamiento)
         $documento = Documento::create([
-            'documentable_type'   => get_class($ciudadano),
-            'documentable_id'     => $ciudadano->id,
-            'tipo_documento_id'   => $tipo->id,
-            'origen'              => \Modules\Documentos\Enums\OrigenDocumento::Externo->value,
-            'nombre_original'     => 'test.pdf',
+            'documentable_type' => get_class($ciudadano),
+            'documentable_id' => $ciudadano->id,
+            'tipo_documento_id' => $tipo->id,
+            'origen' => OrigenDocumento::Externo->value,
+            'nombre_original' => 'test.pdf',
             'ruta_almacenamiento' => 'documentos/2026/04/test.pdf',
-            'disco'               => 'local',
-            'mime_type'           => 'application/pdf',
-            'tamano_bytes'        => 1024,
-            'hash_sha256'         => hash('sha256', 'test'),
-            'subido_por'          => $usuario->id,
+            'disco' => 'local',
+            'mime_type' => 'application/pdf',
+            'tamano_bytes' => 1024,
+            'hash_sha256' => hash('sha256', 'test'),
+            'subido_por' => $usuario->id,
         ]);
 
         // Generamos la URL firmada de Laravel directamente (ruta documentos.ver)
         $minutosExpiracion = 60;
-        $expiracion        = now()->addMinutes($minutosExpiracion);
-        $url               = URL::temporarySignedRoute(
+        $expiracion = now()->addMinutes($minutosExpiracion);
+        $url = URL::temporarySignedRoute(
             'documentos.ver',
             $expiracion,
             ['documento' => $documento->id]
@@ -235,7 +239,7 @@ class DocumentosTest extends TestCase
         $this->assertStringContainsString('expires=', $url, 'La URL debe incluir tiempo de expiración.');
 
         // La URL es válida antes de expirar
-        $request = \Illuminate\Http\Request::create($url);
+        $request = Request::create($url);
         $this->assertTrue(URL::hasValidSignature($request), 'La URL debe ser válida antes de expirar.');
 
         // La URL debe ser inválida después de expirar
@@ -253,12 +257,12 @@ class DocumentosTest extends TestCase
         Storage::fake('local');
         config(['documentos.disco' => 'local']);
 
-        $usuario   = $this->crearUser();
+        $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
-        $tipo      = $this->crearTipoDoc();
-        $fichero   = $this->uploadedPdf();
+        $tipo = $this->crearTipoDoc();
+        $fichero = $this->uploadedPdf();
 
-        $servicio  = app(ServicioAlmacenamiento::class);
+        $servicio = app(ServicioAlmacenamiento::class);
         $documento = $servicio->guardar($fichero, 'otro', $usuario->id, $tipo->id, $ciudadano);
 
         // El fichero recién subido debe pasar la verificación
@@ -284,27 +288,27 @@ class DocumentosTest extends TestCase
         Storage::fake('local');
         config(['documentos.disco' => 'local']);
 
-        $usuario   = $this->crearUser();
+        $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
-        $tipo      = $this->crearTipoDoc();
+        $tipo = $this->crearTipoDoc();
 
-        $servicio  = app(ServicioAlmacenamiento::class);
-        $docA      = $servicio->guardar($this->uploadedPdf('a.pdf'), 'otro', $usuario->id, $tipo->id, $ciudadano);
-        $docB      = $servicio->guardar($this->uploadedPdf('b.pdf'), 'otro', $usuario->id, $tipo->id, $ciudadano);
+        $servicio = app(ServicioAlmacenamiento::class);
+        $docA = $servicio->guardar($this->uploadedPdf('a.pdf'), 'otro', $usuario->id, $tipo->id, $ciudadano);
+        $docB = $servicio->guardar($this->uploadedPdf('b.pdf'), 'otro', $usuario->id, $tipo->id, $ciudadano);
 
         // Generamos URL válida para docA
         $urlA = $servicio->urlTemporal($docA, 60);
 
         // Sustituimos el ID de docA por el de docB en la URL (tampering)
         $urlManipulada = str_replace(
-            '/documentos/' . $docA->id . '/ver',
-            '/documentos/' . $docB->id . '/ver',
+            '/documentos/'.$docA->id.'/ver',
+            '/documentos/'.$docB->id.'/ver',
             $urlA
         );
 
         // La URL manipulada debe tener firma inválida
         $this->assertFalse(
-            URL::hasValidSignature(\Illuminate\Http\Request::create($urlManipulada)),
+            URL::hasValidSignature(Request::create($urlManipulada)),
             'Una URL firmada para docA no debe ser válida para acceder a docB.'
         );
     }
@@ -316,16 +320,16 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_06_crear_estilo_informe_y_unicidad_por_uo(): void
     {
-        $uoA     = $this->crearUo('CSS Arganzuela');
-        $uoB     = $this->crearUo('CSS Retiro');
+        $uoA = $this->crearUo('CSS Arganzuela');
+        $uoB = $this->crearUo('CSS Retiro');
         $usuario = $this->crearUser();
 
         // Crear estilo para UO A
         EstiloInforme::create([
             'unidad_organizativa_id' => $uoA->id,
             'nombre_unidad_cabecera' => 'Centro de Servicios Sociales Arganzuela',
-            'logo_cabecera'          => 'logos/arganzuela.png',
-            'creado_por'             => $usuario->id,
+            'logo_cabecera' => 'logos/arganzuela.png',
+            'creado_por' => $usuario->id,
         ]);
 
         $this->assertDatabaseHas('estilos_informe', [
@@ -336,16 +340,16 @@ class DocumentosTest extends TestCase
         // Crear estilo para UO B funciona (UO diferente)
         EstiloInforme::create([
             'unidad_organizativa_id' => $uoB->id,
-            'creado_por'             => $usuario->id,
+            'creado_por' => $usuario->id,
         ]);
 
         $this->assertEquals(2, EstiloInforme::count());
 
         // Intentar un segundo estilo para UO A viola la restricción unique
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
         EstiloInforme::create([
             'unidad_organizativa_id' => $uoA->id,
-            'creado_por'             => $usuario->id,
+            'creado_por' => $usuario->id,
         ]);
     }
 
@@ -356,27 +360,27 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_07_herencia_estilo_por_proximidad(): void
     {
-        $raiz    = $this->crearUo('Dirección General');
-        $centro  = $this->crearUo('CSS Centro', $raiz);
+        $raiz = $this->crearUo('Dirección General');
+        $centro = $this->crearUo('CSS Centro', $raiz);
         $usuario = $this->crearUser();
 
         // La DG define logo y pie
         EstiloInforme::create([
             'unidad_organizativa_id' => $raiz->id,
-            'logo_cabecera'          => 'logos/dg.png',
-            'html_pie'               => '<p>Ayuntamiento de Madrid</p>',
-            'creado_por'             => $usuario->id,
+            'logo_cabecera' => 'logos/dg.png',
+            'html_pie' => '<p>Ayuntamiento de Madrid</p>',
+            'creado_por' => $usuario->id,
         ]);
 
         // El centro define solo su nombre de unidad
         EstiloInforme::create([
             'unidad_organizativa_id' => $centro->id,
             'nombre_unidad_cabecera' => 'CSS Centro',
-            'creado_por'             => $usuario->id,
+            'creado_por' => $usuario->id,
         ]);
 
-        $resolver  = app(ResolverEstiloInforme::class);
-        $estilo    = $resolver->resolverSinCache($centro->id);
+        $resolver = app(ResolverEstiloInforme::class);
+        $estilo = $resolver->resolverSinCache($centro->id);
 
         // Logo viene de la DG (centro no lo define)
         $this->assertEquals('logos/dg.png', $estilo['logo_cabecera']);
@@ -395,7 +399,7 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_08_override_hijo_no_afecta_a_hermano(): void
     {
-        $raiz    = $this->crearUo('Dirección General');
+        $raiz = $this->crearUo('Dirección General');
         $centroA = $this->crearUo('CSS A', $raiz);
         $centroB = $this->crearUo('CSS B', $raiz);
         $usuario = $this->crearUser();
@@ -403,15 +407,15 @@ class DocumentosTest extends TestCase
         // La DG define logo genérico
         EstiloInforme::create([
             'unidad_organizativa_id' => $raiz->id,
-            'logo_cabecera'          => 'logos/dg.png',
-            'creado_por'             => $usuario->id,
+            'logo_cabecera' => 'logos/dg.png',
+            'creado_por' => $usuario->id,
         ]);
 
         // Centro A define su propio logo
         EstiloInforme::create([
             'unidad_organizativa_id' => $centroA->id,
-            'logo_cabecera'          => 'logos/css_a.png',
-            'creado_por'             => $usuario->id,
+            'logo_cabecera' => 'logos/css_a.png',
+            'creado_por' => $usuario->id,
         ]);
 
         $resolver = app(ResolverEstiloInforme::class);
@@ -432,11 +436,11 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_09_plantilla_visible_para_hijo_no_para_uo_sin_relacion(): void
     {
-        $raiz        = $this->crearUo('Área de Servicios Sociales');
-        $distrito    = $this->crearUo('Distrito Centro', $raiz);
-        $centro      = $this->crearUo('CSS Malasaña', $distrito);
+        $raiz = $this->crearUo('Área de Servicios Sociales');
+        $distrito = $this->crearUo('Distrito Centro', $raiz);
+        $centro = $this->crearUo('CSS Malasaña', $distrito);
         $otroDistrito = $this->crearUo('Distrito Arganzuela', $raiz);
-        $otroCentro  = $this->crearUo('CSS Delicias', $otroDistrito);
+        $otroCentro = $this->crearUo('CSS Delicias', $otroDistrito);
 
         // Plantilla creada a nivel de distrito
         $plantilla = $this->crearPlantilla($distrito->id, activa: true);
@@ -463,34 +467,34 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_10_creacion_plantilla_informe(): void
     {
-        $uo      = $this->crearUo('Distrito Chamberí');
-        $hijo    = $this->crearUo('CSS Trafalgar', $uo);
+        $uo = $this->crearUo('Distrito Chamberí');
+        $hijo = $this->crearUo('CSS Trafalgar', $uo);
         $usuario = $this->crearUser();
 
         $secciones = [
             [
-                'id'          => 'datos_ciudadano',
-                'titulo'      => 'Datos del ciudadano',
-                'tipo'        => 'automatico',
-                'fuente'      => 'ciudadano.datos_basicos',
+                'id' => 'datos_ciudadano',
+                'titulo' => 'Datos del ciudadano',
+                'tipo' => 'automatico',
+                'fuente' => 'ciudadano.datos_basicos',
                 'obligatorio' => false,
             ],
             [
-                'id'          => 'valoracion',
-                'titulo'      => 'Valoración',
-                'tipo'        => 'texto_libre',
+                'id' => 'valoracion',
+                'titulo' => 'Valoración',
+                'tipo' => 'texto_libre',
                 'instrucciones' => 'Describa la situación.',
                 'obligatorio' => true,
             ],
         ];
 
         $plantilla = PlantillaInforme::create([
-            'nombre'                 => 'Informe Social de Valoración',
-            'tipo_informe'           => TipoInforme::InformeSocial->value,
+            'nombre' => 'Informe Social de Valoración',
+            'tipo_informe' => TipoInforme::InformeSocial->value,
             'unidad_organizativa_id' => $uo->id,
-            'secciones'              => $secciones,
-            'activa'                 => true,
-            'creada_por'             => $usuario->id,
+            'secciones' => $secciones,
+            'activa' => true,
+            'creada_por' => $usuario->id,
         ]);
 
         $this->assertTrue($plantilla->activa);
@@ -517,14 +521,14 @@ class DocumentosTest extends TestCase
         Storage::fake('local');
         config(['documentos.disco' => 'local']);
 
-        $uo        = $this->crearUo('CSS Prueba');
-        $usuario   = $this->crearUser();
+        $uo = $this->crearUo('CSS Prueba');
+        $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
         $plantilla = $this->crearPlantilla($uo->id);
-        $informe   = $this->crearInformeBorrador($plantilla, $ciudadano, $usuario);
+        $informe = $this->crearInformeBorrador($plantilla, $ciudadano, $usuario);
 
         $servicio = app(ServicioGeneracionPDF::class);
-        $pdf      = $servicio->generarBorrador($informe);
+        $pdf = $servicio->generarBorrador($informe);
 
         // El resultado debe ser contenido binario de PDF
         $this->assertNotEmpty($pdf);
@@ -548,15 +552,15 @@ class DocumentosTest extends TestCase
         // Este test verifica que la estructura de datos permite detectar
         // la ausencia de contenido en secciones marcadas como obligatorio=true.
 
-        $uo        = $this->crearUo('CSS Prueba');
-        $usuario   = $this->crearUser();
+        $uo = $this->crearUo('CSS Prueba');
+        $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
 
         $secciones = [
             [
-                'id'          => 'valoracion',
-                'titulo'      => 'Valoración',
-                'tipo'        => 'texto_libre',
+                'id' => 'valoracion',
+                'titulo' => 'Valoración',
+                'tipo' => 'texto_libre',
                 'obligatorio' => true,
             ],
         ];
@@ -565,16 +569,16 @@ class DocumentosTest extends TestCase
 
         // Informe con la sección obligatoria vacía
         $informe = Informe::create([
-            'plantilla_id'  => $plantilla->id,
-            'ciudadano_id'  => $ciudadano->id,
-            'autor_id'      => $usuario->id,
-            'estado'        => EstadoInforme::Borrador->value,
-            'contenido'     => ['valoracion' => ''],  // vacío
+            'plantilla_id' => $plantilla->id,
+            'ciudadano_id' => $ciudadano->id,
+            'autor_id' => $usuario->id,
+            'estado' => EstadoInforme::Borrador->value,
+            'contenido' => ['valoracion' => ''],  // vacío
         ]);
 
         // Verificamos que se puede detectar la sección obligatoria vacía
         $seccionesObligatorias = collect($plantilla->secciones)->where('obligatorio', true);
-        $seccionesIncompletas  = $seccionesObligatorias->filter(
+        $seccionesIncompletas = $seccionesObligatorias->filter(
             fn ($s) => empty($informe->contenido[$s['id']] ?? null)
         );
 
@@ -596,15 +600,15 @@ class DocumentosTest extends TestCase
         config(['documentos.disco' => 'local']);
         $this->crearTipoInformeGenerado();
 
-        $uo        = $this->crearUo('CSS Prueba');
-        $usuario   = $this->crearUser();
+        $uo = $this->crearUo('CSS Prueba');
+        $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
         $plantilla = $this->crearPlantilla($uo->id);
-        $informe   = $this->crearInformeBorrador($plantilla, $ciudadano, $usuario);
+        $informe = $this->crearInformeBorrador($plantilla, $ciudadano, $usuario);
 
         // En tests pasamos directamente el PDF en base64 (stub de AutoFirma)
         $servicio = app(ServicioFirmaInforme::class);
-        $firmado  = $servicio->firmar($informe, $this->pdfBase64());
+        $firmado = $servicio->firmar($informe, $this->pdfBase64());
 
         $this->assertEquals(EstadoInforme::Firmado, $firmado->estado);
         $this->assertNotNull($firmado->firmado_en);
@@ -628,14 +632,14 @@ class DocumentosTest extends TestCase
         config(['documentos.disco' => 'local']);
         $this->crearTipoInformeGenerado();
 
-        $uo        = $this->crearUo('CSS Prueba');
-        $usuario   = $this->crearUser();
+        $uo = $this->crearUo('CSS Prueba');
+        $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
         $plantilla = $this->crearPlantilla($uo->id);
-        $informe   = $this->crearInformeBorrador($plantilla, $ciudadano, $usuario);
+        $informe = $this->crearInformeBorrador($plantilla, $ciudadano, $usuario);
 
         $servicio = app(ServicioFirmaInforme::class);
-        $firmado  = $servicio->firmar($informe, $this->pdfBase64());
+        $firmado = $servicio->firmar($informe, $this->pdfBase64());
 
         // Intentar firmar de nuevo un informe ya firmado debe lanzar excepción
         $this->expectException(\DomainException::class);
@@ -653,15 +657,15 @@ class DocumentosTest extends TestCase
         config(['documentos.disco' => 'local']);
         $this->crearTipoInformeGenerado();
 
-        $uo        = $this->crearUo('CSS Prueba');
-        $usuario   = $this->crearUser();
+        $uo = $this->crearUo('CSS Prueba');
+        $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
         $plantilla = $this->crearPlantilla($uo->id);
-        $informe   = $this->crearInformeBorrador($plantilla, $ciudadano, $usuario);
+        $informe = $this->crearInformeBorrador($plantilla, $ciudadano, $usuario);
 
         $servicio = app(ServicioFirmaInforme::class);
-        $firmado  = $servicio->firmar($informe, $this->pdfBase64());
-        $docId    = $firmado->documento_id;
+        $firmado = $servicio->firmar($informe, $this->pdfBase64());
+        $docId = $firmado->documento_id;
 
         // El autor anula el informe con motivo
         $anulado = $servicio->anular($firmado, $usuario->id, 'Error en los datos del ciudadano.');
@@ -686,15 +690,15 @@ class DocumentosTest extends TestCase
         config(['documentos.disco' => 'local']);
         $this->crearTipoInformeGenerado();
 
-        $uo        = $this->crearUo('CSS Prueba');
-        $autor     = $this->crearUser();
-        $otroUser  = $this->crearUser();
+        $uo = $this->crearUo('CSS Prueba');
+        $autor = $this->crearUser();
+        $otroUser = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
         $plantilla = $this->crearPlantilla($uo->id);
-        $informe   = $this->crearInformeBorrador($plantilla, $ciudadano, $autor);
+        $informe = $this->crearInformeBorrador($plantilla, $ciudadano, $autor);
 
         $servicio = app(ServicioFirmaInforme::class);
-        $firmado  = $servicio->firmar($informe, $this->pdfBase64());
+        $firmado = $servicio->firmar($informe, $this->pdfBase64());
 
         // Otro profesional intenta anular el informe del autor → excepción
         $this->expectException(\DomainException::class);
@@ -716,9 +720,9 @@ class DocumentosTest extends TestCase
         Storage::fake('local');
         config(['documentos.disco' => 'local']);
 
-        $usuario   = $this->crearUser();
+        $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
-        $tipo      = $this->crearTipoDoc('piso_firmado');
+        $tipo = $this->crearTipoDoc('piso_firmado');
 
         $servicio = app(ServicioAlmacenamiento::class);
 
@@ -735,12 +739,12 @@ class DocumentosTest extends TestCase
         // Crear el registro PisoFirmado
         // plan_de_intervencion_id sin FK: tabla planes_de_intervencion aún no existe (módulo Intervención pendiente)
         $planId = 42;
-        $piso   = PisoFirmado::create([
-            'plan_de_intervencion_id'       => $planId,
-            'documento_id'                  => $documento->id,
-            'subido_por'                    => $usuario->id,
-            'metodo_conformidad_ciudadano'  => MetodoConformidadCiudadano::ManuscritaEscaneada->value,
-            'observaciones'                 => 'Firmado en reunión del 8 de abril.',
+        $piso = PisoFirmado::create([
+            'plan_de_intervencion_id' => $planId,
+            'documento_id' => $documento->id,
+            'subido_por' => $usuario->id,
+            'metodo_conformidad_ciudadano' => MetodoConformidadCiudadano::ManuscritaEscaneada->value,
+            'observaciones' => 'Firmado en reunión del 8 de abril.',
         ]);
 
         $this->assertInstanceOf(PisoFirmado::class, $piso);
@@ -759,10 +763,10 @@ class DocumentosTest extends TestCase
         Storage::fake('local');
         config(['documentos.disco' => 'local']);
 
-        $usuario   = $this->crearUser();
+        $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
-        $tipo      = $this->crearTipoDoc('piso_firmado');
-        $servicio  = app(ServicioAlmacenamiento::class);
+        $tipo = $this->crearTipoDoc('piso_firmado');
+        $servicio = app(ServicioAlmacenamiento::class);
 
         $doc1 = $servicio->guardar($this->uploadedPdf('piso1.pdf'), 'piso', $usuario->id, $tipo->id, $ciudadano);
         $doc2 = $servicio->guardar($this->uploadedPdf('piso2.pdf'), 'piso', $usuario->id, $tipo->id, $ciudadano);
@@ -771,19 +775,19 @@ class DocumentosTest extends TestCase
 
         // Primer PISO: se crea sin problema
         PisoFirmado::create([
-            'plan_de_intervencion_id'      => $planId,
-            'documento_id'                 => $doc1->id,
-            'subido_por'                   => $usuario->id,
+            'plan_de_intervencion_id' => $planId,
+            'documento_id' => $doc1->id,
+            'subido_por' => $usuario->id,
             'metodo_conformidad_ciudadano' => MetodoConformidadCiudadano::ManuscritaEscaneada->value,
         ]);
 
         // Segundo PISO para el mismo plan: debe violar la restricción unique
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         PisoFirmado::create([
-            'plan_de_intervencion_id'      => $planId,
-            'documento_id'                 => $doc2->id,
-            'subido_por'                   => $usuario->id,
+            'plan_de_intervencion_id' => $planId,
+            'documento_id' => $doc2->id,
+            'subido_por' => $usuario->id,
             'metodo_conformidad_ciudadano' => MetodoConformidadCiudadano::ManuscritaEscaneada->value,
         ]);
     }
@@ -800,11 +804,11 @@ class DocumentosTest extends TestCase
         Storage::fake($discoAlternativo);
         config(['documentos.disco' => $discoAlternativo]);
 
-        $usuario   = $this->crearUser();
+        $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
-        $tipo      = $this->crearTipoDoc();
+        $tipo = $this->crearTipoDoc();
 
-        $servicio  = app(ServicioAlmacenamiento::class);
+        $servicio = app(ServicioAlmacenamiento::class);
         $documento = $servicio->guardar(
             $this->uploadedPdf(),
             'otro',
@@ -830,18 +834,18 @@ class DocumentosTest extends TestCase
         $uo = $this->crearUo('CSS Test Merge Tags');
 
         // Ciudadano con nombre conocido
-        $ciudadano = \App\Models\Ciudadano::factory()->create([
-            'nombre'    => 'María',
+        $ciudadano = Ciudadano::factory()->create([
+            'nombre' => 'María',
             'apellido1' => 'López',
             'apellido2' => null,
         ]);
 
         // Historia Social vinculada al ciudadano
-        $historia = \App\Models\HistoriaSocial::create([
-            'ciudadano_id'           => $ciudadano->id,
+        $historia = HistoriaSocial::create([
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         // TipoEscala Barthel con schema mínimo válido
@@ -854,21 +858,21 @@ class DocumentosTest extends TestCase
 
         // Pase completado de Barthel con score conocido
         PaseEscala::create([
-            'tipo_escala_id'        => $barthel->id,
-            'historia_id'           => $historia->id,
-            'profesional_id'        => $profesional->id,
-            'fecha'                 => now()->toDateString(),
-            'estado'                => EstadoPase::Completado->value,
-            'respuestas'            => [],
-            'scores_seccion'        => [],
-            'score_total'           => 75,
+            'tipo_escala_id' => $barthel->id,
+            'historia_id' => $historia->id,
+            'profesional_id' => $profesional->id,
+            'fecha' => now()->toDateString(),
+            'estado' => EstadoPase::Completado->value,
+            'respuestas' => [],
+            'scores_seccion' => [],
+            'score_total' => 75,
             'interpretacion_codigo' => 'moderada',
         ]);
 
         $html = '<p>D./Dña. {{ nombre_ciudadano }}, Barthel: {{ score_barthel }}.</p>';
 
-        $servicio   = app(ResolverFuentesInforme::class);
-        $resultado  = $servicio->resolverMergeTags($html, $ciudadano->id, $profesional->id, now());
+        $servicio = app(ResolverFuentesInforme::class);
+        $resultado = $servicio->resolverMergeTags($html, $ciudadano->id, $profesional->id, now());
 
         $this->assertStringContainsString('María López', $resultado);
         $this->assertStringContainsString('75', $resultado);
@@ -888,9 +892,9 @@ class DocumentosTest extends TestCase
         config(['documentos.disco' => 'local']);
         $this->crearTipoInformeGenerado();
 
-        $uo        = $this->crearUo('CSS Prueba');
-        $autor1    = $this->crearUser();
-        $autor2    = $this->crearUser();
+        $uo = $this->crearUo('CSS Prueba');
+        $autor1 = $this->crearUser();
+        $autor2 = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
         $plantilla = $this->crearPlantilla($uo->id);
 
@@ -904,7 +908,7 @@ class DocumentosTest extends TestCase
 
         // Firmamos el borrador del autor1
         $servicio = app(ServicioFirmaInforme::class);
-        $firmado  = $servicio->firmar($borrador1, $this->pdfBase64());
+        $firmado = $servicio->firmar($borrador1, $this->pdfBase64());
 
         // Los informes firmados son visibles para cualquier consulta (no filtran por autor)
         $informesFirmados = Informe::firmados()->get();

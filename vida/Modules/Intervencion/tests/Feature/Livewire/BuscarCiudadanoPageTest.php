@@ -2,7 +2,6 @@
 
 namespace Modules\Intervencion\Tests\Feature\Livewire;
 
-use App\Models\AccesoProtegido;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
@@ -11,6 +10,7 @@ use App\Models\UsuarioUo;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Mensajes\Models\Alerta;
@@ -29,6 +29,7 @@ class BuscarCiudadanoPageTest extends TestCase
     use RefreshDatabase;
 
     private UnidadOrganizativa $uo;
+
     private User $usuario;
 
     protected function setUp(): void
@@ -39,27 +40,27 @@ class BuscarCiudadanoPageTest extends TestCase
         $this->seed(RolesSeeder::class);
 
         $this->uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Test Buscar',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Test Buscar',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $this->usuario = User::create([
-            'name'              => 'Buscador Test',
-            'email'             => 'buscar@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Buscador Test',
+            'email' => 'buscar@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
 
         $this->usuario->assignRole('intervencion');
 
         UsuarioUo::create([
-            'usuario_id'             => $this->usuario->id,
+            'usuario_id' => $this->usuario->id,
             'unidad_organizativa_id' => $this->uo->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
     }
 
@@ -67,37 +68,32 @@ class BuscarCiudadanoPageTest extends TestCase
      * Crea un ciudadano con alias y los campos cifrados mínimos.
      *
      * @param array<string, mixed> $attrs
-     * @return Ciudadano
      */
     private function crearCiudadano(array $attrs = []): Ciudadano
     {
         return Ciudadano::create(array_merge([
-            'alias'               => null,
-            'nombre'              => 'María',
-            'apellido1'           => 'García',
-            'apellido2'           => 'López',
-            'fecha_nacimiento'    => '1980-01-01',
-            'sexo'                => 'F',
-            'nivel_identificacion'=> 'identificado',
-            'activo'              => true,
+            'alias' => null,
+            'nombre' => 'María',
+            'apellido1' => 'García',
+            'apellido2' => 'López',
+            'fecha_nacimiento' => '1980-01-01',
+            'sexo' => 'F',
+            'nivel_identificacion' => 'identificado',
+            'activo' => true,
             'colectivo_extra_protegido' => false,
         ], $attrs));
     }
 
     /**
      * Crea una Historia Social del ciudadano en la UO dada.
-     *
-     * @param Ciudadano $ciudadano
-     * @param UnidadOrganizativa $uo
-     * @return HistoriaSocial
      */
     private function crearHistoria(Ciudadano $ciudadano, UnidadOrganizativa $uo): HistoriaSocial
     {
         return HistoriaSocial::create([
-            'ciudadano_id'           => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
     }
 
@@ -153,7 +149,7 @@ class BuscarCiudadanoPageTest extends TestCase
     {
         $otraUo = UnidadOrganizativa::create([
             'nombre' => 'CSS Otra UO',
-            'tipo'   => 'centro',
+            'tipo' => 'centro',
             'activa' => true,
         ]);
 
@@ -178,9 +174,9 @@ class BuscarCiudadanoPageTest extends TestCase
     public function resultado_colectivo_protegido_muestra_nivel_3(): void
     {
         $ciudadano = $this->crearCiudadano([
-            'alias'                     => 'test-nivel3',
-            'nombre'                    => 'Rosa',
-            'apellido1'                 => 'Díaz',
+            'alias' => 'test-nivel3',
+            'nombre' => 'Rosa',
+            'apellido1' => 'Díaz',
             'colectivo_extra_protegido' => true,
         ]);
 
@@ -202,9 +198,9 @@ class BuscarCiudadanoPageTest extends TestCase
     public function ciudadano_protegido_no_expone_domicilio(): void
     {
         $ciudadano = $this->crearCiudadano([
-            'alias'                     => 'test-dom',
-            'nombre'                    => 'Juana',
-            'apellido1'                 => 'Navarro',
+            'alias' => 'test-dom',
+            'nombre' => 'Juana',
+            'apellido1' => 'Navarro',
             'colectivo_extra_protegido' => true,
         ]);
 
@@ -227,16 +223,16 @@ class BuscarCiudadanoPageTest extends TestCase
     {
         $otraUo = UnidadOrganizativa::create([
             'nombre' => 'CSS Otra UO Bus06',
-            'tipo'   => 'centro',
+            'tipo' => 'centro',
             'activa' => true,
         ]);
 
         $ciudadano = $this->crearCiudadano(['nombre' => 'Pedro', 'apellido1' => 'Sáez']);
-        $historia  = $this->crearHistoria($ciudadano, $otraUo);
+        $historia = $this->crearHistoria($ciudadano, $otraUo);
 
-        \Illuminate\Support\Facades\Log::shouldReceive('info')
+        Log::shouldReceive('info')
             ->once()
-            ->withArgs(fn($msg, $ctx) => $msg === 'acceso_nivel2'
+            ->withArgs(fn ($msg, $ctx) => $msg === 'acceso_nivel2'
                 && $ctx['auditable_type'] === 'HistoriaSocial'
                 && $ctx['auditable_id'] === $historia->id
                 && $ctx['event'] === 'acceso_nivel2'
@@ -269,14 +265,14 @@ class BuscarCiudadanoPageTest extends TestCase
     public function solicitar_acceso_crea_alerta_para_supervisor(): void
     {
         $ciudadano = $this->crearCiudadano(['colectivo_extra_protegido' => true]);
-        $historia  = $this->crearHistoria($ciudadano, $this->uo);
+        $historia = $this->crearHistoria($ciudadano, $this->uo);
 
         Livewire::actingAs($this->usuario)
             ->test(BuscarCiudadanoPage::class)
             ->call('solicitarAcceso', $ciudadano->id, 'Justificación suficientemente larga para superar el mínimo.');
 
         $this->assertDatabaseHas('alertas', [
-            'destinatario_rol'   => 'supervision',
+            'destinatario_rol' => 'supervision',
             'destinatario_uo_id' => $this->uo->id,
         ]);
         $this->assertDatabaseCount('accesos_protegidos', 1);

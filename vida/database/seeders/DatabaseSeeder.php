@@ -4,6 +4,14 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Modules\Agenda\Database\Seeders\AgendaSeeder;
+use Modules\Centro\Database\Seeders\CentroSeeder;
+use Modules\Documentos\Database\Seeders\DocumentosSeeder;
+use Modules\Escalas\Database\Seeders\EscalaSeeder;
+use Modules\Intervencion\Database\Seeders\IntervencionSeeder;
+use Modules\Organizacion\Database\Seeders\OrganizacionSeeder;
+use Modules\Prestaciones\Database\Seeders\CatalogosSistemaSeeder;
+use Modules\Prestaciones\Database\Seeders\PrestacionesSeeder;
 
 /**
  * Seeder principal de la base de datos.
@@ -18,8 +26,6 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Ejecuta los seeders en el orden correcto de dependencias.
-     *
-     * @return void
      */
     public function run(): void
     {
@@ -33,7 +39,7 @@ class DatabaseSeeder extends Seeder
         $this->call(UoSeeder::class);
 
         // 4. Datos del módulo Organizacion (configuracion, colectivos, distritos, etc.)
-        $this->call(\Modules\Organizacion\Database\Seeders\OrganizacionSeeder::class);
+        $this->call(OrganizacionSeeder::class);
 
         // 5. Catálogos del módulo Profesional
         $this->call(CargosSeeder::class);
@@ -41,23 +47,23 @@ class DatabaseSeeder extends Seeder
         $this->call(TiposRelacionProfesionalSeeder::class);
 
         // 6. Módulo Centro: catálogos base + 3 centros de ejemplo + red
-        $this->call(\Modules\Centro\Database\Seeders\CentroSeeder::class);
+        $this->call(CentroSeeder::class);
 
         // 7. Módulo Prestaciones: catálogos del sistema y prestaciones de cartera
-        $this->call(\Modules\Prestaciones\Database\Seeders\CatalogosSistemaSeeder::class);
-        $this->call(\Modules\Prestaciones\Database\Seeders\PrestacionesSeeder::class);
+        $this->call(CatalogosSistemaSeeder::class);
+        $this->call(PrestacionesSeeder::class);
 
         // 8. Módulo Agenda: horario y tipos de slot de ejemplo (requiere centros)
-        $this->call(\Modules\Agenda\Database\Seeders\AgendaSeeder::class);
+        $this->call(AgendaSeeder::class);
 
         // 9. Módulo Documentos: catálogos y plantilla de informe de ejemplo
-        $this->call(\Modules\Documentos\Database\Seeders\DocumentosSeeder::class);
+        $this->call(DocumentosSeeder::class);
 
         // 10. Módulo Intervención: tipos de ficha y valoración
-        $this->call(\Modules\Intervencion\Database\Seeders\IntervencionSeeder::class);
+        $this->call(IntervencionSeeder::class);
 
         // 11. Módulo Escalas: instrumentos de valoración (Barthel, Pfeiffer, Lawton-Brody)
-        $this->call(\Modules\Escalas\Database\Seeders\EscalaSeeder::class);
+        $this->call(EscalaSeeder::class);
 
         // 13. Perfiles de anonimización predefinidos del sistema
         $this->call(PerfilesAnonimizacionSeeder::class);

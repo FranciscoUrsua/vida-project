@@ -3,7 +3,10 @@
 namespace App\Services;
 
 use App\Models\Ciudadano;
+use App\Models\Scopes\AmbitoUoScope;
+use App\Policies\CiudadanoPolicy;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -21,8 +24,8 @@ use Illuminate\Support\Facades\Gate;
  * La implementación completa corresponde al módulo Ciudadania (pendiente).
  * Este servicio es la capa de autorización mínima para el stub actual.
  *
- * @see \App\Models\Scopes\AmbitoUoScope
- * @see \App\Policies\CiudadanoPolicy
+ * @see AmbitoUoScope
+ * @see CiudadanoPolicy
  *
  * @todo Mover a Modules\Ciudadania\Services\CiudadanoService cuando se implemente el módulo.
  */
@@ -32,7 +35,7 @@ class CiudadanoService
      * Da de alta un nuevo ciudadano en el sistema.
      *
      * @param array<string, mixed> $datos Datos del ciudadano a crear
-     * @return Ciudadano
+     *
      * @throws AuthorizationException Si el usuario no tiene permiso de crear ciudadanos
      */
     public function crear(array $datos): Ciudadano
@@ -50,11 +53,11 @@ class CiudadanoService
      * si el usuario tiene acceso al ámbito de UO (vía Historia Social).
      * La Policy verifica adicionalmente el permiso de edición.
      *
-     * @param int                  $id    ID del ciudadano
+     * @param int $id ID del ciudadano
      * @param array<string, mixed> $datos Campos a actualizar
-     * @return Ciudadano
+     *
      * @throws AuthorizationException Si el usuario no tiene permiso de editar
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Si el ciudadano no existe o no está en el ámbito del usuario
+     * @throws ModelNotFoundException Si el ciudadano no existe o no está en el ámbito del usuario
      */
     public function actualizar(int $id, array $datos): Ciudadano
     {
@@ -74,9 +77,9 @@ class CiudadanoService
      * por principio de inmutabilidad del pasado (principio 4.2).
      *
      * @param int $id ID del ciudadano
-     * @return void
+     *
      * @throws AuthorizationException Si el usuario no tiene permiso de eliminar
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Si el ciudadano no existe o no está en el ámbito del usuario
+     * @throws ModelNotFoundException Si el ciudadano no existe o no está en el ámbito del usuario
      */
     public function eliminar(int $id): void
     {

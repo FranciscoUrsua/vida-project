@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Version;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -16,7 +17,9 @@ use Filament\Widgets\TableWidget as BaseWidget;
 class ActividadCatalogosWidget extends BaseWidget
 {
     protected static ?int $sort = 4;
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
+
     protected static ?string $heading = 'Actividad reciente en catálogos';
 
     public static function canView(): bool
@@ -28,7 +31,7 @@ class ActividadCatalogosWidget extends BaseWidget
     {
         // TODO: sustituir por la query real cuando exista App\Models\Audit
         return $table
-            ->query(\App\Models\Version::query()->whereNull('id')->limit(0))
+            ->query(Version::query()->whereNull('id')->limit(0))
             ->columns([
                 Tables\Columns\TextColumn::make('versionable_type')
                     ->label('Entidad')

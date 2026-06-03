@@ -13,6 +13,7 @@ use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Livewire\BandejaAlertas;
 use Modules\Mensajes\Models\Alerta;
 use PHPUnit\Framework\Attributes\Test;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 /**
@@ -27,14 +28,14 @@ class BandejaAlertasTest extends TestCase
     private function crearAlertaDirecta(User $usuario, array $overrides = []): Alerta
     {
         return Alerta::create(array_merge([
-            'tipo'                    => TipoAlerta::Alerta,
-            'origen_type'             => 'App\\Models\\User',
-            'origen_id'               => $usuario->id,
-            'titulo'                  => 'Alerta de prueba',
-            'cuerpo'                  => 'Cuerpo de la alerta',
-            'destinatario_type'       => DestinatarioType::Usuario,
+            'tipo' => TipoAlerta::Alerta,
+            'origen_type' => 'App\\Models\\User',
+            'origen_id' => $usuario->id,
+            'titulo' => 'Alerta de prueba',
+            'cuerpo' => 'Cuerpo de la alerta',
+            'destinatario_type' => DestinatarioType::Usuario,
             'destinatario_usuario_id' => $usuario->id,
-            'estado'                  => EstadoAlerta::Pendiente,
+            'estado' => EstadoAlerta::Pendiente,
         ], $overrides));
     }
 
@@ -66,29 +67,29 @@ class BandejaAlertasTest extends TestCase
     #[Test]
     public function t_lw_02_usuario_ve_alertas_dirigidas_a_su_rol_en_su_uo(): void
     {
-        $uo      = UnidadOrganizativa::create(['nombre' => 'UO LW-02', 'tipo' => 'servicio', 'activa' => true]);
+        $uo = UnidadOrganizativa::create(['nombre' => 'UO LW-02', 'tipo' => 'servicio', 'activa' => true]);
         $usuario = User::factory()->create();
 
         UsuarioUo::create([
-            'usuario_id'             => $usuario->id,
+            'usuario_id' => $usuario->id,
             'unidad_organizativa_id' => $uo->id,
-            'tipo_vinculo'           => 'adscripcion',
-            'fecha_inicio'           => now()->toDateString(),
+            'tipo_vinculo' => 'adscripcion',
+            'fecha_inicio' => now()->toDateString(),
         ]);
 
-        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'trabajador_social', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'trabajador_social', 'guard_name' => 'web']);
         $usuario->assignRole('trabajador_social');
 
         $alertaRol = Alerta::create([
-            'tipo'               => TipoAlerta::Aviso,
-            'origen_type'        => 'App\\Models\\User',
-            'origen_id'          => $usuario->id,
-            'titulo'             => 'Aviso para rol UO',
-            'cuerpo'             => 'Cuerpo',
-            'destinatario_type'  => DestinatarioType::RolUo,
-            'destinatario_rol'   => 'trabajador_social',
+            'tipo' => TipoAlerta::Aviso,
+            'origen_type' => 'App\\Models\\User',
+            'origen_id' => $usuario->id,
+            'titulo' => 'Aviso para rol UO',
+            'cuerpo' => 'Cuerpo',
+            'destinatario_type' => DestinatarioType::RolUo,
+            'destinatario_rol' => 'trabajador_social',
             'destinatario_uo_id' => $uo->id,
-            'estado'             => EstadoAlerta::Pendiente,
+            'estado' => EstadoAlerta::Pendiente,
         ]);
 
         Livewire::actingAs($usuario)
@@ -103,7 +104,7 @@ class BandejaAlertasTest extends TestCase
     public function t_lw_03_reconocer_alerta_desde_bandeja_actualiza_estado(): void
     {
         $usuario = User::factory()->create();
-        $alerta  = $this->crearAlertaDirecta($usuario, ['titulo' => 'Alerta reconocible']);
+        $alerta = $this->crearAlertaDirecta($usuario, ['titulo' => 'Alerta reconocible']);
 
         Livewire::actingAs($usuario)
             ->test(BandejaAlertas::class)
@@ -144,38 +145,38 @@ class BandejaAlertasTest extends TestCase
         $usuario = User::factory()->create();
 
         Alerta::create([
-            'tipo'                    => TipoAlerta::Aviso,
-            'origen_type'             => 'App\\Models\\User',
-            'origen_id'               => $usuario->id,
-            'titulo'                  => 'AVISO SIN VTO',
-            'cuerpo'                  => 'Cuerpo',
-            'destinatario_type'       => DestinatarioType::Usuario,
+            'tipo' => TipoAlerta::Aviso,
+            'origen_type' => 'App\\Models\\User',
+            'origen_id' => $usuario->id,
+            'titulo' => 'AVISO SIN VTO',
+            'cuerpo' => 'Cuerpo',
+            'destinatario_type' => DestinatarioType::Usuario,
             'destinatario_usuario_id' => $usuario->id,
-            'estado'                  => EstadoAlerta::Pendiente,
+            'estado' => EstadoAlerta::Pendiente,
         ]);
 
         Alerta::create([
-            'tipo'                    => TipoAlerta::Alerta,
-            'origen_type'             => 'App\\Models\\User',
-            'origen_id'               => $usuario->id,
-            'titulo'                  => 'ALERTA 3H',
-            'cuerpo'                  => 'Cuerpo',
-            'destinatario_type'       => DestinatarioType::Usuario,
+            'tipo' => TipoAlerta::Alerta,
+            'origen_type' => 'App\\Models\\User',
+            'origen_id' => $usuario->id,
+            'titulo' => 'ALERTA 3H',
+            'cuerpo' => 'Cuerpo',
+            'destinatario_type' => DestinatarioType::Usuario,
             'destinatario_usuario_id' => $usuario->id,
-            'estado'                  => EstadoAlerta::Pendiente,
-            'expira_en'               => now()->addHours(3),
+            'estado' => EstadoAlerta::Pendiente,
+            'expira_en' => now()->addHours(3),
         ]);
 
         Alerta::create([
-            'tipo'                    => TipoAlerta::Alerta,
-            'origen_type'             => 'App\\Models\\User',
-            'origen_id'               => $usuario->id,
-            'titulo'                  => 'ALERTA 1H',
-            'cuerpo'                  => 'Cuerpo',
-            'destinatario_type'       => DestinatarioType::Usuario,
+            'tipo' => TipoAlerta::Alerta,
+            'origen_type' => 'App\\Models\\User',
+            'origen_id' => $usuario->id,
+            'titulo' => 'ALERTA 1H',
+            'cuerpo' => 'Cuerpo',
+            'destinatario_type' => DestinatarioType::Usuario,
             'destinatario_usuario_id' => $usuario->id,
-            'estado'                  => EstadoAlerta::Pendiente,
-            'expira_en'               => now()->addHour(),
+            'estado' => EstadoAlerta::Pendiente,
+            'expira_en' => now()->addHour(),
         ]);
 
         Livewire::actingAs($usuario)

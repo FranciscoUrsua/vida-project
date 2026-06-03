@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\UsuarioUoRol;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Schema;
  * en varias UO). Los permisos efectivos son la unión de todos los roles
  * activos (docs/modulo-usuarios-permisos.md sección 1.3).
  *
- * @see \App\Models\UsuarioUoRol
+ * @see UsuarioUoRol
  */
 return new class extends Migration
 {

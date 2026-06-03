@@ -19,6 +19,7 @@ use Modules\Agenda\Enums\OrigenPermitidoSlot;
 class TiposSlotsRelationManager extends RelationManager
 {
     protected static string $relationship = 'tiposSlot';
+
     protected static ?string $title = 'Tipos de slot';
 
     public function form(Schema $schema): Schema
@@ -99,9 +100,9 @@ class TiposSlotsRelationManager extends RelationManager
                     ->badge()
                     ->formatStateUsing(fn (OrigenPermitidoSlot $state) => $state->label())
                     ->color(fn (OrigenPermitidoSlot $state) => match ($state) {
-                        OrigenPermitidoSlot::Interno    => 'gray',
+                        OrigenPermitidoSlot::Interno => 'gray',
                         OrigenPermitidoSlot::ApiExterna => 'warning',
-                        OrigenPermitidoSlot::Ambos      => 'success',
+                        OrigenPermitidoSlot::Ambos => 'success',
                     }),
 
                 Tables\Columns\IconColumn::make('genera_apunte_automatico')

@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Snapshot histórico de un registro versionable.
@@ -22,9 +24,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property array $datos
  * @property int|null $usuario_id
  * @property string|null $motivo
- * @property \Illuminate\Support\Carbon $created_at
+ * @property Carbon $created_at
  *
- * @see \App\Traits\Versionable
+ * @see Versionable
  * @see docs/modulo-usuarios-permisos.md sección 5.4
  */
 class Version extends Model
@@ -55,8 +57,6 @@ class Version extends Model
 
     /**
      * Entidad a la que pertenece esta versión.
-     *
-     * @return MorphTo
      */
     public function versionable(): MorphTo
     {

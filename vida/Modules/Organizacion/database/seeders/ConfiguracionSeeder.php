@@ -25,29 +25,27 @@ class ConfiguracionSeeder extends Seeder
      */
     private const CONFIGURACIONES = [
         [
-            'clave'       => 'nombre_organizacion',
-            'valor'       => 'Ayuntamiento de Madrid',
+            'clave' => 'nombre_organizacion',
+            'valor' => 'Ayuntamiento de Madrid',
             'descripcion' => 'Nombre de la organización que despliega VIDA 360',
-            'tipo'        => 'texto',
+            'tipo' => 'texto',
         ],
         [
-            'clave'       => 'municipio',
-            'valor'       => 'Madrid',
+            'clave' => 'municipio',
+            'valor' => 'Madrid',
             'descripcion' => 'Nombre del municipio',
-            'tipo'        => 'texto',
+            'tipo' => 'texto',
         ],
         [
-            'clave'       => 'provincia',
-            'valor'       => 'Madrid',
+            'clave' => 'provincia',
+            'valor' => 'Madrid',
             'descripcion' => 'Nombre de la provincia',
-            'tipo'        => 'texto',
+            'tipo' => 'texto',
         ],
     ];
 
     /**
      * Crea las configuraciones iniciales si no existen.
-     *
-     * @return void
      */
     public function run(): void
     {

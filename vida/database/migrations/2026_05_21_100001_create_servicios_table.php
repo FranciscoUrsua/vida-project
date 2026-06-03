@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\Servicio;
 
 /**
  * Nodos de tramitación de prestaciones.
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Schema;
  * (ej: "Jefe de Servicio de Ayuda a Domicilio"). El profesional que ocupe el
  * cargo ostenta ese título mientras lo dirija.
  *
- * @see Modules\Centro\Models\Servicio
+ * @see Servicio
  */
 return new class extends Migration
 {

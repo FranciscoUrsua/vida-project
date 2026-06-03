@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Ciudadania\Models\Ciudadano;
 
 /**
  * Tabla de ciudadanos (beneficiarios/as del sistema de servicios sociales).
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Schema;
  * Esta migración crea la tabla base para que el módulo de Centros pueda
  * referenciarla antes de que el módulo Ciudadanía esté operativo.
  *
- * @see Modules\Ciudadania\Models\Ciudadano
+ * @see Ciudadano
  * @see docs/modulo-ciudadania.md § 3.1
  */
 return new class extends Migration

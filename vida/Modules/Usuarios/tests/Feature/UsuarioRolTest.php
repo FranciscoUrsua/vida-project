@@ -28,16 +28,18 @@ class UsuarioRolTest extends TestCase
     use RefreshDatabase;
 
     private User $profesional;
+
     private Role $rolIntervencion;
+
     private Role $rolSupervision;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->profesional     = User::factory()->create();
+        $this->profesional = User::factory()->create();
         $this->rolIntervencion = Role::create(['name' => 'intervencion', 'guard_name' => 'web']);
-        $this->rolSupervision  = Role::create(['name' => 'supervision', 'guard_name' => 'web']);
+        $this->rolSupervision = Role::create(['name' => 'supervision', 'guard_name' => 'web']);
     }
 
     // -------------------------------------------------------------------------
@@ -48,18 +50,18 @@ class UsuarioRolTest extends TestCase
     public function asignar_un_rol_crea_registro_en_usuario_rol_con_fecha_inicio_y_estado_activo(): void
     {
         UsuarioRol::create([
-            'usuario_id'   => $this->profesional->id,
-            'rol_id'       => $this->rolIntervencion->id,
+            'usuario_id' => $this->profesional->id,
+            'rol_id' => $this->rolIntervencion->id,
             'fecha_inicio' => today(),
-            'fecha_fin'    => null,
-            'estado'       => 'activo',
+            'fecha_fin' => null,
+            'estado' => 'activo',
         ]);
 
         $this->assertDatabaseCount('usuario_rol', 1);
         $this->assertDatabaseHas('usuario_rol', [
             'usuario_id' => $this->profesional->id,
-            'rol_id'     => $this->rolIntervencion->id,
-            'estado'     => 'activo',
+            'rol_id' => $this->rolIntervencion->id,
+            'estado' => 'activo',
         ]);
         $this->assertTrue($this->profesional->fresh()->hasRole('intervencion'));
     }
@@ -68,11 +70,11 @@ class UsuarioRolTest extends TestCase
     public function cerrar_un_rol_establece_fecha_fin_y_lo_elimina_de_spatie(): void
     {
         $registro = UsuarioRol::create([
-            'usuario_id'   => $this->profesional->id,
-            'rol_id'       => $this->rolIntervencion->id,
+            'usuario_id' => $this->profesional->id,
+            'rol_id' => $this->rolIntervencion->id,
             'fecha_inicio' => today()->subMonth(),
-            'fecha_fin'    => null,
-            'estado'       => 'activo',
+            'fecha_fin' => null,
+            'estado' => 'activo',
         ]);
 
         $fechaInicio = $registro->fecha_inicio->toDateString();
@@ -83,9 +85,9 @@ class UsuarioRolTest extends TestCase
 
         $this->assertFalse($this->profesional->fresh()->hasRole('intervencion'));
         $this->assertDatabaseHas('usuario_rol', [
-            'id'           => $registro->id,
+            'id' => $registro->id,
             'fecha_inicio' => $fechaInicio,
-            'fecha_fin'    => $fechaCierre,
+            'fecha_fin' => $fechaCierre,
         ]);
     }
 
@@ -93,19 +95,19 @@ class UsuarioRolTest extends TestCase
     public function el_historial_de_roles_se_preserva_al_reasignar_el_mismo_rol(): void
     {
         $registroAnterior = UsuarioRol::create([
-            'usuario_id'   => $this->profesional->id,
-            'rol_id'       => $this->rolIntervencion->id,
+            'usuario_id' => $this->profesional->id,
+            'rol_id' => $this->rolIntervencion->id,
             'fecha_inicio' => today()->subYear(),
-            'fecha_fin'    => today()->subMonth(),
-            'estado'       => 'inactivo',
+            'fecha_fin' => today()->subMonth(),
+            'estado' => 'inactivo',
         ]);
 
         $registroNuevo = UsuarioRol::create([
-            'usuario_id'   => $this->profesional->id,
-            'rol_id'       => $this->rolIntervencion->id,
+            'usuario_id' => $this->profesional->id,
+            'rol_id' => $this->rolIntervencion->id,
             'fecha_inicio' => today(),
-            'fecha_fin'    => null,
-            'estado'       => 'activo',
+            'fecha_fin' => null,
+            'estado' => 'activo',
         ]);
 
         $this->assertDatabaseCount('usuario_rol', 2);
@@ -120,19 +122,19 @@ class UsuarioRolTest extends TestCase
         $rolAdmUsuarios = Role::create(['name' => 'adm_usuarios', 'guard_name' => 'web']);
 
         UsuarioRol::create([
-            'usuario_id'   => $this->profesional->id,
-            'rol_id'       => $this->rolIntervencion->id,
+            'usuario_id' => $this->profesional->id,
+            'rol_id' => $this->rolIntervencion->id,
             'fecha_inicio' => today(),
-            'fecha_fin'    => null,
-            'estado'       => 'activo',
+            'fecha_fin' => null,
+            'estado' => 'activo',
         ]);
 
         UsuarioRol::create([
-            'usuario_id'   => $this->profesional->id,
-            'rol_id'       => $rolAdmUsuarios->id,
+            'usuario_id' => $this->profesional->id,
+            'rol_id' => $rolAdmUsuarios->id,
             'fecha_inicio' => today(),
-            'fecha_fin'    => null,
-            'estado'       => 'activo',
+            'fecha_fin' => null,
+            'estado' => 'activo',
         ]);
 
         $this->assertTrue($this->profesional->fresh()->hasRole('intervencion'));
@@ -143,11 +145,11 @@ class UsuarioRolTest extends TestCase
     public function el_comando_de_reconciliacion_sincroniza_model_has_roles_con_usuario_rol(): void
     {
         UsuarioRol::create([
-            'usuario_id'   => $this->profesional->id,
-            'rol_id'       => $this->rolIntervencion->id,
+            'usuario_id' => $this->profesional->id,
+            'rol_id' => $this->rolIntervencion->id,
             'fecha_inicio' => today(),
-            'fecha_fin'    => null,
-            'estado'       => 'activo',
+            'fecha_fin' => null,
+            'estado' => 'activo',
         ]);
 
         // Simular desincronización: borrar de model_has_roles sin tocar usuario_rol
@@ -172,23 +174,23 @@ class UsuarioRolTest extends TestCase
     public function asignar_un_rol_de_aprobacion_requerida_crea_solicitud_pendiente(): void
     {
         ConfiguracionRol::create([
-            'rol_id'            => $this->rolSupervision->id,
+            'rol_id' => $this->rolSupervision->id,
             'nivel_supervision' => 'aprobacion_previa',
         ]);
 
         UsuarioRol::create([
-            'usuario_id'   => $this->profesional->id,
-            'rol_id'       => $this->rolSupervision->id,
+            'usuario_id' => $this->profesional->id,
+            'rol_id' => $this->rolSupervision->id,
             'fecha_inicio' => today(),
-            'fecha_fin'    => null,
-            'estado'       => 'pendiente_aprobacion',
+            'fecha_fin' => null,
+            'estado' => 'pendiente_aprobacion',
         ]);
 
         $this->assertFalse($this->profesional->fresh()->hasRole('supervision'));
         $this->assertDatabaseHas('usuario_rol', [
             'usuario_id' => $this->profesional->id,
-            'rol_id'     => $this->rolSupervision->id,
-            'estado'     => 'pendiente_aprobacion',
+            'rol_id' => $this->rolSupervision->id,
+            'estado' => 'pendiente_aprobacion',
         ]);
     }
 
@@ -196,11 +198,11 @@ class UsuarioRolTest extends TestCase
     public function aprobar_una_solicitud_pendiente_activa_el_rol_en_spatie(): void
     {
         $registro = UsuarioRol::create([
-            'usuario_id'   => $this->profesional->id,
-            'rol_id'       => $this->rolSupervision->id,
+            'usuario_id' => $this->profesional->id,
+            'rol_id' => $this->rolSupervision->id,
             'fecha_inicio' => today(),
-            'fecha_fin'    => null,
-            'estado'       => 'pendiente_aprobacion',
+            'fecha_fin' => null,
+            'estado' => 'pendiente_aprobacion',
         ]);
 
         $registro->update(['estado' => 'activo']);
@@ -212,11 +214,11 @@ class UsuarioRolTest extends TestCase
     public function denegar_una_solicitud_pendiente_no_activa_el_rol(): void
     {
         $registro = UsuarioRol::create([
-            'usuario_id'   => $this->profesional->id,
-            'rol_id'       => $this->rolSupervision->id,
+            'usuario_id' => $this->profesional->id,
+            'rol_id' => $this->rolSupervision->id,
             'fecha_inicio' => today(),
-            'fecha_fin'    => null,
-            'estado'       => 'pendiente_aprobacion',
+            'fecha_fin' => null,
+            'estado' => 'pendiente_aprobacion',
         ]);
 
         // 'denegado' no coincide con 'activo' ni con 'inactivo': el Observer no sincroniza
@@ -224,7 +226,7 @@ class UsuarioRolTest extends TestCase
 
         $this->assertFalse($this->profesional->fresh()->hasRole('supervision'));
         $this->assertDatabaseHas('usuario_rol', [
-            'id'     => $registro->id,
+            'id' => $registro->id,
             'estado' => 'denegado',
         ]);
     }
@@ -233,16 +235,16 @@ class UsuarioRolTest extends TestCase
     public function asignar_un_rol_de_alerta_supervisada_lo_activa_inmediatamente(): void
     {
         ConfiguracionRol::create([
-            'rol_id'            => $this->rolIntervencion->id,
+            'rol_id' => $this->rolIntervencion->id,
             'nivel_supervision' => 'alerta_supervisada',
         ]);
 
         UsuarioRol::create([
-            'usuario_id'   => $this->profesional->id,
-            'rol_id'       => $this->rolIntervencion->id,
+            'usuario_id' => $this->profesional->id,
+            'rol_id' => $this->rolIntervencion->id,
             'fecha_inicio' => today(),
-            'fecha_fin'    => null,
-            'estado'       => 'activo',
+            'fecha_fin' => null,
+            'estado' => 'activo',
         ]);
 
         $this->assertTrue($this->profesional->fresh()->hasRole('intervencion'));

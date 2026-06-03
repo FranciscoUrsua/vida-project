@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\ListaEspera;
 
 /**
  * Lista de espera vinculada a una prescripción.
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * estado valores: activa | asignada | cancelada
  *
- * @see Modules\Centro\Models\ListaEspera
+ * @see ListaEspera
  */
 return new class extends Migration
 {

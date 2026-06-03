@@ -3,7 +3,6 @@
 namespace Modules\Intervencion\Tests\Feature\Livewire;
 
 use App\Models\CatalogoSistema;
-use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Models\UsuarioUo;
@@ -45,33 +44,31 @@ class MisCasosPageTest extends TestCase
 
     /**
      * Crea un usuario con rol intervencion y UO asignada.
-     *
-     * @return User
      */
     private function crearUsuario(): User
     {
         $uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Test MisCasos',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Test MisCasos',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $usuario = User::create([
-            'name'              => 'TSR Test',
-            'email'             => 'tsr-casos@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'TSR Test',
+            'email' => 'tsr-casos@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
 
         $usuario->assignRole('intervencion');
 
         UsuarioUo::create([
-            'usuario_id'             => $usuario->id,
+            'usuario_id' => $usuario->id,
             'unidad_organizativa_id' => $uo->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         return $usuario;
@@ -79,37 +76,30 @@ class MisCasosPageTest extends TestCase
 
     /**
      * Crea un plan activo de tipo general_asp asignado al usuario dado.
-     *
-     * @param User $usuario
-     * @return PlanDeIntervencion
      */
     private function crearPlan(User $usuario, array $extra = []): PlanDeIntervencion
     {
         return PlanDeIntervencion::factory()->create(array_merge([
             'profesional_responsable_id' => $usuario->id,
-            'tipo'                       => TipoPlan::GeneralAsp,
-            'estado'                     => EstadoPlan::Activo,
+            'tipo' => TipoPlan::GeneralAsp,
+            'estado' => EstadoPlan::Activo,
         ], $extra));
     }
 
     /**
      * Crea un seguimiento para el plan dado con la fecha indicada.
-     *
-     * @param PlanDeIntervencion $plan
-     * @param string|null $fechaSiguiente
-     * @return SeguimientoPlan
      */
     private function crearSeguimiento(PlanDeIntervencion $plan, ?string $fechaSiguiente): SeguimientoPlan
     {
         $entrevista = Entrevista::factory()->seguimiento()->create([
-            'historia_id'    => $plan->historia_id,
+            'historia_id' => $plan->historia_id,
             'profesional_id' => $plan->profesional_responsable_id,
         ]);
 
         return SeguimientoPlan::factory()->create([
-            'plan_id'                    => $plan->id,
-            'entrevista_id'              => $entrevista->id,
-            'profesional_id'             => $plan->profesional_responsable_id,
+            'plan_id' => $plan->id,
+            'entrevista_id' => $entrevista->id,
+            'profesional_id' => $plan->profesional_responsable_id,
             'fecha_siguiente_seguimiento' => $fechaSiguiente,
         ]);
     }
@@ -126,11 +116,11 @@ class MisCasosPageTest extends TestCase
     {
         $usuario = $this->crearUsuario();
         $otro = User::create([
-            'name'              => 'Otro TSR',
-            'email'             => 'otro@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Otro TSR',
+            'email' => 'otro@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
 
         // Plan del profesional autenticado
@@ -152,9 +142,9 @@ class MisCasosPageTest extends TestCase
     {
         $usuario = $this->crearUsuario();
 
-        $planVencido   = $this->crearPlan($usuario);
-        $planProximo   = $this->crearPlan($usuario);
-        $planSinSeg    = $this->crearPlan($usuario);
+        $planVencido = $this->crearPlan($usuario);
+        $planProximo = $this->crearPlan($usuario);
+        $planSinSeg = $this->crearPlan($usuario);
 
         $this->crearSeguimiento($planVencido, today()->subDays(3)->toDateString());
         $this->crearSeguimiento($planProximo, today()->addDays(3)->toDateString());
@@ -224,11 +214,11 @@ class MisCasosPageTest extends TestCase
         $usuario = $this->crearUsuario();
 
         CatalogoSistema::create([
-            'grupo'    => 'configuracion',
-            'clave'    => 'nombre_plan_asp',
+            'grupo' => 'configuracion',
+            'clave' => 'nombre_plan_asp',
             'etiqueta' => 'Plan Social Integrado',
-            'orden'    => 1,
-            'activo'   => true,
+            'orden' => 1,
+            'activo' => true,
         ]);
 
         Livewire::actingAs($usuario)
@@ -262,8 +252,8 @@ class MisCasosPageTest extends TestCase
     {
         $usuario = $this->crearUsuario();
 
-        $planVencido   = $this->crearPlan($usuario);
-        $planProximo   = $this->crearPlan($usuario);
+        $planVencido = $this->crearPlan($usuario);
+        $planProximo = $this->crearPlan($usuario);
         $planProgramado = $this->crearPlan($usuario);
 
         $this->crearSeguimiento($planVencido, today()->subDays(2)->toDateString());

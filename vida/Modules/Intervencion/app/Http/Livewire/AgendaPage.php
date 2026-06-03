@@ -3,7 +3,7 @@
 namespace Modules\Intervencion\Http\Livewire;
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -28,8 +28,6 @@ class AgendaPage extends Component
 
     /**
      * Inicializa la fecha ancla al día de hoy.
-     *
-     * @return void
      */
     public function mount(): void
     {
@@ -42,40 +40,34 @@ class AgendaPage extends Component
 
     /**
      * Retrocede 1 día, semana o mes según la vista activa.
-     *
-     * @return void
      */
     public function navegarAnterior(): void
     {
         $fecha = Carbon::parse($this->fechaAncla);
         $this->fechaAncla = match ($this->vista) {
-            'dia'    => $fecha->subDay()->toDateString(),
+            'dia' => $fecha->subDay()->toDateString(),
             'semana' => $fecha->subWeek()->toDateString(),
-            'mes'    => $fecha->subMonth()->toDateString(),
-            default  => $this->fechaAncla,
+            'mes' => $fecha->subMonth()->toDateString(),
+            default => $this->fechaAncla,
         };
     }
 
     /**
      * Avanza 1 día, semana o mes según la vista activa.
-     *
-     * @return void
      */
     public function navegarSiguiente(): void
     {
         $fecha = Carbon::parse($this->fechaAncla);
         $this->fechaAncla = match ($this->vista) {
-            'dia'    => $fecha->addDay()->toDateString(),
+            'dia' => $fecha->addDay()->toDateString(),
             'semana' => $fecha->addWeek()->toDateString(),
-            'mes'    => $fecha->addMonth()->toDateString(),
-            default  => $this->fechaAncla,
+            'mes' => $fecha->addMonth()->toDateString(),
+            default => $this->fechaAncla,
         };
     }
 
     /**
      * Resetea la fecha ancla al día de hoy.
-     *
-     * @return void
      */
     public function irAHoy(): void
     {
@@ -86,7 +78,6 @@ class AgendaPage extends Component
      * Cambia la vista activa.
      *
      * @param string $vista 'dia' | 'semana' | 'mes'
-     * @return void
      */
     public function setVista(string $vista): void
     {
@@ -97,7 +88,6 @@ class AgendaPage extends Component
      * Al hacer clic en un día en la vista de mes, navega a la vista de día.
      *
      * @param string $fecha ISO 8601
-     * @return void
      */
     public function irADia(string $fecha): void
     {
@@ -111,8 +101,6 @@ class AgendaPage extends Component
 
     /**
      * Título descriptivo de la fecha según la vista activa.
-     *
-     * @return string
      */
     #[Computed]
     public function tituloFecha(): string
@@ -120,10 +108,10 @@ class AgendaPage extends Component
         $fecha = Carbon::parse($this->fechaAncla)->locale('es');
 
         return match ($this->vista) {
-            'dia'    => $fecha->isoFormat('dddd, D [de] MMMM [de] YYYY'),
-            'semana' => $fecha->startOfWeek()->isoFormat('D MMM') . ' – ' . $fecha->endOfWeek()->isoFormat('D MMM YYYY'),
-            'mes'    => $fecha->isoFormat('MMMM [de] YYYY'),
-            default  => '',
+            'dia' => $fecha->isoFormat('dddd, D [de] MMMM [de] YYYY'),
+            'semana' => $fecha->startOfWeek()->isoFormat('D MMM').' – '.$fecha->endOfWeek()->isoFormat('D MMM YYYY'),
+            'mes' => $fecha->isoFormat('MMMM [de] YYYY'),
+            default => '',
         };
     }
 
@@ -142,6 +130,7 @@ class AgendaPage extends Component
             $fecha = $ancla->copy()->addDays($offset)->toDateString();
             $columnas[$fecha] = $this->citasFixture($fecha);
         }
+
         return $columnas;
     }
 
@@ -160,6 +149,7 @@ class AgendaPage extends Component
             $fecha = $lunes->copy()->addDays($i)->toDateString();
             $columnas[$fecha] = $this->citasFixture($fecha);
         }
+
         return $columnas;
     }
 
@@ -189,6 +179,7 @@ class AgendaPage extends Component
                 'tipos' => $tipos,
             ];
         }
+
         return $datos;
     }
 
@@ -201,10 +192,10 @@ class AgendaPage extends Component
     public function kpis(): array
     {
         return [
-            'alertas_sin_reconocer'  => $this->contarAlertasPendientes(),
-            'seguimientos_vencidos'  => $this->contarSeguimientosVencidos(),
-            'citas'                  => $this->contarCitasRango(),
-            'mensajes_sin_leer'      => $this->contarMensajesSinLeer(),
+            'alertas_sin_reconocer' => $this->contarAlertasPendientes(),
+            'seguimientos_vencidos' => $this->contarSeguimientosVencidos(),
+            'citas' => $this->contarCitasRango(),
+            'mensajes_sin_leer' => $this->contarMensajesSinLeer(),
         ];
     }
 
@@ -212,36 +203,24 @@ class AgendaPage extends Component
     // Consultas KPI — se conectarán con los módulos reales progresivamente
     // -------------------------------------------------------------------------
 
-    /**
-     * @return int
-     */
     private function contarAlertasPendientes(): int
     {
         // TODO: conectar con módulo Mensajes cuando esté disponible
         return 0;
     }
 
-    /**
-     * @return int
-     */
     private function contarSeguimientosVencidos(): int
     {
         // TODO: conectar con módulo Intervencion (planes activos con seguimiento vencido)
         return 0;
     }
 
-    /**
-     * @return int
-     */
     private function contarCitasRango(): int
     {
         // TODO: conectar con módulo Agenda cuando esté disponible
         return 0;
     }
 
-    /**
-     * @return int
-     */
     private function contarMensajesSinLeer(): int
     {
         // TODO: conectar con módulo Mensajes cuando esté disponible
@@ -259,6 +238,7 @@ class AgendaPage extends Component
      * TODO: reemplazar con consulta real al módulo Agenda cuando esté disponible
      *
      * @param string $fecha ISO 8601
+     *
      * @return array<int, array<string, mixed>>
      */
     private function citasFixture(string $fecha): array
@@ -270,21 +250,19 @@ class AgendaPage extends Component
         $citas = [];
         for ($i = 0; $i < $count; $i++) {
             $citas[] = [
-                'id'        => $hash + $i,
-                'hora'      => sprintf('%02d:00', 9 + ($i * 2)),
-                'duracion'  => 60,
+                'id' => $hash + $i,
+                'hora' => sprintf('%02d:00', 9 + ($i * 2)),
+                'duracion' => 60,
                 'ciudadano' => $ciudadanos[$i % count($ciudadanos)],
-                'tipo'      => $tipos[($hash + $i) % count($tipos)],
-                'fecha'     => $fecha,
+                'tipo' => $tipos[($hash + $i) % count($tipos)],
+                'fecha' => $fecha,
             ];
         }
+
         return $citas;
     }
 
-    /**
-     * @return \Illuminate\View\View
-     */
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('intervencion::livewire.agenda-page');
     }

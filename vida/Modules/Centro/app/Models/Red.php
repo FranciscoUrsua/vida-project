@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -17,8 +18,8 @@ use Illuminate\Support\Facades\DB;
  * @property string|null $nombre_corto
  * @property string|null $descripcion
  * @property bool $activa
- * @property \Illuminate\Support\Carbon $fecha_alta
- * @property \Illuminate\Support\Carbon|null $fecha_baja
+ * @property Carbon $fecha_alta
+ * @property Carbon|null $fecha_baja
  */
 class Red extends Model
 {
@@ -37,7 +38,7 @@ class Red extends Model
     ];
 
     protected $casts = [
-        'activa'     => 'boolean',
+        'activa' => 'boolean',
         'fecha_alta' => 'date',
         'fecha_baja' => 'date',
     ];
@@ -49,7 +50,7 @@ class Red extends Model
     /**
      * Centros que pertenecen a esta red.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Modules\Centro\Models\Centro, self>
+     * @return BelongsToMany<Centro, self>
      */
     public function centros(): BelongsToMany
     {
@@ -63,8 +64,6 @@ class Red extends Model
     /**
      * Total de plazas con estado 'libre' en todos los centros de la red.
      * Solo cuenta colecciones activas.
-     *
-     * @return int
      */
     public function plazasLibresTotal(): int
     {
@@ -86,8 +85,9 @@ class Red extends Model
     /**
      * Filtra redes activas.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeActivas(Builder $query): Builder
     {

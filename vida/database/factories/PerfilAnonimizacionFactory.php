@@ -15,12 +15,12 @@ class PerfilAnonimizacionFactory extends Factory
     public function definition(): array
     {
         return [
-            'nombre'     => 'perfil_' . $this->faker->unique()->lexify('????????'),
-            'nivel'      => 2,
-            'version'    => 1,
-            'estado'     => 'activo',
+            'nombre' => 'perfil_'.$this->faker->unique()->lexify('????????'),
+            'nivel' => 2,
+            'version' => 1,
+            'estado' => 'activo',
             'es_sistema' => false,
-            'campos'     => [
+            'campos' => [
                 ['campo' => 'nombre', 'tecnica' => 'suprimir'],
             ],
             'k_valor' => null,
@@ -33,10 +33,10 @@ class PerfilAnonimizacionFactory extends Factory
     public function supervisionInterna(): static
     {
         return $this->state([
-            'nombre'     => 'supervision_interna',
-            'nivel'      => 1,
+            'nombre' => 'supervision_interna',
+            'nivel' => 1,
             'es_sistema' => true,
-            'campos'     => [
+            'campos' => [
                 ['campo' => 'id',                  'tecnica' => 'seudonimizar'],
                 ['campo' => 'nombre',              'tecnica' => 'suprimir'],
                 ['campo' => 'apellido1',           'tecnica' => 'suprimir'],
@@ -55,10 +55,10 @@ class PerfilAnonimizacionFactory extends Factory
     public function analiticaInterna(): static
     {
         return $this->state([
-            'nombre'     => 'analitica_interna',
-            'nivel'      => 2,
+            'nombre' => 'analitica_interna',
+            'nivel' => 2,
             'es_sistema' => true,
-            'campos'     => [
+            'campos' => [
                 ['campo' => 'nombre',              'tecnica' => 'suprimir'],
                 ['campo' => 'apellido1',           'tecnica' => 'suprimir'],
                 ['campo' => 'apellido2',           'tecnica' => 'suprimir'],
@@ -67,11 +67,11 @@ class PerfilAnonimizacionFactory extends Factory
                 ['campo' => 'email',               'tecnica' => 'suprimir'],
                 ['campo' => 'fecha_nacimiento',    'tecnica' => 'generalizar', 'precision' => 'anio'],
                 [
-                    'campo'        => 'nombre_via',
-                    'tecnica'      => 'generalizar',
-                    'precision'    => 'calle_sin_numero',
+                    'campo' => 'nombre_via',
+                    'tecnica' => 'generalizar',
+                    'precision' => 'calle_sin_numero',
                     'prerequisito' => 'direccion_normalizada',
-                    'fallback'     => 'suprimir',
+                    'fallback' => 'suprimir',
                 ],
                 ['campo' => 'numero',       'tecnica' => 'suprimir'],
                 ['campo' => 'portal',       'tecnica' => 'suprimir'],
@@ -91,8 +91,8 @@ class PerfilAnonimizacionFactory extends Factory
     public function datosAbiertos(): static
     {
         return $this->analiticaInterna()->state([
-            'nombre'  => 'datos_abiertos',
-            'nivel'   => 3,
+            'nombre' => 'datos_abiertos',
+            'nivel' => 3,
             'k_valor' => 10,
         ]);
     }
@@ -103,8 +103,8 @@ class PerfilAnonimizacionFactory extends Factory
     public function investigacionExterna(): static
     {
         return $this->analiticaInterna()->state([
-            'nombre'  => 'investigacion_externa',
-            'nivel'   => 3,
+            'nombre' => 'investigacion_externa',
+            'nivel' => 3,
             'k_valor' => 10,
         ]);
     }

@@ -20,19 +20,19 @@ class CentroUoTest extends TestCase
     private function crearUo(string $nombre = 'UO de prueba'): UnidadOrganizativa
     {
         return UnidadOrganizativa::create([
-            'nombre'    => $nombre,
-            'tipo'      => 'departamento',
+            'nombre' => $nombre,
+            'tipo' => 'departamento',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
     }
 
     private function crearCentro(array $override = []): Centro
     {
         return Centro::create(array_merge([
-            'nombre'       => 'Centro de prueba',
+            'nombre' => 'Centro de prueba',
             'tipo_gestion' => 'municipal_directo',
-            'fecha_alta'   => today()->toDateString(),
+            'fecha_alta' => today()->toDateString(),
         ], $override));
     }
 
@@ -43,7 +43,7 @@ class CentroUoTest extends TestCase
     #[Test]
     public function un_centro_puede_pertenecer_a_una_uo(): void
     {
-        $uo     = $this->crearUo('UO Atención Primaria');
+        $uo = $this->crearUo('UO Atención Primaria');
         $centro = $this->crearCentro(['unidad_organizativa_id' => $uo->id]);
 
         $this->assertEquals($uo->id, $centro->unidadOrganizativa->id);
@@ -70,8 +70,8 @@ class CentroUoTest extends TestCase
     #[Test]
     public function la_uo_de_un_centro_puede_cambiarse(): void
     {
-        $uoA    = $this->crearUo('UO A');
-        $uoB    = $this->crearUo('UO B');
+        $uoA = $this->crearUo('UO A');
+        $uoB = $this->crearUo('UO B');
         $centro = $this->crearCentro(['unidad_organizativa_id' => $uoA->id]);
 
         $centro->update(['unidad_organizativa_id' => $uoB->id]);

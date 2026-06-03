@@ -12,8 +12,8 @@ namespace Modules\Mensajes\Enums;
  */
 enum EstadoAlerta: string
 {
-    case Pendiente  = 'pendiente';
+    case Pendiente = 'pendiente';
     case Reconocida = 'reconocida';
-    case Escalada   = 'escalada';
-    case Vencida    = 'vencida';
+    case Escalada = 'escalada';
+    case Vencida = 'vencida';
 }

@@ -6,7 +6,6 @@ use App\Filament\Resources\PrestacionResource\Pages\CreatePrestacion;
 use App\Filament\Resources\PrestacionResource\Pages\EditPrestacion;
 use App\Filament\Resources\PrestacionResource\Pages\ListPrestaciones;
 use App\Models\User;
-use App\Models\Version;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Modules\Prestaciones\Models\Prestacion;
@@ -26,11 +25,11 @@ class PrestacionFilamentResourceTest extends TestCase
     private function prestacionBase(array $overrides = []): array
     {
         return array_merge([
-            'codigo'          => '010101',
-            'nombre'          => 'Servicio de información y asesoramiento',
+            'codigo' => '010101',
+            'nombre' => 'Servicio de información y asesoramiento',
             'tipo_prestacion' => 'servicio',
-            'nivel_garantia'  => 'garantizada',
-            'activa'          => true,
+            'nivel_garantia' => 'garantizada',
+            'activa' => true,
         ], $overrides);
     }
 
@@ -96,10 +95,10 @@ class PrestacionFilamentResourceTest extends TestCase
         Livewire::actingAs($admin)
             ->test(CreatePrestacion::class)
             ->fillForm([
-                'codigo'          => '010101',
-                'nombre'          => 'Servicio de información',
+                'codigo' => '010101',
+                'nombre' => 'Servicio de información',
                 'tipo_prestacion' => 'servicio',
-                'nivel_garantia'  => 'garantizada',
+                'nivel_garantia' => 'garantizada',
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -118,10 +117,10 @@ class PrestacionFilamentResourceTest extends TestCase
         Livewire::actingAs($admin)
             ->test(CreatePrestacion::class)
             ->fillForm([
-                'codigo'          => '010101',
-                'nombre'          => '',
+                'codigo' => '010101',
+                'nombre' => '',
                 'tipo_prestacion' => 'servicio',
-                'nivel_garantia'  => 'garantizada',
+                'nivel_garantia' => 'garantizada',
             ])
             ->call('create')
             ->assertHasFormErrors(['nombre' => 'required']);
@@ -138,10 +137,10 @@ class PrestacionFilamentResourceTest extends TestCase
         Livewire::actingAs($admin)
             ->test(CreatePrestacion::class)
             ->fillForm([
-                'codigo'          => '010101',
-                'nombre'          => 'Otro servicio',
+                'codigo' => '010101',
+                'nombre' => 'Otro servicio',
                 'tipo_prestacion' => 'servicio',
-                'nivel_garantia'  => 'garantizada',
+                'nivel_garantia' => 'garantizada',
             ])
             ->call('create')
             ->assertHasFormErrors(['codigo']);
@@ -156,7 +155,7 @@ class PrestacionFilamentResourceTest extends TestCase
     #[Test]
     public function un_admin_puede_editar_una_prestacion_desde_filament(): void
     {
-        $admin      = User::factory()->create();
+        $admin = User::factory()->create();
         $prestacion = Prestacion::create($this->prestacionBase(['nombre' => 'Nombre original']));
 
         Livewire::actingAs($admin)
@@ -171,7 +170,7 @@ class PrestacionFilamentResourceTest extends TestCase
     #[Test]
     public function editar_desde_filament_genera_una_version_en_versiones(): void
     {
-        $admin      = User::factory()->create();
+        $admin = User::factory()->create();
         $prestacion = Prestacion::create($this->prestacionBase());
 
         $this->assertDatabaseCount('versiones', 0);
@@ -185,7 +184,7 @@ class PrestacionFilamentResourceTest extends TestCase
         $this->assertDatabaseCount('versiones', 1);
         $this->assertDatabaseHas('versiones', [
             'versionable_type' => Prestacion::class,
-            'versionable_id'   => $prestacion->id,
+            'versionable_id' => $prestacion->id,
         ]);
     }
 
@@ -196,7 +195,7 @@ class PrestacionFilamentResourceTest extends TestCase
     #[Test]
     public function el_toggle_de_activa_en_el_listado_cambia_el_estado_de_la_prestacion(): void
     {
-        $admin      = User::factory()->create();
+        $admin = User::factory()->create();
         $prestacion = Prestacion::create($this->prestacionBase(['activa' => true]));
 
         // ToggleColumn usa updateTableColumnState (no callTableColumnAction)

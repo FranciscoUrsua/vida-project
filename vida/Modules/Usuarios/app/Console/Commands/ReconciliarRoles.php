@@ -29,8 +29,6 @@ class ReconciliarRoles extends Command
 
     /**
      * Ejecuta el comando.
-     *
-     * @return int
      */
     public function handle(): int
     {
@@ -56,7 +54,7 @@ class ReconciliarRoles extends Command
 
             if (! $hayVigente) {
                 $user = User::find($registro->model_id);
-                $rol  = Role::find($registro->role_id);
+                $rol = Role::find($registro->role_id);
                 if ($user && $rol) {
                     $user->removeRole($rol);
                 }

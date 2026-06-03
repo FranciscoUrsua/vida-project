@@ -4,6 +4,7 @@ namespace Modules\Intervencion\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Firma de una versión concreta de un Plan de Intervención.
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $firma_ciudadano
  * @property string|null $firma_profesional
  * @property string|null $metodo_firma
- * @property \Illuminate\Support\Carbon|null $fecha_firma
+ * @property Carbon|null $fecha_firma
  */
 class FirmaPlan extends Model
 {
@@ -34,7 +35,7 @@ class FirmaPlan extends Model
     ];
 
     protected $casts = [
-        'version'     => 'integer',
+        'version' => 'integer',
         'fecha_firma' => 'date',
     ];
 

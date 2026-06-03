@@ -62,11 +62,11 @@ class AlertaService
             : TipoReconocimiento::Reconocida;
 
         $reconocimiento = AlertaReconocimiento::create([
-            'alerta_id'    => $alerta->id,
-            'usuario_id'   => $usuario->id,
-            'tipo'         => $tipo,
+            'alerta_id' => $alerta->id,
+            'usuario_id' => $usuario->id,
+            'tipo' => $tipo,
             'reconocida_en' => now(),
-            'ip_address'   => $ipAddress,
+            'ip_address' => $ipAddress,
         ]);
 
         $alerta->update(['estado' => EstadoAlerta::Reconocida]);
@@ -86,8 +86,8 @@ class AlertaService
 
         if (! $supervisor) {
             Log::warning('Alerta vencida sin supervisor disponible en la UO', [
-                'alerta_id'   => $alerta->id,
-                'uo_id'       => $alerta->destinatario_uo_id ?? $this->resolverUoDelDestinatario($alerta)?->id,
+                'alerta_id' => $alerta->id,
+                'uo_id' => $alerta->destinatario_uo_id ?? $this->resolverUoDelDestinatario($alerta)?->id,
             ]);
 
             $alerta->update(['estado' => EstadoAlerta::Vencida]);
@@ -96,17 +96,17 @@ class AlertaService
         }
 
         $alerta->update([
-            'estado'                => EstadoAlerta::Escalada,
-            'escalada_en'           => now(),
+            'estado' => EstadoAlerta::Escalada,
+            'escalada_en' => now(),
             'escalada_a_usuario_id' => $supervisor->id,
         ]);
 
         AlertaReconocimiento::create([
-            'alerta_id'    => $alerta->id,
-            'usuario_id'   => $supervisor->id,
-            'tipo'         => TipoReconocimiento::Escalada,
+            'alerta_id' => $alerta->id,
+            'usuario_id' => $supervisor->id,
+            'tipo' => TipoReconocimiento::Escalada,
             'reconocida_en' => now(),
-            'ip_address'   => null,
+            'ip_address' => null,
         ]);
     }
 
@@ -126,8 +126,8 @@ class AlertaService
                 ->whereNull('fecha_fin')
                 ->orWhere('fecha_fin', '>=', now()->toDateString());
         })
-        ->role($alerta->destinatario_rol)
-        ->get();
+            ->role($alerta->destinatario_rol)
+            ->get();
     }
 
     // -------------------------------------------------------------------------
@@ -152,8 +152,8 @@ class AlertaService
                         ->orWhere('fecha_fin', '>=', now()->toDateString());
                 });
         })
-        ->role('supervisor')
-        ->first();
+            ->role('supervisor')
+            ->first();
     }
 
     /**

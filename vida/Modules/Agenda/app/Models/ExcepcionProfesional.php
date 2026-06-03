@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Agenda\Database\Factories\ExcepcionProfesionalFactory;
 use Modules\Agenda\Enums\OrigenExcepcion;
 use Modules\Agenda\Enums\TipoExcepcion;
@@ -23,8 +24,8 @@ use Modules\Centro\Models\Centro;
  * @property int $usuario_id
  * @property int $centro_id
  * @property TipoExcepcion $tipo
- * @property \Illuminate\Support\Carbon $fecha_inicio
- * @property \Illuminate\Support\Carbon $fecha_fin
+ * @property Carbon $fecha_inicio
+ * @property Carbon $fecha_fin
  * @property bool $afecta_disponibilidad
  * @property array|null $franja_afectada
  * @property OrigenExcepcion $origen
@@ -45,12 +46,12 @@ class ExcepcionProfesional extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'tipo'                  => TipoExcepcion::class,
-        'fecha_inicio'          => 'date',
-        'fecha_fin'             => 'date',
+        'tipo' => TipoExcepcion::class,
+        'fecha_inicio' => 'date',
+        'fecha_fin' => 'date',
         'afecta_disponibilidad' => 'boolean',
-        'franja_afectada'       => 'array',
-        'origen'                => OrigenExcepcion::class,
+        'franja_afectada' => 'array',
+        'origen' => OrigenExcepcion::class,
     ];
 
     public function usuario(): BelongsTo

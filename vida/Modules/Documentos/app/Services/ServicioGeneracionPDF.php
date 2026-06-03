@@ -2,6 +2,7 @@
 
 namespace Modules\Documentos\Services;
 
+use App\Models\CatalogoSistema;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\Informe;
@@ -29,12 +30,13 @@ class ServicioGeneracionPDF
      * No persiste ningún fichero. El profesional puede llamar a este método
      * iterativamente para previsualizar el informe antes de firmarlo.
      *
-     * @param  Informe $informe Informe en estado borrador
-     * @return string           Contenido binario del PDF
+     * @param Informe $informe Informe en estado borrador
+     *
+     * @return string Contenido binario del PDF
      */
     public function generarBorrador(Informe $informe): string
     {
-        $estilo   = $this->resolverEstilo->resolver($informe->autor->unidad_organizativa_id ?? 1);
+        $estilo = $this->resolverEstilo->resolver($informe->autor->unidad_organizativa_id ?? 1);
         $plantilla = $informe->plantilla;
         $contenido = $informe->contenido ?? [];
 
@@ -50,9 +52,9 @@ class ServicioGeneracionPDF
         }
 
         $pdf = Pdf::loadView('documentos::informe', [
-            'informe'   => $informe,
+            'informe' => $informe,
             'plantilla' => $plantilla,
-            'estilo'    => $estilo,
+            'estilo' => $estilo,
             'contenido' => $contenido,
             'datosAuto' => $datosAuto,
             'tipografia' => config('documentos.tipografia'),
@@ -64,9 +66,10 @@ class ServicioGeneracionPDF
     /**
      * Persiste el PDF firmado recibido desde AutoFirma como Documento.
      *
-     * @param  Informe $informe          Informe en estado borrador
-     * @param  string  $pdfFirmadoBase64 PDF firmado en base64
-     * @return Documento                 Documento persistido
+     * @param Informe $informe Informe en estado borrador
+     * @param string $pdfFirmadoBase64 PDF firmado en base64
+     *
+     * @return Documento Documento persistido
      */
     public function generarFinal(Informe $informe, string $pdfFirmadoBase64): Documento
     {
@@ -74,7 +77,7 @@ class ServicioGeneracionPDF
         $nombreFichero = "informe_{$informe->id}_firmado.pdf";
 
         // El tipo de documento 'informe_generado' debe existir en catalogos_sistema
-        $tipoDoc = \App\Models\CatalogoSistema::where('grupo', 'documento.tipo')
+        $tipoDoc = CatalogoSistema::where('grupo', 'documento.tipo')
             ->where('clave', 'informe_generado')
             ->first();
 

@@ -25,20 +25,20 @@ class ValoracionFactory extends Factory
         );
 
         $historia = HistoriaSocial::create([
-            'ciudadano_id'           => fake()->numberBetween(1, 9999),
+            'ciudadano_id' => fake()->numberBetween(1, 9999),
             'unidad_organizativa_id' => $uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         return [
-            'historia_id'        => $historia->id,
-            'entrevista_id'      => null,
-            'profesional_id'     => User::factory(),
+            'historia_id' => $historia->id,
+            'entrevista_id' => null,
+            'profesional_id' => User::factory(),
             'tipo_valoracion_id' => TipoValoracion::factory(),
-            'fecha'              => today()->toDateString(),
-            'estado'             => EstadoValoracion::Borrador,
-            'resumen'            => null,
+            'fecha' => today()->toDateString(),
+            'estado' => EstadoValoracion::Borrador,
+            'resumen' => null,
         ];
     }
 }

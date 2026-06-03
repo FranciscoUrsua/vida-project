@@ -30,17 +30,17 @@ class ContactoSiaTest extends TestCase
     public function registro_sia_otra_administracion_no_requiere_urgencia(): void
     {
         $ciudadano = Ciudadano::factory()->create();
-        $auxiliar  = User::factory()->create();
+        $auxiliar = User::factory()->create();
 
         $contacto = SiaContacto::create([
-            'ciudadano_id'        => $ciudadano->id,
-            'auxiliar_id'         => $auxiliar->id,
-            'fecha_hora'          => now()->toDateTimeString(),
-            'canal'               => 'presencial',
+            'ciudadano_id' => $ciudadano->id,
+            'auxiliar_id' => $auxiliar->id,
+            'fecha_hora' => now()->toDateTimeString(),
+            'canal' => 'presencial',
             'descripcion_demanda' => 'Consulta sobre ayuda de dependencia autonómica.',
-            'clasificacion'       => ClasificacionSia::OtraAdministracion,
+            'clasificacion' => ClasificacionSia::OtraAdministracion,
             'informacion_prestada' => 'Se informa del trámite en la Comunidad de Madrid.',
-            'urgencia'            => null,
+            'urgencia' => null,
         ]);
 
         $this->assertNotNull($contacto->id, 'El registro SIA debe guardarse sin errores');
@@ -54,13 +54,13 @@ class ContactoSiaTest extends TestCase
     public function scope_competencia_municipal_filtra_correctamente(): void
     {
         $ciudadano = Ciudadano::factory()->create();
-        $auxiliar  = User::factory()->create();
+        $auxiliar = User::factory()->create();
 
         $base = [
-            'ciudadano_id'        => $ciudadano->id,
-            'auxiliar_id'         => $auxiliar->id,
-            'fecha_hora'          => now()->toDateTimeString(),
-            'canal'               => 'presencial',
+            'ciudadano_id' => $ciudadano->id,
+            'auxiliar_id' => $auxiliar->id,
+            'fecha_hora' => now()->toDateTimeString(),
+            'canal' => 'presencial',
             'descripcion_demanda' => 'Descripción de prueba',
         ];
 

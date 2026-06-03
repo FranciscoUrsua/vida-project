@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\ColectivoProtegidoResource\Pages;
 
 use App\Filament\Resources\ColectivoProtegidoResource;
-use Filament\Actions;
 use App\Filament\Resources\Pages\ListRecords;
+use Filament\Actions;
 
 class ListColectivosProtegidos extends ListRecords
 {

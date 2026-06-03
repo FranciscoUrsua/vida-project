@@ -5,6 +5,7 @@ namespace Modules\Intervencion\Models;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Registro histórico de una revisión de Plan de Intervención.
@@ -17,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $version_anterior
  * @property int $version_nueva
  * @property int $profesional_id
- * @property \Illuminate\Support\Carbon $fecha
+ * @property Carbon $fecha
  * @property string $motivo_revision
  * @property int|null $seguimiento_id
  */
@@ -37,8 +38,8 @@ class RevisionPlan extends Model
 
     protected $casts = [
         'version_anterior' => 'integer',
-        'version_nueva'    => 'integer',
-        'fecha'            => 'date',
+        'version_nueva' => 'integer',
+        'fecha' => 'date',
     ];
 
     // -------------------------------------------------------------------------

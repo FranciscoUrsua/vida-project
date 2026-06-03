@@ -5,9 +5,10 @@ namespace App\Filament\Resources;
 use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\TipoEscalaResource\Pages;
 use App\Models\CatalogoSistema;
-use Filament\Actions\DeleteAction;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Builder;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
@@ -18,7 +19,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -33,10 +33,15 @@ class TipoEscalaResource extends Resource
     protected static ?string $model = TipoEscala::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
+
     protected static ?string $navigationLabel = 'Tipos de escala';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Informes y Plantillas';
+
     protected static ?string $modelLabel = 'Tipo de escala';
+
     protected static ?string $pluralModelLabel = 'Tipos de escala';
+
     protected static ?int $navigationSort = 5;
 
     // -------------------------------------------------------------------------
@@ -85,7 +90,7 @@ class TipoEscalaResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
-                \Filament\Actions\Action::make('desactivar')
+                Action::make('desactivar')
                     ->label('Desactivar')
                     ->icon('heroicon-o-eye-slash')
                     ->color('warning')
@@ -133,7 +138,7 @@ class TipoEscalaResource extends Resource
                                     Toggle::make('confirmar_instrucciones')
                                         ->label('Requiere confirmación de lectura antes del pase'),
 
-                                    \Filament\Forms\Components\CheckboxList::make('contextos')
+                                    CheckboxList::make('contextos')
                                         ->label('Contextos de aplicación')
                                         ->options(fn () => CatalogoSistema::opcionesParaSelect('escala.contexto'))
                                         ->columnSpanFull(),
@@ -158,8 +163,7 @@ class TipoEscalaResource extends Resource
                                 ->label('Secciones e ítems')
                                 ->blocks([
                                     Builder\Block::make('seccion')
-                                        ->label(fn (?array $state): string =>
-                                            filled($state['titulo'] ?? null)
+                                        ->label(fn (?array $state): string => filled($state['titulo'] ?? null)
                                                 ? $state['titulo']
                                                 : 'Nueva sección'
                                         )
@@ -168,8 +172,7 @@ class TipoEscalaResource extends Resource
 
                                             Placeholder::make('aviso_inmutabilidad')
                                                 ->content('Este instrumento tiene pases registrados. Los ítems y opciones existentes no se pueden modificar para preservar la integridad del historial. Solo es posible añadir nuevas secciones o ítems.')
-                                                ->visible(fn (?TipoEscala $record): bool =>
-                                                    $record !== null && $record->pases()->exists()
+                                                ->visible(fn (?TipoEscala $record): bool => $record !== null && $record->pases()->exists()
                                                 ),
 
                                             TextInput::make('titulo')
@@ -197,8 +200,7 @@ class TipoEscalaResource extends Resource
                                                         ->label('Texto del ítem')
                                                         ->required()
                                                         ->maxLength(500)
-                                                        ->disabled(fn (?TipoEscala $record): bool =>
-                                                            $record !== null && $record->pases()->exists()
+                                                        ->disabled(fn (?TipoEscala $record): bool => $record !== null && $record->pases()->exists()
                                                         )
                                                         ->live(onBlur: true),
 
@@ -225,8 +227,7 @@ class TipoEscalaResource extends Resource
                                                                 ->maxLength(100),
                                                         ])
                                                         ->minItems(2)
-                                                        ->disabled(fn (?TipoEscala $record): bool =>
-                                                            $record !== null && $record->pases()->exists()
+                                                        ->disabled(fn (?TipoEscala $record): bool => $record !== null && $record->pases()->exists()
                                                         ),
                                                 ]),
                                         ]),
@@ -240,6 +241,7 @@ class TipoEscalaResource extends Resource
                                 ->afterStateHydrated(function (Builder $component, mixed $state): void {
                                     if (empty($state)) {
                                         $component->state([]);
+
                                         return;
                                     }
 
@@ -261,6 +263,7 @@ class TipoEscalaResource extends Resource
                                             ->all();
 
                                         $component->state($builderState);
+
                                         return;
                                     }
 
@@ -268,7 +271,7 @@ class TipoEscalaResource extends Resource
                                     $component->state([]);
                                 })
                                 ->dehydrateStateUsing(function (mixed $state): array {
-                                    if (empty($state) || !is_array($state)) {
+                                    if (empty($state) || ! is_array($state)) {
                                         return ['secciones' => []];
                                     }
 
@@ -277,18 +280,19 @@ class TipoEscalaResource extends Resource
                                         ->map(function (array $block, int $si) {
                                             $seccion = $block['data'] ?? [];
 
-                                            if (!is_array($seccion)) {
+                                            if (! is_array($seccion)) {
                                                 return null;
                                             }
 
-                                            $seccion['id']    ??= 'sec_' . ($si + 1);
-                                            $seccion['orden']   = $si + 1;
+                                            $seccion['id'] ??= 'sec_'.($si + 1);
+                                            $seccion['orden'] = $si + 1;
 
                                             $seccion['items'] = collect($seccion['items'] ?? [])
                                                 ->filter(fn ($item) => is_array($item))
                                                 ->map(function (array $item, int $ii) use ($si) {
-                                                    $item['id']    ??= 'item_' . ($si + 1) . '_' . ($ii + 1);
-                                                    $item['orden']   = $ii + 1;
+                                                    $item['id'] ??= 'item_'.($si + 1).'_'.($ii + 1);
+                                                    $item['orden'] = $ii + 1;
+
                                                     return $item;
                                                 })
                                                 ->values()
@@ -348,9 +352,9 @@ class TipoEscalaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListTipoEscalas::route('/'),
+            'index' => Pages\ListTipoEscalas::route('/'),
             'create' => Pages\CreateTipoEscala::route('/create'),
-            'edit'   => Pages\EditTipoEscala::route('/{record}/edit'),
+            'edit' => Pages\EditTipoEscala::route('/{record}/edit'),
         ];
     }
 }

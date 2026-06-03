@@ -94,17 +94,17 @@ class CentroSeeder extends Seeder
     /**
      * Segmentos de población a los que puede dirigirse un centro.
      *
-     * @return array<string, \Modules\Centro\Models\SegmentoPoblacion>
+     * @return array<string, SegmentoPoblacion>
      */
     private function sembrarSegmentosPoblacion(): array
     {
         $definiciones = [
-            'personas_sin_hogar'  => ['nombre' => 'Personas sin hogar',         'descripcion' => 'Personas en situación de sinhogarismo o exclusión residencial grave.'],
-            'personas_mayores'    => ['nombre' => 'Personas mayores',            'descripcion' => 'Personas de 65 años o más con necesidades de atención o apoyo social.'],
-            'menores_familia'     => ['nombre' => 'Menores y familia',           'descripcion' => 'Menores en situación de riesgo y sus unidades familiares.'],
-            'discapacidad'        => ['nombre' => 'Personas con discapacidad',   'descripcion' => 'Personas con discapacidad física, intelectual o del desarrollo.'],
-            'vvg'                 => ['nombre' => 'Víctimas de violencia de género', 'descripcion' => 'Mujeres y menores víctimas de violencia de género.'],
-            'atencion_primaria'   => ['nombre' => 'Atención primaria general',   'descripcion' => 'Población general derivada a los servicios sociales de base.'],
+            'personas_sin_hogar' => ['nombre' => 'Personas sin hogar',         'descripcion' => 'Personas en situación de sinhogarismo o exclusión residencial grave.'],
+            'personas_mayores' => ['nombre' => 'Personas mayores',            'descripcion' => 'Personas de 65 años o más con necesidades de atención o apoyo social.'],
+            'menores_familia' => ['nombre' => 'Menores y familia',           'descripcion' => 'Menores en situación de riesgo y sus unidades familiares.'],
+            'discapacidad' => ['nombre' => 'Personas con discapacidad',   'descripcion' => 'Personas con discapacidad física, intelectual o del desarrollo.'],
+            'vvg' => ['nombre' => 'Víctimas de violencia de género', 'descripcion' => 'Mujeres y menores víctimas de violencia de género.'],
+            'atencion_primaria' => ['nombre' => 'Atención primaria general',   'descripcion' => 'Población general derivada a los servicios sociales de base.'],
         ];
 
         $resultado = [];
@@ -116,6 +116,7 @@ class CentroSeeder extends Seeder
         }
 
         $this->command->info('✓ Segmentos de población creados.');
+
         return $resultado;
     }
 
@@ -126,32 +127,32 @@ class CentroSeeder extends Seeder
     /**
      * Crea tres centros de ejemplo y una red que agrupa los dos albergues.
      *
-     * @param  array<string, \Modules\Centro\Models\SegmentoPoblacion>  $segmentos
+     * @param array<string, SegmentoPoblacion> $segmentos
      */
     private function sembrarCentrosYRed(array $segmentos): void
     {
         // UO de referencia: el Departamento de Atención Primaria es el padre común
         $uoDepartamento = UnidadOrganizativa::where('nombre', 'Departamento de Atención Primaria')->first();
         $uoCssArganzuela = UnidadOrganizativa::where('nombre', 'Centro de Servicios Sociales Arganzuela')->first();
-        $uoCssRetiro     = UnidadOrganizativa::where('nombre', 'Centro de Servicios Sociales Retiro')->first();
+        $uoCssRetiro = UnidadOrganizativa::where('nombre', 'Centro de Servicios Sociales Retiro')->first();
 
         // ---- Centro 1: Albergue Municipal San Isidro ----------------------------
         $albergueSanIsidro = Centro::firstOrCreate(
             ['nombre' => 'Albergue Municipal San Isidro'],
             [
-                'nombre_corto'           => 'Albergue San Isidro',
-                'tipo_gestion'           => 'municipal_directo',
+                'nombre_corto' => 'Albergue San Isidro',
+                'tipo_gestion' => 'municipal_directo',
                 'unidad_organizativa_id' => $uoDepartamento?->id,
-                'direccion_texto'        => 'Calle Mesón de Paredes, 2',
-                'direccion_normalizada'  => false,
-                'codigo_postal'          => '28012',
-                'municipio'              => 'Madrid',
-                'telefono'               => '915 000 001',
-                'email'                  => 'albergue.sanisidro@madrid.es',
-                'inscripcion_libre'      => false,
-                'activo'                 => true,
-                'fecha_alta'             => '2020-01-01',
-                'notas'                  => 'Centro de referencia de acogida nocturna y atención a personas sin hogar.',
+                'direccion_texto' => 'Calle Mesón de Paredes, 2',
+                'direccion_normalizada' => false,
+                'codigo_postal' => '28012',
+                'municipio' => 'Madrid',
+                'telefono' => '915 000 001',
+                'email' => 'albergue.sanisidro@madrid.es',
+                'inscripcion_libre' => false,
+                'activo' => true,
+                'fecha_alta' => '2020-01-01',
+                'notas' => 'Centro de referencia de acogida nocturna y atención a personas sin hogar.',
             ]
         );
         $albergueSanIsidro->segmentosPoblacion()->syncWithoutDetaching([$segmentos['personas_sin_hogar']->id]);
@@ -160,19 +161,19 @@ class CentroSeeder extends Seeder
         $albergueVallecas = Centro::firstOrCreate(
             ['nombre' => 'Albergue Municipal Vallecas'],
             [
-                'nombre_corto'           => 'Albergue Vallecas',
-                'tipo_gestion'           => 'municipal_concertado',
+                'nombre_corto' => 'Albergue Vallecas',
+                'tipo_gestion' => 'municipal_concertado',
                 'unidad_organizativa_id' => $uoDepartamento?->id,
-                'direccion_texto'        => 'Avenida de la Albufera, 89',
-                'direccion_normalizada'  => false,
-                'codigo_postal'          => '28038',
-                'municipio'              => 'Madrid',
-                'telefono'               => '915 000 002',
-                'email'                  => 'albergue.vallecas@madrid.es',
-                'inscripcion_libre'      => false,
-                'activo'                 => true,
-                'fecha_alta'             => '2021-06-01',
-                'notas'                  => 'Centro concertado de acogida nocturna para el distrito de Vallecas.',
+                'direccion_texto' => 'Avenida de la Albufera, 89',
+                'direccion_normalizada' => false,
+                'codigo_postal' => '28038',
+                'municipio' => 'Madrid',
+                'telefono' => '915 000 002',
+                'email' => 'albergue.vallecas@madrid.es',
+                'inscripcion_libre' => false,
+                'activo' => true,
+                'fecha_alta' => '2021-06-01',
+                'notas' => 'Centro concertado de acogida nocturna para el distrito de Vallecas.',
             ]
         );
         $albergueVallecas->segmentosPoblacion()->syncWithoutDetaching([$segmentos['personas_sin_hogar']->id]);
@@ -181,19 +182,19 @@ class CentroSeeder extends Seeder
         $centroDiaRetiro = Centro::firstOrCreate(
             ['nombre' => 'Centro de Día Retiro'],
             [
-                'nombre_corto'           => 'CD Retiro',
-                'tipo_gestion'           => 'municipal_directo',
+                'nombre_corto' => 'CD Retiro',
+                'tipo_gestion' => 'municipal_directo',
                 'unidad_organizativa_id' => $uoCssRetiro?->id,
-                'direccion_texto'        => 'Calle Ibiza, 45',
-                'direccion_normalizada'  => false,
-                'codigo_postal'          => '28009',
-                'municipio'              => 'Madrid',
-                'telefono'               => '915 000 003',
-                'email'                  => 'centrodia.retiro@madrid.es',
-                'inscripcion_libre'      => false,
-                'activo'                 => true,
-                'fecha_alta'             => '2019-03-15',
-                'notas'                  => 'Centro de atención diurna para personas mayores del distrito de Retiro.',
+                'direccion_texto' => 'Calle Ibiza, 45',
+                'direccion_normalizada' => false,
+                'codigo_postal' => '28009',
+                'municipio' => 'Madrid',
+                'telefono' => '915 000 003',
+                'email' => 'centrodia.retiro@madrid.es',
+                'inscripcion_libre' => false,
+                'activo' => true,
+                'fecha_alta' => '2019-03-15',
+                'notas' => 'Centro de atención diurna para personas mayores del distrito de Retiro.',
             ]
         );
         $centroDiaRetiro->segmentosPoblacion()->syncWithoutDetaching([$segmentos['personas_mayores']->id]);
@@ -203,9 +204,9 @@ class CentroSeeder extends Seeder
             ['nombre' => 'Red de Albergues Municipales'],
             [
                 'nombre_corto' => 'Red Albergues',
-                'descripcion'  => 'Red que unifica la lista de espera y el pool de plazas de los albergues municipales de acogida nocturna.',
-                'activa'       => true,
-                'fecha_alta'   => '2021-06-01',
+                'descripcion' => 'Red que unifica la lista de espera y el pool de plazas de los albergues municipales de acogida nocturna.',
+                'activa' => true,
+                'fecha_alta' => '2021-06-01',
             ]
         );
         $redAlbergues->centros()->syncWithoutDetaching([

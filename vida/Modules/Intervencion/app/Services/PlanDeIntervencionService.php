@@ -3,8 +3,10 @@
 namespace Modules\Intervencion\Services;
 
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Gate;
 use Modules\Intervencion\Models\PlanDeIntervencion;
+use Modules\Intervencion\Policies\PlanDeIntervencionPolicy;
 
 /**
  * Servicio de dominio para el Plan de Intervención.
@@ -16,8 +18,8 @@ use Modules\Intervencion\Models\PlanDeIntervencion;
  * nuevo registro. El servicio expone los métodos básicos de escritura;
  * la lógica de negocio compleja (firma, revisión) pertenece al modelo.
  *
- * @see \Modules\Intervencion\Policies\PlanDeIntervencionPolicy
- * @see \Modules\Intervencion\Models\PlanDeIntervencion::crearNuevaVersion()
+ * @see PlanDeIntervencionPolicy
+ * @see PlanDeIntervencion::crearNuevaVersion()
  */
 class PlanDeIntervencionService
 {
@@ -25,7 +27,7 @@ class PlanDeIntervencionService
      * Crea un nuevo Plan de Intervención.
      *
      * @param array<string, mixed> $datos Datos del plan a crear
-     * @return PlanDeIntervencion
+     *
      * @throws AuthorizationException Si el usuario no tiene permiso de crear planes
      */
     public function crear(array $datos): PlanDeIntervencion
@@ -42,11 +44,11 @@ class PlanDeIntervencionService
      * El GlobalScope filtra por ámbito de UO vía Historia Social.
      * La Policy verifica el permiso de edición y el ámbito de UO.
      *
-     * @param int                  $id    ID del plan
+     * @param int $id ID del plan
      * @param array<string, mixed> $datos Campos a actualizar
-     * @return PlanDeIntervencion
+     *
      * @throws AuthorizationException Si el usuario no tiene permiso de editar
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Si el plan no existe o no está en el ámbito del usuario
+     * @throws ModelNotFoundException Si el plan no existe o no está en el ámbito del usuario
      */
     public function actualizar(int $id, array $datos): PlanDeIntervencion
     {
@@ -66,9 +68,9 @@ class PlanDeIntervencionService
      * de validación de estado debe implementarse aquí.
      *
      * @param int $id ID del plan
-     * @return void
+     *
      * @throws AuthorizationException Si el usuario no tiene permiso de eliminar
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Si el plan no existe o no está en el ámbito del usuario
+     * @throws ModelNotFoundException Si el plan no existe o no está en el ámbito del usuario
      */
     public function eliminar(int $id): void
     {

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\TipoAlerta;
@@ -27,11 +28,11 @@ use Modules\Mensajes\Enums\TipoAlerta;
  * @property string|null $destinatario_rol
  * @property int|null $destinatario_uo_id
  * @property EstadoAlerta $estado
- * @property \Illuminate\Support\Carbon|null $expira_en
- * @property \Illuminate\Support\Carbon|null $escalada_en
+ * @property Carbon|null $expira_en
+ * @property Carbon|null $escalada_en
  * @property int|null $escalada_a_usuario_id
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class Alerta extends Model
 {
@@ -54,11 +55,11 @@ class Alerta extends Model
     ];
 
     protected $casts = [
-        'tipo'              => TipoAlerta::class,
+        'tipo' => TipoAlerta::class,
         'destinatario_type' => DestinatarioType::class,
-        'estado'            => EstadoAlerta::class,
-        'expira_en'         => 'datetime',
-        'escalada_en'       => 'datetime',
+        'estado' => EstadoAlerta::class,
+        'expira_en' => 'datetime',
+        'escalada_en' => 'datetime',
     ];
 
     // -------------------------------------------------------------------------
@@ -68,7 +69,7 @@ class Alerta extends Model
     /**
      * Reconocimientos registrados para esta alerta.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<AlertaReconocimiento, self>
+     * @return HasMany<AlertaReconocimiento, self>
      */
     public function reconocimientos(): HasMany
     {
@@ -78,7 +79,7 @@ class Alerta extends Model
     /**
      * Usuario al que va dirigida la alerta (cuando el destinatario es un usuario concreto).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
+     * @return BelongsTo<User, self>
      */
     public function destinatarioUsuario(): BelongsTo
     {
@@ -88,7 +89,7 @@ class Alerta extends Model
     /**
      * Unidad organizativa destinataria (cuando el destinatario es un rol+UO).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<UnidadOrganizativa, self>
+     * @return BelongsTo<UnidadOrganizativa, self>
      */
     public function destinatarioUo(): BelongsTo
     {
@@ -98,7 +99,7 @@ class Alerta extends Model
     /**
      * Usuario al que fue escalada la alerta tras vencer el plazo de reconocimiento.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
+     * @return BelongsTo<User, self>
      */
     public function escaladaA(): BelongsTo
     {
@@ -108,7 +109,7 @@ class Alerta extends Model
     /**
      * Entidad que originó la alerta (relación polimórfica).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo<\Illuminate\Database\Eloquent\Model, self>
+     * @return MorphTo<Model, self>
      */
     public function origen(): MorphTo
     {
@@ -122,8 +123,9 @@ class Alerta extends Model
     /**
      * Filtra alertas en estado pendiente.
      *
-     * @param \Illuminate\Database\Eloquent\Builder<static> $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopePendientes(Builder $query): Builder
     {
@@ -133,8 +135,9 @@ class Alerta extends Model
     /**
      * Alertas de tipo 'alerta' con el plazo de reconocimiento vencido.
      *
-     * @param \Illuminate\Database\Eloquent\Builder<static> $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeVencidas(Builder $query): Builder
     {

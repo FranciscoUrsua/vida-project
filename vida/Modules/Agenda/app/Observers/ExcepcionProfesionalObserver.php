@@ -32,7 +32,7 @@ class ExcepcionProfesionalObserver
         }
 
         $fechaInicioStr = $excepcion->fecha_inicio->toDateString();
-        $fechaFinStr    = $excepcion->fecha_fin->toDateString();
+        $fechaFinStr = $excepcion->fecha_fin->toDateString();
 
         // Líneas no anuladas del profesional en el rango de la excepción
         $lineaIds = LineaCuadrante::where('usuario_id', $excepcion->usuario_id)
@@ -47,7 +47,7 @@ class ExcepcionProfesionalObserver
         }
 
         LineaCuadrante::whereIn('id', $lineaIds)->update([
-            'anulada'      => true,
+            'anulada' => true,
             'excepcion_id' => $excepcion->id,
         ]);
 
@@ -59,7 +59,7 @@ class ExcepcionProfesionalObserver
             Cita::whereIn('slot_id', $todosLosSlotIds)
                 ->where('estado', EstadoCita::Confirmada->value)
                 ->update([
-                    'estado'             => EstadoCita::Cancelada->value,
+                    'estado' => EstadoCita::Cancelada->value,
                     'motivo_cancelacion' => 'Excepción del profesional',
                 ]);
         }

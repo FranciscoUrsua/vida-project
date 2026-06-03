@@ -23,7 +23,7 @@ class TiposRelacionProfesionalSeeder extends Seeder
             ['nombre' => 'Personal interino/a',               'es_externo' => false],
             ['nombre' => 'Personal eventual',                  'es_externo' => false],
             ['nombre' => 'Contratado/a laboral temporal',     'es_externo' => false],
-            ['nombre' => 'Empresa externa (contrata pública)','es_externo' => true],
+            ['nombre' => 'Empresa externa (contrata pública)', 'es_externo' => true],
             ['nombre' => 'Voluntario/a',                      'es_externo' => true],
         ];
 

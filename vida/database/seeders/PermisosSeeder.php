@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * Seeder de permisos atómicos del sistema VIDA 360.
@@ -17,7 +18,7 @@ use Spatie\Permission\Models\Permission;
  *
  * Fuente de referencia: docs/modulo-usuarios-permisos.md sección 4.3
  *
- * @see \Database\Seeders\RolesSeeder
+ * @see RolesSeeder
  */
 class PermisosSeeder extends Seeder
 {
@@ -103,13 +104,11 @@ class PermisosSeeder extends Seeder
     /**
      * Crea todos los permisos atómicos en la base de datos.
      * Si ya existen, los omite sin error (idempotente).
-     *
-     * @return void
      */
     public function run(): void
     {
         // Spatie recomienda limpiar la caché antes de seedear permisos
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         foreach (self::PERMISOS as [$nombre, $descripcion]) {
             Permission::firstOrCreate(
@@ -117,6 +116,6 @@ class PermisosSeeder extends Seeder
             );
         }
 
-        $this->command->info('✓ ' . count(self::PERMISOS) . ' permisos atómicos creados o verificados.');
+        $this->command->info('✓ '.count(self::PERMISOS).' permisos atómicos creados o verificados.');
     }
 }

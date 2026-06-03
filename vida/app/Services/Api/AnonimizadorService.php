@@ -25,7 +25,8 @@ class AnonimizadorService
      * Aplica el perfil de anonimización a la colección de registros.
      *
      * @param Collection<int, Model|array<string, mixed>> $registros
-     * @param string                                      $perfilId  Nombre del perfil
+     * @param string $perfilId Nombre del perfil
+     *
      * @return Collection<int, array<string, mixed>>
      *
      * @throws PerfilAnonimizacionNotFoundException Si el perfil no existe
@@ -47,15 +48,15 @@ class AnonimizadorService
             $datos = $registro instanceof Model ? $registro->toArray() : (array) $registro;
 
             foreach ($perfil->campos as $definicion) {
-                $campo   = $definicion['campo'];
+                $campo = $definicion['campo'];
                 $tecnica = $definicion['tecnica'];
 
                 $datos = match ($tecnica) {
-                    'suprimir'    => $this->aplicarSupresion($datos, $campo),
+                    'suprimir' => $this->aplicarSupresion($datos, $campo),
                     'seudonimizar' => $this->aplicarSeudonimizacion($datos, $campo),
                     'generalizar' => $this->aplicarGeneralizacion($datos, $campo, $definicion),
-                    'mantener'    => $this->aplicarMantener($datos, $campo),
-                    default       => $datos,
+                    'mantener' => $this->aplicarMantener($datos, $campo),
+                    default => $datos,
                 };
             }
 
@@ -67,11 +68,13 @@ class AnonimizadorService
      * Elimina el campo del array resultado.
      *
      * @param array<string, mixed> $registro
+     *
      * @return array<string, mixed>
      */
     private function aplicarSupresion(array $registro, string $campo): array
     {
         unset($registro[$campo]);
+
         return $registro;
     }
 
@@ -83,12 +86,13 @@ class AnonimizadorService
      * Si el campo es cualquier otro, reemplaza su valor con el alias.
      *
      * @param array<string, mixed> $registro
+     *
      * @return array<string, mixed>
      */
     private function aplicarSeudonimizacion(array $registro, string $campo): array
     {
-        $id    = $registro['id'] ?? null;
-        $alias = 'CIU-' . substr(hash_hmac('sha256', (string) $id, config('app.pseudonym_key')), 0, 8);
+        $id = $registro['id'] ?? null;
+        $alias = 'CIU-'.substr(hash_hmac('sha256', (string) $id, config('app.pseudonym_key')), 0, 8);
 
         if ($campo === 'id') {
             $registro['alias_ciudadano'] = $alias;
@@ -103,8 +107,9 @@ class AnonimizadorService
     /**
      * Reduce la precisión del campo según la técnica de generalización configurada.
      *
-     * @param array<string, mixed>  $registro
+     * @param array<string, mixed> $registro
      * @param array<string, string> $definicion Configuración del campo del perfil
+     *
      * @return array<string, mixed>
      */
     private function aplicarGeneralizacion(array $registro, string $campo, array $definicion): array
@@ -112,11 +117,11 @@ class AnonimizadorService
         $precision = $definicion['precision'] ?? '';
 
         return match ($precision) {
-            'anio'            => $this->generalizarAnio($registro, $campo),
-            'decada'          => $this->generalizarDecada($registro, $campo),
+            'anio' => $this->generalizarAnio($registro, $campo),
+            'decada' => $this->generalizarDecada($registro, $campo),
             'calle_sin_numero' => $this->generalizarCalleSinNumero($registro, $campo, $definicion),
-            'distrito_proxy'  => $this->generalizarDistritoProxy($registro, $campo),
-            default           => $registro,
+            'distrito_proxy' => $this->generalizarDistritoProxy($registro, $campo),
+            default => $registro,
         };
     }
 
@@ -124,16 +129,18 @@ class AnonimizadorService
      * Extrae el año de una fecha. Resultado: integer en clave 'anio_nacimiento'.
      *
      * @param array<string, mixed> $registro
+     *
      * @return array<string, mixed>
      */
     private function generalizarAnio(array $registro, string $campo): array
     {
-        if (!isset($registro[$campo])) {
+        if (! isset($registro[$campo])) {
             return $registro;
         }
 
         $registro['anio_nacimiento'] = (int) substr((string) $registro[$campo], 0, 4);
         unset($registro[$campo]);
+
         return $registro;
     }
 
@@ -141,18 +148,20 @@ class AnonimizadorService
      * Extrae la década de una fecha. Resultado: string "1940-1949".
      *
      * @param array<string, mixed> $registro
+     *
      * @return array<string, mixed>
      */
     private function generalizarDecada(array $registro, string $campo): array
     {
-        if (!isset($registro[$campo])) {
+        if (! isset($registro[$campo])) {
             return $registro;
         }
 
-        $anio         = (int) substr((string) $registro[$campo], 0, 4);
+        $anio = (int) substr((string) $registro[$campo], 0, 4);
         $decadaInicio = (int) floor($anio / 10) * 10;
-        $registro['rango_edad'] = "{$decadaInicio}-" . ($decadaInicio + 9);
+        $registro['rango_edad'] = "{$decadaInicio}-".($decadaInicio + 9);
         unset($registro[$campo]);
+
         return $registro;
     }
 
@@ -163,8 +172,9 @@ class AnonimizadorService
      * completa del campo (fallback según la especificación del perfil).
      * Cuando aplica, conserva tipo_via y nombre_via y elimina los campos de detalle.
      *
-     * @param array<string, mixed>  $registro
+     * @param array<string, mixed> $registro
      * @param array<string, string> $definicion
+     *
      * @return array<string, mixed>
      */
     private function generalizarCalleSinNumero(array $registro, string $campo, array $definicion): array
@@ -172,12 +182,14 @@ class AnonimizadorService
         if (empty($registro['direccion_normalizada'])) {
             // Sin normalización geográfica no se puede garantizar la extracción fiable del nombre de vía
             unset($registro[$campo]);
+
             return $registro;
         }
 
         // Eliminar campos de detalle: queda tipo_via + nombre_via
         unset($registro['numero'], $registro['portal'], $registro['escalera'],
-              $registro['piso'], $registro['puerta']);
+            $registro['piso'], $registro['puerta']);
+
         return $registro;
     }
 
@@ -185,16 +197,18 @@ class AnonimizadorService
      * Generaliza el código postal a los primeros 3 dígitos (distrito proxy).
      *
      * @param array<string, mixed> $registro
+     *
      * @return array<string, mixed>
      */
     private function generalizarDistritoProxy(array $registro, string $campo): array
     {
-        if (!isset($registro[$campo])) {
+        if (! isset($registro[$campo])) {
             return $registro;
         }
 
         $registro['distrito_proxy'] = substr((string) $registro[$campo], 0, 3);
         unset($registro[$campo]);
+
         return $registro;
     }
 
@@ -202,6 +216,7 @@ class AnonimizadorService
      * No modifica el campo.
      *
      * @param array<string, mixed> $registro
+     *
      * @return array<string, mixed>
      */
     private function aplicarMantener(array $registro, string $campo): array

@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -20,8 +21,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property int $hilo_id
  * @property int $remitente_id
  * @property string $cuerpo
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class Mensaje extends Model implements HasMedia
 {
@@ -50,8 +51,6 @@ class Mensaje extends Model implements HasMedia
 
     /**
      * Sin conversiones de imagen para documentos adjuntos.
-     *
-     * @param \Spatie\MediaLibrary\MediaCollections\Models\Media|null $media
      */
     public function registerMediaConversions(?Media $media = null): void
     {
@@ -65,7 +64,7 @@ class Mensaje extends Model implements HasMedia
     /**
      * Hilo de conversación al que pertenece el mensaje.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<MensajeHilo, self>
+     * @return BelongsTo<MensajeHilo, self>
      */
     public function hilo(): BelongsTo
     {
@@ -75,7 +74,7 @@ class Mensaje extends Model implements HasMedia
     /**
      * Usuario que envió el mensaje.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
+     * @return BelongsTo<User, self>
      */
     public function remitente(): BelongsTo
     {
@@ -85,7 +84,7 @@ class Mensaje extends Model implements HasMedia
     /**
      * Referencias a ciudadanos mencionados en el mensaje.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<MensajeReferenciaCiudadano, self>
+     * @return HasMany<MensajeReferenciaCiudadano, self>
      */
     public function referenciasCiudadano(): HasMany
     {
@@ -95,7 +94,7 @@ class Mensaje extends Model implements HasMedia
     /**
      * Registros del mensaje incorporados a Historias Sociales de ciudadanos.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<MensajeRegistroHistoria, self>
+     * @return HasMany<MensajeRegistroHistoria, self>
      */
     public function registrosHistoria(): HasMany
     {

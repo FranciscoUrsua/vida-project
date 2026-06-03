@@ -2,18 +2,19 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages;
 use App\Models\CatalogoSistema;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TimePicker;
-use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use App\Filament\Concerns\AutorizaGestion;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Recurso de configuración del horario laboral por defecto.
@@ -25,13 +26,19 @@ use App\Filament\Concerns\AutorizaGestion;
 class ConfiguracionHorarioLaboralResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = CatalogoSistema::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clock';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
+
     protected static ?string $navigationLabel = 'Horario laboral';
+
     protected static ?string $modelLabel = 'Configuración de horario laboral';
+
     protected static ?string $pluralModelLabel = 'Configuración de horario laboral';
+
     protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema
@@ -91,7 +98,7 @@ class ConfiguracionHorarioLaboralResource extends Resource
     /**
      * Solo muestra el registro del horario laboral.
      */
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
             ->where('grupo', 'sistema.configuracion')
@@ -102,7 +109,7 @@ class ConfiguracionHorarioLaboralResource extends Resource
     {
         return [
             'index' => Pages\ListConfiguracionHorarioLaboral::route('/'),
-            'edit'  => Pages\EditConfiguracionHorarioLaboral::route('/{record}/edit'),
+            'edit' => Pages\EditConfiguracionHorarioLaboral::route('/{record}/edit'),
         ];
     }
 }

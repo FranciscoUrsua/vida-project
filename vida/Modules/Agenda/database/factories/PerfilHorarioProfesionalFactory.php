@@ -15,13 +15,13 @@ class PerfilHorarioProfesionalFactory extends Factory
     {
         return [
             'usuario_id' => User::factory(),
-            'centro_id'  => fn () => Centro::create([
-                'nombre'       => 'Centro ' . fake()->unique()->numerify('###'),
+            'centro_id' => fn () => Centro::create([
+                'nombre' => 'Centro '.fake()->unique()->numerify('###'),
                 'tipo_gestion' => 'municipal_directo',
-                'fecha_alta'   => now()->toDateString(),
+                'fecha_alta' => now()->toDateString(),
             ])->id,
             'jornada_semanal_horas' => 35,
-            'horario_habitual'      => [
+            'horario_habitual' => [
                 1 => [['inicio' => '09:00', 'fin' => '14:00'], ['inicio' => '15:00', 'fin' => '19:00']],
                 2 => [['inicio' => '09:00', 'fin' => '14:00'], ['inicio' => '15:00', 'fin' => '19:00']],
                 3 => [['inicio' => '09:00', 'fin' => '14:00'], ['inicio' => '15:00', 'fin' => '19:00']],
@@ -30,7 +30,7 @@ class PerfilHorarioProfesionalFactory extends Factory
             ],
             'vigente_desde' => now()->toDateString(),
             'vigente_hasta' => null,
-            'activo'        => true,
+            'activo' => true,
         ];
     }
 
@@ -38,7 +38,7 @@ class PerfilHorarioProfesionalFactory extends Factory
     {
         return $this->state([
             'jornada_semanal_horas' => 17.5,
-            'horario_habitual'      => [
+            'horario_habitual' => [
                 1 => [['inicio' => '09:30', 'fin' => '14:00']],
                 2 => [['inicio' => '09:30', 'fin' => '14:00']],
                 3 => [['inicio' => '09:30', 'fin' => '14:00']],
@@ -61,7 +61,7 @@ class PerfilHorarioProfesionalFactory extends Factory
         ]);
     }
 
-    public function paraCentro(\Modules\Centro\Models\Centro $centro): static
+    public function paraCentro(Centro $centro): static
     {
         return $this->state(['centro_id' => $centro->id]);
     }

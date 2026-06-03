@@ -4,6 +4,8 @@ namespace Modules\Organizacion\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Modules\Organizacion\Services\ConfiguracionService;
 
 /**
  * Modelo de configuración general de la organización.
@@ -16,10 +18,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $valor
  * @property string|null $descripcion
  * @property string $tipo texto|numero|booleano|json
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  *
- * @see \Modules\Organizacion\Services\ConfiguracionService
+ * @see ConfiguracionService
  */
 class Configuracion extends Model
 {
@@ -36,16 +38,14 @@ class Configuracion extends Model
 
     /**
      * Devuelve el valor casteado según el tipo declarado.
-     *
-     * @return mixed
      */
     public function valorCasteado(): mixed
     {
         return match ($this->tipo) {
-            'numero'   => is_int($this->valor + 0) ? (int) $this->valor : (float) $this->valor,
+            'numero' => is_int($this->valor + 0) ? (int) $this->valor : (float) $this->valor,
             'booleano' => in_array(strtolower($this->valor), ['true', '1', 'yes', 'si'], true),
-            'json'     => json_decode($this->valor, true),
-            default    => $this->valor,
+            'json' => json_decode($this->valor, true),
+            default => $this->valor,
         };
     }
 
@@ -53,7 +53,7 @@ class Configuracion extends Model
      * Filtra por tipo de configuración.
      *
      * @param Builder<Configuracion> $consulta
-     * @param string $tipo
+     *
      * @return Builder<Configuracion>
      */
     public function scopeTipo(Builder $consulta, string $tipo): Builder

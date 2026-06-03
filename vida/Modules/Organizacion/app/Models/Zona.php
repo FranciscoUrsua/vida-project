@@ -5,6 +5,7 @@ namespace Modules\Organizacion\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Modelo de Zona (subdivisión del distrito).
@@ -17,8 +18,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $distrito_id
  * @property string|null $descripcion
  * @property bool $activa
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  *
  * @see docs/glosario.md § Zona
  */
@@ -54,6 +55,7 @@ class Zona extends Model
      * Filtra únicamente las zonas activas.
      *
      * @param Builder<Zona> $consulta
+     *
      * @return Builder<Zona>
      */
     public function scopeActivas(Builder $consulta): Builder

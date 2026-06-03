@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 use Modules\Intervencion\Database\Factories\EntrevistaFactory;
 use Modules\Intervencion\Enums\TipoEntrevista;
 
@@ -23,7 +24,7 @@ use Modules\Intervencion\Enums\TipoEntrevista;
  * @property int $profesional_id
  * @property int|null $cita_id
  * @property int|null $plan_intervencion_id
- * @property \Illuminate\Support\Carbon $fecha_hora
+ * @property Carbon $fecha_hora
  * @property string $modalidad
  * @property TipoEntrevista $tipo
  * @property string|null $notas_generales
@@ -54,7 +55,7 @@ class Entrevista extends Model
 
     protected $casts = [
         'fecha_hora' => 'datetime',
-        'tipo'       => TipoEntrevista::class,
+        'tipo' => TipoEntrevista::class,
     ];
 
     // -------------------------------------------------------------------------

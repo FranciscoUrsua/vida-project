@@ -5,9 +5,7 @@ namespace Modules\Agenda\Database\Factories;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Agenda\Enums\EstadoSlot;
-use Modules\Agenda\Models\LineaCuadrante;
 use Modules\Agenda\Models\Slot;
-use Modules\Agenda\Models\TipoSlot;
 use Modules\Centro\Models\Centro;
 
 class SlotFactory extends Factory
@@ -18,18 +16,18 @@ class SlotFactory extends Factory
     {
         return [
             'linea_cuadrante_id' => LineaCuadranteFactory::new(),
-            'usuario_id'         => User::factory(),
-            'centro_id'          => fn () => Centro::create([
-                'nombre'       => 'Centro ' . fake()->unique()->numerify('###'),
+            'usuario_id' => User::factory(),
+            'centro_id' => fn () => Centro::create([
+                'nombre' => 'Centro '.fake()->unique()->numerify('###'),
                 'tipo_gestion' => 'municipal_directo',
-                'fecha_alta'   => now()->toDateString(),
+                'fecha_alta' => now()->toDateString(),
             ])->id,
-            'tipo_slot_id'       => TipoSlotFactory::new(),
-            'fecha'              => now()->addDay()->toDateString(),
-            'hora_inicio'        => '10:00',
-            'hora_fin'           => '10:45',
-            'estado'             => EstadoSlot::Disponible->value,
-            'espacio_id'         => null,
+            'tipo_slot_id' => TipoSlotFactory::new(),
+            'fecha' => now()->addDay()->toDateString(),
+            'hora_inicio' => '10:00',
+            'hora_fin' => '10:45',
+            'estado' => EstadoSlot::Disponible->value,
+            'espacio_id' => null,
         ];
     }
 
@@ -57,7 +55,7 @@ class SlotFactory extends Factory
     {
         return $this->state([
             'estado' => EstadoSlot::Expirado->value,
-            'fecha'  => now()->subDay()->toDateString(),
+            'fecha' => now()->subDay()->toDateString(),
         ]);
     }
 
@@ -65,7 +63,7 @@ class SlotFactory extends Factory
     {
         return $this->state([
             'estado' => EstadoSlot::NoOcupado->value,
-            'fecha'  => now()->subDay()->toDateString(),
+            'fecha' => now()->subDay()->toDateString(),
         ]);
     }
 }

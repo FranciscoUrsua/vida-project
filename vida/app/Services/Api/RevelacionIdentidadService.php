@@ -7,7 +7,6 @@ use App\Models\RevelacionIdentidad;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -26,15 +25,13 @@ class RevelacionIdentidadService
     /**
      * Resuelve un alias seudonimizado al ciudadano real.
      *
-     * @param string $alias         Alias con formato CIU-{8 hex}
-     * @param int    $usuarioId     ID del usuario que solicita la revelación
+     * @param string $alias Alias con formato CIU-{8 hex}
+     * @param int $usuarioId ID del usuario que solicita la revelación
      * @param string $justificacion Motivo obligatorio — queda en auditoría
      *
-     * @return Ciudadano
-     *
-     * @throws ValidationException      Si justificacion está vacía
-     * @throws AuthorizationException   Si el usuario no tiene permiso ciudadano.revelar_identidad
-     * @throws ModelNotFoundException   Si ningún ciudadano activo coincide con el alias
+     * @throws ValidationException Si justificacion está vacía
+     * @throws AuthorizationException Si el usuario no tiene permiso ciudadano.revelar_identidad
+     * @throws ModelNotFoundException Si ningún ciudadano activo coincide con el alias
      */
     public function revelarPorAlias(string $alias, int $usuarioId, string $justificacion): Ciudadano
     {
@@ -46,7 +43,7 @@ class RevelacionIdentidadService
 
         $usuario = User::findOrFail($usuarioId);
 
-        if (!$usuario->can('ciudadano.revelar_identidad')) {
+        if (! $usuario->can('ciudadano.revelar_identidad')) {
             throw new AuthorizationException(
                 "El usuario {$usuarioId} no tiene el permiso 'ciudadano.revelar_identidad'"
             );
@@ -55,10 +52,10 @@ class RevelacionIdentidadService
         $ciudadano = $this->buscarPorAlias($alias);
 
         RevelacionIdentidad::create([
-            'usuario_id'    => $usuarioId,
-            'accion'        => 'revelar_identidad',
-            'alias'         => $alias,
-            'ciudadano_id'  => $ciudadano->id,
+            'usuario_id' => $usuarioId,
+            'accion' => 'revelar_identidad',
+            'alias' => $alias,
+            'ciudadano_id' => $ciudadano->id,
             'justificacion' => $justificacion,
         ]);
 
@@ -80,16 +77,17 @@ class RevelacionIdentidadService
         $encontrado = Ciudadano::where('activo', true)
             ->get()
             ->first(function (Ciudadano $ciudadano) use ($alias, $clave): bool {
-                $aliasComputado = 'CIU-' . substr(
+                $aliasComputado = 'CIU-'.substr(
                     hash_hmac('sha256', (string) $ciudadano->id, $clave),
                     0,
                     8
                 );
+
                 return $aliasComputado === $alias;
             });
 
         if ($encontrado === null) {
-            throw (new ModelNotFoundException())->setModel(Ciudadano::class);
+            throw (new ModelNotFoundException)->setModel(Ciudadano::class);
         }
 
         return $encontrado;

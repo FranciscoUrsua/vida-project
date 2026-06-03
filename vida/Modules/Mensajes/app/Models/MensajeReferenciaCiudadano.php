@@ -5,6 +5,7 @@ namespace Modules\Mensajes\Models;
 use App\Models\Ciudadano;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Referencia informativa entre un mensaje y un ciudadano.
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $mensaje_id
  * @property int $ciudadano_id
- * @property \Illuminate\Support\Carbon $created_at
+ * @property Carbon $created_at
  */
 class MensajeReferenciaCiudadano extends Model
 {
@@ -39,7 +40,7 @@ class MensajeReferenciaCiudadano extends Model
     /**
      * Mensaje que origina esta referencia.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Mensaje, self>
+     * @return BelongsTo<Mensaje, self>
      */
     public function mensaje(): BelongsTo
     {
@@ -49,7 +50,7 @@ class MensajeReferenciaCiudadano extends Model
     /**
      * Ciudadano referenciado en el mensaje.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Ciudadano, self>
+     * @return BelongsTo<Ciudadano, self>
      */
     public function ciudadano(): BelongsTo
     {

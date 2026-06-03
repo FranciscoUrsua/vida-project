@@ -118,7 +118,7 @@ class CatalogosSistemaSeeder extends Seeder
             ['clave' => 'piso_insercion',     'etiqueta' => 'Piso de inserción o vivienda tutelada',       'orden' => 7],
             ['clave' => 'centro_vg',          'etiqueta' => 'Centro de atención a víctimas de VG',         'orden' => 8],
             ['clave' => 'punto_encuentro',    'etiqueta' => 'Punto de encuentro familiar',                 'orden' => 9],
-            ['clave' => 'servicio_especifico','etiqueta' => 'Servicio o recurso específico',               'orden' => 10],
+            ['clave' => 'servicio_especifico', 'etiqueta' => 'Servicio o recurso específico',               'orden' => 10],
             ['clave' => 'recurso_educativo',  'etiqueta' => 'Recurso educativo o de formación',            'orden' => 11],
             ['clave' => 'centro_dia_inf',     'etiqueta' => 'Centro de Día para infancia y adolescencia',  'orden' => 12],
         ]);

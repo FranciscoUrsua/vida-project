@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Usuarios\Models\UsuarioRol;
 
 /**
  * Migración: tabla de historial de roles de usuarios.
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Schema;
  * - model_has_roles: refleja los roles ACTIVOS AHORA (sincronizado)
  * - usuario_rol: historial completo con fechas de inicio y fin
  *
- * @see \Modules\Usuarios\Models\UsuarioRol
+ * @see UsuarioRol
  * @see docs/modulo-usuarios-permisos.md sección 4.2
  */
 return new class extends Migration

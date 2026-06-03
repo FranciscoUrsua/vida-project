@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\PlantillaInformeResource\Pages;
 
+use App\Filament\Resources\Pages\ListRecords;
 use App\Filament\Resources\PlantillaInformeResource;
 use Filament\Actions\CreateAction;
-use App\Filament\Resources\Pages\ListRecords;
 
 class ListPlantillasInforme extends ListRecords
 {

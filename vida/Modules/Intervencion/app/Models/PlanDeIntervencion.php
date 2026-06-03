@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Modules\Intervencion\Database\Factories\PlanDeIntervencionFactory;
 use Modules\Intervencion\Enums\EstadoPlan;
@@ -34,9 +35,9 @@ use Modules\Intervencion\Enums\TipoPlan;
  * @property int $profesional_responsable_id
  * @property int|null $plan_asp_id
  * @property EstadoPlan $estado
- * @property \Illuminate\Support\Carbon $fecha_inicio
- * @property \Illuminate\Support\Carbon|null $fecha_firma
- * @property \Illuminate\Support\Carbon|null $fecha_cierre
+ * @property Carbon $fecha_inicio
+ * @property Carbon|null $fecha_firma
+ * @property Carbon|null $fecha_cierre
  * @property MotivoCierre|null $motivo_cierre
  * @property string|null $objetivos
  * @property int $version
@@ -54,8 +55,6 @@ class PlanDeIntervencion extends Model
     /**
      * Columna de FK a historias_sociales usada por AmbitoUoScope.
      * El ámbito de UO se resuelve vía Historia Social del plan.
-     *
-     * @var string
      */
     public string $ambitoHistoriaColumn = 'historia_id';
 
@@ -77,19 +76,19 @@ class PlanDeIntervencion extends Model
     ];
 
     protected $casts = [
-        'tipo'          => TipoPlan::class,
-        'estado'        => EstadoPlan::class,
+        'tipo' => TipoPlan::class,
+        'estado' => EstadoPlan::class,
         'motivo_cierre' => MotivoCierre::class,
-        'fecha_inicio'  => 'date',
-        'fecha_firma'   => 'date',
-        'fecha_cierre'  => 'date',
-        'version'       => 'integer',
+        'fecha_inicio' => 'date',
+        'fecha_firma' => 'date',
+        'fecha_cierre' => 'date',
+        'version' => 'integer',
     ];
 
     protected static function booted(): void
     {
         // Registrar el Global Scope de ámbito de UO para filtrado automático.
-        static::addGlobalScope(new AmbitoUoScope());
+        static::addGlobalScope(new AmbitoUoScope);
 
         // Impide activar un plan sin firma cuando se ACTUALIZA el estado a activo.
         // No aplica al crear un plan nuevo directamente con estado=activo
@@ -186,8 +185,6 @@ class PlanDeIntervencion extends Model
      *
      * Consulta firmas_plan filtrando por el plan_id actual Y la version actual
      * para garantizar que la firma de una versión anterior no valide la nueva.
-     *
-     * @return bool
      */
     public function estaFirmado(): bool
     {
@@ -207,7 +204,9 @@ class PlanDeIntervencion extends Model
      * @param string $motivo Motivo de la revisión
      * @param int $profesionalId ID del profesional que inicia la revisión
      * @param int|null $seguimientoId Seguimiento de origen si aplica
+     *
      * @return static El nuevo plan (nueva versión)
+     *
      * @throws \DomainException Si el plan no está en estado activo
      */
     public function crearNuevaVersion(string $motivo, int $profesionalId, ?int $seguimientoId = null): static
@@ -225,21 +224,21 @@ class PlanDeIntervencion extends Model
             // Crear nuevo registro como siguiente versión
             $nuevoPlan = $this->replicate(['deleted_at']);
             $nuevoPlan->version = $versionAnterior + 1;
-            $nuevoPlan->estado  = EstadoPlan::Borrador;
-            $nuevoPlan->fecha_firma  = null;
+            $nuevoPlan->estado = EstadoPlan::Borrador;
+            $nuevoPlan->fecha_firma = null;
             $nuevoPlan->fecha_cierre = null;
             $nuevoPlan->motivo_cierre = null;
             $nuevoPlan->saveQuietly();
 
             // Registrar la revisión
             RevisionPlan::create([
-                'plan_id'          => $this->id,
+                'plan_id' => $this->id,
                 'version_anterior' => $versionAnterior,
-                'version_nueva'    => $nuevoPlan->version,
-                'profesional_id'   => $profesionalId,
-                'fecha'            => now()->toDateString(),
-                'motivo_revision'  => $motivo,
-                'seguimiento_id'   => $seguimientoId,
+                'version_nueva' => $nuevoPlan->version,
+                'profesional_id' => $profesionalId,
+                'fecha' => now()->toDateString(),
+                'motivo_revision' => $motivo,
+                'seguimiento_id' => $seguimientoId,
             ]);
 
             return $nuevoPlan;
@@ -252,9 +251,6 @@ class PlanDeIntervencion extends Model
 
     /**
      * Solo planes activos.
-     *
-     * @param Builder $query
-     * @return Builder
      */
     public function scopeActivos(Builder $query): Builder
     {

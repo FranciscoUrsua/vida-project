@@ -23,9 +23,9 @@ class DirectorCentroTest extends TestCase
     private function crearCentro(): Centro
     {
         return Centro::create([
-            'nombre'       => 'Centro de prueba',
+            'nombre' => 'Centro de prueba',
             'tipo_gestion' => 'municipal_directo',
-            'fecha_alta'   => today()->toDateString(),
+            'fecha_alta' => today()->toDateString(),
         ]);
     }
 
@@ -38,13 +38,13 @@ class DirectorCentroTest extends TestCase
         );
 
         return Profesional::create([
-            'nombre'          => 'Director',
-            'apellido1'       => 'Prueba',
-            'sexo'            => 'M',
-            'cargo_id'        => $cargo->id,
+            'nombre' => 'Director',
+            'apellido1' => 'Prueba',
+            'sexo' => 'M',
+            'cargo_id' => $cargo->id,
             'tipo_relacion_id' => $tipoRelacion->id,
-            'fecha_inicio'    => today()->toDateString(),
-            'activo'          => true,
+            'fecha_inicio' => today()->toDateString(),
+            'activo' => true,
         ]);
     }
 
@@ -55,24 +55,24 @@ class DirectorCentroTest extends TestCase
     #[Test]
     public function un_centro_tiene_un_unico_director_activo(): void
     {
-        $centro      = $this->crearCentro();
+        $centro = $this->crearCentro();
         $profesional = $this->crearProfesional();
 
         // Director con fecha_fin pasada (inactivo).
         DirectorCentro::create([
-            'centro_id'      => $centro->id,
+            'centro_id' => $centro->id,
             'profesional_id' => $profesional->id,
-            'fecha_inicio'   => today()->subYear()->toDateString(),
-            'fecha_fin'      => today()->subMonth()->toDateString(),
+            'fecha_inicio' => today()->subYear()->toDateString(),
+            'fecha_fin' => today()->subMonth()->toDateString(),
         ]);
 
         // Director sin fecha_fin (activo actual).
         $directorActual = DirectorCentro::create([
-            'centro_id'   => $centro->id,
-            'nombre'      => 'Director Externo Actual',
-            'email'       => 'actual@centro.org',
+            'centro_id' => $centro->id,
+            'nombre' => 'Director Externo Actual',
+            'email' => 'actual@centro.org',
             'fecha_inicio' => today()->toDateString(),
-            'fecha_fin'   => null,
+            'fecha_fin' => null,
         ]);
 
         $activo = $centro->directorActivo();
@@ -92,8 +92,8 @@ class DirectorCentroTest extends TestCase
 
         // Crear director A (activo).
         $centro->nombrarDirector([
-            'nombre'      => 'Director A',
-            'email'       => 'a@centro.org',
+            'nombre' => 'Director A',
+            'email' => 'a@centro.org',
             'fecha_inicio' => today()->subMonth()->toDateString(),
         ]);
 
@@ -102,8 +102,8 @@ class DirectorCentroTest extends TestCase
 
         // Nombrar director B cierra el cargo de A.
         $centro->nombrarDirector([
-            'nombre'      => 'Director B',
-            'email'       => 'b@centro.org',
+            'nombre' => 'Director B',
+            'email' => 'b@centro.org',
         ]);
 
         $this->assertNotNull($directorA->fresh()->fecha_fin);
@@ -122,16 +122,16 @@ class DirectorCentroTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        $centro      = $this->crearCentro();
+        $centro = $this->crearCentro();
         $profesional = $this->crearProfesional();
 
         // Proporcionar tanto profesional_id como datos de contacto externo debe fallar.
         DirectorCentro::create([
-            'centro_id'      => $centro->id,
+            'centro_id' => $centro->id,
             'profesional_id' => $profesional->id,
-            'nombre'         => 'Director Externo',
-            'email'          => 'externo@centro.org',
-            'fecha_inicio'   => today()->toDateString(),
+            'nombre' => 'Director Externo',
+            'email' => 'externo@centro.org',
+            'fecha_inicio' => today()->toDateString(),
         ]);
     }
 }

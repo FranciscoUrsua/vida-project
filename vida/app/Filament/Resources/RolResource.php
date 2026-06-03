@@ -3,14 +3,15 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RolResource\Pages;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\TextInput;
-use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Models\Role;
 
 /**
@@ -26,10 +27,15 @@ class RolResource extends Resource
     protected static ?string $model = Role::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
+
     protected static ?string $navigationLabel = 'Roles y permisos';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Organización';
+
     protected static ?string $modelLabel = 'Rol';
+
     protected static ?string $pluralModelLabel = 'Roles';
+
     protected static ?int $navigationSort = 70;
 
     public static function form(Schema $schema): Schema
@@ -85,9 +91,9 @@ class RolResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListRoles::route('/'),
+            'index' => Pages\ListRoles::route('/'),
             'create' => Pages\CreateRol::route('/create'),
-            'edit'   => Pages\EditRol::route('/{record}/edit'),
+            'edit' => Pages\EditRol::route('/{record}/edit'),
         ];
     }
 
@@ -102,12 +108,12 @@ class RolResource extends Resource
         return auth()->user()?->hasRole('adm_sistema') ?? false;
     }
 
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(Model $record): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;
     }
 
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canDelete(Model $record): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;
     }

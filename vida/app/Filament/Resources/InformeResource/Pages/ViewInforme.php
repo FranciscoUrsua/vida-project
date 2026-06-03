@@ -6,7 +6,6 @@ use App\Filament\Resources\InformeResource;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Pages\ViewRecord;
-use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Models\Informe;
 use Modules\Documentos\Services\ServicioAlmacenamiento;
 use Modules\Documentos\Services\ServicioFirmaInforme;
@@ -28,6 +27,7 @@ class ViewInforme extends ViewRecord
                 ->visible(fn () => $informe->estaFirmado() && $informe->documento_id !== null)
                 ->url(function () use ($informe): string {
                     $doc = $informe->documento;
+
                     return app(ServicioAlmacenamiento::class)->urlTemporal($doc, 60);
                 })
                 ->openUrlInNewTab(),

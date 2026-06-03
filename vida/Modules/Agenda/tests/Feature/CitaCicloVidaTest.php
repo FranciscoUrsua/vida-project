@@ -2,7 +2,9 @@
 
 namespace Modules\Agenda\Tests\Feature;
 
+use App\Models\Ciudadano;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Enums\EstadoSlot;
@@ -10,6 +12,7 @@ use Modules\Agenda\Enums\OrigenCita;
 use Modules\Agenda\Models\Cita;
 use Modules\Agenda\Models\Slot;
 use Modules\Centro\Models\Centro;
+use Modules\Intervencion\Models\Apunte;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -20,9 +23,9 @@ class CitaCicloVidaTest extends TestCase
     private function crearCentro(string $nombre = 'Centro de Prueba'): Centro
     {
         return Centro::create([
-            'nombre'       => $nombre,
+            'nombre' => $nombre,
             'tipo_gestion' => 'municipal_directo',
-            'fecha_alta'   => now()->toDateString(),
+            'fecha_alta' => now()->toDateString(),
         ]);
     }
 
@@ -30,16 +33,16 @@ class CitaCicloVidaTest extends TestCase
     private function datosCita(Slot $slot, array $override = []): array
     {
         return array_merge([
-            'slot_id'        => $slot->id,
-            'ciudadano_id'   => \App\Models\Ciudadano::factory()->create()->id,
+            'slot_id' => $slot->id,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'profesional_id' => $slot->usuario_id,
-            'tipo_slot_id'   => $slot->tipo_slot_id,
-            'centro_id'      => $slot->centro_id,
-            'fecha'          => $slot->fecha->toDateString(),
-            'hora_inicio'    => $slot->hora_inicio,
-            'hora_fin'       => $slot->hora_fin,
-            'estado'         => EstadoCita::Confirmada->value,
-            'origen'         => OrigenCita::Interno->value,
+            'tipo_slot_id' => $slot->tipo_slot_id,
+            'centro_id' => $slot->centro_id,
+            'fecha' => $slot->fecha->toDateString(),
+            'hora_inicio' => $slot->hora_inicio,
+            'hora_fin' => $slot->hora_fin,
+            'estado' => EstadoCita::Confirmada->value,
+            'origen' => OrigenCita::Interno->value,
         ], $override);
     }
 
@@ -50,8 +53,8 @@ class CitaCicloVidaTest extends TestCase
     #[Test]
     public function test_pf_05_1_crear_cita_interna_cambia_slot_a_reservado(): void
     {
-        $slot     = Slot::factory()->create(); // estado = disponible
-        $datos    = $this->datosCita($slot);
+        $slot = Slot::factory()->create(); // estado = disponible
+        $datos = $this->datosCita($slot);
 
         $cita = Cita::create($datos);
 
@@ -70,9 +73,9 @@ class CitaCicloVidaTest extends TestCase
     #[Test]
     public function test_pf_05_2_cita_externa_registra_referencia(): void
     {
-        $slot  = Slot::factory()->create();
+        $slot = Slot::factory()->create();
         $datos = $this->datosCita($slot, [
-            'origen'             => OrigenCita::ApiExterna->value,
+            'origen' => OrigenCita::ApiExterna->value,
             'referencia_externa' => 'REF-EXT-0001',
         ]);
 
@@ -94,37 +97,37 @@ class CitaCicloVidaTest extends TestCase
         // Crear una segunda cita sobre el mismo slot viola esa restricción.
         $slot = Slot::factory()->reservado()->create();
 
-        $ciudadano   = \App\Models\Ciudadano::factory()->create();
+        $ciudadano = Ciudadano::factory()->create();
         $profesional = User::factory()->create();
 
         // Primera cita existente
         Cita::create([
-            'slot_id'        => $slot->id,
-            'ciudadano_id'   => $ciudadano->id,
+            'slot_id' => $slot->id,
+            'ciudadano_id' => $ciudadano->id,
             'profesional_id' => $slot->usuario_id,
-            'tipo_slot_id'   => $slot->tipo_slot_id,
-            'centro_id'      => $slot->centro_id,
-            'fecha'          => $slot->fecha,
-            'hora_inicio'    => $slot->hora_inicio,
-            'hora_fin'       => $slot->hora_fin,
-            'estado'         => EstadoCita::Confirmada->value,
-            'origen'         => OrigenCita::Interno->value,
+            'tipo_slot_id' => $slot->tipo_slot_id,
+            'centro_id' => $slot->centro_id,
+            'fecha' => $slot->fecha,
+            'hora_inicio' => $slot->hora_inicio,
+            'hora_fin' => $slot->hora_fin,
+            'estado' => EstadoCita::Confirmada->value,
+            'origen' => OrigenCita::Interno->value,
         ]);
 
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         // Segunda cita sobre el mismo slot: viola la restricción unique de slot_id
         Cita::create([
-            'slot_id'        => $slot->id,
-            'ciudadano_id'   => $ciudadano->id,
+            'slot_id' => $slot->id,
+            'ciudadano_id' => $ciudadano->id,
             'profesional_id' => $slot->usuario_id,
-            'tipo_slot_id'   => $slot->tipo_slot_id,
-            'centro_id'      => $slot->centro_id,
-            'fecha'          => $slot->fecha,
-            'hora_inicio'    => $slot->hora_inicio,
-            'hora_fin'       => $slot->hora_fin,
-            'estado'         => EstadoCita::Confirmada->value,
-            'origen'         => OrigenCita::Interno->value,
+            'tipo_slot_id' => $slot->tipo_slot_id,
+            'centro_id' => $slot->centro_id,
+            'fecha' => $slot->fecha,
+            'hora_inicio' => $slot->hora_inicio,
+            'hora_fin' => $slot->hora_fin,
+            'estado' => EstadoCita::Confirmada->value,
+            'origen' => OrigenCita::Interno->value,
         ]);
     }
 
@@ -135,7 +138,7 @@ class CitaCicloVidaTest extends TestCase
     #[Test]
     public function test_pf_05_4_no_cita_externa_sobre_slot_urgencia(): void
     {
-        $slot  = Slot::factory()->urgencia()->create();
+        $slot = Slot::factory()->urgencia()->create();
         $datos = $this->datosCita($slot, ['origen' => OrigenCita::ApiExterna->value]);
 
         $this->expectException(\LogicException::class);
@@ -170,9 +173,9 @@ class CitaCicloVidaTest extends TestCase
     {
         // Slot con fecha en el futuro: la hora no ha pasado aún
         $slot = Slot::factory()->create([
-            'fecha'      => now()->addDay()->toDateString(),
+            'fecha' => now()->addDay()->toDateString(),
             'hora_inicio' => '10:00',
-            'hora_fin'   => '10:45',
+            'hora_fin' => '10:45',
         ]);
         $datos = $this->datosCita($slot);
 
@@ -203,14 +206,14 @@ class CitaCicloVidaTest extends TestCase
     {
         // Slot con fecha en el pasado: la hora ya transcurrió
         $slot = Slot::factory()->create([
-            'fecha'      => now()->subDay()->toDateString(),
+            'fecha' => now()->subDay()->toDateString(),
             'hora_inicio' => '09:00',
-            'hora_fin'   => '09:45',
+            'hora_fin' => '09:45',
         ]);
         $datos = $this->datosCita($slot, [
-            'fecha'      => $slot->fecha->toDateString(),
+            'fecha' => $slot->fecha->toDateString(),
             'hora_inicio' => '09:00',
-            'hora_fin'   => '09:45',
+            'hora_fin' => '09:45',
         ]);
 
         $cita = Cita::create($datos);
@@ -241,9 +244,9 @@ class CitaCicloVidaTest extends TestCase
         ]);
 
         // Apunte creado automáticamente al completar la cita (polimórfico vía apuntable)
-        $apunte = \Modules\Intervencion\Models\Apunte::factory()->create([
+        $apunte = Apunte::factory()->create([
             'apuntable_type' => Cita::class,
-            'apuntable_id'   => $cita->id,
+            'apuntable_id' => $cita->id,
         ]);
 
         // Antes de cancelar: el servicio detecta el apunte asociado
@@ -261,7 +264,7 @@ class CitaCicloVidaTest extends TestCase
 
         // Los apuntes existentes NO se eliminan al cancelar la cita
         $this->assertTrue(
-            \Modules\Intervencion\Models\Apunte::where('id', $apunte->id)->exists(),
+            Apunte::where('id', $apunte->id)->exists(),
             'Los apuntes de Historia Social deben permanecer intactos tras la cancelación'
         );
     }

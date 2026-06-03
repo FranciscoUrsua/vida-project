@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\UsuarioRolResource\Pages;
 use App\Models\User;
 use Filament\Actions\EditAction;
@@ -16,7 +17,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Usuarios\Models\UsuarioRol;
 use Spatie\Permission\Models\Role;
-use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Backoffice: supervisión del historial de asignaciones de rol.
@@ -29,14 +29,21 @@ use App\Filament\Concerns\AutorizaGestion;
 class UsuarioRolResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = UsuarioRol::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
+
     protected static ?string $navigationLabel = 'Supervisión de roles';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Usuarios y Profesionales';
+
     protected static ?string $modelLabel = 'Asignación de rol';
+
     protected static ?string $pluralModelLabel = 'Historial de roles';
+
     protected static ?string $slug = 'usuario-roles';
+
     protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema
@@ -60,8 +67,8 @@ class UsuarioRolResource extends Resource
                         ->label('Estado')
                         ->options([
                             'pendiente_aprobacion' => 'Pendiente de aprobación',
-                            'activo'               => 'Activo',
-                            'inactivo'             => 'Inactivo',
+                            'activo' => 'Activo',
+                            'inactivo' => 'Inactivo',
                         ])
                         ->required(),
 
@@ -86,9 +93,15 @@ class UsuarioRolResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $user = auth()->user();
-                if ($user->hasRole('adm_sistema')) return;
+                if ($user->hasRole('adm_sistema')) {
+                    return;
+                }
                 $uoIds = $user->uoSubtreeIds();
-                if (empty($uoIds)) { $query->whereRaw('1 = 0'); return; }
+                if (empty($uoIds)) {
+                    $query->whereRaw('1 = 0');
+
+                    return;
+                }
                 $query->whereIn('unidad_organizativa_id', $uoIds);
             })
             ->columns([
@@ -105,16 +118,16 @@ class UsuarioRolResource extends Resource
                     ->label('Estado')
                     ->badge()
                     ->color(fn (string $state) => match ($state) {
-                        'activo'               => 'success',
+                        'activo' => 'success',
                         'pendiente_aprobacion' => 'warning',
-                        'inactivo'             => 'gray',
-                        default                => 'gray',
+                        'inactivo' => 'gray',
+                        default => 'gray',
                     })
                     ->formatStateUsing(fn (string $state) => match ($state) {
-                        'activo'               => 'Activo',
+                        'activo' => 'Activo',
                         'pendiente_aprobacion' => 'Pendiente',
-                        'inactivo'             => 'Inactivo',
-                        default                => $state,
+                        'inactivo' => 'Inactivo',
+                        default => $state,
                     }),
 
                 Tables\Columns\TextColumn::make('fecha_inicio')
@@ -136,8 +149,8 @@ class UsuarioRolResource extends Resource
                     ->label('Estado')
                     ->options([
                         'pendiente_aprobacion' => 'Pendiente de aprobación',
-                        'activo'               => 'Activo',
-                        'inactivo'             => 'Inactivo',
+                        'activo' => 'Activo',
+                        'inactivo' => 'Inactivo',
                     ]),
                 Tables\Filters\SelectFilter::make('rol_id')
                     ->label('Rol')
@@ -152,9 +165,9 @@ class UsuarioRolResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListUsuarioRoles::route('/'),
+            'index' => Pages\ListUsuarioRoles::route('/'),
             'create' => Pages\CreateUsuarioRol::route('/create'),
-            'edit'   => Pages\EditUsuarioRol::route('/{record}/edit'),
+            'edit' => Pages\EditUsuarioRol::route('/{record}/edit'),
         ];
     }
 
@@ -162,8 +175,13 @@ class UsuarioRolResource extends Resource
     public static function canEdit(Model $record): bool
     {
         $user = auth()->user();
-        if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) return false;
-        if ($user->hasRole('adm_sistema')) return true;
+        if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
+            return false;
+        }
+        if ($user->hasRole('adm_sistema')) {
+            return true;
+        }
+
         return in_array($record->unidad_organizativa_id, $user->uoSubtreeIds());
     }
 }

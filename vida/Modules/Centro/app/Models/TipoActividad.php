@@ -26,7 +26,7 @@ class TipoActividad extends Model
     /**
      * Actividades que pertenecen a este tipo.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\Actividad, self>
+     * @return HasMany<Actividad, self>
      */
     public function actividades(): HasMany
     {

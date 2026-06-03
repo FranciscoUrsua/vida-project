@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Http\Livewire;
 
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Modules\Intervencion\Services\IntervencionSidebarDataService;
@@ -27,10 +28,7 @@ class Sidebar extends Component
         return app(IntervencionSidebarDataService::class)->getData();
     }
 
-    /**
-     * @return \Illuminate\View\View
-     */
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('intervencion::livewire.sidebar');
     }

@@ -28,9 +28,10 @@ class GestionAusenciaService
      * Cancela las citas confirmadas del profesional y devuelve los candidatos
      * de reasignación disponibles en el centro para esa fecha.
      *
-     * @param  int    $usuarioId ID del profesional ausente
-     * @param  int    $centroId  ID del centro
-     * @param  Carbon $fecha     Fecha de la ausencia
+     * @param int $usuarioId ID del profesional ausente
+     * @param int $centroId ID del centro
+     * @param Carbon $fecha Fecha de la ausencia
+     *
      * @return array{citas: Collection<int, Cita>, candidatos: Collection<int, Slot>}
      */
     public function procesarAusencia(int $usuarioId, int $centroId, Carbon $fecha): array
@@ -46,7 +47,7 @@ class GestionAusenciaService
 
         foreach ($citas as $cita) {
             $cita->update([
-                'estado'             => EstadoCita::Cancelada->value,
+                'estado' => EstadoCita::Cancelada->value,
                 'motivo_cancelacion' => 'Ausencia del profesional',
             ]);
         }
@@ -83,32 +84,33 @@ class GestionAusenciaService
      * profesional y slot, y marca el slot destino como reservado.
      * El slot original permanece en su estado; el profesional estuvo ausente.
      *
-     * @param  Cita             $cita         Cita que necesita reasignación
-     * @param  Slot             $slotDestino  Slot (urgencia u ordinario) del profesional sustituto
-     * @param  int              $supervisorId ID del supervisor que autoriza
-     * @param  string           $motivo       Valor de MotivoReasignacion
-     * @return ReasignacionCita               Registro creado
+     * @param Cita $cita Cita que necesita reasignación
+     * @param Slot $slotDestino Slot (urgencia u ordinario) del profesional sustituto
+     * @param int $supervisorId ID del supervisor que autoriza
+     * @param string $motivo Valor de MotivoReasignacion
+     *
+     * @return ReasignacionCita Registro creado
      */
     public function reasignar(Cita $cita, Slot $slotDestino, int $supervisorId, string $motivo): ReasignacionCita
     {
         $reasignacion = ReasignacionCita::create([
-            'cita_id'                 => $cita->id,
-            'slot_original_id'        => $cita->slot_id,
-            'slot_nuevo_id'           => $slotDestino->id,
+            'cita_id' => $cita->id,
+            'slot_original_id' => $cita->slot_id,
+            'slot_nuevo_id' => $slotDestino->id,
             'profesional_original_id' => $cita->profesional_id,
-            'profesional_nuevo_id'    => $slotDestino->usuario_id,
-            'motivo'                  => $motivo,
-            'realizada_por_id'        => $supervisorId,
+            'profesional_nuevo_id' => $slotDestino->usuario_id,
+            'motivo' => $motivo,
+            'realizada_por_id' => $supervisorId,
         ]);
 
         // La cita queda confirmada con el nuevo profesional y slot
         $cita->update([
-            'estado'         => EstadoCita::Confirmada->value,
+            'estado' => EstadoCita::Confirmada->value,
             'profesional_id' => $slotDestino->usuario_id,
-            'slot_id'        => $slotDestino->id,
-            'fecha'          => $slotDestino->fecha->toDateString(),
-            'hora_inicio'    => $slotDestino->hora_inicio,
-            'hora_fin'       => $slotDestino->hora_fin,
+            'slot_id' => $slotDestino->id,
+            'fecha' => $slotDestino->fecha->toDateString(),
+            'hora_inicio' => $slotDestino->hora_inicio,
+            'hora_fin' => $slotDestino->hora_fin,
         ]);
 
         // El slot destino queda reservado

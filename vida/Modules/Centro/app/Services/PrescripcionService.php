@@ -38,7 +38,7 @@ class PrescripcionService
      * Inyecta la función de resolución del TSR activo.
      * Uso previsto: tests y adaptadores hacia el módulo Ciudadanía.
      *
-     * @param  callable(int): int|null  $resolver
+     * @param callable(int): int|null $resolver
      */
     public function setTsrResolver(callable $resolver): void
     {
@@ -52,7 +52,8 @@ class PrescripcionService
      * Si no hay disponibilidad y el modo es prescripcion_lista_espera,
      * crea el registro de lista de espera.
      *
-     * @param  array<string, mixed>  $datos  Atributos de la Prescripcion (sin estado, plaza_id, fecha_asignacion)
+     * @param array<string, mixed> $datos Atributos de la Prescripcion (sin estado, plaza_id, fecha_asignacion)
+     *
      * @throws \InvalidArgumentException Si el tipo_destino no es coleccion_plazas.
      */
     public function crear(array $datos): Prescripcion
@@ -64,11 +65,11 @@ class PrescripcionService
         }
 
         $coleccion = ColeccionPlazas::findOrFail($datos['destino_id']);
-        $plaza     = $coleccion->plazas()->where('estado', 'libre')->first();
+        $plaza = $coleccion->plazas()->where('estado', 'libre')->first();
 
         if ($plaza) {
-            $datos['estado']          = 'asignada';
-            $datos['plaza_id']        = $plaza->id;
+            $datos['estado'] = 'asignada';
+            $datos['plaza_id'] = $plaza->id;
             $datos['fecha_asignacion'] = today()->toDateString();
             $plaza->update(['estado' => 'reservada']);
         } else {
@@ -83,12 +84,12 @@ class PrescripcionService
                 ->max('posicion') ?? 0;
 
             ListaEspera::create([
-                'prescripcion_id'    => $prescripcion->id,
+                'prescripcion_id' => $prescripcion->id,
                 'coleccion_plazas_id' => $coleccion->id,
                 'profesional_alerta_id' => $datos['profesional_id'],
-                'estado'             => 'activa',
-                'posicion'           => $posicion + 1,
-                'fecha_entrada'      => now(),
+                'estado' => 'activa',
+                'posicion' => $posicion + 1,
+                'fecha_entrada' => now(),
             ]);
         }
 
@@ -105,7 +106,7 @@ class PrescripcionService
     {
         $plaza->update(['estado' => 'libre']);
 
-        $espacio   = $plaza->espacio;
+        $espacio = $plaza->espacio;
         $coleccion = $espacio->coleccionPlazas;
 
         // Actualizar el profesional de alerta para cada entrada activa en la lista de espera.
@@ -125,7 +126,7 @@ class PrescripcionService
     /**
      * Cancela una prescripción y libera la plaza si tenía una asignada.
      *
-     * @param  string|null  $motivo  Motivo opcional de la cancelación.
+     * @param string|null $motivo Motivo opcional de la cancelación.
      */
     public function cancelar(Prescripcion $prescripcion, ?string $motivo = null): void
     {
@@ -134,8 +135,8 @@ class PrescripcionService
         }
 
         $prescripcion->update([
-            'estado'             => 'cancelada',
-            'plaza_id'           => null,
+            'estado' => 'cancelada',
+            'plaza_id' => null,
             'motivo_cancelacion' => $motivo,
         ]);
     }

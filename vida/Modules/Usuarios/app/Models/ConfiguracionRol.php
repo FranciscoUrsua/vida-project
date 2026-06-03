@@ -4,6 +4,7 @@ namespace Modules\Usuarios\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\Permission\Models\Role;
 
 /**
@@ -22,8 +23,8 @@ use Spatie\Permission\Models\Role;
  * @property int $id
  * @property int $rol_id
  * @property string $nivel_supervision
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  *
  * @see docs/modulo-usuarios-permisos.md sección 2.8
  */

@@ -25,6 +25,7 @@ class SeguimientoTest extends TestCase
     use RefreshDatabase;
 
     private UnidadOrganizativa $uo;
+
     private User $profesional;
 
     protected function setUp(): void
@@ -32,10 +33,10 @@ class SeguimientoTest extends TestCase
         parent::setUp();
 
         $this->uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Test Seguimiento',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Test Seguimiento',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $this->profesional = User::factory()->create();
@@ -44,33 +45,33 @@ class SeguimientoTest extends TestCase
     private function crearPlanActivo(): PlanDeIntervencion
     {
         $historia = HistoriaSocial::create([
-            'ciudadano_id'           => fake()->numberBetween(1, 9999),
+            'ciudadano_id' => fake()->numberBetween(1, 9999),
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         return PlanDeIntervencion::create([
-            'historia_id'                => $historia->id,
-            'tipo'                       => TipoPlan::GeneralAsp,
+            'historia_id' => $historia->id,
+            'tipo' => TipoPlan::GeneralAsp,
             'profesional_responsable_id' => $this->profesional->id,
-            'estado'                     => EstadoPlan::Activo->value,
-            'fecha_inicio'               => today()->toDateString(),
-            'version'                    => 1,
+            'estado' => EstadoPlan::Activo->value,
+            'fecha_inicio' => today()->toDateString(),
+            'version' => 1,
         ]);
     }
 
     private function crearEntrevistaSegimiento(PlanDeIntervencion $plan): Entrevista
     {
         return Entrevista::create([
-            'historia_id'         => $plan->historia_id,
-            'profesional_id'      => $this->profesional->id,
-            'cita_id'             => null,
+            'historia_id' => $plan->historia_id,
+            'profesional_id' => $this->profesional->id,
+            'cita_id' => null,
             'plan_intervencion_id' => $plan->id,
-            'fecha_hora'          => now()->toDateTimeString(),
-            'modalidad'           => 'presencial',
-            'tipo'                => 'seguimiento',
-            'estado'              => 'realizada',
+            'fecha_hora' => now()->toDateTimeString(),
+            'modalidad' => 'presencial',
+            'tipo' => 'seguimiento',
+            'estado' => 'realizada',
         ]);
     }
 
@@ -84,17 +85,17 @@ class SeguimientoTest extends TestCase
     #[Test]
     public function seguimiento_sin_revision_no_altera_el_plan(): void
     {
-        $plan       = $this->crearPlanActivo();
+        $plan = $this->crearPlanActivo();
         $entrevista = $this->crearEntrevistaSegimiento($plan);
 
         $revisionesAntes = RevisionPlan::where('plan_id', $plan->id)->count();
 
         SeguimientoPlan::create([
-            'plan_id'                => $plan->id,
-            'entrevista_id'          => $entrevista->id,
-            'profesional_id'         => $this->profesional->id,
-            'fecha'                  => today()->toDateString(),
-            'avances'                => 'Progreso satisfactorio',
+            'plan_id' => $plan->id,
+            'entrevista_id' => $entrevista->id,
+            'profesional_id' => $this->profesional->id,
+            'fecha' => today()->toDateString(),
+            'avances' => 'Progreso satisfactorio',
             'requiere_revision_plan' => false,
         ]);
 
@@ -113,17 +114,17 @@ class SeguimientoTest extends TestCase
     #[Test]
     public function nuevas_prestaciones_se_recupera_como_array(): void
     {
-        $plan       = $this->crearPlanActivo();
+        $plan = $this->crearPlanActivo();
         $entrevista = $this->crearEntrevistaSegimiento($plan);
 
         $seguimiento = SeguimientoPlan::create([
-            'plan_id'                => $plan->id,
-            'entrevista_id'          => $entrevista->id,
-            'profesional_id'         => $this->profesional->id,
-            'fecha'                  => today()->toDateString(),
-            'avances'                => 'Con nuevas prestaciones',
+            'plan_id' => $plan->id,
+            'entrevista_id' => $entrevista->id,
+            'profesional_id' => $this->profesional->id,
+            'fecha' => today()->toDateString(),
+            'avances' => 'Con nuevas prestaciones',
             'requiere_revision_plan' => false,
-            'nuevas_prestaciones'    => [1, 4, 7],
+            'nuevas_prestaciones' => [1, 4, 7],
         ]);
 
         $seguimientoRecargado = SeguimientoPlan::find($seguimiento->id);
@@ -138,16 +139,16 @@ class SeguimientoTest extends TestCase
     #[Test]
     public function solicitar_cita_siguiente_existe_y_no_lanza_excepcion(): void
     {
-        $plan       = $this->crearPlanActivo();
+        $plan = $this->crearPlanActivo();
         $entrevista = $this->crearEntrevistaSegimiento($plan);
 
         $seguimiento = SeguimientoPlan::create([
-            'plan_id'                    => $plan->id,
-            'entrevista_id'              => $entrevista->id,
-            'profesional_id'             => $this->profesional->id,
-            'fecha'                      => today()->toDateString(),
-            'avances'                    => 'Con fecha siguiente',
-            'requiere_revision_plan'     => false,
+            'plan_id' => $plan->id,
+            'entrevista_id' => $entrevista->id,
+            'profesional_id' => $this->profesional->id,
+            'fecha' => today()->toDateString(),
+            'avances' => 'Con fecha siguiente',
+            'requiere_revision_plan' => false,
             'fecha_siguiente_seguimiento' => today()->addMonths(3)->toDateString(),
         ]);
 
@@ -161,15 +162,15 @@ class SeguimientoTest extends TestCase
     #[Test]
     public function seguimiento_vinculado_a_su_entrevista_de_origen(): void
     {
-        $plan       = $this->crearPlanActivo();
+        $plan = $this->crearPlanActivo();
         $entrevista = $this->crearEntrevistaSegimiento($plan);
 
         $seguimiento = SeguimientoPlan::create([
-            'plan_id'                => $plan->id,
-            'entrevista_id'          => $entrevista->id,
-            'profesional_id'         => $this->profesional->id,
-            'fecha'                  => today()->toDateString(),
-            'avances'                => 'Avances del seguimiento',
+            'plan_id' => $plan->id,
+            'entrevista_id' => $entrevista->id,
+            'profesional_id' => $this->profesional->id,
+            'fecha' => today()->toDateString(),
+            'avances' => 'Avances del seguimiento',
             'requiere_revision_plan' => false,
         ]);
 

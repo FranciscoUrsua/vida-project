@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Modules\Organizacion\Models\Distrito;
 use Modules\Prestaciones\Models\Prestacion;
 
@@ -29,7 +30,7 @@ use Modules\Prestaciones\Models\Prestacion;
  * @property string $tipo_gestion
  * @property int|null $unidad_organizativa_id
  * @property string|null $direccion_texto
- * @property bool        $direccion_normalizada
+ * @property bool $direccion_normalizada
  * @property string|null $codigo_postal
  * @property string|null $telefono
  * @property string|null $email
@@ -38,8 +39,8 @@ use Modules\Prestaciones\Models\Prestacion;
  * @property array|null $horario
  * @property string|null $notas
  * @property bool $activo
- * @property \Illuminate\Support\Carbon $fecha_alta
- * @property \Illuminate\Support\Carbon|null $fecha_baja
+ * @property Carbon $fecha_alta
+ * @property Carbon|null $fecha_baja
  */
 class Centro extends Model
 {
@@ -85,10 +86,10 @@ class Centro extends Model
 
     protected $casts = [
         'inscripcion_libre' => 'boolean',
-        'activo'            => 'boolean',
-        'fecha_alta'        => 'date',
-        'fecha_baja'        => 'date',
-        'horario'           => 'array',
+        'activo' => 'boolean',
+        'fecha_alta' => 'date',
+        'fecha_baja' => 'date',
+        'horario' => 'array',
     ];
 
     // -------------------------------------------------------------------------
@@ -98,7 +99,7 @@ class Centro extends Model
     /**
      * Unidad organizativa a la que pertenece el centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\UnidadOrganizativa, self>
+     * @return BelongsTo<UnidadOrganizativa, self>
      */
     public function unidadOrganizativa(): BelongsTo
     {
@@ -108,7 +109,7 @@ class Centro extends Model
     /**
      * Ámbitos territoriales de atención del centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\AmbitoTerritorial, self>
+     * @return HasMany<AmbitoTerritorial, self>
      */
     public function ambitosTeritoriales(): HasMany
     {
@@ -126,7 +127,7 @@ class Centro extends Model
     /**
      * Colecciones de plazas del centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\ColeccionPlazas, self>
+     * @return HasMany<ColeccionPlazas, self>
      */
     public function coleccionesPlazas(): HasMany
     {
@@ -136,7 +137,7 @@ class Centro extends Model
     /**
      * Actividades programadas en el centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\Actividad, self>
+     * @return HasMany<Actividad, self>
      */
     public function actividades(): HasMany
     {
@@ -146,7 +147,7 @@ class Centro extends Model
     /**
      * Historial de directores del centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\DirectorCentro, self>
+     * @return HasMany<DirectorCentro, self>
      */
     public function directores(): HasMany
     {
@@ -156,7 +157,7 @@ class Centro extends Model
     /**
      * Personas de contacto adicionales del centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\ContactoCentro, self>
+     * @return HasMany<ContactoCentro, self>
      */
     public function contactos(): HasMany
     {
@@ -166,7 +167,7 @@ class Centro extends Model
     /**
      * Inscripciones de ciudadanos al centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\InscripcionCentro, self>
+     * @return HasMany<InscripcionCentro, self>
      */
     public function inscripciones(): HasMany
     {
@@ -176,7 +177,7 @@ class Centro extends Model
     /**
      * Redes a las que pertenece el centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Modules\Centro\Models\Red, self>
+     * @return BelongsToMany<Red, self>
      */
     public function redes(): BelongsToMany
     {
@@ -186,7 +187,7 @@ class Centro extends Model
     /**
      * Segmentos de población a los que atiende el centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Modules\Centro\Models\SegmentoPoblacion, self>
+     * @return BelongsToMany<SegmentoPoblacion, self>
      */
     public function segmentosPoblacion(): BelongsToMany
     {
@@ -196,7 +197,7 @@ class Centro extends Model
     /**
      * Prestaciones vinculadas al centro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Modules\Prestaciones\Models\Prestacion, self>
+     * @return BelongsToMany<Prestacion, self>
      */
     public function prestaciones(): BelongsToMany
     {
@@ -209,8 +210,6 @@ class Centro extends Model
 
     /**
      * Devuelve el DirectorCentro activo (fecha_fin null), o null si no lo hay.
-     *
-     * @return \Modules\Centro\Models\DirectorCentro|null
      */
     public function directorActivo(): ?DirectorCentro
     {
@@ -240,8 +239,9 @@ class Centro extends Model
     /**
      * Filtra centros activos y sin fecha de baja.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeActivos(Builder $query): Builder
     {

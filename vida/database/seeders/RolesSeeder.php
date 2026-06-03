@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * Seeder de roles del sistema VIDA 360.
@@ -18,7 +19,7 @@ use Spatie\Permission\Models\Role;
  *
  * Debe ejecutarse después de PermisosSeeder.
  *
- * @see \Database\Seeders\PermisosSeeder
+ * @see PermisosSeeder
  */
 class RolesSeeder extends Seeder
 {
@@ -169,12 +170,10 @@ class RolesSeeder extends Seeder
     /**
      * Crea los roles y asigna sus permisos.
      * Si el rol ya existe, solo sincroniza sus permisos.
-     *
-     * @return void
      */
     public function run(): void
     {
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         foreach (self::ROLES as $nombreRol => $permisos) {
             $rol = Role::firstOrCreate(
@@ -186,6 +185,6 @@ class RolesSeeder extends Seeder
             $rol->syncPermissions($permisos);
         }
 
-        $this->command->info('✓ ' . count(self::ROLES) . ' roles creados o actualizados con sus permisos.');
+        $this->command->info('✓ '.count(self::ROLES).' roles creados o actualizados con sus permisos.');
     }
 }

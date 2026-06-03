@@ -5,6 +5,7 @@ namespace Modules\Usuarios\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Catálogo de tipos de relación profesional con la organización.
@@ -20,8 +21,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $nombre
  * @property bool $es_externo
  * @property bool $activo
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  *
  * @see docs/modulo-usuarios-permisos.md sección 5.2
  */
@@ -40,7 +41,7 @@ class TipoRelacionProfesional extends Model
     /** @var array<string, string> */
     protected $casts = [
         'es_externo' => 'boolean',
-        'activo'     => 'boolean',
+        'activo' => 'boolean',
     ];
 
     // -------------------------------------------------------------------------
@@ -65,6 +66,7 @@ class TipoRelacionProfesional extends Model
      * Solo tipos de relación activos.
      *
      * @param Builder<TipoRelacionProfesional> $consulta
+     *
      * @return Builder<TipoRelacionProfesional>
      */
     public function scopeActivos(Builder $consulta): Builder

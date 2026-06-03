@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\Prescripcion;
 
 /**
  * Prescripciones de plazas o sesiones de actividad.
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Schema;
  * plan_intervencion_id: FK sin constraint declarada — la tabla planes_intervencion
  * se creará con el módulo Intervención. Añadir constraint entonces.
  *
- * @see Modules\Centro\Models\Prescripcion
+ * @see Prescripcion
  */
 return new class extends Migration
 {

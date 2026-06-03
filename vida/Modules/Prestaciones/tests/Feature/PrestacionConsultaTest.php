@@ -19,11 +19,11 @@ class PrestacionConsultaTest extends TestCase
     private function prestacionBase(array $overrides = []): array
     {
         return array_merge([
-            'codigo'          => 'TMP001',
-            'nombre'          => 'Servicio base',
+            'codigo' => 'TMP001',
+            'nombre' => 'Servicio base',
             'tipo_prestacion' => 'servicio',
-            'nivel_garantia'  => 'garantizada',
-            'activa'          => true,
+            'nivel_garantia' => 'garantizada',
+            'activa' => true,
         ], $overrides);
     }
 

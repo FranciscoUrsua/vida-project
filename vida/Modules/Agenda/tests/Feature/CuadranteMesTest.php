@@ -25,20 +25,20 @@ class CuadranteMesTest extends TestCase
     private function crearCentro(string $nombre = 'Centro de Prueba'): Centro
     {
         return Centro::create([
-            'nombre'       => $nombre,
+            'nombre' => $nombre,
             'tipo_gestion' => 'municipal_directo',
-            'fecha_alta'   => now()->toDateString(),
+            'fecha_alta' => now()->toDateString(),
         ]);
     }
 
     private function crearCuadrante(Centro $centro, array $override = []): CuadranteMes
     {
         return CuadranteMes::create(array_merge([
-            'centro_id'               => $centro->id,
-            'anyo'                    => 2026,
-            'mes'                     => 1,
-            'estado'                  => EstadoCuadrante::Borrador->value,
-            'generado_con_ia'         => false,
+            'centro_id' => $centro->id,
+            'anyo' => 2026,
+            'mes' => 1,
+            'estado' => EstadoCuadrante::Borrador->value,
+            'generado_con_ia' => false,
             'generado_automaticamente' => false,
         ], $override));
     }
@@ -47,19 +47,19 @@ class CuadranteMesTest extends TestCase
     private function crearHorario(Centro $centro, string $modo = 'estandar'): HorarioCentro
     {
         return HorarioCentro::create([
-            'centro_id'             => $centro->id,
-            'nombre'                => 'Horario',
-            'dias_laborables'       => [1, 2, 3, 4, 5],
-            'hora_apertura'         => '08:00',
-            'hora_cierre'           => '19:00',
-            'hora_inicio_atencion'  => '09:00',
-            'hora_fin_atencion'     => '14:00',
+            'centro_id' => $centro->id,
+            'nombre' => 'Horario',
+            'dias_laborables' => [1, 2, 3, 4, 5],
+            'hora_apertura' => '08:00',
+            'hora_cierre' => '19:00',
+            'hora_inicio_atencion' => '09:00',
+            'hora_fin_atencion' => '14:00',
             'buffer_inicio_minutos' => 0,
-            'buffer_fin_minutos'    => 0,
-            'vigente_desde'         => '2026-01-01',
-            'vigente_hasta'         => null,
-            'modo_agenda'           => $modo,
-            'activo'                => true,
+            'buffer_fin_minutos' => 0,
+            'vigente_desde' => '2026-01-01',
+            'vigente_hasta' => null,
+            'modo_agenda' => $modo,
+            'activo' => true,
         ]);
     }
 
@@ -67,10 +67,10 @@ class CuadranteMesTest extends TestCase
     private function crearPerfil(User $usuario, Centro $centro): PerfilHorarioProfesional
     {
         return PerfilHorarioProfesional::create([
-            'usuario_id'            => $usuario->id,
-            'centro_id'             => $centro->id,
+            'usuario_id' => $usuario->id,
+            'centro_id' => $centro->id,
             'jornada_semanal_horas' => 35,
-            'horario_habitual'      => [
+            'horario_habitual' => [
                 '1' => [['inicio' => '09:00', 'fin' => '14:00']],
                 '2' => [['inicio' => '09:00', 'fin' => '14:00']],
                 '3' => [['inicio' => '09:00', 'fin' => '14:00']],
@@ -79,7 +79,7 @@ class CuadranteMesTest extends TestCase
             ],
             'vigente_desde' => '2026-01-01',
             'vigente_hasta' => null,
-            'activo'        => true,
+            'activo' => true,
         ]);
     }
 
@@ -101,7 +101,7 @@ class CuadranteMesTest extends TestCase
 
         $cuadrante = $this->crearCuadrante($centro, ['anyo' => 2026, 'mes' => 6]);
 
-        (new CuadranteGeneratorService())->generarBorrador($cuadrante);
+        (new CuadranteGeneratorService)->generarBorrador($cuadrante);
 
         $cuadrante->refresh();
 
@@ -125,57 +125,57 @@ class CuadranteMesTest extends TestCase
         $centro = $this->crearCentro();
 
         $horario = HorarioCentro::create([
-            'centro_id'             => $centro->id,
-            'nombre'                => 'Horario',
-            'dias_laborables'       => [1, 2, 3, 4, 5],
-            'hora_apertura'         => '08:00',
-            'hora_cierre'           => '19:00',
-            'hora_inicio_atencion'  => '09:00',
-            'hora_fin_atencion'     => '14:00',
+            'centro_id' => $centro->id,
+            'nombre' => 'Horario',
+            'dias_laborables' => [1, 2, 3, 4, 5],
+            'hora_apertura' => '08:00',
+            'hora_cierre' => '19:00',
+            'hora_inicio_atencion' => '09:00',
+            'hora_fin_atencion' => '14:00',
             'buffer_inicio_minutos' => 0,
-            'buffer_fin_minutos'    => 0,
-            'vigente_desde'         => '2026-01-01',
-            'vigente_hasta'         => null,
-            'modo_agenda'           => 'estandar',
-            'activo'                => true,
+            'buffer_fin_minutos' => 0,
+            'vigente_desde' => '2026-01-01',
+            'vigente_hasta' => null,
+            'modo_agenda' => 'estandar',
+            'activo' => true,
         ]);
 
         TipoSlot::create([
-            'horario_centro_id'        => $horario->id,
-            'nombre'                   => 'Cita',
-            'duracion_minutos'         => 60,
-            'requiere_espacio'         => false,
-            'porcentaje_urgencias'     => 0,
-            'origen_permitido'         => 'ambos',
+            'horario_centro_id' => $horario->id,
+            'nombre' => 'Cita',
+            'duracion_minutos' => 60,
+            'requiere_espacio' => false,
+            'porcentaje_urgencias' => 0,
+            'origen_permitido' => 'ambos',
             'genera_apunte_automatico' => false,
-            'activo'                   => true,
+            'activo' => true,
         ]);
 
-        $usuario   = User::factory()->create();
+        $usuario = User::factory()->create();
         $cuadrante = $this->crearCuadrante($centro, [
-            'anyo'        => 2026,
-            'mes'         => 6,
-            'estado'      => EstadoCuadrante::Borrador->value,
+            'anyo' => 2026,
+            'mes' => 6,
+            'estado' => EstadoCuadrante::Borrador->value,
         ]);
 
         // 2026-06-01 Monday, 9:00-14:00 = 300 min / 60 min = 5 slots
         LineaCuadrante::create([
             'cuadrante_mes_id' => $cuadrante->id,
-            'usuario_id'       => $usuario->id,
-            'centro_id'        => $centro->id,
-            'fecha'            => '2026-06-01',
-            'franjas'          => [['inicio' => '09:00', 'fin' => '14:00']],
-            'anulada'          => false,
+            'usuario_id' => $usuario->id,
+            'centro_id' => $centro->id,
+            'fecha' => '2026-06-01',
+            'franjas' => [['inicio' => '09:00', 'fin' => '14:00']],
+            'anulada' => false,
         ]);
 
         $this->assertEquals(0, $cuadrante->slots()->count(), 'Antes de publicar no hay slots');
 
         // Publish + materialize
         $cuadrante->update([
-            'estado'       => EstadoCuadrante::Publicado->value,
+            'estado' => EstadoCuadrante::Publicado->value,
             'publicado_en' => now(),
         ]);
-        $creados = (new SlotMaterializadorService())->materializar($cuadrante);
+        $creados = (new SlotMaterializadorService)->materializar($cuadrante);
 
         $this->assertEquals(5, $creados, 'Deben crearse 5 slots (300 min / 60 min)');
         $this->assertEquals(5, $cuadrante->slots()->count());
@@ -211,7 +211,7 @@ class CuadranteMesTest extends TestCase
         $usuario = User::factory()->create();
         $this->crearPerfil($usuario, $centro);
 
-        $cuadrante = (new CuadranteGeneratorService())
+        $cuadrante = (new CuadranteGeneratorService)
             ->generarYPublicarAutomaticamente($centro, 2026, 6);
 
         $this->assertEquals(EstadoCuadrante::Publicado, $cuadrante->estado, 'El cuadrante debe quedar publicado');
@@ -238,20 +238,20 @@ class CuadranteMesTest extends TestCase
 
         // Vacaciones del 10 al 20 de junio
         $excepcion = ExcepcionProfesional::create([
-            'usuario_id'            => $profesional->id,
-            'centro_id'             => $centro->id,
-            'tipo'                  => 'vacaciones',
-            'fecha_inicio'          => '2026-06-10',
-            'fecha_fin'             => '2026-06-20',
+            'usuario_id' => $profesional->id,
+            'centro_id' => $centro->id,
+            'tipo' => 'vacaciones',
+            'fecha_inicio' => '2026-06-10',
+            'fecha_fin' => '2026-06-20',
             'afecta_disponibilidad' => true,
-            'franja_afectada'       => null,
-            'origen'                => 'manual',
-            'creado_por_id'         => $supervisor->id,
+            'franja_afectada' => null,
+            'origen' => 'manual',
+            'creado_por_id' => $supervisor->id,
         ]);
 
         $cuadrante = $this->crearCuadrante($centro, ['anyo' => 2026, 'mes' => 6]);
 
-        (new CuadranteGeneratorService())->generarBorrador($cuadrante);
+        (new CuadranteGeneratorService)->generarBorrador($cuadrante);
 
         // Días L-V entre el 10 y el 20 de junio:
         // 10(X), 11(J), 12(V), 15(L), 16(M), 17(X), 18(J), 19(V) → 8 días laborables

@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Usuarios\Models\UsuarioRol;
+use Modules\Usuarios\Observers\UsuarioRolObserver;
 
 /**
  * Migración: recrea usuario_rol con el esquema definitivo.
@@ -18,8 +20,8 @@ use Illuminate\Support\Facades\Schema;
  * model_has_roles de Spatie es el estado derivado activo.
  * El Observer mantiene ambas sincronizadas.
  *
- * @see \Modules\Usuarios\Models\UsuarioRol
- * @see \Modules\Usuarios\Observers\UsuarioRolObserver
+ * @see UsuarioRol
+ * @see UsuarioRolObserver
  * @see docs/modulo-usuarios-permisos.md secciones 4.2 y 4.3
  */
 return new class extends Migration

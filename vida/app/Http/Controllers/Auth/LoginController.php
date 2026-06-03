@@ -29,7 +29,7 @@ class LoginController extends Controller
     public function autenticar(Request $request)
     {
         $credenciales = $request->validate([
-            'email'    => ['required', 'email'],
+            'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 

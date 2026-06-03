@@ -21,7 +21,7 @@ class MockGeocodificadorParserTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->geocodificador = new MockGeocodificador();
+        $this->geocodificador = new MockGeocodificador;
     }
 
     // -------------------------------------------------------------------------

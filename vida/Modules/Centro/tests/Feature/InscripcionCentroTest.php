@@ -23,46 +23,46 @@ class InscripcionCentroTest extends TestCase
     private function crearCentro(): Centro
     {
         return Centro::create([
-            'nombre'            => 'Centro de prueba',
-            'tipo_gestion'      => 'municipal_directo',
+            'nombre' => 'Centro de prueba',
+            'tipo_gestion' => 'municipal_directo',
             'inscripcion_libre' => true,
-            'fecha_alta'        => today()->toDateString(),
+            'fecha_alta' => today()->toDateString(),
         ]);
     }
 
     private function crearCiudadano(): Ciudadano
     {
         return Ciudadano::create([
-            'nombre'           => 'Ciudadano',
-            'apellido1'        => 'Prueba',
+            'nombre' => 'Ciudadano',
+            'apellido1' => 'Prueba',
             'fecha_nacimiento' => '1970-06-15',
-            'sexo'             => 'mujer',
-            'activo'           => true,
+            'sexo' => 'mujer',
+            'activo' => true,
         ]);
     }
 
     private function crearInscripcion(Centro $centro, Ciudadano $ciudadano, bool $activa = true): InscripcionCentro
     {
         return InscripcionCentro::create([
-            'centro_id'    => $centro->id,
+            'centro_id' => $centro->id,
             'ciudadano_id' => $ciudadano->id,
-            'fecha_alta'   => today()->toDateString(),
-            'activa'       => $activa,
+            'fecha_alta' => today()->toDateString(),
+            'activa' => $activa,
         ]);
     }
 
     private function crearActividad(Centro $centro, bool $requiereInscripcion): Actividad
     {
-        $tipo = TipoActividad::create(['nombre' => 'Taller ' . uniqid(), 'activo' => true]);
+        $tipo = TipoActividad::create(['nombre' => 'Taller '.uniqid(), 'activo' => true]);
 
         return Actividad::create([
-            'centro_id'                   => $centro->id,
-            'tipo_actividad_id'           => $tipo->id,
-            'nombre'                      => 'Actividad de prueba',
-            'modo_acceso'                 => 'libre',
+            'centro_id' => $centro->id,
+            'tipo_actividad_id' => $tipo->id,
+            'nombre' => 'Actividad de prueba',
+            'modo_acceso' => 'libre',
             'requiere_inscripcion_centro' => $requiereInscripcion,
-            'activa'                      => true,
-            'fecha_alta'                  => today()->toDateString(),
+            'activa' => true,
+            'fecha_alta' => today()->toDateString(),
         ]);
     }
 
@@ -73,7 +73,7 @@ class InscripcionCentroTest extends TestCase
     #[Test]
     public function un_ciudadano_puede_inscribirse_en_un_centro(): void
     {
-        $centro    = $this->crearCentro();
+        $centro = $this->crearCentro();
         $ciudadano = $this->crearCiudadano();
 
         $inscripcion = $this->crearInscripcion($centro, $ciudadano);
@@ -88,8 +88,8 @@ class InscripcionCentroTest extends TestCase
     #[Test]
     public function la_baja_de_inscripcion_es_siempre_explicita(): void
     {
-        $centro      = $this->crearCentro();
-        $ciudadano   = $this->crearCiudadano();
+        $centro = $this->crearCentro();
+        $ciudadano = $this->crearCiudadano();
         $inscripcion = $this->crearInscripcion($centro, $ciudadano);
 
         // Simular que pasa tiempo sin ninguna acción: la inscripción sigue activa.
@@ -104,12 +104,12 @@ class InscripcionCentroTest extends TestCase
     #[Test]
     public function dar_de_baja_una_inscripcion_la_desactiva(): void
     {
-        $centro      = $this->crearCentro();
-        $ciudadano   = $this->crearCiudadano();
+        $centro = $this->crearCentro();
+        $ciudadano = $this->crearCiudadano();
         $inscripcion = $this->crearInscripcion($centro, $ciudadano);
 
         $inscripcion->update([
-            'activa'     => false,
+            'activa' => false,
             'fecha_baja' => today()->toDateString(),
         ]);
 
@@ -125,7 +125,7 @@ class InscripcionCentroTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        $centro    = $this->crearCentro();
+        $centro = $this->crearCentro();
         $ciudadano = $this->crearCiudadano();
         $actividad = $this->crearActividad($centro, requiereInscripcion: true);
 
@@ -140,7 +140,7 @@ class InscripcionCentroTest extends TestCase
     #[Test]
     public function actividad_con_flag_requiere_inscripcion_permite_con_inscripcion_activa(): void
     {
-        $centro    = $this->crearCentro();
+        $centro = $this->crearCentro();
         $ciudadano = $this->crearCiudadano();
         $actividad = $this->crearActividad($centro, requiereInscripcion: true);
 

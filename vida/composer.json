@@ -20,13 +20,16 @@
         "staudenmeir/laravel-adjacency-list": "^1.25"
     },
     "require-dev": {
+        "driftingly/rector-laravel": "^2.5",
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
-        "phpunit/phpunit": "^11.5.50"
+        "nunomaduro/larastan": "^3.10",
+        "phpunit/phpunit": "^11.5.50",
+        "rector/rector": "^2.4"
     },
     "autoload": {
         "files": [
@@ -112,6 +115,12 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
+        "analyse-ci": "vendor/bin/phpstan analyse --memory-limit=512M --no-progress --error-format=github",
+        "format": "vendor/bin/pint",
+        "format-check": "vendor/bin/pint --test",
+        "rector": "vendor/bin/rector process",
+        "rector-dry": "vendor/bin/rector process --dry-run",
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi",

@@ -46,9 +46,9 @@ class ConfiguracionTest extends TestCase
     {
         $this->seed(IntervencionSeeder::class);
 
-        $countFichas        = TipoFicha::count();
-        $countValoraciones  = TipoValoracion::count();
-        $countPivot         = TipoValoracionFicha::count();
+        $countFichas = TipoFicha::count();
+        $countValoraciones = TipoValoracion::count();
+        $countPivot = TipoValoracionFicha::count();
 
         $this->assertEquals(3, $countFichas, 'El seeder debe crear exactamente 3 tipo_fichas');
         $this->assertEquals(1, $countValoraciones, 'El seeder debe crear exactamente 1 tipo_valoracion');

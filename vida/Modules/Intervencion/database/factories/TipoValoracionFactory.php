@@ -15,10 +15,10 @@ class TipoValoracionFactory extends Factory
     public function definition(): array
     {
         return [
-            'nombre'      => fake()->words(3, true),
-            'contexto'    => fake()->randomElement(['ASP', 'especializada_mayores', 'especializada_familia']),
+            'nombre' => fake()->words(3, true),
+            'contexto' => fake()->randomElement(['ASP', 'especializada_mayores', 'especializada_familia']),
             'descripcion' => fake()->optional()->sentence(),
-            'activo'      => true,
+            'activo' => true,
         ];
     }
 }

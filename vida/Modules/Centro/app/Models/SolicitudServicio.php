@@ -6,6 +6,7 @@ use App\Models\Ciudadano;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Prestaciones\Models\Prestacion;
 use Modules\Usuarios\Models\Profesional;
@@ -32,8 +33,8 @@ use Modules\Usuarios\Models\Profesional;
  * @property int|null $plan_intervencion_id
  * @property int $prestacion_id
  * @property string $estado
- * @property \Illuminate\Support\Carbon $fecha_solicitud
- * @property \Illuminate\Support\Carbon|null $fecha_resolucion
+ * @property Carbon $fecha_solicitud
+ * @property Carbon|null $fecha_resolucion
  * @property string|null $notas
  */
 class SolicitudServicio extends Model
@@ -53,7 +54,7 @@ class SolicitudServicio extends Model
     ];
 
     protected $casts = [
-        'fecha_solicitud'  => 'date',
+        'fecha_solicitud' => 'date',
         'fecha_resolucion' => 'date',
     ];
 
@@ -63,8 +64,6 @@ class SolicitudServicio extends Model
 
     /**
      * Al pasar al estado 'resuelta', registra automáticamente la fecha de resolución.
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -82,7 +81,7 @@ class SolicitudServicio extends Model
     /**
      * Servicio destinatario de la solicitud.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Servicio, self>
+     * @return BelongsTo<Servicio, self>
      */
     public function servicio(): BelongsTo
     {
@@ -92,7 +91,7 @@ class SolicitudServicio extends Model
     /**
      * Ciudadano beneficiario de la tramitación.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Ciudadano, self>
+     * @return BelongsTo<Ciudadano, self>
      */
     public function ciudadano(): BelongsTo
     {
@@ -102,7 +101,7 @@ class SolicitudServicio extends Model
     /**
      * TSR que generó la solicitud.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Usuarios\Models\Profesional, self>
+     * @return BelongsTo<Profesional, self>
      */
     public function profesional(): BelongsTo
     {
@@ -112,7 +111,7 @@ class SolicitudServicio extends Model
     /**
      * Plan de intervención en cuyo contexto se generó la solicitud.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Intervencion\Models\PlanDeIntervencion, self>
+     * @return BelongsTo<PlanDeIntervencion, self>
      */
     public function planIntervencion(): BelongsTo
     {
@@ -122,7 +121,7 @@ class SolicitudServicio extends Model
     /**
      * Prestación solicitada.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Prestaciones\Models\Prestacion, self>
+     * @return BelongsTo<Prestacion, self>
      */
     public function prestacion(): BelongsTo
     {
@@ -136,8 +135,9 @@ class SolicitudServicio extends Model
     /**
      * Filtra solicitudes pendientes de tramitar.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopePendientes(Builder $query): Builder
     {

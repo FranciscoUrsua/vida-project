@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Actividad programada en un centro.
@@ -25,8 +26,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $aforo_prescripcion
  * @property bool $requiere_inscripcion_centro
  * @property bool $activa
- * @property \Illuminate\Support\Carbon $fecha_alta
- * @property \Illuminate\Support\Carbon|null $fecha_baja
+ * @property Carbon $fecha_alta
+ * @property Carbon|null $fecha_baja
  */
 class Actividad extends Model
 {
@@ -51,12 +52,12 @@ class Actividad extends Model
     ];
 
     protected $casts = [
-        'aforo_total'                 => 'integer',
-        'aforo_prescripcion'          => 'integer',
+        'aforo_total' => 'integer',
+        'aforo_prescripcion' => 'integer',
         'requiere_inscripcion_centro' => 'boolean',
-        'activa'                      => 'boolean',
-        'fecha_alta'                  => 'date',
-        'fecha_baja'                  => 'date',
+        'activa' => 'boolean',
+        'fecha_alta' => 'date',
+        'fecha_baja' => 'date',
     ];
 
     // -------------------------------------------------------------------------
@@ -66,7 +67,7 @@ class Actividad extends Model
     /**
      * Centro en el que se desarrolla la actividad.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Centro, self>
+     * @return BelongsTo<Centro, self>
      */
     public function centro(): BelongsTo
     {
@@ -76,7 +77,7 @@ class Actividad extends Model
     /**
      * Tipo de actividad que clasifica esta actividad.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\TipoActividad, self>
+     * @return BelongsTo<TipoActividad, self>
      */
     public function tipoActividad(): BelongsTo
     {
@@ -86,7 +87,7 @@ class Actividad extends Model
     /**
      * Sesiones concretas planificadas para esta actividad.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\SesionActividad, self>
+     * @return HasMany<SesionActividad, self>
      */
     public function sesiones(): HasMany
     {
@@ -128,8 +129,9 @@ class Actividad extends Model
     /**
      * Filtra actividades activas y sin fecha de baja.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeActivas(Builder $query): Builder
     {

@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Intervencion\Database\Factories\SeguimientoPlanFactory;
 
 /**
@@ -19,13 +20,13 @@ use Modules\Intervencion\Database\Factories\SeguimientoPlanFactory;
  * @property int $plan_id
  * @property int $entrevista_id
  * @property int $profesional_id
- * @property \Illuminate\Support\Carbon $fecha
+ * @property Carbon $fecha
  * @property string|null $avances
  * @property string|null $objetivos_cumplidos
  * @property string|null $incidencias
  * @property array|null $nuevas_prestaciones
  * @property bool $requiere_revision_plan
- * @property \Illuminate\Support\Carbon|null $fecha_siguiente_seguimiento
+ * @property Carbon|null $fecha_siguiente_seguimiento
  */
 class SeguimientoPlan extends Model
 {
@@ -52,9 +53,9 @@ class SeguimientoPlan extends Model
     ];
 
     protected $casts = [
-        'fecha'                       => 'date',
-        'nuevas_prestaciones'         => 'array',
-        'requiere_revision_plan'      => 'boolean',
+        'fecha' => 'date',
+        'nuevas_prestaciones' => 'array',
+        'requiere_revision_plan' => 'boolean',
         'fecha_siguiente_seguimiento' => 'date',
     ];
 
@@ -95,8 +96,6 @@ class SeguimientoPlan extends Model
      *
      * Stub — la lógica real se implementará con la integración del módulo Agenda.
      * Ver docs/modulo-intervencion.md §6.2.
-     *
-     * @return void
      */
     public function solicitarCitaSiguiente(): void
     {

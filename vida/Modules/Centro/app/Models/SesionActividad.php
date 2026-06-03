@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Sesión concreta de una actividad.
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property int $id
  * @property int $actividad_id
- * @property \Illuminate\Support\Carbon $fecha
+ * @property Carbon $fecha
  * @property string $hora_inicio
  * @property string|null $hora_fin
  * @property int|null $aforo_total
@@ -44,8 +45,8 @@ class SesionActividad extends Model
     ];
 
     protected $casts = [
-        'fecha'              => 'date',
-        'aforo_total'        => 'integer',
+        'fecha' => 'date',
+        'aforo_total' => 'integer',
         'aforo_prescripcion' => 'integer',
     ];
 
@@ -56,7 +57,7 @@ class SesionActividad extends Model
     /**
      * Actividad a la que pertenece esta sesión.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Actividad, self>
+     * @return BelongsTo<Actividad, self>
      */
     public function actividad(): BelongsTo
     {
@@ -66,7 +67,7 @@ class SesionActividad extends Model
     /**
      * Prescripciones dirigidas a esta sesión de actividad.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\Prescripcion, self>
+     * @return HasMany<Prescripcion, self>
      */
     public function prescripciones(): HasMany
     {
@@ -81,8 +82,6 @@ class SesionActividad extends Model
     /**
      * Plazas disponibles: aforo efectivo menos prescripciones activas o asignadas.
      * Usa el aforo de la sesión si está definido, o el de la actividad como fallback.
-     *
-     * @return int
      */
     public function getAforoDisponibleAttribute(): int
     {
@@ -106,8 +105,9 @@ class SesionActividad extends Model
     /**
      * Filtra sesiones con estado programada.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
      */
     public function scopeProgramadas(Builder $query): Builder
     {

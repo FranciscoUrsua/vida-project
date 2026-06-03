@@ -26,8 +26,7 @@ class CuadranteGeneratorService
      * profesional e incorpora las ExcepcionProfesional ya conocidas marcando esas
      * líneas como anulada = true con referencia a la excepción.
      *
-     * @param  CuadranteMes $cuadrante Cuadrante en estado 'borrador'
-     * @return void
+     * @param CuadranteMes $cuadrante Cuadrante en estado 'borrador'
      */
     public function generarBorrador(CuadranteMes $cuadrante): void
     {
@@ -39,7 +38,7 @@ class CuadranteGeneratorService
             ->where('vigente_desde', '<=', $primerDia->toDateString())
             ->where(function ($q) use ($primerDia) {
                 $q->whereNull('vigente_hasta')
-                  ->orWhere('vigente_hasta', '>=', $primerDia->toDateString());
+                    ->orWhere('vigente_hasta', '>=', $primerDia->toDateString());
             })
             ->first();
 
@@ -55,7 +54,7 @@ class CuadranteGeneratorService
             ->where('vigente_desde', '<=', $ultimoDia->toDateString())
             ->where(function ($q) use ($primerDia) {
                 $q->whereNull('vigente_hasta')
-                  ->orWhere('vigente_hasta', '>=', $primerDia->toDateString());
+                    ->orWhere('vigente_hasta', '>=', $primerDia->toDateString());
             })
             ->get();
 
@@ -89,6 +88,7 @@ class CuadranteGeneratorService
 
                     if (empty($franjas)) {
                         $dia->addDay();
+
                         continue;
                     }
 
@@ -97,19 +97,19 @@ class CuadranteGeneratorService
                     // Primera excepción que cubre este día concreto
                     $excepcion = $excepcionesProfesional->first(
                         fn ($e) => $e->fecha_inicio->toDateString() <= $fechaStr
-                               && $e->fecha_fin->toDateString()     >= $fechaStr
+                               && $e->fecha_fin->toDateString() >= $fechaStr
                     );
 
                     $lineasParaCrear[] = [
                         'cuadrante_mes_id' => $cuadrante->id,
-                        'usuario_id'       => $perfil->usuario_id,
-                        'centro_id'        => $cuadrante->centro_id,
-                        'fecha'            => $fechaStr,
-                        'franjas'          => json_encode($franjas),
-                        'anulada'          => $excepcion !== null,
-                        'excepcion_id'     => $excepcion?->id,
-                        'created_at'       => $now,
-                        'updated_at'       => $now,
+                        'usuario_id' => $perfil->usuario_id,
+                        'centro_id' => $cuadrante->centro_id,
+                        'fecha' => $fechaStr,
+                        'franjas' => json_encode($franjas),
+                        'anulada' => $excepcion !== null,
+                        'excepcion_id' => $excepcion?->id,
+                        'created_at' => $now,
+                        'updated_at' => $now,
                     ];
                 }
 
@@ -128,30 +128,31 @@ class CuadranteGeneratorService
      * Usado en modo básico: crea el CuadranteMes, genera las líneas y materializa
      * los slots en un único paso, sin intervención del supervisor.
      *
-     * @param  Centro $centro Centro para el que se genera el cuadrante
-     * @param  int    $anyo   Año del cuadrante
-     * @param  int    $mes    Mes del cuadrante (1-12)
-     * @return CuadranteMes   Cuadrante en estado 'publicado'
+     * @param Centro $centro Centro para el que se genera el cuadrante
+     * @param int $anyo Año del cuadrante
+     * @param int $mes Mes del cuadrante (1-12)
+     *
+     * @return CuadranteMes Cuadrante en estado 'publicado'
      */
     public function generarYPublicarAutomaticamente(Centro $centro, int $anyo, int $mes): CuadranteMes
     {
         $cuadrante = CuadranteMes::create([
-            'centro_id'                => $centro->id,
-            'anyo'                     => $anyo,
-            'mes'                      => $mes,
-            'estado'                   => EstadoCuadrante::Borrador->value,
-            'generado_con_ia'          => false,
+            'centro_id' => $centro->id,
+            'anyo' => $anyo,
+            'mes' => $mes,
+            'estado' => EstadoCuadrante::Borrador->value,
+            'generado_con_ia' => false,
             'generado_automaticamente' => true,
         ]);
 
         $this->generarBorrador($cuadrante);
 
         $cuadrante->update([
-            'estado'       => EstadoCuadrante::Publicado->value,
+            'estado' => EstadoCuadrante::Publicado->value,
             'publicado_en' => now(),
         ]);
 
-        (new SlotMaterializadorService())->materializar($cuadrante);
+        (new SlotMaterializadorService)->materializar($cuadrante);
 
         return $cuadrante->fresh();
     }

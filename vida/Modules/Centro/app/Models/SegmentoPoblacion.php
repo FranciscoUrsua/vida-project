@@ -27,7 +27,7 @@ class SegmentoPoblacion extends Model
     /**
      * Centros que atienden a este segmento de población.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\Modules\Centro\Models\Centro, self>
+     * @return BelongsToMany<Centro, self>
      */
     public function centros(): BelongsToMany
     {

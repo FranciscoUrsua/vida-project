@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\CentroResource\Pages;
 
 use App\Filament\Resources\CentroResource;
-use Filament\Actions\CreateAction;
 use App\Filament\Resources\Pages\ListRecords;
+use Filament\Actions\CreateAction;
 
 class ListCentros extends ListRecords
 {

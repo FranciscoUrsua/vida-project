@@ -24,8 +24,6 @@ class IntervencionSidebarDataService
      *
      * Solo cuenta alertas con destinatario_type = usuario. Las alertas por rol+UO
      * se tratan en la bandeja completa de alertas.
-     *
-     * @return int
      */
     public function totalAlertas(): int
     {
@@ -41,8 +39,6 @@ class IntervencionSidebarDataService
 
     /**
      * Número de mensajes no leídos del usuario autenticado.
-     *
-     * @return int
      */
     public function mensajesNoLeidos(): int
     {
@@ -59,8 +55,6 @@ class IntervencionSidebarDataService
     /**
      * Total de notificaciones (alertas + mensajes no leídos).
      * Usado para el badge del ítem "Alertas y mensajes".
-     *
-     * @return int
      */
     public function totalNotificaciones(): int
     {
@@ -70,8 +64,6 @@ class IntervencionSidebarDataService
     /**
      * Número de historias sociales con plan activo asignadas al profesional.
      * Usado para el badge del ítem "Mis casos".
-     *
-     * @return int
      */
     public function misCasosCount(): int
     {
@@ -93,10 +85,10 @@ class IntervencionSidebarDataService
     public function getData(): array
     {
         return [
-            'alertas'          => $this->totalAlertas(),
-            'mensajes'         => $this->mensajesNoLeidos(),
-            'notificaciones'   => $this->totalNotificaciones(),
-            'casos'            => $this->misCasosCount(),
+            'alertas' => $this->totalAlertas(),
+            'mensajes' => $this->mensajesNoLeidos(),
+            'notificaciones' => $this->totalNotificaciones(),
+            'casos' => $this->misCasosCount(),
         ];
     }
 }

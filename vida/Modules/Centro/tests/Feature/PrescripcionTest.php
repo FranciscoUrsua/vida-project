@@ -9,7 +9,6 @@ use Modules\Centro\Models\ColeccionPlazas;
 use Modules\Centro\Models\Espacio;
 use Modules\Centro\Models\ListaEspera;
 use Modules\Centro\Models\Plaza;
-use Modules\Centro\Models\Prescripcion;
 use Modules\Centro\Models\TipoEspacio;
 use Modules\Centro\Services\PrescripcionService;
 use Modules\Usuarios\Models\Cargo;
@@ -32,7 +31,7 @@ class PrescripcionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->servicio = new PrescripcionService();
+        $this->servicio = new PrescripcionService;
     }
 
     private function crearProfesional(): Profesional
@@ -44,54 +43,54 @@ class PrescripcionTest extends TestCase
         );
 
         return Profesional::create([
-            'nombre'          => 'Test',
-            'apellido1'       => 'Profesional',
-            'sexo'            => 'M',
-            'cargo_id'        => $cargo->id,
+            'nombre' => 'Test',
+            'apellido1' => 'Profesional',
+            'sexo' => 'M',
+            'cargo_id' => $cargo->id,
             'tipo_relacion_id' => $tipoRelacion->id,
-            'fecha_inicio'    => today()->toDateString(),
-            'activo'          => true,
+            'fecha_inicio' => today()->toDateString(),
+            'activo' => true,
         ]);
     }
 
     private function crearCiudadano(): Ciudadano
     {
         return Ciudadano::create([
-            'nombre'           => 'Ciudadano',
-            'apellido1'        => 'Prueba',
+            'nombre' => 'Ciudadano',
+            'apellido1' => 'Prueba',
             'fecha_nacimiento' => '1980-01-01',
-            'sexo'             => 'hombre',
-            'activo'           => true,
+            'sexo' => 'hombre',
+            'activo' => true,
         ]);
     }
 
     private function crearColeccionConPlazas(int $libres, int $ocupadas = 0, string $modo = 'prescripcion_directa'): ColeccionPlazas
     {
         $centro = Centro::create([
-            'nombre'       => 'Centro ' . uniqid(),
+            'nombre' => 'Centro '.uniqid(),
             'tipo_gestion' => 'municipal_directo',
-            'fecha_alta'   => today()->toDateString(),
+            'fecha_alta' => today()->toDateString(),
         ]);
 
-        $tipoEspacio = TipoEspacio::create(['nombre' => 'Tipo ' . uniqid(), 'activo' => true]);
+        $tipoEspacio = TipoEspacio::create(['nombre' => 'Tipo '.uniqid(), 'activo' => true]);
 
         $total = $libres + $ocupadas;
         $coleccion = ColeccionPlazas::create([
-            'centro_id'   => $centro->id,
-            'nombre'      => 'Plazas',
-            'tipo_plaza'  => 'pernocta',
+            'centro_id' => $centro->id,
+            'nombre' => 'Plazas',
+            'tipo_plaza' => 'pernocta',
             'modo_acceso' => $modo,
-            'capacidad'   => $total,
-            'activa'      => true,
-            'fecha_alta'  => today()->toDateString(),
+            'capacidad' => $total,
+            'activa' => true,
+            'fecha_alta' => today()->toDateString(),
         ]);
 
         $espacio = Espacio::create([
             'coleccion_plazas_id' => $coleccion->id,
-            'tipo_espacio_id'     => $tipoEspacio->id,
-            'nombre'              => 'Sala',
-            'capacidad'           => $total,
-            'accesible'           => false,
+            'tipo_espacio_id' => $tipoEspacio->id,
+            'nombre' => 'Sala',
+            'capacidad' => $total,
+            'accesible' => false,
         ]);
 
         for ($i = 0; $i < $libres; $i++) {
@@ -112,14 +111,14 @@ class PrescripcionTest extends TestCase
     public function una_prescripcion_a_coleccion_con_plaza_libre_queda_asignada(): void
     {
         $profesional = $this->crearProfesional();
-        $ciudadano   = $this->crearCiudadano();
-        $coleccion   = $this->crearColeccionConPlazas(libres: 2);
+        $ciudadano = $this->crearCiudadano();
+        $coleccion = $this->crearColeccionConPlazas(libres: 2);
 
         $prescripcion = $this->servicio->crear([
-            'profesional_id'     => $profesional->id,
-            'ciudadano_id'       => $ciudadano->id,
-            'tipo_destino'       => 'coleccion_plazas',
-            'destino_id'         => $coleccion->id,
+            'profesional_id' => $profesional->id,
+            'ciudadano_id' => $ciudadano->id,
+            'tipo_destino' => 'coleccion_plazas',
+            'destino_id' => $coleccion->id,
             'fecha_prescripcion' => today()->toDateString(),
         ]);
 
@@ -135,14 +134,14 @@ class PrescripcionTest extends TestCase
     public function una_prescripcion_a_coleccion_sin_plazas_entra_en_lista_de_espera(): void
     {
         $profesional = $this->crearProfesional();
-        $ciudadano   = $this->crearCiudadano();
-        $coleccion   = $this->crearColeccionConPlazas(libres: 0, ocupadas: 2, modo: 'prescripcion_lista_espera');
+        $ciudadano = $this->crearCiudadano();
+        $coleccion = $this->crearColeccionConPlazas(libres: 0, ocupadas: 2, modo: 'prescripcion_lista_espera');
 
         $prescripcion = $this->servicio->crear([
-            'profesional_id'     => $profesional->id,
-            'ciudadano_id'       => $ciudadano->id,
-            'tipo_destino'       => 'coleccion_plazas',
-            'destino_id'         => $coleccion->id,
+            'profesional_id' => $profesional->id,
+            'ciudadano_id' => $ciudadano->id,
+            'tipo_destino' => 'coleccion_plazas',
+            'destino_id' => $coleccion->id,
             'fecha_prescripcion' => today()->toDateString(),
         ]);
 
@@ -157,17 +156,17 @@ class PrescripcionTest extends TestCase
     #[Test]
     public function al_liberarse_una_plaza_se_genera_alerta_al_tsr_activo(): void
     {
-        $tsrA        = $this->crearProfesional();
-        $tsrB        = $this->crearProfesional();
-        $ciudadano   = $this->crearCiudadano();
-        $coleccion   = $this->crearColeccionConPlazas(libres: 0, ocupadas: 2, modo: 'prescripcion_lista_espera');
+        $tsrA = $this->crearProfesional();
+        $tsrB = $this->crearProfesional();
+        $ciudadano = $this->crearCiudadano();
+        $coleccion = $this->crearColeccionConPlazas(libres: 0, ocupadas: 2, modo: 'prescripcion_lista_espera');
 
         // Prescripción inicial: alerta apunta a TSR A.
         $prescripcion = $this->servicio->crear([
-            'profesional_id'     => $tsrA->id,
-            'ciudadano_id'       => $ciudadano->id,
-            'tipo_destino'       => 'coleccion_plazas',
-            'destino_id'         => $coleccion->id,
+            'profesional_id' => $tsrA->id,
+            'ciudadano_id' => $ciudadano->id,
+            'tipo_destino' => 'coleccion_plazas',
+            'destino_id' => $coleccion->id,
             'fecha_prescripcion' => today()->toDateString(),
         ]);
 
@@ -192,14 +191,14 @@ class PrescripcionTest extends TestCase
     public function la_asignacion_no_es_automatica_al_liberarse_plaza(): void
     {
         $profesional = $this->crearProfesional();
-        $ciudadano   = $this->crearCiudadano();
-        $coleccion   = $this->crearColeccionConPlazas(libres: 0, ocupadas: 1, modo: 'prescripcion_lista_espera');
+        $ciudadano = $this->crearCiudadano();
+        $coleccion = $this->crearColeccionConPlazas(libres: 0, ocupadas: 1, modo: 'prescripcion_lista_espera');
 
         $prescripcion = $this->servicio->crear([
-            'profesional_id'     => $profesional->id,
-            'ciudadano_id'       => $ciudadano->id,
-            'tipo_destino'       => 'coleccion_plazas',
-            'destino_id'         => $coleccion->id,
+            'profesional_id' => $profesional->id,
+            'ciudadano_id' => $ciudadano->id,
+            'tipo_destino' => 'coleccion_plazas',
+            'destino_id' => $coleccion->id,
             'fecha_prescripcion' => today()->toDateString(),
         ]);
 
@@ -225,14 +224,14 @@ class PrescripcionTest extends TestCase
     public function cancelar_una_prescripcion_libera_la_plaza(): void
     {
         $profesional = $this->crearProfesional();
-        $ciudadano   = $this->crearCiudadano();
-        $coleccion   = $this->crearColeccionConPlazas(libres: 1);
+        $ciudadano = $this->crearCiudadano();
+        $coleccion = $this->crearColeccionConPlazas(libres: 1);
 
         $prescripcion = $this->servicio->crear([
-            'profesional_id'     => $profesional->id,
-            'ciudadano_id'       => $ciudadano->id,
-            'tipo_destino'       => 'coleccion_plazas',
-            'destino_id'         => $coleccion->id,
+            'profesional_id' => $profesional->id,
+            'ciudadano_id' => $ciudadano->id,
+            'tipo_destino' => 'coleccion_plazas',
+            'destino_id' => $coleccion->id,
             'fecha_prescripcion' => today()->toDateString(),
         ]);
 

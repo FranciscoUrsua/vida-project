@@ -8,6 +8,7 @@ use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Models\Alerta;
@@ -24,10 +25,15 @@ class LogAlertasResource extends Resource
     protected static ?string $model = Alerta::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-bell-alert';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
+
     protected static ?string $navigationLabel = 'Log de alertas';
+
     protected static ?string $modelLabel = 'Alerta';
+
     protected static ?string $pluralModelLabel = 'Log de alertas';
+
     protected static ?int $navigationSort = 5;
 
     public static function table(Table $table): Table
@@ -59,7 +65,7 @@ class LogAlertasResource extends Resource
                     ->label('Tipo')
                     ->colors([
                         'warning' => TipoAlerta::Alerta->value,
-                        'info'    => TipoAlerta::Aviso->value,
+                        'info' => TipoAlerta::Aviso->value,
                     ]),
 
                 Tables\Columns\TextColumn::make('titulo')
@@ -70,10 +76,10 @@ class LogAlertasResource extends Resource
                 Tables\Columns\BadgeColumn::make('estado')
                     ->label('Estado')
                     ->colors([
-                        'warning'  => EstadoAlerta::Pendiente->value,
-                        'success'  => EstadoAlerta::Reconocida->value,
-                        'primary'  => EstadoAlerta::Escalada->value,
-                        'danger'   => EstadoAlerta::Vencida->value,
+                        'warning' => EstadoAlerta::Pendiente->value,
+                        'success' => EstadoAlerta::Reconocida->value,
+                        'primary' => EstadoAlerta::Escalada->value,
+                        'danger' => EstadoAlerta::Vencida->value,
                     ]),
 
                 Tables\Columns\TextColumn::make('expira_en')
@@ -103,17 +109,17 @@ class LogAlertasResource extends Resource
                 SelectFilter::make('estado')
                     ->label('Estado')
                     ->options([
-                        EstadoAlerta::Pendiente->value  => 'Pendiente',
+                        EstadoAlerta::Pendiente->value => 'Pendiente',
                         EstadoAlerta::Reconocida->value => 'Reconocida',
-                        EstadoAlerta::Escalada->value   => 'Escalada',
-                        EstadoAlerta::Vencida->value    => 'Vencida',
+                        EstadoAlerta::Escalada->value => 'Escalada',
+                        EstadoAlerta::Vencida->value => 'Vencida',
                     ]),
 
                 SelectFilter::make('tipo')
                     ->label('Tipo')
                     ->options([
                         TipoAlerta::Alerta->value => 'Alerta',
-                        TipoAlerta::Aviso->value  => 'Aviso',
+                        TipoAlerta::Aviso->value => 'Aviso',
                     ]),
 
                 Tables\Filters\Filter::make('vencidas_o_escaladas')
@@ -147,12 +153,12 @@ class LogAlertasResource extends Resource
         return false;
     }
 
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(Model $record): bool
     {
         return false;
     }
 
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canDelete(Model $record): bool
     {
         return false;
     }

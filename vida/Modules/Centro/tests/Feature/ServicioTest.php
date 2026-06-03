@@ -32,12 +32,12 @@ class ServicioTest extends TestCase
     private function crearServicio(?UnidadOrganizativa $uo = null): Servicio
     {
         return Servicio::create([
-            'nombre'                 => 'Servicio de Ayuda a Domicilio',
-            'nombre_corto'           => 'SAD',
+            'nombre' => 'Servicio de Ayuda a Domicilio',
+            'nombre_corto' => 'SAD',
             'unidad_organizativa_id' => ($uo ?? $this->crearUo())->id,
-            'cargo_nombre'           => 'Jefe de Servicio de Ayuda a Domicilio',
-            'activo'                 => true,
-            'fecha_alta'             => today()->toDateString(),
+            'cargo_nombre' => 'Jefe de Servicio de Ayuda a Domicilio',
+            'activo' => true,
+            'fecha_alta' => today()->toDateString(),
         ]);
     }
 
@@ -46,10 +46,10 @@ class ServicioTest extends TestCase
         return Prestacion::firstOrCreate(
             ['codigo' => $codigo],
             [
-                'nombre'          => "Prestación {$codigo}",
+                'nombre' => "Prestación {$codigo}",
                 'tipo_prestacion' => 'servicio',
-                'nivel_garantia'  => 'garantizada',
-                'activa'          => true,
+                'nivel_garantia' => 'garantizada',
+                'activa' => true,
             ]
         );
     }
@@ -63,13 +63,13 @@ class ServicioTest extends TestCase
         );
 
         return Profesional::create([
-            'nombre'           => 'Test',
-            'apellido1'        => 'Profesional',
-            'sexo'             => 'M',
-            'cargo_id'         => $cargo->id,
+            'nombre' => 'Test',
+            'apellido1' => 'Profesional',
+            'sexo' => 'M',
+            'cargo_id' => $cargo->id,
             'tipo_relacion_id' => $tipoRelacion->id,
-            'fecha_inicio'     => today()->toDateString(),
-            'activo'           => true,
+            'fecha_inicio' => today()->toDateString(),
+            'activo' => true,
         ]);
     }
 
@@ -83,10 +83,10 @@ class ServicioTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         Servicio::create([
-            'nombre'       => 'Servicio Sin UO',
+            'nombre' => 'Servicio Sin UO',
             'nombre_corto' => 'SSU',
             'cargo_nombre' => 'Jefe de Servicio',
-            'fecha_alta'   => today()->toDateString(),
+            'fecha_alta' => today()->toDateString(),
         ]);
     }
 
@@ -109,7 +109,7 @@ class ServicioTest extends TestCase
     #[Test]
     public function un_servicio_puede_tener_multiples_prestaciones(): void
     {
-        $servicio    = $this->crearServicio();
+        $servicio = $this->crearServicio();
         $prestacion1 = $this->crearPrestacion('010101');
         $prestacion2 = $this->crearPrestacion('010102');
         $prestacion3 = $this->crearPrestacion('010103');
@@ -143,17 +143,17 @@ class ServicioTest extends TestCase
     #[Test]
     public function un_profesional_puede_asignarse_a_varios_servicios(): void
     {
-        $uo          = $this->crearUo();
+        $uo = $this->crearUo();
         $profesional = $this->crearProfesional();
 
         $servicioA = $this->crearServicio($uo);
         $servicioB = Servicio::create([
-            'nombre'                 => 'Servicio de Dependencia',
-            'nombre_corto'           => 'DEP',
+            'nombre' => 'Servicio de Dependencia',
+            'nombre_corto' => 'DEP',
             'unidad_organizativa_id' => $uo->id,
-            'cargo_nombre'           => 'Jefe de Dependencia',
-            'activo'                 => true,
-            'fecha_alta'             => today()->toDateString(),
+            'cargo_nombre' => 'Jefe de Dependencia',
+            'activo' => true,
+            'fecha_alta' => today()->toDateString(),
         ]);
 
         $servicioA->profesionales()->attach($profesional->id, ['fecha_alta' => today()->toDateString()]);

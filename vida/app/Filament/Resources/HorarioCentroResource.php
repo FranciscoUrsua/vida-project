@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\HorarioCentroResource\Pages;
 use App\Filament\Resources\HorarioCentroResource\RelationManagers\TiposSlotsRelationManager;
 use Filament\Actions\DeleteAction;
@@ -21,18 +22,23 @@ use Filament\Tables\Table;
 use Modules\Agenda\Enums\ModoAgenda;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Centro\Models\Centro;
-use App\Filament\Concerns\AutorizaGestion;
 
 class HorarioCentroResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = HorarioCentro::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clock';
+
     protected static ?string $navigationLabel = 'Horarios de centro';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
+
     protected static ?string $modelLabel = 'Horario de centro';
+
     protected static ?string $pluralModelLabel = 'Horarios de centro';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
@@ -65,8 +71,8 @@ class HorarioCentroResource extends Resource
                         ->required()
                         ->default(ModoAgenda::Estandar->value)
                         ->helperText(
-                            'Básico: cuadrante automático sin supervisión, sin tipos de slot configurables. ' .
-                            'Estándar: supervisor genera y publica cuadrante, tipos de slot y urgencias. ' .
+                            'Básico: cuadrante automático sin supervisión, sin tipos de slot configurables. '.
+                            'Estándar: supervisor genera y publica cuadrante, tipos de slot y urgencias. '.
                             'Avanzado: todo lo anterior más propuesta IA y profesionales itinerantes.'
                         ),
                 ]),
@@ -169,7 +175,7 @@ class HorarioCentroResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn (ModoAgenda $state) => $state->label())
                     ->color(fn (ModoAgenda $state) => match ($state) {
-                        ModoAgenda::Basico   => 'gray',
+                        ModoAgenda::Basico => 'gray',
                         ModoAgenda::Estandar => 'info',
                         ModoAgenda::Avanzado => 'success',
                     }),
@@ -215,9 +221,9 @@ class HorarioCentroResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListHorariosCentro::route('/'),
+            'index' => Pages\ListHorariosCentro::route('/'),
             'create' => Pages\CreateHorarioCentro::route('/create'),
-            'edit'   => Pages\EditHorarioCentro::route('/{record}/edit'),
+            'edit' => Pages\EditHorarioCentro::route('/{record}/edit'),
         ];
     }
 }

@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\SolicitudServicio;
 
 /**
  * Solicitudes de tramitación de una prestación a un servicio.
@@ -21,7 +22,7 @@ use Illuminate\Support\Facades\Schema;
  * el módulo Intervención (planes_intervencion). Cancelar un plan no elimina
  * solicitudes vinculadas (restrictOnDelete).
  *
- * @see Modules\Centro\Models\SolicitudServicio
+ * @see SolicitudServicio
  */
 return new class extends Migration
 {

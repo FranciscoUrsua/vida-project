@@ -27,7 +27,7 @@ class TipoEspacio extends Model
     /**
      * Espacios físicos clasificados con este tipo.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Centro\Models\Espacio, self>
+     * @return HasMany<Espacio, self>
      */
     public function espacios(): HasMany
     {

@@ -3,23 +3,24 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProfesionalResource\Pages;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
-use Modules\Usuarios\Models\Titulacion;
 use Modules\Usuarios\Models\TipoRelacionProfesional;
+use Modules\Usuarios\Models\Titulacion;
 
 /**
  * Backoffice: gestión de profesionales.
@@ -35,10 +36,15 @@ class ProfesionalResource extends Resource
     protected static ?string $model = Profesional::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-identification';
+
     protected static ?string $navigationLabel = 'Profesionales';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Usuarios y Profesionales';
+
     protected static ?string $modelLabel = 'Profesional';
+
     protected static ?string $pluralModelLabel = 'Profesionales';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
@@ -89,7 +95,7 @@ class ProfesionalResource extends Resource
                             'A2' => 'A2 — Técnico Medio',
                             'C1' => 'C1 — Administrativo',
                             'C2' => 'C2 — Auxiliar Administrativo',
-                            'E'  => 'E — Operario',
+                            'E' => 'E — Operario',
                         ])
                         ->nullable()
                         ->placeholder('Sin categoría asignada'),
@@ -119,6 +125,7 @@ class ProfesionalResource extends Resource
                                 return false;
                             }
                             $tipo = TipoRelacionProfesional::find($tipoId);
+
                             return $tipo?->es_externo ?? false;
                         }),
                 ]),
@@ -176,6 +183,7 @@ class ProfesionalResource extends Resource
                 $uoIds = $user->uoSubtreeIds();
                 if (empty($uoIds)) {
                     $query->whereRaw('1 = 0');
+
                     return;
                 }
                 $query->whereHas('usuario', function (Builder $q) use ($uoIds) {
@@ -231,9 +239,9 @@ class ProfesionalResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListProfesionales::route('/'),
+            'index' => Pages\ListProfesionales::route('/'),
             'create' => Pages\CreateProfesional::route('/create'),
-            'edit'   => Pages\EditProfesional::route('/{record}/edit'),
+            'edit' => Pages\EditProfesional::route('/{record}/edit'),
         ];
     }
 
@@ -247,13 +255,13 @@ class ProfesionalResource extends Resource
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(Model $record): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
     /** Solo adm_sistema puede eliminar profesionales. */
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canDelete(Model $record): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;
     }

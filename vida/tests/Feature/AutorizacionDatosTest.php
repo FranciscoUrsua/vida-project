@@ -8,8 +8,10 @@ use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\UnidadOrganizativa;
-use App\Models\UsuarioUo;
 use App\Models\User;
+use App\Models\UsuarioUo;
+use Database\Seeders\PermisosSeeder;
+use Database\Seeders\RolesSeeder;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -41,28 +43,26 @@ class AutorizacionDatosTest extends TestCase
 
     /**
      * Prepara las UOs y siembra permisos y roles antes de cada test.
-     *
-     * @return void
      */
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->seed(\Database\Seeders\PermisosSeeder::class);
-        $this->seed(\Database\Seeders\RolesSeeder::class);
+        $this->seed(PermisosSeeder::class);
+        $this->seed(RolesSeeder::class);
 
         $this->uoA = UnidadOrganizativa::create([
-            'nombre'    => 'CSS UO-A (test)',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS UO-A (test)',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $this->uoB = UnidadOrganizativa::create([
-            'nombre'    => 'CSS UO-B (test)',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS UO-B (test)',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
     }
 
@@ -80,17 +80,17 @@ class AutorizacionDatosTest extends TestCase
 
         // Crear historias en ambas UOs — sin GlobalScope
         $historiaUoA = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id'           => 1,
+            'ciudadano_id' => 1,
             'unidad_organizativa_id' => $this->uoA->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         $historiaUoB = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id'           => 2,
+            'ciudadano_id' => 2,
             'unidad_organizativa_id' => $this->uoB->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         // Actuar como el profesional de UO-A
@@ -118,17 +118,17 @@ class AutorizacionDatosTest extends TestCase
         $profesional = $this->crearUsuarioEnUo('intervencion', $this->uoA);
 
         HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id'           => 100,
+            'ciudadano_id' => 100,
             'unidad_organizativa_id' => $this->uoA->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id'           => 200,
+            'ciudadano_id' => 200,
             'unidad_organizativa_id' => $this->uoB->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         $this->actingAs($profesional);
@@ -153,10 +153,10 @@ class AutorizacionDatosTest extends TestCase
         // No se le asigna ninguna UO
 
         HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id'           => 999,
+            'ciudadano_id' => 999,
             'unidad_organizativa_id' => $this->uoA->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         $this->actingAs($usuarioSinUo);
@@ -175,17 +175,17 @@ class AutorizacionDatosTest extends TestCase
     public function sin_usuario_autenticado_global_scope_no_filtra(): void
     {
         HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id'           => 300,
+            'ciudadano_id' => 300,
             'unidad_organizativa_id' => $this->uoA->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id'           => 400,
+            'ciudadano_id' => 400,
             'unidad_organizativa_id' => $this->uoB->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         // Sin actingAs → sin usuario autenticado
@@ -325,7 +325,7 @@ class AutorizacionDatosTest extends TestCase
     #[Test]
     public function profesional_no_puede_ver_apunte_privado_de_otro(): void
     {
-        $autor  = $this->crearUsuarioEnUo('intervencion', $this->uoA);
+        $autor = $this->crearUsuarioEnUo('intervencion', $this->uoA);
         $colega = $this->crearUsuarioEnUo('intervencion', $this->uoA);
         $historia = $this->crearHistoriaSinScope($this->uoA);
         $apuntePrivado = $this->crearApunteSinScope($historia, $autor, privada: true);
@@ -342,8 +342,8 @@ class AutorizacionDatosTest extends TestCase
     #[Test]
     public function adm_sistema_no_puede_ver_apunte_privado_de_otro(): void
     {
-        $autor    = $this->crearUsuarioEnUo('intervencion', $this->uoA);
-        $admSist  = $this->crearUsuarioEnUo('adm_sistema', $this->uoA);
+        $autor = $this->crearUsuarioEnUo('intervencion', $this->uoA);
+        $admSist = $this->crearUsuarioEnUo('adm_sistema', $this->uoA);
         $historia = $this->crearHistoriaSinScope($this->uoA);
         $apuntePrivado = $this->crearApunteSinScope($historia, $autor, privada: true);
 
@@ -362,23 +362,23 @@ class AutorizacionDatosTest extends TestCase
         $profesional = $this->crearUsuarioEnUo('intervencion', $this->uoA);
 
         $ciudadano = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'nombre'                    => 'Ana',
-            'apellido1'                 => 'García',
-            'fecha_nacimiento'          => '1980-01-01',
-            'sexo'                      => 'mujer',
-            'activo'                    => true,
-            'es_vvg'                    => false,
-            'es_psh'                    => false,
+            'nombre' => 'Ana',
+            'apellido1' => 'García',
+            'fecha_nacimiento' => '1980-01-01',
+            'sexo' => 'mujer',
+            'activo' => true,
+            'es_vvg' => false,
+            'es_psh' => false,
             'colectivo_extra_protegido' => true, // Marcado como especialmente protegido
-            'nivel_identificacion'      => 'basico',
+            'nivel_identificacion' => 'basico',
         ]);
 
         // La Historia del ciudadano está en UO-B (fuera del ámbito del profesional)
         HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id'           => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $this->uoB->id,
-            'ciudadano_protegido'    => true,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => true,
+            'estado' => 'abierta',
         ]);
 
         $this->assertFalse(
@@ -394,9 +394,9 @@ class AutorizacionDatosTest extends TestCase
     public function tramitacion_no_puede_ver_apuntes(): void
     {
         $tramitacion = $this->crearUsuarioEnUo('tramitacion', $this->uoA);
-        $autor       = $this->crearUsuarioEnUo('intervencion', $this->uoA);
-        $historia    = $this->crearHistoriaSinScope($this->uoA);
-        $apunte      = $this->crearApunteSinScope($historia, $autor, privada: false);
+        $autor = $this->crearUsuarioEnUo('intervencion', $this->uoA);
+        $historia = $this->crearHistoriaSinScope($this->uoA);
+        $apunte = $this->crearApunteSinScope($historia, $autor, privada: false);
 
         $this->assertFalse(
             $tramitacion->can('view', $apunte),
@@ -411,7 +411,7 @@ class AutorizacionDatosTest extends TestCase
     public function supervisor_no_puede_escribir_datos_de_ciudadanos(): void
     {
         $supervisor = $this->crearUsuarioEnUo('supervision', $this->uoA);
-        $historia   = $this->crearHistoriaSinScope($this->uoA);
+        $historia = $this->crearHistoriaSinScope($this->uoA);
 
         $this->assertFalse(
             $supervisor->can('create', HistoriaSocial::class),
@@ -442,7 +442,7 @@ class AutorizacionDatosTest extends TestCase
 
         $this->expectException(AuthorizationException::class);
 
-        $servicio = new HistoriaSocialService();
+        $servicio = new HistoriaSocialService;
         $servicio->actualizar($historia->id, ['estado' => 'cerrada']);
     }
 
@@ -457,7 +457,7 @@ class AutorizacionDatosTest extends TestCase
 
         $this->actingAs($profesional);
 
-        $servicio = new HistoriaSocialService();
+        $servicio = new HistoriaSocialService;
         $historiaActualizada = $servicio->actualizar($historia->id, ['estado' => 'en_seguimiento']);
 
         $this->assertEquals('en_seguimiento', $historiaActualizada->estado);
@@ -472,7 +472,6 @@ class AutorizacionDatosTest extends TestCase
      *
      * @param string $nombreRol Nombre del rol (ej: 'intervencion')
      * @param UnidadOrganizativa $uo UO de adscripción
-     * @return User
      */
     private function crearUsuarioEnUo(string $nombreRol, UnidadOrganizativa $uo): User
     {
@@ -480,11 +479,11 @@ class AutorizacionDatosTest extends TestCase
         $usuario->assignRole(Role::findByName($nombreRol, 'web'));
 
         UsuarioUo::create([
-            'usuario_id'             => $usuario->id,
+            'usuario_id' => $usuario->id,
             'unidad_organizativa_id' => $uo->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => Carbon::today(),
-            'fecha_fin'              => null,
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => Carbon::today(),
+            'fecha_fin' => null,
         ]);
 
         return $usuario;
@@ -495,17 +494,16 @@ class AutorizacionDatosTest extends TestCase
      *
      * @param UnidadOrganizativa $uo UO responsable
      * @param bool $ciudadanoProtegido Si el ciudadano es especialmente protegido
-     * @return HistoriaSocial
      */
     private function crearHistoriaSinScope(
         UnidadOrganizativa $uo,
         bool $ciudadanoProtegido = false
     ): HistoriaSocial {
         return HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id'           => fake()->unique()->numberBetween(1, 99999),
+            'ciudadano_id' => fake()->unique()->numberBetween(1, 99999),
             'unidad_organizativa_id' => $uo->id,
-            'ciudadano_protegido'    => $ciudadanoProtegido,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => $ciudadanoProtegido,
+            'estado' => 'abierta',
         ]);
     }
 
@@ -515,7 +513,6 @@ class AutorizacionDatosTest extends TestCase
      * @param HistoriaSocial $historia Historia Social asociada
      * @param User $autor Autor del apunte
      * @param bool $privada Si el apunte es privado
-     * @return Apunte
      */
     private function crearApunteSinScope(
         HistoriaSocial $historia,
@@ -524,9 +521,9 @@ class AutorizacionDatosTest extends TestCase
     ): Apunte {
         return Apunte::withoutGlobalScope(AmbitoUoScope::class)->create([
             'historia_social_id' => $historia->id,
-            'profesional_id'     => $autor->id,
-            'tipo'               => 'anotacion',
-            'privada'            => $privada,
+            'profesional_id' => $autor->id,
+            'tipo' => 'anotacion',
+            'privada' => $privada,
         ]);
     }
 }

@@ -2,6 +2,10 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\ActividadCatalogosWidget;
+use App\Filament\Widgets\AlertasSistemaWidget;
+use App\Filament\Widgets\EstadoSistemaWidget;
+use App\Filament\Widgets\RolesPendientesWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
 
 /**
@@ -15,11 +19,14 @@ use Filament\Pages\Dashboard as BaseDashboard;
 class Dashboard extends BaseDashboard
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-squares-2x2';
+
     protected static ?string $navigationLabel = 'Panel principal';
+
     protected static ?string $title = 'Panel principal';
+
     protected static ?int $navigationSort = -10;
 
-    public function getColumns(): int | array
+    public function getColumns(): int|array
     {
         return 4;
     }
@@ -27,10 +34,10 @@ class Dashboard extends BaseDashboard
     public function getWidgets(): array
     {
         return [
-            \App\Filament\Widgets\EstadoSistemaWidget::class,
-            \App\Filament\Widgets\RolesPendientesWidget::class,
-            \App\Filament\Widgets\AlertasSistemaWidget::class,
-            \App\Filament\Widgets\ActividadCatalogosWidget::class,
+            EstadoSistemaWidget::class,
+            RolesPendientesWidget::class,
+            AlertasSistemaWidget::class,
+            ActividadCatalogosWidget::class,
         ];
     }
 }

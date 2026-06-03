@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
+use Modules\Usuarios\Policies\HistoriaSocialPolicy;
 
 /**
  * Modelo de solicitud de acceso a ciudadano especialmente protegido.
@@ -23,12 +25,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $justificacion Justificación obligatoria
  * @property string $estado pendiente | aprobado | denegado
  * @property int|null $aprobado_por Supervisor que resuelve
- * @property \Illuminate\Support\Carbon|null $fecha_resolucion
- * @property \Illuminate\Support\Carbon|null $acceso_valido_hasta
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon|null $fecha_resolucion
+ * @property Carbon|null $acceso_valido_hasta
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  *
- * @see \Modules\Usuarios\Policies\HistoriaSocialPolicy
+ * @see HistoriaSocialPolicy
  * @see docs/modulo-usuarios-permisos.md sección 3
  */
 class AccesoProtegido extends Model
@@ -52,7 +54,7 @@ class AccesoProtegido extends Model
 
     /** @var array<string, string> Conversiones de tipo */
     protected $casts = [
-        'fecha_resolucion'    => 'datetime',
+        'fecha_resolucion' => 'datetime',
         'acceso_valido_hasta' => 'datetime',
     ];
 

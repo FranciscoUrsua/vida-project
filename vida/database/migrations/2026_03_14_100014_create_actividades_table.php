@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\Actividad;
 
 /**
  * Actividades programadas en un centro.
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Schema;
  * modo_acceso valores: libre | prescripcion | mixta
  *   mixta = hay cupo reservado para prescripciones y cupo libre simultáneamente.
  *
- * @see Modules\Centro\Models\Actividad
+ * @see Actividad
  */
 return new class extends Migration
 {

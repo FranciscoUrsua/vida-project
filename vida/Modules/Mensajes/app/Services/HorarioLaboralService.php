@@ -30,8 +30,8 @@ class HorarioLaboralService
 
     /** Horario por defecto si no existe entrada en catalogos_sistema. */
     private const HORARIO_DEFECTO = [
-        'inicio'      => '08:00',
-        'fin'         => '17:00',
+        'inicio' => '08:00',
+        'fin' => '17:00',
         'dias_semana' => [1, 2, 3, 4, 5],
     ];
 
@@ -48,7 +48,7 @@ class HorarioLaboralService
      */
     public function calcularExpiracion(Carbon $desde): Carbon
     {
-        $cursor      = $desde->copy();
+        $cursor = $desde->copy();
         $minutosPlazo = self::HORAS_PLAZO * 60;
         $minutosAcumulados = 0;
 
@@ -59,15 +59,17 @@ class HorarioLaboralService
             // Si el cursor está fuera del horario laboral, saltar al inicio del siguiente día laboral
             if (! $this->estaEnHorarioLaboral($cursor)) {
                 $cursor = $this->siguienteInicioLaboral($cursor);
+
                 continue;
             }
 
             // Calcular cuántos minutos quedan en el bloque laboral de hoy
-            $finDelDia      = $this->finDelDiaLaboral($cursor);
+            $finDelDia = $this->finDelDiaLaboral($cursor);
             $minutosRestantes = (int) $cursor->diffInMinutes($finDelDia, false);
 
             if ($minutosRestantes <= 0) {
                 $cursor = $this->siguienteInicioLaboral($cursor);
+
                 continue;
             }
 

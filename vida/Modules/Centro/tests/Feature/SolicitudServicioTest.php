@@ -33,12 +33,12 @@ class SolicitudServicioTest extends TestCase
         );
 
         return Servicio::create([
-            'nombre'                 => 'Servicio de Ayuda a Domicilio',
-            'nombre_corto'           => 'SAD',
+            'nombre' => 'Servicio de Ayuda a Domicilio',
+            'nombre_corto' => 'SAD',
             'unidad_organizativa_id' => $uo->id,
-            'cargo_nombre'           => 'Jefe del SAD',
-            'activo'                 => true,
-            'fecha_alta'             => today()->toDateString(),
+            'cargo_nombre' => 'Jefe del SAD',
+            'activo' => true,
+            'fecha_alta' => today()->toDateString(),
         ]);
     }
 
@@ -47,10 +47,10 @@ class SolicitudServicioTest extends TestCase
         return Prestacion::firstOrCreate(
             ['codigo' => $codigo],
             [
-                'nombre'          => "Prestación {$codigo}",
+                'nombre' => "Prestación {$codigo}",
                 'tipo_prestacion' => 'servicio',
-                'nivel_garantia'  => 'garantizada',
-                'activa'          => true,
+                'nivel_garantia' => 'garantizada',
+                'activa' => true,
             ]
         );
     }
@@ -64,24 +64,24 @@ class SolicitudServicioTest extends TestCase
         );
 
         return Profesional::create([
-            'nombre'           => 'TSR',
-            'apellido1'        => 'Prueba',
-            'sexo'             => 'F',
-            'cargo_id'         => $cargo->id,
+            'nombre' => 'TSR',
+            'apellido1' => 'Prueba',
+            'sexo' => 'F',
+            'cargo_id' => $cargo->id,
             'tipo_relacion_id' => $tipoRelacion->id,
-            'fecha_inicio'     => today()->toDateString(),
-            'activo'           => true,
+            'fecha_inicio' => today()->toDateString(),
+            'activo' => true,
         ]);
     }
 
     private function crearCiudadano(): Ciudadano
     {
         return Ciudadano::create([
-            'nombre'           => 'Ciudadano',
-            'apellido1'        => 'Prueba',
-            'sexo'             => 'M',
+            'nombre' => 'Ciudadano',
+            'apellido1' => 'Prueba',
+            'sexo' => 'M',
             'fecha_nacimiento' => '1980-01-01',
-            'activo'           => true,
+            'activo' => true,
         ]);
     }
 
@@ -92,20 +92,20 @@ class SolicitudServicioTest extends TestCase
     #[Test]
     public function prescribir_prestacion_de_servicio_genera_solicitud(): void
     {
-        $servicio    = $this->crearServicio();
-        $prestacion  = $this->crearPrestacion();
+        $servicio = $this->crearServicio();
+        $prestacion = $this->crearPrestacion();
         $profesional = $this->crearProfesional();
-        $ciudadano   = $this->crearCiudadano();
+        $ciudadano = $this->crearCiudadano();
 
         $servicio->prestaciones()->attach($prestacion->id);
 
         // El TSR prescribe la prestación → se genera una solicitud al servicio.
         $solicitud = SolicitudServicio::create([
-            'servicio_id'    => $servicio->id,
-            'ciudadano_id'   => $ciudadano->id,
+            'servicio_id' => $servicio->id,
+            'ciudadano_id' => $ciudadano->id,
             'profesional_id' => $profesional->id,
-            'prestacion_id'  => $prestacion->id,
-            'estado'         => 'pendiente',
+            'prestacion_id' => $prestacion->id,
+            'estado' => 'pendiente',
             'fecha_solicitud' => today()->toDateString(),
         ]);
 
@@ -120,17 +120,17 @@ class SolicitudServicioTest extends TestCase
     #[Test]
     public function la_solicitud_referencia_prestacion_ciudadano_y_profesional(): void
     {
-        $servicio    = $this->crearServicio();
-        $prestacion  = $this->crearPrestacion();
+        $servicio = $this->crearServicio();
+        $prestacion = $this->crearPrestacion();
         $profesional = $this->crearProfesional();
-        $ciudadano   = $this->crearCiudadano();
+        $ciudadano = $this->crearCiudadano();
 
         $solicitud = SolicitudServicio::create([
-            'servicio_id'    => $servicio->id,
-            'ciudadano_id'   => $ciudadano->id,
+            'servicio_id' => $servicio->id,
+            'ciudadano_id' => $ciudadano->id,
             'profesional_id' => $profesional->id,
-            'prestacion_id'  => $prestacion->id,
-            'estado'         => 'pendiente',
+            'prestacion_id' => $prestacion->id,
+            'estado' => 'pendiente',
             'fecha_solicitud' => today()->toDateString(),
         ]);
 
@@ -146,17 +146,17 @@ class SolicitudServicioTest extends TestCase
     #[Test]
     public function el_estado_de_una_solicitud_puede_actualizarse(): void
     {
-        $servicio    = $this->crearServicio();
-        $prestacion  = $this->crearPrestacion();
+        $servicio = $this->crearServicio();
+        $prestacion = $this->crearPrestacion();
         $profesional = $this->crearProfesional();
-        $ciudadano   = $this->crearCiudadano();
+        $ciudadano = $this->crearCiudadano();
 
         $solicitud = SolicitudServicio::create([
-            'servicio_id'    => $servicio->id,
-            'ciudadano_id'   => $ciudadano->id,
+            'servicio_id' => $servicio->id,
+            'ciudadano_id' => $ciudadano->id,
             'profesional_id' => $profesional->id,
-            'prestacion_id'  => $prestacion->id,
-            'estado'         => 'pendiente',
+            'prestacion_id' => $prestacion->id,
+            'estado' => 'pendiente',
             'fecha_solicitud' => today()->toDateString(),
         ]);
 
@@ -172,17 +172,17 @@ class SolicitudServicioTest extends TestCase
     #[Test]
     public function una_solicitud_resuelta_registra_fecha_resolucion(): void
     {
-        $servicio    = $this->crearServicio();
-        $prestacion  = $this->crearPrestacion();
+        $servicio = $this->crearServicio();
+        $prestacion = $this->crearPrestacion();
         $profesional = $this->crearProfesional();
-        $ciudadano   = $this->crearCiudadano();
+        $ciudadano = $this->crearCiudadano();
 
         $solicitud = SolicitudServicio::create([
-            'servicio_id'    => $servicio->id,
-            'ciudadano_id'   => $ciudadano->id,
+            'servicio_id' => $servicio->id,
+            'ciudadano_id' => $ciudadano->id,
             'profesional_id' => $profesional->id,
-            'prestacion_id'  => $prestacion->id,
-            'estado'         => 'pendiente',
+            'prestacion_id' => $prestacion->id,
+            'estado' => 'pendiente',
             'fecha_solicitud' => today()->toDateString(),
         ]);
 
@@ -200,28 +200,28 @@ class SolicitudServicioTest extends TestCase
     #[Test]
     public function cancelar_plan_no_elimina_solicitudes_existentes(): void
     {
-        $servicio    = $this->crearServicio();
-        $prestacion  = $this->crearPrestacion();
+        $servicio = $this->crearServicio();
+        $prestacion = $this->crearPrestacion();
         $profesional = $this->crearProfesional();
-        $ciudadano   = $this->crearCiudadano();
+        $ciudadano = $this->crearCiudadano();
 
         $plan = PlanDeIntervencion::factory()->activo()->create();
 
         $solicitud = SolicitudServicio::create([
-            'servicio_id'          => $servicio->id,
-            'ciudadano_id'         => $ciudadano->id,
-            'profesional_id'       => $profesional->id,
+            'servicio_id' => $servicio->id,
+            'ciudadano_id' => $ciudadano->id,
+            'profesional_id' => $profesional->id,
             'plan_intervencion_id' => $plan->id,
-            'prestacion_id'        => $prestacion->id,
-            'estado'               => 'pendiente',
-            'fecha_solicitud'      => today()->toDateString(),
+            'prestacion_id' => $prestacion->id,
+            'estado' => 'pendiente',
+            'fecha_solicitud' => today()->toDateString(),
         ]);
 
         // Cancelar el plan (cambio de estado, no eliminación).
         $plan->update(['estado' => EstadoPlan::Cerrado]);
 
         $this->assertDatabaseHas('solicitudes_servicio', [
-            'id'     => $solicitud->id,
+            'id' => $solicitud->id,
             'estado' => 'pendiente',
         ]);
     }

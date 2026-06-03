@@ -4,10 +4,11 @@ namespace Modules\Mensajes\Livewire;
 
 use App\Models\Ciudadano;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Modules\Mensajes\Models\MensajeHilo;
 use Modules\Mensajes\Services\MensajeriaService;
 
 /**
@@ -22,16 +23,21 @@ class NuevoMensaje extends Component
 
     // Destinatario
     public string $busquedaDestinatario = '';
+
     public ?int $destinatarioId = null;
+
     public string $filtroPorRol = '';
+
     public ?int $filtroUoId = null;
 
     // Mensaje
     public string $asunto = '';
+
     public string $cuerpo = '';
 
     // Ciudadanos referenciados
     public string $busquedaCiudadano = '';
+
     public array $ciudadanosSeleccionados = [];
 
     // Adjuntos
@@ -45,17 +51,17 @@ class NuevoMensaje extends Component
     /**
      * Resultados de búsqueda de destinatarios por nombre.
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int, User>
+     * @return Collection<int, User>
      */
     #[Computed]
-    public function resultadosDestinatario(): \Illuminate\Database\Eloquent\Collection
+    public function resultadosDestinatario(): Collection
     {
         if (strlen($this->busquedaDestinatario) < 2) {
-            return new \Illuminate\Database\Eloquent\Collection();
+            return new Collection;
         }
 
         $query = User::where('id', '!=', auth()->id())
-            ->where('name', 'ilike', '%' . $this->busquedaDestinatario . '%');
+            ->where('name', 'ilike', '%'.$this->busquedaDestinatario.'%');
 
         // Si hay filtro por rol+UO, aplicarlo
         if ($this->filtroPorRol) {
@@ -74,7 +80,7 @@ class NuevoMensaje extends Component
 
     public function seleccionarDestinatario(int $usuarioId): void
     {
-        $this->destinatarioId        = $usuarioId;
+        $this->destinatarioId = $usuarioId;
         $this->busquedaDestinatario = '';
         unset($this->resultadosDestinatario);
     }
@@ -88,10 +94,10 @@ class NuevoMensaje extends Component
      * Resultados de búsqueda de ciudadanos para referenciar.
      */
     #[Computed]
-    public function resultadosCiudadano(): \Illuminate\Database\Eloquent\Collection
+    public function resultadosCiudadano(): Collection
     {
         if (strlen($this->busquedaCiudadano) < 2) {
-            return new \Illuminate\Database\Eloquent\Collection();
+            return new Collection;
         }
 
         // Solo ciudadanos con historia social accesible por el usuario
@@ -131,20 +137,20 @@ class NuevoMensaje extends Component
                     }
                 },
             ],
-            'asunto'     => 'required|string|max:255',
-            'cuerpo'     => 'required|string|max:10000',
+            'asunto' => 'required|string|max:255',
+            'cuerpo' => 'required|string|max:10000',
             'adjuntos.*' => 'file|max:10240',
         ]);
 
         $destinatario = User::findOrFail($this->destinatarioId);
 
         $hilo = $mensajeriaService->crearHilo(
-            remitente:     auth()->user(),
-            destinatario:  $destinatario,
-            asunto:        $this->asunto,
-            cuerpo:        $this->cuerpo,
-            ciudadanoIds:  $this->ciudadanosSeleccionados,
-            adjuntos:      $this->adjuntos,
+            remitente: auth()->user(),
+            destinatario: $destinatario,
+            asunto: $this->asunto,
+            cuerpo: $this->cuerpo,
+            ciudadanoIds: $this->ciudadanosSeleccionados,
+            adjuntos: $this->adjuntos,
         );
 
         $this->dispatch('hilo-creado', hiloId: $hilo->id);
@@ -152,7 +158,7 @@ class NuevoMensaje extends Component
         $this->reset(['asunto', 'cuerpo', 'destinatarioId', 'ciudadanosSeleccionados', 'adjuntos']);
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('mensajes::livewire.nuevo-mensaje');
     }

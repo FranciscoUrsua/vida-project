@@ -41,7 +41,7 @@ class ContactoCentro extends Model
     /**
      * Centro al que pertenece este contacto.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Centro\Models\Centro, self>
+     * @return BelongsTo<Centro, self>
      */
     public function centro(): BelongsTo
     {

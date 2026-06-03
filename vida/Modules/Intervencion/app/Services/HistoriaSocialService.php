@@ -3,9 +3,11 @@
 namespace Modules\Intervencion\Services;
 
 use App\Models\HistoriaSocial;
-use App\Models\User;
+use App\Models\Scopes\AmbitoUoScope;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Gate;
+use Modules\Usuarios\Policies\HistoriaSocialPolicy;
 
 /**
  * Servicio de dominio para la Historia Social.
@@ -19,8 +21,8 @@ use Illuminate\Support\Facades\Gate;
  *   2. Verificar la Policy (Gate::authorize).
  *   3. Ejecutar la lógica de negocio.
  *
- * @see \App\Models\Scopes\AmbitoUoScope
- * @see \Modules\Usuarios\Policies\HistoriaSocialPolicy
+ * @see AmbitoUoScope
+ * @see HistoriaSocialPolicy
  */
 class HistoriaSocialService
 {
@@ -31,7 +33,7 @@ class HistoriaSocialService
      * al ámbito de UO de la historia a crear.
      *
      * @param array<string, mixed> $datos Datos de la nueva Historia Social
-     * @return HistoriaSocial
+     *
      * @throws AuthorizationException Si el usuario no tiene permiso de crear
      */
     public function crear(array $datos): HistoriaSocial
@@ -49,11 +51,11 @@ class HistoriaSocialService
      * si el usuario tiene acceso al ámbito de UO.
      * La Policy verifica adicionalmente el permiso de edición.
      *
-     * @param int                  $id    ID de la Historia Social
+     * @param int $id ID de la Historia Social
      * @param array<string, mixed> $datos Campos a actualizar
-     * @return HistoriaSocial
+     *
      * @throws AuthorizationException Si el usuario no tiene permiso de editar
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Si la historia no existe o no está en el ámbito del usuario
+     * @throws ModelNotFoundException Si la historia no existe o no está en el ámbito del usuario
      */
     public function actualizar(int $id, array $datos): HistoriaSocial
     {
@@ -73,9 +75,9 @@ class HistoriaSocialService
      * los registros históricos no se destruyen.
      *
      * @param int $id ID de la Historia Social
-     * @return void
+     *
      * @throws AuthorizationException Si el usuario no tiene permiso de eliminar
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Si la historia no existe o no está en el ámbito del usuario
+     * @throws ModelNotFoundException Si la historia no existe o no está en el ámbito del usuario
      */
     public function eliminar(int $id): void
     {

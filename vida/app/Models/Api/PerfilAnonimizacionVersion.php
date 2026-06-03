@@ -4,6 +4,7 @@ namespace App\Models\Api;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Snapshot histórico de un perfil de anonimización.
@@ -14,12 +15,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Los snapshots son inmutables: no tienen updated_at y no deben modificarse
  * una vez creados. Ver docs/anonimizacion.md § 6.4.
  *
- * @property int      $id
- * @property int      $perfil_id
- * @property int      $version   Versión que tenía el perfil antes del cambio
- * @property array    $campos
+ * @property int $id
+ * @property int $perfil_id
+ * @property int $version Versión que tenía el perfil antes del cambio
+ * @property array $campos
  * @property int|null $k_valor
- * @property \Illuminate\Support\Carbon $created_at
+ * @property Carbon $created_at
  */
 class PerfilAnonimizacionVersion extends Model
 {
@@ -39,7 +40,7 @@ class PerfilAnonimizacionVersion extends Model
 
     /** @var array<string, string> */
     protected $casts = [
-        'campos'  => 'array',
+        'campos' => 'array',
         'version' => 'integer',
         'k_valor' => 'integer',
     ];

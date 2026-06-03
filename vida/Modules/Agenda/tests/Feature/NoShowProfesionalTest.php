@@ -2,6 +2,7 @@
 
 namespace Modules\Agenda\Tests\Feature;
 
+use App\Models\Ciudadano;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Agenda\Enums\EstadoCita;
@@ -29,28 +30,28 @@ class NoShowProfesionalTest extends TestCase
     private function crearCentro(string $nombre = 'Centro de Prueba'): Centro
     {
         return Centro::create([
-            'nombre'       => $nombre,
+            'nombre' => $nombre,
             'tipo_gestion' => 'municipal_directo',
-            'fecha_alta'   => now()->toDateString(),
+            'fecha_alta' => now()->toDateString(),
         ]);
     }
 
     private function crearHorario(Centro $centro, string $modo = 'estandar'): HorarioCentro
     {
         return HorarioCentro::create([
-            'centro_id'             => $centro->id,
-            'nombre'                => 'Horario',
-            'dias_laborables'       => [1, 2, 3, 4, 5],
-            'hora_apertura'         => '08:00',
-            'hora_cierre'           => '19:00',
-            'hora_inicio_atencion'  => '09:00',
-            'hora_fin_atencion'     => '14:00',
+            'centro_id' => $centro->id,
+            'nombre' => 'Horario',
+            'dias_laborables' => [1, 2, 3, 4, 5],
+            'hora_apertura' => '08:00',
+            'hora_cierre' => '19:00',
+            'hora_inicio_atencion' => '09:00',
+            'hora_fin_atencion' => '14:00',
             'buffer_inicio_minutos' => 0,
-            'buffer_fin_minutos'    => 0,
-            'vigente_desde'         => '2026-01-01',
-            'vigente_hasta'         => null,
-            'modo_agenda'           => $modo,
-            'activo'                => true,
+            'buffer_fin_minutos' => 0,
+            'vigente_desde' => '2026-01-01',
+            'vigente_hasta' => null,
+            'modo_agenda' => $modo,
+            'activo' => true,
         ]);
     }
 
@@ -58,16 +59,16 @@ class NoShowProfesionalTest extends TestCase
     private function crearCita(Slot $slot): Cita
     {
         return Cita::create([
-            'slot_id'        => $slot->id,
-            'ciudadano_id'   => \App\Models\Ciudadano::factory()->create()->id,
+            'slot_id' => $slot->id,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'profesional_id' => $slot->usuario_id,
-            'tipo_slot_id'   => $slot->tipo_slot_id,
-            'centro_id'      => $slot->centro_id,
-            'fecha'          => $slot->fecha->toDateString(),
-            'hora_inicio'    => $slot->hora_inicio,
-            'hora_fin'       => $slot->hora_fin,
-            'estado'         => EstadoCita::Confirmada->value,
-            'origen'         => OrigenCita::Interno->value,
+            'tipo_slot_id' => $slot->tipo_slot_id,
+            'centro_id' => $slot->centro_id,
+            'fecha' => $slot->fecha->toDateString(),
+            'hora_inicio' => $slot->hora_inicio,
+            'hora_fin' => $slot->hora_fin,
+            'estado' => EstadoCita::Confirmada->value,
+            'origen' => OrigenCita::Interno->value,
         ]);
     }
 
@@ -78,17 +79,17 @@ class NoShowProfesionalTest extends TestCase
     #[Test]
     public function test_pf_07_1_ausencia_cancela_citas_con_motivo(): void
     {
-        $centro      = $this->crearCentro();
+        $centro = $this->crearCentro();
         $this->crearHorario($centro, 'estandar');
         $profesional = User::factory()->create();
-        $sustituto   = User::factory()->create();
-        $fecha       = now()->toDateString();
+        $sustituto = User::factory()->create();
+        $fecha = now()->toDateString();
 
         // Tres citas confirmadas del profesional hoy en este centro
         $slots = Slot::factory()->count(3)->create([
             'usuario_id' => $profesional->id,
-            'centro_id'  => $centro->id,
-            'fecha'      => $fecha,
+            'centro_id' => $centro->id,
+            'fecha' => $fecha,
         ]);
         foreach ($slots as $slot) {
             $this->crearCita($slot);
@@ -97,11 +98,11 @@ class NoShowProfesionalTest extends TestCase
         // Slot de urgencia de otro profesional (candidato para reasignación)
         $slotUrgencia = Slot::factory()->urgencia()->create([
             'usuario_id' => $sustituto->id,
-            'centro_id'  => $centro->id,
-            'fecha'      => $fecha,
+            'centro_id' => $centro->id,
+            'fecha' => $fecha,
         ]);
 
-        $resultado = (new GestionAusenciaService())
+        $resultado = (new GestionAusenciaService)
             ->procesarAusencia($profesional->id, $centro->id, now());
 
         // Las tres citas deben haber pasado a cancelada con motivo descriptivo
@@ -127,24 +128,24 @@ class NoShowProfesionalTest extends TestCase
     public function test_pf_07_2_reasignacion_a_urgencia_crea_registro(): void
     {
         $profesionalOriginal = User::factory()->create();
-        $profesionalNuevo    = User::factory()->create();
-        $supervisor          = User::factory()->create();
+        $profesionalNuevo = User::factory()->create();
+        $supervisor = User::factory()->create();
 
         // Cita original (cancelada por ausencia del profesional)
         $slotOriginal = Slot::factory()->reservado()->create([
             'usuario_id' => $profesionalOriginal->id,
         ]);
         $cita = Cita::create([
-            'slot_id'        => $slotOriginal->id,
-            'ciudadano_id'   => \App\Models\Ciudadano::factory()->create()->id,
+            'slot_id' => $slotOriginal->id,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'profesional_id' => $profesionalOriginal->id,
-            'tipo_slot_id'   => $slotOriginal->tipo_slot_id,
-            'centro_id'      => $slotOriginal->centro_id,
-            'fecha'          => $slotOriginal->fecha->toDateString(),
-            'hora_inicio'    => $slotOriginal->hora_inicio,
-            'hora_fin'       => $slotOriginal->hora_fin,
-            'estado'         => EstadoCita::Cancelada->value,
-            'origen'         => OrigenCita::Interno->value,
+            'tipo_slot_id' => $slotOriginal->tipo_slot_id,
+            'centro_id' => $slotOriginal->centro_id,
+            'fecha' => $slotOriginal->fecha->toDateString(),
+            'hora_inicio' => $slotOriginal->hora_inicio,
+            'hora_fin' => $slotOriginal->hora_fin,
+            'estado' => EstadoCita::Cancelada->value,
+            'origen' => OrigenCita::Interno->value,
         ]);
 
         // Slot de urgencia disponible del profesional sustituto
@@ -152,7 +153,7 @@ class NoShowProfesionalTest extends TestCase
             'usuario_id' => $profesionalNuevo->id,
         ]);
 
-        $reasignacion = (new GestionAusenciaService())->reasignar(
+        $reasignacion = (new GestionAusenciaService)->reasignar(
             $cita,
             $slotUrgencia,
             $supervisor->id,
@@ -184,22 +185,22 @@ class NoShowProfesionalTest extends TestCase
     #[Test]
     public function test_pf_07_3_sin_urgencias_disponibles_devuelve_vacio(): void
     {
-        $centro      = $this->crearCentro();
+        $centro = $this->crearCentro();
         $this->crearHorario($centro, 'estandar');
         $profesional = User::factory()->create();
-        $fecha       = now()->toDateString();
+        $fecha = now()->toDateString();
 
         // Una cita del profesional hoy
         $slot = Slot::factory()->create([
             'usuario_id' => $profesional->id,
-            'centro_id'  => $centro->id,
-            'fecha'      => $fecha,
+            'centro_id' => $centro->id,
+            'fecha' => $fecha,
         ]);
         $this->crearCita($slot);
 
         // No se crean slots de urgencia en este centro para esta fecha
 
-        $resultado = (new GestionAusenciaService())
+        $resultado = (new GestionAusenciaService)
             ->procesarAusencia($profesional->id, $centro->id, now());
 
         // La cita se cancela igualmente
@@ -223,28 +224,28 @@ class NoShowProfesionalTest extends TestCase
     #[Test]
     public function test_pf_07_4_modo_basico_usa_slots_ordinarios(): void
     {
-        $centro      = $this->crearCentro();
+        $centro = $this->crearCentro();
         $this->crearHorario($centro, 'basico');
         $profesional = User::factory()->create();
-        $sustituto   = User::factory()->create();
-        $fecha       = now()->toDateString();
+        $sustituto = User::factory()->create();
+        $fecha = now()->toDateString();
 
         // Cita del profesional hoy
         $slot = Slot::factory()->create([
             'usuario_id' => $profesional->id,
-            'centro_id'  => $centro->id,
-            'fecha'      => $fecha,
+            'centro_id' => $centro->id,
+            'fecha' => $fecha,
         ]);
         $this->crearCita($slot);
 
         // Slot ordinario (disponible) del sustituto — en básico no hay urgencias
         $slotDisponible = Slot::factory()->create([
             'usuario_id' => $sustituto->id,
-            'centro_id'  => $centro->id,
-            'fecha'      => $fecha,
+            'centro_id' => $centro->id,
+            'fecha' => $fecha,
         ]);
 
-        $resultado = (new GestionAusenciaService())
+        $resultado = (new GestionAusenciaService)
             ->procesarAusencia($profesional->id, $centro->id, now());
 
         // La cita se cancela
@@ -263,120 +264,120 @@ class NoShowProfesionalTest extends TestCase
     #[Test]
     public function test_pf_07_5_excepcion_posterior_anula_lineas_y_slots(): void
     {
-        $centro      = $this->crearCentro();
-        $supervisor  = User::factory()->create();
+        $centro = $this->crearCentro();
+        $supervisor = User::factory()->create();
         $profesional = User::factory()->create();
 
         // Cuadrante publicado con líneas y slots materializados para junio 2026
-        $horario  = $this->crearHorario($centro, 'estandar');
+        $horario = $this->crearHorario($centro, 'estandar');
         $tipoSlot = TipoSlot::create([
-            'horario_centro_id'        => $horario->id,
-            'nombre'                   => 'Cita',
-            'duracion_minutos'         => 60,
-            'requiere_espacio'         => false,
-            'porcentaje_urgencias'     => 0,
-            'origen_permitido'         => 'ambos',
+            'horario_centro_id' => $horario->id,
+            'nombre' => 'Cita',
+            'duracion_minutos' => 60,
+            'requiere_espacio' => false,
+            'porcentaje_urgencias' => 0,
+            'origen_permitido' => 'ambos',
             'genera_apunte_automatico' => false,
-            'activo'                   => true,
+            'activo' => true,
         ]);
 
         $cuadrante = CuadranteMes::create([
-            'centro_id'                => $centro->id,
-            'anyo'                     => 2026,
-            'mes'                      => 6,
-            'estado'                   => EstadoCuadrante::Publicado->value,
-            'generado_con_ia'          => false,
+            'centro_id' => $centro->id,
+            'anyo' => 2026,
+            'mes' => 6,
+            'estado' => EstadoCuadrante::Publicado->value,
+            'generado_con_ia' => false,
             'generado_automaticamente' => false,
-            'publicado_en'             => now(),
-            'publicado_por_id'         => $supervisor->id,
+            'publicado_en' => now(),
+            'publicado_por_id' => $supervisor->id,
         ]);
 
         // Línea del 15 de junio (fuera del rango de la excepción)
         $linea15 = LineaCuadrante::create([
             'cuadrante_mes_id' => $cuadrante->id,
-            'usuario_id'       => $profesional->id,
-            'centro_id'        => $centro->id,
-            'fecha'            => '2026-06-15',
-            'franjas'          => [['inicio' => '09:00', 'fin' => '14:00']],
-            'anulada'          => false,
+            'usuario_id' => $profesional->id,
+            'centro_id' => $centro->id,
+            'fecha' => '2026-06-15',
+            'franjas' => [['inicio' => '09:00', 'fin' => '14:00']],
+            'anulada' => false,
         ]);
         $slot15 = Slot::create([
             'linea_cuadrante_id' => $linea15->id,
-            'usuario_id'         => $profesional->id,
-            'centro_id'          => $centro->id,
-            'tipo_slot_id'       => $tipoSlot->id,
-            'fecha'              => '2026-06-15',
-            'hora_inicio'        => '09:00',
-            'hora_fin'           => '10:00',
-            'estado'             => EstadoSlot::Disponible->value,
+            'usuario_id' => $profesional->id,
+            'centro_id' => $centro->id,
+            'tipo_slot_id' => $tipoSlot->id,
+            'fecha' => '2026-06-15',
+            'hora_inicio' => '09:00',
+            'hora_fin' => '10:00',
+            'estado' => EstadoSlot::Disponible->value,
         ]);
 
         // Línea del 22 de junio (dentro del rango, con cita confirmada)
         $linea22 = LineaCuadrante::create([
             'cuadrante_mes_id' => $cuadrante->id,
-            'usuario_id'       => $profesional->id,
-            'centro_id'        => $centro->id,
-            'fecha'            => '2026-06-22',
-            'franjas'          => [['inicio' => '09:00', 'fin' => '14:00']],
-            'anulada'          => false,
+            'usuario_id' => $profesional->id,
+            'centro_id' => $centro->id,
+            'fecha' => '2026-06-22',
+            'franjas' => [['inicio' => '09:00', 'fin' => '14:00']],
+            'anulada' => false,
         ]);
         // Creamos el slot directamente como disponible y luego la cita vía observer
         $slot22 = Slot::create([
             'linea_cuadrante_id' => $linea22->id,
-            'usuario_id'         => $profesional->id,
-            'centro_id'          => $centro->id,
-            'tipo_slot_id'       => $tipoSlot->id,
-            'fecha'              => '2026-06-22',
-            'hora_inicio'        => '09:00',
-            'hora_fin'           => '10:00',
-            'estado'             => EstadoSlot::Disponible->value,
+            'usuario_id' => $profesional->id,
+            'centro_id' => $centro->id,
+            'tipo_slot_id' => $tipoSlot->id,
+            'fecha' => '2026-06-22',
+            'hora_inicio' => '09:00',
+            'hora_fin' => '10:00',
+            'estado' => EstadoSlot::Disponible->value,
         ]);
         // Al crear la cita, el CitaObserver marca slot22 como reservado
         $cita = Cita::create([
-            'slot_id'        => $slot22->id,
-            'ciudadano_id'   => \App\Models\Ciudadano::factory()->create()->id,
+            'slot_id' => $slot22->id,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'profesional_id' => $profesional->id,
-            'tipo_slot_id'   => $tipoSlot->id,
-            'centro_id'      => $centro->id,
-            'fecha'          => '2026-06-22',
-            'hora_inicio'    => '09:00',
-            'hora_fin'       => '10:00',
-            'estado'         => EstadoCita::Confirmada->value,
-            'origen'         => OrigenCita::Interno->value,
+            'tipo_slot_id' => $tipoSlot->id,
+            'centro_id' => $centro->id,
+            'fecha' => '2026-06-22',
+            'hora_inicio' => '09:00',
+            'hora_fin' => '10:00',
+            'estado' => EstadoCita::Confirmada->value,
+            'origen' => OrigenCita::Interno->value,
         ]);
 
         // Línea del 23 de junio (dentro del rango, sin cita, slot disponible)
         $linea23 = LineaCuadrante::create([
             'cuadrante_mes_id' => $cuadrante->id,
-            'usuario_id'       => $profesional->id,
-            'centro_id'        => $centro->id,
-            'fecha'            => '2026-06-23',
-            'franjas'          => [['inicio' => '09:00', 'fin' => '14:00']],
-            'anulada'          => false,
+            'usuario_id' => $profesional->id,
+            'centro_id' => $centro->id,
+            'fecha' => '2026-06-23',
+            'franjas' => [['inicio' => '09:00', 'fin' => '14:00']],
+            'anulada' => false,
         ]);
         $slot23 = Slot::create([
             'linea_cuadrante_id' => $linea23->id,
-            'usuario_id'         => $profesional->id,
-            'centro_id'          => $centro->id,
-            'tipo_slot_id'       => $tipoSlot->id,
-            'fecha'              => '2026-06-23',
-            'hora_inicio'        => '09:00',
-            'hora_fin'           => '10:00',
-            'estado'             => EstadoSlot::Disponible->value,
+            'usuario_id' => $profesional->id,
+            'centro_id' => $centro->id,
+            'tipo_slot_id' => $tipoSlot->id,
+            'fecha' => '2026-06-23',
+            'hora_inicio' => '09:00',
+            'hora_fin' => '10:00',
+            'estado' => EstadoSlot::Disponible->value,
         ]);
 
         // Baja médica registrada el día 15 para los días 20-30
         // El ExcepcionProfesionalObserver propaga el efecto sobre el cuadrante
         ExcepcionProfesional::create([
-            'usuario_id'            => $profesional->id,
-            'centro_id'             => $centro->id,
-            'tipo'                  => 'baja_medica',
-            'fecha_inicio'          => '2026-06-20',
-            'fecha_fin'             => '2026-06-30',
+            'usuario_id' => $profesional->id,
+            'centro_id' => $centro->id,
+            'tipo' => 'baja_medica',
+            'fecha_inicio' => '2026-06-20',
+            'fecha_fin' => '2026-06-30',
             'afecta_disponibilidad' => true,
-            'franja_afectada'       => null,
-            'origen'                => 'manual',
-            'creado_por_id'         => $supervisor->id,
+            'franja_afectada' => null,
+            'origen' => 'manual',
+            'creado_por_id' => $supervisor->id,
         ]);
 
         // Líneas dentro del rango → anuladas con referencia a la excepción

@@ -58,7 +58,6 @@ class TipoFicha extends Model
      * La validación se hace en el mutador (no en el evento saving) porque el
      * cast 'array' transformaría el string antes de que el evento pudiese inspeccionarlo.
      *
-     * @param mixed $value
      * @throws \InvalidArgumentException Si el string recibido no es JSON válido
      */
     public function setSchemaAttribute(mixed $value): void
@@ -67,7 +66,7 @@ class TipoFicha extends Model
             json_decode($value);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new \InvalidArgumentException(
-                    'El schema de TipoFicha debe ser un JSON válido: ' . json_last_error_msg()
+                    'El schema de TipoFicha debe ser un JSON válido: '.json_last_error_msg()
                 );
             }
             $this->attributes['schema'] = $value;
@@ -78,15 +77,13 @@ class TipoFicha extends Model
 
     /**
      * Devuelve el schema siempre como array PHP.
-     *
-     * @param mixed $value
-     * @return array
      */
     public function getSchemaAttribute(mixed $value): array
     {
         if (is_string($value)) {
             return json_decode($value, true) ?? [];
         }
+
         return (array) ($value ?? []);
     }
 
@@ -110,9 +107,6 @@ class TipoFicha extends Model
 
     /**
      * Solo tipos de ficha activos.
-     *
-     * @param Builder $query
-     * @return Builder
      */
     public function scopeActivos(Builder $query): Builder
     {

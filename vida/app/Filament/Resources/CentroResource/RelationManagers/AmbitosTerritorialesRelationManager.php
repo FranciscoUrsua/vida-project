@@ -18,6 +18,7 @@ use Modules\Centro\Models\AmbitoTerritorial;
 class AmbitosTerritorialesRelationManager extends RelationManager
 {
     protected static string $relationship = 'ambitosTeritoriales';
+
     protected static ?string $title = 'Ámbito territorial';
 
     public function form(Schema $schema): Schema
@@ -31,12 +32,12 @@ class AmbitosTerritorialesRelationManager extends RelationManager
                         ->options(array_combine(
                             AmbitoTerritorial::TIPOS,
                             array_map(fn ($t) => match ($t) {
-                                'ciudad_completa'     => 'Ciudad completa',
+                                'ciudad_completa' => 'Ciudad completa',
                                 'demarcacion_oficial' => 'Demarcación oficial',
-                                'barrios'             => 'Barrios',
-                                'secciones_censales'  => 'Secciones censales',
-                                'poligono_gis'        => 'Polígono GIS',
-                                default               => ucfirst($t),
+                                'barrios' => 'Barrios',
+                                'secciones_censales' => 'Secciones censales',
+                                'poligono_gis' => 'Polígono GIS',
+                                default => ucfirst($t),
                             }, AmbitoTerritorial::TIPOS)
                         ))
                         ->required(),
@@ -74,12 +75,12 @@ class AmbitosTerritorialesRelationManager extends RelationManager
                     ->label('Tipo')
                     ->badge()
                     ->formatStateUsing(fn (string $state) => match ($state) {
-                        'ciudad_completa'     => 'Ciudad completa',
+                        'ciudad_completa' => 'Ciudad completa',
                         'demarcacion_oficial' => 'Demarcación oficial',
-                        'barrios'             => 'Barrios',
-                        'secciones_censales'  => 'Secciones censales',
-                        'poligono_gis'        => 'Polígono GIS',
-                        default               => ucfirst($state),
+                        'barrios' => 'Barrios',
+                        'secciones_censales' => 'Secciones censales',
+                        'poligono_gis' => 'Polígono GIS',
+                        default => ucfirst($state),
                     }),
 
                 Tables\Columns\TextColumn::make('descripcion')

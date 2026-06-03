@@ -14,23 +14,23 @@ class HorarioCentroFactory extends Factory
     public function definition(): array
     {
         return [
-            'centro_id'            => fn () => Centro::create([
-                'nombre'       => 'Centro ' . fake()->unique()->numerify('###'),
+            'centro_id' => fn () => Centro::create([
+                'nombre' => 'Centro '.fake()->unique()->numerify('###'),
                 'tipo_gestion' => 'municipal_directo',
-                'fecha_alta'   => now()->toDateString(),
+                'fecha_alta' => now()->toDateString(),
             ])->id,
-            'nombre'               => 'Horario estándar',
-            'dias_laborables'      => [1, 2, 3, 4, 5],
-            'hora_apertura'        => '08:00',
-            'hora_cierre'          => '19:00',
+            'nombre' => 'Horario estándar',
+            'dias_laborables' => [1, 2, 3, 4, 5],
+            'hora_apertura' => '08:00',
+            'hora_cierre' => '19:00',
             'hora_inicio_atencion' => '09:00',
-            'hora_fin_atencion'    => '14:00',
+            'hora_fin_atencion' => '14:00',
             'buffer_inicio_minutos' => 0,
-            'buffer_fin_minutos'   => 0,
-            'vigente_desde'        => now()->toDateString(),
-            'vigente_hasta'        => null,
-            'modo_agenda'          => ModoAgenda::Estandar->value,
-            'activo'               => true,
+            'buffer_fin_minutos' => 0,
+            'vigente_desde' => now()->toDateString(),
+            'vigente_hasta' => null,
+            'modo_agenda' => ModoAgenda::Estandar->value,
+            'activo' => true,
         ];
     }
 
@@ -52,9 +52,9 @@ class HorarioCentroFactory extends Factory
     public function verano(): static
     {
         return $this->state([
-            'nombre'               => 'Horario verano',
+            'nombre' => 'Horario verano',
             'hora_inicio_atencion' => '08:00',
-            'hora_fin_atencion'    => '15:00',
+            'hora_fin_atencion' => '15:00',
         ]);
     }
 }

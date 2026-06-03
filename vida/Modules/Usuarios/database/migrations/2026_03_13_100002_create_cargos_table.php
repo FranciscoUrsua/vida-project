@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Usuarios\Models\Cargo;
 
 /**
  * Migración: catálogo de cargos profesionales.
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
  * Catálogo configurable desde el backoffice.
  * Ejemplos: Trabajador/a Social, Psicólogo/a, Educador/a Social.
  *
- * @see \Modules\Usuarios\Models\Cargo
+ * @see Cargo
  * @see docs/modulo-usuarios-permisos.md sección 5.2
  */
 return new class extends Migration

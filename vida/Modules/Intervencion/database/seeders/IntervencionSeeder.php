@@ -24,7 +24,7 @@ class IntervencionSeeder extends Seeder
             ['nombre' => 'Situación económica'],
             [
                 'descripcion' => 'Ingresos, gastos y deudas del hogar.',
-                'schema'      => [
+                'schema' => [
                     ['nombre' => 'ingresos_mensuales_hogar',      'tipo' => 'number',  'obligatorio' => true,  'orden' => 1],
                     ['nombre' => 'numero_personas_dependientes',  'tipo' => 'number',  'obligatorio' => false, 'orden' => 2],
                     ['nombre' => 'tiene_deudas',                  'tipo' => 'boolean', 'obligatorio' => false, 'orden' => 3],
@@ -37,7 +37,7 @@ class IntervencionSeeder extends Seeder
             ['nombre' => 'Red de apoyo social'],
             [
                 'descripcion' => 'Familia, amigos y entidades de soporte.',
-                'schema'      => [
+                'schema' => [
                     ['nombre' => 'convivencia',        'tipo' => 'select',  'obligatorio' => false, 'orden' => 1],
                     ['nombre' => 'apoyo_familiar',     'tipo' => 'boolean', 'obligatorio' => false, 'orden' => 2],
                     ['nombre' => 'aislamiento_social', 'tipo' => 'boolean', 'obligatorio' => false, 'orden' => 3],
@@ -50,7 +50,7 @@ class IntervencionSeeder extends Seeder
             ['nombre' => 'Situación de vivienda'],
             [
                 'descripcion' => 'Condiciones del domicilio y régimen de tenencia.',
-                'schema'      => [
+                'schema' => [
                     ['nombre' => 'regimen_tenencia',    'tipo' => 'select', 'obligatorio' => true,  'orden' => 1],
                     ['nombre' => 'estado_conservacion', 'tipo' => 'select', 'obligatorio' => false, 'orden' => 2],
                 ],
@@ -61,9 +61,9 @@ class IntervencionSeeder extends Seeder
         $tipoValoracion = TipoValoracion::firstOrCreate(
             ['nombre' => 'Valoración ASP inicial'],
             [
-                'contexto'    => 'ASP',
+                'contexto' => 'ASP',
                 'descripcion' => 'Valoración de primera atención en Atención Social Primaria.',
-                'activo'      => true,
+                'activo' => true,
             ]
         );
 

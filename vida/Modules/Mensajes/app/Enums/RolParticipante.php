@@ -11,5 +11,5 @@ namespace Modules\Mensajes\Enums;
 enum RolParticipante: string
 {
     case RemitenteInicial = 'remitente_inicial';
-    case Participante     = 'participante';
+    case Participante = 'participante';
 }

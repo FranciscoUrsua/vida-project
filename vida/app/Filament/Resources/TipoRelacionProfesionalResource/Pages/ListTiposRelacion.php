@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\TipoRelacionProfesionalResource\Pages;
 
+use App\Filament\Resources\Pages\ListRecords;
 use App\Filament\Resources\TipoRelacionProfesionalResource;
 use Filament\Actions;
-use App\Filament\Resources\Pages\ListRecords;
 
 class ListTiposRelacion extends ListRecords
 {

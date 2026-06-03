@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Carbon;
 use Modules\Agenda\Database\Factories\CuadranteMesFactory;
 use Modules\Agenda\Enums\EstadoCuadrante;
 use Modules\Centro\Models\Centro;
@@ -27,7 +28,7 @@ use Modules\Centro\Models\Centro;
  * @property EstadoCuadrante $estado
  * @property bool $generado_con_ia
  * @property bool $generado_automaticamente
- * @property \Illuminate\Support\Carbon|null $publicado_en
+ * @property Carbon|null $publicado_en
  * @property int|null $publicado_por_id
  * @property string|null $notas
  */
@@ -45,12 +46,12 @@ class CuadranteMes extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'anyo'                     => 'integer',
-        'mes'                      => 'integer',
-        'estado'                   => EstadoCuadrante::class,
-        'generado_con_ia'          => 'boolean',
+        'anyo' => 'integer',
+        'mes' => 'integer',
+        'estado' => EstadoCuadrante::class,
+        'generado_con_ia' => 'boolean',
         'generado_automaticamente' => 'boolean',
-        'publicado_en'             => 'datetime',
+        'publicado_en' => 'datetime',
     ];
 
     public function centro(): BelongsTo

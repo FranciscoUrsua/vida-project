@@ -25,8 +25,11 @@ class MockGeocodificador implements GeocodificadorInterface
 
     /** Bbox aproximado del municipio de Madrid (WGS84). */
     private const LAT_MIN = 40.31;
+
     private const LAT_MAX = 40.53;
+
     private const LNG_MIN = -3.83;
+
     private const LNG_MAX = -3.52;
 
     /**
@@ -35,17 +38,17 @@ class MockGeocodificador implements GeocodificadorInterface
      * @var array<string, list<string>>
      */
     private const TIPOS_VIA = [
-        'Calle'     => ['calle', 'c/', 'c.', 'cl.', 'cl/'],
-        'Avenida'   => ['avenida', 'avda.', 'avda', 'av.', 'av/'],
-        'Plaza'     => ['plaza', 'pza.', 'pza', 'pl.'],
-        'Paseo'     => ['paseo', 'pº', 'po.', 'po/'],
+        'Calle' => ['calle', 'c/', 'c.', 'cl.', 'cl/'],
+        'Avenida' => ['avenida', 'avda.', 'avda', 'av.', 'av/'],
+        'Plaza' => ['plaza', 'pza.', 'pza', 'pl.'],
+        'Paseo' => ['paseo', 'pº', 'po.', 'po/'],
         'Carretera' => ['carretera', 'ctra.', 'ctra', 'ctr.'],
-        'Ronda'     => ['ronda', 'rda.', 'rda'],
-        'Cañada'    => ['cañada'],
-        'Camino'    => ['camino', 'cno.'],
-        'Travesía'  => ['travesía', 'trav.', 'trv.'],
-        'Glorieta'  => ['glorieta', 'glta.'],
-        'Bulevar'   => ['bulevar', 'blvr.'],
+        'Ronda' => ['ronda', 'rda.', 'rda'],
+        'Cañada' => ['cañada'],
+        'Camino' => ['camino', 'cno.'],
+        'Travesía' => ['travesía', 'trav.', 'trv.'],
+        'Glorieta' => ['glorieta', 'glta.'],
+        'Bulevar' => ['bulevar', 'blvr.'],
     ];
 
     // -------------------------------------------------------------------------
@@ -58,7 +61,8 @@ class MockGeocodificador implements GeocodificadorInterface
      * Aplica el parser de 5 pasos descrito en docs/geocodificacion.md § 5.1
      * y genera coordenadas aleatorias dentro del bbox de Madrid.
      *
-     * @param  string $direccionTexto Texto libre.
+     * @param string $direccionTexto Texto libre.
+     *
      * @return ResultadoGeocodificacion Siempre devuelve exito = true.
      */
     public function normalizar(string $direccionTexto): ResultadoGeocodificacion
@@ -111,7 +115,6 @@ class MockGeocodificador implements GeocodificadorInterface
      * Si no se reconoce ningún prefijo, devuelve 'Calle' como valor por defecto
      * y el texto completo como resto.
      *
-     * @param  string $texto
      * @return array{string, string} [$tipoVia, $restoTrasVia]
      */
     private function extraerTipoVia(string $texto): array
@@ -120,12 +123,13 @@ class MockGeocodificador implements GeocodificadorInterface
 
         foreach (self::TIPOS_VIA as $nombreTipo => $variantes) {
             // Ordenar por longitud descendente para que "avda." se reconozca antes que "av."
-            usort($variantes, fn($a, $b) => strlen($b) - strlen($a));
+            usort($variantes, fn ($a, $b) => strlen($b) - strlen($a));
 
             foreach ($variantes as $variante) {
-                $patron = '/^' . preg_quote($variante, '/') . '\s+/i';
+                $patron = '/^'.preg_quote($variante, '/').'\s+/i';
                 if (preg_match($patron, $textoNormalizado, $m)) {
                     $resto = mb_substr($texto, mb_strlen($m[0]));
+
                     return [$nombreTipo, trim($resto)];
                 }
             }
@@ -141,9 +145,10 @@ class MockGeocodificador implements GeocodificadorInterface
      * Reconoce "s/n" y "sin número/sin numero" como sin_numero.
      * El número puede ir seguido de sufijos como "bis", "duplicado".
      *
-     * @param  string $texto Texto tras el tipo de vía.
+     * @param string $texto Texto tras el tipo de vía.
+     *
      * @return array{TipoNumeracion|null, string|null, string, int|null}
-     *         [$tipoNumeracion, $numero, $restoTrasNumero, $posicionNumeroEnTexto]
+     *                                                                   [$tipoNumeracion, $numero, $restoTrasNumero, $posicionNumeroEnTexto]
      */
     private function extraerNumero(string $texto): array
     {
@@ -151,6 +156,7 @@ class MockGeocodificador implements GeocodificadorInterface
         if (preg_match('/\bs\/n\b|\bsin\s+n[úu]mero\b/iu', $texto, $m, PREG_OFFSET_CAPTURE)) {
             $pos = $m[0][1];
             $resto = trim(substr($texto, $pos + strlen($m[0][0])));
+
             return [TipoNumeracion::SinNumero, null, $resto, $pos];
         }
 
@@ -158,6 +164,7 @@ class MockGeocodificador implements GeocodificadorInterface
         if (preg_match('/\bkm\.?\s*(\d+(?:[.,]\d+)?)/i', $texto, $m, PREG_OFFSET_CAPTURE)) {
             $pos = $m[0][1];
             $resto = trim(substr($texto, $pos + strlen($m[0][0])));
+
             return [TipoNumeracion::Km, $m[1][0], $resto, $pos];
         }
 
@@ -166,6 +173,7 @@ class MockGeocodificador implements GeocodificadorInterface
             $pos = $m[0][1];
             $numeroLimpio = trim($m[1][0]);
             $resto = trim(substr($texto, $pos + strlen($m[0][0])));
+
             return [TipoNumeracion::Numero, $numeroLimpio, $resto, $pos];
         }
 
@@ -175,9 +183,8 @@ class MockGeocodificador implements GeocodificadorInterface
     /**
      * Paso 3: extrae el nombre de la vía (texto entre el tipo y el número).
      *
-     * @param  string   $texto            Texto tras el tipo de vía.
-     * @param  int|null $posicionNumero   Posición en bytes donde empieza el número.
-     * @return string
+     * @param string $texto Texto tras el tipo de vía.
+     * @param int|null $posicionNumero Posición en bytes donde empieza el número.
      */
     private function extraerNombreVia(string $texto, ?int $posicionNumero): string
     {
@@ -187,6 +194,7 @@ class MockGeocodificador implements GeocodificadorInterface
         }
 
         $nombre = trim(substr($texto, 0, $posicionNumero));
+
         // Limpiar delimitadores frecuentes: coma, guion
         return trim(rtrim($nombre, ', -'));
     }
@@ -194,16 +202,17 @@ class MockGeocodificador implements GeocodificadorInterface
     /**
      * Paso 4: extrae piso, puerta y similares del texto restante tras el número.
      *
-     * @param  string $texto Texto tras el número.
+     * @param string $texto Texto tras el número.
+     *
      * @return array{string|null, string|null, string|null, string|null}
-     *         [$portal, $escalera, $piso, $puerta]
+     *                                                                   [$portal, $escalera, $piso, $puerta]
      */
     private function extraerComplementos(string $texto): array
     {
-        $portal   = null;
+        $portal = null;
         $escalera = null;
-        $piso     = null;
-        $puerta   = null;
+        $piso = null;
+        $puerta = null;
 
         if (empty(trim($texto))) {
             return [$portal, $escalera, $piso, $puerta];
@@ -239,14 +248,14 @@ class MockGeocodificador implements GeocodificadorInterface
     /**
      * Paso 5: extrae el código postal de 5 dígitos empezando por 28 (Madrid).
      *
-     * @param  string $texto Texto completo original.
-     * @return string|null
+     * @param string $texto Texto completo original.
      */
     private function extraerCodigoPostal(string $texto): ?string
     {
         if (preg_match('/\b(28\d{3})\b/', $texto, $m)) {
             return $m[1];
         }
+
         return null;
     }
 
@@ -261,7 +270,7 @@ class MockGeocodificador implements GeocodificadorInterface
      */
     private function coordenadasAleatorias(): array
     {
-        $latitud  = self::LAT_MIN + (mt_rand() / mt_getrandmax()) * (self::LAT_MAX - self::LAT_MIN);
+        $latitud = self::LAT_MIN + (mt_rand() / mt_getrandmax()) * (self::LAT_MAX - self::LAT_MIN);
         $longitud = self::LNG_MIN + (mt_rand() / mt_getrandmax()) * (self::LNG_MAX - self::LNG_MIN);
 
         return [round($latitud, 7), round($longitud, 7)];

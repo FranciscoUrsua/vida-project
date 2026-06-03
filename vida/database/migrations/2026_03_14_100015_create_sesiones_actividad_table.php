@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\SesionActividad;
 
 /**
  * Sesiones concretas de una actividad.
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * estado valores: programada | celebrada | cancelada
  *
- * @see Modules\Centro\Models\SesionActividad
+ * @see SesionActividad
  */
 return new class extends Migration
 {

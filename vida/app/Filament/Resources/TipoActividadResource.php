@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\TipoActividadResource\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -14,18 +15,23 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\TipoActividad;
-use App\Filament\Concerns\AutorizaGestion;
 
 class TipoActividadResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = TipoActividad::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-academic-cap';
+
     protected static ?string $navigationLabel = 'Tipos de actividad';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
+
     protected static ?string $modelLabel = 'Tipo de actividad';
+
     protected static ?string $pluralModelLabel = 'Tipos de actividad';
+
     protected static ?int $navigationSort = 5;
 
     public static function form(Schema $schema): Schema
@@ -77,9 +83,9 @@ class TipoActividadResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListTiposActividad::route('/'),
+            'index' => Pages\ListTiposActividad::route('/'),
             'create' => Pages\CreateTipoActividad::route('/create'),
-            'edit'   => Pages\EditTipoActividad::route('/{record}/edit'),
+            'edit' => Pages\EditTipoActividad::route('/{record}/edit'),
         ];
     }
 }

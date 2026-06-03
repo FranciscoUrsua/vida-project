@@ -23,32 +23,32 @@ class ColeccionPlazasTest extends TestCase
     private function crearColeccion(array $override = []): ColeccionPlazas
     {
         $centro = Centro::create([
-            'nombre'       => 'Centro de prueba',
+            'nombre' => 'Centro de prueba',
             'tipo_gestion' => 'municipal_directo',
-            'fecha_alta'   => today()->toDateString(),
+            'fecha_alta' => today()->toDateString(),
         ]);
 
         return ColeccionPlazas::create(array_merge([
-            'centro_id'   => $centro->id,
-            'nombre'      => 'Colección de prueba',
-            'tipo_plaza'  => 'pernocta',
+            'centro_id' => $centro->id,
+            'nombre' => 'Colección de prueba',
+            'tipo_plaza' => 'pernocta',
             'modo_acceso' => 'libre',
-            'capacidad'   => 10,
-            'activa'      => true,
-            'fecha_alta'  => today()->toDateString(),
+            'capacidad' => 10,
+            'activa' => true,
+            'fecha_alta' => today()->toDateString(),
         ], $override));
     }
 
     private function crearPlazas(ColeccionPlazas $coleccion, int $libres, int $ocupadas, int $mantenimiento): void
     {
-        $tipoEspacio = TipoEspacio::create(['nombre' => 'Tipo ' . uniqid(), 'activo' => true]);
+        $tipoEspacio = TipoEspacio::create(['nombre' => 'Tipo '.uniqid(), 'activo' => true]);
 
         $espacio = Espacio::create([
             'coleccion_plazas_id' => $coleccion->id,
-            'tipo_espacio_id'     => $tipoEspacio->id,
-            'nombre'              => 'Sala principal',
-            'capacidad'           => $libres + $ocupadas + $mantenimiento,
-            'accesible'           => false,
+            'tipo_espacio_id' => $tipoEspacio->id,
+            'nombre' => 'Sala principal',
+            'capacidad' => $libres + $ocupadas + $mantenimiento,
+            'accesible' => false,
         ]);
 
         for ($i = 0; $i < $libres; $i++) {

@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\Servicio;
 
 /**
  * Relación N:M entre servicios y prestaciones del catálogo.
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
  * Un servicio tramita una o más prestaciones; una prestación puede ser
  * tramitada por varios servicios. Esta tabla es la razón de ser del servicio.
  *
- * @see Modules\Centro\Models\Servicio
+ * @see Servicio
  */
 return new class extends Migration
 {

@@ -2,6 +2,7 @@
 
 namespace Modules\Mensajes\Livewire;
 
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Modules\Mensajes\Enums\DestinatarioType;
@@ -71,7 +72,7 @@ class BadgeNotificaciones extends Component
         return $this->totalAlertas + $this->totalMensajes;
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('mensajes::livewire.badge-notificaciones');
     }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Traits\Versionable;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Schema;
  * Usada por el trait Versionable en Profesional, Ciudadano, Centro
  * y cualquier entidad no auxiliar con historial relevante.
  *
- * @see \App\Traits\Versionable
+ * @see Versionable
  * @see docs/modulo-usuarios-permisos.md sección 5.4
  */
 return new class extends Migration

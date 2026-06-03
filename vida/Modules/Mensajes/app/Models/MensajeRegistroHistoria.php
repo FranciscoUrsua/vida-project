@@ -6,6 +6,7 @@ use App\Models\Ciudadano;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Mensajes\Enums\VisibilidadMensaje;
 
 /**
@@ -19,11 +20,11 @@ use Modules\Mensajes\Enums\VisibilidadMensaje;
  * @property int $mensaje_id
  * @property int $ciudadano_id
  * @property int $registrado_por_id
- * @property string $cuerpo_registrado    Puede diferir del mensaje original
+ * @property string $cuerpo_registrado Puede diferir del mensaje original
  * @property VisibilidadMensaje $visibilidad
- * @property \Illuminate\Support\Carbon $registrado_en
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $registrado_en
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class MensajeRegistroHistoria extends Model
 {
@@ -39,7 +40,7 @@ class MensajeRegistroHistoria extends Model
     ];
 
     protected $casts = [
-        'visibilidad'   => VisibilidadMensaje::class,
+        'visibilidad' => VisibilidadMensaje::class,
         'registrado_en' => 'datetime',
     ];
 
@@ -50,7 +51,7 @@ class MensajeRegistroHistoria extends Model
     /**
      * Mensaje original cuyo contenido se incorporó al expediente.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Mensaje, self>
+     * @return BelongsTo<Mensaje, self>
      */
     public function mensaje(): BelongsTo
     {
@@ -60,7 +61,7 @@ class MensajeRegistroHistoria extends Model
     /**
      * Ciudadano cuyo expediente recibió el registro.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Ciudadano, self>
+     * @return BelongsTo<Ciudadano, self>
      */
     public function ciudadano(): BelongsTo
     {
@@ -70,7 +71,7 @@ class MensajeRegistroHistoria extends Model
     /**
      * Profesional que incorporó el mensaje al expediente.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
+     * @return BelongsTo<User, self>
      */
     public function registradoPor(): BelongsTo
     {

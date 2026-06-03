@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\Centro;
 
 /**
  * Centros de servicios sociales.
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Schema;
  *
  * tipo_gestion valores: municipal_directo | municipal_concertado | privado_concertado | privado_puro
  *
- * @see Modules\Centro\Models\Centro
+ * @see Centro
  */
 return new class extends Migration
 {

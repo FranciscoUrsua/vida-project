@@ -12,7 +12,6 @@ use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
 use Modules\Usuarios\Models\TipoRelacionProfesional;
 use PHPUnit\Framework\Attributes\Test;
-use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 /**
@@ -42,24 +41,21 @@ class SinRolTest extends TestCase
      * Crea un usuario sin rol asignado (profesional_id = null para evitar booted()).
      *
      * @param array<string, mixed> $attrs
-     * @return User
      */
     private function crearUsuarioSinRol(array $attrs = []): User
     {
         return User::create(array_merge([
-            'name'              => 'Sin Rol Test',
-            'email'             => 'sinrol@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Sin Rol Test',
+            'email' => 'sinrol@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
-            'profesional_id'    => null,
+            'primer_acceso' => false,
+            'profesional_id' => null,
         ], $attrs));
     }
 
     /**
      * Crea un Profesional mínimo para tests.
-     *
-     * @return Profesional
      */
     private function crearProfesional(array $attrs = []): Profesional
     {
@@ -70,13 +66,13 @@ class SinRolTest extends TestCase
         );
 
         return Profesional::create(array_merge([
-            'nombre'           => 'María',
-            'apellido1'        => 'Prueba',
-            'sexo'             => 'F',
-            'cargo_id'         => $cargo->id,
+            'nombre' => 'María',
+            'apellido1' => 'Prueba',
+            'sexo' => 'F',
+            'cargo_id' => $cargo->id,
             'tipo_relacion_id' => $tipoRelacion->id,
-            'fecha_inicio'     => today()->toDateString(),
-            'activo'           => true,
+            'fecha_inicio' => today()->toDateString(),
+            'activo' => true,
         ], $attrs));
     }
 
@@ -94,18 +90,18 @@ class SinRolTest extends TestCase
 
         // Crear directamente con DB para evitar que booted() asigne el rol
         $usuario = User::create([
-            'name'              => 'TSR Sin Rol',
-            'email'             => 'tsrsinrol@vida360.test',
-            'password'          => bcrypt('secreto123'),
+            'name' => 'TSR Sin Rol',
+            'email' => 'tsrsinrol@vida360.test',
+            'password' => bcrypt('secreto123'),
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
-            'profesional_id'    => $profesional->id,
+            'primer_acceso' => false,
+            'profesional_id' => $profesional->id,
         ]);
         // Quitar el rol asignado automáticamente por booted()
         $usuario->syncRoles([]);
 
         $this->post(route('login.post'), [
-            'email'    => $usuario->email,
+            'email' => $usuario->email,
             'password' => 'secreto123',
         ])->assertRedirect(route('sin-rol'));
     }
@@ -118,12 +114,12 @@ class SinRolTest extends TestCase
     {
         $profesional = $this->crearProfesional(['nombre' => 'Pedro', 'apellido1' => 'Test02']);
         $usuario = User::create([
-            'name'              => 'Pedro Test02',
-            'email'             => 'pedrotest02@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Pedro Test02',
+            'email' => 'pedrotest02@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
-            'profesional_id'    => $profesional->id,
+            'primer_acceso' => false,
+            'profesional_id' => $profesional->id,
         ]);
         $usuario->syncRoles([]);
 
@@ -139,17 +135,17 @@ class SinRolTest extends TestCase
     public function sin_rol_muestra_nombre_profesional(): void
     {
         $profesional = $this->crearProfesional([
-            'nombre'    => 'Ana',
+            'nombre' => 'Ana',
             'apellido1' => 'García',
         ]);
 
         $usuario = User::create([
-            'name'              => 'Ana García',
-            'email'             => 'anag@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Ana García',
+            'email' => 'anag@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
-            'profesional_id'    => $profesional->id,
+            'primer_acceso' => false,
+            'profesional_id' => $profesional->id,
         ]);
         // Quitar el rol asignado automáticamente por booted()
         $usuario->syncRoles([]);
@@ -184,12 +180,12 @@ class SinRolTest extends TestCase
     public function sin_rol_no_muestra_bloque_datos_si_no_hay_datos(): void
     {
         $usuario = User::create([
-            'name'              => 'Test',
-            'email'             => 'nodatos@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Test',
+            'email' => 'nodatos@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
-            'profesional_id'    => null,
+            'primer_acceso' => false,
+            'profesional_id' => null,
         ]);
 
         // La vista siempre muestra el email del usuario autenticado,
@@ -239,12 +235,12 @@ class SinRolTest extends TestCase
         $profesional = $this->crearProfesional();
 
         $usuario = User::create([
-            'name'              => 'Nuevo TSR',
-            'email'             => 'nuevotsr@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Nuevo TSR',
+            'email' => 'nuevotsr@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
-            'profesional_id'    => $profesional->id,
+            'primer_acceso' => false,
+            'profesional_id' => $profesional->id,
         ]);
 
         $this->assertTrue($usuario->hasRole('consulta_basica'));
@@ -257,12 +253,12 @@ class SinRolTest extends TestCase
     public function usuario_sin_profesional_no_recibe_rol_por_defecto(): void
     {
         $usuario = User::create([
-            'name'              => 'Admin Técnico',
-            'email'             => 'admtec@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Admin Técnico',
+            'email' => 'admtec@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
-            'profesional_id'    => null,
+            'primer_acceso' => false,
+            'profesional_id' => null,
         ]);
 
         $this->assertFalse($usuario->hasRole('consulta_basica'));
@@ -281,10 +277,10 @@ class SinRolTest extends TestCase
         Livewire::actingAs($admin)
             ->test(CreateUsuario::class)
             ->fillForm([
-                'name'     => 'Test Sin Rol',
-                'email'    => 'testsinrol@vida360.test',
+                'name' => 'Test Sin Rol',
+                'email' => 'testsinrol@vida360.test',
                 'password' => 'secreto123',
-                'roles'    => [],
+                'roles' => [],
             ])
             ->call('create')
             ->assertHasFormErrors(['roles']);

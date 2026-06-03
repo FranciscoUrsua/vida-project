@@ -2,7 +2,9 @@
 
 namespace Modules\Mensajes\Http\Livewire;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -77,10 +79,10 @@ class BuzonPage extends Component
     /**
      * Hilos de mensajes activos en los que participa el usuario.
      *
-     * @return \Illuminate\Support\Collection<int, MensajeParticipante>
+     * @return Collection<int, MensajeParticipante>
      */
     #[Computed]
-    public function hilos(): \Illuminate\Support\Collection
+    public function hilos(): Collection
     {
         return MensajeParticipante::where('usuario_id', Auth::id())
             ->whereNull('archivado_en')
@@ -92,8 +94,6 @@ class BuzonPage extends Component
 
     /**
      * Alerta seleccionada actualmente en la pestaña Alertas/Avisos.
-     *
-     * @return Alerta|null
      */
     #[Computed]
     public function alertaSeleccionada(): ?Alerta
@@ -101,14 +101,13 @@ class BuzonPage extends Component
         if ($this->itemSeleccionado === null || $this->pestana === 'mensajes') {
             return null;
         }
+
         return Alerta::where('destinatario_usuario_id', Auth::id())
             ->find($this->itemSeleccionado);
     }
 
     /**
      * Participación seleccionada en la pestaña Mensajes.
-     *
-     * @return MensajeParticipante|null
      */
     #[Computed]
     public function hiloSeleccionado(): ?MensajeParticipante
@@ -116,6 +115,7 @@ class BuzonPage extends Component
         if ($this->itemSeleccionado === null || $this->pestana !== 'mensajes') {
             return null;
         }
+
         return MensajeParticipante::where('usuario_id', Auth::id())
             ->with(['hilo.mensajes.usuario'])
             ->find($this->itemSeleccionado);
@@ -127,9 +127,6 @@ class BuzonPage extends Component
 
     /**
      * Cambia la pestaña activa y deselecciona el ítem actual.
-     *
-     * @param string $pestana
-     * @return void
      */
     public function cambiarPestana(string $pestana): void
     {
@@ -140,9 +137,6 @@ class BuzonPage extends Component
 
     /**
      * Selecciona un ítem de la lista.
-     *
-     * @param int $id
-     * @return void
      */
     public function seleccionar(int $id): void
     {
@@ -153,9 +147,6 @@ class BuzonPage extends Component
     /**
      * Reconoce una alerta del usuario autenticado.
      * Actualiza su estado a 'reconocida' y la retira del listado.
-     *
-     * @param int $alertaId
-     * @return void
      */
     public function reconocerAlerta(int $alertaId): void
     {
@@ -173,10 +164,6 @@ class BuzonPage extends Component
 
     /**
      * Envía una respuesta al hilo seleccionado.
-     *
-     * @param int $hiloId
-     * @param MensajeriaService $mensajeriaService
-     * @return void
      */
     public function enviarRespuesta(int $hiloId, MensajeriaService $mensajeriaService): void
     {
@@ -194,10 +181,7 @@ class BuzonPage extends Component
         unset($this->hilos, $this->hiloSeleccionado);
     }
 
-    /**
-     * @return \Illuminate\View\View
-     */
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('mensajes::livewire.buzon-page');
     }

@@ -14,18 +14,18 @@ class EventoAgendaFactory extends Factory
     public function definition(): array
     {
         return [
-            'centro_id'   => fn () => Centro::create([
-                'nombre'       => 'Centro ' . fake()->unique()->numerify('###'),
+            'centro_id' => fn () => Centro::create([
+                'nombre' => 'Centro '.fake()->unique()->numerify('###'),
                 'tipo_gestion' => 'municipal_directo',
-                'fecha_alta'   => now()->toDateString(),
+                'fecha_alta' => now()->toDateString(),
             ])->id,
             'tipo_evento' => 'reunion_equipo',
-            'titulo'      => 'Reunión de equipo',
+            'titulo' => 'Reunión de equipo',
             'descripcion' => null,
-            'fecha'       => now()->addDay()->toDateString(),
+            'fecha' => now()->addDay()->toDateString(),
             'hora_inicio' => '10:00',
-            'hora_fin'    => '11:00',
-            'espacio_id'  => null,
+            'hora_fin' => '11:00',
+            'espacio_id' => null,
             'creado_por_id' => User::factory(),
         ];
     }

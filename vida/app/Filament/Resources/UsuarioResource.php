@@ -5,21 +5,22 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UsuarioResource\Pages;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Modules\Usuarios\Models\Profesional;
+use Spatie\Permission\Models\Role;
 
 /**
  * Resource Filament para gestionar Usuarios del sistema.
@@ -34,10 +35,15 @@ class UsuarioResource extends Resource
     protected static ?string $model = User::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-users';
+
     protected static ?string $navigationLabel = 'Usuarios';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Usuarios y Profesionales';
+
     protected static ?string $modelLabel = 'Usuario';
+
     protected static ?string $pluralModelLabel = 'Usuarios';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
@@ -118,6 +124,7 @@ class UsuarioResource extends Resource
                                         return $base->pluck('nombre', 'id');
                                     }
                                     $uoIds = $user?->uoSubtreeIds() ?? [];
+
                                     return $base->whereIn('id', $uoIds)->pluck('nombre', 'id');
                                 })
                                 ->searchable()
@@ -126,9 +133,9 @@ class UsuarioResource extends Resource
                             Select::make('tipo_vinculo')
                                 ->label('Tipo de vínculo')
                                 ->options([
-                                    'interno'    => 'Interno (funcionario / laboral)',
+                                    'interno' => 'Interno (funcionario / laboral)',
                                     'contratado' => 'Contratado (empresa externa)',
-                                    'externo'    => 'Externo (colaboración puntual)',
+                                    'externo' => 'Externo (colaboración puntual)',
                                 ])
                                 ->default('interno')
                                 ->required(),
@@ -161,6 +168,7 @@ class UsuarioResource extends Resource
                 $uoIds = $user->uoSubtreeIds();
                 if (empty($uoIds)) {
                     $query->whereRaw('1 = 0');
+
                     return;
                 }
                 $query->whereHas('adscripcionesVigentes', fn ($q) => $q->whereIn('unidad_organizativa_id', $uoIds));
@@ -208,9 +216,9 @@ class UsuarioResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListUsuarios::route('/'),
+            'index' => Pages\ListUsuarios::route('/'),
             'create' => Pages\CreateUsuario::route('/create'),
-            'edit'   => Pages\EditUsuario::route('/{record}/edit'),
+            'edit' => Pages\EditUsuario::route('/{record}/edit'),
         ];
     }
 
@@ -224,7 +232,7 @@ class UsuarioResource extends Resource
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canEdit(Model $record): bool
     {
         $user = auth()->user();
         if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
@@ -235,11 +243,12 @@ class UsuarioResource extends Resource
         }
         // adm_usuarios: solo puede editar usuarios adscritos a su subtree de UO
         $uoIds = $user->uoSubtreeIds();
+
         return $record->adscripcionesVigentes()->whereIn('unidad_organizativa_id', $uoIds)->exists();
     }
 
     /** Solo adm_sistema puede eliminar usuarios. */
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    public static function canDelete(Model $record): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;
     }

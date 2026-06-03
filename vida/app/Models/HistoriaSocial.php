@@ -5,10 +5,10 @@ namespace App\Models;
 use App\Models\Scopes\AmbitoUoScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Ciudadano;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Modules\Escalas\Models\PaseEscala;
 
 /**
@@ -30,9 +30,9 @@ use Modules\Escalas\Models\PaseEscala;
  * @property int $unidad_organizativa_id UO responsable de la Historia
  * @property bool $ciudadano_protegido Ciudadano pertenece a colectivo especialmente protegido
  * @property string $estado abierta | en_seguimiento | cerrada
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon|null $deleted_at
  *
  * @todo Mover a Modules\Intervencion\Models\Historia y completar
  *       con todos los atributos, relaciones y lógica de dominio.
@@ -44,8 +44,6 @@ class HistoriaSocial extends Model
 
     /**
      * Columna de FK a unidades_organizativas usada por AmbitoUoScope.
-     *
-     * @var string
      */
     public string $ambitoUoColumn = 'unidad_organizativa_id';
 
@@ -71,12 +69,10 @@ class HistoriaSocial extends Model
 
     /**
      * Registra el Global Scope de ámbito de UO para filtrado automático.
-     *
-     * @return void
      */
     protected static function booted(): void
     {
-        static::addGlobalScope(new AmbitoUoScope());
+        static::addGlobalScope(new AmbitoUoScope);
     }
 
     // -------------------------------------------------------------------------

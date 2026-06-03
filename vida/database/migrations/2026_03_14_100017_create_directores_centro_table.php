@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\DirectorCentro;
 
 /**
  * Historial de responsables/directores de un centro.
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
  * Ambas opciones son mutuamente excluyentes — se valida en el modelo.
  * El registro activo es el que tiene fecha_fin = null.
  *
- * @see Modules\Centro\Models\DirectorCentro
+ * @see DirectorCentro
  */
 return new class extends Migration
 {

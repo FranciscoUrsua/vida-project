@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\ZonaResource\Pages;
 
+use App\Filament\Resources\Pages\ListRecords;
 use App\Filament\Resources\ZonaResource;
 use Filament\Actions;
-use App\Filament\Resources\Pages\ListRecords;
 
 class ListZonas extends ListRecords
 {

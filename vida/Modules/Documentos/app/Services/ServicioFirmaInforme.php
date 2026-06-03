@@ -24,9 +24,10 @@ class ServicioFirmaInforme
     /**
      * Firma un informe en estado borrador.
      *
-     * @param  Informe $informe          Informe en estado borrador
-     * @param  string  $pdfFirmadoBase64 PDF firmado por AutoFirma en base64
-     * @return Informe                   Informe actualizado a estado firmado
+     * @param Informe $informe Informe en estado borrador
+     * @param string $pdfFirmadoBase64 PDF firmado por AutoFirma en base64
+     *
+     * @return Informe Informe actualizado a estado firmado
      *
      * @throws \DomainException si el informe no está en estado borrador
      */
@@ -34,7 +35,7 @@ class ServicioFirmaInforme
     {
         if ($informe->estado !== EstadoInforme::Borrador) {
             throw new \DomainException(
-                "Solo se puede firmar un informe en estado borrador. " .
+                'Solo se puede firmar un informe en estado borrador. '.
                 "El informe #{$informe->id} está en estado '{$informe->estado->label()}'."
             );
         }
@@ -46,9 +47,9 @@ class ServicioFirmaInforme
         $documento = $this->generacionPdf->generarFinal($informe, $pdfFirmadoBase64);
 
         $informe->update([
-            'estado'       => EstadoInforme::Firmado->value,
+            'estado' => EstadoInforme::Firmado->value,
             'documento_id' => $documento->id,
-            'firmado_en'   => now(),
+            'firmado_en' => now(),
             'metodo_firma' => MetodoFirma::AutofirmaCertificadoEmpleadoPublico->value,
         ]);
 
@@ -63,17 +64,17 @@ class ServicioFirmaInforme
     public function anular(Informe $informe, int $usuarioId, string $motivo): Informe
     {
         if (! $informe->estaFirmado()) {
-            throw new \DomainException("Solo se pueden anular informes en estado firmado.");
+            throw new \DomainException('Solo se pueden anular informes en estado firmado.');
         }
 
         if ($informe->autor_id !== $usuarioId) {
-            throw new \DomainException("Solo el autor puede anular su propio informe.");
+            throw new \DomainException('Solo el autor puede anular su propio informe.');
         }
 
         $informe->update([
-            'estado'           => EstadoInforme::Anulado->value,
+            'estado' => EstadoInforme::Anulado->value,
             'motivo_anulacion' => $motivo,
-            'anulado_en'       => now(),
+            'anulado_en' => now(),
         ]);
 
         return $informe->fresh();

@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\EstiloInformeResource\Pages;
 use App\Models\UnidadOrganizativa;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -18,7 +18,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Documentos\Models\EstiloInforme;
-use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Gestión del estilo formal de informes por Unidad Organizativa.
@@ -30,13 +29,19 @@ use App\Filament\Concerns\AutorizaGestion;
 class EstiloInformeResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = EstiloInforme::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-paint-brush';
+
     protected static ?string $navigationLabel = 'Estilos de informe';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Informes y Plantillas';
+
     protected static ?string $modelLabel = 'Estilo de informe';
+
     protected static ?string $pluralModelLabel = 'Estilos de informe';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
@@ -101,9 +106,15 @@ class EstiloInformeResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $user = auth()->user();
-                if ($user->hasRole('adm_sistema')) return;
+                if ($user->hasRole('adm_sistema')) {
+                    return;
+                }
                 $uoIds = $user->uoSubtreeIds();
-                if (empty($uoIds)) { $query->whereRaw('1 = 0'); return; }
+                if (empty($uoIds)) {
+                    $query->whereRaw('1 = 0');
+
+                    return;
+                }
                 $query->whereIn('unidad_organizativa_id', $uoIds);
             })
             ->columns([
@@ -150,9 +161,9 @@ class EstiloInformeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListEstilosInforme::route('/'),
+            'index' => Pages\ListEstilosInforme::route('/'),
             'create' => Pages\CreateEstiloInforme::route('/create'),
-            'edit'   => Pages\EditEstiloInforme::route('/{record}/edit'),
+            'edit' => Pages\EditEstiloInforme::route('/{record}/edit'),
         ];
     }
 
@@ -166,10 +177,18 @@ class EstiloInformeResource extends Resource
     public static function canEdit(Model $record): bool
     {
         $user = auth()->user();
-        if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) return false;
-        if ($user->hasRole('adm_sistema')) return true;
+        if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
+            return false;
+        }
+        if ($user->hasRole('adm_sistema')) {
+            return true;
+        }
+
         return in_array($record->unidad_organizativa_id, $user->uoSubtreeIds());
     }
 
-    public static function canDelete(Model $record): bool { return static::canEdit($record); }
+    public static function canDelete(Model $record): bool
+    {
+        return static::canEdit($record);
+    }
 }

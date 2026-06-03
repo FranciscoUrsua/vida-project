@@ -3,10 +3,13 @@
 namespace App\Models\Scopes;
 
 use App\Models\AccesoProtegido;
-use App\Models\UnidadOrganizativa;
+use App\Models\Apunte;
+use App\Models\Ciudadano;
+use App\Models\HistoriaSocial;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
+use Modules\Intervencion\Models\PlanDeIntervencion;
 
 /**
  * Global Scope de ámbito de Unidad Organizativa para modelos sensibles.
@@ -32,10 +35,10 @@ use Illuminate\Database\Eloquent\Scope;
  *   - Apunte → historia_social_id → HistoriaSocial.unidad_organizativa_id
  *   - PlanDeIntervencion → historia_id → HistoriaSocial.unidad_organizativa_id
  *
- * @see \App\Models\HistoriaSocial
- * @see \App\Models\Ciudadano
- * @see \App\Models\Apunte
- * @see \Modules\Intervencion\Models\PlanDeIntervencion
+ * @see HistoriaSocial
+ * @see Ciudadano
+ * @see Apunte
+ * @see PlanDeIntervencion
  */
 class AmbitoUoScope implements Scope
 {
@@ -62,8 +65,6 @@ class AmbitoUoScope implements Scope
      * Aplica el filtro de ámbito de UO a la consulta.
      *
      * @param Builder<Model> $builder
-     * @param Model          $model
-     * @return void
      */
     public function apply(Builder $builder, Model $model): void
     {
@@ -87,15 +88,15 @@ class AmbitoUoScope implements Scope
             ->where('estado', 'aprobado')
             ->where(function ($q) {
                 $q->whereNull('acceso_valido_hasta')
-                  ->orWhere('acceso_valido_hasta', '>=', now());
+                    ->orWhere('acceso_valido_hasta', '>=', now());
             })
             ->pluck('ciudadano_id')
             ->toArray();
 
         // Determinar la estrategia de filtrado según la propiedad del modelo
-        $uoColumn       = $model->{self::ATTR_UO_COLUMN} ?? null;
+        $uoColumn = $model->{self::ATTR_UO_COLUMN} ?? null;
         $historiaColumn = $model->{self::ATTR_HISTORIA_COLUMN} ?? null;
-        $ciudadanoPk    = $model->{self::ATTR_CIUDADANO_PK} ?? null;
+        $ciudadanoPk = $model->{self::ATTR_CIUDADANO_PK} ?? null;
 
         if ($uoColumn !== null) {
             // Estrategia directa: el modelo tiene FK a unidades_organizativas
@@ -116,12 +117,10 @@ class AmbitoUoScope implements Scope
      * Para modelos con privada (Apunte): añade también la cláusula
      * `(privada = false OR profesional_id = <id>)`.
      *
-     * @param Builder<Model>   $builder
-     * @param Model            $model
-     * @param string           $uoColumn           Nombre de la columna FK a UO
-     * @param array<int>       $uoIds              IDs de UO accesibles
-     * @param array<int>       $ciudadanosConAcceso IDs de ciudadanos con acceso protegido vigente
-     * @return void
+     * @param Builder<Model> $builder
+     * @param string $uoColumn Nombre de la columna FK a UO
+     * @param array<int> $uoIds IDs de UO accesibles
+     * @param array<int> $ciudadanosConAcceso IDs de ciudadanos con acceso protegido vigente
      */
     private function aplicarFiltroDirecto(
         Builder $builder,
@@ -147,12 +146,10 @@ class AmbitoUoScope implements Scope
      * Aplica filtro vía subquery a historias_sociales cuando el modelo
      * no tiene FK directa a unidades_organizativas.
      *
-     * @param Builder<Model>   $builder
-     * @param Model            $model
-     * @param string           $historiaColumn     Nombre de la columna FK a historias_sociales
-     * @param array<int>       $uoIds              IDs de UO accesibles
-     * @param array<int>       $ciudadanosConAcceso IDs de ciudadanos con acceso protegido vigente
-     * @return void
+     * @param Builder<Model> $builder
+     * @param string $historiaColumn Nombre de la columna FK a historias_sociales
+     * @param array<int> $uoIds IDs de UO accesibles
+     * @param array<int> $ciudadanosConAcceso IDs de ciudadanos con acceso protegido vigente
      */
     private function aplicarFiltroViaHistoria(
         Builder $builder,
@@ -192,12 +189,10 @@ class AmbitoUoScope implements Scope
      * Historia Social asignada a alguna UO en el árbol del usuario.
      * También se incluyen ciudadanos con AccesoProtegido vigente.
      *
-     * @param Builder<Model>   $builder
-     * @param Model            $model
-     * @param string           $ciudadanoPk        Columna PK del ciudadano (normalmente 'id')
-     * @param array<int>       $uoIds              IDs de UO accesibles
-     * @param array<int>       $ciudadanosConAcceso IDs de ciudadanos con acceso protegido vigente
-     * @return void
+     * @param Builder<Model> $builder
+     * @param string $ciudadanoPk Columna PK del ciudadano (normalmente 'id')
+     * @param array<int> $uoIds IDs de UO accesibles
+     * @param array<int> $ciudadanosConAcceso IDs de ciudadanos con acceso protegido vigente
      */
     private function aplicarFiltroCiudadano(
         Builder $builder,
@@ -224,4 +219,3 @@ class AmbitoUoScope implements Scope
         });
     }
 }
-

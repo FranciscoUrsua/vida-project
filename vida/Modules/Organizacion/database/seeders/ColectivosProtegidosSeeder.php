@@ -26,21 +26,19 @@ class ColectivosProtegidosSeeder extends Seeder
      */
     private const COLECTIVOS = [
         [
-            'nombre'                    => 'Menores',
-            'descripcion'               => 'Personas menores de 18 años. El acceso a sus expedientes desde fuera de la UO responsable requiere aprobación del supervisor de infancia.',
+            'nombre' => 'Menores',
+            'descripcion' => 'Personas menores de 18 años. El acceso a sus expedientes desde fuera de la UO responsable requiere aprobación del supervisor de infancia.',
             'requiere_aprobacion_previa' => true,
         ],
         [
-            'nombre'                    => 'Víctimas de violencia de género',
-            'descripcion'               => 'Mujeres en situación de violencia de género o en riesgo. El acceso a sus expedientes desde fuera de la UO responsable requiere aprobación del supervisor de violencia de género.',
+            'nombre' => 'Víctimas de violencia de género',
+            'descripcion' => 'Mujeres en situación de violencia de género o en riesgo. El acceso a sus expedientes desde fuera de la UO responsable requiere aprobación del supervisor de violencia de género.',
             'requiere_aprobacion_previa' => true,
         ],
     ];
 
     /**
      * Crea los colectivos protegidos iniciales si no existen.
-     *
-     * @return void
      */
     public function run(): void
     {

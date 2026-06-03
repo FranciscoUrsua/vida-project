@@ -2,10 +2,8 @@
 
 namespace Tests\Feature\Anonimizacion;
 
-use App\Exceptions\Anonimizacion\KAnonimatoValidacionException;
 use App\Services\Api\ValidadorKAnonimato;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Collection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -90,7 +88,7 @@ class KAnonimatoTest extends TestCase
     #[Test]
     public function ninguna_combinacion_aparece_menos_de_k_veces(): void
     {
-        $k        = 5;
+        $k = 5;
         $coleccion = collect(self::DATASET_VARIADO);
 
         $resultado = $this->validador->aplicar($coleccion, $k);
@@ -98,9 +96,10 @@ class KAnonimatoTest extends TestCase
         // Agrupar por combinación de cuasi-identificadores en el resultado
         $grupos = $resultado->groupBy(function (array $r): string {
             $calle = $r['nombre_via'] ?? $r['distrito_proxy'] ?? null;
+
             return serialize([
-                'sexo'               => $r['sexo'] ?? null,
-                'rango_edad'         => $r['anio_nacimiento'] ?? $r['rango_edad'] ?? null,
+                'sexo' => $r['sexo'] ?? null,
+                'rango_edad' => $r['anio_nacimiento'] ?? $r['rango_edad'] ?? null,
                 'calle_generalizada' => $calle,
                 'colectivo_principal' => $r['colectivo_principal'] ?? null,
             ]);
@@ -159,9 +158,10 @@ class KAnonimatoTest extends TestCase
         // Verificar que la nueva combinación con distrito_proxy aparece >= K veces
         $gruposFinales = $resultado->groupBy(function (array $r): string {
             $calle = $r['nombre_via'] ?? $r['distrito_proxy'] ?? null;
+
             return serialize([
-                'sexo'               => $r['sexo'] ?? null,
-                'rango_edad'         => $r['anio_nacimiento'] ?? $r['rango_edad'] ?? null,
+                'sexo' => $r['sexo'] ?? null,
+                'rango_edad' => $r['anio_nacimiento'] ?? $r['rango_edad'] ?? null,
                 'calle_generalizada' => $calle,
                 'colectivo_principal' => $r['colectivo_principal'] ?? null,
             ]);
@@ -192,7 +192,7 @@ class KAnonimatoTest extends TestCase
         // Si el colectivo fue suprimido en algunos registros problemáticos, esos registros
         // no deben tener 'colectivo_principal' en el resultado
         $sinColectivo = $resultado->filter(
-            fn (array $r) => !array_key_exists('colectivo_principal', $r)
+            fn (array $r) => ! array_key_exists('colectivo_principal', $r)
         );
 
         // Si la cascada llegó a suprimir colectivo, debe haber registros sin él
@@ -200,9 +200,10 @@ class KAnonimatoTest extends TestCase
         // En cualquier caso, el resultado debe cumplir K-anonimato
         $grupos = $resultado->groupBy(function (array $r): string {
             $calle = $r['nombre_via'] ?? $r['distrito_proxy'] ?? null;
+
             return serialize([
-                'sexo'               => $r['sexo'] ?? null,
-                'rango_edad'         => $r['anio_nacimiento'] ?? $r['rango_edad'] ?? null,
+                'sexo' => $r['sexo'] ?? null,
+                'rango_edad' => $r['anio_nacimiento'] ?? $r['rango_edad'] ?? null,
                 'calle_generalizada' => $calle,
                 'colectivo_principal' => $r['colectivo_principal'] ?? null,
             ]);
@@ -220,7 +221,7 @@ class KAnonimatoTest extends TestCase
     #[Test]
     public function suprime_registro_cuando_la_cascada_completa_no_alcanza_k(): void
     {
-        $k         = 5;
+        $k = 5;
         $coleccion = collect(self::DATASET_REGISTRO_UNICO);
         $totalOriginal = $coleccion->count();
 
@@ -242,7 +243,7 @@ class KAnonimatoTest extends TestCase
     public function el_job_no_entrega_si_no_supera_la_validacion(): void
     {
         $this->markTestIncomplete(
-            'Pendiente: requiere implementación del modelo Extraccion y ' .
+            'Pendiente: requiere implementación del modelo Extraccion y '.
             'el job de extracción asíncrona. Ver docs/api.md § 8.'
         );
     }
@@ -255,7 +256,7 @@ class KAnonimatoTest extends TestCase
     public function el_job_registra_la_version_del_perfil_aplicado(): void
     {
         $this->markTestIncomplete(
-            'Pendiente: requiere implementación del modelo Extraccion. ' .
+            'Pendiente: requiere implementación del modelo Extraccion. '.
             'Ver docs/tests-anonimizacion.md § 3.6.'
         );
     }
@@ -295,9 +296,10 @@ class KAnonimatoTest extends TestCase
         // El conjunto completo debe cumplir K-anonimato
         $grupos = $resultado->groupBy(function (array $r): string {
             $calle = $r['nombre_via'] ?? $r['distrito_proxy'] ?? null;
+
             return serialize([
-                'sexo'               => $r['sexo'] ?? null,
-                'rango_edad'         => $r['anio_nacimiento'] ?? $r['rango_edad'] ?? null,
+                'sexo' => $r['sexo'] ?? null,
+                'rango_edad' => $r['anio_nacimiento'] ?? $r['rango_edad'] ?? null,
                 'calle_generalizada' => $calle,
                 'colectivo_principal' => $r['colectivo_principal'] ?? null,
             ]);
@@ -315,8 +317,8 @@ class KAnonimatoTest extends TestCase
     public function el_k_anonimato_no_se_aplica_en_tiempo_real(): void
     {
         $this->markTestIncomplete(
-            'Pendiente: test arquitectural. Verificar que ningún controlador API ' .
-            'resuelve ValidadorKAnonimato en el contenedor de servicio de forma síncrona. ' .
+            'Pendiente: test arquitectural. Verificar que ningún controlador API '.
+            'resuelve ValidadorKAnonimato en el contenedor de servicio de forma síncrona. '.
             'Ver docs/anonimizacion.md § 6.2.'
         );
     }

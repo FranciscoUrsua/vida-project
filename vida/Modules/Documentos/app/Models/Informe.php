@@ -2,11 +2,14 @@
 
 namespace Modules\Documentos\Models;
 
+use App\Models\Ciudadano;
+use App\Models\HistoriaSocial;
 use App\Models\User;
 use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Enums\MetodoFirma;
 
@@ -29,11 +32,11 @@ use Modules\Documentos\Enums\MetodoFirma;
  * @property EstadoInforme $estado
  * @property array $contenido
  * @property int|null $documento_id
- * @property \Illuminate\Support\Carbon|null $firmado_en
+ * @property Carbon|null $firmado_en
  * @property MetodoFirma|null $metodo_firma
  * @property string|null $numero_colegiado_firmante
  * @property string|null $motivo_anulacion
- * @property \Illuminate\Support\Carbon|null $anulado_en
+ * @property Carbon|null $anulado_en
  */
 class Informe extends Model
 {
@@ -44,11 +47,11 @@ class Informe extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'estado'       => EstadoInforme::class,
-        'contenido'    => 'array',
-        'firmado_en'   => 'datetime',
+        'estado' => EstadoInforme::class,
+        'contenido' => 'array',
+        'firmado_en' => 'datetime',
         'metodo_firma' => MetodoFirma::class,
-        'anulado_en'   => 'datetime',
+        'anulado_en' => 'datetime',
     ];
 
     public function plantilla(): BelongsTo
@@ -58,12 +61,12 @@ class Informe extends Model
 
     public function historiaSocial(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\HistoriaSocial::class, 'historia_social_id');
+        return $this->belongsTo(HistoriaSocial::class, 'historia_social_id');
     }
 
     public function ciudadano(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\Ciudadano::class, 'ciudadano_id');
+        return $this->belongsTo(Ciudadano::class, 'ciudadano_id');
     }
 
     public function autor(): BelongsTo

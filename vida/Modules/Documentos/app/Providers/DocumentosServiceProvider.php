@@ -19,7 +19,7 @@ class DocumentosServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../../config/documentos.php',
+            __DIR__.'/../../config/documentos.php',
             'documentos'
         );
 

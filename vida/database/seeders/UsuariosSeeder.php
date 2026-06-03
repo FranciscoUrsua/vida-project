@@ -8,6 +8,7 @@ use App\Models\UsuarioUo;
 use Illuminate\Database\Seeder;
 use Modules\Usuarios\Models\UsuarioRol;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * Seeder de usuarios de desarrollo.
@@ -24,8 +25,8 @@ use Spatie\Permission\Models\Role;
  *
  * Debe ejecutarse después de RolesSeeder y UoSeeder.
  *
- * @see \Database\Seeders\RolesSeeder
- * @see \Database\Seeders\UoSeeder
+ * @see RolesSeeder
+ * @see UoSeeder
  */
 class UsuariosSeeder extends Seeder
 {
@@ -38,50 +39,48 @@ class UsuariosSeeder extends Seeder
      */
     private const USUARIOS = [
         [
-            'name'     => 'Administrador Sistema',
-            'email'    => 'admin@vida.local',
+            'name' => 'Administrador Sistema',
+            'email' => 'admin@vida.local',
             'password' => 'Vida360!Admin',
-            'roles'    => ['adm_sistema'],
-            'uo'       => null,
+            'roles' => ['adm_sistema'],
+            'uo' => null,
         ],
         [
-            'name'     => 'Supervisor Usuarios',
-            'email'    => 'supervisor@vida.local',
+            'name' => 'Supervisor Usuarios',
+            'email' => 'supervisor@vida.local',
             'password' => 'Vida360!Super',
-            'roles'    => ['supervision', 'adm_usuarios'],
-            'uo'       => 'Departamento de Atención Primaria',
+            'roles' => ['supervision', 'adm_usuarios'],
+            'uo' => 'Departamento de Atención Primaria',
         ],
         [
-            'name'     => 'Técnico Intervención',
-            'email'    => 'intervencion@vida.local',
+            'name' => 'Técnico Intervención',
+            'email' => 'intervencion@vida.local',
             'password' => 'Vida360!Inter',
-            'roles'    => ['intervencion'],
-            'uo'       => 'Centro de Servicios Sociales Arganzuela',
+            'roles' => ['intervencion'],
+            'uo' => 'Centro de Servicios Sociales Arganzuela',
         ],
         [
-            'name'     => 'Consulta Básica',
-            'email'    => 'consulta@vida.local',
+            'name' => 'Consulta Básica',
+            'email' => 'consulta@vida.local',
             'password' => 'Vida360!Basic',
-            'roles'    => ['consulta_basica'],
-            'uo'       => 'Centro de Servicios Sociales Retiro',
+            'roles' => ['consulta_basica'],
+            'uo' => 'Centro de Servicios Sociales Retiro',
         ],
     ];
 
     /**
      * Crea los usuarios de desarrollo con sus roles y adscripciones a UO.
-     *
-     * @return void
      */
     public function run(): void
     {
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         foreach (self::USUARIOS as $datos) {
             $user = User::firstOrCreate(
                 ['email' => $datos['email']],
                 [
-                    'name'              => $datos['name'],
-                    'password'          => $datos['password'],
+                    'name' => $datos['name'],
+                    'password' => $datos['password'],
                     'email_verified_at' => now(),
                 ]
             );
@@ -103,9 +102,8 @@ class UsuariosSeeder extends Seeder
      * Asigna un rol al usuario mediante UsuarioRol (el observer sincroniza Spatie).
      * Si el usuario ya tiene el rol activo, no duplica el registro.
      *
-     * @param User   $user      Usuario al que asignar el rol
+     * @param User $user Usuario al que asignar el rol
      * @param string $nombreRol Nombre del rol (guard web)
-     * @return void
      */
     private function asignarRol(User $user, string $nombreRol): void
     {
@@ -113,6 +111,7 @@ class UsuariosSeeder extends Seeder
 
         if (! $rol) {
             $this->command->warn("  Rol '{$nombreRol}' no encontrado. ¿Se ejecutó RolesSeeder?");
+
             return;
         }
 
@@ -126,21 +125,20 @@ class UsuariosSeeder extends Seeder
         }
 
         UsuarioRol::create([
-            'usuario_id'  => $user->id,
-            'rol_id'      => $rol->id,
+            'usuario_id' => $user->id,
+            'rol_id' => $rol->id,
             'fecha_inicio' => now()->toDateString(),
-            'fecha_fin'   => null,
+            'fecha_fin' => null,
             'asignado_por' => null,
-            'estado'      => 'activo',
+            'estado' => 'activo',
         ]);
     }
 
     /**
      * Adscribe al usuario a la UO indicada por nombre, si no lo está ya.
      *
-     * @param User   $user    Usuario a adscribir
+     * @param User $user Usuario a adscribir
      * @param string $nombreUo Nombre exacto de la Unidad Organizativa
-     * @return void
      */
     private function adscribirAUo(User $user, string $nombreUo): void
     {
@@ -148,6 +146,7 @@ class UsuariosSeeder extends Seeder
 
         if (! $uo) {
             $this->command->warn("  UO '{$nombreUo}' no encontrada. ¿Se ejecutó UoSeeder?");
+
             return;
         }
 
@@ -161,11 +160,11 @@ class UsuariosSeeder extends Seeder
         }
 
         UsuarioUo::create([
-            'usuario_id'              => $user->id,
-            'unidad_organizativa_id'  => $uo->id,
-            'tipo_vinculo'            => 'funcionario',
-            'fecha_inicio'            => now()->toDateString(),
-            'fecha_fin'               => null,
+            'usuario_id' => $user->id,
+            'unidad_organizativa_id' => $uo->id,
+            'tipo_vinculo' => 'funcionario',
+            'fecha_inicio' => now()->toDateString(),
+            'fecha_fin' => null,
         ]);
     }
 }

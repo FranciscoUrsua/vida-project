@@ -12,6 +12,6 @@ namespace Modules\Mensajes\Enums;
 enum TipoReconocimiento: string
 {
     case Reconocida = 'reconocida';
-    case Escalada   = 'escalada';
+    case Escalada = 'escalada';
     case Descartada = 'descartada';
 }

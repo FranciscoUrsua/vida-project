@@ -2,17 +2,17 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\InformeResource\Pages;
+use Filament\Actions\Action as TableAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Actions\Action as TableAction;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,7 +21,6 @@ use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Enums\TipoInforme;
 use Modules\Documentos\Models\Informe;
 use Modules\Documentos\Services\ServicioFirmaInforme;
-use App\Filament\Concerns\AutorizaGestion;
 
 /**
  * Supervisión y gestión operativa de informes profesionales.
@@ -33,17 +32,22 @@ use App\Filament\Concerns\AutorizaGestion;
 class InformeResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = Informe::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-check';
+
     protected static ?string $navigationLabel = 'Informes';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Informes y Plantillas';
+
     protected static ?string $modelLabel = 'Informe';
+
     protected static ?string $pluralModelLabel = 'Informes';
+
     protected static ?int $navigationSort = 3;
 
     /** Los informes se crean desde el flujo operativo (Livewire), no desde el backoffice. */
-
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
@@ -68,10 +72,10 @@ class InformeResource extends Resource
                         ->formatStateUsing(fn (TipoInforme $state) => $state->label())
                         ->badge()
                         ->color(fn (TipoInforme $state) => match ($state) {
-                            TipoInforme::InformeSocial      => 'info',
+                            TipoInforme::InformeSocial => 'info',
                             TipoInforme::InformePsicologico => 'warning',
-                            TipoInforme::InformeJuridico    => 'primary',
-                            TipoInforme::Otro               => 'gray',
+                            TipoInforme::InformeJuridico => 'primary',
+                            TipoInforme::Otro => 'gray',
                         }),
                 ]),
 
@@ -84,8 +88,8 @@ class InformeResource extends Resource
                         ->badge()
                         ->color(fn (EstadoInforme $state) => match ($state) {
                             EstadoInforme::Borrador => 'warning',
-                            EstadoInforme::Firmado  => 'success',
-                            EstadoInforme::Anulado  => 'danger',
+                            EstadoInforme::Firmado => 'success',
+                            EstadoInforme::Anulado => 'danger',
                         }),
 
                     TextEntry::make('autor.name')
@@ -128,8 +132,8 @@ class InformeResource extends Resource
                         ->formatStateUsing(fn ($state) => is_array($state)
                             ? new HtmlString(
                                 '<pre style="white-space:pre-wrap;font-size:.8em;overflow-x:auto">'
-                                . e(json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))
-                                . '</pre>'
+                                .e(json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))
+                                .'</pre>'
                             )
                             : '—'
                         ),
@@ -155,6 +159,7 @@ class InformeResource extends Resource
                 $uoIds = $user->uoSubtreeIds();
                 if (empty($uoIds)) {
                     $query->whereRaw('1 = 0');
+
                     return;
                 }
                 $query->whereHas('plantilla', fn (Builder $q) => $q->whereIn('unidad_organizativa_id', $uoIds));
@@ -181,10 +186,10 @@ class InformeResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn (TipoInforme $state) => $state->label())
                     ->color(fn (TipoInforme $state) => match ($state) {
-                        TipoInforme::InformeSocial      => 'info',
+                        TipoInforme::InformeSocial => 'info',
                         TipoInforme::InformePsicologico => 'warning',
-                        TipoInforme::InformeJuridico    => 'primary',
-                        TipoInforme::Otro               => 'gray',
+                        TipoInforme::InformeJuridico => 'primary',
+                        TipoInforme::Otro => 'gray',
                     }),
 
                 Tables\Columns\TextColumn::make('estado')
@@ -193,8 +198,8 @@ class InformeResource extends Resource
                     ->formatStateUsing(fn (EstadoInforme $state) => $state->label())
                     ->color(fn (EstadoInforme $state) => match ($state) {
                         EstadoInforme::Borrador => 'warning',
-                        EstadoInforme::Firmado  => 'success',
-                        EstadoInforme::Anulado  => 'danger',
+                        EstadoInforme::Firmado => 'success',
+                        EstadoInforme::Anulado => 'danger',
                     }),
 
                 Tables\Columns\TextColumn::make('autor.name')
@@ -242,7 +247,8 @@ class InformeResource extends Resource
                         if (! ($data['tipo_informe'] ?? null)) {
                             return null;
                         }
-                        return 'Tipo: ' . TipoInforme::from($data['tipo_informe'])->label();
+
+                        return 'Tipo: '.TipoInforme::from($data['tipo_informe'])->label();
                     }),
 
                 Tables\Filters\SelectFilter::make('autor_id')
@@ -287,7 +293,7 @@ class InformeResource extends Resource
     {
         return [
             'index' => Pages\ListInformes::route('/'),
-            'view'  => Pages\ViewInforme::route('/{record}'),
+            'view' => Pages\ViewInforme::route('/{record}'),
         ];
     }
 }

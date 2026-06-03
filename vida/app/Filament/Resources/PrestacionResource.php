@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\PrestacionResource\Pages;
 use App\Filament\Resources\PrestacionResource\RelationManagers\VersionesRelationManager;
 use App\Models\CatalogoSistema;
@@ -12,25 +13,30 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Prestaciones\Models\Prestacion;
-use App\Filament\Concerns\AutorizaGestion;
 
 class PrestacionResource extends Resource
 {
     use AutorizaGestion;
+
     protected static ?string $model = Prestacion::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
+
     protected static ?string $navigationLabel = 'Prestaciones';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Centros y Servicios';
+
     protected static ?string $modelLabel = 'Prestación';
+
     protected static ?string $pluralModelLabel = 'Prestaciones';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
@@ -56,7 +62,7 @@ class PrestacionResource extends Resource
                     Select::make('tipo_prestacion')
                         ->label('Tipo de prestación')
                         ->options([
-                            'servicio'  => 'Servicio',
+                            'servicio' => 'Servicio',
                             'economica' => 'Económica',
                         ])
                         ->required(),
@@ -64,7 +70,7 @@ class PrestacionResource extends Resource
                     Select::make('nivel_garantia')
                         ->label('Nivel de garantía')
                         ->options([
-                            'garantizada'  => 'Garantizada',
+                            'garantizada' => 'Garantizada',
                             'condicionada' => 'Condicionada',
                         ])
                         ->required(),
@@ -111,9 +117,9 @@ class PrestacionResource extends Resource
                     CheckboxList::make('modalidades')
                         ->label('Modalidades de atención')
                         ->options([
-                            'presencial'  => 'Presencial',
-                            'telefonica'  => 'Telefónica',
-                            'telematica'  => 'Telemática',
+                            'presencial' => 'Presencial',
+                            'telefonica' => 'Telefónica',
+                            'telematica' => 'Telemática',
                         ])
                         ->columns(3),
 
@@ -247,25 +253,25 @@ class PrestacionResource extends Resource
                 Tables\Columns\BadgeColumn::make('tipo_prestacion')
                     ->label('Tipo')
                     ->colors([
-                        'info'    => 'servicio',
+                        'info' => 'servicio',
                         'warning' => 'economica',
                     ])
                     ->formatStateUsing(fn (string $state) => match ($state) {
-                        'servicio'  => 'Servicio',
+                        'servicio' => 'Servicio',
                         'economica' => 'Económica',
-                        default     => ucfirst($state),
+                        default => ucfirst($state),
                     }),
 
                 Tables\Columns\BadgeColumn::make('nivel_garantia')
                     ->label('Garantía')
                     ->colors([
                         'success' => 'garantizada',
-                        'gray'    => 'condicionada',
+                        'gray' => 'condicionada',
                     ])
                     ->formatStateUsing(fn (string $state) => match ($state) {
-                        'garantizada'  => 'Garantizada',
+                        'garantizada' => 'Garantizada',
                         'condicionada' => 'Condicionada',
-                        default        => ucfirst($state),
+                        default => ucfirst($state),
                     }),
 
                 Tables\Columns\TextColumn::make('objetivo_general')
@@ -276,10 +282,10 @@ class PrestacionResource extends Resource
                 Tables\Columns\TextColumn::make('nivel_atencion')
                     ->label('Nivel')
                     ->formatStateUsing(fn (?string $state) => match ($state) {
-                        'asp'          => 'ASP',
+                        'asp' => 'ASP',
                         'especializada' => 'Especializada',
-                        'no_aplica'    => 'No aplica',
-                        default        => $state ?? '—',
+                        'no_aplica' => 'No aplica',
+                        default => $state ?? '—',
                     })
                     ->toggleable(),
 
@@ -294,14 +300,14 @@ class PrestacionResource extends Resource
                 Tables\Filters\SelectFilter::make('tipo_prestacion')
                     ->label('Tipo de prestación')
                     ->options([
-                        'servicio'  => 'Servicio',
+                        'servicio' => 'Servicio',
                         'economica' => 'Económica',
                     ]),
 
                 Tables\Filters\SelectFilter::make('nivel_garantia')
                     ->label('Nivel de garantía')
                     ->options([
-                        'garantizada'  => 'Garantizada',
+                        'garantizada' => 'Garantizada',
                         'condicionada' => 'Condicionada',
                     ]),
 
@@ -329,9 +335,9 @@ class PrestacionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListPrestaciones::route('/'),
+            'index' => Pages\ListPrestaciones::route('/'),
             'create' => Pages\CreatePrestacion::route('/create'),
-            'edit'   => Pages\EditPrestacion::route('/{record}/edit'),
+            'edit' => Pages\EditPrestacion::route('/{record}/edit'),
         ];
     }
 }

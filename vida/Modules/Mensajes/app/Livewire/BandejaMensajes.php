@@ -2,9 +2,10 @@
 
 namespace Modules\Mensajes\Livewire;
 
+use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
-use Modules\Mensajes\Models\MensajeHilo;
 use Modules\Mensajes\Models\MensajeParticipante;
 use Modules\Mensajes\Services\MensajeriaService;
 
@@ -17,6 +18,7 @@ use Modules\Mensajes\Services\MensajeriaService;
 class BandejaMensajes extends Component
 {
     public ?int $hiloActivoId = null;
+
     public bool $mostrarNuevoMensaje = false;
 
     public function mount(): void
@@ -25,7 +27,7 @@ class BandejaMensajes extends Component
     }
 
     #[Computed]
-    public function hilos(): \Illuminate\Support\Collection
+    public function hilos(): Collection
     {
         return MensajeParticipante::where('usuario_id', auth()->id())
             ->whereNull('archivado_en')
@@ -63,7 +65,7 @@ class BandejaMensajes extends Component
         $this->hiloActivoId = null;
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('mensajes::livewire.bandeja-mensajes');
     }

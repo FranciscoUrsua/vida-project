@@ -19,9 +19,9 @@ class EditTipoEscala extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $data['secciones_escala']     = $data['schema']['secciones'] ?? [];
-        $data['rangos']               = $data['rangos_interpretacion']['rangos'] ?? [];
-        $data['nota_interpretacion']  = $data['rangos_interpretacion']['nota_interpretacion'] ?? null;
+        $data['secciones_escala'] = $data['schema']['secciones'] ?? [];
+        $data['rangos'] = $data['rangos_interpretacion']['rangos'] ?? [];
+        $data['nota_interpretacion'] = $data['rangos_interpretacion']['nota_interpretacion'] ?? null;
 
         return $data;
     }
@@ -30,7 +30,7 @@ class EditTipoEscala extends EditRecord
     {
         $data['schema'] = ['secciones' => $data['secciones_escala'] ?? []];
         $data['rangos_interpretacion'] = [
-            'rangos'              => $data['rangos'] ?? [],
+            'rangos' => $data['rangos'] ?? [],
             'nota_interpretacion' => $data['nota_interpretacion'] ?? null,
         ];
 
@@ -52,6 +52,7 @@ class EditTipoEscala extends EditRecord
                 ->send();
 
             $this->halt();
+            throw new \LogicException('unreachable');
         }
     }
 }

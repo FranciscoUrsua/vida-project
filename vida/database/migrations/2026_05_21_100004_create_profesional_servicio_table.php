@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\Servicio;
 
 /**
  * Profesionales asignados a un servicio.
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Schema;
  * Sin gestión de agenda ni control de carga de trabajo en VIDA 360.
  * La baja se registra con fecha_baja (nunca se eliminan registros históricos).
  *
- * @see Modules\Centro\Models\Servicio
+ * @see Servicio
  */
 return new class extends Migration
 {

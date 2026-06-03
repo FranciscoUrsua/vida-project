@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\UsuarioUo;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Modules\Mensajes\Enums\DestinatarioType;
@@ -40,48 +41,44 @@ class BuzonPageTest extends TestCase
         $this->seed(RolesSeeder::class);
 
         $uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Test Buzon',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Test Buzon',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $this->usuario = User::create([
-            'name'              => 'Profesional Test',
-            'email'             => 'buzon@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Profesional Test',
+            'email' => 'buzon@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
 
         $this->usuario->assignRole('intervencion');
 
         UsuarioUo::create([
-            'usuario_id'             => $this->usuario->id,
+            'usuario_id' => $this->usuario->id,
             'unidad_organizativa_id' => $uo->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
     }
 
     /**
      * Crea una alerta directa al usuario.
-     *
-     * @param User $usuario
-     * @param TipoAlerta $tipo
-     * @return Alerta
      */
     private function crearAlerta(User $usuario, TipoAlerta $tipo = TipoAlerta::Alerta): Alerta
     {
         return Alerta::create([
-            'tipo'                   => $tipo,
-            'origen_type'            => User::class,
-            'origen_id'              => $usuario->id,
-            'titulo'                 => 'Alerta de prueba',
-            'cuerpo'                 => 'Cuerpo de la alerta de prueba.',
-            'destinatario_type'      => DestinatarioType::Usuario,
-            'destinatario_usuario_id'=> $usuario->id,
-            'estado'                 => EstadoAlerta::Pendiente,
+            'tipo' => $tipo,
+            'origen_type' => User::class,
+            'origen_id' => $usuario->id,
+            'titulo' => 'Alerta de prueba',
+            'cuerpo' => 'Cuerpo de la alerta de prueba.',
+            'destinatario_type' => DestinatarioType::Usuario,
+            'destinatario_usuario_id' => $usuario->id,
+            'estado' => EstadoAlerta::Pendiente,
         ]);
     }
 
@@ -96,11 +93,11 @@ class BuzonPageTest extends TestCase
     public function pestana_alertas_muestra_solo_las_del_usuario(): void
     {
         $otro = User::create([
-            'name'              => 'Otro user',
-            'email'             => 'otro-buzon@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Otro user',
+            'email' => 'otro-buzon@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
 
         $this->crearAlerta($this->usuario);
@@ -127,7 +124,7 @@ class BuzonPageTest extends TestCase
             ->call('reconocerAlerta', $alerta->id);
 
         $this->assertDatabaseHas('alertas', [
-            'id'     => $alerta->id,
+            'id' => $alerta->id,
             'estado' => EstadoAlerta::Reconocida->value,
         ]);
     }
@@ -139,16 +136,16 @@ class BuzonPageTest extends TestCase
     public function no_se_puede_reconocer_alerta_de_otro_usuario(): void
     {
         $otro = User::create([
-            'name'              => 'Otro user 03',
-            'email'             => 'otro03@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Otro user 03',
+            'email' => 'otro03@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
 
         $alertaAjena = $this->crearAlerta($otro);
 
-        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        $this->expectException(ModelNotFoundException::class);
 
         Livewire::actingAs($this->usuario)
             ->test(BuzonPage::class)
@@ -162,27 +159,27 @@ class BuzonPageTest extends TestCase
     public function pestana_mensajes_muestra_solo_hilos_propios(): void
     {
         $remitente = User::create([
-            'name'              => 'Remitente',
-            'email'             => 'remitente@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Remitente',
+            'email' => 'remitente@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
 
         // Hilo donde participa el usuario
         $hilo1 = MensajeHilo::create(['asunto' => 'Hilo del usuario', 'creado_por_id' => $this->usuario->id]);
         MensajeParticipante::create([
-            'hilo_id'    => $hilo1->id,
+            'hilo_id' => $hilo1->id,
             'usuario_id' => $this->usuario->id,
-            'rol'        => 'participante',
+            'rol' => 'participante',
         ]);
 
         // Hilo donde NO participa el usuario
         $hilo2 = MensajeHilo::create(['asunto' => 'Hilo ajeno', 'creado_por_id' => $remitente->id]);
         MensajeParticipante::create([
-            'hilo_id'    => $hilo2->id,
+            'hilo_id' => $hilo2->id,
             'usuario_id' => $remitente->id,
-            'rol'        => 'remitente_inicial',
+            'rol' => 'remitente_inicial',
         ]);
 
         $componente = Livewire::actingAs($this->usuario)
@@ -200,9 +197,9 @@ class BuzonPageTest extends TestCase
     {
         $hilo = MensajeHilo::create(['asunto' => 'Hilo respuesta', 'creado_por_id' => $this->usuario->id]);
         MensajeParticipante::create([
-            'hilo_id'    => $hilo->id,
+            'hilo_id' => $hilo->id,
             'usuario_id' => $this->usuario->id,
-            'rol'        => 'participante',
+            'rol' => 'participante',
         ]);
 
         Livewire::actingAs($this->usuario)
@@ -212,7 +209,7 @@ class BuzonPageTest extends TestCase
             ->call('enviarRespuesta', $hilo->id);
 
         $this->assertDatabaseHas('mensajes', [
-            'hilo_id'      => $hilo->id,
+            'hilo_id' => $hilo->id,
             'remitente_id' => $this->usuario->id,
         ]);
     }
@@ -223,7 +220,7 @@ class BuzonPageTest extends TestCase
     #[Test]
     public function avisos_aparecen_en_pestana_avisos_no_en_alertas(): void
     {
-        $aviso  = $this->crearAlerta($this->usuario, TipoAlerta::Aviso);
+        $aviso = $this->crearAlerta($this->usuario, TipoAlerta::Aviso);
         $alerta = $this->crearAlerta($this->usuario, TipoAlerta::Alerta);
 
         $componente = Livewire::actingAs($this->usuario)->test(BuzonPage::class);

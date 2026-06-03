@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\ResponsableServicio;
 
 /**
  * Historial de responsables de un servicio.
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Schema;
  * El registro activo es el que tiene fecha_fin = null. Solo puede haber un
  * responsable activo por servicio.
  *
- * @see Modules\Centro\Models\ResponsableServicio
+ * @see ResponsableServicio
  */
 return new class extends Migration
 {

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Modules\Agenda\Database\Factories\LineaCuadranteFactory;
 use Modules\Centro\Models\Centro;
 
@@ -22,7 +23,7 @@ use Modules\Centro\Models\Centro;
  * @property int $cuadrante_mes_id
  * @property int $usuario_id
  * @property int $centro_id
- * @property \Illuminate\Support\Carbon $fecha
+ * @property Carbon $fecha
  * @property array $franjas
  * @property bool $anulada
  * @property int|null $excepcion_id
@@ -41,7 +42,7 @@ class LineaCuadrante extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'fecha'   => 'date',
+        'fecha' => 'date',
         'franjas' => 'array',
         'anulada' => 'boolean',
     ];

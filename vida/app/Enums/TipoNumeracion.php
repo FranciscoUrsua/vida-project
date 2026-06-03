@@ -10,16 +10,16 @@ namespace App\Enums;
  */
 enum TipoNumeracion: string
 {
-    case Numero    = 'numero';
+    case Numero = 'numero';
     case SinNumero = 'sin_numero';
-    case Km        = 'km';
+    case Km = 'km';
 
     public function label(): string
     {
         return match ($this) {
-            self::Numero    => 'Número',
+            self::Numero => 'Número',
             self::SinNumero => 'Sin número',
-            self::Km        => 'Kilómetro',
+            self::Km => 'Kilómetro',
         };
     }
 }
