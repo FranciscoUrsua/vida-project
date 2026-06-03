@@ -1,0 +1,268 @@
+meta:
+  nombre: "Demo Comercial"
+  descripcion: "5 centros (3 ASP + 2 especializados), 30 profesionales, ~145 ciudadanos. Mix realista de trayectorias."
+  reset_cada: "semanal"
+
+centros:
+  - id: c1
+    nombre: CSS Vallecas
+    tipo: asp
+    distrito: Puente de Vallecas
+  - id: c2
+    nombre: CSS Carabanchel
+    tipo: asp
+    distrito: Carabanchel
+  - id: c3
+    nombre: CSS Usera
+    tipo: asp
+    distrito: Usera
+  - id: c4
+    nombre: Centro de Mayores Hortaleza
+    tipo: especializada
+    distrito: Hortaleza
+  - id: c5
+    nombre: Servicio de Familia e Infancia Moncloa
+    tipo: especializada
+    distrito: Moncloa
+
+profesionales:
+  - login: supervisor.vallecas@demo.es
+    nombre: Directora CSS Vallecas
+    rol: supervisor
+    centro: c1
+  - login: tsr1.vallecas@demo.es
+    nombre: Ana López García
+    rol: intervencion
+    centro: c1
+  - login: tsr2.vallecas@demo.es
+    nombre: Carlos Martínez Ruiz
+    rol: intervencion
+    centro: c1
+  - login: tsr3.vallecas@demo.es
+    nombre: María García Fernández
+    rol: intervencion
+    centro: c1
+  - login: tsr4.vallecas@demo.es
+    nombre: José Rodríguez Pérez
+    rol: intervencion
+    centro: c1
+  - login: auxiliar1.vallecas@demo.es
+    nombre: Rosa Auxiliar Vallecas
+    rol: consulta_basica
+    centro: c1
+  - login: supervisor.carabanchel@demo.es
+    nombre: Director CSS Carabanchel
+    rol: supervisor
+    centro: c2
+  - login: tsr1.carabanchel@demo.es
+    nombre: Laura González Sanz
+    rol: intervencion
+    centro: c2
+  - login: tsr2.carabanchel@demo.es
+    nombre: Miguel Torres Vega
+    rol: intervencion
+    centro: c2
+  - login: tsr3.carabanchel@demo.es
+    nombre: Elena Castro Mora
+    rol: intervencion
+    centro: c2
+  - login: tsr4.carabanchel@demo.es
+    nombre: David Ruiz Blanco
+    rol: intervencion
+    centro: c2
+  - login: auxiliar1.carabanchel@demo.es
+    nombre: Isabel Auxiliar Carabanchel
+    rol: consulta_basica
+    centro: c2
+  - login: supervisor.usera@demo.es
+    nombre: Supervisora CSS Usera
+    rol: supervisor
+    centro: c3
+  - login: tsr1.usera@demo.es
+    nombre: Patricia Moreno Gil
+    rol: intervencion
+    centro: c3
+  - login: tsr2.usera@demo.es
+    nombre: Fernando Díaz Álvarez
+    rol: intervencion
+    centro: c3
+  - login: tsr3.usera@demo.es
+    nombre: Cristina Serrano Peña
+    rol: intervencion
+    centro: c3
+  - login: auxiliar1.usera@demo.es
+    nombre: Andrés Auxiliar Usera
+    rol: consulta_basica
+    centro: c3
+  - login: supervisor.hortaleza@demo.es
+    nombre: Director Mayores Hortaleza
+    rol: supervisor
+    centro: c4
+  - login: tsr1.hortaleza@demo.es
+    nombre: Beatriz Jiménez Vidal
+    rol: intervencion
+    centro: c4
+  - login: tsr2.hortaleza@demo.es
+    nombre: Raúl Hernández Cano
+    rol: intervencion
+    centro: c4
+  - login: tsr3.hortaleza@demo.es
+    nombre: Nuria Santos Leal
+    rol: intervencion
+    centro: c4
+  - login: auxiliar1.hortaleza@demo.es
+    nombre: Pablo Auxiliar Hortaleza
+    rol: consulta_basica
+    centro: c4
+  - login: supervisor.moncloa@demo.es
+    nombre: Supervisora Familia Moncloa
+    rol: supervisor
+    centro: c5
+  - login: tsr1.moncloa@demo.es
+    nombre: Silvia Navarro Cruz
+    rol: intervencion
+    centro: c5
+  - login: tsr2.moncloa@demo.es
+    nombre: Álvaro Romero Fuentes
+    rol: intervencion
+    centro: c5
+  - login: tsr3.moncloa@demo.es
+    nombre: Mónica Gutiérrez Reyes
+    rol: intervencion
+    centro: c5
+  - login: auxiliar1.moncloa@demo.es
+    nombre: Sandra Auxiliar Moncloa
+    rol: consulta_basica
+    centro: c5
+
+escenarios:
+  - profesional: tsr1.vallecas@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 9
+      - escenario: cerrada
+        cantidad: 3
+      - escenario: nueva
+        cantidad: 1
+  - profesional: tsr2.vallecas@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 8
+      - escenario: cerrada
+        cantidad: 4
+      - escenario: nueva
+        cantidad: 1
+  - profesional: tsr3.vallecas@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 8
+      - escenario: cerrada
+        cantidad: 3
+      - escenario: nueva
+        cantidad: 2
+  - profesional: tsr4.vallecas@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 7
+      - escenario: cerrada
+        cantidad: 3
+      - escenario: urgente
+        cantidad: 1
+  - profesional: tsr1.carabanchel@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 8
+      - escenario: cerrada
+        cantidad: 3
+      - escenario: nueva
+        cantidad: 1
+  - profesional: tsr2.carabanchel@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 7
+      - escenario: cerrada
+        cantidad: 4
+      - escenario: urgente
+        cantidad: 1
+  - profesional: tsr3.carabanchel@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 8
+      - escenario: cerrada
+        cantidad: 3
+  - profesional: tsr4.carabanchel@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 7
+      - escenario: cerrada
+        cantidad: 4
+      - escenario: nueva
+        cantidad: 1
+  - profesional: tsr1.usera@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 7
+      - escenario: cerrada
+        cantidad: 3
+      - escenario: nueva
+        cantidad: 1
+  - profesional: tsr2.usera@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 6
+      - escenario: cerrada
+        cantidad: 3
+      - escenario: urgente
+        cantidad: 1
+  - profesional: tsr3.usera@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 6
+      - escenario: cerrada
+        cantidad: 3
+  - profesional: tsr1.hortaleza@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 5
+      - escenario: cerrada
+        cantidad: 3
+      - escenario: compleja
+        cantidad: 2
+  - profesional: tsr2.hortaleza@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 5
+      - escenario: cerrada
+        cantidad: 3
+      - escenario: compleja
+        cantidad: 2
+  - profesional: tsr3.hortaleza@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 5
+      - escenario: cerrada
+        cantidad: 3
+  - profesional: tsr1.moncloa@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 5
+      - escenario: cerrada
+        cantidad: 3
+      - escenario: compleja
+        cantidad: 2
+  - profesional: tsr2.moncloa@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 4
+      - escenario: cerrada
+        cantidad: 3
+      - escenario: nueva
+        cantidad: 1
+  - profesional: tsr3.moncloa@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 4
+      - escenario: cerrada
+        cantidad: 3
+      - escenario: nueva
+        cantidad: 1

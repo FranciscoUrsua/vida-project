@@ -137,3 +137,4 @@ Ficheros disponibles:
 | `prestaciones-tests.md` | 13 tests funcionales (TF-PRE-13 parcial, pendiente Intervención) |
 | `autenticacion-tests.md` | 23 tests funcionales de login, logout y onboarding (TF-AUTH-01 a TF-AUTH-23) |
 | `autenticacion-implementacion.md` | Instrucciones paso a paso para implementar login, onboarding y componente avatar |
+| `demo-worlds-cli.md` | Sistema de world-building para entornos de demo: infraestructura, escenarios, mundos YAML y página Filament |

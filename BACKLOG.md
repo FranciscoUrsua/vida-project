@@ -5,6 +5,33 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+# 🔧 DEUDA TÉCNICA Y PENDIENTES
+
+---
+
+**[Demo] Citas en escenarios de demo** — 2026-06-03
+Módulo: Demo world-building
+Las trayectorias del sistema de demo no generan citas porque requieren `slot_id` (FK NOT NULL a la tabla `slots`) y toda la maquinaria de agenda (cuadrantes, perfiles horarios, excepciones). Pendiente para cuando el módulo Agenda exponga una API simplificada de creación de citas de test.
+Ver: `database/seeders/Demo/Scenarios/` — todos los escenarios tienen comentario explicit documentando la omisión.
+
+---
+
+**[Demo] Campos ausentes en historias_sociales** — 2026-06-03
+Módulo: Demo world-building / HistoriaSocial
+La tabla `historias_sociales` no tiene `fecha_apertura`, `fecha_cierre` ni `sia_contacto_id`. Si se añaden estos campos en futuras migraciones, actualizar todos los escenarios de demo para poblarlos. Los escenarios actuales usan `created_at` implícitamente para la fecha de apertura.
+
+---
+
+**[Demo] Tests de integración pesados TF-DEMO-08 a TF-DEMO-12** — 2026-06-03
+Módulo: Demo world-building / Tests
+Los tests TF-DEMO-08 a TF-DEMO-12 están declarados como `markTestIncomplete`. Requieren:
+- BD de demo aislada con roles Spatie (`intervencion`, `supervisor`, `consulta_basica`) ya sembrados
+- APP_ENV = 'local' o 'staging' (no 'testing') para que `demo:reset` no aborte
+- Suite de tests separada que no use RefreshDatabase global
+Ver: `tests/Feature/Demo/DemoWorldLoaderTest.php`
+
+---
+
 # 💡 IDEAS Y FUNCIONALIDADES AMBICIOSAS
 
 > Ideas que requieren decisión de diseño antes de poder planificarse.

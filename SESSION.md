@@ -4,26 +4,31 @@ _Actualizado: 2026-06-03_
 
 ## Tarea completada
 
-Corrección de los 17 tests fallidos de la suite (Bloque Auth 7 + Bloque Prestaciones Filament 9 + Bloque CiudadanoPage 1). Suite pasa a 488 tests, 0 fallos.
+Implementación completa del sistema de world-building para entornos de demo: DemoWorldLoader, DemoWorldBuilder, DemoScenarioBuilder, 5 escenarios de trayectoria, DemoInvariantChecker, comandos `demo:reset` y `demo:validate`, página Filament "Entornos Demo", 5 mundos YAML, y 12 tests (7 activos, 5 pendientes). PHPStan 0 errores nuevos. Tests: 7/7 activos pasan.
 
 ## Estado actual
 
 ### Tests — 0 fallos
-- Suite: 488 tests, 0 fallos, 6 pendientes (deuda documentada), 1 incompleto (centroActivo pendiente).
-- Los tests de Filament (`PrestacionFilamentResourceTest`) requieren `adm_sistema` en el usuario y siembra de roles.
-- El binding `historia` en `IntervencionServiceProvider` usa `withoutGlobalScopes()` para que la policy emita 403 en lugar de 404.
+- Suite base: 488 tests, 0 fallos (antes de esta sesión).
+- Tests Demo: `tests/Feature/Demo/DemoWorldLoaderTest.php` — 7 activos pasan, 5 `markTestIncomplete`.
+- PHPStan sobre los ficheros nuevos: 0 errores.
 
-### Tooling de calidad — operativo
-- `composer analyse` → PHPStan nivel 6, pasa sin errores (baseline de 772 errores heredados).
-- `composer format` → Pint formatea; `composer format-check` verifica (para CI).
-- `composer rector-dry` → Rector en modo seco para revisar propuestas de refactoring.
-- `.github/workflows/quality.yml` → CI ejecuta Pint + PHPStan en cada push/PR.
+### Sistema de demo — operativo
+- `php artisan demo:validate ci_minimo` → valida YAML sin tocar BD
+- `php artisan demo:reset --world=ci_minimo` → resetea entorno en transacción
+- Página Filament en grupo 'Sistema' → 'Entornos Demo' (visible en local/staging, oculta en producción)
+- 5 mundos YAML: `ci_minimo`, `demo_formacion`, `pruebas_permisos`, `pruebas_agenda`, `demo_comercial`
 
 ### UI Intervención
 - **Entrega 3 — completa**: CiudadanoPage con timeline HS, 7 herramientas, 92 tests en verde.
 - **Entrega 2 — completa** (MisCasosPage, BuscarCiudadanoPage, BuzonPage).
 - **Entrega 1 — completa** (AgendaPage, Sidebar, layout operativo).
 - **Autenticación — completa**.
+
+### Tooling de calidad — operativo
+- `composer analyse` → PHPStan nivel 6, baseline 772 errores heredados (no añadir nuevos).
+- `composer format` → Pint; `composer format-check` para CI.
+- `.github/workflows/quality.yml` → CI ejecuta Pint + PHPStan en cada push/PR.
 
 ## Pendientes conocidos
 
@@ -35,14 +40,17 @@ Corrección de los 17 tests fallidos de la suite (Bloque Auth 7 + Bloque Prestac
 | Herramienta Informes | Stub "en construcción" — integración Documentos pendiente |
 | `nunomaduro/larastan` | Abandonado upstream — migrar a `larastan/larastan` en próxima sesión de deps |
 | PHPStan baseline | 772 errores heredados — reducir progresivamente, nunca añadir nuevos |
+| TF-DEMO-08 a 12 | Tests integración pesados del sistema de demo — ver BACKLOG |
 
 ## Siguiente paso recomendado
 
-**UI Intervención — Entrega 4** o reducción progresiva del baseline de PHPStan.
-Si se toca código nuevo, ejecutar `composer format-check && composer analyse` antes de commitear.
+**UI Intervención — Entrega 4** ("Ver PISO" en CiudadanoPage) o reducción progresiva del baseline de PHPStan.
+Si se toca código nuevo: `composer format-check && vendor/bin/phpstan analyse --memory-limit=512M <ficheros>`.
 
 ## Contexto relevante para retomar
 
 - `Apunte` usa `plan_id` (NOT NULL) → siempre requiere un plan activo para crear apuntes.
-- `withoutGlobalScopes()` en `apuntesHS` y `pisoActivo` es deliberado: la policy ya verificó acceso.
-- Los 9 fallos de `PrestacionFilamentResourceTest` son pre-existentes (no relacionados con este tooling).
+- `withoutGlobalScopes()` en seeders de demo es deliberado: no hay usuario autenticado en contexto de seeder.
+- `PlanDeIntervencion` tiene guard de firma en `saving()` pero solo aplica al **actualizar** estado a activo (no al crear).
+- La página Filament `DemoWorldsPage` usa `getResetAction($id)` dinámico en la vista, no `getHeaderActions()`.
+- Citas excluidas del sistema de demo: requieren slot_id y maquinaria de agenda (ver BACKLOG).

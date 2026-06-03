@@ -1,0 +1,54 @@
+meta:
+  nombre: "Demo Formación"
+  descripcion: "Dos centros ASP con un ejemplo didáctico de cada trayectoria."
+  reset_cada: "mensual"
+
+centros:
+  - id: c1
+    nombre: CSS Vallecas Formación
+    tipo: asp
+    distrito: Puente de Vallecas
+  - id: c2
+    nombre: CSS Carabanchel Formación
+    tipo: asp
+    distrito: Carabanchel
+
+profesionales:
+  - login: supervisor.formacion@demo.es
+    nombre: Marta Supervisora
+    rol: supervisor
+    centro: c1
+  - login: tsr1.formacion@demo.es
+    nombre: Ana Trabaja Social
+    rol: intervencion
+    centro: c1
+  - login: tsr2.formacion@demo.es
+    nombre: Luis García
+    rol: intervencion
+    centro: c2
+  - login: auxiliar.formacion@demo.es
+    nombre: Rosa Auxiliar
+    rol: consulta_basica
+    centro: c1
+
+escenarios:
+  - profesional: tsr1.formacion@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 5
+      - escenario: cerrada
+        cantidad: 5
+      - escenario: nueva
+        cantidad: 5
+      - escenario: urgente
+        cantidad: 5
+  - profesional: tsr2.formacion@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 5
+      - escenario: cerrada
+        cantidad: 5
+      - escenario: nueva
+        cantidad: 5
+      - escenario: urgente
+        cantidad: 5

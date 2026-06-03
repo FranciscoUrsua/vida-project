@@ -2,6 +2,58 @@
 
 ---
 
+## Sistema de world-building para entornos de demo — 2026-06-03
+
+### Módulos afectados
+`database/seeders/Demo/`, `app/Console/Commands/`, `app/Filament/Pages/`, `tests/Feature/Demo/`, `database/seeders/worlds/`
+
+### Ficheros creados
+
+**Infraestructura de world-building:**
+- `database/seeders/Demo/DemoWorldLoader.php` — Cargador y validador de mundos YAML (con 12 validaciones semánticas)
+- `database/seeders/Demo/DemoWorldBuilder.php` — Constructor de UOs y usuarios profesionales
+- `database/seeders/Demo/DemoScenarioBuilder.php` — Constructor de escenarios de ciudadanos
+
+**Escenarios de trayectoria:**
+- `database/seeders/Demo/Scenarios/TrayectoriaActiva.php` — Historia abierta, plan activo, 2-4 seguimientos
+- `database/seeders/Demo/Scenarios/TrayectoriaCerrada.php` — Historia cerrada, plan cerrado (objetivos_cumplidos), 3-6 seguimientos
+- `database/seeders/Demo/Scenarios/TrayectoriaNueva.php` — Caso reciente, sin plan ni seguimientos
+- `database/seeders/Demo/Scenarios/TrayectoriaUrgente.php` — Sin SIA, entrevista urgencia, plan activo, 1-3 seguimientos
+- `database/seeders/Demo/Scenarios/TrayectoriaCompleja.php` — Plan ASP + plan especializado, solo UOs 'especializada'
+
+**Verificador de invariantes:**
+- `database/seeders/Demo/DemoInvariantChecker.php` — 3 invariantes de dominio (planes sin historia, planes esp sin plan_asp_id, historias cerradas con planes activos)
+
+**Comandos Artisan:**
+- `app/Console/Commands/DemoResetCommand.php` — `demo:reset --world=X` con TRUNCATE CASCADE y transacción
+- `app/Console/Commands/DemoValidateCommand.php` — `demo:validate X` solo valida sin tocar BD
+
+**Página Filament:**
+- `app/Filament/Pages/DemoWorldsPage.php` — Grupo 'Sistema', solo visible en no-producción, con actions de reset con confirmación
+- `resources/views/filament/pages/demo-worlds-page.blade.php` — Vista con grid de mundos y stats
+
+**Mundos YAML:**
+- `database/seeders/worlds/ci_minimo.yaml` — 2 centros, 5 profesionales, 5 ciudadanos (1 por escenario)
+- `database/seeders/worlds/demo_formacion.yaml` — 2 centros ASP, 40 ciudadanos
+- `database/seeders/worlds/pruebas_permisos.yaml` — 1 centro, 10 ciudadanos, 1 por cada rol
+- `database/seeders/worlds/pruebas_agenda.yaml` — 3 centros ASP, 75 ciudadanos activos
+- `database/seeders/worlds/demo_comercial.yaml` — 5 centros (3 ASP + 2 esp.), ~145 ciudadanos
+
+**Tests:**
+- `tests/Feature/Demo/DemoWorldLoaderTest.php` — TF-DEMO-01 a TF-DEMO-12 (7 activos, 5 markTestIncomplete)
+
+### Decisiones de implementación
+
+- `HistoriaSocial::withoutGlobalScopes()->create(...)` en todos los escenarios (AmbitoUoScope filtraría en contexto sin usuario autenticado)
+- `Ciudadano::withoutGlobalScopes()->create(...)` por la misma razón
+- Citas omitidas en todos los escenarios: requieren slot_id y maquinaria de agenda compleja (ver BACKLOG)
+- `seguimientos_plan.entrevista_id` es NOT NULL → cada seguimiento crea su propia Entrevista auxiliar de tipo 'seguimiento'
+- `PlanDeIntervencion` tiene guard de firma en `saving()` pero solo aplica cuando `$plan->exists` y se actualiza estado → crear directamente con estado 'activo' no dispara el guard
+- Directorio `Demo/` (capital D) para cumplir PSR-4 (namespace `Database\Seeders\Demo`)
+- La página Filament usa `getResetAction($worldId)` devolviendo `Action` en lugar de `getHeaderActions()` para poder generar un action por cada mundo dinámicamente
+
+---
+
 ## Corrección de 17 tests fallidos — 2026-06-03
 
 ### Módulos afectados

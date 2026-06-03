@@ -1,0 +1,52 @@
+meta:
+  nombre: "CI Mínimo"
+  descripcion: "Mundo mínimo para tests de integración. 1 ciudadano por escenario."
+  reset_cada: "por demanda"
+
+centros:
+  - id: c1
+    nombre: CSS Pruebas
+    tipo: asp
+    distrito: Centro
+  - id: c2
+    nombre: Centro Especializado Pruebas
+    tipo: especializada
+    distrito: Retiro
+
+profesionales:
+  - login: supervisor.test@demo.es
+    nombre: Laura Supervisora
+    rol: supervisor
+    centro: c1
+  - login: tsr1.test@demo.es
+    nombre: Ana García López
+    rol: intervencion
+    centro: c1
+  - login: tsr2.test@demo.es
+    nombre: Pedro Martínez Ruiz
+    rol: intervencion
+    centro: c1
+  - login: tsr3.especializada@demo.es
+    nombre: Carmen López García
+    rol: intervencion
+    centro: c2
+  - login: auxiliar.test@demo.es
+    nombre: José Auxiliar
+    rol: consulta_basica
+    centro: c1
+
+escenarios:
+  - profesional: tsr1.test@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 1
+      - escenario: cerrada
+        cantidad: 1
+      - escenario: nueva
+        cantidad: 1
+      - escenario: urgente
+        cantidad: 1
+  - profesional: tsr3.especializada@demo.es
+    ciudadanos:
+      - escenario: compleja
+        cantidad: 1

@@ -1,0 +1,74 @@
+meta:
+  nombre: "Pruebas Agenda"
+  descripcion: "3 centros ASP con máxima densidad de casos activos para pruebas de agenda."
+  reset_cada: "semanal"
+
+centros:
+  - id: c1
+    nombre: CSS Vallecas Agenda
+    tipo: asp
+    distrito: Puente de Vallecas
+  - id: c2
+    nombre: CSS Carabanchel Agenda
+    tipo: asp
+    distrito: Carabanchel
+  - id: c3
+    nombre: CSS Usera Agenda
+    tipo: asp
+    distrito: Usera
+
+profesionales:
+  - login: supervisor.agenda@demo.es
+    nombre: Supervisor Agenda
+    rol: supervisor
+    centro: c1
+  - login: tsr1.agenda@demo.es
+    nombre: TSR Vallecas 1
+    rol: intervencion
+    centro: c1
+  - login: tsr2.agenda@demo.es
+    nombre: TSR Vallecas 2
+    rol: intervencion
+    centro: c1
+  - login: tsr3.agenda@demo.es
+    nombre: TSR Carabanchel 1
+    rol: intervencion
+    centro: c2
+  - login: tsr4.agenda@demo.es
+    nombre: TSR Carabanchel 2
+    rol: intervencion
+    centro: c2
+  - login: tsr5.agenda@demo.es
+    nombre: TSR Usera 1
+    rol: intervencion
+    centro: c3
+  - login: auxiliar1.agenda@demo.es
+    nombre: Auxiliar Vallecas
+    rol: consulta_basica
+    centro: c1
+  - login: auxiliar2.agenda@demo.es
+    nombre: Auxiliar Carabanchel
+    rol: consulta_basica
+    centro: c2
+
+escenarios:
+  - profesional: tsr1.agenda@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 15
+  - profesional: tsr2.agenda@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 15
+  - profesional: tsr3.agenda@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 15
+  - profesional: tsr4.agenda@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 15
+  - profesional: tsr5.agenda@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 15

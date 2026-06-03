@@ -1,0 +1,38 @@
+meta:
+  nombre: "Pruebas de Permisos"
+  descripcion: "1 centro, profesionales con cada rol posible. 10 ciudadanos para verificar accesos."
+  reset_cada: "por demanda"
+
+centros:
+  - id: c1
+    nombre: CSS Permisos Test
+    tipo: asp
+    distrito: Centro
+
+profesionales:
+  - login: supervisor.permisos@demo.es
+    nombre: Supervisora Test
+    rol: supervisor
+    centro: c1
+  - login: tsr1.permisos@demo.es
+    nombre: TSR Activo
+    rol: intervencion
+    centro: c1
+  - login: tsr2.permisos@demo.es
+    nombre: TSR Segundo
+    rol: intervencion
+    centro: c1
+  - login: auxiliar.permisos@demo.es
+    nombre: Auxiliar Test
+    rol: consulta_basica
+    centro: c1
+
+escenarios:
+  - profesional: tsr1.permisos@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 5
+  - profesional: tsr2.permisos@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 5
