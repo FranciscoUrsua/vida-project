@@ -99,7 +99,7 @@ Estas restricciones nunca pueden relajarse sin decisión explícita documentada:
 4. `git add -A`
 5. `git commit -m "<tipo>(<módulo>): <descripción concisa>"` — formato conventional commits.
    Ejemplos de tipo: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`.
-6. `git push origin main`
+6. `git push origin master`
 
 ---
 
