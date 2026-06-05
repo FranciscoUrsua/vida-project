@@ -50,7 +50,9 @@
                         </div>
 
                         <div class="mt-auto pt-2">
-                            {{ ($this->getResetAction($world['id']))->toHtmlString() }}
+                            <x-filament::actions
+                                :actions="[$this->getCachedAction('reset_' . $world['id'])]"
+                            />
                         </div>
                     </div>
                 @endforeach
