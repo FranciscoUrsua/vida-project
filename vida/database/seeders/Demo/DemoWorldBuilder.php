@@ -6,6 +6,7 @@ use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Models\UsuarioUo;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * Constructor de infraestructura de mundo demo.
@@ -52,6 +53,9 @@ class DemoWorldBuilder
         $unidades = $this->buildCentros($worldConfig['centros']);
         $profesionales = $this->buildProfesionales($worldConfig['profesionales'], $unidades);
 
+        // Limpiar caché de Spatie para que el siguiente request relea roles desde BD
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
         return [
             'unidades' => $unidades,
             'profesionales' => $profesionales,
@@ -75,12 +79,12 @@ class DemoWorldBuilder
         foreach ($centros as $centro) {
             $tipoUo = $centro['tipo'] === 'asp' ? 'css' : 'especializada';
 
-            $uo = UnidadOrganizativa::create([
-                'nombre' => $centro['nombre'],
-                'tipo' => $tipoUo,
-                'parent_id' => null,
-                'activa' => true,
-            ]);
+            // firstOrCreate garantiza IDs estables entre resets del mismo mundo;
+            // create() acumulaba UOs huérfanas y rompía la visibilidad vía AmbitoUoScope.
+            $uo = UnidadOrganizativa::firstOrCreate(
+                ['nombre' => $centro['nombre'], 'tipo' => $tipoUo],
+                ['parent_id' => null, 'activa' => true]
+            );
 
             $unidades[$centro['id']] = $uo;
 
@@ -112,6 +116,9 @@ class DemoWorldBuilder
     {
         $profesionales = [];
 
+        // IDs de UO válidas en este mundo — se usan para limpiar adscripciones obsoletas
+        $uoIdsValidos = array_map(fn ($uo) => $uo->id, $unidades);
+
         foreach ($profesionalesConfig as $profConfig) {
             $user = User::updateOrCreate(
                 ['email' => $profConfig['login']],
@@ -130,6 +137,11 @@ class DemoWorldBuilder
             $user->syncRoles([$profConfig['rol']]);
 
             $uoId = $unidades[$profConfig['centro']]->id;
+
+            // Eliminar adscripciones obsoletas a UOs que no pertenecen a este mundo
+            UsuarioUo::where('usuario_id', $user->id)
+                ->whereNotIn('unidad_organizativa_id', $uoIdsValidos)
+                ->delete();
 
             UsuarioUo::updateOrCreate(
                 [
