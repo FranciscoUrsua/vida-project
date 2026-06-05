@@ -5,6 +5,8 @@ namespace App\Filament\Pages;
 use App\Console\Commands\DemoResetCommand;
 use Database\Seeders\Demo\DemoWorldLoader;
 use Filament\Actions\Action;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Artisan;
@@ -22,8 +24,10 @@ use Illuminate\Support\Facades\Artisan;
  * @see DemoWorldLoader
  * @see DemoResetCommand
  */
-class DemoWorldsPage extends Page
+class DemoWorldsPage extends Page implements HasActions
 {
+    use InteractsWithActions;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-globe-alt';
 
     protected static ?string $navigationLabel = 'Entornos Demo';
@@ -81,7 +85,7 @@ class DemoWorldsPage extends Page
                     'reset_cada' => $config['meta']['reset_cada'],
                 ];
             } catch (\InvalidArgumentException) {
-                // YAML inválido — omitir sin romper la página
+                // YAML inválido — mostrar tarjeta de error sin botón de reset
                 $worlds[] = [
                     'id' => $name,
                     'nombre' => $name,
@@ -98,61 +102,63 @@ class DemoWorldsPage extends Page
     }
 
     /**
- * Registra todas las Actions de la página para que Livewire las reconozca.
- * Una Action por cada mundo disponible.
- *
- * @return array<Action>
- */
-protected function getActions(): array
-{
-    $loader = new DemoWorldLoader;
+     * Registra todas las Actions de reset, una por mundo disponible.
+     * Filament requiere que estén aquí para que Livewire las reconozca.
+     * La vista las dispara con wire:click="mountAction('reset_X')".
+     *
+     * @return array<Action>
+     */
+    protected function getActions(): array
+    {
+        $loader = new DemoWorldLoader;
 
-    return collect($loader->listWorlds())
-        ->map(fn (string $name) => $this->buildResetAction($name))
-        ->all();
-}
-
-/**
- * Construye el Action de reset para un mundo concreto.
- *
- * @param string $worldId Nombre del mundo (sin extensión)
- */
-private function buildResetAction(string $worldId): Action
-{
-    try {
-        $config = (new DemoWorldLoader)->load($worldId);
-        $nombre = $config['meta']['nombre'];
-    } catch (\InvalidArgumentException) {
-        $nombre = $worldId;
+        return collect($loader->listWorlds())
+            ->map(fn (string $name) => $this->buildResetAction($name))
+            ->all();
     }
 
-    return Action::make("reset_{$worldId}")
-        ->label('Cargar mundo')
-        ->icon('heroicon-o-arrow-path')
-        ->color('danger')
-        ->requiresConfirmation()
-        ->modalHeading("¿Cargar el mundo «{$nombre}»?")
-        ->modalDescription(
-            'Esta operación destruirá TODOS los ciudadanos, historias sociales, planes, ' .
-            'entrevistas y seguimientos actuales, y reconstruirá el entorno desde el YAML ' .
-            'seleccionado. Esta acción no se puede deshacer.'
-        )
-        ->modalSubmitActionLabel('Sí, resetear entorno')
-        ->action(function () use ($worldId, $nombre) {
-            $exitCode = Artisan::call('demo:reset', ['--world' => $worldId]);
+    /**
+     * Construye el Action de reset para un mundo concreto.
+     *
+     * @param string $worldId Nombre del mundo (sin extensión)
+     */
+    private function buildResetAction(string $worldId): Action
+    {
+        try {
+            $config = (new DemoWorldLoader)->load($worldId);
+            $nombre = $config['meta']['nombre'];
+        } catch (\InvalidArgumentException) {
+            $nombre = $worldId;
+        }
 
-            if ($exitCode === 0) {
-                Notification::make()
-                    ->title("Mundo «{$nombre}» cargado correctamente.")
-                    ->success()
-                    ->send();
-            } else {
-                Notification::make()
-                    ->title('El reset falló.')
-                    ->body('Revisa los logs de la aplicación para más detalles.')
-                    ->danger()
-                    ->send();
-            }
-        });
+        return Action::make("reset_{$worldId}")
+            ->label('Cargar mundo')
+            ->icon('heroicon-o-arrow-path')
+            ->color('danger')
+            ->requiresConfirmation()
+            ->modalHeading("¿Cargar el mundo «{$nombre}»?")
+            ->modalDescription(
+                'Esta operación destruirá TODOS los ciudadanos, historias sociales, planes, ' .
+                'entrevistas y seguimientos actuales, y reconstruirá el entorno desde el YAML ' .
+                'seleccionado. Esta acción no se puede deshacer.'
+            )
+            ->modalSubmitActionLabel('Sí, resetear entorno')
+            ->modalCancelActionLabel('Cancelar')
+            ->action(function () use ($worldId, $nombre) {
+                $exitCode = Artisan::call('demo:reset', ['--world' => $worldId]);
+
+                if ($exitCode === 0) {
+                    Notification::make()
+                        ->title("Mundo «{$nombre}» cargado correctamente.")
+                        ->success()
+                        ->send();
+                } else {
+                    Notification::make()
+                        ->title('El reset falló.')
+                        ->body('Revisa los logs de la aplicación para más detalles.')
+                        ->danger()
+                        ->send();
+                }
+            });
     }
 }

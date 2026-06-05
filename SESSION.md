@@ -4,6 +4,10 @@ _Actualizado: 2026-06-03_
 
 ## Tarea completada
 
+Corrección de DemoWorldsPage: Actions de Filament 5 ahora funcionan (InteractsWithActions + HasActions + wire:click mountAction + modals). Diseño reescrito con componentes Filament nativos.
+
+## Tarea anterior
+
 Implementación completa del sistema de world-building para entornos de demo: DemoWorldLoader, DemoWorldBuilder, DemoScenarioBuilder, 5 escenarios de trayectoria, DemoInvariantChecker, comandos `demo:reset` y `demo:validate`, página Filament "Entornos Demo", 5 mundos YAML, y 12 tests (7 activos, 5 pendientes). PHPStan 0 errores nuevos. Tests: 7/7 activos pasan.
 
 ## Estado actual

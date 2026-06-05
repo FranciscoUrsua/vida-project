@@ -2,6 +2,34 @@
 
 ---
 
+## Corrección DemoWorldsPage — Actions y diseño — 2026-06-05
+
+### Módulos afectados
+`app/Filament/Pages/DemoWorldsPage.php`, `resources/views/filament/pages/demo-worlds-page.blade.php`
+
+### Cambios
+
+- `DemoWorldsPage` implementa ahora `HasActions` y usa el trait `InteractsWithActions`
+  (de `Filament\Actions\Concerns` y `Filament\Actions\Contracts`). Sin esto, Livewire
+  no conocía las Actions y los botones no tenían handler.
+- Blade reescrito: usa `wire:click="mountAction('reset_X')"` para disparar las Actions
+  registradas. Añadido `<x-filament-actions::modals />` (punto de montaje de modales,
+  sin el cual los modales de confirmación no se renderizan).
+- Diseño: sustituidas clases CSS manuales por componentes Filament nativos
+  (`x-filament::section`, `x-filament::badge`, `x-filament::button`).
+- Botón visible usa `color="gray"` — el rojo se reserva para el modal de confirmación,
+  donde la irreversibilidad se comunica con el texto, no con un botón rojo en cada tarjeta.
+
+### Decisiones de implementación
+
+- `getActions()` (método heredado de `InteractsWithHeaderActions` en `Page`) es el punto
+  correcto para registrar Actions de página en Filament 5. Las Actions se cachean
+  automáticamente al booting del componente Livewire via `cacheInteractsWithHeaderActions()`.
+- El `color('danger')` se mantiene internamente en la Action para que el botón de
+  confirmación del modal sea rojo, pero el botón visible en la tarjeta es `gray`.
+
+---
+
 ## Sistema de world-building para entornos de demo — 2026-06-03
 
 ### Módulos afectados
