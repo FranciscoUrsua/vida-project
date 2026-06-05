@@ -120,15 +120,27 @@ class DemoWorldBuilder
         $uoIdsValidos = array_map(fn ($uo) => $uo->id, $unidades);
 
         foreach ($profesionalesConfig as $profConfig) {
-            $user = User::updateOrCreate(
-                ['email' => $profConfig['login']],
-                [
+            // La contraseña solo se establece en la creación; updateOrCreate sin
+            // 'password' en los valores de actualización evita re-hashear bcrypt
+            // en cada reset para usuarios ya existentes (~200 ms por usuario).
+            $existente = User::where('email', $profConfig['login'])->first();
+
+            if ($existente !== null) {
+                $existente->update([
+                    'name' => $profConfig['nombre'],
+                    'email_verified_at' => now(),
+                    'primer_acceso' => false,
+                ]);
+                $user = $existente;
+            } else {
+                $user = User::create([
+                    'email' => $profConfig['login'],
                     'name' => $profConfig['nombre'],
                     'password' => 'demo1234',
                     'email_verified_at' => now(),
                     'primer_acceso' => false,
-                ]
-            );
+                ]);
+            }
 
             // Garantizar que el rol existe antes de asignarlo
             Role::firstOrCreate(['name' => $profConfig['rol'], 'guard_name' => 'web']);

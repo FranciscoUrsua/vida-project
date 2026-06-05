@@ -62,6 +62,10 @@ class DemoResetCommand extends Command
      */
     public function handle(): int
     {
+        // El reset puede crear cientos de registros con casts encrypted y bcrypt;
+        // sin este límite PHP-FPM lo mata antes de terminar cuando se invoca desde web.
+        set_time_limit(0);
+
         // 1. Verificar entorno
         if (app()->isProduction()) {
             $this->error('Este comando NO puede ejecutarse en entorno de producción.');
