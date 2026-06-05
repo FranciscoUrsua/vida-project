@@ -145,7 +145,7 @@ class DemoWorldsPage extends Page implements HasActions
             ->modalSubmitActionLabel('Sí, resetear entorno')
             ->modalCancelActionLabel('Cancelar')
             ->action(function () use ($worldId, $nombre) {
-                $exitCode = Artisan::call('demo:reset', ['--world' => $worldId]);
+                $exitCode = Artisan::call('demo:reset', ['--world' => $worldId, '--no-interaction' => true]);
 
                 if ($exitCode === 0) {
                     Notification::make()
