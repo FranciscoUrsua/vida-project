@@ -19,7 +19,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Documentos\Enums\TipoInforme;
 use Modules\Documentos\Models\PlantillaInforme;
@@ -201,19 +200,6 @@ class PlantillaInformeResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                $user = auth()->user();
-                if ($user->hasRole('adm_sistema')) {
-                    return;
-                }
-                $uoIds = $user->uoSubtreeIds();
-                if (empty($uoIds)) {
-                    $query->whereRaw('1 = 0');
-
-                    return;
-                }
-                $query->whereIn('unidad_organizativa_id', $uoIds);
-            })
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
                     ->label('Nombre')
@@ -261,17 +247,7 @@ class PlantillaInformeResource extends Resource
             ->actions([
                 EditAction::make(),
                 DeleteAction::make()
-                    ->authorize(function (Model $record) {
-                        $user = auth()->user();
-                        if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
-                            return false;
-                        }
-                        if ($user->hasRole('adm_sistema')) {
-                            return true;
-                        }
-
-                        return in_array($record->unidad_organizativa_id, $user->uoSubtreeIds());
-                    }),
+                    ->authorize(fn () => auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false),
             ])
             ->defaultSort('nombre');
     }
@@ -291,31 +267,13 @@ class PlantillaInformeResource extends Resource
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
     }
 
-    /** adm_usuarios solo puede editar plantillas de su propio subtree de UO. */
     public static function canEdit(Model $record): bool
     {
-        $user = auth()->user();
-        if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
-            return false;
-        }
-        if ($user->hasRole('adm_sistema')) {
-            return true;
-        }
-
-        return in_array($record->unidad_organizativa_id, $user->uoSubtreeIds());
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
-    /** adm_usuarios solo puede borrar plantillas de su propio subtree de UO. */
     public static function canDelete(Model $record): bool
     {
-        $user = auth()->user();
-        if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
-            return false;
-        }
-        if ($user->hasRole('adm_sistema')) {
-            return true;
-        }
-
-        return in_array($record->unidad_organizativa_id, $user->uoSubtreeIds());
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 }

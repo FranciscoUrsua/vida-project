@@ -17,7 +17,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Usuarios\Models\Profesional;
 use Spatie\Permission\Models\Role;
@@ -117,16 +116,7 @@ class UsuarioResource extends Resource
                         ->schema([
                             Select::make('unidad_organizativa_id')
                                 ->label('Unidad Organizativa')
-                                ->options(function () {
-                                    $user = auth()->user();
-                                    $base = UnidadOrganizativa::activas()->orderBy('nombre');
-                                    if ($user?->hasRole('adm_sistema')) {
-                                        return $base->pluck('nombre', 'id');
-                                    }
-                                    $uoIds = $user?->uoSubtreeIds() ?? [];
-
-                                    return $base->whereIn('id', $uoIds)->pluck('nombre', 'id');
-                                })
+                                ->options(fn () => UnidadOrganizativa::activas()->orderBy('nombre')->pluck('nombre', 'id'))
                                 ->searchable()
                                 ->required(),
 
@@ -160,19 +150,6 @@ class UsuarioResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                $user = auth()->user();
-                if ($user->hasRole('adm_sistema')) {
-                    return;
-                }
-                $uoIds = $user->uoSubtreeIds();
-                if (empty($uoIds)) {
-                    $query->whereRaw('1 = 0');
-
-                    return;
-                }
-                $query->whereHas('adscripcionesVigentes', fn ($q) => $q->whereIn('unidad_organizativa_id', $uoIds));
-            })
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre')

@@ -7,7 +7,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\TipoAlerta;
@@ -39,23 +38,6 @@ class LogAlertasResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                $user = auth()->user();
-
-                // adm_sistema ve el log completo sin restricción de UO
-                if ($user->hasRole('adm_sistema')) {
-                    return;
-                }
-
-                // supervision ve únicamente alertas destinadas a su UO o descendientes
-                $uoIds = $user->uoSubtreeIds();
-
-                if (empty($uoIds)) {
-                    $query->whereRaw('1 = 0');
-                } else {
-                    $query->whereIn('destinatario_uo_id', $uoIds);
-                }
-            })
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->label('#')

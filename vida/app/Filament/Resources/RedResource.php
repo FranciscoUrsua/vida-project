@@ -15,7 +15,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Red;
 
@@ -88,20 +87,6 @@ class RedResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                $user = auth()->user();
-                if ($user->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
-                    return;
-                }
-                // supervision: solo redes que contienen centros de su subtree de UO
-                $uoIds = $user->uoSubtreeIds();
-                if (empty($uoIds)) {
-                    $query->whereRaw('1 = 0');
-
-                    return;
-                }
-                $query->whereHas('centros', fn (Builder $q) => $q->whereIn('unidad_organizativa_id', $uoIds));
-            })
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
                     ->label('Nombre')
