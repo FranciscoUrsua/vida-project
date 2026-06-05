@@ -69,8 +69,8 @@ class DemoResetCommand extends Command
             return self::FAILURE;
         }
 
-        // 2. Confirmar si staging
-        if (app()->environment('staging')) {
+        // 2. Confirmar si staging (solo en ejecución interactiva — en web ya hay modal de confirmación)
+        if (app()->environment('staging') && $this->input->isInteractive()) {
             if (! $this->confirm('⚠️  Estás en entorno STAGING. ¿Continuar con el reset?', false)) {
                 $this->info('Operación cancelada.');
 
@@ -84,6 +84,12 @@ class DemoResetCommand extends Command
         $loader = new DemoWorldLoader(null, fn (string $msg) => $this->warn($msg));
 
         if (empty($worldName)) {
+            if (! $this->input->isInteractive()) {
+                $this->error('Debes especificar el mundo con --world cuando se ejecuta de forma no interactiva.');
+
+                return self::FAILURE;
+            }
+
             $worlds = $loader->listWorlds();
 
             if (empty($worlds)) {
