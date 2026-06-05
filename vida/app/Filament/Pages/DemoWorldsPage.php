@@ -10,6 +10,7 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Página de gestión de entornos de demo en el backoffice.
@@ -146,6 +147,7 @@ class DemoWorldsPage extends Page implements HasActions
             ->modalCancelActionLabel('Cancelar')
             ->action(function () use ($worldId, $nombre) {
                 $exitCode = Artisan::call('demo:reset', ['--world' => $worldId, '--no-interaction' => true]);
+                $output = Artisan::output();
 
                 if ($exitCode === 0) {
                     Notification::make()
@@ -153,9 +155,11 @@ class DemoWorldsPage extends Page implements HasActions
                         ->success()
                         ->send();
                 } else {
+                    Log::error("demo:reset falló para mundo '{$worldId}'", ['output' => $output]);
+
                     Notification::make()
                         ->title('El reset falló.')
-                        ->body('Revisa los logs de la aplicación para más detalles.')
+                        ->body($output ?: 'Sin output. Revisa los logs de la aplicación.')
                         ->danger()
                         ->send();
                 }

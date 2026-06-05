@@ -18,11 +18,11 @@
         "spatie/laravel-permission": "^7.2",
         "spatie/period": "^2.4",
         "staudenmeir/laravel-adjacency-list": "^1.25",
+        "fakerphp/faker": "^1.23",
         "symfony/yaml": "^7.4"
     },
     "require-dev": {
         "driftingly/rector-laravel": "^2.5",
-        "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",
