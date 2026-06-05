@@ -5,6 +5,7 @@ namespace Database\Seeders\Demo;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Models\UsuarioUo;
+use Spatie\Permission\Models\Role;
 
 /**
  * Constructor de infraestructura de mundo demo.
@@ -121,6 +122,9 @@ class DemoWorldBuilder
                     'primer_acceso' => false,
                 ]
             );
+
+            // Garantizar que el rol existe antes de asignarlo
+            Role::firstOrCreate(['name' => $profConfig['rol'], 'guard_name' => 'web']);
 
             // Establecer el conjunto de roles (syncRoles para no acumular)
             $user->syncRoles([$profConfig['rol']]);
