@@ -44,7 +44,7 @@
 
         {{-- Catálogo --}}
         <div class="col-span-2 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700"
-             style="max-height: 480px;">
+             style="max-height: 360px;">
             @forelse ($this->prestacionesFiltradas as $grupo => $prestaciones)
                 <div class="border-b border-gray-100 last:border-b-0 dark:border-gray-800">
 
@@ -122,7 +122,7 @@
             </div>
 
             <div class="overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700"
-                 style="max-height: 440px;">
+                 style="max-height: 360px;">
                 @if (empty($seleccionadas))
                     <p class="px-3 py-6 text-center text-xs text-gray-400 dark:text-gray-500">
                         Ninguna prestación seleccionada
@@ -157,21 +157,27 @@
                     @endforeach
                 @endif
             </div>
-
-            {{-- Botón guardar --}}
-            <button
-                type="button"
-                wire:click="guardar"
-                wire:loading.attr="disabled"
-                class="mt-2 w-full rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium
-                       text-white hover:bg-primary-700 disabled:opacity-50
-                       dark:bg-primary-500 dark:hover:bg-primary-600"
-            >
-                <span wire:loading.remove wire:target="guardar">Guardar selección</span>
-                <span wire:loading wire:target="guardar">Guardando…</span>
-            </button>
-
         </div>
+
+    </div>
+
+    {{-- Footer: botón guardar siempre visible --}}
+    <div class="flex items-center justify-between border-t border-gray-200 pt-3 dark:border-gray-700">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+            {{ count($seleccionadas) }}
+            {{ count($seleccionadas) === 1 ? 'prestación seleccionada' : 'prestaciones seleccionadas' }}
+        </p>
+        <button
+            type="button"
+            wire:click="guardar"
+            wire:loading.attr="disabled"
+            class="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white
+                   hover:bg-primary-700 disabled:opacity-50 dark:bg-primary-500
+                   dark:hover:bg-primary-600"
+        >
+            <span wire:loading.remove wire:target="guardar">Guardar selección</span>
+            <span wire:loading wire:target="guardar">Guardando…</span>
+        </button>
     </div>
 
     {{-- Modal de detalle de prestación --}}
