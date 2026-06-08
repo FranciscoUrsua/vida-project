@@ -23,7 +23,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\SegmentoPoblacion;
-use Modules\Prestaciones\Models\Prestacion;
 
 class CentroResource extends Resource
 {
@@ -169,15 +168,6 @@ class CentroResource extends Resource
                         ->relationship('segmentosPoblacion', 'nombre')
                         ->options(fn () => SegmentoPoblacion::where('activo', true)->orderBy('nombre')->pluck('nombre', 'id'))
                         ->columns(3),
-                ]),
-
-            Section::make('Prestaciones')
-                ->schema([
-                    CheckboxList::make('prestaciones')
-                        ->label('Prestaciones que ofrece')
-                        ->relationship('prestaciones', 'nombre')
-                        ->options(fn () => Prestacion::activas()->orderBy('nombre')->pluck('nombre', 'id'))
-                        ->columns(2),
                 ]),
 
         ]);

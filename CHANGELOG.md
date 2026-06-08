@@ -2,6 +2,27 @@
 
 ---
 
+## Selector de prestaciones en CentroResource — SlideOver Livewire — 2026-06-08
+
+### Módulos afectados
+`Centro / Prestaciones`
+
+### Cambios
+
+- `app/Filament/Resources/CentroResource.php`: eliminada la sección `Prestaciones` con `CheckboxList` del formulario. También eliminado el import de `Modules\Prestaciones\Models\Prestacion` (ya no necesario en este fichero).
+- `app/Filament/Resources/CentroResource/Pages/EditCentro.php`: añadido `getHeaderActions()` con un `Action::make('gestionarPrestaciones')` que abre un SlideOver de ancho `4xl`. El modal usa `modalSubmitAction(false)` porque el guardado lo gestiona el componente Livewire.
+- `resources/views/livewire/centros/selector-prestaciones-centro-modal.blade.php`: vista puente entre el modal Filament y el componente Livewire (requerida porque `modalContent()` recibe una `View`, no un componente directamente).
+- `app/Livewire/Centros/SelectorPrestacionesCentro.php`: componente Livewire nuevo. Carga prestaciones activas, las agrupa por objetivo general usando etiquetas de `catalogos_sistema`, gestiona la selección y persiste en `centro_prestacion` via `sync()`.
+- `resources/views/livewire/centros/selector-prestaciones-centro.blade.php`: vista Blade del componente. Layout en dos columnas (catálogo 2/3 + seleccionadas 1/3) con búsqueda por texto, filtros por segmento y modal de detalle de prestación.
+
+### Decisiones de implementación
+
+- El agrupamiento por objetivo general usa `CatalogoSistema::opcionesParaSelect('prestacion.objetivo_general')` para obtener etiquetas legibles. El campo `objetivo_general` en `Prestacion` es una clave de `catalogos_sistema`, no un nombre directo.
+- El filtro por segmento de población se deja como TODO: la relación `Prestacion` ↔ `SegmentoPoblacion` no existe en el modelo actual (`poblacion_destinataria` es un array JSONB de claves de catálogo, no una FK). Ver BACKLOG.
+- Livewire 4 — auto-discovery activo. No se requiere registro manual del componente.
+
+---
+
 ## Corrección DemoWorldsPage — Actions y diseño — 2026-06-05
 
 ### Módulos afectados

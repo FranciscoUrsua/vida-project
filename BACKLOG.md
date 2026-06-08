@@ -9,6 +9,14 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Filtro por segmento en SelectorPrestacionesCentro** — 2026-06-08
+Módulo: Centro / Prestaciones
+Implementar el filtro por segmento de población en el selector de prestaciones del centro. Actualmente el filtro aparece en la UI (botones por segmento) pero no aplica ninguna restricción a la query de prestaciones.
+Razón: el campo `poblacion_destinataria` en `Prestacion` es un array JSONB de claves de `catalogos_sistema` (grupo `prestacion.poblacion`), no una FK a `segmentos_poblacion`. Para implementar el filtro es necesario definir un mapeo entre los segmentos de población del centro (`SegmentoPoblacion`) y las claves del campo `poblacion_destinataria`, o añadir una relación directa `Prestacion` ↔ `SegmentoPoblacion`.
+Ver: `app/Livewire/Centros/SelectorPrestacionesCentro.php` — comentario TODO en `prestacionesFiltradas()`.
+
+---
+
 **[Demo] Citas en escenarios de demo** — 2026-06-03
 Módulo: Demo world-building
 Las trayectorias del sistema de demo no generan citas porque requieren `slot_id` (FK NOT NULL a la tabla `slots`) y toda la maquinaria de agenda (cuadrantes, perfiles horarios, excepciones). Pendiente para cuando el módulo Agenda exponga una API simplificada de creación de citas de test.

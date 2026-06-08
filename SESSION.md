@@ -4,11 +4,11 @@ _Actualizado: 2026-06-08_
 
 ## Tarea completada
 
-`canViewAny()` de `ProfesionalResource` y `CentroResource` ahora permite acceso a cualquier usuario autenticado (antes solo adm_sistema / adm_usuarios / supervision). Los datos organizativos (directorio de profesionales y catálogo de centros) son visibles para todos los roles sin filtro por UO.
+Selector de prestaciones en `CentroResource`: sustituido el `CheckboxList` por un SlideOver con componente Livewire interactivo (`SelectorPrestacionesCentro`). Prestaciones agrupadas por objetivo general (etiqueta de `catalogos_sistema`), búsqueda por texto, panel de seleccionadas y guardado via `sync()` en `centro_prestacion`.
 
 ## Tarea anterior
 
-Implementación completa del sistema de world-building para entornos de demo: DemoWorldLoader, DemoWorldBuilder, DemoScenarioBuilder, 5 escenarios de trayectoria, DemoInvariantChecker, comandos `demo:reset` y `demo:validate`, página Filament "Entornos Demo", 5 mundos YAML, y 12 tests (7 activos, 5 pendientes). PHPStan 0 errores nuevos. Tests: 7/7 activos pasan.
+`canViewAny()` de `ProfesionalResource` y `CentroResource` abierto a cualquier usuario autenticado (antes solo adm_sistema / adm_usuarios / supervision). Demo world crea entidades `Centro` y `Profesional` además de UOs y Users.
 
 ## Estado actual
 
@@ -38,6 +38,7 @@ Implementación completa del sistema de world-building para entornos de demo: De
 
 | Componente | Pendiente |
 |---|---|
+| `SelectorPrestacionesCentro` | Filtro por segmento pendiente — ver BACKLOG |
 | `CiudadanoPage` | "Ver PISO" → Entrega 4 |
 | `crearDerivacion()` | Tabla `derivaciones` no existe — solo crea Apunte |
 | UC | Tabla `unidades_convivencia` no existe — stub visible |
@@ -58,3 +59,4 @@ Si se toca código nuevo: `composer format-check && vendor/bin/phpstan analyse -
 - `PlanDeIntervencion` tiene guard de firma en `saving()` pero solo aplica al **actualizar** estado a activo (no al crear).
 - La página Filament `DemoWorldsPage` usa `getResetAction($id)` dinámico en la vista, no `getHeaderActions()`.
 - Citas excluidas del sistema de demo: requieren slot_id y maquinaria de agenda (ver BACKLOG).
+- `SelectorPrestacionesCentro`: el filtro de segmento está en la UI pero no aplica restricción en la query (ver BACKLOG). El agrupamiento usa `CatalogoSistema::opcionesParaSelect('prestacion.objetivo_general')`.
