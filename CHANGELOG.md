@@ -1226,3 +1226,46 @@ con dirección postal mediante el trait `TieneDireccion`.
 
 - Las claves de `horario_habitual` JSON se comparan como strings (cast `'array'` de PHP convierte las claves de objeto a string) — se usa `(string)$dia->isoWeekday()` para el lookup.
 - `generarBorrador` usa `LineaCuadrante::insert()` (bulk) para evitar disparar observers en cada línea.
+
+---
+
+## Navegación UI operativa — 2026-06-08
+
+### Módulos afectados
+`Modules/Intervencion`, `Modules/Mensajes`, `resources/views/layouts/`, `resources/css/`, `app/Models/`
+
+### Cambios
+
+#### Agenda (AgendaPage)
+- `AgendaPage.php`: fixture `citasFixture()` ampliada con campo `historia_id` (int|null), `subtipo` y tipado completo. Citas de tipo ciudadano (entrevista/seguimiento/urgencia) intentan cargar historias reales del profesional; si no hay, `historia_id = null`.
+- `agenda-page.blade.php`: citas con `historia_id` renderizan como `<a wire:navigate>` a `intervencion.ciudadano.show`. Citas sin `historia_id` renderizan como `<div>` con comentario TODO.
+
+#### Mis Casos (MisCasosPage)
+- `MisCasosPage.php`: añadida propiedad computada `ciudadanosDelPage()` — carga los ciudadanos de la página actual en una sola query para evitar N+1 sobre datos cifrados.
+- `mis-casos-page.blade.php`: columna "Ciudadano/a" muestra `nombre_completo` del ciudadano (en lugar de "Historia #id"). Nueva columna "Historia Social" con formato `HS-XXXXXX`. Toda la fila es clicable (`wire:click dispatch navigate`). Columna PISO muestra badge "Activo".
+
+#### Buscar ciudadano (BuscarCiudadanoPage)
+- `BuscarCiudadanoPage.php`: `registrarAccesoNivel2()` ahora redirige a `intervencion.ciudadano.show` con `$this->redirectRoute()`.
+- `buscar-ciudadano-page.blade.php`: nombre en nivel 1 con historia_id → enlace `wire:navigate`; nivel 2 → span no clicable (el botón "Ver HS" registra el acceso); nivel 3 → span. Botón nivel 1 "Ir a Historia Social" enlaza correctamente.
+
+#### Nuevo mensaje (BuzonPage)
+- `BuzonPage.php`: añadidas propiedades para el modal (destinatarioBusqueda, destinatarioId, destinatarioNombre, asunto, cuerpo, resultadosDestinatario). Métodos nuevos: `mount()`, `abrirModalNuevoMensaje()`, `buscarDestinatario()`, `seleccionarDestinatario()`, `enviarMensaje()`.
+- `buzon-page.blade.php`: botón "Nuevo mensaje" conectado a `abrirModalNuevoMensaje`. Modal de redacción añadido con búsqueda de destinatario con autocompletado, campo asunto, textarea cuerpo y botones Cancelar/Enviar.
+
+#### Menú usuario — topbar
+- `layouts/operativo.blade.php`: añadido `<header class="op-topbar">` con menú de usuario Alpine.js (avatar con iniciales, nombre, rol, cerrar sesión).
+- `sidebar.blade.php`: eliminado bloque `op-sidebar-footer` con dropdown Bootstrap del usuario.
+- `app-operativo.css`: añadidas clases `.op-topbar`, `.topbar__user*` con diseño completo.
+
+#### Modelo Ciudadano
+- `app/Models/Ciudadano.php`: añadido accessor `getNombreCompletoAttribute()` — devuelve nombre + apellido1 + apellido2 descifrados.
+
+#### Tests
+- `Modules/Intervencion/tests/Feature/Livewire/NavegacionTest.php`: 13 tests TF-LW-NAV-01 a TF-LW-NAV-13. 12 pasan, 1 marcado `markTestIncomplete` (TF-LW-NAV-03, requiere datos de plan activo en BD).
+
+### Decisiones de implementación
+
+- `ciudadanosDelPage()` usa `withoutGlobalScope(AmbitoUoScope::class)` para acceder a ciudadanos sin el filtro de UO — el filtro de acceso ya está implícito en que la query de casos retorna solo casos del profesional.
+- El modal de nuevo mensaje reside en `BuzonPage` (no componente separado) para mantener el flujo corto.
+- Las citas de tipo `evento` tienen siempre `historia_id = null` por diseño.
+- El menú usuario del sidebar (Bootstrap dropdown) eliminado completamente; el topbar Alpine.js es el punto único de menú de usuario.

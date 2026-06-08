@@ -2,16 +2,20 @@
 
 namespace Modules\Mensajes\Http\Livewire;
 
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\EstadoAlerta;
+use Modules\Mensajes\Enums\RolParticipante;
 use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Models\Alerta;
+use Modules\Mensajes\Models\MensajeHilo;
 use Modules\Mensajes\Models\MensajeParticipante;
 use Modules\Mensajes\Services\MensajeriaService;
 
@@ -39,6 +43,24 @@ class BuzonPage extends Component
 
     /** @var bool Modal de nuevo mensaje visible */
     public bool $modalNuevoMensaje = false;
+
+    /** @var string Texto de busqueda del destinatario */
+    public string $destinatarioBusqueda = '';
+
+    /** @var int|null ID del usuario destinatario seleccionado */
+    public ?int $destinatarioId = null;
+
+    /** @var string Nombre del destinatario seleccionado */
+    public string $destinatarioNombre = '';
+
+    /** @var string Asunto del nuevo mensaje */
+    public string $asunto = '';
+
+    /** @var string Cuerpo del nuevo mensaje */
+    public string $cuerpo = '';
+
+    /** @var array<int, array<string, mixed>> Resultados de busqueda de destinatario */
+    public array $resultadosDestinatario = [];
 
     // -------------------------------------------------------------------------
     // Propiedades computadas
@@ -179,6 +201,121 @@ class BuzonPage extends Component
 
         $this->respuesta = '';
         unset($this->hilos, $this->hiloSeleccionado);
+    }
+
+    // -------------------------------------------------------------------------
+    // Ciclo de vida
+    // -------------------------------------------------------------------------
+
+    /**
+     * Inicializa el componente.
+     * Si se recibe un asunto por URL, abre el modal con el asunto pre-rellenado.
+     *
+     * @param string $asunto Asunto pre-rellenado desde parametro de URL
+     */
+    public function mount(string $asunto = ''): void
+    {
+        $this->pestana = 'mensajes';
+        if ($asunto) {
+            $this->modalNuevoMensaje = true;
+            $this->asunto = urldecode($asunto);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Nuevo mensaje
+    // -------------------------------------------------------------------------
+
+    /**
+     * Abre el modal de redaccion de nuevo mensaje.
+     */
+    public function abrirModalNuevoMensaje(): void
+    {
+        $this->modalNuevoMensaje = true;
+    }
+
+    /**
+     * Busca usuarios por nombre para seleccionar como destinatario.
+     * Filtra por coincidencia ILIKE sobre nombre + apellidos del profesional.
+     */
+    public function buscarDestinatario(): void
+    {
+        if (strlen($this->destinatarioBusqueda) < 2) {
+            $this->resultadosDestinatario = [];
+
+            return;
+        }
+
+        $this->resultadosDestinatario = User::query()
+            ->with('profesional')
+            ->whereHas('profesional', function ($q) {
+                $q->where(
+                    DB::raw("CONCAT(nombre, ' ', apellido1, ' ', COALESCE(apellido2, ''))"),
+                    'ILIKE',
+                    '%'.$this->destinatarioBusqueda.'%'
+                );
+            })
+            ->where('id', '!=', Auth::id())
+            ->limit(8)
+            ->get()
+            ->map(fn ($u) => [
+                'id'     => $u->id,
+                'nombre' => $u->profesional?->nombre_completo ?? $u->email,
+                'rol'    => $u->roles->first()?->name ?? '—',
+            ])
+            ->toArray();
+    }
+
+    /**
+     * Selecciona un destinatario de los resultados de busqueda.
+     *
+     * @param int    $id     ID del usuario destinatario
+     * @param string $nombre Nombre completo del destinatario
+     */
+    public function seleccionarDestinatario(int $id, string $nombre): void
+    {
+        $this->destinatarioId = $id;
+        $this->destinatarioNombre = $nombre;
+        $this->destinatarioBusqueda = $nombre;
+        $this->resultadosDestinatario = [];
+    }
+
+    /**
+     * Valida y envia el nuevo mensaje, creando el hilo y el primer mensaje.
+     * Despues de enviar, cierra el modal y navega a la pestana de mensajes.
+     */
+    public function enviarMensaje(): void
+    {
+        $this->validate([
+            'destinatarioId' => 'required|exists:users,id',
+            'asunto'         => 'required|min:3|max:200',
+            'cuerpo'         => 'required|min:5',
+        ]);
+
+        // Crear el hilo con el remitente como creador
+        $hilo = MensajeHilo::create([
+            'asunto'        => $this->asunto,
+            'creado_por_id' => Auth::id(),
+        ]);
+
+        // Anadir participantes: remitente y destinatario
+        $hilo->participantes()->createMany([
+            ['usuario_id' => Auth::id(),            'rol' => RolParticipante::RemitenteInicial->value],
+            ['usuario_id' => $this->destinatarioId, 'rol' => RolParticipante::Participante->value],
+        ]);
+
+        // Primer mensaje del hilo
+        $hilo->mensajes()->create([
+            'remitente_id' => Auth::id(),
+            'cuerpo'       => $this->cuerpo,
+        ]);
+
+        $this->modalNuevoMensaje = false;
+        $this->reset(['destinatarioBusqueda', 'destinatarioId', 'destinatarioNombre', 'asunto', 'cuerpo', 'resultadosDestinatario']);
+        unset($this->hilos);
+
+        $this->dispatch('mensaje-enviado');
+        $this->pestana = 'mensajes';
     }
 
     public function render(): View

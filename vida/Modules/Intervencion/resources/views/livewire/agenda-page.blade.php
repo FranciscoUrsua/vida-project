@@ -151,13 +151,28 @@
                         {{-- Citas --}}
                         @forelse($citas as $cita)
                             @php $estilo = $estiloCita[$cita['tipo']] ?? $estiloCita['evento']; @endphp
-                            <div style="background: {{ $estilo['bg'] }}; border-left: 3px solid {{ $estilo['border'] }}; border-radius: 0 6px 6px 0; padding: 0.4rem 0.6rem; margin-bottom: 0.4rem; font-size: 0.8rem;">
-                                @if($cita['tipo'] === 'urgencia')
-                                    <span style="display: inline-block; background: var(--color-danger-soft); color: var(--color-danger-ink); font-size: 0.65rem; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 99px; margin-bottom: 0.2rem;">Urgencia</span>
-                                @endif
-                                <div style="font-weight: 600; color: var(--color-ink-900);">{{ $cita['hora'] }}</div>
-                                <div style="color: var(--color-ink-700);">{{ $cita['ciudadano'] }}</div>
-                            </div>
+                            @if(! empty($cita['historia_id']))
+                                {{-- Cita con ciudadano: enlace a la pantalla del ciudadano --}}
+                                <a href="{{ route('intervencion.ciudadano.show', $cita['historia_id']) }}"
+                                   wire:navigate
+                                   style="display: block; background: {{ $estilo['bg'] }}; border-left: 3px solid {{ $estilo['border'] }}; border-radius: 0 6px 6px 0; padding: 0.4rem 0.6rem; margin-bottom: 0.4rem; font-size: 0.8rem; text-decoration: none;">
+                                    @if($cita['tipo'] === 'urgencia')
+                                        <span style="display: inline-block; background: var(--color-danger-soft); color: var(--color-danger-ink); font-size: 0.65rem; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 99px; margin-bottom: 0.2rem;">Urgencia</span>
+                                    @endif
+                                    <div style="font-weight: 600; color: var(--color-ink-900);">{{ $cita['hora'] }}</div>
+                                    <div style="color: var(--color-ink-700);">{{ $cita['ciudadano'] }}</div>
+                                </a>
+                            @else
+                                {{-- TODO: enlazar a pantalla de mesa/taller/evento cuando estén implementadas --}}
+                                <div style="background: {{ $estilo['bg'] }}; border-left: 3px solid {{ $estilo['border'] }}; border-radius: 0 6px 6px 0; padding: 0.4rem 0.6rem; margin-bottom: 0.4rem; font-size: 0.8rem;"
+                                     title="{{ $cita['ciudadano'] ?? 'Evento interno' }}">
+                                    @if($cita['tipo'] === 'urgencia')
+                                        <span style="display: inline-block; background: var(--color-danger-soft); color: var(--color-danger-ink); font-size: 0.65rem; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 99px; margin-bottom: 0.2rem;">Urgencia</span>
+                                    @endif
+                                    <div style="font-weight: 600; color: var(--color-ink-900);">{{ $cita['hora'] }}</div>
+                                    <div style="color: var(--color-ink-700);">{{ $cita['ciudadano'] ?? 'Evento interno' }}</div>
+                                </div>
+                            @endif
                         @empty
                         @endforelse
 
@@ -216,9 +231,20 @@
                                     <td style="padding: 0.2rem 0.3rem; vertical-align: top; border-top: 1px solid var(--color-ink-100); border-left: 1px solid var(--color-ink-100); min-height: 36px; {{ $esHoy ? 'background: var(--color-paper);' : '' }}">
                                         @foreach($citasHora as $cita)
                                             @php $estilo = $estiloCita[$cita['tipo']] ?? $estiloCita['evento']; @endphp
-                                            <div style="background: {{ $estilo['bg'] }}; border-left: 3px solid {{ $estilo['border'] }}; border-radius: 0 4px 4px 0; padding: 0.2rem 0.4rem; font-size: 0.75rem; margin-bottom: 0.15rem;">
-                                                <div style="font-weight: 600; color: var(--color-ink-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $cita['ciudadano'] }}</div>
-                                            </div>
+                                            @if(! empty($cita['historia_id']))
+                                                {{-- Cita con ciudadano: enlace a la pantalla del ciudadano --}}
+                                                <a href="{{ route('intervencion.ciudadano.show', $cita['historia_id']) }}"
+                                                   wire:navigate
+                                                   style="display: block; background: {{ $estilo['bg'] }}; border-left: 3px solid {{ $estilo['border'] }}; border-radius: 0 4px 4px 0; padding: 0.2rem 0.4rem; font-size: 0.75rem; margin-bottom: 0.15rem; text-decoration: none;">
+                                                    <div style="font-weight: 600; color: var(--color-ink-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $cita['ciudadano'] }}</div>
+                                                </a>
+                                            @else
+                                                {{-- TODO: enlazar a pantalla de mesa/taller/evento cuando estén implementadas --}}
+                                                <div style="background: {{ $estilo['bg'] }}; border-left: 3px solid {{ $estilo['border'] }}; border-radius: 0 4px 4px 0; padding: 0.2rem 0.4rem; font-size: 0.75rem; margin-bottom: 0.15rem;"
+                                                     title="{{ $cita['ciudadano'] ?? 'Evento interno' }}">
+                                                    <div style="font-weight: 600; color: var(--color-ink-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $cita['ciudadano'] ?? 'Evento interno' }}</div>
+                                                </div>
+                                            @endif
                                         @endforeach
                                     </td>
                                 @endforeach

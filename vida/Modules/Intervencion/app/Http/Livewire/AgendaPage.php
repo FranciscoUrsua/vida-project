@@ -2,7 +2,9 @@
 
 namespace Modules\Intervencion\Http\Livewire;
 
+use App\Models\HistoriaSocial;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -247,15 +249,33 @@ class AgendaPage extends Component
         $ciudadanos = ['María García López', 'Juan Pérez Martín', 'Ana Ruiz Sánchez', 'Carlos Díaz Fernández'];
         $hash = abs(crc32($fecha));
         $count = $hash % 3;
+
+        // Obtener ejemplos de historias sociales del profesional para los enlaces
+        // Solo en citas con ciudadano (no eventos) — null si no hay historias reales
+        $historias = [];
+        if (Auth::user()?->profesional_id) {
+            $historias = HistoriaSocial::withoutGlobalScope(\App\Models\Scopes\AmbitoUoScope::class)
+                ->whereNotNull('ciudadano_id')
+                ->limit(5)
+                ->pluck('id')
+                ->toArray();
+        }
+
         $citas = [];
         for ($i = 0; $i < $count; $i++) {
+            $tipo = $tipos[($hash + $i) % count($tipos)];
+            // Solo las citas con ciudadano llevan historia_id; los eventos no
+            $historiaDeCita = ($tipo !== 'evento') ? ($historias[$i] ?? null) : null;
+
             $citas[] = [
-                'id' => $hash + $i,
-                'hora' => sprintf('%02d:00', 9 + ($i * 2)),
-                'duracion' => 60,
-                'ciudadano' => $ciudadanos[$i % count($ciudadanos)],
-                'tipo' => $tipos[($hash + $i) % count($tipos)],
-                'fecha' => $fecha,
+                'id'         => $hash + $i,
+                'hora'       => sprintf('%02d:00', 9 + ($i * 2)),
+                'duracion'   => 60,
+                'ciudadano'  => $ciudadanos[$i % count($ciudadanos)],
+                'historia_id' => $historiaDeCita,
+                'tipo'       => $tipo,
+                'subtipo'    => null,
+                'fecha'      => $fecha,
             ];
         }
 

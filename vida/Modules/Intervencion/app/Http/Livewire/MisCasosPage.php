@@ -3,7 +3,9 @@
 namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\CatalogoSistema;
+use App\Models\Ciudadano;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -167,6 +169,23 @@ class MisCasosPage extends Component
         }
 
         return $query->paginate($this->porPagina);
+    }
+
+    /**
+     * Mapa de ciudadanos correspondientes a la página actual de casos.
+     * Carga los nombres en una sola consulta para evitar N+1 sobre datos cifrados.
+     *
+     * @return Collection<int, Ciudadano>
+     */
+    #[Computed]
+    public function ciudadanosDelPage(): Collection
+    {
+        $ids = collect($this->casos->items())->pluck('ciudadano_id')->filter()->unique()->values();
+
+        return Ciudadano::withoutGlobalScope(\App\Models\Scopes\AmbitoUoScope::class)
+            ->whereIn('id', $ids)
+            ->get()
+            ->keyBy('id');
     }
 
     public function render(): View

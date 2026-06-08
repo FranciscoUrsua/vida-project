@@ -74,6 +74,7 @@
                 <thead>
                     <tr style="border-bottom: 2px solid var(--color-ink-200); text-align: left;">
                         <th style="padding: 0.5rem 0.75rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-600); font-weight: 600;">Ciudadano/a</th>
+                        <th style="padding: 0.5rem 0.75rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-600); font-weight: 600;">Historia Social</th>
                         <th style="padding: 0.5rem 0.75rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-600); font-weight: 600;">Próximo seguimiento</th>
                         <th style="padding: 0.5rem 0.75rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-600); font-weight: 600;">{{ $nombrePlan }}</th>
                         <th style="padding: 0.5rem 0.75rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-600); font-weight: 600;">Especializados</th>
@@ -86,14 +87,19 @@
                             $estado = $estadoSeguimiento($caso->fecha_siguiente_seguimiento);
                             $sem = $semaforo[$estado];
                         @endphp
-                        <tr style="border-bottom: 1px solid var(--color-ink-100); transition: background 0.1s;" onmouseover="this.style.background='var(--color-paper)'" onmouseout="this.style.background=''">
+                        <tr style="border-bottom: 1px solid var(--color-ink-100); transition: background 0.1s; cursor: pointer;"
+                            wire:click="$dispatch('navigate', { url: '{{ route('intervencion.ciudadano.show', $caso->historia_id) }}' })"
+                            onmouseover="this.style.background='var(--color-paper)'"
+                            onmouseout="this.style.background=''">
 
-                            {{-- Ciudadano --}}
-                            <td style="padding: 0.6rem 0.75rem;">
-                                {{-- TODO: Entrega 3 — enlazar a route('intervencion.ciudadano.show', $caso->ciudadano_id) --}}
-                                <a href="#" style="font-weight: 600; color: var(--color-primary); text-decoration: none;">
-                                    Historia #{{ $caso->historia_id }}
-                                </a>
+                            {{-- Ciudadano/a: nombre completo desde mapa de ciudadanos del page --}}
+                            <td style="padding: 0.6rem 0.75rem; font-weight: 600; color: var(--color-ink-900);">
+                                {{ $this->ciudadanosDelPage->get($caso->ciudadano_id)?->nombre_completo ?? 'Ciudadano #'.$caso->ciudadano_id }}
+                            </td>
+
+                            {{-- Historia Social: número de expediente --}}
+                            <td style="padding: 0.6rem 0.75rem; font-family: monospace; font-size: 0.8rem; color: var(--color-ink-600);">
+                                HS-{{ str_pad($caso->historia_id, 6, '0', STR_PAD_LEFT) }}
                             </td>
 
                             {{-- Semáforo seguimiento --}}
@@ -112,7 +118,9 @@
 
                             {{-- Estado PISO --}}
                             <td style="padding: 0.6rem 0.75rem;">
-                                <span style="font-size: 0.78rem; color: var(--color-ink-600);">Plan #{{ $caso->plan_id }}</span>
+                                <span style="display: inline-flex; align-items: center; gap: 0.25rem; background: var(--color-success-soft); color: var(--color-success); padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600;">
+                                    Activo
+                                </span>
                             </td>
 
                             {{-- Planes especializados --}}

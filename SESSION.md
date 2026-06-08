@@ -4,63 +4,61 @@ _Actualizado: 2026-06-08_
 
 ## Tarea completada
 
-Rediseño visual UI operativa: tokens design system aplicados a todas las vistas Livewire de Intervención, iconos migrados a Lucide (stroke-width 1.75), CSS operativo extraído a `app-operativo.css` importando `colors_and_type.css`. Eliminados todos los colores morados hardcodeados (`#534AB7` y familia). Tabler Icons CDN eliminada del layout.
+Navegación UI Intervención: enlaces ciudadano, modal nuevo mensaje, menú usuario en topbar (TF-LW-NAV-01 a TF-LW-NAV-13).
 
 ## Tarea anterior
 
-Selector de prestaciones en `CentroResource`: sustituido el `CheckboxList` por un SlideOver con componente Livewire interactivo (`SelectorPrestacionesCentro`). Prestaciones agrupadas por objetivo general (etiqueta de `catalogos_sistema`), búsqueda por texto, panel de seleccionadas y guardado via `sync()` en `centro_prestacion`.
-
-## Tarea anterior
-
-`canViewAny()` de `ProfesionalResource` y `CentroResource` abierto a cualquier usuario autenticado (antes solo adm_sistema / adm_usuarios / supervision). Demo world crea entidades `Centro` y `Profesional` además de UOs y Users.
+Rediseño visual UI operativa: tokens design system aplicados a todas las vistas Livewire de Intervención, iconos migrados a Lucide (stroke-width 1.75), CSS operativo extraído a `app-operativo.css` importando `colors_and_type.css`.
 
 ## Estado actual
 
 ### Tests — 0 fallos
-- Suite base: 488 tests, 0 fallos (antes de esta sesión).
-- Tests Demo: `tests/Feature/Demo/DemoWorldLoaderTest.php` — 7 activos pasan, 5 `markTestIncomplete`.
-- PHPStan sobre los ficheros nuevos: 0 errores.
-
-### Sistema de demo — operativo
-- `php artisan demo:validate ci_minimo` → valida YAML sin tocar BD
-- `php artisan demo:reset --world=ci_minimo` → resetea entorno en transacción
-- Página Filament en grupo 'Sistema' → 'Entornos Demo' (visible en local/staging, oculta en producción)
-- 5 mundos YAML: `ci_minimo`, `demo_formacion`, `pruebas_permisos`, `pruebas_agenda`, `demo_comercial`
+- Suite previa: 488 tests, 0 fallos.
+- NavegacionTest: 12 pasan, 1 `markTestIncomplete` (TF-LW-NAV-03 requiere datos de plan activo).
+- Tests relacionados (AgendaPage, MisCasosPage, BuscarCiudadanoPage, BuzonPage, CiudadanoPage): 60 pasan, 0 fallos.
 
 ### UI Intervención
+- **Navegación — completa**: enlaces ciudadano en agenda, tabla casos clicable, búsqueda ciudadano con links reales, modal nuevo mensaje, menú usuario en topbar.
 - **Entrega 3 — completa**: CiudadanoPage con timeline HS, 7 herramientas, 92 tests en verde.
 - **Entrega 2 — completa** (MisCasosPage, BuscarCiudadanoPage, BuzonPage).
 - **Entrega 1 — completa** (AgendaPage, Sidebar, layout operativo).
 - **Autenticación — completa**.
 
+### Cambios aplicados
+- `Ciudadano`: accessor `nombre_completo` añadido.
+- `AgendaPage`: fixture incluye `historia_id` para cada cita; citas con HS → `<a wire:navigate>`, sin HS → `<div>`.
+- `MisCasosPage`: propiedad computada `ciudadanosDelPage()` para evitar N+1; columna HS visible; filas clicables.
+- `BuzonPage`: modal "Nuevo mensaje" completo con búsqueda de destinatario, asunto, cuerpo y envío.
+- `BuscarCiudadanoPage`: `registrarAccesoNivel2()` redirige con `redirectRoute()`; nombre nivel 1 → enlace.
+- `operativo.blade.php`: topbar Alpine.js con menú de usuario (nombre, rol, cerrar sesión).
+- `sidebar.blade.php`: bloque usuario inferior eliminado (ahora en topbar).
+- `app-operativo.css`: clases `.op-topbar` y `.topbar__user*` añadidas.
+
 ### Tooling de calidad — operativo
-- `composer analyse` → PHPStan nivel 6, baseline 772 errores heredados (no añadir nuevos).
-- `composer format` → Pint; `composer format-check` para CI.
-- `.github/workflows/quality.yml` → CI ejecuta Pint + PHPStan en cada push/PR.
+- `composer analyse` → PHPStan nivel 6, baseline 772 errores heredados.
+- `composer format` → Pint.
+- `.github/workflows/quality.yml` → CI ejecuta Pint + PHPStan.
 
 ## Pendientes conocidos
 
 | Componente | Pendiente |
 |---|---|
-| `SelectorPrestacionesCentro` | Filtro por segmento pendiente — ver BACKLOG |
 | `CiudadanoPage` | "Ver PISO" → Entrega 4 |
 | `crearDerivacion()` | Tabla `derivaciones` no existe — solo crea Apunte |
 | UC | Tabla `unidades_convivencia` no existe — stub visible |
 | Herramienta Informes | Stub "en construcción" — integración Documentos pendiente |
-| `nunomaduro/larastan` | Abandonado upstream — migrar a `larastan/larastan` en próxima sesión de deps |
-| PHPStan baseline | 772 errores heredados — reducir progresivamente, nunca añadir nuevos |
-| TF-DEMO-08 a 12 | Tests integración pesados del sistema de demo — ver BACKLOG |
+| `nunomaduro/larastan` | Abandonado upstream — migrar a `larastan/larastan` |
+| TF-LW-NAV-03 | Requiere fixture con PlanDeIntervencion activo para mostrar cabeceras de tabla |
+| Alta ciudadano | Botón deshabilitado — ver BACKLOG |
+| Citas en agenda | historia_id solo se carga si el usuario tiene profesional_id y hay historias en BD |
 
 ## Siguiente paso recomendado
 
-Revisar visualmente en navegador la UI operativa (colores, iconos Lucide, sidebar) antes del siguiente ciclo de desarrollo.
-Siguiente tarea de funcionalidad: **UI Intervención — Entrega 4** ("Ver PISO" en CiudadanoPage) o reducción progresiva del baseline de PHPStan.
+**UI Intervención — Entrega 4**: implementar "Ver PISO" en CiudadanoPage (pantalla del plan general de intervención social), o reducción progresiva del baseline de PHPStan (actualmente 772 errores heredados).
 
 ## Contexto relevante para retomar
 
-- `Apunte` usa `plan_id` (NOT NULL) → siempre requiere un plan activo para crear apuntes.
-- `withoutGlobalScopes()` en seeders de demo es deliberado: no hay usuario autenticado en contexto de seeder.
-- `PlanDeIntervencion` tiene guard de firma en `saving()` pero solo aplica al **actualizar** estado a activo (no al crear).
-- La página Filament `DemoWorldsPage` usa `getResetAction($id)` dinámico en la vista, no `getHeaderActions()`.
-- Citas excluidas del sistema de demo: requieren slot_id y maquinaria de agenda (ver BACKLOG).
-- `SelectorPrestacionesCentro`: el filtro de segmento está en la UI pero no aplica restricción en la query (ver BACKLOG). El agrupamiento usa `CatalogoSistema::opcionesParaSelect('prestacion.objetivo_general')`.
+- `ciudadanosDelPage()` en MisCasosPage usa `withoutGlobalScope(AmbitoUoScope::class)` — el control de acceso está en la query de casos.
+- El modal de nuevo mensaje en BuzonPage usa `mount()` para abrir con asunto pre-rellenado desde URL (`?asunto=...`).
+- `RolParticipante::RemitenteInicial` y `::Participante` son los valores del enum para crear participantes.
+- Topbar Alpine.js usa `x-data="{ abierto: false }"` — Livewire 4 incluye Alpine automáticamente, no añadir CDN.

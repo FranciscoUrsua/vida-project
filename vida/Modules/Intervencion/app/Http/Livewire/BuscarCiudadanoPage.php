@@ -209,8 +209,8 @@ class BuscarCiudadanoPage extends Component
             'user_id' => Auth::id(),
         ]);
 
-        // La navegación a la Historia Social es Entrega 3
-        // TODO: redirect()->route('intervencion.ciudadano.show', ...)
+        // Navegar a la Historia Social registrando el acceso de nivel 2
+        $this->redirectRoute('intervencion.ciudadano.show', $historiaId);
     }
 
     // -------------------------------------------------------------------------

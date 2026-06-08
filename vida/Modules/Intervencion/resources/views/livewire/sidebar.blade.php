@@ -47,41 +47,4 @@
 
     </nav>
 
-    {{-- Pie: avatar, datos del profesional y menú de sesión --}}
-    <div class="op-sidebar-footer">
-        <div class="dropdown dropup w-100">
-            <button class="d-flex align-items-center gap-2 w-100 bg-transparent border-0 p-0 text-start"
-                    style="cursor: pointer;"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                <x-avatar :usuario="auth()->user()" />
-                <div class="min-w-0 flex-1">
-                    <div class="op-user-name">{{ auth()->user()->name }}</div>
-                    <div class="op-user-role">
-                        Intervención
-                        {{-- TODO: · CSS cuando Profesional::centroActivo() esté implementado --}}
-                    </div>
-                </div>
-                <i data-lucide="more-vertical" style="width:14px;height:14px;color:var(--color-ink-400);flex-shrink:0;" aria-hidden="true"></i>
-            </button>
-
-            <ul class="dropdown-menu dropdown-menu-start shadow-sm" style="min-width: 180px; font-size: 0.82rem;">
-                <li>
-                    <span class="dropdown-item-text text-muted" style="font-size: 0.72rem;">
-                        {{ auth()->user()->email }}
-                    </span>
-                </li>
-                <li><hr class="dropdown-divider my-1"></li>
-                <li>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="dropdown-item text-danger">
-                            <i data-lucide="log-out" style="width:14px;height:14px;" aria-hidden="true" class="me-2"></i>Cerrar sesión
-                        </button>
-                    </form>
-                </li>
-            </ul>
-        </div>
-    </div>
-
 </aside>

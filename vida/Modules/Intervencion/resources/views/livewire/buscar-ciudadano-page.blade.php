@@ -68,8 +68,21 @@
                     @endif
 
                     <div style="flex: 1; min-width: 0;">
-                        <div style="font-weight: 600; color: var(--color-ink-900); font-size: 0.9rem;">
-                            {{ $resultado['nombre'] }}
+                        <div style="font-size: 0.9rem;">
+                            @if($resultado['nivel'] === 1 && $resultado['historia_id'])
+                                {{-- Nivel 1 (propia UO): nombre clicable --}}
+                                <a href="{{ route('intervencion.ciudadano.show', $resultado['historia_id']) }}"
+                                   wire:navigate
+                                   style="font-weight: 600; color: var(--color-primary); text-decoration: none;">
+                                    {{ $resultado['nombre'] }}
+                                </a>
+                            @elseif($resultado['nivel'] === 2 && $resultado['historia_id'])
+                                {{-- Nivel 2 (otra UO): nombre no es enlace; el boton "Ver Historia Social" registra el acceso --}}
+                                <span style="font-weight: 600; color: var(--color-ink-900);">{{ $resultado['nombre'] }}</span>
+                            @else
+                                {{-- Nivel 3 (protegido) o sin HS: nombre no es enlace --}}
+                                <span style="font-weight: 600; color: var(--color-ink-900);">{{ $resultado['nombre'] }}</span>
+                            @endif
                             @if($resultado['alias'])
                                 <span style="font-weight: 400; color: var(--color-ink-600); font-size: 0.78rem;">({{ $resultado['alias'] }})</span>
                             @endif
@@ -83,8 +96,9 @@
 
                     {{-- Acciones según nivel --}}
                     @if($resultado['nivel'] === 1 && $resultado['historia_id'])
-                        {{-- TODO: Entrega 3 — route('intervencion.ciudadano.show', $resultado['ciudadano_id']) --}}
-                        <a href="#" style="font-size: 0.8rem; color: var(--color-primary); font-weight: 600; text-decoration: none; white-space: nowrap;">
+                        <a href="{{ route('intervencion.ciudadano.show', $resultado['historia_id']) }}"
+                           wire:navigate
+                           style="font-size: 0.8rem; color: var(--color-primary); font-weight: 600; text-decoration: none; white-space: nowrap;">
                             Ir a Historia Social
                         </a>
                     @elseif($resultado['nivel'] === 2 && $resultado['historia_id'])

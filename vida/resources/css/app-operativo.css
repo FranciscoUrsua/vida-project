@@ -91,3 +91,104 @@
 
 /* 5. Área principal */
 .op-main { flex: 1; margin-left: 196px; min-width: 0; min-height: 100vh; }
+
+/* 6. Topbar */
+.op-topbar {
+    position: fixed;
+    top: 0;
+    left: 196px; /* width del sidebar */
+    right: 0;
+    height: 56px;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-ink-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.25rem;
+    z-index: 90;
+}
+
+/* Ajustar op-main para empujar el contenido bajo el topbar */
+.op-main { padding-top: 56px; }
+
+/* 7. Menu de usuario en el topbar */
+.topbar__user {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.topbar__user-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-md);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--color-ink-700);
+    font-family: var(--font-sans);
+    font-size: 14px;
+}
+
+.topbar__user-btn:hover {
+    background: var(--color-sand);
+}
+
+.topbar__user-nombre {
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.topbar__user-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 220px;
+    background: #FFFFFF;
+    border: 1px solid var(--color-ink-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    z-index: 200;
+    overflow: hidden;
+}
+
+.topbar__user-info {
+    padding: var(--space-3) var(--space-4);
+}
+
+.topbar__user-divider {
+    height: 1px;
+    background: var(--color-ink-200);
+    margin: 0;
+}
+
+.topbar__user-menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--space-2) var(--space-4);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--color-ink-700);
+    text-align: left;
+}
+
+.topbar__user-menu-item:hover {
+    background: var(--color-sand);
+}
+
+.topbar__user-menu-item--danger {
+    color: var(--color-danger);
+}
+
+.topbar__user-menu-item--danger:hover {
+    background: var(--color-danger-50, #fef2f2);
+}

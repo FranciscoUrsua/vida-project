@@ -20,9 +20,10 @@
         @endforeach
 
         {{-- Nuevo mensaje --}}
-        <button wire:click="$set('modalNuevoMensaje', true)"
-                style="margin-left: auto; align-self: center; background: #534AB7; border: none; color: #fff; padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
-            <i class="bi bi-pencil-square me-1"></i> Nuevo mensaje
+        <button wire:click="abrirModalNuevoMensaje"
+                style="margin-left: auto; align-self: center; background: var(--color-primary); border: none; color: #fff; padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.35rem;">
+            <i data-lucide="pencil" style="width:14px;height:14px;" aria-hidden="true"></i>
+            Nuevo mensaje
         </button>
     </div>
 
@@ -162,5 +163,93 @@
 
         </div>
     </div>
+
+    {{-- Modal de nuevo mensaje --}}
+    @if($modalNuevoMensaje)
+        <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+            <div style="background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--color-ink-200); box-shadow: var(--shadow-2); padding: 1.5rem; max-width: 520px; width: 92%; max-height: 90vh; overflow-y: auto;">
+
+                <h2 style="font-size: 1rem; font-weight: 700; margin: 0 0 1rem; color: var(--color-ink-900);">Nuevo mensaje</h2>
+
+                {{-- Destinatario con autocompletado --}}
+                <div style="margin-bottom: 0.85rem; position: relative;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.3rem;">
+                        Para
+                    </label>
+                    <input wire:model.live.debounce.300ms="destinatarioBusqueda"
+                           wire:updated="buscarDestinatario"
+                           type="text"
+                           autocomplete="off"
+                           placeholder="Buscar profesional por nombre..."
+                           style="width: 100%; border: 1px solid var(--color-ink-200); border-radius: var(--radius-md); padding: 0.45rem 0.75rem; font-size: 0.85rem; box-sizing: border-box;" />
+
+                    {{-- Dropdown de resultados --}}
+                    @if(count($resultadosDestinatario) > 0)
+                        <div style="position: absolute; left: 0; right: 0; top: 100%; background: #fff; border: 1px solid var(--color-ink-200); border-radius: var(--radius-md); box-shadow: var(--shadow-2); z-index: 10; max-height: 200px; overflow-y: auto;">
+                            @foreach($resultadosDestinatario as $res)
+                                <button wire:click="seleccionarDestinatario({{ $res['id'] }}, '{{ addslashes($res['nombre']) }}')"
+                                        style="display: flex; flex-direction: column; width: 100%; text-align: left; padding: 0.5rem 0.75rem; border: none; background: transparent; cursor: pointer; border-bottom: 1px solid var(--color-ink-100);">
+                                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-ink-900);">{{ $res['nombre'] }}</span>
+                                    <span style="font-size: 0.72rem; color: var(--color-ink-500);">{{ $res['rol'] }}</span>
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    @if($destinatarioNombre)
+                        <div style="margin-top: 0.3rem; font-size: 0.75rem; color: var(--color-success);">
+                            <i data-lucide="check-circle" style="width:12px;height:12px;" aria-hidden="true"></i>
+                            Seleccionado: {{ $destinatarioNombre }}
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Asunto --}}
+                <div style="margin-bottom: 0.85rem;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.3rem;">
+                        Asunto
+                    </label>
+                    <input wire:model="asunto"
+                           type="text"
+                           maxlength="200"
+                           placeholder="Asunto del mensaje"
+                           style="width: 100%; border: 1px solid var(--color-ink-200); border-radius: var(--radius-md); padding: 0.45rem 0.75rem; font-size: 0.85rem; box-sizing: border-box;" />
+                </div>
+
+                {{-- Cuerpo --}}
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.3rem;">
+                        Mensaje
+                    </label>
+                    <textarea wire:model="cuerpo"
+                              rows="5"
+                              placeholder="Escribe tu mensaje..."
+                              style="width: 100%; border: 1px solid var(--color-ink-200); border-radius: var(--radius-md); padding: 0.45rem 0.75rem; font-size: 0.85rem; resize: vertical; box-sizing: border-box;"></textarea>
+                </div>
+
+                {{-- Errores de validacion --}}
+                @if($errors->any())
+                    <div style="background: var(--color-danger-soft); color: var(--color-danger-ink); padding: 0.5rem 0.75rem; border-radius: var(--radius-md); font-size: 0.8rem; margin-bottom: 0.75rem;">
+                        @foreach($errors->all() as $error)
+                            <div>{{ $error }}</div>
+                        @endforeach
+                    </div>
+                @endif
+
+                {{-- Botones --}}
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                    <button wire:click="$set('modalNuevoMensaje', false)"
+                            style="font-size: 0.8rem; background: #fff; border: 1px solid var(--color-ink-200); color: var(--color-ink-700); padding: 0.4rem 1rem; border-radius: var(--radius-md); cursor: pointer;">
+                        Cancelar
+                    </button>
+                    <button wire:click="enviarMensaje"
+                            style="font-size: 0.8rem; background: var(--color-primary); border: none; color: #fff; padding: 0.4rem 1.1rem; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 0.35rem;">
+                        <i data-lucide="send" style="width:14px;height:14px;" aria-hidden="true"></i>
+                        Enviar mensaje
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 
 </div>

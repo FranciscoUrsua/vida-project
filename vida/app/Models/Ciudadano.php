@@ -132,4 +132,17 @@ class Ciudadano extends Model
         'colectivo_extra_protegido' => 'boolean',
         // TieneDireccion inyecta sus propios casts via initializeTieneDireccion()
     ];
+
+    // -------------------------------------------------------------------------
+    // Accesores
+    // -------------------------------------------------------------------------
+
+    /**
+     * Nombre completo del ciudadano: nombre + apellido1 [+ apellido2].
+     * Los campos están cifrados — solo accesible mediante Eloquent ORM.
+     */
+    public function getNombreCompletoAttribute(): string
+    {
+        return trim("{$this->nombre} {$this->apellido1} {$this->apellido2}");
+    }
 }

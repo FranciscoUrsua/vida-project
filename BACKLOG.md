@@ -347,3 +347,12 @@ El log debe mostrar la UO del usuario en el momento del acceso, no la actual. Do
   "Resuelto en [fecha]" y eliminarla de aquí.
 - Claude CLI puede añadir entradas a este fichero cuando detecte decisiones pendientes
   o cuando las instrucciones de una sesión lo indiquen explícitamente.
+
+---
+
+**Alta de ciudadano desde búsqueda — pendiente** — 2026-06-08
+`Módulo: Ciudadanía / Intervención`
+El botón "Dar de alta nuevo ciudadano" en BuscarCiudadanoPage está deshabilitado (atributo `disabled`).
+Requiere diseño e implementación del formulario de alta de ciudadano en el módulo Ciudadanía.
+Incluye: validación de datos personales cifrados, creación de Historia Social inicial,
+asignación a UO, lógica de duplicados y permisos de alta.
