@@ -24,6 +24,7 @@
             <div class="flex flex-wrap gap-2">
                 @foreach ($this->segmentosFiltro as $id => $nombre)
                     <button
+                        type="button"
                         wire:click="setSegmento('{{ $id }}')"
                         class="rounded-full border px-3 py-1 text-xs font-medium transition-colors
                                {{ $segmentoActivo == $id
@@ -74,6 +75,7 @@
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-start gap-2">
                                     <button
+                                        type="button"
                                         wire:click="togglePrestacion({{ $prestacion->id }})"
                                         class="text-left text-sm text-gray-900 hover:text-primary-600
                                                dark:text-white dark:hover:text-primary-400"
@@ -82,6 +84,7 @@
                                     </button>
                                     {{-- Botón de detalle --}}
                                     <button
+                                        type="button"
                                         wire:click="verDetalle({{ $prestacion->id }})"
                                         class="flex-shrink-0 text-gray-300 hover:text-gray-500
                                                dark:text-gray-600 dark:hover:text-gray-400"
@@ -142,6 +145,7 @@
                                 </p>
                             </div>
                             <button
+                                type="button"
                                 wire:click="deseleccionar({{ $pres->id }})"
                                 class="flex-shrink-0 text-gray-300 hover:text-danger-500
                                        dark:text-gray-600"
@@ -156,6 +160,7 @@
 
             {{-- Botón guardar --}}
             <button
+                type="button"
                 wire:click="guardar"
                 wire:loading.attr="disabled"
                 class="mt-2 w-full rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium
@@ -185,6 +190,7 @@
                             </h3>
                         </div>
                         <button
+                            type="button"
                             wire:click="cerrarDetalle"
                             class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                         >
@@ -215,6 +221,7 @@
 
                     <div class="mt-5 text-right">
                         <button
+                            type="button"
                             wire:click="cerrarDetalle"
                             class="rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-600
                                    hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400
