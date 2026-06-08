@@ -5,6 +5,7 @@ namespace Database\Seeders\Demo;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Models\UsuarioUo;
+use Modules\Centro\Models\Centro;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -63,10 +64,18 @@ class DemoWorldBuilder
     }
 
     /**
-     * Crea las Unidades Organizativas definidas en el YAML.
+     * Crea las Unidades Organizativas y los Centros definidos en el YAML.
      *
-     * El tipo YAML 'asp' se mapea a 'css' (Centro de Servicios Sociales);
-     * 'especializada' se mantiene como 'especializada'.
+     * Cada entrada del YAML genera dos entidades:
+     * - UnidadOrganizativa: ubica el centro en la jerarquía organizativa.
+     * - Centro: representa la entidad operativa con sus atributos propios.
+     *
+     * El tipo YAML 'asp' se mapea a UO tipo 'css' (Centro de Servicios Sociales);
+     * 'especializada' se mantiene como 'especializada'. Ambos usan gestión
+     * 'municipal_directo' por defecto en entornos de demo.
+     *
+     * Los centros del mundo anterior son truncados por DemoResetCommand antes
+     * de llamar a este método, por lo que se usa create() en lugar de firstOrCreate().
      *
      * @param list<array{id: string, nombre: string, tipo: string, distrito: string}> $centros
      *
@@ -79,16 +88,24 @@ class DemoWorldBuilder
         foreach ($centros as $centro) {
             $tipoUo = $centro['tipo'] === 'asp' ? 'css' : 'especializada';
 
-            // firstOrCreate garantiza IDs estables entre resets del mismo mundo;
-            // create() acumulaba UOs huérfanas y rompía la visibilidad vía AmbitoUoScope.
+            // firstOrCreate garantiza IDs estables de UO entre resets del mismo mundo.
             $uo = UnidadOrganizativa::firstOrCreate(
                 ['nombre' => $centro['nombre'], 'tipo' => $tipoUo],
                 ['parent_id' => null, 'activa' => true]
             );
 
+            // Crear la entidad Centro vinculada a la UO (la tabla se truncó al inicio del reset).
+            Centro::create([
+                'nombre'                 => $centro['nombre'],
+                'tipo_gestion'           => 'municipal_directo',
+                'unidad_organizativa_id' => $uo->id,
+                'activo'                 => true,
+                'fecha_alta'             => today(),
+            ]);
+
             $unidades[$centro['id']] = $uo;
 
-            $this->warn("  UO creada: {$centro['nombre']} (id={$uo->id}, tipo={$tipoUo})");
+            $this->warn("  UO + Centro: {$centro['nombre']} (uo_id={$uo->id}, tipo={$tipoUo})");
         }
 
         return $unidades;

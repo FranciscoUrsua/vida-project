@@ -52,7 +52,8 @@ class DemoResetCommand extends Command
         'entrevistas',
         'historias_sociales',
         'sia_contactos',
-        'ciudadanos',
+        'ciudadanos',   // CASCADE vacía inscripciones_centro (FK RESTRICT desde centros)
+        'centros',      // CASCADE vacía ambitos_territoriales, colecciones_plazas, horarios, etc.
     ];
 
     /**
