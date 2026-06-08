@@ -241,10 +241,10 @@ class CentroResource extends Resource
             ->defaultSort('nombre');
     }
 
-    /** supervision puede ver centros de su subtree; solo adm_* puede gestionar. */
+    /** Cualquier usuario autenticado puede consultar el catálogo de centros. */
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
+        return auth()->check();
     }
 
     public static function canEdit(Model $record): bool

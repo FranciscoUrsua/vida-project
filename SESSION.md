@@ -1,10 +1,10 @@
 # SESSION — VIDA 360
 
-_Actualizado: 2026-06-03_
+_Actualizado: 2026-06-08_
 
 ## Tarea completada
 
-Corrección de DemoWorldsPage: Actions de Filament 5 ahora funcionan (InteractsWithActions + HasActions + wire:click mountAction + modals). Diseño reescrito con componentes Filament nativos.
+`canViewAny()` de `ProfesionalResource` y `CentroResource` ahora permite acceso a cualquier usuario autenticado (antes solo adm_sistema / adm_usuarios / supervision). Los datos organizativos (directorio de profesionales y catálogo de centros) son visibles para todos los roles sin filtro por UO.
 
 ## Tarea anterior
 

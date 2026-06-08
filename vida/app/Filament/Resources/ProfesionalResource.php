@@ -226,9 +226,10 @@ class ProfesionalResource extends Resource
         ];
     }
 
+    /** Cualquier usuario autenticado puede consultar el directorio de profesionales. */
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
+        return auth()->check();
     }
 
     public static function canCreate(): bool
