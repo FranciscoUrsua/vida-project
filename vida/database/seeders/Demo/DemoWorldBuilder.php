@@ -6,6 +6,9 @@ use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Models\UsuarioUo;
 use Modules\Centro\Models\Centro;
+use Modules\Usuarios\Models\Cargo;
+use Modules\Usuarios\Models\Profesional;
+use Modules\Usuarios\Models\TipoRelacionProfesional;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -112,17 +115,15 @@ class DemoWorldBuilder
     }
 
     /**
-     * Crea o actualiza los usuarios profesionales del mundo.
+     * Crea o actualiza los usuarios y profesionales del mundo.
      *
-     * Para cada profesional:
-     * - Crea o actualiza el User (email como clave)
-     * - Asigna el rol Spatie correspondiente
-     * - Crea o actualiza la adscripción a la UO (UsuarioUo)
+     * Para cada entrada YAML genera o actualiza tres entidades:
+     * - User: cuenta de acceso (email como clave, contraseña solo en creación)
+     * - Profesional: perfil organizativo vinculado al User mediante profesional_id
+     * - UsuarioUo: adscripción a la UO del centro asignado
      *
-     * Mapeo de roles YAML → roles Spatie:
-     * - 'supervisor'      → 'supervisor'
-     * - 'intervencion'    → 'intervencion'
-     * - 'consulta_basica' → 'consulta_basica'
+     * El cargo se infiere del rol YAML; sexo y tipo de relación usan valores
+     * por defecto apropiados para entornos de demo.
      *
      * @param list<array{login: string, nombre: string, rol: string, centro: string}> $profesionalesConfig
      * @param array<string, UnidadOrganizativa> $unidades Indexado por id YAML
@@ -136,6 +137,21 @@ class DemoWorldBuilder
         // IDs de UO válidas en este mundo — se usan para limpiar adscripciones obsoletas
         $uoIdsValidos = array_map(fn ($uo) => $uo->id, $unidades);
 
+        // Catálogos necesarios para el Profesional — resolvemos una sola vez
+        $cargoTrabSocial  = Cargo::where('nombre', 'like', '%Trabajador%')->first()?->id
+            ?? Cargo::activos()->value('id');
+        $cargoCoordinador = Cargo::where('nombre', 'like', '%Coordinador%')->first()?->id
+            ?? $cargoTrabSocial;
+        $cargoAuxiliar    = Cargo::where('nombre', 'like', '%Auxiliar%Servicios%')->first()?->id
+            ?? $cargoTrabSocial;
+        $cargoPorRol = [
+            'supervisor'      => $cargoCoordinador,
+            'intervencion'    => $cargoTrabSocial,
+            'consulta_basica' => $cargoAuxiliar,
+        ];
+        $tipoRelacionId = TipoRelacionProfesional::where('nombre', 'like', '%Funcionario%')->first()?->id
+            ?? TipoRelacionProfesional::activos()->value('id');
+
         foreach ($profesionalesConfig as $profConfig) {
             // La contraseña solo se establece en la creación; updateOrCreate sin
             // 'password' en los valores de actualización evita re-hashear bcrypt
@@ -144,19 +160,50 @@ class DemoWorldBuilder
 
             if ($existente !== null) {
                 $existente->update([
-                    'name' => $profConfig['nombre'],
+                    'name'              => $profConfig['nombre'],
                     'email_verified_at' => now(),
-                    'primer_acceso' => false,
+                    'primer_acceso'     => false,
                 ]);
                 $user = $existente;
             } else {
                 $user = User::create([
-                    'email' => $profConfig['login'],
-                    'name' => $profConfig['nombre'],
-                    'password' => 'demo1234',
+                    'email'             => $profConfig['login'],
+                    'name'              => $profConfig['nombre'],
+                    'password'          => 'demo1234',
                     'email_verified_at' => now(),
-                    'primer_acceso' => false,
+                    'primer_acceso'     => false,
                 ]);
+            }
+
+            // Crear o actualizar el Profesional vinculado al User
+            [$nombre, $apellido1, $apellido2] = $this->partirNombre($profConfig['nombre']);
+            $cargoId = $cargoPorRol[$profConfig['rol']] ?? $cargoTrabSocial;
+
+            $profesionalExistente = $user->profesional_id !== null
+                ? Profesional::find($user->profesional_id)
+                : null;
+
+            if ($profesionalExistente !== null) {
+                $profesionalExistente->update([
+                    'nombre'           => $nombre,
+                    'apellido1'        => $apellido1,
+                    'apellido2'        => $apellido2,
+                    'cargo_id'         => $cargoId,
+                    'tipo_relacion_id' => $tipoRelacionId,
+                    'activo'           => true,
+                ]);
+            } else {
+                $nuevoProfesional = Profesional::create([
+                    'nombre'           => $nombre,
+                    'apellido1'        => $apellido1,
+                    'apellido2'        => $apellido2,
+                    'sexo'             => 'D',
+                    'cargo_id'         => $cargoId,
+                    'tipo_relacion_id' => $tipoRelacionId,
+                    'fecha_inicio'     => today(),
+                    'activo'           => true,
+                ]);
+                $user->update(['profesional_id' => $nuevoProfesional->id]);
             }
 
             // Garantizar que el rol existe antes de asignarlo
@@ -174,7 +221,7 @@ class DemoWorldBuilder
 
             UsuarioUo::updateOrCreate(
                 [
-                    'usuario_id' => $user->id,
+                    'usuario_id'             => $user->id,
                     'unidad_organizativa_id' => $uoId,
                 ],
                 [
@@ -185,10 +232,30 @@ class DemoWorldBuilder
 
             $profesionales[$profConfig['login']] = $user;
 
-            $this->warn("  Profesional: {$profConfig['nombre']} ({$profConfig['login']}, rol={$profConfig['rol']})");
+            $this->warn("  User + Profesional: {$profConfig['nombre']} ({$profConfig['login']}, rol={$profConfig['rol']})");
         }
 
         return $profesionales;
+    }
+
+    /**
+     * Divide un nombre completo en nombre, primer apellido y segundo apellido.
+     *
+     * Ejemplos:
+     *   "Ana López García"  → ['Ana', 'López', 'García']
+     *   "Laura Supervisora" → ['Laura', 'Supervisora', null]
+     *
+     * @return array{string, string, string|null}
+     */
+    private function partirNombre(string $nombreCompleto): array
+    {
+        $partes = explode(' ', trim($nombreCompleto), 3);
+
+        return [
+            $partes[0],
+            $partes[1] ?? '-',
+            $partes[2] ?? null,
+        ];
     }
 
     /**
