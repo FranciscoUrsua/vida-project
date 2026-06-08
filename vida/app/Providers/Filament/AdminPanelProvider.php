@@ -15,6 +15,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
@@ -32,9 +33,18 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
-                fn (): HtmlString => new HtmlString(
-                    '<link rel="stylesheet" href="'.asset('css/filament-vida.css').'">'
-                )
+                function (): HtmlString {
+                    // Cargar el theme de Filament compilado por Vite: incluye utilidades
+                    // Tailwind para las vistas Livewire en modales/SlideOvers + tokens CSS.
+                    // Fallback al fichero estático si no hay build de Vite disponible.
+                    try {
+                        $href = Vite::asset('resources/css/filament/admin/theme.css');
+
+                        return new HtmlString('<link rel="stylesheet" href="' . $href . '">');
+                    } catch (\Exception) {
+                        return new HtmlString('<link rel="stylesheet" href="' . asset('css/filament-vida.css') . '">');
+                    }
+                }
             )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

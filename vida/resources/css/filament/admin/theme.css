@@ -3,7 +3,26 @@
    Fuente de verdad: docs/design-system/colors_and_type.css
    ───────────────────────────────────────────── */
 
+/*
+  El @import url() de Google Fonts debe preceder a cualquier otra regla CSS.
+  En Tailwind v4, @import 'tailwindcss' genera @layer rules inline; el @import
+  externo debe ir antes para que el orden de la cascade sea correcto.
+*/
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/*
+  Importar Tailwind completo para que las vistas Livewire en modales y SlideOvers
+  de Filament puedan usar flex-col, grid-cols-3, gap-4, rounded-lg, w-4, etc.
+  El @layer theme (--spacing, --color-*) es necesario para que utilities como
+  gap-4 o rounded-lg se generen correctamente; los tokens del :root (no capa)
+  que siguen a continuación tienen mayor precedencia en la cascade y sobreescriben
+  los valores que Tailwind pueda definir en @layer theme.
+*/
+@import "tailwindcss";
+
+/* Fuentes Blade/PHP escaneadas por Tailwind para generar solo las clases usadas */
+@source "../../../resources/views/livewire/**/*.blade.php";
+@source "../../../app/Livewire/**/*.php";
 
 :root {
     /* Tipografía */

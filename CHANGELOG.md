@@ -2,6 +2,26 @@
 
 ---
 
+## Fix CSS Filament: clases Tailwind en modales/SlideOvers con Livewire — 2026-06-08
+
+### Módulos afectados
+`app/Providers/Filament/AdminPanelProvider.php`, `resources/css/filament/admin/theme.css`, `vite.config.js`
+
+### Cambios
+
+- `resources/css/filament/admin/theme.css`: añadidos `@import "tailwindcss"` completo (no solo `utilities`) y directivas `@source` para escanear vistas Livewire. El `@import url(...)` de Google Fonts se mueve al inicio para cumplir spec CSS.
+- `vite.config.js`: añadido `resources/css/filament/admin/theme.css` al array `input` de Vite para que el fichero se compile como entry point y aparezca en el manifest.
+- `app/Providers/Filament/AdminPanelProvider.php`: el `renderHook` de `HEAD_END` usa `Vite::asset('resources/css/filament/admin/theme.css')` para cargar el hash correcto del build, con fallback al fichero estático `public/css/filament-vida.css`.
+- `public/build/`: reconstruido. `theme-DB8bu6J7.css` (49 kB) ahora incluye todas las utilidades Tailwind necesarias.
+
+### Decisiones de implementación
+
+- Filament no carga `app.css` del Vite de la aplicación. Su panel carga únicamente los CSS del vendor y el registrado vía `renderHook`. Por ello, cualquier componente Livewire embebido en modales/SlideOvers Filament necesita que sus clases Tailwind estén compiladas en `theme.css`.
+- `@import "tailwindcss"` completo necesario (no `tailwindcss/utilities` solo): `gap-4`, `rounded-lg` etc. requieren `--spacing` de `@layer theme` para generarse.
+- Los tokens del `:root` (sin `@layer`) tienen mayor precedencia que `@layer theme` de Tailwind, por lo que los colores y radios del design system no quedan sobreescritos.
+
+---
+
 ## Selector de prestaciones en CentroResource — SlideOver Livewire — 2026-06-08
 
 ### Módulos afectados

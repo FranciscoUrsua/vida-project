@@ -4,6 +4,10 @@ _Actualizado: 2026-06-08_
 
 ## Tarea completada
 
+Corrección CSS en modales/SlideOvers de Filament: añadido `@import "tailwindcss"` + `@source` a `theme.css`, registrado como entry point en Vite, y cargado via `Vite::asset()` en el `renderHook HEAD_END` de `AdminPanelProvider`. El componente `SelectorPrestacionesCentro` ahora renderiza correctamente dentro del SlideOver.
+
+## Tarea anterior
+
 Selector de prestaciones en `CentroResource`: sustituido el `CheckboxList` por un SlideOver con componente Livewire interactivo (`SelectorPrestacionesCentro`). Prestaciones agrupadas por objetivo general (etiqueta de `catalogos_sistema`), búsqueda por texto, panel de seleccionadas y guardado via `sync()` en `centro_prestacion`.
 
 ## Tarea anterior
