@@ -1,0 +1,93 @@
+/* VIDA 360 — CSS superficie operativa (Livewire) */
+
+/* 1. Tokens del design system */
+@import './vida/colors_and_type.css';
+
+/* 2. Override Bootstrap primary para usar Azul Retiro */
+.btn-primary {
+    --bs-btn-bg: var(--color-primary);
+    --bs-btn-border-color: var(--color-primary);
+    --bs-btn-hover-bg: var(--color-primary-hover);
+    --bs-btn-hover-border-color: var(--color-primary-hover);
+    --bs-btn-active-bg: var(--color-primary-press);
+    --bs-btn-active-border-color: var(--color-primary-press);
+}
+.btn-outline-primary {
+    --bs-btn-color: var(--color-primary);
+    --bs-btn-border-color: var(--color-primary);
+    --bs-btn-hover-bg: var(--color-primary);
+    --bs-btn-hover-border-color: var(--color-primary);
+    --bs-btn-active-bg: var(--color-primary-press);
+}
+
+/* 3. Layout */
+.op-layout { display: flex; min-height: 100vh; }
+
+/* 4. Sidebar */
+.op-sidebar {
+    width: 196px;
+    flex-shrink: 0;
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-ink-200);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+}
+.op-sidebar-logo {
+    padding: 1.25rem 1rem 1rem;
+    border-bottom: 1px solid var(--color-ink-200);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+.op-logo-icon { color: var(--color-primary); display: flex; align-items: center; }
+.op-logo-name { font-size: 0.95rem; font-weight: 700; color: var(--color-ink-900); letter-spacing: -0.01em; }
+
+.op-nav { flex: 1; padding: 0.75rem 0; }
+.op-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 1rem;
+    color: var(--color-ink-600);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background var(--motion-fast), color var(--motion-fast);
+}
+.op-nav-item:hover { background: var(--color-sand); color: var(--color-ink-900); }
+.op-nav-item.activo {
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+.op-nav-icon { display: flex; align-items: center; flex-shrink: 0; }
+
+.op-nav-badge {
+    margin-left: auto;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.1rem 0.45rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-info-soft);
+    color: var(--color-info-ink);
+    line-height: 1.5;
+}
+.op-nav-badge.alerta {
+    background: var(--color-danger-soft);
+    color: var(--color-danger-ink);
+}
+
+.op-sidebar-footer {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--color-ink-200);
+}
+.op-user-name { font-size: 0.8rem; font-weight: 600; color: var(--color-ink-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.op-user-role { font-size: 0.72rem; color: var(--color-ink-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 5. Área principal */
+.op-main { flex: 1; margin-left: 196px; min-width: 0; min-height: 100vh; }

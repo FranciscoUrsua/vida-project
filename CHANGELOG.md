@@ -2,6 +2,33 @@
 
 ---
 
+## Rediseño visual UI operativa — Design System Tokens — 2026-06-08
+
+### Módulos afectados
+`resources/css/`, `resources/views/layouts/`, `resources/views/errors/`, `Modules/Intervencion/resources/views/`, `vite.config.js`
+
+### Cambios
+
+- Creado `resources/css/vida/colors_and_type.css` (copia del fichero fuente de verdad de `docs/design-system/`) para importación vía Vite.
+- Creado `resources/css/app-operativo.css` con tokens del design system y definiciones de las clases `.op-*` (sidebar, nav, layout).
+- Añadido `resources/css/app-operativo.css` al array `input` de `vite.config.js`.
+- Reescrito `resources/views/layouts/operativo.blade.php`: eliminado bloque `<style>` inline completo (con paleta morada `#534AB7`), eliminada Tabler Icons CDN, carga `app-operativo.css` vía Vite, inicializa Lucide CDN con `stroke-width: 1.75`.
+- Actualizado `resources/views/errors/sin-rol.blade.php`: colores morados reemplazados por tokens, emoji `🔒` sustituido por icono Lucide `lock`, carga `app-operativo.css` y Lucide CDN.
+- Reemplazados iconos Tabler (`ti ti-heart-handshake`) y Bootstrap Icons (`bi bi-*`) en `sidebar.blade.php` por equivalentes Lucide.
+- Eliminados todos los colores morados hardcodeados (`#534AB7`, `#EEEDFE`, `#3C3489`, `#F8F7FF`, `#F9F8FF`, etc.) de `mis-casos-page.blade.php`, `agenda-page.blade.php`, `ciudadano-page.blade.php`, `buscar-ciudadano-page.blade.php`, `registrar-escala-page.blade.php`, `registrar-valoracion-page.blade.php`.
+- Arrays PHP `$semaforo`, `$estiloCita`, `$coloresTipo`, `$badgeEstado`, `$herramientas` actualizados con tokens CSS (`var(--color-*)`).
+- Añadido array `$coloresTipoSoft` en `agenda-page.blade.php` para chips del mes (evita `{{ $color }}22` con CSS vars).
+- Iconos de herramientas en `ciudadano-page.blade.php` migrados de Bootstrap Icons a Lucide con `data-lucide=""`.
+- `buscar-ciudadano-page.blade.php`: colores de nivel de acceso (protegido → `var(--color-protected)`, warning → `var(--color-warning)`, success → `var(--color-success)`).
+
+### Decisiones de implementación
+
+- Bootstrap Icons CDN se mantiene en el layout operativo temporalmente: puede existir uso residual en otros componentes no cubiertos en esta sesión.
+- Los valores `#fff` y `#1D160E` se mantienen donde corresponden (blanco puro sobre primary, ink-900 como texto base) — no son colores incorrectos.
+- Los chips de cita del calendario mensual usan `$coloresTipoSoft` (array separado) porque CSS vars no admiten concatenación de alfa hexadecimal (`var(--color-X)22`).
+
+---
+
 ## Fix CSS Filament: clases Tailwind en modales/SlideOvers con Livewire — 2026-06-08
 
 ### Módulos afectados

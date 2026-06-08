@@ -5,16 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sin perfil de acceso — {{ config('app.name') }}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    @vite('resources/css/app-operativo.css')
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => lucide.createIcons({ 'stroke-width': 1.75 }));
+    </script>
     <style>
-        body { min-height: 100vh; background: #f5f6fa; display: flex; align-items: center; justify-content: center; }
+        body { min-height: 100vh; background: var(--color-paper); display: flex; align-items: center; justify-content: center; }
         .sinrol-card { background: #fff; border-radius: 12px; padding: 2.5rem 2rem; max-width: 440px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.07); }
-        .sinrol-icon { font-size: 2.5rem; color: #534AB7; margin-bottom: 1rem; display: block; text-align: center; }
-        .sinrol-title { font-size: 1.15rem; font-weight: 700; color: #1D160E; text-align: center; margin-bottom: 0.5rem; }
-        .sinrol-body { font-size: 0.875rem; color: #6B7280; text-align: center; line-height: 1.6; margin-bottom: 1.5rem; }
-        .sinrol-divider { border-top: 1px solid #E5E7EB; margin: 1.25rem 0; }
+        .sinrol-icon { color: var(--color-primary); margin-bottom: 1rem; display: flex; justify-content: center; }
+        .sinrol-title { font-size: 1.15rem; font-weight: 700; color: var(--color-ink-900); text-align: center; margin-bottom: 0.5rem; }
+        .sinrol-body { font-size: 0.875rem; color: var(--color-ink-600); text-align: center; line-height: 1.6; margin-bottom: 1.5rem; }
+        .sinrol-divider { border-top: 1px solid var(--color-ink-200); margin: 1.25rem 0; }
         .sinrol-field { display: flex; gap: 0.5rem; justify-content: space-between; font-size: 0.8rem; padding: 0.3rem 0; }
-        .sinrol-label { color: #9CA3AF; font-weight: 500; flex-shrink: 0; }
-        .sinrol-value { color: #374151; font-weight: 600; text-align: right; word-break: break-all; }
+        .sinrol-label { color: var(--color-ink-400); font-weight: 500; flex-shrink: 0; }
+        .sinrol-value { color: var(--color-ink-700); font-weight: 600; text-align: right; word-break: break-all; }
     </style>
 </head>
 <body>
@@ -27,7 +32,9 @@
 
 <div class="sinrol-card">
 
-    <span class="sinrol-icon">🔒</span>
+    <div class="sinrol-icon">
+        <i data-lucide="lock" style="width:40px;height:40px;" aria-hidden="true"></i>
+    </div>
 
     <h1 class="sinrol-title">Sin perfil de acceso</h1>
 

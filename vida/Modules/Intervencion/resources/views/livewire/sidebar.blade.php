@@ -3,8 +3,8 @@
 <aside class="op-sidebar" wire:poll.300s>
 
     {{-- Logo --}}
-    <div class="op-sidebar-logo d-flex align-items-center gap-2">
-        <i class="ti ti-heart-handshake op-logo-icon"></i>
+    <div class="op-sidebar-logo">
+        <i data-lucide="hand-heart" class="op-logo-icon" style="width:22px;height:22px;" aria-hidden="true"></i>
         <span class="op-logo-name">{{ config('app.name') }}</span>
     </div>
 
@@ -14,14 +14,14 @@
         <a href="{{ route('intervencion.agenda.index') }}"
            class="op-nav-item {{ request()->routeIs('intervencion.agenda*') ? 'activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.agenda*') ? 'page' : 'false' }}">
-            <i class="bi bi-calendar3 op-nav-icon"></i>
+            <i data-lucide="calendar" class="op-nav-icon" style="width:18px;height:18px;" aria-hidden="true"></i>
             <span>Agenda</span>
         </a>
 
         <a href="{{ route('intervencion.casos.index') }}"
            class="op-nav-item {{ request()->routeIs('intervencion.casos*') ? 'activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.casos*') ? 'page' : 'false' }}">
-            <i class="bi bi-people-fill op-nav-icon"></i>
+            <i data-lucide="users" class="op-nav-icon" style="width:18px;height:18px;" aria-hidden="true"></i>
             <span>Mis casos</span>
             @if($this->datos['casos'] > 0)
                 <span class="op-nav-badge">{{ $this->datos['casos'] }}</span>
@@ -31,7 +31,7 @@
         <a href="{{ route('intervencion.mensajes.index') }}"
            class="op-nav-item {{ request()->routeIs('intervencion.alertas*') || request()->routeIs('intervencion.mensajes*') ? 'activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.alertas*') || request()->routeIs('intervencion.mensajes*') ? 'page' : 'false' }}">
-            <i class="bi bi-bell-fill op-nav-icon"></i>
+            <i data-lucide="bell" class="op-nav-icon" style="width:18px;height:18px;" aria-hidden="true"></i>
             <span>Alertas y mensajes</span>
             @if($this->datos['notificaciones'] > 0)
                 <span class="op-nav-badge alerta">{{ $this->datos['notificaciones'] }}</span>
@@ -41,7 +41,7 @@
         <a href="{{ route('intervencion.buscar.index') }}"
            class="op-nav-item {{ request()->routeIs('intervencion.buscar*') ? 'activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.buscar*') ? 'page' : 'false' }}">
-            <i class="bi bi-search op-nav-icon"></i>
+            <i data-lucide="search" class="op-nav-icon" style="width:18px;height:18px;" aria-hidden="true"></i>
             <span>Buscar ciudadano/a</span>
         </a>
 
@@ -62,7 +62,7 @@
                         {{-- TODO: · CSS cuando Profesional::centroActivo() esté implementado --}}
                     </div>
                 </div>
-                <i class="bi bi-three-dots-vertical" style="font-size: 0.8rem; color: var(--op-ink-muted); flex-shrink: 0;"></i>
+                <i data-lucide="more-vertical" style="width:14px;height:14px;color:var(--color-ink-400);flex-shrink:0;" aria-hidden="true"></i>
             </button>
 
             <ul class="dropdown-menu dropdown-menu-start shadow-sm" style="min-width: 180px; font-size: 0.82rem;">
@@ -76,7 +76,7 @@
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="dropdown-item text-danger">
-                            <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+                            <i data-lucide="log-out" style="width:14px;height:14px;" aria-hidden="true" class="me-2"></i>Cerrar sesión
                         </button>
                     </form>
                 </li>

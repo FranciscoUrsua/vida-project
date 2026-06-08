@@ -4,7 +4,7 @@ _Actualizado: 2026-06-08_
 
 ## Tarea completada
 
-Corrección CSS en modales/SlideOvers de Filament: añadido `@import "tailwindcss"` + `@source` a `theme.css`, registrado como entry point en Vite, y cargado via `Vite::asset()` en el `renderHook HEAD_END` de `AdminPanelProvider`. El componente `SelectorPrestacionesCentro` ahora renderiza correctamente dentro del SlideOver.
+Rediseño visual UI operativa: tokens design system aplicados a todas las vistas Livewire de Intervención, iconos migrados a Lucide (stroke-width 1.75), CSS operativo extraído a `app-operativo.css` importando `colors_and_type.css`. Eliminados todos los colores morados hardcodeados (`#534AB7` y familia). Tabler Icons CDN eliminada del layout.
 
 ## Tarea anterior
 
@@ -53,8 +53,8 @@ Selector de prestaciones en `CentroResource`: sustituido el `CheckboxList` por u
 
 ## Siguiente paso recomendado
 
-**UI Intervención — Entrega 4** ("Ver PISO" en CiudadanoPage) o reducción progresiva del baseline de PHPStan.
-Si se toca código nuevo: `composer format-check && vendor/bin/phpstan analyse --memory-limit=512M <ficheros>`.
+Revisar visualmente en navegador la UI operativa (colores, iconos Lucide, sidebar) antes del siguiente ciclo de desarrollo.
+Siguiente tarea de funcionalidad: **UI Intervención — Entrega 4** ("Ver PISO" en CiudadanoPage) o reducción progresiva del baseline de PHPStan.
 
 ## Contexto relevante para retomar
 
