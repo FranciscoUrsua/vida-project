@@ -7,6 +7,7 @@ use App\Models\Ciudadano;
 use App\Models\Scopes\AmbitoUoScope;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Ciudadania\Contracts\FuenteIdentidadInterface;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
@@ -22,6 +23,7 @@ use Modules\Ciudadania\Services\NormalizadorCiudadano;
  * Ver docs/instrucciones-cli/instrucciones-cli-alta-ciudadano.md Tarea 4.
  * Ver docs/front/alta-ciudadano-funcional.md.
  */
+#[Layout('layouts.operativo')]
 class AltaCiudadano extends Component
 {
     // -------------------------------------------------------------------------
