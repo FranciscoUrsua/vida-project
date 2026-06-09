@@ -45,6 +45,13 @@
             <span>Buscar ciudadano/a</span>
         </a>
 
+        <a href="{{ route('ciudadania.alta') }}"
+           class="op-nav-item {{ request()->routeIs('ciudadania.alta') ? 'activo' : '' }}"
+           aria-current="{{ request()->routeIs('ciudadania.alta') ? 'page' : 'false' }}">
+            <i data-lucide="user-plus" class="op-nav-icon" style="width:18px;height:18px;" aria-hidden="true"></i>
+            <span>Alta de ciudadano/a</span>
+        </a>
+
     </nav>
 
 </aside>

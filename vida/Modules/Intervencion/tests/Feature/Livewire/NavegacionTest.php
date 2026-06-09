@@ -240,14 +240,15 @@ class NavegacionTest extends TestCase
     }
 
     /**
-     * TF-LW-NAV-08 — El boton "Dar de alta nuevo ciudadano" esta deshabilitado.
+     * TF-LW-NAV-08 — La pagina de busqueda muestra el enlace de alta ciudadano.
+     * (Antes estaba deshabilitado; se habilitó al implementar ciudadania.alta.)
      */
     #[Test]
-    public function boton_alta_ciudadano_esta_deshabilitado(): void
+    public function pagina_busqueda_muestra_enlace_alta_ciudadano(): void
     {
         $this->actingAs($this->usuario)
             ->get('/intervencion/buscar')
-            ->assertSee('disabled', false)
+            ->assertOk()
             ->assertSee('Dar de alta');
     }
 
@@ -356,5 +357,41 @@ class NavegacionTest extends TestCase
         $this->actingAs($this->usuario)
             ->get('/intervencion/agenda')
             ->assertDontSee('data-bs-toggle="dropdown"');
+    }
+
+    // -------------------------------------------------------------------------
+    // Alta de ciudadano — TF-LW-NAV-14 a TF-LW-NAV-15
+    // -------------------------------------------------------------------------
+
+    /**
+     * TF-LW-NAV-14 — El sidebar renderiza el item "Alta de ciudadano" con enlace a ciudadania.alta.
+     */
+    #[Test]
+    public function sidebar_renderiza_item_alta_ciudadano(): void
+    {
+        $this->actingAs($this->usuario)
+            ->get('/intervencion/agenda')
+            ->assertSee('Alta de ciudadano/a')
+            ->assertSee(route('ciudadania.alta'));
+    }
+
+    /**
+     * TF-LW-NAV-15 — El enlace de alta en BuscarCiudadanoPage apunta a ciudadania.alta y no tiene disabled.
+     */
+    #[Test]
+    public function enlace_alta_ciudadano_apunta_a_ciudadania_alta_y_no_tiene_disabled(): void
+    {
+        $html = $this->actingAs($this->usuario)
+            ->get('/intervencion/buscar')
+            ->assertOk()
+            ->assertSee(route('ciudadania.alta'))
+            ->getContent();
+
+        // Busca el enlace de alta y verifica que no tiene atributo disabled
+        $patron = '/<a[^>]+href="' . preg_quote(route('ciudadania.alta'), '/') . '"[^>]*>/';
+        preg_match($patron, $html, $matches);
+
+        $this->assertNotEmpty($matches, 'No se encontró el enlace a ciudadania.alta en la página.');
+        $this->assertStringNotContainsString('disabled', $matches[0]);
     }
 }
