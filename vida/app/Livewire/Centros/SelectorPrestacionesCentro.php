@@ -36,8 +36,6 @@ class SelectorPrestacionesCentro extends Component
     /**
      * Segmento de población activo como filtro.
      * 'todos' significa sin filtro de segmento.
-     *
-     * @var string
      */
     public string $segmentoActivo = 'todos';
 
@@ -46,8 +44,6 @@ class SelectorPrestacionesCentro extends Component
 
     /**
      * Inicializa el componente cargando las prestaciones ya asociadas al centro.
-     *
-     * @param int $centroId
      */
     public function mount(int $centroId): void
     {
@@ -119,8 +115,6 @@ class SelectorPrestacionesCentro extends Component
 
     /**
      * Alterna la selección de una prestación.
-     *
-     * @param int $prestacionId
      */
     public function togglePrestacion(int $prestacionId): void
     {
@@ -135,8 +129,6 @@ class SelectorPrestacionesCentro extends Component
 
     /**
      * Elimina una prestación del panel de seleccionadas.
-     *
-     * @param int $prestacionId
      */
     public function deseleccionar(int $prestacionId): void
     {
@@ -147,8 +139,6 @@ class SelectorPrestacionesCentro extends Component
 
     /**
      * Activa el filtro de segmento de población.
-     *
-     * @param string $segmento
      */
     public function setSegmento(string $segmento): void
     {
@@ -157,8 +147,6 @@ class SelectorPrestacionesCentro extends Component
 
     /**
      * Abre la ficha de detalle de una prestación.
-     *
-     * @param int $prestacionId
      */
     public function verDetalle(int $prestacionId): void
     {

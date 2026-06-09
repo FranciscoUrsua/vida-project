@@ -139,8 +139,8 @@ class DemoWorldsPage extends Page implements HasActions
             ->requiresConfirmation()
             ->modalHeading("¿Cargar el mundo «{$nombre}»?")
             ->modalDescription(
-                'Esta operación destruirá TODOS los ciudadanos, historias sociales, planes, ' .
-                'entrevistas y seguimientos actuales, y reconstruirá el entorno desde el YAML ' .
+                'Esta operación destruirá TODOS los ciudadanos, historias sociales, planes, '.
+                'entrevistas y seguimientos actuales, y reconstruirá el entorno desde el YAML '.
                 'seleccionado. Esta acción no se puede deshacer.'
             )
             ->modalSubmitActionLabel('Sí, resetear entorno')

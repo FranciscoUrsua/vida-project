@@ -40,9 +40,9 @@ class AdminPanelProvider extends PanelProvider
                     try {
                         $href = Vite::asset('resources/css/filament/admin/theme.css');
 
-                        return new HtmlString('<link rel="stylesheet" href="' . $href . '">');
+                        return new HtmlString('<link rel="stylesheet" href="'.$href.'">');
                     } catch (\Exception) {
-                        return new HtmlString('<link rel="stylesheet" href="' . asset('css/filament-vida.css') . '">');
+                        return new HtmlString('<link rel="stylesheet" href="'.asset('css/filament-vida.css').'">');
                     }
                 }
             )

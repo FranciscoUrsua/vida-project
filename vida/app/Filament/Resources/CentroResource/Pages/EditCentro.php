@@ -35,7 +35,7 @@ class EditCentro extends EditRecord
                 ->modalWidth('4xl')
                 ->modalHeading('Prestaciones del centro')
                 ->modalDescription(
-                    'Selecciona las prestaciones que ofrece este centro. ' .
+                    'Selecciona las prestaciones que ofrece este centro. '.
                     'Los cambios se guardan al pulsar "Guardar selección".'
                 )
                 ->modalContent(

@@ -99,11 +99,11 @@ class DemoWorldBuilder
 
             // Crear la entidad Centro vinculada a la UO (la tabla se truncó al inicio del reset).
             Centro::create([
-                'nombre'                 => $centro['nombre'],
-                'tipo_gestion'           => 'municipal_directo',
+                'nombre' => $centro['nombre'],
+                'tipo_gestion' => 'municipal_directo',
                 'unidad_organizativa_id' => $uo->id,
-                'activo'                 => true,
-                'fecha_alta'             => today(),
+                'activo' => true,
+                'fecha_alta' => today(),
             ]);
 
             $unidades[$centro['id']] = $uo;
@@ -138,15 +138,15 @@ class DemoWorldBuilder
         $uoIdsValidos = array_map(fn ($uo) => $uo->id, $unidades);
 
         // Catálogos necesarios para el Profesional — resolvemos una sola vez
-        $cargoTrabSocial  = Cargo::where('nombre', 'like', '%Trabajador%')->first()?->id
+        $cargoTrabSocial = Cargo::where('nombre', 'like', '%Trabajador%')->first()?->id
             ?? Cargo::activos()->value('id');
         $cargoCoordinador = Cargo::where('nombre', 'like', '%Coordinador%')->first()?->id
             ?? $cargoTrabSocial;
-        $cargoAuxiliar    = Cargo::where('nombre', 'like', '%Auxiliar%Servicios%')->first()?->id
+        $cargoAuxiliar = Cargo::where('nombre', 'like', '%Auxiliar%Servicios%')->first()?->id
             ?? $cargoTrabSocial;
         $cargoPorRol = [
-            'supervisor'      => $cargoCoordinador,
-            'intervencion'    => $cargoTrabSocial,
+            'supervisor' => $cargoCoordinador,
+            'intervencion' => $cargoTrabSocial,
             'consulta_basica' => $cargoAuxiliar,
         ];
         $tipoRelacionId = TipoRelacionProfesional::where('nombre', 'like', '%Funcionario%')->first()?->id
@@ -160,18 +160,18 @@ class DemoWorldBuilder
 
             if ($existente !== null) {
                 $existente->update([
-                    'name'              => $profConfig['nombre'],
+                    'name' => $profConfig['nombre'],
                     'email_verified_at' => now(),
-                    'primer_acceso'     => false,
+                    'primer_acceso' => false,
                 ]);
                 $user = $existente;
             } else {
                 $user = User::create([
-                    'email'             => $profConfig['login'],
-                    'name'              => $profConfig['nombre'],
-                    'password'          => 'demo1234',
+                    'email' => $profConfig['login'],
+                    'name' => $profConfig['nombre'],
+                    'password' => 'demo1234',
                     'email_verified_at' => now(),
-                    'primer_acceso'     => false,
+                    'primer_acceso' => false,
                 ]);
             }
 
@@ -185,23 +185,23 @@ class DemoWorldBuilder
 
             if ($profesionalExistente !== null) {
                 $profesionalExistente->update([
-                    'nombre'           => $nombre,
-                    'apellido1'        => $apellido1,
-                    'apellido2'        => $apellido2,
-                    'cargo_id'         => $cargoId,
+                    'nombre' => $nombre,
+                    'apellido1' => $apellido1,
+                    'apellido2' => $apellido2,
+                    'cargo_id' => $cargoId,
                     'tipo_relacion_id' => $tipoRelacionId,
-                    'activo'           => true,
+                    'activo' => true,
                 ]);
             } else {
                 $nuevoProfesional = Profesional::create([
-                    'nombre'           => $nombre,
-                    'apellido1'        => $apellido1,
-                    'apellido2'        => $apellido2,
-                    'sexo'             => 'D',
-                    'cargo_id'         => $cargoId,
+                    'nombre' => $nombre,
+                    'apellido1' => $apellido1,
+                    'apellido2' => $apellido2,
+                    'sexo' => 'D',
+                    'cargo_id' => $cargoId,
                     'tipo_relacion_id' => $tipoRelacionId,
-                    'fecha_inicio'     => today(),
-                    'activo'           => true,
+                    'fecha_inicio' => today(),
+                    'activo' => true,
                 ]);
                 $user->update(['profesional_id' => $nuevoProfesional->id]);
             }
@@ -221,7 +221,7 @@ class DemoWorldBuilder
 
             UsuarioUo::updateOrCreate(
                 [
-                    'usuario_id'             => $user->id,
+                    'usuario_id' => $user->id,
                     'unidad_organizativa_id' => $uoId,
                 ],
                 [

@@ -161,6 +161,7 @@ class UsuarioRolResource extends Resource
     public static function canEdit(Model $record): bool
     {
         $user = auth()->user();
+
         return $user?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 }
