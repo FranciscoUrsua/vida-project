@@ -18,6 +18,7 @@
             <directory>Modules/Centro/tests/Feature</directory>
             <directory>Modules/Intervencion/tests/Feature</directory>
             <directory>Modules/Escalas/tests/Feature</directory>
+            <directory>Modules/Ciudadania/tests/Feature</directory>
         </testsuite>
     </testsuites>
     <source>

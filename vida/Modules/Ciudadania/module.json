@@ -1,0 +1,9 @@
+{
+    "name": "Ciudadania",
+    "alias": "ciudadania",
+    "description": "Alta, búsqueda y gestión del expediente ciudadano: identidad, matching de duplicados, consulta al padrón y ciclo de alta.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [],
+    "files": []
+}

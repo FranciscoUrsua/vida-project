@@ -121,10 +121,10 @@
         {{-- Pie: dar de alta --}}
         <div style="margin-top: 2rem; padding: 1rem; border: 1px dashed var(--color-ink-200); border-radius: 8px; text-align: center; color: var(--color-ink-600); font-size: 0.85rem;">
             ¿No está la persona que buscas?
-            <button disabled title="Pendiente de implementación"
-                    style="margin-left: 0.75rem; font-size: 0.8rem; background: var(--color-ink-100); border: 1px solid var(--color-ink-200); color: var(--color-ink-400); padding: 0.3rem 0.85rem; border-radius: 6px; cursor: not-allowed;">
+            <a href="{{ route('ciudadania.alta') }}" wire:navigate
+               style="margin-left: 0.75rem; font-size: 0.8rem; background: var(--color-primary); border: none; color: #fff; padding: 0.3rem 0.85rem; border-radius: 6px; text-decoration: none; display: inline-block;">
                 Dar de alta nuevo ciudadano/a
-            </button>
+            </a>
         </div>
     </div>
 

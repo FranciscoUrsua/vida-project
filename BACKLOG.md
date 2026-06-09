@@ -350,9 +350,7 @@ El log debe mostrar la UO del usuario en el momento del acceso, no la actual. Do
 
 ---
 
-**Alta de ciudadano desde búsqueda — pendiente** — 2026-06-08
+~~**Alta de ciudadano desde búsqueda — pendiente** — 2026-06-08~~ **RESUELTO 2026-06-09**
 `Módulo: Ciudadanía / Intervención`
-El botón "Dar de alta nuevo ciudadano" en BuscarCiudadanoPage está deshabilitado (atributo `disabled`).
-Requiere diseño e implementación del formulario de alta de ciudadano en el módulo Ciudadanía.
-Incluye: validación de datos personales cifrados, creación de Historia Social inicial,
-asignación a UO, lógica de duplicados y permisos de alta.
+Implementado en esta sesión: módulo Ciudadanía completo con AltaCiudadano (19 tests en verde).
+Ver CHANGELOG 2026-06-09.

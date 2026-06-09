@@ -2,6 +2,45 @@
 
 ---
 
+## Alta de ciudadano — Módulo Ciudadanía — 2026-06-09
+
+### Módulos afectados
+`Modules/Ciudadania/` (nuevo), `app/Models/Ciudadano.php`, `database/migrations/`, `composer.json`, `bootstrap/providers.php`, `phpunit.xml`, `Modules/Intervencion/resources/views/livewire/buscar-ciudadano-page.blade.php`
+
+### Cambios
+
+**Módulo Ciudadanía (nuevo)**
+- `module.json`, `CiudadaniaServiceProvider` — estructura estándar nwidart v12.
+- `FuenteIdentidadInterface` — contrato del servicio de consulta al padrón.
+- `MockFuenteIdentidad` — adaptador mock activo por defecto (principio 3.6).
+- `NormalizadorCiudadano` — normalización de NIF/NIE/pasaporte, nombre (Title Case + abreviaturas), teléfono (+34 prefix) y email.
+- `ResultadoMatching` (readonly DTO) + `MotorMatching` — detección de duplicados con Jaro-Winkler; 3 pasos: documento exacto → fecha+apellidos → teléfono/email.
+- `CiudadanoIdentificador` model con auto-hash en boot (SHA-256 del valor en minúsculas).
+- `AltaCiudadano` Livewire (4 fases: busqueda → padron → formulario → confirmacion).
+- Vista `alta-ciudadano.blade.php` con design system tokens.
+- Rutas `ciudadania.buscar`, `ciudadania.alta`, stubs `ciudadania.ciudadano.ficha` y `ciudadania.ciudadano.nueva-cita`.
+- 19 tests TF-LW-ALT-01 a TF-LW-ALT-19, todos en verde.
+
+**Migraciones**
+- `add_primera_demanda_to_ciudadanos_table` — campo `text nullable` + hashes `telefono_hash`, `email_hash`, `fecha_nacimiento_hash`.
+- `nullable_fecha_nacimiento_ciudadanos` — `fecha_nacimiento` pasa a nullable (campo opcional en el alta).
+- `create_ciudadano_identificadores_table` — tabla de documentos de identidad con `valor_hash` indexado.
+
+**Ficheros modificados**
+- `Ciudadano` model: `primera_demanda`, `telefono_hash`, `email_hash` en `$fillable`.
+- `buscar-ciudadano-page.blade.php`: botón alta habilitado con `wire:navigate` a `ciudadania.alta`.
+
+### Decisiones de implementación
+
+1. `primera_demanda` en `ciudadanos` (Capa 1), no como apunte. Dato del momento del alta, no un acto profesional.
+2. Motor de matching sin IA: Jaro-Winkler implementado directamente. Determinista y auditable.
+3. VVG: la consulta al padrón no se lanza en ningún caso (ni para ignorar la respuesta). La condición se evalúa antes de cualquier llamada HTTP. Documentado con comentario de seguridad.
+4. PSH y VVG: validación de rol en servidor además de en vista (seleccionarExcepcionPadron rechaza silenciosamente si el rol no lo permite).
+5. Geocodificación transparente: AltaCiudadano pasa `origen_direccion = OrigenDireccion::Profesional`; DireccionObserver lanza la normalización automáticamente.
+6. confirmarAlta() usa `withoutGlobalScope(AmbitoUoScope::class)` para guardar `primera_demanda`: el ciudadano recién creado no tiene historia social y AmbitoUoScope lo filtraría.
+
+---
+
 ## Rediseño visual UI operativa — Design System Tokens — 2026-06-08
 
 ### Módulos afectados

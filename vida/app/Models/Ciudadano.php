@@ -101,10 +101,13 @@ class Ciudadano extends Model
         'geocoder_proveedor',
         // Contacto
         'telefono',
+        'telefono_hash',
         'email',
+        'email_hash',
         'documento_identidad',
         'nivel_identificacion',
         'contexto_alta',
+        'primera_demanda',
         'activo',
         // Colectivos especiales (anonimización)
         'es_vvg',
@@ -125,6 +128,7 @@ class Ciudadano extends Model
         'direccion_texto' => 'encrypted',
         'telefono' => 'encrypted',
         'email' => 'encrypted',
+        'primera_demanda' => 'string',
         'documento_identidad' => 'encrypted',
         'activo' => 'boolean',
         'es_vvg' => 'boolean',
