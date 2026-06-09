@@ -259,9 +259,9 @@ class BuzonPage extends Component
             ->limit(8)
             ->get()
             ->map(fn ($u) => [
-                'id'     => $u->id,
+                'id' => $u->id,
                 'nombre' => $u->profesional?->nombre_completo ?? $u->email,
-                'rol'    => $u->roles->first()?->name ?? '—',
+                'rol' => $u->roles->first()?->name ?? '—',
             ])
             ->toArray();
     }
@@ -269,7 +269,7 @@ class BuzonPage extends Component
     /**
      * Selecciona un destinatario de los resultados de busqueda.
      *
-     * @param int    $id     ID del usuario destinatario
+     * @param int $id ID del usuario destinatario
      * @param string $nombre Nombre completo del destinatario
      */
     public function seleccionarDestinatario(int $id, string $nombre): void
@@ -288,13 +288,13 @@ class BuzonPage extends Component
     {
         $this->validate([
             'destinatarioId' => 'required|exists:users,id',
-            'asunto'         => 'required|min:3|max:200',
-            'cuerpo'         => 'required|min:5',
+            'asunto' => 'required|min:3|max:200',
+            'cuerpo' => 'required|min:5',
         ]);
 
         // Crear el hilo con el remitente como creador
         $hilo = MensajeHilo::create([
-            'asunto'        => $this->asunto,
+            'asunto' => $this->asunto,
             'creado_por_id' => Auth::id(),
         ]);
 
@@ -307,7 +307,7 @@ class BuzonPage extends Component
         // Primer mensaje del hilo
         $hilo->mensajes()->create([
             'remitente_id' => Auth::id(),
-            'cuerpo'       => $this->cuerpo,
+            'cuerpo' => $this->cuerpo,
         ]);
 
         $this->modalNuevoMensaje = false;

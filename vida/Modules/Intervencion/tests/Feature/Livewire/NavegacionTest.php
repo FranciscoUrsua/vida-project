@@ -2,19 +2,22 @@
 
 namespace Modules\Intervencion\Tests\Feature\Livewire;
 
+use App\Models\Ciudadano;
+use App\Models\HistoriaSocial;
+use App\Models\Scopes\AmbitoUoScope;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Models\UsuarioUo;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Collection;
 use Livewire\Livewire;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
 use Modules\Mensajes\Http\Livewire\BuzonPage;
 use Modules\Mensajes\Models\MensajeHilo;
-use Modules\Mensajes\Models\MensajeParticipante;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -143,7 +146,7 @@ class NavegacionTest extends TestCase
         // Marcamos como incompleto si no hay datos que mostrar cabeceras
         $this->markTestIncomplete(
             'TF-LW-NAV-03: La cabecera "Historia Social" solo es visible cuando hay datos. '
-            . 'Implementar con factories de PlanDeIntervencion cuando el módulo Agenda tenga fixtures completas.'
+            .'Implementar con factories de PlanDeIntervencion cuando el módulo Agenda tenga fixtures completas.'
         );
     }
 
@@ -163,7 +166,7 @@ class NavegacionTest extends TestCase
 
         // La propiedad ciudadanosDelPage debe existir y ser una Collection
         $ciudadanos = $componente->get('ciudadanosDelPage');
-        $this->assertInstanceOf(\Illuminate\Support\Collection::class, $ciudadanos);
+        $this->assertInstanceOf(Collection::class, $ciudadanos);
 
         // La columna Ciudadano/a esta definida en el blade (TF-LW-NAV-03 la verifica con datos).
         // Esta prueba verifica que el componente carga sin errores y expone la propiedad correcta.
@@ -179,7 +182,7 @@ class NavegacionTest extends TestCase
             ->test(MisCasosPage::class);
 
         $ciudadanos = $componente->get('ciudadanosDelPage');
-        $this->assertInstanceOf(\Illuminate\Support\Collection::class, $ciudadanos);
+        $this->assertInstanceOf(Collection::class, $ciudadanos);
     }
 
     // -------------------------------------------------------------------------
@@ -213,7 +216,7 @@ class NavegacionTest extends TestCase
             'activa' => true,
         ]);
 
-        $ciudadano = \App\Models\Ciudadano::create([
+        $ciudadano = Ciudadano::create([
             'nombre' => 'Pepito',
             'apellido1' => 'Prueba',
             'apellido2' => null,
@@ -222,8 +225,8 @@ class NavegacionTest extends TestCase
             'activo' => true,
         ]);
 
-        $historia = \App\Models\HistoriaSocial::withoutGlobalScope(
-            \App\Models\Scopes\AmbitoUoScope::class
+        $historia = HistoriaSocial::withoutGlobalScope(
+            AmbitoUoScope::class
         )->create([
             'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $otraUo->id,

@@ -105,11 +105,11 @@ return [
         ),
     ],
 
-    'env_label' => env('APP_ENV_LABEL', match(env('APP_ENV', 'production')) {
+    'env_label' => env('APP_ENV_LABEL', match (env('APP_ENV', 'production')) {
         'production' => 'Producción',
-        'staging'    => 'Staging',
-        'testing'    => 'Testing',
-        default      => ucfirst(env('APP_ENV', 'production')),
+        'staging' => 'Staging',
+        'testing' => 'Testing',
+        default => ucfirst(env('APP_ENV', 'production')),
     }),
 
     /*

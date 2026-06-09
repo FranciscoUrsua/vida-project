@@ -4,6 +4,7 @@ namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\CatalogoSistema;
 use App\Models\Ciudadano;
+use App\Models\Scopes\AmbitoUoScope;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -182,7 +183,7 @@ class MisCasosPage extends Component
     {
         $ids = collect($this->casos->items())->pluck('ciudadano_id')->filter()->unique()->values();
 
-        return Ciudadano::withoutGlobalScope(\App\Models\Scopes\AmbitoUoScope::class)
+        return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
             ->whereIn('id', $ids)
             ->get()
             ->keyBy('id');

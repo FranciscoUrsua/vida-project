@@ -3,6 +3,7 @@
 namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\HistoriaSocial;
+use App\Models\Scopes\AmbitoUoScope;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -254,7 +255,7 @@ class AgendaPage extends Component
         // Solo en citas con ciudadano (no eventos) — null si no hay historias reales
         $historias = [];
         if (Auth::user()?->profesional_id) {
-            $historias = HistoriaSocial::withoutGlobalScope(\App\Models\Scopes\AmbitoUoScope::class)
+            $historias = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)
                 ->whereNotNull('ciudadano_id')
                 ->limit(5)
                 ->pluck('id')
@@ -268,14 +269,14 @@ class AgendaPage extends Component
             $historiaDeCita = ($tipo !== 'evento') ? ($historias[$i] ?? null) : null;
 
             $citas[] = [
-                'id'         => $hash + $i,
-                'hora'       => sprintf('%02d:00', 9 + ($i * 2)),
-                'duracion'   => 60,
-                'ciudadano'  => $ciudadanos[$i % count($ciudadanos)],
+                'id' => $hash + $i,
+                'hora' => sprintf('%02d:00', 9 + ($i * 2)),
+                'duracion' => 60,
+                'ciudadano' => $ciudadanos[$i % count($ciudadanos)],
                 'historia_id' => $historiaDeCita,
-                'tipo'       => $tipo,
-                'subtipo'    => null,
-                'fecha'      => $fecha,
+                'tipo' => $tipo,
+                'subtipo' => null,
+                'fecha' => $fecha,
             ];
         }
 
