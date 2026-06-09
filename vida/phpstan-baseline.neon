@@ -2125,8 +2125,26 @@ parameters:
 			path: Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php
 
 		-
+			message: '#^Access to an undefined property Modules\\Intervencion\\Http\\Livewire\\MisCasosPage\:\:\$casos\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Intervencion/app/Http/Livewire/MisCasosPage.php
+
+		-
 			message: '#^Method Modules\\Intervencion\\Http\\Livewire\\MisCasosPage\:\:casos\(\) return type with generic interface Illuminate\\Contracts\\Pagination\\LengthAwarePaginator does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
+			count: 1
+			path: Modules/Intervencion/app/Http/Livewire/MisCasosPage.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: Modules/Intervencion/app/Http/Livewire/MisCasosPage.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
 			count: 1
 			path: Modules/Intervencion/app/Http/Livewire/MisCasosPage.php
 
@@ -2635,6 +2653,18 @@ parameters:
 			path: Modules/Intervencion/tests/Feature/Livewire/MisCasosPageTest.php
 
 		-
+			message: '#^Call to an undefined method Illuminate\\Testing\\TestResponse\:\:assertHasNoErrors\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: Modules/Intervencion/tests/Feature/Livewire/NavegacionTest.php
+
+		-
+			message: '#^Unable to resolve the template type TComponent in call to method Livewire\\LivewireManager\:\:test\(\)$#'
+			identifier: argument.templateType
+			count: 8
+			path: Modules/Intervencion/tests/Feature/Livewire/NavegacionTest.php
+
+		-
 			message: '#^Result of method Modules\\Intervencion\\Models\\SeguimientoPlan\:\:solicitarCitaSiguiente\(\) \(void\) is used\.$#'
 			identifier: method.void
 			count: 1
@@ -2653,8 +2683,38 @@ parameters:
 			path: Modules/Intervencion/tests/Feature/ValoracionFichasTest.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Mensajes/app/Http/Livewire/BuzonPage.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\User\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: Modules/Mensajes/app/Http/Livewire/BuzonPage.php
+
+		-
 			message: '#^Relation ''usuario'' is not found in Modules\\Mensajes\\Models\\Mensaje model\.$#'
 			identifier: larastan.relationExistence
+			count: 1
+			path: Modules/Mensajes/app/Http/Livewire/BuzonPage.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\User\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Mensajes/app/Http/Livewire/BuzonPage.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: Modules/Mensajes/app/Http/Livewire/BuzonPage.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>nombre_completo" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/Mensajes/app/Http/Livewire/BuzonPage.php
 
@@ -3175,12 +3235,6 @@ parameters:
 			path: app/Console/Commands/NormalizarDirecciones.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$unidad_organizativa_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Filament/Resources/CentroResource.php
-
-		-
 			message: '#^Method App\\Filament\\Resources\\CentroResource\:\:getRelationManagers\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -3191,6 +3245,12 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Filament/Resources/CentroResource.php
+
+		-
+			message: '#^Cannot access property \$id on Illuminate\\Database\\Eloquent\\Model\|int\|string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Filament/Resources/CentroResource/Pages/EditCentro.php
 
 		-
 			message: '#^Match arm comparison between ''poligono_gis'' and ''poligono_gis'' is always true\.$#'
@@ -3205,12 +3265,6 @@ parameters:
 			path: app/Filament/Resources/CuadranteMesResource.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$unidad_organizativa_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Filament/Resources/EstiloInformeResource.php
-
-		-
 			message: '#^Method App\\Filament\\Resources\\HorarioCentroResource\:\:getRelationManagers\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -3221,12 +3275,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Filament/Resources/InformeResource/Pages/ViewInforme.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$unidad_organizativa_id\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Filament/Resources/PlantillaInformeResource.php
 
 		-
 			message: '#^Anonymous function never returns null so it can be removed from the return type\.$#'
@@ -3259,12 +3307,6 @@ parameters:
 			path: app/Filament/Resources/PrestacionResource/Pages/EditPrestacion.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:vigentes\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Filament/Resources/ProfesionalResource.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>es_externo" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
@@ -3293,12 +3335,6 @@ parameters:
 			identifier: method.notFound
 			count: 1
 			path: app/Filament/Resources/UsuarioResource.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$unidad_organizativa_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Filament/Resources/UsuarioRolResource.php
 
 		-
 			message: '#^Relation ''role'' is not found in Modules\\Usuarios\\Models\\UsuarioRol model\.$#'
@@ -3401,6 +3437,18 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: app/Livewire/Admin/GestorUnidadesOrganizativas.php
+
+		-
+			message: '#^Method App\\Livewire\\Centros\\SelectorPrestacionesCentro\:\:prestacionesFiltradas\(\) should return Illuminate\\Support\\Collection\<string, Illuminate\\Support\\Collection\<int, Modules\\Prestaciones\\Models\\Prestacion\>\> but returns Illuminate\\Database\\Eloquent\\Collection\<\(int\|string\), Illuminate\\Database\\Eloquent\\Collection\<int, Modules\\Prestaciones\\Models\\Prestacion\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Livewire/Centros/SelectorPrestacionesCentro.php
+
+		-
+			message: '#^PHPDoc tag @property\-read for property App\\Livewire\\Centros\\SelectorPrestacionesCentro\:\:\$prestacionesFiltradas contains generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Livewire/Centros/SelectorPrestacionesCentro.php
 
 		-
 			message: '#^Class App\\Models\\AccesoProtegido uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
