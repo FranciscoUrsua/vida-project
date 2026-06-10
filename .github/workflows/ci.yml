@@ -53,6 +53,9 @@ jobs:
             npm ci --no-audit --no-fund --silent || npm install --no-audit --no-fund --silent
             npm run build
 
+            # Ejecutar migraciones pendientes
+            php artisan migrate --force
+
             # Limpiar cachés de Laravel para asegurar cambios
             php artisan config:cache
             php artisan route:cache
