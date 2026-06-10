@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Modules\Ciudadania\Contracts\FuenteIdentidadInterface;
 use Modules\Ciudadania\Http\Livewire\AltaCiudadano;
+use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
 use Modules\Ciudadania\Services\MotorMatching;
 use Modules\Ciudadania\Services\Padron\MockFuenteIdentidad;
 
@@ -38,5 +39,6 @@ class CiudadaniaServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(module_path($this->moduleName, 'routes/web.php'));
 
         Livewire::component('ciudadania.alta-ciudadano', AltaCiudadano::class);
+        Livewire::component('ciudadania.ficha-ciudadano-page', FichaCiudadanoPage::class);
     }
 }

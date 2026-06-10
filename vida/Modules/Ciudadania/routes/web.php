@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Ciudadania\Http\Livewire\AltaCiudadano;
+use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 
 /*
@@ -18,9 +19,8 @@ Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion|supervision|tr
     ->group(function () {
         Route::get('/ciudadania/buscar', BuscarCiudadanoPage::class)->name('ciudadania.buscar');
         Route::get('/ciudadania/alta', AltaCiudadano::class)->name('ciudadania.alta');
+        Route::get('/ciudadania/ciudadano/{ciudadano}', FichaCiudadanoPage::class)->name('ciudadania.ciudadano.ficha');
 
-        // Rutas pendientes de implementación — solo para que los redirects de alta
-        // apunten a nombres de ruta ya definidos desde el primer día.
-        Route::get('/ciudadania/ciudadano/{id}', fn () => abort(501, 'Ficha ciudadano — pendiente'))->name('ciudadania.ciudadano.ficha');
-        Route::get('/ciudadania/ciudadano/{id}/nueva-cita', fn () => abort(501, 'Nueva cita — pendiente'))->name('ciudadania.ciudadano.nueva-cita');
+        // Ruta pendiente de implementación — stub para que los redirects de agenda funcionen.
+        Route::get('/ciudadania/ciudadano/{ciudadano}/nueva-cita', fn () => abort(501, 'Nueva cita — pendiente'))->name('ciudadania.ciudadano.nueva-cita');
     });

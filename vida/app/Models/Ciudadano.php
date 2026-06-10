@@ -6,8 +6,10 @@ use App\Models\Scopes\AmbitoUoScope;
 use App\Traits\TieneDireccion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Modules\Ciudadania\Models\CiudadanoPrestacionResumen;
 
 /**
  * Modelo stub de Ciudadano.
@@ -148,5 +150,20 @@ class Ciudadano extends Model
     public function getNombreCompletoAttribute(): string
     {
         return trim("{$this->nombre} {$this->apellido1} {$this->apellido2}");
+    }
+
+    // -------------------------------------------------------------------------
+    // Relaciones
+    // -------------------------------------------------------------------------
+
+    /**
+     * Resumen de prestaciones y actividades sin historia social asociada.
+     * Alimentado por observers de cada módulo origen.
+     *
+     * @return HasMany<CiudadanoPrestacionResumen, self>
+     */
+    public function prestacionesResumen(): HasMany
+    {
+        return $this->hasMany(CiudadanoPrestacionResumen::class);
     }
 }

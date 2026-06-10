@@ -2,6 +2,47 @@
 
 ---
 
+## Ficha del ciudadano — Módulo Ciudadanía — 2026-06-10
+
+### Módulos afectados
+`Modules/Ciudadania/` (ampliado), `app/Models/Ciudadano.php`, `database/migrations/`
+
+### Cambios
+
+**Migración**
+- `create_ciudadano_prestaciones_resumen_table` — tabla de agregación de prestaciones sin historia social: `ciudadano_id FK`, `modulo_origen`, `origen_id`, `tipo`, `descripcion`, `estado`, `fecha_inicio/fin`, índices compuestos. Desacopla la ficha de los módulos origen (Centros, Teleasistencia...).
+
+**Modelo `CiudadanoPrestacionResumen`**
+- Scopes `activas()` y `recientes(int $limit = 4)` — activos primero, por fecha descendente, limitado.
+
+**`Ciudadano` model**
+- Relación `prestacionesResumen(): HasMany<CiudadanoPrestacionResumen>`.
+
+**Componente `FichaCiudadanoPage` (Livewire)**
+- Accede al ciudadano con `withoutGlobalScope(AmbitoUoScope::class)` — la ficha es accesible aunque el ciudadano no tenga historia social en ninguna UO.
+- Edición de Capa 1 (`activarEdicion`, `cancelarEdicion`, `guardar`) con normalización via `NormalizadorCiudadano`.
+- Modal de añadir documento (`abrirModalDocumento`, `guardarDocumento`) — cierra el documento activo anterior sin eliminarlo (principio 4.2).
+- Computed: `ciudadano`, `puedeEditar`, `historiaSocial`, `puedeVerHistoria`, `documentos`, `ucVigente` (stub), `prestaciones`, `actividadReciente` (stub).
+- `supervision`: acceso de solo lectura; sin botón editar, sin modal documento.
+
+**Vista `ficha-ciudadano-page.blade.php`**
+- Dos columnas: principal (identificación, documentos, UC) + lateral (banner HS, prestaciones, actividad, permisos del rol).
+- Enlace "Ir a HS" como `<a>` para `intervencion`, como `<span>` no navegable para otros roles.
+- Primera demanda inmutable, entrecomillada, sin lápiz de edición.
+- Badges de nivel de identificación y estado de prestaciones con colores del design system.
+
+**Rutas**
+- `ciudadania.ciudadano.ficha` ahora apunta a `FichaCiudadanoPage` (ya no es stub 501).
+
+**Tests (TF-LW-FIC-01 a TF-LW-FIC-16)**
+- 16 tests, todos en verde.
+
+**Decisiones de implementación**
+- `actividadReciente()` devuelve colección vacía directamente (sin try/catch de query): en PostgreSQL una query a tabla inexistente dentro de una transacción la aborta aunque se capture la excepción PHP.
+- `ciudadanoId` almacenado como `int` en el componente (no como modelo Eloquent) para evitar que la rehidratación de Livewire pase por AmbitoUoScope.
+
+---
+
 ## Alta de ciudadano — Módulo Ciudadanía — 2026-06-09
 
 ### Módulos afectados
