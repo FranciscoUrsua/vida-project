@@ -4,6 +4,10 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+
+permissions:
+  contents: write
+
 jobs:
   quality:
     runs-on: ubuntu-latest
