@@ -1,12 +1,18 @@
-# UI — Rol Intervención
+# UI — Rol Intervención y navegación operativa
 ## `docs/front/ui-intervencion.md`
 
 > Documento de diseño de interfaz para el rol `intervencion` de VIDA 360.
-> Cubre todas las pantallas del flujo de trabajo del Trabajador Social de Referencia (TSR).
+> Cubre todas las pantallas del flujo de trabajo del Trabajador Social de Referencia (TSR),
+> el mapa de navegación entre pantallas y la ficha del ciudadano accesible para todos los
+> roles operativos.
 >
-> **Documento relacionado:** `docs/modulo-intervencion.md`, `docs/modulo-mensajes.md`,
-> `docs/modulo-agenda.md`, `docs/modulo-usuarios-permisos.md`
-> **Versión inicial:** mayo 2026
+> **Documentos relacionados:** `docs/modulo-intervencion.md`, `docs/modulo-mensajes.md`,
+> `docs/modulo-agenda.md`, `docs/modulo-usuarios-permisos.md`,
+> `docs/front/ui-ficha-ciudadano.md`, `docs/front/alta-ciudadano-funcional.md`
+>
+> **Versión inicial:** mayo 2026  
+> **Actualizado:** junio 2026 — navegación entre pantallas, ficha del ciudadano,
+> comportamiento de widgets condicionales, mapa de enlaces por rol
 
 ---
 
@@ -33,13 +39,17 @@ La barra lateral izquierda es persistente en todas las pantallas del rol. Contie
 
 | Ítem | Ruta | Badge |
 |---|---|---|
-| Agenda | `/agenda` | — |
-| Mis casos | `/casos` | Número de ciudadanos asignados |
-| Alertas y mensajes | `/mensajes` | Total de alertas + mensajes no leídos (coral si hay alertas sin reconocer) |
-| Buscar ciudadano | `/buscar` | — |
+| Agenda | `/intervencion/agenda` | — |
+| Mis casos | `/intervencion/casos` | Número de ciudadanos asignados |
+| Alertas y mensajes | `/intervencion/mensajes` | Total de alertas + mensajes no leídos (coral si hay alertas sin reconocer) |
+| Buscar ciudadano | `/intervencion/buscar` | — |
+| Alta de ciudadano | `/ciudadania/alta` | — |
 
 La parte inferior del sidebar muestra el avatar con iniciales, nombre completo y
 "Intervención · [nombre del CSS]".
+
+El ítem "Alta de ciudadano" es compartido con otros roles operativos (`tramitacion`,
+`consulta_basica`). El acceso a la ruta está protegido por middleware `role_or_permission`.
 
 ---
 
@@ -74,10 +84,10 @@ Código de color por tipo:
 
 | Tipo | Color |
 |---|---|
-| Entrevista / valoración | Morado (`#EEEDFE` / borde `#534AB7`) |
-| Seguimiento | Verde teal (`#E1F5EE` / borde `#0F6E56`) |
-| Urgencia | Coral (`#FAECE7` / borde `#993C1D`) + chip "Urgencia" |
-| Evento interno / coordinación | Gris (`var(--color-background-secondary)`) |
+| Entrevista / valoración | `var(--color-primary-subtle)` / borde `var(--color-primary)` |
+| Seguimiento | `var(--color-success-subtle)` / borde `var(--color-success)` |
+| Urgencia | `var(--color-danger-subtle)` / borde `var(--color-danger)` + chip "Urgencia" |
+| Evento interno / coordinación | `var(--color-background-secondary)` |
 
 Los slots libres se muestran con borde punteado y etiqueta "Slot libre" — solo en la
 vista de día. Las vistas de semana y mes no muestran slots libres.
@@ -91,16 +101,30 @@ en su franja horaria. Los sábados y domingos no se muestran (horario laboral).
 
 Calendario clásico. Cada día muestra contadores por tipo con píldoras de color, ordenados
 por prioridad (urgencias primero). Los fines de semana tienen fondo atenuado. El día actual
-tiene borde morado (`#534AB7`). No se muestran nombres de ciudadanos en la vista de mes.
-Clic en un día navega a la vista de día de esa fecha.
+tiene borde usando `var(--color-primary)`. No se muestran nombres de ciudadanos en la vista
+de mes. Clic en un día navega a la vista de día de esa fecha.
 
-### 3.4 Anotaciones en citas
+### 3.4 Enlaces desde la agenda
+
+El enlace del nombre del ciudadano en una cita varía según el rol y el estado de la cita:
+
+| Condición | Destino |
+|---|---|
+| Rol `intervencion` + cita con `historia_id` | `intervencion.ciudadano.show` (pantalla de trabajo clínico) |
+| Rol `intervencion` + cita sin `historia_id` | No clicable — TODO: enlazar a `ciudadania.ciudadano.ficha` cuando la cita incluya `ciudadano_id` |
+| Rol `tramitacion` / `consulta_basica` | `ciudadania.ciudadano.ficha` (ficha del ciudadano) |
+| Cita de tipo `evento` (sin ciudadano) | No clicable en ningún rol |
+
+La distinción por rol responde a propósitos de uso diferentes: el TSR accede desde la agenda
+para atender a la persona; tramitación y consulta básica acceden para gestión administrativa.
+
+### 3.5 Anotaciones en citas
 
 Las anotaciones o comentarios vinculados a una cita (p. ej. "esta entrevista puede ser
 larga") se envían como mensajes a través del módulo de Mensajes, con el contexto de la
 cita precargado en el asunto. No se almacenan en la agenda.
 
-### 3.5 No-show
+### 3.6 No-show
 
 El no-show del ciudadano no se marca en la agenda sino en el seguimiento del caso
 (Historia Social). La agenda solo refleja el estado `no_show_ciudadano` como información.
@@ -112,17 +136,23 @@ El no-show del ciudadano no se marca en la agenda sino en el seguimiento del cas
 ### 4.1 Descripción
 
 Listado de los ciudadanos de los que el TSR es responsable como profesional de referencia.
-Paginado, ordenable y filtrable.
+Paginado, ordenable y filtrable. Pantalla exclusiva del rol `intervencion`.
 
 ### 4.2 Columnas
 
-| Columna | Descripción |
-|---|---|
-| Ciudadano | Nombre completo, enlace a su Historia Social |
-| Próximo seguimiento | Semáforo: vencido (coral) / próximo en 7 días (ámbar) / programado (verde) / sin programar (texto mudo) |
-| PISO | Estado del plan de intervención general: Activo / En revisión / Sin PISO. La etiqueta "PISO" es configurable desde Filament (`nombre_plan_asp` en `catalogos_sistema`) |
-| Planes especializados | Número de planes de especializada activos. Guión si no hay ninguno |
-| Alertas | Icono coral si hay alertas sin reconocer vinculadas al ciudadano |
+| Columna | Descripción | Enlace |
+|---|---|---|
+| Ciudadano | Nombre completo | `ciudadania.ciudadano.ficha` |
+| Historia Social | Identificador formato `HS-XXXXXX` | `intervencion.ciudadano.show` |
+| Próximo seguimiento | Semáforo: vencido (coral) / próximo en 7 días (ámbar) / programado (verde) / sin programar (texto mudo) | — |
+| PISO | Estado del plan de intervención general: Activo / En revisión / Sin PISO. Etiqueta configurable desde Filament | — |
+| Planes especializados | Número de planes de especializada activos. Guión si no hay ninguno | — |
+| Alertas | Icono coral si hay alertas sin reconocer vinculadas al ciudadano | — |
+
+El clic en el nombre del ciudadano va a la ficha (datos de Capa 1). El clic en el identificador
+de historia social va a la pantalla de intervención clínica. El clic en el resto de la fila
+también va a la pantalla de intervención (`wire:click` con `@click.stop` en nombre e HS para
+evitar propagación).
 
 ### 4.3 Filtros
 
@@ -159,7 +189,7 @@ por nombre o por rol+UO.
 Las alertas (`tipo = 'alerta'` en el modelo) requieren reconocimiento explícito en 4 horas
 laborales. Si vencen sin reconocer, escalan al supervisor de la UO (un único nivel).
 
-**Lista:** ordered por urgencia (menor tiempo restante primero). Cada item muestra:
+**Lista:** ordenada por urgencia (menor tiempo restante primero). Cada item muestra:
 punto de no leído, título, origen (módulo generador), tiempo transcurrido, tiempo que
 queda para vencer.
 
@@ -180,17 +210,11 @@ Mensajería uno a uno entre profesionales. Las conversaciones se organizan en hi
 
 **Lista:** hilos ordenados por actividad reciente. Punto de no leído si hay mensajes nuevos.
 
-**Detalle:** hilo de burbujas con diferenciación visual propios/ajenos. Área de composición
-con dos acciones auxiliares diferenciadas:
-- **Adjuntar documento** (clip): documento genérico.
-- **Enlazar expediente** (icono expediente): enlace a la Historia Social de un ciudadano.
-  El acceso al enlace respeta el sistema de permisos del módulo de Intervención en el
-  momento de acceder. Un usuario sin permisos suficientes no verá el contenido.
+**Detalle de hilo:** mensajes en orden cronológico, los propios alineados a la derecha,
+los del interlocutor a la izquierda. Campo de respuesta al pie.
 
-El TSR responsable de un expediente puede incorporar un mensaje a la Historia Social
-del ciudadano: acción explícita, con posibilidad de editar el contenido antes de
-registrarlo. Lo que queda registrado es una copia editada (`comunicacion_interna`)
-con visibilidad `profesionales` por defecto. Nunca `ciudadano`.
+**Restricción:** los mensajes no pueden incluir contenido copiado de expedientes. Solo se
+permiten enlaces a la Historia Social, con control de permisos en el momento de acceso.
 
 ---
 
@@ -198,21 +222,19 @@ con visibilidad `profesionales` por defecto. Nunca `ciudadano`.
 
 ### 6.1 Descripción
 
-Búsqueda global en todo el sistema (no solo en los casos propios). Necesaria cuando
-llega una derivación del SIA o una urgencia.
+Búsqueda de ciudadanos con control de acceso por nivel. Accesible también desde el sidebar
+de otros roles operativos.
 
 ### 6.2 Campos de búsqueda
 
-Selector de tipo de búsqueda:
-
-| Tipo | Campo buscado |
+| Campo | Fuente |
 |---|---|
 | Nombre (por defecto) | `nombre` + `apellido1` + `apellido2` |
 | NIF/NIE/Pasaporte | `ciudadano_identificadores.valor` |
 | NI-HSU-CM | `ciudadano_identificadores.valor` donde `tipo = 'ni_hsu_cm'` |
 | Alias PSH | `ciudadano.alias` |
 
-### 6.3 Resultados
+### 6.3 Resultados y enlaces
 
 Cada resultado muestra: avatar con iniciales, nombre completo, fecha de nacimiento,
 NIF, CSS responsable, domicilio (si no es colectivo protegido), NI-HSU-CM (solo si tiene
@@ -220,45 +242,52 @@ Historia Social abierta), estado y TSR de la Historia Social (si existe).
 
 **Tres niveles de acceso según el modelo de permisos:**
 
-**Nivel 1 — Propia UO:** acceso directo. Botones: "Ir a Historia Social" (si existe) o
-"Abrir Historia Social" (si no existe). + "Ver ficha".
+**Nivel 1 — Propia UO:** acceso directo.
+- Nombre del ciudadano → `ciudadania.ciudadano.ficha`
+- Botón "Ir a Historia Social" (si existe) → `intervencion.ciudadano.show`
+- Botón "Abrir Historia Social" (si no existe)
 
 **Nivel 2 — Otra UO, sin colectivo protegido:** acceso libre con registro de auditoría.
-El botón "Ver Historia Social" incluye la nota "(acceso registrado)" en texto pequeño.
-No bloquea.
+- Nombre → span no clicable hasta que se registre el acceso
+- Botón "Ver Historia Social (acceso registrado)" → registra `AccesoProtegido` y redirige a `intervencion.ciudadano.show`
 
-**Nivel 3 — Colectivo especialmente protegido fuera de la UO:** el domicilio aparece
-enmascarado con icono de candado. Badge "Colectivo protegido" con icono de escudo.
-Botón "Ver Historia Social" desactivado. Única acción disponible: "Solicitar acceso",
-que abre un modal con aviso de contexto (VVG, menores, etc.) y campo de justificación
-obligatorio. El acceso se habilita tras aprobación del supervisor competente.
+**Nivel 3 — Colectivo especialmente protegido fuera de la UO:**
+- Domicilio enmascarado con icono de candado
+- Badge "Colectivo protegido" con icono de escudo
+- Botón "Ver Historia Social" desactivado
+- Única acción: "Solicitar acceso" — modal con aviso de contexto (VVG, menores) y justificación obligatoria. El acceso se habilita tras aprobación del supervisor competente.
 
 ### 6.4 Ciudadano sin Historia Social
 
 Si el ciudadano existe en VIDA pero no tiene Historia Social, el bloque correspondiente
-muestra: "Registrado en VIDA · Sin Historia Social abierta". El NI-HSU-CM no aparece
-(no existe hasta que hay Historia Social). El botón principal es "Abrir Historia Social".
+muestra: "Registrado en VIDA · Sin Historia Social abierta". El NI-HSU-CM no aparece.
+El botón principal es "Abrir Historia Social".
 
 ### 6.5 Ciudadano no registrado en VIDA
 
-Al final del listado de resultados, siempre aparece el pie:
+Al final del listado de resultados:
 
 > ¿No está la persona que buscas?
-> [Dar de alta nuevo ciudadano] ← desactivado hasta implementación del módulo de Ciudadanía
+> [Dar de alta nuevo ciudadano] → `ciudadania.alta`
 
 ---
 
-## 7. Pantalla del ciudadano (Historia Social)
+## 7. Pantalla del ciudadano — Historia Social (`intervencion/ciudadano/{historia}`)
 
 ### 7.1 Descripción
 
-Pantalla de trabajo principal del TSR con un ciudadano. Layout de dos columnas:
+Pantalla de trabajo principal del TSR con un ciudadano. Exclusiva del rol `intervencion`.
+Pivota sobre `HistoriaSocial` (parámetro de ruta `{historia}`). Layout de dos columnas:
 izquierda con contexto del ciudadano e historia, derecha con las herramientas de trabajo.
+
+Esta pantalla es distinta de `ciudadania/ciudadano/{ciudadano}` (ficha del ciudadano),
+que pivota sobre `Ciudadano` y es accesible para todos los roles operativos.
+Ver sección 9 y `docs/front/ui-ficha-ciudadano.md`.
 
 ### 7.2 Barra superior
 
 Breadcrumb: `← Mis casos · [Nombre del ciudadano]` + badge de estado de la Historia Social.
-Acciones: "Ficha social" (abre la ficha social del ciudadano) y menú de acciones secundarias.
+Acciones: "Ficha ciudadano" → `ciudadania.ciudadano.ficha` y menú de acciones secundarias.
 
 ### 7.3 Columna izquierda
 
@@ -279,20 +308,23 @@ Timeline cronológico inverso (más reciente primero). Filtros: Todos / PISO / E
 Cada entrada muestra: punto de color por tipo, título, tipo y fecha. Clic expande el
 contenido completo + autor.
 
+La Historia Social es única por ciudadano y permanente — nunca se cierra. Lo que tiene
+ciclo de vida son los planes (PISO) y las prestaciones dentro de ella.
+
 Código de color de los puntos por tipo:
 
 | Tipo | Color del punto |
 |---|---|
-| PISO / plan | Ámbar (`#854F0B`) |
-| Entrevista | Morado (`#534AB7`) |
-| Valoración (ficha) | Verde teal (`#1D9E75`) |
-| Escala | Morado claro (`#7F77DD`) |
-| Derivación | Verde (`#0F6E56`) |
-| Anotación | Gris (`#888780`) |
+| PISO / plan | Ámbar (`var(--color-warning)`) |
+| Entrevista | Morado (`var(--color-primary)`) |
+| Valoración (ficha) | Verde teal (`var(--color-success)`) |
+| Escala | Morado claro (`var(--color-primary-subtle-foreground)`) |
+| Derivación | Verde (`var(--color-success-dark)`) |
+| Anotación | Gris (`var(--color-text-tertiary)`) |
 
 **PISO activo**
 
-Banda fija entre la barra superior y el área de trabajo (en la columna derecha). Muestra:
+Banda fija entre la barra superior y el área de trabajo. Muestra:
 nombre del plan, estado, versión y fecha de próxima revisión. Botón "Ver PISO".
 
 ### 7.4 Columna derecha — herramientas
@@ -304,13 +336,15 @@ un icono con fondo de color semántico y etiqueta.
 
 | Herramienta | Icono | Comportamiento |
 |---|---|---|
-| Entrevista | `ti-user-check` (morado) | Formulario inline. Botón: "Guardar entrevista" |
-| Anotación | `ti-note` (gris) | Formulario inline. Botón: "Guardar anotación" |
-| Valoración | `ti-clipboard-check` (verde teal) | Pantalla completa. Botón: "Abrir en pantalla completa" |
-| Escala | `ti-chart-bar` (morado) | Pantalla completa. Botón: "Abrir en pantalla completa" |
-| Derivación | `ti-send` (azul) | Formulario inline. Botón: "Crear derivación" |
-| Gestión / coordinación | `ti-arrows-exchange` (ámbar) | Formulario inline. Botón: "Guardar gestión" |
-| Informes | `ti-file-text` (coral) | Pantalla completa. Botón: "Abrir en pantalla completa" |
+| Entrevista | `user-check` (morado) | Formulario inline. Botón: "Guardar entrevista" |
+| Anotación | `note` (gris) | Formulario inline. Botón: "Guardar anotación" |
+| Valoración | `clipboard-check` (verde teal) | Pantalla completa |
+| Escala | `chart-bar` (morado) | Pantalla completa |
+| Derivación | `send` (azul) | Formulario inline. Botón: "Crear derivación" |
+| Gestión / coordinación | `arrows-exchange` (ámbar) | Formulario inline. Botón: "Guardar gestión" |
+| Informes | `file-text` (coral) | Pantalla completa |
+
+Todos los iconos son Lucide, stroke-width 1.75.
 
 **Estado activo (herramienta seleccionada)**
 
@@ -374,7 +408,106 @@ administrativo separado, no una funcionalidad de la plataforma.
 
 ---
 
-## 8. Decisiones de diseño transversales
+## 8. Mapa de navegación entre pantallas
+
+La regla que articula todos los enlaces:
+
+> **El nombre del ciudadano lleva siempre a sus datos (quién es). La referencia al proceso
+> clínico —historia social, cita— lleva al contexto de trabajo (qué está pasando con él).**
+
+La excepción es la agenda para el rol `intervencion`: el TSR accede desde la agenda para
+atender a la persona, por lo que ir directamente a la pantalla de intervención es más útil.
+
+### 8.1 Tabla completa de enlaces
+
+| Contexto | Elemento clicable | Destino `intervencion` | Destino `tramitacion` / `consulta_basica` |
+|---|---|---|---|
+| Búsqueda — nivel 1 | Nombre del ciudadano | `ciudadania.ciudadano.ficha` | `ciudadania.ciudadano.ficha` |
+| Búsqueda — nivel 1 | Botón "Ir a Historia Social" | `intervencion.ciudadano.show` | `intervencion.ciudadano.show` |
+| Agenda | Nombre en cita con `historia_id` | `intervencion.ciudadano.show` | `ciudadania.ciudadano.ficha` |
+| Agenda | Nombre en cita sin `historia_id` | No clicable (TODO) | `ciudadania.ciudadano.ficha` |
+| Mis casos | Nombre del ciudadano | `ciudadania.ciudadano.ficha` | — (pantalla exclusiva `intervencion`) |
+| Mis casos | Identificador HS (`HS-XXXXXX`) | `intervencion.ciudadano.show` | — |
+| Mis casos | Resto de la fila | `intervencion.ciudadano.show` | — |
+| UC en ficha ciudadano | Botón "Ver ficha" del miembro | `ciudadania.ciudadano.ficha` | `ciudadania.ciudadano.ficha` |
+| Ficha ciudadano — banner HS | Enlace "Ir a HS" | `intervencion.ciudadano.show` (clicable) | No clicable (visible, tooltip) |
+| Pantalla intervención — barra superior | "Ficha ciudadano" | `ciudadania.ciudadano.ficha` | — |
+
+### 8.2 Estado de implementación
+
+| Comportamiento | Estado |
+|---|---|
+| Búsqueda nivel 1: nombre → ficha | ✅ Implementado |
+| Búsqueda nivel 1: botón "Ir a HS" | ✅ Implementado |
+| Agenda `intervencion`: nombre con HS → intervención | ✅ Implementado |
+| Agenda `intervencion`: nombre sin HS → no clicable | ✅ Implementado (TODO pendiente) |
+| Agenda `tramitacion`/`consulta_basica`: nombre → ficha | ⏳ Pendiente |
+| Mis casos: nombre → ficha ciudadano | ⏳ Pendiente |
+| Mis casos: HS → intervención | ✅ Implementado |
+| Mis casos: fila → intervención | ✅ Implementado |
+| UC en ficha: "Ver ficha" → ficha del miembro | ⏳ Pendiente |
+| Ficha banner HS: clicable para `intervencion` | ⏳ Pendiente |
+| Ficha banner HS: no clicable para otros roles | ⏳ Pendiente |
+
+---
+
+## 9. Ficha del ciudadano (`ciudadania/ciudadano/{ciudadano}`)
+
+Pantalla accesible para todos los roles operativos. Pivota sobre `Ciudadano` (Capa 1).
+Documentación completa en `docs/front/ui-ficha-ciudadano.md`.
+
+### 9.1 Resumen de acceso por rol
+
+| Rol | Acceso | Edición Capa 1 y UC |
+|---|---|---|
+| `intervencion` | Sí | Sí |
+| `tramitacion` | Sí | Sí |
+| `consulta_basica` | Sí | Sí |
+| `supervision` | Sí | No |
+
+### 9.2 Contenido principal
+
+Columna principal: identificación y contacto (Capa 1), historial de documentos de
+identidad, unidad de convivencia con miembros y enlaces a sus fichas.
+
+Columna lateral — widgets condicionales (solo aparecen cuando tienen datos):
+
+| Widget | Condición de aparición |
+|---|---|
+| Banner de historia social | Solo si existe `HistoriaSocial` para el ciudadano |
+| Otras prestaciones | Solo si `ciudadano_prestaciones_resumen` tiene registros |
+| Centro de referencia y TSR | Solo si existe `HistoriaSocial` |
+| Actividad reciente | Siempre (al menos el alta genera un evento) |
+
+El widget de permisos del rol activo ha sido eliminado por generar confusión.
+
+Un ciudadano recién dado de alta muestra solo actividad reciente en el lateral.
+La pantalla crece orgánicamente conforme el ciudadano acumula relaciones con los servicios.
+
+### 9.3 Banner de historia social
+
+Visible para todos los roles cuando existe historia social. El enlace "Ir a HS" es
+navegable solo para `intervencion`; para otros roles aparece visible pero no clicable,
+con tooltip "Requiere rol de intervención".
+
+La historia social es única por ciudadano y permanente (ver sección 7.3).
+
+### 9.4 Otras prestaciones
+
+Widget alimentado desde `ciudadano_prestaciones_resumen` — tabla de agregación del módulo
+Ciudadanía. Muestra prestaciones y actividades que no requieren historia social: talleres
+de centro, teleasistencia, ayuda a domicilio básica, etc.
+
+Visible para todos los roles con acceso a la ficha, sin restricciones adicionales.
+Los módulos origen (Centros, Teleasistencia...) mantienen sus filas en esta tabla mediante
+observers. La pantalla nunca consulta directamente las tablas de los módulos origen.
+
+Estados con badge de color: activo (verde) / en trámite (ámbar) / finalizado (gris) /
+denegado o baja (rojo).
+
+---
+
+## 10. Decisiones de diseño transversales
 
 | Decisión | Resolución |
 |---|---|
@@ -386,6 +519,13 @@ administrativo separado, no una funcionalidad de la plataforma.
 | Configurabilidad de "PISO" | Parámetro `nombre_plan_asp` en `catalogos_sistema`, gestionable desde Filament. |
 | NI-HSU-CM en búsqueda | Solo visible en resultados que tienen Historia Social abierta. |
 | Etiqueta de UO en búsqueda | Muestra directamente el nombre del CSS, sin prefijo "UO responsable". |
-| Ciudadano no en VIDA | Botón "Dar de alta nuevo ciudadano" al final de los resultados. Sin funcionalidad hasta implementación del módulo de Ciudadanía. |
+| Ciudadano no en VIDA | Botón "Dar de alta nuevo ciudadano" al final de los resultados → `ciudadania.alta`. |
 | Herramientas complejas | Valoración, Escala e Informes se abren en pantalla completa. La historia queda colapsada para dar contexto mínimo. |
 | Mensajes con información de ciudadanos | Solo se permiten enlaces a la Historia Social (con control de permisos en el momento de acceso). No se copia contenido del expediente en el mensaje. |
+| Nombre del ciudadano en UI | Siempre enlaza a la ficha del ciudadano (`ciudadania.ciudadano.ficha`), excepto en la agenda para `intervencion` donde enlaza a la pantalla de intervención. |
+| Historia social: permanencia | La historia social nunca se cierra. Tienen ciclo de vida los planes y las prestaciones, no el contenedor. |
+| Historia social: unicidad | Cada ciudadano tiene como máximo una historia social en el sistema. Garantía en BD: índice `UNIQUE(ciudadano_id)` en `historias_sociales` (pendiente de aplicar). |
+| Widgets vacíos en ficha | No se muestran. La ausencia del widget comunica que no hay datos, sin ruido visual. |
+| Widget de permisos | Eliminado. Información redundante con la propia experiencia de la pantalla. |
+| Iconos | Lucide, stroke-width 1.75, en todas las vistas. Bootstrap Icons y Tabler Icons eliminados. |
+| Colores | Tokens CSS del design system (`var(--color-*)`) en todos los componentes. Colores hardcodeados eliminados. |
