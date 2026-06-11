@@ -3805,6 +3805,12 @@ parameters:
 			path: app/Services/Api/AnonimizadorService.php
 
 		-
+			message: '#^Method App\\Models\\Ciudadano\:\:prestacionesResumen\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Modules\\Ciudadania\\Models\\CiudadanoPrestacionResumen, App\\Models\\Ciudadano\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Modules\\Ciudadania\\Models\\CiudadanoPrestacionResumen, \$this\(App\\Models\\Ciudadano\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/Ciudadano.php
+
+		-
 			message: '#^Method Modules\\Ciudadania\\Models\\CiudadanoIdentificador\:\:ciudadano\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Ciudadano, Modules\\Ciudadania\\Models\\CiudadanoIdentificador\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Ciudadano, \$this\(Modules\\Ciudadania\\Models\\CiudadanoIdentificador\)\>\.$#'
 			identifier: return.type
 			count: 1
