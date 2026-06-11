@@ -5,8 +5,11 @@ namespace Modules\Ciudadania\Http\Livewire;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -43,22 +46,32 @@ class FichaCiudadanoPage extends Component
     // Campos editables de Capa 1
     // -------------------------------------------------------------------------
 
-    public string $nombre          = '';
-    public string $apellido1       = '';
-    public string $apellido2       = '';
+    public string $nombre = '';
+
+    public string $apellido1 = '';
+
+    public string $apellido2 = '';
+
     public string $fechaNacimiento = '';
-    public string $sexo            = '';
-    public string $alias           = '';
-    public string $direccionTexto  = '';
-    public string $telefono        = '';
-    public string $email           = '';
+
+    public string $sexo = '';
+
+    public string $alias = '';
+
+    public string $direccionTexto = '';
+
+    public string $telefono = '';
+
+    public string $email = '';
 
     // -------------------------------------------------------------------------
     // Modal de nuevo documento
     // -------------------------------------------------------------------------
 
-    public bool   $modalDocumento      = false;
-    public string $nuevoTipoDocumento  = 'nif';
+    public bool $modalDocumento = false;
+
+    public string $nuevoTipoDocumento = 'nif';
+
     public string $nuevoValorDocumento = '';
 
     // -------------------------------------------------------------------------
@@ -70,24 +83,24 @@ class FichaCiudadanoPage extends Component
      */
     public function mount(int $ciudadano): void
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = auth()->user();
-        if (!$user->hasAnyRole(['intervencion', 'tramitacion', 'consulta_basica', 'supervision'])) {
+        if (! $user->hasAnyRole(['intervencion', 'tramitacion', 'consulta_basica', 'supervision'])) {
             abort(403);
         }
 
         $c = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->findOrFail($ciudadano);
 
-        $this->ciudadanoId     = $c->id;
-        $this->nombre          = $c->nombre ?? '';
-        $this->apellido1       = $c->apellido1 ?? '';
-        $this->apellido2       = $c->apellido2 ?? '';
+        $this->ciudadanoId = $c->id;
+        $this->nombre = $c->nombre ?? '';
+        $this->apellido1 = $c->apellido1 ?? '';
+        $this->apellido2 = $c->apellido2 ?? '';
         $this->fechaNacimiento = $c->fecha_nacimiento ?? '';
-        $this->sexo            = $c->sexo ?? '';
-        $this->alias           = $c->alias ?? '';
-        $this->direccionTexto  = $c->direccion_texto ?? '';
-        $this->telefono        = $c->telefono ?? '';
-        $this->email           = $c->email ?? '';
+        $this->sexo = $c->sexo ?? '';
+        $this->alias = $c->alias ?? '';
+        $this->direccionTexto = $c->direccion_texto ?? '';
+        $this->telefono = $c->telefono ?? '';
+        $this->email = $c->email ?? '';
     }
 
     // -------------------------------------------------------------------------
@@ -96,8 +109,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Ciudadano sin AmbitoUoScope — accesible aunque no tenga historia social en la UO.
-     *
-     * @return Ciudadano
      */
     #[Computed]
     public function ciudadano(): Ciudadano
@@ -107,13 +118,11 @@ class FichaCiudadanoPage extends Component
 
     /**
      * El rol supervision tiene acceso de solo lectura. Todos los demás con acceso pueden editar.
-     *
-     * @return bool
      */
     #[Computed]
     public function puedeEditar(): bool
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = auth()->user();
 
         return $user->hasAnyRole(['intervencion', 'tramitacion', 'consulta_basica']);
@@ -122,8 +131,6 @@ class FichaCiudadanoPage extends Component
     /**
      * Historia social sin AmbitoUoScope ni SoftDeletes — solo comprueba existencia.
      * La historia es única y permanente: nunca se cierra.
-     *
-     * @return HistoriaSocial|null
      */
     #[Computed]
     public function historiaSocial(): ?HistoriaSocial
@@ -135,13 +142,11 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Solo el rol intervencion puede navegar a la historia social.
-     *
-     * @return bool
      */
     #[Computed]
     public function puedeVerHistoria(): bool
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = auth()->user();
 
         return $user->hasRole('intervencion');
@@ -163,8 +168,6 @@ class FichaCiudadanoPage extends Component
     /**
      * Unidad de convivencia vigente.
      * Stub — pendiente implementar módulo UnidadConvivencia.
-     *
-     * @return object|null
      */
     #[Computed]
     public function ucVigente(): ?object
@@ -214,7 +217,7 @@ class FichaCiudadanoPage extends Component
      */
     public function activarEdicion(): void
     {
-        if (!$this->puedeEditar) {
+        if (! $this->puedeEditar) {
             return;
         }
         $this->modoEdicion = true;
@@ -227,62 +230,62 @@ class FichaCiudadanoPage extends Component
     {
         $c = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->findOrFail($this->ciudadanoId);
 
-        $this->nombre          = $c->nombre ?? '';
-        $this->apellido1       = $c->apellido1 ?? '';
-        $this->apellido2       = $c->apellido2 ?? '';
+        $this->nombre = $c->nombre ?? '';
+        $this->apellido1 = $c->apellido1 ?? '';
+        $this->apellido2 = $c->apellido2 ?? '';
         $this->fechaNacimiento = $c->fecha_nacimiento ?? '';
-        $this->sexo            = $c->sexo ?? '';
-        $this->alias           = $c->alias ?? '';
-        $this->direccionTexto  = $c->direccion_texto ?? '';
-        $this->telefono        = $c->telefono ?? '';
-        $this->email           = $c->email ?? '';
-        $this->modoEdicion     = false;
+        $this->sexo = $c->sexo ?? '';
+        $this->alias = $c->alias ?? '';
+        $this->direccionTexto = $c->direccion_texto ?? '';
+        $this->telefono = $c->telefono ?? '';
+        $this->email = $c->email ?? '';
+        $this->modoEdicion = false;
     }
 
     /**
      * Valida, normaliza y persiste los campos de Capa 1.
      * Solo si puedeEditar. DireccionObserver procesará geocodificación si cambia direccion_texto.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function guardar(): void
     {
-        if (!$this->puedeEditar) {
+        if (! $this->puedeEditar) {
             return;
         }
 
         $this->validate([
-            'nombre'          => 'required|string|max:100',
-            'apellido1'       => 'required|string|max:100',
-            'apellido2'       => 'nullable|string|max:100',
+            'nombre' => 'required|string|max:100',
+            'apellido1' => 'required|string|max:100',
+            'apellido2' => 'nullable|string|max:100',
             'fechaNacimiento' => 'nullable|date|before:today',
-            'sexo'            => 'required|string',
-            'alias'           => 'nullable|string|max:200',
-            'direccionTexto'  => 'nullable|string|max:500',
-            'telefono'        => 'nullable|string|max:20',
-            'email'           => 'nullable|email|max:255',
+            'sexo' => 'required|string',
+            'alias' => 'nullable|string|max:200',
+            'direccionTexto' => 'nullable|string|max:500',
+            'telefono' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
         ]);
 
         $norm = NormalizadorCiudadano::normalizar([
-            'nombre'    => $this->nombre,
+            'nombre' => $this->nombre,
             'apellido1' => $this->apellido1,
             'apellido2' => $this->apellido2,
-            'telefono'  => $this->telefono,
-            'email'     => $this->email,
+            'telefono' => $this->telefono,
+            'email' => $this->email,
         ]);
 
         Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
             ->findOrFail($this->ciudadanoId)
             ->update([
-                'nombre'          => $norm['nombre'] ?? $this->nombre,
-                'apellido1'       => $norm['apellido1'] ?? $this->apellido1,
-                'apellido2'       => $norm['apellido2'] ?? ($this->apellido2 ?: null),
+                'nombre' => $norm['nombre'] ?? $this->nombre,
+                'apellido1' => $norm['apellido1'] ?? $this->apellido1,
+                'apellido2' => $norm['apellido2'] ?? ($this->apellido2 ?: null),
                 'fecha_nacimiento' => $this->fechaNacimiento ?: null,
-                'sexo'            => $this->sexo,
-                'alias'           => $this->alias ?: null,
+                'sexo' => $this->sexo,
+                'alias' => $this->alias ?: null,
                 'direccion_texto' => $this->direccionTexto ?: null,
-                'telefono'        => $norm['telefono'] ?? ($this->telefono ?: null),
-                'email'           => $norm['email'] ?? ($this->email ?: null),
+                'telefono' => $norm['telefono'] ?? ($this->telefono ?: null),
+                'email' => $norm['email'] ?? ($this->email ?: null),
             ]);
 
         $this->modoEdicion = false;
@@ -298,7 +301,7 @@ class FichaCiudadanoPage extends Component
      */
     public function abrirModalDocumento(): void
     {
-        if (!$this->puedeEditar) {
+        if (! $this->puedeEditar) {
             return;
         }
         $this->modalDocumento = true;
@@ -309,9 +312,9 @@ class FichaCiudadanoPage extends Component
      */
     public function cerrarModalDocumento(): void
     {
-        $this->nuevoTipoDocumento  = 'nif';
+        $this->nuevoTipoDocumento = 'nif';
         $this->nuevoValorDocumento = '';
-        $this->modalDocumento      = false;
+        $this->modalDocumento = false;
     }
 
     /**
@@ -319,16 +322,16 @@ class FichaCiudadanoPage extends Component
      * El historial se mantiene íntegro (principio 4.2 — el pasado es inmutable):
      * los documentos anteriores reciben fecha_fin pero no se eliminan.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function guardarDocumento(): void
     {
-        if (!$this->puedeEditar) {
+        if (! $this->puedeEditar) {
             return;
         }
 
         $this->validate([
-            'nuevoTipoDocumento'  => 'required|in:nif,nie,pasaporte',
+            'nuevoTipoDocumento' => 'required|in:nif,nie,pasaporte',
             'nuevoValorDocumento' => 'required|string|max:20',
         ]);
 
@@ -339,18 +342,18 @@ class FichaCiudadanoPage extends Component
 
             CiudadanoIdentificador::create([
                 'ciudadano_id' => $this->ciudadanoId,
-                'tipo'         => $this->nuevoTipoDocumento,
-                'valor'        => $this->nuevoValorDocumento,
+                'tipo' => $this->nuevoTipoDocumento,
+                'valor' => $this->nuevoValorDocumento,
                 'fecha_inicio' => today()->toDateString(),
-                'verificado'   => false,
-                'fuente'       => 'manual',
+                'verificado' => false,
+                'fuente' => 'manual',
             ]);
         });
 
         $this->cerrarModalDocumento();
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('ciudadania::livewire.ficha-ciudadano-page');
     }

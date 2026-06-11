@@ -19,12 +19,12 @@ readonly class ResultadoMatching
      * @param list<string> $camposCoincidentes
      */
     public function __construct(
-        public int     $ciudadanoId,
-        public string  $nombreCompleto,
+        public int $ciudadanoId,
+        public string $nombreCompleto,
         public ?string $documento,
         public ?string $fechaNacimiento,
-        public float   $score,
-        public array   $camposCoincidentes,
-        public bool    $bloquea,
+        public float $score,
+        public array $camposCoincidentes,
+        public bool $bloquea,
     ) {}
 }

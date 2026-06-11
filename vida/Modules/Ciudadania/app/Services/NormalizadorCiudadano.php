@@ -25,7 +25,7 @@ class NormalizadorCiudadano
      * NIE: X/Y/Z + 7 dígitos + letra, formato X-NNNNNNN-L.
      * Pasaporte: mayúsculas, sin espacios.
      *
-     * @param string $tipo  nif | nie | pasaporte
+     * @param string $tipo nif | nie | pasaporte
      * @param string $valor Valor tal como lo introduce el profesional.
      */
     public static function documento(string $tipo, string $valor): string
@@ -35,18 +35,16 @@ class NormalizadorCiudadano
         return match ($tipo) {
             'nif' => $limpio,
             'nie' => preg_match('/^[XYZ]\d{7}[A-Z]$/', $limpio)
-                ? substr($limpio, 0, 1) . '-' . substr($limpio, 1, 7) . '-' . substr($limpio, 8, 1)
+                ? substr($limpio, 0, 1).'-'.substr($limpio, 1, 7).'-'.substr($limpio, 8, 1)
                 : $valor,
             'pasaporte' => $limpio,
-            default     => $valor,
+            default => $valor,
         };
     }
 
     /**
      * Normaliza un nombre o apellido a Title Case, eliminando espacios múltiples
      * y expandiendo abreviaturas unívocas.
-     *
-     * @param string $valor
      */
     public static function nombre(string $valor): string
     {
@@ -62,15 +60,13 @@ class NormalizadorCiudadano
     /**
      * Normaliza un número de teléfono eliminando espacios, guiones y paréntesis.
      * Añade prefijo +34 si empieza por 6, 7, 8 o 9 sin prefijo internacional.
-     *
-     * @param string $valor
      */
     public static function telefono(string $valor): string
     {
         $limpio = preg_replace('/[\s\-\(\)]/', '', $valor);
 
         if (preg_match('/^[6789]\d{8}$/', $limpio)) {
-            return '+34' . $limpio;
+            return '+34'.$limpio;
         }
 
         return $limpio;
@@ -78,8 +74,6 @@ class NormalizadorCiudadano
 
     /**
      * Normaliza un email a minúsculas sin espacios.
-     *
-     * @param string $valor
      */
     public static function email(string $valor): string
     {
@@ -93,26 +87,27 @@ class NormalizadorCiudadano
      * valor_documento, telefono, email. Los campos no reconocidos se devuelven intactos.
      *
      * @param array<string, mixed> $datos
+     *
      * @return array<string, mixed>
      */
     public static function normalizar(array $datos): array
     {
-        if (!empty($datos['nombre'])) {
+        if (! empty($datos['nombre'])) {
             $datos['nombre'] = static::nombre($datos['nombre']);
         }
-        if (!empty($datos['apellido1'])) {
+        if (! empty($datos['apellido1'])) {
             $datos['apellido1'] = static::nombre($datos['apellido1']);
         }
-        if (!empty($datos['apellido2'])) {
+        if (! empty($datos['apellido2'])) {
             $datos['apellido2'] = static::nombre($datos['apellido2']);
         }
-        if (!empty($datos['valor_documento']) && !empty($datos['tipo_documento'])) {
+        if (! empty($datos['valor_documento']) && ! empty($datos['tipo_documento'])) {
             $datos['valor_documento'] = static::documento($datos['tipo_documento'], $datos['valor_documento']);
         }
-        if (!empty($datos['telefono'])) {
+        if (! empty($datos['telefono'])) {
             $datos['telefono'] = static::telefono($datos['telefono']);
         }
-        if (!empty($datos['email'])) {
+        if (! empty($datos['email'])) {
             $datos['email'] = static::email($datos['email']);
         }
 

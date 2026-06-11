@@ -44,20 +44,20 @@ class FichaCiudadanoPageTest extends TestCase
         $this->seed(RolesSeeder::class);
 
         $this->uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Test Ficha',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Test Ficha',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $this->usuario = $this->crearUsuarioConRol('intervencion');
 
         $this->ciudadano = Ciudadano::create([
-            'nombre'    => 'Ana',
+            'nombre' => 'Ana',
             'apellido1' => 'Martínez',
             'apellido2' => 'López',
-            'sexo'      => 'M',
-            'activo'    => true,
+            'sexo' => 'M',
+            'activo' => true,
         ]);
     }
 
@@ -71,18 +71,18 @@ class FichaCiudadanoPageTest extends TestCase
     private function crearUsuarioConRol(string $rol): User
     {
         $user = User::create([
-            'name'              => "Test {$rol} " . uniqid(),
-            'email'             => "{$rol}-" . uniqid() . '@vida360.test',
-            'password'          => 'secreto',
+            'name' => "Test {$rol} ".uniqid(),
+            'email' => "{$rol}-".uniqid().'@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
         $user->assignRole($rol);
         UsuarioUo::create([
-            'usuario_id'             => $user->id,
+            'usuario_id' => $user->id,
             'unidad_organizativa_id' => $this->uo->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         return $user;
@@ -98,7 +98,7 @@ class FichaCiudadanoPageTest extends TestCase
     #[Test]
     public function componente_no_accesible_sin_autenticacion(): void
     {
-        $this->get('/ciudadania/ciudadano/' . $this->ciudadano->id)
+        $this->get('/ciudadania/ciudadano/'.$this->ciudadano->id)
             ->assertRedirect();
     }
 
@@ -124,11 +124,11 @@ class FichaCiudadanoPageTest extends TestCase
     public function usuario_sin_rol_autorizado_recibe_403(): void
     {
         $userSinRol = User::create([
-            'name'              => 'Sin Rol Test',
-            'email'             => 'sinrol@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Sin Rol Test',
+            'email' => 'sinrol@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
 
         Livewire::actingAs($userSinRol)
@@ -194,7 +194,7 @@ class FichaCiudadanoPageTest extends TestCase
             ->assertSet('modoEdicion', false);
 
         $this->assertDatabaseHas('ciudadanos', [
-            'id'   => $this->ciudadano->id,
+            'id' => $this->ciudadano->id,
             'sexo' => 'H',
         ]);
     }
@@ -215,7 +215,7 @@ class FichaCiudadanoPageTest extends TestCase
 
         // El campo sexo original era 'M' — no debe haber cambiado
         $this->assertDatabaseHas('ciudadanos', [
-            'id'   => $this->ciudadano->id,
+            'id' => $this->ciudadano->id,
             'sexo' => 'M',
         ]);
     }
@@ -247,11 +247,11 @@ class FichaCiudadanoPageTest extends TestCase
         // Crear documento activo previo
         CiudadanoIdentificador::create([
             'ciudadano_id' => $this->ciudadano->id,
-            'tipo'         => 'nif',
-            'valor'        => '12345678A',
+            'tipo' => 'nif',
+            'valor' => '12345678A',
             'fecha_inicio' => today()->subYear()->toDateString(),
-            'verificado'   => false,
-            'fuente'       => 'manual',
+            'verificado' => false,
+            'fuente' => 'manual',
         ]);
 
         Livewire::actingAs($this->usuario)
@@ -267,15 +267,15 @@ class FichaCiudadanoPageTest extends TestCase
         // El nuevo documento debe existir
         $this->assertDatabaseHas('ciudadano_identificadores', [
             'ciudadano_id' => $this->ciudadano->id,
-            'tipo'         => 'nie',
-            'fecha_fin'    => null,
+            'tipo' => 'nie',
+            'fecha_fin' => null,
         ]);
 
         // El anterior debe tener fecha_fin
         $this->assertDatabaseMissing('ciudadano_identificadores', [
             'ciudadano_id' => $this->ciudadano->id,
-            'tipo'         => 'nif',
-            'fecha_fin'    => null,
+            'tipo' => 'nif',
+            'fecha_fin' => null,
         ]);
     }
 
@@ -309,9 +309,9 @@ class FichaCiudadanoPageTest extends TestCase
     public function vista_renderiza_banner_si_existe_historia_social(): void
     {
         HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id'           => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
             'unidad_organizativa_id' => $this->uo->id,
-            'estado'                 => 'abierta',
+            'estado' => 'abierta',
         ]);
 
         Livewire::actingAs($this->usuario)
@@ -337,9 +337,9 @@ class FichaCiudadanoPageTest extends TestCase
     public function enlace_ir_a_hs_navegable_solo_para_intervencion(): void
     {
         $hs = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id'           => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
             'unidad_organizativa_id' => $this->uo->id,
-            'estado'                 => 'abierta',
+            'estado' => 'abierta',
         ]);
 
         $urlHs = route('intervencion.ciudadano.show', $hs);
@@ -379,13 +379,13 @@ class FichaCiudadanoPageTest extends TestCase
     {
         foreach (range(1, 5) as $i) {
             CiudadanoPrestacionResumen::create([
-                'ciudadano_id'  => $this->ciudadano->id,
+                'ciudadano_id' => $this->ciudadano->id,
                 'modulo_origen' => 'centros',
-                'origen_id'     => $i,
-                'tipo'          => 'actividad_centro',
-                'descripcion'   => "Taller número {$i}",
-                'estado'        => 'activo',
-                'fecha_inicio'  => today()->subDays($i)->toDateString(),
+                'origen_id' => $i,
+                'tipo' => 'actividad_centro',
+                'descripcion' => "Taller número {$i}",
+                'estado' => 'activo',
+                'fecha_inicio' => today()->subDays($i)->toDateString(),
             ]);
         }
 

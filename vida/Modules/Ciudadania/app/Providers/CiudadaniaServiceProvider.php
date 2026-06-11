@@ -2,7 +2,6 @@
 
 namespace Modules\Ciudadania\Providers;
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Modules\Ciudadania\Contracts\FuenteIdentidadInterface;

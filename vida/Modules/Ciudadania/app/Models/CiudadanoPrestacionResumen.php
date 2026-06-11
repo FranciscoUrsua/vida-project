@@ -46,7 +46,7 @@ class CiudadanoPrestacionResumen extends Model
     /** @var array<string, string> */
     protected $casts = [
         'fecha_inicio' => 'date',
-        'fecha_fin'    => 'date',
+        'fecha_fin' => 'date',
     ];
 
     // -------------------------------------------------------------------------
@@ -57,6 +57,7 @@ class CiudadanoPrestacionResumen extends Model
      * Filtra prestaciones activas o en trámite.
      *
      * @param Builder<self> $query
+     *
      * @return Builder<self>
      */
     public function scopeActivas(Builder $query): Builder
@@ -68,7 +69,7 @@ class CiudadanoPrestacionResumen extends Model
      * Ordena por estado (activos primero) y fecha descendente, limitando a $limit registros.
      *
      * @param Builder<self> $query
-     * @param int $limit
+     *
      * @return Builder<self>
      */
     public function scopeRecientes(Builder $query, int $limit = 4): Builder

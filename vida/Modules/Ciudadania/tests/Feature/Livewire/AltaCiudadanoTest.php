@@ -3,6 +3,7 @@
 namespace Modules\Ciudadania\Tests\Feature\Livewire;
 
 use App\Models\Ciudadano;
+use App\Models\Scopes\AmbitoUoScope;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Models\UsuarioUo;
@@ -28,6 +29,7 @@ class AltaCiudadanoTest extends TestCase
     use RefreshDatabase;
 
     private UnidadOrganizativa $uo;
+
     private User $usuario;
 
     protected function setUp(): void
@@ -38,10 +40,10 @@ class AltaCiudadanoTest extends TestCase
         $this->seed(RolesSeeder::class);
 
         $this->uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Alta Test',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Alta Test',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $this->usuario = $this->crearUsuario('intervencion');
@@ -51,22 +53,22 @@ class AltaCiudadanoTest extends TestCase
     // Helpers
     // -------------------------------------------------------------------------
 
-    private function crearUsuario(string $rol, string $email = null): User
+    private function crearUsuario(string $rol, ?string $email = null): User
     {
         $user = User::create([
-            'name'               => "Test {$rol}",
-            'email'              => $email ?? "{$rol}." . uniqid() . '@vida360.test',
-            'password'           => 'secreto',
-            'email_verified_at'  => now(),
-            'primer_acceso'      => false,
+            'name' => "Test {$rol}",
+            'email' => $email ?? "{$rol}.".uniqid().'@vida360.test',
+            'password' => 'secreto',
+            'email_verified_at' => now(),
+            'primer_acceso' => false,
         ]);
         $user->assignRole($rol);
 
         UsuarioUo::create([
-            'usuario_id'             => $user->id,
+            'usuario_id' => $user->id,
             'unidad_organizativa_id' => $this->uo->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         return $user;
@@ -75,21 +77,21 @@ class AltaCiudadanoTest extends TestCase
     private function crearCiudadanoConDocumento(string $tipoDoc, string $valorDoc, array $extra = []): Ciudadano
     {
         $ciudadano = Ciudadano::create(array_merge([
-            'nombre'              => 'Ana',
-            'apellido1'           => 'González',
-            'fecha_nacimiento'    => '1985-03-15',
-            'sexo'                => 'F',
+            'nombre' => 'Ana',
+            'apellido1' => 'González',
+            'fecha_nacimiento' => '1985-03-15',
+            'sexo' => 'F',
             'nivel_identificacion' => 'identificado',
-            'activo'              => true,
+            'activo' => true,
         ], $extra));
 
         CiudadanoIdentificador::create([
             'ciudadano_id' => $ciudadano->id,
-            'tipo'         => $tipoDoc,
-            'valor'        => $valorDoc,
+            'tipo' => $tipoDoc,
+            'valor' => $valorDoc,
             'fecha_inicio' => today()->toDateString(),
-            'verificado'   => false,
-            'fuente'       => 'manual',
+            'verificado' => false,
+            'fuente' => 'manual',
         ]);
 
         return $ciudadano;
@@ -156,12 +158,12 @@ class AltaCiudadanoTest extends TestCase
     {
         // Ciudadano con apellido muy similar
         Ciudadano::create([
-            'nombre'           => 'María',
-            'apellido1'        => 'García',
+            'nombre' => 'María',
+            'apellido1' => 'García',
             'fecha_nacimiento' => '1990-05-20',
-            'sexo'             => 'F',
+            'sexo' => 'F',
             'nivel_identificacion' => 'probable',
-            'activo'           => true,
+            'activo' => true,
         ]);
 
         Livewire::actingAs($this->usuario)
@@ -234,14 +236,16 @@ class AltaCiudadanoTest extends TestCase
     #[Test]
     public function padron_encontrado_precarga_campos_con_fuente_padron(): void
     {
-        $this->app->instance(FuenteIdentidadInterface::class, new class implements FuenteIdentidadInterface {
-            public function consultarDatos(string $v): ?array {
+        $this->app->instance(FuenteIdentidadInterface::class, new class implements FuenteIdentidadInterface
+        {
+            public function consultarDatos(string $v): ?array
+            {
                 return [
-                    'nombre'          => 'Laura',
-                    'apellido1'       => 'Martínez',
-                    'apellido2'       => 'Sanz',
+                    'nombre' => 'Laura',
+                    'apellido1' => 'Martínez',
+                    'apellido2' => 'Sanz',
                     'fecha_nacimiento' => '1992-07-10',
-                    'sexo'            => 'F',
+                    'sexo' => 'F',
                     'direccion_texto' => 'Calle Mayor 1',
                 ];
             }
@@ -270,8 +274,12 @@ class AltaCiudadanoTest extends TestCase
     #[Test]
     public function padron_no_encontrado_fase_permanece_en_padron(): void
     {
-        $this->app->instance(FuenteIdentidadInterface::class, new class implements FuenteIdentidadInterface {
-            public function consultarDatos(string $v): ?array { return null; }
+        $this->app->instance(FuenteIdentidadInterface::class, new class implements FuenteIdentidadInterface
+        {
+            public function consultarDatos(string $v): ?array
+            {
+                return null;
+            }
         });
 
         Livewire::actingAs($this->usuario)
@@ -407,7 +415,7 @@ class AltaCiudadanoTest extends TestCase
             ->call('guardar');
 
         $id1 = $comp1->get('ciudadanoIdCreado');
-        $c1 = Ciudadano::withoutGlobalScope(\App\Models\Scopes\AmbitoUoScope::class)->find($id1);
+        $c1 = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->find($id1);
         $this->assertEquals('identificado', $c1?->nivel_identificacion);
 
         // Sin documento con nombre + fecha → probable
@@ -421,7 +429,7 @@ class AltaCiudadanoTest extends TestCase
             ->call('guardar');
 
         $id2 = $comp2->get('ciudadanoIdCreado');
-        $c2 = Ciudadano::withoutGlobalScope(\App\Models\Scopes\AmbitoUoScope::class)->find($id2);
+        $c2 = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->find($id2);
         $this->assertEquals('probable', $c2?->nivel_identificacion);
     }
 
@@ -488,7 +496,7 @@ class AltaCiudadanoTest extends TestCase
             ->set('accionPostAlta', 'solo_alta')
             ->call('confirmarAlta');
 
-        $ciudadano = Ciudadano::withoutGlobalScope(\App\Models\Scopes\AmbitoUoScope::class)->find($id);
+        $ciudadano = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->find($id);
         $this->assertEquals('Vengo a pedir ayuda para el alquiler.', $ciudadano?->primera_demanda);
     }
 

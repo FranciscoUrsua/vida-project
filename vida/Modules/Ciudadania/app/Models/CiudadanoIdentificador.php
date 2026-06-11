@@ -2,9 +2,9 @@
 
 namespace Modules\Ciudadania\Models;
 
+use App\Models\Ciudadano;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\Ciudadano;
 
 /**
  * Documento de identidad de un ciudadano.
@@ -43,10 +43,10 @@ class CiudadanoIdentificador extends Model
 
     /** @var array<string, string> */
     protected $casts = [
-        'valor'       => 'encrypted',
-        'verificado'  => 'boolean',
+        'valor' => 'encrypted',
+        'verificado' => 'boolean',
         'fecha_inicio' => 'date',
-        'fecha_fin'   => 'date',
+        'fecha_fin' => 'date',
     ];
 
     /**
@@ -55,7 +55,7 @@ class CiudadanoIdentificador extends Model
     protected static function booted(): void
     {
         static::creating(function (self $model): void {
-            if (empty($model->valor_hash) && !empty($model->valor)) {
+            if (empty($model->valor_hash) && ! empty($model->valor)) {
                 $model->valor_hash = hash('sha256', strtolower($model->valor));
             }
         });

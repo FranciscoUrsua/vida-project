@@ -388,7 +388,7 @@ class NavegacionTest extends TestCase
             ->getContent();
 
         // Busca el enlace de alta y verifica que no tiene atributo disabled
-        $patron = '/<a[^>]+href="' . preg_quote(route('ciudadania.alta'), '/') . '"[^>]*>/';
+        $patron = '/<a[^>]+href="'.preg_quote(route('ciudadania.alta'), '/').'"[^>]*>/';
         preg_match($patron, $html, $matches);
 
         $this->assertNotEmpty($matches, 'No se encontró el enlace a ciudadania.alta en la página.');

@@ -20,8 +20,9 @@ interface FuenteIdentidadInterface
      * Consulta los datos de identidad de una persona por su documento.
      *
      * @param string $valorDocumento Documento normalizado (NIF, NIE o pasaporte).
+     *
      * @return array{nombre: string, apellido1: string, apellido2: ?string, fecha_nacimiento: string, sexo: string, direccion_texto: ?string}|null
-     *              Datos del padrón o null si la persona no está empadronada.
+     *                                                                                                                                             Datos del padrón o null si la persona no está empadronada.
      */
     public function consultarDatos(string $valorDocumento): ?array;
 }

@@ -31,18 +31,19 @@ class MotorMatching
      *   3. Teléfono o email exacto (hash SHA-256).
      *
      * @param array<string, mixed> $datosNormalizados Salida de NormalizadorCiudadano::normalizar().
+     *
      * @return Collection<int, ResultadoMatching>
      */
     public function buscar(array $datosNormalizados): Collection
     {
-        $resultados      = collect();
-        $umbralMinimo    = (float) configuracion_sistema('matching.umbral_minimo', 0.60);
-        $umbralBloqueo   = (float) configuracion_sistema('matching.umbral_bloqueo', 0.90);
+        $resultados = collect();
+        $umbralMinimo = (float) configuracion_sistema('matching.umbral_minimo', 0.60);
+        $umbralBloqueo = (float) configuracion_sistema('matching.umbral_bloqueo', 0.90);
 
         // Paso 1: documento exacto
-        if (!empty($datosNormalizados['valor_documento'])) {
+        if (! empty($datosNormalizados['valor_documento'])) {
             $hash = hash('sha256', strtolower($datosNormalizados['valor_documento']));
-            $id   = CiudadanoIdentificador::where('valor_hash', $hash)
+            $id = CiudadanoIdentificador::where('valor_hash', $hash)
                 ->value('ciudadano_id');
 
             if ($id !== null) {
@@ -50,13 +51,13 @@ class MotorMatching
 
                 if ($ciudadano !== null) {
                     $resultados->push(new ResultadoMatching(
-                        ciudadanoId:       $ciudadano->id,
-                        nombreCompleto:    $ciudadano->nombre_completo,
-                        documento:         $datosNormalizados['valor_documento'],
-                        fechaNacimiento:   $ciudadano->fecha_nacimiento,
-                        score:             1.0,
+                        ciudadanoId: $ciudadano->id,
+                        nombreCompleto: $ciudadano->nombre_completo,
+                        documento: $datosNormalizados['valor_documento'],
+                        fechaNacimiento: $ciudadano->fecha_nacimiento,
+                        score: 1.0,
                         camposCoincidentes: ['documento'],
-                        bloquea:           true,
+                        bloquea: true,
                     ));
 
                     return $resultados; // bloqueo: no evaluar más
@@ -65,15 +66,15 @@ class MotorMatching
         }
 
         // Paso 2: fecha_nacimiento + apellidos (Jaro-Winkler)
-        $tieneFecha     = !empty($datosNormalizados['fecha_nacimiento']);
-        $tieneApellido1 = !empty($datosNormalizados['apellido1']);
-        $tieneApellido2 = !empty($datosNormalizados['apellido2']);
+        $tieneFecha = ! empty($datosNormalizados['fecha_nacimiento']);
+        $tieneApellido1 = ! empty($datosNormalizados['apellido1']);
+        $tieneApellido2 = ! empty($datosNormalizados['apellido2']);
 
         if ($tieneFecha && ($tieneApellido1 || $tieneApellido2)) {
-            $fechaBuscada   = $datosNormalizados['fecha_nacimiento'];
-            $apellido1Norm  = mb_strtolower($datosNormalizados['apellido1'] ?? '');
-            $apellido2Norm  = mb_strtolower($datosNormalizados['apellido2'] ?? '');
-            $nombreNorm     = mb_strtolower($datosNormalizados['nombre'] ?? '');
+            $fechaBuscada = $datosNormalizados['fecha_nacimiento'];
+            $apellido1Norm = mb_strtolower($datosNormalizados['apellido1'] ?? '');
+            $apellido2Norm = mb_strtolower($datosNormalizados['apellido2'] ?? '');
+            $nombreNorm = mb_strtolower($datosNormalizados['nombre'] ?? '');
 
             // TODO: reemplazar por búsqueda hash cuando exista índice fecha_nacimiento_hash
             $candidatos = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
@@ -87,21 +88,21 @@ class MotorMatching
                     }
 
                     $a1Cand = mb_strtolower($ciudadano->apellido1 ?? '');
-                    $nCand  = mb_strtolower($ciudadano->nombre ?? '');
+                    $nCand = mb_strtolower($ciudadano->nombre ?? '');
 
-                    $score              = 0.0;
+                    $score = 0.0;
                     $camposCoincidentes = ['fecha_nacimiento'];
 
                     if ($tieneApellido1) {
                         $jwA1 = $this->jaroWinkler($apellido1Norm, $a1Cand);
 
                         if ($jwA1 > 0.92) {
-                            $score              = 0.85;
+                            $score = 0.85;
                             $camposCoincidentes[] = 'apellido1';
                         } elseif ($jwA1 > 0.80 && $nombreNorm !== '') {
                             $jwN = $this->jaroWinkler($nombreNorm, $nCand);
                             if ($jwN > 0.80) {
-                                $score              = 0.70;
+                                $score = 0.70;
                                 $camposCoincidentes[] = 'nombre';
                                 $camposCoincidentes[] = 'apellido1';
                             }
@@ -109,7 +110,7 @@ class MotorMatching
                             // Coincidencia débil — solo nombre + apellido1
                             $jwN = $this->jaroWinkler($nombreNorm, $nCand);
                             if ($jwN > 0.60) {
-                                $score              = 0.40;
+                                $score = 0.40;
                                 $camposCoincidentes = ['nombre', 'apellido1'];
                             }
                         }
@@ -117,13 +118,13 @@ class MotorMatching
 
                     if ($score >= $umbralMinimo) {
                         $resultados->push(new ResultadoMatching(
-                            ciudadanoId:       $ciudadano->id,
-                            nombreCompleto:    $ciudadano->nombre_completo,
-                            documento:         null,
-                            fechaNacimiento:   $ciudadano->fecha_nacimiento,
-                            score:             $score,
+                            ciudadanoId: $ciudadano->id,
+                            nombreCompleto: $ciudadano->nombre_completo,
+                            documento: null,
+                            fechaNacimiento: $ciudadano->fecha_nacimiento,
+                            score: $score,
                             camposCoincidentes: $camposCoincidentes,
-                            bloquea:           $score >= $umbralBloqueo,
+                            bloquea: $score >= $umbralBloqueo,
                         ));
                     }
                 } catch (\Throwable) {
@@ -134,40 +135,40 @@ class MotorMatching
         }
 
         // Paso 3: teléfono o email exacto
-        if (!empty($datosNormalizados['telefono'])) {
-            $hashTel  = hash('sha256', preg_replace('/\s+/', '', $datosNormalizados['telefono']));
+        if (! empty($datosNormalizados['telefono'])) {
+            $hashTel = hash('sha256', preg_replace('/\s+/', '', $datosNormalizados['telefono']));
             $ciudadano = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
                 ->where('telefono_hash', $hashTel)->first();
 
-            if ($ciudadano !== null && !$resultados->contains('ciudadanoId', $ciudadano->id)) {
+            if ($ciudadano !== null && ! $resultados->contains('ciudadanoId', $ciudadano->id)) {
                 $score = 0.75;
                 $resultados->push(new ResultadoMatching(
-                    ciudadanoId:       $ciudadano->id,
-                    nombreCompleto:    $ciudadano->nombre_completo,
-                    documento:         null,
-                    fechaNacimiento:   $ciudadano->fecha_nacimiento,
-                    score:             $score,
+                    ciudadanoId: $ciudadano->id,
+                    nombreCompleto: $ciudadano->nombre_completo,
+                    documento: null,
+                    fechaNacimiento: $ciudadano->fecha_nacimiento,
+                    score: $score,
                     camposCoincidentes: ['telefono'],
-                    bloquea:           $score >= $umbralBloqueo,
+                    bloquea: $score >= $umbralBloqueo,
                 ));
             }
         }
 
-        if (!empty($datosNormalizados['email'])) {
+        if (! empty($datosNormalizados['email'])) {
             $hashEmail = hash('sha256', strtolower(trim($datosNormalizados['email'])));
-            $ciudadano  = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
+            $ciudadano = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
                 ->where('email_hash', $hashEmail)->first();
 
-            if ($ciudadano !== null && !$resultados->contains('ciudadanoId', $ciudadano->id)) {
+            if ($ciudadano !== null && ! $resultados->contains('ciudadanoId', $ciudadano->id)) {
                 $score = 0.75;
                 $resultados->push(new ResultadoMatching(
-                    ciudadanoId:       $ciudadano->id,
-                    nombreCompleto:    $ciudadano->nombre_completo,
-                    documento:         null,
-                    fechaNacimiento:   $ciudadano->fecha_nacimiento,
-                    score:             $score,
+                    ciudadanoId: $ciudadano->id,
+                    nombreCompleto: $ciudadano->nombre_completo,
+                    documento: null,
+                    fechaNacimiento: $ciudadano->fecha_nacimiento,
+                    score: $score,
                     camposCoincidentes: ['email'],
-                    bloquea:           $score >= $umbralBloqueo,
+                    bloquea: $score >= $umbralBloqueo,
                 ));
             }
         }
@@ -177,10 +178,6 @@ class MotorMatching
 
     /**
      * Calcula la similitud Jaro-Winkler entre dos cadenas [0.0 – 1.0].
-     *
-     * @param string $s1
-     * @param string $s2
-     * @return float
      */
     private function jaroWinkler(string $s1, string $s2): float
     {
@@ -196,13 +193,13 @@ class MotorMatching
         }
 
         $matchWindow = max((int) floor(max($len1, $len2) / 2) - 1, 0);
-        $s1Matches   = array_fill(0, $len1, false);
-        $s2Matches   = array_fill(0, $len2, false);
-        $matches     = 0;
+        $s1Matches = array_fill(0, $len1, false);
+        $s2Matches = array_fill(0, $len2, false);
+        $matches = 0;
 
         for ($i = 0; $i < $len1; $i++) {
             $start = max(0, $i - $matchWindow);
-            $end   = min($i + $matchWindow + 1, $len2);
+            $end = min($i + $matchWindow + 1, $len2);
 
             for ($j = $start; $j < $end; $j++) {
                 if ($s2Matches[$j] || mb_substr($s1, $i, 1) !== mb_substr($s2, $j, 1)) {
@@ -223,10 +220,10 @@ class MotorMatching
         $k = 0;
 
         for ($i = 0; $i < $len1; $i++) {
-            if (!$s1Matches[$i]) {
+            if (! $s1Matches[$i]) {
                 continue;
             }
-            while (!$s2Matches[$k]) {
+            while (! $s2Matches[$k]) {
                 $k++;
             }
             if (mb_substr($s1, $i, 1) !== mb_substr($s2, $k, 1)) {
