@@ -74,16 +74,21 @@ class AltaCiudadanoTest extends TestCase
         return $user;
     }
 
+    /**
+     * @param array<string, mixed> $extra
+     */
     private function crearCiudadanoConDocumento(string $tipoDoc, string $valorDoc, array $extra = []): Ciudadano
     {
-        $ciudadano = Ciudadano::create(array_merge([
-            'nombre' => 'Ana',
-            'apellido1' => 'González',
-            'fecha_nacimiento' => '1985-03-15',
-            'sexo' => 'F',
+        /** @var array<string, mixed> $attrs */
+        $attrs = array_merge([
+            'nombre'               => 'Ana',
+            'apellido1'            => 'González',
+            'fecha_nacimiento'     => '1985-03-15',
+            'sexo'                 => 'F',
             'nivel_identificacion' => 'identificado',
-            'activo' => true,
-        ], $extra));
+            'activo'               => true,
+        ], $extra);
+        $ciudadano = Ciudadano::create($attrs);
 
         CiudadanoIdentificador::create([
             'ciudadano_id' => $ciudadano->id,

@@ -242,7 +242,7 @@ class AltaCiudadano extends Component
         if (in_array($excepcion, ['psh', 'vvg'], true)) {
             /** @var User $user */
             $user = auth()->user();
-            if (! $user?->hasAnyRole(['intervencion', 'supervision'])) {
+            if (! $user->hasAnyRole(['intervencion', 'supervision'])) {
                 return;
             }
         }

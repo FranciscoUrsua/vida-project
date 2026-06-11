@@ -68,7 +68,7 @@ class CiudadanoIdentificador extends Model
     }
 
     /**
-     * @return BelongsTo<Ciudadano, self>
+     * @return BelongsTo<Ciudadano, CiudadanoIdentificador>
      */
     public function ciudadano(): BelongsTo
     {

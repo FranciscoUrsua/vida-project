@@ -28,6 +28,16 @@ use Modules\Ciudadania\Services\NormalizadorCiudadano;
  *
  * @see docs/instrucciones-cli/instrucciones-cli-ficha-ciudadano.md
  * @see docs/front/ui-ficha-ciudadano.md
+ *
+ * Propiedades computadas expuestas como propiedades mágicas por Livewire 4 #[Computed]:
+ * @property-read bool $puedeEditar
+ * @property-read Ciudadano $ciudadano
+ * @property-read HistoriaSocial|null $historiaSocial
+ * @property-read bool $puedeVerHistoria
+ * @property-read Collection<int, CiudadanoIdentificador> $documentos
+ * @property-read object|null $ucVigente
+ * @property-read Collection<int, CiudadanoPrestacionResumen> $prestaciones
+ * @property-read Collection<int, object> $actividadReciente
  */
 #[Layout('layouts.operativo')]
 class FichaCiudadanoPage extends Component
