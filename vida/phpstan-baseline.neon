@@ -3803,3 +3803,33 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: app/Services/Api/AnonimizadorService.php
+
+		-
+			message: '#^Method Modules\\Ciudadania\\Models\\CiudadanoIdentificador\:\:ciudadano\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Ciudadano, Modules\\Ciudadania\\Models\\CiudadanoIdentificador\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Ciudadano, \$this\(Modules\\Ciudadania\\Models\\CiudadanoIdentificador\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Ciudadania/app/Models/CiudadanoIdentificador.php
+
+		-
+			message: '#^Method Modules\\Ciudadania\\Models\\CiudadanoPrestacionResumen\:\:ciudadano\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Ciudadano, Modules\\Ciudadania\\Models\\CiudadanoPrestacionResumen\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<App\\Models\\Ciudadano, \$this\(Modules\\Ciudadania\\Models\\CiudadanoPrestacionResumen\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Ciudadania/app/Models/CiudadanoPrestacionResumen.php
+
+		-
+			message: '#^Unable to resolve the template type TComponent in call to method Livewire\\LivewireManager\:\:test\(\)$#'
+			identifier: argument.templateType
+			count: 21
+			path: Modules/Ciudadania/tests/Feature/Livewire/AltaCiudadanoTest.php
+
+		-
+			message: '#^Unable to resolve the template type TComponent in call to method Livewire\\LivewireManager\:\:test\(\)$#'
+			identifier: argument.templateType
+			count: 17
+			path: Modules/Ciudadania/tests/Feature/Livewire/FichaCiudadanoPageTest.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Testing\\TestResponse\:\:assertHasNoErrors\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: Modules/Ciudadania/tests/Feature/Livewire/FichaCiudadanoPageTest.php

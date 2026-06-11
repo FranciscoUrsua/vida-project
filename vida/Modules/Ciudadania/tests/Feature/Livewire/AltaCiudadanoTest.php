@@ -243,7 +243,8 @@ class AltaCiudadanoTest extends TestCase
     {
         $this->app->instance(FuenteIdentidadInterface::class, new class implements FuenteIdentidadInterface
         {
-            public function consultarDatos(string $v): ?array
+            /** @return array<string, mixed> */
+            public function consultarDatos(string $v): array
             {
                 return [
                     'nombre' => 'Laura',
