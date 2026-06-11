@@ -288,6 +288,8 @@
                 </h2>
                 <p style="font-size:.85rem;color:var(--color-text-secondary,#6b7280);margin:0;">
                     Pendiente de implementación. Módulo UnidadConvivencia no disponible aún.
+                    {{-- TODO: cuando exista el módulo, cada miembro tendrá un botón "Ver ficha"
+                         enlazando a route('ciudadania.ciudadano.ficha', $miembro->ciudadano_id) --}}
                 </p>
             </div>
 
@@ -373,40 +375,6 @@
                     @endforeach
                 </div>
             @endif
-
-            {{-- ——— Permisos del rol activo ——— --}}
-            <div style="background:var(--color-surface,#fff);border:1px solid var(--color-border,#e5e7eb);border-radius:10px;padding:1.25rem;">
-                <h2 style="font-size:.9rem;font-weight:600;margin:0 0 .75rem;color:var(--color-text-primary,#111827);display:flex;align-items:center;gap:.5rem;">
-                    <i data-lucide="shield" style="width:16px;height:16px;" aria-hidden="true"></i>
-                    Permisos del rol <em>{{ $rolActual }}</em>
-                </h2>
-                <table style="width:100%;font-size:.78rem;border-collapse:collapse;">
-                    <tbody>
-                        <tr style="border-bottom:1px solid var(--color-border,#e5e7eb);">
-                            <td style="padding:.4rem .25rem;color:var(--color-text-secondary,#6b7280);">Capa 1 — datos básicos</td>
-                            <td style="padding:.4rem .25rem;text-align:right;">
-                                <span style="color:{{ $puedeEditar ? '#166534' : '#6b7280' }};font-weight:600;font-size:.75rem;">
-                                    {{ $puedeEditar ? 'Ver y editar' : 'Solo lectura' }}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr style="border-bottom:1px solid var(--color-border,#e5e7eb);">
-                            <td style="padding:.4rem .25rem;color:var(--color-text-secondary,#6b7280);">Historia social</td>
-                            <td style="padding:.4rem .25rem;text-align:right;">
-                                <span style="color:{{ $puedeVerHS ? '#166534' : '#6b7280' }};font-weight:600;font-size:.75rem;">
-                                    {{ $puedeVerHS ? 'Acceso completo' : 'Sin acceso' }}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding:.4rem .25rem;color:var(--color-text-secondary,#6b7280);">Capa 2 — situación social</td>
-                            <td style="padding:.4rem .25rem;text-align:right;">
-                                <span style="color:#6b7280;font-weight:600;font-size:.75rem;">Sin acceso</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
 
         </div>{{-- /col-lg-4 --}}
 

@@ -2,6 +2,51 @@
 
 ---
 
+## Navegación: mapa completo entre pantallas UI — 2026-06-11
+
+### Módulos afectados
+`Modules/Intervencion/`, `Modules/Ciudadania/`
+
+### Referencia funcional
+`docs/front/ui-intervencion.md` §8 — mapa de navegación
+
+### Cambios
+
+**`AgendaPage` — bifurcación de enlace por rol**
+- Campo `ciudadano_id` añadido a la fixture `citasFixture()` junto a `historia_id`. Se obtiene de `HistoriaSocial::whereNotNull('ciudadano_id')` cuando el usuario tiene `profesional_id`.
+- Vista `agenda-page.blade.php`: el nombre del ciudadano en cada cita bifurca según rol:
+  - `historia_id` + rol `intervencion` → `intervencion.ciudadano.show` (pantalla de intervención)
+  - `ciudadano_id` no nulo (cualquier otro rol) → `ciudadania.ciudadano.ficha`
+  - Sin `ciudadano_id` (evento o cita sin datos) → `<div>` no clicable
+
+**`MisCasosPage` — columna nombre separada del clic de fila**
+- Columna "Ciudadano/a": `<a wire:navigate @click.stop href="ciudadania.ciudadano.ficha">` — independiente del clic de fila.
+- Columna "Historia Social": `<a wire:navigate @click.stop href="intervencion.ciudadano.show">` — mantiene comportamiento previo pero con `@click.stop`.
+- Clic en el resto de la fila mantiene la navegación a `intervencion.ciudadano.show`.
+
+**`FichaCiudadanoPage` — ajustes de widgets**
+- Widgets condicionales verificados: banner HS dentro de `@if($historiaSocial)`, prestaciones dentro de `@if($prestaciones->isNotEmpty())`.
+- Enlace "Ir a HS" en el banner: `<a>` clicable para rol `intervencion`, `<span>` con `opacity:.4` para el resto.
+- Botón "Ver ficha" en bloque UC: comentario TODO explícito — la tabla `unidades_convivencia` aún no existe.
+- Widget "Permisos del rol activo" **eliminado** de la vista.
+
+**Tests — `NavegacionTest`**
+- TF-LW-NAV-16: Agenda tramitacion → enlaza a `ciudadania.ciudadano.ficha`
+- TF-LW-NAV-17: Agenda intervencion → enlaza a `intervencion.ciudadano.show`
+- TF-LW-NAV-18: MisCasosPage columna nombre → `ciudadania.ciudadano.ficha`
+- TF-LW-NAV-19: MisCasosPage columna HS → `intervencion.ciudadano.show`
+- TF-LW-NAV-20: FichaCiudadanoPage sin historia → banner HS no renderiza
+- TF-LW-NAV-21: FichaCiudadanoPage intervencion → banner HS clicable
+- TF-LW-NAV-22: FichaCiudadanoPage tramitacion → banner HS no clicable
+- TF-LW-NAV-23: FichaCiudadanoPage sin prestaciones → widget no renderiza
+- TF-LW-NAV-24: FichaCiudadanoPage → widget permisos no existe
+
+**Decisiones de implementación**
+- TF-LW-NAV-15 ya existía del ciclo anterior (enlace alta en BuscarCiudadanoPage). Los tests nuevos se numeraron TF-LW-NAV-16..24 para mantener continuidad sin renumerar; total 24 tests (1 incomplete TF-LW-NAV-03).
+- Fixture `citasFixture()` depende de `Auth::user()->profesional_id` para obtener `historia_id` real. Los tests TF-LW-NAV-16/17 usan fechaAncla fija ('2026-06-12') y crean el entorno Cargo + TipoRelacionProfesional + Profesional + Ciudadano + HistoriaSocial para ejercer la bifurcación.
+
+---
+
 ## Ficha del ciudadano — Módulo Ciudadanía — 2026-06-10
 
 ### Módulos afectados

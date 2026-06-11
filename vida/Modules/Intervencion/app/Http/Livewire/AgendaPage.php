@@ -251,32 +251,33 @@ class AgendaPage extends Component
         $hash = abs(crc32($fecha));
         $count = $hash % 3;
 
-        // Obtener ejemplos de historias sociales del profesional para los enlaces
-        // Solo en citas con ciudadano (no eventos) — null si no hay historias reales
+        // Obtener ejemplos de historias sociales del profesional para los enlaces.
+        // Incluye ciudadano_id para poder enlazar a ficha cuando no hay historia.
         $historias = [];
         if (Auth::user()?->profesional_id) {
             $historias = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)
                 ->whereNotNull('ciudadano_id')
                 ->limit(5)
-                ->pluck('id')
+                ->get(['id', 'ciudadano_id'])
                 ->toArray();
         }
 
         $citas = [];
         for ($i = 0; $i < $count; $i++) {
             $tipo = $tipos[($hash + $i) % count($tipos)];
-            // Solo las citas con ciudadano llevan historia_id; los eventos no
-            $historiaDeCita = ($tipo !== 'evento') ? ($historias[$i] ?? null) : null;
+            // Los eventos no tienen ciudadano; el resto usa datos de historia si existe
+            $historiaEntry = ($tipo !== 'evento') ? ($historias[$i] ?? null) : null;
 
             $citas[] = [
-                'id' => $hash + $i,
-                'hora' => sprintf('%02d:00', 9 + ($i * 2)),
-                'duracion' => 60,
-                'ciudadano' => $ciudadanos[$i % count($ciudadanos)],
-                'historia_id' => $historiaDeCita,
-                'tipo' => $tipo,
-                'subtipo' => null,
-                'fecha' => $fecha,
+                'id'           => $hash + $i,
+                'hora'         => sprintf('%02d:00', 9 + ($i * 2)),
+                'duracion'     => 60,
+                'ciudadano'    => $ciudadanos[$i % count($ciudadanos)],
+                'historia_id'  => $historiaEntry ? $historiaEntry['id'] : null,
+                'ciudadano_id' => $historiaEntry ? $historiaEntry['ciudadano_id'] : null,
+                'tipo'         => $tipo,
+                'subtipo'      => null,
+                'fecha'        => $fecha,
             ];
         }
 

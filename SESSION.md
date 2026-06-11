@@ -1,21 +1,25 @@
 # SESSION — VIDA 360
 
-_Actualizado: 2026-06-10_
+_Actualizado: 2026-06-11_
 
 ## Tarea completada
 
-Ficha del ciudadano (`FichaCiudadanoPage`) — Ciudadanía Entrega 2: Capa 1 editable con permisos por rol, historial de documentos, banner de historia social, widget de prestaciones, 16 tests TF-LW-FIC-01..16 en verde.
+Mapa de navegación completo según `docs/front/ui-intervencion.md` §8:
+- `AgendaPage`: bifurcación de enlace ciudadano por rol (intervencion → pantalla HS, resto → ficha)
+- `MisCasosPage`: columna nombre separada del clic de fila con `@click.stop`
+- `FichaCiudadanoPage`: widgets condicionales verificados, widget permisos eliminado, enlace HS bifurcado
+- Tests TF-LW-NAV-16..24 en verde (24 tests totales, 1 incomplete TF-LW-NAV-03)
 
 ## Tarea anterior
 
-Navegación UI: ítem "Alta de ciudadano/a" en sidebar, TF-LW-NAV-14/15.
+Ficha del ciudadano (`FichaCiudadanoPage`) — Ciudadanía Entrega 2: Capa 1 editable, documentos, banner HS, prestaciones aggregation, 16 tests.
 
 ## Estado actual
 
 ### Tests — 0 fallos
 - Suite previa: 488 tests (antes de esta sesión), 0 fallos.
 - AltaCiudadanoTest: 19 pasan.
-- NavegacionTest: 14 pasan, 1 incomplete (TF-LW-NAV-03).
+- NavegacionTest: **24 tests (TF-LW-NAV-01..24)**, 1 incomplete (TF-LW-NAV-03), 23 pasan.
 - FichaCiudadanoPageTest: 16 pasan.
 
 ### Módulo Ciudadanía — completo (Entregas 1 y 2)
@@ -23,13 +27,13 @@ Navegación UI: ítem "Alta de ciudadano/a" en sidebar, TF-LW-NAV-14/15.
 - **Ficha** (`FichaCiudadanoPage`): Capa 1 editable, documentos con historial, banner HS, prestaciones aggregation, 16 tests.
 - **Rutas activas**: `ciudadania.buscar`, `ciudadania.alta`, `ciudadania.ciudadano.ficha`.
 - **Ruta pendiente (stub)**: `ciudadania.ciudadano.nueva-cita`.
-- **Migración aplicada en producción**: `create_ciudadano_prestaciones_resumen_table` (ejecutar `php artisan migrate` en prod).
 
-### UI Intervención (sin cambios)
-- **Entrega 3 — completa**: CiudadanoPage con timeline HS, 7 herramientas, 92 tests.
-- **Entrega 2 — completa**: MisCasosPage, BuscarCiudadanoPage, BuzonPage.
-- **Entrega 1 — completa**: AgendaPage, Sidebar (5 ítems), layout operativo.
-- **Autenticación — completa**.
+### UI Intervención — mapa de navegación completo
+- **Entrega 3**: CiudadanoPage con timeline HS, 7 herramientas, 92 tests.
+- **Entrega 2**: MisCasosPage (columna nombre enlaza a ficha), BuscarCiudadanoPage, BuzonPage.
+- **Entrega 1**: AgendaPage (bifurcación por rol), Sidebar (5 ítems), layout operativo.
+- **Autenticación**: completa.
+- **Navegación (§8)**: completa — todos los enlaces entre pantallas implementados y testeados.
 
 ## Pendientes conocidos
 
@@ -41,6 +45,7 @@ Navegación UI: ítem "Alta de ciudadano/a" en sidebar, TF-LW-NAV-14/15.
 | `create_ciudadano_prestaciones_resumen_table` | Migración pendiente de ejecutar en producción |
 | `nunomaduro/larastan` | Abandonado upstream — migrar a `larastan/larastan` |
 | TF-LW-NAV-03 | Requiere fixture con PlanDeIntervencion activo |
+| Citas sin `ciudadano_id` en agenda | Depende del módulo Agenda real — fixture solo tiene datos cuando user tiene `profesional_id` |
 | Umbrales matching | Calibrar con datos reales (configurables en backoffice) |
 | `UNIQUE(ciudadano_id)` en `historias_sociales` | Garantizar en BD unicidad de historia por ciudadano |
 | Vista expandida prestaciones | Pantalla completa desde "Ver todo" — pendiente de diseño |
@@ -51,15 +56,17 @@ Navegación UI: ítem "Alta de ciudadano/a" en sidebar, TF-LW-NAV-14/15.
 
 ## Siguiente paso recomendado
 
-**CI/CD — añadir `php artisan migrate --force`** al workflow `.github/workflows/ci.yml` para que las migraciones se ejecuten automáticamente en cada deploy (actualmente hay que correrlas manualmente en producción).
+**CI/CD** — añadir `php artisan migrate --force` al workflow `.github/workflows/ci.yml` para que las migraciones se ejecuten automáticamente en cada deploy.
 
-O alternativamente: **UI Intervención Entrega 4** ("Ver PISO" en CiudadanoPage).
+O: **UI Intervención Entrega 4** — "Ver PISO" en CiudadanoPage.
 
-O: **Módulo UnidadConvivencia** (UC vigente en ficha ciudadano — `ucVigente()` ya está definida como stub).
+O: **Módulo UnidadConvivencia** — `ucVigente()` ya está definida como stub en FichaCiudadanoPage.
 
 ## Contexto relevante para retomar
 
-- `ciudadanoId` (int) en el componente, NO `public Ciudadano $ciudadano`. Razón: Livewire rehidrata modelos con global scopes, y `AmbitoUoScope` filtraría ciudadanos sin HistoriaSocial.
-- `actividadReciente()` devuelve `collect()` directamente: en PostgreSQL una query fallida (tabla inexistente) aborta la transacción entera aunque se capture la excepción PHP con try/catch.
-- `ciudadano_prestaciones_resumen` es una tabla de agregación: los módulos origen (Centros, Teleasistencia...) deben alimentarla via observers. La FichaCiudadanoPage nunca consulta tablas de módulos origen directamente.
-- El pipeline CI/CD no corre `php artisan migrate` — hay que ejecutarlo manualmente en producción tras cada deploy que incluya migraciones.
+- Los tests TF-LW-NAV-16/17 (agenda) usan fechaAncla='2026-06-12' fija + setup Cargo/Profesional/Historia. Deterministas y estables en el tiempo.
+- `citasFixture()` en AgendaPage solo incluye `historia_id`/`ciudadano_id` reales cuando `Auth::user()->profesional_id` está establecido. Sin profesional_id, todas las citas tienen estos campos a null.
+- `ciudadanoId` (int) en FichaCiudadanoPage, NO `public Ciudadano $ciudadano`. Razón: Livewire rehidrata modelos con global scopes, y `AmbitoUoScope` filtraría ciudadanos sin HistoriaSocial.
+- `actividadReciente()` devuelve `collect()` directamente: en PostgreSQL una query fallida (tabla inexistente) aborta la transacción aunque se capture la excepción con try/catch.
+- `ciudadano_prestaciones_resumen` es una tabla de agregación: los módulos origen (Centros, Teleasistencia...) deben alimentarla via observers. FichaCiudadanoPage nunca consulta tablas de módulos origen directamente.
+- El pipeline CI/CD no corre `php artisan migrate` — hay que ejecutarlo manualmente en producción tras cada deploy con migraciones.

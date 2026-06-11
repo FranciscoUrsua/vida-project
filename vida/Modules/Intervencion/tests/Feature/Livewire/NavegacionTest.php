@@ -17,7 +17,12 @@ use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
 use Modules\Mensajes\Http\Livewire\BuzonPage;
+use Illuminate\Support\Facades\DB;
+use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
 use Modules\Mensajes\Models\MensajeHilo;
+use Modules\Usuarios\Models\Cargo;
+use Modules\Usuarios\Models\Profesional;
+use Modules\Usuarios\Models\TipoRelacionProfesional;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -393,5 +398,322 @@ class NavegacionTest extends TestCase
 
         $this->assertNotEmpty($matches, 'No se encontró el enlace a ciudadania.alta en la página.');
         $this->assertStringNotContainsString('disabled', $matches[0]);
+    }
+
+    // -------------------------------------------------------------------------
+    // Agenda — bifurcación de enlace por rol — TF-LW-NAV-16 a TF-LW-NAV-17
+    // -------------------------------------------------------------------------
+
+    /**
+     * TF-LW-NAV-16 — Agenda con rol tramitacion: cita con ciudadano_id enlaza a ciudadania.ciudadano.ficha.
+     *
+     * fechaAncla='2026-06-12' garantiza citas con historia_id en la ventana de cuatro días:
+     * 2026-06-11 (count=1, seguimiento) y 2026-06-13 (count=1, seguimiento) usan $historias[0].
+     * Con rol tramitacion: @elseif(isset($cita['ciudadano_id'])) → ciudadania.ciudadano.ficha.
+     */
+    #[Test]
+    public function agenda_tramitacion_enlaza_ciudadano_a_ficha_ciudadano(): void
+    {
+        $tramitacion = User::create([
+            'name' => 'TSR Tramitacion',
+            'email' => 'tramitacion-agenda@vida360.test',
+            'password' => 'secreto',
+            'email_verified_at' => now(),
+            'primer_acceso' => false,
+        ]);
+        $tramitacion->assignRole('tramitacion');
+        UsuarioUo::create([
+            'usuario_id' => $tramitacion->id,
+            'unidad_organizativa_id' => $this->uo->id,
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
+        ]);
+
+        $data = $this->crearEntornoAgenda($tramitacion);
+
+        Livewire::actingAs($tramitacion)
+            ->test(AgendaPage::class)
+            ->set('fechaAncla', '2026-06-12')
+            ->assertSee(route('ciudadania.ciudadano.ficha', $data['ciudadano']->id))
+            ->assertDontSee(route('intervencion.ciudadano.show', $data['historia']->id));
+    }
+
+    /**
+     * TF-LW-NAV-17 — Agenda con rol intervencion: cita con historia_id enlaza a intervencion.ciudadano.show.
+     *
+     * Con rol intervencion y historia_id en la cita: @if($cita['historia_id'] && hasRole('intervencion'))
+     * → intervencion.ciudadano.show. La ruta a ficha ciudadano no debe aparecer.
+     */
+    #[Test]
+    public function agenda_intervencion_enlaza_historia_a_ciudadano_show(): void
+    {
+        $data = $this->crearEntornoAgenda($this->usuario);
+
+        Livewire::actingAs($this->usuario)
+            ->test(AgendaPage::class)
+            ->set('fechaAncla', '2026-06-12')
+            ->assertSee(route('intervencion.ciudadano.show', $data['historia']->id))
+            ->assertDontSee(route('ciudadania.ciudadano.ficha', $data['ciudadano']->id));
+    }
+
+    // -------------------------------------------------------------------------
+    // Mis casos — enlaces separados — TF-LW-NAV-18 a TF-LW-NAV-19
+    // -------------------------------------------------------------------------
+
+    /**
+     * TF-LW-NAV-18 — MisCasosPage: columna nombre enlaza a ciudadania.ciudadano.ficha.
+     *
+     * Requiere un plan activo para que la tabla renderice filas.
+     */
+    #[Test]
+    public function mis_casos_columna_nombre_enlaza_a_ficha_ciudadano(): void
+    {
+        $ciudadano = Ciudadano::create([
+            'nombre' => 'Nav',
+            'apellido1' => 'Columna',
+            'apellido2' => null,
+            'fecha_nacimiento' => '1985-01-01',
+            'sexo' => 'H',
+            'activo' => true,
+        ]);
+        $historia = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
+            'ciudadano_id' => $ciudadano->id,
+            'unidad_organizativa_id' => $this->uo->id,
+            'estado' => 'abierta',
+        ]);
+        DB::table('planes_intervencion')->insert([
+            'historia_id' => $historia->id,
+            'tipo' => 'general_asp',
+            'profesional_responsable_id' => $this->usuario->id,
+            'estado' => 'activo',
+            'fecha_inicio' => today()->toDateString(),
+            'version' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->actingAs($this->usuario)
+            ->get('/intervencion/casos')
+            ->assertOk()
+            ->assertSee(route('ciudadania.ciudadano.ficha', $ciudadano->id));
+    }
+
+    /**
+     * TF-LW-NAV-19 — MisCasosPage: columna HS enlaza a intervencion.ciudadano.show.
+     *
+     * Requiere un plan activo para que la tabla renderice filas.
+     */
+    #[Test]
+    public function mis_casos_columna_hs_enlaza_a_ciudadano_show(): void
+    {
+        $ciudadano = Ciudadano::create([
+            'nombre' => 'Nav',
+            'apellido1' => 'Columna',
+            'apellido2' => null,
+            'fecha_nacimiento' => '1985-01-01',
+            'sexo' => 'H',
+            'activo' => true,
+        ]);
+        $historia = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
+            'ciudadano_id' => $ciudadano->id,
+            'unidad_organizativa_id' => $this->uo->id,
+            'estado' => 'abierta',
+        ]);
+        DB::table('planes_intervencion')->insert([
+            'historia_id' => $historia->id,
+            'tipo' => 'general_asp',
+            'profesional_responsable_id' => $this->usuario->id,
+            'estado' => 'activo',
+            'fecha_inicio' => today()->toDateString(),
+            'version' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->actingAs($this->usuario)
+            ->get('/intervencion/casos')
+            ->assertOk()
+            ->assertSee(route('intervencion.ciudadano.show', $historia->id));
+    }
+
+    // -------------------------------------------------------------------------
+    // Ficha ciudadano — widgets condicionales — TF-LW-NAV-20 a TF-LW-NAV-24
+    // -------------------------------------------------------------------------
+
+    /**
+     * TF-LW-NAV-20 — FichaCiudadanoPage: banner HS no renderiza si el ciudadano no tiene historia social.
+     */
+    #[Test]
+    public function ficha_ciudadano_sin_historia_no_muestra_banner_hs(): void
+    {
+        $ciudadano = Ciudadano::create([
+            'nombre' => 'Sin',
+            'apellido1' => 'Historia',
+            'apellido2' => null,
+            'fecha_nacimiento' => '1990-01-01',
+            'sexo' => 'H',
+            'activo' => true,
+        ]);
+
+        Livewire::actingAs($this->usuario)
+            ->test(FichaCiudadanoPage::class, ['ciudadano' => $ciudadano->id])
+            ->assertDontSee('Historia social activa')
+            ->assertDontSee('Ir a HS');
+    }
+
+    /**
+     * TF-LW-NAV-21 — FichaCiudadanoPage: banner HS renderiza enlace clicable para intervencion.
+     *
+     * puedeVerHistoria() = true para rol intervencion → se renderiza <a> con la ruta a HS.
+     */
+    #[Test]
+    public function ficha_ciudadano_banner_hs_clicable_para_intervencion(): void
+    {
+        $ciudadano = Ciudadano::create([
+            'nombre' => 'Con',
+            'apellido1' => 'Historia',
+            'apellido2' => null,
+            'fecha_nacimiento' => '1990-01-01',
+            'sexo' => 'H',
+            'activo' => true,
+        ]);
+        $historia = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
+            'ciudadano_id' => $ciudadano->id,
+            'unidad_organizativa_id' => $this->uo->id,
+            'estado' => 'abierta',
+        ]);
+
+        Livewire::actingAs($this->usuario)
+            ->test(FichaCiudadanoPage::class, ['ciudadano' => $ciudadano->id])
+            ->assertSee('Ir a HS')
+            ->assertSee(route('intervencion.ciudadano.show', $historia->id));
+    }
+
+    /**
+     * TF-LW-NAV-22 — FichaCiudadanoPage: banner HS no clicable para tramitacion.
+     *
+     * puedeVerHistoria() = false para tramitacion → se renderiza <span> sin enlace a HS.
+     */
+    #[Test]
+    public function ficha_ciudadano_banner_hs_no_clicable_para_tramitacion(): void
+    {
+        $tramitacion = User::create([
+            'name' => 'TSR Tramitacion Ficha',
+            'email' => 'tramitacion-ficha@vida360.test',
+            'password' => 'secreto',
+            'email_verified_at' => now(),
+            'primer_acceso' => false,
+        ]);
+        $tramitacion->assignRole('tramitacion');
+        UsuarioUo::create([
+            'usuario_id' => $tramitacion->id,
+            'unidad_organizativa_id' => $this->uo->id,
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
+        ]);
+
+        $ciudadano = Ciudadano::create([
+            'nombre' => 'Con',
+            'apellido1' => 'Historia',
+            'apellido2' => null,
+            'fecha_nacimiento' => '1990-01-01',
+            'sexo' => 'H',
+            'activo' => true,
+        ]);
+        $historia = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
+            'ciudadano_id' => $ciudadano->id,
+            'unidad_organizativa_id' => $this->uo->id,
+            'estado' => 'abierta',
+        ]);
+
+        Livewire::actingAs($tramitacion)
+            ->test(FichaCiudadanoPage::class, ['ciudadano' => $ciudadano->id])
+            ->assertSee('Ir a HS')
+            ->assertDontSee(route('intervencion.ciudadano.show', $historia->id));
+    }
+
+    /**
+     * TF-LW-NAV-23 — FichaCiudadanoPage: widget prestaciones no renderiza si no hay registros.
+     */
+    #[Test]
+    public function ficha_ciudadano_sin_prestaciones_no_muestra_widget_prestaciones(): void
+    {
+        $ciudadano = Ciudadano::create([
+            'nombre' => 'Sin',
+            'apellido1' => 'Prestaciones',
+            'apellido2' => null,
+            'fecha_nacimiento' => '1990-01-01',
+            'sexo' => 'H',
+            'activo' => true,
+        ]);
+
+        Livewire::actingAs($this->usuario)
+            ->test(FichaCiudadanoPage::class, ['ciudadano' => $ciudadano->id])
+            ->assertDontSee('Otras prestaciones');
+    }
+
+    /**
+     * TF-LW-NAV-24 — FichaCiudadanoPage: el widget "Permisos del rol activo" no existe en la vista.
+     *
+     * Verificación negativa: el bloque fue eliminado en la sesión de navegación.
+     */
+    #[Test]
+    public function ficha_ciudadano_no_tiene_widget_permisos(): void
+    {
+        $ciudadano = Ciudadano::create([
+            'nombre' => 'Sin',
+            'apellido1' => 'Permisos',
+            'apellido2' => null,
+            'fecha_nacimiento' => '1990-01-01',
+            'sexo' => 'H',
+            'activo' => true,
+        ]);
+
+        Livewire::actingAs($this->usuario)
+            ->test(FichaCiudadanoPage::class, ['ciudadano' => $ciudadano->id])
+            ->assertDontSee('Permisos del rol activo');
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Crea Cargo + Profesional + asigna profesional_id al usuario + Ciudadano + HistoriaSocial.
+     * Necesario para que la fixture de AgendaPage incluya historia_id y ciudadano_id en las citas.
+     *
+     * @param User $usuario
+     * @return array{historia: HistoriaSocial, ciudadano: Ciudadano}
+     */
+    private function crearEntornoAgenda(User $usuario): array
+    {
+        $cargo = Cargo::create(['nombre' => 'TSR Test Nav', 'activo' => true]);
+        $tipoRelacion = TipoRelacionProfesional::create(['nombre' => 'Funcionario Test', 'activo' => true]);
+        $profesional = Profesional::create([
+            'nombre'           => 'Test',
+            'apellido1'        => 'Profesional',
+            'sexo'             => 'M',
+            'cargo_id'         => $cargo->id,
+            'tipo_relacion_id' => $tipoRelacion->id,
+            'fecha_inicio'     => today()->toDateString(),
+            'activo'           => true,
+        ]);
+        $usuario->update(['profesional_id' => $profesional->id]);
+
+        $ciudadano = Ciudadano::create([
+            'nombre'           => 'Agenda',
+            'apellido1'        => 'Test',
+            'apellido2'        => null,
+            'fecha_nacimiento' => '1985-06-01',
+            'sexo'             => 'H',
+            'activo'           => true,
+        ]);
+        $historia = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
+            'ciudadano_id'           => $ciudadano->id,
+            'unidad_organizativa_id' => $this->uo->id,
+            'estado'                 => 'abierta',
+        ]);
+
+        return compact('historia', 'ciudadano');
     }
 }
