@@ -88,14 +88,13 @@
                             $sem = $semaforo[$estado];
                         @endphp
                         <tr style="border-bottom: 1px solid var(--color-ink-100); transition: background 0.1s; cursor: pointer;"
-                            wire:click="$dispatch('navigate', { url: '{{ route('intervencion.ciudadano.show', $caso->historia_id) }}' })"
+                            @click="window.location.href='{{ route('intervencion.ciudadano.show', $caso->historia_id) }}'"
                             onmouseover="this.style.background='var(--color-paper)'"
                             onmouseout="this.style.background=''">
 
                             {{-- Ciudadano/a: enlace a ficha (@click.stop para no propagar al clic de fila) --}}
                             <td style="padding: 0.6rem 0.75rem; font-weight: 600; color: var(--color-ink-900);">
-                                <a wire:navigate
-                                   href="{{ route('ciudadania.ciudadano.ficha', $caso->ciudadano_id) }}"
+                                <a href="{{ route('ciudadania.ciudadano.ficha', $caso->ciudadano_id) }}"
                                    @click.stop
                                    style="color: var(--color-ink-900); text-decoration: none;">
                                     {{ $this->ciudadanosDelPage->get($caso->ciudadano_id)?->nombre_completo ?? 'Ciudadano #'.$caso->ciudadano_id }}
@@ -104,8 +103,7 @@
 
                             {{-- Historia Social: enlace a pantalla de intervención (@click.stop para no propagar) --}}
                             <td style="padding: 0.6rem 0.75rem; font-family: monospace; font-size: 0.8rem; color: var(--color-ink-600);">
-                                <a wire:navigate
-                                   href="{{ route('intervencion.ciudadano.show', $caso->historia_id) }}"
+                                <a href="{{ route('intervencion.ciudadano.show', $caso->historia_id) }}"
                                    @click.stop
                                    style="color: var(--color-ink-600); text-decoration: none;">
                                     HS-{{ str_pad($caso->historia_id, 6, '0', STR_PAD_LEFT) }}

@@ -1,14 +1,13 @@
 # SESSION — VIDA 360
 
-_Actualizado: 2026-06-11_
+_Actualizado: 2026-06-12_
 
 ## Tarea completada
 
-Mapa de navegación completo según `docs/front/ui-intervencion.md` §8:
-- `AgendaPage`: bifurcación de enlace ciudadano por rol (intervencion → pantalla HS, resto → ficha)
-- `MisCasosPage`: columna nombre separada del clic de fila con `@click.stop`
-- `FichaCiudadanoPage`: widgets condicionales verificados, widget permisos eliminado, enlace HS bifurcado
-- Tests TF-LW-NAV-16..24 en verde (24 tests totales, 1 incomplete TF-LW-NAV-03)
+Corrección de dos bugs en `MisCasosPage` — ningún enlace navegaba:
+- **Bug 1 — clic de fila roto**: `wire:click="$dispatch('navigate', ...)"` despachaba un evento de navegador sin ningún listener. Corregido a `@click="window.location.href='...'"`.
+- **Bug 2 — `wire:navigate` bloqueaba `href`**: `wire:navigate` llama `preventDefault()` en el click; si la navegación SPA falla, el `href` nativo también queda bloqueado. Eliminado `wire:navigate` de ambos enlaces; se usan `href` nativos.
+- Los 30 tests de NavegacionTest + MisCasosPageTest siguen en verde.
 
 ## Tarea anterior
 
@@ -56,9 +55,9 @@ Ficha del ciudadano (`FichaCiudadanoPage`) — Ciudadanía Entrega 2: Capa 1 edi
 
 ## Siguiente paso recomendado
 
-**CI/CD** — añadir `php artisan migrate --force` al workflow `.github/workflows/ci.yml` para que las migraciones se ejecuten automáticamente en cada deploy.
+**UI Intervención Entrega 4** — "Ver PISO" en CiudadanoPage.
 
-O: **UI Intervención Entrega 4** — "Ver PISO" en CiudadanoPage.
+O: **CI/CD** — añadir `php artisan migrate --force` al workflow `.github/workflows/ci.yml`.
 
 O: **Módulo UnidadConvivencia** — `ucVigente()` ya está definida como stub en FichaCiudadanoPage.
 
