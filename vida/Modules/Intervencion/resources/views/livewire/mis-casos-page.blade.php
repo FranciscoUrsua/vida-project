@@ -87,9 +87,9 @@
                             $estado = $estadoSeguimiento($caso->fecha_siguiente_seguimiento);
                             $sem = $semaforo[$estado];
                         @endphp
-                        {{-- El @click de la fila solo dispara si no se pulsó dentro de un <a> --}}
+                        {{-- onclick nativo: la fila navega salvo que el clic sea sobre un <a> --}}
                         <tr style="border-bottom: 1px solid var(--color-ink-100); transition: background 0.1s; cursor: pointer;"
-                            @click="$event.target.closest('a') || (window.location.href='{{ route('intervencion.ciudadano.show', $caso->historia_id) }}')"
+                            onclick="event.target.closest('a') || (window.location.href='{{ route('intervencion.ciudadano.show', $caso->historia_id) }}')"
                             onmouseover="this.style.background='var(--color-paper)'"
                             onmouseout="this.style.background=''">
 
