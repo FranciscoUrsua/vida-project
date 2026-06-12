@@ -45,7 +45,8 @@ jobs:
             set -e
             cd /var/www/vida-project/vida
 
-            git pull origin master
+            git fetch origin
+            git reset --hard origin/master
 
             # Permisos ANTES de cualquier operación de escritura sobre storage/
             sudo chown -R jupiter:www-data /var/www/vida-project/vida/storage /var/www/vida-project/vida/bootstrap/cache
