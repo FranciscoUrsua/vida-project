@@ -6,12 +6,12 @@ Use this when producing UI, slides, prototypes or marketing for **VIDA 360** (*V
 - **Tone.** Warm calm, not cheerful. Serious, respectful, reassuring. Never gamified.
 - **Audience.** Trained municipal social workers. Do not patronise.
 - **Language.** Spanish. Sentence case. No emoji in product UI.
-- **Stack shown to.** Laravel 12 + Livewire (operational surface) · Filament 5.3 (backoffice).
+- **Stack shown to.** Laravel 12 · Tailwind CSS · Livewire (operational surface) · Filament 5.3 (backoffice) · VIDA Blade/Livewire components.
 
 ## Getting started
 1. Read `README.md` top-to-bottom before any design work.
-2. Link `colors_and_type.css` as the single source of tokens.
-3. Use `ui_kits/vida_app/kit.css` for operational-surface patterns.
+2. Use `stylesheets/colors_and_type.css` as the design-token reference.
+3. For implementation, build Livewire UI with Tailwind CSS, VIDA tokens and reusable Blade/Livewire components. Filament uses its VIDA theme and native components.
 
 ## Palette in one line
 Primary `#2A5B8A` (Azul Retiro) · Accent `#C76E4A` (Terracotta) · Paper `#FAF7F1` · Ink-900 `#1D160E` · Protected `#6B3D6B`.
@@ -27,6 +27,10 @@ Source Sans 3 (UI) · Source Serif 4 (display only) · JetBrains Mono (codes, DN
 - Focus ring is mandatory: 2px `--color-primary`, 2px offset.
 - AI-assisted output carries the `Sugerencia IA` chip + `wand-2` icon and needs professional validation.
 - Protected records (menores, VG): show the protected banner; never hide the status.
+- No Bootstrap, Foundation or general-purpose visual frameworks for new application UI.
+- No Bootstrap classes in new Livewire screens (`btn`, `row`, `col-*`, `form-control`, `form-select`, `alert`, `card`, etc.).
+- No Bootstrap Icons or icon CDNs in new layouts; load icons through the app build or Blade components.
+- No structural inline styles in Blade; use VIDA components, Tailwind classes and tokens. Inline styles are only acceptable for unavoidable dynamic values.
 - No gradients, no glassmorphism, no bounce animation, no decorative SVGs, no emoji in product chrome.
 
 ## Fixed terminology

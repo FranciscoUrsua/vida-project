@@ -5,17 +5,17 @@
 This folder is the design system that drives every UI, slide, prototype, mock and asset produced for VIDA 360. It is organised around three ideas that guide every visual decision:
 
 1. **Warm calm, not cheerful.** Citizens in contact with social services are often in vulnerable situations. The product must feel serious, respectful and reassuring — never gamified, never loud.
-2. **Present what the professional needs, when they need it.** Density is low by default; complexity reveals itself on demand. Negative space is structural, not decorative.
+2. **Present what the professional needs, when they need it.** Density is professional and controlled: operational screens should be scannable and efficient on desktop, with complexity revealed on demand. Negative space is structural, not decorative.
 3. **Legibility above all.** Large, comfortable type. High contrast. Generous line-height. No decorative fonts. No thin weights on body copy.
 
 ---
 
 ## Product context
 
-VIDA 360 is a Laravel 12 / PHP 8.3 monolith with a Blade + Livewire + Alpine.js frontend, Bootstrap 5 layout primitives, and a Filament 5.3 admin backoffice. Interfaces split into two distinct surfaces with different ergonomics:
+VIDA 360 is a Laravel 12 / PHP 8.3 monolith with a Blade + Livewire + Alpine.js frontend, Tailwind CSS, VIDA design tokens, reusable Blade/Livewire components, and a Filament 5.3 admin backoffice. Interfaces split into two distinct surfaces with different ergonomics:
 
 - **Filament backoffice** — configuration, catalogues, users, roles, permissions. Table-dense, keyboard-driven.
-- **Livewire operational surface** — the daily professional workspace: citizen histories, intervention plans, notes, agenda, prescriptions, alerts, internal messaging.
+- **Livewire operational surface** — the daily professional workspace: citizen histories, intervention plans, notes, agenda, prescriptions, alerts, internal messaging. New operational UI is built with Tailwind CSS, VIDA tokens and reusable components; Bootstrap and inline structural styles are legacy debt, not a pattern to extend.
 
 Two kinds of people use it, with different access rules:
 - `Usuario` — staff (social workers, supervisors, admins). They log in.
@@ -100,7 +100,7 @@ Warm neutrals + one trustworthy blue + one caring terracotta accent. White space
 - **Display:** *Source Serif 4*, used only for large hero titles in marketing / onboarding / empty-state hero. Not used in product chrome.
 - **Mono:** *JetBrains Mono*, used only for codes (`010101`), DNIs/NIEs, audit log identifiers.
 
-All three are loaded from Google Fonts via `colors_and_type.css` — no font files are shipped and none need to be. If the municipality mandates a specific branded family (e.g. a licensed *Gotham* / *Mercury*-style typeface), we'll swap on request.
+All three are loaded from Google Fonts via `stylesheets/colors_and_type.css` — no font files are shipped and none need to be. If the municipality mandates a specific branded family (e.g. a licensed *Gotham* / *Mercury*-style typeface), we'll swap on request.
 
 ### Scale
 A modest type scale. Body is `16px` minimum. Smallest UI label is `12px` (metadata only). Line-heights are generous: `1.5` for body, `1.35` for titles. Never use letter-spacing on body; `-0.01em` on display sizes only.
@@ -181,36 +181,33 @@ Pill (`--radius-pill`), `12px` text, `600` weight, uppercase-off. Background is 
 
 ## Iconography
 
-**Icon set.** The repo does not ship a bespoke icon set. Filament ships with Heroicons by default, and Bootstrap 5 surfaces use Bootstrap Icons. Given the warmth/calm brief and the dual backoffice/operational product, we standardise on **[Lucide](https://lucide.dev)** (fork of Feather, 1.5px strokes, rounded caps — warmer than Heroicons, more modern than Bootstrap Icons) and document a 1:1 mapping for the common operations VIDA needs.
+**Icon set.** The repo does not ship a bespoke icon set. Filament ships with Heroicons by default; the Livewire operational surface standardises on **[Lucide](https://lucide.dev)** or a Blade Icons integration exposing the same family through the application build. Bootstrap Icons are legacy debt and must not be introduced in new UI.
 
 - **Stroke width:** 1.75px (default Lucide is 2 — we thin it slightly for the calmer feel).
 - **Sizes:** 16 (inline with text), 20 (button), 24 (sidebar, menu), 32 (feature blocks), 48 (empty states only).
 - **Colour:** inherits `currentColor`. Never two-tone.
 
-**Loading.** Via CDN — `https://unpkg.com/lucide@latest` — with `data-lucide="..."` attributes. A sample set is copied into `assets/icons/` for offline use.
+**Loading.** Icons must be loaded through the application build or server-rendered Blade components. Do not add icon CDNs to new layouts.
 
 **Emoji.** Never as UI primitives. Only permissible in free-text user-generated content (e.g. a note a professional types).
 
 **Unicode.** Used only for typographical marks: `—` em dash in empty states, `·` middot as meta separator, `›` chevron for breadcrumbs when no icon is available.
 
-**Logos & wordmark.** No municipal logo is shipped with the repo. A provisional VIDA 360 wordmark has been drafted in `assets/logos/` using the product typography. **Flagged** — please provide the real municipal logo usage rules if this is to appear alongside the Ayuntamiento de Madrid brand.
+**Logos & wordmark.** No municipal logo is shipped with the repo. A provisional VIDA 360 wordmark has been drafted as `vida360-wordmark.svg` using the product typography. **Flagged** — please provide the real municipal logo usage rules if this is to appear alongside the Ayuntamiento de Madrid brand.
 
 **Illustrations.** None shipped, none invented. Empty states use a single large Lucide glyph in `--color-ink-400` with accompanying copy.
 
 ---
 
-## Index — what's in this folder
+## Folder contents
 
 | Path | What it is |
 |---|---|
 | `README.md` | This file — the one document to read first. |
-| `colors_and_type.css` | All design tokens. Import this into any HTML artifact. |
 | `SKILL.md` | Portable skill descriptor for Claude Code / agents. |
-| `assets/logos/` | Provisional VIDA 360 wordmark (SVG). |
-| `assets/icons/` | Sample Lucide icons copied locally (SVG). |
-| `fonts/` | Notes on the Google Fonts used (loaded via `colors_and_type.css`). |
-| `preview/` | HTML preview cards for the Design System tab (one per concept). |
-| `ui_kits/vida_app/` | Operational (Livewire) UI kit: sidebar, header, citizen ficha, intervention plan, alerts, messaging. |
+| `stylesheets/colors_and_type.css` | Design tokens shared by design artifacts and implementation references. |
+| `vida360-mark.svg` | Provisional VIDA 360 mark. |
+| `vida360-wordmark.svg` | Provisional VIDA 360 wordmark. |
 
 ---
 

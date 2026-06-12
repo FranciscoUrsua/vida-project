@@ -46,6 +46,15 @@ Este fichero se aplica a todas las sesiones sin necesidad de repetirlo en cada p
 - Filament para configuración y backoffice. Livewire para operación diaria de profesionales (principio 3.12).
 - Toda integración con sistemas externos mediante adaptador con mock activo por defecto (principio 3.6).
 
+### Frontend y UI
+- Sistema unificado: Tailwind CSS + tokens VIDA + componentes Blade/Livewire propios. Ver principio 4.18 de `docs/principios-vida360.md`.
+- No crear nuevas vistas, layouts ni componentes con Bootstrap, Foundation u otros frameworks visuales generalistas.
+- No cargar Bootstrap ni Bootstrap Icons por CDN en nuevas superficies de aplicación.
+- En Livewire no usar clases Bootstrap (`btn`, `row`, `col-*`, `form-control`, `form-select`, `alert`, `card`, etc.) para nuevas pantallas.
+- Evitar estilos inline estructurales en Blade. Usar componentes VIDA, clases Tailwind y tokens CSS. Solo se admiten estilos inline para valores dinámicos inevitables.
+- Filament usa su tema VIDA y componentes nativos. Los overrides sobre clases internas `.fi-*` deben estar centralizados en el tema y ser excepcionales.
+- Mantener un único sistema de iconos por superficie. No mezclar Bootstrap Icons con Lucide/Blade Icons salvo decisión técnica documentada.
+
 ### Tests
 - Base de datos de test: PostgreSQL (`vida_testing`). No usar SQLite.
 - Tests escritos antes o en paralelo a la implementación, nunca después.

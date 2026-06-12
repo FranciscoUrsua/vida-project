@@ -4,68 +4,54 @@ _Actualizado: 2026-06-12_
 
 ## Tarea completada
 
-Corrección de dos bugs en `MisCasosPage` — ningún enlace navegaba:
-- **Bug 1 — clic de fila roto**: `wire:click="$dispatch('navigate', ...)"` despachaba un evento de navegador sin ningún listener. Corregido a `@click="window.location.href='...'"`.
-- **Bug 2 — `wire:navigate` bloqueaba `href`**: `wire:navigate` llama `preventDefault()` en el click; si la navegación SPA falla, el `href` nativo también queda bloqueado. Eliminado `wire:navigate` de ambos enlaces; se usan `href` nativos.
-- Los 30 tests de NavegacionTest + MisCasosPageTest siguen en verde.
-
-## Tarea anterior
-
-Ficha del ciudadano (`FichaCiudadanoPage`) — Ciudadanía Entrega 2: Capa 1 editable, documentos, banner HS, prestaciones aggregation, 16 tests.
+Consolidación documental de la dirección frontend de VIDA 360:
+- `docs/principios-vida360.md`: añadido el principio 4.18, que fija un sistema unificado de frontend basado en Tailwind CSS, tokens VIDA y componentes Blade/Livewire reutilizables.
+- `CLAUDE.md`: añadidas reglas operativas para evitar nuevas vistas con Bootstrap, Foundation, Bootstrap Icons por CDN o estilos inline estructurales.
+- `docs/design-system/README.md`: actualizado el contexto del producto, iconografía, carga de iconos, rutas reales y contenido de la carpeta para alinearlo con el principio 4.18.
+- `docs/design-system/SKILL.md`: actualizado el stack, la ruta de tokens y las reglas rápidas para agentes.
+- `docs/design-system/stylesheets/colors_and_type.css`: corregido el comentario de importación para apuntar a la ruta real.
 
 ## Estado actual
 
-### Tests — 0 fallos
-- Suite previa: 488 tests (antes de esta sesión), 0 fallos.
-- AltaCiudadanoTest: 19 pasan.
-- NavegacionTest: **24 tests (TF-LW-NAV-01..24)**, 1 incomplete (TF-LW-NAV-03), 23 pasan.
-- FichaCiudadanoPageTest: 16 pasan.
+### Frontend — dirección decidida
+- Filament sigue siendo la superficie de configuración y backoffice.
+- Livewire sigue siendo la superficie operativa diaria.
+- Ambas superficies deben compartir lenguaje visual, tokens VIDA y criterios de interacción.
+- La base para UI nueva es Tailwind CSS + tokens VIDA + componentes propios.
+- Bootstrap, Bootstrap Icons por CDN y estilos inline estructurales quedan como deuda heredada, no como patrón aceptado.
 
-### Módulo Ciudadanía — completo (Entregas 1 y 2)
-- **Alta** (`AltaCiudadano`): 4 fases, motor de matching Jaro-Winkler, 19 tests.
-- **Ficha** (`FichaCiudadanoPage`): Capa 1 editable, documentos con historial, banner HS, prestaciones aggregation, 16 tests.
-- **Rutas activas**: `ciudadania.buscar`, `ciudadania.alta`, `ciudadania.ciudadano.ficha`.
-- **Ruta pendiente (stub)**: `ciudadania.ciudadano.nueva-cita`.
+### Documentación alineada
+- `docs/principios-vida360.md` contiene la decisión arquitectónica.
+- `CLAUDE.md` contiene las instrucciones operativas para Claude CLI.
+- `docs/design-system/README.md` y `docs/design-system/SKILL.md` ya no recomiendan Bootstrap, CDN de iconos ni artefactos inexistentes como `ui_kits/vida_app/kit.css`.
 
-### UI Intervención — mapa de navegación completo
-- **Entrega 3**: CiudadanoPage con timeline HS, 7 herramientas, 92 tests.
-- **Entrega 2**: MisCasosPage (columna nombre enlaza a ficha), BuscarCiudadanoPage, BuzonPage.
-- **Entrega 1**: AgendaPage (bifurcación por rol), Sidebar (5 ítems), layout operativo.
-- **Autenticación**: completa.
-- **Navegación (§8)**: completa — todos los enlaces entre pantallas implementados y testeados.
+### Cambios no relacionados presentes en el árbol
+- `.claude/worktrees/agent-ae6caac64cb2187e6` aparece modificado antes de esta tarea.
+- `vida/phpstan-baseline.neon` aparece modificado antes de esta tarea.
+- No forman parte de la consolidación frontend y no deben incluirse en el commit de esta tarea salvo decisión explícita.
 
 ## Pendientes conocidos
 
 | Componente | Pendiente |
 |---|---|
-| `ciudadania.ciudadano.nueva-cita` | Ruta stub — pendiente cuando Agenda exponga API simplificada |
-| `CiudadanoPage` Intervencion | "Ver PISO" → Entrega 4 |
-| Herramienta Informes | Stub "en construcción" — integración Documentos pendiente |
-| `create_ciudadano_prestaciones_resumen_table` | Migración pendiente de ejecutar en producción |
-| `nunomaduro/larastan` | Abandonado upstream — migrar a `larastan/larastan` |
-| TF-LW-NAV-03 | Requiere fixture con PlanDeIntervencion activo |
-| Citas sin `ciudadano_id` en agenda | Depende del módulo Agenda real — fixture solo tiene datos cuando user tiene `profesional_id` |
-| Umbrales matching | Calibrar con datos reales (configurables en backoffice) |
-| `UNIQUE(ciudadano_id)` en `historias_sociales` | Garantizar en BD unicidad de historia por ciudadano |
-| Vista expandida prestaciones | Pantalla completa desde "Ver todo" — pendiente de diseño |
-| Vista historial UC | Modal/pantalla de versiones UC — pendiente de diseño |
-| `UnidadConvivencia` module | `ucVigente()` en FichaCiudadanoPage devuelve null hasta que exista |
-| `ciudadanos_auditoria` tabla | `actividadReciente()` devuelve colección vacía hasta que exista |
-| CI/CD | `php artisan migrate` no está en el pipeline — añadir `php artisan migrate --force` al deploy |
+| Layout operativo Livewire | Retirar Bootstrap/Bootstrap Icons por CDN y migrar a Tailwind + componentes VIDA |
+| Componentes VIDA | Crear biblioteca mínima Blade/Livewire: botones, inputs, selects, badges, paneles, tablas, modales, navegación, estados vacíos |
+| Tema Filament | Revisar overrides `.fi-*` y centralizarlos en el tema VIDA solo cuando sean necesarios |
+| Iconos | Decidir implementación técnica: Lucide vía build o Blade Icons, sin CDN en nuevas superficies |
+| Vistas Livewire existentes | Migrar progresivamente clases Bootstrap e inline styles estructurales |
+| Tests visuales/responsive | Añadir verificación básica desktop/tablet/móvil cuando se refactoricen pantallas operativas |
 
 ## Siguiente paso recomendado
 
-**UI Intervención Entrega 4** — "Ver PISO" en CiudadanoPage.
+**Tarea 2 — crear la base técnica del sistema frontend VIDA:**
+- Definir punto único de tokens compartidos para implementación.
+- Crear los primeros componentes Blade/Livewire VIDA.
+- Preparar el layout operativo sin Bootstrap ni Bootstrap Icons por CDN.
 
-O: **CI/CD** — añadir `php artisan migrate --force` al workflow `.github/workflows/ci.yml`.
-
-O: **Módulo UnidadConvivencia** — `ucVigente()` ya está definida como stub en FichaCiudadanoPage.
+Después, migrar pantalla por pantalla empezando por navegación, topbar/sidebar y formularios básicos de Livewire.
 
 ## Contexto relevante para retomar
 
-- Los tests TF-LW-NAV-16/17 (agenda) usan fechaAncla='2026-06-12' fija + setup Cargo/Profesional/Historia. Deterministas y estables en el tiempo.
-- `citasFixture()` en AgendaPage solo incluye `historia_id`/`ciudadano_id` reales cuando `Auth::user()->profesional_id` está establecido. Sin profesional_id, todas las citas tienen estos campos a null.
-- `ciudadanoId` (int) en FichaCiudadanoPage, NO `public Ciudadano $ciudadano`. Razón: Livewire rehidrata modelos con global scopes, y `AmbitoUoScope` filtraría ciudadanos sin HistoriaSocial.
-- `actividadReciente()` devuelve `collect()` directamente: en PostgreSQL una query fallida (tabla inexistente) aborta la transacción aunque se capture la excepción con try/catch.
-- `ciudadano_prestaciones_resumen` es una tabla de agregación: los módulos origen (Centros, Teleasistencia...) deben alimentarla via observers. FichaCiudadanoPage nunca consulta tablas de módulos origen directamente.
-- El pipeline CI/CD no corre `php artisan migrate` — hay que ejecutarlo manualmente en producción tras cada deploy con migraciones.
+- El commit `0e4c536 docs: define unified frontend principles` ya está en `master` y contiene el principio 4.18.
+- La regla operativa acordada es: en Livewire no se usan Bootstrap ni estilos inline estructurales; la UI se construye con componentes VIDA basados en Tailwind. Filament usa su tema VIDA y sus componentes nativos.
+- La aplicación es desktop-first: prioridad a densidad profesional, escaneabilidad y eficiencia en PC, con soporte responsive razonable para tablet y móvil.
