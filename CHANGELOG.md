@@ -2,6 +2,22 @@
 
 ---
 
+## Fix CI/CD: permisos, set -e y git reset --hard — 2026-06-12
+
+### Área afectada
+`.github/workflows/ci.yml`
+
+### Cambios
+- Añadido `set -e` al script de deploy para abortar ante cualquier error en lugar de continuar silenciosamente.
+- `chown/chmod` sobre `storage/` y `bootstrap/cache/` movidos **antes** de los comandos `artisan`, para que `jupiter` pueda escribir archivos incluso si `www-data` los generó en requests previas.
+- Añadido `php artisan optimize:clear` antes de `config:cache / route:cache / view:cache` para eliminar archivos corruptos o inaccesibles de deploys anteriores.
+- Reemplazado `git pull origin master` por `git fetch origin && git reset --hard origin/master` para evitar fallos por cambios locales en el servidor (artefactos de npm build, etc.).
+
+### Causa raíz del bug
+`view:cache` corría como usuario `jupiter` pero los archivos compilados en `storage/framework/views/` podían ser propiedad de `www-data` (generados on-the-fly durante requests). Sin permisos de escritura, `view:cache` fallaba silenciosamente — sin `set -e`, el script reportaba éxito y el servidor seguía sirviendo compiled views desactualizadas.
+
+---
+
 ## Navegación: mapa completo entre pantallas UI — 2026-06-11
 
 ### Módulos afectados
