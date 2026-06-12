@@ -230,6 +230,8 @@ Un módulo genérico configurable es preferible a múltiples módulos específic
 
 **Filament** gestiona la capa de configuración y backoffice: catálogos, plantillas, parámetros del sistema, usuarios y permisos. **Livewire** gestiona las capas operativas: el trabajo diario de los profesionales con ciudadanos, planes, apuntes y agenda. Esta separación es estructural y no debe mezclarse.
 
+La separación funcional no implica dos sistemas visuales distintos. Filament y Livewire deben compartir el mismo lenguaje de interfaz, los mismos tokens de diseño y los mismos criterios de interacción. La diferencia entre ambas superficies debe ser de propósito, no de identidad visual ni de calidad de implementación.
+
 ### 4.13 Variable sexo en todas las entidades personales
 
 El campo `sexo` se recoge en todas las entidades que representen personas físicas, desde el momento de su alta en el sistema.
@@ -253,6 +255,22 @@ La anonimización y seudonimización no son funcionalidades de un módulo concre
 El sistema define tres niveles estándar: seudonimización (reversible, para contextos internos), generalización (irreversible, para analítica interna) y k-anonimato (para datos públicos). La elección del nivel y la configuración concreta de cada campo se gestionan mediante perfiles configurables desde el backoffice, sin necesidad de desarrollo.
 
 La anonimización es parte del cumplimiento del RGPD por diseño (privacy by design): ofrecer el nivel mínimo de datos necesario para cada finalidad no es una restricción, es un principio de diseño. Ver docs/anonimizacion.md.
+
+### 4.18 Sistema unificado de frontend
+
+VIDA utiliza un único sistema de frontend basado en **Tailwind CSS, tokens VIDA y componentes propios reutilizables**. Este sistema aplica tanto a Filament como a las pantallas operativas Livewire.
+
+**Bootstrap, Foundation u otros frameworks visuales generalistas no son la base del producto.** No deben incorporarse en nuevas pantallas ni cargarse por CDN en layouts de aplicación. Cualquier dependencia de este tipo heredada debe considerarse deuda técnica a retirar durante la consolidación del frontend.
+
+**Filament** debe apoyarse en su propio sistema de componentes y en un tema VIDA específico. La personalización de Filament se hará preferentemente mediante sus APIs de configuración, temas y componentes nativos. Los overrides directos sobre clases internas de Filament (`.fi-*`) deben limitarse a ajustes necesarios, estar centralizados en el tema y evitarse como mecanismo habitual de diseño.
+
+**Livewire** debe construir la interfaz operativa con componentes Blade/Livewire reutilizables basados en Tailwind y tokens VIDA: botones, campos de formulario, selectores, badges, paneles, tablas, navegación, modales, estados vacíos y mensajes de validación. Las vistas Livewire no deben depender de clases Bootstrap (`btn`, `row`, `col-*`, `form-control`, etc.) ni de estilos inline salvo para valores dinámicos inevitables.
+
+La aplicación es **desktop-first**: el uso mayoritario se produce en PC y la interfaz debe priorizar densidad, escaneabilidad y eficiencia para trabajo profesional continuado. Esto no exime de soporte responsive: en tablet los layouts deben conservar funcionalidad completa con reorganización razonable, y en móvil deben permitir consulta y operaciones básicas sin roturas visuales ni pérdida de accesibilidad.
+
+El sistema de iconos debe ser único en cada superficie. No se deben mezclar familias de iconos de forma arbitraria. Si se usa Lucide o Blade Icons en Livewire, debe mantenerse esa decisión de forma consistente; Bootstrap Icons no debe introducirse como dependencia paralela salvo decisión técnica documentada.
+
+Regla de implementación: **en Livewire no se usan Bootstrap ni estilos inline estructurales; la UI se construye con componentes VIDA basados en Tailwind. Filament usa su tema VIDA y sus componentes nativos.**
 
 ---
 
