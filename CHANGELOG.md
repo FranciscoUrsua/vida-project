@@ -2,6 +2,41 @@
 
 ---
 
+## Widget de últimos accesos al expediente — 2026-06-14
+
+### Área afectada
+`app/Queries/`, `Modules/Ciudadania/`, `Modules/Intervencion/`, `resources/css/`, `lang/es/`, `tests/Feature/Auditoria/`, `Modules/Intervencion/tests/Feature/Livewire/`
+
+### Cambios
+
+#### Query object compartido
+- `app/Queries/AccesosExpedienteQuery.php` — nueva clase que encapsula la lógica de filtrado por visibilidad (adm_sistema, TSR responsable, supervisor UO, resto). Evita duplicación entre FichaCiudadanoPage y CiudadanoPage.
+
+#### FichaCiudadanoPage (Ciudadania)
+- Refactorizado `actividadReciente()` para usar `AccesosExpedienteQuery`
+- Añadidas propiedades computadas `puedeVerAccesos` y `puedeVerTodosLosAccesos`
+- El panel ahora solo se renderiza para roles `intervencion`, `supervision` y `adm_sistema`
+- Blade actualizado: resaltado visual por nivel de anomalía con clases CSS BEM (`acceso-fila--propio`, `acceso-fila--sospechoso`, `acceso-fila--anomalo`) en lugar de estilos inline
+
+#### CiudadanoPage (Intervencion)
+- Añadidas propiedades computadas `accesosRecientes` (máx. 5) y `puedeVerTodosLosAccesos`
+- Blade: nuevo panel `accesos-panel` al final de la columna izquierda con resaltado de anomalías
+
+#### CSS y traducciones
+- `resources/css/app-operativo.css` — nuevas clases BEM del panel de accesos
+- `lang/es/auditoria.php` — traducciones de acciones de auditoría
+
+#### Tests
+- `Modules/Intervencion/tests/Feature/Livewire/AccesosExpedienteTest.php` — 11 tests (TF-AUD-INT-01 a 11): visibilidad por rol/UO, clases CSS de anomalía, límite de 5 accesos, ausencia de IP/user_agent en HTML
+- `tests/Feature/Auditoria/PanelAccesosRecentesTest.php` — actualizado: supervisor ahora requiere adscripción a UO (más restrictivo, correcto); TF-AUD-17 actualizado a clase CSS `acceso-fila--propio`
+
+### Decisiones de implementación
+- `uoSubtreeIds()` devuelve `array`, no Collection, por lo que se usa `in_array()` en vez de `->contains()`
+- `profesional_responsable_id` en PlanDeIntervencion es FK a `User.id` (no a `profesional_id`), adaptado respecto al pseudocódigo de las instrucciones
+- El supervisor de la historia ahora requiere pertenecer al árbol de UOs (más seguro que el comportamiento anterior que permitía a cualquier `supervision` ver todos los accesos)
+
+---
+
 ## Módulo Auditoría — implementación completa — 2026-06-14
 
 ### Área afectada

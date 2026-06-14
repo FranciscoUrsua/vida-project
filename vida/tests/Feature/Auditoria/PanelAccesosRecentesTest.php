@@ -7,6 +7,7 @@ use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
+use App\Models\UsuarioUo;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -57,6 +58,14 @@ class PanelAccesosRecentesTest extends TestCase
             ['nombre' => 'UO Panel Accesos Test'],
             ['tipo' => 'centro', 'parent_id' => null, 'activa' => true]
         );
+
+        // El supervisor debe estar adscrito a la UO de la historia para ver todos los accesos
+        UsuarioUo::create([
+            'usuario_id'             => $this->supervisor->id,
+            'unidad_organizativa_id' => $this->uo->id,
+            'tipo_vinculo'           => 'interno',
+            'fecha_inicio'           => today()->toDateString(),
+        ]);
 
         // Asignar $tsr como profesional de referencia del plan de $ciudadano
         $historia = HistoriaSocial::withoutGlobalScopes()->create([
@@ -193,7 +202,7 @@ class PanelAccesosRecentesTest extends TestCase
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
             ->html();
 
-        // El Blade aplica opacity:.65 a los registros propios — clase o atributo diferenciador
-        $this->assertStringContainsString('opacity:.65', $html);
+        // El Blade aplica la clase CSS 'acceso-fila--propio' a los registros propios
+        $this->assertStringContainsString('acceso-fila--propio', $html);
     }
 }

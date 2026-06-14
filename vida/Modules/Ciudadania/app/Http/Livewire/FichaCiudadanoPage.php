@@ -7,6 +7,7 @@ use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
+use App\Queries\AccesosExpedienteQuery;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -39,7 +40,9 @@ use Modules\Intervencion\Models\PlanDeIntervencion;
  * @property-read Collection<int, CiudadanoIdentificador> $documentos
  * @property-read object|null $ucVigente
  * @property-read Collection<int, CiudadanoPrestacionResumen> $prestaciones
- * @property-read Collection<int, object> $actividadReciente
+ * @property-read Collection<int, Audit> $actividadReciente
+ * @property-read bool $puedeVerAccesos
+ * @property-read bool $puedeVerTodosLosAccesos
  */
 #[Layout('layouts.operativo')]
 class FichaCiudadanoPage extends Component
@@ -203,41 +206,60 @@ class FichaCiudadanoPage extends Component
     }
 
     /**
+     * El panel de accesos es visible solo para roles con competencia de intervención o supervisión.
+     * Revelar metadatos de acceso a roles sin competencia es una fuga de información sobre el caso.
+     */
+    #[Computed]
+    public function puedeVerAccesos(): bool
+    {
+        return auth()->user()->hasAnyRole(['adm_sistema', 'supervision', 'intervencion']);
+    }
+
+    /**
+     * Indica si el usuario ve todos los accesos (TSR/supervisor/adm) o solo los propios.
+     * Usado en la vista para mostrar u ocultar el enlace "Ver todo".
+     */
+    #[Computed]
+    public function puedeVerTodosLosAccesos(): bool
+    {
+        $historia = $this->historiaSocial;
+        if (! $historia) {
+            return false;
+        }
+
+        return app(AccesosExpedienteQuery::class)->puedeVerTodos(auth()->user(), $historia);
+    }
+
+    /**
      * Últimos 10 accesos al expediente de este ciudadano.
      *
      * Visibilidad por rol (spec §5):
-     *   - Supervisor / adm_sistema → todos los accesos.
-     *   - Profesional de referencia (TSR asignado al plan activo) → todos los accesos.
+     *   - adm_sistema → todos los accesos.
+     *   - TSR responsable del plan activo → todos los accesos.
+     *   - Supervisor con la UO de la historia en su árbol → todos los accesos.
      *   - Cualquier otro profesional → solo sus propios accesos.
      *
-     * La restricción para otros roles es deliberada: revelar que alguien consultó
-     * el expediente es en sí mismo una fuga de metadatos sobre el estado del caso.
+     * La restricción es deliberada: revelar quién accedió al expediente
+     * es en sí mismo una fuga de metadatos sobre el estado del caso.
      *
      * @return Collection<int, Audit>
      */
     #[Computed]
     public function actividadReciente(): Collection
     {
-        /** @var User $user */
-        $user = auth()->user();
-
-        $query = Audit::where('ciudadano_id', $this->ciudadanoId)
-            ->with('user')
-            ->orderByDesc('created_at')
-            ->limit(10);
-
-        $esSupervisor = $user->hasAnyRole(['supervision', 'adm_sistema']);
-
-        $esTSR = ! $esSupervisor && PlanDeIntervencion::withoutGlobalScopes()->whereHas(
-            'historia',
-            fn ($q) => $q->withoutGlobalScopes()->where('ciudadano_id', $this->ciudadanoId)
-        )->where('profesional_responsable_id', $user->id)->exists();
-
-        if (! $esSupervisor && ! $esTSR) {
-            $query->where('user_id', $user->id);
+        if (! $this->puedeVerAccesos) {
+            return collect();
         }
 
-        return $query->get();
+        $historia = $this->historiaSocial;
+        if (! $historia) {
+            return collect();
+        }
+
+        return app(AccesosExpedienteQuery::class)
+            ->paraUsuario(auth()->user(), $this->ciudadano, $historia)
+            ->limit(10)
+            ->get();
     }
 
     // -------------------------------------------------------------------------

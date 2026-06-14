@@ -362,44 +362,61 @@
             @endif
 
             {{-- ——— Accesos recientes al expediente ——— --}}
-            @if($actividadRec->isNotEmpty())
+            @if($this->puedeVerAccesos && $actividadRec->isNotEmpty())
+                @php
+                    $uoExpediente = $historiaSocial?->unidad_organizativa_id;
+                @endphp
                 <div style="background:var(--color-surface,#fff);border:1px solid var(--color-border,#e5e7eb);border-radius:10px;padding:1.25rem;margin-bottom:1rem;">
-                    <h2 style="font-size:.9rem;font-weight:600;margin:0 0 .75rem;color:var(--color-text-primary,#111827);display:flex;align-items:center;gap:.5rem;">
-                        <i data-lucide="shield-check" style="width:16px;height:16px;" aria-hidden="true"></i>
-                        Accesos recientes al expediente
-                    </h2>
-                    <div style="display:flex;flex-direction:column;">
-                        @foreach($actividadRec as $acceso)
+                    <div class="accesos-panel__header">
+                        <span style="font-size:.9rem;font-weight:600;color:var(--color-text-primary,#111827);display:flex;align-items:center;gap:.5rem;">
+                            <i data-lucide="shield-check" style="width:16px;height:16px;" aria-hidden="true"></i>
+                            Accesos recientes al expediente
+                        </span>
+                        @if($this->puedeVerTodosLosAccesos)
+                            {{-- TODO: modal historial completo --}}
+                            <a href="#" class="accesos-panel__ver-todo">Ver todo</a>
+                        @endif
+                    </div>
+
+                    @foreach($actividadRec as $acceso)
                         @php
-                            $esPropio = $acceso->user_id === auth()->id();
-                            $textoAccion = match($acceso->accion?->value ?? '') {
-                                'ver'                => 'Consultó el expediente',
-                                'crear'              => 'Registró nueva información',
-                                'editar'             => 'Modificó información existente',
-                                'eliminar'           => 'Eliminó un registro',
-                                'exportar'           => 'Exportó datos',
-                                'imprimir'           => 'Generó un documento',
-                                'acceso_restringido' => 'Accedió a expediente con protección especial',
-                                default              => $acceso->accion?->value ?? '—',
-                            };
+                            $esPropio     = $acceso->user_id === auth()->id();
+                            $uoAcceso     = $acceso->contexto['unidad_organizativa_id'] ?? null;
+                            // Aproximación con la UO actual si no se registró en contexto
+                            $uoAcceso     = $uoAcceso ?? $acceso->user?->profesional?->unidad_organizativa_id;
+                            $esOtraUo     = $uoExpediente !== null && $uoAcceso !== null && $uoAcceso !== $uoExpediente;
+                            $esCambio     = in_array($acceso->accion?->value, ['crear', 'editar', 'eliminar']);
+                            $esAnomalos   = $esOtraUo && $esCambio;
+                            $esSospechoso = $esOtraUo && ! $esCambio;
                         @endphp
-                        <div style="padding:.5rem 0;border-bottom:1px solid var(--color-border,#e5e7eb);{{ $esPropio ? 'opacity:.65;' : '' }}">
-                            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;">
-                                <div>
-                                    <span style="font-size:.8rem;font-weight:{{ $esPropio ? '400' : '600' }};color:var(--color-text-primary,#111827);">
-                                        {{ $acceso->user?->name ?? 'Usuario eliminado' }}
-                                    </span>
-                                    <span style="font-size:.76rem;color:var(--color-text-secondary,#6b7280);margin-left:.3rem;">
-                                        — {{ $textoAccion }}
-                                    </span>
-                                </div>
-                                <span style="font-size:.72rem;color:var(--color-text-secondary,#6b7280);white-space:nowrap;">
-                                    {{ $acceso->created_at->diffForHumans() }}
+
+                        <div class="acceso-fila
+                            {{ $esPropio     ? 'acceso-fila--propio'      : '' }}
+                            {{ $esAnomalos   ? 'acceso-fila--anomalo'     : '' }}
+                            {{ $esSospechoso ? 'acceso-fila--sospechoso'  : '' }}">
+
+                            <div class="acceso-fila__quien">
+                                <span class="acceso-fila__nombre">
+                                    {{ $acceso->user?->profesional?->nombre_completo ?? $acceso->user?->name ?? '—' }}
                                 </span>
+                                @if($esOtraUo)
+                                    <span class="acceso-fila__badge-uo" title="Profesional de otra UO">Otra UO</span>
+                                @endif
+                            </div>
+
+                            <div class="acceso-fila__detalle">
+                                <span class="acceso-fila__accion acceso-fila__accion--{{ $acceso->accion?->value }}">
+                                    {{ $acceso->accion?->etiqueta() ?? '—' }}
+                                </span>
+                                @if($esAnomalos)
+                                    <span class="acceso-fila__alerta" title="Modificación desde otra UO — revisar">
+                                        <i data-lucide="alert-triangle" style="width:14px;height:14px;" aria-hidden="true"></i>
+                                    </span>
+                                @endif
+                                <span class="acceso-fila__fecha">{{ $acceso->created_at->diffForHumans() }}</span>
                             </div>
                         </div>
-                        @endforeach
-                    </div>
+                    @endforeach
                 </div>
             @endif
 

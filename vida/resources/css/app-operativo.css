@@ -192,3 +192,140 @@
 .topbar__user-menu-item--danger:hover {
     background: var(--color-danger-50, #fef2f2);
 }
+
+/* ── Panel de últimos accesos al expediente ──────────────────── */
+.accesos-panel {
+    border-top: 1px solid var(--color-ink-200);
+    padding-top: var(--space-4);
+    margin-top: var(--space-4);
+}
+
+.accesos-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+}
+
+.accesos-panel__titulo {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-ink-500);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.accesos-panel__ver-todo {
+    font-size: 12px;
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.accesos-panel__ver-todo:hover {
+    text-decoration: underline;
+}
+
+.acceso-fila {
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-ink-100);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.acceso-fila:last-child {
+    border-bottom: none;
+}
+
+/* Acceso propio: tratamiento neutro, ligeramente atenuado */
+.acceso-fila--propio {
+    opacity: 0.65;
+}
+
+/* Acceso de otra UO solo lectura: fondo ámbar suave */
+.acceso-fila--sospechoso {
+    background: var(--color-warning-50);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-2);
+    margin: 0 calc(-1 * var(--space-2));
+}
+
+/* Acceso de otra UO con cambios: fondo coral — anomalía grave */
+.acceso-fila--anomalo {
+    background: var(--color-danger-50);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-2);
+    margin: 0 calc(-1 * var(--space-2));
+    border-left: 3px solid var(--color-danger);
+}
+
+.acceso-fila__quien {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.acceso-fila__nombre {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-ink-800);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.acceso-fila__badge-uo {
+    font-size: 10px;
+    font-weight: 600;
+    background: var(--color-warning-50);
+    color: var(--color-warning);
+    border-radius: var(--radius-pill);
+    padding: 1px 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* En filas anómalas, el badge de UO usa color danger */
+.acceso-fila--anomalo .acceso-fila__badge-uo {
+    background: var(--color-danger-50);
+    color: var(--color-danger);
+}
+
+.acceso-fila__detalle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.acceso-fila__accion {
+    font-size: 11px;
+    color: var(--color-ink-500);
+}
+
+/* Acciones de escritura: más prominentes */
+.acceso-fila__accion--editar,
+.acceso-fila__accion--crear,
+.acceso-fila__accion--eliminar {
+    font-weight: 600;
+    color: var(--color-ink-700);
+}
+
+.acceso-fila__alerta {
+    color: var(--color-danger);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.acceso-fila__fecha {
+    font-size: 11px;
+    color: var(--color-ink-400);
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.accesos-panel__vacio {
+    font-size: 12px;
+    color: var(--color-ink-400);
+    padding: var(--space-2) 0;
+}

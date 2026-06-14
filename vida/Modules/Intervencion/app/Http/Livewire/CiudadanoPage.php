@@ -2,9 +2,11 @@
 
 namespace Modules\Intervencion\Http\Livewire;
 
+use App\Models\Audit;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
+use App\Queries\AccesosExpedienteQuery;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -34,6 +36,10 @@ use Modules\Intervencion\Models\Valoracion;
  * La ruta aplica `can:view,historia` usando HistoriaSocialPolicy.
  *
  * @see docs/instrucciones-cli/ui-intervencion-entrega3.md
+ *
+ * Propiedades computadas expuestas como propiedades mágicas por Livewire 4 #[Computed]:
+ * @property-read Collection<int, Audit> $accesosRecientes
+ * @property-read bool $puedeVerTodosLosAccesos
  */
 #[Layout('layouts.operativo')]
 class CiudadanoPage extends Component
@@ -169,6 +175,35 @@ class CiudadanoPage extends Component
     public function tiposEscala(): Collection
     {
         return TipoEscala::where('activa', true)->orderBy('nombre')->get();
+    }
+
+    /**
+     * Últimos 5 accesos al expediente filtrados según la visibilidad del usuario.
+     *
+     * @return Collection<int, Audit>
+     */
+    #[Computed]
+    public function accesosRecientes(): Collection
+    {
+        $ciudadano = $this->ciudadano;
+        if (! $ciudadano) {
+            return collect();
+        }
+
+        return app(AccesosExpedienteQuery::class)
+            ->paraUsuario(Auth::user(), $ciudadano, $this->historia)
+            ->limit(5)
+            ->get();
+    }
+
+    /**
+     * Indica si el usuario puede ver todos los accesos o únicamente los propios.
+     * Controla la visibilidad del enlace "Ver todo" en el widget.
+     */
+    #[Computed]
+    public function puedeVerTodosLosAccesos(): bool
+    {
+        return app(AccesosExpedienteQuery::class)->puedeVerTodos(Auth::user(), $this->historia);
     }
 
     // -------------------------------------------------------------------------
