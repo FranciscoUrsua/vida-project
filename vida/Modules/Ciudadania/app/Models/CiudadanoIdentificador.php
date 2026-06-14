@@ -3,6 +3,7 @@
 namespace Modules\Ciudadania\Models;
 
 use App\Models\Ciudadano;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -25,6 +26,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class CiudadanoIdentificador extends Model
 {
+    use Auditable;
+
     /** @var string */
     protected $table = 'ciudadano_identificadores';
 
@@ -70,6 +73,12 @@ class CiudadanoIdentificador extends Model
     /**
      * @return BelongsTo<Ciudadano, CiudadanoIdentificador>
      */
+    /** @inheritDoc */
+    public function getCiudadanoId(): ?int
+    {
+        return $this->ciudadano_id;
+    }
+
     public function ciudadano(): BelongsTo
     {
         return $this->belongsTo(Ciudadano::class);

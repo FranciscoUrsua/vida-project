@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AuditarAccesoCiudadano;
 use App\Http\Middleware\EnsureTieneRol;
 use App\Http\Middleware\PrimerAcceso;
 use Illuminate\Foundation\Application;
@@ -21,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // tus alias existentes...
         $middleware->alias([
             'primer.acceso' => PrimerAcceso::class,
+            'audit.ciudadano' => AuditarAccesoCiudadano::class,
             'tiene.rol' => EnsureTieneRol::class,
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,

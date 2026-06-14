@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\AmbitoUoScope;
+use App\Traits\Auditable;
 use App\Traits\TieneDireccion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -51,6 +52,7 @@ use Modules\Ciudadania\Models\CiudadanoPrestacionResumen;
  */
 class Ciudadano extends Model
 {
+    use Auditable;
     use HasFactory;
     use SoftDeletes;
     use TieneDireccion;
@@ -162,6 +164,12 @@ class Ciudadano extends Model
      *
      * @return HasMany<CiudadanoPrestacionResumen, self>
      */
+    /** El ciudadano es la entidad raíz: su propio id es el ciudadano_id. */
+    public function getCiudadanoId(): ?int
+    {
+        return $this->id;
+    }
+
     public function prestacionesResumen(): HasMany
     {
         return $this->hasMany(CiudadanoPrestacionResumen::class);

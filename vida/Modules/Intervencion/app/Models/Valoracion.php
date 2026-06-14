@@ -4,6 +4,7 @@ namespace Modules\Intervencion\Models;
 
 use App\Models\HistoriaSocial;
 use App\Models\User;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,6 +31,7 @@ use Modules\Intervencion\Enums\EstadoValoracion;
  */
 class Valoracion extends Model
 {
+    use Auditable;
     use HasFactory;
 
     protected static function newFactory(): ValoracionFactory
@@ -61,6 +63,12 @@ class Valoracion extends Model
     /**
      * @return BelongsTo<HistoriaSocial, Valoracion>
      */
+    /** @inheritDoc */
+    public function getCiudadanoId(): ?int
+    {
+        return $this->historia()->withoutGlobalScopes()->value('ciudadano_id');
+    }
+
     public function historia(): BelongsTo
     {
         return $this->belongsTo(HistoriaSocial::class, 'historia_id');

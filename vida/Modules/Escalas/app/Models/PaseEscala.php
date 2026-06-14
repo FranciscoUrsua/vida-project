@@ -4,6 +4,7 @@ namespace Modules\Escalas\Models;
 
 use App\Models\HistoriaSocial;
 use App\Models\User;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,6 +37,7 @@ use Modules\Escalas\Enums\EstadoPase;
  */
 class PaseEscala extends Model
 {
+    use Auditable;
     /** @use HasFactory<PaseEscalaFactory> */
     use HasFactory;
 
@@ -186,6 +188,12 @@ class PaseEscala extends Model
      *
      * @return BelongsTo<HistoriaSocial, self>
      */
+    /** @inheritDoc */
+    public function getCiudadanoId(): ?int
+    {
+        return $this->historia?->ciudadano_id;
+    }
+
     public function historia(): BelongsTo
     {
         return $this->belongsTo(HistoriaSocial::class, 'historia_id');

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\AmbitoUoScope;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,6 +40,7 @@ use Modules\Escalas\Models\PaseEscala;
  */
 class HistoriaSocial extends Model
 {
+    use Auditable;
     use HasFactory;
     use SoftDeletes;
 
@@ -85,6 +87,12 @@ class HistoriaSocial extends Model
      *
      * @return BelongsTo<Ciudadano, HistoriaSocial>
      */
+    /** @inheritDoc */
+    public function getCiudadanoId(): ?int
+    {
+        return $this->ciudadano_id;
+    }
+
     public function ciudadano(): BelongsTo
     {
         return $this->belongsTo(Ciudadano::class, 'ciudadano_id');

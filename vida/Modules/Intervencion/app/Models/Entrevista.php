@@ -4,6 +4,7 @@ namespace Modules\Intervencion\Models;
 
 use App\Models\HistoriaSocial;
 use App\Models\User;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +33,7 @@ use Modules\Intervencion\Enums\TipoEntrevista;
  */
 class Entrevista extends Model
 {
+    use Auditable;
     use HasFactory;
 
     protected static function newFactory(): EntrevistaFactory
@@ -65,6 +67,12 @@ class Entrevista extends Model
     /**
      * @return BelongsTo<HistoriaSocial, Entrevista>
      */
+    /** @inheritDoc */
+    public function getCiudadanoId(): ?int
+    {
+        return $this->historia()->withoutGlobalScopes()->value('ciudadano_id');
+    }
+
     public function historia(): BelongsTo
     {
         return $this->belongsTo(HistoriaSocial::class, 'historia_id');

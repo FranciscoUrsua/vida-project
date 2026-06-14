@@ -1,32 +1,34 @@
 # SESSION — VIDA 360
 
-_Actualizado: 2026-06-12_
+_Actualizado: 2026-06-14_
 
 ## Tarea completada
-
-Fix del pipeline CI/CD: los deploys no actualizaban el servidor porque `view:cache` fallaba silenciosamente por permisos. Los enlaces de MisCasosPage y los cambios de FichaCiudadanoPage ya están activos en producción/staging.
+Implementación completa del módulo de auditoría (`docs/modulo-auditoria.md`): migración, modelo inmutable, trait Auditable, AuditObserver, AuditService, middleware, purge command, Filament resource, panel en FichaCiudadanoPage y 29 tests.
 
 ## Estado actual
+El módulo de auditoría está completamente operativo:
 
-### Navegación UI — completada y en producción
-- `AgendaPage`: bifurcación de enlace por rol (intervencion → HS, resto → ficha ciudadano).
-- `MisCasosPage`: columna nombre enlaza a `ciudadania.ciudadano.ficha`, columna HS enlaza a `intervencion.ciudadano.show`, clic en fila navega a `intervencion.ciudadano.show`. Los `<a>` son nativos (no `wire:navigate`) para evitar conflictos con Blade.
-- `FichaCiudadanoPage`: widget permisos eliminado, banner HS condicional por rol, widgets de prestaciones condicionales.
-- Tests TF-LW-NAV-01..24 completos (1 incomplete esperado: TF-LW-NAV-03).
+### Lo que funciona
+- Tabla `audits` creada y activa
+- Trait `Auditable` en: Ciudadano, HistoriaSocial, Apunte, PlanDeIntervencion, Valoracion, Entrevista, PaseEscala, Informe, CiudadanoIdentificador
+- Escrituras (crear/editar/eliminar) auditadas automáticamente vía AuditObserver
+- Lecturas auditadas vía middleware `audit.ciudadano` en todas las rutas `/ciudadania/*`
+- Panel "Accesos recientes al expediente" en FichaCiudadanoPage con restricción por rol
+- AuditResource en Filament (grupo Sistema), solo lectura, scope de UO, filtro de fechas obligatorio (máx 90 días)
+- `audit:purge` programado a las 03:00
 
-### CI/CD — corregido
-- `set -e`, permisos antes de artisan, `optimize:clear` antes de regenerar cachés, `git reset --hard` en lugar de `git pull`.
+### Tests: 29/29 (74 assertions)
+`php artisan test tests/Feature/Auditoria/`
 
 ## Siguiente paso recomendado
+Ver BACKLOG.md para prioridades. Los candidatos principales:
 
-Retomar el roadmap de pantallas operativas según el documento de instrucciones. Opciones candidatas:
+1. **Flujo de autorización de colectivos protegidos** — los tests TF-AUD-27/28/29 validan que AuditService funciona con `acceso_restringido`, pero el flujo real de solicitud/aprobación/denegación en AccesoProtegido (Módulo Ciudadanía) está pendiente.
+2. **Demo worlds** — `DemoWorldsPage.php` y `DemoWorldBuilder.php` aparecían modificados al inicio de sesión; verificar si hay trabajo pendiente ahí.
+3. **SelectorPrestacionesCentro** y **EditCentro** también aparecían modificados en git status.
 
-1. **Pantalla de intervención del ciudadano** (`intervencion.ciudadano.show` / `FichaCiudadanoPage` del módulo Intervención) — destino de los enlaces de MisCasosPage que ahora funcionan.
-2. **Migración progresiva de Bootstrap a Tailwind/tokens VIDA** en las vistas Livewire existentes (pendiente de decisión de prioridad).
-3. **Módulo siguiente** según SESSION anterior o BACKLOG.
-
-## Contexto relevante para retomar
-
-- Rama `master`, último commit `2b11ce7`.
-- El compiled view correcto ya está en producción. No hay deuda pendiente de la sesión actual.
-- `docs/instrucciones-cli/` contiene instrucciones detalladas para cada módulo/tarea.
+## Contexto técnico para retomar
+- Los `getCiudadanoId()` en modelos con AmbitoUoScope (Apunte, Plan, Valoracion, Entrevista) usan `withoutGlobalScopes()` — correcto y deliberado.
+- `AuditService::contextoBase()` comprueba `request()->path()` en lugar de `hasSession()` porque PHPUnit pone `runningInConsole()=true` incluso en requests simulados.
+- El check de TSR en `actividadReciente()` usa `PlanDeIntervencion::withoutGlobalScopes()` para evitar que AmbitoUoScope filtre el plan del profesional.
+- El AuditResource no muestra nada si no hay filtro de fechas activo (`whereRaw('1 = 0')`) — comportamiento intencionado para evitar cargas masivas.

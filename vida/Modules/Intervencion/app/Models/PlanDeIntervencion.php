@@ -4,6 +4,7 @@ namespace Modules\Intervencion\Models;
 
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
+use App\Traits\Auditable;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -44,6 +45,7 @@ use Modules\Intervencion\Enums\TipoPlan;
  */
 class PlanDeIntervencion extends Model
 {
+    use Auditable;
     use HasFactory;
     use SoftDeletes;
 
@@ -111,6 +113,12 @@ class PlanDeIntervencion extends Model
     /**
      * @return BelongsTo<HistoriaSocial, PlanDeIntervencion>
      */
+    /** @inheritDoc */
+    public function getCiudadanoId(): ?int
+    {
+        return $this->historia()->withoutGlobalScopes()->value('ciudadano_id');
+    }
+
     public function historia(): BelongsTo
     {
         return $this->belongsTo(HistoriaSocial::class, 'historia_id');

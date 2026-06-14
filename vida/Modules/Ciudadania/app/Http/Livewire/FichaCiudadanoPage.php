@@ -2,6 +2,7 @@
 
 namespace Modules\Ciudadania\Http\Livewire;
 
+use App\Models\Audit;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
@@ -16,6 +17,7 @@ use Livewire\Component;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
 use Modules\Ciudadania\Models\CiudadanoPrestacionResumen;
 use Modules\Ciudadania\Services\NormalizadorCiudadano;
+use Modules\Intervencion\Models\PlanDeIntervencion;
 
 /**
  * Ficha del ciudadano: vista y edición de Capa 1 (datos identificativos y de contacto).
@@ -201,20 +203,41 @@ class FichaCiudadanoPage extends Component
     }
 
     /**
-     * Últimas 5 entradas de auditoría del ciudadano.
-     * Stub — pendiente implementar tabla ciudadanos_auditoria.
+     * Últimos 10 accesos al expediente de este ciudadano.
      *
-     * NOTA: no se usa try/catch con una query al interior porque en PostgreSQL
-     * una query fallida (tabla no existe) aborta la transacción completa aunque
-     * se capture la excepción PHP, impidiendo cualquier query posterior.
+     * Visibilidad por rol (spec §5):
+     *   - Supervisor / adm_sistema → todos los accesos.
+     *   - Profesional de referencia (TSR asignado al plan activo) → todos los accesos.
+     *   - Cualquier otro profesional → solo sus propios accesos.
      *
-     * @return Collection<int, object>
+     * La restricción para otros roles es deliberada: revelar que alguien consultó
+     * el expediente es en sí mismo una fuga de metadatos sobre el estado del caso.
+     *
+     * @return Collection<int, Audit>
      */
     #[Computed]
     public function actividadReciente(): Collection
     {
-        // TODO: implementar cuando exista tabla ciudadanos_auditoria
-        return collect();
+        /** @var User $user */
+        $user = auth()->user();
+
+        $query = Audit::where('ciudadano_id', $this->ciudadanoId)
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->limit(10);
+
+        $esSupervisor = $user->hasAnyRole(['supervision', 'adm_sistema']);
+
+        $esTSR = ! $esSupervisor && PlanDeIntervencion::withoutGlobalScopes()->whereHas(
+            'historia',
+            fn ($q) => $q->withoutGlobalScopes()->where('ciudadano_id', $this->ciudadanoId)
+        )->where('profesional_responsable_id', $user->id)->exists();
+
+        if (! $esSupervisor && ! $esTSR) {
+            $query->where('user_id', $user->id);
+        }
+
+        return $query->get();
     }
 
     // -------------------------------------------------------------------------

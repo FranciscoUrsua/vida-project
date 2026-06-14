@@ -15,7 +15,7 @@ use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 |
 */
 
-Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion|supervision|tramitacion|consulta_basica'])
+Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion|supervision|tramitacion|consulta_basica', 'audit.ciudadano'])
     ->group(function () {
         Route::get('/ciudadania/buscar', BuscarCiudadanoPage::class)->name('ciudadania.buscar');
         Route::get('/ciudadania/alta', AltaCiudadano::class)->name('ciudadania.alta');

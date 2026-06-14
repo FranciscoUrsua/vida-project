@@ -361,18 +361,45 @@
                 </div>
             @endif
 
-            {{-- ——— Actividad reciente ——— --}}
+            {{-- ——— Accesos recientes al expediente ——— --}}
             @if($actividadRec->isNotEmpty())
                 <div style="background:var(--color-surface,#fff);border:1px solid var(--color-border,#e5e7eb);border-radius:10px;padding:1.25rem;margin-bottom:1rem;">
                     <h2 style="font-size:.9rem;font-weight:600;margin:0 0 .75rem;color:var(--color-text-primary,#111827);display:flex;align-items:center;gap:.5rem;">
-                        <i data-lucide="activity" style="width:16px;height:16px;" aria-hidden="true"></i>
-                        Actividad reciente
+                        <i data-lucide="shield-check" style="width:16px;height:16px;" aria-hidden="true"></i>
+                        Accesos recientes al expediente
                     </h2>
-                    @foreach($actividadRec as $entrada)
-                        <div style="font-size:.8rem;color:var(--color-text-secondary,#6b7280);padding:.35rem 0;border-bottom:1px solid var(--color-border,#e5e7eb);">
-                            {{ $entrada->descripcion ?? $entrada->accion ?? '—' }}
+                    <div style="display:flex;flex-direction:column;">
+                        @foreach($actividadRec as $acceso)
+                        @php
+                            $esPropio = $acceso->user_id === auth()->id();
+                            $textoAccion = match($acceso->accion?->value ?? '') {
+                                'ver'                => 'Consultó el expediente',
+                                'crear'              => 'Registró nueva información',
+                                'editar'             => 'Modificó información existente',
+                                'eliminar'           => 'Eliminó un registro',
+                                'exportar'           => 'Exportó datos',
+                                'imprimir'           => 'Generó un documento',
+                                'acceso_restringido' => 'Accedió a expediente con protección especial',
+                                default              => $acceso->accion?->value ?? '—',
+                            };
+                        @endphp
+                        <div style="padding:.5rem 0;border-bottom:1px solid var(--color-border,#e5e7eb);{{ $esPropio ? 'opacity:.65;' : '' }}">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;">
+                                <div>
+                                    <span style="font-size:.8rem;font-weight:{{ $esPropio ? '400' : '600' }};color:var(--color-text-primary,#111827);">
+                                        {{ $acceso->user?->name ?? 'Usuario eliminado' }}
+                                    </span>
+                                    <span style="font-size:.76rem;color:var(--color-text-secondary,#6b7280);margin-left:.3rem;">
+                                        — {{ $textoAccion }}
+                                    </span>
+                                </div>
+                                <span style="font-size:.72rem;color:var(--color-text-secondary,#6b7280);white-space:nowrap;">
+                                    {{ $acceso->created_at->diffForHumans() }}
+                                </span>
+                            </div>
                         </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
             @endif
 

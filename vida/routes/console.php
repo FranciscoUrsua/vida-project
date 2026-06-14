@@ -11,3 +11,6 @@ Artisan::command('inspire', function () {
 
 // Agenda: expira slots no consumidos al final de cada día laboral
 Schedule::job(SlotExpirationJob::class)->dailyAt('20:00');
+
+// Auditoría: purga registros que superan el período de retención (defecto 5 años)
+Schedule::command('audit:purge')->dailyAt('03:00');

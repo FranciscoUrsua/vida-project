@@ -3,6 +3,7 @@
 namespace Modules\Intervencion\Models;
 
 use App\Models\User;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,6 +37,7 @@ use Modules\Intervencion\Enums\VisibilidadApunte;
  */
 class Apunte extends Model
 {
+    use Auditable;
     use HasFactory;
 
     protected static function newFactory(): ApunteFactory
@@ -117,6 +119,22 @@ class Apunte extends Model
     /**
      * @return BelongsTo<PlanDeIntervencion, Apunte>
      */
+    /** @inheritDoc */
+    public function getCiudadanoId(): ?int
+    {
+        // Se evitan todos los global scopes (AmbitoUoScope en Plan e Historia)
+        // porque esta resolución es interna del sistema de auditoría.
+        $historiaId = $this->plan()->withoutGlobalScopes()->value('historia_id');
+
+        if (! $historiaId) {
+            return null;
+        }
+
+        return \App\Models\HistoriaSocial::withoutGlobalScopes()
+            ->where('id', $historiaId)
+            ->value('ciudadano_id');
+    }
+
     public function plan(): BelongsTo
     {
         return $this->belongsTo(PlanDeIntervencion::class, 'plan_id');

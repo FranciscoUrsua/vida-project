@@ -2,6 +2,61 @@
 
 ---
 
+## Módulo Auditoría — implementación completa — 2026-06-14
+
+### Área afectada
+`app/`, `Modules/Intervencion/`, `Modules/Ciudadania/`, `Modules/Escalas/`, `Modules/Documentos/`, `database/migrations/`, `tests/Feature/Auditoria/`
+
+### Cambios
+
+#### Infraestructura
+- `database/migrations/2026_06_14_100001_create_audits_table.php` — tabla `audits` con FK a users y ciudadanos, índices en `(ciudadano_id, created_at)`, `(user_id, created_at)`, `auditable_type/id` y `created_at`
+- `app/Enums/AccionAuditEnum.php` — enum `ver|crear|editar|eliminar|exportar|imprimir|acceso_restringido` con métodos `etiqueta()` y `color()`
+- `app/Models/Audit.php` — modelo inmutable; `update()` y `delete()` por instancia lanzan `LogicException`; `const UPDATED_AT = null`
+- `app/Traits/Auditable.php` — trait con `bootAuditable()`, `audits()`, `camposAuditables()` y `getCiudadanoId()` por defecto null
+- `app/Observers/AuditObserver.php` — registra automáticamente `crear/editar/eliminar`; serializa BackedEnum y Carbon; omite si no hay usuario autenticado
+- `app/Services/AuditService.php` — punto único de escritura; resuelve `ciudadano_id` (explícito > modelo > null); enriquece contexto con `canal` y `ruta`; usa `withoutEvents()` para evitar recursión
+- `app/Http/Middleware/AuditarAccesoCiudadano.php` — red de seguridad de segunda línea; registra acceso en rutas con `{ciudadano}`
+- `app/Console/Commands/AuditPurgeCommand.php` — `audit:purge` scheduled a las 03:00; retención configurable vía `CatalogoSistema`
+- `bootstrap/app.php` — alias `audit.ciudadano` registrado
+- `routes/console.php` — `audit:purge` programado diariamente a las 03:00
+
+#### Trait Auditable añadido a modelos de core ciudadano
+- `app/Models/Ciudadano.php` — `getCiudadanoId()` → `$this->id`
+- `app/Models/HistoriaSocial.php` — `getCiudadanoId()` → `$this->ciudadano_id`
+- `Modules/Intervencion/app/Models/Apunte.php` — `getCiudadanoId()` resuelve sin AmbitoUoScope (dos saltos)
+- `Modules/Intervencion/app/Models/PlanDeIntervencion.php` — ídem, sin scope
+- `Modules/Intervencion/app/Models/Valoracion.php` — ídem
+- `Modules/Intervencion/app/Models/Entrevista.php` — ídem
+- `Modules/Escalas/app/Models/PaseEscala.php` — `getCiudadanoId()` → `$this->historia?->ciudadano_id`
+- `Modules/Documentos/app/Models/Informe.php` — `getCiudadanoId()` → `$this->ciudadano_id`
+- `Modules/Ciudadania/app/Models/CiudadanoIdentificador.php` — `getCiudadanoId()` → `$this->ciudadano_id`
+
+#### Filament — AuditResource (grupo Sistema, sort 6)
+- `app/Filament/Resources/AuditResource.php` — solo lectura; scope de UO para supervisores; filtro de fechas obligatorio (máx 90 días); `canCreate/Edit/Delete()` → false; `canAccess()` verifica `supervision|adm_sistema`
+- `app/Filament/Resources/AuditResource/Pages/ListAudits.php` — listado estándar sin header actions
+- `app/Filament/Resources/AuditResource/Pages/ViewAudit.php` — detalle con API Filament v5 (`Filament\Schemas\Schema`, `Filament\Schemas\Components\Section`)
+
+#### Panel de accesos recientes en FichaCiudadanoPage
+- `Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php` — `actividadReciente()` query la tabla `audits`; supervisores y TSR (profesional_responsable_id) ven todos; el resto solo los propios
+- `Modules/Ciudadania/resources/views/livewire/ficha-ciudadano-page.blade.php` — sección "Accesos recientes al expediente" con texto natural, tratamiento visual diferenciado para accesos propios
+
+#### Tests (29 tests, 74 assertions)
+- `tests/Feature/Auditoria/AuditServiceTest.php` — 6 tests TF-AUD-01 a TF-AUD-06
+- `tests/Feature/Auditoria/AuditObserverTest.php` — 5 tests TF-AUD-07 a TF-AUD-11
+- `tests/Feature/Auditoria/PanelAccesosRecentesTest.php` — 6 tests TF-AUD-12 a TF-AUD-17
+- `tests/Feature/Auditoria/AuditResourceTest.php` — 6 tests TF-AUD-18 a TF-AUD-23
+- `tests/Feature/Auditoria/AuditPurgeCommandTest.php` — 3 tests TF-AUD-24 a TF-AUD-26
+- `tests/Feature/Auditoria/AuditAccesoRestringidoTest.php` — 3 tests TF-AUD-27 a TF-AUD-29
+
+### Decisiones de implementación
+- `getCiudadanoId()` en modelos con scopes de UO (Apunte, Plan, Valoracion, Entrevista) usa `withoutGlobalScopes()` para la resolución de ciudadano, ya que es una operación interna del sistema de auditoría, no un acceso de datos de usuario.
+- `AuditService::contextoBase()` usa `request()->path()` en lugar de `request()->hasSession()` porque en el entorno de test con PHPUnit, la sesión no está iniciada aunque el request sea HTTP real.
+- El check de TSR en `actividadReciente()` también usa `PlanDeIntervencion::withoutGlobalScopes()` por la misma razón.
+- La tabla `audits` no tiene `updated_at` (`const UPDATED_AT = null`); la purga usa el query builder directamente para evitar la `LogicException` del método `delete()` de instancia.
+
+---
+
 ## Fix CI/CD: permisos, set -e y git reset --hard — 2026-06-12
 
 ### Área afectada
