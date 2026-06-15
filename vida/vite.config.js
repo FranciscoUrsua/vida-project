@@ -15,6 +15,13 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    build: {
+        // Vite genera <link rel="modulepreload"> para CSS por defecto,
+        // pero Livewire navega sin recargar la página y el navegador
+        // marca el preload como "no usado" en consola. Desactivando el
+        // polyfill se suprime el aviso sin afectar al funcionamiento.
+        modulePreload: { polyfill: false },
+    },
     server: {
         watch: {
             ignored: ['**/storage/framework/views/**'],

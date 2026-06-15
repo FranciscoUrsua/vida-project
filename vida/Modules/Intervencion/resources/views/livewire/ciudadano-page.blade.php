@@ -37,53 +37,75 @@
     ];
 @endphp
 
-<div style="display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
-
-    {{-- ------------------------------------------------------------------ --}}
-    {{-- Barra superior (breadcrumb)                                         --}}
-    {{-- ------------------------------------------------------------------ --}}
-    <div style="background: #fff; border-bottom: 1px solid var(--color-ink-200); padding: 0.65rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;">
-        <a href="{{ route('intervencion.casos.index') }}" style="font-size: 0.82rem; color: var(--color-primary); text-decoration: none; display: flex; align-items: center; gap: 0.3rem;">
-            <i data-lucide="arrow-left" style="width:14px;height:14px;" aria-hidden="true"></i> Mis casos
-        </a>
-        <span style="color: var(--color-ink-300);">·</span>
-        <span style="font-size: 0.95rem; font-weight: 700; color: var(--color-ink-900);">
-            {{ $ciudadano ? ($ciudadano->nombre . ' ' . $ciudadano->apellido1) : 'Historia #' . $historia->id }}
-        </span>
-        <span style="background: {{ $badge['bg'] }}; color: {{ $badge['color'] }}; padding: 0.15rem 0.55rem; border-radius: 99px; font-size: 0.72rem; font-weight: 600;">
-            {{ $badge['label'] }}
-        </span>
-    </div>
+<div style="display: flex; flex-direction: column; height: calc(100vh - 56px); overflow: hidden;">
 
     {{-- ------------------------------------------------------------------ --}}
     {{-- Cuerpo de dos columnas                                              --}}
     {{-- ------------------------------------------------------------------ --}}
     <div style="flex: 1; display: flex; overflow: hidden;">
 
-        {{-- Columna izquierda (280px) --}}
-        <div style="width: 280px; flex-shrink: 0; border-right: 1px solid var(--color-ink-200); overflow-y: auto; background: var(--color-paper); padding: 0.75rem;">
+        {{-- Columna izquierda (~1/3) --}}
+        <div style="flex: 0 0 33.333%; min-width: 240px; max-width: 420px; border-right: 1px solid var(--color-ink-200); overflow-y: auto; background: var(--color-paper); padding: 0.75rem;">
 
-            {{-- Datos del ciudadano --}}
-            <div style="margin-bottom: 1rem;">
-                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem;">
-                    @if($ciudadano)
-                        <x-avatar :usuario="(object)['name' => $ciudadano->nombre . ' ' . $ciudadano->apellido1, 'id' => $historia->ciudadano_id]" />
-                    @endif
-                    <div>
-                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--color-ink-900);">
-                            {{ $ciudadano ? ($ciudadano->nombre . ' ' . $ciudadano->apellido1 . ($ciudadano->apellido2 ? ' ' . $ciudadano->apellido2 : '')) : 'Ciudadano #' . $historia->ciudadano_id }}
-                        </div>
-                        @if($ciudadano?->fecha_nacimiento)
-                            <div style="font-size: 0.72rem; color: var(--color-ink-600);">
-                                {{ Carbon::parse($ciudadano->fecha_nacimiento)->age }} años
-                            </div>
+            {{-- Cabecera del ciudadano --}}
+            <div style="margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--color-ink-100);">
+
+                {{-- Fila superior: retorno + acciones --}}
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem;">
+                    <a href="{{ route('intervencion.casos.index') }}"
+                       style="font-size: 0.75rem; color: var(--color-primary); text-decoration: none; display: flex; align-items: center; gap: 0.2rem; flex-shrink: 0;">
+                        <i data-lucide="arrow-left" style="width:12px;height:12px;" aria-hidden="true"></i> Mis casos
+                    </a>
+                    <div style="margin-left: auto; display: flex; align-items: center; gap: 0.3rem;">
+                        @if($ciudadano)
+                            <a href="{{ route('ciudadania.ciudadano.ficha', $ciudadano->id) }}"
+                               wire:navigate
+                               style="font-size: 0.72rem; color: var(--color-primary); border: 1px solid var(--color-primary); border-radius: 4px; padding: 0.1rem 0.4rem; text-decoration: none; white-space: nowrap;">
+                                Ficha completa
+                            </a>
                         @endif
+                        {{-- TODO: menú ⋯ con acciones adicionales del expediente --}}
                     </div>
                 </div>
-                <div style="font-size: 0.75rem; color: var(--color-ink-600); line-height: 1.7;">
-                    <div>HS apertura: {{ $historia->created_at->format('d/m/Y') }}</div>
-                    <div>UO: #{{ $historia->unidad_organizativa_id }}</div>
+
+                {{-- Nombre completo --}}
+                <div style="font-size: 1rem; font-weight: 700; color: var(--color-ink-900); line-height: 1.3; margin-bottom: 0.45rem;">
+                    {{ $ciudadano ? ($ciudadano->nombre . ' ' . $ciudadano->apellido1 . ($ciudadano->apellido2 ? ' ' . $ciudadano->apellido2 : '')) : 'Ciudadano #' . $historia->ciudadano_id }}
                 </div>
+
+                {{-- HS + CSS + Estado --}}
+                <div style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.3rem;">
+                    <span style="font-size: 0.72rem; color: var(--color-ink-500);">HS #{{ $historia->id }}</span>
+                    <span style="font-size: 0.72rem; color: var(--color-ink-300);">·</span>
+                    {{-- TODO: sustituir UO por centroActivo()->nombre cuando esté implementado --}}
+                    <span style="font-size: 0.72rem; color: var(--color-ink-500);">UO #{{ $historia->unidad_organizativa_id }}</span>
+                    <span style="background: {{ $badge['bg'] }}; color: {{ $badge['color'] }}; padding: 0.1rem 0.4rem; border-radius: 99px; font-size: 0.65rem; font-weight: 600; white-space: nowrap;">
+                        Estado HS: {{ $badge['label'] }}
+                    </span>
+                </div>
+
+                {{-- Fecha de nacimiento · edad --}}
+                @if($ciudadano?->fecha_nacimiento)
+                    <div style="font-size: 0.72rem; color: var(--color-ink-600); margin-bottom: 0.2rem;">
+                        {{ Carbon::parse($ciudadano->fecha_nacimiento)->format('d/m/Y') }} · {{ Carbon::parse($ciudadano->fecha_nacimiento)->age }} años
+                    </div>
+                @endif
+
+                {{-- DNI · teléfono --}}
+                {{-- TODO: DNI pendiente — requiere CiudadanoIdentificador::activo() en el componente --}}
+                @if($ciudadano?->telefono)
+                    <div style="font-size: 0.72rem; color: var(--color-ink-600); margin-bottom: 0.2rem;">
+                        {{ $ciudadano->telefono }}
+                    </div>
+                @endif
+
+                {{-- Domicilio --}}
+                @if($ciudadano?->direccion_texto)
+                    <div style="font-size: 0.72rem; color: var(--color-ink-600); line-height: 1.4;">
+                        {{ $ciudadano->direccion_texto }}
+                    </div>
+                @endif
+
             </div>
 
             {{-- Unidad de convivencia --}}

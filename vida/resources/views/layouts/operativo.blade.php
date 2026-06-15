@@ -12,6 +12,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => lucide.createIcons({ 'stroke-width': 1.75 }));
         document.addEventListener('livewire:navigated', () => lucide.createIcons({ 'stroke-width': 1.75 }));
+        document.addEventListener('livewire:updated', () => lucide.createIcons({ 'stroke-width': 1.75 }));
     </script>
 </head>
 <body>

@@ -30,7 +30,7 @@
     $horas = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
 @endphp
 
-<div style="display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
+<div style="display: flex; flex-direction: column; height: calc(100vh - 56px); overflow: hidden;">
 
     {{-- ------------------------------------------------------------------ --}}
     {{-- Barra superior                                                       --}}
@@ -344,6 +344,17 @@
             </div>
 
         @endif
+
+        {{-- Leyenda de colores de citas --}}
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--color-ink-100);">
+            <span style="font-size: 0.68rem; font-weight: 600; color: var(--color-ink-400); text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0;">Leyenda:</span>
+            @foreach($estiloCita as $tipo => $estilos)
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; color: var(--color-ink-700);">
+                    <span style="display: inline-block; width: 12px; height: 12px; border-radius: 2px; background: {{ $estilos['bg'] }}; border-left: 3px solid {{ $estilos['border'] }}; flex-shrink: 0;"></span>
+                    {{ $estilos['label'] }}
+                </span>
+            @endforeach
+        </div>
 
     </div>
 

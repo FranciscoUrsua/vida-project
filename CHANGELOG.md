@@ -2,6 +2,36 @@
 
 ---
 
+## UI Tweaks — 2026-06-15
+
+### Área afectada
+`Modules/Intervencion/resources/views/livewire/`, `resources/views/layouts/operativo.blade.php`, `vite.config.js`
+
+### Cambios
+
+#### Agenda — leyenda de colores (ajuste 2026-06-09)
+- Añadida leyenda compacta con los 4 tipos de cita (Entrevista, Seguimiento, Urgencia, Evento) al pie del área de contenido de `agenda-page.blade.php`. Visible en las tres vistas (día, semana, mes). Usa los mismos tokens `$estiloCita` ya definidos en el componente.
+
+#### Pantalla del ciudadano — proporciones de columna (ajuste 2026-06-14)
+- Columna izquierda de `ciudadano-page.blade.php`: de `width: 280px` fijo a `flex: 0 0 33.333%` (ratio 1/3+2/3 en lugar de ~1/4+3/4).
+
+#### Pantalla del ciudadano — reorganización de la cabecera (ajuste 2026-06-14)
+- Eliminada la segunda banda horizontal de breadcrumb ("← Mis casos · Nombre · [Abierta]").
+- La columna izquierda comienza ahora con la cabecera estructurada del ciudadano: fila nav (← Mis casos + [Ficha completa]), nombre completo en texto grande (sin avatar), fila HS+UO+badge Estado HS, fecha de nacimiento con edad calculada, teléfono y domicilio.
+- Avatar con iniciales eliminado de la pantalla del ciudadano.
+- TODO documentados: centroActivo() (pendiente de implementación), DNI (requiere CiudadanoIdentificador::activo()), menú ⋯.
+
+#### Altura del div principal (ajuste 2026-06-14)
+- `agenda-page.blade.php` y `ciudadano-page.blade.php`: `height: 100vh` → `height: calc(100vh - 56px)` para descontar el topbar fijo de 56px y eliminar el scroll vertical innecesario.
+
+#### Error de preload de CSS (ajuste 2026-06-14)
+- `vite.config.js`: añadido `build.modulePreload.polyfill: false` para suprimir el aviso de consola "resource preloaded but not used" que aparecía al navegar con Livewire (Vite genera `<link rel="modulepreload">` para CSS por defecto, pero Livewire navega sin recargar la página).
+
+#### Toolbox — iconos Lucide desaparecen al seleccionar herramienta (ajuste 2026-06-14)
+- `operativo.blade.php`: añadido listener `livewire:updated` que relanza `lucide.createIcons()` tras cada re-render de Livewire, solucionando que los iconos `<i data-lucide="...">` queden sin convertir cuando Livewire actualiza el DOM al cambiar `$herramientaActiva`.
+
+---
+
 ## Widget de últimos accesos al expediente — 2026-06-14
 
 ### Área afectada
