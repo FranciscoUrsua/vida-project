@@ -151,13 +151,13 @@
         {{-- ============================================================== --}}
         <div class="ciudadano-header-right" style="padding: 1rem 1.25rem;">
 
-            <div wire:key="toolbox-grid" style="display: grid; grid-template-columns: repeat({{ $herramientaActiva ? '7' : '4' }}, 1fr); gap: 0.5rem;">
+            <div wire:key="toolbox-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
                 @foreach($herramientas as $h)
                     <button wire:key="tool-{{ $h['id'] }}"
                             wire:click="seleccionarHerramienta('{{ $h['id'] }}')"
-                            style="background: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary-soft)' : '#fff' }}; border: 1px solid {{ $herramientaActiva === $h['id'] ? 'var(--color-primary)' : 'var(--color-ink-200)' }}; border-radius: 8px; padding: {{ $herramientaActiva ? '0.35rem 0.5rem' : '0.75rem 0.5rem' }}; cursor: pointer; text-align: center; transition: all 0.1s;">
-                        <i data-lucide="{{ $h['icon'] }}" style="font-size: inherit; width: {{ $herramientaActiva ? '16' : '20' }}px; height: {{ $herramientaActiva ? '16' : '20' }}px; color: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary)' : 'var(--color-ink-600)' }}; display: block; margin-bottom: {{ $herramientaActiva ? '0' : '0.3rem' }};" aria-hidden="true"></i>
-                        <span style="font-size: 0.7rem; color: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary-ink)' : 'var(--color-ink-700)' }}; font-weight: {{ $herramientaActiva === $h['id'] ? '600' : '400' }}; display: {{ $herramientaActiva ? 'none' : 'block' }};">
+                            style="background: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary-soft)' : '#fff' }}; border: 1px solid {{ $herramientaActiva === $h['id'] ? 'var(--color-primary)' : 'var(--color-ink-200)' }}; border-radius: 8px; padding: 0.75rem 0.5rem; cursor: pointer; text-align: center; transition: all 0.1s;">
+                        <i data-lucide="{{ $h['icon'] }}" style="font-size: inherit; width: 20px; height: 20px; color: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary)' : 'var(--color-ink-600)' }}; display: block; margin-bottom: 0.3rem;" aria-hidden="true"></i>
+                        <span style="font-size: 0.7rem; color: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary-ink)' : 'var(--color-ink-700)' }}; font-weight: {{ $herramientaActiva === $h['id'] ? '600' : '400' }}; display: block;">
                             {{ $h['label'] }}
                             @if($h['fullpage'])
                                 <span style="display: block; font-size: 0.62rem; color: var(--color-ink-400);">↗ pantalla completa</span>
