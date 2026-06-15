@@ -45,7 +45,7 @@
     <div style="flex: 1; display: flex; overflow: hidden;">
 
         {{-- Columna izquierda (~1/3) --}}
-        <div style="flex: 0 0 33.333%; min-width: 240px; max-width: 420px; border-right: 1px solid var(--color-ink-200); overflow-y: auto; background: var(--color-paper); padding: 0.75rem;">
+        <div style="flex: 0 0 33.333%; min-width: 250px; border-right: 1px solid var(--color-ink-200); overflow-y: auto; background: var(--color-paper); padding: 0.75rem;">
 
             {{-- Cabecera del ciudadano --}}
             <div style="margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--color-ink-100);">
