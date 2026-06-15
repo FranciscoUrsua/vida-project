@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Enums\AccionAuditEnum;
 use App\Filament\Resources\AuditResource\Pages;
 use App\Models\Audit;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -141,7 +142,7 @@ class AuditResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                ViewAction::make(),
             ])
             ->bulkActions([]);
     }
