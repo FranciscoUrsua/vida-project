@@ -18,7 +18,16 @@ class TipoFichaFactory extends Factory
             'nombre' => fake()->words(3, true),
             'descripcion' => fake()->optional()->sentence(),
             'schema' => [
-                ['nombre' => 'campo_prueba', 'tipo' => 'text', 'obligatorio' => false, 'orden' => 1],
+                'campos' => [
+                    [
+                        'id'          => 'campo_prueba',
+                        'tipo'        => 'texto',
+                        'etiqueta'    => 'Campo de prueba',
+                        'descripcion' => null,
+                        'obligatorio' => false,
+                        'orden'       => 1,
+                    ],
+                ],
             ],
             'activo' => true,
         ];

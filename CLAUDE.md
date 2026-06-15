@@ -147,3 +147,4 @@ Ficheros disponibles:
 | `autenticacion-tests.md` | 23 tests funcionales de login, logout y onboarding (TF-AUTH-01 a TF-AUTH-23) |
 | `autenticacion-implementacion.md` | Instrucciones paso a paso para implementar login, onboarding y componente avatar |
 | `demo-worlds-cli.md` | Sistema de world-building para entornos de demo: infraestructura, escenarios, mundos YAML y página Filament |
+| `tipo-ficha-implementacion.md` | TipoFichaResource: creador de fichas de valoración + 10 tests (TF-INT-H01 a H10) |

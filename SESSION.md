@@ -4,40 +4,32 @@ _Actualizado: 2026-06-15_
 
 ## Tarea completada
 
-Filtro contextual del timeline + modal de detalle de apunte en `CiudadanoPage`.
+`TipoFichaResource` — Fichas de Valoración en Filament (5 pasos de `tipo-ficha-implementacion.md`).
 
 ## Estado actual
 
 ### Cambios aplicados en esta sesión
 
-**Filtro sugerido (Cambio 1)**
-- `$filtroSugerido: ?string` en `CiudadanoPage` — al activar una herramienta, el filtro
-  del timeline correspondiente se resalta (borde primario, fondo transparente, hint ↑)
-  sin aplicarse: solo es visual.
-- `seleccionarHerramienta()` actualiza `$filtroSugerido` con el mapa herramienta→filtro.
-- Timeline expandido a 8 filtros: Todos, Plan, Entrevista, Anotación, Derivación,
-  Gestión, Valoración, Escala — todos con estado activo y sugerido diferenciados.
-- `apuntesHS()` ampliado para filtrar por los 7 tipos de `TipoApunte`.
-- CSS: `.hs-timeline-filter`, `.hs-timeline-filter--activo`, `.hs-timeline-filter--sugerido`,
-  `.hs-timeline-filter__hint`.
+**Modelo TipoFicha**
+- `const TIPOS_CAMPO = ['texto', 'numero', 'select', 'booleano', 'fecha', 'escala']`.
+- `fichas(): HasMany` — relación con fichas cumplimentadas.
+- `tieneFichasAsociadas()` — detecta fichas reales asociadas.
+- `booted()` `saving` event → `validarSchema()` (estructura, tipos, opciones select, tipo_escala_id, ids únicos, inmutabilidad).
+- `TipoFichaFactory` actualizado al formato canónico con clave `campos`.
 
-**Modal de detalle de apunte (Cambio 2)**
-- 4 propiedades en `CiudadanoPage`: `$modalApunteId`, `$modalApunteTipo`,
-  `$modalApunteDatos`, `$modalApunteAbierto`.
-- `verApunte(int $apunteId)`: carga datos del apunte desde la colección en memoria,
-  lazy-carga `PaseEscala→tipoEscala` para tipo escala.
-- `cerrarModalApunte()`: limpia todo el estado modal.
-- Timeline: `wire:click` cambiado de `toggleApunte` a `verApunte`; previsualización
-  del contenido truncada en una línea.
-- Modal genérico para entrevista, anotación, derivación, gestión.
-- SlideOver (panel lateral) para escala (score, interpretación, secciones) y valoración.
-- Cierre con botón ×, click fuera del panel y tecla Escape (`x-on:keydown.escape.window`).
-- CSS: `.hs-modal-*`, `.hs-slideover-*`, `.hs-escala-*`.
+**TipoFichaResource (Filament)**
+- Grupo «Informes y Plantillas», sort 3.
+- Tabla con columna num_campos calculada, toggle activo, filtro ternario.
+- `DeleteAction` condicional (`! tieneFichasAsociadas()`).
+- Formulario con Builder (6 bloques tipados) + `afterStateHydrated`/`dehydrateStateUsing`.
+- Placeholder de inmutabilidad cuando hay fichas asociadas.
+- Páginas con manejo de `ValidationException`.
 
-**Fix de tests**
-- `ciudadano_id = 9001` (hardcodeado, violaba FK) reemplazado por `Ciudadano::factory()->create()->id`.
-- Tests TF-LW-CIU-28, 29, 30 añadidos.
-- Suite completa del filtro: 52/52 en verde.
+**TipoEscalaResource**: sort ajustado de 5 a 4.
+
+**Seeders**: `IntervencionFichaSeeder` (3 fichas nuevas en formato canónico). `IntervencionSeeder` refactorizado para llamarlo.
+
+**Tests TF-INT-H01 a H10**: todos en verde. Suite completa Intervención: 134 pasando + 1 incompleto (Agenda, esperado).
 
 ### TODOs documentados en código (sin cambios)
 - `CiudadanoPage::statPrestaciones()`: integrar con módulo Prestaciones.
@@ -55,14 +47,24 @@ Filtro contextual del timeline + modal de detalle de apunte en `CiudadanoPage`.
 
 ## Contexto técnico para retomar
 
-### Livewire 4 — restricciones consolidadas esta sesión
+### Schema TipoFicha — formato canónico
+```json
+{
+  "campos": [
+    {"id": "...", "tipo": "texto|numero|select|booleano|fecha|escala",
+     "etiqueta": "...", "descripcion": null, "obligatorio": false, "orden": 1}
+  ]
+}
+```
+- `select` → campo adicional `opciones` (array de strings, mín. 2).
+- `numero` → campo adicional `unidad` (string nullable).
+- `escala` → campo adicional `tipo_escala_id` (int FK a tipo_escalas).
+
+### Livewire 4 — restricciones consolidadas
 - `livewire:updated` no existe. Usar `Livewire.hook('morphed', cb)` tras `livewire:initialized`.
-- Full-page components: `mount()` solo recibe parámetros de ruta, no query string.
-  Leer con `request()->query('param')` directamente.
-- `redirect()` en un componente devuelve `Livewire\Features\SupportRedirects\Redirector`.
-  Usar `$this->redirect(route(...))` con retorno `void`.
+- Full-page components: `mount()` solo recibe parámetros de ruta, no query string. Leer con `request()->query('param')` directamente.
+- `redirect()` en un componente devuelve `Livewire\Features\SupportRedirects\Redirector`. Usar `$this->redirect(route(...))` con retorno `void`.
 - `wire:model` es diferido. Usar `wire:model.live` cuando el re-render inmediato es necesario.
-- `get*Property()` (convención Livewire 3) está soportado por compatibilidad en Livewire 4.
 
 ### Layout CiudadanoPage
 - `.ciudadano-layout`: `1fr 2fr` (columna ciudadano 1/3, herramientas 2/3).

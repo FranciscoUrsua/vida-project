@@ -2,6 +2,49 @@
 
 ---
 
+## feat(intervencion): TipoFichaResource — Fichas de Valoración en Filament — 2026-06-15
+
+### Área afectada
+`Modules/Intervencion/app/Models/TipoFicha.php`, `app/Filament/Resources/TipoFichaResource.php`, `app/Filament/Resources/TipoEscalaResource.php`, `Modules/Intervencion/database/seeders/`, `Modules/Intervencion/database/factories/TipoFichaFactory.php`, `Modules/Intervencion/tests/Feature/TipoFichaTest.php`, `CLAUDE.md`
+
+### Cambios
+
+#### Modelo TipoFicha (Paso 1)
+- `const TIPOS_CAMPO`: contrato estable de tipos válidos (`texto`, `numero`, `select`, `booleano`, `fecha`, `escala`).
+- `fichas(): HasMany`: relación con fichas cumplimentadas (`tipo_ficha_id`).
+- `tieneFichasAsociadas()`: indica si hay instancias de datos reales → activa guardia de inmutabilidad.
+- `booted()` + `saving` event: llama a `validarSchema()` antes de cada persistencia.
+- `validarSchema()`: valida estructura del schema (`campos` key, atributos obligatorios, tipos válidos, opciones select ≥2, tipo_escala_id en bloques escala, ids únicos). Si hay fichas asociadas, impide eliminar o cambiar tipo de campos existentes.
+- `TipoFichaFactory` actualizado al nuevo formato canónico de schema.
+
+#### TipoFichaResource Filament (Paso 2)
+- Grupo «Informes y Plantillas», sort 3, icon `heroicon-o-clipboard-document-list`.
+- Tabla: columnas nombre, descripción (límite 80), num_campos (calculado), activo (toggle), updated_at.
+- Filtro ternario por estado activo/inactivo.
+- `DeleteAction` solo visible si `! $record->tieneFichasAsociadas()`.
+- Formulario con dos pestañas: «Datos generales» y «Campos de la ficha».
+- Pestaña 2: Builder con 6 bloques tipados (texto, numero, select, booleano, fecha, escala). `afterStateHydrated` convierte `{'campos': [...]}` → formato Builder. `dehydrateStateUsing` hace la conversión inversa + genera IDs automáticos desde etiqueta con Str::slug.
+- Placeholder de advertencia de inmutabilidad cuando `tieneFichasAsociadas()`.
+- Páginas: `ListTipoFichas`, `CreateTipoFicha`, `EditTipoFicha` con manejo de `ValidationException`.
+
+#### TipoEscalaResource (Paso 3)
+- `$navigationSort` cambiado de 5 a 4 (TipoFicha ocupa el sort 3).
+
+#### Seeders (Paso 4)
+- `IntervencionFichaSeeder`: 3 fichas con schema canónico — «Situación económica» (5 campos), «Situación de vivienda» (6 campos), «Valoración social libre» (1 campo). Usa `updateOrCreate` para idempotencia.
+- `IntervencionSeeder` refactorizado: delega fichas a `IntervencionFichaSeeder` + crea tipo de valoración ASP inicial + 3 registros pivot. Los tests TF-INT-G02 siguen pasando (3 fichas, 1 valoración, 3 pivot).
+
+#### Tests TF-INT-H01 a H10 (Paso 5)
+- `TipoFichaTest.php`: 10 tests nuevos, todos en verde.
+- H01: schema válido se guarda. H02: sin clave `campos` → ValidationException. H03: tipo inválido → exc. H04: select sin opciones → exc. H05: select < 2 opciones → exc. H06: escala sin tipo_escala_id → exc. H07: ids duplicados → exc. H08: eliminar campo con datos → exc. H09: cambiar tipo con datos → exc. H10: añadir campo con datos → OK.
+
+### Decisiones de implementación
+- No se añadió `'schema' => 'array'` a `$casts` porque el modelo ya tiene mutador/accessor custom que gestionan la serialización JSON (añadir el cast provocaría doble codificación).
+- Los tests H08-H10 usan `Ficha::factory()->create(['tipo_ficha_id' => $tipoFicha->id])` con `ValoracionFactory` que crea una `HistoriaSocial` con `ciudadano_id` aleatorio (sin FK real a `ciudadanos`).
+- CLAUDE.md actualizado con la nueva entrada en la tabla 6.
+
+---
+
 ## Mejoras pantalla intervención — 2026-06-15
 
 ### Área afectada
