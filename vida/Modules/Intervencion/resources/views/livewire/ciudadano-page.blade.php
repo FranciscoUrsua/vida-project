@@ -394,7 +394,7 @@
                         <p style="font-size: 0.78rem; color: var(--color-ink-600); margin: 0 0 0.75rem;">La ficha se abrirá en pantalla completa.</p>
                         <div style="margin-bottom: 0.75rem;">
                             <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Tipo de ficha</label>
-                            <select wire:model="formValoracion.tipo_ficha_id" class="form-select form-select-sm">
+                            <select wire:model.live="formValoracion.tipo_ficha_id" class="form-select form-select-sm">
                                 <option value="">Selecciona...</option>
                                 @foreach($this->tiposFicha as $tf)
                                     <option value="{{ $tf->id }}">{{ $tf->nombre }}</option>
@@ -416,7 +416,7 @@
                         <p style="font-size: 0.78rem; color: var(--color-ink-600); margin: 0 0 0.75rem;">La escala se abrirá en pantalla completa.</p>
                         <div style="margin-bottom: 0.75rem;">
                             <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Instrumento</label>
-                            <select wire:model="formEscala.tipo_escala_id" class="form-select form-select-sm">
+                            <select wire:model.live="formEscala.tipo_escala_id" class="form-select form-select-sm">
                                 <option value="">Selecciona...</option>
                                 @foreach($this->tiposEscala as $te)
                                     <option value="{{ $te->id }}">{{ $te->nombre }}</option>

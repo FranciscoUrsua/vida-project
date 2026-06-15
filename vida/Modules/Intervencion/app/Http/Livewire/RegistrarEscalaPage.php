@@ -28,10 +28,12 @@ class RegistrarEscalaPage extends Component
     /** @var array<string, mixed> Respuestas del pase [item_id => valor] */
     public array $respuestas = [];
 
-    public function mount(HistoriaSocial $historia, ?int $tipo_escala = null): void
+    public function mount(HistoriaSocial $historia): void
     {
         $this->historia = $historia;
-        $this->tipoEscalaId = $tipo_escala;
+        // Livewire 4 full-page components no reciben query string en mount(); se lee directamente.
+        $tipoEscala = request()->query('tipo_escala');
+        $this->tipoEscalaId = $tipoEscala ? (int) $tipoEscala : null;
     }
 
     public function getTipoEscalaProperty(): ?TipoEscala

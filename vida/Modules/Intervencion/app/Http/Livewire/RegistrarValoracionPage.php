@@ -32,11 +32,14 @@ class RegistrarValoracionPage extends Component
     /** @var array<string, mixed> Respuestas del formulario dinámico */
     public array $respuestas = [];
 
-    public function mount(HistoriaSocial $historia, ?int $tipo_ficha = null, ?int $entrevista = null): void
+    public function mount(HistoriaSocial $historia): void
     {
         $this->historia = $historia;
-        $this->tipoFichaId = $tipo_ficha;
-        $this->entrevistaId = $entrevista;
+        // Livewire 4 full-page components no reciben query string en mount(); se lee directamente.
+        $tipoFicha = request()->query('tipo_ficha');
+        $this->tipoFichaId = $tipoFicha ? (int) $tipoFicha : null;
+        $entrevista = request()->query('entrevista');
+        $this->entrevistaId = $entrevista ? (int) $entrevista : null;
     }
 
     /**
