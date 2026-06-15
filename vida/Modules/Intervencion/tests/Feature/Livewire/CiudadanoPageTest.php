@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Tests\Feature\Livewire;
 
+use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
@@ -43,6 +44,8 @@ class CiudadanoPageTest extends TestCase
 
     private User $usuario;
 
+    private Ciudadano $ciudadano;
+
     private HistoriaSocial $historia;
 
     private PlanDeIntervencion $piso;
@@ -78,8 +81,10 @@ class CiudadanoPageTest extends TestCase
             'fecha_inicio' => today()->toDateString(),
         ]);
 
+        $this->ciudadano = Ciudadano::factory()->create();
+
         $this->historia = HistoriaSocial::create([
-            'ciudadano_id' => 9001,
+            'ciudadano_id' => $this->ciudadano->id,
             'unidad_organizativa_id' => $this->uo->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',
@@ -277,7 +282,7 @@ class CiudadanoPageTest extends TestCase
     public function piso_activo_null_sin_plan_activo(): void
     {
         $historiaVacia = HistoriaSocial::create([
-            'ciudadano_id' => 9002,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $this->uo->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',
@@ -576,5 +581,74 @@ class CiudadanoPageTest extends TestCase
             ]);
 
         $this->assertNull($componente->get('tipoFichaId'));
+    }
+
+    // -------------------------------------------------------------------------
+    // Filtro sugerido y modal de detalle
+    // -------------------------------------------------------------------------
+
+    /**
+     * TF-LW-CIU-28 — Activar herramienta preselecciona filtro sin aplicarlo.
+     */
+    #[Test]
+    public function activar_herramienta_preselecciona_filtro_sin_aplicarlo(): void
+    {
+        $this->crearApunte(['tipo' => TipoApunte::Entrevista]);
+        $this->crearApunte(['tipo' => TipoApunte::Anotacion]);
+
+        $componente = Livewire::actingAs($this->usuario)
+            ->test(CiudadanoPage::class, ['historia' => $this->historia])
+            ->call('seleccionarHerramienta', 'entrevista');
+
+        // El filtro sugerido refleja la herramienta activa
+        $componente->assertSet('filtroSugerido', 'entrevista');
+        // El filtro aplicado no ha cambiado
+        $componente->assertSet('filtroHS', 'todos');
+        // Los apuntes no están filtrados (se ven todos)
+        $this->assertCount(2, $componente->get('apuntesHS'));
+    }
+
+    /**
+     * TF-LW-CIU-29 — verApunte abre el modal con los datos correctos.
+     */
+    #[Test]
+    public function ver_apunte_abre_modal_con_datos_correctos(): void
+    {
+        $apunte = $this->crearApunte([
+            'tipo'      => TipoApunte::Anotacion,
+            'contenido' => 'Contenido de prueba',
+        ]);
+
+        $componente = Livewire::actingAs($this->usuario)
+            ->test(CiudadanoPage::class, ['historia' => $this->historia])
+            ->call('verApunte', $apunte->id);
+
+        $componente->assertSet('modalApunteAbierto', true);
+        $componente->assertSet('modalApunteId', $apunte->id);
+        $componente->assertSet('modalApunteTipo', TipoApunte::Anotacion->value);
+
+        $datos = $componente->get('modalApunteDatos');
+        $this->assertArrayHasKey('fecha', $datos);
+        $this->assertArrayHasKey('autor', $datos);
+        $this->assertArrayHasKey('contenido', $datos);
+        $this->assertEquals('Contenido de prueba', $datos['contenido']);
+    }
+
+    /**
+     * TF-LW-CIU-30 — cerrarModalApunte limpia todo el estado del modal.
+     */
+    #[Test]
+    public function cerrar_modal_limpia_estado(): void
+    {
+        $apunte = $this->crearApunte();
+
+        $componente = Livewire::actingAs($this->usuario)
+            ->test(CiudadanoPage::class, ['historia' => $this->historia])
+            ->call('verApunte', $apunte->id)
+            ->call('cerrarModalApunte');
+
+        $componente->assertSet('modalApunteAbierto', false);
+        $componente->assertSet('modalApunteId', null);
+        $this->assertEmpty($componente->get('modalApunteDatos'));
     }
 }

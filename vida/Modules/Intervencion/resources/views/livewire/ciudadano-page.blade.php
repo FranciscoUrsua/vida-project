@@ -176,34 +176,45 @@
 
             {{-- Filtros del timeline --}}
             <div style="display: flex; gap: 0.3rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
-                @foreach([['todos', 'Todos'], ['plan', $this->planNombreCorto], ['entrevista', 'Entrevistas']] as [$key, $label])
-                    <button wire:click="setFiltroHS('{{ $key }}')"
-                            style="font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 99px; border: 1px solid {{ $filtroHS === $key ? 'var(--color-primary)' : 'var(--color-ink-200)' }}; background: {{ $filtroHS === $key ? 'var(--color-primary-soft)' : '#fff' }}; color: {{ $filtroHS === $key ? 'var(--color-primary-ink)' : 'var(--color-ink-600)' }}; cursor: pointer; font-weight: {{ $filtroHS === $key ? '600' : '400' }};">
-                        {{ $label }}
+                @foreach([
+                    ['todos',      'Todos'],
+                    ['plan',       $this->planNombreCorto],
+                    ['entrevista', 'Entrevista'],
+                    ['anotacion',  'Anotación'],
+                    ['derivacion', 'Derivación'],
+                    ['gestion',    'Gestión'],
+                    ['valoracion', 'Valoración'],
+                    ['escala',     'Escala'],
+                ] as [$filtroKey, $filtroLabel])
+                    @php
+                        $esActivo   = $filtroHS === $filtroKey;
+                        $esSugerido = ! $esActivo && $filtroSugerido === $filtroKey;
+                    @endphp
+                    <button wire:click="setFiltroHS('{{ $filtroKey }}')"
+                            class="hs-timeline-filter{{ $esActivo ? ' hs-timeline-filter--activo' : ($esSugerido ? ' hs-timeline-filter--sugerido' : '') }}">
+                        {{ $filtroLabel }}@if($esSugerido)<span class="hs-timeline-filter__hint" title="Filtrar por este tipo">↑</span>@endif
                     </button>
                 @endforeach
             </div>
 
             {{-- Timeline de apuntes --}}
             @forelse($this->apuntesHS as $apunte)
-                @php
-                    $colorPunto = $coloresTipo[$apunte->tipo->value] ?? 'var(--color-ink-500)';
-                    $expandido  = $apuntesExpandidos[$apunte->id] ?? false;
-                @endphp
-                <div wire:click="toggleApunte({{ $apunte->id }})"
-                     style="display: flex; gap: 0.5rem; align-items: flex-start; margin-bottom: 0.6rem; cursor: pointer; padding: 0.4rem 0.5rem; border-radius: 6px; background: {{ $expandido ? 'var(--color-paper)' : 'transparent' }}; transition: background 0.1s;"
+                @php $colorPunto = $coloresTipo[$apunte->tipo->value] ?? 'var(--color-ink-500)'; @endphp
+                <div wire:click="verApunte({{ $apunte->id }})"
+                     role="button"
+                     style="display: flex; gap: 0.5rem; align-items: flex-start; margin-bottom: 0.6rem; cursor: pointer; padding: 0.4rem 0.5rem; border-radius: 6px; background: transparent; transition: background 0.1s;"
                      onmouseover="this.style.background='var(--color-paper)'"
-                     onmouseout="this.style.background='{{ $expandido ? 'var(--color-paper)' : 'transparent' }}'">
+                     onmouseout="this.style.background='transparent'">
                     <span style="width: 8px; height: 8px; border-radius: 50%; background: {{ $colorPunto }}; flex-shrink: 0; margin-top: 5px;"></span>
                     <div style="flex: 1; min-width: 0;">
                         <div style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             {{ $apunte->tipo->label() }}
                         </div>
                         <div style="font-size: 0.7rem; color: var(--color-ink-400);">
-                            {{ $apunte->fecha->format('d/m/Y') }} · {{ $apunte->autor->name ?? '' }}
+                            {{ $apunte->fecha->format('d/m/Y') }} · {{ $apunte->autor?->name ?? '' }}
                         </div>
-                        @if($expandido && $apunte->contenido)
-                            <div style="font-size: 0.78rem; color: var(--color-ink-700); margin-top: 0.3rem; white-space: pre-wrap; line-height: 1.5;">{{ $apunte->contenido }}</div>
+                        @if($apunte->contenido)
+                            <div style="font-size: 0.72rem; color: var(--color-ink-600); margin-top: 0.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $apunte->contenido }}</div>
                         @endif
                     </div>
                 </div>
@@ -463,5 +474,86 @@
         </div>
 
     </div>
+
+    {{-- ================================================================== --}}
+    {{-- Modal de detalle de apunte — genérico (entrevista, anotación, etc.) --}}
+    {{-- ================================================================== --}}
+    @if($modalApunteAbierto && ! in_array($modalApunteTipo, ['escala', 'valoracion']))
+    <div class="hs-modal-overlay"
+         wire:click.self="cerrarModalApunte"
+         x-data x-on:keydown.escape.window="$wire.cerrarModalApunte()"
+         role="dialog" aria-modal="true" aria-label="Detalle del apunte">
+        <div class="hs-modal">
+            <div class="hs-modal__header">
+                <span class="hs-modal__tipo">{{ $modalApunteDatos['tipo_label'] ?? '' }}</span>
+                <span class="hs-modal__fecha">{{ $modalApunteDatos['fecha'] ?? '' }}</span>
+                <button wire:click="cerrarModalApunte" class="hs-modal__cerrar" aria-label="Cerrar">&times;</button>
+            </div>
+            <div class="hs-modal__body">
+                <p class="hs-modal__autor"><strong>Profesional:</strong> {{ $modalApunteDatos['autor'] ?? '—' }}</p>
+                @if($modalApunteDatos['contenido'] ?? null)
+                    <div class="hs-modal__contenido">{!! nl2br(e($modalApunteDatos['contenido'])) !!}</div>
+                @endif
+            </div>
+            <div class="hs-modal__footer">
+                <span class="hs-modal__inmutable">Solo lectura · El pasado es inmutable</span>
+                <button wire:click="cerrarModalApunte" class="btn btn-outline-secondary btn-sm">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- ================================================================== --}}
+    {{-- SlideOver de detalle — escala y valoración (ancho amplio)           --}}
+    {{-- ================================================================== --}}
+    @if($modalApunteAbierto && in_array($modalApunteTipo, ['escala', 'valoracion']))
+    <div class="hs-slideover-overlay"
+         wire:click.self="cerrarModalApunte"
+         x-data x-on:keydown.escape.window="$wire.cerrarModalApunte()"
+         role="dialog" aria-modal="true">
+        <div class="hs-slideover">
+            <div class="hs-slideover__header">
+                <span class="hs-modal__tipo">{{ $modalApunteDatos['tipo_label'] ?? '' }}</span>
+                <span class="hs-modal__fecha">{{ $modalApunteDatos['fecha'] ?? '' }}</span>
+                <button wire:click="cerrarModalApunte" class="hs-modal__cerrar" aria-label="Cerrar">&times;</button>
+            </div>
+            <div class="hs-slideover__body">
+                <p class="hs-modal__autor"><strong>Profesional:</strong> {{ $modalApunteDatos['autor'] ?? '—' }}</p>
+
+                @if($modalApunteTipo === 'escala')
+                    @if($modalApunteDatos['escala_nombre'] ?? null)
+                        <h3 class="hs-slideover__subtitulo">{{ $modalApunteDatos['escala_nombre'] }}</h3>
+                    @endif
+                    @if(isset($modalApunteDatos['escala_score']))
+                        <div class="hs-escala-score">
+                            <span class="hs-escala-score__val">{{ $modalApunteDatos['escala_score'] }}</span>
+                            @if($modalApunteDatos['escala_interpretacion'] ?? null)
+                                <span class="hs-escala-score__interp">{{ $modalApunteDatos['escala_interpretacion'] }}</span>
+                            @endif
+                        </div>
+                    @endif
+                    @if(! empty($modalApunteDatos['escala_secciones']))
+                        <div class="hs-escala-secciones">
+                            @foreach($modalApunteDatos['escala_secciones'] as $sec => $score)
+                                <div class="hs-escala-seccion">
+                                    <span>{{ $sec }}</span>
+                                    <span>{{ $score }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                @endif
+
+                @if($modalApunteDatos['contenido'] ?? null)
+                    <div class="hs-modal__contenido" style="margin-top: 1rem;">{!! nl2br(e($modalApunteDatos['contenido'])) !!}</div>
+                @endif
+            </div>
+            <div class="hs-slideover__footer">
+                <span class="hs-modal__inmutable">Solo lectura · El pasado es inmutable</span>
+                <button wire:click="cerrarModalApunte" class="btn btn-outline-secondary btn-sm">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    @endif
 
 </div>

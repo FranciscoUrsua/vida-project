@@ -59,6 +59,21 @@ class CiudadanoPage extends Component
     /** @var string|null Herramienta activa */
     public ?string $herramientaActiva = null;
 
+    /** Tipo de apunte sugerido visualmente según la herramienta activa. No filtra solo. */
+    public ?string $filtroSugerido = null;
+
+    /** ID del apunte cuyo detalle se muestra en el modal. */
+    public ?int $modalApunteId = null;
+
+    /** Valor del enum TipoApunte del apunte en el modal. */
+    public ?string $modalApunteTipo = null;
+
+    /** Datos del apunte para el modal (array serializable para Livewire). */
+    public array $modalApunteDatos = [];
+
+    /** Controla si el modal de detalle de apunte está abierto. */
+    public bool $modalApunteAbierto = false;
+
     // -------------------------------------------------------------------------
     // Formularios de herramientas inline
     // -------------------------------------------------------------------------
@@ -132,10 +147,18 @@ class CiudadanoPage extends Component
             ->with('autor')
             ->latest();
 
-        if ($this->filtroHS === 'plan') {
-            $query->where('tipo', TipoApunte::PlanIntervencion);
-        } elseif ($this->filtroHS === 'entrevista') {
-            $query->where('tipo', TipoApunte::Entrevista);
+        $mapaFiltro = [
+            'plan'       => TipoApunte::PlanIntervencion,
+            'entrevista' => TipoApunte::Entrevista,
+            'anotacion'  => TipoApunte::Anotacion,
+            'derivacion' => TipoApunte::Derivacion,
+            'gestion'    => TipoApunte::GestionCoordinacion,
+            'valoracion' => TipoApunte::Valoracion,
+            'escala'     => TipoApunte::Escala,
+        ];
+
+        if (isset($mapaFiltro[$this->filtroHS])) {
+            $query->where('tipo', $mapaFiltro[$this->filtroHS]);
         }
 
         return $query->get();
@@ -322,11 +345,65 @@ class CiudadanoPage extends Component
     public function seleccionarHerramienta(string $herramienta): void
     {
         $this->herramientaActiva = $herramienta;
+
+        $mapa = [
+            'entrevista' => 'entrevista',
+            'anotacion'  => 'anotacion',
+            'derivacion' => 'derivacion',
+            'gestion'    => 'gestion',
+            'valoracion' => 'valoracion',
+            'escala'     => 'escala',
+            'informes'   => null,
+        ];
+        $this->filtroSugerido = $mapa[$herramienta] ?? null;
     }
 
     public function cancelarHerramienta(): void
     {
         $this->herramientaActiva = null;
+    }
+
+    /**
+     * Abre el modal de detalle de un apunte en modo solo lectura.
+     * El pasado es inmutable: este modal nunca ofrece edición.
+     */
+    public function verApunte(int $apunteId): void
+    {
+        $apunte = $this->apuntesHS->firstWhere('id', $apunteId);
+
+        if (! $apunte) {
+            return;
+        }
+
+        $this->modalApunteId   = $apunte->id;
+        $this->modalApunteTipo = $apunte->tipo->value;
+
+        $this->modalApunteDatos = [
+            'fecha'      => $apunte->fecha->format('d/m/Y') . ' ' . $apunte->created_at->format('H:i'),
+            'autor'      => $apunte->autor?->name ?? '—',
+            'contenido'  => $apunte->contenido,
+            'tipo_label' => $apunte->tipo->label(),
+        ];
+
+        if ($apunte->tipo === TipoApunte::Escala && $apunte->apuntable_id) {
+            $pase = PaseEscala::with('tipoEscala')->find($apunte->apuntable_id);
+            if ($pase) {
+                $this->modalApunteDatos['escala_nombre']         = $pase->tipoEscala?->nombre;
+                $this->modalApunteDatos['escala_score']          = $pase->score_total;
+                $this->modalApunteDatos['escala_interpretacion'] = $pase->interpretacion_codigo;
+                $this->modalApunteDatos['escala_secciones']      = $pase->scores_seccion ?? [];
+            }
+        }
+
+        $this->modalApunteAbierto = true;
+    }
+
+    /** Cierra el modal de detalle de apunte. */
+    public function cerrarModalApunte(): void
+    {
+        $this->modalApunteAbierto = false;
+        $this->modalApunteId      = null;
+        $this->modalApunteDatos   = [];
     }
 
     // -------------------------------------------------------------------------
