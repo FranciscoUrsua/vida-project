@@ -3,7 +3,6 @@
 namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\HistoriaSocial;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -44,19 +43,19 @@ class RegistrarEscalaPage extends Component
     /**
      * Guarda el pase de escala y redirige de vuelta a la pantalla del ciudadano.
      */
-    public function guardar(): RedirectResponse
+    public function guardar(): void
     {
         if (! $this->tipoEscalaId) {
             $this->addError('tipoEscalaId', 'Selecciona un instrumento.');
 
-            return redirect()->back();
+            return;
         }
 
         $page = new CiudadanoPage;
         $page->historia = $this->historia;
         $page->guardarEscala($this->tipoEscalaId, $this->respuestas);
 
-        return redirect()->route('intervencion.ciudadano.show', $this->historia->id);
+        $this->redirect(route('intervencion.ciudadano.show', $this->historia->id));
     }
 
     public function render(): View

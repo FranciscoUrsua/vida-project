@@ -3,7 +3,6 @@
 namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\HistoriaSocial;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -53,12 +52,12 @@ class RegistrarValoracionPage extends Component
     /**
      * Guarda la valoración y redirige de vuelta a la pantalla del ciudadano.
      */
-    public function guardar(): RedirectResponse
+    public function guardar(): void
     {
         if (! $this->tipoFichaId) {
             $this->addError('tipoFichaId', 'Selecciona un tipo de ficha.');
 
-            return redirect()->back();
+            return;
         }
 
         // Construir el componente CiudadanoPage en memoria para reutilizar su lógica
@@ -66,7 +65,7 @@ class RegistrarValoracionPage extends Component
         $page->historia = $this->historia;
         $page->guardarValoracion($this->tipoFichaId, $this->respuestas, $this->entrevistaId);
 
-        return redirect()->route('intervencion.ciudadano.show', $this->historia->id);
+        $this->redirect(route('intervencion.ciudadano.show', $this->historia->id));
     }
 
     public function render(): View
