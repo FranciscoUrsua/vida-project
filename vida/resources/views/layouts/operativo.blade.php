@@ -12,7 +12,13 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => lucide.createIcons({ 'stroke-width': 1.75 }));
         document.addEventListener('livewire:navigated', () => lucide.createIcons({ 'stroke-width': 1.75 }));
-        document.addEventListener('livewire:updated', () => lucide.createIcons({ 'stroke-width': 1.75 }));
+        // En Livewire 4 no existe 'livewire:updated'; se usa el hook 'morphed' que
+        // dispara tras el morfeo DOM de cada componente, antes del siguiente pintado.
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.hook('morphed', () => {
+                queueMicrotask(() => lucide.createIcons({ 'stroke-width': 1.75 }));
+            });
+        });
     </script>
 </head>
 <body>
