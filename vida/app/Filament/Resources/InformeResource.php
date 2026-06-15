@@ -47,6 +47,8 @@ class InformeResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     /** Los informes se crean desde el flujo operativo (Livewire), no desde el backoffice. */
     public static function infolist(Schema $schema): Schema
     {

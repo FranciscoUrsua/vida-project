@@ -44,6 +44,8 @@ class DocumentoResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     /** Los documentos se suben desde el flujo operativo, no desde el backoffice. */
     public static function infolist(Schema $schema): Schema
     {
