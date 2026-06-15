@@ -337,7 +337,7 @@
 /* ── Layout 4 cuadrantes de CiudadanoPage (Cambio 6) ──────────── */
 .ciudadano-layout {
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 1fr 2fr;
     grid-template-rows: auto 1fr;
     height: 100%;
     overflow: hidden;
