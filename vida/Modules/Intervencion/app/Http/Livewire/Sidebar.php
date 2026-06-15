@@ -6,6 +6,7 @@ use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Modules\Intervencion\Services\IntervencionSidebarDataService;
+use Modules\Organizacion\Models\Configuracion;
 
 /**
  * Sidebar del interfaz operativo de Intervención.
@@ -26,6 +27,21 @@ class Sidebar extends Component
     public function datos(): array
     {
         return app(IntervencionSidebarDataService::class)->getData();
+    }
+
+    /**
+     * Datos de identidad visual configurados en el backoffice.
+     * Se usa para el logotipo y nombre de aplicación en la cabecera del sidebar.
+     *
+     * @return array{logoUrl: string|null, nombreAplicacion: string|null}
+     */
+    #[Computed]
+    public function branding(): array
+    {
+        return [
+            'logoUrl'          => Configuracion::logoUrl(),
+            'nombreAplicacion' => Configuracion::nombreAplicacion(),
+        ];
     }
 
     public function render(): View

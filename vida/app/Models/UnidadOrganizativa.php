@@ -28,9 +28,12 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
  *
  * @property int $id
  * @property string $nombre
+ * @property string|null $nombre_corto Acrónimo o nombre breve para badges y cabeceras
  * @property string $tipo Código del tipo (ej: 'ayuntamiento', 'dg', 'departamento', 'centro')
  * @property int|null $parent_id
  * @property bool $activa
+ * @property string|null $plan_nombre_completo Nombre completo del plan de intervención; fallback «Plan de intervención»
+ * @property string|null $plan_nombre_corto Acrónimo del plan de intervención; fallback «Plan»
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon|null $deleted_at
@@ -49,9 +52,12 @@ class UnidadOrganizativa extends Model
     /** @var list<string> Campos asignables en masa */
     protected $fillable = [
         'nombre',
+        'nombre_corto',
         'tipo',
         'parent_id',
         'activa',
+        'plan_nombre_completo',
+        'plan_nombre_corto',
     ];
 
     /** @var array<string, string> Conversiones de tipo */
@@ -119,6 +125,31 @@ class UnidadOrganizativa extends Model
     {
         // La CTE de staudenmeir expone las columnas sin prefijo de tabla en el contexto externo
         return $this->ancestors()->where('id', $ancestor->id)->exists();
+    }
+
+    // -------------------------------------------------------------------------
+    // Accessors
+    // -------------------------------------------------------------------------
+
+    /**
+     * Nombre completo del plan de intervención con fallback.
+     * Permite personalizar el término por UO (p. ej. «PISO», «PIA»).
+     *
+     * @return string Nombre completo, nunca nulo.
+     */
+    public function getPlanNombreCompletoAttribute(): string
+    {
+        return $this->attributes['plan_nombre_completo'] ?? 'Plan de intervención';
+    }
+
+    /**
+     * Acrónimo del plan de intervención con fallback.
+     *
+     * @return string Nombre corto, nunca nulo.
+     */
+    public function getPlanNombreCortoAttribute(): string
+    {
+        return $this->attributes['plan_nombre_corto'] ?? 'Plan';
     }
 
     // -------------------------------------------------------------------------

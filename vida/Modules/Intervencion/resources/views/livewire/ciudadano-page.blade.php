@@ -1,11 +1,9 @@
 @php
     use Carbon\Carbon;
-    use App\Models\CatalogoSistema;
     use Modules\Intervencion\Enums\TipoApunte;
 
     $ciudadano = $this->ciudadano;
     $piso      = $this->pisoActivo;
-    $nombrePlan = CatalogoSistema::valor('nombre_plan_asp', 'PISO');
 
     $badgeEstado = [
         'abierta'        => ['bg' => 'var(--color-primary-soft)', 'color' => 'var(--color-primary-ink)', 'label' => 'Abierta'],
@@ -40,76 +38,99 @@
 <div style="display: flex; flex-direction: column; height: calc(100vh - 56px); overflow: hidden;">
 
     {{-- ------------------------------------------------------------------ --}}
-    {{-- Cuerpo de dos columnas                                              --}}
+    {{-- Banda del Plan de Intervención — ancho completo                    --}}
     {{-- ------------------------------------------------------------------ --}}
-    <div style="flex: 1; display: flex; overflow: hidden;">
+    @if($piso)
+        <div style="background: var(--color-primary-soft); border-bottom: 1px solid var(--color-ink-200); padding: 0.5rem 1.25rem; display: flex; align-items: center; gap: 1rem; flex-shrink: 0; font-size: 0.8rem;">
+            <span style="font-weight: 600; color: var(--color-primary-ink);">{{ $this->planNombreCorto }} activo</span>
+            <span style="color: var(--color-ink-600);">v{{ $piso->version }} · desde {{ Carbon::parse($piso->fecha_inicio)->format('d/m/Y') }}</span>
+            {{-- TODO: Entrega 4 — route('intervencion.piso.show', $piso->id) --}}
+            <a href="#" style="margin-left: auto; font-size: 0.78rem; color: var(--color-primary); text-decoration: none; font-weight: 600;">Ver {{ $this->planNombreCorto }} →</a>
+        </div>
+    @else
+        <div style="background: var(--color-paper); border-bottom: 1px solid var(--color-ink-200); padding: 0.45rem 1.25rem; font-size: 0.78rem; color: var(--color-ink-400); flex-shrink: 0;">
+            Sin {{ $this->planNombreCorto }} activo
+        </div>
+    @endif
 
-        {{-- Columna izquierda (~1/3) --}}
-        <div style="flex: 0 0 33.333%; min-width: 250px; border-right: 1px solid var(--color-ink-200); overflow-y: auto; background: var(--color-paper); padding: 0.75rem;">
+    {{-- ------------------------------------------------------------------ --}}
+    {{-- Layout 4 cuadrantes                                                --}}
+    {{-- ------------------------------------------------------------------ --}}
+    <div class="ciudadano-layout" style="flex: 1; min-height: 0;">
 
-            {{-- Cabecera del ciudadano --}}
-            <div style="margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--color-ink-100);">
+        {{-- ============================================================== --}}
+        {{-- ZONA SUPERIOR IZQUIERDA — datos del ciudadano + UC colapsable  --}}
+        {{-- ============================================================== --}}
+        <div class="ciudadano-header-left" style="padding: 0.75rem;">
 
-                {{-- Fila superior: retorno + acciones --}}
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem;">
-                    <a href="{{ route('intervencion.casos.index') }}"
-                       style="font-size: 0.75rem; color: var(--color-primary); text-decoration: none; display: flex; align-items: center; gap: 0.2rem; flex-shrink: 0;">
-                        <i data-lucide="arrow-left" style="width:12px;height:12px;" aria-hidden="true"></i> Mis casos
-                    </a>
-                    <div style="margin-left: auto; display: flex; align-items: center; gap: 0.3rem;">
-                        @if($ciudadano)
-                            <a href="{{ route('ciudadania.ciudadano.ficha', $ciudadano->id) }}"
-                               wire:navigate
-                               style="font-size: 0.72rem; color: var(--color-primary); border: 1px solid var(--color-primary); border-radius: 4px; padding: 0.1rem 0.4rem; text-decoration: none; white-space: nowrap;">
-                                Ficha completa
-                            </a>
-                        @endif
-                        {{-- TODO: menú ⋯ con acciones adicionales del expediente --}}
-                    </div>
+            {{-- Fila superior: retorno + acciones --}}
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem;">
+                <a href="{{ route('intervencion.casos.index') }}"
+                   style="font-size: 0.75rem; color: var(--color-primary); text-decoration: none; display: flex; align-items: center; gap: 0.2rem; flex-shrink: 0;">
+                    <i data-lucide="arrow-left" style="width:12px;height:12px;" aria-hidden="true"></i> Mis casos
+                </a>
+                <div style="margin-left: auto; display: flex; align-items: center; gap: 0.3rem;">
+                    @if($ciudadano)
+                        <a href="{{ route('ciudadania.ciudadano.ficha', $ciudadano->id) }}"
+                           wire:navigate
+                           style="font-size: 0.72rem; color: var(--color-primary); border: 1px solid var(--color-primary); border-radius: 4px; padding: 0.1rem 0.4rem; text-decoration: none; white-space: nowrap;">
+                            Ficha completa
+                        </a>
+                    @endif
+                    {{-- TODO: menú ⋯ con acciones adicionales del expediente --}}
                 </div>
-
-                {{-- Nombre completo --}}
-                <div style="font-size: 1rem; font-weight: 700; color: var(--color-ink-900); line-height: 1.3; margin-bottom: 0.45rem;">
-                    {{ $ciudadano ? ($ciudadano->nombre . ' ' . $ciudadano->apellido1 . ($ciudadano->apellido2 ? ' ' . $ciudadano->apellido2 : '')) : 'Ciudadano #' . $historia->ciudadano_id }}
-                </div>
-
-                {{-- HS + CSS + Estado --}}
-                <div style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.3rem;">
-                    <span style="font-size: 0.72rem; color: var(--color-ink-500);">HS #{{ $historia->id }}</span>
-                    <span style="font-size: 0.72rem; color: var(--color-ink-300);">·</span>
-                    {{-- TODO: sustituir UO por centroActivo()->nombre cuando esté implementado --}}
-                    <span style="font-size: 0.72rem; color: var(--color-ink-500);">UO #{{ $historia->unidad_organizativa_id }}</span>
-                    <span style="background: {{ $badge['bg'] }}; color: {{ $badge['color'] }}; padding: 0.1rem 0.4rem; border-radius: 99px; font-size: 0.65rem; font-weight: 600; white-space: nowrap;">
-                        Estado HS: {{ $badge['label'] }}
-                    </span>
-                </div>
-
-                {{-- Fecha de nacimiento · edad --}}
-                @if($ciudadano?->fecha_nacimiento)
-                    <div style="font-size: 0.72rem; color: var(--color-ink-600); margin-bottom: 0.2rem;">
-                        {{ Carbon::parse($ciudadano->fecha_nacimiento)->format('d/m/Y') }} · {{ Carbon::parse($ciudadano->fecha_nacimiento)->age }} años
-                    </div>
-                @endif
-
-                {{-- DNI · teléfono --}}
-                {{-- TODO: DNI pendiente — requiere CiudadanoIdentificador::activo() en el componente --}}
-                @if($ciudadano?->telefono)
-                    <div style="font-size: 0.72rem; color: var(--color-ink-600); margin-bottom: 0.2rem;">
-                        {{ $ciudadano->telefono }}
-                    </div>
-                @endif
-
-                {{-- Domicilio --}}
-                @if($ciudadano?->direccion_texto)
-                    <div style="font-size: 0.72rem; color: var(--color-ink-600); line-height: 1.4;">
-                        {{ $ciudadano->direccion_texto }}
-                    </div>
-                @endif
-
             </div>
 
+            {{-- Nombre completo --}}
+            <div style="font-size: 1rem; font-weight: 700; color: var(--color-ink-900); line-height: 1.3; margin-bottom: 0.45rem;">
+                {{ $ciudadano ? ($ciudadano->nombre . ' ' . $ciudadano->apellido1 . ($ciudadano->apellido2 ? ' ' . $ciudadano->apellido2 : '')) : 'Ciudadano #' . $historia->ciudadano_id }}
+            </div>
+
+            {{-- HS + UO + Estado HS --}}
+            <div style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.3rem;">
+                <span style="font-size: 0.72rem; color: var(--color-ink-500);">HS #{{ $historia->id }}</span>
+                <span style="font-size: 0.72rem; color: var(--color-ink-300);">·</span>
+                @if($this->uoNombre)
+                    <span style="font-size: 0.72rem; color: var(--color-ink-500);">{{ $this->uoNombre }}</span>
+                @else
+                    <span style="font-size: 0.72rem; color: var(--color-ink-500);">UO #{{ $historia->unidad_organizativa_id }}</span>
+                @endif
+                <span style="background: {{ $badge['bg'] }}; color: {{ $badge['color'] }}; padding: 0.1rem 0.4rem; border-radius: 99px; font-size: 0.65rem; font-weight: 600; white-space: nowrap;">
+                    Estado HS: {{ $badge['label'] }}
+                </span>
+            </div>
+
+            {{-- Fecha de nacimiento · edad --}}
+            @if($ciudadano?->fecha_nacimiento)
+                <div style="font-size: 0.72rem; color: var(--color-ink-600); margin-bottom: 0.2rem;">
+                    {{ Carbon::parse($ciudadano->fecha_nacimiento)->format('d/m/Y') }} · {{ Carbon::parse($ciudadano->fecha_nacimiento)->age }} años
+                </div>
+            @endif
+
+            {{-- Domicilio --}}
+            @if($ciudadano?->direccion_texto)
+                <div style="font-size: 0.72rem; color: var(--color-ink-600); line-height: 1.4; margin-bottom: 0.2rem;">
+                    {{ $ciudadano->direccion_texto }}
+                </div>
+            @endif
+
+            {{-- Documento · Teléfono · Email --}}
+            @if($this->ciudadanoDocumento || $this->ciudadanoTelefono || $this->ciudadanoEmail)
+                <p class="hs-ciudadano-contacto">
+                    @if($this->ciudadanoDocumento)
+                        <span>{{ $this->ciudadanoDocumento }}</span>
+                    @endif
+                    @if($this->ciudadanoTelefono)
+                        <span>{{ $this->ciudadanoTelefono }}</span>
+                    @endif
+                    @if($this->ciudadanoEmail)
+                        <span>{{ $this->ciudadanoEmail }}</span>
+                    @endif
+                </p>
+            @endif
+
             {{-- Unidad de convivencia --}}
-            <div style="margin-bottom: 1rem; border: 1px solid var(--color-ink-200); border-radius: 8px; overflow: hidden;">
+            <div style="margin-top: 0.75rem; border: 1px solid var(--color-ink-200); border-radius: 8px; overflow: hidden;">
                 <button wire:click="toggleUC"
                         style="width: 100%; background: #fff; border: none; padding: 0.5rem 0.75rem; text-align: left; font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
                     <span>Unidad de convivencia</span>
@@ -123,9 +144,38 @@
                 @endif
             </div>
 
+        </div>
+
+        {{-- ============================================================== --}}
+        {{-- ZONA SUPERIOR DERECHA — toolbox de herramientas                --}}
+        {{-- ============================================================== --}}
+        <div class="ciudadano-header-right" style="padding: 1rem 1.25rem;">
+
+            <div style="display: grid; grid-template-columns: repeat({{ $herramientaActiva ? '7' : '4' }}, 1fr); gap: 0.5rem;">
+                @foreach($herramientas as $h)
+                    <button wire:click="seleccionarHerramienta('{{ $h['id'] }}')"
+                            style="background: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary-soft)' : '#fff' }}; border: 1px solid {{ $herramientaActiva === $h['id'] ? 'var(--color-primary)' : 'var(--color-ink-200)' }}; border-radius: 8px; padding: {{ $herramientaActiva ? '0.35rem 0.5rem' : '0.75rem 0.5rem' }}; cursor: pointer; text-align: center; transition: all 0.1s;">
+                        <i data-lucide="{{ $h['icon'] }}" style="font-size: inherit; width: {{ $herramientaActiva ? '16' : '20' }}px; height: {{ $herramientaActiva ? '16' : '20' }}px; color: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary)' : 'var(--color-ink-600)' }}; display: block; margin-bottom: {{ $herramientaActiva ? '0' : '0.3rem' }};" aria-hidden="true"></i>
+                        <span style="font-size: 0.7rem; color: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary-ink)' : 'var(--color-ink-700)' }}; font-weight: {{ $herramientaActiva === $h['id'] ? '600' : '400' }}; display: {{ $herramientaActiva ? 'none' : 'block' }};">
+                            {{ $h['label'] }}
+                            @if($h['fullpage'])
+                                <span style="display: block; font-size: 0.62rem; color: var(--color-ink-400);">↗ pantalla completa</span>
+                            @endif
+                        </span>
+                    </button>
+                @endforeach
+            </div>
+
+        </div>
+
+        {{-- ============================================================== --}}
+        {{-- ZONA INFERIOR IZQUIERDA — filtros + timeline + últimos accesos --}}
+        {{-- ============================================================== --}}
+        <div class="ciudadano-body-left" style="padding: 0.75rem;">
+
             {{-- Filtros del timeline --}}
             <div style="display: flex; gap: 0.3rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
-                @foreach([['todos', 'Todos'], ['plan', $nombrePlan], ['entrevista', 'Entrevistas']] as [$key, $label])
+                @foreach([['todos', 'Todos'], ['plan', $this->planNombreCorto], ['entrevista', 'Entrevistas']] as [$key, $label])
                     <button wire:click="setFiltroHS('{{ $key }}')"
                             style="font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 99px; border: 1px solid {{ $filtroHS === $key ? 'var(--color-primary)' : 'var(--color-ink-200)' }}; background: {{ $filtroHS === $key ? 'var(--color-primary-soft)' : '#fff' }}; color: {{ $filtroHS === $key ? 'var(--color-primary-ink)' : 'var(--color-ink-600)' }}; cursor: pointer; font-weight: {{ $filtroHS === $key ? '600' : '400' }};">
                         {{ $label }}
@@ -176,7 +226,6 @@
                     @php
                         $esPropio     = $acceso->user_id === Auth::id();
                         $uoAcceso     = $acceso->contexto['unidad_organizativa_id'] ?? null;
-                        // Aproximación con la UO actual del usuario si no se registró en contexto
                         $uoAcceso     = $uoAcceso ?? $acceso->user?->profesional?->unidad_organizativa_id;
                         $esOtraUo     = $uoAcceso !== null && $uoAcceso !== $historia->unidad_organizativa_id;
                         $esCambio     = in_array($acceso->accion?->value, ['crear', 'editar', 'eliminar']);
@@ -217,43 +266,14 @@
 
         </div>
 
-        {{-- Columna derecha --}}
-        <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0;">
+        {{-- ============================================================== --}}
+        {{-- ZONA INFERIOR DERECHA — área de trabajo activa + estadísticas  --}}
+        {{-- ============================================================== --}}
+        <div class="ciudadano-body-right">
 
-            {{-- Banda PISO activo --}}
-            @if($piso)
-                <div style="background: var(--color-primary-soft); border-bottom: 1px solid var(--color-ink-200); padding: 0.5rem 1.25rem; display: flex; align-items: center; gap: 1rem; flex-shrink: 0; font-size: 0.8rem;">
-                    <span style="font-weight: 600; color: var(--color-primary-ink);">{{ $nombrePlan }} activo</span>
-                    <span style="color: var(--color-ink-600);">v{{ $piso->version }} · desde {{ Carbon::parse($piso->fecha_inicio)->format('d/m/Y') }}</span>
-                    {{-- TODO: Entrega 4 — route('intervencion.piso.show', $piso->id) --}}
-                    <a href="#" style="margin-left: auto; font-size: 0.78rem; color: var(--color-primary); text-decoration: none; font-weight: 600;">Ver {{ $nombrePlan }} →</a>
-                </div>
-            @else
-                <div style="background: var(--color-paper); border-bottom: 1px solid var(--color-ink-200); padding: 0.45rem 1.25rem; font-size: 0.78rem; color: var(--color-ink-400); flex-shrink: 0;">
-                    Sin {{ $nombrePlan }} activo
-                </div>
-            @endif
+            {{-- Área de trabajo de la herramienta activa --}}
+            <div style="flex: 1; overflow-y: auto; padding: 1rem 1.25rem; min-height: 0;">
 
-            {{-- Área de herramientas --}}
-            <div style="flex: 1; overflow-y: auto; padding: 1rem 1.25rem;">
-
-                {{-- Cuadrícula de herramientas --}}
-                <div style="display: grid; grid-template-columns: repeat({{ $herramientaActiva ? '7' : '4' }}, 1fr); gap: 0.5rem; margin-bottom: {{ $herramientaActiva ? '1rem' : '0' }};">
-                    @foreach($herramientas as $h)
-                        <button wire:click="seleccionarHerramienta('{{ $h['id'] }}')"
-                                style="background: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary-soft)' : '#fff' }}; border: 1px solid {{ $herramientaActiva === $h['id'] ? 'var(--color-primary)' : 'var(--color-ink-200)' }}; border-radius: 8px; padding: {{ $herramientaActiva ? '0.35rem 0.5rem' : '0.75rem 0.5rem' }}; cursor: pointer; text-align: center; transition: all 0.1s;">
-                            <i data-lucide="{{ $h['icon'] }}" style="font-size: inherit; width: {{ $herramientaActiva ? '16' : '20' }}px; height: {{ $herramientaActiva ? '16' : '20' }}px; color: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary)' : 'var(--color-ink-600)' }}; display: block; margin-bottom: {{ $herramientaActiva ? '0' : '0.3rem' }};" aria-hidden="true"></i>
-                            <span style="font-size: 0.7rem; color: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary-ink)' : 'var(--color-ink-700)' }}; font-weight: {{ $herramientaActiva === $h['id'] ? '600' : '400' }}; display: {{ $herramientaActiva ? 'none' : 'block' }};">
-                                {{ $h['label'] }}
-                                @if($h['fullpage'])
-                                    <span style="display: block; font-size: 0.62rem; color: var(--color-ink-400);">↗ pantalla completa</span>
-                                @endif
-                            </span>
-                        </button>
-                    @endforeach
-                </div>
-
-                {{-- Formulario de la herramienta activa --}}
                 @if($herramientaActiva === 'entrevista')
                     <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1rem;">
                         <h3 style="font-size: 0.9rem; font-weight: 700; margin: 0 0 0.75rem; color: var(--color-ink-900);">Registrar entrevista</h3>
@@ -422,7 +442,25 @@
                 @endif
 
             </div>
+
+            {{-- Barra de estadísticas de contexto --}}
+            <div class="hs-stats-bar">
+                <div class="hs-stat">
+                    <span class="hs-stat__val">{{ $this->statApuntes }}</span>
+                    <span class="hs-stat__label">Apuntes</span>
+                </div>
+                <div class="hs-stat">
+                    <span class="hs-stat__val">{{ $this->statPrestaciones ?? '—' }}</span>
+                    <span class="hs-stat__label">Prestaciones activas</span>
+                </div>
+                <div class="hs-stat">
+                    <span class="hs-stat__val">{{ $this->statUltimoContacto ?? '—' }}</span>
+                    <span class="hs-stat__label">Último contacto</span>
+                </div>
+            </div>
+
         </div>
+
     </div>
 
 </div>

@@ -11,6 +11,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -42,33 +43,56 @@ class UnidadOrganizativaResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('nombre')
-                ->label('Nombre')
-                ->required()
-                ->maxLength(200)
-                ->columnSpanFull(),
+            Section::make('Identificación')
+                ->schema([
+                    TextInput::make('nombre')
+                        ->label('Nombre')
+                        ->required()
+                        ->maxLength(200)
+                        ->columnSpanFull(),
 
-            Select::make('tipo')
-                ->label('Tipo')
-                ->required()
-                ->options(fn () => DB::table('tipos_unidad_organizativa')
-                    ->orderBy('nombre')
-                    ->pluck('nombre', 'codigo')
-                    ->toArray()),
+                    TextInput::make('nombre_corto')
+                        ->label('Nombre corto / acrónimo')
+                        ->maxLength(40)
+                        ->placeholder('p. ej.: CSS Vallecas')
+                        ->helperText('Se muestra en badges y cabeceras de expediente.'),
 
-            Select::make('parent_id')
-                ->label('UO padre')
-                ->placeholder('— Sin padre (nodo raíz) —')
-                ->options(fn () => UnidadOrganizativa::activas()
-                    ->orderBy('nombre')
-                    ->pluck('nombre', 'id')
-                    ->toArray())
-                ->searchable()
-                ->nullable(),
+                    Select::make('tipo')
+                        ->label('Tipo')
+                        ->required()
+                        ->options(fn () => DB::table('tipos_unidad_organizativa')
+                            ->orderBy('nombre')
+                            ->pluck('nombre', 'codigo')
+                            ->toArray()),
 
-            Toggle::make('activa')
-                ->label('Activa')
-                ->default(true),
+                    Select::make('parent_id')
+                        ->label('UO padre')
+                        ->placeholder('— Sin padre (nodo raíz) —')
+                        ->options(fn () => UnidadOrganizativa::activas()
+                            ->orderBy('nombre')
+                            ->pluck('nombre', 'id')
+                            ->toArray())
+                        ->searchable()
+                        ->nullable(),
+
+                    Toggle::make('activa')
+                        ->label('Activa')
+                        ->default(true),
+                ]),
+
+            Section::make('Plan de intervención')
+                ->description('Define cómo se llama el plan de intervención en esta unidad organizativa. Si se deja en blanco, se usará "Plan de intervención" / "Plan".')
+                ->schema([
+                    TextInput::make('plan_nombre_completo')
+                        ->label('Nombre completo del plan')
+                        ->placeholder('Plan de intervención')
+                        ->maxLength(80),
+
+                    TextInput::make('plan_nombre_corto')
+                        ->label('Nombre abreviado (acrónimo)')
+                        ->placeholder('Plan')
+                        ->maxLength(10),
+                ]),
         ]);
     }
 

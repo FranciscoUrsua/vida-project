@@ -206,6 +206,96 @@ class CiudadanoPage extends Component
         return app(AccesosExpedienteQuery::class)->puedeVerTodos(Auth::user(), $this->historia);
     }
 
+    /**
+     * Nombre corto (o completo) de la UO responsable de la Historia Social.
+     * Se muestra en la cabecera del ciudadano sustituyendo al ID numérico de UO.
+     */
+    #[Computed]
+    public function uoNombre(): ?string
+    {
+        return $this->historia->unidadOrganizativa?->nombre_corto
+            ?? $this->historia->unidadOrganizativa?->nombre
+            ?? null;
+    }
+
+    /**
+     * Nombre corto del Plan de Intervención según la UO de la Historia Social.
+     * Fallback: «Plan».
+     */
+    #[Computed]
+    public function planNombreCorto(): string
+    {
+        return $this->historia->unidadOrganizativa?->plan_nombre_corto ?? 'Plan';
+    }
+
+    /**
+     * Nombre completo del Plan de Intervención según la UO de la Historia Social.
+     * Fallback: «Plan de intervención».
+     */
+    #[Computed]
+    public function planNombreCompleto(): string
+    {
+        return $this->historia->unidadOrganizativa?->plan_nombre_completo ?? 'Plan de intervención';
+    }
+
+    /**
+     * Documento de identidad del ciudadano (cifrado, desencriptado por el cast).
+     */
+    #[Computed]
+    public function ciudadanoDocumento(): ?string
+    {
+        return $this->ciudadano?->documento_identidad ?? null;
+    }
+
+    /**
+     * Teléfono de contacto del ciudadano.
+     */
+    #[Computed]
+    public function ciudadanoTelefono(): ?string
+    {
+        return $this->ciudadano?->telefono ?? null;
+    }
+
+    /**
+     * Correo electrónico de contacto del ciudadano.
+     */
+    #[Computed]
+    public function ciudadanoEmail(): ?string
+    {
+        return $this->ciudadano?->email ?? null;
+    }
+
+    /**
+     * Total de apuntes visibles en la Historia Social (todos los filtros).
+     * Usa la colección ya cargada para evitar consulta adicional.
+     */
+    #[Computed]
+    public function statApuntes(): int
+    {
+        return $this->apuntesHS->count();
+    }
+
+    /**
+     * Prestaciones activas del ciudadano.
+     * Pendiente de integración real con el módulo Prestaciones.
+     *
+     * @todo Integrar con módulo Prestaciones cuando esté disponible.
+     */
+    #[Computed]
+    public function statPrestaciones(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * Fecha del último registro en la Historia Social formateada.
+     */
+    #[Computed]
+    public function statUltimoContacto(): ?string
+    {
+        return $this->apuntesHS->first()?->created_at?->translatedFormat('j M Y');
+    }
+
     // -------------------------------------------------------------------------
     // Métodos de UI
     // -------------------------------------------------------------------------

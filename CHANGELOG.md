@@ -2,6 +2,58 @@
 
 ---
 
+## Mejoras pantalla intervención — 2026-06-15
+
+### Área afectada
+`Modules/Intervencion/`, `app/Models/UnidadOrganizativa.php`, `app/Filament/Resources/UnidadOrganizativaResource.php`, `app/Filament/Resources/ConfiguracionOrganizacionResource/`, `Modules/Organizacion/app/Models/Configuracion.php`, `resources/css/app-operativo.css`
+
+### Cambios
+
+#### Cambio 1 — Logotipo configurable en el sidebar
+- `Configuracion` model: métodos estáticos `logoUrl()` y `nombreAplicacion()` leen de `ConfiguracionService` (claves `logo_path` y `nombre_aplicacion` en `organizacion_configuracion`).
+- `Sidebar.php`: computed `branding()`.
+- `sidebar.blade.php`: tres niveles de fallback — logo img → nombre texto → "VIDA360" + icono por defecto.
+- `ListConfiguracion` (Filament): Header Action «Identidad visual» con `FileUpload` y `TextInput`.
+- `app-operativo.css`: `.op-sidebar-logo-img`, `.op-sidebar-logo-text`.
+
+#### Cambio 2 — Nombre del Plan de Intervención configurable por UO
+- Migración `2026_06_15_100001`: añade `plan_nombre_completo`, `plan_nombre_corto` a `unidades_organizativas`.
+- `UnidadOrganizativa`: `$fillable`, accessors con fallback «Plan de intervención» / «Plan».
+- `UnidadOrganizativaResource`: sección «Plan de intervención» con dos `TextInput`.
+- `CiudadanoPage.php`: computeds `planNombreCorto()` y `planNombreCompleto()`.
+- `ciudadano-page.blade.php`: literales "PISO" reemplazados por `$this->planNombreCorto`.
+
+#### Cambio 3 — Sin avatar de iniciales
+- No existía; no se ha añadido ninguno.
+
+#### Cambio 4 — Nombre de la UO en lugar del ID
+- Migración: añade `nombre_corto` (string 40, nullable) a `unidades_organizativas`.
+- `UnidadOrganizativaResource`: campo `nombre_corto` en sección «Identificación».
+- `CiudadanoPage.php`: computed `uoNombre()` (nombre_corto → nombre → null).
+- `ciudadano-page.blade.php`: badge UO muestra nombre; fallback `UO #ID`.
+
+#### Cambio 5 — Más datos del ciudadano en la cabecera
+- `CiudadanoPage.php`: computeds `ciudadanoDocumento()`, `ciudadanoTelefono()`, `ciudadanoEmail()`.
+- `ciudadano-page.blade.php`: línea de contacto con clase `.hs-ciudadano-contacto`.
+- `app-operativo.css`: clase `.hs-ciudadano-contacto` con separador `·` via `::before`.
+
+#### Cambio 6 — Reorganización del layout (4 cuadrantes)
+- `ciudadano-page.blade.php`: banda plan a ancho completo + grid 2×2 debajo.
+  - Sup-izq (blanco): datos ciudadano + UC. Sup-der (blanco): toolbox.
+  - Inf-izq (paper): filtros + timeline + accesos. Inf-der (paper): trabajo + stats.
+- `app-operativo.css`: `.ciudadano-layout`, `.ciudadano-header-left/right`, `.ciudadano-body-left/right`.
+
+#### Cambio 7 — Estadísticas de contexto en el pie del panel derecho
+- `CiudadanoPage.php`: computeds `statApuntes()`, `statPrestaciones()` (null, TODO), `statUltimoContacto()`.
+- `ciudadano-page.blade.php`: `.hs-stats-bar` en el pie de la zona inferior derecha.
+- `app-operativo.css`: `.hs-stats-bar`, `.hs-stat`, `.hs-stat__val`, `.hs-stat__label`.
+
+### Decisiones de implementación
+- El branding se almacena en el key-value store existente (`organizacion_configuracion`) en lugar de añadir columnas a la tabla, para respetar la arquitectura establecida. No se ha creado migración de branding.
+- `statPrestaciones` devuelve `null` mientras no exista integración con el módulo Prestaciones.
+
+---
+
 ## UI Tweaks — 2026-06-15
 
 ### Área afectada

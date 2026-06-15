@@ -5,6 +5,7 @@ namespace Modules\Organizacion\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Modules\Organizacion\Services\ConfiguracionService;
 
 /**
@@ -59,5 +60,35 @@ class Configuracion extends Model
     public function scopeTipo(Builder $consulta, string $tipo): Builder
     {
         return $consulta->where('tipo', $tipo);
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers de branding (Cambio 1 — logotipo configurable)
+    // -------------------------------------------------------------------------
+
+    /**
+     * URL pública del logotipo de la aplicación.
+     * Lee la clave «logo_path» del almacén de configuración.
+     *
+     * @return string|null URL completa o null si no hay logotipo configurado.
+     */
+    public static function logoUrl(): ?string
+    {
+        $path = app(ConfiguracionService::class)->get('logo_path');
+
+        return $path ? Storage::url((string) $path) : null;
+    }
+
+    /**
+     * Nombre personalizado de la aplicación.
+     * Lee la clave «nombre_aplicacion» del almacén de configuración.
+     *
+     * @return string|null Nombre configurado o null si no se ha establecido.
+     */
+    public static function nombreAplicacion(): ?string
+    {
+        $nombre = app(ConfiguracionService::class)->get('nombre_aplicacion');
+
+        return ($nombre && $nombre !== '') ? (string) $nombre : null;
     }
 }

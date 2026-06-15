@@ -2,10 +2,18 @@
 {{-- Se refresca cada 5 minutos (wire:poll.300s) --}}
 <aside class="op-sidebar" wire:poll.300s>
 
-    {{-- Logo --}}
+    {{-- Logo: logotipo configurable con tres niveles de fallback --}}
     <div class="op-sidebar-logo">
-        <i data-lucide="hand-heart" class="op-logo-icon" style="width:22px;height:22px;" aria-hidden="true"></i>
-        <span class="op-logo-name">{{ config('app.name') }}</span>
+        @if($this->branding['logoUrl'])
+            <img src="{{ $this->branding['logoUrl'] }}"
+                 alt="{{ $this->branding['nombreAplicacion'] ?? 'VIDA360' }}"
+                 class="op-sidebar-logo-img">
+        @elseif($this->branding['nombreAplicacion'])
+            <span class="op-sidebar-logo-text">{{ $this->branding['nombreAplicacion'] }}</span>
+        @else
+            <i data-lucide="hand-heart" class="op-logo-icon" style="width:22px;height:22px;" aria-hidden="true"></i>
+            <span class="op-logo-name">VIDA360</span>
+        @endif
     </div>
 
     {{-- Navegación principal --}}
