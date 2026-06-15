@@ -25,6 +25,18 @@ class EditTipoFicha extends EditRecord
         ];
     }
 
+    /**
+     * Convierte los bloques crudos del Builder al formato canónico del schema.
+     * En Filament 5, dehydrateStateUsing en un Builder no propaga su valor
+     * a $data automáticamente; la transformación debe hacerse aquí.
+     */
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['schema'] = TipoFichaResource::convertirSchemaBlocks($data['schema'] ?? []);
+
+        return $data;
+    }
+
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         try {

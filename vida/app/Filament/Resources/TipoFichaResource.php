@@ -278,6 +278,64 @@ class TipoFichaResource extends Resource
     }
 
     // -------------------------------------------------------------------------
+    // Helpers públicos (usados por las páginas)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Convierte el estado crudo del Builder (bloques con 'type'/'data')
+     * al formato canónico del schema del modelo ({'campos': [...]}).
+     * Si el estado ya está en formato canónico, lo devuelve sin modificar.
+     * Necesario porque en Filament 5 el valor de dehydrateStateUsing en
+     * un Builder NO se asigna automáticamente a $data en mutateFormDataBefore*.
+     */
+    public static function convertirSchemaBlocks(mixed $state): array
+    {
+        if (is_array($state) && isset($state['campos'])) {
+            return $state;
+        }
+
+        if (empty($state) || ! is_array($state)) {
+            return ['campos' => []];
+        }
+
+        $idsUsados = [];
+
+        $campos = collect($state)
+            ->filter(fn ($block) => is_array($block) && isset($block['type']))
+            ->values()
+            ->map(function (array $block, int $i) use (&$idsUsados): ?array {
+                $tipo = $block['type'];
+                $data = $block['data'] ?? [];
+
+                if (! is_array($data)) {
+                    return null;
+                }
+
+                if (empty($data['id'])) {
+                    $base = Str::slug($data['etiqueta'] ?? 'campo', '_');
+                    $id   = $base;
+                    $n    = 1;
+                    while (in_array($id, $idsUsados, true)) {
+                        $id = $base.'_'.$n;
+                        $n++;
+                    }
+                    $data['id'] = $id;
+                }
+
+                $idsUsados[] = $data['id'];
+                $data['tipo']  = $tipo;
+                $data['orden'] = $i + 1;
+
+                return $data;
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        return ['campos' => $campos];
+    }
+
+    // -------------------------------------------------------------------------
     // Helpers privados
     // -------------------------------------------------------------------------
 
