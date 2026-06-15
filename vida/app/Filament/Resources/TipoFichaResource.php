@@ -226,6 +226,7 @@ class TipoFichaResource extends Resource
 
                                     $campos = collect($state)
                                         ->filter(fn ($block) => is_array($block) && isset($block['type']))
+                                        ->values()
                                         ->map(function (array $block, int $i) use (&$idsUsados): ?array {
                                             $tipo = $block['type'];
                                             $data = $block['data'] ?? [];
