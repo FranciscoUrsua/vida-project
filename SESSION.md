@@ -4,73 +4,86 @@ _Actualizado: 2026-06-16_
 
 ## Tarea completada
 
-`UnidadConvivencia` — modelos, migraciones y tests de Unidad de Convivencia (10 pasos de `uc-implementacion.md`).
+`RegistrarValoracionPage` — renderizado de schema y persistencia de ficha (Livewire).
 
 ## Estado actual
 
 ### Cambios aplicados en esta sesión
 
-**Documentación**
-- `docs/modulo-ciudadania.md` sección 3.4 — reescrita con decisiones de diseño UC:
-  campo `verificado_por`/`verificado_en`, restricción de perceptor, titularidad de planes.
-- `docs/modulo-intervencion.md` sección 5.2 — añadido `unidad_convivencia_id` nullable a atributos de `PlanDeIntervencion`.
+**Migración**
+- `Modules/Intervencion/database/migrations/2026_06_16_000003_fichas_add_historia_id_nullable_valoracion.php`
+  — añade `fichas.historia_id` (nullable FK a `historias_sociales`) y hace `valoracion_id` nullable.
+  Permite persistir fichas directamente desde `RegistrarValoracionPage` sin Valoracion formal previa.
 
-**Migraciones**
-- `Modules/Ciudadania/database/migrations/2026_06_16_000001_create_unidades_convivencia_tables.php`
-  crea `unidades_convivencia` (con softDeletes) y `unidad_convivencia_miembros`
-  (con `verificado_por`, `verificado_en`, índices compuestos).
-- `Modules/Intervencion/database/migrations/2026_06_16_000002_add_unidad_convivencia_to_planes_intervencion.php`
-  añade `unidad_convivencia_id` nullable con FK a `unidades_convivencia`.
+**Modelo Ficha**
+- `historia_id` añadido a `$fillable`.
+- Relación `historia(): BelongsTo<HistoriaSocial, Ficha>`.
+- PHPDoc actualizado (historia_id nullable, valoracion_id nullable, TODO vinculación formal).
 
-**Modelos**
-- `Modules/Ciudadania/app/Models/UnidadConvivencia.php` — cifrado de domicilio
-  via Crypt, `agregarMiembro()`, `darDeBajaMiembro()`, `miembrosActivos()`,
-  `miembrosVerificados()`, `estaDisuelta()`, softDeletes, factory.
-- `Modules/Ciudadania/app/Models/UnidadConvivenciaMiembro.php` — `verificar()`,
-  `estaActiva()`, `puedeSerPerceptorPrestaciones()`.
-- `app/Models/Ciudadano.php` — añadidas relaciones: `membresiasUC()`,
-  `unidadesConvivencia()`, `unidadesConvivenciaActivas()`, `tieneResidenciaVerificada()`.
+**Componente Livewire `RegistrarValoracionPage`** (reescritura completa)
+- `public int $historiaId` en lugar de `public HistoriaSocial $historia` (evita scope-leaks).
+- `#[Computed] tipoFicha()` y `#[Computed] fichasDisponibles()`.
+- `seleccionarFicha(int $id)`: cambia ficha, reinicializa datos/notas/estadoGuardado.
+- `inicializarDatos()`: rellena `$datos` con null para cada campo del schema.
+- `guardar()`: valida obligatorios, persiste con `Ficha::updateOrCreate` idempotente.
+- `$estadoGuardado = 'guardado'` tras guardar exitoso.
 
-**Factory y autoload**
-- `Modules/Ciudadania/database/factories/UnidadConvivenciaFactory.php` —
-  estado `disuelta()` incluido.
-- `composer.json` — añadida entrada `"Modules\\Ciudadania\\Database\\Factories\\"` (faltaba).
+**Vista `registrar-valoracion-page.blade.php`** (reescritura completa)
+- Renderiza los 6 tipos: texto (textarea), numero (input+unidad), select (string array),
+  booleano (radio Sí/No), fecha (date input), escala (puntuación total).
+- Selector de ficha con `wire:change="seleccionarFicha($event.target.value)"`.
+- Campo notas libre.
+- Banner de confirmación `estadoGuardado === 'guardado'`.
+- Sin Bootstrap: inline styles con CSS tokens del proyecto.
 
-**Versionable en UnidadConvivencia**: trait añadido + TF-UC-14 que verifica snapshot en `versiones` al actualizar.
-
-**Tests TF-UC-01 a TF-UC-14**: todos en verde. Suite completa Ciudadanía: 49 pasando.
+**Tests TF-LW-VAL-01 a TF-LW-VAL-10**: todos en verde (10/10, 23 assertions).
 
 ### TODOs documentados en código (sin cambios)
+- `fichas.valoracion_id` nullable y `historia_id` directa es solución provisional.
+  TODO: vincular Ficha → Valoracion cuando ese flujo esté completo.
 - `CiudadanoPage::statPrestaciones()`: integrar con módulo Prestaciones.
-- Modal "Ver historial completo" de accesos (enlace "Ver todo").
+- Modal "Ver historial completo" de accesos.
 - Route PISO show (Entrega 4).
 - Menú ⋯ con acciones del expediente.
-- Botón "Ver ficha" UC en `FichaCiudadanoPage` apunta a TODO.
 
 ## Siguiente paso recomendado
 
 1. **UI Livewire para gestión de UC** — añadir/dar de baja miembros, verificar
    residencia, ver composición dentro de la pantalla de intervención del ciudadano.
 2. **Modal "Ver historial completo" de accesos** — el enlace "Ver todo" existe pero apunta a `#`.
-3. **Integrar `statPrestaciones`** con el módulo Prestaciones cuando esté disponible.
+3. **Vincular Ficha → Valoracion** cuando el flujo formal de Valoración esté completo
+   (`valoracion_id NOT NULL` de nuevo, con `Valoracion::firstOrCreate` en `guardar()`).
 4. **PISO/plan detail page** (Entrega 4).
 
 ## Contexto técnico para retomar
 
-### Ciudadano — relaciones UC (añadidas en esta sesión)
-- `membresiasUC()` → HasMany de `UnidadConvivenciaMiembro` (historial completo)
-- `unidadesConvivencia()` → BelongsToMany via tabla pivote
-- `unidadesConvivenciaActivas()` → idem, filtrando `fecha_fin IS NULL`
-- `tieneResidenciaVerificada()` → bool, para control de perceptores de prestaciones
+### Schema TipoFicha — formato canónico
+```json
+{
+  "campos": [
+    {"id": "...", "tipo": "texto|numero|select|booleano|fecha|escala",
+     "etiqueta": "...", "descripcion": null, "obligatorio": false, "orden": 1}
+  ]
+}
+```
+- `select` → `opciones`: array de strings simples (ej. `['Propiedad', 'Alquiler']`).
+- `numero` → `unidad`: string nullable.
+- `escala` → `tipo_escala_id`: int FK; solo se captura puntuación total.
 
-### Decisiones de dominio fijadas (UC)
-1. Todo miembro UC es ciudadano pleno (flujo de alta completo).
-2. `verificado` en membresía = residencia municipal verificada; sin ella no puede ser perceptor.
-3. `PlanDeIntervencion` puede tener `unidad_convivencia_id` (intervención familiar); exactamente uno de `ciudadano_id` o `unidad_convivencia_id` debe ser el destinatario.
-4. La UC no tiene titular.
+### RegistrarValoracionPage — decisiones clave
+- `public int $historiaId`: serializable sin scope-leaks; el modelo se resuelve en `mount()`.
+- `Ficha::updateOrCreate(['historia_id', 'tipo_ficha_id'], [...])`: idempotente por diseño.
+- `#[Computed]` en Livewire 4: accesible como `$this->tipoFicha` y `$this->fichasDisponibles`
+  tanto en el componente como en el blade.
+- `wire:change="seleccionarFicha($event.target.value)"`: Livewire 4 coerce string→int.
 
 ### Livewire 4 — restricciones consolidadas
-- `livewire:updated` no existe. Usar `Livewire.hook('morphed', cb)` tras `livewire:initialized`.
 - Full-page components: `mount()` solo recibe parámetros de ruta. Leer con `request()->query('param')`.
-- `redirect()` en un componente devuelve `Livewire\Features\SupportRedirects\Redirector`. Usar `$this->redirect(route(...))`.
-- `wire:model` es diferido. Usar `wire:model.live` cuando el re-render inmediato es necesario.
+- `wire:model` es diferido. Usar `wire:model.live` para re-render inmediato.
+- `#[Computed]` se cachea por request; al cambiar la propiedad que lo alimenta,
+  el computed se recalcula en la siguiente petición Livewire.
+
+### Deadlocks en suite completa (PostgreSQL)
+Los tests del módulo Intervencion fallan con deadlock cuando se ejecutan todos a la vez
+(`php artisan test Modules/Intervencion/tests`). Es un problema de infraestructura preexistente
+(RefreshDatabase + DROP TABLE cascade + concurrencia). Los tests individuales o por filter pasan.

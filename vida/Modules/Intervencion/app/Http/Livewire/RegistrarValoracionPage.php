@@ -4,23 +4,32 @@ namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\HistoriaSocial;
 use Illuminate\View\View;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\TipoFicha;
 
 /**
- * Pantalla completa para registrar una valoración sobre la Historia Social.
+ * Pantalla completa para registrar una ficha de valoración sobre la Historia Social.
  *
- * Carga el schema del TipoFicha y renderiza los campos dinámicamente.
- * Al guardar, delega en CiudadanoPage::guardarValoracion() para
- * mantener la lógica de creación en un único lugar.
+ * Carga el schema del TipoFicha seleccionado y renderiza los campos dinámicamente
+ * según su tipo (texto, numero, select, booleano, fecha, escala).
+ * Persiste los datos en `fichas` vinculada directamente a la historia mediante
+ * historia_id (sin requerir Valoracion formal previa — TODO: vincular cuando esté completo).
  *
- * @see docs/instrucciones-cli/ui-intervencion-entrega3.md §5.5
+ * @see docs/instrucciones-cli/valoracion-page-implementacion.md
  */
 #[Layout('layouts.operativo')]
 class RegistrarValoracionPage extends Component
 {
-    public HistoriaSocial $historia;
+    /**
+     * ID de la HistoriaSocial. Se usa int en lugar del modelo para evitar
+     * que AmbitoUoScope interfiera durante la serialización de Livewire.
+     *
+     * @var int
+     */
+    public int $historiaId;
 
     /** @var int|null ID del TipoFicha seleccionado */
     public ?int $tipoFichaId = null;
@@ -28,29 +37,80 @@ class RegistrarValoracionPage extends Component
     /** @var int|null Entrevista que origina esta valoración */
     public ?int $entrevistaId = null;
 
-    /** @var array<string, mixed> Respuestas del formulario dinámico */
-    public array $respuestas = [];
+    /** @var array<string, mixed> Valores del formulario dinámico, indexados por campo id */
+    public array $datos = [];
+
+    /** @var string Notas libres del profesional sobre la valoración */
+    public string $notas = '';
+
+    /** @var string|null Estado tras guardar: 'guardado' o null */
+    public ?string $estadoGuardado = null;
 
     public function mount(HistoriaSocial $historia): void
     {
-        $this->historia = $historia;
-        // Livewire 4 full-page components no reciben query string en mount(); se lee directamente.
+        $this->historiaId = $historia->id;
+
+        // Livewire 4 full-page: query string no llega a mount(), se lee directamente.
         $tipoFicha = request()->query('tipo_ficha');
-        $this->tipoFichaId = $tipoFicha ? (int) $tipoFicha : null;
+        if ($tipoFicha && is_numeric($tipoFicha)) {
+            $this->tipoFichaId = (int) $tipoFicha;
+        }
+
         $entrevista = request()->query('entrevista');
         $this->entrevistaId = $entrevista ? (int) $entrevista : null;
+
+        $this->inicializarDatos();
     }
 
+    // -------------------------------------------------------------------------
+    // Computed
+    // -------------------------------------------------------------------------
+
     /**
-     * Devuelve el TipoFicha cargado si hay un ID seleccionado.
+     * TipoFicha actualmente seleccionado, null si no hay selección.
+     *
+     * @return TipoFicha|null
      */
-    public function getTipoFichaProperty(): ?TipoFicha
+    #[Computed]
+    public function tipoFicha(): ?TipoFicha
     {
-        return $this->tipoFichaId ? TipoFicha::find($this->tipoFichaId) : null;
+        if (! $this->tipoFichaId) {
+            return null;
+        }
+
+        return TipoFicha::find($this->tipoFichaId);
     }
 
     /**
-     * Guarda la valoración y redirige de vuelta a la pantalla del ciudadano.
+     * Fichas activas disponibles para el selector, indexadas por id.
+     *
+     * @return array<int, string>
+     */
+    #[Computed]
+    public function fichasDisponibles(): array
+    {
+        return TipoFicha::activos()->orderBy('nombre')->pluck('nombre', 'id')->toArray();
+    }
+
+    // -------------------------------------------------------------------------
+    // Acciones
+    // -------------------------------------------------------------------------
+
+    /**
+     * Cambia la ficha seleccionada y reinicializa el formulario.
+     */
+    public function seleccionarFicha(int $id): void
+    {
+        $this->tipoFichaId    = $id;
+        $this->datos          = [];
+        $this->notas          = '';
+        $this->estadoGuardado = null;
+        $this->inicializarDatos();
+    }
+
+    /**
+     * Valida los campos obligatorios y persiste la ficha vinculada a la historia.
+     * Si ya existe una ficha para esta historia y tipo, la actualiza (idempotente).
      */
     public function guardar(): void
     {
@@ -60,12 +120,50 @@ class RegistrarValoracionPage extends Component
             return;
         }
 
-        // Construir el componente CiudadanoPage en memoria para reutilizar su lógica
-        $page = new CiudadanoPage;
-        $page->historia = $this->historia;
-        $page->guardarValoracion($this->tipoFichaId, $this->respuestas, $this->entrevistaId);
+        $campos = $this->tipoFicha?->schema['campos'] ?? [];
+        $reglas = [];
 
-        $this->redirect(route('intervencion.ciudadano.show', $this->historia->id));
+        foreach ($campos as $campo) {
+            if ($campo['obligatorio'] ?? false) {
+                $reglas["datos.{$campo['id']}"] = ['required'];
+            }
+        }
+
+        if (! empty($reglas)) {
+            $this->validate($reglas);
+        }
+
+        // TODO: vincular a Valoracion cuando ese flujo esté completo
+        Ficha::updateOrCreate(
+            [
+                'historia_id'   => $this->historiaId,
+                'tipo_ficha_id' => $this->tipoFichaId,
+            ],
+            [
+                'datos'      => $this->datos ?: null,
+                'notas'      => $this->notas ?: null,
+                'completada' => false,
+            ]
+        );
+
+        $this->estadoGuardado = 'guardado';
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Inicializa $datos con null para cada campo del schema.
+     * Solo añade claves nuevas; preserva valores ya introducidos.
+     */
+    private function inicializarDatos(): void
+    {
+        foreach ($this->tipoFicha?->schema['campos'] ?? [] as $campo) {
+            if (! array_key_exists($campo['id'], $this->datos)) {
+                $this->datos[$campo['id']] = null;
+            }
+        }
     }
 
     public function render(): View

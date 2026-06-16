@@ -4,6 +4,7 @@ namespace Modules\Intervencion\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\HistoriaSocial;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Intervencion\Database\Factories\FichaFactory;
 
@@ -14,8 +15,13 @@ use Modules\Intervencion\Database\Factories\FichaFactory;
  * introducidos por el profesional. El campo datos es un JSON libre;
  * el campo notas permite texto sin estructura durante la entrevista.
  *
+ * historia_id se usa cuando la ficha se crea desde RegistrarValoracionPage
+ * antes de existir una Valoracion formal (valoracion_id nullable).
+ * TODO: vincular siempre a Valoracion cuando ese flujo esté completo.
+ *
  * @property int $id
- * @property int $valoracion_id
+ * @property int|null $historia_id
+ * @property int|null $valoracion_id
  * @property int $tipo_ficha_id
  * @property array|null $datos
  * @property string|null $notas
@@ -33,6 +39,7 @@ class Ficha extends Model
     protected $table = 'fichas';
 
     protected $fillable = [
+        'historia_id',
         'valoracion_id',
         'tipo_ficha_id',
         'datos',
@@ -48,6 +55,16 @@ class Ficha extends Model
     // -------------------------------------------------------------------------
     // Relaciones
     // -------------------------------------------------------------------------
+
+    /**
+     * Historia social a la que pertenece esta ficha (flujo directo, sin valoracion formal).
+     *
+     * @return BelongsTo<HistoriaSocial, Ficha>
+     */
+    public function historia(): BelongsTo
+    {
+        return $this->belongsTo(HistoriaSocial::class, 'historia_id');
+    }
 
     /**
      * @return BelongsTo<Valoracion, Ficha>
