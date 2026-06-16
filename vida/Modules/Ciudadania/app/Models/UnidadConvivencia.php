@@ -2,6 +2,7 @@
 
 namespace Modules\Ciudadania\Models;
 
+use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -38,6 +39,7 @@ class UnidadConvivencia extends Model
     /** @use HasFactory<UnidadConvivenciaFactory> */
     use HasFactory;
     use SoftDeletes;
+    use Versionable;
 
     protected $table = 'unidades_convivencia';
 

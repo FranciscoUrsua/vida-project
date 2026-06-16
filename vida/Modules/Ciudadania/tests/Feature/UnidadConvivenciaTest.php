@@ -2,6 +2,7 @@
 
 namespace Modules\Ciudadania\Tests\Feature;
 
+use App\Models\Version;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Ciudadania\Models\Ciudadano;
 use Modules\Ciudadania\Models\UnidadConvivencia;
@@ -208,5 +209,21 @@ class UnidadConvivenciaTest extends TestCase
 
         $this->assertEquals('padron', $miembro->fuente);
         $this->assertFalse($miembro->verificado);
+    }
+
+    // TF-UC-14: actualizar una UC genera snapshot en versiones (Versionable)
+    public function test_actualizar_uc_genera_version(): void
+    {
+        $uc = UnidadConvivencia::factory()->create(['observaciones' => 'Original']);
+
+        $this->assertDatabaseCount('versiones', 0);
+
+        $uc->update(['observaciones' => 'Modificado']);
+
+        $this->assertDatabaseCount('versiones', 1);
+
+        $version = Version::first();
+        $this->assertEquals(UnidadConvivencia::class, $version->versionable_type);
+        $this->assertEquals($uc->id, $version->versionable_id);
     }
 }
