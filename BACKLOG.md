@@ -296,3 +296,24 @@ para prerellenar domicilio de la UC y retornar al modal tras el alta (con el
 ciudadano recién creado seleccionado para confirmar su adición).
 
 ---
+
+**Relaciones en UI de intervención** — 2026-06-16
+`Módulo: Intervención / Ciudadanía`
+El catálogo TipoRelacion está implementado. Pendiente:
+- Widget UC en CiudadanoPage: mostrar tipo de relación de cada miembro respecto
+  al titular (leer de ciudadano_relaciones filtrando por el par).
+- Línea de representante entre cabecera ciudadano y widget UC.
+- Modal "Ver todas las relaciones" accesible desde FichaCiudadanoPage.
+- Gestión de relaciones (crear/editar/cerrar) en FichaCiudadanoPage.
+- Modelo CiudadanoRelacion + migración ciudadano_relaciones + trait TieneRelacionesReciprocas
+  (tabla diseñada en docs/modulo-ciudadania.md §3.3 pero pendiente de implementar).
+
+---
+
+**Añadir TipoRelacionSeeder al DatabaseSeeder raíz** — 2026-06-16
+`Módulo: Ciudadanía`
+El seeder existe (`TipoRelacionSeeder`) pero no está encadenado al DatabaseSeeder
+raíz del módulo ni al global. Añadir cuando se haga el primer deploy con datos
+del catálogo de relaciones.
+
+---

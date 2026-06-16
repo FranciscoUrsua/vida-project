@@ -4,82 +4,69 @@ _Actualizado: 2026-06-16_
 
 ## Tarea completada
 
-Modal de gestión de UC en `CiudadanoPage` (Livewire).
+Catálogo `TipoRelacion` — enum `ImplicacionFuncional`, migración, modelo, seeder,
+factory, resource Filament y 15 tests en verde.
 
 ## Estado actual
 
 ### Cambios aplicados en esta sesión
 
-**CiudadanoPage.php**
-- Nuevas propiedades: `$modalUcAbierto`, `$ucBusqueda`, `$ucMiembroParaBaja`,
-  `$ucCiudadanoSeleccionado`, `$ucMensaje`.
-- Nuevas propiedades computadas: `ucVigente()`, `ucMiembrosActivos()`, `ucResultadosBusqueda()`.
-- Nuevos métodos: `abrirModalUc`, `cerrarModalUc`, `seleccionarCiudadanoUc`,
-  `confirmarAnadirMiembro`, `cancelarSeleccionUc`, `iniciarBajaMiembro`,
-  `confirmarBajaMiembro`, `cancelarBajaMiembro`, `verificarMiembro`, `crearUc`.
-- Corrección aplicada en `crearUc()`: usa `$this->ciudadano->direccion_texto`,
-  `coordenadas_lat`, `coordenadas_lng` (los campos reales de Ciudadano, no `domicilio`/`latitud`/`longitud`).
-- Corrección aplicada en `ucResultadosBusqueda()`: usa `withoutGlobalScope(AmbitoUoScope::class)`
-  para permitir buscar ciudadanos sin HistoriaSocial en el UO del usuario.
+**Módulo Ciudadania — nuevos ficheros**
+- `Modules/Ciudadania/app/Enums/ImplicacionFuncional.php`
+  — enum PHP con casos `Representante`, `TutorLegal`, `CuidadorPrincipal`.
+- `Modules/Ciudadania/database/migrations/2026_06_16_000003_create_tipos_relacion_table.php`
+  — tabla `tipos_relacion` con slug único, FK lógica `slug_reciproco`,
+  `implicacion_funcional` indexado.
+- `Modules/Ciudadania/app/Models/TipoRelacion.php`
+  — modelo con `HasFactory`, scopes `activos`/`conImplicacion`, método
+  `tipoRecíproco()`, helpers `conImplicacionFuncional()`, `existeImplicacion()`,
+  `opcionesParaSelect()`. Hook `deleting` que bloquea tipos con `eliminable = false`.
+- `Modules/Ciudadania/database/seeders/TipoRelacionSeeder.php`
+  — 15 tipos iniciales, idempotente (updateOrCreate por slug).
+- `Modules/Ciudadania/database/factories/TipoRelacionFactory.php`.
+- `Modules/Ciudadania/tests/Feature/TipoRelacionTest.php`
+  — 15 tests TF-TR-01..15, todos en verde.
 
-**ciudadano-page.blade.php**
-- Widget UC (columna izquierda) reemplazado: muestra miembros activos con icono
-  verificado/sin-verificar + botón "Gestionar UC" (`wire:click="abrirModalUc"`).
-- Modal de gestión UC añadido antes del cierre del componente raíz, al nivel de los
-  modales existentes. Cierre con Escape vía Alpine `x-on:keydown.escape.window`.
+**Filament (centralizado en app/)**
+- `app/Filament/Resources/TipoRelacionResource.php`
+  — grupo Catálogos, sort 9, acceso restringido a `adm_sistema`.
+  Slug no editable en modo edición. Eliminar visible solo si `eliminable = true`.
+- `app/Filament/Resources/TipoRelacionResource/Pages/{List,Create,Edit}TipoRelacion.php`
 
-**app-operativo.css**
-- Bloque completo de estilos UC: backdrop, modal, miembros, badges, botones utilitarios,
-  búsqueda con resultados, confirmación de adición, botón del widget.
+**Configuración**
+- `composer.json`: añadido mapping PSR-4 `Modules\\Ciudadania\\Database\\Seeders\\`
+  → `Modules/Ciudadania/database/seeders/` (faltaba, como en los demás módulos).
 
-**Tests TF-LW-UC-01 a TF-LW-UC-13**: todos en verde (13/13, 19 assertions).
-- Setup sigue el patrón de CiudadanoPageTest: seed roles, user con rol 'intervencion',
-  UsuarioUo, Livewire::actingAs().
+**Documentación**
+- `docs/modulo-ciudadania.md` §3.3 y §7.4 actualizados.
 
-### TODOs documentados en código (sin cambios)
-- `fichas.valoracion_id` nullable y `historia_id` directa es solución provisional.
-  TODO: vincular Ficha → Valoracion cuando ese flujo esté completo.
-- `CiudadanoPage::statPrestaciones()`: integrar con módulo Prestaciones.
-- Modal "Ver historial completo" de accesos (enlace "Ver todo" apunta a `#`).
-- Route PISO show (Entrega 4).
-- Alta rápida de ciudadano desde modal UC con contexto prerellenado → BACKLOG.
+### Paso 5 omitido (sin base)
+El Paso 5 de las instrucciones pedía actualizar `CiudadanoRelacion` y el trait
+`TieneRelacionesReciprocas`, pero ni el modelo ni el trait ni la tabla
+`ciudadano_relaciones` existen aún. Añadido a BACKLOG.
 
 ## Siguiente paso recomendado
 
-1. **Fichas sociales / Formulario de valoración estructurado** — el schema de fichas
-   ya existe (TipoFicha con schema JSON). Implementar el formulario dinámico completo
-   para rellenar fichas dentro del flujo de intervención (bloquea el PISO completo).
-2. **Modal "Ver historial completo" de accesos** — el enlace "Ver todo" existe pero apunta a `#`.
-3. **Vincular Ficha → Valoracion** — `valoracion_id NOT NULL` de nuevo, con
-   `Valoracion::firstOrCreate` en `guardar()`.
-4. **PISO/plan detail page** (Entrega 4).
+1. **Modelo CiudadanoRelacion + migración `ciudadano_relaciones`** — prerequisito
+   para mostrar relaciones en CiudadanoPage y FichaCiudadanoPage.
+2. **Widget UC con tipo de relación** — una vez exista CiudadanoRelacion,
+   mostrar el tipo de relación del miembro respecto al titular.
+3. **Modal gestión de relaciones** en FichaCiudadanoPage (crear/editar/cerrar).
+4. **Fichas sociales / Formulario de valoración** — bloquea el PISO completo.
 
 ## Contexto técnico para retomar
 
-### ucResultadosBusqueda — decisión clave
-Usa `Ciudadano::withoutGlobalScope(AmbitoUoScope::class)` para permitir buscar
-ciudadanos sin HistoriaSocial en la UO del usuario. Esto es correcto: al añadir
-miembros a una UC de convivencia familiar, puede haber personas cuya HS esté en
-otra UO (custodia compartida, domicilios múltiples).
+### TipoRelacion — diseño clave
+- El código evalúa `implicacion_funcional`, nunca el slug ni la etiqueta.
+- `eliminable = false` → error LogicException al intentar borrar.
+- `tipoRecíproco()` devuelve `$this` para tipos simétricos; el tipo inverso para asimétricos.
+- `opcionesParaSelect()` → `['slug' => 'etiqueta']` para formularios.
 
-### Campos de Ciudadano (vs UnidadConvivencia)
-- `Ciudadano.direccion_texto` (cifrado) — se usa como `domicilio` al crear la UC
-- `Ciudadano.coordenadas_lat`, `coordenadas_lng` — se usan como `latitud`/`longitud` en UC
-- `UnidadConvivencia.domicilio`, `latitud`, `longitud` — campos propios del modelo UC
+### PSR-4 Ciudadania
+- `Modules\\Ciudadania\\Database\\Seeders\\` → `Modules/Ciudadania/database/seeders/`
+  añadido a `composer.json`. Sin esto los seeders no se autocargan.
 
-### Schema TipoFicha — formato canónico
-```json
-{
-  "campos": [
-    {"id": "...", "tipo": "texto|numero|select|booleano|fecha|escala",
-     "etiqueta": "...", "descripcion": null, "obligatorio": false, "orden": 1}
-  ]
-}
-```
-- `select` → `opciones`: array de strings simples.
-- `numero` → `unidad`: string nullable.
-- `escala` → `tipo_escala_id`: int FK.
-
-### Deadlocks en suite completa (PostgreSQL)
-Los tests del módulo Intervencion fallan con deadlock cuando se ejecutan todos a la vez.
-Es un problema de infraestructura preexistente. Los tests individuales o por filter pasan.
+### Campos de Ciudadano (referencia)
+- `Ciudadano.direccion_texto` (cifrado) — se usa como `domicilio` al crear la UC.
+- `Ciudadano.coordenadas_lat`, `coordenadas_lng` — se usan como `latitud`/`longitud` en UC.
+- `nombre`, `apellido1`, `apellido2` también están cifrados (cast `encrypted`).

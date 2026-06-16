@@ -135,11 +135,57 @@ ciudadano_relaciones
 - timestamps
 ```
 
-El catálogo de `tipos_relacion` es configurable desde el backoffice. Cada tipo define su recíproco mediante el campo `tipo_reciproco`: cuando se crea la relación "A es padre de B", el sistema genera automáticamente "B es hijo de A". Las relaciones simétricas (cónyuge, pareja_de_hecho) se reciprocan con el mismo tipo.
+El catálogo de tipos de relación se gestiona en la tabla `tipos_relacion`
+(ver sección 3.3.1). Cada tipo define su etiqueta visible, su recíproco y,
+si procede, su implicación funcional. El trait `TieneRelacionesReciprocas`
+aplicado al modelo `CiudadanoRelacion` creará automáticamente el registro
+inverso al crear una relación, y propagará los cambios de fecha_fin y las
+eliminaciones al recíproco.
 
-Ejemplos del catálogo inicial: cónyuge, pareja_de_hecho, hijo/a, padre/madre, hermano/a, tutor_legal, tutelado, cuidador_principal, persona_cuidada, acogedor, acogido, representante, representado.
+### 3.3.1 Catálogo de tipos de relación
 
-La reciprocidad automática la gestiona el trait `TieneRelacionesReciprocas` aplicado al modelo `CiudadanoRelacion`. El trait intercepta la creación de una relación y genera el registro inverso en la misma transacción. Si se elimina o cierra (fecha_fin) una relación, el trait aplica el mismo cambio al registro recíproco.
+```
+tipos_relacion
+- id
+- slug              (string único, no editable — contrato interno del código)
+- etiqueta          (string editable — lo que ve el TSR)
+- etiqueta_reciproca (string editable — etiqueta del tipo inverso)
+- slug_reciproco    (string nullable — FK lógica al slug del tipo recíproco;
+                    null para tipos simétricos porque el recíproco es sí mismo)
+- simetrica         (boolean — true para cónyuge, pareja_de_hecho, hermano/a)
+- implicacion_funcional (string nullable — identificador semántico que el código
+                    usa para lógica de negocio; independiente del slug y la etiqueta.
+                    Valores iniciales: representante / tutor_legal / cuidador_principal)
+- eliminable        (boolean — false para tipos del seeder; true para tipos creados
+                    desde backoffice)
+- activo            (boolean default true)
+- timestamps
+```
+
+**Sobre `implicacion_funcional`:** el código nunca evalúa slugs ni etiquetas
+para tomar decisiones. Evalúa `implicacion_funcional`. Esto permite que el
+backoffice renombre etiquetas libremente, e incluso que un municipio cree un
+segundo tipo con `implicacion_funcional = representante` sin tocar código.
+
+**Tipos iniciales del seeder:**
+
+| slug | etiqueta | etiqueta_recíproca | simetrica | implicacion_funcional |
+|---|---|---|---|---|
+| padre | Padre/Madre | Hijo/a | false | — |
+| hijo | Hijo/a | Padre/Madre | false | — |
+| conyuge | Cónyuge | Cónyuge | true | — |
+| pareja_de_hecho | Pareja de hecho | Pareja de hecho | true | — |
+| hermano | Hermano/a | Hermano/a | true | — |
+| abuelo | Abuelo/a | Nieto/a | false | — |
+| nieto | Nieto/a | Abuelo/a | false | — |
+| tutor_legal | Tutor/a legal | Tutelado/a | false | tutor_legal |
+| tutelado | Tutelado/a | Tutor/a legal | false | — |
+| representante | Representante | Representado/a | false | representante |
+| representado | Representado/a | Representante | false | — |
+| cuidador_principal | Cuidador/a principal | Persona cuidada | false | cuidador_principal |
+| persona_cuidada | Persona cuidada | Cuidador/a principal | false | — |
+| acogedor | Acogedor/a | Acogido/a | false | — |
+| acogido | Acogido/a | Acogedor/a | false | — |
 
 Esta tabla es la fuente única de verdad sobre el vínculo entre dos ciudadanos. No existe ningún otro lugar en el modelo donde se registre el rol de una persona respecto a otra.
 
@@ -418,14 +464,18 @@ En entornos de desarrollo y pruebas, los adaptadores mock devuelven datos fictic
 - `Modules\Ciudadania\Models\Ciudadano`
 - `Modules\Ciudadania\Models\CiudadanoIdentificador`
 - `Modules\Ciudadania\Models\CiudadanoRelacion`
+- `Modules\Ciudadania\Models\TipoRelacion`
 - `Modules\Ciudadania\Models\UnidadConvivencia`
 - `Modules\Ciudadania\Models\UnidadConvivenciaMiembro`
 - `Modules\Ciudadania\Models\CiudadanoSituacion`  ← renombrada desde CiudadanoFicha
+- `Modules\Ciudadania\Enums\ImplicacionFuncional`
 - `Modules\Ciudadania\Services\NormalizadorCiudadano`
 - `Modules\Ciudadania\Services\MotorMatching`
 - `Modules\Ciudadania\Services\FusionCiudadanos`
 - `Modules\Ciudadania\Livewire\AltaCiudadano`
 - `Modules\Ciudadania\Traits\TieneRelacionesReciprocas`
+- `App\Filament\Resources\TipoRelacionResource`
+- `Modules\Ciudadania\Database\Seeders\TipoRelacionSeeder`
 
 ---
 
