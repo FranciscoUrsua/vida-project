@@ -154,7 +154,13 @@
                                         @else
                                             <i data-lucide="shield-alert" style="width:10px;height:10px; color: var(--color-warning, #92400e); flex-shrink:0;" aria-hidden="true"></i>
                                         @endif
-                                        {{ $ucm->ciudadano?->nombre }} {{ $ucm->ciudadano?->apellido1 }}
+                                        @if($ucm->ciudadano)
+                                            <a href="{{ route('ciudadania.ciudadano.ficha', $ucm->ciudadano) }}"
+                                               style="color: inherit; text-decoration: none;"
+                                               onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                                                {{ $ucm->ciudadano->nombre }} {{ $ucm->ciudadano->apellido1 }}
+                                            </a>
+                                        @endif
                                     </li>
                                 @endforeach
                             </ul>
@@ -638,11 +644,16 @@
                             <li class="uc-modal__miembro" wire:key="miembro-{{ $miembro->id }}">
 
                                 <div class="uc-modal__miembro-info">
-                                    <span class="uc-modal__miembro-nombre">
-                                        {{ $miembro->ciudadano?->nombre }}
-                                        {{ $miembro->ciudadano?->apellido1 }}
-                                        {{ $miembro->ciudadano?->apellido2 }}
-                                    </span>
+                                    @if($miembro->ciudadano)
+                                    <a href="{{ route('ciudadania.ciudadano.ficha', $miembro->ciudadano) }}"
+                                       class="uc-modal__miembro-nombre">
+                                        {{ $miembro->ciudadano->nombre }}
+                                        {{ $miembro->ciudadano->apellido1 }}
+                                        {{ $miembro->ciudadano->apellido2 }}
+                                    </a>
+                                    @else
+                                    <span class="uc-modal__miembro-nombre">—</span>
+                                    @endif
                                     <span class="uc-modal__miembro-meta">
                                         Desde {{ $miembro->fecha_inicio?->format('d/m/Y') }}
                                     </span>

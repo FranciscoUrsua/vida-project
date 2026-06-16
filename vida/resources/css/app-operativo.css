@@ -842,3 +842,6 @@
 }
 
 .uc-widget__gestionar:hover { background: var(--color-surface-alt, #f9fafb); color: var(--color-text-primary); }
+
+a.uc-modal__miembro-nombre { text-decoration: none; }
+a.uc-modal__miembro-nombre:hover { text-decoration: underline; }
