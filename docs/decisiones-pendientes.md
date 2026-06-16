@@ -1,9 +1,9 @@
 # Decisiones pendientes — VIDA 360
 
 > Inventario de decisiones pospostas durante el análisis funcional, organizado por módulo.
-> Generado: mayo 2026. Actualizado: mayo 2026. Fuente: revisión de `docs/`, `BACKLOG.md` y `CHANGELOG.md`.
+> Generado: mayo 2026. Actualizado: junio 2026. Fuente: revisión de `docs/`, `BACKLOG.md` y `CHANGELOG.md`.
 
-**Total: 31 decisiones** — 4 bloqueantes · 14 técnicas/organizativas · 13 diferidas a fases posteriores
+**Total: 32 decisiones** — 4 bloqueantes · 15 técnicas/organizativas · 13 diferidas a fases posteriores
 
 ---
 
@@ -28,8 +28,20 @@
 | A-03 | **Integración RRHH vía API para excepciones de profesional** | 🔵 técnica | Campo `origen = api_rrhh` en `ExcepcionProfesional` preparado; adaptador mock activo. Diferido hasta identificar el sistema de RRHH del municipio adoptante. |
 | A-04 | **Onboarding de un centro nuevo en el módulo Agenda** | ⚪ diferida | Configuración mínima necesaria para activar el módulo en un centro nuevo y comportamiento del sistema si no existe `HorarioCentro`. Diferido al diseño de la interfaz de onboarding. |
 | A-05 | **Estrategia de migración entre modos de agenda** | ⚪ diferida | La subida de modo `basico` → `estandar` es compatible sin transformación de datos. Documentar explícitamente en la guía de adopción. |
-| A-06 | **Interfaz Livewire / Filament del módulo Agenda** | 🔵 técnica | Pendiente de implementar toda la capa de presentación: vista de agenda del profesional, gestión de ausencias, cuadrante del supervisor, formularios de eventos. Ver `docs/modulo-agenda.md §5`. |
+| A-06 | **Interfaz Livewire / Filament del módulo Agenda** | 🔵 técnica | Pendiente de implementar toda la capa de presentación: vista de agenda del profesional, gestión de ausencias, cuadrante del supervisor, formularios de eventos. La pantalla `AgendaPage` (fixture de desarrollo) está operativa desde la Entrega 1 (2026-06-01), pero usa datos ficticios. Ver `docs/modulo-agenda.md §5`. |
 | A-07 | **Generación IA de cuadrantes (modo avanzado)** | ⚪ diferida | Diseño del componente IA: modelo, inputs, outputs, criterios de calidad. Requiere datos históricos suficientes. Diferido hasta que el módulo lleve al menos un año en producción. |
+
+---
+
+## Módulo Ciudadanía
+
+> **Nuevo módulo activo (junio 2026).** La ficha del ciudadano (`FichaCiudadanoPage`) y el alta de ciudadano están implementados. Quedan pendientes varias entidades referenciadas por la interfaz.
+
+| # | Decisión | Tipo | Notas |
+|---|---|---|---|
+| CIU-01 | **Tabla y modelo `CiudadanoIdentificador`** | 🔴 bloqueante | La búsqueda por `doc`/`hsu` devuelve vacío. El DNI en la cabecera del ciudadano también depende de `CiudadanoIdentificador::activo()`. Desbloquea varias funcionalidades de la UI. |
+| CIU-02 | **Tabla y modelo `UnidadDeConvivencia`** | 🔵 técnica | El bloque UC de `FichaCiudadanoPage` tiene TODO explícito. Necesario para el botón "Ver ficha" y para las prestaciones asociadas a UC. |
+| CIU-03 | **`centroActivo()` en `CiudadanoPage`** | 🔵 técnica | Pendiente de implementación en la cabecera de ciudadano. Requiere la relación profesional↔centro del módulo Centro. |
 
 ---
 
@@ -38,9 +50,11 @@
 | # | Decisión | Tipo | Notas |
 |---|---|---|---|
 | I-01 | **Objetivos del plan como lista estructurada con indicadores** | ⚪ diferida | Actualmente `objetivos` es texto libre. Se prevé evolución a lista estructurada con indicadores medibles para permitir cierre cuantitativo del plan. Fase posterior. |
-| I-02 | **Pilotaje de la Self-Sufficient Matrix (SSM)** | 🟡 organizativa | La arquitectura soporta la SSM como `tipo_ficha` configurable. La decisión de adopción, pilotaje y formación es organizativa, no técnica. |
+| I-02 | **Pilotaje de la Self-Sufficient Matrix (SSM)** | 🟡 organizativa | La arquitectura soporta la SSM como `tipo_ficha` configurable (el módulo TipoFicha está implementado en Filament desde 2026-06-15). La decisión de adopción, pilotaje y formación es organizativa, no técnica. |
 | I-03 | **Asistencia de IA durante la entrevista** | ⚪ diferida | Descartado en fase inicial por complejidad. IA sugiriendo preguntas al profesional y proponiendo estructura de fichas en tiempo real. Retomar cuando el flujo base esté consolidado. Requisitos documentados en el historial de decisiones. |
 | I-04 | **Transcripción automática de audio** | ⚪ diferida | Descartado como flujo estándar. Razones: riesgo de inhibición del ciudadano, complejidad del consentimiento en contextos de vulnerabilidad, dificultades con colectivos con problemas de lenguaje, coste de mantenimiento de modelo local. Puede reconsiderarse como opción voluntaria para tipos específicos de entrevista. |
+| I-05 | **Modelo y tabla `Derivacion`** | 🔵 técnica | `crearDerivacion()` en `CiudadanoPage` crea solo el Apunte (tipo `derivacion`); la tabla no existe. Ver BACKLOG. |
+| I-06 | **Punto de entrada para pases de escala desde Historia Social** | 🔴 bloqueante | Bloqueante para la fase 2 del módulo Escalas (componente Livewire de aplicación del pase). ¿Pestaña independiente? ¿Acción en la ficha de valoración? |
 
 ---
 
@@ -48,7 +62,7 @@
 
 | # | Decisión | Tipo | Notas |
 |---|---|---|---|
-| C-01 | **Diseño de la entidad Servicio** | 🔴 bloqueante | Servicio ≠ Centro (el servicio no tiene infraestructura propia). Diseño pendiente. Necesario para completar el módulo de Centros y el catálogo de recursos. |
+| C-01 | **Diseño de la entidad Servicio** | ~~🔴 bloqueante~~ → **✅ Resuelto** | Implementado en mayo 2026 (Módulo Centro — Entidad Servicio Fase 2, 2026-05-21). Cerrado. |
 | C-02 | **Conectar `PrescripcionService` al TSR activo del ciudadano** | 🔵 técnica | `PrescripcionService::liberarPlaza()` usa un resolver inyectable. Actualmente devuelve `null`. En producción debe conectarse al módulo Ciudadanía o a `HistoriaSocial` de Intervención cuando esté disponible. Ref: `Modules/Centro/app/Services/PrescripcionService.php`. |
 | C-03 | **Gestión presupuestaria de centros privados puros** | ⚪ diferida | Coste por plaza contratada y distribución presupuestaria anual para centros tipo `privado_puro` (pensiones, hoteles). Diferido por complejidad y dependencia de procesos administrativos externos. |
 
@@ -60,6 +74,7 @@
 |---|---|---|---|
 | P-01 | **Diseño de la entidad Solicitud de prestación** | 🔴 bloqueante | La solicitud es configurable por tipo de prestación. El diseño detallado está pendiente. Bloquea la implementación completa del flujo de prestaciones. |
 | P-02 | **Completar TF-PRE-13 con integración real de Intervención** | 🔵 técnica | Resolución histórica de prestación desde un plan de intervención. Actualmente implementado con stub. Completar cuando el módulo Intervención esté disponible. Ref: `docs/instrucciones-cli/prestaciones-tests.md`. |
+| P-03 | **`statPrestaciones` en pantalla del ciudadano** | 🔵 técnica | El computed `statPrestaciones()` en `CiudadanoPage` devuelve `null` hasta que se implemente la integración con el módulo Prestaciones. |
 
 ---
 
@@ -113,16 +128,17 @@
 | Módulo | Bloqueantes | Técnicas/Org. | Diferidas | Total |
 |---|---|---|---|---|
 | Agenda | — | 3 | 3 | **6** *(A-01 cerrado; A-06, A-07 añadidos)* |
-| Intervención | — | 1 | 3 | **4** |
-| Centros | 1 | 1 | 1 | **3** |
-| Prestaciones | 1 | 1 | — | **2** |
+| Ciudadanía | 1 | 2 | — | **3** *(nuevo, junio 2026)* |
+| Intervención | 1 | 2 | 3 | **6** *(+I-05, I-06)* |
+| Centros | — | 1 | 1 | **2** *(C-01 cerrado)* |
+| Prestaciones | 1 | 2 | — | **3** *(+P-03)* |
 | Usuarios y permisos | 1 | 1 | — | **2** |
 | Mensajes y alertas | — | 1 | 2 | **3** |
-| Integraciones | 1 | 3 | — | **6** (*+ 2 org.)* |
+| Integraciones | 1 | 3 | — | **6** *(+ 2 org.)* |
 | Transversal | — | 1 | 5 | **6** |
-| **Total** | **4** | **14** | **13** | **31** |
+| **Total** | **4** | **16** | **13** | **33** |
 
 ---
 
-*Documento generado a partir de la revisión del análisis funcional — mayo 2026.
+*Documento actualizado junio 2026.
 Para registrar la resolución de una decisión, mover la entrada a `CHANGELOG.md` con la nota "Resuelto en [fecha]" y eliminarla de este fichero.*

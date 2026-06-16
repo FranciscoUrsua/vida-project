@@ -50,6 +50,16 @@ El bloque de código incluye solo la firma (no el cuerpo). El cuerpo lo genera e
 
 ---
 
+### 1.4 Rol mínimo en tests de autenticación: `consulta_basica`
+
+**Decisión:** los tests de autenticación y de rutas protegidas asignan siempre el rol `consulta_basica` como mínimo a los usuarios de test.
+
+**Motivo:** sin rol, `destino()` en `LoginController` y la ruta `/` redirigen a `sin-rol` en lugar de `inicio`, generando falsos negativos en tests que verifican comportamiento post-login. Este patrón se consolidó durante la corrección de 17 tests fallidos (2026-06-03).
+
+**Implementación:** en el `setUp()` de la clase de test: `PermisosSeeder + RolesSeeder` sembrados; luego `$this->usuario->assignRole('consulta_basica')`.
+
+---
+
 ## 2. Paquetes y librerías
 
 ### 2.1 Roles y permisos: `spatie/laravel-permission`
@@ -75,6 +85,20 @@ El bloque de código incluye solo la firma (no el cuerpo). El cuerpo lo genera e
 ### 2.3 Cifrado en aplicación: [pendiente]
 
 Paquete o estrategia para cifrado de campos sensibles de ciudadanos antes de persistencia. Ver principio técnico 4.10 en `principios-vida360.md`. Decisión diferida hasta el módulo Ciudadanía.
+
+---
+
+### 2.4 Tooling de calidad de código: PHPStan + Rector + Pint
+
+**Decisión (2026-06-03):** conjunto completo de herramientas estáticas integradas en CI.
+
+- `nunomaduro/larastan` v3.10 + `phpstan/phpstan` v2.2 — análisis estático nivel 6.
+- `phpstan-baseline.neon` — 772 errores heredados (a reducir progresivamente).
+- `rector/rector` v2.4 + `driftingly/rector-laravel` v2.5 — refactoring automático.
+- `pint.json` — preset laravel con reglas adicionales.
+- `.github/workflows/quality.yml` — CI en cada push/PR a master.
+
+**Nota:** `nunomaduro/larastan` está marcado como abandonado upstream; el sucesor es `larastan/larastan`. Mantener el actual hasta la próxima sesión de actualización de dependencias.
 
 ---
 
@@ -112,17 +136,55 @@ Todas las factories de modelos con estados relevantes para los tests definen eso
 
 ---
 
+### 3.6 Principio "binding encuentra, policy decide"
+
+**Decisión (2026-06-03):** el route model binding de modelos con GlobalScopes de UO (HistoriaSocial, Apunte, etc.) se realiza **sin** el scope (`withoutGlobalScopes()`), de modo que el binding siempre resuelve el modelo. La autorización de acceso la emite la Policy o el middleware de rol (403), no el binding (404).
+
+**Motivo:** un 404 por scope es confuso para el usuario y puede ser un vector de enumeración de recursos. Un 403 explícito es correcto: el recurso existe, pero el usuario no tiene acceso.
+
+**Implementación:** `Route::bind('historia', fn ($value) => HistoriaSocial::withoutGlobalScopes()->findOrFail($value))` en `IntervencionServiceProvider::boot()`.
+
+---
+
+### 3.7 Separación Filament / Livewire
+
+**Filament** gestiona la capa de configuración y backoffice: catálogos, plantillas, parámetros del sistema, usuarios y permisos. **Livewire** gestiona las capas operativas: el trabajo diario de los profesionales con ciudadanos, planes, apuntes y agenda. Esta separación es estructural (ver Principio 3.12).
+
+Los modelos sensibles de ciudadanos (`HistoriaSocial`, `Apunte`, `Ciudadano`, `PlanDeIntervencion`) se gestionan exclusivamente vía Livewire, no desde Resources de Filament.
+
+---
+
+### 3.8 CSS BEM para componentes operativos
+
+**Decisión (2026-06-14):** los estilos de los paneles operativos (intervención, ciudadano, auditoría) usan nomenclatura BEM (Bloque__Elemento--Modificador) en lugar de estilos inline o clases utilitarias ad hoc.
+
+**Ejemplos en producción:** `.acceso-fila--propio`, `.acceso-fila--sospechoso`, `.acceso-fila--anomalo` (panel de accesos al expediente); `.op-topbar`, `.topbar__user*` (layout operativo); `.ciudadano-layout`, `.hs-stats-bar`, `.hs-stat__val` (pantalla del ciudadano).
+
+**Motivo:** los estilos inline dificultan el theming por municipio y el override en tests visuales. BEM hace los componentes reconocibles y reutilizables.
+
+---
+
 ## 4. Base de datos
 
 ### 4.1 Inmutabilidad de registros de auditoría
 
 La tabla `audits` no tiene operación de UPDATE ni DELETE en la capa de aplicación. La única excepción es la purga por retención ejecutada por `AuditPurgeCommand`. Ninguna migración puede añadir operaciones de modificación sobre esta tabla sin documentar la excepción aquí.
 
+**Nota técnica (2026-06-14):** la purga usa el query builder directamente (`DB::table('audits')->where(...)->delete()`) para evitar la `LogicException` que lanza el método `delete()` de instancia del modelo `Audit`. `const UPDATED_AT = null` en el modelo.
+
 ---
 
 ### 4.2 Soft deletes como norma en entidades de dominio
 
 Las entidades principales de dominio (ciudadanos, planes, apuntes, etc.) usan `SoftDeletes`. El borrado físico solo se aplica en datos auxiliares o de catálogo sin valor histórico.
+
+---
+
+### 4.3 Búsqueda sobre campos cifrados: carga en PHP (temporal)
+
+**Decisión (2026-06-01):** mientras no exista un índice hash determinista, la búsqueda por nombre en ciudadanos cifrados carga ≤ 500 registros y filtra en PHP (`BuscarCiudadanoPage`). Aceptable para el volumen actual de desarrollo; revisar en producción.
+
+**TODO documentado:** reemplazar por índice hash determinista cuando el módulo Ciudadanía esté completo.
 
 ---
 
@@ -142,6 +204,15 @@ Los commits de documentación usan `[Docs]` como prefijo.
 
 ---
 
+### 5.2 CHANGELOG separado por mes
+
+**Decisión (junio 2026):** a partir de julio 2026, el CHANGELOG se mantiene en archivos mensuales (`CHANGELOG-MMYYYY.md`). El archivo del mes en curso es el único que se edita activamente. Los anteriores son de solo lectura.
+
+- `CHANGELOG-052026.md` — mayo 2026
+- `CHANGELOG-062026.md` — junio 2026 (en curso)
+
+---
+
 ## 6. Control de cambios generados por IA
 
 Este proyecto usa Claude CLI para generar código. Las herramientas de IA pueden tomar decisiones de implementación que no afloran a menos que se revise el código generado línea a línea. Las siguientes prácticas tienen como objetivo mantener esas decisiones visibles y auditables, sin depender de que alguien lea todo el código producido en cada sesión.
@@ -150,13 +221,13 @@ Este proyecto usa Claude CLI para generar código. Las herramientas de IA pueden
 
 ### 6.1 CHANGELOG
 
-Claude CLI tiene instrucción explícita de hacer una entrada en `CHANGELOG.md` al final de cada tarea de codificación, describiendo los cambios realizados: ficheros creados o modificados, decisiones tomadas, y cualquier desviación respecto a la especificación original.
+Claude CLI tiene instrucción explícita de hacer una entrada en el CHANGELOG al final de cada tarea de codificación, describiendo los cambios realizados: ficheros creados o modificados, decisiones tomadas, y cualquier desviación respecto a la especificación original.
 
 **Formato:** [Keep a Changelog](https://keepachangelog.com/es/1.0.0/). Cada entrada bajo la versión o fecha correspondiente, con subsecciones `Añadido`, `Modificado`, `Corregido` según aplique.
 
 **Propósito:** el CHANGELOG no es solo documentación histórica para futuros colaboradores — es el mecanismo principal para que el equipo sepa qué ha hecho la IA en cada sesión sin tener que auditar el diff completo. Una entrada ausente o incompleta es una señal de que algo no se ha registrado correctamente.
 
-**Ubicación:** `CHANGELOG.md` en la raíz del repositorio.
+**Ubicación a partir de julio 2026:** `CHANGELOG-MMYYYY.md` en la raíz del repositorio (ver sección 5.2).
 
 ---
 
@@ -240,14 +311,9 @@ No se crea un módulo nwidart para la API.
 
 ---
 
-### Alternativa descartada
-
-**Modules/Api/ con módulo nwidart completo**: descartado por las razones anteriores. La consistencia visual de tener todo en Modules/ no compensa la fricción de autoload y namespaces documentada en el proyecto, y la naturaleza transversal de estos modelos los hace más afines al núcleo que a los módulos funcionales.
-
---- 
-
 ### Estructura resultante
 
+```
 app/
   Models/
     Api/
@@ -265,11 +331,11 @@ app/
       ApiAdmin/
         ClienteApiResource.php
         PerfilAnonimizacionResource.php
-        (resto de resources del panel de API)
   Providers/
     Filament/
       AdminPanelProvider.php
       ApiAdminPanelProvider.php
+```
 
 ---
 
@@ -279,7 +345,7 @@ Fecha de decisión: 2026-05-21
 
 **Contexto:** el modelo de dirección en texto libre presenta limitaciones para anonimización, análisis territorial y cualquier funcionalidad futura que dependa de coordenadas. Se decide adoptar un modelo estructurado con normalización automática mediante un servicio de geocodificación desacoplado del proveedor concreto.
 
-**Decisión** 
+**Decisión**
 La dirección se almacena en dos representaciones simultáneas: el texto libre original (direccion_texto, siempre conservado) y los campos estructurados extraídos por el geocoder. La normalización es best-effort y nunca bloquea el guardado.
 
 El geocoder es un servicio de infraestructura interno — no una integración externa — con interfaz GeocodificadorInterface y adaptadores intercambiables. El proveedor activo se configura en configuracion_sistema con la clave geocoder.proveedor. Cambiar de proveedor es una operación de backoffice sin necesidad de código ni despliegue.
@@ -298,32 +364,40 @@ Ver docs/geocodificacion.md para la especificación completa.
 
 **Geocoder mock para v1.** El adaptador MockGeocodificador implementa un parser de texto libre con reglas para extraer tipo de vía, nombre y número, más coordenadas aleatorias dentro del bbox de Madrid (lat: 40.31–40.53, lng: -3.83– -3.52). Permite desarrollar y testear toda la lógica dependiente de coordenadas sin servicios externos. Ver docs/geocodificacion.md, sección 5.
 
-**Geocoder de referencia para producción.** La Base de Datos Ciudad (BDC) del Ayuntamiento de Madrid. Adaptador pendiente de implementación.
+---
 
-### Alternativas descartadas
+## Sección 10 — Auditoría: modelo `Audit` inmutable e `AuditService` como punto único
 
-**Texto libre puro (modelo anterior):** descartado porque impide la anonimización fiable de direcciones (no se puede aplicar calle_sin_numero sobre texto no estructurado) y bloquea cualquier funcionalidad territorial futura.
+Fecha de decisión: 2026-06-14
 
-**Normalización solo en el geocoder externo sin almacenar estructura localmente:** descartada porque crearía dependencia de disponibilidad del geocoder para cualquier consulta de dirección. La estructura normalizada se almacena en VIDA y el geocoder solo se invoca en el momento del alta o modificación.
+**Contexto:** implementación completa del módulo Auditoría. Decisiones de diseño que no estaban cubiertas por los principios generales.
 
-**Tipo Point de PostGIS para coordenadas:** evaluado y diferido. Añade complejidad de infraestructura (requiere extensión PostGIS en la BD) pero habilita consultas de proximidad eficientes a escala. Registrado como decisión pendiente para cuando las funcionalidades territoriales lo justifiquen.
+### Decisiones concretas
 
-### Impacto en módulos existentes
+**`Audit` como modelo inmutable.** `update()` y `delete()` por instancia lanzan `LogicException`. La purga usa el query builder directamente para evitar esta excepción. `const UPDATED_AT = null`.
 
-**Ciudadanía:** Ciudadano adopta el trait TieneDireccion. La dirección del SIA se normaliza automáticamente. Excepción: PSH tienen campos de coordenadas de pernocta independientes del modelo de dirección postal.
+**`AuditService::contextoBase()` usa `request()->path()` en lugar de `request()->hasSession()`.** En el entorno de test con PHPUnit, la sesión no está iniciada aunque el request sea HTTP real. `path()` es siempre accesible.
 
-**Centros:** Centro adopta el trait TieneDireccion.
+**`getCiudadanoId()` en modelos con scopes de UO usa `withoutGlobalScopes()`.** Los modelos Apunte, PlanDeIntervencion, Valoracion y Entrevista tienen AmbitoUoScope activo. La resolución de ciudadano_id para auditoría es una operación interna del sistema, no un acceso de datos de usuario, y debe funcionar independientemente del contexto de UO del usuario autenticado.
 
-**Anonimización:** la normalización es prerequisito para aplicar calle_sin_numero en perfiles de Nivel 2 y 3. Las entidades con direccion_normalizada = false reciben supresión completa de dirección en extracciones anonimizadas.
+**El supervisor de auditoría requiere adscripción al árbol de UOs (comportamiento más restrictivo).** Cualquier usuario con rol `supervision` puede ver accesos a expedientes, pero solo los de su subtree de UO. Más seguro que el comportamiento anterior (supervision veía todos los accesos).
 
-**Intervención, Documentos, Agenda:** sin impacto directo en v1. Futuras funcionalidades de proximidad dependerán de coordenadas fiables.
+**`uoSubtreeIds()` devuelve `array`, no `Collection`.** Por ello se usa `in_array()` en vez de `->contains()` en las verificaciones de auditoría.
 
-### Decisiones pendientes
+---
 
-- Implementación del adaptador BDC. Bloqueante para coordenadas reales en producción.
+## Sección 11 — CI/CD: deploy sin estado local corrupto
 
-- Tratamiento de múltiples candidatas cuando el geocoder devuelve resultados ambiguos.
+Fecha de decisión: 2026-06-12
 
-- Bbox configurable por municipio en configuracion_sistema para portabilidad fuera de Madrid.
+**Contexto:** bug en producción donde `view:cache` reportaba éxito pero servía compiled views desactualizadas.
 
-- Evaluación de PostGIS cuando las consultas geoespaciales lo justifiquen.
+### Decisiones concretas
+
+**`git fetch origin && git reset --hard origin/master`** en lugar de `git pull origin master` para evitar fallos por cambios locales en el servidor (artefactos de npm build generados por `www-data`).
+
+**`set -e` al inicio del script de deploy.** Abortar ante cualquier error en lugar de continuar silenciosamente.
+
+**`php artisan optimize:clear` antes de `config:cache / route:cache / view:cache`.** Elimina archivos corruptos o inaccesibles de deploys anteriores.
+
+**`chown/chmod` sobre `storage/` y `bootstrap/cache/` antes de los comandos `artisan`.** Garantiza que el usuario de despliegue (`jupiter`) pueda escribir en directorios donde `www-data` puede haber generado archivos en requests previas.
