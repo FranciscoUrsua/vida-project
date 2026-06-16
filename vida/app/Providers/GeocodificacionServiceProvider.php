@@ -23,6 +23,8 @@ class GeocodificacionServiceProvider extends ServiceProvider
 {
     /**
      * Registra el binding de la interfaz en el contenedor.
+     *
+     * @return void
      */
     public function register(): void
     {
@@ -31,6 +33,8 @@ class GeocodificacionServiceProvider extends ServiceProvider
 
     /**
      * Registra el observer en los modelos con dirección.
+     *
+     * @return void
      */
     public function boot(): void
     {

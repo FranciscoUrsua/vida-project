@@ -45,6 +45,12 @@ class UsuarioResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    /**
+     * Configura el formulario de usuarios.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -147,6 +153,12 @@ class UsuarioResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de usuarios.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -190,6 +202,11 @@ class UsuarioResource extends Resource
             ->defaultSort('name');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [
@@ -199,16 +216,32 @@ class UsuarioResource extends Resource
         ];
     }
 
+    /**
+     * Determina si el usuario autenticado puede ver el listado de usuarios.
+     *
+     * @return bool True si puede ver usuarios.
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Determina si el usuario autenticado puede crear usuarios.
+     *
+     * @return bool True si puede crear usuarios.
+     */
     public static function canCreate(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Determina si el usuario autenticado puede editar el usuario.
+     *
+     * @param Model $record Usuario evaluado.
+     * @return bool True si puede editar el usuario.
+     */
     public static function canEdit(Model $record): bool
     {
         $user = auth()->user();
@@ -224,7 +257,12 @@ class UsuarioResource extends Resource
         return $record->adscripcionesVigentes()->whereIn('unidad_organizativa_id', $uoIds)->exists();
     }
 
-    /** Solo adm_sistema puede eliminar usuarios. */
+    /**
+     * Determina si el usuario autenticado puede eliminar usuarios.
+     *
+     * @param Model $record Usuario evaluado.
+     * @return bool True si puede eliminar usuarios.
+     */
     public static function canDelete(Model $record): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;

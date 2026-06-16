@@ -49,6 +49,12 @@ class PlantillaInformeResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    /**
+     * Configura el formulario de plantillas de informe.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -197,6 +203,12 @@ class PlantillaInformeResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de plantillas de informe.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -252,6 +264,11 @@ class PlantillaInformeResource extends Resource
             ->defaultSort('nombre');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [
@@ -261,17 +278,33 @@ class PlantillaInformeResource extends Resource
         ];
     }
 
-    /** supervision puede ver plantillas de su subtree (solo lectura); adm_* puede gestionar. */
+    /**
+     * supervision puede ver plantillas de su subtree (solo lectura); adm_* puede gestionar.
+     *
+     * @return bool True si el rol puede consultar plantillas.
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
     }
 
+    /**
+     * Determina si el usuario autenticado puede editar la plantilla.
+     *
+     * @param Model $record Plantilla evaluada.
+     * @return bool True si puede editar la plantilla.
+     */
     public static function canEdit(Model $record): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Determina si el usuario autenticado puede eliminar la plantilla.
+     *
+     * @param Model $record Plantilla evaluada.
+     * @return bool True si puede eliminar la plantilla.
+     */
     public static function canDelete(Model $record): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;

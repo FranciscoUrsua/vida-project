@@ -15,6 +15,8 @@ class LoginController extends Controller
 {
     /**
      * Muestra el formulario de login.
+     *
+     * @return IlluminateContractsViewView
      */
     public function mostrar()
     {
@@ -23,6 +25,10 @@ class LoginController extends Controller
 
     /**
      * Procesa el intento de autenticación.
+     *
+     * @param Request $request Peticion con credenciales.
+     *
+     * @return IlluminateHttpRedirectResponse
      *
      * @throws ValidationException
      */
@@ -82,6 +88,10 @@ class LoginController extends Controller
 
     /**
      * Cierra la sesión activa.
+     *
+     * @param Request $request Peticion actual.
+     *
+     * @return IlluminateHttpRedirectResponse
      */
     public function cerrarSesion(Request $request)
     {

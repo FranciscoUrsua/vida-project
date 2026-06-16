@@ -45,6 +45,12 @@ class UsuarioRolResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
+    /**
+     * Configura el formulario de asignaciones de rol.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -87,6 +93,12 @@ class UsuarioRolResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de asignaciones de rol.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -148,6 +160,11 @@ class UsuarioRolResource extends Resource
             ->defaultSort('created_at', 'desc');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [
@@ -157,7 +174,12 @@ class UsuarioRolResource extends Resource
         ];
     }
 
-    /** adm_usuarios solo gestiona asignaciones de rol de su subtree de UO. */
+    /**
+     * Determina si el usuario autenticado puede editar la asignacion de rol.
+     *
+     * @param Model $record Asignacion de rol evaluada.
+     * @return bool True si puede editar la asignacion.
+     */
     public static function canEdit(Model $record): bool
     {
         $user = auth()->user();

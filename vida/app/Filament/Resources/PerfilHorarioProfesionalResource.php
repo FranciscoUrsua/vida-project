@@ -38,6 +38,12 @@ class PerfilHorarioProfesionalResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    /**
+     * Configura el formulario de perfiles horarios profesionales.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -109,6 +115,12 @@ class PerfilHorarioProfesionalResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de perfiles horarios profesionales.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -156,6 +168,11 @@ class PerfilHorarioProfesionalResource extends Resource
             ->defaultSort('usuario_id');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

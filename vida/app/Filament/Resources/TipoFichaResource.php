@@ -54,6 +54,12 @@ class TipoFichaResource extends Resource
     // Listado
     // -------------------------------------------------------------------------
 
+    /**
+     * Configura la tabla de tipos de ficha.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -99,6 +105,12 @@ class TipoFichaResource extends Resource
     // Formulario
     // -------------------------------------------------------------------------
 
+    /**
+     * Configura el formulario de tipos de ficha.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -268,6 +280,11 @@ class TipoFichaResource extends Resource
     // Páginas
     // -------------------------------------------------------------------------
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [
@@ -287,6 +304,9 @@ class TipoFichaResource extends Resource
      * Si el estado ya está en formato canónico, lo devuelve sin modificar.
      * Necesario porque en Filament 5 el valor de dehydrateStateUsing en
      * un Builder NO se asigna automáticamente a $data en mutateFormDataBefore*.
+     *
+     * @param mixed $state Estado crudo del Builder.
+     * @return array<string, mixed> Schema canonico normalizado.
      */
     public static function convertirSchemaBlocks(mixed $state): array
     {

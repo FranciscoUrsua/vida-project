@@ -35,6 +35,8 @@ class GeocodificadorService implements GeocodificadorInterface
      * Normaliza la dirección delegando en el adaptador activo.
      *
      * @param string $direccionTexto Texto libre tal como lo introduce el profesional.
+     *
+     * @return ResultadoGeocodificacion Resultado uniforme devuelto por el adaptador activo.
      */
     public function normalizar(string $direccionTexto): ResultadoGeocodificacion
     {

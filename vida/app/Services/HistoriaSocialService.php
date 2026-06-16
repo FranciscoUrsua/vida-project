@@ -30,6 +30,9 @@ class HistoriaSocialService
      * mensajes_registro_historia. La visibilidad filtra los registros
      * privados si el profesional no es el autor.
      *
+     * @param Ciudadano $ciudadano Ciudadano cuyo expediente se consulta.
+     * @param User $profesional Profesional que consulta la historia.
+     *
      * @return Collection<int, array<string, mixed>>
      */
     public function obtenerEntradas(Ciudadano $ciudadano, User $profesional): Collection
@@ -66,6 +69,11 @@ class HistoriaSocialService
     /**
      * Verifica si un usuario es el TSR responsable de la Historia Social
      * de un ciudadano concreto.
+     *
+     * @param User $usuario Usuario a comprobar.
+     * @param Ciudadano $ciudadano Ciudadano cuya historia social se evalua.
+     *
+     * @return bool True si el usuario pertenece a la UO de la historia social.
      */
     public function esTsr(User $usuario, Ciudadano $ciudadano): bool
     {

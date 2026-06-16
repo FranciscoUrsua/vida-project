@@ -31,6 +31,23 @@ use App\Enums\TipoNumeracion;
  */
 final class ResultadoGeocodificacion
 {
+    /**
+     * @param bool $exito Indica si la normalizacion tuvo exito.
+     * @param string|null $tipoVia Tipo de via normalizado.
+     * @param string|null $nombreVia Nombre de la via normalizado.
+     * @param TipoNumeracion|null $tipoNumeracion Tipo de numeracion detectado.
+     * @param string|null $numero Numero de la direccion.
+     * @param string|null $portal Portal de la direccion.
+     * @param string|null $escalera Escalera de la direccion.
+     * @param string|null $piso Piso de la direccion.
+     * @param string|null $puerta Puerta de la direccion.
+     * @param string|null $codigoPostal Codigo postal normalizado.
+     * @param string|null $municipio Municipio normalizado.
+     * @param float|null $latitud Latitud WGS84.
+     * @param float|null $longitud Longitud WGS84.
+     * @param string $proveedor Identificador del adaptador que resolvio la direccion.
+     * @param string|null $errorMensaje Descripcion del fallo cuando exito es false.
+     */
     public function __construct(
         public readonly bool $exito,
         public readonly ?string $tipoVia,
@@ -54,6 +71,8 @@ final class ResultadoGeocodificacion
      *
      * @param string $proveedor Identificador del adaptador.
      * @param string $errorMensaje Descripción del fallo.
+     *
+     * @return self Resultado inmutable de fallo.
      */
     public static function fallo(string $proveedor, string $errorMensaje): self
     {

@@ -19,6 +19,9 @@ class EnsureTieneRol
 {
     /**
      * @param Closure(Request): Response $next
+     * @param Request $request Peticion entrante.
+     *
+     * @return Response Respuesta siguiente o redireccion a sin-rol.
      */
     public function handle(Request $request, Closure $next): Response
     {

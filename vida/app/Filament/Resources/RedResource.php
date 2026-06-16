@@ -36,6 +36,12 @@ class RedResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    /**
+     * Configura el formulario de redes.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -78,12 +84,22 @@ class RedResource extends Resource
         ]);
     }
 
-    /** supervision puede ver redes cuyo ámbito incluye su subtree de UO. */
+    /**
+     * supervision puede ver redes cuyo ambito incluye su subtree de UO.
+     *
+     * @return bool True si el rol puede consultar redes.
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
     }
 
+    /**
+     * Configura la tabla de redes.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -114,6 +130,11 @@ class RedResource extends Resource
             ->defaultSort('nombre');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

@@ -53,6 +53,8 @@ class CatalogoSistema extends Model
      * Devuelve las opciones activas de un grupo en formato [clave => etiqueta]
      * listo para usar en selects de Filament.
      *
+     * @param string $grupo Grupo de catalogo.
+     *
      * @return array<string, string>
      */
     public static function opcionesParaSelect(string $grupo): array
@@ -66,6 +68,8 @@ class CatalogoSistema extends Model
      *
      * @param string $clave Clave única del catálogo
      * @param string $defecto Valor por defecto si la clave no existe o está inactiva
+     *
+     * @return string Etiqueta del catalogo o valor por defecto.
      */
     public static function valor(string $clave, string $defecto = ''): string
     {
@@ -78,6 +82,9 @@ class CatalogoSistema extends Model
      *
      * Ejemplo: opcionesParaSelectConPrefijo('prestacion.categoria', '01')
      * devuelve solo las claves que empiezan por '01'.
+     *
+     * @param string $grupo Grupo de catalogo.
+     * @param string $prefijo Prefijo de clave a filtrar.
      *
      * @return array<string, string>
      */

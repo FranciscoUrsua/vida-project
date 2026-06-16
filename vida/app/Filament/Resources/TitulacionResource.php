@@ -38,6 +38,12 @@ class TitulacionResource extends Resource
 
     protected static ?int $navigationSort = 7;
 
+    /**
+     * Configura el formulario de titulaciones.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -55,6 +61,12 @@ class TitulacionResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de titulaciones.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -84,6 +96,11 @@ class TitulacionResource extends Resource
             ->defaultSort('nombre');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

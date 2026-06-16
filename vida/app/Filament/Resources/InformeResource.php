@@ -49,7 +49,13 @@ class InformeResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
-    /** Los informes se crean desde el flujo operativo (Livewire), no desde el backoffice. */
+    /**
+     * Los informes se crean desde el flujo operativo (Livewire), no desde el backoffice.
+     *
+     * @param Schema $schema Esquema de infolist de Filament.
+     *
+     * @return Schema Esquema configurado para detalle de informe.
+     */
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
@@ -143,12 +149,22 @@ class InformeResource extends Resource
         ]);
     }
 
-    /** supervision puede ver informes de su subtree (solo lectura); adm_* puede gestionar. */
+    /**
+     * supervision puede ver informes de su subtree (solo lectura); adm_* puede gestionar.
+     *
+     * @return bool True si el rol puede consultar informes.
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
     }
 
+    /**
+     * Configura la tabla de informes.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -291,6 +307,11 @@ class InformeResource extends Resource
             ->defaultSort('created_at', 'desc');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

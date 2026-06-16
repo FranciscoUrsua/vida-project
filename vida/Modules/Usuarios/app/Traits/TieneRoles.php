@@ -63,6 +63,8 @@ trait TieneRoles
      * o para consultas históricas.
      *
      * @param string $rolNombre Nombre del rol, ej: 'intervencion'
+     *
+     * @return bool True si el usuario tiene ese rol vigente.
      */
     public function tieneRolVigente(string $rolNombre): bool
     {
@@ -85,6 +87,8 @@ trait TieneRoles
      * los roles y permisos activos en model_has_roles.
      *
      * @param string $permiso Nombre del permiso, ej: 'historia.leer'
+     *
+     * @return bool True si el usuario tiene el permiso mediante sus roles vigentes.
      */
     public function tienePermiso(string $permiso): bool
     {

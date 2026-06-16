@@ -23,12 +23,19 @@ use Illuminate\Support\Facades\Auth;
  */
 class AuditObserver
 {
+    /**
+     * Crea el observer con el servicio centralizado de auditoria.
+     *
+     * @param AuditService $service Servicio que persiste los registros de auditoria.
+     */
     public function __construct(private readonly AuditService $service) {}
 
     /**
      * Registra la creación de un modelo auditable.
      *
      * @param Model&Auditable $model
+     *
+     * @return void
      */
     public function created(Model $model): void
     {
@@ -48,6 +55,8 @@ class AuditObserver
      * Registra la edición de un modelo auditable con diff de campos cambiados.
      *
      * @param Model&Auditable $model
+     *
+     * @return void
      */
     public function updated(Model $model): void
     {
@@ -77,6 +86,8 @@ class AuditObserver
      * Registra la eliminación (soft o hard) de un modelo auditable.
      *
      * @param Model&Auditable $model
+     *
+     * @return void
      */
     public function deleted(Model $model): void
     {

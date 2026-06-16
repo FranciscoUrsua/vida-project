@@ -36,6 +36,8 @@ class CiudadanoService
      *
      * @param array<string, mixed> $datos Datos del ciudadano a crear
      *
+     * @return Ciudadano Ciudadano creado.
+     *
      * @throws AuthorizationException Si el usuario no tiene permiso de crear ciudadanos
      */
     public function crear(array $datos): Ciudadano
@@ -55,6 +57,8 @@ class CiudadanoService
      *
      * @param int $id ID del ciudadano
      * @param array<string, mixed> $datos Campos a actualizar
+     *
+     * @return Ciudadano Ciudadano actualizado.
      *
      * @throws AuthorizationException Si el usuario no tiene permiso de editar
      * @throws ModelNotFoundException Si el ciudadano no existe o no está en el ámbito del usuario
@@ -77,6 +81,8 @@ class CiudadanoService
      * por principio de inmutabilidad del pasado (principio 4.2).
      *
      * @param int $id ID del ciudadano
+     *
+     * @return void
      *
      * @throws AuthorizationException Si el usuario no tiene permiso de eliminar
      * @throws ModelNotFoundException Si el ciudadano no existe o no está en el ámbito del usuario

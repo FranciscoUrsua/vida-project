@@ -67,6 +67,8 @@ class AccesosExpedienteQuery
      *
      * @param User $user
      * @param HistoriaSocial $historia
+     *
+     * @return bool True si el usuario puede ver todos los accesos del expediente.
      */
     public function puedeVerTodos(User $user, HistoriaSocial $historia): bool
     {

@@ -29,6 +29,8 @@ class RevelacionIdentidadService
      * @param int $usuarioId ID del usuario que solicita la revelación
      * @param string $justificacion Motivo obligatorio — queda en auditoría
      *
+     * @return Ciudadano Ciudadano real asociado al alias.
+     *
      * @throws ValidationException Si justificacion está vacía
      * @throws AuthorizationException Si el usuario no tiene permiso ciudadano.revelar_identidad
      * @throws ModelNotFoundException Si ningún ciudadano activo coincide con el alias

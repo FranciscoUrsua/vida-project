@@ -38,6 +38,12 @@ class RolResource extends Resource
 
     protected static ?int $navigationSort = 70;
 
+    /**
+     * Configura el formulario de roles.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -62,6 +68,12 @@ class RolResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de roles.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -88,6 +100,11 @@ class RolResource extends Resource
             ->defaultSort('name');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [
@@ -97,22 +114,43 @@ class RolResource extends Resource
         ];
     }
 
-    // Solo adm_sistema puede ver y modificar la matriz de roles y permisos.
+    /**
+     * Determina si el usuario autenticado puede ver roles y permisos.
+     *
+     * @return bool True si puede ver roles y permisos.
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;
     }
 
+    /**
+     * Determina si el usuario autenticado puede crear roles.
+     *
+     * @return bool True si puede crear roles.
+     */
     public static function canCreate(): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;
     }
 
+    /**
+     * Determina si el usuario autenticado puede editar el rol.
+     *
+     * @param Model $record Rol evaluado.
+     * @return bool True si puede editar el rol.
+     */
     public static function canEdit(Model $record): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;
     }
 
+    /**
+     * Determina si el usuario autenticado puede eliminar el rol.
+     *
+     * @param Model $record Rol evaluado.
+     * @return bool True si puede eliminar el rol.
+     */
     public static function canDelete(Model $record): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;

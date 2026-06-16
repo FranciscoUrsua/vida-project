@@ -86,6 +86,8 @@ class PerfilAnonimizacion extends Model
      *
      * @throws PerfilSistemaNoEliminableException Si es un perfil de sistema
      * @throws PerfilConExtraccionesException Si tiene extracciones asociadas
+     *
+     * @return bool|null Resultado de la eliminacion Eloquent.
      */
     public function delete(): ?bool
     {

@@ -34,6 +34,12 @@ class TipoEspacioResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
+    /**
+     * Configura el formulario de tipos de espacio.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -56,6 +62,12 @@ class TipoEspacioResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de tipos de espacio.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -80,6 +92,11 @@ class TipoEspacioResource extends Resource
             ->defaultSort('nombre');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

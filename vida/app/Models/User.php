@@ -108,6 +108,10 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Solo roles de gestión y supervisión pueden acceder al panel de administración.
+     *
+     * @param Panel $panel Panel Filament solicitado.
+     *
+     * @return bool True si el usuario puede acceder al panel.
      */
     public function canAccessPanel(Panel $panel): bool
     {

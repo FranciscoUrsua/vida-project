@@ -42,6 +42,12 @@ class ExcepcionProfesionalResource extends Resource
 
     protected static ?int $navigationSort = 60;
 
+    /**
+     * Configura el formulario de excepciones profesionales.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -119,6 +125,12 @@ class ExcepcionProfesionalResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de excepciones profesionales.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -206,6 +218,11 @@ class ExcepcionProfesionalResource extends Resource
             ->defaultSort('fecha_inicio', 'desc');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

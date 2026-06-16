@@ -45,6 +45,11 @@ class AuditResource extends Resource
     // Scope de UO: el supervisor solo ve registros de su UO y descendientes
     // -------------------------------------------------------------------------
 
+    /**
+     * Devuelve la consulta base del recurso filtrada por el ambito del usuario.
+     *
+     * @return Builder Consulta base del recurso.
+     */
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()->latest('created_at');
@@ -70,6 +75,12 @@ class AuditResource extends Resource
     // Tabla (solo lectura)
     // -------------------------------------------------------------------------
 
+    /**
+     * Configura la tabla de auditoria.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -151,6 +162,11 @@ class AuditResource extends Resource
     // Sin crear ni editar — solo ver el listado y el detalle
     // -------------------------------------------------------------------------
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [
@@ -159,26 +175,42 @@ class AuditResource extends Resource
         ];
     }
 
-    /** Solo accesible para roles supervision y adm_sistema. */
+    /**
+     * Solo accesible para roles supervision y adm_sistema.
+     *
+     * @return bool True si el usuario puede acceder al recurso.
+     */
     public static function canAccess(): bool
     {
         $user = Auth::user();
         return $user && ($user->hasRole('supervision') || $user->hasRole('adm_sistema'));
     }
 
-    /** Registro de auditoría — inmutable. Nunca se crean desde el backoffice. */
+    /**
+     * Registro de auditoría: inmutable. Nunca se crean desde el backoffice.
+     *
+     * @return bool Siempre false.
+     */
     public static function canCreate(): bool
     {
         return false;
     }
 
-    /** @param Audit $record */
+    /**
+     * @param Audit $record Registro de auditoria.
+     *
+     * @return bool Siempre false.
+     */
     public static function canEdit($record): bool
     {
         return false;
     }
 
-    /** @param Audit $record */
+    /**
+     * @param Audit $record Registro de auditoria.
+     *
+     * @return bool Siempre false.
+     */
     public static function canDelete($record): bool
     {
         return false;

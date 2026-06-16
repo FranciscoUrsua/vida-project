@@ -41,6 +41,12 @@ class ConfiguracionHorarioLaboralResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
+    /**
+     * Configura el formulario de horario laboral.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -78,6 +84,12 @@ class ConfiguracionHorarioLaboralResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de horario laboral.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -97,6 +109,8 @@ class ConfiguracionHorarioLaboralResource extends Resource
 
     /**
      * Solo muestra el registro del horario laboral.
+     *
+     * @return Builder Consulta limitada al registro de horario laboral.
      */
     public static function getEloquentQuery(): Builder
     {
@@ -105,6 +119,11 @@ class ConfiguracionHorarioLaboralResource extends Resource
             ->where('clave', 'horario_laboral_defecto');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

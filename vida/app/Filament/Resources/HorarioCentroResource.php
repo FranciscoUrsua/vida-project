@@ -41,6 +41,12 @@ class HorarioCentroResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    /**
+     * Configura el formulario de horarios de centro.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -156,6 +162,12 @@ class HorarioCentroResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de horarios de centro.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -211,6 +223,11 @@ class HorarioCentroResource extends Resource
             ->defaultSort('nombre');
     }
 
+    /**
+     * Devuelve los gestores de relaciones del recurso.
+     *
+     * @return array<int, class-string> Relation managers disponibles.
+     */
     public static function getRelationManagers(): array
     {
         return [
@@ -218,6 +235,11 @@ class HorarioCentroResource extends Resource
         ];
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

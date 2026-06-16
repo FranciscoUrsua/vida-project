@@ -44,6 +44,10 @@ class CiudadanoPolicy
 
     /**
      * Decide si el usuario puede listar ciudadanos.
+     *
+     * @param User $usuario Usuario autenticado.
+     *
+     * @return bool True si tiene permiso atomico de lectura.
      */
     public function viewAny(User $usuario): bool
     {
@@ -54,6 +58,11 @@ class CiudadanoPolicy
      * Decide si el usuario puede consultar la ficha del ciudadano.
      *
      * Evaluación en tres pasos estándar más verificación de colectivo protegido.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @param Ciudadano $ciudadano Ciudadano cuya ficha se consulta.
+     *
+     * @return bool True si supera permiso, ambito y proteccion especial.
      */
     public function view(User $usuario, Ciudadano $ciudadano): bool
     {
@@ -79,6 +88,10 @@ class CiudadanoPolicy
      * Decide si el usuario puede crear un ciudadano.
      *
      * El rol supervision no puede crear ciudadanos.
+     *
+     * @param User $usuario Usuario autenticado.
+     *
+     * @return bool True si puede crear ciudadanos.
      */
     public function create(User $usuario): bool
     {
@@ -95,6 +108,11 @@ class CiudadanoPolicy
      *
      * La edición solo está permitida dentro del ámbito de UO del usuario.
      * El rol supervision no puede editar.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @param Ciudadano $ciudadano Ciudadano que se quiere editar.
+     *
+     * @return bool True si puede editar dentro de su ambito.
      */
     public function update(User $usuario, Ciudadano $ciudadano): bool
     {
@@ -124,6 +142,11 @@ class CiudadanoPolicy
      * Decide si el usuario puede eliminar (baja lógica) el ciudadano.
      *
      * La eliminación solo está permitida dentro del ámbito de UO del usuario.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @param Ciudadano $ciudadano Ciudadano que se quiere dar de baja.
+     *
+     * @return bool True si puede eliminar dentro de su ambito.
      */
     public function delete(User $usuario, Ciudadano $ciudadano): bool
     {

@@ -43,6 +43,12 @@ class EstiloInformeResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    /**
+     * Configura el formulario de estilos de informe.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -100,6 +106,12 @@ class EstiloInformeResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de estilos de informe.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -144,6 +156,11 @@ class EstiloInformeResource extends Resource
             ->defaultSort('unidadOrganizativa.nombre');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [
@@ -153,18 +170,34 @@ class EstiloInformeResource extends Resource
         ];
     }
 
-    /** supervision puede ver estilos de su subtree (solo lectura); adm_* puede gestionar. */
+    /**
+     * supervision puede ver estilos de su subtree (solo lectura); adm_* puede gestionar.
+     *
+     * @return bool True si el rol puede consultar estilos.
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
     }
 
-    /** adm_usuarios solo gestiona estilos de su subtree de UO. */
+    /**
+     * adm_usuarios solo gestiona estilos de su subtree de UO.
+     *
+     * @param Model $record Estilo de informe evaluado.
+     *
+     * @return bool True si el rol puede editar estilos.
+     */
     public static function canEdit(Model $record): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Determina si el usuario autenticado puede eliminar el estilo de informe.
+     *
+     * @param Model $record Estilo de informe evaluado.
+     * @return bool True si puede eliminar el estilo.
+     */
     public static function canDelete(Model $record): bool
     {
         return static::canEdit($record);

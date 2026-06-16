@@ -46,7 +46,13 @@ class DocumentoResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
-    /** Los documentos se suben desde el flujo operativo, no desde el backoffice. */
+    /**
+     * Los documentos se suben desde el flujo operativo, no desde el backoffice.
+     *
+     * @param Schema $schema Esquema de infolist de Filament.
+     *
+     * @return Schema Esquema configurado para detalle de documento.
+     */
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
@@ -111,12 +117,22 @@ class DocumentoResource extends Resource
         ]);
     }
 
-    /** supervision puede ver documentos de su subtree (solo lectura); adm_* puede gestionar. */
+    /**
+     * supervision puede ver documentos de su subtree (solo lectura); adm_* puede gestionar.
+     *
+     * @return bool True si el rol puede consultar documentos.
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
     }
 
+    /**
+     * Configura la tabla de documentos.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -202,6 +218,11 @@ class DocumentoResource extends Resource
             ->defaultSort('created_at', 'desc');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

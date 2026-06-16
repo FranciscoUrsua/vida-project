@@ -40,6 +40,12 @@ class ZonaResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    /**
+     * Configura el formulario de zonas.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -68,6 +74,12 @@ class ZonaResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de zonas.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -105,6 +117,11 @@ class ZonaResource extends Resource
             ->defaultSort('distrito.nombre');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

@@ -40,6 +40,12 @@ class CuadranteMesResource extends Resource
 
     protected static ?int $navigationSort = 40;
 
+    /**
+     * Configura el formulario de cuadrantes mensuales.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -99,6 +105,12 @@ class CuadranteMesResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de cuadrantes mensuales.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         $mesesEs = [
@@ -188,6 +200,11 @@ class CuadranteMesResource extends Resource
             ->defaultSort('anyo', 'desc');
     }
 
+    /**
+     * Devuelve los gestores de relaciones del recurso.
+     *
+     * @return array<int, class-string> Relation managers disponibles.
+     */
     public static function getRelationManagers(): array
     {
         return [
@@ -195,6 +212,11 @@ class CuadranteMesResource extends Resource
         ];
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

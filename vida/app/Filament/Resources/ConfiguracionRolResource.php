@@ -44,6 +44,12 @@ class ConfiguracionRolResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    /**
+     * Configura el formulario de configuracion de roles.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -68,6 +74,12 @@ class ConfiguracionRolResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de configuracion de roles.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -96,6 +108,11 @@ class ConfiguracionRolResource extends Resource
             ->defaultSort('rol.name');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

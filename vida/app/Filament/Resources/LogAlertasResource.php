@@ -35,6 +35,12 @@ class LogAlertasResource extends Resource
 
     protected static ?int $navigationSort = 5;
 
+    /**
+     * Configura la tabla del log de alertas.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -116,6 +122,11 @@ class LogAlertasResource extends Resource
             ->bulkActions([]); // Sin acciones masivas
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [
@@ -123,23 +134,44 @@ class LogAlertasResource extends Resource
         ];
     }
 
-    /** Solo adm_sistema y supervision pueden ver el log de alertas. */
+    /**
+     * Solo adm_sistema y supervision pueden ver el log de alertas.
+     *
+     * @return bool True si el rol puede consultar el log de alertas.
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'supervision']) ?? false;
     }
 
     // Recurso de solo lectura: no se permite crear, editar ni eliminar alertas.
+    /**
+     * Determina si se pueden crear alertas desde el recurso.
+     *
+     * @return bool Siempre false porque el recurso es de solo lectura.
+     */
     public static function canCreate(): bool
     {
         return false;
     }
 
+    /**
+     * Determina si se puede editar una alerta desde el recurso.
+     *
+     * @param Model $record Alerta evaluada.
+     * @return bool Siempre false porque el recurso es de solo lectura.
+     */
     public static function canEdit(Model $record): bool
     {
         return false;
     }
 
+    /**
+     * Determina si se puede eliminar una alerta desde el recurso.
+     *
+     * @param Model $record Alerta evaluada.
+     * @return bool Siempre false porque el recurso es de solo lectura.
+     */
     public static function canDelete(Model $record): bool
     {
         return false;

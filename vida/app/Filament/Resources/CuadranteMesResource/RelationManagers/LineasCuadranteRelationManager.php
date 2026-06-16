@@ -14,12 +14,24 @@ class LineasCuadranteRelationManager extends RelationManager
 
     protected static ?string $title = 'Líneas del cuadrante';
 
+    /**
+     * Configura el formulario de lineas del cuadrante.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public function form(Schema $schema): Schema
     {
         // Solo lectura en esta fase; la edición de líneas se implementará con Livewire.
         return $schema->components([]);
     }
 
+    /**
+     * Configura la tabla de lineas del cuadrante.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public function table(Table $table): Table
     {
         return $table

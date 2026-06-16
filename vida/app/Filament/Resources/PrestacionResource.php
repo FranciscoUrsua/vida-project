@@ -39,6 +39,12 @@ class PrestacionResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    /**
+     * Configura el formulario de prestaciones.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -232,6 +238,12 @@ class PrestacionResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de prestaciones.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         $objetivos = CatalogoSistema::opcionesParaSelect('prestacion.objetivo_general');
@@ -325,6 +337,11 @@ class PrestacionResource extends Resource
             ->defaultSort('codigo');
     }
 
+    /**
+     * Devuelve los gestores de relaciones del recurso.
+     *
+     * @return array<int, class-string> Relation managers disponibles.
+     */
     public static function getRelationManagers(): array
     {
         return [
@@ -332,6 +349,11 @@ class PrestacionResource extends Resource
         ];
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

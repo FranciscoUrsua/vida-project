@@ -69,6 +69,11 @@ class Audit extends Model
 
     /**
      * @throws LogicException Los registros de auditoría son inmutables.
+     *
+     * @param array<string, mixed> $attributes Atributos rechazados por inmutabilidad.
+     * @param array<string, mixed> $options Opciones Eloquent rechazadas por inmutabilidad.
+     *
+     * @return bool Nunca retorna; siempre lanza excepcion.
      */
     public function update(array $attributes = [], array $options = []): bool
     {
@@ -77,6 +82,8 @@ class Audit extends Model
 
     /**
      * @throws LogicException Use AuditPurgeCommand para purgas por retención.
+     *
+     * @return bool|null Nunca retorna; siempre lanza excepcion.
      */
     public function delete(): bool|null
     {

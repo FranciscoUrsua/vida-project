@@ -84,6 +84,8 @@ trait TieneUO
      * de consulta libre (UO diferente).
      *
      * @param UnidadOrganizativa $uo UO a comprobar
+     *
+     * @return bool True si el usuario pertenece exactamente a la UO.
      */
     public function perteneceAUo(UnidadOrganizativa $uo): bool
     {
@@ -100,6 +102,8 @@ trait TieneUO
      * en una UO inferior a la suya en la jerarquía.
      *
      * @param UnidadOrganizativa $uo UO sobre la que se quiere operar
+     *
+     * @return bool True si puede gestionar la UO por adscripcion o jerarquia.
      */
     public function tieneAccesoGestionA(UnidadOrganizativa $uo): bool
     {
@@ -148,6 +152,8 @@ trait TieneUO
      * la impone la Policy según el ciudadano y el colectivo.
      *
      * @param UnidadOrganizativa $uo UO sobre la que se quiere consultar
+     *
+     * @return bool Siempre true; las restricciones de ciudadano se evalúan en Policies.
      */
     public function tieneAccesoConsultaA(UnidadOrganizativa $uo): bool
     {

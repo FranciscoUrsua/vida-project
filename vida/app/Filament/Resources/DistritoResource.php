@@ -38,6 +38,12 @@ class DistritoResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    /**
+     * Configura el formulario de distritos.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -68,6 +74,12 @@ class DistritoResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de distritos.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -102,6 +114,11 @@ class DistritoResource extends Resource
             ->defaultSort('codigo');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

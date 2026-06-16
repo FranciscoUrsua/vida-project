@@ -26,6 +26,11 @@ class DireccionObserver
     /** Timeout en segundos para la llamada al geocoder. */
     private const TIMEOUT_SEGUNDOS = 3;
 
+    /**
+     * Crea el observer con el adaptador de geocodificacion configurado.
+     *
+     * @param GeocodificadorInterface $geocodificador Servicio usado para normalizar direcciones.
+     */
     public function __construct(
         private readonly GeocodificadorInterface $geocodificador,
     ) {}
@@ -35,6 +40,10 @@ class DireccionObserver
      *
      * Inicializa siempre direccion_normalizada a false para que el modelo
      * en memoria refleje el default de la columna si no se geocodifica.
+     *
+     * @param Model $model Modelo Eloquent con campos del trait TieneDireccion.
+     *
+     * @return void
      */
     public function creating(Model $model): void
     {
@@ -46,6 +55,10 @@ class DireccionObserver
 
     /**
      * Encola el job de reintento si el guardado inicial no normalizó la dirección.
+     *
+     * @param Model $model Modelo Eloquent con campos del trait TieneDireccion.
+     *
+     * @return void
      */
     public function created(Model $model): void
     {
@@ -56,6 +69,10 @@ class DireccionObserver
      * Intenta geocodificar antes de actualizar el registro.
      *
      * Solo actúa si cambió el texto de la dirección o el origen.
+     *
+     * @param Model $model Modelo Eloquent con campos del trait TieneDireccion.
+     *
+     * @return void
      */
     public function updating(Model $model): void
     {
@@ -67,6 +84,10 @@ class DireccionObserver
 
     /**
      * Encola el job de reintento si la actualización no normalizó la dirección.
+     *
+     * @param Model $model Modelo Eloquent con campos del trait TieneDireccion.
+     *
+     * @return void
      */
     public function updated(Model $model): void
     {

@@ -87,7 +87,11 @@ class HistoriaSocial extends Model
      *
      * @return BelongsTo<Ciudadano, HistoriaSocial>
      */
-    /** @inheritDoc */
+    /**
+     * Devuelve el ciudadano asociado a la historia social.
+     *
+     * @return int|null ID del ciudadano titular.
+     */
     public function getCiudadanoId(): ?int
     {
         return $this->ciudadano_id;

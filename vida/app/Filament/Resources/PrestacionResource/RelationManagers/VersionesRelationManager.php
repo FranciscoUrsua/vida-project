@@ -20,6 +20,12 @@ class VersionesRelationManager extends RelationManager
 
     protected static ?string $title = 'Historial de versiones';
 
+    /**
+     * Configura la tabla de versiones de la prestacion.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public function table(Table $table): Table
     {
         return $table
@@ -61,6 +67,11 @@ class VersionesRelationManager extends RelationManager
             ->bulkActions([]);
     }
 
+    /**
+     * Indica si el relation manager es de solo lectura.
+     *
+     * @return bool True si el relation manager es de solo lectura.
+     */
     public function isReadOnly(): bool
     {
         return true;

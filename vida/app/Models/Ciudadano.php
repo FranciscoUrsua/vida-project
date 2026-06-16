@@ -151,6 +151,8 @@ class Ciudadano extends Model
     /**
      * Nombre completo del ciudadano: nombre + apellido1 [+ apellido2].
      * Los campos están cifrados — solo accesible mediante Eloquent ORM.
+     *
+     * @return string Nombre completo formateado.
      */
     public function getNombreCompletoAttribute(): string
     {
@@ -167,7 +169,11 @@ class Ciudadano extends Model
      *
      * @return HasMany<CiudadanoPrestacionResumen, self>
      */
-    /** El ciudadano es la entidad raíz: su propio id es el ciudadano_id. */
+    /**
+     * El ciudadano es la entidad raiz: su propio id es el ciudadano_id.
+     *
+     * @return int|null ID del ciudadano actual.
+     */
     public function getCiudadanoId(): ?int
     {
         return $this->id;
@@ -219,6 +225,8 @@ class Ciudadano extends Model
     /**
      * Indica si el ciudadano tiene verificada su residencia en alguna UC activa.
      * Determina si puede ser perceptor de prestaciones municipales.
+     *
+     * @return bool True si tiene residencia verificada en una UC activa.
      */
     public function tieneResidenciaVerificada(): bool
     {

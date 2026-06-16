@@ -42,6 +42,12 @@ class CentroResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    /**
+     * Configura el formulario de centros.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -173,6 +179,12 @@ class CentroResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de centros.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -231,22 +243,43 @@ class CentroResource extends Resource
             ->defaultSort('nombre');
     }
 
-    /** Cualquier usuario autenticado puede consultar el catálogo de centros. */
+    /**
+     * Cualquier usuario autenticado puede consultar el catalogo de centros.
+     *
+     * @return bool True si hay usuario autenticado.
+     */
     public static function canViewAny(): bool
     {
         return auth()->check();
     }
 
+    /**
+     * Determina si el usuario autenticado puede editar el centro.
+     *
+     * @param Model $record Centro evaluado.
+     * @return bool True si puede editar el centro.
+     */
     public static function canEdit(Model $record): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Determina si el usuario autenticado puede eliminar el centro.
+     *
+     * @param Model $record Centro evaluado.
+     * @return bool True si puede eliminar el centro.
+     */
     public static function canDelete(Model $record): bool
     {
         return static::canEdit($record);
     }
 
+    /**
+     * Devuelve los gestores de relaciones del recurso.
+     *
+     * @return array<int, class-string> Relation managers disponibles.
+     */
     public static function getRelationManagers(): array
     {
         return [
@@ -255,6 +288,11 @@ class CentroResource extends Resource
         ];
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [

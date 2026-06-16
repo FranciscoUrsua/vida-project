@@ -1,14 +1,14 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-16 10:09:59 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-16 11:34:13 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 364.
 - Cabeceras documentadas: 228/364.
-- Metodos publicos documentados: 521/936.
-- Alertas de comentarios: 955.
+- Metodos publicos documentados: 640/936.
+- Alertas de comentarios: 694.
 
 ## Alertas
 
@@ -151,7 +151,7 @@ Generado el 2026-06-16 10:09:59 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Http\Controllers\Controller` en `vida/app/Http/Controllers/Controller.php:5`: Falta docblock de cabecera.
 - `App\Providers\Filament\AdminPanelProvider` en `vida/app/Providers/Filament/AdminPanelProvider.php:22`: Falta docblock de cabecera.
 
-### Método público sin PHPDoc (361)
+### Método público sin PHPDoc (242)
 
 - `Modules\Agenda\Enums\EstadoCita::label()` en `vida/Modules/Agenda/app/Enums/EstadoCita.php:14`: Falta docblock de método público.
 - `Modules\Agenda\Enums\EstadoCuadrante::label()` en `vida/Modules/Agenda/app/Enums/EstadoCuadrante.php:11`: Falta docblock de método público.
@@ -366,19 +366,10 @@ Generado el 2026-06-16 10:09:59 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Filament\Concerns\AutorizaGestion::canDelete()` en `vida/app/Filament/Concerns/AutorizaGestion.php:30`: Falta docblock de método público.
 - `App\Filament\Pages\Dashboard::getColumns()` en `vida/app/Filament/Pages/Dashboard.php:29`: Falta docblock de método público.
 - `App\Filament\Pages\Dashboard::getWidgets()` en `vida/app/Filament/Pages/Dashboard.php:34`: Falta docblock de método público.
-- `App\Filament\Resources\AuditResource::getEloquentQuery()` en `vida/app/Filament/Resources/AuditResource.php:48`: Falta docblock de método público.
-- `App\Filament\Resources\AuditResource::table()` en `vida/app/Filament/Resources/AuditResource.php:73`: Falta docblock de método público.
-- `App\Filament\Resources\AuditResource::getPages()` en `vida/app/Filament/Resources/AuditResource.php:154`: Falta docblock de método público.
 - `App\Filament\Resources\AuditResource\Pages\ViewAudit::infolist()` en `vida/app/Filament/Resources/AuditResource/Pages/ViewAudit.php:18`: Falta docblock de método público.
 - `App\Filament\Resources\CargoResource::form()` en `vida/app/Filament/Resources/CargoResource.php:42`: Falta docblock de método público.
 - `App\Filament\Resources\CargoResource::table()` en `vida/app/Filament/Resources/CargoResource.php:64`: Falta docblock de método público.
 - `App\Filament\Resources\CargoResource::getPages()` en `vida/app/Filament/Resources/CargoResource.php:93`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource::form()` en `vida/app/Filament/Resources/CentroResource.php:45`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource::table()` en `vida/app/Filament/Resources/CentroResource.php:176`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource::canEdit()` en `vida/app/Filament/Resources/CentroResource.php:240`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource::canDelete()` en `vida/app/Filament/Resources/CentroResource.php:245`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource::getRelationManagers()` en `vida/app/Filament/Resources/CentroResource.php:250`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource::getPages()` en `vida/app/Filament/Resources/CentroResource.php:258`: Falta docblock de método público.
 - `App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager::form()` en `vida/app/Filament/Resources/CentroResource/RelationManagers/AmbitosTerritorialesRelationManager.php:24`: Falta docblock de método público.
 - `App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager::table()` en `vida/app/Filament/Resources/CentroResource/RelationManagers/AmbitosTerritorialesRelationManager.php:70`: Falta docblock de método público.
 - `App\Filament\Resources\CentroResource\RelationManagers\ColeccionesPlazasRelationManager::form()` en `vida/app/Filament/Resources/CentroResource/RelationManagers/ColeccionesPlazasRelationManager.php:24`: Falta docblock de método público.
@@ -386,117 +377,9 @@ Generado el 2026-06-16 10:09:59 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Filament\Resources\ColectivoProtegidoResource::form()` en `vida/app/Filament/Resources/ColectivoProtegidoResource.php:44`: Falta docblock de método público.
 - `App\Filament\Resources\ColectivoProtegidoResource::table()` en `vida/app/Filament/Resources/ColectivoProtegidoResource.php:70`: Falta docblock de método público.
 - `App\Filament\Resources\ColectivoProtegidoResource::getPages()` en `vida/app/Filament/Resources/ColectivoProtegidoResource.php:100`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource::form()` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource.php:44`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource::table()` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource.php:81`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource::getPages()` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource.php:108`: Falta docblock de método público.
 - `App\Filament\Resources\ConfiguracionOrganizacionResource::form()` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource.php:46`: Falta docblock de método público.
 - `App\Filament\Resources\ConfiguracionOrganizacionResource::table()` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource.php:79`: Falta docblock de método público.
 - `App\Filament\Resources\ConfiguracionOrganizacionResource::getPages()` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource.php:126`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionRolResource::form()` en `vida/app/Filament/Resources/ConfiguracionRolResource.php:47`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionRolResource::table()` en `vida/app/Filament/Resources/ConfiguracionRolResource.php:71`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionRolResource::getPages()` en `vida/app/Filament/Resources/ConfiguracionRolResource.php:99`: Falta docblock de método público.
-- `App\Filament\Resources\CuadranteMesResource::form()` en `vida/app/Filament/Resources/CuadranteMesResource.php:43`: Falta docblock de método público.
-- `App\Filament\Resources\CuadranteMesResource::table()` en `vida/app/Filament/Resources/CuadranteMesResource.php:102`: Falta docblock de método público.
-- `App\Filament\Resources\CuadranteMesResource::getRelationManagers()` en `vida/app/Filament/Resources/CuadranteMesResource.php:191`: Falta docblock de método público.
-- `App\Filament\Resources\CuadranteMesResource::getPages()` en `vida/app/Filament/Resources/CuadranteMesResource.php:198`: Falta docblock de método público.
-- `App\Filament\Resources\CuadranteMesResource\RelationManagers\LineasCuadranteRelationManager::form()` en `vida/app/Filament/Resources/CuadranteMesResource/RelationManagers/LineasCuadranteRelationManager.php:17`: Falta docblock de método público.
-- `App\Filament\Resources\CuadranteMesResource\RelationManagers\LineasCuadranteRelationManager::table()` en `vida/app/Filament/Resources/CuadranteMesResource/RelationManagers/LineasCuadranteRelationManager.php:23`: Falta docblock de método público.
-- `App\Filament\Resources\DistritoResource::form()` en `vida/app/Filament/Resources/DistritoResource.php:41`: Falta docblock de método público.
-- `App\Filament\Resources\DistritoResource::table()` en `vida/app/Filament/Resources/DistritoResource.php:71`: Falta docblock de método público.
-- `App\Filament\Resources\DistritoResource::getPages()` en `vida/app/Filament/Resources/DistritoResource.php:105`: Falta docblock de método público.
-- `App\Filament\Resources\DocumentoResource::table()` en `vida/app/Filament/Resources/DocumentoResource.php:120`: Falta docblock de método público.
-- `App\Filament\Resources\DocumentoResource::getPages()` en `vida/app/Filament/Resources/DocumentoResource.php:205`: Falta docblock de método público.
-- `App\Filament\Resources\EstiloInformeResource::form()` en `vida/app/Filament/Resources/EstiloInformeResource.php:46`: Falta docblock de método público.
-- `App\Filament\Resources\EstiloInformeResource::table()` en `vida/app/Filament/Resources/EstiloInformeResource.php:103`: Falta docblock de método público.
-- `App\Filament\Resources\EstiloInformeResource::getPages()` en `vida/app/Filament/Resources/EstiloInformeResource.php:147`: Falta docblock de método público.
-- `App\Filament\Resources\EstiloInformeResource::canDelete()` en `vida/app/Filament/Resources/EstiloInformeResource.php:168`: Falta docblock de método público.
-- `App\Filament\Resources\ExcepcionProfesionalResource::form()` en `vida/app/Filament/Resources/ExcepcionProfesionalResource.php:45`: Falta docblock de método público.
-- `App\Filament\Resources\ExcepcionProfesionalResource::table()` en `vida/app/Filament/Resources/ExcepcionProfesionalResource.php:122`: Falta docblock de método público.
-- `App\Filament\Resources\ExcepcionProfesionalResource::getPages()` en `vida/app/Filament/Resources/ExcepcionProfesionalResource.php:209`: Falta docblock de método público.
-- `App\Filament\Resources\HorarioCentroResource::form()` en `vida/app/Filament/Resources/HorarioCentroResource.php:44`: Falta docblock de método público.
-- `App\Filament\Resources\HorarioCentroResource::table()` en `vida/app/Filament/Resources/HorarioCentroResource.php:159`: Falta docblock de método público.
-- `App\Filament\Resources\HorarioCentroResource::getRelationManagers()` en `vida/app/Filament/Resources/HorarioCentroResource.php:214`: Falta docblock de método público.
-- `App\Filament\Resources\HorarioCentroResource::getPages()` en `vida/app/Filament/Resources/HorarioCentroResource.php:221`: Falta docblock de método público.
-- `App\Filament\Resources\HorarioCentroResource\RelationManagers\TiposSlotsRelationManager::form()` en `vida/app/Filament/Resources/HorarioCentroResource/RelationManagers/TiposSlotsRelationManager.php:25`: Falta docblock de método público.
-- `App\Filament\Resources\HorarioCentroResource\RelationManagers\TiposSlotsRelationManager::table()` en `vida/app/Filament/Resources/HorarioCentroResource/RelationManagers/TiposSlotsRelationManager.php:81`: Falta docblock de método público.
-- `App\Filament\Resources\InformeResource::table()` en `vida/app/Filament/Resources/InformeResource.php:152`: Falta docblock de método público.
-- `App\Filament\Resources\InformeResource::getPages()` en `vida/app/Filament/Resources/InformeResource.php:294`: Falta docblock de método público.
-- `App\Filament\Resources\LogAlertasResource::table()` en `vida/app/Filament/Resources/LogAlertasResource.php:38`: Falta docblock de método público.
-- `App\Filament\Resources\LogAlertasResource::getPages()` en `vida/app/Filament/Resources/LogAlertasResource.php:119`: Falta docblock de método público.
-- `App\Filament\Resources\LogAlertasResource::canCreate()` en `vida/app/Filament/Resources/LogAlertasResource.php:133`: Falta docblock de método público.
-- `App\Filament\Resources\LogAlertasResource::canEdit()` en `vida/app/Filament/Resources/LogAlertasResource.php:138`: Falta docblock de método público.
-- `App\Filament\Resources\LogAlertasResource::canDelete()` en `vida/app/Filament/Resources/LogAlertasResource.php:143`: Falta docblock de método público.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource::form()` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:41`: Falta docblock de método público.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource::table()` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:112`: Falta docblock de método público.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource::getPages()` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:159`: Falta docblock de método público.
-- `App\Filament\Resources\PlantillaInformeResource::form()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:52`: Falta docblock de método público.
-- `App\Filament\Resources\PlantillaInformeResource::table()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:200`: Falta docblock de método público.
-- `App\Filament\Resources\PlantillaInformeResource::getPages()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:255`: Falta docblock de método público.
-- `App\Filament\Resources\PlantillaInformeResource::canEdit()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:270`: Falta docblock de método público.
-- `App\Filament\Resources\PlantillaInformeResource::canDelete()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:275`: Falta docblock de método público.
-- `App\Filament\Resources\PrestacionResource::form()` en `vida/app/Filament/Resources/PrestacionResource.php:42`: Falta docblock de método público.
-- `App\Filament\Resources\PrestacionResource::table()` en `vida/app/Filament/Resources/PrestacionResource.php:235`: Falta docblock de método público.
-- `App\Filament\Resources\PrestacionResource::getRelationManagers()` en `vida/app/Filament/Resources/PrestacionResource.php:328`: Falta docblock de método público.
-- `App\Filament\Resources\PrestacionResource::getPages()` en `vida/app/Filament/Resources/PrestacionResource.php:335`: Falta docblock de método público.
-- `App\Filament\Resources\PrestacionResource\RelationManagers\VersionesRelationManager::table()` en `vida/app/Filament/Resources/PrestacionResource/RelationManagers/VersionesRelationManager.php:23`: Falta docblock de método público.
-- `App\Filament\Resources\PrestacionResource\RelationManagers\VersionesRelationManager::isReadOnly()` en `vida/app/Filament/Resources/PrestacionResource/RelationManagers/VersionesRelationManager.php:64`: Falta docblock de método público.
-- `App\Filament\Resources\ProfesionalResource::form()` en `vida/app/Filament/Resources/ProfesionalResource.php:49`: Falta docblock de método público.
-- `App\Filament\Resources\ProfesionalResource::table()` en `vida/app/Filament/Resources/ProfesionalResource.php:173`: Falta docblock de método público.
-- `App\Filament\Resources\ProfesionalResource::getPages()` en `vida/app/Filament/Resources/ProfesionalResource.php:220`: Falta docblock de método público.
-- `App\Filament\Resources\ProfesionalResource::canCreate()` en `vida/app/Filament/Resources/ProfesionalResource.php:235`: Falta docblock de método público.
-- `App\Filament\Resources\ProfesionalResource::canEdit()` en `vida/app/Filament/Resources/ProfesionalResource.php:240`: Falta docblock de método público.
-- `App\Filament\Resources\RedResource::form()` en `vida/app/Filament/Resources/RedResource.php:39`: Falta docblock de método público.
-- `App\Filament\Resources\RedResource::table()` en `vida/app/Filament/Resources/RedResource.php:87`: Falta docblock de método público.
-- `App\Filament\Resources\RedResource::getPages()` en `vida/app/Filament/Resources/RedResource.php:117`: Falta docblock de método público.
-- `App\Filament\Resources\RolResource::form()` en `vida/app/Filament/Resources/RolResource.php:41`: Falta docblock de método público.
-- `App\Filament\Resources\RolResource::table()` en `vida/app/Filament/Resources/RolResource.php:65`: Falta docblock de método público.
-- `App\Filament\Resources\RolResource::getPages()` en `vida/app/Filament/Resources/RolResource.php:91`: Falta docblock de método público.
-- `App\Filament\Resources\RolResource::canViewAny()` en `vida/app/Filament/Resources/RolResource.php:101`: Falta docblock de método público.
-- `App\Filament\Resources\RolResource::canCreate()` en `vida/app/Filament/Resources/RolResource.php:106`: Falta docblock de método público.
-- `App\Filament\Resources\RolResource::canEdit()` en `vida/app/Filament/Resources/RolResource.php:111`: Falta docblock de método público.
-- `App\Filament\Resources\RolResource::canDelete()` en `vida/app/Filament/Resources/RolResource.php:116`: Falta docblock de método público.
-- `App\Filament\Resources\SegmentoPoblacionResource::form()` en `vida/app/Filament/Resources/SegmentoPoblacionResource.php:37`: Falta docblock de método público.
-- `App\Filament\Resources\SegmentoPoblacionResource::table()` en `vida/app/Filament/Resources/SegmentoPoblacionResource.php:60`: Falta docblock de método público.
-- `App\Filament\Resources\SegmentoPoblacionResource::getPages()` en `vida/app/Filament/Resources/SegmentoPoblacionResource.php:89`: Falta docblock de método público.
-- `App\Filament\Resources\ServicioEmergenciaResource::form()` en `vida/app/Filament/Resources/ServicioEmergenciaResource.php:47`: Falta docblock de método público.
-- `App\Filament\Resources\ServicioEmergenciaResource::table()` en `vida/app/Filament/Resources/ServicioEmergenciaResource.php:68`: Falta docblock de método público.
-- `App\Filament\Resources\ServicioEmergenciaResource::getPages()` en `vida/app/Filament/Resources/ServicioEmergenciaResource.php:97`: Falta docblock de método público.
-- `App\Filament\Resources\TipoActividadResource::form()` en `vida/app/Filament/Resources/TipoActividadResource.php:37`: Falta docblock de método público.
-- `App\Filament\Resources\TipoActividadResource::table()` en `vida/app/Filament/Resources/TipoActividadResource.php:59`: Falta docblock de método público.
-- `App\Filament\Resources\TipoActividadResource::getPages()` en `vida/app/Filament/Resources/TipoActividadResource.php:83`: Falta docblock de método público.
-- `App\Filament\Resources\TipoEscalaResource::table()` en `vida/app/Filament/Resources/TipoEscalaResource.php:51`: Falta docblock de método público.
-- `App\Filament\Resources\TipoEscalaResource::form()` en `vida/app/Filament/Resources/TipoEscalaResource.php:106`: Falta docblock de método público.
-- `App\Filament\Resources\TipoEscalaResource::getPages()` en `vida/app/Filament/Resources/TipoEscalaResource.php:352`: Falta docblock de método público.
-- `App\Filament\Resources\TipoEspacioResource::form()` en `vida/app/Filament/Resources/TipoEspacioResource.php:37`: Falta docblock de método público.
-- `App\Filament\Resources\TipoEspacioResource::table()` en `vida/app/Filament/Resources/TipoEspacioResource.php:59`: Falta docblock de método público.
-- `App\Filament\Resources\TipoEspacioResource::getPages()` en `vida/app/Filament/Resources/TipoEspacioResource.php:83`: Falta docblock de método público.
-- `App\Filament\Resources\TipoFichaResource::table()` en `vida/app/Filament/Resources/TipoFichaResource.php:57`: Falta docblock de método público.
-- `App\Filament\Resources\TipoFichaResource::form()` en `vida/app/Filament/Resources/TipoFichaResource.php:102`: Falta docblock de método público.
-- `App\Filament\Resources\TipoFichaResource::getPages()` en `vida/app/Filament/Resources/TipoFichaResource.php:271`: Falta docblock de método público.
-- `App\Filament\Resources\TipoRelacionProfesionalResource::form()` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource.php:41`: Falta docblock de método público.
-- `App\Filament\Resources\TipoRelacionProfesionalResource::table()` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource.php:63`: Falta docblock de método público.
-- `App\Filament\Resources\TipoRelacionProfesionalResource::getPages()` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource.php:98`: Falta docblock de método público.
-- `App\Filament\Resources\TipoSlotResource::form()` en `vida/app/Filament/Resources/TipoSlotResource.php:42`: Falta docblock de método público.
-- `App\Filament\Resources\TipoSlotResource::table()` en `vida/app/Filament/Resources/TipoSlotResource.php:115`: Falta docblock de método público.
-- `App\Filament\Resources\TipoSlotResource::getPages()` en `vida/app/Filament/Resources/TipoSlotResource.php:176`: Falta docblock de método público.
-- `App\Filament\Resources\TitulacionResource::form()` en `vida/app/Filament/Resources/TitulacionResource.php:41`: Falta docblock de método público.
-- `App\Filament\Resources\TitulacionResource::table()` en `vida/app/Filament/Resources/TitulacionResource.php:58`: Falta docblock de método público.
-- `App\Filament\Resources\TitulacionResource::getPages()` en `vida/app/Filament/Resources/TitulacionResource.php:87`: Falta docblock de método público.
-- `App\Filament\Resources\UnidadOrganizativaResource::form()` en `vida/app/Filament/Resources/UnidadOrganizativaResource.php:43`: Falta docblock de método público.
-- `App\Filament\Resources\UnidadOrganizativaResource::table()` en `vida/app/Filament/Resources/UnidadOrganizativaResource.php:99`: Falta docblock de método público.
-- `App\Filament\Resources\UnidadOrganizativaResource::getPages()` en `vida/app/Filament/Resources/UnidadOrganizativaResource.php:148`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioResource::form()` en `vida/app/Filament/Resources/UsuarioResource.php:48`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioResource::table()` en `vida/app/Filament/Resources/UsuarioResource.php:150`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioResource::getPages()` en `vida/app/Filament/Resources/UsuarioResource.php:193`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioResource::canViewAny()` en `vida/app/Filament/Resources/UsuarioResource.php:202`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioResource::canCreate()` en `vida/app/Filament/Resources/UsuarioResource.php:207`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioResource::canEdit()` en `vida/app/Filament/Resources/UsuarioResource.php:212`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioRolResource::form()` en `vida/app/Filament/Resources/UsuarioRolResource.php:48`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioRolResource::table()` en `vida/app/Filament/Resources/UsuarioRolResource.php:90`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioRolResource::getPages()` en `vida/app/Filament/Resources/UsuarioRolResource.php:151`: Falta docblock de método público.
-- `App\Filament\Resources\ZonaResource::form()` en `vida/app/Filament/Resources/ZonaResource.php:43`: Falta docblock de método público.
-- `App\Filament\Resources\ZonaResource::table()` en `vida/app/Filament/Resources/ZonaResource.php:71`: Falta docblock de método público.
-- `App\Filament\Resources\ZonaResource::getPages()` en `vida/app/Filament/Resources/ZonaResource.php:108`: Falta docblock de método público.
 - `App\Filament\Widgets\ActividadCatalogosWidget::canView()` en `vida/app/Filament/Widgets/ActividadCatalogosWidget.php:25`: Falta docblock de método público.
 - `App\Filament\Widgets\ActividadCatalogosWidget::table()` en `vida/app/Filament/Widgets/ActividadCatalogosWidget.php:30`: Falta docblock de método público.
 - `App\Filament\Widgets\AlertasSistemaWidget::canView()` en `vida/app/Filament/Widgets/AlertasSistemaWidget.php:23`: Falta docblock de método público.
@@ -509,13 +392,11 @@ Generado el 2026-06-16 10:09:59 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Http\Middleware\PrimerAcceso::handle()` en `vida/app/Http/Middleware/PrimerAcceso.php:14`: Falta docblock de método público.
 - `App\Livewire\Centros\SelectorPrestacionesCentro::render()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:179`: Falta docblock de método público.
 - `App\Models\CatalogoSistema::scopeDeGrupo()` en `vida/app/Models/CatalogoSistema.php:43`: Falta docblock de método público.
-- `App\Models\Ciudadano::prestacionesResumen()` en `vida/app/Models/Ciudadano.php:176`: Falta docblock de método público.
-- `App\Models\HistoriaSocial::ciudadano()` en `vida/app/Models/HistoriaSocial.php:96`: Falta docblock de método público.
-- `App\Observers\AuditObserver::__construct()` en `vida/app/Observers/AuditObserver.php:26`: Falta docblock de método público.
+- `App\Models\Ciudadano::prestacionesResumen()` en `vida/app/Models/Ciudadano.php:182`: Falta docblock de método público.
+- `App\Models\HistoriaSocial::ciudadano()` en `vida/app/Models/HistoriaSocial.php:100`: Falta docblock de método público.
 - `App\Providers\Filament\AdminPanelProvider::panel()` en `vida/app/Providers/Filament/AdminPanelProvider.php:24`: Falta docblock de método público.
-- `App\Services\Geocodificacion\ResultadoGeocodificacion::__construct()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:34`: Falta docblock de método público.
 
-### PHPDoc incompleto (458)
+### PHPDoc incompleto (316)
 
 - `Modules\Agenda\Jobs\SlotExpirationJob::handle()` en `vida/Modules/Agenda/app/Jobs/SlotExpirationJob.php:34`: Falta @return.
 - `Modules\Agenda\Models\Cita::noShowCiudadano()` en `vida/Modules/Agenda/app/Models/Cita.php:144`: Falta @return.
@@ -813,83 +694,6 @@ Generado el 2026-06-16 10:09:59 UTC a partir de los docblocks PHPDoc compatibles
 - `Modules\Usuarios\Observers\UsuarioRolObserver::created()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:33`: Falta @return.
 - `Modules\Usuarios\Observers\UsuarioRolObserver::updated()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:52`: Falta @param $usuarioRol.
 - `Modules\Usuarios\Observers\UsuarioRolObserver::updated()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:52`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:48`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:48`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @param $apunte.
-- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::create()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:80`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::create()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:80`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @param $apunte.
-- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @param $apunte.
-- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:53`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:53`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @param $historia.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::create()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:94`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::create()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:94`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @param $historia.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @param $historia.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @return.
-- `Modules\Usuarios\Providers\UsuariosServiceProvider::register()` en `vida/Modules/Usuarios/app/Providers/UsuariosServiceProvider.php:30`: Falta @return.
-- `Modules\Usuarios\Providers\UsuariosServiceProvider::boot()` en `vida/Modules/Usuarios/app/Providers/UsuariosServiceProvider.php:38`: Falta @return.
-- `Modules\Usuarios\Traits\TieneRoles::tieneRolVigente()` en `vida/Modules/Usuarios/app/Traits/TieneRoles.php:67`: Falta @return.
-- `Modules\Usuarios\Traits\TieneRoles::tienePermiso()` en `vida/Modules/Usuarios/app/Traits/TieneRoles.php:89`: Falta @return.
-- `Modules\Usuarios\Traits\TieneUO::perteneceAUo()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:88`: Falta @return.
-- `Modules\Usuarios\Traits\TieneUO::tieneAccesoGestionA()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:104`: Falta @return.
-- `Modules\Usuarios\Traits\TieneUO::tieneAccesoConsultaA()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:152`: Falta @return.
-- `App\Console\Commands\NormalizarDirecciones::handle()` en `vida/app/Console/Commands/NormalizarDirecciones.php:47`: Falta @param $geocodificador.
-- `App\Console\Commands\NormalizarDirecciones::handle()` en `vida/app/Console/Commands/NormalizarDirecciones.php:47`: Falta @return.
-- `App\Enums\AccionAuditEnum::etiqueta()` en `vida/app/Enums/AccionAuditEnum.php:21`: Falta @return.
-- `App\Enums\AccionAuditEnum::color()` en `vida/app/Enums/AccionAuditEnum.php:35`: Falta @return.
-- `App\Enums\OrigenDireccion::label()` en `vida/app/Enums/OrigenDireccion.php:20`: Falta @return.
-- `App\Filament\Resources\AuditResource::canAccess()` en `vida/app/Filament/Resources/AuditResource.php:163`: Falta @return.
-- `App\Filament\Resources\AuditResource::canCreate()` en `vida/app/Filament/Resources/AuditResource.php:170`: Falta @return.
-- `App\Filament\Resources\AuditResource::canEdit()` en `vida/app/Filament/Resources/AuditResource.php:176`: Falta @return.
-- `App\Filament\Resources\AuditResource::canDelete()` en `vida/app/Filament/Resources/AuditResource.php:182`: Falta @return.
-- `App\Filament\Resources\CentroResource::canViewAny()` en `vida/app/Filament/Resources/CentroResource.php:235`: Falta @return.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource::getEloquentQuery()` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource.php:101`: Falta @return.
-- `App\Filament\Resources\DocumentoResource::infolist()` en `vida/app/Filament/Resources/DocumentoResource.php:50`: Falta @param $schema.
-- `App\Filament\Resources\DocumentoResource::infolist()` en `vida/app/Filament/Resources/DocumentoResource.php:50`: Falta @return.
-- `App\Filament\Resources\DocumentoResource::canViewAny()` en `vida/app/Filament/Resources/DocumentoResource.php:115`: Falta @return.
-- `App\Filament\Resources\EstiloInformeResource::canViewAny()` en `vida/app/Filament/Resources/EstiloInformeResource.php:157`: Falta @return.
-- `App\Filament\Resources\EstiloInformeResource::canEdit()` en `vida/app/Filament/Resources/EstiloInformeResource.php:163`: Falta @param $record.
-- `App\Filament\Resources\EstiloInformeResource::canEdit()` en `vida/app/Filament/Resources/EstiloInformeResource.php:163`: Falta @return.
-- `App\Filament\Resources\InformeResource::infolist()` en `vida/app/Filament/Resources/InformeResource.php:53`: Falta @param $schema.
-- `App\Filament\Resources\InformeResource::infolist()` en `vida/app/Filament/Resources/InformeResource.php:53`: Falta @return.
-- `App\Filament\Resources\InformeResource::canViewAny()` en `vida/app/Filament/Resources/InformeResource.php:147`: Falta @return.
-- `App\Filament\Resources\LogAlertasResource::canViewAny()` en `vida/app/Filament/Resources/LogAlertasResource.php:127`: Falta @return.
-- `App\Filament\Resources\PlantillaInformeResource::canViewAny()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:265`: Falta @return.
-- `App\Filament\Resources\ProfesionalResource::canViewAny()` en `vida/app/Filament/Resources/ProfesionalResource.php:230`: Falta @return.
-- `App\Filament\Resources\ProfesionalResource::canDelete()` en `vida/app/Filament/Resources/ProfesionalResource.php:246`: Falta @param $record.
-- `App\Filament\Resources\ProfesionalResource::canDelete()` en `vida/app/Filament/Resources/ProfesionalResource.php:246`: Falta @return.
-- `App\Filament\Resources\RedResource::canViewAny()` en `vida/app/Filament/Resources/RedResource.php:82`: Falta @return.
-- `App\Filament\Resources\TipoFichaResource::convertirSchemaBlocks()` en `vida/app/Filament/Resources/TipoFichaResource.php:291`: Falta @param $state.
-- `App\Filament\Resources\TipoFichaResource::convertirSchemaBlocks()` en `vida/app/Filament/Resources/TipoFichaResource.php:291`: Falta @return.
-- `App\Filament\Resources\UsuarioResource::canDelete()` en `vida/app/Filament/Resources/UsuarioResource.php:228`: Falta @param $record.
-- `App\Filament\Resources\UsuarioResource::canDelete()` en `vida/app/Filament/Resources/UsuarioResource.php:228`: Falta @return.
-- `App\Filament\Resources\UsuarioRolResource::canEdit()` en `vida/app/Filament/Resources/UsuarioRolResource.php:161`: Falta @param $record.
-- `App\Filament\Resources\UsuarioRolResource::canEdit()` en `vida/app/Filament/Resources/UsuarioRolResource.php:161`: Falta @return.
-- `App\Http\Controllers\Auth\LoginController::mostrar()` en `vida/app/Http/Controllers/Auth/LoginController.php:19`: Falta @return.
-- `App\Http\Controllers\Auth\LoginController::autenticar()` en `vida/app/Http/Controllers/Auth/LoginController.php:29`: Falta @param $request.
-- `App\Http\Controllers\Auth\LoginController::autenticar()` en `vida/app/Http/Controllers/Auth/LoginController.php:29`: Falta @return.
-- `App\Http\Controllers\Auth\LoginController::cerrarSesion()` en `vida/app/Http/Controllers/Auth/LoginController.php:86`: Falta @param $request.
-- `App\Http\Controllers\Auth\LoginController::cerrarSesion()` en `vida/app/Http/Controllers/Auth/LoginController.php:86`: Falta @return.
-- `App\Http\Controllers\Auth\OnboardingController::mostrar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:18`: Falta @return.
-- `App\Http\Controllers\Auth\OnboardingController::completar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:31`: Falta @param $request.
-- `App\Http\Controllers\Auth\OnboardingController::completar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:31`: Falta @return.
-- `App\Http\Middleware\EnsureTieneRol::handle()` en `vida/app/Http/Middleware/EnsureTieneRol.php:23`: Falta @param $request.
-- `App\Http\Middleware\EnsureTieneRol::handle()` en `vida/app/Http/Middleware/EnsureTieneRol.php:23`: Falta @return.
-- `App\Jobs\NormalizarDireccionJob::handle()` en `vida/app/Jobs/NormalizarDireccionJob.php:72`: Falta @param $geocodificador.
-- `App\Jobs\NormalizarDireccionJob::handle()` en `vida/app/Jobs/NormalizarDireccionJob.php:72`: Falta @return.
 - `App\Livewire\Admin\GestorUnidadesOrganizativas::mount()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:63`: Falta @return.
 - `App\Livewire\Admin\GestorUnidadesOrganizativas::abrirFormularioCreacion()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:131`: Falta @return.
 - `App\Livewire\Admin\GestorUnidadesOrganizativas::abrirFormularioEdicion()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:142`: Falta @return.
@@ -910,71 +714,6 @@ Generado el 2026-06-16 10:09:59 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Livewire\Centros\SelectorPrestacionesCentro::verDetalle()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:151`: Falta @return.
 - `App\Livewire\Centros\SelectorPrestacionesCentro::cerrarDetalle()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:159`: Falta @return.
 - `App\Livewire\Centros\SelectorPrestacionesCentro::guardar()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:168`: Falta @return.
-- `App\Models\Api\PerfilAnonimizacion::delete()` en `vida/app/Models/Api/PerfilAnonimizacion.php:90`: Falta @return.
-- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:73`: Falta @param $attributes.
-- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:73`: Falta @param $options.
-- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:73`: Falta @return.
-- `App\Models\Audit::delete()` en `vida/app/Models/Audit.php:81`: Falta @return.
-- `App\Models\CatalogoSistema::opcionesParaSelect()` en `vida/app/Models/CatalogoSistema.php:58`: Falta @param $grupo.
-- `App\Models\CatalogoSistema::valor()` en `vida/app/Models/CatalogoSistema.php:70`: Falta @return.
-- `App\Models\CatalogoSistema::opcionesParaSelectConPrefijo()` en `vida/app/Models/CatalogoSistema.php:84`: Falta @param $grupo.
-- `App\Models\CatalogoSistema::opcionesParaSelectConPrefijo()` en `vida/app/Models/CatalogoSistema.php:84`: Falta @param $prefijo.
-- `App\Models\Ciudadano::getNombreCompletoAttribute()` en `vida/app/Models/Ciudadano.php:155`: Falta @return.
-- `App\Models\Ciudadano::getCiudadanoId()` en `vida/app/Models/Ciudadano.php:171`: Falta @return.
-- `App\Models\Ciudadano::tieneResidenciaVerificada()` en `vida/app/Models/Ciudadano.php:223`: Falta @return.
-- `App\Models\HistoriaSocial::getCiudadanoId()` en `vida/app/Models/HistoriaSocial.php:91`: Falta @return.
-- `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @param $model.
-- `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @return.
-- `App\Models\UnidadOrganizativa::isDescendantOf()` en `vida/app/Models/UnidadOrganizativa.php:124`: Falta @return.
-- `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @param $panel.
-- `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @return.
-- `App\Models\Version::versionable()` en `vida/app/Models/Version.php:61`: Falta @return.
-- `App\Observers\AuditObserver::created()` en `vida/app/Observers/AuditObserver.php:33`: Falta @return.
-- `App\Observers\AuditObserver::updated()` en `vida/app/Observers/AuditObserver.php:52`: Falta @return.
-- `App\Observers\AuditObserver::deleted()` en `vida/app/Observers/AuditObserver.php:81`: Falta @return.
-- `App\Observers\DireccionObserver::__construct()` en `vida/app/Observers/DireccionObserver.php:29`: Falta @param $geocodificador.
-- `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @param $model.
-- `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @return.
-- `App\Observers\DireccionObserver::created()` en `vida/app/Observers/DireccionObserver.php:50`: Falta @param $model.
-- `App\Observers\DireccionObserver::created()` en `vida/app/Observers/DireccionObserver.php:50`: Falta @return.
-- `App\Observers\DireccionObserver::updating()` en `vida/app/Observers/DireccionObserver.php:60`: Falta @param $model.
-- `App\Observers\DireccionObserver::updating()` en `vida/app/Observers/DireccionObserver.php:60`: Falta @return.
-- `App\Observers\DireccionObserver::updated()` en `vida/app/Observers/DireccionObserver.php:71`: Falta @param $model.
-- `App\Observers\DireccionObserver::updated()` en `vida/app/Observers/DireccionObserver.php:71`: Falta @return.
-- `App\Policies\CiudadanoPolicy::viewAny()` en `vida/app/Policies/CiudadanoPolicy.php:48`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::viewAny()` en `vida/app/Policies/CiudadanoPolicy.php:48`: Falta @return.
-- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @param $ciudadano.
-- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @return.
-- `App\Policies\CiudadanoPolicy::create()` en `vida/app/Policies/CiudadanoPolicy.php:83`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::create()` en `vida/app/Policies/CiudadanoPolicy.php:83`: Falta @return.
-- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @param $ciudadano.
-- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @return.
-- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @param $ciudadano.
-- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @return.
-- `App\Providers\AppServiceProvider::register()` en `vida/app/Providers/AppServiceProvider.php:19`: Falta @return.
-- `App\Providers\AppServiceProvider::boot()` en `vida/app/Providers/AppServiceProvider.php:27`: Falta @return.
-- `App\Providers\GeocodificacionServiceProvider::register()` en `vida/app/Providers/GeocodificacionServiceProvider.php:27`: Falta @return.
-- `App\Providers\GeocodificacionServiceProvider::boot()` en `vida/app/Providers/GeocodificacionServiceProvider.php:35`: Falta @return.
-- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:71`: Falta @return.
-- `App\Services\Api\RevelacionIdentidadService::revelarPorAlias()` en `vida/app/Services/Api/RevelacionIdentidadService.php:36`: Falta @return.
-- `App\Services\AuditService::registrarAcceso()` en `vida/app/Services/AuditService.php:43`: Falta @return.
-- `App\Services\CiudadanoService::crear()` en `vida/app/Services/CiudadanoService.php:41`: Falta @return.
-- `App\Services\CiudadanoService::actualizar()` en `vida/app/Services/CiudadanoService.php:62`: Falta @return.
-- `App\Services\CiudadanoService::eliminar()` en `vida/app/Services/CiudadanoService.php:84`: Falta @return.
-- `App\Services\Geocodificacion\GeocodificadorService::normalizar()` en `vida/app/Services/Geocodificacion/GeocodificadorService.php:39`: Falta @return.
-- `App\Services\Geocodificacion\ResultadoGeocodificacion::fallo()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:58`: Falta @return.
-- `App\Services\HistoriaSocialService::obtenerEntradas()` en `vida/app/Services/HistoriaSocialService.php:35`: Falta @param $ciudadano.
-- `App\Services\HistoriaSocialService::obtenerEntradas()` en `vida/app/Services/HistoriaSocialService.php:35`: Falta @param $profesional.
-- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $usuario.
-- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $ciudadano.
-- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @return.
-- `App\Traits\Auditable::bootAuditable()` en `vida/app/Traits/Auditable.php:26`: Falta @return.
-- `App\Traits\Auditable::getCiudadanoId()` en `vida/app/Traits/Auditable.php:61`: Falta @return.
-- `App\Traits\TieneDireccion::initializeTieneDireccion()` en `vida/app/Traits/TieneDireccion.php:44`: Falta @return.
-- `App\Traits\TieneDireccion::direccionFormateada()` en `vida/app/Traits/TieneDireccion.php:65`: Falta @return.
 
 ## Referencia
 
@@ -4126,14 +3865,19 @@ Metodos publicos:
 
 - `function viewAny(User $usuario): bool`
   Decide si el usuario puede listar apuntes.
+  `@return` bool True si tiene permiso de lectura de apuntes.
 - `function view(User $usuario, Apunte $apunte): bool`
   Decide si el usuario puede ver el apunte.
+  `@return` bool True si puede ver el apunte.
 - `function create(User $usuario): bool`
   Decide si el usuario puede crear un nuevo apunte.
+  `@return` bool True si puede crear apuntes.
 - `function update(User $usuario, Apunte $apunte): bool`
   Decide si el usuario puede editar el apunte.
+  `@return` bool True si puede editar el apunte.
 - `function delete(User $usuario, Apunte $apunte): bool`
   Decide si el usuario puede eliminar el apunte.
+  `@return` bool True si puede eliminar el apunte.
 
 ### `Modules\Usuarios\Policies\HistoriaSocialPolicy`
 
@@ -4147,14 +3891,19 @@ Metodos publicos:
 
 - `function viewAny(User $usuario): bool`
   Decide si el usuario puede listar Historias Sociales.
+  `@return` bool True si tiene permiso de lectura de historias.
 - `function view(User $usuario, HistoriaSocial $historia): bool`
   Decide si el usuario puede consultar la Historia Social.
+  `@return` bool True si puede consultar la historia social.
 - `function create(User $usuario): bool`
   Decide si el usuario puede crear una Historia Social.
+  `@return` bool True si puede crear historias sociales.
 - `function update(User $usuario, HistoriaSocial $historia): bool`
   Decide si el usuario puede editar la Historia Social.
+  `@return` bool True si puede editar la historia social.
 - `function delete(User $usuario, HistoriaSocial $historia): bool`
   Decide si el usuario puede eliminar (baja lógica) la Historia Social.
+  `@return` bool True si puede eliminar la historia social.
 
 ### `Modules\Usuarios\Providers\UsuariosServiceProvider`
 
@@ -4168,8 +3917,10 @@ Metodos publicos:
 
 - `function register(): void`
   Registra servicios en el contenedor.
+  `@return` void
 - `function boot(): void`
   Arranca los servicios del módulo y registra las Policies.
+  `@return` void
 
 ### `Modules\Usuarios\Traits\TieneRoles`
 
@@ -4192,8 +3943,10 @@ Metodos publicos:
   `@return` HasMany<UsuarioRol>
 - `function tieneRolVigente(string $rolNombre): bool`
   Comprueba si el usuario tiene activo el rol indicado según el historial de VIDA (no solo Spatie).
+  `@return` bool True si el usuario tiene ese rol vigente.
 - `function tienePermiso(string $permiso): bool`
   Comprueba si el usuario tiene el permiso indicado a través de alguno de sus roles vigentes en Spatie.
+  `@return` bool True si el usuario tiene el permiso mediante sus roles vigentes.
 
 ### `Modules\Usuarios\Traits\TieneUO`
 
@@ -4219,13 +3972,16 @@ Metodos publicos:
   `@return` Collection<int, UnidadOrganizativa>
 - `function perteneceAUo(UnidadOrganizativa $uo): bool`
   Indica si el usuario pertenece exactamente a la UO indicada (sin considerar la jerarquía).
+  `@return` bool True si el usuario pertenece exactamente a la UO.
 - `function tieneAccesoGestionA(UnidadOrganizativa $uo): bool`
   Indica si el usuario tiene acceso de gestión sobre la UO indicada (su propia UO o una UO descendiente que gestiona).
+  `@return` bool True si puede gestionar la UO por adscripcion o jerarquia.
 - `function uoSubtreeIds(): array`
   Devuelve los IDs de todas las UOs gestionadas por el usuario: las suyas propias y todas sus descendientes. Útil para filtrar queries de backoffice por ámbito.
   `@return` array<int>
 - `function tieneAccesoConsultaA(UnidadOrganizativa $uo): bool`
   Indica si el usuario puede acceder en consulta libre a la UO indicada.
+  `@return` bool Siempre true; las restricciones de ciudadano se evalúan en Policies.
 
 ### `App\Console\Commands\AuditPurgeCommand`
 
@@ -4280,6 +4036,7 @@ Metodos publicos:
 
 - `function handle(GeocodificadorInterface $geocodificador): int`
   Ejecuta el comando.
+  `@return` int Codigo de salida del comando.
 
 ### `App\Enums\AccionAuditEnum`
 
@@ -4291,8 +4048,10 @@ Metodos publicos:
 
 - `function etiqueta(): string`
   Etiqueta en lenguaje natural para la vista del ciudadano.
+  `@return` string Etiqueta legible de la accion.
 - `function color(): string`
   Color semántico para el badge en Filament.
+  `@return` string Nombre del color semantico.
 
 ### `App\Enums\OrigenDireccion`
 
@@ -4305,7 +4064,8 @@ El DireccionObserver toma decisiones basadas en este valor (solo geocodifica cua
 Metodos publicos:
 
 - `function label(): string`
-  Normalizada posteriormente por el job de reintento.
+  Etiqueta legible del origen de direccion.
+  `@return` string Etiqueta para interfaz.
 
 ### `App\Enums\TipoNumeracion`
 
@@ -4446,19 +4206,26 @@ Solo lectura: no hay CreateAction, EditAction ni DeleteAction. El scope automát
 Metodos publicos:
 
 - `function getEloquentQuery(): Builder`
-  _Sin resumen PHPDoc._
+  Devuelve la consulta base del recurso filtrada por el ambito del usuario.
+  `@return` Builder Consulta base del recurso.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de auditoria.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 - `function canAccess(): bool`
   Solo accesible para roles supervision y adm_sistema.
+  `@return` bool True si el usuario puede acceder al recurso.
 - `function canCreate(): bool`
-  Registro de auditoría — inmutable. Nunca se crean desde el backoffice.
+  Registro de auditoría: inmutable. Nunca se crean desde el backoffice.
+  `@return` bool Siempre false.
 - `function canEdit($record): bool`
   _Sin resumen PHPDoc._
+  `@return` bool Siempre false.
 - `function canDelete($record): bool`
   _Sin resumen PHPDoc._
+  `@return` bool Siempre false.
 
 ### `App\Filament\Resources\AuditResource\Pages\ListAudits`
 
@@ -4521,19 +4288,26 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de centros.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de centros.
+  `@return` Table Tabla configurada.
 - `function canViewAny(): bool`
-  Cualquier usuario autenticado puede consultar el catálogo de centros.
+  Cualquier usuario autenticado puede consultar el catalogo de centros.
+  `@return` bool True si hay usuario autenticado.
 - `function canEdit(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario autenticado puede editar el centro.
+  `@return` bool True si puede editar el centro.
 - `function canDelete(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario autenticado puede eliminar el centro.
+  `@return` bool True si puede eliminar el centro.
 - `function getRelationManagers(): array`
-  _Sin resumen PHPDoc._
+  Devuelve los gestores de relaciones del recurso.
+  `@return` array<int, class-string> Relation managers disponibles.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\CentroResource\Pages\CreateCentro`
 
@@ -4627,13 +4401,17 @@ Edita el registro 'horario_laboral_defecto' en catalogos_sistema. Este horario s
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de horario laboral.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de horario laboral.
+  `@return` Table Tabla configurada.
 - `function getEloquentQuery(): Builder`
   Solo muestra el registro del horario laboral.
+  `@return` Builder Consulta limitada al registro de horario laboral.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages\EditConfiguracionHorarioLaboral`
 
@@ -4693,11 +4471,14 @@ Configura si la asignación de un rol requiere aprobación previa del supervisor
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de configuracion de roles.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de configuracion de roles.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\ConfiguracionRolResource\Pages\CreateConfiguracionRol`
 
@@ -4726,13 +4507,17 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de cuadrantes mensuales.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de cuadrantes mensuales.
+  `@return` Table Tabla configurada.
 - `function getRelationManagers(): array`
-  _Sin resumen PHPDoc._
+  Devuelve los gestores de relaciones del recurso.
+  `@return` array<int, class-string> Relation managers disponibles.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\CuadranteMesResource\Pages\CreateCuadranteMes`
 
@@ -4761,9 +4546,11 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de lineas del cuadrante.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de lineas del cuadrante.
+  `@return` Table Tabla configurada.
 
 ### `App\Filament\Resources\DistritoResource`
 
@@ -4776,11 +4563,14 @@ Accesible en /admin/distritos.
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de distritos.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de distritos.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\DistritoResource\Pages\CreateDistrito`
 
@@ -4812,12 +4602,16 @@ Metodos publicos:
 
 - `function infolist(Schema $schema): Schema`
   Los documentos se suben desde el flujo operativo, no desde el backoffice.
+  `@return` Schema Esquema configurado para detalle de documento.
 - `function canViewAny(): bool`
   supervision puede ver documentos de su subtree (solo lectura); adm_* puede gestionar.
+  `@return` bool True si el rol puede consultar documentos.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de documentos.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\DocumentoResource\Pages\ListDocumentos`
 
@@ -4842,17 +4636,23 @@ Los campos se heredan campo a campo por la jerarquía de UOs. Accesible solo a u
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de estilos de informe.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de estilos de informe.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 - `function canViewAny(): bool`
   supervision puede ver estilos de su subtree (solo lectura); adm_* puede gestionar.
+  `@return` bool True si el rol puede consultar estilos.
 - `function canEdit(Model $record): bool`
   adm_usuarios solo gestiona estilos de su subtree de UO.
+  `@return` bool True si el rol puede editar estilos.
 - `function canDelete(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario autenticado puede eliminar el estilo de informe.
+  `@return` bool True si puede eliminar el estilo.
 
 ### `App\Filament\Resources\EstiloInformeResource\Pages\CreateEstiloInforme`
 
@@ -4881,11 +4681,14 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de excepciones profesionales.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de excepciones profesionales.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\ExcepcionProfesionalResource\Pages\CreateExcepcionProfesional`
 
@@ -4914,13 +4717,17 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de horarios de centro.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de horarios de centro.
+  `@return` Table Tabla configurada.
 - `function getRelationManagers(): array`
-  _Sin resumen PHPDoc._
+  Devuelve los gestores de relaciones del recurso.
+  `@return` array<int, class-string> Relation managers disponibles.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\HorarioCentroResource\Pages\CreateHorarioCentro`
 
@@ -4949,9 +4756,11 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de tipos de slot.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de tipos de slot.
+  `@return` Table Tabla configurada.
 
 ### `App\Filament\Resources\InformeResource`
 
@@ -4965,12 +4774,16 @@ Metodos publicos:
 
 - `function infolist(Schema $schema): Schema`
   Los informes se crean desde el flujo operativo (Livewire), no desde el backoffice.
+  `@return` Schema Esquema configurado para detalle de informe.
 - `function canViewAny(): bool`
   supervision puede ver informes de su subtree (solo lectura); adm_* puede gestionar.
+  `@return` bool True si el rol puede consultar informes.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de informes.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\InformeResource\Pages\ListInformes`
 
@@ -4995,17 +4808,23 @@ Permite al administrador consultar el log completo de alertas con filtros por es
 Metodos publicos:
 
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla del log de alertas.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 - `function canViewAny(): bool`
   Solo adm_sistema y supervision pueden ver el log de alertas.
+  `@return` bool True si el rol puede consultar el log de alertas.
 - `function canCreate(): bool`
-  _Sin resumen PHPDoc._
+  Determina si se pueden crear alertas desde el recurso.
+  `@return` bool Siempre false porque el recurso es de solo lectura.
 - `function canEdit(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si se puede editar una alerta desde el recurso.
+  `@return` bool Siempre false porque el recurso es de solo lectura.
 - `function canDelete(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si se puede eliminar una alerta desde el recurso.
+  `@return` bool Siempre false porque el recurso es de solo lectura.
 
 ### `App\Filament\Resources\LogAlertasResource\Pages\ListLogAlertas`
 
@@ -5030,11 +4849,14 @@ Filament v5 deja authorizeAccess() vacío en ListRecords, lo que permite acceder
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de perfiles horarios profesionales.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de perfiles horarios profesionales.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\CreatePerfilHorarioProfesional`
 
@@ -5065,17 +4887,23 @@ Las plantillas tienen alcance jerárquico: se crean al nivel de UO adecuado y so
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de plantillas de informe.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de plantillas de informe.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 - `function canViewAny(): bool`
   supervision puede ver plantillas de su subtree (solo lectura); adm_* puede gestionar.
+  `@return` bool True si el rol puede consultar plantillas.
 - `function canEdit(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario autenticado puede editar la plantilla.
+  `@return` bool True si puede editar la plantilla.
 - `function canDelete(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario autenticado puede eliminar la plantilla.
+  `@return` bool True si puede eliminar la plantilla.
 
 ### `App\Filament\Resources\PlantillaInformeResource\Pages\CreatePlantillaInforme`
 
@@ -5104,13 +4932,17 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de prestaciones.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de prestaciones.
+  `@return` Table Tabla configurada.
 - `function getRelationManagers(): array`
-  _Sin resumen PHPDoc._
+  Devuelve los gestores de relaciones del recurso.
+  `@return` array<int, class-string> Relation managers disponibles.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\PrestacionResource\Pages\CreatePrestacion`
 
@@ -5141,9 +4973,11 @@ Muestra las versiones registradas en la tabla `versiones` (polimórfico). Cada v
 Metodos publicos:
 
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de versiones de la prestacion.
+  `@return` Table Tabla configurada.
 - `function isReadOnly(): bool`
-  _Sin resumen PHPDoc._
+  Indica si el relation manager es de solo lectura.
+  `@return` bool True si el relation manager es de solo lectura.
 
 ### `App\Filament\Resources\ProfesionalResource`
 
@@ -5156,19 +4990,26 @@ Un Profesional es la entidad raíz del sistema de usuarios: el perfil organizati
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de profesionales.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de profesionales.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 - `function canViewAny(): bool`
   Cualquier usuario autenticado puede consultar el directorio de profesionales.
+  `@return` bool True si hay usuario autenticado.
 - `function canCreate(): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario autenticado puede crear profesionales.
+  `@return` bool True si puede crear profesionales.
 - `function canEdit(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario autenticado puede editar el profesional.
+  `@return` bool True si puede editar el profesional.
 - `function canDelete(Model $record): bool`
   Solo adm_sistema puede eliminar profesionales.
+  `@return` bool True si puede eliminar profesionales.
 
 ### `App\Filament\Resources\ProfesionalResource\Pages\CreateProfesional`
 
@@ -5197,13 +5038,17 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de redes.
+  `@return` Schema Schema configurado.
 - `function canViewAny(): bool`
-  supervision puede ver redes cuyo ámbito incluye su subtree de UO.
+  supervision puede ver redes cuyo ambito incluye su subtree de UO.
+  `@return` bool True si el rol puede consultar redes.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de redes.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\RedResource\Pages\CreateRed`
 
@@ -5234,19 +5079,26 @@ Permite visualizar y modificar qué permisos atómicos tiene cada rol. Solo el r
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de roles.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de roles.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 - `function canViewAny(): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario autenticado puede ver roles y permisos.
+  `@return` bool True si puede ver roles y permisos.
 - `function canCreate(): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario autenticado puede crear roles.
+  `@return` bool True si puede crear roles.
 - `function canEdit(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario autenticado puede editar el rol.
+  `@return` bool True si puede editar el rol.
 - `function canDelete(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario autenticado puede eliminar el rol.
+  `@return` bool True si puede eliminar el rol.
 
 ### `App\Filament\Resources\RolResource\Pages\CreateRol`
 
@@ -5275,11 +5127,14 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de segmentos de poblacion.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de segmentos de poblacion.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\SegmentoPoblacionResource\Pages\CreateSegmentoPoblacion`
 
@@ -5310,11 +5165,14 @@ Los servicios aquí listados tienen acceso en modo consulta a Historias de ciuda
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de servicios de emergencia.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de servicios de emergencia.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\ServicioEmergenciaResource\Pages\CreateServicioEmergencia`
 
@@ -5343,11 +5201,14 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de tipos de actividad.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de tipos de actividad.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\TipoActividadResource\Pages\CreateTipoActividad`
 
@@ -5376,11 +5237,14 @@ Metodos publicos:
 Metodos publicos:
 
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de tipos de escala.
+  `@return` Table Tabla configurada.
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de tipos de escala.
+  `@return` Schema Schema configurado.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\TipoEscalaResource\Pages\CreateTipoEscala`
 
@@ -5409,11 +5273,14 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de tipos de espacio.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de tipos de espacio.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\TipoEspacioResource\Pages\CreateTipoEspacio`
 
@@ -5444,13 +5311,17 @@ Cada TipoFicha define un formulario con campos tipados (texto, número, select, 
 Metodos publicos:
 
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de tipos de ficha.
+  `@return` Table Tabla configurada.
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de tipos de ficha.
+  `@return` Schema Schema configurado.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 - `function convertirSchemaBlocks(mixed $state): array`
   Convierte el estado crudo del Builder (bloques con 'type'/'data') al formato canónico del schema del modelo ({'campos': [...]}). Si el estado ya está en formato canónico, lo devuelve sin modificar. Necesario porque en Filament 5 el valor de dehydrateStateUsing en un Builder NO se asigna automáticamente a $data en mutateFormDataBefore*.
+  `@return` array<string, mixed> Schema canonico normalizado.
 
 ### `App\Filament\Resources\TipoFichaResource\Pages\CreateTipoFicha`
 
@@ -5481,11 +5352,14 @@ Accesible en /admin/tipos-relacion-profesional.
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de tipos de relacion profesional.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de tipos de relacion profesional.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\CreateTipoRelacion`
 
@@ -5514,11 +5388,14 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de tipos de slot.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de tipos de slot.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\TipoSlotResource\Pages\CreateTipoSlot`
 
@@ -5549,11 +5426,14 @@ Accesible en /admin/titulaciones.
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de titulaciones.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de titulaciones.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\TitulacionResource\Pages\CreateTitulacion`
 
@@ -5584,11 +5464,14 @@ Accesible en /admin/unidades-organizativas.
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de unidades organizativas.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de unidades organizativas.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\UnidadOrganizativaResource\Pages\CreateUnidadOrganizativa`
 
@@ -5619,19 +5502,26 @@ Permite crear usuarios, asignarles roles globales y adscribirlos a Unidades Orga
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de usuarios.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de usuarios.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 - `function canViewAny(): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario autenticado puede ver el listado de usuarios.
+  `@return` bool True si puede ver usuarios.
 - `function canCreate(): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario autenticado puede crear usuarios.
+  `@return` bool True si puede crear usuarios.
 - `function canEdit(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario autenticado puede editar el usuario.
+  `@return` bool True si puede editar el usuario.
 - `function canDelete(Model $record): bool`
-  Solo adm_sistema puede eliminar usuarios.
+  Determina si el usuario autenticado puede eliminar usuarios.
+  `@return` bool True si puede eliminar usuarios.
 
 ### `App\Filament\Resources\UsuarioResource\Pages\CreateUsuario`
 
@@ -5662,13 +5552,17 @@ Muestra el historial completo de roles (pendientes, activos, inactivos) y permit
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de asignaciones de rol.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de asignaciones de rol.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 - `function canEdit(Model $record): bool`
-  adm_usuarios solo gestiona asignaciones de rol de su subtree de UO.
+  Determina si el usuario autenticado puede editar la asignacion de rol.
+  `@return` bool True si puede editar la asignacion.
 
 ### `App\Filament\Resources\UsuarioRolResource\Pages\CreateUsuarioRol`
 
@@ -5699,11 +5593,14 @@ Accesible en /admin/zonas.
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Configura el formulario de zonas.
+  `@return` Schema Schema configurado.
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de zonas.
+  `@return` Table Tabla configurada.
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Devuelve las paginas registradas para el recurso.
+  `@return` array<string, mixed> Rutas de paginas Filament.
 
 ### `App\Filament\Resources\ZonaResource\Pages\CreateZona`
 
@@ -5785,11 +5682,14 @@ Metodos publicos:
 
 - `function mostrar()`
   Muestra el formulario de login.
+  `@return` IlluminateContractsViewView
 - `function autenticar(Request $request)`
   Procesa el intento de autenticación.
+  `@return` IlluminateHttpRedirectResponse
   `@throws` ValidationException
 - `function cerrarSesion(Request $request)`
   Cierra la sesión activa.
+  `@return` IlluminateHttpRedirectResponse
 
 ### `App\Http\Controllers\Auth\OnboardingController`
 
@@ -5801,8 +5701,10 @@ Metodos publicos:
 
 - `function mostrar()`
   Muestra la pantalla de bienvenida con el contexto del usuario.
+  `@return` IlluminateContractsViewView
 - `function completar(Request $request)`
   Marca el onboarding como completado y redirige al destino según rol.
+  `@return` IlluminateHttpRedirectResponse
 
 ### `App\Http\Controllers\Controller`
 
@@ -5837,6 +5739,7 @@ Metodos publicos:
 
 - `function handle(Request $request, Closure $next): Response`
   _Sin resumen PHPDoc._
+  `@return` Response Respuesta siguiente o redireccion a sin-rol.
 
 ### `App\Http\Middleware\FilamentAuthenticate`
 
@@ -5874,6 +5777,7 @@ Metodos publicos:
   `@return` list<int>
 - `function handle(GeocodificadorInterface $geocodificador): void`
   Procesa el reintento de normalización.
+  `@return` void
 
 ### `App\Livewire\Admin\GestorUnidadesOrganizativas`
 
@@ -5974,6 +5878,7 @@ Metodos publicos:
 
 - `function delete(): ?bool`
   Intenta eliminar el perfil respetando las restricciones de dominio.
+  `@return` bool|null Resultado de la eliminacion Eloquent.
   `@throws` PerfilSistemaNoEliminableException Si es un perfil de sistema
   `@throws` PerfilConExtraccionesException Si tiene extracciones asociadas
 - `function versiones(): HasMany`
@@ -6029,9 +5934,11 @@ Metodos publicos:
 
 - `function update(array $attributes = [], array $options = []): bool`
   _Sin resumen PHPDoc._
+  `@return` bool Nunca retorna; siempre lanza excepcion.
   `@throws` LogicException Los registros de auditoría son inmutables.
 - `function delete(): bool|null`
   _Sin resumen PHPDoc._
+  `@return` bool|null Nunca retorna; siempre lanza excepcion.
   `@throws` LogicException Use AuditPurgeCommand para purgas por retención.
 - `function auditable(): MorphTo`
   Modelo afectado (polimórfico).
@@ -6060,6 +5967,7 @@ Metodos publicos:
   `@return` array<string, string>
 - `function valor(string $clave, string $defecto = ''): string`
   Devuelve la etiqueta de un valor del catálogo por clave única. Útil para parámetros de configuración global (clave única entre todos los grupos).
+  `@return` string Etiqueta del catalogo o valor por defecto.
 - `function opcionesParaSelectConPrefijo(string $grupo, string $prefijo): array`
   Devuelve las opciones de un grupo filtradas por prefijo de clave. Útil para cargar subcategorías dependientes de una categoría padre.
   `@return` array<string, string>
@@ -6076,8 +5984,10 @@ Metodos publicos:
 
 - `function getNombreCompletoAttribute(): string`
   Nombre completo del ciudadano: nombre + apellido1 [+ apellido2]. Los campos están cifrados — solo accesible mediante Eloquent ORM.
+  `@return` string Nombre completo formateado.
 - `function getCiudadanoId(): ?int`
-  El ciudadano es la entidad raíz: su propio id es el ciudadano_id.
+  El ciudadano es la entidad raiz: su propio id es el ciudadano_id.
+  `@return` int|null ID del ciudadano actual.
 - `function prestacionesResumen(): HasMany`
   _Sin resumen PHPDoc._
 - `function membresiasUC(): HasMany`
@@ -6091,6 +6001,7 @@ Metodos publicos:
   `@return` BelongsToMany<UnidadConvivencia, self>
 - `function tieneResidenciaVerificada(): bool`
   Indica si el ciudadano tiene verificada su residencia en alguna UC activa. Determina si puede ser perceptor de prestaciones municipales.
+  `@return` bool True si tiene residencia verificada en una UC activa.
 
 ### `App\Models\HistoriaSocial`
 
@@ -6103,7 +6014,8 @@ Stub mínimo para que las Policies y los tests puedan referenciar la entidad. La
 Metodos publicos:
 
 - `function getCiudadanoId(): ?int`
-  _Sin resumen PHPDoc._
+  Devuelve el ciudadano asociado a la historia social.
+  `@return` int|null ID del ciudadano titular.
 - `function ciudadano(): BelongsTo`
   _Sin resumen PHPDoc._
 - `function unidadOrganizativa(): BelongsTo`
@@ -6139,6 +6051,7 @@ Metodos publicos:
 
 - `function apply(Builder $builder, Model $model): void`
   Aplica el filtro de ámbito de UO a la consulta.
+  `@return` void
 
 ### `App\Models\UnidadOrganizativa`
 
@@ -6161,6 +6074,7 @@ Metodos publicos:
   `@return` HasMany<UsuarioUo>
 - `function isDescendantOf(UnidadOrganizativa $ancestor): bool`
   Comprueba si esta UO es descendiente del nodo dado. Útil para verificar ámbitos de supervisión jerárquica.
+  `@return` bool True si esta UO desciende del ancestro indicado.
 - `function getPlanNombreCompletoAttribute(): string`
   Nombre completo del plan de intervención con fallback. Permite personalizar el término por UO (p. ej. «PISO», «PIA»).
   `@return` string Nombre completo, nunca nulo.
@@ -6186,6 +6100,7 @@ Metodos publicos:
 
 - `function canAccessPanel(Panel $panel): bool`
   Solo roles de gestión y supervisión pueden acceder al panel de administración.
+  `@return` bool True si el usuario puede acceder al panel.
 - `function profesional(): BelongsTo`
   Perfil organizativo del usuario.
   `@return` BelongsTo<Profesional, User>
@@ -6222,6 +6137,7 @@ Metodos publicos:
 
 - `function versionable(): MorphTo`
   Entidad a la que pertenece esta versión.
+  `@return` MorphTo<Model, Version>
 - `function usuario(): BelongsTo`
   Usuario que realizó el cambio que generó esta versión.
   `@return` BelongsTo<User, Version>
@@ -6237,13 +6153,16 @@ Las lecturas NO las registra este observer — deben registrarse explícitamente
 Metodos publicos:
 
 - `function __construct(private readonly AuditService $service)`
-  _Sin resumen PHPDoc._
+  Crea el observer con el servicio centralizado de auditoria.
 - `function created(Model $model): void`
   Registra la creación de un modelo auditable.
+  `@return` void
 - `function updated(Model $model): void`
   Registra la edición de un modelo auditable con diff de campos cambiados.
+  `@return` void
 - `function deleted(Model $model): void`
   Registra la eliminación (soft o hard) de un modelo auditable.
+  `@return` void
 
 ### `App\Observers\DireccionObserver`
 
@@ -6256,15 +6175,19 @@ Invoca el geocoder al guardar una entidad con dirección introducida manualmente
 Metodos publicos:
 
 - `function __construct( private readonly GeocodificadorInterface $geocodificador, )`
-  Timeout en segundos para la llamada al geocoder.
+  Crea el observer con el adaptador de geocodificacion configurado.
 - `function creating(Model $model): void`
   Intenta geocodificar antes de insertar el registro.
+  `@return` void
 - `function created(Model $model): void`
   Encola el job de reintento si el guardado inicial no normalizó la dirección.
+  `@return` void
 - `function updating(Model $model): void`
   Intenta geocodificar antes de actualizar el registro.
+  `@return` void
 - `function updated(Model $model): void`
   Encola el job de reintento si la actualización no normalizó la dirección.
+  `@return` void
 
 ### `App\Policies\CiudadanoPolicy`
 
@@ -6278,14 +6201,19 @@ Metodos publicos:
 
 - `function viewAny(User $usuario): bool`
   Decide si el usuario puede listar ciudadanos.
+  `@return` bool True si tiene permiso atomico de lectura.
 - `function view(User $usuario, Ciudadano $ciudadano): bool`
   Decide si el usuario puede consultar la ficha del ciudadano.
+  `@return` bool True si supera permiso, ambito y proteccion especial.
 - `function create(User $usuario): bool`
   Decide si el usuario puede crear un ciudadano.
+  `@return` bool True si puede crear ciudadanos.
 - `function update(User $usuario, Ciudadano $ciudadano): bool`
   Decide si el usuario puede editar el ciudadano.
+  `@return` bool True si puede editar dentro de su ambito.
 - `function delete(User $usuario, Ciudadano $ciudadano): bool`
   Decide si el usuario puede eliminar (baja lógica) el ciudadano.
+  `@return` bool True si puede eliminar dentro de su ambito.
 
 ### `App\Providers\AppServiceProvider`
 
@@ -6299,8 +6227,10 @@ Metodos publicos:
 
 - `function register(): void`
   Registra servicios en el contenedor de la aplicación.
+  `@return` void
 - `function boot(): void`
   Arranca los servicios de la aplicación.
+  `@return` void
 
 ### `App\Providers\Filament\AdminPanelProvider`
 
@@ -6325,8 +6255,10 @@ Metodos publicos:
 
 - `function register(): void`
   Registra el binding de la interfaz en el contenedor.
+  `@return` void
 - `function boot(): void`
   Registra el observer en los modelos con dirección.
+  `@return` void
 
 ### `App\Queries\AccesosExpedienteQuery`
 
@@ -6343,6 +6275,7 @@ Metodos publicos:
   `@return` Builder<Audit>
 - `function puedeVerTodos(User $user, HistoriaSocial $historia): bool`
   Indica si el usuario puede ver todos los accesos o únicamente los propios.
+  `@return` bool True si el usuario puede ver todos los accesos del expediente.
 
 ### `App\Services\Api\AnonimizadorService`
 
@@ -6372,6 +6305,7 @@ Metodos publicos:
 
 - `function revelarPorAlias(string $alias, int $usuarioId, string $justificacion): Ciudadano`
   Resuelve un alias seudonimizado al ciudadano real.
+  `@return` Ciudadano Ciudadano real asociado al alias.
   `@throws` ValidationException Si justificacion está vacía
   `@throws` AuthorizationException Si el usuario no tiene permiso ciudadano.revelar_identidad
   `@throws` ModelNotFoundException Si ningún ciudadano activo coincide con el alias
@@ -6403,6 +6337,7 @@ Metodos publicos:
 
 - `function registrarAcceso( User $user, Model $modelo, AccionAuditEnum|string $accion = AccionAuditEnum::Ver, ?int $ciudadanoId = null, array $contexto = [], ?array $datosAntes = null, ?array $datosDespues = null, ): void`
   Registra un acceso a datos de ciudadano.
+  `@return` void
 
 ### `App\Services\CiudadanoService`
 
@@ -6416,13 +6351,16 @@ Metodos publicos:
 
 - `function crear(array $datos): Ciudadano`
   Da de alta un nuevo ciudadano en el sistema.
+  `@return` Ciudadano Ciudadano creado.
   `@throws` AuthorizationException Si el usuario no tiene permiso de crear ciudadanos
 - `function actualizar(int $id, array $datos): Ciudadano`
   Actualiza los datos de un ciudadano existente.
+  `@return` Ciudadano Ciudadano actualizado.
   `@throws` AuthorizationException Si el usuario no tiene permiso de editar
   `@throws` ModelNotFoundException Si el ciudadano no existe o no está en el ámbito del usuario
 - `function eliminar(int $id): void`
   Elimina (baja lógica) un ciudadano del sistema.
+  `@return` void
   `@throws` AuthorizationException Si el usuario no tiene permiso de eliminar
   `@throws` ModelNotFoundException Si el ciudadano no existe o no está en el ámbito del usuario
 
@@ -6466,6 +6404,7 @@ Metodos publicos:
 
 - `function normalizar(string $direccionTexto): ResultadoGeocodificacion`
   Normaliza la dirección delegando en el adaptador activo.
+  `@return` ResultadoGeocodificacion Resultado uniforme devuelto por el adaptador activo.
 
 ### `App\Services\Geocodificacion\ResultadoGeocodificacion`
 
@@ -6481,6 +6420,7 @@ Metodos publicos:
   _Sin resumen PHPDoc._
 - `function fallo(string $proveedor, string $errorMensaje): self`
   Crea un resultado de fallo.
+  `@return` self Resultado inmutable de fallo.
 
 ### `App\Services\HistoriaSocialService`
 
@@ -6497,6 +6437,7 @@ Metodos publicos:
   `@return` Collection<int, array<string, mixed>>
 - `function esTsr(User $usuario, Ciudadano $ciudadano): bool`
   Verifica si un usuario es el TSR responsable de la Historia Social de un ciudadano concreto.
+  `@return` bool True si el usuario pertenece a la UO de la historia social.
 
 ### `App\Traits\Auditable`
 
@@ -6510,6 +6451,7 @@ Metodos publicos:
 
 - `function bootAuditable(): void`
   Registra el observer de auditoría al arrancar el modelo.
+  `@return` void
 - `function audits(): MorphMany`
   Todos los registros de auditoría de este modelo.
   `@return` MorphMany<Audit>
@@ -6518,6 +6460,7 @@ Metodos publicos:
   `@return` list<string>
 - `function getCiudadanoId(): ?int`
   Devuelve el ciudadano_id asociado a este registro.
+  `@return` int|null ID del ciudadano asociado o null si no aplica.
 
 ### `App\Traits\TieneDireccion`
 
@@ -6531,8 +6474,10 @@ Metodos publicos:
 
 - `function initializeTieneDireccion(): void`
   Inyecta los casts de los campos de dirección al instanciar el modelo.
+  `@return` void
 - `function direccionFormateada(): string`
   Devuelve la dirección estructurada como cadena legible.
+  `@return` string Dirección postal legible.
 - `function scopeSinNormalizar(Builder $query): Builder`
   Filtra entidades cuya dirección aún no ha sido normalizada por el geocoder.
   `@return` Builder<static>

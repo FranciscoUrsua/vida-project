@@ -46,6 +46,12 @@ class ProfesionalResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    /**
+     * Configura el formulario de profesionales.
+     *
+     * @param Schema $schema Schema Filament a configurar.
+     * @return Schema Schema configurado.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -170,6 +176,12 @@ class ProfesionalResource extends Resource
         ]);
     }
 
+    /**
+     * Configura la tabla de profesionales.
+     *
+     * @param Table $table Tabla Filament a configurar.
+     * @return Table Tabla configurada.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -217,6 +229,11 @@ class ProfesionalResource extends Resource
             ->defaultSort('apellido1');
     }
 
+    /**
+     * Devuelve las paginas registradas para el recurso.
+     *
+     * @return array<string, mixed> Rutas de paginas Filament.
+     */
     public static function getPages(): array
     {
         return [
@@ -226,23 +243,44 @@ class ProfesionalResource extends Resource
         ];
     }
 
-    /** Cualquier usuario autenticado puede consultar el directorio de profesionales. */
+    /**
+     * Cualquier usuario autenticado puede consultar el directorio de profesionales.
+     *
+     * @return bool True si hay usuario autenticado.
+     */
     public static function canViewAny(): bool
     {
         return auth()->check();
     }
 
+    /**
+     * Determina si el usuario autenticado puede crear profesionales.
+     *
+     * @return bool True si puede crear profesionales.
+     */
     public static function canCreate(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Determina si el usuario autenticado puede editar el profesional.
+     *
+     * @param Model $record Profesional evaluado.
+     * @return bool True si puede editar el profesional.
+     */
     public static function canEdit(Model $record): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
-    /** Solo adm_sistema puede eliminar profesionales. */
+    /**
+     * Solo adm_sistema puede eliminar profesionales.
+     *
+     * @param Model $record Profesional evaluado.
+     *
+     * @return bool True si puede eliminar profesionales.
+     */
     public static function canDelete(Model $record): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;
