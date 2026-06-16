@@ -145,7 +145,13 @@ Esta tabla es la fuente única de verdad sobre el vínculo entre dos ciudadanos.
 
 ### 3.4 Unidad de convivencia
 
-La unidad de convivencia tiene identidad propia porque es la unidad de referencia para el cálculo de prestaciones económicas y para la intervención familiar. No es simplemente un grupo de relaciones — es una entidad con domicilio, fechas de vigencia y composición propia.
+La unidad de convivencia tiene identidad propia porque es la unidad de referencia
+para el cálculo de prestaciones económicas y para la intervención familiar. No es
+simplemente un grupo de relaciones — es una entidad con domicilio, fechas de
+vigencia y composición propia.
+
+**Ubicación en el código:** `Modules\Ciudadania`. La UC no tiene módulo propio;
+su ciclo de vida siempre se origina desde un ciudadano.
 
 ```
 
@@ -166,25 +172,62 @@ unidad_convivencia_miembros
 - ciudadano_id (FK)
 - fecha_inicio (date)
 - fecha_fin (date nullable)
-- fuente (string: manual / padron / importacion)
+- fuente (enum: manual / padron / importacion)
 - verificado (boolean default false)
+- verificado_por (FK a users, nullable)
+- verificado_en (timestamp nullable)
 - timestamps
 
 ```
 
-**Sobre cuándo crear una unidad de convivencia:** un ciudadano se da de alta siempre sin unidad de convivencia. La unidad se crea únicamente cuando es relevante modelar la convivencia, en estos casos:
+**Sobre cuándo crear una unidad de convivencia:** un ciudadano se da de alta
+siempre sin unidad de convivencia. La unidad se crea únicamente cuando es
+relevante modelar la convivencia:
 
-- Al dar de alta a un conviviente (por ejemplo, un hijo) para vincularlo al caso del ciudadano.
-- Al tramitar una prestación económica que requiere conocer la composición e ingresos del hogar.
+- Al dar de alta a un conviviente para vincularlo al caso de otro ciudadano.
+- Al tramitar una prestación económica que requiere conocer la composición e
+  ingresos del hogar.
 - Cuando la intervención es de carácter familiar, no individual.
 
-**Sobre el rol dentro de la unidad:** la unidad de convivencia no registra el rol de cada miembro. Quién es hijo de quién, quién es tutor de quién, se lee de `ciudadano_relaciones`. Cuando se añade un miembro a una unidad de convivencia, el profesional debe asegurarse de que la relación entre ese ciudadano y los demás miembros existe en la tabla de relaciones; si no existe, la crea en ese momento.
+**Sobre los miembros de la UC:** todo miembro es un ciudadano de pleno derecho
+en el sistema. Cuando el TSR añade un conviviente durante el flujo de intervención,
+ese alta pasa por el mismo motor de deduplicación y la misma consulta al padrón
+que cualquier otro alta. El contexto de alta puede preseleccionar el domicilio de
+la UC y la relación con el ciudadano de referencia para agilizar el formulario,
+pero no omite ninguna garantía de calidad de datos.
 
-**Sobre la titularidad y los planes:** no existe un "titular de la unidad". Los Planes de Intervención y las prestaciones se asignan siempre a personas concretas, nunca a la unidad. La titularidad de una prestación vincula al ciudadano titular con su unidad de convivencia por navegación (prestación → titular → unidad de convivencia). El interlocutor natural con el trabajador social es la persona que tiene un Plan de Intervención abierto.
+Un miembro de la UC puede no tener Historia Social ni Plan de Intervención propio.
+Su presencia en la unidad puede ser relevante únicamente para el cálculo de
+ingresos o la valoración de la situación familiar del ciudadano titular del caso.
 
-Un ciudadano puede pertenecer a más de una unidad de convivencia a lo largo del tiempo, y excepcionalmente a más de una simultáneamente (menores con custodia compartida en dos domicilios).
+**Sobre el campo `verificado`:** indica si se ha verificado la residencia del
+ciudadano en el municipio, necesaria para ser perceptor de prestaciones municipales.
+La verificación se produce normalmente durante el alta mediante consulta al padrón.
+En casos tasados (VVG, PSH sin documentación), el TSR puede marcar la verificación
+manualmente; en ese caso se registra `verificado_por` y `verificado_en` para
+trazabilidad. Un ciudadano sin `verificado = true` en su membresía activa no puede
+ser titular de prestaciones económicas municipales — esta restricción se evalúa en
+código, no en configuración.
 
-Los miembros importados desde el padrón se marcan con `fuente: padron` y `verificado: false` hasta confirmación del profesional.
+**Sobre el rol dentro de la unidad:** la unidad de convivencia no registra el rol
+de cada miembro. Quién es hijo de quién, quién es tutor de quién, se lee de
+`ciudadano_relaciones`. Cuando se añade un miembro a una unidad de convivencia, el
+profesional debe asegurarse de que la relación entre ese ciudadano y los demás
+miembros existe en la tabla de relaciones; si no existe, la crea en ese momento.
+
+**Sobre la titularidad y los planes:** no existe un "titular de la unidad". Los
+Planes de Intervención pueden asignarse a una persona concreta (ciudadano individual)
+o a la UC como entidad (intervención familiar). Las prestaciones económicas se
+asignan siempre a personas concretas. Ver `docs/modulo-intervencion.md`, sección 5,
+para el modelo de `PlanDeIntervencion` y la restricción de que exactamente uno de
+`ciudadano_id` o `unidad_convivencia_id` debe estar presente.
+
+Un ciudadano puede pertenecer a más de una unidad de convivencia a lo largo del
+tiempo, y excepcionalmente a más de una simultáneamente (menores con custodia
+compartida en dos domicilios).
+
+Los miembros importados desde el padrón se marcan con `fuente: padron` y
+`verificado: false` hasta confirmación del profesional.
 
 ### 3.5 Situación social (Capa 2)
 

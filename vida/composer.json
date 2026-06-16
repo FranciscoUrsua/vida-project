@@ -86,6 +86,7 @@
             "Modules\\Ciudadania\\": "Modules/Ciudadania/app/",
             "Modules\\Ciudadania\\Database\\": "Modules/Ciudadania/database/",
             "Modules\\Ciudadania\\Database\\Migrations\\": "Modules/Ciudadania/database/migrations/",
+            "Modules\\Ciudadania\\Database\\Factories\\": "Modules/Ciudadania/database/factories/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }

@@ -33,9 +33,12 @@ La búsqueda por `doc`/`hsu` en `BuscarCiudadanoPage` devuelve vacío con TODO. 
 
 ---
 
-**Tabla `unidades_convivencia` pendiente de crear** — 2026-06-10
-Módulo: Ciudadanía
-El botón "Ver ficha" en el bloque UC de `FichaCiudadanoPage` tiene TODO explícito.
+**UC en UI de intervención** — 2026-06-16
+`Módulo: Ciudadanía / Intervención`
+Los modelos y migraciones de UnidadConvivencia están implementados.
+Pendiente: UI Livewire para gestión de UC dentro de la pantalla de intervención
+del ciudadano (añadir/dar de baja miembros, verificar residencia, ver composición).
+El botón "Ver ficha" en el bloque UC de `FichaCiudadanoPage` sigue apuntando a TODO.
 
 ---
 

@@ -178,6 +178,7 @@ Una Historia Social puede tener varios planes activos simultáneamente, cada uno
 
 - `id`
 - `historia_id` (FK)
+- `unidad_convivencia_id` (FK nullable — para planes de intervención familiar asignados a la UC. Exactamente uno de `ciudadano_id` (en historia_id→ciudadano) o `unidad_convivencia_id` debe determinar el destinatario del plan)
 - `tipo` (enum: `general_asp`, `especializado`)
 - `servicio_especializado_id` (FK, nullable)
 - `profesional_responsable_id` (FK)

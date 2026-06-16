@@ -7,10 +7,13 @@ use App\Traits\Auditable;
 use App\Traits\TieneDireccion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Modules\Ciudadania\Models\CiudadanoPrestacionResumen;
+use Modules\Ciudadania\Models\UnidadConvivencia;
+use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 
 /**
  * Modelo stub de Ciudadano.
@@ -173,5 +176,55 @@ class Ciudadano extends Model
     public function prestacionesResumen(): HasMany
     {
         return $this->hasMany(CiudadanoPrestacionResumen::class);
+    }
+
+    /**
+     * Todas las membresías UC del ciudadano (históricas y activas).
+     *
+     * @return HasMany<UnidadConvivenciaMiembro, self>
+     */
+    public function membresiasUC(): HasMany
+    {
+        return $this->hasMany(UnidadConvivenciaMiembro::class, 'ciudadano_id');
+    }
+
+    /**
+     * Unidades de convivencia a las que ha pertenecido el ciudadano.
+     *
+     * @return BelongsToMany<UnidadConvivencia, self>
+     */
+    public function unidadesConvivencia(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            UnidadConvivencia::class,
+            'unidad_convivencia_miembros',
+            'ciudadano_id',
+            'unidad_convivencia_id'
+        )->withPivot(['fecha_inicio', 'fecha_fin', 'fuente', 'verificado',
+                      'verificado_por', 'verificado_en'])
+         ->withTimestamps();
+    }
+
+    /**
+     * Unidades de convivencia activas (puede ser más de una: custodia compartida).
+     *
+     * @return BelongsToMany<UnidadConvivencia, self>
+     */
+    public function unidadesConvivenciaActivas(): BelongsToMany
+    {
+        return $this->unidadesConvivencia()
+            ->wherePivotNull('fecha_fin');
+    }
+
+    /**
+     * Indica si el ciudadano tiene verificada su residencia en alguna UC activa.
+     * Determina si puede ser perceptor de prestaciones municipales.
+     */
+    public function tieneResidenciaVerificada(): bool
+    {
+        return $this->membresiasUC()
+            ->whereNull('fecha_fin')
+            ->where('verificado', true)
+            ->exists();
     }
 }
