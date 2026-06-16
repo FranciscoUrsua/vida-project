@@ -133,13 +133,39 @@
             <div style="margin-top: 0.75rem; border: 1px solid var(--color-ink-200); border-radius: 8px; overflow: hidden;">
                 <button wire:click="toggleUC"
                         style="width: 100%; background: #fff; border: none; padding: 0.5rem 0.75rem; text-align: left; font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                    <span>Unidad de convivencia</span>
+                    <span>
+                        Unidad de convivencia
+                        @if($this->ucVigente)
+                            <span style="font-size: 0.7rem; font-weight: 400; color: var(--color-ink-500); margin-left: 0.3rem;">
+                                {{ $this->ucMiembrosActivos->count() }} miembro{{ $this->ucMiembrosActivos->count() !== 1 ? 's' : '' }}
+                            </span>
+                        @endif
+                    </span>
                     <i data-lucide="{{ $ucExpandida ? 'chevron-up' : 'chevron-down' }}" style="width:12px;height:12px;" aria-hidden="true"></i>
                 </button>
                 @if($ucExpandida)
-                    <div style="padding: 0.5rem 0.75rem; font-size: 0.75rem; color: var(--color-ink-400); border-top: 1px solid var(--color-ink-100);">
-                        {{-- TODO: implementar cuando exista la tabla unidades_convivencia --}}
-                        Sin datos de unidad de convivencia disponibles.
+                    <div style="padding: 0.5rem 0.75rem; border-top: 1px solid var(--color-ink-100);">
+                        @if($this->ucVigente)
+                            <ul style="list-style: none; margin: 0 0 0.5rem; padding: 0; display: flex; flex-direction: column; gap: 0.2rem;">
+                                @foreach($this->ucMiembrosActivos as $ucm)
+                                    <li style="font-size: 0.73rem; color: var(--color-ink-700); display: flex; align-items: center; gap: 0.3rem;">
+                                        @if($ucm->verificado)
+                                            <i data-lucide="shield-check" style="width:10px;height:10px; color: var(--color-success, #166534); flex-shrink:0;" aria-hidden="true"></i>
+                                        @else
+                                            <i data-lucide="shield-alert" style="width:10px;height:10px; color: var(--color-warning, #92400e); flex-shrink:0;" aria-hidden="true"></i>
+                                        @endif
+                                        {{ $ucm->ciudadano?->nombre }} {{ $ucm->ciudadano?->apellido1 }}
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <p style="font-size: 0.73rem; color: var(--color-ink-400); margin: 0 0 0.5rem;">Sin unidad de convivencia registrada.</p>
+                        @endif
+                        {{-- Botón gestionar UC --}}
+                        <button wire:click="abrirModalUc" class="uc-widget__gestionar" title="Gestionar unidad de convivencia">
+                            <i data-lucide="users" style="width:14px;height:14px;" aria-hidden="true"></i>
+                            Gestionar UC
+                        </button>
                     </div>
                 @endif
             </div>
@@ -554,6 +580,182 @@
             </div>
         </div>
     </div>
+    @endif
+
+    {{-- ================================================================== --}}
+    {{-- MODAL: GESTIÓN DE UNIDAD DE CONVIVENCIA                            --}}
+    {{-- ================================================================== --}}
+    @if($this->modalUcAbierto)
+    <div
+        class="uc-modal-backdrop"
+        x-data
+        x-on:keydown.escape.window="$wire.cerrarModalUc()"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="uc-modal-titulo"
+    >
+        <div class="uc-modal">
+
+            {{-- Cabecera --}}
+            <div class="uc-modal__header">
+                <h2 id="uc-modal-titulo" class="uc-modal__titulo">Unidad de convivencia</h2>
+                <button wire:click="cerrarModalUc" class="uc-modal__cerrar" aria-label="Cerrar">
+                    <i data-lucide="x" style="width:18px;height:18px;" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            {{-- Feedback --}}
+            @if($ucMensaje)
+            <div class="uc-modal__mensaje" wire:key="uc-mensaje">
+                <i data-lucide="check-circle" style="width:14px;height:14px;" aria-hidden="true"></i>
+                {{ $ucMensaje }}
+            </div>
+            @endif
+
+            {{-- Cuerpo --}}
+            <div class="uc-modal__cuerpo">
+
+                @if(! $this->ucVigente)
+                    {{-- Sin UC: opción de crear --}}
+                    <div class="uc-modal__vacio">
+                        <p>Este ciudadano no tiene unidad de convivencia registrada.</p>
+                        <button wire:click="crearUc" class="uc-modal__btn-crear">
+                            <i data-lucide="plus" style="width:14px;height:14px;" aria-hidden="true"></i>
+                            Crear unidad de convivencia
+                        </button>
+                    </div>
+
+                @else
+                    {{-- Lista de miembros activos --}}
+                    <div class="uc-modal__seccion">
+                        <h3 class="uc-modal__seccion-titulo">
+                            Miembros activos
+                            <span class="uc-modal__badge">{{ $this->ucMiembrosActivos->count() }}</span>
+                        </h3>
+
+                        <ul class="uc-modal__lista">
+                            @forelse($this->ucMiembrosActivos as $miembro)
+                            <li class="uc-modal__miembro" wire:key="miembro-{{ $miembro->id }}">
+
+                                <div class="uc-modal__miembro-info">
+                                    <span class="uc-modal__miembro-nombre">
+                                        {{ $miembro->ciudadano?->nombre }}
+                                        {{ $miembro->ciudadano?->apellido1 }}
+                                        {{ $miembro->ciudadano?->apellido2 }}
+                                    </span>
+                                    <span class="uc-modal__miembro-meta">
+                                        Desde {{ $miembro->fecha_inicio?->format('d/m/Y') }}
+                                    </span>
+                                </div>
+
+                                <div class="uc-modal__miembro-acciones">
+                                    @if($miembro->verificado)
+                                        <span class="uc-badge uc-badge--verificado" title="Residencia verificada">
+                                            <i data-lucide="shield-check" style="width:12px;height:12px;" aria-hidden="true"></i>
+                                            Verificado
+                                        </span>
+                                    @else
+                                        <button
+                                            wire:click="verificarMiembro({{ $miembro->id }})"
+                                            class="uc-badge uc-badge--sin-verificar"
+                                            title="Verificar residencia manualmente"
+                                        >
+                                            <i data-lucide="shield-alert" style="width:12px;height:12px;" aria-hidden="true"></i>
+                                            Sin verificar
+                                        </button>
+                                    @endif
+
+                                    @if($ucMiembroParaBaja === $miembro->id)
+                                        <span class="uc-modal__confirmar-baja">
+                                            ¿Confirmar baja?
+                                            <button wire:click="confirmarBajaMiembro" class="uc-btn uc-btn--danger-sm">Sí</button>
+                                            <button wire:click="cancelarBajaMiembro" class="uc-btn uc-btn--ghost-sm">No</button>
+                                        </span>
+                                    @else
+                                        <button
+                                            wire:click="iniciarBajaMiembro({{ $miembro->id }})"
+                                            class="uc-btn uc-btn--ghost-sm"
+                                            title="Dar de baja como miembro"
+                                        >
+                                            <i data-lucide="user-minus" style="width:13px;height:13px;" aria-hidden="true"></i>
+                                        </button>
+                                    @endif
+                                </div>
+
+                            </li>
+                            @empty
+                            <li class="uc-modal__vacio-lista">No hay miembros activos.</li>
+                            @endforelse
+                        </ul>
+                    </div>
+
+                    {{-- Añadir miembro --}}
+                    <div class="uc-modal__seccion">
+                        <h3 class="uc-modal__seccion-titulo">Añadir miembro</h3>
+
+                        @if($ucCiudadanoSeleccionado)
+                            @php $cSeleccionado = \App\Models\Ciudadano::find($ucCiudadanoSeleccionado); @endphp
+                            <div class="uc-modal__confirmar-adicion">
+                                <span>
+                                    ¿Añadir a <strong>{{ $cSeleccionado?->nombre }} {{ $cSeleccionado?->apellido1 }}</strong> como miembro de esta unidad?
+                                </span>
+                                <div class="uc-modal__confirmar-acciones">
+                                    <button wire:click="confirmarAnadirMiembro" class="uc-btn uc-btn--primary-sm">Confirmar</button>
+                                    <button wire:click="cancelarSeleccionUc" class="uc-btn uc-btn--ghost-sm">Cancelar</button>
+                                </div>
+                            </div>
+
+                        @else
+                            <div class="uc-modal__busqueda">
+                                <input
+                                    type="text"
+                                    wire:model.live.debounce.300ms="ucBusqueda"
+                                    placeholder="Buscar por nombre…"
+                                    class="uc-modal__input"
+                                    autocomplete="off"
+                                />
+                                <i data-lucide="search" class="uc-modal__busqueda-icon" style="width:14px;height:14px;" aria-hidden="true"></i>
+                            </div>
+
+                            @if($this->ucResultadosBusqueda->isNotEmpty())
+                            <ul class="uc-modal__resultados">
+                                @foreach($this->ucResultadosBusqueda as $resultado)
+                                <li
+                                    wire:click="seleccionarCiudadanoUc({{ $resultado->id }})"
+                                    class="uc-modal__resultado"
+                                    wire:key="resultado-{{ $resultado->id }}"
+                                >
+                                    <span class="uc-modal__resultado-nombre">
+                                        {{ $resultado->nombre }} {{ $resultado->apellido1 }} {{ $resultado->apellido2 }}
+                                    </span>
+                                    @if(! $resultado->tieneResidenciaVerificada())
+                                        <span class="uc-badge uc-badge--sin-verificar uc-badge--sm">Sin verificar</span>
+                                    @endif
+                                </li>
+                                @endforeach
+                            </ul>
+                            @elseif(strlen(trim($ucBusqueda)) >= 2)
+                            <div class="uc-modal__sin-resultados">
+                                No se encontró ningún ciudadano con ese nombre.
+                                {{-- TODO: pasar contexto UC a AltaCiudadano para prerellenar domicilio --}}
+                                <a href="{{ route('ciudadania.alta') }}" class="uc-modal__alta-link">
+                                    Dar de alta ciudadano nuevo
+                                </a>
+                            </div>
+                            @endif
+                        @endif
+                    </div>
+                @endif
+
+            </div>{{-- fin cuerpo --}}
+
+            {{-- Pie --}}
+            <div class="uc-modal__pie">
+                <button wire:click="cerrarModalUc" class="uc-btn uc-btn--ghost">Cerrar</button>
+            </div>
+
+        </div>{{-- fin .uc-modal --}}
+    </div>{{-- fin backdrop --}}
     @endif
 
 </div>

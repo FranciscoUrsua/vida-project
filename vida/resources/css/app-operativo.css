@@ -494,3 +494,351 @@
     font-size: 13px; padding: 6px 10px;
     background: var(--color-paper); border-radius: var(--radius-sm);
 }
+
+/* ============================================================
+   MODAL GESTIÓN UNIDAD DE CONVIVENCIA
+   ============================================================ */
+
+.uc-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    z-index: 500;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 16px;
+}
+
+.uc-modal {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    width: 520px;
+    max-width: 100%;
+    max-height: calc(100vh - 32px);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, .18);
+}
+
+.uc-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.uc-modal__titulo {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.uc-modal__cerrar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    padding: 2px;
+    line-height: 1;
+}
+
+.uc-modal__cerrar:hover { color: var(--color-text-primary); }
+
+.uc-modal__mensaje {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    background: var(--color-success-bg, #f0fdf4);
+    color: var(--color-success, #166534);
+    font-size: 12px;
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.uc-modal__cuerpo {
+    overflow-y: auto;
+    flex: 1;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.uc-modal__seccion {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.uc-modal__seccion-titulo {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.uc-modal__badge {
+    background: var(--color-neutral-200, #e5e7eb);
+    color: var(--color-text-secondary);
+    border-radius: 10px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.uc-modal__lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.uc-modal__miembro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: var(--color-surface-alt, #f9fafb);
+    gap: 8px;
+}
+
+.uc-modal__miembro-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.uc-modal__miembro-nombre {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.uc-modal__miembro-meta {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+}
+
+.uc-modal__miembro-acciones {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.uc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.uc-badge--verificado {
+    background: var(--color-success-bg, #f0fdf4);
+    color: var(--color-success, #166534);
+    border: 1px solid var(--color-success-border, #bbf7d0);
+}
+
+.uc-badge--sin-verificar {
+    background: var(--color-warning-bg, #fffbeb);
+    color: var(--color-warning, #92400e);
+    border: 1px solid var(--color-warning-border, #fde68a);
+    cursor: pointer;
+}
+
+.uc-badge--sin-verificar:hover { background: var(--color-warning-hover, #fef3c7); }
+
+.uc-badge--sm { font-size: 10px; padding: 1px 5px; }
+
+.uc-modal__confirmar-baja {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+}
+
+.uc-modal__busqueda { position: relative; }
+
+.uc-modal__input {
+    width: 100%;
+    padding: 7px 10px 7px 30px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 13px;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    outline: none;
+    box-sizing: border-box;
+}
+
+.uc-modal__input:focus {
+    border-color: var(--color-primary, #2563eb);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, .12);
+}
+
+.uc-modal__busqueda-icon {
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-secondary);
+    pointer-events: none;
+}
+
+.uc-modal__resultados {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.uc-modal__resultado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    gap: 8px;
+    transition: background .1s;
+}
+
+.uc-modal__resultado:not(:last-child) { border-bottom: 1px solid var(--color-border); }
+
+.uc-modal__resultado:hover { background: var(--color-surface-alt, #f9fafb); }
+
+.uc-modal__resultado-nombre { color: var(--color-text-primary); font-weight: 500; }
+
+.uc-modal__sin-resultados {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 4px 0;
+}
+
+.uc-modal__alta-link { color: var(--color-primary, #2563eb); font-size: 13px; text-decoration: none; }
+
+.uc-modal__alta-link:hover { text-decoration: underline; }
+
+.uc-modal__confirmar-adicion {
+    background: var(--color-surface-alt, #f9fafb);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--color-text-primary);
+}
+
+.uc-modal__confirmar-acciones { display: flex; gap: 6px; }
+
+.uc-modal__vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 0;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    text-align: center;
+}
+
+.uc-modal__vacio-lista { font-size: 13px; color: var(--color-text-secondary); padding: 8px 0; }
+
+.uc-modal__btn-crear {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--color-primary, #2563eb);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.uc-modal__btn-crear:hover { opacity: .9; }
+
+.uc-modal__pie {
+    padding: 12px 20px;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.uc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+}
+
+.uc-btn--ghost {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+.uc-btn--ghost:hover { background: var(--color-surface-alt, #f9fafb); }
+
+.uc-btn--ghost-sm {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    padding: 3px 8px;
+    font-size: 12px;
+}
+
+.uc-btn--primary-sm { background: var(--color-primary, #2563eb); color: #fff; padding: 3px 8px; font-size: 12px; }
+
+.uc-btn--danger-sm { background: var(--color-danger, #dc2626); color: #fff; padding: 3px 8px; font-size: 12px; }
+
+.uc-widget__gestionar {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    padding: 3px 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.uc-widget__gestionar:hover { background: var(--color-surface-alt, #f9fafb); color: var(--color-text-primary); }

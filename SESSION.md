@@ -4,58 +4,68 @@ _Actualizado: 2026-06-16_
 
 ## Tarea completada
 
-`RegistrarValoracionPage` — renderizado de schema y persistencia de ficha (Livewire).
+Modal de gestión de UC en `CiudadanoPage` (Livewire).
 
 ## Estado actual
 
 ### Cambios aplicados en esta sesión
 
-**Migración**
-- `Modules/Intervencion/database/migrations/2026_06_16_000003_fichas_add_historia_id_nullable_valoracion.php`
-  — añade `fichas.historia_id` (nullable FK a `historias_sociales`) y hace `valoracion_id` nullable.
-  Permite persistir fichas directamente desde `RegistrarValoracionPage` sin Valoracion formal previa.
+**CiudadanoPage.php**
+- Nuevas propiedades: `$modalUcAbierto`, `$ucBusqueda`, `$ucMiembroParaBaja`,
+  `$ucCiudadanoSeleccionado`, `$ucMensaje`.
+- Nuevas propiedades computadas: `ucVigente()`, `ucMiembrosActivos()`, `ucResultadosBusqueda()`.
+- Nuevos métodos: `abrirModalUc`, `cerrarModalUc`, `seleccionarCiudadanoUc`,
+  `confirmarAnadirMiembro`, `cancelarSeleccionUc`, `iniciarBajaMiembro`,
+  `confirmarBajaMiembro`, `cancelarBajaMiembro`, `verificarMiembro`, `crearUc`.
+- Corrección aplicada en `crearUc()`: usa `$this->ciudadano->direccion_texto`,
+  `coordenadas_lat`, `coordenadas_lng` (los campos reales de Ciudadano, no `domicilio`/`latitud`/`longitud`).
+- Corrección aplicada en `ucResultadosBusqueda()`: usa `withoutGlobalScope(AmbitoUoScope::class)`
+  para permitir buscar ciudadanos sin HistoriaSocial en el UO del usuario.
 
-**Modelo Ficha**
-- `historia_id` añadido a `$fillable`.
-- Relación `historia(): BelongsTo<HistoriaSocial, Ficha>`.
-- PHPDoc actualizado (historia_id nullable, valoracion_id nullable, TODO vinculación formal).
+**ciudadano-page.blade.php**
+- Widget UC (columna izquierda) reemplazado: muestra miembros activos con icono
+  verificado/sin-verificar + botón "Gestionar UC" (`wire:click="abrirModalUc"`).
+- Modal de gestión UC añadido antes del cierre del componente raíz, al nivel de los
+  modales existentes. Cierre con Escape vía Alpine `x-on:keydown.escape.window`.
 
-**Componente Livewire `RegistrarValoracionPage`** (reescritura completa)
-- `public int $historiaId` en lugar de `public HistoriaSocial $historia` (evita scope-leaks).
-- `#[Computed] tipoFicha()` y `#[Computed] fichasDisponibles()`.
-- `seleccionarFicha(int $id)`: cambia ficha, reinicializa datos/notas/estadoGuardado.
-- `inicializarDatos()`: rellena `$datos` con null para cada campo del schema.
-- `guardar()`: valida obligatorios, persiste con `Ficha::updateOrCreate` idempotente.
-- `$estadoGuardado = 'guardado'` tras guardar exitoso.
+**app-operativo.css**
+- Bloque completo de estilos UC: backdrop, modal, miembros, badges, botones utilitarios,
+  búsqueda con resultados, confirmación de adición, botón del widget.
 
-**Vista `registrar-valoracion-page.blade.php`** (reescritura completa)
-- Renderiza los 6 tipos: texto (textarea), numero (input+unidad), select (string array),
-  booleano (radio Sí/No), fecha (date input), escala (puntuación total).
-- Selector de ficha con `wire:change="seleccionarFicha($event.target.value)"`.
-- Campo notas libre.
-- Banner de confirmación `estadoGuardado === 'guardado'`.
-- Sin Bootstrap: inline styles con CSS tokens del proyecto.
-
-**Tests TF-LW-VAL-01 a TF-LW-VAL-10**: todos en verde (10/10, 23 assertions).
+**Tests TF-LW-UC-01 a TF-LW-UC-13**: todos en verde (13/13, 19 assertions).
+- Setup sigue el patrón de CiudadanoPageTest: seed roles, user con rol 'intervencion',
+  UsuarioUo, Livewire::actingAs().
 
 ### TODOs documentados en código (sin cambios)
 - `fichas.valoracion_id` nullable y `historia_id` directa es solución provisional.
   TODO: vincular Ficha → Valoracion cuando ese flujo esté completo.
 - `CiudadanoPage::statPrestaciones()`: integrar con módulo Prestaciones.
-- Modal "Ver historial completo" de accesos.
+- Modal "Ver historial completo" de accesos (enlace "Ver todo" apunta a `#`).
 - Route PISO show (Entrega 4).
-- Menú ⋯ con acciones del expediente.
+- Alta rápida de ciudadano desde modal UC con contexto prerellenado → BACKLOG.
 
 ## Siguiente paso recomendado
 
-1. **UI Livewire para gestión de UC** — añadir/dar de baja miembros, verificar
-   residencia, ver composición dentro de la pantalla de intervención del ciudadano.
+1. **Fichas sociales / Formulario de valoración estructurado** — el schema de fichas
+   ya existe (TipoFicha con schema JSON). Implementar el formulario dinámico completo
+   para rellenar fichas dentro del flujo de intervención (bloquea el PISO completo).
 2. **Modal "Ver historial completo" de accesos** — el enlace "Ver todo" existe pero apunta a `#`.
-3. **Vincular Ficha → Valoracion** cuando el flujo formal de Valoración esté completo
-   (`valoracion_id NOT NULL` de nuevo, con `Valoracion::firstOrCreate` en `guardar()`).
+3. **Vincular Ficha → Valoracion** — `valoracion_id NOT NULL` de nuevo, con
+   `Valoracion::firstOrCreate` en `guardar()`.
 4. **PISO/plan detail page** (Entrega 4).
 
 ## Contexto técnico para retomar
+
+### ucResultadosBusqueda — decisión clave
+Usa `Ciudadano::withoutGlobalScope(AmbitoUoScope::class)` para permitir buscar
+ciudadanos sin HistoriaSocial en la UO del usuario. Esto es correcto: al añadir
+miembros a una UC de convivencia familiar, puede haber personas cuya HS esté en
+otra UO (custodia compartida, domicilios múltiples).
+
+### Campos de Ciudadano (vs UnidadConvivencia)
+- `Ciudadano.direccion_texto` (cifrado) — se usa como `domicilio` al crear la UC
+- `Ciudadano.coordenadas_lat`, `coordenadas_lng` — se usan como `latitud`/`longitud` en UC
+- `UnidadConvivencia.domicilio`, `latitud`, `longitud` — campos propios del modelo UC
 
 ### Schema TipoFicha — formato canónico
 ```json
@@ -66,24 +76,10 @@ _Actualizado: 2026-06-16_
   ]
 }
 ```
-- `select` → `opciones`: array de strings simples (ej. `['Propiedad', 'Alquiler']`).
+- `select` → `opciones`: array de strings simples.
 - `numero` → `unidad`: string nullable.
-- `escala` → `tipo_escala_id`: int FK; solo se captura puntuación total.
-
-### RegistrarValoracionPage — decisiones clave
-- `public int $historiaId`: serializable sin scope-leaks; el modelo se resuelve en `mount()`.
-- `Ficha::updateOrCreate(['historia_id', 'tipo_ficha_id'], [...])`: idempotente por diseño.
-- `#[Computed]` en Livewire 4: accesible como `$this->tipoFicha` y `$this->fichasDisponibles`
-  tanto en el componente como en el blade.
-- `wire:change="seleccionarFicha($event.target.value)"`: Livewire 4 coerce string→int.
-
-### Livewire 4 — restricciones consolidadas
-- Full-page components: `mount()` solo recibe parámetros de ruta. Leer con `request()->query('param')`.
-- `wire:model` es diferido. Usar `wire:model.live` para re-render inmediato.
-- `#[Computed]` se cachea por request; al cambiar la propiedad que lo alimenta,
-  el computed se recalcula en la siguiente petición Livewire.
+- `escala` → `tipo_escala_id`: int FK.
 
 ### Deadlocks en suite completa (PostgreSQL)
-Los tests del módulo Intervencion fallan con deadlock cuando se ejecutan todos a la vez
-(`php artisan test Modules/Intervencion/tests`). Es un problema de infraestructura preexistente
-(RefreshDatabase + DROP TABLE cascade + concurrencia). Los tests individuales o por filter pasan.
+Los tests del módulo Intervencion fallan con deadlock cuando se ejecutan todos a la vez.
+Es un problema de infraestructura preexistente. Los tests individuales o por filter pasan.

@@ -26,6 +26,8 @@ use Modules\Intervencion\Models\Entrevista;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\SeguimientoPlan;
 use Modules\Intervencion\Models\TipoFicha;
+use Modules\Ciudadania\Models\UnidadConvivencia;
+use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 use Modules\Intervencion\Models\TipoValoracion;
 use Modules\Intervencion\Models\Valoracion;
 
@@ -74,6 +76,23 @@ class CiudadanoPage extends Component
 
     /** Controla si el modal de detalle de apunte está abierto. */
     public bool $modalApunteAbierto = false;
+
+    // --- Modal UC ---
+
+    /** @var bool Modal de gestión de UC abierto */
+    public bool $modalUcAbierto = false;
+
+    /** @var string Texto de búsqueda para añadir miembro a la UC */
+    public string $ucBusqueda = '';
+
+    /** @var int|null ID de UnidadConvivenciaMiembro en proceso de confirmación de baja */
+    public ?int $ucMiembroParaBaja = null;
+
+    /** @var int|null ciudadano_id seleccionado para confirmar su adición a la UC */
+    public ?int $ucCiudadanoSeleccionado = null;
+
+    /** @var string Mensaje de feedback de operación exitosa o error */
+    public string $ucMensaje = '';
 
     // -------------------------------------------------------------------------
     // Formularios de herramientas inline
@@ -320,6 +339,65 @@ class CiudadanoPage extends Component
         return $this->apuntesHS->first()?->created_at?->translatedFormat('j M Y');
     }
 
+    /**
+     * UC vigente del ciudadano (primera activa), con miembros y ciudadanos cargados.
+     */
+    #[Computed]
+    public function ucVigente(): ?UnidadConvivencia
+    {
+        if (! $this->ciudadano) {
+            return null;
+        }
+
+        return $this->ciudadano
+            ->unidadesConvivenciaActivas()
+            ->with(['miembrosActivos.ciudadano'])
+            ->first();
+    }
+
+    /**
+     * Miembros activos de la UC vigente con datos de ciudadano cargados.
+     *
+     * @return \Illuminate\Support\Collection<int, UnidadConvivenciaMiembro>
+     */
+    #[Computed]
+    public function ucMiembrosActivos(): \Illuminate\Support\Collection
+    {
+        return $this->ucVigente
+            ? $this->ucVigente->miembrosActivos()->with('ciudadano')->get()
+            : collect();
+    }
+
+    /**
+     * Ciudadanos que coinciden con la búsqueda, excluyendo miembros actuales y titular.
+     * Carga en PHP porque los campos de nombre están cifrados (mismo patrón que BuscarCiudadanoPage).
+     *
+     * @return \Illuminate\Support\Collection<int, Ciudadano>
+     */
+    #[Computed]
+    public function ucResultadosBusqueda(): \Illuminate\Support\Collection
+    {
+        if (strlen(trim($this->ucBusqueda)) < 2 || ! $this->ciudadano) {
+            return collect();
+        }
+
+        $excluidos = $this->ucMiembrosActivos
+            ->pluck('ciudadano_id')
+            ->push($this->ciudadano->id)
+            ->all();
+
+        return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
+            ->whereNotIn('id', $excluidos)
+            ->limit(500)
+            ->get()
+            ->filter(fn ($c) => str_contains(
+                mb_strtolower($c->nombre.' '.$c->apellido1.' '.($c->apellido2 ?? '')),
+                mb_strtolower(trim($this->ucBusqueda))
+            ))
+            ->take(8)
+            ->values();
+    }
+
     // -------------------------------------------------------------------------
     // Métodos de UI
     // -------------------------------------------------------------------------
@@ -327,6 +405,131 @@ class CiudadanoPage extends Component
     public function toggleUC(): void
     {
         $this->ucExpandida = ! $this->ucExpandida;
+    }
+
+    /** Abre el modal de gestión de UC y reinicia su estado interno. */
+    public function abrirModalUc(): void
+    {
+        $this->modalUcAbierto = true;
+        $this->ucBusqueda = '';
+        $this->ucMiembroParaBaja = null;
+        $this->ucCiudadanoSeleccionado = null;
+        $this->ucMensaje = '';
+    }
+
+    /** Cierra el modal de gestión de UC. */
+    public function cerrarModalUc(): void
+    {
+        $this->modalUcAbierto = false;
+    }
+
+    /**
+     * Selecciona un ciudadano de los resultados de búsqueda para confirmar su adición.
+     */
+    public function seleccionarCiudadanoUc(int $ciudadanoId): void
+    {
+        $this->ucCiudadanoSeleccionado = $ciudadanoId;
+        $this->ucBusqueda = '';
+    }
+
+    /**
+     * Confirma la adición del ciudadano seleccionado a la UC vigente.
+     */
+    public function confirmarAnadirMiembro(): void
+    {
+        if (! $this->ucCiudadanoSeleccionado || ! $this->ucVigente) {
+            return;
+        }
+
+        try {
+            $this->ucVigente->agregarMiembro($this->ucCiudadanoSeleccionado);
+            $this->ucCiudadanoSeleccionado = null;
+            $this->ucMensaje = 'Miembro añadido correctamente.';
+            unset($this->ucMiembrosActivos);
+            unset($this->ucVigente);
+        } catch (\LogicException $e) {
+            $this->ucMensaje = $e->getMessage();
+        }
+    }
+
+    /** Cancela la selección de ciudadano para añadir a la UC. */
+    public function cancelarSeleccionUc(): void
+    {
+        $this->ucCiudadanoSeleccionado = null;
+    }
+
+    /** Inicia el flujo de confirmación de baja de un miembro. */
+    public function iniciarBajaMiembro(int $miembroId): void
+    {
+        $this->ucMiembroParaBaja = $miembroId;
+    }
+
+    /** Confirma la baja del miembro seleccionado, estableciendo su fecha_fin. */
+    public function confirmarBajaMiembro(): void
+    {
+        if (! $this->ucMiembroParaBaja || ! $this->ucVigente) {
+            return;
+        }
+
+        $miembro = UnidadConvivenciaMiembro::find($this->ucMiembroParaBaja);
+
+        if (! $miembro || $miembro->unidad_convivencia_id !== $this->ucVigente->id) {
+            $this->ucMiembroParaBaja = null;
+
+            return;
+        }
+
+        $this->ucVigente->darDeBajaMiembro($miembro->ciudadano_id);
+        $this->ucMiembroParaBaja = null;
+        $this->ucMensaje = 'Miembro dado de baja correctamente.';
+        unset($this->ucMiembrosActivos);
+        unset($this->ucVigente);
+    }
+
+    /** Cancela el flujo de confirmación de baja. */
+    public function cancelarBajaMiembro(): void
+    {
+        $this->ucMiembroParaBaja = null;
+    }
+
+    /**
+     * Verifica manualmente la residencia de un miembro en la UC vigente.
+     */
+    public function verificarMiembro(int $miembroId): void
+    {
+        $miembro = UnidadConvivenciaMiembro::find($miembroId);
+
+        if (! $miembro || $miembro->unidad_convivencia_id !== $this->ucVigente?->id) {
+            return;
+        }
+
+        $miembro->verificar(auth()->user());
+        $this->ucMensaje = 'Residencia verificada.';
+        unset($this->ucMiembrosActivos);
+    }
+
+    /**
+     * Crea la UC tomando el domicilio del ciudadano titular y lo añade como primer miembro.
+     * Solo actúa si el ciudadano no tiene UC vigente.
+     */
+    public function crearUc(): void
+    {
+        if ($this->ucVigente || ! $this->ciudadano) {
+            return;
+        }
+
+        $uc = UnidadConvivencia::create([
+            'domicilio'          => $this->ciudadano->direccion_texto,
+            'latitud'            => $this->ciudadano->coordenadas_lat,
+            'longitud'           => $this->ciudadano->coordenadas_lng,
+            'fecha_constitucion' => now()->toDateString(),
+        ]);
+
+        $uc->agregarMiembro($this->ciudadano->id, fuente: 'manual');
+
+        unset($this->ucVigente);
+        unset($this->ucMiembrosActivos);
+        $this->ucMensaje = 'Unidad de convivencia creada.';
     }
 
     public function toggleApunte(int $apunteId): void

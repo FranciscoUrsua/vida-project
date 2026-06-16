@@ -287,3 +287,12 @@ Pendiente: extender a color primario, color secundario y tipografía (Google Fon
 backoffice Filament como en la superficie operativa Livewire.
 
 ---
+
+**Alta rápida de ciudadano desde modal UC** — 2026-06-16
+`Módulo: Ciudadanía / Intervención`
+El enlace "Dar de alta ciudadano nuevo" en el modal UC apunta a `ciudadania.alta`
+sin contexto prerellenado. Pendiente: pasar parámetros de contexto a AltaCiudadano
+para prerellenar domicilio de la UC y retornar al modal tras el alta (con el
+ciudadano recién creado seleccionado para confirmar su adición).
+
+---
