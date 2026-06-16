@@ -26,22 +26,22 @@ class TipoRelacionProfesionalResource extends Resource
 
     protected static ?string $model = TipoRelacionProfesional::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-link';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-briefcase';
 
-    protected static ?string $navigationLabel = 'Tipos de relación';
+    protected static ?string $navigationLabel = 'Relaciones profesionales';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
 
-    protected static ?string $modelLabel = 'Tipo de relación';
+    protected static ?string $modelLabel = 'Relación profesional';
 
-    protected static ?string $pluralModelLabel = 'Tipos de relación';
+    protected static ?string $pluralModelLabel = 'Relaciones profesionales';
 
-    protected static ?int $navigationSort = 8;
+    protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Datos del tipo de relación')
+            Section::make('Datos de la relación profesional')
                 ->schema([
                     TextInput::make('nombre')
                         ->label('Nombre')
@@ -65,7 +65,7 @@ class TipoRelacionProfesionalResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
-                    ->label('Tipo de relación')
+                    ->label('Relación profesional')
                     ->searchable()
                     ->sortable(),
 
