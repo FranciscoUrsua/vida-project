@@ -36,7 +36,9 @@ _Actualizado: 2026-06-16_
   estado `disuelta()` incluido.
 - `composer.json` — añadida entrada `"Modules\\Ciudadania\\Database\\Factories\\"` (faltaba).
 
-**Tests TF-UC-01 a TF-UC-13**: todos en verde. Suite completa Ciudadanía: 48 pasando.
+**Versionable en UnidadConvivencia**: trait añadido + TF-UC-14 que verifica snapshot en `versiones` al actualizar.
+
+**Tests TF-UC-01 a TF-UC-14**: todos en verde. Suite completa Ciudadanía: 49 pasando.
 
 ### TODOs documentados en código (sin cambios)
 - `CiudadanoPage::statPrestaciones()`: integrar con módulo Prestaciones.
