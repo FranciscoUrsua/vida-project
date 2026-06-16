@@ -28,12 +28,12 @@ class TipoFichaTest extends TestCase
         return [
             'campos' => array_merge([
                 [
-                    'id'          => 'campo_texto',
-                    'tipo'        => 'texto',
-                    'etiqueta'    => 'Campo de texto',
+                    'id' => 'campo_texto',
+                    'tipo' => 'texto',
+                    'etiqueta' => 'Campo de texto',
                     'descripcion' => null,
                     'obligatorio' => true,
-                    'orden'       => 1,
+                    'orden' => 1,
                 ],
             ], $extraCampos),
         ];
@@ -88,11 +88,11 @@ class TipoFichaTest extends TestCase
             'schema' => [
                 'campos' => [
                     [
-                        'id'          => 'campo_desplegable',
-                        'tipo'        => 'desplegable',
-                        'etiqueta'    => 'Campo inválido',
+                        'id' => 'campo_desplegable',
+                        'tipo' => 'desplegable',
+                        'etiqueta' => 'Campo inválido',
                         'obligatorio' => false,
-                        'orden'       => 1,
+                        'orden' => 1,
                     ],
                 ],
             ],
@@ -113,11 +113,11 @@ class TipoFichaTest extends TestCase
             'schema' => [
                 'campos' => [
                     [
-                        'id'          => 'campo_select',
-                        'tipo'        => 'select',
-                        'etiqueta'    => 'Selección',
+                        'id' => 'campo_select',
+                        'tipo' => 'select',
+                        'etiqueta' => 'Selección',
                         'obligatorio' => false,
-                        'orden'       => 1,
+                        'orden' => 1,
                         // opciones ausente
                     ],
                 ],
@@ -139,12 +139,12 @@ class TipoFichaTest extends TestCase
             'schema' => [
                 'campos' => [
                     [
-                        'id'          => 'campo_select',
-                        'tipo'        => 'select',
-                        'etiqueta'    => 'Selección',
-                        'opciones'    => ['Solo una'],
+                        'id' => 'campo_select',
+                        'tipo' => 'select',
+                        'etiqueta' => 'Selección',
+                        'opciones' => ['Solo una'],
                         'obligatorio' => false,
-                        'orden'       => 1,
+                        'orden' => 1,
                     ],
                 ],
             ],
@@ -165,11 +165,11 @@ class TipoFichaTest extends TestCase
             'schema' => [
                 'campos' => [
                     [
-                        'id'          => 'campo_escala',
-                        'tipo'        => 'escala',
-                        'etiqueta'    => 'Resultado escala',
+                        'id' => 'campo_escala',
+                        'tipo' => 'escala',
+                        'etiqueta' => 'Resultado escala',
                         'obligatorio' => false,
-                        'orden'       => 1,
+                        'orden' => 1,
                         // tipo_escala_id ausente
                     ],
                 ],
@@ -191,18 +191,18 @@ class TipoFichaTest extends TestCase
             'schema' => [
                 'campos' => [
                     [
-                        'id'          => 'campo_duplicado',
-                        'tipo'        => 'texto',
-                        'etiqueta'    => 'Campo A',
+                        'id' => 'campo_duplicado',
+                        'tipo' => 'texto',
+                        'etiqueta' => 'Campo A',
                         'obligatorio' => false,
-                        'orden'       => 1,
+                        'orden' => 1,
                     ],
                     [
-                        'id'          => 'campo_duplicado',
-                        'tipo'        => 'texto',
-                        'etiqueta'    => 'Campo B',
+                        'id' => 'campo_duplicado',
+                        'tipo' => 'texto',
+                        'etiqueta' => 'Campo B',
                         'obligatorio' => false,
-                        'orden'       => 2,
+                        'orden' => 2,
                     ],
                 ],
             ],

@@ -6,6 +6,7 @@ use App\Models\Audit;
 use App\Models\CatalogoSistema;
 use App\Models\Ciudadano;
 use App\Models\User;
+use Carbon\Carbon;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -49,17 +50,17 @@ class AuditPurgeCommandTest extends TestCase
     private function crearAuditConFecha(\DateTimeInterface $fecha): Audit
     {
         $id = DB::table('audits')->insertGetId([
-            'user_id'        => $this->profesional->id,
-            'accion'         => 'ver',
+            'user_id' => $this->profesional->id,
+            'accion' => 'ver',
             'auditable_type' => Ciudadano::class,
-            'auditable_id'   => $this->ciudadano->id,
-            'ciudadano_id'   => $this->ciudadano->id,
-            'datos_antes'    => null,
-            'datos_despues'  => null,
-            'ip'             => null,
-            'user_agent'     => null,
-            'contexto'       => null,
-            'created_at'     => $fecha instanceof \Carbon\Carbon
+            'auditable_id' => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
+            'datos_antes' => null,
+            'datos_despues' => null,
+            'ip' => null,
+            'user_agent' => null,
+            'contexto' => null,
+            'created_at' => $fecha instanceof Carbon
                 ? $fecha->toDateTimeString()
                 : $fecha->format('Y-m-d H:i:s'),
         ]);
@@ -73,11 +74,11 @@ class AuditPurgeCommandTest extends TestCase
     private function configurarRetencion(int $dias): void
     {
         CatalogoSistema::create([
-            'grupo'   => 'auditoria',
-            'clave'   => 'auditoria.retencion_dias',
+            'grupo' => 'auditoria',
+            'clave' => 'auditoria.retencion_dias',
             'etiqueta' => (string) $dias,
-            'orden'   => 1,
-            'activo'  => true,
+            'orden' => 1,
+            'activo' => true,
         ]);
     }
 
@@ -166,7 +167,7 @@ class AuditPurgeCommandTest extends TestCase
         $this->assertEmpty(
             $archivosVioladores,
             "Llamadas directas a DELETE sobre Audit encontradas fuera de AuditPurgeCommand:\n"
-            . implode("\n", $archivosVioladores)
+            .implode("\n", $archivosVioladores)
         );
     }
 }

@@ -2,13 +2,15 @@
 
 namespace Modules\Ciudadania\Models;
 
+use App\Models\Ciudadano;
 use App\Traits\Versionable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Modules\Ciudadania\Database\Factories\UnidadConvivenciaFactory;
 
@@ -27,17 +29,18 @@ use Modules\Ciudadania\Database\Factories\UnidadConvivenciaFactory;
  * @property string|null $domicilio Cifrado
  * @property float|null $latitud
  * @property float|null $longitud
- * @property \Illuminate\Support\Carbon $fecha_constitucion
- * @property \Illuminate\Support\Carbon|null $fecha_disolucion
+ * @property Carbon $fecha_constitucion
+ * @property Carbon|null $fecha_disolucion
  * @property string|null $observaciones
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Carbon|null $deleted_at
  */
 class UnidadConvivencia extends Model
 {
     /** @use HasFactory<UnidadConvivenciaFactory> */
     use HasFactory;
+
     use SoftDeletes;
     use Versionable;
 
@@ -54,9 +57,9 @@ class UnidadConvivencia extends Model
 
     protected $casts = [
         'fecha_constitucion' => 'date',
-        'fecha_disolucion'   => 'date',
-        'latitud'            => 'decimal:7',
-        'longitud'           => 'decimal:7',
+        'fecha_disolucion' => 'date',
+        'latitud' => 'decimal:7',
+        'longitud' => 'decimal:7',
     ];
 
     // -------------------------------------------------------------------------
@@ -111,18 +114,18 @@ class UnidadConvivencia extends Model
     /**
      * Ciudadanos que pertenecen o han pertenecido a esta UC.
      *
-     * @return BelongsToMany<\App\Models\Ciudadano, self>
+     * @return BelongsToMany<Ciudadano, self>
      */
     public function ciudadanos(): BelongsToMany
     {
         return $this->belongsToMany(
-            \App\Models\Ciudadano::class,
+            Ciudadano::class,
             'unidad_convivencia_miembros',
             'unidad_convivencia_id',
             'ciudadano_id'
         )->withPivot(['fecha_inicio', 'fecha_fin', 'fuente', 'verificado',
-                      'verificado_por', 'verificado_en'])
-         ->withTimestamps();
+            'verificado_por', 'verificado_en'])
+            ->withTimestamps();
     }
 
     // -------------------------------------------------------------------------
@@ -159,10 +162,10 @@ class UnidadConvivencia extends Model
         }
 
         return $this->miembros()->create([
-            'ciudadano_id'  => $ciudadanoId,
-            'fecha_inicio'  => $fechaInicio ?? now()->toDateString(),
-            'fuente'        => $fuente,
-            'verificado'    => false,
+            'ciudadano_id' => $ciudadanoId,
+            'fecha_inicio' => $fechaInicio ?? now()->toDateString(),
+            'fuente' => $fuente,
+            'verificado' => false,
         ]);
     }
 

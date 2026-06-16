@@ -67,7 +67,7 @@ class Entrevista extends Model
     /**
      * @return BelongsTo<HistoriaSocial, Entrevista>
      */
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function getCiudadanoId(): ?int
     {
         return $this->historia()->withoutGlobalScopes()->value('ciudadano_id');

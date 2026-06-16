@@ -23,20 +23,20 @@ return new class extends Migration
         Schema::create('unidad_convivencia_miembros', function (Blueprint $table) {
             $table->id();
             $table->foreignId('unidad_convivencia_id')
-                  ->constrained('unidades_convivencia')
-                  ->cascadeOnDelete();
+                ->constrained('unidades_convivencia')
+                ->cascadeOnDelete();
             $table->foreignId('ciudadano_id')
-                  ->constrained('ciudadanos')
-                  ->cascadeOnDelete();
+                ->constrained('ciudadanos')
+                ->cascadeOnDelete();
             $table->date('fecha_inicio');
             $table->date('fecha_fin')->nullable();
             $table->enum('fuente', ['manual', 'padron', 'importacion'])
-                  ->default('manual');
+                ->default('manual');
             $table->boolean('verificado')->default(false);
             $table->foreignId('verificado_por')
-                  ->nullable()
-                  ->constrained('users')
-                  ->nullOnDelete();
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
             $table->timestamp('verificado_en')->nullable();
             $table->timestamps();
 

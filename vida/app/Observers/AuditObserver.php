@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Auth;
  * (procesos de consola, seeds, migraciones).
  *
  * @see docs/modulo-auditoria.md §3.2
- * @see \App\Services\AuditService
+ * @see AuditService
  */
 class AuditObserver
 {
@@ -96,11 +96,13 @@ class AuditObserver
      * Snapshot de todos los campos auditables del modelo.
      *
      * @param Model&Auditable $model
+     *
      * @return array<string, mixed>
      */
     private function snapshot(Model $model): array
     {
         $auditables = array_flip($model->camposAuditables());
+
         return $this->serializar(array_intersect_key($model->getAttributes(), $auditables));
     }
 
@@ -110,7 +112,8 @@ class AuditObserver
      * En Laravel 12, getOriginal() y getChanges() devuelven valores casteados,
      * por lo que los enums llegan como instancias BackedEnum, no como strings.
      *
-     * @param  array<string, mixed> $valores
+     * @param array<string, mixed> $valores
+     *
      * @return array<string, mixed>
      */
     private function serializar(array $valores): array
@@ -122,6 +125,7 @@ class AuditObserver
             if ($v instanceof \DateTimeInterface) {
                 return $v->format('Y-m-d H:i:s');
             }
+
             return $v;
         }, $valores);
     }

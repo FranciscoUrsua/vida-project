@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\UnidadOrganizativa;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
  *   Plan de Intervención por UO (p. ej. «PISO» en ASP, «PIA» en Mayores).
  *   Si quedan nulos, el componente Livewire usa los fallbacks «Plan de intervención» / «Plan».
  *
- * @see App\Models\UnidadOrganizativa
+ * @see UnidadOrganizativa
  * @see docs/instrucciones-cli/instrucciones-cli-mejoras-intervencion.md §Cambio 2 y §Cambio 4
  */
 return new class extends Migration

@@ -4,8 +4,8 @@ namespace Modules\Documentos\Models;
 
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
-use App\Traits\Auditable;
 use App\Models\User;
+use App\Traits\Auditable;
 use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -66,7 +66,7 @@ class Informe extends Model
         return $this->belongsTo(HistoriaSocial::class, 'historia_social_id');
     }
 
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function getCiudadanoId(): ?int
     {
         return $this->ciudadano_id;

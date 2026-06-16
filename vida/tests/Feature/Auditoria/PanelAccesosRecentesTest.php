@@ -61,28 +61,28 @@ class PanelAccesosRecentesTest extends TestCase
 
         // El supervisor debe estar adscrito a la UO de la historia para ver todos los accesos
         UsuarioUo::create([
-            'usuario_id'             => $this->supervisor->id,
+            'usuario_id' => $this->supervisor->id,
             'unidad_organizativa_id' => $this->uo->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         // Asignar $tsr como profesional de referencia del plan de $ciudadano
         $historia = HistoriaSocial::withoutGlobalScopes()->create([
-            'ciudadano_id'           => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         PlanDeIntervencion::withoutGlobalScopes()->create([
-            'historia_id'                => $historia->id,
-            'tipo'                       => 'general_asp',
+            'historia_id' => $historia->id,
+            'tipo' => 'general_asp',
             'profesional_responsable_id' => $this->tsr->id,
-            'estado'                     => 'borrador',
-            'fecha_inicio'               => today()->toDateString(),
-            'objetivos'                  => 'test',
-            'version'                    => 1,
+            'estado' => 'borrador',
+            'fecha_inicio' => today()->toDateString(),
+            'objetivos' => 'test',
+            'version' => 1,
         ]);
     }
 
@@ -92,13 +92,13 @@ class PanelAccesosRecentesTest extends TestCase
     private function crearAcceso(User $user, array $overrides = []): Audit
     {
         return Audit::withoutEvents(fn () => Audit::create(array_merge([
-            'user_id'        => $user->id,
-            'accion'         => 'ver',
+            'user_id' => $user->id,
+            'accion' => 'ver',
             'auditable_type' => Ciudadano::class,
-            'auditable_id'   => $this->ciudadano->id,
-            'ciudadano_id'   => $this->ciudadano->id,
-            'ip'             => '127.0.0.1',
-            'user_agent'     => 'Test Browser/1.0',
+            'auditable_id' => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
+            'ip' => '127.0.0.1',
+            'user_agent' => 'Test Browser/1.0',
         ], $overrides)));
     }
 
@@ -177,7 +177,7 @@ class PanelAccesosRecentesTest extends TestCase
     public function el_panel_no_expone_ip_ni_user_agent(): void
     {
         $this->crearAcceso($this->tsr, [
-            'ip'         => '192.168.1.55',
+            'ip' => '192.168.1.55',
             'user_agent' => 'Mozilla/5.0 SentinelBrowser/99',
         ]);
 

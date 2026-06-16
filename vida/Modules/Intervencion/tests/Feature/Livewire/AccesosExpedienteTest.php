@@ -58,13 +58,13 @@ class AccesosExpedienteTest extends TestCase
 
         $this->uoPrincipal = UnidadOrganizativa::create([
             'nombre' => 'CSS Accesos Test Principal',
-            'tipo'   => 'centro',
+            'tipo' => 'centro',
             'activa' => true,
         ]);
 
         $this->uoOtra = UnidadOrganizativa::create([
             'nombre' => 'CSS Accesos Test Otra',
-            'tipo'   => 'centro',
+            'tipo' => 'centro',
             'activa' => true,
         ]);
 
@@ -72,59 +72,59 @@ class AccesosExpedienteTest extends TestCase
         $this->tsr = User::factory()->create();
         $this->tsr->assignRole('intervencion');
         UsuarioUo::create([
-            'usuario_id'             => $this->tsr->id,
+            'usuario_id' => $this->tsr->id,
             'unidad_organizativa_id' => $this->uoPrincipal->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         // Profesional de otra UO (no asignado como TSR)
         $this->otroTSR = User::factory()->create();
         $this->otroTSR->assignRole('intervencion');
         UsuarioUo::create([
-            'usuario_id'             => $this->otroTSR->id,
+            'usuario_id' => $this->otroTSR->id,
             'unidad_organizativa_id' => $this->uoOtra->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         // Supervisor en uoPrincipal
         $this->supervisor = User::factory()->create();
         $this->supervisor->assignRole('supervision');
         UsuarioUo::create([
-            'usuario_id'             => $this->supervisor->id,
+            'usuario_id' => $this->supervisor->id,
             'unidad_organizativa_id' => $this->uoPrincipal->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         // Supervisor en uoOtra (no tiene acceso a accesos de uoPrincipal)
         $this->supervisorOtraUo = User::factory()->create();
         $this->supervisorOtraUo->assignRole('supervision');
         UsuarioUo::create([
-            'usuario_id'             => $this->supervisorOtraUo->id,
+            'usuario_id' => $this->supervisorOtraUo->id,
             'unidad_organizativa_id' => $this->uoOtra->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         $this->ciudadano = Ciudadano::factory()->create();
 
         $this->historia = HistoriaSocial::withoutGlobalScopes()->create([
-            'ciudadano_id'           => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
             'unidad_organizativa_id' => $this->uoPrincipal->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         PlanDeIntervencion::withoutGlobalScopes()->create([
-            'historia_id'                => $this->historia->id,
-            'tipo'                       => TipoPlan::GeneralAsp,
+            'historia_id' => $this->historia->id,
+            'tipo' => TipoPlan::GeneralAsp,
             'profesional_responsable_id' => $this->tsr->id,
-            'estado'                     => EstadoPlan::Activo,
-            'fecha_inicio'               => today()->toDateString(),
-            'objetivos'                  => 'test',
-            'version'                    => 1,
+            'estado' => EstadoPlan::Activo,
+            'fecha_inicio' => today()->toDateString(),
+            'objetivos' => 'test',
+            'version' => 1,
         ]);
     }
 
@@ -136,13 +136,13 @@ class AccesosExpedienteTest extends TestCase
     private function crearAcceso(User $user, array $overrides = []): Audit
     {
         return Audit::withoutEvents(fn () => Audit::create(array_merge([
-            'user_id'        => $user->id,
-            'accion'         => 'ver',
+            'user_id' => $user->id,
+            'accion' => 'ver',
             'auditable_type' => Ciudadano::class,
-            'auditable_id'   => $this->ciudadano->id,
-            'ciudadano_id'   => $this->ciudadano->id,
-            'ip'             => '127.0.0.1',
-            'user_agent'     => 'Test Browser/1.0',
+            'auditable_id' => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
+            'ip' => '127.0.0.1',
+            'user_agent' => 'Test Browser/1.0',
         ], $overrides)));
     }
 
@@ -229,7 +229,7 @@ class AccesosExpedienteTest extends TestCase
     {
         // Acceso de otra UO, acción 'ver' (solo lectura)
         $this->crearAcceso($this->otroTSR, [
-            'accion'   => 'ver',
+            'accion' => 'ver',
             'contexto' => ['unidad_organizativa_id' => $this->uoOtra->id],
         ]);
 
@@ -249,7 +249,7 @@ class AccesosExpedienteTest extends TestCase
     {
         // Acceso de otra UO, acción 'editar' (modificación)
         $this->crearAcceso($this->otroTSR, [
-            'accion'   => 'editar',
+            'accion' => 'editar',
             'contexto' => ['unidad_organizativa_id' => $this->uoOtra->id],
         ]);
 
@@ -301,7 +301,7 @@ class AccesosExpedienteTest extends TestCase
     public function el_widget_no_expone_ip_ni_user_agent(): void
     {
         $this->crearAcceso($this->tsr, [
-            'ip'         => '10.20.30.40',
+            'ip' => '10.20.30.40',
             'user_agent' => 'Mozilla/5.0 SecretAgent/99',
         ]);
 

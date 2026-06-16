@@ -209,7 +209,7 @@ class TipoFicha extends Model
         // de campos existentes. Solo se pueden añadir campos nuevos.
         if ($this->exists && $this->tieneFichasAsociadas()) {
             $schemaOriginal = TipoFicha::find($this->id)?->schema ?? ['campos' => []];
-            $idsOriginales  = collect($schemaOriginal['campos'])->pluck('tipo', 'id')->all();
+            $idsOriginales = collect($schemaOriginal['campos'])->pluck('tipo', 'id')->all();
 
             foreach ($idsOriginales as $id => $tipo) {
                 $campoActual = collect($schema['campos'])->firstWhere('id', $id);

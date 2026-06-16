@@ -27,9 +27,10 @@ class AccesosExpedienteQuery
     /**
      * Construye el Builder de auditoría filtrado según el rol del usuario.
      *
-     * @param User $user          Usuario autenticado
+     * @param User $user Usuario autenticado
      * @param Ciudadano $ciudadano Ciudadano cuyo expediente se consulta
      * @param HistoriaSocial $historia Historia social asociada
+     *
      * @return Builder<Audit>
      */
     public function paraUsuario(User $user, Ciudadano $ciudadano, HistoriaSocial $historia): Builder
@@ -64,9 +65,6 @@ class AccesosExpedienteQuery
 
     /**
      * Indica si el usuario puede ver todos los accesos o únicamente los propios.
-     *
-     * @param User $user
-     * @param HistoriaSocial $historia
      */
     public function puedeVerTodos(User $user, HistoriaSocial $historia): bool
     {

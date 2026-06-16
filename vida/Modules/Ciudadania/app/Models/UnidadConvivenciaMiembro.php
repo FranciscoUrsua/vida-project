@@ -2,9 +2,11 @@
 
 namespace Modules\Ciudadania\Models;
 
+use App\Models\Ciudadano;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Membresía de un ciudadano en una unidad de convivencia.
@@ -17,14 +19,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $unidad_convivencia_id
  * @property int $ciudadano_id
- * @property \Illuminate\Support\Carbon $fecha_inicio
- * @property \Illuminate\Support\Carbon|null $fecha_fin
+ * @property Carbon $fecha_inicio
+ * @property Carbon|null $fecha_fin
  * @property string $fuente manual|padron|importacion
  * @property bool $verificado
  * @property int|null $verificado_por FK a users
- * @property \Illuminate\Support\Carbon|null $verificado_en
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon|null $verificado_en
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class UnidadConvivenciaMiembro extends Model
 {
@@ -42,9 +44,9 @@ class UnidadConvivenciaMiembro extends Model
     ];
 
     protected $casts = [
-        'fecha_inicio'  => 'date',
-        'fecha_fin'     => 'date',
-        'verificado'    => 'boolean',
+        'fecha_inicio' => 'date',
+        'fecha_fin' => 'date',
+        'verificado' => 'boolean',
         'verificado_en' => 'datetime',
     ];
 
@@ -61,11 +63,11 @@ class UnidadConvivenciaMiembro extends Model
     }
 
     /**
-     * @return BelongsTo<\App\Models\Ciudadano, self>
+     * @return BelongsTo<Ciudadano, self>
      */
     public function ciudadano(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\Ciudadano::class, 'ciudadano_id');
+        return $this->belongsTo(Ciudadano::class, 'ciudadano_id');
     }
 
     /**
@@ -89,9 +91,9 @@ class UnidadConvivenciaMiembro extends Model
     public function verificar(User $profesional): void
     {
         $this->update([
-            'verificado'     => true,
+            'verificado' => true,
             'verificado_por' => $profesional->id,
-            'verificado_en'  => now(),
+            'verificado_en' => now(),
         ]);
     }
 

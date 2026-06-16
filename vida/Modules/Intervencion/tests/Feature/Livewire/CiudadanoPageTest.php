@@ -615,7 +615,7 @@ class CiudadanoPageTest extends TestCase
     public function ver_apunte_abre_modal_con_datos_correctos(): void
     {
         $apunte = $this->crearApunte([
-            'tipo'      => TipoApunte::Anotacion,
+            'tipo' => TipoApunte::Anotacion,
             'contenido' => 'Contenido de prueba',
         ]);
 

@@ -38,6 +38,7 @@ use Modules\Escalas\Enums\EstadoPase;
 class PaseEscala extends Model
 {
     use Auditable;
+
     /** @use HasFactory<PaseEscalaFactory> */
     use HasFactory;
 
@@ -188,7 +189,7 @@ class PaseEscala extends Model
      *
      * @return BelongsTo<HistoriaSocial, self>
      */
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function getCiudadanoId(): ?int
     {
         return $this->historia?->ciudadano_id;

@@ -15,12 +15,12 @@ class UnidadConvivenciaFactory extends Factory
     public function definition(): array
     {
         return [
-            'domicilio'          => $this->faker->streetAddress(),
-            'latitud'            => $this->faker->latitude(40.30, 40.65),
-            'longitud'           => $this->faker->longitude(-3.83, -3.52),
+            'domicilio' => $this->faker->streetAddress(),
+            'latitud' => $this->faker->latitude(40.30, 40.65),
+            'longitud' => $this->faker->longitude(-3.83, -3.52),
             'fecha_constitucion' => $this->faker->dateTimeBetween('-5 years', 'now')->format('Y-m-d'),
-            'fecha_disolucion'   => null,
-            'observaciones'      => null,
+            'fecha_disolucion' => null,
+            'observaciones' => null,
         ];
     }
 

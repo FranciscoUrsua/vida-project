@@ -87,7 +87,7 @@ class HistoriaSocial extends Model
      *
      * @return BelongsTo<Ciudadano, HistoriaSocial>
      */
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function getCiudadanoId(): ?int
     {
         return $this->ciudadano_id;

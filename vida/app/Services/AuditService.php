@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\AccionAuditEnum;
 use App\Models\Audit;
 use App\Models\User;
+use App\Observers\AuditObserver;
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * a registrarAcceso() desde el componente Livewire o Resource de Filament.
  *
  * @see docs/modulo-auditoria.md §3.3
- * @see \App\Observers\AuditObserver
+ * @see AuditObserver
  */
 class AuditService
 {
@@ -32,13 +33,13 @@ class AuditService
      *   2. $modelo->getCiudadanoId() si el modelo usa el trait Auditable.
      *   3. null si ninguno de los anteriores está disponible.
      *
-     * @param  User                      $user         Profesional que realiza la acción
-     * @param  Model                     $modelo       Entidad afectada
-     * @param  AccionAuditEnum|string    $accion       Tipo de acción (default: ver)
-     * @param  int|null                  $ciudadanoId  FK explícita — tiene prioridad
-     * @param  array<string, mixed>      $contexto     Metadatos adicionales
-     * @param  array<string, mixed>|null $datosAntes   Snapshot previo (editar/eliminar)
-     * @param  array<string, mixed>|null $datosDespues Snapshot posterior (crear/editar)
+     * @param User $user Profesional que realiza la acción
+     * @param Model $modelo Entidad afectada
+     * @param AccionAuditEnum|string $accion Tipo de acción (default: ver)
+     * @param int|null $ciudadanoId FK explícita — tiene prioridad
+     * @param array<string, mixed> $contexto Metadatos adicionales
+     * @param array<string, mixed>|null $datosAntes Snapshot previo (editar/eliminar)
+     * @param array<string, mixed>|null $datosDespues Snapshot posterior (crear/editar)
      */
     public function registrarAcceso(
         User $user,
@@ -67,16 +68,16 @@ class AuditService
             $datosAntes, $datosDespues, $contextoCompleto
         ): void {
             Audit::create([
-                'user_id'        => $user->id,
-                'accion'         => $accionEnum->value,
+                'user_id' => $user->id,
+                'accion' => $accionEnum->value,
                 'auditable_type' => get_class($modelo),
-                'auditable_id'   => $modelo->getKey(),
-                'ciudadano_id'   => $resolvedCiudadanoId,
-                'datos_antes'    => $datosAntes,
-                'datos_despues'  => $datosDespues,
-                'ip'             => request()?->ip(),
-                'user_agent'     => request()?->userAgent(),
-                'contexto'       => $contextoCompleto ?: null,
+                'auditable_id' => $modelo->getKey(),
+                'ciudadano_id' => $resolvedCiudadanoId,
+                'datos_antes' => $datosAntes,
+                'datos_despues' => $datosDespues,
+                'ip' => request()?->ip(),
+                'user_agent' => request()?->userAgent(),
+                'contexto' => $contextoCompleto ?: null,
             ]);
         });
     }
@@ -103,7 +104,7 @@ class AuditService
 
         return [
             'canal' => $request->expectsJson() ? 'api' : 'web',
-            'ruta'  => $path,
+            'ruta' => $path,
         ];
     }
 }

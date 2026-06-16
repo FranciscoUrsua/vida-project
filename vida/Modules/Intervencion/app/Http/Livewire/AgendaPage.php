@@ -269,15 +269,15 @@ class AgendaPage extends Component
             $historiaEntry = ($tipo !== 'evento') ? ($historias[$i] ?? null) : null;
 
             $citas[] = [
-                'id'           => $hash + $i,
-                'hora'         => sprintf('%02d:00', 9 + ($i * 2)),
-                'duracion'     => 60,
-                'ciudadano'    => $ciudadanos[$i % count($ciudadanos)],
-                'historia_id'  => $historiaEntry ? $historiaEntry['id'] : null,
+                'id' => $hash + $i,
+                'hora' => sprintf('%02d:00', 9 + ($i * 2)),
+                'duracion' => 60,
+                'ciudadano' => $ciudadanos[$i % count($ciudadanos)],
+                'historia_id' => $historiaEntry ? $historiaEntry['id'] : null,
                 'ciudadano_id' => $historiaEntry ? $historiaEntry['ciudadano_id'] : null,
-                'tipo'         => $tipo,
-                'subtipo'      => null,
-                'fecha'        => $fecha,
+                'tipo' => $tipo,
+                'subtipo' => null,
+                'fecha' => $fecha,
             ];
         }
 

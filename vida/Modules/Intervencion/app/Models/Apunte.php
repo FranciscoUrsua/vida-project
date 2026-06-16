@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Models;
 
+use App\Models\HistoriaSocial;
 use App\Models\User;
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Builder;
@@ -119,7 +120,7 @@ class Apunte extends Model
     /**
      * @return BelongsTo<PlanDeIntervencion, Apunte>
      */
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function getCiudadanoId(): ?int
     {
         // Se evitan todos los global scopes (AmbitoUoScope en Plan e Historia)
@@ -130,7 +131,7 @@ class Apunte extends Model
             return null;
         }
 
-        return \App\Models\HistoriaSocial::withoutGlobalScopes()
+        return HistoriaSocial::withoutGlobalScopes()
             ->where('id', $historiaId)
             ->value('ciudadano_id');
     }

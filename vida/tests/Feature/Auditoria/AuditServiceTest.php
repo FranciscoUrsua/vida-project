@@ -63,11 +63,11 @@ class AuditServiceTest extends TestCase
         );
 
         $this->assertDatabaseHas('audits', [
-            'user_id'        => $this->profesional->id,
-            'accion'         => 'ver',
+            'user_id' => $this->profesional->id,
+            'accion' => 'ver',
             'auditable_type' => Ciudadano::class,
-            'auditable_id'   => $this->ciudadano->id,
-            'ciudadano_id'   => $this->ciudadano->id,
+            'auditable_id' => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
         ]);
 
         $audit = Audit::where('user_id', $this->profesional->id)->latest('created_at')->first();
@@ -89,28 +89,28 @@ class AuditServiceTest extends TestCase
         );
 
         $historia = HistoriaSocial::withoutGlobalScopes()->create([
-            'ciudadano_id'             => $this->ciudadano->id,
-            'unidad_organizativa_id'   => $uo->id,
-            'ciudadano_protegido'      => false,
-            'estado'                   => 'abierta',
+            'ciudadano_id' => $this->ciudadano->id,
+            'unidad_organizativa_id' => $uo->id,
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         $plan = PlanDeIntervencion::withoutGlobalScopes()->create([
-            'historia_id'                  => $historia->id,
-            'tipo'                         => 'general_asp',
-            'profesional_responsable_id'   => $this->profesional->id,
-            'estado'                       => 'borrador',
-            'fecha_inicio'                 => today()->toDateString(),
-            'objetivos'                    => 'test',
-            'version'                      => 1,
+            'historia_id' => $historia->id,
+            'tipo' => 'general_asp',
+            'profesional_responsable_id' => $this->profesional->id,
+            'estado' => 'borrador',
+            'fecha_inicio' => today()->toDateString(),
+            'objetivos' => 'test',
+            'version' => 1,
         ]);
 
         $apunte = Apunte::withoutEvents(fn () => Apunte::create([
-            'plan_id'     => $plan->id,
-            'autor_id'    => $this->profesional->id,
-            'fecha'       => today()->toDateString(),
-            'tipo'        => 'anotacion',
-            'contenido'   => 'Test',
+            'plan_id' => $plan->id,
+            'autor_id' => $this->profesional->id,
+            'fecha' => today()->toDateString(),
+            'tipo' => 'anotacion',
+            'contenido' => 'Test',
             'visibilidad' => 'profesionales',
         ]));
 
@@ -125,8 +125,8 @@ class AuditServiceTest extends TestCase
         $this->assertDatabaseCount('audits', $auditCount + 1);
         $this->assertDatabaseHas('audits', [
             'auditable_type' => Apunte::class,
-            'auditable_id'   => $apunte->id,
-            'ciudadano_id'   => $this->ciudadano->id,
+            'auditable_id' => $apunte->id,
+            'ciudadano_id' => $this->ciudadano->id,
         ]);
     }
 
@@ -147,28 +147,28 @@ class AuditServiceTest extends TestCase
         );
 
         $historia = HistoriaSocial::withoutGlobalScopes()->create([
-            'ciudadano_id'           => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
             'unidad_organizativa_id' => $uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         $plan = PlanDeIntervencion::withoutGlobalScopes()->create([
-            'historia_id'                => $historia->id,
-            'tipo'                       => 'general_asp',
+            'historia_id' => $historia->id,
+            'tipo' => 'general_asp',
             'profesional_responsable_id' => $this->profesional->id,
-            'estado'                     => 'borrador',
-            'fecha_inicio'               => today()->toDateString(),
-            'objetivos'                  => 'test',
-            'version'                    => 1,
+            'estado' => 'borrador',
+            'fecha_inicio' => today()->toDateString(),
+            'objetivos' => 'test',
+            'version' => 1,
         ]);
 
         $apunte = Apunte::withoutEvents(fn () => Apunte::create([
-            'plan_id'     => $plan->id,
-            'autor_id'    => $this->profesional->id,
-            'fecha'       => today()->toDateString(),
-            'tipo'        => 'anotacion',
-            'contenido'   => 'Test',
+            'plan_id' => $plan->id,
+            'autor_id' => $this->profesional->id,
+            'fecha' => today()->toDateString(),
+            'tipo' => 'anotacion',
+            'contenido' => 'Test',
             'visibilidad' => 'profesionales',
         ]));
 
@@ -182,8 +182,8 @@ class AuditServiceTest extends TestCase
 
         $this->assertDatabaseHas('audits', [
             'auditable_type' => Apunte::class,
-            'auditable_id'   => $apunte->id,
-            'ciudadano_id'   => $otroCiudadano->id,
+            'auditable_id' => $apunte->id,
+            'ciudadano_id' => $otroCiudadano->id,
         ]);
     }
 
@@ -207,6 +207,7 @@ class AuditServiceTest extends TestCase
                 user: $profesional,
                 modelo: $ciudadano,
             );
+
             return 'ok';
         });
 
@@ -246,11 +247,11 @@ class AuditServiceTest extends TestCase
 
         // Crear algunos registros de auditoría directamente
         Audit::withoutEvents(fn () => Audit::create([
-            'user_id'        => $this->profesional->id,
-            'accion'         => 'ver',
+            'user_id' => $this->profesional->id,
+            'accion' => 'ver',
             'auditable_type' => Ciudadano::class,
-            'auditable_id'   => $this->ciudadano->id,
-            'ciudadano_id'   => $this->ciudadano->id,
+            'auditable_id' => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
         ]));
 
         $countAntes = Audit::count();

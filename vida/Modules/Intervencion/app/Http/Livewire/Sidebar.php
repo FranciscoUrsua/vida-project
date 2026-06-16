@@ -39,7 +39,7 @@ class Sidebar extends Component
     public function branding(): array
     {
         return [
-            'logoUrl'          => Configuracion::logoUrl(),
+            'logoUrl' => Configuracion::logoUrl(),
             'nombreAplicacion' => Configuracion::nombreAplicacion(),
         ];
     }

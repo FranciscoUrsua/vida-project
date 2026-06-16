@@ -20,15 +20,15 @@ class IntervencionSeeder extends Seeder
         $this->call(IntervencionFichaSeeder::class);
 
         $fichaEconomica = TipoFicha::where('nombre', 'Situación económica')->first();
-        $fichaVivienda  = TipoFicha::where('nombre', 'Situación de vivienda')->first();
-        $fichaLibre     = TipoFicha::where('nombre', 'Valoración social libre')->first();
+        $fichaVivienda = TipoFicha::where('nombre', 'Situación de vivienda')->first();
+        $fichaLibre = TipoFicha::where('nombre', 'Valoración social libre')->first();
 
         $tipoValoracion = TipoValoracion::firstOrCreate(
             ['nombre' => 'Valoración ASP inicial'],
             [
-                'contexto'    => 'ASP',
+                'contexto' => 'ASP',
                 'descripcion' => 'Valoración de primera atención en Atención Social Primaria.',
-                'activo'      => true,
+                'activo' => true,
             ]
         );
 

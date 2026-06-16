@@ -12,13 +12,13 @@ use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
+use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
 use Modules\Mensajes\Http\Livewire\BuzonPage;
-use Illuminate\Support\Facades\DB;
-use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
 use Modules\Mensajes\Models\MensajeHilo;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
@@ -682,7 +682,6 @@ class NavegacionTest extends TestCase
      * Crea Cargo + Profesional + asigna profesional_id al usuario + Ciudadano + HistoriaSocial.
      * Necesario para que la fixture de AgendaPage incluya historia_id y ciudadano_id en las citas.
      *
-     * @param User $usuario
      * @return array{historia: HistoriaSocial, ciudadano: Ciudadano}
      */
     private function crearEntornoAgenda(User $usuario): array
@@ -690,28 +689,28 @@ class NavegacionTest extends TestCase
         $cargo = Cargo::create(['nombre' => 'TSR Test Nav', 'activo' => true]);
         $tipoRelacion = TipoRelacionProfesional::create(['nombre' => 'Funcionario Test', 'activo' => true]);
         $profesional = Profesional::create([
-            'nombre'           => 'Test',
-            'apellido1'        => 'Profesional',
-            'sexo'             => 'M',
-            'cargo_id'         => $cargo->id,
+            'nombre' => 'Test',
+            'apellido1' => 'Profesional',
+            'sexo' => 'M',
+            'cargo_id' => $cargo->id,
             'tipo_relacion_id' => $tipoRelacion->id,
-            'fecha_inicio'     => today()->toDateString(),
-            'activo'           => true,
+            'fecha_inicio' => today()->toDateString(),
+            'activo' => true,
         ]);
         $usuario->update(['profesional_id' => $profesional->id]);
 
         $ciudadano = Ciudadano::create([
-            'nombre'           => 'Agenda',
-            'apellido1'        => 'Test',
-            'apellido2'        => null,
+            'nombre' => 'Agenda',
+            'apellido1' => 'Test',
+            'apellido2' => null,
             'fecha_nacimiento' => '1985-06-01',
-            'sexo'             => 'H',
-            'activo'           => true,
+            'sexo' => 'H',
+            'activo' => true,
         ]);
         $historia = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id'           => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $this->uo->id,
-            'estado'                 => 'abierta',
+            'estado' => 'abierta',
         ]);
 
         return compact('historia', 'ciudadano');

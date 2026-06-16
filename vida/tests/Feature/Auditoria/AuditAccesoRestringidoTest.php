@@ -6,6 +6,7 @@ use App\Enums\AccionAuditEnum;
 use App\Models\Audit;
 use App\Models\Ciudadano;
 use App\Models\User;
+use App\Services\AuditService;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -61,8 +62,8 @@ class AuditAccesoRestringidoTest extends TestCase
         $autorizador = User::factory()->create();
         $autorizador->assignRole('supervision');
 
-        /** @var \App\Services\AuditService $service */
-        $service = app(\App\Services\AuditService::class);
+        /** @var AuditService $service */
+        $service = app(AuditService::class);
 
         $service->registrarAcceso(
             user: $this->profesional,
@@ -71,7 +72,7 @@ class AuditAccesoRestringidoTest extends TestCase
             ciudadanoId: $this->ciudadanoProtegido->id,
             contexto: [
                 'motivo_declarado' => 'Urgencia social declarada por profesional',
-                'autorizado_por'   => $autorizador->id,
+                'autorizado_por' => $autorizador->id,
             ],
         );
 
@@ -97,8 +98,8 @@ class AuditAccesoRestringidoTest extends TestCase
     {
         $this->actingAs($this->profesional);
 
-        /** @var \App\Services\AuditService $service */
-        $service = app(\App\Services\AuditService::class);
+        /** @var AuditService $service */
+        $service = app(AuditService::class);
 
         $service->registrarAcceso(
             user: $this->profesional,
@@ -106,8 +107,8 @@ class AuditAccesoRestringidoTest extends TestCase
             accion: AccionAuditEnum::AccesoRestringido,
             ciudadanoId: $this->ciudadanoProtegido->id,
             contexto: [
-                'resultado'       => 'denegado',
-                'motivo_rechazo'  => 'Sin autorización de la UO responsable',
+                'resultado' => 'denegado',
+                'motivo_rechazo' => 'Sin autorización de la UO responsable',
             ],
         );
 
@@ -123,7 +124,7 @@ class AuditAccesoRestringidoTest extends TestCase
         // de servir cualquier dato. Verificar que solo existe este registro (no un 'ver').
         $this->assertDatabaseMissing('audits', [
             'user_id' => $this->profesional->id,
-            'accion'  => 'ver',
+            'accion' => 'ver',
         ]);
     }
 
@@ -138,8 +139,8 @@ class AuditAccesoRestringidoTest extends TestCase
     {
         $this->actingAs($this->profesional);
 
-        /** @var \App\Services\AuditService $service */
-        $service = app(\App\Services\AuditService::class);
+        /** @var AuditService $service */
+        $service = app(AuditService::class);
 
         $service->registrarAcceso(
             user: $this->profesional,
@@ -147,8 +148,8 @@ class AuditAccesoRestringidoTest extends TestCase
             accion: AccionAuditEnum::AccesoRestringido,
             ciudadanoId: $this->ciudadanoProtegido->id,
             contexto: [
-                'regimen'         => 'urgencia_preautorizada',
-                'servicio_id'     => 1,
+                'regimen' => 'urgencia_preautorizada',
+                'servicio_id' => 1,
                 'motivo_declarado' => 'Actuación urgente fuera de horario',
             ],
         );

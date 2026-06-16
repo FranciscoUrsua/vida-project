@@ -4,8 +4,8 @@ namespace Modules\Intervencion\Models;
 
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
-use App\Traits\Auditable;
 use App\Models\User;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -113,7 +113,7 @@ class PlanDeIntervencion extends Model
     /**
      * @return BelongsTo<HistoriaSocial, PlanDeIntervencion>
      */
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function getCiudadanoId(): ?int
     {
         return $this->historia()->withoutGlobalScopes()->value('ciudadano_id');

@@ -50,20 +50,20 @@ class AuditObserverTest extends TestCase
         );
 
         $historia = HistoriaSocial::withoutGlobalScopes()->create([
-            'ciudadano_id'           => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         $this->plan = PlanDeIntervencion::withoutGlobalScopes()->create([
-            'historia_id'                => $historia->id,
-            'tipo'                       => 'general_asp',
+            'historia_id' => $historia->id,
+            'tipo' => 'general_asp',
             'profesional_responsable_id' => $this->profesional->id,
-            'estado'                     => 'borrador',
-            'fecha_inicio'               => today()->toDateString(),
-            'objetivos'                  => 'test',
-            'version'                    => 1,
+            'estado' => 'borrador',
+            'fecha_inicio' => today()->toDateString(),
+            'objetivos' => 'test',
+            'version' => 1,
         ]);
     }
 
@@ -76,11 +76,11 @@ class AuditObserverTest extends TestCase
         $countAntes = Audit::count();
 
         $apunte = Apunte::create([
-            'plan_id'     => $this->plan->id,
-            'autor_id'    => $this->profesional->id,
-            'fecha'       => today()->toDateString(),
-            'tipo'        => 'anotacion',
-            'contenido'   => 'Contenido del apunte de prueba',
+            'plan_id' => $this->plan->id,
+            'autor_id' => $this->profesional->id,
+            'fecha' => today()->toDateString(),
+            'tipo' => 'anotacion',
+            'contenido' => 'Contenido del apunte de prueba',
             'visibilidad' => 'profesionales',
         ]);
 
@@ -105,11 +105,11 @@ class AuditObserverTest extends TestCase
     public function registra_accion_editar_con_diff_correcto_en_datos_antes_y_datos_despues(): void
     {
         $apunte = Apunte::withoutEvents(fn () => Apunte::create([
-            'plan_id'     => $this->plan->id,
-            'autor_id'    => $this->profesional->id,
-            'fecha'       => today()->toDateString(),
-            'tipo'        => 'anotacion',
-            'contenido'   => 'texto original',
+            'plan_id' => $this->plan->id,
+            'autor_id' => $this->profesional->id,
+            'fecha' => today()->toDateString(),
+            'tipo' => 'anotacion',
+            'contenido' => 'texto original',
             'visibilidad' => 'profesionales',
         ]));
 
@@ -144,11 +144,11 @@ class AuditObserverTest extends TestCase
     public function registra_accion_eliminar_con_snapshot_en_datos_antes(): void
     {
         $apunte = Apunte::withoutEvents(fn () => Apunte::create([
-            'plan_id'     => $this->plan->id,
-            'autor_id'    => $this->profesional->id,
-            'fecha'       => today()->toDateString(),
-            'tipo'        => 'anotacion',
-            'contenido'   => 'Apunte a eliminar',
+            'plan_id' => $this->plan->id,
+            'autor_id' => $this->profesional->id,
+            'fecha' => today()->toDateString(),
+            'tipo' => 'anotacion',
+            'contenido' => 'Apunte a eliminar',
             'visibilidad' => 'profesionales',
         ]));
 
@@ -211,11 +211,11 @@ class AuditObserverTest extends TestCase
     public function no_genera_registros_por_eager_loading_interno_de_eloquent(): void
     {
         $apunte = Apunte::withoutEvents(fn () => Apunte::create([
-            'plan_id'     => $this->plan->id,
-            'autor_id'    => $this->profesional->id,
-            'fecha'       => today()->toDateString(),
-            'tipo'        => 'anotacion',
-            'contenido'   => 'Test eager loading',
+            'plan_id' => $this->plan->id,
+            'autor_id' => $this->profesional->id,
+            'fecha' => today()->toDateString(),
+            'tipo' => 'anotacion',
+            'contenido' => 'Test eager loading',
             'visibilidad' => 'profesionales',
         ]));
 

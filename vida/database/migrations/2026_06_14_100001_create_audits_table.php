@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\AuditService;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Schema;
  * La única excepción es la purga por retención ejecutada por AuditPurgeCommand.
  *
  * @see docs/modulo-auditoria.md §2
- * @see \App\Services\AuditService
+ * @see AuditService
  */
 return new class extends Migration
 {

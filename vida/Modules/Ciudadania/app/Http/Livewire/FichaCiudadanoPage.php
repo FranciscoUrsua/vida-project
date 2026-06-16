@@ -18,7 +18,6 @@ use Livewire\Component;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
 use Modules\Ciudadania\Models\CiudadanoPrestacionResumen;
 use Modules\Ciudadania\Services\NormalizadorCiudadano;
-use Modules\Intervencion\Models\PlanDeIntervencion;
 
 /**
  * Ficha del ciudadano: vista y edición de Capa 1 (datos identificativos y de contacto).
@@ -33,6 +32,7 @@ use Modules\Intervencion\Models\PlanDeIntervencion;
  * @see docs/front/ui-ficha-ciudadano.md
  *
  * Propiedades computadas expuestas como propiedades mágicas por Livewire 4 #[Computed]:
+ *
  * @property-read bool $puedeEditar
  * @property-read Ciudadano $ciudadano
  * @property-read HistoriaSocial|null $historiaSocial

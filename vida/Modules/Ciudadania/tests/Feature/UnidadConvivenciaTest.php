@@ -2,12 +2,12 @@
 
 namespace Modules\Ciudadania\Tests\Feature;
 
+use App\Models\User;
 use App\Models\Version;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Ciudadania\Models\Ciudadano;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
-use App\Models\User;
 use Tests\TestCase;
 
 /**
@@ -89,7 +89,7 @@ class UnidadConvivenciaTest extends TestCase
     {
         $uc = UnidadConvivencia::factory()->create();
         $activo = \App\Models\Ciudadano::factory()->create();
-        $baja   = \App\Models\Ciudadano::factory()->create();
+        $baja = \App\Models\Ciudadano::factory()->create();
 
         $uc->agregarMiembro($activo->id);
         $uc->agregarMiembro($baja->id);
@@ -173,7 +173,7 @@ class UnidadConvivenciaTest extends TestCase
     // TF-UC-11: estaDisuelta() detecta correctamente la disolución
     public function test_uc_disuelta(): void
     {
-        $activa   = UnidadConvivencia::factory()->create();
+        $activa = UnidadConvivencia::factory()->create();
         $disuelta = UnidadConvivencia::factory()->disuelta()->create();
 
         $this->assertFalse($activa->estaDisuelta());
@@ -195,7 +195,7 @@ class UnidadConvivenciaTest extends TestCase
         // Pero los miembros siguen en la BD
         $this->assertDatabaseHas('unidad_convivencia_miembros', [
             'unidad_convivencia_id' => $uc->id,
-            'ciudadano_id'          => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
         ]);
     }
 

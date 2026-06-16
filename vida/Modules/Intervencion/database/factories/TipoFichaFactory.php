@@ -20,12 +20,12 @@ class TipoFichaFactory extends Factory
             'schema' => [
                 'campos' => [
                     [
-                        'id'          => 'campo_prueba',
-                        'tipo'        => 'texto',
-                        'etiqueta'    => 'Campo de prueba',
+                        'id' => 'campo_prueba',
+                        'tipo' => 'texto',
+                        'etiqueta' => 'Campo de prueba',
                         'descripcion' => null,
                         'obligatorio' => false,
-                        'orden'       => 1,
+                        'orden' => 1,
                     ],
                 ],
             ],

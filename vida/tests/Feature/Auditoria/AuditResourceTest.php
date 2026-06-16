@@ -9,9 +9,6 @@ use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -58,11 +55,11 @@ class AuditResourceTest extends TestCase
     private function crearAudit(User $user, array $overrides = []): Audit
     {
         return Audit::withoutEvents(fn () => Audit::create(array_merge([
-            'user_id'        => $user->id,
-            'accion'         => 'ver',
+            'user_id' => $user->id,
+            'accion' => 'ver',
             'auditable_type' => Ciudadano::class,
-            'auditable_id'   => $this->ciudadano->id,
-            'ciudadano_id'   => $this->ciudadano->id,
+            'auditable_id' => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
         ], $overrides)));
     }
 

@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Models\Audit;
 use App\Observers\AuditObserver;
+use App\Services\AuditService;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
@@ -17,8 +18,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * el ciudadano_id no es un atributo directo del modelo.
  *
  * @see docs/modulo-auditoria.md §3.1
- * @see \App\Services\AuditService
- * @see \App\Observers\AuditObserver
+ * @see AuditService
+ * @see AuditObserver
  */
 trait Auditable
 {

@@ -73,7 +73,7 @@ class CiudadanoIdentificador extends Model
     /**
      * @return BelongsTo<Ciudadano, CiudadanoIdentificador>
      */
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function getCiudadanoId(): ?int
     {
         return $this->ciudadano_id;

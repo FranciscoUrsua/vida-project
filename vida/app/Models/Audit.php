@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\AccionAuditEnum;
+use App\Services\AuditService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -30,7 +31,7 @@ use LogicException;
  * @property Carbon $created_at
  *
  * @see docs/modulo-auditoria.md §2
- * @see \App\Services\AuditService
+ * @see AuditService
  */
 class Audit extends Model
 {
@@ -56,11 +57,11 @@ class Audit extends Model
 
     /** @var array<string, string> */
     protected $casts = [
-        'accion'        => AccionAuditEnum::class,
-        'datos_antes'   => 'array',
+        'accion' => AccionAuditEnum::class,
+        'datos_antes' => 'array',
         'datos_despues' => 'array',
-        'contexto'      => 'array',
-        'created_at'    => 'datetime',
+        'contexto' => 'array',
+        'created_at' => 'datetime',
     ];
 
     // -------------------------------------------------------------------------
@@ -78,7 +79,7 @@ class Audit extends Model
     /**
      * @throws LogicException Use AuditPurgeCommand para purgas por retención.
      */
-    public function delete(): bool|null
+    public function delete(): ?bool
     {
         throw new LogicException('Los registros de auditoría no pueden eliminarse individualmente. Use AuditPurgeCommand.');
     }

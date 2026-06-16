@@ -5,7 +5,9 @@ namespace App\Filament\Resources;
 use App\Enums\AccionAuditEnum;
 use App\Filament\Resources\AuditResource\Pages;
 use App\Models\Audit;
+use Carbon\Carbon;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -105,10 +107,10 @@ class AuditResource extends Resource
             ->filters([
                 Tables\Filters\Filter::make('rango_fechas')
                     ->form([
-                        \Filament\Forms\Components\DatePicker::make('desde')
+                        DatePicker::make('desde')
                             ->label('Desde')
                             ->required(),
-                        \Filament\Forms\Components\DatePicker::make('hasta')
+                        DatePicker::make('hasta')
                             ->label('Hasta')
                             ->required()
                             ->afterOrEqual('desde'),
@@ -118,17 +120,19 @@ class AuditResource extends Resource
                             // Sin filtro de fechas, no mostrar resultados
                             return $query->whereRaw('1 = 0');
                         }
-                        $desde = \Carbon\Carbon::parse($data['desde']);
-                        $hasta = \Carbon\Carbon::parse($data['hasta'])->endOfDay();
+                        $desde = Carbon::parse($data['desde']);
+                        $hasta = Carbon::parse($data['hasta'])->endOfDay();
                         if ($desde->diffInDays($hasta) > 90) {
                             return $query->whereRaw('1 = 0');
                         }
+
                         return $query->whereBetween('created_at', [$desde, $hasta]);
                     })
                     ->indicateUsing(function (array $data): ?string {
                         if ($data['desde'] && $data['hasta']) {
                             return 'Período: '.$data['desde'].' → '.$data['hasta'];
                         }
+
                         return null;
                     }),
 
@@ -155,7 +159,7 @@ class AuditResource extends Resource
     {
         return [
             'index' => Pages\ListAudits::route('/'),
-            'view'  => Pages\ViewAudit::route('/{record}'),
+            'view' => Pages\ViewAudit::route('/{record}'),
         ];
     }
 
@@ -163,6 +167,7 @@ class AuditResource extends Resource
     public static function canAccess(): bool
     {
         $user = Auth::user();
+
         return $user && ($user->hasRole('supervision') || $user->hasRole('adm_sistema'));
     }
 

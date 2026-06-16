@@ -19,7 +19,8 @@ use Illuminate\Console\Command;
  */
 class AuditPurgeCommand extends Command
 {
-    protected $signature   = 'audit:purge';
+    protected $signature = 'audit:purge';
+
     protected $description = 'Elimina registros de auditoría que superan el período de retención';
 
     public function handle(): int

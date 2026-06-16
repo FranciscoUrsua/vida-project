@@ -63,7 +63,7 @@ class Valoracion extends Model
     /**
      * @return BelongsTo<HistoriaSocial, Valoracion>
      */
-    /** @inheritDoc */
+    /** {@inheritDoc} */
     public function getCiudadanoId(): ?int
     {
         return $this->historia()->withoutGlobalScopes()->value('ciudadano_id');

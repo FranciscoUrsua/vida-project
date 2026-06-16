@@ -38,6 +38,7 @@ use Modules\Intervencion\Models\Valoracion;
  * @see docs/instrucciones-cli/ui-intervencion-entrega3.md
  *
  * Propiedades computadas expuestas como propiedades mágicas por Livewire 4 #[Computed]:
+ *
  * @property-read Collection<int, Audit> $accesosRecientes
  * @property-read bool $puedeVerTodosLosAccesos
  */
@@ -148,13 +149,13 @@ class CiudadanoPage extends Component
             ->latest();
 
         $mapaFiltro = [
-            'plan'       => TipoApunte::PlanIntervencion,
+            'plan' => TipoApunte::PlanIntervencion,
             'entrevista' => TipoApunte::Entrevista,
-            'anotacion'  => TipoApunte::Anotacion,
+            'anotacion' => TipoApunte::Anotacion,
             'derivacion' => TipoApunte::Derivacion,
-            'gestion'    => TipoApunte::GestionCoordinacion,
+            'gestion' => TipoApunte::GestionCoordinacion,
             'valoracion' => TipoApunte::Valoracion,
-            'escala'     => TipoApunte::Escala,
+            'escala' => TipoApunte::Escala,
         ];
 
         if (isset($mapaFiltro[$this->filtroHS])) {
@@ -348,12 +349,12 @@ class CiudadanoPage extends Component
 
         $mapa = [
             'entrevista' => 'entrevista',
-            'anotacion'  => 'anotacion',
+            'anotacion' => 'anotacion',
             'derivacion' => 'derivacion',
-            'gestion'    => 'gestion',
+            'gestion' => 'gestion',
             'valoracion' => 'valoracion',
-            'escala'     => 'escala',
-            'informes'   => null,
+            'escala' => 'escala',
+            'informes' => null,
         ];
         $this->filtroSugerido = $mapa[$herramienta] ?? null;
     }
@@ -375,23 +376,23 @@ class CiudadanoPage extends Component
             return;
         }
 
-        $this->modalApunteId   = $apunte->id;
+        $this->modalApunteId = $apunte->id;
         $this->modalApunteTipo = $apunte->tipo->value;
 
         $this->modalApunteDatos = [
-            'fecha'      => $apunte->fecha->format('d/m/Y') . ' ' . $apunte->created_at->format('H:i'),
-            'autor'      => $apunte->autor?->name ?? '—',
-            'contenido'  => $apunte->contenido,
+            'fecha' => $apunte->fecha->format('d/m/Y').' '.$apunte->created_at->format('H:i'),
+            'autor' => $apunte->autor?->name ?? '—',
+            'contenido' => $apunte->contenido,
             'tipo_label' => $apunte->tipo->label(),
         ];
 
         if ($apunte->tipo === TipoApunte::Escala && $apunte->apuntable_id) {
             $pase = PaseEscala::with('tipoEscala')->find($apunte->apuntable_id);
             if ($pase) {
-                $this->modalApunteDatos['escala_nombre']         = $pase->tipoEscala?->nombre;
-                $this->modalApunteDatos['escala_score']          = $pase->score_total;
+                $this->modalApunteDatos['escala_nombre'] = $pase->tipoEscala?->nombre;
+                $this->modalApunteDatos['escala_score'] = $pase->score_total;
                 $this->modalApunteDatos['escala_interpretacion'] = $pase->interpretacion_codigo;
-                $this->modalApunteDatos['escala_secciones']      = $pase->scores_seccion ?? [];
+                $this->modalApunteDatos['escala_secciones'] = $pase->scores_seccion ?? [];
             }
         }
 
@@ -402,8 +403,8 @@ class CiudadanoPage extends Component
     public function cerrarModalApunte(): void
     {
         $this->modalApunteAbierto = false;
-        $this->modalApunteId      = null;
-        $this->modalApunteDatos   = [];
+        $this->modalApunteId = null;
+        $this->modalApunteDatos = [];
     }
 
     // -------------------------------------------------------------------------

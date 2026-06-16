@@ -201,8 +201,8 @@ class Ciudadano extends Model
             'ciudadano_id',
             'unidad_convivencia_id'
         )->withPivot(['fecha_inicio', 'fecha_fin', 'fuente', 'verificado',
-                      'verificado_por', 'verificado_en'])
-         ->withTimestamps();
+            'verificado_por', 'verificado_en'])
+            ->withTimestamps();
     }
 
     /**

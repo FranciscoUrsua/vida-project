@@ -45,12 +45,14 @@ foreach ($files as $file) {
 
         if (is_array($token) && $token[0] === T_NAMESPACE) {
             $namespace = readNamespace($tokens, $i + 1);
+
             continue;
         }
 
         if (is_array($token) && $token[0] === T_DOC_COMMENT) {
             $lastDoc = $token[1];
             $lastDocLine = $token[2];
+
             continue;
         }
 
@@ -86,6 +88,7 @@ foreach ($files as $file) {
             $currentEntity = count($entities) - 1;
             $lastDoc = null;
             $lastDocLine = null;
+
             continue;
         }
 
@@ -294,6 +297,7 @@ function parseDoc(?string $doc): array
 
         if ($line === '') {
             $body[] = '';
+
             continue;
         }
 
@@ -305,6 +309,7 @@ function parseDoc(?string $doc): array
             } else {
                 $tags[$tag][] = $value;
             }
+
             continue;
         }
 

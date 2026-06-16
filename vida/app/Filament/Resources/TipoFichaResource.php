@@ -23,6 +23,7 @@ use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use Modules\Escalas\Models\TipoEscala;
 use Modules\Intervencion\Models\TipoFicha;
 
 /**
@@ -175,7 +176,7 @@ class TipoFichaResource extends Resource
                                             ...self::camposBase(),
                                             Select::make('tipo_escala_id')
                                                 ->label('Escala del catálogo')
-                                                ->options(fn () => \Modules\Escalas\Models\TipoEscala::pluck('nombre', 'id'))
+                                                ->options(fn () => TipoEscala::pluck('nombre', 'id'))
                                                 ->searchable()
                                                 ->required()
                                                 ->helperText('Solo se capturará la puntuación total. El pase completo se realiza en el módulo Escalas.'),
@@ -238,8 +239,8 @@ class TipoFichaResource extends Resource
                                             // Generar id desde etiqueta si no existe
                                             if (empty($data['id'])) {
                                                 $base = Str::slug($data['etiqueta'] ?? 'campo', '_');
-                                                $id   = $base;
-                                                $n    = 1;
+                                                $id = $base;
+                                                $n = 1;
                                                 while (in_array($id, $idsUsados, true)) {
                                                     $id = $base.'_'.$n;
                                                     $n++;
@@ -248,7 +249,7 @@ class TipoFichaResource extends Resource
                                             }
 
                                             $idsUsados[] = $data['id'];
-                                            $data['tipo']  = $tipo;
+                                            $data['tipo'] = $tipo;
                                             $data['orden'] = $i + 1;
 
                                             return $data;
@@ -271,9 +272,9 @@ class TipoFichaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListTipoFichas::route('/'),
+            'index' => Pages\ListTipoFichas::route('/'),
             'create' => Pages\CreateTipoFicha::route('/create'),
-            'edit'   => Pages\EditTipoFicha::route('/{record}/edit'),
+            'edit' => Pages\EditTipoFicha::route('/{record}/edit'),
         ];
     }
 
@@ -313,8 +314,8 @@ class TipoFichaResource extends Resource
 
                 if (empty($data['id'])) {
                     $base = Str::slug($data['etiqueta'] ?? 'campo', '_');
-                    $id   = $base;
-                    $n    = 1;
+                    $id = $base;
+                    $n = 1;
                     while (in_array($id, $idsUsados, true)) {
                         $id = $base.'_'.$n;
                         $n++;
@@ -323,7 +324,7 @@ class TipoFichaResource extends Resource
                 }
 
                 $idsUsados[] = $data['id'];
-                $data['tipo']  = $tipo;
+                $data['tipo'] = $tipo;
                 $data['orden'] = $i + 1;
 
                 return $data;

@@ -20,7 +20,6 @@ class MockFuenteIdentidad implements FuenteIdentidadInterface
      * Esto obliga al flujo de alta a presentar las excepciones de padrón,
      * lo que permite probar todos los caminos sin datos reales.
      *
-     * @param string $valorDocumento
      * @return array<string, mixed>|null
      */
     public function consultarDatos(string $valorDocumento): ?array
