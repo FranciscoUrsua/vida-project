@@ -49,21 +49,45 @@ class TipoSlot extends Model
         'activo' => 'boolean',
     ];
 
+    /**
+     * Horario centro al que pertenece el tipo de slot.
+     *
+     * @return BelongsTo<HorarioCentro, self>
+     */
     public function horarioCentro(): BelongsTo
     {
         return $this->belongsTo(HorarioCentro::class, 'horario_centro_id');
     }
 
+    /**
+     * Slots creados para este tipo de atención.
+     *
+     * @return HasMany<Slot>
+     */
     public function slots(): HasMany
     {
         return $this->hasMany(Slot::class, 'tipo_slot_id');
     }
 
+    /**
+     * Filtra tipos de slot activos.
+     *
+     * @param Builder<TipoSlot> $query
+     *
+     * @return Builder<TipoSlot>
+     */
     public function scopeActivos(Builder $query): Builder
     {
         return $query->where('activo', true);
     }
 
+    /**
+     * Filtra tipos de slot que admiten reserva desde API externa.
+     *
+     * @param Builder<TipoSlot> $query
+     *
+     * @return Builder<TipoSlot>
+     */
     public function scopeQueAdmitenApiExterna(Builder $query): Builder
     {
         return $query->whereIn('origen_permitido', [

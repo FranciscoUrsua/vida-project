@@ -14,7 +14,21 @@ class CentroServiceProvider extends ServiceProvider
 {
     protected string $moduleName = 'Centro';
 
-    public function register(): void {}
+    /**
+     * Registra los servicios del módulo en el contenedor.
+     *
+     * @return void
+     */
+    public function register(): void
+    {
+    }
 
-    public function boot(): void {}
+    /**
+     * Arranca los servicios del módulo.
+     *
+     * @return void
+     */
+    public function boot(): void
+    {
+    }
 }

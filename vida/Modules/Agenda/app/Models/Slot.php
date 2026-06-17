@@ -50,66 +50,149 @@ class Slot extends Model
         'estado' => EstadoSlot::class,
     ];
 
+    /**
+     * Línea de cuadrante a la que pertenece el slot.
+     *
+     * @return BelongsTo<LineaCuadrante, self>
+     */
     public function lineaCuadrante(): BelongsTo
     {
         return $this->belongsTo(LineaCuadrante::class, 'linea_cuadrante_id');
     }
 
+    /**
+     * Profesional al que pertenece el slot.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function usuario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'usuario_id');
     }
 
+    /**
+     * Centro al que pertenece el slot.
+     *
+     * @return BelongsTo<Centro, self>
+     */
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class);
     }
 
+    /**
+     * Tipo de slot del hueco.
+     *
+     * @return BelongsTo<TipoSlot, self>
+     */
     public function tipoSlot(): BelongsTo
     {
         return $this->belongsTo(TipoSlot::class, 'tipo_slot_id');
     }
 
+    /**
+     * Espacio físico reservado por el slot, si existe.
+     *
+     * @return BelongsTo<Espacio, self>
+     */
     public function espacio(): BelongsTo
     {
         return $this->belongsTo(Espacio::class);
     }
 
+    /**
+     * Cita asociada al slot, si existe.
+     *
+     * @return HasOne<Cita>
+     */
     public function cita(): HasOne
     {
         return $this->hasOne(Cita::class, 'slot_id');
     }
 
+    /**
+     * Filtra slots disponibles.
+     *
+     * @param Builder<Slot> $query
+     *
+     * @return Builder<Slot>
+     */
     public function scopeDisponibles(Builder $query): Builder
     {
         return $query->where('estado', EstadoSlot::Disponible->value);
     }
 
+    /**
+     * Filtra slots bloqueados para urgencias.
+     *
+     * @param Builder<Slot> $query
+     *
+     * @return Builder<Slot>
+     */
     public function scopeUrgencias(Builder $query): Builder
     {
         return $query->where('estado', EstadoSlot::BloqueadoUrgencia->value);
     }
 
+    /**
+     * Filtra slots anulados.
+     *
+     * @param Builder<Slot> $query
+     *
+     * @return Builder<Slot>
+     */
     public function scopeAnulados(Builder $query): Builder
     {
         return $query->where('estado', EstadoSlot::Anulado);
     }
 
+    /**
+     * Filtra slots de una fecha concreta.
+     *
+     * @param Builder<Slot> $query
+     * @param mixed $fecha
+     *
+     * @return Builder<Slot>
+     */
     public function scopeDelDia(Builder $query, $fecha): Builder
     {
         return $query->where('fecha', $fecha);
     }
 
+    /**
+     * Filtra slots de un profesional.
+     *
+     * @param Builder<Slot> $query
+     * @param int $usuarioId
+     *
+     * @return Builder<Slot>
+     */
     public function scopeDelProfesional(Builder $query, int $usuarioId): Builder
     {
         return $query->where('usuario_id', $usuarioId);
     }
 
+    /**
+     * Filtra slots de un centro.
+     *
+     * @param Builder<Slot> $query
+     * @param int $centroId
+     *
+     * @return Builder<Slot>
+     */
     public function scopeDelCentro(Builder $query, int $centroId): Builder
     {
         return $query->where('centro_id', $centroId);
     }
 
+    /**
+     * Filtra slots por estado.
+     *
+     * @param Builder<Slot> $query
+     * @param EstadoSlot $estado
+     *
+     * @return Builder<Slot>
+     */
     public function scopeDeEstado(Builder $query, EstadoSlot $estado): Builder
     {
         return $query->where('estado', $estado->value);

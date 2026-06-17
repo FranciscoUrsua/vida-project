@@ -1,39 +1,19 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-17 11:44:25 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-17 11:50:34 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 371.
 - Cabeceras documentadas: 251/371.
-- Metodos publicos documentados: 653/991.
-- Alertas de comentarios: 580.
+- Metodos publicos documentados: 674/992.
+- Alertas de comentarios: 560.
 
 ## Alertas
 
-### Método público sin PHPDoc (290)
+### Método público sin PHPDoc (270)
 
-- `Modules\Agenda\Models\Slot::lineaCuadrante()` en `vida/Modules/Agenda/app/Models/Slot.php:53`: Falta docblock de método público.
-- `Modules\Agenda\Models\Slot::usuario()` en `vida/Modules/Agenda/app/Models/Slot.php:58`: Falta docblock de método público.
-- `Modules\Agenda\Models\Slot::centro()` en `vida/Modules/Agenda/app/Models/Slot.php:63`: Falta docblock de método público.
-- `Modules\Agenda\Models\Slot::tipoSlot()` en `vida/Modules/Agenda/app/Models/Slot.php:68`: Falta docblock de método público.
-- `Modules\Agenda\Models\Slot::espacio()` en `vida/Modules/Agenda/app/Models/Slot.php:73`: Falta docblock de método público.
-- `Modules\Agenda\Models\Slot::cita()` en `vida/Modules/Agenda/app/Models/Slot.php:78`: Falta docblock de método público.
-- `Modules\Agenda\Models\Slot::scopeDisponibles()` en `vida/Modules/Agenda/app/Models/Slot.php:83`: Falta docblock de método público.
-- `Modules\Agenda\Models\Slot::scopeUrgencias()` en `vida/Modules/Agenda/app/Models/Slot.php:88`: Falta docblock de método público.
-- `Modules\Agenda\Models\Slot::scopeAnulados()` en `vida/Modules/Agenda/app/Models/Slot.php:93`: Falta docblock de método público.
-- `Modules\Agenda\Models\Slot::scopeDelDia()` en `vida/Modules/Agenda/app/Models/Slot.php:98`: Falta docblock de método público.
-- `Modules\Agenda\Models\Slot::scopeDelProfesional()` en `vida/Modules/Agenda/app/Models/Slot.php:103`: Falta docblock de método público.
-- `Modules\Agenda\Models\Slot::scopeDelCentro()` en `vida/Modules/Agenda/app/Models/Slot.php:108`: Falta docblock de método público.
-- `Modules\Agenda\Models\Slot::scopeDeEstado()` en `vida/Modules/Agenda/app/Models/Slot.php:113`: Falta docblock de método público.
-- `Modules\Agenda\Models\TipoSlot::horarioCentro()` en `vida/Modules/Agenda/app/Models/TipoSlot.php:52`: Falta docblock de método público.
-- `Modules\Agenda\Models\TipoSlot::slots()` en `vida/Modules/Agenda/app/Models/TipoSlot.php:57`: Falta docblock de método público.
-- `Modules\Agenda\Models\TipoSlot::scopeActivos()` en `vida/Modules/Agenda/app/Models/TipoSlot.php:62`: Falta docblock de método público.
-- `Modules\Agenda\Models\TipoSlot::scopeQueAdmitenApiExterna()` en `vida/Modules/Agenda/app/Models/TipoSlot.php:67`: Falta docblock de método público.
-- `Modules\Centro\Models\AmbitoTerritorial::centro()` en `vida/Modules/Centro/app/Models/AmbitoTerritorial.php:43`: Falta docblock de método público.
-- `Modules\Centro\Providers\CentroServiceProvider::register()` en `vida/Modules/Centro/app/Providers/CentroServiceProvider.php:17`: Falta docblock de método público.
-- `Modules\Centro\Providers\CentroServiceProvider::boot()` en `vida/Modules/Centro/app/Providers/CentroServiceProvider.php:19`: Falta docblock de método público.
 - `Modules\Ciudadania\Http\Livewire\AltaCiudadano::render()` en `vida/Modules/Ciudadania/app/Http/Livewire/AltaCiudadano.php:428`: Falta docblock de método público.
 - `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::ciudadanoSeleccionadoRelacion()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:442`: Falta docblock de método público.
 - `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::render()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:810`: Falta docblock de método público.
@@ -94,12 +74,12 @@ Generado el 2026-06-17 11:44:25 UTC a partir de los docblocks PHPDoc compatibles
 - `Modules\Intervencion\Http\Livewire\CiudadanoPage::seleccionarHerramienta()` en `vida/Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php:734`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\CiudadanoPage::cancelarHerramienta()` en `vida/Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php:750`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\CiudadanoPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php:1054`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedFiltroSeguimiento()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:54`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedFiltroPiso()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:59`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedFiltroEsp()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:64`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedOrdenarPor()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:69`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedBusqueda()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:74`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\MisCasosPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:196`: Falta docblock de método público.
+- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedFiltroSeguimiento()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:61`: Falta docblock de método público.
+- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedFiltroPiso()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:66`: Falta docblock de método público.
+- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedFiltroEsp()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:71`: Falta docblock de método público.
+- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedOrdenarPor()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:76`: Falta docblock de método público.
+- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedBusqueda()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:81`: Falta docblock de método público.
+- `Modules\Intervencion\Http\Livewire\MisCasosPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:231`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\RegistrarEscalaPage::getTipoEscalaProperty()` en `vida/Modules/Intervencion/app/Http/Livewire/RegistrarEscalaPage.php:45`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\RegistrarEscalaPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/RegistrarEscalaPage.php:70`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\RegistrarValoracionPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/RegistrarValoracionPage.php:182`: Falta docblock de método público.
@@ -1028,31 +1008,44 @@ Se genera al publicar un CuadranteMes. Corresponde a un profesional, un día, un
 Metodos publicos:
 
 - `function lineaCuadrante(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Línea de cuadrante a la que pertenece el slot.
+  `@return` BelongsTo<LineaCuadrante, self>
 - `function usuario(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Profesional al que pertenece el slot.
+  `@return` BelongsTo<User, self>
 - `function centro(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Centro al que pertenece el slot.
+  `@return` BelongsTo<Centro, self>
 - `function tipoSlot(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Tipo de slot del hueco.
+  `@return` BelongsTo<TipoSlot, self>
 - `function espacio(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Espacio físico reservado por el slot, si existe.
+  `@return` BelongsTo<Espacio, self>
 - `function cita(): HasOne`
-  _Sin resumen PHPDoc._
+  Cita asociada al slot, si existe.
+  `@return` HasOne<Cita>
 - `function scopeDisponibles(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra slots disponibles.
+  `@return` Builder<Slot>
 - `function scopeUrgencias(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra slots bloqueados para urgencias.
+  `@return` Builder<Slot>
 - `function scopeAnulados(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra slots anulados.
+  `@return` Builder<Slot>
 - `function scopeDelDia(Builder $query, $fecha): Builder`
-  _Sin resumen PHPDoc._
+  Filtra slots de una fecha concreta.
+  `@return` Builder<Slot>
 - `function scopeDelProfesional(Builder $query, int $usuarioId): Builder`
-  _Sin resumen PHPDoc._
+  Filtra slots de un profesional.
+  `@return` Builder<Slot>
 - `function scopeDelCentro(Builder $query, int $centroId): Builder`
-  _Sin resumen PHPDoc._
+  Filtra slots de un centro.
+  `@return` Builder<Slot>
 - `function scopeDeEstado(Builder $query, EstadoSlot $estado): Builder`
-  _Sin resumen PHPDoc._
+  Filtra slots por estado.
+  `@return` Builder<Slot>
 
 ### `Modules\Agenda\Models\TipoSlot`
 
@@ -1065,13 +1058,17 @@ Define la duración, reglas de uso y el porcentaje de slots reservados para urge
 Metodos publicos:
 
 - `function horarioCentro(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Horario centro al que pertenece el tipo de slot.
+  `@return` BelongsTo<HorarioCentro, self>
 - `function slots(): HasMany`
-  _Sin resumen PHPDoc._
+  Slots creados para este tipo de atención.
+  `@return` HasMany<Slot>
 - `function scopeActivos(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra tipos de slot activos.
+  `@return` Builder<TipoSlot>
 - `function scopeQueAdmitenApiExterna(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra tipos de slot que admiten reserva desde API externa.
+  `@return` Builder<TipoSlot>
 
 ### `Modules\Agenda\Observers\CitaObserver`
 
@@ -1222,7 +1219,8 @@ Define la población geográfica a la que atiende el centro. Un centro puede ten
 Metodos publicos:
 
 - `function centro(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Centro asociado al ámbito territorial.
+  `@return` BelongsTo<Centro, self>
 
 ### `Modules\Centro\Models\Centro`
 
@@ -1652,9 +1650,11 @@ Las migraciones del módulo residen en database/migrations/ (carpeta principal) 
 Metodos publicos:
 
 - `function register(): void`
-  _Sin resumen PHPDoc._
+  Registra los servicios del módulo en el contenedor.
+  `@return` void
 - `function boot(): void`
-  _Sin resumen PHPDoc._
+  Arranca los servicios del módulo.
+  `@return` void
 
 ### `Modules\Centro\Services\PrescripcionService`
 
@@ -2827,6 +2827,9 @@ Metodos publicos:
   _Sin resumen PHPDoc._
 - `function updatedBusqueda(): void`
   _Sin resumen PHPDoc._
+- `function sortBy(string $campo): void`
+  Cambia la columna de ordenación o alterna la dirección si ya está activa. Valores de campo permitidos: 'seg', 'inicio', 'esp'.
+  `@return` void
 - `function nombrePlanAsp(): string`
   Etiqueta configurable del tipo de plan general (PISO o nombre alternativo). Se lee del catálogo de sistema para permitir cambio sin deploy.
   `@return` string

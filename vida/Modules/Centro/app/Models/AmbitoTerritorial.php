@@ -40,6 +40,11 @@ class AmbitoTerritorial extends Model
 
     // ── Relaciones ─────────────────────────────────────────────────────
 
+    /**
+     * Centro asociado al ámbito territorial.
+     *
+     * @return BelongsTo<Centro, self>
+     */
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class);
