@@ -29,7 +29,7 @@ class MisCasosPage extends Component
 {
     use WithPagination;
 
-    /** @var string Búsqueda textual (no activa aún — datos cifrados) */
+    /** @var string Búsqueda textual por nombre/apellido; se resuelve en memoria (datos cifrados) */
     public string $busqueda = '';
 
     /** @var string Filtro por estado de seguimiento: '' | 'vencido' | 'proximo' | 'programado' | 'sin' */
@@ -190,9 +190,31 @@ class MisCasosPage extends Component
             $query->where(DB::raw('COALESCE(esp.planes_esp_count, 0)'), '=', 0);
         }
 
-        // El nombre del ciudadano está cifrado: no es ordenable en DB, se resuelve en memoria
-        if ($this->ordenarPor === 'ciudadano') {
-            $allItems = $query->orderBy('pi.historia_id')->get();
+        // Ordenación DB para todos los campos excepto nombre (cifrado, se ordena en memoria)
+        if ($this->ordenarPor !== 'ciudadano') {
+            $dir = $this->direccion === 'desc' ? 'DESC' : 'ASC';
+
+            match ($this->ordenarPor) {
+                // Semáforo de urgencia: vencido → próximo → programado → sin (invertible)
+                'seg' => $query->orderByRaw("
+                    CASE
+                        WHEN seg.fecha_siguiente_seguimiento < CURRENT_DATE THEN 0
+                        WHEN seg.fecha_siguiente_seguimiento BETWEEN CURRENT_DATE AND CURRENT_DATE + 7 THEN 1
+                        WHEN seg.fecha_siguiente_seguimiento > CURRENT_DATE + 7 THEN 2
+                        ELSE 3
+                    END {$dir},
+                    seg.fecha_siguiente_seguimiento {$dir} NULLS LAST
+                "),
+                'inicio'   => $query->orderBy('pi.fecha_inicio', $this->direccion),
+                'esp'      => $query->orderByRaw("COALESCE(esp.planes_esp_count, 0) {$dir}, pi.fecha_inicio ASC"),
+                'historia' => $query->orderBy('pi.historia_id', $this->direccion),
+                default    => $query->orderBy('pi.historia_id', $this->direccion),
+            };
+        }
+
+        // Path en memoria: búsqueda activa o sort por nombre (ambos requieren desencriptar)
+        if ($this->busqueda !== '' || $this->ordenarPor === 'ciudadano') {
+            $allItems = $query->get();
 
             $ciudadanoIds = $allItems->pluck('ciudadano_id')->filter()->unique();
             $ciudadanos   = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
@@ -200,41 +222,33 @@ class MisCasosPage extends Component
                 ->get()
                 ->keyBy('id');
 
-            $sorted = $this->direccion === 'desc'
-                ? $allItems->sortByDesc(fn ($caso) => $ciudadanos->get($caso->ciudadano_id)?->nombre_completo ?? "\xFF")
-                : $allItems->sortBy(fn ($caso) => $ciudadanos->get($caso->ciudadano_id)?->nombre_completo ?? "\xFF");
+            if ($this->busqueda !== '') {
+                $term     = mb_strtolower($this->busqueda);
+                $allItems = $allItems->filter(
+                    fn ($caso) => str_contains(
+                        mb_strtolower($ciudadanos->get($caso->ciudadano_id)?->nombre_completo ?? ''),
+                        $term
+                    )
+                )->values();
+            }
 
-            $sorted = $sorted->values();
-            $page   = $this->getPage();
+            if ($this->ordenarPor === 'ciudadano') {
+                $allItems = $this->direccion === 'desc'
+                    ? $allItems->sortByDesc(fn ($caso) => $ciudadanos->get($caso->ciudadano_id)?->nombre_completo ?? "\xFF")
+                    : $allItems->sortBy(fn ($caso) => $ciudadanos->get($caso->ciudadano_id)?->nombre_completo ?? "\xFF");
+                $allItems = $allItems->values();
+            }
+
+            $page = $this->getPage();
 
             return new \Illuminate\Pagination\LengthAwarePaginator(
-                $sorted->forPage($page, $this->porPagina)->all(),
-                $sorted->count(),
+                $allItems->forPage($page, $this->porPagina)->all(),
+                $allItems->count(),
                 $this->porPagina,
                 $page,
                 ['path' => request()->url(), 'pageName' => 'page'],
             );
         }
-
-        // Dirección validada para uso seguro en raw SQL
-        $dir = $this->direccion === 'desc' ? 'DESC' : 'ASC';
-
-        match ($this->ordenarPor) {
-            // Semáforo de urgencia: vencido → próximo → programado → sin (invertible)
-            'seg' => $query->orderByRaw("
-                CASE
-                    WHEN seg.fecha_siguiente_seguimiento < CURRENT_DATE THEN 0
-                    WHEN seg.fecha_siguiente_seguimiento BETWEEN CURRENT_DATE AND CURRENT_DATE + 7 THEN 1
-                    WHEN seg.fecha_siguiente_seguimiento > CURRENT_DATE + 7 THEN 2
-                    ELSE 3
-                END {$dir},
-                seg.fecha_siguiente_seguimiento {$dir} NULLS LAST
-            "),
-            'inicio'   => $query->orderBy('pi.fecha_inicio', $this->direccion),
-            'esp'      => $query->orderByRaw("COALESCE(esp.planes_esp_count, 0) {$dir}, pi.fecha_inicio ASC"),
-            'historia' => $query->orderBy('pi.historia_id', $this->direccion),
-            default    => $query->orderBy('pi.historia_id', $this->direccion),
-        };
 
         return $query->paginate($this->porPagina);
     }

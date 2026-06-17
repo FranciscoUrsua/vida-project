@@ -31,6 +31,16 @@
     <div style="background: #fff; border-bottom: 1px solid var(--color-ink-200); padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 1rem; flex-shrink: 0;">
         <h1 style="font-size: 1rem; font-weight: 700; margin: 0; color: var(--color-ink-900);">Mis casos</h1>
 
+        {{-- Búsqueda por nombre --}}
+        <div style="position: relative; display: flex; align-items: center;">
+            <i data-lucide="search" style="position: absolute; left: 0.5rem; width: 13px; height: 13px; color: var(--color-ink-400); pointer-events: none;" aria-hidden="true"></i>
+            <input wire:model.live.debounce.300ms="busqueda"
+                   type="search"
+                   placeholder="Buscar por nombre…"
+                   autocomplete="off"
+                   style="padding: 0.3rem 0.5rem 0.3rem 1.75rem; border: 1px solid var(--color-ink-200); border-radius: 4px; font-size: 0.8rem; width: 200px; color: var(--color-ink-900); background: #fff; outline-offset: 2px;">
+        </div>
+
         {{-- Filtro seguimiento --}}
         <select wire:model.live="filtroSeguimiento" class="form-select form-select-sm" style="width: auto; font-size: 0.8rem;">
             <option value="">Todos los seguimientos</option>
