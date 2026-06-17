@@ -24,6 +24,10 @@ class ExcepcionProfesionalObserver
      * Solo actúa si `afecta_disponibilidad = true`. Cancela además las citas
      * confirmadas vinculadas a los slots de esas líneas; los slots en estado
      * 'reservado' (con cita activa) no se anulan para preservar la trazabilidad.
+     *
+     * @param ExcepcionProfesional $excepcion Excepción profesional creada.
+     *
+     * @return void
      */
     public function created(ExcepcionProfesional $excepcion): void
     {

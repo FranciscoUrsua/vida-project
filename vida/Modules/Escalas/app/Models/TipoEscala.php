@@ -217,6 +217,10 @@ class TipoEscala extends Model
     /**
      * Devuelve el id del TipoEscala con el código dado, desde caché.
      *
+     * @param string $codigo Código funcional de la escala.
+     *
+     * @return int
+     *
      * @throws ModelNotFoundException
      */
     public static function codigoId(string $codigo): int

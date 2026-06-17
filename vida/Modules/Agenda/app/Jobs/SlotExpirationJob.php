@@ -30,6 +30,8 @@ class SlotExpirationJob implements ShouldQueue
      *
      * Opera solo sobre fechas estrictamente anteriores a hoy para evitar
      * afectar slots del día en curso que aún pueden ser consumidos.
+     *
+     * @return void
      */
     public function handle(): void
     {

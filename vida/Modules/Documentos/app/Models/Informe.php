@@ -66,7 +66,11 @@ class Informe extends Model
         return $this->belongsTo(HistoriaSocial::class, 'historia_social_id');
     }
 
-    /** {@inheritDoc} */
+    /**
+     * ID del ciudadano asociado al informe.
+     *
+     * @return int|null
+     */
     public function getCiudadanoId(): ?int
     {
         return $this->ciudadano_id;

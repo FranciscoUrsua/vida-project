@@ -39,6 +39,8 @@ class PrescripcionService
      * Uso previsto: tests y adaptadores hacia el módulo Ciudadanía.
      *
      * @param callable(int): int|null $resolver
+     *
+     * @return void
      */
     public function setTsrResolver(callable $resolver): void
     {
@@ -53,6 +55,8 @@ class PrescripcionService
      * crea el registro de lista de espera.
      *
      * @param array<string, mixed> $datos Atributos de la Prescripcion (sin estado, plaza_id, fecha_asignacion)
+     *
+     * @return Prescripcion
      *
      * @throws \InvalidArgumentException Si el tipo_destino no es coleccion_plazas.
      */
@@ -101,6 +105,10 @@ class PrescripcionService
      *
      * No cambia el estado de las prescripciones en espera: la asignación es siempre
      * explícita y requiere confirmación del profesional.
+     *
+     * @param Plaza $plaza Plaza que queda disponible.
+     *
+     * @return void
      */
     public function liberarPlaza(Plaza $plaza): void
     {
@@ -126,7 +134,10 @@ class PrescripcionService
     /**
      * Cancela una prescripción y libera la plaza si tenía una asignada.
      *
+     * @param Prescripcion $prescripcion Prescripción que se cancela.
      * @param string|null $motivo Motivo opcional de la cancelación.
+     *
+     * @return void
      */
     public function cancelar(Prescripcion $prescripcion, ?string $motivo = null): void
     {

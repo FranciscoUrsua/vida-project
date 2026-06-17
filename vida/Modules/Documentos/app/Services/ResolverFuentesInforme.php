@@ -43,6 +43,9 @@ class ResolverFuentesInforme
      * devolviendo el HTML con los valores reales del informe.
      *
      * @param string $html HTML con tags {{ clave }} de TipTap
+     * @param int $ciudadanoId ID del ciudadano del informe.
+     * @param int $profesionalId ID del profesional emisor.
+     * @param Carbon $fechaInforme Fecha del informe.
      *
      * @return string HTML con valores sustituidos
      */

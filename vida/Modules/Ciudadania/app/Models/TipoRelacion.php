@@ -77,7 +77,13 @@ class TipoRelacion extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
-    /** @param Builder<self> $query */
+    /**
+     * Filtra tipos activos.
+     *
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
     public function scopeActivos(Builder $query): Builder
     {
         return $query->where('activo', true);
@@ -85,6 +91,9 @@ class TipoRelacion extends Model
 
     /**
      * @param Builder<self> $query
+     * @param ImplicacionFuncional $implicacion Implicación funcional requerida.
+     *
+     * @return Builder<self>
      */
     public function scopeConImplicacion(Builder $query, ImplicacionFuncional $implicacion): Builder
     {
@@ -98,6 +107,8 @@ class TipoRelacion extends Model
     /**
      * Devuelve el tipo recíproco. Para tipos simétricos devuelve $this.
      * Para asimétricos consulta el catálogo por `slug_reciproco`.
+     *
+     * @return self|null
      */
     public function tipoRecíproco(): ?self
     {
@@ -116,6 +127,8 @@ class TipoRelacion extends Model
      * Tipos activos que tienen la implicación funcional indicada.
      * El código debe usar este método, nunca comparar slugs directamente.
      *
+     * @param ImplicacionFuncional $implicacion Implicación funcional requerida.
+     *
      * @return Collection<int, self>
      */
     public static function conImplicacionFuncional(ImplicacionFuncional $implicacion): Collection
@@ -127,6 +140,10 @@ class TipoRelacion extends Model
 
     /**
      * ¿Existe al menos un tipo activo con esta implicación funcional?
+     *
+     * @param ImplicacionFuncional $implicacion Implicación funcional requerida.
+     *
+     * @return bool
      */
     public static function existeImplicacion(ImplicacionFuncional $implicacion): bool
     {

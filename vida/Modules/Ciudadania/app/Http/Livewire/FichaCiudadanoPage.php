@@ -114,6 +114,8 @@ class FichaCiudadanoPage extends Component
 
     /**
      * @param int $ciudadano ID del ciudadano (parámetro de ruta {ciudadano})
+     *
+     * @return void
      */
     public function mount(int $ciudadano): void
     {
@@ -143,6 +145,8 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Ciudadano sin AmbitoUoScope — accesible aunque no tenga historia social en la UO.
+     *
+     * @return Ciudadano
      */
     #[Computed]
     public function ciudadano(): Ciudadano
@@ -152,6 +156,8 @@ class FichaCiudadanoPage extends Component
 
     /**
      * El rol supervision tiene acceso de solo lectura. Todos los demás con acceso pueden editar.
+     *
+     * @return bool
      */
     #[Computed]
     public function puedeEditar(): bool
@@ -165,6 +171,8 @@ class FichaCiudadanoPage extends Component
     /**
      * Historia social sin AmbitoUoScope ni SoftDeletes — solo comprueba existencia.
      * La historia es única y permanente: nunca se cierra.
+     *
+     * @return HistoriaSocial|null
      */
     #[Computed]
     public function historiaSocial(): ?HistoriaSocial
@@ -176,6 +184,8 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Solo el rol intervencion puede navegar a la historia social.
+     *
+     * @return bool
      */
     #[Computed]
     public function puedeVerHistoria(): bool
@@ -202,6 +212,8 @@ class FichaCiudadanoPage extends Component
     /**
      * Unidad de convivencia vigente.
      * Stub — pendiente implementar módulo UnidadConvivencia.
+     *
+     * @return object|null
      */
     #[Computed]
     public function ucVigente(): ?object
@@ -227,6 +239,8 @@ class FichaCiudadanoPage extends Component
     /**
      * El panel de accesos es visible solo para roles con competencia de intervención o supervisión.
      * Revelar metadatos de acceso a roles sin competencia es una fuga de información sobre el caso.
+     *
+     * @return bool
      */
     #[Computed]
     public function puedeVerAccesos(): bool
@@ -237,6 +251,8 @@ class FichaCiudadanoPage extends Component
     /**
      * Indica si el usuario ve todos los accesos (TSR/supervisor/adm) o solo los propios.
      * Usado en la vista para mostrar u ocultar el enlace "Ver todo".
+     *
+     * @return bool
      */
     #[Computed]
     public function puedeVerTodosLosAccesos(): bool
@@ -366,6 +382,8 @@ class FichaCiudadanoPage extends Component
     /**
      * Activa el modo edición simultáneo de todos los campos de Capa 1.
      * Solo si puedeEditar — supervision no puede modificar datos.
+     *
+     * @return void
      */
     public function activarEdicion(): void
     {
@@ -377,6 +395,8 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Cancela la edición y recarga los datos desde BD.
+     *
+     * @return void
      */
     public function cancelarEdicion(): void
     {
@@ -397,6 +417,8 @@ class FichaCiudadanoPage extends Component
     /**
      * Valida, normaliza y persiste los campos de Capa 1.
      * Solo si puedeEditar. DireccionObserver procesará geocodificación si cambia direccion_texto.
+     *
+     * @return void
      *
      * @throws ValidationException
      */
@@ -473,6 +495,8 @@ class FichaCiudadanoPage extends Component
     }
 
     /**
+     * @return void
+     *
      * @throws ValidationException
      */
     public function guardarRelacion(): void
@@ -545,6 +569,8 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Abre el modal de añadir documento. Solo si puedeEditar.
+     *
+     * @return void
      */
     public function abrirModalDocumento(): void
     {
@@ -556,6 +582,8 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Cierra el modal y limpia el formulario.
+     *
+     * @return void
      */
     public function cerrarModalDocumento(): void
     {
@@ -568,6 +596,8 @@ class FichaCiudadanoPage extends Component
      * Cierra el documento activo anterior y crea el nuevo.
      * El historial se mantiene íntegro (principio 4.2 — el pasado es inmutable):
      * los documentos anteriores reciben fecha_fin pero no se eliminan.
+     *
+     * @return void
      *
      * @throws ValidationException
      */

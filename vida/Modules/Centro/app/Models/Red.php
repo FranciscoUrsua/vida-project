@@ -64,6 +64,8 @@ class Red extends Model
     /**
      * Total de plazas con estado 'libre' en todos los centros de la red.
      * Solo cuenta colecciones activas.
+     *
+     * @return int
      */
     public function plazasLibresTotal(): int
     {

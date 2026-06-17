@@ -27,6 +27,8 @@ class CuadranteGeneratorService
      * líneas como anulada = true con referencia a la excepción.
      *
      * @param CuadranteMes $cuadrante Cuadrante en estado 'borrador'
+     *
+     * @return void
      */
     public function generarBorrador(CuadranteMes $cuadrante): void
     {

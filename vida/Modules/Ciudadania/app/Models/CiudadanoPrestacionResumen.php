@@ -69,6 +69,7 @@ class CiudadanoPrestacionResumen extends Model
      * Ordena por estado (activos primero) y fecha descendente, limitando a $limit registros.
      *
      * @param Builder<self> $query
+     * @param int $limit Número máximo de registros devueltos.
      *
      * @return Builder<self>
      */

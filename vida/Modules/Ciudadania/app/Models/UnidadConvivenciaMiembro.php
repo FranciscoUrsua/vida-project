@@ -87,6 +87,10 @@ class UnidadConvivenciaMiembro extends Model
     /**
      * Marca la membresía como verificada por el profesional dado.
      * Operación idempotente: no lanza excepción si ya estaba verificada.
+     *
+     * @param User $profesional Profesional que verifica la residencia.
+     *
+     * @return void
      */
     public function verificar(User $profesional): void
     {
@@ -99,6 +103,8 @@ class UnidadConvivenciaMiembro extends Model
 
     /**
      * Indica si esta membresía está actualmente activa (sin fecha de fin).
+     *
+     * @return bool
      */
     public function estaActiva(): bool
     {
@@ -108,6 +114,8 @@ class UnidadConvivenciaMiembro extends Model
     /**
      * Indica si este miembro puede ser perceptor de prestaciones municipales.
      * Requiere membresía activa Y verificación de residencia.
+     *
+     * @return bool
      */
     public function puedeSerPerceptorPrestaciones(): bool
     {

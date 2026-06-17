@@ -9,6 +9,7 @@ use Modules\Centro\Database\Seeders\CentroSeeder;
 use Modules\Documentos\Database\Seeders\DocumentosSeeder;
 use Modules\Escalas\Database\Seeders\EscalaSeeder;
 use Modules\Intervencion\Database\Seeders\IntervencionSeeder;
+use Modules\Ciudadania\Database\Seeders\TipoRelacionSeeder;
 use Modules\Organizacion\Database\Seeders\OrganizacionSeeder;
 use Modules\Prestaciones\Database\Seeders\CatalogosSistemaSeeder;
 use Modules\Prestaciones\Database\Seeders\PrestacionesSeeder;
@@ -41,28 +42,31 @@ class DatabaseSeeder extends Seeder
         // 4. Datos del módulo Organizacion (configuracion, colectivos, distritos, etc.)
         $this->call(OrganizacionSeeder::class);
 
-        // 5. Catálogos del módulo Profesional
+        // 5. Catálogos del módulo Ciudadanía
+        $this->call(TipoRelacionSeeder::class);
+
+        // 6. Catálogos del módulo Profesional
         $this->call(CargosSeeder::class);
         $this->call(TitulacionesSeeder::class);
         $this->call(TiposRelacionProfesionalSeeder::class);
 
-        // 6. Módulo Centro: catálogos base + 3 centros de ejemplo + red
+        // 7. Módulo Centro: catálogos base + 3 centros de ejemplo + red
         $this->call(CentroSeeder::class);
 
-        // 7. Módulo Prestaciones: catálogos del sistema y prestaciones de cartera
+        // 8. Módulo Prestaciones: catálogos del sistema y prestaciones de cartera
         $this->call(CatalogosSistemaSeeder::class);
         $this->call(PrestacionesSeeder::class);
 
-        // 8. Módulo Agenda: horario y tipos de slot de ejemplo (requiere centros)
+        // 9. Módulo Agenda: horario y tipos de slot de ejemplo (requiere centros)
         $this->call(AgendaSeeder::class);
 
-        // 9. Módulo Documentos: catálogos y plantilla de informe de ejemplo
+        // 10. Módulo Documentos: catálogos y plantilla de informe de ejemplo
         $this->call(DocumentosSeeder::class);
 
-        // 10. Módulo Intervención: tipos de ficha y valoración
+        // 11. Módulo Intervención: tipos de ficha y valoración
         $this->call(IntervencionSeeder::class);
 
-        // 11. Módulo Escalas: instrumentos de valoración (Barthel, Pfeiffer, Lawton-Brody)
+        // 12. Módulo Escalas: instrumentos de valoración (Barthel, Pfeiffer, Lawton-Brody)
         $this->call(EscalaSeeder::class);
 
         // 13. Perfiles de anonimización predefinidos del sistema

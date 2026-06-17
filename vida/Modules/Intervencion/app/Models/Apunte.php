@@ -118,9 +118,10 @@ class Apunte extends Model
     // -------------------------------------------------------------------------
 
     /**
-     * @return BelongsTo<PlanDeIntervencion, Apunte>
+     * ID del ciudadano titular de la historia social asociada al apunte.
+     *
+     * @return int|null
      */
-    /** {@inheritDoc} */
     public function getCiudadanoId(): ?int
     {
         // Se evitan todos los global scopes (AmbitoUoScope en Plan e Historia)
@@ -151,6 +152,8 @@ class Apunte extends Model
 
     /**
      * Entidad concreta vinculada (polimórfica).
+     *
+     * @return MorphTo
      */
     public function apuntable(): MorphTo
     {
@@ -166,6 +169,11 @@ class Apunte extends Model
      *
      * Los apuntes privados solo son visibles para su autor.
      * Los apuntes de visibilidad profesionales o ciudadano son visibles para todos.
+     *
+     * @param Builder<self> $query
+     * @param int $usuarioId ID del usuario que consulta.
+     *
+     * @return Builder<self>
      */
     public function scopeVisiblesParaUsuario(Builder $query, int $usuarioId): Builder
     {

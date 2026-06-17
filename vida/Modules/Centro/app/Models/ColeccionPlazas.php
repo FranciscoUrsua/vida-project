@@ -117,6 +117,8 @@ class ColeccionPlazas extends Model
     /**
      * Número de plazas con estado 'libre' en esta colección.
      * Devuelve 0 si la colección está inactiva.
+     *
+     * @return int
      */
     public function plazasDisponibles(): int
     {
@@ -129,6 +131,8 @@ class ColeccionPlazas extends Model
 
     /**
      * @deprecated Usar plazasDisponibles(). Se mantiene como alias para compatibilidad.
+     *
+     * @return int
      */
     public function getPlazasDisponiblesAttribute(): int
     {

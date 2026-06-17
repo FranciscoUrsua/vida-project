@@ -19,6 +19,10 @@ class CitaObserver
     /**
      * Impide reservar un slot de urgencia desde el canal externo.
      *
+     * @param Cita $cita Cita que se está creando.
+     *
+     * @return void
+     *
      * @throws LogicException
      */
     public function creating(Cita $cita): void
@@ -37,6 +41,10 @@ class CitaObserver
 
     /**
      * Marca el slot como reservado al crear la cita.
+     *
+     * @param Cita $cita Cita recién creada.
+     *
+     * @return void
      */
     public function created(Cita $cita): void
     {

@@ -110,6 +110,8 @@ class Prescripcion extends Model
     /**
      * Resuelve el destino de la prescripción según tipo_destino.
      * Devuelve la ColeccionPlazas o la SesionActividad correspondiente.
+     *
+     * @return ColeccionPlazas|SesionActividad|null
      */
     public function destino(): ColeccionPlazas|SesionActividad|null
     {

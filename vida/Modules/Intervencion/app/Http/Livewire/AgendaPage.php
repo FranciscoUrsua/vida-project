@@ -31,6 +31,8 @@ class AgendaPage extends Component
 
     /**
      * Inicializa la fecha ancla al día de hoy.
+     *
+     * @return void
      */
     public function mount(): void
     {
@@ -43,6 +45,8 @@ class AgendaPage extends Component
 
     /**
      * Retrocede 1 día, semana o mes según la vista activa.
+     *
+     * @return void
      */
     public function navegarAnterior(): void
     {
@@ -57,6 +61,8 @@ class AgendaPage extends Component
 
     /**
      * Avanza 1 día, semana o mes según la vista activa.
+     *
+     * @return void
      */
     public function navegarSiguiente(): void
     {
@@ -71,6 +77,8 @@ class AgendaPage extends Component
 
     /**
      * Resetea la fecha ancla al día de hoy.
+     *
+     * @return void
      */
     public function irAHoy(): void
     {
@@ -81,6 +89,8 @@ class AgendaPage extends Component
      * Cambia la vista activa.
      *
      * @param string $vista 'dia' | 'semana' | 'mes'
+     *
+     * @return void
      */
     public function setVista(string $vista): void
     {
@@ -91,6 +101,8 @@ class AgendaPage extends Component
      * Al hacer clic en un día en la vista de mes, navega a la vista de día.
      *
      * @param string $fecha ISO 8601
+     *
+     * @return void
      */
     public function irADia(string $fecha): void
     {
@@ -104,6 +116,8 @@ class AgendaPage extends Component
 
     /**
      * Título descriptivo de la fecha según la vista activa.
+     *
+     * @return string
      */
     #[Computed]
     public function tituloFecha(): string

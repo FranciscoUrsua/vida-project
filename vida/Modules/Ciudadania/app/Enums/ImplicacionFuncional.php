@@ -18,6 +18,8 @@ enum ImplicacionFuncional: string
 
     /**
      * Etiqueta legible para mostrar en backoffice.
+     *
+     * @return string
      */
     public function etiqueta(): string
     {

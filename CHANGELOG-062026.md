@@ -4,6 +4,42 @@
 
 ---
 
+## feat(ciudadania+intervencion): CiudadanoRelacion, topbar operativo y reconstrucción BD — 2026-06-17
+
+### Área afectada
+`Modules/Ciudadania/app/Models/CiudadanoRelacion.php`, `Modules/Ciudadania/database/migrations/`, `Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php`, `Modules/Intervencion/tests/Feature/Livewire/RelacionesUiTest.php`, `resources/views/layouts/operativo.blade.php`, `Modules/Intervencion/resources/views/livewire/sidebar.blade.php`, `resources/css/app-operativo.css`, `database/seeders/DatabaseSeeder.php`
+
+### Cambios
+
+#### Modelo CiudadanoRelacion
+- Modelo completo en `Modules/Ciudadania/app/Models/CiudadanoRelacion.php` con hooks `booted()` (created/updated/deleted), relaciones Eloquent `ciudadano()` y `ciudadanoRelacionado()` (→ `App\Models\Ciudadano`), scope `activas()`.
+- Tres métodos privados de reciprocidad: `crearReciprocaSiProcede()`, `sincronizarFechaFinReciproca()`, `eliminarReciproca()`. Guard estático `$sincronizandoReciproca` para prevenir recursión infinita.
+- Migración `2026_06_16_000004_create_ciudadano_relaciones_table.php`.
+
+#### CiudadanoPage — representante con cross-UO
+- `CiudadanoPage.php`: computed `representante()` usa `Ciudadano::withoutGlobalScope(AmbitoUoScope::class)` para no filtrar al representante si pertenece a una UO distinta al profesional conectado.
+
+#### Tests TF-LW-REL-01..12
+- `RelacionesUiTest.php`: 12 tests Livewire de UI de relaciones, todos en verde.
+
+#### Topbar pantalla operativa
+- `operativo.blade.php`: topbar a ancho completo — logo izquierda (196px), título de sección centrado (match sobre `routeIs()`), menú usuario derecha.
+- `sidebar.blade.php`: eliminada zona logo (movida al topbar).
+- `app-operativo.css`: `op-topbar` desde `left: 0`, sidebar desde `top: 56px`, clases `.topbar__*` nuevas, `html { font-size: 18px }` para escalar tipografía, tokens de contraste sobrescritos en `.op-layout`, tamaños de texto aumentados en todos los BEM del operativo, nav items en `ink-700`.
+
+#### DatabaseSeeder
+- Añadido `TipoRelacionSeeder` de Ciudadanía al flujo principal (paso 5).
+
+#### Infraestructura / base de datos
+- Creada BD `vida_agents` en PostgreSQL para aislar Codex.
+- `~/.bashrc`: alias `codex="DB_DATABASE=vida_agents codex"`.
+- Admin `admin@vida.local` / `Admin!Vida360` recreado con roles `adm_sistema` + `adm_usuarios`.
+- `php artisan db:seed` ejecutado — datos base reconstruidos tras vaciado accidental.
+
+### Decisiones de implementación
+- La BD `vida` fue vaciada accidentalmente por Codex (CLI de OpenAI) que ejecutó `migrate:fresh` sin `--env`. Solución adoptada: alias shell que inyecta `DB_DATABASE=vida_agents` antes de cada invocación de Codex.
+- `CiudadanoRelacion` usa `App\Models\Ciudadano` (no `Modules\Ciudadania\Models\Ciudadano`) porque la entidad principal reside en `app/Models/`.
+- El guard `$sincronizandoReciproca` es estático para que sea compartido por todas las instancias en la misma request (requisito para que funcione en callbacks de Eloquent).
 
 ---
 

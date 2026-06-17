@@ -90,7 +90,13 @@ class CiudadanoRelacion extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
-    /** @param Builder<self> $query */
+    /**
+     * Filtra relaciones sin fecha de fin.
+     *
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
     public function scopeActivas(Builder $query): Builder
     {
         return $query->whereNull('fecha_fin');

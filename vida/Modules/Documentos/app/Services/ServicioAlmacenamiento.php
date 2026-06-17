@@ -29,6 +29,8 @@ class ServicioAlmacenamiento
      * @param int $tipoDocId ID del registro en catalogos_sistema
      * @param object $documentable Entidad a la que se asocia el documento
      *
+     * @return Documento
+     *
      * @throws \InvalidArgumentException si el fichero no es un PDF
      */
     public function guardar(
@@ -81,6 +83,8 @@ class ServicioAlmacenamiento
      * @param int $tipoDocId ID del tipo en catalogos_sistema
      * @param object $documentable Entidad asociada
      * @param string $nombreOriginal Nombre de fichero
+     *
+     * @return Documento
      */
     public function guardarGenerado(
         string $contenidoPdf,
@@ -118,6 +122,11 @@ class ServicioAlmacenamiento
      *
      * En discos que soportan URLs temporales (S3, etc.) usa temporaryUrl().
      * En disco local (desarrollo) genera una URL firmada de Laravel.
+     *
+     * @param Documento $documento Documento almacenado.
+     * @param int $minutosExpiracion Minutos de validez de la URL.
+     *
+     * @return string
      */
     public function urlTemporal(Documento $documento, int $minutosExpiracion = 30): string
     {
@@ -140,6 +149,8 @@ class ServicioAlmacenamiento
      * Verifica la integridad del fichero comparando su hash SHA-256 actual
      * con el calculado en el momento de la subida.
      *
+     * @param Documento $documento Documento cuya integridad se verifica.
+     *
      * @return bool true si el fichero no ha sido alterado
      */
     public function verificarIntegridad(Documento $documento): bool
@@ -155,6 +166,10 @@ class ServicioAlmacenamiento
 
     /**
      * Elimina el fichero del disco. No elimina el registro en base de datos.
+     *
+     * @param Documento $documento Documento cuyo fichero se elimina.
+     *
+     * @return void
      */
     public function eliminarFichero(Documento $documento): void
     {

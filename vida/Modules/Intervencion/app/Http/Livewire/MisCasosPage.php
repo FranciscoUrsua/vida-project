@@ -83,6 +83,8 @@ class MisCasosPage extends Component
     /**
      * Etiqueta configurable del tipo de plan general (PISO o nombre alternativo).
      * Se lee del catálogo de sistema para permitir cambio sin deploy.
+     *
+     * @return string
      */
     public function nombrePlanAsp(): string
     {
@@ -98,6 +100,8 @@ class MisCasosPage extends Component
      *
      * Cada fila contiene los datos del plan general ASP activo y el
      * siguiente seguimiento programado (o null si no existe).
+     *
+     * @return LengthAwarePaginator
      */
     #[Computed]
     public function casos(): LengthAwarePaginator

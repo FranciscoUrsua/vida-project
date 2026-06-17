@@ -155,6 +155,8 @@ class CiudadanoPage extends Component
 
     /**
      * Ciudadano titular de la Historia Social.
+     *
+     * @return Ciudadano|null
      */
     #[Computed]
     public function ciudadano(): ?Ciudadano
@@ -197,6 +199,8 @@ class CiudadanoPage extends Component
 
     /**
      * Plan general ASP activo más reciente de la Historia Social.
+     *
+     * @return PlanDeIntervencion|null
      */
     #[Computed]
     public function pisoActivo(): ?PlanDeIntervencion
@@ -253,6 +257,8 @@ class CiudadanoPage extends Component
     /**
      * Indica si el usuario puede ver todos los accesos o únicamente los propios.
      * Controla la visibilidad del enlace "Ver todo" en el widget.
+     *
+     * @return bool
      */
     #[Computed]
     public function puedeVerTodosLosAccesos(): bool
@@ -263,6 +269,8 @@ class CiudadanoPage extends Component
     /**
      * Nombre corto (o completo) de la UO responsable de la Historia Social.
      * Se muestra en la cabecera del ciudadano sustituyendo al ID numérico de UO.
+     *
+     * @return string|null
      */
     #[Computed]
     public function uoNombre(): ?string
@@ -275,6 +283,8 @@ class CiudadanoPage extends Component
     /**
      * Nombre corto del Plan de Intervención según la UO de la Historia Social.
      * Fallback: «Plan».
+     *
+     * @return string
      */
     #[Computed]
     public function planNombreCorto(): string
@@ -285,6 +295,8 @@ class CiudadanoPage extends Component
     /**
      * Nombre completo del Plan de Intervención según la UO de la Historia Social.
      * Fallback: «Plan de intervención».
+     *
+     * @return string
      */
     #[Computed]
     public function planNombreCompleto(): string
@@ -294,6 +306,8 @@ class CiudadanoPage extends Component
 
     /**
      * Documento de identidad del ciudadano (cifrado, desencriptado por el cast).
+     *
+     * @return string|null
      */
     #[Computed]
     public function ciudadanoDocumento(): ?string
@@ -303,6 +317,8 @@ class CiudadanoPage extends Component
 
     /**
      * Teléfono de contacto del ciudadano.
+     *
+     * @return string|null
      */
     #[Computed]
     public function ciudadanoTelefono(): ?string
@@ -312,6 +328,8 @@ class CiudadanoPage extends Component
 
     /**
      * Correo electrónico de contacto del ciudadano.
+     *
+     * @return string|null
      */
     #[Computed]
     public function ciudadanoEmail(): ?string
@@ -322,6 +340,8 @@ class CiudadanoPage extends Component
     /**
      * Total de apuntes visibles en la Historia Social (todos los filtros).
      * Usa la colección ya cargada para evitar consulta adicional.
+     *
+     * @return int
      */
     #[Computed]
     public function statApuntes(): int
@@ -333,6 +353,8 @@ class CiudadanoPage extends Component
      * Prestaciones activas del ciudadano.
      * Pendiente de integración real con el módulo Prestaciones.
      *
+     * @return string|null
+     *
      * @todo Integrar con módulo Prestaciones cuando esté disponible.
      */
     #[Computed]
@@ -343,6 +365,8 @@ class CiudadanoPage extends Component
 
     /**
      * Fecha del último registro en la Historia Social formateada.
+     *
+     * @return string|null
      */
     #[Computed]
     public function statUltimoContacto(): ?string
@@ -352,6 +376,8 @@ class CiudadanoPage extends Component
 
     /**
      * UC vigente del ciudadano (primera activa), con miembros y ciudadanos cargados.
+     *
+     * @return UnidadConvivencia|null
      */
     #[Computed]
     public function ucVigente(): ?UnidadConvivencia
@@ -412,6 +438,8 @@ class CiudadanoPage extends Component
     /**
      * Representante legal/designado del ciudadano, si existe relación activa.
      * Busca por implicacion_funcional = 'representante', nunca por slug directamente.
+     *
+     * @return Ciudadano|null
      */
     #[Computed]
     public function representante(): ?Ciudadano
@@ -524,7 +552,11 @@ class CiudadanoPage extends Component
         $this->modalRepresentanteAbierto = false;
     }
 
-    /** Abre el modal de gestión de UC y reinicia su estado interno. */
+    /**
+     * Abre el modal de gestión de UC y reinicia su estado interno.
+     *
+     * @return void
+     */
     public function abrirModalUc(): void
     {
         $this->modalUcAbierto = true;
@@ -534,7 +566,11 @@ class CiudadanoPage extends Component
         $this->ucMensaje = '';
     }
 
-    /** Cierra el modal de gestión de UC. */
+    /**
+     * Cierra el modal de gestión de UC.
+     *
+     * @return void
+     */
     public function cerrarModalUc(): void
     {
         $this->modalUcAbierto = false;
@@ -542,6 +578,10 @@ class CiudadanoPage extends Component
 
     /**
      * Selecciona un ciudadano de los resultados de búsqueda para confirmar su adición.
+     *
+     * @param int $ciudadanoId ID del ciudadano seleccionado.
+     *
+     * @return void
      */
     public function seleccionarCiudadanoUc(int $ciudadanoId): void
     {
@@ -551,6 +591,8 @@ class CiudadanoPage extends Component
 
     /**
      * Confirma la adición del ciudadano seleccionado a la UC vigente.
+     *
+     * @return void
      */
     public function confirmarAnadirMiembro(): void
     {
@@ -569,19 +611,33 @@ class CiudadanoPage extends Component
         }
     }
 
-    /** Cancela la selección de ciudadano para añadir a la UC. */
+    /**
+     * Cancela la selección de ciudadano para añadir a la UC.
+     *
+     * @return void
+     */
     public function cancelarSeleccionUc(): void
     {
         $this->ucCiudadanoSeleccionado = null;
     }
 
-    /** Inicia el flujo de confirmación de baja de un miembro. */
+    /**
+     * Inicia el flujo de confirmación de baja de un miembro.
+     *
+     * @param int $miembroId ID de UnidadConvivenciaMiembro.
+     *
+     * @return void
+     */
     public function iniciarBajaMiembro(int $miembroId): void
     {
         $this->ucMiembroParaBaja = $miembroId;
     }
 
-    /** Confirma la baja del miembro seleccionado, estableciendo su fecha_fin. */
+    /**
+     * Confirma la baja del miembro seleccionado, estableciendo su fecha_fin.
+     *
+     * @return void
+     */
     public function confirmarBajaMiembro(): void
     {
         if (! $this->ucMiembroParaBaja || ! $this->ucVigente) {
@@ -603,7 +659,11 @@ class CiudadanoPage extends Component
         unset($this->ucVigente);
     }
 
-    /** Cancela el flujo de confirmación de baja. */
+    /**
+     * Cancela el flujo de confirmación de baja.
+     *
+     * @return void
+     */
     public function cancelarBajaMiembro(): void
     {
         $this->ucMiembroParaBaja = null;
@@ -611,6 +671,10 @@ class CiudadanoPage extends Component
 
     /**
      * Verifica manualmente la residencia de un miembro en la UC vigente.
+     *
+     * @param int $miembroId ID de UnidadConvivenciaMiembro.
+     *
+     * @return void
      */
     public function verificarMiembro(int $miembroId): void
     {
@@ -628,6 +692,8 @@ class CiudadanoPage extends Component
     /**
      * Crea la UC tomando el domicilio del ciudadano titular y lo añade como primer miembro.
      * Solo actúa si el ciudadano no tiene UC vigente.
+     *
+     * @return void
      */
     public function crearUc(): void
     {
@@ -656,6 +722,8 @@ class CiudadanoPage extends Component
 
     /**
      * @param string $filtro 'todos' | 'plan' | 'entrevista'
+     *
+     * @return void
      */
     public function setFiltroHS(string $filtro): void
     {
@@ -687,6 +755,10 @@ class CiudadanoPage extends Component
     /**
      * Abre el modal de detalle de un apunte en modo solo lectura.
      * El pasado es inmutable: este modal nunca ofrece edición.
+     *
+     * @param int $apunteId ID del apunte que se muestra.
+     *
+     * @return void
      */
     public function verApunte(int $apunteId): void
     {
@@ -719,7 +791,11 @@ class CiudadanoPage extends Component
         $this->modalApunteAbierto = true;
     }
 
-    /** Cierra el modal de detalle de apunte. */
+    /**
+     * Cierra el modal de detalle de apunte.
+     *
+     * @return void
+     */
     public function cerrarModalApunte(): void
     {
         $this->modalApunteAbierto = false;
@@ -733,6 +809,8 @@ class CiudadanoPage extends Component
 
     /**
      * Guarda una entrevista y su apunte asociado.
+     *
+     * @return void
      */
     public function guardarEntrevista(): void
     {
@@ -781,6 +859,8 @@ class CiudadanoPage extends Component
 
     /**
      * Guarda una anotación en la Historia Social.
+     *
+     * @return void
      */
     public function guardarAnotacion(): void
     {
@@ -806,6 +886,8 @@ class CiudadanoPage extends Component
      * Crea una derivación (apunte de tipo derivacion).
      * La tabla derivaciones no existe todavía — se registra como apunte.
      * TODO: crear modelo Derivacion y tabla derivaciones cuando esté disponible.
+     *
+     * @return void
      */
     public function crearDerivacion(): void
     {
@@ -832,6 +914,8 @@ class CiudadanoPage extends Component
 
     /**
      * Guarda una gestión / coordinación como apunte.
+     *
+     * @return void
      */
     public function guardarGestion(): void
     {
@@ -860,7 +944,11 @@ class CiudadanoPage extends Component
     /**
      * Guarda una valoración y su apunte asociado (desde RegistrarValoracionPage).
      *
+     * @param int $tipoFichaId ID del tipo de ficha.
      * @param array<string, mixed> $datos
+     * @param int|null $entrevistaId ID de la entrevista vinculada, si existe.
+     *
+     * @return void
      */
     public function guardarValoracion(int $tipoFichaId, array $datos, ?int $entrevistaId = null): void
     {
@@ -901,7 +989,10 @@ class CiudadanoPage extends Component
     /**
      * Guarda un pase de escala y su apunte asociado (desde RegistrarEscalaPage).
      *
+     * @param int $tipoEscalaId ID del tipo de escala.
      * @param array<string, mixed> $respuestas [item_id => valor]
+     *
+     * @return void
      */
     public function guardarEscala(int $tipoEscalaId, array $respuestas): void
     {
@@ -943,6 +1034,8 @@ class CiudadanoPage extends Component
      *
      * @param array<string, mixed> $schema
      * @param array<string, mixed> $respuestas
+     *
+     * @return int
      */
     public function calcularScoreEscala(array $schema, array $respuestas): int
     {

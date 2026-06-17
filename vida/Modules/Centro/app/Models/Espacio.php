@@ -102,6 +102,7 @@ class Espacio extends Model
      * Filtra espacios compatibles con el género indicado (incluye mixtos y sin género).
      *
      * @param Builder<static> $query
+     * @param string $genero Género solicitado.
      *
      * @return Builder<static>
      */

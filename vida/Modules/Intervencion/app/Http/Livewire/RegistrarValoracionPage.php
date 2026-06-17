@@ -46,6 +46,13 @@ class RegistrarValoracionPage extends Component
     /** @var string|null Estado tras guardar: 'guardado' o null */
     public ?string $estadoGuardado = null;
 
+    /**
+     * Inicializa la pantalla con la historia y los parámetros de ficha/entrevista.
+     *
+     * @param HistoriaSocial $historia Historia social del ciudadano.
+     *
+     * @return void
+     */
     public function mount(HistoriaSocial $historia): void
     {
         $this->historiaId = $historia->id;
@@ -98,6 +105,10 @@ class RegistrarValoracionPage extends Component
 
     /**
      * Cambia la ficha seleccionada y reinicializa el formulario.
+     *
+     * @param int $id ID del tipo de ficha seleccionado.
+     *
+     * @return void
      */
     public function seleccionarFicha(int $id): void
     {
@@ -111,6 +122,8 @@ class RegistrarValoracionPage extends Component
     /**
      * Valida los campos obligatorios y persiste la ficha vinculada a la historia.
      * Si ya existe una ficha para esta historia y tipo, la actualiza (idempotente).
+     *
+     * @return void
      */
     public function guardar(): void
     {

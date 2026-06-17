@@ -27,6 +27,13 @@ class RegistrarEscalaPage extends Component
     /** @var array<string, mixed> Respuestas del pase [item_id => valor] */
     public array $respuestas = [];
 
+    /**
+     * Inicializa la pantalla con la historia y el tipo de escala opcional.
+     *
+     * @param HistoriaSocial $historia Historia social del ciudadano.
+     *
+     * @return void
+     */
     public function mount(HistoriaSocial $historia): void
     {
         $this->historia = $historia;
@@ -42,6 +49,8 @@ class RegistrarEscalaPage extends Component
 
     /**
      * Guarda el pase de escala y redirige de vuelta a la pantalla del ciudadano.
+     *
+     * @return void
      */
     public function guardar(): void
     {

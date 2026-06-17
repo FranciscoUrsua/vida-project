@@ -98,6 +98,8 @@ class ResponsableServicio extends Model
      * Nombre del cargo del responsable, tomado del servicio.
      *
      * El cargo pertenece al servicio, no al profesional que lo ocupa.
+     *
+     * @return string
      */
     public function getCargoNombreAttribute(): string
     {

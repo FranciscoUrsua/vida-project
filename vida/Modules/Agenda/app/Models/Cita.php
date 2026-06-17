@@ -140,6 +140,8 @@ class Cita extends Model
      *
      * El slot permanece en 'reservado'; el SlotExpirationJob lo transitará
      * a 'no_ocupado' cuando la franja haya expirado al final del día.
+     *
+     * @return void
      */
     public function noShowCiudadano(): void
     {
@@ -148,6 +150,8 @@ class Cita extends Model
 
     /**
      * Marca la cita como completada y registra el momento exacto.
+     *
+     * @return void
      */
     public function completar(): void
     {
@@ -165,6 +169,8 @@ class Cita extends Model
      *
      * @param User $canceladoPor Usuario que ejecuta la cancelación
      * @param string $motivo Motivo de la cancelación
+     *
+     * @return void
      */
     public function cancelar(User $canceladoPor, string $motivo): void
     {

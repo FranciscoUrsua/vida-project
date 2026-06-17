@@ -73,7 +73,13 @@ class ResolverEstiloInforme
         return $resultado;
     }
 
-    /** Invalida la caché de una UO y todas sus descendientes. */
+    /**
+     * Invalida la caché de una UO y todas sus descendientes.
+     *
+     * @param int $uoId ID de la unidad organizativa.
+     *
+     * @return void
+     */
     public function invalidarCacheUo(int $uoId): void
     {
         $uo = UnidadOrganizativa::find($uoId);

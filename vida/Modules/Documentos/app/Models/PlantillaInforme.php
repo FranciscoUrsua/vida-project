@@ -61,6 +61,11 @@ class PlantillaInforme extends Model
      * Una plantilla creada en una UO es visible para los profesionales de esa UO
      * y todos sus descendientes. Dado un $uoId (la UO del profesional), devuelve
      * las plantillas activas cuya UO es esa misma o cualquiera de sus ancestros.
+     *
+     * @param Builder<self> $query
+     * @param int $uoId ID de la unidad organizativa del profesional.
+     *
+     * @return Builder<self>
      */
     public function scopeVisiblesParaUo(Builder $query, int $uoId): Builder
     {

@@ -102,6 +102,10 @@ class Actividad extends Model
      * Verifica que el ciudadano tiene inscripción activa en este centro.
      * Solo aplica si requiere_inscripcion_centro = true.
      *
+     * @param int $ciudadanoId ID del ciudadano a comprobar.
+     *
+     * @return void
+     *
      * @throws \InvalidArgumentException Si se requiere inscripción y el ciudadano no la tiene.
      */
     public function verificarInscripcionCentro(int $ciudadanoId): void

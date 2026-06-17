@@ -59,6 +59,12 @@ class ServicioFirmaInforme
     /**
      * Anula un informe firmado. Solo puede ejecutarlo el autor.
      *
+     * @param Informe $informe Informe firmado que se anula.
+     * @param int $usuarioId ID del usuario que solicita la anulación.
+     * @param string $motivo Motivo de anulación.
+     *
+     * @return Informe
+     *
      * @throws \DomainException si el informe no está firmado o el usuario no es el autor
      */
     public function anular(Informe $informe, int $usuarioId, string $motivo): Informe

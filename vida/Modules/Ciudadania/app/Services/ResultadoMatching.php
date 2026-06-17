@@ -16,7 +16,13 @@ namespace Modules\Ciudadania\Services;
 readonly class ResultadoMatching
 {
     /**
-     * @param list<string> $camposCoincidentes
+     * @param int $ciudadanoId ID del ciudadano candidato.
+     * @param string $nombreCompleto Nombre completo mostrado.
+     * @param string|null $documento Documento coincidente, si existe.
+     * @param string|null $fechaNacimiento Fecha de nacimiento coincidente, si existe.
+     * @param float $score Score de similitud.
+     * @param list<string> $camposCoincidentes Campos que coincidieron.
+     * @param bool $bloquea True si supera el umbral de bloqueo.
      */
     public function __construct(
         public int $ciudadanoId,

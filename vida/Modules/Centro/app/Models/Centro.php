@@ -118,6 +118,8 @@ class Centro extends Model
 
     /**
      * @deprecated distrito_id fue eliminado en v1.1. Usar ambitosTeritoriales() en su lugar.
+     *
+     * @return BelongsTo<Distrito, self>
      */
     public function distrito(): BelongsTo
     {
@@ -210,6 +212,8 @@ class Centro extends Model
 
     /**
      * Devuelve el DirectorCentro activo (fecha_fin null), o null si no lo hay.
+     *
+     * @return DirectorCentro|null
      */
     public function directorActivo(): ?DirectorCentro
     {
@@ -221,6 +225,10 @@ class Centro extends Model
      *
      * $datos debe incluir los campos de DirectorCentro (profesional_id o nombre/telefono/email)
      * y opcionalmente fecha_inicio (por defecto hoy).
+     *
+     * @param array<string, mixed> $datos Datos del nuevo director.
+     *
+     * @return DirectorCentro
      */
     public function nombrarDirector(array $datos): DirectorCentro
     {
