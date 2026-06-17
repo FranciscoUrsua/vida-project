@@ -71,16 +71,31 @@ class CiudadanoRelacion extends Model
     // Relaciones Eloquent
     // -------------------------------------------------------------------------
 
+    /**
+     * Ciudadano origen de la relación.
+     *
+     * @return BelongsTo<Ciudadano, self>
+     */
     public function ciudadano(): BelongsTo
     {
         return $this->belongsTo(Ciudadano::class, 'ciudadano_id');
     }
 
+    /**
+     * Ciudadano relacionado al otro lado del vínculo.
+     *
+     * @return BelongsTo<Ciudadano, self>
+     */
     public function ciudadanoRelacionado(): BelongsTo
     {
         return $this->belongsTo(Ciudadano::class, 'ciudadano_relacionado_id');
     }
 
+    /**
+     * Tipo de relación asociado al vínculo.
+     *
+     * @return BelongsTo<TipoRelacion, self>
+     */
     public function tipoRelacion(): BelongsTo
     {
         return $this->belongsTo(TipoRelacion::class, 'tipo_relacion', 'slug');

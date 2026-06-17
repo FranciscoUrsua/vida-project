@@ -31,11 +31,21 @@ class EstiloInforme extends Model
 
     protected $guarded = [];
 
+    /**
+     * Unidad organizativa dueña del estilo.
+     *
+     * @return BelongsTo<UnidadOrganizativa, self>
+     */
     public function unidadOrganizativa(): BelongsTo
     {
         return $this->belongsTo(UnidadOrganizativa::class, 'unidad_organizativa_id');
     }
 
+    /**
+     * Usuario que creó el estilo.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function creadoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'creado_por');

@@ -425,6 +425,11 @@ class AltaCiudadano extends Component
         return 'no_identificado';
     }
 
+    /**
+     * Renderiza la vista de alta de ciudadano.
+     *
+     * @return View
+     */
     public function render(): View
     {
         return view('ciudadania::livewire.alta-ciudadano');

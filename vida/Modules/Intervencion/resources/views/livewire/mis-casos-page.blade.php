@@ -99,9 +99,9 @@
                 @endphp
                 <thead>
                     <tr style="border-bottom: 2px solid var(--color-ink-200); text-align: left;">
-                        {!! $thStatic('Ciudadano/a') !!}
-                        {!! $thStatic('Historia Social') !!}
-                        {!! $th('seg',    'Próximo seguimiento') !!}
+                        {!! $th('ciudadano', 'Ciudadano/a') !!}
+                        {!! $th('historia',  'Historia Social') !!}
+                        {!! $th('seg',       'Próximo seguimiento') !!}
                         {!! $thStatic($nombrePlan) !!}
                         {!! $th('esp',    'Especializados') !!}
                         {!! $th('inicio', 'Inicio') !!}

@@ -23,12 +23,22 @@ class CiudadaniaServiceProvider extends ServiceProvider
 {
     protected string $moduleName = 'Ciudadania';
 
+    /**
+     * Registra los servicios del módulo en el contenedor.
+     *
+     * @return void
+     */
     public function register(): void
     {
         $this->app->bind(FuenteIdentidadInterface::class, MockFuenteIdentidad::class);
         $this->app->singleton(MotorMatching::class);
     }
 
+    /**
+     * Arranca los servicios del módulo.
+     *
+     * @return void
+     */
     public function boot(): void
     {
         $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));

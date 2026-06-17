@@ -56,11 +56,21 @@ class Informe extends Model
         'anulado_en' => 'datetime',
     ];
 
+    /**
+     * Plantilla utilizada para construir el informe.
+     *
+     * @return BelongsTo<PlantillaInforme, self>
+     */
     public function plantilla(): BelongsTo
     {
         return $this->belongsTo(PlantillaInforme::class, 'plantilla_id');
     }
 
+    /**
+     * Historia social vinculada al informe, si existe.
+     *
+     * @return BelongsTo<HistoriaSocial, self>
+     */
     public function historiaSocial(): BelongsTo
     {
         return $this->belongsTo(HistoriaSocial::class, 'historia_social_id');
@@ -76,6 +86,11 @@ class Informe extends Model
         return $this->ciudadano_id;
     }
 
+    /**
+     * Ciudadano destinatario del informe.
+     *
+     * @return BelongsTo<Ciudadano, self>
+     */
     public function ciudadano(): BelongsTo
     {
         return $this->belongsTo(Ciudadano::class, 'ciudadano_id');

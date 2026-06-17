@@ -45,31 +45,65 @@ class Documento extends Model
         'tamano_bytes' => 'integer',
     ];
 
+    /**
+     * Entidad relacionada de forma polimórfica.
+     *
+     * @return MorphTo
+     */
     public function documentable(): MorphTo
     {
         return $this->morphTo();
     }
 
+    /**
+     * Catálogo del tipo de documento.
+     *
+     * @return BelongsTo<CatalogoSistema, self>
+     */
     public function tipo(): BelongsTo
     {
         return $this->belongsTo(CatalogoSistema::class, 'tipo_documento_id');
     }
 
+    /**
+     * Usuario que subió el documento.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function subidoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'subido_por');
     }
 
+    /**
+     * Informe generado que produce este documento, si existe.
+     *
+     * @return HasOne<Informe>
+     */
     public function informe(): HasOne
     {
         return $this->hasOne(Informe::class, 'documento_id');
     }
 
+    /**
+     * Filtra documentos de origen externo.
+     *
+     * @param Builder<Documento> $query
+     *
+     * @return Builder<Documento>
+     */
     public function scopeExternos(Builder $query): Builder
     {
         return $query->where('origen', OrigenDocumento::Externo->value);
     }
 
+    /**
+     * Filtra documentos generados por el sistema.
+     *
+     * @param Builder<Documento> $query
+     *
+     * @return Builder<Documento>
+     */
     public function scopeGenerados(Builder $query): Builder
     {
         return $query->where('origen', OrigenDocumento::Generado->value);

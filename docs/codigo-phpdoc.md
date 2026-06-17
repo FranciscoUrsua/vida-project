@@ -1,46 +1,26 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-17 11:50:34 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-17 11:54:15 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 371.
 - Cabeceras documentadas: 251/371.
-- Metodos publicos documentados: 674/992.
-- Alertas de comentarios: 560.
+- Metodos publicos documentados: 694/992.
+- Alertas de comentarios: 540.
 
 ## Alertas
 
-### Método público sin PHPDoc (270)
+### Método público sin PHPDoc (250)
 
-- `Modules\Ciudadania\Http\Livewire\AltaCiudadano::render()` en `vida/Modules/Ciudadania/app/Http/Livewire/AltaCiudadano.php:428`: Falta docblock de método público.
-- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::ciudadanoSeleccionadoRelacion()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:442`: Falta docblock de método público.
-- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::render()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:810`: Falta docblock de método público.
-- `Modules\Ciudadania\Models\CiudadanoIdentificador::ciudadano()` en `vida/Modules/Ciudadania/app/Models/CiudadanoIdentificador.php:83`: Falta docblock de método público.
-- `Modules\Ciudadania\Models\CiudadanoRelacion::ciudadano()` en `vida/Modules/Ciudadania/app/Models/CiudadanoRelacion.php:74`: Falta docblock de método público.
-- `Modules\Ciudadania\Models\CiudadanoRelacion::ciudadanoRelacionado()` en `vida/Modules/Ciudadania/app/Models/CiudadanoRelacion.php:79`: Falta docblock de método público.
-- `Modules\Ciudadania\Models\CiudadanoRelacion::tipoRelacion()` en `vida/Modules/Ciudadania/app/Models/CiudadanoRelacion.php:84`: Falta docblock de método público.
-- `Modules\Ciudadania\Providers\CiudadaniaServiceProvider::register()` en `vida/Modules/Ciudadania/app/Providers/CiudadaniaServiceProvider.php:26`: Falta docblock de método público.
-- `Modules\Ciudadania\Providers\CiudadaniaServiceProvider::boot()` en `vida/Modules/Ciudadania/app/Providers/CiudadaniaServiceProvider.php:32`: Falta docblock de método público.
-- `Modules\Documentos\Models\Documento::documentable()` en `vida/Modules/Documentos/app/Models/Documento.php:48`: Falta docblock de método público.
-- `Modules\Documentos\Models\Documento::tipo()` en `vida/Modules/Documentos/app/Models/Documento.php:53`: Falta docblock de método público.
-- `Modules\Documentos\Models\Documento::subidoPor()` en `vida/Modules/Documentos/app/Models/Documento.php:58`: Falta docblock de método público.
-- `Modules\Documentos\Models\Documento::informe()` en `vida/Modules/Documentos/app/Models/Documento.php:63`: Falta docblock de método público.
-- `Modules\Documentos\Models\Documento::scopeExternos()` en `vida/Modules/Documentos/app/Models/Documento.php:68`: Falta docblock de método público.
-- `Modules\Documentos\Models\Documento::scopeGenerados()` en `vida/Modules/Documentos/app/Models/Documento.php:73`: Falta docblock de método público.
-- `Modules\Documentos\Models\EstiloInforme::unidadOrganizativa()` en `vida/Modules/Documentos/app/Models/EstiloInforme.php:34`: Falta docblock de método público.
-- `Modules\Documentos\Models\EstiloInforme::creadoPor()` en `vida/Modules/Documentos/app/Models/EstiloInforme.php:39`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::plantilla()` en `vida/Modules/Documentos/app/Models/Informe.php:59`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::historiaSocial()` en `vida/Modules/Documentos/app/Models/Informe.php:64`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::ciudadano()` en `vida/Modules/Documentos/app/Models/Informe.php:79`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::autor()` en `vida/Modules/Documentos/app/Models/Informe.php:84`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::documento()` en `vida/Modules/Documentos/app/Models/Informe.php:89`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::scopeBorradores()` en `vida/Modules/Documentos/app/Models/Informe.php:94`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::scopeFirmados()` en `vida/Modules/Documentos/app/Models/Informe.php:99`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::scopeDeAutor()` en `vida/Modules/Documentos/app/Models/Informe.php:104`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::estaFirmado()` en `vida/Modules/Documentos/app/Models/Informe.php:109`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::estaAnulado()` en `vida/Modules/Documentos/app/Models/Informe.php:114`: Falta docblock de método público.
+- `Modules\Documentos\Models\Informe::autor()` en `vida/Modules/Documentos/app/Models/Informe.php:99`: Falta docblock de método público.
+- `Modules\Documentos\Models\Informe::documento()` en `vida/Modules/Documentos/app/Models/Informe.php:104`: Falta docblock de método público.
+- `Modules\Documentos\Models\Informe::scopeBorradores()` en `vida/Modules/Documentos/app/Models/Informe.php:109`: Falta docblock de método público.
+- `Modules\Documentos\Models\Informe::scopeFirmados()` en `vida/Modules/Documentos/app/Models/Informe.php:114`: Falta docblock de método público.
+- `Modules\Documentos\Models\Informe::scopeDeAutor()` en `vida/Modules/Documentos/app/Models/Informe.php:119`: Falta docblock de método público.
+- `Modules\Documentos\Models\Informe::estaFirmado()` en `vida/Modules/Documentos/app/Models/Informe.php:124`: Falta docblock de método público.
+- `Modules\Documentos\Models\Informe::estaAnulado()` en `vida/Modules/Documentos/app/Models/Informe.php:129`: Falta docblock de método público.
 - `Modules\Documentos\Models\PisoFirmado::planDeIntervencion()` en `vida/Modules/Documentos/app/Models/PisoFirmado.php:37`: Falta docblock de método público.
 - `Modules\Documentos\Models\PisoFirmado::documento()` en `vida/Modules/Documentos/app/Models/PisoFirmado.php:44`: Falta docblock de método público.
 - `Modules\Documentos\Models\PisoFirmado::subidoPor()` en `vida/Modules/Documentos/app/Models/PisoFirmado.php:49`: Falta docblock de método público.
@@ -1742,7 +1722,8 @@ Metodos publicos:
   Persiste la primera demanda y redirige según la acción elegida.
   `@return` void
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza la vista de alta de ciudadano.
+  `@return` View
 
 ### `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage`
 
@@ -1806,7 +1787,8 @@ Metodos publicos:
   Resultados de búsqueda para añadir una relación. Los nombres están cifrados, por eso se filtra en memoria siguiendo el patrón del buscador de ciudadanos.
   `@return` Collection<int, Ciudadano>
 - `function ciudadanoSeleccionadoRelacion(): ?Ciudadano`
-  _Sin resumen PHPDoc._
+  Ciudadano seleccionado actualmente para la relación.
+  `@return` Ciudadano|null
 - `function activarEdicion(): void`
   Activa el modo edición simultáneo de todos los campos de Capa 1. Solo si puedeEditar — supervision no puede modificar datos.
   `@return` void
@@ -1850,7 +1832,8 @@ Metodos publicos:
   `@return` void
   `@throws` ValidationException
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza la ficha del ciudadano.
+  `@return` View
 
 ### `Modules\Ciudadania\Models\CiudadanoIdentificador`
 
@@ -1866,7 +1849,8 @@ Metodos publicos:
   ID del ciudadano titular del documento.
   `@return` int|null
 - `function ciudadano(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Ciudadano titular del identificador.
+  `@return` BelongsTo<Ciudadano, self>
 
 ### `Modules\Ciudadania\Models\CiudadanoPrestacionResumen`
 
@@ -1899,11 +1883,14 @@ El campo tipo_relacion almacena el slug del catálogo tipos_relacion. La recipro
 Metodos publicos:
 
 - `function ciudadano(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Ciudadano origen de la relación.
+  `@return` BelongsTo<Ciudadano, self>
 - `function ciudadanoRelacionado(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Ciudadano relacionado al otro lado del vínculo.
+  `@return` BelongsTo<Ciudadano, self>
 - `function tipoRelacion(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Tipo de relación asociado al vínculo.
+  `@return` BelongsTo<TipoRelacion, self>
 - `function scopeActivas(Builder $query): Builder`
   Filtra relaciones sin fecha de fin.
   `@return` Builder<self>
@@ -2011,9 +1998,11 @@ Registra migraciones, vistas, rutas, servicios y componentes Livewire del módul
 Metodos publicos:
 
 - `function register(): void`
-  _Sin resumen PHPDoc._
+  Registra los servicios del módulo en el contenedor.
+  `@return` void
 - `function boot(): void`
-  _Sin resumen PHPDoc._
+  Arranca los servicios del módulo.
+  `@return` void
 
 ### `Modules\Ciudadania\Services\MotorMatching`
 
@@ -2151,17 +2140,23 @@ Puede ser un documento subido externamente (PDF aportado por el ciudadano o un p
 Metodos publicos:
 
 - `function documentable(): MorphTo`
-  _Sin resumen PHPDoc._
+  Entidad relacionada de forma polimórfica.
+  `@return` MorphTo
 - `function tipo(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Catálogo del tipo de documento.
+  `@return` BelongsTo<CatalogoSistema, self>
 - `function subidoPor(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Usuario que subió el documento.
+  `@return` BelongsTo<User, self>
 - `function informe(): HasOne`
-  _Sin resumen PHPDoc._
+  Informe generado que produce este documento, si existe.
+  `@return` HasOne<Informe>
 - `function scopeExternos(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra documentos de origen externo.
+  `@return` Builder<Documento>
 - `function scopeGenerados(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra documentos generados por el sistema.
+  `@return` Builder<Documento>
 
 ### `Modules\Documentos\Models\EstiloInforme`
 
@@ -2174,9 +2169,11 @@ Los campos se heredan campo a campo por proximidad ascendente en la jerarquía d
 Metodos publicos:
 
 - `function unidadOrganizativa(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Unidad organizativa dueña del estilo.
+  `@return` BelongsTo<UnidadOrganizativa, self>
 - `function creadoPor(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Usuario que creó el estilo.
+  `@return` BelongsTo<User, self>
 
 ### `Modules\Documentos\Models\Informe`
 
@@ -2189,14 +2186,17 @@ Ciclo de vida: borrador → firmado → (anulado). Un informe firmado es inmutab
 Metodos publicos:
 
 - `function plantilla(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Plantilla utilizada para construir el informe.
+  `@return` BelongsTo<PlantillaInforme, self>
 - `function historiaSocial(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Historia social vinculada al informe, si existe.
+  `@return` BelongsTo<HistoriaSocial, self>
 - `function getCiudadanoId(): ?int`
   ID del ciudadano asociado al informe.
   `@return` int|null
 - `function ciudadano(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Ciudadano destinatario del informe.
+  `@return` BelongsTo<Ciudadano, self>
 - `function autor(): BelongsTo`
   _Sin resumen PHPDoc._
 - `function documento(): BelongsTo`

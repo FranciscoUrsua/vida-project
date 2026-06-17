@@ -438,6 +438,11 @@ class FichaCiudadanoPage extends Component
             ->values();
     }
 
+    /**
+     * Ciudadano seleccionado actualmente para la relación.
+     *
+     * @return Ciudadano|null
+     */
     #[Computed]
     public function ciudadanoSeleccionadoRelacion(): ?Ciudadano
     {
@@ -807,6 +812,11 @@ class FichaCiudadanoPage extends Component
         $this->cerrarModalDocumento();
     }
 
+    /**
+     * Renderiza la ficha del ciudadano.
+     *
+     * @return View
+     */
     public function render(): View
     {
         return view('ciudadania::livewire.ficha-ciudadano-page');

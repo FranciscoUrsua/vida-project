@@ -80,6 +80,11 @@ class CiudadanoIdentificador extends Model
         return $this->ciudadano_id;
     }
 
+    /**
+     * Ciudadano titular del identificador.
+     *
+     * @return BelongsTo<Ciudadano, self>
+     */
     public function ciudadano(): BelongsTo
     {
         return $this->belongsTo(Ciudadano::class);

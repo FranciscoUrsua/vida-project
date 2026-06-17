@@ -85,7 +85,8 @@ class MisCasosPage extends Component
 
     /**
      * Cambia la columna de ordenación o alterna la dirección si ya está activa.
-     * Valores de campo permitidos: 'seg', 'inicio', 'esp'.
+     * Valores de campo permitidos: 'ciudadano', 'historia', 'seg', 'inicio', 'esp'.
+     * 'ciudadano' aplica ordenación en memoria (nombre cifrado, no ordenable en DB).
      *
      * @param string $campo Identificador de columna.
      *
@@ -93,7 +94,7 @@ class MisCasosPage extends Component
      */
     public function sortBy(string $campo): void
     {
-        if (! in_array($campo, ['seg', 'inicio', 'esp'], true)) {
+        if (! in_array($campo, ['ciudadano', 'historia', 'seg', 'inicio', 'esp'], true)) {
             return;
         }
 
@@ -189,6 +190,32 @@ class MisCasosPage extends Component
             $query->where(DB::raw('COALESCE(esp.planes_esp_count, 0)'), '=', 0);
         }
 
+        // El nombre del ciudadano está cifrado: no es ordenable en DB, se resuelve en memoria
+        if ($this->ordenarPor === 'ciudadano') {
+            $allItems = $query->orderBy('pi.historia_id')->get();
+
+            $ciudadanoIds = $allItems->pluck('ciudadano_id')->filter()->unique();
+            $ciudadanos   = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
+                ->whereIn('id', $ciudadanoIds)
+                ->get()
+                ->keyBy('id');
+
+            $sorted = $this->direccion === 'desc'
+                ? $allItems->sortByDesc(fn ($caso) => $ciudadanos->get($caso->ciudadano_id)?->nombre_completo ?? "\xFF")
+                : $allItems->sortBy(fn ($caso) => $ciudadanos->get($caso->ciudadano_id)?->nombre_completo ?? "\xFF");
+
+            $sorted = $sorted->values();
+            $page   = $this->getPage();
+
+            return new \Illuminate\Pagination\LengthAwarePaginator(
+                $sorted->forPage($page, $this->porPagina)->all(),
+                $sorted->count(),
+                $this->porPagina,
+                $page,
+                ['path' => request()->url(), 'pageName' => 'page'],
+            );
+        }
+
         // Dirección validada para uso seguro en raw SQL
         $dir = $this->direccion === 'desc' ? 'DESC' : 'ASC';
 
@@ -203,9 +230,10 @@ class MisCasosPage extends Component
                 END {$dir},
                 seg.fecha_siguiente_seguimiento {$dir} NULLS LAST
             "),
-            'inicio' => $query->orderBy('pi.fecha_inicio', $this->direccion),
-            'esp'    => $query->orderByRaw("COALESCE(esp.planes_esp_count, 0) {$dir}, pi.fecha_inicio ASC"),
-            default  => $query->orderBy('pi.historia_id', $this->direccion),
+            'inicio'   => $query->orderBy('pi.fecha_inicio', $this->direccion),
+            'esp'      => $query->orderByRaw("COALESCE(esp.planes_esp_count, 0) {$dir}, pi.fecha_inicio ASC"),
+            'historia' => $query->orderBy('pi.historia_id', $this->direccion),
+            default    => $query->orderBy('pi.historia_id', $this->direccion),
         };
 
         return $query->paginate($this->porPagina);
