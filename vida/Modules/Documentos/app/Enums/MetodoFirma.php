@@ -11,6 +11,8 @@ enum MetodoFirma: string
 
     /**
      * Etiqueta legible para mostrar el metodo de firma.
+     *
+     * @return string
      */
     public function label(): string
     {

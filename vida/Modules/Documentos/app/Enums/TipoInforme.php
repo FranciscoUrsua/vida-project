@@ -14,6 +14,8 @@ enum TipoInforme: string
 
     /**
      * Etiqueta legible para mostrar el tipo de informe.
+     *
+     * @return string
      */
     public function label(): string
     {

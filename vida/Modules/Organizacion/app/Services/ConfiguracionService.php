@@ -38,6 +38,8 @@ class ConfiguracionService
      *
      * @param string $clave Clave de configuración, ej: 'nombre_organizacion'
      * @param mixed $defecto Valor a devolver si la clave no existe
+     *
+     * @return mixed
      */
     public function get(string $clave, mixed $defecto = null): mixed
     {
@@ -58,6 +60,8 @@ class ConfiguracionService
      *
      * @param string $clave Clave de configuración
      * @param mixed $valor Valor a almacenar (se convierte a string para la BD)
+     *
+     * @return void
      */
     public function set(string $clave, mixed $valor): void
     {
@@ -77,6 +81,8 @@ class ConfiguracionService
      *
      * Útil cuando se modifican configuraciones desde el backoffice
      * sin pasar por este servicio.
+     *
+     * @return void
      */
     public function limpiarCache(): void
     {

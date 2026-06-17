@@ -12,6 +12,8 @@ enum OrigenDocumento: string
 
     /**
      * Etiqueta legible para mostrar el origen del documento.
+     *
+     * @return string
      */
     public function label(): string
     {

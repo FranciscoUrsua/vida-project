@@ -13,6 +13,8 @@ enum EstadoInforme: string
 
     /**
      * Etiqueta legible para mostrar el estado del informe.
+     *
+     * @return string
      */
     public function label(): string
     {

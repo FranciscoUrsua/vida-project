@@ -12,6 +12,8 @@ enum OrigenExcepcion: string
 
     /**
      * Etiqueta legible para mostrar el origen de la excepcion.
+     *
+     * @return string
      */
     public function label(): string
     {

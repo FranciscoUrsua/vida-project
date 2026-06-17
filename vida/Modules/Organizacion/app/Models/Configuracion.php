@@ -39,6 +39,8 @@ class Configuracion extends Model
 
     /**
      * Devuelve el valor casteado según el tipo declarado.
+     *
+     * @return mixed
      */
     public function valorCasteado(): mixed
     {
@@ -54,6 +56,7 @@ class Configuracion extends Model
      * Filtra por tipo de configuración.
      *
      * @param Builder<Configuracion> $consulta
+     * @param string $tipo
      *
      * @return Builder<Configuracion>
      */

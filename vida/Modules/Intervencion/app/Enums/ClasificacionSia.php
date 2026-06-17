@@ -13,6 +13,8 @@ enum ClasificacionSia: string
 
     /**
      * Etiqueta legible para mostrar la clasificacion SIA.
+     *
+     * @return string
      */
     public function label(): string
     {

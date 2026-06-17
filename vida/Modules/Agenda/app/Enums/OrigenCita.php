@@ -12,6 +12,8 @@ enum OrigenCita: string
 
     /**
      * Etiqueta legible para mostrar el origen de la cita.
+     *
+     * @return string
      */
     public function label(): string
     {

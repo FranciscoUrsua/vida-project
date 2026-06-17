@@ -4,6 +4,36 @@
 
 ---
 
+## feat(ciudadania): Relaciones entre ciudadanos + UC solo lectura en FichaCiudadanoPage — 2026-06-17
+
+### Área afectada
+`Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php`, `Modules/Ciudadania/resources/views/livewire/ficha-ciudadano-page.blade.php`, `Modules/Ciudadania/tests/Feature/Livewire/RelacionesCiudadanoTest.php`
+
+### Cambios
+
+#### FichaCiudadanoPage — PHP
+- Propiedades nuevas: `modalRelacionAbierto`, `relacionId`, `relacionFechaInicio`, `relacionFechaFin`.
+- Computeds nuevos: `puedeEditarRelaciones()` (roles intervencion/tramitacion), `ucVigente()` real (reemplaza stub), `ucMiembros()` enriquecido con tipo de relación.
+- Métodos nuevos: `abrirModalNuevaRelacion()`, `abrirModalEditarRelacion(int)`, `cerrarModalRelacion()`.
+- `guardarRelacion()`: crea o edita (solo observaciones) con `abort(403)` si no autorizado.
+- `cerrarRelacion()`: idem con `abort(403)`.
+- Eager loads de ciudadanos relacionados y convivientes con `withoutGlobalScope(AmbitoUoScope::class)`.
+
+#### FichaCiudadanoPage — Blade
+- Panel «Relaciones» con lista vigentes, badge de tipo, enlace a ficha, botón «Añadir» condicional, historial colapsable.
+- Modal de relación (creación y edición) con buscador de ciudadano en tiempo real.
+- Panel «Convivientes» solo lectura reemplaza el stub anterior.
+
+#### Tests
+- `RelacionesCiudadanoTest.php`: 24 tests TF-LW-REL-01..20 y TF-LW-UC-01..04, todos en verde.
+
+### Decisiones de implementación
+- `consulta_basica` excluido de editar relaciones: tienen implicaciones legales que requieren perfil tramitación mínimo.
+- Editar una relación solo permite modificar observaciones: tipo y ciudadanos son inmutables (cerrar y crear nueva si cambia el vínculo).
+- `AmbitoUoScope` bypaseado en todos los eager loads de ciudadanos relacionados/convivientes: pueden pertenecer a cualquier UO.
+
+---
+
 ## feat(ciudadania+intervencion): CiudadanoRelacion, topbar operativo y reconstrucción BD — 2026-06-17
 
 ### Área afectada

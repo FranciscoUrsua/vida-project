@@ -17,6 +17,8 @@ enum TipoExcepcion: string
 
     /**
      * Etiqueta legible para mostrar el tipo de excepcion.
+     *
+     * @return string
      */
     public function label(): string
     {
