@@ -191,11 +191,6 @@ class PaseEscala extends Model
     }
 
     /**
-     * Historia social del ciudadano al que se aplica la escala.
-     *
-     * @return BelongsTo<HistoriaSocial, self>
-     */
-    /**
      * ID del ciudadano titular de la historia social asociada al pase.
      *
      * @return int|null
@@ -208,7 +203,7 @@ class PaseEscala extends Model
     /**
      * Historia social del ciudadano al que se aplica la escala.
      *
-     *  BelongsTo<HistoriaSocial, self>
+     * @return BelongsTo<HistoriaSocial, self>
      */
     public function historia(): BelongsTo
     {

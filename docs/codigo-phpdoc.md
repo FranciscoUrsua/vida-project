@@ -1,18 +1,18 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-17 11:54:15 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-17 12:25:32 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 371.
 - Cabeceras documentadas: 251/371.
-- Metodos publicos documentados: 694/992.
-- Alertas de comentarios: 540.
+- Metodos publicos documentados: 716/992.
+- Alertas de comentarios: 531.
 
 ## Alertas
 
-### Método público sin PHPDoc (250)
+### Método público sin PHPDoc (228)
 
 - `Modules\Documentos\Models\Informe::autor()` en `vida/Modules/Documentos/app/Models/Informe.php:99`: Falta docblock de método público.
 - `Modules\Documentos\Models\Informe::documento()` en `vida/Modules/Documentos/app/Models/Informe.php:104`: Falta docblock de método público.
@@ -21,28 +21,6 @@ Generado el 2026-06-17 11:54:15 UTC a partir de los docblocks PHPDoc compatibles
 - `Modules\Documentos\Models\Informe::scopeDeAutor()` en `vida/Modules/Documentos/app/Models/Informe.php:119`: Falta docblock de método público.
 - `Modules\Documentos\Models\Informe::estaFirmado()` en `vida/Modules/Documentos/app/Models/Informe.php:124`: Falta docblock de método público.
 - `Modules\Documentos\Models\Informe::estaAnulado()` en `vida/Modules/Documentos/app/Models/Informe.php:129`: Falta docblock de método público.
-- `Modules\Documentos\Models\PisoFirmado::planDeIntervencion()` en `vida/Modules/Documentos/app/Models/PisoFirmado.php:37`: Falta docblock de método público.
-- `Modules\Documentos\Models\PisoFirmado::documento()` en `vida/Modules/Documentos/app/Models/PisoFirmado.php:44`: Falta docblock de método público.
-- `Modules\Documentos\Models\PisoFirmado::subidoPor()` en `vida/Modules/Documentos/app/Models/PisoFirmado.php:49`: Falta docblock de método público.
-- `Modules\Documentos\Models\PlantillaInforme::unidadOrganizativa()` en `vida/Modules/Documentos/app/Models/PlantillaInforme.php:43`: Falta docblock de método público.
-- `Modules\Documentos\Models\PlantillaInforme::creadaPor()` en `vida/Modules/Documentos/app/Models/PlantillaInforme.php:48`: Falta docblock de método público.
-- `Modules\Documentos\Models\PlantillaInforme::informes()` en `vida/Modules/Documentos/app/Models/PlantillaInforme.php:53`: Falta docblock de método público.
-- `Modules\Documentos\Observers\EstiloInformeObserver::__construct()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:16`: Falta docblock de método público.
-- `Modules\Documentos\Observers\EstiloInformeObserver::saved()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:18`: Falta docblock de método público.
-- `Modules\Documentos\Observers\EstiloInformeObserver::deleted()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:23`: Falta docblock de método público.
-- `Modules\Documentos\Providers\DocumentosServiceProvider::register()` en `vida/Modules/Documentos/app/Providers/DocumentosServiceProvider.php:19`: Falta docblock de método público.
-- `Modules\Documentos\Providers\DocumentosServiceProvider::boot()` en `vida/Modules/Documentos/app/Providers/DocumentosServiceProvider.php:29`: Falta docblock de método público.
-- `Modules\Documentos\Services\ResolverEstiloInforme::resolver()` en `vida/Modules/Documentos/app/Services/ResolverEstiloInforme.php:31`: Falta docblock de método público.
-- `Modules\Documentos\Services\ResolverEstiloInforme::resolverSinCache()` en `vida/Modules/Documentos/app/Services/ResolverEstiloInforme.php:40`: Falta docblock de método público.
-- `Modules\Documentos\Services\ServicioFirmaInforme::__construct()` en `vida/Modules/Documentos/app/Services/ServicioFirmaInforme.php:22`: Falta docblock de método público.
-- `Modules\Documentos\Services\ServicioGeneracionPDF::__construct()` en `vida/Modules/Documentos/app/Services/ServicioGeneracionPDF.php:21`: Falta docblock de método público.
-- `Modules\Escalas\Models\PaseEscala::historia()` en `vida/Modules/Escalas/app/Models/PaseEscala.php:208`: Falta docblock de método público.
-- `Modules\Escalas\Providers\EscalasServiceProvider::register()` en `vida/Modules/Escalas/app/Providers/EscalasServiceProvider.php:16`: Falta docblock de método público.
-- `Modules\Escalas\Providers\EscalasServiceProvider::boot()` en `vida/Modules/Escalas/app/Providers/EscalasServiceProvider.php:18`: Falta docblock de método público.
-- `Modules\Intervencion\Enums\TipoEntrevista::label()` en `vida/Modules/Intervencion/app/Enums/TipoEntrevista.php:12`: Falta docblock de método público.
-- `Modules\Intervencion\Enums\TipoPlan::label()` en `vida/Modules/Intervencion/app/Enums/TipoPlan.php:10`: Falta docblock de método público.
-- `Modules\Intervencion\Enums\UrgenciaSia::label()` en `vida/Modules/Intervencion/app/Enums/UrgenciaSia.php:11`: Falta docblock de método público.
-- `Modules\Intervencion\Enums\VisibilidadApunte::label()` en `vida/Modules/Intervencion/app/Enums/VisibilidadApunte.php:11`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\AgendaPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/AgendaPage.php:301`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/BuscarCiudadanoPage.php:306`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\CiudadanoPage::toggleUC()` en `vida/Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php:530`: Falta docblock de método público.
@@ -59,7 +37,7 @@ Generado el 2026-06-17 11:54:15 UTC a partir de los docblocks PHPDoc compatibles
 - `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedFiltroEsp()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:71`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedOrdenarPor()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:76`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedBusqueda()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:81`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\MisCasosPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:231`: Falta docblock de método público.
+- `Modules\Intervencion\Http\Livewire\MisCasosPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:273`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\RegistrarEscalaPage::getTipoEscalaProperty()` en `vida/Modules/Intervencion/app/Http/Livewire/RegistrarEscalaPage.php:45`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\RegistrarEscalaPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/RegistrarEscalaPage.php:70`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\RegistrarValoracionPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/RegistrarValoracionPage.php:182`: Falta docblock de método público.
@@ -265,131 +243,21 @@ Generado el 2026-06-17 11:54:15 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Providers\Filament\AdminPanelProvider::panel()` en `vida/app/Providers/Filament/AdminPanelProvider.php:24`: Falta docblock de método público.
 - `App\Services\Geocodificacion\ResultadoGeocodificacion::__construct()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:34`: Falta docblock de método público.
 
-### Clase sin PHPDoc (120)
+### PHPDoc incompleto (183)
 
-- `Modules\Intervencion\Enums\TipoEntrevista` en `vida/Modules/Intervencion/app/Enums/TipoEntrevista.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\TipoPlan` en `vida/Modules/Intervencion/app/Enums/TipoPlan.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\UrgenciaSia` en `vida/Modules/Intervencion/app/Enums/UrgenciaSia.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\VisibilidadApunte` en `vida/Modules/Intervencion/app/Enums/VisibilidadApunte.php:5`: Falta docblock de cabecera.
-- `App\Filament\Resources\AuditResource\Pages\ListAudits` en `vida/app/Filament/Resources/AuditResource/Pages/ListAudits.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\AuditResource\Pages\ViewAudit` en `vida/app/Filament/Resources/AuditResource/Pages/ViewAudit.php:14`: Falta docblock de cabecera.
-- `App\Filament\Resources\CargoResource\Pages\CreateCargo` en `vida/app/Filament/Resources/CargoResource/Pages/CreateCargo.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\CargoResource\Pages\EditCargo` en `vida/app/Filament/Resources/CargoResource/Pages/EditCargo.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CargoResource\Pages\ListCargos` en `vida/app/Filament/Resources/CargoResource/Pages/ListCargos.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource` en `vida/app/Filament/Resources/CentroResource.php:27`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource\Pages\CreateCentro` en `vida/app/Filament/Resources/CentroResource/Pages/CreateCentro.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource\Pages\ListCentros` en `vida/app/Filament/Resources/CentroResource/Pages/ListCentros.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager` en `vida/app/Filament/Resources/CentroResource/RelationManagers/AmbitosTerritorialesRelationManager.php:18`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource\RelationManagers\ColeccionesPlazasRelationManager` en `vida/app/Filament/Resources/CentroResource/RelationManagers/ColeccionesPlazasRelationManager.php:18`: Falta docblock de cabecera.
-- `App\Filament\Resources\ColectivoProtegidoResource\Pages\CreateColectivoProtegido` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/CreateColectivoProtegido.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ColectivoProtegidoResource\Pages\EditColectivoProtegido` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/EditColectivoProtegido.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ColectivoProtegidoResource\Pages\ListColectivosProtegidos` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/ListColectivosProtegidos.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages\EditConfiguracionHorarioLaboral` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource/Pages/EditConfiguracionHorarioLaboral.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages\ListConfiguracionHorarioLaboral` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource/Pages/ListConfiguracionHorarioLaboral.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\CreateConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/CreateConfiguracion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\EditConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/EditConfiguracion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\ListConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/ListConfiguracion.php:12`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionRolResource\Pages\CreateConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/CreateConfiguracionRol.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionRolResource\Pages\EditConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/EditConfiguracionRol.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionRolResource\Pages\ListConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/ListConfiguracionRol.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CuadranteMesResource` en `vida/app/Filament/Resources/CuadranteMesResource.php:23`: Falta docblock de cabecera.
-- `App\Filament\Resources\CuadranteMesResource\Pages\CreateCuadranteMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/CreateCuadranteMes.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\CuadranteMesResource\Pages\EditCuadranteMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/EditCuadranteMes.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CuadranteMesResource\Pages\ListCuadrantesMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/ListCuadrantesMes.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CuadranteMesResource\RelationManagers\LineasCuadranteRelationManager` en `vida/app/Filament/Resources/CuadranteMesResource/RelationManagers/LineasCuadranteRelationManager.php:11`: Falta docblock de cabecera.
-- `App\Filament\Resources\DistritoResource\Pages\CreateDistrito` en `vida/app/Filament/Resources/DistritoResource/Pages/CreateDistrito.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\DistritoResource\Pages\EditDistrito` en `vida/app/Filament/Resources/DistritoResource/Pages/EditDistrito.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\DistritoResource\Pages\ListDistritos` en `vida/app/Filament/Resources/DistritoResource/Pages/ListDistritos.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\DocumentoResource\Pages\ListDocumentos` en `vida/app/Filament/Resources/DocumentoResource/Pages/ListDocumentos.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\DocumentoResource\Pages\ViewDocumento` en `vida/app/Filament/Resources/DocumentoResource/Pages/ViewDocumento.php:11`: Falta docblock de cabecera.
-- `App\Filament\Resources\EstiloInformeResource\Pages\CreateEstiloInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/CreateEstiloInforme.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\EstiloInformeResource\Pages\EditEstiloInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/EditEstiloInforme.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\EstiloInformeResource\Pages\ListEstilosInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/ListEstilosInforme.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ExcepcionProfesionalResource` en `vida/app/Filament/Resources/ExcepcionProfesionalResource.php:25`: Falta docblock de cabecera.
-- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\CreateExcepcionProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/CreateExcepcionProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\EditExcepcionProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/EditExcepcionProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\ListExcepcionesProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/ListExcepcionesProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource` en `vida/app/Filament/Resources/HorarioCentroResource.php:26`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource\Pages\CreateHorarioCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/CreateHorarioCentro.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource\Pages\EditHorarioCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/EditHorarioCentro.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource\Pages\ListHorariosCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/ListHorariosCentro.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource\RelationManagers\TiposSlotsRelationManager` en `vida/app/Filament/Resources/HorarioCentroResource/RelationManagers/TiposSlotsRelationManager.php:19`: Falta docblock de cabecera.
-- `App\Filament\Resources\InformeResource\Pages\ListInformes` en `vida/app/Filament/Resources/InformeResource/Pages/ListInformes.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\InformeResource\Pages\ViewInforme` en `vida/app/Filament/Resources/InformeResource/Pages/ViewInforme.php:13`: Falta docblock de cabecera.
-- `App\Filament\Resources\LogAlertasResource\Pages\ListLogAlertas` en `vida/app/Filament/Resources/LogAlertasResource/Pages/ListLogAlertas.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:23`: Falta docblock de cabecera.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\CreatePerfilHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/CreatePerfilHorarioProfesional.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\EditPerfilHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/EditPerfilHorarioProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\ListPerfilesHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/ListPerfilesHorarioProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PlantillaInformeResource\Pages\CreatePlantillaInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/CreatePlantillaInforme.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\PlantillaInformeResource\Pages\EditPlantillaInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/EditPlantillaInforme.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PlantillaInformeResource\Pages\ListPlantillasInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/ListPlantillasInforme.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PrestacionResource` en `vida/app/Filament/Resources/PrestacionResource.php:24`: Falta docblock de cabecera.
-- `App\Filament\Resources\PrestacionResource\Pages\CreatePrestacion` en `vida/app/Filament/Resources/PrestacionResource/Pages/CreatePrestacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PrestacionResource\Pages\EditPrestacion` en `vida/app/Filament/Resources/PrestacionResource/Pages/EditPrestacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PrestacionResource\Pages\ListPrestaciones` en `vida/app/Filament/Resources/PrestacionResource/Pages/ListPrestaciones.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ProfesionalResource\Pages\CreateProfesional` en `vida/app/Filament/Resources/ProfesionalResource/Pages/CreateProfesional.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ProfesionalResource\Pages\EditProfesional` en `vida/app/Filament/Resources/ProfesionalResource/Pages/EditProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ProfesionalResource\Pages\ListProfesionales` en `vida/app/Filament/Resources/ProfesionalResource/Pages/ListProfesionales.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\RedResource` en `vida/app/Filament/Resources/RedResource.php:21`: Falta docblock de cabecera.
-- `App\Filament\Resources\RedResource\Pages\CreateRed` en `vida/app/Filament/Resources/RedResource/Pages/CreateRed.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\RedResource\Pages\EditRed` en `vida/app/Filament/Resources/RedResource/Pages/EditRed.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\RedResource\Pages\ListRedes` en `vida/app/Filament/Resources/RedResource/Pages/ListRedes.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\RolResource\Pages\CreateRol` en `vida/app/Filament/Resources/RolResource/Pages/CreateRol.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\RolResource\Pages\EditRol` en `vida/app/Filament/Resources/RolResource/Pages/EditRol.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\RolResource\Pages\ListRoles` en `vida/app/Filament/Resources/RolResource/Pages/ListRoles.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\SegmentoPoblacionResource` en `vida/app/Filament/Resources/SegmentoPoblacionResource.php:19`: Falta docblock de cabecera.
-- `App\Filament\Resources\SegmentoPoblacionResource\Pages\CreateSegmentoPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/CreateSegmentoPoblacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\SegmentoPoblacionResource\Pages\EditSegmentoPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/EditSegmentoPoblacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\SegmentoPoblacionResource\Pages\ListSegmentosPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/ListSegmentosPoblacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ServicioEmergenciaResource\Pages\CreateServicioEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/CreateServicioEmergencia.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ServicioEmergenciaResource\Pages\EditServicioEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/EditServicioEmergencia.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ServicioEmergenciaResource\Pages\ListServiciosEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/ListServiciosEmergencia.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoActividadResource` en `vida/app/Filament/Resources/TipoActividadResource.php:19`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoActividadResource\Pages\CreateTipoActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/CreateTipoActividad.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoActividadResource\Pages\EditTipoActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/EditTipoActividad.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoActividadResource\Pages\ListTiposActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/ListTiposActividad.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEscalaResource` en `vida/app/Filament/Resources/TipoEscalaResource.php:29`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEscalaResource\Pages\CreateTipoEscala` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/CreateTipoEscala.php:10`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEscalaResource\Pages\EditTipoEscala` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/EditTipoEscala.php:11`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEscalaResource\Pages\ListTipoEscalas` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/ListTipoEscalas.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEspacioResource` en `vida/app/Filament/Resources/TipoEspacioResource.php:19`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEspacioResource\Pages\CreateTipoEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/CreateTipoEspacio.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEspacioResource\Pages\EditTipoEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/EditTipoEspacio.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEspacioResource\Pages\ListTiposEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/ListTiposEspacio.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoFichaResource\Pages\CreateTipoFicha` en `vida/app/Filament/Resources/TipoFichaResource/Pages/CreateTipoFicha.php:11`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoFichaResource\Pages\EditTipoFicha` en `vida/app/Filament/Resources/TipoFichaResource/Pages/EditTipoFicha.php:13`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoFichaResource\Pages\ListTipoFichas` en `vida/app/Filament/Resources/TipoFichaResource/Pages/ListTipoFichas.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\CreateTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/CreateTipoRelacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\EditTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/EditTipoRelacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\ListTiposRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/ListTiposRelacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionResource\Pages\CreateTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/CreateTipoRelacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionResource\Pages\EditTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/EditTipoRelacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionResource\Pages\ListTiposRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/ListTiposRelacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoSlotResource` en `vida/app/Filament/Resources/TipoSlotResource.php:22`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoSlotResource\Pages\CreateTipoSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/CreateTipoSlot.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoSlotResource\Pages\EditTipoSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/EditTipoSlot.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoSlotResource\Pages\ListTiposSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/ListTiposSlot.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TitulacionResource\Pages\CreateTitulacion` en `vida/app/Filament/Resources/TitulacionResource/Pages/CreateTitulacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TitulacionResource\Pages\EditTitulacion` en `vida/app/Filament/Resources/TitulacionResource/Pages/EditTitulacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TitulacionResource\Pages\ListTitulaciones` en `vida/app/Filament/Resources/TitulacionResource/Pages/ListTitulaciones.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UnidadOrganizativaResource\Pages\CreateUnidadOrganizativa` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/CreateUnidadOrganizativa.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\UnidadOrganizativaResource\Pages\EditUnidadOrganizativa` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/EditUnidadOrganizativa.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UnidadOrganizativaResource\Pages\ListUnidadesOrganizativas` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/ListUnidadesOrganizativas.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioResource\Pages\CreateUsuario` en `vida/app/Filament/Resources/UsuarioResource/Pages/CreateUsuario.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioResource\Pages\EditUsuario` en `vida/app/Filament/Resources/UsuarioResource/Pages/EditUsuario.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioResource\Pages\ListUsuarios` en `vida/app/Filament/Resources/UsuarioResource/Pages/ListUsuarios.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioRolResource\Pages\CreateUsuarioRol` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/CreateUsuarioRol.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioRolResource\Pages\EditUsuarioRol` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/EditUsuarioRol.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioRolResource\Pages\ListUsuarioRoles` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/ListUsuarioRoles.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ZonaResource\Pages\CreateZona` en `vida/app/Filament/Resources/ZonaResource/Pages/CreateZona.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ZonaResource\Pages\EditZona` en `vida/app/Filament/Resources/ZonaResource/Pages/EditZona.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ZonaResource\Pages\ListZonas` en `vida/app/Filament/Resources/ZonaResource/Pages/ListZonas.php:9`: Falta docblock de cabecera.
-- `App\Http\Controllers\Controller` en `vida/app/Http/Controllers/Controller.php:5`: Falta docblock de cabecera.
-- `App\Providers\Filament\AdminPanelProvider` en `vida/app/Providers/Filament/AdminPanelProvider.php:22`: Falta docblock de cabecera.
-
-### PHPDoc incompleto (170)
-
+- `Modules\Documentos\Observers\EstiloInformeObserver::__construct()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:19`: Falta @param $resolver.
+- `Modules\Documentos\Observers\EstiloInformeObserver::saved()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:24`: Falta @param $estilo.
+- `Modules\Documentos\Observers\EstiloInformeObserver::saved()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:24`: Falta @return.
+- `Modules\Documentos\Observers\EstiloInformeObserver::deleted()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:32`: Falta @param $estilo.
+- `Modules\Documentos\Observers\EstiloInformeObserver::deleted()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:32`: Falta @return.
+- `Modules\Documentos\Services\ServicioFirmaInforme::__construct()` en `vida/Modules/Documentos/app/Services/ServicioFirmaInforme.php:25`: Falta @param $generacionPdf.
+- `Modules\Documentos\Services\ServicioGeneracionPDF::__construct()` en `vida/Modules/Documentos/app/Services/ServicioGeneracionPDF.php:24`: Falta @param $resolverEstilo.
+- `Modules\Documentos\Services\ServicioGeneracionPDF::__construct()` en `vida/Modules/Documentos/app/Services/ServicioGeneracionPDF.php:24`: Falta @param $almacenamiento.
+- `Modules\Documentos\Services\ServicioGeneracionPDF::__construct()` en `vida/Modules/Documentos/app/Services/ServicioGeneracionPDF.php:24`: Falta @param $resolverFuentes.
+- `Modules\Intervencion\Enums\TipoEntrevista::label()` en `vida/Modules/Intervencion/app/Enums/TipoEntrevista.php:15`: Falta @return.
+- `Modules\Intervencion\Enums\TipoPlan::label()` en `vida/Modules/Intervencion/app/Enums/TipoPlan.php:13`: Falta @return.
+- `Modules\Intervencion\Enums\UrgenciaSia::label()` en `vida/Modules/Intervencion/app/Enums/UrgenciaSia.php:14`: Falta @return.
+- `Modules\Intervencion\Enums\VisibilidadApunte::label()` en `vida/Modules/Intervencion/app/Enums/VisibilidadApunte.php:14`: Falta @return.
 - `Modules\Usuarios\Console\Commands\ReconciliarRoles::handle()` en `vida/Modules/Usuarios/app/Console/Commands/ReconciliarRoles.php:33`: Falta @return.
 - `Modules\Usuarios\Models\Profesional::getNombreCompletoAttribute()` en `vida/Modules/Usuarios/app/Models/Profesional.php:136`: Falta @return.
 - `Modules\Usuarios\Observers\UsuarioRolObserver::created()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:33`: Falta @param $usuarioRol.
@@ -560,6 +428,129 @@ Generado el 2026-06-17 11:54:15 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Traits\Auditable::getCiudadanoId()` en `vida/app/Traits/Auditable.php:62`: Falta @return.
 - `App\Traits\TieneDireccion::initializeTieneDireccion()` en `vida/app/Traits/TieneDireccion.php:44`: Falta @return.
 - `App\Traits\TieneDireccion::direccionFormateada()` en `vida/app/Traits/TieneDireccion.php:65`: Falta @return.
+
+### Clase sin PHPDoc (120)
+
+- `Modules\Intervencion\Enums\TipoEntrevista` en `vida/Modules/Intervencion/app/Enums/TipoEntrevista.php:5`: Falta docblock de cabecera.
+- `Modules\Intervencion\Enums\TipoPlan` en `vida/Modules/Intervencion/app/Enums/TipoPlan.php:5`: Falta docblock de cabecera.
+- `Modules\Intervencion\Enums\UrgenciaSia` en `vida/Modules/Intervencion/app/Enums/UrgenciaSia.php:5`: Falta docblock de cabecera.
+- `Modules\Intervencion\Enums\VisibilidadApunte` en `vida/Modules/Intervencion/app/Enums/VisibilidadApunte.php:5`: Falta docblock de cabecera.
+- `App\Filament\Resources\AuditResource\Pages\ListAudits` en `vida/app/Filament/Resources/AuditResource/Pages/ListAudits.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\AuditResource\Pages\ViewAudit` en `vida/app/Filament/Resources/AuditResource/Pages/ViewAudit.php:14`: Falta docblock de cabecera.
+- `App\Filament\Resources\CargoResource\Pages\CreateCargo` en `vida/app/Filament/Resources/CargoResource/Pages/CreateCargo.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\CargoResource\Pages\EditCargo` en `vida/app/Filament/Resources/CargoResource/Pages/EditCargo.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\CargoResource\Pages\ListCargos` en `vida/app/Filament/Resources/CargoResource/Pages/ListCargos.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\CentroResource` en `vida/app/Filament/Resources/CentroResource.php:27`: Falta docblock de cabecera.
+- `App\Filament\Resources\CentroResource\Pages\CreateCentro` en `vida/app/Filament/Resources/CentroResource/Pages/CreateCentro.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\CentroResource\Pages\ListCentros` en `vida/app/Filament/Resources/CentroResource/Pages/ListCentros.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager` en `vida/app/Filament/Resources/CentroResource/RelationManagers/AmbitosTerritorialesRelationManager.php:18`: Falta docblock de cabecera.
+- `App\Filament\Resources\CentroResource\RelationManagers\ColeccionesPlazasRelationManager` en `vida/app/Filament/Resources/CentroResource/RelationManagers/ColeccionesPlazasRelationManager.php:18`: Falta docblock de cabecera.
+- `App\Filament\Resources\ColectivoProtegidoResource\Pages\CreateColectivoProtegido` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/CreateColectivoProtegido.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ColectivoProtegidoResource\Pages\EditColectivoProtegido` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/EditColectivoProtegido.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ColectivoProtegidoResource\Pages\ListColectivosProtegidos` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/ListColectivosProtegidos.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages\EditConfiguracionHorarioLaboral` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource/Pages/EditConfiguracionHorarioLaboral.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages\ListConfiguracionHorarioLaboral` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource/Pages/ListConfiguracionHorarioLaboral.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\CreateConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/CreateConfiguracion.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\EditConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/EditConfiguracion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\ListConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/ListConfiguracion.php:12`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionRolResource\Pages\CreateConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/CreateConfiguracionRol.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionRolResource\Pages\EditConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/EditConfiguracionRol.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionRolResource\Pages\ListConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/ListConfiguracionRol.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\CuadranteMesResource` en `vida/app/Filament/Resources/CuadranteMesResource.php:23`: Falta docblock de cabecera.
+- `App\Filament\Resources\CuadranteMesResource\Pages\CreateCuadranteMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/CreateCuadranteMes.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\CuadranteMesResource\Pages\EditCuadranteMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/EditCuadranteMes.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\CuadranteMesResource\Pages\ListCuadrantesMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/ListCuadrantesMes.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\CuadranteMesResource\RelationManagers\LineasCuadranteRelationManager` en `vida/app/Filament/Resources/CuadranteMesResource/RelationManagers/LineasCuadranteRelationManager.php:11`: Falta docblock de cabecera.
+- `App\Filament\Resources\DistritoResource\Pages\CreateDistrito` en `vida/app/Filament/Resources/DistritoResource/Pages/CreateDistrito.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\DistritoResource\Pages\EditDistrito` en `vida/app/Filament/Resources/DistritoResource/Pages/EditDistrito.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\DistritoResource\Pages\ListDistritos` en `vida/app/Filament/Resources/DistritoResource/Pages/ListDistritos.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\DocumentoResource\Pages\ListDocumentos` en `vida/app/Filament/Resources/DocumentoResource/Pages/ListDocumentos.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\DocumentoResource\Pages\ViewDocumento` en `vida/app/Filament/Resources/DocumentoResource/Pages/ViewDocumento.php:11`: Falta docblock de cabecera.
+- `App\Filament\Resources\EstiloInformeResource\Pages\CreateEstiloInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/CreateEstiloInforme.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\EstiloInformeResource\Pages\EditEstiloInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/EditEstiloInforme.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\EstiloInformeResource\Pages\ListEstilosInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/ListEstilosInforme.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ExcepcionProfesionalResource` en `vida/app/Filament/Resources/ExcepcionProfesionalResource.php:25`: Falta docblock de cabecera.
+- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\CreateExcepcionProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/CreateExcepcionProfesional.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\EditExcepcionProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/EditExcepcionProfesional.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\ListExcepcionesProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/ListExcepcionesProfesional.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\HorarioCentroResource` en `vida/app/Filament/Resources/HorarioCentroResource.php:26`: Falta docblock de cabecera.
+- `App\Filament\Resources\HorarioCentroResource\Pages\CreateHorarioCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/CreateHorarioCentro.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\HorarioCentroResource\Pages\EditHorarioCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/EditHorarioCentro.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\HorarioCentroResource\Pages\ListHorariosCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/ListHorariosCentro.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\HorarioCentroResource\RelationManagers\TiposSlotsRelationManager` en `vida/app/Filament/Resources/HorarioCentroResource/RelationManagers/TiposSlotsRelationManager.php:19`: Falta docblock de cabecera.
+- `App\Filament\Resources\InformeResource\Pages\ListInformes` en `vida/app/Filament/Resources/InformeResource/Pages/ListInformes.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\InformeResource\Pages\ViewInforme` en `vida/app/Filament/Resources/InformeResource/Pages/ViewInforme.php:13`: Falta docblock de cabecera.
+- `App\Filament\Resources\LogAlertasResource\Pages\ListLogAlertas` en `vida/app/Filament/Resources/LogAlertasResource/Pages/ListLogAlertas.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\PerfilHorarioProfesionalResource` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:23`: Falta docblock de cabecera.
+- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\CreatePerfilHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/CreatePerfilHorarioProfesional.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\EditPerfilHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/EditPerfilHorarioProfesional.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\ListPerfilesHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/ListPerfilesHorarioProfesional.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\PlantillaInformeResource\Pages\CreatePlantillaInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/CreatePlantillaInforme.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\PlantillaInformeResource\Pages\EditPlantillaInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/EditPlantillaInforme.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\PlantillaInformeResource\Pages\ListPlantillasInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/ListPlantillasInforme.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\PrestacionResource` en `vida/app/Filament/Resources/PrestacionResource.php:24`: Falta docblock de cabecera.
+- `App\Filament\Resources\PrestacionResource\Pages\CreatePrestacion` en `vida/app/Filament/Resources/PrestacionResource/Pages/CreatePrestacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\PrestacionResource\Pages\EditPrestacion` en `vida/app/Filament/Resources/PrestacionResource/Pages/EditPrestacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\PrestacionResource\Pages\ListPrestaciones` en `vida/app/Filament/Resources/PrestacionResource/Pages/ListPrestaciones.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ProfesionalResource\Pages\CreateProfesional` en `vida/app/Filament/Resources/ProfesionalResource/Pages/CreateProfesional.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ProfesionalResource\Pages\EditProfesional` en `vida/app/Filament/Resources/ProfesionalResource/Pages/EditProfesional.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ProfesionalResource\Pages\ListProfesionales` en `vida/app/Filament/Resources/ProfesionalResource/Pages/ListProfesionales.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\RedResource` en `vida/app/Filament/Resources/RedResource.php:21`: Falta docblock de cabecera.
+- `App\Filament\Resources\RedResource\Pages\CreateRed` en `vida/app/Filament/Resources/RedResource/Pages/CreateRed.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\RedResource\Pages\EditRed` en `vida/app/Filament/Resources/RedResource/Pages/EditRed.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\RedResource\Pages\ListRedes` en `vida/app/Filament/Resources/RedResource/Pages/ListRedes.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\RolResource\Pages\CreateRol` en `vida/app/Filament/Resources/RolResource/Pages/CreateRol.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\RolResource\Pages\EditRol` en `vida/app/Filament/Resources/RolResource/Pages/EditRol.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\RolResource\Pages\ListRoles` en `vida/app/Filament/Resources/RolResource/Pages/ListRoles.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\SegmentoPoblacionResource` en `vida/app/Filament/Resources/SegmentoPoblacionResource.php:19`: Falta docblock de cabecera.
+- `App\Filament\Resources\SegmentoPoblacionResource\Pages\CreateSegmentoPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/CreateSegmentoPoblacion.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\SegmentoPoblacionResource\Pages\EditSegmentoPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/EditSegmentoPoblacion.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\SegmentoPoblacionResource\Pages\ListSegmentosPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/ListSegmentosPoblacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ServicioEmergenciaResource\Pages\CreateServicioEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/CreateServicioEmergencia.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ServicioEmergenciaResource\Pages\EditServicioEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/EditServicioEmergencia.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ServicioEmergenciaResource\Pages\ListServiciosEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/ListServiciosEmergencia.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoActividadResource` en `vida/app/Filament/Resources/TipoActividadResource.php:19`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoActividadResource\Pages\CreateTipoActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/CreateTipoActividad.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoActividadResource\Pages\EditTipoActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/EditTipoActividad.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoActividadResource\Pages\ListTiposActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/ListTiposActividad.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEscalaResource` en `vida/app/Filament/Resources/TipoEscalaResource.php:29`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEscalaResource\Pages\CreateTipoEscala` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/CreateTipoEscala.php:10`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEscalaResource\Pages\EditTipoEscala` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/EditTipoEscala.php:11`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEscalaResource\Pages\ListTipoEscalas` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/ListTipoEscalas.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEspacioResource` en `vida/app/Filament/Resources/TipoEspacioResource.php:19`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEspacioResource\Pages\CreateTipoEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/CreateTipoEspacio.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEspacioResource\Pages\EditTipoEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/EditTipoEspacio.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEspacioResource\Pages\ListTiposEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/ListTiposEspacio.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoFichaResource\Pages\CreateTipoFicha` en `vida/app/Filament/Resources/TipoFichaResource/Pages/CreateTipoFicha.php:11`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoFichaResource\Pages\EditTipoFicha` en `vida/app/Filament/Resources/TipoFichaResource/Pages/EditTipoFicha.php:13`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoFichaResource\Pages\ListTipoFichas` en `vida/app/Filament/Resources/TipoFichaResource/Pages/ListTipoFichas.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\CreateTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/CreateTipoRelacion.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\EditTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/EditTipoRelacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\ListTiposRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/ListTiposRelacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoRelacionResource\Pages\CreateTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/CreateTipoRelacion.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoRelacionResource\Pages\EditTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/EditTipoRelacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoRelacionResource\Pages\ListTiposRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/ListTiposRelacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoSlotResource` en `vida/app/Filament/Resources/TipoSlotResource.php:22`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoSlotResource\Pages\CreateTipoSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/CreateTipoSlot.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoSlotResource\Pages\EditTipoSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/EditTipoSlot.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoSlotResource\Pages\ListTiposSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/ListTiposSlot.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TitulacionResource\Pages\CreateTitulacion` en `vida/app/Filament/Resources/TitulacionResource/Pages/CreateTitulacion.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TitulacionResource\Pages\EditTitulacion` en `vida/app/Filament/Resources/TitulacionResource/Pages/EditTitulacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TitulacionResource\Pages\ListTitulaciones` en `vida/app/Filament/Resources/TitulacionResource/Pages/ListTitulaciones.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\UnidadOrganizativaResource\Pages\CreateUnidadOrganizativa` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/CreateUnidadOrganizativa.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\UnidadOrganizativaResource\Pages\EditUnidadOrganizativa` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/EditUnidadOrganizativa.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\UnidadOrganizativaResource\Pages\ListUnidadesOrganizativas` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/ListUnidadesOrganizativas.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\UsuarioResource\Pages\CreateUsuario` en `vida/app/Filament/Resources/UsuarioResource/Pages/CreateUsuario.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\UsuarioResource\Pages\EditUsuario` en `vida/app/Filament/Resources/UsuarioResource/Pages/EditUsuario.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\UsuarioResource\Pages\ListUsuarios` en `vida/app/Filament/Resources/UsuarioResource/Pages/ListUsuarios.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\UsuarioRolResource\Pages\CreateUsuarioRol` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/CreateUsuarioRol.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\UsuarioRolResource\Pages\EditUsuarioRol` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/EditUsuarioRol.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\UsuarioRolResource\Pages\ListUsuarioRoles` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/ListUsuarioRoles.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ZonaResource\Pages\CreateZona` en `vida/app/Filament/Resources/ZonaResource/Pages/CreateZona.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ZonaResource\Pages\EditZona` en `vida/app/Filament/Resources/ZonaResource/Pages/EditZona.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ZonaResource\Pages\ListZonas` en `vida/app/Filament/Resources/ZonaResource/Pages/ListZonas.php:9`: Falta docblock de cabecera.
+- `App\Http\Controllers\Controller` en `vida/app/Http/Controllers/Controller.php:5`: Falta docblock de cabecera.
+- `App\Providers\Filament\AdminPanelProvider` en `vida/app/Providers/Filament/AdminPanelProvider.php:22`: Falta docblock de cabecera.
 
 ## Referencia
 
@@ -2223,11 +2214,14 @@ En v1.0 la doble firma (profesional + ciudadano) se resuelve fuera del sistema d
 Metodos publicos:
 
 - `function planDeIntervencion(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Plan de intervención asociado al PISO.
+  `@return` BelongsTo<User, self>
 - `function documento(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Documento custodiado del PISO.
+  `@return` BelongsTo<Documento, self>
 - `function subidoPor(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Usuario que subió el documento.
+  `@return` BelongsTo<User, self>
 
 ### `Modules\Documentos\Models\PlantillaInforme`
 
@@ -2240,11 +2234,14 @@ Define la estructura del informe (secciones automáticas y de texto libre). El a
 Metodos publicos:
 
 - `function unidadOrganizativa(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Unidad organizativa propietaria de la plantilla.
+  `@return` BelongsTo<UnidadOrganizativa, self>
 - `function creadaPor(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Usuario que creó la plantilla.
+  `@return` BelongsTo<User, self>
 - `function informes(): HasMany`
-  _Sin resumen PHPDoc._
+  Informes generados a partir de esta plantilla.
+  `@return` HasMany<Informe>
 - `function scopeVisiblesParaUo(Builder $query, int $uoId): Builder`
   Plantillas activas visibles para una UO dada y todos sus ancestros.
   `@return` Builder<self>
@@ -2260,11 +2257,11 @@ Invalida la caché de estilos de la UO afectada y todas sus descendientes cada v
 Metodos publicos:
 
 - `function __construct(private ResolverEstiloInforme $resolver)`
-  _Sin resumen PHPDoc._
+  Crea el observer con el resolutor de estilos.
 - `function saved(EstiloInforme $estilo): void`
-  _Sin resumen PHPDoc._
+  Invalida la caché cuando se guarda un estilo.
 - `function deleted(EstiloInforme $estilo): void`
-  _Sin resumen PHPDoc._
+  Invalida la caché cuando se elimina un estilo.
 
 ### `Modules\Documentos\Providers\DocumentosServiceProvider`
 
@@ -2277,9 +2274,11 @@ Registra migraciones, configuración, servicios y observers del módulo.
 Metodos publicos:
 
 - `function register(): void`
-  _Sin resumen PHPDoc._
+  Registra los servicios del módulo.
+  `@return` void
 - `function boot(): void`
-  _Sin resumen PHPDoc._
+  Arranca el módulo Documentos.
+  `@return` void
 
 ### `Modules\Documentos\Services\ResolverEstiloInforme`
 
@@ -2292,9 +2291,11 @@ Recorre la cadena de ancestros de la UO (incluida ella misma) de más cercana a 
 Metodos publicos:
 
 - `function resolver(int $uoId): array`
-  _Sin resumen PHPDoc._
+  Resuelve el estilo efectivo para una UO, usando caché.
+  `@return` array
 - `function resolverSinCache(int $uoId): array`
-  _Sin resumen PHPDoc._
+  Resuelve el estilo efectivo sin utilizar caché.
+  `@return` array
 - `function invalidarCacheUo(int $uoId): void`
   Invalida la caché de una UO y todas sus descendientes.
   `@return` void
@@ -2354,7 +2355,7 @@ Flujo: 1. El profesional genera la vista previa del PDF (ServicioGeneracionPDF::
 Metodos publicos:
 
 - `function __construct(private ServicioGeneracionPDF $generacionPdf)`
-  _Sin resumen PHPDoc._
+  Crea el servicio con el generador de PDFs.
 - `function firmar(Informe $informe, string $pdfFirmadoBase64): Informe`
   Firma un informe en estado borrador.
   `@return` Informe Informe actualizado a estado firmado
@@ -2375,7 +2376,7 @@ Combina el estilo resuelto para la UO del autor con el contenido de las seccione
 Metodos publicos:
 
 - `function __construct( private ResolverEstiloInforme $resolverEstilo, private ServicioAlmacenamiento $almacenamiento, private ResolverFuentesInforme $resolverFuentes, )`
-  _Sin resumen PHPDoc._
+  Crea el servicio con sus dependencias de resolución y almacenamiento.
 - `function generarBorrador(Informe $informe): string`
   Genera el PDF de borrador y retorna su contenido binario.
   `@return` string Contenido binario del PDF
@@ -2433,7 +2434,8 @@ Metodos publicos:
   ID del ciudadano titular de la historia social asociada al pase.
   `@return` int|null
 - `function historia(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Historia social del ciudadano al que se aplica la escala.
+  `@return` BelongsTo<HistoriaSocial, self>
 - `function profesional(): BelongsTo`
   Profesional que aplicó la escala.
   `@return` BelongsTo<User, self>
@@ -2470,9 +2472,11 @@ Registra las migraciones del módulo.
 Metodos publicos:
 
 - `function register(): void`
-  _Sin resumen PHPDoc._
+  Registra los servicios del módulo.
+  `@return` void
 - `function boot(): void`
-  _Sin resumen PHPDoc._
+  Arranca el módulo Escalas.
+  `@return` void
 
 ### `Modules\Intervencion\Enums\ClasificacionSia`
 
@@ -2543,7 +2547,7 @@ Metodos publicos:
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Devuelve la etiqueta legible del tipo de entrevista.
 
 ### `Modules\Intervencion\Enums\TipoPlan`
 
@@ -2554,7 +2558,7 @@ Metodos publicos:
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Devuelve la etiqueta legible del tipo de plan.
 
 ### `Modules\Intervencion\Enums\UrgenciaSia`
 
@@ -2565,7 +2569,7 @@ Metodos publicos:
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Devuelve la etiqueta legible del nivel de urgencia.
 
 ### `Modules\Intervencion\Enums\VisibilidadApunte`
 
@@ -2576,7 +2580,7 @@ Metodos publicos:
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Devuelve la etiqueta legible de la visibilidad.
 
 ### `Modules\Intervencion\Http\Livewire\AgendaPage`
 
@@ -2828,7 +2832,7 @@ Metodos publicos:
 - `function updatedBusqueda(): void`
   _Sin resumen PHPDoc._
 - `function sortBy(string $campo): void`
-  Cambia la columna de ordenación o alterna la dirección si ya está activa. Valores de campo permitidos: 'seg', 'inicio', 'esp'.
+  Cambia la columna de ordenación o alterna la dirección si ya está activa. Valores de campo permitidos: 'ciudadano', 'historia', 'seg', 'inicio', 'esp'. 'ciudadano' aplica ordenación en memoria (nombre cifrado, no ordenable en DB).
   `@return` void
 - `function nombrePlanAsp(): string`
   Etiqueta configurable del tipo de plan general (PISO o nombre alternativo). Se lee del catálogo de sistema para permitir cambio sin deploy.
