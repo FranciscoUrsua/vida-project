@@ -60,21 +60,45 @@ class HorarioCentro extends Model
         'buffer_fin_minutos' => 'integer',
     ];
 
+    /**
+     * Centro al que pertenece el horario.
+     *
+     * @return BelongsTo<Centro, self>
+     */
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class);
     }
 
+    /**
+     * Tipos de slot asociados al horario.
+     *
+     * @return HasMany<TipoSlot>
+     */
     public function tiposSlot(): HasMany
     {
         return $this->hasMany(TipoSlot::class, 'horario_centro_id');
     }
 
+    /**
+     * Filtra horarios activos.
+     *
+     * @param Builder<HorarioCentro> $query
+     *
+     * @return Builder<HorarioCentro>
+     */
     public function scopeActivos(Builder $query): Builder
     {
         return $query->where('activo', true);
     }
 
+    /**
+     * Filtra horarios vigentes en la fecha actual.
+     *
+     * @param Builder<HorarioCentro> $query
+     *
+     * @return Builder<HorarioCentro>
+     */
     public function scopeVigentes(Builder $query): Builder
     {
         $hoy = now()->toDateString();
@@ -85,16 +109,34 @@ class HorarioCentro extends Model
             });
     }
 
+    /**
+     * Filtra horarios de un centro.
+     *
+     * @param Builder<HorarioCentro> $query
+     * @param int $centroId
+     *
+     * @return Builder<HorarioCentro>
+     */
     public function scopeDelCentro(Builder $query, int $centroId): Builder
     {
         return $query->where('centro_id', $centroId);
     }
 
+    /**
+     * Indica si el horario usa modo basico.
+     *
+     * @return bool
+     */
     public function esModoBasico(): bool
     {
         return $this->modo_agenda === ModoAgenda::Basico;
     }
 
+    /**
+     * Indica si el horario usa modo avanzado.
+     *
+     * @return bool
+     */
     public function esModoAvanzado(): bool
     {
         return $this->modo_agenda === ModoAgenda::Avanzado;

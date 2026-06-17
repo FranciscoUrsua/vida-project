@@ -57,21 +57,41 @@ class EventoAgenda extends Model
         'fecha' => 'date',
     ];
 
+    /**
+     * Centro al que pertenece el evento.
+     *
+     * @return BelongsTo<Centro, self>
+     */
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class);
     }
 
+    /**
+     * Espacio reservado por el evento, si existe.
+     *
+     * @return BelongsTo<Espacio, self>
+     */
     public function espacio(): BelongsTo
     {
         return $this->belongsTo(Espacio::class);
     }
 
+    /**
+     * Usuario que creó el evento.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function creadoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'creado_por_id');
     }
 
+    /**
+     * Profesionales convocados al evento.
+     *
+     * @return BelongsToMany<User>
+     */
     public function profesionales(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'evento_usuario', 'evento_agenda_id', 'usuario_id')
@@ -79,16 +99,40 @@ class EventoAgenda extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Filtra eventos de una fecha concreta.
+     *
+     * @param Builder<EventoAgenda> $query
+     * @param mixed $fecha
+     *
+     * @return Builder<EventoAgenda>
+     */
     public function scopeDelDia(Builder $query, $fecha): Builder
     {
         return $query->where('fecha', $fecha);
     }
 
+    /**
+     * Filtra eventos de un centro.
+     *
+     * @param Builder<EventoAgenda> $query
+     * @param int $centroId
+     *
+     * @return Builder<EventoAgenda>
+     */
     public function scopeDelCentro(Builder $query, int $centroId): Builder
     {
         return $query->where('centro_id', $centroId);
     }
 
+    /**
+     * Filtra eventos en los que participa un profesional.
+     *
+     * @param Builder<EventoAgenda> $query
+     * @param int $usuarioId
+     *
+     * @return Builder<EventoAgenda>
+     */
     public function scopeDelProfesional(Builder $query, int $usuarioId): Builder
     {
         return $query->whereHas('profesionales', fn (Builder $q) => $q->where('users.id', $usuarioId));

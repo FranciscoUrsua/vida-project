@@ -1,40 +1,19 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-17 11:37:17 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-17 11:41:54 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 371.
 - Cabeceras documentadas: 251/371.
-- Metodos publicos documentados: 610/991.
-- Alertas de comentarios: 623.
+- Metodos publicos documentados: 631/991.
+- Alertas de comentarios: 602.
 
 ## Alertas
 
-### Método público sin PHPDoc (333)
+### Método público sin PHPDoc (312)
 
-- `Modules\Agenda\Models\EventoAgenda::centro()` en `vida/Modules/Agenda/app/Models/EventoAgenda.php:60`: Falta docblock de método público.
-- `Modules\Agenda\Models\EventoAgenda::espacio()` en `vida/Modules/Agenda/app/Models/EventoAgenda.php:65`: Falta docblock de método público.
-- `Modules\Agenda\Models\EventoAgenda::creadoPor()` en `vida/Modules/Agenda/app/Models/EventoAgenda.php:70`: Falta docblock de método público.
-- `Modules\Agenda\Models\EventoAgenda::profesionales()` en `vida/Modules/Agenda/app/Models/EventoAgenda.php:75`: Falta docblock de método público.
-- `Modules\Agenda\Models\EventoAgenda::scopeDelDia()` en `vida/Modules/Agenda/app/Models/EventoAgenda.php:82`: Falta docblock de método público.
-- `Modules\Agenda\Models\EventoAgenda::scopeDelCentro()` en `vida/Modules/Agenda/app/Models/EventoAgenda.php:87`: Falta docblock de método público.
-- `Modules\Agenda\Models\EventoAgenda::scopeDelProfesional()` en `vida/Modules/Agenda/app/Models/EventoAgenda.php:92`: Falta docblock de método público.
-- `Modules\Agenda\Models\ExcepcionProfesional::usuario()` en `vida/Modules/Agenda/app/Models/ExcepcionProfesional.php:57`: Falta docblock de método público.
-- `Modules\Agenda\Models\ExcepcionProfesional::centro()` en `vida/Modules/Agenda/app/Models/ExcepcionProfesional.php:62`: Falta docblock de método público.
-- `Modules\Agenda\Models\ExcepcionProfesional::creadoPor()` en `vida/Modules/Agenda/app/Models/ExcepcionProfesional.php:67`: Falta docblock de método público.
-- `Modules\Agenda\Models\ExcepcionProfesional::scopeVigentes()` en `vida/Modules/Agenda/app/Models/ExcepcionProfesional.php:72`: Falta docblock de método público.
-- `Modules\Agenda\Models\ExcepcionProfesional::scopeQueAfectanDisponibilidad()` en `vida/Modules/Agenda/app/Models/ExcepcionProfesional.php:77`: Falta docblock de método público.
-- `Modules\Agenda\Models\ExcepcionProfesional::scopeDelProfesional()` en `vida/Modules/Agenda/app/Models/ExcepcionProfesional.php:82`: Falta docblock de método público.
-- `Modules\Agenda\Models\ExcepcionProfesional::scopeEnPeriodo()` en `vida/Modules/Agenda/app/Models/ExcepcionProfesional.php:87`: Falta docblock de método público.
-- `Modules\Agenda\Models\HorarioCentro::centro()` en `vida/Modules/Agenda/app/Models/HorarioCentro.php:63`: Falta docblock de método público.
-- `Modules\Agenda\Models\HorarioCentro::tiposSlot()` en `vida/Modules/Agenda/app/Models/HorarioCentro.php:68`: Falta docblock de método público.
-- `Modules\Agenda\Models\HorarioCentro::scopeActivos()` en `vida/Modules/Agenda/app/Models/HorarioCentro.php:73`: Falta docblock de método público.
-- `Modules\Agenda\Models\HorarioCentro::scopeVigentes()` en `vida/Modules/Agenda/app/Models/HorarioCentro.php:78`: Falta docblock de método público.
-- `Modules\Agenda\Models\HorarioCentro::scopeDelCentro()` en `vida/Modules/Agenda/app/Models/HorarioCentro.php:88`: Falta docblock de método público.
-- `Modules\Agenda\Models\HorarioCentro::esModoBasico()` en `vida/Modules/Agenda/app/Models/HorarioCentro.php:93`: Falta docblock de método público.
-- `Modules\Agenda\Models\HorarioCentro::esModoAvanzado()` en `vida/Modules/Agenda/app/Models/HorarioCentro.php:98`: Falta docblock de método público.
 - `Modules\Agenda\Models\LineaCuadrante::cuadranteMes()` en `vida/Modules/Agenda/app/Models/LineaCuadrante.php:50`: Falta docblock de método público.
 - `Modules\Agenda\Models\LineaCuadrante::usuario()` en `vida/Modules/Agenda/app/Models/LineaCuadrante.php:55`: Falta docblock de método público.
 - `Modules\Agenda\Models\LineaCuadrante::centro()` en `vida/Modules/Agenda/app/Models/LineaCuadrante.php:60`: Falta docblock de método público.
@@ -876,19 +855,26 @@ Bloqueo de tiempo sin ciudadano asociado (reuniones, formaciones, mesas de coord
 Metodos publicos:
 
 - `function centro(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Centro al que pertenece el evento.
+  `@return` BelongsTo<Centro, self>
 - `function espacio(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Espacio reservado por el evento, si existe.
+  `@return` BelongsTo<Espacio, self>
 - `function creadoPor(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Usuario que creó el evento.
+  `@return` BelongsTo<User, self>
 - `function profesionales(): BelongsToMany`
-  _Sin resumen PHPDoc._
+  Profesionales convocados al evento.
+  `@return` BelongsToMany<User>
 - `function scopeDelDia(Builder $query, $fecha): Builder`
-  _Sin resumen PHPDoc._
+  Filtra eventos de una fecha concreta.
+  `@return` Builder<EventoAgenda>
 - `function scopeDelCentro(Builder $query, int $centroId): Builder`
-  _Sin resumen PHPDoc._
+  Filtra eventos de un centro.
+  `@return` Builder<EventoAgenda>
 - `function scopeDelProfesional(Builder $query, int $usuarioId): Builder`
-  _Sin resumen PHPDoc._
+  Filtra eventos en los que participa un profesional.
+  `@return` Builder<EventoAgenda>
 - `function agregarProfesionales(array $usuarioIds): array`
   Convoca a los profesionales al evento y bloquea sus slots disponibles.
   `@return` array<int, Collection<int, Cita>> Mapa usuarioId → citas en conflicto
@@ -907,19 +893,26 @@ Registra ausencias, reducciones o modificaciones puntuales del horario. VIDA no 
 Metodos publicos:
 
 - `function usuario(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Profesional afectado por la excepción.
+  `@return` BelongsTo<User, self>
 - `function centro(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Centro al que se aplica la excepción.
+  `@return` BelongsTo<Centro, self>
 - `function creadoPor(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Usuario que registró la excepción.
+  `@return` BelongsTo<User, self>
 - `function scopeVigentes(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra excepciones vigentes a fecha de hoy.
+  `@return` Builder<ExcepcionProfesional>
 - `function scopeQueAfectanDisponibilidad(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra excepciones que bloquean la disponibilidad.
+  `@return` Builder<ExcepcionProfesional>
 - `function scopeDelProfesional(Builder $query, int $usuarioId): Builder`
-  _Sin resumen PHPDoc._
+  Filtra excepciones de un profesional concreto.
+  `@return` Builder<ExcepcionProfesional>
 - `function scopeEnPeriodo(Builder $query, $desde, $hasta): Builder`
-  _Sin resumen PHPDoc._
+  Filtra excepciones que solapan con un periodo dado.
+  `@return` Builder<ExcepcionProfesional>
 
 ### `Modules\Agenda\Models\HorarioCentro`
 
@@ -932,19 +925,26 @@ Define los días y horas de apertura, el horario de atención al público y el m
 Metodos publicos:
 
 - `function centro(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Centro al que pertenece el horario.
+  `@return` BelongsTo<Centro, self>
 - `function tiposSlot(): HasMany`
-  _Sin resumen PHPDoc._
+  Tipos de slot asociados al horario.
+  `@return` HasMany<TipoSlot>
 - `function scopeActivos(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra horarios activos.
+  `@return` Builder<HorarioCentro>
 - `function scopeVigentes(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra horarios vigentes en la fecha actual.
+  `@return` Builder<HorarioCentro>
 - `function scopeDelCentro(Builder $query, int $centroId): Builder`
-  _Sin resumen PHPDoc._
+  Filtra horarios de un centro.
+  `@return` Builder<HorarioCentro>
 - `function esModoBasico(): bool`
-  _Sin resumen PHPDoc._
+  Indica si el horario usa modo basico.
+  `@return` bool
 - `function esModoAvanzado(): bool`
-  _Sin resumen PHPDoc._
+  Indica si el horario usa modo avanzado.
+  `@return` bool
 
 ### `Modules\Agenda\Models\LineaCuadrante`
 

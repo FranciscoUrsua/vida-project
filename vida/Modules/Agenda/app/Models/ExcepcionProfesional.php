@@ -54,36 +54,82 @@ class ExcepcionProfesional extends Model
         'origen' => OrigenExcepcion::class,
     ];
 
+    /**
+     * Profesional afectado por la excepción.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function usuario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'usuario_id');
     }
 
+    /**
+     * Centro al que se aplica la excepción.
+     *
+     * @return BelongsTo<Centro, self>
+     */
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class);
     }
 
+    /**
+     * Usuario que registró la excepción.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function creadoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'creado_por_id');
     }
 
+    /**
+     * Filtra excepciones vigentes a fecha de hoy.
+     *
+     * @param Builder<ExcepcionProfesional> $query
+     *
+     * @return Builder<ExcepcionProfesional>
+     */
     public function scopeVigentes(Builder $query): Builder
     {
         return $query->where('fecha_fin', '>=', now()->toDateString());
     }
 
+    /**
+     * Filtra excepciones que bloquean la disponibilidad.
+     *
+     * @param Builder<ExcepcionProfesional> $query
+     *
+     * @return Builder<ExcepcionProfesional>
+     */
     public function scopeQueAfectanDisponibilidad(Builder $query): Builder
     {
         return $query->where('afecta_disponibilidad', true);
     }
 
+    /**
+     * Filtra excepciones de un profesional concreto.
+     *
+     * @param Builder<ExcepcionProfesional> $query
+     * @param int $usuarioId
+     *
+     * @return Builder<ExcepcionProfesional>
+     */
     public function scopeDelProfesional(Builder $query, int $usuarioId): Builder
     {
         return $query->where('usuario_id', $usuarioId);
     }
 
+    /**
+     * Filtra excepciones que solapan con un periodo dado.
+     *
+     * @param Builder<ExcepcionProfesional> $query
+     * @param mixed $desde
+     * @param mixed $hasta
+     *
+     * @return Builder<ExcepcionProfesional>
+     */
     public function scopeEnPeriodo(Builder $query, $desde, $hasta): Builder
     {
         // Solapamiento de períodos: existen si fecha_inicio <= $hasta Y fecha_fin >= $desde
