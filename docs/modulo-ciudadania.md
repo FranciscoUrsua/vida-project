@@ -123,6 +123,8 @@ El historial completo de documentos de identidad queda preservado: cuando alguie
 
 ### 3.3 Relaciones entre ciudadanos
 
+3.3 Relaciones entre ciudadanos
+
 ```
 ciudadano_relaciones
 - id
@@ -135,72 +137,33 @@ ciudadano_relaciones
 - timestamps
 ```
 
-El catálogo de tipos de relación se gestiona en la tabla `tipos_relacion`
-(ver sección 3.3.1). Cada tipo define su etiqueta visible, su recíproco y,
-si procede, su implicación funcional. El trait `TieneRelacionesReciprocas`
-aplicado al modelo `CiudadanoRelacion` creará automáticamente el registro
-inverso al crear una relación, y propagará los cambios de fecha_fin y las
-eliminaciones al recíproco.
+El catálogo de tipos_relacion es configurable desde el backoffice. Cada tipo define su recíproco mediante el campo tipo_reciproco: cuando se crea la relación "A es padre de B", el sistema genera automáticamente "B es hijo de A". Las relaciones simétricas (cónyuge, pareja_de_hecho) se reciprocan con el mismo tipo.
 
-### 3.3.1 Catálogo de tipos de relación
+Ejemplos del catálogo inicial: cónyuge, pareja_de_hecho, hijo/a, padre/madre, hermano/a, tutor_legal, tutelado, cuidador_principal, persona_cuidada, acogedor, acogido, representante, representado.
 
-```
-tipos_relacion
-- id
-- slug              (string único, no editable — contrato interno del código)
-- etiqueta          (string editable — lo que ve el TSR)
-- etiqueta_reciproca (string editable — etiqueta del tipo inverso)
-- slug_reciproco    (string nullable — FK lógica al slug del tipo recíproco;
-                    null para tipos simétricos porque el recíproco es sí mismo)
-- simetrica         (boolean — true para cónyuge, pareja_de_hecho, hermano/a)
-- implicacion_funcional (string nullable — identificador semántico que el código
-                    usa para lógica de negocio; independiente del slug y la etiqueta.
-                    Valores iniciales: representante / tutor_legal / cuidador_principal)
-- eliminable        (boolean — false para tipos del seeder; true para tipos creados
-                    desde backoffice)
-- activo            (boolean default true)
-- timestamps
-```
-
-**Sobre `implicacion_funcional`:** el código nunca evalúa slugs ni etiquetas
-para tomar decisiones. Evalúa `implicacion_funcional`. Esto permite que el
-backoffice renombre etiquetas libremente, e incluso que un municipio cree un
-segundo tipo con `implicacion_funcional = representante` sin tocar código.
-
-**Tipos iniciales del seeder:**
-
-| slug | etiqueta | etiqueta_recíproca | simetrica | implicacion_funcional |
-|---|---|---|---|---|
-| padre | Padre/Madre | Hijo/a | false | — |
-| hijo | Hijo/a | Padre/Madre | false | — |
-| conyuge | Cónyuge | Cónyuge | true | — |
-| pareja_de_hecho | Pareja de hecho | Pareja de hecho | true | — |
-| hermano | Hermano/a | Hermano/a | true | — |
-| abuelo | Abuelo/a | Nieto/a | false | — |
-| nieto | Nieto/a | Abuelo/a | false | — |
-| tutor_legal | Tutor/a legal | Tutelado/a | false | tutor_legal |
-| tutelado | Tutelado/a | Tutor/a legal | false | — |
-| representante | Representante | Representado/a | false | representante |
-| representado | Representado/a | Representante | false | — |
-| cuidador_principal | Cuidador/a principal | Persona cuidada | false | cuidador_principal |
-| persona_cuidada | Persona cuidada | Cuidador/a principal | false | — |
-| acogedor | Acogedor/a | Acogido/a | false | — |
-| acogido | Acogido/a | Acogedor/a | false | — |
+La reciprocidad automática la gestiona el trait TieneRelacionesReciprocas aplicado al modelo CiudadanoRelacion. El trait intercepta la creación de una relación y genera el registro inverso en la misma transacción. Si se elimina o cierra (fecha_fin) una relación, el trait aplica el mismo cambio al registro recíproco.
 
 Esta tabla es la fuente única de verdad sobre el vínculo entre dos ciudadanos. No existe ningún otro lugar en el modelo donde se registre el rol de una persona respecto a otra.
 
+**Dónde se gestionan**: las relaciones se crean y editan en la **ficha del ciudadano** (módulo Ciudadanía, FichaCiudadanoPage), no en la pantalla de intervención. Las razones:
+- Pueden ser editadas por cualquier usuario con permiso ciudadano.editar (rol tramitación incluido), sin necesitar a un trabajador social.
+- Tienen utilidad administrativa y de comunicación más allá del diagnóstico social (p. ej., saber quién es el representante legal de un ciudadano a efectos de notificaciones). 
+- La pantalla de intervención ya tiene suficiente densidad funcional.
+
+#### UI en la ficha — panel Relaciones:
+
+- Lista de relaciones vigentes del ciudadano: [tipo] → [nombre del ciudadano relacionado], con enlace a la ficha del relacionado.
+- Las relaciones cerradas (con fecha_fin) se muestran colapsadas bajo "Ver historial".
+- Botón "+ Añadir relación" visible solo para usuarios con ciudadano.editar.
+- Al añadir: modal con tres campos — tipo de relación (select del catálogo tipos_relacion), ciudadano relacionado (buscador inline), fecha de inicio. Fecha de fin opcional.
+- Al hacer clic en una relación vigente: modal de edición con opción "Cerrar relación" (establece fecha_fin = hoy).
+- La relación recíproca generada automáticamente aparece en la ficha del otro ciudadano sin ningún marcador especial: el usuario simplemente observa que el sistema ha completado el vínculo por él.
+
 ### 3.4 Unidad de convivencia
 
-La unidad de convivencia tiene identidad propia porque es la unidad de referencia
-para el cálculo de prestaciones económicas y para la intervención familiar. No es
-simplemente un grupo de relaciones — es una entidad con domicilio, fechas de
-vigencia y composición propia.
-
-**Ubicación en el código:** `Modules\Ciudadania`. La UC no tiene módulo propio;
-su ciclo de vida siempre se origina desde un ciudadano.
+La unidad de convivencia tiene identidad propia porque es la unidad de referencia para el cálculo de prestaciones económicas y para la intervención familiar. No es simplemente un grupo de relaciones — es una entidad con domicilio, fechas de vigencia y composición propia.
 
 ```
-
 unidades_convivencia
 - id
 - domicilio (text encriptado)
@@ -218,62 +181,27 @@ unidad_convivencia_miembros
 - ciudadano_id (FK)
 - fecha_inicio (date)
 - fecha_fin (date nullable)
-- fuente (enum: manual / padron / importacion)
+- fuente (string: manual / padron / importacion)
 - verificado (boolean default false)
-- verificado_por (FK a users, nullable)
-- verificado_en (timestamp nullable)
 - timestamps
-
 ```
 
-**Sobre cuándo crear una unidad de convivencia:** un ciudadano se da de alta
-siempre sin unidad de convivencia. La unidad se crea únicamente cuando es
-relevante modelar la convivencia:
-
-- Al dar de alta a un conviviente para vincularlo al caso de otro ciudadano.
-- Al tramitar una prestación económica que requiere conocer la composición e
-  ingresos del hogar.
+**Sobre cuándo crear una unidad de convivencia:** un ciudadano se da de alta siempre sin unidad de convivencia. La unidad se crea únicamente cuando es relevante modelar la convivencia, en estos casos:
+- Al dar de alta a un conviviente para vincularlo al caso del ciudadano.
+- Al tramitar una prestación económica que requiere conocer la composición e ingresos del hogar.
 - Cuando la intervención es de carácter familiar, no individual.
 
-**Sobre los miembros de la UC:** todo miembro es un ciudadano de pleno derecho
-en el sistema. Cuando el TSR añade un conviviente durante el flujo de intervención,
-ese alta pasa por el mismo motor de deduplicación y la misma consulta al padrón
-que cualquier otro alta. El contexto de alta puede preseleccionar el domicilio de
-la UC y la relación con el ciudadano de referencia para agilizar el formulario,
-pero no omite ninguna garantía de calidad de datos.
+**Sobre el rol dentro de la unidad:** la unidad de convivencia no registra el rol de cada miembro. Quién es hijo de quién, quién es tutor de quién, se lee de ciudadano_relaciones.
 
-Un miembro de la UC puede no tener Historia Social ni Plan de Intervención propio.
-Su presencia en la unidad puede ser relevante únicamente para el cálculo de
-ingresos o la valoración de la situación familiar del ciudadano titular del caso.
+**Sobre la titularidad y los planes:** no existe un "titular de la unidad". Los Planes de Intervención y las prestaciones se asignan siempre a personas concretas, nunca a la unidad.
 
-**Sobre el campo `verificado`:** indica si se ha verificado la residencia del
-ciudadano en el municipio, necesaria para ser perceptor de prestaciones municipales.
-La verificación se produce normalmente durante el alta mediante consulta al padrón.
-En casos tasados (VVG, PSH sin documentación), el TSR puede marcar la verificación
-manualmente; en ese caso se registra `verificado_por` y `verificado_en` para
-trazabilidad. Un ciudadano sin `verificado = true` en su membresía activa no puede
-ser titular de prestaciones económicas municipales — esta restricción se evalúa en
-código, no en configuración.
+Un ciudadano puede pertenecer a más de una unidad de convivencia a lo largo del tiempo, y excepcionalmente a más de una simultáneamente (menores con custodia compartida).
 
-**Sobre el rol dentro de la unidad:** la unidad de convivencia no registra el rol
-de cada miembro. Quién es hijo de quién, quién es tutor de quién, se lee de
-`ciudadano_relaciones`. Cuando se añade un miembro a una unidad de convivencia, el
-profesional debe asegurarse de que la relación entre ese ciudadano y los demás
-miembros existe en la tabla de relaciones; si no existe, la crea en ese momento.
+Los miembros importados desde el padrón se marcan con fuente: padron y verificado: false hasta confirmación del profesional.
 
-**Sobre la titularidad y los planes:** no existe un "titular de la unidad". Los
-Planes de Intervención pueden asignarse a una persona concreta (ciudadano individual)
-o a la UC como entidad (intervención familiar). Las prestaciones económicas se
-asignan siempre a personas concretas. Ver `docs/modulo-intervencion.md`, sección 5,
-para el modelo de `PlanDeIntervencion` y la restricción de que exactamente uno de
-`ciudadano_id` o `unidad_convivencia_id` debe estar presente.
+**Dónde se gestiona:** la creación y edición de unidades de convivencia y su composición pertenece a la **pantalla de intervención** (módulo Intervención, CiudadanoPage). La gestión de UC requiere criterio profesional porque su composición tiene consecuencias directas en el cálculo de prestaciones económicas.
 
-Un ciudadano puede pertenecer a más de una unidad de convivencia a lo largo del
-tiempo, y excepcionalmente a más de una simultáneamente (menores con custodia
-compartida en dos domicilios).
-
-Los miembros importados desde el padrón se marcan con `fuente: padron` y
-`verificado: false` hasta confirmación del profesional.
+En la **ficha del ciudadano** (FichaCiudadanoPage) la UC se muestra en **modo solo lectura**: un resumen compacto de los convivientes actuales (nombre y relación si existe en ciudadano_relaciones), sin posibilidad de edición. Esto permite a cualquier usuario con acceso a la ficha conocer el contexto de convivencia sin necesitar acceso a la pantalla de intervención.
 
 ### 3.5 Situación social (Capa 2)
 
