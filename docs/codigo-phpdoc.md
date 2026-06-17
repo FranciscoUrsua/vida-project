@@ -1,39 +1,19 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-17 11:41:54 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-17 11:44:25 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 371.
 - Cabeceras documentadas: 251/371.
-- Metodos publicos documentados: 631/991.
-- Alertas de comentarios: 602.
+- Metodos publicos documentados: 653/991.
+- Alertas de comentarios: 580.
 
 ## Alertas
 
-### Método público sin PHPDoc (312)
+### Método público sin PHPDoc (290)
 
-- `Modules\Agenda\Models\LineaCuadrante::cuadranteMes()` en `vida/Modules/Agenda/app/Models/LineaCuadrante.php:50`: Falta docblock de método público.
-- `Modules\Agenda\Models\LineaCuadrante::usuario()` en `vida/Modules/Agenda/app/Models/LineaCuadrante.php:55`: Falta docblock de método público.
-- `Modules\Agenda\Models\LineaCuadrante::centro()` en `vida/Modules/Agenda/app/Models/LineaCuadrante.php:60`: Falta docblock de método público.
-- `Modules\Agenda\Models\LineaCuadrante::slots()` en `vida/Modules/Agenda/app/Models/LineaCuadrante.php:65`: Falta docblock de método público.
-- `Modules\Agenda\Models\LineaCuadrante::excepcion()` en `vida/Modules/Agenda/app/Models/LineaCuadrante.php:70`: Falta docblock de método público.
-- `Modules\Agenda\Models\LineaCuadrante::scopeActivas()` en `vida/Modules/Agenda/app/Models/LineaCuadrante.php:75`: Falta docblock de método público.
-- `Modules\Agenda\Models\LineaCuadrante::scopeDelDia()` en `vida/Modules/Agenda/app/Models/LineaCuadrante.php:80`: Falta docblock de método público.
-- `Modules\Agenda\Models\LineaCuadrante::scopeDelProfesional()` en `vida/Modules/Agenda/app/Models/LineaCuadrante.php:85`: Falta docblock de método público.
-- `Modules\Agenda\Models\PerfilHorarioProfesional::usuario()` en `vida/Modules/Agenda/app/Models/PerfilHorarioProfesional.php:84`: Falta docblock de método público.
-- `Modules\Agenda\Models\PerfilHorarioProfesional::centro()` en `vida/Modules/Agenda/app/Models/PerfilHorarioProfesional.php:89`: Falta docblock de método público.
-- `Modules\Agenda\Models\PerfilHorarioProfesional::lineasCuadrante()` en `vida/Modules/Agenda/app/Models/PerfilHorarioProfesional.php:94`: Falta docblock de método público.
-- `Modules\Agenda\Models\PerfilHorarioProfesional::scopeActivos()` en `vida/Modules/Agenda/app/Models/PerfilHorarioProfesional.php:99`: Falta docblock de método público.
-- `Modules\Agenda\Models\PerfilHorarioProfesional::scopeDelCentro()` en `vida/Modules/Agenda/app/Models/PerfilHorarioProfesional.php:104`: Falta docblock de método público.
-- `Modules\Agenda\Models\PerfilHorarioProfesional::scopeVigentes()` en `vida/Modules/Agenda/app/Models/PerfilHorarioProfesional.php:109`: Falta docblock de método público.
-- `Modules\Agenda\Models\ReasignacionCita::cita()` en `vida/Modules/Agenda/app/Models/ReasignacionCita.php:37`: Falta docblock de método público.
-- `Modules\Agenda\Models\ReasignacionCita::slotOriginal()` en `vida/Modules/Agenda/app/Models/ReasignacionCita.php:42`: Falta docblock de método público.
-- `Modules\Agenda\Models\ReasignacionCita::slotNuevo()` en `vida/Modules/Agenda/app/Models/ReasignacionCita.php:47`: Falta docblock de método público.
-- `Modules\Agenda\Models\ReasignacionCita::profesionalOriginal()` en `vida/Modules/Agenda/app/Models/ReasignacionCita.php:52`: Falta docblock de método público.
-- `Modules\Agenda\Models\ReasignacionCita::profesionalNuevo()` en `vida/Modules/Agenda/app/Models/ReasignacionCita.php:57`: Falta docblock de método público.
-- `Modules\Agenda\Models\ReasignacionCita::realizadaPor()` en `vida/Modules/Agenda/app/Models/ReasignacionCita.php:62`: Falta docblock de método público.
 - `Modules\Agenda\Models\Slot::lineaCuadrante()` en `vida/Modules/Agenda/app/Models/Slot.php:53`: Falta docblock de método público.
 - `Modules\Agenda\Models\Slot::usuario()` en `vida/Modules/Agenda/app/Models/Slot.php:58`: Falta docblock de método público.
 - `Modules\Agenda\Models\Slot::centro()` en `vida/Modules/Agenda/app/Models/Slot.php:63`: Falta docblock de método público.
@@ -51,8 +31,6 @@ Generado el 2026-06-17 11:41:54 UTC a partir de los docblocks PHPDoc compatibles
 - `Modules\Agenda\Models\TipoSlot::slots()` en `vida/Modules/Agenda/app/Models/TipoSlot.php:57`: Falta docblock de método público.
 - `Modules\Agenda\Models\TipoSlot::scopeActivos()` en `vida/Modules/Agenda/app/Models/TipoSlot.php:62`: Falta docblock de método público.
 - `Modules\Agenda\Models\TipoSlot::scopeQueAdmitenApiExterna()` en `vida/Modules/Agenda/app/Models/TipoSlot.php:67`: Falta docblock de método público.
-- `Modules\Agenda\Providers\AgendaServiceProvider::register()` en `vida/Modules/Agenda/app/Providers/AgendaServiceProvider.php:20`: Falta docblock de método público.
-- `Modules\Agenda\Providers\AgendaServiceProvider::boot()` en `vida/Modules/Agenda/app/Providers/AgendaServiceProvider.php:25`: Falta docblock de método público.
 - `Modules\Centro\Models\AmbitoTerritorial::centro()` en `vida/Modules/Centro/app/Models/AmbitoTerritorial.php:43`: Falta docblock de método público.
 - `Modules\Centro\Providers\CentroServiceProvider::register()` en `vida/Modules/Centro/app/Providers/CentroServiceProvider.php:17`: Falta docblock de método público.
 - `Modules\Centro\Providers\CentroServiceProvider::boot()` en `vida/Modules/Centro/app/Providers/CentroServiceProvider.php:19`: Falta docblock de método público.
@@ -957,21 +935,29 @@ Define la franja horaria real de trabajo de un profesional en un día, incorpora
 Metodos publicos:
 
 - `function cuadranteMes(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Cuadrante mensual al que pertenece la línea.
+  `@return` BelongsTo<CuadranteMes, self>
 - `function usuario(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Profesional asignado a la línea.
+  `@return` BelongsTo<User, self>
 - `function centro(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Centro al que pertenece la línea.
+  `@return` BelongsTo<Centro, self>
 - `function slots(): HasMany`
-  _Sin resumen PHPDoc._
+  Slots generados a partir de la línea.
+  `@return` HasMany<Slot>
 - `function excepcion(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Excepción profesional que anula la línea, si existe.
+  `@return` BelongsTo<ExcepcionProfesional, self>
 - `function scopeActivas(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra líneas no anuladas.
+  `@return` Builder<LineaCuadrante>
 - `function scopeDelDia(Builder $query, $fecha): Builder`
-  _Sin resumen PHPDoc._
+  Filtra líneas de una fecha concreta.
+  `@return` Builder<LineaCuadrante>
 - `function scopeDelProfesional(Builder $query, int $usuarioId): Builder`
-  _Sin resumen PHPDoc._
+  Filtra líneas de un profesional.
+  `@return` Builder<LineaCuadrante>
 
 ### `Modules\Agenda\Models\PerfilHorarioProfesional`
 
@@ -984,17 +970,23 @@ Define la jornada semanal y las franjas habituales de trabajo. Un profesional pu
 Metodos publicos:
 
 - `function usuario(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Profesional al que pertenece el perfil horario.
+  `@return` BelongsTo<User, self>
 - `function centro(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Centro al que pertenece el perfil horario.
+  `@return` BelongsTo<Centro, self>
 - `function lineasCuadrante(): HasMany`
-  _Sin resumen PHPDoc._
+  Líneas de cuadrante asociadas al perfil.
+  `@return` HasMany<LineaCuadrante>
 - `function scopeActivos(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra perfiles activos.
+  `@return` Builder<PerfilHorarioProfesional>
 - `function scopeDelCentro(Builder $query, int $centroId): Builder`
-  _Sin resumen PHPDoc._
+  Filtra perfiles de un centro.
+  `@return` Builder<PerfilHorarioProfesional>
 - `function scopeVigentes(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra perfiles vigentes en la fecha actual.
+  `@return` Builder<PerfilHorarioProfesional>
 
 ### `Modules\Agenda\Models\ReasignacionCita`
 
@@ -1007,17 +999,23 @@ Cuando una cita pasa de un profesional a otro (por no-show, baja sobrevenida u o
 Metodos publicos:
 
 - `function cita(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Cita afectada por la reasignación.
+  `@return` BelongsTo<Cita, self>
 - `function slotOriginal(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Slot original antes de la reasignación.
+  `@return` BelongsTo<Slot, self>
 - `function slotNuevo(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Slot nuevo asignado tras la reasignación.
+  `@return` BelongsTo<Slot, self>
 - `function profesionalOriginal(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Profesional que tenía la cita originalmente.
+  `@return` BelongsTo<User, self>
 - `function profesionalNuevo(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Profesional receptor de la cita reasignada.
+  `@return` BelongsTo<User, self>
 - `function realizadaPor(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Usuario que ejecutó la reasignación.
+  `@return` BelongsTo<User, self>
 
 ### `Modules\Agenda\Models\Slot`
 
@@ -1118,9 +1116,11 @@ Registra las migraciones y los servicios del módulo de citas y agendas.
 Metodos publicos:
 
 - `function register(): void`
-  _Sin resumen PHPDoc._
+  Registra los servicios del módulo en el contenedor.
+  `@return` void
 - `function boot(): void`
-  _Sin resumen PHPDoc._
+  Arranca el módulo y registra sus observers.
+  `@return` void
 
 ### `Modules\Agenda\Services\CuadranteGeneratorService`
 

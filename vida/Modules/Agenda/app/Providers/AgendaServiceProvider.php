@@ -17,11 +17,21 @@ class AgendaServiceProvider extends ServiceProvider
 {
     protected string $moduleName = 'Agenda';
 
+    /**
+     * Registra los servicios del módulo en el contenedor.
+     *
+     * @return void
+     */
     public function register(): void
     {
         //
     }
 
+    /**
+     * Arranca el módulo y registra sus observers.
+     *
+     * @return void
+     */
     public function boot(): void
     {
         $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));

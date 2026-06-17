@@ -47,41 +47,89 @@ class LineaCuadrante extends Model
         'anulada' => 'boolean',
     ];
 
+    /**
+     * Cuadrante mensual al que pertenece la línea.
+     *
+     * @return BelongsTo<CuadranteMes, self>
+     */
     public function cuadranteMes(): BelongsTo
     {
         return $this->belongsTo(CuadranteMes::class, 'cuadrante_mes_id');
     }
 
+    /**
+     * Profesional asignado a la línea.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function usuario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'usuario_id');
     }
 
+    /**
+     * Centro al que pertenece la línea.
+     *
+     * @return BelongsTo<Centro, self>
+     */
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class);
     }
 
+    /**
+     * Slots generados a partir de la línea.
+     *
+     * @return HasMany<Slot>
+     */
     public function slots(): HasMany
     {
         return $this->hasMany(Slot::class, 'linea_cuadrante_id');
     }
 
+    /**
+     * Excepción profesional que anula la línea, si existe.
+     *
+     * @return BelongsTo<ExcepcionProfesional, self>
+     */
     public function excepcion(): BelongsTo
     {
         return $this->belongsTo(ExcepcionProfesional::class, 'excepcion_id');
     }
 
+    /**
+     * Filtra líneas no anuladas.
+     *
+     * @param Builder<LineaCuadrante> $query
+     *
+     * @return Builder<LineaCuadrante>
+     */
     public function scopeActivas(Builder $query): Builder
     {
         return $query->where('anulada', false);
     }
 
+    /**
+     * Filtra líneas de una fecha concreta.
+     *
+     * @param Builder<LineaCuadrante> $query
+     * @param mixed $fecha
+     *
+     * @return Builder<LineaCuadrante>
+     */
     public function scopeDelDia(Builder $query, $fecha): Builder
     {
         return $query->where('fecha', $fecha);
     }
 
+    /**
+     * Filtra líneas de un profesional.
+     *
+     * @param Builder<LineaCuadrante> $query
+     * @param int $usuarioId
+     *
+     * @return Builder<LineaCuadrante>
+     */
     public function scopeDelProfesional(Builder $query, int $usuarioId): Builder
     {
         return $query->where('usuario_id', $usuarioId);

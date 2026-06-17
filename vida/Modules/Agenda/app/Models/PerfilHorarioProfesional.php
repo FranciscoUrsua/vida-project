@@ -81,31 +81,68 @@ class PerfilHorarioProfesional extends Model
         'activo' => 'boolean',
     ];
 
+    /**
+     * Profesional al que pertenece el perfil horario.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function usuario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'usuario_id');
     }
 
+    /**
+     * Centro al que pertenece el perfil horario.
+     *
+     * @return BelongsTo<Centro, self>
+     */
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class);
     }
 
+    /**
+     * Líneas de cuadrante asociadas al perfil.
+     *
+     * @return HasMany<LineaCuadrante>
+     */
     public function lineasCuadrante(): HasMany
     {
         return $this->hasMany(LineaCuadrante::class, 'usuario_id', 'usuario_id');
     }
 
+    /**
+     * Filtra perfiles activos.
+     *
+     * @param Builder<PerfilHorarioProfesional> $query
+     *
+     * @return Builder<PerfilHorarioProfesional>
+     */
     public function scopeActivos(Builder $query): Builder
     {
         return $query->where('activo', true);
     }
 
+    /**
+     * Filtra perfiles de un centro.
+     *
+     * @param Builder<PerfilHorarioProfesional> $query
+     * @param int $centroId
+     *
+     * @return Builder<PerfilHorarioProfesional>
+     */
     public function scopeDelCentro(Builder $query, int $centroId): Builder
     {
         return $query->where('centro_id', $centroId);
     }
 
+    /**
+     * Filtra perfiles vigentes en la fecha actual.
+     *
+     * @param Builder<PerfilHorarioProfesional> $query
+     *
+     * @return Builder<PerfilHorarioProfesional>
+     */
     public function scopeVigentes(Builder $query): Builder
     {
         $hoy = now()->toDateString();

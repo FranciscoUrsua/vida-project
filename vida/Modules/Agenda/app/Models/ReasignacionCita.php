@@ -34,31 +34,61 @@ class ReasignacionCita extends Model
         'motivo' => MotivoReasignacion::class,
     ];
 
+    /**
+     * Cita afectada por la reasignación.
+     *
+     * @return BelongsTo<Cita, self>
+     */
     public function cita(): BelongsTo
     {
         return $this->belongsTo(Cita::class);
     }
 
+    /**
+     * Slot original antes de la reasignación.
+     *
+     * @return BelongsTo<Slot, self>
+     */
     public function slotOriginal(): BelongsTo
     {
         return $this->belongsTo(Slot::class, 'slot_original_id');
     }
 
+    /**
+     * Slot nuevo asignado tras la reasignación.
+     *
+     * @return BelongsTo<Slot, self>
+     */
     public function slotNuevo(): BelongsTo
     {
         return $this->belongsTo(Slot::class, 'slot_nuevo_id');
     }
 
+    /**
+     * Profesional que tenía la cita originalmente.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function profesionalOriginal(): BelongsTo
     {
         return $this->belongsTo(User::class, 'profesional_original_id');
     }
 
+    /**
+     * Profesional receptor de la cita reasignada.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function profesionalNuevo(): BelongsTo
     {
         return $this->belongsTo(User::class, 'profesional_nuevo_id');
     }
 
+    /**
+     * Usuario que ejecutó la reasignación.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function realizadaPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'realizada_por_id');
