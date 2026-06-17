@@ -428,10 +428,14 @@ class CiudadanoPage extends Component
         $relacion = CiudadanoRelacion::where('ciudadano_id', $this->ciudadano->id)
             ->whereIn('tipo_relacion', $slugsRepresentante)
             ->whereNull('fecha_fin')
-            ->with('ciudadanoRelacionado')
             ->first();
 
-        return $relacion?->ciudadanoRelacionado;
+        // Se carga sin AmbitoUoScope porque el representante puede pertenecer
+        // a una UO diferente a la del titular del expediente.
+        return $relacion
+            ? Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
+                ->find($relacion->ciudadano_relacionado_id)
+            : null;
     }
 
     /**
