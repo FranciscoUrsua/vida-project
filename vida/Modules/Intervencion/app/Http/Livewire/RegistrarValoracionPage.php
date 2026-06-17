@@ -167,8 +167,9 @@ class RegistrarValoracionPage extends Component
     // -------------------------------------------------------------------------
 
     /**
-     * Inicializa $datos con null para cada campo del schema.
-     * Solo añade claves nuevas; preserva valores ya introducidos.
+     * Inicializa $datos con null para cada campo del schema y carga los
+     * valores guardados previamente si existe una Ficha en BD para esta
+     * historia y tipo de ficha.
      */
     private function inicializarDatos(): void
     {
@@ -176,6 +177,26 @@ class RegistrarValoracionPage extends Component
             if (! array_key_exists($campo['id'], $this->datos)) {
                 $this->datos[$campo['id']] = null;
             }
+        }
+
+        if (! $this->tipoFichaId || ! $this->historiaId) {
+            return;
+        }
+
+        $ficha = Ficha::where('historia_id', $this->historiaId)
+            ->where('tipo_ficha_id', $this->tipoFichaId)
+            ->first();
+
+        if (! $ficha) {
+            return;
+        }
+
+        foreach ($ficha->datos ?? [] as $key => $valor) {
+            $this->datos[$key] = $valor;
+        }
+
+        if ($ficha->notas !== null) {
+            $this->notas = $ficha->notas;
         }
     }
 

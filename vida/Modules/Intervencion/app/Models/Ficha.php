@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\HistoriaSocial;
@@ -29,6 +30,7 @@ use Modules\Intervencion\Database\Factories\FichaFactory;
  */
 class Ficha extends Model
 {
+    use Auditable;
     use HasFactory;
 
     protected static function newFactory(): FichaFactory
@@ -80,5 +82,15 @@ class Ficha extends Model
     public function tipoFicha(): BelongsTo
     {
         return $this->belongsTo(TipoFicha::class, 'tipo_ficha_id');
+    }
+
+    /**
+     * Resuelve el ciudadano_id para el sistema de auditoría a través de la historia social.
+     *
+     * @return int|null
+     */
+    public function getCiudadanoId(): ?int
+    {
+        return $this->historia?->ciudadano_id;
     }
 }
