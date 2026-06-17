@@ -246,6 +246,7 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Miembros activos de la UC vigente, enriquecidos con el tipo de relación si existe.
+     * Carga el ciudadano conviviente sin AmbitoUoScope porque puede pertenecer a otra UO.
      *
      * @return Collection<int, UnidadConvivenciaMiembro>
      */
@@ -256,7 +257,9 @@ class FichaCiudadanoPage extends Component
             return collect();
         }
 
-        $miembros = $this->ucVigente->miembrosActivos()->with('ciudadano')->get();
+        $miembros = $this->ucVigente->miembrosActivos()
+            ->with(['ciudadano' => fn ($q) => $q->withoutGlobalScope(AmbitoUoScope::class)])
+            ->get();
 
         // Índice de relaciones activas del titular hacia cada conviviente
         $relacionesPorCiudadano = CiudadanoRelacion::where('ciudadano_id', $this->ciudadanoId)

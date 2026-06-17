@@ -1,6 +1,6 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-17 11:18:29 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-17 11:28:17 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
@@ -298,8 +298,8 @@ Generado el 2026-06-17 11:18:29 UTC a partir de los docblocks PHPDoc compatibles
 - `Modules\Centro\Providers\CentroServiceProvider::register()` en `vida/Modules/Centro/app/Providers/CentroServiceProvider.php:17`: Falta docblock de método público.
 - `Modules\Centro\Providers\CentroServiceProvider::boot()` en `vida/Modules/Centro/app/Providers/CentroServiceProvider.php:19`: Falta docblock de método público.
 - `Modules\Ciudadania\Http\Livewire\AltaCiudadano::render()` en `vida/Modules/Ciudadania/app/Http/Livewire/AltaCiudadano.php:428`: Falta docblock de método público.
-- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::ciudadanoSeleccionadoRelacion()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:431`: Falta docblock de método público.
-- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::render()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:799`: Falta docblock de método público.
+- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::ciudadanoSeleccionadoRelacion()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:442`: Falta docblock de método público.
+- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::render()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:810`: Falta docblock de método público.
 - `Modules\Ciudadania\Models\CiudadanoIdentificador::ciudadano()` en `vida/Modules/Ciudadania/app/Models/CiudadanoIdentificador.php:83`: Falta docblock de método público.
 - `Modules\Ciudadania\Models\CiudadanoRelacion::ciudadano()` en `vida/Modules/Ciudadania/app/Models/CiudadanoRelacion.php:74`: Falta docblock de método público.
 - `Modules\Ciudadania\Models\CiudadanoRelacion::ciudadanoRelacionado()` en `vida/Modules/Ciudadania/app/Models/CiudadanoRelacion.php:79`: Falta docblock de método público.
@@ -1793,7 +1793,7 @@ Metodos publicos:
   UC vigente del ciudadano (primera con fecha_fin nula o futura). Sin AmbitoUoScope porque la UC no tiene ámbito UO propio.
   `@return` UnidadConvivencia|null
 - `function ucMiembros(): Collection`
-  Miembros activos de la UC vigente, enriquecidos con el tipo de relación si existe.
+  Miembros activos de la UC vigente, enriquecidos con el tipo de relación si existe. Carga el ciudadano conviviente sin AmbitoUoScope porque puede pertenecer a otra UO.
   `@return` Collection<int, UnidadConvivenciaMiembro>
 - `function puedeEditarRelaciones(): bool`
   Solo los roles con competencia de tramitación o intervención pueden crear o editar relaciones.
@@ -1814,10 +1814,10 @@ Metodos publicos:
   Tipos de relación activos disponibles para crear nuevas relaciones.
   `@return` array<string, string>
 - `function relacionesActivas(): Collection`
-  Relaciones activas salientes desde este ciudadano, con persona y tipo cargados.
+  Relaciones activas salientes desde este ciudadano, con persona y tipo cargados. El eager load de ciudadanoRelacionado bypasea AmbitoUoScope: el ciudadano relacionado puede pertenecer a cualquier UO.
   `@return` Collection<int, CiudadanoRelacion>
 - `function relacionesHistoricas(): Collection`
-  Historial completo de relaciones del ciudadano.
+  Historial completo de relaciones del ciudadano (vigentes y cerradas).
   `@return` Collection<int, CiudadanoRelacion>
 - `function relacionResultadosBusqueda(): Collection`
   Resultados de búsqueda para añadir una relación. Los nombres están cifrados, por eso se filtra en memoria siguiendo el patrón del buscador de ciudadanos.
