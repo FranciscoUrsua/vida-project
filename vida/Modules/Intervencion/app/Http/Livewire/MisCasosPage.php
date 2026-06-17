@@ -41,8 +41,15 @@ class MisCasosPage extends Component
     /** @var string Filtro por derivación especializada: '' | 'con' | 'sin' */
     public string $filtroEsp = '';
 
-    /** @var string Campo de ordenación: 'seg' | 'nombre' */
+    /**
+     * Campo de ordenación activo.
+     * Valores: 'seg' | 'inicio' | 'esp'
+     * ('seg' usa ordenación semántica por urgencia, no cronológica simple)
+     */
     public string $ordenarPor = 'seg';
+
+    /** @var string Dirección de ordenación: 'asc' | 'desc' */
+    public string $direccion = 'asc';
 
     /** @var int Número de resultados por página */
     public int $porPagina = 10;
@@ -73,6 +80,30 @@ class MisCasosPage extends Component
 
     public function updatedBusqueda(): void
     {
+        $this->resetPage();
+    }
+
+    /**
+     * Cambia la columna de ordenación o alterna la dirección si ya está activa.
+     * Valores de campo permitidos: 'seg', 'inicio', 'esp'.
+     *
+     * @param string $campo Identificador de columna.
+     *
+     * @return void
+     */
+    public function sortBy(string $campo): void
+    {
+        if (! in_array($campo, ['seg', 'inicio', 'esp'], true)) {
+            return;
+        }
+
+        if ($this->ordenarPor === $campo) {
+            $this->direccion = $this->direccion === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->ordenarPor = $campo;
+            $this->direccion = 'asc';
+        }
+
         $this->resetPage();
     }
 
@@ -158,20 +189,24 @@ class MisCasosPage extends Component
             $query->where(DB::raw('COALESCE(esp.planes_esp_count, 0)'), '=', 0);
         }
 
-        // Orden por seguimiento (vencido → próximo → programado → sin) o por nombre
-        if ($this->ordenarPor === 'seg') {
-            $query->orderByRaw('
+        // Dirección validada para uso seguro en raw SQL
+        $dir = $this->direccion === 'desc' ? 'DESC' : 'ASC';
+
+        match ($this->ordenarPor) {
+            // Semáforo de urgencia: vencido → próximo → programado → sin (invertible)
+            'seg' => $query->orderByRaw("
                 CASE
                     WHEN seg.fecha_siguiente_seguimiento < CURRENT_DATE THEN 0
                     WHEN seg.fecha_siguiente_seguimiento BETWEEN CURRENT_DATE AND CURRENT_DATE + 7 THEN 1
                     WHEN seg.fecha_siguiente_seguimiento > CURRENT_DATE + 7 THEN 2
                     ELSE 3
-                END ASC,
-                seg.fecha_siguiente_seguimiento ASC NULLS LAST
-            ');
-        } else {
-            $query->orderBy('pi.historia_id');
-        }
+                END {$dir},
+                seg.fecha_siguiente_seguimiento {$dir} NULLS LAST
+            "),
+            'inicio' => $query->orderBy('pi.fecha_inicio', $this->direccion),
+            'esp'    => $query->orderByRaw("COALESCE(esp.planes_esp_count, 0) {$dir}, pi.fecha_inicio ASC"),
+            default  => $query->orderBy('pi.historia_id', $this->direccion),
+        };
 
         return $query->paginate($this->porPagina);
     }

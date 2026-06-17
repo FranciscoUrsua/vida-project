@@ -55,11 +55,6 @@
             <option value="sin">Sin derivación</option>
         </select>
 
-        {{-- Orden --}}
-        <select wire:model.live="ordenarPor" class="form-select form-select-sm ms-auto" style="width: auto; font-size: 0.8rem;">
-            <option value="seg">Ordenar por seguimiento</option>
-            <option value="nombre">Ordenar por nombre</option>
-        </select>
     </div>
 
     {{-- Tabla de casos --}}
@@ -71,14 +66,45 @@
             </div>
         @else
             <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                @php
+                    $ordenarPor = $this->ordenarPor;
+                    $direccion  = $this->direccion;
+
+                    /**
+                     * Renderiza una cabecera de columna ordenable.
+                     * @param string $campo  Clave de campo ('seg', 'inicio', 'esp')
+                     * @param string $label  Texto visible
+                     */
+                    $th = function (string $campo, string $label) use ($ordenarPor, $direccion): string {
+                        $activo  = $ordenarPor === $campo;
+                        $flecha  = $activo ? ($direccion === 'asc' ? ' ↑' : ' ↓') : '';
+                        $color   = $activo ? 'var(--color-primary)' : 'var(--color-ink-600)';
+                        $decor   = $activo ? 'underline' : 'none';
+                        return '<th style="padding:0.5rem 0.75rem;">'
+                            . '<button wire:click="sortBy(\'' . $campo . '\')" type="button" '
+                            . 'style="background:none;border:none;padding:0;cursor:pointer;'
+                            . 'font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;'
+                            . "font-weight:600;color:{$color};text-decoration:{$decor};"
+                            . 'white-space:nowrap;">'
+                            . e($label) . $flecha
+                            . '</button>'
+                            . '</th>';
+                    };
+
+                    /** Cabecera no ordenable (sin interacción) */
+                    $thStatic = fn (string $label): string =>
+                        '<th style="padding:0.5rem 0.75rem;font-size:0.72rem;text-transform:uppercase;'
+                        . 'letter-spacing:0.05em;color:var(--color-ink-600);font-weight:600;">'
+                        . e($label) . '</th>';
+                @endphp
                 <thead>
                     <tr style="border-bottom: 2px solid var(--color-ink-200); text-align: left;">
-                        <th style="padding: 0.5rem 0.75rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-600); font-weight: 600;">Ciudadano/a</th>
-                        <th style="padding: 0.5rem 0.75rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-600); font-weight: 600;">Historia Social</th>
-                        <th style="padding: 0.5rem 0.75rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-600); font-weight: 600;">Próximo seguimiento</th>
-                        <th style="padding: 0.5rem 0.75rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-600); font-weight: 600;">{{ $nombrePlan }}</th>
-                        <th style="padding: 0.5rem 0.75rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-600); font-weight: 600;">Especializados</th>
-                        <th style="padding: 0.5rem 0.75rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-600); font-weight: 600;">Inicio</th>
+                        {!! $thStatic('Ciudadano/a') !!}
+                        {!! $thStatic('Historia Social') !!}
+                        {!! $th('seg',    'Próximo seguimiento') !!}
+                        {!! $thStatic($nombrePlan) !!}
+                        {!! $th('esp',    'Especializados') !!}
+                        {!! $th('inicio', 'Inicio') !!}
                     </tr>
                 </thead>
                 <tbody>
