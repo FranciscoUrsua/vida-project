@@ -27,11 +27,42 @@ Este fichero se aplica a todas las sesiones sin necesidad de repetirlo en cada p
 - No usar `factory()` en seeders de producción; usar `Model::create()` con datos explícitos.
 
 ### PHPDoc y comentarios
-- PHPDoc obligatorio en todas las clases: descripción, `@property` de campos relevantes, `@throws` si aplica.
-- PHPDoc obligatorio en todos los métodos públicos: descripción, `@param`, `@return`.
-- Comentario inline obligatorio en lógica compleja o no evidente. Si el código necesita explicación, la lleva.
-- En modelos con restricciones de dominio críticas (como `ColectivoProtegido`), documentar explícitamente
-  la razón de la restricción en el PHPDoc de clase y en el método que la implementa.
+
+**Cobertura obligatoria — sin excepciones:**
+
+- **Todas las clases** (modelos, enums, Livewire, Filament, servicios, observers, traits, seeders):
+  una línea de descripción que explique la *responsabilidad* de la clase, no su nombre.
+  Añadir `@property` / `@property-read` para campos de modelos y propiedades Livewire relevantes.
+  Añadir `@throws` si el constructor o `booted()` lanzan excepciones.
+
+- **Todos los métodos públicos y protegidos**:
+  una línea de descripción del *para qué* (no del cómo).
+  `@param TipoExacto $nombre` por cada parámetro; omitir solo si el tipo nativo PHP es inequívoco.
+  `@return TipoExacto` siempre, aunque el tipo esté declarado en la firma — usar `@return void` si aplica.
+
+- **Métodos privados**: docblock cuando el nombre solo no basta para entender el contrato o la lógica no es trivial.
+
+**Casos que generan carencias frecuentes — reglas concretas:**
+
+| Tipo | Requisito mínimo |
+|---|---|
+| Enum (clase) | Docblock explicando qué representa el conjunto de valores |
+| Enum (métodos `etiqueta()`, `label()`, etc.) | `@return string` + descripción de una línea |
+| Livewire `#[Computed]` | `@return TipoExacto` obligatorio aunque el tipo esté declarado |
+| Scope Eloquent | `@param Builder<self> $query` + `@return Builder<self>` |
+| Relación Eloquent | `@return HasMany<Modelo>`, `@return BelongsTo<Modelo, self>`, etc. con genérico completo |
+| Filament Page (List/Create/Edit/View) | Al menos: `/** Página de listado/creación/edición de {entidad}. */` |
+| Observer (cada método) | `@param NombreModelo $model` + `@return void` |
+| Closure en `booted()` | Comentario inline o extraer a método privado con docblock propio |
+
+**Restricciones de dominio críticas** (p. ej. `ColectivoProtegido`): documentar la razón de la restricción
+en el PHPDoc de clase y en el método que la implementa.
+
+**Comentario inline**: obligatorio en lógica no evidente, workarounds o invariantes ocultas.
+No documentar lo que el nombre ya dice.
+
+**Autocomprobación al terminar cada tarea**: revisar todos los ficheros nuevos o modificados y
+confirmar que cada clase y cada método público/protegido tienen su docblock antes de cerrar.
 
 ### Modelos Eloquent
 - Soft deletes en todas las entidades sensibles. No hay hard deletes en producción.
