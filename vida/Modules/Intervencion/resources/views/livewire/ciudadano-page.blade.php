@@ -129,6 +129,23 @@
                 </p>
             @endif
 
+            {{-- Representante (solo si existe relación activa) --}}
+            @if($this->representante)
+            <div class="hs-representante">
+                <span class="hs-representante__label">Representante</span>
+                <button
+                    wire:click="abrirModalRepresentante"
+                    class="hs-representante__nombre"
+                    title="Ver datos de contacto del representante"
+                >
+                    {{ $this->representante->nombre }}
+                    {{ $this->representante->apellido1 }}
+                    {{ $this->representante->apellido2 }}
+                    <i data-lucide="chevron-right" style="width:12px;height:12px;"></i>
+                </button>
+            </div>
+            @endif
+
             {{-- Unidad de convivencia --}}
             <div style="margin-top: 0.75rem; border: 1px solid var(--color-ink-200); border-radius: 8px; overflow: hidden;">
                 <button wire:click="toggleUC"
@@ -155,11 +172,15 @@
                                             <i data-lucide="shield-alert" style="width:10px;height:10px; color: var(--color-warning, #92400e); flex-shrink:0;" aria-hidden="true"></i>
                                         @endif
                                         @if($ucm->ciudadano)
+                                            @php $tipoRelUc = $this->relacionesMiembrosUc->get($ucm->ciudadano_id); @endphp
                                             <a href="{{ route('ciudadania.ciudadano.ficha', $ucm->ciudadano) }}"
                                                style="color: inherit; text-decoration: none;"
                                                onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
-                                                {{ $ucm->ciudadano->nombre }} {{ $ucm->ciudadano->apellido1 }}
+                                                <span class="uc-widget-miembro__nombre">{{ $ucm->ciudadano->nombre }} {{ $ucm->ciudadano->apellido1 }}</span>
                                             </a>
+                                            @if($tipoRelUc)
+                                                <span class="uc-widget-miembro__relacion">{{ $tipoRelUc }}</span>
+                                            @endif
                                         @endif
                                     </li>
                                 @endforeach
@@ -171,6 +192,15 @@
                         <button wire:click="abrirModalUc" class="uc-widget__gestionar" title="Gestionar unidad de convivencia">
                             <i data-lucide="users" style="width:14px;height:14px;" aria-hidden="true"></i>
                             Gestionar UC
+                        </button>
+                        {{-- Botón para ver todas las relaciones del ciudadano --}}
+                        <button
+                            wire:click="abrirModalRelaciones"
+                            class="uc-widget__ver-relaciones"
+                            title="Ver todas las personas relacionadas"
+                        >
+                            <i data-lucide="network" style="width:13px;height:13px;"></i>
+                            Ver todas las relaciones
                         </button>
                     </div>
                 @endif
@@ -767,6 +797,180 @@
 
         </div>{{-- fin .uc-modal --}}
     </div>{{-- fin backdrop --}}
+    @endif
+
+    {{-- ================================================================== --}}
+    {{-- MODAL: DATOS DE CONTACTO DEL REPRESENTANTE                         --}}
+    {{-- ================================================================== --}}
+    @if($this->modalRepresentanteAbierto && $this->representante)
+    <div
+        class="uc-modal-backdrop"
+        x-data
+        x-on:keydown.escape.window="$wire.cerrarModalRepresentante()"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-representante-titulo"
+    >
+        <div class="uc-modal uc-modal--sm">
+
+            <div class="uc-modal__header">
+                <h2 id="modal-representante-titulo" class="uc-modal__titulo">
+                    Representante
+                </h2>
+                <button wire:click="cerrarModalRepresentante"
+                        class="uc-modal__cerrar" aria-label="Cerrar">
+                    <i data-lucide="x" style="width:18px;height:18px;"></i>
+                </button>
+            </div>
+
+            <div class="uc-modal__cuerpo">
+                <div class="rel-modal__persona">
+                    <span class="rel-modal__nombre">
+                        {{ $this->representante->nombre }}
+                        {{ $this->representante->apellido1 }}
+                        {{ $this->representante->apellido2 }}
+                    </span>
+
+                    @if($this->representante->telefono)
+                    <a href="tel:{{ $this->representante->telefono }}"
+                       class="rel-modal__dato">
+                        <i data-lucide="phone" style="width:13px;height:13px;"></i>
+                        {{ $this->representante->telefono }}
+                    </a>
+                    @endif
+
+                    @if($this->representante->email)
+                    <a href="mailto:{{ $this->representante->email }}"
+                       class="rel-modal__dato">
+                        <i data-lucide="mail" style="width:13px;height:13px;"></i>
+                        {{ $this->representante->email }}
+                    </a>
+                    @endif
+
+                    @if(! $this->representante->telefono && ! $this->representante->email)
+                    <span class="rel-modal__sin-contacto">
+                        Sin datos de contacto registrados.
+                    </span>
+                    @endif
+                </div>
+
+                <div class="rel-modal__pie-accion">
+                    <a
+                        href="{{ route('ciudadania.ciudadano.ficha', $this->representante->id) }}"
+                        class="rel-modal__link-ficha"
+                        wire:navigate
+                    >
+                        <i data-lucide="external-link" style="width:12px;height:12px;"></i>
+                        Ver ficha completa
+                    </a>
+                </div>
+            </div>
+
+            <div class="uc-modal__pie">
+                <button wire:click="cerrarModalRepresentante" class="uc-btn uc-btn--ghost">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
+    </div>
+    @endif
+
+    {{-- ================================================================== --}}
+    {{-- MODAL: TODAS LAS RELACIONES DEL CIUDADANO                          --}}
+    {{-- ================================================================== --}}
+    @if($this->modalRelacionesAbierto)
+    <div
+        class="uc-modal-backdrop"
+        x-data
+        x-on:keydown.escape.window="$wire.cerrarModalRelaciones()"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-relaciones-titulo"
+    >
+        <div class="uc-modal">
+
+            <div class="uc-modal__header">
+                <h2 id="modal-relaciones-titulo" class="uc-modal__titulo">
+                    Personas relacionadas
+                </h2>
+                <button wire:click="cerrarModalRelaciones"
+                        class="uc-modal__cerrar" aria-label="Cerrar">
+                    <i data-lucide="x" style="width:18px;height:18px;"></i>
+                </button>
+            </div>
+
+            <div class="uc-modal__cuerpo">
+
+                @forelse($this->relacionesAgrupadas as $slug => $grupo)
+                <div class="uc-modal__seccion" wire:key="grupo-{{ $slug }}">
+                    <h3 class="uc-modal__seccion-titulo">
+                        {{ $grupo['etiqueta'] }}
+                        <span class="uc-modal__badge">
+                            {{ $grupo['miembros']->count() }}
+                        </span>
+                    </h3>
+
+                    <ul class="uc-modal__lista">
+                        @foreach($grupo['miembros'] as $persona)
+                        <li class="uc-modal__miembro" wire:key="rel-{{ $slug }}-{{ $persona->id }}">
+                            <div class="uc-modal__miembro-info">
+                                <span class="uc-modal__miembro-nombre">
+                                    {{ $persona->nombre }}
+                                    {{ $persona->apellido1 }}
+                                    {{ $persona->apellido2 }}
+                                </span>
+                                @if($persona->telefono)
+                                <span class="uc-modal__miembro-meta">
+                                    {{ $persona->telefono }}
+                                </span>
+                                @endif
+                            </div>
+                            <div class="uc-modal__miembro-acciones">
+                                <a
+                                    href="{{ route('ciudadania.ciudadano.ficha', $persona->id) }}"
+                                    class="uc-btn uc-btn--ghost-sm"
+                                    wire:navigate
+                                    title="Ver ficha"
+                                >
+                                    <i data-lucide="external-link" style="width:12px;height:12px;"></i>
+                                </a>
+                            </div>
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+                @empty
+                <div class="uc-modal__vacio">
+                    <p>No hay personas relacionadas registradas.</p>
+                    <a
+                        href="{{ route('ciudadania.ciudadano.ficha', $this->ciudadano->id) }}"
+                        class="uc-modal__alta-link"
+                        wire:navigate
+                    >
+                        Gestionar relaciones en la ficha del ciudadano
+                    </a>
+                </div>
+                @endforelse
+
+            </div>
+
+            <div class="uc-modal__pie">
+                <a
+                    href="{{ route('ciudadania.ciudadano.ficha', $this->ciudadano->id) }}"
+                    class="rel-modal__link-ficha"
+                    wire:navigate
+                >
+                    <i data-lucide="external-link" style="width:12px;height:12px;"></i>
+                    Gestionar relaciones en la ficha
+                </a>
+                <button wire:click="cerrarModalRelaciones" class="uc-btn uc-btn--ghost">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
+    </div>
     @endif
 
 </div>

@@ -27,12 +27,53 @@
     {{-- Sidebar Livewire (se refresca cada 5 min) --}}
     <livewire:intervencion.sidebar />
 
-    {{-- Topbar con menu de usuario --}}
+    {{-- Topbar: ocupa todo el ancho — logo | título de sección | menú usuario --}}
     <header class="op-topbar">
-        {{-- Lado izquierdo: reservado para breadcrumb futuro --}}
-        <div></div>
 
-        {{-- Lado derecho: menu de usuario con dropdown Alpine --}}
+        {{-- Zona logo (izquierda, 196px = ancho del sidebar) --}}
+        <div class="topbar__logo">
+            @php
+                $logoUrl  = \Modules\Organizacion\Models\Configuracion::logoUrl();
+                $nombreApp = \Modules\Organizacion\Models\Configuracion::nombreAplicacion();
+            @endphp
+            @if($logoUrl)
+                <img src="{{ $logoUrl }}"
+                     alt="{{ $nombreApp ?? 'VIDA360' }}"
+                     class="topbar__logo-img">
+            @elseif($nombreApp)
+                <span class="topbar__logo-text">{{ $nombreApp }}</span>
+            @else
+                <i data-lucide="hand-heart"
+                   style="width:20px;height:20px;color:var(--color-primary);"
+                   aria-hidden="true"></i>
+                <span class="topbar__logo-text">VIDA360</span>
+            @endif
+        </div>
+
+        {{-- Título de sección (centro) --}}
+        @php
+            $seccion = match(true) {
+                request()->routeIs('intervencion.agenda*')     => 'AGENDA',
+                request()->routeIs('intervencion.casos*')      => 'MIS CASOS',
+                request()->routeIs('intervencion.mensajes*')   => 'ALERTAS Y MENSAJES',
+                request()->routeIs('intervencion.buscar*')     => 'BUSCAR',
+                request()->routeIs('intervencion.valoracion*') => 'VALORACIÓN',
+                request()->routeIs('intervencion.escala*')     => 'ESCALA',
+                request()->routeIs('intervencion.ciudadano*')  => 'EXPEDIENTE',
+                request()->routeIs('ciudadania.alta*')         => 'ALTA DE CIUDADANO/A',
+                request()->routeIs('ciudadania.ciudadano*')    => 'FICHA',
+                default                                        => '',
+            };
+        @endphp
+        <div class="topbar__section" aria-label="Sección actual">
+            <span class="topbar__section-app">INTERVENCIÓN</span>
+            @if($seccion)
+                <span class="topbar__section-sep" aria-hidden="true">·</span>
+                <span class="topbar__section-name">{{ $seccion }}</span>
+            @endif
+        </div>
+
+        {{-- Menú de usuario (derecha) --}}
         <div class="topbar__user" x-data="{ abierto: false }">
             <button @click="abierto = !abierto"
                     @click.outside="abierto = false"

@@ -26,6 +26,9 @@ use Modules\Intervencion\Models\Entrevista;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\SeguimientoPlan;
 use Modules\Intervencion\Models\TipoFicha;
+use Modules\Ciudadania\Enums\ImplicacionFuncional;
+use Modules\Ciudadania\Models\CiudadanoRelacion;
+use Modules\Ciudadania\Models\TipoRelacion;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 use Modules\Intervencion\Models\TipoValoracion;
@@ -93,6 +96,14 @@ class CiudadanoPage extends Component
 
     /** @var string Mensaje de feedback de operación exitosa o error */
     public string $ucMensaje = '';
+
+    // --- Modal relaciones ---
+
+    /** @var bool Modal de todas las relaciones abierto */
+    public bool $modalRelacionesAbierto = false;
+
+    /** @var bool Modal de datos de contacto del representante abierto */
+    public bool $modalRepresentanteAbierto = false;
 
     // -------------------------------------------------------------------------
     // Formularios de herramientas inline
@@ -398,6 +409,88 @@ class CiudadanoPage extends Component
             ->values();
     }
 
+    /**
+     * Representante legal/designado del ciudadano, si existe relación activa.
+     * Busca por implicacion_funcional = 'representante', nunca por slug directamente.
+     */
+    #[Computed]
+    public function representante(): ?Ciudadano
+    {
+        $slugsRepresentante = TipoRelacion::where(
+            'implicacion_funcional',
+            ImplicacionFuncional::Representante->value
+        )->pluck('slug')->toArray();
+
+        if (empty($slugsRepresentante) || ! $this->ciudadano) {
+            return null;
+        }
+
+        $relacion = CiudadanoRelacion::where('ciudadano_id', $this->ciudadano->id)
+            ->whereIn('tipo_relacion', $slugsRepresentante)
+            ->whereNull('fecha_fin')
+            ->with('ciudadanoRelacionado')
+            ->first();
+
+        return $relacion?->ciudadanoRelacionado;
+    }
+
+    /**
+     * Relaciones activas del ciudadano agrupadas por tipo (para el modal completo).
+     * Excluye tipos no presentes en el catálogo activo.
+     *
+     * @return \Illuminate\Support\Collection<string, array{etiqueta: string, miembros: \Illuminate\Support\Collection}>
+     */
+    #[Computed]
+    public function relacionesAgrupadas(): \Illuminate\Support\Collection
+    {
+        if (! $this->ciudadano) {
+            return collect();
+        }
+
+        $slugsActivos = TipoRelacion::activos()->pluck('etiqueta', 'slug');
+
+        return CiudadanoRelacion::where('ciudadano_id', $this->ciudadano->id)
+            ->whereNull('fecha_fin')
+            ->with('ciudadanoRelacionado')
+            ->get()
+            ->filter(fn ($r) => $slugsActivos->has($r->tipo_relacion))
+            ->groupBy('tipo_relacion')
+            ->map(fn ($grupo, $slug) => [
+                'etiqueta' => $slugsActivos[$slug],
+                'miembros' => $grupo->map(fn ($r) => $r->ciudadanoRelacionado),
+            ]);
+    }
+
+    /**
+     * Tipo de relación (etiqueta) de cada miembro de la UC respecto al titular,
+     * indexado por ciudadano_id. Enriquece el widget UC.
+     *
+     * @return \Illuminate\Support\Collection<int, string|null>
+     */
+    #[Computed]
+    public function relacionesMiembrosUc(): \Illuminate\Support\Collection
+    {
+        if (! $this->ucVigente || ! $this->ciudadano) {
+            return collect();
+        }
+
+        $idsMiembros = $this->ucMiembrosActivos->pluck('ciudadano_id')->toArray();
+
+        if (empty($idsMiembros)) {
+            return collect();
+        }
+
+        $slugsEtiquetas = TipoRelacion::activos()->pluck('etiqueta', 'slug');
+
+        return CiudadanoRelacion::where('ciudadano_id', $this->ciudadano->id)
+            ->whereIn('ciudadano_relacionado_id', $idsMiembros)
+            ->whereNull('fecha_fin')
+            ->get()
+            ->mapWithKeys(fn ($r) => [
+                $r->ciudadano_relacionado_id => $slugsEtiquetas[$r->tipo_relacion] ?? null,
+            ]);
+    }
+
     // -------------------------------------------------------------------------
     // Métodos de UI
     // -------------------------------------------------------------------------
@@ -405,6 +498,26 @@ class CiudadanoPage extends Component
     public function toggleUC(): void
     {
         $this->ucExpandida = ! $this->ucExpandida;
+    }
+
+    public function abrirModalRelaciones(): void
+    {
+        $this->modalRelacionesAbierto = true;
+    }
+
+    public function cerrarModalRelaciones(): void
+    {
+        $this->modalRelacionesAbierto = false;
+    }
+
+    public function abrirModalRepresentante(): void
+    {
+        $this->modalRepresentanteAbierto = true;
+    }
+
+    public function cerrarModalRepresentante(): void
+    {
+        $this->modalRepresentanteAbierto = false;
     }
 
     /** Abre el modal de gestión de UC y reinicia su estado interno. */
