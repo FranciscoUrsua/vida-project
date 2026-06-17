@@ -83,6 +83,11 @@ class HiloMensajes extends Component
 
     /**
      * Abre el modal para registrar un mensaje en la Historia Social.
+     *
+     * @param int $mensajeId
+     * @param int $ciudadanoId
+     *
+     * @return void
      */
     public function abrirModalHistoria(int $mensajeId, int $ciudadanoId): void
     {
@@ -105,6 +110,10 @@ class HiloMensajes extends Component
 
     /**
      * Confirma el registro del mensaje en la Historia Social.
+     *
+     * @param MensajeriaService $mensajeriaService
+     *
+     * @return void
      */
     public function confirmarRegistroHistoria(MensajeriaService $mensajeriaService): void
     {
@@ -134,6 +143,10 @@ class HiloMensajes extends Component
      *
      * Se entiende como TSR el profesional cuya UO tiene asignada la Historia Social
      * del ciudadano y el profesional tiene adscripción activa a esa UO.
+     *
+     * @param int $ciudadanoId
+     *
+     * @return bool
      */
     public function esTsrDeCiudadano(int $ciudadanoId): bool
     {

@@ -46,6 +46,10 @@ class PlanDeIntervencionPolicy
 
     /**
      * Decide si el usuario puede listar Planes de Intervención.
+     *
+     * @param User $usuario
+     *
+     * @return bool
      */
     public function viewAny(User $usuario): bool
     {
@@ -56,6 +60,11 @@ class PlanDeIntervencionPolicy
      * Decide si el usuario puede consultar el Plan de Intervención.
      *
      * Evaluación en tres pasos: permiso → ámbito UO → colectivo protegido.
+     *
+     * @param User $usuario
+     * @param PlanDeIntervencion $plan
+     *
+     * @return bool
      */
     public function view(User $usuario, PlanDeIntervencion $plan): bool
     {
@@ -88,6 +97,10 @@ class PlanDeIntervencionPolicy
      * Decide si el usuario puede crear un Plan de Intervención.
      *
      * El rol supervision no puede crear planes.
+     *
+     * @param User $usuario
+     *
+     * @return bool
      */
     public function create(User $usuario): bool
     {
@@ -104,6 +117,11 @@ class PlanDeIntervencionPolicy
      *
      * La edición solo está permitida dentro del ámbito de UO del usuario.
      * El rol supervision no puede editar.
+     *
+     * @param User $usuario
+     * @param PlanDeIntervencion $plan
+     *
+     * @return bool
      */
     public function update(User $usuario, PlanDeIntervencion $plan): bool
     {
@@ -135,6 +153,11 @@ class PlanDeIntervencionPolicy
      * Decide si el usuario puede eliminar (baja lógica) el Plan de Intervención.
      *
      * La eliminación solo está permitida dentro del ámbito de UO del usuario.
+     *
+     * @param User $usuario
+     * @param PlanDeIntervencion $plan
+     *
+     * @return bool
      */
     public function delete(User $usuario, PlanDeIntervencion $plan): bool
     {

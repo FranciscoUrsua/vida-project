@@ -111,14 +111,18 @@ class PlanDeIntervencion extends Model
     // -------------------------------------------------------------------------
 
     /**
-     * @return BelongsTo<HistoriaSocial, PlanDeIntervencion>
+     * Devuelve el ciudadano asociado a la historia social del plan.
+     *
+     * @return int|null
      */
-    /** {@inheritDoc} */
     public function getCiudadanoId(): ?int
     {
         return $this->historia()->withoutGlobalScopes()->value('ciudadano_id');
     }
 
+    /**
+     * @return BelongsTo<HistoriaSocial, PlanDeIntervencion>
+     */
     public function historia(): BelongsTo
     {
         return $this->belongsTo(HistoriaSocial::class, 'historia_id');
@@ -193,6 +197,8 @@ class PlanDeIntervencion extends Model
      *
      * Consulta firmas_plan filtrando por el plan_id actual Y la version actual
      * para garantizar que la firma de una versión anterior no valide la nueva.
+     *
+     * @return bool
      */
     public function estaFirmado(): bool
     {
@@ -259,6 +265,10 @@ class PlanDeIntervencion extends Model
 
     /**
      * Solo planes activos.
+     *
+     * @param Builder<PlanDeIntervencion> $query
+     *
+     * @return Builder<PlanDeIntervencion>
      */
     public function scopeActivos(Builder $query): Builder
     {

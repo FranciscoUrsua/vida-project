@@ -59,6 +59,10 @@ class BandejaAlertas extends Component
 
     /**
      * Solicita confirmación antes de reconocer una alerta.
+     *
+     * @param int $alertaId
+     *
+     * @return void
      */
     public function confirmarReconocimiento(int $alertaId): void
     {
@@ -67,6 +71,10 @@ class BandejaAlertas extends Component
 
     /**
      * Reconoce (o descarta) la alerta confirmada.
+     *
+     * @param AlertaService $alertaService
+     *
+     * @return void
      */
     public function reconocer(AlertaService $alertaService): void
     {
@@ -98,6 +106,8 @@ class BandejaAlertas extends Component
 
     /**
      * Cancela el diálogo de confirmación.
+     *
+     * @return void
      */
     public function cancelarReconocimiento(): void
     {

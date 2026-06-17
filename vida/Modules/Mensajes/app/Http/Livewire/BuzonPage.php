@@ -116,6 +116,8 @@ class BuzonPage extends Component
 
     /**
      * Alerta seleccionada actualmente en la pestaña Alertas/Avisos.
+     *
+     * @return Alerta|null
      */
     #[Computed]
     public function alertaSeleccionada(): ?Alerta
@@ -130,6 +132,8 @@ class BuzonPage extends Component
 
     /**
      * Participación seleccionada en la pestaña Mensajes.
+     *
+     * @return MensajeParticipante|null
      */
     #[Computed]
     public function hiloSeleccionado(): ?MensajeParticipante
@@ -149,6 +153,10 @@ class BuzonPage extends Component
 
     /**
      * Cambia la pestaña activa y deselecciona el ítem actual.
+     *
+     * @param string $pestana
+     *
+     * @return void
      */
     public function cambiarPestana(string $pestana): void
     {
@@ -159,6 +167,10 @@ class BuzonPage extends Component
 
     /**
      * Selecciona un ítem de la lista.
+     *
+     * @param int $id
+     *
+     * @return void
      */
     public function seleccionar(int $id): void
     {
@@ -169,6 +181,10 @@ class BuzonPage extends Component
     /**
      * Reconoce una alerta del usuario autenticado.
      * Actualiza su estado a 'reconocida' y la retira del listado.
+     *
+     * @param int $alertaId
+     *
+     * @return void
      */
     public function reconocerAlerta(int $alertaId): void
     {
@@ -186,6 +202,11 @@ class BuzonPage extends Component
 
     /**
      * Envía una respuesta al hilo seleccionado.
+     *
+     * @param int $hiloId
+     * @param MensajeriaService $mensajeriaService
+     *
+     * @return void
      */
     public function enviarRespuesta(int $hiloId, MensajeriaService $mensajeriaService): void
     {
@@ -212,6 +233,8 @@ class BuzonPage extends Component
      * Si se recibe un asunto por URL, abre el modal con el asunto pre-rellenado.
      *
      * @param string $asunto Asunto pre-rellenado desde parametro de URL
+     *
+     * @return void
      */
     public function mount(string $asunto = ''): void
     {
@@ -228,6 +251,8 @@ class BuzonPage extends Component
 
     /**
      * Abre el modal de redaccion de nuevo mensaje.
+     *
+     * @return void
      */
     public function abrirModalNuevoMensaje(): void
     {
@@ -237,6 +262,8 @@ class BuzonPage extends Component
     /**
      * Busca usuarios por nombre para seleccionar como destinatario.
      * Filtra por coincidencia ILIKE sobre nombre + apellidos del profesional.
+     *
+     * @return void
      */
     public function buscarDestinatario(): void
     {
@@ -271,6 +298,8 @@ class BuzonPage extends Component
      *
      * @param int $id ID del usuario destinatario
      * @param string $nombre Nombre completo del destinatario
+     *
+     * @return void
      */
     public function seleccionarDestinatario(int $id, string $nombre): void
     {
@@ -283,6 +312,8 @@ class BuzonPage extends Component
     /**
      * Valida y envia el nuevo mensaje, creando el hilo y el primer mensaje.
      * Despues de enviar, cierra el modal y navega a la pestana de mensajes.
+     *
+     * @return void
      */
     public function enviarMensaje(): void
     {

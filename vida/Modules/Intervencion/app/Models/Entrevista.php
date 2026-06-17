@@ -65,14 +65,18 @@ class Entrevista extends Model
     // -------------------------------------------------------------------------
 
     /**
-     * @return BelongsTo<HistoriaSocial, Entrevista>
+     * Devuelve el ciudadano asociado a la historia social de la entrevista.
+     *
+     * @return int|null
      */
-    /** {@inheritDoc} */
     public function getCiudadanoId(): ?int
     {
         return $this->historia()->withoutGlobalScopes()->value('ciudadano_id');
     }
 
+    /**
+     * @return BelongsTo<HistoriaSocial, Entrevista>
+     */
     public function historia(): BelongsTo
     {
         return $this->belongsTo(HistoriaSocial::class, 'historia_id');

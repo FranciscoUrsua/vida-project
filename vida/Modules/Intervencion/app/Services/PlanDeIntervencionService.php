@@ -28,6 +28,8 @@ class PlanDeIntervencionService
      *
      * @param array<string, mixed> $datos Datos del plan a crear
      *
+     * @return PlanDeIntervencion
+     *
      * @throws AuthorizationException Si el usuario no tiene permiso de crear planes
      */
     public function crear(array $datos): PlanDeIntervencion
@@ -46,6 +48,8 @@ class PlanDeIntervencionService
      *
      * @param int $id ID del plan
      * @param array<string, mixed> $datos Campos a actualizar
+     *
+     * @return PlanDeIntervencion
      *
      * @throws AuthorizationException Si el usuario no tiene permiso de editar
      * @throws ModelNotFoundException Si el plan no existe o no está en el ámbito del usuario
@@ -68,6 +72,8 @@ class PlanDeIntervencionService
      * de validación de estado debe implementarse aquí.
      *
      * @param int $id ID del plan
+     *
+     * @return void
      *
      * @throws AuthorizationException Si el usuario no tiene permiso de eliminar
      * @throws ModelNotFoundException Si el plan no existe o no está en el ámbito del usuario

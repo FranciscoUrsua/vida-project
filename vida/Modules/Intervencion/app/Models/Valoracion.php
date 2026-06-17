@@ -61,14 +61,18 @@ class Valoracion extends Model
     // -------------------------------------------------------------------------
 
     /**
-     * @return BelongsTo<HistoriaSocial, Valoracion>
+     * Devuelve el ciudadano asociado a la historia social de la valoración.
+     *
+     * @return int|null
      */
-    /** {@inheritDoc} */
     public function getCiudadanoId(): ?int
     {
         return $this->historia()->withoutGlobalScopes()->value('ciudadano_id');
     }
 
+    /**
+     * @return BelongsTo<HistoriaSocial, Valoracion>
+     */
     public function historia(): BelongsTo
     {
         return $this->belongsTo(HistoriaSocial::class, 'historia_id');

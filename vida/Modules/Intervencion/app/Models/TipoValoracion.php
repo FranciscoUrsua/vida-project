@@ -62,6 +62,10 @@ class TipoValoracion extends Model
 
     /**
      * Solo tipos de valoración activos.
+     *
+     * @param Builder<TipoValoracion> $query
+     *
+     * @return Builder<TipoValoracion>
      */
     public function scopeActivos(Builder $query): Builder
     {

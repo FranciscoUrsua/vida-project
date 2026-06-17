@@ -89,6 +89,10 @@ class SiaContacto extends Model
 
     /**
      * Solo contactos de competencia municipal.
+     *
+     * @param Builder<SiaContacto> $query
+     *
+     * @return Builder<SiaContacto>
      */
     public function scopeCompetenciaMunicipal(Builder $query): Builder
     {

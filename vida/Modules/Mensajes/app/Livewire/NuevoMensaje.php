@@ -92,6 +92,8 @@ class NuevoMensaje extends Component
 
     /**
      * Resultados de búsqueda de ciudadanos para referenciar.
+     *
+     * @return Collection<int, Ciudadano>
      */
     #[Computed]
     public function resultadosCiudadano(): Collection

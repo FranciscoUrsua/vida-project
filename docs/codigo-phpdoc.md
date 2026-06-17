@@ -1,6 +1,6 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-17 10:47:45 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-17 11:04:07 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
@@ -8,7 +8,7 @@ Generado el 2026-06-17 10:47:45 UTC a partir de los docblocks PHPDoc compatibles
 - Simbolos escaneados: 371.
 - Cabeceras documentadas: 232/371.
 - Metodos publicos documentados: 561/987.
-- Alertas de comentarios: 813.
+- Alertas de comentarios: 727.
 
 ## Alertas
 
@@ -154,7 +154,7 @@ Generado el 2026-06-17 10:47:45 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Http\Controllers\Controller` en `vida/app/Http/Controllers/Controller.php:5`: Falta docblock de cabecera.
 - `App\Providers\Filament\AdminPanelProvider` en `vida/app/Providers/Filament/AdminPanelProvider.php:22`: Falta docblock de cabecera.
 
-### Método público sin PHPDoc (380)
+### Método público sin PHPDoc (377)
 
 - `Modules\Agenda\Enums\EstadoCita::label()` en `vida/Modules/Agenda/app/Enums/EstadoCita.php:14`: Falta docblock de método público.
 - `Modules\Agenda\Enums\EstadoCuadrante::label()` en `vida/Modules/Agenda/app/Enums/EstadoCuadrante.php:11`: Falta docblock de método público.
@@ -334,13 +334,10 @@ Generado el 2026-06-17 10:47:45 UTC a partir de los docblocks PHPDoc compatibles
 - `Modules\Intervencion\Http\Livewire\RegistrarValoracionPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/RegistrarValoracionPage.php:182`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\Sidebar::render()` en `vida/Modules/Intervencion/app/Http/Livewire/Sidebar.php:47`: Falta docblock de método público.
 - `Modules\Intervencion\Models\Apunte::plan()` en `vida/Modules/Intervencion/app/Models/Apunte.php:140`: Falta docblock de método público.
-- `Modules\Intervencion\Models\Entrevista::historia()` en `vida/Modules/Intervencion/app/Models/Entrevista.php:76`: Falta docblock de método público.
-- `Modules\Intervencion\Models\PlanDeIntervencion::historia()` en `vida/Modules/Intervencion/app/Models/PlanDeIntervencion.php:122`: Falta docblock de método público.
-- `Modules\Intervencion\Models\Valoracion::historia()` en `vida/Modules/Intervencion/app/Models/Valoracion.php:72`: Falta docblock de método público.
 - `Modules\Intervencion\Providers\IntervencionServiceProvider::register()` en `vida/Modules/Intervencion/app/Providers/IntervencionServiceProvider.php:33`: Falta docblock de método público.
 - `Modules\Intervencion\Providers\IntervencionServiceProvider::boot()` en `vida/Modules/Intervencion/app/Providers/IntervencionServiceProvider.php:38`: Falta docblock de método público.
 - `Modules\Mensajes\Exceptions\UnauthorizedException::noEsTsr()` en `vida/Modules/Mensajes/app/Exceptions/UnauthorizedException.php:16`: Falta docblock de método público.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::render()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:321`: Falta docblock de método público.
+- `Modules\Mensajes\Http\Livewire\BuzonPage::render()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:352`: Falta docblock de método público.
 - `Modules\Mensajes\Jobs\EscalarAlertasVencidasJob::handle()` en `vida/Modules/Mensajes/app/Jobs/EscalarAlertasVencidasJob.php:31`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\BadgeNotificaciones::totalAlertas()` en `vida/Modules/Mensajes/app/Livewire/BadgeNotificaciones.php:28`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\BadgeNotificaciones::totalMensajes()` en `vida/Modules/Mensajes/app/Livewire/BadgeNotificaciones.php:57`: Falta docblock de método público.
@@ -348,7 +345,7 @@ Generado el 2026-06-17 10:47:45 UTC a partir de los docblocks PHPDoc compatibles
 - `Modules\Mensajes\Livewire\BadgeNotificaciones::render()` en `vida/Modules/Mensajes/app/Livewire/BadgeNotificaciones.php:75`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\BandejaAlertas::mount()` en `vida/Modules/Mensajes/app/Livewire/BandejaAlertas.php:26`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\BandejaAlertas::alertas()` en `vida/Modules/Mensajes/app/Livewire/BandejaAlertas.php:32`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\BandejaAlertas::render()` en `vida/Modules/Mensajes/app/Livewire/BandejaAlertas.php:107`: Falta docblock de método público.
+- `Modules\Mensajes\Livewire\BandejaAlertas::render()` en `vida/Modules/Mensajes/app/Livewire/BandejaAlertas.php:117`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\BandejaMensajes::mount()` en `vida/Modules/Mensajes/app/Livewire/BandejaMensajes.php:24`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\BandejaMensajes::hilos()` en `vida/Modules/Mensajes/app/Livewire/BandejaMensajes.php:30`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\BandejaMensajes::abrirHilo()` en `vida/Modules/Mensajes/app/Livewire/BandejaMensajes.php:43`: Falta docblock de método público.
@@ -358,15 +355,15 @@ Generado el 2026-06-17 10:47:45 UTC a partir de los docblocks PHPDoc compatibles
 - `Modules\Mensajes\Livewire\HiloMensajes::mount()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:46`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\HiloMensajes::hilo()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:58`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\HiloMensajes::enviarRespuesta()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:64`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\HiloMensajes::cerrarModalHistoria()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:98`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\HiloMensajes::render()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:162`: Falta docblock de método público.
+- `Modules\Mensajes\Livewire\HiloMensajes::cerrarModalHistoria()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:103`: Falta docblock de método público.
+- `Modules\Mensajes\Livewire\HiloMensajes::render()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:175`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\NuevoMensaje::mount()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:46`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\NuevoMensaje::seleccionarDestinatario()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:81`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\NuevoMensaje::limpiarDestinatario()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:88`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\NuevoMensaje::agregarCiudadano()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:110`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\NuevoMensaje::quitarCiudadano()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:120`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\NuevoMensaje::enviar()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:127`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\NuevoMensaje::render()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:161`: Falta docblock de método público.
+- `Modules\Mensajes\Livewire\NuevoMensaje::agregarCiudadano()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:112`: Falta docblock de método público.
+- `Modules\Mensajes\Livewire\NuevoMensaje::quitarCiudadano()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:122`: Falta docblock de método público.
+- `Modules\Mensajes\Livewire\NuevoMensaje::enviar()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:129`: Falta docblock de método público.
+- `Modules\Mensajes\Livewire\NuevoMensaje::render()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:163`: Falta docblock de método público.
 - `Modules\Mensajes\Providers\MensajesServiceProvider::register()` en `vida/Modules/Mensajes/app/Providers/MensajesServiceProvider.php:29`: Falta docblock de método público.
 - `Modules\Mensajes\Providers\MensajesServiceProvider::boot()` en `vida/Modules/Mensajes/app/Providers/MensajesServiceProvider.php:36`: Falta docblock de método público.
 - `Modules\Mensajes\Services\AlertaService::__construct()` en `vida/Modules/Mensajes/app/Services/AlertaService.php:22`: Falta docblock de método público.
@@ -537,91 +534,8 @@ Generado el 2026-06-17 10:47:45 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Providers\Filament\AdminPanelProvider::panel()` en `vida/app/Providers/Filament/AdminPanelProvider.php:24`: Falta docblock de método público.
 - `App\Services\Geocodificacion\ResultadoGeocodificacion::__construct()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:34`: Falta docblock de método público.
 
-### PHPDoc incompleto (294)
+### PHPDoc incompleto (211)
 
-- `Modules\Intervencion\Models\Entrevista::getCiudadanoId()` en `vida/Modules/Intervencion/app/Models/Entrevista.php:71`: Falta @return.
-- `Modules\Intervencion\Models\PlanDeIntervencion::getCiudadanoId()` en `vida/Modules/Intervencion/app/Models/PlanDeIntervencion.php:117`: Falta @return.
-- `Modules\Intervencion\Models\PlanDeIntervencion::estaFirmado()` en `vida/Modules/Intervencion/app/Models/PlanDeIntervencion.php:197`: Falta @return.
-- `Modules\Intervencion\Models\PlanDeIntervencion::scopeActivos()` en `vida/Modules/Intervencion/app/Models/PlanDeIntervencion.php:263`: Falta @param $query.
-- `Modules\Intervencion\Models\PlanDeIntervencion::scopeActivos()` en `vida/Modules/Intervencion/app/Models/PlanDeIntervencion.php:263`: Falta @return.
-- `Modules\Intervencion\Models\SeguimientoPlan::solicitarCitaSiguiente()` en `vida/Modules/Intervencion/app/Models/SeguimientoPlan.php:100`: Falta @return.
-- `Modules\Intervencion\Models\SiaContacto::scopeCompetenciaMunicipal()` en `vida/Modules/Intervencion/app/Models/SiaContacto.php:93`: Falta @param $query.
-- `Modules\Intervencion\Models\SiaContacto::scopeCompetenciaMunicipal()` en `vida/Modules/Intervencion/app/Models/SiaContacto.php:93`: Falta @return.
-- `Modules\Intervencion\Models\TipoFicha::setSchemaAttribute()` en `vida/Modules/Intervencion/app/Models/TipoFicha.php:80`: Falta @param $value.
-- `Modules\Intervencion\Models\TipoFicha::setSchemaAttribute()` en `vida/Modules/Intervencion/app/Models/TipoFicha.php:80`: Falta @return.
-- `Modules\Intervencion\Models\TipoFicha::getSchemaAttribute()` en `vida/Modules/Intervencion/app/Models/TipoFicha.php:98`: Falta @param $value.
-- `Modules\Intervencion\Models\TipoFicha::getSchemaAttribute()` en `vida/Modules/Intervencion/app/Models/TipoFicha.php:98`: Falta @return.
-- `Modules\Intervencion\Models\TipoFicha::tieneFichasAsociadas()` en `vida/Modules/Intervencion/app/Models/TipoFicha.php:139`: Falta @return.
-- `Modules\Intervencion\Models\TipoFicha::validarSchema()` en `vida/Modules/Intervencion/app/Models/TipoFicha.php:154`: Falta @return.
-- `Modules\Intervencion\Models\TipoFicha::scopeActivos()` en `vida/Modules/Intervencion/app/Models/TipoFicha.php:239`: Falta @param $query.
-- `Modules\Intervencion\Models\TipoFicha::scopeActivos()` en `vida/Modules/Intervencion/app/Models/TipoFicha.php:239`: Falta @return.
-- `Modules\Intervencion\Models\TipoValoracion::scopeActivos()` en `vida/Modules/Intervencion/app/Models/TipoValoracion.php:66`: Falta @param $query.
-- `Modules\Intervencion\Models\TipoValoracion::scopeActivos()` en `vida/Modules/Intervencion/app/Models/TipoValoracion.php:66`: Falta @return.
-- `Modules\Intervencion\Models\Valoracion::getCiudadanoId()` en `vida/Modules/Intervencion/app/Models/Valoracion.php:67`: Falta @return.
-- `Modules\Intervencion\Policies\ApuntePolicy::view()` en `vida/Modules/Intervencion/app/Policies/ApuntePolicy.php:28`: Falta @param $usuario.
-- `Modules\Intervencion\Policies\ApuntePolicy::view()` en `vida/Modules/Intervencion/app/Policies/ApuntePolicy.php:28`: Falta @param $apunte.
-- `Modules\Intervencion\Policies\ApuntePolicy::view()` en `vida/Modules/Intervencion/app/Policies/ApuntePolicy.php:28`: Falta @return.
-- `Modules\Intervencion\Policies\ApuntePolicy::update()` en `vida/Modules/Intervencion/app/Policies/ApuntePolicy.php:42`: Falta @param $usuario.
-- `Modules\Intervencion\Policies\ApuntePolicy::update()` en `vida/Modules/Intervencion/app/Policies/ApuntePolicy.php:42`: Falta @param $apunte.
-- `Modules\Intervencion\Policies\ApuntePolicy::update()` en `vida/Modules/Intervencion/app/Policies/ApuntePolicy.php:42`: Falta @return.
-- `Modules\Intervencion\Policies\ApuntePolicy::delete()` en `vida/Modules/Intervencion/app/Policies/ApuntePolicy.php:53`: Falta @param $usuario.
-- `Modules\Intervencion\Policies\ApuntePolicy::delete()` en `vida/Modules/Intervencion/app/Policies/ApuntePolicy.php:53`: Falta @param $apunte.
-- `Modules\Intervencion\Policies\ApuntePolicy::delete()` en `vida/Modules/Intervencion/app/Policies/ApuntePolicy.php:53`: Falta @return.
-- `Modules\Intervencion\Policies\PlanDeIntervencionPolicy::viewAny()` en `vida/Modules/Intervencion/app/Policies/PlanDeIntervencionPolicy.php:50`: Falta @param $usuario.
-- `Modules\Intervencion\Policies\PlanDeIntervencionPolicy::viewAny()` en `vida/Modules/Intervencion/app/Policies/PlanDeIntervencionPolicy.php:50`: Falta @return.
-- `Modules\Intervencion\Policies\PlanDeIntervencionPolicy::view()` en `vida/Modules/Intervencion/app/Policies/PlanDeIntervencionPolicy.php:60`: Falta @param $usuario.
-- `Modules\Intervencion\Policies\PlanDeIntervencionPolicy::view()` en `vida/Modules/Intervencion/app/Policies/PlanDeIntervencionPolicy.php:60`: Falta @param $plan.
-- `Modules\Intervencion\Policies\PlanDeIntervencionPolicy::view()` en `vida/Modules/Intervencion/app/Policies/PlanDeIntervencionPolicy.php:60`: Falta @return.
-- `Modules\Intervencion\Policies\PlanDeIntervencionPolicy::create()` en `vida/Modules/Intervencion/app/Policies/PlanDeIntervencionPolicy.php:92`: Falta @param $usuario.
-- `Modules\Intervencion\Policies\PlanDeIntervencionPolicy::create()` en `vida/Modules/Intervencion/app/Policies/PlanDeIntervencionPolicy.php:92`: Falta @return.
-- `Modules\Intervencion\Policies\PlanDeIntervencionPolicy::update()` en `vida/Modules/Intervencion/app/Policies/PlanDeIntervencionPolicy.php:108`: Falta @param $usuario.
-- `Modules\Intervencion\Policies\PlanDeIntervencionPolicy::update()` en `vida/Modules/Intervencion/app/Policies/PlanDeIntervencionPolicy.php:108`: Falta @param $plan.
-- `Modules\Intervencion\Policies\PlanDeIntervencionPolicy::update()` en `vida/Modules/Intervencion/app/Policies/PlanDeIntervencionPolicy.php:108`: Falta @return.
-- `Modules\Intervencion\Policies\PlanDeIntervencionPolicy::delete()` en `vida/Modules/Intervencion/app/Policies/PlanDeIntervencionPolicy.php:139`: Falta @param $usuario.
-- `Modules\Intervencion\Policies\PlanDeIntervencionPolicy::delete()` en `vida/Modules/Intervencion/app/Policies/PlanDeIntervencionPolicy.php:139`: Falta @param $plan.
-- `Modules\Intervencion\Policies\PlanDeIntervencionPolicy::delete()` en `vida/Modules/Intervencion/app/Policies/PlanDeIntervencionPolicy.php:139`: Falta @return.
-- `Modules\Intervencion\Services\ApunteService::crear()` en `vida/Modules/Intervencion/app/Services/ApunteService.php:32`: Falta @return.
-- `Modules\Intervencion\Services\ApunteService::actualizar()` en `vida/Modules/Intervencion/app/Services/ApunteService.php:52`: Falta @return.
-- `Modules\Intervencion\Services\ApunteService::eliminar()` en `vida/Modules/Intervencion/app/Services/ApunteService.php:74`: Falta @return.
-- `Modules\Intervencion\Services\HistoriaSocialService::crear()` en `vida/Modules/Intervencion/app/Services/HistoriaSocialService.php:39`: Falta @return.
-- `Modules\Intervencion\Services\HistoriaSocialService::actualizar()` en `vida/Modules/Intervencion/app/Services/HistoriaSocialService.php:60`: Falta @return.
-- `Modules\Intervencion\Services\HistoriaSocialService::eliminar()` en `vida/Modules/Intervencion/app/Services/HistoriaSocialService.php:82`: Falta @return.
-- `Modules\Intervencion\Services\IntervencionSidebarDataService::totalAlertas()` en `vida/Modules/Intervencion/app/Services/IntervencionSidebarDataService.php:28`: Falta @return.
-- `Modules\Intervencion\Services\IntervencionSidebarDataService::mensajesNoLeidos()` en `vida/Modules/Intervencion/app/Services/IntervencionSidebarDataService.php:43`: Falta @return.
-- `Modules\Intervencion\Services\IntervencionSidebarDataService::totalNotificaciones()` en `vida/Modules/Intervencion/app/Services/IntervencionSidebarDataService.php:59`: Falta @return.
-- `Modules\Intervencion\Services\IntervencionSidebarDataService::misCasosCount()` en `vida/Modules/Intervencion/app/Services/IntervencionSidebarDataService.php:68`: Falta @return.
-- `Modules\Intervencion\Services\PlanDeIntervencionService::crear()` en `vida/Modules/Intervencion/app/Services/PlanDeIntervencionService.php:33`: Falta @return.
-- `Modules\Intervencion\Services\PlanDeIntervencionService::actualizar()` en `vida/Modules/Intervencion/app/Services/PlanDeIntervencionService.php:53`: Falta @return.
-- `Modules\Intervencion\Services\PlanDeIntervencionService::eliminar()` en `vida/Modules/Intervencion/app/Services/PlanDeIntervencionService.php:75`: Falta @return.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::alertaSeleccionada()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:121`: Falta @return.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::hiloSeleccionado()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:135`: Falta @return.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::cambiarPestana()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:153`: Falta @param $pestana.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::cambiarPestana()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:153`: Falta @return.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::seleccionar()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:163`: Falta @param $id.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::seleccionar()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:163`: Falta @return.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::reconocerAlerta()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:173`: Falta @param $alertaId.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::reconocerAlerta()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:173`: Falta @return.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::enviarRespuesta()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:190`: Falta @param $hiloId.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::enviarRespuesta()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:190`: Falta @param $mensajeriaService.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::enviarRespuesta()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:190`: Falta @return.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::mount()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:216`: Falta @return.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::abrirModalNuevoMensaje()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:232`: Falta @return.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::buscarDestinatario()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:241`: Falta @return.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::seleccionarDestinatario()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:275`: Falta @return.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::enviarMensaje()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:287`: Falta @return.
-- `Modules\Mensajes\Livewire\BandejaAlertas::confirmarReconocimiento()` en `vida/Modules/Mensajes/app/Livewire/BandejaAlertas.php:63`: Falta @param $alertaId.
-- `Modules\Mensajes\Livewire\BandejaAlertas::confirmarReconocimiento()` en `vida/Modules/Mensajes/app/Livewire/BandejaAlertas.php:63`: Falta @return.
-- `Modules\Mensajes\Livewire\BandejaAlertas::reconocer()` en `vida/Modules/Mensajes/app/Livewire/BandejaAlertas.php:71`: Falta @param $alertaService.
-- `Modules\Mensajes\Livewire\BandejaAlertas::reconocer()` en `vida/Modules/Mensajes/app/Livewire/BandejaAlertas.php:71`: Falta @return.
-- `Modules\Mensajes\Livewire\BandejaAlertas::cancelarReconocimiento()` en `vida/Modules/Mensajes/app/Livewire/BandejaAlertas.php:102`: Falta @return.
-- `Modules\Mensajes\Livewire\HiloMensajes::abrirModalHistoria()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:87`: Falta @param $mensajeId.
-- `Modules\Mensajes\Livewire\HiloMensajes::abrirModalHistoria()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:87`: Falta @param $ciudadanoId.
-- `Modules\Mensajes\Livewire\HiloMensajes::abrirModalHistoria()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:87`: Falta @return.
-- `Modules\Mensajes\Livewire\HiloMensajes::confirmarRegistroHistoria()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:109`: Falta @param $mensajeriaService.
-- `Modules\Mensajes\Livewire\HiloMensajes::confirmarRegistroHistoria()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:109`: Falta @return.
-- `Modules\Mensajes\Livewire\HiloMensajes::esTsrDeCiudadano()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:138`: Falta @param $ciudadanoId.
-- `Modules\Mensajes\Livewire\HiloMensajes::esTsrDeCiudadano()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:138`: Falta @return.
-- `Modules\Mensajes\Livewire\NuevoMensaje::resultadosCiudadano()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:97`: Falta @return.
 - `Modules\Mensajes\Models\Mensaje::registerMediaCollections()` en `vida/Modules/Mensajes/app/Models/Mensaje.php:46`: Falta @return.
 - `Modules\Mensajes\Models\Mensaje::registerMediaConversions()` en `vida/Modules/Mensajes/app/Models/Mensaje.php:55`: Falta @param $media.
 - `Modules\Mensajes\Models\Mensaje::registerMediaConversions()` en `vida/Modules/Mensajes/app/Models/Mensaje.php:55`: Falta @return.
@@ -3077,9 +2991,11 @@ Contenedor de trabajo del profesional durante y después del encuentro. Puede ex
 Metodos publicos:
 
 - `function getCiudadanoId(): ?int`
-  {@inheritDoc}
+  Devuelve el ciudadano asociado a la historia social de la entrevista.
+  `@return` int|null
 - `function historia(): BelongsTo`
   _Sin resumen PHPDoc._
+  `@return` BelongsTo<HistoriaSocial, Entrevista>
 - `function profesional(): BelongsTo`
   _Sin resumen PHPDoc._
   `@return` BelongsTo<User, Entrevista>
@@ -3138,9 +3054,11 @@ Acuerdo formal entre el profesional y el ciudadano con objetivos, prestaciones c
 Metodos publicos:
 
 - `function getCiudadanoId(): ?int`
-  {@inheritDoc}
+  Devuelve el ciudadano asociado a la historia social del plan.
+  `@return` int|null
 - `function historia(): BelongsTo`
   _Sin resumen PHPDoc._
+  `@return` BelongsTo<HistoriaSocial, PlanDeIntervencion>
 - `function profesionalResponsable(): BelongsTo`
   _Sin resumen PHPDoc._
   `@return` BelongsTo<User, PlanDeIntervencion>
@@ -3164,12 +3082,14 @@ Metodos publicos:
   `@return` HasMany<Apunte>
 - `function estaFirmado(): bool`
   Comprueba si la versión actual del plan tiene ambas firmas registradas.
+  `@return` bool
 - `function crearNuevaVersion(string $motivo, int $profesionalId, ?int $seguimientoId = null): static`
   Crea una nueva versión del plan a partir del estado actual.
   `@return` static El nuevo plan (nueva versión)
   `@throws` \DomainException Si el plan no está en estado activo
 - `function scopeActivos(Builder $query): Builder`
   Solo planes activos.
+  `@return` Builder<PlanDeIntervencion>
 
 ### `Modules\Intervencion\Models\RevisionPlan`
 
@@ -3212,6 +3132,7 @@ Metodos publicos:
   `@return` BelongsTo<User, SeguimientoPlan>
 - `function solicitarCitaSiguiente(): void`
   Solicita al módulo de Agenda la creación de una cita para la siguiente sesión.
+  `@return` void
 
 ### `Modules\Intervencion\Models\SiaContacto`
 
@@ -3231,6 +3152,7 @@ Metodos publicos:
   `@return` BelongsTo<User, SiaContacto>
 - `function scopeCompetenciaMunicipal(Builder $query): Builder`
   Solo contactos de competencia municipal.
+  `@return` Builder<SiaContacto>
 
 ### `Modules\Intervencion\Models\TipoFicha`
 
@@ -3244,9 +3166,11 @@ Metodos publicos:
 
 - `function setSchemaAttribute(mixed $value): void`
   Valida el schema antes de almacenarlo.
+  `@return` void
   `@throws` \InvalidArgumentException Si el string recibido no es JSON válido
 - `function getSchemaAttribute(mixed $value): array`
   Devuelve el schema siempre como array PHP.
+  `@return` array
 - `function fichas(): HasMany`
   Fichas cumplimentadas que usan este tipo.
   `@return` HasMany<Ficha>
@@ -3255,11 +3179,14 @@ Metodos publicos:
   `@return` HasMany<TipoValoracionFicha>
 - `function tieneFichasAsociadas(): bool`
   Indica si esta ficha ya tiene instancias reales de datos (fichas cumplimentadas). Cuando es true, los ids y tipos de campos existentes son inmutables.
+  `@return` bool
 - `function validarSchema(): void`
   Valida la estructura del schema JSON antes de persistir. Lanza ValidationException si el schema no cumple el contrato.
+  `@return` void
   `@throws` ValidationException
 - `function scopeActivos(Builder $query): Builder`
   Fichas activas disponibles para componer valoraciones.
+  `@return` Builder<TipoFicha>
 
 ### `Modules\Intervencion\Models\TipoValoracion`
 
@@ -3276,6 +3203,7 @@ Metodos publicos:
   `@return` HasMany<TipoValoracionFicha>
 - `function scopeActivos(Builder $query): Builder`
   Solo tipos de valoración activos.
+  `@return` Builder<TipoValoracion>
 
 ### `Modules\Intervencion\Models\TipoValoracionFicha`
 
@@ -3305,9 +3233,11 @@ Tiene ciclo de vida propio: puede completarse en varias sesiones, revisarse post
 Metodos publicos:
 
 - `function getCiudadanoId(): ?int`
-  {@inheritDoc}
+  Devuelve el ciudadano asociado a la historia social de la valoración.
+  `@return` int|null
 - `function historia(): BelongsTo`
   _Sin resumen PHPDoc._
+  `@return` BelongsTo<HistoriaSocial, Valoracion>
 - `function entrevista(): BelongsTo`
   _Sin resumen PHPDoc._
   `@return` BelongsTo<Entrevista, Valoracion>
@@ -3333,10 +3263,13 @@ Metodos publicos:
 
 - `function view(User $usuario, Apunte $apunte): bool`
   Determina si el usuario puede ver el apunte.
+  `@return` bool
 - `function update(User $usuario, Apunte $apunte): bool`
   Determina si el usuario puede editar el apunte.
+  `@return` bool
 - `function delete(User $usuario, Apunte $apunte): bool`
   Determina si el usuario puede eliminar el apunte.
+  `@return` bool
 
 ### `Modules\Intervencion\Policies\PlanDeIntervencionPolicy`
 
@@ -3350,14 +3283,19 @@ Metodos publicos:
 
 - `function viewAny(User $usuario): bool`
   Decide si el usuario puede listar Planes de Intervención.
+  `@return` bool
 - `function view(User $usuario, PlanDeIntervencion $plan): bool`
   Decide si el usuario puede consultar el Plan de Intervención.
+  `@return` bool
 - `function create(User $usuario): bool`
   Decide si el usuario puede crear un Plan de Intervención.
+  `@return` bool
 - `function update(User $usuario, PlanDeIntervencion $plan): bool`
   Decide si el usuario puede editar el Plan de Intervención.
+  `@return` bool
 - `function delete(User $usuario, PlanDeIntervencion $plan): bool`
   Decide si el usuario puede eliminar (baja lógica) el Plan de Intervención.
+  `@return` bool
 
 ### `Modules\Intervencion\Providers\IntervencionServiceProvider`
 
@@ -3386,13 +3324,16 @@ Metodos publicos:
 
 - `function crear(array $datos): Apunte`
   Crea un nuevo apunte.
+  `@return` Apunte
   `@throws` AuthorizationException Si el usuario no tiene permiso de crear apuntes
 - `function actualizar(int $id, array $datos): Apunte`
   Actualiza un apunte existente.
+  `@return` Apunte
   `@throws` AuthorizationException Si el usuario no tiene permiso de editar
   `@throws` ModelNotFoundException Si el apunte no existe o no está en el ámbito del usuario
 - `function eliminar(int $id): void`
   Elimina un apunte.
+  `@return` void
   `@throws` AuthorizationException Si el usuario no tiene permiso de eliminar
   `@throws` ModelNotFoundException Si el apunte no existe o no está en el ámbito del usuario
 
@@ -3408,13 +3349,16 @@ Metodos publicos:
 
 - `function crear(array $datos): HistoriaSocial`
   Abre (crea) una nueva Historia Social.
+  `@return` HistoriaSocial
   `@throws` AuthorizationException Si el usuario no tiene permiso de crear
 - `function actualizar(int $id, array $datos): HistoriaSocial`
   Actualiza una Historia Social existente.
+  `@return` HistoriaSocial
   `@throws` AuthorizationException Si el usuario no tiene permiso de editar
   `@throws` ModelNotFoundException Si la historia no existe o no está en el ámbito del usuario
 - `function eliminar(int $id): void`
   Elimina (baja lógica) una Historia Social.
+  `@return` void
   `@throws` AuthorizationException Si el usuario no tiene permiso de eliminar
   `@throws` ModelNotFoundException Si la historia no existe o no está en el ámbito del usuario
 
@@ -3430,12 +3374,16 @@ Metodos publicos:
 
 - `function totalAlertas(): int`
   Número de alertas directas al usuario autenticado pendientes de reconocimiento.
+  `@return` int
 - `function mensajesNoLeidos(): int`
   Número de mensajes no leídos del usuario autenticado.
+  `@return` int
 - `function totalNotificaciones(): int`
   Total de notificaciones (alertas + mensajes no leídos). Usado para el badge del ítem "Alertas y mensajes".
+  `@return` int
 - `function misCasosCount(): int`
   Número de historias sociales con plan activo asignadas al profesional. Usado para el badge del ítem "Mis casos".
+  `@return` int
 - `function getData(): array`
   Devuelve todos los datos del sidebar en un array.
   `@return` array{alertas: int, mensajes: int, notificaciones: int, casos: int}
@@ -3452,13 +3400,16 @@ Metodos publicos:
 
 - `function crear(array $datos): PlanDeIntervencion`
   Crea un nuevo Plan de Intervención.
+  `@return` PlanDeIntervencion
   `@throws` AuthorizationException Si el usuario no tiene permiso de crear planes
 - `function actualizar(int $id, array $datos): PlanDeIntervencion`
   Actualiza un Plan de Intervención existente.
+  `@return` PlanDeIntervencion
   `@throws` AuthorizationException Si el usuario no tiene permiso de editar
   `@throws` ModelNotFoundException Si el plan no existe o no está en el ámbito del usuario
 - `function eliminar(int $id): void`
   Elimina (baja lógica) un Plan de Intervención.
+  `@return` void
   `@throws` AuthorizationException Si el usuario no tiene permiso de eliminar
   `@throws` ModelNotFoundException Si el plan no existe o no está en el ámbito del usuario
 
@@ -3544,26 +3495,37 @@ Metodos publicos:
   `@return` Collection<int, MensajeParticipante>
 - `function alertaSeleccionada(): ?Alerta`
   Alerta seleccionada actualmente en la pestaña Alertas/Avisos.
+  `@return` Alerta|null
 - `function hiloSeleccionado(): ?MensajeParticipante`
   Participación seleccionada en la pestaña Mensajes.
+  `@return` MensajeParticipante|null
 - `function cambiarPestana(string $pestana): void`
   Cambia la pestaña activa y deselecciona el ítem actual.
+  `@return` void
 - `function seleccionar(int $id): void`
   Selecciona un ítem de la lista.
+  `@return` void
 - `function reconocerAlerta(int $alertaId): void`
   Reconoce una alerta del usuario autenticado. Actualiza su estado a 'reconocida' y la retira del listado.
+  `@return` void
 - `function enviarRespuesta(int $hiloId, MensajeriaService $mensajeriaService): void`
   Envía una respuesta al hilo seleccionado.
+  `@return` void
 - `function mount(string $asunto = ''): void`
   Inicializa el componente. Si se recibe un asunto por URL, abre el modal con el asunto pre-rellenado.
+  `@return` void
 - `function abrirModalNuevoMensaje(): void`
   Abre el modal de redaccion de nuevo mensaje.
+  `@return` void
 - `function buscarDestinatario(): void`
   Busca usuarios por nombre para seleccionar como destinatario. Filtra por coincidencia ILIKE sobre nombre + apellidos del profesional.
+  `@return` void
 - `function seleccionarDestinatario(int $id, string $nombre): void`
   Selecciona un destinatario de los resultados de busqueda.
+  `@return` void
 - `function enviarMensaje(): void`
   Valida y envia el nuevo mensaje, creando el hilo y el primer mensaje. Despues de enviar, cierra el modal y navega a la pestana de mensajes.
+  `@return` void
 - `function render(): View`
   _Sin resumen PHPDoc._
 
@@ -3615,10 +3577,13 @@ Metodos publicos:
   _Sin resumen PHPDoc._
 - `function confirmarReconocimiento(int $alertaId): void`
   Solicita confirmación antes de reconocer una alerta.
+  `@return` void
 - `function reconocer(AlertaService $alertaService): void`
   Reconoce (o descarta) la alerta confirmada.
+  `@return` void
 - `function cancelarReconocimiento(): void`
   Cancela el diálogo de confirmación.
+  `@return` void
 - `function render(): View`
   _Sin resumen PHPDoc._
 
@@ -3663,12 +3628,15 @@ Metodos publicos:
   _Sin resumen PHPDoc._
 - `function abrirModalHistoria(int $mensajeId, int $ciudadanoId): void`
   Abre el modal para registrar un mensaje en la Historia Social.
+  `@return` void
 - `function cerrarModalHistoria(): void`
   _Sin resumen PHPDoc._
 - `function confirmarRegistroHistoria(MensajeriaService $mensajeriaService): void`
   Confirma el registro del mensaje en la Historia Social.
+  `@return` void
 - `function esTsrDeCiudadano(int $ciudadanoId): bool`
   Comprueba si el usuario autenticado es TSR responsable del ciudadano.
+  `@return` bool
 - `function opcionesVisibilidad(): array`
   Opciones de visibilidad disponibles.
   `@return` array<string, string>
@@ -3696,6 +3664,7 @@ Metodos publicos:
   _Sin resumen PHPDoc._
 - `function resultadosCiudadano(): Collection`
   Resultados de búsqueda de ciudadanos para referenciar.
+  `@return` Collection<int, Ciudadano>
 - `function agregarCiudadano(int $ciudadanoId): void`
   _Sin resumen PHPDoc._
 - `function quitarCiudadano(int $ciudadanoId): void`

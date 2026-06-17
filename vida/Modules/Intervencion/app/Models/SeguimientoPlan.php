@@ -96,6 +96,8 @@ class SeguimientoPlan extends Model
      *
      * Stub — la lógica real se implementará con la integración del módulo Agenda.
      * Ver docs/modulo-intervencion.md §6.2.
+     *
+     * @return void
      */
     public function solicitarCitaSiguiente(): void
     {
