@@ -16,7 +16,9 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
+use Modules\Ciudadania\Models\CiudadanoRelacion;
 use Modules\Ciudadania\Models\CiudadanoPrestacionResumen;
+use Modules\Ciudadania\Models\TipoRelacion;
 use Modules\Ciudadania\Services\NormalizadorCiudadano;
 
 /**
@@ -88,6 +90,23 @@ class FichaCiudadanoPage extends Component
     public string $nuevoTipoDocumento = 'nif';
 
     public string $nuevoValorDocumento = '';
+
+
+    // -------------------------------------------------------------------------
+    // Gestión de relaciones
+    // -------------------------------------------------------------------------
+
+    public bool $mostrarHistorialRelaciones = false;
+
+    public string $relacionBusqueda = '';
+
+    public ?int $relacionCiudadanoSeleccionado = null;
+
+    public string $relacionTipo = '';
+
+    public string $relacionObservaciones = '';
+
+    public string $relacionMensaje = '';
 
     // -------------------------------------------------------------------------
     // Ciclo de vida
@@ -245,6 +264,7 @@ class FichaCiudadanoPage extends Component
      * @return Collection<int, Audit>
      */
     #[Computed]
+
     public function actividadReciente(): Collection
     {
         if (! $this->puedeVerAccesos) {
@@ -260,6 +280,83 @@ class FichaCiudadanoPage extends Component
             ->paraUsuario(auth()->user(), $this->ciudadano, $historia)
             ->limit(10)
             ->get();
+    }
+
+    /**
+     * Tipos de relación activos disponibles para crear nuevas relaciones.
+     *
+     * @return array<string, string>
+     */
+    #[Computed]
+    public function tiposRelacion(): array
+    {
+        return TipoRelacion::opcionesParaSelect();
+    }
+
+    /**
+     * Relaciones activas salientes desde este ciudadano, con persona y tipo cargados.
+     *
+     * @return Collection<int, CiudadanoRelacion>
+     */
+    #[Computed]
+    public function relacionesActivas(): Collection
+    {
+        return CiudadanoRelacion::where('ciudadano_id', $this->ciudadanoId)
+            ->whereNull('fecha_fin')
+            ->with(['ciudadanoRelacionado', 'tipoRelacion'])
+            ->orderByDesc('fecha_inicio')
+            ->get();
+    }
+
+    /**
+     * Historial completo de relaciones del ciudadano.
+     *
+     * @return Collection<int, CiudadanoRelacion>
+     */
+    #[Computed]
+    public function relacionesHistoricas(): Collection
+    {
+        return CiudadanoRelacion::where('ciudadano_id', $this->ciudadanoId)
+            ->with(['ciudadanoRelacionado', 'tipoRelacion'])
+            ->orderByRaw('fecha_fin is null desc')
+            ->orderByDesc('fecha_inicio')
+            ->get();
+    }
+
+    /**
+     * Resultados de búsqueda para añadir una relación. Los nombres están cifrados,
+     * por eso se filtra en memoria siguiendo el patrón del buscador de ciudadanos.
+     *
+     * @return Collection<int, Ciudadano>
+     */
+    #[Computed]
+    public function relacionResultadosBusqueda(): Collection
+    {
+        if (strlen(trim($this->relacionBusqueda)) < 2) {
+            return collect();
+        }
+
+        return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
+            ->where('id', '!=', $this->ciudadanoId)
+            ->limit(500)
+            ->get()
+            ->filter(fn (Ciudadano $ciudadano) => str_contains(
+                mb_strtolower($ciudadano->nombre_completo),
+                mb_strtolower(trim($this->relacionBusqueda))
+            ))
+            ->take(8)
+            ->values();
+    }
+
+    #[Computed]
+    public function ciudadanoSeleccionadoRelacion(): ?Ciudadano
+    {
+        if (! $this->relacionCiudadanoSeleccionado) {
+            return null;
+        }
+
+        return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
+            ->find($this->relacionCiudadanoSeleccionado);
     }
 
     // -------------------------------------------------------------------------
@@ -345,6 +442,101 @@ class FichaCiudadanoPage extends Component
 
         $this->modoEdicion = false;
         $this->dispatch('ciudadano-actualizado');
+    }
+
+
+    // -------------------------------------------------------------------------
+    // Gestión de relaciones
+    // -------------------------------------------------------------------------
+
+    public function toggleHistorialRelaciones(): void
+    {
+        $this->mostrarHistorialRelaciones = ! $this->mostrarHistorialRelaciones;
+    }
+
+    public function seleccionarCiudadanoRelacion(int $ciudadanoId): void
+    {
+        if (! $this->puedeEditar || $ciudadanoId === $this->ciudadanoId) {
+            return;
+        }
+
+        $this->relacionCiudadanoSeleccionado = $ciudadanoId;
+        $this->relacionBusqueda = '';
+    }
+
+    public function cancelarNuevaRelacion(): void
+    {
+        $this->relacionCiudadanoSeleccionado = null;
+        $this->relacionBusqueda = '';
+        $this->relacionTipo = '';
+        $this->relacionObservaciones = '';
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function guardarRelacion(): void
+    {
+        if (! $this->puedeEditar) {
+            return;
+        }
+
+        $this->validate([
+            'relacionCiudadanoSeleccionado' => 'required|integer|exists:ciudadanos,id|different:ciudadanoId',
+            'relacionTipo' => 'required|string|exists:tipos_relacion,slug',
+            'relacionObservaciones' => 'nullable|string|max:1000',
+        ]);
+
+        $tipoActivo = TipoRelacion::activos()->where('slug', $this->relacionTipo)->exists();
+        if (! $tipoActivo) {
+            throw ValidationException::withMessages([
+                'relacionTipo' => 'El tipo de relación seleccionado no está activo.',
+            ]);
+        }
+
+        $duplicada = CiudadanoRelacion::where('ciudadano_id', $this->ciudadanoId)
+            ->where('ciudadano_relacionado_id', $this->relacionCiudadanoSeleccionado)
+            ->where('tipo_relacion', $this->relacionTipo)
+            ->whereNull('fecha_fin')
+            ->exists();
+
+        if ($duplicada) {
+            throw ValidationException::withMessages([
+                'relacionTipo' => 'Ya existe una relación activa de ese tipo con esta persona.',
+            ]);
+        }
+
+        CiudadanoRelacion::create([
+            'ciudadano_id' => $this->ciudadanoId,
+            'ciudadano_relacionado_id' => $this->relacionCiudadanoSeleccionado,
+            'tipo_relacion' => $this->relacionTipo,
+            'fecha_inicio' => today()->toDateString(),
+            'observaciones' => $this->relacionObservaciones ?: null,
+        ]);
+
+        $this->cancelarNuevaRelacion();
+        $this->relacionMensaje = 'Relación añadida correctamente.';
+        unset($this->relacionesActivas, $this->relacionesHistoricas);
+    }
+
+    public function cerrarRelacion(int $relacionId): void
+    {
+        if (! $this->puedeEditar) {
+            return;
+        }
+
+        $relacion = CiudadanoRelacion::where('ciudadano_id', $this->ciudadanoId)
+            ->where('id', $relacionId)
+            ->whereNull('fecha_fin')
+            ->first();
+
+        if (! $relacion) {
+            return;
+        }
+
+        $relacion->update(['fecha_fin' => today()->toDateString()]);
+        $this->relacionMensaje = 'Relación cerrada correctamente.';
+        unset($this->relacionesActivas, $this->relacionesHistoricas);
     }
 
     // -------------------------------------------------------------------------
