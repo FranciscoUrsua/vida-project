@@ -8,6 +8,9 @@ enum UrgenciaSia: string
     case Prioritario = 'prioritario';
     case Ordinario = 'ordinario';
 
+    /**
+     * Devuelve la etiqueta legible del nivel de urgencia.
+     */
     public function label(): string
     {
         return match ($this) {

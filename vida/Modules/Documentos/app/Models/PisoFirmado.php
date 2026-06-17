@@ -34,6 +34,11 @@ class PisoFirmado extends Model
         'metodo_conformidad_ciudadano' => MetodoConformidadCiudadano::class,
     ];
 
+    /**
+     * Plan de intervención asociado al PISO.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function planDeIntervencion(): BelongsTo
     {
         // La relación apunta al modelo stub — se actualizará cuando el módulo
@@ -41,11 +46,21 @@ class PisoFirmado extends Model
         return $this->belongsTo(User::class, 'plan_de_intervencion_id');
     }
 
+    /**
+     * Documento custodiado del PISO.
+     *
+     * @return BelongsTo<Documento, self>
+     */
     public function documento(): BelongsTo
     {
         return $this->belongsTo(Documento::class, 'documento_id');
     }
 
+    /**
+     * Usuario que subió el documento.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function subidoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'subido_por');

@@ -16,6 +16,11 @@ class DocumentosServiceProvider extends ServiceProvider
 {
     protected string $moduleName = 'Documentos';
 
+    /**
+     * Registra los servicios del módulo.
+     *
+     * @return void
+     */
     public function register(): void
     {
         $this->mergeConfigFrom(
@@ -26,6 +31,11 @@ class DocumentosServiceProvider extends ServiceProvider
         $this->app->singleton(ResolverEstiloInforme::class);
     }
 
+    /**
+     * Arranca el módulo Documentos.
+     *
+     * @return void
+     */
     public function boot(): void
     {
         $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));

@@ -40,16 +40,31 @@ class PlantillaInforme extends Model
         'tipo_informe' => TipoInforme::class,
     ];
 
+    /**
+     * Unidad organizativa propietaria de la plantilla.
+     *
+     * @return BelongsTo<UnidadOrganizativa, self>
+     */
     public function unidadOrganizativa(): BelongsTo
     {
         return $this->belongsTo(UnidadOrganizativa::class, 'unidad_organizativa_id');
     }
 
+    /**
+     * Usuario que creó la plantilla.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function creadaPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'creada_por');
     }
 
+    /**
+     * Informes generados a partir de esta plantilla.
+     *
+     * @return HasMany<Informe>
+     */
     public function informes(): HasMany
     {
         return $this->hasMany(Informe::class, 'plantilla_id');

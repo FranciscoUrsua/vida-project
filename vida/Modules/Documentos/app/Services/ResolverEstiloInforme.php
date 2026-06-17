@@ -28,6 +28,13 @@ class ResolverEstiloInforme
         'html_pie',
     ];
 
+    /**
+     * Resuelve el estilo efectivo para una UO, usando caché.
+     *
+     * @param int $uoId ID de la unidad organizativa.
+     *
+     * @return array
+     */
     public function resolver(int $uoId): array
     {
         return Cache::remember(
@@ -37,6 +44,13 @@ class ResolverEstiloInforme
         );
     }
 
+    /**
+     * Resuelve el estilo efectivo sin utilizar caché.
+     *
+     * @param int $uoId ID de la unidad organizativa.
+     *
+     * @return array
+     */
     public function resolverSinCache(int $uoId): array
     {
         $uo = UnidadOrganizativa::find($uoId);

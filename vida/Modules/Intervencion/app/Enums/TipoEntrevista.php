@@ -9,6 +9,9 @@ enum TipoEntrevista: string
     case Urgencia = 'urgencia';
     case Informativa = 'informativa';
 
+    /**
+     * Devuelve la etiqueta legible del tipo de entrevista.
+     */
     public function label(): string
     {
         return match ($this) {

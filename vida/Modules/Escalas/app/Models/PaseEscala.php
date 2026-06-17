@@ -205,6 +205,11 @@ class PaseEscala extends Model
         return $this->historia?->ciudadano_id;
     }
 
+    /**
+     * Historia social del ciudadano al que se aplica la escala.
+     *
+     *  BelongsTo<HistoriaSocial, self>
+     */
     public function historia(): BelongsTo
     {
         return $this->belongsTo(HistoriaSocial::class, 'historia_id');

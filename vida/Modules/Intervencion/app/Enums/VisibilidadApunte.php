@@ -8,6 +8,9 @@ enum VisibilidadApunte: string
     case Profesionales = 'profesionales';
     case Ciudadano = 'ciudadano';
 
+    /**
+     * Devuelve la etiqueta legible de la visibilidad.
+     */
     public function label(): string
     {
         return match ($this) {

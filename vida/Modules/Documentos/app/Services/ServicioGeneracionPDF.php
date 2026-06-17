@@ -18,6 +18,9 @@ use Modules\Documentos\Models\Informe;
  */
 class ServicioGeneracionPDF
 {
+    /**
+     * Crea el servicio con sus dependencias de resolución y almacenamiento.
+     */
     public function __construct(
         private ResolverEstiloInforme $resolverEstilo,
         private ServicioAlmacenamiento $almacenamiento,
