@@ -194,9 +194,27 @@ class TipoFichaResource extends Resource
                                         return;
                                     }
 
-                                    // Si ya está en formato Builder (['type' => ..., 'data' => ...]), no transformar
+                                    // Si ya está en formato Builder (['type' => ..., 'data' => ...])
+                                    // viene de una re-hidratación de Livewire (p.ej. tras reordenar).
+                                    // Normalizar opciones de bloques select a strings planos para que
+                                    // el afterStateHydrated propio del Repeater::simple() las envuelva
+                                    // correctamente en lugar de hacer doble-wrapping.
                                     $first = is_array($state) ? reset($state) : null;
                                     if (is_array($first) && isset($first['type'])) {
+                                        $normalized = collect($state)->map(function (array $block) {
+                                            if (($block['type'] ?? '') === 'select'
+                                                && isset($block['data']['opciones'])
+                                                && is_array($block['data']['opciones'])
+                                            ) {
+                                                $block['data']['opciones'] = self::normalizarOpcionesParaSchema(
+                                                    $block['data']['opciones']
+                                                );
+                                            }
+
+                                            return $block;
+                                        })->all();
+                                        $component->rawState($normalized);
+
                                         return;
                                     }
 
