@@ -206,7 +206,7 @@ class TipoFichaResource extends Resource
                                             ->filter(fn ($c) => is_array($c))
                                             ->map(fn (array $campo) => [
                                                 'type' => $campo['tipo'] ?? 'texto',
-                                                'data' => $campo,
+                                                'data' => self::normalizarOpcionesParaBuilder($campo),
                                             ])
                                             ->values()
                                             ->all();
@@ -251,6 +251,10 @@ class TipoFichaResource extends Resource
                                             $idsUsados[] = $data['id'];
                                             $data['tipo'] = $tipo;
                                             $data['orden'] = $i + 1;
+
+                                            if ($tipo === 'select' && isset($data['opciones']) && is_array($data['opciones'])) {
+                                                $data['opciones'] = self::normalizarOpcionesParaSchema($data['opciones']);
+                                            }
 
                                             return $data;
                                         })
@@ -327,6 +331,11 @@ class TipoFichaResource extends Resource
                 $data['tipo'] = $tipo;
                 $data['orden'] = $i + 1;
 
+                // Normalizar opciones de select a array plano de strings
+                if ($tipo === 'select' && isset($data['opciones']) && is_array($data['opciones'])) {
+                    $data['opciones'] = self::normalizarOpcionesParaSchema($data['opciones']);
+                }
+
                 return $data;
             })
             ->filter()
@@ -339,6 +348,45 @@ class TipoFichaResource extends Resource
     // -------------------------------------------------------------------------
     // Helpers privados
     // -------------------------------------------------------------------------
+
+    /**
+     * Transforma las opciones de un campo select de strings planos al formato
+     * interno que espera Repeater::simple(): [['valor' => '...'], ...].
+     * Necesario porque el afterStateHydrated propio del Repeater no se ejecuta
+     * cuando el Builder carga el estado programáticamente.
+     *
+     * @param  array<mixed>  $campo
+     * @return array<string, mixed>
+     */
+    private static function normalizarOpcionesParaBuilder(array $campo): array
+    {
+        if (($campo['tipo'] ?? '') === 'select' && isset($campo['opciones']) && is_array($campo['opciones'])) {
+            $campo['opciones'] = collect($campo['opciones'])
+                ->map(fn ($opt) => is_array($opt) ? $opt : ['valor' => (string) $opt])
+                ->values()
+                ->all();
+        }
+
+        return $campo;
+    }
+
+    /**
+     * Normaliza las opciones de un campo select desde el formato interno del
+     * Repeater ([['valor' => '...'], ...]) a strings planos (['...', ...]).
+     * Se aplica en dehydrateStateUsing y convertirSchemaBlocks como defensa
+     * ante ambos formatos posibles.
+     *
+     * @param  array<mixed>  $opciones
+     * @return array<string>
+     */
+    private static function normalizarOpcionesParaSchema(array $opciones): array
+    {
+        return collect($opciones)
+            ->map(fn ($opt) => is_array($opt) ? ($opt['valor'] ?? '') : (string) $opt)
+            ->filter(fn ($opt) => $opt !== '')
+            ->values()
+            ->all();
+    }
 
     /** Campos base compartidos por todos los bloques del Builder. */
     private static function camposBase(): array
