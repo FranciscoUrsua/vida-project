@@ -1,40 +1,19 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-17 11:33:11 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-17 11:37:17 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 371.
 - Cabeceras documentadas: 251/371.
-- Metodos publicos documentados: 589/991.
-- Alertas de comentarios: 644.
+- Metodos publicos documentados: 610/991.
+- Alertas de comentarios: 623.
 
 ## Alertas
 
-### Método público sin PHPDoc (354)
+### Método público sin PHPDoc (333)
 
-- `Modules\Agenda\Models\Cita::slot()` en `vida/Modules/Agenda/app/Models/Cita.php:69`: Falta docblock de método público.
-- `Modules\Agenda\Models\Cita::ciudadano()` en `vida/Modules/Agenda/app/Models/Cita.php:74`: Falta docblock de método público.
-- `Modules\Agenda\Models\Cita::profesional()` en `vida/Modules/Agenda/app/Models/Cita.php:79`: Falta docblock de método público.
-- `Modules\Agenda\Models\Cita::tipoSlot()` en `vida/Modules/Agenda/app/Models/Cita.php:84`: Falta docblock de método público.
-- `Modules\Agenda\Models\Cita::centro()` en `vida/Modules/Agenda/app/Models/Cita.php:89`: Falta docblock de método público.
-- `Modules\Agenda\Models\Cita::creadoPor()` en `vida/Modules/Agenda/app/Models/Cita.php:94`: Falta docblock de método público.
-- `Modules\Agenda\Models\Cita::canceladoPor()` en `vida/Modules/Agenda/app/Models/Cita.php:99`: Falta docblock de método público.
-- `Modules\Agenda\Models\Cita::reasignacion()` en `vida/Modules/Agenda/app/Models/Cita.php:104`: Falta docblock de método público.
-- `Modules\Agenda\Models\Cita::scopeConfirmadas()` en `vida/Modules/Agenda/app/Models/Cita.php:109`: Falta docblock de método público.
-- `Modules\Agenda\Models\Cita::scopeDelDia()` en `vida/Modules/Agenda/app/Models/Cita.php:114`: Falta docblock de método público.
-- `Modules\Agenda\Models\Cita::scopeDelProfesional()` en `vida/Modules/Agenda/app/Models/Cita.php:119`: Falta docblock de método público.
-- `Modules\Agenda\Models\Cita::scopeDelCiudadano()` en `vida/Modules/Agenda/app/Models/Cita.php:124`: Falta docblock de método público.
-- `Modules\Agenda\Models\Cita::scopePendientesReasignacion()` en `vida/Modules/Agenda/app/Models/Cita.php:129`: Falta docblock de método público.
-- `Modules\Agenda\Models\CuadranteMes::centro()` en `vida/Modules/Agenda/app/Models/CuadranteMes.php:57`: Falta docblock de método público.
-- `Modules\Agenda\Models\CuadranteMes::publicadoPor()` en `vida/Modules/Agenda/app/Models/CuadranteMes.php:62`: Falta docblock de método público.
-- `Modules\Agenda\Models\CuadranteMes::lineas()` en `vida/Modules/Agenda/app/Models/CuadranteMes.php:67`: Falta docblock de método público.
-- `Modules\Agenda\Models\CuadranteMes::slots()` en `vida/Modules/Agenda/app/Models/CuadranteMes.php:72`: Falta docblock de método público.
-- `Modules\Agenda\Models\CuadranteMes::scopePublicados()` en `vida/Modules/Agenda/app/Models/CuadranteMes.php:77`: Falta docblock de método público.
-- `Modules\Agenda\Models\CuadranteMes::scopeBorradores()` en `vida/Modules/Agenda/app/Models/CuadranteMes.php:82`: Falta docblock de método público.
-- `Modules\Agenda\Models\CuadranteMes::scopeDelMes()` en `vida/Modules/Agenda/app/Models/CuadranteMes.php:87`: Falta docblock de método público.
-- `Modules\Agenda\Models\CuadranteMes::scopeDelCentro()` en `vida/Modules/Agenda/app/Models/CuadranteMes.php:92`: Falta docblock de método público.
 - `Modules\Agenda\Models\EventoAgenda::centro()` en `vida/Modules/Agenda/app/Models/EventoAgenda.php:60`: Falta docblock de método público.
 - `Modules\Agenda\Models\EventoAgenda::espacio()` en `vida/Modules/Agenda/app/Models/EventoAgenda.php:65`: Falta docblock de método público.
 - `Modules\Agenda\Models\EventoAgenda::creadoPor()` en `vida/Modules/Agenda/app/Models/EventoAgenda.php:70`: Falta docblock de método público.
@@ -800,31 +779,44 @@ Una cita vincula un slot con un ciudadano y tiene un ciclo de vida propio. Puede
 Metodos publicos:
 
 - `function slot(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Slot reservado por la cita.
+  `@return` BelongsTo<Slot, self>
 - `function ciudadano(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Ciudadano atendido en la cita.
+  `@return` BelongsTo<Ciudadano, self>
 - `function profesional(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Profesional asignado a la cita.
+  `@return` BelongsTo<User, self>
 - `function tipoSlot(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Tipo de slot reservado para la cita.
+  `@return` BelongsTo<TipoSlot, self>
 - `function centro(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Centro donde se presta la cita.
+  `@return` BelongsTo<Centro, self>
 - `function creadoPor(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Usuario que creó la cita.
+  `@return` BelongsTo<User, self>
 - `function canceladoPor(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Usuario que canceló la cita.
+  `@return` BelongsTo<User, self>
 - `function reasignacion(): HasOne`
-  _Sin resumen PHPDoc._
+  Reasignación asociada a la cita, si existe.
+  `@return` HasOne<ReasignacionCita>
 - `function scopeConfirmadas(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra citas confirmadas.
+  `@return` Builder<Cita>
 - `function scopeDelDia(Builder $query, $fecha): Builder`
-  _Sin resumen PHPDoc._
+  Filtra citas de una fecha concreta.
+  `@return` Builder<Cita>
 - `function scopeDelProfesional(Builder $query, int $usuarioId): Builder`
-  _Sin resumen PHPDoc._
+  Filtra citas asignadas a un profesional.
+  `@return` Builder<Cita>
 - `function scopeDelCiudadano(Builder $query, int $ciudadanoId): Builder`
-  _Sin resumen PHPDoc._
+  Filtra citas de un ciudadano.
+  `@return` Builder<Cita>
 - `function scopePendientesReasignacion(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra citas pendientes de reasignación por no-show profesional.
+  `@return` Builder<Cita>
 - `function noShowCiudadano(): void`
   Registra el no-show del ciudadano sin modificar el slot.
   `@return` void
@@ -849,21 +841,29 @@ Representa la planificación de disponibilidad para todos los profesionales de u
 Metodos publicos:
 
 - `function centro(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Centro al que pertenece el cuadrante mensual.
+  `@return` BelongsTo<Centro, self>
 - `function publicadoPor(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Usuario que publicó el cuadrante.
+  `@return` BelongsTo<User, self>
 - `function lineas(): HasMany`
-  _Sin resumen PHPDoc._
+  Líneas de disponibilidad planificadas para el mes.
+  `@return` HasMany<LineaCuadrante>
 - `function slots(): HasManyThrough`
-  _Sin resumen PHPDoc._
+  Slots materializados a partir de las líneas del cuadrante.
+  `@return` HasManyThrough<Slot>
 - `function scopePublicados(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra cuadrantes publicados.
+  `@return` Builder<CuadranteMes>
 - `function scopeBorradores(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra cuadrantes en borrador.
+  `@return` Builder<CuadranteMes>
 - `function scopeDelMes(Builder $query, int $anyo, int $mes): Builder`
-  _Sin resumen PHPDoc._
+  Filtra cuadrantes por año y mes.
+  `@return` Builder<CuadranteMes>
 - `function scopeDelCentro(Builder $query, int $centroId): Builder`
-  _Sin resumen PHPDoc._
+  Filtra cuadrantes de un centro.
+  `@return` Builder<CuadranteMes>
 
 ### `Modules\Agenda\Models\EventoAgenda`
 

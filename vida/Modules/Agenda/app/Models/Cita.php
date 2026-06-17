@@ -66,66 +66,144 @@ class Cita extends Model
         'completada_en' => 'datetime',
     ];
 
+    /**
+     * Slot reservado por la cita.
+     *
+     * @return BelongsTo<Slot, self>
+     */
     public function slot(): BelongsTo
     {
         return $this->belongsTo(Slot::class);
     }
 
+    /**
+     * Ciudadano atendido en la cita.
+     *
+     * @return BelongsTo<Ciudadano, self>
+     */
     public function ciudadano(): BelongsTo
     {
         return $this->belongsTo(Ciudadano::class);
     }
 
+    /**
+     * Profesional asignado a la cita.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function profesional(): BelongsTo
     {
         return $this->belongsTo(User::class, 'profesional_id');
     }
 
+    /**
+     * Tipo de slot reservado para la cita.
+     *
+     * @return BelongsTo<TipoSlot, self>
+     */
     public function tipoSlot(): BelongsTo
     {
         return $this->belongsTo(TipoSlot::class, 'tipo_slot_id');
     }
 
+    /**
+     * Centro donde se presta la cita.
+     *
+     * @return BelongsTo<Centro, self>
+     */
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class);
     }
 
+    /**
+     * Usuario que creó la cita.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function creadoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'creado_por_id');
     }
 
+    /**
+     * Usuario que canceló la cita.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function canceladoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cancelado_por_id');
     }
 
+    /**
+     * Reasignación asociada a la cita, si existe.
+     *
+     * @return HasOne<ReasignacionCita>
+     */
     public function reasignacion(): HasOne
     {
         return $this->hasOne(ReasignacionCita::class, 'cita_id');
     }
 
+    /**
+     * Filtra citas confirmadas.
+     *
+     * @param Builder<Cita> $query
+     *
+     * @return Builder<Cita>
+     */
     public function scopeConfirmadas(Builder $query): Builder
     {
         return $query->where('estado', EstadoCita::Confirmada->value);
     }
 
+    /**
+     * Filtra citas de una fecha concreta.
+     *
+     * @param Builder<Cita> $query
+     * @param mixed $fecha
+     *
+     * @return Builder<Cita>
+     */
     public function scopeDelDia(Builder $query, $fecha): Builder
     {
         return $query->where('fecha', $fecha);
     }
 
+    /**
+     * Filtra citas asignadas a un profesional.
+     *
+     * @param Builder<Cita> $query
+     * @param int $usuarioId
+     *
+     * @return Builder<Cita>
+     */
     public function scopeDelProfesional(Builder $query, int $usuarioId): Builder
     {
         return $query->where('profesional_id', $usuarioId);
     }
 
+    /**
+     * Filtra citas de un ciudadano.
+     *
+     * @param Builder<Cita> $query
+     * @param int $ciudadanoId
+     *
+     * @return Builder<Cita>
+     */
     public function scopeDelCiudadano(Builder $query, int $ciudadanoId): Builder
     {
         return $query->where('ciudadano_id', $ciudadanoId);
     }
 
+    /**
+     * Filtra citas pendientes de reasignación por no-show profesional.
+     *
+     * @param Builder<Cita> $query
+     *
+     * @return Builder<Cita>
+     */
     public function scopePendientesReasignacion(Builder $query): Builder
     {
         return $query->where('estado', EstadoCita::NoShowProfesional->value);

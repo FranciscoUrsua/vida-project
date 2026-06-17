@@ -54,41 +54,92 @@ class CuadranteMes extends Model
         'publicado_en' => 'datetime',
     ];
 
+    /**
+     * Centro al que pertenece el cuadrante mensual.
+     *
+     * @return BelongsTo<Centro, self>
+     */
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class);
     }
 
+    /**
+     * Usuario que publicó el cuadrante.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function publicadoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'publicado_por_id');
     }
 
+    /**
+     * Líneas de disponibilidad planificadas para el mes.
+     *
+     * @return HasMany<LineaCuadrante>
+     */
     public function lineas(): HasMany
     {
         return $this->hasMany(LineaCuadrante::class, 'cuadrante_mes_id');
     }
 
+    /**
+     * Slots materializados a partir de las líneas del cuadrante.
+     *
+     * @return HasManyThrough<Slot>
+     */
     public function slots(): HasManyThrough
     {
         return $this->hasManyThrough(Slot::class, LineaCuadrante::class, 'cuadrante_mes_id', 'linea_cuadrante_id');
     }
 
+    /**
+     * Filtra cuadrantes publicados.
+     *
+     * @param Builder<CuadranteMes> $query
+     *
+     * @return Builder<CuadranteMes>
+     */
     public function scopePublicados(Builder $query): Builder
     {
         return $query->where('estado', EstadoCuadrante::Publicado->value);
     }
 
+    /**
+     * Filtra cuadrantes en borrador.
+     *
+     * @param Builder<CuadranteMes> $query
+     *
+     * @return Builder<CuadranteMes>
+     */
     public function scopeBorradores(Builder $query): Builder
     {
         return $query->where('estado', EstadoCuadrante::Borrador->value);
     }
 
+    /**
+     * Filtra cuadrantes por año y mes.
+     *
+     * @param Builder<CuadranteMes> $query
+     * @param int $anyo
+     * @param int $mes
+     *
+     * @return Builder<CuadranteMes>
+     */
     public function scopeDelMes(Builder $query, int $anyo, int $mes): Builder
     {
         return $query->where('anyo', $anyo)->where('mes', $mes);
     }
 
+    /**
+     * Filtra cuadrantes de un centro.
+     *
+     * @param Builder<CuadranteMes> $query
+     * @param int $centroId
+     *
+     * @return Builder<CuadranteMes>
+     */
     public function scopeDelCentro(Builder $query, int $centroId): Builder
     {
         return $query->where('centro_id', $centroId);
