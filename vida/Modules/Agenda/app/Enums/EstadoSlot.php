@@ -2,6 +2,9 @@
 
 namespace Modules\Agenda\Enums;
 
+/**
+ * Estados disponibles para un slot de disponibilidad en agenda.
+ */
 enum EstadoSlot: string
 {
     case Disponible = 'disponible';
@@ -12,6 +15,9 @@ enum EstadoSlot: string
     case Expirado = 'expirado';
     case NoOcupado = 'no_ocupado';
 
+    /**
+     * Etiqueta legible para mostrar el estado del slot.
+     */
     public function label(): string
     {
         return match ($this) {

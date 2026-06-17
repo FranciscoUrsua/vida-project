@@ -280,18 +280,138 @@
                 @endif
             </div>
 
-            {{-- ——— Unidad de convivencia ——— --}}
+            {{-- ——— Relaciones ——— --}}
+            @php
+                $relacionesActivas  = $this->relacionesActivas;
+                $relacionesHist     = $this->relacionesHistoricas->filter(fn($r) => $r->fecha_fin !== null);
+                $puedeEditarRel     = $this->puedeEditarRelaciones;
+            @endphp
+            <div style="background:var(--color-surface,#fff);border:1px solid var(--color-border,#e5e7eb);border-radius:10px;padding:1.25rem;margin-bottom:1rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                    <h2 style="font-size:.95rem;font-weight:600;margin:0;color:var(--color-text-primary,#111827);display:flex;align-items:center;gap:.5rem;">
+                        <i data-lucide="users" style="width:16px;height:16px;" aria-hidden="true"></i>
+                        Relaciones
+                    </h2>
+                    @if($puedeEditarRel)
+                        <button wire:click="abrirModalNuevaRelacion" type="button"
+                            style="font-size:.78rem;padding:.3rem .75rem;border-radius:6px;border:1px solid var(--color-border,#e5e7eb);
+                                   background:#fff;cursor:pointer;display:flex;align-items:center;gap:.35rem;">
+                            <i data-lucide="plus" style="width:13px;height:13px;" aria-hidden="true"></i>
+                            Añadir relación
+                        </button>
+                    @endif
+                </div>
+
+                @if($relacionMensaje)
+                    <div style="margin-bottom:.75rem;padding:.5rem .75rem;background:#dcfce7;color:#166534;font-size:.82rem;border-radius:6px;">
+                        {{ $relacionMensaje }}
+                    </div>
+                @endif
+
+                @if($relacionesActivas->isEmpty())
+                    <p style="font-size:.85rem;color:var(--color-text-secondary,#6b7280);margin:0;">
+                        Sin relaciones registradas.
+                    </p>
+                @else
+                    <div style="display:flex;flex-direction:column;gap:.25rem;">
+                        @foreach($relacionesActivas as $rel)
+                        @php
+                            $etiquetaTipo = $rel->tipoRelacion?->etiqueta ?? $rel->tipo_relacion;
+                            $nombreRel    = $rel->ciudadanoRelacionado?->nombre_completo ?? '—';
+                            $fichaUrl     = $rel->ciudadano_relacionado_id
+                                ? route('ciudadania.ciudadano.ficha', $rel->ciudadano_relacionado_id)
+                                : null;
+                        @endphp
+                        <div style="display:flex;align-items:center;gap:.75rem;padding:.45rem .5rem;border-radius:6px;
+                                    {{ $puedeEditarRel ? 'cursor:pointer;' : '' }}background:transparent;"
+                             {{ $puedeEditarRel ? "wire:click=\"abrirModalEditarRelacion({$rel->id})\"" : '' }}>
+                            <span style="font-size:.72rem;font-weight:600;padding:.15rem .45rem;border-radius:999px;
+                                         background:#f3f4f6;color:#374151;white-space:nowrap;">
+                                {{ $etiquetaTipo }}
+                            </span>
+                            @if($fichaUrl)
+                                <a wire:navigate href="{{ $fichaUrl }}"
+                                   style="font-size:.88rem;color:var(--color-primary,#3b82f6);text-decoration:none;flex:1;"
+                                   wire:click.stop>
+                                    {{ $nombreRel }}
+                                </a>
+                            @else
+                                <span style="font-size:.88rem;flex:1;">{{ $nombreRel }}</span>
+                            @endif
+                            @if($puedeEditarRel)
+                                <i data-lucide="chevron-right" style="width:14px;height:14px;color:var(--color-text-secondary,#6b7280);" aria-hidden="true"></i>
+                            @endif
+                        </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                @if($relacionesHist->isNotEmpty())
+                    <div style="margin-top:.75rem;">
+                        <button wire:click="toggleHistorialRelaciones" type="button"
+                            style="font-size:.78rem;color:var(--color-text-secondary,#6b7280);background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;gap:.3rem;">
+                            <i data-lucide="{{ $mostrarHistorialRelaciones ? 'chevron-up' : 'chevron-down' }}" style="width:13px;height:13px;" aria-hidden="true"></i>
+                            {{ $mostrarHistorialRelaciones ? 'Ocultar historial' : "Ver historial ({$relacionesHist->count()})" }}
+                        </button>
+                        @if($mostrarHistorialRelaciones)
+                            <div style="margin-top:.5rem;display:flex;flex-direction:column;gap:.2rem;opacity:.6;">
+                                @foreach($relacionesHist as $rel)
+                                @php
+                                    $etiquetaTipo = $rel->tipoRelacion?->etiqueta ?? $rel->tipo_relacion;
+                                @endphp
+                                <div style="display:flex;align-items:center;gap:.75rem;padding:.35rem .5rem;font-size:.82rem;">
+                                    <span style="font-size:.7rem;font-weight:600;padding:.1rem .4rem;border-radius:999px;
+                                                 background:#f3f4f6;color:#6b7280;white-space:nowrap;">
+                                        {{ $etiquetaTipo }}
+                                    </span>
+                                    <span style="flex:1;">{{ $rel->ciudadanoRelacionado?->nombre_completo ?? '—' }}</span>
+                                    <span style="font-size:.72rem;color:#9ca3af;">
+                                        hasta {{ $rel->fecha_fin?->format('d/m/Y') }}
+                                    </span>
+                                </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                @endif
+            </div>
+
+            {{-- ——— Unidad de convivencia (solo lectura) ——— --}}
+            @php $ucMiembros = $this->ucMiembros; @endphp
+            @if($ucMiembros->isNotEmpty())
             <div style="background:var(--color-surface,#fff);border:1px solid var(--color-border,#e5e7eb);border-radius:10px;padding:1.25rem;">
                 <h2 style="font-size:.95rem;font-weight:600;margin:0 0 .75rem;color:var(--color-text-primary,#111827);display:flex;align-items:center;gap:.5rem;">
                     <i data-lucide="home" style="width:16px;height:16px;" aria-hidden="true"></i>
-                    Unidad de convivencia
+                    Convivientes
                 </h2>
-                <p style="font-size:.85rem;color:var(--color-text-secondary,#6b7280);margin:0;">
-                    Pendiente de implementación. Módulo UnidadConvivencia no disponible aún.
-                    {{-- TODO: cuando exista el módulo, cada miembro tendrá un botón "Ver ficha"
-                         enlazando a route('ciudadania.ciudadano.ficha', $miembro->ciudadano_id) --}}
-                </p>
+                <div style="display:flex;flex-direction:column;gap:.25rem;">
+                    @foreach($ucMiembros as $miembro)
+                    @php
+                        $nombreMiembro = $miembro->ciudadano?->nombre_completo ?? '—';
+                        $fichaUrl      = $miembro->ciudadano_id
+                            ? route('ciudadania.ciudadano.ficha', $miembro->ciudadano_id)
+                            : null;
+                    @endphp
+                    <div style="display:flex;align-items:center;gap:.75rem;padding:.35rem .5rem;font-size:.88rem;">
+                        @if($miembro->tipo_relacion_etiqueta)
+                            <span style="font-size:.72rem;font-weight:600;padding:.1rem .4rem;border-radius:999px;
+                                         background:#f3f4f6;color:#374151;white-space:nowrap;">
+                                {{ $miembro->tipo_relacion_etiqueta }}
+                            </span>
+                        @endif
+                        @if($fichaUrl)
+                            <a wire:navigate href="{{ $fichaUrl }}"
+                               style="color:var(--color-primary,#3b82f6);text-decoration:none;flex:1;">
+                                {{ $nombreMiembro }}
+                            </a>
+                        @else
+                            <span style="flex:1;">{{ $nombreMiembro }}</span>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
             </div>
+            @endif
 
         </div>{{-- /col-lg-8 --}}
 
@@ -424,6 +544,123 @@
 
     </div>{{-- /row --}}
 </div>
+
+{{-- ===== MODAL RELACIÓN ===== --}}
+@if($modalRelacionAbierto)
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:center;justify-content:center;"
+         wire:click.self="cerrarModalRelacion">
+        <div style="background:#fff;border-radius:12px;padding:1.5rem;width:100%;max-width:480px;box-shadow:0 20px 40px rgba(0,0,0,.15);">
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+                <h3 style="margin:0;font-size:1rem;font-weight:700;">
+                    {{ $relacionId ? 'Editar relación' : 'Nueva relación' }}
+                </h3>
+                <button wire:click="cerrarModalRelacion" type="button"
+                    style="border:none;background:none;cursor:pointer;padding:.25rem;color:var(--color-text-secondary,#6b7280);">
+                    <i data-lucide="x" style="width:18px;height:18px;" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            {{-- Tipo de relación (solo en creación) --}}
+            @if(! $relacionId)
+            <div style="margin-bottom:.85rem;">
+                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.3rem;">
+                    Tipo de relación <span style="color:#ef4444;">*</span>
+                </label>
+                <select wire:model="relacionTipo"
+                    style="width:100%;padding:.45rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                    <option value="">— Seleccionar —</option>
+                    @foreach($this->tiposRelacion as $slug => $etiqueta)
+                        <option value="{{ $slug }}">{{ $etiqueta }}</option>
+                    @endforeach
+                </select>
+                @error('relacionTipo')
+                    <span style="font-size:.75rem;color:#ef4444;">{{ $message }}</span>
+                @enderror
+            </div>
+
+            {{-- Buscador ciudadano (solo en creación) --}}
+            <div style="margin-bottom:.85rem;position:relative;">
+                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.3rem;">
+                    Ciudadano <span style="color:#ef4444;">*</span>
+                </label>
+                @if($this->ciudadanoSeleccionadoRelacion)
+                    <div style="display:flex;align-items:center;gap:.5rem;padding:.45rem .6rem;border:1px solid var(--color-primary,#3b82f6);border-radius:6px;background:#eff6ff;">
+                        <span style="font-size:.88rem;flex:1;">{{ $this->ciudadanoSeleccionadoRelacion->nombre_completo }}</span>
+                        <button type="button" wire:click="$set('relacionCiudadanoSeleccionado', null)"
+                            style="border:none;background:none;cursor:pointer;color:#6b7280;padding:0;">
+                            <i data-lucide="x" style="width:14px;height:14px;" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                @else
+                    <input type="text" wire:model.live="relacionBusqueda"
+                        placeholder="Escribir nombre (mín. 2 caracteres)…"
+                        style="width:100%;padding:.45rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                    @if($this->relacionResultadosBusqueda->isNotEmpty())
+                        <div style="position:absolute;left:0;right:0;background:#fff;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;
+                                    box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:10;max-height:220px;overflow-y:auto;margin-top:2px;">
+                            @foreach($this->relacionResultadosBusqueda as $sug)
+                                <button type="button" wire:click="seleccionarCiudadanoRelacion({{ $sug->id }})"
+                                    style="width:100%;text-align:left;padding:.55rem .75rem;border:none;background:none;cursor:pointer;font-size:.85rem;
+                                           border-bottom:1px solid var(--color-border,#e5e7eb);">
+                                    {{ $sug->nombre_completo }}
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
+                @endif
+                @error('relacionCiudadanoSeleccionado')
+                    <span style="font-size:.75rem;color:#ef4444;">{{ $message }}</span>
+                @enderror
+            </div>
+
+            {{-- Fecha inicio (solo en creación) --}}
+            <div style="margin-bottom:.85rem;">
+                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.3rem;">
+                    Fecha de inicio <span style="color:#ef4444;">*</span>
+                </label>
+                <input type="date" wire:model="relacionFechaInicio"
+                    style="width:100%;padding:.45rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                @error('relacionFechaInicio')
+                    <span style="font-size:.75rem;color:#ef4444;">{{ $message }}</span>
+                @enderror
+            </div>
+            @endif
+
+            {{-- Observaciones (creación y edición) --}}
+            <div style="margin-bottom:1.25rem;">
+                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.3rem;">Observaciones</label>
+                <textarea wire:model="relacionObservaciones" rows="3" placeholder="Opcional…"
+                    style="width:100%;padding:.45rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;resize:vertical;"></textarea>
+                @error('relacionObservaciones')
+                    <span style="font-size:.75rem;color:#ef4444;">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div style="display:flex;gap:.5rem;justify-content:space-between;align-items:center;">
+                <div>
+                    @if($relacionId)
+                        <button wire:click="cerrarRelacion({{ $relacionId }})" type="button"
+                            wire:confirm="¿Confirmar el cierre de esta relación? Se establecerá fecha de fin hoy."
+                            style="padding:.45rem 1rem;border-radius:6px;border:1px solid #fca5a5;background:#fff;font-size:.82rem;cursor:pointer;color:#dc2626;">
+                            Cerrar relación
+                        </button>
+                    @endif
+                </div>
+                <div style="display:flex;gap:.5rem;">
+                    <button wire:click="cerrarModalRelacion" type="button"
+                        style="padding:.45rem 1rem;border-radius:6px;border:1px solid var(--color-border,#e5e7eb);background:#fff;font-size:.85rem;cursor:pointer;">
+                        Cancelar
+                    </button>
+                    <button wire:click="guardarRelacion" type="button"
+                        style="padding:.45rem 1rem;border-radius:6px;border:none;background:var(--color-primary,#3b82f6);color:#fff;font-size:.85rem;font-weight:600;cursor:pointer;">
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
 
 {{-- ===== MODAL NUEVO DOCUMENTO ===== --}}
 @if($modalDocumento)

@@ -23,8 +23,14 @@ class MensajeriaService
     /**
      * Crea un hilo nuevo y envía el primer mensaje.
      *
+     * @param User $remitente
+     * @param User $destinatario
+     * @param string $asunto
+     * @param string $cuerpo
      * @param int[] $ciudadanoIds IDs de ciudadanos referenciados en el mensaje
      * @param UploadedFile[] $adjuntos
+     *
+     * @return MensajeHilo
      */
     public function crearHilo(
         User $remitente,
@@ -60,7 +66,12 @@ class MensajeriaService
     /**
      * Añade un mensaje de respuesta a un hilo existente.
      *
+     * @param MensajeHilo $hilo
+     * @param User $remitente
+     * @param string $cuerpo
      * @param UploadedFile[] $adjuntos
+     *
+     * @return Mensaje
      */
     public function responder(
         MensajeHilo $hilo,
@@ -79,6 +90,14 @@ class MensajeriaService
      *
      * El contenido registrado es $cuerpoEditado, que puede diferir del
      * cuerpo original del mensaje.
+     *
+     * @param Mensaje $mensaje
+     * @param Ciudadano $ciudadano
+     * @param User $tsr
+     * @param string $cuerpoEditado
+     * @param string $visibilidad
+     *
+     * @return MensajeRegistroHistoria
      */
     public function registrarEnHistoria(
         Mensaje $mensaje,
@@ -109,6 +128,11 @@ class MensajeriaService
 
     /**
      * Marca todos los mensajes del hilo como leídos para un usuario.
+     *
+     * @param MensajeHilo $hilo
+     * @param User $usuario
+     *
+     * @return void
      */
     public function marcarComoLeido(MensajeHilo $hilo, User $usuario): void
     {

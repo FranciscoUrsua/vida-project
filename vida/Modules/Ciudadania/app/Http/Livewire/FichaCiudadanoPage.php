@@ -19,6 +19,8 @@ use Modules\Ciudadania\Models\CiudadanoIdentificador;
 use Modules\Ciudadania\Models\CiudadanoRelacion;
 use Modules\Ciudadania\Models\CiudadanoPrestacionResumen;
 use Modules\Ciudadania\Models\TipoRelacion;
+use Modules\Ciudadania\Models\UnidadConvivencia;
+use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 use Modules\Ciudadania\Services\NormalizadorCiudadano;
 
 /**
@@ -40,7 +42,13 @@ use Modules\Ciudadania\Services\NormalizadorCiudadano;
  * @property-read HistoriaSocial|null $historiaSocial
  * @property-read bool $puedeVerHistoria
  * @property-read Collection<int, CiudadanoIdentificador> $documentos
- * @property-read object|null $ucVigente
+ * @property-read UnidadConvivencia|null $ucVigente
+ * @property-read Collection<int, UnidadConvivenciaMiembro> $ucMiembros
+ * @property-read bool $puedeEditarRelaciones
+ * @property-read Collection<int, CiudadanoRelacion> $relacionesActivas
+ * @property-read Collection<int, CiudadanoRelacion> $relacionesHistoricas
+ * @property-read Collection<int, Ciudadano> $relacionResultadosBusqueda
+ * @property-read Ciudadano|null $ciudadanoSeleccionadoRelacion
  * @property-read Collection<int, CiudadanoPrestacionResumen> $prestaciones
  * @property-read Collection<int, Audit> $actividadReciente
  * @property-read bool $puedeVerAccesos
@@ -96,6 +104,12 @@ class FichaCiudadanoPage extends Component
     // Gestión de relaciones
     // -------------------------------------------------------------------------
 
+    /** Controla la visibilidad del modal de relación. */
+    public bool $modalRelacionAbierto = false;
+
+    /** ID de la relación en edición; null cuando se crea una nueva. */
+    public ?int $relacionId = null;
+
     public bool $mostrarHistorialRelaciones = false;
 
     public string $relacionBusqueda = '';
@@ -103,6 +117,10 @@ class FichaCiudadanoPage extends Component
     public ?int $relacionCiudadanoSeleccionado = null;
 
     public string $relacionTipo = '';
+
+    public string $relacionFechaInicio = '';
+
+    public string $relacionFechaFin = '';
 
     public string $relacionObservaciones = '';
 
@@ -210,16 +228,61 @@ class FichaCiudadanoPage extends Component
     }
 
     /**
-     * Unidad de convivencia vigente.
-     * Stub — pendiente implementar módulo UnidadConvivencia.
+     * UC vigente del ciudadano (primera con fecha_fin nula o futura).
+     * Sin AmbitoUoScope porque la UC no tiene ámbito UO propio.
      *
-     * @return object|null
+     * @return UnidadConvivencia|null
      */
     #[Computed]
-    public function ucVigente(): ?object
+    public function ucVigente(): ?UnidadConvivencia
     {
-        // TODO: implementar cuando exista Modules/UnidadConvivencia
-        return null;
+        $ciudadano = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->find($this->ciudadanoId);
+        if (! $ciudadano) {
+            return null;
+        }
+
+        return $ciudadano->unidadesConvivenciaActivas()->first();
+    }
+
+    /**
+     * Miembros activos de la UC vigente, enriquecidos con el tipo de relación si existe.
+     *
+     * @return Collection<int, UnidadConvivenciaMiembro>
+     */
+    #[Computed]
+    public function ucMiembros(): Collection
+    {
+        if (! $this->ucVigente) {
+            return collect();
+        }
+
+        $miembros = $this->ucVigente->miembrosActivos()->with('ciudadano')->get();
+
+        // Índice de relaciones activas del titular hacia cada conviviente
+        $relacionesPorCiudadano = CiudadanoRelacion::where('ciudadano_id', $this->ciudadanoId)
+            ->whereNull('fecha_fin')
+            ->whereIn('ciudadano_relacionado_id', $miembros->pluck('ciudadano_id'))
+            ->with('tipoRelacion')
+            ->get()
+            ->keyBy('ciudadano_relacionado_id');
+
+        return $miembros->map(function (UnidadConvivenciaMiembro $miembro) use ($relacionesPorCiudadano): UnidadConvivenciaMiembro {
+            $miembro->tipo_relacion_etiqueta = $relacionesPorCiudadano->get($miembro->ciudadano_id)
+                ?->tipoRelacion?->etiqueta ?? null;
+
+            return $miembro;
+        });
+    }
+
+    /**
+     * Solo los roles con competencia de tramitación o intervención pueden crear o editar relaciones.
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeEditarRelaciones(): bool
+    {
+        return auth()->user()->hasAnyRole(['intervencion', 'tramitacion']);
     }
 
     /**
@@ -311,6 +374,8 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Relaciones activas salientes desde este ciudadano, con persona y tipo cargados.
+     * El eager load de ciudadanoRelacionado bypasea AmbitoUoScope: el ciudadano
+     * relacionado puede pertenecer a cualquier UO.
      *
      * @return Collection<int, CiudadanoRelacion>
      */
@@ -319,13 +384,16 @@ class FichaCiudadanoPage extends Component
     {
         return CiudadanoRelacion::where('ciudadano_id', $this->ciudadanoId)
             ->whereNull('fecha_fin')
-            ->with(['ciudadanoRelacionado', 'tipoRelacion'])
+            ->with([
+                'ciudadanoRelacionado' => fn ($q) => $q->withoutGlobalScope(AmbitoUoScope::class),
+                'tipoRelacion',
+            ])
             ->orderByDesc('fecha_inicio')
             ->get();
     }
 
     /**
-     * Historial completo de relaciones del ciudadano.
+     * Historial completo de relaciones del ciudadano (vigentes y cerradas).
      *
      * @return Collection<int, CiudadanoRelacion>
      */
@@ -333,7 +401,10 @@ class FichaCiudadanoPage extends Component
     public function relacionesHistoricas(): Collection
     {
         return CiudadanoRelacion::where('ciudadano_id', $this->ciudadanoId)
-            ->with(['ciudadanoRelacionado', 'tipoRelacion'])
+            ->with([
+                'ciudadanoRelacionado' => fn ($q) => $q->withoutGlobalScope(AmbitoUoScope::class),
+                'tipoRelacion',
+            ])
             ->orderByRaw('fecha_fin is null desc')
             ->orderByDesc('fecha_inicio')
             ->get();
@@ -471,14 +542,95 @@ class FichaCiudadanoPage extends Component
     // Gestión de relaciones
     // -------------------------------------------------------------------------
 
+    /**
+     * Abre el modal para crear una nueva relación.
+     *
+     * @return void
+     */
+    public function abrirModalNuevaRelacion(): void
+    {
+        if (! $this->puedeEditarRelaciones) {
+            return;
+        }
+
+        $this->relacionId = null;
+        $this->relacionTipo = '';
+        $this->relacionCiudadanoSeleccionado = null;
+        $this->relacionBusqueda = '';
+        $this->relacionFechaInicio = today()->toDateString();
+        $this->relacionFechaFin = '';
+        $this->relacionObservaciones = '';
+        $this->modalRelacionAbierto = true;
+    }
+
+    /**
+     * Abre el modal con los datos de una relación existente para edición.
+     *
+     * @param int $relacionId ID de la relación a editar.
+     *
+     * @return void
+     */
+    public function abrirModalEditarRelacion(int $relacionId): void
+    {
+        if (! $this->puedeEditarRelaciones) {
+            return;
+        }
+
+        $relacion = CiudadanoRelacion::where('ciudadano_id', $this->ciudadanoId)
+            ->where('id', $relacionId)
+            ->first();
+
+        if (! $relacion) {
+            return;
+        }
+
+        $this->relacionId = $relacionId;
+        $this->relacionTipo = $relacion->tipo_relacion;
+        $this->relacionCiudadanoSeleccionado = $relacion->ciudadano_relacionado_id;
+        $this->relacionBusqueda = '';
+        $this->relacionFechaInicio = $relacion->fecha_inicio?->toDateString() ?? today()->toDateString();
+        $this->relacionFechaFin = $relacion->fecha_fin?->toDateString() ?? '';
+        $this->relacionObservaciones = $relacion->observaciones ?? '';
+        $this->modalRelacionAbierto = true;
+    }
+
+    /**
+     * Cierra el modal y limpia el estado del formulario de relación.
+     *
+     * @return void
+     */
+    public function cerrarModalRelacion(): void
+    {
+        $this->modalRelacionAbierto = false;
+        $this->relacionId = null;
+        $this->relacionTipo = '';
+        $this->relacionCiudadanoSeleccionado = null;
+        $this->relacionBusqueda = '';
+        $this->relacionFechaInicio = '';
+        $this->relacionFechaFin = '';
+        $this->relacionObservaciones = '';
+    }
+
+    /**
+     * Alterna la visibilidad del historial de relaciones cerradas.
+     *
+     * @return void
+     */
     public function toggleHistorialRelaciones(): void
     {
         $this->mostrarHistorialRelaciones = ! $this->mostrarHistorialRelaciones;
     }
 
+    /**
+     * Registra el ciudadano seleccionado en el buscador del modal de relación.
+     *
+     * @param int $ciudadanoId ID del ciudadano relacionado.
+     *
+     * @return void
+     */
     public function seleccionarCiudadanoRelacion(int $ciudadanoId): void
     {
-        if (! $this->puedeEditar || $ciudadanoId === $this->ciudadanoId) {
+        if (! $this->puedeEditarRelaciones || $ciudadanoId === $this->ciudadanoId) {
             return;
         }
 
@@ -486,67 +638,88 @@ class FichaCiudadanoPage extends Component
         $this->relacionBusqueda = '';
     }
 
-    public function cancelarNuevaRelacion(): void
-    {
-        $this->relacionCiudadanoSeleccionado = null;
-        $this->relacionBusqueda = '';
-        $this->relacionTipo = '';
-        $this->relacionObservaciones = '';
-    }
-
     /**
+     * Crea o actualiza una relación entre ciudadanos.
+     * Si $relacionId es null, crea; si es int, actualiza solo las observaciones.
+     * Requiere permiso de tramitación o intervención; aborta con 403 si no.
+     *
      * @return void
      *
      * @throws ValidationException
      */
     public function guardarRelacion(): void
     {
-        if (! $this->puedeEditar) {
-            return;
+        if (! $this->puedeEditarRelaciones) {
+            abort(403);
         }
 
-        $this->validate([
-            'relacionCiudadanoSeleccionado' => 'required|integer|exists:ciudadanos,id|different:ciudadanoId',
-            'relacionTipo' => 'required|string|exists:tipos_relacion,slug',
-            'relacionObservaciones' => 'nullable|string|max:1000',
-        ]);
-
-        $tipoActivo = TipoRelacion::activos()->where('slug', $this->relacionTipo)->exists();
-        if (! $tipoActivo) {
-            throw ValidationException::withMessages([
-                'relacionTipo' => 'El tipo de relación seleccionado no está activo.',
+        if ($this->relacionId !== null) {
+            // Modo edición: solo se pueden modificar observaciones
+            $this->validate([
+                'relacionObservaciones' => 'nullable|string|max:1000',
             ]);
-        }
 
-        $duplicada = CiudadanoRelacion::where('ciudadano_id', $this->ciudadanoId)
-            ->where('ciudadano_relacionado_id', $this->relacionCiudadanoSeleccionado)
-            ->where('tipo_relacion', $this->relacionTipo)
-            ->whereNull('fecha_fin')
-            ->exists();
+            $relacion = CiudadanoRelacion::where('ciudadano_id', $this->ciudadanoId)
+                ->where('id', $this->relacionId)
+                ->firstOrFail();
 
-        if ($duplicada) {
-            throw ValidationException::withMessages([
-                'relacionTipo' => 'Ya existe una relación activa de ese tipo con esta persona.',
+            $relacion->update(['observaciones' => $this->relacionObservaciones ?: null]);
+            $this->relacionMensaje = 'Relación actualizada correctamente.';
+        } else {
+            // Modo creación
+            $this->validate([
+                'relacionCiudadanoSeleccionado' => 'required|integer|exists:ciudadanos,id|different:ciudadanoId',
+                'relacionTipo' => 'required|string|exists:tipos_relacion,slug',
+                'relacionFechaInicio' => 'required|date',
+                'relacionObservaciones' => 'nullable|string|max:1000',
             ]);
+
+            if (! TipoRelacion::activos()->where('slug', $this->relacionTipo)->exists()) {
+                throw ValidationException::withMessages([
+                    'relacionTipo' => 'El tipo de relación seleccionado no está activo.',
+                ]);
+            }
+
+            $duplicada = CiudadanoRelacion::where('ciudadano_id', $this->ciudadanoId)
+                ->where('ciudadano_relacionado_id', $this->relacionCiudadanoSeleccionado)
+                ->where('tipo_relacion', $this->relacionTipo)
+                ->whereNull('fecha_fin')
+                ->exists();
+
+            if ($duplicada) {
+                throw ValidationException::withMessages([
+                    'relacionTipo' => 'Ya existe una relación activa de ese tipo con esta persona.',
+                ]);
+            }
+
+            CiudadanoRelacion::create([
+                'ciudadano_id' => $this->ciudadanoId,
+                'ciudadano_relacionado_id' => $this->relacionCiudadanoSeleccionado,
+                'tipo_relacion' => $this->relacionTipo,
+                'fecha_inicio' => $this->relacionFechaInicio,
+                'observaciones' => $this->relacionObservaciones ?: null,
+            ]);
+
+            $this->relacionMensaje = 'Relación añadida correctamente.';
         }
 
-        CiudadanoRelacion::create([
-            'ciudadano_id' => $this->ciudadanoId,
-            'ciudadano_relacionado_id' => $this->relacionCiudadanoSeleccionado,
-            'tipo_relacion' => $this->relacionTipo,
-            'fecha_inicio' => today()->toDateString(),
-            'observaciones' => $this->relacionObservaciones ?: null,
-        ]);
-
-        $this->cancelarNuevaRelacion();
-        $this->relacionMensaje = 'Relación añadida correctamente.';
-        unset($this->relacionesActivas, $this->relacionesHistoricas);
+        $this->cerrarModalRelacion();
+        unset($this->relacionesActivas, $this->relacionesHistoricas, $this->ucMiembros);
     }
 
+    /**
+     * Cierra una relación vigente estableciendo fecha_fin = hoy.
+     * El modelo propaga el cierre al registro recíproco automáticamente.
+     * Requiere permiso de tramitación o intervención; aborta con 403 si no.
+     *
+     * @param int $relacionId ID de la relación a cerrar.
+     *
+     * @return void
+     */
     public function cerrarRelacion(int $relacionId): void
     {
-        if (! $this->puedeEditar) {
-            return;
+        if (! $this->puedeEditarRelaciones) {
+            abort(403);
         }
 
         $relacion = CiudadanoRelacion::where('ciudadano_id', $this->ciudadanoId)
@@ -559,8 +732,9 @@ class FichaCiudadanoPage extends Component
         }
 
         $relacion->update(['fecha_fin' => today()->toDateString()]);
+        $this->cerrarModalRelacion();
         $this->relacionMensaje = 'Relación cerrada correctamente.';
-        unset($this->relacionesActivas, $this->relacionesHistoricas);
+        unset($this->relacionesActivas, $this->relacionesHistoricas, $this->ucMiembros);
     }
 
     // -------------------------------------------------------------------------

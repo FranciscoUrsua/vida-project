@@ -2,6 +2,9 @@
 
 namespace Modules\Agenda\Enums;
 
+/**
+ * Tipos de excepcion que afectan a la disponibilidad profesional.
+ */
 enum TipoExcepcion: string
 {
     case BajaMedica = 'baja_medica';
@@ -12,6 +15,9 @@ enum TipoExcepcion: string
     case Guardia = 'guardia';
     case Otros = 'otros';
 
+    /**
+     * Etiqueta legible para mostrar el tipo de excepcion.
+     */
     public function label(): string
     {
         return match ($this) {

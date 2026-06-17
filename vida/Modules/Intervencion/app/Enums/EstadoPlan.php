@@ -2,6 +2,9 @@
 
 namespace Modules\Intervencion\Enums;
 
+/**
+ * Estados del ciclo de vida de un plan de intervencion.
+ */
 enum EstadoPlan: string
 {
     case Borrador = 'borrador';
@@ -9,6 +12,9 @@ enum EstadoPlan: string
     case EnRevision = 'en_revision';
     case Cerrado = 'cerrado';
 
+    /**
+     * Etiqueta legible para mostrar el estado del plan.
+     */
     public function label(): string
     {
         return match ($this) {

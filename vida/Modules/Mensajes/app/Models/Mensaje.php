@@ -42,6 +42,8 @@ class Mensaje extends Model implements HasMedia
 
     /**
      * Registra la colección de adjuntos del mensaje en disco local.
+     *
+     * @return void
      */
     public function registerMediaCollections(): void
     {
@@ -51,6 +53,10 @@ class Mensaje extends Model implements HasMedia
 
     /**
      * Sin conversiones de imagen para documentos adjuntos.
+     *
+     * @param Media|null $media
+     *
+     * @return void
      */
     public function registerMediaConversions(?Media $media = null): void
     {

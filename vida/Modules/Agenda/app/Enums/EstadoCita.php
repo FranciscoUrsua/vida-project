@@ -2,6 +2,9 @@
 
 namespace Modules\Agenda\Enums;
 
+/**
+ * Estados posibles del ciclo de vida de una cita de agenda.
+ */
 enum EstadoCita: string
 {
     case Confirmada = 'confirmada';
@@ -11,6 +14,9 @@ enum EstadoCita: string
     case NoShowProfesional = 'no_show_profesional';
     case Reasignada = 'reasignada';
 
+    /**
+     * Etiqueta legible para mostrar el estado de la cita en la interfaz.
+     */
     public function label(): string
     {
         return match ($this) {

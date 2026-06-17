@@ -2,6 +2,9 @@
 
 namespace Modules\Intervencion\Enums;
 
+/**
+ * Tipos de apunte registrados en la historia social.
+ */
 enum TipoApunte: string
 {
     case Entrevista = 'entrevista';
@@ -15,6 +18,9 @@ enum TipoApunte: string
     case GestionCoordinacion = 'gestion_coordinacion';
     case PlanIntervencion = 'plan_intervencion';
 
+    /**
+     * Etiqueta legible para mostrar el tipo de apunte.
+     */
     public function label(): string
     {
         return match ($this) {

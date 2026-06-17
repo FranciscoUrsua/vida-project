@@ -2,6 +2,9 @@
 
 namespace Modules\Documentos\Enums;
 
+/**
+ * Tipos funcionales de informe que puede gestionar el modulo de documentos.
+ */
 enum TipoInforme: string
 {
     case InformeSocial = 'informe_social';
@@ -9,6 +12,9 @@ enum TipoInforme: string
     case InformeJuridico = 'informe_juridico';
     case Otro = 'otro';
 
+    /**
+     * Etiqueta legible para mostrar el tipo de informe.
+     */
     public function label(): string
     {
         return match ($this) {

@@ -68,6 +68,8 @@ class MensajeParticipante extends Model
 
     /**
      * Número de mensajes del hilo que el participante aún no ha leído.
+     *
+     * @return int
      */
     public function mensajesNoLeidos(): int
     {

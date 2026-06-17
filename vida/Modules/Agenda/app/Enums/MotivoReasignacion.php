@@ -2,6 +2,9 @@
 
 namespace Modules\Agenda\Enums;
 
+/**
+ * Motivos normalizados para registrar la reasignacion de una cita.
+ */
 enum MotivoReasignacion: string
 {
     case NoShowProfesional = 'no_show_profesional';
@@ -9,6 +12,9 @@ enum MotivoReasignacion: string
     case Redistribucion = 'redistribucion';
     case Otros = 'otros';
 
+    /**
+     * Etiqueta legible para mostrar el motivo de reasignacion.
+     */
     public function label(): string
     {
         return match ($this) {

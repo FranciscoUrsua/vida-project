@@ -45,6 +45,10 @@ class HorarioLaboralService
     /**
      * Calcula el timestamp de vencimiento sumando HORAS_PLAZO horas
      * laborales efectivas a $desde.
+     *
+     * @param Carbon $desde
+     *
+     * @return Carbon
      */
     public function calcularExpiracion(Carbon $desde): Carbon
     {

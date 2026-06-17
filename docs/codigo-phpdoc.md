@@ -1,170 +1,218 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-17 11:04:07 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-17 11:18:29 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 371.
-- Cabeceras documentadas: 232/371.
-- Metodos publicos documentados: 561/987.
-- Alertas de comentarios: 727.
+- Cabeceras documentadas: 251/371.
+- Metodos publicos documentados: 589/991.
+- Alertas de comentarios: 670.
 
 ## Alertas
 
-### Clase sin PHPDoc (139)
+### PHPDoc incompleto (196)
 
-- `Modules\Agenda\Enums\EstadoCita` en `vida/Modules/Agenda/app/Enums/EstadoCita.php:5`: Falta docblock de cabecera.
-- `Modules\Agenda\Enums\EstadoCuadrante` en `vida/Modules/Agenda/app/Enums/EstadoCuadrante.php:5`: Falta docblock de cabecera.
-- `Modules\Agenda\Enums\EstadoSlot` en `vida/Modules/Agenda/app/Enums/EstadoSlot.php:5`: Falta docblock de cabecera.
-- `Modules\Agenda\Enums\ModoAgenda` en `vida/Modules/Agenda/app/Enums/ModoAgenda.php:5`: Falta docblock de cabecera.
-- `Modules\Agenda\Enums\MotivoReasignacion` en `vida/Modules/Agenda/app/Enums/MotivoReasignacion.php:5`: Falta docblock de cabecera.
-- `Modules\Agenda\Enums\OrigenCita` en `vida/Modules/Agenda/app/Enums/OrigenCita.php:5`: Falta docblock de cabecera.
-- `Modules\Agenda\Enums\OrigenExcepcion` en `vida/Modules/Agenda/app/Enums/OrigenExcepcion.php:5`: Falta docblock de cabecera.
-- `Modules\Agenda\Enums\OrigenPermitidoSlot` en `vida/Modules/Agenda/app/Enums/OrigenPermitidoSlot.php:5`: Falta docblock de cabecera.
-- `Modules\Agenda\Enums\TipoExcepcion` en `vida/Modules/Agenda/app/Enums/TipoExcepcion.php:5`: Falta docblock de cabecera.
-- `Modules\Documentos\Enums\EstadoInforme` en `vida/Modules/Documentos/app/Enums/EstadoInforme.php:5`: Falta docblock de cabecera.
-- `Modules\Documentos\Enums\MetodoConformidadCiudadano` en `vida/Modules/Documentos/app/Enums/MetodoConformidadCiudadano.php:5`: Falta docblock de cabecera.
-- `Modules\Documentos\Enums\MetodoFirma` en `vida/Modules/Documentos/app/Enums/MetodoFirma.php:5`: Falta docblock de cabecera.
-- `Modules\Documentos\Enums\OrigenDocumento` en `vida/Modules/Documentos/app/Enums/OrigenDocumento.php:5`: Falta docblock de cabecera.
-- `Modules\Documentos\Enums\TipoInforme` en `vida/Modules/Documentos/app/Enums/TipoInforme.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\ClasificacionSia` en `vida/Modules/Intervencion/app/Enums/ClasificacionSia.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\EstadoPlan` en `vida/Modules/Intervencion/app/Enums/EstadoPlan.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\EstadoValoracion` en `vida/Modules/Intervencion/app/Enums/EstadoValoracion.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\MotivoCierre` en `vida/Modules/Intervencion/app/Enums/MotivoCierre.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\TipoApunte` en `vida/Modules/Intervencion/app/Enums/TipoApunte.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\TipoEntrevista` en `vida/Modules/Intervencion/app/Enums/TipoEntrevista.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\TipoPlan` en `vida/Modules/Intervencion/app/Enums/TipoPlan.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\UrgenciaSia` en `vida/Modules/Intervencion/app/Enums/UrgenciaSia.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\VisibilidadApunte` en `vida/Modules/Intervencion/app/Enums/VisibilidadApunte.php:5`: Falta docblock de cabecera.
-- `App\Filament\Resources\AuditResource\Pages\ListAudits` en `vida/app/Filament/Resources/AuditResource/Pages/ListAudits.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\AuditResource\Pages\ViewAudit` en `vida/app/Filament/Resources/AuditResource/Pages/ViewAudit.php:14`: Falta docblock de cabecera.
-- `App\Filament\Resources\CargoResource\Pages\CreateCargo` en `vida/app/Filament/Resources/CargoResource/Pages/CreateCargo.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\CargoResource\Pages\EditCargo` en `vida/app/Filament/Resources/CargoResource/Pages/EditCargo.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CargoResource\Pages\ListCargos` en `vida/app/Filament/Resources/CargoResource/Pages/ListCargos.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource` en `vida/app/Filament/Resources/CentroResource.php:27`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource\Pages\CreateCentro` en `vida/app/Filament/Resources/CentroResource/Pages/CreateCentro.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource\Pages\ListCentros` en `vida/app/Filament/Resources/CentroResource/Pages/ListCentros.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager` en `vida/app/Filament/Resources/CentroResource/RelationManagers/AmbitosTerritorialesRelationManager.php:18`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource\RelationManagers\ColeccionesPlazasRelationManager` en `vida/app/Filament/Resources/CentroResource/RelationManagers/ColeccionesPlazasRelationManager.php:18`: Falta docblock de cabecera.
-- `App\Filament\Resources\ColectivoProtegidoResource\Pages\CreateColectivoProtegido` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/CreateColectivoProtegido.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ColectivoProtegidoResource\Pages\EditColectivoProtegido` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/EditColectivoProtegido.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ColectivoProtegidoResource\Pages\ListColectivosProtegidos` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/ListColectivosProtegidos.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages\EditConfiguracionHorarioLaboral` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource/Pages/EditConfiguracionHorarioLaboral.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages\ListConfiguracionHorarioLaboral` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource/Pages/ListConfiguracionHorarioLaboral.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\CreateConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/CreateConfiguracion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\EditConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/EditConfiguracion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\ListConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/ListConfiguracion.php:12`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionRolResource\Pages\CreateConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/CreateConfiguracionRol.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionRolResource\Pages\EditConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/EditConfiguracionRol.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionRolResource\Pages\ListConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/ListConfiguracionRol.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CuadranteMesResource` en `vida/app/Filament/Resources/CuadranteMesResource.php:23`: Falta docblock de cabecera.
-- `App\Filament\Resources\CuadranteMesResource\Pages\CreateCuadranteMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/CreateCuadranteMes.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\CuadranteMesResource\Pages\EditCuadranteMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/EditCuadranteMes.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CuadranteMesResource\Pages\ListCuadrantesMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/ListCuadrantesMes.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CuadranteMesResource\RelationManagers\LineasCuadranteRelationManager` en `vida/app/Filament/Resources/CuadranteMesResource/RelationManagers/LineasCuadranteRelationManager.php:11`: Falta docblock de cabecera.
-- `App\Filament\Resources\DistritoResource\Pages\CreateDistrito` en `vida/app/Filament/Resources/DistritoResource/Pages/CreateDistrito.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\DistritoResource\Pages\EditDistrito` en `vida/app/Filament/Resources/DistritoResource/Pages/EditDistrito.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\DistritoResource\Pages\ListDistritos` en `vida/app/Filament/Resources/DistritoResource/Pages/ListDistritos.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\DocumentoResource\Pages\ListDocumentos` en `vida/app/Filament/Resources/DocumentoResource/Pages/ListDocumentos.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\DocumentoResource\Pages\ViewDocumento` en `vida/app/Filament/Resources/DocumentoResource/Pages/ViewDocumento.php:11`: Falta docblock de cabecera.
-- `App\Filament\Resources\EstiloInformeResource\Pages\CreateEstiloInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/CreateEstiloInforme.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\EstiloInformeResource\Pages\EditEstiloInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/EditEstiloInforme.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\EstiloInformeResource\Pages\ListEstilosInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/ListEstilosInforme.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ExcepcionProfesionalResource` en `vida/app/Filament/Resources/ExcepcionProfesionalResource.php:25`: Falta docblock de cabecera.
-- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\CreateExcepcionProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/CreateExcepcionProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\EditExcepcionProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/EditExcepcionProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\ListExcepcionesProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/ListExcepcionesProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource` en `vida/app/Filament/Resources/HorarioCentroResource.php:26`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource\Pages\CreateHorarioCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/CreateHorarioCentro.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource\Pages\EditHorarioCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/EditHorarioCentro.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource\Pages\ListHorariosCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/ListHorariosCentro.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource\RelationManagers\TiposSlotsRelationManager` en `vida/app/Filament/Resources/HorarioCentroResource/RelationManagers/TiposSlotsRelationManager.php:19`: Falta docblock de cabecera.
-- `App\Filament\Resources\InformeResource\Pages\ListInformes` en `vida/app/Filament/Resources/InformeResource/Pages/ListInformes.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\InformeResource\Pages\ViewInforme` en `vida/app/Filament/Resources/InformeResource/Pages/ViewInforme.php:13`: Falta docblock de cabecera.
-- `App\Filament\Resources\LogAlertasResource\Pages\ListLogAlertas` en `vida/app/Filament/Resources/LogAlertasResource/Pages/ListLogAlertas.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:23`: Falta docblock de cabecera.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\CreatePerfilHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/CreatePerfilHorarioProfesional.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\EditPerfilHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/EditPerfilHorarioProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\ListPerfilesHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/ListPerfilesHorarioProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PlantillaInformeResource\Pages\CreatePlantillaInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/CreatePlantillaInforme.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\PlantillaInformeResource\Pages\EditPlantillaInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/EditPlantillaInforme.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PlantillaInformeResource\Pages\ListPlantillasInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/ListPlantillasInforme.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PrestacionResource` en `vida/app/Filament/Resources/PrestacionResource.php:24`: Falta docblock de cabecera.
-- `App\Filament\Resources\PrestacionResource\Pages\CreatePrestacion` en `vida/app/Filament/Resources/PrestacionResource/Pages/CreatePrestacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PrestacionResource\Pages\EditPrestacion` en `vida/app/Filament/Resources/PrestacionResource/Pages/EditPrestacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PrestacionResource\Pages\ListPrestaciones` en `vida/app/Filament/Resources/PrestacionResource/Pages/ListPrestaciones.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ProfesionalResource\Pages\CreateProfesional` en `vida/app/Filament/Resources/ProfesionalResource/Pages/CreateProfesional.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ProfesionalResource\Pages\EditProfesional` en `vida/app/Filament/Resources/ProfesionalResource/Pages/EditProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ProfesionalResource\Pages\ListProfesionales` en `vida/app/Filament/Resources/ProfesionalResource/Pages/ListProfesionales.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\RedResource` en `vida/app/Filament/Resources/RedResource.php:21`: Falta docblock de cabecera.
-- `App\Filament\Resources\RedResource\Pages\CreateRed` en `vida/app/Filament/Resources/RedResource/Pages/CreateRed.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\RedResource\Pages\EditRed` en `vida/app/Filament/Resources/RedResource/Pages/EditRed.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\RedResource\Pages\ListRedes` en `vida/app/Filament/Resources/RedResource/Pages/ListRedes.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\RolResource\Pages\CreateRol` en `vida/app/Filament/Resources/RolResource/Pages/CreateRol.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\RolResource\Pages\EditRol` en `vida/app/Filament/Resources/RolResource/Pages/EditRol.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\RolResource\Pages\ListRoles` en `vida/app/Filament/Resources/RolResource/Pages/ListRoles.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\SegmentoPoblacionResource` en `vida/app/Filament/Resources/SegmentoPoblacionResource.php:19`: Falta docblock de cabecera.
-- `App\Filament\Resources\SegmentoPoblacionResource\Pages\CreateSegmentoPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/CreateSegmentoPoblacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\SegmentoPoblacionResource\Pages\EditSegmentoPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/EditSegmentoPoblacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\SegmentoPoblacionResource\Pages\ListSegmentosPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/ListSegmentosPoblacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ServicioEmergenciaResource\Pages\CreateServicioEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/CreateServicioEmergencia.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ServicioEmergenciaResource\Pages\EditServicioEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/EditServicioEmergencia.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ServicioEmergenciaResource\Pages\ListServiciosEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/ListServiciosEmergencia.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoActividadResource` en `vida/app/Filament/Resources/TipoActividadResource.php:19`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoActividadResource\Pages\CreateTipoActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/CreateTipoActividad.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoActividadResource\Pages\EditTipoActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/EditTipoActividad.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoActividadResource\Pages\ListTiposActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/ListTiposActividad.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEscalaResource` en `vida/app/Filament/Resources/TipoEscalaResource.php:29`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEscalaResource\Pages\CreateTipoEscala` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/CreateTipoEscala.php:10`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEscalaResource\Pages\EditTipoEscala` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/EditTipoEscala.php:11`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEscalaResource\Pages\ListTipoEscalas` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/ListTipoEscalas.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEspacioResource` en `vida/app/Filament/Resources/TipoEspacioResource.php:19`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEspacioResource\Pages\CreateTipoEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/CreateTipoEspacio.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEspacioResource\Pages\EditTipoEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/EditTipoEspacio.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEspacioResource\Pages\ListTiposEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/ListTiposEspacio.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoFichaResource\Pages\CreateTipoFicha` en `vida/app/Filament/Resources/TipoFichaResource/Pages/CreateTipoFicha.php:11`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoFichaResource\Pages\EditTipoFicha` en `vida/app/Filament/Resources/TipoFichaResource/Pages/EditTipoFicha.php:13`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoFichaResource\Pages\ListTipoFichas` en `vida/app/Filament/Resources/TipoFichaResource/Pages/ListTipoFichas.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\CreateTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/CreateTipoRelacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\EditTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/EditTipoRelacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\ListTiposRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/ListTiposRelacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionResource\Pages\CreateTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/CreateTipoRelacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionResource\Pages\EditTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/EditTipoRelacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionResource\Pages\ListTiposRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/ListTiposRelacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoSlotResource` en `vida/app/Filament/Resources/TipoSlotResource.php:22`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoSlotResource\Pages\CreateTipoSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/CreateTipoSlot.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoSlotResource\Pages\EditTipoSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/EditTipoSlot.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoSlotResource\Pages\ListTiposSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/ListTiposSlot.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TitulacionResource\Pages\CreateTitulacion` en `vida/app/Filament/Resources/TitulacionResource/Pages/CreateTitulacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TitulacionResource\Pages\EditTitulacion` en `vida/app/Filament/Resources/TitulacionResource/Pages/EditTitulacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TitulacionResource\Pages\ListTitulaciones` en `vida/app/Filament/Resources/TitulacionResource/Pages/ListTitulaciones.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UnidadOrganizativaResource\Pages\CreateUnidadOrganizativa` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/CreateUnidadOrganizativa.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\UnidadOrganizativaResource\Pages\EditUnidadOrganizativa` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/EditUnidadOrganizativa.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UnidadOrganizativaResource\Pages\ListUnidadesOrganizativas` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/ListUnidadesOrganizativas.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioResource\Pages\CreateUsuario` en `vida/app/Filament/Resources/UsuarioResource/Pages/CreateUsuario.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioResource\Pages\EditUsuario` en `vida/app/Filament/Resources/UsuarioResource/Pages/EditUsuario.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioResource\Pages\ListUsuarios` en `vida/app/Filament/Resources/UsuarioResource/Pages/ListUsuarios.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioRolResource\Pages\CreateUsuarioRol` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/CreateUsuarioRol.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioRolResource\Pages\EditUsuarioRol` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/EditUsuarioRol.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioRolResource\Pages\ListUsuarioRoles` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/ListUsuarioRoles.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ZonaResource\Pages\CreateZona` en `vida/app/Filament/Resources/ZonaResource/Pages/CreateZona.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ZonaResource\Pages\EditZona` en `vida/app/Filament/Resources/ZonaResource/Pages/EditZona.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ZonaResource\Pages\ListZonas` en `vida/app/Filament/Resources/ZonaResource/Pages/ListZonas.php:9`: Falta docblock de cabecera.
-- `App\Http\Controllers\Controller` en `vida/app/Http/Controllers/Controller.php:5`: Falta docblock de cabecera.
-- `App\Providers\Filament\AdminPanelProvider` en `vida/app/Providers/Filament/AdminPanelProvider.php:22`: Falta docblock de cabecera.
+- `Modules\Agenda\Enums\EstadoCita::label()` en `vida/Modules/Agenda/app/Enums/EstadoCita.php:20`: Falta @return.
+- `Modules\Agenda\Enums\EstadoCuadrante::label()` en `vida/Modules/Agenda/app/Enums/EstadoCuadrante.php:17`: Falta @return.
+- `Modules\Agenda\Enums\EstadoSlot::label()` en `vida/Modules/Agenda/app/Enums/EstadoSlot.php:21`: Falta @return.
+- `Modules\Agenda\Enums\ModoAgenda::label()` en `vida/Modules/Agenda/app/Enums/ModoAgenda.php:17`: Falta @return.
+- `Modules\Agenda\Enums\MotivoReasignacion::label()` en `vida/Modules/Agenda/app/Enums/MotivoReasignacion.php:18`: Falta @return.
+- `Modules\Agenda\Enums\OrigenCita::label()` en `vida/Modules/Agenda/app/Enums/OrigenCita.php:16`: Falta @return.
+- `Modules\Agenda\Enums\OrigenExcepcion::label()` en `vida/Modules/Agenda/app/Enums/OrigenExcepcion.php:16`: Falta @return.
+- `Modules\Agenda\Enums\OrigenPermitidoSlot::label()` en `vida/Modules/Agenda/app/Enums/OrigenPermitidoSlot.php:17`: Falta @return.
+- `Modules\Agenda\Enums\TipoExcepcion::label()` en `vida/Modules/Agenda/app/Enums/TipoExcepcion.php:21`: Falta @return.
+- `Modules\Documentos\Enums\EstadoInforme::label()` en `vida/Modules/Documentos/app/Enums/EstadoInforme.php:17`: Falta @return.
+- `Modules\Documentos\Enums\MetodoConformidadCiudadano::label()` en `vida/Modules/Documentos/app/Enums/MetodoConformidadCiudadano.php:15`: Falta @return.
+- `Modules\Documentos\Enums\MetodoFirma::label()` en `vida/Modules/Documentos/app/Enums/MetodoFirma.php:15`: Falta @return.
+- `Modules\Documentos\Enums\OrigenDocumento::label()` en `vida/Modules/Documentos/app/Enums/OrigenDocumento.php:16`: Falta @return.
+- `Modules\Documentos\Enums\TipoInforme::label()` en `vida/Modules/Documentos/app/Enums/TipoInforme.php:18`: Falta @return.
+- `Modules\Intervencion\Enums\ClasificacionSia::label()` en `vida/Modules/Intervencion/app/Enums/ClasificacionSia.php:17`: Falta @return.
+- `Modules\Intervencion\Enums\EstadoPlan::label()` en `vida/Modules/Intervencion/app/Enums/EstadoPlan.php:18`: Falta @return.
+- `Modules\Intervencion\Enums\EstadoValoracion::label()` en `vida/Modules/Intervencion/app/Enums/EstadoValoracion.php:17`: Falta @return.
+- `Modules\Intervencion\Enums\MotivoCierre::label()` en `vida/Modules/Intervencion/app/Enums/MotivoCierre.php:19`: Falta @return.
+- `Modules\Intervencion\Enums\TipoApunte::label()` en `vida/Modules/Intervencion/app/Enums/TipoApunte.php:24`: Falta @return.
+- `Modules\Organizacion\Models\Configuracion::valorCasteado()` en `vida/Modules/Organizacion/app/Models/Configuracion.php:43`: Falta @return.
+- `Modules\Organizacion\Models\Configuracion::scopeTipo()` en `vida/Modules/Organizacion/app/Models/Configuracion.php:60`: Falta @param $tipo.
+- `Modules\Organizacion\Providers\OrganizacionServiceProvider::register()` en `vida/Modules/Organizacion/app/Providers/OrganizacionServiceProvider.php:24`: Falta @return.
+- `Modules\Organizacion\Providers\OrganizacionServiceProvider::boot()` en `vida/Modules/Organizacion/app/Providers/OrganizacionServiceProvider.php:32`: Falta @return.
+- `Modules\Organizacion\Services\ConfiguracionService::get()` en `vida/Modules/Organizacion/app/Services/ConfiguracionService.php:42`: Falta @return.
+- `Modules\Organizacion\Services\ConfiguracionService::set()` en `vida/Modules/Organizacion/app/Services/ConfiguracionService.php:62`: Falta @return.
+- `Modules\Organizacion\Services\ConfiguracionService::limpiarCache()` en `vida/Modules/Organizacion/app/Services/ConfiguracionService.php:81`: Falta @return.
+- `Modules\Usuarios\Console\Commands\ReconciliarRoles::handle()` en `vida/Modules/Usuarios/app/Console/Commands/ReconciliarRoles.php:33`: Falta @return.
+- `Modules\Usuarios\Models\Profesional::getNombreCompletoAttribute()` en `vida/Modules/Usuarios/app/Models/Profesional.php:136`: Falta @return.
+- `Modules\Usuarios\Observers\UsuarioRolObserver::created()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:33`: Falta @param $usuarioRol.
+- `Modules\Usuarios\Observers\UsuarioRolObserver::created()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:33`: Falta @return.
+- `Modules\Usuarios\Observers\UsuarioRolObserver::updated()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:52`: Falta @param $usuarioRol.
+- `Modules\Usuarios\Observers\UsuarioRolObserver::updated()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:52`: Falta @return.
+- `Modules\Usuarios\Policies\ApuntePolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:48`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\ApuntePolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:48`: Falta @return.
+- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @param $apunte.
+- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @return.
+- `Modules\Usuarios\Policies\ApuntePolicy::create()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:80`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\ApuntePolicy::create()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:80`: Falta @return.
+- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @param $apunte.
+- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @return.
+- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @param $apunte.
+- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @return.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:53`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:53`: Falta @return.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @param $historia.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @return.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::create()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:94`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::create()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:94`: Falta @return.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @param $historia.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @return.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @param $historia.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @return.
+- `Modules\Usuarios\Providers\UsuariosServiceProvider::register()` en `vida/Modules/Usuarios/app/Providers/UsuariosServiceProvider.php:30`: Falta @return.
+- `Modules\Usuarios\Providers\UsuariosServiceProvider::boot()` en `vida/Modules/Usuarios/app/Providers/UsuariosServiceProvider.php:38`: Falta @return.
+- `Modules\Usuarios\Traits\TieneRoles::tieneRolVigente()` en `vida/Modules/Usuarios/app/Traits/TieneRoles.php:67`: Falta @return.
+- `Modules\Usuarios\Traits\TieneRoles::tienePermiso()` en `vida/Modules/Usuarios/app/Traits/TieneRoles.php:89`: Falta @return.
+- `Modules\Usuarios\Traits\TieneUO::perteneceAUo()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:88`: Falta @return.
+- `Modules\Usuarios\Traits\TieneUO::tieneAccesoGestionA()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:104`: Falta @return.
+- `Modules\Usuarios\Traits\TieneUO::tieneAccesoConsultaA()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:152`: Falta @return.
+- `App\Console\Commands\NormalizarDirecciones::handle()` en `vida/app/Console/Commands/NormalizarDirecciones.php:47`: Falta @param $geocodificador.
+- `App\Console\Commands\NormalizarDirecciones::handle()` en `vida/app/Console/Commands/NormalizarDirecciones.php:47`: Falta @return.
+- `App\Enums\AccionAuditEnum::etiqueta()` en `vida/app/Enums/AccionAuditEnum.php:21`: Falta @return.
+- `App\Enums\AccionAuditEnum::color()` en `vida/app/Enums/AccionAuditEnum.php:35`: Falta @return.
+- `App\Enums\OrigenDireccion::label()` en `vida/app/Enums/OrigenDireccion.php:20`: Falta @return.
+- `App\Filament\Resources\AuditResource::canAccess()` en `vida/app/Filament/Resources/AuditResource.php:167`: Falta @return.
+- `App\Filament\Resources\AuditResource::canCreate()` en `vida/app/Filament/Resources/AuditResource.php:175`: Falta @return.
+- `App\Filament\Resources\AuditResource::canEdit()` en `vida/app/Filament/Resources/AuditResource.php:181`: Falta @return.
+- `App\Filament\Resources\AuditResource::canDelete()` en `vida/app/Filament/Resources/AuditResource.php:187`: Falta @return.
+- `App\Filament\Resources\CentroResource::canViewAny()` en `vida/app/Filament/Resources/CentroResource.php:235`: Falta @return.
+- `App\Filament\Resources\ConfiguracionHorarioLaboralResource::getEloquentQuery()` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource.php:101`: Falta @return.
+- `App\Filament\Resources\DocumentoResource::infolist()` en `vida/app/Filament/Resources/DocumentoResource.php:50`: Falta @param $schema.
+- `App\Filament\Resources\DocumentoResource::infolist()` en `vida/app/Filament/Resources/DocumentoResource.php:50`: Falta @return.
+- `App\Filament\Resources\DocumentoResource::canViewAny()` en `vida/app/Filament/Resources/DocumentoResource.php:115`: Falta @return.
+- `App\Filament\Resources\EstiloInformeResource::canViewAny()` en `vida/app/Filament/Resources/EstiloInformeResource.php:157`: Falta @return.
+- `App\Filament\Resources\EstiloInformeResource::canEdit()` en `vida/app/Filament/Resources/EstiloInformeResource.php:163`: Falta @param $record.
+- `App\Filament\Resources\EstiloInformeResource::canEdit()` en `vida/app/Filament/Resources/EstiloInformeResource.php:163`: Falta @return.
+- `App\Filament\Resources\InformeResource::infolist()` en `vida/app/Filament/Resources/InformeResource.php:53`: Falta @param $schema.
+- `App\Filament\Resources\InformeResource::infolist()` en `vida/app/Filament/Resources/InformeResource.php:53`: Falta @return.
+- `App\Filament\Resources\InformeResource::canViewAny()` en `vida/app/Filament/Resources/InformeResource.php:147`: Falta @return.
+- `App\Filament\Resources\LogAlertasResource::canViewAny()` en `vida/app/Filament/Resources/LogAlertasResource.php:127`: Falta @return.
+- `App\Filament\Resources\PlantillaInformeResource::canViewAny()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:265`: Falta @return.
+- `App\Filament\Resources\ProfesionalResource::canViewAny()` en `vida/app/Filament/Resources/ProfesionalResource.php:230`: Falta @return.
+- `App\Filament\Resources\ProfesionalResource::canDelete()` en `vida/app/Filament/Resources/ProfesionalResource.php:246`: Falta @param $record.
+- `App\Filament\Resources\ProfesionalResource::canDelete()` en `vida/app/Filament/Resources/ProfesionalResource.php:246`: Falta @return.
+- `App\Filament\Resources\RedResource::canViewAny()` en `vida/app/Filament/Resources/RedResource.php:82`: Falta @return.
+- `App\Filament\Resources\TipoFichaResource::convertirSchemaBlocks()` en `vida/app/Filament/Resources/TipoFichaResource.php:292`: Falta @param $state.
+- `App\Filament\Resources\TipoFichaResource::convertirSchemaBlocks()` en `vida/app/Filament/Resources/TipoFichaResource.php:292`: Falta @return.
+- `App\Filament\Resources\UsuarioResource::canDelete()` en `vida/app/Filament/Resources/UsuarioResource.php:228`: Falta @param $record.
+- `App\Filament\Resources\UsuarioResource::canDelete()` en `vida/app/Filament/Resources/UsuarioResource.php:228`: Falta @return.
+- `App\Filament\Resources\UsuarioRolResource::canEdit()` en `vida/app/Filament/Resources/UsuarioRolResource.php:161`: Falta @param $record.
+- `App\Filament\Resources\UsuarioRolResource::canEdit()` en `vida/app/Filament/Resources/UsuarioRolResource.php:161`: Falta @return.
+- `App\Http\Controllers\Auth\LoginController::mostrar()` en `vida/app/Http/Controllers/Auth/LoginController.php:19`: Falta @return.
+- `App\Http\Controllers\Auth\LoginController::autenticar()` en `vida/app/Http/Controllers/Auth/LoginController.php:29`: Falta @param $request.
+- `App\Http\Controllers\Auth\LoginController::autenticar()` en `vida/app/Http/Controllers/Auth/LoginController.php:29`: Falta @return.
+- `App\Http\Controllers\Auth\LoginController::cerrarSesion()` en `vida/app/Http/Controllers/Auth/LoginController.php:86`: Falta @param $request.
+- `App\Http\Controllers\Auth\LoginController::cerrarSesion()` en `vida/app/Http/Controllers/Auth/LoginController.php:86`: Falta @return.
+- `App\Http\Controllers\Auth\OnboardingController::mostrar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:18`: Falta @return.
+- `App\Http\Controllers\Auth\OnboardingController::completar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:31`: Falta @param $request.
+- `App\Http\Controllers\Auth\OnboardingController::completar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:31`: Falta @return.
+- `App\Http\Middleware\EnsureTieneRol::handle()` en `vida/app/Http/Middleware/EnsureTieneRol.php:23`: Falta @param $request.
+- `App\Http\Middleware\EnsureTieneRol::handle()` en `vida/app/Http/Middleware/EnsureTieneRol.php:23`: Falta @return.
+- `App\Jobs\NormalizarDireccionJob::handle()` en `vida/app/Jobs/NormalizarDireccionJob.php:72`: Falta @param $geocodificador.
+- `App\Jobs\NormalizarDireccionJob::handle()` en `vida/app/Jobs/NormalizarDireccionJob.php:72`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::mount()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:63`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::abrirFormularioCreacion()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:131`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::abrirFormularioEdicion()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:142`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::guardar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:157`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::desactivar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:181`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::reactivar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:194`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::cancelar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:205`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::render()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:218`: Falta @return.
+- `App\Livewire\Centros\SelectorPrestacionesCentro::mount()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:48`: Falta @param $centroId.
+- `App\Livewire\Centros\SelectorPrestacionesCentro::mount()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:48`: Falta @return.
+- `App\Livewire\Centros\SelectorPrestacionesCentro::togglePrestacion()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:119`: Falta @param $prestacionId.
+- `App\Livewire\Centros\SelectorPrestacionesCentro::togglePrestacion()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:119`: Falta @return.
+- `App\Livewire\Centros\SelectorPrestacionesCentro::deseleccionar()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:133`: Falta @param $prestacionId.
+- `App\Livewire\Centros\SelectorPrestacionesCentro::deseleccionar()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:133`: Falta @return.
+- `App\Livewire\Centros\SelectorPrestacionesCentro::setSegmento()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:143`: Falta @param $segmento.
+- `App\Livewire\Centros\SelectorPrestacionesCentro::setSegmento()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:143`: Falta @return.
+- `App\Livewire\Centros\SelectorPrestacionesCentro::verDetalle()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:151`: Falta @param $prestacionId.
+- `App\Livewire\Centros\SelectorPrestacionesCentro::verDetalle()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:151`: Falta @return.
+- `App\Livewire\Centros\SelectorPrestacionesCentro::cerrarDetalle()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:159`: Falta @return.
+- `App\Livewire\Centros\SelectorPrestacionesCentro::guardar()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:168`: Falta @return.
+- `App\Models\Api\PerfilAnonimizacion::delete()` en `vida/app/Models/Api/PerfilAnonimizacion.php:90`: Falta @return.
+- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @param $attributes.
+- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @param $options.
+- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @return.
+- `App\Models\Audit::delete()` en `vida/app/Models/Audit.php:82`: Falta @return.
+- `App\Models\CatalogoSistema::opcionesParaSelect()` en `vida/app/Models/CatalogoSistema.php:58`: Falta @param $grupo.
+- `App\Models\CatalogoSistema::valor()` en `vida/app/Models/CatalogoSistema.php:70`: Falta @return.
+- `App\Models\CatalogoSistema::opcionesParaSelectConPrefijo()` en `vida/app/Models/CatalogoSistema.php:84`: Falta @param $grupo.
+- `App\Models\CatalogoSistema::opcionesParaSelectConPrefijo()` en `vida/app/Models/CatalogoSistema.php:84`: Falta @param $prefijo.
+- `App\Models\Ciudadano::getNombreCompletoAttribute()` en `vida/app/Models/Ciudadano.php:155`: Falta @return.
+- `App\Models\Ciudadano::getCiudadanoId()` en `vida/app/Models/Ciudadano.php:171`: Falta @return.
+- `App\Models\Ciudadano::tieneResidenciaVerificada()` en `vida/app/Models/Ciudadano.php:223`: Falta @return.
+- `App\Models\HistoriaSocial::getCiudadanoId()` en `vida/app/Models/HistoriaSocial.php:91`: Falta @return.
+- `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @param $model.
+- `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @return.
+- `App\Models\UnidadOrganizativa::isDescendantOf()` en `vida/app/Models/UnidadOrganizativa.php:124`: Falta @return.
+- `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @param $panel.
+- `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @return.
+- `App\Models\Version::versionable()` en `vida/app/Models/Version.php:61`: Falta @return.
+- `App\Observers\AuditObserver::created()` en `vida/app/Observers/AuditObserver.php:33`: Falta @return.
+- `App\Observers\AuditObserver::updated()` en `vida/app/Observers/AuditObserver.php:52`: Falta @return.
+- `App\Observers\AuditObserver::deleted()` en `vida/app/Observers/AuditObserver.php:81`: Falta @return.
+- `App\Observers\DireccionObserver::__construct()` en `vida/app/Observers/DireccionObserver.php:29`: Falta @param $geocodificador.
+- `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @param $model.
+- `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @return.
+- `App\Observers\DireccionObserver::created()` en `vida/app/Observers/DireccionObserver.php:50`: Falta @param $model.
+- `App\Observers\DireccionObserver::created()` en `vida/app/Observers/DireccionObserver.php:50`: Falta @return.
+- `App\Observers\DireccionObserver::updating()` en `vida/app/Observers/DireccionObserver.php:60`: Falta @param $model.
+- `App\Observers\DireccionObserver::updating()` en `vida/app/Observers/DireccionObserver.php:60`: Falta @return.
+- `App\Observers\DireccionObserver::updated()` en `vida/app/Observers/DireccionObserver.php:71`: Falta @param $model.
+- `App\Observers\DireccionObserver::updated()` en `vida/app/Observers/DireccionObserver.php:71`: Falta @return.
+- `App\Policies\CiudadanoPolicy::viewAny()` en `vida/app/Policies/CiudadanoPolicy.php:48`: Falta @param $usuario.
+- `App\Policies\CiudadanoPolicy::viewAny()` en `vida/app/Policies/CiudadanoPolicy.php:48`: Falta @return.
+- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @param $usuario.
+- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @param $ciudadano.
+- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @return.
+- `App\Policies\CiudadanoPolicy::create()` en `vida/app/Policies/CiudadanoPolicy.php:83`: Falta @param $usuario.
+- `App\Policies\CiudadanoPolicy::create()` en `vida/app/Policies/CiudadanoPolicy.php:83`: Falta @return.
+- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @param $usuario.
+- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @param $ciudadano.
+- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @return.
+- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @param $usuario.
+- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @param $ciudadano.
+- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @return.
+- `App\Providers\AppServiceProvider::register()` en `vida/app/Providers/AppServiceProvider.php:19`: Falta @return.
+- `App\Providers\AppServiceProvider::boot()` en `vida/app/Providers/AppServiceProvider.php:27`: Falta @return.
+- `App\Providers\GeocodificacionServiceProvider::register()` en `vida/app/Providers/GeocodificacionServiceProvider.php:27`: Falta @return.
+- `App\Providers\GeocodificacionServiceProvider::boot()` en `vida/app/Providers/GeocodificacionServiceProvider.php:35`: Falta @return.
+- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @param $user.
+- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @param $historia.
+- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @return.
+- `App\Services\Api\RevelacionIdentidadService::revelarPorAlias()` en `vida/app/Services/Api/RevelacionIdentidadService.php:36`: Falta @return.
+- `App\Services\AuditService::registrarAcceso()` en `vida/app/Services/AuditService.php:44`: Falta @return.
+- `App\Services\CiudadanoService::crear()` en `vida/app/Services/CiudadanoService.php:41`: Falta @return.
+- `App\Services\CiudadanoService::actualizar()` en `vida/app/Services/CiudadanoService.php:62`: Falta @return.
+- `App\Services\CiudadanoService::eliminar()` en `vida/app/Services/CiudadanoService.php:84`: Falta @return.
+- `App\Services\Geocodificacion\GeocodificadorService::normalizar()` en `vida/app/Services/Geocodificacion/GeocodificadorService.php:39`: Falta @return.
+- `App\Services\Geocodificacion\ResultadoGeocodificacion::fallo()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:58`: Falta @return.
+- `App\Services\HistoriaSocialService::obtenerEntradas()` en `vida/app/Services/HistoriaSocialService.php:35`: Falta @param $ciudadano.
+- `App\Services\HistoriaSocialService::obtenerEntradas()` en `vida/app/Services/HistoriaSocialService.php:35`: Falta @param $profesional.
+- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $usuario.
+- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $ciudadano.
+- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @return.
+- `App\Traits\Auditable::bootAuditable()` en `vida/app/Traits/Auditable.php:27`: Falta @return.
+- `App\Traits\Auditable::getCiudadanoId()` en `vida/app/Traits/Auditable.php:62`: Falta @return.
+- `App\Traits\TieneDireccion::initializeTieneDireccion()` en `vida/app/Traits/TieneDireccion.php:44`: Falta @return.
+- `App\Traits\TieneDireccion::direccionFormateada()` en `vida/app/Traits/TieneDireccion.php:65`: Falta @return.
 
-### Método público sin PHPDoc (377)
+### Método público sin PHPDoc (354)
 
-- `Modules\Agenda\Enums\EstadoCita::label()` en `vida/Modules/Agenda/app/Enums/EstadoCita.php:14`: Falta docblock de método público.
-- `Modules\Agenda\Enums\EstadoCuadrante::label()` en `vida/Modules/Agenda/app/Enums/EstadoCuadrante.php:11`: Falta docblock de método público.
-- `Modules\Agenda\Enums\EstadoSlot::label()` en `vida/Modules/Agenda/app/Enums/EstadoSlot.php:15`: Falta docblock de método público.
-- `Modules\Agenda\Enums\ModoAgenda::label()` en `vida/Modules/Agenda/app/Enums/ModoAgenda.php:11`: Falta docblock de método público.
-- `Modules\Agenda\Enums\MotivoReasignacion::label()` en `vida/Modules/Agenda/app/Enums/MotivoReasignacion.php:12`: Falta docblock de método público.
-- `Modules\Agenda\Enums\OrigenCita::label()` en `vida/Modules/Agenda/app/Enums/OrigenCita.php:10`: Falta docblock de método público.
-- `Modules\Agenda\Enums\OrigenExcepcion::label()` en `vida/Modules/Agenda/app/Enums/OrigenExcepcion.php:10`: Falta docblock de método público.
-- `Modules\Agenda\Enums\OrigenPermitidoSlot::label()` en `vida/Modules/Agenda/app/Enums/OrigenPermitidoSlot.php:11`: Falta docblock de método público.
-- `Modules\Agenda\Enums\TipoExcepcion::label()` en `vida/Modules/Agenda/app/Enums/TipoExcepcion.php:15`: Falta docblock de método público.
 - `Modules\Agenda\Models\Cita::slot()` en `vida/Modules/Agenda/app/Models/Cita.php:69`: Falta docblock de método público.
 - `Modules\Agenda\Models\Cita::ciudadano()` en `vida/Modules/Agenda/app/Models/Cita.php:74`: Falta docblock de método público.
 - `Modules\Agenda\Models\Cita::profesional()` en `vida/Modules/Agenda/app/Models/Cita.php:79`: Falta docblock de método público.
@@ -250,23 +298,14 @@ Generado el 2026-06-17 11:04:07 UTC a partir de los docblocks PHPDoc compatibles
 - `Modules\Centro\Providers\CentroServiceProvider::register()` en `vida/Modules/Centro/app/Providers/CentroServiceProvider.php:17`: Falta docblock de método público.
 - `Modules\Centro\Providers\CentroServiceProvider::boot()` en `vida/Modules/Centro/app/Providers/CentroServiceProvider.php:19`: Falta docblock de método público.
 - `Modules\Ciudadania\Http\Livewire\AltaCiudadano::render()` en `vida/Modules/Ciudadania/app/Http/Livewire/AltaCiudadano.php:428`: Falta docblock de método público.
-- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::ciudadanoSeleccionadoRelacion()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:368`: Falta docblock de método público.
-- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::toggleHistorialRelaciones()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:474`: Falta docblock de método público.
-- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::seleccionarCiudadanoRelacion()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:479`: Falta docblock de método público.
-- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::cancelarNuevaRelacion()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:489`: Falta docblock de método público.
-- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::cerrarRelacion()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:546`: Falta docblock de método público.
-- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::render()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:633`: Falta docblock de método público.
+- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::ciudadanoSeleccionadoRelacion()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:431`: Falta docblock de método público.
+- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage::render()` en `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:799`: Falta docblock de método público.
 - `Modules\Ciudadania\Models\CiudadanoIdentificador::ciudadano()` en `vida/Modules/Ciudadania/app/Models/CiudadanoIdentificador.php:83`: Falta docblock de método público.
 - `Modules\Ciudadania\Models\CiudadanoRelacion::ciudadano()` en `vida/Modules/Ciudadania/app/Models/CiudadanoRelacion.php:74`: Falta docblock de método público.
 - `Modules\Ciudadania\Models\CiudadanoRelacion::ciudadanoRelacionado()` en `vida/Modules/Ciudadania/app/Models/CiudadanoRelacion.php:79`: Falta docblock de método público.
 - `Modules\Ciudadania\Models\CiudadanoRelacion::tipoRelacion()` en `vida/Modules/Ciudadania/app/Models/CiudadanoRelacion.php:84`: Falta docblock de método público.
 - `Modules\Ciudadania\Providers\CiudadaniaServiceProvider::register()` en `vida/Modules/Ciudadania/app/Providers/CiudadaniaServiceProvider.php:26`: Falta docblock de método público.
 - `Modules\Ciudadania\Providers\CiudadaniaServiceProvider::boot()` en `vida/Modules/Ciudadania/app/Providers/CiudadaniaServiceProvider.php:32`: Falta docblock de método público.
-- `Modules\Documentos\Enums\EstadoInforme::label()` en `vida/Modules/Documentos/app/Enums/EstadoInforme.php:11`: Falta docblock de método público.
-- `Modules\Documentos\Enums\MetodoConformidadCiudadano::label()` en `vida/Modules/Documentos/app/Enums/MetodoConformidadCiudadano.php:9`: Falta docblock de método público.
-- `Modules\Documentos\Enums\MetodoFirma::label()` en `vida/Modules/Documentos/app/Enums/MetodoFirma.php:9`: Falta docblock de método público.
-- `Modules\Documentos\Enums\OrigenDocumento::label()` en `vida/Modules/Documentos/app/Enums/OrigenDocumento.php:10`: Falta docblock de método público.
-- `Modules\Documentos\Enums\TipoInforme::label()` en `vida/Modules/Documentos/app/Enums/TipoInforme.php:12`: Falta docblock de método público.
 - `Modules\Documentos\Models\Documento::documentable()` en `vida/Modules/Documentos/app/Models/Documento.php:48`: Falta docblock de método público.
 - `Modules\Documentos\Models\Documento::tipo()` en `vida/Modules/Documentos/app/Models/Documento.php:53`: Falta docblock de método público.
 - `Modules\Documentos\Models\Documento::subidoPor()` en `vida/Modules/Documentos/app/Models/Documento.php:58`: Falta docblock de método público.
@@ -303,11 +342,6 @@ Generado el 2026-06-17 11:04:07 UTC a partir de los docblocks PHPDoc compatibles
 - `Modules\Escalas\Models\PaseEscala::historia()` en `vida/Modules/Escalas/app/Models/PaseEscala.php:208`: Falta docblock de método público.
 - `Modules\Escalas\Providers\EscalasServiceProvider::register()` en `vida/Modules/Escalas/app/Providers/EscalasServiceProvider.php:16`: Falta docblock de método público.
 - `Modules\Escalas\Providers\EscalasServiceProvider::boot()` en `vida/Modules/Escalas/app/Providers/EscalasServiceProvider.php:18`: Falta docblock de método público.
-- `Modules\Intervencion\Enums\ClasificacionSia::label()` en `vida/Modules/Intervencion/app/Enums/ClasificacionSia.php:11`: Falta docblock de método público.
-- `Modules\Intervencion\Enums\EstadoPlan::label()` en `vida/Modules/Intervencion/app/Enums/EstadoPlan.php:12`: Falta docblock de método público.
-- `Modules\Intervencion\Enums\EstadoValoracion::label()` en `vida/Modules/Intervencion/app/Enums/EstadoValoracion.php:11`: Falta docblock de método público.
-- `Modules\Intervencion\Enums\MotivoCierre::label()` en `vida/Modules/Intervencion/app/Enums/MotivoCierre.php:13`: Falta docblock de método público.
-- `Modules\Intervencion\Enums\TipoApunte::label()` en `vida/Modules/Intervencion/app/Enums/TipoApunte.php:18`: Falta docblock de método público.
 - `Modules\Intervencion\Enums\TipoEntrevista::label()` en `vida/Modules/Intervencion/app/Enums/TipoEntrevista.php:12`: Falta docblock de método público.
 - `Modules\Intervencion\Enums\TipoPlan::label()` en `vida/Modules/Intervencion/app/Enums/TipoPlan.php:10`: Falta docblock de método público.
 - `Modules\Intervencion\Enums\UrgenciaSia::label()` en `vida/Modules/Intervencion/app/Enums/UrgenciaSia.php:11`: Falta docblock de método público.
@@ -534,320 +568,229 @@ Generado el 2026-06-17 11:04:07 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Providers\Filament\AdminPanelProvider::panel()` en `vida/app/Providers/Filament/AdminPanelProvider.php:24`: Falta docblock de método público.
 - `App\Services\Geocodificacion\ResultadoGeocodificacion::__construct()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:34`: Falta docblock de método público.
 
-### PHPDoc incompleto (211)
+### Clase sin PHPDoc (120)
 
-- `Modules\Mensajes\Models\Mensaje::registerMediaCollections()` en `vida/Modules/Mensajes/app/Models/Mensaje.php:46`: Falta @return.
-- `Modules\Mensajes\Models\Mensaje::registerMediaConversions()` en `vida/Modules/Mensajes/app/Models/Mensaje.php:55`: Falta @param $media.
-- `Modules\Mensajes\Models\Mensaje::registerMediaConversions()` en `vida/Modules/Mensajes/app/Models/Mensaje.php:55`: Falta @return.
-- `Modules\Mensajes\Models\MensajeHilo::tieneParticipante()` en `vida/Modules/Mensajes/app/Models/MensajeHilo.php:77`: Falta @param $usuarioId.
-- `Modules\Mensajes\Models\MensajeHilo::tieneParticipante()` en `vida/Modules/Mensajes/app/Models/MensajeHilo.php:77`: Falta @return.
-- `Modules\Mensajes\Models\MensajeParticipante::mensajesNoLeidos()` en `vida/Modules/Mensajes/app/Models/MensajeParticipante.php:72`: Falta @return.
-- `Modules\Mensajes\Services\AlertaService::crear()` en `vida/Modules/Mensajes/app/Services/AlertaService.php:31`: Falta @return.
-- `Modules\Mensajes\Services\AlertaService::reconocer()` en `vida/Modules/Mensajes/app/Services/AlertaService.php:58`: Falta @param $alerta.
-- `Modules\Mensajes\Services\AlertaService::reconocer()` en `vida/Modules/Mensajes/app/Services/AlertaService.php:58`: Falta @param $usuario.
-- `Modules\Mensajes\Services\AlertaService::reconocer()` en `vida/Modules/Mensajes/app/Services/AlertaService.php:58`: Falta @param $ipAddress.
-- `Modules\Mensajes\Services\AlertaService::reconocer()` en `vida/Modules/Mensajes/app/Services/AlertaService.php:58`: Falta @return.
-- `Modules\Mensajes\Services\AlertaService::escalar()` en `vida/Modules/Mensajes/app/Services/AlertaService.php:83`: Falta @param $alerta.
-- `Modules\Mensajes\Services\AlertaService::escalar()` en `vida/Modules/Mensajes/app/Services/AlertaService.php:83`: Falta @return.
-- `Modules\Mensajes\Services\AlertaService::resolverDestinatarios()` en `vida/Modules/Mensajes/app/Services/AlertaService.php:118`: Falta @param $alerta.
-- `Modules\Mensajes\Services\HorarioLaboralService::calcularExpiracion()` en `vida/Modules/Mensajes/app/Services/HorarioLaboralService.php:49`: Falta @param $desde.
-- `Modules\Mensajes\Services\HorarioLaboralService::calcularExpiracion()` en `vida/Modules/Mensajes/app/Services/HorarioLaboralService.php:49`: Falta @return.
-- `Modules\Mensajes\Services\MensajeriaService::crearHilo()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:29`: Falta @param $remitente.
-- `Modules\Mensajes\Services\MensajeriaService::crearHilo()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:29`: Falta @param $destinatario.
-- `Modules\Mensajes\Services\MensajeriaService::crearHilo()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:29`: Falta @param $asunto.
-- `Modules\Mensajes\Services\MensajeriaService::crearHilo()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:29`: Falta @param $cuerpo.
-- `Modules\Mensajes\Services\MensajeriaService::crearHilo()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:29`: Falta @return.
-- `Modules\Mensajes\Services\MensajeriaService::responder()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:65`: Falta @param $hilo.
-- `Modules\Mensajes\Services\MensajeriaService::responder()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:65`: Falta @param $remitente.
-- `Modules\Mensajes\Services\MensajeriaService::responder()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:65`: Falta @param $cuerpo.
-- `Modules\Mensajes\Services\MensajeriaService::responder()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:65`: Falta @return.
-- `Modules\Mensajes\Services\MensajeriaService::registrarEnHistoria()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:83`: Falta @param $mensaje.
-- `Modules\Mensajes\Services\MensajeriaService::registrarEnHistoria()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:83`: Falta @param $ciudadano.
-- `Modules\Mensajes\Services\MensajeriaService::registrarEnHistoria()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:83`: Falta @param $tsr.
-- `Modules\Mensajes\Services\MensajeriaService::registrarEnHistoria()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:83`: Falta @param $cuerpoEditado.
-- `Modules\Mensajes\Services\MensajeriaService::registrarEnHistoria()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:83`: Falta @param $visibilidad.
-- `Modules\Mensajes\Services\MensajeriaService::registrarEnHistoria()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:83`: Falta @return.
-- `Modules\Mensajes\Services\MensajeriaService::marcarComoLeido()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:113`: Falta @param $hilo.
-- `Modules\Mensajes\Services\MensajeriaService::marcarComoLeido()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:113`: Falta @param $usuario.
-- `Modules\Mensajes\Services\MensajeriaService::marcarComoLeido()` en `vida/Modules/Mensajes/app/Services/MensajeriaService.php:113`: Falta @return.
-- `Modules\Organizacion\Models\Configuracion::valorCasteado()` en `vida/Modules/Organizacion/app/Models/Configuracion.php:43`: Falta @return.
-- `Modules\Organizacion\Models\Configuracion::scopeTipo()` en `vida/Modules/Organizacion/app/Models/Configuracion.php:60`: Falta @param $tipo.
-- `Modules\Organizacion\Providers\OrganizacionServiceProvider::register()` en `vida/Modules/Organizacion/app/Providers/OrganizacionServiceProvider.php:24`: Falta @return.
-- `Modules\Organizacion\Providers\OrganizacionServiceProvider::boot()` en `vida/Modules/Organizacion/app/Providers/OrganizacionServiceProvider.php:32`: Falta @return.
-- `Modules\Organizacion\Services\ConfiguracionService::get()` en `vida/Modules/Organizacion/app/Services/ConfiguracionService.php:42`: Falta @return.
-- `Modules\Organizacion\Services\ConfiguracionService::set()` en `vida/Modules/Organizacion/app/Services/ConfiguracionService.php:62`: Falta @return.
-- `Modules\Organizacion\Services\ConfiguracionService::limpiarCache()` en `vida/Modules/Organizacion/app/Services/ConfiguracionService.php:81`: Falta @return.
-- `Modules\Usuarios\Console\Commands\ReconciliarRoles::handle()` en `vida/Modules/Usuarios/app/Console/Commands/ReconciliarRoles.php:33`: Falta @return.
-- `Modules\Usuarios\Models\Profesional::getNombreCompletoAttribute()` en `vida/Modules/Usuarios/app/Models/Profesional.php:136`: Falta @return.
-- `Modules\Usuarios\Observers\UsuarioRolObserver::created()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:33`: Falta @param $usuarioRol.
-- `Modules\Usuarios\Observers\UsuarioRolObserver::created()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:33`: Falta @return.
-- `Modules\Usuarios\Observers\UsuarioRolObserver::updated()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:52`: Falta @param $usuarioRol.
-- `Modules\Usuarios\Observers\UsuarioRolObserver::updated()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:52`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:48`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:48`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @param $apunte.
-- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::create()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:80`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::create()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:80`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @param $apunte.
-- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @param $apunte.
-- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:53`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:53`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @param $historia.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::create()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:94`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::create()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:94`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @param $historia.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @param $historia.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @return.
-- `Modules\Usuarios\Providers\UsuariosServiceProvider::register()` en `vida/Modules/Usuarios/app/Providers/UsuariosServiceProvider.php:30`: Falta @return.
-- `Modules\Usuarios\Providers\UsuariosServiceProvider::boot()` en `vida/Modules/Usuarios/app/Providers/UsuariosServiceProvider.php:38`: Falta @return.
-- `Modules\Usuarios\Traits\TieneRoles::tieneRolVigente()` en `vida/Modules/Usuarios/app/Traits/TieneRoles.php:67`: Falta @return.
-- `Modules\Usuarios\Traits\TieneRoles::tienePermiso()` en `vida/Modules/Usuarios/app/Traits/TieneRoles.php:89`: Falta @return.
-- `Modules\Usuarios\Traits\TieneUO::perteneceAUo()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:88`: Falta @return.
-- `Modules\Usuarios\Traits\TieneUO::tieneAccesoGestionA()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:104`: Falta @return.
-- `Modules\Usuarios\Traits\TieneUO::tieneAccesoConsultaA()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:152`: Falta @return.
-- `App\Console\Commands\NormalizarDirecciones::handle()` en `vida/app/Console/Commands/NormalizarDirecciones.php:47`: Falta @param $geocodificador.
-- `App\Console\Commands\NormalizarDirecciones::handle()` en `vida/app/Console/Commands/NormalizarDirecciones.php:47`: Falta @return.
-- `App\Enums\AccionAuditEnum::etiqueta()` en `vida/app/Enums/AccionAuditEnum.php:21`: Falta @return.
-- `App\Enums\AccionAuditEnum::color()` en `vida/app/Enums/AccionAuditEnum.php:35`: Falta @return.
-- `App\Enums\OrigenDireccion::label()` en `vida/app/Enums/OrigenDireccion.php:20`: Falta @return.
-- `App\Filament\Resources\AuditResource::canAccess()` en `vida/app/Filament/Resources/AuditResource.php:167`: Falta @return.
-- `App\Filament\Resources\AuditResource::canCreate()` en `vida/app/Filament/Resources/AuditResource.php:175`: Falta @return.
-- `App\Filament\Resources\AuditResource::canEdit()` en `vida/app/Filament/Resources/AuditResource.php:181`: Falta @return.
-- `App\Filament\Resources\AuditResource::canDelete()` en `vida/app/Filament/Resources/AuditResource.php:187`: Falta @return.
-- `App\Filament\Resources\CentroResource::canViewAny()` en `vida/app/Filament/Resources/CentroResource.php:235`: Falta @return.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource::getEloquentQuery()` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource.php:101`: Falta @return.
-- `App\Filament\Resources\DocumentoResource::infolist()` en `vida/app/Filament/Resources/DocumentoResource.php:50`: Falta @param $schema.
-- `App\Filament\Resources\DocumentoResource::infolist()` en `vida/app/Filament/Resources/DocumentoResource.php:50`: Falta @return.
-- `App\Filament\Resources\DocumentoResource::canViewAny()` en `vida/app/Filament/Resources/DocumentoResource.php:115`: Falta @return.
-- `App\Filament\Resources\EstiloInformeResource::canViewAny()` en `vida/app/Filament/Resources/EstiloInformeResource.php:157`: Falta @return.
-- `App\Filament\Resources\EstiloInformeResource::canEdit()` en `vida/app/Filament/Resources/EstiloInformeResource.php:163`: Falta @param $record.
-- `App\Filament\Resources\EstiloInformeResource::canEdit()` en `vida/app/Filament/Resources/EstiloInformeResource.php:163`: Falta @return.
-- `App\Filament\Resources\InformeResource::infolist()` en `vida/app/Filament/Resources/InformeResource.php:53`: Falta @param $schema.
-- `App\Filament\Resources\InformeResource::infolist()` en `vida/app/Filament/Resources/InformeResource.php:53`: Falta @return.
-- `App\Filament\Resources\InformeResource::canViewAny()` en `vida/app/Filament/Resources/InformeResource.php:147`: Falta @return.
-- `App\Filament\Resources\LogAlertasResource::canViewAny()` en `vida/app/Filament/Resources/LogAlertasResource.php:127`: Falta @return.
-- `App\Filament\Resources\PlantillaInformeResource::canViewAny()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:265`: Falta @return.
-- `App\Filament\Resources\ProfesionalResource::canViewAny()` en `vida/app/Filament/Resources/ProfesionalResource.php:230`: Falta @return.
-- `App\Filament\Resources\ProfesionalResource::canDelete()` en `vida/app/Filament/Resources/ProfesionalResource.php:246`: Falta @param $record.
-- `App\Filament\Resources\ProfesionalResource::canDelete()` en `vida/app/Filament/Resources/ProfesionalResource.php:246`: Falta @return.
-- `App\Filament\Resources\RedResource::canViewAny()` en `vida/app/Filament/Resources/RedResource.php:82`: Falta @return.
-- `App\Filament\Resources\TipoFichaResource::convertirSchemaBlocks()` en `vida/app/Filament/Resources/TipoFichaResource.php:292`: Falta @param $state.
-- `App\Filament\Resources\TipoFichaResource::convertirSchemaBlocks()` en `vida/app/Filament/Resources/TipoFichaResource.php:292`: Falta @return.
-- `App\Filament\Resources\UsuarioResource::canDelete()` en `vida/app/Filament/Resources/UsuarioResource.php:228`: Falta @param $record.
-- `App\Filament\Resources\UsuarioResource::canDelete()` en `vida/app/Filament/Resources/UsuarioResource.php:228`: Falta @return.
-- `App\Filament\Resources\UsuarioRolResource::canEdit()` en `vida/app/Filament/Resources/UsuarioRolResource.php:161`: Falta @param $record.
-- `App\Filament\Resources\UsuarioRolResource::canEdit()` en `vida/app/Filament/Resources/UsuarioRolResource.php:161`: Falta @return.
-- `App\Http\Controllers\Auth\LoginController::mostrar()` en `vida/app/Http/Controllers/Auth/LoginController.php:19`: Falta @return.
-- `App\Http\Controllers\Auth\LoginController::autenticar()` en `vida/app/Http/Controllers/Auth/LoginController.php:29`: Falta @param $request.
-- `App\Http\Controllers\Auth\LoginController::autenticar()` en `vida/app/Http/Controllers/Auth/LoginController.php:29`: Falta @return.
-- `App\Http\Controllers\Auth\LoginController::cerrarSesion()` en `vida/app/Http/Controllers/Auth/LoginController.php:86`: Falta @param $request.
-- `App\Http\Controllers\Auth\LoginController::cerrarSesion()` en `vida/app/Http/Controllers/Auth/LoginController.php:86`: Falta @return.
-- `App\Http\Controllers\Auth\OnboardingController::mostrar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:18`: Falta @return.
-- `App\Http\Controllers\Auth\OnboardingController::completar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:31`: Falta @param $request.
-- `App\Http\Controllers\Auth\OnboardingController::completar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:31`: Falta @return.
-- `App\Http\Middleware\EnsureTieneRol::handle()` en `vida/app/Http/Middleware/EnsureTieneRol.php:23`: Falta @param $request.
-- `App\Http\Middleware\EnsureTieneRol::handle()` en `vida/app/Http/Middleware/EnsureTieneRol.php:23`: Falta @return.
-- `App\Jobs\NormalizarDireccionJob::handle()` en `vida/app/Jobs/NormalizarDireccionJob.php:72`: Falta @param $geocodificador.
-- `App\Jobs\NormalizarDireccionJob::handle()` en `vida/app/Jobs/NormalizarDireccionJob.php:72`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::mount()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:63`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::abrirFormularioCreacion()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:131`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::abrirFormularioEdicion()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:142`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::guardar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:157`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::desactivar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:181`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::reactivar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:194`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::cancelar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:205`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::render()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:218`: Falta @return.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::mount()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:48`: Falta @param $centroId.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::mount()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:48`: Falta @return.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::togglePrestacion()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:119`: Falta @param $prestacionId.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::togglePrestacion()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:119`: Falta @return.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::deseleccionar()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:133`: Falta @param $prestacionId.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::deseleccionar()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:133`: Falta @return.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::setSegmento()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:143`: Falta @param $segmento.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::setSegmento()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:143`: Falta @return.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::verDetalle()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:151`: Falta @param $prestacionId.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::verDetalle()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:151`: Falta @return.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::cerrarDetalle()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:159`: Falta @return.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::guardar()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:168`: Falta @return.
-- `App\Models\Api\PerfilAnonimizacion::delete()` en `vida/app/Models/Api/PerfilAnonimizacion.php:90`: Falta @return.
-- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @param $attributes.
-- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @param $options.
-- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @return.
-- `App\Models\Audit::delete()` en `vida/app/Models/Audit.php:82`: Falta @return.
-- `App\Models\CatalogoSistema::opcionesParaSelect()` en `vida/app/Models/CatalogoSistema.php:58`: Falta @param $grupo.
-- `App\Models\CatalogoSistema::valor()` en `vida/app/Models/CatalogoSistema.php:70`: Falta @return.
-- `App\Models\CatalogoSistema::opcionesParaSelectConPrefijo()` en `vida/app/Models/CatalogoSistema.php:84`: Falta @param $grupo.
-- `App\Models\CatalogoSistema::opcionesParaSelectConPrefijo()` en `vida/app/Models/CatalogoSistema.php:84`: Falta @param $prefijo.
-- `App\Models\Ciudadano::getNombreCompletoAttribute()` en `vida/app/Models/Ciudadano.php:155`: Falta @return.
-- `App\Models\Ciudadano::getCiudadanoId()` en `vida/app/Models/Ciudadano.php:171`: Falta @return.
-- `App\Models\Ciudadano::tieneResidenciaVerificada()` en `vida/app/Models/Ciudadano.php:223`: Falta @return.
-- `App\Models\HistoriaSocial::getCiudadanoId()` en `vida/app/Models/HistoriaSocial.php:91`: Falta @return.
-- `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @param $model.
-- `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @return.
-- `App\Models\UnidadOrganizativa::isDescendantOf()` en `vida/app/Models/UnidadOrganizativa.php:124`: Falta @return.
-- `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @param $panel.
-- `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @return.
-- `App\Models\Version::versionable()` en `vida/app/Models/Version.php:61`: Falta @return.
-- `App\Observers\AuditObserver::created()` en `vida/app/Observers/AuditObserver.php:33`: Falta @return.
-- `App\Observers\AuditObserver::updated()` en `vida/app/Observers/AuditObserver.php:52`: Falta @return.
-- `App\Observers\AuditObserver::deleted()` en `vida/app/Observers/AuditObserver.php:81`: Falta @return.
-- `App\Observers\DireccionObserver::__construct()` en `vida/app/Observers/DireccionObserver.php:29`: Falta @param $geocodificador.
-- `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @param $model.
-- `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @return.
-- `App\Observers\DireccionObserver::created()` en `vida/app/Observers/DireccionObserver.php:50`: Falta @param $model.
-- `App\Observers\DireccionObserver::created()` en `vida/app/Observers/DireccionObserver.php:50`: Falta @return.
-- `App\Observers\DireccionObserver::updating()` en `vida/app/Observers/DireccionObserver.php:60`: Falta @param $model.
-- `App\Observers\DireccionObserver::updating()` en `vida/app/Observers/DireccionObserver.php:60`: Falta @return.
-- `App\Observers\DireccionObserver::updated()` en `vida/app/Observers/DireccionObserver.php:71`: Falta @param $model.
-- `App\Observers\DireccionObserver::updated()` en `vida/app/Observers/DireccionObserver.php:71`: Falta @return.
-- `App\Policies\CiudadanoPolicy::viewAny()` en `vida/app/Policies/CiudadanoPolicy.php:48`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::viewAny()` en `vida/app/Policies/CiudadanoPolicy.php:48`: Falta @return.
-- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @param $ciudadano.
-- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @return.
-- `App\Policies\CiudadanoPolicy::create()` en `vida/app/Policies/CiudadanoPolicy.php:83`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::create()` en `vida/app/Policies/CiudadanoPolicy.php:83`: Falta @return.
-- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @param $ciudadano.
-- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @return.
-- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @param $ciudadano.
-- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @return.
-- `App\Providers\AppServiceProvider::register()` en `vida/app/Providers/AppServiceProvider.php:19`: Falta @return.
-- `App\Providers\AppServiceProvider::boot()` en `vida/app/Providers/AppServiceProvider.php:27`: Falta @return.
-- `App\Providers\GeocodificacionServiceProvider::register()` en `vida/app/Providers/GeocodificacionServiceProvider.php:27`: Falta @return.
-- `App\Providers\GeocodificacionServiceProvider::boot()` en `vida/app/Providers/GeocodificacionServiceProvider.php:35`: Falta @return.
-- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @param $user.
-- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @param $historia.
-- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @return.
-- `App\Services\Api\RevelacionIdentidadService::revelarPorAlias()` en `vida/app/Services/Api/RevelacionIdentidadService.php:36`: Falta @return.
-- `App\Services\AuditService::registrarAcceso()` en `vida/app/Services/AuditService.php:44`: Falta @return.
-- `App\Services\CiudadanoService::crear()` en `vida/app/Services/CiudadanoService.php:41`: Falta @return.
-- `App\Services\CiudadanoService::actualizar()` en `vida/app/Services/CiudadanoService.php:62`: Falta @return.
-- `App\Services\CiudadanoService::eliminar()` en `vida/app/Services/CiudadanoService.php:84`: Falta @return.
-- `App\Services\Geocodificacion\GeocodificadorService::normalizar()` en `vida/app/Services/Geocodificacion/GeocodificadorService.php:39`: Falta @return.
-- `App\Services\Geocodificacion\ResultadoGeocodificacion::fallo()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:58`: Falta @return.
-- `App\Services\HistoriaSocialService::obtenerEntradas()` en `vida/app/Services/HistoriaSocialService.php:35`: Falta @param $ciudadano.
-- `App\Services\HistoriaSocialService::obtenerEntradas()` en `vida/app/Services/HistoriaSocialService.php:35`: Falta @param $profesional.
-- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $usuario.
-- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $ciudadano.
-- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @return.
-- `App\Traits\Auditable::bootAuditable()` en `vida/app/Traits/Auditable.php:27`: Falta @return.
-- `App\Traits\Auditable::getCiudadanoId()` en `vida/app/Traits/Auditable.php:62`: Falta @return.
-- `App\Traits\TieneDireccion::initializeTieneDireccion()` en `vida/app/Traits/TieneDireccion.php:44`: Falta @return.
-- `App\Traits\TieneDireccion::direccionFormateada()` en `vida/app/Traits/TieneDireccion.php:65`: Falta @return.
+- `Modules\Intervencion\Enums\TipoEntrevista` en `vida/Modules/Intervencion/app/Enums/TipoEntrevista.php:5`: Falta docblock de cabecera.
+- `Modules\Intervencion\Enums\TipoPlan` en `vida/Modules/Intervencion/app/Enums/TipoPlan.php:5`: Falta docblock de cabecera.
+- `Modules\Intervencion\Enums\UrgenciaSia` en `vida/Modules/Intervencion/app/Enums/UrgenciaSia.php:5`: Falta docblock de cabecera.
+- `Modules\Intervencion\Enums\VisibilidadApunte` en `vida/Modules/Intervencion/app/Enums/VisibilidadApunte.php:5`: Falta docblock de cabecera.
+- `App\Filament\Resources\AuditResource\Pages\ListAudits` en `vida/app/Filament/Resources/AuditResource/Pages/ListAudits.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\AuditResource\Pages\ViewAudit` en `vida/app/Filament/Resources/AuditResource/Pages/ViewAudit.php:14`: Falta docblock de cabecera.
+- `App\Filament\Resources\CargoResource\Pages\CreateCargo` en `vida/app/Filament/Resources/CargoResource/Pages/CreateCargo.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\CargoResource\Pages\EditCargo` en `vida/app/Filament/Resources/CargoResource/Pages/EditCargo.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\CargoResource\Pages\ListCargos` en `vida/app/Filament/Resources/CargoResource/Pages/ListCargos.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\CentroResource` en `vida/app/Filament/Resources/CentroResource.php:27`: Falta docblock de cabecera.
+- `App\Filament\Resources\CentroResource\Pages\CreateCentro` en `vida/app/Filament/Resources/CentroResource/Pages/CreateCentro.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\CentroResource\Pages\ListCentros` en `vida/app/Filament/Resources/CentroResource/Pages/ListCentros.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager` en `vida/app/Filament/Resources/CentroResource/RelationManagers/AmbitosTerritorialesRelationManager.php:18`: Falta docblock de cabecera.
+- `App\Filament\Resources\CentroResource\RelationManagers\ColeccionesPlazasRelationManager` en `vida/app/Filament/Resources/CentroResource/RelationManagers/ColeccionesPlazasRelationManager.php:18`: Falta docblock de cabecera.
+- `App\Filament\Resources\ColectivoProtegidoResource\Pages\CreateColectivoProtegido` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/CreateColectivoProtegido.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ColectivoProtegidoResource\Pages\EditColectivoProtegido` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/EditColectivoProtegido.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ColectivoProtegidoResource\Pages\ListColectivosProtegidos` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/ListColectivosProtegidos.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages\EditConfiguracionHorarioLaboral` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource/Pages/EditConfiguracionHorarioLaboral.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages\ListConfiguracionHorarioLaboral` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource/Pages/ListConfiguracionHorarioLaboral.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\CreateConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/CreateConfiguracion.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\EditConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/EditConfiguracion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\ListConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/ListConfiguracion.php:12`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionRolResource\Pages\CreateConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/CreateConfiguracionRol.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionRolResource\Pages\EditConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/EditConfiguracionRol.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ConfiguracionRolResource\Pages\ListConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/ListConfiguracionRol.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\CuadranteMesResource` en `vida/app/Filament/Resources/CuadranteMesResource.php:23`: Falta docblock de cabecera.
+- `App\Filament\Resources\CuadranteMesResource\Pages\CreateCuadranteMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/CreateCuadranteMes.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\CuadranteMesResource\Pages\EditCuadranteMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/EditCuadranteMes.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\CuadranteMesResource\Pages\ListCuadrantesMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/ListCuadrantesMes.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\CuadranteMesResource\RelationManagers\LineasCuadranteRelationManager` en `vida/app/Filament/Resources/CuadranteMesResource/RelationManagers/LineasCuadranteRelationManager.php:11`: Falta docblock de cabecera.
+- `App\Filament\Resources\DistritoResource\Pages\CreateDistrito` en `vida/app/Filament/Resources/DistritoResource/Pages/CreateDistrito.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\DistritoResource\Pages\EditDistrito` en `vida/app/Filament/Resources/DistritoResource/Pages/EditDistrito.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\DistritoResource\Pages\ListDistritos` en `vida/app/Filament/Resources/DistritoResource/Pages/ListDistritos.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\DocumentoResource\Pages\ListDocumentos` en `vida/app/Filament/Resources/DocumentoResource/Pages/ListDocumentos.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\DocumentoResource\Pages\ViewDocumento` en `vida/app/Filament/Resources/DocumentoResource/Pages/ViewDocumento.php:11`: Falta docblock de cabecera.
+- `App\Filament\Resources\EstiloInformeResource\Pages\CreateEstiloInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/CreateEstiloInforme.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\EstiloInformeResource\Pages\EditEstiloInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/EditEstiloInforme.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\EstiloInformeResource\Pages\ListEstilosInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/ListEstilosInforme.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ExcepcionProfesionalResource` en `vida/app/Filament/Resources/ExcepcionProfesionalResource.php:25`: Falta docblock de cabecera.
+- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\CreateExcepcionProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/CreateExcepcionProfesional.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\EditExcepcionProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/EditExcepcionProfesional.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\ListExcepcionesProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/ListExcepcionesProfesional.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\HorarioCentroResource` en `vida/app/Filament/Resources/HorarioCentroResource.php:26`: Falta docblock de cabecera.
+- `App\Filament\Resources\HorarioCentroResource\Pages\CreateHorarioCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/CreateHorarioCentro.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\HorarioCentroResource\Pages\EditHorarioCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/EditHorarioCentro.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\HorarioCentroResource\Pages\ListHorariosCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/ListHorariosCentro.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\HorarioCentroResource\RelationManagers\TiposSlotsRelationManager` en `vida/app/Filament/Resources/HorarioCentroResource/RelationManagers/TiposSlotsRelationManager.php:19`: Falta docblock de cabecera.
+- `App\Filament\Resources\InformeResource\Pages\ListInformes` en `vida/app/Filament/Resources/InformeResource/Pages/ListInformes.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\InformeResource\Pages\ViewInforme` en `vida/app/Filament/Resources/InformeResource/Pages/ViewInforme.php:13`: Falta docblock de cabecera.
+- `App\Filament\Resources\LogAlertasResource\Pages\ListLogAlertas` en `vida/app/Filament/Resources/LogAlertasResource/Pages/ListLogAlertas.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\PerfilHorarioProfesionalResource` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:23`: Falta docblock de cabecera.
+- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\CreatePerfilHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/CreatePerfilHorarioProfesional.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\EditPerfilHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/EditPerfilHorarioProfesional.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\ListPerfilesHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/ListPerfilesHorarioProfesional.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\PlantillaInformeResource\Pages\CreatePlantillaInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/CreatePlantillaInforme.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\PlantillaInformeResource\Pages\EditPlantillaInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/EditPlantillaInforme.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\PlantillaInformeResource\Pages\ListPlantillasInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/ListPlantillasInforme.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\PrestacionResource` en `vida/app/Filament/Resources/PrestacionResource.php:24`: Falta docblock de cabecera.
+- `App\Filament\Resources\PrestacionResource\Pages\CreatePrestacion` en `vida/app/Filament/Resources/PrestacionResource/Pages/CreatePrestacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\PrestacionResource\Pages\EditPrestacion` en `vida/app/Filament/Resources/PrestacionResource/Pages/EditPrestacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\PrestacionResource\Pages\ListPrestaciones` en `vida/app/Filament/Resources/PrestacionResource/Pages/ListPrestaciones.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ProfesionalResource\Pages\CreateProfesional` en `vida/app/Filament/Resources/ProfesionalResource/Pages/CreateProfesional.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ProfesionalResource\Pages\EditProfesional` en `vida/app/Filament/Resources/ProfesionalResource/Pages/EditProfesional.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ProfesionalResource\Pages\ListProfesionales` en `vida/app/Filament/Resources/ProfesionalResource/Pages/ListProfesionales.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\RedResource` en `vida/app/Filament/Resources/RedResource.php:21`: Falta docblock de cabecera.
+- `App\Filament\Resources\RedResource\Pages\CreateRed` en `vida/app/Filament/Resources/RedResource/Pages/CreateRed.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\RedResource\Pages\EditRed` en `vida/app/Filament/Resources/RedResource/Pages/EditRed.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\RedResource\Pages\ListRedes` en `vida/app/Filament/Resources/RedResource/Pages/ListRedes.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\RolResource\Pages\CreateRol` en `vida/app/Filament/Resources/RolResource/Pages/CreateRol.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\RolResource\Pages\EditRol` en `vida/app/Filament/Resources/RolResource/Pages/EditRol.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\RolResource\Pages\ListRoles` en `vida/app/Filament/Resources/RolResource/Pages/ListRoles.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\SegmentoPoblacionResource` en `vida/app/Filament/Resources/SegmentoPoblacionResource.php:19`: Falta docblock de cabecera.
+- `App\Filament\Resources\SegmentoPoblacionResource\Pages\CreateSegmentoPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/CreateSegmentoPoblacion.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\SegmentoPoblacionResource\Pages\EditSegmentoPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/EditSegmentoPoblacion.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\SegmentoPoblacionResource\Pages\ListSegmentosPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/ListSegmentosPoblacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ServicioEmergenciaResource\Pages\CreateServicioEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/CreateServicioEmergencia.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ServicioEmergenciaResource\Pages\EditServicioEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/EditServicioEmergencia.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ServicioEmergenciaResource\Pages\ListServiciosEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/ListServiciosEmergencia.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoActividadResource` en `vida/app/Filament/Resources/TipoActividadResource.php:19`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoActividadResource\Pages\CreateTipoActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/CreateTipoActividad.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoActividadResource\Pages\EditTipoActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/EditTipoActividad.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoActividadResource\Pages\ListTiposActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/ListTiposActividad.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEscalaResource` en `vida/app/Filament/Resources/TipoEscalaResource.php:29`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEscalaResource\Pages\CreateTipoEscala` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/CreateTipoEscala.php:10`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEscalaResource\Pages\EditTipoEscala` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/EditTipoEscala.php:11`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEscalaResource\Pages\ListTipoEscalas` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/ListTipoEscalas.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEspacioResource` en `vida/app/Filament/Resources/TipoEspacioResource.php:19`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEspacioResource\Pages\CreateTipoEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/CreateTipoEspacio.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEspacioResource\Pages\EditTipoEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/EditTipoEspacio.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoEspacioResource\Pages\ListTiposEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/ListTiposEspacio.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoFichaResource\Pages\CreateTipoFicha` en `vida/app/Filament/Resources/TipoFichaResource/Pages/CreateTipoFicha.php:11`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoFichaResource\Pages\EditTipoFicha` en `vida/app/Filament/Resources/TipoFichaResource/Pages/EditTipoFicha.php:13`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoFichaResource\Pages\ListTipoFichas` en `vida/app/Filament/Resources/TipoFichaResource/Pages/ListTipoFichas.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\CreateTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/CreateTipoRelacion.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\EditTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/EditTipoRelacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\ListTiposRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/ListTiposRelacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoRelacionResource\Pages\CreateTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/CreateTipoRelacion.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoRelacionResource\Pages\EditTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/EditTipoRelacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoRelacionResource\Pages\ListTiposRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/ListTiposRelacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoSlotResource` en `vida/app/Filament/Resources/TipoSlotResource.php:22`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoSlotResource\Pages\CreateTipoSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/CreateTipoSlot.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoSlotResource\Pages\EditTipoSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/EditTipoSlot.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TipoSlotResource\Pages\ListTiposSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/ListTiposSlot.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TitulacionResource\Pages\CreateTitulacion` en `vida/app/Filament/Resources/TitulacionResource/Pages/CreateTitulacion.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\TitulacionResource\Pages\EditTitulacion` en `vida/app/Filament/Resources/TitulacionResource/Pages/EditTitulacion.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\TitulacionResource\Pages\ListTitulaciones` en `vida/app/Filament/Resources/TitulacionResource/Pages/ListTitulaciones.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\UnidadOrganizativaResource\Pages\CreateUnidadOrganizativa` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/CreateUnidadOrganizativa.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\UnidadOrganizativaResource\Pages\EditUnidadOrganizativa` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/EditUnidadOrganizativa.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\UnidadOrganizativaResource\Pages\ListUnidadesOrganizativas` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/ListUnidadesOrganizativas.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\UsuarioResource\Pages\CreateUsuario` en `vida/app/Filament/Resources/UsuarioResource/Pages/CreateUsuario.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\UsuarioResource\Pages\EditUsuario` en `vida/app/Filament/Resources/UsuarioResource/Pages/EditUsuario.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\UsuarioResource\Pages\ListUsuarios` en `vida/app/Filament/Resources/UsuarioResource/Pages/ListUsuarios.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\UsuarioRolResource\Pages\CreateUsuarioRol` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/CreateUsuarioRol.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\UsuarioRolResource\Pages\EditUsuarioRol` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/EditUsuarioRol.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\UsuarioRolResource\Pages\ListUsuarioRoles` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/ListUsuarioRoles.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ZonaResource\Pages\CreateZona` en `vida/app/Filament/Resources/ZonaResource/Pages/CreateZona.php:8`: Falta docblock de cabecera.
+- `App\Filament\Resources\ZonaResource\Pages\EditZona` en `vida/app/Filament/Resources/ZonaResource/Pages/EditZona.php:9`: Falta docblock de cabecera.
+- `App\Filament\Resources\ZonaResource\Pages\ListZonas` en `vida/app/Filament/Resources/ZonaResource/Pages/ListZonas.php:9`: Falta docblock de cabecera.
+- `App\Http\Controllers\Controller` en `vida/app/Http/Controllers/Controller.php:5`: Falta docblock de cabecera.
+- `App\Providers\Filament\AdminPanelProvider` en `vida/app/Providers/Filament/AdminPanelProvider.php:22`: Falta docblock de cabecera.
 
 ## Referencia
 
 ### `Modules\Agenda\Enums\EstadoCita`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Agenda/app/Enums/EstadoCita.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Agenda/app/Enums/EstadoCita.php:8`.
+- Resumen: Estados posibles del ciclo de vida de una cita de agenda.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el estado de la cita en la interfaz.
 
 ### `Modules\Agenda\Enums\EstadoCuadrante`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Agenda/app/Enums/EstadoCuadrante.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Agenda/app/Enums/EstadoCuadrante.php:8`.
+- Resumen: Estados editoriales de un cuadrante mensual de agenda.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el estado del cuadrante.
 
 ### `Modules\Agenda\Enums\EstadoSlot`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Agenda/app/Enums/EstadoSlot.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Agenda/app/Enums/EstadoSlot.php:8`.
+- Resumen: Estados disponibles para un slot de disponibilidad en agenda.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el estado del slot.
 
 ### `Modules\Agenda\Enums\ModoAgenda`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Agenda/app/Enums/ModoAgenda.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Agenda/app/Enums/ModoAgenda.php:8`.
+- Resumen: Modos de configuracion de la agenda por nivel de detalle.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el modo de agenda.
 
 ### `Modules\Agenda\Enums\MotivoReasignacion`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Agenda/app/Enums/MotivoReasignacion.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Agenda/app/Enums/MotivoReasignacion.php:8`.
+- Resumen: Motivos normalizados para registrar la reasignacion de una cita.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el motivo de reasignacion.
 
 ### `Modules\Agenda\Enums\OrigenCita`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Agenda/app/Enums/OrigenCita.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Agenda/app/Enums/OrigenCita.php:8`.
+- Resumen: Origenes desde los que puede crearse una cita.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el origen de la cita.
 
 ### `Modules\Agenda\Enums\OrigenExcepcion`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Agenda/app/Enums/OrigenExcepcion.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Agenda/app/Enums/OrigenExcepcion.php:8`.
+- Resumen: Origenes desde los que puede registrarse una excepcion profesional.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el origen de la excepcion.
 
 ### `Modules\Agenda\Enums\OrigenPermitidoSlot`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Agenda/app/Enums/OrigenPermitidoSlot.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Agenda/app/Enums/OrigenPermitidoSlot.php:8`.
+- Resumen: Origenes habilitados para reservar un tipo de slot.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar los origenes permitidos del slot.
 
 ### `Modules\Agenda\Enums\TipoExcepcion`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Agenda/app/Enums/TipoExcepcion.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Agenda/app/Enums/TipoExcepcion.php:8`.
+- Resumen: Tipos de excepcion que afectan a la disponibilidad profesional.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el tipo de excepcion.
 
 ### `Modules\Agenda\Jobs\SlotExpirationJob`
 
@@ -1821,7 +1764,7 @@ Metodos publicos:
 ### `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage`
 
 - Tipo: class.
-- Fichero: `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:50`.
+- Fichero: `vida/Modules/Ciudadania/app/Http/Livewire/FichaCiudadanoPage.php:58`.
 - Resumen: Ficha del ciudadano: vista y edición de Capa 1 (datos identificativos y de contacto).
 
 Distinta de intervencion/ciudadano/{historia}: pivota sobre Ciudadano, no sobre HistoriaSocial. Accesible aunque el ciudadano no tenga historia social.  Se accede sin AmbitoUoScope porque un ciudadano puede no tener historia social en ninguna UO y aun así tener ficha (e.g., recién creado vía alta ciudadano).  Propiedades computadas expuestas como propiedades mágicas por Livewire 4 #[Computed]:
@@ -1846,9 +1789,15 @@ Metodos publicos:
 - `function documentos(): Collection`
   Historial completo de documentos de identidad, descendente por fecha de inicio.
   `@return` Collection<int, CiudadanoIdentificador>
-- `function ucVigente(): ?object`
-  Unidad de convivencia vigente. Stub — pendiente implementar módulo UnidadConvivencia.
-  `@return` object|null
+- `function ucVigente(): ?UnidadConvivencia`
+  UC vigente del ciudadano (primera con fecha_fin nula o futura). Sin AmbitoUoScope porque la UC no tiene ámbito UO propio.
+  `@return` UnidadConvivencia|null
+- `function ucMiembros(): Collection`
+  Miembros activos de la UC vigente, enriquecidos con el tipo de relación si existe.
+  `@return` Collection<int, UnidadConvivenciaMiembro>
+- `function puedeEditarRelaciones(): bool`
+  Solo los roles con competencia de tramitación o intervención pueden crear o editar relaciones.
+  `@return` bool
 - `function prestaciones(): Collection`
   Últimas 4 prestaciones ordenadas por estado (activas primero) y fecha. Se leen desde la tabla de agregación — nunca de los módulos origen directamente.
   `@return` Collection<int, CiudadanoPrestacionResumen>
@@ -1885,18 +1834,28 @@ Metodos publicos:
   Valida, normaliza y persiste los campos de Capa 1. Solo si puedeEditar. DireccionObserver procesará geocodificación si cambia direccion_texto.
   `@return` void
   `@throws` ValidationException
+- `function abrirModalNuevaRelacion(): void`
+  Abre el modal para crear una nueva relación.
+  `@return` void
+- `function abrirModalEditarRelacion(int $relacionId): void`
+  Abre el modal con los datos de una relación existente para edición.
+  `@return` void
+- `function cerrarModalRelacion(): void`
+  Cierra el modal y limpia el estado del formulario de relación.
+  `@return` void
 - `function toggleHistorialRelaciones(): void`
-  _Sin resumen PHPDoc._
+  Alterna la visibilidad del historial de relaciones cerradas.
+  `@return` void
 - `function seleccionarCiudadanoRelacion(int $ciudadanoId): void`
-  _Sin resumen PHPDoc._
-- `function cancelarNuevaRelacion(): void`
-  _Sin resumen PHPDoc._
+  Registra el ciudadano seleccionado en el buscador del modal de relación.
+  `@return` void
 - `function guardarRelacion(): void`
-  _Sin resumen PHPDoc._
+  Crea o actualiza una relación entre ciudadanos. Si $relacionId es null, crea; si es int, actualiza solo las observaciones. Requiere permiso de tramitación o intervención; aborta con 403 si no.
   `@return` void
   `@throws` ValidationException
 - `function cerrarRelacion(int $relacionId): void`
-  _Sin resumen PHPDoc._
+  Cierra una relación vigente estableciendo fecha_fin = hoy. El modelo propaga el cierre al registro recíproco automáticamente. Requiere permiso de tramitación o intervención; aborta con 403 si no.
+  `@return` void
 - `function abrirModalDocumento(): void`
   Abre el modal de añadir documento. Solo si puedeEditar.
   `@return` void
@@ -2141,57 +2100,57 @@ Metodos publicos:
 ### `Modules\Documentos\Enums\EstadoInforme`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Documentos/app/Enums/EstadoInforme.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Documentos/app/Enums/EstadoInforme.php:8`.
+- Resumen: Estados del ciclo de vida de un informe documental.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el estado del informe.
 
 ### `Modules\Documentos\Enums\MetodoConformidadCiudadano`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Documentos/app/Enums/MetodoConformidadCiudadano.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Documentos/app/Enums/MetodoConformidadCiudadano.php:8`.
+- Resumen: Metodos aceptados para registrar la conformidad del ciudadano.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el metodo de conformidad.
 
 ### `Modules\Documentos\Enums\MetodoFirma`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Documentos/app/Enums/MetodoFirma.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Documentos/app/Enums/MetodoFirma.php:8`.
+- Resumen: Metodos de firma admitidos para documentos generados.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el metodo de firma.
 
 ### `Modules\Documentos\Enums\OrigenDocumento`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Documentos/app/Enums/OrigenDocumento.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Documentos/app/Enums/OrigenDocumento.php:8`.
+- Resumen: Origenes posibles de un documento asociado al expediente.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el origen del documento.
 
 ### `Modules\Documentos\Enums\TipoInforme`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Documentos/app/Enums/TipoInforme.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Documentos/app/Enums/TipoInforme.php:8`.
+- Resumen: Tipos funcionales de informe que puede gestionar el modulo de documentos.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el tipo de informe.
 
 ### `Modules\Documentos\Models\Documento`
 
@@ -2530,57 +2489,57 @@ Metodos publicos:
 ### `Modules\Intervencion\Enums\ClasificacionSia`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Intervencion/app/Enums/ClasificacionSia.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Intervencion/app/Enums/ClasificacionSia.php:8`.
+- Resumen: Clasificaciones SIA utilizadas para categorizar demandas de intervencion.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar la clasificacion SIA.
 
 ### `Modules\Intervencion\Enums\EstadoPlan`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Intervencion/app/Enums/EstadoPlan.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Intervencion/app/Enums/EstadoPlan.php:8`.
+- Resumen: Estados del ciclo de vida de un plan de intervencion.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el estado del plan.
 
 ### `Modules\Intervencion\Enums\EstadoValoracion`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Intervencion/app/Enums/EstadoValoracion.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Intervencion/app/Enums/EstadoValoracion.php:8`.
+- Resumen: Estados de una valoracion profesional dentro de la historia social.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el estado de la valoracion.
 
 ### `Modules\Intervencion\Enums\MotivoCierre`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Intervencion/app/Enums/MotivoCierre.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Intervencion/app/Enums/MotivoCierre.php:8`.
+- Resumen: Motivos normalizados para cerrar un plan o proceso de intervencion.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el motivo de cierre.
 
 ### `Modules\Intervencion\Enums\TipoApunte`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Intervencion/app/Enums/TipoApunte.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Intervencion/app/Enums/TipoApunte.php:8`.
+- Resumen: Tipos de apunte registrados en la historia social.
 
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Etiqueta legible para mostrar el tipo de apunte.
 
 ### `Modules\Intervencion\Enums\TipoEntrevista`
 
@@ -3731,8 +3690,10 @@ Metodos publicos:
 
 - `function registerMediaCollections(): void`
   Registra la colección de adjuntos del mensaje en disco local.
+  `@return` void
 - `function registerMediaConversions(?Media $media = null): void`
   Sin conversiones de imagen para documentos adjuntos.
+  `@return` void
 - `function hilo(): BelongsTo`
   Hilo de conversación al que pertenece el mensaje.
   `@return` BelongsTo<MensajeHilo, self>
@@ -3768,6 +3729,7 @@ Metodos publicos:
   `@return` HasOne<Mensaje>
 - `function tieneParticipante(int $usuarioId): bool`
   Comprueba si un usuario es participante activo del hilo.
+  `@return` bool
 
 ### `Modules\Mensajes\Models\MensajeParticipante`
 
@@ -3785,6 +3747,7 @@ Metodos publicos:
   `@return` BelongsTo<User, self>
 - `function mensajesNoLeidos(): int`
   Número de mensajes del hilo que el participante aún no ha leído.
+  `@return` int
 
 ### `Modules\Mensajes\Models\MensajeReferenciaCiudadano`
 
@@ -3850,10 +3813,13 @@ Metodos publicos:
   _Sin resumen PHPDoc._
 - `function crear(array $datos): Alerta`
   Crea una alerta y calcula su expiración si es de tipo 'alerta'.
+  `@return` Alerta
 - `function reconocer(Alerta $alerta, User $usuario, string $ipAddress): AlertaReconocimiento`
   Marca una alerta como reconocida por un usuario.
+  `@return` AlertaReconocimiento
 - `function escalar(Alerta $alerta): void`
   Ejecuta la escalada de una alerta vencida al supervisor de la UO.
+  `@return` void
 - `function resolverDestinatarios(Alerta $alerta): Collection`
   Resuelve qué usuarios son destinatarios reales de una alerta rol_uo.
   `@return` Collection<int, User>
@@ -3872,6 +3838,7 @@ Metodos publicos:
   _Sin resumen PHPDoc._
 - `function calcularExpiracion(Carbon $desde): Carbon`
   Calcula el timestamp de vencimiento sumando HORAS_PLAZO horas laborales efectivas a $desde.
+  `@return` Carbon
 
 ### `Modules\Mensajes\Services\MensajeriaService`
 
@@ -3883,12 +3850,16 @@ Metodos publicos:
 
 - `function crearHilo( User $remitente, User $destinatario, string $asunto, string $cuerpo, array $ciudadanoIds = [], array $adjuntos = [] ): MensajeHilo`
   Crea un hilo nuevo y envía el primer mensaje.
+  `@return` MensajeHilo
 - `function responder( MensajeHilo $hilo, User $remitente, string $cuerpo, array $adjuntos = [] ): Mensaje`
   Añade un mensaje de respuesta a un hilo existente.
+  `@return` Mensaje
 - `function registrarEnHistoria( Mensaje $mensaje, Ciudadano $ciudadano, User $tsr, string $cuerpoEditado, string $visibilidad = 'profesionales' ): MensajeRegistroHistoria`
   Registra un mensaje en la Historia Social de un ciudadano.
+  `@return` MensajeRegistroHistoria
 - `function marcarComoLeido(MensajeHilo $hilo, User $usuario): void`
   Marca todos los mensajes del hilo como leídos para un usuario.
+  `@return` void
 
 ### `Modules\Organizacion\Models\ColectivoProtegido`
 

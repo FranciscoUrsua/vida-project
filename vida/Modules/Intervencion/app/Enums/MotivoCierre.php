@@ -2,6 +2,9 @@
 
 namespace Modules\Intervencion\Enums;
 
+/**
+ * Motivos normalizados para cerrar un plan o proceso de intervencion.
+ */
 enum MotivoCierre: string
 {
     case ObjetivosCumplidos = 'objetivos_cumplidos';
@@ -10,6 +13,9 @@ enum MotivoCierre: string
     case Fallecimiento = 'fallecimiento';
     case Otros = 'otros';
 
+    /**
+     * Etiqueta legible para mostrar el motivo de cierre.
+     */
     public function label(): string
     {
         return match ($this) {

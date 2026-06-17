@@ -2,12 +2,18 @@
 
 namespace Modules\Agenda\Enums;
 
+/**
+ * Modos de configuracion de la agenda por nivel de detalle.
+ */
 enum ModoAgenda: string
 {
     case Basico = 'basico';
     case Estandar = 'estandar';
     case Avanzado = 'avanzado';
 
+    /**
+     * Etiqueta legible para mostrar el modo de agenda.
+     */
     public function label(): string
     {
         return match ($this) {
