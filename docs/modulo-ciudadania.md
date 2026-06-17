@@ -427,7 +427,7 @@ En entornos de desarrollo y pruebas, los adaptadores mock devuelven datos fictic
     o un ecomapa que incluya nodos no personales como prestaciones, centros o 
     recursos comunitarios, y en ese caso qué entidades se representan y con qué 
     propósito.
-
+- **Panel de relaciones en la ficha — buscador de ciudadano:** el modal de creación de relación necesita un buscador de ciudadanos. Decidir si reutiliza el componente AltaCiudadano en modo búsqueda o se implementa un buscador más ligero ad-hoc. La segunda opción es preferible para no arrastrar la lógica de alta al contexto de una relación.
 ---
 
 *Documento elaborado en fase de diseño del proyecto. Versión inicial: marzo 2026.*
