@@ -41,6 +41,12 @@ class HorarioCentroResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    /**
+     * Define el formulario de horarios de centro.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -156,6 +162,12 @@ class HorarioCentroResource extends Resource
         ]);
     }
 
+    /**
+     * Configura el listado de horarios de centro.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -211,6 +223,11 @@ class HorarioCentroResource extends Resource
             ->defaultSort('nombre');
     }
 
+    /**
+     * Declara los relation managers del recurso.
+     *
+     * @return array
+     */
     public static function getRelationManagers(): array
     {
         return [
@@ -218,6 +235,11 @@ class HorarioCentroResource extends Resource
         ];
     }
 
+    /**
+     * Declara las páginas del recurso de horarios de centro.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [

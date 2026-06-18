@@ -49,7 +49,12 @@ class InformeResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
-    /** Los informes se crean desde el flujo operativo (Livewire), no desde el backoffice. */
+    /**
+     * Construye la vista de detalle de informes.
+     *
+     * @param Schema $schema Esquema base del infolist.
+     * @return Schema
+     */
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
@@ -143,12 +148,22 @@ class InformeResource extends Resource
         ]);
     }
 
-    /** supervision puede ver informes de su subtree (solo lectura); adm_* puede gestionar. */
+    /**
+     * Determina si el usuario puede ver el listado de informes.
+     *
+     * @return bool
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
     }
 
+    /**
+     * Configura el listado de informes.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -291,6 +306,11 @@ class InformeResource extends Resource
             ->defaultSort('created_at', 'desc');
     }
 
+    /**
+     * Declara las páginas del recurso de informes.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [

@@ -1,40 +1,20 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 10:00:51 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 11:17:21 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 371.
 - Cabeceras documentadas: 251/371.
-- Metodos publicos documentados: 833/995.
-- Alertas de comentarios: 416.
+- Metodos publicos documentados: 854/996.
+- Alertas de comentarios: 389.
 
 ## Alertas
 
-### Método público sin PHPDoc (116)
+### Método público sin PHPDoc (96)
 
 - `Modules\Documentos\Models\Informe::autor()` en `vida/Modules/Documentos/app/Models/Informe.php:99`: Falta docblock de método público.
-- `App\Filament\Resources\EstiloInformeResource::form()` en `vida/app/Filament/Resources/EstiloInformeResource.php:46`: Falta docblock de método público.
-- `App\Filament\Resources\EstiloInformeResource::table()` en `vida/app/Filament/Resources/EstiloInformeResource.php:103`: Falta docblock de método público.
-- `App\Filament\Resources\EstiloInformeResource::getPages()` en `vida/app/Filament/Resources/EstiloInformeResource.php:147`: Falta docblock de método público.
-- `App\Filament\Resources\EstiloInformeResource::canDelete()` en `vida/app/Filament/Resources/EstiloInformeResource.php:168`: Falta docblock de método público.
-- `App\Filament\Resources\ExcepcionProfesionalResource::form()` en `vida/app/Filament/Resources/ExcepcionProfesionalResource.php:45`: Falta docblock de método público.
-- `App\Filament\Resources\ExcepcionProfesionalResource::table()` en `vida/app/Filament/Resources/ExcepcionProfesionalResource.php:122`: Falta docblock de método público.
-- `App\Filament\Resources\ExcepcionProfesionalResource::getPages()` en `vida/app/Filament/Resources/ExcepcionProfesionalResource.php:209`: Falta docblock de método público.
-- `App\Filament\Resources\HorarioCentroResource::form()` en `vida/app/Filament/Resources/HorarioCentroResource.php:44`: Falta docblock de método público.
-- `App\Filament\Resources\HorarioCentroResource::table()` en `vida/app/Filament/Resources/HorarioCentroResource.php:159`: Falta docblock de método público.
-- `App\Filament\Resources\HorarioCentroResource::getRelationManagers()` en `vida/app/Filament/Resources/HorarioCentroResource.php:214`: Falta docblock de método público.
-- `App\Filament\Resources\HorarioCentroResource::getPages()` en `vida/app/Filament/Resources/HorarioCentroResource.php:221`: Falta docblock de método público.
-- `App\Filament\Resources\HorarioCentroResource\RelationManagers\TiposSlotsRelationManager::form()` en `vida/app/Filament/Resources/HorarioCentroResource/RelationManagers/TiposSlotsRelationManager.php:25`: Falta docblock de método público.
-- `App\Filament\Resources\HorarioCentroResource\RelationManagers\TiposSlotsRelationManager::table()` en `vida/app/Filament/Resources/HorarioCentroResource/RelationManagers/TiposSlotsRelationManager.php:81`: Falta docblock de método público.
-- `App\Filament\Resources\InformeResource::table()` en `vida/app/Filament/Resources/InformeResource.php:152`: Falta docblock de método público.
-- `App\Filament\Resources\InformeResource::getPages()` en `vida/app/Filament/Resources/InformeResource.php:294`: Falta docblock de método público.
-- `App\Filament\Resources\LogAlertasResource::table()` en `vida/app/Filament/Resources/LogAlertasResource.php:38`: Falta docblock de método público.
-- `App\Filament\Resources\LogAlertasResource::getPages()` en `vida/app/Filament/Resources/LogAlertasResource.php:119`: Falta docblock de método público.
-- `App\Filament\Resources\LogAlertasResource::canCreate()` en `vida/app/Filament/Resources/LogAlertasResource.php:133`: Falta docblock de método público.
-- `App\Filament\Resources\LogAlertasResource::canEdit()` en `vida/app/Filament/Resources/LogAlertasResource.php:138`: Falta docblock de método público.
-- `App\Filament\Resources\LogAlertasResource::canDelete()` en `vida/app/Filament/Resources/LogAlertasResource.php:143`: Falta docblock de método público.
 - `App\Filament\Resources\PerfilHorarioProfesionalResource::form()` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:41`: Falta docblock de método público.
 - `App\Filament\Resources\PerfilHorarioProfesionalResource::table()` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:112`: Falta docblock de método público.
 - `App\Filament\Resources\PerfilHorarioProfesionalResource::getPages()` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:159`: Falta docblock de método público.
@@ -131,7 +111,7 @@ Generado el 2026-06-18 10:00:51 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Providers\Filament\AdminPanelProvider::panel()` en `vida/app/Providers/Filament/AdminPanelProvider.php:24`: Falta docblock de método público.
 - `App\Services\Geocodificacion\ResultadoGeocodificacion::__construct()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:34`: Falta docblock de método público.
 
-### PHPDoc incompleto (180)
+### PHPDoc incompleto (173)
 
 - `Modules\Documentos\Observers\EstiloInformeObserver::__construct()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:19`: Falta @param $resolver.
 - `Modules\Documentos\Observers\EstiloInformeObserver::saved()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:24`: Falta @param $estilo.
@@ -196,13 +176,6 @@ Generado el 2026-06-18 10:00:51 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Filament\Resources\AuditResource::canAccess()` en `vida/app/Filament/Resources/AuditResource.php:184`: Falta @return.
 - `App\Filament\Resources\AuditResource::canCreate()` en `vida/app/Filament/Resources/AuditResource.php:192`: Falta @return.
 - `App\Filament\Resources\CentroResource::canViewAny()` en `vida/app/Filament/Resources/CentroResource.php:249`: Falta @return.
-- `App\Filament\Resources\EstiloInformeResource::canViewAny()` en `vida/app/Filament/Resources/EstiloInformeResource.php:157`: Falta @return.
-- `App\Filament\Resources\EstiloInformeResource::canEdit()` en `vida/app/Filament/Resources/EstiloInformeResource.php:163`: Falta @param $record.
-- `App\Filament\Resources\EstiloInformeResource::canEdit()` en `vida/app/Filament/Resources/EstiloInformeResource.php:163`: Falta @return.
-- `App\Filament\Resources\InformeResource::infolist()` en `vida/app/Filament/Resources/InformeResource.php:53`: Falta @param $schema.
-- `App\Filament\Resources\InformeResource::infolist()` en `vida/app/Filament/Resources/InformeResource.php:53`: Falta @return.
-- `App\Filament\Resources\InformeResource::canViewAny()` en `vida/app/Filament/Resources/InformeResource.php:147`: Falta @return.
-- `App\Filament\Resources\LogAlertasResource::canViewAny()` en `vida/app/Filament/Resources/LogAlertasResource.php:127`: Falta @return.
 - `App\Filament\Resources\PlantillaInformeResource::canViewAny()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:265`: Falta @return.
 - `App\Filament\Resources\ProfesionalResource::canViewAny()` en `vida/app/Filament/Resources/ProfesionalResource.php:230`: Falta @return.
 - `App\Filament\Resources\ProfesionalResource::canDelete()` en `vida/app/Filament/Resources/ProfesionalResource.php:246`: Falta @param $record.
@@ -2800,8 +2773,11 @@ Metodos publicos:
   Cambia la ficha seleccionada y reinicializa el formulario.
   `@return` void
 - `function guardar(): void`
-  Valida los campos obligatorios y persiste la ficha vinculada a la historia. Si ya existe una ficha para esta historia y tipo, la actualiza (idempotente).
+  Guarda la ficha como borrador (completada = false). No redirige.
   `@return` void
+- `function guardarDefinitivo(): mixed`
+  Valida campos obligatorios, marca la ficha como completada y vuelve a la historia.
+  `@return` \Livewire\Features\SupportRedirects\Redirector|\Illuminate\Http\RedirectResponse
 - `function render(): View`
   Renderiza la pantalla de registro de valoración.
   `@return` View
@@ -4922,17 +4898,23 @@ Los campos se heredan campo a campo por la jerarquía de UOs. Accesible solo a u
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de estilos de informe.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de estilos de informe.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del recurso de estilos de informe.
+  `@return` array
 - `function canViewAny(): bool`
-  supervision puede ver estilos de su subtree (solo lectura); adm_* puede gestionar.
+  Determina si el usuario puede ver el listado de estilos de informe.
+  `@return` bool
 - `function canEdit(Model $record): bool`
-  adm_usuarios solo gestiona estilos de su subtree de UO.
+  Determina si el usuario puede editar un estilo de informe.
+  `@return` bool
 - `function canDelete(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario puede eliminar un estilo de informe.
+  `@return` bool
 
 ### `App\Filament\Resources\EstiloInformeResource\Pages\CreateEstiloInforme`
 
@@ -4961,11 +4943,14 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de excepciones de profesionales.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de excepciones de profesionales.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del recurso de excepciones de profesionales.
+  `@return` array
 
 ### `App\Filament\Resources\ExcepcionProfesionalResource\Pages\CreateExcepcionProfesional`
 
@@ -4994,13 +4979,17 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de horarios de centro.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de horarios de centro.
+  `@return` Table
 - `function getRelationManagers(): array`
-  _Sin resumen PHPDoc._
+  Declara los relation managers del recurso.
+  `@return` array
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del recurso de horarios de centro.
+  `@return` array
 
 ### `App\Filament\Resources\HorarioCentroResource\Pages\CreateHorarioCentro`
 
@@ -5029,9 +5018,11 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario del relation manager de tipos de slot.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de tipos de slot.
+  `@return` Table
 
 ### `App\Filament\Resources\InformeResource`
 
@@ -5044,13 +5035,17 @@ Los informes se crean desde el expediente del ciudadano (flujo Livewire, pendien
 Metodos publicos:
 
 - `function infolist(Schema $schema): Schema`
-  Los informes se crean desde el flujo operativo (Livewire), no desde el backoffice.
+  Construye la vista de detalle de informes.
+  `@return` Schema
 - `function canViewAny(): bool`
-  supervision puede ver informes de su subtree (solo lectura); adm_* puede gestionar.
+  Determina si el usuario puede ver el listado de informes.
+  `@return` bool
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de informes.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del recurso de informes.
+  `@return` array
 
 ### `App\Filament\Resources\InformeResource\Pages\ListInformes`
 
@@ -5075,17 +5070,23 @@ Permite al administrador consultar el log completo de alertas con filtros por es
 Metodos publicos:
 
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de alertas para auditoría.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del log de alertas.
+  `@return` array
 - `function canViewAny(): bool`
-  Solo adm_sistema y supervision pueden ver el log de alertas.
+  Determina si el usuario puede ver el log de alertas.
+  `@return` bool
 - `function canCreate(): bool`
-  _Sin resumen PHPDoc._
+  Indica que no se permite crear alertas desde este recurso.
+  `@return` bool
 - `function canEdit(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Indica que no se permite editar alertas desde este recurso.
+  `@return` bool
 - `function canDelete(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Indica que no se permite eliminar alertas desde este recurso.
+  `@return` bool
 
 ### `App\Filament\Resources\LogAlertasResource\Pages\ListLogAlertas`
 

@@ -43,6 +43,12 @@ class EstiloInformeResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    /**
+     * Define el formulario de estilos de informe.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -100,6 +106,12 @@ class EstiloInformeResource extends Resource
         ]);
     }
 
+    /**
+     * Configura el listado de estilos de informe.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -144,6 +156,11 @@ class EstiloInformeResource extends Resource
             ->defaultSort('unidadOrganizativa.nombre');
     }
 
+    /**
+     * Declara las páginas del recurso de estilos de informe.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [
@@ -153,18 +170,33 @@ class EstiloInformeResource extends Resource
         ];
     }
 
-    /** supervision puede ver estilos de su subtree (solo lectura); adm_* puede gestionar. */
+    /**
+     * Determina si el usuario puede ver el listado de estilos de informe.
+     *
+     * @return bool
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
     }
 
-    /** adm_usuarios solo gestiona estilos de su subtree de UO. */
+    /**
+     * Determina si el usuario puede editar un estilo de informe.
+     *
+     * @param Model $record Registro objetivo.
+     * @return bool
+     */
     public static function canEdit(Model $record): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Determina si el usuario puede eliminar un estilo de informe.
+     *
+     * @param Model $record Registro objetivo.
+     * @return bool
+     */
     public static function canDelete(Model $record): bool
     {
         return static::canEdit($record);

@@ -22,6 +22,12 @@ class TiposSlotsRelationManager extends RelationManager
 
     protected static ?string $title = 'Tipos de slot';
 
+    /**
+     * Define el formulario del relation manager de tipos de slot.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -78,6 +84,12 @@ class TiposSlotsRelationManager extends RelationManager
         ]);
     }
 
+    /**
+     * Configura el listado de tipos de slot.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public function table(Table $table): Table
     {
         return $table

@@ -42,6 +42,12 @@ class ExcepcionProfesionalResource extends Resource
 
     protected static ?int $navigationSort = 60;
 
+    /**
+     * Define el formulario de excepciones de profesionales.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -119,6 +125,12 @@ class ExcepcionProfesionalResource extends Resource
         ]);
     }
 
+    /**
+     * Configura el listado de excepciones de profesionales.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -206,6 +218,11 @@ class ExcepcionProfesionalResource extends Resource
             ->defaultSort('fecha_inicio', 'desc');
     }
 
+    /**
+     * Declara las páginas del recurso de excepciones de profesionales.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [

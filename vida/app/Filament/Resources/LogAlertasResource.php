@@ -35,6 +35,12 @@ class LogAlertasResource extends Resource
 
     protected static ?int $navigationSort = 5;
 
+    /**
+     * Configura el listado de alertas para auditoría.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -116,6 +122,11 @@ class LogAlertasResource extends Resource
             ->bulkActions([]); // Sin acciones masivas
     }
 
+    /**
+     * Declara las páginas del log de alertas.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [
@@ -123,23 +134,43 @@ class LogAlertasResource extends Resource
         ];
     }
 
-    /** Solo adm_sistema y supervision pueden ver el log de alertas. */
+    /**
+     * Determina si el usuario puede ver el log de alertas.
+     *
+     * @return bool
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'supervision']) ?? false;
     }
 
-    // Recurso de solo lectura: no se permite crear, editar ni eliminar alertas.
+    /**
+     * Indica que no se permite crear alertas desde este recurso.
+     *
+     * @return bool
+     */
     public static function canCreate(): bool
     {
         return false;
     }
 
+    /**
+     * Indica que no se permite editar alertas desde este recurso.
+     *
+     * @param Model $record Registro objetivo.
+     * @return bool
+     */
     public static function canEdit(Model $record): bool
     {
         return false;
     }
 
+    /**
+     * Indica que no se permite eliminar alertas desde este recurso.
+     *
+     * @param Model $record Registro objetivo.
+     * @return bool
+     */
     public static function canDelete(Model $record): bool
     {
         return false;
