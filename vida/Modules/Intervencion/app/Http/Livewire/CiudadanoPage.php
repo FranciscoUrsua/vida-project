@@ -25,6 +25,7 @@ use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\Entrevista;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\SeguimientoPlan;
+use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\TipoFicha;
 use Modules\Ciudadania\Enums\ImplicacionFuncional;
 use Modules\Ciudadania\Models\CiudadanoRelacion;
@@ -829,6 +830,25 @@ class CiudadanoPage extends Component
                 $this->modalApunteDatos['escala_score'] = $pase->score_total;
                 $this->modalApunteDatos['escala_interpretacion'] = $pase->interpretacion_codigo;
                 $this->modalApunteDatos['escala_secciones'] = $pase->scores_seccion ?? [];
+            }
+        }
+
+        if ($apunte->tipo === TipoApunte::Valoracion && $apunte->apuntable_id) {
+            $ficha = Ficha::find($apunte->apuntable_id);
+            if ($ficha) {
+                $this->modalApunteDatos['ficha_url'] = route(
+                    'intervencion.ficha.show',
+                    ['historia' => $this->historia->id, 'ficha' => $ficha->id]
+                );
+                $this->modalApunteDatos['ficha_campos'] = collect($ficha->schema_snapshot['campos'] ?? [])
+                    ->map(fn (array $c) => [
+                        'etiqueta' => $c['etiqueta'] ?? $c['id'],
+                        'tipo'     => $c['tipo'] ?? 'texto',
+                        'valor'    => ($ficha->datos ?? [])[$c['id']] ?? null,
+                        'unidad'   => $c['unidad'] ?? null,
+                    ])
+                    ->all();
+                $this->modalApunteDatos['ficha_notas'] = $ficha->notas;
             }
         }
 

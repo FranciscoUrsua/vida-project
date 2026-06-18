@@ -606,13 +606,51 @@
                     @endif
                 @endif
 
+                @if($modalApunteTipo === 'valoracion' && ! empty($modalApunteDatos['ficha_campos']))
+                    <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.5rem;">
+                        @foreach($modalApunteDatos['ficha_campos'] as $campo)
+                            <div style="padding: 0.55rem 0.75rem; background: var(--color-ink-50, #f8fafc); border-radius: 6px; border: 1px solid var(--color-ink-100);">
+                                <p style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-ink-400); margin: 0 0 0.2rem;">{{ $campo['etiqueta'] }}</p>
+                                @if($campo['valor'] !== null && $campo['valor'] !== '')
+                                    <p style="font-size: 0.85rem; color: var(--color-ink-900); margin: 0;">
+                                        @if($campo['tipo'] === 'booleano')
+                                            {{ $campo['valor'] ? 'Sí' : 'No' }}
+                                        @elseif($campo['tipo'] === 'fecha')
+                                            {{ \Carbon\Carbon::parse($campo['valor'])->translatedFormat('j M Y') }}
+                                        @else
+                                            {{ $campo['valor'] }}{{ $campo['unidad'] ? ' '.$campo['unidad'] : '' }}
+                                        @endif
+                                    </p>
+                                @else
+                                    <p style="font-size: 0.82rem; color: var(--color-ink-300); margin: 0; font-style: italic;">Sin respuesta</p>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                    @if($modalApunteDatos['ficha_notas'] ?? null)
+                        <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--color-ink-100);">
+                            <p style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-ink-400); margin: 0 0 0.25rem;">Notas</p>
+                            <p style="font-size: 0.82rem; color: var(--color-ink-700); margin: 0; white-space: pre-wrap;">{{ $modalApunteDatos['ficha_notas'] }}</p>
+                        </div>
+                    @endif
+                @endif
+
                 @if($modalApunteDatos['contenido'] ?? null)
                     <div class="hs-modal__contenido" style="margin-top: 1rem;">{!! nl2br(e($modalApunteDatos['contenido'])) !!}</div>
                 @endif
             </div>
             <div class="hs-slideover__footer">
                 <span class="hs-modal__inmutable">Solo lectura · El pasado es inmutable</span>
-                <button wire:click="cerrarModalApunte" class="btn btn-outline-secondary btn-sm">Cerrar</button>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    @if(($modalApunteDatos['ficha_url'] ?? null))
+                        <a href="{{ $modalApunteDatos['ficha_url'] }}" wire:navigate
+                           style="font-size: 0.8rem; color: var(--color-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">
+                            <i data-lucide="external-link" style="width:13px;height:13px;" aria-hidden="true"></i>
+                            Ver ficha completa
+                        </a>
+                    @endif
+                    <button wire:click="cerrarModalApunte" class="btn btn-outline-secondary btn-sm">Cerrar</button>
+                </div>
             </div>
         </div>
     </div>

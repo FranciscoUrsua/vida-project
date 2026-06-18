@@ -7,6 +7,7 @@ use Modules\Intervencion\Http\Livewire\CiudadanoPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
 use Modules\Intervencion\Http\Livewire\RegistrarEscalaPage;
 use Modules\Intervencion\Http\Livewire\RegistrarValoracionPage;
+use Modules\Intervencion\Http\Livewire\VerFichaPage;
 use Modules\Mensajes\Http\Livewire\BuzonPage;
 
 /*
@@ -30,6 +31,8 @@ Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion'])->prefix('in
         ->middleware('can:view,historia');
     Route::get('/ciudadano/{historia}/valoracion', RegistrarValoracionPage::class)
         ->name('valoracion.nueva');
+    Route::get('/ciudadano/{historia}/ficha/{ficha}', VerFichaPage::class)
+        ->name('ficha.show');
     Route::get('/ciudadano/{historia}/escala', RegistrarEscalaPage::class)
         ->name('escala.nueva');
 });

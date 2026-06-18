@@ -7,7 +7,13 @@ use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Modules\Intervencion\Enums\EstadoPlan;
+use Modules\Intervencion\Enums\TipoApunte;
+use Modules\Intervencion\Enums\TipoPlan;
+use Modules\Intervencion\Enums\VisibilidadApunte;
+use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\Ficha;
+use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\TipoFicha;
 
 /**
@@ -15,8 +21,8 @@ use Modules\Intervencion\Models\TipoFicha;
  *
  * Carga el schema del TipoFicha seleccionado y renderiza los campos dinámicamente
  * según su tipo (texto, numero, select, booleano, fecha, escala).
- * Persiste los datos en `fichas` vinculada directamente a la historia mediante
- * historia_id (sin requerir Valoracion formal previa — TODO: vincular cuando esté completo).
+ * Al guardar definitivamente, crea un apunte de tipo Valoración en el plan activo
+ * de la Historia Social para dejar constancia en el timeline.
  *
  * @see docs/instrucciones-cli/valoracion-page-implementacion.md
  */
@@ -43,7 +49,7 @@ class RegistrarValoracionPage extends Component
     /** @var string Notas libres del profesional sobre la valoración */
     public string $notas = '';
 
-    /** @var string|null Estado tras guardar: 'borrador', 'completado' o null */
+    /** @var string|null Estado tras guardar: 'borrador' o null */
     public ?string $estadoGuardado = null;
 
     /**
@@ -131,9 +137,10 @@ class RegistrarValoracionPage extends Component
     }
 
     /**
-     * Valida campos obligatorios, marca la ficha como completada y vuelve a la historia.
+     * Valida campos obligatorios, marca la ficha como completada, registra el apunte
+     * en la Historia Social y redirige al expediente del ciudadano.
      *
-     * @return \Livewire\Features\SupportRedirects\Redirector|\Illuminate\Http\RedirectResponse
+     * @return mixed
      */
     public function guardarDefinitivo(): mixed
     {
@@ -156,7 +163,8 @@ class RegistrarValoracionPage extends Component
             $this->validate($reglas);
         }
 
-        $this->persistirFicha(completada: true);
+        $ficha = $this->persistirFicha(completada: true);
+        $this->registrarApunte($ficha);
 
         return $this->redirect(route('intervencion.ciudadano.show', $this->historiaId), navigate: true);
     }
@@ -166,54 +174,92 @@ class RegistrarValoracionPage extends Component
     // -------------------------------------------------------------------------
 
     /**
-     * Persiste la ficha (crea o actualiza el borrador vigente) con el estado indicado.
-     * Si completada = true, crea un nuevo registro independiente del borrador existente.
+     * Persiste la ficha y devuelve el modelo guardado.
+     * - Borrador: updateOrCreate sobre la fila con completada=false.
+     * - Definitivo: actualiza el borrador existente a completada=true,
+     *   o crea una ficha completada nueva si no hay borrador.
      *
      * @param bool $completada
      *
-     * @return void
+     * @return Ficha
      */
-    private function persistirFicha(bool $completada): void
+    private function persistirFicha(bool $completada): Ficha
     {
-        if (! $this->tipoFichaId) {
-            return;
-        }
+        $payload = [
+            'schema_snapshot' => $this->tipoFicha?->schema,
+            'datos'           => $this->datos ?: null,
+            'notas'           => $this->notas ?: null,
+            'completada'      => $completada,
+            'profesional_id'  => auth()->id(),
+        ];
 
         if ($completada) {
-            // Cierra el borrador si existe y crea la ficha definitiva como registro nuevo
-            Ficha::where('historia_id', $this->historiaId)
+            $borrador = Ficha::where('historia_id', $this->historiaId)
                 ->where('tipo_ficha_id', $this->tipoFichaId)
                 ->where('completada', false)
-                ->update([
-                    'schema_snapshot' => $this->tipoFicha?->schema,
-                    'datos'           => $this->datos ?: null,
-                    'notas'           => $this->notas ?: null,
-                    'completada'      => true,
-                    'profesional_id'  => auth()->id(),
-                ]);
-        } else {
-            // TODO: vincular a Valoracion cuando ese flujo esté completo
-            Ficha::updateOrCreate(
-                [
-                    'historia_id'   => $this->historiaId,
-                    'tipo_ficha_id' => $this->tipoFichaId,
-                    'completada'    => false,
-                ],
-                [
-                    'schema_snapshot' => $this->tipoFicha?->schema,
-                    'datos'           => $this->datos ?: null,
-                    'notas'           => $this->notas ?: null,
-                    'completada'      => false,
-                    'profesional_id'  => auth()->id(),
-                ]
-            );
+                ->first();
+
+            if ($borrador) {
+                $borrador->update($payload);
+
+                return $borrador->fresh();
+            }
+
+            return Ficha::create(array_merge([
+                'historia_id'   => $this->historiaId,
+                'tipo_ficha_id' => $this->tipoFichaId,
+            ], $payload));
         }
+
+        // TODO: vincular a Valoracion cuando ese flujo esté completo
+        return Ficha::updateOrCreate(
+            [
+                'historia_id'   => $this->historiaId,
+                'tipo_ficha_id' => $this->tipoFichaId,
+                'completada'    => false,
+            ],
+            $payload
+        );
     }
 
     /**
-     * Inicializa $datos con null para cada campo del schema y carga los
-     * valores guardados previamente si existe una Ficha en BD para esta
-     * historia y tipo de ficha.
+     * Crea un apunte de tipo Valoración en el plan activo de la historia.
+     * No hace nada si la historia no tiene plan activo.
+     *
+     * @param Ficha $ficha Ficha recién guardada como definitiva.
+     *
+     * @return void
+     */
+    private function registrarApunte(Ficha $ficha): void
+    {
+        $plan = PlanDeIntervencion::withoutGlobalScopes()
+            ->where('historia_id', $this->historiaId)
+            ->where('tipo', TipoPlan::GeneralAsp)
+            ->where('estado', EstadoPlan::Activo)
+            ->latest()
+            ->first();
+
+        if (! $plan) {
+            return;
+        }
+
+        Apunte::create([
+            'plan_id'        => $plan->id,
+            'autor_id'       => auth()->id(),
+            'fecha'          => today()->toDateString(),
+            'tipo'           => TipoApunte::Valoracion,
+            'apuntable_type' => Ficha::class,
+            'apuntable_id'   => $ficha->id,
+            'contenido'      => $this->tipoFicha?->nombre,
+            'visibilidad'    => VisibilidadApunte::Profesionales,
+        ]);
+    }
+
+    /**
+     * Inicializa $datos con null para cada campo del schema y carga el
+     * borrador previo si existe (completada = false).
+     *
+     * @return void
      */
     private function inicializarDatos(): void
     {
