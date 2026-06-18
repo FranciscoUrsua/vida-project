@@ -16,6 +16,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\SegmentoPoblacion;
 
+/**
+ * Recurso Filament para la gestión de segmentos de población.
+ */
 class SegmentoPoblacionResource extends Resource
 {
     use AutorizaGestion;

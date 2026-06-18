@@ -20,6 +20,9 @@ use Filament\Tables\Table;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Centro\Models\Centro;
 
+/**
+ * Recurso Filament para la gestión de perfiles horarios profesionales.
+ */
 class PerfilHorarioProfesionalResource extends Resource
 {
     use AutorizaGestion;

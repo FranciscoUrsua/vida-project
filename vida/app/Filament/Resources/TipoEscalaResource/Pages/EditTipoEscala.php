@@ -8,6 +8,9 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Página de edición de tipos de escala.
+ */
 class EditTipoEscala extends EditRecord
 {
     protected static string $resource = TipoEscalaResource::class;

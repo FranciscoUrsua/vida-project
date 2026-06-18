@@ -5,6 +5,9 @@ namespace App\Filament\Resources\TipoActividadResource\Pages;
 use App\Filament\Resources\TipoActividadResource;
 use Filament\Resources\Pages\CreateRecord;
 
+/**
+ * Página de creación de tipos de actividad.
+ */
 class CreateTipoActividad extends CreateRecord
 {
     protected static string $resource = TipoActividadResource::class;

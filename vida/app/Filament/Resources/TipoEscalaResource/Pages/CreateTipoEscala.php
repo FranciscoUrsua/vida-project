@@ -7,6 +7,9 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Página de creación de tipos de escala.
+ */
 class CreateTipoEscala extends CreateRecord
 {
     protected static string $resource = TipoEscalaResource::class;

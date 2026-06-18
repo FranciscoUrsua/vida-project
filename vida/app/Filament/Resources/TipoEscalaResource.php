@@ -26,6 +26,9 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Modules\Escalas\Models\TipoEscala;
 
+/**
+ * Recurso Filament para la gestión de tipos de escala.
+ */
 class TipoEscalaResource extends Resource
 {
     use AutorizaGestion;

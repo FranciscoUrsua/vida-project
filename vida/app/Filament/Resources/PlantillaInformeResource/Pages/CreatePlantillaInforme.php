@@ -5,6 +5,9 @@ namespace App\Filament\Resources\PlantillaInformeResource\Pages;
 use App\Filament\Resources\PlantillaInformeResource;
 use Filament\Resources\Pages\CreateRecord;
 
+/**
+ * Página de creación de plantillas de informe.
+ */
 class CreatePlantillaInforme extends CreateRecord
 {
     protected static string $resource = PlantillaInformeResource::class;

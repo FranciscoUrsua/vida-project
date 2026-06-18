@@ -6,6 +6,9 @@ use App\Filament\Resources\Pages\ListRecords;
 use App\Filament\Resources\ProfesionalResource;
 use Filament\Actions;
 
+/**
+ * Página de listado de profesionales.
+ */
 class ListProfesionales extends ListRecords
 {
     protected static string $resource = ProfesionalResource::class;

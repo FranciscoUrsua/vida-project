@@ -6,6 +6,9 @@ use App\Filament\Resources\Pages\ListRecords;
 use App\Filament\Resources\RedResource;
 use Filament\Actions\CreateAction;
 
+/**
+ * Página de listado de redes.
+ */
 class ListRedes extends ListRecords
 {
     protected static string $resource = RedResource::class;

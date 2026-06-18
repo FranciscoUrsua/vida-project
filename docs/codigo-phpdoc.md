@@ -1,55 +1,19 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 15:31:09 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 15:34:38 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 385.
-- Cabeceras documentadas: 324/385.
+- Cabeceras documentadas: 360/385.
 - Metodos publicos documentados: 997/1043.
-- Alertas de comentarios: 61.
+- Alertas de comentarios: 25.
 
 ## Alertas
 
-### Clase sin PHPDoc (61)
+### Clase sin PHPDoc (25)
 
-- `App\Filament\Resources\PerfilHorarioProfesionalResource` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:23`: Falta docblock de cabecera.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\CreatePerfilHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/CreatePerfilHorarioProfesional.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\EditPerfilHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/EditPerfilHorarioProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\ListPerfilesHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/ListPerfilesHorarioProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PlantillaInformeResource\Pages\CreatePlantillaInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/CreatePlantillaInforme.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\PlantillaInformeResource\Pages\EditPlantillaInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/EditPlantillaInforme.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PlantillaInformeResource\Pages\ListPlantillasInforme` en `vida/app/Filament/Resources/PlantillaInformeResource/Pages/ListPlantillasInforme.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PrestacionResource` en `vida/app/Filament/Resources/PrestacionResource.php:24`: Falta docblock de cabecera.
-- `App\Filament\Resources\PrestacionResource\Pages\CreatePrestacion` en `vida/app/Filament/Resources/PrestacionResource/Pages/CreatePrestacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PrestacionResource\Pages\EditPrestacion` en `vida/app/Filament/Resources/PrestacionResource/Pages/EditPrestacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\PrestacionResource\Pages\ListPrestaciones` en `vida/app/Filament/Resources/PrestacionResource/Pages/ListPrestaciones.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ProfesionalResource\Pages\CreateProfesional` en `vida/app/Filament/Resources/ProfesionalResource/Pages/CreateProfesional.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ProfesionalResource\Pages\EditProfesional` en `vida/app/Filament/Resources/ProfesionalResource/Pages/EditProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ProfesionalResource\Pages\ListProfesionales` en `vida/app/Filament/Resources/ProfesionalResource/Pages/ListProfesionales.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\RedResource` en `vida/app/Filament/Resources/RedResource.php:21`: Falta docblock de cabecera.
-- `App\Filament\Resources\RedResource\Pages\CreateRed` en `vida/app/Filament/Resources/RedResource/Pages/CreateRed.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\RedResource\Pages\EditRed` en `vida/app/Filament/Resources/RedResource/Pages/EditRed.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\RedResource\Pages\ListRedes` en `vida/app/Filament/Resources/RedResource/Pages/ListRedes.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\RolResource\Pages\CreateRol` en `vida/app/Filament/Resources/RolResource/Pages/CreateRol.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\RolResource\Pages\EditRol` en `vida/app/Filament/Resources/RolResource/Pages/EditRol.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\RolResource\Pages\ListRoles` en `vida/app/Filament/Resources/RolResource/Pages/ListRoles.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\SegmentoPoblacionResource` en `vida/app/Filament/Resources/SegmentoPoblacionResource.php:19`: Falta docblock de cabecera.
-- `App\Filament\Resources\SegmentoPoblacionResource\Pages\CreateSegmentoPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/CreateSegmentoPoblacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\SegmentoPoblacionResource\Pages\EditSegmentoPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/EditSegmentoPoblacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\SegmentoPoblacionResource\Pages\ListSegmentosPoblacion` en `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/ListSegmentosPoblacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ServicioEmergenciaResource\Pages\CreateServicioEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/CreateServicioEmergencia.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ServicioEmergenciaResource\Pages\EditServicioEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/EditServicioEmergencia.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ServicioEmergenciaResource\Pages\ListServiciosEmergencia` en `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/ListServiciosEmergencia.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoActividadResource` en `vida/app/Filament/Resources/TipoActividadResource.php:19`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoActividadResource\Pages\CreateTipoActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/CreateTipoActividad.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoActividadResource\Pages\EditTipoActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/EditTipoActividad.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoActividadResource\Pages\ListTiposActividad` en `vida/app/Filament/Resources/TipoActividadResource/Pages/ListTiposActividad.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEscalaResource` en `vida/app/Filament/Resources/TipoEscalaResource.php:29`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEscalaResource\Pages\CreateTipoEscala` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/CreateTipoEscala.php:10`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEscalaResource\Pages\EditTipoEscala` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/EditTipoEscala.php:11`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEscalaResource\Pages\ListTipoEscalas` en `vida/app/Filament/Resources/TipoEscalaResource/Pages/ListTipoEscalas.php:9`: Falta docblock de cabecera.
 - `App\Filament\Resources\TipoEspacioResource` en `vida/app/Filament/Resources/TipoEspacioResource.php:19`: Falta docblock de cabecera.
 - `App\Filament\Resources\TipoEspacioResource\Pages\CreateTipoEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/CreateTipoEspacio.php:8`: Falta docblock de cabecera.
 - `App\Filament\Resources\TipoEspacioResource\Pages\EditTipoEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/EditTipoEspacio.php:8`: Falta docblock de cabecera.
@@ -5029,8 +4993,8 @@ Filament v5 deja authorizeAccess() vacío en ListRecords, lo que permite acceder
 ### `App\Filament\Resources\PerfilHorarioProfesionalResource`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:23`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:26`.
+- Resumen: Recurso Filament para la gestión de perfiles horarios profesionales.
 
 Metodos publicos:
 
@@ -5047,20 +5011,20 @@ Metodos publicos:
 ### `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\CreatePerfilHorarioProfesional`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/CreatePerfilHorarioProfesional.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/CreatePerfilHorarioProfesional.php:11`.
+- Resumen: Página de creación de perfiles horarios profesionales.
 
 ### `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\EditPerfilHorarioProfesional`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/EditPerfilHorarioProfesional.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/EditPerfilHorarioProfesional.php:12`.
+- Resumen: Página de edición de perfiles horarios profesionales.
 
 ### `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\ListPerfilesHorarioProfesional`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/ListPerfilesHorarioProfesional.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/ListPerfilesHorarioProfesional.php:12`.
+- Resumen: Página de listado de perfiles horarios profesionales.
 
 ### `App\Filament\Resources\PlantillaInformeResource`
 
@@ -5094,26 +5058,26 @@ Metodos publicos:
 ### `App\Filament\Resources\PlantillaInformeResource\Pages\CreatePlantillaInforme`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/PlantillaInformeResource/Pages/CreatePlantillaInforme.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/PlantillaInformeResource/Pages/CreatePlantillaInforme.php:11`.
+- Resumen: Página de creación de plantillas de informe.
 
 ### `App\Filament\Resources\PlantillaInformeResource\Pages\EditPlantillaInforme`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/PlantillaInformeResource/Pages/EditPlantillaInforme.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/PlantillaInformeResource/Pages/EditPlantillaInforme.php:12`.
+- Resumen: Página de edición de plantillas de informe.
 
 ### `App\Filament\Resources\PlantillaInformeResource\Pages\ListPlantillasInforme`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/PlantillaInformeResource/Pages/ListPlantillasInforme.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/PlantillaInformeResource/Pages/ListPlantillasInforme.php:12`.
+- Resumen: Página de listado de plantillas de informe.
 
 ### `App\Filament\Resources\PrestacionResource`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/PrestacionResource.php:24`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/PrestacionResource.php:27`.
+- Resumen: Recurso Filament para la gestión de prestaciones.
 
 Metodos publicos:
 
@@ -5133,20 +5097,20 @@ Metodos publicos:
 ### `App\Filament\Resources\PrestacionResource\Pages\CreatePrestacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/PrestacionResource/Pages/CreatePrestacion.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/PrestacionResource/Pages/CreatePrestacion.php:12`.
+- Resumen: Página de creación de prestaciones.
 
 ### `App\Filament\Resources\PrestacionResource\Pages\EditPrestacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/PrestacionResource/Pages/EditPrestacion.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/PrestacionResource/Pages/EditPrestacion.php:12`.
+- Resumen: Página de edición de prestaciones.
 
 ### `App\Filament\Resources\PrestacionResource\Pages\ListPrestaciones`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/PrestacionResource/Pages/ListPrestaciones.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/PrestacionResource/Pages/ListPrestaciones.php:12`.
+- Resumen: Página de listado de prestaciones.
 
 ### `App\Filament\Resources\PrestacionResource\RelationManagers\VersionesRelationManager`
 
@@ -5200,26 +5164,26 @@ Metodos publicos:
 ### `App\Filament\Resources\ProfesionalResource\Pages\CreateProfesional`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ProfesionalResource/Pages/CreateProfesional.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ProfesionalResource/Pages/CreateProfesional.php:11`.
+- Resumen: Página de creación de profesionales.
 
 ### `App\Filament\Resources\ProfesionalResource\Pages\EditProfesional`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ProfesionalResource/Pages/EditProfesional.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ProfesionalResource/Pages/EditProfesional.php:12`.
+- Resumen: Página de edición de profesionales.
 
 ### `App\Filament\Resources\ProfesionalResource\Pages\ListProfesionales`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ProfesionalResource/Pages/ListProfesionales.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ProfesionalResource/Pages/ListProfesionales.php:12`.
+- Resumen: Página de listado de profesionales.
 
 ### `App\Filament\Resources\RedResource`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/RedResource.php:21`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/RedResource.php:24`.
+- Resumen: Recurso Filament para la gestión de redes.
 
 Metodos publicos:
 
@@ -5239,20 +5203,20 @@ Metodos publicos:
 ### `App\Filament\Resources\RedResource\Pages\CreateRed`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/RedResource/Pages/CreateRed.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/RedResource/Pages/CreateRed.php:11`.
+- Resumen: Página de creación de redes.
 
 ### `App\Filament\Resources\RedResource\Pages\EditRed`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/RedResource/Pages/EditRed.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/RedResource/Pages/EditRed.php:11`.
+- Resumen: Página de edición de redes.
 
 ### `App\Filament\Resources\RedResource\Pages\ListRedes`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/RedResource/Pages/ListRedes.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/RedResource/Pages/ListRedes.php:12`.
+- Resumen: Página de listado de redes.
 
 ### `App\Filament\Resources\RolResource`
 
@@ -5289,26 +5253,26 @@ Metodos publicos:
 ### `App\Filament\Resources\RolResource\Pages\CreateRol`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/RolResource/Pages/CreateRol.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/RolResource/Pages/CreateRol.php:11`.
+- Resumen: Página de creación de roles.
 
 ### `App\Filament\Resources\RolResource\Pages\EditRol`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/RolResource/Pages/EditRol.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/RolResource/Pages/EditRol.php:11`.
+- Resumen: Página de edición de roles.
 
 ### `App\Filament\Resources\RolResource\Pages\ListRoles`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/RolResource/Pages/ListRoles.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/RolResource/Pages/ListRoles.php:12`.
+- Resumen: Página de listado de roles.
 
 ### `App\Filament\Resources\SegmentoPoblacionResource`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/SegmentoPoblacionResource.php:19`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/SegmentoPoblacionResource.php:22`.
+- Resumen: Recurso Filament para la gestión de segmentos de población.
 
 Metodos publicos:
 
@@ -5325,20 +5289,20 @@ Metodos publicos:
 ### `App\Filament\Resources\SegmentoPoblacionResource\Pages\CreateSegmentoPoblacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/CreateSegmentoPoblacion.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/CreateSegmentoPoblacion.php:11`.
+- Resumen: Página de creación de segmentos de población.
 
 ### `App\Filament\Resources\SegmentoPoblacionResource\Pages\EditSegmentoPoblacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/EditSegmentoPoblacion.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/EditSegmentoPoblacion.php:11`.
+- Resumen: Página de edición de segmentos de población.
 
 ### `App\Filament\Resources\SegmentoPoblacionResource\Pages\ListSegmentosPoblacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/ListSegmentosPoblacion.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/SegmentoPoblacionResource/Pages/ListSegmentosPoblacion.php:12`.
+- Resumen: Página de listado de segmentos de población.
 
 ### `App\Filament\Resources\ServicioEmergenciaResource`
 
@@ -5363,26 +5327,26 @@ Metodos publicos:
 ### `App\Filament\Resources\ServicioEmergenciaResource\Pages\CreateServicioEmergencia`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/CreateServicioEmergencia.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/CreateServicioEmergencia.php:11`.
+- Resumen: Página de creación de servicios de emergencia.
 
 ### `App\Filament\Resources\ServicioEmergenciaResource\Pages\EditServicioEmergencia`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/EditServicioEmergencia.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/EditServicioEmergencia.php:12`.
+- Resumen: Página de edición de servicios de emergencia.
 
 ### `App\Filament\Resources\ServicioEmergenciaResource\Pages\ListServiciosEmergencia`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/ListServiciosEmergencia.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ServicioEmergenciaResource/Pages/ListServiciosEmergencia.php:12`.
+- Resumen: Página de listado de servicios de emergencia.
 
 ### `App\Filament\Resources\TipoActividadResource`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoActividadResource.php:19`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoActividadResource.php:22`.
+- Resumen: Recurso Filament para la gestión de tipos de actividad.
 
 Metodos publicos:
 
@@ -5399,26 +5363,26 @@ Metodos publicos:
 ### `App\Filament\Resources\TipoActividadResource\Pages\CreateTipoActividad`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoActividadResource/Pages/CreateTipoActividad.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoActividadResource/Pages/CreateTipoActividad.php:11`.
+- Resumen: Página de creación de tipos de actividad.
 
 ### `App\Filament\Resources\TipoActividadResource\Pages\EditTipoActividad`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoActividadResource/Pages/EditTipoActividad.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoActividadResource/Pages/EditTipoActividad.php:11`.
+- Resumen: Página de edición de tipos de actividad.
 
 ### `App\Filament\Resources\TipoActividadResource\Pages\ListTiposActividad`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoActividadResource/Pages/ListTiposActividad.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoActividadResource/Pages/ListTiposActividad.php:12`.
+- Resumen: Página de listado de tipos de actividad.
 
 ### `App\Filament\Resources\TipoEscalaResource`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoEscalaResource.php:29`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoEscalaResource.php:32`.
+- Resumen: Recurso Filament para la gestión de tipos de escala.
 
 Metodos publicos:
 
@@ -5435,20 +5399,20 @@ Metodos publicos:
 ### `App\Filament\Resources\TipoEscalaResource\Pages\CreateTipoEscala`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoEscalaResource/Pages/CreateTipoEscala.php:10`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoEscalaResource/Pages/CreateTipoEscala.php:13`.
+- Resumen: Página de creación de tipos de escala.
 
 ### `App\Filament\Resources\TipoEscalaResource\Pages\EditTipoEscala`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoEscalaResource/Pages/EditTipoEscala.php:11`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoEscalaResource/Pages/EditTipoEscala.php:14`.
+- Resumen: Página de edición de tipos de escala.
 
 ### `App\Filament\Resources\TipoEscalaResource\Pages\ListTipoEscalas`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoEscalaResource/Pages/ListTipoEscalas.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoEscalaResource/Pages/ListTipoEscalas.php:12`.
+- Resumen: Página de listado de tipos de escala.
 
 ### `App\Filament\Resources\TipoEspacioResource`
 

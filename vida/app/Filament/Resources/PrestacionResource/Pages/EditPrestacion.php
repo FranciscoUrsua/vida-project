@@ -6,6 +6,9 @@ use App\Filament\Resources\PrestacionResource;
 use Filament\Resources\Pages\EditRecord;
 use Modules\Prestaciones\Models\PrestacionTipoCentro;
 
+/**
+ * Página de edición de prestaciones.
+ */
 class EditPrestacion extends EditRecord
 {
     protected static string $resource = PrestacionResource::class;

@@ -6,6 +6,9 @@ use App\Filament\Resources\PrestacionResource;
 use Filament\Resources\Pages\CreateRecord;
 use Modules\Prestaciones\Models\PrestacionTipoCentro;
 
+/**
+ * Página de creación de prestaciones.
+ */
 class CreatePrestacion extends CreateRecord
 {
     protected static string $resource = PrestacionResource::class;

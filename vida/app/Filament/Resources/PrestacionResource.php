@@ -21,6 +21,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Prestaciones\Models\Prestacion;
 
+/**
+ * Recurso Filament para la gestión de prestaciones.
+ */
 class PrestacionResource extends Resource
 {
     use AutorizaGestion;

@@ -16,6 +16,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\TipoActividad;
 
+/**
+ * Recurso Filament para la gestión de tipos de actividad.
+ */
 class TipoActividadResource extends Resource
 {
     use AutorizaGestion;

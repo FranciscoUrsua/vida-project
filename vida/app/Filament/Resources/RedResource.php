@@ -18,6 +18,9 @@ use Filament\Tables\Table;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Red;
 
+/**
+ * Recurso Filament para la gestión de redes.
+ */
 class RedResource extends Resource
 {
     use AutorizaGestion;

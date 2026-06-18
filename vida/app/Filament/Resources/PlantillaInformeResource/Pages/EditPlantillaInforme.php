@@ -6,6 +6,9 @@ use App\Filament\Resources\PlantillaInformeResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
+/**
+ * Página de edición de plantillas de informe.
+ */
 class EditPlantillaInforme extends EditRecord
 {
     protected static string $resource = PlantillaInformeResource::class;
