@@ -786,3 +786,47 @@ Proyecto global (tooling, no lógica de negocio)
   de `TieneUO` no declara `withPivot()` para las columnas adicionales del pivot.
 
 ---
+
+## 2026-06-18 — Módulo Intervención: modelo completo del Plan de Intervención
+
+### Migraciones
+- `2026_06_16_000010_create_tipos_plan_table` — tabla `tipos_plan`
+- `2026_06_16_000011_expand_planes_intervencion_table` — campos `tipo_plan_id`, `diagnostico_social`, `periodicidad_seguimiento`
+- `2026_06_16_000012_create_plan_content_tables` — tablas `objetivos_catalogo`, `plan_objetivos`, `plan_actuaciones_ayuntamiento`, `plan_actuaciones_ciudadano`, `plan_participantes`, `plan_cambios`
+- `2026_06_16_000013_add_documento_to_firmas_plan` — FK `documento_firmado_id` en `firmas_plan`
+
+### Modelos (nuevos)
+- `TipoPlan` — catálogo de tipos de plan; los de sistema son no eliminables (LogicException en delete)
+- `ObjetivoCatalogo` — objetivos generales/específicos del catálogo por tipo de plan
+- `PlanObjetivo` — objetivos seleccionados en un plan concreto (con self-referential)
+- `PlanActuacionAyuntamiento` — compromisos del Ayuntamiento; requiere `prestacion_id` (LogicException si null)
+- `PlanActuacionCiudadano` — compromisos del ciudadano (texto libre, prestación opcional)
+- `PlanParticipante` — profesionales participantes con `estaActivo()` basado en fecha_fin
+- `PlanCambio` — historial de cambios con snapshot del estado previo, `$timestamps = false`
+
+### Modelos (actualizados)
+- `PlanDeIntervencion` — añadidos `tipo_plan_id`, `unidad_convivencia_id`, `diagnostico_social`, `periodicidad_seguimiento` + nuevas relaciones + `registrarCambio()`
+
+### Filament
+- `TipoPlanResource` en `app/Filament/Resources/` — grupo Catálogos, con página `GestionarObjetivos`
+- Slug inmutable al editar; tipos no eliminables se excluyen de DeleteAction
+
+### Servicios
+- `PlanPdfService` — genera PDF del plan con dompdf
+- Vista `Modules/Intervencion/resources/views/pdf/plan.blade.php`
+- Método `generarPdfPlan(int $planId)` en `CiudadanoPage`
+
+### Factories y seeders
+- `TipoPlanSeeder` — 5 tipos del sistema, idempotente
+- `TipoPlanFactory` — con estados `asp()`, `especializado()`, `noEliminable()`
+- `PrestacionFactory` — nueva; añadido `HasFactory` a modelo `Prestacion`
+
+### Tests
+- `PlanContenidoTest` — 17 tests TF-PLAN-01 a TF-PLAN-17, todos en verde
+
+### Decisiones de implementación
+- `GestionarObjetivos::$view` declarado como `protected string` (no static) para respetar la herencia de `Filament\Pages\Page`
+- FQCN en `PlanDeIntervencion::tipoPlan()` para evitar colisión de import con el enum `TipoPlan`
+- `PlanCambio` usa `$timestamps = false` con `created_at` explícito como campo datetime
+
+---

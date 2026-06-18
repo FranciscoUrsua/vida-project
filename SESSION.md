@@ -1,64 +1,46 @@
-# SESSION — VIDA 360
+# SESSION — Estado actual del proyecto VIDA 360
 
-_Actualizado: 2026-06-18_
+**Última actualización:** 2026-06-18
+
+---
 
 ## Tarea completada
 
-Ficha — schema_snapshot, Versionable y pre-relleno de nueva valoración.
-Implementación completa de los 6 pasos de `ficha-schema-snapshot.md`: migración,
-modelo Ficha con Versionable + scope + prerellenarDesde, inversión restricción TipoFicha,
-persistencia schema_snapshot/profesional_id en RegistrarValoracionPage, backfill fichas
-existentes, 12 tests TF-INT-I01..I12 todos en verde.
+Modelo completo del Plan de Intervención Social (PISO):
 
-## Estado actual
+- 4 migraciones nuevas: `tipos_plan`, expansión de `planes_intervencion` (tipo_plan_id, diagnostico_social, periodicidad_seguimiento), tablas de contenido (objetivos, actuaciones, participantes, historial de cambios), FK documento_firmado en firmas_plan.
+- Seeder `TipoPlanSeeder`: 5 tipos del sistema (asp_general, esp_familia_infancia, esp_violencia_genero, esp_mayores, esp_inclusion), idempotente, no eliminables.
+- 7 modelos nuevos: `TipoPlan`, `ObjetivoCatalogo`, `PlanObjetivo`, `PlanActuacionAyuntamiento`, `PlanActuacionCiudadano`, `PlanParticipante`, `PlanCambio`.
+- `PlanDeIntervencion` actualizado con relaciones y método `registrarCambio()`.
+- `TipoPlanResource` en `app/Filament/Resources/` con página `GestionarObjetivos`.
+- `PlanPdfService` con vista Blade para generar PDF del plan con dompdf.
+- `CiudadanoPage.php` añadido `generarPdfPlan()`.
+- `PrestacionFactory` creada y añadido `HasFactory` a `Prestacion`.
+- 17 tests TF-PLAN-01 a TF-PLAN-17 — todos en verde.
 
-### Cambios aplicados en esta sesión
+---
 
-**Módulo Intervencion — Ficha con schema_snapshot**
-- Migración `2026_06_18_000001_add_schema_snapshot_and_profesional_to_fichas.php`:
-  `schema_snapshot` (jsonb nullable) y `profesional_id` (FK users, nullOnDelete) en `fichas`.
-- `Ficha.php`: trait `Versionable`, casts `schema_snapshot → array`, `$fillable` ampliado,
-  scope `historialPara()`, método estático `prerellenarDesde()`.
-- `TipoFicha.php`: eliminar campo con fichas asociadas ahora permitido (`continue`);
-  cambiar tipo sigue prohibido. PHPDoc actualizado.
-- `TipoFichaTest.php` H08 invertido: 10/10 en verde.
-- `RegistrarValoracionPage.php`: `guardar()` persiste `schema_snapshot` y `profesional_id`.
-- Backfill: 2 fichas preexistentes actualizadas.
-- `FichaVersionadoTest.php`: 12 tests TF-INT-I01..I12, todos en verde (26 assertions).
-- `docs/modulo-intervencion.md` §4: reescrito con entidad Ficha, filosofía de versionado,
-  visualización histórica y lista de tests I01-I12.
-- `CLAUDE.md` §6: fila `ficha-schema-snapshot.md` añadida.
+## Estado exacto del proyecto
 
-## Siguiente paso recomendado
+- **Módulo Intervención**: modelo completo del plan implementado. Faltan las UIs de creación/edición del plan dentro de CiudadanoPage.
+- **dompdf**: verificar si está instalado. PlanPdfService lo requiere. Si no: `composer require barryvdh/laravel-dompdf`.
+- **TipoPlanResource**: visible en Filament bajo grupo "Catálogos" (navigationSort: 10).
+- **Resto de módulos**: sin cambios en esta sesión.
 
-1. **Visualización de historial de fichas en CiudadanoPage** — el scope `historialPara()` y la
-   tabla de fichas con `schema_snapshot` ya están listos; falta la UI que los consuma.
-   Contexto: ver `docs/modulo-intervencion.md` §4.7.
-2. **Pre-relleno en RegistrarValoracionPage** — `Ficha::prerellenarDesde()` existe como método
-   puro; integrarlo en `mount()` cuando `$tipoFichaId` se inicia con una ficha anterior.
-3. **PISO/plan detail page** — Entrega 4.
-4. **Genograma** — bloqueado hasta definir tipo_dinamica, fecha_fallecimiento y decisión
-   sobre nodos ligeros (ver BACKLOG).
+---
 
-## Contexto técnico para retomar
+## Siguiente paso concreto recomendado
 
-### schema_snapshot — filosofía
-- Cada `Ficha` guarda el schema del `TipoFicha` en el momento de creación.
-- Fichas son autocontenidas: interpretables incluso si el TipoFicha evoluciona.
-- Eliminar un campo del TipoFicha es SEGURO (fichas conservan snapshot).
-- Cambiar el TIPO de un campo existente sigue siendo PROHIBIDO.
+1. Verificar que dompdf está instalado: `composer show barryvdh/laravel-dompdf` (si falla, instalar).
+2. Ejecutar `php artisan db:seed --class=Modules\\Intervencion\\Database\\Seeders\\TipoPlanSeeder` en el entorno de desarrollo para cargar los 5 tipos del sistema.
+3. Iniciar la UI del plan en `CiudadanoPage`: sección de diagnóstico social, objetivos y actuaciones — ver BACKLOG entrada "UI del Plan de Intervención en CiudadanoPage" (2026-06-18).
 
-### Versionable en Ficha — dos actos
-- **Corrección** (update sobre ficha incompleta): genera registro `Version` con el estado anterior.
-- **Nueva valoración** (create de Ficha nueva): NO genera Version; la ficha anterior permanece intacta.
-- `versionable_type` = `Modules\Intervencion\Models\Ficha` (FQCN).
+---
 
-### prerellenarDesde
-- Método puro: recibe `Ficha $anterior` y `TipoFicha $actual`, devuelve array de valores.
-- Copia solo campos presentes en el schema actual; descarta retirados; null para nuevos.
-- No persiste nada; el caller decide si usar los valores.
+## Contexto para retomar sin fricción
 
-### CiudadanoRelacion — reciprocidad automática (sesión anterior)
-- `booted()` created: crea el registro inverso con el tipo recíproco del catálogo.
-- `$sincronizandoReciproca` estático evita recursión infinita.
-- Computeds en CiudadanoPage: `representante()`, `relacionesAgrupadas()`, `relacionesMiembrosUc()`.
+- `TipoPlan` (modelo) usa FQCN `\Modules\Intervencion\Models\TipoPlan::class` en las relaciones de `PlanDeIntervencion` para evitar colisión con el enum `Modules\Intervencion\Enums\TipoPlan`.
+- `PlanActuacionAyuntamiento::booted()` lanza `LogicException` si `prestacion_id` es null al guardar.
+- `TipoPlan::booted()` lanza `LogicException` si se intenta eliminar un tipo con `eliminable = false`.
+- El `slug` de `TipoPlan` es inmutable una vez creado (campo deshabilitado en el formulario Filament al editar).
+- `GestionarObjetivos` usa `protected string $view` (no static) porque `Filament\Pages\Page::$view` es no-estático.

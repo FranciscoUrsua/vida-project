@@ -31,11 +31,15 @@ use Modules\Intervencion\Enums\TipoPlan;
  *
  * @property int $id
  * @property int $historia_id
+ * @property int|null $tipo_plan_id
+ * @property int|null $unidad_convivencia_id
  * @property TipoPlan $tipo
  * @property int|null $servicio_especializado_id
  * @property int $profesional_responsable_id
  * @property int|null $plan_asp_id
  * @property EstadoPlan $estado
+ * @property string|null $diagnostico_social
+ * @property string $periodicidad_seguimiento
  * @property Carbon $fecha_inicio
  * @property Carbon|null $fecha_firma
  * @property Carbon|null $fecha_cierre
@@ -64,11 +68,15 @@ class PlanDeIntervencion extends Model
 
     protected $fillable = [
         'historia_id',
+        'tipo_plan_id',
+        'unidad_convivencia_id',
         'tipo',
         'servicio_especializado_id',
         'profesional_responsable_id',
         'plan_asp_id',
         'estado',
+        'diagnostico_social',
+        'periodicidad_seguimiento',
         'fecha_inicio',
         'fecha_firma',
         'fecha_cierre',
@@ -257,6 +265,146 @@ class PlanDeIntervencion extends Model
 
             return $nuevoPlan;
         });
+    }
+
+    // -------------------------------------------------------------------------
+    // Relaciones — contenido del plan
+    // -------------------------------------------------------------------------
+
+    /**
+     * Tipo de plan del catálogo al que pertenece.
+     *
+     * Nota: se usa FQCN para evitar colisión con el enum TipoPlan importado.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Intervencion\Models\TipoPlan, self>
+     */
+    public function tipoPlan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\Modules\Intervencion\Models\TipoPlan::class, 'tipo_plan_id');
+    }
+
+    /**
+     * Unidad de convivencia vinculada al plan, si es un plan familiar.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Ciudadania\Models\UnidadConvivencia, self>
+     */
+    public function unidadConvivencia(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(
+            \Modules\Ciudadania\Models\UnidadConvivencia::class,
+            'unidad_convivencia_id'
+        );
+    }
+
+    /**
+     * Objetivos del plan ordenados.
+     *
+     * @return HasMany<PlanObjetivo>
+     */
+    public function objetivos(): HasMany
+    {
+        return $this->hasMany(PlanObjetivo::class, 'plan_id')->orderBy('orden');
+    }
+
+    /**
+     * Solo los objetivos generales del plan.
+     *
+     * @return HasMany<PlanObjetivo>
+     */
+    public function objetivosGenerales(): HasMany
+    {
+        return $this->objetivos()->where('nivel', 'general');
+    }
+
+    /**
+     * Actuaciones del Ayuntamiento en el plan.
+     *
+     * @return HasMany<PlanActuacionAyuntamiento>
+     */
+    public function actuacionesAyuntamiento(): HasMany
+    {
+        return $this->hasMany(PlanActuacionAyuntamiento::class, 'plan_id')->orderBy('orden');
+    }
+
+    /**
+     * Compromisos del ciudadano en el plan.
+     *
+     * @return HasMany<PlanActuacionCiudadano>
+     */
+    public function actuacionesCiudadano(): HasMany
+    {
+        return $this->hasMany(PlanActuacionCiudadano::class, 'plan_id')->orderBy('orden');
+    }
+
+    /**
+     * Todos los profesionales participantes.
+     *
+     * @return HasMany<PlanParticipante>
+     */
+    public function participantes(): HasMany
+    {
+        return $this->hasMany(PlanParticipante::class, 'plan_id');
+    }
+
+    /**
+     * Solo los participantes activos (sin fecha_fin).
+     *
+     * @return HasMany<PlanParticipante>
+     */
+    public function participantesActivos(): HasMany
+    {
+        return $this->participantes()->whereNull('fecha_fin');
+    }
+
+    /**
+     * Historial de cambios del plan, más reciente primero.
+     *
+     * @return HasMany<PlanCambio>
+     */
+    public function cambios(): HasMany
+    {
+        return $this->hasMany(PlanCambio::class, 'plan_id')->orderByDesc('created_at');
+    }
+
+    // -------------------------------------------------------------------------
+    // Métodos de dominio — historial de cambios
+    // -------------------------------------------------------------------------
+
+    /**
+     * Registra un cambio en el historial con snapshot del estado previo.
+     * Debe llamarse ANTES de aplicar los cambios.
+     *
+     * @param int    $profesionalId
+     * @param string $motivo
+     * @param string $origen        'discrecional' | 'seguimiento'
+     * @param int|null $seguimientoId
+     *
+     * @return PlanCambio
+     */
+    public function registrarCambio(
+        int $profesionalId,
+        string $motivo,
+        string $origen = 'discrecional',
+        ?int $seguimientoId = null
+    ): PlanCambio {
+        $snapshot = [
+            'diagnostico_social'       => $this->diagnostico_social,
+            'periodicidad_seguimiento' => $this->periodicidad_seguimiento,
+            'objetivos'                => $this->objetivos()->with('objetivosEspecificos')->get()->toArray(),
+            'actuaciones_ayuntamiento' => $this->actuacionesAyuntamiento()->with('prestacion')->get()->toArray(),
+            'actuaciones_ciudadano'    => $this->actuacionesCiudadano()->get()->toArray(),
+            'participantes'            => $this->participantesActivos()->with('profesional')->get()->toArray(),
+        ];
+
+        return $this->cambios()->create([
+            'version'        => $this->version,
+            'profesional_id' => $profesionalId,
+            'origen'         => $origen,
+            'seguimiento_id' => $seguimientoId,
+            'motivo'         => $motivo,
+            'snapshot'       => $snapshot,
+            'created_at'     => now(),
+        ]);
     }
 
     // -------------------------------------------------------------------------

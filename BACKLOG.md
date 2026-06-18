@@ -313,3 +313,32 @@ raíz del módulo ni al global. Añadir cuando se haga el primer deploy con dato
 del catálogo de relaciones.
 
 ---
+
+**UI del Plan de Intervención en CiudadanoPage** — 2026-06-18
+`Módulo: Intervención`
+El modelo completo está implementado. Pendiente: UI Livewire para crear/editar
+planes en CiudadanoPage, incluyendo:
+- Formulario de diagnóstico social
+- Gestión de objetivos (selección de catálogo + texto libre)
+- Gestión de actuaciones del Ayuntamiento (búsqueda en catálogo de prestaciones)
+- Gestión de actuaciones del ciudadano (texto libre + prestación opcional)
+- Gestión de participantes
+- Botón generar PDF + upload del PDF firmado
+
+---
+
+**Instalar barryvdh/laravel-dompdf si no está** — 2026-06-18
+`Infraestructura`
+El servicio PlanPdfService usa dompdf. Verificar si está instalado:
+`composer require barryvdh/laravel-dompdf`
+Documentar en SESSION.md tras instalación.
+
+---
+
+**Seguimiento del plan — UI** — 2026-06-18
+`Módulo: Intervención`
+El modelo SeguimientoPlan ya existe (tests TF-INT-C). Pendiente: integrar el
+seguimiento en la UI de CiudadanoPage, con evaluación de objetivos por estado
+y programación del siguiente seguimiento.
+
+---

@@ -1,0 +1,138 @@
+<?php
+
+namespace App\Filament\Resources\TipoPlanResource\Pages;
+
+use App\Filament\Resources\TipoPlanResource;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Resources\Pages\Page;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
+use Modules\Intervencion\Models\ObjetivoCatalogo;
+use Modules\Intervencion\Models\TipoPlan;
+
+/**
+ * Página de gestión del catálogo de objetivos de un tipo de plan.
+ *
+ * Permite crear, editar y eliminar objetivos (generales y específicos)
+ * para un tipo de plan concreto directamente en Filament.
+ */
+class GestionarObjetivos extends Page implements HasTable
+{
+    use InteractsWithTable;
+
+    protected static string $resource = TipoPlanResource::class;
+
+    protected string $view = 'intervencion::filament.tipo-plan.gestionar-objetivos';
+
+    /** @var TipoPlan */
+    public TipoPlan $record;
+
+    /**
+     * Título dinámico con el nombre del tipo de plan.
+     *
+     * @return string
+     */
+    public function getTitle(): string
+    {
+        return "Objetivos: {$this->record->nombre}";
+    }
+
+    /**
+     * Configuración completa de la tabla de objetivos del catálogo.
+     *
+     * @param Table $table
+     *
+     * @return Table
+     */
+    public function table(Table $table): Table
+    {
+        $tipoPlanId = $this->record->id;
+
+        return $table
+            ->query(
+                ObjetivoCatalogo::where('tipo_plan_id', $tipoPlanId)
+                    ->orderBy('nivel')
+                    ->orderBy('orden')
+            )
+            ->columns([
+                TextColumn::make('nivel')
+                    ->label('Nivel')
+                    ->badge()
+                    ->color(fn ($state) => $state === 'general' ? 'primary' : 'gray'),
+
+                TextColumn::make('objetivoGeneral.texto')
+                    ->label('Objetivo general')
+                    ->placeholder('—')
+                    ->limit(40),
+
+                TextColumn::make('texto')
+                    ->label('Texto')
+                    ->limit(60)
+                    ->searchable(),
+
+                TextColumn::make('orden')
+                    ->label('Orden')
+                    ->sortable(),
+
+                IconColumn::make('activo')
+                    ->label('Activo')
+                    ->boolean(),
+            ])
+            ->headerActions([
+                Tables\Actions\CreateAction::make()
+                    ->model(ObjetivoCatalogo::class)
+                    ->form([
+                        Select::make('nivel')
+                            ->options(['general' => 'General', 'especifico' => 'Específico'])
+                            ->required()
+                            ->live(),
+
+                        Select::make('objetivo_general_id')
+                            ->label('Objetivo general al que pertenece')
+                            ->options(fn () => ObjetivoCatalogo::where('tipo_plan_id', $tipoPlanId)
+                                ->where('nivel', 'general')
+                                ->pluck('texto', 'id'))
+                            ->nullable()
+                            ->visible(fn (Get $get) => $get('nivel') === 'especifico'),
+
+                        Textarea::make('texto')
+                            ->required()
+                            ->rows(2),
+
+                        TextInput::make('orden')
+                            ->numeric()
+                            ->default(0),
+
+                        Toggle::make('activo')
+                            ->default(true),
+                    ])
+                    ->mutateFormDataUsing(fn (array $data) => array_merge(
+                        $data,
+                        ['tipo_plan_id' => $tipoPlanId]
+                    )),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make()
+                    ->form([
+                        Textarea::make('texto')
+                            ->required()
+                            ->rows(2),
+
+                        TextInput::make('orden')
+                            ->numeric(),
+
+                        Toggle::make('activo'),
+                    ]),
+
+                Tables\Actions\DeleteAction::make(),
+            ]);
+    }
+}

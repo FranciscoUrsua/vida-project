@@ -4,9 +4,11 @@ namespace Modules\Prestaciones\Models;
 
 use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Prestaciones\Database\Factories\PrestacionFactory;
 
 /**
  * Prestación del catálogo oficial de servicios sociales municipales.
@@ -54,8 +56,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Prestacion extends Model
 {
+    use HasFactory;
     use SoftDeletes;
     use Versionable;
+
+    /**
+     * @return PrestacionFactory
+     */
+    protected static function newFactory(): PrestacionFactory
+    {
+        return PrestacionFactory::new();
+    }
 
     protected $table = 'prestaciones';
 

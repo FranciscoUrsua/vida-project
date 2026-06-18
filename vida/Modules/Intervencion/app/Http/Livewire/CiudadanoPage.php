@@ -1116,6 +1116,28 @@ class CiudadanoPage extends Component
     }
 
     /**
+     * Genera y descarga el PDF del plan de intervención indicado.
+     *
+     * @param int $planId
+     *
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     */
+    public function generarPdfPlan(int $planId): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $plan = \Modules\Intervencion\Models\PlanDeIntervencion::findOrFail($planId);
+
+        $this->authorize('view', $plan);
+
+        $service = app(\Modules\Intervencion\Services\PlanPdfService::class);
+
+        return response()->streamDownload(
+            fn () => print($service->generar($plan)),
+            $service->nombre($plan),
+            ['Content-Type' => 'application/pdf']
+        );
+    }
+
+    /**
      * Renderiza la vista principal del expediente del ciudadano.
      *
      * @return View
