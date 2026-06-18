@@ -303,6 +303,11 @@ class BuscarCiudadanoPage extends Component
         $this->justificacion = '';
     }
 
+    /**
+     * Renderiza la pantalla de búsqueda de ciudadanos.
+     *
+     * @return View
+     */
     public function render(): View
     {
         return view('intervencion::livewire.buscar-ciudadano-page');

@@ -1,46 +1,20 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-17 12:25:32 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 09:36:08 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 371.
 - Cabeceras documentadas: 251/371.
-- Metodos publicos documentados: 716/992.
-- Alertas de comentarios: 531.
+- Metodos publicos documentados: 743/993.
+- Alertas de comentarios: 505.
 
 ## Alertas
 
-### Método público sin PHPDoc (228)
+### Método público sin PHPDoc (202)
 
 - `Modules\Documentos\Models\Informe::autor()` en `vida/Modules/Documentos/app/Models/Informe.php:99`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::documento()` en `vida/Modules/Documentos/app/Models/Informe.php:104`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::scopeBorradores()` en `vida/Modules/Documentos/app/Models/Informe.php:109`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::scopeFirmados()` en `vida/Modules/Documentos/app/Models/Informe.php:114`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::scopeDeAutor()` en `vida/Modules/Documentos/app/Models/Informe.php:119`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::estaFirmado()` en `vida/Modules/Documentos/app/Models/Informe.php:124`: Falta docblock de método público.
-- `Modules\Documentos\Models\Informe::estaAnulado()` en `vida/Modules/Documentos/app/Models/Informe.php:129`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\AgendaPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/AgendaPage.php:301`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/BuscarCiudadanoPage.php:306`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\CiudadanoPage::toggleUC()` en `vida/Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php:530`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\CiudadanoPage::abrirModalRelaciones()` en `vida/Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php:535`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\CiudadanoPage::cerrarModalRelaciones()` en `vida/Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php:540`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\CiudadanoPage::abrirModalRepresentante()` en `vida/Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php:545`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\CiudadanoPage::cerrarModalRepresentante()` en `vida/Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php:550`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\CiudadanoPage::toggleApunte()` en `vida/Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php:718`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\CiudadanoPage::seleccionarHerramienta()` en `vida/Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php:734`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\CiudadanoPage::cancelarHerramienta()` en `vida/Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php:750`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\CiudadanoPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php:1054`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedFiltroSeguimiento()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:61`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedFiltroPiso()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:66`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedFiltroEsp()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:71`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedOrdenarPor()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:76`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\MisCasosPage::updatedBusqueda()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:81`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\MisCasosPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/MisCasosPage.php:273`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\RegistrarEscalaPage::getTipoEscalaProperty()` en `vida/Modules/Intervencion/app/Http/Livewire/RegistrarEscalaPage.php:45`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\RegistrarEscalaPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/RegistrarEscalaPage.php:70`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\RegistrarValoracionPage::render()` en `vida/Modules/Intervencion/app/Http/Livewire/RegistrarValoracionPage.php:182`: Falta docblock de método público.
 - `Modules\Intervencion\Http\Livewire\Sidebar::render()` en `vida/Modules/Intervencion/app/Http/Livewire/Sidebar.php:47`: Falta docblock de método público.
 - `Modules\Intervencion\Models\Apunte::plan()` en `vida/Modules/Intervencion/app/Models/Apunte.php:140`: Falta docblock de método público.
 - `Modules\Intervencion\Providers\IntervencionServiceProvider::register()` en `vida/Modules/Intervencion/app/Providers/IntervencionServiceProvider.php:33`: Falta docblock de método público.
@@ -193,7 +167,7 @@ Generado el 2026-06-17 12:25:32 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Filament\Resources\TipoEspacioResource::getPages()` en `vida/app/Filament/Resources/TipoEspacioResource.php:83`: Falta docblock de método público.
 - `App\Filament\Resources\TipoFichaResource::table()` en `vida/app/Filament/Resources/TipoFichaResource.php:58`: Falta docblock de método público.
 - `App\Filament\Resources\TipoFichaResource::form()` en `vida/app/Filament/Resources/TipoFichaResource.php:103`: Falta docblock de método público.
-- `App\Filament\Resources\TipoFichaResource::getPages()` en `vida/app/Filament/Resources/TipoFichaResource.php:272`: Falta docblock de método público.
+- `App\Filament\Resources\TipoFichaResource::getPages()` en `vida/app/Filament/Resources/TipoFichaResource.php:294`: Falta docblock de método público.
 - `App\Filament\Resources\TipoRelacionProfesionalResource::form()` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource.php:41`: Falta docblock de método público.
 - `App\Filament\Resources\TipoRelacionProfesionalResource::table()` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource.php:63`: Falta docblock de método público.
 - `App\Filament\Resources\TipoRelacionProfesionalResource::getPages()` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource.php:98`: Falta docblock de método público.
@@ -323,8 +297,8 @@ Generado el 2026-06-17 12:25:32 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Filament\Resources\ProfesionalResource::canDelete()` en `vida/app/Filament/Resources/ProfesionalResource.php:246`: Falta @param $record.
 - `App\Filament\Resources\ProfesionalResource::canDelete()` en `vida/app/Filament/Resources/ProfesionalResource.php:246`: Falta @return.
 - `App\Filament\Resources\RedResource::canViewAny()` en `vida/app/Filament/Resources/RedResource.php:82`: Falta @return.
-- `App\Filament\Resources\TipoFichaResource::convertirSchemaBlocks()` en `vida/app/Filament/Resources/TipoFichaResource.php:292`: Falta @param $state.
-- `App\Filament\Resources\TipoFichaResource::convertirSchemaBlocks()` en `vida/app/Filament/Resources/TipoFichaResource.php:292`: Falta @return.
+- `App\Filament\Resources\TipoFichaResource::convertirSchemaBlocks()` en `vida/app/Filament/Resources/TipoFichaResource.php:314`: Falta @param $state.
+- `App\Filament\Resources\TipoFichaResource::convertirSchemaBlocks()` en `vida/app/Filament/Resources/TipoFichaResource.php:314`: Falta @return.
 - `App\Filament\Resources\UsuarioResource::canDelete()` en `vida/app/Filament/Resources/UsuarioResource.php:228`: Falta @param $record.
 - `App\Filament\Resources\UsuarioResource::canDelete()` en `vida/app/Filament/Resources/UsuarioResource.php:228`: Falta @return.
 - `App\Filament\Resources\UsuarioRolResource::canEdit()` en `vida/app/Filament/Resources/UsuarioRolResource.php:161`: Falta @param $record.
@@ -2191,17 +2165,23 @@ Metodos publicos:
 - `function autor(): BelongsTo`
   _Sin resumen PHPDoc._
 - `function documento(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Documento PDF asociado al informe, si existe.
+  `@return` BelongsTo<Documento, self>
 - `function scopeBorradores(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra los informes en estado borrador.
+  `@return` Builder<self>
 - `function scopeFirmados(Builder $query): Builder`
-  _Sin resumen PHPDoc._
+  Filtra los informes en estado firmado.
+  `@return` Builder<self>
 - `function scopeDeAutor(Builder $query, int $userId): Builder`
-  _Sin resumen PHPDoc._
+  Filtra los informes por identificador de autor.
+  `@return` Builder<self>
 - `function estaFirmado(): bool`
-  _Sin resumen PHPDoc._
+  Indica si el informe está firmado.
+  `@return` bool
 - `function estaAnulado(): bool`
-  _Sin resumen PHPDoc._
+  Indica si el informe está anulado.
+  `@return` bool
 
 ### `Modules\Documentos\Models\PisoFirmado`
 
@@ -2626,7 +2606,8 @@ Metodos publicos:
   KPIs para la franja superior de la vista.
   `@return` array{alertas_sin_reconocer: int, seguimientos_vencidos: int, citas: int, mensajes_sin_leer: int}
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza la pantalla de agenda.
+  `@return` View
 
 ### `Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage`
 
@@ -2654,7 +2635,8 @@ Metodos publicos:
   Crea la solicitud de acceso a un ciudadano protegido.
   `@return` void
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza la pantalla de búsqueda de ciudadanos.
+  `@return` View
 
 ### `Modules\Intervencion\Http\Livewire\CiudadanoPage`
 
@@ -2733,15 +2715,20 @@ Metodos publicos:
   Tipo de relación (etiqueta) de cada miembro de la UC respecto al titular, indexado por ciudadano_id. Enriquece el widget UC.
   `@return` \Illuminate\Support\Collection<int, string|null>
 - `function toggleUC(): void`
-  _Sin resumen PHPDoc._
+  Expande o contrae la sección de unidad de convivencia.
+  `@return` void
 - `function abrirModalRelaciones(): void`
-  _Sin resumen PHPDoc._
+  Abre el modal con todas las relaciones del ciudadano.
+  `@return` void
 - `function cerrarModalRelaciones(): void`
-  _Sin resumen PHPDoc._
+  Cierra el modal con todas las relaciones del ciudadano.
+  `@return` void
 - `function abrirModalRepresentante(): void`
-  _Sin resumen PHPDoc._
+  Abre el modal de datos del representante.
+  `@return` void
 - `function cerrarModalRepresentante(): void`
-  _Sin resumen PHPDoc._
+  Cierra el modal de datos del representante.
+  `@return` void
 - `function abrirModalUc(): void`
   Abre el modal de gestión de UC y reinicia su estado interno.
   `@return` void
@@ -2773,14 +2760,17 @@ Metodos publicos:
   Crea la UC tomando el domicilio del ciudadano titular y lo añade como primer miembro. Solo actúa si el ciudadano no tiene UC vigente.
   `@return` void
 - `function toggleApunte(int $apunteId): void`
-  _Sin resumen PHPDoc._
+  Expande o contrae un apunte del timeline.
+  `@return` void
 - `function setFiltroHS(string $filtro): void`
   _Sin resumen PHPDoc._
   `@return` void
 - `function seleccionarHerramienta(string $herramienta): void`
-  _Sin resumen PHPDoc._
+  Activa una herramienta del panel lateral.
+  `@return` void
 - `function cancelarHerramienta(): void`
-  _Sin resumen PHPDoc._
+  Cancela la herramienta activa y limpia su estado visual.
+  `@return` void
 - `function verApunte(int $apunteId): void`
   Abre el modal de detalle de un apunte en modo solo lectura. El pasado es inmutable: este modal nunca ofrece edición.
   `@return` void
@@ -2809,7 +2799,8 @@ Metodos publicos:
   Calcula la puntuación total de un pase de escala. Suma valor × peso de cada ítem respondido.
   `@return` int
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza la vista principal del expediente del ciudadano.
+  `@return` View
 
 ### `Modules\Intervencion\Http\Livewire\MisCasosPage`
 
@@ -2822,15 +2813,20 @@ Muestra la lista paginada de ciudadanos con plan general activo asignados al pro
 Metodos publicos:
 
 - `function updatedFiltroSeguimiento(): void`
-  _Sin resumen PHPDoc._
+  Resetea la paginación al cambiar el filtro de seguimiento.
+  `@return` void
 - `function updatedFiltroPiso(): void`
-  _Sin resumen PHPDoc._
+  Resetea la paginación al cambiar el filtro de plan ASP.
+  `@return` void
 - `function updatedFiltroEsp(): void`
-  _Sin resumen PHPDoc._
+  Resetea la paginación al cambiar el filtro de derivación especializada.
+  `@return` void
 - `function updatedOrdenarPor(): void`
-  _Sin resumen PHPDoc._
+  Resetea la paginación al cambiar el criterio de ordenación.
+  `@return` void
 - `function updatedBusqueda(): void`
-  _Sin resumen PHPDoc._
+  Resetea la paginación al cambiar el texto de búsqueda.
+  `@return` void
 - `function sortBy(string $campo): void`
   Cambia la columna de ordenación o alterna la dirección si ya está activa. Valores de campo permitidos: 'ciudadano', 'historia', 'seg', 'inicio', 'esp'. 'ciudadano' aplica ordenación en memoria (nombre cifrado, no ordenable en DB).
   `@return` void
@@ -2844,7 +2840,8 @@ Metodos publicos:
   Mapa de ciudadanos correspondientes a la página actual de casos. Carga los nombres en una sola consulta para evitar N+1 sobre datos cifrados.
   `@return` Collection<int, Ciudadano>
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza la bandeja de casos del profesional.
+  `@return` View
 
 ### `Modules\Intervencion\Http\Livewire\RegistrarEscalaPage`
 
@@ -2860,12 +2857,14 @@ Metodos publicos:
   Inicializa la pantalla con la historia y el tipo de escala opcional.
   `@return` void
 - `function getTipoEscalaProperty(): ?TipoEscala`
-  _Sin resumen PHPDoc._
+  Devuelve el instrumento de escala seleccionado.
+  `@return` TipoEscala|null
 - `function guardar(): void`
   Guarda el pase de escala y redirige de vuelta a la pantalla del ciudadano.
   `@return` void
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza la pantalla de registro de escala.
+  `@return` View
 
 ### `Modules\Intervencion\Http\Livewire\RegistrarValoracionPage`
 
@@ -2893,7 +2892,8 @@ Metodos publicos:
   Valida los campos obligatorios y persiste la ficha vinculada a la historia. Si ya existe una ficha para esta historia y tipo, la actualiza (idempotente).
   `@return` void
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza la pantalla de registro de valoración.
+  `@return` View
 
 ### `Modules\Intervencion\Http\Livewire\Sidebar`
 
@@ -2971,7 +2971,7 @@ Metodos publicos:
 ### `Modules\Intervencion\Models\Ficha`
 
 - Tipo: class.
-- Fichero: `vida/Modules/Intervencion/app/Models/Ficha.php:30`.
+- Fichero: `vida/Modules/Intervencion/app/Models/Ficha.php:31`.
 - Resumen: Ficha de datos reales de una valoración.
 
 Cada ficha corresponde a un TipoFicha y almacena los valores introducidos por el profesional. El campo datos es un JSON libre; el campo notas permite texto sin estructura durante la entrevista.  historia_id se usa cuando la ficha se crea desde RegistrarValoracionPage antes de existir una Valoracion formal (valoracion_id nullable). TODO: vincular siempre a Valoracion cuando ese flujo esté completo.
@@ -2987,6 +2987,9 @@ Metodos publicos:
 - `function tipoFicha(): BelongsTo`
   _Sin resumen PHPDoc._
   `@return` BelongsTo<TipoFicha, Ficha>
+- `function getCiudadanoId(): ?int`
+  Resuelve el ciudadano_id para el sistema de auditoría a través de la historia social.
+  `@return` int|null
 
 ### `Modules\Intervencion\Models\FirmaPlan`
 

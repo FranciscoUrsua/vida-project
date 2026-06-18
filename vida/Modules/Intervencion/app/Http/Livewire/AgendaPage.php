@@ -298,6 +298,11 @@ class AgendaPage extends Component
         return $citas;
     }
 
+    /**
+     * Renderiza la pantalla de agenda.
+     *
+     * @return View
+     */
     public function render(): View
     {
         return view('intervencion::livewire.agenda-page');

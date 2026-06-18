@@ -200,6 +200,11 @@ class RegistrarValoracionPage extends Component
         }
     }
 
+    /**
+     * Renderiza la pantalla de registro de valoración.
+     *
+     * @return View
+     */
     public function render(): View
     {
         return view('intervencion::livewire.registrar-valoracion-page');

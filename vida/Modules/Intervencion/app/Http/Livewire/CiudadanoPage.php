@@ -527,26 +527,51 @@ class CiudadanoPage extends Component
     // Métodos de UI
     // -------------------------------------------------------------------------
 
+    /**
+     * Expande o contrae la sección de unidad de convivencia.
+     *
+     * @return void
+     */
     public function toggleUC(): void
     {
         $this->ucExpandida = ! $this->ucExpandida;
     }
 
+    /**
+     * Abre el modal con todas las relaciones del ciudadano.
+     *
+     * @return void
+     */
     public function abrirModalRelaciones(): void
     {
         $this->modalRelacionesAbierto = true;
     }
 
+    /**
+     * Cierra el modal con todas las relaciones del ciudadano.
+     *
+     * @return void
+     */
     public function cerrarModalRelaciones(): void
     {
         $this->modalRelacionesAbierto = false;
     }
 
+    /**
+     * Abre el modal de datos del representante.
+     *
+     * @return void
+     */
     public function abrirModalRepresentante(): void
     {
         $this->modalRepresentanteAbierto = true;
     }
 
+    /**
+     * Cierra el modal de datos del representante.
+     *
+     * @return void
+     */
     public function cerrarModalRepresentante(): void
     {
         $this->modalRepresentanteAbierto = false;
@@ -715,6 +740,13 @@ class CiudadanoPage extends Component
         $this->ucMensaje = 'Unidad de convivencia creada.';
     }
 
+    /**
+     * Expande o contrae un apunte del timeline.
+     *
+     * @param int $apunteId ID del apunte.
+     *
+     * @return void
+     */
     public function toggleApunte(int $apunteId): void
     {
         $this->apuntesExpandidos[$apunteId] = ! ($this->apuntesExpandidos[$apunteId] ?? false);
@@ -731,6 +763,13 @@ class CiudadanoPage extends Component
         unset($this->apuntesHS);
     }
 
+    /**
+     * Activa una herramienta del panel lateral.
+     *
+     * @param string $herramienta Identificador de la herramienta.
+     *
+     * @return void
+     */
     public function seleccionarHerramienta(string $herramienta): void
     {
         $this->herramientaActiva = $herramienta;
@@ -747,6 +786,11 @@ class CiudadanoPage extends Component
         $this->filtroSugerido = $mapa[$herramienta] ?? null;
     }
 
+    /**
+     * Cancela la herramienta activa y limpia su estado visual.
+     *
+     * @return void
+     */
     public function cancelarHerramienta(): void
     {
         $this->herramientaActiva = null;
@@ -1051,6 +1095,11 @@ class CiudadanoPage extends Component
         return $total;
     }
 
+    /**
+     * Renderiza la vista principal del expediente del ciudadano.
+     *
+     * @return View
+     */
     public function render(): View
     {
         return view('intervencion::livewire.ciudadano-page');

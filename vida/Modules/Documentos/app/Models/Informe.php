@@ -101,31 +101,68 @@ class Informe extends Model
         return $this->belongsTo(User::class, 'autor_id');
     }
 
+    /**
+     * Documento PDF asociado al informe, si existe.
+     *
+     * @return BelongsTo<Documento, self>
+     */
     public function documento(): BelongsTo
     {
         return $this->belongsTo(Documento::class, 'documento_id');
     }
 
+    /**
+     * Filtra los informes en estado borrador.
+     *
+     * @param Builder<self> $query Consulta base.
+     *
+     * @return Builder<self>
+     */
     public function scopeBorradores(Builder $query): Builder
     {
         return $query->where('estado', EstadoInforme::Borrador->value);
     }
 
+    /**
+     * Filtra los informes en estado firmado.
+     *
+     * @param Builder<self> $query Consulta base.
+     *
+     * @return Builder<self>
+     */
     public function scopeFirmados(Builder $query): Builder
     {
         return $query->where('estado', EstadoInforme::Firmado->value);
     }
 
+    /**
+     * Filtra los informes por identificador de autor.
+     *
+     * @param Builder<self> $query Consulta base.
+     * @param int $userId ID del usuario autor.
+     *
+     * @return Builder<self>
+     */
     public function scopeDeAutor(Builder $query, int $userId): Builder
     {
         return $query->where('autor_id', $userId);
     }
 
+    /**
+     * Indica si el informe está firmado.
+     *
+     * @return bool
+     */
     public function estaFirmado(): bool
     {
         return $this->estado === EstadoInforme::Firmado;
     }
 
+    /**
+     * Indica si el informe está anulado.
+     *
+     * @return bool
+     */
     public function estaAnulado(): bool
     {
         return $this->estado === EstadoInforme::Anulado;

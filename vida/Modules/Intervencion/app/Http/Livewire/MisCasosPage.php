@@ -58,26 +58,51 @@ class MisCasosPage extends Component
     // Hooks de actualización de propiedades
     // -------------------------------------------------------------------------
 
+    /**
+     * Resetea la paginación al cambiar el filtro de seguimiento.
+     *
+     * @return void
+     */
     public function updatedFiltroSeguimiento(): void
     {
         $this->resetPage();
     }
 
+    /**
+     * Resetea la paginación al cambiar el filtro de plan ASP.
+     *
+     * @return void
+     */
     public function updatedFiltroPiso(): void
     {
         $this->resetPage();
     }
 
+    /**
+     * Resetea la paginación al cambiar el filtro de derivación especializada.
+     *
+     * @return void
+     */
     public function updatedFiltroEsp(): void
     {
         $this->resetPage();
     }
 
+    /**
+     * Resetea la paginación al cambiar el criterio de ordenación.
+     *
+     * @return void
+     */
     public function updatedOrdenarPor(): void
     {
         $this->resetPage();
     }
 
+    /**
+     * Resetea la paginación al cambiar el texto de búsqueda.
+     *
+     * @return void
+     */
     public function updatedBusqueda(): void
     {
         $this->resetPage();
@@ -270,6 +295,11 @@ class MisCasosPage extends Component
             ->keyBy('id');
     }
 
+    /**
+     * Renderiza la bandeja de casos del profesional.
+     *
+     * @return View
+     */
     public function render(): View
     {
         return view('intervencion::livewire.mis-casos-page');

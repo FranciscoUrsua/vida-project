@@ -42,6 +42,11 @@ class RegistrarEscalaPage extends Component
         $this->tipoEscalaId = $tipoEscala ? (int) $tipoEscala : null;
     }
 
+    /**
+     * Devuelve el instrumento de escala seleccionado.
+     *
+     * @return TipoEscala|null
+     */
     public function getTipoEscalaProperty(): ?TipoEscala
     {
         return $this->tipoEscalaId ? TipoEscala::find($this->tipoEscalaId) : null;
@@ -67,6 +72,11 @@ class RegistrarEscalaPage extends Component
         $this->redirect(route('intervencion.ciudadano.show', $this->historia->id));
     }
 
+    /**
+     * Renderiza la pantalla de registro de escala.
+     *
+     * @return View
+     */
     public function render(): View
     {
         return view('intervencion::livewire.registrar-escala-page');
