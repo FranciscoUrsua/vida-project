@@ -6,6 +6,9 @@ use App\Filament\Resources\CuadranteMesResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
+/**
+ * Página de edición de cuadrantes mensuales.
+ */
 class EditCuadranteMes extends EditRecord
 {
     protected static string $resource = CuadranteMesResource::class;

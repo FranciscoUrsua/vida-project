@@ -22,6 +22,9 @@ use Modules\Agenda\Enums\TipoExcepcion;
 use Modules\Agenda\Models\ExcepcionProfesional;
 use Modules\Centro\Models\Centro;
 
+/**
+ * Recurso Filament para la gestión de excepciones profesionales.
+ */
 class ExcepcionProfesionalResource extends Resource
 {
     use AutorizaGestion;

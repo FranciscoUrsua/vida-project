@@ -10,6 +10,9 @@ use Modules\Documentos\Models\Informe;
 use Modules\Documentos\Services\ServicioAlmacenamiento;
 use Modules\Documentos\Services\ServicioFirmaInforme;
 
+/**
+ * Página de detalle de informes.
+ */
 class ViewInforme extends ViewRecord
 {
     protected static string $resource = InformeResource::class;

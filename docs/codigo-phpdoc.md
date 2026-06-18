@@ -1,44 +1,19 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 15:27:30 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 15:31:09 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 385.
-- Cabeceras documentadas: 299/385.
+- Cabeceras documentadas: 324/385.
 - Metodos publicos documentados: 997/1043.
-- Alertas de comentarios: 86.
+- Alertas de comentarios: 61.
 
 ## Alertas
 
-### Clase sin PHPDoc (86)
+### Clase sin PHPDoc (61)
 
-- `App\Filament\Resources\CuadranteMesResource` en `vida/app/Filament/Resources/CuadranteMesResource.php:23`: Falta docblock de cabecera.
-- `App\Filament\Resources\CuadranteMesResource\Pages\CreateCuadranteMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/CreateCuadranteMes.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\CuadranteMesResource\Pages\EditCuadranteMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/EditCuadranteMes.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CuadranteMesResource\Pages\ListCuadrantesMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/ListCuadrantesMes.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CuadranteMesResource\RelationManagers\LineasCuadranteRelationManager` en `vida/app/Filament/Resources/CuadranteMesResource/RelationManagers/LineasCuadranteRelationManager.php:11`: Falta docblock de cabecera.
-- `App\Filament\Resources\DistritoResource\Pages\CreateDistrito` en `vida/app/Filament/Resources/DistritoResource/Pages/CreateDistrito.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\DistritoResource\Pages\EditDistrito` en `vida/app/Filament/Resources/DistritoResource/Pages/EditDistrito.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\DistritoResource\Pages\ListDistritos` en `vida/app/Filament/Resources/DistritoResource/Pages/ListDistritos.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\DocumentoResource\Pages\ListDocumentos` en `vida/app/Filament/Resources/DocumentoResource/Pages/ListDocumentos.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\DocumentoResource\Pages\ViewDocumento` en `vida/app/Filament/Resources/DocumentoResource/Pages/ViewDocumento.php:11`: Falta docblock de cabecera.
-- `App\Filament\Resources\EstiloInformeResource\Pages\CreateEstiloInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/CreateEstiloInforme.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\EstiloInformeResource\Pages\EditEstiloInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/EditEstiloInforme.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\EstiloInformeResource\Pages\ListEstilosInforme` en `vida/app/Filament/Resources/EstiloInformeResource/Pages/ListEstilosInforme.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ExcepcionProfesionalResource` en `vida/app/Filament/Resources/ExcepcionProfesionalResource.php:25`: Falta docblock de cabecera.
-- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\CreateExcepcionProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/CreateExcepcionProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\EditExcepcionProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/EditExcepcionProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ExcepcionProfesionalResource\Pages\ListExcepcionesProfesional` en `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/ListExcepcionesProfesional.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource` en `vida/app/Filament/Resources/HorarioCentroResource.php:26`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource\Pages\CreateHorarioCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/CreateHorarioCentro.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource\Pages\EditHorarioCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/EditHorarioCentro.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource\Pages\ListHorariosCentro` en `vida/app/Filament/Resources/HorarioCentroResource/Pages/ListHorariosCentro.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\HorarioCentroResource\RelationManagers\TiposSlotsRelationManager` en `vida/app/Filament/Resources/HorarioCentroResource/RelationManagers/TiposSlotsRelationManager.php:19`: Falta docblock de cabecera.
-- `App\Filament\Resources\InformeResource\Pages\ListInformes` en `vida/app/Filament/Resources/InformeResource/Pages/ListInformes.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\InformeResource\Pages\ViewInforme` en `vida/app/Filament/Resources/InformeResource/Pages/ViewInforme.php:13`: Falta docblock de cabecera.
-- `App\Filament\Resources\LogAlertasResource\Pages\ListLogAlertas` en `vida/app/Filament/Resources/LogAlertasResource/Pages/ListLogAlertas.php:8`: Falta docblock de cabecera.
 - `App\Filament\Resources\PerfilHorarioProfesionalResource` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:23`: Falta docblock de cabecera.
 - `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\CreatePerfilHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/CreatePerfilHorarioProfesional.php:8`: Falta docblock de cabecera.
 - `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\EditPerfilHorarioProfesional` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource/Pages/EditPerfilHorarioProfesional.php:9`: Falta docblock de cabecera.
@@ -4712,8 +4687,8 @@ Metodos publicos:
 ### `App\Filament\Resources\CuadranteMesResource`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/CuadranteMesResource.php:23`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/CuadranteMesResource.php:26`.
+- Resumen: Recurso Filament para la gestión de cuadrantes mensuales.
 
 Metodos publicos:
 
@@ -4733,26 +4708,26 @@ Metodos publicos:
 ### `App\Filament\Resources\CuadranteMesResource\Pages\CreateCuadranteMes`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/CuadranteMesResource/Pages/CreateCuadranteMes.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/CuadranteMesResource/Pages/CreateCuadranteMes.php:11`.
+- Resumen: Página de creación de cuadrantes mensuales.
 
 ### `App\Filament\Resources\CuadranteMesResource\Pages\EditCuadranteMes`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/CuadranteMesResource/Pages/EditCuadranteMes.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/CuadranteMesResource/Pages/EditCuadranteMes.php:12`.
+- Resumen: Página de edición de cuadrantes mensuales.
 
 ### `App\Filament\Resources\CuadranteMesResource\Pages\ListCuadrantesMes`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/CuadranteMesResource/Pages/ListCuadrantesMes.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/CuadranteMesResource/Pages/ListCuadrantesMes.php:12`.
+- Resumen: Página de listado de cuadrantes mensuales.
 
 ### `App\Filament\Resources\CuadranteMesResource\RelationManagers\LineasCuadranteRelationManager`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/CuadranteMesResource/RelationManagers/LineasCuadranteRelationManager.php:11`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/CuadranteMesResource/RelationManagers/LineasCuadranteRelationManager.php:14`.
+- Resumen: Gestor de relación de líneas de cuadrante.
 
 Metodos publicos:
 
@@ -4786,20 +4761,20 @@ Metodos publicos:
 ### `App\Filament\Resources\DistritoResource\Pages\CreateDistrito`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/DistritoResource/Pages/CreateDistrito.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/DistritoResource/Pages/CreateDistrito.php:11`.
+- Resumen: Página de creación de distritos.
 
 ### `App\Filament\Resources\DistritoResource\Pages\EditDistrito`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/DistritoResource/Pages/EditDistrito.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/DistritoResource/Pages/EditDistrito.php:12`.
+- Resumen: Página de edición de distritos.
 
 ### `App\Filament\Resources\DistritoResource\Pages\ListDistritos`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/DistritoResource/Pages/ListDistritos.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/DistritoResource/Pages/ListDistritos.php:12`.
+- Resumen: Página de listado de distritos.
 
 ### `App\Filament\Resources\DocumentoResource`
 
@@ -4827,14 +4802,14 @@ Metodos publicos:
 ### `App\Filament\Resources\DocumentoResource\Pages\ListDocumentos`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/DocumentoResource/Pages/ListDocumentos.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/DocumentoResource/Pages/ListDocumentos.php:11`.
+- Resumen: Página de listado de documentos.
 
 ### `App\Filament\Resources\DocumentoResource\Pages\ViewDocumento`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/DocumentoResource/Pages/ViewDocumento.php:11`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/DocumentoResource/Pages/ViewDocumento.php:14`.
+- Resumen: Página de detalle de documentos.
 
 ### `App\Filament\Resources\EstiloInformeResource`
 
@@ -4868,26 +4843,26 @@ Metodos publicos:
 ### `App\Filament\Resources\EstiloInformeResource\Pages\CreateEstiloInforme`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/EstiloInformeResource/Pages/CreateEstiloInforme.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/EstiloInformeResource/Pages/CreateEstiloInforme.php:11`.
+- Resumen: Página de creación de estilos de informe.
 
 ### `App\Filament\Resources\EstiloInformeResource\Pages\EditEstiloInforme`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/EstiloInformeResource/Pages/EditEstiloInforme.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/EstiloInformeResource/Pages/EditEstiloInforme.php:12`.
+- Resumen: Página de edición de estilos de informe.
 
 ### `App\Filament\Resources\EstiloInformeResource\Pages\ListEstilosInforme`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/EstiloInformeResource/Pages/ListEstilosInforme.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/EstiloInformeResource/Pages/ListEstilosInforme.php:12`.
+- Resumen: Página de listado de estilos de informe.
 
 ### `App\Filament\Resources\ExcepcionProfesionalResource`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ExcepcionProfesionalResource.php:25`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ExcepcionProfesionalResource.php:28`.
+- Resumen: Recurso Filament para la gestión de excepciones profesionales.
 
 Metodos publicos:
 
@@ -4904,26 +4879,26 @@ Metodos publicos:
 ### `App\Filament\Resources\ExcepcionProfesionalResource\Pages\CreateExcepcionProfesional`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/CreateExcepcionProfesional.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/CreateExcepcionProfesional.php:12`.
+- Resumen: Página de creación de excepciones profesionales.
 
 ### `App\Filament\Resources\ExcepcionProfesionalResource\Pages\EditExcepcionProfesional`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/EditExcepcionProfesional.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/EditExcepcionProfesional.php:12`.
+- Resumen: Página de edición de excepciones profesionales.
 
 ### `App\Filament\Resources\ExcepcionProfesionalResource\Pages\ListExcepcionesProfesional`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/ListExcepcionesProfesional.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ExcepcionProfesionalResource/Pages/ListExcepcionesProfesional.php:12`.
+- Resumen: Página de listado de excepciones profesionales.
 
 ### `App\Filament\Resources\HorarioCentroResource`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/HorarioCentroResource.php:26`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/HorarioCentroResource.php:29`.
+- Resumen: Recurso Filament para la gestión de horarios de centro.
 
 Metodos publicos:
 
@@ -4943,26 +4918,26 @@ Metodos publicos:
 ### `App\Filament\Resources\HorarioCentroResource\Pages\CreateHorarioCentro`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/HorarioCentroResource/Pages/CreateHorarioCentro.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/HorarioCentroResource/Pages/CreateHorarioCentro.php:11`.
+- Resumen: Página de creación de horarios de centro.
 
 ### `App\Filament\Resources\HorarioCentroResource\Pages\EditHorarioCentro`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/HorarioCentroResource/Pages/EditHorarioCentro.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/HorarioCentroResource/Pages/EditHorarioCentro.php:12`.
+- Resumen: Página de edición de horarios de centro.
 
 ### `App\Filament\Resources\HorarioCentroResource\Pages\ListHorariosCentro`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/HorarioCentroResource/Pages/ListHorariosCentro.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/HorarioCentroResource/Pages/ListHorariosCentro.php:12`.
+- Resumen: Página de listado de horarios de centro.
 
 ### `App\Filament\Resources\HorarioCentroResource\RelationManagers\TiposSlotsRelationManager`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/HorarioCentroResource/RelationManagers/TiposSlotsRelationManager.php:19`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/HorarioCentroResource/RelationManagers/TiposSlotsRelationManager.php:22`.
+- Resumen: Gestor de relación de tipos de slot de un horario de centro.
 
 Metodos publicos:
 
@@ -4999,14 +4974,14 @@ Metodos publicos:
 ### `App\Filament\Resources\InformeResource\Pages\ListInformes`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/InformeResource/Pages/ListInformes.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/InformeResource/Pages/ListInformes.php:11`.
+- Resumen: Página de listado de informes.
 
 ### `App\Filament\Resources\InformeResource\Pages\ViewInforme`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/InformeResource/Pages/ViewInforme.php:13`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/InformeResource/Pages/ViewInforme.php:16`.
+- Resumen: Página de detalle de informes.
 
 ### `App\Filament\Resources\LogAlertasResource`
 
@@ -5040,8 +5015,8 @@ Metodos publicos:
 ### `App\Filament\Resources\LogAlertasResource\Pages\ListLogAlertas`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/LogAlertasResource/Pages/ListLogAlertas.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/LogAlertasResource/Pages/ListLogAlertas.php:11`.
+- Resumen: Página de listado de logs de alertas.
 
 ### `App\Filament\Resources\Pages\ListRecords`
 

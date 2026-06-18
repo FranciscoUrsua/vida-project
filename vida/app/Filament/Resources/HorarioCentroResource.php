@@ -23,6 +23,9 @@ use Modules\Agenda\Enums\ModoAgenda;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Centro\Models\Centro;
 
+/**
+ * Recurso Filament para la gestión de horarios de centro.
+ */
 class HorarioCentroResource extends Resource
 {
     use AutorizaGestion;

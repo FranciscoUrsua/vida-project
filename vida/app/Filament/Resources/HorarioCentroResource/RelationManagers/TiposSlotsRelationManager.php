@@ -16,6 +16,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Agenda\Enums\OrigenPermitidoSlot;
 
+/**
+ * Gestor de relación de tipos de slot de un horario de centro.
+ */
 class TiposSlotsRelationManager extends RelationManager
 {
     protected static string $relationship = 'tiposSlot';

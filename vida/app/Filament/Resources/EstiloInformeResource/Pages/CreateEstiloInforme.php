@@ -5,6 +5,9 @@ namespace App\Filament\Resources\EstiloInformeResource\Pages;
 use App\Filament\Resources\EstiloInformeResource;
 use Filament\Resources\Pages\CreateRecord;
 
+/**
+ * Página de creación de estilos de informe.
+ */
 class CreateEstiloInforme extends CreateRecord
 {
     protected static string $resource = EstiloInformeResource::class;

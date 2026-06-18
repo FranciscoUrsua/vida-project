@@ -8,6 +8,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Agenda\Models\LineaCuadrante;
 
+/**
+ * Gestor de relación de líneas de cuadrante.
+ */
 class LineasCuadranteRelationManager extends RelationManager
 {
     protected static string $relationship = 'lineas';

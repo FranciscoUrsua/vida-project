@@ -6,6 +6,9 @@ use App\Filament\Resources\DistritoResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
+/**
+ * Página de edición de distritos.
+ */
 class EditDistrito extends EditRecord
 {
     protected static string $resource = DistritoResource::class;

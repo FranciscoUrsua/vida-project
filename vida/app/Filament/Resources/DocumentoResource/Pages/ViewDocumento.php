@@ -8,6 +8,9 @@ use Filament\Resources\Pages\ViewRecord;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Services\ServicioAlmacenamiento;
 
+/**
+ * Página de detalle de documentos.
+ */
 class ViewDocumento extends ViewRecord
 {
     protected static string $resource = DocumentoResource::class;
