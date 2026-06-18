@@ -4,6 +4,60 @@
 
 ---
 
+## feat(intervencion): Ficha — schema_snapshot, Versionable y pre-relleno de nueva valoración — 2026-06-18
+
+### Área afectada
+`Modules/Intervencion/app/Models/Ficha.php`, `Modules/Intervencion/app/Models/TipoFicha.php`, `Modules/Intervencion/app/Http/Livewire/RegistrarValoracionPage.php`, `Modules/Intervencion/database/migrations/2026_06_18_000001_add_schema_snapshot_and_profesional_to_fichas.php`, `Modules/Intervencion/tests/Feature/FichaVersionadoTest.php`, `Modules/Intervencion/tests/Feature/TipoFichaTest.php`, `docs/modulo-intervencion.md`, `CLAUDE.md`
+
+### Cambios
+
+#### Migración (Paso 1)
+- `fichas` table: columnas `schema_snapshot` (jsonb, nullable) y `profesional_id` (FK a `users`, nullOnDelete).
+
+#### Modelo `Ficha` (Paso 2)
+- Añadido trait `Versionable`: snapshot automático antes de cada `updating` en tabla `versiones`.
+- `schema_snapshot` y `profesional_id` añadidos a `$fillable`.
+- Cast `'schema_snapshot' => 'array'`.
+- Nuevo scope `historialPara(int $historiaId, int $tipoFichaId)`: ordena fichas de más reciente a más antigua.
+- Nuevo método estático `prerellenarDesde(Ficha $fichaAnterior, TipoFicha $tipoFicha)`: copia valores de campos que siguen en el schema actual, descarta los retirados, deja null los nuevos.
+
+#### Inversión restricción TipoFicha (Paso 3)
+- `TipoFicha::validarSchema()`: **eliminar un campo con fichas asociadas ahora está permitido** (las fichas existentes conservan su `schema_snapshot`). Cambiar el tipo de un campo existente sigue siendo prohibido.
+- PHPDoc de clase y método actualizados para reflejar la nueva política.
+- Test H08 invertido: `h08_eliminar_campo_de_ficha_con_datos_asociados_esta_permitido` verifica que no lanza excepción. 10/10 tests siguen en verde.
+
+#### RegistrarValoracionPage (Paso 4)
+- `guardar()` ahora persiste `schema_snapshot` (copia del schema del TipoFicha en el momento de guardado) y `profesional_id` (usuario autenticado).
+
+#### Backfill (Paso 5)
+- 2 fichas preexistentes actualizadas con `updateQuietly(['schema_snapshot' => ..., 'profesional_id' => null])`.
+
+#### Tests TF-INT-I01..I12 (Paso 6)
+- `FichaVersionadoTest.php`: 12 tests nuevos, todos en verde (26 assertions):
+  - I01: crear ficha guarda schema_snapshot igual al schema del TipoFicha.
+  - I02: schema_snapshot no muta al modificar el TipoFicha posterior.
+  - I03: corrección genera versión Versionable con datos anteriores.
+  - I04: versión Versionable incluye schema_snapshot.
+  - I05: nueva valoración crea Ficha nueva, no modifica la anterior.
+  - I06: nueva valoración usa schema actual del TipoFicha.
+  - I07: pre-relleno copia campos comunes de la ficha anterior.
+  - I08: pre-relleno descarta campos retirados del schema actual.
+  - I09: pre-relleno deja null los campos nuevos.
+  - I10: cambiar tipo de campo con fichas lanza ValidationException.
+  - I11: eliminar campo con fichas está permitido (inversión de H08 antigua).
+  - I12: historialPara ordena de más reciente a más antigua.
+
+#### Documentación
+- `docs/modulo-intervencion.md` §4 reescrito: §4.1 Atributos, §4.2 Sistema configurable, §4.3 Frontera, §4.4 Filosofía, §4.5 tabla completa de Ficha (incluye schema_snapshot/profesional_id), §4.6 Versionado (distinción 2 actos), §4.7 Visualización histórica, §4.x Tests I01-I12 documentados.
+- `CLAUDE.md` sección 6: añadida fila para `ficha-schema-snapshot.md`.
+
+### Decisiones de implementación
+- Con `schema_snapshot`, cada ficha es autocontenida: interpretable aunque el TipoFicha evolucione. Esto invierte la restricción que impedía eliminar campos del tipo.
+- Dos "actos" bien diferenciados: corrección (update sobre ficha incompleta → version Versionable) vs. nueva valoración (create de ficha nueva → sin version).
+- `prerellenarDesde` es método puro sin persistencia: el caller decide si usar los valores.
+
+---
+
 ## feat(ciudadania): Relaciones entre ciudadanos + UC solo lectura en FichaCiudadanoPage — 2026-06-17
 
 ### Área afectada

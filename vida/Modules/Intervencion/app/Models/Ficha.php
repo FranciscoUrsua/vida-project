@@ -3,6 +3,8 @@
 namespace Modules\Intervencion\Models;
 
 use App\Traits\Auditable;
+use App\Traits\Versionable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\HistoriaSocial;
@@ -20,18 +22,21 @@ use Modules\Intervencion\Database\Factories\FichaFactory;
  * antes de existir una Valoracion formal (valoracion_id nullable).
  * TODO: vincular siempre a Valoracion cuando ese flujo esté completo.
  *
- * @property int $id
- * @property int|null $historia_id
- * @property int|null $valoracion_id
- * @property int $tipo_ficha_id
+ * @property int        $id
+ * @property int|null   $historia_id
+ * @property int|null   $valoracion_id
+ * @property int        $tipo_ficha_id
+ * @property array|null $schema_snapshot  Copia del schema del TipoFicha al crear la ficha
+ * @property int|null   $profesional_id
  * @property array|null $datos
  * @property string|null $notas
- * @property bool $completada
+ * @property bool       $completada
  */
 class Ficha extends Model
 {
     use Auditable;
     use HasFactory;
+    use Versionable;
 
     protected static function newFactory(): FichaFactory
     {
@@ -44,14 +49,17 @@ class Ficha extends Model
         'historia_id',
         'valoracion_id',
         'tipo_ficha_id',
+        'schema_snapshot',
+        'profesional_id',
         'datos',
         'notas',
         'completada',
     ];
 
     protected $casts = [
-        'datos' => 'array',
-        'completada' => 'boolean',
+        'datos'           => 'array',
+        'schema_snapshot' => 'array',
+        'completada'      => 'boolean',
     ];
 
     // -------------------------------------------------------------------------
@@ -92,5 +100,51 @@ class Ficha extends Model
     public function getCiudadanoId(): ?int
     {
         return $this->historia?->ciudadano_id;
+    }
+
+    // -------------------------------------------------------------------------
+    // Scopes
+    // -------------------------------------------------------------------------
+
+    /**
+     * Fichas de un tipo concreto para una historia, ordenadas de más reciente a más antigua.
+     *
+     * @param Builder<self> $query
+     */
+    public function scopeHistorialPara(Builder $query, int $historiaId, int $tipoFichaId): Builder
+    {
+        return $query
+            ->where('historia_id', $historiaId)
+            ->where('tipo_ficha_id', $tipoFichaId)
+            ->orderByDesc('created_at');
+    }
+
+    // -------------------------------------------------------------------------
+    // Métodos estáticos de negocio
+    // -------------------------------------------------------------------------
+
+    /**
+     * Genera el array de datos pre-rellenado para una nueva valoración.
+     *
+     * Reglas:
+     * - Campo en schema actual Y en datos anteriores → se copia.
+     * - Campo en schema actual pero no en datos anteriores → null (campo nuevo).
+     * - Campo en datos anteriores pero no en schema actual → se descarta (retirado).
+     *
+     * @param self     $fichaAnterior Ficha de referencia.
+     * @param TipoFicha $tipoFicha    TipoFicha con el schema actual.
+     * @return array<string, mixed>
+     */
+    public static function prerellenarDesde(self $fichaAnterior, TipoFicha $tipoFicha): array
+    {
+        $camposActuales = collect($tipoFicha->schema['campos'] ?? [])->pluck('id')->all();
+        $datosAnteriores = $fichaAnterior->datos ?? [];
+
+        $resultado = [];
+        foreach ($camposActuales as $campoId) {
+            $resultado[$campoId] = $datosAnteriores[$campoId] ?? null;
+        }
+
+        return $resultado;
     }
 }

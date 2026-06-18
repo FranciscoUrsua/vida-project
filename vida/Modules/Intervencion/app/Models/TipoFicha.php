@@ -18,8 +18,8 @@ use Modules\Intervencion\Database\Factories\TipoFichaFactory;
  *
  * La validación del schema se aplica en el evento saving para garantizar la
  * integridad estructural independientemente del canal de entrada.
- * Cuando existen fichas cumplimentadas, los ids y tipos de campos existentes
- * son inmutables: solo se pueden añadir campos nuevos.
+ * Cuando existen fichas cumplimentadas, cambiar el tipo de un campo existente
+ * está prohibido; eliminar campos está permitido (las fichas conservan schema_snapshot).
  *
  * @property int $id
  * @property string $nombre
@@ -226,15 +226,17 @@ class TipoFicha extends Model
             foreach ($idsOriginales as $id => $tipo) {
                 $campoActual = collect($schema['campos'])->firstWhere('id', $id);
 
+                // Eliminar un campo está permitido: las fichas existentes conservan
+                // schema_snapshot y siguen siendo coherentes (campo marcado como «retirado»).
                 if ($campoActual === null) {
-                    throw ValidationException::withMessages([
-                        'schema' => "No se puede eliminar el campo '{$id}': ya existen fichas cumplimentadas.",
-                    ]);
+                    continue;
                 }
 
                 if ($campoActual['tipo'] !== $tipo) {
                     throw ValidationException::withMessages([
-                        'schema' => "No se puede cambiar el tipo del campo '{$id}': ya existen fichas cumplimentadas.",
+                        'schema' => "No se puede cambiar el tipo del campo '{$id}': ya existen fichas "
+                            . "cumplimentadas. Los datos existentes ({$tipo}) serían ininterpretables "
+                            . "como {$campoActual['tipo']}.",
                     ]);
                 }
             }

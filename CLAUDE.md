@@ -179,3 +179,4 @@ Ficheros disponibles:
 | `autenticacion-implementacion.md` | Instrucciones paso a paso para implementar login, onboarding y componente avatar |
 | `demo-worlds-cli.md` | Sistema de world-building para entornos de demo: infraestructura, escenarios, mundos YAML y página Filament |
 | `tipo-ficha-implementacion.md` | TipoFichaResource: creador de fichas de valoración + 10 tests (TF-INT-H01 a H10) |
+| `ficha-schema-snapshot.md` | Ficha con schema_snapshot + Versionable + pre-relleno: migración, modelo, inversión restricción TipoFicha, 12 tests (TF-INT-I01 a I12) |

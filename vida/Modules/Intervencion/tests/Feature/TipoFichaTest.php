@@ -211,39 +211,35 @@ class TipoFichaTest extends TestCase
     }
 
     /**
-     * TF-INT-H08: No se puede eliminar un campo de una ficha con datos asociados.
+     * TF-INT-H08: Eliminar un campo de un TipoFicha con fichas asociadas está permitido.
      *
-     * Negativo: si se elimina la guard de inmutabilidad, este test debe fallar.
+     * Con schema_snapshot, las fichas existentes conservan la definición original
+     * de sus campos. Eliminar un campo del tipo es seguro: la ficha antigua lo
+     * mostrará como «campo retirado» usando su snapshot.
+     *
+     * Negativo: si se reactiva la guardia de eliminación, este test debe fallar.
      */
     #[Test]
-    public function no_se_puede_eliminar_campo_de_ficha_con_datos_asociados(): void
+    public function h08_eliminar_campo_de_ficha_con_datos_asociados_esta_permitido(): void
     {
-        $tipoFicha = TipoFicha::create([
-            'nombre' => 'Ficha con dos campos',
-            'schema' => [
-                'campos' => [
-                    ['id' => 'campo_a', 'tipo' => 'texto', 'etiqueta' => 'Campo A', 'obligatorio' => false, 'orden' => 1],
-                    ['id' => 'campo_b', 'tipo' => 'texto', 'etiqueta' => 'Campo B', 'obligatorio' => false, 'orden' => 2],
-                ],
-            ],
-            'activo' => true,
+        $tipoFicha = TipoFicha::factory()->create([
+            'schema' => ['campos' => [
+                ['id' => 'campo_a', 'tipo' => 'texto', 'etiqueta' => 'Campo A', 'obligatorio' => false, 'orden' => 1],
+                ['id' => 'campo_b', 'tipo' => 'texto', 'etiqueta' => 'Campo B', 'obligatorio' => false, 'orden' => 2],
+            ]],
         ]);
 
-        // Crear una ficha cumplimentada asociada a este tipo
         Ficha::factory()->create(['tipo_ficha_id' => $tipoFicha->id]);
 
         $this->assertTrue($tipoFicha->tieneFichasAsociadas());
 
-        $this->expectException(ValidationException::class);
+        // Eliminar campo_b del schema — no debe lanzar excepción
+        $tipoFicha->schema = ['campos' => [
+            ['id' => 'campo_a', 'tipo' => 'texto', 'etiqueta' => 'Campo A', 'obligatorio' => false, 'orden' => 1],
+        ]];
+        $tipoFicha->save();
 
-        // Intentar guardar el schema con solo campo_a (eliminando campo_b)
-        $tipoFicha->update([
-            'schema' => [
-                'campos' => [
-                    ['id' => 'campo_a', 'tipo' => 'texto', 'etiqueta' => 'Campo A', 'obligatorio' => false, 'orden' => 1],
-                ],
-            ],
-        ]);
+        $this->assertCount(1, $tipoFicha->fresh()->schema['campos']);
     }
 
     /**

@@ -151,11 +151,14 @@ class RegistrarValoracionPage extends Component
             [
                 'historia_id'   => $this->historiaId,
                 'tipo_ficha_id' => $this->tipoFichaId,
+                'completada'    => false,
             ],
             [
-                'datos'      => $this->datos ?: null,
-                'notas'      => $this->notas ?: null,
-                'completada' => false,
+                'schema_snapshot' => $this->tipoFicha?->schema,
+                'datos'           => $this->datos ?: null,
+                'notas'           => $this->notas ?: null,
+                'completada'      => false,
+                'profesional_id'  => auth()->id(),
             ]
         );
 

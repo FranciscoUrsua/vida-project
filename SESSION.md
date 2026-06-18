@@ -4,62 +4,61 @@ _Actualizado: 2026-06-18_
 
 ## Tarea completada
 
-Gestión de relaciones en FichaCiudadanoPage (crear, cerrar, ver historial).
-Implementación completa del ciclo de relaciones entre ciudadanos.
+Ficha — schema_snapshot, Versionable y pre-relleno de nueva valoración.
+Implementación completa de los 6 pasos de `ficha-schema-snapshot.md`: migración,
+modelo Ficha con Versionable + scope + prerellenarDesde, inversión restricción TipoFicha,
+persistencia schema_snapshot/profesional_id en RegistrarValoracionPage, backfill fichas
+existentes, 12 tests TF-INT-I01..I12 todos en verde.
 
 ## Estado actual
 
 ### Cambios aplicados en esta sesión
 
-**Módulo Ciudadania — nuevos ficheros**
-- `Modules/Ciudadania/database/migrations/2026_06_16_000004_create_ciudadano_relaciones_table.php`
-  — tabla `ciudadano_relaciones` con FKs a ciudadanos, tipo_relacion (slug),
-  fecha_inicio, fecha_fin nullable, observaciones.
-- `Modules/Ciudadania/app/Models/CiudadanoRelacion.php`
-  — modelo con reciprocidad automática en hooks booted(): al crear genera el
-  registro inverso; al cerrar (fecha_fin) sincroniza el recíproco; al eliminar
-  propaga la eliminación. Flag estático `$sincronizandoReciproca` evita recursión.
-  Relaciones: ciudadano(), ciudadanoRelacionado(), tipoRelacion(). Scope activas().
-
-**Módulo Intervencion — CiudadanoPage**
-- 3 computeds nuevos: `representante()`, `relacionesAgrupadas()`, `relacionesMiembrosUc()`
-- 2 propiedades nuevas: `modalRelacionesAbierto`, `modalRepresentanteAbierto`
-- 4 métodos nuevos: `abrirModalRelaciones()`, `cerrarModalRelaciones()`,
-  `abrirModalRepresentante()`, `cerrarModalRepresentante()`
-- Blade: línea de representante antes del widget UC, etiqueta de tipo de relación
-  en cada miembro de la UC, botón "Ver todas las relaciones" al pie del widget,
-  modal de datos de contacto del representante, modal agrupado de todas las relaciones.
-- CSS: `.hs-representante`, `.uc-widget-miembro__relacion`, `.uc-widget__ver-relaciones`,
-  `.rel-modal__*`, `.uc-modal--sm` añadidos en `app-operativo.css`.
-- `Modules/Intervencion/tests/Feature/Livewire/RelacionesUiTest.php`
-  — 12 tests TF-LW-REL-01..12, todos en verde.
-
-**Catálogos Filament**
-- `TipoRelacionProfesionalResource`: renombrado a "Relaciones profesionales"
-  (navigationLabel, modelLabel, icon, sort 10) para evitar colisión con el nuevo
-  `TipoRelacionResource` (tipos de relación entre ciudadanos, sort 9).
+**Módulo Intervencion — Ficha con schema_snapshot**
+- Migración `2026_06_18_000001_add_schema_snapshot_and_profesional_to_fichas.php`:
+  `schema_snapshot` (jsonb nullable) y `profesional_id` (FK users, nullOnDelete) en `fichas`.
+- `Ficha.php`: trait `Versionable`, casts `schema_snapshot → array`, `$fillable` ampliado,
+  scope `historialPara()`, método estático `prerellenarDesde()`.
+- `TipoFicha.php`: eliminar campo con fichas asociadas ahora permitido (`continue`);
+  cambiar tipo sigue prohibido. PHPDoc actualizado.
+- `TipoFichaTest.php` H08 invertido: 10/10 en verde.
+- `RegistrarValoracionPage.php`: `guardar()` persiste `schema_snapshot` y `profesional_id`.
+- Backfill: 2 fichas preexistentes actualizadas.
+- `FichaVersionadoTest.php`: 12 tests TF-INT-I01..I12, todos en verde (26 assertions).
+- `docs/modulo-intervencion.md` §4: reescrito con entidad Ficha, filosofía de versionado,
+  visualización histórica y lista de tests I01-I12.
+- `CLAUDE.md` §6: fila `ficha-schema-snapshot.md` añadida.
 
 ## Siguiente paso recomendado
 
-1. **Fichas sociales / Formulario de valoración** — bloquea el PISO completo.
-2. **PISO/plan detail page** — Entrega 4.
-3. **Genograma** — bloqueado hasta definir tipo_dinamica, fecha_fallecimiento
-   y decisión sobre nodos ligeros (ver BACKLOG).
+1. **Visualización de historial de fichas en CiudadanoPage** — el scope `historialPara()` y la
+   tabla de fichas con `schema_snapshot` ya están listos; falta la UI que los consuma.
+   Contexto: ver `docs/modulo-intervencion.md` §4.7.
+2. **Pre-relleno en RegistrarValoracionPage** — `Ficha::prerellenarDesde()` existe como método
+   puro; integrarlo en `mount()` cuando `$tipoFichaId` se inicia con una ficha anterior.
+3. **PISO/plan detail page** — Entrega 4.
+4. **Genograma** — bloqueado hasta definir tipo_dinamica, fecha_fallecimiento y decisión
+   sobre nodos ligeros (ver BACKLOG).
 
 ## Contexto técnico para retomar
 
-### CiudadanoRelacion — reciprocidad automática
+### schema_snapshot — filosofía
+- Cada `Ficha` guarda el schema del `TipoFicha` en el momento de creación.
+- Fichas son autocontenidas: interpretables incluso si el TipoFicha evoluciona.
+- Eliminar un campo del TipoFicha es SEGURO (fichas conservan snapshot).
+- Cambiar el TIPO de un campo existente sigue siendo PROHIBIDO.
+
+### Versionable en Ficha — dos actos
+- **Corrección** (update sobre ficha incompleta): genera registro `Version` con el estado anterior.
+- **Nueva valoración** (create de Ficha nueva): NO genera Version; la ficha anterior permanece intacta.
+- `versionable_type` = `Modules\Intervencion\Models\Ficha` (FQCN).
+
+### prerellenarDesde
+- Método puro: recibe `Ficha $anterior` y `TipoFicha $actual`, devuelve array de valores.
+- Copia solo campos presentes en el schema actual; descarta retirados; null para nuevos.
+- No persiste nada; el caller decide si usar los valores.
+
+### CiudadanoRelacion — reciprocidad automática (sesión anterior)
 - `booted()` created: crea el registro inverso con el tipo recíproco del catálogo.
-- Para tipos simétricos (cónyuge, hermano): `tipoRecíproco()` devuelve `$this`,
-  comprueba existencia antes de crear para no duplicar.
-- Para tipos asimétricos (padre → hijo): crea `hijo → padre` automáticamente.
-- `$sincronizandoReciproca = true` durante la operación para evitar recursión infinita.
-
-### Computeds de relaciones en CiudadanoPage
-- `representante()`: busca por `implicacion_funcional = 'representante'` (nunca por slug).
-- `relacionesAgrupadas()`: agrupa relaciones activas por tipo, excluye tipos inactivos.
-- `relacionesMiembrosUc()`: indexado por `ciudadano_id` → etiqueta del tipo de relación.
-
-### Campos Ciudadano (referencia)
-- `nombre`, `apellido1`, `apellido2`: cast `encrypted` — no queryables con LIKE.
-- `direccion_texto` (cifrado), `coordenadas_lat`, `coordenadas_lng`.
+- `$sincronizandoReciproca` estático evita recursión infinita.
+- Computeds en CiudadanoPage: `representante()`, `relacionesAgrupadas()`, `relacionesMiembrosUc()`.
