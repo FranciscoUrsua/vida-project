@@ -138,17 +138,21 @@
         </div>
 
         {{-- Feedback de guardado --}}
-        @if($estadoGuardado === 'guardado')
-            <div style="margin-top: 1rem; padding: 0.6rem 0.9rem; background: var(--color-success-soft, #ecfdf5); border-radius: 6px; border: 1px solid var(--color-success-border, #6ee7b7); font-size: 0.82rem; color: var(--color-success-ink, #065f46); display: flex; align-items: center; gap: 0.4rem;">
-                <i data-lucide="check-circle" style="width:15px;height:15px; flex-shrink:0;" aria-hidden="true"></i>
-                Valoración guardada correctamente.
+        @if($estadoGuardado === 'borrador')
+            <div style="margin-top: 1rem; padding: 0.6rem 0.9rem; background: var(--color-ink-50, #f8fafc); border-radius: 6px; border: 1px solid var(--color-ink-200, #e2e8f0); font-size: 0.82rem; color: var(--color-ink-600); display: flex; align-items: center; gap: 0.4rem;">
+                <i data-lucide="save" style="width:15px;height:15px; flex-shrink:0;" aria-hidden="true"></i>
+                Borrador guardado.
             </div>
         @endif
 
         {{-- Acciones --}}
         <div style="display: flex; gap: 0.75rem; align-items: center; margin-top: 1.25rem;">
-            <button wire:click="guardar"
+            <button wire:click="guardarDefinitivo"
                     style="padding: 0.45rem 1.1rem; font-size: 0.85rem; font-weight: 600; background: var(--color-primary); color: #fff; border: none; border-radius: 6px; cursor: pointer;">
+                Guardar
+            </button>
+            <button wire:click="guardar"
+                    style="padding: 0.45rem 1.1rem; font-size: 0.85rem; font-weight: 500; background: transparent; color: var(--color-primary); border: 1.5px solid var(--color-primary); border-radius: 6px; cursor: pointer;">
                 Guardar borrador
             </button>
             <a href="{{ route('intervencion.ciudadano.show', $historiaId) }}"

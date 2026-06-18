@@ -43,7 +43,7 @@ class RegistrarValoracionPage extends Component
     /** @var string Notas libres del profesional sobre la valoración */
     public string $notas = '';
 
-    /** @var string|null Estado tras guardar: 'guardado' o null */
+    /** @var string|null Estado tras guardar: 'borrador', 'completado' o null */
     public ?string $estadoGuardado = null;
 
     /**
@@ -120,17 +120,27 @@ class RegistrarValoracionPage extends Component
     }
 
     /**
-     * Valida los campos obligatorios y persiste la ficha vinculada a la historia.
-     * Si ya existe una ficha para esta historia y tipo, la actualiza (idempotente).
+     * Guarda la ficha como borrador (completada = false). No redirige.
      *
      * @return void
      */
     public function guardar(): void
     {
+        $this->persistirFicha(completada: false);
+        $this->estadoGuardado = 'borrador';
+    }
+
+    /**
+     * Valida campos obligatorios, marca la ficha como completada y vuelve a la historia.
+     *
+     * @return \Livewire\Features\SupportRedirects\Redirector|\Illuminate\Http\RedirectResponse
+     */
+    public function guardarDefinitivo(): mixed
+    {
         if (! $this->tipoFichaId) {
             $this->addError('tipoFichaId', 'Selecciona un tipo de ficha.');
 
-            return;
+            return null;
         }
 
         $campos = $this->tipoFicha?->schema['campos'] ?? [];
@@ -146,28 +156,59 @@ class RegistrarValoracionPage extends Component
             $this->validate($reglas);
         }
 
-        // TODO: vincular a Valoracion cuando ese flujo esté completo
-        Ficha::updateOrCreate(
-            [
-                'historia_id'   => $this->historiaId,
-                'tipo_ficha_id' => $this->tipoFichaId,
-                'completada'    => false,
-            ],
-            [
-                'schema_snapshot' => $this->tipoFicha?->schema,
-                'datos'           => $this->datos ?: null,
-                'notas'           => $this->notas ?: null,
-                'completada'      => false,
-                'profesional_id'  => auth()->id(),
-            ]
-        );
+        $this->persistirFicha(completada: true);
 
-        $this->estadoGuardado = 'guardado';
+        return $this->redirect(route('intervencion.ciudadano.show', $this->historiaId), navigate: true);
     }
 
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Persiste la ficha (crea o actualiza el borrador vigente) con el estado indicado.
+     * Si completada = true, crea un nuevo registro independiente del borrador existente.
+     *
+     * @param bool $completada
+     *
+     * @return void
+     */
+    private function persistirFicha(bool $completada): void
+    {
+        if (! $this->tipoFichaId) {
+            return;
+        }
+
+        if ($completada) {
+            // Cierra el borrador si existe y crea la ficha definitiva como registro nuevo
+            Ficha::where('historia_id', $this->historiaId)
+                ->where('tipo_ficha_id', $this->tipoFichaId)
+                ->where('completada', false)
+                ->update([
+                    'schema_snapshot' => $this->tipoFicha?->schema,
+                    'datos'           => $this->datos ?: null,
+                    'notas'           => $this->notas ?: null,
+                    'completada'      => true,
+                    'profesional_id'  => auth()->id(),
+                ]);
+        } else {
+            // TODO: vincular a Valoracion cuando ese flujo esté completo
+            Ficha::updateOrCreate(
+                [
+                    'historia_id'   => $this->historiaId,
+                    'tipo_ficha_id' => $this->tipoFichaId,
+                    'completada'    => false,
+                ],
+                [
+                    'schema_snapshot' => $this->tipoFicha?->schema,
+                    'datos'           => $this->datos ?: null,
+                    'notas'           => $this->notas ?: null,
+                    'completada'      => false,
+                    'profesional_id'  => auth()->id(),
+                ]
+            );
+        }
+    }
 
     /**
      * Inicializa $datos con null para cada campo del schema y carga los
@@ -188,6 +229,7 @@ class RegistrarValoracionPage extends Component
 
         $ficha = Ficha::where('historia_id', $this->historiaId)
             ->where('tipo_ficha_id', $this->tipoFichaId)
+            ->where('completada', false)
             ->first();
 
         if (! $ficha) {
