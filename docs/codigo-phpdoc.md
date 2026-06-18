@@ -1,41 +1,20 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 09:42:10 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 09:51:49 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 371.
 - Cabeceras documentadas: 251/371.
-- Metodos publicos documentados: 768/993.
-- Alertas de comentarios: 480.
+- Metodos publicos documentados: 791/995.
+- Alertas de comentarios: 462.
 
 ## Alertas
 
-### Método público sin PHPDoc (177)
+### Método público sin PHPDoc (156)
 
 - `Modules\Documentos\Models\Informe::autor()` en `vida/Modules/Documentos/app/Models/Informe.php:99`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\NuevoMensaje::mount()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:46`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\NuevoMensaje::seleccionarDestinatario()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:81`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\NuevoMensaje::limpiarDestinatario()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:88`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\NuevoMensaje::agregarCiudadano()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:112`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\NuevoMensaje::quitarCiudadano()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:122`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\NuevoMensaje::enviar()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:129`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\NuevoMensaje::render()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:163`: Falta docblock de método público.
-- `Modules\Mensajes\Providers\MensajesServiceProvider::register()` en `vida/Modules/Mensajes/app/Providers/MensajesServiceProvider.php:29`: Falta docblock de método público.
-- `Modules\Mensajes\Providers\MensajesServiceProvider::boot()` en `vida/Modules/Mensajes/app/Providers/MensajesServiceProvider.php:36`: Falta docblock de método público.
-- `Modules\Mensajes\Services\AlertaService::__construct()` en `vida/Modules/Mensajes/app/Services/AlertaService.php:22`: Falta docblock de método público.
-- `Modules\Mensajes\Services\HorarioLaboralService::__construct()` en `vida/Modules/Mensajes/app/Services/HorarioLaboralService.php:40`: Falta docblock de método público.
-- `Modules\Prestaciones\Providers\PrestacionesServiceProvider::register()` en `vida/Modules/Prestaciones/app/Providers/PrestacionesServiceProvider.php:17`: Falta docblock de método público.
-- `Modules\Prestaciones\Providers\PrestacionesServiceProvider::boot()` en `vida/Modules/Prestaciones/app/Providers/PrestacionesServiceProvider.php:19`: Falta docblock de método público.
-- `App\Console\Commands\AuditPurgeCommand::handle()` en `vida/app/Console/Commands/AuditPurgeCommand.php:26`: Falta docblock de método público.
-- `App\Enums\TipoNumeracion::label()` en `vida/app/Enums/TipoNumeracion.php:17`: Falta docblock de método público.
-- `App\Filament\Concerns\AutorizaGestion::canViewAny()` en `vida/app/Filament/Concerns/AutorizaGestion.php:15`: Falta docblock de método público.
-- `App\Filament\Concerns\AutorizaGestion::canCreate()` en `vida/app/Filament/Concerns/AutorizaGestion.php:20`: Falta docblock de método público.
-- `App\Filament\Concerns\AutorizaGestion::canEdit()` en `vida/app/Filament/Concerns/AutorizaGestion.php:25`: Falta docblock de método público.
-- `App\Filament\Concerns\AutorizaGestion::canDelete()` en `vida/app/Filament/Concerns/AutorizaGestion.php:30`: Falta docblock de método público.
-- `App\Filament\Pages\Dashboard::getColumns()` en `vida/app/Filament/Pages/Dashboard.php:29`: Falta docblock de método público.
-- `App\Filament\Pages\Dashboard::getWidgets()` en `vida/app/Filament/Pages/Dashboard.php:34`: Falta docblock de método público.
 - `App\Filament\Resources\AuditResource::getEloquentQuery()` en `vida/app/Filament/Resources/AuditResource.php:50`: Falta docblock de método público.
 - `App\Filament\Resources\AuditResource::table()` en `vida/app/Filament/Resources/AuditResource.php:75`: Falta docblock de método público.
 - `App\Filament\Resources\AuditResource::getPages()` en `vida/app/Filament/Resources/AuditResource.php:158`: Falta docblock de método público.
@@ -192,7 +171,7 @@ Generado el 2026-06-18 09:42:10 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Providers\Filament\AdminPanelProvider::panel()` en `vida/app/Providers/Filament/AdminPanelProvider.php:24`: Falta docblock de método público.
 - `App\Services\Geocodificacion\ResultadoGeocodificacion::__construct()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:34`: Falta docblock de método público.
 
-### PHPDoc incompleto (183)
+### PHPDoc incompleto (186)
 
 - `Modules\Documentos\Observers\EstiloInformeObserver::__construct()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:19`: Falta @param $resolver.
 - `Modules\Documentos\Observers\EstiloInformeObserver::saved()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:24`: Falta @param $estilo.
@@ -207,6 +186,9 @@ Generado el 2026-06-18 09:42:10 UTC a partir de los docblocks PHPDoc compatibles
 - `Modules\Intervencion\Enums\TipoPlan::label()` en `vida/Modules/Intervencion/app/Enums/TipoPlan.php:13`: Falta @return.
 - `Modules\Intervencion\Enums\UrgenciaSia::label()` en `vida/Modules/Intervencion/app/Enums/UrgenciaSia.php:14`: Falta @return.
 - `Modules\Intervencion\Enums\VisibilidadApunte::label()` en `vida/Modules/Intervencion/app/Enums/VisibilidadApunte.php:14`: Falta @return.
+- `Modules\Intervencion\Models\Ficha::scopeHistorialPara()` en `vida/Modules/Intervencion/app/Models/Ficha.php:114`: Falta @param $historiaId.
+- `Modules\Intervencion\Models\Ficha::scopeHistorialPara()` en `vida/Modules/Intervencion/app/Models/Ficha.php:114`: Falta @param $tipoFichaId.
+- `Modules\Intervencion\Models\Ficha::scopeHistorialPara()` en `vida/Modules/Intervencion/app/Models/Ficha.php:114`: Falta @return.
 - `Modules\Usuarios\Console\Commands\ReconciliarRoles::handle()` en `vida/Modules/Usuarios/app/Console/Commands/ReconciliarRoles.php:33`: Falta @return.
 - `Modules\Usuarios\Models\Profesional::getNombreCompletoAttribute()` en `vida/Modules/Usuarios/app/Models/Profesional.php:136`: Falta @return.
 - `Modules\Usuarios\Observers\UsuarioRolObserver::created()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:33`: Falta @param $usuarioRol.
@@ -2948,7 +2930,7 @@ Metodos publicos:
 ### `Modules\Intervencion\Models\Ficha`
 
 - Tipo: class.
-- Fichero: `vida/Modules/Intervencion/app/Models/Ficha.php:31`.
+- Fichero: `vida/Modules/Intervencion/app/Models/Ficha.php:35`.
 - Resumen: Ficha de datos reales de una valoración.
 
 Cada ficha corresponde a un TipoFicha y almacena los valores introducidos por el profesional. El campo datos es un JSON libre; el campo notas permite texto sin estructura durante la entrevista.  historia_id se usa cuando la ficha se crea desde RegistrarValoracionPage antes de existir una Valoracion formal (valoracion_id nullable). TODO: vincular siempre a Valoracion cuando ese flujo esté completo.
@@ -2967,6 +2949,11 @@ Metodos publicos:
 - `function getCiudadanoId(): ?int`
   Resuelve el ciudadano_id para el sistema de auditoría a través de la historia social.
   `@return` int|null
+- `function scopeHistorialPara(Builder $query, int $historiaId, int $tipoFichaId): Builder`
+  Fichas de un tipo concreto para una historia, ordenadas de más reciente a más antigua.
+- `function prerellenarDesde(self $fichaAnterior, TipoFicha $tipoFicha): array`
+  Genera el array de datos pre-rellenado para una nueva valoración.
+  `@return` array<string, mixed>
 
 ### `Modules\Intervencion\Models\FirmaPlan`
 
@@ -3099,7 +3086,7 @@ Metodos publicos:
 - Fichero: `vida/Modules/Intervencion/app/Models/TipoFicha.php:30`.
 - Resumen: Tipo de ficha configurable desde el backoffice.
 
-Define la estructura de campos de una ficha de valoración: qué campos existen, su tipo, orden y reglas de visibilidad condicional. El campo schema es un array JSON con la clave raíz "campos" que contiene la lista de definiciones de campo.  La validación del schema se aplica en el evento saving para garantizar la integridad estructural independientemente del canal de entrada. Cuando existen fichas cumplimentadas, los ids y tipos de campos existentes son inmutables: solo se pueden añadir campos nuevos.
+Define la estructura de campos de una ficha de valoración: qué campos existen, su tipo, orden y reglas de visibilidad condicional. El campo schema es un array JSON con la clave raíz "campos" que contiene la lista de definiciones de campo.  La validación del schema se aplica en el evento saving para garantizar la integridad estructural independientemente del canal de entrada. Cuando existen fichas cumplimentadas, cambiar el tipo de un campo existente está prohibido; eliminar campos está permitido (las fichas conservan schema_snapshot).
 
 Metodos publicos:
 
@@ -3616,25 +3603,32 @@ Permite buscar el destinatario por nombre o filtrar por rol y UO. También permi
 Metodos publicos:
 
 - `function mount(): void`
-  _Sin resumen PHPDoc._
+  Inicializa la pantalla y exige autenticación.
+  `@return` void
 - `function resultadosDestinatario(): Collection`
   Resultados de búsqueda de destinatarios por nombre.
   `@return` Collection<int, User>
 - `function seleccionarDestinatario(int $usuarioId): void`
-  _Sin resumen PHPDoc._
+  Selecciona el destinatario del mensaje.
+  `@return` void
 - `function limpiarDestinatario(): void`
-  _Sin resumen PHPDoc._
+  Limpia el destinatario seleccionado.
+  `@return` void
 - `function resultadosCiudadano(): Collection`
   Resultados de búsqueda de ciudadanos para referenciar.
   `@return` Collection<int, Ciudadano>
 - `function agregarCiudadano(int $ciudadanoId): void`
-  _Sin resumen PHPDoc._
+  Añade un ciudadano a la lista de referenciados.
+  `@return` void
 - `function quitarCiudadano(int $ciudadanoId): void`
-  _Sin resumen PHPDoc._
+  Quita un ciudadano de la lista de referenciados.
+  `@return` void
 - `function enviar(MensajeriaService $mensajeriaService): void`
-  _Sin resumen PHPDoc._
+  Valida y crea el hilo del mensaje nuevo.
+  `@return` void
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza el formulario de nuevo mensaje.
+  `@return` View
 
 ### `Modules\Mensajes\Models\Alerta`
 
@@ -3800,9 +3794,11 @@ Registra las migraciones, servicios, componentes Livewire y el scheduler del job
 Metodos publicos:
 
 - `function register(): void`
-  _Sin resumen PHPDoc._
+  Registra los servicios singleton del módulo.
+  `@return` void
 - `function boot(): void`
-  _Sin resumen PHPDoc._
+  Carga migraciones, vistas, componentes y scheduler del módulo.
+  `@return` void
 
 ### `Modules\Mensajes\Services\AlertaService`
 
@@ -3813,15 +3809,15 @@ Metodos publicos:
 Metodos publicos:
 
 - `function __construct( private readonly HorarioLaboralService $horarioLaboral )`
-  _Sin resumen PHPDoc._
+  Inyecta el servicio de horario laboral.
 - `function crear(array $datos): Alerta`
-  Crea una alerta y calcula su expiración si es de tipo 'alerta'.
+  Crea una alerta con su estado inicial.
   `@return` Alerta
 - `function reconocer(Alerta $alerta, User $usuario, string $ipAddress): AlertaReconocimiento`
-  Marca una alerta como reconocida por un usuario.
+  Registra el reconocimiento de una alerta por un usuario.
   `@return` AlertaReconocimiento
 - `function escalar(Alerta $alerta): void`
-  Ejecuta la escalada de una alerta vencida al supervisor de la UO.
+  Escala una alerta vencida al supervisor de la UO.
   `@return` void
 - `function resolverDestinatarios(Alerta $alerta): Collection`
   Resuelve qué usuarios son destinatarios reales de una alerta rol_uo.
@@ -3838,9 +3834,10 @@ Lee el horario laboral por defecto desde catalogos_sistema con la clave 'horario
 Metodos publicos:
 
 - `function __construct()`
-  _Sin resumen PHPDoc._
+  Carga el horario laboral por defecto al inicializar el servicio.
+  `@return` void
 - `function calcularExpiracion(Carbon $desde): Carbon`
-  Calcula el timestamp de vencimiento sumando HORAS_PLAZO horas laborales efectivas a $desde.
+  Calcula la fecha de vencimiento en horas laborales.
   `@return` Carbon
 
 ### `Modules\Mensajes\Services\MensajeriaService`
@@ -4037,9 +4034,11 @@ Las migraciones del módulo residen en database/migrations/ (carpeta principal) 
 Metodos publicos:
 
 - `function register(): void`
-  _Sin resumen PHPDoc._
+  No registra bindings adicionales en este módulo.
+  `@return` void
 - `function boot(): void`
-  _Sin resumen PHPDoc._
+  No realiza arranque adicional en este módulo.
+  `@return` void
 
 ### `Modules\Usuarios\Console\Commands\ReconciliarRoles`
 
@@ -4312,7 +4311,8 @@ Es la única operación de DELETE legítima sobre la tabla `audits`. El período
 Metodos publicos:
 
 - `function handle(): int`
-  _Sin resumen PHPDoc._
+  Purga la auditoría caducada y devuelve el número eliminado.
+  `@return` int
 
 ### `App\Console\Commands\DemoResetCommand`
 
@@ -4392,7 +4392,8 @@ El código toma decisiones basadas en este valor — por eso es enum y no un val
 Metodos publicos:
 
 - `function label(): string`
-  _Sin resumen PHPDoc._
+  Devuelve la etiqueta legible del tipo de numeración.
+  `@return` string
 
 ### `App\Exceptions\Anonimizacion\KAnonimatoValidacionException`
 
@@ -4469,13 +4470,17 @@ Restringe el acceso a los roles con capacidad de gestión del sistema: adm_siste
 Metodos publicos:
 
 - `function canViewAny(): bool`
-  _Sin resumen PHPDoc._
+  Indica si el usuario puede ver cualquier recurso de gestión.
+  `@return` bool
 - `function canCreate(): bool`
-  _Sin resumen PHPDoc._
+  Indica si el usuario puede crear recursos de gestión.
+  `@return` bool
 - `function canEdit(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Indica si el usuario puede editar un recurso de gestión.
+  `@return` bool
 - `function canDelete(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Indica si el usuario puede eliminar un recurso de gestión.
+  `@return` bool
 
 ### `App\Filament\Pages\Dashboard`
 
@@ -4488,9 +4493,11 @@ Muestra indicadores de estado del sistema de configuración: prestaciones activa
 Metodos publicos:
 
 - `function getColumns(): int|array`
-  _Sin resumen PHPDoc._
+  Devuelve el número de columnas del dashboard.
+  `@return` int|array
 - `function getWidgets(): array`
-  _Sin resumen PHPDoc._
+  Devuelve los widgets visibles en el dashboard.
+  `@return` array
 
 ### `App\Filament\Pages\DemoWorldsPage`
 

@@ -14,6 +14,11 @@ enum TipoNumeracion: string
     case SinNumero = 'sin_numero';
     case Km = 'km';
 
+    /**
+     * Devuelve la etiqueta legible del tipo de numeración.
+     *
+     * @return string
+     */
     public function label(): string
     {
         return match ($this) {

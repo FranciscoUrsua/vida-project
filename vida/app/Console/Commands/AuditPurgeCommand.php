@@ -23,6 +23,11 @@ class AuditPurgeCommand extends Command
 
     protected $description = 'Elimina registros de auditoría que superan el período de retención';
 
+    /**
+     * Purga la auditoría caducada y devuelve el número eliminado.
+     *
+     * @return int
+     */
     public function handle(): int
     {
         $dias = (int) CatalogoSistema::valor('auditoria.retencion_dias', '1825');

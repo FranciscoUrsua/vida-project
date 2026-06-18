@@ -37,16 +37,20 @@ class HorarioLaboralService
 
     private array $horario;
 
+    /**
+     * Carga el horario laboral por defecto al inicializar el servicio.
+     *
+     * @return void
+     */
     public function __construct()
     {
         $this->horario = $this->cargarHorario();
     }
 
     /**
-     * Calcula el timestamp de vencimiento sumando HORAS_PLAZO horas
-     * laborales efectivas a $desde.
+     * Calcula la fecha de vencimiento en horas laborales.
      *
-     * @param Carbon $desde
+     * @param Carbon $desde Momento de inicio.
      *
      * @return Carbon
      */
@@ -93,6 +97,9 @@ class HorarioLaboralService
         return $cursor;
     }
 
+    // -------------------------------------------------------------------------
+    // Métodos privados auxiliares
+    // -------------------------------------------------------------------------
     // -------------------------------------------------------------------------
     // Métodos privados auxiliares
     // -------------------------------------------------------------------------

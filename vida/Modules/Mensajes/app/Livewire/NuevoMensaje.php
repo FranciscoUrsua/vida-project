@@ -43,6 +43,11 @@ class NuevoMensaje extends Component
     // Adjuntos
     public array $adjuntos = [];
 
+    /**
+     * Inicializa la pantalla y exige autenticación.
+     *
+     * @return void
+     */
     public function mount(): void
     {
         abort_unless(auth()->check(), 401);
@@ -78,6 +83,13 @@ class NuevoMensaje extends Component
         return $query->with('adscripciones.unidadOrganizativa')->limit(20)->get();
     }
 
+    /**
+     * Selecciona el destinatario del mensaje.
+     *
+     * @param int $usuarioId ID del usuario destinatario.
+     *
+     * @return void
+     */
     public function seleccionarDestinatario(int $usuarioId): void
     {
         $this->destinatarioId = $usuarioId;
@@ -85,6 +97,11 @@ class NuevoMensaje extends Component
         unset($this->resultadosDestinatario);
     }
 
+    /**
+     * Limpia el destinatario seleccionado.
+     *
+     * @return void
+     */
     public function limpiarDestinatario(): void
     {
         $this->destinatarioId = null;
@@ -109,6 +126,13 @@ class NuevoMensaje extends Component
             ->get();
     }
 
+    /**
+     * Añade un ciudadano a la lista de referenciados.
+     *
+     * @param int $ciudadanoId ID del ciudadano.
+     *
+     * @return void
+     */
     public function agregarCiudadano(int $ciudadanoId): void
     {
         if (! in_array($ciudadanoId, $this->ciudadanosSeleccionados, true)) {
@@ -119,6 +143,13 @@ class NuevoMensaje extends Component
         unset($this->resultadosCiudadano);
     }
 
+    /**
+     * Quita un ciudadano de la lista de referenciados.
+     *
+     * @param int $ciudadanoId ID del ciudadano.
+     *
+     * @return void
+     */
     public function quitarCiudadano(int $ciudadanoId): void
     {
         $this->ciudadanosSeleccionados = array_values(
@@ -126,6 +157,13 @@ class NuevoMensaje extends Component
         );
     }
 
+    /**
+     * Valida y crea el hilo del mensaje nuevo.
+     *
+     * @param MensajeriaService $mensajeriaService Servicio de mensajería.
+     *
+     * @return void
+     */
     public function enviar(MensajeriaService $mensajeriaService): void
     {
         $this->validate([
@@ -160,6 +198,11 @@ class NuevoMensaje extends Component
         $this->reset(['asunto', 'cuerpo', 'destinatarioId', 'ciudadanosSeleccionados', 'adjuntos']);
     }
 
+    /**
+     * Renderiza el formulario de nuevo mensaje.
+     *
+     * @return View
+     */
     public function render(): View
     {
         return view('mensajes::livewire.nuevo-mensaje');

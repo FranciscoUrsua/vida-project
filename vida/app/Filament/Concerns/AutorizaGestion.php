@@ -12,21 +12,45 @@ use Illuminate\Database\Eloquent\Model;
  */
 trait AutorizaGestion
 {
+    /**
+     * Indica si el usuario puede ver cualquier recurso de gestión.
+     *
+     * @return bool
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Indica si el usuario puede crear recursos de gestión.
+     *
+     * @return bool
+     */
     public static function canCreate(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Indica si el usuario puede editar un recurso de gestión.
+     *
+     * @param Model $record Registro objetivo.
+     *
+     * @return bool
+     */
     public static function canEdit(Model $record): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Indica si el usuario puede eliminar un recurso de gestión.
+     *
+     * @param Model $record Registro objetivo.
+     *
+     * @return bool
+     */
     public static function canDelete(Model $record): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;

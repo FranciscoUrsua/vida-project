@@ -19,6 +19,11 @@ use Modules\Mensajes\Models\AlertaReconocimiento;
  */
 class AlertaService
 {
+    /**
+     * Inyecta el servicio de horario laboral.
+     *
+     * @param HorarioLaboralService $horarioLaboral Servicio de horario laboral.
+     */
     public function __construct(
         private readonly HorarioLaboralService $horarioLaboral
     ) {}
@@ -27,6 +32,13 @@ class AlertaService
      * Crea una alerta y calcula su expiración si es de tipo 'alerta'.
      *
      * @param array<string, mixed> $datos
+     *
+     * @return Alerta
+     */
+    /**
+     * Crea una alerta con su estado inicial.
+     *
+     * @param array<string, mixed> $datos Datos de la alerta.
      *
      * @return Alerta
      */
@@ -63,6 +75,15 @@ class AlertaService
      *
      * @return AlertaReconocimiento
      */
+    /**
+     * Registra el reconocimiento de una alerta por un usuario.
+     *
+     * @param Alerta $alerta Alerta objetivo.
+     * @param User $usuario Usuario que reconoce.
+     * @param string $ipAddress IP de origen.
+     *
+     * @return AlertaReconocimiento
+     */
     public function reconocer(Alerta $alerta, User $usuario, string $ipAddress): AlertaReconocimiento
     {
         $tipo = $alerta->tipo === TipoAlerta::Aviso
@@ -89,6 +110,13 @@ class AlertaService
      * a estado 'vencida'.
      *
      * @param Alerta $alerta
+     *
+     * @return void
+     */
+    /**
+     * Escala una alerta vencida al supervisor de la UO.
+     *
+     * @param Alerta $alerta Alerta vencida.
      *
      * @return void
      */

@@ -26,6 +26,11 @@ class MensajesServiceProvider extends ServiceProvider
 {
     protected string $moduleName = 'Mensajes';
 
+    /**
+     * Registra los servicios singleton del módulo.
+     *
+     * @return void
+     */
     public function register(): void
     {
         $this->app->singleton(HorarioLaboralService::class);
@@ -33,6 +38,11 @@ class MensajesServiceProvider extends ServiceProvider
         $this->app->singleton(MensajeriaService::class);
     }
 
+    /**
+     * Carga migraciones, vistas, componentes y scheduler del módulo.
+     *
+     * @return void
+     */
     public function boot(): void
     {
         $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));
