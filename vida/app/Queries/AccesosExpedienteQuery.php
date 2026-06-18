@@ -65,6 +65,10 @@ class AccesosExpedienteQuery
 
     /**
      * Indica si el usuario puede ver todos los accesos o únicamente los propios.
+     *
+     * @param User $user Usuario autenticado.
+     * @param HistoriaSocial $historia Historia social consultada.
+     * @return bool
      */
     public function puedeVerTodos(User $user, HistoriaSocial $historia): bool
     {

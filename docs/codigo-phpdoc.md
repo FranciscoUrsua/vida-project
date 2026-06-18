@@ -1,14 +1,14 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 15:04:15 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 15:11:04 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 385.
 - Cabeceras documentadas: 265/385.
-- Metodos publicos documentados: 998/1043.
-- Alertas de comentarios: 161.
+- Metodos publicos documentados: 997/1043.
+- Alertas de comentarios: 132.
 
 ## Alertas
 
@@ -135,37 +135,8 @@ Generado el 2026-06-18 15:04:15 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Http\Controllers\Controller` en `vida/app/Http/Controllers/Controller.php:5`: Falta docblock de cabecera.
 - `App\Providers\Filament\AdminPanelProvider` en `vida/app/Providers/Filament/AdminPanelProvider.php:22`: Falta docblock de cabecera.
 
-### PHPDoc incompleto (41)
+### PHPDoc incompleto (12)
 
-- `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @param $model.
-- `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @return.
-- `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @param $panel.
-- `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @return.
-- `App\Observers\DireccionObserver::__construct()` en `vida/app/Observers/DireccionObserver.php:29`: Falta @param $geocodificador.
-- `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @param $model.
-- `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @return.
-- `App\Observers\DireccionObserver::created()` en `vida/app/Observers/DireccionObserver.php:50`: Falta @param $model.
-- `App\Observers\DireccionObserver::created()` en `vida/app/Observers/DireccionObserver.php:50`: Falta @return.
-- `App\Observers\DireccionObserver::updating()` en `vida/app/Observers/DireccionObserver.php:60`: Falta @param $model.
-- `App\Observers\DireccionObserver::updating()` en `vida/app/Observers/DireccionObserver.php:60`: Falta @return.
-- `App\Observers\DireccionObserver::updated()` en `vida/app/Observers/DireccionObserver.php:71`: Falta @param $model.
-- `App\Observers\DireccionObserver::updated()` en `vida/app/Observers/DireccionObserver.php:71`: Falta @return.
-- `App\Policies\CiudadanoPolicy::viewAny()` en `vida/app/Policies/CiudadanoPolicy.php:48`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::viewAny()` en `vida/app/Policies/CiudadanoPolicy.php:48`: Falta @return.
-- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @param $ciudadano.
-- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @return.
-- `App\Policies\CiudadanoPolicy::create()` en `vida/app/Policies/CiudadanoPolicy.php:83`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::create()` en `vida/app/Policies/CiudadanoPolicy.php:83`: Falta @return.
-- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @param $ciudadano.
-- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @return.
-- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @param $ciudadano.
-- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @return.
-- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @param $user.
-- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @param $historia.
-- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @return.
 - `App\Services\Api\RevelacionIdentidadService::revelarPorAlias()` en `vida/app/Services/Api/RevelacionIdentidadService.php:36`: Falta @return.
 - `App\Services\AuditService::registrarAcceso()` en `vida/app/Services/AuditService.php:44`: Falta @return.
 - `App\Services\CiudadanoService::crear()` en `vida/app/Services/CiudadanoService.php:41`: Falta @return.
@@ -6476,6 +6447,7 @@ Metodos publicos:
 
 - `function apply(Builder $builder, Model $model): void`
   Aplica el filtro de ámbito de UO a la consulta.
+  `@return` void
 
 ### `App\Models\UnidadOrganizativa`
 
@@ -6524,6 +6496,7 @@ Metodos publicos:
 
 - `function canAccessPanel(Panel $panel): bool`
   Solo roles de gestión y supervisión pueden acceder al panel de administración.
+  `@return` bool
 - `function profesional(): BelongsTo`
   Perfil organizativo del usuario.
   `@return` BelongsTo<Profesional, User>
@@ -6598,15 +6571,19 @@ Invoca el geocoder al guardar una entidad con dirección introducida manualmente
 Metodos publicos:
 
 - `function __construct( private readonly GeocodificadorInterface $geocodificador, )`
-  Timeout en segundos para la llamada al geocoder.
+  _Sin resumen PHPDoc._
 - `function creating(Model $model): void`
   Intenta geocodificar antes de insertar el registro.
+  `@return` void
 - `function created(Model $model): void`
   Encola el job de reintento si el guardado inicial no normalizó la dirección.
+  `@return` void
 - `function updating(Model $model): void`
   Intenta geocodificar antes de actualizar el registro.
+  `@return` void
 - `function updated(Model $model): void`
   Encola el job de reintento si la actualización no normalizó la dirección.
+  `@return` void
 
 ### `App\Policies\CiudadanoPolicy`
 
@@ -6620,14 +6597,19 @@ Metodos publicos:
 
 - `function viewAny(User $usuario): bool`
   Decide si el usuario puede listar ciudadanos.
+  `@return` bool
 - `function view(User $usuario, Ciudadano $ciudadano): bool`
   Decide si el usuario puede consultar la ficha del ciudadano.
+  `@return` bool
 - `function create(User $usuario): bool`
   Decide si el usuario puede crear un ciudadano.
+  `@return` bool
 - `function update(User $usuario, Ciudadano $ciudadano): bool`
   Decide si el usuario puede editar el ciudadano.
+  `@return` bool
 - `function delete(User $usuario, Ciudadano $ciudadano): bool`
   Decide si el usuario puede eliminar (baja lógica) el ciudadano.
+  `@return` bool
 
 ### `App\Providers\AppServiceProvider`
 
@@ -6690,6 +6672,7 @@ Metodos publicos:
   `@return` Builder<Audit>
 - `function puedeVerTodos(User $user, HistoriaSocial $historia): bool`
   Indica si el usuario puede ver todos los accesos o únicamente los propios.
+  `@return` bool
 
 ### `App\Services\Api\AnonimizadorService`
 

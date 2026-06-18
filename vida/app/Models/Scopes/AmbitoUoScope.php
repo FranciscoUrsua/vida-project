@@ -64,7 +64,9 @@ class AmbitoUoScope implements Scope
     /**
      * Aplica el filtro de ámbito de UO a la consulta.
      *
-     * @param Builder<Model> $builder
+     * @param Builder<Model> $builder Consulta a modificar.
+     * @param Model $model Modelo al que se aplica el scope.
+     * @return void
      */
     public function apply(Builder $builder, Model $model): void
     {
