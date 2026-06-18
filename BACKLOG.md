@@ -297,16 +297,21 @@ ciudadano recién creado seleccionado para confirmar su adición).
 
 ---
 
-**Relaciones en UI de intervención** — 2026-06-16
-`Módulo: Intervención / Ciudadanía`
-El catálogo TipoRelacion está implementado. Pendiente:
-- Widget UC en CiudadanoPage: mostrar tipo de relación de cada miembro respecto
-  al titular (leer de ciudadano_relaciones filtrando por el par).
-- Línea de representante entre cabecera ciudadano y widget UC.
-- Modal "Ver todas las relaciones" accesible desde FichaCiudadanoPage.
-- Gestión de relaciones (crear/editar/cerrar) en FichaCiudadanoPage.
-- Modelo CiudadanoRelacion + migración ciudadano_relaciones + trait TieneRelacionesReciprocas
-  (tabla diseñada en docs/modulo-ciudadania.md §3.3 pero pendiente de implementar).
+**Gestión de relaciones en FichaCiudadanoPage** — 2026-06-18
+`Módulo: Ciudadanía`
+Las relaciones se muestran en CiudadanoPage (solo lectura). Pendiente implementar
+en FichaCiudadanoPage la gestión completa: crear relación (buscador de ciudadano
++ selección de TipoRelacion del catálogo), cerrar relación (fecha_fin) y ver
+historial. El modelo CiudadanoRelacion ya gestiona la creación del recíproco
+automáticamente en sus hooks booted().
+
+---
+
+**Genograma** — 2026-06-18
+`Módulo: Ciudadanía / Intervención`
+Ver decisiones pendientes en docs/modulo-ciudadania.md sección 8.
+Bloqueado hasta definir: tipo_dinamica en ciudadano_relaciones, fecha_fallecimiento
+en ciudadanos, y decisión sobre nodos ligeros para personas no registradas.
 
 ---
 
