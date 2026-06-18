@@ -17,7 +17,10 @@ enum AccionAuditEnum: string
     case Imprimir = 'imprimir';
     case AccesoRestringido = 'acceso_restringido';
 
-    /** Etiqueta en lenguaje natural para la vista del ciudadano. */
+    /** Etiqueta en lenguaje natural para la vista del ciudadano.
+     *
+     * @return string
+     */
     public function etiqueta(): string
     {
         return match ($this) {
@@ -31,7 +34,10 @@ enum AccionAuditEnum: string
         };
     }
 
-    /** Color semántico para el badge en Filament. */
+    /** Color semántico para el badge en Filament.
+     *
+     * @return string
+     */
     public function color(): string
     {
         return match ($this) {

@@ -138,7 +138,7 @@ class RolResource extends Resource
     /**
      * Determina si el usuario puede editar roles.
      *
-     *  Model $record Registro objetivo.
+     * @param Model $record Registro objetivo.
      * @return bool
      */
     public static function canEdit(Model $record): bool
@@ -149,7 +149,7 @@ class RolResource extends Resource
     /**
      * Determina si el usuario puede eliminar roles.
      *
-     *  Model $record Registro objetivo.
+     * @param Model $record Registro objetivo.
      * @return bool
      */
     public static function canDelete(Model $record): bool

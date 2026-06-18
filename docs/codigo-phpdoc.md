@@ -1,14 +1,14 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 14:48:47 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 14:57:07 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 385.
 - Cabeceras documentadas: 265/385.
-- Metodos publicos documentados: 997/1043.
-- Alertas de comentarios: 209.
+- Metodos publicos documentados: 998/1043.
+- Alertas de comentarios: 187.
 
 ## Alertas
 
@@ -135,30 +135,8 @@ Generado el 2026-06-18 14:48:47 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Http\Controllers\Controller` en `vida/app/Http/Controllers/Controller.php:5`: Falta docblock de cabecera.
 - `App\Providers\Filament\AdminPanelProvider` en `vida/app/Providers/Filament/AdminPanelProvider.php:22`: Falta docblock de cabecera.
 
-### PHPDoc incompleto (89)
+### PHPDoc incompleto (67)
 
-- `App\Console\Commands\NormalizarDirecciones::handle()` en `vida/app/Console/Commands/NormalizarDirecciones.php:47`: Falta @param $geocodificador.
-- `App\Console\Commands\NormalizarDirecciones::handle()` en `vida/app/Console/Commands/NormalizarDirecciones.php:47`: Falta @return.
-- `App\Enums\AccionAuditEnum::etiqueta()` en `vida/app/Enums/AccionAuditEnum.php:21`: Falta @return.
-- `App\Enums\AccionAuditEnum::color()` en `vida/app/Enums/AccionAuditEnum.php:35`: Falta @return.
-- `App\Enums\OrigenDireccion::label()` en `vida/app/Enums/OrigenDireccion.php:20`: Falta @return.
-- `App\Filament\Resources\AuditResource::canAccess()` en `vida/app/Filament/Resources/AuditResource.php:184`: Falta @return.
-- `App\Filament\Resources\AuditResource::canCreate()` en `vida/app/Filament/Resources/AuditResource.php:192`: Falta @return.
-- `App\Filament\Resources\CentroResource::canViewAny()` en `vida/app/Filament/Resources/CentroResource.php:249`: Falta @return.
-- `App\Filament\Resources\RolResource::canEdit()` en `vida/app/Filament/Resources/RolResource.php:144`: Falta @param $record.
-- `App\Filament\Resources\RolResource::canDelete()` en `vida/app/Filament/Resources/RolResource.php:155`: Falta @param $record.
-- `App\Http\Controllers\Auth\LoginController::mostrar()` en `vida/app/Http/Controllers/Auth/LoginController.php:19`: Falta @return.
-- `App\Http\Controllers\Auth\LoginController::autenticar()` en `vida/app/Http/Controllers/Auth/LoginController.php:29`: Falta @param $request.
-- `App\Http\Controllers\Auth\LoginController::autenticar()` en `vida/app/Http/Controllers/Auth/LoginController.php:29`: Falta @return.
-- `App\Http\Controllers\Auth\LoginController::cerrarSesion()` en `vida/app/Http/Controllers/Auth/LoginController.php:86`: Falta @param $request.
-- `App\Http\Controllers\Auth\LoginController::cerrarSesion()` en `vida/app/Http/Controllers/Auth/LoginController.php:86`: Falta @return.
-- `App\Http\Controllers\Auth\OnboardingController::mostrar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:18`: Falta @return.
-- `App\Http\Controllers\Auth\OnboardingController::completar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:31`: Falta @param $request.
-- `App\Http\Controllers\Auth\OnboardingController::completar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:31`: Falta @return.
-- `App\Http\Middleware\EnsureTieneRol::handle()` en `vida/app/Http/Middleware/EnsureTieneRol.php:23`: Falta @param $request.
-- `App\Http\Middleware\EnsureTieneRol::handle()` en `vida/app/Http/Middleware/EnsureTieneRol.php:23`: Falta @return.
-- `App\Jobs\NormalizarDireccionJob::handle()` en `vida/app/Jobs/NormalizarDireccionJob.php:72`: Falta @param $geocodificador.
-- `App\Jobs\NormalizarDireccionJob::handle()` en `vida/app/Jobs/NormalizarDireccionJob.php:72`: Falta @return.
 - `App\Livewire\Admin\GestorUnidadesOrganizativas::mount()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:63`: Falta @return.
 - `App\Livewire\Admin\GestorUnidadesOrganizativas::abrirFormularioCreacion()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:131`: Falta @return.
 - `App\Livewire\Admin\GestorUnidadesOrganizativas::abrirFormularioEdicion()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:142`: Falta @return.
@@ -4352,6 +4330,7 @@ Metodos publicos:
 
 - `function handle(GeocodificadorInterface $geocodificador): int`
   Ejecuta el comando.
+  `@return` int
 
 ### `App\Enums\AccionAuditEnum`
 
@@ -4363,8 +4342,10 @@ Metodos publicos:
 
 - `function etiqueta(): string`
   Etiqueta en lenguaje natural para la vista del ciudadano.
+  `@return` string
 - `function color(): string`
   Color semántico para el badge en Filament.
+  `@return` string
 
 ### `App\Enums\OrigenDireccion`
 
@@ -4377,7 +4358,8 @@ El DireccionObserver toma decisiones basadas en este valor (solo geocodifica cua
 Metodos publicos:
 
 - `function label(): string`
-  Normalizada posteriormente por el job de reintento.
+  Devuelve la etiqueta legible del origen de la dirección.
+  `@return` string
 
 ### `App\Enums\TipoNumeracion`
 
@@ -4535,8 +4517,10 @@ Metodos publicos:
   `@return` array
 - `function canAccess(): bool`
   Solo accesible para roles supervision y adm_sistema.
+  `@return` bool
 - `function canCreate(): bool`
   Registro de auditoría — inmutable. Nunca se crean desde el backoffice.
+  `@return` bool
 - `function canEdit($record): bool`
   Indica que la edición está deshabilitada en auditoría.
   `@return` bool
@@ -4616,6 +4600,7 @@ Metodos publicos:
   `@return` Table
 - `function canViewAny(): bool`
   Cualquier usuario autenticado puede consultar el catálogo de centros.
+  `@return` bool
 - `function canEdit(Model $record): bool`
   Indica si el usuario puede editar un centro.
   `@return` bool
@@ -6127,11 +6112,14 @@ Metodos publicos:
 
 - `function mostrar()`
   Muestra el formulario de login.
+  `@return` \Illuminate\View\View
 - `function autenticar(Request $request)`
   Procesa el intento de autenticación.
+  `@return` \Illuminate\Http\RedirectResponse
   `@throws` ValidationException
 - `function cerrarSesion(Request $request)`
   Cierra la sesión activa.
+  `@return` \Illuminate\Http\RedirectResponse
 
 ### `App\Http\Controllers\Auth\OnboardingController`
 
@@ -6143,8 +6131,10 @@ Metodos publicos:
 
 - `function mostrar()`
   Muestra la pantalla de bienvenida con el contexto del usuario.
+  `@return` \Illuminate\View\View
 - `function completar(Request $request)`
   Marca el onboarding como completado y redirige al destino según rol.
+  `@return` \Illuminate\Http\RedirectResponse
 
 ### `App\Http\Controllers\Controller`
 
@@ -6179,7 +6169,8 @@ Solo cubre el caso de cero roles — cuando el usuario tiene un rol pero no el a
 Metodos publicos:
 
 - `function handle(Request $request, Closure $next): Response`
-  _Sin resumen PHPDoc._
+  Redirige al usuario asistencial sin roles a la ruta informativa.
+  `@return` Response
 
 ### `App\Http\Middleware\FilamentAuthenticate`
 
@@ -6218,6 +6209,7 @@ Metodos publicos:
   `@return` list<int>
 - `function handle(GeocodificadorInterface $geocodificador): void`
   Procesa el reintento de normalización.
+  `@return` void
 
 ### `App\Livewire\Admin\GestorUnidadesOrganizativas`
 

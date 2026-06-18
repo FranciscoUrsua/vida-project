@@ -17,6 +17,11 @@ enum OrigenDireccion: string
     /** Normalizada posteriormente por el job de reintento. */
     case Geocodificacion = 'geocodificacion';
 
+    /**
+     * Devuelve la etiqueta legible del origen de la dirección.
+     *
+     * @return string
+     */
     public function label(): string
     {
         return match ($this) {

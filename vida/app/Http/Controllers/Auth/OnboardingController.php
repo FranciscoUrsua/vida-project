@@ -14,6 +14,8 @@ class OnboardingController extends Controller
 {
     /**
      * Muestra la pantalla de bienvenida con el contexto del usuario.
+     *
+     * @return \Illuminate\View\View
      */
     public function mostrar()
     {
@@ -27,6 +29,9 @@ class OnboardingController extends Controller
 
     /**
      * Marca el onboarding como completado y redirige al destino según rol.
+     *
+     * @param Request $request Petición entrante.
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function completar(Request $request)
     {

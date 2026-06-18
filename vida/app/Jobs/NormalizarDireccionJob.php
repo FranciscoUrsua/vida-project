@@ -68,6 +68,9 @@ class NormalizarDireccionJob implements ShouldQueue
      * Recupera el modelo, verifica que aún necesita normalización y llama
      * al geocoder. Si tiene éxito, guarda los campos estructurados sin pasar
      * por el DireccionObserver (para evitar bucle).
+     *
+     * @param GeocodificadorInterface $geocodificador Servicio de geocodificación.
+     * @return void
      */
     public function handle(GeocodificadorInterface $geocodificador): void
     {

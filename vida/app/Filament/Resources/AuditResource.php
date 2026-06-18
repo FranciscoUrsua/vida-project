@@ -46,7 +46,6 @@ class AuditResource extends Resource
     // -------------------------------------------------------------------------
     // Scope de UO: el supervisor solo ve registros de su UO y descendientes
     // -------------------------------------------------------------------------
-
     /**
      * Restringe el listado a los registros visibles según la UO del usuario.
      *
@@ -180,7 +179,10 @@ class AuditResource extends Resource
         ];
     }
 
-    /** Solo accesible para roles supervision y adm_sistema. */
+    /** Solo accesible para roles supervision y adm_sistema.
+     *
+     * @return bool
+     */
     public static function canAccess(): bool
     {
         $user = Auth::user();
@@ -188,7 +190,10 @@ class AuditResource extends Resource
         return $user && ($user->hasRole('supervision') || $user->hasRole('adm_sistema'));
     }
 
-    /** Registro de auditoría — inmutable. Nunca se crean desde el backoffice. */
+    /** Registro de auditoría — inmutable. Nunca se crean desde el backoffice.
+     *
+     * @return bool
+     */
     public static function canCreate(): bool
     {
         return false;

@@ -18,7 +18,11 @@ use Symfony\Component\HttpFoundation\Response;
 class EnsureTieneRol
 {
     /**
-     * @param Closure(Request): Response $next
+     * Redirige al usuario asistencial sin roles a la ruta informativa.
+     *
+     * @param Request $request Petición entrante.
+     * @param Closure(Request): Response $next Siguiente middleware.
+     * @return Response
      */
     public function handle(Request $request, Closure $next): Response
     {

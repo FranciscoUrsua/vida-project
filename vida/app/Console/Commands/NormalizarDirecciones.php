@@ -43,6 +43,9 @@ class NormalizarDirecciones extends Command
 
     /**
      * Ejecuta el comando.
+     *
+     * @param GeocodificadorInterface $geocodificador Servicio de geocodificación.
+     * @return int
      */
     public function handle(GeocodificadorInterface $geocodificador): int
     {

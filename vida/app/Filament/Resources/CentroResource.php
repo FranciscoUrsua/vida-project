@@ -245,7 +245,10 @@ class CentroResource extends Resource
             ->defaultSort('nombre');
     }
 
-    /** Cualquier usuario autenticado puede consultar el catálogo de centros. */
+    /** Cualquier usuario autenticado puede consultar el catálogo de centros.
+     *
+     * @return bool
+     */
     public static function canViewAny(): bool
     {
         return auth()->check();
