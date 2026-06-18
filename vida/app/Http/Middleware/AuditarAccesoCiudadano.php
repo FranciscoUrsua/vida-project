@@ -28,8 +28,20 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class AuditarAccesoCiudadano
 {
+    /**
+     * Inyecta el servicio de auditoría.
+     *
+     * @param AuditService $service Servicio de auditoría.
+     */
     public function __construct(private readonly AuditService $service) {}
 
+    /**
+     * Procesa la petición y registra el acceso al ciudadano si corresponde.
+     *
+     * @param Request $request Petición entrante.
+     * @param Closure $next Siguiente middleware.
+     * @return Response
+     */
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);

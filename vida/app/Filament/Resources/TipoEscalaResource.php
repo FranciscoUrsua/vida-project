@@ -56,6 +56,11 @@ class TipoEscalaResource extends Resource
      */
     public static function table(Table $table): Table
     {
+        return $table
+            ->columns([
+                TextColumn::make('codigo')
+                    ->label('Código')
+                    ->fontFamily('mono')
                     ->searchable()
                     ->sortable(),
 

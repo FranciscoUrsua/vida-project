@@ -1,42 +1,20 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 14:13:17 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 14:21:26 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
-- Simbolos escaneados: 372.
-- Cabeceras documentadas: 252/372.
-- Metodos publicos documentados: 924/1000.
-- Alertas de comentarios: 318.
+- Simbolos escaneados: 383.
+- Cabeceras documentadas: 263/383.
+- Metodos publicos documentados: 986/1040.
+- Alertas de comentarios: 292.
 
 ## Alertas
 
-### Método público sin PHPDoc (30)
+### Método público sin PHPDoc (8)
 
 - `Modules\Documentos\Models\Informe::autor()` en `vida/Modules/Documentos/app/Models/Informe.php:99`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioResource::form()` en `vida/app/Filament/Resources/UsuarioResource.php:48`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioResource::table()` en `vida/app/Filament/Resources/UsuarioResource.php:150`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioResource::getPages()` en `vida/app/Filament/Resources/UsuarioResource.php:193`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioResource::canViewAny()` en `vida/app/Filament/Resources/UsuarioResource.php:202`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioResource::canCreate()` en `vida/app/Filament/Resources/UsuarioResource.php:207`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioResource::canEdit()` en `vida/app/Filament/Resources/UsuarioResource.php:212`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioRolResource::form()` en `vida/app/Filament/Resources/UsuarioRolResource.php:48`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioRolResource::table()` en `vida/app/Filament/Resources/UsuarioRolResource.php:90`: Falta docblock de método público.
-- `App\Filament\Resources\UsuarioRolResource::getPages()` en `vida/app/Filament/Resources/UsuarioRolResource.php:151`: Falta docblock de método público.
-- `App\Filament\Resources\ZonaResource::form()` en `vida/app/Filament/Resources/ZonaResource.php:43`: Falta docblock de método público.
-- `App\Filament\Resources\ZonaResource::table()` en `vida/app/Filament/Resources/ZonaResource.php:71`: Falta docblock de método público.
-- `App\Filament\Resources\ZonaResource::getPages()` en `vida/app/Filament/Resources/ZonaResource.php:108`: Falta docblock de método público.
-- `App\Filament\Widgets\ActividadCatalogosWidget::canView()` en `vida/app/Filament/Widgets/ActividadCatalogosWidget.php:25`: Falta docblock de método público.
-- `App\Filament\Widgets\ActividadCatalogosWidget::table()` en `vida/app/Filament/Widgets/ActividadCatalogosWidget.php:30`: Falta docblock de método público.
-- `App\Filament\Widgets\AlertasSistemaWidget::canView()` en `vida/app/Filament/Widgets/AlertasSistemaWidget.php:23`: Falta docblock de método público.
-- `App\Filament\Widgets\AlertasSistemaWidget::table()` en `vida/app/Filament/Widgets/AlertasSistemaWidget.php:28`: Falta docblock de método público.
-- `App\Filament\Widgets\EstadoSistemaWidget::canView()` en `vida/app/Filament/Widgets/EstadoSistemaWidget.php:23`: Falta docblock de método público.
-- `App\Filament\Widgets\RolesPendientesWidget::canView()` en `vida/app/Filament/Widgets/RolesPendientesWidget.php:23`: Falta docblock de método público.
-- `App\Filament\Widgets\RolesPendientesWidget::table()` en `vida/app/Filament/Widgets/RolesPendientesWidget.php:28`: Falta docblock de método público.
-- `App\Http\Middleware\AuditarAccesoCiudadano::__construct()` en `vida/app/Http/Middleware/AuditarAccesoCiudadano.php:31`: Falta docblock de método público.
-- `App\Http\Middleware\AuditarAccesoCiudadano::handle()` en `vida/app/Http/Middleware/AuditarAccesoCiudadano.php:33`: Falta docblock de método público.
-- `App\Http\Middleware\PrimerAcceso::handle()` en `vida/app/Http/Middleware/PrimerAcceso.php:14`: Falta docblock de método público.
 - `App\Livewire\Centros\SelectorPrestacionesCentro::render()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:179`: Falta docblock de método público.
 - `App\Models\CatalogoSistema::scopeDeGrupo()` en `vida/app/Models/CatalogoSistema.php:43`: Falta docblock de método público.
 - `App\Models\Ciudadano::prestacionesResumen()` en `vida/app/Models/Ciudadano.php:176`: Falta docblock de método público.
@@ -45,7 +23,7 @@ Generado el 2026-06-18 14:13:17 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Providers\Filament\AdminPanelProvider::panel()` en `vida/app/Providers/Filament/AdminPanelProvider.php:24`: Falta docblock de método público.
 - `App\Services\Geocodificacion\ResultadoGeocodificacion::__construct()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:34`: Falta docblock de método público.
 
-### PHPDoc incompleto (168)
+### PHPDoc incompleto (164)
 
 - `Modules\Documentos\Observers\EstiloInformeObserver::__construct()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:19`: Falta @param $resolver.
 - `Modules\Documentos\Observers\EstiloInformeObserver::saved()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:24`: Falta @param $estilo.
@@ -112,10 +90,6 @@ Generado el 2026-06-18 14:13:17 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Filament\Resources\CentroResource::canViewAny()` en `vida/app/Filament/Resources/CentroResource.php:249`: Falta @return.
 - `App\Filament\Resources\RolResource::canEdit()` en `vida/app/Filament/Resources/RolResource.php:144`: Falta @param $record.
 - `App\Filament\Resources\RolResource::canDelete()` en `vida/app/Filament/Resources/RolResource.php:155`: Falta @param $record.
-- `App\Filament\Resources\UsuarioResource::canDelete()` en `vida/app/Filament/Resources/UsuarioResource.php:228`: Falta @param $record.
-- `App\Filament\Resources\UsuarioResource::canDelete()` en `vida/app/Filament/Resources/UsuarioResource.php:228`: Falta @return.
-- `App\Filament\Resources\UsuarioRolResource::canEdit()` en `vida/app/Filament/Resources/UsuarioRolResource.php:161`: Falta @param $record.
-- `App\Filament\Resources\UsuarioRolResource::canEdit()` en `vida/app/Filament/Resources/UsuarioRolResource.php:161`: Falta @return.
 - `App\Http\Controllers\Auth\LoginController::mostrar()` en `vida/app/Http/Controllers/Auth/LoginController.php:19`: Falta @return.
 - `App\Http\Controllers\Auth\LoginController::autenticar()` en `vida/app/Http/Controllers/Auth/LoginController.php:29`: Falta @param $request.
 - `App\Http\Controllers\Auth\LoginController::autenticar()` en `vida/app/Http/Controllers/Auth/LoginController.php:29`: Falta @return.
@@ -2851,10 +2825,87 @@ Metodos publicos:
   _Sin resumen PHPDoc._
   `@return` BelongsTo<PlanDeIntervencion, FirmaPlan>
 
+### `Modules\Intervencion\Models\ObjetivoCatalogo`
+
+- Tipo: class.
+- Fichero: `vida/Modules/Intervencion/app/Models/ObjetivoCatalogo.php:23`.
+- Resumen: Objetivo del catálogo configurable desde el backoffice para un tipo de plan.
+
+Los objetivos tienen dos niveles: generales (propósito amplio) y específicos (resultados concretos). Los específicos se vinculan a un general del mismo tipo.
+
+Metodos publicos:
+
+- `function tipoPlan(): BelongsTo`
+  Tipo de plan al que pertenece este objetivo.
+  `@return` BelongsTo<TipoPlan, self>
+- `function objetivoGeneral(): BelongsTo`
+  Objetivo general al que pertenece este objetivo específico.
+  `@return` BelongsTo<self, self>
+- `function objetivosEspecificos(): HasMany`
+  Objetivos específicos activos que dependen de este objetivo general.
+  `@return` HasMany<self>
+
+### `Modules\Intervencion\Models\PlanActuacionAyuntamiento`
+
+- Tipo: class.
+- Fichero: `vida/Modules/Intervencion/app/Models/PlanActuacionAyuntamiento.php:27`.
+- Resumen: Actuación comprometida por el Ayuntamiento en un Plan de Intervención.
+
+Regla de negocio: toda actuación del Ayuntamiento debe estar vinculada a una prestación del catálogo. Sin prestación_id no puede guardarse.
+
+Metodos publicos:
+
+- `function plan(): BelongsTo`
+  Plan al que pertenece esta actuación.
+  `@return` BelongsTo<PlanDeIntervencion, self>
+- `function prestacion(): BelongsTo`
+  Prestación del catálogo vinculada.
+  `@return` BelongsTo<Prestacion, self>
+- `function responsable(): BelongsTo`
+  Profesional responsable de ejecutar esta actuación.
+  `@return` BelongsTo<User, self>
+
+### `Modules\Intervencion\Models\PlanActuacionCiudadano`
+
+- Tipo: class.
+- Fichero: `vida/Modules/Intervencion/app/Models/PlanActuacionCiudadano.php:26`.
+- Resumen: Compromiso asumido por el ciudadano en un Plan de Intervención.
+
+El campo primario es descripcion (texto libre). Puede vincularse opcionalmente a una prestación del catálogo cuando el compromiso corresponde a participación en un recurso (taller, curso, etc.).
+
+Metodos publicos:
+
+- `function plan(): BelongsTo`
+  Plan al que pertenece este compromiso.
+  `@return` BelongsTo<PlanDeIntervencion, self>
+- `function prestacion(): BelongsTo`
+  Prestación del catálogo relacionada, si aplica.
+  `@return` BelongsTo<Prestacion, self>
+
+### `Modules\Intervencion\Models\PlanCambio`
+
+- Tipo: class.
+- Fichero: `vida/Modules/Intervencion/app/Models/PlanCambio.php:29`.
+- Resumen: Registro de un cambio en el contenido de un Plan de Intervención.
+
+Cubre cualquier modificación al plan activo, tanto discrecional (TSR) como derivada de un seguimiento. El snapshot almacena el estado completo del plan ANTES del cambio para permitir reconstrucción histórica.  Nota: revisiones_plan cubre los cambios de versión formales (nueva firma). plan_cambios cubre el historial completo incluyendo cambios menores.
+
+Metodos publicos:
+
+- `function plan(): BelongsTo`
+  Plan al que pertenece este registro de cambio.
+  `@return` BelongsTo<PlanDeIntervencion, self>
+- `function profesional(): BelongsTo`
+  Profesional que realizó el cambio.
+  `@return` BelongsTo<User, self>
+- `function seguimiento(): BelongsTo`
+  Seguimiento que originó el cambio, si aplica.
+  `@return` BelongsTo<SeguimientoPlan, self>
+
 ### `Modules\Intervencion\Models\PlanDeIntervencion`
 
 - Tipo: class.
-- Fichero: `vida/Modules/Intervencion/app/Models/PlanDeIntervencion.php:46`.
+- Fichero: `vida/Modules/Intervencion/app/Models/PlanDeIntervencion.php:50`.
 - Resumen: Plan de Intervención Social (PISO).
 
 Acuerdo formal entre el profesional y el ciudadano con objetivos, prestaciones comprometidas y compromisos del ciudadano. Requiere firma de ambas partes para activarse (ver estaFirmado()).  El versionado es no destructivo: crearNuevaVersion() genera un nuevo registro con version+1; el original pasa a estado en_revision.
@@ -2895,9 +2946,85 @@ Metodos publicos:
   Crea una nueva versión del plan a partir del estado actual.
   `@return` static El nuevo plan (nueva versión)
   `@throws` \DomainException Si el plan no está en estado activo
+- `function tipoPlan(): \Illuminate\Database\Eloquent\Relations\BelongsTo`
+  Tipo de plan del catálogo al que pertenece.
+  `@return` \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Intervencion\Models\TipoPlan, self>
+- `function unidadConvivencia(): \Illuminate\Database\Eloquent\Relations\BelongsTo`
+  Unidad de convivencia vinculada al plan, si es un plan familiar.
+  `@return` \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Ciudadania\Models\UnidadConvivencia, self>
+- `function objetivos(): HasMany`
+  Objetivos del plan ordenados.
+  `@return` HasMany<PlanObjetivo>
+- `function objetivosGenerales(): HasMany`
+  Solo los objetivos generales del plan.
+  `@return` HasMany<PlanObjetivo>
+- `function actuacionesAyuntamiento(): HasMany`
+  Actuaciones del Ayuntamiento en el plan.
+  `@return` HasMany<PlanActuacionAyuntamiento>
+- `function actuacionesCiudadano(): HasMany`
+  Compromisos del ciudadano en el plan.
+  `@return` HasMany<PlanActuacionCiudadano>
+- `function participantes(): HasMany`
+  Todos los profesionales participantes.
+  `@return` HasMany<PlanParticipante>
+- `function participantesActivos(): HasMany`
+  Solo los participantes activos (sin fecha_fin).
+  `@return` HasMany<PlanParticipante>
+- `function cambios(): HasMany`
+  Historial de cambios del plan, más reciente primero.
+  `@return` HasMany<PlanCambio>
+- `function registrarCambio( int $profesionalId, string $motivo, string $origen = 'discrecional', ?int $seguimientoId = null ): PlanCambio`
+  Registra un cambio en el historial con snapshot del estado previo. Debe llamarse ANTES de aplicar los cambios.
+  `@return` PlanCambio
 - `function scopeActivos(Builder $query): Builder`
   Solo planes activos.
   `@return` Builder<PlanDeIntervencion>
+
+### `Modules\Intervencion\Models\PlanObjetivo`
+
+- Tipo: class.
+- Fichero: `vida/Modules/Intervencion/app/Models/PlanObjetivo.php:25`.
+- Resumen: Objetivo real de un Plan de Intervención.
+
+Puede originarse desde el catálogo (objetivo_catalogo_id) o ser redactado libremente por el profesional (objetivo_catalogo_id = null). Los específicos se vinculan a un general del mismo plan.
+
+Metodos publicos:
+
+- `function plan(): BelongsTo`
+  Plan al que pertenece este objetivo.
+  `@return` BelongsTo<PlanDeIntervencion, self>
+- `function objetivoCatalogo(): BelongsTo`
+  Objetivo del catálogo del que procede, si aplica.
+  `@return` BelongsTo<ObjetivoCatalogo, self>
+- `function objetivoGeneral(): BelongsTo`
+  Objetivo general del que depende este específico.
+  `@return` BelongsTo<self, self>
+- `function objetivosEspecificos(): HasMany`
+  Objetivos específicos que dependen de este general.
+  `@return` HasMany<self>
+
+### `Modules\Intervencion\Models\PlanParticipante`
+
+- Tipo: class.
+- Fichero: `vida/Modules/Intervencion/app/Models/PlanParticipante.php:25`.
+- Resumen: Profesional participante en un Plan de Intervención distinto del responsable.
+
+Permite registrar la participación de otros profesionales (educadores sociales, psicólogos, etc.) con su rol específico en el plan y, opcionalmente, su servicio de origen cuando proceden de atención especializada.
+
+Metodos publicos:
+
+- `function plan(): BelongsTo`
+  Plan al que pertenece este participante.
+  `@return` BelongsTo<PlanDeIntervencion, self>
+- `function profesional(): BelongsTo`
+  Usuario profesional participante.
+  `@return` BelongsTo<User, self>
+- `function servicio(): BelongsTo`
+  Servicio de origen del participante, si aplica.
+  `@return` BelongsTo<Servicio, self>
+- `function estaActivo(): bool`
+  Indica si la participación está activa (sin fecha de fin o con fecha futura).
+  `@return` bool
 
 ### `Modules\Intervencion\Models\RevisionPlan`
 
@@ -2995,6 +3122,38 @@ Metodos publicos:
 - `function scopeActivos(Builder $query): Builder`
   Fichas activas disponibles para componer valoraciones.
   `@return` Builder<TipoFicha>
+
+### `Modules\Intervencion\Models\TipoPlan`
+
+- Tipo: class.
+- Fichero: `vida/Modules/Intervencion/app/Models/TipoPlan.php:25`.
+- Resumen: Tipo de plan configurable desde el backoffice.
+
+Define la estructura y catálogos disponibles para un Plan de Intervención. Los tipos del seeder tienen eliminable=false y no pueden borrarse desde UI.
+
+Metodos publicos:
+
+- `function planes(): HasMany`
+  Planes de intervención que usan este tipo.
+  `@return` HasMany<PlanDeIntervencion>
+- `function objetivosCatalogo(): HasMany`
+  Objetivos del catálogo disponibles para este tipo de plan.
+  `@return` HasMany<ObjetivoCatalogo>
+- `function objetivosGenerales(): HasMany`
+  Solo los objetivos generales activos, ordenados.
+  `@return` HasMany<ObjetivoCatalogo>
+- `function scopeActivos(Builder $query): Builder`
+  Solo tipos activos.
+  `@return` Builder<self>
+- `function scopeAsp(Builder $query): Builder`
+  Solo tipos de ámbito ASP.
+  `@return` Builder<self>
+- `function scopeEspecializados(Builder $query): Builder`
+  Solo tipos de ámbito especializado.
+  `@return` Builder<self>
+- `function opcionesParaSelect(): array`
+  Devuelve las opciones activas indexadas por id para selectores de formulario.
+  `@return` array<int, string>
 
 ### `Modules\Intervencion\Models\TipoValoracion`
 
@@ -5555,6 +5714,47 @@ Metodos publicos:
 - Fichero: `vida/app/Filament/Resources/TipoFichaResource/Pages/ListTipoFichas.php:9`.
 - Resumen: _Sin resumen PHPDoc._
 
+### `App\Filament\Resources\TipoPlanResource`
+
+- Tipo: class.
+- Fichero: `vida/app/Filament/Resources/TipoPlanResource.php:28`.
+- Resumen: Recurso Filament para gestionar los tipos de plan del sistema.
+
+Los tipos del seeder (eliminable=false) no pueden borrarse desde la UI. El slug es inmutable una vez creado el tipo.
+
+Metodos publicos:
+
+- `function form(Schema $schema): Schema`
+  Formulario de creación y edición de tipos de plan.
+  `@return` Schema
+- `function table(Table $table): Table`
+  Tabla de listado de tipos de plan.
+  `@return` Table
+- `function canDelete($record): bool`
+  Restringe el borrado a tipos eliminables con rol adm_sistema.
+  `@return` bool
+- `function getPages(): array`
+  Páginas del recurso.
+  `@return` array<string, mixed>
+
+### `App\Filament\Resources\TipoPlanResource\Pages\CreateTipoPlan`
+
+- Tipo: class.
+- Fichero: `vida/app/Filament/Resources/TipoPlanResource/Pages/CreateTipoPlan.php:9`.
+- Resumen: Página de creación de un tipo de plan.
+
+### `App\Filament\Resources\TipoPlanResource\Pages\EditTipoPlan`
+
+- Tipo: class.
+- Fichero: `vida/app/Filament/Resources/TipoPlanResource/Pages/EditTipoPlan.php:9`.
+- Resumen: Página de edición de un tipo de plan.
+
+### `App\Filament\Resources\TipoPlanResource\Pages\ListTipoPlanes`
+
+- Tipo: class.
+- Fichero: `vida/app/Filament/Resources/TipoPlanResource/Pages/ListTipoPlanes.php:10`.
+- Resumen: Página de listado de tipos de plan.
+
 ### `App\Filament\Resources\TipoRelacionProfesionalResource`
 
 - Tipo: class.
@@ -5766,19 +5966,26 @@ Permite crear usuarios, asignarles roles globales y adscribirlos a Unidades Orga
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de usuarios.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de usuarios.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del catálogo de usuarios.
+  `@return` array
 - `function canViewAny(): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario puede ver el listado de usuarios.
+  `@return` bool
 - `function canCreate(): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario puede crear usuarios.
+  `@return` bool
 - `function canEdit(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario puede editar el registro.
+  `@return` bool
 - `function canDelete(Model $record): bool`
-  Solo adm_sistema puede eliminar usuarios.
+  Determina si el usuario puede eliminar usuarios.
+  `@return` bool
 
 ### `App\Filament\Resources\UsuarioResource\Pages\CreateUsuario`
 
@@ -5809,13 +6016,17 @@ Muestra el historial completo de roles (pendientes, activos, inactivos) y permit
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de asignaciones de rol.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de asignaciones de rol.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del catálogo de asignaciones de rol.
+  `@return` array
 - `function canEdit(Model $record): bool`
-  adm_usuarios solo gestiona asignaciones de rol de su subtree de UO.
+  Determina si el usuario puede editar la asignación de rol.
+  `@return` bool
 
 ### `App\Filament\Resources\UsuarioRolResource\Pages\CreateUsuarioRol`
 
@@ -5846,11 +6057,14 @@ Accesible en /admin/zonas.
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de zonas.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de zonas.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del catálogo de zonas.
+  `@return` array
 
 ### `App\Filament\Resources\ZonaResource\Pages\CreateZona`
 
@@ -5881,9 +6095,11 @@ TODO: requiere un modelo de auditoría (App\Models\Audit o similar) que no está
 Metodos publicos:
 
 - `function canView(): bool`
-  _Sin resumen PHPDoc._
+  Determina si el widget de actividad puede verse.
+  `@return` bool
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla del widget de actividad reciente.
+  `@return` Table
 
 ### `App\Filament\Widgets\AlertasSistemaWidget`
 
@@ -5894,9 +6110,11 @@ Metodos publicos:
 Metodos publicos:
 
 - `function canView(): bool`
-  _Sin resumen PHPDoc._
+  Determina si el widget de alertas puede verse.
+  `@return` bool
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla del widget de alertas.
+  `@return` Table
 
 ### `App\Filament\Widgets\EstadoSistemaWidget`
 
@@ -5907,7 +6125,8 @@ Metodos publicos:
 Metodos publicos:
 
 - `function canView(): bool`
-  _Sin resumen PHPDoc._
+  Determina si el widget de estado puede verse.
+  `@return` bool
 
 ### `App\Filament\Widgets\RolesPendientesWidget`
 
@@ -5918,9 +6137,11 @@ Metodos publicos:
 Metodos publicos:
 
 - `function canView(): bool`
-  _Sin resumen PHPDoc._
+  Determina si el widget de roles pendientes puede verse.
+  `@return` bool
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla del widget de roles pendientes.
+  `@return` Table
 
 ### `App\Http\Controllers\Auth\LoginController`
 
@@ -5968,9 +6189,10 @@ Registra un acceso 'ver' cuando se accede a una ruta con parámetro {ciudadano}.
 Metodos publicos:
 
 - `function __construct(private readonly AuditService $service)`
-  _Sin resumen PHPDoc._
+  Inyecta el servicio de auditoría.
 - `function handle(Request $request, Closure $next): Response`
-  _Sin resumen PHPDoc._
+  Procesa la petición y registra el acceso al ciudadano si corresponde.
+  `@return` Response
 
 ### `App\Http\Middleware\EnsureTieneRol`
 
@@ -6002,7 +6224,8 @@ La implementación por defecto llama a abort(403), lo que impide al usuario acce
 Metodos publicos:
 
 - `function handle(Request $request, Closure $next)`
-  _Sin resumen PHPDoc._
+  Redirige al inicio si el usuario ya completó el onboarding.
+  `@return` Response
 
 ### `App\Jobs\NormalizarDireccionJob`
 

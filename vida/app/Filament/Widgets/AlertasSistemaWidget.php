@@ -20,11 +20,22 @@ class AlertasSistemaWidget extends BaseWidget
 
     protected static ?string $heading = 'Alertas del sistema';
 
+    /**
+     * Determina si el widget de alertas puede verse.
+     *
+     * @return bool
+     */
     public static function canView(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'supervision']) ?? false;
     }
 
+    /**
+     * Configura la tabla del widget de alertas.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public function table(Table $table): Table
     {
         return $table

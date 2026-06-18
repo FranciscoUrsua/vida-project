@@ -40,6 +40,12 @@ class ZonaResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    /**
+     * Define el formulario de zonas.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -68,6 +74,12 @@ class ZonaResource extends Resource
         ]);
     }
 
+    /**
+     * Configura el listado de zonas.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -105,6 +117,11 @@ class ZonaResource extends Resource
             ->defaultSort('distrito.nombre');
     }
 
+    /**
+     * Declara las páginas del catálogo de zonas.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [

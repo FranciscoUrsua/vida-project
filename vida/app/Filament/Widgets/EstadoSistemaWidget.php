@@ -20,6 +20,11 @@ class EstadoSistemaWidget extends BaseWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    /**
+     * Determina si el widget de estado puede verse.
+     *
+     * @return bool
+     */
     public static function canView(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;

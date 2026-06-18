@@ -20,11 +20,22 @@ class RolesPendientesWidget extends BaseWidget
 
     protected static ?string $heading = 'Roles pendientes de aprobación';
 
+    /**
+     * Determina si el widget de roles pendientes puede verse.
+     *
+     * @return bool
+     */
     public static function canView(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Configura la tabla del widget de roles pendientes.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public function table(Table $table): Table
     {
         return $table

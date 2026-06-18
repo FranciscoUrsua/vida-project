@@ -45,6 +45,12 @@ class UsuarioResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    /**
+     * Define el formulario de usuarios.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -147,6 +153,12 @@ class UsuarioResource extends Resource
         ]);
     }
 
+    /**
+     * Configura el listado de usuarios.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -190,6 +202,11 @@ class UsuarioResource extends Resource
             ->defaultSort('name');
     }
 
+    /**
+     * Declara las páginas del catálogo de usuarios.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [
@@ -199,16 +216,32 @@ class UsuarioResource extends Resource
         ];
     }
 
+    /**
+     * Determina si el usuario puede ver el listado de usuarios.
+     *
+     * @return bool
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Determina si el usuario puede crear usuarios.
+     *
+     * @return bool
+     */
     public static function canCreate(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Determina si el usuario puede editar el registro.
+     *
+     * @param Model $record Registro objetivo.
+     * @return bool
+     */
     public static function canEdit(Model $record): bool
     {
         $user = auth()->user();
@@ -224,7 +257,12 @@ class UsuarioResource extends Resource
         return $record->adscripcionesVigentes()->whereIn('unidad_organizativa_id', $uoIds)->exists();
     }
 
-    /** Solo adm_sistema puede eliminar usuarios. */
+    /**
+     * Determina si el usuario puede eliminar usuarios.
+     *
+     * @param Model $record Registro objetivo.
+     * @return bool
+     */
     public static function canDelete(Model $record): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;

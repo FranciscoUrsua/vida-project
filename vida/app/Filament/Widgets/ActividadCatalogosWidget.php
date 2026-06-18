@@ -22,11 +22,22 @@ class ActividadCatalogosWidget extends BaseWidget
 
     protected static ?string $heading = 'Actividad reciente en catálogos';
 
+    /**
+     * Determina si el widget de actividad puede verse.
+     *
+     * @return bool
+     */
     public static function canView(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Configura la tabla del widget de actividad reciente.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public function table(Table $table): Table
     {
         // TODO: sustituir por la query real cuando exista App\Models\Audit

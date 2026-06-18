@@ -11,6 +11,13 @@ use Illuminate\Http\Request;
  */
 class PrimerAcceso
 {
+    /**
+     * Redirige al inicio si el usuario ya completó el onboarding.
+     *
+     * @param Request $request Petición entrante.
+     * @param Closure $next Siguiente middleware.
+     * @return Response
+     */
     public function handle(Request $request, Closure $next)
     {
         if (! $request->user()->primer_acceso) {

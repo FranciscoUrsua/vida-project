@@ -45,6 +45,12 @@ class UsuarioRolResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
+    /**
+     * Define el formulario de asignaciones de rol.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -87,6 +93,12 @@ class UsuarioRolResource extends Resource
         ]);
     }
 
+    /**
+     * Configura el listado de asignaciones de rol.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -148,6 +160,11 @@ class UsuarioRolResource extends Resource
             ->defaultSort('created_at', 'desc');
     }
 
+    /**
+     * Declara las páginas del catálogo de asignaciones de rol.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [
@@ -157,7 +174,12 @@ class UsuarioRolResource extends Resource
         ];
     }
 
-    /** adm_usuarios solo gestiona asignaciones de rol de su subtree de UO. */
+    /**
+     * Determina si el usuario puede editar la asignación de rol.
+     *
+     * @param Model $record Registro objetivo.
+     * @return bool
+     */
     public static function canEdit(Model $record): bool
     {
         $user = auth()->user();
