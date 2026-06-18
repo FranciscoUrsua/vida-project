@@ -57,6 +57,8 @@ class Version extends Model
 
     /**
      * Entidad a la que pertenece esta versión.
+     *
+     * @return MorphTo<Model, Version>
      */
     public function versionable(): MorphTo
     {

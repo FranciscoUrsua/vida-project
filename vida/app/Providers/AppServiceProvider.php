@@ -15,6 +15,8 @@ class AppServiceProvider extends ServiceProvider
 {
     /**
      * Registra servicios en el contenedor de la aplicación.
+     *
+     * @return void
      */
     public function register(): void
     {
@@ -23,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Arranca los servicios de la aplicación.
+     *
+     * @return void
      */
     public function boot(): void
     {

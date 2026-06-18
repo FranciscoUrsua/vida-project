@@ -23,7 +23,10 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  */
 trait Auditable
 {
-    /** Registra el observer de auditoría al arrancar el modelo. */
+    /** Registra el observer de auditoría al arrancar el modelo.
+     *
+     * @return void
+     */
     public static function bootAuditable(): void
     {
         static::observe(AuditObserver::class);
@@ -58,6 +61,7 @@ trait Auditable
      * Cada modelo debe sobrescribir este método si el ciudadano_id
      * no es un atributo directo (p.ej.: llega a través de historia_id).
      * Los modelos que representan directamente a un ciudadano devuelven $this->id.
+     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {

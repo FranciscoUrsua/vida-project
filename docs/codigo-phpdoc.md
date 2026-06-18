@@ -1,6 +1,6 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 14:57:07 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 15:04:15 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
@@ -8,7 +8,7 @@ Generado el 2026-06-18 14:57:07 UTC a partir de los docblocks PHPDoc compatibles
 - Simbolos escaneados: 385.
 - Cabeceras documentadas: 265/385.
 - Metodos publicos documentados: 998/1043.
-- Alertas de comentarios: 187.
+- Alertas de comentarios: 161.
 
 ## Alertas
 
@@ -135,30 +135,12 @@ Generado el 2026-06-18 14:57:07 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Http\Controllers\Controller` en `vida/app/Http/Controllers/Controller.php:5`: Falta docblock de cabecera.
 - `App\Providers\Filament\AdminPanelProvider` en `vida/app/Providers/Filament/AdminPanelProvider.php:22`: Falta docblock de cabecera.
 
-### PHPDoc incompleto (67)
+### PHPDoc incompleto (41)
 
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::mount()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:63`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::abrirFormularioCreacion()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:131`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::abrirFormularioEdicion()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:142`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::guardar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:157`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::desactivar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:181`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::reactivar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:194`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::cancelar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:205`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::render()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:218`: Falta @return.
-- `App\Models\Api\PerfilAnonimizacion::delete()` en `vida/app/Models/Api/PerfilAnonimizacion.php:90`: Falta @return.
-- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @param $attributes.
-- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @param $options.
-- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @return.
-- `App\Models\Audit::delete()` en `vida/app/Models/Audit.php:82`: Falta @return.
-- `App\Models\Ciudadano::getNombreCompletoAttribute()` en `vida/app/Models/Ciudadano.php:155`: Falta @return.
-- `App\Models\Ciudadano::getCiudadanoId()` en `vida/app/Models/Ciudadano.php:165`: Falta @return.
-- `App\Models\HistoriaSocial::getCiudadanoId()` en `vida/app/Models/HistoriaSocial.php:85`: Falta @return.
 - `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @param $model.
 - `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @return.
-- `App\Models\UnidadOrganizativa::isDescendantOf()` en `vida/app/Models/UnidadOrganizativa.php:124`: Falta @return.
 - `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @param $panel.
 - `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @return.
-- `App\Models\Version::versionable()` en `vida/app/Models/Version.php:61`: Falta @return.
 - `App\Observers\DireccionObserver::__construct()` en `vida/app/Observers/DireccionObserver.php:29`: Falta @param $geocodificador.
 - `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @param $model.
 - `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @return.
@@ -181,10 +163,6 @@ Generado el 2026-06-18 14:57:07 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @param $usuario.
 - `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @param $ciudadano.
 - `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @return.
-- `App\Providers\AppServiceProvider::register()` en `vida/app/Providers/AppServiceProvider.php:19`: Falta @return.
-- `App\Providers\AppServiceProvider::boot()` en `vida/app/Providers/AppServiceProvider.php:27`: Falta @return.
-- `App\Providers\GeocodificacionServiceProvider::register()` en `vida/app/Providers/GeocodificacionServiceProvider.php:27`: Falta @return.
-- `App\Providers\GeocodificacionServiceProvider::boot()` en `vida/app/Providers/GeocodificacionServiceProvider.php:35`: Falta @return.
 - `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @param $user.
 - `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @param $historia.
 - `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @return.
@@ -200,10 +178,6 @@ Generado el 2026-06-18 14:57:07 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $usuario.
 - `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $ciudadano.
 - `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @return.
-- `App\Traits\Auditable::bootAuditable()` en `vida/app/Traits/Auditable.php:27`: Falta @return.
-- `App\Traits\Auditable::getCiudadanoId()` en `vida/app/Traits/Auditable.php:62`: Falta @return.
-- `App\Traits\TieneDireccion::initializeTieneDireccion()` en `vida/app/Traits/TieneDireccion.php:44`: Falta @return.
-- `App\Traits\TieneDireccion::direccionFormateada()` en `vida/app/Traits/TieneDireccion.php:65`: Falta @return.
 
 ## Referencia
 
@@ -6223,6 +6197,7 @@ Metodos publicos:
 
 - `function mount(): void`
   Valida que el usuario autenticado tiene el permiso requerido. Livewire llama a este método al montar el componente.
+  `@return` void
   `@throws` AuthorizationException
 - `function arbolUo(): Collection`
   Devuelve el árbol de UO desde los nodos raíz. Si hay búsqueda activa, filtra por nombre en toda la jerarquía.
@@ -6235,18 +6210,25 @@ Metodos publicos:
   `@return` Collection<int, UnidadOrganizativa>
 - `function abrirFormularioCreacion(): void`
   Abre el formulario para crear una nueva UO.
+  `@return` void
 - `function abrirFormularioEdicion(int $id): void`
   Abre el formulario cargando los datos de una UO existente para editarla.
+  `@return` void
 - `function guardar(): void`
   Guarda la UO (crea o actualiza según si hay editandoId).
+  `@return` void
 - `function desactivar(int $id): void`
   Desactiva una UO (la marca como inactiva; no la elimina). El historial de adscripciones y la estructura quedan preservados.
+  `@return` void
 - `function reactivar(int $id): void`
   Reactiva una UO previamente desactivada.
+  `@return` void
 - `function cancelar(): void`
   Cierra el formulario sin guardar.
+  `@return` void
 - `function render(): View`
   Renderiza el componente.
+  `@return` View
 
 ### `App\Livewire\Centros\SelectorPrestacionesCentro`
 
@@ -6318,6 +6300,7 @@ Metodos publicos:
 
 - `function delete(): ?bool`
   Intenta eliminar el perfil respetando las restricciones de dominio.
+  `@return` bool|null
   `@throws` PerfilSistemaNoEliminableException Si es un perfil de sistema
   `@throws` PerfilConExtraccionesException Si tiene extracciones asociadas
 - `function versiones(): HasMany`
@@ -6373,9 +6356,11 @@ Metodos publicos:
 
 - `function update(array $attributes = [], array $options = []): bool`
   _Sin resumen PHPDoc._
+  `@return` bool
   `@throws` LogicException Los registros de auditoría son inmutables.
 - `function delete(): ?bool`
   _Sin resumen PHPDoc._
+  `@return` bool|null
   `@throws` LogicException Use AuditPurgeCommand para purgas por retención.
 - `function auditable(): MorphTo`
   Modelo afectado (polimórfico).
@@ -6422,8 +6407,10 @@ Metodos publicos:
 
 - `function getNombreCompletoAttribute(): string`
   Nombre completo del ciudadano: nombre + apellido1 [+ apellido2]. Los campos están cifrados — solo accesible mediante Eloquent ORM.
+  `@return` string
 - `function getCiudadanoId(): ?int`
   El ciudadano es la entidad raíz: su propio id es el ciudadano_id.
+  `@return` int|null
 - `function prestacionesResumen(): HasMany`
   Resumen de prestaciones y actividades sin historia social asociada. Alimentado por observers de cada módulo origen.
   `@return` HasMany<CiudadanoPrestacionResumen, self>
@@ -6452,6 +6439,7 @@ Metodos publicos:
 
 - `function getCiudadanoId(): ?int`
   {@inheritDoc}
+  `@return` int|null
 - `function ciudadano(): BelongsTo`
   Ciudadano titular de la Historia Social. Sin FK en la migración (TODO: módulo Ciudadanía), por eso sin withoutGlobalScope.
   `@return` BelongsTo<Ciudadano, HistoriaSocial>
@@ -6510,6 +6498,7 @@ Metodos publicos:
   `@return` HasMany<UsuarioUo>
 - `function isDescendantOf(UnidadOrganizativa $ancestor): bool`
   Comprueba si esta UO es descendiente del nodo dado. Útil para verificar ámbitos de supervisión jerárquica.
+  `@return` bool
 - `function getPlanNombreCompletoAttribute(): string`
   Nombre completo del plan de intervención con fallback. Permite personalizar el término por UO (p. ej. «PISO», «PIA»).
   `@return` string Nombre completo, nunca nulo.
@@ -6571,6 +6560,7 @@ Metodos publicos:
 
 - `function versionable(): MorphTo`
   Entidad a la que pertenece esta versión.
+  `@return` MorphTo<Model, Version>
 - `function usuario(): BelongsTo`
   Usuario que realizó el cambio que generó esta versión.
   `@return` BelongsTo<User, Version>
@@ -6651,8 +6641,10 @@ Metodos publicos:
 
 - `function register(): void`
   Registra servicios en el contenedor de la aplicación.
+  `@return` void
 - `function boot(): void`
   Arranca los servicios de la aplicación.
+  `@return` void
 
 ### `App\Providers\Filament\AdminPanelProvider`
 
@@ -6678,8 +6670,10 @@ Metodos publicos:
 
 - `function register(): void`
   Registra el binding de la interfaz en el contenedor.
+  `@return` void
 - `function boot(): void`
   Registra el observer en los modelos con dirección.
+  `@return` void
 
 ### `App\Queries\AccesosExpedienteQuery`
 
@@ -6863,6 +6857,7 @@ Metodos publicos:
 
 - `function bootAuditable(): void`
   Registra el observer de auditoría al arrancar el modelo.
+  `@return` void
 - `function audits(): MorphMany`
   Todos los registros de auditoría de este modelo.
   `@return` MorphMany<Audit>
@@ -6871,6 +6866,7 @@ Metodos publicos:
   `@return` list<string>
 - `function getCiudadanoId(): ?int`
   Devuelve el ciudadano_id asociado a este registro.
+  `@return` int|null
 
 ### `App\Traits\TieneDireccion`
 
@@ -6884,8 +6880,10 @@ Metodos publicos:
 
 - `function initializeTieneDireccion(): void`
   Inyecta los casts de los campos de dirección al instanciar el modelo.
+  `@return` void
 - `function direccionFormateada(): string`
   Devuelve la dirección estructurada como cadena legible.
+  `@return` string
 - `function scopeSinNormalizar(Builder $query): Builder`
   Filtra entidades cuya dirección aún no ha sido normalizada por el geocoder.
   `@return` Builder<static>

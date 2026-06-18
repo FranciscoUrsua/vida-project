@@ -151,6 +151,7 @@ class Ciudadano extends Model
     /**
      * Nombre completo del ciudadano: nombre + apellido1 [+ apellido2].
      * Los campos están cifrados — solo accesible mediante Eloquent ORM.
+     * @return string
      */
     public function getNombreCompletoAttribute(): string
     {
@@ -161,7 +162,10 @@ class Ciudadano extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
-    /** El ciudadano es la entidad raíz: su propio id es el ciudadano_id. */
+    /** El ciudadano es la entidad raíz: su propio id es el ciudadano_id.
+     *
+     * @return int|null
+     */
     public function getCiudadanoId(): ?int
     {
         return $this->id;

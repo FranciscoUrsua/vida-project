@@ -81,7 +81,10 @@ class HistoriaSocial extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
-    /** {@inheritDoc} */
+    /** {@inheritDoc}
+     *
+     * @return int|null
+     */
     public function getCiudadanoId(): ?int
     {
         return $this->ciudadano_id;

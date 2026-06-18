@@ -84,6 +84,7 @@ class PerfilAnonimizacion extends Model
     /**
      * Intenta eliminar el perfil respetando las restricciones de dominio.
      *
+     * @return bool|null
      * @throws PerfilSistemaNoEliminableException Si es un perfil de sistema
      * @throws PerfilConExtraccionesException Si tiene extracciones asociadas
      */
