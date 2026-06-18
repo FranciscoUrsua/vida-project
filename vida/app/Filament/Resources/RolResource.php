@@ -38,6 +38,12 @@ class RolResource extends Resource
 
     protected static ?int $navigationSort = 70;
 
+    /**
+     * Define el formulario de roles.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -62,6 +68,12 @@ class RolResource extends Resource
         ]);
     }
 
+    /**
+     * Configura el listado de roles.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -88,6 +100,11 @@ class RolResource extends Resource
             ->defaultSort('name');
     }
 
+    /**
+     * Declara las páginas del recurso de roles.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [
@@ -98,21 +115,43 @@ class RolResource extends Resource
     }
 
     // Solo adm_sistema puede ver y modificar la matriz de roles y permisos.
+    /**
+     * Determina si el usuario puede ver el listado de roles.
+     *
+     * @return bool
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;
     }
 
+    /**
+     * Determina si el usuario puede crear roles.
+     *
+     * @return bool
+     */
     public static function canCreate(): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;
     }
 
+    /**
+     * Determina si el usuario puede editar roles.
+     *
+     *  Model $record Registro objetivo.
+     * @return bool
+     */
     public static function canEdit(Model $record): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;
     }
 
+    /**
+     * Determina si el usuario puede eliminar roles.
+     *
+     *  Model $record Registro objetivo.
+     * @return bool
+     */
     public static function canDelete(Model $record): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;

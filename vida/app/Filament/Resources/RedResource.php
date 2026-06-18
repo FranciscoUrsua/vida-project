@@ -36,6 +36,12 @@ class RedResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    /**
+     * Define el formulario de redes.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -78,12 +84,22 @@ class RedResource extends Resource
         ]);
     }
 
-    /** supervision puede ver redes cuyo ámbito incluye su subtree de UO. */
+    /**
+     * Determina si el usuario puede ver el listado de redes.
+     *
+     * @return bool
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
     }
 
+    /**
+     * Configura el listado de redes.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -114,6 +130,11 @@ class RedResource extends Resource
             ->defaultSort('nombre');
     }
 
+    /**
+     * Declara las páginas del recurso de redes.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [
