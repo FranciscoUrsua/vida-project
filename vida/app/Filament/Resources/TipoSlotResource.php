@@ -19,6 +19,9 @@ use Modules\Agenda\Enums\OrigenPermitidoSlot;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Agenda\Models\TipoSlot;
 
+/**
+ * Recurso Filament para la gestión de tipos de slot.
+ */
 class TipoSlotResource extends Resource
 {
     use AutorizaGestion;

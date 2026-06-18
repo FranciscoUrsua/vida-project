@@ -6,6 +6,9 @@ use App\Filament\Resources\Pages\ListRecords;
 use App\Filament\Resources\TitulacionResource;
 use Filament\Actions;
 
+/**
+ * Página de listado de titulaciones.
+ */
 class ListTitulaciones extends ListRecords
 {
     protected static string $resource = TitulacionResource::class;

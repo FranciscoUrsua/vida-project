@@ -16,6 +16,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\TipoEspacio;
 
+/**
+ * Recurso Filament para la gestión de tipos de espacio.
+ */
 class TipoEspacioResource extends Resource
 {
     use AutorizaGestion;

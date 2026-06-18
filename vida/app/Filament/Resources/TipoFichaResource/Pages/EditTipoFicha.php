@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\ValidationException;
 use Modules\Intervencion\Models\TipoFicha;
 
+/**
+ * Página de edición de tipos de ficha.
+ */
 class EditTipoFicha extends EditRecord
 {
     protected static string $resource = TipoFichaResource::class;

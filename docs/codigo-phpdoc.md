@@ -1,45 +1,18 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 15:34:38 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 15:37:41 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 385.
-- Cabeceras documentadas: 360/385.
+- Cabeceras documentadas: 385/385.
 - Metodos publicos documentados: 997/1043.
-- Alertas de comentarios: 25.
+- Alertas de comentarios: 0.
 
 ## Alertas
 
-### Clase sin PHPDoc (25)
-
-- `App\Filament\Resources\TipoEspacioResource` en `vida/app/Filament/Resources/TipoEspacioResource.php:19`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEspacioResource\Pages\CreateTipoEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/CreateTipoEspacio.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEspacioResource\Pages\EditTipoEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/EditTipoEspacio.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoEspacioResource\Pages\ListTiposEspacio` en `vida/app/Filament/Resources/TipoEspacioResource/Pages/ListTiposEspacio.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoFichaResource\Pages\CreateTipoFicha` en `vida/app/Filament/Resources/TipoFichaResource/Pages/CreateTipoFicha.php:11`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoFichaResource\Pages\EditTipoFicha` en `vida/app/Filament/Resources/TipoFichaResource/Pages/EditTipoFicha.php:13`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoFichaResource\Pages\ListTipoFichas` en `vida/app/Filament/Resources/TipoFichaResource/Pages/ListTipoFichas.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\CreateTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/CreateTipoRelacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\EditTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/EditTipoRelacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\ListTiposRelacion` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/ListTiposRelacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionResource\Pages\CreateTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/CreateTipoRelacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionResource\Pages\EditTipoRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/EditTipoRelacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoRelacionResource\Pages\ListTiposRelacion` en `vida/app/Filament/Resources/TipoRelacionResource/Pages/ListTiposRelacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoSlotResource` en `vida/app/Filament/Resources/TipoSlotResource.php:22`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoSlotResource\Pages\CreateTipoSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/CreateTipoSlot.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoSlotResource\Pages\EditTipoSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/EditTipoSlot.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TipoSlotResource\Pages\ListTiposSlot` en `vida/app/Filament/Resources/TipoSlotResource/Pages/ListTiposSlot.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TitulacionResource\Pages\CreateTitulacion` en `vida/app/Filament/Resources/TitulacionResource/Pages/CreateTitulacion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\TitulacionResource\Pages\EditTitulacion` en `vida/app/Filament/Resources/TitulacionResource/Pages/EditTitulacion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\TitulacionResource\Pages\ListTitulaciones` en `vida/app/Filament/Resources/TitulacionResource/Pages/ListTitulaciones.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UnidadOrganizativaResource\Pages\CreateUnidadOrganizativa` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/CreateUnidadOrganizativa.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\UnidadOrganizativaResource\Pages\EditUnidadOrganizativa` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/EditUnidadOrganizativa.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UnidadOrganizativaResource\Pages\ListUnidadesOrganizativas` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/ListUnidadesOrganizativas.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioResource\Pages\CreateUsuario` en `vida/app/Filament/Resources/UsuarioResource/Pages/CreateUsuario.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioResource\Pages\EditUsuario` en `vida/app/Filament/Resources/UsuarioResource/Pages/EditUsuario.php:9`: Falta docblock de cabecera.
-
+No se han detectado carencias basicas en clases ni metodos publicos.
 ## Referencia
 
 ### `Modules\Agenda\Enums\EstadoCita`
@@ -5417,8 +5390,8 @@ Metodos publicos:
 ### `App\Filament\Resources\TipoEspacioResource`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoEspacioResource.php:19`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoEspacioResource.php:22`.
+- Resumen: Recurso Filament para la gestión de tipos de espacio.
 
 Metodos publicos:
 
@@ -5435,20 +5408,20 @@ Metodos publicos:
 ### `App\Filament\Resources\TipoEspacioResource\Pages\CreateTipoEspacio`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoEspacioResource/Pages/CreateTipoEspacio.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoEspacioResource/Pages/CreateTipoEspacio.php:11`.
+- Resumen: Página de creación de tipos de espacio.
 
 ### `App\Filament\Resources\TipoEspacioResource\Pages\EditTipoEspacio`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoEspacioResource/Pages/EditTipoEspacio.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoEspacioResource/Pages/EditTipoEspacio.php:11`.
+- Resumen: Página de edición de tipos de espacio.
 
 ### `App\Filament\Resources\TipoEspacioResource\Pages\ListTiposEspacio`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoEspacioResource/Pages/ListTiposEspacio.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoEspacioResource/Pages/ListTiposEspacio.php:12`.
+- Resumen: Página de listado de tipos de espacio.
 
 ### `App\Filament\Resources\TipoFichaResource`
 
@@ -5476,20 +5449,20 @@ Metodos publicos:
 ### `App\Filament\Resources\TipoFichaResource\Pages\CreateTipoFicha`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoFichaResource/Pages/CreateTipoFicha.php:11`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoFichaResource/Pages/CreateTipoFicha.php:14`.
+- Resumen: Página de creación de tipos de ficha.
 
 ### `App\Filament\Resources\TipoFichaResource\Pages\EditTipoFicha`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoFichaResource/Pages/EditTipoFicha.php:13`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoFichaResource/Pages/EditTipoFicha.php:16`.
+- Resumen: Página de edición de tipos de ficha.
 
 ### `App\Filament\Resources\TipoFichaResource\Pages\ListTipoFichas`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoFichaResource/Pages/ListTipoFichas.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoFichaResource/Pages/ListTipoFichas.php:12`.
+- Resumen: Página de listado de tipos de ficha.
 
 ### `App\Filament\Resources\TipoPlanResource`
 
@@ -5572,20 +5545,20 @@ Metodos publicos:
 ### `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\CreateTipoRelacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/CreateTipoRelacion.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/CreateTipoRelacion.php:11`.
+- Resumen: Página de creación de tipos de relación profesional.
 
 ### `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\EditTipoRelacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/EditTipoRelacion.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/EditTipoRelacion.php:12`.
+- Resumen: Página de edición de tipos de relación profesional.
 
 ### `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\ListTiposRelacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/ListTiposRelacion.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/ListTiposRelacion.php:12`.
+- Resumen: Página de listado de tipos de relación profesional.
 
 ### `App\Filament\Resources\TipoRelacionResource`
 
@@ -5622,26 +5595,26 @@ Metodos publicos:
 ### `App\Filament\Resources\TipoRelacionResource\Pages\CreateTipoRelacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoRelacionResource/Pages/CreateTipoRelacion.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoRelacionResource/Pages/CreateTipoRelacion.php:11`.
+- Resumen: Página de creación de tipos de relación.
 
 ### `App\Filament\Resources\TipoRelacionResource\Pages\EditTipoRelacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoRelacionResource/Pages/EditTipoRelacion.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoRelacionResource/Pages/EditTipoRelacion.php:12`.
+- Resumen: Página de edición de tipos de relación.
 
 ### `App\Filament\Resources\TipoRelacionResource\Pages\ListTiposRelacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoRelacionResource/Pages/ListTiposRelacion.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoRelacionResource/Pages/ListTiposRelacion.php:12`.
+- Resumen: Página de listado de tipos de relación.
 
 ### `App\Filament\Resources\TipoSlotResource`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoSlotResource.php:22`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoSlotResource.php:25`.
+- Resumen: Recurso Filament para la gestión de tipos de slot.
 
 Metodos publicos:
 
@@ -5658,20 +5631,20 @@ Metodos publicos:
 ### `App\Filament\Resources\TipoSlotResource\Pages\CreateTipoSlot`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoSlotResource/Pages/CreateTipoSlot.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoSlotResource/Pages/CreateTipoSlot.php:11`.
+- Resumen: Página de creación de tipos de slot.
 
 ### `App\Filament\Resources\TipoSlotResource\Pages\EditTipoSlot`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoSlotResource/Pages/EditTipoSlot.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoSlotResource/Pages/EditTipoSlot.php:12`.
+- Resumen: Página de edición de tipos de slot.
 
 ### `App\Filament\Resources\TipoSlotResource\Pages\ListTiposSlot`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoSlotResource/Pages/ListTiposSlot.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TipoSlotResource/Pages/ListTiposSlot.php:12`.
+- Resumen: Página de listado de tipos de slot.
 
 ### `App\Filament\Resources\TitulacionResource`
 
@@ -5696,20 +5669,20 @@ Metodos publicos:
 ### `App\Filament\Resources\TitulacionResource\Pages\CreateTitulacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TitulacionResource/Pages/CreateTitulacion.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TitulacionResource/Pages/CreateTitulacion.php:11`.
+- Resumen: Página de creación de titulaciones.
 
 ### `App\Filament\Resources\TitulacionResource\Pages\EditTitulacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TitulacionResource/Pages/EditTitulacion.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TitulacionResource/Pages/EditTitulacion.php:12`.
+- Resumen: Página de edición de titulaciones.
 
 ### `App\Filament\Resources\TitulacionResource\Pages\ListTitulaciones`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TitulacionResource/Pages/ListTitulaciones.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/TitulacionResource/Pages/ListTitulaciones.php:12`.
+- Resumen: Página de listado de titulaciones.
 
 ### `App\Filament\Resources\UnidadOrganizativaResource`
 
@@ -5734,20 +5707,20 @@ Metodos publicos:
 ### `App\Filament\Resources\UnidadOrganizativaResource\Pages\CreateUnidadOrganizativa`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/CreateUnidadOrganizativa.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/CreateUnidadOrganizativa.php:11`.
+- Resumen: Página de creación de unidades organizativas.
 
 ### `App\Filament\Resources\UnidadOrganizativaResource\Pages\EditUnidadOrganizativa`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/EditUnidadOrganizativa.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/EditUnidadOrganizativa.php:12`.
+- Resumen: Página de edición de unidades organizativas.
 
 ### `App\Filament\Resources\UnidadOrganizativaResource\Pages\ListUnidadesOrganizativas`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/ListUnidadesOrganizativas.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/ListUnidadesOrganizativas.php:12`.
+- Resumen: Página de listado de unidades organizativas.
 
 ### `App\Filament\Resources\UsuarioResource`
 
@@ -5784,14 +5757,14 @@ Metodos publicos:
 ### `App\Filament\Resources\UsuarioResource\Pages\CreateUsuario`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/UsuarioResource/Pages/CreateUsuario.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/UsuarioResource/Pages/CreateUsuario.php:11`.
+- Resumen: Página de creación de usuarios.
 
 ### `App\Filament\Resources\UsuarioResource\Pages\EditUsuario`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/UsuarioResource/Pages/EditUsuario.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/UsuarioResource/Pages/EditUsuario.php:12`.
+- Resumen: Página de edición de usuarios.
 
 ### `App\Filament\Resources\UsuarioResource\Pages\ListUsuarios`
 

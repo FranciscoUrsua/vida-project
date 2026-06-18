@@ -6,6 +6,9 @@ use App\Filament\Resources\TipoSlotResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
+/**
+ * Página de edición de tipos de slot.
+ */
 class EditTipoSlot extends EditRecord
 {
     protected static string $resource = TipoSlotResource::class;

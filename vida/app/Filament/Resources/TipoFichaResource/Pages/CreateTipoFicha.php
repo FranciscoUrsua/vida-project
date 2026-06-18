@@ -8,6 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Página de creación de tipos de ficha.
+ */
 class CreateTipoFicha extends CreateRecord
 {
     protected static string $resource = TipoFichaResource::class;
