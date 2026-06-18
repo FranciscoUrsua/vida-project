@@ -44,6 +44,12 @@ class TipoRelacionResource extends Resource
     // Formulario
     // -------------------------------------------------------------------------
 
+    /**
+     * Define el formulario de tipos de relación entre ciudadanos.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -111,6 +117,12 @@ class TipoRelacionResource extends Resource
     // Tabla
     // -------------------------------------------------------------------------
 
+    /**
+     * Configura el listado de tipos de relación entre ciudadanos.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -179,21 +191,43 @@ class TipoRelacionResource extends Resource
     // Autorización
     // -------------------------------------------------------------------------
 
+    /**
+     * Determina si el usuario puede ver el listado de tipos de relación.
+     *
+     * @return bool
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;
     }
 
+    /**
+     * Determina si el usuario puede crear tipos de relación.
+     *
+     * @return bool
+     */
     public static function canCreate(): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;
     }
 
+    /**
+     * Determina si el usuario puede editar un tipo de relación.
+     *
+     * @param mixed $record Registro objetivo.
+     * @return bool
+     */
     public static function canEdit($record): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;
     }
 
+    /**
+     * Determina si el usuario puede eliminar un tipo de relación.
+     *
+     * @param mixed $record Registro objetivo.
+     * @return bool
+     */
     public static function canDelete($record): bool
     {
         return (auth()->user()?->hasRole('adm_sistema') ?? false) && $record->eliminable;
@@ -203,6 +237,11 @@ class TipoRelacionResource extends Resource
     // Páginas
     // -------------------------------------------------------------------------
 
+    /**
+     * Declara las páginas del catálogo de tipos de relación.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [

@@ -1,45 +1,20 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 11:40:20 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 14:13:17 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 372.
 - Cabeceras documentadas: 252/372.
-- Metodos publicos documentados: 899/1000.
-- Alertas de comentarios: 345.
+- Metodos publicos documentados: 924/1000.
+- Alertas de comentarios: 318.
 
 ## Alertas
 
-### Método público sin PHPDoc (55)
+### Método público sin PHPDoc (30)
 
 - `Modules\Documentos\Models\Informe::autor()` en `vida/Modules/Documentos/app/Models/Informe.php:99`: Falta docblock de método público.
-- `App\Filament\Resources\TipoEscalaResource::table()` en `vida/app/Filament/Resources/TipoEscalaResource.php:51`: Falta docblock de método público.
-- `App\Filament\Resources\TipoEscalaResource::form()` en `vida/app/Filament/Resources/TipoEscalaResource.php:106`: Falta docblock de método público.
-- `App\Filament\Resources\TipoEscalaResource::getPages()` en `vida/app/Filament/Resources/TipoEscalaResource.php:352`: Falta docblock de método público.
-- `App\Filament\Resources\TipoFichaResource::table()` en `vida/app/Filament/Resources/TipoFichaResource.php:58`: Falta docblock de método público.
-- `App\Filament\Resources\TipoFichaResource::form()` en `vida/app/Filament/Resources/TipoFichaResource.php:103`: Falta docblock de método público.
-- `App\Filament\Resources\TipoFichaResource::getPages()` en `vida/app/Filament/Resources/TipoFichaResource.php:294`: Falta docblock de método público.
-- `App\Filament\Resources\TipoRelacionProfesionalResource::form()` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource.php:41`: Falta docblock de método público.
-- `App\Filament\Resources\TipoRelacionProfesionalResource::table()` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource.php:63`: Falta docblock de método público.
-- `App\Filament\Resources\TipoRelacionProfesionalResource::getPages()` en `vida/app/Filament/Resources/TipoRelacionProfesionalResource.php:98`: Falta docblock de método público.
-- `App\Filament\Resources\TipoRelacionResource::form()` en `vida/app/Filament/Resources/TipoRelacionResource.php:47`: Falta docblock de método público.
-- `App\Filament\Resources\TipoRelacionResource::table()` en `vida/app/Filament/Resources/TipoRelacionResource.php:114`: Falta docblock de método público.
-- `App\Filament\Resources\TipoRelacionResource::canViewAny()` en `vida/app/Filament/Resources/TipoRelacionResource.php:182`: Falta docblock de método público.
-- `App\Filament\Resources\TipoRelacionResource::canCreate()` en `vida/app/Filament/Resources/TipoRelacionResource.php:187`: Falta docblock de método público.
-- `App\Filament\Resources\TipoRelacionResource::canEdit()` en `vida/app/Filament/Resources/TipoRelacionResource.php:192`: Falta docblock de método público.
-- `App\Filament\Resources\TipoRelacionResource::canDelete()` en `vida/app/Filament/Resources/TipoRelacionResource.php:197`: Falta docblock de método público.
-- `App\Filament\Resources\TipoRelacionResource::getPages()` en `vida/app/Filament/Resources/TipoRelacionResource.php:206`: Falta docblock de método público.
-- `App\Filament\Resources\TipoSlotResource::form()` en `vida/app/Filament/Resources/TipoSlotResource.php:42`: Falta docblock de método público.
-- `App\Filament\Resources\TipoSlotResource::table()` en `vida/app/Filament/Resources/TipoSlotResource.php:115`: Falta docblock de método público.
-- `App\Filament\Resources\TipoSlotResource::getPages()` en `vida/app/Filament/Resources/TipoSlotResource.php:176`: Falta docblock de método público.
-- `App\Filament\Resources\TitulacionResource::form()` en `vida/app/Filament/Resources/TitulacionResource.php:41`: Falta docblock de método público.
-- `App\Filament\Resources\TitulacionResource::table()` en `vida/app/Filament/Resources/TitulacionResource.php:58`: Falta docblock de método público.
-- `App\Filament\Resources\TitulacionResource::getPages()` en `vida/app/Filament/Resources/TitulacionResource.php:87`: Falta docblock de método público.
-- `App\Filament\Resources\UnidadOrganizativaResource::form()` en `vida/app/Filament/Resources/UnidadOrganizativaResource.php:43`: Falta docblock de método público.
-- `App\Filament\Resources\UnidadOrganizativaResource::table()` en `vida/app/Filament/Resources/UnidadOrganizativaResource.php:99`: Falta docblock de método público.
-- `App\Filament\Resources\UnidadOrganizativaResource::getPages()` en `vida/app/Filament/Resources/UnidadOrganizativaResource.php:148`: Falta docblock de método público.
 - `App\Filament\Resources\UsuarioResource::form()` en `vida/app/Filament/Resources/UsuarioResource.php:48`: Falta docblock de método público.
 - `App\Filament\Resources\UsuarioResource::table()` en `vida/app/Filament/Resources/UsuarioResource.php:150`: Falta docblock de método público.
 - `App\Filament\Resources\UsuarioResource::getPages()` en `vida/app/Filament/Resources/UsuarioResource.php:193`: Falta docblock de método público.
@@ -70,7 +45,7 @@ Generado el 2026-06-18 11:40:20 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Providers\Filament\AdminPanelProvider::panel()` en `vida/app/Providers/Filament/AdminPanelProvider.php:24`: Falta docblock de método público.
 - `App\Services\Geocodificacion\ResultadoGeocodificacion::__construct()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:34`: Falta docblock de método público.
 
-### PHPDoc incompleto (170)
+### PHPDoc incompleto (168)
 
 - `Modules\Documentos\Observers\EstiloInformeObserver::__construct()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:19`: Falta @param $resolver.
 - `Modules\Documentos\Observers\EstiloInformeObserver::saved()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:24`: Falta @param $estilo.
@@ -137,8 +112,6 @@ Generado el 2026-06-18 11:40:20 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Filament\Resources\CentroResource::canViewAny()` en `vida/app/Filament/Resources/CentroResource.php:249`: Falta @return.
 - `App\Filament\Resources\RolResource::canEdit()` en `vida/app/Filament/Resources/RolResource.php:144`: Falta @param $record.
 - `App\Filament\Resources\RolResource::canDelete()` en `vida/app/Filament/Resources/RolResource.php:155`: Falta @param $record.
-- `App\Filament\Resources\TipoFichaResource::convertirSchemaBlocks()` en `vida/app/Filament/Resources/TipoFichaResource.php:314`: Falta @param $state.
-- `App\Filament\Resources\TipoFichaResource::convertirSchemaBlocks()` en `vida/app/Filament/Resources/TipoFichaResource.php:314`: Falta @return.
 - `App\Filament\Resources\UsuarioResource::canDelete()` en `vida/app/Filament/Resources/UsuarioResource.php:228`: Falta @param $record.
 - `App\Filament\Resources\UsuarioResource::canDelete()` en `vida/app/Filament/Resources/UsuarioResource.php:228`: Falta @return.
 - `App\Filament\Resources\UsuarioRolResource::canEdit()` en `vida/app/Filament/Resources/UsuarioRolResource.php:161`: Falta @param $record.
@@ -5478,11 +5451,14 @@ Metodos publicos:
 Metodos publicos:
 
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de tipos de escala.
+  `@return` Table
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de tipos de escala.
+  `@return` Schema
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del catálogo de tipos de escala.
+  `@return` array
 
 ### `App\Filament\Resources\TipoEscalaResource\Pages\CreateTipoEscala`
 
@@ -5544,18 +5520,22 @@ Metodos publicos:
 - Fichero: `vida/app/Filament/Resources/TipoFichaResource.php:36`.
 - Resumen: Recurso Filament para la gestión de fichas de valoración configurables.
 
-Cada TipoFicha define un formulario con campos tipados (texto, número, select, booleano, fecha, escala) que el profesional rellena durante la valoración. El schema JSON se edita mediante un Builder visual con bloques por tipo de campo.
+Cada TipoFicha define un formulario con campos tipados (texto, número, select, El schema JSON se edita mediante un Builder visual con bloques por tipo de campo.
 
 Metodos publicos:
 
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de tipos de ficha.
+  `@return` Table
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de tipos de ficha.
+  `@return` Schema
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del catálogo de tipos de ficha.
+  `@return` array
 - `function convertirSchemaBlocks(mixed $state): array`
-  Convierte el estado crudo del Builder (bloques con 'type'/'data') al formato canónico del schema del modelo ({'campos': [...]}). Si el estado ya está en formato canónico, lo devuelve sin modificar. Necesario porque en Filament 5 el valor de dehydrateStateUsing en un Builder NO se asigna automáticamente a $data en mutateFormDataBefore*.
+  Normaliza el schema JSON de bloques al formato canónico de la ficha.
+  `@return` array
 
 ### `App\Filament\Resources\TipoFichaResource\Pages\CreateTipoFicha`
 
@@ -5586,11 +5566,14 @@ Accesible en /admin/tipos-relacion-profesional.
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de relaciones profesionales.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de relaciones profesionales.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del catálogo de relaciones profesionales.
+  `@return` array
 
 ### `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\CreateTipoRelacion`
 
@@ -5621,19 +5604,26 @@ Accesible en /admin/tipos-relacion. Restringido a adm_sistema. Los tipos del see
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de tipos de relación entre ciudadanos.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de tipos de relación entre ciudadanos.
+  `@return` Table
 - `function canViewAny(): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario puede ver el listado de tipos de relación.
+  `@return` bool
 - `function canCreate(): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario puede crear tipos de relación.
+  `@return` bool
 - `function canEdit($record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario puede editar un tipo de relación.
+  `@return` bool
 - `function canDelete($record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario puede eliminar un tipo de relación.
+  `@return` bool
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del catálogo de tipos de relación.
+  `@return` array
 
 ### `App\Filament\Resources\TipoRelacionResource\Pages\CreateTipoRelacion`
 
@@ -5662,11 +5652,14 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de tipos de slot.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de tipos de slot.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del catálogo de tipos de slot.
+  `@return` array
 
 ### `App\Filament\Resources\TipoSlotResource\Pages\CreateTipoSlot`
 
@@ -5697,11 +5690,14 @@ Accesible en /admin/titulaciones.
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de titulaciones.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de titulaciones.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del catálogo de titulaciones.
+  `@return` array
 
 ### `App\Filament\Resources\TitulacionResource\Pages\CreateTitulacion`
 
@@ -5732,11 +5728,14 @@ Accesible en /admin/unidades-organizativas.
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de unidades organizativas.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de unidades organizativas.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del catálogo de unidades organizativas.
+  `@return` array
 
 ### `App\Filament\Resources\UnidadOrganizativaResource\Pages\CreateUnidadOrganizativa`
 

@@ -39,6 +39,12 @@ class TipoSlotResource extends Resource
 
     protected static ?int $navigationSort = 40;
 
+    /**
+     * Define el formulario de tipos de slot.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -112,6 +118,12 @@ class TipoSlotResource extends Resource
         ]);
     }
 
+    /**
+     * Configura el listado de tipos de slot.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -173,6 +185,11 @@ class TipoSlotResource extends Resource
             ->defaultSort('nombre');
     }
 
+    /**
+     * Declara las páginas del catálogo de tipos de slot.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [

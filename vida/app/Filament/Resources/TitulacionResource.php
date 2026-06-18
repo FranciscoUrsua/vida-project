@@ -38,6 +38,12 @@ class TitulacionResource extends Resource
 
     protected static ?int $navigationSort = 7;
 
+    /**
+     * Define el formulario de titulaciones.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -55,6 +61,12 @@ class TitulacionResource extends Resource
         ]);
     }
 
+    /**
+     * Configura el listado de titulaciones.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -84,6 +96,11 @@ class TitulacionResource extends Resource
             ->defaultSort('nombre');
     }
 
+    /**
+     * Declara las páginas del catálogo de titulaciones.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [

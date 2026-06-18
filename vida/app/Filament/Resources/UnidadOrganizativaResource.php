@@ -40,6 +40,12 @@ class UnidadOrganizativaResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    /**
+     * Define el formulario de unidades organizativas.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -96,6 +102,12 @@ class UnidadOrganizativaResource extends Resource
         ]);
     }
 
+    /**
+     * Configura el listado de unidades organizativas.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -145,6 +157,11 @@ class UnidadOrganizativaResource extends Resource
             ->defaultSort('nombre');
     }
 
+    /**
+     * Declara las páginas del catálogo de unidades organizativas.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [

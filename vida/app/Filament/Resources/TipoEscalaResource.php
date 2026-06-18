@@ -48,13 +48,14 @@ class TipoEscalaResource extends Resource
     // Listado
     // -------------------------------------------------------------------------
 
+    /**
+     * Configura el listado de tipos de escala.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                TextColumn::make('codigo')
-                    ->label('Código')
-                    ->badge()
                     ->searchable()
                     ->sortable(),
 
@@ -100,9 +101,12 @@ class TipoEscalaResource extends Resource
     }
 
     // -------------------------------------------------------------------------
-    // Formulario
-    // -------------------------------------------------------------------------
-
+    /**
+     * Define el formulario de tipos de escala.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -349,6 +353,11 @@ class TipoEscalaResource extends Resource
     // Páginas
     // -------------------------------------------------------------------------
 
+    /**
+     * Declara las páginas del catálogo de tipos de escala.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [
