@@ -349,6 +349,11 @@ class BuzonPage extends Component
         $this->pestana = 'mensajes';
     }
 
+    /**
+     * Renderiza el buzón unificado.
+     *
+     * @return View
+     */
     public function render(): View
     {
         return view('mensajes::livewire.buzon-page');

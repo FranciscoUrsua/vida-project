@@ -43,6 +43,13 @@ class HiloMensajes extends Component
 
     public string $visibilidadSeleccionada = 'profesionales';
 
+    /**
+     * Inicializa la vista del hilo y marca sus mensajes como leídos.
+     *
+     * @param int $hiloId ID del hilo.
+     *
+     * @return void
+     */
     public function mount(int $hiloId): void
     {
         abort_unless(auth()->check(), 401);
@@ -55,12 +62,24 @@ class HiloMensajes extends Component
     }
 
     #[Computed]
+    /**
+     * Hilo de mensajes cargado con sus relaciones.
+     *
+     * @return MensajeHilo
+     */
     public function hilo(): MensajeHilo
     {
         return MensajeHilo::with(['mensajes.remitente', 'mensajes.referenciasCiudadano.ciudadano'])
             ->findOrFail($this->hiloId);
     }
 
+    /**
+     * Envía una respuesta al hilo actual.
+     *
+     * @param MensajeriaService $mensajeriaService Servicio de mensajería.
+     *
+     * @return void
+     */
     public function enviarRespuesta(MensajeriaService $mensajeriaService): void
     {
         $this->validate([
@@ -100,6 +119,11 @@ class HiloMensajes extends Component
         $this->mostrarModalHistoria = true;
     }
 
+    /**
+     * Cierra el modal de registro en la Historia Social.
+     *
+     * @return void
+     */
     public function cerrarModalHistoria(): void
     {
         $this->mostrarModalHistoria = false;
@@ -172,6 +196,11 @@ class HiloMensajes extends Component
         ];
     }
 
+    /**
+     * Renderiza la vista del hilo de mensajes.
+     *
+     * @return View
+     */
     public function render(): View
     {
         return view('mensajes::livewire.hilo-mensajes');

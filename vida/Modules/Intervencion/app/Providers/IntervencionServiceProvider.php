@@ -30,11 +30,21 @@ class IntervencionServiceProvider extends ServiceProvider
 {
     protected string $moduleName = 'Intervencion';
 
+    /**
+     * Registra los servicios singleton del módulo.
+     *
+     * @return void
+     */
     public function register(): void
     {
         $this->app->singleton(IntervencionSidebarDataService::class);
     }
 
+    /**
+     * Carga la configuración, rutas, vistas y componentes del módulo.
+     *
+     * @return void
+     */
     public function boot(): void
     {
         $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));

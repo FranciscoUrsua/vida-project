@@ -1,45 +1,20 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 09:36:08 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 09:42:10 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 371.
 - Cabeceras documentadas: 251/371.
-- Metodos publicos documentados: 743/993.
-- Alertas de comentarios: 505.
+- Metodos publicos documentados: 768/993.
+- Alertas de comentarios: 480.
 
 ## Alertas
 
-### Método público sin PHPDoc (202)
+### Método público sin PHPDoc (177)
 
 - `Modules\Documentos\Models\Informe::autor()` en `vida/Modules/Documentos/app/Models/Informe.php:99`: Falta docblock de método público.
-- `Modules\Intervencion\Http\Livewire\Sidebar::render()` en `vida/Modules/Intervencion/app/Http/Livewire/Sidebar.php:47`: Falta docblock de método público.
-- `Modules\Intervencion\Models\Apunte::plan()` en `vida/Modules/Intervencion/app/Models/Apunte.php:140`: Falta docblock de método público.
-- `Modules\Intervencion\Providers\IntervencionServiceProvider::register()` en `vida/Modules/Intervencion/app/Providers/IntervencionServiceProvider.php:33`: Falta docblock de método público.
-- `Modules\Intervencion\Providers\IntervencionServiceProvider::boot()` en `vida/Modules/Intervencion/app/Providers/IntervencionServiceProvider.php:38`: Falta docblock de método público.
-- `Modules\Mensajes\Exceptions\UnauthorizedException::noEsTsr()` en `vida/Modules/Mensajes/app/Exceptions/UnauthorizedException.php:16`: Falta docblock de método público.
-- `Modules\Mensajes\Http\Livewire\BuzonPage::render()` en `vida/Modules/Mensajes/app/Http/Livewire/BuzonPage.php:352`: Falta docblock de método público.
-- `Modules\Mensajes\Jobs\EscalarAlertasVencidasJob::handle()` en `vida/Modules/Mensajes/app/Jobs/EscalarAlertasVencidasJob.php:31`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\BadgeNotificaciones::totalAlertas()` en `vida/Modules/Mensajes/app/Livewire/BadgeNotificaciones.php:28`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\BadgeNotificaciones::totalMensajes()` en `vida/Modules/Mensajes/app/Livewire/BadgeNotificaciones.php:57`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\BadgeNotificaciones::total()` en `vida/Modules/Mensajes/app/Livewire/BadgeNotificaciones.php:70`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\BadgeNotificaciones::render()` en `vida/Modules/Mensajes/app/Livewire/BadgeNotificaciones.php:75`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\BandejaAlertas::mount()` en `vida/Modules/Mensajes/app/Livewire/BandejaAlertas.php:26`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\BandejaAlertas::alertas()` en `vida/Modules/Mensajes/app/Livewire/BandejaAlertas.php:32`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\BandejaAlertas::render()` en `vida/Modules/Mensajes/app/Livewire/BandejaAlertas.php:117`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\BandejaMensajes::mount()` en `vida/Modules/Mensajes/app/Livewire/BandejaMensajes.php:24`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\BandejaMensajes::hilos()` en `vida/Modules/Mensajes/app/Livewire/BandejaMensajes.php:30`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\BandejaMensajes::abrirHilo()` en `vida/Modules/Mensajes/app/Livewire/BandejaMensajes.php:43`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\BandejaMensajes::archivarHilo()` en `vida/Modules/Mensajes/app/Livewire/BandejaMensajes.php:49`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\BandejaMensajes::nuevaMensaje()` en `vida/Modules/Mensajes/app/Livewire/BandejaMensajes.php:62`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\BandejaMensajes::render()` en `vida/Modules/Mensajes/app/Livewire/BandejaMensajes.php:68`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\HiloMensajes::mount()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:46`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\HiloMensajes::hilo()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:58`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\HiloMensajes::enviarRespuesta()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:64`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\HiloMensajes::cerrarModalHistoria()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:103`: Falta docblock de método público.
-- `Modules\Mensajes\Livewire\HiloMensajes::render()` en `vida/Modules/Mensajes/app/Livewire/HiloMensajes.php:175`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\NuevoMensaje::mount()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:46`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\NuevoMensaje::seleccionarDestinatario()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:81`: Falta docblock de método público.
 - `Modules\Mensajes\Livewire\NuevoMensaje::limpiarDestinatario()` en `vida/Modules/Mensajes/app/Livewire/NuevoMensaje.php:88`: Falta docblock de método público.
@@ -2912,7 +2887,8 @@ Metodos publicos:
   Datos de identidad visual configurados en el backoffice. Se usa para el logotipo y nombre de aplicación en la cabecera del sidebar.
   `@return` array{logoUrl: string|null, nombreAplicacion: string|null}
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza el sidebar del módulo.
+  `@return` View
 
 ### `Modules\Intervencion\Models\Apunte`
 
@@ -2928,7 +2904,8 @@ Metodos publicos:
   ID del ciudadano titular de la historia social asociada al apunte.
   `@return` int|null
 - `function plan(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Plan de intervención al que pertenece el apunte.
+  `@return` BelongsTo<PlanDeIntervencion, self>
 - `function autor(): BelongsTo`
   _Sin resumen PHPDoc._
   `@return` BelongsTo<User, Apunte>
@@ -3270,9 +3247,11 @@ Registra migraciones, policies, vistas, rutas y componentes Livewire del módulo
 Metodos publicos:
 
 - `function register(): void`
-  _Sin resumen PHPDoc._
+  Registra los servicios singleton del módulo.
+  `@return` void
 - `function boot(): void`
-  _Sin resumen PHPDoc._
+  Carga la configuración, rutas, vistas y componentes del módulo.
+  `@return` void
 
 ### `Modules\Intervencion\Services\ApunteService`
 
@@ -3434,7 +3413,8 @@ Ejemplo: intentar registrar un mensaje en la Historia Social de un ciudadano del
 Metodos publicos:
 
 - `function noEsTsr(int $usuarioId, int $ciudadanoId): self`
-  _Sin resumen PHPDoc._
+  Construye la excepción cuando el usuario no es TSR responsable.
+  `@return` self
 
 ### `Modules\Mensajes\Http\Livewire\BuzonPage`
 
@@ -3489,7 +3469,8 @@ Metodos publicos:
   Valida y envia el nuevo mensaje, creando el hilo y el primer mensaje. Despues de enviar, cierra el modal y navega a la pestana de mensajes.
   `@return` void
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza el buzón unificado.
+  `@return` View
 
 ### `Modules\Mensajes\Jobs\EscalarAlertasVencidasJob`
 
@@ -3502,7 +3483,8 @@ Se ejecuta cada 15 minutos via el scheduler (configurado en MensajesServiceProvi
 Metodos publicos:
 
 - `function handle(AlertaService $alertaService): void`
-  _Sin resumen PHPDoc._
+  Procesa las alertas vencidas y ejecuta su escalado.
+  `@return` void
 
 ### `Modules\Mensajes\Livewire\BadgeNotificaciones`
 
@@ -3515,13 +3497,17 @@ Se actualiza cada 60 segundos mediante wire:poll.  // TODO mejora futura: reempl
 Metodos publicos:
 
 - `function totalAlertas(): int`
-  _Sin resumen PHPDoc._
+  Total de alertas pendientes dirigidas al usuario.
+  `@return` int
 - `function totalMensajes(): int`
-  _Sin resumen PHPDoc._
+  Total de mensajes no leídos en hilos activos.
+  `@return` int
 - `function total(): int`
-  _Sin resumen PHPDoc._
+  Total agregado de alertas y mensajes.
+  `@return` int
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza el badge de notificaciones.
+  `@return` View
 
 ### `Modules\Mensajes\Livewire\BandejaAlertas`
 
@@ -3534,9 +3520,11 @@ Muestra alertas pendientes ordenadas por prioridad: primero alertas (requieren r
 Metodos publicos:
 
 - `function mount(): void`
-  _Sin resumen PHPDoc._
+  Verifica que exista sesión autenticada antes de mostrar la bandeja.
+  `@return` void
 - `function alertas(): Collection`
-  _Sin resumen PHPDoc._
+  Alertas pendientes visibles para el usuario autenticado.
+  `@return` Collection<int, Alerta>
 - `function confirmarReconocimiento(int $alertaId): void`
   Solicita confirmación antes de reconocer una alerta.
   `@return` void
@@ -3547,7 +3535,8 @@ Metodos publicos:
   Cancela el diálogo de confirmación.
   `@return` void
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza la bandeja de alertas.
+  `@return` View
 
 ### `Modules\Mensajes\Livewire\BandejaMensajes`
 
@@ -3560,17 +3549,23 @@ Muestra la lista de hilos activos (no archivados) con indicador de mensajes no l
 Metodos publicos:
 
 - `function mount(): void`
-  _Sin resumen PHPDoc._
+  Verifica que exista sesión autenticada antes de mostrar la bandeja.
+  `@return` void
 - `function hilos(): Collection`
-  _Sin resumen PHPDoc._
+  Hilos activos del usuario autenticado.
+  `@return` Collection<int, MensajeParticipante>
 - `function abrirHilo(int $hiloId): void`
-  _Sin resumen PHPDoc._
+  Abre un hilo de mensajes en la bandeja.
+  `@return` void
 - `function archivarHilo(int $hiloId, MensajeriaService $mensajeriaService): void`
-  _Sin resumen PHPDoc._
+  Archiva el hilo seleccionado para el usuario actual.
+  `@return` void
 - `function nuevaMensaje(): void`
-  _Sin resumen PHPDoc._
+  Abre el formulario de creación de un nuevo mensaje.
+  `@return` void
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza la bandeja de mensajes.
+  `@return` View
 
 ### `Modules\Mensajes\Livewire\HiloMensajes`
 
@@ -3583,16 +3578,20 @@ Muestra los mensajes en orden cronológico y permite: - Responder al hilo - Adju
 Metodos publicos:
 
 - `function mount(int $hiloId): void`
-  _Sin resumen PHPDoc._
+  Inicializa la vista del hilo y marca sus mensajes como leídos.
+  `@return` void
 - `function hilo(): MensajeHilo`
-  _Sin resumen PHPDoc._
+  Hilo de mensajes cargado con sus relaciones.
+  `@return` MensajeHilo
 - `function enviarRespuesta(MensajeriaService $mensajeriaService): void`
-  _Sin resumen PHPDoc._
+  Envía una respuesta al hilo actual.
+  `@return` void
 - `function abrirModalHistoria(int $mensajeId, int $ciudadanoId): void`
   Abre el modal para registrar un mensaje en la Historia Social.
   `@return` void
 - `function cerrarModalHistoria(): void`
-  _Sin resumen PHPDoc._
+  Cierra el modal de registro en la Historia Social.
+  `@return` void
 - `function confirmarRegistroHistoria(MensajeriaService $mensajeriaService): void`
   Confirma el registro del mensaje en la Historia Social.
   `@return` void
@@ -3603,7 +3602,8 @@ Metodos publicos:
   Opciones de visibilidad disponibles.
   `@return` array<string, string>
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza la vista del hilo de mensajes.
+  `@return` View
 
 ### `Modules\Mensajes\Livewire\NuevoMensaje`
 

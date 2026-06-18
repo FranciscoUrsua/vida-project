@@ -137,6 +137,11 @@ class Apunte extends Model
             ->value('ciudadano_id');
     }
 
+    /**
+     * Plan de intervención al que pertenece el apunte.
+     *
+     * @return BelongsTo<PlanDeIntervencion, self>
+     */
     public function plan(): BelongsTo
     {
         return $this->belongsTo(PlanDeIntervencion::class, 'plan_id');

@@ -13,6 +13,14 @@ use RuntimeException;
  */
 class UnauthorizedException extends RuntimeException
 {
+    /**
+     * Construye la excepción cuando el usuario no es TSR responsable.
+     *
+     * @param int $usuarioId ID del usuario.
+     * @param int $ciudadanoId ID del ciudadano.
+     *
+     * @return self
+     */
     public static function noEsTsr(int $usuarioId, int $ciudadanoId): self
     {
         return new self(

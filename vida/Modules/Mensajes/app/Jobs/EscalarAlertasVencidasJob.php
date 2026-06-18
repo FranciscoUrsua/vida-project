@@ -28,6 +28,13 @@ class EscalarAlertasVencidasJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    /**
+     * Procesa las alertas vencidas y ejecuta su escalado.
+     *
+     * @param AlertaService $alertaService Servicio de gestión de alertas.
+     *
+     * @return void
+     */
     public function handle(AlertaService $alertaService): void
     {
         $alertasVencidas = Alerta::vencidas()->get();

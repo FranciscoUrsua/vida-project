@@ -25,6 +25,11 @@ class BadgeNotificaciones extends Component
     public int $intervalo = 60;
 
     #[Computed]
+    /**
+     * Total de alertas pendientes dirigidas al usuario.
+     *
+     * @return int
+     */
     public function totalAlertas(): int
     {
         if (! auth()->check()) {
@@ -54,6 +59,11 @@ class BadgeNotificaciones extends Component
     }
 
     #[Computed]
+    /**
+     * Total de mensajes no leídos en hilos activos.
+     *
+     * @return int
+     */
     public function totalMensajes(): int
     {
         if (! auth()->check()) {
@@ -67,11 +77,21 @@ class BadgeNotificaciones extends Component
     }
 
     #[Computed]
+    /**
+     * Total agregado de alertas y mensajes.
+     *
+     * @return int
+     */
     public function total(): int
     {
         return $this->totalAlertas + $this->totalMensajes;
     }
 
+    /**
+     * Renderiza el badge de notificaciones.
+     *
+     * @return View
+     */
     public function render(): View
     {
         return view('mensajes::livewire.badge-notificaciones');

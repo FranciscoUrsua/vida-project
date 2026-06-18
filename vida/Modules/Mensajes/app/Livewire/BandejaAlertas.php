@@ -23,12 +23,22 @@ class BandejaAlertas extends Component
 {
     public ?int $alertaConfirmandoId = null;
 
+    /**
+     * Verifica que exista sesión autenticada antes de mostrar la bandeja.
+     *
+     * @return void
+     */
     public function mount(): void
     {
         abort_unless(auth()->check(), 401);
     }
 
     #[Computed]
+    /**
+     * Alertas pendientes visibles para el usuario autenticado.
+     *
+     * @return Collection<int, Alerta>
+     */
     public function alertas(): Collection
     {
         $usuario = auth()->user();
@@ -114,6 +124,11 @@ class BandejaAlertas extends Component
         $this->alertaConfirmandoId = null;
     }
 
+    /**
+     * Renderiza la bandeja de alertas.
+     *
+     * @return View
+     */
     public function render(): View
     {
         return view('mensajes::livewire.bandeja-alertas');
