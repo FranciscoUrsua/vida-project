@@ -1,6 +1,6 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 14:40:04 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 14:44:21 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
@@ -8,156 +8,9 @@ Generado el 2026-06-18 14:40:04 UTC a partir de los docblocks PHPDoc compatibles
 - Simbolos escaneados: 385.
 - Cabeceras documentadas: 265/385.
 - Metodos publicos documentados: 999/1045.
-- Alertas de comentarios: 264.
+- Alertas de comentarios: 242.
 
 ## Alertas
-
-### PHPDoc incompleto (144)
-
-- `Modules\Documentos\Observers\EstiloInformeObserver::__construct()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:19`: Falta @param $resolver.
-- `Modules\Documentos\Observers\EstiloInformeObserver::saved()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:24`: Falta @param $estilo.
-- `Modules\Documentos\Observers\EstiloInformeObserver::saved()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:24`: Falta @return.
-- `Modules\Documentos\Observers\EstiloInformeObserver::deleted()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:32`: Falta @param $estilo.
-- `Modules\Documentos\Observers\EstiloInformeObserver::deleted()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:32`: Falta @return.
-- `Modules\Documentos\Services\ServicioFirmaInforme::__construct()` en `vida/Modules/Documentos/app/Services/ServicioFirmaInforme.php:25`: Falta @param $generacionPdf.
-- `Modules\Documentos\Services\ServicioGeneracionPDF::__construct()` en `vida/Modules/Documentos/app/Services/ServicioGeneracionPDF.php:24`: Falta @param $resolverEstilo.
-- `Modules\Documentos\Services\ServicioGeneracionPDF::__construct()` en `vida/Modules/Documentos/app/Services/ServicioGeneracionPDF.php:24`: Falta @param $almacenamiento.
-- `Modules\Documentos\Services\ServicioGeneracionPDF::__construct()` en `vida/Modules/Documentos/app/Services/ServicioGeneracionPDF.php:24`: Falta @param $resolverFuentes.
-- `Modules\Intervencion\Enums\TipoEntrevista::label()` en `vida/Modules/Intervencion/app/Enums/TipoEntrevista.php:15`: Falta @return.
-- `Modules\Intervencion\Enums\TipoPlan::label()` en `vida/Modules/Intervencion/app/Enums/TipoPlan.php:13`: Falta @return.
-- `Modules\Intervencion\Enums\UrgenciaSia::label()` en `vida/Modules/Intervencion/app/Enums/UrgenciaSia.php:14`: Falta @return.
-- `Modules\Intervencion\Enums\VisibilidadApunte::label()` en `vida/Modules/Intervencion/app/Enums/VisibilidadApunte.php:14`: Falta @return.
-- `Modules\Intervencion\Models\Ficha::scopeHistorialPara()` en `vida/Modules/Intervencion/app/Models/Ficha.php:114`: Falta @param $historiaId.
-- `Modules\Intervencion\Models\Ficha::scopeHistorialPara()` en `vida/Modules/Intervencion/app/Models/Ficha.php:114`: Falta @param $tipoFichaId.
-- `Modules\Intervencion\Models\Ficha::scopeHistorialPara()` en `vida/Modules/Intervencion/app/Models/Ficha.php:114`: Falta @return.
-- `Modules\Usuarios\Console\Commands\ReconciliarRoles::handle()` en `vida/Modules/Usuarios/app/Console/Commands/ReconciliarRoles.php:33`: Falta @return.
-- `Modules\Usuarios\Models\Profesional::getNombreCompletoAttribute()` en `vida/Modules/Usuarios/app/Models/Profesional.php:136`: Falta @return.
-- `Modules\Usuarios\Observers\UsuarioRolObserver::created()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:33`: Falta @param $usuarioRol.
-- `Modules\Usuarios\Observers\UsuarioRolObserver::created()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:33`: Falta @return.
-- `Modules\Usuarios\Observers\UsuarioRolObserver::updated()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:52`: Falta @param $usuarioRol.
-- `Modules\Usuarios\Observers\UsuarioRolObserver::updated()` en `vida/Modules/Usuarios/app/Observers/UsuarioRolObserver.php:52`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:48`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:48`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @param $apunte.
-- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::create()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:80`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::create()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:80`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @param $apunte.
-- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @param $apunte.
-- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:53`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:53`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @param $historia.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::create()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:94`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::create()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:94`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @param $historia.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @param $historia.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @return.
-- `Modules\Usuarios\Providers\UsuariosServiceProvider::register()` en `vida/Modules/Usuarios/app/Providers/UsuariosServiceProvider.php:30`: Falta @return.
-- `Modules\Usuarios\Providers\UsuariosServiceProvider::boot()` en `vida/Modules/Usuarios/app/Providers/UsuariosServiceProvider.php:38`: Falta @return.
-- `Modules\Usuarios\Traits\TieneRoles::tieneRolVigente()` en `vida/Modules/Usuarios/app/Traits/TieneRoles.php:67`: Falta @return.
-- `Modules\Usuarios\Traits\TieneRoles::tienePermiso()` en `vida/Modules/Usuarios/app/Traits/TieneRoles.php:89`: Falta @return.
-- `Modules\Usuarios\Traits\TieneUO::perteneceAUo()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:88`: Falta @return.
-- `Modules\Usuarios\Traits\TieneUO::tieneAccesoGestionA()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:104`: Falta @return.
-- `Modules\Usuarios\Traits\TieneUO::tieneAccesoConsultaA()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:152`: Falta @return.
-- `App\Console\Commands\NormalizarDirecciones::handle()` en `vida/app/Console/Commands/NormalizarDirecciones.php:47`: Falta @param $geocodificador.
-- `App\Console\Commands\NormalizarDirecciones::handle()` en `vida/app/Console/Commands/NormalizarDirecciones.php:47`: Falta @return.
-- `App\Enums\AccionAuditEnum::etiqueta()` en `vida/app/Enums/AccionAuditEnum.php:21`: Falta @return.
-- `App\Enums\AccionAuditEnum::color()` en `vida/app/Enums/AccionAuditEnum.php:35`: Falta @return.
-- `App\Enums\OrigenDireccion::label()` en `vida/app/Enums/OrigenDireccion.php:20`: Falta @return.
-- `App\Filament\Resources\AuditResource::canAccess()` en `vida/app/Filament/Resources/AuditResource.php:184`: Falta @return.
-- `App\Filament\Resources\AuditResource::canCreate()` en `vida/app/Filament/Resources/AuditResource.php:192`: Falta @return.
-- `App\Filament\Resources\CentroResource::canViewAny()` en `vida/app/Filament/Resources/CentroResource.php:249`: Falta @return.
-- `App\Filament\Resources\RolResource::canEdit()` en `vida/app/Filament/Resources/RolResource.php:144`: Falta @param $record.
-- `App\Filament\Resources\RolResource::canDelete()` en `vida/app/Filament/Resources/RolResource.php:155`: Falta @param $record.
-- `App\Http\Controllers\Auth\LoginController::mostrar()` en `vida/app/Http/Controllers/Auth/LoginController.php:19`: Falta @return.
-- `App\Http\Controllers\Auth\LoginController::autenticar()` en `vida/app/Http/Controllers/Auth/LoginController.php:29`: Falta @param $request.
-- `App\Http\Controllers\Auth\LoginController::autenticar()` en `vida/app/Http/Controllers/Auth/LoginController.php:29`: Falta @return.
-- `App\Http\Controllers\Auth\LoginController::cerrarSesion()` en `vida/app/Http/Controllers/Auth/LoginController.php:86`: Falta @param $request.
-- `App\Http\Controllers\Auth\LoginController::cerrarSesion()` en `vida/app/Http/Controllers/Auth/LoginController.php:86`: Falta @return.
-- `App\Http\Controllers\Auth\OnboardingController::mostrar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:18`: Falta @return.
-- `App\Http\Controllers\Auth\OnboardingController::completar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:31`: Falta @param $request.
-- `App\Http\Controllers\Auth\OnboardingController::completar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:31`: Falta @return.
-- `App\Http\Middleware\EnsureTieneRol::handle()` en `vida/app/Http/Middleware/EnsureTieneRol.php:23`: Falta @param $request.
-- `App\Http\Middleware\EnsureTieneRol::handle()` en `vida/app/Http/Middleware/EnsureTieneRol.php:23`: Falta @return.
-- `App\Jobs\NormalizarDireccionJob::handle()` en `vida/app/Jobs/NormalizarDireccionJob.php:72`: Falta @param $geocodificador.
-- `App\Jobs\NormalizarDireccionJob::handle()` en `vida/app/Jobs/NormalizarDireccionJob.php:72`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::mount()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:63`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::abrirFormularioCreacion()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:131`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::abrirFormularioEdicion()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:142`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::guardar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:157`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::desactivar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:181`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::reactivar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:194`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::cancelar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:205`: Falta @return.
-- `App\Livewire\Admin\GestorUnidadesOrganizativas::render()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:218`: Falta @return.
-- `App\Models\Api\PerfilAnonimizacion::delete()` en `vida/app/Models/Api/PerfilAnonimizacion.php:90`: Falta @return.
-- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @param $attributes.
-- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @param $options.
-- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @return.
-- `App\Models\Audit::delete()` en `vida/app/Models/Audit.php:82`: Falta @return.
-- `App\Models\Ciudadano::getNombreCompletoAttribute()` en `vida/app/Models/Ciudadano.php:155`: Falta @return.
-- `App\Models\Ciudadano::getCiudadanoId()` en `vida/app/Models/Ciudadano.php:165`: Falta @return.
-- `App\Models\HistoriaSocial::getCiudadanoId()` en `vida/app/Models/HistoriaSocial.php:85`: Falta @return.
-- `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @param $model.
-- `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @return.
-- `App\Models\UnidadOrganizativa::isDescendantOf()` en `vida/app/Models/UnidadOrganizativa.php:124`: Falta @return.
-- `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @param $panel.
-- `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @return.
-- `App\Models\Version::versionable()` en `vida/app/Models/Version.php:61`: Falta @return.
-- `App\Observers\DireccionObserver::__construct()` en `vida/app/Observers/DireccionObserver.php:29`: Falta @param $geocodificador.
-- `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @param $model.
-- `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @return.
-- `App\Observers\DireccionObserver::created()` en `vida/app/Observers/DireccionObserver.php:50`: Falta @param $model.
-- `App\Observers\DireccionObserver::created()` en `vida/app/Observers/DireccionObserver.php:50`: Falta @return.
-- `App\Observers\DireccionObserver::updating()` en `vida/app/Observers/DireccionObserver.php:60`: Falta @param $model.
-- `App\Observers\DireccionObserver::updating()` en `vida/app/Observers/DireccionObserver.php:60`: Falta @return.
-- `App\Observers\DireccionObserver::updated()` en `vida/app/Observers/DireccionObserver.php:71`: Falta @param $model.
-- `App\Observers\DireccionObserver::updated()` en `vida/app/Observers/DireccionObserver.php:71`: Falta @return.
-- `App\Policies\CiudadanoPolicy::viewAny()` en `vida/app/Policies/CiudadanoPolicy.php:48`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::viewAny()` en `vida/app/Policies/CiudadanoPolicy.php:48`: Falta @return.
-- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @param $ciudadano.
-- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @return.
-- `App\Policies\CiudadanoPolicy::create()` en `vida/app/Policies/CiudadanoPolicy.php:83`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::create()` en `vida/app/Policies/CiudadanoPolicy.php:83`: Falta @return.
-- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @param $ciudadano.
-- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @return.
-- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @param $usuario.
-- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @param $ciudadano.
-- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @return.
-- `App\Providers\AppServiceProvider::register()` en `vida/app/Providers/AppServiceProvider.php:19`: Falta @return.
-- `App\Providers\AppServiceProvider::boot()` en `vida/app/Providers/AppServiceProvider.php:27`: Falta @return.
-- `App\Providers\GeocodificacionServiceProvider::register()` en `vida/app/Providers/GeocodificacionServiceProvider.php:27`: Falta @return.
-- `App\Providers\GeocodificacionServiceProvider::boot()` en `vida/app/Providers/GeocodificacionServiceProvider.php:35`: Falta @return.
-- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @param $user.
-- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @param $historia.
-- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @return.
-- `App\Services\Api\RevelacionIdentidadService::revelarPorAlias()` en `vida/app/Services/Api/RevelacionIdentidadService.php:36`: Falta @return.
-- `App\Services\AuditService::registrarAcceso()` en `vida/app/Services/AuditService.php:44`: Falta @return.
-- `App\Services\CiudadanoService::crear()` en `vida/app/Services/CiudadanoService.php:41`: Falta @return.
-- `App\Services\CiudadanoService::actualizar()` en `vida/app/Services/CiudadanoService.php:62`: Falta @return.
-- `App\Services\CiudadanoService::eliminar()` en `vida/app/Services/CiudadanoService.php:84`: Falta @return.
-- `App\Services\Geocodificacion\GeocodificadorService::normalizar()` en `vida/app/Services/Geocodificacion/GeocodificadorService.php:39`: Falta @return.
-- `App\Services\Geocodificacion\ResultadoGeocodificacion::fallo()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:77`: Falta @return.
-- `App\Services\HistoriaSocialService::obtenerEntradas()` en `vida/app/Services/HistoriaSocialService.php:35`: Falta @param $ciudadano.
-- `App\Services\HistoriaSocialService::obtenerEntradas()` en `vida/app/Services/HistoriaSocialService.php:35`: Falta @param $profesional.
-- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $usuario.
-- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $ciudadano.
-- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @return.
-- `App\Traits\Auditable::bootAuditable()` en `vida/app/Traits/Auditable.php:27`: Falta @return.
-- `App\Traits\Auditable::getCiudadanoId()` en `vida/app/Traits/Auditable.php:62`: Falta @return.
-- `App\Traits\TieneDireccion::initializeTieneDireccion()` en `vida/app/Traits/TieneDireccion.php:44`: Falta @return.
-- `App\Traits\TieneDireccion::direccionFormateada()` en `vida/app/Traits/TieneDireccion.php:65`: Falta @return.
 
 ### Clase sin PHPDoc (120)
 
@@ -281,6 +134,131 @@ Generado el 2026-06-18 14:40:04 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Filament\Resources\ZonaResource\Pages\ListZonas` en `vida/app/Filament/Resources/ZonaResource/Pages/ListZonas.php:9`: Falta docblock de cabecera.
 - `App\Http\Controllers\Controller` en `vida/app/Http/Controllers/Controller.php:5`: Falta docblock de cabecera.
 - `App\Providers\Filament\AdminPanelProvider` en `vida/app/Providers/Filament/AdminPanelProvider.php:22`: Falta docblock de cabecera.
+
+### PHPDoc incompleto (122)
+
+- `Modules\Usuarios\Policies\ApuntePolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:48`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\ApuntePolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:48`: Falta @return.
+- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @param $apunte.
+- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @return.
+- `Modules\Usuarios\Policies\ApuntePolicy::create()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:80`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\ApuntePolicy::create()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:80`: Falta @return.
+- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @param $apunte.
+- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @return.
+- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @param $apunte.
+- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @return.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:53`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:53`: Falta @return.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @param $historia.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @return.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::create()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:94`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::create()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:94`: Falta @return.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @param $historia.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @return.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @param $usuario.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @param $historia.
+- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @return.
+- `Modules\Usuarios\Providers\UsuariosServiceProvider::register()` en `vida/Modules/Usuarios/app/Providers/UsuariosServiceProvider.php:30`: Falta @return.
+- `Modules\Usuarios\Providers\UsuariosServiceProvider::boot()` en `vida/Modules/Usuarios/app/Providers/UsuariosServiceProvider.php:38`: Falta @return.
+- `Modules\Usuarios\Traits\TieneRoles::tieneRolVigente()` en `vida/Modules/Usuarios/app/Traits/TieneRoles.php:67`: Falta @return.
+- `Modules\Usuarios\Traits\TieneRoles::tienePermiso()` en `vida/Modules/Usuarios/app/Traits/TieneRoles.php:89`: Falta @return.
+- `Modules\Usuarios\Traits\TieneUO::perteneceAUo()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:88`: Falta @return.
+- `Modules\Usuarios\Traits\TieneUO::tieneAccesoGestionA()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:104`: Falta @return.
+- `Modules\Usuarios\Traits\TieneUO::tieneAccesoConsultaA()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:152`: Falta @return.
+- `App\Console\Commands\NormalizarDirecciones::handle()` en `vida/app/Console/Commands/NormalizarDirecciones.php:47`: Falta @param $geocodificador.
+- `App\Console\Commands\NormalizarDirecciones::handle()` en `vida/app/Console/Commands/NormalizarDirecciones.php:47`: Falta @return.
+- `App\Enums\AccionAuditEnum::etiqueta()` en `vida/app/Enums/AccionAuditEnum.php:21`: Falta @return.
+- `App\Enums\AccionAuditEnum::color()` en `vida/app/Enums/AccionAuditEnum.php:35`: Falta @return.
+- `App\Enums\OrigenDireccion::label()` en `vida/app/Enums/OrigenDireccion.php:20`: Falta @return.
+- `App\Filament\Resources\AuditResource::canAccess()` en `vida/app/Filament/Resources/AuditResource.php:184`: Falta @return.
+- `App\Filament\Resources\AuditResource::canCreate()` en `vida/app/Filament/Resources/AuditResource.php:192`: Falta @return.
+- `App\Filament\Resources\CentroResource::canViewAny()` en `vida/app/Filament/Resources/CentroResource.php:249`: Falta @return.
+- `App\Filament\Resources\RolResource::canEdit()` en `vida/app/Filament/Resources/RolResource.php:144`: Falta @param $record.
+- `App\Filament\Resources\RolResource::canDelete()` en `vida/app/Filament/Resources/RolResource.php:155`: Falta @param $record.
+- `App\Http\Controllers\Auth\LoginController::mostrar()` en `vida/app/Http/Controllers/Auth/LoginController.php:19`: Falta @return.
+- `App\Http\Controllers\Auth\LoginController::autenticar()` en `vida/app/Http/Controllers/Auth/LoginController.php:29`: Falta @param $request.
+- `App\Http\Controllers\Auth\LoginController::autenticar()` en `vida/app/Http/Controllers/Auth/LoginController.php:29`: Falta @return.
+- `App\Http\Controllers\Auth\LoginController::cerrarSesion()` en `vida/app/Http/Controllers/Auth/LoginController.php:86`: Falta @param $request.
+- `App\Http\Controllers\Auth\LoginController::cerrarSesion()` en `vida/app/Http/Controllers/Auth/LoginController.php:86`: Falta @return.
+- `App\Http\Controllers\Auth\OnboardingController::mostrar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:18`: Falta @return.
+- `App\Http\Controllers\Auth\OnboardingController::completar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:31`: Falta @param $request.
+- `App\Http\Controllers\Auth\OnboardingController::completar()` en `vida/app/Http/Controllers/Auth/OnboardingController.php:31`: Falta @return.
+- `App\Http\Middleware\EnsureTieneRol::handle()` en `vida/app/Http/Middleware/EnsureTieneRol.php:23`: Falta @param $request.
+- `App\Http\Middleware\EnsureTieneRol::handle()` en `vida/app/Http/Middleware/EnsureTieneRol.php:23`: Falta @return.
+- `App\Jobs\NormalizarDireccionJob::handle()` en `vida/app/Jobs/NormalizarDireccionJob.php:72`: Falta @param $geocodificador.
+- `App\Jobs\NormalizarDireccionJob::handle()` en `vida/app/Jobs/NormalizarDireccionJob.php:72`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::mount()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:63`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::abrirFormularioCreacion()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:131`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::abrirFormularioEdicion()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:142`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::guardar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:157`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::desactivar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:181`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::reactivar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:194`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::cancelar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:205`: Falta @return.
+- `App\Livewire\Admin\GestorUnidadesOrganizativas::render()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:218`: Falta @return.
+- `App\Models\Api\PerfilAnonimizacion::delete()` en `vida/app/Models/Api/PerfilAnonimizacion.php:90`: Falta @return.
+- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @param $attributes.
+- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @param $options.
+- `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @return.
+- `App\Models\Audit::delete()` en `vida/app/Models/Audit.php:82`: Falta @return.
+- `App\Models\Ciudadano::getNombreCompletoAttribute()` en `vida/app/Models/Ciudadano.php:155`: Falta @return.
+- `App\Models\Ciudadano::getCiudadanoId()` en `vida/app/Models/Ciudadano.php:165`: Falta @return.
+- `App\Models\HistoriaSocial::getCiudadanoId()` en `vida/app/Models/HistoriaSocial.php:85`: Falta @return.
+- `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @param $model.
+- `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @return.
+- `App\Models\UnidadOrganizativa::isDescendantOf()` en `vida/app/Models/UnidadOrganizativa.php:124`: Falta @return.
+- `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @param $panel.
+- `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @return.
+- `App\Models\Version::versionable()` en `vida/app/Models/Version.php:61`: Falta @return.
+- `App\Observers\DireccionObserver::__construct()` en `vida/app/Observers/DireccionObserver.php:29`: Falta @param $geocodificador.
+- `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @param $model.
+- `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @return.
+- `App\Observers\DireccionObserver::created()` en `vida/app/Observers/DireccionObserver.php:50`: Falta @param $model.
+- `App\Observers\DireccionObserver::created()` en `vida/app/Observers/DireccionObserver.php:50`: Falta @return.
+- `App\Observers\DireccionObserver::updating()` en `vida/app/Observers/DireccionObserver.php:60`: Falta @param $model.
+- `App\Observers\DireccionObserver::updating()` en `vida/app/Observers/DireccionObserver.php:60`: Falta @return.
+- `App\Observers\DireccionObserver::updated()` en `vida/app/Observers/DireccionObserver.php:71`: Falta @param $model.
+- `App\Observers\DireccionObserver::updated()` en `vida/app/Observers/DireccionObserver.php:71`: Falta @return.
+- `App\Policies\CiudadanoPolicy::viewAny()` en `vida/app/Policies/CiudadanoPolicy.php:48`: Falta @param $usuario.
+- `App\Policies\CiudadanoPolicy::viewAny()` en `vida/app/Policies/CiudadanoPolicy.php:48`: Falta @return.
+- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @param $usuario.
+- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @param $ciudadano.
+- `App\Policies\CiudadanoPolicy::view()` en `vida/app/Policies/CiudadanoPolicy.php:58`: Falta @return.
+- `App\Policies\CiudadanoPolicy::create()` en `vida/app/Policies/CiudadanoPolicy.php:83`: Falta @param $usuario.
+- `App\Policies\CiudadanoPolicy::create()` en `vida/app/Policies/CiudadanoPolicy.php:83`: Falta @return.
+- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @param $usuario.
+- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @param $ciudadano.
+- `App\Policies\CiudadanoPolicy::update()` en `vida/app/Policies/CiudadanoPolicy.php:99`: Falta @return.
+- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @param $usuario.
+- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @param $ciudadano.
+- `App\Policies\CiudadanoPolicy::delete()` en `vida/app/Policies/CiudadanoPolicy.php:128`: Falta @return.
+- `App\Providers\AppServiceProvider::register()` en `vida/app/Providers/AppServiceProvider.php:19`: Falta @return.
+- `App\Providers\AppServiceProvider::boot()` en `vida/app/Providers/AppServiceProvider.php:27`: Falta @return.
+- `App\Providers\GeocodificacionServiceProvider::register()` en `vida/app/Providers/GeocodificacionServiceProvider.php:27`: Falta @return.
+- `App\Providers\GeocodificacionServiceProvider::boot()` en `vida/app/Providers/GeocodificacionServiceProvider.php:35`: Falta @return.
+- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @param $user.
+- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @param $historia.
+- `App\Queries\AccesosExpedienteQuery::puedeVerTodos()` en `vida/app/Queries/AccesosExpedienteQuery.php:69`: Falta @return.
+- `App\Services\Api\RevelacionIdentidadService::revelarPorAlias()` en `vida/app/Services/Api/RevelacionIdentidadService.php:36`: Falta @return.
+- `App\Services\AuditService::registrarAcceso()` en `vida/app/Services/AuditService.php:44`: Falta @return.
+- `App\Services\CiudadanoService::crear()` en `vida/app/Services/CiudadanoService.php:41`: Falta @return.
+- `App\Services\CiudadanoService::actualizar()` en `vida/app/Services/CiudadanoService.php:62`: Falta @return.
+- `App\Services\CiudadanoService::eliminar()` en `vida/app/Services/CiudadanoService.php:84`: Falta @return.
+- `App\Services\Geocodificacion\GeocodificadorService::normalizar()` en `vida/app/Services/Geocodificacion/GeocodificadorService.php:39`: Falta @return.
+- `App\Services\Geocodificacion\ResultadoGeocodificacion::fallo()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:77`: Falta @return.
+- `App\Services\HistoriaSocialService::obtenerEntradas()` en `vida/app/Services/HistoriaSocialService.php:35`: Falta @param $ciudadano.
+- `App\Services\HistoriaSocialService::obtenerEntradas()` en `vida/app/Services/HistoriaSocialService.php:35`: Falta @param $profesional.
+- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $usuario.
+- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $ciudadano.
+- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @return.
+- `App\Traits\Auditable::bootAuditable()` en `vida/app/Traits/Auditable.php:27`: Falta @return.
+- `App\Traits\Auditable::getCiudadanoId()` en `vida/app/Traits/Auditable.php:62`: Falta @return.
+- `App\Traits\TieneDireccion::initializeTieneDireccion()` en `vida/app/Traits/TieneDireccion.php:44`: Falta @return.
+- `App\Traits\TieneDireccion::direccionFormateada()` en `vida/app/Traits/TieneDireccion.php:65`: Falta @return.
 
 ## Referencia
 
@@ -1997,8 +1975,10 @@ Metodos publicos:
   Crea el observer con el resolutor de estilos.
 - `function saved(EstiloInforme $estilo): void`
   Invalida la caché cuando se guarda un estilo.
+  `@return` void
 - `function deleted(EstiloInforme $estilo): void`
   Invalida la caché cuando se elimina un estilo.
+  `@return` void
 
 ### `Modules\Documentos\Providers\DocumentosServiceProvider`
 
@@ -2285,6 +2265,7 @@ Metodos publicos:
 
 - `function label(): string`
   Devuelve la etiqueta legible del tipo de entrevista.
+  `@return` string
 
 ### `Modules\Intervencion\Enums\TipoPlan`
 
@@ -2296,6 +2277,7 @@ Metodos publicos:
 
 - `function label(): string`
   Devuelve la etiqueta legible del tipo de plan.
+  `@return` string
 
 ### `Modules\Intervencion\Enums\UrgenciaSia`
 
@@ -2307,6 +2289,7 @@ Metodos publicos:
 
 - `function label(): string`
   Devuelve la etiqueta legible del nivel de urgencia.
+  `@return` string
 
 ### `Modules\Intervencion\Enums\VisibilidadApunte`
 
@@ -2318,6 +2301,7 @@ Metodos publicos:
 
 - `function label(): string`
   Devuelve la etiqueta legible de la visibilidad.
+  `@return` string
 
 ### `Modules\Intervencion\Http\Livewire\AgendaPage`
 
@@ -2780,6 +2764,7 @@ Metodos publicos:
   `@return` int|null
 - `function scopeHistorialPara(Builder $query, int $historiaId, int $tipoFichaId): Builder`
   Fichas de un tipo concreto para una historia, ordenadas de más reciente a más antigua.
+  `@return` Builder<self>
 - `function prerellenarDesde(self $fichaAnterior, TipoFicha $tipoFicha): array`
   Genera el array de datos pre-rellenado para una nueva valoración.
   `@return` array<string, mixed>
@@ -4083,6 +4068,7 @@ Metodos publicos:
 
 - `function handle(): int`
   Ejecuta el comando.
+  `@return` int
 
 ### `Modules\Usuarios\Models\Cargo`
 
@@ -4139,6 +4125,7 @@ Metodos publicos:
   `@return` HasOne<User>
 - `function getNombreCompletoAttribute(): string`
   Nombre completo: nombre + apellido1 [+ apellido2].
+  `@return` string
 - `function scopeActivos(Builder $consulta): Builder`
   Solo profesionales activos.
   `@return` Builder<Profesional>
@@ -4215,8 +4202,10 @@ Metodos publicos:
 
 - `function created(UsuarioRol $usuarioRol): void`
   Sincroniza Spatie al crear un nuevo registro de rol.
+  `@return` void
 - `function updated(UsuarioRol $usuarioRol): void`
   Sincroniza Spatie al actualizar un registro de rol.
+  `@return` void
 
 ### `Modules\Usuarios\Policies\ApuntePolicy`
 

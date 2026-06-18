@@ -11,6 +11,8 @@ enum TipoEntrevista: string
 
     /**
      * Devuelve la etiqueta legible del tipo de entrevista.
+     *
+     * @return string
      */
     public function label(): string
     {

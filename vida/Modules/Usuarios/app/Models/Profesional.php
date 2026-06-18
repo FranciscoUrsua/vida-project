@@ -132,6 +132,8 @@ class Profesional extends Model
 
     /**
      * Nombre completo: nombre + apellido1 [+ apellido2].
+     *
+     * @return string
      */
     public function getNombreCompletoAttribute(): string
     {

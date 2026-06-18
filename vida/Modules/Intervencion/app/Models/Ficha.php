@@ -109,7 +109,10 @@ class Ficha extends Model
     /**
      * Fichas de un tipo concreto para una historia, ordenadas de más reciente a más antigua.
      *
-     * @param Builder<self> $query
+     * @param Builder<self> $query Consulta base.
+     * @param int $historiaId Identificador de la historia social.
+     * @param int $tipoFichaId Identificador del tipo de ficha.
+     * @return Builder<self>
      */
     public function scopeHistorialPara(Builder $query, int $historiaId, int $tipoFichaId): Builder
     {

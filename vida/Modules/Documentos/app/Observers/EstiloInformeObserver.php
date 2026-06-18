@@ -15,11 +15,16 @@ class EstiloInformeObserver
 {
     /**
      * Crea el observer con el resolutor de estilos.
+     *
+     * @param ResolverEstiloInforme $resolver Resolutor de estilos.
      */
     public function __construct(private ResolverEstiloInforme $resolver) {}
 
     /**
      * Invalida la caché cuando se guarda un estilo.
+     *
+     * @param EstiloInforme $estilo Estilo afectado.
+     * @return void
      */
     public function saved(EstiloInforme $estilo): void
     {
@@ -28,6 +33,9 @@ class EstiloInformeObserver
 
     /**
      * Invalida la caché cuando se elimina un estilo.
+     *
+     * @param EstiloInforme $estilo Estilo afectado.
+     * @return void
      */
     public function deleted(EstiloInforme $estilo): void
     {

@@ -21,6 +21,8 @@ class ServicioFirmaInforme
 {
     /**
      * Crea el servicio con el generador de PDFs.
+     *
+     * @param ServicioGeneracionPDF $generacionPdf Generador de PDFs.
      */
     public function __construct(private ServicioGeneracionPDF $generacionPdf) {}
 

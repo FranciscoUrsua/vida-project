@@ -9,6 +9,8 @@ enum TipoPlan: string
 
     /**
      * Devuelve la etiqueta legible del tipo de plan.
+     *
+     * @return string
      */
     public function label(): string
     {

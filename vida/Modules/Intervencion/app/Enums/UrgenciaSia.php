@@ -10,6 +10,8 @@ enum UrgenciaSia: string
 
     /**
      * Devuelve la etiqueta legible del nivel de urgencia.
+     *
+     * @return string
      */
     public function label(): string
     {

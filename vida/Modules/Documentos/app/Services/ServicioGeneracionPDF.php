@@ -20,6 +20,10 @@ class ServicioGeneracionPDF
 {
     /**
      * Crea el servicio con sus dependencias de resolución y almacenamiento.
+     *
+     * @param ResolverEstiloInforme $resolverEstilo Resolutor de estilos.
+     * @param ServicioAlmacenamiento $almacenamiento Servicio de almacenamiento.
+     * @param ResolverFuentesInforme $resolverFuentes Resolutor de fuentes de informe.
      */
     public function __construct(
         private ResolverEstiloInforme $resolverEstilo,
