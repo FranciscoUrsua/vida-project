@@ -39,6 +39,13 @@ class CargoResource extends Resource
 
     protected static ?int $navigationSort = 6;
 
+    /**
+     * Define el formulario de alta y edición de cargos.
+     *
+     * @param Schema $schema Esquema base.
+     *
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -61,6 +68,13 @@ class CargoResource extends Resource
         ]);
     }
 
+    /**
+     * Define la tabla de listado de cargos.
+     *
+     * @param Table $table Tabla base.
+     *
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -90,6 +104,11 @@ class CargoResource extends Resource
             ->defaultSort('nombre');
     }
 
+    /**
+     * Define las páginas del recurso de cargos.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [

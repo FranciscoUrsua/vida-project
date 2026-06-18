@@ -21,6 +21,13 @@ class ColeccionesPlazasRelationManager extends RelationManager
 
     protected static ?string $title = 'Colecciones de plazas';
 
+    /**
+     * Define el formulario del relation manager de colecciones de plazas.
+     *
+     * @param Schema $schema Esquema base.
+     *
+     * @return Schema
+     */
     public function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -72,6 +79,13 @@ class ColeccionesPlazasRelationManager extends RelationManager
         ]);
     }
 
+    /**
+     * Define la tabla del relation manager de colecciones de plazas.
+     *
+     * @param Table $table Tabla base.
+     *
+     * @return Table
+     */
     public function table(Table $table): Table
     {
         return $table

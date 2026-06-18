@@ -47,6 +47,11 @@ class AuditResource extends Resource
     // Scope de UO: el supervisor solo ve registros de su UO y descendientes
     // -------------------------------------------------------------------------
 
+    /**
+     * Restringe el listado a los registros visibles según la UO del usuario.
+     *
+     * @return Builder
+     */
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()->latest('created_at');
@@ -72,6 +77,13 @@ class AuditResource extends Resource
     // Tabla (solo lectura)
     // -------------------------------------------------------------------------
 
+    /**
+     * Configura la tabla de auditoría en modo solo lectura.
+     *
+     * @param Table $table Tabla base.
+     *
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -155,6 +167,11 @@ class AuditResource extends Resource
     // Sin crear ni editar — solo ver el listado y el detalle
     // -------------------------------------------------------------------------
 
+    /**
+     * Define las páginas disponibles del recurso de auditoría.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [
@@ -177,13 +194,25 @@ class AuditResource extends Resource
         return false;
     }
 
-    /** @param Audit $record */
+    /**
+     * Indica que la edición está deshabilitada en auditoría.
+     *
+     * @param Audit $record Registro objetivo.
+     *
+     * @return bool
+     */
     public static function canEdit($record): bool
     {
         return false;
     }
 
-    /** @param Audit $record */
+    /**
+     * Indica que la edición está deshabilitada en auditoría.
+     *
+     * @param Audit $record Registro objetivo.
+     *
+     * @return bool
+     */
     public static function canDelete($record): bool
     {
         return false;

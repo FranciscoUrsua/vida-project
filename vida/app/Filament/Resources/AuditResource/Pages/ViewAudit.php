@@ -15,6 +15,13 @@ class ViewAudit extends ViewRecord
 {
     protected static string $resource = AuditResource::class;
 
+    /**
+     * Construye el esquema de detalle del registro de auditoría.
+     *
+     * @param Schema $schema Esquema base.
+     *
+     * @return Schema
+     */
     public function infolist(Schema $schema): Schema
     {
         return $schema->components([

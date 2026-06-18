@@ -1,43 +1,20 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 09:51:49 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 09:56:15 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 371.
 - Cabeceras documentadas: 251/371.
-- Metodos publicos documentados: 791/995.
-- Alertas de comentarios: 462.
+- Metodos publicos documentados: 816/995.
+- Alertas de comentarios: 436.
 
 ## Alertas
 
-### Método público sin PHPDoc (156)
+### Método público sin PHPDoc (133)
 
 - `Modules\Documentos\Models\Informe::autor()` en `vida/Modules/Documentos/app/Models/Informe.php:99`: Falta docblock de método público.
-- `App\Filament\Resources\AuditResource::getEloquentQuery()` en `vida/app/Filament/Resources/AuditResource.php:50`: Falta docblock de método público.
-- `App\Filament\Resources\AuditResource::table()` en `vida/app/Filament/Resources/AuditResource.php:75`: Falta docblock de método público.
-- `App\Filament\Resources\AuditResource::getPages()` en `vida/app/Filament/Resources/AuditResource.php:158`: Falta docblock de método público.
-- `App\Filament\Resources\AuditResource\Pages\ViewAudit::infolist()` en `vida/app/Filament/Resources/AuditResource/Pages/ViewAudit.php:18`: Falta docblock de método público.
-- `App\Filament\Resources\CargoResource::form()` en `vida/app/Filament/Resources/CargoResource.php:42`: Falta docblock de método público.
-- `App\Filament\Resources\CargoResource::table()` en `vida/app/Filament/Resources/CargoResource.php:64`: Falta docblock de método público.
-- `App\Filament\Resources\CargoResource::getPages()` en `vida/app/Filament/Resources/CargoResource.php:93`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource::form()` en `vida/app/Filament/Resources/CentroResource.php:45`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource::table()` en `vida/app/Filament/Resources/CentroResource.php:176`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource::canEdit()` en `vida/app/Filament/Resources/CentroResource.php:240`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource::canDelete()` en `vida/app/Filament/Resources/CentroResource.php:245`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource::getRelationManagers()` en `vida/app/Filament/Resources/CentroResource.php:250`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource::getPages()` en `vida/app/Filament/Resources/CentroResource.php:258`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager::form()` en `vida/app/Filament/Resources/CentroResource/RelationManagers/AmbitosTerritorialesRelationManager.php:24`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager::table()` en `vida/app/Filament/Resources/CentroResource/RelationManagers/AmbitosTerritorialesRelationManager.php:70`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource\RelationManagers\ColeccionesPlazasRelationManager::form()` en `vida/app/Filament/Resources/CentroResource/RelationManagers/ColeccionesPlazasRelationManager.php:24`: Falta docblock de método público.
-- `App\Filament\Resources\CentroResource\RelationManagers\ColeccionesPlazasRelationManager::table()` en `vida/app/Filament/Resources/CentroResource/RelationManagers/ColeccionesPlazasRelationManager.php:75`: Falta docblock de método público.
-- `App\Filament\Resources\ColectivoProtegidoResource::form()` en `vida/app/Filament/Resources/ColectivoProtegidoResource.php:44`: Falta docblock de método público.
-- `App\Filament\Resources\ColectivoProtegidoResource::table()` en `vida/app/Filament/Resources/ColectivoProtegidoResource.php:70`: Falta docblock de método público.
-- `App\Filament\Resources\ColectivoProtegidoResource::getPages()` en `vida/app/Filament/Resources/ColectivoProtegidoResource.php:100`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource::form()` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource.php:44`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource::table()` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource.php:81`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource::getPages()` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource.php:108`: Falta docblock de método público.
 - `App\Filament\Resources\ConfiguracionOrganizacionResource::form()` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource.php:46`: Falta docblock de método público.
 - `App\Filament\Resources\ConfiguracionOrganizacionResource::table()` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource.php:79`: Falta docblock de método público.
 - `App\Filament\Resources\ConfiguracionOrganizacionResource::getPages()` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource.php:126`: Falta docblock de método público.
@@ -171,7 +148,7 @@ Generado el 2026-06-18 09:51:49 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Providers\Filament\AdminPanelProvider::panel()` en `vida/app/Providers/Filament/AdminPanelProvider.php:24`: Falta docblock de método público.
 - `App\Services\Geocodificacion\ResultadoGeocodificacion::__construct()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:34`: Falta docblock de método público.
 
-### PHPDoc incompleto (186)
+### PHPDoc incompleto (183)
 
 - `Modules\Documentos\Observers\EstiloInformeObserver::__construct()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:19`: Falta @param $resolver.
 - `Modules\Documentos\Observers\EstiloInformeObserver::saved()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:24`: Falta @param $estilo.
@@ -233,12 +210,9 @@ Generado el 2026-06-18 09:51:49 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Enums\AccionAuditEnum::etiqueta()` en `vida/app/Enums/AccionAuditEnum.php:21`: Falta @return.
 - `App\Enums\AccionAuditEnum::color()` en `vida/app/Enums/AccionAuditEnum.php:35`: Falta @return.
 - `App\Enums\OrigenDireccion::label()` en `vida/app/Enums/OrigenDireccion.php:20`: Falta @return.
-- `App\Filament\Resources\AuditResource::canAccess()` en `vida/app/Filament/Resources/AuditResource.php:167`: Falta @return.
-- `App\Filament\Resources\AuditResource::canCreate()` en `vida/app/Filament/Resources/AuditResource.php:175`: Falta @return.
-- `App\Filament\Resources\AuditResource::canEdit()` en `vida/app/Filament/Resources/AuditResource.php:181`: Falta @return.
-- `App\Filament\Resources\AuditResource::canDelete()` en `vida/app/Filament/Resources/AuditResource.php:187`: Falta @return.
-- `App\Filament\Resources\CentroResource::canViewAny()` en `vida/app/Filament/Resources/CentroResource.php:235`: Falta @return.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource::getEloquentQuery()` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource.php:101`: Falta @return.
+- `App\Filament\Resources\AuditResource::canAccess()` en `vida/app/Filament/Resources/AuditResource.php:184`: Falta @return.
+- `App\Filament\Resources\AuditResource::canCreate()` en `vida/app/Filament/Resources/AuditResource.php:192`: Falta @return.
+- `App\Filament\Resources\CentroResource::canViewAny()` en `vida/app/Filament/Resources/CentroResource.php:249`: Falta @return.
 - `App\Filament\Resources\DocumentoResource::infolist()` en `vida/app/Filament/Resources/DocumentoResource.php:50`: Falta @param $schema.
 - `App\Filament\Resources\DocumentoResource::infolist()` en `vida/app/Filament/Resources/DocumentoResource.php:50`: Falta @return.
 - `App\Filament\Resources\DocumentoResource::canViewAny()` en `vida/app/Filament/Resources/DocumentoResource.php:115`: Falta @return.
@@ -4527,19 +4501,24 @@ Solo lectura: no hay CreateAction, EditAction ni DeleteAction. El scope automát
 Metodos publicos:
 
 - `function getEloquentQuery(): Builder`
-  _Sin resumen PHPDoc._
+  Restringe el listado a los registros visibles según la UO del usuario.
+  `@return` Builder
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura la tabla de auditoría en modo solo lectura.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Define las páginas disponibles del recurso de auditoría.
+  `@return` array
 - `function canAccess(): bool`
   Solo accesible para roles supervision y adm_sistema.
 - `function canCreate(): bool`
   Registro de auditoría — inmutable. Nunca se crean desde el backoffice.
 - `function canEdit($record): bool`
-  _Sin resumen PHPDoc._
+  Indica que la edición está deshabilitada en auditoría.
+  `@return` bool
 - `function canDelete($record): bool`
-  _Sin resumen PHPDoc._
+  Indica que la edición está deshabilitada en auditoría.
+  `@return` bool
 
 ### `App\Filament\Resources\AuditResource\Pages\ListAudits`
 
@@ -4556,7 +4535,8 @@ Metodos publicos:
 Metodos publicos:
 
 - `function infolist(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Construye el esquema de detalle del registro de auditoría.
+  `@return` Schema
 
 ### `App\Filament\Resources\CargoResource`
 
@@ -4569,11 +4549,14 @@ Accesible en /admin/cargos.
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de alta y edición de cargos.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Define la tabla de listado de cargos.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Define las páginas del recurso de cargos.
+  `@return` array
 
 ### `App\Filament\Resources\CargoResource\Pages\CreateCargo`
 
@@ -4602,19 +4585,25 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de alta y edición de centros.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Define la tabla de listado de centros.
+  `@return` Table
 - `function canViewAny(): bool`
   Cualquier usuario autenticado puede consultar el catálogo de centros.
 - `function canEdit(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Indica si el usuario puede editar un centro.
+  `@return` bool
 - `function canDelete(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Indica si el usuario puede eliminar un centro.
+  `@return` bool
 - `function getRelationManagers(): array`
-  _Sin resumen PHPDoc._
+  Define los relation managers del recurso de centros.
+  `@return` array
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Define las páginas del recurso de centros.
+  `@return` array
 
 ### `App\Filament\Resources\CentroResource\Pages\CreateCentro`
 
@@ -4645,9 +4634,11 @@ Añade un Action en la cabecera para gestionar las prestaciones del centro media
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario del relation manager de ámbitos territoriales.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Define la tabla del relation manager de ámbitos territoriales.
+  `@return` Table
 
 ### `App\Filament\Resources\CentroResource\RelationManagers\ColeccionesPlazasRelationManager`
 
@@ -4658,9 +4649,11 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario del relation manager de colecciones de plazas.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Define la tabla del relation manager de colecciones de plazas.
+  `@return` Table
 
 ### `App\Filament\Resources\ColectivoProtegidoResource`
 
@@ -4673,11 +4666,14 @@ Accesible en /admin/colectivos-protegidos.
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de colectivos protegidos.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Define la tabla de colectivos protegidos.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Define las páginas del recurso de colectivos protegidos.
+  `@return` array
 
 ### `App\Filament\Resources\ColectivoProtegidoResource\Pages\CreateColectivoProtegido`
 
@@ -4708,13 +4704,17 @@ Edita el registro 'horario_laboral_defecto' en catalogos_sistema. Este horario s
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de la configuración de horario laboral.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Define la tabla de configuración de horario laboral.
+  `@return` Table
 - `function getEloquentQuery(): Builder`
-  Solo muestra el registro del horario laboral.
+  Limita el recurso al registro de horario laboral.
+  `@return` Builder
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Define las páginas del recurso de horario laboral.
+  `@return` array
 
 ### `App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages\EditConfiguracionHorarioLaboral`
 

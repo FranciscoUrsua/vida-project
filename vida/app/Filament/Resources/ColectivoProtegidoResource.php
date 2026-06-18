@@ -41,6 +41,13 @@ class ColectivoProtegidoResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    /**
+     * Define el formulario de colectivos protegidos.
+     *
+     * @param Schema $schema Esquema base.
+     *
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -67,6 +74,13 @@ class ColectivoProtegidoResource extends Resource
         ]);
     }
 
+    /**
+     * Define la tabla de colectivos protegidos.
+     *
+     * @param Table $table Tabla base.
+     *
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -97,6 +111,11 @@ class ColectivoProtegidoResource extends Resource
             ->defaultSort('nombre');
     }
 
+    /**
+     * Define las páginas del recurso de colectivos protegidos.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [
