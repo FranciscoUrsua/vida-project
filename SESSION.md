@@ -4,8 +4,8 @@ _Actualizado: 2026-06-18_
 
 ## Tarea completada
 
-UI de relaciones en CiudadanoPage — línea de representante, tipos de relación
-en widget UC, modal completo de todas las relaciones.
+Gestión de relaciones en FichaCiudadanoPage (crear, cerrar, ver historial).
+Implementación completa del ciclo de relaciones entre ciudadanos.
 
 ## Estado actual
 
@@ -41,11 +41,10 @@ en widget UC, modal completo de todas las relaciones.
 
 ## Siguiente paso recomendado
 
-1. **Gestión de relaciones en FichaCiudadanoPage** — crear relación (buscador
-   de ciudadano + TipoRelacion del catálogo), cerrar relación (fecha_fin) y
-   ver historial. Prerequisito ya cumplido: CiudadanoRelacion con reciprocidad automática.
-2. **Fichas sociales / Formulario de valoración** — bloquea el PISO completo.
-3. **PISO/plan detail page** — Entrega 4.
+1. **Fichas sociales / Formulario de valoración** — bloquea el PISO completo.
+2. **PISO/plan detail page** — Entrega 4.
+3. **Genograma** — bloqueado hasta definir tipo_dinamica, fecha_fallecimiento
+   y decisión sobre nodos ligeros (ver BACKLOG).
 
 ## Contexto técnico para retomar
 

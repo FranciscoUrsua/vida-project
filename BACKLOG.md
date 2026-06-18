@@ -297,15 +297,6 @@ ciudadano recién creado seleccionado para confirmar su adición).
 
 ---
 
-**Gestión de relaciones en FichaCiudadanoPage** — 2026-06-18
-`Módulo: Ciudadanía`
-Las relaciones se muestran en CiudadanoPage (solo lectura). Pendiente implementar
-en FichaCiudadanoPage la gestión completa: crear relación (buscador de ciudadano
-+ selección de TipoRelacion del catálogo), cerrar relación (fecha_fin) y ver
-historial. El modelo CiudadanoRelacion ya gestiona la creación del recíproco
-automáticamente en sus hooks booted().
-
----
 
 **Genograma** — 2026-06-18
 `Módulo: Ciudadanía / Intervención`
