@@ -1,37 +1,20 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 09:56:15 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 10:00:51 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 371.
 - Cabeceras documentadas: 251/371.
-- Metodos publicos documentados: 816/995.
-- Alertas de comentarios: 436.
+- Metodos publicos documentados: 833/995.
+- Alertas de comentarios: 416.
 
 ## Alertas
 
-### Método público sin PHPDoc (133)
+### Método público sin PHPDoc (116)
 
 - `Modules\Documentos\Models\Informe::autor()` en `vida/Modules/Documentos/app/Models/Informe.php:99`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionOrganizacionResource::form()` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource.php:46`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionOrganizacionResource::table()` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource.php:79`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionOrganizacionResource::getPages()` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource.php:126`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionRolResource::form()` en `vida/app/Filament/Resources/ConfiguracionRolResource.php:47`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionRolResource::table()` en `vida/app/Filament/Resources/ConfiguracionRolResource.php:71`: Falta docblock de método público.
-- `App\Filament\Resources\ConfiguracionRolResource::getPages()` en `vida/app/Filament/Resources/ConfiguracionRolResource.php:99`: Falta docblock de método público.
-- `App\Filament\Resources\CuadranteMesResource::form()` en `vida/app/Filament/Resources/CuadranteMesResource.php:43`: Falta docblock de método público.
-- `App\Filament\Resources\CuadranteMesResource::table()` en `vida/app/Filament/Resources/CuadranteMesResource.php:102`: Falta docblock de método público.
-- `App\Filament\Resources\CuadranteMesResource::getRelationManagers()` en `vida/app/Filament/Resources/CuadranteMesResource.php:191`: Falta docblock de método público.
-- `App\Filament\Resources\CuadranteMesResource::getPages()` en `vida/app/Filament/Resources/CuadranteMesResource.php:198`: Falta docblock de método público.
-- `App\Filament\Resources\CuadranteMesResource\RelationManagers\LineasCuadranteRelationManager::form()` en `vida/app/Filament/Resources/CuadranteMesResource/RelationManagers/LineasCuadranteRelationManager.php:17`: Falta docblock de método público.
-- `App\Filament\Resources\CuadranteMesResource\RelationManagers\LineasCuadranteRelationManager::table()` en `vida/app/Filament/Resources/CuadranteMesResource/RelationManagers/LineasCuadranteRelationManager.php:23`: Falta docblock de método público.
-- `App\Filament\Resources\DistritoResource::form()` en `vida/app/Filament/Resources/DistritoResource.php:41`: Falta docblock de método público.
-- `App\Filament\Resources\DistritoResource::table()` en `vida/app/Filament/Resources/DistritoResource.php:71`: Falta docblock de método público.
-- `App\Filament\Resources\DistritoResource::getPages()` en `vida/app/Filament/Resources/DistritoResource.php:105`: Falta docblock de método público.
-- `App\Filament\Resources\DocumentoResource::table()` en `vida/app/Filament/Resources/DocumentoResource.php:120`: Falta docblock de método público.
-- `App\Filament\Resources\DocumentoResource::getPages()` en `vida/app/Filament/Resources/DocumentoResource.php:205`: Falta docblock de método público.
 - `App\Filament\Resources\EstiloInformeResource::form()` en `vida/app/Filament/Resources/EstiloInformeResource.php:46`: Falta docblock de método público.
 - `App\Filament\Resources\EstiloInformeResource::table()` en `vida/app/Filament/Resources/EstiloInformeResource.php:103`: Falta docblock de método público.
 - `App\Filament\Resources\EstiloInformeResource::getPages()` en `vida/app/Filament/Resources/EstiloInformeResource.php:147`: Falta docblock de método público.
@@ -148,7 +131,7 @@ Generado el 2026-06-18 09:56:15 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Providers\Filament\AdminPanelProvider::panel()` en `vida/app/Providers/Filament/AdminPanelProvider.php:24`: Falta docblock de método público.
 - `App\Services\Geocodificacion\ResultadoGeocodificacion::__construct()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:34`: Falta docblock de método público.
 
-### PHPDoc incompleto (183)
+### PHPDoc incompleto (180)
 
 - `Modules\Documentos\Observers\EstiloInformeObserver::__construct()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:19`: Falta @param $resolver.
 - `Modules\Documentos\Observers\EstiloInformeObserver::saved()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:24`: Falta @param $estilo.
@@ -213,9 +196,6 @@ Generado el 2026-06-18 09:56:15 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Filament\Resources\AuditResource::canAccess()` en `vida/app/Filament/Resources/AuditResource.php:184`: Falta @return.
 - `App\Filament\Resources\AuditResource::canCreate()` en `vida/app/Filament/Resources/AuditResource.php:192`: Falta @return.
 - `App\Filament\Resources\CentroResource::canViewAny()` en `vida/app/Filament/Resources/CentroResource.php:249`: Falta @return.
-- `App\Filament\Resources\DocumentoResource::infolist()` en `vida/app/Filament/Resources/DocumentoResource.php:50`: Falta @param $schema.
-- `App\Filament\Resources\DocumentoResource::infolist()` en `vida/app/Filament/Resources/DocumentoResource.php:50`: Falta @return.
-- `App\Filament\Resources\DocumentoResource::canViewAny()` en `vida/app/Filament/Resources/DocumentoResource.php:115`: Falta @return.
 - `App\Filament\Resources\EstiloInformeResource::canViewAny()` en `vida/app/Filament/Resources/EstiloInformeResource.php:157`: Falta @return.
 - `App\Filament\Resources\EstiloInformeResource::canEdit()` en `vida/app/Filament/Resources/EstiloInformeResource.php:163`: Falta @param $record.
 - `App\Filament\Resources\EstiloInformeResource::canEdit()` en `vida/app/Filament/Resources/EstiloInformeResource.php:163`: Falta @return.
@@ -4739,11 +4719,14 @@ Almacena pares clave-valor que controlan el comportamiento de la aplicación.  A
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de alta y edición de parámetros de configuración.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado tabular de parámetros.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del recurso de configuración organizativa.
+  `@return` array
 
 ### `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\CreateConfiguracion`
 
@@ -4774,11 +4757,14 @@ Configura si la asignación de un rol requiere aprobación previa del supervisor
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de supervisión de roles.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de supervisión de roles.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas disponibles para la configuración de roles.
+  `@return` array
 
 ### `App\Filament\Resources\ConfiguracionRolResource\Pages\CreateConfiguracionRol`
 
@@ -4807,13 +4793,17 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario del cuadrante mensual.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de cuadrantes mensuales.
+  `@return` Table
 - `function getRelationManagers(): array`
-  _Sin resumen PHPDoc._
+  Declara los relation managers del recurso.
+  `@return` array
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del recurso de cuadrantes mensuales.
+  `@return` array
 
 ### `App\Filament\Resources\CuadranteMesResource\Pages\CreateCuadranteMes`
 
@@ -4842,9 +4832,11 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario del relation manager en modo solo lectura.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de líneas del cuadrante.
+  `@return` Table
 
 ### `App\Filament\Resources\DistritoResource`
 
@@ -4857,11 +4849,14 @@ Accesible en /admin/distritos.
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de distritos.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de distritos.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del catálogo de distritos.
+  `@return` array
 
 ### `App\Filament\Resources\DistritoResource\Pages\CreateDistrito`
 
@@ -4892,13 +4887,17 @@ Incluye documentos externos (PDFs aportados por ciudadanos o profesionales) y do
 Metodos publicos:
 
 - `function infolist(Schema $schema): Schema`
-  Los documentos se suben desde el flujo operativo, no desde el backoffice.
+  Construye la vista de detalle de documentos custodiados.
+  `@return` Schema
 - `function canViewAny(): bool`
-  supervision puede ver documentos de su subtree (solo lectura); adm_* puede gestionar.
+  Determina si el usuario puede ver el listado de documentos.
+  `@return` bool
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de documentos.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del visor de documentos.
+  `@return` array
 
 ### `App\Filament\Resources\DocumentoResource\Pages\ListDocumentos`
 

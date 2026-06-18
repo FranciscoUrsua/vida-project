@@ -44,6 +44,12 @@ class ConfiguracionRolResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    /**
+     * Define el formulario de supervisión de roles.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -68,6 +74,12 @@ class ConfiguracionRolResource extends Resource
         ]);
     }
 
+    /**
+     * Configura el listado de supervisión de roles.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -96,6 +108,11 @@ class ConfiguracionRolResource extends Resource
             ->defaultSort('rol.name');
     }
 
+    /**
+     * Declara las páginas disponibles para la configuración de roles.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [

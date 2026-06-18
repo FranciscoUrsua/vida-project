@@ -46,7 +46,12 @@ class DocumentoResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
-    /** Los documentos se suben desde el flujo operativo, no desde el backoffice. */
+    /**
+     * Construye la vista de detalle de documentos custodiados.
+     *
+     * @param Schema $schema Esquema base del infolist.
+     * @return Schema
+     */
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
@@ -111,12 +116,22 @@ class DocumentoResource extends Resource
         ]);
     }
 
-    /** supervision puede ver documentos de su subtree (solo lectura); adm_* puede gestionar. */
+    /**
+     * Determina si el usuario puede ver el listado de documentos.
+     *
+     * @return bool
+     */
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
     }
 
+    /**
+     * Configura el listado de documentos.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -202,6 +217,11 @@ class DocumentoResource extends Resource
             ->defaultSort('created_at', 'desc');
     }
 
+    /**
+     * Declara las páginas del visor de documentos.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [

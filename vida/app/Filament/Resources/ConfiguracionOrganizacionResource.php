@@ -43,6 +43,12 @@ class ConfiguracionOrganizacionResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    /**
+     * Define el formulario de alta y edición de parámetros de configuración.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -76,6 +82,12 @@ class ConfiguracionOrganizacionResource extends Resource
         ]);
     }
 
+    /**
+     * Configura el listado tabular de parámetros.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -123,6 +135,11 @@ class ConfiguracionOrganizacionResource extends Resource
             ->defaultSort('clave');
     }
 
+    /**
+     * Declara las páginas del recurso de configuración organizativa.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [
