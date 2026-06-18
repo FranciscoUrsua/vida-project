@@ -1,18 +1,18 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 15:20:23 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 15:24:11 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 385.
-- Cabeceras documentadas: 265/385.
+- Cabeceras documentadas: 274/385.
 - Metodos publicos documentados: 997/1043.
-- Alertas de comentarios: 120.
+- Alertas de comentarios: 111.
 
 ## Alertas
 
-### Clase sin PHPDoc (120)
+### Clase sin PHPDoc (111)
 
 - `Modules\Intervencion\Enums\TipoEntrevista` en `vida/Modules/Intervencion/app/Enums/TipoEntrevista.php:5`: Falta docblock de cabecera.
 - `Modules\Intervencion\Enums\TipoPlan` en `vida/Modules/Intervencion/app/Enums/TipoPlan.php:5`: Falta docblock de cabecera.
@@ -125,15 +125,6 @@ Generado el 2026-06-18 15:20:23 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Filament\Resources\UnidadOrganizativaResource\Pages\ListUnidadesOrganizativas` en `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/ListUnidadesOrganizativas.php:9`: Falta docblock de cabecera.
 - `App\Filament\Resources\UsuarioResource\Pages\CreateUsuario` en `vida/app/Filament/Resources/UsuarioResource/Pages/CreateUsuario.php:8`: Falta docblock de cabecera.
 - `App\Filament\Resources\UsuarioResource\Pages\EditUsuario` en `vida/app/Filament/Resources/UsuarioResource/Pages/EditUsuario.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioResource\Pages\ListUsuarios` en `vida/app/Filament/Resources/UsuarioResource/Pages/ListUsuarios.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioRolResource\Pages\CreateUsuarioRol` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/CreateUsuarioRol.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioRolResource\Pages\EditUsuarioRol` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/EditUsuarioRol.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\UsuarioRolResource\Pages\ListUsuarioRoles` en `vida/app/Filament/Resources/UsuarioRolResource/Pages/ListUsuarioRoles.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ZonaResource\Pages\CreateZona` en `vida/app/Filament/Resources/ZonaResource/Pages/CreateZona.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ZonaResource\Pages\EditZona` en `vida/app/Filament/Resources/ZonaResource/Pages/EditZona.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ZonaResource\Pages\ListZonas` en `vida/app/Filament/Resources/ZonaResource/Pages/ListZonas.php:9`: Falta docblock de cabecera.
-- `App\Http\Controllers\Controller` en `vida/app/Http/Controllers/Controller.php:5`: Falta docblock de cabecera.
-- `App\Providers\Filament\AdminPanelProvider` en `vida/app/Providers/Filament/AdminPanelProvider.php:22`: Falta docblock de cabecera.
 
 ## Referencia
 
@@ -5891,8 +5882,8 @@ Metodos publicos:
 ### `App\Filament\Resources\UsuarioResource\Pages\ListUsuarios`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/UsuarioResource/Pages/ListUsuarios.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/UsuarioResource/Pages/ListUsuarios.php:12`.
+- Resumen: Página de listado de usuarios.
 
 ### `App\Filament\Resources\UsuarioRolResource`
 
@@ -5920,20 +5911,20 @@ Metodos publicos:
 ### `App\Filament\Resources\UsuarioRolResource\Pages\CreateUsuarioRol`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/UsuarioRolResource/Pages/CreateUsuarioRol.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/UsuarioRolResource/Pages/CreateUsuarioRol.php:11`.
+- Resumen: Página de creación de asignaciones de rol de usuario.
 
 ### `App\Filament\Resources\UsuarioRolResource\Pages\EditUsuarioRol`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/UsuarioRolResource/Pages/EditUsuarioRol.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/UsuarioRolResource/Pages/EditUsuarioRol.php:12`.
+- Resumen: Página de edición de asignaciones de rol de usuario.
 
 ### `App\Filament\Resources\UsuarioRolResource\Pages\ListUsuarioRoles`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/UsuarioRolResource/Pages/ListUsuarioRoles.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/UsuarioRolResource/Pages/ListUsuarioRoles.php:12`.
+- Resumen: Página de listado de asignaciones de roles de usuario.
 
 ### `App\Filament\Resources\ZonaResource`
 
@@ -5958,20 +5949,20 @@ Metodos publicos:
 ### `App\Filament\Resources\ZonaResource\Pages\CreateZona`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ZonaResource/Pages/CreateZona.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ZonaResource/Pages/CreateZona.php:11`.
+- Resumen: Página de creación de zonas.
 
 ### `App\Filament\Resources\ZonaResource\Pages\EditZona`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ZonaResource/Pages/EditZona.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ZonaResource/Pages/EditZona.php:12`.
+- Resumen: Página de edición de zonas.
 
 ### `App\Filament\Resources\ZonaResource\Pages\ListZonas`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ZonaResource/Pages/ListZonas.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ZonaResource/Pages/ListZonas.php:12`.
+- Resumen: Página de listado de zonas.
 
 ### `App\Filament\Widgets\ActividadCatalogosWidget`
 
@@ -6069,8 +6060,8 @@ Metodos publicos:
 ### `App\Http\Controllers\Controller`
 
 - Tipo: class.
-- Fichero: `vida/app/Http/Controllers/Controller.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Http/Controllers/Controller.php:8`.
+- Resumen: Controlador base de la aplicación.
 
 ### `App\Http\Middleware\AuditarAccesoCiudadano`
 
@@ -6616,8 +6607,8 @@ Metodos publicos:
 ### `App\Providers\Filament\AdminPanelProvider`
 
 - Tipo: class.
-- Fichero: `vida/app/Providers/Filament/AdminPanelProvider.php:22`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Providers/Filament/AdminPanelProvider.php:25`.
+- Resumen: Proveedor del panel de administración de Filament.
 
 Metodos publicos:
 

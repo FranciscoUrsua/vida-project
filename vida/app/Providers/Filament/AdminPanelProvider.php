@@ -19,6 +19,9 @@ use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
+/**
+ * Proveedor del panel de administración de Filament.
+ */
 class AdminPanelProvider extends PanelProvider
 {
     /**

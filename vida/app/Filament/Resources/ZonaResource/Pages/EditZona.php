@@ -6,6 +6,9 @@ use App\Filament\Resources\ZonaResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
+/**
+ * Página de edición de zonas.
+ */
 class EditZona extends EditRecord
 {
     protected static string $resource = ZonaResource::class;
