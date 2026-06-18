@@ -15,6 +15,9 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 
+/**
+ * Gestor de relación de colecciones de plazas de un centro.
+ */
 class ColeccionesPlazasRelationManager extends RelationManager
 {
     protected static string $relationship = 'coleccionesPlazas';

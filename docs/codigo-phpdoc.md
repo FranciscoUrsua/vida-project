@@ -1,44 +1,19 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 15:24:11 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 15:27:30 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 385.
-- Cabeceras documentadas: 274/385.
+- Cabeceras documentadas: 299/385.
 - Metodos publicos documentados: 997/1043.
-- Alertas de comentarios: 111.
+- Alertas de comentarios: 86.
 
 ## Alertas
 
-### Clase sin PHPDoc (111)
+### Clase sin PHPDoc (86)
 
-- `Modules\Intervencion\Enums\TipoEntrevista` en `vida/Modules/Intervencion/app/Enums/TipoEntrevista.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\TipoPlan` en `vida/Modules/Intervencion/app/Enums/TipoPlan.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\UrgenciaSia` en `vida/Modules/Intervencion/app/Enums/UrgenciaSia.php:5`: Falta docblock de cabecera.
-- `Modules\Intervencion\Enums\VisibilidadApunte` en `vida/Modules/Intervencion/app/Enums/VisibilidadApunte.php:5`: Falta docblock de cabecera.
-- `App\Filament\Resources\AuditResource\Pages\ListAudits` en `vida/app/Filament/Resources/AuditResource/Pages/ListAudits.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\AuditResource\Pages\ViewAudit` en `vida/app/Filament/Resources/AuditResource/Pages/ViewAudit.php:14`: Falta docblock de cabecera.
-- `App\Filament\Resources\CargoResource\Pages\CreateCargo` en `vida/app/Filament/Resources/CargoResource/Pages/CreateCargo.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\CargoResource\Pages\EditCargo` en `vida/app/Filament/Resources/CargoResource/Pages/EditCargo.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CargoResource\Pages\ListCargos` en `vida/app/Filament/Resources/CargoResource/Pages/ListCargos.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource` en `vida/app/Filament/Resources/CentroResource.php:27`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource\Pages\CreateCentro` en `vida/app/Filament/Resources/CentroResource/Pages/CreateCentro.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource\Pages\ListCentros` en `vida/app/Filament/Resources/CentroResource/Pages/ListCentros.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager` en `vida/app/Filament/Resources/CentroResource/RelationManagers/AmbitosTerritorialesRelationManager.php:18`: Falta docblock de cabecera.
-- `App\Filament\Resources\CentroResource\RelationManagers\ColeccionesPlazasRelationManager` en `vida/app/Filament/Resources/CentroResource/RelationManagers/ColeccionesPlazasRelationManager.php:18`: Falta docblock de cabecera.
-- `App\Filament\Resources\ColectivoProtegidoResource\Pages\CreateColectivoProtegido` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/CreateColectivoProtegido.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ColectivoProtegidoResource\Pages\EditColectivoProtegido` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/EditColectivoProtegido.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ColectivoProtegidoResource\Pages\ListColectivosProtegidos` en `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/ListColectivosProtegidos.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages\EditConfiguracionHorarioLaboral` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource/Pages/EditConfiguracionHorarioLaboral.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages\ListConfiguracionHorarioLaboral` en `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource/Pages/ListConfiguracionHorarioLaboral.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\CreateConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/CreateConfiguracion.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\EditConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/EditConfiguracion.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\ListConfiguracion` en `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/ListConfiguracion.php:12`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionRolResource\Pages\CreateConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/CreateConfiguracionRol.php:8`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionRolResource\Pages\EditConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/EditConfiguracionRol.php:9`: Falta docblock de cabecera.
-- `App\Filament\Resources\ConfiguracionRolResource\Pages\ListConfiguracionRol` en `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/ListConfiguracionRol.php:9`: Falta docblock de cabecera.
 - `App\Filament\Resources\CuadranteMesResource` en `vida/app/Filament/Resources/CuadranteMesResource.php:23`: Falta docblock de cabecera.
 - `App\Filament\Resources\CuadranteMesResource\Pages\CreateCuadranteMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/CreateCuadranteMes.php:8`: Falta docblock de cabecera.
 - `App\Filament\Resources\CuadranteMesResource\Pages\EditCuadranteMes` en `vida/app/Filament/Resources/CuadranteMesResource/Pages/EditCuadranteMes.php:9`: Falta docblock de cabecera.
@@ -2124,8 +2099,8 @@ Metodos publicos:
 ### `Modules\Intervencion\Enums\TipoEntrevista`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Intervencion/app/Enums/TipoEntrevista.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Intervencion/app/Enums/TipoEntrevista.php:8`.
+- Resumen: Tipos de entrevista del módulo de Intervención.
 
 Metodos publicos:
 
@@ -2136,8 +2111,8 @@ Metodos publicos:
 ### `Modules\Intervencion\Enums\TipoPlan`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Intervencion/app/Enums/TipoPlan.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Intervencion/app/Enums/TipoPlan.php:8`.
+- Resumen: Tipos de plan del módulo de Intervención.
 
 Metodos publicos:
 
@@ -2148,8 +2123,8 @@ Metodos publicos:
 ### `Modules\Intervencion\Enums\UrgenciaSia`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Intervencion/app/Enums/UrgenciaSia.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Intervencion/app/Enums/UrgenciaSia.php:8`.
+- Resumen: Niveles de urgencia aplicables en SIA.
 
 Metodos publicos:
 
@@ -2160,8 +2135,8 @@ Metodos publicos:
 ### `Modules\Intervencion\Enums\VisibilidadApunte`
 
 - Tipo: enum.
-- Fichero: `vida/Modules/Intervencion/app/Enums/VisibilidadApunte.php:5`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/Modules/Intervencion/app/Enums/VisibilidadApunte.php:8`.
+- Resumen: Niveles de visibilidad de un apunte de intervención.
 
 Metodos publicos:
 
@@ -4452,14 +4427,14 @@ Metodos publicos:
 ### `App\Filament\Resources\AuditResource\Pages\ListAudits`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/AuditResource/Pages/ListAudits.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/AuditResource/Pages/ListAudits.php:11`.
+- Resumen: Página de listado de registros de auditoría.
 
 ### `App\Filament\Resources\AuditResource\Pages\ViewAudit`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/AuditResource/Pages/ViewAudit.php:14`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/AuditResource/Pages/ViewAudit.php:17`.
+- Resumen: Página de detalle de un registro de auditoría.
 
 Metodos publicos:
 
@@ -4490,26 +4465,26 @@ Metodos publicos:
 ### `App\Filament\Resources\CargoResource\Pages\CreateCargo`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/CargoResource/Pages/CreateCargo.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/CargoResource/Pages/CreateCargo.php:11`.
+- Resumen: Página de creación de cargos.
 
 ### `App\Filament\Resources\CargoResource\Pages\EditCargo`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/CargoResource/Pages/EditCargo.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/CargoResource/Pages/EditCargo.php:12`.
+- Resumen: Página de edición de cargos.
 
 ### `App\Filament\Resources\CargoResource\Pages\ListCargos`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/CargoResource/Pages/ListCargos.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/CargoResource/Pages/ListCargos.php:12`.
+- Resumen: Página de listado de cargos.
 
 ### `App\Filament\Resources\CentroResource`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/CentroResource.php:27`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/CentroResource.php:30`.
+- Resumen: Recurso Filament para la gestión de centros.
 
 Metodos publicos:
 
@@ -4538,8 +4513,8 @@ Metodos publicos:
 ### `App\Filament\Resources\CentroResource\Pages\CreateCentro`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/CentroResource/Pages/CreateCentro.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/CentroResource/Pages/CreateCentro.php:11`.
+- Resumen: Página de creación de centros.
 
 ### `App\Filament\Resources\CentroResource\Pages\EditCentro`
 
@@ -4552,14 +4527,14 @@ Añade un Action en la cabecera para gestionar las prestaciones del centro media
 ### `App\Filament\Resources\CentroResource\Pages\ListCentros`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/CentroResource/Pages/ListCentros.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/CentroResource/Pages/ListCentros.php:12`.
+- Resumen: Página de listado de centros.
 
 ### `App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/CentroResource/RelationManagers/AmbitosTerritorialesRelationManager.php:18`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/CentroResource/RelationManagers/AmbitosTerritorialesRelationManager.php:21`.
+- Resumen: Gestor de relación de ámbitos territoriales de un centro.
 
 Metodos publicos:
 
@@ -4573,8 +4548,8 @@ Metodos publicos:
 ### `App\Filament\Resources\CentroResource\RelationManagers\ColeccionesPlazasRelationManager`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/CentroResource/RelationManagers/ColeccionesPlazasRelationManager.php:18`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/CentroResource/RelationManagers/ColeccionesPlazasRelationManager.php:21`.
+- Resumen: Gestor de relación de colecciones de plazas de un centro.
 
 Metodos publicos:
 
@@ -4608,20 +4583,20 @@ Metodos publicos:
 ### `App\Filament\Resources\ColectivoProtegidoResource\Pages\CreateColectivoProtegido`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/CreateColectivoProtegido.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/CreateColectivoProtegido.php:11`.
+- Resumen: Página de creación de colectivos protegidos.
 
 ### `App\Filament\Resources\ColectivoProtegidoResource\Pages\EditColectivoProtegido`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/EditColectivoProtegido.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/EditColectivoProtegido.php:12`.
+- Resumen: Página de edición de colectivos protegidos.
 
 ### `App\Filament\Resources\ColectivoProtegidoResource\Pages\ListColectivosProtegidos`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/ListColectivosProtegidos.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ColectivoProtegidoResource/Pages/ListColectivosProtegidos.php:12`.
+- Resumen: Página de listado de colectivos protegidos.
 
 ### `App\Filament\Resources\ConfiguracionHorarioLaboralResource`
 
@@ -4649,14 +4624,14 @@ Metodos publicos:
 ### `App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages\EditConfiguracionHorarioLaboral`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource/Pages/EditConfiguracionHorarioLaboral.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource/Pages/EditConfiguracionHorarioLaboral.php:11`.
+- Resumen: Página de edición de la configuración de horario laboral.
 
 ### `App\Filament\Resources\ConfiguracionHorarioLaboralResource\Pages\ListConfiguracionHorarioLaboral`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource/Pages/ListConfiguracionHorarioLaboral.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ConfiguracionHorarioLaboralResource/Pages/ListConfiguracionHorarioLaboral.php:11`.
+- Resumen: Página de listado de la configuración de horario laboral.
 
 ### `App\Filament\Resources\ConfiguracionOrganizacionResource`
 
@@ -4681,20 +4656,20 @@ Metodos publicos:
 ### `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\CreateConfiguracion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/CreateConfiguracion.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/CreateConfiguracion.php:11`.
+- Resumen: Página de creación de configuraciones de organización.
 
 ### `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\EditConfiguracion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/EditConfiguracion.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/EditConfiguracion.php:12`.
+- Resumen: Página de edición de configuraciones de organización.
 
 ### `App\Filament\Resources\ConfiguracionOrganizacionResource\Pages\ListConfiguracion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/ListConfiguracion.php:12`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ConfiguracionOrganizacionResource/Pages/ListConfiguracion.php:15`.
+- Resumen: Página de listado de configuraciones de organización.
 
 ### `App\Filament\Resources\ConfiguracionRolResource`
 
@@ -4719,20 +4694,20 @@ Metodos publicos:
 ### `App\Filament\Resources\ConfiguracionRolResource\Pages\CreateConfiguracionRol`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/CreateConfiguracionRol.php:8`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/CreateConfiguracionRol.php:11`.
+- Resumen: Página de creación de configuraciones de rol.
 
 ### `App\Filament\Resources\ConfiguracionRolResource\Pages\EditConfiguracionRol`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/EditConfiguracionRol.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/EditConfiguracionRol.php:12`.
+- Resumen: Página de edición de configuraciones de rol.
 
 ### `App\Filament\Resources\ConfiguracionRolResource\Pages\ListConfiguracionRol`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/ListConfiguracionRol.php:9`.
-- Resumen: _Sin resumen PHPDoc._
+- Fichero: `vida/app/Filament/Resources/ConfiguracionRolResource/Pages/ListConfiguracionRol.php:12`.
+- Resumen: Página de listado de configuraciones de rol.
 
 ### `App\Filament\Resources\CuadranteMesResource`
 

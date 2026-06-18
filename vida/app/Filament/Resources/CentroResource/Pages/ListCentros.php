@@ -6,6 +6,9 @@ use App\Filament\Resources\CentroResource;
 use App\Filament\Resources\Pages\ListRecords;
 use Filament\Actions\CreateAction;
 
+/**
+ * Página de listado de centros.
+ */
 class ListCentros extends ListRecords
 {
     protected static string $resource = CentroResource::class;

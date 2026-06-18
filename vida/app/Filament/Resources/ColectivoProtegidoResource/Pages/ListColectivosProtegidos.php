@@ -6,6 +6,9 @@ use App\Filament\Resources\ColectivoProtegidoResource;
 use App\Filament\Resources\Pages\ListRecords;
 use Filament\Actions;
 
+/**
+ * Página de listado de colectivos protegidos.
+ */
 class ListColectivosProtegidos extends ListRecords
 {
     protected static string $resource = ColectivoProtegidoResource::class;

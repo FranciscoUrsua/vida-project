@@ -2,6 +2,9 @@
 
 namespace Modules\Intervencion\Enums;
 
+/**
+ * Tipos de entrevista del módulo de Intervención.
+ */
 enum TipoEntrevista: string
 {
     case Inicial = 'inicial';

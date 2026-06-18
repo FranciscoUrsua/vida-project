@@ -2,6 +2,9 @@
 
 namespace Modules\Intervencion\Enums;
 
+/**
+ * Niveles de visibilidad de un apunte de intervención.
+ */
 enum VisibilidadApunte: string
 {
     case Privada = 'privada';

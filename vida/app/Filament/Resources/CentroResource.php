@@ -24,6 +24,9 @@ use Illuminate\Database\Eloquent\Model;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\SegmentoPoblacion;
 
+/**
+ * Recurso Filament para la gestión de centros.
+ */
 class CentroResource extends Resource
 {
     use AutorizaGestion;

@@ -2,6 +2,9 @@
 
 namespace Modules\Intervencion\Enums;
 
+/**
+ * Niveles de urgencia aplicables en SIA.
+ */
 enum UrgenciaSia: string
 {
     case Urgencia = 'urgencia';

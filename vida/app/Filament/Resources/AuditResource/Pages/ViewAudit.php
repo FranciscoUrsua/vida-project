@@ -11,6 +11,9 @@ use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
+/**
+ * Página de detalle de un registro de auditoría.
+ */
 class ViewAudit extends ViewRecord
 {
     protected static string $resource = AuditResource::class;

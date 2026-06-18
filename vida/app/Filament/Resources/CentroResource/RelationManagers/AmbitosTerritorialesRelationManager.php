@@ -15,6 +15,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\AmbitoTerritorial;
 
+/**
+ * Gestor de relación de ámbitos territoriales de un centro.
+ */
 class AmbitosTerritorialesRelationManager extends RelationManager
 {
     protected static string $relationship = 'ambitosTeritoriales';

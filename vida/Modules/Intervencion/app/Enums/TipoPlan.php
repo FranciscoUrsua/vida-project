@@ -2,6 +2,9 @@
 
 namespace Modules\Intervencion\Enums;
 
+/**
+ * Tipos de plan del módulo de Intervención.
+ */
 enum TipoPlan: string
 {
     case GeneralAsp = 'general_asp';

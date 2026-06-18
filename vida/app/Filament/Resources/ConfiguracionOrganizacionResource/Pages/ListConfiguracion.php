@@ -9,6 +9,9 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Modules\Organizacion\Services\ConfiguracionService;
 
+/**
+ * Página de listado de configuraciones de organización.
+ */
 class ListConfiguracion extends ListRecords
 {
     protected static string $resource = ConfiguracionOrganizacionResource::class;

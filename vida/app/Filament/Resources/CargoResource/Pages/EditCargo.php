@@ -6,6 +6,9 @@ use App\Filament\Resources\CargoResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
+/**
+ * Página de edición de cargos.
+ */
 class EditCargo extends EditRecord
 {
     protected static string $resource = CargoResource::class;
