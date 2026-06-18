@@ -1,39 +1,20 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 11:17:21 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 11:28:00 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 371.
 - Cabeceras documentadas: 251/371.
-- Metodos publicos documentados: 854/996.
-- Alertas de comentarios: 389.
+- Metodos publicos documentados: 873/996.
+- Alertas de comentarios: 366.
 
 ## Alertas
 
-### Método público sin PHPDoc (96)
+### Método público sin PHPDoc (77)
 
 - `Modules\Documentos\Models\Informe::autor()` en `vida/Modules/Documentos/app/Models/Informe.php:99`: Falta docblock de método público.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource::form()` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:41`: Falta docblock de método público.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource::table()` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:112`: Falta docblock de método público.
-- `App\Filament\Resources\PerfilHorarioProfesionalResource::getPages()` en `vida/app/Filament/Resources/PerfilHorarioProfesionalResource.php:159`: Falta docblock de método público.
-- `App\Filament\Resources\PlantillaInformeResource::form()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:52`: Falta docblock de método público.
-- `App\Filament\Resources\PlantillaInformeResource::table()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:200`: Falta docblock de método público.
-- `App\Filament\Resources\PlantillaInformeResource::getPages()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:255`: Falta docblock de método público.
-- `App\Filament\Resources\PlantillaInformeResource::canEdit()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:270`: Falta docblock de método público.
-- `App\Filament\Resources\PlantillaInformeResource::canDelete()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:275`: Falta docblock de método público.
-- `App\Filament\Resources\PrestacionResource::form()` en `vida/app/Filament/Resources/PrestacionResource.php:42`: Falta docblock de método público.
-- `App\Filament\Resources\PrestacionResource::table()` en `vida/app/Filament/Resources/PrestacionResource.php:235`: Falta docblock de método público.
-- `App\Filament\Resources\PrestacionResource::getRelationManagers()` en `vida/app/Filament/Resources/PrestacionResource.php:328`: Falta docblock de método público.
-- `App\Filament\Resources\PrestacionResource::getPages()` en `vida/app/Filament/Resources/PrestacionResource.php:335`: Falta docblock de método público.
-- `App\Filament\Resources\PrestacionResource\RelationManagers\VersionesRelationManager::table()` en `vida/app/Filament/Resources/PrestacionResource/RelationManagers/VersionesRelationManager.php:23`: Falta docblock de método público.
-- `App\Filament\Resources\PrestacionResource\RelationManagers\VersionesRelationManager::isReadOnly()` en `vida/app/Filament/Resources/PrestacionResource/RelationManagers/VersionesRelationManager.php:64`: Falta docblock de método público.
-- `App\Filament\Resources\ProfesionalResource::form()` en `vida/app/Filament/Resources/ProfesionalResource.php:49`: Falta docblock de método público.
-- `App\Filament\Resources\ProfesionalResource::table()` en `vida/app/Filament/Resources/ProfesionalResource.php:173`: Falta docblock de método público.
-- `App\Filament\Resources\ProfesionalResource::getPages()` en `vida/app/Filament/Resources/ProfesionalResource.php:220`: Falta docblock de método público.
-- `App\Filament\Resources\ProfesionalResource::canCreate()` en `vida/app/Filament/Resources/ProfesionalResource.php:235`: Falta docblock de método público.
-- `App\Filament\Resources\ProfesionalResource::canEdit()` en `vida/app/Filament/Resources/ProfesionalResource.php:240`: Falta docblock de método público.
 - `App\Filament\Resources\RedResource::form()` en `vida/app/Filament/Resources/RedResource.php:39`: Falta docblock de método público.
 - `App\Filament\Resources\RedResource::table()` en `vida/app/Filament/Resources/RedResource.php:87`: Falta docblock de método público.
 - `App\Filament\Resources\RedResource::getPages()` en `vida/app/Filament/Resources/RedResource.php:117`: Falta docblock de método público.
@@ -111,7 +92,7 @@ Generado el 2026-06-18 11:17:21 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Providers\Filament\AdminPanelProvider::panel()` en `vida/app/Providers/Filament/AdminPanelProvider.php:24`: Falta docblock de método público.
 - `App\Services\Geocodificacion\ResultadoGeocodificacion::__construct()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:34`: Falta docblock de método público.
 
-### PHPDoc incompleto (173)
+### PHPDoc incompleto (169)
 
 - `Modules\Documentos\Observers\EstiloInformeObserver::__construct()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:19`: Falta @param $resolver.
 - `Modules\Documentos\Observers\EstiloInformeObserver::saved()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:24`: Falta @param $estilo.
@@ -176,10 +157,6 @@ Generado el 2026-06-18 11:17:21 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Filament\Resources\AuditResource::canAccess()` en `vida/app/Filament/Resources/AuditResource.php:184`: Falta @return.
 - `App\Filament\Resources\AuditResource::canCreate()` en `vida/app/Filament/Resources/AuditResource.php:192`: Falta @return.
 - `App\Filament\Resources\CentroResource::canViewAny()` en `vida/app/Filament/Resources/CentroResource.php:249`: Falta @return.
-- `App\Filament\Resources\PlantillaInformeResource::canViewAny()` en `vida/app/Filament/Resources/PlantillaInformeResource.php:265`: Falta @return.
-- `App\Filament\Resources\ProfesionalResource::canViewAny()` en `vida/app/Filament/Resources/ProfesionalResource.php:230`: Falta @return.
-- `App\Filament\Resources\ProfesionalResource::canDelete()` en `vida/app/Filament/Resources/ProfesionalResource.php:246`: Falta @param $record.
-- `App\Filament\Resources\ProfesionalResource::canDelete()` en `vida/app/Filament/Resources/ProfesionalResource.php:246`: Falta @return.
 - `App\Filament\Resources\RedResource::canViewAny()` en `vida/app/Filament/Resources/RedResource.php:82`: Falta @return.
 - `App\Filament\Resources\TipoFichaResource::convertirSchemaBlocks()` en `vida/app/Filament/Resources/TipoFichaResource.php:314`: Falta @param $state.
 - `App\Filament\Resources\TipoFichaResource::convertirSchemaBlocks()` en `vida/app/Filament/Resources/TipoFichaResource.php:314`: Falta @return.
@@ -5111,11 +5088,14 @@ Filament v5 deja authorizeAccess() vacío en ListRecords, lo que permite acceder
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de perfiles horarios de profesional.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de perfiles horarios de profesional.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del recurso de perfiles horarios.
+  `@return` array
 
 ### `App\Filament\Resources\PerfilHorarioProfesionalResource\Pages\CreatePerfilHorarioProfesional`
 
@@ -5146,17 +5126,23 @@ Las plantillas tienen alcance jerárquico: se crean al nivel de UO adecuado y so
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de plantillas de informe.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de plantillas de informe.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del recurso de plantillas de informe.
+  `@return` array
 - `function canViewAny(): bool`
-  supervision puede ver plantillas de su subtree (solo lectura); adm_* puede gestionar.
+  Determina si el usuario puede ver el listado de plantillas de informe.
+  `@return` bool
 - `function canEdit(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario puede editar una plantilla de informe.
+  `@return` bool
 - `function canDelete(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario puede eliminar una plantilla de informe.
+  `@return` bool
 
 ### `App\Filament\Resources\PlantillaInformeResource\Pages\CreatePlantillaInforme`
 
@@ -5185,13 +5171,17 @@ Metodos publicos:
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de prestaciones.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de prestaciones.
+  `@return` Table
 - `function getRelationManagers(): array`
-  _Sin resumen PHPDoc._
+  Declara los relation managers del recurso de prestaciones.
+  `@return` array
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del recurso de prestaciones.
+  `@return` array
 
 ### `App\Filament\Resources\PrestacionResource\Pages\CreatePrestacion`
 
@@ -5222,9 +5212,11 @@ Muestra las versiones registradas en la tabla `versiones` (polimórfico). Cada v
 Metodos publicos:
 
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el historial de versiones de la prestación.
+  `@return` Table
 - `function isReadOnly(): bool`
-  _Sin resumen PHPDoc._
+  Indica que el relation manager es de solo lectura.
+  `@return` bool
 
 ### `App\Filament\Resources\ProfesionalResource`
 
@@ -5237,19 +5229,26 @@ Un Profesional es la entidad raíz del sistema de usuarios: el perfil organizati
 Metodos publicos:
 
 - `function form(Schema $schema): Schema`
-  _Sin resumen PHPDoc._
+  Define el formulario de profesionales.
+  `@return` Schema
 - `function table(Table $table): Table`
-  _Sin resumen PHPDoc._
+  Configura el listado de profesionales.
+  `@return` Table
 - `function getPages(): array`
-  _Sin resumen PHPDoc._
+  Declara las páginas del directorio de profesionales.
+  `@return` array
 - `function canViewAny(): bool`
-  Cualquier usuario autenticado puede consultar el directorio de profesionales.
+  Determina si el usuario puede ver el directorio de profesionales.
+  `@return` bool
 - `function canCreate(): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario puede crear profesionales.
+  `@return` bool
 - `function canEdit(Model $record): bool`
-  _Sin resumen PHPDoc._
+  Determina si el usuario puede editar profesionales.
+  `@return` bool
 - `function canDelete(Model $record): bool`
-  Solo adm_sistema puede eliminar profesionales.
+  Determina si el usuario puede eliminar profesionales.
+  `@return` bool
 
 ### `App\Filament\Resources\ProfesionalResource\Pages\CreateProfesional`
 

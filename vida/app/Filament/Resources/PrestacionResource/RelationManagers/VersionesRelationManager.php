@@ -20,6 +20,12 @@ class VersionesRelationManager extends RelationManager
 
     protected static ?string $title = 'Historial de versiones';
 
+    /**
+     * Configura el historial de versiones de la prestación.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public function table(Table $table): Table
     {
         return $table
@@ -61,6 +67,11 @@ class VersionesRelationManager extends RelationManager
             ->bulkActions([]);
     }
 
+    /**
+     * Indica que el relation manager es de solo lectura.
+     *
+     * @return bool
+     */
     public function isReadOnly(): bool
     {
         return true;

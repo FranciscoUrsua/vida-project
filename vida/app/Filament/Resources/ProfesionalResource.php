@@ -46,6 +46,12 @@ class ProfesionalResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    /**
+     * Define el formulario de profesionales.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -170,6 +176,12 @@ class ProfesionalResource extends Resource
         ]);
     }
 
+    /**
+     * Configura el listado de profesionales.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -217,6 +229,11 @@ class ProfesionalResource extends Resource
             ->defaultSort('apellido1');
     }
 
+    /**
+     * Declara las páginas del directorio de profesionales.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [
@@ -226,23 +243,43 @@ class ProfesionalResource extends Resource
         ];
     }
 
-    /** Cualquier usuario autenticado puede consultar el directorio de profesionales. */
+    /**
+     * Determina si el usuario puede ver el directorio de profesionales.
+     *
+     * @return bool
+     */
     public static function canViewAny(): bool
     {
         return auth()->check();
     }
 
+    /**
+     * Determina si el usuario puede crear profesionales.
+     *
+     * @return bool
+     */
     public static function canCreate(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
+    /**
+     * Determina si el usuario puede editar profesionales.
+     *
+     * @param Model $record Registro objetivo.
+     * @return bool
+     */
     public static function canEdit(Model $record): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
-    /** Solo adm_sistema puede eliminar profesionales. */
+    /**
+     * Determina si el usuario puede eliminar profesionales.
+     *
+     * @param Model $record Registro objetivo.
+     * @return bool
+     */
     public static function canDelete(Model $record): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;

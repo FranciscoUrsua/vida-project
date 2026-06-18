@@ -39,6 +39,12 @@ class PrestacionResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    /**
+     * Define el formulario de prestaciones.
+     *
+     * @param Schema $schema Esquema base del formulario.
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -232,6 +238,12 @@ class PrestacionResource extends Resource
         ]);
     }
 
+    /**
+     * Configura el listado de prestaciones.
+     *
+     * @param Table $table Tabla base.
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         $objetivos = CatalogoSistema::opcionesParaSelect('prestacion.objetivo_general');
@@ -325,6 +337,11 @@ class PrestacionResource extends Resource
             ->defaultSort('codigo');
     }
 
+    /**
+     * Declara los relation managers del recurso de prestaciones.
+     *
+     * @return array
+     */
     public static function getRelationManagers(): array
     {
         return [
@@ -332,6 +349,11 @@ class PrestacionResource extends Resource
         ];
     }
 
+    /**
+     * Declara las páginas del recurso de prestaciones.
+     *
+     * @return array
+     */
     public static function getPages(): array
     {
         return [
