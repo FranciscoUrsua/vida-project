@@ -1,14 +1,14 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 14:44:21 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 14:48:47 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
 - Simbolos escaneados: 385.
 - Cabeceras documentadas: 265/385.
-- Metodos publicos documentados: 999/1045.
-- Alertas de comentarios: 242.
+- Metodos publicos documentados: 997/1043.
+- Alertas de comentarios: 209.
 
 ## Alertas
 
@@ -135,41 +135,8 @@ Generado el 2026-06-18 14:44:21 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Http\Controllers\Controller` en `vida/app/Http/Controllers/Controller.php:5`: Falta docblock de cabecera.
 - `App\Providers\Filament\AdminPanelProvider` en `vida/app/Providers/Filament/AdminPanelProvider.php:22`: Falta docblock de cabecera.
 
-### PHPDoc incompleto (122)
+### PHPDoc incompleto (89)
 
-- `Modules\Usuarios\Policies\ApuntePolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:48`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:48`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @param $apunte.
-- `Modules\Usuarios\Policies\ApuntePolicy::view()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:59`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::create()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:80`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::create()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:80`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @param $apunte.
-- `Modules\Usuarios\Policies\ApuntePolicy::update()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:96`: Falta @return.
-- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @param $apunte.
-- `Modules\Usuarios\Policies\ApuntePolicy::delete()` en `vida/Modules/Usuarios/app/Policies/ApuntePolicy.php:118`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:53`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::viewAny()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:53`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @param $historia.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::view()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:68`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::create()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:94`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::create()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:94`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @param $historia.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::update()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:110`: Falta @return.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @param $usuario.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @param $historia.
-- `Modules\Usuarios\Policies\HistoriaSocialPolicy::delete()` en `vida/Modules/Usuarios/app/Policies/HistoriaSocialPolicy.php:137`: Falta @return.
-- `Modules\Usuarios\Providers\UsuariosServiceProvider::register()` en `vida/Modules/Usuarios/app/Providers/UsuariosServiceProvider.php:30`: Falta @return.
-- `Modules\Usuarios\Providers\UsuariosServiceProvider::boot()` en `vida/Modules/Usuarios/app/Providers/UsuariosServiceProvider.php:38`: Falta @return.
-- `Modules\Usuarios\Traits\TieneRoles::tieneRolVigente()` en `vida/Modules/Usuarios/app/Traits/TieneRoles.php:67`: Falta @return.
-- `Modules\Usuarios\Traits\TieneRoles::tienePermiso()` en `vida/Modules/Usuarios/app/Traits/TieneRoles.php:89`: Falta @return.
-- `Modules\Usuarios\Traits\TieneUO::perteneceAUo()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:88`: Falta @return.
-- `Modules\Usuarios\Traits\TieneUO::tieneAccesoGestionA()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:104`: Falta @return.
-- `Modules\Usuarios\Traits\TieneUO::tieneAccesoConsultaA()` en `vida/Modules/Usuarios/app/Traits/TieneUO.php:152`: Falta @return.
 - `App\Console\Commands\NormalizarDirecciones::handle()` en `vida/app/Console/Commands/NormalizarDirecciones.php:47`: Falta @param $geocodificador.
 - `App\Console\Commands\NormalizarDirecciones::handle()` en `vida/app/Console/Commands/NormalizarDirecciones.php:47`: Falta @return.
 - `App\Enums\AccionAuditEnum::etiqueta()` en `vida/app/Enums/AccionAuditEnum.php:21`: Falta @return.
@@ -4219,14 +4186,19 @@ Metodos publicos:
 
 - `function viewAny(User $usuario): bool`
   Decide si el usuario puede listar apuntes.
+  `@return` bool
 - `function view(User $usuario, Apunte $apunte): bool`
   Decide si el usuario puede ver el apunte.
+  `@return` bool
 - `function create(User $usuario): bool`
   Decide si el usuario puede crear un nuevo apunte.
+  `@return` bool
 - `function update(User $usuario, Apunte $apunte): bool`
   Decide si el usuario puede editar el apunte.
+  `@return` bool
 - `function delete(User $usuario, Apunte $apunte): bool`
   Decide si el usuario puede eliminar el apunte.
+  `@return` bool
 
 ### `Modules\Usuarios\Policies\HistoriaSocialPolicy`
 
@@ -4240,14 +4212,19 @@ Metodos publicos:
 
 - `function viewAny(User $usuario): bool`
   Decide si el usuario puede listar Historias Sociales.
+  `@return` bool
 - `function view(User $usuario, HistoriaSocial $historia): bool`
   Decide si el usuario puede consultar la Historia Social.
+  `@return` bool
 - `function create(User $usuario): bool`
   Decide si el usuario puede crear una Historia Social.
+  `@return` bool
 - `function update(User $usuario, HistoriaSocial $historia): bool`
   Decide si el usuario puede editar la Historia Social.
+  `@return` bool
 - `function delete(User $usuario, HistoriaSocial $historia): bool`
   Decide si el usuario puede eliminar (baja lógica) la Historia Social.
+  `@return` bool
 
 ### `Modules\Usuarios\Providers\UsuariosServiceProvider`
 
@@ -4261,8 +4238,10 @@ Metodos publicos:
 
 - `function register(): void`
   Registra servicios en el contenedor.
+  `@return` void
 - `function boot(): void`
   Arranca los servicios del módulo y registra las Policies.
+  `@return` void
 
 ### `Modules\Usuarios\Traits\TieneRoles`
 
@@ -4283,10 +4262,6 @@ Metodos publicos:
 - `function rolesPendientes(): HasMany`
   Registros de rol pendientes de aprobación.
   `@return` HasMany<UsuarioRol>
-- `function tieneRolVigente(string $rolNombre): bool`
-  Comprueba si el usuario tiene activo el rol indicado según el historial de VIDA (no solo Spatie).
-- `function tienePermiso(string $permiso): bool`
-  Comprueba si el usuario tiene el permiso indicado a través de alguno de sus roles vigentes en Spatie.
 
 ### `Modules\Usuarios\Traits\TieneUO`
 
@@ -4312,13 +4287,16 @@ Metodos publicos:
   `@return` Collection<int, UnidadOrganizativa>
 - `function perteneceAUo(UnidadOrganizativa $uo): bool`
   Indica si el usuario pertenece exactamente a la UO indicada (sin considerar la jerarquía).
+  `@return` bool
 - `function tieneAccesoGestionA(UnidadOrganizativa $uo): bool`
   Indica si el usuario tiene acceso de gestión sobre la UO indicada (su propia UO o una UO descendiente que gestiona).
+  `@return` bool
 - `function uoSubtreeIds(): array`
   Devuelve los IDs de todas las UOs gestionadas por el usuario: las suyas propias y todas sus descendientes. Útil para filtrar queries de backoffice por ámbito.
   `@return` array<int>
 - `function tieneAccesoConsultaA(UnidadOrganizativa $uo): bool`
   Indica si el usuario puede acceder en consulta libre a la UO indicada.
+  `@return` bool
 
 ### `App\Console\Commands\AuditPurgeCommand`
 

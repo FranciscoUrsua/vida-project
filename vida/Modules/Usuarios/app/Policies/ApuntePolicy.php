@@ -44,6 +44,9 @@ class ApuntePolicy
 
     /**
      * Decide si el usuario puede listar apuntes.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @return bool
      */
     public function viewAny(User $usuario): bool
     {
@@ -55,6 +58,10 @@ class ApuntePolicy
      *
      * Regla absoluta (precedencia total): si el apunte es privado,
      * solo el autor tiene acceso, sin importar su rol.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @param Apunte $apunte Apunte a consultar.
+     * @return bool
      */
     public function view(User $usuario, Apunte $apunte): bool
     {
@@ -76,6 +83,9 @@ class ApuntePolicy
      * Decide si el usuario puede crear un nuevo apunte.
      *
      * El rol supervision no puede crear apuntes.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @return bool
      */
     public function create(User $usuario): bool
     {
@@ -92,6 +102,10 @@ class ApuntePolicy
      *
      * Regla absoluta: si el apunte es privado, solo el autor puede editarlo.
      * Para apuntes no privados: permiso editar + ser el autor del apunte.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @param Apunte $apunte Apunte a editar.
+     * @return bool
      */
     public function update(User $usuario, Apunte $apunte): bool
     {
@@ -114,6 +128,10 @@ class ApuntePolicy
      * Decide si el usuario puede eliminar el apunte.
      *
      * Regla absoluta: si el apunte es privado, solo el autor puede eliminarlo.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @param Apunte $apunte Apunte a eliminar.
+     * @return bool
      */
     public function delete(User $usuario, Apunte $apunte): bool
     {

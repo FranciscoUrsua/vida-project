@@ -83,7 +83,8 @@ trait TieneUO
      * Se usa en las Policies para distinguir gestión completa (misma UO)
      * de consulta libre (UO diferente).
      *
-     * @param UnidadOrganizativa $uo UO a comprobar
+     * @param UnidadOrganizativa $uo UO a comprobar.
+     * @return bool
      */
     public function perteneceAUo(UnidadOrganizativa $uo): bool
     {
@@ -99,7 +100,8 @@ trait TieneUO
      * Usado para verificar si el usuario puede gestionar recursos
      * en una UO inferior a la suya en la jerarquía.
      *
-     * @param UnidadOrganizativa $uo UO sobre la que se quiere operar
+     * @param UnidadOrganizativa $uo UO sobre la que se quiere operar.
+     * @return bool
      */
     public function tieneAccesoGestionA(UnidadOrganizativa $uo): bool
     {
@@ -147,7 +149,8 @@ trait TieneUO
      * Este método siempre devuelve true; la restricción real
      * la impone la Policy según el ciudadano y el colectivo.
      *
-     * @param UnidadOrganizativa $uo UO sobre la que se quiere consultar
+     * @param UnidadOrganizativa $uo UO sobre la que se quiere consultar.
+     * @return bool
      */
     public function tieneAccesoConsultaA(UnidadOrganizativa $uo): bool
     {

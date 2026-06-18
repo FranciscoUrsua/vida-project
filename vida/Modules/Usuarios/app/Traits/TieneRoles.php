@@ -63,7 +63,8 @@ trait TieneRoles
      * o para consultas históricas.
      *
      * @param string $rolNombre Nombre del rol, ej: 'intervencion'
-     */
+     * @param string $rolNombre Nombre del rol, ej: 'intervencion'.
+     * @return bool
     public function tieneRolVigente(string $rolNombre): bool
     {
         $rol = Role::findByName($rolNombre);
@@ -85,7 +86,8 @@ trait TieneRoles
      * los roles y permisos activos en model_has_roles.
      *
      * @param string $permiso Nombre del permiso, ej: 'historia.leer'
-     */
+     * @param string $permiso Nombre del permiso, ej: 'historia.leer'.
+     * @return bool
     public function tienePermiso(string $permiso): bool
     {
         return $this->can($permiso);

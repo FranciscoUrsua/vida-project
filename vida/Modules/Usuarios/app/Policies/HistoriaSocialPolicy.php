@@ -49,6 +49,9 @@ class HistoriaSocialPolicy
 
     /**
      * Decide si el usuario puede listar Historias Sociales.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @return bool
      */
     public function viewAny(User $usuario): bool
     {
@@ -64,6 +67,10 @@ class HistoriaSocialPolicy
      *      consulta libre (Nivel 2)
      *   3. Si Nivel 2: ¿el ciudadano es colectivo protegido? → requiere
      *      aprobación vigente (Nivel 3)
+     *
+     * @param User $usuario Usuario autenticado.
+     * @param HistoriaSocial $historia Historia social consultada.
+     * @return bool
      */
     public function view(User $usuario, HistoriaSocial $historia): bool
     {
@@ -90,6 +97,9 @@ class HistoriaSocialPolicy
      *
      * La creación solo está permitida dentro del propio ámbito de UO.
      * El rol supervision no puede crear aunque tenga UO.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @return bool
      */
     public function create(User $usuario): bool
     {
@@ -106,6 +116,10 @@ class HistoriaSocialPolicy
      *
      * La edición solo está permitida dentro del ámbito de UO del usuario.
      * El rol supervision no puede editar.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @param HistoriaSocial $historia Historia social a editar.
+     * @return bool
      */
     public function update(User $usuario, HistoriaSocial $historia): bool
     {
@@ -133,6 +147,10 @@ class HistoriaSocialPolicy
      * Decide si el usuario puede eliminar (baja lógica) la Historia Social.
      *
      * La eliminación solo está permitida dentro del ámbito de UO del usuario.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @param HistoriaSocial $historia Historia social a eliminar.
+     * @return bool
      */
     public function delete(User $usuario, HistoriaSocial $historia): bool
     {
