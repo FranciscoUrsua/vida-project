@@ -52,6 +52,11 @@ jobs:
             sudo chown -R jupiter:www-data /var/www/vida-project/vida/storage /var/www/vida-project/vida/bootstrap/cache
             sudo chmod -R 775 /var/www/vida-project/vida/storage /var/www/vida-project/vida/bootstrap/cache
 
+            # Limpiar caché de bootstrap ANTES de composer install para evitar que
+            # package:discover (post-autoload-dump) arranque Artisan con caches obsoletos
+            # (p. ej. services.php que referencia routes-v7.php inexistente).
+            rm -f /var/www/vida-project/vida/bootstrap/cache/*.php
+
             composer install --no-dev --optimize-autoloader --no-interaction
 
             npm ci --no-audit --no-fund --silent || npm install --no-audit --no-fund --silent
