@@ -31,6 +31,25 @@ use App\Enums\TipoNumeracion;
  */
 final class ResultadoGeocodificacion
 {
+    /**
+     * Crea una instancia inmutable con los datos geocodificados.
+     *
+     * @param bool $exito Indica si la geocodificación fue exitosa.
+     * @param string|null $tipoVia Tipo de vía.
+     * @param string|null $nombreVia Nombre de la vía.
+     * @param TipoNumeracion|null $tipoNumeracion Tipo de numeración.
+     * @param string|null $numero Número de portal.
+     * @param string|null $portal Portal.
+     * @param string|null $escalera Escalera.
+     * @param string|null $piso Piso.
+     * @param string|null $puerta Puerta.
+     * @param string|null $codigoPostal Código postal.
+     * @param string|null $municipio Municipio.
+     * @param float|null $latitud Latitud.
+     * @param float|null $longitud Longitud.
+     * @param string $proveedor Identificador del adaptador.
+     * @param string|null $errorMensaje Mensaje de error.
+     */
     public function __construct(
         public readonly bool $exito,
         public readonly ?string $tipoVia,

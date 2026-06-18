@@ -161,18 +161,18 @@ class Ciudadano extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
-    /**
-     * Resumen de prestaciones y actividades sin historia social asociada.
-     * Alimentado por observers de cada módulo origen.
-     *
-     * @return HasMany<CiudadanoPrestacionResumen, self>
-     */
     /** El ciudadano es la entidad raíz: su propio id es el ciudadano_id. */
     public function getCiudadanoId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Resumen de prestaciones y actividades sin historia social asociada.
+     * Alimentado por observers de cada módulo origen.
+     *
+     * @return HasMany<CiudadanoPrestacionResumen, self>
+     */
     public function prestacionesResumen(): HasMany
     {
         return $this->hasMany(CiudadanoPrestacionResumen::class);
@@ -219,6 +219,8 @@ class Ciudadano extends Model
     /**
      * Indica si el ciudadano tiene verificada su residencia en alguna UC activa.
      * Determina si puede ser perceptor de prestaciones municipales.
+     *
+     * @return bool
      */
     public function tieneResidenciaVerificada(): bool
     {

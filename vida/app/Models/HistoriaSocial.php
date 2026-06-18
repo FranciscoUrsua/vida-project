@@ -81,18 +81,18 @@ class HistoriaSocial extends Model
     // Relaciones
     // -------------------------------------------------------------------------
 
-    /**
-     * Ciudadano titular de la Historia Social.
-     * Sin FK en la migración (TODO: módulo Ciudadanía), por eso sin withoutGlobalScope.
-     *
-     * @return BelongsTo<Ciudadano, HistoriaSocial>
-     */
     /** {@inheritDoc} */
     public function getCiudadanoId(): ?int
     {
         return $this->ciudadano_id;
     }
 
+    /**
+     * Ciudadano titular de la Historia Social.
+     * Sin FK en la migración (TODO: módulo Ciudadanía), por eso sin withoutGlobalScope.
+     *
+     * @return BelongsTo<Ciudadano, HistoriaSocial>
+     */
     public function ciudadano(): BelongsTo
     {
         return $this->belongsTo(Ciudadano::class, 'ciudadano_id');

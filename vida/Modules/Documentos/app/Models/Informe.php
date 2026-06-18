@@ -96,6 +96,11 @@ class Informe extends Model
         return $this->belongsTo(Ciudadano::class, 'ciudadano_id');
     }
 
+    /**
+     * Autor que creó el informe.
+     *
+     * @return BelongsTo<User, self>
+     */
     public function autor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'autor_id');

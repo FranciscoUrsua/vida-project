@@ -1,29 +1,18 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 14:21:26 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 14:40:04 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
-- Simbolos escaneados: 383.
-- Cabeceras documentadas: 263/383.
-- Metodos publicos documentados: 986/1040.
-- Alertas de comentarios: 292.
+- Simbolos escaneados: 385.
+- Cabeceras documentadas: 265/385.
+- Metodos publicos documentados: 999/1045.
+- Alertas de comentarios: 264.
 
 ## Alertas
 
-### Método público sin PHPDoc (8)
-
-- `Modules\Documentos\Models\Informe::autor()` en `vida/Modules/Documentos/app/Models/Informe.php:99`: Falta docblock de método público.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::render()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:179`: Falta docblock de método público.
-- `App\Models\CatalogoSistema::scopeDeGrupo()` en `vida/app/Models/CatalogoSistema.php:43`: Falta docblock de método público.
-- `App\Models\Ciudadano::prestacionesResumen()` en `vida/app/Models/Ciudadano.php:176`: Falta docblock de método público.
-- `App\Models\HistoriaSocial::ciudadano()` en `vida/app/Models/HistoriaSocial.php:96`: Falta docblock de método público.
-- `App\Observers\AuditObserver::__construct()` en `vida/app/Observers/AuditObserver.php:26`: Falta docblock de método público.
-- `App\Providers\Filament\AdminPanelProvider::panel()` en `vida/app/Providers/Filament/AdminPanelProvider.php:24`: Falta docblock de método público.
-- `App\Services\Geocodificacion\ResultadoGeocodificacion::__construct()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:34`: Falta docblock de método público.
-
-### PHPDoc incompleto (164)
+### PHPDoc incompleto (144)
 
 - `Modules\Documentos\Observers\EstiloInformeObserver::__construct()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:19`: Falta @param $resolver.
 - `Modules\Documentos\Observers\EstiloInformeObserver::saved()` en `vida/Modules/Documentos/app/Observers/EstiloInformeObserver.php:24`: Falta @param $estilo.
@@ -110,40 +99,20 @@ Generado el 2026-06-18 14:21:26 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Livewire\Admin\GestorUnidadesOrganizativas::reactivar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:194`: Falta @return.
 - `App\Livewire\Admin\GestorUnidadesOrganizativas::cancelar()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:205`: Falta @return.
 - `App\Livewire\Admin\GestorUnidadesOrganizativas::render()` en `vida/app/Livewire/Admin/GestorUnidadesOrganizativas.php:218`: Falta @return.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::mount()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:48`: Falta @param $centroId.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::mount()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:48`: Falta @return.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::togglePrestacion()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:119`: Falta @param $prestacionId.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::togglePrestacion()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:119`: Falta @return.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::deseleccionar()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:133`: Falta @param $prestacionId.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::deseleccionar()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:133`: Falta @return.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::setSegmento()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:143`: Falta @param $segmento.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::setSegmento()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:143`: Falta @return.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::verDetalle()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:151`: Falta @param $prestacionId.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::verDetalle()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:151`: Falta @return.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::cerrarDetalle()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:159`: Falta @return.
-- `App\Livewire\Centros\SelectorPrestacionesCentro::guardar()` en `vida/app/Livewire/Centros/SelectorPrestacionesCentro.php:168`: Falta @return.
 - `App\Models\Api\PerfilAnonimizacion::delete()` en `vida/app/Models/Api/PerfilAnonimizacion.php:90`: Falta @return.
 - `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @param $attributes.
 - `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @param $options.
 - `App\Models\Audit::update()` en `vida/app/Models/Audit.php:74`: Falta @return.
 - `App\Models\Audit::delete()` en `vida/app/Models/Audit.php:82`: Falta @return.
-- `App\Models\CatalogoSistema::opcionesParaSelect()` en `vida/app/Models/CatalogoSistema.php:58`: Falta @param $grupo.
-- `App\Models\CatalogoSistema::valor()` en `vida/app/Models/CatalogoSistema.php:70`: Falta @return.
-- `App\Models\CatalogoSistema::opcionesParaSelectConPrefijo()` en `vida/app/Models/CatalogoSistema.php:84`: Falta @param $grupo.
-- `App\Models\CatalogoSistema::opcionesParaSelectConPrefijo()` en `vida/app/Models/CatalogoSistema.php:84`: Falta @param $prefijo.
 - `App\Models\Ciudadano::getNombreCompletoAttribute()` en `vida/app/Models/Ciudadano.php:155`: Falta @return.
-- `App\Models\Ciudadano::getCiudadanoId()` en `vida/app/Models/Ciudadano.php:171`: Falta @return.
-- `App\Models\Ciudadano::tieneResidenciaVerificada()` en `vida/app/Models/Ciudadano.php:223`: Falta @return.
-- `App\Models\HistoriaSocial::getCiudadanoId()` en `vida/app/Models/HistoriaSocial.php:91`: Falta @return.
+- `App\Models\Ciudadano::getCiudadanoId()` en `vida/app/Models/Ciudadano.php:165`: Falta @return.
+- `App\Models\HistoriaSocial::getCiudadanoId()` en `vida/app/Models/HistoriaSocial.php:85`: Falta @return.
 - `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @param $model.
 - `App\Models\Scopes\AmbitoUoScope::apply()` en `vida/app/Models/Scopes/AmbitoUoScope.php:69`: Falta @return.
 - `App\Models\UnidadOrganizativa::isDescendantOf()` en `vida/app/Models/UnidadOrganizativa.php:124`: Falta @return.
 - `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @param $panel.
 - `App\Models\User::canAccessPanel()` en `vida/app/Models/User.php:112`: Falta @return.
 - `App\Models\Version::versionable()` en `vida/app/Models/Version.php:61`: Falta @return.
-- `App\Observers\AuditObserver::created()` en `vida/app/Observers/AuditObserver.php:33`: Falta @return.
-- `App\Observers\AuditObserver::updated()` en `vida/app/Observers/AuditObserver.php:52`: Falta @return.
-- `App\Observers\AuditObserver::deleted()` en `vida/app/Observers/AuditObserver.php:81`: Falta @return.
 - `App\Observers\DireccionObserver::__construct()` en `vida/app/Observers/DireccionObserver.php:29`: Falta @param $geocodificador.
 - `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @param $model.
 - `App\Observers\DireccionObserver::creating()` en `vida/app/Observers/DireccionObserver.php:39`: Falta @return.
@@ -179,7 +148,7 @@ Generado el 2026-06-18 14:21:26 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Services\CiudadanoService::actualizar()` en `vida/app/Services/CiudadanoService.php:62`: Falta @return.
 - `App\Services\CiudadanoService::eliminar()` en `vida/app/Services/CiudadanoService.php:84`: Falta @return.
 - `App\Services\Geocodificacion\GeocodificadorService::normalizar()` en `vida/app/Services/Geocodificacion/GeocodificadorService.php:39`: Falta @return.
-- `App\Services\Geocodificacion\ResultadoGeocodificacion::fallo()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:58`: Falta @return.
+- `App\Services\Geocodificacion\ResultadoGeocodificacion::fallo()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:77`: Falta @return.
 - `App\Services\HistoriaSocialService::obtenerEntradas()` en `vida/app/Services/HistoriaSocialService.php:35`: Falta @param $ciudadano.
 - `App\Services\HistoriaSocialService::obtenerEntradas()` en `vida/app/Services/HistoriaSocialService.php:35`: Falta @param $profesional.
 - `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $usuario.
@@ -1950,7 +1919,8 @@ Metodos publicos:
   Ciudadano destinatario del informe.
   `@return` BelongsTo<Ciudadano, self>
 - `function autor(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Autor que creó el informe.
+  `@return` BelongsTo<User, self>
 - `function documento(): BelongsTo`
   Documento PDF asociado al informe, si existe.
   `@return` BelongsTo<Documento, self>
@@ -2585,6 +2555,9 @@ Metodos publicos:
 - `function calcularScoreEscala(array $schema, array $respuestas): int`
   Calcula la puntuación total de un pase de escala. Suma valor × peso de cada ítem respondido.
   `@return` int
+- `function generarPdfPlan(int $planId): \Symfony\Component\HttpFoundation\StreamedResponse`
+  Genera y descarga el PDF del plan de intervención indicado.
+  `@return` \Symfony\Component\HttpFoundation\StreamedResponse
 - `function render(): View`
   Renderiza la vista principal del expediente del ciudadano.
   `@return` View
@@ -3382,6 +3355,23 @@ Metodos publicos:
   `@throws` AuthorizationException Si el usuario no tiene permiso de eliminar
   `@throws` ModelNotFoundException Si el plan no existe o no está en el ámbito del usuario
 
+### `Modules\Intervencion\Services\PlanPdfService`
+
+- Tipo: class.
+- Fichero: `vida/Modules/Intervencion/app/Services/PlanPdfService.php:14`.
+- Resumen: Servicio de generación del PDF del Plan de Intervención Social (PISO).
+
+Usa barryvdh/laravel-dompdf para renderizar la vista Blade del plan y devolver el binario del PDF listo para descarga o almacenamiento.
+
+Metodos publicos:
+
+- `function generar(PlanDeIntervencion $plan): string`
+  Genera el PDF del plan con todos sus datos listos para impresión y firma. Devuelve el contenido del PDF como string binario.
+  `@return` string Binario del PDF
+- `function nombre(PlanDeIntervencion $plan): string`
+  Devuelve el nombre de fichero sugerido para la descarga del PDF.
+  `@return` string
+
 ### `Modules\Mensajes\Enums\DestinatarioType`
 
 - Tipo: enum.
@@ -4030,7 +4020,7 @@ Metodos publicos:
 ### `Modules\Prestaciones\Models\Prestacion`
 
 - Tipo: class.
-- Fichero: `vida/Modules/Prestaciones/app/Models/Prestacion.php:55`.
+- Fichero: `vida/Modules/Prestaciones/app/Models/Prestacion.php:57`.
 - Resumen: Prestación del catálogo oficial de servicios sociales municipales.
 
 Fuente de verdad sobre qué prestaciones existen, sus condiciones y cómo se accede a ellas. Es un módulo de catálogo de solo lectura para el resto del sistema; el mantenimiento se realiza exclusivamente desde Filament.  Los campos clasificatorios (objetivo_general, categoria_especifica, etc.) son claves de catalogos_sistema, nunca FKs (principio 3.10).  Los únicos enums son tipo_prestacion y nivel_garantia porque el código toma decisiones de lógica de negocio basándose en ellos (principio 3.10).
@@ -5749,6 +5739,23 @@ Metodos publicos:
 - Fichero: `vida/app/Filament/Resources/TipoPlanResource/Pages/EditTipoPlan.php:9`.
 - Resumen: Página de edición de un tipo de plan.
 
+### `App\Filament\Resources\TipoPlanResource\Pages\GestionarObjetivos`
+
+- Tipo: class.
+- Fichero: `vida/app/Filament/Resources/TipoPlanResource/Pages/GestionarObjetivos.php:27`.
+- Resumen: Página de gestión del catálogo de objetivos de un tipo de plan.
+
+Permite crear, editar y eliminar objetivos (generales y específicos) para un tipo de plan concreto directamente en Filament.
+
+Metodos publicos:
+
+- `function getTitle(): string`
+  Título dinámico con el nombre del tipo de plan.
+  `@return` string
+- `function table(Table $table): Table`
+  Configuración completa de la tabla de objetivos del catálogo.
+  `@return` Table
+
 ### `App\Filament\Resources\TipoPlanResource\Pages\ListTipoPlanes`
 
 - Tipo: class.
@@ -6294,6 +6301,7 @@ Metodos publicos:
 
 - `function mount(int $centroId): void`
   Inicializa el componente cargando las prestaciones ya asociadas al centro.
+  `@return` void
 - `function segmentosFiltro(): array`
   Devuelve las opciones de filtro por segmento de población. Se derivan de los segmentos actualmente asociados al centro.
   `@return` array<string, string>
@@ -6302,18 +6310,25 @@ Metodos publicos:
   `@return` Collection<string, Collection<int, Prestacion>>
 - `function togglePrestacion(int $prestacionId): void`
   Alterna la selección de una prestación.
+  `@return` void
 - `function deseleccionar(int $prestacionId): void`
   Elimina una prestación del panel de seleccionadas.
+  `@return` void
 - `function setSegmento(string $segmento): void`
   Activa el filtro de segmento de población.
+  `@return` void
 - `function verDetalle(int $prestacionId): void`
   Abre la ficha de detalle de una prestación.
+  `@return` void
 - `function cerrarDetalle(): void`
   Cierra la ficha de detalle.
+  `@return` void
 - `function guardar(): void`
   Persiste la selección de prestaciones en la tabla pivote centro_prestacion. Usa sync() para gestionar altas y bajas en una sola operación.
+  `@return` void
 - `function render(): View`
-  _Sin resumen PHPDoc._
+  Renderiza la vista del componente.
+  `@return` View
 
 ### `App\Models\AccesoProtegido`
 
@@ -6424,12 +6439,14 @@ Implementa el principio 3.10 de principios-vida360.md: valores puramente descrip
 Metodos publicos:
 
 - `function scopeDeGrupo(Builder $query, string $grupo): Builder`
-  _Sin resumen PHPDoc._
+  Filtra el catálogo por grupo, activos y orden visible.
+  `@return` Builder<CatalogoSistema>
 - `function opcionesParaSelect(string $grupo): array`
   Devuelve las opciones activas de un grupo en formato [clave => etiqueta] listo para usar en selects de Filament.
   `@return` array<string, string>
 - `function valor(string $clave, string $defecto = ''): string`
   Devuelve la etiqueta de un valor del catálogo por clave única. Útil para parámetros de configuración global (clave única entre todos los grupos).
+  `@return` string
 - `function opcionesParaSelectConPrefijo(string $grupo, string $prefijo): array`
   Devuelve las opciones de un grupo filtradas por prefijo de clave. Útil para cargar subcategorías dependientes de una categoría padre.
   `@return` array<string, string>
@@ -6449,7 +6466,8 @@ Metodos publicos:
 - `function getCiudadanoId(): ?int`
   El ciudadano es la entidad raíz: su propio id es el ciudadano_id.
 - `function prestacionesResumen(): HasMany`
-  _Sin resumen PHPDoc._
+  Resumen de prestaciones y actividades sin historia social asociada. Alimentado por observers de cada módulo origen.
+  `@return` HasMany<CiudadanoPrestacionResumen, self>
 - `function membresiasUC(): HasMany`
   Todas las membresías UC del ciudadano (históricas y activas).
   `@return` HasMany<UnidadConvivenciaMiembro, self>
@@ -6461,6 +6479,7 @@ Metodos publicos:
   `@return` BelongsToMany<UnidadConvivencia, self>
 - `function tieneResidenciaVerificada(): bool`
   Indica si el ciudadano tiene verificada su residencia en alguna UC activa. Determina si puede ser perceptor de prestaciones municipales.
+  `@return` bool
 
 ### `App\Models\HistoriaSocial`
 
@@ -6475,7 +6494,8 @@ Metodos publicos:
 - `function getCiudadanoId(): ?int`
   {@inheritDoc}
 - `function ciudadano(): BelongsTo`
-  _Sin resumen PHPDoc._
+  Ciudadano titular de la Historia Social. Sin FK en la migración (TODO: módulo Ciudadanía), por eso sin withoutGlobalScope.
+  `@return` BelongsTo<Ciudadano, HistoriaSocial>
 - `function unidadOrganizativa(): BelongsTo`
   UO responsable de la Historia Social.
   `@return` BelongsTo<UnidadOrganizativa, HistoriaSocial>
@@ -6607,13 +6627,16 @@ Las lecturas NO las registra este observer — deben registrarse explícitamente
 Metodos publicos:
 
 - `function __construct(private readonly AuditService $service)`
-  _Sin resumen PHPDoc._
+  Inyecta el servicio de auditoría.
 - `function created(Model $model): void`
   Registra la creación de un modelo auditable.
+  `@return` void
 - `function updated(Model $model): void`
   Registra la edición de un modelo auditable con diff de campos cambiados.
+  `@return` void
 - `function deleted(Model $model): void`
   Registra la eliminación (soft o hard) de un modelo auditable.
+  `@return` void
 
 ### `App\Observers\DireccionObserver`
 
@@ -6681,7 +6704,8 @@ Metodos publicos:
 Metodos publicos:
 
 - `function panel(Panel $panel): Panel`
-  _Sin resumen PHPDoc._
+  Construye el panel de administración.
+  `@return` Panel
 
 ### `App\Providers\GeocodificacionServiceProvider`
 
@@ -6848,7 +6872,7 @@ Estructura uniforme independientemente del adaptador que procesó la petición. 
 Metodos publicos:
 
 - `function __construct( public readonly bool $exito, public readonly ?string $tipoVia, public readonly ?string $nombreVia, public readonly ?TipoNumeracion $tipoNumeracion, public readonly ?string $numero, public readonly ?string $portal, public readonly ?string $escalera, public readonly ?string $piso, public readonly ?string $puerta, public readonly ?string $codigoPostal, public readonly ?string $municipio, public readonly ?float $latitud, public readonly ?float $longitud, public readonly string $proveedor, public readonly ?string $errorMensaje = null, )`
-  _Sin resumen PHPDoc._
+  Crea una instancia inmutable con los datos geocodificados.
 - `function fallo(string $proveedor, string $errorMensaje): self`
   Crea un resultado de fallo.
 

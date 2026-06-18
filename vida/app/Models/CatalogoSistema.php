@@ -40,6 +40,13 @@ class CatalogoSistema extends Model
     // Scopes
     // -------------------------------------------------------------------------
 
+    /**
+     * Filtra el catálogo por grupo, activos y orden visible.
+     *
+     * @param Builder<CatalogoSistema> $query Consulta base.
+     * @param string $grupo Grupo a filtrar.
+     * @return Builder<CatalogoSistema>
+     */
     public function scopeDeGrupo(Builder $query, string $grupo): Builder
     {
         return $query->where('grupo', $grupo)->where('activo', true)->orderBy('orden')->orderBy('etiqueta');
@@ -53,6 +60,7 @@ class CatalogoSistema extends Model
      * Devuelve las opciones activas de un grupo en formato [clave => etiqueta]
      * listo para usar en selects de Filament.
      *
+     * @param string $grupo Grupo de catálogo a consultar.
      * @return array<string, string>
      */
     public static function opcionesParaSelect(string $grupo): array
@@ -64,8 +72,9 @@ class CatalogoSistema extends Model
      * Devuelve la etiqueta de un valor del catálogo por clave única.
      * Útil para parámetros de configuración global (clave única entre todos los grupos).
      *
-     * @param string $clave Clave única del catálogo
-     * @param string $defecto Valor por defecto si la clave no existe o está inactiva
+     * @param string $clave Clave única del catálogo.
+     * @param string $defecto Valor por defecto si la clave no existe o está inactiva.
+     * @return string
      */
     public static function valor(string $clave, string $defecto = ''): string
     {
@@ -79,6 +88,8 @@ class CatalogoSistema extends Model
      * Ejemplo: opcionesParaSelectConPrefijo('prestacion.categoria', '01')
      * devuelve solo las claves que empiezan por '01'.
      *
+     * @param string $grupo Grupo de catálogo a consultar.
+     * @param string $prefijo Prefijo de clave a filtrar.
      * @return array<string, string>
      */
     public static function opcionesParaSelectConPrefijo(string $grupo, string $prefijo): array
