@@ -1,6 +1,6 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 15:11:04 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-18 15:20:23 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
@@ -8,7 +8,7 @@ Generado el 2026-06-18 15:11:04 UTC a partir de los docblocks PHPDoc compatibles
 - Simbolos escaneados: 385.
 - Cabeceras documentadas: 265/385.
 - Metodos publicos documentados: 997/1043.
-- Alertas de comentarios: 132.
+- Alertas de comentarios: 120.
 
 ## Alertas
 
@@ -134,21 +134,6 @@ Generado el 2026-06-18 15:11:04 UTC a partir de los docblocks PHPDoc compatibles
 - `App\Filament\Resources\ZonaResource\Pages\ListZonas` en `vida/app/Filament/Resources/ZonaResource/Pages/ListZonas.php:9`: Falta docblock de cabecera.
 - `App\Http\Controllers\Controller` en `vida/app/Http/Controllers/Controller.php:5`: Falta docblock de cabecera.
 - `App\Providers\Filament\AdminPanelProvider` en `vida/app/Providers/Filament/AdminPanelProvider.php:22`: Falta docblock de cabecera.
-
-### PHPDoc incompleto (12)
-
-- `App\Services\Api\RevelacionIdentidadService::revelarPorAlias()` en `vida/app/Services/Api/RevelacionIdentidadService.php:36`: Falta @return.
-- `App\Services\AuditService::registrarAcceso()` en `vida/app/Services/AuditService.php:44`: Falta @return.
-- `App\Services\CiudadanoService::crear()` en `vida/app/Services/CiudadanoService.php:41`: Falta @return.
-- `App\Services\CiudadanoService::actualizar()` en `vida/app/Services/CiudadanoService.php:62`: Falta @return.
-- `App\Services\CiudadanoService::eliminar()` en `vida/app/Services/CiudadanoService.php:84`: Falta @return.
-- `App\Services\Geocodificacion\GeocodificadorService::normalizar()` en `vida/app/Services/Geocodificacion/GeocodificadorService.php:39`: Falta @return.
-- `App\Services\Geocodificacion\ResultadoGeocodificacion::fallo()` en `vida/app/Services/Geocodificacion/ResultadoGeocodificacion.php:77`: Falta @return.
-- `App\Services\HistoriaSocialService::obtenerEntradas()` en `vida/app/Services/HistoriaSocialService.php:35`: Falta @param $ciudadano.
-- `App\Services\HistoriaSocialService::obtenerEntradas()` en `vida/app/Services/HistoriaSocialService.php:35`: Falta @param $profesional.
-- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $usuario.
-- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @param $ciudadano.
-- `App\Services\HistoriaSocialService::esTsr()` en `vida/app/Services/HistoriaSocialService.php:70`: Falta @return.
 
 ## Referencia
 
@@ -6702,6 +6687,7 @@ Metodos publicos:
 
 - `function revelarPorAlias(string $alias, int $usuarioId, string $justificacion): Ciudadano`
   Resuelve un alias seudonimizado al ciudadano real.
+  `@return` Ciudadano
   `@throws` ValidationException Si justificacion está vacía
   `@throws` AuthorizationException Si el usuario no tiene permiso ciudadano.revelar_identidad
   `@throws` ModelNotFoundException Si ningún ciudadano activo coincide con el alias
@@ -6733,6 +6719,7 @@ Metodos publicos:
 
 - `function registrarAcceso( User $user, Model $modelo, AccionAuditEnum|string $accion = AccionAuditEnum::Ver, ?int $ciudadanoId = null, array $contexto = [], ?array $datosAntes = null, ?array $datosDespues = null, ): void`
   Registra un acceso a datos de ciudadano.
+  `@return` void
 
 ### `App\Services\CiudadanoService`
 
@@ -6746,13 +6733,16 @@ Metodos publicos:
 
 - `function crear(array $datos): Ciudadano`
   Da de alta un nuevo ciudadano en el sistema.
+  `@return` Ciudadano
   `@throws` AuthorizationException Si el usuario no tiene permiso de crear ciudadanos
 - `function actualizar(int $id, array $datos): Ciudadano`
   Actualiza los datos de un ciudadano existente.
+  `@return` Ciudadano
   `@throws` AuthorizationException Si el usuario no tiene permiso de editar
   `@throws` ModelNotFoundException Si el ciudadano no existe o no está en el ámbito del usuario
 - `function eliminar(int $id): void`
   Elimina (baja lógica) un ciudadano del sistema.
+  `@return` void
   `@throws` AuthorizationException Si el usuario no tiene permiso de eliminar
   `@throws` ModelNotFoundException Si el ciudadano no existe o no está en el ámbito del usuario
 
@@ -6796,6 +6786,7 @@ Metodos publicos:
 
 - `function normalizar(string $direccionTexto): ResultadoGeocodificacion`
   Normaliza la dirección delegando en el adaptador activo.
+  `@return` ResultadoGeocodificacion
 
 ### `App\Services\Geocodificacion\ResultadoGeocodificacion`
 
@@ -6811,6 +6802,7 @@ Metodos publicos:
   Crea una instancia inmutable con los datos geocodificados.
 - `function fallo(string $proveedor, string $errorMensaje): self`
   Crea un resultado de fallo.
+  `@return` self
 
 ### `App\Services\HistoriaSocialService`
 
@@ -6827,6 +6819,7 @@ Metodos publicos:
   `@return` Collection<int, array<string, mixed>>
 - `function esTsr(User $usuario, Ciudadano $ciudadano): bool`
   Verifica si un usuario es el TSR responsable de la Historia Social de un ciudadano concreto.
+  `@return` bool
 
 ### `App\Traits\Auditable`
 

@@ -30,12 +30,14 @@ class HistoriaSocialService
      * mensajes_registro_historia. La visibilidad filtra los registros
      * privados si el profesional no es el autor.
      *
+     * @param Ciudadano $ciudadano Ciudadano cuyo expediente se consulta.
+     * @param User $profesional Profesional para el que se calcula la visibilidad.
      * @return Collection<int, array<string, mixed>>
      */
     public function obtenerEntradas(Ciudadano $ciudadano, User $profesional): Collection
     {
         // Apuntes de la Historia Social (módulo Intervencion — pendiente de implementar)
-        $apuntes = collect(); // TODO: obtener de Modules\Intervencion cuando esté disponible
+        $apuntes = collect(); // TODO: obtener de ModulesIntervencion cuando esté disponible
 
         // Registros de mensajes internos incorporados al expediente
         $comunicacionesInternas = MensajeRegistroHistoria::where('ciudadano_id', $ciudadano->id)
@@ -66,6 +68,10 @@ class HistoriaSocialService
     /**
      * Verifica si un usuario es el TSR responsable de la Historia Social
      * de un ciudadano concreto.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @param Ciudadano $ciudadano Ciudadano objetivo.
+     * @return bool
      */
     public function esTsr(User $usuario, Ciudadano $ciudadano): bool
     {

@@ -73,6 +73,7 @@ final class ResultadoGeocodificacion
      *
      * @param string $proveedor Identificador del adaptador.
      * @param string $errorMensaje Descripción del fallo.
+     * @return self
      */
     public static function fallo(string $proveedor, string $errorMensaje): self
     {

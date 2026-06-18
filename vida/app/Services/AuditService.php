@@ -40,6 +40,7 @@ class AuditService
      * @param array<string, mixed> $contexto Metadatos adicionales
      * @param array<string, mixed>|null $datosAntes Snapshot previo (editar/eliminar)
      * @param array<string, mixed>|null $datosDespues Snapshot posterior (crear/editar)
+     * @return void
      */
     public function registrarAcceso(
         User $user,
