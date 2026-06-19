@@ -215,6 +215,21 @@ class CiudadanoPage extends Component
     }
 
     /**
+     * Plan de intervención vigente (cualquier estado no cerrado) para navegar a PlanPage.
+     *
+     * @return PlanDeIntervencion|null
+     */
+    #[Computed]
+    public function planActivo(): ?PlanDeIntervencion
+    {
+        return PlanDeIntervencion::withoutGlobalScopes()
+            ->where('historia_id', $this->historia->id)
+            ->whereIn('estado', ['borrador', 'activo', 'en_revision'])
+            ->latest()
+            ->first();
+    }
+
+    /**
      * Tipos de ficha disponibles para la herramienta de Valoración.
      *
      * @return Collection<int, TipoFicha>

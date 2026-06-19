@@ -314,16 +314,9 @@ del catálogo de relaciones.
 
 ---
 
-**UI del Plan de Intervención en CiudadanoPage** — 2026-06-18
+~~**UI del Plan de Intervención en CiudadanoPage**~~ — 2026-06-18 → **COMPLETADO 2026-06-19**
 `Módulo: Intervención`
-El modelo completo está implementado. Pendiente: UI Livewire para crear/editar
-planes en CiudadanoPage, incluyendo:
-- Formulario de diagnóstico social
-- Gestión de objetivos (selección de catálogo + texto libre)
-- Gestión de actuaciones del Ayuntamiento (búsqueda en catálogo de prestaciones)
-- Gestión de actuaciones del ciudadano (texto libre + prestación opcional)
-- Gestión de participantes
-- Botón generar PDF + upload del PDF firmado
+PlanPage Livewire implementado con diagnóstico, objetivos, actuaciones, participantes, firmas y PDF.
 
 ---
 

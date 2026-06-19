@@ -367,13 +367,53 @@ Una Historia Social puede tener varios planes activos simultáneamente, cada uno
 - `version` (integer — control de revisiones)
 - `created_at`, `updated_at`
 
-### 5.3 Firma del plan
+### 5.3 Firma del plan y condiciones de seguimiento
 
-El plan requiere firma de ambas partes para activarse. La firma se gestiona en una entidad separada `FirmaPlan` para conservar el historial a través de las revisiones:
+La sección final del plan agrupa las condiciones de seguimiento y el registro
+de firmas. Son las últimas dos subsecciones antes de que el plan pueda activarse.
 
-`FirmaPlan`: `id`, `plan_id`, `version`, `firma_ciudadano` (blob o referencia a archivo), `firma_profesional` (blob o referencia a archivo), `metodo_firma` (enum: `wacom`, `manuscrita_escaneada`, `digital_certificada`), `fecha_firma`.
+**Condiciones de seguimiento**
 
-Cada revisión sustancial del plan que requiera nueva firma genera un nuevo registro `FirmaPlan` manteniendo el historial completo.
+El plan define la periodicidad de revisión acordada entre el TSR y el ciudadano.
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `periodicidad_seguimiento` | enum | `bimensual` / `trimestral` / `cuatrimestral` / `semestral` |
+| `observaciones_seguimiento` | text nullable | Acuerdos o matices sobre el seguimiento (ej: "se revisará antes si hay cambio de empleo") |
+
+**Firma**
+
+La firma es presencial y manuscrita. El flujo en la versión actual es:
+
+1. El TSR genera el PDF desde la página del plan y lo imprime.
+2. Ambas partes firman en papel durante la entrevista.
+3. El TSR marca en el sistema que cada parte ha firmado, registrando la fecha.
+4. Cuando ambas firmas están marcadas, el plan puede pasar a estado `activo`.
+
+No se requiere subir el documento escaneado para activar el plan. La gestión
+de documentos adjuntos (escaneados, certificados, nóminas, justificantes) es
+funcionalidad del módulo de Documentos, pendiente de implementar, y no bloquea
+el flujo del plan.
+
+**Tabla `firmas_plan`**:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | PK | |
+| `plan_id` | FK | |
+| `version` | integer | Versión del plan firmada |
+| `profesional_firmado` | boolean | El TSR ha firmado en papel |
+| `profesional_firmado_en` | timestamp nullable | Fecha en que el TSR marcó su firma |
+| `ciudadano_firmado` | boolean | El ciudadano ha firmado en papel |
+| `ciudadano_firmado_en` | timestamp nullable | Fecha en que el TSR marcó la firma del ciudadano |
+| `metodo_firma` | enum | `manuscrita` (único método activo; `digital_certificada` previsto) |
+| `fecha_firma` | date nullable | Fecha de la firma presencial (la registra el TSR) |
+| `documento_firmado_id` | FK nullable | Reservado para cuando exista el módulo de Documentos |
+| `observaciones_seguimiento` | text nullable | Acuerdos sobre el seguimiento (almacenados aquí por versión) |
+
+El plan no pasa a estado `activo` sin un registro `FirmaPlan` con
+`profesional_firmado = true` AND `ciudadano_firmado = true` para la versión
+actual (verificado por `PlanDeIntervencion::estaFirmado()`).
 
 ### 5.4 Versionado y revisiones
 

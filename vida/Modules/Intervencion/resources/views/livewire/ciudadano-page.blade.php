@@ -40,16 +40,22 @@
     {{-- ------------------------------------------------------------------ --}}
     {{-- Banda del Plan de Intervención — ancho completo                    --}}
     {{-- ------------------------------------------------------------------ --}}
-    @if($piso)
+    @if($this->planActivo)
         <div style="background: var(--color-primary-soft); border-bottom: 1px solid var(--color-ink-200); padding: 0.5rem 1.25rem; display: flex; align-items: center; gap: 1rem; flex-shrink: 0; font-size: 0.8rem;">
-            <span style="font-weight: 600; color: var(--color-primary-ink);">{{ $this->planNombreCorto }} activo</span>
-            <span style="color: var(--color-ink-600);">v{{ $piso->version }} · desde {{ Carbon::parse($piso->fecha_inicio)->format('d/m/Y') }}</span>
-            {{-- TODO: Entrega 4 — route('intervencion.piso.show', $piso->id) --}}
-            <a href="#" style="margin-left: auto; font-size: 0.78rem; color: var(--color-primary); text-decoration: none; font-weight: 600;">Ver {{ $this->planNombreCorto }} →</a>
+            <span style="font-weight: 600; color: var(--color-primary-ink);">{{ $this->planNombreCorto }} · {{ ucfirst($this->planActivo->estado) }}</span>
+            <span style="color: var(--color-ink-600);">v{{ $this->planActivo->version }} · desde {{ Carbon::parse($this->planActivo->fecha_inicio)->format('d/m/Y') }}</span>
+            <a href="{{ route('plan.show', $this->planActivo) }}" wire:navigate
+               style="margin-left: auto; font-size: 0.78rem; color: var(--color-primary); text-decoration: none; font-weight: 600;">
+                Ver {{ $this->planNombreCorto }} →
+            </a>
         </div>
     @else
-        <div style="background: var(--color-paper); border-bottom: 1px solid var(--color-ink-200); padding: 0.45rem 1.25rem; font-size: 0.78rem; color: var(--color-ink-400); flex-shrink: 0;">
+        <div style="background: var(--color-paper); border-bottom: 1px solid var(--color-ink-200); padding: 0.45rem 1.25rem; font-size: 0.78rem; color: var(--color-ink-400); flex-shrink: 0; display: flex; align-items: center; gap: 1rem;">
             Sin {{ $this->planNombreCorto }} activo
+            <a href="{{ route('plan.crear', ['historia' => $this->historia->id]) }}" wire:navigate
+               style="margin-left: auto; font-size: 0.78rem; color: var(--color-primary); text-decoration: none; font-weight: 600;">
+                + Crear {{ $this->planNombreCorto }}
+            </a>
         </div>
     @endif
 

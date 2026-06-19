@@ -25,7 +25,7 @@ class HistoriaSocialFactory extends Factory
     public function definition(): array
     {
         return [
-            'ciudadano_id' => fake()->numberBetween(1, 99999),
+            'ciudadano_id' => Ciudadano::factory(),
             'unidad_organizativa_id' => UnidadOrganizativa::factory(),
             'ciudadano_protegido' => false,
             'estado' => 'abierta',

@@ -4,6 +4,49 @@
 
 ---
 
+## feat(intervencion): PlanPage — UI completa del Plan de Intervención — 2026-06-19
+
+### Área afectada
+`Modules/Intervencion/app/Http/Livewire/PlanPage.php`, `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`, `Modules/Intervencion/app/Models/PlanFichaDiagnostico.php`, `Modules/Intervencion/database/migrations/2026_06_16_000015_create_plan_fichas_diagnostico_table.php`, `Modules/Intervencion/routes/web.php`, `vida/resources/css/app-operativo.css`, `Modules/Intervencion/app/Http/Livewire/CiudadanoPage.php`, `Modules/Intervencion/resources/views/livewire/ciudadano-page.blade.php`, `Modules/Intervencion/tests/Feature/Livewire/PlanPageTest.php`
+
+### Cambios
+
+#### Componente Livewire `PlanPage`
+- Página dedicada para el Plan de Intervención Social con 7 secciones: datos de la persona, diagnóstico social, objetivos, compromisos del Ayuntamiento, compromisos del ciudadano, participantes y firmas.
+- Drawer lateral para seleccionar fichas de valoración del historial.
+- Modal de motivo obligatorio para cambios en planes ya firmados (estado activo).
+- Acciones: guardarDiagnostico, guardarSeguimiento, marcarFirmaProfesional, marcarFirmaCiudadano, guardarFechaFirma, activarPlan, generarPdf.
+- `unset($this->plan)` reemplazado por `$this->plan->fresh()` — Livewire lanza `PropertyNotFoundException` al unsetear una propiedad pública regular.
+
+#### Modelo `PlanFichaDiagnostico` y migración
+- Tabla `plan_fichas_diagnostico`: pivote entre `planes_intervencion` y `fichas`, con campo `orden`.
+- Relación `fichasDiagnostico()` añadida a `PlanDeIntervencion`.
+
+#### Rutas
+- `GET /intervencion/plan/crear` → `PlanPage` (nombre: `plan.crear`)
+- `GET /intervencion/plan/{plan}` → `PlanPage` (nombre: `plan.show`)
+
+#### CSS
+- 250+ líneas de tokens VIDA para la UI del plan en `app-operativo.css`.
+
+#### Enlace desde `CiudadanoPage`
+- Computed `planActivo()` añadido.
+- Botón "Ver Plan" / "Crear Plan" en la vista de CiudadanoPage.
+
+#### Tests
+- 13 tests TF-PP-01 a TF-PP-13 — todos en verde.
+
+### Correcciones detectadas
+- `ValoracionFactory`: usaba `fake()->numberBetween()` como `ciudadano_id` sin crear la fila en `ciudadanos`, causando FK violation en `audits`. Corregido a `Ciudadano::factory()->create()`.
+- `VersionadoPlanTest` (TF-INT-B05/B06/B07): usaba campos `firma_ciudadano`/`firma_profesional` (string, eliminados). Migrado a `ciudadano_firmado`/`profesional_firmado` (booleanos).
+- Vista `plan-page.blade.php`: comparaciones de `$this->plan->estado` (enum) migradas a `.value`/`.label()`.
+
+### Decisiones de implementación
+- `unset($this->plan)` no es válido en Livewire para propiedades públicas — usar `fresh()`.
+- Los campos `estado` de `PlanObjetivo` y `PlanActuacionAyuntamiento` son strings, no enums; solo `PlanDeIntervencion::estado` es enum.
+
+---
+
 ## feat(intervencion): Ficha — schema_snapshot, Versionable y pre-relleno de nueva valoración — 2026-06-18
 
 ### Área afectada

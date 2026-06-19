@@ -212,8 +212,8 @@ class PlanDeIntervencion extends Model
     {
         return FirmaPlan::where('plan_id', $this->id)
             ->where('version', $this->version)
-            ->whereNotNull('firma_ciudadano')
-            ->whereNotNull('firma_profesional')
+            ->where('profesional_firmado', true)
+            ->where('ciudadano_firmado', true)
             ->exists();
     }
 
@@ -354,6 +354,16 @@ class PlanDeIntervencion extends Model
     public function participantesActivos(): HasMany
     {
         return $this->participantes()->whereNull('fecha_fin');
+    }
+
+    /**
+     * Fichas de valoración incluidas en el diagnóstico social del plan.
+     *
+     * @return HasMany<PlanFichaDiagnostico>
+     */
+    public function fichasDiagnostico(): HasMany
+    {
+        return $this->hasMany(PlanFichaDiagnostico::class, 'plan_id')->orderBy('orden');
     }
 
     /**

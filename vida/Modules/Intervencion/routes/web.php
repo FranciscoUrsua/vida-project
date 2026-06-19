@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
+use Modules\Intervencion\Http\Livewire\PlanPage;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\CiudadanoPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
@@ -19,6 +20,11 @@ use Modules\Mensajes\Http\Livewire\BuzonPage;
 | El backoffice Filament (/admin) no usa estas rutas.
 |
 */
+
+Route::middleware(['web', 'auth', 'primer.acceso'])->group(function () {
+    Route::get('/intervencion/plan/crear', PlanPage::class)->name('plan.crear');
+    Route::get('/intervencion/plan/{plan}', PlanPage::class)->name('plan.show');
+});
 
 Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion'])->prefix('intervencion')->name('intervencion.')->group(function () {
     Route::get('/', fn () => redirect()->route('intervencion.agenda.index'));
