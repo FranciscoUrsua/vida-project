@@ -1406,6 +1406,7 @@ a.uc-modal__miembro-nombre:hover { text-decoration: underline; }
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 10px; width: 480px; max-width: 95vw;
+    max-height: 90vh;
     display: flex; flex-direction: column;
     box-shadow: 0 8px 32px rgba(0,0,0,.15);
 }
