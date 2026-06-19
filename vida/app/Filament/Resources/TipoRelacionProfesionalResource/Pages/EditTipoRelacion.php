@@ -9,6 +9,9 @@ use Filament\Resources\Pages\EditRecord;
 /**
  * Página de edición de tipos de relación profesional.
  */
+/**
+ * Página de edición de tipos de relación profesional.
+ */
 class EditTipoRelacion extends EditRecord
 {
     protected static string $resource = TipoRelacionProfesionalResource::class;

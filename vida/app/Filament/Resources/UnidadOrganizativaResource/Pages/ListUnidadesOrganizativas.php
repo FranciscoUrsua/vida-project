@@ -9,6 +9,9 @@ use Filament\Actions;
 /**
  * Página de listado de unidades organizativas.
  */
+/**
+ * Página de listado de unidades organizativas.
+ */
 class ListUnidadesOrganizativas extends ListRecords
 {
     protected static string $resource = UnidadOrganizativaResource::class;

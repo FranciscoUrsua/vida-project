@@ -9,6 +9,9 @@ use Filament\Actions\CreateAction;
 /**
  * Página de listado de tipos de espacio.
  */
+/**
+ * Página de listado de tipos de espacio.
+ */
 class ListTiposEspacio extends ListRecords
 {
     protected static string $resource = TipoEspacioResource::class;

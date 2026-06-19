@@ -9,6 +9,9 @@ use Filament\Resources\Pages\EditRecord;
 /**
  * Página de edición de titulaciones.
  */
+/**
+ * Página de edición de titulaciones.
+ */
 class EditTitulacion extends EditRecord
 {
     protected static string $resource = TitulacionResource::class;

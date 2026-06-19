@@ -11,6 +11,9 @@ use Illuminate\Validation\ValidationException;
 /**
  * Página de creación de tipos de ficha.
  */
+/**
+ * Página de creación de tipos de ficha.
+ */
 class CreateTipoFicha extends CreateRecord
 {
     protected static string $resource = TipoFichaResource::class;

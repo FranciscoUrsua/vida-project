@@ -22,6 +22,9 @@ use Modules\Agenda\Models\TipoSlot;
 /**
  * Recurso Filament para la gestión de tipos de slot.
  */
+/**
+ * Recurso Filament para la gestión de tipos de slot.
+ */
 class TipoSlotResource extends Resource
 {
     use AutorizaGestion;

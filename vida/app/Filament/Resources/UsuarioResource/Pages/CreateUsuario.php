@@ -8,6 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 /**
  * Página de creación de usuarios.
  */
+/**
+ * Página de creación de usuarios.
+ */
 class CreateUsuario extends CreateRecord
 {
     protected static string $resource = UsuarioResource::class;

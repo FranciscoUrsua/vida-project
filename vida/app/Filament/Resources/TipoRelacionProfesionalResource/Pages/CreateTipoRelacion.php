@@ -8,6 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 /**
  * Página de creación de tipos de relación profesional.
  */
+/**
+ * Página de creación de tipos de relación profesional.
+ */
 class CreateTipoRelacion extends CreateRecord
 {
     protected static string $resource = TipoRelacionProfesionalResource::class;

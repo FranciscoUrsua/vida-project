@@ -13,6 +13,9 @@ use Modules\Intervencion\Models\TipoFicha;
 /**
  * Página de edición de tipos de ficha.
  */
+/**
+ * Página de edición de tipos de ficha.
+ */
 class EditTipoFicha extends EditRecord
 {
     protected static string $resource = TipoFichaResource::class;

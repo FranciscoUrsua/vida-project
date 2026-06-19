@@ -9,6 +9,9 @@ use Filament\Actions;
 /**
  * Página de listado de tipos de relación profesional.
  */
+/**
+ * Página de listado de tipos de relación profesional.
+ */
 class ListTiposRelacion extends ListRecords
 {
     protected static string $resource = TipoRelacionProfesionalResource::class;

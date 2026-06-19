@@ -19,6 +19,9 @@ use Modules\Centro\Models\TipoEspacio;
 /**
  * Recurso Filament para la gestión de tipos de espacio.
  */
+/**
+ * Recurso Filament para la gestión de tipos de espacio.
+ */
 class TipoEspacioResource extends Resource
 {
     use AutorizaGestion;

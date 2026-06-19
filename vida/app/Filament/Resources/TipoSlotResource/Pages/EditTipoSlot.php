@@ -9,6 +9,9 @@ use Filament\Resources\Pages\EditRecord;
 /**
  * Página de edición de tipos de slot.
  */
+/**
+ * Página de edición de tipos de slot.
+ */
 class EditTipoSlot extends EditRecord
 {
     protected static string $resource = TipoSlotResource::class;

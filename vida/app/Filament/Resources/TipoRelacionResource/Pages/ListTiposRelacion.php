@@ -9,6 +9,9 @@ use Filament\Actions;
 /**
  * Página de listado de tipos de relación.
  */
+/**
+ * Página de listado de tipos de relación.
+ */
 class ListTiposRelacion extends ListRecords
 {
     protected static string $resource = TipoRelacionResource::class;

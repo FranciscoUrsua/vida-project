@@ -1,13 +1,13 @@
 # Documentacion de codigo PHP
 
-Generado el 2026-06-18 15:37:41 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
+Generado el 2026-06-19 14:03:54 UTC a partir de los docblocks PHPDoc compatibles con PHODoc.
 
 ## Resumen
 
 - Ambito: `vida/app` y `vida/Modules/*/app`.
-- Simbolos escaneados: 385.
-- Cabeceras documentadas: 385/385.
-- Metodos publicos documentados: 997/1043.
+- Simbolos escaneados: 387.
+- Cabeceras documentadas: 387/387.
+- Metodos publicos documentados: 1031/1077.
 - Alertas de comentarios: 0.
 
 ## Alertas
@@ -2151,6 +2151,9 @@ Metodos publicos:
 - `function pisoActivo(): ?PlanDeIntervencion`
   Plan general ASP activo más reciente de la Historia Social.
   `@return` PlanDeIntervencion|null
+- `function planActivo(): ?PlanDeIntervencion`
+  Plan de intervención vigente (cualquier estado no cerrado) para navegar a PlanPage.
+  `@return` PlanDeIntervencion|null
 - `function tiposFicha(): Collection`
   Tipos de ficha disponibles para la herramienta de Valoración.
   `@return` Collection<int, TipoFicha>
@@ -2340,6 +2343,98 @@ Metodos publicos:
   Renderiza la bandeja de casos del profesional.
   `@return` View
 
+### `Modules\Intervencion\Http\Livewire\PlanPage`
+
+- Tipo: class.
+- Fichero: `vida/Modules/Intervencion/app/Http/Livewire/PlanPage.php:43`.
+- Resumen: Página completa del Plan de Intervención Social (PISO).
+
+Gestiona diagnóstico, objetivos, actuaciones, participantes, firmas y generación de PDF. Requiere motivo explícito para cualquier cambio sobre un plan ya firmado (estado activo).
+
+Metodos publicos:
+
+- `function mount(?PlanDeIntervencion $plan = null, ?int $historia = null, ?int $uc = null): void`
+  Inicializa el componente con el plan si se accede en modo edición, o prepara el estado para creación si no hay plan.
+  `@return` void
+- `function ciudadano(): ?\Modules\Ciudadania\Models\Ciudadano`
+  Ciudadano titular de la historia social del plan.
+  `@return` \Modules\Ciudadania\Models\Ciudadano|null
+- `function ucVigente(): ?\Modules\Ciudadania\Models\UnidadConvivencia`
+  Unidad de convivencia vigente del ciudadano o la del plan.
+  `@return` \Modules\Ciudadania\Models\UnidadConvivencia|null
+- `function miembrosUc(): \Illuminate\Support\Collection`
+  Miembros activos de la unidad de convivencia con relación y verificación.
+  `@return` \Illuminate\Support\Collection
+- `function fichasDiagnostico(): \Illuminate\Support\Collection`
+  Fichas de valoración incluidas en el diagnóstico del plan.
+  `@return` \Illuminate\Support\Collection
+- `function objetivosGenerales(): \Illuminate\Support\Collection`
+  Objetivos generales del plan con sus específicos anidados.
+  `@return` \Illuminate\Support\Collection
+- `function actuacionesAyuntamiento(): \Illuminate\Support\Collection`
+  Actuaciones del Ayuntamiento en el plan.
+  `@return` \Illuminate\Support\Collection
+- `function actuacionesCiudadano(): \Illuminate\Support\Collection`
+  Compromisos del ciudadano en el plan.
+  `@return` \Illuminate\Support\Collection
+- `function participantes(): \Illuminate\Support\Collection`
+  Profesionales participantes en el plan.
+  `@return` \Illuminate\Support\Collection
+- `function puedeActivarse(): bool`
+  Indica si el plan puede activarse (ambas firmas marcadas y en borrador).
+  `@return` bool
+- `function planFirmado(): bool`
+  Indica si el plan está en estado activo (firmado y vigente).
+  `@return` bool
+- `function valoracionesTimeline(): \Illuminate\Support\Collection`
+  Valoraciones del historial de la historia social, filtradas por fecha.
+  `@return` \Illuminate\Support\Collection
+- `function planNombreCorto(): string`
+  Nombre corto del plan según la configuración de la UO del profesional.
+  `@return` string
+- `function abrirDrawer(): void`
+  Abre el drawer de selección de fichas del historial.
+  `@return` void
+- `function cerrarDrawer(): void`
+  Cierra el drawer de selección de fichas.
+  `@return` void
+- `function aplicarSeleccionFichas(array $fichasNuevas): void`
+  Aplica la selección de fichas del drawer al diagnóstico del plan. Pide motivo si el plan ya está firmado.
+  `@return` void
+- `function eliminarFichaDiagnostico(int $fichaId): void`
+  Elimina una ficha del diagnóstico. Pide motivo si el plan está firmado.
+  `@return` void
+- `function guardarDiagnostico(): void`
+  Guarda el texto de síntesis del diagnóstico social. Si el plan está firmado, abre el modal de motivo.
+  `@return` void
+- `function guardarSeguimiento(): void`
+  Guarda la periodicidad y observaciones del seguimiento. Si el plan está firmado, abre el modal de motivo.
+  `@return` void
+- `function marcarFirmaProfesional(bool $valor): void`
+  Registra o revoca la firma del profesional responsable.
+  `@return` void
+- `function marcarFirmaCiudadano(bool $valor): void`
+  Registra o revoca la firma del ciudadano.
+  `@return` void
+- `function guardarFechaFirma(): void`
+  Guarda la fecha de la firma presencial en el registro de firmas.
+  `@return` void
+- `function activarPlan(): void`
+  Activa el plan cuando ambas firmas están marcadas.
+  `@return` void
+- `function confirmarCambioConMotivo(): void`
+  Confirma el cambio con motivo, registra en historial y ejecuta la acción.
+  `@return` void
+- `function cancelarCambio(): void`
+  Cancela el cambio pendiente y cierra el modal sin persistir.
+  `@return` void
+- `function generarPdf(): StreamedResponse`
+  Genera y descarga el PDF del plan de intervención.
+  `@return` StreamedResponse
+- `function render(): View`
+  Renderiza la vista del plan de intervención con el layout operativo.
+  `@return` View
+
 ### `Modules\Intervencion\Http\Livewire\RegistrarEscalaPage`
 
 - Tipo: class.
@@ -2525,16 +2620,19 @@ Metodos publicos:
 ### `Modules\Intervencion\Models\FirmaPlan`
 
 - Tipo: class.
-- Fichero: `vida/Modules/Intervencion/app/Models/FirmaPlan.php:24`.
+- Fichero: `vida/Modules/Intervencion/app/Models/FirmaPlan.php:28`.
 - Resumen: Firma de una versión concreta de un Plan de Intervención.
 
-Registra las firmas del ciudadano y del profesional responsable. Cada revisión que requiere nueva firma genera un nuevo registro. Un plan no puede activarse sin firma de ambas partes.
+Registra mediante booleanos si el profesional y el ciudadano han firmado en papel. El plan no puede activarse sin ambos booleanos en true. Cada revisión que requiere nueva firma genera un nuevo registro.
 
 Metodos publicos:
 
 - `function plan(): BelongsTo`
   _Sin resumen PHPDoc._
   `@return` BelongsTo<PlanDeIntervencion, FirmaPlan>
+- `function estaCompleta(): bool`
+  La firma está completa cuando ambas partes han firmado en papel.
+  `@return` bool
 
 ### `Modules\Intervencion\Models\ObjetivoCatalogo`
 
@@ -2681,6 +2779,9 @@ Metodos publicos:
 - `function participantesActivos(): HasMany`
   Solo los participantes activos (sin fecha_fin).
   `@return` HasMany<PlanParticipante>
+- `function fichasDiagnostico(): HasMany`
+  Fichas de valoración incluidas en el diagnóstico social del plan.
+  `@return` HasMany<PlanFichaDiagnostico>
 - `function cambios(): HasMany`
   Historial de cambios del plan, más reciente primero.
   `@return` HasMany<PlanCambio>
@@ -2690,6 +2791,21 @@ Metodos publicos:
 - `function scopeActivos(Builder $query): Builder`
   Solo planes activos.
   `@return` Builder<PlanDeIntervencion>
+
+### `Modules\Intervencion\Models\PlanFichaDiagnostico`
+
+- Tipo: class.
+- Fichero: `vida/Modules/Intervencion/app/Models/PlanFichaDiagnostico.php:17`.
+- Resumen: Pivote entre un Plan de Intervención y las fichas de valoración incluidas como evidencia en su diagnóstico social.
+
+Metodos publicos:
+
+- `function ficha(): BelongsTo`
+  Ficha de valoración incluida en el diagnóstico.
+  `@return` BelongsTo<Ficha, self>
+- `function plan(): BelongsTo`
+  Plan al que pertenece esta asociación de ficha.
+  `@return` BelongsTo<PlanDeIntervencion, self>
 
 ### `Modules\Intervencion\Models\PlanObjetivo`
 
@@ -4048,6 +4164,12 @@ Metodos publicos:
 - `function rolesPendientes(): HasMany`
   Registros de rol pendientes de aprobación.
   `@return` HasMany<UsuarioRol>
+- `function tieneRolVigente(string $rolNombre): bool`
+  Comprueba si el usuario tiene activo el rol indicado según el historial de VIDA (no solo Spatie).
+  `@return` bool
+- `function tienePermiso(string $permiso): bool`
+  Comprueba si el usuario tiene el permiso indicado a través de alguno de sus roles vigentes en Spatie.
+  `@return` bool
 
 ### `Modules\Usuarios\Traits\TieneUO`
 
@@ -5390,7 +5512,7 @@ Metodos publicos:
 ### `App\Filament\Resources\TipoEspacioResource`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoEspacioResource.php:22`.
+- Fichero: `vida/app/Filament/Resources/TipoEspacioResource.php:25`.
 - Resumen: Recurso Filament para la gestión de tipos de espacio.
 
 Metodos publicos:
@@ -5408,19 +5530,19 @@ Metodos publicos:
 ### `App\Filament\Resources\TipoEspacioResource\Pages\CreateTipoEspacio`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoEspacioResource/Pages/CreateTipoEspacio.php:11`.
+- Fichero: `vida/app/Filament/Resources/TipoEspacioResource/Pages/CreateTipoEspacio.php:14`.
 - Resumen: Página de creación de tipos de espacio.
 
 ### `App\Filament\Resources\TipoEspacioResource\Pages\EditTipoEspacio`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoEspacioResource/Pages/EditTipoEspacio.php:11`.
+- Fichero: `vida/app/Filament/Resources/TipoEspacioResource/Pages/EditTipoEspacio.php:14`.
 - Resumen: Página de edición de tipos de espacio.
 
 ### `App\Filament\Resources\TipoEspacioResource\Pages\ListTiposEspacio`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoEspacioResource/Pages/ListTiposEspacio.php:12`.
+- Fichero: `vida/app/Filament/Resources/TipoEspacioResource/Pages/ListTiposEspacio.php:15`.
 - Resumen: Página de listado de tipos de espacio.
 
 ### `App\Filament\Resources\TipoFichaResource`
@@ -5449,19 +5571,19 @@ Metodos publicos:
 ### `App\Filament\Resources\TipoFichaResource\Pages\CreateTipoFicha`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoFichaResource/Pages/CreateTipoFicha.php:14`.
+- Fichero: `vida/app/Filament/Resources/TipoFichaResource/Pages/CreateTipoFicha.php:17`.
 - Resumen: Página de creación de tipos de ficha.
 
 ### `App\Filament\Resources\TipoFichaResource\Pages\EditTipoFicha`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoFichaResource/Pages/EditTipoFicha.php:16`.
+- Fichero: `vida/app/Filament/Resources/TipoFichaResource/Pages/EditTipoFicha.php:19`.
 - Resumen: Página de edición de tipos de ficha.
 
 ### `App\Filament\Resources\TipoFichaResource\Pages\ListTipoFichas`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoFichaResource/Pages/ListTipoFichas.php:12`.
+- Fichero: `vida/app/Filament/Resources/TipoFichaResource/Pages/ListTipoFichas.php:15`.
 - Resumen: Página de listado de tipos de ficha.
 
 ### `App\Filament\Resources\TipoPlanResource`
@@ -5545,19 +5667,19 @@ Metodos publicos:
 ### `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\CreateTipoRelacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/CreateTipoRelacion.php:11`.
+- Fichero: `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/CreateTipoRelacion.php:14`.
 - Resumen: Página de creación de tipos de relación profesional.
 
 ### `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\EditTipoRelacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/EditTipoRelacion.php:12`.
+- Fichero: `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/EditTipoRelacion.php:15`.
 - Resumen: Página de edición de tipos de relación profesional.
 
 ### `App\Filament\Resources\TipoRelacionProfesionalResource\Pages\ListTiposRelacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/ListTiposRelacion.php:12`.
+- Fichero: `vida/app/Filament/Resources/TipoRelacionProfesionalResource/Pages/ListTiposRelacion.php:15`.
 - Resumen: Página de listado de tipos de relación profesional.
 
 ### `App\Filament\Resources\TipoRelacionResource`
@@ -5595,25 +5717,25 @@ Metodos publicos:
 ### `App\Filament\Resources\TipoRelacionResource\Pages\CreateTipoRelacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoRelacionResource/Pages/CreateTipoRelacion.php:11`.
+- Fichero: `vida/app/Filament/Resources/TipoRelacionResource/Pages/CreateTipoRelacion.php:14`.
 - Resumen: Página de creación de tipos de relación.
 
 ### `App\Filament\Resources\TipoRelacionResource\Pages\EditTipoRelacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoRelacionResource/Pages/EditTipoRelacion.php:12`.
+- Fichero: `vida/app/Filament/Resources/TipoRelacionResource/Pages/EditTipoRelacion.php:15`.
 - Resumen: Página de edición de tipos de relación.
 
 ### `App\Filament\Resources\TipoRelacionResource\Pages\ListTiposRelacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoRelacionResource/Pages/ListTiposRelacion.php:12`.
+- Fichero: `vida/app/Filament/Resources/TipoRelacionResource/Pages/ListTiposRelacion.php:15`.
 - Resumen: Página de listado de tipos de relación.
 
 ### `App\Filament\Resources\TipoSlotResource`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoSlotResource.php:25`.
+- Fichero: `vida/app/Filament/Resources/TipoSlotResource.php:28`.
 - Resumen: Recurso Filament para la gestión de tipos de slot.
 
 Metodos publicos:
@@ -5631,19 +5753,19 @@ Metodos publicos:
 ### `App\Filament\Resources\TipoSlotResource\Pages\CreateTipoSlot`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoSlotResource/Pages/CreateTipoSlot.php:11`.
+- Fichero: `vida/app/Filament/Resources/TipoSlotResource/Pages/CreateTipoSlot.php:14`.
 - Resumen: Página de creación de tipos de slot.
 
 ### `App\Filament\Resources\TipoSlotResource\Pages\EditTipoSlot`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoSlotResource/Pages/EditTipoSlot.php:12`.
+- Fichero: `vida/app/Filament/Resources/TipoSlotResource/Pages/EditTipoSlot.php:15`.
 - Resumen: Página de edición de tipos de slot.
 
 ### `App\Filament\Resources\TipoSlotResource\Pages\ListTiposSlot`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TipoSlotResource/Pages/ListTiposSlot.php:12`.
+- Fichero: `vida/app/Filament/Resources/TipoSlotResource/Pages/ListTiposSlot.php:15`.
 - Resumen: Página de listado de tipos de slot.
 
 ### `App\Filament\Resources\TitulacionResource`
@@ -5669,19 +5791,19 @@ Metodos publicos:
 ### `App\Filament\Resources\TitulacionResource\Pages\CreateTitulacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TitulacionResource/Pages/CreateTitulacion.php:11`.
+- Fichero: `vida/app/Filament/Resources/TitulacionResource/Pages/CreateTitulacion.php:14`.
 - Resumen: Página de creación de titulaciones.
 
 ### `App\Filament\Resources\TitulacionResource\Pages\EditTitulacion`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TitulacionResource/Pages/EditTitulacion.php:12`.
+- Fichero: `vida/app/Filament/Resources/TitulacionResource/Pages/EditTitulacion.php:15`.
 - Resumen: Página de edición de titulaciones.
 
 ### `App\Filament\Resources\TitulacionResource\Pages\ListTitulaciones`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/TitulacionResource/Pages/ListTitulaciones.php:12`.
+- Fichero: `vida/app/Filament/Resources/TitulacionResource/Pages/ListTitulaciones.php:15`.
 - Resumen: Página de listado de titulaciones.
 
 ### `App\Filament\Resources\UnidadOrganizativaResource`
@@ -5707,19 +5829,19 @@ Metodos publicos:
 ### `App\Filament\Resources\UnidadOrganizativaResource\Pages\CreateUnidadOrganizativa`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/CreateUnidadOrganizativa.php:11`.
+- Fichero: `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/CreateUnidadOrganizativa.php:14`.
 - Resumen: Página de creación de unidades organizativas.
 
 ### `App\Filament\Resources\UnidadOrganizativaResource\Pages\EditUnidadOrganizativa`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/EditUnidadOrganizativa.php:12`.
+- Fichero: `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/EditUnidadOrganizativa.php:15`.
 - Resumen: Página de edición de unidades organizativas.
 
 ### `App\Filament\Resources\UnidadOrganizativaResource\Pages\ListUnidadesOrganizativas`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/ListUnidadesOrganizativas.php:12`.
+- Fichero: `vida/app/Filament/Resources/UnidadOrganizativaResource/Pages/ListUnidadesOrganizativas.php:15`.
 - Resumen: Página de listado de unidades organizativas.
 
 ### `App\Filament\Resources\UsuarioResource`
@@ -5757,13 +5879,13 @@ Metodos publicos:
 ### `App\Filament\Resources\UsuarioResource\Pages\CreateUsuario`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/UsuarioResource/Pages/CreateUsuario.php:11`.
+- Fichero: `vida/app/Filament/Resources/UsuarioResource/Pages/CreateUsuario.php:14`.
 - Resumen: Página de creación de usuarios.
 
 ### `App\Filament\Resources\UsuarioResource\Pages\EditUsuario`
 
 - Tipo: class.
-- Fichero: `vida/app/Filament/Resources/UsuarioResource/Pages/EditUsuario.php:12`.
+- Fichero: `vida/app/Filament/Resources/UsuarioResource/Pages/EditUsuario.php:15`.
 - Resumen: Página de edición de usuarios.
 
 ### `App\Filament\Resources\UsuarioResource\Pages\ListUsuarios`

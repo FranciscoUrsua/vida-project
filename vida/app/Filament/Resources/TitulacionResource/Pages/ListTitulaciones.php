@@ -9,6 +9,9 @@ use Filament\Actions;
 /**
  * Página de listado de titulaciones.
  */
+/**
+ * Página de listado de titulaciones.
+ */
 class ListTitulaciones extends ListRecords
 {
     protected static string $resource = TitulacionResource::class;

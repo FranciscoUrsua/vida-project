@@ -9,6 +9,9 @@ use Filament\Resources\Pages\EditRecord;
 /**
  * Página de edición de unidades organizativas.
  */
+/**
+ * Página de edición de unidades organizativas.
+ */
 class EditUnidadOrganizativa extends EditRecord
 {
     protected static string $resource = UnidadOrganizativaResource::class;

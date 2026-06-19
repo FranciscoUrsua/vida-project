@@ -8,6 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 /**
  * Página de creación de titulaciones.
  */
+/**
+ * Página de creación de titulaciones.
+ */
 class CreateTitulacion extends CreateRecord
 {
     protected static string $resource = TitulacionResource::class;
