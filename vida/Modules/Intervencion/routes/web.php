@@ -21,12 +21,10 @@ use Modules\Mensajes\Http\Livewire\BuzonPage;
 |
 */
 
-Route::middleware(['web', 'auth', 'primer.acceso'])->group(function () {
-    Route::get('/intervencion/plan/crear', PlanPage::class)->name('plan.crear');
-    Route::get('/intervencion/plan/{plan}', PlanPage::class)->name('plan.show');
-});
-
 Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion'])->prefix('intervencion')->name('intervencion.')->group(function () {
+    Route::get('/plan/crear', PlanPage::class)->name('plan.crear');
+    Route::get('/plan/{plan}', PlanPage::class)->name('plan.show');
+
     Route::get('/', fn () => redirect()->route('intervencion.agenda.index'));
     Route::get('/agenda', AgendaPage::class)->name('agenda.index');
     Route::get('/casos', MisCasosPage::class)->name('casos.index');
