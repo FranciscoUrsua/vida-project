@@ -47,7 +47,9 @@ use Modules\Intervencion\Models\Apunte;
  */
 class Cita extends Model
 {
+    /** @use HasFactory<CitaFactory> */
     use HasFactory;
+
     use SoftDeletes;
 
     protected static function newFactory(): CitaFactory
@@ -69,7 +71,7 @@ class Cita extends Model
     /**
      * Slot reservado por la cita.
      *
-     * @return BelongsTo<Slot, self>
+     * @return BelongsTo<Slot, $this>
      */
     public function slot(): BelongsTo
     {
@@ -79,7 +81,7 @@ class Cita extends Model
     /**
      * Ciudadano atendido en la cita.
      *
-     * @return BelongsTo<Ciudadano, self>
+     * @return BelongsTo<Ciudadano, $this>
      */
     public function ciudadano(): BelongsTo
     {
@@ -89,7 +91,7 @@ class Cita extends Model
     /**
      * Profesional asignado a la cita.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function profesional(): BelongsTo
     {
@@ -99,7 +101,7 @@ class Cita extends Model
     /**
      * Tipo de slot reservado para la cita.
      *
-     * @return BelongsTo<TipoSlot, self>
+     * @return BelongsTo<TipoSlot, $this>
      */
     public function tipoSlot(): BelongsTo
     {
@@ -109,7 +111,7 @@ class Cita extends Model
     /**
      * Centro donde se presta la cita.
      *
-     * @return BelongsTo<Centro, self>
+     * @return BelongsTo<Centro, $this>
      */
     public function centro(): BelongsTo
     {
@@ -119,7 +121,7 @@ class Cita extends Model
     /**
      * Usuario que creó la cita.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function creadoPor(): BelongsTo
     {
@@ -129,7 +131,7 @@ class Cita extends Model
     /**
      * Usuario que canceló la cita.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function canceladoPor(): BelongsTo
     {
@@ -139,7 +141,7 @@ class Cita extends Model
     /**
      * Reasignación asociada a la cita, si existe.
      *
-     * @return HasOne<ReasignacionCita>
+     * @return HasOne<ReasignacionCita, $this>
      */
     public function reasignacion(): HasOne
     {
@@ -162,7 +164,7 @@ class Cita extends Model
      * Filtra citas de una fecha concreta.
      *
      * @param Builder<Cita> $query
-     * @param mixed $fecha
+     * @param Carbon|string $fecha
      *
      * @return Builder<Cita>
      */
@@ -270,7 +272,7 @@ class Cita extends Model
      *
      * Permite detectar apuntes existentes antes de una cancelación retroactiva.
      *
-     * @return MorphMany<Apunte>
+     * @return MorphMany<Apunte, $this>
      */
     public function apuntes(): MorphMany
     {
