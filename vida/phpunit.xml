@@ -19,6 +19,7 @@
             <directory>Modules/Intervencion/tests/Feature</directory>
             <directory>Modules/Escalas/tests/Feature</directory>
             <directory>Modules/Ciudadania/tests/Feature</directory>
+            <directory>Modules/Atencion/tests/Feature</directory>
         </testsuite>
     </testsuites>
     <source>

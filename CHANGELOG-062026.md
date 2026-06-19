@@ -4,6 +4,46 @@
 
 ---
 
+## 2026-06-19 — Módulo Atención: RegistroAtencion fase 1
+
+### Módulo nuevo
+- `Modules/Atencion/` creado con estructura completa (Provider, modelo, policy, factory, migración, tests)
+- Registrado en `bootstrap/providers.php`, `composer.json` y `phpunit.xml`
+
+### Base de datos
+- Migración `2026_06_16_000020_create_registros_atencion_table` — tabla `registros_atencion` con FK a ciudadanos, users, prestaciones, citas; índices en `ciudadano_id`, `profesional_id`, `(origen_tipo, origen_id)`, `(ciudadano_id, fecha)`
+
+### Modelos
+- `RegistroAtencion` — tipos `informacion` / `actividad` / `contacto`; reglas en `booted()` (tipo info requiere profesional, tipo actividad requiere origen); métodos `resumenHistorial()` y `crearDesdeOrigen()`
+- `App\Models\Ciudadano` — añadidas relaciones `registrosAtencion()` y `ultimaAtencion()`
+
+### Policy
+- `RegistroAtencionPolicy` — métodos `create()`, `view()`, `viewAny()` con permisos atómicos
+
+### Seeders
+- `PermisosSeeder` — añadidos `atencion.crear`, `atencion.leer`, `atencion.leer_ajeno` (34 permisos total)
+- `RolesSeeder` — permisos asignados: `intervencion` (3), `consulta_basica` (crear+leer), `supervision` (leer+leer_ajeno), `tramitacion` (leer)
+
+### Livewire / UI
+- `FichaCiudadanoPage` — nuevas propiedades de modal, computeds `historialAtenciones()`, `puedeAbrirHistoria()`, `puedeCrearAtencion()`; métodos `abrirHistoriaSocial()`, `abrirModalAtencion()`, `cerrarModalAtencion()`, `guardarAtencion()`
+- `ficha-ciudadano-page.blade.php` — botones "Nueva atención" / "Abrir historia social" / "Ver historia social" en cabecera; sección historial de atenciones; modal de nueva atención
+- `app-operativo.css` — ~160 líneas de CSS para historial, botones ficha y modal atención
+
+### Tests
+- `RegistroAtencionTest` — 8 tests TF-AT-01 a TF-AT-08, todos en verde
+- `FichaAtencionTest` — 11 tests TF-LW-AT-01 a TF-LW-AT-11, todos en verde
+- Sin regresiones en Ciudadania (99 tests en verde)
+
+### Decisiones de implementación
+- `RegistroAtencion::newFactory()` sobreescrito para apuntar a `Modules\Atencion\Database\Factories\RegistroAtencionFactory` (Laravel no resuelve factories de módulos automáticamente)
+- `Ciudadano` referenciado como `App\Models\Ciudadano` (no `Modules\Ciudadania\Models\Ciudadano`) porque el stub del modelo vive en `app/`
+- `abrirHistoriaSocial()` usa `uosActivas()->first()` (el trait `TieneUO` no tiene `unidadOrganizativaActiva()`)
+- Route `intervencion.ciudadano.show` espera `{historia}` (ID de HistoriaSocial), no `{ciudadano}`
+- Tests de Livewire requieren seed de PermisosSeeder + RolesSeeder en `setUp()`
+- Queries a `HistoriaSocial` en tests con `withoutGlobalScopes()` para evitar `AmbitoUoScope`
+
+---
+
 ## feat(intervencion): PlanPage — UI completa del Plan de Intervención — 2026-06-19
 
 ### Área afectada

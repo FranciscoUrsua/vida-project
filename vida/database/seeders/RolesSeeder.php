@@ -85,6 +85,8 @@ class RolesSeeder extends Seeder
             'plan.leer',
             'trazabilidad.consultar',
             'colectivo_protegido.aprobar_acceso',
+            'atencion.leer',
+            'atencion.leer_ajeno',
         ],
 
         // -----------------------------------------------------------------
@@ -123,6 +125,9 @@ class RolesSeeder extends Seeder
             'plan.editar',
             'prestacion.asignar',
             'colectivo_protegido.solicitar_acceso',
+            'atencion.crear',
+            'atencion.leer',
+            'atencion.leer_ajeno',
         ],
 
         // -----------------------------------------------------------------
@@ -140,6 +145,7 @@ class RolesSeeder extends Seeder
             'historia.crear',
             'historia.cerrar',
             'prestacion.asignar',
+            'atencion.leer',
         ],
 
         // -----------------------------------------------------------------
@@ -162,8 +168,11 @@ class RolesSeeder extends Seeder
         // -----------------------------------------------------------------
         'consulta_basica' => [
             'ciudadano.ver_ficha',
+            'ciudadano.ver_datos_contacto',
             'ciudadano.leer',
             'ciudadano.editar',  // Modificar datos de identificación básicos
+            'atencion.crear',
+            'atencion.leer',
         ],
     ];
 

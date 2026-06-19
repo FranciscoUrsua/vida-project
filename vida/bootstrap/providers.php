@@ -8,6 +8,7 @@ use Modules\Centro\Providers\CentroServiceProvider;
 use Modules\Ciudadania\Providers\CiudadaniaServiceProvider;
 use Modules\Documentos\Providers\DocumentosServiceProvider;
 use Modules\Escalas\Providers\EscalasServiceProvider;
+use Modules\Atencion\Providers\AtencionServiceProvider;
 use Modules\Intervencion\Providers\IntervencionServiceProvider;
 use Modules\Mensajes\Providers\MensajesServiceProvider;
 use Modules\Organizacion\Providers\OrganizacionServiceProvider;
@@ -26,6 +27,7 @@ return [
     DocumentosServiceProvider::class,
     CiudadaniaServiceProvider::class,
     IntervencionServiceProvider::class,
+    AtencionServiceProvider::class,
     EscalasServiceProvider::class,
     GeocodificacionServiceProvider::class,
 ];

@@ -99,6 +99,13 @@ class PermisosSeeder extends Seeder
         // -----------------------------------------------------------------
         ['colectivo_protegido.solicitar_acceso', 'Solicitar acceso a Historia de ciudadano especialmente protegido'],
         ['colectivo_protegido.aprobar_acceso',   'Aprobar o denegar solicitudes de acceso a ciudadanos protegidos'],
+
+        // -----------------------------------------------------------------
+        // Registro de Atención
+        // -----------------------------------------------------------------
+        ['atencion.crear',      'Crear un Registro de Atención'],
+        ['atencion.leer',       'Consultar el historial de atenciones de un ciudadano'],
+        ['atencion.leer_ajeno', 'Ver atenciones registradas por otros profesionales fuera de la propia UO'],
     ];
 
     /**

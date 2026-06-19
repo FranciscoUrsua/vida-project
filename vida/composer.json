@@ -88,6 +88,10 @@
             "Modules\\Ciudadania\\Database\\Migrations\\": "Modules/Ciudadania/database/migrations/",
             "Modules\\Ciudadania\\Database\\Factories\\": "Modules/Ciudadania/database/factories/",
             "Modules\\Ciudadania\\Database\\Seeders\\": "Modules/Ciudadania/database/seeders/",
+            "Modules\\Atencion\\": "Modules/Atencion/app/",
+            "Modules\\Atencion\\Database\\": "Modules/Atencion/database/",
+            "Modules\\Atencion\\Database\\Migrations\\": "Modules/Atencion/database/migrations/",
+            "Modules\\Atencion\\Database\\Factories\\": "Modules/Atencion/database/factories/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
@@ -102,7 +106,8 @@
             "Modules\\Centro\\Tests\\": "Modules/Centro/tests/",
             "Modules\\Intervencion\\Tests\\": "Modules/Intervencion/tests/",
             "Modules\\Escalas\\Tests\\": "Modules/Escalas/tests/",
-        "Modules\\Ciudadania\\Tests\\": "Modules/Ciudadania/tests/"
+        "Modules\\Ciudadania\\Tests\\": "Modules/Ciudadania/tests/",
+            "Modules\\Atencion\\Tests\\": "Modules/Atencion/tests/"
         }
     },
     "scripts": {

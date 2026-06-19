@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Modules\Ciudadania\Models\CiudadanoPrestacionResumen;
@@ -218,6 +219,29 @@ class Ciudadano extends Model
     {
         return $this->unidadesConvivencia()
             ->wherePivotNull('fecha_fin');
+    }
+
+    /**
+     * Historial completo de atenciones, ordenado por fecha descendente.
+     *
+     * @return HasMany<\Modules\Atencion\Models\RegistroAtencion>
+     */
+    public function registrosAtencion(): HasMany
+    {
+        return $this->hasMany(\Modules\Atencion\Models\RegistroAtencion::class, 'ciudadano_id')
+            ->orderByDesc('fecha')
+            ->orderByDesc('created_at');
+    }
+
+    /**
+     * Última atención recibida por el ciudadano.
+     *
+     * @return HasOne<\Modules\Atencion\Models\RegistroAtencion>
+     */
+    public function ultimaAtencion(): HasOne
+    {
+        return $this->hasOne(\Modules\Atencion\Models\RegistroAtencion::class, 'ciudadano_id')
+            ->latestOfMany('fecha');
     }
 
     /**

@@ -6,5 +6,6 @@
     "Mensajes": true,
     "Agenda": true,
     "Documentos": true,
-    "Intervencion": true
+    "Intervencion": true,
+    "Atencion": true
 }

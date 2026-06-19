@@ -1,0 +1,11 @@
+{
+    "name": "Atencion",
+    "alias": "atencion",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Atencion\\Providers\\AtencionServiceProvider"
+    ],
+    "files": []
+}

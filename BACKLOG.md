@@ -335,3 +335,34 @@ seguimiento en la UI de CiudadanoPage, con evaluación de objetivos por estado
 y programación del siguiente seguimiento.
 
 ---
+
+**Código de Primera Atención (PA)** — 2026-06-19
+`Módulo: Atención`
+Pendiente decidir si RegistroAtencion necesita un identificador visible
+tipo "PA-2024-001234" para comunicar al ciudadano o para referencia interna.
+Ver sección 9 de docs/modulo-atencion.md.
+
+---
+
+**Tipo actividad en RegistroAtencion** — 2026-06-19
+`Módulo: Atención / Centro`
+El tipo actividad está definido en el modelo pero sin UI ni generación
+automática. Se activa al implementar el módulo Centro (inscripciones).
+La relación polimórfica `origen_tipo / origen_id` está preparada.
+
+---
+
+**Tipo contacto en RegistroAtencion** — 2026-06-19
+`Módulo: Atención`
+Definido en el modelo pero sin UI específica en fase 1. Se implementará
+cuando el módulo de Agenda esté operativo (llamadas de seguimiento).
+
+---
+
+**Generar cita desde RegistroAtencion** — 2026-06-19
+`Módulo: Atención / Agenda`
+El campo `cita_generada_id` existe en la tabla pero el formulario de nueva
+atención no permite crear la cita desde FichaCiudadanoPage aún. Se activará
+cuando el módulo Agenda exponga una API de creación de citas simplificada.
+
+---

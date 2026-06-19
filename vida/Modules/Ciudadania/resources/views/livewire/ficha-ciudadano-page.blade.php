@@ -57,7 +57,38 @@
         </div>
     </div>
 
-    <div style="display:flex;gap:.5rem;align-items:center;">
+    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+
+        {{-- Botones de atención e historia social --}}
+        @if($this->puedeCrearAtencion)
+        <button wire:click="abrirModalAtencion" type="button" class="ficha-btn">
+            <i data-lucide="message-square-plus" style="width:14px;height:14px" aria-hidden="true"></i>
+            Nueva atención
+        </button>
+        @endif
+
+        @if($this->puedeAbrirHistoria)
+        <button
+            wire:click="abrirHistoriaSocial"
+            wire:confirm="¿Abrir historia social para este ciudadano? Esta acción asignará la historia a tu UO."
+            type="button"
+            class="ficha-btn ficha-btn--primary"
+        >
+            <i data-lucide="folder-plus" style="width:14px;height:14px" aria-hidden="true"></i>
+            Abrir historia social
+        </button>
+        @elseif($historiaSocial && $puedeVerHS)
+        <a
+            wire:navigate
+            href="{{ route('intervencion.ciudadano.show', $historiaSocial) }}"
+            class="ficha-btn ficha-btn--primary"
+        >
+            <i data-lucide="folder-open" style="width:14px;height:14px" aria-hidden="true"></i>
+            Ver historia social
+        </a>
+        @endif
+
+        {{-- Botones de edición de datos --}}
         @if($modoEdicion)
             <button wire:click="guardar" type="button"
                 style="font-size:.82rem;padding:.35rem .9rem;border-radius:6px;border:none;cursor:pointer;
@@ -413,6 +444,74 @@
             </div>
             @endif
 
+            {{-- ——— Historial de atenciones ——— --}}
+            @if($this->historialAtenciones->isNotEmpty() || $this->puedeCrearAtencion)
+            <div class="ficha-section" id="ficha-atencion-historial" style="margin-bottom:1rem;">
+                <div class="ficha-section-header">
+                    <div class="ficha-section-title">
+                        <i data-lucide="history" style="width:14px;height:14px" aria-hidden="true"></i>
+                        Historial de atenciones
+                        <span class="ficha-count">{{ $this->historialAtenciones->count() }}</span>
+                    </div>
+                </div>
+
+                @forelse($this->historialAtenciones as $registro)
+                <div class="ficha-atencion-row" wire:key="ra-{{ $registro->id }}"
+                     x-data="{ expandido: false }">
+                    <div class="ficha-atencion-meta">
+                        <span class="ficha-atencion-fecha">{{ $registro->fecha->format('d/m/Y') }}</span>
+                        <span class="ficha-atencion-tipo ficha-atencion-tipo--{{ $registro->tipo }}">
+                            {{ match($registro->tipo) {
+                                'informacion' => 'Información',
+                                'actividad'   => 'Actividad',
+                                'contacto'    => 'Contacto',
+                                default       => $registro->tipo,
+                            } }}
+                        </span>
+                        @if($registro->profesional)
+                        <span class="ficha-atencion-prof">{{ $registro->profesional->name }}</span>
+                        @endif
+                        @if($registro->prestacion)
+                        <span class="ficha-atencion-prest">{{ $registro->prestacion->nombre }}</span>
+                        @endif
+                    </div>
+                    <div class="ficha-atencion-resumen">
+                        {{ $registro->resumenHistorial() }}
+                    </div>
+                    @if($registro->demanda || $registro->respuesta)
+                    <button
+                        class="ficha-atencion-ver"
+                        @click="expandido = !expandido"
+                        :aria-expanded="expandido"
+                        type="button"
+                    >
+                        <span x-text="expandido ? 'Ocultar' : 'Ver detalle'"></span>
+                        <i data-lucide="chevron-down" style="width:12px;height:12px"
+                           :style="expandido ? 'transform:rotate(180deg)' : ''"
+                           aria-hidden="true"></i>
+                    </button>
+                    <div class="ficha-atencion-detalle" x-show="expandido" x-cloak>
+                        @if($registro->demanda)
+                        <div class="ficha-atencion-campo">
+                            <div class="ficha-atencion-campo-label">Demanda</div>
+                            <div class="ficha-atencion-campo-valor">{{ $registro->demanda }}</div>
+                        </div>
+                        @endif
+                        @if($registro->respuesta)
+                        <div class="ficha-atencion-campo">
+                            <div class="ficha-atencion-campo-label">Respuesta</div>
+                            <div class="ficha-atencion-campo-valor">{{ $registro->respuesta }}</div>
+                        </div>
+                        @endif
+                    </div>
+                    @endif
+                </div>
+                @empty
+                <div class="ficha-atencion-vacia">Sin atenciones registradas.</div>
+                @endforelse
+            </div>
+            @endif
+
         </div>{{-- /col-lg-8 --}}
 
         {{-- ===================== COLUMNA LATERAL ===================== --}}
@@ -706,6 +805,90 @@
             </div>
         </div>
     </div>
+@endif
+
+{{-- ===== MODAL NUEVA ATENCIÓN ===== --}}
+@if($this->modalAtencionAbierto)
+<div
+    class="ficha-modal-overlay"
+    x-data
+    x-on:keydown.escape.window="$wire.cerrarModalAtencion()"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-atencion-titulo"
+>
+    <div class="ficha-modal">
+        <div class="ficha-modal-header">
+            <h2 id="modal-atencion-titulo" class="ficha-modal-titulo">Nueva atención</h2>
+            <button wire:click="cerrarModalAtencion" aria-label="Cerrar" class="ficha-modal-cerrar" type="button">
+                <i data-lucide="x" style="width:16px;height:16px" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <div class="ficha-modal-body">
+
+            <div class="ficha-field">
+                <label class="ficha-label" for="at-fecha">Fecha</label>
+                <input
+                    type="date"
+                    id="at-fecha"
+                    wire:model="atencionFecha"
+                    class="ficha-input"
+                    max="{{ now()->toDateString() }}"
+                >
+                @error('atencionFecha') <span class="ficha-error">{{ $message }}</span> @enderror
+            </div>
+
+            @if(! auth()->user()->hasRole('consulta_basica'))
+            <div class="ficha-field">
+                <label class="ficha-label">Tipo de atención</label>
+                <div class="ficha-radio-group">
+                    <label class="ficha-radio">
+                        <input type="radio" wire:model="atencionTipo" value="informacion">
+                        Información / orientación
+                    </label>
+                    <label class="ficha-radio">
+                        <input type="radio" wire:model="atencionTipo" value="contacto">
+                        Contacto (llamada, email…)
+                    </label>
+                </div>
+            </div>
+            @endif
+
+            <div class="ficha-field">
+                <label class="ficha-label" for="at-demanda">Demanda del ciudadano</label>
+                <textarea
+                    id="at-demanda"
+                    wire:model="atencionDemanda"
+                    class="ficha-textarea"
+                    rows="3"
+                    placeholder="Qué solicita o comunica el ciudadano…"
+                ></textarea>
+                @error('atencionDemanda') <span class="ficha-error">{{ $message }}</span> @enderror
+            </div>
+
+            <div class="ficha-field">
+                <label class="ficha-label" for="at-respuesta">Respuesta / actuación</label>
+                <textarea
+                    id="at-respuesta"
+                    wire:model="atencionRespuesta"
+                    class="ficha-textarea"
+                    rows="2"
+                    placeholder="Qué se le informa, orienta o tramita…"
+                ></textarea>
+            </div>
+
+        </div>
+
+        <div class="ficha-modal-footer">
+            <button wire:click="cerrarModalAtencion" class="ficha-btn" type="button">Cancelar</button>
+            <button wire:click="guardarAtencion" class="ficha-btn ficha-btn--primary" type="button">
+                <i data-lucide="check" style="width:13px;height:13px" aria-hidden="true"></i>
+                Guardar atención
+            </button>
+        </div>
+    </div>
+</div>
 @endif
 
 </div>

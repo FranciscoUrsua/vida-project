@@ -1294,3 +1294,150 @@ a.uc-modal__miembro-nombre:hover { text-decoration: underline; }
 
 .plan-exito { display: flex; align-items: center; gap: 6px; padding: 8px 20px; background: var(--color-success-bg); color: var(--color-success); font-size: 12px; border-bottom: 1px solid var(--color-border); }
 .plan-vacio { font-size: 13px; color: var(--color-text-secondary); font-style: italic; }
+
+/* ============================================================
+   HISTORIAL DE ATENCIONES EN FICHA CIUDADANO
+   ============================================================ */
+
+.ficha-acciones {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    padding: 10px 0;
+}
+
+.ficha-section {
+    border: 1px solid var(--color-border);
+    border-radius: 8px; overflow: hidden;
+    margin-top: 16px;
+}
+.ficha-section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--color-surface-alt);
+    border-bottom: 1px solid var(--color-border);
+}
+.ficha-section-title {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; color: var(--color-text-secondary);
+    text-transform: uppercase; letter-spacing: .05em;
+}
+.ficha-count {
+    background: var(--color-border);
+    color: var(--color-text-secondary);
+    font-size: 10px; padding: 1px 5px; border-radius: 99px;
+    font-weight: 500;
+}
+
+.ficha-atencion-row {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--color-border);
+    display: flex; flex-direction: column; gap: 4px;
+}
+.ficha-atencion-row:last-child { border-bottom: none; }
+
+.ficha-atencion-meta {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.ficha-atencion-fecha {
+    font-size: 12px; font-weight: 500; color: var(--color-text-primary);
+    white-space: nowrap;
+}
+.ficha-atencion-tipo {
+    font-size: 10px; padding: 1px 6px; border-radius: 99px; font-weight: 500;
+}
+.ficha-atencion-tipo--informacion { background: #E6F1FB; color: #0C447C; }
+.ficha-atencion-tipo--actividad   { background: #EAF3DE; color: #27500A; }
+.ficha-atencion-tipo--contacto    { background: #FAEEDA; color: #633806; }
+
+.ficha-atencion-prof  { font-size: 11px; color: var(--color-text-secondary); }
+.ficha-atencion-prest { font-size: 10px; color: var(--color-text-secondary); background: var(--color-surface-alt); padding: 1px 5px; border-radius: 3px; }
+
+.ficha-atencion-resumen {
+    font-size: 12px; color: var(--color-text-secondary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.ficha-atencion-ver {
+    background: none; border: none; cursor: pointer;
+    font-size: 11px; color: var(--color-primary);
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 0; align-self: flex-start;
+}
+.ficha-atencion-ver:hover { text-decoration: underline; }
+
+.ficha-atencion-detalle {
+    margin-top: 6px; display: flex; flex-direction: column; gap: 8px;
+    padding: 10px 12px;
+    background: var(--color-surface-alt);
+    border-radius: 6px;
+}
+.ficha-atencion-campo-label {
+    font-size: 10px; font-weight: 600; color: var(--color-text-secondary);
+    text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px;
+}
+.ficha-atencion-campo-valor {
+    font-size: 12px; color: var(--color-text-primary); line-height: 1.6;
+}
+.ficha-atencion-vacia {
+    padding: 16px 14px; font-size: 13px; color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+/* Botones ficha */
+.ficha-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; padding: 5px 10px;
+    border-radius: 6px; border: 1px solid var(--color-border);
+    background: var(--color-surface); color: var(--color-text-primary);
+    cursor: pointer; text-decoration: none; white-space: nowrap;
+}
+.ficha-btn:hover { background: var(--color-surface-alt); }
+.ficha-btn--primary {
+    background: var(--color-text-primary); color: var(--color-surface);
+    border-color: var(--color-text-primary);
+}
+.ficha-btn--primary:hover { opacity: .85; }
+
+/* Modal atención */
+.ficha-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    z-index: 500; display: flex; align-items: center; justify-content: center;
+}
+.ficha-modal {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px; width: 480px; max-width: 95vw;
+    display: flex; flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0,0,0,.15);
+}
+.ficha-modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid var(--color-border);
+}
+.ficha-modal-titulo { font-size: 15px; font-weight: 600; color: var(--color-text-primary); margin: 0; }
+.ficha-modal-cerrar { background: none; border: none; cursor: pointer; color: var(--color-text-secondary); padding: 2px; }
+.ficha-modal-cerrar:hover { color: var(--color-text-primary); }
+.ficha-modal-body {
+    padding: 16px 18px; display: flex; flex-direction: column; gap: 12px;
+    overflow-y: auto;
+}
+.ficha-modal-footer {
+    padding: 12px 18px; border-top: 1px solid var(--color-border);
+    display: flex; justify-content: flex-end; gap: 8px;
+}
+
+.ficha-field { display: flex; flex-direction: column; gap: 4px; }
+.ficha-label { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); }
+.ficha-input, .ficha-textarea {
+    padding: 7px 10px; border: 1px solid var(--color-border);
+    border-radius: 6px; font-size: 13px;
+    background: var(--color-surface); color: var(--color-text-primary);
+    width: 100%; box-sizing: border-box;
+}
+.ficha-input:focus, .ficha-textarea:focus {
+    border-color: var(--color-primary); outline: none;
+}
+.ficha-textarea { resize: vertical; }
+.ficha-error { font-size: 11px; color: var(--color-danger); }
+.ficha-radio-group { display: flex; gap: 16px; }
+.ficha-radio { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }

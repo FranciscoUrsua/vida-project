@@ -6,43 +6,45 @@
 
 ## Tarea completada
 
-`PlanPage` Livewire — UI completa del Plan de Intervención Social:
+`Módulo Atención` — RegistroAtencion fase 1:
 
-- Componente `Modules/Intervencion/app/Http/Livewire/PlanPage.php` con 7 secciones.
-- Vista `resources/views/livewire/plan-page.blade.php` con drawer de fichas y modal de motivo.
-- Modelo `PlanFichaDiagnostico` + migración `plan_fichas_diagnostico`.
-- Relación `fichasDiagnostico()` añadida a `PlanDeIntervencion`.
-- Rutas `plan.crear` y `plan.show` registradas.
-- CSS completo de la UI del plan en `app-operativo.css`.
-- Enlace "Ver Plan" / "Crear Plan" en `CiudadanoPage`.
-- 13 tests TF-PP-01 a TF-PP-13 — todos en verde.
-- Correcciones: `ValoracionFactory` (FK ciudadano_id), `VersionadoPlanTest` (campos booleanos firma), Blade (enum .value/.label()).
+- Módulo `Modules/Atencion/` creado con ServiceProvider, migración, modelo, policy y factory.
+- Tabla `registros_atencion` creada y migrada.
+- Permisos `atencion.crear`, `atencion.leer`, `atencion.leer_ajeno` añadidos al PermisosSeeder.
+- Permisos asignados en RolesSeeder: `intervencion` (los 3), `consulta_basica` (crear + leer), `supervision` y `tramitacion` (leer + leer_ajeno para supervision).
+- Relaciones `registrosAtencion()` y `ultimaAtencion()` añadidas a `App\Models\Ciudadano`.
+- `FichaCiudadanoPage` actualizado: modal de nueva atención, `abrirHistoriaSocial()`, historial de atenciones.
+- Vista `ficha-ciudadano-page.blade.php` actualizada con botones acción, historial y modal.
+- CSS de atenciones y modales añadido a `app-operativo.css`.
+- 8 tests TF-AT-01 a TF-AT-08 (modelo) — todos en verde.
+- 11 tests TF-LW-AT-01 a TF-LW-AT-11 (Livewire) — todos en verde.
+- Sin regresiones en Ciudadania (99 tests en verde).
 
 ---
 
 ## Estado exacto del proyecto
 
-- **Módulo Intervención**: UI del plan completa. Las secciones de objetivos, actuaciones y participantes tienen botones "Añadir" pero sin formularios de creación implementados (solo lectura + listado).
-- **dompdf**: verificar si está instalado. PlanPdfService lo requiere. Si no: `composer require barryvdh/laravel-dompdf`.
-- **TipoPlanResource**: visible en Filament bajo grupo "Catálogos" (navigationSort: 10).
-- **Resto de módulos**: sin cambios en esta sesión.
+- **Módulo Atención (fase 1)**: completado. Tipos `informacion` y `contacto` operativos. Tipo `actividad` definido en modelo pero sin UI ni generación automática (pendiente módulo Centro).
+- **FichaCiudadanoPage**: muestra historial de atenciones, botones "Nueva atención", "Abrir historia social" / "Ver historia social" según rol y estado.
+- **abrirHistoriaSocial()**: crea la HistoriaSocial con la UO activa del usuario y redirige a `intervencion.ciudadano.show`. Nota: si el user no tiene UO activa, `unidad_organizativa_id` será null (campo NOT NULL en la tabla → fallará). Pendiente manejar este caso edge.
+- **dompdf**: verificar si está instalado. PlanPdfService lo requiere. `composer show barryvdh/laravel-dompdf`.
+- **PlanPage**: UI completa del Plan de Intervención Social (implementado en sesión anterior). Objetivos y actuaciones en modo listado solo; botones "Añadir" sin formularios.
 
 ---
 
 ## Siguiente paso concreto recomendado
 
-1. Verificar que dompdf está instalado: `composer show barryvdh/laravel-dompdf` (si falla, instalar).
-2. Ejecutar `php artisan db:seed --class=Modules\\Intervencion\\Database\\Seeders\\TipoPlanSeeder` en dev.
-3. Ejecutar `php artisan migrate` en dev para aplicar la migración `plan_fichas_diagnostico`.
-4. Implementar formularios de creación de objetivos y actuaciones dentro de `PlanPage` (Paso siguiente del PISO).
+1. Ejecutar `php artisan db:seed --class=PermisosSeeder` y `php artisan db:seed --class=RolesSeeder` en producción (ya hecho en dev).
+2. Implementar formularios de creación de objetivos y actuaciones dentro de `PlanPage`.
+3. Conectar `cita_generada_id` en el formulario de atención cuando el módulo Agenda exponga una API de creación de citas.
+4. Revisar el edge case de `abrirHistoriaSocial()` cuando el usuario no tiene UO activa (actualmente falla silenciosamente con FK constraint violation).
 
 ---
 
 ## Contexto para retomar sin fricción
 
-- `PlanPage` renderiza con layout `layouts.operativo`.
-- `$this->plan` es una propiedad pública (no `#[Computed]`) — refrescar con `$this->plan->fresh()`, nunca con `unset()`.
-- `PlanDeIntervencion::estado` es un enum `EstadoPlan` — en Blade usar `.value` o `.label()`.
-- `ValoracionFactory` ya corregida para crear `Ciudadano` real antes de `HistoriaSocial::create()`.
-- `VersionadoPlanTest` ya actualizado a campos booleanos (`ciudadano_firmado`, `profesional_firmado`).
-- La sección de objetivos y actuaciones muestra datos si existen, pero los botones "Añadir" no tienen acción aún.
+- `RegistroAtencion::booted()` valida que tipo `informacion` tenga `profesional_id` y tipo `actividad` tenga `origen_tipo`/`origen_id`.
+- `FichaCiudadanoPage` usa `#[Computed]` para `historialAtenciones()` → invalidar con `unset($this->historialAtenciones)` tras guardar.
+- Ruta `intervencion.ciudadano.show` espera un parámetro `historia` (ID de HistoriaSocial, no ciudadano).
+- Tests de Livewire en Ciudadania requieren `$this->seed(PermisosSeeder::class)` y `$this->seed(RolesSeeder::class)` en `setUp()`.
+- `HistoriaSocial` tiene `AmbitoUoScope` — en tests usar `withoutGlobalScopes()` para consultarla directamente.

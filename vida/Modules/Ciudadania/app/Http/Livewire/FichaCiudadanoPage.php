@@ -6,9 +6,9 @@ use App\Models\Audit;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
+use Illuminate\Support\Collection;
 use App\Models\User;
 use App\Queries\AccesosExpedienteQuery;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -53,6 +53,9 @@ use Modules\Ciudadania\Services\NormalizadorCiudadano;
  * @property-read Collection<int, Audit> $actividadReciente
  * @property-read bool $puedeVerAccesos
  * @property-read bool $puedeVerTodosLosAccesos
+ * @property-read bool $puedeAbrirHistoria
+ * @property-read bool $puedeCrearAtencion
+ * @property-read Collection<int, \Modules\Atencion\Models\RegistroAtencion> $historialAtenciones
  */
 #[Layout('layouts.operativo')]
 class FichaCiudadanoPage extends Component
@@ -88,6 +91,31 @@ class FichaCiudadanoPage extends Component
     public string $telefono = '';
 
     public string $email = '';
+
+    // -------------------------------------------------------------------------
+    // Modal de nueva atención
+    // -------------------------------------------------------------------------
+
+    /** Controla la visibilidad del modal de nueva atención. */
+    public bool $modalAtencionAbierto = false;
+
+    /** Tipo de atención que se está registrando. */
+    public string $atencionTipo = 'informacion';
+
+    /** Fecha de la atención (Y-m-d). */
+    public string $atencionFecha = '';
+
+    /** Prestación del catálogo vinculada (opcional). */
+    public ?int $atencionPrestacionId = null;
+
+    /** Demanda expresada por el ciudadano. */
+    public string $atencionDemanda = '';
+
+    /** Respuesta o actuación del profesional. */
+    public string $atencionRespuesta = '';
+
+    /** Mensaje de confirmación tras guardar. */
+    public string $atencionMensaje = '';
 
     // -------------------------------------------------------------------------
     // Modal de nuevo documento
@@ -811,6 +839,143 @@ class FichaCiudadanoPage extends Component
 
         $this->cerrarModalDocumento();
     }
+
+    // -------------------------------------------------------------------------
+    // Propiedades computadas — Atención e Historia Social
+    // -------------------------------------------------------------------------
+
+    /**
+     * Colección de atenciones del ciudadano, ordenadas por fecha descendente.
+     *
+     * @return Collection<int, \Modules\Atencion\Models\RegistroAtencion>
+     */
+    #[Computed]
+    public function historialAtenciones(): Collection
+    {
+        return $this->ciudadano
+            ->registrosAtencion()
+            ->with(['profesional', 'prestacion'])
+            ->get();
+    }
+
+    /**
+     * Indica si el usuario puede abrir la Historia Social del ciudadano.
+     * Solo cuando el ciudadano no tiene historia y el usuario tiene el permiso.
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeAbrirHistoria(): bool
+    {
+        return auth()->user()->can('historia.abrir') && ! $this->historiaSocial;
+    }
+
+    /**
+     * Indica si el usuario puede registrar una nueva atención.
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeCrearAtencion(): bool
+    {
+        return auth()->user()->can('atencion.crear');
+    }
+
+    // -------------------------------------------------------------------------
+    // Acciones — Atención e Historia Social
+    // -------------------------------------------------------------------------
+
+    /**
+     * Crea la Historia Social del ciudadano y redirige a la pantalla de intervención.
+     * Solo ejecutable si el ciudadano no tiene historia social previa.
+     *
+     * @return void
+     */
+    public function abrirHistoriaSocial(): void
+    {
+        $this->authorize('create', HistoriaSocial::class);
+
+        if ($this->historiaSocial) {
+            return;
+        }
+
+        $uoActiva = auth()->user()->uosActivas()->first();
+
+        $historia = HistoriaSocial::create([
+            'ciudadano_id'           => $this->ciudadanoId,
+            'unidad_organizativa_id' => $uoActiva?->id,
+            'estado'                 => 'abierta',
+        ]);
+
+        $this->redirect(route('intervencion.ciudadano.show', $historia->id), navigate: true);
+    }
+
+    /**
+     * Abre el modal de nueva atención con los valores por defecto.
+     *
+     * @return void
+     */
+    public function abrirModalAtencion(): void
+    {
+        $this->modalAtencionAbierto = true;
+        $this->atencionFecha = now()->toDateString();
+        $this->atencionTipo = 'informacion';
+        $this->atencionDemanda = '';
+        $this->atencionRespuesta = '';
+        $this->atencionPrestacionId = null;
+        $this->atencionMensaje = '';
+    }
+
+    /**
+     * Cierra el modal de nueva atención.
+     *
+     * @return void
+     */
+    public function cerrarModalAtencion(): void
+    {
+        $this->modalAtencionAbierto = false;
+    }
+
+    /**
+     * Valida y persiste el nuevo registro de atención.
+     * Invalida el computed del historial para que se recargue.
+     *
+     * @return void
+     */
+    public function guardarAtencion(): void
+    {
+        $this->authorize('create', \Modules\Atencion\Models\RegistroAtencion::class);
+
+        $this->validate([
+            'atencionFecha'     => 'required|date|before_or_equal:today',
+            'atencionDemanda'   => 'required|string|min:5|max:2000',
+            'atencionRespuesta' => 'nullable|string|max:2000',
+        ], [
+            'atencionFecha.required'          => 'La fecha es obligatoria.',
+            'atencionFecha.before_or_equal'   => 'La fecha no puede ser futura.',
+            'atencionDemanda.required'        => 'La demanda es obligatoria.',
+            'atencionDemanda.min'             => 'Describe la demanda con al menos 5 caracteres.',
+        ]);
+
+        \Modules\Atencion\Models\RegistroAtencion::create([
+            'ciudadano_id'   => $this->ciudadanoId,
+            'tipo'           => $this->atencionTipo,
+            'fecha'          => $this->atencionFecha,
+            'profesional_id' => auth()->id(),
+            'prestacion_id'  => $this->atencionPrestacionId,
+            'demanda'        => $this->atencionDemanda,
+            'respuesta'      => $this->atencionRespuesta,
+            'origen'         => 'manual',
+        ]);
+
+        $this->atencionMensaje = 'Atención registrada correctamente.';
+        $this->modalAtencionAbierto = false;
+        unset($this->historialAtenciones);
+    }
+
+    // -------------------------------------------------------------------------
+    // Render
+    // -------------------------------------------------------------------------
 
     /**
      * Renderiza la ficha del ciudadano.
