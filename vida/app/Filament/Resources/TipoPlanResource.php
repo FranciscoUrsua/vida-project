@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\TipoPlanResource\Pages;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
@@ -130,7 +131,7 @@ class TipoPlanResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
-                Tables\Actions\Action::make('objetivos')
+                Action::make('objetivos')
                     ->label('Objetivos')
                     ->icon('heroicon-o-list-bullet')
                     ->url(fn ($record) => static::getUrl('objetivos', ['record' => $record])),
