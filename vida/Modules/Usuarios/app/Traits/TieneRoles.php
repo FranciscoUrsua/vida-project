@@ -62,9 +62,9 @@ trait TieneRoles
      * Útil cuando la sincronización de Spatie pudiera estar desactualizada,
      * o para consultas históricas.
      *
-     * @param string $rolNombre Nombre del rol, ej: 'intervencion'
      * @param string $rolNombre Nombre del rol, ej: 'intervencion'.
      * @return bool
+     */
     public function tieneRolVigente(string $rolNombre): bool
     {
         $rol = Role::findByName($rolNombre);
