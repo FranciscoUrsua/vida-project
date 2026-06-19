@@ -28,8 +28,6 @@ class AmbitosTerritorialesRelationManager extends RelationManager
      * Define el formulario del relation manager de ámbitos territoriales.
      *
      * @param Schema $schema Esquema base.
-     *
-     * @return Schema
      */
     public function form(Schema $schema): Schema
     {
@@ -81,8 +79,6 @@ class AmbitosTerritorialesRelationManager extends RelationManager
      * Define la tabla del relation manager de ámbitos territoriales.
      *
      * @param Table $table Tabla base.
-     *
-     * @return Table
      */
     public function table(Table $table): Table
     {

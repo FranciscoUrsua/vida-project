@@ -28,8 +28,6 @@ class Dashboard extends BaseDashboard
 
     /**
      * Devuelve el número de columnas del dashboard.
-     *
-     * @return int|array
      */
     public function getColumns(): int|array
     {
@@ -38,8 +36,6 @@ class Dashboard extends BaseDashboard
 
     /**
      * Devuelve los widgets visibles en el dashboard.
-     *
-     * @return array
      */
     public function getWidgets(): array
     {

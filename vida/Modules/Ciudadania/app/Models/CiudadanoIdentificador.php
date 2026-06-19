@@ -72,8 +72,6 @@ class CiudadanoIdentificador extends Model
 
     /**
      * ID del ciudadano titular del documento.
-     *
-     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {

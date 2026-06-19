@@ -49,7 +49,6 @@ class UsuarioResource extends Resource
      * Define el formulario de usuarios.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -157,7 +156,6 @@ class UsuarioResource extends Resource
      * Configura el listado de usuarios.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -204,8 +202,6 @@ class UsuarioResource extends Resource
 
     /**
      * Declara las páginas del catálogo de usuarios.
-     *
-     * @return array
      */
     public static function getPages(): array
     {
@@ -218,8 +214,6 @@ class UsuarioResource extends Resource
 
     /**
      * Determina si el usuario puede ver el listado de usuarios.
-     *
-     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -228,8 +222,6 @@ class UsuarioResource extends Resource
 
     /**
      * Determina si el usuario puede crear usuarios.
-     *
-     * @return bool
      */
     public static function canCreate(): bool
     {
@@ -240,7 +232,6 @@ class UsuarioResource extends Resource
      * Determina si el usuario puede editar el registro.
      *
      * @param Model $record Registro objetivo.
-     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -261,7 +252,6 @@ class UsuarioResource extends Resource
      * Determina si el usuario puede eliminar usuarios.
      *
      * @param Model $record Registro objetivo.
-     * @return bool
      */
     public static function canDelete(Model $record): bool
     {

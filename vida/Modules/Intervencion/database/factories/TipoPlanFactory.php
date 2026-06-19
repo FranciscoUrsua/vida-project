@@ -20,19 +20,17 @@ class TipoPlanFactory extends Factory
     public function definition(): array
     {
         return [
-            'slug'        => $this->faker->unique()->slug(2),
-            'nombre'      => 'Plan ' . $this->faker->words(3, true),
-            'ambito'      => $this->faker->randomElement(['asp', 'especializado']),
+            'slug' => $this->faker->unique()->slug(2),
+            'nombre' => 'Plan '.$this->faker->words(3, true),
+            'ambito' => $this->faker->randomElement(['asp', 'especializado']),
             'descripcion' => $this->faker->sentence(),
-            'activo'      => true,
-            'eliminable'  => true,
+            'activo' => true,
+            'eliminable' => true,
         ];
     }
 
     /**
      * Tipo de ámbito ASP.
-     *
-     * @return static
      */
     public function asp(): static
     {
@@ -41,8 +39,6 @@ class TipoPlanFactory extends Factory
 
     /**
      * Tipo de ámbito especializado.
-     *
-     * @return static
      */
     public function especializado(): static
     {
@@ -51,8 +47,6 @@ class TipoPlanFactory extends Factory
 
     /**
      * Tipo no eliminable (como los del seeder de sistema).
-     *
-     * @return static
      */
     public function noEliminable(): static
     {

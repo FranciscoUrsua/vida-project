@@ -49,7 +49,6 @@ class ExcepcionProfesionalResource extends Resource
      * Define el formulario de excepciones de profesionales.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -132,7 +131,6 @@ class ExcepcionProfesionalResource extends Resource
      * Configura el listado de excepciones de profesionales.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -223,8 +221,6 @@ class ExcepcionProfesionalResource extends Resource
 
     /**
      * Declara las páginas del recurso de excepciones de profesionales.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

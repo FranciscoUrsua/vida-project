@@ -32,6 +32,7 @@ class HistoriaSocialService
      *
      * @param Ciudadano $ciudadano Ciudadano cuyo expediente se consulta.
      * @param User $profesional Profesional para el que se calcula la visibilidad.
+     *
      * @return Collection<int, array<string, mixed>>
      */
     public function obtenerEntradas(Ciudadano $ciudadano, User $profesional): Collection
@@ -71,7 +72,6 @@ class HistoriaSocialService
      *
      * @param User $usuario Usuario autenticado.
      * @param Ciudadano $ciudadano Ciudadano objetivo.
-     * @return bool
      */
     public function esTsr(User $usuario, Ciudadano $ciudadano): bool
     {

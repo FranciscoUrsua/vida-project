@@ -163,7 +163,6 @@ class Slot extends Model
      * Filtra slots de un profesional.
      *
      * @param Builder<Slot> $query
-     * @param int $usuarioId
      *
      * @return Builder<Slot>
      */
@@ -176,7 +175,6 @@ class Slot extends Model
      * Filtra slots de un centro.
      *
      * @param Builder<Slot> $query
-     * @param int $centroId
      *
      * @return Builder<Slot>
      */
@@ -189,7 +187,6 @@ class Slot extends Model
      * Filtra slots por estado.
      *
      * @param Builder<Slot> $query
-     * @param EstadoSlot $estado
      *
      * @return Builder<Slot>
      */

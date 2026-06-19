@@ -32,15 +32,11 @@ class AlertaService
      * Crea una alerta y calcula su expiración si es de tipo 'alerta'.
      *
      * @param array<string, mixed> $datos
-     *
-     * @return Alerta
      */
     /**
      * Crea una alerta con su estado inicial.
      *
      * @param array<string, mixed> $datos Datos de la alerta.
-     *
-     * @return Alerta
      */
     public function crear(array $datos): Alerta
     {
@@ -68,12 +64,6 @@ class AlertaService
 
     /**
      * Marca una alerta como reconocida por un usuario.
-     *
-     * @param Alerta $alerta
-     * @param User $usuario
-     * @param string $ipAddress
-     *
-     * @return AlertaReconocimiento
      */
     /**
      * Registra el reconocimiento de una alerta por un usuario.
@@ -81,8 +71,6 @@ class AlertaService
      * @param Alerta $alerta Alerta objetivo.
      * @param User $usuario Usuario que reconoce.
      * @param string $ipAddress IP de origen.
-     *
-     * @return AlertaReconocimiento
      */
     public function reconocer(Alerta $alerta, User $usuario, string $ipAddress): AlertaReconocimiento
     {
@@ -108,17 +96,11 @@ class AlertaService
      *
      * Si no existe supervisor activo en la UO, la alerta pasa directamente
      * a estado 'vencida'.
-     *
-     * @param Alerta $alerta
-     *
-     * @return void
      */
     /**
      * Escala una alerta vencida al supervisor de la UO.
      *
      * @param Alerta $alerta Alerta vencida.
-     *
-     * @return void
      */
     public function escalar(Alerta $alerta): void
     {
@@ -153,7 +135,6 @@ class AlertaService
     /**
      * Resuelve qué usuarios son destinatarios reales de una alerta rol_uo.
      *
-     * @param Alerta $alerta
      *
      * @return Collection<int, User>
      */

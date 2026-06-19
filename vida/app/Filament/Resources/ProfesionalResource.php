@@ -50,7 +50,6 @@ class ProfesionalResource extends Resource
      * Define el formulario de profesionales.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -180,7 +179,6 @@ class ProfesionalResource extends Resource
      * Configura el listado de profesionales.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -231,8 +229,6 @@ class ProfesionalResource extends Resource
 
     /**
      * Declara las páginas del directorio de profesionales.
-     *
-     * @return array
      */
     public static function getPages(): array
     {
@@ -245,8 +241,6 @@ class ProfesionalResource extends Resource
 
     /**
      * Determina si el usuario puede ver el directorio de profesionales.
-     *
-     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -255,8 +249,6 @@ class ProfesionalResource extends Resource
 
     /**
      * Determina si el usuario puede crear profesionales.
-     *
-     * @return bool
      */
     public static function canCreate(): bool
     {
@@ -267,7 +259,6 @@ class ProfesionalResource extends Resource
      * Determina si el usuario puede editar profesionales.
      *
      * @param Model $record Registro objetivo.
-     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -278,7 +269,6 @@ class ProfesionalResource extends Resource
      * Determina si el usuario puede eliminar profesionales.
      *
      * @param Model $record Registro objetivo.
-     * @return bool
      */
     public static function canDelete(Model $record): bool
     {

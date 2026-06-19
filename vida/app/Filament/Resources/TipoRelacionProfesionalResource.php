@@ -42,7 +42,6 @@ class TipoRelacionProfesionalResource extends Resource
      * Define el formulario de relaciones profesionales.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -70,7 +69,6 @@ class TipoRelacionProfesionalResource extends Resource
      * Configura el listado de relaciones profesionales.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -109,8 +107,6 @@ class TipoRelacionProfesionalResource extends Resource
 
     /**
      * Declara las páginas del catálogo de relaciones profesionales.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

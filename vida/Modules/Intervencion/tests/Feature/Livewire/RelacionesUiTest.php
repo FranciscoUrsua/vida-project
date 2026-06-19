@@ -10,6 +10,7 @@ use App\Models\UsuarioUo;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Modules\Ciudadania\Database\Seeders\TipoRelacionSeeder;
 use Modules\Ciudadania\Models\CiudadanoRelacion;
@@ -46,40 +47,40 @@ class RelacionesUiTest extends TestCase
         $this->seed(TipoRelacionSeeder::class);
 
         $this->uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Test Relaciones',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Test Relaciones',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $this->usuario = User::create([
-            'name'              => 'TSR Relaciones Test',
-            'email'             => 'rel-test@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'TSR Relaciones Test',
+            'email' => 'rel-test@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
 
         $this->usuario->assignRole('intervencion');
 
         UsuarioUo::create([
-            'usuario_id'             => $this->usuario->id,
+            'usuario_id' => $this->usuario->id,
             'unidad_organizativa_id' => $this->uo->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         $this->ciudadano = Ciudadano::factory()->create();
 
         $this->historia = HistoriaSocial::create([
-            'ciudadano_id'           => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
             'unidad_organizativa_id' => $this->uo->id,
-            'ciudadano_protegido'    => false,
-            'estado'                 => 'abierta',
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
     }
 
-    private function montar(): \Livewire\Features\SupportTesting\Testable
+    private function montar(): Testable
     {
         return Livewire::actingAs($this->usuario)
             ->test(CiudadanoPage::class, ['historia' => $this->historia]);
@@ -104,10 +105,10 @@ class RelacionesUiTest extends TestCase
             'apellido1' => 'LopezRepresentante',
         ]);
         CiudadanoRelacion::create([
-            'ciudadano_id'            => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
             'ciudadano_relacionado_id' => $representante->id,
-            'tipo_relacion'           => 'representante',
-            'fecha_inicio'            => now()->toDateString(),
+            'tipo_relacion' => 'representante',
+            'fecha_inicio' => now()->toDateString(),
         ]);
 
         $this->montar()->assertSee('LopezRepresentante');
@@ -132,10 +133,10 @@ class RelacionesUiTest extends TestCase
     {
         $representante = Ciudadano::factory()->create(['telefono' => '612345678']);
         CiudadanoRelacion::create([
-            'ciudadano_id'            => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
             'ciudadano_relacionado_id' => $representante->id,
-            'tipo_relacion'           => 'representante',
-            'fecha_inicio'            => now()->toDateString(),
+            'tipo_relacion' => 'representante',
+            'fecha_inicio' => now()->toDateString(),
         ]);
 
         $this->montar()
@@ -184,27 +185,27 @@ class RelacionesUiTest extends TestCase
     #[Test]
     public function relaciones_agrupadas_agrupa_por_tipo(): void
     {
-        $hijo1   = Ciudadano::factory()->create();
-        $hijo2   = Ciudadano::factory()->create();
+        $hijo1 = Ciudadano::factory()->create();
+        $hijo2 = Ciudadano::factory()->create();
         $conyuge = Ciudadano::factory()->create();
 
         foreach ([$hijo1, $hijo2] as $hijo) {
             CiudadanoRelacion::create([
-                'ciudadano_id'            => $this->ciudadano->id,
+                'ciudadano_id' => $this->ciudadano->id,
                 'ciudadano_relacionado_id' => $hijo->id,
-                'tipo_relacion'           => 'hijo',
-                'fecha_inicio'            => now()->toDateString(),
+                'tipo_relacion' => 'hijo',
+                'fecha_inicio' => now()->toDateString(),
             ]);
         }
 
         CiudadanoRelacion::create([
-            'ciudadano_id'            => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
             'ciudadano_relacionado_id' => $conyuge->id,
-            'tipo_relacion'           => 'conyuge',
-            'fecha_inicio'            => now()->toDateString(),
+            'tipo_relacion' => 'conyuge',
+            'fecha_inicio' => now()->toDateString(),
         ]);
 
-        $comp      = $this->montar();
+        $comp = $this->montar();
         $agrupadas = $comp->instance()->relacionesAgrupadas;
 
         $this->assertArrayHasKey('hijo', $agrupadas->toArray());
@@ -221,11 +222,11 @@ class RelacionesUiTest extends TestCase
     {
         $exConyuge = Ciudadano::factory()->create();
         CiudadanoRelacion::create([
-            'ciudadano_id'            => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
             'ciudadano_relacionado_id' => $exConyuge->id,
-            'tipo_relacion'           => 'conyuge',
-            'fecha_inicio'            => '2020-01-01',
-            'fecha_fin'               => '2023-06-01',
+            'tipo_relacion' => 'conyuge',
+            'fecha_inicio' => '2020-01-01',
+            'fecha_fin' => '2023-06-01',
         ]);
 
         $agrupadas = $this->montar()->instance()->relacionesAgrupadas;
@@ -242,17 +243,17 @@ class RelacionesUiTest extends TestCase
         $hijo = Ciudadano::factory()->create();
 
         $uc = UnidadConvivencia::create([
-            'domicilio'          => 'Calle Test 1',
+            'domicilio' => 'Calle Test 1',
             'fecha_constitucion' => now()->toDateString(),
         ]);
         $uc->agregarMiembro($this->ciudadano->id);
         $uc->agregarMiembro($hijo->id);
 
         CiudadanoRelacion::create([
-            'ciudadano_id'            => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
             'ciudadano_relacionado_id' => $hijo->id,
-            'tipo_relacion'           => 'hijo',
-            'fecha_inicio'            => now()->toDateString(),
+            'tipo_relacion' => 'hijo',
+            'fecha_inicio' => now()->toDateString(),
         ]);
 
         $relaciones = $this->montar()->instance()->relacionesMiembrosUc;
@@ -271,11 +272,11 @@ class RelacionesUiTest extends TestCase
     {
         $exRep = Ciudadano::factory()->create(['apellido1' => 'ExRepAnterior']);
         CiudadanoRelacion::create([
-            'ciudadano_id'            => $this->ciudadano->id,
+            'ciudadano_id' => $this->ciudadano->id,
             'ciudadano_relacionado_id' => $exRep->id,
-            'tipo_relacion'           => 'representante',
-            'fecha_inicio'            => '2020-01-01',
-            'fecha_fin'               => '2023-01-01',
+            'tipo_relacion' => 'representante',
+            'fecha_inicio' => '2020-01-01',
+            'fecha_fin' => '2023-01-01',
         ]);
 
         $comp = $this->montar();

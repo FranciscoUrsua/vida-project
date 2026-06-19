@@ -47,8 +47,6 @@ class Documento extends Model
 
     /**
      * Entidad relacionada de forma polimórfica.
-     *
-     * @return MorphTo
      */
     public function documentable(): MorphTo
     {

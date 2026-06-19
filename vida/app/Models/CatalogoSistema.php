@@ -45,6 +45,7 @@ class CatalogoSistema extends Model
      *
      * @param Builder<CatalogoSistema> $query Consulta base.
      * @param string $grupo Grupo a filtrar.
+     *
      * @return Builder<CatalogoSistema>
      */
     public function scopeDeGrupo(Builder $query, string $grupo): Builder
@@ -61,6 +62,7 @@ class CatalogoSistema extends Model
      * listo para usar en selects de Filament.
      *
      * @param string $grupo Grupo de catálogo a consultar.
+     *
      * @return array<string, string>
      */
     public static function opcionesParaSelect(string $grupo): array
@@ -74,7 +76,6 @@ class CatalogoSistema extends Model
      *
      * @param string $clave Clave única del catálogo.
      * @param string $defecto Valor por defecto si la clave no existe o está inactiva.
-     * @return string
      */
     public static function valor(string $clave, string $defecto = ''): string
     {
@@ -90,6 +91,7 @@ class CatalogoSistema extends Model
      *
      * @param string $grupo Grupo de catálogo a consultar.
      * @param string $prefijo Prefijo de clave a filtrar.
+     *
      * @return array<string, string>
      */
     public static function opcionesParaSelectConPrefijo(string $grupo, string $prefijo): array

@@ -16,8 +16,6 @@ enum TipoNumeracion: string
 
     /**
      * Devuelve la etiqueta legible del tipo de numeración.
-     *
-     * @return string
      */
     public function label(): string
     {

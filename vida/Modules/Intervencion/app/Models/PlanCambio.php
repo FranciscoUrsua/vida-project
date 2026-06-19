@@ -3,6 +3,7 @@
 namespace Modules\Intervencion\Models;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -20,11 +21,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $plan_id
  * @property int $version
  * @property int $profesional_id
- * @property string $origen  'discrecional' | 'seguimiento'
+ * @property string $origen 'discrecional' | 'seguimiento'
  * @property int|null $seguimiento_id
  * @property string $motivo
- * @property array $snapshot  Estado completo del plan antes del cambio
- * @property \Carbon\Carbon $created_at
+ * @property array $snapshot Estado completo del plan antes del cambio
+ * @property Carbon $created_at
  */
 class PlanCambio extends Model
 {
@@ -38,7 +39,7 @@ class PlanCambio extends Model
     ];
 
     protected $casts = [
-        'snapshot'   => 'array',
+        'snapshot' => 'array',
         'created_at' => 'datetime',
     ];
 

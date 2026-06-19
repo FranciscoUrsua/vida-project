@@ -21,7 +21,6 @@ class LineasCuadranteRelationManager extends RelationManager
      * Define el formulario del relation manager en modo solo lectura.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public function form(Schema $schema): Schema
     {
@@ -33,7 +32,6 @@ class LineasCuadranteRelationManager extends RelationManager
      * Configura el listado de líneas del cuadrante.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public function table(Table $table): Table
     {

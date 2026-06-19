@@ -13,6 +13,11 @@ use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Modules\Ciudadania\Enums\ImplicacionFuncional;
+use Modules\Ciudadania\Models\CiudadanoRelacion;
+use Modules\Ciudadania\Models\TipoRelacion;
+use Modules\Ciudadania\Models\UnidadConvivencia;
+use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 use Modules\Escalas\Enums\EstadoPase;
 use Modules\Escalas\Models\PaseEscala;
 use Modules\Escalas\Models\TipoEscala;
@@ -23,17 +28,14 @@ use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Enums\VisibilidadApunte;
 use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\Entrevista;
+use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\SeguimientoPlan;
-use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\TipoFicha;
-use Modules\Ciudadania\Enums\ImplicacionFuncional;
-use Modules\Ciudadania\Models\CiudadanoRelacion;
-use Modules\Ciudadania\Models\TipoRelacion;
-use Modules\Ciudadania\Models\UnidadConvivencia;
-use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 use Modules\Intervencion\Models\TipoValoracion;
 use Modules\Intervencion\Models\Valoracion;
+use Modules\Intervencion\Services\PlanPdfService;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Pantalla principal de trabajo con el ciudadano.
@@ -156,8 +158,6 @@ class CiudadanoPage extends Component
 
     /**
      * Ciudadano titular de la Historia Social.
-     *
-     * @return Ciudadano|null
      */
     #[Computed]
     public function ciudadano(): ?Ciudadano
@@ -200,8 +200,6 @@ class CiudadanoPage extends Component
 
     /**
      * Plan general ASP activo más reciente de la Historia Social.
-     *
-     * @return PlanDeIntervencion|null
      */
     #[Computed]
     public function pisoActivo(): ?PlanDeIntervencion
@@ -216,8 +214,6 @@ class CiudadanoPage extends Component
 
     /**
      * Plan de intervención vigente (cualquier estado no cerrado) para navegar a PlanPage.
-     *
-     * @return PlanDeIntervencion|null
      */
     #[Computed]
     public function planActivo(): ?PlanDeIntervencion
@@ -273,8 +269,6 @@ class CiudadanoPage extends Component
     /**
      * Indica si el usuario puede ver todos los accesos o únicamente los propios.
      * Controla la visibilidad del enlace "Ver todo" en el widget.
-     *
-     * @return bool
      */
     #[Computed]
     public function puedeVerTodosLosAccesos(): bool
@@ -285,8 +279,6 @@ class CiudadanoPage extends Component
     /**
      * Nombre corto (o completo) de la UO responsable de la Historia Social.
      * Se muestra en la cabecera del ciudadano sustituyendo al ID numérico de UO.
-     *
-     * @return string|null
      */
     #[Computed]
     public function uoNombre(): ?string
@@ -299,8 +291,6 @@ class CiudadanoPage extends Component
     /**
      * Nombre corto del Plan de Intervención según la UO de la Historia Social.
      * Fallback: «Plan».
-     *
-     * @return string
      */
     #[Computed]
     public function planNombreCorto(): string
@@ -311,8 +301,6 @@ class CiudadanoPage extends Component
     /**
      * Nombre completo del Plan de Intervención según la UO de la Historia Social.
      * Fallback: «Plan de intervención».
-     *
-     * @return string
      */
     #[Computed]
     public function planNombreCompleto(): string
@@ -322,8 +310,6 @@ class CiudadanoPage extends Component
 
     /**
      * Documento de identidad del ciudadano (cifrado, desencriptado por el cast).
-     *
-     * @return string|null
      */
     #[Computed]
     public function ciudadanoDocumento(): ?string
@@ -333,8 +319,6 @@ class CiudadanoPage extends Component
 
     /**
      * Teléfono de contacto del ciudadano.
-     *
-     * @return string|null
      */
     #[Computed]
     public function ciudadanoTelefono(): ?string
@@ -344,8 +328,6 @@ class CiudadanoPage extends Component
 
     /**
      * Correo electrónico de contacto del ciudadano.
-     *
-     * @return string|null
      */
     #[Computed]
     public function ciudadanoEmail(): ?string
@@ -356,8 +338,6 @@ class CiudadanoPage extends Component
     /**
      * Total de apuntes visibles en la Historia Social (todos los filtros).
      * Usa la colección ya cargada para evitar consulta adicional.
-     *
-     * @return int
      */
     #[Computed]
     public function statApuntes(): int
@@ -369,7 +349,6 @@ class CiudadanoPage extends Component
      * Prestaciones activas del ciudadano.
      * Pendiente de integración real con el módulo Prestaciones.
      *
-     * @return string|null
      *
      * @todo Integrar con módulo Prestaciones cuando esté disponible.
      */
@@ -381,8 +360,6 @@ class CiudadanoPage extends Component
 
     /**
      * Fecha del último registro en la Historia Social formateada.
-     *
-     * @return string|null
      */
     #[Computed]
     public function statUltimoContacto(): ?string
@@ -392,8 +369,6 @@ class CiudadanoPage extends Component
 
     /**
      * UC vigente del ciudadano (primera activa), con miembros y ciudadanos cargados.
-     *
-     * @return UnidadConvivencia|null
      */
     #[Computed]
     public function ucVigente(): ?UnidadConvivencia
@@ -411,10 +386,10 @@ class CiudadanoPage extends Component
     /**
      * Miembros activos de la UC vigente con datos de ciudadano cargados.
      *
-     * @return \Illuminate\Support\Collection<int, UnidadConvivenciaMiembro>
+     * @return Collection<int, UnidadConvivenciaMiembro>
      */
     #[Computed]
-    public function ucMiembrosActivos(): \Illuminate\Support\Collection
+    public function ucMiembrosActivos(): Collection
     {
         return $this->ucVigente
             ? $this->ucVigente->miembrosActivos()->with('ciudadano')->get()
@@ -425,10 +400,10 @@ class CiudadanoPage extends Component
      * Ciudadanos que coinciden con la búsqueda, excluyendo miembros actuales y titular.
      * Carga en PHP porque los campos de nombre están cifrados (mismo patrón que BuscarCiudadanoPage).
      *
-     * @return \Illuminate\Support\Collection<int, Ciudadano>
+     * @return Collection<int, Ciudadano>
      */
     #[Computed]
-    public function ucResultadosBusqueda(): \Illuminate\Support\Collection
+    public function ucResultadosBusqueda(): Collection
     {
         if (strlen(trim($this->ucBusqueda)) < 2 || ! $this->ciudadano) {
             return collect();
@@ -454,8 +429,6 @@ class CiudadanoPage extends Component
     /**
      * Representante legal/designado del ciudadano, si existe relación activa.
      * Busca por implicacion_funcional = 'representante', nunca por slug directamente.
-     *
-     * @return Ciudadano|null
      */
     #[Computed]
     public function representante(): ?Ciudadano
@@ -486,10 +459,10 @@ class CiudadanoPage extends Component
      * Relaciones activas del ciudadano agrupadas por tipo (para el modal completo).
      * Excluye tipos no presentes en el catálogo activo.
      *
-     * @return \Illuminate\Support\Collection<string, array{etiqueta: string, miembros: \Illuminate\Support\Collection}>
+     * @return Collection<string, array{etiqueta: string, miembros: Collection}>
      */
     #[Computed]
-    public function relacionesAgrupadas(): \Illuminate\Support\Collection
+    public function relacionesAgrupadas(): Collection
     {
         if (! $this->ciudadano) {
             return collect();
@@ -513,10 +486,10 @@ class CiudadanoPage extends Component
      * Tipo de relación (etiqueta) de cada miembro de la UC respecto al titular,
      * indexado por ciudadano_id. Enriquece el widget UC.
      *
-     * @return \Illuminate\Support\Collection<int, string|null>
+     * @return Collection<int, string|null>
      */
     #[Computed]
-    public function relacionesMiembrosUc(): \Illuminate\Support\Collection
+    public function relacionesMiembrosUc(): Collection
     {
         if (! $this->ucVigente || ! $this->ciudadano) {
             return collect();
@@ -545,8 +518,6 @@ class CiudadanoPage extends Component
 
     /**
      * Expande o contrae la sección de unidad de convivencia.
-     *
-     * @return void
      */
     public function toggleUC(): void
     {
@@ -555,8 +526,6 @@ class CiudadanoPage extends Component
 
     /**
      * Abre el modal con todas las relaciones del ciudadano.
-     *
-     * @return void
      */
     public function abrirModalRelaciones(): void
     {
@@ -565,8 +534,6 @@ class CiudadanoPage extends Component
 
     /**
      * Cierra el modal con todas las relaciones del ciudadano.
-     *
-     * @return void
      */
     public function cerrarModalRelaciones(): void
     {
@@ -575,8 +542,6 @@ class CiudadanoPage extends Component
 
     /**
      * Abre el modal de datos del representante.
-     *
-     * @return void
      */
     public function abrirModalRepresentante(): void
     {
@@ -585,8 +550,6 @@ class CiudadanoPage extends Component
 
     /**
      * Cierra el modal de datos del representante.
-     *
-     * @return void
      */
     public function cerrarModalRepresentante(): void
     {
@@ -595,8 +558,6 @@ class CiudadanoPage extends Component
 
     /**
      * Abre el modal de gestión de UC y reinicia su estado interno.
-     *
-     * @return void
      */
     public function abrirModalUc(): void
     {
@@ -609,8 +570,6 @@ class CiudadanoPage extends Component
 
     /**
      * Cierra el modal de gestión de UC.
-     *
-     * @return void
      */
     public function cerrarModalUc(): void
     {
@@ -621,8 +580,6 @@ class CiudadanoPage extends Component
      * Selecciona un ciudadano de los resultados de búsqueda para confirmar su adición.
      *
      * @param int $ciudadanoId ID del ciudadano seleccionado.
-     *
-     * @return void
      */
     public function seleccionarCiudadanoUc(int $ciudadanoId): void
     {
@@ -632,8 +589,6 @@ class CiudadanoPage extends Component
 
     /**
      * Confirma la adición del ciudadano seleccionado a la UC vigente.
-     *
-     * @return void
      */
     public function confirmarAnadirMiembro(): void
     {
@@ -654,8 +609,6 @@ class CiudadanoPage extends Component
 
     /**
      * Cancela la selección de ciudadano para añadir a la UC.
-     *
-     * @return void
      */
     public function cancelarSeleccionUc(): void
     {
@@ -666,8 +619,6 @@ class CiudadanoPage extends Component
      * Inicia el flujo de confirmación de baja de un miembro.
      *
      * @param int $miembroId ID de UnidadConvivenciaMiembro.
-     *
-     * @return void
      */
     public function iniciarBajaMiembro(int $miembroId): void
     {
@@ -676,8 +627,6 @@ class CiudadanoPage extends Component
 
     /**
      * Confirma la baja del miembro seleccionado, estableciendo su fecha_fin.
-     *
-     * @return void
      */
     public function confirmarBajaMiembro(): void
     {
@@ -702,8 +651,6 @@ class CiudadanoPage extends Component
 
     /**
      * Cancela el flujo de confirmación de baja.
-     *
-     * @return void
      */
     public function cancelarBajaMiembro(): void
     {
@@ -714,8 +661,6 @@ class CiudadanoPage extends Component
      * Verifica manualmente la residencia de un miembro en la UC vigente.
      *
      * @param int $miembroId ID de UnidadConvivenciaMiembro.
-     *
-     * @return void
      */
     public function verificarMiembro(int $miembroId): void
     {
@@ -733,8 +678,6 @@ class CiudadanoPage extends Component
     /**
      * Crea la UC tomando el domicilio del ciudadano titular y lo añade como primer miembro.
      * Solo actúa si el ciudadano no tiene UC vigente.
-     *
-     * @return void
      */
     public function crearUc(): void
     {
@@ -743,9 +686,9 @@ class CiudadanoPage extends Component
         }
 
         $uc = UnidadConvivencia::create([
-            'domicilio'          => $this->ciudadano->direccion_texto,
-            'latitud'            => $this->ciudadano->coordenadas_lat,
-            'longitud'           => $this->ciudadano->coordenadas_lng,
+            'domicilio' => $this->ciudadano->direccion_texto,
+            'latitud' => $this->ciudadano->coordenadas_lat,
+            'longitud' => $this->ciudadano->coordenadas_lng,
             'fecha_constitucion' => now()->toDateString(),
         ]);
 
@@ -760,8 +703,6 @@ class CiudadanoPage extends Component
      * Expande o contrae un apunte del timeline.
      *
      * @param int $apunteId ID del apunte.
-     *
-     * @return void
      */
     public function toggleApunte(int $apunteId): void
     {
@@ -770,8 +711,6 @@ class CiudadanoPage extends Component
 
     /**
      * @param string $filtro 'todos' | 'plan' | 'entrevista'
-     *
-     * @return void
      */
     public function setFiltroHS(string $filtro): void
     {
@@ -783,8 +722,6 @@ class CiudadanoPage extends Component
      * Activa una herramienta del panel lateral.
      *
      * @param string $herramienta Identificador de la herramienta.
-     *
-     * @return void
      */
     public function seleccionarHerramienta(string $herramienta): void
     {
@@ -804,8 +741,6 @@ class CiudadanoPage extends Component
 
     /**
      * Cancela la herramienta activa y limpia su estado visual.
-     *
-     * @return void
      */
     public function cancelarHerramienta(): void
     {
@@ -817,8 +752,6 @@ class CiudadanoPage extends Component
      * El pasado es inmutable: este modal nunca ofrece edición.
      *
      * @param int $apunteId ID del apunte que se muestra.
-     *
-     * @return void
      */
     public function verApunte(int $apunteId): void
     {
@@ -858,9 +791,9 @@ class CiudadanoPage extends Component
                 $this->modalApunteDatos['ficha_campos'] = collect($ficha->schema_snapshot['campos'] ?? [])
                     ->map(fn (array $c) => [
                         'etiqueta' => $c['etiqueta'] ?? $c['id'],
-                        'tipo'     => $c['tipo'] ?? 'texto',
-                        'valor'    => ($ficha->datos ?? [])[$c['id']] ?? null,
-                        'unidad'   => $c['unidad'] ?? null,
+                        'tipo' => $c['tipo'] ?? 'texto',
+                        'valor' => ($ficha->datos ?? [])[$c['id']] ?? null,
+                        'unidad' => $c['unidad'] ?? null,
                     ])
                     ->all();
                 $this->modalApunteDatos['ficha_notas'] = $ficha->notas;
@@ -872,8 +805,6 @@ class CiudadanoPage extends Component
 
     /**
      * Cierra el modal de detalle de apunte.
-     *
-     * @return void
      */
     public function cerrarModalApunte(): void
     {
@@ -888,8 +819,6 @@ class CiudadanoPage extends Component
 
     /**
      * Guarda una entrevista y su apunte asociado.
-     *
-     * @return void
      */
     public function guardarEntrevista(): void
     {
@@ -938,8 +867,6 @@ class CiudadanoPage extends Component
 
     /**
      * Guarda una anotación en la Historia Social.
-     *
-     * @return void
      */
     public function guardarAnotacion(): void
     {
@@ -965,8 +892,6 @@ class CiudadanoPage extends Component
      * Crea una derivación (apunte de tipo derivacion).
      * La tabla derivaciones no existe todavía — se registra como apunte.
      * TODO: crear modelo Derivacion y tabla derivaciones cuando esté disponible.
-     *
-     * @return void
      */
     public function crearDerivacion(): void
     {
@@ -993,8 +918,6 @@ class CiudadanoPage extends Component
 
     /**
      * Guarda una gestión / coordinación como apunte.
-     *
-     * @return void
      */
     public function guardarGestion(): void
     {
@@ -1026,8 +949,6 @@ class CiudadanoPage extends Component
      * @param int $tipoFichaId ID del tipo de ficha.
      * @param array<string, mixed> $datos
      * @param int|null $entrevistaId ID de la entrevista vinculada, si existe.
-     *
-     * @return void
      */
     public function guardarValoracion(int $tipoFichaId, array $datos, ?int $entrevistaId = null): void
     {
@@ -1070,8 +991,6 @@ class CiudadanoPage extends Component
      *
      * @param int $tipoEscalaId ID del tipo de escala.
      * @param array<string, mixed> $respuestas [item_id => valor]
-     *
-     * @return void
      */
     public function guardarEscala(int $tipoEscalaId, array $respuestas): void
     {
@@ -1113,8 +1032,6 @@ class CiudadanoPage extends Component
      *
      * @param array<string, mixed> $schema
      * @param array<string, mixed> $respuestas
-     *
-     * @return int
      */
     public function calcularScoreEscala(array $schema, array $respuestas): int
     {
@@ -1132,21 +1049,17 @@ class CiudadanoPage extends Component
 
     /**
      * Genera y descarga el PDF del plan de intervención indicado.
-     *
-     * @param int $planId
-     *
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
-    public function generarPdfPlan(int $planId): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function generarPdfPlan(int $planId): StreamedResponse
     {
-        $plan = \Modules\Intervencion\Models\PlanDeIntervencion::findOrFail($planId);
+        $plan = PlanDeIntervencion::findOrFail($planId);
 
         $this->authorize('view', $plan);
 
-        $service = app(\Modules\Intervencion\Services\PlanPdfService::class);
+        $service = app(PlanPdfService::class);
 
         return response()->streamDownload(
-            fn () => print($service->generar($plan)),
+            fn () => print ($service->generar($plan)),
             $service->nombre($plan),
             ['Content-Type' => 'application/pdf']
         );
@@ -1154,8 +1067,6 @@ class CiudadanoPage extends Component
 
     /**
      * Renderiza la vista principal del expediente del ciudadano.
-     *
-     * @return View
      */
     public function render(): View
     {

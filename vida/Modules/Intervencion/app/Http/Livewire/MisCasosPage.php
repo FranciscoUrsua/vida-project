@@ -60,8 +60,6 @@ class MisCasosPage extends Component
 
     /**
      * Resetea la paginación al cambiar el filtro de seguimiento.
-     *
-     * @return void
      */
     public function updatedFiltroSeguimiento(): void
     {
@@ -70,8 +68,6 @@ class MisCasosPage extends Component
 
     /**
      * Resetea la paginación al cambiar el filtro de plan ASP.
-     *
-     * @return void
      */
     public function updatedFiltroPiso(): void
     {
@@ -80,8 +76,6 @@ class MisCasosPage extends Component
 
     /**
      * Resetea la paginación al cambiar el filtro de derivación especializada.
-     *
-     * @return void
      */
     public function updatedFiltroEsp(): void
     {
@@ -90,8 +84,6 @@ class MisCasosPage extends Component
 
     /**
      * Resetea la paginación al cambiar el criterio de ordenación.
-     *
-     * @return void
      */
     public function updatedOrdenarPor(): void
     {
@@ -100,8 +92,6 @@ class MisCasosPage extends Component
 
     /**
      * Resetea la paginación al cambiar el texto de búsqueda.
-     *
-     * @return void
      */
     public function updatedBusqueda(): void
     {
@@ -114,8 +104,6 @@ class MisCasosPage extends Component
      * 'ciudadano' aplica ordenación en memoria (nombre cifrado, no ordenable en DB).
      *
      * @param string $campo Identificador de columna.
-     *
-     * @return void
      */
     public function sortBy(string $campo): void
     {
@@ -140,8 +128,6 @@ class MisCasosPage extends Component
     /**
      * Etiqueta configurable del tipo de plan general (PISO o nombre alternativo).
      * Se lee del catálogo de sistema para permitir cambio sin deploy.
-     *
-     * @return string
      */
     public function nombrePlanAsp(): string
     {
@@ -157,8 +143,6 @@ class MisCasosPage extends Component
      *
      * Cada fila contiene los datos del plan general ASP activo y el
      * siguiente seguimiento programado (o null si no existe).
-     *
-     * @return LengthAwarePaginator
      */
     #[Computed]
     public function casos(): LengthAwarePaginator
@@ -230,10 +214,10 @@ class MisCasosPage extends Component
                     END {$dir},
                     seg.fecha_siguiente_seguimiento {$dir} NULLS LAST
                 "),
-                'inicio'   => $query->orderBy('pi.fecha_inicio', $this->direccion),
-                'esp'      => $query->orderByRaw("COALESCE(esp.planes_esp_count, 0) {$dir}, pi.fecha_inicio ASC"),
+                'inicio' => $query->orderBy('pi.fecha_inicio', $this->direccion),
+                'esp' => $query->orderByRaw("COALESCE(esp.planes_esp_count, 0) {$dir}, pi.fecha_inicio ASC"),
                 'historia' => $query->orderBy('pi.historia_id', $this->direccion),
-                default    => $query->orderBy('pi.historia_id', $this->direccion),
+                default => $query->orderBy('pi.historia_id', $this->direccion),
             };
         }
 
@@ -242,13 +226,13 @@ class MisCasosPage extends Component
             $allItems = $query->get();
 
             $ciudadanoIds = $allItems->pluck('ciudadano_id')->filter()->unique();
-            $ciudadanos   = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
+            $ciudadanos = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
                 ->whereIn('id', $ciudadanoIds)
                 ->get()
                 ->keyBy('id');
 
             if ($this->busqueda !== '') {
-                $term     = mb_strtolower($this->busqueda);
+                $term = mb_strtolower($this->busqueda);
                 $allItems = $allItems->filter(
                     fn ($caso) => str_contains(
                         mb_strtolower($ciudadanos->get($caso->ciudadano_id)?->nombre_completo ?? ''),
@@ -297,8 +281,6 @@ class MisCasosPage extends Component
 
     /**
      * Renderiza la bandeja de casos del profesional.
-     *
-     * @return View
      */
     public function render(): View
     {

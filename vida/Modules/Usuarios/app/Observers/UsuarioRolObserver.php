@@ -31,7 +31,6 @@ class UsuarioRolObserver
      * Los registros pendientes de aprobación NO se sincronizan.
      *
      * @param UsuarioRol $usuarioRol Asignación creada.
-     * @return void
      */
     public function created(UsuarioRol $usuarioRol): void
     {
@@ -53,7 +52,6 @@ class UsuarioRolObserver
      * 3. Revocación: estado → inactivo → removeRole si no hay otro vigente.
      *
      * @param UsuarioRol $usuarioRol Asignación actualizada.
-     * @return void
      */
     public function updated(UsuarioRol $usuarioRol): void
     {

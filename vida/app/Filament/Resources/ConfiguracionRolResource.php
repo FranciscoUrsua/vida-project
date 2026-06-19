@@ -48,7 +48,6 @@ class ConfiguracionRolResource extends Resource
      * Define el formulario de supervisión de roles.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -78,7 +77,6 @@ class ConfiguracionRolResource extends Resource
      * Configura el listado de supervisión de roles.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -110,8 +108,6 @@ class ConfiguracionRolResource extends Resource
 
     /**
      * Declara las páginas disponibles para la configuración de roles.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

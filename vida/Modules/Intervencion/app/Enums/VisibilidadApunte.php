@@ -13,8 +13,6 @@ enum VisibilidadApunte: string
 
     /**
      * Devuelve la etiqueta legible de la visibilidad.
-     *
-     * @return string
      */
     public function label(): string
     {

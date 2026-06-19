@@ -25,8 +25,6 @@ class CiudadaniaServiceProvider extends ServiceProvider
 
     /**
      * Registra los servicios del módulo en el contenedor.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -36,8 +34,6 @@ class CiudadaniaServiceProvider extends ServiceProvider
 
     /**
      * Arranca los servicios del módulo.
-     *
-     * @return void
      */
     public function boot(): void
     {

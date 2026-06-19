@@ -46,7 +46,6 @@ class CiudadanoPolicy
      * Decide si el usuario puede listar ciudadanos.
      *
      * @param User $usuario Usuario autenticado.
-     * @return bool
      */
     public function viewAny(User $usuario): bool
     {
@@ -60,7 +59,6 @@ class CiudadanoPolicy
      *
      * @param User $usuario Usuario autenticado.
      * @param Ciudadano $ciudadano Ciudadano objetivo.
-     * @return bool
      */
     public function view(User $usuario, Ciudadano $ciudadano): bool
     {
@@ -81,13 +79,13 @@ class CiudadanoPolicy
         // Nivel 2: consulta libre fuera del ámbito → verificar colectivo protegido
         return $this->resolverConsultaExterna($usuario, $ciudadano);
     }
+
     /**
      * Decide si el usuario puede crear un ciudadano.
      *
      * El rol supervision no puede crear ciudadanos.
      *
      * @param User $usuario Usuario autenticado.
-     * @return bool
      */
     public function create(User $usuario): bool
     {
@@ -107,7 +105,6 @@ class CiudadanoPolicy
      *
      * @param User $usuario Usuario autenticado.
      * @param Ciudadano $ciudadano Ciudadano objetivo.
-     * @return bool
      */
     public function update(User $usuario, Ciudadano $ciudadano): bool
     {
@@ -140,7 +137,6 @@ class CiudadanoPolicy
      *
      * @param User $usuario Usuario autenticado.
      * @param Ciudadano $ciudadano Ciudadano objetivo.
-     * @return bool
      */
     public function delete(User $usuario, Ciudadano $ciudadano): bool
     {

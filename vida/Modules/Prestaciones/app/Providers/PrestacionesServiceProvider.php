@@ -16,15 +16,11 @@ class PrestacionesServiceProvider extends ServiceProvider
 
     /**
      * No registra bindings adicionales en este módulo.
-     *
-     * @return void
      */
     public function register(): void {}
 
     /**
      * No realiza arranque adicional en este módulo.
-     *
-     * @return void
      */
     public function boot(): void {}
 }

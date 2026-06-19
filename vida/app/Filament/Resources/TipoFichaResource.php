@@ -30,6 +30,7 @@ use Modules\Intervencion\Models\TipoFicha;
  * Recurso Filament para la gestión de fichas de valoración configurables.
  *
  * Cada TipoFicha define un formulario con campos tipados (texto, número, select,
+ *
  * @return booleano, fecha, escala) que el profesional rellena durante la valoración.
  * El schema JSON se edita mediante un Builder visual con bloques por tipo de campo.
  */
@@ -59,7 +60,6 @@ class TipoFichaResource extends Resource
      * Configura el listado de tipos de ficha.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -110,7 +110,6 @@ class TipoFichaResource extends Resource
      * Define el formulario de tipos de ficha.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -305,8 +304,6 @@ class TipoFichaResource extends Resource
 
     /**
      * Declara las páginas del catálogo de tipos de ficha.
-     *
-     * @return array
      */
     public static function getPages(): array
     {
@@ -332,7 +329,6 @@ class TipoFichaResource extends Resource
      * Normaliza el schema JSON de bloques al formato canónico de la ficha.
      *
      * @param mixed $state Estado crudo del Builder.
-     * @return array
      */
     public static function convertirSchemaBlocks(mixed $state): array
     {
@@ -396,7 +392,8 @@ class TipoFichaResource extends Resource
      * Necesario porque el afterStateHydrated propio del Repeater no se ejecuta
      * cuando el Builder carga el estado programáticamente.
      *
-     * @param  array<mixed>  $campo
+     * @param array<mixed> $campo
+     *
      * @return array<string, mixed>
      */
     private static function normalizarOpcionesParaBuilder(array $campo): array
@@ -417,7 +414,8 @@ class TipoFichaResource extends Resource
      * Se aplica en dehydrateStateUsing y convertirSchemaBlocks como defensa
      * ante ambos formatos posibles.
      *
-     * @param  array<mixed>  $opciones
+     * @param array<mixed> $opciones
+     *
      * @return array<string>
      */
     private static function normalizarOpcionesParaSchema(array $opciones): array

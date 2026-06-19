@@ -42,7 +42,6 @@ class RolResource extends Resource
      * Define el formulario de roles.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -72,7 +71,6 @@ class RolResource extends Resource
      * Configura el listado de roles.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -102,8 +100,6 @@ class RolResource extends Resource
 
     /**
      * Declara las páginas del recurso de roles.
-     *
-     * @return array
      */
     public static function getPages(): array
     {
@@ -117,8 +113,6 @@ class RolResource extends Resource
     // Solo adm_sistema puede ver y modificar la matriz de roles y permisos.
     /**
      * Determina si el usuario puede ver el listado de roles.
-     *
-     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -127,8 +121,6 @@ class RolResource extends Resource
 
     /**
      * Determina si el usuario puede crear roles.
-     *
-     * @return bool
      */
     public static function canCreate(): bool
     {
@@ -139,7 +131,6 @@ class RolResource extends Resource
      * Determina si el usuario puede editar roles.
      *
      * @param Model $record Registro objetivo.
-     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -150,7 +141,6 @@ class RolResource extends Resource
      * Determina si el usuario puede eliminar roles.
      *
      * @param Model $record Registro objetivo.
-     * @return bool
      */
     public static function canDelete(Model $record): bool
     {

@@ -19,8 +19,6 @@ class AgendaServiceProvider extends ServiceProvider
 
     /**
      * Registra los servicios del módulo en el contenedor.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -29,8 +27,6 @@ class AgendaServiceProvider extends ServiceProvider
 
     /**
      * Arranca el módulo y registra sus observers.
-     *
-     * @return void
      */
     public function boot(): void
     {

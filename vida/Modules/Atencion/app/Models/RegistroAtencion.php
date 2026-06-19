@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Atencion\Database\Factories\RegistroAtencionFactory;
 use Modules\Prestaciones\Models\Prestacion;
 
@@ -25,7 +26,7 @@ use Modules\Prestaciones\Models\Prestacion;
  * @property int $id
  * @property int $ciudadano_id
  * @property string $tipo informacion | actividad | contacto
- * @property \Illuminate\Support\Carbon $fecha
+ * @property Carbon $fecha
  * @property int|null $profesional_id
  * @property int|null $prestacion_id
  * @property string|null $demanda
@@ -34,8 +35,8 @@ use Modules\Prestaciones\Models\Prestacion;
  * @property string|null $origen_tipo Clase del modelo origen (polimórfico manual)
  * @property int|null $origen_id ID del modelo origen
  * @property int|null $cita_generada_id
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class RegistroAtencion extends Model
 {
@@ -81,7 +82,6 @@ class RegistroAtencion extends Model
     /**
      * Valida restricciones de negocio antes de persistir.
      *
-     * @return void
      *
      * @throws \LogicException Si se viola una restricción de negocio del tipo.
      */
@@ -140,8 +140,6 @@ class RegistroAtencion extends Model
     /**
      * Modelo que originó este registro (polimórfico manual).
      * Devuelve null si no hay origen o la clase no existe.
-     *
-     * @return Model|null
      */
     public function modeloOrigen(): ?Model
     {
@@ -162,16 +160,14 @@ class RegistroAtencion extends Model
 
     /**
      * Texto de resumen para la línea del historial (máximo 80 caracteres).
-     *
-     * @return string
      */
     public function resumenHistorial(): string
     {
         return match ($this->tipo) {
             'informacion' => str($this->demanda ?? '')->limit(80)->toString(),
-            'actividad'   => $this->modeloOrigen()?->nombre ?? 'Actividad',
-            'contacto'    => str($this->demanda ?? '')->limit(80)->toString(),
-            default       => '—',
+            'actividad' => $this->modeloOrigen()?->nombre ?? 'Actividad',
+            'contacto' => str($this->demanda ?? '')->limit(80)->toString(),
+            default => '—',
         };
     }
 
@@ -187,7 +183,6 @@ class RegistroAtencion extends Model
      * @param string $origenTipo Clase del modelo origen.
      * @param int $origenId ID del modelo origen.
      * @param DateTimeInterface $fecha Fecha de la actividad.
-     * @return self
      */
     public static function crearDesdeOrigen(
         int $ciudadanoId,
@@ -197,11 +192,11 @@ class RegistroAtencion extends Model
     ): self {
         return static::create([
             'ciudadano_id' => $ciudadanoId,
-            'tipo'         => 'actividad',
-            'fecha'        => $fecha->format('Y-m-d'),
-            'origen'       => 'sistema',
-            'origen_tipo'  => $origenTipo,
-            'origen_id'    => $origenId,
+            'tipo' => 'actividad',
+            'fecha' => $fecha->format('Y-m-d'),
+            'origen' => 'sistema',
+            'origen_tipo' => $origenTipo,
+            'origen_id' => $origenId,
         ]);
     }
 }

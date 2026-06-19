@@ -104,8 +104,6 @@ class Actividad extends Model
      *
      * @param int $ciudadanoId ID del ciudadano a comprobar.
      *
-     * @return void
-     *
      * @throws \InvalidArgumentException Si se requiere inscripción y el ciudadano no la tiene.
      */
     public function verificarInscripcionCentro(int $ciudadanoId): void

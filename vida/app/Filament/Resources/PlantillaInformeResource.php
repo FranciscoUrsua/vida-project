@@ -53,7 +53,6 @@ class PlantillaInformeResource extends Resource
      * Define el formulario de plantillas de informe.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -207,7 +206,6 @@ class PlantillaInformeResource extends Resource
      * Configura el listado de plantillas de informe.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -266,8 +264,6 @@ class PlantillaInformeResource extends Resource
 
     /**
      * Declara las páginas del recurso de plantillas de informe.
-     *
-     * @return array
      */
     public static function getPages(): array
     {
@@ -280,8 +276,6 @@ class PlantillaInformeResource extends Resource
 
     /**
      * Determina si el usuario puede ver el listado de plantillas de informe.
-     *
-     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -292,7 +286,6 @@ class PlantillaInformeResource extends Resource
      * Determina si el usuario puede editar una plantilla de informe.
      *
      * @param Model $record Registro objetivo.
-     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -303,7 +296,6 @@ class PlantillaInformeResource extends Resource
      * Determina si el usuario puede eliminar una plantilla de informe.
      *
      * @param Model $record Registro objetivo.
-     * @return bool
      */
     public static function canDelete(Model $record): bool
     {

@@ -47,7 +47,6 @@ class CuadranteMesResource extends Resource
      * Define el formulario del cuadrante mensual.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -112,7 +111,6 @@ class CuadranteMesResource extends Resource
      * Configura el listado de cuadrantes mensuales.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -205,8 +203,6 @@ class CuadranteMesResource extends Resource
 
     /**
      * Declara los relation managers del recurso.
-     *
-     * @return array
      */
     public static function getRelationManagers(): array
     {
@@ -217,8 +213,6 @@ class CuadranteMesResource extends Resource
 
     /**
      * Declara las páginas del recurso de cuadrantes mensuales.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

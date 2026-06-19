@@ -55,7 +55,6 @@ class TipoEscalaResource extends Resource
      * Configura el listado de tipos de escala.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -113,7 +112,6 @@ class TipoEscalaResource extends Resource
      * Define el formulario de tipos de escala.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -363,8 +361,6 @@ class TipoEscalaResource extends Resource
 
     /**
      * Declara las páginas del catálogo de tipos de escala.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

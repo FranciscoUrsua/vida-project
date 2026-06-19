@@ -17,7 +17,6 @@ class PlanPdfService
      * Genera el PDF del plan con todos sus datos listos para impresión y firma.
      * Devuelve el contenido del PDF como string binario.
      *
-     * @param PlanDeIntervencion $plan
      *
      * @return string Binario del PDF
      */
@@ -40,8 +39,8 @@ class PlanPdfService
         $pdf = Pdf::loadHTML($html)
             ->setPaper('a4', 'portrait')
             ->setOptions([
-                'defaultFont'      => 'sans-serif',
-                'isRemoteEnabled'  => false,
+                'defaultFont' => 'sans-serif',
+                'isRemoteEnabled' => false,
             ]);
 
         return $pdf->output();
@@ -49,15 +48,11 @@ class PlanPdfService
 
     /**
      * Devuelve el nombre de fichero sugerido para la descarga del PDF.
-     *
-     * @param PlanDeIntervencion $plan
-     *
-     * @return string
      */
     public function nombre(PlanDeIntervencion $plan): string
     {
         $ciudadanoId = $plan->historia->ciudadano_id ?? 'sin-id';
 
-        return "plan_{$ciudadanoId}_v{$plan->version}_" . now()->format('Ymd') . '.pdf';
+        return "plan_{$ciudadanoId}_v{$plan->version}_".now()->format('Ymd').'.pdf';
     }
 }

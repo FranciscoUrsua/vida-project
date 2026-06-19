@@ -112,7 +112,6 @@ class ExcepcionProfesional extends Model
      * Filtra excepciones de un profesional concreto.
      *
      * @param Builder<ExcepcionProfesional> $query
-     * @param int $usuarioId
      *
      * @return Builder<ExcepcionProfesional>
      */

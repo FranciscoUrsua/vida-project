@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Modules\Atencion\Models\RegistroAtencion;
 use Modules\Ciudadania\Models\CiudadanoPrestacionResumen;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
@@ -152,7 +153,6 @@ class Ciudadano extends Model
     /**
      * Nombre completo del ciudadano: nombre + apellido1 [+ apellido2].
      * Los campos están cifrados — solo accesible mediante Eloquent ORM.
-     * @return string
      */
     public function getNombreCompletoAttribute(): string
     {
@@ -165,7 +165,6 @@ class Ciudadano extends Model
 
     /** El ciudadano es la entidad raíz: su propio id es el ciudadano_id.
      *
-     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {
@@ -224,11 +223,11 @@ class Ciudadano extends Model
     /**
      * Historial completo de atenciones, ordenado por fecha descendente.
      *
-     * @return HasMany<\Modules\Atencion\Models\RegistroAtencion>
+     * @return HasMany<RegistroAtencion>
      */
     public function registrosAtencion(): HasMany
     {
-        return $this->hasMany(\Modules\Atencion\Models\RegistroAtencion::class, 'ciudadano_id')
+        return $this->hasMany(RegistroAtencion::class, 'ciudadano_id')
             ->orderByDesc('fecha')
             ->orderByDesc('created_at');
     }
@@ -236,19 +235,17 @@ class Ciudadano extends Model
     /**
      * Última atención recibida por el ciudadano.
      *
-     * @return HasOne<\Modules\Atencion\Models\RegistroAtencion>
+     * @return HasOne<RegistroAtencion>
      */
     public function ultimaAtencion(): HasOne
     {
-        return $this->hasOne(\Modules\Atencion\Models\RegistroAtencion::class, 'ciudadano_id')
+        return $this->hasOne(RegistroAtencion::class, 'ciudadano_id')
             ->latestOfMany('fecha');
     }
 
     /**
      * Indica si el ciudadano tiene verificada su residencia en alguna UC activa.
      * Determina si puede ser perceptor de prestaciones municipales.
-     *
-     * @return bool
      */
     public function tieneResidenciaVerificada(): bool
     {

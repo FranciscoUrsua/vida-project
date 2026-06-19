@@ -32,8 +32,6 @@ class RegistrarValoracionPage extends Component
     /**
      * ID de la HistoriaSocial. Se usa int en lugar del modelo para evitar
      * que AmbitoUoScope interfiera durante la serialización de Livewire.
-     *
-     * @var int
      */
     public int $historiaId;
 
@@ -56,8 +54,6 @@ class RegistrarValoracionPage extends Component
      * Inicializa la pantalla con la historia y los parámetros de ficha/entrevista.
      *
      * @param HistoriaSocial $historia Historia social del ciudadano.
-     *
-     * @return void
      */
     public function mount(HistoriaSocial $historia): void
     {
@@ -81,8 +77,6 @@ class RegistrarValoracionPage extends Component
 
     /**
      * TipoFicha actualmente seleccionado, null si no hay selección.
-     *
-     * @return TipoFicha|null
      */
     #[Computed]
     public function tipoFicha(): ?TipoFicha
@@ -113,22 +107,18 @@ class RegistrarValoracionPage extends Component
      * Cambia la ficha seleccionada y reinicializa el formulario.
      *
      * @param int $id ID del tipo de ficha seleccionado.
-     *
-     * @return void
      */
     public function seleccionarFicha(int $id): void
     {
-        $this->tipoFichaId    = $id;
-        $this->datos          = [];
-        $this->notas          = '';
+        $this->tipoFichaId = $id;
+        $this->datos = [];
+        $this->notas = '';
         $this->estadoGuardado = null;
         $this->inicializarDatos();
     }
 
     /**
      * Guarda la ficha como borrador (completada = false). No redirige.
-     *
-     * @return void
      */
     public function guardar(): void
     {
@@ -139,8 +129,6 @@ class RegistrarValoracionPage extends Component
     /**
      * Valida campos obligatorios, marca la ficha como completada, registra el apunte
      * en la Historia Social y redirige al expediente del ciudadano.
-     *
-     * @return mixed
      */
     public function guardarDefinitivo(): mixed
     {
@@ -178,19 +166,15 @@ class RegistrarValoracionPage extends Component
      * - Borrador: updateOrCreate sobre la fila con completada=false.
      * - Definitivo: actualiza el borrador existente a completada=true,
      *   o crea una ficha completada nueva si no hay borrador.
-     *
-     * @param bool $completada
-     *
-     * @return Ficha
      */
     private function persistirFicha(bool $completada): Ficha
     {
         $payload = [
             'schema_snapshot' => $this->tipoFicha?->schema,
-            'datos'           => $this->datos ?: null,
-            'notas'           => $this->notas ?: null,
-            'completada'      => $completada,
-            'profesional_id'  => auth()->id(),
+            'datos' => $this->datos ?: null,
+            'notas' => $this->notas ?: null,
+            'completada' => $completada,
+            'profesional_id' => auth()->id(),
         ];
 
         if ($completada) {
@@ -206,7 +190,7 @@ class RegistrarValoracionPage extends Component
             }
 
             return Ficha::create(array_merge([
-                'historia_id'   => $this->historiaId,
+                'historia_id' => $this->historiaId,
                 'tipo_ficha_id' => $this->tipoFichaId,
             ], $payload));
         }
@@ -214,9 +198,9 @@ class RegistrarValoracionPage extends Component
         // TODO: vincular a Valoracion cuando ese flujo esté completo
         return Ficha::updateOrCreate(
             [
-                'historia_id'   => $this->historiaId,
+                'historia_id' => $this->historiaId,
                 'tipo_ficha_id' => $this->tipoFichaId,
-                'completada'    => false,
+                'completada' => false,
             ],
             $payload
         );
@@ -227,8 +211,6 @@ class RegistrarValoracionPage extends Component
      * No hace nada si la historia no tiene plan activo.
      *
      * @param Ficha $ficha Ficha recién guardada como definitiva.
-     *
-     * @return void
      */
     private function registrarApunte(Ficha $ficha): void
     {
@@ -244,22 +226,20 @@ class RegistrarValoracionPage extends Component
         }
 
         Apunte::create([
-            'plan_id'        => $plan->id,
-            'autor_id'       => auth()->id(),
-            'fecha'          => today()->toDateString(),
-            'tipo'           => TipoApunte::Valoracion,
+            'plan_id' => $plan->id,
+            'autor_id' => auth()->id(),
+            'fecha' => today()->toDateString(),
+            'tipo' => TipoApunte::Valoracion,
             'apuntable_type' => Ficha::class,
-            'apuntable_id'   => $ficha->id,
-            'contenido'      => $this->tipoFicha?->nombre,
-            'visibilidad'    => VisibilidadApunte::Profesionales,
+            'apuntable_id' => $ficha->id,
+            'contenido' => $this->tipoFicha?->nombre,
+            'visibilidad' => VisibilidadApunte::Profesionales,
         ]);
     }
 
     /**
      * Inicializa $datos con null para cada campo del schema y carga el
      * borrador previo si existe (completada = false).
-     *
-     * @return void
      */
     private function inicializarDatos(): void
     {
@@ -293,8 +273,6 @@ class RegistrarValoracionPage extends Component
 
     /**
      * Renderiza la pantalla de registro de valoración.
-     *
-     * @return View
      */
     public function render(): View
     {

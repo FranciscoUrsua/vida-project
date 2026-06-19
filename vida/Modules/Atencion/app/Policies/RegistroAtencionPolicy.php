@@ -18,7 +18,6 @@ class RegistroAtencionPolicy
      * Determina si el usuario puede crear un registro de atención.
      *
      * @param User $user Usuario autenticado.
-     * @return bool
      */
     public function create(User $user): bool
     {
@@ -33,7 +32,6 @@ class RegistroAtencionPolicy
      *
      * @param User $user Usuario autenticado.
      * @param RegistroAtencion $registro Registro de atención a consultar.
-     * @return bool
      */
     public function view(User $user, RegistroAtencion $registro): bool
     {
@@ -52,7 +50,6 @@ class RegistroAtencionPolicy
      * Determina si el usuario puede listar registros de atención.
      *
      * @param User $user Usuario autenticado.
-     * @return bool
      */
     public function viewAny(User $user): bool
     {

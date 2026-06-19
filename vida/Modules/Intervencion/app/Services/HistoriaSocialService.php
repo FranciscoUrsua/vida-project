@@ -34,8 +34,6 @@ class HistoriaSocialService
      *
      * @param array<string, mixed> $datos Datos de la nueva Historia Social
      *
-     * @return HistoriaSocial
-     *
      * @throws AuthorizationException Si el usuario no tiene permiso de crear
      */
     public function crear(array $datos): HistoriaSocial
@@ -55,8 +53,6 @@ class HistoriaSocialService
      *
      * @param int $id ID de la Historia Social
      * @param array<string, mixed> $datos Campos a actualizar
-     *
-     * @return HistoriaSocial
      *
      * @throws AuthorizationException Si el usuario no tiene permiso de editar
      * @throws ModelNotFoundException Si la historia no existe o no está en el ámbito del usuario
@@ -79,8 +75,6 @@ class HistoriaSocialService
      * los registros históricos no se destruyen.
      *
      * @param int $id ID de la Historia Social
-     *
-     * @return void
      *
      * @throws AuthorizationException Si el usuario no tiene permiso de eliminar
      * @throws ModelNotFoundException Si la historia no existe o no está en el ámbito del usuario

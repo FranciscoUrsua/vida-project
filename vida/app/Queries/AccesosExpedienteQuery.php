@@ -68,7 +68,6 @@ class AccesosExpedienteQuery
      *
      * @param User $user Usuario autenticado.
      * @param HistoriaSocial $historia Historia social consultada.
-     * @return bool
      */
     public function puedeVerTodos(User $user, HistoriaSocial $historia): bool
     {

@@ -68,8 +68,6 @@ class ServicioFirmaInforme
      * @param int $usuarioId ID del usuario que solicita la anulación.
      * @param string $motivo Motivo de anulación.
      *
-     * @return Informe
-     *
      * @throws \DomainException si el informe no está firmado o el usuario no es el autor
      */
     public function anular(Informe $informe, int $usuarioId, string $motivo): Informe

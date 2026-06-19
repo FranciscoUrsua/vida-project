@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Prestaciones\Models\Prestacion;
@@ -15,12 +16,12 @@ use Modules\Prestaciones\Models\Prestacion;
  *
  * @property int $id
  * @property int $plan_id
- * @property string $descripcion  Campo primario, texto libre
- * @property int|null $prestacion_id  Opcional
- * @property string $estado  'pendiente' | 'en_curso' | 'completada' | 'cancelada'
- * @property \Carbon\Carbon|null $fecha_inicio_prevista
- * @property \Carbon\Carbon|null $fecha_fin_prevista
- * @property \Carbon\Carbon|null $fecha_fin_real
+ * @property string $descripcion Campo primario, texto libre
+ * @property int|null $prestacion_id Opcional
+ * @property string $estado 'pendiente' | 'en_curso' | 'completada' | 'cancelada'
+ * @property Carbon|null $fecha_inicio_prevista
+ * @property Carbon|null $fecha_fin_prevista
+ * @property Carbon|null $fecha_fin_real
  * @property int $orden
  */
 class PlanActuacionCiudadano extends Model
@@ -34,8 +35,8 @@ class PlanActuacionCiudadano extends Model
 
     protected $casts = [
         'fecha_inicio_prevista' => 'date',
-        'fecha_fin_prevista'    => 'date',
-        'fecha_fin_real'        => 'date',
+        'fecha_fin_prevista' => 'date',
+        'fecha_fin_real' => 'date',
     ];
 
     // -------------------------------------------------------------------------

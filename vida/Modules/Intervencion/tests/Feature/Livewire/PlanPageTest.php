@@ -9,13 +9,13 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Livewire;
+use Modules\Intervencion\Database\Seeders\TipoPlanSeeder;
+use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Http\Livewire\PlanPage;
 use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\FirmaPlan;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\PlanFichaDiagnostico;
-use Modules\Intervencion\Enums\EstadoPlan;
-use Modules\Intervencion\Models\TipoPlan;
 use Tests\TestCase;
 
 /**
@@ -30,7 +30,6 @@ class PlanPageTest extends TestCase
      * Crea un usuario autenticado y un plan en el estado indicado.
      * Crea un Ciudadano y HistoriaSocial reales para satisfacer la FK de audits.
      *
-     * @param string $estado
      * @return array{User, PlanDeIntervencion}
      */
     private function montarPlan(string $estado = 'borrador'): array
@@ -38,19 +37,19 @@ class PlanPageTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
         Gate::before(fn () => true);
-        $this->seed(\Modules\Intervencion\Database\Seeders\TipoPlanSeeder::class);
+        $this->seed(TipoPlanSeeder::class);
 
         $ciudadano = Ciudadano::factory()->create();
         $uo = UnidadOrganizativa::factory()->create();
         $historia = HistoriaSocial::factory()->create([
-            'ciudadano_id'           => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uo->id,
         ]);
 
         $plan = PlanDeIntervencion::factory()->create([
-            'historia_id'               => $historia->id,
-            'estado'                    => $estado,
-            'version'                   => 1,
+            'historia_id' => $historia->id,
+            'estado' => $estado,
+            'version' => 1,
             'profesional_responsable_id' => $user->id,
         ]);
 
@@ -78,13 +77,13 @@ class PlanPageTest extends TestCase
     {
         [$user, $plan] = $this->montarPlan();
         FirmaPlan::create([
-            'plan_id'               => $plan->id,
-            'version'               => 1,
-            'profesional_firmado'   => true,
+            'plan_id' => $plan->id,
+            'version' => 1,
+            'profesional_firmado' => true,
             'profesional_firmado_en' => now(),
-            'ciudadano_firmado'     => true,
-            'ciudadano_firmado_en'  => now(),
-            'metodo_firma'          => 'manuscrita',
+            'ciudadano_firmado' => true,
+            'ciudadano_firmado_en' => now(),
+            'metodo_firma' => 'manuscrita',
         ]);
 
         Livewire::test(PlanPage::class, ['plan' => $plan->fresh()])
@@ -101,8 +100,8 @@ class PlanPageTest extends TestCase
             ->call('marcarFirmaProfesional', true);
 
         $this->assertDatabaseHas('firmas_plan', [
-            'plan_id'             => $plan->id,
-            'version'             => 1,
+            'plan_id' => $plan->id,
+            'version' => 1,
             'profesional_firmado' => true,
         ]);
     }
@@ -112,13 +111,13 @@ class PlanPageTest extends TestCase
     {
         [$user, $plan] = $this->montarPlan();
         FirmaPlan::create([
-            'plan_id'               => $plan->id,
-            'version'               => 1,
-            'profesional_firmado'   => true,
+            'plan_id' => $plan->id,
+            'version' => 1,
+            'profesional_firmado' => true,
             'profesional_firmado_en' => now(),
-            'ciudadano_firmado'     => true,
-            'ciudadano_firmado_en'  => now(),
-            'metodo_firma'          => 'manuscrita',
+            'ciudadano_firmado' => true,
+            'ciudadano_firmado_en' => now(),
+            'metodo_firma' => 'manuscrita',
         ]);
 
         Livewire::test(PlanPage::class, ['plan' => $plan->fresh()])
@@ -181,7 +180,7 @@ class PlanPageTest extends TestCase
 
         $this->assertDatabaseHas('plan_cambios', [
             'plan_id' => $plan->id,
-            'motivo'  => 'Actualización tras revisión',
+            'motivo' => 'Actualización tras revisión',
         ]);
     }
 
@@ -197,7 +196,7 @@ class PlanPageTest extends TestCase
             ->assertSet('modalMotivoAbierto', false);
 
         $this->assertDatabaseMissing('plan_fichas_diagnostico', [
-            'plan_id'  => $plan->id,
+            'plan_id' => $plan->id,
             'ficha_id' => $ficha->id,
         ]);
     }

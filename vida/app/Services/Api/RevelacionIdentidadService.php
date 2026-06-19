@@ -28,7 +28,6 @@ class RevelacionIdentidadService
      * @param string $alias Alias con formato CIU-{8 hex}
      * @param int $usuarioId ID del usuario que solicita la revelación
      * @param string $justificacion Motivo obligatorio — queda en auditoría
-     * @return Ciudadano
      *
      * @throws ValidationException Si justificacion está vacía
      * @throws AuthorizationException Si el usuario no tiene permiso ciudadano.revelar_identidad

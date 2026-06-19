@@ -15,8 +15,6 @@ enum MotivoCierre: string
 
     /**
      * Etiqueta legible para mostrar el motivo de cierre.
-     *
-     * @return string
      */
     public function label(): string
     {

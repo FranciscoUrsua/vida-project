@@ -28,8 +28,6 @@ class MensajesServiceProvider extends ServiceProvider
 
     /**
      * Registra los servicios singleton del módulo.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -40,8 +38,6 @@ class MensajesServiceProvider extends ServiceProvider
 
     /**
      * Carga migraciones, vistas, componentes y scheduler del módulo.
-     *
-     * @return void
      */
     public function boot(): void
     {

@@ -19,15 +19,16 @@ use Modules\Ciudadania\Enums\ImplicacionFuncional;
  *
  * Los tipos con `eliminable = false` son del seeder y no pueden borrarse.
  *
- * @property int         $id
- * @property string      $slug                  Identificador interno inmutable
- * @property string      $etiqueta              Texto visible para el TSR
- * @property string      $etiqueta_reciproca    Etiqueta del tipo inverso
- * @property string|null $slug_reciproco        Slug del tipo recíproco (null si simétrico)
- * @property bool        $simetrica             True si ambas partes tienen el mismo rol
+ * @property int $id
+ * @property string $slug Identificador interno inmutable
+ * @property string $etiqueta Texto visible para el TSR
+ * @property string $etiqueta_reciproca Etiqueta del tipo inverso
+ * @property string|null $slug_reciproco Slug del tipo recíproco (null si simétrico)
+ * @property bool $simetrica True si ambas partes tienen el mismo rol
  * @property string|null $implicacion_funcional Valor semántico que evalúa el código
- * @property bool        $eliminable            False para tipos del seeder
- * @property bool        $activo
+ * @property bool $eliminable False para tipos del seeder
+ * @property bool $activo
+ *
  * @throws \LogicException al intentar borrar un tipo con eliminable = false
  */
 class TipoRelacion extends Model
@@ -53,9 +54,9 @@ class TipoRelacion extends Model
     ];
 
     protected $casts = [
-        'simetrica'  => 'boolean',
+        'simetrica' => 'boolean',
         'eliminable' => 'boolean',
-        'activo'     => 'boolean',
+        'activo' => 'boolean',
     ];
 
     // -------------------------------------------------------------------------
@@ -107,8 +108,6 @@ class TipoRelacion extends Model
     /**
      * Devuelve el tipo recíproco. Para tipos simétricos devuelve $this.
      * Para asimétricos consulta el catálogo por `slug_reciproco`.
-     *
-     * @return self|null
      */
     public function tipoRecíproco(): ?self
     {
@@ -142,8 +141,6 @@ class TipoRelacion extends Model
      * ¿Existe al menos un tipo activo con esta implicación funcional?
      *
      * @param ImplicacionFuncional $implicacion Implicación funcional requerida.
-     *
-     * @return bool
      */
     public static function existeImplicacion(ImplicacionFuncional $implicacion): bool
     {

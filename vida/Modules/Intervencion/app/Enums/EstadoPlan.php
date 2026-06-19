@@ -14,8 +14,6 @@ enum EstadoPlan: string
 
     /**
      * Etiqueta legible para mostrar el estado del plan.
-     *
-     * @return string
      */
     public function label(): string
     {

@@ -16,10 +16,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int $plan_id
  * @property int|null $objetivo_catalogo_id
- * @property string $nivel  'general' | 'especifico'
- * @property int|null $objetivo_general_id  FK a plan_objetivos
+ * @property string $nivel 'general' | 'especifico'
+ * @property int|null $objetivo_general_id FK a plan_objetivos
  * @property string $texto
- * @property string $estado  'pendiente' | 'en_proceso' | 'conseguido' | 'abandonado'
+ * @property string $estado 'pendiente' | 'en_proceso' | 'conseguido' | 'abandonado'
  * @property int $orden
  */
 class PlanObjetivo extends Model

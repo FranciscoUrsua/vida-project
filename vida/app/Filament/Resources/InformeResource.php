@@ -53,7 +53,6 @@ class InformeResource extends Resource
      * Construye la vista de detalle de informes.
      *
      * @param Schema $schema Esquema base del infolist.
-     * @return Schema
      */
     public static function infolist(Schema $schema): Schema
     {
@@ -150,8 +149,6 @@ class InformeResource extends Resource
 
     /**
      * Determina si el usuario puede ver el listado de informes.
-     *
-     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -162,7 +159,6 @@ class InformeResource extends Resource
      * Configura el listado de informes.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -308,8 +304,6 @@ class InformeResource extends Resource
 
     /**
      * Declara las páginas del recurso de informes.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

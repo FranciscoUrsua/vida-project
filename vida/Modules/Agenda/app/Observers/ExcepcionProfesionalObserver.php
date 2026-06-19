@@ -26,8 +26,6 @@ class ExcepcionProfesionalObserver
      * 'reservado' (con cita activa) no se anulan para preservar la trazabilidad.
      *
      * @param ExcepcionProfesional $excepcion Excepción profesional creada.
-     *
-     * @return void
      */
     public function created(ExcepcionProfesional $excepcion): void
     {

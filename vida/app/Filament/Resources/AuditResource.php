@@ -48,8 +48,6 @@ class AuditResource extends Resource
     // -------------------------------------------------------------------------
     /**
      * Restringe el listado a los registros visibles según la UO del usuario.
-     *
-     * @return Builder
      */
     public static function getEloquentQuery(): Builder
     {
@@ -80,8 +78,6 @@ class AuditResource extends Resource
      * Configura la tabla de auditoría en modo solo lectura.
      *
      * @param Table $table Tabla base.
-     *
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -168,8 +164,6 @@ class AuditResource extends Resource
 
     /**
      * Define las páginas disponibles del recurso de auditoría.
-     *
-     * @return array
      */
     public static function getPages(): array
     {
@@ -181,7 +175,6 @@ class AuditResource extends Resource
 
     /** Solo accesible para roles supervision y adm_sistema.
      *
-     * @return bool
      */
     public static function canAccess(): bool
     {
@@ -192,7 +185,6 @@ class AuditResource extends Resource
 
     /** Registro de auditoría — inmutable. Nunca se crean desde el backoffice.
      *
-     * @return bool
      */
     public static function canCreate(): bool
     {
@@ -203,8 +195,6 @@ class AuditResource extends Resource
      * Indica que la edición está deshabilitada en auditoría.
      *
      * @param Audit $record Registro objetivo.
-     *
-     * @return bool
      */
     public static function canEdit($record): bool
     {
@@ -215,8 +205,6 @@ class AuditResource extends Resource
      * Indica que la edición está deshabilitada en auditoría.
      *
      * @param Audit $record Registro objetivo.
-     *
-     * @return bool
      */
     public static function canDelete($record): bool
     {

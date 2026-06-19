@@ -13,8 +13,6 @@ enum EstadoCuadrante: string
 
     /**
      * Etiqueta legible para mostrar el estado del cuadrante.
-     *
-     * @return string
      */
     public function label(): string
     {

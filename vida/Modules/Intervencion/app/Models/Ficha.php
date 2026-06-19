@@ -2,12 +2,12 @@
 
 namespace Modules\Intervencion\Models;
 
+use App\Models\HistoriaSocial;
 use App\Traits\Auditable;
 use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\HistoriaSocial;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Intervencion\Database\Factories\FichaFactory;
 
@@ -22,15 +22,15 @@ use Modules\Intervencion\Database\Factories\FichaFactory;
  * antes de existir una Valoracion formal (valoracion_id nullable).
  * TODO: vincular siempre a Valoracion cuando ese flujo esté completo.
  *
- * @property int        $id
- * @property int|null   $historia_id
- * @property int|null   $valoracion_id
- * @property int        $tipo_ficha_id
- * @property array|null $schema_snapshot  Copia del schema del TipoFicha al crear la ficha
- * @property int|null   $profesional_id
+ * @property int $id
+ * @property int|null $historia_id
+ * @property int|null $valoracion_id
+ * @property int $tipo_ficha_id
+ * @property array|null $schema_snapshot Copia del schema del TipoFicha al crear la ficha
+ * @property int|null $profesional_id
  * @property array|null $datos
  * @property string|null $notas
- * @property bool       $completada
+ * @property bool $completada
  */
 class Ficha extends Model
 {
@@ -57,9 +57,9 @@ class Ficha extends Model
     ];
 
     protected $casts = [
-        'datos'           => 'array',
+        'datos' => 'array',
         'schema_snapshot' => 'array',
-        'completada'      => 'boolean',
+        'completada' => 'boolean',
     ];
 
     // -------------------------------------------------------------------------
@@ -94,8 +94,6 @@ class Ficha extends Model
 
     /**
      * Resuelve el ciudadano_id para el sistema de auditoría a través de la historia social.
-     *
-     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {
@@ -112,6 +110,7 @@ class Ficha extends Model
      * @param Builder<self> $query Consulta base.
      * @param int $historiaId Identificador de la historia social.
      * @param int $tipoFichaId Identificador del tipo de ficha.
+     *
      * @return Builder<self>
      */
     public function scopeHistorialPara(Builder $query, int $historiaId, int $tipoFichaId): Builder
@@ -134,8 +133,9 @@ class Ficha extends Model
      * - Campo en schema actual pero no en datos anteriores → null (campo nuevo).
      * - Campo en datos anteriores pero no en schema actual → se descarta (retirado).
      *
-     * @param self     $fichaAnterior Ficha de referencia.
-     * @param TipoFicha $tipoFicha    TipoFicha con el schema actual.
+     * @param self $fichaAnterior Ficha de referencia.
+     * @param TipoFicha $tipoFicha TipoFicha con el schema actual.
+     *
      * @return array<string, mixed>
      */
     public static function prerellenarDesde(self $fichaAnterior, TipoFicha $tipoFicha): array

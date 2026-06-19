@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 /**
  * Gestiona el acceso y la salida de la aplicación operacional.
@@ -16,7 +18,7 @@ class LoginController extends Controller
     /**
      * Muestra el formulario de login.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function mostrar()
     {
@@ -27,7 +29,9 @@ class LoginController extends Controller
      * Procesa el intento de autenticación.
      *
      * @param Request $request Petición entrante.
-     * @return \Illuminate\Http\RedirectResponse
+     *
+     * @return RedirectResponse
+     *
      * @throws ValidationException
      */
     public function autenticar(Request $request)
@@ -88,7 +92,8 @@ class LoginController extends Controller
      * Cierra la sesión activa.
      *
      * @param Request $request Petición entrante.
-     * @return \Illuminate\Http\RedirectResponse
+     *
+     * @return RedirectResponse
      */
     public function cerrarSesion(Request $request)
     {

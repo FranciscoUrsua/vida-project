@@ -44,7 +44,6 @@ class ZonaResource extends Resource
      * Define el formulario de zonas.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -78,7 +77,6 @@ class ZonaResource extends Resource
      * Configura el listado de zonas.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -119,8 +117,6 @@ class ZonaResource extends Resource
 
     /**
      * Declara las páginas del catálogo de zonas.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

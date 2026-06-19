@@ -78,8 +78,6 @@ class Informe extends Model
 
     /**
      * ID del ciudadano asociado al informe.
-     *
-     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {
@@ -155,8 +153,6 @@ class Informe extends Model
 
     /**
      * Indica si el informe está firmado.
-     *
-     * @return bool
      */
     public function estaFirmado(): bool
     {
@@ -165,8 +161,6 @@ class Informe extends Model
 
     /**
      * Indica si el informe está anulado.
-     *
-     * @return bool
      */
     public function estaAnulado(): bool
     {

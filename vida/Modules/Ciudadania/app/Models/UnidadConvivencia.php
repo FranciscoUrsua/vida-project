@@ -134,8 +134,6 @@ class UnidadConvivencia extends Model
 
     /**
      * Indica si la unidad está disuelta (fecha_disolucion en el pasado).
-     *
-     * @return bool
      */
     public function estaDisuelta(): bool
     {
@@ -149,8 +147,6 @@ class UnidadConvivencia extends Model
      * @param int $ciudadanoId ID del ciudadano que se incorpora.
      * @param string $fuente Fuente de la incorporación.
      * @param \DateTimeInterface|null $fechaInicio Fecha de inicio de la membresía.
-     *
-     * @return UnidadConvivenciaMiembro
      *
      * @throws \LogicException Si el ciudadano ya es miembro activo.
      */
@@ -182,8 +178,6 @@ class UnidadConvivencia extends Model
      *
      * @param int $ciudadanoId ID del ciudadano que causa baja.
      * @param \DateTimeInterface|null $fechaFin Fecha de fin de la membresía.
-     *
-     * @return void
      *
      * @throws \LogicException Si el ciudadano no es miembro activo.
      */

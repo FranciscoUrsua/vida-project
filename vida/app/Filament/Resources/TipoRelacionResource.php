@@ -48,7 +48,6 @@ class TipoRelacionResource extends Resource
      * Define el formulario de tipos de relación entre ciudadanos.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -121,7 +120,6 @@ class TipoRelacionResource extends Resource
      * Configura el listado de tipos de relación entre ciudadanos.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -193,8 +191,6 @@ class TipoRelacionResource extends Resource
 
     /**
      * Determina si el usuario puede ver el listado de tipos de relación.
-     *
-     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -203,8 +199,6 @@ class TipoRelacionResource extends Resource
 
     /**
      * Determina si el usuario puede crear tipos de relación.
-     *
-     * @return bool
      */
     public static function canCreate(): bool
     {
@@ -215,7 +209,6 @@ class TipoRelacionResource extends Resource
      * Determina si el usuario puede editar un tipo de relación.
      *
      * @param mixed $record Registro objetivo.
-     * @return bool
      */
     public static function canEdit($record): bool
     {
@@ -226,7 +219,6 @@ class TipoRelacionResource extends Resource
      * Determina si el usuario puede eliminar un tipo de relación.
      *
      * @param mixed $record Registro objetivo.
-     * @return bool
      */
     public static function canDelete($record): bool
     {
@@ -239,15 +231,13 @@ class TipoRelacionResource extends Resource
 
     /**
      * Declara las páginas del catálogo de tipos de relación.
-     *
-     * @return array
      */
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListTiposRelacion::route('/'),
+            'index' => Pages\ListTiposRelacion::route('/'),
             'create' => Pages\CreateTipoRelacion::route('/create'),
-            'edit'   => Pages\EditTipoRelacion::route('/{record}/edit'),
+            'edit' => Pages\EditTipoRelacion::route('/{record}/edit'),
         ];
     }
 }

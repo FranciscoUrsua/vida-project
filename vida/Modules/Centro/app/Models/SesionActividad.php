@@ -82,8 +82,6 @@ class SesionActividad extends Model
     /**
      * Plazas disponibles: aforo efectivo menos prescripciones activas o asignadas.
      * Usa el aforo de la sesión si está definido, o el de la actividad como fallback.
-     *
-     * @return int
      */
     public function getAforoDisponibleAttribute(): int
     {

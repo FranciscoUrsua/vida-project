@@ -42,7 +42,6 @@ class TitulacionResource extends Resource
      * Define el formulario de titulaciones.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -65,7 +64,6 @@ class TitulacionResource extends Resource
      * Configura el listado de titulaciones.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -98,8 +96,6 @@ class TitulacionResource extends Resource
 
     /**
      * Declara las páginas del catálogo de titulaciones.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

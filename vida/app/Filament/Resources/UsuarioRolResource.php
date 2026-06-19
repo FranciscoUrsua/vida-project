@@ -49,7 +49,6 @@ class UsuarioRolResource extends Resource
      * Define el formulario de asignaciones de rol.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -97,7 +96,6 @@ class UsuarioRolResource extends Resource
      * Configura el listado de asignaciones de rol.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -162,8 +160,6 @@ class UsuarioRolResource extends Resource
 
     /**
      * Declara las páginas del catálogo de asignaciones de rol.
-     *
-     * @return array
      */
     public static function getPages(): array
     {
@@ -178,7 +174,6 @@ class UsuarioRolResource extends Resource
      * Determina si el usuario puede editar la asignación de rol.
      *
      * @param Model $record Registro objetivo.
-     * @return bool
      */
     public static function canEdit(Model $record): bool
     {

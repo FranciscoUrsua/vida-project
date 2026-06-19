@@ -15,15 +15,11 @@ class EscalasServiceProvider extends ServiceProvider
 
     /**
      * Registra los servicios del módulo.
-     *
-     * @return void
      */
     public function register(): void {}
 
     /**
      * Arranca el módulo Escalas.
-     *
-     * @return void
      */
     public function boot(): void
     {

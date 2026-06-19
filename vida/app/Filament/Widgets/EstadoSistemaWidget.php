@@ -22,8 +22,6 @@ class EstadoSistemaWidget extends BaseWidget
 
     /**
      * Determina si el widget de estado puede verse.
-     *
-     * @return bool
      */
     public static function canView(): bool
     {

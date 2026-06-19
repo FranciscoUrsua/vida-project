@@ -27,8 +27,6 @@ class BadgeNotificaciones extends Component
     #[Computed]
     /**
      * Total de alertas pendientes dirigidas al usuario.
-     *
-     * @return int
      */
     public function totalAlertas(): int
     {
@@ -61,8 +59,6 @@ class BadgeNotificaciones extends Component
     #[Computed]
     /**
      * Total de mensajes no leídos en hilos activos.
-     *
-     * @return int
      */
     public function totalMensajes(): int
     {
@@ -79,8 +75,6 @@ class BadgeNotificaciones extends Component
     #[Computed]
     /**
      * Total agregado de alertas y mensajes.
-     *
-     * @return int
      */
     public function total(): int
     {
@@ -89,8 +83,6 @@ class BadgeNotificaciones extends Component
 
     /**
      * Renderiza el badge de notificaciones.
-     *
-     * @return View
      */
     public function render(): View
     {

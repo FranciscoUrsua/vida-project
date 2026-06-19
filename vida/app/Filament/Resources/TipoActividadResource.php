@@ -41,7 +41,6 @@ class TipoActividadResource extends Resource
      * Define el formulario de tipos de actividad.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -69,7 +68,6 @@ class TipoActividadResource extends Resource
      * Configura el listado de tipos de actividad.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -97,8 +95,6 @@ class TipoActividadResource extends Resource
 
     /**
      * Declara las páginas del catálogo de tipos de actividad.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

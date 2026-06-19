@@ -10,6 +10,7 @@ use App\Models\UsuarioUo;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
@@ -44,43 +45,43 @@ class GestionUcTest extends TestCase
         $this->seed(RolesSeeder::class);
 
         $this->uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Test UC',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Test UC',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $this->usuario = User::create([
-            'name'               => 'TSR UC Test',
-            'email'              => 'uc-test@vida360.test',
-            'password'           => 'secreto',
-            'email_verified_at'  => now(),
-            'primer_acceso'      => false,
+            'name' => 'TSR UC Test',
+            'email' => 'uc-test@vida360.test',
+            'password' => 'secreto',
+            'email_verified_at' => now(),
+            'primer_acceso' => false,
         ]);
 
         $this->usuario->assignRole('intervencion');
 
         UsuarioUo::create([
-            'usuario_id'              => $this->usuario->id,
-            'unidad_organizativa_id'  => $this->uo->id,
-            'tipo_vinculo'            => 'interno',
-            'fecha_inicio'            => today()->toDateString(),
+            'usuario_id' => $this->usuario->id,
+            'unidad_organizativa_id' => $this->uo->id,
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         $this->ciudadano = Ciudadano::factory()->create();
 
         $this->historia = HistoriaSocial::create([
-            'ciudadano_id'            => $this->ciudadano->id,
-            'unidad_organizativa_id'  => $this->uo->id,
-            'ciudadano_protegido'     => false,
-            'estado'                  => 'abierta',
+            'ciudadano_id' => $this->ciudadano->id,
+            'unidad_organizativa_id' => $this->uo->id,
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
     }
 
     /**
      * Monta el componente, opcionalmente añadiendo al ciudadano titular como miembro de una UC.
      */
-    private function montarComponente(?UnidadConvivencia $uc = null): \Livewire\Features\SupportTesting\Testable
+    private function montarComponente(?UnidadConvivencia $uc = null): Testable
     {
         if ($uc) {
             $uc->agregarMiembro($this->ciudadano->id);
@@ -144,7 +145,7 @@ class GestionUcTest extends TestCase
     #[Test]
     public function seleccionar_ciudadano_uc_establece_la_propiedad(): void
     {
-        $uc   = UnidadConvivencia::factory()->create();
+        $uc = UnidadConvivencia::factory()->create();
         $otro = Ciudadano::factory()->create();
 
         $this->montarComponente($uc)
@@ -158,7 +159,7 @@ class GestionUcTest extends TestCase
     #[Test]
     public function confirmar_anadir_miembro_anade_el_ciudadano(): void
     {
-        $uc   = UnidadConvivencia::factory()->create();
+        $uc = UnidadConvivencia::factory()->create();
         $otro = Ciudadano::factory()->create();
 
         $this->montarComponente($uc)
@@ -174,7 +175,7 @@ class GestionUcTest extends TestCase
     #[Test]
     public function anadir_miembro_limpia_seleccion_tras_exito(): void
     {
-        $uc   = UnidadConvivencia::factory()->create();
+        $uc = UnidadConvivencia::factory()->create();
         $otro = Ciudadano::factory()->create();
 
         $this->montarComponente($uc)
@@ -189,9 +190,9 @@ class GestionUcTest extends TestCase
     #[Test]
     public function iniciar_baja_miembro_establece_la_propiedad(): void
     {
-        $uc         = UnidadConvivencia::factory()->create();
+        $uc = UnidadConvivencia::factory()->create();
         $componente = $this->montarComponente($uc);
-        $miembroId  = UnidadConvivenciaMiembro::first()->id;
+        $miembroId = UnidadConvivenciaMiembro::first()->id;
 
         $componente
             ->call('iniciarBajaMiembro', $miembroId)
@@ -204,9 +205,9 @@ class GestionUcTest extends TestCase
     #[Test]
     public function confirmar_baja_miembro_pone_fecha_fin(): void
     {
-        $uc         = UnidadConvivencia::factory()->create();
+        $uc = UnidadConvivencia::factory()->create();
         $componente = $this->montarComponente($uc);
-        $miembro    = UnidadConvivenciaMiembro::first();
+        $miembro = UnidadConvivenciaMiembro::first();
 
         $componente
             ->call('iniciarBajaMiembro', $miembro->id)
@@ -221,9 +222,9 @@ class GestionUcTest extends TestCase
     #[Test]
     public function cancelar_baja_miembro_limpia_la_propiedad(): void
     {
-        $uc         = UnidadConvivencia::factory()->create();
+        $uc = UnidadConvivencia::factory()->create();
         $componente = $this->montarComponente($uc);
-        $miembro    = UnidadConvivenciaMiembro::first();
+        $miembro = UnidadConvivenciaMiembro::first();
 
         $componente
             ->call('iniciarBajaMiembro', $miembro->id)
@@ -237,9 +238,9 @@ class GestionUcTest extends TestCase
     #[Test]
     public function verificar_miembro_marca_como_verificado(): void
     {
-        $uc         = UnidadConvivencia::factory()->create();
+        $uc = UnidadConvivencia::factory()->create();
         $componente = $this->montarComponente($uc);
-        $miembro    = UnidadConvivenciaMiembro::first();
+        $miembro = UnidadConvivenciaMiembro::first();
 
         $this->assertFalse($miembro->verificado);
 
@@ -257,9 +258,9 @@ class GestionUcTest extends TestCase
     #[Test]
     public function busqueda_excluye_miembros_activos_y_titular(): void
     {
-        $uc      = UnidadConvivencia::factory()->create();
+        $uc = UnidadConvivencia::factory()->create();
         $externo = Ciudadano::factory()->create([
-            'nombre'    => 'María',
+            'nombre' => 'María',
             'apellido1' => 'García',
         ]);
 
@@ -287,7 +288,7 @@ class GestionUcTest extends TestCase
     #[Test]
     public function busqueda_con_menos_de_dos_caracteres_devuelve_vacio(): void
     {
-        $uc         = UnidadConvivencia::factory()->create();
+        $uc = UnidadConvivencia::factory()->create();
         $componente = $this->montarComponente($uc)->call('abrirModalUc');
 
         $componente->set('ucBusqueda', 'a');

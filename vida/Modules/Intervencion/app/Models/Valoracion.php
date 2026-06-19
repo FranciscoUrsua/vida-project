@@ -62,8 +62,6 @@ class Valoracion extends Model
 
     /**
      * Devuelve el ciudadano asociado a la historia social de la valoración.
-     *
-     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {

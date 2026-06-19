@@ -32,8 +32,6 @@ class EscalarAlertasVencidasJob implements ShouldQueue
      * Procesa las alertas vencidas y ejecuta su escalado.
      *
      * @param AlertaService $alertaService Servicio de gestión de alertas.
-     *
-     * @return void
      */
     public function handle(AlertaService $alertaService): void
     {

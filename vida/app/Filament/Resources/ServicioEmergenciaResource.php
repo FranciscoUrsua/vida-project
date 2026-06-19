@@ -48,7 +48,6 @@ class ServicioEmergenciaResource extends Resource
      * Define el formulario de servicios de emergencia.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -75,7 +74,6 @@ class ServicioEmergenciaResource extends Resource
      * Configura el listado de servicios de emergencia.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -108,8 +106,6 @@ class ServicioEmergenciaResource extends Resource
 
     /**
      * Declara las páginas del catálogo de servicios de emergencia.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

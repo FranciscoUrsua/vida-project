@@ -25,8 +25,6 @@ class AuditPurgeCommand extends Command
 
     /**
      * Purga la auditoría caducada y devuelve el número eliminado.
-     *
-     * @return int
      */
     public function handle(): int
     {

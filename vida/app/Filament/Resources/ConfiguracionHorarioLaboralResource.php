@@ -45,8 +45,6 @@ class ConfiguracionHorarioLaboralResource extends Resource
      * Define el formulario de la configuración de horario laboral.
      *
      * @param Schema $schema Esquema base.
-     *
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -89,8 +87,6 @@ class ConfiguracionHorarioLaboralResource extends Resource
      * Define la tabla de configuración de horario laboral.
      *
      * @param Table $table Tabla base.
-     *
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -114,8 +110,6 @@ class ConfiguracionHorarioLaboralResource extends Resource
      */
     /**
      * Limita el recurso al registro de horario laboral.
-     *
-     * @return Builder
      */
     public static function getEloquentQuery(): Builder
     {
@@ -126,8 +120,6 @@ class ConfiguracionHorarioLaboralResource extends Resource
 
     /**
      * Define las páginas del recurso de horario laboral.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

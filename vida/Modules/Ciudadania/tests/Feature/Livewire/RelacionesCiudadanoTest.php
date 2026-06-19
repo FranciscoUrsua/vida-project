@@ -64,8 +64,8 @@ class RelacionesCiudadanoTest extends TestCase
         $this->ciudadano = $this->crearCiudadano('Ana', 'Martínez', 'López');
 
         // Slugs del seeder
-        $this->slugPadre   = TipoRelacion::where('etiqueta', 'LIKE', '%adre%')->value('slug') ?? 'padre-madre';
-        $this->slugHijo    = TipoRelacion::where('slug', 'hijo-a')->value('slug') ?? 'hijo-a';
+        $this->slugPadre = TipoRelacion::where('etiqueta', 'LIKE', '%adre%')->value('slug') ?? 'padre-madre';
+        $this->slugHijo = TipoRelacion::where('slug', 'hijo-a')->value('slug') ?? 'hijo-a';
         $this->slugConyuge = TipoRelacion::where('slug', 'conyuge')->value('slug') ?? 'conyuge';
     }
 
@@ -79,8 +79,8 @@ class RelacionesCiudadanoTest extends TestCase
     private function crearUsuarioConRol(string $rol): User
     {
         $user = User::create([
-            'name' => "Test {$rol} " . uniqid(),
-            'email' => "{$rol}-" . uniqid() . '@test.local',
+            'name' => "Test {$rol} ".uniqid(),
+            'email' => "{$rol}-".uniqid().'@test.local',
             'password' => 'secreto',
             'email_verified_at' => now(),
             'primer_acceso' => false,

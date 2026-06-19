@@ -31,8 +31,6 @@ class RegistrarEscalaPage extends Component
      * Inicializa la pantalla con la historia y el tipo de escala opcional.
      *
      * @param HistoriaSocial $historia Historia social del ciudadano.
-     *
-     * @return void
      */
     public function mount(HistoriaSocial $historia): void
     {
@@ -44,8 +42,6 @@ class RegistrarEscalaPage extends Component
 
     /**
      * Devuelve el instrumento de escala seleccionado.
-     *
-     * @return TipoEscala|null
      */
     public function getTipoEscalaProperty(): ?TipoEscala
     {
@@ -54,8 +50,6 @@ class RegistrarEscalaPage extends Component
 
     /**
      * Guarda el pase de escala y redirige de vuelta a la pantalla del ciudadano.
-     *
-     * @return void
      */
     public function guardar(): void
     {
@@ -74,8 +68,6 @@ class RegistrarEscalaPage extends Component
 
     /**
      * Renderiza la pantalla de registro de escala.
-     *
-     * @return View
      */
     public function render(): View
     {

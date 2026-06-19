@@ -152,8 +152,6 @@ class Servicio extends Model
 
     /**
      * Devuelve el ResponsableServicio activo (fecha_fin null), o null si no hay ninguno.
-     *
-     * @return ResponsableServicio|null
      */
     public function responsableActivo(): ?ResponsableServicio
     {
@@ -167,8 +165,6 @@ class Servicio extends Model
      *
      * @param Profesional $profesional Profesional nombrado responsable.
      * @param string|null $notas Notas opcionales del nombramiento.
-     *
-     * @return ResponsableServicio
      */
     public function nombrarResponsable(Profesional $profesional, ?string $notas = null): ResponsableServicio
     {

@@ -45,8 +45,6 @@ class NuevoMensaje extends Component
 
     /**
      * Inicializa la pantalla y exige autenticación.
-     *
-     * @return void
      */
     public function mount(): void
     {
@@ -87,8 +85,6 @@ class NuevoMensaje extends Component
      * Selecciona el destinatario del mensaje.
      *
      * @param int $usuarioId ID del usuario destinatario.
-     *
-     * @return void
      */
     public function seleccionarDestinatario(int $usuarioId): void
     {
@@ -99,8 +95,6 @@ class NuevoMensaje extends Component
 
     /**
      * Limpia el destinatario seleccionado.
-     *
-     * @return void
      */
     public function limpiarDestinatario(): void
     {
@@ -130,8 +124,6 @@ class NuevoMensaje extends Component
      * Añade un ciudadano a la lista de referenciados.
      *
      * @param int $ciudadanoId ID del ciudadano.
-     *
-     * @return void
      */
     public function agregarCiudadano(int $ciudadanoId): void
     {
@@ -147,8 +139,6 @@ class NuevoMensaje extends Component
      * Quita un ciudadano de la lista de referenciados.
      *
      * @param int $ciudadanoId ID del ciudadano.
-     *
-     * @return void
      */
     public function quitarCiudadano(int $ciudadanoId): void
     {
@@ -161,8 +151,6 @@ class NuevoMensaje extends Component
      * Valida y crea el hilo del mensaje nuevo.
      *
      * @param MensajeriaService $mensajeriaService Servicio de mensajería.
-     *
-     * @return void
      */
     public function enviar(MensajeriaService $mensajeriaService): void
     {
@@ -200,8 +188,6 @@ class NuevoMensaje extends Component
 
     /**
      * Renderiza el formulario de nuevo mensaje.
-     *
-     * @return View
      */
     public function render(): View
     {

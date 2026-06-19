@@ -17,14 +17,14 @@ class TipoRelacionFactory extends Factory
         $slug = $this->faker->unique()->slug(2).'_'.$this->faker->randomNumber(3);
 
         return [
-            'slug'                  => $slug,
-            'etiqueta'              => ucfirst($this->faker->word()),
-            'etiqueta_reciproca'    => ucfirst($this->faker->word()),
-            'slug_reciproco'        => null,
-            'simetrica'             => false,
+            'slug' => $slug,
+            'etiqueta' => ucfirst($this->faker->word()),
+            'etiqueta_reciproca' => ucfirst($this->faker->word()),
+            'slug_reciproco' => null,
+            'simetrica' => false,
             'implicacion_funcional' => null,
-            'eliminable'            => true,
-            'activo'                => true,
+            'eliminable' => true,
+            'activo' => true,
         ];
     }
 

@@ -41,7 +41,6 @@ class SegmentoPoblacionResource extends Resource
      * Define el formulario de segmentos de población.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -70,7 +69,6 @@ class SegmentoPoblacionResource extends Resource
      * Configura el listado de segmentos de población.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -103,8 +101,6 @@ class SegmentoPoblacionResource extends Resource
 
     /**
      * Declara las páginas del catálogo de segmentos de población.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

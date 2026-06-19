@@ -60,9 +60,6 @@ class Prestacion extends Model
     use SoftDeletes;
     use Versionable;
 
-    /**
-     * @return PrestacionFactory
-     */
     protected static function newFactory(): PrestacionFactory
     {
         return PrestacionFactory::new();

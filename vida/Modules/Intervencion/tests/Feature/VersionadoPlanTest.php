@@ -160,11 +160,11 @@ class VersionadoPlanTest extends TestCase
         $plan = $this->crearPlanActivo();
 
         FirmaPlan::create([
-            'plan_id'              => $plan->id,
-            'version'              => 1,
-            'ciudadano_firmado'    => true,
-            'profesional_firmado'  => false,
-            'metodo_firma'         => 'manuscrita',
+            'plan_id' => $plan->id,
+            'version' => 1,
+            'ciudadano_firmado' => true,
+            'profesional_firmado' => false,
+            'metodo_firma' => 'manuscrita',
         ]);
 
         $this->assertFalse($plan->estaFirmado(), 'Con solo la firma del ciudadano el plan no está firmado');
@@ -179,13 +179,13 @@ class VersionadoPlanTest extends TestCase
         $plan = $this->crearPlanActivo();
 
         FirmaPlan::create([
-            'plan_id'              => $plan->id,
-            'version'              => 1,
-            'ciudadano_firmado'    => true,
+            'plan_id' => $plan->id,
+            'version' => 1,
+            'ciudadano_firmado' => true,
             'ciudadano_firmado_en' => now(),
-            'profesional_firmado'  => true,
+            'profesional_firmado' => true,
             'profesional_firmado_en' => now(),
-            'metodo_firma'         => 'manuscrita',
+            'metodo_firma' => 'manuscrita',
         ]);
 
         $this->assertTrue($plan->estaFirmado(), 'Con ambas firmas para la versión correcta, el plan está firmado');
@@ -201,13 +201,13 @@ class VersionadoPlanTest extends TestCase
 
         // Existe firma para la versión 1 con ambas partes
         FirmaPlan::create([
-            'plan_id'              => $plan->id,
-            'version'              => 1,
-            'ciudadano_firmado'    => true,
+            'plan_id' => $plan->id,
+            'version' => 1,
+            'ciudadano_firmado' => true,
             'ciudadano_firmado_en' => now(),
-            'profesional_firmado'  => true,
+            'profesional_firmado' => true,
             'profesional_firmado_en' => now(),
-            'metodo_firma'         => 'manuscrita',
+            'metodo_firma' => 'manuscrita',
         ]);
 
         // Se genera una nueva versión (version=2, sin firmas)

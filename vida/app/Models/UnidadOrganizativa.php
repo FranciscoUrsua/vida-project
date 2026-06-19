@@ -120,7 +120,6 @@ class UnidadOrganizativa extends Model
      * Útil para verificar ámbitos de supervisión jerárquica.
      *
      * @param UnidadOrganizativa $ancestor UO ancestro a comprobar
-     * @return bool
      */
     public function isDescendantOf(UnidadOrganizativa $ancestor): bool
     {

@@ -13,8 +13,6 @@ enum ModoAgenda: string
 
     /**
      * Etiqueta legible para mostrar el modo de agenda.
-     *
-     * @return string
      */
     public function label(): string
     {

@@ -18,8 +18,6 @@ class UnauthorizedException extends RuntimeException
      *
      * @param int $usuarioId ID del usuario.
      * @param int $ciudadanoId ID del ciudadano.
-     *
-     * @return self
      */
     public static function noEsTsr(int $usuarioId, int $ciudadanoId): self
     {

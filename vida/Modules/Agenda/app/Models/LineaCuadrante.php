@@ -126,7 +126,6 @@ class LineaCuadrante extends Model
      * Filtra líneas de un profesional.
      *
      * @param Builder<LineaCuadrante> $query
-     * @param int $usuarioId
      *
      * @return Builder<LineaCuadrante>
      */

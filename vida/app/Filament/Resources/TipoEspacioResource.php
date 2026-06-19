@@ -44,7 +44,6 @@ class TipoEspacioResource extends Resource
      * Define el formulario de tipos de espacio.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -72,7 +71,6 @@ class TipoEspacioResource extends Resource
      * Configura el listado de tipos de espacio.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -100,8 +98,6 @@ class TipoEspacioResource extends Resource
 
     /**
      * Declara las páginas del catálogo de tipos de espacio.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

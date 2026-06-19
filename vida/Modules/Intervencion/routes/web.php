@@ -2,10 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
-use Modules\Intervencion\Http\Livewire\PlanPage;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\CiudadanoPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
+use Modules\Intervencion\Http\Livewire\PlanPage;
 use Modules\Intervencion\Http\Livewire\RegistrarEscalaPage;
 use Modules\Intervencion\Http\Livewire\RegistrarValoracionPage;
 use Modules\Intervencion\Http\Livewire\VerFichaPage;

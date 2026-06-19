@@ -24,7 +24,6 @@ class EstiloInformeObserver
      * Invalida la caché cuando se guarda un estilo.
      *
      * @param EstiloInforme $estilo Estilo afectado.
-     * @return void
      */
     public function saved(EstiloInforme $estilo): void
     {
@@ -35,7 +34,6 @@ class EstiloInformeObserver
      * Invalida la caché cuando se elimina un estilo.
      *
      * @param EstiloInforme $estilo Estilo afectado.
-     * @return void
      */
     public function deleted(EstiloInforme $estilo): void
     {

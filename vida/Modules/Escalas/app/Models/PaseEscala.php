@@ -96,8 +96,6 @@ class PaseEscala extends Model
     /**
      * Suma los valores de todas las respuestas y calcula los scores por sección.
      * No persiste; llamar a save() después si se desea guardar.
-     *
-     * @return void
      */
     public function calcularScores(): void
     {
@@ -118,8 +116,6 @@ class PaseEscala extends Model
      * Busca el rango de interpretación que corresponde al score_total y asigna su código.
      * Si no encuentra ningún rango, deja interpretacion_codigo como null.
      * No persiste.
-     *
-     * @return void
      */
     public function asignarInterpretacion(): void
     {
@@ -144,7 +140,6 @@ class PaseEscala extends Model
     /**
      * Orquesta el cierre del pase: valida respuestas, calcula scores, persiste.
      *
-     * @return void
      *
      * @throws \LogicException Si falta respuesta para algún ítem del schema.
      */
@@ -192,8 +187,6 @@ class PaseEscala extends Model
 
     /**
      * ID del ciudadano titular de la historia social asociada al pase.
-     *
-     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {

@@ -40,8 +40,6 @@ trait TieneDireccion
 {
     /**
      * Inyecta los casts de los campos de dirección al instanciar el modelo.
-     *
-     * @return void
      */
     public function initializeTieneDireccion(): void
     {
@@ -63,7 +61,6 @@ trait TieneDireccion
      *
      * Construye la representación a partir de los campos normalizados cuando
      * están disponibles. Usa el texto libre como fallback.
-     * @return string
      */
     public function direccionFormateada(): string
     {

@@ -6,18 +6,19 @@ use App\Models\Audit;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
-use Illuminate\Support\Collection;
 use App\Models\User;
 use App\Queries\AccesosExpedienteQuery;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Modules\Atencion\Models\RegistroAtencion;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
-use Modules\Ciudadania\Models\CiudadanoRelacion;
 use Modules\Ciudadania\Models\CiudadanoPrestacionResumen;
+use Modules\Ciudadania\Models\CiudadanoRelacion;
 use Modules\Ciudadania\Models\TipoRelacion;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
@@ -55,7 +56,7 @@ use Modules\Ciudadania\Services\NormalizadorCiudadano;
  * @property-read bool $puedeVerTodosLosAccesos
  * @property-read bool $puedeAbrirHistoria
  * @property-read bool $puedeCrearAtencion
- * @property-read Collection<int, \Modules\Atencion\Models\RegistroAtencion> $historialAtenciones
+ * @property-read Collection<int, RegistroAtencion> $historialAtenciones
  */
 #[Layout('layouts.operativo')]
 class FichaCiudadanoPage extends Component
@@ -127,7 +128,6 @@ class FichaCiudadanoPage extends Component
 
     public string $nuevoValorDocumento = '';
 
-
     // -------------------------------------------------------------------------
     // Gestión de relaciones
     // -------------------------------------------------------------------------
@@ -160,8 +160,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * @param int $ciudadano ID del ciudadano (parámetro de ruta {ciudadano})
-     *
-     * @return void
      */
     public function mount(int $ciudadano): void
     {
@@ -191,8 +189,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Ciudadano sin AmbitoUoScope — accesible aunque no tenga historia social en la UO.
-     *
-     * @return Ciudadano
      */
     #[Computed]
     public function ciudadano(): Ciudadano
@@ -202,8 +198,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * El rol supervision tiene acceso de solo lectura. Todos los demás con acceso pueden editar.
-     *
-     * @return bool
      */
     #[Computed]
     public function puedeEditar(): bool
@@ -217,8 +211,6 @@ class FichaCiudadanoPage extends Component
     /**
      * Historia social sin AmbitoUoScope ni SoftDeletes — solo comprueba existencia.
      * La historia es única y permanente: nunca se cierra.
-     *
-     * @return HistoriaSocial|null
      */
     #[Computed]
     public function historiaSocial(): ?HistoriaSocial
@@ -230,8 +222,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Solo el rol intervencion puede navegar a la historia social.
-     *
-     * @return bool
      */
     #[Computed]
     public function puedeVerHistoria(): bool
@@ -258,8 +248,6 @@ class FichaCiudadanoPage extends Component
     /**
      * UC vigente del ciudadano (primera con fecha_fin nula o futura).
      * Sin AmbitoUoScope porque la UC no tiene ámbito UO propio.
-     *
-     * @return UnidadConvivencia|null
      */
     #[Computed]
     public function ucVigente(): ?UnidadConvivencia
@@ -307,8 +295,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Solo los roles con competencia de tramitación o intervención pueden crear o editar relaciones.
-     *
-     * @return bool
      */
     #[Computed]
     public function puedeEditarRelaciones(): bool
@@ -333,8 +319,6 @@ class FichaCiudadanoPage extends Component
     /**
      * El panel de accesos es visible solo para roles con competencia de intervención o supervisión.
      * Revelar metadatos de acceso a roles sin competencia es una fuga de información sobre el caso.
-     *
-     * @return bool
      */
     #[Computed]
     public function puedeVerAccesos(): bool
@@ -345,8 +329,6 @@ class FichaCiudadanoPage extends Component
     /**
      * Indica si el usuario ve todos los accesos (TSR/supervisor/adm) o solo los propios.
      * Usado en la vista para mostrar u ocultar el enlace "Ver todo".
-     *
-     * @return bool
      */
     #[Computed]
     public function puedeVerTodosLosAccesos(): bool
@@ -374,7 +356,6 @@ class FichaCiudadanoPage extends Component
      * @return Collection<int, Audit>
      */
     #[Computed]
-
     public function actividadReciente(): Collection
     {
         if (! $this->puedeVerAccesos) {
@@ -468,8 +449,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Ciudadano seleccionado actualmente para la relación.
-     *
-     * @return Ciudadano|null
      */
     #[Computed]
     public function ciudadanoSeleccionadoRelacion(): ?Ciudadano
@@ -489,8 +468,6 @@ class FichaCiudadanoPage extends Component
     /**
      * Activa el modo edición simultáneo de todos los campos de Capa 1.
      * Solo si puedeEditar — supervision no puede modificar datos.
-     *
-     * @return void
      */
     public function activarEdicion(): void
     {
@@ -502,8 +479,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Cancela la edición y recarga los datos desde BD.
-     *
-     * @return void
      */
     public function cancelarEdicion(): void
     {
@@ -525,7 +500,6 @@ class FichaCiudadanoPage extends Component
      * Valida, normaliza y persiste los campos de Capa 1.
      * Solo si puedeEditar. DireccionObserver procesará geocodificación si cambia direccion_texto.
      *
-     * @return void
      *
      * @throws ValidationException
      */
@@ -573,15 +547,12 @@ class FichaCiudadanoPage extends Component
         $this->dispatch('ciudadano-actualizado');
     }
 
-
     // -------------------------------------------------------------------------
     // Gestión de relaciones
     // -------------------------------------------------------------------------
 
     /**
      * Abre el modal para crear una nueva relación.
-     *
-     * @return void
      */
     public function abrirModalNuevaRelacion(): void
     {
@@ -603,8 +574,6 @@ class FichaCiudadanoPage extends Component
      * Abre el modal con los datos de una relación existente para edición.
      *
      * @param int $relacionId ID de la relación a editar.
-     *
-     * @return void
      */
     public function abrirModalEditarRelacion(int $relacionId): void
     {
@@ -632,8 +601,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Cierra el modal y limpia el estado del formulario de relación.
-     *
-     * @return void
      */
     public function cerrarModalRelacion(): void
     {
@@ -649,8 +616,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Alterna la visibilidad del historial de relaciones cerradas.
-     *
-     * @return void
      */
     public function toggleHistorialRelaciones(): void
     {
@@ -661,8 +626,6 @@ class FichaCiudadanoPage extends Component
      * Registra el ciudadano seleccionado en el buscador del modal de relación.
      *
      * @param int $ciudadanoId ID del ciudadano relacionado.
-     *
-     * @return void
      */
     public function seleccionarCiudadanoRelacion(int $ciudadanoId): void
     {
@@ -679,7 +642,6 @@ class FichaCiudadanoPage extends Component
      * Si $relacionId es null, crea; si es int, actualiza solo las observaciones.
      * Requiere permiso de tramitación o intervención; aborta con 403 si no.
      *
-     * @return void
      *
      * @throws ValidationException
      */
@@ -749,8 +711,6 @@ class FichaCiudadanoPage extends Component
      * Requiere permiso de tramitación o intervención; aborta con 403 si no.
      *
      * @param int $relacionId ID de la relación a cerrar.
-     *
-     * @return void
      */
     public function cerrarRelacion(int $relacionId): void
     {
@@ -779,8 +739,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Abre el modal de añadir documento. Solo si puedeEditar.
-     *
-     * @return void
      */
     public function abrirModalDocumento(): void
     {
@@ -792,8 +750,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Cierra el modal y limpia el formulario.
-     *
-     * @return void
      */
     public function cerrarModalDocumento(): void
     {
@@ -807,7 +763,6 @@ class FichaCiudadanoPage extends Component
      * El historial se mantiene íntegro (principio 4.2 — el pasado es inmutable):
      * los documentos anteriores reciben fecha_fin pero no se eliminan.
      *
-     * @return void
      *
      * @throws ValidationException
      */
@@ -847,7 +802,7 @@ class FichaCiudadanoPage extends Component
     /**
      * Colección de atenciones del ciudadano, ordenadas por fecha descendente.
      *
-     * @return Collection<int, \Modules\Atencion\Models\RegistroAtencion>
+     * @return Collection<int, RegistroAtencion>
      */
     #[Computed]
     public function historialAtenciones(): Collection
@@ -861,8 +816,6 @@ class FichaCiudadanoPage extends Component
     /**
      * Indica si el usuario puede abrir la Historia Social del ciudadano.
      * Solo cuando el ciudadano no tiene historia y el usuario tiene el permiso.
-     *
-     * @return bool
      */
     #[Computed]
     public function puedeAbrirHistoria(): bool
@@ -872,8 +825,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Indica si el usuario puede registrar una nueva atención.
-     *
-     * @return bool
      */
     #[Computed]
     public function puedeCrearAtencion(): bool
@@ -888,8 +839,6 @@ class FichaCiudadanoPage extends Component
     /**
      * Crea la Historia Social del ciudadano y redirige a la pantalla de intervención.
      * Solo ejecutable si el ciudadano no tiene historia social previa.
-     *
-     * @return void
      */
     public function abrirHistoriaSocial(): void
     {
@@ -902,9 +851,9 @@ class FichaCiudadanoPage extends Component
         $uoActiva = auth()->user()->uosActivas()->first();
 
         $historia = HistoriaSocial::create([
-            'ciudadano_id'           => $this->ciudadanoId,
+            'ciudadano_id' => $this->ciudadanoId,
             'unidad_organizativa_id' => $uoActiva?->id,
-            'estado'                 => 'abierta',
+            'estado' => 'abierta',
         ]);
 
         $this->redirect(route('intervencion.ciudadano.show', $historia->id), navigate: true);
@@ -912,8 +861,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Abre el modal de nueva atención con los valores por defecto.
-     *
-     * @return void
      */
     public function abrirModalAtencion(): void
     {
@@ -928,8 +875,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Cierra el modal de nueva atención.
-     *
-     * @return void
      */
     public function cerrarModalAtencion(): void
     {
@@ -939,33 +884,31 @@ class FichaCiudadanoPage extends Component
     /**
      * Valida y persiste el nuevo registro de atención.
      * Invalida el computed del historial para que se recargue.
-     *
-     * @return void
      */
     public function guardarAtencion(): void
     {
-        $this->authorize('create', \Modules\Atencion\Models\RegistroAtencion::class);
+        $this->authorize('create', RegistroAtencion::class);
 
         $this->validate([
-            'atencionFecha'     => 'required|date|before_or_equal:today',
-            'atencionDemanda'   => 'required|string|min:5|max:2000',
+            'atencionFecha' => 'required|date|before_or_equal:today',
+            'atencionDemanda' => 'required|string|min:5|max:2000',
             'atencionRespuesta' => 'nullable|string|max:2000',
         ], [
-            'atencionFecha.required'          => 'La fecha es obligatoria.',
-            'atencionFecha.before_or_equal'   => 'La fecha no puede ser futura.',
-            'atencionDemanda.required'        => 'La demanda es obligatoria.',
-            'atencionDemanda.min'             => 'Describe la demanda con al menos 5 caracteres.',
+            'atencionFecha.required' => 'La fecha es obligatoria.',
+            'atencionFecha.before_or_equal' => 'La fecha no puede ser futura.',
+            'atencionDemanda.required' => 'La demanda es obligatoria.',
+            'atencionDemanda.min' => 'Describe la demanda con al menos 5 caracteres.',
         ]);
 
-        \Modules\Atencion\Models\RegistroAtencion::create([
-            'ciudadano_id'   => $this->ciudadanoId,
-            'tipo'           => $this->atencionTipo,
-            'fecha'          => $this->atencionFecha,
+        RegistroAtencion::create([
+            'ciudadano_id' => $this->ciudadanoId,
+            'tipo' => $this->atencionTipo,
+            'fecha' => $this->atencionFecha,
             'profesional_id' => auth()->id(),
-            'prestacion_id'  => $this->atencionPrestacionId,
-            'demanda'        => $this->atencionDemanda,
-            'respuesta'      => $this->atencionRespuesta,
-            'origen'         => 'manual',
+            'prestacion_id' => $this->atencionPrestacionId,
+            'demanda' => $this->atencionDemanda,
+            'respuesta' => $this->atencionRespuesta,
+            'origen' => 'manual',
         ]);
 
         $this->atencionMensaje = 'Atención registrada correctamente.';
@@ -979,8 +922,6 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Renderiza la ficha del ciudadano.
-     *
-     * @return View
      */
     public function render(): View
     {

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 /**
  * Gestiona la pantalla de primer acceso que se muestra una sola vez
@@ -15,7 +17,7 @@ class OnboardingController extends Controller
     /**
      * Muestra la pantalla de bienvenida con el contexto del usuario.
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function mostrar()
     {
@@ -31,7 +33,8 @@ class OnboardingController extends Controller
      * Marca el onboarding como completado y redirige al destino según rol.
      *
      * @param Request $request Petición entrante.
-     * @return \Illuminate\Http\RedirectResponse
+     *
+     * @return RedirectResponse
      */
     public function completar(Request $request)
     {

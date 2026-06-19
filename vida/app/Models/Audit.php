@@ -71,7 +71,7 @@ class Audit extends Model
     /**
      * @param array<string, mixed> $attributes Atributos a actualizar.
      * @param array<string, mixed> $options Opciones de persistencia.
-     * @return bool
+     *
      * @throws LogicException Los registros de auditoría son inmutables.
      */
     public function update(array $attributes = [], array $options = []): bool
@@ -80,7 +80,6 @@ class Audit extends Model
     }
 
     /**
-     * @return bool|null
      * @throws LogicException Use AuditPurgeCommand para purgas por retención.
      */
     public function delete(): ?bool

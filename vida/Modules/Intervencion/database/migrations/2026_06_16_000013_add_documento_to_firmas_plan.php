@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::table('firmas_plan', function (Blueprint $table) {
             $table->foreignId('documento_firmado_id')
-                  ->nullable()
-                  ->after('fecha_firma')
-                  ->constrained('documentos')
-                  ->nullOnDelete();
+                ->nullable()
+                ->after('fecha_firma')
+                ->constrained('documentos')
+                ->nullOnDelete();
         });
     }
 

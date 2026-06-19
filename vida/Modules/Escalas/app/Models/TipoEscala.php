@@ -219,8 +219,6 @@ class TipoEscala extends Model
      *
      * @param string $codigo Código funcional de la escala.
      *
-     * @return int
-     *
      * @throws ModelNotFoundException
      */
     public static function codigoId(string $codigo): int

@@ -20,8 +20,6 @@ enum TipoApunte: string
 
     /**
      * Etiqueta legible para mostrar el tipo de apunte.
-     *
-     * @return string
      */
     public function label(): string
     {

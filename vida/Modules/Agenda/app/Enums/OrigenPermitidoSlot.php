@@ -13,8 +13,6 @@ enum OrigenPermitidoSlot: string
 
     /**
      * Etiqueta legible para mostrar los origenes permitidos del slot.
-     *
-     * @return string
      */
     public function label(): string
     {

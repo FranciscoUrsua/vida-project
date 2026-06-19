@@ -17,8 +17,6 @@ enum EstadoSlot: string
 
     /**
      * Etiqueta legible para mostrar el estado del slot.
-     *
-     * @return string
      */
     public function label(): string
     {

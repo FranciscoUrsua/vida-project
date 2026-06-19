@@ -122,8 +122,6 @@ class CuadranteMes extends Model
      * Filtra cuadrantes por año y mes.
      *
      * @param Builder<CuadranteMes> $query
-     * @param int $anyo
-     * @param int $mes
      *
      * @return Builder<CuadranteMes>
      */
@@ -136,7 +134,6 @@ class CuadranteMes extends Model
      * Filtra cuadrantes de un centro.
      *
      * @param Builder<CuadranteMes> $query
-     * @param int $centroId
      *
      * @return Builder<CuadranteMes>
      */

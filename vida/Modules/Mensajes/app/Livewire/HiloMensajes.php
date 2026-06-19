@@ -47,8 +47,6 @@ class HiloMensajes extends Component
      * Inicializa la vista del hilo y marca sus mensajes como leídos.
      *
      * @param int $hiloId ID del hilo.
-     *
-     * @return void
      */
     public function mount(int $hiloId): void
     {
@@ -64,8 +62,6 @@ class HiloMensajes extends Component
     #[Computed]
     /**
      * Hilo de mensajes cargado con sus relaciones.
-     *
-     * @return MensajeHilo
      */
     public function hilo(): MensajeHilo
     {
@@ -77,8 +73,6 @@ class HiloMensajes extends Component
      * Envía una respuesta al hilo actual.
      *
      * @param MensajeriaService $mensajeriaService Servicio de mensajería.
-     *
-     * @return void
      */
     public function enviarRespuesta(MensajeriaService $mensajeriaService): void
     {
@@ -102,11 +96,6 @@ class HiloMensajes extends Component
 
     /**
      * Abre el modal para registrar un mensaje en la Historia Social.
-     *
-     * @param int $mensajeId
-     * @param int $ciudadanoId
-     *
-     * @return void
      */
     public function abrirModalHistoria(int $mensajeId, int $ciudadanoId): void
     {
@@ -121,8 +110,6 @@ class HiloMensajes extends Component
 
     /**
      * Cierra el modal de registro en la Historia Social.
-     *
-     * @return void
      */
     public function cerrarModalHistoria(): void
     {
@@ -134,10 +121,6 @@ class HiloMensajes extends Component
 
     /**
      * Confirma el registro del mensaje en la Historia Social.
-     *
-     * @param MensajeriaService $mensajeriaService
-     *
-     * @return void
      */
     public function confirmarRegistroHistoria(MensajeriaService $mensajeriaService): void
     {
@@ -167,10 +150,6 @@ class HiloMensajes extends Component
      *
      * Se entiende como TSR el profesional cuya UO tiene asignada la Historia Social
      * del ciudadano y el profesional tiene adscripción activa a esa UO.
-     *
-     * @param int $ciudadanoId
-     *
-     * @return bool
      */
     public function esTsrDeCiudadano(int $ciudadanoId): bool
     {
@@ -198,8 +177,6 @@ class HiloMensajes extends Component
 
     /**
      * Renderiza la vista del hilo de mensajes.
-     *
-     * @return View
      */
     public function render(): View
     {

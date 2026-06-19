@@ -45,7 +45,6 @@ class PerfilHorarioProfesionalResource extends Resource
      * Define el formulario de perfiles horarios de profesional.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -122,7 +121,6 @@ class PerfilHorarioProfesionalResource extends Resource
      * Configura el listado de perfiles horarios de profesional.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -173,8 +171,6 @@ class PerfilHorarioProfesionalResource extends Resource
 
     /**
      * Declara las páginas del recurso de perfiles horarios.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

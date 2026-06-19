@@ -24,11 +24,6 @@ class ApuntePolicy
      * Determina si el usuario puede ver el apunte.
      *
      * Regla absoluta: si visibilidad=privada, solo el autor tiene acceso.
-     *
-     * @param User $usuario
-     * @param Apunte $apunte
-     *
-     * @return bool
      */
     public function view(User $usuario, Apunte $apunte): bool
     {
@@ -43,11 +38,6 @@ class ApuntePolicy
      * Determina si el usuario puede editar el apunte.
      *
      * Solo el autor puede editar sus propios apuntes.
-     *
-     * @param User $usuario
-     * @param Apunte $apunte
-     *
-     * @return bool
      */
     public function update(User $usuario, Apunte $apunte): bool
     {
@@ -59,11 +49,6 @@ class ApuntePolicy
      *
      * Solo se pueden eliminar apuntes privados (notas personales del profesional).
      * Los apuntes de visibilidad profesionales o ciudadano son registro permanente.
-     *
-     * @param User $usuario
-     * @param Apunte $apunte
-     *
-     * @return bool
      */
     public function delete(User $usuario, Apunte $apunte): bool
     {

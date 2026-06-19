@@ -31,14 +31,12 @@ class VerFichaPage extends Component
      * Inicializa la página con la historia y la ficha solicitadas.
      *
      * @param HistoriaSocial $historia Historia Social propietaria de la ficha.
-     * @param Ficha          $ficha    Ficha que se desea visualizar.
-     *
-     * @return void
+     * @param Ficha $ficha Ficha que se desea visualizar.
      */
     public function mount(HistoriaSocial $historia, Ficha $ficha): void
     {
         $this->historiaId = $historia->id;
-        $this->ficha      = $ficha;
+        $this->ficha = $ficha;
     }
 
     /**
@@ -50,14 +48,14 @@ class VerFichaPage extends Component
     public function camposConValor(): array
     {
         $campos = $this->ficha->schema_snapshot['campos'] ?? [];
-        $datos  = $this->ficha->datos ?? [];
+        $datos = $this->ficha->datos ?? [];
 
         return array_map(function (array $campo) use ($datos): array {
             return [
-                'etiqueta'    => $campo['etiqueta'] ?? $campo['id'],
-                'tipo'        => $campo['tipo'] ?? 'texto',
-                'valor'       => $datos[$campo['id']] ?? null,
-                'unidad'      => $campo['unidad'] ?? null,
+                'etiqueta' => $campo['etiqueta'] ?? $campo['id'],
+                'tipo' => $campo['tipo'] ?? 'texto',
+                'valor' => $datos[$campo['id']] ?? null,
+                'unidad' => $campo['unidad'] ?? null,
                 'obligatorio' => $campo['obligatorio'] ?? false,
             ];
         }, $campos);
@@ -65,8 +63,6 @@ class VerFichaPage extends Component
 
     /**
      * Nombre del TipoFicha: usa schema_snapshot si está disponible, si no busca en BD.
-     *
-     * @return string
      */
     public function nombreFicha(): string
     {
@@ -75,8 +71,6 @@ class VerFichaPage extends Component
 
     /**
      * Renderiza la vista de solo lectura de la ficha.
-     *
-     * @return View
      */
     public function render(): View
     {

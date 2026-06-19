@@ -14,7 +14,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -46,10 +45,6 @@ class TipoPlanResource extends Resource
 
     /**
      * Formulario de creación y edición de tipos de plan.
-     *
-     * @param Schema $schema
-     *
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -74,7 +69,7 @@ class TipoPlanResource extends Resource
                     Select::make('ambito')
                         ->label('Ámbito')
                         ->options([
-                            'asp'          => 'Atención Social Primaria',
+                            'asp' => 'Atención Social Primaria',
                             'especializado' => 'Atención especializada',
                         ])
                         ->required(),
@@ -94,10 +89,6 @@ class TipoPlanResource extends Resource
 
     /**
      * Tabla de listado de tipos de plan.
-     *
-     * @param Table $table
-     *
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -144,8 +135,6 @@ class TipoPlanResource extends Resource
      * Restringe el borrado a tipos eliminables con rol adm_sistema.
      *
      * @param mixed $record
-     *
-     * @return bool
      */
     public static function canDelete($record): bool
     {
@@ -160,9 +149,9 @@ class TipoPlanResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'    => Pages\ListTipoPlanes::route('/'),
-            'create'   => Pages\CreateTipoPlan::route('/create'),
-            'edit'     => Pages\EditTipoPlan::route('/{record}/edit'),
+            'index' => Pages\ListTipoPlanes::route('/'),
+            'create' => Pages\CreateTipoPlan::route('/create'),
+            'edit' => Pages\EditTipoPlan::route('/{record}/edit'),
             'objetivos' => Pages\GestionarObjetivos::route('/{record}/objetivos'),
         ];
     }

@@ -14,11 +14,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * La reciprocidad se gestiona automáticamente en los hooks de booted():
  * al crear un registro se crea el inverso, y al cerrar/eliminar se sincroniza.
  *
- * @property int         $id
- * @property int         $ciudadano_id
- * @property int         $ciudadano_relacionado_id
- * @property string      $tipo_relacion              Slug del catálogo tipos_relacion
- * @property string      $fecha_inicio
+ * @property int $id
+ * @property int $ciudadano_id
+ * @property int $ciudadano_relacionado_id
+ * @property string $tipo_relacion Slug del catálogo tipos_relacion
+ * @property string $fecha_inicio
  * @property string|null $fecha_fin
  * @property string|null $observaciones
  */
@@ -40,7 +40,7 @@ class CiudadanoRelacion extends Model
 
     protected $casts = [
         'fecha_inicio' => 'date',
-        'fecha_fin'    => 'date',
+        'fecha_fin' => 'date',
     ];
 
     protected static function booted(): void
@@ -151,12 +151,12 @@ class CiudadanoRelacion extends Model
         self::$sincronizandoReciproca = true;
         try {
             self::create([
-                'ciudadano_id'             => $this->ciudadano_relacionado_id,
+                'ciudadano_id' => $this->ciudadano_relacionado_id,
                 'ciudadano_relacionado_id' => $this->ciudadano_id,
-                'tipo_relacion'            => $reciproco->slug,
-                'fecha_inicio'             => $this->fecha_inicio,
-                'fecha_fin'                => $this->fecha_fin,
-                'observaciones'            => $this->observaciones,
+                'tipo_relacion' => $reciproco->slug,
+                'fecha_inicio' => $this->fecha_inicio,
+                'fecha_fin' => $this->fecha_fin,
+                'observaciones' => $this->observaciones,
             ]);
         } finally {
             self::$sincronizandoReciproca = false;

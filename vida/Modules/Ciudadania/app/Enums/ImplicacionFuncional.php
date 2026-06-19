@@ -12,20 +12,18 @@ namespace Modules\Ciudadania\Enums;
  */
 enum ImplicacionFuncional: string
 {
-    case Representante     = 'representante';
-    case TutorLegal        = 'tutor_legal';
+    case Representante = 'representante';
+    case TutorLegal = 'tutor_legal';
     case CuidadorPrincipal = 'cuidador_principal';
 
     /**
      * Etiqueta legible para mostrar en backoffice.
-     *
-     * @return string
      */
     public function etiqueta(): string
     {
         return match ($this) {
-            self::Representante     => 'Representante',
-            self::TutorLegal        => 'Tutor legal',
+            self::Representante => 'Representante',
+            self::TutorLegal => 'Tutor legal',
             self::CuidadorPrincipal => 'Cuidador principal',
         };
     }

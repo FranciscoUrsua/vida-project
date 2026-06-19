@@ -42,7 +42,6 @@ class DistritoResource extends Resource
      * Define el formulario de distritos.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -78,7 +77,6 @@ class DistritoResource extends Resource
      * Configura el listado de distritos.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -116,8 +114,6 @@ class DistritoResource extends Resource
 
     /**
      * Declara las páginas del catálogo de distritos.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

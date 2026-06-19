@@ -46,7 +46,6 @@ class PrestacionResource extends Resource
      * Define el formulario de prestaciones.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -245,7 +244,6 @@ class PrestacionResource extends Resource
      * Configura el listado de prestaciones.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -342,8 +340,6 @@ class PrestacionResource extends Resource
 
     /**
      * Declara los relation managers del recurso de prestaciones.
-     *
-     * @return array
      */
     public static function getRelationManagers(): array
     {
@@ -354,8 +350,6 @@ class PrestacionResource extends Resource
 
     /**
      * Declara las páginas del recurso de prestaciones.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

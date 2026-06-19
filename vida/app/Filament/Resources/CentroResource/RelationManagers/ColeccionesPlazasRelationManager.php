@@ -28,8 +28,6 @@ class ColeccionesPlazasRelationManager extends RelationManager
      * Define el formulario del relation manager de colecciones de plazas.
      *
      * @param Schema $schema Esquema base.
-     *
-     * @return Schema
      */
     public function form(Schema $schema): Schema
     {
@@ -86,8 +84,6 @@ class ColeccionesPlazasRelationManager extends RelationManager
      * Define la tabla del relation manager de colecciones de plazas.
      *
      * @param Table $table Tabla base.
-     *
-     * @return Table
      */
     public function table(Table $table): Table
     {

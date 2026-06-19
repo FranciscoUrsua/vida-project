@@ -40,7 +40,6 @@ class AuditarAccesoCiudadano
      *
      * @param Request $request Petición entrante.
      * @param Closure $next Siguiente middleware.
-     * @return Response
      */
     public function handle(Request $request, Closure $next): Response
     {

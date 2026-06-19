@@ -19,22 +19,22 @@ class RegistroAtencionTest extends TestCase
     // TF-AT-01: Se puede crear un registro de tipo informacion
     public function test_crear_registro_informacion(): void
     {
-        $ciudadano   = Ciudadano::factory()->create();
+        $ciudadano = Ciudadano::factory()->create();
         $profesional = User::factory()->create();
 
         $registro = RegistroAtencion::create([
-            'ciudadano_id'   => $ciudadano->id,
-            'tipo'           => 'informacion',
-            'fecha'          => now()->toDateString(),
+            'ciudadano_id' => $ciudadano->id,
+            'tipo' => 'informacion',
+            'fecha' => now()->toDateString(),
             'profesional_id' => $profesional->id,
-            'demanda'        => 'Solicita información sobre ayudas de alquiler',
-            'respuesta'      => 'Se le informa sobre el programa de ayudas municipal',
-            'origen'         => 'manual',
+            'demanda' => 'Solicita información sobre ayudas de alquiler',
+            'respuesta' => 'Se le informa sobre el programa de ayudas municipal',
+            'origen' => 'manual',
         ]);
 
         $this->assertDatabaseHas('registros_atencion', [
             'ciudadano_id' => $ciudadano->id,
-            'tipo'         => 'informacion',
+            'tipo' => 'informacion',
         ]);
         $this->assertEquals('Solicita información sobre ayudas de alquiler', $registro->demanda);
     }
@@ -47,12 +47,12 @@ class RegistroAtencionTest extends TestCase
         $this->expectException(\LogicException::class);
 
         RegistroAtencion::create([
-            'ciudadano_id'   => $ciudadano->id,
-            'tipo'           => 'informacion',
-            'fecha'          => now()->toDateString(),
+            'ciudadano_id' => $ciudadano->id,
+            'tipo' => 'informacion',
+            'fecha' => now()->toDateString(),
             'profesional_id' => null,
-            'demanda'        => 'Consulta',
-            'origen'         => 'manual',
+            'demanda' => 'Consulta',
+            'origen' => 'manual',
         ]);
     }
 
@@ -65,9 +65,9 @@ class RegistroAtencionTest extends TestCase
 
         RegistroAtencion::create([
             'ciudadano_id' => $ciudadano->id,
-            'tipo'         => 'actividad',
-            'fecha'        => now()->toDateString(),
-            'origen'       => 'sistema',
+            'tipo' => 'actividad',
+            'fecha' => now()->toDateString(),
+            'origen' => 'sistema',
         ]);
     }
 
@@ -78,11 +78,11 @@ class RegistroAtencionTest extends TestCase
 
         $registro = RegistroAtencion::create([
             'ciudadano_id' => $ciudadano->id,
-            'tipo'         => 'actividad',
-            'fecha'        => now()->toDateString(),
-            'origen'       => 'sistema',
-            'origen_tipo'  => 'Modules\\Centro\\Models\\Inscripcion',
-            'origen_id'    => 42,
+            'tipo' => 'actividad',
+            'fecha' => now()->toDateString(),
+            'origen' => 'sistema',
+            'origen_tipo' => 'Modules\\Centro\\Models\\Inscripcion',
+            'origen_id' => 42,
         ]);
 
         $this->assertEquals('actividad', $registro->tipo);
@@ -109,13 +109,13 @@ class RegistroAtencionTest extends TestCase
     // TF-AT-06: resumenHistorial trunca la demanda a 80 caracteres
     public function test_resumen_historial_truncado(): void
     {
-        $ciudadano   = Ciudadano::factory()->create();
+        $ciudadano = Ciudadano::factory()->create();
         $profesional = User::factory()->create();
 
         $registro = RegistroAtencion::factory()->create([
-            'ciudadano_id'   => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'profesional_id' => $profesional->id,
-            'demanda'        => str_repeat('a', 100),
+            'demanda' => str_repeat('a', 100),
         ]);
 
         $this->assertLessThanOrEqual(83, strlen($registro->resumenHistorial())); // 80 + '...'
@@ -124,11 +124,11 @@ class RegistroAtencionTest extends TestCase
     // TF-AT-07: La relación ciudadano->registrosAtencion funciona
     public function test_relacion_ciudadano_registros(): void
     {
-        $ciudadano   = Ciudadano::factory()->create();
+        $ciudadano = Ciudadano::factory()->create();
         $profesional = User::factory()->create();
 
         RegistroAtencion::factory()->count(3)->create([
-            'ciudadano_id'   => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'profesional_id' => $profesional->id,
         ]);
 
@@ -138,18 +138,18 @@ class RegistroAtencionTest extends TestCase
     // TF-AT-08: Los registros se ordenan por fecha descendente
     public function test_orden_cronologico_inverso(): void
     {
-        $ciudadano   = Ciudadano::factory()->create();
+        $ciudadano = Ciudadano::factory()->create();
         $profesional = User::factory()->create();
 
         RegistroAtencion::factory()->create([
-            'ciudadano_id'   => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'profesional_id' => $profesional->id,
-            'fecha'          => '2024-01-01',
+            'fecha' => '2024-01-01',
         ]);
         RegistroAtencion::factory()->create([
-            'ciudadano_id'   => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'profesional_id' => $profesional->id,
-            'fecha'          => '2024-06-15',
+            'fecha' => '2024-06-15',
         ]);
 
         $primero = $ciudadano->registrosAtencion()->first();

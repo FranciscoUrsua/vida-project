@@ -58,7 +58,6 @@ class GestorUnidadesOrganizativas extends Component
      * Valida que el usuario autenticado tiene el permiso requerido.
      * Livewire llama a este método al montar el componente.
      *
-     * @return void
      * @throws AuthorizationException
      */
     public function mount(): void
@@ -128,8 +127,6 @@ class GestorUnidadesOrganizativas extends Component
 
     /**
      * Abre el formulario para crear una nueva UO.
-     *
-     * @return void
      */
     public function abrirFormularioCreacion(): void
     {
@@ -140,7 +137,6 @@ class GestorUnidadesOrganizativas extends Component
     /**
      * Abre el formulario cargando los datos de una UO existente para editarla.
      *
-     * @return void
      * @param int $id ID de la UO a editar
      */
     public function abrirFormularioEdicion(int $id): void
@@ -157,8 +153,6 @@ class GestorUnidadesOrganizativas extends Component
 
     /**
      * Guarda la UO (crea o actualiza según si hay editandoId).
-     *
-     * @return void
      */
     public function guardar(): void
     {
@@ -181,7 +175,6 @@ class GestorUnidadesOrganizativas extends Component
     /**
      * Desactiva una UO (la marca como inactiva; no la elimina).
      * El historial de adscripciones y la estructura quedan preservados.
-     * @return void
      *
      * @param int $id ID de la UO a desactivar
      */
@@ -195,7 +188,6 @@ class GestorUnidadesOrganizativas extends Component
 
     /**
      * Reactiva una UO previamente desactivada.
-     * @return void
      *
      * @param int $id ID de la UO a reactivar
      */
@@ -209,8 +201,6 @@ class GestorUnidadesOrganizativas extends Component
 
     /**
      * Cierra el formulario sin guardar.
-     *
-     * @return void
      */
     public function cancelar(): void
     {
@@ -224,8 +214,6 @@ class GestorUnidadesOrganizativas extends Component
 
     /**
      * Renderiza el componente.
-     *
-     * @return View
      */
     public function render(): View
     {

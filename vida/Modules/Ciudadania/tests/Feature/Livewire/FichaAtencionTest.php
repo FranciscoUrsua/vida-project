@@ -10,6 +10,7 @@ use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
+use Livewire\Testing\TestableLivewire;
 use Modules\Atencion\Models\RegistroAtencion;
 use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
 use Tests\TestCase;
@@ -24,8 +25,6 @@ class FichaAtencionTest extends TestCase
 
     /**
      * Inicializa permisos y roles necesarios para los tests.
-     *
-     * @return void
      */
     protected function setUp(): void
     {
@@ -38,7 +37,8 @@ class FichaAtencionTest extends TestCase
      * Monta el componente con un usuario con el rol indicado.
      *
      * @param string|null $rol Rol a asignar al usuario.
-     * @return array{0: \Livewire\Testing\TestableLivewire, 1: Ciudadano, 2: User}
+     *
+     * @return array{0: TestableLivewire, 1: Ciudadano, 2: User}
      */
     private function montarFicha(?string $rol = 'intervencion'): array
     {
@@ -84,7 +84,7 @@ class FichaAtencionTest extends TestCase
 
         $uo = UnidadOrganizativa::factory()->create();
         HistoriaSocial::factory()->create([
-            'ciudadano_id'           => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uo->id,
         ]);
 
@@ -131,7 +131,7 @@ class FichaAtencionTest extends TestCase
 
         $this->assertDatabaseHas('registros_atencion', [
             'ciudadano_id' => $ciudadano->id,
-            'demanda'      => 'Solicita información sobre el bono social',
+            'demanda' => 'Solicita información sobre el bono social',
         ]);
     }
 
@@ -154,9 +154,9 @@ class FichaAtencionTest extends TestCase
         [$componente, $ciudadano, $user] = $this->montarFicha('intervencion');
 
         RegistroAtencion::factory()->create([
-            'ciudadano_id'   => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'profesional_id' => $user->id,
-            'demanda'        => 'Consulta sobre pensiones',
+            'demanda' => 'Consulta sobre pensiones',
         ]);
 
         $componente = Livewire::test(FichaCiudadanoPage::class, [
@@ -174,7 +174,7 @@ class FichaAtencionTest extends TestCase
         $uo = UnidadOrganizativa::factory()->create();
         $user->adscripciones()->create([
             'unidad_organizativa_id' => $uo->id,
-            'fecha_inicio'           => now()->toDateString(),
+            'fecha_inicio' => now()->toDateString(),
         ]);
 
         $componente->call('abrirHistoriaSocial');
@@ -191,7 +191,7 @@ class FichaAtencionTest extends TestCase
 
         $uo = UnidadOrganizativa::factory()->create();
         HistoriaSocial::factory()->create([
-            'ciudadano_id'           => $ciudadano->id,
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uo->id,
         ]);
 

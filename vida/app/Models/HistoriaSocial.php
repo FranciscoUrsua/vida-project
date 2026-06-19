@@ -83,7 +83,6 @@ class HistoriaSocial extends Model
 
     /** {@inheritDoc}
      *
-     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {

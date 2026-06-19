@@ -18,8 +18,6 @@ class DocumentosServiceProvider extends ServiceProvider
 
     /**
      * Registra los servicios del módulo.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -33,8 +31,6 @@ class DocumentosServiceProvider extends ServiceProvider
 
     /**
      * Arranca el módulo Documentos.
-     *
-     * @return void
      */
     public function boot(): void
     {

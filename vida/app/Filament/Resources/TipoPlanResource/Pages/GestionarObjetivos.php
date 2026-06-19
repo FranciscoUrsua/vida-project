@@ -32,13 +32,10 @@ class GestionarObjetivos extends Page implements HasTable
 
     protected string $view = 'intervencion::filament.tipo-plan.gestionar-objetivos';
 
-    /** @var TipoPlan */
     public TipoPlan $record;
 
     /**
      * Título dinámico con el nombre del tipo de plan.
-     *
-     * @return string
      */
     public function getTitle(): string
     {
@@ -47,10 +44,6 @@ class GestionarObjetivos extends Page implements HasTable
 
     /**
      * Configuración completa de la tabla de objetivos del catálogo.
-     *
-     * @param Table $table
-     *
-     * @return Table
      */
     public function table(Table $table): Table
     {

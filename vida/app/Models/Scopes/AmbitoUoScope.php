@@ -66,7 +66,6 @@ class AmbitoUoScope implements Scope
      *
      * @param Builder<Model> $builder Consulta a modificar.
      * @param Model $model Modelo al que se aplica el scope.
-     * @return void
      */
     public function apply(Builder $builder, Model $model): void
     {

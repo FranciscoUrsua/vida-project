@@ -73,10 +73,6 @@ class MensajeHilo extends Model
 
     /**
      * Comprueba si un usuario es participante activo del hilo.
-     *
-     * @param int $usuarioId
-     *
-     * @return bool
      */
     public function tieneParticipante(int $usuarioId): bool
     {

@@ -62,8 +62,6 @@ class BuscarCiudadanoPage extends Component
 
     /**
      * Ejecuta la búsqueda y llena $resultados con los ciudadanos encontrados.
-     *
-     * @return void
      */
     public function buscar(): void
     {
@@ -202,8 +200,6 @@ class BuscarCiudadanoPage extends Component
      * TODO: conectar con tabla audits cuando esté disponible.
      *
      * @param int $historiaId ID de la historia social accedida.
-     *
-     * @return void
      */
     public function registrarAccesoNivel2(int $historiaId): void
     {
@@ -227,8 +223,6 @@ class BuscarCiudadanoPage extends Component
      * Abre el modal de solicitud de acceso para un ciudadano protegido.
      *
      * @param int $ciudadanoId ID del ciudadano protegido.
-     *
-     * @return void
      */
     public function abrirModalSolicitud(int $ciudadanoId): void
     {
@@ -239,8 +233,6 @@ class BuscarCiudadanoPage extends Component
 
     /**
      * Cierra el modal sin enviar.
-     *
-     * @return void
      */
     public function cerrarModalSolicitud(): void
     {
@@ -257,8 +249,6 @@ class BuscarCiudadanoPage extends Component
      *
      * @param int $ciudadanoId ID del ciudadano protegido.
      * @param string $justificacion Justificación profesional de acceso.
-     *
-     * @return void
      */
     public function solicitarAcceso(int $ciudadanoId, string $justificacion): void
     {
@@ -305,8 +295,6 @@ class BuscarCiudadanoPage extends Component
 
     /**
      * Renderiza la pantalla de búsqueda de ciudadanos.
-     *
-     * @return View
      */
     public function render(): View
     {

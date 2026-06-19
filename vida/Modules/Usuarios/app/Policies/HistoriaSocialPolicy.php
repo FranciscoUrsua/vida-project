@@ -51,7 +51,6 @@ class HistoriaSocialPolicy
      * Decide si el usuario puede listar Historias Sociales.
      *
      * @param User $usuario Usuario autenticado.
-     * @return bool
      */
     public function viewAny(User $usuario): bool
     {
@@ -70,7 +69,6 @@ class HistoriaSocialPolicy
      *
      * @param User $usuario Usuario autenticado.
      * @param HistoriaSocial $historia Historia social consultada.
-     * @return bool
      */
     public function view(User $usuario, HistoriaSocial $historia): bool
     {
@@ -99,7 +97,6 @@ class HistoriaSocialPolicy
      * El rol supervision no puede crear aunque tenga UO.
      *
      * @param User $usuario Usuario autenticado.
-     * @return bool
      */
     public function create(User $usuario): bool
     {
@@ -119,7 +116,6 @@ class HistoriaSocialPolicy
      *
      * @param User $usuario Usuario autenticado.
      * @param HistoriaSocial $historia Historia social a editar.
-     * @return bool
      */
     public function update(User $usuario, HistoriaSocial $historia): bool
     {
@@ -150,7 +146,6 @@ class HistoriaSocialPolicy
      *
      * @param User $usuario Usuario autenticado.
      * @param HistoriaSocial $historia Historia social a eliminar.
-     * @return bool
      */
     public function delete(User $usuario, HistoriaSocial $historia): bool
     {

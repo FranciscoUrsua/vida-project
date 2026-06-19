@@ -24,8 +24,6 @@ class ActividadCatalogosWidget extends BaseWidget
 
     /**
      * Determina si el widget de actividad puede verse.
-     *
-     * @return bool
      */
     public static function canView(): bool
     {
@@ -36,7 +34,6 @@ class ActividadCatalogosWidget extends BaseWidget
      * Configura la tabla del widget de actividad reciente.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public function table(Table $table): Table
     {

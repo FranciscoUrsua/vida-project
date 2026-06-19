@@ -23,18 +23,16 @@ class PrestacionFactory extends Factory
     public function definition(): array
     {
         return [
-            'codigo'           => strtoupper($this->faker->unique()->bothify('PRE-####')),
-            'nombre'           => $this->faker->sentence(4),
-            'tipo_prestacion'  => 'servicio',
-            'nivel_garantia'   => 'condicionada',
-            'activa'           => true,
+            'codigo' => strtoupper($this->faker->unique()->bothify('PRE-####')),
+            'nombre' => $this->faker->sentence(4),
+            'tipo_prestacion' => 'servicio',
+            'nivel_garantia' => 'condicionada',
+            'activa' => true,
         ];
     }
 
     /**
      * Prestación de tipo económica.
-     *
-     * @return static
      */
     public function economica(): static
     {
@@ -43,8 +41,6 @@ class PrestacionFactory extends Factory
 
     /**
      * Prestación garantizada.
-     *
-     * @return static
      */
     public function garantizada(): static
     {

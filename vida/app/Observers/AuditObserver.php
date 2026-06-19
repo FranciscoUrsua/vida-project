@@ -34,7 +34,6 @@ class AuditObserver
      * Registra la creación de un modelo auditable.
      *
      * @param Model&Auditable $model Modelo afectado.
-     * @return void
      */
     public function created(Model $model): void
     {
@@ -54,7 +53,6 @@ class AuditObserver
      * Registra la edición de un modelo auditable con diff de campos cambiados.
      *
      * @param Model&Auditable $model Modelo afectado.
-     * @return void
      */
     public function updated(Model $model): void
     {
@@ -84,7 +82,6 @@ class AuditObserver
      * Registra la eliminación (soft o hard) de un modelo auditable.
      *
      * @param Model&Auditable $model Modelo afectado.
-     * @return void
      */
     public function deleted(Model $model): void
     {

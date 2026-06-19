@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Intervencion\Database\Factories\PlanDeIntervencionFactory;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\MotivoCierre;
@@ -120,8 +121,6 @@ class PlanDeIntervencion extends Model
 
     /**
      * Devuelve el ciudadano asociado a la historia social del plan.
-     *
-     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {
@@ -205,8 +204,6 @@ class PlanDeIntervencion extends Model
      *
      * Consulta firmas_plan filtrando por el plan_id actual Y la version actual
      * para garantizar que la firma de una versión anterior no valide la nueva.
-     *
-     * @return bool
      */
     public function estaFirmado(): bool
     {
@@ -276,9 +273,9 @@ class PlanDeIntervencion extends Model
      *
      * Nota: se usa FQCN para evitar colisión con el enum TipoPlan importado.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Intervencion\Models\TipoPlan, self>
+     * @return BelongsTo<\Modules\Intervencion\Models\TipoPlan, self>
      */
-    public function tipoPlan(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function tipoPlan(): BelongsTo
     {
         return $this->belongsTo(\Modules\Intervencion\Models\TipoPlan::class, 'tipo_plan_id');
     }
@@ -286,12 +283,12 @@ class PlanDeIntervencion extends Model
     /**
      * Unidad de convivencia vinculada al plan, si es un plan familiar.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Ciudadania\Models\UnidadConvivencia, self>
+     * @return BelongsTo<UnidadConvivencia, self>
      */
-    public function unidadConvivencia(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function unidadConvivencia(): BelongsTo
     {
         return $this->belongsTo(
-            \Modules\Ciudadania\Models\UnidadConvivencia::class,
+            UnidadConvivencia::class,
             'unidad_convivencia_id'
         );
     }
@@ -384,12 +381,7 @@ class PlanDeIntervencion extends Model
      * Registra un cambio en el historial con snapshot del estado previo.
      * Debe llamarse ANTES de aplicar los cambios.
      *
-     * @param int    $profesionalId
-     * @param string $motivo
-     * @param string $origen        'discrecional' | 'seguimiento'
-     * @param int|null $seguimientoId
-     *
-     * @return PlanCambio
+     * @param string $origen 'discrecional' | 'seguimiento'
      */
     public function registrarCambio(
         int $profesionalId,
@@ -398,22 +390,22 @@ class PlanDeIntervencion extends Model
         ?int $seguimientoId = null
     ): PlanCambio {
         $snapshot = [
-            'diagnostico_social'       => $this->diagnostico_social,
+            'diagnostico_social' => $this->diagnostico_social,
             'periodicidad_seguimiento' => $this->periodicidad_seguimiento,
-            'objetivos'                => $this->objetivos()->with('objetivosEspecificos')->get()->toArray(),
+            'objetivos' => $this->objetivos()->with('objetivosEspecificos')->get()->toArray(),
             'actuaciones_ayuntamiento' => $this->actuacionesAyuntamiento()->with('prestacion')->get()->toArray(),
-            'actuaciones_ciudadano'    => $this->actuacionesCiudadano()->get()->toArray(),
-            'participantes'            => $this->participantesActivos()->with('profesional')->get()->toArray(),
+            'actuaciones_ciudadano' => $this->actuacionesCiudadano()->get()->toArray(),
+            'participantes' => $this->participantesActivos()->with('profesional')->get()->toArray(),
         ];
 
         return $this->cambios()->create([
-            'version'        => $this->version,
+            'version' => $this->version,
             'profesional_id' => $profesionalId,
-            'origen'         => $origen,
+            'origen' => $origen,
             'seguimiento_id' => $seguimientoId,
-            'motivo'         => $motivo,
-            'snapshot'       => $snapshot,
-            'created_at'     => now(),
+            'motivo' => $motivo,
+            'snapshot' => $snapshot,
+            'created_at' => now(),
         ]);
     }
 

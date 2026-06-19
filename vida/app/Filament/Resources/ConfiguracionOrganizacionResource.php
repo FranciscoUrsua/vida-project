@@ -47,7 +47,6 @@ class ConfiguracionOrganizacionResource extends Resource
      * Define el formulario de alta y edición de parámetros de configuración.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -86,7 +85,6 @@ class ConfiguracionOrganizacionResource extends Resource
      * Configura el listado tabular de parámetros.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -137,8 +135,6 @@ class ConfiguracionOrganizacionResource extends Resource
 
     /**
      * Declara las páginas del recurso de configuración organizativa.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

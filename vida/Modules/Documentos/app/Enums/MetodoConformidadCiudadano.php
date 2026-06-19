@@ -11,8 +11,6 @@ enum MetodoConformidadCiudadano: string
 
     /**
      * Etiqueta legible para mostrar el metodo de conformidad.
-     *
-     * @return string
      */
     public function label(): string
     {

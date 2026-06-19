@@ -35,33 +35,33 @@ class RegistrarValoracionPageTest extends TestCase
         parent::setUp();
 
         $uo = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Test Valoracion',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Test Valoracion',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $this->usuario = User::factory()->create();
 
         $this->historia = HistoriaSocial::withoutGlobalScopes()->create([
-            'ciudadano_id'             => 1,
-            'unidad_organizativa_id'   => $uo->id,
-            'ciudadano_protegido'      => false,
-            'estado'                   => 'abierta',
+            'ciudadano_id' => 1,
+            'unidad_organizativa_id' => $uo->id,
+            'ciudadano_protegido' => false,
+            'estado' => 'abierta',
         ]);
 
         $this->tipoFicha = TipoFicha::create([
-            'nombre'  => 'Ficha Test Observaciones',
-            'activo'  => true,
-            'schema'  => [
+            'nombre' => 'Ficha Test Observaciones',
+            'activo' => true,
+            'schema' => [
                 'campos' => [
                     [
-                        'id'          => 'observaciones',
-                        'tipo'        => 'texto',
-                        'etiqueta'    => 'Observaciones',
+                        'id' => 'observaciones',
+                        'tipo' => 'texto',
+                        'etiqueta' => 'Observaciones',
                         'descripcion' => null,
                         'obligatorio' => false,
-                        'orden'       => 1,
+                        'orden' => 1,
                     ],
                 ],
             ],
@@ -76,7 +76,7 @@ class RegistrarValoracionPageTest extends TestCase
      * TF-LW-VAL-01: El componente monta correctamente y asigna historiaId.
      */
     #[Test]
-    public function componente_monta_y_asigna_historiaId(): void
+    public function componente_monta_y_asigna_historia_id(): void
     {
         $this->actingAs($this->usuario);
 
@@ -90,7 +90,7 @@ class RegistrarValoracionPageTest extends TestCase
      * TF-LW-VAL-02: seleccionarFicha() actualiza tipoFichaId e inicializa datos.
      */
     #[Test]
-    public function seleccionar_ficha_actualiza_tipoFichaId_e_inicializa_datos(): void
+    public function seleccionar_ficha_actualiza_tipo_ficha_id_e_inicializa_datos(): void
     {
         $this->actingAs($this->usuario);
 
@@ -128,7 +128,7 @@ class RegistrarValoracionPageTest extends TestCase
      * TF-LW-VAL-04: El computed tipoFicha devuelve el modelo correcto tras seleccionar.
      */
     #[Test]
-    public function computed_tipoFicha_devuelve_el_modelo_seleccionado(): void
+    public function computed_tipo_ficha_devuelve_el_modelo_seleccionado(): void
     {
         $this->actingAs($this->usuario);
 

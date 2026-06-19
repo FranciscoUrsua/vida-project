@@ -46,7 +46,6 @@ class SelectorPrestacionesCentro extends Component
      * Inicializa el componente cargando las prestaciones ya asociadas al centro.
      *
      * @param int $centroId Identificador del centro.
-     * @return void
      */
     public function mount(int $centroId): void
     {
@@ -120,7 +119,6 @@ class SelectorPrestacionesCentro extends Component
      * Alterna la selección de una prestación.
      *
      * @param int $prestacionId Identificador de la prestación.
-     * @return void
      */
     public function togglePrestacion(int $prestacionId): void
     {
@@ -137,7 +135,6 @@ class SelectorPrestacionesCentro extends Component
      * Elimina una prestación del panel de seleccionadas.
      *
      * @param int $prestacionId Identificador de la prestación.
-     * @return void
      */
     public function deseleccionar(int $prestacionId): void
     {
@@ -150,7 +147,6 @@ class SelectorPrestacionesCentro extends Component
      * Activa el filtro de segmento de población.
      *
      * @param string $segmento Segmento seleccionado.
-     * @return void
      */
     public function setSegmento(string $segmento): void
     {
@@ -161,7 +157,6 @@ class SelectorPrestacionesCentro extends Component
      * Abre la ficha de detalle de una prestación.
      *
      * @param int $prestacionId Identificador de la prestación.
-     * @return void
      */
     public function verDetalle(int $prestacionId): void
     {
@@ -170,8 +165,6 @@ class SelectorPrestacionesCentro extends Component
 
     /**
      * Cierra la ficha de detalle.
-     *
-     * @return void
      */
     public function cerrarDetalle(): void
     {
@@ -181,8 +174,6 @@ class SelectorPrestacionesCentro extends Component
     /**
      * Persiste la selección de prestaciones en la tabla pivote centro_prestacion.
      * Usa sync() para gestionar altas y bajas en una sola operación.
-     *
-     * @return void
      */
     public function guardar(): void
     {
@@ -197,8 +188,6 @@ class SelectorPrestacionesCentro extends Component
 
     /**
      * Renderiza la vista del componente.
-     *
-     * @return View
      */
     public function render(): View
     {

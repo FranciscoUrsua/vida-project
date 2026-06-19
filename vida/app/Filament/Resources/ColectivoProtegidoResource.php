@@ -45,8 +45,6 @@ class ColectivoProtegidoResource extends Resource
      * Define el formulario de colectivos protegidos.
      *
      * @param Schema $schema Esquema base.
-     *
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -78,8 +76,6 @@ class ColectivoProtegidoResource extends Resource
      * Define la tabla de colectivos protegidos.
      *
      * @param Table $table Tabla base.
-     *
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -113,8 +109,6 @@ class ColectivoProtegidoResource extends Resource
 
     /**
      * Define las páginas del recurso de colectivos protegidos.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

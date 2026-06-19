@@ -119,8 +119,6 @@ class Apunte extends Model
 
     /**
      * ID del ciudadano titular de la historia social asociada al apunte.
-     *
-     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {
@@ -157,8 +155,6 @@ class Apunte extends Model
 
     /**
      * Entidad concreta vinculada (polimórfica).
-     *
-     * @return MorphTo
      */
     public function apuntable(): MorphTo
     {

@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::table('planes_intervencion', function (Blueprint $table) {
             $table->foreignId('tipo_plan_id')
-                  ->nullable()
-                  ->after('historia_id')
-                  ->constrained('tipos_plan')
-                  ->nullOnDelete();
+                ->nullable()
+                ->after('historia_id')
+                ->constrained('tipos_plan')
+                ->nullOnDelete();
 
             // unidad_convivencia_id ya existe (migración 2026_06_16_000002)
             // Solo se añaden los campos nuevos de contenido

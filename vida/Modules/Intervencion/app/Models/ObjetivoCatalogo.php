@@ -14,8 +14,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property int $id
  * @property int $tipo_plan_id
- * @property string $nivel  'general' | 'especifico'
- * @property int|null $objetivo_general_id  FK a sí mismo para específicos
+ * @property string $nivel 'general' | 'especifico'
+ * @property int|null $objetivo_general_id FK a sí mismo para específicos
  * @property string $texto
  * @property bool $activo
  * @property int $orden
@@ -30,7 +30,7 @@ class ObjetivoCatalogo extends Model
 
     protected $casts = [
         'activo' => 'boolean',
-        'orden'  => 'integer',
+        'orden' => 'integer',
     ];
 
     // -------------------------------------------------------------------------

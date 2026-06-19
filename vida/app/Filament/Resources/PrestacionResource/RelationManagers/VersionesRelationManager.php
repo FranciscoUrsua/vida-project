@@ -24,7 +24,6 @@ class VersionesRelationManager extends RelationManager
      * Configura el historial de versiones de la prestación.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public function table(Table $table): Table
     {
@@ -69,8 +68,6 @@ class VersionesRelationManager extends RelationManager
 
     /**
      * Indica que el relation manager es de solo lectura.
-     *
-     * @return bool
      */
     public function isReadOnly(): bool
     {

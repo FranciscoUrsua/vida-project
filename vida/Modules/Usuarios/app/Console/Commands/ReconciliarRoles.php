@@ -29,8 +29,6 @@ class ReconciliarRoles extends Command
 
     /**
      * Ejecuta el comando.
-     *
-     * @return int
      */
     public function handle(): int
     {

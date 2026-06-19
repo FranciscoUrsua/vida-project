@@ -3,6 +3,7 @@
 namespace Modules\Intervencion\Models;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Centro\Models\Servicio;
@@ -19,8 +20,8 @@ use Modules\Centro\Models\Servicio;
  * @property int $user_id
  * @property string $rol_en_plan
  * @property int|null $servicio_id
- * @property \Carbon\Carbon $fecha_inicio
- * @property \Carbon\Carbon|null $fecha_fin
+ * @property Carbon $fecha_inicio
+ * @property Carbon|null $fecha_fin
  */
 class PlanParticipante extends Model
 {
@@ -32,7 +33,7 @@ class PlanParticipante extends Model
 
     protected $casts = [
         'fecha_inicio' => 'date',
-        'fecha_fin'    => 'date',
+        'fecha_fin' => 'date',
     ];
 
     // -------------------------------------------------------------------------
@@ -75,8 +76,6 @@ class PlanParticipante extends Model
 
     /**
      * Indica si la participación está activa (sin fecha de fin o con fecha futura).
-     *
-     * @return bool
      */
     public function estaActivo(): bool
     {

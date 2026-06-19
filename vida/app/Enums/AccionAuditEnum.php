@@ -19,7 +19,6 @@ enum AccionAuditEnum: string
 
     /** Etiqueta en lenguaje natural para la vista del ciudadano.
      *
-     * @return string
      */
     public function etiqueta(): string
     {
@@ -36,7 +35,6 @@ enum AccionAuditEnum: string
 
     /** Color semántico para el badge en Filament.
      *
-     * @return string
      */
     public function color(): string
     {

@@ -66,8 +66,6 @@ class Entrevista extends Model
 
     /**
      * Devuelve el ciudadano asociado a la historia social de la entrevista.
-     *
-     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {

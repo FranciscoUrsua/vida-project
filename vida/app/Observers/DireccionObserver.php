@@ -25,6 +25,7 @@ class DireccionObserver
 {
     /** Timeout en segundos para la llamada al geocoder. */
     private const TIMEOUT_SEGUNDOS = 3;
+
     /**
      * @param GeocodificadorInterface $geocodificador Servicio de geocodificación.
      */
@@ -39,7 +40,6 @@ class DireccionObserver
      * en memoria refleje el default de la columna si no se geocodifica.
      *
      * @param Model $model Modelo que se va a crear.
-     * @return void
      */
     public function creating(Model $model): void
     {
@@ -53,7 +53,6 @@ class DireccionObserver
      * Encola el job de reintento si el guardado inicial no normalizó la dirección.
      *
      * @param Model $model Modelo recién creado.
-     * @return void
      */
     public function created(Model $model): void
     {
@@ -66,7 +65,6 @@ class DireccionObserver
      * Solo actúa si cambió el texto de la dirección o el origen.
      *
      * @param Model $model Modelo que se va a actualizar.
-     * @return void
      */
     public function updating(Model $model): void
     {
@@ -80,7 +78,6 @@ class DireccionObserver
      * Encola el job de reintento si la actualización no normalizó la dirección.
      *
      * @param Model $model Modelo recién actualizado.
-     * @return void
      */
     public function updated(Model $model): void
     {

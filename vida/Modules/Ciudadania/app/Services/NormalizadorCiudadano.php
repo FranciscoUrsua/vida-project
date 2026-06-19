@@ -27,8 +27,6 @@ class NormalizadorCiudadano
      *
      * @param string $tipo nif | nie | pasaporte
      * @param string $valor Valor tal como lo introduce el profesional.
-     *
-     * @return string
      */
     public static function documento(string $tipo, string $valor): string
     {
@@ -49,8 +47,6 @@ class NormalizadorCiudadano
      * y expandiendo abreviaturas unívocas.
      *
      * @param string $valor Nombre o apellido original.
-     *
-     * @return string
      */
     public static function nombre(string $valor): string
     {
@@ -68,8 +64,6 @@ class NormalizadorCiudadano
      * Añade prefijo +34 si empieza por 6, 7, 8 o 9 sin prefijo internacional.
      *
      * @param string $valor Teléfono original.
-     *
-     * @return string
      */
     public static function telefono(string $valor): string
     {
@@ -86,8 +80,6 @@ class NormalizadorCiudadano
      * Normaliza un email a minúsculas sin espacios.
      *
      * @param string $valor Email original.
-     *
-     * @return string
      */
     public static function email(string $valor): string
     {

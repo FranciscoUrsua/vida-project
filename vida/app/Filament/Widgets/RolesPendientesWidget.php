@@ -22,8 +22,6 @@ class RolesPendientesWidget extends BaseWidget
 
     /**
      * Determina si el widget de roles pendientes puede verse.
-     *
-     * @return bool
      */
     public static function canView(): bool
     {
@@ -34,7 +32,6 @@ class RolesPendientesWidget extends BaseWidget
      * Configura la tabla del widget de roles pendientes.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public function table(Table $table): Table
     {

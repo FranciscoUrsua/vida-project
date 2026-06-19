@@ -43,12 +43,12 @@ class FirmaPlan extends Model
     ];
 
     protected $casts = [
-        'version'               => 'integer',
-        'profesional_firmado'   => 'boolean',
-        'ciudadano_firmado'     => 'boolean',
+        'version' => 'integer',
+        'profesional_firmado' => 'boolean',
+        'ciudadano_firmado' => 'boolean',
         'profesional_firmado_en' => 'datetime',
-        'ciudadano_firmado_en'  => 'datetime',
-        'fecha_firma'           => 'date',
+        'ciudadano_firmado_en' => 'datetime',
+        'fecha_firma' => 'date',
     ];
 
     // -------------------------------------------------------------------------
@@ -69,8 +69,6 @@ class FirmaPlan extends Model
 
     /**
      * La firma está completa cuando ambas partes han firmado en papel.
-     *
-     * @return bool
      */
     public function estaCompleta(): bool
     {

@@ -179,7 +179,7 @@ class TipoRelacionTest extends TestCase
         $this->seed(TipoRelacionSeeder::class);
 
         $padre = TipoRelacion::where('slug', 'padre')->first();
-        $hijo  = TipoRelacion::where('slug', 'hijo')->first();
+        $hijo = TipoRelacion::where('slug', 'hijo')->first();
 
         $this->assertEquals($hijo->id, $padre->tipoRecíproco()->id);
     }

@@ -27,8 +27,6 @@ class ApunteService
      *
      * @param array<string, mixed> $datos Datos del apunte a crear
      *
-     * @return Apunte
-     *
      * @throws AuthorizationException Si el usuario no tiene permiso de crear apuntes
      */
     public function crear(array $datos): Apunte
@@ -47,8 +45,6 @@ class ApunteService
      *
      * @param int $id ID del apunte
      * @param array<string, mixed> $datos Campos a actualizar
-     *
-     * @return Apunte
      *
      * @throws AuthorizationException Si el usuario no tiene permiso de editar
      * @throws ModelNotFoundException Si el apunte no existe o no está en el ámbito del usuario
@@ -71,8 +67,6 @@ class ApunteService
      * Los apuntes de visibilidad profesionales o ciudadano son registro permanente.
      *
      * @param int $id ID del apunte
-     *
-     * @return void
      *
      * @throws AuthorizationException Si el usuario no tiene permiso de eliminar
      * @throws ModelNotFoundException Si el apunte no existe o no está en el ámbito del usuario

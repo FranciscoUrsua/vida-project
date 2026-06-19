@@ -2,18 +2,19 @@
 
 namespace Modules\Intervencion\Http\Livewire;
 
+use App\Models\Ciudadano;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
-use Modules\Intervencion\Enums\EstadoPlan;
-use Modules\Intervencion\Models\FirmaPlan;
-use Modules\Intervencion\Models\PlanCambio;
-use Modules\Intervencion\Models\PlanDeIntervencion;
-use App\Models\Ciudadano;
 use Modules\Ciudadania\Models\CiudadanoRelacion;
 use Modules\Ciudadania\Models\TipoRelacion;
 use Modules\Ciudadania\Models\UnidadConvivencia;
+use Modules\Intervencion\Enums\EstadoPlan;
+use Modules\Intervencion\Models\FirmaPlan;
+use Modules\Intervencion\Models\PlanDeIntervencion;
+use Modules\Intervencion\Models\Valoracion;
 use Modules\Intervencion\Services\PlanPdfService;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -50,7 +51,9 @@ class PlanPage extends Component
 
     // --- Parámetros de ruta ---
     public ?int $planId = null;
+
     public ?int $historiaId = null;
+
     public ?int $ucId = null;
 
     // --- Plan cargado ---
@@ -58,24 +61,34 @@ class PlanPage extends Component
 
     // --- Estado del drawer ---
     public bool $drawerAbierto = false;
+
     public array $fichasSeleccionadas = [];
+
     public string $drawerFiltroTipo = 'todas';
+
     public string $drawerFiltroFecha = 'todas';
 
     // --- Modal de motivo ---
     public bool $modalMotivoAbierto = false;
+
     public string $motivoTexto = '';
+
     public string $motivoAccionPendiente = '';
+
     public array $motivoAccionParams = [];
 
     // --- Edición inline ---
     public string $diagnosticoTexto = '';
+
     public string $periodicidadSeguimiento = 'trimestral';
+
     public string $observacionesSeguimiento = '';
 
     // --- Firmas ---
     public bool $profesionalFirmado = false;
+
     public bool $ciudadanoFirmado = false;
+
     public ?string $fechaFirmaPresencial = null;
 
     // --- Feedback ---
@@ -84,11 +97,6 @@ class PlanPage extends Component
     /**
      * Inicializa el componente con el plan si se accede en modo edición,
      * o prepara el estado para creación si no hay plan.
-     *
-     * @param PlanDeIntervencion|null $plan
-     * @param int|null $historia
-     * @param int|null $uc
-     * @return void
      */
     public function mount(?PlanDeIntervencion $plan = null, ?int $historia = null, ?int $uc = null): void
     {
@@ -104,7 +112,7 @@ class PlanPage extends Component
                 ->first();
             if ($firma) {
                 $this->profesionalFirmado = $firma->profesional_firmado;
-                $this->ciudadanoFirmado   = $firma->ciudadano_firmado;
+                $this->ciudadanoFirmado = $firma->ciudadano_firmado;
                 $this->fechaFirmaPresencial = $firma->fecha_firma?->format('Y-m-d');
                 $this->observacionesSeguimiento = $firma->observaciones_seguimiento ?? '';
             }
@@ -124,8 +132,6 @@ class PlanPage extends Component
 
     /**
      * Ciudadano titular de la historia social del plan.
-     *
-     * @return Ciudadano|null
      */
     #[Computed]
     public function ciudadano(): ?Ciudadano
@@ -135,8 +141,6 @@ class PlanPage extends Component
 
     /**
      * Unidad de convivencia vigente del ciudadano o la del plan.
-     *
-     * @return UnidadConvivencia|null
      */
     #[Computed]
     public function ucVigente(): ?UnidadConvivencia
@@ -147,11 +151,9 @@ class PlanPage extends Component
 
     /**
      * Miembros activos de la unidad de convivencia con relación y verificación.
-     *
-     * @return \Illuminate\Support\Collection
      */
     #[Computed]
-    public function miembrosUc(): \Illuminate\Support\Collection
+    public function miembrosUc(): Collection
     {
         if (! $this->ucVigente) {
             return collect();
@@ -166,12 +168,12 @@ class PlanPage extends Component
                 $relacion = CiudadanoRelacion::where(
                     'ciudadano_id', $this->ciudadano?->id
                 )->where('ciudadano_relacionado_id', $m->ciudadano_id)
-                 ->whereNull('fecha_fin')
-                 ->value('tipo_relacion');
+                    ->whereNull('fecha_fin')
+                    ->value('tipo_relacion');
 
                 return [
-                    'ciudadano'  => $m->ciudadano,
-                    'relacion'   => $relacion ? ($slugsEtiquetas[$relacion] ?? null) : null,
+                    'ciudadano' => $m->ciudadano,
+                    'relacion' => $relacion ? ($slugsEtiquetas[$relacion] ?? null) : null,
                     'verificado' => $m->verificado,
                 ];
             });
@@ -179,29 +181,27 @@ class PlanPage extends Component
 
     /**
      * Fichas de valoración incluidas en el diagnóstico del plan.
-     *
-     * @return \Illuminate\Support\Collection
      */
     #[Computed]
-    public function fichasDiagnostico(): \Illuminate\Support\Collection
+    public function fichasDiagnostico(): Collection
     {
         if (! $this->plan) {
             return collect();
         }
+
         return $this->plan->fichasDiagnostico()->with('ficha.tipoFicha')->get();
     }
 
     /**
      * Objetivos generales del plan con sus específicos anidados.
-     *
-     * @return \Illuminate\Support\Collection
      */
     #[Computed]
-    public function objetivosGenerales(): \Illuminate\Support\Collection
+    public function objetivosGenerales(): Collection
     {
         if (! $this->plan) {
             return collect();
         }
+
         return $this->plan->objetivosGenerales()
             ->with('objetivosEspecificos')
             ->get();
@@ -209,15 +209,14 @@ class PlanPage extends Component
 
     /**
      * Actuaciones del Ayuntamiento en el plan.
-     *
-     * @return \Illuminate\Support\Collection
      */
     #[Computed]
-    public function actuacionesAyuntamiento(): \Illuminate\Support\Collection
+    public function actuacionesAyuntamiento(): Collection
     {
         if (! $this->plan) {
             return collect();
         }
+
         return $this->plan->actuacionesAyuntamiento()
             ->with(['prestacion', 'responsable'])
             ->get();
@@ -225,15 +224,14 @@ class PlanPage extends Component
 
     /**
      * Compromisos del ciudadano en el plan.
-     *
-     * @return \Illuminate\Support\Collection
      */
     #[Computed]
-    public function actuacionesCiudadano(): \Illuminate\Support\Collection
+    public function actuacionesCiudadano(): Collection
     {
         if (! $this->plan) {
             return collect();
         }
+
         return $this->plan->actuacionesCiudadano()
             ->with('prestacion')
             ->get();
@@ -241,15 +239,14 @@ class PlanPage extends Component
 
     /**
      * Profesionales participantes en el plan.
-     *
-     * @return \Illuminate\Support\Collection
      */
     #[Computed]
-    public function participantes(): \Illuminate\Support\Collection
+    public function participantes(): Collection
     {
         if (! $this->plan) {
             return collect();
         }
+
         return $this->plan->participantes()
             ->with(['profesional', 'servicio'])
             ->get();
@@ -257,8 +254,6 @@ class PlanPage extends Component
 
     /**
      * Indica si el plan puede activarse (ambas firmas marcadas y en borrador).
-     *
-     * @return bool
      */
     #[Computed]
     public function puedeActivarse(): bool
@@ -269,8 +264,6 @@ class PlanPage extends Component
 
     /**
      * Indica si el plan está en estado activo (firmado y vigente).
-     *
-     * @return bool
      */
     #[Computed]
     public function planFirmado(): bool
@@ -280,17 +273,15 @@ class PlanPage extends Component
 
     /**
      * Valoraciones del historial de la historia social, filtradas por fecha.
-     *
-     * @return \Illuminate\Support\Collection
      */
     #[Computed]
-    public function valoracionesTimeline(): \Illuminate\Support\Collection
+    public function valoracionesTimeline(): Collection
     {
         if (! $this->plan) {
             return collect();
         }
 
-        $query = \Modules\Intervencion\Models\Valoracion::where(
+        $query = Valoracion::where(
             'historia_id', $this->plan->historia_id
         )->with(['fichas.tipoFicha']);
 
@@ -305,8 +296,6 @@ class PlanPage extends Component
 
     /**
      * Nombre corto del plan según la configuración de la UO del profesional.
-     *
-     * @return string
      */
     #[Computed]
     public function planNombreCorto(): string
@@ -320,8 +309,6 @@ class PlanPage extends Component
 
     /**
      * Abre el drawer de selección de fichas del historial.
-     *
-     * @return void
      */
     public function abrirDrawer(): void
     {
@@ -330,8 +317,6 @@ class PlanPage extends Component
 
     /**
      * Cierra el drawer de selección de fichas.
-     *
-     * @return void
      */
     public function cerrarDrawer(): void
     {
@@ -341,9 +326,6 @@ class PlanPage extends Component
     /**
      * Aplica la selección de fichas del drawer al diagnóstico del plan.
      * Pide motivo si el plan ya está firmado.
-     *
-     * @param array $fichasNuevas
-     * @return void
      */
     public function aplicarSeleccionFichas(array $fichasNuevas): void
     {
@@ -356,12 +338,14 @@ class PlanPage extends Component
 
         if (empty($cambios)) {
             $this->cerrarDrawer();
+
             return;
         }
 
         if ($this->planFirmado) {
             $this->encolarAccion('aplicarFichas', ['fichas' => $fichasNuevas]);
             $this->cerrarDrawer();
+
             return;
         }
 
@@ -372,9 +356,6 @@ class PlanPage extends Component
 
     /**
      * Sincroniza las fichas seleccionadas en la tabla pivote.
-     *
-     * @param array $fichas
-     * @return void
      */
     private function _aplicarFichas(array $fichas): void
     {
@@ -396,9 +377,6 @@ class PlanPage extends Component
 
     /**
      * Elimina una ficha del diagnóstico. Pide motivo si el plan está firmado.
-     *
-     * @param int $fichaId
-     * @return void
      */
     public function eliminarFichaDiagnostico(int $fichaId): void
     {
@@ -408,6 +386,7 @@ class PlanPage extends Component
 
         if ($this->planFirmado) {
             $this->encolarAccion('eliminarFicha', ['ficha_id' => $fichaId]);
+
             return;
         }
 
@@ -425,8 +404,6 @@ class PlanPage extends Component
     /**
      * Guarda el texto de síntesis del diagnóstico social.
      * Si el plan está firmado, abre el modal de motivo.
-     *
-     * @return void
      */
     public function guardarDiagnostico(): void
     {
@@ -436,6 +413,7 @@ class PlanPage extends Component
 
         if ($this->planFirmado && $this->diagnosticoTexto !== $this->plan->diagnostico_social) {
             $this->encolarAccion('guardarDiagnostico', []);
+
             return;
         }
 
@@ -451,8 +429,6 @@ class PlanPage extends Component
     /**
      * Guarda la periodicidad y observaciones del seguimiento.
      * Si el plan está firmado, abre el modal de motivo.
-     *
-     * @return void
      */
     public function guardarSeguimiento(): void
     {
@@ -462,6 +438,7 @@ class PlanPage extends Component
 
         if ($this->planFirmado) {
             $this->encolarAccion('guardarSeguimiento', []);
+
             return;
         }
 
@@ -475,9 +452,6 @@ class PlanPage extends Component
 
     /**
      * Registra o revoca la firma del profesional responsable.
-     *
-     * @param bool $valor
-     * @return void
      */
     public function marcarFirmaProfesional(bool $valor): void
     {
@@ -487,16 +461,13 @@ class PlanPage extends Component
 
         $this->profesionalFirmado = $valor;
         $this->_actualizarOServicioFirma([
-            'profesional_firmado'    => $valor,
+            'profesional_firmado' => $valor,
             'profesional_firmado_en' => $valor ? now() : null,
         ]);
     }
 
     /**
      * Registra o revoca la firma del ciudadano.
-     *
-     * @param bool $valor
-     * @return void
      */
     public function marcarFirmaCiudadano(bool $valor): void
     {
@@ -506,15 +477,13 @@ class PlanPage extends Component
 
         $this->ciudadanoFirmado = $valor;
         $this->_actualizarOServicioFirma([
-            'ciudadano_firmado'    => $valor,
+            'ciudadano_firmado' => $valor,
             'ciudadano_firmado_en' => $valor ? now() : null,
         ]);
     }
 
     /**
      * Guarda la fecha de la firma presencial en el registro de firmas.
-     *
-     * @return void
      */
     public function guardarFechaFirma(): void
     {
@@ -526,9 +495,6 @@ class PlanPage extends Component
 
     /**
      * Crea o actualiza el registro FirmaPlan para la versión actual del plan.
-     *
-     * @param array $datos
-     * @return void
      */
     private function _actualizarOServicioFirma(array $datos): void
     {
@@ -540,8 +506,6 @@ class PlanPage extends Component
 
     /**
      * Activa el plan cuando ambas firmas están marcadas.
-     *
-     * @return void
      */
     public function activarPlan(): void
     {
@@ -551,7 +515,7 @@ class PlanPage extends Component
         $this->authorize('update', $this->plan);
 
         $this->plan->update([
-            'estado'      => 'activo',
+            'estado' => 'activo',
             'fecha_firma' => $this->fechaFirmaPresencial ?? now()->toDateString(),
         ]);
         $this->plan = $this->plan->fresh();
@@ -564,23 +528,17 @@ class PlanPage extends Component
 
     /**
      * Encola la acción pendiente y abre el modal de motivo obligatorio.
-     *
-     * @param string $accion
-     * @param array $params
-     * @return void
      */
     private function encolarAccion(string $accion, array $params): void
     {
         $this->motivoAccionPendiente = $accion;
-        $this->motivoAccionParams    = $params;
-        $this->motivoTexto           = '';
-        $this->modalMotivoAbierto    = true;
+        $this->motivoAccionParams = $params;
+        $this->motivoTexto = '';
+        $this->modalMotivoAbierto = true;
     }
 
     /**
      * Confirma el cambio con motivo, registra en historial y ejecuta la acción.
-     *
-     * @return void
      */
     public function confirmarCambioConMotivo(): void
     {
@@ -598,40 +556,35 @@ class PlanPage extends Component
         );
 
         match ($this->motivoAccionPendiente) {
-            'eliminarFicha'      => $this->_eliminarFichaDirecto($this->motivoAccionParams['ficha_id']),
-            'aplicarFichas'      => $this->_aplicarFichas($this->motivoAccionParams['fichas']),
+            'eliminarFicha' => $this->_eliminarFichaDirecto($this->motivoAccionParams['ficha_id']),
+            'aplicarFichas' => $this->_aplicarFichas($this->motivoAccionParams['fichas']),
             'guardarDiagnostico' => $this->plan->update(['diagnostico_social' => $this->diagnosticoTexto]),
             'guardarSeguimiento' => $this->_guardarSeguimientoDirecto(),
-            default              => null,
+            default => null,
         };
 
-        $this->modalMotivoAbierto    = false;
+        $this->modalMotivoAbierto = false;
         $this->motivoAccionPendiente = '';
-        $this->motivoAccionParams    = [];
-        $this->motivoTexto           = '';
-        $this->mensajeExito          = 'Cambio registrado.';
+        $this->motivoAccionParams = [];
+        $this->motivoTexto = '';
+        $this->mensajeExito = 'Cambio registrado.';
         $this->plan = $this->plan->fresh();
         unset($this->fichasDiagnostico);
     }
 
     /**
      * Cancela el cambio pendiente y cierra el modal sin persistir.
-     *
-     * @return void
      */
     public function cancelarCambio(): void
     {
-        $this->modalMotivoAbierto    = false;
+        $this->modalMotivoAbierto = false;
         $this->motivoAccionPendiente = '';
-        $this->motivoAccionParams    = [];
-        $this->motivoTexto           = '';
+        $this->motivoAccionParams = [];
+        $this->motivoTexto = '';
     }
 
     /**
      * Elimina directamente una ficha del diagnóstico sin verificar estado del plan.
-     *
-     * @param int $fichaId
-     * @return void
      */
     private function _eliminarFichaDirecto(int $fichaId): void
     {
@@ -643,8 +596,6 @@ class PlanPage extends Component
 
     /**
      * Persiste periodicidad y observaciones de seguimiento directamente.
-     *
-     * @return void
      */
     private function _guardarSeguimientoDirecto(): void
     {
@@ -658,8 +609,6 @@ class PlanPage extends Component
 
     /**
      * Genera y descarga el PDF del plan de intervención.
-     *
-     * @return StreamedResponse
      */
     public function generarPdf(): StreamedResponse
     {
@@ -669,8 +618,9 @@ class PlanPage extends Component
         $this->authorize('view', $this->plan);
 
         $service = app(PlanPdfService::class);
+
         return response()->streamDownload(
-            fn () => print($service->generar($this->plan)),
+            fn () => print ($service->generar($this->plan)),
             $service->nombre($this->plan),
             ['Content-Type' => 'application/pdf']
         );
@@ -682,8 +632,6 @@ class PlanPage extends Component
 
     /**
      * Renderiza la vista del plan de intervención con el layout operativo.
-     *
-     * @return View
      */
     public function render(): View
     {

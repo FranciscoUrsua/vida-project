@@ -46,8 +46,6 @@ class Sidebar extends Component
 
     /**
      * Renderiza el sidebar del módulo.
-     *
-     * @return View
      */
     public function render(): View
     {

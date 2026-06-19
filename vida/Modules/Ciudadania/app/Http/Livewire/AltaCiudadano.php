@@ -113,8 +113,6 @@ class AltaCiudadano extends Component
     /**
      * Busca posibles duplicados usando el motor de matching.
      * No transiciona de fase. Solo requiere al menos un criterio.
-     *
-     * @return void
      */
     public function buscar(): void
     {
@@ -156,8 +154,6 @@ class AltaCiudadano extends Component
      * Redirige a la ficha de un ciudadano existente.
      *
      * @param int $ciudadanoId ID del ciudadano seleccionado.
-     *
-     * @return void
      */
     public function seleccionarExistente(int $ciudadanoId): void
     {
@@ -167,8 +163,6 @@ class AltaCiudadano extends Component
     /**
      * Precarga datos de búsqueda en el formulario y transiciona a la fase padron.
      * Requiere que la búsqueda haya sido realizada.
-     *
-     * @return void
      */
     public function continuarConNuevoAlta(): void
     {
@@ -199,8 +193,6 @@ class AltaCiudadano extends Component
      * RESTRICCIÓN DE SEGURIDAD VVG: si la excepción es 'vvg', este método
      * no invoca FuenteIdentidadInterface bajo ninguna circunstancia.
      * La condición se evalúa antes de cualquier llamada HTTP.
-     *
-     * @return void
      */
     public function consultarPadron(): void
     {
@@ -241,8 +233,6 @@ class AltaCiudadano extends Component
      * PSH y VVG solo están disponibles para roles intervencion y supervision.
      *
      * @param string $excepcion psh | vvg | representante | otra
-     *
-     * @return void
      */
     public function seleccionarExcepcionPadron(string $excepcion): void
     {
@@ -265,8 +255,6 @@ class AltaCiudadano extends Component
 
     /**
      * Valida, normaliza, ejecuta segunda pasada de matching y guarda el ciudadano.
-     *
-     * @return void
      */
     public function guardar(): void
     {
@@ -361,8 +349,6 @@ class AltaCiudadano extends Component
 
     /**
      * Persiste la primera demanda y redirige según la acción elegida.
-     *
-     * @return void
      */
     public function confirmarAlta(): void
     {
@@ -427,8 +413,6 @@ class AltaCiudadano extends Component
 
     /**
      * Renderiza la vista de alta de ciudadano.
-     *
-     * @return View
      */
     public function render(): View
     {

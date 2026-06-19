@@ -113,7 +113,6 @@ class HorarioCentro extends Model
      * Filtra horarios de un centro.
      *
      * @param Builder<HorarioCentro> $query
-     * @param int $centroId
      *
      * @return Builder<HorarioCentro>
      */
@@ -124,8 +123,6 @@ class HorarioCentro extends Model
 
     /**
      * Indica si el horario usa modo basico.
-     *
-     * @return bool
      */
     public function esModoBasico(): bool
     {
@@ -134,8 +131,6 @@ class HorarioCentro extends Model
 
     /**
      * Indica si el horario usa modo avanzado.
-     *
-     * @return bool
      */
     public function esModoAvanzado(): bool
     {

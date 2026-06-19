@@ -22,8 +22,6 @@ class AlertasSistemaWidget extends BaseWidget
 
     /**
      * Determina si el widget de alertas puede verse.
-     *
-     * @return bool
      */
     public static function canView(): bool
     {
@@ -34,7 +32,6 @@ class AlertasSistemaWidget extends BaseWidget
      * Configura la tabla del widget de alertas.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public function table(Table $table): Table
     {

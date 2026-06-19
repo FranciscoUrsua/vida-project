@@ -212,8 +212,6 @@ class Centro extends Model
 
     /**
      * Devuelve el DirectorCentro activo (fecha_fin null), o null si no lo hay.
-     *
-     * @return DirectorCentro|null
      */
     public function directorActivo(): ?DirectorCentro
     {
@@ -227,8 +225,6 @@ class Centro extends Model
      * y opcionalmente fecha_inicio (por defecto hoy).
      *
      * @param array<string, mixed> $datos Datos del nuevo director.
-     *
-     * @return DirectorCentro
      */
     public function nombrarDirector(array $datos): DirectorCentro
     {

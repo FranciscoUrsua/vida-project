@@ -5,6 +5,7 @@ namespace Modules\Intervencion\Tests\Feature;
 use App\Models\HistoriaSocial;
 use App\Models\Version;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\TipoFicha;
 use PHPUnit\Framework\Attributes\Test;
@@ -50,11 +51,11 @@ class FichaVersionadoTest extends TestCase
     public function i01_crear_ficha_guarda_schema_snapshot(): void
     {
         $ficha = Ficha::create([
-            'historia_id'     => $this->historia->id,
-            'tipo_ficha_id'   => $this->tipoFicha->id,
+            'historia_id' => $this->historia->id,
+            'tipo_ficha_id' => $this->tipoFicha->id,
             'schema_snapshot' => $this->tipoFicha->schema,
-            'datos'           => ['campo_a' => 100, 'campo_b' => 'texto'],
-            'completada'      => false,
+            'datos' => ['campo_a' => 100, 'campo_b' => 'texto'],
+            'completada' => false,
         ]);
 
         $this->assertNotNull($ficha->schema_snapshot);
@@ -69,11 +70,11 @@ class FichaVersionadoTest extends TestCase
     public function i02_schema_snapshot_no_cambia_al_modificar_tipo_ficha(): void
     {
         $ficha = Ficha::create([
-            'historia_id'     => $this->historia->id,
-            'tipo_ficha_id'   => $this->tipoFicha->id,
+            'historia_id' => $this->historia->id,
+            'tipo_ficha_id' => $this->tipoFicha->id,
             'schema_snapshot' => $this->tipoFicha->schema,
-            'datos'           => ['campo_a' => 100],
-            'completada'      => false,
+            'datos' => ['campo_a' => 100],
+            'completada' => false,
         ]);
 
         $snapshotOriginal = $ficha->schema_snapshot;
@@ -102,11 +103,11 @@ class FichaVersionadoTest extends TestCase
     public function i03_correccion_genera_version_versionable(): void
     {
         $ficha = Ficha::create([
-            'historia_id'     => $this->historia->id,
-            'tipo_ficha_id'   => $this->tipoFicha->id,
+            'historia_id' => $this->historia->id,
+            'tipo_ficha_id' => $this->tipoFicha->id,
             'schema_snapshot' => $this->tipoFicha->schema,
-            'datos'           => ['campo_a' => 800],
-            'completada'      => false,
+            'datos' => ['campo_a' => 800],
+            'completada' => false,
         ]);
 
         $ficha->update(['datos' => ['campo_a' => 950]]);
@@ -129,11 +130,11 @@ class FichaVersionadoTest extends TestCase
     public function i04_version_versionable_incluye_schema_snapshot(): void
     {
         $ficha = Ficha::create([
-            'historia_id'     => $this->historia->id,
-            'tipo_ficha_id'   => $this->tipoFicha->id,
+            'historia_id' => $this->historia->id,
+            'tipo_ficha_id' => $this->tipoFicha->id,
             'schema_snapshot' => $this->tipoFicha->schema,
-            'datos'           => ['campo_a' => 100],
-            'completada'      => false,
+            'datos' => ['campo_a' => 100],
+            'completada' => false,
         ]);
 
         $ficha->update(['notas' => 'Corrección de notas']);
@@ -153,19 +154,19 @@ class FichaVersionadoTest extends TestCase
     public function i05_nueva_valoracion_crea_ficha_nueva(): void
     {
         $fichaV1 = Ficha::create([
-            'historia_id'     => $this->historia->id,
-            'tipo_ficha_id'   => $this->tipoFicha->id,
+            'historia_id' => $this->historia->id,
+            'tipo_ficha_id' => $this->tipoFicha->id,
             'schema_snapshot' => $this->tipoFicha->schema,
-            'datos'           => ['campo_a' => 800],
-            'completada'      => true,
+            'datos' => ['campo_a' => 800],
+            'completada' => true,
         ]);
 
         $fichaV2 = Ficha::create([
-            'historia_id'     => $this->historia->id,
-            'tipo_ficha_id'   => $this->tipoFicha->id,
+            'historia_id' => $this->historia->id,
+            'tipo_ficha_id' => $this->tipoFicha->id,
             'schema_snapshot' => $this->tipoFicha->schema,
-            'datos'           => ['campo_a' => 1100],
-            'completada'      => true,
+            'datos' => ['campo_a' => 1100],
+            'completada' => true,
         ]);
 
         $this->assertCount(2, Ficha::where('historia_id', $this->historia->id)
@@ -182,11 +183,11 @@ class FichaVersionadoTest extends TestCase
     public function i06_nueva_valoracion_usa_schema_actual(): void
     {
         $fichaV1 = Ficha::create([
-            'historia_id'     => $this->historia->id,
-            'tipo_ficha_id'   => $this->tipoFicha->id,
+            'historia_id' => $this->historia->id,
+            'tipo_ficha_id' => $this->tipoFicha->id,
             'schema_snapshot' => $this->tipoFicha->schema,
-            'datos'           => ['campo_a' => 100],
-            'completada'      => true,
+            'datos' => ['campo_a' => 100],
+            'completada' => true,
         ]);
 
         // Añadir campo_c al TipoFicha
@@ -198,11 +199,11 @@ class FichaVersionadoTest extends TestCase
         $this->tipoFicha->save();
 
         $fichaV2 = Ficha::create([
-            'historia_id'     => $this->historia->id,
-            'tipo_ficha_id'   => $this->tipoFicha->id,
+            'historia_id' => $this->historia->id,
+            'tipo_ficha_id' => $this->tipoFicha->id,
             'schema_snapshot' => $this->tipoFicha->fresh()->schema,
-            'datos'           => ['campo_a' => 200],
-            'completada'      => true,
+            'datos' => ['campo_a' => 200],
+            'completada' => true,
         ]);
 
         $idsV1 = collect($fichaV1->schema_snapshot['campos'])->pluck('id')->all();
@@ -219,11 +220,11 @@ class FichaVersionadoTest extends TestCase
     public function i07_prerelleno_copia_campos_comunes(): void
     {
         $fichaV1 = Ficha::create([
-            'historia_id'     => $this->historia->id,
-            'tipo_ficha_id'   => $this->tipoFicha->id,
+            'historia_id' => $this->historia->id,
+            'tipo_ficha_id' => $this->tipoFicha->id,
             'schema_snapshot' => $this->tipoFicha->schema,
-            'datos'           => ['campo_a' => 10, 'campo_b' => 'Valor B'],
-            'completada'      => true,
+            'datos' => ['campo_a' => 10, 'campo_b' => 'Valor B'],
+            'completada' => true,
         ]);
 
         $resultado = Ficha::prerellenarDesde($fichaV1, $this->tipoFicha);
@@ -240,13 +241,13 @@ class FichaVersionadoTest extends TestCase
     {
         // Ficha creada con schema que incluía campo_c (ya retirado en el tipo actual)
         $fichaV1 = Ficha::create([
-            'historia_id'     => $this->historia->id,
-            'tipo_ficha_id'   => $this->tipoFicha->id,
+            'historia_id' => $this->historia->id,
+            'tipo_ficha_id' => $this->tipoFicha->id,
             'schema_snapshot' => ['campos' => [
                 ['id' => 'campo_a', 'tipo' => 'numero', 'etiqueta' => 'Campo A', 'obligatorio' => true, 'orden' => 1],
                 ['id' => 'campo_c', 'tipo' => 'texto', 'etiqueta' => 'Campo C', 'obligatorio' => false, 'orden' => 3],
             ]],
-            'datos'      => ['campo_a' => 1, 'campo_c' => 5],
+            'datos' => ['campo_a' => 1, 'campo_c' => 5],
             'completada' => true,
         ]);
 
@@ -265,12 +266,12 @@ class FichaVersionadoTest extends TestCase
     {
         // Ficha creada con schema que no tenía campo_b (añadido después)
         $fichaV1 = Ficha::create([
-            'historia_id'     => $this->historia->id,
-            'tipo_ficha_id'   => $this->tipoFicha->id,
+            'historia_id' => $this->historia->id,
+            'tipo_ficha_id' => $this->tipoFicha->id,
             'schema_snapshot' => ['campos' => [
                 ['id' => 'campo_a', 'tipo' => 'numero', 'etiqueta' => 'Campo A', 'obligatorio' => true, 'orden' => 1],
             ]],
-            'datos'      => ['campo_a' => 42],
+            'datos' => ['campo_a' => 42],
             'completada' => true,
         ]);
 
@@ -290,13 +291,13 @@ class FichaVersionadoTest extends TestCase
     public function i10_cambiar_tipo_campo_con_fichas_lanza_excepcion(): void
     {
         Ficha::create([
-            'historia_id'     => $this->historia->id,
-            'tipo_ficha_id'   => $this->tipoFicha->id,
+            'historia_id' => $this->historia->id,
+            'tipo_ficha_id' => $this->tipoFicha->id,
             'schema_snapshot' => $this->tipoFicha->schema,
-            'completada'      => false,
+            'completada' => false,
         ]);
 
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
 
         $this->tipoFicha->schema = ['campos' => [
             ['id' => 'campo_a', 'tipo' => 'texto', 'etiqueta' => 'Campo A', 'obligatorio' => true, 'orden' => 1],
@@ -315,10 +316,10 @@ class FichaVersionadoTest extends TestCase
     public function i11_eliminar_campo_con_fichas_esta_permitido(): void
     {
         Ficha::create([
-            'historia_id'     => $this->historia->id,
-            'tipo_ficha_id'   => $this->tipoFicha->id,
+            'historia_id' => $this->historia->id,
+            'tipo_ficha_id' => $this->tipoFicha->id,
             'schema_snapshot' => $this->tipoFicha->schema,
-            'completada'      => false,
+            'completada' => false,
         ]);
 
         // Eliminar campo_b — no debe lanzar excepción
@@ -341,12 +342,12 @@ class FichaVersionadoTest extends TestCase
             '2024-06-15',
             '2025-03-01',
         ])->map(fn ($fecha) => Ficha::create([
-            'historia_id'     => $this->historia->id,
-            'tipo_ficha_id'   => $this->tipoFicha->id,
+            'historia_id' => $this->historia->id,
+            'tipo_ficha_id' => $this->tipoFicha->id,
             'schema_snapshot' => $this->tipoFicha->schema,
-            'completada'      => true,
-            'created_at'      => $fecha,
-            'updated_at'      => $fecha,
+            'completada' => true,
+            'created_at' => $fecha,
+            'updated_at' => $fecha,
         ]));
 
         $historial = Ficha::historialPara($this->historia->id, $this->tipoFicha->id)->get();

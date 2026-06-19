@@ -11,11 +11,11 @@ return new class extends Migration
         Schema::create('plan_fichas_diagnostico', function (Blueprint $table) {
             $table->id();
             $table->foreignId('plan_id')
-                  ->constrained('planes_intervencion')
-                  ->cascadeOnDelete();
+                ->constrained('planes_intervencion')
+                ->cascadeOnDelete();
             $table->foreignId('ficha_id')
-                  ->constrained('fichas')
-                  ->cascadeOnDelete();
+                ->constrained('fichas')
+                ->cascadeOnDelete();
             $table->unsignedSmallInteger('orden')->default(0);
             $table->timestamps();
 

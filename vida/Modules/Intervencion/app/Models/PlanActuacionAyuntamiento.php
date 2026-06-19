@@ -3,6 +3,7 @@
 namespace Modules\Intervencion\Models;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Prestaciones\Models\Prestacion;
@@ -15,13 +16,13 @@ use Modules\Prestaciones\Models\Prestacion;
  *
  * @property int $id
  * @property int $plan_id
- * @property int $prestacion_id  Obligatorio — regla de negocio en booted()
+ * @property int $prestacion_id Obligatorio — regla de negocio en booted()
  * @property string|null $descripcion_especifica
  * @property int|null $responsable_id
- * @property string $estado  'pendiente' | 'en_curso' | 'completada' | 'cancelada'
- * @property \Carbon\Carbon|null $fecha_inicio_prevista
- * @property \Carbon\Carbon|null $fecha_fin_prevista
- * @property \Carbon\Carbon|null $fecha_fin_real
+ * @property string $estado 'pendiente' | 'en_curso' | 'completada' | 'cancelada'
+ * @property Carbon|null $fecha_inicio_prevista
+ * @property Carbon|null $fecha_fin_prevista
+ * @property Carbon|null $fecha_fin_real
  * @property int $orden
  */
 class PlanActuacionAyuntamiento extends Model
@@ -35,8 +36,8 @@ class PlanActuacionAyuntamiento extends Model
 
     protected $casts = [
         'fecha_inicio_prevista' => 'date',
-        'fecha_fin_prevista'    => 'date',
-        'fecha_fin_real'        => 'date',
+        'fecha_fin_prevista' => 'date',
+        'fecha_fin_real' => 'date',
     ];
 
     // -------------------------------------------------------------------------

@@ -22,8 +22,6 @@ class ViewAudit extends ViewRecord
      * Construye el esquema de detalle del registro de auditoría.
      *
      * @param Schema $schema Esquema base.
-     *
-     * @return Schema
      */
     public function infolist(Schema $schema): Schema
     {

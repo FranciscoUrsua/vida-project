@@ -16,8 +16,6 @@ enum EstadoCita: string
 
     /**
      * Etiqueta legible para mostrar el estado de la cita en la interfaz.
-     *
-     * @return string
      */
     public function label(): string
     {

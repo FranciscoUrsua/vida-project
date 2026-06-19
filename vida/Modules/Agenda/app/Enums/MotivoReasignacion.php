@@ -14,8 +14,6 @@ enum MotivoReasignacion: string
 
     /**
      * Etiqueta legible para mostrar el motivo de reasignacion.
-     *
-     * @return string
      */
     public function label(): string
     {

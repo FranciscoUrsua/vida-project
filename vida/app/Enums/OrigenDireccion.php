@@ -19,8 +19,6 @@ enum OrigenDireccion: string
 
     /**
      * Devuelve la etiqueta legible del origen de la dirección.
-     *
-     * @return string
      */
     public function label(): string
     {

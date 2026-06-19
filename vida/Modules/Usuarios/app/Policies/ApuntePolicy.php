@@ -46,7 +46,6 @@ class ApuntePolicy
      * Decide si el usuario puede listar apuntes.
      *
      * @param User $usuario Usuario autenticado.
-     * @return bool
      */
     public function viewAny(User $usuario): bool
     {
@@ -61,7 +60,6 @@ class ApuntePolicy
      *
      * @param User $usuario Usuario autenticado.
      * @param Apunte $apunte Apunte a consultar.
-     * @return bool
      */
     public function view(User $usuario, Apunte $apunte): bool
     {
@@ -85,7 +83,6 @@ class ApuntePolicy
      * El rol supervision no puede crear apuntes.
      *
      * @param User $usuario Usuario autenticado.
-     * @return bool
      */
     public function create(User $usuario): bool
     {
@@ -105,7 +102,6 @@ class ApuntePolicy
      *
      * @param User $usuario Usuario autenticado.
      * @param Apunte $apunte Apunte a editar.
-     * @return bool
      */
     public function update(User $usuario, Apunte $apunte): bool
     {
@@ -131,7 +127,6 @@ class ApuntePolicy
      *
      * @param User $usuario Usuario autenticado.
      * @param Apunte $apunte Apunte a eliminar.
-     * @return bool
      */
     public function delete(User $usuario, Apunte $apunte): bool
     {

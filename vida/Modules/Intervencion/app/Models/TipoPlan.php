@@ -15,9 +15,9 @@ use Modules\Intervencion\Database\Factories\TipoPlanFactory;
  * Los tipos del seeder tienen eliminable=false y no pueden borrarse desde UI.
  *
  * @property int $id
- * @property string $slug  Identificador estable no editable
+ * @property string $slug Identificador estable no editable
  * @property string $nombre
- * @property string $ambito  'asp' | 'especializado'
+ * @property string $ambito 'asp' | 'especializado'
  * @property string|null $descripcion
  * @property bool $activo
  * @property bool $eliminable
@@ -38,7 +38,7 @@ class TipoPlan extends Model
     ];
 
     protected $casts = [
-        'activo'     => 'boolean',
+        'activo' => 'boolean',
         'eliminable' => 'boolean',
     ];
 

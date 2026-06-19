@@ -43,7 +43,6 @@ class RedResource extends Resource
      * Define el formulario de redes.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -89,8 +88,6 @@ class RedResource extends Resource
 
     /**
      * Determina si el usuario puede ver el listado de redes.
-     *
-     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -101,7 +98,6 @@ class RedResource extends Resource
      * Configura el listado de redes.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -135,8 +131,6 @@ class RedResource extends Resource
 
     /**
      * Declara las páginas del recurso de redes.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

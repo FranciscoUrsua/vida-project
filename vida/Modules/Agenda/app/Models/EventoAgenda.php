@@ -116,7 +116,6 @@ class EventoAgenda extends Model
      * Filtra eventos de un centro.
      *
      * @param Builder<EventoAgenda> $query
-     * @param int $centroId
      *
      * @return Builder<EventoAgenda>
      */
@@ -129,7 +128,6 @@ class EventoAgenda extends Model
      * Filtra eventos en los que participa un profesional.
      *
      * @param Builder<EventoAgenda> $query
-     * @param int $usuarioId
      *
      * @return Builder<EventoAgenda>
      */

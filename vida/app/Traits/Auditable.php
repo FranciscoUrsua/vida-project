@@ -25,7 +25,6 @@ trait Auditable
 {
     /** Registra el observer de auditoría al arrancar el modelo.
      *
-     * @return void
      */
     public static function bootAuditable(): void
     {
@@ -61,7 +60,6 @@ trait Auditable
      * Cada modelo debe sobrescribir este método si el ciudadano_id
      * no es un atributo directo (p.ej.: llega a través de historia_id).
      * Los modelos que representan directamente a un ciudadano devuelven $this->id.
-     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {

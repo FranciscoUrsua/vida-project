@@ -22,7 +22,6 @@ class EnsureTieneRol
      *
      * @param Request $request Petición entrante.
      * @param Closure(Request): Response $next Siguiente middleware.
-     * @return Response
      */
     public function handle(Request $request, Closure $next): Response
     {

@@ -2,7 +2,6 @@
 
 namespace Modules\Atencion\Providers;
 
-use App\Models\HistoriaSocial;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Modules\Atencion\Models\RegistroAtencion;
@@ -20,15 +19,11 @@ class AtencionServiceProvider extends ServiceProvider
 
     /**
      * Registra dependencias del módulo.
-     *
-     * @return void
      */
     public function register(): void {}
 
     /**
      * Carga migraciones y registra policies del módulo.
-     *
-     * @return void
      */
     public function boot(): void
     {

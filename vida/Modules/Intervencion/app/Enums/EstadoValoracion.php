@@ -13,8 +13,6 @@ enum EstadoValoracion: string
 
     /**
      * Etiqueta legible para mostrar el estado de la valoracion.
-     *
-     * @return string
      */
     public function label(): string
     {

@@ -127,7 +127,6 @@ class PerfilHorarioProfesional extends Model
      * Filtra perfiles de un centro.
      *
      * @param Builder<PerfilHorarioProfesional> $query
-     * @param int $centroId
      *
      * @return Builder<PerfilHorarioProfesional>
      */

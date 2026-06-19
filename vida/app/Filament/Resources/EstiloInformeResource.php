@@ -47,7 +47,6 @@ class EstiloInformeResource extends Resource
      * Define el formulario de estilos de informe.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -110,7 +109,6 @@ class EstiloInformeResource extends Resource
      * Configura el listado de estilos de informe.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -158,8 +156,6 @@ class EstiloInformeResource extends Resource
 
     /**
      * Declara las páginas del recurso de estilos de informe.
-     *
-     * @return array
      */
     public static function getPages(): array
     {
@@ -172,8 +168,6 @@ class EstiloInformeResource extends Resource
 
     /**
      * Determina si el usuario puede ver el listado de estilos de informe.
-     *
-     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -184,7 +178,6 @@ class EstiloInformeResource extends Resource
      * Determina si el usuario puede editar un estilo de informe.
      *
      * @param Model $record Registro objetivo.
-     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -195,7 +188,6 @@ class EstiloInformeResource extends Resource
      * Determina si el usuario puede eliminar un estilo de informe.
      *
      * @param Model $record Registro objetivo.
-     * @return bool
      */
     public static function canDelete(Model $record): bool
     {

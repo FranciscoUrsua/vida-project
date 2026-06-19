@@ -49,8 +49,6 @@ class CentroResource extends Resource
      * Define el formulario de alta y edición de centros.
      *
      * @param Schema $schema Esquema base.
-     *
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -187,8 +185,6 @@ class CentroResource extends Resource
      * Define la tabla de listado de centros.
      *
      * @param Table $table Tabla base.
-     *
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -250,7 +246,6 @@ class CentroResource extends Resource
 
     /** Cualquier usuario autenticado puede consultar el catálogo de centros.
      *
-     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -261,8 +256,6 @@ class CentroResource extends Resource
      * Indica si el usuario puede editar un centro.
      *
      * @param Model $record Registro objetivo.
-     *
-     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -273,8 +266,6 @@ class CentroResource extends Resource
      * Indica si el usuario puede eliminar un centro.
      *
      * @param Model $record Registro objetivo.
-     *
-     * @return bool
      */
     public static function canDelete(Model $record): bool
     {
@@ -283,8 +274,6 @@ class CentroResource extends Resource
 
     /**
      * Define los relation managers del recurso de centros.
-     *
-     * @return array
      */
     public static function getRelationManagers(): array
     {
@@ -296,8 +285,6 @@ class CentroResource extends Resource
 
     /**
      * Define las páginas del recurso de centros.
-     *
-     * @return array
      */
     public static function getPages(): array
     {

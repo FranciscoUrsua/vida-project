@@ -75,9 +75,7 @@ class TipoFicha extends Model
      * La validación se hace en el mutador (no en el evento saving) porque el
      * cast 'array' transformaría el string antes de que el evento pudiese inspeccionarlo.
      *
-     * @param mixed $value
      *
-     * @return void
      *
      * @throws \InvalidArgumentException Si el string recibido no es JSON válido
      */
@@ -98,10 +96,6 @@ class TipoFicha extends Model
 
     /**
      * Devuelve el schema siempre como array PHP.
-     *
-     * @param mixed $value
-     *
-     * @return array
      */
     public function getSchemaAttribute(mixed $value): array
     {
@@ -143,8 +137,6 @@ class TipoFicha extends Model
     /**
      * Indica si esta ficha ya tiene instancias reales de datos (fichas cumplimentadas).
      * Cuando es true, los ids y tipos de campos existentes son inmutables.
-     *
-     * @return bool
      */
     public function tieneFichasAsociadas(): bool
     {
@@ -159,7 +151,6 @@ class TipoFicha extends Model
      * Valida la estructura del schema JSON antes de persistir.
      * Lanza ValidationException si el schema no cumple el contrato.
      *
-     * @return void
      *
      * @throws ValidationException
      */
@@ -235,8 +226,8 @@ class TipoFicha extends Model
                 if ($campoActual['tipo'] !== $tipo) {
                     throw ValidationException::withMessages([
                         'schema' => "No se puede cambiar el tipo del campo '{$id}': ya existen fichas "
-                            . "cumplimentadas. Los datos existentes ({$tipo}) serían ininterpretables "
-                            . "como {$campoActual['tipo']}.",
+                            ."cumplimentadas. Los datos existentes ({$tipo}) serían ininterpretables "
+                            ."como {$campoActual['tipo']}.",
                     ]);
                 }
             }

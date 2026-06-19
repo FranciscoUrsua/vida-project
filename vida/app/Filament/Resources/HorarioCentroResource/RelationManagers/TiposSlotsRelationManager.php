@@ -29,7 +29,6 @@ class TiposSlotsRelationManager extends RelationManager
      * Define el formulario del relation manager de tipos de slot.
      *
      * @param Schema $schema Esquema base del formulario.
-     * @return Schema
      */
     public function form(Schema $schema): Schema
     {
@@ -91,7 +90,6 @@ class TiposSlotsRelationManager extends RelationManager
      * Configura el listado de tipos de slot.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public function table(Table $table): Table
     {
