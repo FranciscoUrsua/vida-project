@@ -11,7 +11,7 @@
      BANDA DE CONTEXTO (sticky)
      ============================================================ --}}
 <div class="plan-topbar">
-    <a href="{{ route('intervencion.ciudadano.show', $this->plan?->historia_id) }}"
+    <a href="{{ route('intervencion.ciudadano.show', $this->plan?->historia_id ?? $this->historiaId) }}"
        wire:navigate
        class="plan-topbar__back">
         <i data-lucide="arrow-left" style="width:13px;height:13px"></i>
