@@ -10,6 +10,10 @@ use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Models\FirmaPlan;
 use Modules\Intervencion\Models\PlanCambio;
 use Modules\Intervencion\Models\PlanDeIntervencion;
+use App\Models\Ciudadano;
+use Modules\Ciudadania\Models\CiudadanoRelacion;
+use Modules\Ciudadania\Models\TipoRelacion;
+use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Intervencion\Services\PlanPdfService;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -121,10 +125,10 @@ class PlanPage extends Component
     /**
      * Ciudadano titular de la historia social del plan.
      *
-     * @return \Modules\Ciudadania\Models\Ciudadano|null
+     * @return Ciudadano|null
      */
     #[Computed]
-    public function ciudadano(): ?\Modules\Ciudadania\Models\Ciudadano
+    public function ciudadano(): ?Ciudadano
     {
         return $this->plan?->historia?->ciudadano;
     }
@@ -132,10 +136,10 @@ class PlanPage extends Component
     /**
      * Unidad de convivencia vigente del ciudadano o la del plan.
      *
-     * @return \Modules\Ciudadania\Models\UnidadConvivencia|null
+     * @return UnidadConvivencia|null
      */
     #[Computed]
-    public function ucVigente(): ?\Modules\Ciudadania\Models\UnidadConvivencia
+    public function ucVigente(): ?UnidadConvivencia
     {
         return $this->plan?->unidadConvivencia
             ?? $this->ciudadano?->unidadesConvivenciaActivas()->first();
@@ -153,13 +157,13 @@ class PlanPage extends Component
             return collect();
         }
 
-        $slugsEtiquetas = \Modules\Ciudadania\Models\TipoRelacion::activos()->pluck('etiqueta', 'slug');
+        $slugsEtiquetas = TipoRelacion::activos()->pluck('etiqueta', 'slug');
 
         return $this->ucVigente->miembrosActivos()
             ->with('ciudadano')
             ->get()
             ->map(function ($m) use ($slugsEtiquetas) {
-                $relacion = \Modules\Ciudadania\Models\CiudadanoRelacion::where(
+                $relacion = CiudadanoRelacion::where(
                     'ciudadano_id', $this->ciudadano?->id
                 )->where('ciudadano_relacionado_id', $m->ciudadano_id)
                  ->whereNull('fecha_fin')
