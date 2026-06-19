@@ -1395,7 +1395,7 @@ a.uc-modal__miembro-nombre:hover { text-decoration: underline; }
     background: var(--color-primary, #3b82f6); color: #fff;
     border-color: var(--color-primary, #3b82f6);
 }
-.ficha-btn--primary:hover { opacity: .85; }
+.ficha-btn--primary:hover { background: var(--color-primary, #3b82f6); color: #fff; opacity: .85; }
 
 /* Modal atención */
 .ficha-modal-overlay {
