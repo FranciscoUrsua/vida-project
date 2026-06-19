@@ -1392,8 +1392,8 @@ a.uc-modal__miembro-nombre:hover { text-decoration: underline; }
 }
 .ficha-btn:hover { background: var(--color-surface-alt); }
 .ficha-btn--primary {
-    background: var(--color-text-primary); color: var(--color-surface);
-    border-color: var(--color-text-primary);
+    background: var(--color-primary, #3b82f6); color: #fff;
+    border-color: var(--color-primary, #3b82f6);
 }
 .ficha-btn--primary:hover { opacity: .85; }
 
@@ -1420,7 +1420,7 @@ a.uc-modal__miembro-nombre:hover { text-decoration: underline; }
 .ficha-modal-cerrar:hover { color: var(--color-text-primary); }
 .ficha-modal-body {
     padding: 16px 18px; display: flex; flex-direction: column; gap: 12px;
-    overflow-y: auto;
+    overflow-y: auto; flex: 1; min-height: 0;
 }
 .ficha-modal-footer {
     padding: 12px 18px; border-top: 1px solid var(--color-border);
