@@ -96,7 +96,7 @@
                 <div class="plan-citizen-field">
                     <div class="plan-citizen-label">Fecha de nacimiento</div>
                     <div class="plan-citizen-value">
-                        {{ $this->ciudadano?->fecha_nacimiento?->format('d/m/Y') }}
+                        {{ $this->ciudadano?->fecha_nacimiento ? \Carbon\Carbon::parse($this->ciudadano->fecha_nacimiento)->format('d/m/Y') : '—' }}
                     </div>
                 </div>
                 <div class="plan-citizen-field">
