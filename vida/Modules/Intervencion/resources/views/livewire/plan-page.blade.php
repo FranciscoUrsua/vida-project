@@ -101,7 +101,7 @@
                 </div>
                 <div class="plan-citizen-field">
                     <div class="plan-citizen-label">Documento</div>
-                    <div class="plan-citizen-value">{{ $this->ciudadano?->documentoPrincipal() }}</div>
+                    <div class="plan-citizen-value">{{ $this->ciudadano?->documento_identidad ?? '—' }}</div>
                 </div>
                 <div class="plan-citizen-field">
                     <div class="plan-citizen-label">Domicilio</div>
