@@ -14,7 +14,7 @@
     <a href="{{ route('intervencion.ciudadano.show', $this->plan?->historia_id ?? $this->historiaId) }}"
        wire:navigate
        class="plan-topbar__back">
-        <i data-lucide="arrow-left" style="width:13px;height:13px"></i>
+        <i data-lucide="arrow-left" class="icon-13"></i>
         Intervención
     </a>
 
@@ -39,7 +39,7 @@
     <div class="plan-topbar__actions">
         @if($this->plan)
         <button wire:click="generarPdf" class="plan-btn">
-            <i data-lucide="file-down" style="width:13px;height:13px"></i>
+            <i data-lucide="file-down" class="icon-13"></i>
             Generar PDF
         </button>
         @endif
@@ -50,14 +50,14 @@
             class="plan-btn plan-btn--primary"
             @if(! $this->puedeActivarse) disabled title="Marca ambas firmas para activar" @endif
         >
-            <i data-lucide="check" style="width:13px;height:13px"></i>
+            <i data-lucide="check" class="icon-13"></i>
             Activar plan
         </button>
         @endif
 
         @if($this->plan?->estado->value === 'activo')
         <button class="plan-btn">
-            <i data-lucide="x-circle" style="width:13px;height:13px"></i>
+            <i data-lucide="x-circle" class="icon-13"></i>
             Cerrar plan
         </button>
         @endif
@@ -67,7 +67,7 @@
 {{-- Mensaje de éxito --}}
 @if($mensajeExito)
 <div class="plan-exito" x-init="setTimeout(() => $wire.set('mensajeExito', ''), 3000)">
-    <i data-lucide="check-circle" style="width:13px;height:13px"></i>
+    <i data-lucide="check-circle" class="icon-13"></i>
     {{ $mensajeExito }}
 </div>
 @endif
@@ -82,7 +82,7 @@
     <div class="plan-section" id="ps-datos">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <i data-lucide="user" style="width:15px;height:15px"></i>
+                <i data-lucide="user" class="icon-15"></i>
                 Datos de la persona
             </div>
             <span class="plan-readonly-badge">Solo lectura · Historia Social</span>
@@ -129,11 +129,11 @@
     <div class="plan-section" id="ps-diagnostico">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <i data-lucide="file-text" style="width:15px;height:15px"></i>
+                <i data-lucide="file-text" class="icon-15"></i>
                 Diagnóstico social
             </div>
             <button wire:click="abrirDrawer" class="plan-btn">
-                <i data-lucide="database" style="width:13px;height:13px"></i>
+                <i data-lucide="database" class="icon-13"></i>
                 Añadir fichas
             </button>
         </div>
@@ -145,21 +145,21 @@
                 <div class="plan-ficha-card" wire:key="pfd-{{ $pfd->id }}"
                      x-data="{ expandida: false }">
                     <div class="plan-ficha-header">
-                        <div class="plan-ficha-title" @click="expandida = !expandida" style="cursor:pointer">
-                            <i data-lucide="lock" style="width:11px;height:11px;opacity:.5"></i>
+                        <div class="plan-ficha-title plan-ficha-title--toggle" @click="expandida = !expandida">
+                            <i data-lucide="lock" class="icon-12 plan-icon-muted"></i>
                             {{ $pfd->ficha?->tipoFicha?->nombre ?? 'Ficha' }}
                             <span class="plan-ficha-date">
                                 {{ $pfd->ficha?->created_at?->format('d/m/Y') }}
                             </span>
-                            <i data-lucide="chevron-down" style="width:12px;height:12px"
-                               x-bind:style="expandida ? 'transform:rotate(180deg)' : ''"></i>
+                            <i data-lucide="chevron-down" class="icon-12"
+                               x-bind:class="expandida ? 'plan-icon-rotate-180' : ''"></i>
                         </div>
                         <button
                             wire:click="eliminarFichaDiagnostico({{ $pfd->ficha_id }})"
                             class="plan-ficha-remove"
                             title="Eliminar del diagnóstico"
                         >
-                            <i data-lucide="x" style="width:12px;height:12px"></i>
+                            <i data-lucide="x" class="icon-12"></i>
                         </button>
                     </div>
                     <div class="plan-ficha-content" x-show="expandida" x-cloak>
@@ -183,7 +183,7 @@
 
                 @if($this->fichasDiagnostico->isNotEmpty())
                 <button wire:click="abrirDrawer" class="plan-add-ficha-btn">
-                    <i data-lucide="plus" style="width:13px;height:13px"></i>
+                    <i data-lucide="plus" class="icon-13"></i>
                     Añadir otra ficha
                 </button>
                 @endif
@@ -192,7 +192,7 @@
             {{-- Bloque B: Síntesis profesional --}}
             <div class="plan-sintesis">
                 <div class="plan-sintesis-label">
-                    <i data-lucide="pencil" style="width:13px;height:13px"></i>
+                    <i data-lucide="pencil" class="icon-13"></i>
                     Síntesis profesional
                 </div>
                 <div class="plan-editor-toolbar">
@@ -202,7 +202,7 @@
                             title="Cursiva"><em>I</em></button>
                     <button class="plan-tb-btn" onclick="document.execCommand('insertUnorderedList')"
                             title="Lista">
-                        <i data-lucide="list" style="width:13px;height:13px"></i>
+                        <i data-lucide="list" class="icon-13"></i>
                     </button>
                 </div>
                 <div
@@ -220,11 +220,11 @@
     <div class="plan-section" id="ps-objetivos">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <i data-lucide="target" style="width:15px;height:15px"></i>
+                <i data-lucide="target" class="icon-15"></i>
                 Objetivos
             </div>
             <button class="plan-btn">
-                <i data-lucide="plus" style="width:13px;height:13px"></i>
+                <i data-lucide="plus" class="icon-13"></i>
                 Añadir objetivo
             </button>
         </div>
@@ -248,7 +248,7 @@
                             {{ ucfirst(str_replace('_', ' ', $og->estado)) }}
                         </span>
                         <button class="plan-tb-btn">
-                            <i data-lucide="edit" style="width:13px;height:13px"></i>
+                            <i data-lucide="edit" class="icon-13"></i>
                         </button>
                     </div>
                 </div>
@@ -262,17 +262,17 @@
     <div class="plan-section" id="ps-ayto">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <i data-lucide="building" style="width:15px;height:15px"></i>
+                <i data-lucide="building" class="icon-15"></i>
                 Compromisos del Ayuntamiento
             </div>
             <button class="plan-btn">
-                <i data-lucide="plus" style="width:13px;height:13px"></i>
+                <i data-lucide="plus" class="icon-13"></i>
                 Añadir
             </button>
         </div>
         <div class="plan-section__body plan-section__body--no-pad">
             @if($this->actuacionesAyuntamiento->isEmpty())
-            <div class="plan-vacio" style="padding:16px">Ninguna actuación definida.</div>
+            <div class="plan-vacio plan-vacio--padded">Ninguna actuación definida.</div>
             @else
             <table class="plan-table">
                 <thead>
@@ -301,7 +301,7 @@
                         </td>
                         <td class="plan-td-secondary">{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
                         <td><span class="plan-estado-badge plan-estado-{{ $act->estado }}">{{ ucfirst($act->estado) }}</span></td>
-                        <td><button class="plan-tb-btn"><i data-lucide="edit" style="width:13px;height:13px"></i></button></td>
+                        <td><button class="plan-tb-btn"><i data-lucide="edit" class="icon-13"></i></button></td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -314,11 +314,11 @@
     <div class="plan-section" id="ps-ciudadano">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <i data-lucide="user-check" style="width:15px;height:15px"></i>
+                <i data-lucide="user-check" class="icon-15"></i>
                 Compromisos de la persona
             </div>
             <button class="plan-btn">
-                <i data-lucide="plus" style="width:13px;height:13px"></i>
+                <i data-lucide="plus" class="icon-13"></i>
                 Añadir
             </button>
         </div>
@@ -329,15 +329,15 @@
             <div class="plan-comp-list">
                 @foreach($this->actuacionesCiudadano as $act)
                 <div class="plan-comp-item" wire:key="aciu-{{ $act->id }}">
-                    <i data-lucide="circle-check" style="width:14px;height:14px;flex-shrink:0;margin-top:1px"></i>
+                    <i data-lucide="circle-check" class="icon-14"></i>
                     <div>
                         <div>{{ $act->descripcion }}</div>
                         @if($act->prestacion)
                         <span class="plan-prestacion-pill">{{ $act->prestacion->nombre }}</span>
                         @endif
                     </div>
-                    <button class="plan-tb-btn" style="margin-left:auto">
-                        <i data-lucide="edit" style="width:13px;height:13px"></i>
+                    <button class="plan-tb-btn plan-tb-btn--push">
+                        <i data-lucide="edit" class="icon-13"></i>
                     </button>
                 </div>
                 @endforeach
@@ -350,11 +350,11 @@
     <div class="plan-section" id="ps-participantes">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <i data-lucide="users" style="width:15px;height:15px"></i>
+                <i data-lucide="users" class="icon-15"></i>
                 Profesionales participantes
             </div>
             <button class="plan-btn">
-                <i data-lucide="plus" style="width:13px;height:13px"></i>
+                <i data-lucide="plus" class="icon-13"></i>
                 Añadir
             </button>
         </div>
@@ -374,7 +374,7 @@
                     <span class="plan-badge-responsable">Responsable</span>
                     @else
                     <button class="plan-tb-btn">
-                        <i data-lucide="x" style="width:13px;height:13px"></i>
+                        <i data-lucide="x" class="icon-13"></i>
                     </button>
                     @endif
                 </div>
@@ -387,7 +387,7 @@
     <div class="plan-section" id="ps-firmas">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <i data-lucide="pen-line" style="width:15px;height:15px"></i>
+                <i data-lucide="pen-line" class="icon-15"></i>
                 Seguimiento y firmas
             </div>
         </div>
@@ -467,7 +467,7 @@
             </div>
 
             {{-- Fecha de firma presencial --}}
-            <div class="plan-field" style="margin-top:12px; max-width:200px">
+            <div class="plan-field plan-field--compact">
                 <label class="plan-label">Fecha de la firma presencial</label>
                 <input
                     type="date"
@@ -479,7 +479,7 @@
 
             @if($this->puedeActivarse)
             <div class="plan-firma-lista-ok">
-                <i data-lucide="check-circle" style="width:14px;height:14px"></i>
+                <i data-lucide="check-circle" class="icon-14"></i>
                 Ambas partes han firmado. El plan puede activarse desde el botón superior.
             </div>
             @endif
@@ -521,7 +521,7 @@
         <div class="plan-drawer-header">
             <div class="plan-drawer-title">Historia social — fichas</div>
             <button wire:click="cerrarDrawer" aria-label="Cerrar">
-                <i data-lucide="x" style="width:16px;height:16px"></i>
+                <i data-lucide="x" class="icon-16"></i>
             </button>
         </div>
 
@@ -551,13 +551,13 @@
                     >
                     <label for="df{{ $ficha->id }}">{{ $ficha->tipoFicha?->nombre ?? 'Ficha' }}</label>
                     @if(in_array($ficha->id, $fichasSeleccionadas))
-                    <span class="plan-chip plan-chip--on" style="font-size:10px;padding:1px 6px">Añadida</span>
+                    <span class="plan-chip plan-chip--on plan-chip--compact">Añadida</span>
                     @endif
                 </div>
                 @endforeach
             </div>
             @empty
-            <div class="plan-vacio" style="padding:16px">No hay valoraciones en el historial.</div>
+            <div class="plan-vacio plan-vacio--padded">No hay valoraciones en el historial.</div>
             @endforelse
         </div>
 
@@ -567,7 +567,7 @@
                 x-on:click="$wire.aplicarSeleccionFichas(seleccion)"
                 class="plan-btn plan-btn--primary"
             >
-                <i data-lucide="check" style="width:13px;height:13px"></i>
+                <i data-lucide="check" class="icon-13"></i>
                 Aplicar selección
             </button>
         </div>
@@ -600,7 +600,7 @@
                 class="plan-btn plan-btn--primary"
                 @if(empty(trim($motivoTexto))) disabled @endif
             >
-                <i data-lucide="check" style="width:13px;height:13px"></i>
+                <i data-lucide="check" class="icon-13"></i>
                 Confirmar cambio
             </button>
         </div>

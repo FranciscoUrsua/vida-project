@@ -43,8 +43,7 @@
     <div class="grid grid-cols-3 gap-4">
 
         {{-- Catálogo --}}
-        <div class="col-span-2 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700"
-             style="max-height: 360px;">
+        <div class="col-span-2 max-h-[360px] overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700">
             @forelse ($this->prestacionesFiltradas as $grupo => $prestaciones)
                 <div class="border-b border-gray-100 last:border-b-0 dark:border-gray-800">
 
@@ -121,8 +120,7 @@
                 </span>
             </div>
 
-            <div class="overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700"
-                 style="max-height: 360px;">
+            <div class="max-h-[360px] overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700">
                 @if (empty($seleccionadas))
                     <p class="px-3 py-6 text-center text-xs text-gray-400 dark:text-gray-500">
                         Ninguna prestación seleccionada

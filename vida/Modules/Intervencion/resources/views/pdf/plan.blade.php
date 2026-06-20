@@ -2,28 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: sans-serif; font-size: 10pt; color: #1a1a1a; line-height: 1.4; }
-    .cabecera { border-bottom: 2px solid #2A5B8A; padding-bottom: 8px; margin-bottom: 16px; }
-    .cabecera__titulo { font-size: 14pt; font-weight: bold; color: #2A5B8A; }
-    .cabecera__subtitulo { font-size: 10pt; color: #555; margin-top: 2px; }
-    .seccion { margin-bottom: 14px; }
-    .seccion__titulo { font-size: 10pt; font-weight: bold; text-transform: uppercase;
-                       letter-spacing: .05em; color: #2A5B8A; border-bottom: 1px solid #ccc;
-                       padding-bottom: 3px; margin-bottom: 6px; }
-    .seccion__contenido { font-size: 9.5pt; }
-    table { width: 100%; border-collapse: collapse; font-size: 9pt; margin-top: 4px; }
-    th { background: #f0f4f8; text-align: left; padding: 4px 6px; font-weight: 600; border: 1px solid #ddd; }
-    td { padding: 4px 6px; border: 1px solid #ddd; vertical-align: top; }
-    .firmas { margin-top: 32px; display: flex; gap: 40px; }
-    .firma-bloque { flex: 1; border-top: 1px solid #333; padding-top: 6px; text-align: center; }
-    .firma-bloque__nombre { font-size: 9pt; }
-    .firma-bloque__fecha { font-size: 8pt; color: #666; margin-top: 2px; }
-    .dato-fila { display: flex; gap: 8px; margin-bottom: 3px; }
-    .dato-label { font-weight: 600; min-width: 140px; }
-    .pie { margin-top: 20px; font-size: 8pt; color: #888; border-top: 1px solid #eee; padding-top: 6px; }
-</style>
+<link rel="stylesheet" href="{{ base_path('Modules/Intervencion/resources/css/plan-pdf.css') }}">
 </head>
 <body>
 
@@ -81,7 +60,7 @@
     <div class="seccion__contenido">
         <strong>{{ $loop->iteration }}. {{ $og->texto }}</strong>
         @if($og->objetivosEspecificos->isNotEmpty())
-        <ul style="margin: 3px 0 6px 16px;">
+        <ul class="objetivos-lista">
             @foreach($og->objetivosEspecificos as $oe)
             <li>{{ $oe->texto }}</li>
             @endforeach
@@ -99,10 +78,10 @@
     <table>
         <thead>
             <tr>
-                <th style="width:35%">Prestación</th>
-                <th style="width:40%">Concreción</th>
-                <th style="width:15%">Responsable</th>
-                <th style="width:10%">Inicio previsto</th>
+                <th class="col-prestacion">Prestación</th>
+                <th class="col-concrecion">Concreción</th>
+                <th class="col-responsable">Responsable</th>
+                <th class="col-inicio-corto">Inicio previsto</th>
             </tr>
         </thead>
         <tbody>
@@ -126,9 +105,9 @@
     <table>
         <thead>
             <tr>
-                <th style="width:60%">Compromiso</th>
-                <th style="width:30%">Recurso relacionado</th>
-                <th style="width:10%">Inicio previsto</th>
+                <th class="col-compromiso">Compromiso</th>
+                <th class="col-recurso">Recurso relacionado</th>
+                <th class="col-inicio-corto">Inicio previsto</th>
             </tr>
         </thead>
         <tbody>
@@ -167,7 +146,7 @@
 {{-- Firmas --}}
 <div class="firmas">
     <div class="firma-bloque">
-        <div style="height: 40px;"></div>
+        <div class="firma-bloque__espacio"></div>
         <div class="firma-bloque__nombre">
             {{ $plan->profesionalResponsable?->name ?? 'Profesional responsable' }}
         </div>
@@ -175,7 +154,7 @@
         <div class="firma-bloque__fecha">Fecha: ___________</div>
     </div>
     <div class="firma-bloque">
-        <div style="height: 40px;"></div>
+        <div class="firma-bloque__espacio"></div>
         <div class="firma-bloque__nombre">
             {{ $plan->historia->ciudadano->nombre_completo }}
         </div>

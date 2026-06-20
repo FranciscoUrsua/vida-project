@@ -1,0 +1,8 @@
+body {
+    background: var(--color-paper, #FAF7F1);
+    color: var(--color-ink-900, #1D160E);
+}
+
+[x-cloak] {
+    display: none !important;
+}

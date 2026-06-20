@@ -35,7 +35,7 @@
     ];
 @endphp
 
-<div style="display: flex; flex-direction: column; height: calc(100vh - 56px); overflow: hidden;">
+<div class="ciudadano-page">
 
     {{-- ------------------------------------------------------------------ --}}
     {{-- Banda del Plan de Intervención — ancho completo                    --}}
@@ -62,20 +62,20 @@
     {{-- ------------------------------------------------------------------ --}}
     {{-- Layout 4 cuadrantes                                                --}}
     {{-- ------------------------------------------------------------------ --}}
-    <div class="ciudadano-layout" style="flex: 1; min-height: 0;">
+    <div class="ciudadano-layout ciudadano-layout--fill">
 
         {{-- ============================================================== --}}
         {{-- ZONA SUPERIOR IZQUIERDA — datos del ciudadano + UC colapsable  --}}
         {{-- ============================================================== --}}
-        <div class="ciudadano-header-left" style="padding: 0.75rem;">
+        <div class="ciudadano-header-left ciudadano-header-left--padded">
 
             {{-- Fila superior: retorno + acciones --}}
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem;">
+            <div class="ciudadano-page__top-row">
                 <a href="{{ route('intervencion.casos.index') }}"
-                   style="font-size: 0.75rem; color: var(--color-primary); text-decoration: none; display: flex; align-items: center; gap: 0.2rem; flex-shrink: 0;">
-                    <i data-lucide="arrow-left" style="width:12px;height:12px;" aria-hidden="true"></i> Mis casos
+                   class="ciudadano-page__back-link">
+                    <i data-lucide="arrow-left" class="icon-12" aria-hidden="true"></i> Mis casos
                 </a>
-                <div style="margin-left: auto; display: flex; align-items: center; gap: 0.3rem;">
+                <div class="ciudadano-page__top-actions">
                     @if($ciudadano)
                         <a href="{{ route('ciudadania.ciudadano.ficha', $ciudadano->id) }}"
                            wire:navigate
@@ -93,7 +93,7 @@
             </div>
 
             {{-- HS + UO + Estado HS --}}
-            <div style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.3rem;">
+            <div class="ciudadano-page__meta-row">
                 <span style="font-size: 0.72rem; color: var(--color-ink-500);">HS #{{ $historia->id }}</span>
                 <span style="font-size: 0.72rem; color: var(--color-ink-300);">·</span>
                 @if($this->uoNombre)
@@ -147,7 +147,7 @@
                     {{ $this->representante->nombre }}
                     {{ $this->representante->apellido1 }}
                     {{ $this->representante->apellido2 }}
-                    <i data-lucide="chevron-right" style="width:12px;height:12px;"></i>
+                    <i data-lucide="chevron-right" class="icon-12"></i>
                 </button>
             </div>
             @endif
@@ -169,7 +169,7 @@
                 @if($ucExpandida)
                     <div style="padding: 0.5rem 0.75rem; border-top: 1px solid var(--color-ink-100);">
                         @if($this->ucVigente)
-                            <ul style="list-style: none; margin: 0 0 0.5rem; padding: 0; display: flex; flex-direction: column; gap: 0.2rem;">
+                            <ul class="ciudadano-page__uc-list">
                                 @foreach($this->ucMiembrosActivos as $ucm)
                                     <li style="font-size: 0.73rem; color: var(--color-ink-700); display: flex; align-items: center; gap: 0.3rem;">
                                         @if($ucm->verificado)
@@ -180,8 +180,7 @@
                                         @if($ucm->ciudadano)
                                             @php $tipoRelUc = $this->relacionesMiembrosUc->get($ucm->ciudadano_id); @endphp
                                             <a href="{{ route('ciudadania.ciudadano.ficha', $ucm->ciudadano) }}"
-                                               style="color: inherit; text-decoration: none;"
-                                               onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                                               class="ciudadano-page__member-link">
                                                 <span class="uc-widget-miembro__nombre">{{ $ucm->ciudadano->nombre }} {{ $ucm->ciudadano->apellido1 }}</span>
                                             </a>
                                             @if($tipoRelUc)
@@ -196,7 +195,7 @@
                         @endif
                         {{-- Botón gestionar UC --}}
                         <button wire:click="abrirModalUc" class="uc-widget__gestionar" title="Gestionar unidad de convivencia">
-                            <i data-lucide="users" style="width:14px;height:14px;" aria-hidden="true"></i>
+                            <i data-lucide="users" class="icon-14" aria-hidden="true"></i>
                             Gestionar UC
                         </button>
                         {{-- Botón para ver todas las relaciones del ciudadano --}}
@@ -205,7 +204,7 @@
                             class="uc-widget__ver-relaciones"
                             title="Ver todas las personas relacionadas"
                         >
-                            <i data-lucide="network" style="width:13px;height:13px;"></i>
+                            <i data-lucide="network" class="icon-12"></i>
                             Ver todas las relaciones
                         </button>
                     </div>
@@ -217,9 +216,9 @@
         {{-- ============================================================== --}}
         {{-- ZONA SUPERIOR DERECHA — toolbox de herramientas                --}}
         {{-- ============================================================== --}}
-        <div class="ciudadano-header-right" style="padding: 1rem 1.25rem;">
+        <div class="ciudadano-header-right ciudadano-header-right--padded">
 
-            <div wire:key="toolbox-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
+            <div wire:key="toolbox-grid" class="ciudadano-page__toolbox-grid">
                 @foreach($herramientas as $h)
                     <button wire:key="tool-{{ $h['id'] }}"
                             wire:click="seleccionarHerramienta('{{ $h['id'] }}')"
@@ -240,10 +239,10 @@
         {{-- ============================================================== --}}
         {{-- ZONA INFERIOR IZQUIERDA — filtros + timeline + últimos accesos --}}
         {{-- ============================================================== --}}
-        <div class="ciudadano-body-left" style="padding: 0.75rem;">
+        <div class="ciudadano-body-left ciudadano-body-left--padded">
 
             {{-- Filtros del timeline --}}
-            <div style="display: flex; gap: 0.3rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+            <div class="ciudadano-page__timeline-filters">
                 @foreach([
                     ['todos',      'Todos'],
                     ['plan',       $this->planNombreCorto],
@@ -270,11 +269,11 @@
                 @php $colorPunto = $coloresTipo[$apunte->tipo->value] ?? 'var(--color-ink-500)'; @endphp
                 <div wire:click="verApunte({{ $apunte->id }})"
                      role="button"
-                     style="display: flex; gap: 0.5rem; align-items: flex-start; margin-bottom: 0.6rem; cursor: pointer; padding: 0.4rem 0.5rem; border-radius: 6px; background: transparent; transition: background 0.1s;"
+                     class="ciudadano-page__history-item" border-radius: 6px; background: transparent; transition: background 0.1s;"
                      onmouseover="this.style.background='var(--color-paper)'"
                      onmouseout="this.style.background='transparent'">
                     <span style="width: 8px; height: 8px; border-radius: 50%; background: {{ $colorPunto }}; flex-shrink: 0; margin-top: 5px;"></span>
-                    <div style="flex: 1; min-width: 0;">
+                    <div class="ciudadano-page__history-main">
                         <div style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             {{ $apunte->tipo->label() }}
                         </div>
@@ -333,7 +332,7 @@
                             </span>
                             @if($esAnomalos)
                                 <span class="acceso-fila__alerta" title="Modificación desde otra UO — revisar">
-                                    <i data-lucide="alert-triangle" style="width:14px;height:14px;" aria-hidden="true"></i>
+                                    <i data-lucide="alert-triangle" class="ciudadano-page__alert-icon" aria-hidden="true"></i>
                                 </span>
                             @endif
                             <span class="acceso-fila__fecha">{{ $acceso->created_at->diffForHumans() }}</span>
@@ -352,12 +351,12 @@
         <div class="ciudadano-body-right">
 
             {{-- Área de trabajo de la herramienta activa --}}
-            <div style="flex: 1; overflow-y: auto; padding: 1rem 1.25rem; min-height: 0;">
+            <div class="ciudadano-body-right ciudadano-body-right--scrollable">
 
                 @if($herramientaActiva === 'entrevista')
                     <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1rem;">
                         <h3 style="font-size: 0.9rem; font-weight: 700; margin: 0 0 0.75rem; color: var(--color-ink-900);">Registrar entrevista</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <div class="ciudadano-page__two-col-grid">
                             <div>
                                 <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Tipo</label>
                                 <select wire:model="formEntrevista.tipo" class="form-select form-select-sm">
@@ -377,12 +376,12 @@
                                 </select>
                             </div>
                         </div>
-                        <div style="margin-bottom: 0.75rem;">
+                        <div class="ciudadano-page__section">
                             <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Notas generales</label>
                             <textarea wire:model="formEntrevista.notas" rows="3" class="form-control form-control-sm" placeholder="Observaciones de la entrevista..."></textarea>
                         </div>
-                        <div style="display: flex; gap: 1rem; margin-bottom: 0.75rem; font-size: 0.8rem;">
-                            <label style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer;">
+                        <div class="ciudadano-page__choice-row">
+                            <label class="ciudadano-page__check-label">
                                 <input type="checkbox" wire:model="formEntrevista.programar_seguimiento"> Programar siguiente seguimiento
                             </label>
                         </div>
@@ -392,9 +391,9 @@
                                 <input type="date" wire:model="formEntrevista.fecha_siguiente_seguimiento" class="form-control form-control-sm">
                             </div>
                         @endif
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button wire:click="guardarEntrevista" class="btn btn-primary btn-sm" style="font-size: 0.8rem;">Guardar entrevista</button>
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm" style="font-size: 0.8rem;">Cancelar</button>
+                        <div class="ciudadano-page__actions">
+                            <button wire:click="guardarEntrevista" class="btn btn-primary btn-sm ciudadano-page__btn-sm">Guardar entrevista</button>
+                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm">Cancelar</button>
                         </div>
                     </div>
 
@@ -404,17 +403,17 @@
                         <div style="margin-bottom: 0.75rem;">
                             <textarea wire:model="formAnotacion.contenido" rows="4" class="form-control form-control-sm" placeholder="Escribe la anotación..."></textarea>
                         </div>
-                        <div style="margin-bottom: 0.75rem; font-size: 0.8rem;">
-                            <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; cursor: pointer;">
+                        <div class="ciudadano-page__radio-group">
+                            <label class="ciudadano-page__radio-label">
                                 <input type="radio" wire:model="formAnotacion.visibilidad" value="profesionales"> Para profesionales
                             </label>
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <label class="ciudadano-page__radio-label">
                                 <input type="radio" wire:model="formAnotacion.visibilidad" value="privada"> Privada (solo yo)
                             </label>
                         </div>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button wire:click="guardarAnotacion" class="btn btn-primary btn-sm" style="font-size: 0.8rem;">Guardar anotación</button>
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm" style="font-size: 0.8rem;">Cancelar</button>
+                        <div class="ciudadano-page__actions">
+                            <button wire:click="guardarAnotacion" class="btn btn-primary btn-sm ciudadano-page__btn-sm">Guardar anotación</button>
+                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm">Cancelar</button>
                         </div>
                     </div>
 
@@ -433,9 +432,9 @@
                             <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Motivo</label>
                             <textarea wire:model="formDerivacion.motivo" rows="3" class="form-control form-control-sm" placeholder="Motivo de la derivación..."></textarea>
                         </div>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button wire:click="crearDerivacion" class="btn btn-primary btn-sm" style="font-size: 0.8rem;">Crear derivación</button>
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm" style="font-size: 0.8rem;">Cancelar</button>
+                        <div class="ciudadano-page__actions">
+                            <button wire:click="crearDerivacion" class="btn btn-primary btn-sm ciudadano-page__btn-sm">Crear derivación</button>
+                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm">Cancelar</button>
                         </div>
                     </div>
 
@@ -461,9 +460,9 @@
                             <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Descripción</label>
                             <textarea wire:model="formGestion.descripcion" rows="3" class="form-control form-control-sm" placeholder="Describe la gestión realizada..."></textarea>
                         </div>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button wire:click="guardarGestion" class="btn btn-primary btn-sm" style="font-size: 0.8rem;">Guardar gestión</button>
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm" style="font-size: 0.8rem;">Cancelar</button>
+                        <div class="ciudadano-page__actions">
+                            <button wire:click="guardarGestion" class="btn btn-primary btn-sm ciudadano-page__btn-sm">Guardar gestión</button>
+                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm">Cancelar</button>
                         </div>
                     </div>
 
@@ -480,12 +479,12 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div style="display: flex; gap: 0.5rem;">
+                        <div class="ciudadano-page__actions">
                             @if($formValoracion['tipo_ficha_id'])
                                 <a href="{{ route('intervencion.valoracion.nueva', ['historia' => $historia->id, 'tipo_ficha' => $formValoracion['tipo_ficha_id']]) }}"
-                                   class="btn btn-primary btn-sm" style="font-size: 0.8rem;">Abrir en pantalla completa</a>
+                                   class="btn btn-primary btn-sm ciudadano-page__btn-sm">Abrir en pantalla completa</a>
                             @endif
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm" style="font-size: 0.8rem;">Cancelar</button>
+                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm">Cancelar</button>
                         </div>
                     </div>
 
@@ -502,12 +501,12 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div style="display: flex; gap: 0.5rem;">
+                        <div class="ciudadano-page__actions">
                             @if($formEscala['tipo_escala_id'])
                                 <a href="{{ route('intervencion.escala.nueva', ['historia' => $historia->id, 'tipo_escala' => $formEscala['tipo_escala_id']]) }}"
-                                   class="btn btn-primary btn-sm" style="font-size: 0.8rem;">Abrir en pantalla completa</a>
+                                   class="btn btn-primary btn-sm ciudadano-page__btn-sm">Abrir en pantalla completa</a>
                             @endif
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm" style="font-size: 0.8rem;">Cancelar</button>
+                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm">Cancelar</button>
                         </div>
                     </div>
 
@@ -516,7 +515,7 @@
                         <h3 style="font-size: 0.9rem; font-weight: 700; margin: 0 0 0.5rem; color: var(--color-ink-900);">Informes</h3>
                         {{-- TODO: conectar con módulo Documentos cuando implemente la vista de edición --}}
                         <p style="font-size: 0.85rem; color: var(--color-ink-600);">Módulo de informes en construcción.</p>
-                        <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm" style="font-size: 0.8rem; margin-top: 0.5rem;">Cerrar</button>
+                        <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm ciudadano-page__btn-close">Cerrar</button>
                     </div>
 
                 @endif
@@ -613,7 +612,7 @@
                 @endif
 
                 @if($modalApunteTipo === 'valoracion' && ! empty($modalApunteDatos['ficha_campos']))
-                    <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.5rem;">
+                    <div class="ciudadano-page__stack-sm">
                         @foreach($modalApunteDatos['ficha_campos'] as $campo)
                             <div style="padding: 0.55rem 0.75rem; background: var(--color-ink-50, #f8fafc); border-radius: 6px; border: 1px solid var(--color-ink-100);">
                                 <p style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-ink-400); margin: 0 0 0.2rem;">{{ $campo['etiqueta'] }}</p>
@@ -642,16 +641,16 @@
                 @endif
 
                 @if($modalApunteDatos['contenido'] ?? null)
-                    <div class="hs-modal__contenido" style="margin-top: 1rem;">{!! nl2br(e($modalApunteDatos['contenido'])) !!}</div>
+                    <div class="hs-modal__contenido hs-modal__contenido--spaced">{!! nl2br(e($modalApunteDatos['contenido'])) !!}</div>
                 @endif
             </div>
             <div class="hs-slideover__footer">
                 <span class="hs-modal__inmutable">Solo lectura · El pasado es inmutable</span>
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <div class="hs-slideover__actions">
                     @if(($modalApunteDatos['ficha_url'] ?? null))
                         <a href="{{ $modalApunteDatos['ficha_url'] }}" wire:navigate
-                           style="font-size: 0.8rem; color: var(--color-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">
-                            <i data-lucide="external-link" style="width:13px;height:13px;" aria-hidden="true"></i>
+                           class="hs-slideover__link">
+                            <i data-lucide="external-link" class="icon-13" aria-hidden="true"></i>
                             Ver ficha completa
                         </a>
                     @endif
@@ -680,14 +679,14 @@
             <div class="uc-modal__header">
                 <h2 id="uc-modal-titulo" class="uc-modal__titulo">Unidad de convivencia</h2>
                 <button wire:click="cerrarModalUc" class="uc-modal__cerrar" aria-label="Cerrar">
-                    <i data-lucide="x" style="width:18px;height:18px;" aria-hidden="true"></i>
+                    <i data-lucide="x" class="icon-18" aria-hidden="true"></i>
                 </button>
             </div>
 
             {{-- Feedback --}}
             @if($ucMensaje)
             <div class="uc-modal__mensaje" wire:key="uc-mensaje">
-                <i data-lucide="check-circle" style="width:14px;height:14px;" aria-hidden="true"></i>
+                <i data-lucide="check-circle" class="icon-14" aria-hidden="true"></i>
                 {{ $ucMensaje }}
             </div>
             @endif
@@ -700,7 +699,7 @@
                     <div class="uc-modal__vacio">
                         <p>Este ciudadano no tiene unidad de convivencia registrada.</p>
                         <button wire:click="crearUc" class="uc-modal__btn-crear">
-                            <i data-lucide="plus" style="width:14px;height:14px;" aria-hidden="true"></i>
+                            <i data-lucide="plus" class="icon-14" aria-hidden="true"></i>
                             Crear unidad de convivencia
                         </button>
                     </div>
@@ -736,7 +735,7 @@
                                 <div class="uc-modal__miembro-acciones">
                                     @if($miembro->verificado)
                                         <span class="uc-badge uc-badge--verificado" title="Residencia verificada">
-                                            <i data-lucide="shield-check" style="width:12px;height:12px;" aria-hidden="true"></i>
+                                            <i data-lucide="shield-check" class="icon-12" aria-hidden="true"></i>
                                             Verificado
                                         </span>
                                     @else
@@ -745,7 +744,7 @@
                                             class="uc-badge uc-badge--sin-verificar"
                                             title="Verificar residencia manualmente"
                                         >
-                                            <i data-lucide="shield-alert" style="width:12px;height:12px;" aria-hidden="true"></i>
+                                            <i data-lucide="shield-alert" class="icon-12" aria-hidden="true"></i>
                                             Sin verificar
                                         </button>
                                     @endif
@@ -762,7 +761,7 @@
                                             class="uc-btn uc-btn--ghost-sm"
                                             title="Dar de baja como miembro"
                                         >
-                                            <i data-lucide="user-minus" style="width:13px;height:13px;" aria-hidden="true"></i>
+                                            <i data-lucide="user-minus" class="icon-13" aria-hidden="true"></i>
                                         </button>
                                     @endif
                                 </div>
@@ -799,7 +798,7 @@
                                     class="uc-modal__input"
                                     autocomplete="off"
                                 />
-                                <i data-lucide="search" class="uc-modal__busqueda-icon" style="width:14px;height:14px;" aria-hidden="true"></i>
+                                <i data-lucide="search" class="uc-modal__busqueda-icon icon-14" aria-hidden="true"></i>
                             </div>
 
                             @if($this->ucResultadosBusqueda->isNotEmpty())
@@ -863,7 +862,7 @@
                 </h2>
                 <button wire:click="cerrarModalRepresentante"
                         class="uc-modal__cerrar" aria-label="Cerrar">
-                    <i data-lucide="x" style="width:18px;height:18px;"></i>
+                    <i data-lucide="x" class="icon-18"></i>
                 </button>
             </div>
 
@@ -878,7 +877,7 @@
                     @if($this->representante->telefono)
                     <a href="tel:{{ $this->representante->telefono }}"
                        class="rel-modal__dato">
-                        <i data-lucide="phone" style="width:13px;height:13px;"></i>
+                        <i data-lucide="phone" class="icon-13"></i>
                         {{ $this->representante->telefono }}
                     </a>
                     @endif
@@ -886,7 +885,7 @@
                     @if($this->representante->email)
                     <a href="mailto:{{ $this->representante->email }}"
                        class="rel-modal__dato">
-                        <i data-lucide="mail" style="width:13px;height:13px;"></i>
+                        <i data-lucide="mail" class="icon-13"></i>
                         {{ $this->representante->email }}
                     </a>
                     @endif
@@ -904,7 +903,7 @@
                         class="rel-modal__link-ficha"
                         wire:navigate
                     >
-                        <i data-lucide="external-link" style="width:12px;height:12px;"></i>
+                        <i data-lucide="external-link" class="icon-12"></i>
                         Ver ficha completa
                     </a>
                 </div>
@@ -940,7 +939,7 @@
                 </h2>
                 <button wire:click="cerrarModalRelaciones"
                         class="uc-modal__cerrar" aria-label="Cerrar">
-                    <i data-lucide="x" style="width:18px;height:18px;"></i>
+                    <i data-lucide="x" class="icon-18"></i>
                 </button>
             </div>
 
@@ -977,7 +976,7 @@
                                     wire:navigate
                                     title="Ver ficha"
                                 >
-                                    <i data-lucide="external-link" style="width:12px;height:12px;"></i>
+                                    <i data-lucide="external-link" class="icon-12"></i>
                                 </a>
                             </div>
                         </li>
@@ -1005,7 +1004,7 @@
                     class="rel-modal__link-ficha"
                     wire:navigate
                 >
-                    <i data-lucide="external-link" style="width:12px;height:12px;"></i>
+                    <i data-lucide="external-link" class="icon-12"></i>
                     Gestionar relaciones en la ficha
                 </a>
                 <button wire:click="cerrarModalRelaciones" class="uc-btn uc-btn--ghost">

@@ -2,37 +2,9 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <style>
-        body {
-            font-family: '{{ $tipografia['familia'] ?? 'DejaVu Sans' }}', sans-serif;
-            font-size: {{ $tipografia['tamano_base_pt'] ?? 10 }}pt;
-            margin: 0;
-            padding: 0;
-        }
-        .cabecera {
-            border-bottom: 2px solid #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-        }
-        .cabecera table { width: 100%; }
-        .cabecera .logo { width: 120px; }
-        .cabecera .datos-unidad { padding-left: 15px; }
-        .cabecera .nombre-unidad { font-size: 14pt; font-weight: bold; }
-        .seccion { margin-bottom: 20px; }
-        .seccion h3 { font-size: 11pt; border-bottom: 1px solid #999; padding-bottom: 4px; }
-        .pie {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            border-top: 1px solid #ccc;
-            padding-top: 6px;
-            font-size: 8pt;
-            color: #666;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ base_path('Modules/Documentos/resources/css/informe-pdf.css') }}">
 </head>
-<body>
+<body style="--informe-font-family: '{{ $tipografia['familia'] ?? 'DejaVu Sans' }}'; --informe-font-size: {{ $tipografia['tamano_base_pt'] ?? 10 }}pt;">
 
     {{-- Cabecera --}}
     <div class="cabecera">

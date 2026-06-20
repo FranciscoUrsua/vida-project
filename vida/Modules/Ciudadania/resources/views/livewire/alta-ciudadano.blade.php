@@ -1,4 +1,4 @@
-<div style="max-width: 720px; margin: 0 auto; padding: 1.5rem;">
+<div class="alta-ciudadano">
 
     {{-- Indicador de fase --}}
     <div style="display: flex; gap: 0; margin-bottom: 2rem; border: 1px solid var(--color-ink-200); border-radius: 8px; overflow: hidden; font-size: 0.78rem;">

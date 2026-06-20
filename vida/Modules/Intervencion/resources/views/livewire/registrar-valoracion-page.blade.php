@@ -1,10 +1,10 @@
-<div style="padding: 1.5rem; max-width: 760px; margin: 0 auto;">
+<div class="registro-page">
 
     {{-- Navegación --}}
-    <div style="margin-bottom: 1rem;">
+    <div class="registro-page__nav">
         <a href="{{ route('intervencion.ciudadano.show', $historiaId) }}"
-           style="font-size: 0.82rem; color: var(--color-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
-            <i data-lucide="arrow-left" style="width:14px;height:14px;" aria-hidden="true"></i>
+           class="registro-page__back-link">
+            <i data-lucide="arrow-left" class="icon-14" aria-hidden="true"></i>
             Volver a la Historia Social
         </a>
     </div>
@@ -12,7 +12,7 @@
     <h1 style="font-size: 1.1rem; font-weight: 700; color: var(--color-ink-900); margin: 0 0 1.25rem;">Registrar valoración</h1>
 
     {{-- Selector de ficha --}}
-    <div style="margin-bottom: 1.25rem;">
+    <div class="registro-page__section">
         <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.3rem;">
             Tipo de ficha
         </label>
@@ -40,11 +40,11 @@
                 {{ $this->tipoFicha->descripcion }}
             </p>
         @else
-            <div style="margin-bottom: 1rem;"></div>
+            <div class="ciudadano-page__section"></div>
         @endif
 
         @foreach($this->tipoFicha->schema['campos'] ?? [] as $campo)
-            <div style="margin-bottom: 1rem;">
+            <div class="ciudadano-page__section">
 
                 <label style="font-size: 0.8rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">
                     {{ $campo['etiqueta'] ?? $campo['id'] }}
@@ -67,7 +67,7 @@
                               style="width: 100%; padding: 0.4rem 0.6rem; font-size: 0.82rem; border: 1px solid var(--color-ink-300); border-radius: 6px; resize: vertical; font-family: inherit; color: var(--color-ink-900);"></textarea>
 
                 @elseif($tipo === 'numero')
-                    <div style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <div class="registro-page__inline">
                         <input type="number"
                                wire:model.live="datos.{{ $campo['id'] }}"
                                style="width: 140px; padding: 0.4rem 0.6rem; font-size: 0.82rem; border: 1px solid var(--color-ink-300); border-radius: 6px; color: var(--color-ink-900);">
@@ -86,7 +86,7 @@
                     </select>
 
                 @elseif($tipo === 'booleano')
-                    <div style="display: flex; gap: 1rem; margin-top: 0.15rem;">
+                    <div class="registro-page__boolean-row">
                         <label style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.82rem; cursor: pointer; color: var(--color-ink-800);">
                             <input type="radio"
                                    wire:model.live="datos.{{ $campo['id'] }}"
@@ -108,7 +108,7 @@
 
                 @elseif($tipo === 'escala')
                     {{-- Solo puntuación total; el pase completo se hace en módulo Escalas --}}
-                    <div style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <div class="registro-page__inline">
                         <input type="number"
                                wire:model.live="datos.{{ $campo['id'] }}"
                                min="0"
@@ -140,13 +140,13 @@
         {{-- Feedback de guardado --}}
         @if($estadoGuardado === 'borrador')
             <div style="margin-top: 1rem; padding: 0.6rem 0.9rem; background: var(--color-ink-50, #f8fafc); border-radius: 6px; border: 1px solid var(--color-ink-200, #e2e8f0); font-size: 0.82rem; color: var(--color-ink-600); display: flex; align-items: center; gap: 0.4rem;">
-                <i data-lucide="save" style="width:15px;height:15px; flex-shrink:0;" aria-hidden="true"></i>
+                <i data-lucide="save" class="icon-15" aria-hidden="true"></i>
                 Borrador guardado.
             </div>
         @endif
 
         {{-- Acciones --}}
-        <div style="display: flex; gap: 0.75rem; align-items: center; margin-top: 1.25rem;">
+        <div class="registro-page__actions">
             <button wire:click="guardarDefinitivo"
                     style="padding: 0.45rem 1.1rem; font-size: 0.85rem; font-weight: 600; background: var(--color-primary); color: #fff; border: none; border-radius: 6px; cursor: pointer;">
                 Guardar

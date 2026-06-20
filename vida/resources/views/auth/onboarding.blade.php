@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bienvenida — VIDA 360</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <style>
-        body { min-height: 100vh; background: #f5f6fa; display: flex; align-items: center; justify-content: center; }
-        .onboarding-card { max-width: 480px; width: 100%; }
-    </style>
+    @vite(['resources/scss/app-public.scss', 'resources/js/app.js'])
 </head>
-<body>
+<body class="onboarding-page">
 <div class="onboarding-card card shadow-sm p-4 p-md-5">
     <div class="text-center mb-4">
         <span class="fs-1">👋</span>

@@ -1,16 +1,16 @@
-<div style="padding: 1.5rem; max-width: 760px; margin: 0 auto;">
+<div class="ver-ficha-page">
 
     {{-- Navegación --}}
-    <div style="margin-bottom: 1rem;">
+    <div class="ver-ficha-page__nav">
         <a href="{{ route('intervencion.ciudadano.show', $historiaId) }}"
-           style="font-size: 0.82rem; color: var(--color-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
-            <i data-lucide="arrow-left" style="width:14px;height:14px;" aria-hidden="true"></i>
+           class="ver-ficha-page__back-link">
+            <i data-lucide="arrow-left" class="icon-14" aria-hidden="true"></i>
             Volver a la Historia Social
         </a>
     </div>
 
     {{-- Cabecera --}}
-    <div style="margin-bottom: 1.5rem;">
+    <div class="ver-ficha-page__header">
         <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-400); margin: 0 0 0.2rem;">Ficha de valoración</p>
         <h1 style="font-size: 1.1rem; font-weight: 700; color: var(--color-ink-900); margin: 0 0 0.4rem;">{{ $this->nombreFicha() }}</h1>
         <p style="font-size: 0.78rem; color: var(--color-ink-400); margin: 0;">
@@ -27,7 +27,7 @@
     @if(empty($campos))
         <p style="font-size: 0.85rem; color: var(--color-ink-400);">Esta ficha no tiene campos registrados.</p>
     @else
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div class="ver-ficha-page__fields">
             @foreach($campos as $campo)
                 <div style="padding: 0.75rem 1rem; background: var(--color-ink-50, #f8fafc); border-radius: 8px; border: 1px solid var(--color-ink-100);">
                     <p style="font-size: 0.73rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-ink-400); margin: 0 0 0.3rem;">

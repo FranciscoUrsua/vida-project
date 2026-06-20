@@ -1,12 +1,12 @@
-<div style="display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
+<div class="buscar-ciudadano-page">
 
     {{-- Barra superior --}}
     <div style="background: #fff; border-bottom: 1px solid var(--color-ink-200); padding: 0.75rem 1.25rem; flex-shrink: 0;">
         <h1 style="font-size: 1rem; font-weight: 700; margin: 0 0 0.75rem; color: var(--color-ink-900);">Buscar ciudadano/a</h1>
 
-        <form wire:submit.prevent="buscar" style="display: flex; gap: 0.5rem; align-items: flex-end;">
+        <form wire:submit.prevent="buscar" class="buscar-ciudadano-page__form">
             {{-- Campo de búsqueda --}}
-            <select wire:model="campoBusqueda" class="form-select form-select-sm" style="width: 140px; font-size: 0.8rem;">
+            <select wire:model="campoBusqueda" class="form-select form-select-sm buscar-ciudadano-page__select">
                 <option value="nombre">Nombre</option>
                 <option value="alias">Alias / apodo</option>
                 <option value="doc">DNI / NIE / Pasaporte</option>
@@ -15,11 +15,11 @@
 
             <input wire:model="query" type="text" class="form-control form-control-sm"
                    placeholder="Introduce el término de búsqueda..."
-                   style="flex: 1; font-size: 0.85rem;"
+                   class="form-control form-control-sm buscar-ciudadano-page__input"
                    autocomplete="off" />
 
-            <button type="submit" class="btn btn-primary btn-sm" style="font-size: 0.8rem;">
-                <i data-lucide="search" style="width:14px;height:14px;" aria-hidden="true"></i> Buscar
+            <button type="submit" class="btn btn-primary btn-sm buscar-ciudadano-page__submit">
+                <i data-lucide="search" class="icon-14" aria-hidden="true"></i> Buscar
             </button>
         </form>
 
@@ -37,7 +37,7 @@
     </div>
 
     {{-- Resultados --}}
-    <div style="flex: 1; overflow-y: auto; padding: 1rem 1.25rem;">
+    <div class="buscar-ciudadano-page__results">
 
         @if(! $buscado)
             <div style="text-align: center; padding: 3rem; color: var(--color-ink-400); font-size: 0.875rem;">
@@ -67,8 +67,8 @@
                               style="width: 10px; height: 10px; border-radius: 50%; background: var(--color-success); flex-shrink: 0;"></span>
                     @endif
 
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="font-size: 0.9rem;">
+                    <div class="buscar-ciudadano-page__result-main">
+                        <div class="buscar-ciudadano-page__result-name">
                             @if($resultado['nivel'] === 1 && $resultado['historia_id'])
                                 {{-- Nivel 1 (propia UO): nombre clicable --}}
                                 <a href="{{ route('intervencion.ciudadano.show', $resultado['historia_id']) }}"
@@ -130,8 +130,8 @@
 
     {{-- Modal solicitud de acceso (nivel 3) --}}
     @if($modalSolicitud)
-        <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000;">
-            <div style="background: #fff; border-radius: 12px; padding: 1.5rem; max-width: 480px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.15);">
+        <div class="buscar-ciudadano-page__modal">
+            <div class="buscar-ciudadano-page__modal-card">
                 <h2 style="font-size: 1rem; font-weight: 700; margin: 0 0 0.5rem; color: var(--color-ink-900);">Solicitar acceso — ciudadano/a protegido/a</h2>
                 <p style="font-size: 0.85rem; color: var(--color-ink-600); margin: 0 0 1rem;">
                     Para acceder a la Historia Social de una persona de colectivo especialmente protegido
@@ -151,7 +151,7 @@
                           style="width: 100%; border: 1px solid var(--color-ink-200); border-radius: 6px; padding: 0.5rem; font-size: 0.85rem; resize: vertical; box-sizing: border-box;"
                           placeholder="Describe el motivo asistencial que justifica el acceso..."></textarea>
 
-                <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem;">
+                <div class="buscar-ciudadano-page__modal-actions">
                     <button wire:click="cerrarModalSolicitud"
                             style="font-size: 0.8rem; background: #fff; border: 1px solid var(--color-ink-200); color: var(--color-ink-700); padding: 0.4rem 1rem; border-radius: 6px; cursor: pointer;">
                         Cancelar

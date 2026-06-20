@@ -1,8 +1,8 @@
-<div style="padding: 1.5rem; max-width: 760px; margin: 0 auto;">
+<div class="registro-page">
 
-    <div style="margin-bottom: 1rem;">
-        <a href="{{ route('intervencion.ciudadano.show', $historia->id) }}" style="font-size: 0.82rem; color: var(--color-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
-            <i data-lucide="arrow-left" style="width:14px;height:14px;" aria-hidden="true"></i> Volver a la Historia Social
+    <div class="registro-page__nav">
+        <a href="{{ route('intervencion.ciudadano.show', $historia->id) }}" class="registro-page__back-link">
+            <i data-lucide="arrow-left" class="icon-14" aria-hidden="true"></i> Volver a la Historia Social
         </a>
     </div>
 
@@ -17,7 +17,7 @@
         @endif
 
         @foreach($this->tipoEscala->schema['secciones'] ?? [] as $seccion)
-            <div style="margin-bottom: 1.25rem;">
+            <div class="registro-page__section">
                 <h3 style="font-size: 0.85rem; font-weight: 700; color: var(--color-ink-700); margin: 0 0 0.75rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--color-ink-200);">
                     {{ $seccion['titulo'] }}
                 </h3>
@@ -27,7 +27,7 @@
                         @if($item['instrucciones'] ?? null)
                             <div style="font-size: 0.72rem; color: var(--color-ink-400); margin-bottom: 0.35rem;">{{ $item['instrucciones'] }}</div>
                         @endif
-                        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                        <div class="registro-page__options">
                             @foreach($item['opciones'] ?? [] as $opcion)
                                 <label style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; cursor: pointer; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid var(--color-ink-200); background: var(--color-paper);">
                                     <input type="radio"
@@ -42,7 +42,7 @@
             </div>
         @endforeach
 
-        <button wire:click="guardar" class="btn btn-primary" style="font-size: 0.85rem;">
+        <button wire:click="guardar" class="btn btn-primary registro-page__save-btn">
             Guardar escala
         </button>
     @else

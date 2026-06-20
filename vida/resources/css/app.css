@@ -1,3 +1,4 @@
+@import './vida/colors_and_type.css';
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -6,6 +7,238 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+    body {
+        background: var(--color-paper);
+        color: var(--color-ink-900);
+    }
+}
+
+@layer components {
+    .sinrol-page {
+        min-height: 100vh;
+        background: var(--color-paper);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-5);
+    }
+
+    .sinrol-card {
+        width: 100%;
+        max-width: 440px;
+        padding: 2.5rem 2rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-ink-200);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-2);
+    }
+
+    .sinrol-icon {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+        color: var(--color-primary);
+    }
+
+    .sinrol-icon-glyph {
+        width: 40px;
+        height: 40px;
+    }
+
+    .sinrol-title {
+        margin-bottom: 0.5rem;
+        text-align: center;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--color-ink-900);
+    }
+
+    .sinrol-body {
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        color: var(--color-ink-600);
+    }
+
+    .sinrol-divider {
+        margin: 1.25rem 0;
+        border-top: 1px solid var(--color-ink-200);
+    }
+
+    .sinrol-field {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.3rem 0;
+        font-size: 0.8rem;
+    }
+
+    .sinrol-label {
+        flex-shrink: 0;
+        font-weight: 500;
+        color: var(--color-ink-400);
+    }
+
+    .sinrol-value {
+        text-align: right;
+        word-break: break-all;
+        font-weight: 600;
+        color: var(--color-ink-700);
+    }
+
+    .inicio-page {
+        min-height: 100vh;
+        background: var(--color-paper);
+    }
+
+    .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1.5rem;
+        background: var(--color-surface);
+        border-bottom: 1px solid var(--color-ink-200);
+    }
+
+    .inicio-status {
+        color: var(--color-ink-500);
+    }
+
+    .login-page,
+    .onboarding-page {
+        min-height: 100vh;
+        background: var(--color-paper);
+    }
+
+    .login-left {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        justify-content: center;
+        padding: 3rem 2.5rem;
+        background: var(--color-primary-ink);
+        color: var(--color-surface);
+    }
+
+    .login-right {
+        display: flex;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .pill {
+        display: inline-block;
+        margin: 0.2rem;
+        padding: 0.25rem 0.85rem;
+        border-radius: var(--radius-pill);
+        background: color-mix(in srgb, var(--color-surface) 14%, transparent);
+        font-size: 0.8rem;
+    }
+
+    .env-badge {
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .access-note {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid color-mix(in srgb, var(--color-surface) 18%, transparent);
+        font-size: 0.8rem;
+        color: color-mix(in srgb, var(--color-surface) 74%, transparent);
+    }
+
+    .onboarding-page {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-5);
+    }
+
+    .onboarding-card {
+        width: 100%;
+        max-width: 480px;
+    }
+
+    .vida-welcome-body {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem;
+        background: var(--color-paper);
+        color: var(--color-ink-900);
+    }
+
+    .vida-welcome-link {
+        display: inline-block;
+        border: 1px solid var(--color-ink-200);
+        border-radius: var(--radius-sm);
+        padding: 0.375rem 1.25rem;
+        color: var(--color-ink-900);
+        text-decoration: none;
+        transition: border-color var(--motion-base) var(--ease-standard);
+    }
+
+    .vida-welcome-link:hover {
+        border-color: var(--color-ink-300);
+    }
+
+    .vida-welcome-link--ghost {
+        border-color: transparent;
+    }
+
+    .vida-welcome-link--ghost:hover {
+        border-color: var(--color-ink-200);
+    }
+
+    .vida-welcome-panel {
+        flex: 1;
+        padding: 1.5rem 1.5rem 3rem;
+        background: var(--color-surface);
+        color: var(--color-ink-900);
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        box-shadow: inset 0 0 0 1px var(--color-ink-200);
+    }
+
+    .vida-welcome-copy {
+        margin-bottom: 0.5rem;
+        color: var(--color-ink-600);
+    }
+
+    .vida-blend-hard-light {
+        mix-blend-mode: hard-light;
+    }
+
+    .vida-blend-plus-darker {
+        mix-blend-mode: plus-darker;
+    }
+}
+
+@media (min-width: 1024px) {
+    @layer components {
+        .vida-welcome-body {
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .vida-welcome-panel {
+            padding: 1.5rem 5rem 3rem;
+            border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+        }
+    }
 }

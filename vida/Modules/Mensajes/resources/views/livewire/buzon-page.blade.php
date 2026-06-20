@@ -1,8 +1,8 @@
-<div style="display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
+<div class="mensajes-buzon">
 
     {{-- Barra superior con pestañas --}}
-    <div style="background: #fff; border-bottom: 1px solid #E5E3F5; padding: 0 1.25rem; display: flex; align-items: stretch; flex-shrink: 0;">
-        <h1 style="font-size: 1rem; font-weight: 700; margin: 0; color: #1D160E; align-self: center; padding: 0.75rem 1.5rem 0.75rem 0; border-right: 1px solid #E5E3F5; margin-right: 1rem;">Buzón</h1>
+    <div class="mensajes-buzon__tabs-bar">
+        <h1 class="mensajes-buzon__title">Buzón</h1>
 
         {{-- Pestañas --}}
         @foreach([
@@ -22,16 +22,16 @@
         {{-- Nuevo mensaje --}}
         <button wire:click="abrirModalNuevoMensaje"
                 style="margin-left: auto; align-self: center; background: var(--color-primary); border: none; color: #fff; padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.35rem;">
-            <i data-lucide="pencil" style="width:14px;height:14px;" aria-hidden="true"></i>
+            <i data-lucide="pencil" class="icon-14" aria-hidden="true"></i>
             Nuevo mensaje
         </button>
     </div>
 
     {{-- Cuerpo de dos columnas: lista + detalle --}}
-    <div style="flex: 1; display: flex; overflow: hidden;">
+    <div class="mensajes-buzon__content">
 
         {{-- Lista --}}
-        <div style="width: 320px; flex-shrink: 0; border-right: 1px solid #E5E3F5; overflow-y: auto; background: #FAFAFA;">
+        <div class="mensajes-buzon__list">
 
             @if($pestana === 'alertas')
                 @forelse($this->alertas as $alerta)
@@ -41,13 +41,13 @@
                          onmouseout="if({{ $itemSeleccionado !== $alerta->id ? 'true' : 'false' }}) this.style.background='transparent'">
                         <div style="font-size: 0.85rem; font-weight: 600; color: #1D160E;">{{ $alerta->titulo }}</div>
                         @if($alerta->expira_en)
-                            <div style="font-size: 0.72rem; color: #993C1D; margin-top: 0.15rem;">
+                            <div class="mensajes-buzon__meta-alert">
                                 Vence {{ $alerta->expira_en->diffForHumans() }}
                             </div>
                         @endif
                     </div>
                 @empty
-                    <div style="padding: 2rem; text-align: center; color: #9CA3AF; font-size: 0.82rem;">Sin alertas pendientes</div>
+                    <div class="mensajes-buzon__empty">Sin alertas pendientes</div>
                 @endforelse
 
             @elseif($pestana === 'avisos')
@@ -58,7 +58,7 @@
                         <div style="font-size: 0.72rem; color: #6B7280; margin-top: 0.15rem;">{{ $aviso->created_at->diffForHumans() }}</div>
                     </div>
                 @empty
-                    <div style="padding: 2rem; text-align: center; color: #9CA3AF; font-size: 0.82rem;">Sin avisos</div>
+                    <div class="mensajes-buzon__empty">Sin avisos</div>
                 @endforelse
 
             @else
@@ -69,11 +69,11 @@
                     @endphp
                     <div wire:click="seleccionar({{ $participacion->id }})"
                          style="padding: 0.75rem 1rem; cursor: pointer; border-bottom: 1px solid #F3F4F6; background: {{ $itemSeleccionado === $participacion->id ? '#EEEDFE' : 'transparent' }}; display: flex; align-items: flex-start; gap: 0.5rem; transition: background 0.1s;">
-                        <div style="flex: 1; min-width: 0;">
+                        <div class="mensajes-buzon__thread-main">
                             <div style="font-size: 0.85rem; font-weight: {{ $noLeidos > 0 ? '700' : '500' }}; color: #1D160E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 {{ $hilo->ultimoMensaje?->usuario->name ?? 'Hilo' }}
                             </div>
-                            <div style="font-size: 0.75rem; color: #6B7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 0.1rem;">
+                            <div class="mensajes-buzon__thread-preview">
                                 {{ Str::limit($hilo->ultimoMensaje?->cuerpo ?? '', 60) }}
                             </div>
                         </div>
@@ -82,29 +82,29 @@
                         @endif
                     </div>
                 @empty
-                    <div style="padding: 2rem; text-align: center; color: #9CA3AF; font-size: 0.82rem;">Sin mensajes</div>
+                    <div class="mensajes-buzon__empty">Sin mensajes</div>
                 @endforelse
             @endif
 
         </div>
 
         {{-- Detalle --}}
-        <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+        <div class="mensajes-buzon__detail">
 
             @if($itemSeleccionado === null)
-                <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #9CA3AF; font-size: 0.875rem;">
+                <div class="mensajes-buzon__empty-detail">
                     Selecciona un elemento de la lista para ver el detalle.
                 </div>
 
             @elseif($pestana !== 'mensajes' && $this->alertaSeleccionada)
                 @php $a = $this->alertaSeleccionada; @endphp
-                <div style="padding: 1.25rem; overflow-y: auto; flex: 1;">
+                <div class="mensajes-buzon__detail-body">
 
                     {{-- Banner de urgencia (solo alertas con fecha de vencimiento) --}}
                     @if($pestana === 'alertas' && $a->expira_en)
-                        <div style="background: #FAECE7; border: 1px solid #F0997B; border-radius: 8px; padding: 0.6rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="ti ti-clock" style="color: #993C1D; font-size: 1.1rem;"></i>
-                            <span style="font-size: 0.82rem; color: #712B13; font-weight: 600;">
+                        <div class="mensajes-buzon__urgency">
+                            <i class="ti ti-clock mensajes-buzon__urgency-icon"></i>
+                            <span class="mensajes-buzon__urgency-text">
                                 Vence en {{ $a->expira_en->diffForHumans(now(), true) }}
                             </span>
                         </div>
@@ -113,15 +113,15 @@
                     <h2 style="font-size: 1rem; font-weight: 700; color: #1D160E; margin: 0 0 0.5rem;">{{ $a->titulo }}</h2>
                     <p style="font-size: 0.875rem; color: #374151; line-height: 1.6; margin: 0 0 1.25rem;">{{ $a->cuerpo }}</p>
 
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <div class="mensajes-buzon__actions">
                         @if($pestana === 'alertas')
                             <button wire:click="reconocerAlerta({{ $a->id }})"
-                                    style="background: #534AB7; border: none; color: #fff; padding: 0.4rem 1rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
+                                    class="mensajes-buzon__button-primary">
                                 <i class="bi bi-check-circle me-1"></i> Reconocer alerta
                             </button>
                         @else
                             <button wire:click="reconocerAlerta({{ $a->id }})"
-                                    style="background: #fff; border: 1px solid #E5E3F5; color: #374151; padding: 0.4rem 1rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer;">
+                                    class="mensajes-buzon__button-secondary">
                                 Marcar como leído
                             </button>
                         @endif
@@ -132,7 +132,7 @@
                 @php $p = $this->hiloSeleccionado; $hilo = $p->hilo; @endphp
 
                 {{-- Burbujeas de mensajes --}}
-                <div style="flex: 1; overflow-y: auto; padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.6rem;">
+                <div class="mensajes-buzon__thread-panel">
                     @foreach($hilo->mensajes as $mensaje)
                         @php $esMio = $mensaje->remitente_id === auth()->id(); @endphp
                         <div style="display: flex; flex-direction: {{ $esMio ? 'row-reverse' : 'row' }}; gap: 0.5rem; align-items: flex-end;">
@@ -148,13 +148,13 @@
                 </div>
 
                 {{-- Área de respuesta --}}
-                <div style="border-top: 1px solid #E5E3F5; padding: 0.75rem 1.25rem; background: #fff;">
-                    <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+                <div class="mensajes-buzon__composer">
+                    <div class="mensajes-buzon__composer-row">
                         <textarea wire:model="respuesta" rows="2"
-                                  style="flex: 1; border: 1px solid #E5E3F5; border-radius: 6px; padding: 0.5rem; font-size: 0.85rem; resize: none; box-sizing: border-box;"
+                                  class="mensajes-buzon__composer-input"
                                   placeholder="Escribe tu respuesta..."></textarea>
                         <button wire:click="enviarRespuesta({{ $hilo->id }})"
-                                style="background: #534AB7; border: none; color: #fff; padding: 0.55rem 1rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; flex-shrink: 0; align-self: flex-end;">
+                                class="mensajes-buzon__composer-send">
                             <i class="bi bi-send"></i>
                         </button>
                     </div>
@@ -166,13 +166,13 @@
 
     {{-- Modal de nuevo mensaje --}}
     @if($modalNuevoMensaje)
-        <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000;">
-            <div style="background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--color-ink-200); box-shadow: var(--shadow-2); padding: 1.5rem; max-width: 520px; width: 92%; max-height: 90vh; overflow-y: auto;">
+        <div class="mensajes-buzon__modal">
+            <div class="mensajes-buzon__modal-card">
 
-                <h2 style="font-size: 1rem; font-weight: 700; margin: 0 0 1rem; color: var(--color-ink-900);">Nuevo mensaje</h2>
+                <h2 class="mensajes-buzon__modal-title">Nuevo mensaje</h2>
 
                 {{-- Destinatario con autocompletado --}}
-                <div style="margin-bottom: 0.85rem; position: relative;">
+                <div class="mensajes-buzon__modal-field mensajes-buzon__modal-field--relative">
                     <label style="font-size: 0.8rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.3rem;">
                         Para
                     </label>
@@ -198,14 +198,14 @@
 
                     @if($destinatarioNombre)
                         <div style="margin-top: 0.3rem; font-size: 0.75rem; color: var(--color-success);">
-                            <i data-lucide="check-circle" style="width:12px;height:12px;" aria-hidden="true"></i>
+                            <i data-lucide="check-circle" class="icon-12" aria-hidden="true"></i>
                             Seleccionado: {{ $destinatarioNombre }}
                         </div>
                     @endif
                 </div>
 
                 {{-- Asunto --}}
-                <div style="margin-bottom: 0.85rem;">
+                <div class="mensajes-buzon__modal-field">
                     <label style="font-size: 0.8rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.3rem;">
                         Asunto
                     </label>
@@ -217,7 +217,7 @@
                 </div>
 
                 {{-- Cuerpo --}}
-                <div style="margin-bottom: 1rem;">
+                <div class="mensajes-buzon__modal-field--lg">
                     <label style="font-size: 0.8rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.3rem;">
                         Mensaje
                     </label>
@@ -237,14 +237,14 @@
                 @endif
 
                 {{-- Botones --}}
-                <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                <div class="mensajes-buzon__modal-actions">
                     <button wire:click="$set('modalNuevoMensaje', false)"
                             style="font-size: 0.8rem; background: #fff; border: 1px solid var(--color-ink-200); color: var(--color-ink-700); padding: 0.4rem 1rem; border-radius: var(--radius-md); cursor: pointer;">
                         Cancelar
                     </button>
                     <button wire:click="enviarMensaje"
                             style="font-size: 0.8rem; background: var(--color-primary); border: none; color: #fff; padding: 0.4rem 1.1rem; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 0.35rem;">
-                        <i data-lucide="send" style="width:14px;height:14px;" aria-hidden="true"></i>
+                        <i data-lucide="send" class="icon-14" aria-hidden="true"></i>
                         Enviar mensaje
                     </button>
                 </div>

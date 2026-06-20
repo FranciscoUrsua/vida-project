@@ -25,14 +25,14 @@
     $nombrePlan = $this->nombrePlanAsp();
 @endphp
 
-<div style="display: flex; flex-direction: column; height: 100vh; overflow: hidden;">
+<div class="mis-casos-page">
 
     {{-- Barra superior --}}
     <div style="background: #fff; border-bottom: 1px solid var(--color-ink-200); padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 1rem; flex-shrink: 0;">
         <h1 style="font-size: 1rem; font-weight: 700; margin: 0; color: var(--color-ink-900);">Mis casos</h1>
 
         {{-- Búsqueda por nombre --}}
-        <div style="position: relative; display: flex; align-items: center;">
+        <div class="mis-casos-page__search">
             <i data-lucide="search" style="position: absolute; left: 0.5rem; width: 13px; height: 13px; color: var(--color-ink-400); pointer-events: none;" aria-hidden="true"></i>
             <input wire:model.live.debounce.300ms="busqueda"
                    type="search"
@@ -42,7 +42,7 @@
         </div>
 
         {{-- Filtro seguimiento --}}
-        <select wire:model.live="filtroSeguimiento" class="form-select form-select-sm" style="width: auto; font-size: 0.8rem;">
+        <select wire:model.live="filtroSeguimiento" class="mis-casos-page__filter">
             <option value="">Todos los seguimientos</option>
             <option value="vencido">Vencidos</option>
             <option value="proximo">Próximos (7 días)</option>
@@ -51,7 +51,7 @@
         </select>
 
         {{-- Filtro PISO --}}
-        <select wire:model.live="filtroPiso" class="form-select form-select-sm" style="width: auto; font-size: 0.8rem;">
+        <select wire:model.live="filtroPiso" class="mis-casos-page__filter">
             <option value="">Todos los {{ $nombrePlan }}</option>
             <option value="activo">{{ $nombrePlan }} activo</option>
             <option value="revision">{{ $nombrePlan }} en revisión</option>
@@ -59,7 +59,7 @@
         </select>
 
         {{-- Filtro especializados --}}
-        <select wire:model.live="filtroEsp" class="form-select form-select-sm" style="width: auto; font-size: 0.8rem;">
+        <select wire:model.live="filtroEsp" class="mis-casos-page__filter">
             <option value="">Con/sin especializados</option>
             <option value="con">Con derivación</option>
             <option value="sin">Sin derivación</option>
@@ -68,14 +68,14 @@
     </div>
 
     {{-- Tabla de casos --}}
-    <div style="flex: 1; overflow-y: auto; padding: 1rem 1.25rem;">
+    <div class="mis-casos-page__content">
 
         @if($this->casos->isEmpty())
             <div style="text-align: center; padding: 3rem; color: var(--color-ink-600); font-size: 0.875rem;">
                 No hay casos que coincidan con los filtros seleccionados.
             </div>
         @else
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+            <table class="mis-casos-page__table">
                 @php
                     $ordenarPor = $this->ordenarPor;
                     $direccion  = $this->direccion;
@@ -90,12 +90,10 @@
                         $flecha  = $activo ? ($direccion === 'asc' ? ' ↑' : ' ↓') : '';
                         $color   = $activo ? 'var(--color-primary)' : 'var(--color-ink-600)';
                         $decor   = $activo ? 'underline' : 'none';
-                        return '<th style="padding:0.5rem 0.75rem;">'
-                            . '<button wire:click="sortBy(\'' . $campo . '\')" type="button" '
-                            . 'style="background:none;border:none;padding:0;cursor:pointer;'
-                            . 'font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;'
-                            . "font-weight:600;color:{$color};text-decoration:{$decor};"
-                            . 'white-space:nowrap;">'
+                        return '<th class="mis-casos-page__th">'
+                            . '<button wire:click="sortBy(\'' . $campo . '\')" type="button" class="mis-casos-page__sort" '
+                            . "style=\"font-weight:600;color:{$color};text-decoration:{$decor};\""
+                            . '>'
                             . e($label) . $flecha
                             . '</button>'
                             . '</th>';
@@ -103,8 +101,7 @@
 
                     /** Cabecera no ordenable (sin interacción) */
                     $thStatic = fn (string $label): string =>
-                        '<th style="padding:0.5rem 0.75rem;font-size:0.72rem;text-transform:uppercase;'
-                        . 'letter-spacing:0.05em;color:var(--color-ink-600);font-weight:600;">'
+                        '<th class="mis-casos-page__th mis-casos-page__th--static">'
                         . e($label) . '</th>';
                 @endphp
                 <thead>
@@ -146,7 +143,7 @@
                             </td>
 
                             {{-- Semáforo seguimiento --}}
-                            <td style="padding: 0.6rem 0.75rem;">
+                            <td class="mis-casos-page__cell">
                                 <span style="display: inline-flex; align-items: center; gap: 0.3rem; background: {{ $sem['bg'] }}; color: {{ $sem['color'] }}; padding: 0.2rem 0.55rem; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">
                                     @if($sem['icon'])
                                         <i data-lucide="{{ $sem['icon'] }}" style="width:13px;height:13px;" aria-hidden="true"></i>
@@ -167,7 +164,7 @@
                             </td>
 
                             {{-- Planes especializados --}}
-                            <td style="padding: 0.6rem 0.75rem; text-align: center;">
+                            <td class="mis-casos-page__cell mis-casos-page__cell--center">
                                 @if($caso->planes_esp_count > 0)
                                     <span style="background: var(--color-primary-soft); color: var(--color-primary); padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600;">
                                         {{ $caso->planes_esp_count }}
@@ -190,7 +187,7 @@
             {{-- Paginación --}}
             <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; font-size: 0.8rem; color: var(--color-ink-600);">
                 <span>{{ $this->casos->firstItem() }}–{{ $this->casos->lastItem() }} de {{ $this->casos->total() }} casos</span>
-                <div style="display: flex; gap: 0.25rem;">
+                <div class="mis-casos-page__pager">
                     @if($this->casos->onFirstPage())
                         <span style="padding: 0.25rem 0.6rem; border: 1px solid var(--color-ink-200); border-radius: 4px; color: var(--color-ink-400);">‹</span>
                     @else

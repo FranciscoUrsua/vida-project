@@ -1,5 +1,5 @@
 {{-- Bandeja de mensajes: lista de hilos + panel de lectura/redacción --}}
-<div class="row g-0" style="min-height: 70vh;">
+<div class="row g-0 mensajes-bandeja">
 
     {{-- Columna izquierda: lista de hilos --}}
     <div class="col-md-4 border-end">
@@ -10,7 +10,7 @@
             </button>
         </div>
 
-        <div class="list-group list-group-flush overflow-auto" style="max-height: 65vh;">
+        <div class="list-group list-group-flush overflow-auto mensajes-bandeja__list">
             @forelse($this->hilos as $participante)
                 @php $hilo = $participante->hilo; $noLeidos = $participante->mensajesNoLeidos(); @endphp
                 <div class="list-group-item list-group-item-action {{ $hiloActivoId === $hilo->id ? 'active' : '' }}"

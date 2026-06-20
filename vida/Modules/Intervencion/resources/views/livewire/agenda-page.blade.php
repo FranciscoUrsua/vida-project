@@ -30,7 +30,7 @@
     $horas = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
 @endphp
 
-<div style="display: flex; flex-direction: column; height: calc(100vh - 56px); overflow: hidden;">
+<div class="agenda-page">
 
     {{-- ------------------------------------------------------------------ --}}
     {{-- Barra superior                                                       --}}
@@ -44,29 +44,26 @@
         </span>
 
         {{-- Navegación anterior / siguiente / hoy --}}
-        <button wire:click="navegarAnterior" class="btn btn-sm btn-outline-secondary" aria-label="Período anterior" style="padding: 0.2rem 0.55rem;">
-            <i data-lucide="chevron-left" style="width:16px;height:16px;" aria-hidden="true"></i>
+        <button wire:click="navegarAnterior" class="btn btn-sm btn-outline-secondary agenda-page__nav-button" aria-label="Período anterior">
+            <i data-lucide="chevron-left" class="icon-16" aria-hidden="true"></i>
         </button>
-        <button wire:click="navegarSiguiente" class="btn btn-sm btn-outline-secondary" aria-label="Período siguiente" style="padding: 0.2rem 0.55rem;">
-            <i data-lucide="chevron-right" style="width:16px;height:16px;" aria-hidden="true"></i>
+        <button wire:click="navegarSiguiente" class="btn btn-sm btn-outline-secondary agenda-page__nav-button" aria-label="Período siguiente">
+            <i data-lucide="chevron-right" class="icon-16" aria-hidden="true"></i>
         </button>
-        <button wire:click="irAHoy" class="btn btn-sm btn-outline-primary" style="font-size: 0.8rem;">Hoy</button>
+        <button wire:click="irAHoy" class="btn btn-sm btn-outline-primary agenda-page__view-button">Hoy</button>
 
         {{-- Selector de vista --}}
         <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="Vista de agenda">
             <button wire:click="setVista('dia')"
-                    class="btn {{ $vista === 'dia' ? 'btn-primary' : 'btn-outline-primary' }}"
-                    style="font-size: 0.8rem;">
+                    class="btn agenda-page__view-button {{ $vista === 'dia' ? 'btn-primary' : 'btn-outline-primary' }}">
                 Día
             </button>
             <button wire:click="setVista('semana')"
-                    class="btn {{ $vista === 'semana' ? 'btn-primary' : 'btn-outline-primary' }}"
-                    style="font-size: 0.8rem;">
+                    class="btn agenda-page__view-button {{ $vista === 'semana' ? 'btn-primary' : 'btn-outline-primary' }}">
                 Semana
             </button>
             <button wire:click="setVista('mes')"
-                    class="btn {{ $vista === 'mes' ? 'btn-primary' : 'btn-outline-primary' }}"
-                    style="font-size: 0.8rem;">
+                    class="btn agenda-page__view-button {{ $vista === 'mes' ? 'btn-primary' : 'btn-outline-primary' }}">
                 Mes
             </button>
         </div>
@@ -123,13 +120,13 @@
     {{-- ------------------------------------------------------------------ --}}
     {{-- Área de contenido                                                    --}}
     {{-- ------------------------------------------------------------------ --}}
-    <div style="flex: 1; overflow-y: auto; padding: 1rem 1.25rem;">
+    <div class="agenda-page__content">
 
         @if($vista === 'dia')
             {{-- ============================================================ --}}
             {{-- Vista día: 4 columnas                                         --}}
             {{-- ============================================================ --}}
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; align-items: start;">
+            <div class="agenda-page__day-grid">
                 @foreach($this->citasDia as $fecha => $citas)
                     @php
                         $col = Carbon::parse($fecha)->locale('es');
@@ -213,8 +210,8 @@
                 $diasSemana = array_keys($this->citasSemana);
                 $citasSemana = $this->citasSemana;
             @endphp
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+            <div class="agenda-page__table-wrap">
+                <table class="agenda-page__table">
                     <thead>
                         <tr>
                             <th style="width: 52px; padding: 0.4rem; font-size: 0.7rem; color: var(--color-ink-600); font-weight: 500; text-align: right; border-bottom: 1px solid var(--color-ink-200);"></th>

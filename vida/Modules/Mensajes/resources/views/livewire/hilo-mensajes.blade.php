@@ -5,13 +5,13 @@
     </div>
 
     {{-- Lista de mensajes --}}
-    <div class="p-3 overflow-auto" style="max-height: 50vh;">
+    <div class="p-3 overflow-auto mensajes-hilo__messages">
         @foreach($this->hilo->mensajes as $mensaje)
             @php $esMio = $mensaje->remitente_id === auth()->id(); @endphp
 
             <div class="mb-3 d-flex {{ $esMio ? 'justify-content-end' : 'justify-content-start' }}">
                 <div class="card {{ $esMio ? 'bg-primary text-white' : 'bg-light' }}"
-                     style="max-width: 70%;">
+                     class="mensajes-hilo__bubble">
                     <div class="card-body py-2 px-3">
                         <div class="small {{ $esMio ? 'text-white-50' : 'text-muted' }} mb-1">
                             {{ $mensaje->remitente->name }} · {{ $mensaje->created_at->format('d/m H:i') }}
@@ -75,7 +75,7 @@
 
     {{-- Modal: Registrar en Historia Social --}}
     @if($mostrarModalHistoria)
-        <div class="modal d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal d-block mensajes-hilo__modal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">

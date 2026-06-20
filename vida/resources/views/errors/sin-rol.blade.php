@@ -4,25 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sin perfil de acceso — {{ config('app.name') }}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    @vite('resources/css/app-operativo.css')
-    <script src="https://unpkg.com/lucide@latest" defer></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => lucide.createIcons({ 'stroke-width': 1.75 }));
-    </script>
-    <style>
-        body { min-height: 100vh; background: var(--color-paper); display: flex; align-items: center; justify-content: center; }
-        .sinrol-card { background: #fff; border-radius: 12px; padding: 2.5rem 2rem; max-width: 440px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.07); }
-        .sinrol-icon { color: var(--color-primary); margin-bottom: 1rem; display: flex; justify-content: center; }
-        .sinrol-title { font-size: 1.15rem; font-weight: 700; color: var(--color-ink-900); text-align: center; margin-bottom: 0.5rem; }
-        .sinrol-body { font-size: 0.875rem; color: var(--color-ink-600); text-align: center; line-height: 1.6; margin-bottom: 1.5rem; }
-        .sinrol-divider { border-top: 1px solid var(--color-ink-200); margin: 1.25rem 0; }
-        .sinrol-field { display: flex; gap: 0.5rem; justify-content: space-between; font-size: 0.8rem; padding: 0.3rem 0; }
-        .sinrol-label { color: var(--color-ink-400); font-weight: 500; flex-shrink: 0; }
-        .sinrol-value { color: var(--color-ink-700); font-weight: 600; text-align: right; word-break: break-all; }
-    </style>
+    @vite(['resources/scss/app-public.scss', 'resources/js/app.js'])
 </head>
-<body>
+<body class="sinrol-page">
 @php
     $usuario = Auth::user();
     $nombreProfesional = $usuario->profesional
@@ -31,9 +15,8 @@
 @endphp
 
 <div class="sinrol-card">
-
     <div class="sinrol-icon">
-        <i data-lucide="lock" style="width:40px;height:40px;" aria-hidden="true"></i>
+        <i data-lucide="lock" class="sinrol-icon-glyph" aria-hidden="true"></i>
     </div>
 
     <h1 class="sinrol-title">Sin perfil de acceso</h1>
@@ -70,7 +53,6 @@
             Cerrar sesión
         </button>
     </form>
-
 </div>
 </body>
 </html>
