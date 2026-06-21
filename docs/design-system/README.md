@@ -167,6 +167,16 @@ Used only on modal scrims: `rgba(29, 22, 14, .40)` + `backdrop-filter: blur(2px)
 - Content area is max 1280px wide, centred when viewport exceeds it. Internal forms and tables sit in a 2-column `40% / 60%` split on wide screens.
 - Filament backoffice uses its own default chrome; we only restyle tokens (colours + radii + type).
 
+### Responsive strategy
+VIDA 360 operational UI is **desktop first**, not mobile first. The primary usage context is a professional workstation, with dense screens that require simultaneous access to context, chronology, actions and comparison. We optimise first for `>=1024px`, and especially for `>=1280px`, where the professional daily workflow happens.
+
+Responsive behaviour is still required, but its job is to avoid breakage and preserve task continuity, not to guarantee full parity across devices. On tablet and mobile:
+- complex operational screens may simplify, stack, collapse or defer secondary panels;
+- tables and multi-panel workspaces do not need to preserve the full desktop information density;
+- when a workflow genuinely needs mobile ergonomics, it should be designed as a dedicated task-specific view, removing anything not essential to that action.
+
+Do not degrade desktop workflows in order to make every operational screen fully equivalent on small screens. In VIDA 360, mobile support is a constrained fallback by default, and a first-class target only for flows explicitly designed for mobile use.
+
 ### Data tables
 - Header row is `--color-sand`, body rows white, hover `--color-paper`.
 - Row height `52px` (comfortable), `40px` (compact toggle).

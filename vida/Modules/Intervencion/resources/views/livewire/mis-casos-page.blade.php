@@ -25,8 +25,7 @@
 <div class="cases-screen">
     <section class="cases-screen__toolbar">
         <div class="cases-screen__heading">
-            <p class="cases-screen__eyebrow">Bandeja operativa</p>
-            <h1 class="cases-screen__title">Mis casos</h1>
+            <h1 class="cases-screen__title">Intervención - Mis casos</h1>
         </div>
 
         <div class="cases-screen__filters">
