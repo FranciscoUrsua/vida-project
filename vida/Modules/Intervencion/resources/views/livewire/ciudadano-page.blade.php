@@ -35,25 +35,25 @@
     ];
 @endphp
 
-<div class="ciudadano-page">
+<div class="ciudadano-page record-screen">
 
     {{-- ------------------------------------------------------------------ --}}
     {{-- Banda del Plan de Intervención — ancho completo                    --}}
     {{-- ------------------------------------------------------------------ --}}
     @if($this->planActivo)
-        <div style="background: var(--color-primary-soft); border-bottom: 1px solid var(--color-ink-200); padding: 0.5rem 1.25rem; display: flex; align-items: center; gap: 1rem; flex-shrink: 0; font-size: 0.8rem;">
-            <span style="font-weight: 600; color: var(--color-primary-ink);">{{ $this->planNombreCorto }} · {{ $this->planActivo->estado->label() }}</span>
-            <span style="color: var(--color-ink-600);">v{{ $this->planActivo->version }} · desde {{ Carbon::parse($this->planActivo->fecha_inicio)->format('d/m/Y') }}</span>
+        <div class="record-screen__plan-bar">
+            <span class="record-screen__plan-title">{{ $this->planNombreCorto }} · {{ $this->planActivo->estado->label() }}</span>
+            <span class="record-screen__plan-meta">v{{ $this->planActivo->version }} · desde {{ Carbon::parse($this->planActivo->fecha_inicio)->format('d/m/Y') }}</span>
             <a href="{{ route('intervencion.plan.show', $this->planActivo) }}" wire:navigate
-               style="margin-left: auto; font-size: 0.78rem; color: var(--color-primary); text-decoration: none; font-weight: 600;">
+               class="record-screen__plan-link">
                 Ver {{ $this->planNombreCorto }} →
             </a>
         </div>
     @else
-        <div style="background: var(--color-paper); border-bottom: 1px solid var(--color-ink-200); padding: 0.45rem 1.25rem; font-size: 0.78rem; color: var(--color-ink-400); flex-shrink: 0; display: flex; align-items: center; gap: 1rem;">
+        <div class="record-screen__plan-bar record-screen__plan-bar--empty">
             Sin {{ $this->planNombreCorto }} activo
             <a href="{{ route('intervencion.plan.crear', ['historia' => $this->historia->id]) }}" wire:navigate
-               style="margin-left: auto; font-size: 0.78rem; color: var(--color-primary); text-decoration: none; font-weight: 600;">
+               class="record-screen__plan-link">
                 + Crear {{ $this->planNombreCorto }}
             </a>
         </div>
@@ -79,7 +79,7 @@
                     @if($ciudadano)
                         <a href="{{ route('ciudadania.ciudadano.ficha', $ciudadano->id) }}"
                            wire:navigate
-                           style="font-size: 0.72rem; color: var(--color-primary); border: 1px solid var(--color-primary); border-radius: 4px; padding: 0.1rem 0.4rem; text-decoration: none; white-space: nowrap;">
+                           class="record-screen__summary-link">
                             Ficha completa
                         </a>
                     @endif
@@ -88,34 +88,34 @@
             </div>
 
             {{-- Nombre completo --}}
-            <div style="font-size: 1rem; font-weight: 700; color: var(--color-ink-900); line-height: 1.3; margin-bottom: 0.45rem;">
+            <div class="record-screen__person-name">
                 {{ $ciudadano ? ($ciudadano->nombre . ' ' . $ciudadano->apellido1 . ($ciudadano->apellido2 ? ' ' . $ciudadano->apellido2 : '')) : 'Ciudadano #' . $historia->ciudadano_id }}
             </div>
 
             {{-- HS + UO + Estado HS --}}
             <div class="ciudadano-page__meta-row">
-                <span style="font-size: 0.72rem; color: var(--color-ink-500);">HS #{{ $historia->id }}</span>
-                <span style="font-size: 0.72rem; color: var(--color-ink-300);">·</span>
+                <span class="record-screen__meta-text">HS #{{ $historia->id }}</span>
+                <span class="record-screen__meta-separator">·</span>
                 @if($this->uoNombre)
-                    <span style="font-size: 0.72rem; color: var(--color-ink-500);">{{ $this->uoNombre }}</span>
+                    <span class="record-screen__meta-text">{{ $this->uoNombre }}</span>
                 @else
-                    <span style="font-size: 0.72rem; color: var(--color-ink-500);">UO #{{ $historia->unidad_organizativa_id }}</span>
+                    <span class="record-screen__meta-text">UO #{{ $historia->unidad_organizativa_id }}</span>
                 @endif
-                <span style="background: {{ $badge['bg'] }}; color: {{ $badge['color'] }}; padding: 0.1rem 0.4rem; border-radius: 99px; font-size: 0.65rem; font-weight: 600; white-space: nowrap;">
+                <span class="record-screen__status-chip" style="--record-status-bg: {{ $badge['bg'] }}; --record-status-color: {{ $badge['color'] }};">
                     Estado HS: {{ $badge['label'] }}
                 </span>
             </div>
 
             {{-- Fecha de nacimiento · edad --}}
             @if($ciudadano?->fecha_nacimiento)
-                <div style="font-size: 0.72rem; color: var(--color-ink-600); margin-bottom: 0.2rem;">
+                <div class="record-screen__summary-line">
                     {{ Carbon::parse($ciudadano->fecha_nacimiento)->format('d/m/Y') }} · {{ Carbon::parse($ciudadano->fecha_nacimiento)->age }} años
                 </div>
             @endif
 
             {{-- Domicilio --}}
             @if($ciudadano?->direccion_texto)
-                <div style="font-size: 0.72rem; color: var(--color-ink-600); line-height: 1.4; margin-bottom: 0.2rem;">
+                <div class="record-screen__summary-line record-screen__summary-line--multiline">
                     {{ $ciudadano->direccion_texto }}
                 </div>
             @endif
@@ -153,29 +153,29 @@
             @endif
 
             {{-- Unidad de convivencia --}}
-            <div style="margin-top: 0.75rem; border: 1px solid var(--color-ink-200); border-radius: 8px; overflow: hidden;">
+            <div class="record-screen__uc-card">
                 <button wire:click="toggleUC"
-                        style="width: 100%; background: #fff; border: none; padding: 0.5rem 0.75rem; text-align: left; font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                        class="record-screen__uc-toggle">
                     <span>
                         Unidad de convivencia
                         @if($this->ucVigente)
-                            <span style="font-size: 0.7rem; font-weight: 400; color: var(--color-ink-500); margin-left: 0.3rem;">
+                            <span class="record-screen__uc-count">
                                 {{ $this->ucMiembrosActivos->count() }} miembro{{ $this->ucMiembrosActivos->count() !== 1 ? 's' : '' }}
                             </span>
                         @endif
                     </span>
-                    <i data-lucide="{{ $ucExpandida ? 'chevron-up' : 'chevron-down' }}" style="width:12px;height:12px;" aria-hidden="true"></i>
+                    <i data-lucide="{{ $ucExpandida ? 'chevron-up' : 'chevron-down' }}" class="record-screen__uc-chevron" aria-hidden="true"></i>
                 </button>
                 @if($ucExpandida)
-                    <div style="padding: 0.5rem 0.75rem; border-top: 1px solid var(--color-ink-100);">
+                    <div class="record-screen__uc-body">
                         @if($this->ucVigente)
                             <ul class="ciudadano-page__uc-list">
                                 @foreach($this->ucMiembrosActivos as $ucm)
-                                    <li style="font-size: 0.73rem; color: var(--color-ink-700); display: flex; align-items: center; gap: 0.3rem;">
+                                    <li class="record-screen__uc-item">
                                         @if($ucm->verificado)
-                                            <i data-lucide="shield-check" style="width:10px;height:10px; color: var(--color-success, #166534); flex-shrink:0;" aria-hidden="true"></i>
+                                            <i data-lucide="shield-check" class="record-screen__uc-icon record-screen__uc-icon--verified" aria-hidden="true"></i>
                                         @else
-                                            <i data-lucide="shield-alert" style="width:10px;height:10px; color: var(--color-warning, #92400e); flex-shrink:0;" aria-hidden="true"></i>
+                                            <i data-lucide="shield-alert" class="record-screen__uc-icon record-screen__uc-icon--pending" aria-hidden="true"></i>
                                         @endif
                                         @if($ucm->ciudadano)
                                             @php $tipoRelUc = $this->relacionesMiembrosUc->get($ucm->ciudadano_id); @endphp
@@ -191,7 +191,7 @@
                                 @endforeach
                             </ul>
                         @else
-                            <p style="font-size: 0.73rem; color: var(--color-ink-400); margin: 0 0 0.5rem;">Sin unidad de convivencia registrada.</p>
+                            <p class="record-screen__empty-note">Sin unidad de convivencia registrada.</p>
                         @endif
                         {{-- Botón gestionar UC --}}
                         <button wire:click="abrirModalUc" class="uc-widget__gestionar" title="Gestionar unidad de convivencia">
@@ -218,16 +218,16 @@
         {{-- ============================================================== --}}
         <div class="ciudadano-header-right ciudadano-header-right--padded">
 
-            <div wire:key="toolbox-grid" class="ciudadano-page__toolbox-grid">
+            <div wire:key="toolbox-grid" class="ciudadano-page__toolbox-grid record-screen__toolbox-grid">
                 @foreach($herramientas as $h)
                     <button wire:key="tool-{{ $h['id'] }}"
                             wire:click="seleccionarHerramienta('{{ $h['id'] }}')"
-                            style="background: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary-soft)' : '#fff' }}; border: 1px solid {{ $herramientaActiva === $h['id'] ? 'var(--color-primary)' : 'var(--color-ink-200)' }}; border-radius: 8px; padding: 0.75rem 0.5rem; cursor: pointer; text-align: center; transition: all 0.1s;">
-                        <i data-lucide="{{ $h['icon'] }}" style="font-size: inherit; width: 20px; height: 20px; color: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary)' : 'var(--color-ink-600)' }}; display: block; margin-bottom: 0.3rem;" aria-hidden="true"></i>
-                        <span style="font-size: 0.7rem; color: {{ $herramientaActiva === $h['id'] ? 'var(--color-primary-ink)' : 'var(--color-ink-700)' }}; font-weight: {{ $herramientaActiva === $h['id'] ? '600' : '400' }}; display: block;">
+                            class="record-screen__tool {{ $herramientaActiva === $h['id'] ? 'record-screen__tool--active' : '' }}">
+                        <i data-lucide="{{ $h['icon'] }}" class="icon-20 record-screen__tool-icon" aria-hidden="true"></i>
+                        <span class="record-screen__tool-label">
                             {{ $h['label'] }}
                             @if($h['fullpage'])
-                                <span style="display: block; font-size: 0.62rem; color: var(--color-ink-400);">↗ pantalla completa</span>
+                                <span class="record-screen__tool-hint">↗ pantalla completa</span>
                             @endif
                         </span>
                     </button>
@@ -269,24 +269,22 @@
                 @php $colorPunto = $coloresTipo[$apunte->tipo->value] ?? 'var(--color-ink-500)'; @endphp
                 <div wire:click="verApunte({{ $apunte->id }})"
                      role="button"
-                     class="ciudadano-page__history-item" border-radius: 6px; background: transparent; transition: background 0.1s;"
-                     onmouseover="this.style.background='var(--color-paper)'"
-                     onmouseout="this.style.background='transparent'">
-                    <span style="width: 8px; height: 8px; border-radius: 50%; background: {{ $colorPunto }}; flex-shrink: 0; margin-top: 5px;"></span>
+                     class="ciudadano-page__history-item record-screen__history-item">
+                    <span class="record-screen__history-dot" style="--record-history-dot: {{ $colorPunto }};"></span>
                     <div class="ciudadano-page__history-main">
-                        <div style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <div class="record-screen__history-title">
                             {{ $apunte->tipo->label() }}
                         </div>
-                        <div style="font-size: 0.7rem; color: var(--color-ink-400);">
+                        <div class="record-screen__history-meta">
                             {{ $apunte->fecha->format('d/m/Y') }} · {{ $apunte->autor?->name ?? '' }}
                         </div>
                         @if($apunte->contenido)
-                            <div style="font-size: 0.72rem; color: var(--color-ink-600); margin-top: 0.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $apunte->contenido }}</div>
+                            <div class="record-screen__history-copy">{{ $apunte->contenido }}</div>
                         @endif
                     </div>
                 </div>
             @empty
-                <div style="font-size: 0.78rem; color: var(--color-ink-400); text-align: center; padding: 1rem 0;">
+                <div class="record-screen__empty-state">
                     Sin registros en la historia social.
                 </div>
             @endforelse
@@ -354,11 +352,11 @@
             <div class="ciudadano-body-right ciudadano-body-right--scrollable">
 
                 @if($herramientaActiva === 'entrevista')
-                    <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1rem;">
-                        <h3 style="font-size: 0.9rem; font-weight: 700; margin: 0 0 0.75rem; color: var(--color-ink-900);">Registrar entrevista</h3>
+                    <div class="record-screen__workspace-card">
+                        <h3 class="record-screen__workspace-title">Registrar entrevista</h3>
                         <div class="ciudadano-page__two-col-grid">
                             <div>
-                                <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Tipo</label>
+                                <label class="record-screen__field-label">Tipo</label>
                                 <select wire:model="formEntrevista.tipo" class="form-select form-select-sm">
                                     <option value="seguimiento">Seguimiento</option>
                                     <option value="inicial">Inicial</option>
@@ -367,7 +365,7 @@
                                 </select>
                             </div>
                             <div>
-                                <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Modalidad</label>
+                                <label class="record-screen__field-label">Modalidad</label>
                                 <select wire:model="formEntrevista.modalidad" class="form-select form-select-sm">
                                     <option value="presencial">Presencial</option>
                                     <option value="telefonica">Telefónica</option>
@@ -377,7 +375,7 @@
                             </div>
                         </div>
                         <div class="ciudadano-page__section">
-                            <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Notas generales</label>
+                            <label class="record-screen__field-label">Notas generales</label>
                             <textarea wire:model="formEntrevista.notas" rows="3" class="form-control form-control-sm" placeholder="Observaciones de la entrevista..."></textarea>
                         </div>
                         <div class="ciudadano-page__choice-row">
@@ -386,8 +384,8 @@
                             </label>
                         </div>
                         @if($formEntrevista['programar_seguimiento'])
-                            <div style="margin-bottom: 0.75rem;">
-                                <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Fecha siguiente seguimiento</label>
+                            <div class="record-screen__field-block">
+                                <label class="record-screen__field-label">Fecha siguiente seguimiento</label>
                                 <input type="date" wire:model="formEntrevista.fecha_siguiente_seguimiento" class="form-control form-control-sm">
                             </div>
                         @endif
@@ -398,9 +396,9 @@
                     </div>
 
                 @elseif($herramientaActiva === 'anotacion')
-                    <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1rem;">
-                        <h3 style="font-size: 0.9rem; font-weight: 700; margin: 0 0 0.75rem; color: var(--color-ink-900);">Guardar anotación</h3>
-                        <div style="margin-bottom: 0.75rem;">
+                    <div class="record-screen__workspace-card">
+                        <h3 class="record-screen__workspace-title">Guardar anotación</h3>
+                        <div class="record-screen__field-block">
                             <textarea wire:model="formAnotacion.contenido" rows="4" class="form-control form-control-sm" placeholder="Escribe la anotación..."></textarea>
                         </div>
                         <div class="ciudadano-page__radio-group">
@@ -418,18 +416,18 @@
                     </div>
 
                 @elseif($herramientaActiva === 'derivacion')
-                    <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1rem;">
-                        <h3 style="font-size: 0.9rem; font-weight: 700; margin: 0 0 0.75rem; color: var(--color-ink-900);">Crear derivación</h3>
-                        <div style="margin-bottom: 0.75rem;">
-                            <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Urgencia</label>
+                    <div class="record-screen__workspace-card">
+                        <h3 class="record-screen__workspace-title">Crear derivación</h3>
+                        <div class="record-screen__field-block">
+                            <label class="record-screen__field-label">Urgencia</label>
                             <select wire:model="formDerivacion.urgencia" class="form-select form-select-sm">
                                 <option value="ordinaria">Ordinaria</option>
                                 <option value="preferente">Preferente</option>
                                 <option value="urgente">Urgente</option>
                             </select>
                         </div>
-                        <div style="margin-bottom: 0.75rem;">
-                            <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Motivo</label>
+                        <div class="record-screen__field-block">
+                            <label class="record-screen__field-label">Motivo</label>
                             <textarea wire:model="formDerivacion.motivo" rows="3" class="form-control form-control-sm" placeholder="Motivo de la derivación..."></textarea>
                         </div>
                         <div class="ciudadano-page__actions">
@@ -439,10 +437,10 @@
                     </div>
 
                 @elseif($herramientaActiva === 'gestion')
-                    <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1rem;">
-                        <h3 style="font-size: 0.9rem; font-weight: 700; margin: 0 0 0.75rem; color: var(--color-ink-900);">Guardar gestión</h3>
-                        <div style="margin-bottom: 0.75rem;">
-                            <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Tipo de gestión</label>
+                    <div class="record-screen__workspace-card">
+                        <h3 class="record-screen__workspace-title">Guardar gestión</h3>
+                        <div class="record-screen__field-block">
+                            <label class="record-screen__field-label">Tipo de gestión</label>
                             <select wire:model="formGestion.tipo_gestion" class="form-select form-select-sm">
                                 <option value="">Selecciona...</option>
                                 <option value="coordinacion">Coordinación con otro servicio</option>
@@ -452,12 +450,12 @@
                                 <option value="otro">Otro</option>
                             </select>
                         </div>
-                        <div style="margin-bottom: 0.75rem;">
-                            <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Recurso / interlocutor</label>
+                        <div class="record-screen__field-block">
+                            <label class="record-screen__field-label">Recurso / interlocutor</label>
                             <input type="text" wire:model="formGestion.recurso_interlocutor" class="form-control form-control-sm" placeholder="Nombre del recurso o persona...">
                         </div>
-                        <div style="margin-bottom: 0.75rem;">
-                            <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Descripción</label>
+                        <div class="record-screen__field-block">
+                            <label class="record-screen__field-label">Descripción</label>
                             <textarea wire:model="formGestion.descripcion" rows="3" class="form-control form-control-sm" placeholder="Describe la gestión realizada..."></textarea>
                         </div>
                         <div class="ciudadano-page__actions">
@@ -467,11 +465,11 @@
                     </div>
 
                 @elseif($herramientaActiva === 'valoracion')
-                    <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1rem;">
-                        <h3 style="font-size: 0.9rem; font-weight: 700; margin: 0 0 0.5rem; color: var(--color-ink-900);">Valoración</h3>
-                        <p style="font-size: 0.78rem; color: var(--color-ink-600); margin: 0 0 0.75rem;">La ficha se abrirá en pantalla completa.</p>
-                        <div style="margin-bottom: 0.75rem;">
-                            <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Tipo de ficha</label>
+                    <div class="record-screen__workspace-card">
+                        <h3 class="record-screen__workspace-title">Valoración</h3>
+                        <p class="record-screen__workspace-copy">La ficha se abrirá en pantalla completa.</p>
+                        <div class="record-screen__field-block">
+                            <label class="record-screen__field-label">Tipo de ficha</label>
                             <select wire:model.live="formValoracion.tipo_ficha_id" class="form-select form-select-sm">
                                 <option value="">Selecciona...</option>
                                 @foreach($this->tiposFicha as $tf)
@@ -489,11 +487,11 @@
                     </div>
 
                 @elseif($herramientaActiva === 'escala')
-                    <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1rem;">
-                        <h3 style="font-size: 0.9rem; font-weight: 700; margin: 0 0 0.5rem; color: var(--color-ink-900);">Escala</h3>
-                        <p style="font-size: 0.78rem; color: var(--color-ink-600); margin: 0 0 0.75rem;">La escala se abrirá en pantalla completa.</p>
-                        <div style="margin-bottom: 0.75rem;">
-                            <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">Instrumento</label>
+                    <div class="record-screen__workspace-card">
+                        <h3 class="record-screen__workspace-title">Escala</h3>
+                        <p class="record-screen__workspace-copy">La escala se abrirá en pantalla completa.</p>
+                        <div class="record-screen__field-block">
+                            <label class="record-screen__field-label">Instrumento</label>
                             <select wire:model.live="formEscala.tipo_escala_id" class="form-select form-select-sm">
                                 <option value="">Selecciona...</option>
                                 @foreach($this->tiposEscala as $te)
@@ -511,10 +509,10 @@
                     </div>
 
                 @elseif($herramientaActiva === 'informes')
-                    <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1rem;">
-                        <h3 style="font-size: 0.9rem; font-weight: 700; margin: 0 0 0.5rem; color: var(--color-ink-900);">Informes</h3>
+                    <div class="record-screen__workspace-card">
+                        <h3 class="record-screen__workspace-title">Informes</h3>
                         {{-- TODO: conectar con módulo Documentos cuando implemente la vista de edición --}}
-                        <p style="font-size: 0.85rem; color: var(--color-ink-600);">Módulo de informes en construcción.</p>
+                        <p class="record-screen__workspace-copy">Módulo de informes en construcción.</p>
                         <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm ciudadano-page__btn-close">Cerrar</button>
                     </div>
 
@@ -614,10 +612,10 @@
                 @if($modalApunteTipo === 'valoracion' && ! empty($modalApunteDatos['ficha_campos']))
                     <div class="ciudadano-page__stack-sm">
                         @foreach($modalApunteDatos['ficha_campos'] as $campo)
-                            <div style="padding: 0.55rem 0.75rem; background: var(--color-ink-50, #f8fafc); border-radius: 6px; border: 1px solid var(--color-ink-100);">
-                                <p style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-ink-400); margin: 0 0 0.2rem;">{{ $campo['etiqueta'] }}</p>
+                            <div class="record-screen__detail-card">
+                                <p class="record-screen__detail-label">{{ $campo['etiqueta'] }}</p>
                                 @if($campo['valor'] !== null && $campo['valor'] !== '')
-                                    <p style="font-size: 0.85rem; color: var(--color-ink-900); margin: 0;">
+                                    <p class="record-screen__detail-value">
                                         @if($campo['tipo'] === 'booleano')
                                             {{ $campo['valor'] ? 'Sí' : 'No' }}
                                         @elseif($campo['tipo'] === 'fecha')
@@ -627,15 +625,15 @@
                                         @endif
                                     </p>
                                 @else
-                                    <p style="font-size: 0.82rem; color: var(--color-ink-300); margin: 0; font-style: italic;">Sin respuesta</p>
+                                    <p class="record-screen__detail-empty">Sin respuesta</p>
                                 @endif
                             </div>
                         @endforeach
                     </div>
                     @if($modalApunteDatos['ficha_notas'] ?? null)
-                        <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--color-ink-100);">
-                            <p style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-ink-400); margin: 0 0 0.25rem;">Notas</p>
-                            <p style="font-size: 0.82rem; color: var(--color-ink-700); margin: 0; white-space: pre-wrap;">{{ $modalApunteDatos['ficha_notas'] }}</p>
+                        <div class="record-screen__detail-notes">
+                            <p class="record-screen__detail-label">Notas</p>
+                            <p class="record-screen__detail-value">{{ $modalApunteDatos['ficha_notas'] }}</p>
                         </div>
                     @endif
                 @endif
