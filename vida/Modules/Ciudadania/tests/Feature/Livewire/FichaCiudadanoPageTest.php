@@ -303,10 +303,10 @@ class FichaCiudadanoPageTest extends TestCase
     // -------------------------------------------------------------------------
 
     /**
-     * TF-LW-FIC-11 — Vista renderiza banner de historia social si existe.
+     * TF-LW-FIC-11 — Vista muestra acceso a historia social si existe.
      */
     #[Test]
-    public function vista_renderiza_banner_si_existe_historia_social(): void
+    public function vista_muestra_acceso_a_historia_social_si_existe(): void
     {
         HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
             'ciudadano_id' => $this->ciudadano->id,
@@ -316,18 +316,18 @@ class FichaCiudadanoPageTest extends TestCase
 
         Livewire::actingAs($this->usuario)
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
-            ->assertSee('Historia social activa');
+            ->assertSee('Ver historia social');
     }
 
     /**
-     * TF-LW-FIC-12 — Vista no renderiza banner si no existe historia social.
+     * TF-LW-FIC-12 — Vista no muestra acceso a historia social si no existe.
      */
     #[Test]
-    public function vista_no_renderiza_banner_si_no_existe_historia_social(): void
+    public function vista_no_muestra_acceso_a_historia_social_si_no_existe(): void
     {
         Livewire::actingAs($this->usuario)
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
-            ->assertDontSee('Historia social activa');
+            ->assertDontSee('Ver historia social');
     }
 
     /**

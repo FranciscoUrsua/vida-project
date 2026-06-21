@@ -1780,6 +1780,13 @@ button.cases-screen__pager-item {
     gap: 0.5rem;
 }
 
+.citizen-file__header-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
 .citizen-file__alert {
     margin: 1rem 1.5rem 0;
     padding: 0.75rem 1rem;

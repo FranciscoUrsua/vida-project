@@ -18,7 +18,6 @@
         default           => ['label' => 'No identificado', 'bg' => 'var(--color-danger,#ef4444)',  'fg' => '#fff'],
     };
 
-    $rolActual = auth()->user()->getRoleNames()->first() ?? '—';
 @endphp
 
 {{-- ===== CABECERA ===== --}}
@@ -41,7 +40,6 @@
             @if($edad !== null)
                 <span>{{ $edad }} años</span>
             @endif
-            <span>Rol: <strong>{{ $rolActual }}</strong></span>
         </div>
     </div>
 
@@ -49,7 +47,7 @@
 
         {{-- Botones de atención e historia social --}}
         @if($this->puedeCrearAtencion)
-        <button wire:click="abrirModalAtencion" type="button" class="ficha-btn">
+        <button wire:click="abrirModalAtencion" type="button" class="btn btn-outline-secondary btn-sm citizen-file__header-action">
             <i data-lucide="message-square-plus" class="icon-14" aria-hidden="true"></i>
             Nueva atención
         </button>
@@ -60,7 +58,7 @@
             wire:click="abrirHistoriaSocial"
             wire:confirm="¿Abrir historia social para este ciudadano? Esta acción asignará la historia a tu UO."
             type="button"
-            class="ficha-btn ficha-btn--primary"
+            class="btn btn-primary btn-sm citizen-file__header-action"
         >
             <i data-lucide="folder-plus" class="icon-14" aria-hidden="true"></i>
             Abrir historia social
@@ -69,7 +67,7 @@
         <a
             wire:navigate
             href="{{ route('intervencion.ciudadano.show', $historiaSocial) }}"
-            class="ficha-btn ficha-btn--primary"
+            class="btn btn-primary btn-sm citizen-file__header-action"
         >
             <i data-lucide="folder-open" class="icon-14" aria-hidden="true"></i>
             Ver historia social
@@ -78,14 +76,14 @@
 
         {{-- Botones de edición de datos --}}
         @if($modoEdicion)
-            <button wire:click="guardar" type="button" class="ficha-btn ficha-btn--primary">
+            <button wire:click="guardar" type="button" class="btn btn-primary btn-sm citizen-file__header-action">
                 Guardar cambios
             </button>
-            <button wire:click="cancelarEdicion" type="button" class="ficha-btn">
+            <button wire:click="cancelarEdicion" type="button" class="btn btn-outline-secondary btn-sm citizen-file__header-action">
                 Cancelar
             </button>
         @elseif($puedeEditar)
-            <button wire:click="activarEdicion" type="button" class="ficha-btn">
+            <button wire:click="activarEdicion" type="button" class="btn btn-outline-secondary btn-sm citizen-file__header-action">
                 <i data-lucide="pencil" class="icon-14" aria-hidden="true"></i>
                 Editar datos
             </button>
@@ -386,7 +384,7 @@
             <div class="citizen-file__card citizen-file__card--flush">
                 <h2 class="citizen-file__section-title citizen-file__section-title--compact">
                     <i data-lucide="home" class="icon-16" aria-hidden="true"></i>
-                    Convivientes
+                    Unidad de convivencia
                 </h2>
                 <div class="citizen-file__list">
                     @foreach($ucMiembros as $miembro)

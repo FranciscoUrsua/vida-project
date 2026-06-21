@@ -535,7 +535,7 @@ class RelacionesCiudadanoTest extends TestCase
     // -------------------------------------------------------------------------
 
     /**
-     * TF-LW-UC-01 — Panel UC muestra convivientes vigentes sin botones de edición.
+     * TF-LW-UC-01 — Panel UC muestra la unidad de convivencia vigente sin botones de edición.
      */
     #[Test]
     public function panel_uc_muestra_convivientes_sin_botones_edicion(): void
@@ -547,7 +547,7 @@ class RelacionesCiudadanoTest extends TestCase
 
         Livewire::actingAs($this->usuario)
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
-            ->assertSee('Convivientes')
+            ->assertSee('Unidad de convivencia')
             ->assertSee($conviviente->nombre_completo)
             ->assertDontSee('Añadir conviviente')
             ->assertDontSee('Eliminar miembro');
@@ -586,7 +586,7 @@ class RelacionesCiudadanoTest extends TestCase
     {
         Livewire::actingAs($this->usuario)
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
-            ->assertDontSee('Convivientes');
+            ->assertDontSee('Unidad de convivencia');
     }
 
     /**

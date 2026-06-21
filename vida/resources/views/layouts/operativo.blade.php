@@ -48,22 +48,22 @@
         {{-- Título de sección (centro) --}}
         @php
             $seccion = match(true) {
-                request()->routeIs('intervencion.agenda*')     => 'AGENDA',
-                request()->routeIs('intervencion.casos*')      => 'MIS CASOS',
-                request()->routeIs('intervencion.mensajes*')   => 'ALERTAS Y MENSAJES',
-                request()->routeIs('intervencion.buscar*')     => 'BUSCAR',
-                request()->routeIs('intervencion.valoracion*') => 'VALORACIÓN',
-                request()->routeIs('intervencion.escala*')     => 'ESCALA',
-                request()->routeIs('intervencion.ciudadano*')  => 'EXPEDIENTE',
-                request()->routeIs('ciudadania.alta*')         => 'ALTA DE CIUDADANO/A',
-                request()->routeIs('ciudadania.ciudadano*')    => 'FICHA',
+                request()->routeIs('intervencion.agenda*')     => 'Agenda',
+                request()->routeIs('intervencion.casos*')      => 'Mis casos',
+                request()->routeIs('intervencion.mensajes*')   => 'Alertas y mensajes',
+                request()->routeIs('intervencion.buscar*')     => 'Buscar',
+                request()->routeIs('intervencion.valoracion*') => 'Valoración',
+                request()->routeIs('intervencion.escala*')     => 'Escala',
+                request()->routeIs('intervencion.ciudadano*')  => 'Expediente',
+                request()->routeIs('ciudadania.alta*')         => 'Alta de ciudadano/a',
+                request()->routeIs('ciudadania.ciudadano*')    => 'Ficha del ciudadano',
                 default                                        => '',
             };
         @endphp
         <div class="topbar__section" aria-label="Sección actual">
-            <span class="topbar__section-app">INTERVENCIÓN</span>
+            <span class="topbar__section-app">Intervención</span>
             @if($seccion)
-                <span class="topbar__section-sep" aria-hidden="true">·</span>
+                <span class="topbar__section-sep" aria-hidden="true">-</span>
                 <span class="topbar__section-name">{{ $seccion }}</span>
             @endif
         </div>

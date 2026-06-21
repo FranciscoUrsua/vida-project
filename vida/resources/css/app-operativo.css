@@ -168,21 +168,21 @@ html { font-size: 18px; }
     overflow: hidden;
 }
 .topbar__section-app {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--color-ink-400);
-    letter-spacing: 0.08em;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-ink-800);
+    letter-spacing: 0;
     white-space: nowrap;
 }
 .topbar__section-sep {
-    color: var(--color-ink-300);
+    color: var(--color-ink-500);
     font-size: 13px;
 }
 .topbar__section-name {
     font-size: 13px;
     font-weight: 700;
     color: var(--color-ink-800);
-    letter-spacing: 0.04em;
+    letter-spacing: 0;
     white-space: nowrap;
 }
 
