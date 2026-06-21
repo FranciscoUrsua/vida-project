@@ -3,213 +3,178 @@
 
     $hoy = today();
 
-    /**
-     * Calcula el estado del semáforo de seguimiento.
-     * @param string|null $fecha
-     */
     $estadoSeguimiento = function (?string $fecha) use ($hoy): string {
-        if ($fecha === null) return 'sin';
+        if ($fecha === null) {
+            return 'sin';
+        }
+
         $f = Carbon::parse($fecha);
-        if ($f->lt($hoy)) return 'vencido';
-        if ($f->between($hoy, $hoy->copy()->addDays(7))) return 'proximo';
+        if ($f->lt($hoy)) {
+            return 'vencido';
+        }
+        if ($f->between($hoy, $hoy->copy()->addDays(7))) {
+            return 'proximo';
+        }
+
         return 'programado';
     };
-
-    $semaforo = [
-        'vencido'    => ['bg' => 'var(--color-danger-soft)',  'color' => 'var(--color-danger)',  'icon' => 'clock'],
-        'proximo'    => ['bg' => 'var(--color-warning-soft)', 'color' => 'var(--color-warning)', 'icon' => ''],
-        'programado' => ['bg' => 'var(--color-success-soft)', 'color' => 'var(--color-success)', 'icon' => ''],
-        'sin'        => ['bg' => 'transparent',               'color' => 'var(--color-ink-400)', 'icon' => ''],
-    ];
 
     $nombrePlan = $this->nombrePlanAsp();
 @endphp
 
-<div class="mis-casos-page">
-
-    {{-- Barra superior --}}
-    <div style="background: #fff; border-bottom: 1px solid var(--color-ink-200); padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 1rem; flex-shrink: 0;">
-        <h1 style="font-size: 1rem; font-weight: 700; margin: 0; color: var(--color-ink-900);">Mis casos</h1>
-
-        {{-- Búsqueda por nombre --}}
-        <div class="mis-casos-page__search">
-            <i data-lucide="search" style="position: absolute; left: 0.5rem; width: 13px; height: 13px; color: var(--color-ink-400); pointer-events: none;" aria-hidden="true"></i>
-            <input wire:model.live.debounce.300ms="busqueda"
-                   type="search"
-                   placeholder="Buscar por nombre…"
-                   autocomplete="off"
-                   style="padding: 0.3rem 0.5rem 0.3rem 1.75rem; border: 1px solid var(--color-ink-200); border-radius: 4px; font-size: 0.8rem; width: 200px; color: var(--color-ink-900); background: #fff; outline-offset: 2px;">
+<div class="cases-screen">
+    <section class="cases-screen__toolbar">
+        <div class="cases-screen__heading">
+            <p class="cases-screen__eyebrow">Bandeja operativa</p>
+            <h1 class="cases-screen__title">Mis casos</h1>
         </div>
 
-        {{-- Filtro seguimiento --}}
-        <select wire:model.live="filtroSeguimiento" class="mis-casos-page__filter">
-            <option value="">Todos los seguimientos</option>
-            <option value="vencido">Vencidos</option>
-            <option value="proximo">Próximos (7 días)</option>
-            <option value="programado">Programados</option>
-            <option value="sin">Sin programar</option>
-        </select>
+        <div class="cases-screen__filters">
+            <label class="cases-screen__search" aria-label="Buscar por nombre">
+                <i data-lucide="search" class="icon-14 cases-screen__search-icon" aria-hidden="true"></i>
+                <input
+                    wire:model.live.debounce.300ms="busqueda"
+                    type="search"
+                    class="form-control cases-screen__search-input"
+                    placeholder="Buscar por nombre"
+                    autocomplete="off"
+                >
+            </label>
 
-        {{-- Filtro PISO --}}
-        <select wire:model.live="filtroPiso" class="mis-casos-page__filter">
-            <option value="">Todos los {{ $nombrePlan }}</option>
-            <option value="activo">{{ $nombrePlan }} activo</option>
-            <option value="revision">{{ $nombrePlan }} en revisión</option>
-            <option value="sin">Sin {{ $nombrePlan }}</option>
-        </select>
+            <select wire:model.live="filtroSeguimiento" class="form-select cases-screen__filter">
+                <option value="">Todos los seguimientos</option>
+                <option value="vencido">Vencidos</option>
+                <option value="proximo">Proximos (7 dias)</option>
+                <option value="programado">Programados</option>
+                <option value="sin">Sin programar</option>
+            </select>
 
-        {{-- Filtro especializados --}}
-        <select wire:model.live="filtroEsp" class="mis-casos-page__filter">
-            <option value="">Con/sin especializados</option>
-            <option value="con">Con derivación</option>
-            <option value="sin">Sin derivación</option>
-        </select>
+            <select wire:model.live="filtroPiso" class="form-select cases-screen__filter">
+                <option value="">Todos los {{ $nombrePlan }}</option>
+                <option value="activo">{{ $nombrePlan }} activo</option>
+                <option value="revision">{{ $nombrePlan }} en revision</option>
+                <option value="sin">Sin {{ $nombrePlan }}</option>
+            </select>
 
-    </div>
+            <select wire:model.live="filtroEsp" class="form-select cases-screen__filter">
+                <option value="">Con/sin especializados</option>
+                <option value="con">Con derivacion</option>
+                <option value="sin">Sin derivacion</option>
+            </select>
+        </div>
+    </section>
 
-    {{-- Tabla de casos --}}
-    <div class="mis-casos-page__content">
-
-        @if($this->casos->isEmpty())
-            <div style="text-align: center; padding: 3rem; color: var(--color-ink-600); font-size: 0.875rem;">
-                No hay casos que coincidan con los filtros seleccionados.
-            </div>
-        @else
-            <table class="mis-casos-page__table">
+    <section class="cases-screen__surface">
+        <div class="cases-screen__content">
+            @if($this->casos->isEmpty())
+                <div class="cases-screen__empty">
+                    No hay casos que coincidan con los filtros seleccionados.
+                </div>
+            @else
                 @php
                     $ordenarPor = $this->ordenarPor;
-                    $direccion  = $this->direccion;
+                    $direccion = $this->direccion;
 
-                    /**
-                     * Renderiza una cabecera de columna ordenable.
-                     * @param string $campo  Clave de campo ('seg', 'inicio', 'esp')
-                     * @param string $label  Texto visible
-                     */
                     $th = function (string $campo, string $label) use ($ordenarPor, $direccion): string {
-                        $activo  = $ordenarPor === $campo;
-                        $flecha  = $activo ? ($direccion === 'asc' ? ' ↑' : ' ↓') : '';
-                        $color   = $activo ? 'var(--color-primary)' : 'var(--color-ink-600)';
-                        $decor   = $activo ? 'underline' : 'none';
-                        return '<th class="mis-casos-page__th">'
-                            . '<button wire:click="sortBy(\'' . $campo . '\')" type="button" class="mis-casos-page__sort" '
-                            . "style=\"font-weight:600;color:{$color};text-decoration:{$decor};\""
-                            . '>'
-                            . e($label) . $flecha
+                        $activo = $ordenarPor === $campo;
+                        $flecha = $activo ? ($direccion === 'asc' ? '↑' : '↓') : '';
+                        $clase = $activo ? 'cases-screen__sort cases-screen__sort--active' : 'cases-screen__sort';
+
+                        return '<th class="cases-screen__th">'
+                            . '<button wire:click="sortBy(\'' . $campo . '\')" type="button" class="' . $clase . '">'
+                            . e($label)
+                            . ($flecha ? '<span class="cases-screen__sort-arrow">' . $flecha . '</span>' : '')
                             . '</button>'
                             . '</th>';
                     };
 
-                    /** Cabecera no ordenable (sin interacción) */
                     $thStatic = fn (string $label): string =>
-                        '<th class="mis-casos-page__th mis-casos-page__th--static">'
-                        . e($label) . '</th>';
+                        '<th class="cases-screen__th cases-screen__th--static">' . e($label) . '</th>';
                 @endphp
-                <thead>
-                    <tr style="border-bottom: 2px solid var(--color-ink-200); text-align: left;">
-                        {!! $th('ciudadano', 'Ciudadano/a') !!}
-                        {!! $th('historia',  'Historia Social') !!}
-                        {!! $th('seg',       'Próximo seguimiento') !!}
-                        {!! $thStatic($nombrePlan) !!}
-                        {!! $th('esp',    'Especializados') !!}
-                        {!! $th('inicio', 'Inicio') !!}
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($this->casos as $caso)
-                        @php
-                            $estado = $estadoSeguimiento($caso->fecha_siguiente_seguimiento);
-                            $sem = $semaforo[$estado];
-                        @endphp
-                        {{-- onclick nativo: la fila navega salvo que el clic sea sobre un <a> --}}
-                        <tr style="border-bottom: 1px solid var(--color-ink-100); transition: background 0.1s; cursor: pointer;"
-                            onclick="event.target.closest('a') || (window.location.href='{{ route('intervencion.ciudadano.show', $caso->historia_id) }}')"
-                            onmouseover="this.style.background='var(--color-paper)'"
-                            onmouseout="this.style.background=''">
 
-                            {{-- Ciudadano/a: enlace a ficha del ciudadano --}}
-                            <td style="padding: 0.6rem 0.75rem; font-weight: 600; color: var(--color-ink-900);">
-                                <a href="{{ route('ciudadania.ciudadano.ficha', $caso->ciudadano_id) }}"
-                                   style="color: var(--color-ink-900); text-decoration: none;">
-                                    {{ $this->ciudadanosDelPage->get($caso->ciudadano_id)?->nombre_completo ?? 'Ciudadano #'.$caso->ciudadano_id }}
-                                </a>
-                            </td>
-
-                            {{-- Historia Social: enlace a pantalla de intervención --}}
-                            <td style="padding: 0.6rem 0.75rem; font-family: monospace; font-size: 0.8rem; color: var(--color-ink-600);">
-                                <a href="{{ route('intervencion.ciudadano.show', $caso->historia_id) }}"
-                                   style="color: var(--color-ink-600); text-decoration: none;">
-                                    HS-{{ str_pad($caso->historia_id, 6, '0', STR_PAD_LEFT) }}
-                                </a>
-                            </td>
-
-                            {{-- Semáforo seguimiento --}}
-                            <td class="mis-casos-page__cell">
-                                <span style="display: inline-flex; align-items: center; gap: 0.3rem; background: {{ $sem['bg'] }}; color: {{ $sem['color'] }}; padding: 0.2rem 0.55rem; border-radius: 99px; font-size: 0.78rem; font-weight: 600;">
-                                    @if($sem['icon'])
-                                        <i data-lucide="{{ $sem['icon'] }}" style="width:13px;height:13px;" aria-hidden="true"></i>
-                                    @endif
-                                    @if($caso->fecha_siguiente_seguimiento)
-                                        {{ Carbon::parse($caso->fecha_siguiente_seguimiento)->format('d/m/Y') }}
-                                    @else
-                                        Sin programar
-                                    @endif
-                                </span>
-                            </td>
-
-                            {{-- Estado PISO --}}
-                            <td style="padding: 0.6rem 0.75rem;">
-                                <span style="display: inline-flex; align-items: center; gap: 0.25rem; background: var(--color-success-soft); color: var(--color-success); padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600;">
-                                    Activo
-                                </span>
-                            </td>
-
-                            {{-- Planes especializados --}}
-                            <td class="mis-casos-page__cell mis-casos-page__cell--center">
-                                @if($caso->planes_esp_count > 0)
-                                    <span style="background: var(--color-primary-soft); color: var(--color-primary); padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600;">
-                                        {{ $caso->planes_esp_count }}
-                                    </span>
-                                @else
-                                    <span style="color: var(--color-ink-400); font-size: 0.78rem;">—</span>
-                                @endif
-                            </td>
-
-                            {{-- Fecha inicio --}}
-                            <td style="padding: 0.6rem 0.75rem; color: var(--color-ink-600); font-size: 0.8rem;">
-                                {{ Carbon::parse($caso->fecha_inicio)->format('d/m/Y') }}
-                            </td>
-
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            {{-- Paginación --}}
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; font-size: 0.8rem; color: var(--color-ink-600);">
-                <span>{{ $this->casos->firstItem() }}–{{ $this->casos->lastItem() }} de {{ $this->casos->total() }} casos</span>
-                <div class="mis-casos-page__pager">
-                    @if($this->casos->onFirstPage())
-                        <span style="padding: 0.25rem 0.6rem; border: 1px solid var(--color-ink-200); border-radius: 4px; color: var(--color-ink-400);">‹</span>
-                    @else
-                        <button wire:click="previousPage" style="padding: 0.25rem 0.6rem; border: 1px solid var(--color-ink-200); border-radius: 4px; background: #fff; cursor: pointer; color: var(--color-primary);">‹</button>
-                    @endif
-
-                    @foreach(range(1, $this->casos->lastPage()) as $p)
-                        <button wire:click="gotoPage({{ $p }})"
-                                style="padding: 0.25rem 0.6rem; border: 1px solid {{ $this->casos->currentPage() === $p ? 'var(--color-primary)' : 'var(--color-ink-200)' }}; border-radius: 4px; background: {{ $this->casos->currentPage() === $p ? 'var(--color-primary)' : '#fff' }}; color: {{ $this->casos->currentPage() === $p ? '#fff' : 'var(--color-ink-700)' }}; cursor: pointer; font-size: 0.78rem;">
-                            {{ $p }}
-                        </button>
-                    @endforeach
-
-                    @if($this->casos->hasMorePages())
-                        <button wire:click="nextPage" style="padding: 0.25rem 0.6rem; border: 1px solid var(--color-ink-200); border-radius: 4px; background: #fff; cursor: pointer; color: var(--color-primary);">›</button>
-                    @else
-                        <span style="padding: 0.25rem 0.6rem; border: 1px solid var(--color-ink-200); border-radius: 4px; color: var(--color-ink-400);">›</span>
-                    @endif
+                <div class="cases-screen__table-wrap">
+                    <table class="cases-screen__table">
+                        <thead>
+                            <tr class="cases-screen__head-row">
+                                {!! $th('ciudadano', 'Ciudadano/a') !!}
+                                {!! $th('historia', 'Historia Social') !!}
+                                {!! $th('seg', 'Proximo seguimiento') !!}
+                                {!! $thStatic($nombrePlan) !!}
+                                {!! $th('esp', 'Especializados') !!}
+                                {!! $th('inicio', 'Inicio') !!}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($this->casos as $caso)
+                                @php
+                                    $estado = $estadoSeguimiento($caso->fecha_siguiente_seguimiento);
+                                    $nombreCiudadano = $this->ciudadanosDelPage->get($caso->ciudadano_id)?->nombre_completo ?? 'Ciudadano #' . $caso->ciudadano_id;
+                                @endphp
+                                <tr class="cases-screen__row" onclick="event.target.closest('a') || (window.location.href='{{ route('intervencion.ciudadano.show', $caso->historia_id) }}')">
+                                    <td class="cases-screen__cell cases-screen__cell--strong">
+                                        <a href="{{ route('ciudadania.ciudadano.ficha', $caso->ciudadano_id) }}" class="cases-screen__primary-link">
+                                            {{ $nombreCiudadano }}
+                                        </a>
+                                    </td>
+                                    <td class="cases-screen__cell cases-screen__cell--mono">
+                                        <a href="{{ route('intervencion.ciudadano.show', $caso->historia_id) }}" class="cases-screen__secondary-link">
+                                            HS-{{ str_pad($caso->historia_id, 6, '0', STR_PAD_LEFT) }}
+                                        </a>
+                                    </td>
+                                    <td class="cases-screen__cell">
+                                        <span class="cases-screen__status-chip cases-screen__status-chip--{{ $estado }}">
+                                            @if($estado === 'vencido')
+                                                <i data-lucide="clock" class="icon-13" aria-hidden="true"></i>
+                                            @endif
+                                            @if($caso->fecha_siguiente_seguimiento)
+                                                {{ Carbon::parse($caso->fecha_siguiente_seguimiento)->format('d/m/Y') }}
+                                            @else
+                                                Sin programar
+                                            @endif
+                                        </span>
+                                    </td>
+                                    <td class="cases-screen__cell">
+                                        <span class="cases-screen__pill cases-screen__pill--success">Activo</span>
+                                    </td>
+                                    <td class="cases-screen__cell cases-screen__cell--center">
+                                        @if($caso->planes_esp_count > 0)
+                                            <span class="cases-screen__pill cases-screen__pill--primary">{{ $caso->planes_esp_count }}</span>
+                                        @else
+                                            <span class="cases-screen__muted">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="cases-screen__cell cases-screen__cell--date">
+                                        {{ Carbon::parse($caso->fecha_inicio)->format('d/m/Y') }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-        @endif
 
-    </div>
+                <footer class="cases-screen__footer">
+                    <span class="cases-screen__count">{{ $this->casos->firstItem() }}-{{ $this->casos->lastItem() }} de {{ $this->casos->total() }} casos</span>
+                    <div class="cases-screen__pager" aria-label="Paginacion">
+                        @if($this->casos->onFirstPage())
+                            <span class="cases-screen__pager-item cases-screen__pager-item--disabled">‹</span>
+                        @else
+                            <button wire:click="previousPage" type="button" class="cases-screen__pager-item">‹</button>
+                        @endif
 
+                        @foreach(range(1, $this->casos->lastPage()) as $p)
+                            <button wire:click="gotoPage({{ $p }})" type="button" class="cases-screen__pager-item {{ $this->casos->currentPage() === $p ? 'cases-screen__pager-item--active' : '' }}">
+                                {{ $p }}
+                            </button>
+                        @endforeach
+
+                        @if($this->casos->hasMorePages())
+                            <button wire:click="nextPage" type="button" class="cases-screen__pager-item">›</button>
+                        @else
+                            <span class="cases-screen__pager-item cases-screen__pager-item--disabled">›</span>
+                        @endif
+                    </div>
+                </footer>
+            @endif
+        </div>
+    </section>
 </div>
