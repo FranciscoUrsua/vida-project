@@ -61,11 +61,13 @@
             };
         @endphp
         <div class="topbar__section" aria-label="Sección actual">
-            <span class="topbar__section-app">Intervención</span>
-            @if($seccion)
-                <span class="topbar__section-sep" aria-hidden="true">-</span>
-                <span class="topbar__section-name">{{ $seccion }}</span>
-            @endif
+            <h1 class="topbar__title h5 mb-0 fw-semibold text-body">
+                <span>Intervención</span>
+                @if($seccion)
+                    <span class="topbar__title-sep text-body-secondary" aria-hidden="true">-</span>
+                    <span>{{ $seccion }}</span>
+                @endif
+            </h1>
         </div>
 
         {{-- Menú de usuario (derecha) --}}

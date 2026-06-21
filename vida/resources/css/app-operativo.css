@@ -163,27 +163,19 @@ html { font-size: 18px; }
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.45rem;
     padding: 0 1rem;
     overflow: hidden;
 }
-.topbar__section-app {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--color-ink-800);
-    letter-spacing: 0;
+.topbar__title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
+    max-width: 100%;
     white-space: nowrap;
 }
-.topbar__section-sep {
-    color: var(--color-ink-500);
-    font-size: 13px;
-}
-.topbar__section-name {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--color-ink-800);
-    letter-spacing: 0;
-    white-space: nowrap;
+.topbar__title-sep {
+    flex-shrink: 0;
 }
 
 /* Ajustar op-main para empujar el contenido bajo el topbar */
