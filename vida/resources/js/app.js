@@ -1,6 +1,6 @@
 import './bootstrap';
 import 'bootstrap';
-import { createIcons } from 'lucide';
+import { createIcons, icons } from 'lucide';
 
 const renderLucideIcons = () => {
     if (typeof document === 'undefined') {
@@ -8,6 +8,7 @@ const renderLucideIcons = () => {
     }
 
     createIcons({
+        icons,
         attrs: {
             'stroke-width': 1.75,
         },
