@@ -1,6 +1,6 @@
 {{-- Ficha del ciudadano — Capa 1 --}}
 {{-- Pivota sobre Ciudadano, no sobre HistoriaSocial --}}
-<div>
+<div class="citizen-file">
 @php
     $ciudadano      = $this->ciudadano;
     $historiaSocial = $this->historiaSocial;
@@ -22,33 +22,21 @@
 @endphp
 
 {{-- ===== CABECERA ===== --}}
-<div style="
-    background: var(--color-surface, #fff);
-    border-bottom: 1px solid var(--color-border, #e5e7eb);
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-">
+<div class="citizen-file__header">
     <div>
-        <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
-            <h1 style="margin:0;font-size:1.35rem;font-weight:700;color:var(--color-text-primary,#111827);">
+        <div class="citizen-file__title-row">
+            <h1 class="citizen-file__title">
                 {{ $ciudadano->nombre_completo ?: '—' }}
             </h1>
-            <span style="
-                font-size:.72rem;font-weight:600;padding:.2rem .55rem;border-radius:999px;
-                background:{{ $nivelBadge['bg'] }};color:{{ $nivelBadge['fg'] }};
-            ">{{ $nivelBadge['label'] }}</span>
+            <span class="citizen-file__badge" style="--citizen-badge-bg: {{ $nivelBadge['bg'] }}; --citizen-badge-fg: {{ $nivelBadge['fg'] }};">{{ $nivelBadge['label'] }}</span>
         </div>
-        <div style="margin-top:.35rem;font-size:.85rem;color:var(--color-text-secondary,#6b7280);display:flex;gap:1rem;flex-wrap:wrap;">
+        <div class="citizen-file__meta">
             @if($docActivo)
                 <span>
                     {{ strtoupper($docActivo->tipo) }}: {{ $docActivo->valor }}
                 </span>
             @else
-                <span style="opacity:.5;">Sin documento activo</span>
+                <span class="citizen-file__meta-item citizen-file__meta-item--muted">Sin documento activo</span>
             @endif
             @if($edad !== null)
                 <span>{{ $edad }} años</span>
@@ -57,12 +45,12 @@
         </div>
     </div>
 
-    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+    <div class="citizen-file__actions">
 
         {{-- Botones de atención e historia social --}}
         @if($this->puedeCrearAtencion)
         <button wire:click="abrirModalAtencion" type="button" class="ficha-btn">
-            <i data-lucide="message-square-plus" style="width:14px;height:14px" aria-hidden="true"></i>
+            <i data-lucide="message-square-plus" class="icon-14" aria-hidden="true"></i>
             Nueva atención
         </button>
         @endif
@@ -74,7 +62,7 @@
             type="button"
             class="ficha-btn ficha-btn--primary"
         >
-            <i data-lucide="folder-plus" style="width:14px;height:14px" aria-hidden="true"></i>
+            <i data-lucide="folder-plus" class="icon-14" aria-hidden="true"></i>
             Abrir historia social
         </button>
         @elseif($historiaSocial && $puedeVerHS)
@@ -83,28 +71,22 @@
             href="{{ route('intervencion.ciudadano.show', $historiaSocial) }}"
             class="ficha-btn ficha-btn--primary"
         >
-            <i data-lucide="folder-open" style="width:14px;height:14px" aria-hidden="true"></i>
+            <i data-lucide="folder-open" class="icon-14" aria-hidden="true"></i>
             Ver historia social
         </a>
         @endif
 
         {{-- Botones de edición de datos --}}
         @if($modoEdicion)
-            <button wire:click="guardar" type="button"
-                style="font-size:.82rem;padding:.35rem .9rem;border-radius:6px;border:none;cursor:pointer;
-                       background:var(--color-primary,#3b82f6);color:#fff;font-weight:600;">
+            <button wire:click="guardar" type="button" class="ficha-btn ficha-btn--primary">
                 Guardar cambios
             </button>
-            <button wire:click="cancelarEdicion" type="button"
-                style="font-size:.82rem;padding:.35rem .9rem;border-radius:6px;border:1px solid var(--color-border,#e5e7eb);
-                       background:#fff;cursor:pointer;color:var(--color-text-primary,#111827);">
+            <button wire:click="cancelarEdicion" type="button" class="ficha-btn">
                 Cancelar
             </button>
         @elseif($puedeEditar)
-            <button wire:click="activarEdicion" type="button"
-                style="font-size:.82rem;padding:.35rem .9rem;border-radius:6px;border:1px solid var(--color-border,#e5e7eb);
-                       background:#fff;cursor:pointer;display:flex;align-items:center;gap:.4rem;color:var(--color-text-primary,#111827);">
-                <i data-lucide="pencil" style="width:14px;height:14px;" aria-hidden="true"></i>
+            <button wire:click="activarEdicion" type="button" class="ficha-btn">
+                <i data-lucide="pencil" class="icon-14" aria-hidden="true"></i>
                 Editar datos
             </button>
         @endif
@@ -113,141 +95,141 @@
 
 {{-- ===== VALIDACIÓN ===== --}}
 @if($errors->any())
-    <div style="margin:1rem 1.5rem 0;padding:.75rem 1rem;border-radius:8px;background:#fee2e2;color:#991b1b;font-size:.85rem;">
-        <ul style="margin:0;padding-left:1.2rem;">
+    <div class="citizen-file__alert">
+        <ul class="citizen-file__alert-list">
             @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
         </ul>
     </div>
 @endif
 
 {{-- ===== CONTENIDO DOS COLUMNAS ===== --}}
-<div class="container-fluid" style="padding:1.25rem 1.5rem;">
+<div class="container-fluid citizen-file__content">
     <div class="row g-3">
 
         {{-- ===================== COLUMNA PRINCIPAL ===================== --}}
         <div class="col-lg-8">
 
             {{-- ——— Identificación y contacto ——— --}}
-            <div style="background:var(--color-surface,#fff);border:1px solid var(--color-border,#e5e7eb);border-radius:10px;padding:1.25rem;margin-bottom:1rem;">
-                <h2 style="font-size:.95rem;font-weight:600;margin:0 0 1rem;color:var(--color-text-primary,#111827);display:flex;align-items:center;gap:.5rem;">
-                    <i data-lucide="user" style="width:16px;height:16px;" aria-hidden="true"></i>
+            <div class="citizen-file__card">
+                <h2 class="citizen-file__section-title">
+                    <i data-lucide="user" class="icon-16" aria-hidden="true"></i>
                     Identificación y contacto
                 </h2>
 
                 <div class="row g-3">
                     {{-- Nombre --}}
                     <div class="col-sm-4">
-                        <label style="font-size:.78rem;color:var(--color-text-secondary,#6b7280);font-weight:500;display:block;margin-bottom:.25rem;">Nombre</label>
+                        <label class="ficha-label citizen-file__field-label">Nombre</label>
                         @if($modoEdicion)
                             <input type="text" wire:model="nombre"
-                                style="width:100%;padding:.4rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                                class="ficha-input citizen-file__input">
                         @else
-                            <span style="font-size:.9rem;color:var(--color-text-primary,#111827);">{{ $nombre ?: '—' }}</span>
+                            <span class="citizen-file__field-value">{{ $nombre ?: '—' }}</span>
                         @endif
                     </div>
                     {{-- Apellido 1 --}}
                     <div class="col-sm-4">
-                        <label style="font-size:.78rem;color:var(--color-text-secondary,#6b7280);font-weight:500;display:block;margin-bottom:.25rem;">Apellido 1</label>
+                        <label class="ficha-label citizen-file__field-label">Apellido 1</label>
                         @if($modoEdicion)
                             <input type="text" wire:model="apellido1"
-                                style="width:100%;padding:.4rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                                class="ficha-input citizen-file__input">
                         @else
-                            <span style="font-size:.9rem;color:var(--color-text-primary,#111827);">{{ $apellido1 ?: '—' }}</span>
+                            <span class="citizen-file__field-value">{{ $apellido1 ?: '—' }}</span>
                         @endif
                     </div>
                     {{-- Apellido 2 --}}
                     <div class="col-sm-4">
-                        <label style="font-size:.78rem;color:var(--color-text-secondary,#6b7280);font-weight:500;display:block;margin-bottom:.25rem;">Apellido 2</label>
+                        <label class="ficha-label citizen-file__field-label">Apellido 2</label>
                         @if($modoEdicion)
                             <input type="text" wire:model="apellido2"
-                                style="width:100%;padding:.4rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                                class="ficha-input citizen-file__input">
                         @else
-                            <span style="font-size:.9rem;color:var(--color-text-primary,#111827);">{{ $apellido2 ?: '—' }}</span>
+                            <span class="citizen-file__field-value">{{ $apellido2 ?: '—' }}</span>
                         @endif
                     </div>
                     {{-- Fecha nacimiento --}}
                     <div class="col-sm-4">
-                        <label style="font-size:.78rem;color:var(--color-text-secondary,#6b7280);font-weight:500;display:block;margin-bottom:.25rem;">Fecha de nacimiento</label>
+                        <label class="ficha-label citizen-file__field-label">Fecha de nacimiento</label>
                         @if($modoEdicion)
                             <input type="date" wire:model="fechaNacimiento"
-                                style="width:100%;padding:.4rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                                class="ficha-input citizen-file__input">
                         @else
-                            <span style="font-size:.9rem;color:var(--color-text-primary,#111827);">
+                            <span class="citizen-file__field-value">
                                 {{ $fechaNacimiento ? \Carbon\Carbon::parse($fechaNacimiento)->format('d/m/Y') : '—' }}
                             </span>
                         @endif
                     </div>
                     {{-- Sexo --}}
                     <div class="col-sm-4">
-                        <label style="font-size:.78rem;color:var(--color-text-secondary,#6b7280);font-weight:500;display:block;margin-bottom:.25rem;">Sexo</label>
+                        <label class="ficha-label citizen-file__field-label">Sexo</label>
                         @if($modoEdicion)
                             <select wire:model="sexo"
-                                style="width:100%;padding:.4rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                                class="ficha-input citizen-file__input">
                                 <option value="">— Seleccionar —</option>
                                 <option value="H">Hombre</option>
                                 <option value="M">Mujer</option>
                                 <option value="NB">No binario</option>
                             </select>
                         @else
-                            <span style="font-size:.9rem;color:var(--color-text-primary,#111827);">
+                            <span class="citizen-file__field-value">
                                 {{ match($sexo) { 'H' => 'Hombre', 'M' => 'Mujer', 'NB' => 'No binario', default => ($sexo ?: '—') } }}
                             </span>
                         @endif
                     </div>
                     {{-- Alias --}}
                     <div class="col-sm-4">
-                        <label style="font-size:.78rem;color:var(--color-text-secondary,#6b7280);font-weight:500;display:block;margin-bottom:.25rem;">Alias / apodo</label>
+                        <label class="ficha-label citizen-file__field-label">Alias / apodo</label>
                         @if($modoEdicion)
                             <input type="text" wire:model="alias"
-                                style="width:100%;padding:.4rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                                class="ficha-input citizen-file__input">
                         @else
-                            <span style="font-size:.9rem;color:var(--color-text-primary,#111827);">{{ $alias ?: '—' }}</span>
+                            <span class="citizen-file__field-value">{{ $alias ?: '—' }}</span>
                         @endif
                     </div>
                 </div>
 
                 {{-- Separador contacto --}}
-                <hr style="border:none;border-top:1px solid var(--color-border,#e5e7eb);margin:1rem 0;">
+                <hr class="citizen-file__divider">
 
                 <div class="row g-3">
                     {{-- Domicilio --}}
                     <div class="col-12">
-                        <label style="font-size:.78rem;color:var(--color-text-secondary,#6b7280);font-weight:500;display:block;margin-bottom:.25rem;">Domicilio</label>
+                        <label class="ficha-label citizen-file__field-label">Domicilio</label>
                         @if($modoEdicion)
                             <input type="text" wire:model="direccionTexto"
                                 placeholder="Texto libre — se normaliza al guardar"
-                                style="width:100%;padding:.4rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                                class="ficha-input citizen-file__input">
                         @else
-                            <span style="font-size:.9rem;color:var(--color-text-primary,#111827);">{{ $direccionTexto ?: '—' }}</span>
+                            <span class="citizen-file__field-value">{{ $direccionTexto ?: '—' }}</span>
                         @endif
                     </div>
                     {{-- Teléfono --}}
                     <div class="col-sm-6">
-                        <label style="font-size:.78rem;color:var(--color-text-secondary,#6b7280);font-weight:500;display:block;margin-bottom:.25rem;">Teléfono</label>
+                        <label class="ficha-label citizen-file__field-label">Teléfono</label>
                         @if($modoEdicion)
                             <input type="tel" wire:model="telefono"
-                                style="width:100%;padding:.4rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                                class="ficha-input citizen-file__input">
                         @else
-                            <span style="font-size:.9rem;color:var(--color-text-primary,#111827);">{{ $telefono ?: '—' }}</span>
+                            <span class="citizen-file__field-value">{{ $telefono ?: '—' }}</span>
                         @endif
                     </div>
                     {{-- Email --}}
                     <div class="col-sm-6">
-                        <label style="font-size:.78rem;color:var(--color-text-secondary,#6b7280);font-weight:500;display:block;margin-bottom:.25rem;">Email</label>
+                        <label class="ficha-label citizen-file__field-label">Email</label>
                         @if($modoEdicion)
                             <input type="email" wire:model="email"
-                                style="width:100%;padding:.4rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                                class="ficha-input citizen-file__input">
                         @else
-                            <span style="font-size:.9rem;color:var(--color-text-primary,#111827);">{{ $email ?: '—' }}</span>
+                            <span class="citizen-file__field-value">{{ $email ?: '—' }}</span>
                         @endif
                     </div>
                 </div>
 
                 {{-- Primera demanda (inmutable) --}}
                 @if($ciudadano->primera_demanda)
-                    <div style="margin-top:1rem;padding:.75rem 1rem;background:var(--color-bg-subtle,#f9fafb);border-radius:8px;border-left:3px solid var(--color-primary,#3b82f6);">
-                        <div style="font-size:.75rem;color:var(--color-text-secondary,#6b7280);margin-bottom:.25rem;">Primera demanda registrada en el alta</div>
-                        <blockquote style="margin:0;font-size:.88rem;color:var(--color-text-primary,#111827);font-style:italic;">
+                    <div class="citizen-file__note">
+                        <div class="citizen-file__note-label">Primera demanda registrada en el alta</div>
+                        <blockquote class="citizen-file__note-copy">
                             "{{ $ciudadano->primera_demanda }}"
                         </blockquote>
                     </div>
@@ -255,49 +237,46 @@
             </div>
 
             {{-- ——— Documentos de identidad ——— --}}
-            <div style="background:var(--color-surface,#fff);border:1px solid var(--color-border,#e5e7eb);border-radius:10px;padding:1.25rem;margin-bottom:1rem;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-                    <h2 style="font-size:.95rem;font-weight:600;margin:0;color:var(--color-text-primary,#111827);display:flex;align-items:center;gap:.5rem;">
-                        <i data-lucide="id-card" style="width:16px;height:16px;" aria-hidden="true"></i>
+            <div class="citizen-file__card">
+                <div class="citizen-file__section-head">
+                    <h2 class="citizen-file__section-title citizen-file__section-title--tight">
+                        <i data-lucide="id-card" class="icon-16" aria-hidden="true"></i>
                         Documentos de identidad
                     </h2>
                     @if($puedeEditar)
-                        <button wire:click="abrirModalDocumento" type="button"
-                            style="font-size:.78rem;padding:.3rem .75rem;border-radius:6px;border:1px solid var(--color-border,#e5e7eb);
-                                   background:#fff;cursor:pointer;display:flex;align-items:center;gap:.35rem;">
-                            <i data-lucide="plus" style="width:13px;height:13px;" aria-hidden="true"></i>
+                        <button wire:click="abrirModalDocumento" type="button" class="ficha-btn">
+                            <i data-lucide="plus" class="icon-13" aria-hidden="true"></i>
                             Añadir documento
                         </button>
                     @endif
                 </div>
 
                 @if($documentos->isEmpty())
-                    <p style="font-size:.85rem;color:var(--color-text-secondary,#6b7280);margin:0;">Sin documentos registrados.</p>
+                    <p class="citizen-file__empty">Sin documentos registrados.</p>
                 @else
-                    <table style="width:100%;font-size:.85rem;border-collapse:collapse;">
+                    <table class="citizen-file__table">
                         <thead>
-                            <tr style="border-bottom:1px solid var(--color-border,#e5e7eb);">
-                                <th style="text-align:left;padding:.4rem .5rem;font-weight:600;color:var(--color-text-secondary,#6b7280);font-size:.75rem;">Tipo</th>
-                                <th style="text-align:left;padding:.4rem .5rem;font-weight:600;color:var(--color-text-secondary,#6b7280);font-size:.75rem;">Valor</th>
-                                <th style="text-align:left;padding:.4rem .5rem;font-weight:600;color:var(--color-text-secondary,#6b7280);font-size:.75rem;">Inicio</th>
-                                <th style="text-align:left;padding:.4rem .5rem;font-weight:600;color:var(--color-text-secondary,#6b7280);font-size:.75rem;">Estado</th>
+                            <tr class="citizen-file__table-head">
+                                <th class="citizen-file__th">Tipo</th>
+                                <th class="citizen-file__th">Valor</th>
+                                <th class="citizen-file__th">Inicio</th>
+                                <th class="citizen-file__th">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($documentos as $doc)
                             @php
                                 $esActivo  = $doc->fecha_fin === null;
-                                $rowOpacity = $esActivo ? '1' : '.45';
                                 $estadoDoc  = $esActivo ? 'Activo' : 'Sustituido';
                                 $estadoBg   = $esActivo ? '#dcfce7' : '#f3f4f6';
                                 $estadoFg   = $esActivo ? '#166534' : '#374151';
                             @endphp
-                            <tr style="border-bottom:1px solid var(--color-border,#e5e7eb);opacity:{{ $rowOpacity }};">
-                                <td style="padding:.5rem .5rem;">{{ strtoupper($doc->tipo) }}</td>
-                                <td style="padding:.5rem .5rem;font-family:monospace;">{{ $doc->valor }}</td>
-                                <td style="padding:.5rem .5rem;">{{ $doc->fecha_inicio?->format('d/m/Y') }}</td>
-                                <td style="padding:.5rem .5rem;">
-                                    <span style="font-size:.72rem;font-weight:600;padding:.15rem .45rem;border-radius:999px;background:{{ $estadoBg }};color:{{ $estadoFg }};">
+                            <tr class="citizen-file__table-row {{ $esActivo ? '' : 'citizen-file__table-row--muted' }}">
+                                <td class="citizen-file__td">{{ strtoupper($doc->tipo) }}</td>
+                                <td class="citizen-file__td citizen-file__td--mono">{{ $doc->valor }}</td>
+                                <td class="citizen-file__td">{{ $doc->fecha_inicio?->format('d/m/Y') }}</td>
+                                <td class="citizen-file__td">
+                                    <span class="citizen-file__status-pill" style="--citizen-pill-bg: {{ $estadoBg }}; --citizen-pill-fg: {{ $estadoFg }};">
                                         {{ $estadoDoc }}
                                     </span>
                                 </td>
@@ -305,7 +284,7 @@
                             @endforeach
                         </tbody>
                     </table>
-                    <p style="margin:.75rem 0 0;font-size:.75rem;color:var(--color-text-secondary,#6b7280);">
+                    <p class="citizen-file__helper">
                         Los documentos anteriores no se eliminan — permiten localizar al ciudadano aunque haya cambiado de documento.
                     </p>
                 @endif
@@ -317,34 +296,32 @@
                 $relacionesHist     = $this->relacionesHistoricas->filter(fn($r) => $r->fecha_fin !== null);
                 $puedeEditarRel     = $this->puedeEditarRelaciones;
             @endphp
-            <div style="background:var(--color-surface,#fff);border:1px solid var(--color-border,#e5e7eb);border-radius:10px;padding:1.25rem;margin-bottom:1rem;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-                    <h2 style="font-size:.95rem;font-weight:600;margin:0;color:var(--color-text-primary,#111827);display:flex;align-items:center;gap:.5rem;">
-                        <i data-lucide="users" style="width:16px;height:16px;" aria-hidden="true"></i>
+            <div class="citizen-file__card">
+                <div class="citizen-file__section-head">
+                    <h2 class="citizen-file__section-title citizen-file__section-title--tight">
+                        <i data-lucide="users" class="icon-16" aria-hidden="true"></i>
                         Relaciones
                     </h2>
                     @if($puedeEditarRel)
-                        <button wire:click="abrirModalNuevaRelacion" type="button"
-                            style="font-size:.78rem;padding:.3rem .75rem;border-radius:6px;border:1px solid var(--color-border,#e5e7eb);
-                                   background:#fff;cursor:pointer;display:flex;align-items:center;gap:.35rem;">
-                            <i data-lucide="plus" style="width:13px;height:13px;" aria-hidden="true"></i>
+                        <button wire:click="abrirModalNuevaRelacion" type="button" class="ficha-btn">
+                            <i data-lucide="plus" class="icon-13" aria-hidden="true"></i>
                             Añadir relación
                         </button>
                     @endif
                 </div>
 
                 @if($relacionMensaje)
-                    <div style="margin-bottom:.75rem;padding:.5rem .75rem;background:#dcfce7;color:#166534;font-size:.82rem;border-radius:6px;">
+                    <div class="citizen-file__flash">
                         {{ $relacionMensaje }}
                     </div>
                 @endif
 
                 @if($relacionesActivas->isEmpty())
-                    <p style="font-size:.85rem;color:var(--color-text-secondary,#6b7280);margin:0;">
+                    <p class="citizen-file__empty">
                         Sin relaciones registradas.
                     </p>
                 @else
-                    <div style="display:flex;flex-direction:column;gap:.25rem;">
+                    <div class="citizen-file__list">
                         @foreach($relacionesActivas as $rel)
                         @php
                             $etiquetaTipo = $rel->tipoRelacion?->etiqueta ?? $rel->tipo_relacion;
@@ -353,24 +330,21 @@
                                 ? route('ciudadania.ciudadano.ficha', $rel->ciudadano_relacionado_id)
                                 : null;
                         @endphp
-                        <div style="display:flex;align-items:center;gap:.75rem;padding:.45rem .5rem;border-radius:6px;
-                                    {{ $puedeEditarRel ? 'cursor:pointer;' : '' }}background:transparent;"
-                             {{ $puedeEditarRel ? "wire:click=\"abrirModalEditarRelacion({$rel->id})\"" : '' }}>
-                            <span style="font-size:.72rem;font-weight:600;padding:.15rem .45rem;border-radius:999px;
-                                         background:#f3f4f6;color:#374151;white-space:nowrap;">
+                        <div class="citizen-file__list-row {{ $puedeEditarRel ? 'citizen-file__list-row--clickable' : '' }}" {{ $puedeEditarRel ? "wire:click=\"abrirModalEditarRelacion({$rel->id})\"" : '' }}>
+                            <span class="citizen-file__list-chip">
                                 {{ $etiquetaTipo }}
                             </span>
                             @if($fichaUrl)
                                 <a wire:navigate href="{{ $fichaUrl }}"
-                                   style="font-size:.88rem;color:var(--color-primary,#3b82f6);text-decoration:none;flex:1;"
+                                   class="citizen-file__list-link"
                                    wire:click.stop>
                                     {{ $nombreRel }}
                                 </a>
                             @else
-                                <span style="font-size:.88rem;flex:1;">{{ $nombreRel }}</span>
+                                <span class="citizen-file__list-name">{{ $nombreRel }}</span>
                             @endif
                             @if($puedeEditarRel)
-                                <i data-lucide="chevron-right" style="width:14px;height:14px;color:var(--color-text-secondary,#6b7280);" aria-hidden="true"></i>
+                                <i data-lucide="chevron-right" class="icon-14 citizen-file__list-chevron" aria-hidden="true"></i>
                             @endif
                         </div>
                         @endforeach
@@ -378,25 +352,24 @@
                 @endif
 
                 @if($relacionesHist->isNotEmpty())
-                    <div style="margin-top:.75rem;">
+                    <div class="citizen-file__history">
                         <button wire:click="toggleHistorialRelaciones" type="button"
-                            style="font-size:.78rem;color:var(--color-text-secondary,#6b7280);background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;gap:.3rem;">
-                            <i data-lucide="{{ $mostrarHistorialRelaciones ? 'chevron-up' : 'chevron-down' }}" style="width:13px;height:13px;" aria-hidden="true"></i>
+                            class="citizen-file__history-toggle">
+                            <i data-lucide="{{ $mostrarHistorialRelaciones ? 'chevron-up' : 'chevron-down' }}" class="icon-13" aria-hidden="true"></i>
                             {{ $mostrarHistorialRelaciones ? 'Ocultar historial' : "Ver historial ({$relacionesHist->count()})" }}
                         </button>
                         @if($mostrarHistorialRelaciones)
-                            <div style="margin-top:.5rem;display:flex;flex-direction:column;gap:.2rem;opacity:.6;">
+                            <div class="citizen-file__history-list">
                                 @foreach($relacionesHist as $rel)
                                 @php
                                     $etiquetaTipo = $rel->tipoRelacion?->etiqueta ?? $rel->tipo_relacion;
                                 @endphp
-                                <div style="display:flex;align-items:center;gap:.75rem;padding:.35rem .5rem;font-size:.82rem;">
-                                    <span style="font-size:.7rem;font-weight:600;padding:.1rem .4rem;border-radius:999px;
-                                                 background:#f3f4f6;color:#6b7280;white-space:nowrap;">
+                                <div class="citizen-file__history-row">
+                                    <span class="citizen-file__history-chip">
                                         {{ $etiquetaTipo }}
                                     </span>
-                                    <span style="flex:1;">{{ $rel->ciudadanoRelacionado?->nombre_completo ?? '—' }}</span>
-                                    <span style="font-size:.72rem;color:#9ca3af;">
+                                    <span class="citizen-file__history-name">{{ $rel->ciudadanoRelacionado?->nombre_completo ?? '—' }}</span>
+                                    <span class="citizen-file__history-date">
                                         hasta {{ $rel->fecha_fin?->format('d/m/Y') }}
                                     </span>
                                 </div>
@@ -410,12 +383,12 @@
             {{-- ——— Unidad de convivencia (solo lectura) ——— --}}
             @php $ucMiembros = $this->ucMiembros; @endphp
             @if($ucMiembros->isNotEmpty())
-            <div style="background:var(--color-surface,#fff);border:1px solid var(--color-border,#e5e7eb);border-radius:10px;padding:1.25rem;">
-                <h2 style="font-size:.95rem;font-weight:600;margin:0 0 .75rem;color:var(--color-text-primary,#111827);display:flex;align-items:center;gap:.5rem;">
-                    <i data-lucide="home" style="width:16px;height:16px;" aria-hidden="true"></i>
+            <div class="citizen-file__card citizen-file__card--flush">
+                <h2 class="citizen-file__section-title citizen-file__section-title--compact">
+                    <i data-lucide="home" class="icon-16" aria-hidden="true"></i>
                     Convivientes
                 </h2>
-                <div style="display:flex;flex-direction:column;gap:.25rem;">
+                <div class="citizen-file__list">
                     @foreach($ucMiembros as $miembro)
                     @php
                         $nombreMiembro = $miembro->ciudadano?->nombre_completo ?? '—';
@@ -423,20 +396,19 @@
                             ? route('ciudadania.ciudadano.ficha', $miembro->ciudadano_id)
                             : null;
                     @endphp
-                    <div style="display:flex;align-items:center;gap:.75rem;padding:.35rem .5rem;font-size:.88rem;">
+                    <div class="citizen-file__list-row citizen-file__list-row--plain">
                         @if($miembro->tipo_relacion_etiqueta)
-                            <span style="font-size:.72rem;font-weight:600;padding:.1rem .4rem;border-radius:999px;
-                                         background:#f3f4f6;color:#374151;white-space:nowrap;">
+                            <span class="citizen-file__list-chip">
                                 {{ $miembro->tipo_relacion_etiqueta }}
                             </span>
                         @endif
                         @if($fichaUrl)
                             <a wire:navigate href="{{ $fichaUrl }}"
-                               style="color:var(--color-primary,#3b82f6);text-decoration:none;flex:1;">
+                               class="citizen-file__list-link">
                                 {{ $nombreMiembro }}
                             </a>
                         @else
-                            <span style="flex:1;">{{ $nombreMiembro }}</span>
+                            <span class="citizen-file__list-name">{{ $nombreMiembro }}</span>
                         @endif
                     </div>
                     @endforeach
@@ -444,12 +416,56 @@
             </div>
             @endif
 
+        </div>{{-- /col-lg-8 --}}
+
+        {{-- ===================== COLUMNA LATERAL ===================== --}}
+        <div class="col-lg-4">
+
+            {{-- ——— Otras prestaciones ——— --}}
+            @if($prestaciones->isNotEmpty())
+                <div class="citizen-file__card">
+                    <h2 class="citizen-file__section-title citizen-file__section-title--compact">
+                        <i data-lucide="layers" class="icon-16" aria-hidden="true"></i>
+                        Otras prestaciones
+                    </h2>
+                    <div class="citizen-file__stack">
+                        @foreach($prestaciones as $pres)
+                        @php
+                            [$bg, $fg] = match($pres->estado) {
+                                'activo'     => ['#dcfce7', '#166534'],
+                                'en_tramite' => ['#fef3c7', '#92400e'],
+                                'finalizado' => ['#f3f4f6', '#374151'],
+                                default      => ['#fee2e2', '#991b1b'],
+                            };
+                            $estadoLabel = match($pres->estado) {
+                                'activo'     => 'Activo',
+                                'en_tramite' => 'En trámite',
+                                'finalizado' => 'Finalizado',
+                                'denegado'   => 'Denegado',
+                                'baja'       => 'Baja',
+                                default      => $pres->estado,
+                            };
+                        @endphp
+                        <div class="citizen-file__stack-row">
+                            <div>
+                                <div class="citizen-file__stack-title">{{ $pres->descripcion }}</div>
+                                <div class="citizen-file__stack-meta">{{ $pres->fecha_inicio?->format('d/m/Y') }}</div>
+                            </div>
+                            <span class="citizen-file__status-pill" style="--citizen-pill-bg: {{ $bg }}; --citizen-pill-fg: {{ $fg }};">
+                                {{ $estadoLabel }}
+                            </span>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             {{-- ——— Historial de atenciones ——— --}}
             @if($this->historialAtenciones->isNotEmpty() || $this->puedeCrearAtencion)
-            <div class="ficha-section" id="ficha-atencion-historial" style="margin-bottom:1rem;">
+            <div class="ficha-section citizen-file__timeline" id="ficha-atencion-historial">
                 <div class="ficha-section-header">
                     <div class="ficha-section-title">
-                        <i data-lucide="history" style="width:14px;height:14px" aria-hidden="true"></i>
+                        <i data-lucide="history" class="icon-14" aria-hidden="true"></i>
                         Historial de atenciones
                         <span class="ficha-count">{{ $this->historialAtenciones->count() }}</span>
                     </div>
@@ -486,7 +502,7 @@
                         type="button"
                     >
                         <span x-text="expandido ? 'Ocultar' : 'Ver detalle'"></span>
-                        <i data-lucide="chevron-down" style="width:12px;height:12px"
+                        <i data-lucide="chevron-down" class="icon-12"
                            :style="expandido ? 'transform:rotate(180deg)' : ''"
                            aria-hidden="true"></i>
                     </button>
@@ -512,132 +528,6 @@
             </div>
             @endif
 
-        </div>{{-- /col-lg-8 --}}
-
-        {{-- ===================== COLUMNA LATERAL ===================== --}}
-        <div class="col-lg-4">
-
-            {{-- ——— Banner historia social ——— --}}
-            @if($historiaSocial)
-                <div style="background:var(--color-surface,#fff);border:1px solid var(--color-border,#e5e7eb);border-radius:10px;padding:1.25rem;margin-bottom:1rem;border-left:4px solid var(--color-primary,#3b82f6);">
-                    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem;">
-                        <i data-lucide="file-text" style="width:16px;height:16px;color:var(--color-primary,#3b82f6);" aria-hidden="true"></i>
-                        <span style="font-size:.85rem;font-weight:600;color:var(--color-primary,#3b82f6);">Historia social activa</span>
-                    </div>
-                    <p style="font-size:.8rem;color:var(--color-text-secondary,#6b7280);margin:0 0 .75rem;">
-                        Esta persona tiene historia social registrada en el sistema.
-                    </p>
-                    @if($puedeVerHS)
-                        <a wire:navigate href="{{ route('intervencion.ciudadano.show', $historiaSocial) }}"
-                            style="font-size:.8rem;font-weight:600;color:var(--color-primary,#3b82f6);text-decoration:none;">
-                            Ir a HS →
-                        </a>
-                    @else
-                        <span style="font-size:.8rem;font-weight:600;opacity:.4;cursor:default;"
-                              title="Requiere rol de intervención">
-                            Ir a HS →
-                        </span>
-                    @endif
-                </div>
-            @endif
-
-            {{-- ——— Otras prestaciones ——— --}}
-            @if($prestaciones->isNotEmpty())
-                <div style="background:var(--color-surface,#fff);border:1px solid var(--color-border,#e5e7eb);border-radius:10px;padding:1.25rem;margin-bottom:1rem;">
-                    <h2 style="font-size:.9rem;font-weight:600;margin:0 0 .75rem;color:var(--color-text-primary,#111827);display:flex;align-items:center;gap:.5rem;">
-                        <i data-lucide="layers" style="width:16px;height:16px;" aria-hidden="true"></i>
-                        Otras prestaciones
-                    </h2>
-                    <div style="display:flex;flex-direction:column;gap:.5rem;">
-                        @foreach($prestaciones as $pres)
-                        @php
-                            [$bg, $fg] = match($pres->estado) {
-                                'activo'     => ['#dcfce7', '#166534'],
-                                'en_tramite' => ['#fef3c7', '#92400e'],
-                                'finalizado' => ['#f3f4f6', '#374151'],
-                                default      => ['#fee2e2', '#991b1b'],
-                            };
-                            $estadoLabel = match($pres->estado) {
-                                'activo'     => 'Activo',
-                                'en_tramite' => 'En trámite',
-                                'finalizado' => 'Finalizado',
-                                'denegado'   => 'Denegado',
-                                'baja'       => 'Baja',
-                                default      => $pres->estado,
-                            };
-                        @endphp
-                        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;padding:.5rem 0;border-bottom:1px solid var(--color-border,#e5e7eb);">
-                            <div>
-                                <div style="font-size:.83rem;font-weight:500;color:var(--color-text-primary,#111827);">{{ $pres->descripcion }}</div>
-                                <div style="font-size:.72rem;color:var(--color-text-secondary,#6b7280);">{{ $pres->fecha_inicio?->format('d/m/Y') }}</div>
-                            </div>
-                            <span style="font-size:.7rem;font-weight:600;padding:.15rem .4rem;border-radius:999px;white-space:nowrap;background:{{ $bg }};color:{{ $fg }};">
-                                {{ $estadoLabel }}
-                            </span>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-            {{-- ——— Accesos recientes al expediente ——— --}}
-            @if($this->puedeVerAccesos && $actividadRec->isNotEmpty())
-                @php
-                    $uoExpediente = $historiaSocial?->unidad_organizativa_id;
-                @endphp
-                <div style="background:var(--color-surface,#fff);border:1px solid var(--color-border,#e5e7eb);border-radius:10px;padding:1.25rem;margin-bottom:1rem;">
-                    <div class="accesos-panel__header">
-                        <span style="font-size:.9rem;font-weight:600;color:var(--color-text-primary,#111827);display:flex;align-items:center;gap:.5rem;">
-                            <i data-lucide="shield-check" style="width:16px;height:16px;" aria-hidden="true"></i>
-                            Accesos recientes al expediente
-                        </span>
-                        @if($this->puedeVerTodosLosAccesos)
-                            {{-- TODO: modal historial completo --}}
-                            <a href="#" class="accesos-panel__ver-todo">Ver todo</a>
-                        @endif
-                    </div>
-
-                    @foreach($actividadRec as $acceso)
-                        @php
-                            $esPropio     = $acceso->user_id === auth()->id();
-                            $uoAcceso     = $acceso->contexto['unidad_organizativa_id'] ?? null;
-                            // Aproximación con la UO actual si no se registró en contexto
-                            $uoAcceso     = $uoAcceso ?? $acceso->user?->profesional?->unidad_organizativa_id;
-                            $esOtraUo     = $uoExpediente !== null && $uoAcceso !== null && $uoAcceso !== $uoExpediente;
-                            $esCambio     = in_array($acceso->accion?->value, ['crear', 'editar', 'eliminar']);
-                            $esAnomalos   = $esOtraUo && $esCambio;
-                            $esSospechoso = $esOtraUo && ! $esCambio;
-                        @endphp
-
-                        <div class="acceso-fila
-                            {{ $esPropio     ? 'acceso-fila--propio'      : '' }}
-                            {{ $esAnomalos   ? 'acceso-fila--anomalo'     : '' }}
-                            {{ $esSospechoso ? 'acceso-fila--sospechoso'  : '' }}">
-
-                            <div class="acceso-fila__quien">
-                                <span class="acceso-fila__nombre">
-                                    {{ $acceso->user?->profesional?->nombre_completo ?? $acceso->user?->name ?? '—' }}
-                                </span>
-                                @if($esOtraUo)
-                                    <span class="acceso-fila__badge-uo" title="Profesional de otra UO">Otra UO</span>
-                                @endif
-                            </div>
-
-                            <div class="acceso-fila__detalle">
-                                <span class="acceso-fila__accion acceso-fila__accion--{{ $acceso->accion?->value }}">
-                                    {{ $acceso->accion?->etiqueta() ?? '—' }}
-                                </span>
-                                @if($esAnomalos)
-                                    <span class="acceso-fila__alerta" title="Modificación desde otra UO — revisar">
-                                        <i data-lucide="alert-triangle" style="width:14px;height:14px;" aria-hidden="true"></i>
-                                    </span>
-                                @endif
-                                <span class="acceso-fila__fecha">{{ $acceso->created_at->diffForHumans() }}</span>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
 
         </div>{{-- /col-lg-4 --}}
 
@@ -646,62 +536,60 @@
 
 {{-- ===== MODAL RELACIÓN ===== --}}
 @if($modalRelacionAbierto)
-    <div style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:center;justify-content:center;"
+    <div class="citizen-file__modal-overlay"
          wire:click.self="cerrarModalRelacion">
-        <div style="background:#fff;border-radius:12px;padding:1.5rem;width:100%;max-width:480px;box-shadow:0 20px 40px rgba(0,0,0,.15);">
+        <div class="citizen-file__modal-dialog">
 
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
-                <h3 style="margin:0;font-size:1rem;font-weight:700;">
+            <div class="citizen-file__modal-header">
+                <h3 class="citizen-file__modal-title">
                     {{ $relacionId ? 'Editar relación' : 'Nueva relación' }}
                 </h3>
                 <button wire:click="cerrarModalRelacion" type="button"
-                    style="border:none;background:none;cursor:pointer;padding:.25rem;color:var(--color-text-secondary,#6b7280);">
-                    <i data-lucide="x" style="width:18px;height:18px;" aria-hidden="true"></i>
+                    class="citizen-file__modal-close">
+                    <i data-lucide="x" class="icon-18" aria-hidden="true"></i>
                 </button>
             </div>
 
             {{-- Tipo de relación (solo en creación) --}}
             @if(! $relacionId)
-            <div style="margin-bottom:.85rem;">
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.3rem;">
-                    Tipo de relación <span style="color:#ef4444;">*</span>
+            <div class="citizen-file__modal-field">
+                <label class="citizen-file__modal-label">
+                    Tipo de relación <span class="citizen-file__required">*</span>
                 </label>
                 <select wire:model="relacionTipo"
-                    style="width:100%;padding:.45rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                    class="ficha-input citizen-file__input">
                     <option value="">— Seleccionar —</option>
                     @foreach($this->tiposRelacion as $slug => $etiqueta)
                         <option value="{{ $slug }}">{{ $etiqueta }}</option>
                     @endforeach
                 </select>
                 @error('relacionTipo')
-                    <span style="font-size:.75rem;color:#ef4444;">{{ $message }}</span>
+                    <span class="ficha-error">{{ $message }}</span>
                 @enderror
             </div>
 
             {{-- Buscador ciudadano (solo en creación) --}}
-            <div style="margin-bottom:.85rem;position:relative;">
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.3rem;">
-                    Ciudadano <span style="color:#ef4444;">*</span>
+            <div class="citizen-file__modal-field citizen-file__modal-field--search">
+                <label class="citizen-file__modal-label">
+                    Ciudadano <span class="citizen-file__required">*</span>
                 </label>
                 @if($this->ciudadanoSeleccionadoRelacion)
-                    <div style="display:flex;align-items:center;gap:.5rem;padding:.45rem .6rem;border:1px solid var(--color-primary,#3b82f6);border-radius:6px;background:#eff6ff;">
-                        <span style="font-size:.88rem;flex:1;">{{ $this->ciudadanoSeleccionadoRelacion->nombre_completo }}</span>
+                    <div class="citizen-file__selected">
+                        <span class="citizen-file__selected-name">{{ $this->ciudadanoSeleccionadoRelacion->nombre_completo }}</span>
                         <button type="button" wire:click="$set('relacionCiudadanoSeleccionado', null)"
-                            style="border:none;background:none;cursor:pointer;color:#6b7280;padding:0;">
-                            <i data-lucide="x" style="width:14px;height:14px;" aria-hidden="true"></i>
+                            class="citizen-file__clear-btn">
+                            <i data-lucide="x" class="icon-14" aria-hidden="true"></i>
                         </button>
                     </div>
                 @else
                     <input type="text" wire:model.live="relacionBusqueda"
                         placeholder="Escribir nombre (mín. 2 caracteres)…"
-                        style="width:100%;padding:.45rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                        class="ficha-input citizen-file__input">
                     @if($this->relacionResultadosBusqueda->isNotEmpty())
-                        <div style="position:absolute;left:0;right:0;background:#fff;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;
-                                    box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:10;max-height:220px;overflow-y:auto;margin-top:2px;">
+                        <div class="citizen-file__search-results">
                             @foreach($this->relacionResultadosBusqueda as $sug)
                                 <button type="button" wire:click="seleccionarCiudadanoRelacion({{ $sug->id }})"
-                                    style="width:100%;text-align:left;padding:.55rem .75rem;border:none;background:none;cursor:pointer;font-size:.85rem;
-                                           border-bottom:1px solid var(--color-border,#e5e7eb);">
+                                    class="citizen-file__search-result">
                                     {{ $sug->nombre_completo }}
                                 </button>
                             @endforeach
@@ -709,50 +597,50 @@
                     @endif
                 @endif
                 @error('relacionCiudadanoSeleccionado')
-                    <span style="font-size:.75rem;color:#ef4444;">{{ $message }}</span>
+                    <span class="ficha-error">{{ $message }}</span>
                 @enderror
             </div>
 
             {{-- Fecha inicio (solo en creación) --}}
-            <div style="margin-bottom:.85rem;">
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.3rem;">
-                    Fecha de inicio <span style="color:#ef4444;">*</span>
+            <div class="citizen-file__modal-field">
+                <label class="citizen-file__modal-label">
+                    Fecha de inicio <span class="citizen-file__required">*</span>
                 </label>
                 <input type="date" wire:model="relacionFechaInicio"
-                    style="width:100%;padding:.45rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                    class="ficha-input citizen-file__input">
                 @error('relacionFechaInicio')
-                    <span style="font-size:.75rem;color:#ef4444;">{{ $message }}</span>
+                    <span class="ficha-error">{{ $message }}</span>
                 @enderror
             </div>
             @endif
 
             {{-- Observaciones (creación y edición) --}}
-            <div style="margin-bottom:1.25rem;">
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.3rem;">Observaciones</label>
+            <div class="citizen-file__modal-field citizen-file__modal-field--last">
+                <label class="citizen-file__modal-label">Observaciones</label>
                 <textarea wire:model="relacionObservaciones" rows="3" placeholder="Opcional…"
-                    style="width:100%;padding:.45rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;resize:vertical;"></textarea>
+                    class="ficha-textarea citizen-file__input citizen-file__textarea"></textarea>
                 @error('relacionObservaciones')
-                    <span style="font-size:.75rem;color:#ef4444;">{{ $message }}</span>
+                    <span class="ficha-error">{{ $message }}</span>
                 @enderror
             </div>
 
-            <div style="display:flex;gap:.5rem;justify-content:space-between;align-items:center;">
+            <div class="citizen-file__modal-footer citizen-file__modal-footer--split">
                 <div>
                     @if($relacionId)
                         <button wire:click="cerrarRelacion({{ $relacionId }})" type="button"
                             wire:confirm="¿Confirmar el cierre de esta relación? Se establecerá fecha de fin hoy."
-                            style="padding:.45rem 1rem;border-radius:6px;border:1px solid #fca5a5;background:#fff;font-size:.82rem;cursor:pointer;color:#dc2626;">
+                            class="citizen-file__danger-btn">
                             Cerrar relación
                         </button>
                     @endif
                 </div>
-                <div style="display:flex;gap:.5rem;">
+                <div class="citizen-file__modal-actions">
                     <button wire:click="cerrarModalRelacion" type="button"
-                        style="padding:.45rem 1rem;border-radius:6px;border:1px solid var(--color-border,#e5e7eb);background:#fff;font-size:.85rem;cursor:pointer;">
+                        class="ficha-btn">
                         Cancelar
                     </button>
                     <button wire:click="guardarRelacion" type="button"
-                        style="padding:.45rem 1rem;border-radius:6px;border:none;background:var(--color-primary,#3b82f6);color:#fff;font-size:.85rem;font-weight:600;cursor:pointer;">
+                        class="ficha-btn ficha-btn--primary">
                         Guardar
                     </button>
                 </div>
@@ -763,43 +651,43 @@
 
 {{-- ===== MODAL NUEVO DOCUMENTO ===== --}}
 @if($modalDocumento)
-    <div style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;" wire:click.self="cerrarModalDocumento">
-        <div style="background:#fff;border-radius:12px;padding:1.5rem;width:100%;max-width:420px;box-shadow:0 20px 40px rgba(0,0,0,.15);">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
-                <h3 style="margin:0;font-size:1rem;font-weight:700;">Añadir documento de identidad</h3>
+    <div class="citizen-file__modal-overlay citizen-file__modal-overlay--front" wire:click.self="cerrarModalDocumento">
+        <div class="citizen-file__modal-dialog citizen-file__modal-dialog--sm">
+            <div class="citizen-file__modal-header">
+                <h3 class="citizen-file__modal-title">Añadir documento de identidad</h3>
                 <button wire:click="cerrarModalDocumento" type="button"
-                    style="border:none;background:none;cursor:pointer;padding:.25rem;color:var(--color-text-secondary,#6b7280);">
-                    <i data-lucide="x" style="width:18px;height:18px;" aria-hidden="true"></i>
+                    class="citizen-file__modal-close">
+                    <i data-lucide="x" class="icon-18" aria-hidden="true"></i>
                 </button>
             </div>
-            <p style="font-size:.8rem;color:var(--color-text-secondary,#6b7280);margin:0 0 1rem;">
+            <p class="citizen-file__modal-copy">
                 El documento actual recibirá fecha de fin. El historial se conserva íntegro.
             </p>
 
-            <div style="margin-bottom:.85rem;">
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.3rem;">Tipo de documento</label>
+            <div class="citizen-file__modal-field">
+                <label class="citizen-file__modal-label">Tipo de documento</label>
                 <select wire:model="nuevoTipoDocumento"
-                    style="width:100%;padding:.45rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                    class="ficha-input citizen-file__input">
                     <option value="nif">DNI / NIF</option>
                     <option value="nie">NIE</option>
                     <option value="pasaporte">Pasaporte</option>
                 </select>
             </div>
-            <div style="margin-bottom:1.25rem;">
-                <label style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.3rem;">Número de documento</label>
+            <div class="citizen-file__modal-field citizen-file__modal-field--last">
+                <label class="citizen-file__modal-label">Número de documento</label>
                 <input type="text" wire:model="nuevoValorDocumento" placeholder="Ej.: 12345678A"
-                    style="width:100%;padding:.45rem .6rem;border:1px solid var(--color-border,#e5e7eb);border-radius:6px;font-size:.88rem;">
+                    class="ficha-input citizen-file__input">
                 @error('nuevoValorDocumento')
-                    <span style="font-size:.75rem;color:#ef4444;">{{ $message }}</span>
+                    <span class="ficha-error">{{ $message }}</span>
                 @enderror
             </div>
-            <div style="display:flex;gap:.5rem;justify-content:flex-end;">
+            <div class="citizen-file__modal-actions citizen-file__modal-actions--end">
                 <button wire:click="cerrarModalDocumento" type="button"
-                    style="padding:.45rem 1rem;border-radius:6px;border:1px solid var(--color-border,#e5e7eb);background:#fff;font-size:.85rem;cursor:pointer;">
+                    class="ficha-btn">
                     Cancelar
                 </button>
                 <button wire:click="guardarDocumento" type="button"
-                    style="padding:.45rem 1rem;border-radius:6px;border:none;background:var(--color-primary,#3b82f6);color:#fff;font-size:.85rem;font-weight:600;cursor:pointer;">
+                    class="ficha-btn ficha-btn--primary">
                     Guardar documento
                 </button>
             </div>
@@ -821,7 +709,7 @@
         <div class="ficha-modal-header">
             <h2 id="modal-atencion-titulo" class="ficha-modal-titulo">Nueva atención</h2>
             <button wire:click="cerrarModalAtencion" aria-label="Cerrar" class="ficha-modal-cerrar" type="button">
-                <i data-lucide="x" style="width:16px;height:16px" aria-hidden="true"></i>
+                <i data-lucide="x" class="icon-16" aria-hidden="true"></i>
             </button>
         </div>
 
@@ -883,7 +771,7 @@
         <div class="ficha-modal-footer">
             <button wire:click="cerrarModalAtencion" class="ficha-btn" type="button">Cancelar</button>
             <button wire:click="guardarAtencion" class="ficha-btn ficha-btn--primary" type="button">
-                <i data-lucide="check" style="width:13px;height:13px" aria-hidden="true"></i>
+                <i data-lucide="check" class="icon-13" aria-hidden="true"></i>
                 Guardar atención
             </button>
         </div>
