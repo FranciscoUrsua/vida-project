@@ -696,85 +696,88 @@
 {{-- ===== MODAL NUEVA ATENCIÓN ===== --}}
 @if($this->modalAtencionAbierto)
 <div
-    class="ficha-modal-overlay"
+    class="modal fade show d-block"
+    wire:click.self="cerrarModalAtencion"
     x-data
     x-on:keydown.escape.window="$wire.cerrarModalAtencion()"
     role="dialog"
     aria-modal="true"
     aria-labelledby="modal-atencion-titulo"
+    tabindex="-1"
 >
-    <div class="ficha-modal">
-        <div class="ficha-modal-header">
-            <h2 id="modal-atencion-titulo" class="ficha-modal-titulo">Nueva atención</h2>
-            <button wire:click="cerrarModalAtencion" aria-label="Cerrar" class="btn btn-link p-0 text-secondary text-decoration-none" type="button">
-                <i data-lucide="x" class="icon-16" aria-hidden="true"></i>
-            </button>
-        </div>
-
-        <div class="ficha-modal-body">
-
-            <div class="ficha-field">
-                <label class="ficha-label" for="at-fecha">Fecha</label>
-                <input
-                    type="date"
-                    id="at-fecha"
-                    wire:model="atencionFecha"
-                    class="ficha-input"
-                    max="{{ now()->toDateString() }}"
-                >
-                @error('atencionFecha') <span class="ficha-error">{{ $message }}</span> @enderror
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h2 id="modal-atencion-titulo" class="modal-title fs-6">Nueva atención</h2>
+                <button wire:click="cerrarModalAtencion" aria-label="Cerrar" class="btn-close" type="button"></button>
             </div>
 
-            @if(! auth()->user()->hasRole('consulta_basica'))
-            <div class="ficha-field">
-                <label class="ficha-label">Tipo de atención</label>
-                <div class="ficha-radio-group">
-                    <label class="ficha-radio">
-                        <input type="radio" wire:model="atencionTipo" value="informacion">
-                        Información / orientación
-                    </label>
-                    <label class="ficha-radio">
-                        <input type="radio" wire:model="atencionTipo" value="contacto">
-                        Contacto (llamada, email…)
-                    </label>
+            <div class="modal-body d-flex flex-column gap-3">
+
+                <div class="ficha-field">
+                    <label class="ficha-label" for="at-fecha">Fecha</label>
+                    <input
+                        type="date"
+                        id="at-fecha"
+                        wire:model="atencionFecha"
+                        class="ficha-input"
+                        max="{{ now()->toDateString() }}"
+                    >
+                    @error('atencionFecha') <span class="ficha-error">{{ $message }}</span> @enderror
                 </div>
+
+                @if(! auth()->user()->hasRole('consulta_basica'))
+                <div class="ficha-field">
+                    <label class="ficha-label">Tipo de atención</label>
+                    <div class="ficha-radio-group">
+                        <label class="ficha-radio">
+                            <input type="radio" wire:model="atencionTipo" value="informacion">
+                            Información / orientación
+                        </label>
+                        <label class="ficha-radio">
+                            <input type="radio" wire:model="atencionTipo" value="contacto">
+                            Contacto (llamada, email…)
+                        </label>
+                    </div>
+                </div>
+                @endif
+
+                <div class="ficha-field">
+                    <label class="ficha-label" for="at-demanda">Demanda del ciudadano</label>
+                    <textarea
+                        id="at-demanda"
+                        wire:model="atencionDemanda"
+                        class="ficha-textarea"
+                        rows="3"
+                        placeholder="Qué solicita o comunica el ciudadano…"
+                    ></textarea>
+                    @error('atencionDemanda') <span class="ficha-error">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="ficha-field">
+                    <label class="ficha-label" for="at-respuesta">Respuesta / actuación</label>
+                    <textarea
+                        id="at-respuesta"
+                        wire:model="atencionRespuesta"
+                        class="ficha-textarea"
+                        rows="2"
+                        placeholder="Qué se le informa, orienta o tramita…"
+                    ></textarea>
+                </div>
+
             </div>
-            @endif
 
-            <div class="ficha-field">
-                <label class="ficha-label" for="at-demanda">Demanda del ciudadano</label>
-                <textarea
-                    id="at-demanda"
-                    wire:model="atencionDemanda"
-                    class="ficha-textarea"
-                    rows="3"
-                    placeholder="Qué solicita o comunica el ciudadano…"
-                ></textarea>
-                @error('atencionDemanda') <span class="ficha-error">{{ $message }}</span> @enderror
+            <div class="modal-footer">
+                <button wire:click="cerrarModalAtencion" class="btn btn-outline-secondary btn-sm" type="button">Cancelar</button>
+                <button wire:click="guardarAtencion" class="btn btn-primary btn-sm" type="button">
+                    <i data-lucide="check" class="icon-13" aria-hidden="true"></i>
+                    Guardar atención
+                </button>
             </div>
-
-            <div class="ficha-field">
-                <label class="ficha-label" for="at-respuesta">Respuesta / actuación</label>
-                <textarea
-                    id="at-respuesta"
-                    wire:model="atencionRespuesta"
-                    class="ficha-textarea"
-                    rows="2"
-                    placeholder="Qué se le informa, orienta o tramita…"
-                ></textarea>
-            </div>
-
-        </div>
-
-        <div class="ficha-modal-footer">
-            <button wire:click="cerrarModalAtencion" class="btn btn-outline-secondary btn-sm" type="button">Cancelar</button>
-            <button wire:click="guardarAtencion" class="btn btn-primary btn-sm" type="button">
-                <i data-lucide="check" class="icon-13" aria-hidden="true"></i>
-                Guardar atención
-            </button>
         </div>
     </div>
 </div>
+<div class="modal-backdrop fade show"></div>
 @endif
 
 </div>

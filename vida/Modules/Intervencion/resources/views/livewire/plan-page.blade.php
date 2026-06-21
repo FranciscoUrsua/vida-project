@@ -516,61 +516,62 @@
      DRAWER DEL HISTORIAL
      ============================================================ --}}
 @if($drawerAbierto)
-<div class="plan-drawer-overlay" wire:click="cerrarDrawer">
-    <div class="plan-drawer" wire:click.stop x-data="{ seleccion: @entangle('fichasSeleccionadas') }">
-        <div class="plan-drawer-header">
-            <div class="plan-drawer-title">Historia social — fichas</div>
-            <button wire:click="cerrarDrawer" aria-label="Cerrar">
-                <i data-lucide="x" class="icon-16"></i>
-            </button>
-        </div>
+<div class="modal-backdrop fade show"></div>
+<div class="offcanvas offcanvas-end show d-block border-start shadow"
+     tabindex="-1"
+     style="--bs-offcanvas-width: 380px;"
+     wire:click.self="cerrarDrawer"
+     x-data="{ seleccion: @entangle('fichasSeleccionadas') }">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title fs-6">Historia social - fichas</h2>
+        <button wire:click="cerrarDrawer" type="button" class="btn-close" aria-label="Cerrar"></button>
+    </div>
 
-        <div class="plan-drawer-filters">
-            <button wire:click="$set('drawerFiltroFecha','todas')"
-                class="plan-chip {{ $drawerFiltroFecha === 'todas' ? 'plan-chip--on' : '' }}">Todas</button>
-            <button wire:click="$set('drawerFiltroFecha','mes')"
-                class="plan-chip {{ $drawerFiltroFecha === 'mes' ? 'plan-chip--on' : '' }}">Último mes</button>
-            <button wire:click="$set('drawerFiltroFecha','anio')"
-                class="plan-chip {{ $drawerFiltroFecha === 'anio' ? 'plan-chip--on' : '' }}">Último año</button>
-        </div>
+    <div class="plan-drawer-filters">
+        <button wire:click="$set('drawerFiltroFecha','todas')"
+            class="plan-chip {{ $drawerFiltroFecha === 'todas' ? 'plan-chip--on' : '' }}">Todas</button>
+        <button wire:click="$set('drawerFiltroFecha','mes')"
+            class="plan-chip {{ $drawerFiltroFecha === 'mes' ? 'plan-chip--on' : '' }}">Último mes</button>
+        <button wire:click="$set('drawerFiltroFecha','anio')"
+            class="plan-chip {{ $drawerFiltroFecha === 'anio' ? 'plan-chip--on' : '' }}">Último año</button>
+    </div>
 
-        <div class="plan-drawer-body">
-            @forelse($this->valoracionesTimeline as $val)
-            <div class="plan-drawer-val" wire:key="val-{{ $val->id }}">
-                <div class="plan-drawer-val-header">
-                    {{ $val->tipoValoracion?->nombre ?? 'Valoración' }}
-                    <span class="plan-drawer-val-date">{{ $val->created_at->format('d/m/Y') }}</span>
-                </div>
-                @foreach($val->fichas as $ficha)
-                <div class="plan-drawer-ficha" wire:key="df-{{ $ficha->id }}">
-                    <input
-                        type="checkbox"
-                        id="df{{ $ficha->id }}"
-                        value="{{ $ficha->id }}"
-                        x-model="seleccion"
-                    >
-                    <label for="df{{ $ficha->id }}">{{ $ficha->tipoFicha?->nombre ?? 'Ficha' }}</label>
-                    @if(in_array($ficha->id, $fichasSeleccionadas))
-                    <span class="plan-chip plan-chip--on plan-chip--compact">Añadida</span>
-                    @endif
-                </div>
-                @endforeach
+    <div class="plan-drawer-body">
+        @forelse($this->valoracionesTimeline as $val)
+        <div class="plan-drawer-val" wire:key="val-{{ $val->id }}">
+            <div class="plan-drawer-val-header">
+                {{ $val->tipoValoracion?->nombre ?? 'Valoración' }}
+                <span class="plan-drawer-val-date">{{ $val->created_at->format('d/m/Y') }}</span>
             </div>
-            @empty
-            <div class="plan-vacio plan-vacio--padded">No hay valoraciones en el historial.</div>
-            @endforelse
+            @foreach($val->fichas as $ficha)
+            <div class="plan-drawer-ficha" wire:key="df-{{ $ficha->id }}">
+                <input
+                    type="checkbox"
+                    id="df{{ $ficha->id }}"
+                    value="{{ $ficha->id }}"
+                    x-model="seleccion"
+                >
+                <label for="df{{ $ficha->id }}">{{ $ficha->tipoFicha?->nombre ?? 'Ficha' }}</label>
+                @if(in_array($ficha->id, $fichasSeleccionadas))
+                <span class="plan-chip plan-chip--on plan-chip--compact">Añadida</span>
+                @endif
+            </div>
+            @endforeach
         </div>
+        @empty
+        <div class="plan-vacio plan-vacio--padded">No hay valoraciones en el historial.</div>
+        @endforelse
+    </div>
 
-        <div class="plan-drawer-footer">
-            <button wire:click="cerrarDrawer" class="btn btn-outline-secondary btn-sm">Cancelar</button>
-            <button
-                x-on:click="$wire.aplicarSeleccionFichas(seleccion)"
-                class="btn btn-primary btn-sm"
-            >
-                <i data-lucide="check" class="icon-13"></i>
-                Aplicar selección
-            </button>
-        </div>
+    <div class="border-top d-flex gap-2 justify-content-end px-3 py-3">
+        <button wire:click="cerrarDrawer" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+        <button
+            x-on:click="$wire.aplicarSeleccionFichas(seleccion)"
+            class="btn btn-primary btn-sm"
+        >
+            <i data-lucide="check" class="icon-13"></i>
+            Aplicar selección
+        </button>
     </div>
 </div>
 @endif
@@ -579,33 +580,41 @@
      MODAL DE MOTIVO OBLIGATORIO
      ============================================================ --}}
 @if($modalMotivoAbierto)
-<div class="plan-modal-overlay">
-    <div class="plan-modal">
-        <div class="plan-modal-title">Cambio en plan firmado</div>
-        <div class="plan-modal-sub">
-            Para realizar este cambio en un plan activo, indica el motivo.
-            Quedará registrado en el historial del plan.
-        </div>
-        <textarea
-            wire:model="motivoTexto"
-            class="plan-textarea"
-            rows="3"
-            placeholder="ej: se actualizó la ficha de vivienda tras visita domiciliaria…"
-            autofocus
-        ></textarea>
-        <div class="plan-modal-footer">
-            <button wire:click="cancelarCambio" class="btn btn-outline-secondary btn-sm">Cancelar</button>
-            <button
-                wire:click="confirmarCambioConMotivo"
-                class="btn btn-primary btn-sm"
-                @if(empty(trim($motivoTexto))) disabled @endif
-            >
-                <i data-lucide="check" class="icon-13"></i>
-                Confirmar cambio
-            </button>
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h2 class="modal-title fs-6">Cambio en plan firmado</h2>
+                <button wire:click="cancelarCambio" type="button" class="btn-close" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body d-flex flex-column gap-3">
+                <p class="small text-secondary mb-0">
+                    Para realizar este cambio en un plan activo, indica el motivo.
+                    Quedará registrado en el historial del plan.
+                </p>
+                <textarea
+                    wire:model="motivoTexto"
+                    class="plan-textarea"
+                    rows="3"
+                    placeholder="ej: se actualizó la ficha de vivienda tras visita domiciliaria…"
+                    autofocus
+                ></textarea>
+            </div>
+            <div class="modal-footer">
+                <button wire:click="cancelarCambio" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                <button
+                    wire:click="confirmarCambioConMotivo"
+                    class="btn btn-primary btn-sm"
+                    @if(empty(trim($motivoTexto))) disabled @endif
+                >
+                    <i data-lucide="check" class="icon-13"></i>
+                    Confirmar cambio
+                </button>
+            </div>
         </div>
     </div>
 </div>
+<div class="modal-backdrop fade show"></div>
 @endif
 
 </div>{{-- fin plan-layout --}}

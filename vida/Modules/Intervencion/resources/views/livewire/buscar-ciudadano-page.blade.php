@@ -130,39 +130,46 @@
 
     {{-- Modal solicitud de acceso (nivel 3) --}}
     @if($modalSolicitud)
-        <div class="buscar-ciudadano-page__modal">
-            <div class="buscar-ciudadano-page__modal-card">
-                <h2 style="font-size: 1rem; font-weight: 700; margin: 0 0 0.5rem; color: var(--color-ink-900);">Solicitar acceso — ciudadano/a protegido/a</h2>
-                <p style="font-size: 0.85rem; color: var(--color-ink-600); margin: 0 0 1rem;">
-                    Para acceder a la Historia Social de una persona de colectivo especialmente protegido
-                    es necesaria la aprobación de un supervisor/a. Tu solicitud será revisada.
-                </p>
-
-                @error('justificacion')
-                    <div style="background: var(--color-danger-soft); color: var(--color-danger-ink); padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.8rem; margin-bottom: 0.75rem;">
-                        {{ $message }}
+        <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header">
+                        <h2 class="modal-title fs-6">Solicitar acceso - ciudadano/a protegido/a</h2>
+                        <button wire:click="cerrarModalSolicitud" type="button" class="btn-close" aria-label="Cerrar"></button>
                     </div>
-                @enderror
+                    <div class="modal-body d-flex flex-column gap-3">
+                        <p class="small text-secondary mb-0">
+                            Para acceder a la Historia Social de una persona de colectivo especialmente protegido
+                            es necesaria la aprobación de un supervisor/a. Tu solicitud será revisada.
+                        </p>
 
-                <label style="font-size: 0.8rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.3rem;">
-                    Justificación <span style="color: var(--color-ink-400); font-weight: 400;">(mínimo 20 caracteres)</span>
-                </label>
-                <textarea wire:model="justificacion" rows="4"
-                          style="width: 100%; border: 1px solid var(--color-ink-200); border-radius: 6px; padding: 0.5rem; font-size: 0.85rem; resize: vertical; box-sizing: border-box;"
-                          placeholder="Describe el motivo asistencial que justifica el acceso..."></textarea>
+                        @error('justificacion')
+                            <div class="alert alert-danger py-2 px-3 mb-0 small">
+                                {{ $message }}
+                            </div>
+                        @enderror
 
-                <div class="buscar-ciudadano-page__modal-actions">
-                    <button wire:click="cerrarModalSolicitud"
-                            style="font-size: 0.8rem; background: #fff; border: 1px solid var(--color-ink-200); color: var(--color-ink-700); padding: 0.4rem 1rem; border-radius: 6px; cursor: pointer;">
-                        Cancelar
-                    </button>
-                    <button wire:click="solicitarAcceso({{ $ciudadanoSolicitudId }}, '{{ addslashes($justificacion) }}')"
-                            style="font-size: 0.8rem; background: var(--color-primary); border: none; color: #fff; padding: 0.4rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                        Enviar solicitud
-                    </button>
+                        <div>
+                            <label class="form-label form-label-sm fw-semibold mb-1">
+                                Justificación <span class="fw-normal text-secondary">(mínimo 20 caracteres)</span>
+                            </label>
+                            <textarea wire:model="justificacion" rows="4"
+                                      class="form-control form-control-sm"
+                                      placeholder="Describe el motivo asistencial que justifica el acceso..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button wire:click="cerrarModalSolicitud" type="button" class="btn btn-outline-secondary btn-sm">
+                            Cancelar
+                        </button>
+                        <button wire:click="solicitarAcceso({{ $ciudadanoSolicitudId }}, '{{ addslashes($justificacion) }}')" type="button" class="btn btn-primary btn-sm">
+                            Enviar solicitud
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="modal-backdrop fade show"></div>
     @endif
 
 </div>

@@ -166,90 +166,93 @@
 
     {{-- Modal de nuevo mensaje --}}
     @if($modalNuevoMensaje)
-        <div class="mensajes-buzon__modal">
-            <div class="mensajes-buzon__modal-card">
-
-                <h2 class="mensajes-buzon__modal-title">Nuevo mensaje</h2>
-
-                {{-- Destinatario con autocompletado --}}
-                <div class="mensajes-buzon__modal-field mensajes-buzon__modal-field--relative">
-                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.3rem;">
-                        Para
-                    </label>
-                    <input wire:model.live.debounce.300ms="destinatarioBusqueda"
-                           wire:updated="buscarDestinatario"
-                           type="text"
-                           autocomplete="off"
-                           placeholder="Buscar profesional por nombre..."
-                           style="width: 100%; border: 1px solid var(--color-ink-200); border-radius: var(--radius-md); padding: 0.45rem 0.75rem; font-size: 0.85rem; box-sizing: border-box;" />
-
-                    {{-- Dropdown de resultados --}}
-                    @if(count($resultadosDestinatario) > 0)
-                        <div style="position: absolute; left: 0; right: 0; top: 100%; background: #fff; border: 1px solid var(--color-ink-200); border-radius: var(--radius-md); box-shadow: var(--shadow-2); z-index: 10; max-height: 200px; overflow-y: auto;">
-                            @foreach($resultadosDestinatario as $res)
-                                <button wire:click="seleccionarDestinatario({{ $res['id'] }}, '{{ addslashes($res['nombre']) }}')"
-                                        style="display: flex; flex-direction: column; width: 100%; text-align: left; padding: 0.5rem 0.75rem; border: none; background: transparent; cursor: pointer; border-bottom: 1px solid var(--color-ink-100);">
-                                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--color-ink-900);">{{ $res['nombre'] }}</span>
-                                    <span style="font-size: 0.72rem; color: var(--color-ink-500);">{{ $res['rol'] }}</span>
-                                </button>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    @if($destinatarioNombre)
-                        <div style="margin-top: 0.3rem; font-size: 0.75rem; color: var(--color-success);">
-                            <i data-lucide="check-circle" class="icon-12" aria-hidden="true"></i>
-                            Seleccionado: {{ $destinatarioNombre }}
-                        </div>
-                    @endif
-                </div>
-
-                {{-- Asunto --}}
-                <div class="mensajes-buzon__modal-field">
-                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.3rem;">
-                        Asunto
-                    </label>
-                    <input wire:model="asunto"
-                           type="text"
-                           maxlength="200"
-                           placeholder="Asunto del mensaje"
-                           style="width: 100%; border: 1px solid var(--color-ink-200); border-radius: var(--radius-md); padding: 0.45rem 0.75rem; font-size: 0.85rem; box-sizing: border-box;" />
-                </div>
-
-                {{-- Cuerpo --}}
-                <div class="mensajes-buzon__modal-field--lg">
-                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.3rem;">
-                        Mensaje
-                    </label>
-                    <textarea wire:model="cuerpo"
-                              rows="5"
-                              placeholder="Escribe tu mensaje..."
-                              style="width: 100%; border: 1px solid var(--color-ink-200); border-radius: var(--radius-md); padding: 0.45rem 0.75rem; font-size: 0.85rem; resize: vertical; box-sizing: border-box;"></textarea>
-                </div>
-
-                {{-- Errores de validacion --}}
-                @if($errors->any())
-                    <div style="background: var(--color-danger-soft); color: var(--color-danger-ink); padding: 0.5rem 0.75rem; border-radius: var(--radius-md); font-size: 0.8rem; margin-bottom: 0.75rem;">
-                        @foreach($errors->all() as $error)
-                            <div>{{ $error }}</div>
-                        @endforeach
+        <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header">
+                        <h2 class="modal-title fs-6">Nuevo mensaje</h2>
+                        <button wire:click="$set('modalNuevoMensaje', false)" type="button" class="btn-close" aria-label="Cerrar"></button>
                     </div>
-                @endif
 
-                {{-- Botones --}}
-                <div class="mensajes-buzon__modal-actions">
-                    <button wire:click="$set('modalNuevoMensaje', false)"
-                            style="font-size: 0.8rem; background: #fff; border: 1px solid var(--color-ink-200); color: var(--color-ink-700); padding: 0.4rem 1rem; border-radius: var(--radius-md); cursor: pointer;">
-                        Cancelar
-                    </button>
-                    <button wire:click="enviarMensaje"
-                            style="font-size: 0.8rem; background: var(--color-primary); border: none; color: #fff; padding: 0.4rem 1.1rem; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 0.35rem;">
-                        <i data-lucide="send" class="icon-14" aria-hidden="true"></i>
-                        Enviar mensaje
-                    </button>
+                    <div class="modal-body d-flex flex-column gap-3">
+                        {{-- Destinatario con autocompletado --}}
+                        <div class="position-relative">
+                            <label class="form-label form-label-sm fw-semibold mb-1">
+                                Para
+                            </label>
+                            <input wire:model.live.debounce.300ms="destinatarioBusqueda"
+                                   wire:updated="buscarDestinatario"
+                                   type="text"
+                                   autocomplete="off"
+                                   placeholder="Buscar profesional por nombre..."
+                                   class="form-control form-control-sm" />
+
+                            @if(count($resultadosDestinatario) > 0)
+                                <div class="position-absolute top-100 start-0 end-0 bg-white border rounded shadow-sm z-3 overflow-auto" style="max-height: 200px;">
+                                    <div class="list-group list-group-flush">
+                                        @foreach($resultadosDestinatario as $res)
+                                            <button wire:click="seleccionarDestinatario({{ $res['id'] }}, '{{ addslashes($res['nombre']) }}')"
+                                                    type="button"
+                                                    class="list-group-item list-group-item-action">
+                                                <span class="d-block small fw-semibold text-body">{{ $res['nombre'] }}</span>
+                                                <span class="d-block small text-secondary">{{ $res['rol'] }}</span>
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if($destinatarioNombre)
+                                <div class="mt-2 small text-success">
+                                    <i data-lucide="check-circle" class="icon-12" aria-hidden="true"></i>
+                                    Seleccionado: {{ $destinatarioNombre }}
+                                </div>
+                            @endif
+                        </div>
+
+                        <div>
+                            <label class="form-label form-label-sm fw-semibold mb-1">
+                                Asunto
+                            </label>
+                            <input wire:model="asunto"
+                                   type="text"
+                                   maxlength="200"
+                                   placeholder="Asunto del mensaje"
+                                   class="form-control form-control-sm" />
+                        </div>
+
+                        <div>
+                            <label class="form-label form-label-sm fw-semibold mb-1">
+                                Mensaje
+                            </label>
+                            <textarea wire:model="cuerpo"
+                                      rows="5"
+                                      placeholder="Escribe tu mensaje..."
+                                      class="form-control form-control-sm"></textarea>
+                        </div>
+
+                        @if($errors->any())
+                            <div class="alert alert-danger py-2 px-3 mb-0 small">
+                                @foreach($errors->all() as $error)
+                                    <div>{{ $error }}</div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="modal-footer">
+                        <button wire:click="$set('modalNuevoMensaje', false)" type="button" class="btn btn-outline-secondary btn-sm">
+                            Cancelar
+                        </button>
+                        <button wire:click="enviarMensaje" type="button" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">
+                            <i data-lucide="send" class="icon-14" aria-hidden="true"></i>
+                            Enviar mensaje
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="modal-backdrop fade show"></div>
     @endif
 
 </div>
