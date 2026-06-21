@@ -1545,47 +1545,50 @@ button.cases-screen__pager-item {
 }
 
 .record-screen__access-panel {
-    margin-top: 0.75rem;
+    margin-top: 0;
 }
 
 .record-screen__tool {
-    padding: 0.75rem 0.5rem;
-    border: 1px solid var(--color-ink-200, #D7CFBE);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    width: 100%;
+    min-height: 5rem;
+    padding: 0.85rem 0.6rem;
     border-radius: 0.5rem;
-    background: var(--color-surface, #fff);
     text-align: center;
-    transition: border-color var(--motion-fast, 120ms ease), background-color var(--motion-fast, 120ms ease);
+    white-space: normal;
+    transition: border-color var(--motion-fast, 120ms ease), background-color var(--motion-fast, 120ms ease), color var(--motion-fast, 120ms ease);
 }
 
 .record-screen__tool--active {
     border-color: var(--color-primary, #2A5B8A);
-    background: var(--color-primary-soft, #EAF3FB);
+    box-shadow: inset 0 0 0 1px var(--color-primary, #2A5B8A);
 }
 
 .record-screen__tool-icon {
     display: block;
-    margin: 0 auto 0.3rem;
-    color: var(--color-ink-600, #5A5043);
-}
-
-.record-screen__tool--active .record-screen__tool-icon {
-    color: var(--color-primary, #2A5B8A);
+    margin: 0;
+    color: currentColor;
 }
 
 .record-screen__tool-label {
     display: block;
-    color: var(--color-ink-700, #4A3F35);
+    color: currentColor;
     font-size: 0.7rem;
+    line-height: 1.3;
 }
 
 .record-screen__tool--active .record-screen__tool-label {
-    color: var(--color-primary-ink, #234764);
     font-weight: 700;
 }
 
 .record-screen__tool-hint {
     display: block;
-    color: var(--color-ink-400, #8C8070);
+    color: currentColor;
+    opacity: 0.75;
     font-size: 0.62rem;
 }
 
