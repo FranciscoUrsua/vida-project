@@ -74,7 +74,7 @@
         <div class="topbar__user" x-data="{ abierto: false }">
             <button @click="abierto = !abierto"
                     @click.outside="abierto = false"
-                    class="topbar__user-btn"
+                    type="button" class="btn btn-sm btn-light d-flex align-items-center gap-2 px-2 py-1 border-0 shadow-none"
                     aria-haspopup="true"
                     :aria-expanded="abierto">
 
@@ -118,7 +118,7 @@
                 {{-- Cerrar sesion --}}
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="topbar__user-menu-item topbar__user-menu-item--danger">
+                    <button type="submit" class="btn btn-link text-danger text-decoration-none d-flex align-items-center gap-2 w-100 justify-content-start px-4 py-2 rounded-0">
                         <i data-lucide="log-out" class="icon-16" aria-hidden="true"></i>
                         Cerrar sesion
                     </button>

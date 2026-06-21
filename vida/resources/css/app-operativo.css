@@ -3,23 +3,6 @@
 /* 1. Tokens del design system */
 @import './vida/colors_and_type.css';
 
-/* 2. Override Bootstrap primary para usar Azul Retiro */
-.btn-primary {
-    --bs-btn-bg: var(--color-primary);
-    --bs-btn-border-color: var(--color-primary);
-    --bs-btn-hover-bg: var(--color-primary-hover);
-    --bs-btn-hover-border-color: var(--color-primary-hover);
-    --bs-btn-active-bg: var(--color-primary-press);
-    --bs-btn-active-border-color: var(--color-primary-press);
-}
-.btn-outline-primary {
-    --bs-btn-color: var(--color-primary);
-    --bs-btn-border-color: var(--color-primary);
-    --bs-btn-hover-bg: var(--color-primary);
-    --bs-btn-hover-border-color: var(--color-primary);
-    --bs-btn-active-bg: var(--color-primary-press);
-}
-
 /* 3. Layout */
 
 
@@ -190,24 +173,6 @@ html { font-size: 18px; }
     padding-right: 0.5rem;
 }
 
-.topbar__user-btn {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--radius-md);
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    color: var(--color-ink-700);
-    font-family: var(--font-sans);
-    font-size: 14px;
-}
-
-.topbar__user-btn:hover {
-    background: var(--color-sand);
-}
-
 .topbar__user-nombre {
     max-width: 180px;
     white-space: nowrap;
@@ -236,33 +201,6 @@ html { font-size: 18px; }
     height: 1px;
     background: var(--color-ink-200);
     margin: 0;
-}
-
-.topbar__user-menu-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    width: 100%;
-    padding: var(--space-2) var(--space-4);
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-family: var(--font-sans);
-    font-size: 15px;
-    color: var(--color-ink-700);
-    text-align: left;
-}
-
-.topbar__user-menu-item:hover {
-    background: var(--color-sand);
-}
-
-.topbar__user-menu-item--danger {
-    color: var(--color-danger);
-}
-
-.topbar__user-menu-item--danger:hover {
-    background: var(--color-danger-soft);
 }
 
 .topbar__user-detail-name {
@@ -398,29 +336,6 @@ html { font-size: 18px; }
     gap: 0.5rem;
 }
 
-.mensajes-buzon__button-primary,
-.mensajes-buzon__button-secondary,
-.mensajes-buzon__composer-send {
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.8rem;
-}
-
-.mensajes-buzon__button-primary {
-    padding: 0.4rem 1rem;
-    border: none;
-    background: var(--color-primary);
-    color: #fff;
-    font-weight: 600;
-}
-
-.mensajes-buzon__button-secondary {
-    padding: 0.4rem 1rem;
-    border: 1px solid var(--color-primary-soft);
-    background: #fff;
-    color: #374151;
-}
-
 .mensajes-buzon__thread-panel {
     display: flex;
     flex: 1;
@@ -450,16 +365,6 @@ html { font-size: 18px; }
     border-radius: 6px;
     padding: 0.5rem;
     font-size: 0.85rem;
-}
-
-.mensajes-buzon__composer-send {
-    flex-shrink: 0;
-    align-self: flex-end;
-    padding: 0.55rem 1rem;
-    border: none;
-    background: var(--color-primary);
-    color: #fff;
-    font-weight: 600;
 }
 
 .mensajes-buzon__modal {
@@ -539,14 +444,6 @@ html { font-size: 18px; }
     flex-direction: column;
     height: calc(100vh - 56px);
     overflow: hidden;
-}
-
-.agenda-page__nav-button {
-    padding: 0.2rem 0.55rem;
-}
-
-.agenda-page__view-button {
-    font-size: 0.8rem;
 }
 
 .agenda-page__content {
@@ -763,14 +660,6 @@ html { font-size: 18px; }
     gap: 0.5rem;
 }
 
-.ciudadano-page__btn-sm {
-    font-size: 0.8rem;
-}
-
-.ciudadano-page__btn-close {
-    margin-top: 0.5rem;
-}
-
 .icon-13 {
     width: 13px;
     height: 13px;
@@ -830,10 +719,6 @@ html { font-size: 18px; }
     gap: 0.4rem;
 }
 
-.registro-page__save-btn {
-    font-size: 0.85rem;
-}
-
 .registro-page__inline {
     display: inline-flex;
     align-items: center;
@@ -869,10 +754,6 @@ html { font-size: 18px; }
     padding: 16px;
 }
 
-.plan-tb-btn--push {
-    margin-left: auto;
-}
-
 .plan-field--compact {
     margin-top: 12px;
     max-width: 200px;
@@ -904,10 +785,6 @@ html { font-size: 18px; }
 .buscar-ciudadano-page__input {
     flex: 1;
     font-size: 0.85rem;
-}
-
-.buscar-ciudadano-page__submit {
-    font-size: 0.8rem;
 }
 
 .buscar-ciudadano-page__results {
@@ -983,17 +860,6 @@ html { font-size: 18px; }
 
 .mis-casos-page__th {
     padding: 0.5rem 0.75rem;
-}
-
-.mis-casos-page__sort {
-    padding: 0;
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    white-space: nowrap;
 }
 
 .mis-casos-page__th--static {
@@ -1222,35 +1088,6 @@ html { font-size: 18px; }
 .hs-stat__val   { font-size: 16px; font-weight: 600; color: var(--color-primary); }
 .hs-stat__label { font-size: 13px; color: var(--color-ink-500); margin-top: 2px; font-weight: 500; }
 
-/* ── Filtros del timeline ───────────────────────────────────────── */
-.hs-timeline-filter {
-    font-size: 0.72rem;
-    padding: 0.2rem 0.6rem;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--color-ink-200);
-    background: #fff;
-    color: var(--color-ink-600);
-    cursor: pointer;
-    font-weight: 400;
-    line-height: 1.4;
-}
-.hs-timeline-filter--activo {
-    border-color: var(--color-primary);
-    background: var(--color-primary-soft);
-    color: var(--color-primary-ink);
-    font-weight: 600;
-}
-.hs-timeline-filter--sugerido {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-    background: transparent;
-}
-.hs-timeline-filter__hint {
-    font-size: 12px;
-    opacity: 0.7;
-    margin-left: 3px;
-}
-
 /* ── Modal genérico de detalle de apunte ───────────────────────── */
 .hs-modal-overlay {
     position: fixed; inset: 0;
@@ -1274,11 +1111,6 @@ html { font-size: 18px; }
 }
 .hs-modal__tipo  { font-weight: 600; color: var(--color-ink-900); font-size: 16px; }
 .hs-modal__fecha { font-size: 14px; color: var(--color-ink-500); margin-left: auto; }
-.hs-modal__cerrar {
-    background: none; border: none; font-size: 20px; cursor: pointer;
-    color: var(--color-ink-500); line-height: 1; padding: 0 4px; margin-left: 8px;
-}
-.hs-modal__cerrar:hover { color: var(--color-ink-700); }
 .hs-modal__body  { padding: 20px; overflow-y: auto; flex: 1; }
 .hs-modal__autor { font-size: 14px; color: var(--color-ink-600); margin-bottom: 12px; }
 .hs-modal__contenido { font-size: 15px; color: var(--color-ink-800); line-height: 1.6; }
@@ -1376,16 +1208,6 @@ html { font-size: 18px; }
     margin: 0;
 }
 
-.uc-modal__cerrar {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--color-text-secondary);
-    padding: 2px;
-    line-height: 1;
-}
-
-.uc-modal__cerrar:hover { color: var(--color-text-primary); }
 
 .uc-modal__mensaje {
     display: flex;
@@ -1612,21 +1434,6 @@ html { font-size: 18px; }
 
 .uc-modal__vacio-lista { font-size: 14px; color: var(--color-text-secondary); padding: 8px 0; }
 
-.uc-modal__btn-crear {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
-    background: var(--color-primary, #2563eb);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    cursor: pointer;
-}
-
-.uc-modal__btn-crear:hover { opacity: .9; }
-
 .uc-modal__pie {
     padding: 12px 20px;
     border-top: 1px solid var(--color-border);
@@ -1634,37 +1441,6 @@ html { font-size: 18px; }
     justify-content: flex-end;
     flex-shrink: 0;
 }
-
-.uc-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    border: none;
-}
-
-.uc-btn--ghost {
-    background: transparent;
-    border: 1px solid var(--color-border);
-    color: var(--color-text-secondary);
-}
-
-.uc-btn--ghost:hover { background: var(--color-surface-alt, #f9fafb); }
-
-.uc-btn--ghost-sm {
-    background: transparent;
-    border: 1px solid var(--color-border);
-    color: var(--color-text-secondary);
-    padding: 3px 8px;
-    font-size: 13px;
-}
-
-.uc-btn--primary-sm { background: var(--color-primary, #2563eb); color: #fff; padding: 3px 8px; font-size: 13px; }
-
-.uc-btn--danger-sm { background: var(--color-danger, #dc2626); color: #fff; padding: 3px 8px; font-size: 13px; }
 
 .uc-widget__gestionar {
     display: inline-flex;
@@ -1877,21 +1653,6 @@ a.uc-modal__miembro-nombre:hover { text-decoration: underline; }
 .plan-badge--version   { background: var(--color-surface-alt); color: var(--color-text-secondary); border: 1px solid var(--color-border); }
 .plan-badge-responsable { background: #EAF3DE; color: #27500A; font-size: 10px; padding: 2px 7px; border-radius: 99px; }
 
-.plan-btn {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 12px; padding: 5px 10px;
-    border-radius: 6px; border: 1px solid var(--color-border);
-    background: var(--color-surface); color: var(--color-text-primary);
-    cursor: pointer; white-space: nowrap;
-}
-.plan-btn:hover { background: var(--color-surface-alt); }
-.plan-btn:disabled { opacity: .45; cursor: not-allowed; }
-.plan-btn--primary { background: var(--color-text-primary); color: var(--color-surface); border-color: var(--color-text-primary); }
-.plan-btn--primary:hover { opacity: .85; }
-.plan-btn--primary:disabled { opacity: .4; }
-.plan-tb-btn { background: none; border: none; cursor: pointer; padding: 2px 4px; border-radius: 4px; color: var(--color-text-secondary); display: flex; align-items: center; }
-.plan-tb-btn:hover { background: var(--color-surface-alt); color: var(--color-text-primary); }
-
 /* ============================================================
    SECCIONES
    ============================================================ */
@@ -1936,17 +1697,12 @@ a.uc-modal__miembro-nombre:hover { text-decoration: underline; }
 .plan-ficha-header { display: flex; align-items: center; justify-content: space-between; padding: 7px 12px; background: var(--color-surface-alt); }
 .plan-ficha-title { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; color: var(--color-text-primary); flex: 1; }
 .plan-ficha-date { font-size: 11px; color: var(--color-text-secondary); font-weight: 400; }
-.plan-ficha-remove { background: none; border: none; cursor: pointer; color: var(--color-text-secondary); padding: 2px; border-radius: 3px; display: flex; }
-.plan-ficha-remove:hover { color: var(--color-danger); background: var(--color-danger-bg); }
 .plan-ficha-content { padding: 10px 12px; }
 .plan-ficha-campo { display: flex; gap: 8px; font-size: 12px; margin-bottom: 3px; }
 .plan-ficha-campo-label { font-weight: 600; color: var(--color-text-secondary); min-width: 120px; }
 .plan-ficha-campo-valor { color: var(--color-text-primary); }
 .plan-ficha-vacia { font-size: 12px; color: var(--color-text-secondary); font-style: italic; }
-.plan-add-ficha-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px; border: 1px dashed var(--color-border); border-radius: 6px; font-size: 12px; color: var(--color-text-secondary); cursor: pointer; background: transparent; width: 100%; }
-.plan-add-ficha-btn:hover { background: var(--color-surface-alt); }
 .plan-evidencia-vacia { font-size: 13px; color: var(--color-text-secondary); padding: 8px 0; }
-.plan-link { background: none; border: none; color: var(--color-primary); cursor: pointer; font-size: 13px; padding: 0; text-decoration: underline; }
 
 .plan-sintesis-label { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--color-text-secondary); margin-bottom: 6px; }
 .plan-editor-toolbar { display: flex; gap: 2px; padding: 4px 6px; border: 1px solid var(--color-border); border-bottom: none; border-radius: 6px 6px 0 0; background: var(--color-surface-alt); }
@@ -2142,14 +1898,6 @@ a.uc-modal__miembro-nombre:hover { text-decoration: underline; }
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-.ficha-atencion-ver {
-    background: none; border: none; cursor: pointer;
-    font-size: 11px; color: var(--color-primary);
-    display: inline-flex; align-items: center; gap: 3px;
-    padding: 0; align-self: flex-start;
-}
-.ficha-atencion-ver:hover { text-decoration: underline; }
-
 .ficha-atencion-detalle {
     margin-top: 6px; display: flex; flex-direction: column; gap: 8px;
     padding: 10px 12px;
@@ -2167,21 +1915,6 @@ a.uc-modal__miembro-nombre:hover { text-decoration: underline; }
     padding: 16px 14px; font-size: 13px; color: var(--color-text-secondary);
     font-style: italic;
 }
-
-/* Botones ficha */
-.ficha-btn {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 12px; padding: 5px 10px;
-    border-radius: 6px; border: 1px solid var(--color-border);
-    background: var(--color-surface); color: var(--color-text-primary);
-    cursor: pointer; text-decoration: none; white-space: nowrap;
-}
-.ficha-btn:hover { background: var(--color-surface-alt); }
-.ficha-btn--primary {
-    background: var(--color-primary, #3b82f6); color: #fff;
-    border-color: var(--color-primary, #3b82f6);
-}
-.ficha-btn--primary:hover { background: var(--color-primary, #3b82f6); color: #fff; opacity: .85; }
 
 /* Modal atención */
 .ficha-modal-overlay {
@@ -2202,8 +1935,6 @@ a.uc-modal__miembro-nombre:hover { text-decoration: underline; }
     border-bottom: 1px solid var(--color-border);
 }
 .ficha-modal-titulo { font-size: 15px; font-weight: 600; color: var(--color-text-primary); margin: 0; }
-.ficha-modal-cerrar { background: none; border: none; cursor: pointer; color: var(--color-text-secondary); padding: 2px; }
-.ficha-modal-cerrar:hover { color: var(--color-text-primary); }
 .ficha-modal-body {
     padding: 16px 18px; display: flex; flex-direction: column; gap: 12px;
     overflow-y: auto; flex: 1; min-height: 0;

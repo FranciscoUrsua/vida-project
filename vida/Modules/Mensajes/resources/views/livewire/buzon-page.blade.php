@@ -116,12 +116,12 @@
                     <div class="mensajes-buzon__actions">
                         @if($pestana === 'alertas')
                             <button wire:click="reconocerAlerta({{ $a->id }})"
-                                    class="mensajes-buzon__button-primary">
+                                    class="btn btn-primary btn-sm">
                                 <i class="bi bi-check-circle me-1"></i> Reconocer alerta
                             </button>
                         @else
                             <button wire:click="reconocerAlerta({{ $a->id }})"
-                                    class="mensajes-buzon__button-secondary">
+                                    class="btn btn-outline-secondary btn-sm">
                                 Marcar como leído
                             </button>
                         @endif
@@ -154,7 +154,7 @@
                                   class="mensajes-buzon__composer-input"
                                   placeholder="Escribe tu respuesta..."></textarea>
                         <button wire:click="enviarRespuesta({{ $hilo->id }})"
-                                class="mensajes-buzon__composer-send">
+                                class="btn btn-primary btn-sm d-inline-flex align-items-center justify-content-center">
                             <i class="bi bi-send"></i>
                         </button>
                     </div>

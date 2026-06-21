@@ -38,7 +38,7 @@
 
     <div class="plan-topbar__actions">
         @if($this->plan)
-        <button wire:click="generarPdf" class="plan-btn">
+        <button wire:click="generarPdf" class="btn btn-outline-secondary btn-sm">
             <i data-lucide="file-down" class="icon-13"></i>
             Generar PDF
         </button>
@@ -47,7 +47,7 @@
         @if($this->plan?->estado->value === 'borrador')
         <button
             wire:click="activarPlan"
-            class="plan-btn plan-btn--primary"
+            class="btn btn-primary btn-sm"
             @if(! $this->puedeActivarse) disabled title="Marca ambas firmas para activar" @endif
         >
             <i data-lucide="check" class="icon-13"></i>
@@ -56,7 +56,7 @@
         @endif
 
         @if($this->plan?->estado->value === 'activo')
-        <button class="plan-btn">
+        <button class="btn btn-outline-secondary btn-sm">
             <i data-lucide="x-circle" class="icon-13"></i>
             Cerrar plan
         </button>
@@ -132,7 +132,7 @@
                 <i data-lucide="file-text" class="icon-15"></i>
                 Diagnóstico social
             </div>
-            <button wire:click="abrirDrawer" class="plan-btn">
+            <button wire:click="abrirDrawer" class="btn btn-outline-secondary btn-sm">
                 <i data-lucide="database" class="icon-13"></i>
                 Añadir fichas
             </button>
@@ -156,7 +156,7 @@
                         </div>
                         <button
                             wire:click="eliminarFichaDiagnostico({{ $pfd->ficha_id }})"
-                            class="plan-ficha-remove"
+                            class="btn btn-outline-danger btn-sm p-1 lh-1"
                             title="Eliminar del diagnóstico"
                         >
                             <i data-lucide="x" class="icon-12"></i>
@@ -177,12 +177,12 @@
                 @empty
                 <div class="plan-evidencia-vacia">
                     Ninguna ficha añadida aún.
-                    <button wire:click="abrirDrawer" class="plan-link">Añadir fichas del historial</button>
+                    <button wire:click="abrirDrawer" class="btn btn-link btn-sm p-0 align-baseline">Añadir fichas del historial</button>
                 </div>
                 @endforelse
 
                 @if($this->fichasDiagnostico->isNotEmpty())
-                <button wire:click="abrirDrawer" class="plan-add-ficha-btn">
+                <button wire:click="abrirDrawer" class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-1">
                     <i data-lucide="plus" class="icon-13"></i>
                     Añadir otra ficha
                 </button>
@@ -196,11 +196,11 @@
                     Síntesis profesional
                 </div>
                 <div class="plan-editor-toolbar">
-                    <button class="plan-tb-btn" onclick="document.execCommand('bold')"
+                    <button class="btn btn-outline-secondary btn-sm p-1 lh-1" onclick="document.execCommand('bold')"
                             title="Negrita"><strong>B</strong></button>
-                    <button class="plan-tb-btn" onclick="document.execCommand('italic')"
+                    <button class="btn btn-outline-secondary btn-sm p-1 lh-1" onclick="document.execCommand('italic')"
                             title="Cursiva"><em>I</em></button>
-                    <button class="plan-tb-btn" onclick="document.execCommand('insertUnorderedList')"
+                    <button class="btn btn-outline-secondary btn-sm p-1 lh-1" onclick="document.execCommand('insertUnorderedList')"
                             title="Lista">
                         <i data-lucide="list" class="icon-13"></i>
                     </button>
@@ -223,7 +223,7 @@
                 <i data-lucide="target" class="icon-15"></i>
                 Objetivos
             </div>
-            <button class="plan-btn">
+            <button class="btn btn-outline-secondary btn-sm">
                 <i data-lucide="plus" class="icon-13"></i>
                 Añadir objetivo
             </button>
@@ -247,7 +247,7 @@
                         <span class="plan-estado-badge plan-estado-{{ $og->estado }}">
                             {{ ucfirst(str_replace('_', ' ', $og->estado)) }}
                         </span>
-                        <button class="plan-tb-btn">
+                        <button class="btn btn-outline-secondary btn-sm p-1 lh-1">
                             <i data-lucide="edit" class="icon-13"></i>
                         </button>
                     </div>
@@ -265,7 +265,7 @@
                 <i data-lucide="building" class="icon-15"></i>
                 Compromisos del Ayuntamiento
             </div>
-            <button class="plan-btn">
+            <button class="btn btn-outline-secondary btn-sm">
                 <i data-lucide="plus" class="icon-13"></i>
                 Añadir
             </button>
@@ -301,7 +301,7 @@
                         </td>
                         <td class="plan-td-secondary">{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
                         <td><span class="plan-estado-badge plan-estado-{{ $act->estado }}">{{ ucfirst($act->estado) }}</span></td>
-                        <td><button class="plan-tb-btn"><i data-lucide="edit" class="icon-13"></i></button></td>
+                        <td><button class="btn btn-outline-secondary btn-sm p-1 lh-1"><i data-lucide="edit" class="icon-13"></i></button></td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -317,7 +317,7 @@
                 <i data-lucide="user-check" class="icon-15"></i>
                 Compromisos de la persona
             </div>
-            <button class="plan-btn">
+            <button class="btn btn-outline-secondary btn-sm">
                 <i data-lucide="plus" class="icon-13"></i>
                 Añadir
             </button>
@@ -336,7 +336,7 @@
                         <span class="plan-prestacion-pill">{{ $act->prestacion->nombre }}</span>
                         @endif
                     </div>
-                    <button class="plan-tb-btn plan-tb-btn--push">
+                    <button class="btn btn-outline-secondary btn-sm p-1 lh-1 ms-auto">
                         <i data-lucide="edit" class="icon-13"></i>
                     </button>
                 </div>
@@ -353,7 +353,7 @@
                 <i data-lucide="users" class="icon-15"></i>
                 Profesionales participantes
             </div>
-            <button class="plan-btn">
+            <button class="btn btn-outline-secondary btn-sm">
                 <i data-lucide="plus" class="icon-13"></i>
                 Añadir
             </button>
@@ -373,7 +373,7 @@
                     @if($p->user_id === $this->plan?->profesional_responsable_id)
                     <span class="plan-badge-responsable">Responsable</span>
                     @else
-                    <button class="plan-tb-btn">
+                    <button class="btn btn-outline-secondary btn-sm p-1 lh-1">
                         <i data-lucide="x" class="icon-13"></i>
                     </button>
                     @endif
@@ -562,10 +562,10 @@
         </div>
 
         <div class="plan-drawer-footer">
-            <button wire:click="cerrarDrawer" class="plan-btn">Cancelar</button>
+            <button wire:click="cerrarDrawer" class="btn btn-outline-secondary btn-sm">Cancelar</button>
             <button
                 x-on:click="$wire.aplicarSeleccionFichas(seleccion)"
-                class="plan-btn plan-btn--primary"
+                class="btn btn-primary btn-sm"
             >
                 <i data-lucide="check" class="icon-13"></i>
                 Aplicar selección
@@ -594,10 +594,10 @@
             autofocus
         ></textarea>
         <div class="plan-modal-footer">
-            <button wire:click="cancelarCambio" class="plan-btn">Cancelar</button>
+            <button wire:click="cancelarCambio" class="btn btn-outline-secondary btn-sm">Cancelar</button>
             <button
                 wire:click="confirmarCambioConMotivo"
-                class="plan-btn plan-btn--primary"
+                class="btn btn-primary btn-sm"
                 @if(empty(trim($motivoTexto))) disabled @endif
             >
                 <i data-lucide="check" class="icon-13"></i>

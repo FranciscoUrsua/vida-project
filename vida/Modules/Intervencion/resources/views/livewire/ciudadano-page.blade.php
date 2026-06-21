@@ -259,8 +259,8 @@
                         $esSugerido = ! $esActivo && $filtroSugerido === $filtroKey;
                     @endphp
                     <button wire:click="setFiltroHS('{{ $filtroKey }}')"
-                            class="hs-timeline-filter{{ $esActivo ? ' hs-timeline-filter--activo' : ($esSugerido ? ' hs-timeline-filter--sugerido' : '') }}">
-                        {{ $filtroLabel }}@if($esSugerido)<span class="hs-timeline-filter__hint" title="Filtrar por este tipo">↑</span>@endif
+                            class="btn btn-sm {{ $esActivo ? 'btn-primary' : ($esSugerido ? 'btn-outline-primary' : 'btn-outline-secondary') }}">
+                        {{ $filtroLabel }}@if($esSugerido)<span class="small opacity-75 ms-1" title="Filtrar por este tipo">↑</span>@endif
                     </button>
                 @endforeach
             </div>
@@ -339,8 +339,8 @@
                             </div>
                         @endif
                         <div class="ciudadano-page__actions">
-                            <button wire:click="guardarEntrevista" class="btn btn-primary btn-sm ciudadano-page__btn-sm">Guardar entrevista</button>
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm">Cancelar</button>
+                            <button wire:click="guardarEntrevista" class="btn btn-primary btn-sm">Guardar entrevista</button>
+                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                         </div>
                     </div>
 
@@ -359,8 +359,8 @@
                             </label>
                         </div>
                         <div class="ciudadano-page__actions">
-                            <button wire:click="guardarAnotacion" class="btn btn-primary btn-sm ciudadano-page__btn-sm">Guardar anotación</button>
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm">Cancelar</button>
+                            <button wire:click="guardarAnotacion" class="btn btn-primary btn-sm">Guardar anotación</button>
+                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                         </div>
                     </div>
 
@@ -380,8 +380,8 @@
                             <textarea wire:model="formDerivacion.motivo" rows="3" class="form-control form-control-sm" placeholder="Motivo de la derivación..."></textarea>
                         </div>
                         <div class="ciudadano-page__actions">
-                            <button wire:click="crearDerivacion" class="btn btn-primary btn-sm ciudadano-page__btn-sm">Crear derivación</button>
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm">Cancelar</button>
+                            <button wire:click="crearDerivacion" class="btn btn-primary btn-sm">Crear derivación</button>
+                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                         </div>
                     </div>
 
@@ -408,8 +408,8 @@
                             <textarea wire:model="formGestion.descripcion" rows="3" class="form-control form-control-sm" placeholder="Describe la gestión realizada..."></textarea>
                         </div>
                         <div class="ciudadano-page__actions">
-                            <button wire:click="guardarGestion" class="btn btn-primary btn-sm ciudadano-page__btn-sm">Guardar gestión</button>
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm">Cancelar</button>
+                            <button wire:click="guardarGestion" class="btn btn-primary btn-sm">Guardar gestión</button>
+                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                         </div>
                     </div>
 
@@ -429,9 +429,9 @@
                         <div class="ciudadano-page__actions">
                             @if($formValoracion['tipo_ficha_id'])
                                 <a href="{{ route('intervencion.valoracion.nueva', ['historia' => $historia->id, 'tipo_ficha' => $formValoracion['tipo_ficha_id']]) }}"
-                                   class="btn btn-primary btn-sm ciudadano-page__btn-sm">Abrir en pantalla completa</a>
+                                   class="btn btn-primary btn-sm">Abrir en pantalla completa</a>
                             @endif
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm">Cancelar</button>
+                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                         </div>
                     </div>
 
@@ -451,9 +451,9 @@
                         <div class="ciudadano-page__actions">
                             @if($formEscala['tipo_escala_id'])
                                 <a href="{{ route('intervencion.escala.nueva', ['historia' => $historia->id, 'tipo_escala' => $formEscala['tipo_escala_id']]) }}"
-                                   class="btn btn-primary btn-sm ciudadano-page__btn-sm">Abrir en pantalla completa</a>
+                                   class="btn btn-primary btn-sm">Abrir en pantalla completa</a>
                             @endif
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm">Cancelar</button>
+                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                         </div>
                     </div>
 
@@ -462,7 +462,7 @@
                         <h3 class="record-screen__workspace-title">Informes</h3>
                         {{-- TODO: conectar con módulo Documentos cuando implemente la vista de edición --}}
                         <p class="record-screen__workspace-copy">Módulo de informes en construcción.</p>
-                        <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm ciudadano-page__btn-sm ciudadano-page__btn-close">Cerrar</button>
+                        <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm mt-2">Cerrar</button>
                     </div>
 
                 @endif
@@ -556,7 +556,7 @@
             <div class="hs-modal__header">
                 <span class="hs-modal__tipo">{{ $modalApunteDatos['tipo_label'] ?? '' }}</span>
                 <span class="hs-modal__fecha">{{ $modalApunteDatos['fecha'] ?? '' }}</span>
-                <button wire:click="cerrarModalApunte" class="hs-modal__cerrar" aria-label="Cerrar">&times;</button>
+                <button wire:click="cerrarModalApunte" class="btn btn-link p-0 text-secondary text-decoration-none lh-1" aria-label="Cerrar">&times;</button>
             </div>
             <div class="hs-modal__body">
                 <p class="hs-modal__autor"><strong>Profesional:</strong> {{ $modalApunteDatos['autor'] ?? '—' }}</p>
@@ -584,7 +584,7 @@
             <div class="hs-slideover__header">
                 <span class="hs-modal__tipo">{{ $modalApunteDatos['tipo_label'] ?? '' }}</span>
                 <span class="hs-modal__fecha">{{ $modalApunteDatos['fecha'] ?? '' }}</span>
-                <button wire:click="cerrarModalApunte" class="hs-modal__cerrar" aria-label="Cerrar">&times;</button>
+                <button wire:click="cerrarModalApunte" class="btn btn-link p-0 text-secondary text-decoration-none lh-1" aria-label="Cerrar">&times;</button>
             </div>
             <div class="hs-slideover__body">
                 <p class="hs-modal__autor"><strong>Profesional:</strong> {{ $modalApunteDatos['autor'] ?? '—' }}</p>
@@ -680,7 +680,7 @@
             {{-- Cabecera --}}
             <div class="uc-modal__header">
                 <h2 id="uc-modal-titulo" class="uc-modal__titulo">Unidad de convivencia</h2>
-                <button wire:click="cerrarModalUc" class="uc-modal__cerrar" aria-label="Cerrar">
+                <button wire:click="cerrarModalUc" class="btn btn-link p-0 text-secondary text-decoration-none lh-1" aria-label="Cerrar">
                     <i data-lucide="x" class="icon-18" aria-hidden="true"></i>
                 </button>
             </div>
@@ -700,7 +700,7 @@
                     {{-- Sin UC: opción de crear --}}
                     <div class="uc-modal__vacio">
                         <p>Este ciudadano no tiene unidad de convivencia registrada.</p>
-                        <button wire:click="crearUc" class="uc-modal__btn-crear">
+                        <button wire:click="crearUc" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">
                             <i data-lucide="plus" class="icon-14" aria-hidden="true"></i>
                             Crear unidad de convivencia
                         </button>
@@ -754,13 +754,13 @@
                                     @if($ucMiembroParaBaja === $miembro->id)
                                         <span class="uc-modal__confirmar-baja">
                                             ¿Confirmar baja?
-                                            <button wire:click="confirmarBajaMiembro" class="uc-btn uc-btn--danger-sm">Sí</button>
-                                            <button wire:click="cancelarBajaMiembro" class="uc-btn uc-btn--ghost-sm">No</button>
+                                            <button wire:click="confirmarBajaMiembro" class="btn btn-danger btn-sm">Sí</button>
+                                            <button wire:click="cancelarBajaMiembro" class="btn btn-outline-secondary btn-sm">No</button>
                                         </span>
                                     @else
                                         <button
                                             wire:click="iniciarBajaMiembro({{ $miembro->id }})"
-                                            class="uc-btn uc-btn--ghost-sm"
+                                            class="btn btn-outline-secondary btn-sm"
                                             title="Dar de baja como miembro"
                                         >
                                             <i data-lucide="user-minus" class="icon-13" aria-hidden="true"></i>
@@ -786,8 +786,8 @@
                                     ¿Añadir a <strong>{{ $cSeleccionado?->nombre }} {{ $cSeleccionado?->apellido1 }}</strong> como miembro de esta unidad?
                                 </span>
                                 <div class="uc-modal__confirmar-acciones">
-                                    <button wire:click="confirmarAnadirMiembro" class="uc-btn uc-btn--primary-sm">Confirmar</button>
-                                    <button wire:click="cancelarSeleccionUc" class="uc-btn uc-btn--ghost-sm">Cancelar</button>
+                                    <button wire:click="confirmarAnadirMiembro" class="btn btn-primary btn-sm">Confirmar</button>
+                                    <button wire:click="cancelarSeleccionUc" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                                 </div>
                             </div>
 
@@ -837,7 +837,7 @@
 
             {{-- Pie --}}
             <div class="uc-modal__pie">
-                <button wire:click="cerrarModalUc" class="uc-btn uc-btn--ghost">Cerrar</button>
+                <button wire:click="cerrarModalUc" class="btn btn-outline-secondary btn-sm">Cerrar</button>
             </div>
 
         </div>{{-- fin .uc-modal --}}
@@ -863,7 +863,7 @@
                     Representante
                 </h2>
                 <button wire:click="cerrarModalRepresentante"
-                        class="uc-modal__cerrar" aria-label="Cerrar">
+                        class="btn btn-link p-0 text-secondary text-decoration-none lh-1" aria-label="Cerrar">
                     <i data-lucide="x" class="icon-18"></i>
                 </button>
             </div>
@@ -912,7 +912,7 @@
             </div>
 
             <div class="uc-modal__pie">
-                <button wire:click="cerrarModalRepresentante" class="uc-btn uc-btn--ghost">
+                <button wire:click="cerrarModalRepresentante" class="btn btn-outline-secondary btn-sm">
                     Cerrar
                 </button>
             </div>
@@ -940,7 +940,7 @@
                     Personas relacionadas
                 </h2>
                 <button wire:click="cerrarModalRelaciones"
-                        class="uc-modal__cerrar" aria-label="Cerrar">
+                        class="btn btn-link p-0 text-secondary text-decoration-none lh-1" aria-label="Cerrar">
                     <i data-lucide="x" class="icon-18"></i>
                 </button>
             </div>
@@ -974,7 +974,7 @@
                             <div class="uc-modal__miembro-acciones">
                                 <a
                                     href="{{ route('ciudadania.ciudadano.ficha', $persona->id) }}"
-                                    class="uc-btn uc-btn--ghost-sm"
+                                    class="btn btn-outline-secondary btn-sm"
                                     wire:navigate
                                     title="Ver ficha"
                                 >
@@ -1009,7 +1009,7 @@
                     <i data-lucide="external-link" class="icon-12"></i>
                     Gestionar relaciones en la ficha
                 </a>
-                <button wire:click="cerrarModalRelaciones" class="uc-btn uc-btn--ghost">
+                <button wire:click="cerrarModalRelaciones" class="btn btn-outline-secondary btn-sm">
                     Cerrar
                 </button>
             </div>

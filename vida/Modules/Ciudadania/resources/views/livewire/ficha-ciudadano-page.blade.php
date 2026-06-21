@@ -242,7 +242,7 @@
                         Documentos de identidad
                     </h2>
                     @if($puedeEditar)
-                        <button wire:click="abrirModalDocumento" type="button" class="ficha-btn">
+                        <button wire:click="abrirModalDocumento" type="button" class="btn btn-outline-secondary btn-sm">
                             <i data-lucide="plus" class="icon-13" aria-hidden="true"></i>
                             Añadir documento
                         </button>
@@ -301,7 +301,7 @@
                         Relaciones
                     </h2>
                     @if($puedeEditarRel)
-                        <button wire:click="abrirModalNuevaRelacion" type="button" class="ficha-btn">
+                        <button wire:click="abrirModalNuevaRelacion" type="button" class="btn btn-outline-secondary btn-sm">
                             <i data-lucide="plus" class="icon-13" aria-hidden="true"></i>
                             Añadir relación
                         </button>
@@ -494,7 +494,7 @@
                     </div>
                     @if($registro->demanda || $registro->respuesta)
                     <button
-                        class="ficha-atencion-ver"
+                        class="btn btn-link btn-sm p-0 align-self-start d-inline-flex align-items-center gap-1"
                         @click="expandido = !expandido"
                         :aria-expanded="expandido"
                         type="button"
@@ -634,11 +634,11 @@
                 </div>
                 <div class="citizen-file__modal-actions">
                     <button wire:click="cerrarModalRelacion" type="button"
-                        class="ficha-btn">
+                        class="btn btn-outline-secondary btn-sm">
                         Cancelar
                     </button>
                     <button wire:click="guardarRelacion" type="button"
-                        class="ficha-btn ficha-btn--primary">
+                        class="btn btn-primary btn-sm">
                         Guardar
                     </button>
                 </div>
@@ -681,11 +681,11 @@
             </div>
             <div class="citizen-file__modal-actions citizen-file__modal-actions--end">
                 <button wire:click="cerrarModalDocumento" type="button"
-                    class="ficha-btn">
+                    class="btn btn-outline-secondary btn-sm">
                     Cancelar
                 </button>
                 <button wire:click="guardarDocumento" type="button"
-                    class="ficha-btn ficha-btn--primary">
+                    class="btn btn-primary btn-sm">
                     Guardar documento
                 </button>
             </div>
@@ -706,7 +706,7 @@
     <div class="ficha-modal">
         <div class="ficha-modal-header">
             <h2 id="modal-atencion-titulo" class="ficha-modal-titulo">Nueva atención</h2>
-            <button wire:click="cerrarModalAtencion" aria-label="Cerrar" class="ficha-modal-cerrar" type="button">
+            <button wire:click="cerrarModalAtencion" aria-label="Cerrar" class="btn btn-link p-0 text-secondary text-decoration-none" type="button">
                 <i data-lucide="x" class="icon-16" aria-hidden="true"></i>
             </button>
         </div>
@@ -767,8 +767,8 @@
         </div>
 
         <div class="ficha-modal-footer">
-            <button wire:click="cerrarModalAtencion" class="ficha-btn" type="button">Cancelar</button>
-            <button wire:click="guardarAtencion" class="ficha-btn ficha-btn--primary" type="button">
+            <button wire:click="cerrarModalAtencion" class="btn btn-outline-secondary btn-sm" type="button">Cancelar</button>
+            <button wire:click="guardarAtencion" class="btn btn-primary btn-sm" type="button">
                 <i data-lucide="check" class="icon-13" aria-hidden="true"></i>
                 Guardar atención
             </button>

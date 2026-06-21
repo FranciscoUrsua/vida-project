@@ -18,7 +18,7 @@
                    class="form-control form-control-sm buscar-ciudadano-page__input"
                    autocomplete="off" />
 
-            <button type="submit" class="btn btn-primary btn-sm buscar-ciudadano-page__submit">
+            <button type="submit" class="btn btn-primary btn-sm">
                 <i data-lucide="search" class="icon-14" aria-hidden="true"></i> Buscar
             </button>
         </form>

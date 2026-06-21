@@ -42,7 +42,7 @@
             </div>
         @endforeach
 
-        <button wire:click="guardar" class="btn btn-primary registro-page__save-btn">
+        <button wire:click="guardar" class="btn btn-primary btn-sm">
             Guardar escala
         </button>
     @else
