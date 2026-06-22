@@ -13,7 +13,7 @@
                     <span class="badge bg-secondary fs-6">{{ $dest?->name }}</span>
                     <button wire:click="limpiarDestinatario" type="button"
                             class="btn btn-sm btn-outline-secondary">
-                        <i class="bi bi-x"></i> Cambiar
+                        <x-heroicon-o-x-mark class="icon-14"/> Cambiar
                     </button>
                 </div>
             @else
@@ -111,7 +111,7 @@
 
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary">
-                <i class="bi bi-send"></i> Enviar
+                <x-heroicon-o-paper-airplane class="icon-14"/> Enviar
             </button>
         </div>
     </form>

@@ -14,7 +14,7 @@
     <a href="{{ route('intervencion.ciudadano.show', $this->plan?->historia_id ?? $this->historiaId) }}"
        wire:navigate
        class="plan-topbar__back">
-        <x-icon name="arrow-left" class="icon-13"/>
+        <x-heroicon-o-arrow-left class="icon-13"/>
         Intervención
     </a>
 
@@ -39,7 +39,7 @@
     <div class="plan-topbar__actions">
         @if($this->plan)
         <button wire:click="generarPdf" class="btn btn-outline-secondary btn-sm">
-            <x-icon name="file-down" class="icon-13"/>
+            <x-heroicon-o-arrow-down-tray class="icon-13"/>
             Generar PDF
         </button>
         @endif
@@ -50,14 +50,14 @@
             class="btn btn-primary btn-sm"
             @if(! $this->puedeActivarse) disabled title="Marca ambas firmas para activar" @endif
         >
-            <x-icon name="check" class="icon-13"/>
+            <x-heroicon-o-check class="icon-13"/>
             Activar plan
         </button>
         @endif
 
         @if($this->plan?->estado->value === 'activo')
         <button class="btn btn-outline-secondary btn-sm">
-            <x-icon name="x-circle" class="icon-13"/>
+            <x-heroicon-o-x-circle class="icon-13"/>
             Cerrar plan
         </button>
         @endif
@@ -67,7 +67,7 @@
 {{-- Mensaje de éxito --}}
 @if($mensajeExito)
 <div class="plan-exito" x-init="setTimeout(() => $wire.set('mensajeExito', ''), 3000)">
-    <x-icon name="check-circle" class="icon-13"/>
+    <x-heroicon-o-check-circle class="icon-13"/>
     {{ $mensajeExito }}
 </div>
 @endif
@@ -82,7 +82,7 @@
     <div class="plan-section" id="ps-datos">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <x-icon name="user" class="icon-15"/>
+                <x-heroicon-o-user class="icon-15"/>
                 Datos de la persona
             </div>
             <span class="plan-readonly-badge">Solo lectura · Historia Social</span>
@@ -129,11 +129,11 @@
     <div class="plan-section" id="ps-diagnostico">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <x-icon name="file-text" class="icon-15"/>
+                <x-heroicon-o-document-text class="icon-15"/>
                 Diagnóstico social
             </div>
             <button wire:click="abrirDrawer" class="btn btn-outline-secondary btn-sm">
-                <x-icon name="database" class="icon-13"/>
+                <x-heroicon-o-circle-stack class="icon-13"/>
                 Añadir fichas
             </button>
         </div>
@@ -146,12 +146,12 @@
                      x-data="{ expandida: false }">
                     <div class="plan-ficha-header">
                         <div class="plan-ficha-title plan-ficha-title--toggle" @click="expandida = !expandida">
-                            <x-icon name="lock" class="icon-12 plan-icon-muted"/>
+                            <x-heroicon-o-lock-closed class="icon-12 plan-icon-muted"/>
                             {{ $pfd->ficha?->tipoFicha?->nombre ?? 'Ficha' }}
                             <span class="plan-ficha-date">
                                 {{ $pfd->ficha?->created_at?->format('d/m/Y') }}
                             </span>
-                            <x-icon name="chevron-down" class="icon-12"
+                            <x-heroicon-o-chevron-down class="icon-12"
                                x-bind:class="expandida ? 'plan-icon-rotate-180' : ''"/>
                         </div>
                         <button
@@ -159,7 +159,7 @@
                             class="btn btn-outline-danger btn-sm p-1 lh-1"
                             title="Eliminar del diagnóstico"
                         >
-                            <x-icon name="x" class="icon-12"/>
+                            <x-heroicon-o-x-mark class="icon-12"/>
                         </button>
                     </div>
                     <div class="plan-ficha-content" x-show="expandida" x-cloak>
@@ -183,7 +183,7 @@
 
                 @if($this->fichasDiagnostico->isNotEmpty())
                 <button wire:click="abrirDrawer" class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-1">
-                    <x-icon name="plus" class="icon-13"/>
+                    <x-heroicon-o-plus class="icon-13"/>
                     Añadir otra ficha
                 </button>
                 @endif
@@ -192,7 +192,7 @@
             {{-- Bloque B: Síntesis profesional --}}
             <div class="plan-sintesis">
                 <div class="plan-sintesis-label">
-                    <x-icon name="pencil" class="icon-13"/>
+                    <x-heroicon-o-pencil class="icon-13"/>
                     Síntesis profesional
                 </div>
                 <div class="plan-editor-toolbar">
@@ -202,7 +202,7 @@
                             title="Cursiva"><em>I</em></button>
                     <button class="btn btn-outline-secondary btn-sm p-1 lh-1" onclick="document.execCommand('insertUnorderedList')"
                             title="Lista">
-                        <x-icon name="list" class="icon-13"/>
+                        <x-heroicon-o-list-bullet class="icon-13"/>
                     </button>
                 </div>
                 <div
@@ -220,11 +220,11 @@
     <div class="plan-section" id="ps-objetivos">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <x-icon name="target" class="icon-15"/>
+                <x-heroicon-o-viewfinder-circle class="icon-15"/>
                 Objetivos
             </div>
             <button class="btn btn-outline-secondary btn-sm">
-                <x-icon name="plus" class="icon-13"/>
+                <x-heroicon-o-plus class="icon-13"/>
                 Añadir objetivo
             </button>
         </div>
@@ -248,7 +248,7 @@
                             {{ ucfirst(str_replace('_', ' ', $og->estado)) }}
                         </span>
                         <button class="btn btn-outline-secondary btn-sm p-1 lh-1">
-                            <x-icon name="edit" class="icon-13"/>
+                            <x-heroicon-o-pencil-square class="icon-13"/>
                         </button>
                     </div>
                 </div>
@@ -262,11 +262,11 @@
     <div class="plan-section" id="ps-ayto">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <x-icon name="building" class="icon-15"/>
+                <x-heroicon-o-building-office class="icon-15"/>
                 Compromisos del Ayuntamiento
             </div>
             <button class="btn btn-outline-secondary btn-sm">
-                <x-icon name="plus" class="icon-13"/>
+                <x-heroicon-o-plus class="icon-13"/>
                 Añadir
             </button>
         </div>
@@ -301,7 +301,7 @@
                         </td>
                         <td class="plan-td-secondary">{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
                         <td><span class="plan-estado-badge plan-estado-{{ $act->estado }}">{{ ucfirst($act->estado) }}</span></td>
-                        <td><button class="btn btn-outline-secondary btn-sm p-1 lh-1"><x-icon name="edit" class="icon-13"/></button></td>
+                        <td><button class="btn btn-outline-secondary btn-sm p-1 lh-1"><x-heroicon-o-pencil-square class="icon-13"/></button></td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -314,11 +314,11 @@
     <div class="plan-section" id="ps-ciudadano">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <x-icon name="user-check" class="icon-15"/>
+                <x-heroicon-o-check-badge class="icon-15"/>
                 Compromisos de la persona
             </div>
             <button class="btn btn-outline-secondary btn-sm">
-                <x-icon name="plus" class="icon-13"/>
+                <x-heroicon-o-plus class="icon-13"/>
                 Añadir
             </button>
         </div>
@@ -329,7 +329,7 @@
             <div class="list-group list-group-flush plan-comp-list">
                 @foreach($this->actuacionesCiudadano as $act)
                 <div class="list-group-item plan-comp-item" wire:key="aciu-{{ $act->id }}">
-                    <x-icon name="circle-check" class="icon-14"/>
+                    <x-heroicon-o-check-circle class="icon-14"/>
                     <div>
                         <div>{{ $act->descripcion }}</div>
                         @if($act->prestacion)
@@ -337,7 +337,7 @@
                         @endif
                     </div>
                     <button class="btn btn-outline-secondary btn-sm p-1 lh-1 ms-auto">
-                        <x-icon name="edit" class="icon-13"/>
+                        <x-heroicon-o-pencil-square class="icon-13"/>
                     </button>
                 </div>
                 @endforeach
@@ -350,11 +350,11 @@
     <div class="plan-section" id="ps-participantes">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <x-icon name="users" class="icon-15"/>
+                <x-heroicon-o-users class="icon-15"/>
                 Profesionales participantes
             </div>
             <button class="btn btn-outline-secondary btn-sm">
-                <x-icon name="plus" class="icon-13"/>
+                <x-heroicon-o-plus class="icon-13"/>
                 Añadir
             </button>
         </div>
@@ -374,7 +374,7 @@
                     <span class="plan-badge-responsable">Responsable</span>
                     @else
                     <button class="btn btn-outline-secondary btn-sm p-1 lh-1">
-                        <x-icon name="x" class="icon-13"/>
+                        <x-heroicon-o-x-mark class="icon-13"/>
                     </button>
                     @endif
                 </div>
@@ -387,7 +387,7 @@
     <div class="plan-section" id="ps-firmas">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <x-icon name="pen-line" class="icon-15"/>
+                <x-heroicon-o-pencil class="icon-15"/>
                 Seguimiento y firmas
             </div>
         </div>
@@ -479,7 +479,7 @@
 
             @if($this->puedeActivarse)
             <div class="plan-firma-lista-ok">
-                <x-icon name="check-circle" class="icon-14"/>
+                <x-heroicon-o-check-circle class="icon-14"/>
                 Ambas partes han firmado. El plan puede activarse desde el botón superior.
             </div>
             @endif
@@ -569,7 +569,7 @@
             x-on:click="$wire.aplicarSeleccionFichas(seleccion)"
             class="btn btn-primary btn-sm"
         >
-            <x-icon name="check" class="icon-13"/>
+            <x-heroicon-o-check class="icon-13"/>
             Aplicar selección
         </button>
     </div>
@@ -607,7 +607,7 @@
                     class="btn btn-primary btn-sm"
                     @if(empty(trim($motivoTexto))) disabled @endif
                 >
-                    <x-icon name="check" class="icon-13"/>
+                    <x-heroicon-o-check class="icon-13"/>
                     Confirmar cambio
                 </button>
             </div>

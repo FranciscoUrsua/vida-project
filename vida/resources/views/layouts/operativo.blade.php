@@ -29,7 +29,7 @@
             @elseif($nombreApp)
                 <span class="topbar__logo-text">{{ $nombreApp }}</span>
             @else
-                <x-icon name="hand-heart"
+                <x-heroicon-o-heart
                    class="icon-20"
                    aria-hidden="true"/>
                 <span class="topbar__logo-text">VIDA360</span>
@@ -82,7 +82,7 @@
                     {{ Auth::user()->profesional?->nombre_completo ?? Auth::user()->email }}
                 </span>
 
-                <x-icon name="chevron-down"
+                <x-heroicon-o-chevron-down
                    class="icon-16"
                    :class="{ 'icon-rotate-180': abierto }"
                    aria-hidden="true"/>
@@ -110,7 +110,7 @@
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="btn btn-link text-danger text-decoration-none d-flex align-items-center gap-2 w-100 justify-content-start px-4 py-2 rounded-0">
-                        <x-icon name="log-out" class="icon-16" aria-hidden="true"/>
+                        <x-heroicon-o-arrow-right-on-rectangle class="icon-16" aria-hidden="true"/>
                         Cerrar sesion
                     </button>
                 </form>

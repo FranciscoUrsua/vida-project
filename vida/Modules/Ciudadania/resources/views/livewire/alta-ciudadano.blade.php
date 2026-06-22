@@ -72,7 +72,7 @@
         @enderror
 
         <button wire:click="buscar" class="btn btn-primary btn-sm" style="font-size: 0.85rem;">
-            <x-icon name="search" style="width:14px;height:14px;vertical-align:-2px;" aria-hidden="true"/>
+            <x-heroicon-o-magnifying-glass style="width:14px;height:14px;vertical-align:-2px;" aria-hidden="true"/>
             Buscar
         </button>
 
@@ -143,7 +143,7 @@
 
         @if(!$padronConsultado)
             <button wire:click="consultarPadron" class="btn btn-primary btn-sm" style="font-size: 0.85rem;">
-                <x-icon name="search" style="width:14px;height:14px;vertical-align:-2px;" aria-hidden="true"/>
+                <x-heroicon-o-magnifying-glass style="width:14px;height:14px;vertical-align:-2px;" aria-hidden="true"/>
                 Consultar padrón
             </button>
         @endif

@@ -22,7 +22,7 @@
                         @foreach($mensaje->referenciasCiudadano as $ref)
                             <div class="mt-1">
                                 <span class="badge bg-secondary">
-                                    <i class="bi bi-person"></i>
+                                    <x-heroicon-o-user class="icon-14"/>
                                     Ciudadano #{{ $ref->ciudadano_id }}
                                 </span>
                                 @if($this->esTsrDeCiudadano($ref->ciudadano_id))
@@ -30,7 +30,7 @@
                                         class="btn btn-sm btn-link p-0 ms-1
                                                {{ $esMio ? 'text-white' : 'text-primary' }}"
                                         title="Registrar en Historia Social">
-                                    <i class="bi bi-journal-plus"></i>
+                                    <x-heroicon-o-document-plus class="icon-14"/>
                                 </button>
                                 @endif
                             </div>
@@ -42,7 +42,7 @@
                                 <a href="{{ $media->getUrl() }}"
                                    class="{{ $esMio ? 'text-white' : 'text-primary' }}"
                                    target="_blank">
-                                    <i class="bi bi-paperclip"></i> {{ $media->file_name }}
+                                    <x-heroicon-o-paper-clip class="icon-14"/> {{ $media->file_name }}
                                 </a>
                             </div>
                         @endforeach
@@ -67,7 +67,7 @@
                     <input type="file" wire:model="adjuntos" multiple class="form-control form-control-sm" />
                 </div>
                 <button type="submit" class="btn btn-primary btn-sm">
-                    <i class="bi bi-send"></i> Enviar
+                    <x-heroicon-o-paper-airplane class="icon-14"/> Enviar
                 </button>
             </div>
         </form>

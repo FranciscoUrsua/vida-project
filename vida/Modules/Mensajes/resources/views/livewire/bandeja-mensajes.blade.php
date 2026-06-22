@@ -6,7 +6,7 @@
         <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Mensajes</h5>
             <button wire:click="nuevaMensaje" class="btn btn-sm btn-primary">
-                <i class="bi bi-pencil-square"></i> Nuevo
+                <x-heroicon-o-pencil-square class="icon-14"/> Nuevo
             </button>
         </div>
 
@@ -33,7 +33,7 @@
                         <button wire:click.stop="archivarHilo({{ $hilo->id }})"
                                 class="btn btn-link btn-sm p-0 text-muted"
                                 title="Archivar hilo">
-                            <i class="bi bi-archive"></i>
+                            <x-heroicon-o-archive-box class="icon-14"/>
                         </button>
                     </div>
                 </div>

@@ -48,7 +48,7 @@
         {{-- Botones de atención e historia social --}}
         @if($this->puedeCrearAtencion)
         <button wire:click="abrirModalAtencion" type="button" class="btn btn-outline-secondary btn-sm citizen-file__header-action">
-            <x-icon name="message-square-plus" class="icon-14" aria-hidden="true"/>
+            <x-heroicon-o-chat-bubble-left-ellipsis class="icon-14" aria-hidden="true"/>
             Nueva atención
         </button>
         @endif
@@ -60,7 +60,7 @@
             type="button"
             class="btn btn-primary btn-sm citizen-file__header-action"
         >
-            <x-icon name="folder-plus" class="icon-14" aria-hidden="true"/>
+            <x-heroicon-o-folder-plus class="icon-14" aria-hidden="true"/>
             Abrir historia social
         </button>
         @elseif($historiaSocial && $puedeVerHS)
@@ -69,7 +69,7 @@
             href="{{ route('intervencion.ciudadano.show', $historiaSocial) }}"
             class="btn btn-primary btn-sm citizen-file__header-action"
         >
-            <x-icon name="folder-open" class="icon-14" aria-hidden="true"/>
+            <x-heroicon-o-folder-open class="icon-14" aria-hidden="true"/>
             Ver historia social
         </a>
         @endif
@@ -84,7 +84,7 @@
             </button>
         @elseif($puedeEditar)
             <button wire:click="activarEdicion" type="button" class="btn btn-outline-secondary btn-sm citizen-file__header-action">
-                <x-icon name="pencil" class="icon-14" aria-hidden="true"/>
+                <x-heroicon-o-pencil class="icon-14" aria-hidden="true"/>
                 Editar datos
             </button>
         @endif
@@ -110,7 +110,7 @@
             {{-- ——— Identificación y contacto ——— --}}
             <div class="citizen-file__card">
                 <h2 class="citizen-file__section-title">
-                    <x-icon name="user" class="icon-16" aria-hidden="true"/>
+                    <x-heroicon-o-user class="icon-16" aria-hidden="true"/>
                     Identificación y contacto
                 </h2>
 
@@ -238,12 +238,12 @@
             <div class="citizen-file__card">
                 <div class="citizen-file__section-head">
                     <h2 class="citizen-file__section-title citizen-file__section-title--tight">
-                        <x-icon name="id-card" class="icon-16" aria-hidden="true"/>
+                        <x-heroicon-o-identification class="icon-16" aria-hidden="true"/>
                         Documentos de identidad
                     </h2>
                     @if($puedeEditar)
                         <button wire:click="abrirModalDocumento" type="button" class="btn btn-outline-secondary btn-sm">
-                            <x-icon name="plus" class="icon-13" aria-hidden="true"/>
+                            <x-heroicon-o-plus class="icon-13" aria-hidden="true"/>
                             Añadir documento
                         </button>
                     @endif
@@ -297,12 +297,12 @@
             <div class="citizen-file__card">
                 <div class="citizen-file__section-head">
                     <h2 class="citizen-file__section-title citizen-file__section-title--tight">
-                        <x-icon name="users" class="icon-16" aria-hidden="true"/>
+                        <x-heroicon-o-users class="icon-16" aria-hidden="true"/>
                         Relaciones
                     </h2>
                     @if($puedeEditarRel)
                         <button wire:click="abrirModalNuevaRelacion" type="button" class="btn btn-outline-secondary btn-sm">
-                            <x-icon name="plus" class="icon-13" aria-hidden="true"/>
+                            <x-heroicon-o-plus class="icon-13" aria-hidden="true"/>
                             Añadir relación
                         </button>
                     @endif
@@ -342,7 +342,7 @@
                                 <span class="citizen-file__list-name">{{ $nombreRel }}</span>
                             @endif
                             @if($puedeEditarRel)
-                                <x-icon name="chevron-right" class="icon-14 citizen-file__list-chevron" aria-hidden="true"/>
+                                <x-heroicon-o-chevron-right class="icon-14 citizen-file__list-chevron" aria-hidden="true"/>
                             @endif
                         </div>
                         @endforeach
@@ -353,7 +353,7 @@
                     <div class="citizen-file__history">
                         <button wire:click="toggleHistorialRelaciones" type="button"
                             class="btn btn-link btn-sm text-decoration-none px-0 citizen-file__history-toggle">
-                            <x-icon name="{{ $mostrarHistorialRelaciones ? 'chevron-up' : 'chevron-down' }}" class="icon-13" aria-hidden="true"/>
+                            <x-dynamic-component :component="$mostrarHistorialRelaciones ? 'heroicon-o-chevron-up' : 'heroicon-o-chevron-down'" class="icon-13" aria-hidden="true"/>
                             {{ $mostrarHistorialRelaciones ? 'Ocultar historial' : "Ver historial ({$relacionesHist->count()})" }}
                         </button>
                         @if($mostrarHistorialRelaciones)
@@ -383,7 +383,7 @@
             @if($ucMiembros->isNotEmpty())
             <div class="citizen-file__card citizen-file__card--flush">
                 <h2 class="citizen-file__section-title citizen-file__section-title--compact">
-                    <x-icon name="home" class="icon-16" aria-hidden="true"/>
+                    <x-heroicon-o-home class="icon-16" aria-hidden="true"/>
                     Unidad de convivencia
                 </h2>
                 <div class="list-group list-group-flush citizen-file__list">
@@ -423,7 +423,7 @@
             @if($prestaciones->isNotEmpty())
                 <div class="citizen-file__card">
                     <h2 class="citizen-file__section-title citizen-file__section-title--compact">
-                        <x-icon name="layers" class="icon-16" aria-hidden="true"/>
+                        <x-heroicon-o-squares-2x2 class="icon-16" aria-hidden="true"/>
                         Otras prestaciones
                     </h2>
                     <div class="list-group list-group-flush citizen-file__stack">
@@ -463,7 +463,7 @@
             <div class="ficha-section citizen-file__timeline" id="ficha-atencion-historial">
                 <div class="ficha-section-header">
                     <div class="ficha-section-title">
-                        <x-icon name="history" class="icon-14" aria-hidden="true"/>
+                        <x-heroicon-o-arrow-path class="icon-14" aria-hidden="true"/>
                         Historial de atenciones
                         <span class="ficha-count">{{ $this->historialAtenciones->count() }}</span>
                     </div>
@@ -500,7 +500,7 @@
                         type="button"
                     >
                         <span x-text="expandido ? 'Ocultar' : 'Ver detalle'"></span>
-                        <x-icon name="chevron-down" class="icon-12"
+                        <x-heroicon-o-chevron-down class="icon-12"
                            :style="expandido ? 'transform:rotate(180deg)' : ''"
                            aria-hidden="true"/>
                     </button>
@@ -573,7 +573,7 @@
                         <span class="citizen-file__selected-name">{{ $this->ciudadanoSeleccionadoRelacion->nombre_completo }}</span>
                         <button type="button" wire:click="$set('relacionCiudadanoSeleccionado', null)"
                             class="btn btn-sm btn-outline-secondary p-1 citizen-file__clear-btn">
-                            <x-icon name="x" class="icon-14" aria-hidden="true"/>
+                            <x-heroicon-o-x-mark class="icon-14" aria-hidden="true"/>
                         </button>
                     </div>
                 @else
@@ -764,7 +764,7 @@
             <div class="modal-footer">
                 <button wire:click="cerrarModalAtencion" class="btn btn-outline-secondary btn-sm" type="button">Cancelar</button>
                 <button wire:click="guardarAtencion" class="btn btn-primary btn-sm" type="button">
-                    <x-icon name="check" class="icon-13" aria-hidden="true"/>
+                    <x-heroicon-o-check class="icon-13" aria-hidden="true"/>
                     Guardar atención
                 </button>
             </div>

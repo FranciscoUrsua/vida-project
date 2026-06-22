@@ -4,7 +4,7 @@
     <div class="ver-ficha-page__nav">
         <a href="{{ route('intervencion.ciudadano.show', $historiaId) }}"
            class="ver-ficha-page__back-link">
-            <x-icon name="arrow-left" class="icon-14" aria-hidden="true"/>
+            <x-heroicon-o-arrow-left class="icon-14" aria-hidden="true"/>
             Volver a la Historia Social
         </a>
     </div>

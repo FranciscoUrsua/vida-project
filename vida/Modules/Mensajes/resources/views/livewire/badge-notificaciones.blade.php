@@ -9,14 +9,14 @@
 
     @if($this->totalAlertas > 0)
         <a href="{{ url('/mensajes/alertas') }}" class="text-decoration-none me-2" title="Alertas pendientes">
-            <i class="bi bi-bell-fill text-warning"></i>
+            <x-heroicon-s-bell class="text-warning icon-16"/>
             <span class="badge bg-warning text-dark">{{ $this->totalAlertas }}</span>
         </a>
     @endif
 
     @if($this->totalMensajes > 0)
         <a href="{{ url('/mensajes') }}" class="text-decoration-none" title="Mensajes no leídos">
-            <i class="bi bi-chat-fill"></i>
+            <x-heroicon-s-chat-bubble-left class="icon-16"/>
             <span class="badge bg-primary">{{ $this->totalMensajes }}</span>
         </a>
     @endif

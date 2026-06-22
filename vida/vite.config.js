@@ -43,10 +43,6 @@ export default defineConfig({
                         return;
                     }
 
-                    if (id.includes('/lucide/')) {
-                        return 'vendor-lucide';
-                    }
-
                     if (id.includes('/bootstrap') || id.includes('/@popperjs/')) {
                         return 'vendor-bootstrap';
                     }

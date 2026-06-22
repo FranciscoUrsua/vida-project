@@ -4,7 +4,7 @@
 
     @if($this->alertas->isEmpty())
         <div class="alert alert-success">
-            <i class="bi bi-check-circle me-2"></i>No tienes alertas pendientes.
+            <x-heroicon-o-check-circle class="me-2 icon-14"/>No tienes alertas pendientes.
         </div>
     @else
         <div class="list-group">
@@ -17,11 +17,11 @@
                             {{-- Indicador de tipo --}}
                             @if($alerta->tipo->value === 'alerta')
                                 <span class="badge bg-warning text-dark me-2">
-                                    <i class="bi bi-exclamation-triangle-fill"></i> Alerta
+                                    <x-heroicon-s-exclamation-triangle class="icon-14"/> Alerta
                                 </span>
                             @else
                                 <span class="badge bg-info me-2">
-                                    <i class="bi bi-info-circle"></i> Aviso
+                                    <x-heroicon-o-information-circle class="icon-14"/> Aviso
                                 </span>
                             @endif
 
@@ -50,13 +50,13 @@
                                 @else
                                     <button wire:click="confirmarReconocimiento({{ $alerta->id }})"
                                             class="btn btn-sm btn-outline-success">
-                                        <i class="bi bi-check-lg"></i> Reconocer
+                                        <x-heroicon-o-check class="icon-14"/> Reconocer
                                     </button>
                                 @endif
                             @else
                                 <button wire:click="confirmarReconocimiento({{ $alerta->id }})"
                                         class="btn btn-sm btn-outline-secondary">
-                                    <i class="bi bi-x-lg"></i> Descartar
+                                    <x-heroicon-o-x-mark class="icon-14"/> Descartar
                                 </button>
                             @endif
                         </div>

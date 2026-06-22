@@ -22,7 +22,7 @@
         {{-- Nuevo mensaje --}}
         <button wire:click="abrirModalNuevoMensaje"
                 style="margin-left: auto; align-self: center; background: var(--color-primary); border: none; color: #fff; padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.35rem;">
-            <x-icon name="pencil" class="icon-14" aria-hidden="true"/>
+            <x-heroicon-o-pencil class="icon-14" aria-hidden="true"/>
             Nuevo mensaje
         </button>
     </div>
@@ -103,7 +103,7 @@
                     {{-- Banner de urgencia (solo alertas con fecha de vencimiento) --}}
                     @if($pestana === 'alertas' && $a->expira_en)
                         <div class="mensajes-buzon__urgency">
-                            <i class="ti ti-clock mensajes-buzon__urgency-icon"></i>
+                            <x-heroicon-o-clock class="mensajes-buzon__urgency-icon icon-14"/>
                             <span class="mensajes-buzon__urgency-text">
                                 Vence en {{ $a->expira_en->diffForHumans(now(), true) }}
                             </span>
@@ -117,7 +117,7 @@
                         @if($pestana === 'alertas')
                             <button wire:click="reconocerAlerta({{ $a->id }})"
                                     class="btn btn-primary btn-sm">
-                                <i class="bi bi-check-circle me-1"></i> Reconocer alerta
+                                <x-heroicon-o-check-circle class="me-1 icon-14"/> Reconocer alerta
                             </button>
                         @else
                             <button wire:click="reconocerAlerta({{ $a->id }})"
@@ -155,7 +155,7 @@
                                   placeholder="Escribe tu respuesta..."></textarea>
                         <button wire:click="enviarRespuesta({{ $hilo->id }})"
                                 class="btn btn-primary btn-sm d-inline-flex align-items-center justify-content-center">
-                            <i class="bi bi-send"></i>
+                            <x-heroicon-o-paper-airplane class="icon-14"/>
                         </button>
                     </div>
                 </div>
@@ -204,7 +204,7 @@
 
                             @if($destinatarioNombre)
                                 <div class="mt-2 small text-success">
-                                    <x-icon name="check-circle" class="icon-12" aria-hidden="true"/>
+                                    <x-heroicon-o-check-circle class="icon-12" aria-hidden="true"/>
                                     Seleccionado: {{ $destinatarioNombre }}
                                 </div>
                             @endif
@@ -245,7 +245,7 @@
                             Cancelar
                         </button>
                         <button wire:click="enviarMensaje" type="button" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">
-                            <x-icon name="send" class="icon-14" aria-hidden="true"/>
+                            <x-heroicon-o-paper-airplane class="icon-14" aria-hidden="true"/>
                             Enviar mensaje
                         </button>
                     </div>

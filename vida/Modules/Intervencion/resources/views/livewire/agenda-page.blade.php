@@ -24,10 +24,10 @@
         <div class="agenda-screen__toolbar-actions">
             <div class="btn-group btn-group-sm agenda-screen__nav-group" aria-label="Navegacion temporal">
                 <button wire:click="navegarAnterior" type="button" class="btn btn-sm btn-outline-secondary" aria-label="Periodo anterior">
-                    <x-icon name="chevron-left" class="icon-16" aria-hidden="true"/>
+                    <x-heroicon-o-chevron-left class="icon-16" aria-hidden="true"/>
                 </button>
                 <button wire:click="navegarSiguiente" type="button" class="btn btn-sm btn-outline-secondary" aria-label="Periodo siguiente">
-                    <x-icon name="chevron-right" class="icon-16" aria-hidden="true"/>
+                    <x-heroicon-o-chevron-right class="icon-16" aria-hidden="true"/>
                 </button>
                 <button wire:click="irAHoy" type="button" class="btn btn-sm btn-outline-primary">Hoy</button>
             </div>
