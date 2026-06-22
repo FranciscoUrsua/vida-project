@@ -105,6 +105,11 @@
 .buscar-ciudadano-page__input {
     flex: 1;
     font-size: 0.85rem;
+
+    @media (min-width: 1024px) {
+        flex: 0 0 20%;
+        max-width: 20%;
+    }
 }
 
 .buscar-ciudadano-page__results {

@@ -7,12 +7,14 @@
     @livewireStyles
     @vite(['resources/scss/app-operativo.scss', 'resources/js/app.js'])
     <script>
-        // En Livewire 4 no existe 'livewire:updated'; se usa el hook 'morphed' que
-        // dispara tras el morfeo DOM de cada componente, antes del siguiente pintado.
+        // 'morphed' dispara cuando un elemento existente es actualizado in-place.
+        // 'morph.added' dispara cuando Livewire inserta un elemento nuevo (ej: bloques @if
+        // que pasan de false a true). Sin este segundo hook, los iconos dentro de botones
+        // que aparecen condicionalmente nunca se procesan por Lucide.
         document.addEventListener('livewire:initialized', () => {
-            Livewire.hook('morphed', () => {
-                queueMicrotask(() => window.renderLucideIcons?.());
-            });
+            const scheduleIcons = () => queueMicrotask(() => window.renderLucideIcons?.());
+            Livewire.hook('morphed', scheduleIcons);
+            Livewire.hook('morph.added', scheduleIcons);
         });
     </script>
 </head>
@@ -51,7 +53,7 @@
                 request()->routeIs('intervencion.agenda*')     => 'Agenda',
                 request()->routeIs('intervencion.casos*')      => 'Mis casos',
                 request()->routeIs('intervencion.mensajes*')   => 'Alertas y mensajes',
-                request()->routeIs('intervencion.buscar*')     => 'Buscar',
+                request()->routeIs('intervencion.buscar*')     => 'Buscar ciudadano/a',
                 request()->routeIs('intervencion.valoracion*') => 'Valoración',
                 request()->routeIs('intervencion.escala*')     => 'Escala',
                 request()->routeIs('intervencion.ciudadano*')  => 'Expediente',

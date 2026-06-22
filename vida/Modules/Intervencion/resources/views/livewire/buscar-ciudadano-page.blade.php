@@ -2,8 +2,6 @@
 
     {{-- Barra superior --}}
     <div style="background: #fff; border-bottom: 1px solid var(--color-ink-200); padding: 0.75rem 1.25rem; flex-shrink: 0;">
-        <h1 style="font-size: 1rem; font-weight: 700; margin: 0 0 0.75rem; color: var(--color-ink-900);">Buscar ciudadano/a</h1>
-
         <form wire:submit.prevent="buscar" class="buscar-ciudadano-page__form">
             {{-- Campo de búsqueda --}}
             <select wire:model="campoBusqueda" class="form-select form-select-sm buscar-ciudadano-page__select">
@@ -13,9 +11,9 @@
                 <option value="hsu">NI-HSU-CM</option>
             </select>
 
-            <input wire:model="query" type="text" class="form-control form-control-sm"
-                   placeholder="Introduce el término de búsqueda..."
+            <input wire:model="query" type="text"
                    class="form-control form-control-sm buscar-ciudadano-page__input"
+                   placeholder="Introduce el término de búsqueda..."
                    autocomplete="off" />
 
             <button type="submit" class="btn btn-primary btn-sm">

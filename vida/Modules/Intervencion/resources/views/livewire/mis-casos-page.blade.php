@@ -24,10 +24,6 @@
 
 <div class="cases-screen">
     <section class="cases-screen__toolbar">
-        <div class="cases-screen__heading">
-            <h1 class="cases-screen__title">Intervención - Mis casos</h1>
-        </div>
-
         <div class="cases-screen__filters">
             <label class="cases-screen__search" aria-label="Buscar por nombre">
                 <i data-lucide="search" class="icon-14 cases-screen__search-icon" aria-hidden="true"></i>

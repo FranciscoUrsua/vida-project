@@ -18,10 +18,7 @@
     <section class="agenda-screen__toolbar">
         <div class="agenda-screen__heading">
             <p class="agenda-screen__eyebrow">Planificacion diaria</p>
-            <div class="agenda-screen__title-row">
-                <h1 class="agenda-screen__title">Agenda</h1>
-                <span class="agenda-screen__range">{{ $this->tituloFecha }}</span>
-            </div>
+            <span class="agenda-screen__range">{{ $this->tituloFecha }}</span>
         </div>
 
         <div class="agenda-screen__toolbar-actions">
