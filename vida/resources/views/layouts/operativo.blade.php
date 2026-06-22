@@ -8,7 +8,7 @@
     @vite(['resources/scss/app-operativo.scss', 'resources/js/app.js'])
     <script>
         // 'morphed' dispara cuando un elemento existente es actualizado in-place.
-        // 'morph.added' dispara cuando Livewire inserta un elemento nuevo (ej: bloques @if
+        // 'morph.added' dispara cuando Livewire inserta un elemento nuevo (ej: bloques @@if
         // que pasan de false a true). Sin este segundo hook, los iconos dentro de botones
         // que aparecen condicionalmente nunca se procesan por Lucide.
         document.addEventListener('livewire:initialized', () => {
