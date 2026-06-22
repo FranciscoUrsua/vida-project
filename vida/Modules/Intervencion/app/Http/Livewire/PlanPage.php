@@ -627,11 +627,12 @@ class PlanPage extends Component
         );
 
         match ($this->motivoAccionPendiente) {
-            'eliminarFicha' => $this->_eliminarFichaDirecto($this->motivoAccionParams['ficha_id']),
-            'aplicarFichas' => $this->_aplicarFichas($this->motivoAccionParams['fichas']),
+            'eliminarFicha'    => $this->_eliminarFichaDirecto($this->motivoAccionParams['ficha_id']),
+            'aplicarFichas'    => $this->_aplicarFichas($this->motivoAccionParams['fichas']),
             'guardarDiagnostico' => $this->plan->update(['diagnostico_social' => $this->diagnosticoTexto]),
             'guardarSeguimiento' => $this->_guardarSeguimientoDirecto(),
-            default => null,
+            'guardarPlan'      => $this->_guardarPlanDirecto(),
+            default            => null,
         };
 
         $this->modalMotivoAbierto = false;
@@ -672,6 +673,50 @@ class PlanPage extends Component
     {
         $this->plan->update(['periodicidad_seguimiento' => $this->periodicidadSeguimiento]);
         $this->_actualizarOServicioFirma(['observaciones_seguimiento' => $this->observacionesSeguimiento]);
+    }
+
+    // =========================================================
+    // ACCIONES — GUARDAR PLAN COMPLETO
+    // =========================================================
+
+    /**
+     * Guarda en bloque el diagnóstico y las condiciones de seguimiento.
+     * Si el plan está firmado y hay cambios, abre el modal de motivo.
+     *
+     * @return void
+     */
+    public function guardarPlan(): void
+    {
+        if (! $this->plan) {
+            return;
+        }
+
+        $diagnosticoCambiado  = $this->diagnosticoTexto !== ($this->plan->diagnostico_social ?? '');
+        $seguimientoCambiado  = $this->periodicidadSeguimiento !== ($this->plan->periodicidad_seguimiento ?? '');
+
+        if ($this->planFirmado && ($diagnosticoCambiado || $seguimientoCambiado)) {
+            $this->encolarAccion('guardarPlan', []);
+
+            return;
+        }
+
+        $this->_guardarPlanDirecto();
+        $this->mensajeExito = 'Plan guardado.';
+    }
+
+    /**
+     * Persiste diagnóstico y condiciones de seguimiento sin verificar estado del plan.
+     *
+     * @return void
+     */
+    private function _guardarPlanDirecto(): void
+    {
+        $this->plan->update([
+            'diagnostico_social'       => $this->diagnosticoTexto,
+            'periodicidad_seguimiento' => $this->periodicidadSeguimiento,
+        ]);
+        $this->_actualizarOServicioFirma(['observaciones_seguimiento' => $this->observacionesSeguimiento]);
+        $this->plan = $this->plan->fresh();
     }
 
     // =========================================================

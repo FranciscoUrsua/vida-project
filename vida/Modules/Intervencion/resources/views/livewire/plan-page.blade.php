@@ -212,7 +212,7 @@
                     x-on:blur="$wire.set('diagnosticoTexto', $el.innerHTML)"
                 >{!! $diagnosticoTexto !!}</div>
                 <div class="mt-2 text-end">
-                    <button wire:click="guardarDiagnostico" class="btn btn-sm btn-primary">
+                    <button wire:click="guardarDiagnostico" class="btn btn-sm btn-outline-secondary">
                         <x-heroicon-o-check class="icon-13"/>
                         Guardar síntesis
                     </button>
@@ -257,8 +257,9 @@
                         <span class="badge rounded-pill plan-estado-{{ $og->estado }}">
                             {{ ucfirst(str_replace('_', ' ', $og->estado)) }}
                         </span>
-                        <button class="btn btn-outline-secondary btn-sm p-1 lh-1">
+                        <button class="btn btn-outline-secondary btn-sm">
                             <x-heroicon-o-pencil-square class="icon-13"/>
+                            Editar
                         </button>
                     </div>
                 </div>
@@ -311,7 +312,7 @@
                         </td>
                         <td class="text-secondary">{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
                         <td><span class="badge rounded-pill plan-estado-{{ $act->estado }}">{{ ucfirst($act->estado) }}</span></td>
-                        <td><button class="btn btn-outline-secondary btn-sm p-1 lh-1"><x-heroicon-o-pencil-square class="icon-13"/></button></td>
+                        <td><button class="btn btn-outline-secondary btn-sm"><x-heroicon-o-pencil-square class="icon-13"/> Editar</button></td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -346,8 +347,9 @@
                         <span class="badge rounded-pill plan-badge--activo fw-normal mt-1">{{ $act->prestacion->nombre }}</span>
                         @endif
                     </div>
-                    <button class="btn btn-outline-secondary btn-sm p-1 lh-1 ms-auto flex-shrink-0">
+                    <button class="btn btn-outline-secondary btn-sm ms-auto flex-shrink-0">
                         <x-heroicon-o-pencil-square class="icon-13"/>
+                        Editar
                     </button>
                 </li>
                 @endforeach
@@ -429,7 +431,7 @@
                     ></textarea>
                 </div>
                 <div class="plan-field--full d-flex justify-content-end">
-                    <button wire:click="guardarSeguimiento" class="btn btn-sm btn-primary">
+                    <button wire:click="guardarSeguimiento" class="btn btn-sm btn-outline-secondary">
                         <x-heroicon-o-check class="icon-13"/>
                         Guardar seguimiento
                     </button>
@@ -512,6 +514,16 @@
 
         </div>
     </div>
+
+    {{-- BOTÓN PRINCIPAL --}}
+    @if($this->plan && $this->plan->estado->value !== 'cerrado')
+    <div class="d-flex justify-content-end py-2">
+        <button wire:click="guardarPlan" class="btn btn-primary">
+            <x-heroicon-o-check class="icon-13"/>
+            Guardar plan
+        </button>
+    </div>
+    @endif
 
 </div>{{-- fin plan-body --}}
 
