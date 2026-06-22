@@ -83,22 +83,28 @@
    SECCIONES
    ============================================================ */
 
+// .plan-section es un modificador sobre Bootstrap .card.
+// Bootstrap gestiona bg, border, radius y padding via CSS variables.
 .plan-section {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 8px; overflow: hidden;
+    --bs-card-bg: var(--color-surface);
+    --bs-card-border-color: var(--color-border);
+    --bs-card-border-radius: 8px;
+    overflow: hidden;
 }
-.plan-section__header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 11px 16px;
-    border-bottom: 1px solid var(--color-border);
+.plan-section .card-header {
+    --bs-card-cap-bg: transparent;
+    --bs-card-cap-padding-y: 11px;
+    --bs-card-cap-padding-x: 16px;
+    border-bottom-color: var(--color-border);
+}
+.plan-section .card-body {
+    --bs-card-spacer-y: 16px;
+    --bs-card-spacer-x: 16px;
 }
 .plan-section__title {
     display: flex; align-items: center; gap: 7px;
     font-size: 13px; font-weight: 600; color: var(--color-text-primary);
 }
-.plan-section__body { padding: 16px; }
-.plan-section__body--no-pad { padding: 0; }
 .plan-readonly-badge { display: inline-flex; align-items: center; font-size: 10px; color: var(--color-text-secondary); background: var(--color-surface-alt); padding: 2px 7px; border-radius: 99px; border: 1px solid var(--color-border); line-height: 1.35; }
 
 /* ============================================================
@@ -168,7 +174,7 @@
 .plan-prestacion-code { font-size: 10px; color: var(--color-text-secondary); margin-top: 1px; font-family: var(--font-mono); }
 .plan-prestacion-pill { font-size: 10px; color: var(--color-primary-ink, #234764); background: var(--color-primary-soft, #EAF3FB); padding: 1px 6px; border-radius: 99px; margin-top: 3px; display: inline-block; line-height: 1.35; }
 .plan-td-secondary { color: var(--color-text-secondary); }
-.plan-avatar-sm { width: 24px; height: 24px; border-radius: 50%; background: var(--color-surface-alt); border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--color-text-secondary); }
+// .plan-avatar-sm eliminado: usar .avatar.avatar--sm (VIDA design system)
 
 /* ============================================================
    COMPROMISOS CIUDADANO
@@ -197,16 +203,16 @@
 .plan-field { display: flex; flex-direction: column; gap: 4px; }
 .plan-field--full { grid-column: 1 / -1; }
 .plan-label { font-size: 11px; color: var(--color-text-secondary); font-weight: 500; }
-.plan-select, .plan-textarea, .plan-input { width: 100%; box-sizing: border-box; }
+// .plan-select, .plan-input: width/box-sizing los gestiona Bootstrap .form-select/.form-control
 .plan-textarea { resize: vertical; }
 
-.plan-firmas-divider { height: 1px; background: var(--color-border); margin: 16px 0; }
+// .plan-firmas-divider eliminado: usar <hr> en Blade
 .plan-firmas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .plan-firma-card { border: 1px solid var(--color-border); border-radius: 6px; padding: 14px; }
 .plan-firma-quien { font-size: 13px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 2px; }
 .plan-firma-rol { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 10px; }
-.plan-firma-check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--color-text-primary); cursor: pointer; }
-.plan-firma-fecha-reg { font-size: 11px; color: var(--color-text-secondary); margin-top: 6px; }
+// .plan-firma-check eliminado: usar Bootstrap .form-check
+// .plan-firma-fecha-reg eliminado: usar Bootstrap .form-text
 .plan-firma-lista-ok { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-success); background: var(--color-success-bg); padding: 8px 12px; border-radius: 6px; margin-top: 12px; }
 .plan-firma-nota { font-size: 11px; color: var(--color-text-secondary); margin-top: 10px; line-height: 1.5; }
 

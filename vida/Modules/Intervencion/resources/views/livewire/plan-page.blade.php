@@ -79,15 +79,15 @@
 <div class="plan-body">
 
     {{-- SECCIÓN 0: Datos de la persona --}}
-    <div class="plan-section" id="ps-datos">
-        <div class="plan-section__header">
+    <div class="card plan-section" id="ps-datos">
+        <div class="card-header d-flex align-items-center justify-content-between">
             <div class="plan-section__title">
                 <x-heroicon-o-user class="icon-15"/>
                 Datos de la persona
             </div>
             <span class="plan-readonly-badge">Solo lectura · Historia Social</span>
         </div>
-        <div class="plan-section__body">
+        <div class="card-body">
             <div class="plan-citizen-grid">
                 <div class="plan-citizen-field">
                     <div class="plan-citizen-label">Nombre completo</div>
@@ -126,8 +126,8 @@
     </div>
 
     {{-- SECCIÓN 1: Diagnóstico social --}}
-    <div class="plan-section" id="ps-diagnostico">
-        <div class="plan-section__header">
+    <div class="card plan-section" id="ps-diagnostico">
+        <div class="card-header d-flex align-items-center justify-content-between">
             <div class="plan-section__title">
                 <x-heroicon-o-document-text class="icon-15"/>
                 Diagnóstico social
@@ -137,7 +137,7 @@
                 Añadir fichas
             </button>
         </div>
-        <div class="plan-section__body">
+        <div class="card-body">
 
             {{-- Bloque A: Evidencia de fichas --}}
             <div class="plan-evidencia">
@@ -222,8 +222,8 @@
     </div>
 
     {{-- SECCIÓN 2: Objetivos --}}
-    <div class="plan-section" id="ps-objetivos">
-        <div class="plan-section__header">
+    <div class="card plan-section" id="ps-objetivos">
+        <div class="card-header d-flex align-items-center justify-content-between">
             <div class="plan-section__title">
                 <x-heroicon-o-viewfinder-circle class="icon-15"/>
                 Objetivos
@@ -233,7 +233,7 @@
                 Añadir objetivo
             </button>
         </div>
-        <div class="plan-section__body">
+        <div class="card-body">
             @if($this->objetivosGenerales->isEmpty())
             <div class="plan-vacio">Ningún objetivo definido aún.</div>
             @else
@@ -264,8 +264,8 @@
     </div>
 
     {{-- SECCIÓN 3: Compromisos del Ayuntamiento --}}
-    <div class="plan-section" id="ps-ayto">
-        <div class="plan-section__header">
+    <div class="card plan-section" id="ps-ayto">
+        <div class="card-header d-flex align-items-center justify-content-between">
             <div class="plan-section__title">
                 <x-heroicon-o-building-office class="icon-15"/>
                 Compromisos del Ayuntamiento
@@ -275,7 +275,7 @@
                 Añadir
             </button>
         </div>
-        <div class="plan-section__body plan-section__body--no-pad">
+        <div class="card-body p-0">
             @if($this->actuacionesAyuntamiento->isEmpty())
             <div class="plan-vacio plan-vacio--padded">Ninguna actuación definida.</div>
             @else
@@ -300,7 +300,7 @@
                         <td class="plan-td-secondary">{{ $act->descripcion_especifica ?? '—' }}</td>
                         <td>
                             @if($act->responsable)
-                            <div class="plan-avatar-sm">{{ substr($act->responsable->name, 0, 2) }}</div>
+                            <div class="avatar avatar--sm">{{ mb_strtoupper(substr($act->responsable->name, 0, 2)) }}</div>
                             @else —
                             @endif
                         </td>
@@ -316,8 +316,8 @@
     </div>
 
     {{-- SECCIÓN 4: Compromisos del ciudadano --}}
-    <div class="plan-section" id="ps-ciudadano">
-        <div class="plan-section__header">
+    <div class="card plan-section" id="ps-ciudadano">
+        <div class="card-header d-flex align-items-center justify-content-between">
             <div class="plan-section__title">
                 <x-heroicon-o-check-badge class="icon-15"/>
                 Compromisos de la persona
@@ -327,7 +327,7 @@
                 Añadir
             </button>
         </div>
-        <div class="plan-section__body">
+        <div class="card-body">
             @if($this->actuacionesCiudadano->isEmpty())
             <div class="plan-vacio">Ningún compromiso definido.</div>
             @else
@@ -352,8 +352,8 @@
     </div>
 
     {{-- SECCIÓN 5: Participantes --}}
-    <div class="plan-section" id="ps-participantes">
-        <div class="plan-section__header">
+    <div class="card plan-section" id="ps-participantes">
+        <div class="card-header d-flex align-items-center justify-content-between">
             <div class="plan-section__title">
                 <x-heroicon-o-users class="icon-15"/>
                 Profesionales participantes
@@ -363,7 +363,7 @@
                 Añadir
             </button>
         </div>
-        <div class="plan-section__body">
+        <div class="card-body">
             <div class="list-group list-group-flush plan-part-list">
                 @foreach($this->participantes as $p)
                 <div class="list-group-item plan-part-row" wire:key="part-{{ $p->id }}">
@@ -389,14 +389,14 @@
     </div>
 
     {{-- SECCIÓN 6: Seguimiento y firmas --}}
-    <div class="plan-section" id="ps-firmas">
-        <div class="plan-section__header">
+    <div class="card plan-section" id="ps-firmas">
+        <div class="card-header d-flex align-items-center justify-content-between">
             <div class="plan-section__title">
                 <x-heroicon-o-pencil class="icon-15"/>
                 Seguimiento y firmas
             </div>
         </div>
-        <div class="plan-section__body">
+        <div class="card-body">
 
             {{-- Condiciones de seguimiento --}}
             <div class="plan-seguimiento">
@@ -407,7 +407,7 @@
                         <select
                             wire:model.live="periodicidadSeguimiento"
                             wire:change="guardarSeguimiento"
-                            class="form-select form-select-sm plan-select"
+                            class="form-select form-select-sm"
                         >
                             <option value="bimensual">Bimensual</option>
                             <option value="trimestral">Trimestral</option>
@@ -428,24 +428,26 @@
                 </div>
             </div>
 
-            <div class="plan-firmas-divider"></div>
+            <hr class="my-4">
 
             {{-- Firmas --}}
             <div class="plan-firmas-grid">
                 <div class="plan-firma-card">
                     <div class="plan-firma-quien">{{ $this->plan?->profesionalResponsable?->name }}</div>
                     <div class="plan-firma-rol">Profesional responsable</div>
-                    <label class="plan-firma-check">
+                    <div class="form-check">
                         <input
+                            class="form-check-input"
                             type="checkbox"
+                            id="firma-profesional"
                             wire:model.live="profesionalFirmado"
                             wire:change="marcarFirmaProfesional($event.target.checked)"
                             @if($this->plan?->estado->value === 'cerrado') disabled @endif
                         >
-                        Ha firmado en papel
-                    </label>
+                        <label class="form-check-label" for="firma-profesional">Ha firmado en papel</label>
+                    </div>
                     @if($profesionalFirmado)
-                    <div class="plan-firma-fecha-reg">
+                    <div class="form-text">
                         Registrado: {{ \Modules\Intervencion\Models\FirmaPlan::where('plan_id', $this->plan->id)->where('version', $this->plan->version)->value('profesional_firmado_en')?->format('d/m/Y H:i') }}
                     </div>
                     @endif
@@ -454,17 +456,19 @@
                 <div class="plan-firma-card">
                     <div class="plan-firma-quien">{{ $this->ciudadano?->nombre_completo }}</div>
                     <div class="plan-firma-rol">Persona interesada</div>
-                    <label class="plan-firma-check">
+                    <div class="form-check">
                         <input
+                            class="form-check-input"
                             type="checkbox"
+                            id="firma-ciudadano"
                             wire:model.live="ciudadanoFirmado"
                             wire:change="marcarFirmaCiudadano($event.target.checked)"
                             @if($this->plan?->estado->value === 'cerrado') disabled @endif
                         >
-                        Ha firmado en papel
-                    </label>
+                        <label class="form-check-label" for="firma-ciudadano">Ha firmado en papel</label>
+                    </div>
                     @if($ciudadanoFirmado)
-                    <div class="plan-firma-fecha-reg">
+                    <div class="form-text">
                         Registrado: {{ \Modules\Intervencion\Models\FirmaPlan::where('plan_id', $this->plan->id)->where('version', $this->plan->version)->value('ciudadano_firmado_en')?->format('d/m/Y H:i') }}
                     </div>
                     @endif
@@ -478,7 +482,7 @@
                     type="date"
                     wire:model.lazy="fechaFirmaPresencial"
                     wire:change="guardarFechaFirma"
-                    class="form-control form-control-sm plan-input"
+                    class="form-control form-control-sm"
                 >
             </div>
 
