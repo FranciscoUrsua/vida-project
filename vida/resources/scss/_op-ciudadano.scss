@@ -1,0 +1,784 @@
+.ciudadano-page {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 56px);
+    overflow: hidden;
+}
+
+.ciudadano-layout--fill {
+    flex: 1;
+    min-height: 0;
+}
+
+.ciudadano-header-left--padded {
+    padding: 0.75rem;
+}
+
+.ciudadano-page__top-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+}
+
+.ciudadano-page__back-link {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.2rem;
+    color: var(--color-primary);
+    font-size: 0.75rem;
+    text-decoration: none;
+}
+
+.ciudadano-page__top-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: auto;
+}
+
+.ciudadano-page__meta-row {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.3rem;
+}
+
+.ciudadano-page__uc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    list-style: none;
+    margin: 0 0 0.5rem;
+    padding: 0;
+}
+
+.ciudadano-page__member-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.ciudadano-page__member-link:hover {
+    text-decoration: underline;
+}
+
+.ciudadano-header-right--padded {
+    padding: 1rem 1.25rem;
+}
+
+.ciudadano-page__toolbox-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+}
+
+.ciudadano-body-left--padded {
+    padding: 0.75rem;
+}
+
+.ciudadano-page__timeline-filters {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+}
+
+.ciudadano-page__history-item {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    margin-bottom: 0.6rem;
+    padding: 0.4rem 0.5rem;
+    cursor: pointer;
+}
+
+.ciudadano-page__history-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.ciudadano-page__alert-icon {
+    width: 14px;
+    height: 14px;
+}
+
+.ciudadano-body-right--scrollable {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1rem 1.25rem;
+}
+
+.ciudadano-page__two-col-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.ciudadano-page__section {
+    margin-bottom: 0.75rem;
+}
+
+.ciudadano-page__choice-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.8rem;
+}
+
+.ciudadano-page__check-label {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    cursor: pointer;
+}
+
+.ciudadano-page__radio-group {
+    margin-bottom: 0.75rem;
+    font-size: 0.8rem;
+}
+
+.ciudadano-page__radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.ciudadano-page__radio-label + .ciudadano-page__radio-label {
+    margin-top: 0.3rem;
+}
+
+.ciudadano-page__actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.icon-13 {
+    width: 13px;
+    height: 13px;
+}
+
+.icon-15 {
+    width: 15px;
+    height: 15px;
+}
+
+.icon-18 {
+    width: 18px;
+    height: 18px;
+}
+
+.ciudadano-page__stack-sm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+}
+
+.hs-modal__tipo  { font-weight: 600; color: var(--color-ink-900); font-size: 16px; }
+.hs-modal__fecha { font-size: 14px; color: var(--color-ink-500); margin-left: auto; }
+.hs-modal__autor { font-size: 14px; color: var(--color-ink-600); margin-bottom: 12px; }
+.hs-modal__contenido { font-size: 15px; color: var(--color-ink-800); line-height: 1.6; }
+.hs-modal__inmutable { font-size: 13px; color: var(--color-ink-500); font-style: italic; }
+.hs-slideover__subtitulo { font-size: 14px; font-weight: 600; margin: 12px 0 8px; color: var(--color-ink-800); }
+.hs-modal__contenido--spaced {
+    margin-top: 1rem;
+}
+
+/* ── Panel de últimos accesos al expediente ──────────────────── */
+.accesos-panel {
+    border-top: 1px solid var(--color-ink-200);
+    padding-top: var(--space-4);
+    margin-top: var(--space-4);
+}
+
+.accesos-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+}
+
+.accesos-panel__titulo {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-ink-500);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.accesos-panel__ver-todo {
+    font-size: 14px;
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.accesos-panel__ver-todo:hover {
+    text-decoration: underline;
+}
+
+.acceso-fila {
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-ink-100);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.acceso-fila:last-child {
+    border-bottom: none;
+}
+
+/* Acceso propio: tratamiento neutro, ligeramente atenuado */
+.acceso-fila--propio {
+    opacity: 0.65;
+}
+
+/* Acceso de otra UO solo lectura: fondo ámbar suave */
+.acceso-fila--sospechoso {
+    background: var(--color-warning-50);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-2);
+    margin: 0 calc(-1 * var(--space-2));
+}
+
+/* Acceso de otra UO con cambios: fondo coral — anomalía grave */
+.acceso-fila--anomalo {
+    background: var(--color-danger-50);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-2);
+    margin: 0 calc(-1 * var(--space-2));
+    border-left: 3px solid var(--color-danger);
+}
+
+.acceso-fila__quien {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.acceso-fila__nombre {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-ink-800);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.acceso-fila__badge-uo {
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--color-warning-50);
+    color: var(--color-warning);
+    border-radius: var(--radius-pill);
+    padding: 1px 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* En filas anómalas, el badge de UO usa color danger */
+.acceso-fila--anomalo .acceso-fila__badge-uo {
+    background: var(--color-danger-50);
+    color: var(--color-danger);
+}
+
+.acceso-fila__detalle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.acceso-fila__accion {
+    font-size: 13px;
+    color: var(--color-ink-500);
+}
+
+/* Acciones de escritura: más prominentes */
+.acceso-fila__accion--editar,
+.acceso-fila__accion--crear,
+.acceso-fila__accion--eliminar {
+    font-weight: 600;
+    color: var(--color-ink-700);
+}
+
+.acceso-fila__alerta {
+    color: var(--color-danger);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.acceso-fila__fecha {
+    font-size: 13px;
+    color: var(--color-ink-500);
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.accesos-panel__vacio {
+    font-size: 14px;
+    color: var(--color-ink-500);
+    padding: var(--space-2) 0;
+}
+
+
+/* ── Layout 4 cuadrantes de CiudadanoPage (Cambio 6) ──────────── */
+.ciudadano-layout {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    overflow: hidden;
+}
+.ciudadano-header-left  { background: #fff; border-right: 1px solid var(--color-ink-200); border-bottom: 1px solid var(--color-ink-200); overflow-y: auto; }
+.ciudadano-header-right { background: #fff; border-bottom: 1px solid var(--color-ink-200); overflow-y: auto; }
+.ciudadano-body-left    { background: var(--color-paper); border-right: 1px solid var(--color-ink-200); overflow-y: auto; }
+.ciudadano-body-right   { background: var(--color-paper); overflow-y: auto; display: flex; flex-direction: column; }
+
+/* ── Contacto del ciudadano (Cambio 5) ─────────────────────────── */
+.hs-ciudadano-contacto {
+    font-size: 0.72rem;
+    color: var(--color-ink-600);
+    margin: 0 0 0.2rem;
+    display: flex;
+    gap: 0;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.hs-ciudadano-contacto span { margin-right: 0.4rem; }
+.hs-ciudadano-contacto span + span::before {
+    content: '· ';
+    color: var(--color-ink-300);
+    margin-right: 0.4rem;
+}
+
+/* ── Barra de estadísticas de contexto (Cambio 7) ──────────────── */
+.hs-stats-bar {
+    display: flex;
+    gap: 0;
+    border-top: 1px solid var(--color-ink-200);
+    background: var(--color-surface);
+    flex-shrink: 0;
+}
+.hs-stat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 8px;
+    border-right: 1px solid var(--color-ink-200);
+}
+.hs-stat:last-child { border-right: none; }
+.hs-stat__val   { font-size: 16px; font-weight: 600; color: var(--color-primary); }
+.hs-stat__label { font-size: 13px; color: var(--color-ink-500); margin-top: 2px; font-weight: 500; }
+
+/* ── Score de escala en el slideover ───────────────────────────── */
+.hs-escala-score {
+    display: flex; align-items: baseline; gap: 10px;
+    margin: 8px 0 16px;
+}
+.hs-escala-score__val   { font-size: 28px; font-weight: 700; color: var(--color-primary); }
+.hs-escala-score__interp { font-size: 15px; color: var(--color-ink-600); }
+.hs-escala-secciones { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.hs-escala-seccion {
+    display: flex; justify-content: space-between;
+    font-size: 14px; padding: 6px 10px;
+    background: var(--color-paper); border-radius: var(--radius-sm);
+}
+
+/* ============================================================
+   MODAL GESTIÓN UNIDAD DE CONVIVENCIA
+   ============================================================ */
+
+.uc-modal__titulo {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+
+.uc-modal__mensaje {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    background: var(--color-success-bg, #f0fdf4);
+    color: var(--color-success, #166534);
+    font-size: 14px;
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.uc-modal__cuerpo {
+    overflow-y: auto;
+    flex: 1;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.uc-modal__seccion {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.uc-modal__seccion-titulo {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.uc-modal__badge {
+    background: var(--color-neutral-200, #e5e7eb);
+    color: var(--color-text-secondary);
+    border-radius: 10px;
+    padding: 0 6px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.uc-modal__lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.uc-modal__miembro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: var(--color-surface-alt, #f9fafb);
+    gap: 8px;
+}
+
+.uc-modal__miembro-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.uc-modal__miembro-nombre {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.uc-modal__miembro-meta {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+}
+
+.uc-modal__miembro-acciones {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.uc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 13px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.uc-badge--verificado {
+    background: var(--color-success-bg, #f0fdf4);
+    color: var(--color-success, #166534);
+    border: 1px solid var(--color-success-border, #bbf7d0);
+}
+
+.uc-badge--sin-verificar {
+    background: var(--color-warning-bg, #fffbeb);
+    color: var(--color-warning, #92400e);
+    border: 1px solid var(--color-warning-border, #fde68a);
+    cursor: pointer;
+}
+
+.uc-badge--sin-verificar:hover { background: var(--color-warning-hover, #fef3c7); }
+
+.uc-badge--sm { font-size: 12px; padding: 1px 5px; }
+
+.uc-modal__confirmar-baja {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    color: var(--color-text-secondary);
+}
+
+.uc-modal__busqueda { position: relative; }
+
+.uc-modal__input {
+    width: 100%;
+    padding: 7px 10px 7px 30px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 15px;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    outline: none;
+    box-sizing: border-box;
+}
+
+.uc-modal__input:focus {
+    border-color: var(--color-primary, #2563eb);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, .12);
+}
+
+.uc-modal__busqueda-icon {
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-secondary);
+    pointer-events: none;
+}
+
+.uc-modal__resultados {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.uc-modal__resultado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 15px;
+    gap: 8px;
+    transition: background .1s;
+}
+
+.uc-modal__resultado:not(:last-child) { border-bottom: 1px solid var(--color-border); }
+
+.uc-modal__resultado:hover { background: var(--color-surface-alt, #f9fafb); }
+
+.uc-modal__resultado-nombre { color: var(--color-text-primary); font-weight: 500; }
+
+.uc-modal__sin-resultados {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 4px 0;
+}
+
+.uc-modal__alta-link { color: var(--color-primary, #2563eb); font-size: 14px; text-decoration: none; }
+
+.uc-modal__alta-link:hover { text-decoration: underline; }
+
+.uc-modal__confirmar-adicion {
+    background: var(--color-surface-alt, #f9fafb);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--color-text-primary);
+}
+
+.uc-modal__confirmar-acciones { display: flex; gap: 6px; }
+
+.uc-modal__vacio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    text-align: center;
+}
+
+.uc-modal__vacio-lista { font-size: 14px; color: var(--color-text-secondary); padding: 8px 0; }
+
+.uc-widget__gestionar {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    padding: 3px 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+
+.uc-widget__gestionar:hover { background: var(--color-surface-alt, #f9fafb); color: var(--color-text-primary); }
+
+a.uc-modal__miembro-nombre { text-decoration: none; }
+a.uc-modal__miembro-nombre:hover { text-decoration: underline; }
+
+/* ============================================================
+   LÍNEA DE REPRESENTANTE
+   ============================================================ */
+
+.hs-representante {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 0;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    margin: 8px 0;
+}
+
+.hs-representante__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    white-space: nowrap;
+}
+
+.hs-representante__nombre {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-primary, #2563eb);
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    text-align: left;
+}
+
+.hs-representante__nombre:hover {
+    text-decoration: underline;
+}
+
+/* ============================================================
+   WIDGET UC — tipo de relación por miembro
+   ============================================================ */
+
+.uc-widget-miembro__nombre {
+    font-size: 14px;
+    color: var(--color-text-primary);
+}
+
+.uc-widget-miembro__relacion {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    background: var(--color-neutral-100, #f3f4f6);
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin-left: 4px;
+    white-space: nowrap;
+}
+
+.uc-widget__ver-relaciones {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    padding: 3px 8px;
+    border: none;
+    background: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    margin-top: 4px;
+}
+
+.uc-widget__ver-relaciones:hover {
+    color: var(--color-text-primary);
+    text-decoration: underline;
+}
+
+/* ============================================================
+   MODALES DE RELACIONES — elementos adicionales
+   ============================================================ */
+
+.rel-modal__persona {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px 0 12px;
+}
+
+.rel-modal__nombre {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.rel-modal__dato {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--color-primary, #2563eb);
+    text-decoration: none;
+}
+
+.rel-modal__dato:hover {
+    text-decoration: underline;
+}
+
+.rel-modal__sin-contacto {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+.rel-modal__pie-accion {
+    padding-top: 8px;
+    border-top: 1px solid var(--color-border);
+}
+
+.rel-modal__link-ficha {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+}
+
+.rel-modal__link-ficha:hover {
+    color: var(--color-text-primary);
+    text-decoration: underline;
+}
+
