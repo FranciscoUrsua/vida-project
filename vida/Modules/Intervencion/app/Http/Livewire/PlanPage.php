@@ -3,6 +3,7 @@
 namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\Ciudadano;
+use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -13,9 +14,14 @@ use Modules\Ciudadania\Models\TipoRelacion;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Models\FirmaPlan;
+use Modules\Intervencion\Models\PlanActuacionAyuntamiento;
+use Modules\Intervencion\Models\PlanActuacionCiudadano;
 use Modules\Intervencion\Models\PlanDeIntervencion;
+use Modules\Intervencion\Models\PlanObjetivo;
+use Modules\Intervencion\Models\PlanParticipante;
 use Modules\Intervencion\Models\Valoracion;
 use Modules\Intervencion\Services\PlanPdfService;
+use Modules\Prestaciones\Models\Prestacion;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -44,6 +50,16 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property bool $ciudadanoFirmado
  * @property string|null $fechaFirmaPresencial
  * @property string $mensajeExito
+ * @property bool $modalObjetivoAbierto
+ * @property string $nuevoObjetivoTexto
+ * @property bool $modalCompromisoAbierto
+ * @property string $nuevoCompromisoDescripcion
+ * @property bool $modalActuacionAytoAbierto
+ * @property int|null $nuevaActuacionPrestacionId
+ * @property string $nuevaActuacionDescripcion
+ * @property bool $modalParticipanteAbierto
+ * @property int|null $nuevoParticipanteUserId
+ * @property string $nuevoParticipanteRol
  */
 class PlanPage extends Component
 {
@@ -93,6 +109,27 @@ class PlanPage extends Component
 
     // --- Feedback ---
     public string $mensajeExito = '';
+
+    // --- Modales de creación ---
+    public bool $modalObjetivoAbierto = false;
+
+    public string $nuevoObjetivoTexto = '';
+
+    public bool $modalCompromisoAbierto = false;
+
+    public string $nuevoCompromisoDescripcion = '';
+
+    public bool $modalActuacionAytoAbierto = false;
+
+    public ?int $nuevaActuacionPrestacionId = null;
+
+    public string $nuevaActuacionDescripcion = '';
+
+    public bool $modalParticipanteAbierto = false;
+
+    public ?int $nuevoParticipanteUserId = null;
+
+    public string $nuevoParticipanteRol = '';
 
     /**
      * Inicializa el componente con el plan si se accede en modo edición,
@@ -301,6 +338,36 @@ class PlanPage extends Component
     public function planNombreCorto(): string
     {
         return auth()->user()?->unidadOrganizativa?->plan_nombre_corto ?? 'Plan';
+    }
+
+    /**
+     * Catálogo de prestaciones activas para el selector de actuaciones del Ayuntamiento.
+     *
+     * @return Collection<int, Prestacion>
+     */
+    #[Computed]
+    public function prestacionesCatalogo(): Collection
+    {
+        if (! $this->modalActuacionAytoAbierto) {
+            return collect();
+        }
+
+        return Prestacion::activas()->orderBy('nombre')->get(['id', 'nombre', 'codigo']);
+    }
+
+    /**
+     * Listado de profesionales disponibles para el selector de participantes.
+     *
+     * @return Collection<int, User>
+     */
+    #[Computed]
+    public function usuariosProfesionales(): Collection
+    {
+        if (! $this->modalParticipanteAbierto) {
+            return collect();
+        }
+
+        return User::orderBy('name')->get(['id', 'name']);
     }
 
     // =========================================================
@@ -601,6 +668,183 @@ class PlanPage extends Component
     {
         $this->plan->update(['periodicidad_seguimiento' => $this->periodicidadSeguimiento]);
         $this->_actualizarOServicioFirma(['observaciones_seguimiento' => $this->observacionesSeguimiento]);
+    }
+
+    // =========================================================
+    // ACCIONES — OBJETIVOS
+    // =========================================================
+
+    /**
+     * Abre el modal de creación de un objetivo general.
+     *
+     * @return void
+     */
+    public function abrirModalObjetivo(): void
+    {
+        $this->nuevoObjetivoTexto = '';
+        $this->resetErrorBag();
+        $this->modalObjetivoAbierto = true;
+    }
+
+    /**
+     * Persiste un nuevo objetivo general en el plan.
+     *
+     * @return void
+     */
+    public function guardarObjetivo(): void
+    {
+        if (! $this->plan) {
+            return;
+        }
+
+        $this->validate(['nuevoObjetivoTexto' => 'required|string|min:3|max:500']);
+
+        PlanObjetivo::create([
+            'plan_id' => $this->plan->id,
+            'nivel'   => 'general',
+            'texto'   => trim($this->nuevoObjetivoTexto),
+            'estado'  => 'pendiente',
+            'orden'   => $this->objetivosGenerales->count() + 1,
+        ]);
+
+        $this->modalObjetivoAbierto = false;
+        $this->nuevoObjetivoTexto = '';
+        unset($this->objetivosGenerales);
+        $this->mensajeExito = 'Objetivo añadido.';
+    }
+
+    // =========================================================
+    // ACCIONES — COMPROMISOS CIUDADANO
+    // =========================================================
+
+    /**
+     * Abre el modal de creación de un compromiso del ciudadano.
+     *
+     * @return void
+     */
+    public function abrirModalCompromiso(): void
+    {
+        $this->nuevoCompromisoDescripcion = '';
+        $this->resetErrorBag();
+        $this->modalCompromisoAbierto = true;
+    }
+
+    /**
+     * Persiste un nuevo compromiso del ciudadano en el plan.
+     *
+     * @return void
+     */
+    public function guardarCompromisoCiudadano(): void
+    {
+        if (! $this->plan) {
+            return;
+        }
+
+        $this->validate(['nuevoCompromisoDescripcion' => 'required|string|min:3|max:500']);
+
+        PlanActuacionCiudadano::create([
+            'plan_id'     => $this->plan->id,
+            'descripcion' => trim($this->nuevoCompromisoDescripcion),
+            'estado'      => 'pendiente',
+            'orden'       => $this->actuacionesCiudadano->count() + 1,
+        ]);
+
+        $this->modalCompromisoAbierto = false;
+        $this->nuevoCompromisoDescripcion = '';
+        unset($this->actuacionesCiudadano);
+        $this->mensajeExito = 'Compromiso añadido.';
+    }
+
+    // =========================================================
+    // ACCIONES — ACTUACIONES AYUNTAMIENTO
+    // =========================================================
+
+    /**
+     * Abre el modal de creación de una actuación del Ayuntamiento.
+     *
+     * @return void
+     */
+    public function abrirModalActuacionAyto(): void
+    {
+        $this->nuevaActuacionPrestacionId = null;
+        $this->nuevaActuacionDescripcion = '';
+        $this->resetErrorBag();
+        $this->modalActuacionAytoAbierto = true;
+    }
+
+    /**
+     * Persiste una nueva actuación del Ayuntamiento vinculada a una prestación.
+     *
+     * @return void
+     */
+    public function guardarActuacionAyto(): void
+    {
+        if (! $this->plan) {
+            return;
+        }
+
+        $this->validate(['nuevaActuacionPrestacionId' => 'required|exists:prestaciones,id']);
+
+        PlanActuacionAyuntamiento::create([
+            'plan_id'                => $this->plan->id,
+            'prestacion_id'          => $this->nuevaActuacionPrestacionId,
+            'descripcion_especifica' => $this->nuevaActuacionDescripcion ?: null,
+            'estado'                 => 'pendiente',
+            'orden'                  => $this->actuacionesAyuntamiento->count() + 1,
+        ]);
+
+        $this->modalActuacionAytoAbierto = false;
+        $this->nuevaActuacionPrestacionId = null;
+        $this->nuevaActuacionDescripcion = '';
+        unset($this->actuacionesAyuntamiento);
+        $this->mensajeExito = 'Actuación añadida.';
+    }
+
+    // =========================================================
+    // ACCIONES — PARTICIPANTES
+    // =========================================================
+
+    /**
+     * Abre el modal de adición de un profesional participante.
+     *
+     * @return void
+     */
+    public function abrirModalParticipante(): void
+    {
+        $this->nuevoParticipanteUserId = null;
+        $this->nuevoParticipanteRol = '';
+        $this->resetErrorBag();
+        $this->modalParticipanteAbierto = true;
+    }
+
+    /**
+     * Persiste un nuevo participante profesional en el plan.
+     *
+     * @return void
+     */
+    public function guardarParticipante(): void
+    {
+        if (! $this->plan) {
+            return;
+        }
+
+        $this->validate([
+            'nuevoParticipanteUserId' => 'required|exists:users,id',
+            'nuevoParticipanteRol'    => 'required|string|min:2|max:200',
+        ]);
+
+        PlanParticipante::create([
+            'plan_id'      => $this->plan->id,
+            'user_id'      => $this->nuevoParticipanteUserId,
+            'rol_en_plan'  => trim($this->nuevoParticipanteRol),
+            'fecha_inicio' => now()->toDateString(),
+        ]);
+
+        $this->modalParticipanteAbierto = false;
+        $this->nuevoParticipanteUserId = null;
+        $this->nuevoParticipanteRol = '';
+        unset($this->participantes);
+        $this->mensajeExito = 'Participante añadido.';
     }
 
     // =========================================================

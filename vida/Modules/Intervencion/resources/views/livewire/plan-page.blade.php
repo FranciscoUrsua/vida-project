@@ -210,7 +210,7 @@
                     contenteditable="{{ $this->plan?->estado !== 'cerrado' ? 'true' : 'false' }}"
                     x-data
                     x-on:blur="$wire.set('diagnosticoTexto', $el.innerHTML)"
-                >{{ $diagnosticoTexto }}</div>
+                >{!! $diagnosticoTexto !!}</div>
                 <div class="mt-2 text-end">
                     <button wire:click="guardarDiagnostico" class="btn btn-sm btn-primary">
                         <x-heroicon-o-check class="icon-13"/>
@@ -229,7 +229,7 @@
                 <x-heroicon-o-viewfinder-circle class="icon-15"/>
                 Objetivos
             </div>
-            <button class="btn btn-outline-secondary btn-sm">
+            <button wire:click="abrirModalObjetivo" class="btn btn-outline-secondary btn-sm">
                 <x-heroicon-o-plus class="icon-13"/>
                 Añadir objetivo
             </button>
@@ -275,7 +275,7 @@
                 <x-heroicon-o-building-office class="icon-15"/>
                 Compromisos del Ayuntamiento
             </div>
-            <button class="btn btn-outline-secondary btn-sm">
+            <button wire:click="abrirModalActuacionAyto" class="btn btn-outline-secondary btn-sm">
                 <x-heroicon-o-plus class="icon-13"/>
                 Añadir
             </button>
@@ -327,7 +327,7 @@
                 <x-heroicon-o-check-badge class="icon-15"/>
                 Compromisos de la persona
             </div>
-            <button class="btn btn-outline-secondary btn-sm">
+            <button wire:click="abrirModalCompromiso" class="btn btn-outline-secondary btn-sm">
                 <x-heroicon-o-plus class="icon-13"/>
                 Añadir
             </button>
@@ -363,7 +363,7 @@
                 <x-heroicon-o-users class="icon-15"/>
                 Profesionales participantes
             </div>
-            <button class="btn btn-outline-secondary btn-sm">
+            <button wire:click="abrirModalParticipante" class="btn btn-outline-secondary btn-sm">
                 <x-heroicon-o-plus class="icon-13"/>
                 Añadir
             </button>
@@ -533,69 +533,63 @@
 </div>{{-- fin plan-body-wrap --}}
 
 {{-- ============================================================
-     DRAWER DEL HISTORIAL
+     MODAL: AÑADIR FICHAS DEL HISTORIAL
      ============================================================ --}}
 @if($drawerAbierto)
-<div class="modal-backdrop fade show" x-on:click="$wire.cerrarDrawer()"></div>
-<div class="offcanvas offcanvas-end show border-start shadow"
-     tabindex="-1"
-     style="--bs-offcanvas-width: 380px;"
-     x-data="{ seleccion: @entangle('fichasSeleccionadas') }">
-    <div class="offcanvas-header">
-        <h2 class="offcanvas-title fs-6">Historia social - fichas</h2>
-        <button wire:click="cerrarDrawer" type="button" class="btn-close" aria-label="Cerrar"></button>
-    </div>
-
-    <div class="d-flex gap-2 flex-wrap px-3 py-2 border-bottom">
-        <button wire:click="$set('drawerFiltroFecha','todas')"
-            class="plan-chip {{ $drawerFiltroFecha === 'todas' ? 'plan-chip--on' : '' }}">Todas</button>
-        <button wire:click="$set('drawerFiltroFecha','mes')"
-            class="plan-chip {{ $drawerFiltroFecha === 'mes' ? 'plan-chip--on' : '' }}">Último mes</button>
-        <button wire:click="$set('drawerFiltroFecha','anio')"
-            class="plan-chip {{ $drawerFiltroFecha === 'anio' ? 'plan-chip--on' : '' }}">Último año</button>
-    </div>
-
-    <div class="offcanvas-body d-flex flex-column gap-2">
-        @forelse($this->valoracionesTimeline as $val)
-        <div class="card" wire:key="val-{{ $val->id }}">
-            <div class="card-header d-flex align-items-center justify-content-between py-2 px-3 small fw-semibold">
-                {{ $val->tipoValoracion?->nombre ?? 'Valoración' }}
-                <span class="fw-normal text-secondary">{{ $val->created_at->format('d/m/Y') }}</span>
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg"
+         x-data="{ seleccion: @entangle('fichasSeleccionadas') }">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Fichas del historial social</h5>
+                <button type="button" class="btn-close" wire:click="cerrarDrawer" aria-label="Cerrar"></button>
             </div>
-            @foreach($val->fichas as $ficha)
-            <div class="d-flex align-items-center gap-2 py-2 px-3 border-top" wire:key="df-{{ $ficha->id }}">
-                <input
-                    class="form-check-input mt-0 flex-shrink-0"
-                    type="checkbox"
-                    id="df{{ $ficha->id }}"
-                    value="{{ $ficha->id }}"
-                    x-model="seleccion"
-                >
-                <label class="form-check-label flex-fill small" for="df{{ $ficha->id }}">
-                    {{ $ficha->tipoFicha?->nombre ?? 'Ficha' }}
-                </label>
-                @if(in_array($ficha->id, $fichasSeleccionadas))
-                <span class="badge rounded-pill plan-badge--activo fw-normal">Añadida</span>
-                @endif
+            <div class="px-3 py-2 border-bottom d-flex gap-2 flex-wrap">
+                <button wire:click="$set('drawerFiltroFecha','todas')"
+                    class="plan-chip {{ $drawerFiltroFecha === 'todas' ? 'plan-chip--on' : '' }}">Todas</button>
+                <button wire:click="$set('drawerFiltroFecha','mes')"
+                    class="plan-chip {{ $drawerFiltroFecha === 'mes' ? 'plan-chip--on' : '' }}">Último mes</button>
+                <button wire:click="$set('drawerFiltroFecha','anio')"
+                    class="plan-chip {{ $drawerFiltroFecha === 'anio' ? 'plan-chip--on' : '' }}">Último año</button>
             </div>
-            @endforeach
+            <div class="modal-body d-flex flex-column gap-2">
+                @forelse($this->valoracionesTimeline as $val)
+                <div class="card" wire:key="val-{{ $val->id }}">
+                    <div class="card-header d-flex align-items-center justify-content-between py-2 px-3 small fw-semibold">
+                        {{ $val->tipoValoracion?->nombre ?? 'Valoración' }}
+                        <span class="fw-normal text-secondary">{{ $val->created_at->format('d/m/Y') }}</span>
+                    </div>
+                    @foreach($val->fichas as $ficha)
+                    <div class="d-flex align-items-center gap-2 py-2 px-3 border-top" wire:key="df-{{ $ficha->id }}">
+                        <input class="form-check-input mt-0 flex-shrink-0"
+                               type="checkbox"
+                               id="df{{ $ficha->id }}"
+                               value="{{ $ficha->id }}"
+                               x-model="seleccion">
+                        <label class="form-check-label flex-fill small" for="df{{ $ficha->id }}">
+                            {{ $ficha->tipoFicha?->nombre ?? 'Ficha' }}
+                        </label>
+                        @if(in_array($ficha->id, $fichasSeleccionadas))
+                        <span class="badge rounded-pill plan-badge--activo fw-normal">Añadida</span>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
+                @empty
+                <p class="text-muted fst-italic mb-0">No hay valoraciones registradas en el historial.</p>
+                @endforelse
+            </div>
+            <div class="modal-footer">
+                <button wire:click="cerrarDrawer" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                <button x-on:click="$wire.aplicarSeleccionFichas(seleccion)" class="btn btn-primary btn-sm">
+                    <x-heroicon-o-check class="icon-13"/>
+                    Aplicar selección
+                </button>
+            </div>
         </div>
-        @empty
-        <p class="text-muted fst-italic p-4 mb-0">No hay valoraciones en el historial.</p>
-        @endforelse
-    </div>
-
-    <div class="border-top d-flex gap-2 justify-content-end px-3 py-3">
-        <button wire:click="cerrarDrawer" class="btn btn-outline-secondary btn-sm">Cancelar</button>
-        <button
-            x-on:click="$wire.aplicarSeleccionFichas(seleccion)"
-            class="btn btn-primary btn-sm"
-        >
-            <x-heroicon-o-check class="icon-13"/>
-            Aplicar selección
-        </button>
     </div>
 </div>
+<div class="modal-backdrop fade show"></div>
 @endif
 
 {{-- ============================================================
@@ -615,7 +609,7 @@
                     Quedará registrado en el historial del plan.
                 </p>
                 <textarea
-                    wire:model="motivoTexto"
+                    wire:model.live="motivoTexto"
                     class="form-control form-control-sm plan-textarea"
                     rows="3"
                     placeholder="ej: se actualizó la ficha de vivienda tras visita domiciliaria…"
@@ -631,6 +625,173 @@
                 >
                     <x-heroicon-o-check class="icon-13"/>
                     Confirmar cambio
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+@endif
+
+{{-- ============================================================
+     MODAL: NUEVO OBJETIVO GENERAL
+     ============================================================ --}}
+@if($modalObjetivoAbierto)
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo objetivo general</h5>
+                <button type="button" class="btn-close" wire:click="$set('modalObjetivoAbierto', false)"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label small">Descripción del objetivo</label>
+                <textarea wire:model="nuevoObjetivoTexto"
+                          class="form-control form-control-sm @error('nuevoObjetivoTexto') is-invalid @enderror"
+                          rows="3"
+                          placeholder="Ej: Mejorar la autonomía económica de la unidad familiar…"
+                          autofocus></textarea>
+                @error('nuevoObjetivoTexto')
+                <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="modal-footer">
+                <button wire:click="$set('modalObjetivoAbierto', false)" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                <button wire:click="guardarObjetivo" class="btn btn-primary btn-sm">
+                    <x-heroicon-o-check class="icon-13"/>
+                    Guardar objetivo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+@endif
+
+{{-- ============================================================
+     MODAL: NUEVA ACTUACIÓN DEL AYUNTAMIENTO
+     ============================================================ --}}
+@if($modalActuacionAytoAbierto)
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva actuación del Ayuntamiento</h5>
+                <button type="button" class="btn-close" wire:click="$set('modalActuacionAytoAbierto', false)"></button>
+            </div>
+            <div class="modal-body d-flex flex-column gap-3">
+                <div>
+                    <label class="form-label small">Prestación <span class="text-danger">*</span></label>
+                    <select wire:model="nuevaActuacionPrestacionId"
+                            class="form-select form-select-sm @error('nuevaActuacionPrestacionId') is-invalid @enderror">
+                        <option value="">— Selecciona una prestación —</option>
+                        @foreach($this->prestacionesCatalogo as $p)
+                        <option value="{{ $p->id }}">{{ $p->nombre }}
+                            @if($p->codigo) ({{ $p->codigo }}) @endif
+                        </option>
+                        @endforeach
+                    </select>
+                    @error('nuevaActuacionPrestacionId')
+                    <div class="invalid-feedback">Selecciona una prestación.</div>
+                    @enderror
+                </div>
+                <div>
+                    <label class="form-label small">Concreción específica <span class="text-secondary fw-normal">(opcional)</span></label>
+                    <textarea wire:model="nuevaActuacionDescripcion"
+                              class="form-control form-control-sm"
+                              rows="2"
+                              placeholder="Detalle concreto de la actuación…"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button wire:click="$set('modalActuacionAytoAbierto', false)" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                <button wire:click="guardarActuacionAyto" class="btn btn-primary btn-sm">
+                    <x-heroicon-o-check class="icon-13"/>
+                    Guardar actuación
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+@endif
+
+{{-- ============================================================
+     MODAL: NUEVO COMPROMISO DEL CIUDADANO
+     ============================================================ --}}
+@if($modalCompromisoAbierto)
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo compromiso de la persona</h5>
+                <button type="button" class="btn-close" wire:click="$set('modalCompromisoAbierto', false)"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label small">Descripción del compromiso</label>
+                <textarea wire:model="nuevoCompromisoDescripcion"
+                          class="form-control form-control-sm @error('nuevoCompromisoDescripcion') is-invalid @enderror"
+                          rows="3"
+                          placeholder="Ej: Asistir al taller de inserción laboral los martes…"
+                          autofocus></textarea>
+                @error('nuevoCompromisoDescripcion')
+                <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="modal-footer">
+                <button wire:click="$set('modalCompromisoAbierto', false)" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                <button wire:click="guardarCompromisoCiudadano" class="btn btn-primary btn-sm">
+                    <x-heroicon-o-check class="icon-13"/>
+                    Guardar compromiso
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+@endif
+
+{{-- ============================================================
+     MODAL: NUEVO PARTICIPANTE PROFESIONAL
+     ============================================================ --}}
+@if($modalParticipanteAbierto)
+<div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title">Añadir profesional participante</h5>
+                <button type="button" class="btn-close" wire:click="$set('modalParticipanteAbierto', false)"></button>
+            </div>
+            <div class="modal-body d-flex flex-column gap-3">
+                <div>
+                    <label class="form-label small">Profesional <span class="text-danger">*</span></label>
+                    <select wire:model="nuevoParticipanteUserId"
+                            class="form-select form-select-sm @error('nuevoParticipanteUserId') is-invalid @enderror">
+                        <option value="">— Selecciona un profesional —</option>
+                        @foreach($this->usuariosProfesionales as $u)
+                        <option value="{{ $u->id }}">{{ $u->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('nuevoParticipanteUserId')
+                    <div class="invalid-feedback">Selecciona un profesional.</div>
+                    @enderror
+                </div>
+                <div>
+                    <label class="form-label small">Rol en el plan <span class="text-danger">*</span></label>
+                    <input wire:model="nuevoParticipanteRol"
+                           type="text"
+                           class="form-control form-control-sm @error('nuevoParticipanteRol') is-invalid @enderror"
+                           placeholder="Ej: Educador social de apoyo, Psicólogo…">
+                    @error('nuevoParticipanteRol')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button wire:click="$set('modalParticipanteAbierto', false)" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                <button wire:click="guardarParticipante" class="btn btn-primary btn-sm">
+                    <x-heroicon-o-check class="icon-13"/>
+                    Añadir participante
                 </button>
             </div>
         </div>
