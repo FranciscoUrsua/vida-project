@@ -420,37 +420,34 @@ class PlanPage extends Component
             return;
         }
 
-        if ($this->planFirmado) {
-            $this->encolarAccion('aplicarFichas', ['fichas' => $fichasNuevas]);
-            $this->cerrarDrawer();
-
-            return;
-        }
-
         $this->_aplicarFichas($fichasNuevas);
         $this->cerrarDrawer();
-        unset($this->fichasDiagnostico);
     }
 
     /**
-     * Sincroniza las fichas seleccionadas en la tabla pivote.
+     * Sincroniza las fichas seleccionadas en la tabla pivote comparando contra el estado en BD.
+     * wire:model ya actualiza fichasSeleccionadas antes de que se ejecute este método,
+     * por eso la comparación se hace contra la BD y no contra la propiedad en memoria.
      *
      * @param array<int> $fichas IDs de fichas a vincular (como enteros).
      * @return void
      */
     private function _aplicarFichas(array $fichas): void
     {
-        $fichasInt        = array_map('intval', $fichas);
-        $seleccionadasInt = array_map('intval', $this->fichasSeleccionadas);
+        $fichasInt  = array_map('intval', $fichas);
+        $fichasEnBd = $this->plan->fichasDiagnostico()
+            ->pluck('ficha_id')
+            ->map(fn ($id) => (int) $id)
+            ->toArray();
 
-        $eliminar = array_diff($seleccionadasInt, $fichasInt);
+        $eliminar = array_diff($fichasEnBd, $fichasInt);
         if ($eliminar) {
             $this->plan->fichasDiagnostico()
                 ->whereIn('ficha_id', $eliminar)
                 ->delete();
         }
 
-        $anadir = array_diff($fichasInt, $seleccionadasInt);
+        $anadir = array_diff($fichasInt, $fichasEnBd);
         foreach ($anadir as $fichaId) {
             $this->plan->fichasDiagnostico()->firstOrCreate(['ficha_id' => $fichaId]);
         }
@@ -460,7 +457,10 @@ class PlanPage extends Component
     }
 
     /**
-     * Elimina una ficha del diagnóstico. Pide motivo si el plan está firmado.
+     * Elimina una ficha del diagnóstico del plan.
+     *
+     * @param int $fichaId
+     * @return void
      */
     public function eliminarFichaDiagnostico(int $fichaId): void
     {
@@ -468,15 +468,9 @@ class PlanPage extends Component
             return;
         }
 
-        if ($this->planFirmado) {
-            $this->encolarAccion('eliminarFicha', ['ficha_id' => $fichaId]);
-
-            return;
-        }
-
         $this->plan->fichasDiagnostico()->where('ficha_id', $fichaId)->delete();
         $this->fichasSeleccionadas = array_values(
-            array_filter($this->fichasSeleccionadas, fn ($id) => $id !== $fichaId)
+            array_filter($this->fichasSeleccionadas, fn ($id) => (int) $id !== $fichaId)
         );
         unset($this->fichasDiagnostico);
     }
@@ -487,17 +481,12 @@ class PlanPage extends Component
 
     /**
      * Guarda el texto de síntesis del diagnóstico social.
-     * Si el plan está firmado, abre el modal de motivo.
+     *
+     * @return void
      */
     public function guardarDiagnostico(): void
     {
         if (! $this->plan) {
-            return;
-        }
-
-        if ($this->planFirmado && $this->diagnosticoTexto !== $this->plan->diagnostico_social) {
-            $this->encolarAccion('guardarDiagnostico', []);
-
             return;
         }
 
@@ -512,17 +501,12 @@ class PlanPage extends Component
 
     /**
      * Guarda la periodicidad y observaciones del seguimiento.
-     * Si el plan está firmado, abre el modal de motivo.
+     *
+     * @return void
      */
     public function guardarSeguimiento(): void
     {
         if (! $this->plan) {
-            return;
-        }
-
-        if ($this->planFirmado) {
-            $this->encolarAccion('guardarSeguimiento', []);
-
             return;
         }
 
@@ -640,12 +624,8 @@ class PlanPage extends Component
         );
 
         match ($this->motivoAccionPendiente) {
-            'eliminarFicha'    => $this->_eliminarFichaDirecto($this->motivoAccionParams['ficha_id']),
-            'aplicarFichas'    => $this->_aplicarFichas($this->motivoAccionParams['fichas']),
-            'guardarDiagnostico' => $this->plan->update(['diagnostico_social' => $this->diagnosticoTexto]),
-            'guardarSeguimiento' => $this->_guardarSeguimientoDirecto(),
-            'guardarPlan'      => $this->_guardarPlanDirecto(),
-            default            => null,
+            'guardarPlan' => $this->_guardarPlanDirecto(),
+            default       => null,
         };
 
         $this->modalMotivoAbierto = false;
@@ -668,25 +648,7 @@ class PlanPage extends Component
         $this->motivoTexto = '';
     }
 
-    /**
-     * Elimina directamente una ficha del diagnóstico sin verificar estado del plan.
-     */
-    private function _eliminarFichaDirecto(int $fichaId): void
-    {
-        $this->plan->fichasDiagnostico()->where('ficha_id', $fichaId)->delete();
-        $this->fichasSeleccionadas = array_values(
-            array_filter($this->fichasSeleccionadas, fn ($id) => $id !== $fichaId)
-        );
-    }
 
-    /**
-     * Persiste periodicidad y observaciones de seguimiento directamente.
-     */
-    private function _guardarSeguimientoDirecto(): void
-    {
-        $this->plan->update(['periodicidad_seguimiento' => $this->periodicidadSeguimiento]);
-        $this->_actualizarOServicioFirma(['observaciones_seguimiento' => $this->observacionesSeguimiento]);
-    }
 
     // =========================================================
     // ACCIONES — GUARDAR PLAN COMPLETO
