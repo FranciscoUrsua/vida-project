@@ -209,8 +209,14 @@
                     class="plan-editor-area"
                     contenteditable="{{ $this->plan?->estado !== 'cerrado' ? 'true' : 'false' }}"
                     x-data
-                    x-on:blur="$wire.set('diagnosticoTexto', $el.innerHTML); $wire.guardarDiagnostico()"
+                    x-on:blur="$wire.set('diagnosticoTexto', $el.innerHTML)"
                 >{{ $diagnosticoTexto }}</div>
+                <div class="mt-2 text-end">
+                    <button wire:click="guardarDiagnostico" class="btn btn-sm btn-primary">
+                        <x-heroicon-o-check class="icon-13"/>
+                        Guardar síntesis
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -530,8 +536,8 @@
      DRAWER DEL HISTORIAL
      ============================================================ --}}
 @if($drawerAbierto)
-<div class="modal-backdrop fade show" wire:click="cerrarDrawer"></div>
-<div class="offcanvas offcanvas-end show d-block border-start shadow"
+<div class="modal-backdrop fade show" x-on:click="$wire.cerrarDrawer()"></div>
+<div class="offcanvas offcanvas-end show border-start shadow"
      tabindex="-1"
      style="--bs-offcanvas-width: 380px;"
      x-data="{ seleccion: @entangle('fichasSeleccionadas') }">
