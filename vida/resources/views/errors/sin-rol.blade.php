@@ -20,7 +20,7 @@
             <div class="auth-card auth-card--blocked border-0 shadow-sm">
                 <div class="auth-card__body card-body p-4 p-md-5">
                     <div class="auth-card__status-icon" aria-hidden="true">
-                        <i data-lucide="lock" class="icon-40"></i>
+                        <x-icon name="lock" class="icon-40"/>
                     </div>
 
                     <header class="text-center mb-4">

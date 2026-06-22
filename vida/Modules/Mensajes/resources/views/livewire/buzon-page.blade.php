@@ -22,7 +22,7 @@
         {{-- Nuevo mensaje --}}
         <button wire:click="abrirModalNuevoMensaje"
                 style="margin-left: auto; align-self: center; background: var(--color-primary); border: none; color: #fff; padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.35rem;">
-            <i data-lucide="pencil" class="icon-14" aria-hidden="true"></i>
+            <x-icon name="pencil" class="icon-14" aria-hidden="true"/>
             Nuevo mensaje
         </button>
     </div>
@@ -204,7 +204,7 @@
 
                             @if($destinatarioNombre)
                                 <div class="mt-2 small text-success">
-                                    <i data-lucide="check-circle" class="icon-12" aria-hidden="true"></i>
+                                    <x-icon name="check-circle" class="icon-12" aria-hidden="true"/>
                                     Seleccionado: {{ $destinatarioNombre }}
                                 </div>
                             @endif
@@ -245,7 +245,7 @@
                             Cancelar
                         </button>
                         <button wire:click="enviarMensaje" type="button" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">
-                            <i data-lucide="send" class="icon-14" aria-hidden="true"></i>
+                            <x-icon name="send" class="icon-14" aria-hidden="true"/>
                             Enviar mensaje
                         </button>
                     </div>

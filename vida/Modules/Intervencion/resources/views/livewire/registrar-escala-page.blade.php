@@ -2,7 +2,7 @@
 
     <div class="registro-page__nav">
         <a href="{{ route('intervencion.ciudadano.show', $historia->id) }}" class="registro-page__back-link">
-            <i data-lucide="arrow-left" class="icon-14" aria-hidden="true"></i> Volver a la Historia Social
+            <x-icon name="arrow-left" class="icon-14" aria-hidden="true"/> Volver a la Historia Social
         </a>
     </div>
 

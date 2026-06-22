@@ -26,7 +26,7 @@
     <section class="cases-screen__toolbar">
         <div class="cases-screen__filters">
             <label class="cases-screen__search" aria-label="Buscar por nombre">
-                <i data-lucide="search" class="icon-14 cases-screen__search-icon" aria-hidden="true"></i>
+                <x-icon name="search" class="icon-14 cases-screen__search-icon" aria-hidden="true"/>
                 <input
                     wire:model.live.debounce.300ms="busqueda"
                     type="search"
@@ -119,7 +119,7 @@
                                     <td class="cases-screen__cell">
                                         <span class="cases-screen__status-chip cases-screen__status-chip--{{ $estado }}">
                                             @if($estado === 'vencido')
-                                                <i data-lucide="clock" class="icon-13" aria-hidden="true"></i>
+                                                <x-icon name="clock" class="icon-13" aria-hidden="true"/>
                                             @endif
                                             @if($caso->fecha_siguiente_seguimiento)
                                                 {{ Carbon::parse($caso->fecha_siguiente_seguimiento)->format('d/m/Y') }}

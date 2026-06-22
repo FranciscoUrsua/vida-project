@@ -73,7 +73,7 @@
             <div class="ciudadano-page__top-row">
                 <a href="{{ route('intervencion.casos.index') }}"
                    class="ciudadano-page__back-link">
-                    <i data-lucide="arrow-left" class="icon-12" aria-hidden="true"></i> Mis casos
+                    <x-icon name="arrow-left" class="icon-12" aria-hidden="true"/> Mis casos
                 </a>
                 <div class="ciudadano-page__top-actions">
                     @if($ciudadano)
@@ -147,7 +147,7 @@
                     {{ $this->representante->nombre }}
                     {{ $this->representante->apellido1 }}
                     {{ $this->representante->apellido2 }}
-                    <i data-lucide="chevron-right" class="icon-12"></i>
+                    <x-icon name="chevron-right" class="icon-12"/>
                 </button>
             </div>
             @endif
@@ -164,7 +164,7 @@
                             </span>
                         @endif
                     </span>
-                    <i data-lucide="{{ $ucExpandida ? 'chevron-up' : 'chevron-down' }}" class="record-screen__uc-chevron" aria-hidden="true"></i>
+                    <x-icon name="{{ $ucExpandida ? 'chevron-up' : 'chevron-down' }}" class="record-screen__uc-chevron" aria-hidden="true"/>
                 </button>
                 @if($ucExpandida)
                     <div class="record-screen__uc-body">
@@ -173,9 +173,9 @@
                                 @foreach($this->ucMiembrosActivos as $ucm)
                                     <li class="record-screen__uc-item">
                                         @if($ucm->verificado)
-                                            <i data-lucide="shield-check" class="record-screen__uc-icon record-screen__uc-icon--verified" aria-hidden="true"></i>
+                                            <x-icon name="shield-check" class="record-screen__uc-icon record-screen__uc-icon--verified" aria-hidden="true"/>
                                         @else
-                                            <i data-lucide="shield-alert" class="record-screen__uc-icon record-screen__uc-icon--pending" aria-hidden="true"></i>
+                                            <x-icon name="shield-alert" class="record-screen__uc-icon record-screen__uc-icon--pending" aria-hidden="true"/>
                                         @endif
                                         @if($ucm->ciudadano)
                                             @php $tipoRelUc = $this->relacionesMiembrosUc->get($ucm->ciudadano_id); @endphp
@@ -195,7 +195,7 @@
                         @endif
                         {{-- Botón gestionar UC --}}
                         <button wire:click="abrirModalUc" class="btn btn-sm btn-outline-primary uc-widget__gestionar" title="Gestionar unidad de convivencia">
-                            <i data-lucide="users" class="icon-14" aria-hidden="true"></i>
+                            <x-icon name="users" class="icon-14" aria-hidden="true"/>
                             Gestionar UC
                         </button>
                         {{-- Botón para ver todas las relaciones del ciudadano --}}
@@ -204,7 +204,7 @@
                             class="btn btn-sm btn-outline-secondary uc-widget__ver-relaciones"
                             title="Ver todas las personas relacionadas"
                         >
-                            <i data-lucide="network" class="icon-12"></i>
+                            <x-icon name="network" class="icon-12"/>
                             Ver todas las relaciones
                         </button>
                     </div>
@@ -224,7 +224,7 @@
                             type="button"
                             wire:click="seleccionarHerramienta('{{ $h['id'] }}')"
                             class="btn record-screen__tool {{ $herramientaActiva === $h['id'] ? 'btn-primary record-screen__tool--active' : 'btn-outline-secondary' }}">
-                        <i data-lucide="{{ $h['icon'] }}" class="icon-20 record-screen__tool-icon" aria-hidden="true"></i>
+                        <x-icon name="{{ $h['icon'] }}" class="icon-20 record-screen__tool-icon" aria-hidden="true"/>
                         <span class="record-screen__tool-label">
                             {{ $h['label'] }}
                             @if($h['fullpage'])
@@ -493,7 +493,7 @@
 
                                     <div class="acceso-fila__detalle">
                                         <span class="acceso-fila__accion acceso-fila__accion--{{ $acceso->accion?->value }}">                                            {{ $acceso->accion?->etiqueta() ?? '—' }}                                        </span>
-                                        @if($esAnomalos)                                            <span class="acceso-fila__alerta" title="Modificación desde otra UO — revisar">                                                <i data-lucide="alert-triangle" class="ciudadano-page__alert-icon" aria-hidden="true"></i>                                            </span>                                        @endif
+                                        @if($esAnomalos)                                            <span class="acceso-fila__alerta" title="Modificación desde otra UO — revisar">                                                <x-icon name="alert-triangle" class="ciudadano-page__alert-icon" aria-hidden="true"/>                                            </span>                                        @endif
                                         <span class="acceso-fila__fecha">{{ $acceso->created_at->diffForHumans() }}</span>
                                     </div>
                                 </div>
@@ -640,7 +640,7 @@
                 @if(($modalApunteDatos['ficha_url'] ?? null))
                     <a href="{{ $modalApunteDatos['ficha_url'] }}" wire:navigate
                        class="btn btn-link btn-sm text-decoration-none px-0">
-                        <i data-lucide="external-link" class="icon-13" aria-hidden="true"></i>
+                        <x-icon name="external-link" class="icon-13" aria-hidden="true"/>
                         Ver ficha completa
                     </a>
                 @endif
@@ -674,7 +674,7 @@
 
                 @if($ucMensaje)
                 <div class="uc-modal__mensaje" wire:key="uc-mensaje">
-                    <i data-lucide="check-circle" class="icon-14" aria-hidden="true"></i>
+                    <x-icon name="check-circle" class="icon-14" aria-hidden="true"/>
                     {{ $ucMensaje }}
                 </div>
                 @endif
@@ -685,7 +685,7 @@
                         <div class="uc-modal__vacio">
                             <p>Este ciudadano no tiene unidad de convivencia registrada.</p>
                             <button wire:click="crearUc" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">
-                                <i data-lucide="plus" class="icon-14" aria-hidden="true"></i>
+                                <x-icon name="plus" class="icon-14" aria-hidden="true"/>
                                 Crear unidad de convivencia
                             </button>
                         </div>
@@ -719,7 +719,7 @@
                                     <div class="uc-modal__miembro-acciones">
                                         @if($miembro->verificado)
                                             <span class="uc-badge uc-badge--verificado" title="Residencia verificada">
-                                                <i data-lucide="shield-check" class="icon-12" aria-hidden="true"></i>
+                                                <x-icon name="shield-check" class="icon-12" aria-hidden="true"/>
                                                 Verificado
                                             </span>
                                         @else
@@ -728,7 +728,7 @@
                                                 class="uc-badge uc-badge--sin-verificar"
                                                 title="Verificar residencia manualmente"
                                             >
-                                                <i data-lucide="shield-alert" class="icon-12" aria-hidden="true"></i>
+                                                <x-icon name="shield-alert" class="icon-12" aria-hidden="true"/>
                                                 Sin verificar
                                             </button>
                                         @endif
@@ -745,7 +745,7 @@
                                                 class="btn btn-outline-secondary btn-sm"
                                                 title="Dar de baja como miembro"
                                             >
-                                                <i data-lucide="user-minus" class="icon-13" aria-hidden="true"></i>
+                                                <x-icon name="user-minus" class="icon-13" aria-hidden="true"/>
                                             </button>
                                         @endif
                                     </div>
@@ -780,7 +780,7 @@
                                         class="uc-modal__input"
                                         autocomplete="off"
                                     />
-                                    <i data-lucide="search" class="uc-modal__busqueda-icon icon-14" aria-hidden="true"></i>
+                                    <x-icon name="search" class="uc-modal__busqueda-icon icon-14" aria-hidden="true"/>
                                 </div>
 
                                 @if($this->ucResultadosBusqueda->isNotEmpty())
@@ -857,7 +857,7 @@
                         @if($this->representante->telefono)
                         <a href="tel:{{ $this->representante->telefono }}"
                            class="rel-modal__dato">
-                            <i data-lucide="phone" class="icon-13"></i>
+                            <x-icon name="phone" class="icon-13"/>
                             {{ $this->representante->telefono }}
                         </a>
                         @endif
@@ -865,7 +865,7 @@
                         @if($this->representante->email)
                         <a href="mailto:{{ $this->representante->email }}"
                            class="rel-modal__dato">
-                            <i data-lucide="mail" class="icon-13"></i>
+                            <x-icon name="mail" class="icon-13"/>
                             {{ $this->representante->email }}
                         </a>
                         @endif
@@ -883,7 +883,7 @@
                             class="rel-modal__link-ficha"
                             wire:navigate
                         >
-                            <i data-lucide="external-link" class="icon-12"></i>
+                            <x-icon name="external-link" class="icon-12"/>
                             Ver ficha completa
                         </a>
                     </div>
@@ -956,7 +956,7 @@
                                         wire:navigate
                                         title="Ver ficha"
                                     >
-                                        <i data-lucide="external-link" class="icon-12"></i>
+                                        <x-icon name="external-link" class="icon-12"/>
                                     </a>
                                 </div>
                             </li>
@@ -984,7 +984,7 @@
                         class="rel-modal__link-ficha"
                         wire:navigate
                     >
-                        <i data-lucide="external-link" class="icon-12"></i>
+                        <x-icon name="external-link" class="icon-12"/>
                         Gestionar relaciones en la ficha
                     </a>
                     <button wire:click="cerrarModalRelaciones" class="btn btn-outline-secondary btn-sm">

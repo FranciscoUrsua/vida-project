@@ -17,7 +17,7 @@
                    autocomplete="off" />
 
             <button type="submit" class="btn btn-primary btn-sm">
-                <i data-lucide="search" class="icon-14" aria-hidden="true"></i> Buscar
+                <x-icon name="search" class="icon-14" aria-hidden="true"/> Buscar
             </button>
         </form>
 

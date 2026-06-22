@@ -6,17 +6,6 @@
     <title>{{ config('app.name') }} — Intervención</title>
     @livewireStyles
     @vite(['resources/scss/app-operativo.scss', 'resources/js/app.js'])
-    <script>
-        // 'morphed' dispara cuando un elemento existente es actualizado in-place.
-        // 'morph.added' dispara cuando Livewire inserta un elemento nuevo (ej: bloques @@if
-        // que pasan de false a true). Sin este segundo hook, los iconos dentro de botones
-        // que aparecen condicionalmente nunca se procesan por Lucide.
-        document.addEventListener('livewire:initialized', () => {
-            const scheduleIcons = () => queueMicrotask(() => window.renderLucideIcons?.());
-            Livewire.hook('morphed', scheduleIcons);
-            Livewire.hook('morph.added', scheduleIcons);
-        });
-    </script>
 </head>
 <body>
 <div class="op-layout">
@@ -40,9 +29,9 @@
             @elseif($nombreApp)
                 <span class="topbar__logo-text">{{ $nombreApp }}</span>
             @else
-                <i data-lucide="hand-heart"
+                <x-icon name="hand-heart"
                    class="icon-20"
-                   aria-hidden="true"></i>
+                   aria-hidden="true"/>
                 <span class="topbar__logo-text">VIDA360</span>
             @endif
         </div>
@@ -93,10 +82,10 @@
                     {{ Auth::user()->profesional?->nombre_completo ?? Auth::user()->email }}
                 </span>
 
-                <i data-lucide="chevron-down"
+                <x-icon name="chevron-down"
                    class="icon-16"
                    :class="{ 'icon-rotate-180': abierto }"
-                   aria-hidden="true"></i>
+                   aria-hidden="true"/>
             </button>
 
             {{-- Menu desplegable --}}
@@ -121,7 +110,7 @@
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="btn btn-link text-danger text-decoration-none d-flex align-items-center gap-2 w-100 justify-content-start px-4 py-2 rounded-0">
-                        <i data-lucide="log-out" class="icon-16" aria-hidden="true"></i>
+                        <x-icon name="log-out" class="icon-16" aria-hidden="true"/>
                         Cerrar sesion
                     </button>
                 </form>

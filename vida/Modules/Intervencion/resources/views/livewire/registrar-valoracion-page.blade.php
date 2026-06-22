@@ -4,7 +4,7 @@
     <div class="registro-page__nav">
         <a href="{{ route('intervencion.ciudadano.show', $historiaId) }}"
            class="registro-page__back-link">
-            <i data-lucide="arrow-left" class="icon-14" aria-hidden="true"></i>
+            <x-icon name="arrow-left" class="icon-14" aria-hidden="true"/>
             Volver a la Historia Social
         </a>
     </div>
@@ -140,7 +140,7 @@
         {{-- Feedback de guardado --}}
         @if($estadoGuardado === 'borrador')
             <div style="margin-top: 1rem; padding: 0.6rem 0.9rem; background: var(--color-ink-50, #f8fafc); border-radius: 6px; border: 1px solid var(--color-ink-200, #e2e8f0); font-size: 0.82rem; color: var(--color-ink-600); display: flex; align-items: center; gap: 0.4rem;">
-                <i data-lucide="save" class="icon-15" aria-hidden="true"></i>
+                <x-icon name="save" class="icon-15" aria-hidden="true"/>
                 Borrador guardado.
             </div>
         @endif
