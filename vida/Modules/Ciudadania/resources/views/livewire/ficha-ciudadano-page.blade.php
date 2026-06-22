@@ -470,8 +470,7 @@
                 </div>
 
                 @forelse($this->historialAtenciones as $registro)
-                <div class="ficha-atencion-row" wire:key="ra-{{ $registro->id }}"
-                     x-data="{ expandido: false }">
+                <div class="ficha-atencion-row" wire:key="ra-{{ $registro->id }}">
                     <div class="ficha-atencion-meta">
                         <span class="ficha-atencion-fecha">{{ $registro->fecha->format('d/m/Y') }}</span>
                         <span class="ficha-atencion-tipo ficha-atencion-tipo--{{ $registro->tipo }}">
@@ -494,27 +493,32 @@
                     </div>
                     @if($registro->demanda || $registro->respuesta)
                     <button
-                        class="btn btn-link btn-sm p-0 align-self-start d-inline-flex align-items-center gap-1"
-                        @click="expandido = !expandido"
-                        :aria-expanded="expandido"
                         type="button"
+                        class="btn btn-link btn-sm p-0 align-self-start d-inline-flex align-items-center gap-1 collapsed"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#atencion-{{ $registro->id }}"
+                        aria-expanded="false"
+                        aria-controls="atencion-{{ $registro->id }}"
                     >
-                        <span x-text="expandido ? 'Ocultar' : 'Ver detalle'"></span>
+                        <span class="op-collapse-label-collapsed">Ver detalle</span>
+                        <span class="op-collapse-label-expanded">Ocultar</span>
                         <x-heroicon-o-chevron-down class="icon-12 op-toggle-icon" aria-hidden="true"/>
                     </button>
-                    <div class="ficha-atencion-detalle" x-show="expandido" x-cloak>
-                        @if($registro->demanda)
-                        <div class="ficha-atencion-campo">
-                            <div class="ficha-atencion-campo-label">Demanda</div>
-                            <div class="ficha-atencion-campo-valor">{{ $registro->demanda }}</div>
+                    <div class="collapse" id="atencion-{{ $registro->id }}">
+                        <div class="ficha-atencion-detalle">
+                            @if($registro->demanda)
+                            <div class="ficha-atencion-campo">
+                                <div class="ficha-atencion-campo-label">Demanda</div>
+                                <div class="ficha-atencion-campo-valor">{{ $registro->demanda }}</div>
+                            </div>
+                            @endif
+                            @if($registro->respuesta)
+                            <div class="ficha-atencion-campo">
+                                <div class="ficha-atencion-campo-label">Respuesta</div>
+                                <div class="ficha-atencion-campo-valor">{{ $registro->respuesta }}</div>
+                            </div>
+                            @endif
                         </div>
-                        @endif
-                        @if($registro->respuesta)
-                        <div class="ficha-atencion-campo">
-                            <div class="ficha-atencion-campo-label">Respuesta</div>
-                            <div class="ficha-atencion-campo-valor">{{ $registro->respuesta }}</div>
-                        </div>
-                        @endif
                     </div>
                     @endif
                 </div>

@@ -62,12 +62,12 @@
         </div>
 
         {{-- Menú de usuario (derecha) --}}
-        <div class="topbar__user" x-data="{ abierto: false }">
-            <button @click="abierto = !abierto"
-                    @click.outside="abierto = false"
-                    type="button" class="btn btn-sm btn-light d-flex align-items-center gap-2 px-2 py-1 border-0 shadow-none"
-                    aria-haspopup="true"
-                    :aria-expanded="abierto">
+        <div class="topbar__user dropdown">
+            <button type="button"
+                    class="btn btn-sm btn-light d-flex align-items-center gap-2 px-2 py-1 border-0 shadow-none"
+                    data-bs-toggle="dropdown"
+                    data-bs-offset="[0,8]"
+                    aria-expanded="false">
 
                 {{-- Avatar con iniciales --}}
                 <div class="avatar avatar--sm">
@@ -86,10 +86,7 @@
             </button>
 
             {{-- Menu desplegable --}}
-            <div x-show="abierto"
-                 x-transition
-                 x-cloak
-                 class="topbar__user-menu">
+            <div class="topbar__user-menu dropdown-menu dropdown-menu-end">
 
                 {{-- Info del usuario --}}
                 <div class="topbar__user-info">

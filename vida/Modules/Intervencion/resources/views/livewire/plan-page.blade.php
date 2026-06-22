@@ -142,17 +142,21 @@
             {{-- Bloque A: Evidencia de fichas --}}
             <div class="plan-evidencia">
                 @forelse($this->fichasDiagnostico as $pfd)
-                <div class="plan-ficha-card" wire:key="pfd-{{ $pfd->id }}"
-                     x-data="{ expandida: false }">
+                <div class="plan-ficha-card" wire:key="pfd-{{ $pfd->id }}">
                     <div class="plan-ficha-header">
-                        <div class="plan-ficha-title plan-ficha-title--toggle" @click="expandida = !expandida" :aria-expanded="expandida">
+                        <button type="button"
+                                class="plan-ficha-title plan-ficha-title--toggle collapsed"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#pfd-content-{{ $pfd->id }}"
+                                aria-expanded="false"
+                                aria-controls="pfd-content-{{ $pfd->id }}">
                             <x-heroicon-o-lock-closed class="icon-12 plan-icon-muted"/>
                             {{ $pfd->ficha?->tipoFicha?->nombre ?? 'Ficha' }}
                             <span class="plan-ficha-date">
                                 {{ $pfd->ficha?->created_at?->format('d/m/Y') }}
                             </span>
                             <x-heroicon-o-chevron-down class="icon-12 op-toggle-icon"/>
-                        </div>
+                        </button>
                         <button
                             wire:click="eliminarFichaDiagnostico({{ $pfd->ficha_id }})"
                             class="btn btn-outline-danger btn-sm p-1 lh-1"
@@ -161,7 +165,8 @@
                             <x-heroicon-o-x-mark class="icon-12"/>
                         </button>
                     </div>
-                    <div class="plan-ficha-content" x-show="expandida" x-cloak>
+                    <div class="collapse" id="pfd-content-{{ $pfd->id }}">
+                    <div class="plan-ficha-content">
                         @php $datos = $pfd->ficha?->datos ?? [] @endphp
                         @forelse($datos as $campo => $valor)
                         <div class="plan-ficha-campo">
@@ -171,6 +176,7 @@
                         @empty
                         <span class="plan-ficha-vacia">Sin datos registrados.</span>
                         @endforelse
+                    </div>
                     </div>
                 </div>
                 @empty

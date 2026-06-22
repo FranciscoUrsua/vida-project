@@ -4,6 +4,11 @@
     transform: rotate(180deg);
 }
 
+// Etiquetas duales en toggles Bootstrap Collapse.
+// Bootstrap añade .collapsed al botón cuando el target está oculto.
+.collapsed .op-collapse-label-expanded { display: none; }
+:not(.collapsed) .op-collapse-label-collapsed { display: none; }
+
 .op-page {
     min-height: 100vh;
 }

@@ -171,15 +171,12 @@ html {
 }
 
 .topbar__user-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
     min-width: 220px;
+    padding: 0;
     background: #fff;
     border: 1px solid var(--color-ink-200);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-2);
-    z-index: 200;
     overflow: hidden;
 }
 
