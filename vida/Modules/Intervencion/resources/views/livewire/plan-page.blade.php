@@ -1,6 +1,6 @@
 <div
     class="plan-layout"
-    x-data
+    x-data="{ seccionActiva: '' }"
     x-on:keydown.escape.window="
         $wire.drawerAbierto && $wire.cerrarDrawer();
         $wire.modalMotivoAbierto && $wire.cancelarCambio();
@@ -76,7 +76,7 @@
 <div class="plan-body">
 
     {{-- SECCIÓN 0: Datos de la persona --}}
-    <div class="card plan-section" id="ps-datos">
+    <div class="card plan-section" id="ps-datos"         x-on:focusin="seccionActiva = 'datos'"         x-on:click="seccionActiva = 'datos'">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div class="plan-section__title">
                 <x-heroicon-o-user class="icon-15"/>
@@ -121,7 +121,7 @@
     </div>
 
     {{-- SECCIÓN 1: Diagnóstico social --}}
-    <div class="card plan-section" id="ps-diagnostico">
+    <div class="card plan-section" id="ps-diagnostico" x-on:focusin="seccionActiva = 'diagnostico'" x-on:click="seccionActiva = 'diagnostico'">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div class="plan-section__title">
                 <x-heroicon-o-document-text class="icon-15"/>
@@ -223,7 +223,7 @@
     </div>
 
     {{-- SECCIÓN 2: Objetivos --}}
-    <div class="card plan-section" id="ps-objetivos">
+    <div class="card plan-section" id="ps-objetivos"     x-on:focusin="seccionActiva = 'objetivos'"     x-on:click="seccionActiva = 'objetivos'">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div class="plan-section__title">
                 <x-heroicon-o-viewfinder-circle class="icon-15"/>
@@ -270,7 +270,7 @@
     </div>
 
     {{-- SECCIÓN 3: Compromisos del Ayuntamiento --}}
-    <div class="card plan-section" id="ps-ayto">
+    <div class="card plan-section" id="ps-ayto"          x-on:focusin="seccionActiva = 'ayto'"          x-on:click="seccionActiva = 'ayto'">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div class="plan-section__title">
                 <x-heroicon-o-building-office class="icon-15"/>
@@ -322,7 +322,7 @@
     </div>
 
     {{-- SECCIÓN 4: Compromisos del ciudadano --}}
-    <div class="card plan-section" id="ps-ciudadano">
+    <div class="card plan-section" id="ps-ciudadano"    x-on:focusin="seccionActiva = 'ciudadano'"    x-on:click="seccionActiva = 'ciudadano'">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div class="plan-section__title">
                 <x-heroicon-o-check-badge class="icon-15"/>
@@ -359,7 +359,7 @@
     </div>
 
     {{-- SECCIÓN 5: Participantes --}}
-    <div class="card plan-section" id="ps-participantes">
+    <div class="card plan-section" id="ps-participantes" x-on:focusin="seccionActiva = 'participantes'" x-on:click="seccionActiva = 'participantes'">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div class="plan-section__title">
                 <x-heroicon-o-users class="icon-15"/>
@@ -396,7 +396,7 @@
     </div>
 
     {{-- SECCIÓN 6: Seguimiento y firmas --}}
-    <div class="card plan-section" id="ps-firmas">
+    <div class="card plan-section" id="ps-firmas"        x-on:focusin="seccionActiva = 'firmas'"        x-on:click="seccionActiva = 'firmas'">
         <div class="card-header d-flex align-items-center justify-content-between">
             <div class="plan-section__title">
                 <x-heroicon-o-pencil class="icon-15"/>
@@ -528,15 +528,41 @@
 </div>{{-- fin plan-body --}}
 
 {{-- ÍNDICE LATERAL --}}
-<nav class="plan-index" aria-label="Secciones del plan">
+@php
+$plan = $this->plan;
+$nc = [
+    'datos'         => true,
+    'diagnostico'   => (bool) ($plan?->diagnostico_social || $this->fichasDiagnostico->isNotEmpty()),
+    'objetivos'     => $plan?->objetivosGenerales->isNotEmpty() ?? false,
+    'ayto'          => $plan?->actuacionesAyuntamiento->isNotEmpty() ?? false,
+    'ciudadano'     => $plan?->actuacionesCiudadano->isNotEmpty() ?? false,
+    'participantes' => $plan?->participantesActivos->isNotEmpty() ?? false,
+    'firmas'        => $profesionalFirmado || $ciudadanoFirmado,
+];
+@endphp
+<nav class="plan-index" aria-label="Secciones del plan" x-on:click.stop>
     <div class="small text-uppercase text-secondary fw-semibold mb-2 px-2">Secciones</div>
-    <a href="#ps-datos"         class="plan-index-item small text-secondary py-1 px-2"><span class="plan-index-dot plan-index-dot--done"></span> Datos</a>
-    <a href="#ps-diagnostico"   class="plan-index-item small text-secondary py-1 px-2"><span class="plan-index-dot plan-index-dot--current"></span> Diagnóstico</a>
-    <a href="#ps-objetivos"     class="plan-index-item small text-secondary py-1 px-2"><span class="plan-index-dot"></span> Objetivos</a>
-    <a href="#ps-ayto"          class="plan-index-item small text-secondary py-1 px-2"><span class="plan-index-dot"></span> Ayuntamiento</a>
-    <a href="#ps-ciudadano"     class="plan-index-item small text-secondary py-1 px-2"><span class="plan-index-dot"></span> Ciudadano</a>
-    <a href="#ps-participantes" class="plan-index-item small text-secondary py-1 px-2"><span class="plan-index-dot"></span> Participantes</a>
-    <a href="#ps-firmas"        class="plan-index-item small text-secondary py-1 px-2"><span class="plan-index-dot"></span> Firmas</a>
+
+    @foreach([
+        'datos'         => 'Datos',
+        'diagnostico'   => 'Diagnóstico',
+        'objetivos'     => 'Objetivos',
+        'ayto'          => 'Ayuntamiento',
+        'ciudadano'     => 'Ciudadano',
+        'participantes' => 'Participantes',
+        'firmas'        => 'Firmas',
+    ] as $id => $label)
+    <a href="#ps-{{ $id }}"
+       class="plan-index-item small text-secondary py-1 px-2"
+       x-on:click="seccionActiva = '{{ $id }}'">
+        <span class="plan-index-dot"
+              :class="{
+                  'plan-index-dot--current': seccionActiva === '{{ $id }}',
+                  'plan-index-dot--done':    seccionActiva !== '{{ $id }}' && @json($nc[$id])
+              }"></span>
+        {{ $label }}
+    </a>
+    @endforeach
 
     <div class="mt-4 px-2">
         <div class="small text-uppercase text-secondary">Seguimiento</div>
