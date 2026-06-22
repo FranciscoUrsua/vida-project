@@ -550,8 +550,7 @@
      ============================================================ --}}
 @if($drawerAbierto)
 <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg"
-         x-data="{ seleccion: @entangle('fichasSeleccionadas') }">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Fichas del historial social</h5>
@@ -572,8 +571,8 @@
                     <input class="form-check-input mt-0 flex-shrink-0"
                            type="checkbox"
                            id="df{{ $ficha->id }}"
-                           value="{{ $ficha->id }}"
-                           x-model="seleccion">
+                           wire:model="fichasSeleccionadas"
+                           value="{{ $ficha->id }}">
                     <label class="form-check-label flex-fill" for="df{{ $ficha->id }}">
                         <span class="d-block fw-medium small">{{ $ficha->tipoFicha?->nombre ?? 'Ficha' }}</span>
                         <span class="text-secondary" style="font-size:.75rem">{{ $ficha->created_at->format('d/m/Y') }}</span>
@@ -588,7 +587,7 @@
             </div>
             <div class="modal-footer">
                 <button wire:click="cerrarDrawer" class="btn btn-outline-secondary btn-sm">Cancelar</button>
-                <button x-on:click="$wire.aplicarSeleccionFichas(seleccion)" class="btn btn-primary btn-sm">
+                <button wire:click="aplicarSeleccionFichas" class="btn btn-primary btn-sm">
                     <x-heroicon-o-check class="icon-13"/>
                     Aplicar selección
                 </button>

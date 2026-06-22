@@ -395,19 +395,26 @@ class PlanPage extends Component
     }
 
     /**
-     * Aplica la selección de fichas del drawer al diagnóstico del plan.
+     * Aplica la selección de fichas al diagnóstico del plan.
+     * wire:model actualiza fichasSeleccionadas antes de que este método se ejecute.
      * Pide motivo si el plan ya está firmado.
+     *
+     * @return void
      */
-    public function aplicarSeleccionFichas(array $fichasNuevas): void
+    public function aplicarSeleccionFichas(): void
     {
         if (! $this->plan) {
             return;
         }
 
-        $cambios = array_diff($fichasNuevas, $this->fichasSeleccionadas)
-                 + array_diff($this->fichasSeleccionadas, $fichasNuevas);
+        // wire:model devuelve strings desde el value del checkbox; normalizar a int
+        $fichasNuevas = array_map('intval', $this->fichasSeleccionadas);
+        $fichasEnBd   = $this->plan->fichasDiagnostico()->pluck('ficha_id')->map(fn ($id) => (int) $id)->toArray();
 
-        if (empty($cambios)) {
+        $anadir   = array_diff($fichasNuevas, $fichasEnBd);
+        $eliminar = array_diff($fichasEnBd, $fichasNuevas);
+
+        if (empty($anadir) && empty($eliminar)) {
             $this->cerrarDrawer();
 
             return;
@@ -427,22 +434,28 @@ class PlanPage extends Component
 
     /**
      * Sincroniza las fichas seleccionadas en la tabla pivote.
+     *
+     * @param array<int> $fichas IDs de fichas a vincular (como enteros).
+     * @return void
      */
     private function _aplicarFichas(array $fichas): void
     {
-        $eliminar = array_diff($this->fichasSeleccionadas, $fichas);
+        $fichasInt        = array_map('intval', $fichas);
+        $seleccionadasInt = array_map('intval', $this->fichasSeleccionadas);
+
+        $eliminar = array_diff($seleccionadasInt, $fichasInt);
         if ($eliminar) {
             $this->plan->fichasDiagnostico()
                 ->whereIn('ficha_id', $eliminar)
                 ->delete();
         }
 
-        $anadir = array_diff($fichas, $this->fichasSeleccionadas);
+        $anadir = array_diff($fichasInt, $seleccionadasInt);
         foreach ($anadir as $fichaId) {
             $this->plan->fichasDiagnostico()->firstOrCreate(['ficha_id' => $fichaId]);
         }
 
-        $this->fichasSeleccionadas = $fichas;
+        $this->fichasSeleccionadas = $fichasInt;
         unset($this->fichasDiagnostico);
     }
 
