@@ -412,10 +412,11 @@
                         wire:model.live="periodicidadSeguimiento"
                         class="form-select form-select-sm"
                     >
-                        <option value="bimensual">Bimensual</option>
+                        <option value="mensual">Mensual</option>
+                        <option value="bimestral">Bimestral</option>
                         <option value="trimestral">Trimestral</option>
-                        <option value="cuatrimestral">Cuatrimestral</option>
                         <option value="semestral">Semestral</option>
+                        <option value="anual">Anual</option>
                     </select>
                 </div>
                 <div class="plan-field--full">
