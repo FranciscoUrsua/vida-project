@@ -26,7 +26,7 @@
         </div>
         <div class="dato-fila">
             <span class="dato-label">Fecha de nacimiento:</span>
-            <span>{{ $ciudadano->fecha_nacimiento?->format('d/m/Y') }}</span>
+            <span>{{ $ciudadano->fecha_nacimiento ? \Carbon\Carbon::parse($ciudadano->fecha_nacimiento)->format('d/m/Y') : '—' }}</span>
         </div>
         <div class="dato-fila">
             <span class="dato-label">Domicilio:</span>
