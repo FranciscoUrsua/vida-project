@@ -13,13 +13,13 @@ use Modules\Ciudadania\Models\CiudadanoRelacion;
 use Modules\Ciudadania\Models\TipoRelacion;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Intervencion\Enums\EstadoPlan;
+use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\FirmaPlan;
 use Modules\Intervencion\Models\PlanActuacionAyuntamiento;
 use Modules\Intervencion\Models\PlanActuacionCiudadano;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\PlanObjetivo;
 use Modules\Intervencion\Models\PlanParticipante;
-use Modules\Intervencion\Models\Valoracion;
 use Modules\Intervencion\Services\PlanPdfService;
 use Modules\Prestaciones\Models\Prestacion;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -309,18 +309,22 @@ class PlanPage extends Component
     }
 
     /**
-     * Valoraciones del historial de la historia social, filtradas por fecha.
+     * Fichas del historial de la historia social disponibles para añadir al diagnóstico.
+     *
+     * Consulta Ficha directamente por historia_id porque valoracion_id es nullable:
+     * las fichas creadas sin valoración formal no se recuperarían vía Valoracion→fichas.
+     *
+     * @return Collection<int, Ficha>
      */
     #[Computed]
-    public function valoracionesTimeline(): Collection
+    public function fichasHistorial(): Collection
     {
         if (! $this->plan) {
             return collect();
         }
 
-        $query = Valoracion::where(
-            'historia_id', $this->plan->historia_id
-        )->with(['fichas.tipoFicha']);
+        $query = Ficha::where('historia_id', $this->plan->historia_id)
+            ->with('tipoFicha');
 
         if ($this->drawerFiltroFecha === 'mes') {
             $query->where('created_at', '>=', now()->subMonth());

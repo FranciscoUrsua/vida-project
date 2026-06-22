@@ -552,31 +552,25 @@
                 <button wire:click="$set('drawerFiltroFecha','anio')"
                     class="plan-chip {{ $drawerFiltroFecha === 'anio' ? 'plan-chip--on' : '' }}">Último año</button>
             </div>
-            <div class="modal-body d-flex flex-column gap-2">
-                @forelse($this->valoracionesTimeline as $val)
-                <div class="card" wire:key="val-{{ $val->id }}">
-                    <div class="card-header d-flex align-items-center justify-content-between py-2 px-3 small fw-semibold">
-                        {{ $val->tipoValoracion?->nombre ?? 'Valoración' }}
-                        <span class="fw-normal text-secondary">{{ $val->created_at->format('d/m/Y') }}</span>
-                    </div>
-                    @foreach($val->fichas as $ficha)
-                    <div class="d-flex align-items-center gap-2 py-2 px-3 border-top" wire:key="df-{{ $ficha->id }}">
-                        <input class="form-check-input mt-0 flex-shrink-0"
-                               type="checkbox"
-                               id="df{{ $ficha->id }}"
-                               value="{{ $ficha->id }}"
-                               x-model="seleccion">
-                        <label class="form-check-label flex-fill small" for="df{{ $ficha->id }}">
-                            {{ $ficha->tipoFicha?->nombre ?? 'Ficha' }}
-                        </label>
-                        @if(in_array($ficha->id, $fichasSeleccionadas))
-                        <span class="badge rounded-pill plan-badge--activo fw-normal">Añadida</span>
-                        @endif
-                    </div>
-                    @endforeach
+            <div class="modal-body p-0">
+                @forelse($this->fichasHistorial as $ficha)
+                <div class="d-flex align-items-center gap-3 px-3 py-2 border-bottom"
+                     wire:key="df-{{ $ficha->id }}">
+                    <input class="form-check-input mt-0 flex-shrink-0"
+                           type="checkbox"
+                           id="df{{ $ficha->id }}"
+                           value="{{ $ficha->id }}"
+                           x-model="seleccion">
+                    <label class="form-check-label flex-fill" for="df{{ $ficha->id }}">
+                        <span class="d-block fw-medium small">{{ $ficha->tipoFicha?->nombre ?? 'Ficha' }}</span>
+                        <span class="text-secondary" style="font-size:.75rem">{{ $ficha->created_at->format('d/m/Y') }}</span>
+                    </label>
+                    @if(in_array($ficha->id, $fichasSeleccionadas))
+                    <span class="badge rounded-pill plan-badge--activo fw-normal flex-shrink-0">Añadida</span>
+                    @endif
                 </div>
                 @empty
-                <p class="text-muted fst-italic mb-0">No hay valoraciones registradas en el historial.</p>
+                <p class="text-muted fst-italic p-4 mb-0">No hay fichas registradas en el historial social.</p>
                 @endforelse
             </div>
             <div class="modal-footer">
