@@ -25,12 +25,12 @@ Source Sans 3 (UI) · Source Serif 4 (display only) · JetBrains Mono (codes, DN
 - Chips: `--radius-pill`, 12px / 600, semantic soft-bg + ink-coloured text.
 - Cards: white bg, 1px ink-200 border, `--shadow-1`, 8px radius, 20px padding.
 - Focus ring is mandatory: 2px `--color-primary`, 2px offset.
-- AI-assisted output carries the `Sugerencia IA` chip + `wand-2` icon and needs professional validation.
+- AI-assisted output carries the `Sugerencia IA` chip + `<x-heroicon-o-sparkles />` icon and needs professional validation.
 - Protected records (menores, VG): show the protected banner; never hide the status.
 - Bootstrap 5.3 is the primitive layer for Blade/Livewire UI: buttons, forms, tables, modals, grid, spacing. Install locally via npm + Vite, never via CDN.
 - Layer order: (1) VIDA tokens as Bootstrap variables → (2) Bootstrap standard classes → (3) shared `op-*` product components → (4) screen-specific classes only for genuine structural needs.
 - Never create `xxx-btn`, `xxx-input`, `xxx-modal` classes when Bootstrap already covers it.
-- No Bootstrap Icons; no icon CDNs in new layouts. Load Lucide locally through the app build (Blade/Livewire). Keep Heroicons for Filament.
+- Icons: **Heroicons** everywhere via `<x-heroicon-o-name />` (outline) or `<x-heroicon-s-name />` (solid), using `blade-ui-kit/blade-heroicons`. Dynamic names: `<x-dynamic-component :component="'heroicon-o-' . $name" />`. No Bootstrap Icons, no Lucide, no icon CDNs, no icon fonts.
 - No structural inline styles in Blade. Inline styles only for unavoidable dynamic values.
 - No gradients, no glassmorphism, no bounce animation, no decorative SVGs, no emoji in product chrome.
 

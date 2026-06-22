@@ -79,7 +79,7 @@ Nothing visual was pre-designed in the codebase — there is no figma file, no b
 
 **Emoji.** Not used in product UI. Emoji may appear in onboarding email templates or celebratory admin messages at the user's discretion — never in operational screens.
 
-**AI-generated content.** Must be labelled. When a suggestion, classification or alert comes from an AI component, show a small `Sugerencia IA` tag and require explicit professional validation before any consequence (*Principio 3.10*). Copy does not use emojis or sparkles — a plain text badge plus the `wand-2` icon.
+**AI-generated content.** Must be labelled. When a suggestion, classification or alert comes from an AI component, show a small `Sugerencia IA` tag and require explicit professional validation before any consequence (*Principio 3.10*). Copy does not use emojis or sparkles — a plain text badge plus the `sparkles` icon (`<x-heroicon-o-sparkles />`).
 
 ---
 
@@ -191,13 +191,15 @@ Pill (`--radius-pill`), `12px` text, `600` weight, uppercase-off. Background is 
 
 ## Iconography
 
-**Icon set.** The repo does not ship a bespoke icon set. Filament ships with Heroicons by default; the Livewire operational surface standardises on **[Lucide](https://lucide.dev)**, loaded locally through the application build. Bootstrap Icons are not the product's icon system — do not add them as a new dependency.
+**Icon set.** A single library across the entire product: **[Heroicons](https://heroicons.com)** via `blade-ui-kit/blade-heroicons` (Composer package). Icons are rendered server-side as inline SVGs — no JavaScript, no CDN, no icon font. Filament uses Heroicons natively; the Livewire operational surface uses the same library via Blade components.
 
-- **Stroke width:** 1.75px (default Lucide is 2 — we thin it slightly for the calmer feel).
-- **Sizes:** 16 (inline with text), 20 (button), 24 (sidebar, menu), 32 (feature blocks), 48 (empty states only).
+- **Usage:** `<x-heroicon-o-name class="icon-16" aria-hidden="true"/>` (outline style). Use solid (`s-`) only for emphasis or filled states (e.g. active notification badges).
+- **Dynamic names:** `<x-dynamic-component :component="'heroicon-o-' . $name" />`.
+- **Sizes (CSS utility classes):** `icon-12`, `icon-13`, `icon-14`, `icon-16`, `icon-20`. Set `width` and `height` in `_op-components.scss`.
 - **Colour:** inherits `currentColor`. Never two-tone.
+- **Do not add** Bootstrap Icons, Lucide, Tabler Icons, Font Awesome or any other icon library.
 
-**Loading.** Icons must be loaded through the application build or server-rendered Blade components. Do not add icon CDNs to new layouts.
+**Loading.** `blade-ui-kit/blade-heroicons` renders SVG at PHP compile time. No additional JS setup required.
 
 **Emoji.** Never as UI primitives. Only permissible in free-text user-generated content (e.g. a note a professional types).
 
@@ -205,7 +207,7 @@ Pill (`--radius-pill`), `12px` text, `600` weight, uppercase-off. Background is 
 
 **Logos & wordmark.** No municipal logo is shipped with the repo. A provisional VIDA 360 wordmark has been drafted as `vida360-wordmark.svg` using the product typography. **Flagged** — please provide the real municipal logo usage rules if this is to appear alongside the Ayuntamiento de Madrid brand.
 
-**Illustrations.** None shipped, none invented. Empty states use a single large Lucide glyph in `--color-ink-400` with accompanying copy.
+**Illustrations.** None shipped, none invented. Empty states use a single large Heroicons glyph in `--color-ink-400` with accompanying copy.
 
 ---
 
