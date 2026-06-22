@@ -1,93 +1,36 @@
+// Botón toggle Collapse sin apariencia de botón
 .plan-ficha-title--toggle {
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-    font: inherit;
-    color: inherit;
-    text-align: start;
-}
-
-.plan-icon-muted {
-    opacity: .5;
-}
-
-
-.plan-vacio--padded {
-    padding: 16px;
-}
-
-.plan-field--compact {
-    margin-top: 12px;
-    max-width: 200px;
-}
-
-.plan-chip--compact {
-    font-size: 10px;
-    padding: 1px 6px;
+    background: none; border: none; padding: 0;
+    font: inherit; color: inherit; text-align: start; cursor: pointer;
 }
 
 /* ============================================================
-   PLAN PAGE — layout
+   LAYOUT — sin equivalente Bootstrap
    ============================================================ */
 
 .plan-layout { display: flex; flex-direction: column; min-height: 100vh; }
 
 .plan-topbar {
+    position: sticky; top: 0; z-index: 10;
     display: flex; align-items: center; gap: 12px;
     padding: 10px 20px;
-    background: var(--color-surface);
-    border-bottom: 1px solid var(--color-border);
-    position: sticky; top: 0; z-index: 10;
+    background: var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color);
 }
-.plan-topbar__back {
-    display: flex; align-items: center; gap: 4px;
-    font-size: 12px; color: var(--color-text-secondary);
-    padding: 4px 8px; border-radius: 6px;
-    border: 1px solid var(--color-border); text-decoration: none;
-    white-space: nowrap;
-}
-.plan-topbar__back:hover { background: var(--color-surface-alt); }
 .plan-topbar__citizen { flex: 1; min-width: 0; }
-.plan-topbar__name { font-size: 14px; font-weight: 600; color: var(--color-text-primary); display: block; }
-.plan-topbar__meta { font-size: 11px; color: var(--color-text-secondary); }
-.plan-topbar__badges { display: flex; gap: 6px; align-items: center; }
-.plan-topbar__actions { display: flex; gap: 6px; }
 
 .plan-body-wrap {
-    display: flex; flex: 1; gap: 0;
+    display: flex; flex: 1;
     padding: 20px 24px 20px 20px;
     align-items: flex-start;
 }
-.plan-body {
-    flex: 1; display: flex; flex-direction: column; gap: 14px; min-width: 0;
-}
+.plan-body { flex: 1; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 
 /* ============================================================
-   BADGES Y BOTONES
+   SECCIONES — modificador sobre Bootstrap .card
    ============================================================ */
 
-.plan-badge {
-    display: inline-flex; align-items: center;
-    font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 600;
-    line-height: 1.35;
-}
-.plan-badge--borrador  { background: var(--color-warning-soft, #F8EFD8); color: var(--color-warning-ink, #7C4A03); }
-.plan-badge--activo    { background: var(--color-success-soft, #EAF7EE); color: var(--color-success-ink, #1F6B45); }
-.plan-badge--en_revision { background: var(--color-primary-soft, #EAF3FB); color: var(--color-primary-ink, #234764); }
-.plan-badge--cerrado   { background: var(--color-neutral-100); color: var(--color-text-secondary); }
-.plan-badge--version   { background: var(--color-surface-alt); color: var(--color-text-secondary); border: 1px solid var(--color-border); }
-.plan-badge-responsable { display: inline-flex; align-items: center; background: var(--color-success-soft, #EAF7EE); color: var(--color-success-ink, #1F6B45); font-size: 10px; padding: 2px 7px; border-radius: 99px; line-height: 1.35; }
-
-/* ============================================================
-   SECCIONES
-   ============================================================ */
-
-// .plan-section es un modificador sobre Bootstrap .card.
-// Bootstrap gestiona bg, border, radius y padding via CSS variables.
 .plan-section {
-    --bs-card-bg: var(--color-surface);
-    --bs-card-border-color: var(--color-border);
     --bs-card-border-radius: 8px;
     overflow: hidden;
 }
@@ -95,160 +38,128 @@
     --bs-card-cap-bg: transparent;
     --bs-card-cap-padding-y: 11px;
     --bs-card-cap-padding-x: 16px;
-    border-bottom-color: var(--color-border);
 }
-.plan-section .card-body {
-    --bs-card-spacer-y: 16px;
-    --bs-card-spacer-x: 16px;
+.plan-section .card-body { --bs-card-spacer-y: 16px; --bs-card-spacer-x: 16px; }
+.plan-section__title { display: flex; align-items: center; gap: 7px; font-weight: 600; }
+
+/* ============================================================
+   BADGES — colores semánticos VIDA sobre Bootstrap .badge.rounded-pill
+   ============================================================ */
+
+.plan-badge--borrador    { --bs-badge-color: #7C4A03; background: #F8EFD8; }
+.plan-badge--activo      { --bs-badge-color: #1F6B45; background: #EAF7EE; }
+.plan-badge--en_revision { --bs-badge-color: #234764; background: #EAF3FB; }
+.plan-badge--cerrado     { --bs-badge-color: var(--bs-secondary-color); background: var(--bs-secondary-bg); }
+.plan-badge--version     { --bs-badge-color: var(--bs-secondary-color); background: var(--bs-tertiary-bg); border: 1px solid var(--bs-border-color); }
+
+.plan-estado-pendiente               { --bs-badge-color: #7C4A03; background: #F8EFD8; }
+.plan-estado-en_proceso,
+.plan-estado-en_curso                { --bs-badge-color: #234764; background: #EAF3FB; }
+.plan-estado-conseguido,
+.plan-estado-completada              { --bs-badge-color: #1F6B45; background: #EAF7EE; }
+.plan-estado-abandonado,
+.plan-estado-cancelada               { --bs-badge-color: var(--bs-secondary-color); background: var(--bs-secondary-bg); }
+
+/* ============================================================
+   TIPOGRAFÍA ESPECÍFICA — sin equivalente exacto en Bootstrap
+   ============================================================ */
+
+// Label uppercase con tracking para datos de ciudadano e índice
+.plan-citizen-label {
+    font-size: .75rem; font-weight: 600;
+    color: var(--bs-secondary-color);
+    text-transform: uppercase; letter-spacing: .05em;
 }
-.plan-section__title {
-    display: flex; align-items: center; gap: 7px;
-    font-size: 13px; font-weight: 600; color: var(--color-text-primary);
+
+// Grid de datos del ciudadano: 2 columnas con fondo sutil
+.plan-citizen-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    padding: 12px 14px; border-radius: var(--bs-border-radius);
+    background: var(--bs-tertiary-bg);
 }
-.plan-readonly-badge { display: inline-flex; align-items: center; font-size: 10px; color: var(--color-text-secondary); background: var(--color-surface-alt); padding: 2px 7px; border-radius: 99px; border: 1px solid var(--color-border); line-height: 1.35; }
 
 /* ============================================================
-   DATOS DE LA PERSONA
+   DIAGNÓSTICO — editor de síntesis rich-text
    ============================================================ */
 
-.plan-citizen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: var(--color-surface-alt); border-radius: 6px; padding: 12px 14px; }
-.plan-citizen-field { display: flex; flex-direction: column; gap: 2px; }
-.plan-citizen-label { font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .05em; }
-.plan-citizen-value { font-size: 13px; color: var(--color-text-primary); }
-.plan-uc-members { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--color-border); }
-.plan-uc-label { font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
-.plan-member-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 99px; margin: 2px; color: var(--color-text-primary); line-height: 1.35; }
-.plan-member-relacion { color: var(--color-text-secondary); }
+.plan-editor-toolbar {
+    display: flex; gap: 2px; padding: 4px 6px;
+    border: 1px solid var(--bs-border-color); border-bottom: none;
+    border-radius: 6px 6px 0 0; background: var(--bs-tertiary-bg);
+}
+.plan-editor-area {
+    border: 1px solid var(--bs-border-color); border-radius: 0 0 6px 6px;
+    padding: 10px 12px; line-height: 1.7; min-height: 80px; outline: none;
+}
+.plan-editor-area:focus { border-color: var(--bs-primary); }
 
 /* ============================================================
-   DIAGNÓSTICO
+   OBJETIVOS — grid 2 columnas
    ============================================================ */
 
-.plan-evidencia { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-.plan-ficha-card { border: 1px solid var(--color-border); border-radius: 6px; overflow: hidden; }
-.plan-ficha-header { display: flex; align-items: center; justify-content: space-between; padding: 7px 12px; background: var(--color-surface-alt); }
-.plan-ficha-title { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; color: var(--color-text-primary); flex: 1; }
-.plan-ficha-date { font-size: 11px; color: var(--color-text-secondary); font-weight: 400; }
-.plan-ficha-content { padding: 10px 12px; }
-.plan-ficha-campo { display: flex; gap: 8px; font-size: 12px; margin-bottom: 3px; }
-.plan-ficha-campo-label { font-weight: 600; color: var(--color-text-secondary); min-width: 120px; }
-.plan-ficha-campo-valor { color: var(--color-text-primary); }
-.plan-ficha-vacia { font-size: 12px; color: var(--color-text-secondary); font-style: italic; }
-.plan-evidencia-vacia { font-size: 13px; color: var(--color-text-secondary); padding: 8px 0; }
+.plan-obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-.plan-sintesis-label { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--color-text-secondary); margin-bottom: 6px; }
-.plan-editor-toolbar { display: flex; gap: 2px; padding: 4px 6px; border: 1px solid var(--color-border); border-bottom: none; border-radius: 6px 6px 0 0; background: var(--color-surface-alt); }
-.plan-editor-area { border: 1px solid var(--color-border); border-radius: 0 0 6px 6px; padding: 10px 12px; font-size: 13px; color: var(--color-text-primary); line-height: 1.7; min-height: 80px; outline: none; }
-.plan-editor-area:focus { border-color: var(--color-primary); }
+// Min-width para alinear labels de datos de ficha
+.plan-ficha-campo-label { min-width: 120px; font-weight: 600; }
 
 /* ============================================================
-   OBJETIVOS
+   SEGUIMIENTO — grid asimétrico 200px/1fr sin equivalente Bootstrap
    ============================================================ */
 
-.plan-obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.plan-obj-general { border: 1px solid var(--color-border); border-radius: 6px; padding: 10px 12px; }
-.plan-obj-texto { font-size: 13px; color: var(--color-text-primary); margin-bottom: 8px; line-height: 1.5; font-weight: 500; }
-.plan-obj-especificos { list-style: none; display: flex; flex-direction: column; gap: 4px; padding: 0; }
-.plan-obj-especificos li { font-size: 12px; color: var(--color-text-secondary); padding: 3px 8px; background: var(--color-surface-alt); border-radius: 4px; }
-.plan-obj-especificos li::before { content: '— '; }
-.plan-obj-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--color-border); }
-
-.plan-estado-badge { display: inline-flex; align-items: center; font-size: 10px; padding: 2px 7px; border-radius: 99px; font-weight: 600; line-height: 1.35; }
-.plan-estado-pendiente   { background: var(--color-warning-soft, #F8EFD8); color: var(--color-warning-ink, #7C4A03); }
-.plan-estado-en_proceso  { background: var(--color-primary-soft, #EAF3FB); color: var(--color-primary-ink, #234764); }
-.plan-estado-conseguido  { background: var(--color-success-soft, #EAF7EE); color: var(--color-success-ink, #1F6B45); }
-.plan-estado-abandonado  { background: var(--color-neutral-100); color: var(--color-text-secondary); }
-.plan-estado-en_curso    { background: var(--color-primary-soft, #EAF3FB); color: var(--color-primary-ink, #234764); }
-.plan-estado-completada  { background: var(--color-success-soft, #EAF7EE); color: var(--color-success-ink, #1F6B45); }
-.plan-estado-cancelada   { background: var(--color-neutral-100); color: var(--color-text-secondary); }
-
-/* ============================================================
-   TABLA ACTUACIONES AYTO
-   ============================================================ */
-
-.plan-table { width: 100%; font-size: 12px; --bs-table-bg: transparent; margin-bottom: 0; }
-.plan-table th { font-size: 10px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .05em; padding: 7px 12px; text-align: left; background: var(--color-surface-alt); border-bottom-color: var(--color-border); }
-.plan-table td { padding: 9px 12px; color: var(--color-text-primary); border-bottom-color: var(--color-border); vertical-align: top; }
-.plan-table tr:last-child td { border-bottom: none; }
-.plan-prestacion-name { font-weight: 500; }
-.plan-prestacion-code { font-size: 10px; color: var(--color-text-secondary); margin-top: 1px; font-family: var(--font-mono); }
-.plan-prestacion-pill { font-size: 10px; color: var(--color-primary-ink, #234764); background: var(--color-primary-soft, #EAF3FB); padding: 1px 6px; border-radius: 99px; margin-top: 3px; display: inline-block; line-height: 1.35; }
-.plan-td-secondary { color: var(--color-text-secondary); }
-// .plan-avatar-sm eliminado: usar .avatar.avatar--sm (VIDA design system)
-
-/* ============================================================
-   COMPROMISOS CIUDADANO
-   ============================================================ */
-
-.plan-comp-list { gap: 6px; --bs-list-group-bg: transparent; --bs-list-group-border-color: var(--color-border); --bs-list-group-border-radius: 0.5rem; }
-.plan-comp-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 12px; background: var(--color-surface-alt); font-size: 13px; color: var(--color-text-primary); }
-
-/* ============================================================
-   PARTICIPANTES
-   ============================================================ */
-
-.plan-part-list { gap: 6px; --bs-list-group-bg: transparent; --bs-list-group-border-color: var(--color-border); --bs-list-group-border-radius: 0.5rem; }
-.plan-part-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; }
-.plan-part-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--color-surface-alt); border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--color-text-secondary); flex-shrink: 0; }
-.plan-part-info { flex: 1; }
-.plan-part-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
-.plan-part-rol { font-size: 11px; color: var(--color-text-secondary); }
-
-/* ============================================================
-   SEGUIMIENTO Y FIRMAS
-   ============================================================ */
-
-.plan-seguimiento-title { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
 .plan-seguimiento-fields { display: grid; grid-template-columns: 200px 1fr; gap: 12px; }
-.plan-field { display: flex; flex-direction: column; gap: 4px; }
+.plan-field--compact { max-width: 200px; margin-top: 12px; }
 .plan-field--full { grid-column: 1 / -1; }
-.plan-label { font-size: 11px; color: var(--color-text-secondary); font-weight: 500; }
-// .plan-select, .plan-input: width/box-sizing los gestiona Bootstrap .form-select/.form-control
 .plan-textarea { resize: vertical; }
 
-// .plan-firmas-divider eliminado: usar <hr> en Blade
-.plan-firmas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.plan-firma-card { border: 1px solid var(--color-border); border-radius: 6px; padding: 14px; }
-.plan-firma-quien { font-size: 13px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 2px; }
-.plan-firma-rol { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 10px; }
-// .plan-firma-check eliminado: usar Bootstrap .form-check
-// .plan-firma-fecha-reg eliminado: usar Bootstrap .form-text
-.plan-firma-lista-ok { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-success); background: var(--color-success-bg); padding: 8px 12px; border-radius: 6px; margin-top: 12px; }
-.plan-firma-nota { font-size: 11px; color: var(--color-text-secondary); margin-top: 10px; line-height: 1.5; }
-
 /* ============================================================
-   ÍNDICE LATERAL
+   FIRMAS — grid 2 columnas
    ============================================================ */
 
-.plan-index { width: 140px; flex-shrink: 0; padding: 0 0 0 16px; position: sticky; top: 68px; display: flex; flex-direction: column; gap: 2px; }
-.plan-index-label { font-size: 10px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; padding: 0 8px; }
-.plan-index-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--color-text-secondary); padding: 5px 8px; border-radius: 6px; text-decoration: none; }
-.plan-index-item:hover { background: var(--color-surface-alt); color: var(--color-text-primary); }
-.plan-index-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-border); flex-shrink: 0; }
+.plan-firmas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ============================================================
+   TABLA — cabeceras con estilo VIDA
+   ============================================================ */
+
+.plan-table thead th {
+    font-size: .7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .05em;
+}
+.plan-prestacion-code { font-size: .75rem; font-family: var(--font-mono, monospace); }
+
+/* ============================================================
+   ÍNDICE LATERAL — sticky nav
+   ============================================================ */
+
+.plan-index {
+    width: 140px; flex-shrink: 0; padding-left: 16px;
+    position: sticky; top: 68px;
+    display: flex; flex-direction: column; gap: 2px;
+}
+.plan-index-item {
+    display: flex; align-items: center; gap: 7px;
+    border-radius: 6px; text-decoration: none;
+    &:hover { background: var(--bs-tertiary-bg); color: var(--bs-body-color) !important; }
+}
+.plan-index-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--bs-border-color); flex-shrink: 0; display: inline-block;
+}
 .plan-index-dot--done    { background: #639922; }
 .plan-index-dot--current { background: #378ADD; }
-.plan-index-meta { margin-top: 16px; padding: 0 8px; }
-.plan-index-meta-label { font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
-.plan-index-meta-value { font-size: 12px; font-weight: 600; color: var(--color-text-primary); }
 
 /* ============================================================
-   DRAWER
+   DRAWER — chips de filtro (Bootstrap no tiene primitivo chip)
    ============================================================ */
 
-.plan-drawer-filters { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 16px; border-bottom: 1px solid var(--color-border); }
-.plan-chip { font-size: 11px; padding: 3px 9px; border: 1px solid var(--color-border); border-radius: 99px; cursor: pointer; color: var(--color-text-secondary); background: var(--color-surface); }
-.plan-chip--on { background: var(--color-surface-alt); color: var(--color-text-primary); border-color: var(--color-border-secondary); }
-.plan-drawer-body { flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
-.plan-drawer-val { border: 1px solid var(--color-border); border-radius: 6px; overflow: hidden; }
-.plan-drawer-val-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--color-surface-alt); font-size: 12px; font-weight: 600; color: var(--color-text-primary); }
-.plan-drawer-val-date { font-size: 11px; color: var(--color-text-secondary); font-weight: 400; }
-.plan-drawer-ficha { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-top: 1px solid var(--color-border); font-size: 12px; color: var(--color-text-primary); }
-.plan-drawer-ficha input { cursor: pointer; }
-.plan-drawer-ficha label { flex: 1; cursor: pointer; }
-/* ============================================================
-   FEEDBACK Y MISC
-   ============================================================ */
-
-.plan-exito { display: flex; align-items: center; gap: 6px; padding: 8px 20px; background: var(--color-success-bg); color: var(--color-success); font-size: 12px; border-bottom: 1px solid var(--color-border); }
-.plan-vacio { font-size: 13px; color: var(--color-text-secondary); font-style: italic; }
-
+.plan-chip {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; font-size: .8125rem;
+    border: 1px solid var(--bs-border-color); border-radius: 99px;
+    color: var(--bs-secondary-color); background: var(--bs-body-bg);
+    cursor: pointer; user-select: none;
+}
+.plan-chip:hover, .plan-chip--on {
+    background: var(--bs-tertiary-bg); color: var(--bs-body-color);
+}
+.plan-chip--compact { font-size: .75rem; padding: 1px 7px; }

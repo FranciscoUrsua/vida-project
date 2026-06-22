@@ -13,30 +13,26 @@
 <div class="plan-topbar">
     <a href="{{ route('intervencion.ciudadano.show', $this->plan?->historia_id ?? $this->historiaId) }}"
        wire:navigate
-       class="plan-topbar__back">
+       class="btn btn-sm btn-light border d-inline-flex align-items-center gap-1 text-secondary text-nowrap">
         <x-heroicon-o-arrow-left class="icon-13"/>
         Intervención
     </a>
 
     <div class="plan-topbar__citizen">
-        <span class="plan-topbar__name">
-            {{ $this->ciudadano?->nombre_completo ?? '—' }}
-        </span>
-        <span class="plan-topbar__meta">
-            {{ $this->plan?->tipoPlan?->nombre ?? 'Plan de intervención' }}
-        </span>
+        <span class="fw-semibold d-block">{{ $this->ciudadano?->nombre_completo ?? '—' }}</span>
+        <span class="small text-secondary">{{ $this->plan?->tipoPlan?->nombre ?? 'Plan de intervención' }}</span>
     </div>
 
-    <div class="plan-topbar__badges">
+    <div class="d-flex gap-2 align-items-center">
         @if($this->plan)
-        <span class="plan-badge plan-badge--{{ $this->plan->estado->value }}">
+        <span class="badge rounded-pill plan-badge--{{ $this->plan->estado->value }}">
             {{ $this->plan->estado->label() }}
         </span>
-        <span class="plan-badge plan-badge--version">v{{ $this->plan->version }}</span>
+        <span class="badge rounded-pill plan-badge--version">v{{ $this->plan->version }}</span>
         @endif
     </div>
 
-    <div class="plan-topbar__actions">
+    <div class="d-flex gap-2">
         @if($this->plan)
         <button wire:click="generarPdf" class="btn btn-outline-secondary btn-sm">
             <x-heroicon-o-arrow-down-tray class="icon-13"/>
@@ -66,8 +62,9 @@
 
 {{-- Mensaje de éxito --}}
 @if($mensajeExito)
-<div class="plan-exito" x-init="setTimeout(() => $wire.set('mensajeExito', ''), 3000)">
-    <x-heroicon-o-check-circle class="icon-13"/>
+<div class="alert alert-success d-flex align-items-center gap-2 py-2 rounded-0 mb-0 border-0 border-bottom"
+     x-init="setTimeout(() => $wire.set('mensajeExito', ''), 3000)">
+    <x-heroicon-o-check-circle class="icon-14"/>
     {{ $mensajeExito }}
 </div>
 @endif
@@ -85,38 +82,36 @@
                 <x-heroicon-o-user class="icon-15"/>
                 Datos de la persona
             </div>
-            <span class="plan-readonly-badge">Solo lectura · Historia Social</span>
+            <span class="badge rounded-pill border text-secondary fw-normal">Solo lectura · Historia Social</span>
         </div>
         <div class="card-body">
             <div class="plan-citizen-grid">
-                <div class="plan-citizen-field">
-                    <div class="plan-citizen-label">Nombre completo</div>
-                    <div class="plan-citizen-value">{{ $this->ciudadano?->nombre_completo }}</div>
+                <div>
+                    <div class="plan-citizen-label mb-1">Nombre completo</div>
+                    {{ $this->ciudadano?->nombre_completo }}
                 </div>
-                <div class="plan-citizen-field">
-                    <div class="plan-citizen-label">Fecha de nacimiento</div>
-                    <div class="plan-citizen-value">
-                        {{ $this->ciudadano?->fecha_nacimiento ? \Carbon\Carbon::parse($this->ciudadano->fecha_nacimiento)->format('d/m/Y') : '—' }}
-                    </div>
+                <div>
+                    <div class="plan-citizen-label mb-1">Fecha de nacimiento</div>
+                    {{ $this->ciudadano?->fecha_nacimiento ? \Carbon\Carbon::parse($this->ciudadano->fecha_nacimiento)->format('d/m/Y') : '—' }}
                 </div>
-                <div class="plan-citizen-field">
-                    <div class="plan-citizen-label">Documento</div>
-                    <div class="plan-citizen-value">{{ $this->ciudadano?->documento_identidad ?? '—' }}</div>
+                <div>
+                    <div class="plan-citizen-label mb-1">Documento</div>
+                    {{ $this->ciudadano?->documento_identidad ?? '—' }}
                 </div>
-                <div class="plan-citizen-field">
-                    <div class="plan-citizen-label">Domicilio</div>
-                    <div class="plan-citizen-value">{{ $this->ciudadano?->domicilio }}</div>
+                <div>
+                    <div class="plan-citizen-label mb-1">Domicilio</div>
+                    {{ $this->ciudadano?->domicilio }}
                 </div>
             </div>
 
             @if($this->miembrosUc->isNotEmpty())
-            <div class="plan-uc-members">
-                <div class="plan-uc-label">Unidad de convivencia</div>
+            <div class="mt-3 pt-3 border-top">
+                <div class="plan-citizen-label mb-2">Unidad de convivencia</div>
                 @foreach($this->miembrosUc as $m)
-                <span class="plan-member-pill">
+                <span class="badge rounded-pill border border-secondary-subtle text-body fw-normal me-1 mb-1">
                     {{ $m['ciudadano']->nombre_completo }}
                     @if($m['relacion'])
-                    <span class="plan-member-relacion">{{ $m['relacion'] }}</span>
+                    <span class="text-secondary ms-1">{{ $m['relacion'] }}</span>
                     @endif
                 </span>
                 @endforeach
@@ -140,50 +135,50 @@
         <div class="card-body">
 
             {{-- Bloque A: Evidencia de fichas --}}
-            <div class="plan-evidencia">
+            <div class="d-flex flex-column gap-2 mb-4">
                 @forelse($this->fichasDiagnostico as $pfd)
-                <div class="plan-ficha-card" wire:key="pfd-{{ $pfd->id }}">
-                    <div class="plan-ficha-header">
+                <div class="card" wire:key="pfd-{{ $pfd->id }}">
+                    <div class="card-header d-flex align-items-center gap-2 py-2 px-3">
                         <button type="button"
-                                class="plan-ficha-title plan-ficha-title--toggle collapsed"
+                                class="plan-ficha-title--toggle d-flex align-items-center gap-2 flex-fill text-secondary small fw-semibold collapsed"
                                 data-bs-toggle="collapse"
                                 data-bs-target="#pfd-content-{{ $pfd->id }}"
                                 aria-expanded="false"
                                 aria-controls="pfd-content-{{ $pfd->id }}">
-                            <x-heroicon-o-lock-closed class="icon-12 plan-icon-muted"/>
+                            <x-heroicon-o-lock-closed class="icon-12 opacity-50"/>
                             {{ $pfd->ficha?->tipoFicha?->nombre ?? 'Ficha' }}
-                            <span class="plan-ficha-date">
+                            <span class="text-secondary fw-normal ms-1">
                                 {{ $pfd->ficha?->created_at?->format('d/m/Y') }}
                             </span>
-                            <x-heroicon-o-chevron-down class="icon-12 op-toggle-icon"/>
+                            <x-heroicon-o-chevron-down class="icon-12 op-toggle-icon ms-auto"/>
                         </button>
                         <button
                             wire:click="eliminarFichaDiagnostico({{ $pfd->ficha_id }})"
-                            class="btn btn-outline-danger btn-sm p-1 lh-1"
+                            class="btn btn-outline-danger btn-sm p-1 lh-1 flex-shrink-0"
                             title="Eliminar del diagnóstico"
                         >
                             <x-heroicon-o-x-mark class="icon-12"/>
                         </button>
                     </div>
                     <div class="collapse" id="pfd-content-{{ $pfd->id }}">
-                    <div class="plan-ficha-content">
+                    <div class="card-body py-2 px-3">
                         @php $datos = $pfd->ficha?->datos ?? [] @endphp
                         @forelse($datos as $campo => $valor)
-                        <div class="plan-ficha-campo">
+                        <div class="d-flex gap-2 mb-1">
                             <span class="plan-ficha-campo-label">{{ $campo }}</span>
-                            <span class="plan-ficha-campo-valor">{{ is_array($valor) ? implode(', ', $valor) : $valor }}</span>
+                            <span class="text-secondary">{{ is_array($valor) ? implode(', ', $valor) : $valor }}</span>
                         </div>
                         @empty
-                        <span class="plan-ficha-vacia">Sin datos registrados.</span>
+                        <span class="text-muted">Sin datos registrados.</span>
                         @endforelse
                     </div>
                     </div>
                 </div>
                 @empty
-                <div class="plan-evidencia-vacia">
+                <p class="text-muted mb-0">
                     Ninguna ficha añadida aún.
                     <button wire:click="abrirDrawer" class="btn btn-link btn-sm p-0 align-baseline">Añadir fichas del historial</button>
-                </div>
+                </p>
                 @endforelse
 
                 @if($this->fichasDiagnostico->isNotEmpty())
@@ -195,8 +190,8 @@
             </div>
 
             {{-- Bloque B: Síntesis profesional --}}
-            <div class="plan-sintesis">
-                <div class="plan-sintesis-label">
+            <div>
+                <div class="d-flex align-items-center gap-1 small text-secondary mb-2">
                     <x-heroicon-o-pencil class="icon-13"/>
                     Síntesis profesional
                 </div>
@@ -235,21 +230,25 @@
         </div>
         <div class="card-body">
             @if($this->objetivosGenerales->isEmpty())
-            <div class="plan-vacio">Ningún objetivo definido aún.</div>
+            <p class="text-muted fst-italic mb-0">Ningún objetivo definido aún.</p>
             @else
             <div class="plan-obj-grid">
                 @foreach($this->objetivosGenerales as $og)
-                <div class="plan-obj-general" wire:key="og-{{ $og->id }}">
-                    <div class="plan-obj-texto">{{ $og->texto }}</div>
-                    @if($og->objetivosEspecificos->isNotEmpty())
-                    <ul class="plan-obj-especificos">
-                        @foreach($og->objetivosEspecificos as $oe)
-                        <li wire:key="oe-{{ $oe->id }}">{{ $oe->texto }}</li>
-                        @endforeach
-                    </ul>
-                    @endif
-                    <div class="plan-obj-footer">
-                        <span class="plan-estado-badge plan-estado-{{ $og->estado }}">
+                <div class="card" wire:key="og-{{ $og->id }}">
+                    <div class="card-body pb-2">
+                        <p class="mb-2">{{ $og->texto }}</p>
+                        @if($og->objetivosEspecificos->isNotEmpty())
+                        <ul class="list-group list-group-flush small mb-0">
+                            @foreach($og->objetivosEspecificos as $oe)
+                            <li class="list-group-item px-0 py-1 text-secondary" wire:key="oe-{{ $oe->id }}">
+                                {{ $oe->texto }}
+                            </li>
+                            @endforeach
+                        </ul>
+                        @endif
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-between">
+                        <span class="badge rounded-pill plan-estado-{{ $og->estado }}">
                             {{ ucfirst(str_replace('_', ' ', $og->estado)) }}
                         </span>
                         <button class="btn btn-outline-secondary btn-sm p-1 lh-1">
@@ -277,10 +276,10 @@
         </div>
         <div class="card-body p-0">
             @if($this->actuacionesAyuntamiento->isEmpty())
-            <div class="plan-vacio plan-vacio--padded">Ninguna actuación definida.</div>
+            <p class="text-muted fst-italic p-4 mb-0">Ninguna actuación definida.</p>
             @else
             <div class="table-responsive"><table class="table table-sm align-middle mb-0 plan-table">
-                <thead>
+                <thead class="table-light">
                     <tr>
                         <th>Prestación</th>
                         <th>Concreción</th>
@@ -294,18 +293,18 @@
                     @foreach($this->actuacionesAyuntamiento as $act)
                     <tr wire:key="aact-{{ $act->id }}">
                         <td>
-                            <div class="plan-prestacion-name">{{ $act->prestacion->nombre }}</div>
-                            <div class="plan-prestacion-code">{{ $act->prestacion->codigo }}</div>
+                            <div class="fw-medium">{{ $act->prestacion->nombre }}</div>
+                            <div class="plan-prestacion-code text-secondary">{{ $act->prestacion->codigo }}</div>
                         </td>
-                        <td class="plan-td-secondary">{{ $act->descripcion_especifica ?? '—' }}</td>
+                        <td class="text-secondary">{{ $act->descripcion_especifica ?? '—' }}</td>
                         <td>
                             @if($act->responsable)
                             <div class="avatar avatar--sm">{{ mb_strtoupper(substr($act->responsable->name, 0, 2)) }}</div>
                             @else —
                             @endif
                         </td>
-                        <td class="plan-td-secondary">{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
-                        <td><span class="plan-estado-badge plan-estado-{{ $act->estado }}">{{ ucfirst($act->estado) }}</span></td>
+                        <td class="text-secondary">{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
+                        <td><span class="badge rounded-pill plan-estado-{{ $act->estado }}">{{ ucfirst($act->estado) }}</span></td>
                         <td><button class="btn btn-outline-secondary btn-sm p-1 lh-1"><x-heroicon-o-pencil-square class="icon-13"/></button></td>
                     </tr>
                     @endforeach
@@ -327,26 +326,26 @@
                 Añadir
             </button>
         </div>
-        <div class="card-body">
+        <div class="card-body p-0">
             @if($this->actuacionesCiudadano->isEmpty())
-            <div class="plan-vacio">Ningún compromiso definido.</div>
+            <p class="text-muted fst-italic p-4 mb-0">Ningún compromiso definido.</p>
             @else
-            <div class="list-group list-group-flush plan-comp-list">
+            <ul class="list-group list-group-flush">
                 @foreach($this->actuacionesCiudadano as $act)
-                <div class="list-group-item plan-comp-item" wire:key="aciu-{{ $act->id }}">
-                    <x-heroicon-o-check-circle class="icon-14"/>
-                    <div>
+                <li class="list-group-item d-flex align-items-start gap-3 py-3 px-4" wire:key="aciu-{{ $act->id }}">
+                    <x-heroicon-o-check-circle class="icon-16 text-success flex-shrink-0 mt-1"/>
+                    <div class="flex-fill">
                         <div>{{ $act->descripcion }}</div>
                         @if($act->prestacion)
-                        <span class="plan-prestacion-pill">{{ $act->prestacion->nombre }}</span>
+                        <span class="badge rounded-pill plan-badge--activo fw-normal mt-1">{{ $act->prestacion->nombre }}</span>
                         @endif
                     </div>
-                    <button class="btn btn-outline-secondary btn-sm p-1 lh-1 ms-auto">
+                    <button class="btn btn-outline-secondary btn-sm p-1 lh-1 ms-auto flex-shrink-0">
                         <x-heroicon-o-pencil-square class="icon-13"/>
                     </button>
-                </div>
+                </li>
                 @endforeach
-            </div>
+            </ul>
             @endif
         </div>
     </div>
@@ -363,28 +362,28 @@
                 Añadir
             </button>
         </div>
-        <div class="card-body">
-            <div class="list-group list-group-flush plan-part-list">
+        <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
                 @foreach($this->participantes as $p)
-                <div class="list-group-item plan-part-row" wire:key="part-{{ $p->id }}">
-                    <div class="plan-part-avatar">{{ substr($p->profesional->name, 0, 2) }}</div>
-                    <div class="plan-part-info">
-                        <div class="plan-part-name">{{ $p->profesional->name }}</div>
-                        <div class="plan-part-rol">
+                <li class="list-group-item d-flex align-items-center gap-3 py-3 px-4" wire:key="part-{{ $p->id }}">
+                    <div class="avatar avatar--sm flex-shrink-0">{{ mb_strtoupper(substr($p->profesional->name, 0, 2)) }}</div>
+                    <div class="flex-fill">
+                        <div class="fw-medium">{{ $p->profesional->name }}</div>
+                        <div class="small text-secondary">
                             {{ $p->rol_en_plan }}
                             @if($p->servicio) · {{ $p->servicio->nombre }} @endif
                         </div>
                     </div>
                     @if($p->user_id === $this->plan?->profesional_responsable_id)
-                    <span class="plan-badge-responsable">Responsable</span>
+                    <span class="badge rounded-pill plan-badge--activo">Responsable</span>
                     @else
                     <button class="btn btn-outline-secondary btn-sm p-1 lh-1">
                         <x-heroicon-o-x-mark class="icon-13"/>
                     </button>
                     @endif
-                </div>
+                </li>
                 @endforeach
-            </div>
+            </ul>
         </div>
     </div>
 
@@ -399,32 +398,30 @@
         <div class="card-body">
 
             {{-- Condiciones de seguimiento --}}
-            <div class="plan-seguimiento">
-                <div class="plan-seguimiento-title">Condiciones de seguimiento</div>
-                <div class="plan-seguimiento-fields">
-                    <div class="plan-field">
-                        <label class="form-label plan-label">Frecuencia de seguimiento</label>
-                        <select
-                            wire:model.live="periodicidadSeguimiento"
-                            wire:change="guardarSeguimiento"
-                            class="form-select form-select-sm"
-                        >
-                            <option value="bimensual">Bimensual</option>
-                            <option value="trimestral">Trimestral</option>
-                            <option value="cuatrimestral">Cuatrimestral</option>
-                            <option value="semestral">Semestral</option>
-                        </select>
-                    </div>
-                    <div class="plan-field plan-field--full">
-                        <label class="form-label plan-label">Observaciones sobre el seguimiento</label>
-                        <textarea
-                            wire:model.lazy="observacionesSeguimiento"
-                            wire:change="guardarSeguimiento"
-                            class="form-control form-control-sm plan-textarea"
-                            rows="2"
-                            placeholder="Acuerdos sobre el seguimiento, condiciones especiales…"
-                        ></textarea>
-                    </div>
+            <p class="text-uppercase text-secondary fw-semibold small mb-3">Condiciones de seguimiento</p>
+            <div class="plan-seguimiento-fields">
+                <div>
+                    <label class="form-label small">Frecuencia de seguimiento</label>
+                    <select
+                        wire:model.live="periodicidadSeguimiento"
+                        wire:change="guardarSeguimiento"
+                        class="form-select form-select-sm"
+                    >
+                        <option value="bimensual">Bimensual</option>
+                        <option value="trimestral">Trimestral</option>
+                        <option value="cuatrimestral">Cuatrimestral</option>
+                        <option value="semestral">Semestral</option>
+                    </select>
+                </div>
+                <div class="plan-field--full">
+                    <label class="form-label small">Observaciones sobre el seguimiento</label>
+                    <textarea
+                        wire:model.lazy="observacionesSeguimiento"
+                        wire:change="guardarSeguimiento"
+                        class="form-control form-control-sm plan-textarea"
+                        rows="2"
+                        placeholder="Acuerdos sobre el seguimiento, condiciones especiales…"
+                    ></textarea>
                 </div>
             </div>
 
@@ -432,52 +429,56 @@
 
             {{-- Firmas --}}
             <div class="plan-firmas-grid">
-                <div class="plan-firma-card">
-                    <div class="plan-firma-quien">{{ $this->plan?->profesionalResponsable?->name }}</div>
-                    <div class="plan-firma-rol">Profesional responsable</div>
-                    <div class="form-check">
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="firma-profesional"
-                            wire:model.live="profesionalFirmado"
-                            wire:change="marcarFirmaProfesional($event.target.checked)"
-                            @if($this->plan?->estado->value === 'cerrado') disabled @endif
-                        >
-                        <label class="form-check-label" for="firma-profesional">Ha firmado en papel</label>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="fw-semibold mb-1">{{ $this->plan?->profesionalResponsable?->name }}</div>
+                        <div class="small text-secondary mb-3">Profesional responsable</div>
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="firma-profesional"
+                                wire:model.live="profesionalFirmado"
+                                wire:change="marcarFirmaProfesional($event.target.checked)"
+                                @if($this->plan?->estado->value === 'cerrado') disabled @endif
+                            >
+                            <label class="form-check-label" for="firma-profesional">Ha firmado en papel</label>
+                        </div>
+                        @if($profesionalFirmado)
+                        <div class="form-text">
+                            Registrado: {{ \Modules\Intervencion\Models\FirmaPlan::where('plan_id', $this->plan->id)->where('version', $this->plan->version)->value('profesional_firmado_en')?->format('d/m/Y H:i') }}
+                        </div>
+                        @endif
                     </div>
-                    @if($profesionalFirmado)
-                    <div class="form-text">
-                        Registrado: {{ \Modules\Intervencion\Models\FirmaPlan::where('plan_id', $this->plan->id)->where('version', $this->plan->version)->value('profesional_firmado_en')?->format('d/m/Y H:i') }}
-                    </div>
-                    @endif
                 </div>
 
-                <div class="plan-firma-card">
-                    <div class="plan-firma-quien">{{ $this->ciudadano?->nombre_completo }}</div>
-                    <div class="plan-firma-rol">Persona interesada</div>
-                    <div class="form-check">
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="firma-ciudadano"
-                            wire:model.live="ciudadanoFirmado"
-                            wire:change="marcarFirmaCiudadano($event.target.checked)"
-                            @if($this->plan?->estado->value === 'cerrado') disabled @endif
-                        >
-                        <label class="form-check-label" for="firma-ciudadano">Ha firmado en papel</label>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="fw-semibold mb-1">{{ $this->ciudadano?->nombre_completo }}</div>
+                        <div class="small text-secondary mb-3">Persona interesada</div>
+                        <div class="form-check">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="firma-ciudadano"
+                                wire:model.live="ciudadanoFirmado"
+                                wire:change="marcarFirmaCiudadano($event.target.checked)"
+                                @if($this->plan?->estado->value === 'cerrado') disabled @endif
+                            >
+                            <label class="form-check-label" for="firma-ciudadano">Ha firmado en papel</label>
+                        </div>
+                        @if($ciudadanoFirmado)
+                        <div class="form-text">
+                            Registrado: {{ \Modules\Intervencion\Models\FirmaPlan::where('plan_id', $this->plan->id)->where('version', $this->plan->version)->value('ciudadano_firmado_en')?->format('d/m/Y H:i') }}
+                        </div>
+                        @endif
                     </div>
-                    @if($ciudadanoFirmado)
-                    <div class="form-text">
-                        Registrado: {{ \Modules\Intervencion\Models\FirmaPlan::where('plan_id', $this->plan->id)->where('version', $this->plan->version)->value('ciudadano_firmado_en')?->format('d/m/Y H:i') }}
-                    </div>
-                    @endif
                 </div>
             </div>
 
             {{-- Fecha de firma presencial --}}
-            <div class="plan-field plan-field--compact">
-                <label class="form-label plan-label">Fecha de la firma presencial</label>
+            <div class="plan-field--compact">
+                <label class="form-label small">Fecha de la firma presencial</label>
                 <input
                     type="date"
                     wire:model.lazy="fechaFirmaPresencial"
@@ -487,16 +488,16 @@
             </div>
 
             @if($this->puedeActivarse)
-            <div class="plan-firma-lista-ok">
+            <div class="alert alert-success d-flex align-items-center gap-2 mt-3">
                 <x-heroicon-o-check-circle class="icon-14"/>
                 Ambas partes han firmado. El plan puede activarse desde el botón superior.
             </div>
             @endif
 
-            <div class="plan-firma-nota">
+            <p class="small text-secondary mt-3 mb-0">
                 Una vez activado el plan, cualquier cambio requerirá indicar el motivo.
                 El PDF puede generarse en cualquier momento desde el botón superior.
-            </div>
+            </p>
 
         </div>
     </div>
@@ -505,18 +506,18 @@
 
 {{-- ÍNDICE LATERAL --}}
 <nav class="plan-index" aria-label="Secciones del plan">
-    <div class="plan-index-label">Secciones</div>
-    <a href="#ps-datos"         class="plan-index-item"><span class="plan-index-dot plan-index-dot--done"></span> Datos</a>
-    <a href="#ps-diagnostico"   class="plan-index-item"><span class="plan-index-dot plan-index-dot--current"></span> Diagnóstico</a>
-    <a href="#ps-objetivos"     class="plan-index-item"><span class="plan-index-dot"></span> Objetivos</a>
-    <a href="#ps-ayto"          class="plan-index-item"><span class="plan-index-dot"></span> Ayuntamiento</a>
-    <a href="#ps-ciudadano"     class="plan-index-item"><span class="plan-index-dot"></span> Ciudadano</a>
-    <a href="#ps-participantes" class="plan-index-item"><span class="plan-index-dot"></span> Participantes</a>
-    <a href="#ps-firmas"        class="plan-index-item"><span class="plan-index-dot"></span> Firmas</a>
+    <div class="small text-uppercase text-secondary fw-semibold mb-2 px-2">Secciones</div>
+    <a href="#ps-datos"         class="plan-index-item small text-secondary py-1 px-2"><span class="plan-index-dot plan-index-dot--done"></span> Datos</a>
+    <a href="#ps-diagnostico"   class="plan-index-item small text-secondary py-1 px-2"><span class="plan-index-dot plan-index-dot--current"></span> Diagnóstico</a>
+    <a href="#ps-objetivos"     class="plan-index-item small text-secondary py-1 px-2"><span class="plan-index-dot"></span> Objetivos</a>
+    <a href="#ps-ayto"          class="plan-index-item small text-secondary py-1 px-2"><span class="plan-index-dot"></span> Ayuntamiento</a>
+    <a href="#ps-ciudadano"     class="plan-index-item small text-secondary py-1 px-2"><span class="plan-index-dot"></span> Ciudadano</a>
+    <a href="#ps-participantes" class="plan-index-item small text-secondary py-1 px-2"><span class="plan-index-dot"></span> Participantes</a>
+    <a href="#ps-firmas"        class="plan-index-item small text-secondary py-1 px-2"><span class="plan-index-dot"></span> Firmas</a>
 
-    <div class="plan-index-meta">
-        <div class="plan-index-meta-label">Seguimiento</div>
-        <div class="plan-index-meta-value">{{ ucfirst($periodicidadSeguimiento) }}</div>
+    <div class="mt-4 px-2">
+        <div class="small text-uppercase text-secondary">Seguimiento</div>
+        <div class="fw-semibold small">{{ ucfirst($periodicidadSeguimiento) }}</div>
     </div>
 </nav>
 </div>{{-- fin plan-body-wrap --}}
@@ -536,7 +537,7 @@
         <button wire:click="cerrarDrawer" type="button" class="btn-close" aria-label="Cerrar"></button>
     </div>
 
-    <div class="plan-drawer-filters">
+    <div class="d-flex gap-2 flex-wrap px-3 py-2 border-bottom">
         <button wire:click="$set('drawerFiltroFecha','todas')"
             class="plan-chip {{ $drawerFiltroFecha === 'todas' ? 'plan-chip--on' : '' }}">Todas</button>
         <button wire:click="$set('drawerFiltroFecha','mes')"
@@ -545,30 +546,33 @@
             class="plan-chip {{ $drawerFiltroFecha === 'anio' ? 'plan-chip--on' : '' }}">Último año</button>
     </div>
 
-    <div class="plan-drawer-body">
+    <div class="offcanvas-body d-flex flex-column gap-2">
         @forelse($this->valoracionesTimeline as $val)
-        <div class="plan-drawer-val" wire:key="val-{{ $val->id }}">
-            <div class="plan-drawer-val-header">
+        <div class="card" wire:key="val-{{ $val->id }}">
+            <div class="card-header d-flex align-items-center justify-content-between py-2 px-3 small fw-semibold">
                 {{ $val->tipoValoracion?->nombre ?? 'Valoración' }}
-                <span class="plan-drawer-val-date">{{ $val->created_at->format('d/m/Y') }}</span>
+                <span class="fw-normal text-secondary">{{ $val->created_at->format('d/m/Y') }}</span>
             </div>
             @foreach($val->fichas as $ficha)
-            <div class="plan-drawer-ficha" wire:key="df-{{ $ficha->id }}">
+            <div class="d-flex align-items-center gap-2 py-2 px-3 border-top" wire:key="df-{{ $ficha->id }}">
                 <input
+                    class="form-check-input mt-0 flex-shrink-0"
                     type="checkbox"
                     id="df{{ $ficha->id }}"
                     value="{{ $ficha->id }}"
                     x-model="seleccion"
                 >
-                <label for="df{{ $ficha->id }}">{{ $ficha->tipoFicha?->nombre ?? 'Ficha' }}</label>
+                <label class="form-check-label flex-fill small" for="df{{ $ficha->id }}">
+                    {{ $ficha->tipoFicha?->nombre ?? 'Ficha' }}
+                </label>
                 @if(in_array($ficha->id, $fichasSeleccionadas))
-                <span class="plan-chip plan-chip--on plan-chip--compact">Añadida</span>
+                <span class="badge rounded-pill plan-badge--activo fw-normal">Añadida</span>
                 @endif
             </div>
             @endforeach
         </div>
         @empty
-        <div class="plan-vacio plan-vacio--padded">No hay valoraciones en el historial.</div>
+        <p class="text-muted fst-italic p-4 mb-0">No hay valoraciones en el historial.</p>
         @endforelse
     </div>
 
