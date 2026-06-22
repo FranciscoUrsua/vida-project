@@ -274,7 +274,7 @@
             @if($this->actuacionesAyuntamiento->isEmpty())
             <div class="plan-vacio plan-vacio--padded">Ninguna actuación definida.</div>
             @else
-            <table class="plan-table">
+            <div class="table-responsive"><table class="table table-sm align-middle mb-0 plan-table">
                 <thead>
                     <tr>
                         <th>Prestación</th>
@@ -305,7 +305,7 @@
                     </tr>
                     @endforeach
                 </tbody>
-            </table>
+            </table></div>
             @endif
         </div>
     </div>
@@ -326,9 +326,9 @@
             @if($this->actuacionesCiudadano->isEmpty())
             <div class="plan-vacio">Ningún compromiso definido.</div>
             @else
-            <div class="plan-comp-list">
+            <div class="list-group list-group-flush plan-comp-list">
                 @foreach($this->actuacionesCiudadano as $act)
-                <div class="plan-comp-item" wire:key="aciu-{{ $act->id }}">
+                <div class="list-group-item plan-comp-item" wire:key="aciu-{{ $act->id }}">
                     <i data-lucide="circle-check" class="icon-14"></i>
                     <div>
                         <div>{{ $act->descripcion }}</div>
@@ -359,9 +359,9 @@
             </button>
         </div>
         <div class="plan-section__body">
-            <div class="plan-part-list">
+            <div class="list-group list-group-flush plan-part-list">
                 @foreach($this->participantes as $p)
-                <div class="plan-part-row" wire:key="part-{{ $p->id }}">
+                <div class="list-group-item plan-part-row" wire:key="part-{{ $p->id }}">
                     <div class="plan-part-avatar">{{ substr($p->profesional->name, 0, 2) }}</div>
                     <div class="plan-part-info">
                         <div class="plan-part-name">{{ $p->profesional->name }}</div>
@@ -398,11 +398,11 @@
                 <div class="plan-seguimiento-title">Condiciones de seguimiento</div>
                 <div class="plan-seguimiento-fields">
                     <div class="plan-field">
-                        <label class="plan-label">Frecuencia de seguimiento</label>
+                        <label class="form-label plan-label">Frecuencia de seguimiento</label>
                         <select
                             wire:model.live="periodicidadSeguimiento"
                             wire:change="guardarSeguimiento"
-                            class="plan-select"
+                            class="form-select form-select-sm plan-select"
                         >
                             <option value="bimensual">Bimensual</option>
                             <option value="trimestral">Trimestral</option>
@@ -411,11 +411,11 @@
                         </select>
                     </div>
                     <div class="plan-field plan-field--full">
-                        <label class="plan-label">Observaciones sobre el seguimiento</label>
+                        <label class="form-label plan-label">Observaciones sobre el seguimiento</label>
                         <textarea
                             wire:model.lazy="observacionesSeguimiento"
                             wire:change="guardarSeguimiento"
-                            class="plan-textarea"
+                            class="form-control form-control-sm plan-textarea"
                             rows="2"
                             placeholder="Acuerdos sobre el seguimiento, condiciones especiales…"
                         ></textarea>
@@ -468,12 +468,12 @@
 
             {{-- Fecha de firma presencial --}}
             <div class="plan-field plan-field--compact">
-                <label class="plan-label">Fecha de la firma presencial</label>
+                <label class="form-label plan-label">Fecha de la firma presencial</label>
                 <input
                     type="date"
                     wire:model.lazy="fechaFirmaPresencial"
                     wire:change="guardarFechaFirma"
-                    class="plan-input"
+                    class="form-control form-control-sm plan-input"
                 >
             </div>
 
@@ -594,7 +594,7 @@
                 </p>
                 <textarea
                     wire:model="motivoTexto"
-                    class="plan-textarea"
+                    class="form-control form-control-sm plan-textarea"
                     rows="3"
                     placeholder="ej: se actualizó la ficha de vivienda tras visita domiciliaria…"
                     autofocus

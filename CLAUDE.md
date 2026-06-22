@@ -78,13 +78,14 @@ confirmar que cada clase y cada método público/protegido tienen su docblock an
 - Toda integración con sistemas externos mediante adaptador con mock activo por defecto (principio 3.6).
 
 ### Frontend y UI
-- Sistema unificado: Tailwind CSS + tokens VIDA + componentes Blade/Livewire propios. Ver principio 4.18 de `docs/principios-vida360.md`.
-- No crear nuevas vistas, layouts ni componentes con Bootstrap, Foundation u otros frameworks visuales generalistas.
-- No cargar Bootstrap ni Bootstrap Icons por CDN en nuevas superficies de aplicación.
-- En Livewire no usar clases Bootstrap (`btn`, `row`, `col-*`, `form-control`, `form-select`, `alert`, `card`, etc.) para nuevas pantallas.
-- Evitar estilos inline estructurales en Blade. Usar componentes VIDA, clases Tailwind y tokens CSS. Solo se admiten estilos inline para valores dinámicos inevitables.
+- **Bootstrap 5.3** es la capa base de primitives para la superficie operativa Blade/Livewire: botones, formularios, tablas, modales, alerts, grid y spacing. Ver principio 4.18 de `docs/principios-vida360.md` y `docs/design-system/bootstrap-migration-plan.md`.
+- Bootstrap se instala localmente vía npm + Vite. No usar Bootstrap por CDN en la aplicación principal.
+- Arquitectura en cuatro capas: (1) tokens VIDA como variables Bootstrap, (2) primitives Bootstrap estándar, (3) componentes compartidos VIDA (`op-page`, `op-section`, `op-toolbar`, `op-chip`, `op-empty`, etc.), (4) clases específicas de pantalla solo para necesidades estructurales genuinas.
+- No crear clases tipo `xxx-btn`, `xxx-input`, `xxx-modal` si Bootstrap ya lo resuelve.
+- Overrides de Bootstrap centralizados en `_bootstrap-overrides.scss`.
+- Evitar estilos inline estructurales en Blade. Solo se admiten para valores dinámicos inevitables.
 - Filament usa su tema VIDA y componentes nativos. Los overrides sobre clases internas `.fi-*` deben estar centralizados en el tema y ser excepcionales.
-- Mantener un único sistema de iconos por superficie. No mezclar Bootstrap Icons con Lucide/Blade Icons salvo decisión técnica documentada.
+- Iconos: **Lucide** en Blade/Livewire (cargado localmente desde el build), **Heroicons** en Filament. No usar Bootstrap Icons ni CDNs de iconos en nuevas vistas.
 
 ### Tests
 - Base de datos de test: PostgreSQL (`vida_testing`). No usar SQLite.

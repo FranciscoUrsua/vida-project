@@ -15,7 +15,7 @@ This folder is the design system that drives every UI, slide, prototype, mock an
 VIDA 360 is a Laravel 12 / PHP 8.3 monolith with a Blade + Livewire + Alpine.js frontend, Tailwind CSS, VIDA design tokens, reusable Blade/Livewire components, and a Filament 5.3 admin backoffice. Interfaces split into two distinct surfaces with different ergonomics:
 
 - **Filament backoffice** — configuration, catalogues, users, roles, permissions. Table-dense, keyboard-driven.
-- **Livewire operational surface** — the daily professional workspace: citizen histories, intervention plans, notes, agenda, prescriptions, alerts, internal messaging. New operational UI is built with Tailwind CSS, VIDA tokens and reusable components; Bootstrap and inline structural styles are legacy debt, not a pattern to extend.
+- **Livewire operational surface** — the daily professional workspace: citizen histories, intervention plans, notes, agenda, prescriptions, alerts, internal messaging. New operational UI is built on **Bootstrap 5.3** (installed locally via npm + Vite) as the primitive layer, with VIDA tokens applied as Bootstrap variables and a shared `op-*` product component library on top. Structural inline styles are not used.
 
 Two kinds of people use it, with different access rules:
 - `Usuario` — staff (social workers, supervisors, admins). They log in.
@@ -191,7 +191,7 @@ Pill (`--radius-pill`), `12px` text, `600` weight, uppercase-off. Background is 
 
 ## Iconography
 
-**Icon set.** The repo does not ship a bespoke icon set. Filament ships with Heroicons by default; the Livewire operational surface standardises on **[Lucide](https://lucide.dev)** or a Blade Icons integration exposing the same family through the application build. Bootstrap Icons are legacy debt and must not be introduced in new UI.
+**Icon set.** The repo does not ship a bespoke icon set. Filament ships with Heroicons by default; the Livewire operational surface standardises on **[Lucide](https://lucide.dev)**, loaded locally through the application build. Bootstrap Icons are not the product's icon system — do not add them as a new dependency.
 
 - **Stroke width:** 1.75px (default Lucide is 2 — we thin it slightly for the calmer feel).
 - **Sizes:** 16 (inline with text), 20 (button), 24 (sidebar, menu), 32 (feature blocks), 48 (empty states only).

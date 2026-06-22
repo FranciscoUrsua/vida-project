@@ -25,20 +25,20 @@
         </div>
 
         <div class="agenda-screen__toolbar-actions">
-            <div class="agenda-screen__nav-group" aria-label="Navegacion temporal">
-                <button wire:click="navegarAnterior" type="button" class="btn btn-sm btn-outline-secondary agenda-screen__icon-button" aria-label="Periodo anterior">
+            <div class="btn-group btn-group-sm agenda-screen__nav-group" aria-label="Navegacion temporal">
+                <button wire:click="navegarAnterior" type="button" class="btn btn-sm btn-outline-secondary" aria-label="Periodo anterior">
                     <i data-lucide="chevron-left" class="icon-16" aria-hidden="true"></i>
                 </button>
-                <button wire:click="navegarSiguiente" type="button" class="btn btn-sm btn-outline-secondary agenda-screen__icon-button" aria-label="Periodo siguiente">
+                <button wire:click="navegarSiguiente" type="button" class="btn btn-sm btn-outline-secondary" aria-label="Periodo siguiente">
                     <i data-lucide="chevron-right" class="icon-16" aria-hidden="true"></i>
                 </button>
-                <button wire:click="irAHoy" type="button" class="btn btn-sm btn-outline-primary agenda-screen__today-button">Hoy</button>
+                <button wire:click="irAHoy" type="button" class="btn btn-sm btn-outline-primary">Hoy</button>
             </div>
 
             <div class="btn-group btn-group-sm agenda-screen__view-toggle" role="group" aria-label="Vista de agenda">
-                <button wire:click="setVista('dia')" type="button" class="btn {{ $vista === 'dia' ? 'btn-primary' : 'btn-outline-primary' }} agenda-screen__view-button">Dia</button>
-                <button wire:click="setVista('semana')" type="button" class="btn {{ $vista === 'semana' ? 'btn-primary' : 'btn-outline-primary' }} agenda-screen__view-button">Semana</button>
-                <button wire:click="setVista('mes')" type="button" class="btn {{ $vista === 'mes' ? 'btn-primary' : 'btn-outline-primary' }} agenda-screen__view-button">Mes</button>
+                <button wire:click="setVista('dia')" type="button" class="btn {{ $vista === 'dia' ? 'btn-primary' : 'btn-outline-primary' }}">Dia</button>
+                <button wire:click="setVista('semana')" type="button" class="btn {{ $vista === 'semana' ? 'btn-primary' : 'btn-outline-primary' }}">Semana</button>
+                <button wire:click="setVista('mes')" type="button" class="btn {{ $vista === 'mes' ? 'btn-primary' : 'btn-outline-primary' }}">Mes</button>
             </div>
         </div>
     </section>

@@ -45,15 +45,15 @@
             <span class="record-screen__plan-title">{{ $this->planNombreCorto }} · {{ $this->planActivo->estado->label() }}</span>
             <span class="record-screen__plan-meta">v{{ $this->planActivo->version }} · desde {{ Carbon::parse($this->planActivo->fecha_inicio)->format('d/m/Y') }}</span>
             <a href="{{ route('intervencion.plan.show', $this->planActivo) }}" wire:navigate
-               class="record-screen__plan-link">
+               class="btn btn-sm btn-outline-primary record-screen__plan-link">
                 Ver {{ $this->planNombreCorto }} →
             </a>
         </div>
-    @else
+                    @else
         <div class="record-screen__plan-bar record-screen__plan-bar--empty">
             Sin {{ $this->planNombreCorto }} activo
             <a href="{{ route('intervencion.plan.crear', ['historia' => $this->historia->id]) }}" wire:navigate
-               class="record-screen__plan-link">
+               class="btn btn-sm btn-outline-primary record-screen__plan-link">
                 + Crear {{ $this->planNombreCorto }}
             </a>
         </div>
@@ -79,7 +79,7 @@
                     @if($ciudadano)
                         <a href="{{ route('ciudadania.ciudadano.ficha', $ciudadano->id) }}"
                            wire:navigate
-                           class="record-screen__summary-link">
+                           class="btn btn-sm btn-outline-primary record-screen__summary-link">
                             Ficha completa
                         </a>
                     @endif
@@ -133,7 +133,7 @@
                         <span>{{ $this->ciudadanoEmail }}</span>
                     @endif
                 </p>
-            @endif
+                    @endif
 
             {{-- Representante (solo si existe relación activa) --}}
             @if($this->representante)
@@ -155,7 +155,7 @@
             {{-- Unidad de convivencia --}}
             <div class="record-screen__uc-card">
                 <button wire:click="toggleUC"
-                        class="record-screen__uc-toggle">
+                        class="btn btn-light btn-sm record-screen__uc-toggle">
                     <span>
                         Unidad de convivencia
                         @if($this->ucVigente)
@@ -194,14 +194,14 @@
                             <p class="record-screen__empty-note">Sin unidad de convivencia registrada.</p>
                         @endif
                         {{-- Botón gestionar UC --}}
-                        <button wire:click="abrirModalUc" class="uc-widget__gestionar" title="Gestionar unidad de convivencia">
+                        <button wire:click="abrirModalUc" class="btn btn-sm btn-outline-primary uc-widget__gestionar" title="Gestionar unidad de convivencia">
                             <i data-lucide="users" class="icon-14" aria-hidden="true"></i>
                             Gestionar UC
                         </button>
                         {{-- Botón para ver todas las relaciones del ciudadano --}}
                         <button
                             wire:click="abrirModalRelaciones"
-                            class="uc-widget__ver-relaciones"
+                            class="btn btn-sm btn-outline-secondary uc-widget__ver-relaciones"
                             title="Ver todas las personas relacionadas"
                         >
                             <i data-lucide="network" class="icon-12"></i>
@@ -266,11 +266,13 @@
             </div>
 
             {{-- Timeline de apuntes --}}
-            @forelse($this->apuntesHS as $apunte)
-                @php $colorPunto = $coloresTipo[$apunte->tipo->value] ?? 'var(--color-ink-500)'; @endphp
+            @if($this->apuntesHS->isNotEmpty())
+                <div class="list-group list-group-flush ciudadano-page__history-list">
+                    @foreach($this->apuntesHS as $apunte)
+                                @php $colorPunto = $coloresTipo[$apunte->tipo->value] ?? 'var(--color-ink-500)'; @endphp
                 <div wire:click="verApunte({{ $apunte->id }})"
                      role="button"
-                     class="ciudadano-page__history-item record-screen__history-item">
+                     class="list-group-item ciudadano-page__history-item record-screen__history-item">
                     <span class="record-screen__history-dot" style="--record-history-dot: {{ $colorPunto }};"></span>
                     <div class="ciudadano-page__history-main">
                         <div class="record-screen__history-title">
@@ -284,11 +286,13 @@
                         @endif
                     </div>
                 </div>
-            @empty
+                            @endforeach
+                </div>
+            @else
                 <div class="record-screen__empty-state">
                     Sin registros en la historia social.
                 </div>
-            @endforelse
+            @endif
 
         </div>
 
@@ -474,50 +478,30 @@
                         <span class="accesos-panel__titulo">Últimos accesos</span>
                         @if($this->puedeVerTodosLosAccesos)
                             {{-- TODO: modal historial completo --}}
-                            <a href="#" class="accesos-panel__ver-todo">Ver todo</a>
+                            <a href="#" class="btn btn-link btn-sm text-decoration-none px-0 accesos-panel__ver-todo">Ver todo</a>
                         @endif
                     </div>
 
-                    @forelse($this->accesosRecientes as $acceso)
-                        @php
-                            $esPropio     = $acceso->user_id === Auth::id();
-                            $uoAcceso     = $acceso->contexto['unidad_organizativa_id'] ?? null;
-                            $uoAcceso     = $uoAcceso ?? $acceso->user?->profesional?->unidad_organizativa_id;
-                            $esOtraUo     = $uoAcceso !== null && $uoAcceso !== $historia->unidad_organizativa_id;
-                            $esCambio     = in_array($acceso->accion?->value, ['crear', 'editar', 'eliminar']);
-                            $esAnomalos   = $esOtraUo && $esCambio;
-                            $esSospechoso = $esOtraUo && ! $esCambio;
-                        @endphp
+                    @if($this->accesosRecientes->isNotEmpty())
+                        <div class="list-group list-group-flush accesos-panel__list">
+                            @foreach($this->accesosRecientes as $acceso)
+                                @php                                    $esPropio     = $acceso->user_id === Auth::id();                                    $uoAcceso     = $acceso->contexto['unidad_organizativa_id'] ?? null;                                    $uoAcceso     = $uoAcceso ?? $acceso->user?->profesional?->unidad_organizativa_id;                                    $esOtraUo     = $uoAcceso !== null && $uoAcceso !== $historia->unidad_organizativa_id;                                    $esCambio     = in_array($acceso->accion?->value, ['crear', 'editar', 'eliminar']);                                    $esAnomalos   = $esOtraUo && $esCambio;                                    $esSospechoso = $esOtraUo && ! $esCambio;                                @endphp
+                                <div class="list-group-item acceso-fila {{ $esPropio ? 'acceso-fila--propio' : '' }} {{ $esAnomalos ? 'acceso-fila--anomalo' : '' }} {{ $esSospechoso ? 'acceso-fila--sospechoso' : '' }}">
+                                    <div class="acceso-fila__quien">                                        <span class="acceso-fila__nombre">                                            {{ $acceso->user?->profesional?->nombre_completo ?? $acceso->user?->name ?? '—' }}                                        </span>
+                                        @if($esOtraUo)                                            <span class="acceso-fila__badge-uo" title="Profesional de otra UO">Otra UO</span>                                        @endif
+                                    </div>
 
-                        <div class="acceso-fila
-                            {{ $esPropio     ? 'acceso-fila--propio'      : '' }}
-                            {{ $esAnomalos   ? 'acceso-fila--anomalo'     : '' }}
-                            {{ $esSospechoso ? 'acceso-fila--sospechoso'  : '' }}">
-
-                            <div class="acceso-fila__quien">
-                                <span class="acceso-fila__nombre">
-                                    {{ $acceso->user?->profesional?->nombre_completo ?? $acceso->user?->name ?? '—' }}
-                                </span>
-                                @if($esOtraUo)
-                                    <span class="acceso-fila__badge-uo" title="Profesional de otra UO">Otra UO</span>
-                                @endif
-                            </div>
-
-                            <div class="acceso-fila__detalle">
-                                <span class="acceso-fila__accion acceso-fila__accion--{{ $acceso->accion?->value }}">
-                                    {{ $acceso->accion?->etiqueta() ?? '—' }}
-                                </span>
-                                @if($esAnomalos)
-                                    <span class="acceso-fila__alerta" title="Modificación desde otra UO — revisar">
-                                        <i data-lucide="alert-triangle" class="ciudadano-page__alert-icon" aria-hidden="true"></i>
-                                    </span>
-                                @endif
-                                <span class="acceso-fila__fecha">{{ $acceso->created_at->diffForHumans() }}</span>
-                            </div>
+                                    <div class="acceso-fila__detalle">
+                                        <span class="acceso-fila__accion acceso-fila__accion--{{ $acceso->accion?->value }}">                                            {{ $acceso->accion?->etiqueta() ?? '—' }}                                        </span>
+                                        @if($esAnomalos)                                            <span class="acceso-fila__alerta" title="Modificación desde otra UO — revisar">                                                <i data-lucide="alert-triangle" class="ciudadano-page__alert-icon" aria-hidden="true"></i>                                            </span>                                        @endif
+                                        <span class="acceso-fila__fecha">{{ $acceso->created_at->diffForHumans() }}</span>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
-                    @empty
+                    @else
                         <p class="accesos-panel__vacio">Sin accesos registrados.</p>
-                    @endforelse
+                    @endif
                 </div>
             </div>
 

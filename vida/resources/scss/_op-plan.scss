@@ -65,14 +65,16 @@
    ============================================================ */
 
 .plan-badge {
-    font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500;
+    display: inline-flex; align-items: center;
+    font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 600;
+    line-height: 1.35;
 }
-.plan-badge--borrador  { background: #FAEEDA; color: #633806; }
-.plan-badge--activo    { background: #EAF3DE; color: #27500A; }
-.plan-badge--en_revision { background: #E6F1FB; color: #0C447C; }
+.plan-badge--borrador  { background: var(--color-warning-soft, #F8EFD8); color: var(--color-warning-ink, #7C4A03); }
+.plan-badge--activo    { background: var(--color-success-soft, #EAF7EE); color: var(--color-success-ink, #1F6B45); }
+.plan-badge--en_revision { background: var(--color-primary-soft, #EAF3FB); color: var(--color-primary-ink, #234764); }
 .plan-badge--cerrado   { background: var(--color-neutral-100); color: var(--color-text-secondary); }
 .plan-badge--version   { background: var(--color-surface-alt); color: var(--color-text-secondary); border: 1px solid var(--color-border); }
-.plan-badge-responsable { background: #EAF3DE; color: #27500A; font-size: 10px; padding: 2px 7px; border-radius: 99px; }
+.plan-badge-responsable { display: inline-flex; align-items: center; background: var(--color-success-soft, #EAF7EE); color: var(--color-success-ink, #1F6B45); font-size: 10px; padding: 2px 7px; border-radius: 99px; line-height: 1.35; }
 
 /* ============================================================
    SECCIONES
@@ -94,7 +96,7 @@
 }
 .plan-section__body { padding: 16px; }
 .plan-section__body--no-pad { padding: 0; }
-.plan-readonly-badge { font-size: 10px; color: var(--color-text-secondary); background: var(--color-surface-alt); padding: 2px 7px; border-radius: 99px; border: 1px solid var(--color-border); }
+.plan-readonly-badge { display: inline-flex; align-items: center; font-size: 10px; color: var(--color-text-secondary); background: var(--color-surface-alt); padding: 2px 7px; border-radius: 99px; border: 1px solid var(--color-border); line-height: 1.35; }
 
 /* ============================================================
    DATOS DE LA PERSONA
@@ -106,7 +108,7 @@
 .plan-citizen-value { font-size: 13px; color: var(--color-text-primary); }
 .plan-uc-members { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--color-border); }
 .plan-uc-label { font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
-.plan-member-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 99px; margin: 2px; color: var(--color-text-primary); }
+.plan-member-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 8px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 99px; margin: 2px; color: var(--color-text-primary); line-height: 1.35; }
 .plan-member-relacion { color: var(--color-text-secondary); }
 
 /* ============================================================
@@ -142,26 +144,26 @@
 .plan-obj-especificos li::before { content: '— '; }
 .plan-obj-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--color-border); }
 
-.plan-estado-badge { font-size: 10px; padding: 2px 7px; border-radius: 99px; }
-.plan-estado-pendiente   { background: #FAEEDA; color: #633806; }
-.plan-estado-en_proceso  { background: #E6F1FB; color: #0C447C; }
-.plan-estado-conseguido  { background: #EAF3DE; color: #27500A; }
+.plan-estado-badge { display: inline-flex; align-items: center; font-size: 10px; padding: 2px 7px; border-radius: 99px; font-weight: 600; line-height: 1.35; }
+.plan-estado-pendiente   { background: var(--color-warning-soft, #F8EFD8); color: var(--color-warning-ink, #7C4A03); }
+.plan-estado-en_proceso  { background: var(--color-primary-soft, #EAF3FB); color: var(--color-primary-ink, #234764); }
+.plan-estado-conseguido  { background: var(--color-success-soft, #EAF7EE); color: var(--color-success-ink, #1F6B45); }
 .plan-estado-abandonado  { background: var(--color-neutral-100); color: var(--color-text-secondary); }
-.plan-estado-en_curso    { background: #E6F1FB; color: #0C447C; }
-.plan-estado-completada  { background: #EAF3DE; color: #27500A; }
+.plan-estado-en_curso    { background: var(--color-primary-soft, #EAF3FB); color: var(--color-primary-ink, #234764); }
+.plan-estado-completada  { background: var(--color-success-soft, #EAF7EE); color: var(--color-success-ink, #1F6B45); }
 .plan-estado-cancelada   { background: var(--color-neutral-100); color: var(--color-text-secondary); }
 
 /* ============================================================
    TABLA ACTUACIONES AYTO
    ============================================================ */
 
-.plan-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.plan-table th { font-size: 10px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .05em; padding: 7px 12px; border-bottom: 1px solid var(--color-border); text-align: left; background: var(--color-surface-alt); }
-.plan-table td { padding: 9px 12px; border-bottom: 1px solid var(--color-border); vertical-align: top; color: var(--color-text-primary); }
+.plan-table { width: 100%; font-size: 12px; --bs-table-bg: transparent; margin-bottom: 0; }
+.plan-table th { font-size: 10px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: .05em; padding: 7px 12px; text-align: left; background: var(--color-surface-alt); border-bottom-color: var(--color-border); }
+.plan-table td { padding: 9px 12px; color: var(--color-text-primary); border-bottom-color: var(--color-border); vertical-align: top; }
 .plan-table tr:last-child td { border-bottom: none; }
 .plan-prestacion-name { font-weight: 500; }
 .plan-prestacion-code { font-size: 10px; color: var(--color-text-secondary); margin-top: 1px; font-family: var(--font-mono); }
-.plan-prestacion-pill { font-size: 10px; color: var(--color-primary); background: var(--color-primary-bg, #E6F1FB); padding: 1px 6px; border-radius: 99px; margin-top: 3px; display: inline-block; }
+.plan-prestacion-pill { font-size: 10px; color: var(--color-primary-ink, #234764); background: var(--color-primary-soft, #EAF3FB); padding: 1px 6px; border-radius: 99px; margin-top: 3px; display: inline-block; line-height: 1.35; }
 .plan-td-secondary { color: var(--color-text-secondary); }
 .plan-avatar-sm { width: 24px; height: 24px; border-radius: 50%; background: var(--color-surface-alt); border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--color-text-secondary); }
 
@@ -169,15 +171,15 @@
    COMPROMISOS CIUDADANO
    ============================================================ */
 
-.plan-comp-list { display: flex; flex-direction: column; gap: 6px; }
-.plan-comp-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 12px; background: var(--color-surface-alt); border-radius: 6px; font-size: 13px; color: var(--color-text-primary); }
+.plan-comp-list { gap: 6px; --bs-list-group-bg: transparent; --bs-list-group-border-color: var(--color-border); --bs-list-group-border-radius: 0.5rem; }
+.plan-comp-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 12px; background: var(--color-surface-alt); font-size: 13px; color: var(--color-text-primary); }
 
 /* ============================================================
    PARTICIPANTES
    ============================================================ */
 
-.plan-part-list { display: flex; flex-direction: column; gap: 6px; }
-.plan-part-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border: 1px solid var(--color-border); border-radius: 6px; }
+.plan-part-list { gap: 6px; --bs-list-group-bg: transparent; --bs-list-group-border-color: var(--color-border); --bs-list-group-border-radius: 0.5rem; }
+.plan-part-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; }
 .plan-part-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--color-surface-alt); border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--color-text-secondary); flex-shrink: 0; }
 .plan-part-info { flex: 1; }
 .plan-part-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
@@ -192,9 +194,8 @@
 .plan-field { display: flex; flex-direction: column; gap: 4px; }
 .plan-field--full { grid-column: 1 / -1; }
 .plan-label { font-size: 11px; color: var(--color-text-secondary); font-weight: 500; }
-.plan-select { padding: 6px 10px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 13px; background: var(--color-surface); color: var(--color-text-primary); }
-.plan-textarea { padding: 7px 10px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 13px; background: var(--color-surface); color: var(--color-text-primary); resize: vertical; width: 100%; box-sizing: border-box; }
-.plan-input { padding: 6px 10px; border: 1px solid var(--color-border); border-radius: 6px; font-size: 13px; background: var(--color-surface); color: var(--color-text-primary); width: 100%; }
+.plan-select, .plan-textarea, .plan-input { width: 100%; box-sizing: border-box; }
+.plan-textarea { resize: vertical; }
 
 .plan-firmas-divider { height: 1px; background: var(--color-border); margin: 16px 0; }
 .plan-firmas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

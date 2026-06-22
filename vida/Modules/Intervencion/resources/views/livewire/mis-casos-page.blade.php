@@ -77,7 +77,7 @@
                     $th = function (string $campo, string $label) use ($ordenarPor, $direccion): string {
                         $activo = $ordenarPor === $campo;
                         $flecha = $activo ? ($direccion === 'asc' ? '↑' : '↓') : '';
-                        $clase = $activo ? 'cases-screen__sort cases-screen__sort--active' : 'cases-screen__sort';
+                        $clase = $activo ? 'btn btn-sm btn-link text-decoration-none cases-screen__sort cases-screen__sort--active' : 'btn btn-sm btn-link text-decoration-none cases-screen__sort';
 
                         return '<th class="cases-screen__th">'
                             . '<button wire:click="sortBy(\'' . $campo . '\')" type="button" class="' . $clase . '">'
@@ -91,8 +91,8 @@
                         '<th class="cases-screen__th cases-screen__th--static">' . e($label) . '</th>';
                 @endphp
 
-                <div class="cases-screen__table-wrap">
-                    <table class="cases-screen__table">
+                <div class="table-responsive cases-screen__table-wrap">
+                    <table class="table table-sm table-hover align-middle mb-0 cases-screen__table">
                         <thead>
                             <tr class="cases-screen__head-row">
                                 {!! $th('ciudadano', 'Ciudadano/a') !!}
@@ -153,25 +153,25 @@
 
                 <footer class="cases-screen__footer">
                     <span class="cases-screen__count">{{ $this->casos->firstItem() }}-{{ $this->casos->lastItem() }} de {{ $this->casos->total() }} casos</span>
-                    <div class="cases-screen__pager" aria-label="Paginacion">
-                        @if($this->casos->onFirstPage())
-                            <span class="cases-screen__pager-item cases-screen__pager-item--disabled">‹</span>
-                        @else
-                            <button wire:click="previousPage" type="button" class="cases-screen__pager-item">‹</button>
-                        @endif
+                    <nav aria-label="Paginacion">
+                        <ul class="pagination pagination-sm mb-0 cases-screen__pager">
+                            @if($this->casos->onFirstPage())
+                                <li class="page-item disabled"><span class="page-link">‹</span></li>
+                            @else
+                                <li class="page-item"><button wire:click="previousPage" type="button" class="page-link">‹</button></li>
+                            @endif
 
-                        @foreach(range(1, $this->casos->lastPage()) as $p)
-                            <button wire:click="gotoPage({{ $p }})" type="button" class="cases-screen__pager-item {{ $this->casos->currentPage() === $p ? 'cases-screen__pager-item--active' : '' }}">
-                                {{ $p }}
-                            </button>
-                        @endforeach
+                            @foreach(range(1, $this->casos->lastPage()) as $p)
+                                <li class="page-item {{ $this->casos->currentPage() === $p ? 'active' : '' }}"><button wire:click="gotoPage({{ $p }})" type="button" class="page-link">{{ $p }}</button></li>
+                            @endforeach
 
-                        @if($this->casos->hasMorePages())
-                            <button wire:click="nextPage" type="button" class="cases-screen__pager-item">›</button>
-                        @else
-                            <span class="cases-screen__pager-item cases-screen__pager-item--disabled">›</span>
-                        @endif
-                    </div>
+                            @if($this->casos->hasMorePages())
+                                <li class="page-item"><button wire:click="nextPage" type="button" class="page-link">›</button></li>
+                            @else
+                                <li class="page-item disabled"><span class="page-link">›</span></li>
+                            @endif
+                        </ul>
+                    </nav>
                 </footer>
             @endif
         </div>

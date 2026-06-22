@@ -117,40 +117,40 @@
                 <div class="row g-3">
                     {{-- Nombre --}}
                     <div class="col-sm-4">
-                        <label class="ficha-label citizen-file__field-label">Nombre</label>
+                        <label class="form-label ficha-label citizen-file__field-label">Nombre</label>
                         @if($modoEdicion)
                             <input type="text" wire:model="nombre"
-                                class="ficha-input citizen-file__input">
+                                class="form-control form-control-sm ficha-input citizen-file__input">
                         @else
                             <span class="citizen-file__field-value">{{ $nombre ?: '—' }}</span>
                         @endif
                     </div>
                     {{-- Apellido 1 --}}
                     <div class="col-sm-4">
-                        <label class="ficha-label citizen-file__field-label">Apellido 1</label>
+                        <label class="form-label ficha-label citizen-file__field-label">Apellido 1</label>
                         @if($modoEdicion)
                             <input type="text" wire:model="apellido1"
-                                class="ficha-input citizen-file__input">
+                                class="form-control form-control-sm ficha-input citizen-file__input">
                         @else
                             <span class="citizen-file__field-value">{{ $apellido1 ?: '—' }}</span>
                         @endif
                     </div>
                     {{-- Apellido 2 --}}
                     <div class="col-sm-4">
-                        <label class="ficha-label citizen-file__field-label">Apellido 2</label>
+                        <label class="form-label ficha-label citizen-file__field-label">Apellido 2</label>
                         @if($modoEdicion)
                             <input type="text" wire:model="apellido2"
-                                class="ficha-input citizen-file__input">
+                                class="form-control form-control-sm ficha-input citizen-file__input">
                         @else
                             <span class="citizen-file__field-value">{{ $apellido2 ?: '—' }}</span>
                         @endif
                     </div>
                     {{-- Fecha nacimiento --}}
                     <div class="col-sm-4">
-                        <label class="ficha-label citizen-file__field-label">Fecha de nacimiento</label>
+                        <label class="form-label ficha-label citizen-file__field-label">Fecha de nacimiento</label>
                         @if($modoEdicion)
                             <input type="date" wire:model="fechaNacimiento"
-                                class="ficha-input citizen-file__input">
+                                class="form-control form-control-sm ficha-input citizen-file__input">
                         @else
                             <span class="citizen-file__field-value">
                                 {{ $fechaNacimiento ? \Carbon\Carbon::parse($fechaNacimiento)->format('d/m/Y') : '—' }}
@@ -159,10 +159,10 @@
                     </div>
                     {{-- Sexo --}}
                     <div class="col-sm-4">
-                        <label class="ficha-label citizen-file__field-label">Sexo</label>
+                        <label class="form-label ficha-label citizen-file__field-label">Sexo</label>
                         @if($modoEdicion)
                             <select wire:model="sexo"
-                                class="ficha-input citizen-file__input">
+                                class="form-select form-select-sm ficha-input citizen-file__input">
                                 <option value="">— Seleccionar —</option>
                                 <option value="H">Hombre</option>
                                 <option value="M">Mujer</option>
@@ -176,10 +176,10 @@
                     </div>
                     {{-- Alias --}}
                     <div class="col-sm-4">
-                        <label class="ficha-label citizen-file__field-label">Alias / apodo</label>
+                        <label class="form-label ficha-label citizen-file__field-label">Alias / apodo</label>
                         @if($modoEdicion)
                             <input type="text" wire:model="alias"
-                                class="ficha-input citizen-file__input">
+                                class="form-control form-control-sm ficha-input citizen-file__input">
                         @else
                             <span class="citizen-file__field-value">{{ $alias ?: '—' }}</span>
                         @endif
@@ -192,31 +192,31 @@
                 <div class="row g-3">
                     {{-- Domicilio --}}
                     <div class="col-12">
-                        <label class="ficha-label citizen-file__field-label">Domicilio</label>
+                        <label class="form-label ficha-label citizen-file__field-label">Domicilio</label>
                         @if($modoEdicion)
                             <input type="text" wire:model="direccionTexto"
                                 placeholder="Texto libre — se normaliza al guardar"
-                                class="ficha-input citizen-file__input">
+                                class="form-control form-control-sm ficha-input citizen-file__input">
                         @else
                             <span class="citizen-file__field-value">{{ $direccionTexto ?: '—' }}</span>
                         @endif
                     </div>
                     {{-- Teléfono --}}
                     <div class="col-sm-6">
-                        <label class="ficha-label citizen-file__field-label">Teléfono</label>
+                        <label class="form-label ficha-label citizen-file__field-label">Teléfono</label>
                         @if($modoEdicion)
                             <input type="tel" wire:model="telefono"
-                                class="ficha-input citizen-file__input">
+                                class="form-control form-control-sm ficha-input citizen-file__input">
                         @else
                             <span class="citizen-file__field-value">{{ $telefono ?: '—' }}</span>
                         @endif
                     </div>
                     {{-- Email --}}
                     <div class="col-sm-6">
-                        <label class="ficha-label citizen-file__field-label">Email</label>
+                        <label class="form-label ficha-label citizen-file__field-label">Email</label>
                         @if($modoEdicion)
                             <input type="email" wire:model="email"
-                                class="ficha-input citizen-file__input">
+                                class="form-control form-control-sm ficha-input citizen-file__input">
                         @else
                             <span class="citizen-file__field-value">{{ $email ?: '—' }}</span>
                         @endif
@@ -252,7 +252,7 @@
                 @if($documentos->isEmpty())
                     <p class="citizen-file__empty">Sin documentos registrados.</p>
                 @else
-                    <table class="citizen-file__table">
+                    <div class="table-responsive"><table class="table table-sm align-middle mb-0 citizen-file__table">
                         <thead>
                             <tr class="citizen-file__table-head">
                                 <th class="citizen-file__th">Tipo</th>
@@ -281,7 +281,7 @@
                             </tr>
                             @endforeach
                         </tbody>
-                    </table>
+                    </table></div>
                     <p class="citizen-file__helper">
                         Los documentos anteriores no se eliminan — permiten localizar al ciudadano aunque haya cambiado de documento.
                     </p>
@@ -319,7 +319,7 @@
                         Sin relaciones registradas.
                     </p>
                 @else
-                    <div class="citizen-file__list">
+                    <div class="list-group list-group-flush citizen-file__list">
                         @foreach($relacionesActivas as $rel)
                         @php
                             $etiquetaTipo = $rel->tipoRelacion?->etiqueta ?? $rel->tipo_relacion;
@@ -328,7 +328,7 @@
                                 ? route('ciudadania.ciudadano.ficha', $rel->ciudadano_relacionado_id)
                                 : null;
                         @endphp
-                        <div class="citizen-file__list-row {{ $puedeEditarRel ? 'citizen-file__list-row--clickable' : '' }}" {{ $puedeEditarRel ? "wire:click=\"abrirModalEditarRelacion({$rel->id})\"" : '' }}>
+                        <div class="list-group-item citizen-file__list-row {{ $puedeEditarRel ? 'citizen-file__list-row--clickable' : '' }}" @if($puedeEditarRel) wire:click="abrirModalEditarRelacion({{ $rel->id }})" @endif>
                             <span class="citizen-file__list-chip">
                                 {{ $etiquetaTipo }}
                             </span>
@@ -352,17 +352,17 @@
                 @if($relacionesHist->isNotEmpty())
                     <div class="citizen-file__history">
                         <button wire:click="toggleHistorialRelaciones" type="button"
-                            class="citizen-file__history-toggle">
+                            class="btn btn-link btn-sm text-decoration-none px-0 citizen-file__history-toggle">
                             <i data-lucide="{{ $mostrarHistorialRelaciones ? 'chevron-up' : 'chevron-down' }}" class="icon-13" aria-hidden="true"></i>
                             {{ $mostrarHistorialRelaciones ? 'Ocultar historial' : "Ver historial ({$relacionesHist->count()})" }}
                         </button>
                         @if($mostrarHistorialRelaciones)
-                            <div class="citizen-file__history-list">
+                            <div class="list-group list-group-flush citizen-file__history-list">
                                 @foreach($relacionesHist as $rel)
                                 @php
                                     $etiquetaTipo = $rel->tipoRelacion?->etiqueta ?? $rel->tipo_relacion;
                                 @endphp
-                                <div class="citizen-file__history-row">
+                                <div class="list-group-item citizen-file__history-row">
                                     <span class="citizen-file__history-chip">
                                         {{ $etiquetaTipo }}
                                     </span>
@@ -386,7 +386,7 @@
                     <i data-lucide="home" class="icon-16" aria-hidden="true"></i>
                     Unidad de convivencia
                 </h2>
-                <div class="citizen-file__list">
+                <div class="list-group list-group-flush citizen-file__list">
                     @foreach($ucMiembros as $miembro)
                     @php
                         $nombreMiembro = $miembro->ciudadano?->nombre_completo ?? '—';
@@ -394,7 +394,7 @@
                             ? route('ciudadania.ciudadano.ficha', $miembro->ciudadano_id)
                             : null;
                     @endphp
-                    <div class="citizen-file__list-row citizen-file__list-row--plain">
+                    <div class="list-group-item citizen-file__list-row citizen-file__list-row--plain">
                         @if($miembro->tipo_relacion_etiqueta)
                             <span class="citizen-file__list-chip">
                                 {{ $miembro->tipo_relacion_etiqueta }}
@@ -426,7 +426,7 @@
                         <i data-lucide="layers" class="icon-16" aria-hidden="true"></i>
                         Otras prestaciones
                     </h2>
-                    <div class="citizen-file__stack">
+                    <div class="list-group list-group-flush citizen-file__stack">
                         @foreach($prestaciones as $pres)
                         @php
                             [$bg, $fg] = match($pres->estado) {
@@ -444,7 +444,7 @@
                                 default      => $pres->estado,
                             };
                         @endphp
-                        <div class="citizen-file__stack-row">
+                        <div class="list-group-item citizen-file__stack-row">
                             <div>
                                 <div class="citizen-file__stack-title">{{ $pres->descripcion }}</div>
                                 <div class="citizen-file__stack-meta">{{ $pres->fecha_inicio?->format('d/m/Y') }}</div>
@@ -542,10 +542,7 @@
                 <h3 class="citizen-file__modal-title">
                     {{ $relacionId ? 'Editar relación' : 'Nueva relación' }}
                 </h3>
-                <button wire:click="cerrarModalRelacion" type="button"
-                    class="citizen-file__modal-close">
-                    <i data-lucide="x" class="icon-18" aria-hidden="true"></i>
-                </button>
+                <button wire:click="cerrarModalRelacion" type="button" class="btn-close citizen-file__modal-close" aria-label="Cerrar"></button>
             </div>
 
             {{-- Tipo de relación (solo en creación) --}}
@@ -555,8 +552,8 @@
                     Tipo de relación <span class="citizen-file__required">*</span>
                 </label>
                 <select wire:model="relacionTipo"
-                    class="ficha-input citizen-file__input">
-                    <option value="">— Seleccionar —</option>
+                    class="form-select form-select-sm ficha-input citizen-file__input">
+                                <option value="">— Seleccionar —</option>
                     @foreach($this->tiposRelacion as $slug => $etiqueta)
                         <option value="{{ $slug }}">{{ $etiqueta }}</option>
                     @endforeach
@@ -572,22 +569,22 @@
                     Ciudadano <span class="citizen-file__required">*</span>
                 </label>
                 @if($this->ciudadanoSeleccionadoRelacion)
-                    <div class="citizen-file__selected">
+                    <div class="citizen-file__selected d-flex align-items-center gap-2">
                         <span class="citizen-file__selected-name">{{ $this->ciudadanoSeleccionadoRelacion->nombre_completo }}</span>
                         <button type="button" wire:click="$set('relacionCiudadanoSeleccionado', null)"
-                            class="citizen-file__clear-btn">
+                            class="btn btn-sm btn-outline-secondary p-1 citizen-file__clear-btn">
                             <i data-lucide="x" class="icon-14" aria-hidden="true"></i>
                         </button>
                     </div>
                 @else
                     <input type="text" wire:model.live="relacionBusqueda"
                         placeholder="Escribir nombre (mín. 2 caracteres)…"
-                        class="ficha-input citizen-file__input">
+                        class="form-control form-control-sm ficha-input citizen-file__input">
                     @if($this->relacionResultadosBusqueda->isNotEmpty())
-                        <div class="citizen-file__search-results">
+                        <div class="citizen-file__search-results list-group">
                             @foreach($this->relacionResultadosBusqueda as $sug)
                                 <button type="button" wire:click="seleccionarCiudadanoRelacion({{ $sug->id }})"
-                                    class="citizen-file__search-result">
+                                    class="citizen-file__search-result list-group-item list-group-item-action">
                                     {{ $sug->nombre_completo }}
                                 </button>
                             @endforeach
@@ -605,7 +602,7 @@
                     Fecha de inicio <span class="citizen-file__required">*</span>
                 </label>
                 <input type="date" wire:model="relacionFechaInicio"
-                    class="ficha-input citizen-file__input">
+                    class="form-control form-control-sm ficha-input citizen-file__input">
                 @error('relacionFechaInicio')
                     <span class="ficha-error">{{ $message }}</span>
                 @enderror
@@ -616,7 +613,7 @@
             <div class="citizen-file__modal-field citizen-file__modal-field--last">
                 <label class="citizen-file__modal-label">Observaciones</label>
                 <textarea wire:model="relacionObservaciones" rows="3" placeholder="Opcional…"
-                    class="ficha-textarea citizen-file__input citizen-file__textarea"></textarea>
+                    class="form-control form-control-sm ficha-textarea citizen-file__input citizen-file__textarea"></textarea>
                 @error('relacionObservaciones')
                     <span class="ficha-error">{{ $message }}</span>
                 @enderror
@@ -627,7 +624,7 @@
                     @if($relacionId)
                         <button wire:click="cerrarRelacion({{ $relacionId }})" type="button"
                             wire:confirm="¿Confirmar el cierre de esta relación? Se establecerá fecha de fin hoy."
-                            class="citizen-file__danger-btn">
+                            class="btn btn-sm btn-outline-danger citizen-file__danger-btn">
                             Cerrar relación
                         </button>
                     @endif
@@ -653,10 +650,7 @@
         <div class="citizen-file__modal-dialog citizen-file__modal-dialog--sm">
             <div class="citizen-file__modal-header">
                 <h3 class="citizen-file__modal-title">Añadir documento de identidad</h3>
-                <button wire:click="cerrarModalDocumento" type="button"
-                    class="citizen-file__modal-close">
-                    <i data-lucide="x" class="icon-18" aria-hidden="true"></i>
-                </button>
+                <button wire:click="cerrarModalDocumento" type="button" class="btn-close citizen-file__modal-close" aria-label="Cerrar"></button>
             </div>
             <p class="citizen-file__modal-copy">
                 El documento actual recibirá fecha de fin. El historial se conserva íntegro.
@@ -665,7 +659,7 @@
             <div class="citizen-file__modal-field">
                 <label class="citizen-file__modal-label">Tipo de documento</label>
                 <select wire:model="nuevoTipoDocumento"
-                    class="ficha-input citizen-file__input">
+                    class="form-select form-select-sm ficha-input citizen-file__input">
                     <option value="nif">DNI / NIF</option>
                     <option value="nie">NIE</option>
                     <option value="pasaporte">Pasaporte</option>
@@ -674,7 +668,7 @@
             <div class="citizen-file__modal-field citizen-file__modal-field--last">
                 <label class="citizen-file__modal-label">Número de documento</label>
                 <input type="text" wire:model="nuevoValorDocumento" placeholder="Ej.: 12345678A"
-                    class="ficha-input citizen-file__input">
+                    class="form-control form-control-sm ficha-input citizen-file__input">
                 @error('nuevoValorDocumento')
                     <span class="ficha-error">{{ $message }}</span>
                 @enderror
@@ -715,12 +709,12 @@
             <div class="modal-body d-flex flex-column gap-3">
 
                 <div class="ficha-field">
-                    <label class="ficha-label" for="at-fecha">Fecha</label>
+                    <label class="form-label ficha-label" for="at-fecha">Fecha</label>
                     <input
                         type="date"
                         id="at-fecha"
                         wire:model="atencionFecha"
-                        class="ficha-input"
+                        class="form-control form-control-sm ficha-input"
                         max="{{ now()->toDateString() }}"
                     >
                     @error('atencionFecha') <span class="ficha-error">{{ $message }}</span> @enderror
@@ -728,7 +722,7 @@
 
                 @if(! auth()->user()->hasRole('consulta_basica'))
                 <div class="ficha-field">
-                    <label class="ficha-label">Tipo de atención</label>
+                    <label class="form-label ficha-label">Tipo de atención</label>
                     <div class="ficha-radio-group">
                         <label class="ficha-radio">
                             <input type="radio" wire:model="atencionTipo" value="informacion">
@@ -743,11 +737,11 @@
                 @endif
 
                 <div class="ficha-field">
-                    <label class="ficha-label" for="at-demanda">Demanda del ciudadano</label>
+                    <label class="form-label ficha-label" for="at-demanda">Demanda del ciudadano</label>
                     <textarea
                         id="at-demanda"
                         wire:model="atencionDemanda"
-                        class="ficha-textarea"
+                        class="form-control form-control-sm ficha-textarea"
                         rows="3"
                         placeholder="Qué solicita o comunica el ciudadano…"
                     ></textarea>
@@ -755,11 +749,11 @@
                 </div>
 
                 <div class="ficha-field">
-                    <label class="ficha-label" for="at-respuesta">Respuesta / actuación</label>
+                    <label class="form-label ficha-label" for="at-respuesta">Respuesta / actuación</label>
                     <textarea
                         id="at-respuesta"
                         wire:model="atencionRespuesta"
-                        class="ficha-textarea"
+                        class="form-control form-control-sm ficha-textarea"
                         rows="2"
                         placeholder="Qué se le informa, orienta o tramita…"
                     ></textarea>

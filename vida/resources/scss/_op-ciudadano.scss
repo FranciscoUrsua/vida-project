@@ -94,6 +94,22 @@
     cursor: pointer;
 }
 
+.ciudadano-page__history-list.list-group {
+    --bs-list-group-bg: transparent;
+    --bs-list-group-border-color: var(--color-border);
+    --bs-list-group-border-radius: 0.5rem;
+}
+
+.ciudadano-page__history-item.list-group-item {
+    margin-bottom: 0;
+    border-left: 0;
+    border-right: 0;
+}
+
+.ciudadano-page__history-item.list-group-item:first-child {
+    border-top: 0;
+}
+
 .ciudadano-page__history-main {
     flex: 1;
     min-width: 0;
@@ -224,12 +240,27 @@
     text-decoration: underline;
 }
 
+.accesos-panel__list.list-group {
+    --bs-list-group-bg: transparent;
+    --bs-list-group-border-color: var(--color-ink-100);
+    --bs-list-group-border-radius: 0.5rem;
+}
+
 .acceso-fila {
     padding: var(--space-2) 0;
-    border-bottom: 1px solid var(--color-ink-100);
     display: flex;
     flex-direction: column;
     gap: 2px;
+    background: transparent;
+}
+
+.acceso-fila.list-group-item {
+    border-left: 0;
+    border-right: 0;
+}
+
+.acceso-fila.list-group-item:first-child {
+    border-top: 0;
 }
 
 .acceso-fila:last-child {
@@ -446,12 +477,14 @@
 }
 
 .uc-modal__badge {
+    display: inline-flex; align-items: center;
     background: var(--color-neutral-200, #e5e7eb);
     color: var(--color-text-secondary);
-    border-radius: 10px;
-    padding: 0 6px;
+    border-radius: 999px;
+    padding: 1px 6px;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
+    line-height: 1.35;
 }
 
 .uc-modal__lista {
@@ -507,25 +540,26 @@
     gap: 3px;
     font-size: 13px;
     padding: 2px 7px;
-    border-radius: 10px;
-    font-weight: 500;
+    border-radius: 999px;
+    font-weight: 600;
+    line-height: 1.35;
     white-space: nowrap;
 }
 
 .uc-badge--verificado {
-    background: var(--color-success-bg, #f0fdf4);
-    color: var(--color-success, #166534);
+    background: var(--color-success-soft, #EAF7EE);
+    color: var(--color-success-ink, #1F6B45);
     border: 1px solid var(--color-success-border, #bbf7d0);
 }
 
 .uc-badge--sin-verificar {
-    background: var(--color-warning-bg, #fffbeb);
-    color: var(--color-warning, #92400e);
+    background: var(--color-warning-soft, #F8EFD8);
+    color: var(--color-warning-ink, #7C4A03);
     border: 1px solid var(--color-warning-border, #fde68a);
     cursor: pointer;
 }
 
-.uc-badge--sin-verificar:hover { background: var(--color-warning-hover, #fef3c7); }
+.uc-badge--sin-verificar:hover { background: color-mix(in srgb, var(--color-warning-soft, #F8EFD8) 82%, #fff); }
 
 .uc-badge--sm { font-size: 12px; padding: 1px 5px; }
 

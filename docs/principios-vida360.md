@@ -258,19 +258,22 @@ La anonimización es parte del cumplimiento del RGPD por diseño (privacy by des
 
 ### 4.18 Sistema unificado de frontend
 
-VIDA utiliza un único sistema de frontend basado en **Tailwind CSS, tokens VIDA y componentes propios reutilizables**. Este sistema aplica tanto a Filament como a las pantallas operativas Livewire.
+La superficie operativa de VIDA (Blade/Livewire) usa **Bootstrap 5.3 como capa base de primitives**, instalado localmente vía npm + Vite. Los tokens VIDA se aplican como variables Bootstrap para que los componentes estándar hablen el lenguaje visual del producto. Por encima existe una biblioteca corta de componentes de producto compartidos (`op-*`). Ver el plan de arquitectura en `docs/design-system/bootstrap-migration-plan.md`.
 
-**Bootstrap, Foundation u otros frameworks visuales generalistas no son la base del producto.** No deben incorporarse en nuevas pantallas ni cargarse por CDN en layouts de aplicación. Cualquier dependencia de este tipo heredada debe considerarse deuda técnica a retirar durante la consolidación del frontend.
+La arquitectura objetivo tiene cuatro capas:
 
-**Filament** debe apoyarse en su propio sistema de componentes y en un tema VIDA específico. La personalización de Filament se hará preferentemente mediante sus APIs de configuración, temas y componentes nativos. Los overrides directos sobre clases internas de Filament (`.fi-*`) deben limitarse a ajustes necesarios, estar centralizados en el tema y evitarse como mecanismo habitual de diseño.
+1. **Tokens VIDA** — variables CSS de color, tipografía, radios, spacing y sombras, expresadas como variables Bootstrap.
+2. **Bootstrap como primitive layer** — botones (`btn`), formularios (`form-control`, `form-select`), tablas (`table`), modales (`modal`), alerts, grid y spacing utilitario. Se usan las clases estándar sin reinventarlas.
+3. **Componentes compartidos VIDA (`op-*`)** — piezas de producto reutilizables que Bootstrap no modela: `op-page`, `op-section`, `op-toolbar`, `op-chip`, `op-empty`, `op-filter-row`, etc.
+4. **Clases específicas de pantalla** — solo cuando existe una necesidad estructural genuina. No se crean clases tipo `xxx-btn`, `xxx-input` o `xxx-modal` si Bootstrap ya lo resuelve.
 
-**Livewire** debe construir la interfaz operativa con componentes Blade/Livewire reutilizables basados en Tailwind y tokens VIDA: botones, campos de formulario, selectores, badges, paneles, tablas, navegación, modales, estados vacíos y mensajes de validación. Las vistas Livewire no deben depender de clases Bootstrap (`btn`, `row`, `col-*`, `form-control`, etc.) ni de estilos inline salvo para valores dinámicos inevitables.
+**Filament** mantiene su propio sistema de componentes y tema VIDA. No se usa Bootstrap en la superficie Filament. Los overrides sobre clases internas (`.fi-*`) se centralizan en el tema y son excepcionales.
 
 La aplicación es **desktop-first**: el uso mayoritario se produce en PC y la interfaz debe priorizar densidad, escaneabilidad y eficiencia para trabajo profesional continuado. Esto no exime de soporte responsive: en tablet los layouts deben conservar funcionalidad completa con reorganización razonable, y en móvil deben permitir consulta y operaciones básicas sin roturas visuales ni pérdida de accesibilidad.
 
-El sistema de iconos debe ser único en cada superficie. No se deben mezclar familias de iconos de forma arbitraria. Si se usa Lucide o Blade Icons en Livewire, debe mantenerse esa decisión de forma consistente; Bootstrap Icons no debe introducirse como dependencia paralela salvo decisión técnica documentada.
+**Iconos:** Lucide en Blade/Livewire (cargado localmente desde el build); Heroicons en Filament. Bootstrap Icons no es el sistema de iconos del producto y no debe añadirse como dependencia nueva. No cargar fuentes de iconos por CDN en layouts de la aplicación principal.
 
-Regla de implementación: **en Livewire no se usan Bootstrap ni estilos inline estructurales; la UI se construye con componentes VIDA basados en Tailwind. Filament usa su tema VIDA y sus componentes nativos.**
+Regla de implementación: **primero Bootstrap; si hace falta un componente de producto reutilizable, `op-*`; solo al final, una clase específica de pantalla. No se usan estilos inline estructurales en Blade. Filament usa su tema VIDA y componentes nativos.**
 
 ---
 
