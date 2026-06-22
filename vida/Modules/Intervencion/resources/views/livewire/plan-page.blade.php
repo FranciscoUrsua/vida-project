@@ -145,14 +145,13 @@
                 <div class="plan-ficha-card" wire:key="pfd-{{ $pfd->id }}"
                      x-data="{ expandida: false }">
                     <div class="plan-ficha-header">
-                        <div class="plan-ficha-title plan-ficha-title--toggle" @click="expandida = !expandida">
+                        <div class="plan-ficha-title plan-ficha-title--toggle" @click="expandida = !expandida" :aria-expanded="expandida">
                             <x-heroicon-o-lock-closed class="icon-12 plan-icon-muted"/>
                             {{ $pfd->ficha?->tipoFicha?->nombre ?? 'Ficha' }}
                             <span class="plan-ficha-date">
                                 {{ $pfd->ficha?->created_at?->format('d/m/Y') }}
                             </span>
-                            <x-heroicon-o-chevron-down class="icon-12"
-                               x-bind:class="expandida ? 'plan-icon-rotate-180' : ''"/>
+                            <x-heroicon-o-chevron-down class="icon-12 op-toggle-icon"/>
                         </div>
                         <button
                             wire:click="eliminarFichaDiagnostico({{ $pfd->ficha_id }})"

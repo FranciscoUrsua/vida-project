@@ -82,10 +82,7 @@
                     {{ Auth::user()->profesional?->nombre_completo ?? Auth::user()->email }}
                 </span>
 
-                <x-heroicon-o-chevron-down
-                   class="icon-16"
-                   :class="{ 'icon-rotate-180': abierto }"
-                   aria-hidden="true"/>
+                <x-heroicon-o-chevron-down class="icon-16 op-toggle-icon" aria-hidden="true"/>
             </button>
 
             {{-- Menu desplegable --}}

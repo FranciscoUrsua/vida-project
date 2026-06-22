@@ -1,3 +1,9 @@
+// Chevron que rota cuando su ancestro tiene aria-expanded="true".
+// El estado lo gestiona el botón/contenedor padre; el icono no tiene lógica propia.
+[aria-expanded="true"] .op-toggle-icon {
+    transform: rotate(180deg);
+}
+
 .op-page {
     min-height: 100vh;
 }

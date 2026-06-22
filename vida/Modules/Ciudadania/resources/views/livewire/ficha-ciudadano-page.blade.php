@@ -500,9 +500,7 @@
                         type="button"
                     >
                         <span x-text="expandido ? 'Ocultar' : 'Ver detalle'"></span>
-                        <x-heroicon-o-chevron-down class="icon-12"
-                           :style="expandido ? 'transform:rotate(180deg)' : ''"
-                           aria-hidden="true"/>
+                        <x-heroicon-o-chevron-down class="icon-12 op-toggle-icon" aria-hidden="true"/>
                     </button>
                     <div class="ficha-atencion-detalle" x-show="expandido" x-cloak>
                         @if($registro->demanda)
