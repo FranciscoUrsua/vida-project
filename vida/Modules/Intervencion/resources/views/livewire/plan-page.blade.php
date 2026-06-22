@@ -404,7 +404,6 @@
                     <label class="form-label small">Frecuencia de seguimiento</label>
                     <select
                         wire:model.live="periodicidadSeguimiento"
-                        wire:change="guardarSeguimiento"
                         class="form-select form-select-sm"
                     >
                         <option value="bimensual">Bimensual</option>
@@ -417,11 +416,16 @@
                     <label class="form-label small">Observaciones sobre el seguimiento</label>
                     <textarea
                         wire:model.lazy="observacionesSeguimiento"
-                        wire:change="guardarSeguimiento"
                         class="form-control form-control-sm plan-textarea"
                         rows="2"
                         placeholder="Acuerdos sobre el seguimiento, condiciones especiales…"
                     ></textarea>
+                </div>
+                <div class="plan-field--full d-flex justify-content-end">
+                    <button wire:click="guardarSeguimiento" class="btn btn-sm btn-primary">
+                        <x-heroicon-o-check class="icon-13"/>
+                        Guardar seguimiento
+                    </button>
                 </div>
             </div>
 
@@ -526,11 +530,10 @@
      DRAWER DEL HISTORIAL
      ============================================================ --}}
 @if($drawerAbierto)
-<div class="modal-backdrop fade show"></div>
+<div class="modal-backdrop fade show" wire:click="cerrarDrawer"></div>
 <div class="offcanvas offcanvas-end show d-block border-start shadow"
      tabindex="-1"
      style="--bs-offcanvas-width: 380px;"
-     wire:click.self="cerrarDrawer"
      x-data="{ seleccion: @entangle('fichasSeleccionadas') }">
     <div class="offcanvas-header">
         <h2 class="offcanvas-title fs-6">Historia social - fichas</h2>
