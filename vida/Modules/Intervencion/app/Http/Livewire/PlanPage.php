@@ -85,6 +85,10 @@ class PlanPage extends Component
     // --- Plan cargado ---
     public ?PlanDeIntervencion $plan = null;
 
+    // --- Tipo de plan (solo en modo creación) ---
+    /** @var int|null ID del TipoPlan seleccionado antes de crear el plan */
+    public ?int $tipoPlanId = null;
+
     // --- Estado del drawer ---
     public bool $drawerAbierto = false;
 
@@ -255,15 +259,28 @@ class PlanPage extends Component
 
     /**
      * Fichas de valoración incluidas en el diagnóstico del plan.
+     * En modo creación devuelve las fichas preseleccionadas envueltas en objetos
+     * compatibles con la forma que espera la vista (id, ficha_id, ficha).
      */
     #[Computed]
     public function fichasDiagnostico(): Collection
     {
-        if (! $this->plan) {
+        if ($this->plan) {
+            return $this->plan->fichasDiagnostico()->with('ficha.tipoFicha')->get();
+        }
+
+        if (empty($this->fichasSeleccionadas)) {
             return collect();
         }
 
-        return $this->plan->fichasDiagnostico()->with('ficha.tipoFicha')->get();
+        return Ficha::whereIn('id', $this->fichasSeleccionadas)
+            ->with('tipoFicha')
+            ->get()
+            ->map(fn (Ficha $ficha) => (object) [
+                'id'       => $ficha->id,
+                'ficha_id' => $ficha->id,
+                'ficha'    => $ficha,
+            ]);
     }
 
     /**
@@ -419,6 +436,20 @@ class PlanPage extends Component
     }
 
     /**
+     * Tipos de plan activos disponibles para la selección en modo creación.
+     *
+     * @return array<int, string>
+     */
+    #[Computed]
+    public function tiposPlanes(): array
+    {
+        return \Modules\Intervencion\Models\TipoPlan::activos()
+            ->orderBy('nombre')
+            ->pluck('nombre', 'id')
+            ->toArray();
+    }
+
+    /**
      * Objetivos generales del catálogo disponibles para el tipo de plan, con sus específicos e indicadores.
      * Solo se consulta cuando el modal está abierto en modo catálogo.
      *
@@ -498,7 +529,11 @@ class PlanPage extends Component
      */
     public function aplicarSeleccionFichas(): void
     {
+        // En modo creación: wire:model ya actualizó $fichasSeleccionadas; solo cerrar.
         if (! $this->plan) {
+            unset($this->fichasDiagnostico);
+            $this->cerrarDrawer();
+
             return;
         }
 
@@ -560,6 +595,12 @@ class PlanPage extends Component
     public function eliminarFichaDiagnostico(int $fichaId): void
     {
         if (! $this->plan) {
+            // En modo creación: solo quitar del array local.
+            $this->fichasSeleccionadas = array_values(
+                array_filter($this->fichasSeleccionadas, fn ($id) => (int) $id !== $fichaId)
+            );
+            unset($this->fichasDiagnostico);
+
             return;
         }
 
@@ -761,10 +802,17 @@ class PlanPage extends Component
             return null;
         }
 
+        $this->validate([
+            'tipoPlanId' => ['required', 'integer', 'exists:tipos_plan,id'],
+        ], [
+            'tipoPlanId.required' => 'Selecciona el tipo de plan antes de continuar.',
+        ]);
+
         $historia = HistoriaSocial::findOrFail($this->historiaId);
 
         $plan = PlanDeIntervencion::create([
             'historia_id'                 => $historia->id,
+            'tipo_plan_id'                => $this->tipoPlanId,
             'tipo'                        => TipoPlan::GeneralAsp,
             'profesional_responsable_id'  => auth()->id(),
             'estado'                      => EstadoPlan::Borrador,

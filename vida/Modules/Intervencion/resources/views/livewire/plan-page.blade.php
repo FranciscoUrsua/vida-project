@@ -88,7 +88,7 @@
             <div class="plan-citizen-grid">
                 <div>
                     <div class="plan-citizen-label mb-1">Nombre completo</div>
-                    {{ $this->ciudadano?->nombre_completo }}
+                    {{ $this->ciudadano?->nombre_completo ?? '—' }}
                 </div>
                 <div>
                     <div class="plan-citizen-label mb-1">Fecha de nacimiento</div>
@@ -100,8 +100,20 @@
                 </div>
                 <div>
                     <div class="plan-citizen-label mb-1">Domicilio</div>
-                    {{ $this->ciudadano?->domicilio }}
+                    {{ $this->ciudadano?->direccion_texto ?? '—' }}
                 </div>
+                @if($this->ciudadano?->telefono)
+                <div>
+                    <div class="plan-citizen-label mb-1">Teléfono</div>
+                    {{ $this->ciudadano->telefono }}
+                </div>
+                @endif
+                @if($this->ciudadano?->email)
+                <div>
+                    <div class="plan-citizen-label mb-1">Correo electrónico</div>
+                    {{ $this->ciudadano->email }}
+                </div>
+                @endif
             </div>
 
             @if($this->miembrosUc->isNotEmpty())
@@ -119,6 +131,33 @@
             @endif
         </div>
     </div>
+
+    {{-- SELECTOR TIPO DE PLAN (solo visible en modo creación) --}}
+    @if(! $this->plan)
+    <div class="card plan-section border-primary border-2" id="ps-tipo-plan">
+        <div class="card-header d-flex align-items-center gap-2">
+            <x-heroicon-o-clipboard-document-list class="icon-15 text-primary"/>
+            <span class="plan-section__title">Tipo de plan</span>
+            <span class="badge bg-primary-subtle text-primary ms-auto">Obligatorio</span>
+        </div>
+        <div class="card-body">
+            <label class="form-label small fw-semibold" for="tipo-plan-select">
+                Selecciona el tipo de plan que vas a crear
+            </label>
+            <select id="tipo-plan-select"
+                    wire:model.live="tipoPlanId"
+                    class="form-select @error('tipoPlanId') is-invalid @enderror">
+                <option value="">— Elige un tipo de plan —</option>
+                @foreach($this->tiposPlanes as $id => $nombre)
+                <option value="{{ $id }}">{{ $nombre }}</option>
+                @endforeach
+            </select>
+            @error('tipoPlanId')
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
+    @endif
 
     {{-- SECCIÓN 1: Diagnóstico social --}}
     <div class="card plan-section" id="ps-diagnostico" x-on:focusin="seccionActiva = 'diagnostico'" x-on:click="seccionActiva = 'diagnostico'">
