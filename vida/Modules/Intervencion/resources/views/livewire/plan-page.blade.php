@@ -52,7 +52,7 @@
         @endif
 
         @if($this->plan?->estado->value === 'activo')
-        <button class="btn btn-outline-secondary btn-sm">
+        <button wire:click="abrirModalCierre" class="btn btn-outline-secondary btn-sm">
             <x-heroicon-o-x-circle class="icon-13"/>
             Cerrar plan
         </button>
@@ -235,19 +235,64 @@
             </button>
         </div>
         <div class="card-body">
-            @if($this->objetivosGenerales->isEmpty())
+            @if($this->objetivosConIndicadores->isEmpty())
             <p class="text-muted fst-italic mb-0">Ningún objetivo definido aún.</p>
             @else
             <div class="plan-obj-grid">
-                @foreach($this->objetivosGenerales as $og)
+                @foreach($this->objetivosConIndicadores as $og)
                 <div class="card" wire:key="og-{{ $og->id }}">
                     <div class="card-body pb-2">
                         <p class="mb-2">{{ $og->texto }}</p>
+
+                        {{-- Indicador del objetivo general --}}
+                        @if($og->indicador)
+                        <div class="plan-indicador" wire:key="ind-og-{{ $og->indicador->id }}">
+                            <div class="plan-indicador-desc">{{ $og->indicador->descripcion }}</div>
+                            <div class="plan-indicador-select">
+                                @foreach($og->indicador->valoresPosibles() as $valor => $etiqueta)
+                                <label class="plan-indicador-opcion {{ $og->indicador->valoracion_actual === $valor ? 'plan-indicador-opcion--activa' : '' }}">
+                                    <input
+                                        type="radio"
+                                        wire:click="guardarValoracionIndicador({{ $og->indicador->id }}, '{{ $valor }}')"
+                                        {{ $og->indicador->valoracion_actual === $valor ? 'checked' : '' }}
+                                        @if($this->plan?->estado->value === 'cerrado') disabled @endif
+                                    >
+                                    {{ $etiqueta }}
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
+                        {{-- Objetivos específicos con sus indicadores --}}
                         @if($og->objetivosEspecificos->isNotEmpty())
-                        <ul class="list-group list-group-flush small mb-0">
+                        <ul class="list-unstyled mt-2 mb-0">
                             @foreach($og->objetivosEspecificos as $oe)
-                            <li class="list-group-item px-0 py-1 text-secondary" wire:key="oe-{{ $oe->id }}">
-                                {{ $oe->texto }}
+                            <li class="mb-2" wire:key="oe-{{ $oe->id }}">
+                                <div class="plan-obj-esp-texto">
+                                    {{ $oe->texto }}
+                                    @if($oe->tipoFicha)
+                                    <span class="plan-obj-area">{{ $oe->tipoFicha->nombre }}</span>
+                                    @endif
+                                </div>
+                                @if($oe->indicador)
+                                <div class="plan-indicador plan-indicador--esp" wire:key="ind-oe-{{ $oe->indicador->id }}">
+                                    <div class="plan-indicador-desc">{{ $oe->indicador->descripcion }}</div>
+                                    <div class="plan-indicador-select">
+                                        @foreach($oe->indicador->valoresPosibles() as $valor => $etiqueta)
+                                        <label class="plan-indicador-opcion {{ $oe->indicador->valoracion_actual === $valor ? 'plan-indicador-opcion--activa' : '' }}">
+                                            <input
+                                                type="radio"
+                                                wire:click="guardarValoracionIndicador({{ $oe->indicador->id }}, '{{ $valor }}')"
+                                                {{ $oe->indicador->valoracion_actual === $valor ? 'checked' : '' }}
+                                                @if($this->plan?->estado->value === 'cerrado') disabled @endif
+                                            >
+                                            {{ $etiqueta }}
+                                        </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                @endif
                             </li>
                             @endforeach
                         </ul>
@@ -824,6 +869,75 @@ $nc = [
                 <button wire:click="guardarParticipante" class="btn btn-primary btn-sm">
                     <x-heroicon-o-check class="icon-13"/>
                     Añadir participante
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+@endif
+
+{{-- ============================================================
+     MODAL: CIERRE DEL PLAN
+     ============================================================ --}}
+@if($modalCierreAbierto)
+<div
+    class="modal fade show d-block"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    x-data
+    x-on:keydown.escape.window="$wire.cerrarModalCierre()"
+>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title">Cerrar plan de intervención</h5>
+                <button type="button" class="btn-close" wire:click="cerrarModalCierre" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body d-flex flex-column gap-3">
+                <p class="small text-secondary mb-0">
+                    Una vez cerrado, el plan queda en modo solo lectura.
+                    Esta acción queda registrada en el historial.
+                </p>
+
+                <div>
+                    <label class="form-label small">Motivo de cierre <span class="text-danger">*</span></label>
+                    <select wire:model.live="motivoCierre" class="form-select form-select-sm">
+                        <option value="">— Selecciona un motivo —</option>
+                        @foreach($this->motivosCierre as $valor => $etiqueta)
+                        <option value="{{ $valor }}">{{ $etiqueta }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="form-label small">Observaciones <span class="text-secondary fw-normal">(opcional)</span></label>
+                    <textarea
+                        wire:model="notasCierre"
+                        class="form-control form-control-sm plan-textarea"
+                        rows="2"
+                        placeholder="Se añadirán como apunte en la historia social si se rellenan…"
+                    ></textarea>
+                </div>
+
+                @if(in_array($motivoCierre, ['negativa_firma', 'imposibilidad_localizacion']))
+                <div class="plan-aviso-cierre">
+                    <x-heroicon-o-exclamation-triangle class="icon-14 flex-shrink-0"/>
+                    Este motivo de cierre requiere dejar constancia en el historial de apuntes.
+                    Usa el campo de observaciones para documentarlo.
+                </div>
+                @endif
+            </div>
+            <div class="modal-footer">
+                <button wire:click="cerrarModalCierre" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                <button
+                    wire:click="confirmarCierrePlan"
+                    class="btn btn-sm plan-btn--danger"
+                    @if(empty($motivoCierre)) disabled @endif
+                >
+                    <x-heroicon-o-x-circle class="icon-13"/>
+                    Confirmar cierre
                 </button>
             </div>
         </div>

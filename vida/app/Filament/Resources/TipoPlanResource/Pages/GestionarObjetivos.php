@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\TipoPlanResource\Pages;
 
 use App\Filament\Resources\TipoPlanResource;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -15,14 +16,16 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Modules\Intervencion\Models\IndicadorCatalogo;
 use Modules\Intervencion\Models\ObjetivoCatalogo;
+use Modules\Intervencion\Models\TipoFicha;
 use Modules\Intervencion\Models\TipoPlan;
 
 /**
  * Página de gestión del catálogo de objetivos de un tipo de plan.
  *
  * Permite crear, editar y eliminar objetivos (generales y específicos)
- * para un tipo de plan concreto directamente en Filament.
+ * para un tipo de plan concreto, incluyendo el indicador de medición asociado.
  */
 class GestionarObjetivos extends Page implements HasTable
 {
@@ -36,6 +39,8 @@ class GestionarObjetivos extends Page implements HasTable
 
     /**
      * Título dinámico con el nombre del tipo de plan.
+     *
+     * @return string
      */
     public function getTitle(): string
     {
@@ -44,6 +49,9 @@ class GestionarObjetivos extends Page implements HasTable
 
     /**
      * Configuración completa de la tabla de objetivos del catálogo.
+     *
+     * @param  Table $table
+     * @return Table
      */
     public function table(Table $table): Table
     {
@@ -61,19 +69,33 @@ class GestionarObjetivos extends Page implements HasTable
                     ->badge()
                     ->color(fn ($state) => $state === 'general' ? 'primary' : 'gray'),
 
-                TextColumn::make('objetivoGeneral.texto')
-                    ->label('Objetivo general')
+                TextColumn::make('tipoFicha.nombre')
+                    ->label('Área temática')
                     ->placeholder('—')
-                    ->limit(40),
+                    ->description(fn ($record) => $record->nivel === 'especifico'
+                        ? 'Área de la ficha'
+                        : 'Sin área (objetivo general)'
+                    ),
 
                 TextColumn::make('texto')
                     ->label('Texto')
                     ->limit(60)
                     ->searchable(),
 
-                TextColumn::make('orden')
-                    ->label('Orden')
-                    ->sortable(),
+                TextColumn::make('indicador.descripcion')
+                    ->label('Indicador')
+                    ->limit(40)
+                    ->placeholder('Sin indicador'),
+
+                TextColumn::make('indicador.tipo_valoracion')
+                    ->label('Tipo valoración')
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'conseguido_proceso_no'           => 'C/P/N',
+                        'favorable_mantiene_desfavorable' => 'F/M/D',
+                        'si_no'                           => 'Sí/No',
+                        default                           => '—',
+                    })
+                    ->placeholder('—'),
 
                 IconColumn::make('activo')
                     ->label('Activo')
@@ -88,6 +110,14 @@ class GestionarObjetivos extends Page implements HasTable
                             ->required()
                             ->live(),
 
+                        Select::make('tipo_ficha_id')
+                            ->label('Área temática (tipo de ficha)')
+                            ->options(fn () => TipoFicha::activos()->pluck('nombre', 'id'))
+                            ->searchable()
+                            ->nullable()
+                            ->visible(fn (Get $get) => $get('nivel') === 'especifico')
+                            ->helperText('El área determina qué fichas activan la propuesta de este objetivo.'),
+
                         Select::make('objetivo_general_id')
                             ->label('Objetivo general al que pertenece')
                             ->options(fn () => ObjetivoCatalogo::where('tipo_plan_id', $tipoPlanId)
@@ -97,20 +127,49 @@ class GestionarObjetivos extends Page implements HasTable
                             ->visible(fn (Get $get) => $get('nivel') === 'especifico'),
 
                         Textarea::make('texto')
+                            ->label('Texto del objetivo')
                             ->required()
                             ->rows(2),
 
-                        TextInput::make('orden')
-                            ->numeric()
-                            ->default(0),
+                        TextInput::make('orden')->numeric()->default(0),
+                        Toggle::make('activo')->default(true),
 
-                        Toggle::make('activo')
-                            ->default(true),
+                        Section::make('Indicador asociado')
+                            ->schema([
+                                Textarea::make('indicador_descripcion')
+                                    ->label('Qué se mide / indicador')
+                                    ->required()
+                                    ->rows(2),
+                                Select::make('indicador_tipo_valoracion')
+                                    ->label('Tipo de valoración')
+                                    ->options([
+                                        'conseguido_proceso_no'           => 'Conseguido / En proceso / No conseguido',
+                                        'favorable_mantiene_desfavorable' => 'Favorable / Se mantiene / Desfavorable',
+                                        'si_no'                           => 'Sí / No',
+                                    ])
+                                    ->default('conseguido_proceso_no')
+                                    ->required(),
+                            ])
+                            ->columns(1),
                     ])
-                    ->mutateFormDataUsing(fn (array $data) => array_merge(
-                        $data,
-                        ['tipo_plan_id' => $tipoPlanId]
-                    )),
+                    ->using(function (array $data) use ($tipoPlanId) {
+                        $indicadorDesc = $data['indicador_descripcion'];
+                        $indicadorTipo = $data['indicador_tipo_valoracion'];
+                        unset($data['indicador_descripcion'], $data['indicador_tipo_valoracion']);
+
+                        $objetivo = ObjetivoCatalogo::create(array_merge(
+                            $data,
+                            ['tipo_plan_id' => $tipoPlanId]
+                        ));
+
+                        IndicadorCatalogo::create([
+                            'objetivo_catalogo_id' => $objetivo->id,
+                            'descripcion'          => $indicadorDesc,
+                            'tipo_valoracion'      => $indicadorTipo,
+                        ]);
+
+                        return $objetivo;
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

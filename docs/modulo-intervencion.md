@@ -362,10 +362,40 @@ Una Historia Social puede tener varios planes activos simultáneamente, cada uno
 - `fecha_inicio`
 - `fecha_firma` (nullable hasta firma)
 - `fecha_cierre` (nullable)
-- `motivo_cierre` (enum: `objetivos_cumplidos`, `abandono`, `derivacion`, `fallecimiento`, `otros`)
+- `motivo_cierre` (enum nullable: `negativa_firma` / `consecucion_objetivos` / `cambio_residencia` / `imposibilidad_localizacion` / `fallecimiento` / `fin_intervencion`)
 - `objetivos` (texto libre — fase inicial; se prevé evolución a lista estructurada con indicadores medibles en fases posteriores)
 - `version` (integer — control de revisiones)
 - `created_at`, `updated_at`
+
+**Motivos de cierre del plan:**
+
+| Valor | Descripción visible |
+|---|---|
+| `negativa_firma` | Cerrado por negativa a la firma / falta de colaboración |
+| `consecucion_objetivos` | Cerrado por consecución de objetivos |
+| `cambio_residencia` | Cerrado por cambio de residencia |
+| `imposibilidad_localizacion` | Cerrado por imposibilidad de localizar a la familia |
+| `fallecimiento` | Cerrado por fallecimiento |
+| `fin_intervencion` | Cerrado por finalización de la intervención |
+
+El cierre del plan siempre requiere seleccionar un motivo. Si el motivo es
+`negativa_firma` o `imposibilidad_localizacion`, el sistema muestra un aviso
+al TSR indicando que debe quedar constancia en el historial de apuntes.
+
+**Modelo de beneficiarios del plan:**
+
+El plan pertenece a una persona (`historia_id` presente, `unidad_convivencia_id`
+null) o a una Unidad de Convivencia (`unidad_convivencia_id` presente,
+`historia_id` null). No existe un tercer modelo de "lista de beneficiarios
+individuales seleccionados".
+
+Cuando el plan es de una UC, los beneficiarios son implícitamente todos los
+miembros activos de la UC en cada momento. Si un miembro entra o sale de la UC
+mientras el plan está activo, el TSR actualiza el plan (con motivo si está
+firmado) y, si los cambios son sustanciales, genera una nueva versión.
+
+Una persona que sale de la UC pierde el plan de la UC. Si el TSR lo considera
+oportuno, puede abrir un plan individual para esa persona.
 
 ### 5.3 Firma del plan y condiciones de seguimiento
 
@@ -414,6 +444,86 @@ el flujo del plan.
 El plan no pasa a estado `activo` sin un registro `FirmaPlan` con
 `profesional_firmado = true` AND `ciudadano_firmado = true` para la versión
 actual (verificado por `PlanDeIntervencion::estaFirmado()`).
+
+### 5.2.1 Objetivos del plan — modelo completo
+
+**Objetivos generales**
+
+Los objetivos generales son comunes a todos los planes del mismo tipo. Se
+configuran en el catálogo desde el backoffice (Catálogos → Tipos de plan →
+Objetivos) y no están vinculados a ningún área temática. Son el marco de
+propósito general del plan.
+
+**Objetivos específicos**
+
+Los objetivos específicos están vinculados a un área temática, que en VIDA360
+es exactamente el `TipoFicha` de valoración correspondiente (vivienda, económica,
+laboral, jurídica, sanitaria…). La FK `tipo_ficha_id` conecta el objetivo con
+la ficha que lo origina.
+
+El flujo de creación de objetivos específicos en el plan es:
+
+1. El TSR incluye una ficha en el diagnóstico del plan (ej: ficha de vivienda).
+2. El sistema propone automáticamente los objetivos específicos del catálogo
+   vinculados a ese `tipo_ficha_id`.
+3. El TSR selecciona cuáles incluir, puede editar su texto, y puede añadir
+   objetivos ex-novo escribiendo texto libre.
+4. Al incluir un objetivo (del catálogo o ex-novo), se instancia su indicador
+   con valoración inicial nula.
+
+**Catálogo de objetivos en backoffice** — tabla `objetivos_catalogo` actualizada:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `tipo_plan_id` | FK | Tipo de plan al que pertenece |
+| `nivel` | enum | `general` / `especifico` |
+| `tipo_ficha_id` | FK nullable | Solo para específicos: área temática (= tipo de ficha) |
+| `objetivo_general_id` | FK nullable (self) | Para específicos: su general del catálogo |
+| `texto` | text | Texto del objetivo |
+| `activo` | boolean | |
+| `orden` | smallint | |
+
+**Indicadores del catálogo** — tabla `indicadores_catalogo`:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `objetivo_catalogo_id` | FK | Un indicador por objetivo del catálogo |
+| `descripcion` | text | Qué se mide |
+| `tipo_valoracion` | enum | `conseguido_proceso_no` / `favorable_mantiene_desfavorable` / `si_no` |
+
+**Objetivos en el plan** — tabla `plan_objetivos` actualizada:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `plan_id` | FK | |
+| `objetivo_catalogo_id` | FK nullable | Null si el objetivo es ex-novo |
+| `nivel` | enum | `general` / `especifico` |
+| `tipo_ficha_id` | FK nullable | Área temática, para específicos |
+| `objetivo_general_id` | FK nullable (self) | Para específicos |
+| `texto` | text | Del catálogo (editable) o escrito libremente |
+| `estado` | enum | `pendiente` / `en_proceso` / `conseguido` / `abandonado` |
+| `orden` | smallint | |
+
+**Indicadores en el plan** — tabla `plan_objetivo_indicadores`:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `plan_objetivo_id` | FK | |
+| `indicador_catalogo_id` | FK nullable | Null si el indicador es ex-novo |
+| `descripcion` | text | Del catálogo o escrita libremente |
+| `tipo_valoracion` | enum | `conseguido_proceso_no` / `favorable_mantiene_desfavorable` / `si_no` |
+| `valoracion_actual` | string nullable | Valor concreto según el tipo |
+| `fecha_valoracion` | date nullable | |
+| `seguimiento_id` | FK nullable | Si la valoración viene de un seguimiento |
+
+Los valores posibles de `valoracion_actual` según `tipo_valoracion`:
+- `conseguido_proceso_no` → `conseguido` / `en_proceso` / `no_conseguido`
+- `favorable_mantiene_desfavorable` → `favorable` / `se_mantiene` / `desfavorable`
+- `si_no` → `si` / `no`
+
+La distinción entre objetivos del catálogo y ex-novo se resuelve con los campos
+nullable: `objetivo_catalogo_id` null + `indicador_catalogo_id` null = creado
+libremente por el TSR, sin origen en el catálogo.
 
 ### 5.4 Versionado y revisiones
 
@@ -519,6 +629,19 @@ El módulo de Intervención no gestiona directamente slots ni citas. Toda solici
 ---
 
 ## 9. Decisiones pendientes
+
+- **Objetivos ex-novo en UI**: el TSR puede crear objetivos e indicadores fuera
+  del catálogo escribiendo texto libre. Al crear un indicador ex-novo, debe
+  elegir el tipo de valoración entre los tres definidos. Esta funcionalidad está
+  implementada en el modelo (campos nullable) pero la UI del plan debe ofrecer
+  el formulario correspondiente. Ver `docs/front/ui-intervencion-plan.md`,
+  sección 5 (objetivos).
+
+- **Propuesta automática de objetivos al añadir ficha**: cuando el TSR añade
+  una ficha al diagnóstico, el sistema debería proponer automáticamente los
+  objetivos específicos del catálogo vinculados a ese `tipo_ficha_id`. Esta
+  sugerencia es opcional — el TSR puede ignorarla. Pendiente de implementar
+  en el drawer de selección de fichas de `PlanPage`.
 
 - **Modelo de objetivos del plan — evolución futura**: en la fase inicial los objetivos son texto libre. Se prevé incorporar en fases posteriores una lista estructurada de objetivos con indicadores medibles, que permita registrar el progreso de forma cuantitativa y determinar el cierre por objetivos cumplidos de manera más precisa.
 - **Pilotaje de la Self-Sufficient Matrix (SSM)**: la arquitectura la soporta como un `tipo_ficha` configurable. La decisión de adopción, pilotaje y formación es organizativa, no técnica.

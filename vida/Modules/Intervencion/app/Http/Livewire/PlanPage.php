@@ -19,6 +19,7 @@ use Modules\Intervencion\Models\PlanActuacionAyuntamiento;
 use Modules\Intervencion\Models\PlanActuacionCiudadano;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\PlanObjetivo;
+use Modules\Intervencion\Models\PlanObjetivoIndicador;
 use Modules\Intervencion\Models\PlanParticipante;
 use Modules\Intervencion\Services\PlanPdfService;
 use Modules\Prestaciones\Models\Prestacion;
@@ -60,6 +61,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property bool $modalParticipanteAbierto
  * @property int|null $nuevoParticipanteUserId
  * @property string $nuevoParticipanteRol
+ * @property bool $modalCierreAbierto
+ * @property string $motivoCierre
+ * @property string $notasCierre
+ * @property array $valoracionesIndicadores
  */
 class PlanPage extends Component
 {
@@ -130,6 +135,16 @@ class PlanPage extends Component
     public ?int $nuevoParticipanteUserId = null;
 
     public string $nuevoParticipanteRol = '';
+
+    // --- Cierre del plan ---
+    public bool $modalCierreAbierto = false;
+
+    public string $motivoCierre = '';
+
+    public string $notasCierre = '';
+
+    // --- Valoración de indicadores: [plan_objetivo_indicador_id => valor] ---
+    public array $valoracionesIndicadores = [];
 
     /**
      * Inicializa el componente con el plan si se accede en modo edición,
@@ -242,6 +257,41 @@ class PlanPage extends Component
         return $this->plan->objetivosGenerales()
             ->with('objetivosEspecificos')
             ->get();
+    }
+
+    /**
+     * Objetivos generales con sus específicos e indicadores cargados para la vista.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    #[Computed]
+    public function objetivosConIndicadores(): \Illuminate\Support\Collection
+    {
+        if (! $this->plan) {
+            return collect();
+        }
+
+        return $this->plan->objetivosGenerales()
+            ->with(['objetivosEspecificos.indicador', 'objetivosEspecificos.tipoFicha', 'indicador'])
+            ->get();
+    }
+
+    /**
+     * Etiquetas de los motivos de cierre del plan.
+     *
+     * @return array<string,string>
+     */
+    #[Computed]
+    public function motivosCierre(): array
+    {
+        return [
+            'negativa_firma'             => 'Cerrado por negativa a la firma / falta de colaboración',
+            'consecucion_objetivos'      => 'Cerrado por consecución de objetivos',
+            'cambio_residencia'          => 'Cerrado por cambio de residencia',
+            'imposibilidad_localizacion' => 'Cerrado por imposibilidad de localizar a la familia',
+            'fallecimiento'              => 'Cerrado por fallecimiento',
+            'fin_intervencion'           => 'Cerrado por finalización de la intervención',
+        ];
     }
 
     /**
@@ -869,6 +919,102 @@ class PlanPage extends Component
         $this->nuevoParticipanteRol = '';
         unset($this->participantes);
         $this->mensajeExito = 'Participante añadido.';
+    }
+
+    // =========================================================
+    // ACCIONES — CIERRE DEL PLAN
+    // =========================================================
+
+    /**
+     * Abre el modal de cierre del plan limpiando el estado previo.
+     *
+     * @return void
+     */
+    public function abrirModalCierre(): void
+    {
+        $this->modalCierreAbierto = true;
+        $this->motivoCierre = '';
+        $this->notasCierre = '';
+    }
+
+    /**
+     * Cierra el modal de cierre sin persistir ningún cambio.
+     *
+     * @return void
+     */
+    public function cerrarModalCierre(): void
+    {
+        $this->modalCierreAbierto = false;
+    }
+
+    /**
+     * Cierra el plan con el motivo seleccionado y registra el cambio en el historial.
+     * Si hay notas y el plan tiene historia_id, crea un apunte privado.
+     *
+     * @return void
+     */
+    public function confirmarCierrePlan(): void
+    {
+        if (! $this->plan || empty($this->motivoCierre)) {
+            return;
+        }
+        $this->authorize('update', $this->plan);
+
+        $this->plan->registrarCambio(
+            auth()->id(),
+            'Cierre del plan: ' . ($this->motivosCierre[$this->motivoCierre] ?? $this->motivoCierre)
+                . ($this->notasCierre ? ". {$this->notasCierre}" : ''),
+            'discrecional'
+        );
+
+        $this->plan->update([
+            'estado'        => 'cerrado',
+            'fecha_cierre'  => now()->toDateString(),
+            'motivo_cierre' => $this->motivoCierre,
+        ]);
+
+        if ($this->notasCierre && $this->plan->historia_id) {
+            \Modules\Intervencion\Models\Apunte::create([
+                'historia_id'    => $this->plan->historia_id,
+                'profesional_id' => auth()->id(),
+                'tipo'           => 'nota',
+                'contenido'      => "Cierre del plan: {$this->notasCierre}",
+            ]);
+        }
+
+        $this->modalCierreAbierto = false;
+        $this->mensajeExito = 'Plan cerrado correctamente.';
+        $this->plan = $this->plan->fresh();
+        unset($this->objetivosGenerales, $this->objetivosConIndicadores);
+    }
+
+    // =========================================================
+    // ACCIONES — VALORACIÓN DE INDICADORES
+    // =========================================================
+
+    /**
+     * Guarda la valoración de un indicador del plan.
+     * Verifica que el indicador pertenece al plan antes de persistir.
+     *
+     * @param  int    $indicadorId ID de PlanObjetivoIndicador
+     * @param  string $valor       Valor de la valoración
+     * @return void
+     */
+    public function guardarValoracionIndicador(int $indicadorId, string $valor): void
+    {
+        if (! $this->plan) {
+            return;
+        }
+
+        $indicador = PlanObjetivoIndicador::findOrFail($indicadorId);
+
+        if ($indicador->planObjetivo->plan_id !== $this->plan->id) {
+            return;
+        }
+
+        $indicador->registrarValoracion($valor);
+        $this->valoracionesIndicadores[$indicadorId] = $valor;
+        $this->mensajeExito = 'Valoración guardada.';
     }
 
     // =========================================================

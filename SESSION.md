@@ -1,50 +1,48 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-06-19
+**Última actualización:** 2026-06-23
 
 ---
 
 ## Tarea completada
 
-`Módulo Atención` — RegistroAtencion fase 1:
+`Módulo Intervención` — Indicadores de objetivos, valoración y cierre del plan:
 
-- Módulo `Modules/Atencion/` creado con ServiceProvider, migración, modelo, policy y factory.
-- Tabla `registros_atencion` creada y migrada.
-- Permisos `atencion.crear`, `atencion.leer`, `atencion.leer_ajeno` añadidos al PermisosSeeder.
-- Permisos asignados en RolesSeeder: `intervencion` (los 3), `consulta_basica` (crear + leer), `supervision` y `tramitacion` (leer + leer_ajeno para supervision).
-- Relaciones `registrosAtencion()` y `ultimaAtencion()` añadidas a `App\Models\Ciudadano`.
-- `FichaCiudadanoPage` actualizado: modal de nueva atención, `abrirHistoriaSocial()`, historial de atenciones.
-- Vista `ficha-ciudadano-page.blade.php` actualizada con botones acción, historial y modal.
-- CSS de atenciones y modales añadido a `app-operativo.css`.
-- 8 tests TF-AT-01 a TF-AT-08 (modelo) — todos en verde.
-- 11 tests TF-LW-AT-01 a TF-LW-AT-11 (Livewire) — todos en verde.
-- Sin regresiones en Ciudadania (99 tests en verde).
+- 5 migraciones: `tipo_ficha_id` en catálogo y plan, tablas `indicadores_catalogo` y `plan_objetivo_indicadores`, actualización del constraint `motivo_cierre`.
+- 2 modelos nuevos: `IndicadorCatalogo`, `PlanObjetivoIndicador`.
+- Modelos actualizados: `ObjetivoCatalogo`, `PlanObjetivo`, enum `MotivoCierre` (6 casos reales).
+- `GestionarObjetivos` (Filament): columnas área + indicador, formulario crea indicador junto al objetivo.
+- `PlanPage`: modal de cierre funcional con 6 motivos, valoración de indicadores con radio buttons, aviso especial para motivos que requieren constancia en historial.
+- `docs/modulo-intervencion.md` actualizado con modelo completo de objetivos, motivos de cierre y modelo de beneficiarios.
+- 8 tests TF-OI-01 a TF-OI-08 (indicadores) — todos en verde.
+- 7 tests TF-CP-01 a TF-CP-07 (cierre del plan) — todos en verde.
+- Sin nuevas regresiones (4 fallos pre-existentes en PlanPageTest no son de esta sesión).
 
 ---
 
 ## Estado exacto del proyecto
 
-- **Módulo Atención (fase 1)**: completado. Tipos `informacion` y `contacto` operativos. Tipo `actividad` definido en modelo pero sin UI ni generación automática (pendiente módulo Centro).
-- **FichaCiudadanoPage**: muestra historial de atenciones, botones "Nueva atención", "Abrir historia social" / "Ver historia social" según rol y estado.
-- **abrirHistoriaSocial()**: crea la HistoriaSocial con la UO activa del usuario y redirige a `intervencion.ciudadano.show`. Nota: si el user no tiene UO activa, `unidad_organizativa_id` será null (campo NOT NULL en la tabla → fallará). Pendiente manejar este caso edge.
-- **dompdf**: verificar si está instalado. PlanPdfService lo requiere. `composer show barryvdh/laravel-dompdf`.
-- **PlanPage**: UI completa del Plan de Intervención Social (implementado en sesión anterior). Objetivos y actuaciones en modo listado solo; botones "Añadir" sin formularios.
+- **Indicadores de objetivos**: modelo completo implementado. `IndicadorCatalogo` tiene unique constraint (uno por objetivo del catálogo). `PlanObjetivoIndicador` permite valoración en escala de 3 tipos.
+- **GestionarObjetivos**: al crear un objetivo en el backoffice se crea automáticamente su indicador. La tabla muestra área temática y tipo de valoración.
+- **PlanPage**: los objetivos generales y específicos muestran su indicador con radio buttons. Seleccionar un valor lo guarda inmediatamente (sin modal de motivo). El modal de cierre funciona con los 6 motivos reales.
+- **MotivoCierre**: enum actualizado a 6 valores. La migración limpió valores obsoletos del enum anterior en la BD de desarrollo.
+- **Fallos pre-existentes en PlanPageTest**: 4 tests (guardar diagnóstico activo pide motivo, motivo vacío no confirma, eliminar ficha activo pide motivo, cancelar cambio no persiste) fallan antes y después de esta sesión. Son deuda técnica pendiente.
 
 ---
 
 ## Siguiente paso concreto recomendado
 
-1. Ejecutar `php artisan db:seed --class=PermisosSeeder` y `php artisan db:seed --class=RolesSeeder` en producción (ya hecho en dev).
-2. Implementar formularios de creación de objetivos y actuaciones dentro de `PlanPage`.
-3. Conectar `cita_generada_id` en el formulario de atención cuando el módulo Agenda exponga una API de creación de citas.
-4. Revisar el edge case de `abrirHistoriaSocial()` cuando el usuario no tiene UO activa (actualmente falla silenciosamente con FK constraint violation).
+1. Investigar y corregir los 4 tests pre-existentes de `PlanPageTest` que fallan (relacionados con el modal de motivo en plan activo — posible regresión de sesión anterior).
+2. UI del plan: formulario para crear objetivos ex-novo con indicador (actualmente el modal solo crea objetivos sin indicador). Ver `BACKLOG.md` o sección 9 del módulo.
+3. Propuesta automática de objetivos al añadir ficha al diagnóstico (drawer de fichas en `PlanPage`).
+4. Verificar que `dompdf` está instalado: `composer show barryvdh/laravel-dompdf`.
 
 ---
 
 ## Contexto para retomar sin fricción
 
-- `RegistroAtencion::booted()` valida que tipo `informacion` tenga `profesional_id` y tipo `actividad` tenga `origen_tipo`/`origen_id`.
-- `FichaCiudadanoPage` usa `#[Computed]` para `historialAtenciones()` → invalidar con `unset($this->historialAtenciones)` tras guardar.
-- Ruta `intervencion.ciudadano.show` espera un parámetro `historia` (ID de HistoriaSocial, no ciudadano).
-- Tests de Livewire en Ciudadania requieren `$this->seed(PermisosSeeder::class)` y `$this->seed(RolesSeeder::class)` en `setUp()`.
-- `HistoriaSocial` tiene `AmbitoUoScope` — en tests usar `withoutGlobalScopes()` para consultarla directamente.
+- `PlanObjetivo::instanciarIndicador()` requiere que la relación `objetivoCatalogo->indicador` esté cargada. Usar `with('objetivoCatalogo.indicador')` al crear objetivos desde el plan.
+- `MotivoCierre::requiereConstanciaHistorial()` devuelve true para `negativa_firma` e `imposibilidad_localizacion` — la vista ya muestra el aviso correspondiente.
+- El scope `deArea($tipoFichaId)` en `ObjetivoCatalogo` es el punto de entrada para la propuesta automática de objetivos al añadir una ficha.
+- `confirmarCierrePlan()` hace `$this->plan->fresh()` (no unset) para mantener `historia_id` disponible en la vista post-cierre.
+- Tests Livewire en `CierrePlanTest` requieren `Gate::before(fn () => true)` — usando el mismo patrón que `PlanPageTest`.

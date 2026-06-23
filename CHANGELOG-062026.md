@@ -4,6 +4,52 @@
 
 ---
 
+## 2026-06-23 — Módulo Intervención: indicadores de objetivos, valoración y cierre del plan
+
+### Documentación
+- `docs/modulo-intervencion.md` — 4 cambios:
+  - Sección 5.2.1 nueva: modelo completo de objetivos/indicadores del catálogo y del plan
+  - Enum `motivo_cierre` actualizado a 6 motivos reales (negativa_firma, consecucion_objetivos, cambio_residencia, imposibilidad_localizacion, fallecimiento, fin_intervencion)
+  - Modelo de beneficiarios aclarado: plan de persona vs. plan de UC
+  - Sección 9: dos nuevos ítems pendientes (objetivos ex-novo en UI, propuesta automática de objetivos)
+
+### Base de datos — 5 migraciones
+- `2026_06_16_000016` — `tipo_ficha_id` nullable en `objetivos_catalogo`
+- `2026_06_16_000017` — `tipo_ficha_id` nullable en `plan_objetivos`
+- `2026_06_16_000018` — tabla `indicadores_catalogo` (uno por objetivo del catálogo, unique constraint)
+- `2026_06_16_000019` — tabla `plan_objetivo_indicadores` (indicadores instanciados en cada plan con valoración)
+- `2026_06_16_000020` — actualiza constraint CHECK de `motivo_cierre` en `planes_intervencion`; limpia valores obsoletos del enum anterior
+
+### Modelos nuevos
+- `IndicadorCatalogo` — indicador del catálogo; `valoresPosibles()`, `etiquetasValoración()` estático
+- `PlanObjetivoIndicador` — indicador instanciado en el plan; `estaValorado()`, `registrarValoracion()` (valida contra el enum del tipo)
+
+### Modelos actualizados
+- `ObjetivoCatalogo` — añadidos `tipo_ficha_id` en fillable, relaciones `tipoFicha()`, `indicador()`, scope `deArea()`
+- `PlanObjetivo` — añadidos `tipo_ficha_id` en fillable, relaciones `tipoFicha()`, `indicador()`, método `instanciarIndicador()`
+- `MotivoCierre` (enum) — reemplazado por 6 casos reales; añadido `requiereConstanciaHistorial()`
+
+### Backoffice Filament
+- `GestionarObjetivos` — columnas de área temática e indicador en tabla; formulario de creación incluye sección "Indicador asociado" con descripción y tipo de valoración; acción `using()` crea el indicador automáticamente al crear el objetivo
+
+### UI Livewire — PlanPage
+- Propiedades nuevas: `modalCierreAbierto`, `motivoCierre`, `notasCierre`, `valoracionesIndicadores`
+- Computeds nuevos: `objetivosConIndicadores()` (con eager loading de indicadores), `motivosCierre()`
+- Acciones nuevas: `abrirModalCierre()`, `cerrarModalCierre()`, `confirmarCierrePlan()`, `guardarValoracionIndicador()`
+- Vista actualizada: sección de objetivos muestra indicadores con radio buttons de valoración; modal de cierre con 6 motivos y aviso especial para negativa_firma/imposibilidad_localizacion
+- CSS: `.plan-indicador`, `.plan-indicador--esp`, `.plan-indicador-opcion`, `.plan-obj-area`, `.plan-btn--danger`, `.plan-aviso-cierre` añadidos a `_op-plan.scss`
+
+### Tests
+- `ObjetivosIndicadoresTest.php` — 8 tests (TF-OI-01 a TF-OI-08) — todos en verde
+- `CierrePlanTest.php` — 7 tests (TF-CP-01 a TF-CP-07) — todos en verde
+
+### Decisiones de implementación
+- `motivo_cierre` del enum anterior tenía valores incompatibles (`objetivos_cumplidos`, `abandono`, etc.); la migración limpia los valores existentes a null antes de aplicar el nuevo constraint CHECK en PostgreSQL.
+- `confirmarCierrePlan()` hace `fresh()` en lugar de `unset($this->plan)` para que la vista pueda seguir accediendo a `historia_id` después del cierre.
+- Los fallos preexistentes en `PlanPageTest` (4 tests relacionados con modal de motivo para plan activo) no son regresiones de esta sesión.
+
+---
+
 ## 2026-06-19 — Módulo Atención: RegistroAtencion fase 1
 
 ### Módulo nuevo
