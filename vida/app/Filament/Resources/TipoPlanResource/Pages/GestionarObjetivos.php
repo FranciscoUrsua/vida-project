@@ -3,6 +3,9 @@
 namespace App\Filament\Resources\TipoPlanResource\Pages;
 
 use App\Filament\Resources\TipoPlanResource;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -102,7 +105,7 @@ class GestionarObjetivos extends Page implements HasTable
                     ->boolean(),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                CreateAction::make()
                     ->model(ObjetivoCatalogo::class)
                     ->form([
                         Select::make('nivel')
@@ -172,7 +175,7 @@ class GestionarObjetivos extends Page implements HasTable
                     }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
+                EditAction::make()
                     ->form([
                         Textarea::make('texto')
                             ->required()
@@ -184,7 +187,7 @@ class GestionarObjetivos extends Page implements HasTable
                         Toggle::make('activo'),
                     ]),
 
-                Tables\Actions\DeleteAction::make(),
+                DeleteAction::make(),
             ]);
     }
 }
