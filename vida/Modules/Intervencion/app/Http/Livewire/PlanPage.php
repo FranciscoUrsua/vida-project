@@ -3,6 +3,7 @@
 namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\Ciudadano;
+use App\Models\HistoriaSocial;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
@@ -13,6 +14,7 @@ use Modules\Ciudadania\Models\CiudadanoRelacion;
 use Modules\Ciudadania\Models\TipoRelacion;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Intervencion\Enums\EstadoPlan;
+use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\FirmaPlan;
 use Modules\Intervencion\Models\ObjetivoCatalogo;
@@ -197,11 +199,18 @@ class PlanPage extends Component
 
     /**
      * Ciudadano titular de la historia social del plan.
+     * En modo creación (sin plan) resuelve desde $historiaId.
      */
     #[Computed]
     public function ciudadano(): ?Ciudadano
     {
-        return $this->plan?->historia?->ciudadano;
+        if ($this->plan) {
+            return $this->plan->historia?->ciudadano;
+        }
+
+        return $this->historiaId
+            ? HistoriaSocial::find($this->historiaId)?->ciudadano
+            : null;
     }
 
     /**
@@ -382,11 +391,13 @@ class PlanPage extends Component
     #[Computed]
     public function fichasHistorial(): Collection
     {
-        if (! $this->plan) {
+        $historiaId = $this->plan?->historia_id ?? $this->historiaId;
+
+        if (! $historiaId) {
             return collect();
         }
 
-        $query = Ficha::where('historia_id', $this->plan->historia_id)
+        $query = Ficha::where('historia_id', $historiaId)
             ->with('tipoFicha');
 
         if ($this->drawerFiltroFecha === 'mes') {
@@ -733,6 +744,45 @@ class PlanPage extends Component
     }
 
 
+
+    // =========================================================
+    // ACCIONES — CREAR PLAN (modo creación, sin plan previo)
+    // =========================================================
+
+    /**
+     * Crea un plan de intervención en estado borrador y redirige a su página de edición.
+     * Las fichas preseleccionadas en el drawer se asocian al nuevo plan.
+     *
+     * @return mixed Redirección a la página del plan recién creado.
+     */
+    public function crearNuevoPlan(): mixed
+    {
+        if (! $this->historiaId) {
+            return null;
+        }
+
+        $historia = HistoriaSocial::findOrFail($this->historiaId);
+
+        $plan = PlanDeIntervencion::create([
+            'historia_id'                 => $historia->id,
+            'tipo'                        => TipoPlan::GeneralAsp,
+            'profesional_responsable_id'  => auth()->id(),
+            'estado'                      => EstadoPlan::Borrador,
+            'fecha_inicio'                => today()->toDateString(),
+            'version'                     => 1,
+            'diagnostico_social'          => $this->diagnosticoTexto ?: null,
+            'periodicidad_seguimiento'    => $this->periodicidadSeguimiento,
+        ]);
+
+        foreach ($this->fichasSeleccionadas as $orden => $fichaId) {
+            $plan->fichasDiagnostico()->create([
+                'ficha_id' => $fichaId,
+                'orden'    => $orden,
+            ]);
+        }
+
+        return $this->redirect(route('intervencion.plan.show', $plan), navigate: true);
+    }
 
     // =========================================================
     // ACCIONES — GUARDAR PLAN COMPLETO

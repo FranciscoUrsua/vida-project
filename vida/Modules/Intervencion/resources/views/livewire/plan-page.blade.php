@@ -561,7 +561,14 @@
     </div>
 
     {{-- BOTÓN PRINCIPAL --}}
-    @if($this->plan && $this->plan->estado->value !== 'cerrado')
+    @if(! $this->plan)
+    <div class="d-flex justify-content-end py-2">
+        <button wire:click="crearNuevoPlan" class="btn btn-primary">
+            <x-heroicon-o-plus class="icon-13"/>
+            Crear plan borrador
+        </button>
+    </div>
+    @elseif($this->plan->estado->value !== 'cerrado')
     <div class="d-flex justify-content-end py-2">
         <button wire:click="guardarPlan" class="btn btn-primary">
             <x-heroicon-o-check class="icon-13"/>
