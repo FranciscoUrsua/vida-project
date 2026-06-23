@@ -6,34 +6,39 @@
 
 ## Tarea completada
 
-`Módulo Intervención` — Modal "Añadir objetivo" con catálogo:
+`Módulo Intervención` — Corrección arquitectónica: Apunte pertenece a la Historia Social, no al Plan:
 
-- `PlanPage`: nueva propiedad `modoObjetivo` ('catalogo' | 'libre') y array `objetivosCatalogoSeleccionados`.
-- `PlanPage`: computed `objetivosCatalogo()` — carga generales activos del catálogo filtrados por `tipo_plan_id` del plan, con específicos e indicadores. Solo se ejecuta cuando el modal está abierto.
-- `PlanPage`: método `guardarObjetivosDesdeCatalogo()` — instancia los objetivos seleccionados en el plan, crea sus específicos y hereda los indicadores del catálogo (`instanciarIndicador()` vía `setRelation`).
-- `plan-page.blade.php`: modal rediseñado con dos tabs (botones toggle). Tab "Del catálogo" muestra generales con checkbox y sub-lista de específicos; deshabilita los ya añadidos al plan. Tab "Objetivo libre" mantiene el textarea original.
-- Sin regresiones: 4 fallos pre-existentes de PlanPageTest siguen igual; 8 tests ObjetivosIndicadores en verde; 7 tests CierrePlan en verde.
+- **Migración** `2026_06_23_000001_add_historia_id_to_plan_apuntes`: añade `historia_id` NOT NULL FK a `plan_apuntes`, hace `plan_id` nullable, popula `historia_id` desde el plan para registros existentes.
+- **`Apunte` model**: docblock y lógica actualizados. `historia_id` es el FK primario. `plan_id` es optional. El Global Scope `ambito_uo` ahora filtra directamente por `historia_id → historias_sociales.unidad_organizativa_id` (sin join extra a `planes_intervencion`). `getCiudadanoId()` resuelve por `historia_id` directamente.
+- **`ApunteFactory`**: `historia_id` como campo requerido, `plan_id` nullable por defecto.
+- **`CiudadanoPage`**: `apuntesHS()` filtra por `historia_id` directamente. Los 6 métodos de acción (`guardarEntrevista`, `guardarAnotacion`, `crearDerivacion`, `guardarGestion`, `guardarValoracion`, `guardarEscala`) siempre crean el apunte con `historia_id`; `plan_id` se añade si hay plan en curso.
+- **`PlanPage`**: el apunte del cierre del plan incluye `historia_id`, `autor_id`, `fecha` y `visibilidad` correctos.
+- **`RegistrarValoracionPage`**: `registrarApunte()` siempre crea el apunte; busca plan en curso (borrador/activo/en_revision) para vincularlo opcionalmente.
+- **Tests**: `VisibilidadApuntesTest` y `CiudadanoPageTest` actualizados para incluir `historia_id`.
+- **`PlanPage::mount()`**: lee `historia` y `uc` del query string cuando no son parámetros de ruta, corrigiendo el 500 al acceder a `/intervencion/plan/crear?historia=X`.
+- **Docs**: sección 7.1 de `docs/modulo-intervencion.md` corregida.
 
 ---
 
 ## Estado exacto del proyecto
 
-- **Modal de objetivos**: cuando hay objetivos en el catálogo para el tipo de plan, se presenta la lista con checkboxes. Los ya añadidos aparecen deshabilitados con badge "ya añadido". Si el catálogo está vacío para ese tipo de plan, se indica y se puede usar el modo libre.
-- **Fallos pre-existentes en PlanPageTest**: 4 tests (guardar diagnóstico activo pide motivo, motivo vacío no confirma, eliminar ficha activo pide motivo, cancelar cambio no persiste) siguen fallando — deuda técnica pendiente.
-- **Resto del módulo**: sin cambios.
+- **Apuntes**: se crean siempre que hay una Historia Social abierta, independientemente de si existe un plan. El `plan_id` es un campo opcional de contexto.
+- **Plan creation page**: el error 500 `UrlGenerationException` está corregido — `mount()` lee `historia` del query string.
+- **Fallos pre-existentes en PlanPageTest**: 4 tests (relacionados con modal de motivo en plan activo) siguen siendo deuda técnica pendiente.
 
 ---
 
 ## Siguiente paso concreto recomendado
 
-1. Investigar y corregir los 4 tests pre-existentes de `PlanPageTest` (relacionados con el modal de motivo en plan activo).
-2. Propuesta automática de objetivos al añadir ficha al diagnóstico (scope `deArea($tipoFichaId)` en `ObjetivoCatalogo` es el punto de entrada).
+1. Investigar y corregir los 4 tests pre-existentes de `PlanPageTest` (modal de motivo).
+2. Propuesta automática de objetivos al añadir ficha al diagnóstico.
 3. Verificar que `dompdf` está instalado: `composer show barryvdh/laravel-dompdf`.
 
 ---
 
 ## Contexto para retomar sin fricción
 
-- `guardarObjetivosDesdeCatalogo()` usa `$planObjetivo->setRelation('objetivoCatalogo', $objCatalogo)` antes de `instanciarIndicador()` para evitar N+1 y garantizar que la relación está cargada en el modelo recién creado.
-- El computed `objetivosCatalogo` se invalida explícitamente con `unset($this->objetivosCatalogo)` en `abrirModalObjetivo()` para forzar recarga fresca cada vez que se abre.
-- `$this->plan->tipo_plan_id` es el FK al modelo `TipoPlan`; `ObjetivoCatalogo` tiene el mismo FK. Sin `tipo_plan_id` en el plan, el catálogo devuelve colección vacía y el modal sugiere modo libre.
+- `Apunte` usa la tabla `plan_apuntes` (nombre histórico, no renombrada para no romper migraciones anteriores).
+- El Global Scope `ambito_uo` en `Apunte` ahora hace un único nivel de join (`historias_sociales`), no dos.
+- `PlanPage::mount()` lee `request()->query('historia')` porque Livewire 3 no inyecta query string params en `mount()` — solo parámetros de ruta.
+- Tests de `CiudadanoPageTest` crean un plan activo en `setUp()` (`$this->piso`) que se vincula opcionalmente a los apuntes via `plan_id`. Los apuntes se consultan por `historia_id`, no por `plan_id`.

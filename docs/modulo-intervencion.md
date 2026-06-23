@@ -577,12 +577,13 @@ Las prestaciones iniciadas durante un seguimiento se registran como referencias 
 
 ## 7. Entidad: Apunte
 
-El apunte es el mecanismo de asociación de elementos heterogéneos al Plan de Intervención. Es un nodo de conexión que puede apuntar a entidades muy diversas: entrevistas, documentos, derivaciones, seguimientos o anotaciones sin entidad vinculada.
+El apunte es el nodo de conexión de la Historia Social con entidades heterogéneas: entrevistas, documentos, derivaciones, seguimientos o anotaciones sin entidad vinculada. **El apunte pertenece a la Historia Social, no al Plan de Intervención.** Esto permite registrar apuntes desde el primer contacto, antes de que exista un plan. Cuando hay un plan en curso en el momento de crear el apunte, se vincula también a él (campo `plan_id` opcional).
 
 ### 7.1 Atributos
 
 - `id`
-- `plan_id` (FK)
+- `historia_id` (FK — obligatorio; el apunte pertenece a la Historia Social)
+- `plan_id` (FK nullable — plan en curso cuando se creó el apunte, si existe)
 - `autor_id` (FK al profesional)
 - `fecha`
 - `tipo` (enum: `entrevista`, `documento`, `derivacion`, `seguimiento`, `anotacion`)

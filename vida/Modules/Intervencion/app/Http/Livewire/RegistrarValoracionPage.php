@@ -207,8 +207,8 @@ class RegistrarValoracionPage extends Component
     }
 
     /**
-     * Crea un apunte de tipo Valoración en el plan activo de la historia.
-     * No hace nada si la historia no tiene plan activo.
+     * Crea un apunte de tipo Valoración en la Historia Social.
+     * Si hay un plan en curso, se vincula también al plan.
      *
      * @param Ficha $ficha Ficha recién guardada como definitiva.
      */
@@ -217,23 +217,20 @@ class RegistrarValoracionPage extends Component
         $plan = PlanDeIntervencion::withoutGlobalScopes()
             ->where('historia_id', $this->historiaId)
             ->where('tipo', TipoPlan::GeneralAsp)
-            ->where('estado', EstadoPlan::Activo)
+            ->whereIn('estado', ['borrador', 'activo', 'en_revision'])
             ->latest()
             ->first();
 
-        if (! $plan) {
-            return;
-        }
-
         Apunte::create([
-            'plan_id' => $plan->id,
-            'autor_id' => auth()->id(),
-            'fecha' => today()->toDateString(),
-            'tipo' => TipoApunte::Valoracion,
+            'historia_id'    => $this->historiaId,
+            'plan_id'        => $plan?->id,
+            'autor_id'       => auth()->id(),
+            'fecha'          => today()->toDateString(),
+            'tipo'           => TipoApunte::Valoracion,
             'apuntable_type' => Ficha::class,
-            'apuntable_id' => $ficha->id,
-            'contenido' => $this->tipoFicha?->nombre,
-            'visibilidad' => VisibilidadApunte::Profesionales,
+            'apuntable_id'   => $ficha->id,
+            'contenido'      => $this->tipoFicha?->nombre,
+            'visibilidad'    => VisibilidadApunte::Profesionales,
         ]);
     }
 

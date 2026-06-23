@@ -65,11 +65,12 @@ class VisibilidadApuntesTest extends TestCase
     private function crearApunte(PlanDeIntervencion $plan, User $autor, VisibilidadApunte $visibilidad): Apunte
     {
         return Apunte::create([
-            'plan_id' => $plan->id,
-            'autor_id' => $autor->id,
-            'fecha' => today()->toDateString(),
-            'tipo' => 'anotacion',
-            'contenido' => 'Contenido de prueba',
+            'historia_id' => $plan->historia_id,
+            'plan_id'     => $plan->id,
+            'autor_id'    => $autor->id,
+            'fecha'       => today()->toDateString(),
+            'tipo'        => 'anotacion',
+            'contenido'   => 'Contenido de prueba',
             'visibilidad' => $visibilidad,
         ]);
     }

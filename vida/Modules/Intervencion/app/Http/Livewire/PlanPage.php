@@ -158,6 +158,10 @@ class PlanPage extends Component
     /**
      * Inicializa el componente con el plan si se accede en modo edición,
      * o prepara el estado para creación si no hay plan.
+     *
+     * `$historia` y `$uc` son parámetros de ruta cuando se usan, pero el acceso
+     * a /plan/crear?historia=X los pasa como query string. Livewire 3 no inyecta
+     * query string en mount(), por lo que se leen manualmente del request.
      */
     public function mount(?PlanDeIntervencion $plan = null, ?int $historia = null, ?int $uc = null): void
     {
@@ -182,8 +186,8 @@ class PlanPage extends Component
                 ->pluck('ficha_id')
                 ->toArray();
         } else {
-            $this->historiaId = $historia;
-            $this->ucId = $uc;
+            $this->historiaId = $historia ?? ((int) request()->query('historia') ?: null);
+            $this->ucId       = $uc       ?? ((int) request()->query('uc')       ?: null);
         }
     }
 
@@ -1085,10 +1089,13 @@ class PlanPage extends Component
 
         if ($this->notasCierre && $this->plan->historia_id) {
             \Modules\Intervencion\Models\Apunte::create([
-                'historia_id'    => $this->plan->historia_id,
-                'profesional_id' => auth()->id(),
-                'tipo'           => 'nota',
-                'contenido'      => "Cierre del plan: {$this->notasCierre}",
+                'historia_id' => $this->plan->historia_id,
+                'plan_id'     => $this->plan->id,
+                'autor_id'    => auth()->id(),
+                'fecha'       => today()->toDateString(),
+                'tipo'        => \Modules\Intervencion\Enums\TipoApunte::Anotacion,
+                'contenido'   => "Cierre del plan: {$this->notasCierre}",
+                'visibilidad' => \Modules\Intervencion\Enums\VisibilidadApunte::Profesionales,
             ]);
         }
 

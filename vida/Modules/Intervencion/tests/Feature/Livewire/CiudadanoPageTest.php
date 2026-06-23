@@ -106,9 +106,10 @@ class CiudadanoPageTest extends TestCase
     private function crearApunte(array $attrs = []): Apunte
     {
         return Apunte::factory()->create(array_merge([
-            'plan_id' => $this->piso->id,
-            'autor_id' => $this->usuario->id,
-            'tipo' => TipoApunte::Anotacion,
+            'historia_id' => $this->historia->id,
+            'plan_id'     => $this->piso->id,
+            'autor_id'    => $this->usuario->id,
+            'tipo'        => TipoApunte::Anotacion,
             'visibilidad' => VisibilidadApunte::Profesionales,
         ], $attrs));
     }

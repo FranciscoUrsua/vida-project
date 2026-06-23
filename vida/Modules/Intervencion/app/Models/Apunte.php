@@ -16,23 +16,26 @@ use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\VisibilidadApunte;
 
 /**
- * Apunte asociado a un Plan de Intervención.
+ * Apunte de una Historia Social.
  *
- * Nodo de conexión entre el plan y entidades heterogéneas: entrevistas,
+ * Nodo de conexión entre la Historia Social y entidades heterogéneas: entrevistas,
  * documentos, derivaciones, seguimientos o anotaciones sin entidad vinculada.
+ * El apunte pertenece a la Historia Social directamente; el plan es un vínculo
+ * opcional que se establece cuando existe un plan en curso.
  *
  * Tres niveles de visibilidad (docs/modulo-intervencion.md §7.2):
  * - privada: solo el autor. Regla con precedencia absoluta.
  * - profesionales: cualquier profesional con acceso a la historia.
  * - ciudadano: visible también en la carpeta ciudadana.
  *
- * @property int $id
- * @property int $plan_id
- * @property int $autor_id
- * @property Carbon $fecha
- * @property TipoApunte $tipo
+ * @property int         $id
+ * @property int         $historia_id
+ * @property int|null    $plan_id     Vínculo opcional al plan en curso cuando se creó el apunte.
+ * @property int         $autor_id
+ * @property Carbon      $fecha
+ * @property TipoApunte  $tipo
  * @property string|null $apuntable_type
- * @property int|null $apuntable_id
+ * @property int|null    $apuntable_id
  * @property string|null $contenido
  * @property VisibilidadApunte $visibilidad
  */
@@ -55,24 +58,18 @@ class Apunte extends Model
     /**
      * Registra el Global Scope de ámbito de UO para filtrado automático.
      *
-     * El filtro se aplica vía plan_id → planes_intervencion.historia_id →
-     * historias_sociales.unidad_organizativa_id. Este modelo usa una subquery
-     * de dos niveles en lugar del AmbitoUoScope genérico.
-     *
-     * Para los apuntes privados (visibilidad=Privada), el acceso del usuario
-     * actual se garantiza añadiendo la condición OR autor_id = :id.
+     * El filtro se aplica directamente vía historia_id → historias_sociales.unidad_organizativa_id.
+     * Los apuntes privados del usuario autenticado siempre son visibles para él.
      */
     protected static function booted(): void
     {
         static::addGlobalScope('ambito_uo', function (Builder $builder) {
-            // Sin usuario autenticado → no filtrar
             if (! auth()->check()) {
                 return;
             }
 
             $usuario = auth()->user();
 
-            // adm_sistema → acceso global
             if ($usuario->hasRole('adm_sistema')) {
                 return;
             }
@@ -80,13 +77,11 @@ class Apunte extends Model
             $uoIds = $usuario->uoSubtreeIds();
 
             $builder->where(function (Builder $q) use ($uoIds, $usuario) {
-                // Condición A: el plan del apunte pertenece a una Historia en el ámbito de UO
-                $q->whereIn('plan_apuntes.plan_id', function ($sub) use ($uoIds) {
-                    $sub->select('planes_intervencion.id')
-                        ->from('planes_intervencion')
-                        ->join('historias_sociales', 'historias_sociales.id', '=', 'planes_intervencion.historia_id')
+                // Condición A: la historia del apunte pertenece al ámbito de UO
+                $q->whereIn('plan_apuntes.historia_id', function ($sub) use ($uoIds) {
+                    $sub->select('historias_sociales.id')
+                        ->from('historias_sociales')
                         ->whereIn('historias_sociales.unidad_organizativa_id', $uoIds)
-                        ->whereNull('planes_intervencion.deleted_at')
                         ->whereNull('historias_sociales.deleted_at');
                 });
 
@@ -97,6 +92,7 @@ class Apunte extends Model
     }
 
     protected $fillable = [
+        'historia_id',
         'plan_id',
         'autor_id',
         'fecha',
@@ -118,25 +114,17 @@ class Apunte extends Model
     // -------------------------------------------------------------------------
 
     /**
-     * ID del ciudadano titular de la historia social asociada al apunte.
+     * Historia Social a la que pertenece el apunte.
+     *
+     * @return BelongsTo<HistoriaSocial, self>
      */
-    public function getCiudadanoId(): ?int
+    public function historia(): BelongsTo
     {
-        // Se evitan todos los global scopes (AmbitoUoScope en Plan e Historia)
-        // porque esta resolución es interna del sistema de auditoría.
-        $historiaId = $this->plan()->withoutGlobalScopes()->value('historia_id');
-
-        if (! $historiaId) {
-            return null;
-        }
-
-        return HistoriaSocial::withoutGlobalScopes()
-            ->where('id', $historiaId)
-            ->value('ciudadano_id');
+        return $this->belongsTo(HistoriaSocial::class, 'historia_id');
     }
 
     /**
-     * Plan de intervención al que pertenece el apunte.
+     * Plan de intervención en curso cuando se creó el apunte (opcional).
      *
      * @return BelongsTo<PlanDeIntervencion, self>
      */
@@ -146,7 +134,9 @@ class Apunte extends Model
     }
 
     /**
-     * @return BelongsTo<User, Apunte>
+     * Autor del apunte.
+     *
+     * @return BelongsTo<User, self>
      */
     public function autor(): BelongsTo
     {
@@ -162,6 +152,21 @@ class Apunte extends Model
     }
 
     // -------------------------------------------------------------------------
+    // Métodos
+    // -------------------------------------------------------------------------
+
+    /**
+     * ID del ciudadano titular de la historia social asociada al apunte.
+     * Resuelve directamente vía historia_id para evitar dependencia del plan.
+     */
+    public function getCiudadanoId(): ?int
+    {
+        return HistoriaSocial::withoutGlobalScopes()
+            ->where('id', $this->historia_id)
+            ->value('ciudadano_id');
+    }
+
+    // -------------------------------------------------------------------------
     // Scopes
     // -------------------------------------------------------------------------
 
@@ -172,8 +177,7 @@ class Apunte extends Model
      * Los apuntes de visibilidad profesionales o ciudadano son visibles para todos.
      *
      * @param Builder<self> $query
-     * @param int $usuarioId ID del usuario que consulta.
-     *
+     * @param int           $usuarioId ID del usuario que consulta.
      * @return Builder<self>
      */
     public function scopeVisiblesParaUsuario(Builder $query, int $usuarioId): Builder
