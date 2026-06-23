@@ -248,7 +248,7 @@
                         @if($og->indicador)
                         <div class="plan-indicador" wire:key="ind-og-{{ $og->indicador->id }}">
                             <div class="plan-indicador-desc">{{ $og->indicador->descripcion }}</div>
-                            <div class="plan-indicador-select">
+                            <div class="d-flex gap-2 flex-wrap">
                                 @foreach($og->indicador->valoresPosibles() as $valor => $etiqueta)
                                 <label class="plan-indicador-opcion {{ $og->indicador->valoracion_actual === $valor ? 'plan-indicador-opcion--activa' : '' }}">
                                     <input
@@ -269,7 +269,7 @@
                         <ul class="list-unstyled mt-2 mb-0">
                             @foreach($og->objetivosEspecificos as $oe)
                             <li class="mb-2" wire:key="oe-{{ $oe->id }}">
-                                <div class="plan-obj-esp-texto">
+                                <div class="small text-secondary">
                                     {{ $oe->texto }}
                                     @if($oe->tipoFicha)
                                     <span class="plan-obj-area">{{ $oe->tipoFicha->nombre }}</span>
@@ -278,7 +278,7 @@
                                 @if($oe->indicador)
                                 <div class="plan-indicador plan-indicador--esp" wire:key="ind-oe-{{ $oe->indicador->id }}">
                                     <div class="plan-indicador-desc">{{ $oe->indicador->descripcion }}</div>
-                                    <div class="plan-indicador-select">
+                                    <div class="d-flex gap-2 flex-wrap">
                                         @foreach($oe->indicador->valoresPosibles() as $valor => $etiqueta)
                                         <label class="plan-indicador-opcion {{ $oe->indicador->valoracion_actual === $valor ? 'plan-indicador-opcion--activa' : '' }}">
                                             <input
@@ -922,10 +922,10 @@ $nc = [
                 </div>
 
                 @if(in_array($motivoCierre, ['negativa_firma', 'imposibilidad_localizacion']))
-                <div class="plan-aviso-cierre">
-                    <x-heroicon-o-exclamation-triangle class="icon-14 flex-shrink-0"/>
-                    Este motivo de cierre requiere dejar constancia en el historial de apuntes.
-                    Usa el campo de observaciones para documentarlo.
+                <div class="alert alert-warning d-flex align-items-start gap-2 py-2 mb-0">
+                    <x-heroicon-o-exclamation-triangle class="icon-14 flex-shrink-0 mt-1"/>
+                    <span class="small">Este motivo de cierre requiere dejar constancia en el historial de apuntes.
+                    Usa el campo de observaciones para documentarlo.</span>
                 </div>
                 @endif
             </div>
@@ -933,7 +933,7 @@ $nc = [
                 <button wire:click="cerrarModalCierre" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                 <button
                     wire:click="confirmarCierrePlan"
-                    class="btn btn-sm plan-btn--danger"
+                    class="btn btn-danger btn-sm"
                     @if(empty($motivoCierre)) disabled @endif
                 >
                     <x-heroicon-o-x-circle class="icon-13"/>
