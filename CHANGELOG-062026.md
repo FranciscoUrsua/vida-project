@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-06-23 — Módulo Intervención: modal "Añadir objetivo" con catálogo
+
+### UI Livewire — PlanPage
+- Propiedades nuevas: `modoObjetivo` ('catalogo' | 'libre') y `objetivosCatalogoSeleccionados` (array de IDs)
+- Computed nuevo: `objetivosCatalogo()` — generales activos del catálogo filtrados por `tipo_plan_id` del plan, con específicos e indicadores eager-loaded. Solo consulta cuando el modal está abierto.
+- Método nuevo: `guardarObjetivosDesdeCatalogo()` — instancia los objetivos seleccionados, crea sus específicos y hereda los indicadores del catálogo usando `instanciarIndicador()` + `setRelation()`.
+- `abrirModalObjetivo()` actualizado para resetear el modo y la selección.
+- Vista: modal rediseñado con toggle de dos modos. Tab "Del catálogo" muestra checkboxes con la lista de generales y sub-lista de específicos; deshabilita los ya añadidos al plan. Tab "Objetivo libre" mantiene el textarea original.
+- Sin regresiones: 4 fallos pre-existentes de PlanPageTest sin cambio; 8 tests ObjetivosIndicadores en verde; 7 tests CierrePlan en verde.
+
+### Decisiones de implementación
+- `$planObjetivo->setRelation('objetivoCatalogo', $objCatalogo)` antes de `instanciarIndicador()` evita una consulta extra y garantiza que la relación está disponible en el modelo recién creado sin hacer `load()`.
+- Si `tipo_plan_id` del plan es null o el catálogo no tiene objetivos para ese tipo, el modal muestra mensaje explicativo y se puede usar el modo libre.
+
+---
+
 ## 2026-06-23 — Módulo Intervención: indicadores de objetivos, valoración y cierre del plan
 
 ### Documentación

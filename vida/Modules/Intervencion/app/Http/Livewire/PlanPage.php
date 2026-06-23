@@ -15,6 +15,7 @@ use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\FirmaPlan;
+use Modules\Intervencion\Models\ObjetivoCatalogo;
 use Modules\Intervencion\Models\PlanActuacionAyuntamiento;
 use Modules\Intervencion\Models\PlanActuacionCiudadano;
 use Modules\Intervencion\Models\PlanDeIntervencion;
@@ -52,6 +53,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property string|null $fechaFirmaPresencial
  * @property string $mensajeExito
  * @property bool $modalObjetivoAbierto
+ * @property string $modoObjetivo
+ * @property array $objetivosCatalogoSeleccionados
  * @property string $nuevoObjetivoTexto
  * @property bool $modalCompromisoAbierto
  * @property string $nuevoCompromisoDescripcion
@@ -117,6 +120,12 @@ class PlanPage extends Component
 
     // --- Modales de creación ---
     public bool $modalObjetivoAbierto = false;
+
+    /** @var string Modo activo del modal de objetivo: 'catalogo' | 'libre' */
+    public string $modoObjetivo = 'catalogo';
+
+    /** @var array<int> IDs de ObjetivoCatalogo seleccionados en el modal */
+    public array $objetivosCatalogoSeleccionados = [];
 
     public string $nuevoObjetivoTexto = '';
 
@@ -392,6 +401,27 @@ class PlanPage extends Component
     public function planNombreCorto(): string
     {
         return auth()->user()?->unidadOrganizativa?->plan_nombre_corto ?? 'Plan';
+    }
+
+    /**
+     * Objetivos generales del catálogo disponibles para el tipo de plan, con sus específicos e indicadores.
+     * Solo se consulta cuando el modal está abierto en modo catálogo.
+     *
+     * @return Collection<int, ObjetivoCatalogo>
+     */
+    #[Computed]
+    public function objetivosCatalogo(): Collection
+    {
+        if (! $this->modalObjetivoAbierto || ! $this->plan?->tipo_plan_id) {
+            return collect();
+        }
+
+        return ObjetivoCatalogo::where('tipo_plan_id', $this->plan->tipo_plan_id)
+            ->where('nivel', 'general')
+            ->where('activo', true)
+            ->with(['objetivosEspecificos', 'indicador'])
+            ->orderBy('orden')
+            ->get();
     }
 
     /**
@@ -749,19 +779,99 @@ class PlanPage extends Component
     // =========================================================
 
     /**
-     * Abre el modal de creación de un objetivo general.
+     * Abre el modal de creación de un objetivo general, priorizando el modo catálogo si hay objetivos disponibles.
      *
      * @return void
      */
     public function abrirModalObjetivo(): void
     {
         $this->nuevoObjetivoTexto = '';
+        $this->objetivosCatalogoSeleccionados = [];
+        $this->modoObjetivo = 'catalogo';
         $this->resetErrorBag();
         $this->modalObjetivoAbierto = true;
+        unset($this->objetivosCatalogo);
     }
 
     /**
-     * Persiste un nuevo objetivo general en el plan.
+     * Instancia en el plan los objetivos generales seleccionados del catálogo,
+     * incluyendo sus específicos e indicadores.
+     *
+     * @return void
+     */
+    public function guardarObjetivosDesdeCatalogo(): void
+    {
+        if (! $this->plan || empty($this->objetivosCatalogoSeleccionados)) {
+            return;
+        }
+
+        // IDs de catálogo ya presentes en el plan para evitar duplicados
+        $yaEnPlan = PlanObjetivo::where('plan_id', $this->plan->id)
+            ->whereNotNull('objetivo_catalogo_id')
+            ->pluck('objetivo_catalogo_id')
+            ->map(fn ($id) => (int) $id)
+            ->toArray();
+
+        $orden = $this->objetivosGenerales->count();
+
+        foreach ($this->objetivosCatalogoSeleccionados as $catalogoId) {
+            $catalogoId = (int) $catalogoId;
+
+            if (in_array($catalogoId, $yaEnPlan, true)) {
+                continue;
+            }
+
+            $objCatalogo = ObjetivoCatalogo::with(['objetivosEspecificos.indicador', 'indicador'])
+                ->find($catalogoId);
+
+            if (! $objCatalogo || $objCatalogo->nivel !== 'general') {
+                continue;
+            }
+
+            $planObjetivo = PlanObjetivo::create([
+                'plan_id'              => $this->plan->id,
+                'objetivo_catalogo_id' => $objCatalogo->id,
+                'nivel'                => 'general',
+                'texto'                => $objCatalogo->texto,
+                'estado'               => 'pendiente',
+                'orden'                => ++$orden,
+            ]);
+
+            // Heredar indicador del catálogo si existe
+            if ($objCatalogo->indicador) {
+                $planObjetivo->setRelation('objetivoCatalogo', $objCatalogo);
+                $planObjetivo->instanciarIndicador();
+            }
+
+            // Instanciar específicos
+            foreach ($objCatalogo->objetivosEspecificos as $esp) {
+                $planEsp = PlanObjetivo::create([
+                    'plan_id'              => $this->plan->id,
+                    'objetivo_catalogo_id' => $esp->id,
+                    'objetivo_general_id'  => $planObjetivo->id,
+                    'nivel'                => 'especifico',
+                    'tipo_ficha_id'        => $esp->tipo_ficha_id,
+                    'texto'                => $esp->texto,
+                    'estado'               => 'pendiente',
+                    'orden'                => $esp->orden,
+                ]);
+
+                if ($esp->indicador) {
+                    $planEsp->setRelation('objetivoCatalogo', $esp);
+                    $planEsp->instanciarIndicador();
+                }
+            }
+        }
+
+        $añadidos = count($this->objetivosCatalogoSeleccionados);
+        $this->modalObjetivoAbierto = false;
+        $this->objetivosCatalogoSeleccionados = [];
+        unset($this->objetivosGenerales, $this->objetivosConIndicadores);
+        $this->mensajeExito = $añadidos === 1 ? 'Objetivo añadido.' : 'Objetivos añadidos.';
+    }
+
+    /**
+     * Persiste un nuevo objetivo general de texto libre en el plan.
      *
      * @return void
      */
@@ -783,7 +893,7 @@ class PlanPage extends Component
 
         $this->modalObjetivoAbierto = false;
         $this->nuevoObjetivoTexto = '';
-        unset($this->objetivosGenerales);
+        unset($this->objetivosGenerales, $this->objetivosConIndicadores);
         $this->mensajeExito = 'Objetivo añadido.';
     }
 

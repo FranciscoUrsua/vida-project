@@ -715,13 +715,88 @@ $nc = [
      ============================================================ --}}
 @if($modalObjetivoAbierto)
 <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow">
             <div class="modal-header">
-                <h5 class="modal-title">Nuevo objetivo general</h5>
+                <h5 class="modal-title">Añadir objetivo</h5>
                 <button type="button" class="btn-close" wire:click="$set('modalObjetivoAbierto', false)"></button>
             </div>
-            <div class="modal-body">
+
+            {{-- Selector de modo --}}
+            <div class="modal-body pb-0">
+                <div class="d-flex gap-2 mb-3">
+                    <button wire:click="$set('modoObjetivo', 'catalogo')"
+                            class="btn btn-sm {{ $modoObjetivo === 'catalogo' ? 'btn-primary' : 'btn-outline-secondary' }}">
+                        <x-heroicon-o-list-bullet class="icon-13"/>
+                        Del catálogo
+                    </button>
+                    <button wire:click="$set('modoObjetivo', 'libre')"
+                            class="btn btn-sm {{ $modoObjetivo === 'libre' ? 'btn-primary' : 'btn-outline-secondary' }}">
+                        <x-heroicon-o-pencil class="icon-13"/>
+                        Objetivo libre
+                    </button>
+                </div>
+            </div>
+
+            {{-- Modo catálogo --}}
+            @if($modoObjetivo === 'catalogo')
+            <div class="modal-body pt-0" style="max-height:60vh;overflow-y:auto;">
+                @if($this->objetivosCatalogo->isEmpty())
+                    <p class="text-muted fst-italic mb-0">
+                        No hay objetivos configurados en el catálogo para este tipo de plan.
+                        Usa "Objetivo libre" para redactar uno manualmente.
+                    </p>
+                @else
+                    <p class="text-muted small mb-3">Selecciona uno o más objetivos del catálogo:</p>
+                    @php
+                        $yaEnPlan = $this->objetivosConIndicadores->pluck('objetivo_catalogo_id')->filter()->map(fn($id) => (int)$id)->toArray();
+                    @endphp
+                    <div class="d-flex flex-column gap-3">
+                        @foreach($this->objetivosCatalogo as $oc)
+                        @php $yaAñadido = in_array((int)$oc->id, $yaEnPlan, true); @endphp
+                        <div class="border rounded p-3 {{ $yaAñadido ? 'opacity-50' : '' }}">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       id="oc-{{ $oc->id }}"
+                                       wire:model="objetivosCatalogoSeleccionados"
+                                       value="{{ $oc->id }}"
+                                       {{ $yaAñadido ? 'disabled' : '' }}>
+                                <label class="form-check-label fw-semibold" for="oc-{{ $oc->id }}">
+                                    {{ $oc->texto }}
+                                    @if($yaAñadido)
+                                    <span class="badge bg-secondary ms-1 fw-normal">ya añadido</span>
+                                    @endif
+                                </label>
+                            </div>
+                            @if($oc->objetivosEspecificos->isNotEmpty())
+                            <ul class="list-unstyled ms-4 mt-2 mb-0">
+                                @foreach($oc->objetivosEspecificos as $esp)
+                                <li class="small text-secondary py-1 border-bottom border-light last-child:border-0">
+                                    <x-heroicon-o-arrow-right class="icon-11 me-1"/>
+                                    {{ $esp->texto }}
+                                </li>
+                                @endforeach
+                            </ul>
+                            @endif
+                        </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+            <div class="modal-footer">
+                <button wire:click="$set('modalObjetivoAbierto', false)" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                <button wire:click="guardarObjetivosDesdeCatalogo"
+                        class="btn btn-primary btn-sm"
+                        @if(empty($objetivosCatalogoSeleccionados)) disabled @endif>
+                    <x-heroicon-o-check class="icon-13"/>
+                    Añadir seleccionados
+                </button>
+            </div>
+
+            {{-- Modo libre --}}
+            @else
+            <div class="modal-body pt-0">
                 <label class="form-label small">Descripción del objetivo</label>
                 <textarea wire:model="nuevoObjetivoTexto"
                           class="form-control form-control-sm @error('nuevoObjetivoTexto') is-invalid @enderror"
@@ -739,6 +814,8 @@ $nc = [
                     Guardar objetivo
                 </button>
             </div>
+            @endif
+
         </div>
     </div>
 </div>
