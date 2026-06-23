@@ -106,6 +106,7 @@ class GestionarObjetivos extends Page implements HasTable
             ])
             ->headerActions([
                 CreateAction::make()
+                    ->label('Crear objetivo')
                     ->model(ObjetivoCatalogo::class)
                     ->form([
                         Select::make('nivel')
