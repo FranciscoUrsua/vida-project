@@ -47,7 +47,7 @@ class RegistrarValoracionPage extends Component
     /** @var string Notas libres del profesional sobre la valoración */
     public string $notas = '';
 
-    /** @var string|null Estado tras guardar: 'borrador' o null */
+    /** @var string|null Estado tras guardar: 'guardado' si el guardado fue exitoso, null en caso contrario */
     public ?string $estadoGuardado = null;
 
     /**
@@ -119,11 +119,32 @@ class RegistrarValoracionPage extends Component
 
     /**
      * Guarda la ficha como borrador (completada = false). No redirige.
+     * Valida los campos obligatorios igual que guardarDefinitivo; si fallan,
+     * no persiste y deja estadoGuardado en null.
      */
     public function guardar(): void
     {
+        if (! $this->tipoFichaId) {
+            $this->addError('tipoFichaId', 'Selecciona un tipo de ficha.');
+
+            return;
+        }
+
+        $campos = $this->tipoFicha?->schema['campos'] ?? [];
+        $reglas = [];
+
+        foreach ($campos as $campo) {
+            if ($campo['obligatorio'] ?? false) {
+                $reglas["datos.{$campo['id']}"] = ['required'];
+            }
+        }
+
+        if (! empty($reglas)) {
+            $this->validate($reglas);
+        }
+
         $this->persistirFicha(completada: false);
-        $this->estadoGuardado = 'borrador';
+        $this->estadoGuardado = 'guardado';
     }
 
     /**

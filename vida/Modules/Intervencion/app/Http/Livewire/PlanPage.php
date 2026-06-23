@@ -591,6 +591,7 @@ class PlanPage extends Component
 
     /**
      * Elimina una ficha del diagnóstico del plan.
+     * Si el plan está activo pide motivo antes de persistir.
      *
      * @param int $fichaId
      * @return void
@@ -607,6 +608,23 @@ class PlanPage extends Component
             return;
         }
 
+        if ($this->planFirmado) {
+            $this->encolarAccion('eliminarFichaDiagnostico', ['fichaId' => $fichaId]);
+
+            return;
+        }
+
+        $this->_eliminarFichaDirecto($fichaId);
+    }
+
+    /**
+     * Elimina la asociación de una ficha al diagnóstico sin verificar estado del plan.
+     *
+     * @param int $fichaId
+     * @return void
+     */
+    private function _eliminarFichaDirecto(int $fichaId): void
+    {
         $this->plan->fichasDiagnostico()->where('ficha_id', $fichaId)->delete();
         $this->fichasSeleccionadas = array_values(
             array_filter($this->fichasSeleccionadas, fn ($id) => (int) $id !== $fichaId)
@@ -620,6 +638,7 @@ class PlanPage extends Component
 
     /**
      * Guarda el texto de síntesis del diagnóstico social.
+     * Si el plan está activo pide motivo antes de persistir.
      *
      * @return void
      */
@@ -629,9 +648,25 @@ class PlanPage extends Component
             return;
         }
 
+        if ($this->planFirmado) {
+            $this->encolarAccion('guardarDiagnostico', []);
+
+            return;
+        }
+
+        $this->_guardarDiagnosticoDirecto();
+        $this->mensajeExito = 'Diagnóstico guardado.';
+    }
+
+    /**
+     * Persiste el diagnóstico sin verificar estado del plan.
+     *
+     * @return void
+     */
+    private function _guardarDiagnosticoDirecto(): void
+    {
         $this->plan->update(['diagnostico_social' => $this->diagnosticoTexto]);
         $this->plan = $this->plan->fresh();
-        $this->mensajeExito = 'Diagnóstico guardado.';
     }
 
     // =========================================================
@@ -763,8 +798,10 @@ class PlanPage extends Component
         );
 
         match ($this->motivoAccionPendiente) {
-            'guardarPlan' => $this->_guardarPlanDirecto(),
-            default       => null,
+            'guardarPlan'              => $this->_guardarPlanDirecto(),
+            'guardarDiagnostico'       => $this->_guardarDiagnosticoDirecto(),
+            'eliminarFichaDiagnostico' => $this->_eliminarFichaDirecto($this->motivoAccionParams['fichaId']),
+            default                    => null,
         };
 
         $this->modalMotivoAbierto = false;

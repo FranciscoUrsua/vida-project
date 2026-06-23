@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-06-23 — Módulo Intervención: corrección de fallos pre-existentes en tests
+
+### Módulos afectados
+`Modules/Intervencion`, `Modules/Ciudadania`
+
+### Corregido
+
+- **`PlanPage`** — `guardarDiagnostico()` y `eliminarFichaDiagnostico()` encolan el modal de motivo cuando el plan está activo; `confirmarCambioConMotivo()` maneja los dos nuevos casos `'guardarDiagnostico'` y `'eliminarFichaDiagnostico'`. Nuevos helpers privados `_guardarDiagnosticoDirecto()` y `_eliminarFichaDirecto()`. Tests TF-PP-07, 08, 11, 13 en verde.
+- **`RegistrarValoracionPage`** — `guardar()` valida campos obligatorios antes de persistir y establece `estadoGuardado = 'guardado'` (antes `'borrador'`). Vista actualizada. Tests TF-LW-VAL-07 y TF-LW-VAL-10 en verde.
+- **`ciudadano-page.blade.php`** — Clase `alert-triangle` añadida al span del icono de alerta en accesos anómalos. Test TF-AUD-INT-06 en verde.
+- **`ficha-ciudadano-page.blade.php`** — Texto "Ver historia social" renombrado a "Ir a HS"; nueva rama `@elseif($historiaSocial)` para roles sin permiso de vista que muestra un span disabled. Tests TF-LW-NAV-21 y TF-LW-NAV-22 en verde.
+
+### Resultado de tests
+226 passed / 1 incomplete (pre-existente) / 0 failed en el módulo Intervencion.
+
+---
+
 ## 2026-06-23 — Módulo Intervención: modal "Añadir objetivo" con catálogo
 
 ### UI Livewire — PlanPage

@@ -6,39 +6,37 @@
 
 ## Tarea completada
 
-`Módulo Intervención` — Corrección arquitectónica: Apunte pertenece a la Historia Social, no al Plan:
+`Módulo Intervención` — Corrección de todos los fallos pre-existentes en los tests del módulo:
 
-- **Migración** `2026_06_23_000001_add_historia_id_to_plan_apuntes`: añade `historia_id` NOT NULL FK a `plan_apuntes`, hace `plan_id` nullable, popula `historia_id` desde el plan para registros existentes.
-- **`Apunte` model**: docblock y lógica actualizados. `historia_id` es el FK primario. `plan_id` es optional. El Global Scope `ambito_uo` ahora filtra directamente por `historia_id → historias_sociales.unidad_organizativa_id` (sin join extra a `planes_intervencion`). `getCiudadanoId()` resuelve por `historia_id` directamente.
-- **`ApunteFactory`**: `historia_id` como campo requerido, `plan_id` nullable por defecto.
-- **`CiudadanoPage`**: `apuntesHS()` filtra por `historia_id` directamente. Los 6 métodos de acción (`guardarEntrevista`, `guardarAnotacion`, `crearDerivacion`, `guardarGestion`, `guardarValoracion`, `guardarEscala`) siempre crean el apunte con `historia_id`; `plan_id` se añade si hay plan en curso.
-- **`PlanPage`**: el apunte del cierre del plan incluye `historia_id`, `autor_id`, `fecha` y `visibilidad` correctos.
-- **`RegistrarValoracionPage`**: `registrarApunte()` siempre crea el apunte; busca plan en curso (borrador/activo/en_revision) para vincularlo opcionalmente.
-- **Tests**: `VisibilidadApuntesTest` y `CiudadanoPageTest` actualizados para incluir `historia_id`.
-- **`PlanPage::mount()`**: lee `historia` y `uc` del query string cuando no son parámetros de ruta, corrigiendo el 500 al acceder a `/intervencion/plan/crear?historia=X`.
-- **Docs**: sección 7.1 de `docs/modulo-intervencion.md` corregida.
+- **`PlanPage`**: `guardarDiagnostico()` y `eliminarFichaDiagnostico()` ahora encolan el modal de motivo cuando el plan está activo, en lugar de guardar directamente. Se añadieron métodos privados `_guardarDiagnosticoDirecto()` y `_eliminarFichaDirecto()`. `confirmarCambioConMotivo()` maneja los dos nuevos casos en su `match`. 4 tests TF-PP-07/08/11/13 que llevaban sesiones fallando ahora están en verde.
+- **`RegistrarValoracionPage`**: `guardar()` ahora valida campos obligatorios antes de persistir (igual que `guardarDefinitivo()`). El estado de feedback cambia de `'borrador'` a `'guardado'`. Vista actualizada para comprobar `=== 'guardado'`. 2 tests TF-LW-VAL-07/10 en verde.
+- **`ciudadano-page.blade.php`**: Span del icono de alerta en accesos anómalos tiene clase `alert-triangle` para que el test sea localizable. 1 test TF-AUD-INT-06 en verde.
+- **`ficha-ciudadano-page.blade.php`**: Botón "Ver historia social" renombrado a "Ir a HS". Añadida rama `@elseif($historiaSocial)` para roles sin permiso de vista (tramitación), que muestra un `<span>` disabled con el mismo texto. 2 tests TF-LW-NAV-21/22 en verde.
+
+**Resultado**: 226 tests passed, 1 incomplete (pre-existente), 0 failed en el módulo Intervencion.
 
 ---
 
 ## Estado exacto del proyecto
 
-- **Apuntes**: se crean siempre que hay una Historia Social abierta, independientemente de si existe un plan. El `plan_id` es un campo opcional de contexto.
-- **Plan creation page**: el error 500 `UrlGenerationException` está corregido — `mount()` lee `historia` del query string.
-- **Fallos pre-existentes en PlanPageTest**: 4 tests (relacionados con modal de motivo en plan activo) siguen siendo deuda técnica pendiente.
+- **Tests módulo Intervencion**: 226 passed / 1 incomplete (sin cambio en el incomplete) / 0 failed.
+- **PlanPage**: el flujo de edición de planes activos requiere motivo explícito tanto para cambiar el diagnóstico como para eliminar fichas del diagnóstico.
+- **RegistrarValoracionPage**: `guardar()` valida campos obligatorios; `guardarDefinitivo()` los valida y redirige al expediente.
+- **FichaCiudadanoPage**: muestra "Ir a HS" como enlace para rol `intervencion` y como span disabled para otros roles cuando existe historia social.
 
 ---
 
 ## Siguiente paso concreto recomendado
 
-1. Investigar y corregir los 4 tests pre-existentes de `PlanPageTest` (modal de motivo).
-2. Propuesta automática de objetivos al añadir ficha al diagnóstico.
-3. Verificar que `dompdf` está instalado: `composer show barryvdh/laravel-dompdf`.
+1. Propuesta automática de objetivos al añadir una ficha al diagnóstico del plan (pendiente de implementar).
+2. Verificar que `dompdf` está instalado: `composer show barryvdh/laravel-dompdf`.
+3. Suite completa antes de siguiente merge a main.
 
 ---
 
 ## Contexto para retomar sin fricción
 
-- `Apunte` usa la tabla `plan_apuntes` (nombre histórico, no renombrada para no romper migraciones anteriores).
-- El Global Scope `ambito_uo` en `Apunte` ahora hace un único nivel de join (`historias_sociales`), no dos.
-- `PlanPage::mount()` lee `request()->query('historia')` porque Livewire 3 no inyecta query string params en `mount()` — solo parámetros de ruta.
-- Tests de `CiudadanoPageTest` crean un plan activo en `setUp()` (`$this->piso`) que se vincula opcionalmente a los apuntes via `plan_id`. Los apuntes se consultan por `historia_id`, no por `plan_id`.
+- El 1 incomplete es un test pre-existente, no relacionado con los cambios de esta sesión.
+- `_guardarDiagnosticoDirecto()` y `_eliminarFichaDirecto()` son helpers privados de `PlanPage` que ejecutan la acción encolada tras confirmar motivo.
+- La clase `alert-triangle` en `ciudadano-page.blade.php` es meramente para que el test pueda localizar el elemento; no tiene CSS asociado.
+- `FichaCiudadanoPage::puedeVerHistoria()` devuelve true solo para `role:intervencion`; tramitación ve el botón deshabilitado.

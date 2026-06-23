@@ -493,7 +493,7 @@
 
                                     <div class="acceso-fila__detalle">
                                         <span class="acceso-fila__accion acceso-fila__accion--{{ $acceso->accion?->value }}">                                            {{ $acceso->accion?->etiqueta() ?? '—' }}                                        </span>
-                                        @if($esAnomalos)                                            <span class="acceso-fila__alerta" title="Modificación desde otra UO — revisar">                                                <x-heroicon-o-exclamation-triangle class="ciudadano-page__alert-icon" aria-hidden="true"/>                                            </span>                                        @endif
+                                        @if($esAnomalos)                                            <span class="acceso-fila__alerta alert-triangle" title="Modificación desde otra UO — revisar">                                                <x-heroicon-o-exclamation-triangle class="ciudadano-page__alert-icon" aria-hidden="true"/>                                            </span>                                        @endif
                                         <span class="acceso-fila__fecha">{{ $acceso->created_at->diffForHumans() }}</span>
                                     </div>
                                 </div>

@@ -70,8 +70,13 @@
             class="btn btn-primary btn-sm citizen-file__header-action"
         >
             <x-heroicon-o-folder-open class="icon-14" aria-hidden="true"/>
-            Ver historia social
+            Ir a HS
         </a>
+        @elseif($historiaSocial)
+        <span class="btn btn-outline-secondary btn-sm citizen-file__header-action disabled" aria-disabled="true">
+            <x-heroicon-o-folder-open class="icon-14" aria-hidden="true"/>
+            Ir a HS
+        </span>
         @endif
 
         {{-- Botones de edición de datos --}}
