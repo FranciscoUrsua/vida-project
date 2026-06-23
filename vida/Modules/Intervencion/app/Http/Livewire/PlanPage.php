@@ -191,6 +191,9 @@ class PlanPage extends Component
             $this->fichasSeleccionadas = $plan->fichasDiagnostico()
                 ->pluck('ficha_id')
                 ->toArray();
+
+            // Inicializar tipoPlanId para el selector de tipo en modo edición.
+            $this->tipoPlanId = $plan->tipo_plan_id;
         } else {
             $this->historiaId = $historia ?? ((int) request()->query('historia') ?: null);
             $this->ucId       = $uc       ?? ((int) request()->query('uc')       ?: null);
@@ -830,6 +833,28 @@ class PlanPage extends Component
         }
 
         return $this->redirect(route('intervencion.plan.show', $plan), navigate: true);
+    }
+
+    /**
+     * Asigna el tipo de plan a un plan existente que no lo tenga.
+     * Solo aplicable a planes en borrador.
+     *
+     * @return void
+     */
+    public function asignarTipoPlan(): void
+    {
+        if (! $this->plan || ! $this->tipoPlanId) {
+            return;
+        }
+
+        $this->validate([
+            'tipoPlanId' => ['required', 'integer', 'exists:tipos_plan,id'],
+        ]);
+
+        $this->plan->update(['tipo_plan_id' => $this->tipoPlanId]);
+        $this->plan = $this->plan->fresh();
+        unset($this->objetivosCatalogo);
+        $this->mensajeExito = 'Tipo de plan asignado.';
     }
 
     // =========================================================

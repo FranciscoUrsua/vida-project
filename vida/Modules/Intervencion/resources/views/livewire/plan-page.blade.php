@@ -787,10 +787,28 @@ $nc = [
             {{-- Modo catálogo --}}
             @if($modoObjetivo === 'catalogo')
             <div class="modal-body pt-0" style="max-height:60vh;overflow-y:auto;">
-                @if($this->objetivosCatalogo->isEmpty())
+                @if(! $this->plan?->tipo_plan_id)
+                    {{-- El plan no tiene tipo asignado: mostrar selector inline --}}
+                    <div class="alert alert-warning mb-0">
+                        <p class="mb-2 small fw-semibold">El plan no tiene un tipo de plan asignado.</p>
+                        <p class="mb-3 small text-muted">Selecciona el tipo de plan para acceder al catálogo de objetivos.</p>
+                        <select wire:model.live="tipoPlanId" class="form-select form-select-sm mb-2">
+                            <option value="">— Elige un tipo de plan —</option>
+                            @foreach($this->tiposPlanes as $id => $nombre)
+                            <option value="{{ $id }}">{{ $nombre }}</option>
+                            @endforeach
+                        </select>
+                        @if($tipoPlanId)
+                        <button wire:click="asignarTipoPlan" class="btn btn-sm btn-warning">
+                            <x-heroicon-o-check class="icon-13"/>
+                            Asignar tipo y ver objetivos
+                        </button>
+                        @endif
+                    </div>
+                @elseif($this->objetivosCatalogo->isEmpty())
                     <p class="text-muted fst-italic mb-0">
-                        No hay objetivos configurados en el catálogo para este tipo de plan.
-                        Usa "Objetivo libre" para redactar uno manualmente.
+                        No hay objetivos activos configurados en el catálogo para este tipo de plan.
+                        Usa "Objetivo libre" para redactar uno manualmente, o configura los objetivos del catálogo en Configuración.
                     </p>
                 @else
                     <p class="text-muted small mb-3">Selecciona uno o más objetivos del catálogo:</p>
