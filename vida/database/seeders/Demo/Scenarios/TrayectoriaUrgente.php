@@ -9,6 +9,7 @@ use App\Models\User;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\TipoEntrevista;
 use Modules\Intervencion\Enums\TipoPlan;
+use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Intervencion\Models\Entrevista;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 
@@ -63,6 +64,12 @@ class TrayectoriaUrgente extends TrayectoriaActiva
             'fecha_inicio' => $fechaInicioPlan,
             'fecha_firma' => $fechaInicioPlan,
             'version' => 1,
+        ]);
+
+        AsignacionProfesional::create([
+            'historia_id' => $historia->id,
+            'profesional_id' => $tsr->id,
+            'fecha_inicio' => $fechaInicioPlan->toDateString(),
         ]);
 
         // 4. Entre 1-3 seguimientos (caso reciente)

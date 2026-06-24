@@ -9,6 +9,7 @@ use App\Models\User;
 use Modules\Intervencion\Enums\ClasificacionSia;
 use Modules\Intervencion\Enums\TipoEntrevista;
 use Modules\Intervencion\Enums\UrgenciaSia;
+use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Intervencion\Models\Entrevista;
 use Modules\Intervencion\Models\SiaContacto;
 
@@ -63,6 +64,12 @@ class TrayectoriaNueva extends TrayectoriaActiva
             'modalidad' => 'presencial',
             'tipo' => TipoEntrevista::Inicial,
             'estado' => 'realizada',
+        ]);
+
+        AsignacionProfesional::create([
+            'historia_id' => $historia->id,
+            'profesional_id' => $tsr->id,
+            'fecha_inicio' => today()->subDays(rand(3, 15))->toDateString(),
         ]);
 
         // Sin plan ni seguimientos — caso en fase de valoración inicial

@@ -12,6 +12,7 @@ use Modules\Intervencion\Enums\MotivoCierre;
 use Modules\Intervencion\Enums\TipoEntrevista;
 use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Enums\UrgenciaSia;
+use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Intervencion\Models\Entrevista;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\SiaContacto;
@@ -83,8 +84,15 @@ class TrayectoriaCerrada extends TrayectoriaActiva
             'fecha_inicio' => $fechaInicioPlan,
             'fecha_firma' => $fechaInicioPlan,
             'fecha_cierre' => $fechaCierre,
-            'motivo_cierre' => MotivoCierre::ObjetivosCumplidos,
+            'motivo_cierre' => MotivoCierre::ConsecucionObjetivos,
             'version' => 1,
+        ]);
+
+        AsignacionProfesional::create([
+            'historia_id' => $historia->id,
+            'profesional_id' => $tsr->id,
+            'fecha_inicio' => $fechaInicioPlan->toDateString(),
+            'fecha_fin' => $fechaCierre->toDateString(),
         ]);
 
         // 5. Entre 3-6 seguimientos

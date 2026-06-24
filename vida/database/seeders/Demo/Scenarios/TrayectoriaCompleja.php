@@ -11,6 +11,7 @@ use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\TipoEntrevista;
 use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Enums\UrgenciaSia;
+use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Intervencion\Models\Entrevista;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\SiaContacto;
@@ -95,6 +96,12 @@ class TrayectoriaCompleja extends TrayectoriaActiva
             'fecha_inicio' => $fechaInicioPlanAsp,
             'fecha_firma' => $fechaInicioPlanAsp,
             'version' => 1,
+        ]);
+
+        AsignacionProfesional::create([
+            'historia_id' => $historia->id,
+            'profesional_id' => $tsr->id,
+            'fecha_inicio' => $fechaInicioPlanAsp->toDateString(),
         ]);
 
         // 5. Seguimientos del plan ASP (2-4)

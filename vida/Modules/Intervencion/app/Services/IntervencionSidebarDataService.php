@@ -3,7 +3,7 @@
 namespace Modules\Intervencion\Services;
 
 use Illuminate\Support\Facades\Auth;
-use Modules\Intervencion\Models\PlanDeIntervencion;
+use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Models\Alerta;
@@ -62,7 +62,7 @@ class IntervencionSidebarDataService
     }
 
     /**
-     * Número de historias sociales con plan activo asignadas al profesional.
+     * Número de historias sociales asignadas al profesional con asignación vigente.
      * Usado para el badge del ítem "Mis casos".
      */
     public function misCasosCount(): int
@@ -71,10 +71,10 @@ class IntervencionSidebarDataService
             return 0;
         }
 
-        return PlanDeIntervencion::where('profesional_responsable_id', Auth::id())
-            ->where('estado', 'activo')
-            ->distinct('historia_id')
-            ->count('historia_id');
+        return AsignacionProfesional::where('profesional_id', Auth::id())
+            ->whereNull('fecha_fin')
+            ->whereNull('deleted_at')
+            ->count();
     }
 
     /**

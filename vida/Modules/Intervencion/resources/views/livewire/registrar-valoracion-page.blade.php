@@ -138,7 +138,7 @@
         </div>
 
         {{-- Feedback de guardado --}}
-        @if($estadoGuardado === 'borrador')
+        @if($estadoGuardado === 'guardado')
             <div style="margin-top: 1rem; padding: 0.6rem 0.9rem; background: var(--color-ink-50, #f8fafc); border-radius: 6px; border: 1px solid var(--color-ink-200, #e2e8f0); font-size: 0.82rem; color: var(--color-ink-600); display: flex; align-items: center; gap: 0.4rem;">
                 <x-heroicon-o-arrow-down-on-square class="icon-15" aria-hidden="true"/>
                 Borrador guardado.
