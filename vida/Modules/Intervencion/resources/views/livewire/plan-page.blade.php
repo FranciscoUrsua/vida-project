@@ -272,16 +272,22 @@
             </button>
         </div>
         <div class="card-body">
-            @if($this->objetivosConIndicadores->isEmpty())
+            @php
+                $tieneObjetivos = $this->objetivosConIndicadores->isNotEmpty()
+                    || $this->objetivosEspecificosIndependientes->isNotEmpty();
+            @endphp
+            @if(! $tieneObjetivos)
             <p class="text-muted fst-italic mb-0">Ningún objetivo definido aún.</p>
             @else
-            <div class="plan-obj-grid">
+
+            {{-- Objetivos generales --}}
+            @if($this->objetivosConIndicadores->isNotEmpty())
+            <div class="plan-obj-grid mb-3">
                 @foreach($this->objetivosConIndicadores as $og)
                 <div class="card" wire:key="og-{{ $og->id }}">
                     <div class="card-body pb-2">
                         <p class="mb-2">{{ $og->texto }}</p>
 
-                        {{-- Indicador del objetivo general --}}
                         @if($og->indicador)
                         <div class="plan-indicador" wire:key="ind-og-{{ $og->indicador->id }}">
                             <div class="plan-indicador-desc">{{ $og->indicador->descripcion }}</div>
@@ -300,40 +306,6 @@
                             </div>
                         </div>
                         @endif
-
-                        {{-- Objetivos específicos con sus indicadores --}}
-                        @if($og->objetivosEspecificos->isNotEmpty())
-                        <ul class="list-unstyled mt-2 mb-0">
-                            @foreach($og->objetivosEspecificos as $oe)
-                            <li class="mb-2" wire:key="oe-{{ $oe->id }}">
-                                <div class="small text-secondary">
-                                    {{ $oe->texto }}
-                                    @if($oe->tipoFicha)
-                                    <span class="plan-obj-area">{{ $oe->tipoFicha->nombre }}</span>
-                                    @endif
-                                </div>
-                                @if($oe->indicador)
-                                <div class="plan-indicador plan-indicador--esp" wire:key="ind-oe-{{ $oe->indicador->id }}">
-                                    <div class="plan-indicador-desc">{{ $oe->indicador->descripcion }}</div>
-                                    <div class="d-flex gap-2 flex-wrap">
-                                        @foreach($oe->indicador->valoresPosibles() as $valor => $etiqueta)
-                                        <label class="plan-indicador-opcion {{ $oe->indicador->valoracion_actual === $valor ? 'plan-indicador-opcion--activa' : '' }}">
-                                            <input
-                                                type="radio"
-                                                wire:click="guardarValoracionIndicador({{ $oe->indicador->id }}, '{{ $valor }}')"
-                                                {{ $oe->indicador->valoracion_actual === $valor ? 'checked' : '' }}
-                                                @if($this->plan?->estado->value === 'cerrado') disabled @endif
-                                            >
-                                            {{ $etiqueta }}
-                                        </label>
-                                        @endforeach
-                                    </div>
-                                </div>
-                                @endif
-                            </li>
-                            @endforeach
-                        </ul>
-                        @endif
                     </div>
                     <div class="card-footer d-flex align-items-center justify-content-between">
                         <span class="badge rounded-pill plan-estado-{{ $og->estado }}">
@@ -347,6 +319,55 @@
                 </div>
                 @endforeach
             </div>
+            @endif
+
+            {{-- Objetivos específicos independientes --}}
+            @if($this->objetivosEspecificosIndependientes->isNotEmpty())
+            @if($this->objetivosConIndicadores->isNotEmpty())
+            <div class="small text-secondary fw-semibold text-uppercase mb-2">Objetivos específicos</div>
+            @endif
+            <div class="plan-obj-grid">
+                @foreach($this->objetivosEspecificosIndependientes as $oe)
+                <div class="card" wire:key="oe-ind-{{ $oe->id }}">
+                    <div class="card-body pb-2">
+                        @if($oe->tipoFicha)
+                        <div class="plan-obj-area mb-1">{{ $oe->tipoFicha->nombre }}</div>
+                        @endif
+                        <p class="mb-2">{{ $oe->texto }}</p>
+
+                        @if($oe->indicador)
+                        <div class="plan-indicador plan-indicador--esp" wire:key="ind-oe-ind-{{ $oe->indicador->id }}">
+                            <div class="plan-indicador-desc">{{ $oe->indicador->descripcion }}</div>
+                            <div class="d-flex gap-2 flex-wrap">
+                                @foreach($oe->indicador->valoresPosibles() as $valor => $etiqueta)
+                                <label class="plan-indicador-opcion {{ $oe->indicador->valoracion_actual === $valor ? 'plan-indicador-opcion--activa' : '' }}">
+                                    <input
+                                        type="radio"
+                                        wire:click="guardarValoracionIndicador({{ $oe->indicador->id }}, '{{ $valor }}')"
+                                        {{ $oe->indicador->valoracion_actual === $valor ? 'checked' : '' }}
+                                        @if($this->plan?->estado->value === 'cerrado') disabled @endif
+                                    >
+                                    {{ $etiqueta }}
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-between">
+                        <span class="badge rounded-pill plan-estado-{{ $oe->estado }}">
+                            {{ ucfirst(str_replace('_', ' ', $oe->estado)) }}
+                        </span>
+                        <button class="btn btn-outline-secondary btn-sm">
+                            <x-heroicon-o-pencil-square class="icon-13"/>
+                            Editar
+                        </button>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @endif
+
             @endif
         </div>
     </div>
@@ -802,11 +823,11 @@ $nc = [
                         Usa "Objetivo libre" para redactar uno manualmente, o configura los objetivos del catálogo en Configuración.
                     </p>
                 @else
-                    <p class="text-muted small mb-3">Selecciona uno o más objetivos del catálogo:</p>
-                    @php
-                        $yaEnPlan = $this->objetivosConIndicadores->pluck('objetivo_catalogo_id')->filter()->map(fn($id) => (int)$id)->toArray();
-                    @endphp
-                    <div class="d-flex flex-column gap-3">
+                    @php $yaEnPlan = $this->catalogoIdsEnPlan; @endphp
+
+                    {{-- Objetivos generales --}}
+                    <p class="text-muted small mb-2 fw-semibold">Objetivos generales</p>
+                    <div class="d-flex flex-column gap-2 mb-4">
                         @foreach($this->objetivosCatalogo as $oc)
                         @php $yaAñadido = in_array((int)$oc->id, $yaEnPlan, true); @endphp
                         <div class="border rounded p-3 {{ $yaAñadido ? 'opacity-50' : '' }}">
@@ -824,40 +845,46 @@ $nc = [
                                     @endif
                                 </label>
                             </div>
-                            @if($oc->objetivosEspecificos->isNotEmpty())
-                            <div class="ms-4 mt-2 d-flex flex-column gap-1">
-                                @foreach($oc->objetivosEspecificos as $esp)
-                                @php $espYaAñadido = in_array((int) $esp->id, $yaEnPlan, true); @endphp
-                                <div class="form-check {{ $espYaAñadido ? 'opacity-50' : '' }}">
-                                    <input class="form-check-input"
-                                           type="checkbox"
-                                           id="esp-{{ $esp->id }}"
-                                           wire:model="objetivosEspecificosSeleccionados"
-                                           value="{{ $esp->id }}"
-                                           {{ $espYaAñadido ? 'disabled' : '' }}>
-                                    <label class="form-check-label small text-secondary" for="esp-{{ $esp->id }}">
-                                        {{ $esp->texto }}
-                                        @if($esp->tipoFicha)
-                                        <span class="plan-obj-area ms-1">{{ $esp->tipoFicha->nombre }}</span>
-                                        @endif
-                                        @if($espYaAñadido)
-                                        <span class="badge bg-secondary ms-1 fw-normal">ya añadido</span>
-                                        @endif
-                                    </label>
-                                </div>
-                                @endforeach
-                            </div>
-                            @endif
                         </div>
                         @endforeach
                     </div>
+
+                    {{-- Objetivos específicos (solo si hay fichas con área temática coincidente) --}}
+                    @if($this->objetivosEspecificosCatalogo->isNotEmpty())
+                    <p class="text-muted small mb-2 fw-semibold">Objetivos específicos</p>
+                    <p class="text-muted small mb-2">Derivados de las fichas incluidas en el diagnóstico:</p>
+                    <div class="d-flex flex-column gap-2">
+                        @foreach($this->objetivosEspecificosCatalogo as $esp)
+                        @php $espYaAñadido = in_array((int)$esp->id, $yaEnPlan, true); @endphp
+                        <div class="border rounded p-3 {{ $espYaAñadido ? 'opacity-50' : '' }}">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       id="esp-{{ $esp->id }}"
+                                       wire:model="objetivosCatalogoSeleccionados"
+                                       value="{{ $esp->id }}"
+                                       {{ $espYaAñadido ? 'disabled' : '' }}>
+                                <label class="form-check-label" for="esp-{{ $esp->id }}">
+                                    {{ $esp->texto }}
+                                    @if($esp->tipoFicha)
+                                    <span class="plan-obj-area ms-1">{{ $esp->tipoFicha->nombre }}</span>
+                                    @endif
+                                    @if($espYaAñadido)
+                                    <span class="badge bg-secondary ms-1 fw-normal">ya añadido</span>
+                                    @endif
+                                </label>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    @endif
                 @endif
             </div>
             <div class="modal-footer">
                 <button wire:click="$set('modalObjetivoAbierto', false)" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                 <button wire:click="guardarObjetivosDesdeCatalogo"
                         class="btn btn-primary btn-sm"
-                        @if(empty($objetivosCatalogoSeleccionados) && empty($objetivosEspecificosSeleccionados)) disabled @endif>
+                        @if(empty($objetivosCatalogoSeleccionados)) disabled @endif>
                     <x-heroicon-o-check class="icon-13"/>
                     Añadir seleccionados
                 </button>

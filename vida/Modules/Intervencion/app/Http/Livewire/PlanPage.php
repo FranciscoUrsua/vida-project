@@ -57,7 +57,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property bool $modalObjetivoAbierto
  * @property string $modoObjetivo
  * @property array $objetivosCatalogoSeleccionados
- * @property array $objetivosEspecificosSeleccionados
+
  * @property string $nuevoObjetivoTexto
  * @property bool $modalCompromisoAbierto
  * @property string $nuevoCompromisoDescripcion
@@ -133,9 +133,6 @@ class PlanPage extends Component
 
     /** @var array<int> IDs de ObjetivoCatalogo (nivel general) seleccionados en el modal */
     public array $objetivosCatalogoSeleccionados = [];
-
-    /** @var array<int> IDs de ObjetivoCatalogo (nivel específico) seleccionados individualmente */
-    public array $objetivosEspecificosSeleccionados = [];
 
     public string $nuevoObjetivoTexto = '';
 
@@ -457,7 +454,7 @@ class PlanPage extends Component
     }
 
     /**
-     * Objetivos generales del catálogo disponibles para el tipo de plan, con sus específicos e indicadores.
+     * Objetivos generales del catálogo disponibles para el tipo de plan.
      * Solo se consulta cuando el modal está abierto en modo catálogo.
      *
      * @return Collection<int, ObjetivoCatalogo>
@@ -472,7 +469,82 @@ class PlanPage extends Component
         return ObjetivoCatalogo::where('tipo_plan_id', $this->plan->tipo_plan_id)
             ->where('nivel', 'general')
             ->where('activo', true)
-            ->with(['objetivosEspecificos.tipoFicha', 'objetivosEspecificos.indicador', 'indicador'])
+            ->with(['indicador'])
+            ->orderBy('orden')
+            ->get();
+    }
+
+    /**
+     * Objetivos específicos del catálogo cuya área temática coincide con alguna ficha del diagnóstico.
+     * Solo se consulta cuando el modal está abierto.
+     *
+     * @return Collection<int, ObjetivoCatalogo>
+     */
+    #[Computed]
+    public function objetivosEspecificosCatalogo(): Collection
+    {
+        if (! $this->modalObjetivoAbierto || ! $this->plan?->tipo_plan_id) {
+            return collect();
+        }
+
+        $tipoFichaIds = $this->plan->fichasDiagnostico()
+            ->join('fichas', 'fichas.id', '=', 'plan_fichas_diagnostico.ficha_id')
+            ->pluck('fichas.tipo_ficha_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($tipoFichaIds->isEmpty()) {
+            return collect();
+        }
+
+        return ObjetivoCatalogo::where('tipo_plan_id', $this->plan->tipo_plan_id)
+            ->where('nivel', 'especifico')
+            ->where('activo', true)
+            ->whereIn('tipo_ficha_id', $tipoFichaIds)
+            ->with(['tipoFicha', 'indicador'])
+            ->orderBy('tipo_ficha_id')
+            ->orderBy('orden')
+            ->get();
+    }
+
+    /**
+     * IDs de ObjetivoCatalogo ya instanciados en el plan (generales e independientes).
+     * Usado en el modal para marcar los ya añadidos.
+     *
+     * @return array<int>
+     */
+    #[Computed]
+    public function catalogoIdsEnPlan(): array
+    {
+        if (! $this->plan) {
+            return [];
+        }
+
+        return $this->plan->objetivos()
+            ->whereNotNull('objetivo_catalogo_id')
+            ->pluck('objetivo_catalogo_id')
+            ->map(fn ($id) => (int) $id)
+            ->toArray();
+    }
+
+    /**
+     * Objetivos específicos del plan creados de forma independiente (sin objetivo general padre).
+     *
+     * @return Collection<int, PlanObjetivo>
+     */
+    #[Computed]
+    public function objetivosEspecificosIndependientes(): Collection
+    {
+        if (! $this->plan) {
+            return collect();
+        }
+
+        return $this->plan->objetivos()
+            ->where('nivel', 'especifico')
+            ->whereNull('objetivo_general_id')
+            ->with(['indicador', 'tipoFicha'])
+            ->orderBy('tipo_ficha_id')
             ->orderBy('orden')
             ->get();
     }
@@ -963,11 +1035,10 @@ class PlanPage extends Component
     {
         $this->nuevoObjetivoTexto = '';
         $this->objetivosCatalogoSeleccionados = [];
-        $this->objetivosEspecificosSeleccionados = [];
         $this->modoObjetivo = 'catalogo';
         $this->resetErrorBag();
         $this->modalObjetivoAbierto = true;
-        unset($this->objetivosCatalogo);
+        unset($this->objetivosCatalogo, $this->objetivosEspecificosCatalogo);
     }
 
     /**
@@ -978,23 +1049,13 @@ class PlanPage extends Component
      */
     public function guardarObjetivosDesdeCatalogo(): void
     {
-        $hayGenerales   = ! empty($this->objetivosCatalogoSeleccionados);
-        $hayEspecificos = ! empty($this->objetivosEspecificosSeleccionados);
-
-        if (! $this->plan || (! $hayGenerales && ! $hayEspecificos)) {
+        if (! $this->plan || empty($this->objetivosCatalogoSeleccionados)) {
             return;
         }
 
-        // IDs de catálogo ya presentes en el plan (generales y específicos) para evitar duplicados
-        $yaEnPlan = PlanObjetivo::where('plan_id', $this->plan->id)
-            ->whereNotNull('objetivo_catalogo_id')
-            ->pluck('objetivo_catalogo_id')
-            ->map(fn ($id) => (int) $id)
-            ->toArray();
+        $yaEnPlan = $this->catalogoIdsEnPlan;
+        $ordenGeneral = $this->objetivosGenerales->count();
 
-        $orden = $this->objetivosGenerales->count();
-
-        // — Procesar objetivos generales seleccionados —————————————————————————
         foreach ($this->objetivosCatalogoSeleccionados as $catalogoId) {
             $catalogoId = (int) $catalogoId;
 
@@ -1002,45 +1063,41 @@ class PlanPage extends Component
                 continue;
             }
 
-            $objCatalogo = ObjetivoCatalogo::with(['objetivosEspecificos.indicador', 'indicador'])
+            $objCatalogo = ObjetivoCatalogo::with(['indicador'])
                 ->find($catalogoId);
 
-            if (! $objCatalogo || $objCatalogo->nivel !== 'general') {
+            if (! $objCatalogo) {
                 continue;
             }
 
-            $planObjetivo = PlanObjetivo::create([
-                'plan_id'              => $this->plan->id,
-                'objetivo_catalogo_id' => $objCatalogo->id,
-                'nivel'                => 'general',
-                'texto'                => $objCatalogo->texto,
-                'estado'               => 'pendiente',
-                'orden'                => ++$orden,
-            ]);
+            if ($objCatalogo->nivel === 'general') {
+                $planObjetivo = PlanObjetivo::create([
+                    'plan_id'              => $this->plan->id,
+                    'objetivo_catalogo_id' => $objCatalogo->id,
+                    'nivel'                => 'general',
+                    'texto'                => $objCatalogo->texto,
+                    'estado'               => 'pendiente',
+                    'orden'                => ++$ordenGeneral,
+                ]);
 
-            if ($objCatalogo->indicador) {
-                $planObjetivo->setRelation('objetivoCatalogo', $objCatalogo);
-                $planObjetivo->instanciarIndicador();
-            }
-
-            foreach ($objCatalogo->objetivosEspecificos as $esp) {
-                if (in_array((int) $esp->id, $yaEnPlan, true)) {
-                    continue;
+                if ($objCatalogo->indicador) {
+                    $planObjetivo->setRelation('objetivoCatalogo', $objCatalogo);
+                    $planObjetivo->instanciarIndicador();
                 }
+            } elseif ($objCatalogo->nivel === 'especifico') {
                 $planEsp = PlanObjetivo::create([
                     'plan_id'              => $this->plan->id,
-                    'objetivo_catalogo_id' => $esp->id,
-                    'objetivo_general_id'  => $planObjetivo->id,
+                    'objetivo_catalogo_id' => $objCatalogo->id,
+                    'objetivo_general_id'  => null,
                     'nivel'                => 'especifico',
-                    'tipo_ficha_id'        => $esp->tipo_ficha_id,
-                    'texto'                => $esp->texto,
+                    'tipo_ficha_id'        => $objCatalogo->tipo_ficha_id,
+                    'texto'                => $objCatalogo->texto,
                     'estado'               => 'pendiente',
-                    'orden'                => $esp->orden,
+                    'orden'                => $objCatalogo->orden,
                 ]);
-                $yaEnPlan[] = (int) $esp->id;
 
-                if ($esp->indicador) {
-                    $planEsp->setRelation('objetivoCatalogo', $esp);
+                if ($objCatalogo->indicador) {
+                    $planEsp->setRelation('objetivoCatalogo', $objCatalogo);
                     $planEsp->instanciarIndicador();
                 }
             }
@@ -1048,66 +1105,10 @@ class PlanPage extends Component
             $yaEnPlan[] = $catalogoId;
         }
 
-        // — Procesar objetivos específicos seleccionados individualmente ————————
-        foreach ($this->objetivosEspecificosSeleccionados as $espId) {
-            $espId = (int) $espId;
-
-            if (in_array($espId, $yaEnPlan, true)) {
-                continue;
-            }
-
-            $espCatalogo = ObjetivoCatalogo::with(['indicador', 'objetivoGeneral.indicador'])
-                ->find($espId);
-
-            if (! $espCatalogo || $espCatalogo->nivel !== 'especifico') {
-                continue;
-            }
-
-            // Asegurar que el objetivo general padre existe en el plan; crearlo si no.
-            $planGeneral = PlanObjetivo::where('plan_id', $this->plan->id)
-                ->where('objetivo_catalogo_id', $espCatalogo->objetivo_general_id)
-                ->first();
-
-            if (! $planGeneral && $espCatalogo->objetivoGeneral) {
-                $oc = $espCatalogo->objetivoGeneral;
-                $planGeneral = PlanObjetivo::create([
-                    'plan_id'              => $this->plan->id,
-                    'objetivo_catalogo_id' => $oc->id,
-                    'nivel'                => 'general',
-                    'texto'                => $oc->texto,
-                    'estado'               => 'pendiente',
-                    'orden'                => ++$orden,
-                ]);
-
-                if ($oc->indicador) {
-                    $planGeneral->setRelation('objetivoCatalogo', $oc);
-                    $planGeneral->instanciarIndicador();
-                }
-            }
-
-            $planEsp = PlanObjetivo::create([
-                'plan_id'              => $this->plan->id,
-                'objetivo_catalogo_id' => $espCatalogo->id,
-                'objetivo_general_id'  => $planGeneral?->id,
-                'nivel'                => 'especifico',
-                'tipo_ficha_id'        => $espCatalogo->tipo_ficha_id,
-                'texto'                => $espCatalogo->texto,
-                'estado'               => 'pendiente',
-                'orden'                => $espCatalogo->orden,
-            ]);
-            $yaEnPlan[] = $espId;
-
-            if ($espCatalogo->indicador) {
-                $planEsp->setRelation('objetivoCatalogo', $espCatalogo);
-                $planEsp->instanciarIndicador();
-            }
-        }
-
-        $añadidos = count($this->objetivosCatalogoSeleccionados) + count($this->objetivosEspecificosSeleccionados);
+        $añadidos = count($this->objetivosCatalogoSeleccionados);
         $this->modalObjetivoAbierto = false;
         $this->objetivosCatalogoSeleccionados = [];
-        $this->objetivosEspecificosSeleccionados = [];
-        unset($this->objetivosGenerales, $this->objetivosConIndicadores);
+        unset($this->objetivosGenerales, $this->objetivosConIndicadores, $this->objetivosEspecificosIndependientes, $this->catalogoIdsEnPlan);
         $this->mensajeExito = $añadidos === 1 ? 'Objetivo añadido.' : 'Objetivos añadidos.';
     }
 
