@@ -2,170 +2,332 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<link rel="stylesheet" href="{{ base_path('Modules/Intervencion/resources/css/plan-pdf.css') }}">
+<style>
+@page {
+    margin: 28mm 20mm 26mm 20mm;
+}
+
+body {
+    font-family: 'Source Sans 3', 'Source Sans Pro', Arial, sans-serif;
+    font-size: 9.5pt;
+    line-height: 1.5;
+    color: #1D160E;
+    background: #FAF7F1;
+}
+
+/* ---- Cabecera institucional repetida por página ---- */
+#cabecera-institucional {
+    position: fixed;
+    top: -22mm;
+    left: 0;
+    right: 0;
+    height: 18mm;
+    border-bottom: 1.5px solid #2A5B8A;
+    padding-bottom: 4px;
+}
+
+/* ---- Pie repetido por página ---- */
+#pie-documento {
+    position: fixed;
+    bottom: -20mm;
+    left: 0;
+    right: 0;
+    height: 16mm;
+    border-top: 1px solid #C7BFB5;
+    padding-top: 4px;
+    font-size: 7.5pt;
+    color: #8A7F76;
+}
+
+.pagenum::before {
+    content: counter(page);
+}
+
+/* ---- Secciones del cuerpo ---- */
+.piso-seccion {
+    margin-bottom: 7mm;
+    page-break-inside: avoid;
+}
+
+.piso-seccion-titulo {
+    background-color: #2A5B8A;
+    color: #FFFFFF;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 4px 8px;
+    margin-bottom: 5px;
+}
+
+.piso-seccion-cuerpo {
+    padding: 4px 8px;
+    font-size: 9.5pt;
+    line-height: 1.5;
+    color: #1D160E;
+}
+
+.piso-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+}
+
+.piso-tabla th {
+    background-color: #EDE8DF;
+    border-bottom: 1px solid #C7BFB5;
+    text-align: left;
+    padding: 3px 6px;
+    font-weight: 600;
+    color: #3A2F26;
+}
+
+.piso-tabla td {
+    border-bottom: 1px solid #E8E2D9;
+    padding: 3px 6px;
+    vertical-align: top;
+}
+
+.piso-tabla tr:last-child td {
+    border-bottom: none;
+}
+</style>
 </head>
 <body>
 
-{{-- Cabecera --}}
-<div class="cabecera">
-    <div class="cabecera__titulo">{{ $plan->tipoPlan?->nombre ?? 'Plan de Intervención Social' }}</div>
-    <div class="cabecera__subtitulo">
-        Versión {{ $plan->version }} ·
-        Fecha: {{ $plan->fecha_inicio?->format('d/m/Y') ?? now()->format('d/m/Y') }}
-    </div>
-</div>
-
-{{-- Datos del ciudadano --}}
-<div class="seccion">
-    <div class="seccion__titulo">Datos de la persona</div>
-    <div class="seccion__contenido">
-        @php $ciudadano = $plan->historia->ciudadano @endphp
-        <div class="dato-fila">
-            <span class="dato-label">Nombre y apellidos:</span>
-            <span>{{ $ciudadano->nombre_completo }}</span>
-        </div>
-        <div class="dato-fila">
-            <span class="dato-label">Fecha de nacimiento:</span>
-            <span>{{ $ciudadano->fecha_nacimiento ? \Carbon\Carbon::parse($ciudadano->fecha_nacimiento)->format('d/m/Y') : '—' }}</span>
-        </div>
-        <div class="dato-fila">
-            <span class="dato-label">Domicilio:</span>
-            <span>{{ $ciudadano->domicilio }}</span>
-        </div>
-        @if($plan->unidadConvivencia)
-        <div class="dato-fila">
-            <span class="dato-label">Unidad de convivencia:</span>
-            <span>
-                {{ $plan->unidadConvivencia->miembrosActivos->map(fn ($m) =>
-                    $m->ciudadano->nombre_completo)->implode(', ') }}
+{{-- Cabecera institucional repetida en todas las páginas --}}
+<div id="cabecera-institucional">
+    @if(!empty($estilo['logo_cabecera']))
+        <img src="{{ storage_path('app/' . $estilo['logo_cabecera']) }}"
+             alt="Logo institucional" style="height: 12mm; float: left; margin-right: 8px;">
+    @endif
+    <div style="overflow: hidden; padding-top: 2px;">
+        <span style="font-size: 10pt; font-weight: 600; color: #2A5B8A;">
+            {{ $estilo['nombre_unidad_cabecera'] ?? 'Servicios Sociales' }}
+        </span>
+        @if(!empty($estilo['direccion_cabecera']))
+            <br>
+            <span style="font-size: 8pt; color: #5A4E44;">
+                {{ $estilo['direccion_cabecera'] }}
+                @if(!empty($estilo['telefono_cabecera']))
+                    · {{ $estilo['telefono_cabecera'] }}
+                @endif
             </span>
-        </div>
         @endif
     </div>
 </div>
 
-{{-- Diagnóstico social --}}
-@if($plan->diagnostico_social)
-<div class="seccion">
-    <div class="seccion__titulo">Diagnóstico social</div>
-    <div class="seccion__contenido">{!! nl2br(e($plan->diagnostico_social)) !!}</div>
+{{-- Pie repetido en todas las páginas --}}
+<div id="pie-documento">
+    <table width="100%" cellspacing="0" cellpadding="0">
+        <tr>
+            <td style="text-align: left;">
+                {!! $estilo['html_pie'] ?? 'Plan de Intervención Social — VIDA360' !!}
+            </td>
+            <td style="text-align: right;">
+                Historia Social #{{ $plan->historia_id }} ·
+                Versión {{ $plan->version ?? 1 }} ·
+                Pág. <span class="pagenum"></span>
+            </td>
+        </tr>
+    </table>
 </div>
-@endif
 
-{{-- Objetivos --}}
-@if($plan->objetivosGenerales->isNotEmpty())
-<div class="seccion">
-    <div class="seccion__titulo">Objetivos</div>
-    @foreach($plan->objetivosGenerales as $og)
-    <div class="seccion__contenido">
-        <strong>{{ $loop->iteration }}. {{ $og->texto }}</strong>
-        @if($og->objetivosEspecificos->isNotEmpty())
-        <ul class="objetivos-lista">
-            @foreach($og->objetivosEspecificos as $oe)
-            <li>{{ $oe->texto }}</li>
-            @endforeach
-        </ul>
+{{-- Título del documento --}}
+<div style="text-align: center; margin-bottom: 8mm; margin-top: 2mm;">
+    <span style="font-size: 13pt; font-weight: 700; color: #2A5B8A; letter-spacing: 0.5px;">
+        PLAN DE INTERVENCIÓN SOCIAL
+    </span>
+    <br>
+    <span style="font-size: 8.5pt; color: #8A7F76;">
+        Versión {{ $plan->version ?? 1 }} · {{ now()->format('d/m/Y') }}
+    </span>
+</div>
+
+{{-- Sección: Datos de la persona --}}
+@php $ciudadano = $plan->historia->ciudadano @endphp
+<div class="piso-seccion">
+    <div class="piso-seccion-titulo">Datos de la persona</div>
+    <div class="piso-seccion-cuerpo">
+        <table width="100%" cellspacing="0" cellpadding="3">
+            <tr>
+                <td width="50%" style="vertical-align: top;">
+                    <strong>Nombre:</strong> {{ $ciudadano->nombre_completo }}<br>
+                    <strong>Fecha de nacimiento:</strong>
+                        {{ $ciudadano->fecha_nacimiento
+                            ? \Carbon\Carbon::parse($ciudadano->fecha_nacimiento)->format('d/m/Y')
+                            : '—' }}<br>
+                </td>
+                <td width="50%" style="vertical-align: top;">
+                    <strong>Domicilio:</strong> {{ $ciudadano->domicilio ?? '—' }}<br>
+                    @if($plan->unidadConvivencia)
+                        <strong>Unidad de convivencia:</strong>
+                        {{ $plan->unidadConvivencia->miembrosActivos
+                            ->map(fn ($m) => $m->ciudadano->nombre_completo)
+                            ->implode(', ') }}
+                    @endif
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+{{-- Sección: Diagnóstico social --}}
+<div class="piso-seccion">
+    <div class="piso-seccion-titulo">Diagnóstico social</div>
+    <div class="piso-seccion-cuerpo">
+        @if($plan->diagnostico_social)
+            {!! nl2br(e($plan->diagnostico_social)) !!}
+        @else
+            <em style="color: #8A7F76;">Sin diagnóstico registrado.</em>
         @endif
     </div>
-    @endforeach
 </div>
-@endif
 
-{{-- Actuaciones del Ayuntamiento --}}
-@if($plan->actuacionesAyuntamiento->isNotEmpty())
-<div class="seccion">
-    <div class="seccion__titulo">Compromisos del Ayuntamiento</div>
-    <table>
-        <thead>
-            <tr>
-                <th class="col-prestacion">Prestación</th>
-                <th class="col-concrecion">Concreción</th>
-                <th class="col-responsable">Responsable</th>
-                <th class="col-inicio-corto">Inicio previsto</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($plan->actuacionesAyuntamiento as $act)
-            <tr>
-                <td>{{ $act->prestacion->nombre }}</td>
-                <td>{{ $act->descripcion_especifica ?? '—' }}</td>
-                <td>{{ $act->responsable?->name ?? '—' }}</td>
-                <td>{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
-@endif
-
-{{-- Compromisos del ciudadano --}}
-@if($plan->actuacionesCiudadano->isNotEmpty())
-<div class="seccion">
-    <div class="seccion__titulo">Compromisos de la persona</div>
-    <table>
-        <thead>
-            <tr>
-                <th class="col-compromiso">Compromiso</th>
-                <th class="col-recurso">Recurso relacionado</th>
-                <th class="col-inicio-corto">Inicio previsto</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($plan->actuacionesCiudadano as $act)
-            <tr>
-                <td>{{ $act->descripcion }}</td>
-                <td>{{ $act->prestacion?->nombre ?? '—' }}</td>
-                <td>{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
-@endif
-
-{{-- Participantes --}}
-@if($plan->participantesActivos->isNotEmpty())
-<div class="seccion">
-    <div class="seccion__titulo">Profesionales participantes</div>
-    <div class="seccion__contenido">
-        @foreach($plan->participantesActivos as $p)
-        {{ $p->profesional->name }} ({{ $p->rol_en_plan }})@if(! $loop->last), @endif
-        @endforeach
-    </div>
-</div>
-@endif
-
-{{-- Seguimiento --}}
-<div class="seccion">
-    <div class="seccion__titulo">Periodicidad de seguimiento</div>
-    <div class="seccion__contenido">
-        {{ ucfirst($plan->periodicidad_seguimiento ?? 'trimestral') }}
+{{-- Sección: Objetivos --}}
+<div class="piso-seccion">
+    <div class="piso-seccion-titulo">Objetivos</div>
+    <div class="piso-seccion-cuerpo">
+        @if($plan->objetivosGenerales->isNotEmpty())
+            <ol style="margin: 0; padding-left: 16px;">
+                @foreach($plan->objetivosGenerales as $og)
+                    <li style="margin-bottom: 3px;">
+                        <strong>{{ $og->texto }}</strong>
+                        @if($og->objetivosEspecificos->isNotEmpty())
+                            <ul style="margin: 2px 0 4px 12px; padding: 0;">
+                                @foreach($og->objetivosEspecificos as $oe)
+                                    <li>{{ $oe->texto }}</li>
+                                @endforeach
+                            </ul>
+                        @endif
+                    </li>
+                @endforeach
+            </ol>
+        @else
+            <em style="color: #8A7F76;">Sin objetivos registrados.</em>
+        @endif
     </div>
 </div>
 
-{{-- Firmas --}}
-<div class="firmas">
-    <div class="firma-bloque">
-        <div class="firma-bloque__espacio"></div>
-        <div class="firma-bloque__nombre">
-            {{ $plan->profesionalResponsable?->name ?? 'Profesional responsable' }}
-        </div>
-        <div class="firma-bloque__fecha">Trabajador/a Social de referencia</div>
-        <div class="firma-bloque__fecha">Fecha: ___________</div>
-    </div>
-    <div class="firma-bloque">
-        <div class="firma-bloque__espacio"></div>
-        <div class="firma-bloque__nombre">
-            {{ $plan->historia->ciudadano->nombre_completo }}
-        </div>
-        <div class="firma-bloque__fecha">Persona interesada</div>
-        <div class="firma-bloque__fecha">Fecha: ___________</div>
+{{-- Sección: Compromisos (dos columnas) --}}
+<div class="piso-seccion">
+    <div class="piso-seccion-titulo">Compromisos</div>
+    <div class="piso-seccion-cuerpo" style="padding: 0;">
+        <table width="100%" cellspacing="0" cellpadding="0">
+            <tr>
+                <td width="49%" style="vertical-align: top; padding: 6px 8px;">
+                    <div style="font-size: 8pt; font-weight: 600; color: #5A4E44;
+                                text-transform: uppercase; letter-spacing: 0.3px;
+                                margin-bottom: 4px; border-bottom: 1px solid #C7BFB5;
+                                padding-bottom: 2px;">
+                        Del Ayuntamiento
+                    </div>
+                    @if($plan->actuacionesAyuntamiento->isNotEmpty())
+                        <table class="piso-tabla">
+                            <thead>
+                                <tr>
+                                    <th>Prestación</th>
+                                    <th style="width: 30%;">Responsable</th>
+                                    <th style="width: 22%;">Inicio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($plan->actuacionesAyuntamiento as $act)
+                                    <tr>
+                                        <td>{{ $act->prestacion->nombre ?? '—' }}</td>
+                                        <td>{{ $act->responsable?->name ?? '—' }}</td>
+                                        <td>{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @else
+                        <em style="color: #8A7F76;">Sin compromisos registrados.</em>
+                    @endif
+                </td>
+                <td width="2%" style="border-left: 1px solid #C7BFB5;"></td>
+                <td width="49%" style="vertical-align: top; padding: 6px 8px;">
+                    <div style="font-size: 8pt; font-weight: 600; color: #5A4E44;
+                                text-transform: uppercase; letter-spacing: 0.3px;
+                                margin-bottom: 4px; border-bottom: 1px solid #C7BFB5;
+                                padding-bottom: 2px;">
+                        De la persona
+                    </div>
+                    @if($plan->actuacionesCiudadano->isNotEmpty())
+                        <table class="piso-tabla">
+                            <thead>
+                                <tr>
+                                    <th>Compromiso</th>
+                                    <th style="width: 30%;">Recurso</th>
+                                    <th style="width: 22%;">Inicio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($plan->actuacionesCiudadano as $act)
+                                    <tr>
+                                        <td>{{ $act->descripcion ?? '—' }}</td>
+                                        <td>{{ $act->prestacion?->nombre ?? '—' }}</td>
+                                        <td>{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @else
+                        <em style="color: #8A7F76;">Sin compromisos registrados.</em>
+                    @endif
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
 
-<div class="pie">
-    Documento generado por VIDA360 · {{ now()->format('d/m/Y H:i') }} ·
-    Historia Social #{{ $plan->historia_id }} · Versión {{ $plan->version }}
+{{-- Sección: Profesionales y seguimiento --}}
+<div class="piso-seccion">
+    <div class="piso-seccion-titulo">Profesionales y seguimiento</div>
+    <div class="piso-seccion-cuerpo">
+        <table width="100%" cellspacing="0" cellpadding="3">
+            <tr>
+                <td width="70%" style="vertical-align: top;">
+                    <strong>Profesionales participantes:</strong><br>
+                    @if($plan->participantesActivos->isNotEmpty())
+                        @foreach($plan->participantesActivos as $p)
+                            {{ $p->profesional->name }} ({{ $p->rol_en_plan }})@if(!$loop->last), @endif
+                        @endforeach
+                    @else
+                        <span style="color: #8A7F76;">—</span>
+                    @endif
+                </td>
+                <td width="30%" style="vertical-align: top;">
+                    <strong>Periodicidad de seguimiento:</strong><br>
+                    {{ ucfirst($plan->periodicidad_seguimiento ?? 'trimestral') }}
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+{{-- Bloque de firmas --}}
+<div class="piso-seccion" style="margin-top: 14mm;">
+    <div class="piso-seccion-titulo">Firmas</div>
+    <div class="piso-seccion-cuerpo">
+        <table width="100%" cellspacing="0" cellpadding="0" style="margin-top: 12mm;">
+            <tr>
+                <td width="44%" style="border-top: 1px solid #1D160E; padding-top: 5px;
+                                        text-align: center; font-size: 8.5pt;">
+                    {{ $plan->profesionalResponsable?->name ?? '—' }}<br>
+                    <span style="color: #8A7F76;">Trabajador/a Social de referencia</span><br>
+                    <span style="color: #C7BFB5;">Fecha: ___________</span>
+                </td>
+                <td width="12%"></td>
+                <td width="44%" style="border-top: 1px solid #1D160E; padding-top: 5px;
+                                        text-align: center; font-size: 8.5pt;">
+                    {{ $ciudadano->nombre_completo }}<br>
+                    <span style="color: #8A7F76;">Persona interesada</span><br>
+                    <span style="color: #C7BFB5;">Fecha: ___________</span>
+                </td>
+            </tr>
+        </table>
+    </div>
 </div>
 
 </body>

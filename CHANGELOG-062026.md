@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-06-24 — Módulo Documentos / Intervención: rediseño visual PDF PISO
+
+### Módulos afectados
+`Modules/Intervencion`
+
+### Cambiado
+
+- **`PlanPdfService`** — inyecta `ResolverEstiloInforme` para resolver el estilo institucional de la UO del plan y lo pasa a la vista; `defaultFont` cambiado a `'Source Sans Pro'`.
+- **`pdf/plan.blade.php`** — reescritura completa: CSS inline compatible con dompdf (sin flex, sin grid, sin `var(--*)`, sin `calc()`); cabecera institucional y pie de página con `position: fixed` para repetirse en todas las páginas; número de página con `counter(page)`; secciones con cabecera azul en mayúsculas (`#2A5B8A`); sección de compromisos en dos columnas con `<table>`; bloque de firmas con línea separadora; tipografía base Source Sans 3/Pro.
+- **`plan-pdf.css`** — vaciado; todos los estilos migrados al `<style>` inline de la vista.
+
+### Decisiones de implementación
+
+- El `$estilo` llega como array de `ResolverEstiloInforme` con claves `logo_cabecera`, `nombre_unidad_cabecera`, `direccion_cabecera`, `telefono_cabecera`, `html_pie`. La vista usa acceso por array, no por objeto.
+- Los datos del cuerpo se leen directamente de las relaciones de `$plan` sin variables adicionales.
+- No se tocan datos ni lógica de negocio.
+
+---
+
 ## 2026-06-24 — Módulo Intervención: asignación de profesional de referencia a Historia Social
 
 ### Módulos afectados

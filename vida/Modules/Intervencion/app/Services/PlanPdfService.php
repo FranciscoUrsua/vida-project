@@ -3,6 +3,7 @@
 namespace Modules\Intervencion\Services;
 
 use Barryvdh\DomPDF\Facade\Pdf;
+use Modules\Documentos\Services\ResolverEstiloInforme;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 
 /**
@@ -14,10 +15,17 @@ use Modules\Intervencion\Models\PlanDeIntervencion;
 class PlanPdfService
 {
     /**
+     * @param ResolverEstiloInforme $resolverEstilo Resolutor jerárquico del estilo institucional.
+     */
+    public function __construct(
+        private ResolverEstiloInforme $resolverEstilo,
+    ) {}
+
+    /**
      * Genera el PDF del plan con todos sus datos listos para impresión y firma.
      * Devuelve el contenido del PDF como string binario.
      *
-     *
+     * @param PlanDeIntervencion $plan Plan de intervención a exportar.
      * @return string Binario del PDF
      */
     public function generar(PlanDeIntervencion $plan): string
@@ -34,12 +42,18 @@ class PlanPdfService
             'profesionalResponsable',
         ]);
 
-        $html = view('intervencion::pdf.plan', ['plan' => $plan])->render();
+        $uoId = $plan->historia->unidad_organizativa_id ?? 1;
+        $estilo = $this->resolverEstilo->resolver($uoId);
+
+        $html = view('intervencion::pdf.plan', [
+            'plan' => $plan,
+            'estilo' => $estilo,
+        ])->render();
 
         $pdf = Pdf::loadHTML($html)
             ->setPaper('a4', 'portrait')
             ->setOptions([
-                'defaultFont' => 'sans-serif',
+                'defaultFont' => 'Source Sans Pro',
                 'isRemoteEnabled' => false,
             ]);
 
@@ -48,6 +62,9 @@ class PlanPdfService
 
     /**
      * Devuelve el nombre de fichero sugerido para la descarga del PDF.
+     *
+     * @param PlanDeIntervencion $plan Plan de intervención.
+     * @return string Nombre de fichero.
      */
     public function nombre(PlanDeIntervencion $plan): string
     {
