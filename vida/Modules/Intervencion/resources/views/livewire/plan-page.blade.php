@@ -301,10 +301,7 @@
                         </div>
                         @endif
                     </div>
-                    <div class="card-footer d-flex align-items-center justify-content-between">
-                        <span class="badge rounded-pill plan-estado-{{ $og->estado }}">
-                            {{ ucfirst(str_replace('_', ' ', $og->estado)) }}
-                        </span>
+                    <div class="card-footer d-flex justify-content-end">
                         <button wire:click="abrirEditarObjetivo({{ $og->id }})" class="btn btn-outline-secondary btn-sm">
                             <x-heroicon-o-pencil-square class="icon-13"/>
                             Editar
@@ -348,11 +345,7 @@
                         </div>
                         @endif
                     </div>
-                    <div class="card-footer d-flex align-items-center justify-content-between">
-                        <span class="badge rounded-pill plan-estado-{{ $oe->estado }}">
-                            {{ ucfirst(str_replace('_', ' ', $oe->estado)) }}
-
-                        </span>
+                    <div class="card-footer d-flex justify-content-end">
                         <button wire:click="abrirEditarObjetivo({{ $oe->id }})" class="btn btn-outline-secondary btn-sm">
                             <x-heroicon-o-pencil-square class="icon-13"/>
                             Editar
@@ -1125,30 +1118,23 @@ $nc = [
                         wire:click="$set('modalEditarObjetivoAbierto', false)"
                         aria-label="Cerrar"></button>
             </div>
-            <div class="modal-body d-flex flex-column gap-3">
-                <div>
-                    <label class="form-label small">Texto del objetivo</label>
-                    <textarea wire:model="editarObjetivoTexto"
-                              class="form-control form-control-sm @error('editarObjetivoTexto') is-invalid @enderror"
-                              rows="3"></textarea>
-                    @error('editarObjetivoTexto')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div>
-                    <label class="form-label small">Estado</label>
-                    <select wire:model="editarObjetivoEstado"
-                            class="form-select form-select-sm">
-                        <option value="pendiente">Pendiente</option>
-                        <option value="en_proceso">En proceso</option>
-                        <option value="conseguido">Conseguido</option>
-                        <option value="abandonado">Abandonado</option>
-                    </select>
-                </div>
+            <div class="modal-body">
+                <label class="form-label small">Texto del objetivo</label>
+                <textarea wire:model="editarObjetivoTexto"
+                          class="form-control form-control-sm @error('editarObjetivoTexto') is-invalid @enderror"
+                          rows="3"></textarea>
+                @error('editarObjetivoTexto')
+                <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <div class="modal-footer">
                 <button wire:click="$set('modalEditarObjetivoAbierto', false)"
                         class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                <button wire:click="eliminarObjetivo"
+                        class="btn btn-outline-danger btn-sm">
+                    <x-heroicon-o-trash class="icon-13"/>
+                    Eliminar
+                </button>
                 <button wire:click="guardarEdicionObjetivo"
                         class="btn btn-primary btn-sm">
                     <x-heroicon-o-check class="icon-13"/>

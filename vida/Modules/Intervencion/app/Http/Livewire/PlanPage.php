@@ -781,7 +781,7 @@ class PlanPage extends Component
     }
 
     /**
-     * Persiste el texto y el estado del objetivo que se está editando.
+     * Persiste el texto del objetivo que se está editando.
      *
      * @return void
      */
@@ -789,7 +789,6 @@ class PlanPage extends Component
     {
         $this->validate([
             'editarObjetivoTexto' => 'required|string|max:500',
-            'editarObjetivoEstado' => 'required|in:pendiente,en_proceso,conseguido,abandonado',
         ]);
 
         $objetivo = PlanObjetivo::where('id', $this->editarObjetivoId)
@@ -800,10 +799,7 @@ class PlanPage extends Component
             return;
         }
 
-        $objetivo->update([
-            'texto'  => $this->editarObjetivoTexto,
-            'estado' => $this->editarObjetivoEstado,
-        ]);
+        $objetivo->update(['texto' => $this->editarObjetivoTexto]);
 
         $this->modalEditarObjetivoAbierto = false;
         $this->editarObjetivoId           = null;
@@ -812,6 +808,36 @@ class PlanPage extends Component
 
         unset($this->objetivosConIndicadores, $this->objetivosGenerales, $this->objetivosEspecificosIndependientes);
         $this->mensajeExito = 'Objetivo actualizado.';
+    }
+
+    /**
+     * Elimina el objetivo que se está editando del plan.
+     *
+     * @return void
+     */
+    public function eliminarObjetivo(): void
+    {
+        if (! $this->editarObjetivoId || ! $this->plan) {
+            return;
+        }
+
+        $objetivo = PlanObjetivo::where('id', $this->editarObjetivoId)
+            ->where('plan_id', $this->plan->id)
+            ->first();
+
+        if (! $objetivo) {
+            return;
+        }
+
+        $objetivo->delete();
+
+        $this->modalEditarObjetivoAbierto = false;
+        $this->editarObjetivoId           = null;
+        $this->editarObjetivoTexto        = '';
+        $this->editarObjetivoEstado       = 'pendiente';
+
+        unset($this->objetivosConIndicadores, $this->objetivosGenerales, $this->objetivosEspecificosIndependientes);
+        $this->mensajeExito = 'Objetivo eliminado.';
     }
 
     /**

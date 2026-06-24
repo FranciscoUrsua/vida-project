@@ -6,7 +6,7 @@
 
 ## Tarea completada
 
-`Módulo Intervención` — Asignación automática de profesional de referencia al abrir Historia Social:
+`Módulo Intervención` — Simplificación de objetivos en PlanPage: badge de estado eliminado de las tarjetas; modal de edición reducido a texto + botón Eliminar; el avance del objetivo queda determinado únicamente por los indicadores.
 
 - **Nueva tabla `asignaciones_profesional`**: registra qué profesional es el responsable de cada Historia Social durante cada período. Campos: `historia_id`, `profesional_id`, `fecha_inicio`, `fecha_fin` (nullable). El historial de cambios se conserva cerrando la asignación vigente y creando una nueva.
 - **Nuevo modelo `AsignacionProfesional`** (`Modules\Intervencion\Models\AsignacionProfesional`): scope `vigente()`, relaciones `historia()` y `profesional()`.
@@ -31,8 +31,8 @@
 ## Siguiente paso concreto recomendado
 
 1. Corregir TF-LW-FIC-11 en `FichaCiudadanoPageTest`: cambiar `assertSee('Ver historia social')` por `assertSee('Ir a HS')` (texto renombrado en sesión anterior).
-2. Implementar reasignación de profesional de referencia (cambiar asignación vigente → cerrar la actual, crear nueva). Útil para cuando un TSR transfiere un caso.
-3. Propuesta automática de objetivos al añadir ficha al diagnóstico del plan (pendiente del backlog).
+2. Añadir tests para `eliminarObjetivo()` en PlanPageTest (caso happy path y verificación de que solo se puede eliminar un objetivo del propio plan).
+3. Implementar reasignación de profesional de referencia (cambiar asignación vigente → cerrar la actual, crear nueva).
 4. Suite completa antes del siguiente merge a main.
 
 ---

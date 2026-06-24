@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-06-24 — Módulo Intervención: simplificación de objetivos en PlanPage
+
+### Módulos afectados
+`Modules/Intervencion`
+
+### Cambiado
+
+- **`plan-page.blade.php`** — eliminado el badge de estado ("Pendiente", "En proceso"…) del `card-footer` de cada tarjeta de objetivo (tanto generales como específicos independientes). El estado queda determinado únicamente por los indicadores configurados en Filament.
+- **`plan-page.blade.php`** — modal de edición de objetivo simplificado: eliminado el selector de estado; añadido botón "Eliminar" (peligro) junto al botón "Guardar cambios".
+- **`PlanPage.php`** — `guardarEdicionObjetivo()`: eliminada validación y actualización del campo `estado`.
+- **`PlanPage.php`** — nuevo método público `eliminarObjetivo()`: soft-delete del `PlanObjetivo` activo en edición, cierra el modal e invalida los computeds de objetivos.
+
+### Decisiones de implementación
+
+- El progreso de un objetivo se mide exclusivamente a través del indicador asociado (configurado en Filament), no mediante un campo de estado editable por el profesional.
+- El botón Eliminar se coloca en el footer del modal junto a Guardar, siguiendo el patrón del resto de modales con acción destructiva.
+
+---
+
 ## 2026-06-24 — Módulo Documentos / Intervención: rediseño visual PDF PISO
 
 ### Módulos afectados
