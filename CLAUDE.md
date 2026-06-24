@@ -99,6 +99,9 @@ confirmar que cada clase y cada método público/protegido tienen su docblock an
   No ejecutar la suite completa (`php artisan test` sin filtro) al finalizar.
   La suite completa se pasa a discreción: antes de merge a main, tras sesiones
   que hayan tocado código transversal, o cuando SESSION.md indique que procede.
+- **Nunca ejecutar `php artisan migrate:fresh`** salvo que el usuario lo pida
+  explícitamente en el prompt. Este comando destruye toda la base de datos de
+  desarrollo. Para verificar seeders o datos demo usar `php artisan demo:reset`.
 
 ---
 
