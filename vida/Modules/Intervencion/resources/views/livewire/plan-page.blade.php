@@ -136,16 +136,20 @@
         </div>
         <div class="card-body">
             <label class="form-label small fw-semibold" for="tipo-plan-select">
-                Selecciona el tipo de plan que vas a crear
+                Elige el tipo de plan para comenzar
             </label>
             <select id="tipo-plan-select"
                     wire:model.live="tipoPlanId"
-                    class="form-select @error('tipoPlanId') is-invalid @enderror">
-                <option value="">— Elige un tipo de plan —</option>
+                    class="form-select @error('tipoPlanId') is-invalid @enderror"
+                    wire:loading.attr="disabled">
+                <option value="">— Selecciona un tipo —</option>
                 @foreach($this->tiposPlanes as $id => $nombre)
                 <option value="{{ $id }}">{{ $nombre }}</option>
                 @endforeach
             </select>
+            <div class="form-text" wire:loading wire:target="updatedTipoPlanId">
+                Creando borrador…
+            </div>
             @error('tipoPlanId')
             <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -594,14 +598,7 @@
     </div>
 
     {{-- BOTÓN PRINCIPAL --}}
-    @if(! $this->plan)
-    <div class="d-flex justify-content-end py-2">
-        <button wire:click="crearNuevoPlan" class="btn btn-primary">
-            <x-heroicon-o-plus class="icon-13"/>
-            Crear plan borrador
-        </button>
-    </div>
-    @elseif($this->plan->estado->value !== 'cerrado')
+    @if($this->plan && $this->plan->estado->value !== 'cerrado')
     <div class="d-flex justify-content-end py-2">
         <button wire:click="guardarPlan" class="btn btn-primary">
             <x-heroicon-o-check class="icon-13"/>

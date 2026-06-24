@@ -831,22 +831,30 @@ class PlanPage extends Component
     // =========================================================
 
     /**
+     * Hook de Livewire: crea el borrador en cuanto el usuario elige el tipo de plan.
+     * Solo actúa en modo creación (sin plan previo).
+     *
+     * @return void
+     */
+    public function updatedTipoPlanId(): void
+    {
+        if ($this->plan !== null || ! $this->tipoPlanId) {
+            return;
+        }
+
+        $this->crearNuevoPlan();
+    }
+
+    /**
      * Crea un plan de intervención en estado borrador y redirige a su página de edición.
-     * Las fichas preseleccionadas en el drawer se asocian al nuevo plan.
      *
      * @return mixed Redirección a la página del plan recién creado.
      */
     public function crearNuevoPlan(): mixed
     {
-        if (! $this->historiaId) {
+        if (! $this->historiaId || ! $this->tipoPlanId) {
             return null;
         }
-
-        $this->validate([
-            'tipoPlanId' => ['required', 'integer', 'exists:tipos_plan,id'],
-        ], [
-            'tipoPlanId.required' => 'Selecciona el tipo de plan antes de continuar.',
-        ]);
 
         $historia = HistoriaSocial::findOrFail($this->historiaId);
 
