@@ -4,6 +4,28 @@
 
 ---
 
+## 2026-06-24 — Módulo Intervención: compromisos editables y correcciones de PlanPage
+
+### Módulos afectados
+`Modules/Intervencion`
+
+### Cambiado
+
+- **`plan-page.blade.php`** — eliminado botón "Guardar seguimiento" (los datos de seguimiento se persisten a través de "Guardar plan").
+- **`plan-page.blade.php`** — botón "Editar" en compromisos del ciudadano cableado a `abrirEditarCompromisoCiudadano()`.
+- **`plan-page.blade.php`** — botón "Editar" en compromisos del Ayuntamiento cableado a `abrirEditarActuacionAyto()`.
+- **`plan-page.blade.php`** — dos nuevos modales: editar compromiso del ciudadano (texto + eliminar) y editar actuación del Ayuntamiento (prestación + concreción + eliminar).
+- **`PlanPage.php`** — `guardarPlan()`: cuando el plan está activo siempre pide motivo, sin importar qué campo cambió.
+- **`PlanPage.php`** — `prestacionesCatalogo`: también se carga cuando el modal de edición de actuación Ayuntamiento está abierto.
+- **`PlanPage.php`** — nuevos métodos: `abrirEditarCompromisoCiudadano`, `guardarEdicionCompromisoCiudadano`, `eliminarCompromisoCiudadano`, `abrirEditarActuacionAyto`, `guardarEdicionActuacionAyto`, `eliminarActuacionAyto`.
+
+### Decisiones de implementación
+
+- Las tablas `plan_actuaciones_ciudadano` y `plan_actuaciones_ayuntamiento` no tienen soft delete; la eliminación es directa (`delete()`), coherente con su diseño original.
+- El modal de edición de actuación del Ayuntamiento reutiliza `prestacionesCatalogo` (computed) ampliando su condición de carga.
+
+---
+
 ## 2026-06-24 — Módulo Intervención: simplificación de objetivos en PlanPage
 
 ### Módulos afectados

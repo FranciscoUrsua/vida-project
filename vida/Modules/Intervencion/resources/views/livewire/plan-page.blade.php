@@ -403,7 +403,7 @@
                         </td>
                         <td class="text-secondary">{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
                         <td><span class="badge rounded-pill plan-estado-{{ $act->estado }}">{{ ucfirst($act->estado) }}</span></td>
-                        <td><button class="btn btn-outline-secondary btn-sm"><x-heroicon-o-pencil-square class="icon-13"/> Editar</button></td>
+                        <td><button wire:click="abrirEditarActuacionAyto({{ $act->id }})" class="btn btn-outline-secondary btn-sm"><x-heroicon-o-pencil-square class="icon-13"/> Editar</button></td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -438,7 +438,7 @@
                         <span class="badge rounded-pill plan-badge--activo fw-normal mt-1">{{ $act->prestacion->nombre }}</span>
                         @endif
                     </div>
-                    <button class="btn btn-outline-secondary btn-sm ms-auto flex-shrink-0">
+                    <button wire:click="abrirEditarCompromisoCiudadano({{ $act->id }})" class="btn btn-outline-secondary btn-sm ms-auto flex-shrink-0">
                         <x-heroicon-o-pencil-square class="icon-13"/>
                         Editar
                     </button>
@@ -520,12 +520,6 @@
                         rows="2"
                         placeholder="Acuerdos sobre el seguimiento, condiciones especiales…"
                     ></textarea>
-                </div>
-                <div class="plan-field--full d-flex justify-content-end">
-                    <button wire:click="guardarSeguimiento" class="btn btn-sm btn-outline-secondary">
-                        <x-heroicon-o-check class="icon-13"/>
-                        Guardar seguimiento
-                    </button>
                 </div>
             </div>
 
@@ -1136,6 +1130,106 @@ $nc = [
                     Eliminar
                 </button>
                 <button wire:click="guardarEdicionObjetivo"
+                        class="btn btn-primary btn-sm">
+                    <x-heroicon-o-check class="icon-13"/>
+                    Guardar cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+@endif
+
+
+{{-- ============================================================
+     MODAL: EDITAR COMPROMISO DEL CIUDADANO
+     ============================================================ --}}
+@if($modalEditarCompromisoCiudadanoAbierto)
+<div class="modal fade show d-block" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar compromiso</h5>
+                <button type="button" class="btn-close"
+                        wire:click="$set('modalEditarCompromisoCiudadanoAbierto', false)"
+                        aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label small">Descripción del compromiso</label>
+                <textarea wire:model="editarCompromisoCiudadanoDescripcion"
+                          class="form-control form-control-sm @error('editarCompromisoCiudadanoDescripcion') is-invalid @enderror"
+                          rows="3"></textarea>
+                @error('editarCompromisoCiudadanoDescripcion')
+                <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="modal-footer">
+                <button wire:click="$set('modalEditarCompromisoCiudadanoAbierto', false)"
+                        class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                <button wire:click="eliminarCompromisoCiudadano"
+                        class="btn btn-outline-danger btn-sm">
+                    <x-heroicon-o-trash class="icon-13"/>
+                    Eliminar
+                </button>
+                <button wire:click="guardarEdicionCompromisoCiudadano"
+                        class="btn btn-primary btn-sm">
+                    <x-heroicon-o-check class="icon-13"/>
+                    Guardar cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+@endif
+
+{{-- ============================================================
+     MODAL: EDITAR ACTUACIÓN DEL AYUNTAMIENTO
+     ============================================================ --}}
+@if($modalEditarActuacionAytoAbierto)
+<div class="modal fade show d-block" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar actuación del Ayuntamiento</h5>
+                <button type="button" class="btn-close"
+                        wire:click="$set('modalEditarActuacionAytoAbierto', false)"
+                        aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body d-flex flex-column gap-3">
+                <div>
+                    <label class="form-label small">Prestación <span class="text-danger">*</span></label>
+                    <select wire:model="editarActuacionAytoPrestacionId"
+                            class="form-select form-select-sm @error('editarActuacionAytoPrestacionId') is-invalid @enderror">
+                        <option value="">— Selecciona una prestación —</option>
+                        @foreach($this->prestacionesCatalogo as $p)
+                        <option value="{{ $p->id }}">{{ $p->nombre }}
+                            @if($p->codigo) ({{ $p->codigo }}) @endif
+                        </option>
+                        @endforeach
+                    </select>
+                    @error('editarActuacionAytoPrestacionId')
+                    <div class="invalid-feedback">Selecciona una prestación.</div>
+                    @enderror
+                </div>
+                <div>
+                    <label class="form-label small">Concreción específica <span class="text-secondary fw-normal">(opcional)</span></label>
+                    <textarea wire:model="editarActuacionAytoDescripcion"
+                              class="form-control form-control-sm"
+                              rows="2"
+                              placeholder="Detalle concreto de la actuación…"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button wire:click="$set('modalEditarActuacionAytoAbierto', false)"
+                        class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                <button wire:click="eliminarActuacionAyto"
+                        class="btn btn-outline-danger btn-sm">
+                    <x-heroicon-o-trash class="icon-13"/>
+                    Eliminar
+                </button>
+                <button wire:click="guardarEdicionActuacionAyto"
                         class="btn btn-primary btn-sm">
                     <x-heroicon-o-check class="icon-13"/>
                     Guardar cambios

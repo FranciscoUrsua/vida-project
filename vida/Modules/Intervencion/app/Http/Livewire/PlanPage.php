@@ -75,6 +75,13 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property int|null $editarObjetivoId
  * @property string $editarObjetivoTexto
  * @property string $editarObjetivoEstado
+ * @property bool $modalEditarCompromisoCiudadanoAbierto
+ * @property int|null $editarCompromisoCiudadanoId
+ * @property string $editarCompromisoCiudadanoDescripcion
+ * @property bool $modalEditarActuacionAytoAbierto
+ * @property int|null $editarActuacionAytoId
+ * @property int|null $editarActuacionAytoPrestacionId
+ * @property string $editarActuacionAytoDescripcion
  */
 class PlanPage extends Component
 {
@@ -174,6 +181,22 @@ class PlanPage extends Component
     public string $editarObjetivoTexto = '';
 
     public string $editarObjetivoEstado = 'pendiente';
+
+    // --- Edición de compromiso del ciudadano ---
+    public bool $modalEditarCompromisoCiudadanoAbierto = false;
+
+    public ?int $editarCompromisoCiudadanoId = null;
+
+    public string $editarCompromisoCiudadanoDescripcion = '';
+
+    // --- Edición de actuación del Ayuntamiento ---
+    public bool $modalEditarActuacionAytoAbierto = false;
+
+    public ?int $editarActuacionAytoId = null;
+
+    public ?int $editarActuacionAytoPrestacionId = null;
+
+    public string $editarActuacionAytoDescripcion = '';
 
     /**
      * Inicializa el componente con el plan si se accede en modo edición,
@@ -569,7 +592,7 @@ class PlanPage extends Component
     #[Computed]
     public function prestacionesCatalogo(): Collection
     {
-        if (! $this->modalActuacionAytoAbierto) {
+        if (! $this->modalActuacionAytoAbierto && ! $this->modalEditarActuacionAytoAbierto) {
             return collect();
         }
 
@@ -1100,10 +1123,7 @@ class PlanPage extends Component
             return;
         }
 
-        $diagnosticoCambiado  = $this->diagnosticoTexto !== ($this->plan->diagnostico_social ?? '');
-        $seguimientoCambiado  = $this->periodicidadSeguimiento !== ($this->plan->periodicidad_seguimiento ?? '');
-
-        if ($this->planFirmado && ($diagnosticoCambiado || $seguimientoCambiado)) {
+        if ($this->planFirmado) {
             $this->encolarAccion('guardarPlan', []);
 
             return;
@@ -1249,6 +1269,84 @@ class PlanPage extends Component
     // =========================================================
 
     /**
+     * Abre el modal de edición de un compromiso existente del ciudadano.
+     *
+     * @param int $id ID del PlanActuacionCiudadano a editar.
+     * @return void
+     */
+    public function abrirEditarCompromisoCiudadano(int $id): void
+    {
+        $compromiso = PlanActuacionCiudadano::where('id', $id)
+            ->where('plan_id', $this->plan?->id)
+            ->first();
+
+        if (! $compromiso) {
+            return;
+        }
+
+        $this->editarCompromisoCiudadanoId          = $compromiso->id;
+        $this->editarCompromisoCiudadanoDescripcion = $compromiso->descripcion;
+        $this->resetErrorBag();
+        $this->modalEditarCompromisoCiudadanoAbierto = true;
+    }
+
+    /**
+     * Persiste el texto del compromiso del ciudadano que se está editando.
+     *
+     * @return void
+     */
+    public function guardarEdicionCompromisoCiudadano(): void
+    {
+        $this->validate([
+            'editarCompromisoCiudadanoDescripcion' => 'required|string|min:3|max:500',
+        ]);
+
+        $compromiso = PlanActuacionCiudadano::where('id', $this->editarCompromisoCiudadanoId)
+            ->where('plan_id', $this->plan?->id)
+            ->first();
+
+        if (! $compromiso) {
+            return;
+        }
+
+        $compromiso->update(['descripcion' => trim($this->editarCompromisoCiudadanoDescripcion)]);
+
+        $this->modalEditarCompromisoCiudadanoAbierto = false;
+        $this->editarCompromisoCiudadanoId           = null;
+        $this->editarCompromisoCiudadanoDescripcion  = '';
+        unset($this->actuacionesCiudadano);
+        $this->mensajeExito = 'Compromiso actualizado.';
+    }
+
+    /**
+     * Elimina el compromiso del ciudadano que se está editando.
+     *
+     * @return void
+     */
+    public function eliminarCompromisoCiudadano(): void
+    {
+        if (! $this->editarCompromisoCiudadanoId || ! $this->plan) {
+            return;
+        }
+
+        $compromiso = PlanActuacionCiudadano::where('id', $this->editarCompromisoCiudadanoId)
+            ->where('plan_id', $this->plan->id)
+            ->first();
+
+        if (! $compromiso) {
+            return;
+        }
+
+        $compromiso->delete();
+
+        $this->modalEditarCompromisoCiudadanoAbierto = false;
+        $this->editarCompromisoCiudadanoId           = null;
+        $this->editarCompromisoCiudadanoDescripcion  = '';
+        unset($this->actuacionesCiudadano);
+        $this->mensajeExito = 'Compromiso eliminado.';
+    }
+
+    /**
      * Abre el modal de creación de un compromiso del ciudadano.
      *
      * @return void
@@ -1329,6 +1427,91 @@ class PlanPage extends Component
         $this->nuevaActuacionDescripcion = '';
         unset($this->actuacionesAyuntamiento);
         $this->mensajeExito = 'Actuación añadida.';
+    }
+
+    /**
+     * Abre el modal de edición de una actuación del Ayuntamiento existente.
+     *
+     * @param int $id ID del PlanActuacionAyuntamiento a editar.
+     * @return void
+     */
+    public function abrirEditarActuacionAyto(int $id): void
+    {
+        $actuacion = PlanActuacionAyuntamiento::where('id', $id)
+            ->where('plan_id', $this->plan?->id)
+            ->first();
+
+        if (! $actuacion) {
+            return;
+        }
+
+        $this->editarActuacionAytoId           = $actuacion->id;
+        $this->editarActuacionAytoPrestacionId = $actuacion->prestacion_id;
+        $this->editarActuacionAytoDescripcion  = $actuacion->descripcion_especifica ?? '';
+        $this->resetErrorBag();
+        unset($this->prestacionesCatalogo);
+        $this->modalEditarActuacionAytoAbierto = true;
+    }
+
+    /**
+     * Persiste los cambios de la actuación del Ayuntamiento que se está editando.
+     *
+     * @return void
+     */
+    public function guardarEdicionActuacionAyto(): void
+    {
+        $this->validate([
+            'editarActuacionAytoPrestacionId' => 'required|exists:prestaciones,id',
+        ]);
+
+        $actuacion = PlanActuacionAyuntamiento::where('id', $this->editarActuacionAytoId)
+            ->where('plan_id', $this->plan?->id)
+            ->first();
+
+        if (! $actuacion) {
+            return;
+        }
+
+        $actuacion->update([
+            'prestacion_id'         => $this->editarActuacionAytoPrestacionId,
+            'descripcion_especifica' => $this->editarActuacionAytoDescripcion ?: null,
+        ]);
+
+        $this->modalEditarActuacionAytoAbierto = false;
+        $this->editarActuacionAytoId           = null;
+        $this->editarActuacionAytoPrestacionId = null;
+        $this->editarActuacionAytoDescripcion  = '';
+        unset($this->actuacionesAyuntamiento, $this->prestacionesCatalogo);
+        $this->mensajeExito = 'Actuación actualizada.';
+    }
+
+    /**
+     * Elimina la actuación del Ayuntamiento que se está editando.
+     *
+     * @return void
+     */
+    public function eliminarActuacionAyto(): void
+    {
+        if (! $this->editarActuacionAytoId || ! $this->plan) {
+            return;
+        }
+
+        $actuacion = PlanActuacionAyuntamiento::where('id', $this->editarActuacionAytoId)
+            ->where('plan_id', $this->plan->id)
+            ->first();
+
+        if (! $actuacion) {
+            return;
+        }
+
+        $actuacion->delete();
+
+        $this->modalEditarActuacionAytoAbierto = false;
+        $this->editarActuacionAytoId           = null;
+        $this->editarActuacionAytoPrestacionId = null;
+        $this->editarActuacionAytoDescripcion  = '';
+        unset($this->actuacionesAyuntamiento, $this->prestacionesCatalogo);
+        $this->mensajeExito = 'Actuación eliminada.';
     }
 
     // =========================================================
