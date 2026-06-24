@@ -20,6 +20,53 @@ Este flujo aplica principalmente a ASP. La atención especializada sigue un mode
 
 ---
 
+## 1.1. Entidad: Asignación de profesional de referencia
+
+La asignación de profesional de referencia (tabla `asignaciones_profesional`) registra
+qué profesional es el responsable de una Historia Social durante cada período.
+
+El modelo es análogo al médico de cabecera en sanidad: el profesional está asignado
+al caso con independencia de si existe un plan activo, si hay entrevistas en curso o
+si la intervención ha comenzado formalmente. La asignación se establece en el momento
+en que el profesional abre la Historia Social del ciudadano.
+
+A diferencia del campo `profesional_responsable_id` del Plan de Intervención —que
+registra quién es responsable de un plan concreto—, la asignación de referencia es
+un vínculo entre el profesional y el caso globalmente. Un ciudadano puede tener
+simultáneamente un profesional de referencia (caso general) y varios profesionales
+responsables de planes especializados distintos.
+
+### 1.1.1 Atributos
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | bigint PK | |
+| `historia_id` | FK a `historias_sociales` | Historia Social del ciudadano |
+| `profesional_id` | FK a `users` | Profesional de referencia en este período |
+| `fecha_inicio` | date | Inicio de la asignación |
+| `fecha_fin` | date nullable | Cierre de la asignación; `null` si está vigente |
+| `created_at`, `updated_at` | timestamp | |
+| `deleted_at` | timestamp nullable | Soft delete |
+
+### 1.1.2 Historial de cambios de profesional
+
+El registro es aditivo: cuando cambia el profesional de referencia se cierra la
+asignación vigente (estableciendo `fecha_fin`) y se crea una nueva con `fecha_fin = null`.
+La tabla mantiene el historial completo. La asignación vigente es la que determina
+qué casos aparecen en "Mis casos" del profesional.
+
+### 1.1.3 Origen de la asignación inicial
+
+Cuando un profesional con rol `intervencion` crea la Historia Social de un ciudadano
+desde la ficha ciudadana (`FichaCiudadanoPage::abrirHistoriaSocial()`), el sistema
+genera automáticamente la primera asignación vigente con `profesional_id = auth()->id()`
+y `fecha_inicio = today()`.
+
+La reasignación en masa con criterios geográficos u organizativos (sin acción individual
+del profesional) es funcionalidad pendiente de implementar en el backoffice.
+
+---
+
 ## 2. Entidad: Registro de contacto SIA
 
 > **El SIA es opcional.** Su presencia en el flujo depende de si el municipio lo tiene implementado como servicio diferenciado. Si no existe SIA, las funciones descritas en esta sección (alta del ciudadano, clasificación de la demanda, determinación de urgencia) recaen en el TSR durante la primera entrevista. El modelo de datos soporta ambos flujos: el campo `sia_contacto_id` en la Historia Social es nullable.

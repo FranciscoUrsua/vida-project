@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Modules\Escalas\Models\PaseEscala;
+use Modules\Intervencion\Models\AsignacionProfesional;
 
 /**
  * Modelo stub de Historia Social.
@@ -119,5 +121,25 @@ class HistoriaSocial extends Model
     public function pasesEscala(): HasMany
     {
         return $this->hasMany(PaseEscala::class, 'historia_id');
+    }
+
+    /**
+     * Historial completo de asignaciones de profesional de referencia.
+     *
+     * @return HasMany<AsignacionProfesional, HistoriaSocial>
+     */
+    public function asignaciones(): HasMany
+    {
+        return $this->hasMany(AsignacionProfesional::class, 'historia_id');
+    }
+
+    /**
+     * Asignación de profesional de referencia actualmente vigente (fecha_fin null).
+     *
+     * @return HasOne<AsignacionProfesional, HistoriaSocial>
+     */
+    public function asignacionVigente(): HasOne
+    {
+        return $this->hasOne(AsignacionProfesional::class, 'historia_id')->whereNull('fecha_fin');
     }
 }

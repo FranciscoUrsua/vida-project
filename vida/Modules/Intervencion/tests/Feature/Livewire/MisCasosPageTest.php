@@ -3,6 +3,8 @@
 namespace Modules\Intervencion\Tests\Feature\Livewire;
 
 use App\Models\CatalogoSistema;
+use App\Models\Ciudadano;
+use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Models\UsuarioUo;
@@ -13,6 +15,7 @@ use Livewire\Livewire;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
+use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Intervencion\Models\Entrevista;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\SeguimientoPlan;
@@ -75,15 +78,51 @@ class MisCasosPageTest extends TestCase
     }
 
     /**
-     * Crea un plan activo de tipo general_asp asignado al usuario dado.
+     * Crea un plan activo de tipo general_asp asignado al usuario dado
+     * y genera la asignación vigente correspondiente en asignaciones_profesional.
      */
     private function crearPlan(User $usuario, array $extra = []): PlanDeIntervencion
     {
-        return PlanDeIntervencion::factory()->create(array_merge([
+        $plan = PlanDeIntervencion::factory()->create(array_merge([
             'profesional_responsable_id' => $usuario->id,
             'tipo' => TipoPlan::GeneralAsp,
             'estado' => EstadoPlan::Activo,
         ], $extra));
+
+        AsignacionProfesional::create([
+            'historia_id' => $plan->historia_id,
+            'profesional_id' => $usuario->id,
+            'fecha_inicio' => today()->toDateString(),
+        ]);
+
+        return $plan;
+    }
+
+    /**
+     * Crea una Historia Social con asignación vigente para el usuario, sin plan.
+     */
+    private function crearAsignacion(User $usuario): HistoriaSocial
+    {
+        $uo = UnidadOrganizativa::create([
+            'nombre' => 'UO Test Asignacion ' . uniqid(),
+            'tipo' => 'centro',
+            'parent_id' => null,
+            'activa' => true,
+        ]);
+
+        $historia = HistoriaSocial::create([
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
+            'unidad_organizativa_id' => $uo->id,
+            'estado' => 'abierta',
+        ]);
+
+        AsignacionProfesional::create([
+            'historia_id' => $historia->id,
+            'profesional_id' => $usuario->id,
+            'fecha_inicio' => today()->toDateString(),
+        ]);
+
+        return $historia;
     }
 
     /**
@@ -265,5 +304,79 @@ class MisCasosPageTest extends TestCase
         $items = $componente->get('casos')->items();
         $this->assertNotEmpty($items);
         $this->assertEquals($planVencido->id, $items[0]->plan_id);
+    }
+
+    /**
+     * TF-LW-CAS-08 — Ciudadano sin plan aparece en Mis casos si tiene asignación vigente.
+     */
+    #[Test]
+    public function ciudadano_sin_plan_aparece_en_mis_casos_con_asignacion_vigente(): void
+    {
+        $usuario = $this->crearUsuario();
+        $historia = $this->crearAsignacion($usuario);
+
+        $componente = Livewire::actingAs($usuario)->test(MisCasosPage::class);
+
+        $items = $componente->get('casos')->items();
+        $this->assertCount(1, $items);
+        $this->assertEquals($historia->id, $items[0]->historia_id);
+        $this->assertNull($items[0]->plan_id);
+    }
+
+    /**
+     * TF-LW-CAS-09 — Asignación con fecha_fin pasada no aparece en Mis casos.
+     */
+    #[Test]
+    public function asignacion_cerrada_no_aparece_en_mis_casos(): void
+    {
+        $usuario = $this->crearUsuario();
+
+        $uo = UnidadOrganizativa::create([
+            'nombre' => 'UO Test Cerrada ' . uniqid(),
+            'tipo' => 'centro',
+            'parent_id' => null,
+            'activa' => true,
+        ]);
+
+        $historia = HistoriaSocial::create([
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
+            'unidad_organizativa_id' => $uo->id,
+            'estado' => 'abierta',
+        ]);
+
+        // Asignación ya cerrada
+        AsignacionProfesional::create([
+            'historia_id' => $historia->id,
+            'profesional_id' => $usuario->id,
+            'fecha_inicio' => today()->subMonths(3)->toDateString(),
+            'fecha_fin' => today()->subDays(1)->toDateString(),
+        ]);
+
+        $componente = Livewire::actingAs($usuario)->test(MisCasosPage::class);
+
+        $this->assertCount(0, $componente->get('casos')->items());
+    }
+
+    /**
+     * TF-LW-CAS-10 — Filtro PISO 'sin' devuelve solo ciudadanos sin plan no cerrado.
+     */
+    #[Test]
+    public function filtro_piso_sin_muestra_solo_casos_sin_plan(): void
+    {
+        $usuario = $this->crearUsuario();
+
+        // Caso con plan activo
+        $this->crearPlan($usuario);
+
+        // Caso sin plan
+        $this->crearAsignacion($usuario);
+
+        $componente = Livewire::actingAs($usuario)
+            ->test(MisCasosPage::class)
+            ->set('filtroPiso', 'sin');
+
+        $items = $componente->get('casos')->items();
+        $this->assertCount(1, $items);
+        $this->assertNull($items[0]->plan_id);
     }
 }

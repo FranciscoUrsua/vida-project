@@ -4,6 +4,30 @@
 
 ---
 
+## 2026-06-24 — Módulo Intervención: asignación de profesional de referencia a Historia Social
+
+### Módulos afectados
+`Modules/Intervencion`, `Modules/Ciudadania`, `app/Models`
+
+### Añadido
+
+- **Migración `2026_06_24_000001_create_asignaciones_profesional_table`** — nueva tabla `asignaciones_profesional` con `historia_id`, `profesional_id`, `fecha_inicio`, `fecha_fin` nullable y soft deletes.
+- **Modelo `AsignacionProfesional`** (`Modules\Intervencion\Models`) — scope `vigente()`, relaciones `historia()` y `profesional()`.
+- **`HistoriaSocial`** — relaciones `asignaciones()` (hasMany) y `asignacionVigente()` (hasOne, fecha_fin IS NULL).
+- **`FichaCiudadanoPage::abrirHistoriaSocial()`** — crea la asignación vigente del profesional autenticado al abrir la Historia Social.
+- **`MisCasosPage::casos()`** — reescrita desde `asignaciones_profesional` vigentes como tabla base. Los planes pasan a LEFT JOIN informativo. Ciudadanos sin plan aparecen en "Mis casos" desde la apertura de su historia.
+- **`mis-casos-page.blade.php`** — columna PISO muestra estado real (Activo / En revisión / Borrador / Sin plan).
+- **Tests TF-LW-CAS-08, 09, 10** — asignación sin plan aparece; asignación cerrada no aparece; filtro PISO 'sin' funciona. Total: 10 tests en verde.
+- **`docs/modulo-intervencion.md`** — sección 1.1 sobre la entidad `AsignacionProfesional`.
+
+### Decisiones de implementación
+
+- La asignación es independiente del plan: un ciudadano aparece en "Mis casos" desde que se le abre la historia, aunque no haya plan activo.
+- El `profesional_responsable_id` del `PlanDeIntervencion` sigue siendo relevante para saber quién gestiona ese plan concreto; la asignación de referencia es el vínculo general con el caso.
+- La reasignación en masa (criterios geográficos/organizativos) queda pendiente de implementar en el backoffice.
+
+---
+
 ## 2026-06-23 — Módulo Intervención: corrección de fallos pre-existentes en tests
 
 ### Módulos afectados

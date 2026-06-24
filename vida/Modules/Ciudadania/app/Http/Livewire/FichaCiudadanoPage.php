@@ -23,6 +23,7 @@ use Modules\Ciudadania\Models\TipoRelacion;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 use Modules\Ciudadania\Services\NormalizadorCiudadano;
+use Modules\Intervencion\Models\AsignacionProfesional;
 
 /**
  * Ficha del ciudadano: vista y edición de Capa 1 (datos identificativos y de contacto).
@@ -837,7 +838,8 @@ class FichaCiudadanoPage extends Component
     // -------------------------------------------------------------------------
 
     /**
-     * Crea la Historia Social del ciudadano y redirige a la pantalla de intervención.
+     * Crea la Historia Social del ciudadano, asigna al profesional autenticado
+     * como responsable y redirige a la pantalla de intervención.
      * Solo ejecutable si el ciudadano no tiene historia social previa.
      */
     public function abrirHistoriaSocial(): void
@@ -854,6 +856,12 @@ class FichaCiudadanoPage extends Component
             'ciudadano_id' => $this->ciudadanoId,
             'unidad_organizativa_id' => $uoActiva?->id,
             'estado' => 'abierta',
+        ]);
+
+        AsignacionProfesional::create([
+            'historia_id' => $historia->id,
+            'profesional_id' => auth()->id(),
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         $this->redirect(route('intervencion.ciudadano.show', $historia->id), navigate: true);

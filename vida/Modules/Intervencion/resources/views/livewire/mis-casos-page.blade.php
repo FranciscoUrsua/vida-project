@@ -129,7 +129,15 @@
                                         </span>
                                     </td>
                                     <td class="cases-screen__cell">
-                                        <span class="cases-screen__pill cases-screen__pill--success">Activo</span>
+                                        @if($caso->plan_id === null)
+                                            <span class="cases-screen__muted">Sin plan</span>
+                                        @elseif($caso->plan_estado === 'activo')
+                                            <span class="cases-screen__pill cases-screen__pill--success">Activo</span>
+                                        @elseif($caso->plan_estado === 'en_revision')
+                                            <span class="cases-screen__pill cases-screen__pill--warning">En revisión</span>
+                                        @else
+                                            <span class="cases-screen__pill cases-screen__pill--secondary">Borrador</span>
+                                        @endif
                                     </td>
                                     <td class="cases-screen__cell cases-screen__cell--center">
                                         @if($caso->planes_esp_count > 0)

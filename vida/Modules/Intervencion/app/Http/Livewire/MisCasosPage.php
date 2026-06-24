@@ -141,19 +141,30 @@ class MisCasosPage extends Component
     /**
      * Lista paginada de casos asignados al profesional autenticado.
      *
-     * Cada fila contiene los datos del plan general ASP activo y el
-     * siguiente seguimiento programado (o null si no existe).
+     * El origen es la tabla asignaciones_profesional (vigentes). Los planes
+     * generales ASP y los seguimientos se incorporan como LEFT JOIN para
+     * mostrar información adicional; su ausencia no excluye el caso.
      */
     #[Computed]
     public function casos(): LengthAwarePaginator
     {
         $hoy = today();
 
-        // Subconsulta: fecha del seguimiento más reciente por plan
+        // Subconsulta: seguimiento más reciente por plan
         $subSeguimiento = DB::table('seguimientos_plan')
             ->select(DB::raw('DISTINCT ON (plan_id) plan_id, fecha_siguiente_seguimiento'))
             ->orderBy('plan_id')
             ->orderByDesc('created_at');
+
+        // Subconsulta: plan general ASP más relevante por historia (activo > en_revision > borrador)
+        $subPlan = DB::table('planes_intervencion as pp')
+            ->select(DB::raw("DISTINCT ON (pp.historia_id) pp.historia_id, pp.id as plan_id, pp.estado as plan_estado"))
+            ->where('pp.tipo', 'general_asp')
+            ->where('pp.estado', '!=', 'cerrado')
+            ->whereNull('pp.deleted_at')
+            ->orderBy('pp.historia_id')
+            ->orderByRaw("CASE pp.estado WHEN 'activo' THEN 0 WHEN 'en_revision' THEN 1 ELSE 2 END")
+            ->orderByDesc('pp.created_at');
 
         // Subconsulta: nº de planes especializados activos por historia
         $subEsp = DB::table('planes_intervencion as pe')
@@ -163,20 +174,21 @@ class MisCasosPage extends Component
             ->whereNull('pe.deleted_at')
             ->groupBy('pe.historia_id');
 
-        $query = DB::table('planes_intervencion as pi')
-            ->join('historias_sociales as hs', 'hs.id', '=', 'pi.historia_id')
-            ->leftJoinSub($subSeguimiento, 'seg', 'seg.plan_id', '=', 'pi.id')
+        $query = DB::table('asignaciones_profesional as ap')
+            ->join('historias_sociales as hs', 'hs.id', '=', 'ap.historia_id')
+            ->leftJoinSub($subPlan, 'pi', 'pi.historia_id', '=', 'ap.historia_id')
+            ->leftJoinSub($subSeguimiento, 'seg', 'seg.plan_id', '=', 'pi.plan_id')
             ->leftJoinSub($subEsp, 'esp', 'esp.historia_id', '=', 'hs.id')
-            ->where('pi.profesional_responsable_id', Auth::id())
-            ->where('pi.tipo', 'general_asp')
-            ->where('pi.estado', 'activo')
+            ->where('ap.profesional_id', Auth::id())
+            ->whereNull('ap.fecha_fin')
+            ->whereNull('ap.deleted_at')
             ->whereNull('hs.deleted_at')
-            ->whereNull('pi.deleted_at')
             ->select([
-                'pi.id as plan_id',
-                'pi.historia_id',
-                'pi.fecha_inicio',
+                'ap.historia_id',
+                'ap.fecha_inicio',
                 'hs.ciudadano_id',
+                'pi.plan_id',
+                'pi.plan_estado',
                 'seg.fecha_siguiente_seguimiento',
                 DB::raw('COALESCE(esp.planes_esp_count, 0) as planes_esp_count'),
             ]);
@@ -190,6 +202,15 @@ class MisCasosPage extends Component
             $query->where('seg.fecha_siguiente_seguimiento', '>', $hoy->copy()->addDays(7));
         } elseif ($this->filtroSeguimiento === 'sin') {
             $query->whereNull('seg.fecha_siguiente_seguimiento');
+        }
+
+        // Filtro de plan ASP
+        if ($this->filtroPiso === 'activo') {
+            $query->where('pi.plan_estado', 'activo');
+        } elseif ($this->filtroPiso === 'revision') {
+            $query->where('pi.plan_estado', 'en_revision');
+        } elseif ($this->filtroPiso === 'sin') {
+            $query->whereNull('pi.plan_id');
         }
 
         // Filtro de planes especializados
@@ -214,10 +235,10 @@ class MisCasosPage extends Component
                     END {$dir},
                     seg.fecha_siguiente_seguimiento {$dir} NULLS LAST
                 "),
-                'inicio' => $query->orderBy('pi.fecha_inicio', $this->direccion),
-                'esp' => $query->orderByRaw("COALESCE(esp.planes_esp_count, 0) {$dir}, pi.fecha_inicio ASC"),
-                'historia' => $query->orderBy('pi.historia_id', $this->direccion),
-                default => $query->orderBy('pi.historia_id', $this->direccion),
+                'inicio' => $query->orderBy('ap.fecha_inicio', $this->direccion),
+                'esp' => $query->orderByRaw("COALESCE(esp.planes_esp_count, 0) {$dir}, ap.fecha_inicio ASC"),
+                'historia' => $query->orderBy('ap.historia_id', $this->direccion),
+                default => $query->orderBy('ap.historia_id', $this->direccion),
             };
         }
 
