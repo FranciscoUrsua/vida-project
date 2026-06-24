@@ -542,7 +542,6 @@ class PlanPage extends Component
 
         return $this->plan->objetivos()
             ->where('nivel', 'especifico')
-            ->whereNull('objetivo_general_id')
             ->with(['indicador', 'tipoFicha'])
             ->orderBy('tipo_ficha_id')
             ->orderBy('orden')
@@ -1088,7 +1087,6 @@ class PlanPage extends Component
                 $planEsp = PlanObjetivo::create([
                     'plan_id'              => $this->plan->id,
                     'objetivo_catalogo_id' => $objCatalogo->id,
-                    'objetivo_general_id'  => null,
                     'nivel'                => 'especifico',
                     'tipo_ficha_id'        => $objCatalogo->tipo_ficha_id,
                     'texto'                => $objCatalogo->texto,
