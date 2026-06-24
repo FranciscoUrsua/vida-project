@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Modules\Atencion\Models\RegistroAtencion;
+use Modules\Ciudadania\Models\CiudadanoIdentificador;
 use Modules\Ciudadania\Models\CiudadanoPrestacionResumen;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
@@ -241,6 +242,19 @@ class Ciudadano extends Model
     {
         return $this->hasOne(RegistroAtencion::class, 'ciudadano_id')
             ->latestOfMany('fecha');
+    }
+
+    /**
+     * Documento de identidad vigente del ciudadano (fecha_fin null, más reciente).
+     * La fuente de verdad es ciudadano_identificadores, no ciudadanos.documento_identidad.
+     *
+     * @return HasOne<CiudadanoIdentificador, self>
+     */
+    public function documentoVigente(): HasOne
+    {
+        return $this->hasOne(CiudadanoIdentificador::class, 'ciudadano_id')
+            ->whereNull('fecha_fin')
+            ->latestOfMany('fecha_inicio');
     }
 
     /**

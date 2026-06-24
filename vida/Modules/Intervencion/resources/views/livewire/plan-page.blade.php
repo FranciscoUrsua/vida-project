@@ -96,7 +96,8 @@
                 </div>
                 <div>
                     <div class="plan-citizen-label mb-1">Documento</div>
-                    {{ $this->ciudadano?->documento_identidad ?? '—' }}
+                    @php $doc = $this->ciudadano?->documentoVigente; @endphp
+                    {{ $doc ? strtoupper($doc->tipo).' '.$doc->valor : '—' }}
                 </div>
                 <div>
                     <div class="plan-citizen-label mb-1">Domicilio</div>
