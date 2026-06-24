@@ -103,7 +103,7 @@ class ResolverFuentesInforme
             'nombre_ciudadano' => $nombreCompleto ?: '—',
             'fecha_nacimiento' => $fechaNac?->format('d/m/Y') ?? '—',
             'edad' => $fechaNac ? (string) $fechaNac->age : '—',
-            'nie_nif' => $ciudadano->documento_identidad ?? '—',
+            'nie_nif' => ($doc = $ciudadano->documentoVigente) ? strtoupper($doc->tipo).' '.$doc->valor : '—',
             'direccion' => $ciudadano->direccion_texto ?? '—',
             'telefono' => $ciudadano->telefono ?? '—',
 

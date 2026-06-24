@@ -41,7 +41,7 @@ class PerfilAnonimizacionFactory extends Factory
                 ['campo' => 'nombre',              'tecnica' => 'suprimir'],
                 ['campo' => 'apellido1',           'tecnica' => 'suprimir'],
                 ['campo' => 'apellido2',           'tecnica' => 'suprimir'],
-                ['campo' => 'documento_identidad', 'tecnica' => 'suprimir'],
+
                 ['campo' => 'telefono',            'tecnica' => 'suprimir'],
                 ['campo' => 'email',               'tecnica' => 'suprimir'],
             ],
@@ -62,7 +62,7 @@ class PerfilAnonimizacionFactory extends Factory
                 ['campo' => 'nombre',              'tecnica' => 'suprimir'],
                 ['campo' => 'apellido1',           'tecnica' => 'suprimir'],
                 ['campo' => 'apellido2',           'tecnica' => 'suprimir'],
-                ['campo' => 'documento_identidad', 'tecnica' => 'suprimir'],
+
                 ['campo' => 'telefono',            'tecnica' => 'suprimir'],
                 ['campo' => 'email',               'tecnica' => 'suprimir'],
                 ['campo' => 'fecha_nacimiento',    'tecnica' => 'generalizar', 'precision' => 'anio'],

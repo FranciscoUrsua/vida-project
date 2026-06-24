@@ -170,7 +170,6 @@ class GeneralizacionTest extends TestCase
             'nombre' => 'Ana',
             'apellido1' => 'Pérez',
             'apellido2' => 'García',
-            'documento_identidad' => '12345678A',
             'telefono' => '600000000',
             'email' => 'ana@example.com',
             'fecha_nacimiento' => '1980-01-01',
@@ -182,7 +181,6 @@ class GeneralizacionTest extends TestCase
         $this->assertArrayNotHasKey('nombre', $resultado);
         $this->assertArrayNotHasKey('apellido1', $resultado);
         $this->assertArrayNotHasKey('apellido2', $resultado);
-        $this->assertArrayNotHasKey('documento_identidad', $resultado);
         $this->assertArrayNotHasKey('telefono', $resultado);
         $this->assertArrayNotHasKey('email', $resultado);
         // Nivel 2 no genera alias — a diferencia del Nivel 1

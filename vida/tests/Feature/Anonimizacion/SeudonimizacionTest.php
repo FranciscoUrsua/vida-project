@@ -126,7 +126,6 @@ class SeudonimizacionTest extends TestCase
             'nombre' => 'María',
             'apellido1' => 'García',
             'apellido2' => 'López',
-            'documento_identidad' => '12345678A',
             'telefono' => '600000000',
             'email' => 'maria@example.com',
             'fecha_nacimiento' => '1980-01-01',
@@ -137,7 +136,6 @@ class SeudonimizacionTest extends TestCase
         $this->assertArrayNotHasKey('nombre', $resultado);
         $this->assertArrayNotHasKey('apellido1', $resultado);
         $this->assertArrayNotHasKey('apellido2', $resultado);
-        $this->assertArrayNotHasKey('documento_identidad', $resultado);
         $this->assertArrayNotHasKey('telefono', $resultado);
         $this->assertArrayNotHasKey('email', $resultado);
         $this->assertArrayHasKey('alias_ciudadano', $resultado);

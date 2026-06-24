@@ -40,7 +40,6 @@ use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
  * @property string $sexo
  * @property string|null $direccion_texto Cifrada — texto libre original
  * @property bool $direccion_normalizada
- * @property string|null $documento_identidad Cifrado
  * @property bool $es_vvg
  * @property bool $es_psh
  * @property bool $colectivo_extra_protegido
@@ -114,7 +113,6 @@ class Ciudadano extends Model
         'telefono_hash',
         'email',
         'email_hash',
-        'documento_identidad',
         'nivel_identificacion',
         'contexto_alta',
         'primera_demanda',
@@ -139,7 +137,6 @@ class Ciudadano extends Model
         'telefono' => 'encrypted',
         'email' => 'encrypted',
         'primera_demanda' => 'string',
-        'documento_identidad' => 'encrypted',
         'activo' => 'boolean',
         'es_vvg' => 'boolean',
         'es_psh' => 'boolean',
@@ -246,8 +243,6 @@ class Ciudadano extends Model
 
     /**
      * Documento de identidad vigente del ciudadano (fecha_fin null, más reciente).
-     * La fuente de verdad es ciudadano_identificadores, no ciudadanos.documento_identidad.
-     *
      * @return HasOne<CiudadanoIdentificador, self>
      */
     public function documentoVigente(): HasOne

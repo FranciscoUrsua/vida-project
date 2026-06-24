@@ -44,7 +44,7 @@ class PerfilesAnonimizacionSeeder extends Seeder
                     ['campo' => 'nombre',              'tecnica' => 'suprimir'],
                     ['campo' => 'apellido1',           'tecnica' => 'suprimir'],
                     ['campo' => 'apellido2',           'tecnica' => 'suprimir'],
-                    ['campo' => 'documento_identidad', 'tecnica' => 'suprimir'],
+
                     ['campo' => 'telefono',            'tecnica' => 'suprimir'],
                     ['campo' => 'email',               'tecnica' => 'suprimir'],
                 ],
@@ -72,7 +72,7 @@ class PerfilesAnonimizacionSeeder extends Seeder
                     ['campo' => 'nombre',              'tecnica' => 'suprimir'],
                     ['campo' => 'apellido1',           'tecnica' => 'suprimir'],
                     ['campo' => 'apellido2',           'tecnica' => 'suprimir'],
-                    ['campo' => 'documento_identidad', 'tecnica' => 'suprimir'],
+
                     ['campo' => 'telefono',            'tecnica' => 'suprimir'],
                     ['campo' => 'email',               'tecnica' => 'suprimir'],
                     [
@@ -121,7 +121,7 @@ class PerfilesAnonimizacionSeeder extends Seeder
                     ['campo' => 'nombre',              'tecnica' => 'suprimir'],
                     ['campo' => 'apellido1',           'tecnica' => 'suprimir'],
                     ['campo' => 'apellido2',           'tecnica' => 'suprimir'],
-                    ['campo' => 'documento_identidad', 'tecnica' => 'suprimir'],
+
                     ['campo' => 'telefono',            'tecnica' => 'suprimir'],
                     ['campo' => 'email',               'tecnica' => 'suprimir'],
                     [
@@ -174,7 +174,7 @@ class PerfilesAnonimizacionSeeder extends Seeder
                     ['campo' => 'nombre',              'tecnica' => 'suprimir'],
                     ['campo' => 'apellido1',           'tecnica' => 'suprimir'],
                     ['campo' => 'apellido2',           'tecnica' => 'suprimir'],
-                    ['campo' => 'documento_identidad', 'tecnica' => 'suprimir'],
+
                     ['campo' => 'telefono',            'tecnica' => 'suprimir'],
                     ['campo' => 'email',               'tecnica' => 'suprimir'],
                     [

@@ -308,12 +308,14 @@ class CiudadanoPage extends Component
     }
 
     /**
-     * Documento de identidad del ciudadano (cifrado, desencriptado por el cast).
+     * Documento de identidad vigente del ciudadano.
      */
     #[Computed]
     public function ciudadanoDocumento(): ?string
     {
-        return $this->ciudadano?->documento_identidad ?? null;
+        $doc = $this->ciudadano?->documentoVigente;
+
+        return $doc ? strtoupper($doc->tipo).' '.$doc->valor : null;
     }
 
     /**
