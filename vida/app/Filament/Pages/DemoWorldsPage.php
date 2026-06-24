@@ -119,6 +119,16 @@ class DemoWorldsPage extends Page implements HasActions
     }
 
     /**
+     * Suprime los botones de cabecera: los botones se renderizan en las tarjetas de la vista.
+     *
+     * @return array<Action>
+     */
+    protected function getHeaderActions(): array
+    {
+        return [];
+    }
+
+    /**
      * Construye el Action de reset para un mundo concreto.
      *
      * @param string $worldId Nombre del mundo (sin extensión)
