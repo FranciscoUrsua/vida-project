@@ -41,7 +41,7 @@ El flujo de creación de objetivos específicos en el plan es:
 | `tipo_plan_id` | FK | Tipo de plan al que pertenece |
 | `nivel` | enum | `general` / `especifico` |
 | `tipo_ficha_id` | FK nullable | Solo para específicos: área temática (= tipo de ficha) |
-| `objetivo_general_id` | FK nullable (self) | Para específicos: su general del catálogo |
+| ~~`objetivo_general_id`~~ | ~~FK nullable (self)~~ | **Eliminado** — generales y específicos son independientes |
 | `texto` | text | Texto del objetivo |
 | `activo` | boolean | |
 | `orden` | smallint | |
@@ -62,7 +62,7 @@ El flujo de creación de objetivos específicos en el plan es:
 | `objetivo_catalogo_id` | FK nullable | Null si el objetivo es ex-novo |
 | `nivel` | enum | `general` / `especifico` |
 | `tipo_ficha_id` | FK nullable | Área temática, para específicos |
-| `objetivo_general_id` | FK nullable (self) | Para específicos |
+| ~~`objetivo_general_id`~~ | ~~FK nullable (self)~~ | **Eliminado** — generales y específicos son independientes |
 | `texto` | text | Del catálogo (editable) o escrito libremente |
 | `estado` | enum | `pendiente` / `en_proceso` / `conseguido` / `abandonado` |
 | `orden` | smallint | |

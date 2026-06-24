@@ -508,6 +508,10 @@ es exactamente el `TipoFicha` de valoración correspondiente (vivienda, económi
 laboral, jurídica, sanitaria…). La FK `tipo_ficha_id` conecta el objetivo con
 la ficha que lo origina.
 
+**Generales y específicos son tipos independientes entre sí.** Un objetivo específico
+NO es hijo de un objetivo general: ambos se añaden al plan directamente y se listan
+por separado. No existe relación padre-hijo entre ellos.
+
 El flujo de creación de objetivos específicos en el plan es:
 
 1. El TSR incluye una ficha en el diagnóstico del plan (ej: ficha de vivienda).
@@ -518,14 +522,13 @@ El flujo de creación de objetivos específicos en el plan es:
 4. Al incluir un objetivo (del catálogo o ex-novo), se instancia su indicador
    con valoración inicial nula.
 
-**Catálogo de objetivos en backoffice** — tabla `objetivos_catalogo` actualizada:
+**Catálogo de objetivos en backoffice** — tabla `objetivos_catalogo`:
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `tipo_plan_id` | FK | Tipo de plan al que pertenece |
 | `nivel` | enum | `general` / `especifico` |
 | `tipo_ficha_id` | FK nullable | Solo para específicos: área temática (= tipo de ficha) |
-| `objetivo_general_id` | FK nullable (self) | Para específicos: su general del catálogo |
 | `texto` | text | Texto del objetivo |
 | `activo` | boolean | |
 | `orden` | smallint | |
@@ -538,15 +541,14 @@ El flujo de creación de objetivos específicos en el plan es:
 | `descripcion` | text | Qué se mide |
 | `tipo_valoracion` | enum | `conseguido_proceso_no` / `favorable_mantiene_desfavorable` / `si_no` |
 
-**Objetivos en el plan** — tabla `plan_objetivos` actualizada:
+**Objetivos en el plan** — tabla `plan_objetivos`:
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `plan_id` | FK | |
 | `objetivo_catalogo_id` | FK nullable | Null si el objetivo es ex-novo |
 | `nivel` | enum | `general` / `especifico` |
-| `tipo_ficha_id` | FK nullable | Área temática, para específicos |
-| `objetivo_general_id` | FK nullable (self) | Para específicos |
+| `tipo_ficha_id` | FK nullable | Área temática (solo para específicos) |
 | `texto` | text | Del catálogo (editable) o escrito libremente |
 | `estado` | enum | `pendiente` / `en_proceso` / `conseguido` / `abandonado` |
 | `orden` | smallint | |

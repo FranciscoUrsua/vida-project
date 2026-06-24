@@ -184,30 +184,47 @@ body {
     </div>
 </div>
 
-{{-- Sección: Objetivos --}}
+{{-- Sección: Objetivos generales --}}
+@php
+    $generales  = $plan->objetivosGenerales->all();
+    $especificos = $plan->objetivosEspecificos->all();
+@endphp
 <div class="piso-seccion">
-    <div class="piso-seccion-titulo">Objetivos</div>
+    <div class="piso-seccion-titulo">Objetivos generales</div>
     <div class="piso-seccion-cuerpo">
-        @if($plan->objetivosGenerales->isNotEmpty())
+        @if(count($generales) > 0)
             <ol style="margin: 0; padding-left: 16px;">
-                @foreach($plan->objetivosGenerales as $og)
-                    <li style="margin-bottom: 3px;">
-                        <strong>{{ $og->texto }}</strong>
-                        @if($og->objetivosEspecificos->isNotEmpty())
-                            <ul style="margin: 2px 0 4px 12px; padding: 0;">
-                                @foreach($og->objetivosEspecificos as $oe)
-                                    <li>{{ $oe->texto }}</li>
-                                @endforeach
-                            </ul>
-                        @endif
-                    </li>
+                @foreach($generales as $og)
+                    <li style="margin-bottom: 3px;">{{ $og->texto }}</li>
                 @endforeach
             </ol>
         @else
-            <em style="color: #8A7F76;">Sin objetivos registrados.</em>
+            <em style="color: #8A7F76;">Sin objetivos generales registrados.</em>
         @endif
     </div>
 </div>
+
+{{-- Sección: Objetivos específicos (por área temática) --}}
+@if(count($especificos) > 0)
+<div class="piso-seccion">
+    <div class="piso-seccion-titulo">Objetivos específicos</div>
+    <div class="piso-seccion-cuerpo">
+        <ol style="margin: 0; padding-left: 16px;">
+            @foreach($especificos as $oe)
+                <li style="margin-bottom: 3px;">
+                    @if($oe->tipoFicha)
+                        <span style="font-size: 7.5pt; color: #8A7F76; font-weight: 600;
+                                     text-transform: uppercase; letter-spacing: 0.3px;">
+                            {{ $oe->tipoFicha->nombre }}:
+                        </span>
+                    @endif
+                    {{ $oe->texto }}
+                </li>
+            @endforeach
+        </ol>
+    </div>
+</div>
+@endif
 
 {{-- Sección: Compromisos (dos columnas) --}}
 <div class="piso-seccion">

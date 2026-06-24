@@ -122,14 +122,6 @@ class GestionarObjetivos extends Page implements HasTable
                             ->visible(fn (Get $get) => $get('nivel') === 'especifico')
                             ->helperText('El área determina qué fichas activan la propuesta de este objetivo.'),
 
-                        Select::make('objetivo_general_id')
-                            ->label('Objetivo general al que pertenece')
-                            ->options(fn () => ObjetivoCatalogo::where('tipo_plan_id', $tipoPlanId)
-                                ->where('nivel', 'general')
-                                ->pluck('texto', 'id'))
-                            ->nullable()
-                            ->visible(fn (Get $get) => $get('nivel') === 'especifico'),
-
                         Textarea::make('texto')
                             ->label('Texto del objetivo')
                             ->required()

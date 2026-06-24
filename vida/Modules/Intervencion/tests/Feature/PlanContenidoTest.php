@@ -11,6 +11,7 @@ use Modules\Intervencion\Models\PlanActuacionCiudadano;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\PlanObjetivo;
 use Modules\Intervencion\Models\PlanParticipante;
+use Modules\Intervencion\Models\TipoFicha;
 use Modules\Intervencion\Models\TipoPlan;
 use Modules\Intervencion\Services\PlanPdfService;
 use Modules\Prestaciones\Models\Prestacion;
@@ -67,28 +68,25 @@ class PlanContenidoTest extends TestCase
 
     // --- ObjetivoCatalogo ---
 
-    /** TF-PLAN-04: Un objetivo específico se vincula correctamente a su objetivo general. */
-    public function test_objetivo_especifico_vinculado_a_general(): void
+    /** TF-PLAN-04: Un objetivo específico del catálogo se vincula a un área temática, no a un general. */
+    public function test_objetivo_especifico_vinculado_a_area_tematica(): void
     {
         $tipo = TipoPlan::factory()->create();
-
-        $general = ObjetivoCatalogo::create([
-            'tipo_plan_id' => $tipo->id,
-            'nivel' => 'general',
-            'texto' => 'Favorecer la inclusión social',
-            'orden' => 1,
-        ]);
+        $tipoFicha = TipoFicha::factory()->create();
 
         $especifico = ObjetivoCatalogo::create([
             'tipo_plan_id' => $tipo->id,
             'nivel' => 'especifico',
-            'objetivo_general_id' => $general->id,
+            'tipo_ficha_id' => $tipoFicha->id,
             'texto' => 'Reducir el aislamiento social',
             'orden' => 1,
         ]);
 
-        $this->assertEquals($general->id, $especifico->objetivoGeneral->id);
-        $this->assertEquals($especifico->id, $general->objetivosEspecificos->first()->id);
+        $this->assertEquals($tipoFicha->id, $especifico->tipoFicha->id);
+        $this->assertDatabaseHas('objetivos_catalogo', [
+            'id' => $especifico->id,
+            'tipo_ficha_id' => $tipoFicha->id,
+        ]);
     }
 
     // --- PlanObjetivo ---
@@ -110,12 +108,13 @@ class PlanContenidoTest extends TestCase
         $this->assertEquals(1, $plan->objetivos()->count());
     }
 
-    /** TF-PLAN-06: Los objetivos específicos se anidan bajo su objetivo general en el plan. */
-    public function test_objetivos_anidados(): void
+    /** TF-PLAN-06: Generales y específicos son independientes: ambos se recuperan por separado desde el plan. */
+    public function test_objetivos_generales_y_especificos_son_independientes(): void
     {
         $plan = $this->crearPlan();
+        $tipoFicha = TipoFicha::factory()->create();
 
-        $general = PlanObjetivo::create([
+        PlanObjetivo::create([
             'plan_id' => $plan->id,
             'nivel' => 'general',
             'texto' => 'Objetivo general',
@@ -126,13 +125,15 @@ class PlanContenidoTest extends TestCase
         PlanObjetivo::create([
             'plan_id' => $plan->id,
             'nivel' => 'especifico',
-            'objetivo_general_id' => $general->id,
+            'tipo_ficha_id' => $tipoFicha->id,
             'texto' => 'Objetivo específico',
             'estado' => 'pendiente',
             'orden' => 1,
         ]);
 
-        $this->assertCount(1, $general->objetivosEspecificos);
+        $this->assertCount(1, $plan->objetivosGenerales);
+        $this->assertCount(1, $plan->objetivosEspecificos);
+        $this->assertEquals(2, $plan->objetivos()->count());
     }
 
     // --- PlanActuacionAyuntamiento ---

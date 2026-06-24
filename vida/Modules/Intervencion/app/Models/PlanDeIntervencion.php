@@ -304,13 +304,24 @@ class PlanDeIntervencion extends Model
     }
 
     /**
-     * Solo los objetivos generales del plan.
+     * Solo los objetivos generales del plan (nivel = 'general').
      *
      * @return HasMany<PlanObjetivo>
      */
     public function objetivosGenerales(): HasMany
     {
         return $this->objetivos()->where('nivel', 'general');
+    }
+
+    /**
+     * Solo los objetivos específicos del plan (nivel = 'especifico').
+     * Son independientes de los generales; se vinculan a un área temática (tipo_ficha_id).
+     *
+     * @return HasMany<PlanObjetivo>
+     */
+    public function objetivosEspecificos(): HasMany
+    {
+        return $this->objetivos()->where('nivel', 'especifico');
     }
 
     /**
@@ -392,7 +403,7 @@ class PlanDeIntervencion extends Model
         $snapshot = [
             'diagnostico_social' => $this->diagnostico_social,
             'periodicidad_seguimiento' => $this->periodicidad_seguimiento,
-            'objetivos' => $this->objetivos()->with('objetivosEspecificos')->get()->toArray(),
+            'objetivos' => $this->objetivos()->get()->toArray(),
             'actuaciones_ayuntamiento' => $this->actuacionesAyuntamiento()->with('prestacion')->get()->toArray(),
             'actuaciones_ciudadano' => $this->actuacionesCiudadano()->get()->toArray(),
             'participantes' => $this->participantesActivos()->with('profesional')->get()->toArray(),

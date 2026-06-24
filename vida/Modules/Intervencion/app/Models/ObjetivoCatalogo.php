@@ -5,22 +5,21 @@ namespace Modules\Intervencion\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Objetivo del catálogo configurable desde el backoffice para un tipo de plan.
  *
- * Los objetivos tienen dos niveles: generales (propósito amplio) y específicos
- * (resultados concretos). Los específicos se vinculan a un general del mismo tipo
- * y pueden tener un área temática (tipo_ficha_id) que determina qué fichas
- * activan la propuesta automática de este objetivo en el plan.
+ * Los objetivos tienen dos niveles: generales (propósito amplio, sin área temática)
+ * y específicos (resultados concretos vinculados a un área temática = TipoFicha).
+ * Ambos niveles son independientes entre sí: los específicos NO son hijos de un general;
+ * pertenecen al plan directamente y se activan cuando el diagnóstico incluye fichas
+ * del área temática correspondiente.
  *
  * @property int      $id
  * @property int      $tipo_plan_id
  * @property int|null $tipo_ficha_id FK al área temática (solo para específicos)
  * @property string   $nivel 'general' | 'especifico'
- * @property int|null $objetivo_general_id FK a sí mismo para específicos
  * @property string   $texto
  * @property bool     $activo
  * @property int      $orden
@@ -30,7 +29,7 @@ class ObjetivoCatalogo extends Model
     protected $table = 'objetivos_catalogo';
 
     protected $fillable = [
-        'tipo_plan_id', 'tipo_ficha_id', 'nivel', 'objetivo_general_id', 'texto', 'activo', 'orden',
+        'tipo_plan_id', 'tipo_ficha_id', 'nivel', 'texto', 'activo', 'orden',
     ];
 
     protected $casts = [
@@ -50,28 +49,6 @@ class ObjetivoCatalogo extends Model
     public function tipoPlan(): BelongsTo
     {
         return $this->belongsTo(TipoPlan::class, 'tipo_plan_id');
-    }
-
-    /**
-     * Objetivo general al que pertenece este objetivo específico.
-     *
-     * @return BelongsTo<self, self>
-     */
-    public function objetivoGeneral(): BelongsTo
-    {
-        return $this->belongsTo(self::class, 'objetivo_general_id');
-    }
-
-    /**
-     * Objetivos específicos activos que dependen de este objetivo general.
-     *
-     * @return HasMany<self>
-     */
-    public function objetivosEspecificos(): HasMany
-    {
-        return $this->hasMany(self::class, 'objetivo_general_id')
-            ->where('activo', true)
-            ->orderBy('orden');
     }
 
     /**

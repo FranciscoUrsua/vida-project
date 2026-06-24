@@ -4,7 +4,6 @@ namespace Modules\Intervencion\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -12,15 +11,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  *
  * Puede originarse desde el catálogo (objetivo_catalogo_id) o ser redactado
  * libremente por el profesional (objetivo_catalogo_id = null).
- * Los específicos se vinculan a un general del mismo plan y pueden tener
- * un área temática (tipo_ficha_id).
+ * Los generales y los específicos son independientes entre sí: los específicos
+ * pertenecen a un área temática (tipo_ficha_id) y se añaden directamente al plan
+ * sin ser hijos de ningún objetivo general.
  *
  * @property int      $id
  * @property int      $plan_id
  * @property int|null $objetivo_catalogo_id
  * @property string   $nivel 'general' | 'especifico'
- * @property int|null $tipo_ficha_id Área temática para específicos
- * @property int|null $objetivo_general_id FK a plan_objetivos
+ * @property int|null $tipo_ficha_id Área temática (solo para específicos)
  * @property string   $texto
  * @property string   $estado 'pendiente' | 'en_proceso' | 'conseguido' | 'abandonado'
  * @property int      $orden
@@ -31,7 +30,7 @@ class PlanObjetivo extends Model
 
     protected $fillable = [
         'plan_id', 'objetivo_catalogo_id', 'nivel', 'tipo_ficha_id',
-        'objetivo_general_id', 'texto', 'estado', 'orden',
+        'texto', 'estado', 'orden',
     ];
 
     // -------------------------------------------------------------------------
@@ -56,26 +55,6 @@ class PlanObjetivo extends Model
     public function objetivoCatalogo(): BelongsTo
     {
         return $this->belongsTo(ObjetivoCatalogo::class, 'objetivo_catalogo_id');
-    }
-
-    /**
-     * Objetivo general del que depende este específico.
-     *
-     * @return BelongsTo<self, self>
-     */
-    public function objetivoGeneral(): BelongsTo
-    {
-        return $this->belongsTo(self::class, 'objetivo_general_id');
-    }
-
-    /**
-     * Objetivos específicos que dependen de este general.
-     *
-     * @return HasMany<self>
-     */
-    public function objetivosEspecificos(): HasMany
-    {
-        return $this->hasMany(self::class, 'objetivo_general_id')->orderBy('orden');
     }
 
     /**
