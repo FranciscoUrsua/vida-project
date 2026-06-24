@@ -884,7 +884,7 @@ $nc = [
                 <button wire:click="$set('modalObjetivoAbierto', false)" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                 <button wire:click="guardarObjetivosDesdeCatalogo"
                         class="btn btn-primary btn-sm"
-                        @if(empty($objetivosCatalogoSeleccionados)) disabled @endif>
+                        x-bind:disabled="$wire.objetivosCatalogoSeleccionados.length === 0">
                     <x-heroicon-o-check class="icon-13"/>
                     Añadir seleccionados
                 </button>

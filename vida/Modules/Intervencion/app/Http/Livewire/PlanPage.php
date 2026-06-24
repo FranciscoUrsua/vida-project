@@ -298,7 +298,7 @@ class PlanPage extends Component
         }
 
         return $this->plan->objetivosGenerales()
-            ->with('objetivosEspecificos')
+            ->with('indicador')
             ->get();
     }
 
@@ -315,7 +315,7 @@ class PlanPage extends Component
         }
 
         return $this->plan->objetivosGenerales()
-            ->with(['objetivosEspecificos.indicador', 'objetivosEspecificos.tipoFicha', 'indicador'])
+            ->with('indicador')
             ->get();
     }
 
