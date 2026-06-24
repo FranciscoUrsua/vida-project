@@ -825,14 +825,28 @@ $nc = [
                                 </label>
                             </div>
                             @if($oc->objetivosEspecificos->isNotEmpty())
-                            <ul class="list-unstyled ms-4 mt-2 mb-0">
+                            <div class="ms-4 mt-2 d-flex flex-column gap-1">
                                 @foreach($oc->objetivosEspecificos as $esp)
-                                <li class="small text-secondary py-1 border-bottom border-light last-child:border-0">
-                                    <x-heroicon-o-arrow-right class="icon-11 me-1"/>
-                                    {{ $esp->texto }}
-                                </li>
+                                @php $espYaAñadido = in_array((int) $esp->id, $yaEnPlan, true); @endphp
+                                <div class="form-check {{ $espYaAñadido ? 'opacity-50' : '' }}">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           id="esp-{{ $esp->id }}"
+                                           wire:model="objetivosEspecificosSeleccionados"
+                                           value="{{ $esp->id }}"
+                                           {{ $espYaAñadido ? 'disabled' : '' }}>
+                                    <label class="form-check-label small text-secondary" for="esp-{{ $esp->id }}">
+                                        {{ $esp->texto }}
+                                        @if($esp->tipoFicha)
+                                        <span class="plan-obj-area ms-1">{{ $esp->tipoFicha->nombre }}</span>
+                                        @endif
+                                        @if($espYaAñadido)
+                                        <span class="badge bg-secondary ms-1 fw-normal">ya añadido</span>
+                                        @endif
+                                    </label>
+                                </div>
                                 @endforeach
-                            </ul>
+                            </div>
                             @endif
                         </div>
                         @endforeach
@@ -843,7 +857,7 @@ $nc = [
                 <button wire:click="$set('modalObjetivoAbierto', false)" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                 <button wire:click="guardarObjetivosDesdeCatalogo"
                         class="btn btn-primary btn-sm"
-                        @if(empty($objetivosCatalogoSeleccionados)) disabled @endif>
+                        @if(empty($objetivosCatalogoSeleccionados) && empty($objetivosEspecificosSeleccionados)) disabled @endif>
                     <x-heroicon-o-check class="icon-13"/>
                     Añadir seleccionados
                 </button>
