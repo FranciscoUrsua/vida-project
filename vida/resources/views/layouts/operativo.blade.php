@@ -45,6 +45,7 @@
                 request()->routeIs('intervencion.buscar*')     => 'Buscar ciudadano/a',
                 request()->routeIs('intervencion.valoracion*') => 'Valoración',
                 request()->routeIs('intervencion.escala*')     => 'Escala',
+                request()->routeIs('intervencion.plan*')        => 'Plan de Intervención',
                 request()->routeIs('intervencion.ciudadano*')  => 'Expediente',
                 request()->routeIs('ciudadania.alta*')         => 'Alta de ciudadano/a',
                 request()->routeIs('ciudadania.ciudadano*')    => 'Ficha del ciudadano',

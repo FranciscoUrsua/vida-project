@@ -8,32 +8,25 @@
 >
 
 {{-- ============================================================
-     BANDA DE CONTEXTO (sticky)
+     BREADCRUMB + ACCIONES (sticky)
      ============================================================ --}}
 <div class="plan-topbar">
-    <a href="{{ route('intervencion.ciudadano.show', $this->plan?->historia_id ?? $this->historiaId) }}"
-       wire:navigate
-       class="btn btn-sm btn-light border d-inline-flex align-items-center gap-1 text-secondary text-nowrap">
-        <x-heroicon-o-arrow-left class="icon-13"/>
-        Intervención
-    </a>
+    <nav aria-label="Ubicación">
+        <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item">
+                <a href="{{ route('intervencion.ciudadano.show', $this->plan?->historia_id ?? $this->historiaId) }}"
+                   wire:navigate>{{ $this->ciudadano?->nombre_completo ?? 'Intervención' }}</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Plan de intervención</li>
+        </ol>
+    </nav>
 
-    <div class="plan-topbar__citizen">
-        <span class="fw-semibold d-block">{{ $this->ciudadano?->nombre_completo ?? '—' }}</span>
-        <span class="small text-secondary">{{ $this->plan?->tipoPlan?->nombre ?? 'Plan de intervención' }}</span>
-    </div>
-
-    <div class="d-flex gap-2 align-items-center">
+    <div class="d-flex gap-2 align-items-center ms-auto">
         @if($this->plan)
         <span class="badge rounded-pill plan-badge--{{ $this->plan->estado->value }}">
             {{ $this->plan->estado->label() }}
         </span>
         <span class="badge rounded-pill plan-badge--version">v{{ $this->plan->version }}</span>
-        @endif
-    </div>
-
-    <div class="d-flex gap-2">
-        @if($this->plan)
         <button wire:click="generarPdf" class="btn btn-outline-secondary btn-sm">
             <x-heroicon-o-arrow-down-tray class="icon-13"/>
             Generar PDF
