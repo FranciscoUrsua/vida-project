@@ -71,6 +71,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property string $motivoCierre
  * @property string $notasCierre
  * @property array $valoracionesIndicadores
+ * @property bool $modalEditarObjetivoAbierto
+ * @property int|null $editarObjetivoId
+ * @property string $editarObjetivoTexto
+ * @property string $editarObjetivoEstado
  */
 class PlanPage extends Component
 {
@@ -161,6 +165,15 @@ class PlanPage extends Component
 
     // --- Valoración de indicadores: [plan_objetivo_indicador_id => valor] ---
     public array $valoracionesIndicadores = [];
+
+    // --- Edición de objetivo existente ---
+    public bool $modalEditarObjetivoAbierto = false;
+
+    public ?int $editarObjetivoId = null;
+
+    public string $editarObjetivoTexto = '';
+
+    public string $editarObjetivoEstado = 'pendiente';
 
     /**
      * Inicializa el componente con el plan si se accede en modo edición,
@@ -717,6 +730,19 @@ class PlanPage extends Component
      *
      * @return void
      */
+    /**
+     * Recibe el HTML del editor contenteditable, actualiza la propiedad y persiste.
+     * Llamado desde el x-on:blur del editor, reemplazando el botón explícito.
+     *
+     * @param string $html Contenido HTML del editor.
+     * @return void
+     */
+    public function guardarDiagnosticoDesdeEditor(string $html): void
+    {
+        $this->diagnosticoTexto = $html;
+        $this->guardarDiagnostico();
+    }
+
     public function guardarDiagnostico(): void
     {
         if (! $this->plan) {
@@ -730,7 +756,62 @@ class PlanPage extends Component
         }
 
         $this->_guardarDiagnosticoDirecto();
-        $this->mensajeExito = 'Diagnóstico guardado.';
+    }
+
+    /**
+     * Abre el modal de edición para un objetivo existente del plan.
+     *
+     * @param int $objetivoId ID del PlanObjetivo a editar.
+     * @return void
+     */
+    public function abrirEditarObjetivo(int $objetivoId): void
+    {
+        $objetivo = PlanObjetivo::where('id', $objetivoId)
+            ->where('plan_id', $this->plan?->id)
+            ->first();
+
+        if (! $objetivo) {
+            return;
+        }
+
+        $this->editarObjetivoId    = $objetivo->id;
+        $this->editarObjetivoTexto = $objetivo->texto;
+        $this->editarObjetivoEstado = $objetivo->estado;
+        $this->modalEditarObjetivoAbierto = true;
+    }
+
+    /**
+     * Persiste el texto y el estado del objetivo que se está editando.
+     *
+     * @return void
+     */
+    public function guardarEdicionObjetivo(): void
+    {
+        $this->validate([
+            'editarObjetivoTexto' => 'required|string|max:500',
+            'editarObjetivoEstado' => 'required|in:pendiente,en_proceso,conseguido,abandonado',
+        ]);
+
+        $objetivo = PlanObjetivo::where('id', $this->editarObjetivoId)
+            ->where('plan_id', $this->plan?->id)
+            ->first();
+
+        if (! $objetivo) {
+            return;
+        }
+
+        $objetivo->update([
+            'texto'  => $this->editarObjetivoTexto,
+            'estado' => $this->editarObjetivoEstado,
+        ]);
+
+        $this->modalEditarObjetivoAbierto = false;
+        $this->editarObjetivoId           = null;
+        $this->editarObjetivoTexto        = '';
+        $this->editarObjetivoEstado       = 'pendiente';
+
+        unset($this->objetivosConIndicadores, $this->objetivosGenerales, $this->objetivosEspecificosIndependientes);
+        $this->mensajeExito = 'Objetivo actualizado.';
     }
 
     /**

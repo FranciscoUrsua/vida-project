@@ -246,14 +246,8 @@
                     class="plan-editor-area"
                     contenteditable="{{ $this->plan?->estado !== 'cerrado' ? 'true' : 'false' }}"
                     x-data
-                    x-on:blur="$wire.set('diagnosticoTexto', $el.innerHTML)"
+                    x-on:blur="$wire.guardarDiagnosticoDesdeEditor($el.innerHTML)"
                 >{!! $diagnosticoTexto !!}</div>
-                <div class="mt-2 text-end">
-                    <button wire:click="guardarDiagnostico" class="btn btn-sm btn-outline-secondary">
-                        <x-heroicon-o-check class="icon-13"/>
-                        Guardar síntesis
-                    </button>
-                </div>
             </div>
 
         </div>
@@ -311,7 +305,7 @@
                         <span class="badge rounded-pill plan-estado-{{ $og->estado }}">
                             {{ ucfirst(str_replace('_', ' ', $og->estado)) }}
                         </span>
-                        <button class="btn btn-outline-secondary btn-sm">
+                        <button wire:click="abrirEditarObjetivo({{ $og->id }})" class="btn btn-outline-secondary btn-sm">
                             <x-heroicon-o-pencil-square class="icon-13"/>
                             Editar
                         </button>
@@ -357,8 +351,9 @@
                     <div class="card-footer d-flex align-items-center justify-content-between">
                         <span class="badge rounded-pill plan-estado-{{ $oe->estado }}">
                             {{ ucfirst(str_replace('_', ' ', $oe->estado)) }}
+
                         </span>
-                        <button class="btn btn-outline-secondary btn-sm">
+                        <button wire:click="abrirEditarObjetivo({{ $oe->id }})" class="btn btn-outline-secondary btn-sm">
                             <x-heroicon-o-pencil-square class="icon-13"/>
                             Editar
                         </button>
@@ -1111,6 +1106,53 @@ $nc = [
                 >
                     <x-heroicon-o-x-circle class="icon-13"/>
                     Confirmar cierre
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show"></div>
+@endif
+
+{{-- Modal: Editar objetivo --}}
+@if($modalEditarObjetivoAbierto)
+<div class="modal fade show d-block" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar objetivo</h5>
+                <button type="button" class="btn-close"
+                        wire:click="$set('modalEditarObjetivoAbierto', false)"
+                        aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body d-flex flex-column gap-3">
+                <div>
+                    <label class="form-label small">Texto del objetivo</label>
+                    <textarea wire:model="editarObjetivoTexto"
+                              class="form-control form-control-sm @error('editarObjetivoTexto') is-invalid @enderror"
+                              rows="3"></textarea>
+                    @error('editarObjetivoTexto')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div>
+                    <label class="form-label small">Estado</label>
+                    <select wire:model="editarObjetivoEstado"
+                            class="form-select form-select-sm">
+                        <option value="pendiente">Pendiente</option>
+                        <option value="en_proceso">En proceso</option>
+                        <option value="conseguido">Conseguido</option>
+                        <option value="abandonado">Abandonado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button wire:click="$set('modalEditarObjetivoAbierto', false)"
+                        class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                <button wire:click="guardarEdicionObjetivo"
+                        class="btn btn-primary btn-sm">
+                    <x-heroicon-o-check class="icon-13"/>
+                    Guardar cambios
                 </button>
             </div>
         </div>
