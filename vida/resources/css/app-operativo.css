@@ -1,2 +1,2 @@
-/* VIDA 360 — legacy wrapper retained for Vite input compatibility */
-@import './vida/colors_and_type.css';
+/* VIDA 360 — fichero retenido como entrada Vite por compatibilidad con la configuración existente.
+   No contiene reglas. Todo el CSS operativo está en resources/scss/app-operativo.scss. */

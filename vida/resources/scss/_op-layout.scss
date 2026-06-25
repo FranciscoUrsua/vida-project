@@ -1,7 +1,5 @@
-body {
-    background: var(--color-paper, #FAF7F1);
-    color: var(--color-ink-900, #1D160E);
-}
+// Bootstrap ya establece body { background-color: $body-bg; color: $body-color; }.
+// Solo se necesita [x-cloak] y el ajuste de font-size base.
 
 [x-cloak] {
     display: none !important;
@@ -11,18 +9,20 @@ html {
     font-size: 18px;
 }
 
+// -----------------------------------------------------------------------------
+// Shell operativo: layout fijo con sidebar y topbar
+// -----------------------------------------------------------------------------
+
 .op-layout {
     display: flex;
     min-height: 100vh;
-    --color-ink-400: #8c8270;
-    --color-ink-500: #6a5f4c;
 }
 
 .op-sidebar {
     width: 196px;
     flex-shrink: 0;
-    background: var(--color-surface);
-    border-right: 1px solid var(--color-ink-200);
+    background: $vida-surface;
+    border-right: 1px solid $vida-ink-200;
     display: flex;
     flex-direction: column;
     position: fixed;
@@ -43,21 +43,21 @@ html {
     align-items: center;
     gap: 0.6rem;
     padding: 0.55rem 1rem;
-    color: var(--color-ink-700);
+    color: $vida-ink-700;
     text-decoration: none;
     font-size: 0.875rem;
     font-weight: 500;
-    transition: background var(--motion-fast), color var(--motion-fast);
+    transition: background $vida-motion-fast, color $vida-motion-fast;
 }
 
 .op-nav-item:hover {
-    background: var(--color-sand);
-    color: var(--color-ink-900);
+    background: $vida-sand;
+    color: $vida-ink-900;
 }
 
 .op-nav-item.activo {
-    background: var(--color-primary-soft);
-    color: var(--color-primary);
+    background: $vida-primary-soft;
+    color: $primary;
     font-weight: 600;
 }
 
@@ -72,20 +72,20 @@ html {
     font-size: 0.72rem;
     font-weight: 700;
     padding: 0.1rem 0.45rem;
-    border-radius: var(--radius-pill);
-    background: var(--color-info-soft);
-    color: var(--color-info-ink);
+    border-radius: $vida-radius-pill;
+    background: $vida-info-soft;
+    color: $vida-info-ink;
     line-height: 1.5;
 }
 
 .op-nav-badge.alerta {
-    background: var(--color-danger-soft);
-    color: var(--color-danger-ink);
+    background: $vida-danger-soft;
+    color: $vida-danger-ink;
 }
 
 .op-sidebar-footer {
     padding: 0.75rem 1rem;
-    border-top: 1px solid var(--color-ink-200);
+    border-top: 1px solid $vida-ink-200;
 }
 
 .op-main {
@@ -96,14 +96,18 @@ html {
     padding-top: 56px;
 }
 
+// -----------------------------------------------------------------------------
+// Topbar fija
+// -----------------------------------------------------------------------------
+
 .op-topbar {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     height: 56px;
-    background: var(--color-surface);
-    border-bottom: 1px solid var(--color-ink-200);
+    background: $vida-surface;
+    border-bottom: 1px solid $vida-ink-200;
     display: flex;
     align-items: center;
     padding: 0;
@@ -118,7 +122,7 @@ html {
     align-items: center;
     gap: 0.6rem;
     padding: 0 1rem;
-    border-right: 1px solid var(--color-ink-200);
+    border-right: 1px solid $vida-ink-200;
 }
 
 .topbar__logo-img {
@@ -129,7 +133,7 @@ html {
 .topbar__logo-text {
     font-size: 0.9rem;
     font-weight: 700;
-    color: var(--color-ink-900);
+    color: $vida-ink-900;
     letter-spacing: -0.01em;
 }
 
@@ -173,30 +177,30 @@ html {
 .topbar__user-menu {
     min-width: 220px;
     padding: 0;
-    background: #fff;
-    border: 1px solid var(--color-ink-200);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-2);
+    background: $vida-surface;
+    border: 1px solid $vida-ink-200;
+    border-radius: $border-radius-lg;
+    box-shadow: $vida-shadow-2;
     overflow: hidden;
 }
 
 .topbar__user-info {
-    padding: var(--space-3) var(--space-4);
+    padding: 0.75rem 1rem;
 }
 
 .topbar__user-divider {
     height: 1px;
-    background: var(--color-ink-200);
+    background: $vida-ink-200;
     margin: 0;
 }
 
 .topbar__user-detail-name {
     font-size: 14px;
     font-weight: 600;
-    color: var(--color-ink-900);
+    color: $vida-ink-900;
 }
 
 .topbar__user-detail-role {
     font-size: 12px;
-    color: var(--color-ink-500);
+    color: $vida-ink-500;
 }

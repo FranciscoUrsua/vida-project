@@ -1,7 +1,7 @@
 @use './bootstrap-overrides' as *;
 
 @import 'bootstrap/scss/bootstrap';
-@import '../css/vida/colors_and_type.css';
+@import './vida-sass-tokens';
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

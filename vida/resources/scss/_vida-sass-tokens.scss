@@ -1,0 +1,30 @@
+// Tokens de diseño VIDA como variables Sass.
+// Compiladas en tiempo de build — sin salida CSS propia.
+// Fuente de verdad: resources/css/vida/colors_and_type.css
+//
+// Usar aquí, NO en CSS custom properties de :root.
+// Los tokens que coinciden con variables Bootstrap ($primary, $body-bg...)
+// se definen únicamente en _bootstrap-overrides.scss.
+
+$vida-surface:       #FFFFFF;
+$vida-sand:          #F2EADA;
+$vida-ink-100:       #F2EEE5;
+$vida-ink-200:       #E6E1D8;
+$vida-ink-300:       #D7CFBE;
+$vida-ink-400:       #B4AB97;
+$vida-ink-500:       #8C8270;
+$vida-ink-600:       #6A5F4C;
+$vida-ink-700:       #4A3F2E;
+$vida-ink-800:       #2E2519;
+$vida-ink-900:       #1D160E;
+$vida-primary-soft:  #E3ECF5;
+$vida-primary-ink:   #163A5C;
+$vida-accent:        #C76E4A;
+$vida-info-soft:     #E1EAF2;
+$vida-info-ink:      #274863;
+$vida-danger-soft:   #F5DFD8;
+$vida-danger-ink:    #7A2D1E;
+$vida-radius-pill:   999px;
+$vida-shadow-sm:     0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .04);
+$vida-shadow-2:      0 2px 8px rgba(0, 0, 0, .12), 0 1px 3px rgba(0, 0, 0, .08);
+$vida-motion-fast:   100ms ease;
