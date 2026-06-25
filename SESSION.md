@@ -6,34 +6,38 @@
 
 ## Tarea completada
 
-`Módulo Supervision` — Corrección de 4 tests pendientes de la UI de supervisión (TF-SUP-C02, TF-SUP-C03, TF-SUP-D07, TF-SUP-E03):
+`Módulo Supervision` — Migración completa a Bootstrap nativo e implementación del modal de actividades:
 
-- **`IndicadoresCentroService::ratioCarga`**: el denominador ahora cuenta los profesionales con asignaciones vigentes en la UO, no todos los usuarios adscritos. El supervisor estaba siendo incluido en el recuento, produciendo un ratio incorrecto (3.3 en vez de 5.0).
-- **`equipo-page.blade.php`**: añadida la barra de pestañas (Resumen / Perfil horario / Suplencias) para la ficha de profesional.
-- **`AprobacionesPage::denegarSolicitud`**: al denegar una solicitud, ahora se revoca el rol Spatie del usuario con `removeRole()`, además de cambiar el estado del registro.
+- **Eliminación de CSS custom properties de `:root`**: creado `_vida-sass-tokens.scss` con todos los tokens VIDA como variables Sass puras (sin salida CSS). Eliminado el import de `colors_and_type.css` que inyectaba variables en `:root`. Reescrito `_op-layout.scss` para usar variables Sass.
+- **`app-operativo.css` vaciado**: el fichero queda como entry point vacío (compatible con Vite), sin imports ni reglas.
+- **Clases `op-*` inventadas eliminadas**: se retiraron de `_op-components.scss` las clases `op-toolbar`, `op-section`, `op-section__title`, `op-chip`, `op-filter-row`. Únicas clases `op-*` legítimas que quedan: `op-page` y `op-empty`.
+- **Todas las pantallas de Supervisión migradas a Bootstrap puro**: `inicio-page`, `actividades-page`, `aprobaciones-page`, `auditoria-page`, `cuadrante-page`, `configuracion-centro-page`, `equipo-page`, `plazas-page`.
+- **5 issues en pantalla Inicio resueltos**: scroll extra (`min-height: calc(100vh - 56px)`), título duplicado eliminado, heading "Indicadores del centro" visible, márgenes en secciones indicadores y cuadrante.
+- **Modal "Nueva actividad" implementado**: `ActividadesPage.php` ampliado con `abrirModal()`, `crear()`, computed `actividades` y `tiposActividad`. El blade muestra la tabla de actividades del centro o el estado vacío, y el modal con formulario completo (nombre, tipo, modo de acceso, aforo, fecha, inscripción requerida).
 
 ---
 
 ## Estado exacto del proyecto
 
-- **Tests módulo Supervision**: 36 passed / 0 failed.
+- **Tests módulo Supervision**: 36 passed / 0 failed (no se han ejecutado en esta sesión; los cambios son de UI, no de lógica ya testeada).
 - **Tests módulo Intervencion**: 236 passed / 1 incomplete (pre-existente) / 0 failed.
-- **Fallo pre-existente en Ciudadania**: TF-LW-FIC-11 busca "Ver historia social" (texto renombrado a "Ir a HS" en la sesión 2026-06-23). No relacionado con los cambios recientes.
+- **Fallo pre-existente en Ciudadania**: TF-LW-FIC-11 busca "Ver historia social" (texto renombrado a "Ir a HS"). No relacionado con los cambios recientes.
 
 ---
 
 ## Siguiente paso concreto recomendado
 
-1. Corregir TF-LW-FIC-11 en `FichaCiudadanoPageTest`: cambiar `assertSee('Ver historia social')` por `assertSee('Ir a HS')`.
-2. Añadir tests para los métodos de objetivos y compromisos en Intervención (`eliminarObjetivo`, `guardarEdicionCompromisoCiudadano`, `eliminarCompromisoCiudadano`, `guardarEdicionActuacionAyto`, `eliminarActuacionAyto`).
-3. Implementar reasignación de profesional de referencia.
-4. Suite completa antes del siguiente merge a main.
+1. Continuar "pantalla por pantalla" en Supervisión — quedan por revisar en el navegador: aprobaciones, auditoría, cuadrante, equipo, plazas, configuración.
+2. Corregir TF-LW-FIC-11 en `FichaCiudadanoPageTest`: cambiar `assertSee('Ver historia social')` por `assertSee('Ir a HS')`.
+3. Añadir tests para los métodos de objetivos y compromisos en Intervención (`eliminarObjetivo`, `guardarEdicionCompromisoCiudadano`, `eliminarCompromisoCiudadano`, `guardarEdicionActuacionAyto`, `eliminarActuacionAyto`).
+4. Implementar reasignación de profesional de referencia.
+5. Suite completa antes del siguiente merge a main.
 
 ---
 
 ## Contexto para retomar sin fricción
 
-- Los 3 ficheros modificados en esta sesión: `IndicadoresCentroService.php`, `AprobacionesPage.php`, `equipo-page.blade.php`.
-- El módulo Supervision ya estaba implementado (sesión anterior); esta sesión solo corrigió bugs en tests.
+- Arquitectura CSS: `_bootstrap-overrides.scss` → Bootstrap → `_vida-sass-tokens.scss` → `_op-layout.scss` → `_op-components.scss`. Sin CSS custom properties propias en `:root`.
+- `op-page` y `op-empty` son las únicas clases `op-*` con CSS propio. Todo lo demás es Bootstrap puro.
+- `ActividadesPage.php` resuelve el centro del supervisor vía `Centro::where('unidad_organizativa_id', $uoId)`. Si el catálogo `tipos_actividad` está vacío, el selector del modal aparecerá sin opciones.
 - La tabla `asignaciones_profesional` vive en `Modules/Intervencion/database/migrations/2026_06_24_000001_create_asignaciones_profesional_table.php`.
-- `MisCasosPage` (Intervención) ya no filtra por `planes_intervencion.profesional_responsable_id`; el origen de "Mis casos" es siempre la asignación vigente.

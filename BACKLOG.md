@@ -9,6 +9,12 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Actividades grupales — gestión completa** — 2026-06-25
+Módulo: Supervision / Centro
+El modal de alta de actividades está implementado. Pendiente: edición y baja de actividades, gestión de sesiones (`SesionActividad`), e inscripción de ciudadanos desde Intervención. El modelo `Actividad` ya tiene la estructura; falta la UI de ciclo de vida completo.
+
+---
+
 **Filtro por segmento en SelectorPrestacionesCentro** — 2026-06-08
 Módulo: Centro / Prestaciones
 Implementar el filtro por segmento de población en el selector de prestaciones del centro. Actualmente el filtro aparece en la UI (botones por segmento) pero no aplica ninguna restricción a la query de prestaciones.
