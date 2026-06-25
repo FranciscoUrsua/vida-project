@@ -60,7 +60,7 @@ class ActividadesPage extends Component
         $centro = $this->centroDelSupervisor();
 
         if ($centro === null) {
-            return collect();
+            return new Collection();
         }
 
         return Actividad::where('centro_id', $centro->id)
