@@ -1,11 +1,7 @@
 <div class="op-page">
 
-    <div class="op-toolbar">
-        <h2 class="h5 mb-0 fw-semibold">Aprobaciones</h2>
-    </div>
-
     {{-- Pestañas --}}
-    <section class="op-section">
+    <section class="p-3">
         <ul class="nav nav-tabs mb-3" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link {{ $tabActiva === 'todas' ? 'active' : '' }}"

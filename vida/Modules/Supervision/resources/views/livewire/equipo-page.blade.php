@@ -1,7 +1,6 @@
 <div class="op-page">
 
-    <div class="op-toolbar">
-        <h2 class="h5 mb-0 fw-semibold">Mi equipo</h2>
+    <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom">
         <button type="button" class="btn btn-primary btn-sm ms-auto" wire:click="abrirModalAlta">
             <x-heroicon-o-user-plus class="icon-16 me-1" aria-hidden="true"/>
             Añadir profesional
@@ -9,7 +8,7 @@
     </div>
 
     @if($avisoAlta)
-    <div class="alert alert-info d-flex align-items-start gap-2 mx-3 mt-2" role="alert">
+    <div class="alert alert-info d-flex align-items-start gap-2 mx-3 mt-3" role="alert">
         <x-heroicon-o-information-circle class="icon-20 flex-shrink-0 mt-1" aria-hidden="true"/>
         <span>{{ $avisoAlta }}</span>
     </div>
@@ -22,7 +21,7 @@
         <a class="nav-link" href="#">Suplencias</a>
     </nav>
 
-    <section class="op-section">
+    <section class="p-3">
         @if($this->profesionales->isEmpty())
             <div class="op-empty">
                 <x-heroicon-o-users class="op-empty__icon" aria-hidden="true"/>

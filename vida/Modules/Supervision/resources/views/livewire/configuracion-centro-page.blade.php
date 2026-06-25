@@ -1,14 +1,10 @@
 <div class="op-page">
 
-    <div class="op-toolbar">
-        <h2 class="h5 mb-0 fw-semibold">Configuración del centro</h2>
-    </div>
-
     <form wire:submit="guardar">
 
         {{-- Identificación del centro --}}
-        <section class="op-section" aria-labelledby="identidad-heading">
-            <h3 class="h6 fw-semibold mb-3" id="identidad-heading">Identificación del centro</h3>
+        <section class="p-3 border-bottom" aria-labelledby="identidad-heading">
+            <h2 class="h6 fw-semibold mb-3" id="identidad-heading">Identificación del centro</h2>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label" for="nombreCorto">Nombre corto</label>
@@ -19,8 +15,8 @@
         </section>
 
         {{-- Horario y agenda --}}
-        <section class="op-section" aria-labelledby="agenda-heading">
-            <h3 class="h6 fw-semibold mb-3" id="agenda-heading">Horario y agenda</h3>
+        <section class="p-3 border-bottom" aria-labelledby="agenda-heading">
+            <h2 class="h6 fw-semibold mb-3" id="agenda-heading">Horario y agenda</h2>
             <div class="row g-3">
                 <div class="col-md-4">
                     <label class="form-label" for="modoAgenda">Modo de agenda</label>
@@ -49,8 +45,8 @@
 
         @if($this->tienePlazas)
         {{-- Plazas --}}
-        <section class="op-section" aria-labelledby="plazas-heading">
-            <h3 class="h6 fw-semibold mb-3" id="plazas-heading">Plazas</h3>
+        <section class="p-3 border-bottom" aria-labelledby="plazas-heading">
+            <h2 class="h6 fw-semibold mb-3" id="plazas-heading">Plazas</h2>
             <div class="row g-3">
                 <div class="col-md-4">
                     <label class="form-label" for="capacidadMaxima">Capacidad máxima declarada</label>
@@ -61,7 +57,7 @@
         </section>
         @endif
 
-        <div class="d-flex gap-2 px-3 pb-3">
+        <div class="d-flex gap-2 p-3">
             <button type="submit" class="btn btn-primary btn-sm">Guardar cambios</button>
         </div>
 

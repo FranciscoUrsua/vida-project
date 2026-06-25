@@ -1,12 +1,8 @@
 <div class="op-page">
 
-    <div class="op-toolbar">
-        <h2 class="h5 mb-0 fw-semibold">Inicio</h2>
-    </div>
-
     {{-- Indicadores de gestión --}}
-    <section class="op-section" aria-labelledby="kpi-heading">
-        <h3 class="visually-hidden" id="kpi-heading">Indicadores del centro</h3>
+    <section class="p-3" aria-labelledby="kpi-heading">
+        <h2 class="h6 fw-semibold text-body-secondary mb-3" id="kpi-heading">Indicadores del centro</h2>
         <div class="row g-3">
 
             {{-- Ratio personas/profesional --}}
@@ -19,7 +15,7 @@
                             {{ number_format($this->ratioCarga, 1) }}
                         </span>
                         @if($this->ratioSuperaUmbral)
-                            <span class="op-chip op-chip--warning">Supera umbral</span>
+                            <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis">Supera umbral</span>
                         @endif
                     </div>
                 </div>
@@ -60,9 +56,9 @@
     </section>
 
     {{-- Cuadrante compacto del día --}}
-    <section class="op-section" aria-labelledby="cuadrante-heading">
+    <section class="p-3 border-top" aria-labelledby="cuadrante-heading">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h3 class="h6 mb-0 fw-semibold" id="cuadrante-heading">Cuadrante de hoy</h3>
+            <h2 class="h6 mb-0 fw-semibold" id="cuadrante-heading">Cuadrante de hoy</h2>
             <a href="{{ route('supervision.cuadrante') }}" class="btn btn-sm btn-outline-secondary">
                 Ver cuadrante completo
             </a>
@@ -74,9 +70,9 @@
 
     {{-- Aprobaciones pendientes --}}
     @if($this->aprobacionesPendientes->isNotEmpty())
-    <section class="op-section" aria-labelledby="aprobaciones-heading">
+    <section class="p-3 border-top" aria-labelledby="aprobaciones-heading">
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h3 class="h6 mb-0 fw-semibold" id="aprobaciones-heading">Aprobaciones pendientes</h3>
+            <h2 class="h6 mb-0 fw-semibold" id="aprobaciones-heading">Aprobaciones pendientes</h2>
             @if($this->totalAprobacionesPendientes > 5)
                 <a href="{{ route('supervision.aprobaciones') }}" class="btn btn-sm btn-outline-secondary">
                     Ver todas ({{ $this->totalAprobacionesPendientes }})
