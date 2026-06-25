@@ -21,8 +21,12 @@ Route::post('/bienvenida', [OnboardingController::class, 'completar'])
 Route::middleware(['web', 'auth'])->get('/', function () {
     $usuario = auth()->user();
 
-    if ($usuario->hasAnyRole(['adm_sistema', 'supervision', 'adm_usuarios'])) {
+    if ($usuario->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
         return redirect('/admin');
+    }
+
+    if ($usuario->hasRole('supervision')) {
+        return redirect()->route('supervision.inicio');
     }
 
     if ($usuario->hasRole('intervencion')) {
