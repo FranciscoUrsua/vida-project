@@ -20,7 +20,7 @@ centros:
 profesionales:
   - login: supervisor.agenda@demo.es
     nombre: Supervisor Agenda
-    rol: supervisor
+    rol: supervision
     centro: c1
   - login: tsr1.agenda@demo.es
     nombre: TSR Vallecas 1

@@ -16,7 +16,7 @@ centros:
 profesionales:
   - login: supervisor.test@demo.es
     nombre: Laura Supervisora
-    rol: supervisor
+    rol: supervision
     centro: c1
   - login: tsr1.test@demo.es
     nombre: Ana García López

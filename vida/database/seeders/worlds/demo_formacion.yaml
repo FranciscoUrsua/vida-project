@@ -16,7 +16,7 @@ centros:
 profesionales:
   - login: supervisor.formacion@demo.es
     nombre: Marta Supervisora
-    rol: supervisor
+    rol: supervision
     centro: c1
   - login: tsr1.formacion@demo.es
     nombre: Ana Trabaja Social

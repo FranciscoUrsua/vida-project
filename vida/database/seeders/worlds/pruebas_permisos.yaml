@@ -12,7 +12,7 @@ centros:
 profesionales:
   - login: supervisor.permisos@demo.es
     nombre: Supervisora Test
-    rol: supervisor
+    rol: supervision
     centro: c1
   - login: tsr1.permisos@demo.es
     nombre: TSR Activo

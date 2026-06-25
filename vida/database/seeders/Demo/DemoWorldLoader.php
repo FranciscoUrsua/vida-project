@@ -160,7 +160,7 @@ class DemoWorldLoader
             );
         }
 
-        $rolesValidos = ['supervisor', 'intervencion', 'consulta_basica'];
+        $rolesValidos = ['supervision', 'intervencion', 'consulta_basica'];
         $profesionalesLogins = [];
 
         foreach ($raw['profesionales'] as $idx => $prof) {

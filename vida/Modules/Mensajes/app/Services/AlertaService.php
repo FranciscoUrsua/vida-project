@@ -175,7 +175,7 @@ class AlertaService
                         ->orWhere('fecha_fin', '>=', now()->toDateString());
                 });
         })
-            ->role('supervisor')
+            ->role('supervision')
             ->first();
     }
 

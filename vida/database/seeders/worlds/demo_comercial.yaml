@@ -28,7 +28,7 @@ centros:
 profesionales:
   - login: supervisor.vallecas@demo.es
     nombre: Directora CSS Vallecas
-    rol: supervisor
+    rol: supervision
     centro: c1
   - login: tsr1.vallecas@demo.es
     nombre: Ana López García
@@ -52,7 +52,7 @@ profesionales:
     centro: c1
   - login: supervisor.carabanchel@demo.es
     nombre: Director CSS Carabanchel
-    rol: supervisor
+    rol: supervision
     centro: c2
   - login: tsr1.carabanchel@demo.es
     nombre: Laura González Sanz
@@ -76,7 +76,7 @@ profesionales:
     centro: c2
   - login: supervisor.usera@demo.es
     nombre: Supervisora CSS Usera
-    rol: supervisor
+    rol: supervision
     centro: c3
   - login: tsr1.usera@demo.es
     nombre: Patricia Moreno Gil
@@ -96,7 +96,7 @@ profesionales:
     centro: c3
   - login: supervisor.hortaleza@demo.es
     nombre: Director Mayores Hortaleza
-    rol: supervisor
+    rol: supervision
     centro: c4
   - login: tsr1.hortaleza@demo.es
     nombre: Beatriz Jiménez Vidal
@@ -116,7 +116,7 @@ profesionales:
     centro: c4
   - login: supervisor.moncloa@demo.es
     nombre: Supervisora Familia Moncloa
-    rol: supervisor
+    rol: supervision
     centro: c5
   - login: tsr1.moncloa@demo.es
     nombre: Silvia Navarro Cruz

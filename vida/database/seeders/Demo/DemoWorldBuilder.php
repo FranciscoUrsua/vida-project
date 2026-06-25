@@ -145,7 +145,7 @@ class DemoWorldBuilder
         $cargoAuxiliar = Cargo::where('nombre', 'like', '%Auxiliar%Servicios%')->first()?->id
             ?? $cargoTrabSocial;
         $cargoPorRol = [
-            'supervisor' => $cargoCoordinador,
+            'supervision' => $cargoCoordinador,
             'intervencion' => $cargoTrabSocial,
             'consulta_basica' => $cargoAuxiliar,
         ];
