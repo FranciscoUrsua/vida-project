@@ -41,8 +41,12 @@ class OnboardingController extends Controller
         $usuario = Auth::user();
         $usuario->update(['primer_acceso' => false]);
 
-        if ($usuario->hasAnyRole(['adm_sistema', 'supervision', 'adm_usuarios'])) {
+        if ($usuario->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
             return redirect('/admin');
+        }
+
+        if ($usuario->hasRole('supervision')) {
+            return redirect()->route('supervision.inicio');
         }
 
         if ($usuario->hasRole('intervencion')) {
