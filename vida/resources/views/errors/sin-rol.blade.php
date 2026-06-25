@@ -1,12 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sin perfil de acceso — {{ config('app.name') }}</title>
-    @vite(['resources/scss/app-public.scss', 'resources/js/app.js'])
-</head>
-<body class="auth-page auth-page--centered">
+@extends('layouts.public', ['title' => 'Sin perfil de acceso — ' . config('app.name'), 'bodyClass' => 'auth-page auth-page--centered'])
+
+@section('content')
 @php
     $usuario = Auth::user();
     $nombreProfesional = $usuario->profesional
@@ -61,5 +55,4 @@
         </div>
     </div>
 </div>
-</body>
-</html>
+@endsection

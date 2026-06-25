@@ -1,12 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio — {{ config('app.name') }}</title>
-    @vite(['resources/scss/app-public.scss', 'resources/js/app.js'])
-</head>
-<body class="public-shell">
+@extends('layouts.public', ['title' => 'Inicio — ' . config('app.name'), 'bodyClass' => 'public-shell'])
+
+@section('content')
 <nav class="public-shell__topbar" aria-label="Barra superior">
     <span class="public-shell__brand">{{ config('app.name') }}</span>
     <div class="public-shell__user">
@@ -20,5 +14,4 @@
         <p class="public-shell__status mb-0">Redirigiendo…</p>
     </div>
 </main>
-</body>
-</html>
+@endsection

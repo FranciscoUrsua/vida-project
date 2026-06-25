@@ -2,6 +2,7 @@
 
 @import 'bootstrap/scss/bootstrap';
 @import './vida-sass-tokens';
+@import './bootstrap-components';
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -13,6 +14,5 @@
     --font-sans: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
 }
 
-@import './op-layout';
-@import './op-components';
+@import './public-pages';
 @import './op-utilities';

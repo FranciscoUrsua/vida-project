@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso — VIDA 360</title>
-    @vite(['resources/scss/app-public.scss', 'resources/js/app.js'])
-</head>
-<body class="auth-page">
+@extends('layouts.public', ['title' => 'Acceso — VIDA 360', 'bodyClass' => 'auth-page'])
+
+@section('content')
 <div class="container-fluid p-0 auth-page__shell">
     <div class="row g-0 min-vh-100">
-
         <aside class="col-lg-5 d-none d-lg-flex auth-page__aside">
             <div class="auth-page__aside-inner">
                 <div class="auth-page__brand">
@@ -109,8 +102,6 @@
                 </div>
             </div>
         </main>
-
     </div>
 </div>
-</body>
-</html>
+@endsection

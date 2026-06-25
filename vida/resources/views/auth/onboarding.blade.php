@@ -1,12 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenida — VIDA 360</title>
-    @vite(['resources/scss/app-public.scss', 'resources/js/app.js'])
-</head>
-<body class="auth-page auth-page--centered">
+@extends('layouts.public', ['title' => 'Bienvenida — VIDA 360', 'bodyClass' => 'auth-page auth-page--centered'])
+
+@section('content')
 <div class="container auth-page__center-wrap">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-7 col-xl-6">
@@ -51,5 +45,4 @@
         </div>
     </div>
 </div>
-</body>
-</html>
+@endsection

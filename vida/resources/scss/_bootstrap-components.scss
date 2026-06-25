@@ -1,0 +1,124 @@
+// Bootstrap VIDA: componentes estándar con semántica de producto.
+.btn {
+    --bs-btn-focus-shadow-rgb: 42, 91, 138;
+}
+
+.btn-primary {
+    --bs-btn-hover-bg: #234b72;
+    --bs-btn-hover-border-color: #234b72;
+    --bs-btn-active-bg: #1f4468;
+    --bs-btn-active-border-color: #1f4468;
+}
+
+.btn-outline-secondary {
+    --bs-btn-color: #4A3F2E;
+    --bs-btn-border-color: #D7CFBE;
+    --bs-btn-hover-bg: #F2EADA;
+    --bs-btn-hover-border-color: #C8BCA4;
+    --bs-btn-hover-color: #1D160E;
+    --bs-btn-active-bg: #E6E1D8;
+    --bs-btn-active-border-color: #C8BCA4;
+    --bs-btn-active-color: #1D160E;
+}
+
+.btn-light {
+    --bs-btn-color: #2E2519;
+    --bs-btn-bg: #FFFFFF;
+    --bs-btn-border-color: #D7CFBE;
+    --bs-btn-hover-bg: #F2EADA;
+    --bs-btn-hover-border-color: #C8BCA4;
+    --bs-btn-hover-color: #1D160E;
+}
+
+.btn-link {
+    font-weight: 600;
+}
+
+.form-label {
+    color: $vida-ink-700;
+    font-size: 0.84rem;
+    font-weight: 600;
+}
+
+.form-control,
+.form-select {
+    border-color: $vida-ink-300;
+}
+
+.form-control::placeholder {
+    color: $vida-ink-500;
+}
+
+.form-control:focus,
+.form-select:focus,
+.btn:focus-visible,
+.dropdown-toggle:focus-visible {
+    border-color: $primary;
+    box-shadow: 0 0 0 0.125rem rgba(42, 91, 138, 0.2);
+}
+
+.alert {
+    border-width: 1px;
+}
+
+.alert-danger {
+    --bs-alert-bg: #F5DFD8;
+    --bs-alert-border-color: #E7C4BC;
+    --bs-alert-color: #7A2D1E;
+}
+
+.alert-warning {
+    --bs-alert-bg: #F5EBD4;
+    --bs-alert-border-color: #E5D2A6;
+    --bs-alert-color: #7A5818;
+}
+
+.alert-success {
+    --bs-alert-bg: #E2EEE4;
+    --bs-alert-border-color: #C7DDCB;
+    --bs-alert-color: #2F5A39;
+}
+
+.alert-info {
+    --bs-alert-bg: #E1EAF2;
+    --bs-alert-border-color: #C9D7E5;
+    --bs-alert-color: #274863;
+}
+
+.dropdown-menu {
+    box-shadow: $vida-shadow-2;
+}
+
+.dropdown-item {
+    font-weight: 500;
+}
+
+.modal-content {
+    box-shadow: $vida-shadow-2;
+}
+
+.card {
+    box-shadow: $vida-shadow-sm;
+}
+
+.table {
+    --bs-table-color: #1D160E;
+    --bs-table-border-color: #E6E1D8;
+}
+
+.table > :not(caption) > * > * {
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+}
+
+.table thead th {
+    color: $vida-ink-700;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.badge {
+    font-weight: 600;
+}
