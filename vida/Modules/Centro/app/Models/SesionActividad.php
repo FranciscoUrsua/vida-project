@@ -6,9 +6,11 @@ use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Modules\Usuarios\Models\Profesional;
 
 /**
  * Sesión concreta de una actividad.
@@ -26,6 +28,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $aforo_prescripcion
  * @property string $estado
  * @property int|null $sala_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Profesional> $profesionales
  */
 class SesionActividad extends Model
 {
@@ -76,6 +79,18 @@ class SesionActividad extends Model
     public function sala(): BelongsTo
     {
         return $this->belongsTo(Sala::class);
+    }
+
+    /**
+     * Profesionales que dirigen esta sesión concreta.
+     * Permite rotación de profesionales sesión a sesión independientemente de la actividad.
+     *
+     * @return BelongsToMany<Profesional, self>
+     */
+    public function profesionales(): BelongsToMany
+    {
+        return $this->belongsToMany(Profesional::class, 'sesion_actividad_profesional')
+            ->withTimestamps();
     }
 
     /**

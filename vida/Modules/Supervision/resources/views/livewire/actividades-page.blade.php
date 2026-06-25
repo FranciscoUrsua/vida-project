@@ -61,7 +61,7 @@
     @if($modalAbierto)
     <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
          aria-labelledby="modal-actividad-titulo">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modal-actividad-titulo">
@@ -78,59 +78,128 @@
                         @error('nombre') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label" for="act-tipo">Tipo de actividad <span class="text-danger">*</span></label>
-                        <select id="act-tipo" class="form-select @error('tipoActividadId') is-invalid @enderror"
-                                wire:model="tipoActividadId">
-                            <option value="">Selecciona un tipo…</option>
-                            @foreach($this->tiposActividad as $tipo)
-                                <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
-                            @endforeach
-                        </select>
-                        @error('tipoActividadId') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label" for="act-modo">Modo de acceso <span class="text-danger">*</span></label>
-                        <select id="act-modo" class="form-select @error('modoAcceso') is-invalid @enderror"
-                                wire:model.live="modoAcceso">
-                            <option value="libre">Libre</option>
-                            <option value="prescripcion">Prescripción</option>
-                            <option value="mixta">Mixta</option>
-                        </select>
-                        @error('modoAcceso') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label" for="act-tipo">Tipo de actividad <span class="text-danger">*</span></label>
+                            <select id="act-tipo" class="form-select @error('tipoActividadId') is-invalid @enderror"
+                                    wire:model="tipoActividadId">
+                                <option value="">Selecciona un tipo…</option>
+                                @foreach($this->tiposActividad as $tipo)
+                                    <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                                @endforeach
+                            </select>
+                            @error('tipoActividadId') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label" for="act-modo">Modo de acceso <span class="text-danger">*</span></label>
+                            <select id="act-modo" class="form-select @error('modoAcceso') is-invalid @enderror"
+                                    wire:model.live="modoAcceso">
+                                <option value="libre">Libre</option>
+                                <option value="prescripcion">Prescripción</option>
+                                <option value="mixta">Mixta</option>
+                            </select>
+                            @error('modoAcceso') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
                     </div>
 
                     <div class="row g-3 mb-3">
-                        <div class="col">
+                        <div class="col-sm-4">
                             <label class="form-label" for="act-aforo">Aforo total</label>
                             <input id="act-aforo" type="number" min="1" class="form-control @error('aforoTotal') is-invalid @enderror"
                                    wire:model="aforoTotal" placeholder="Sin límite">
                             @error('aforoTotal') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         @if($modoAcceso !== 'libre')
-                        <div class="col">
+                        <div class="col-sm-4">
                             <label class="form-label" for="act-aforo-presc">Aforo prescripción</label>
                             <input id="act-aforo-presc" type="number" min="0" class="form-control @error('aforoPresc') is-invalid @enderror"
                                    wire:model="aforoPresc">
                             @error('aforoPresc') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         @endif
+                        <div class="col-sm-4">
+                            <label class="form-label" for="act-fecha">Fecha de alta <span class="text-danger">*</span></label>
+                            <input id="act-fecha" type="date" class="form-control @error('fechaAlta') is-invalid @enderror"
+                                   wire:model="fechaAlta">
+                            @error('fechaAlta') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label" for="act-fecha">Fecha de alta <span class="text-danger">*</span></label>
-                        <input id="act-fecha" type="date" class="form-control @error('fechaAlta') is-invalid @enderror"
-                               wire:model="fechaAlta">
-                        @error('fechaAlta') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="form-check">
+                    <div class="form-check mb-4">
                         <input class="form-check-input" type="checkbox" id="act-inscripcion"
                                wire:model="requiereInscripcion">
                         <label class="form-check-label" for="act-inscripcion">
                             Requiere inscripción previa al centro
                         </label>
+                    </div>
+
+                    {{-- Profesionales responsables --}}
+                    <div class="border-top pt-3">
+                        <p class="fw-semibold mb-2">
+                            Profesionales responsables <span class="text-danger">*</span>
+                        </p>
+
+                        @error('profesionalesIds')
+                            <div class="alert alert-warning py-2 px-3 small mb-2">{{ $message }}</div>
+                        @enderror
+
+                        {{-- Lista de asignados --}}
+                        @if($this->profesionalesAsignados->isNotEmpty())
+                        <ul class="list-group list-group-flush mb-3">
+                            @foreach($this->profesionalesAsignados as $prof)
+                            <li class="list-group-item d-flex align-items-center justify-content-between px-0 py-1">
+                                <span class="small">
+                                    <x-heroicon-s-user-circle class="icon-16 text-secondary me-1" aria-hidden="true"/>
+                                    {{ $prof->nombre_completo }}
+                                    @if($prof->cargo)
+                                        <span class="text-body-secondary">({{ $prof->cargo->nombre }})</span>
+                                    @endif
+                                </span>
+                                <button type="button"
+                                        class="btn btn-link btn-sm p-0 text-danger"
+                                        wire:click="quitarProfesional({{ $prof->id }})"
+                                        aria-label="Quitar a {{ $prof->nombre_completo }}">
+                                    <x-heroicon-o-x-mark class="icon-16" aria-hidden="true"/>
+                                </button>
+                            </li>
+                            @endforeach
+                        </ul>
+                        @else
+                        <p class="text-body-secondary small mb-3">Sin profesionales asignados.</p>
+                        @endif
+
+                        {{-- Selector para añadir --}}
+                        <div class="d-flex gap-2 align-items-center mb-2">
+                            <select class="form-select form-select-sm @error('agregarProfesionalId') is-invalid @enderror"
+                                    wire:model="agregarProfesionalId">
+                                <option value="">
+                                    @if($this->profesionalesParaSelector->isEmpty())
+                                        {{ $buscarEnTodo ? 'No hay más profesionales disponibles' : 'No hay más profesionales en el centro' }}
+                                    @else
+                                        Selecciona un profesional…
+                                    @endif
+                                </option>
+                                @foreach($this->profesionalesParaSelector as $prof)
+                                    <option value="{{ $prof->id }}">
+                                        {{ $prof->nombre_completo }}{{ $prof->cargo ? ' ('.$prof->cargo->nombre.')' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <button type="button"
+                                    class="btn btn-outline-secondary btn-sm flex-shrink-0"
+                                    wire:click="agregarProfesional"
+                                    @disabled(! $agregarProfesionalId)>
+                                <x-heroicon-o-plus class="icon-16 me-1" aria-hidden="true"/>
+                                Añadir
+                            </button>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="act-buscar-todo"
+                                   wire:model.live="buscarEnTodo">
+                            <label class="form-check-label small text-body-secondary" for="act-buscar-todo">
+                                Mostrar profesionales de toda la organización
+                            </label>
+                        </div>
                     </div>
 
                 </div>

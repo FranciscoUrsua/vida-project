@@ -6,9 +6,11 @@ use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Modules\Usuarios\Models\Profesional;
 
 /**
  * Actividad programada en un centro.
@@ -28,6 +30,7 @@ use Illuminate\Support\Carbon;
  * @property bool $activa
  * @property Carbon $fecha_alta
  * @property Carbon|null $fecha_baja
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Profesional> $profesionales
  */
 class Actividad extends Model
 {
@@ -92,6 +95,18 @@ class Actividad extends Model
     public function sesiones(): HasMany
     {
         return $this->hasMany(SesionActividad::class, 'actividad_id');
+    }
+
+    /**
+     * Profesionales responsables o coordinadores de la actividad.
+     * La dirección de sesiones concretas se gestiona en sesion_actividad_profesional.
+     *
+     * @return BelongsToMany<Profesional, self>
+     */
+    public function profesionales(): BelongsToMany
+    {
+        return $this->belongsToMany(Profesional::class, 'actividad_profesional')
+            ->withTimestamps();
     }
 
     // -------------------------------------------------------------------------
