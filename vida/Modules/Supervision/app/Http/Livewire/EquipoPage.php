@@ -11,23 +11,39 @@ use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
 use Modules\Usuarios\Models\TipoRelacionProfesional;
+use Modules\Usuarios\Models\Titulacion;
 
 /**
  * Pantalla «Mi equipo» para el módulo de Supervisión.
  *
  * Gestión del ciclo de vida de los profesionales adscritos a la UO del supervisor:
- * alta, baja (soft delete), cambio de perfil horario y suplencias.
+ * alta, edición, baja (soft delete), cambio de perfil horario y suplencias.
  * Solo gestiona la entidad Profesional, no la cuenta de Usuario (que gestiona adm_usuarios).
  *
- * @property bool $modalAltaAbierto
+ * @property bool   $modalAltaAbierto
  * @property string $nuevoNombre
  * @property int|null $nuevoCargo
  * @property string $nuevaFechaIncorporacion
  * @property int|null $profesionalSeleccionadoId
- * @property bool $modalBajaAbierto
+ * @property bool   $modalBajaAbierto
  * @property string $fechaBaja
- * @property bool $confirmarBajaConCasos
+ * @property bool   $confirmarBajaConCasos
  * @property string $tabActiva
+ * @property bool   $modalEdicionAbierto
+ * @property int|null $editandoProfesionalId
+ * @property string $editNombre
+ * @property string $editApellido1
+ * @property string|null $editApellido2
+ * @property string $editSexo
+ * @property int|null $editCargoId
+ * @property int|null $editTipoRelacionId
+ * @property int|null $editTitulacionId
+ * @property string|null $editCategoriaProfesional
+ * @property string|null $editOrganizacion
+ * @property string|null $editEmailProfesional
+ * @property string|null $editTelefonoProfesional
+ * @property string|null $editExtension
+ * @property string $editFechaInicio
  */
 #[Layout('layouts.supervision')]
 class EquipoPage extends Component
@@ -62,6 +78,26 @@ class EquipoPage extends Component
     /** @var string|null Aviso posterior al alta (cuenta de usuario pendiente de vinculación) */
     public ?string $avisoAlta = null;
 
+    /** @var bool Estado del modal de edición de profesional */
+    public bool $modalEdicionAbierto = false;
+
+    /** @var int|null ID del profesional en edición */
+    public ?int $editandoProfesionalId = null;
+
+    public string $editNombre = '';
+    public string $editApellido1 = '';
+    public ?string $editApellido2 = null;
+    public string $editSexo = 'D';
+    public ?int $editCargoId = null;
+    public ?int $editTipoRelacionId = null;
+    public ?int $editTitulacionId = null;
+    public ?string $editCategoriaProfesional = null;
+    public ?string $editOrganizacion = null;
+    public ?string $editEmailProfesional = null;
+    public ?string $editTelefonoProfesional = null;
+    public ?string $editExtension = null;
+    public string $editFechaInicio = '';
+
     /**
      * Profesionales adscritos a la UO del supervisor.
      *
@@ -90,7 +126,7 @@ class EquipoPage extends Component
     }
 
     /**
-     * Catálogo de cargos activos para el selector del modal de alta.
+     * Catálogo de cargos activos para los selectores del modal.
      *
      * @return Collection<int, Cargo>
      */
@@ -98,6 +134,28 @@ class EquipoPage extends Component
     public function cargos(): Collection
     {
         return Cargo::where('activo', true)->orderBy('nombre')->get();
+    }
+
+    /**
+     * Catálogo de tipos de relación profesional activos para el selector de edición.
+     *
+     * @return Collection<int, TipoRelacionProfesional>
+     */
+    #[Computed]
+    public function tiposRelacion(): Collection
+    {
+        return TipoRelacionProfesional::where('activo', true)->orderBy('nombre')->get();
+    }
+
+    /**
+     * Catálogo de titulaciones activas para el selector de edición.
+     *
+     * @return Collection<int, Titulacion>
+     */
+    #[Computed]
+    public function titulaciones(): Collection
+    {
+        return Titulacion::where('activo', true)->orderBy('nombre')->get();
     }
 
     /**
@@ -256,6 +314,89 @@ class EquipoPage extends Component
     }
 
     /**
+     * Abre el modal de edición con los datos actuales del profesional indicado.
+     *
+     * Solo actúa si el profesional está dentro del ámbito de la UO del supervisor.
+     *
+     * @param int $profesionalId ID del profesional a editar.
+     * @return void
+     */
+    public function abrirEdicion(int $profesionalId): void
+    {
+        $profesional = $this->profesionalEnAmbito($profesionalId);
+
+        if ($profesional === null) {
+            return;
+        }
+
+        $this->editandoProfesionalId   = $profesional->id;
+        $this->editNombre              = $profesional->nombre;
+        $this->editApellido1           = $profesional->apellido1;
+        $this->editApellido2           = $profesional->apellido2;
+        $this->editSexo                = $profesional->sexo;
+        $this->editCargoId             = $profesional->cargo_id;
+        $this->editTipoRelacionId      = $profesional->tipo_relacion_id;
+        $this->editTitulacionId        = $profesional->titulacion_id;
+        $this->editCategoriaProfesional = $profesional->categoria_profesional;
+        $this->editOrganizacion        = $profesional->organizacion;
+        $this->editEmailProfesional    = $profesional->email_profesional;
+        $this->editTelefonoProfesional = $profesional->telefono_profesional;
+        $this->editExtension           = $profesional->extension;
+        $this->editFechaInicio         = $profesional->fecha_inicio->toDateString();
+        $this->modalEdicionAbierto     = true;
+    }
+
+    /**
+     * Valida y persiste los cambios sobre el profesional en edición.
+     *
+     * @return void
+     */
+    public function guardarEdicion(): void
+    {
+        $this->validate([
+            'editNombre'               => ['required', 'string', 'max:100'],
+            'editApellido1'            => ['required', 'string', 'max:100'],
+            'editApellido2'            => ['nullable', 'string', 'max:100'],
+            'editSexo'                 => ['required', 'in:M,F,D'],
+            'editCargoId'              => ['required', 'integer', 'exists:cargos,id'],
+            'editTipoRelacionId'       => ['required', 'integer', 'exists:tipos_relacion_profesional,id'],
+            'editTitulacionId'         => ['nullable', 'integer', 'exists:titulaciones,id'],
+            'editCategoriaProfesional' => ['nullable', 'string', 'max:150'],
+            'editOrganizacion'         => ['nullable', 'string', 'max:200'],
+            'editEmailProfesional'     => ['nullable', 'email', 'max:150'],
+            'editTelefonoProfesional'  => ['nullable', 'string', 'max:30'],
+            'editExtension'            => ['nullable', 'string', 'max:10'],
+            'editFechaInicio'          => ['required', 'date'],
+        ]);
+
+        $profesional = $this->profesionalEnAmbito($this->editandoProfesionalId);
+
+        if ($profesional === null) {
+            $this->addError('editNombre', 'No tiene permisos para editar este profesional.');
+            return;
+        }
+
+        $profesional->update([
+            'nombre'                => trim($this->editNombre),
+            'apellido1'             => trim($this->editApellido1),
+            'apellido2'             => filled($this->editApellido2) ? trim($this->editApellido2) : null,
+            'sexo'                  => $this->editSexo,
+            'cargo_id'              => $this->editCargoId,
+            'tipo_relacion_id'      => $this->editTipoRelacionId,
+            'titulacion_id'         => $this->editTitulacionId,
+            'categoria_profesional' => filled($this->editCategoriaProfesional) ? trim($this->editCategoriaProfesional) : null,
+            'organizacion'          => filled($this->editOrganizacion) ? trim($this->editOrganizacion) : null,
+            'email_profesional'     => $this->editEmailProfesional ?: null,
+            'telefono_profesional'  => $this->editTelefonoProfesional ?: null,
+            'extension'             => $this->editExtension ?: null,
+            'fecha_inicio'          => $this->editFechaInicio,
+        ]);
+
+        $this->modalEdicionAbierto = false;
+        unset($this->profesionales);
+    }
+
+    /**
      * Renderiza la pantalla de equipo.
      *
      * @return View
@@ -263,5 +404,47 @@ class EquipoPage extends Component
     public function render(): View
     {
         return view('supervision::livewire.equipo-page');
+    }
+
+    /**
+     * Devuelve el Profesional solo si pertenece al ámbito de UO del supervisor.
+     *
+     * Comprueba primero la adscripción vigente del usuario vinculado y,
+     * si el profesional no tiene cuenta, verifica el campo unidad_organizativa_id.
+     *
+     * @param int|null $profesionalId
+     * @return Profesional|null
+     */
+    private function profesionalEnAmbito(?int $profesionalId): ?Profesional
+    {
+        if ($profesionalId === null) {
+            return null;
+        }
+
+        $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
+
+        if (empty($uoIds)) {
+            return null;
+        }
+
+        $profesional = Profesional::find($profesionalId);
+
+        if ($profesional === null) {
+            return null;
+        }
+
+        if ($profesional->usuario !== null) {
+            $enAmbito = collect($uoIds)->intersect(
+                $profesional->usuario->adscripcionesVigentes()->pluck('unidad_organizativa_id')
+            )->isNotEmpty();
+
+            return $enAmbito ? $profesional : null;
+        }
+
+        if ($profesional->unidad_organizativa_id !== null) {
+            return in_array($profesional->unidad_organizativa_id, $uoIds, true) ? $profesional : null;
+        }
+
+        return null;
     }
 }

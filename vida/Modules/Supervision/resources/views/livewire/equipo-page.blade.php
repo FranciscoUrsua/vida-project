@@ -49,7 +49,11 @@
                         @foreach($this->profesionales as $prof)
                         <tr>
                             <td>
-                                {{ $prof->nombre_completo }}
+                                <button type="button"
+                                        class="btn btn-link p-0 text-start fw-medium text-decoration-none text-body"
+                                        wire:click="abrirEdicion({{ $prof->id }})">
+                                    {{ $prof->nombre_completo }}
+                                </button>
                                 @if($prof->usuario?->id === auth()->id())
                                     <span class="badge bg-secondary-subtle text-secondary-emphasis ms-1">Tú</span>
                                 @endif
@@ -139,6 +143,165 @@
                         <span wire:loading wire:target="crearProfesional"
                               class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
                         Crear profesional
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+    @endif
+
+    {{-- Modal edición de profesional --}}
+    @if($modalEdicionAbierto)
+    <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
+         aria-labelledby="modal-edicion-titulo">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-edicion-titulo">Editar profesional</h5>
+                    <button type="button" class="btn-close" wire:click="$set('modalEdicionAbierto', false)" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+
+                    {{-- Identidad --}}
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-4">
+                            <label class="form-label" for="edit-nombre">Nombre <span class="text-danger">*</span></label>
+                            <input id="edit-nombre" type="text"
+                                   class="form-control @error('editNombre') is-invalid @enderror"
+                                   wire:model="editNombre" maxlength="100" autofocus>
+                            @error('editNombre') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="form-label" for="edit-apellido1">Primer apellido <span class="text-danger">*</span></label>
+                            <input id="edit-apellido1" type="text"
+                                   class="form-control @error('editApellido1') is-invalid @enderror"
+                                   wire:model="editApellido1" maxlength="100">
+                            @error('editApellido1') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="form-label" for="edit-apellido2">Segundo apellido</label>
+                            <input id="edit-apellido2" type="text"
+                                   class="form-control @error('editApellido2') is-invalid @enderror"
+                                   wire:model="editApellido2" maxlength="100">
+                            @error('editApellido2') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-3">
+                            <label class="form-label" for="edit-sexo">Sexo <span class="text-danger">*</span></label>
+                            <select id="edit-sexo"
+                                    class="form-select @error('editSexo') is-invalid @enderror"
+                                    wire:model="editSexo">
+                                <option value="D">Sin especificar</option>
+                                <option value="M">Hombre</option>
+                                <option value="F">Mujer</option>
+                            </select>
+                            @error('editSexo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-sm-5">
+                            <label class="form-label" for="edit-cargo">Cargo <span class="text-danger">*</span></label>
+                            <select id="edit-cargo"
+                                    class="form-select @error('editCargoId') is-invalid @enderror"
+                                    wire:model="editCargoId">
+                                <option value="">Selecciona…</option>
+                                @foreach($this->cargos as $cargo)
+                                    <option value="{{ $cargo->id }}">{{ $cargo->nombre }}</option>
+                                @endforeach
+                            </select>
+                            @error('editCargoId') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="form-label" for="edit-fecha">Fecha de incorporación <span class="text-danger">*</span></label>
+                            <input id="edit-fecha" type="date"
+                                   class="form-control @error('editFechaInicio') is-invalid @enderror"
+                                   wire:model="editFechaInicio">
+                            @error('editFechaInicio') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
+
+                    {{-- Relación y titulación --}}
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label" for="edit-relacion">Tipo de relación <span class="text-danger">*</span></label>
+                            <select id="edit-relacion"
+                                    class="form-select @error('editTipoRelacionId') is-invalid @enderror"
+                                    wire:model="editTipoRelacionId">
+                                <option value="">Selecciona…</option>
+                                @foreach($this->tiposRelacion as $rel)
+                                    <option value="{{ $rel->id }}">{{ $rel->nombre }}</option>
+                                @endforeach
+                            </select>
+                            @error('editTipoRelacionId') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label" for="edit-titulacion">Titulación</label>
+                            <select id="edit-titulacion"
+                                    class="form-select @error('editTitulacionId') is-invalid @enderror"
+                                    wire:model="editTitulacionId">
+                                <option value="">Sin especificar</option>
+                                @foreach($this->titulaciones as $tit)
+                                    <option value="{{ $tit->id }}">{{ $tit->nombre }}</option>
+                                @endforeach
+                            </select>
+                            @error('editTitulacionId') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label" for="edit-categoria">Categoría profesional</label>
+                            <input id="edit-categoria" type="text"
+                                   class="form-control @error('editCategoriaProfesional') is-invalid @enderror"
+                                   wire:model="editCategoriaProfesional" maxlength="150"
+                                   placeholder="Ej: Nivel A1, Grupo II…">
+                            @error('editCategoriaProfesional') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label" for="edit-organizacion">Organización externa</label>
+                            <input id="edit-organizacion" type="text"
+                                   class="form-control @error('editOrganizacion') is-invalid @enderror"
+                                   wire:model="editOrganizacion" maxlength="200"
+                                   placeholder="Solo si es empresa externa o voluntario">
+                            @error('editOrganizacion') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
+
+                    {{-- Contacto profesional --}}
+                    <div class="row g-3">
+                        <div class="col-sm-5">
+                            <label class="form-label" for="edit-email">Correo profesional</label>
+                            <input id="edit-email" type="email"
+                                   class="form-control @error('editEmailProfesional') is-invalid @enderror"
+                                   wire:model="editEmailProfesional" maxlength="150">
+                            @error('editEmailProfesional') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="form-label" for="edit-telefono">Teléfono profesional</label>
+                            <input id="edit-telefono" type="text"
+                                   class="form-control @error('editTelefonoProfesional') is-invalid @enderror"
+                                   wire:model="editTelefonoProfesional" maxlength="30">
+                            @error('editTelefonoProfesional') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="form-label" for="edit-extension">Extensión</label>
+                            <input id="edit-extension" type="text"
+                                   class="form-control @error('editExtension') is-invalid @enderror"
+                                   wire:model="editExtension" maxlength="10">
+                            @error('editExtension') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                            wire:click="$set('modalEdicionAbierto', false)">Cancelar</button>
+                    <button type="button" class="btn btn-primary btn-sm"
+                            wire:click="guardarEdicion" wire:loading.attr="disabled">
+                        <span wire:loading wire:target="guardarEdicion"
+                              class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                        Guardar cambios
                     </button>
                 </div>
             </div>
