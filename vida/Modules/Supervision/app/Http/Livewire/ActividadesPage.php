@@ -15,10 +15,13 @@ use Modules\Centro\Models\TipoActividad;
 /**
  * Pantalla de actividades grupales para el módulo de Supervisión.
  *
- * Permite al supervisor crear y consultar las actividades programadas
+ * Permite al supervisor crear y editar las actividades programadas
  * en su centro: cursos, talleres, grupos de apoyo.
+ * El modal actúa en modo alta cuando editandoId es null, y en modo
+ * edición cuando editandoId contiene el id de la actividad a modificar.
  *
  * @property bool $modalAbierto
+ * @property int|null $editandoId
  * @property string $nombre
  * @property int|null $tipoActividadId
  * @property string $modoAcceso
@@ -30,8 +33,11 @@ use Modules\Centro\Models\TipoActividad;
 #[Layout('layouts.supervision')]
 class ActividadesPage extends Component
 {
-    /** @var bool Controla visibilidad del modal de alta. */
+    /** @var bool Controla visibilidad del modal. */
     public bool $modalAbierto = false;
+
+    /** @var int|null Id de la actividad en edición; null cuando se está creando una nueva. */
+    public ?int $editandoId = null;
 
     public string $nombre = '';
     public ?int $tipoActividadId = null;
@@ -81,23 +87,50 @@ class ActividadesPage extends Component
     }
 
     /**
-     * Abre el modal y reinicia el formulario.
+     * Abre el modal en modo alta con el formulario limpio.
      *
      * @return void
      */
     public function abrirModal(): void
     {
-        $this->resetExcept(['modalAbierto']);
+        $this->reset(['editandoId', 'nombre', 'tipoActividadId', 'modoAcceso', 'aforoTotal', 'aforoPresc', 'requiereInscripcion']);
         $this->fechaAlta = Carbon::today()->toDateString();
         $this->modalAbierto = true;
     }
 
     /**
-     * Crea la actividad y cierra el modal.
+     * Abre el modal en modo edición cargando los datos de la actividad indicada.
+     *
+     * Solo permite editar actividades del propio centro del supervisor.
+     *
+     * @param int $id Id de la actividad a editar.
+     * @return void
+     */
+    public function abrirEdicion(int $id): void
+    {
+        $centro = $this->centroDelSupervisor();
+
+        $actividad = Actividad::where('id', $id)
+            ->when($centro !== null, fn ($q) => $q->where('centro_id', $centro->id))
+            ->firstOrFail();
+
+        $this->editandoId          = $actividad->id;
+        $this->nombre              = $actividad->nombre;
+        $this->tipoActividadId     = $actividad->tipo_actividad_id;
+        $this->modoAcceso          = $actividad->modo_acceso;
+        $this->aforoTotal          = $actividad->aforo_total;
+        $this->aforoPresc          = $actividad->aforo_prescripcion;
+        $this->fechaAlta           = $actividad->fecha_alta->toDateString();
+        $this->requiereInscripcion = (bool) $actividad->requiere_inscripcion_centro;
+        $this->modalAbierto        = true;
+    }
+
+    /**
+     * Guarda los datos del formulario: crea una nueva actividad o actualiza la existente.
      *
      * @return void
      */
-    public function crear(): void
+    public function guardar(): void
     {
         $this->validate([
             'nombre'          => ['required', 'string', 'max:200'],
@@ -108,24 +141,35 @@ class ActividadesPage extends Component
             'fechaAlta'       => ['required', 'date'],
         ]);
 
-        $centro = $this->centroDelSupervisor();
-
-        if ($centro === null) {
-            $this->addError('nombre', 'No se ha encontrado un centro asociado a tu unidad organizativa.');
-            return;
-        }
-
-        Actividad::create([
-            'centro_id'                   => $centro->id,
+        $datos = [
             'tipo_actividad_id'           => $this->tipoActividadId,
             'nombre'                      => trim($this->nombre),
             'modo_acceso'                 => $this->modoAcceso,
             'aforo_total'                 => $this->aforoTotal,
             'aforo_prescripcion'          => $this->modoAcceso !== 'libre' ? $this->aforoPresc : null,
             'requiere_inscripcion_centro' => $this->requiereInscripcion,
-            'activa'                      => true,
             'fecha_alta'                  => $this->fechaAlta,
-        ]);
+        ];
+
+        if ($this->editandoId !== null) {
+            $centro = $this->centroDelSupervisor();
+            Actividad::where('id', $this->editandoId)
+                ->when($centro !== null, fn ($q) => $q->where('centro_id', $centro->id))
+                ->firstOrFail()
+                ->update($datos);
+        } else {
+            $centro = $this->centroDelSupervisor();
+
+            if ($centro === null) {
+                $this->addError('nombre', 'No se ha encontrado un centro asociado a tu unidad organizativa.');
+                return;
+            }
+
+            Actividad::create(array_merge($datos, [
+                'centro_id' => $centro->id,
+                'activa'    => true,
+            ]));
+        }
 
         $this->modalAbierto = false;
         unset($this->actividades);

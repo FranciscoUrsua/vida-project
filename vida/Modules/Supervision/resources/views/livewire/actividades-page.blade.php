@@ -29,7 +29,12 @@
                     <tbody>
                         @foreach($this->actividades as $actividad)
                         <tr>
-                            <td class="fw-medium">{{ $actividad->nombre }}</td>
+                            <td>
+                                <button type="button" class="btn btn-link p-0 text-start fw-medium text-decoration-none text-body"
+                                        wire:click="abrirEdicion({{ $actividad->id }})">
+                                    {{ $actividad->nombre }}
+                                </button>
+                            </td>
                             <td class="text-body-secondary small">{{ $actividad->tipoActividad?->nombre ?? '—' }}</td>
                             <td>
                                 @php $modos = ['libre' => 'Libre', 'prescripcion' => 'Prescripción', 'mixta' => 'Mixta']; @endphp
@@ -52,14 +57,16 @@
         @endif
     </section>
 
-    {{-- Modal nueva actividad --}}
+    {{-- Modal actividad (alta y edición) --}}
     @if($modalAbierto)
     <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
          aria-labelledby="modal-actividad-titulo">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modal-actividad-titulo">Nueva actividad</h5>
+                    <h5 class="modal-title" id="modal-actividad-titulo">
+                        {{ $editandoId ? 'Editar actividad' : 'Nueva actividad' }}
+                    </h5>
                     <button type="button" class="btn-close" wire:click="$set('modalAbierto', false)" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
@@ -131,10 +138,10 @@
                     <button type="button" class="btn btn-outline-secondary btn-sm"
                             wire:click="$set('modalAbierto', false)">Cancelar</button>
                     <button type="button" class="btn btn-primary btn-sm"
-                            wire:click="crear" wire:loading.attr="disabled">
-                        <span wire:loading wire:target="crear"
+                            wire:click="guardar" wire:loading.attr="disabled">
+                        <span wire:loading wire:target="guardar"
                               class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
-                        Crear actividad
+                        {{ $editandoId ? 'Guardar cambios' : 'Crear actividad' }}
                     </button>
                 </div>
             </div>
