@@ -190,10 +190,13 @@ class PanelAccesosRecentesTest extends TestCase
     }
 
     /**
-     * TF-AUD-17 — Los accesos propios se presentan con marcador visual diferenciado.
+     * TF-AUD-17 — La ficha ciudadana no renderiza marcadores visuales de accesos.
+     *
+     * El marcador visual de accesos propios se muestra en la pantalla de intervencion,
+     * no en la ficha ciudadana general.
      */
     #[Test]
-    public function los_accesos_propios_se_presentan_con_marcador_visual_diferenciado(): void
+    public function la_ficha_ciudadana_no_renderiza_marcadores_visuales_de_accesos(): void
     {
         $this->crearAcceso($this->tsr);
         $this->crearAcceso($this->profesional);
@@ -202,7 +205,7 @@ class PanelAccesosRecentesTest extends TestCase
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
             ->html();
 
-        // El Blade aplica la clase CSS 'acceso-fila--propio' a los registros propios
-        $this->assertStringContainsString('acceso-fila--propio', $html);
+        // La ficha ciudadana ya no renderiza el panel visual de accesos.
+        $this->assertStringNotContainsString('acceso-fila--propio', $html);
     }
 }

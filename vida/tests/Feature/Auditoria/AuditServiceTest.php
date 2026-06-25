@@ -106,6 +106,7 @@ class AuditServiceTest extends TestCase
         ]);
 
         $apunte = Apunte::withoutEvents(fn () => Apunte::create([
+            'historia_id' => $plan->historia_id,
             'plan_id' => $plan->id,
             'autor_id' => $this->profesional->id,
             'fecha' => today()->toDateString(),
@@ -164,6 +165,7 @@ class AuditServiceTest extends TestCase
         ]);
 
         $apunte = Apunte::withoutEvents(fn () => Apunte::create([
+            'historia_id' => $plan->historia_id,
             'plan_id' => $plan->id,
             'autor_id' => $this->profesional->id,
             'fecha' => today()->toDateString(),

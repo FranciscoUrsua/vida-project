@@ -123,11 +123,11 @@ class BandejaMensajesHiloTest extends TestCase
         // A ve el botón en su hilo
         Livewire::actingAs($usuarioA)
             ->test(HiloMensajes::class, ['hiloId' => $hiloA->id])
-            ->assertSee('journal-plus');
+            ->assertSee('Registrar en Historia Social');
 
         // B NO ve el botón en su hilo
         Livewire::actingAs($usuarioB)
             ->test(HiloMensajes::class, ['hiloId' => $hiloB->id])
-            ->assertDontSee('journal-plus');
+            ->assertDontSee('Registrar en Historia Social');
     }
 }

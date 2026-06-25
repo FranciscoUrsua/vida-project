@@ -83,7 +83,7 @@ class AuditObserver
      *
      * @param Model&Auditable $model Modelo afectado.
      */
-    public function deleted(Model $model): void
+    public function deleting(Model $model): void
     {
         if (! Auth::check()) {
             return;

@@ -76,6 +76,7 @@ class AuditObserverTest extends TestCase
         $countAntes = Audit::count();
 
         $apunte = Apunte::create([
+            'historia_id' => $this->plan->historia_id,
             'plan_id' => $this->plan->id,
             'autor_id' => $this->profesional->id,
             'fecha' => today()->toDateString(),
@@ -105,6 +106,7 @@ class AuditObserverTest extends TestCase
     public function registra_accion_editar_con_diff_correcto_en_datos_antes_y_datos_despues(): void
     {
         $apunte = Apunte::withoutEvents(fn () => Apunte::create([
+            'historia_id' => $this->plan->historia_id,
             'plan_id' => $this->plan->id,
             'autor_id' => $this->profesional->id,
             'fecha' => today()->toDateString(),
@@ -144,6 +146,7 @@ class AuditObserverTest extends TestCase
     public function registra_accion_eliminar_con_snapshot_en_datos_antes(): void
     {
         $apunte = Apunte::withoutEvents(fn () => Apunte::create([
+            'historia_id' => $this->plan->historia_id,
             'plan_id' => $this->plan->id,
             'autor_id' => $this->profesional->id,
             'fecha' => today()->toDateString(),
@@ -211,6 +214,7 @@ class AuditObserverTest extends TestCase
     public function no_genera_registros_por_eager_loading_interno_de_eloquent(): void
     {
         $apunte = Apunte::withoutEvents(fn () => Apunte::create([
+            'historia_id' => $this->plan->historia_id,
             'plan_id' => $this->plan->id,
             'autor_id' => $this->profesional->id,
             'fecha' => today()->toDateString(),

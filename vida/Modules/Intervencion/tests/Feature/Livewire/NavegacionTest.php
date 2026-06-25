@@ -492,6 +492,16 @@ class NavegacionTest extends TestCase
             'updated_at' => now(),
         ]);
 
+        DB::table('asignaciones_profesional')->insert([
+            'historia_id' => $historia->id,
+            'profesional_id' => $this->usuario->id,
+            'fecha_inicio' => today()->toDateString(),
+            'fecha_fin' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
         $this->actingAs($this->usuario)
             ->get('/intervencion/casos')
             ->assertOk()
@@ -528,6 +538,16 @@ class NavegacionTest extends TestCase
             'version' => 1,
             'created_at' => now(),
             'updated_at' => now(),
+        ]);
+
+        DB::table('asignaciones_profesional')->insert([
+            'historia_id' => $historia->id,
+            'profesional_id' => $this->usuario->id,
+            'fecha_inicio' => today()->toDateString(),
+            'fecha_fin' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
         ]);
 
         $this->actingAs($this->usuario)
