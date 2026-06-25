@@ -92,6 +92,9 @@
             "Modules\\Atencion\\Database\\": "Modules/Atencion/database/",
             "Modules\\Atencion\\Database\\Migrations\\": "Modules/Atencion/database/migrations/",
             "Modules\\Atencion\\Database\\Factories\\": "Modules/Atencion/database/factories/",
+            "Modules\\Supervision\\": "Modules/Supervision/app/",
+            "Modules\\Supervision\\Database\\": "Modules/Supervision/database/",
+            "Modules\\Supervision\\Database\\Migrations\\": "Modules/Supervision/database/migrations/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
@@ -107,7 +110,8 @@
             "Modules\\Intervencion\\Tests\\": "Modules/Intervencion/tests/",
             "Modules\\Escalas\\Tests\\": "Modules/Escalas/tests/",
         "Modules\\Ciudadania\\Tests\\": "Modules/Ciudadania/tests/",
-            "Modules\\Atencion\\Tests\\": "Modules/Atencion/tests/"
+            "Modules\\Atencion\\Tests\\": "Modules/Atencion/tests/",
+            "Modules\\Supervision\\Tests\\": "Modules/Supervision/tests/"
         }
     },
     "scripts": {

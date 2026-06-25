@@ -11,6 +11,7 @@ use Modules\Documentos\Providers\DocumentosServiceProvider;
 use Modules\Escalas\Providers\EscalasServiceProvider;
 use Modules\Intervencion\Providers\IntervencionServiceProvider;
 use Modules\Mensajes\Providers\MensajesServiceProvider;
+use Modules\Supervision\Providers\SupervisionServiceProvider;
 use Modules\Organizacion\Providers\OrganizacionServiceProvider;
 use Modules\Prestaciones\Providers\PrestacionesServiceProvider;
 use Modules\Usuarios\Providers\UsuariosServiceProvider;
@@ -27,6 +28,7 @@ return [
     DocumentosServiceProvider::class,
     CiudadaniaServiceProvider::class,
     IntervencionServiceProvider::class,
+    SupervisionServiceProvider::class,
     AtencionServiceProvider::class,
     EscalasServiceProvider::class,
     GeocodificacionServiceProvider::class,

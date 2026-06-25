@@ -1,0 +1,11 @@
+{
+    "name": "Supervision",
+    "alias": "supervision",
+    "description": "Gestión del centro: equipo, agenda, actividades, plazas, aprobaciones y auditoría de accesos",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+
+    ],
+    "files": []
+}

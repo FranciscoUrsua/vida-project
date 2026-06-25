@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-06-25 — Módulo Supervision: corrección de tests TF-SUP-C02, C03, D07, E03
+
+### Bugs corregidos
+
+- **`IndicadoresCentroService::ratioCarga`** — el denominador ahora cuenta únicamente los profesionales que tienen asignaciones vigentes en la UO, no todos los usuarios adscritos (el supervisor estaba siendo incluido, produciendo un ratio erróneo).
+- **`AprobacionesPage::denegarSolicitud`** — al denegar una solicitud de rol, se revoca ahora el rol Spatie del usuario con `removeRole()`. Sin este paso el acceso permanecía activo a pesar del estado `denegado`.
+- **`equipo-page.blade.php`** — añadida la barra de pestañas de la ficha de profesional (Resumen / Perfil horario / Suplencias).
+
+### Tests
+- 36 tests en `SupervisionTest`, todos en verde (TF-SUP-A01 a TF-SUP-G04).
+
+### Decisiones de implementación
+- El denominador de `ratioCarga` usa un `clone` del query base de asignaciones vigentes para calcular tanto el conteo de profesionales como el de historias activas sin duplicar la cláusula WHERE.
+
+---
+
 ## 2026-06-24 — Módulo Intervención: compromisos editables y correcciones de PlanPage
 
 ### Módulos afectados

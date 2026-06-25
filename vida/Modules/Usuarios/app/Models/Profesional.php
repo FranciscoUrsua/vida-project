@@ -2,6 +2,7 @@
 
 namespace Modules\Usuarios\Models;
 
+use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
@@ -42,6 +43,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $fecha_inicio
  * @property Carbon|null $fecha_fin
  * @property bool $activo
+ * @property int|null $unidad_organizativa_id UO de adscripción directa (antes de tener cuenta de usuario)
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon|null $deleted_at
@@ -73,6 +75,7 @@ class Profesional extends Model
         'fecha_inicio',
         'fecha_fin',
         'activo',
+        'unidad_organizativa_id',
     ];
 
     /** @var array<string, string> */
@@ -85,6 +88,17 @@ class Profesional extends Model
     // -------------------------------------------------------------------------
     // Relaciones
     // -------------------------------------------------------------------------
+
+    /**
+     * Unidad Organizativa de adscripción directa del profesional.
+     * Permite la gestión del profesional antes de vincularle una cuenta de usuario.
+     *
+     * @return BelongsTo<UnidadOrganizativa, Profesional>
+     */
+    public function unidadOrganizativa(): BelongsTo
+    {
+        return $this->belongsTo(UnidadOrganizativa::class, 'unidad_organizativa_id');
+    }
 
     /**
      * Cargo que ocupa este profesional.
