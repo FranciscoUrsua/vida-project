@@ -55,6 +55,13 @@ class TipoEspacioResource extends Resource
                         ->required()
                         ->maxLength(150),
 
+                    TextInput::make('slug')
+                        ->label('Slug')
+                        ->required()
+                        ->unique(ignoreRecord: true)
+                        ->maxLength(100)
+                        ->helperText('Identificador estable en minúsculas con guiones. Ej: dormitorio-individual'),
+
                     Textarea::make('descripcion')
                         ->label('Descripción')
                         ->rows(2)
@@ -80,6 +87,12 @@ class TipoEspacioResource extends Resource
                     ->label('Nombre')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
+                    ->searchable()
+                    ->copyable()
+                    ->fontFamily('mono'),
 
                 Tables\Columns\IconColumn::make('activo')
                     ->label('Activo')

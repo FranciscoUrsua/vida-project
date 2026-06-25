@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property int $id
  * @property string $nombre
+ * @property string|null $slug  Identificador estable único, ej: 'dormitorio-individual', 'sala-comun'
  * @property string|null $descripcion
  * @property bool $activo
  */
@@ -20,7 +21,7 @@ class TipoEspacio extends Model
 {
     protected $table = 'tipos_espacio';
 
-    protected $fillable = ['nombre', 'descripcion', 'activo'];
+    protected $fillable = ['nombre', 'slug', 'descripcion', 'activo'];
 
     protected $casts = ['activo' => 'boolean'];
 

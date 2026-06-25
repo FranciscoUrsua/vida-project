@@ -53,6 +53,13 @@ class TipoRelacionProfesionalResource extends Resource
                         ->required()
                         ->maxLength(100),
 
+                    TextInput::make('slug')
+                        ->label('Slug')
+                        ->required()
+                        ->unique(ignoreRecord: true)
+                        ->maxLength(100)
+                        ->helperText('Identificador estable en minúsculas con guiones. Ej: funcionario, empresa-externa'),
+
                     Toggle::make('es_externo')
                         ->label('Es personal externo')
                         ->helperText('Si está activo, el campo "Organización" del profesional será relevante.')
@@ -78,6 +85,12 @@ class TipoRelacionProfesionalResource extends Resource
                     ->label('Relación profesional')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
+                    ->searchable()
+                    ->copyable()
+                    ->fontFamily('mono'),
 
                 Tables\Columns\IconColumn::make('es_externo')
                     ->label('Externo')

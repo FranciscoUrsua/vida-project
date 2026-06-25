@@ -59,6 +59,13 @@ class ServicioEmergenciaResource extends Resource
                         ->required()
                         ->maxLength(150),
 
+                    TextInput::make('slug')
+                        ->label('Slug')
+                        ->required()
+                        ->unique(ignoreRecord: true)
+                        ->maxLength(100)
+                        ->helperText('Identificador estable en minúsculas con guiones. Ej: samur-social'),
+
                     Textarea::make('descripcion')
                         ->label('Descripción')
                         ->rows(3),
@@ -83,6 +90,12 @@ class ServicioEmergenciaResource extends Resource
                     ->label('Servicio')
                     ->sortable()
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
+                    ->searchable()
+                    ->copyable()
+                    ->fontFamily('mono'),
 
                 Tables\Columns\TextColumn::make('descripcion')
                     ->label('Descripción')

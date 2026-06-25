@@ -22,15 +22,17 @@ class ColectivosProtegidosSeeder extends Seeder
     /**
      * Colectivos iniciales.
      *
-     * @var array<int, array{nombre: string, descripcion: string, requiere_aprobacion_previa: bool}>
+     * @var array<int, array{slug: string, nombre: string, descripcion: string, requiere_aprobacion_previa: bool}>
      */
     private const COLECTIVOS = [
         [
+            'slug'  => 'menores',
             'nombre' => 'Menores',
             'descripcion' => 'Personas menores de 18 años. El acceso a sus expedientes desde fuera de la UO responsable requiere aprobación del supervisor de infancia.',
             'requiere_aprobacion_previa' => true,
         ],
         [
+            'slug'  => 'vvg',
             'nombre' => 'Víctimas de violencia de género',
             'descripcion' => 'Mujeres en situación de violencia de género o en riesgo. El acceso a sus expedientes desde fuera de la UO responsable requiere aprobación del supervisor de violencia de género.',
             'requiere_aprobacion_previa' => true,
@@ -43,9 +45,9 @@ class ColectivosProtegidosSeeder extends Seeder
     public function run(): void
     {
         foreach (self::COLECTIVOS as $datos) {
-            ColectivoProtegido::firstOrCreate(
-                ['nombre' => $datos['nombre']],
-                array_merge($datos, ['activo' => true])
+            ColectivoProtegido::updateOrCreate(
+                ['slug' => $datos['slug']],
+                ['nombre' => $datos['nombre'], 'descripcion' => $datos['descripcion'], 'requiere_aprobacion_previa' => $datos['requiere_aprobacion_previa'], 'activo' => true]
             );
         }
 

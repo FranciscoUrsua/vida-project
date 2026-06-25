@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  *
  * @property int $id
  * @property string $nombre
+ * @property string|null $slug  Identificador estable único, ej: 'personas-sin-hogar', 'personas-mayores'
  * @property string|null $descripcion
  * @property bool $activo
  */
@@ -20,7 +21,7 @@ class SegmentoPoblacion extends Model
 {
     protected $table = 'segmentos_poblacion';
 
-    protected $fillable = ['nombre', 'descripcion', 'activo'];
+    protected $fillable = ['nombre', 'slug', 'descripcion', 'activo'];
 
     protected $casts = ['activo' => 'boolean'];
 

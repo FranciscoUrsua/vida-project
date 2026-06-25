@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property string $nombre
+ * @property string|null $slug  Identificador estable único, ej: 'menores', 'vvg'
  * @property string $descripcion
  * @property bool $requiere_aprobacion_previa
  * @property bool $activo
@@ -31,6 +32,7 @@ class ColectivoProtegido extends Model
     /** @var list<string> */
     protected $fillable = [
         'nombre',
+        'slug',
         'descripcion',
         'requiere_aprobacion_previa',
         'activo',

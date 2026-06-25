@@ -53,6 +53,13 @@ class SegmentoPoblacionResource extends Resource
                         ->maxLength(150)
                         ->helperText('Ej: Personas sin hogar, Infancia y adolescencia, Personas mayores...'),
 
+                    TextInput::make('slug')
+                        ->label('Slug')
+                        ->required()
+                        ->unique(ignoreRecord: true)
+                        ->maxLength(100)
+                        ->helperText('Identificador estable en minúsculas con guiones. Ej: personas-sin-hogar'),
+
                     Textarea::make('descripcion')
                         ->label('Descripción')
                         ->rows(2)
@@ -78,6 +85,12 @@ class SegmentoPoblacionResource extends Resource
                     ->label('Segmento')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
+                    ->searchable()
+                    ->copyable()
+                    ->fontFamily('mono'),
 
                 Tables\Columns\TextColumn::make('centros_count')
                     ->label('Centros')

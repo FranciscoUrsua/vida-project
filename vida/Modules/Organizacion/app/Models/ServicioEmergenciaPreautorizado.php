@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property string $nombre
+ * @property string|null $slug  Identificador estable único, ej: 'samur-social'
  * @property string|null $descripcion
  * @property bool $activo
  * @property Carbon $created_at
@@ -32,6 +33,7 @@ class ServicioEmergenciaPreautorizado extends Model
     /** @var list<string> */
     protected $fillable = [
         'nombre',
+        'slug',
         'descripcion',
         'activo',
     ];

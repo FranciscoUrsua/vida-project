@@ -16,25 +16,25 @@ class CargosSeeder extends Seeder
     public function run(): void
     {
         $cargos = [
-            ['nombre' => 'Trabajador/a Social',               'descripcion' => 'Técnico/a superior de intervención social directa'],
-            ['nombre' => 'Psicólogo/a',                       'descripcion' => null],
-            ['nombre' => 'Educador/a Social',                  'descripcion' => null],
-            ['nombre' => 'Terapeuta Ocupacional',              'descripcion' => null],
-            ['nombre' => 'Auxiliar de Servicios Sociales',    'descripcion' => 'Auxiliar de apoyo en atención a domicilio y centros'],
-            ['nombre' => 'Abogado/a',                         'descripcion' => 'Servicio de Orientación Jurídica (SOJ)'],
-            ['nombre' => 'Técnico/a de Integración Social',   'descripcion' => null],
-            ['nombre' => 'Mediador/a Social',                  'descripcion' => null],
-            ['nombre' => 'Coordinador/a de Centro',           'descripcion' => null],
-            ['nombre' => 'Técnico/a de Acogida',              'descripcion' => null],
-            ['nombre' => 'Administrativo/a',                  'descripcion' => null],
-            ['nombre' => 'Auxiliar Administrativo/a',         'descripcion' => null],
-            ['nombre' => 'Ordenanza',                         'descripcion' => null],
+            ['slug' => 'trabajador-social',          'nombre' => 'Trabajador/a Social',               'descripcion' => 'Técnico/a superior de intervención social directa'],
+            ['slug' => 'psicologo',                  'nombre' => 'Psicólogo/a',                       'descripcion' => null],
+            ['slug' => 'educador-social',            'nombre' => 'Educador/a Social',                  'descripcion' => null],
+            ['slug' => 'terapeuta-ocupacional',      'nombre' => 'Terapeuta Ocupacional',              'descripcion' => null],
+            ['slug' => 'auxiliar-servicios-sociales','nombre' => 'Auxiliar de Servicios Sociales',    'descripcion' => 'Auxiliar de apoyo en atención a domicilio y centros'],
+            ['slug' => 'abogado',                    'nombre' => 'Abogado/a',                         'descripcion' => 'Servicio de Orientación Jurídica (SOJ)'],
+            ['slug' => 'tecnico-integracion-social', 'nombre' => 'Técnico/a de Integración Social',   'descripcion' => null],
+            ['slug' => 'mediador-social',            'nombre' => 'Mediador/a Social',                  'descripcion' => null],
+            ['slug' => 'coordinador-centro',         'nombre' => 'Coordinador/a de Centro',           'descripcion' => null],
+            ['slug' => 'tecnico-acogida',            'nombre' => 'Técnico/a de Acogida',              'descripcion' => null],
+            ['slug' => 'administrativo',             'nombre' => 'Administrativo/a',                  'descripcion' => null],
+            ['slug' => 'auxiliar-administrativo',    'nombre' => 'Auxiliar Administrativo/a',         'descripcion' => null],
+            ['slug' => 'ordenanza',                  'nombre' => 'Ordenanza',                         'descripcion' => null],
         ];
 
         foreach ($cargos as $cargo) {
-            Cargo::firstOrCreate(
-                ['nombre' => $cargo['nombre']],
-                ['descripcion' => $cargo['descripcion'], 'activo' => true]
+            Cargo::updateOrCreate(
+                ['slug' => $cargo['slug']],
+                ['nombre' => $cargo['nombre'], 'descripcion' => $cargo['descripcion'], 'activo' => true]
             );
         }
     }

@@ -53,6 +53,13 @@ class TitulacionResource extends Resource
                         ->required()
                         ->maxLength(200),
 
+                    TextInput::make('slug')
+                        ->label('Slug')
+                        ->required()
+                        ->unique(ignoreRecord: true)
+                        ->maxLength(100)
+                        ->helperText('Identificador estable en minúsculas con guiones. Ej: grado-trabajo-social'),
+
                     Toggle::make('activo')
                         ->label('Activa')
                         ->default(true),
@@ -73,6 +80,12 @@ class TitulacionResource extends Resource
                     ->label('Titulación')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
+                    ->searchable()
+                    ->copyable()
+                    ->fontFamily('mono'),
 
                 Tables\Columns\TextColumn::make('profesionales_count')
                     ->label('Profesionales')

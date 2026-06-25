@@ -56,6 +56,13 @@ class ColectivoProtegidoResource extends Resource
                         ->required()
                         ->maxLength(150),
 
+                    TextInput::make('slug')
+                        ->label('Slug')
+                        ->required()
+                        ->unique(ignoreRecord: true)
+                        ->maxLength(100)
+                        ->helperText('Identificador estable en minúsculas con guiones. Ej: menores, vvg'),
+
                     Textarea::make('descripcion')
                         ->label('Descripción')
                         ->rows(3),
@@ -85,6 +92,12 @@ class ColectivoProtegidoResource extends Resource
                     ->label('Colectivo')
                     ->sortable()
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
+                    ->searchable()
+                    ->copyable()
+                    ->fontFamily('mono'),
 
                 Tables\Columns\IconColumn::make('requiere_aprobacion_previa')
                     ->label('Aprobación previa')

@@ -24,9 +24,10 @@ class ServiciosEmergenciaSeeder extends Seeder
      */
     public function run(): void
     {
-        ServicioEmergenciaPreautorizado::firstOrCreate(
-            ['nombre' => 'SAMUR Social'],
+        ServicioEmergenciaPreautorizado::updateOrCreate(
+            ['slug' => 'samur-social'],
             [
+                'nombre' => 'SAMUR Social',
                 'descripcion' => 'Servicio de Atención Municipal de Urgencias y Rescate Social del Ayuntamiento de Madrid. Atiende situaciones de emergencia social en la vía pública las 24 horas del día.',
                 'activo' => true,
             ]

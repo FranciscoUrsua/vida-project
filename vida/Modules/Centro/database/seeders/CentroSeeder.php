@@ -48,19 +48,19 @@ class CentroSeeder extends Seeder
     private function sembrarTiposEspacio(): void
     {
         $tipos = [
-            ['nombre' => 'Dormitorio individual',   'descripcion' => 'Habitación de uso exclusivo para una persona.'],
-            ['nombre' => 'Dormitorio compartido',   'descripcion' => 'Habitación con varias camas de uso compartido.'],
-            ['nombre' => 'Habitación adaptada',     'descripcion' => 'Dormitorio adaptado para personas con movilidad reducida.'],
-            ['nombre' => 'Sala común',              'descripcion' => 'Espacio de uso colectivo: comedor, salón, sala de estar.'],
-            ['nombre' => 'Despacho profesional',    'descripcion' => 'Espacio de atención individualizada o trabajo técnico.'],
-            ['nombre' => 'Sala de actividades',     'descripcion' => 'Sala polivalente para talleres, grupos o formación.'],
-            ['nombre' => 'Módulo familiar',         'descripcion' => 'Unidad de alojamiento para una unidad familiar.'],
+            ['slug' => 'dormitorio-individual',  'nombre' => 'Dormitorio individual',   'descripcion' => 'Habitación de uso exclusivo para una persona.'],
+            ['slug' => 'dormitorio-compartido',  'nombre' => 'Dormitorio compartido',   'descripcion' => 'Habitación con varias camas de uso compartido.'],
+            ['slug' => 'habitacion-adaptada',    'nombre' => 'Habitación adaptada',     'descripcion' => 'Dormitorio adaptado para personas con movilidad reducida.'],
+            ['slug' => 'sala-comun',             'nombre' => 'Sala común',              'descripcion' => 'Espacio de uso colectivo: comedor, salón, sala de estar.'],
+            ['slug' => 'despacho-profesional',   'nombre' => 'Despacho profesional',    'descripcion' => 'Espacio de atención individualizada o trabajo técnico.'],
+            ['slug' => 'sala-actividades',       'nombre' => 'Sala de actividades',     'descripcion' => 'Sala polivalente para talleres, grupos o formación.'],
+            ['slug' => 'modulo-familiar',        'nombre' => 'Módulo familiar',         'descripcion' => 'Unidad de alojamiento para una unidad familiar.'],
         ];
 
         foreach ($tipos as $tipo) {
-            TipoEspacio::firstOrCreate(
-                ['nombre' => $tipo['nombre']],
-                array_merge($tipo, ['activo' => true])
+            TipoEspacio::updateOrCreate(
+                ['slug' => $tipo['slug']],
+                ['nombre' => $tipo['nombre'], 'descripcion' => $tipo['descripcion'], 'activo' => true]
             );
         }
 
@@ -102,19 +102,19 @@ class CentroSeeder extends Seeder
     private function sembrarSegmentosPoblacion(): array
     {
         $definiciones = [
-            'personas_sin_hogar' => ['nombre' => 'Personas sin hogar',         'descripcion' => 'Personas en situación de sinhogarismo o exclusión residencial grave.'],
-            'personas_mayores' => ['nombre' => 'Personas mayores',            'descripcion' => 'Personas de 65 años o más con necesidades de atención o apoyo social.'],
-            'menores_familia' => ['nombre' => 'Menores y familia',           'descripcion' => 'Menores en situación de riesgo y sus unidades familiares.'],
-            'discapacidad' => ['nombre' => 'Personas con discapacidad',   'descripcion' => 'Personas con discapacidad física, intelectual o del desarrollo.'],
-            'vvg' => ['nombre' => 'Víctimas de violencia de género', 'descripcion' => 'Mujeres y menores víctimas de violencia de género.'],
-            'atencion_primaria' => ['nombre' => 'Atención primaria general',   'descripcion' => 'Población general derivada a los servicios sociales de base.'],
+            'personas_sin_hogar' => ['slug' => 'personas-sin-hogar', 'nombre' => 'Personas sin hogar',         'descripcion' => 'Personas en situación de sinhogarismo o exclusión residencial grave.'],
+            'personas_mayores'   => ['slug' => 'personas-mayores',   'nombre' => 'Personas mayores',            'descripcion' => 'Personas de 65 años o más con necesidades de atención o apoyo social.'],
+            'menores_familia'    => ['slug' => 'menores-familia',     'nombre' => 'Menores y familia',           'descripcion' => 'Menores en situación de riesgo y sus unidades familiares.'],
+            'discapacidad'       => ['slug' => 'discapacidad',        'nombre' => 'Personas con discapacidad',   'descripcion' => 'Personas con discapacidad física, intelectual o del desarrollo.'],
+            'vvg'                => ['slug' => 'segmento-vvg',        'nombre' => 'Víctimas de violencia de género', 'descripcion' => 'Mujeres y menores víctimas de violencia de género.'],
+            'atencion_primaria'  => ['slug' => 'atencion-primaria',   'nombre' => 'Atención primaria general',   'descripcion' => 'Población general derivada a los servicios sociales de base.'],
         ];
 
         $resultado = [];
         foreach ($definiciones as $clave => $def) {
-            $resultado[$clave] = SegmentoPoblacion::firstOrCreate(
-                ['nombre' => $def['nombre']],
-                array_merge($def, ['activo' => true])
+            $resultado[$clave] = SegmentoPoblacion::updateOrCreate(
+                ['slug' => $def['slug']],
+                ['nombre' => $def['nombre'], 'descripcion' => $def['descripcion'], 'activo' => true]
             );
         }
 
