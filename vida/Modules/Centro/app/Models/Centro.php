@@ -41,6 +41,7 @@ use Modules\Prestaciones\Models\Prestacion;
  * @property bool $activo
  * @property Carbon $fecha_alta
  * @property Carbon|null $fecha_baja
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Sala> $salas
  */
 class Centro extends Model
 {
@@ -134,6 +135,16 @@ class Centro extends Model
     public function coleccionesPlazas(): HasMany
     {
         return $this->hasMany(ColeccionPlazas::class, 'centro_id');
+    }
+
+    /**
+     * Salas funcionales del centro (aulas, salas de reuniones, despachos...).
+     *
+     * @return HasMany<Sala, self>
+     */
+    public function salas(): HasMany
+    {
+        return $this->hasMany(Sala::class, 'centro_id');
     }
 
     /**

@@ -85,7 +85,7 @@ confirmar que cada clase y cada método público/protegido tienen su docblock an
 - Overrides de Bootstrap centralizados en `_bootstrap-overrides.scss`.
 - Evitar estilos inline estructurales en Blade. Solo se admiten para valores dinámicos inevitables.
 - Filament usa su tema VIDA y componentes nativos. Los overrides sobre clases internas `.fi-*` deben estar centralizados en el tema y ser excepcionales.
-- Iconos: **Heroicons** en todo el UI via `blade-ui-kit/blade-heroicons` — `<x-heroicon-o-nombre />` (outline) o `<x-heroicon-s-nombre />` (solid). Nombres dinámicos: `<x-dynamic-component :component="'heroicon-o-' . $nombre" />`. No usar Bootstrap Icons, Lucide, Tabler Icons ni CDNs de iconos.
+- Iconos: **Heroicons** en todo el UI via `blade-ui-kit/blade-heroicons` — `<x-heroicon-o-nombre />` (outline) o `<x-heroicon-s-nombre />` (solid). Nombres dinámicos: `<x-dynamic-component :component="'heroicon-o-' . $nombre" />`. No usar Bootstrap Icons, Tabler Icons ni CDNs de iconos.
 
 ### Tests
 - Base de datos de test: PostgreSQL (`vida_testing`). No usar SQLite.

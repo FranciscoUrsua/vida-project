@@ -603,7 +603,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
     <a href="{{ route('ciudadania.intervencion', $this->plan?->historia_id) }}"
        wire:navigate
        class="plan-topbar__back">
-        <i data-lucide="arrow-left" style="width:13px;height:13px"></i>
+        <x-heroicon-o-arrow-left class="icon-13" aria-hidden="true"/>
         Intervención
     </a>
 
@@ -628,7 +628,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
     <div class="plan-topbar__actions">
         @if($this->plan)
         <button wire:click="generarPdf" class="plan-btn">
-            <i data-lucide="file-down" style="width:13px;height:13px"></i>
+            <x-heroicon-o-document-arrow-down class="icon-13" aria-hidden="true"/>
             Generar PDF
         </button>
         @endif
@@ -639,14 +639,14 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
             class="plan-btn plan-btn--primary"
             @if(! $this->puedeActivarse) disabled title="Marca ambas firmas para activar" @endif
         >
-            <i data-lucide="check" style="width:13px;height:13px"></i>
+            <x-heroicon-o-check class="icon-13" aria-hidden="true"/>
             Activar plan
         </button>
         @endif
 
         @if($this->plan?->estado === 'activo')
         <button class="plan-btn">
-            <i data-lucide="x-circle" style="width:13px;height:13px"></i>
+            <x-heroicon-o-x-circle class="icon-13" aria-hidden="true"/>
             Cerrar plan
         </button>
         @endif
@@ -656,7 +656,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
 {{-- Mensaje de éxito --}}
 @if($mensajeExito)
 <div class="plan-exito" x-init="setTimeout(() => $wire.set('mensajeExito', ''), 3000)">
-    <i data-lucide="check-circle" style="width:13px;height:13px"></i>
+    <x-heroicon-o-check-circle class="icon-13" aria-hidden="true"/>
     {{ $mensajeExito }}
 </div>
 @endif
@@ -671,7 +671,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
     <div class="plan-section" id="ps-datos">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <i data-lucide="user" style="width:15px;height:15px"></i>
+                <x-heroicon-o-user class="icon-16" aria-hidden="true"/>
                 Datos de la persona
             </div>
             <span class="plan-readonly-badge">Solo lectura · Historia Social</span>
@@ -718,11 +718,11 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
     <div class="plan-section" id="ps-diagnostico">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <i data-lucide="file-text" style="width:15px;height:15px"></i>
+                <x-heroicon-o-document-text class="icon-16" aria-hidden="true"/>
                 Diagnóstico social
             </div>
             <button wire:click="abrirDrawer" class="plan-btn">
-                <i data-lucide="database" style="width:13px;height:13px"></i>
+                <x-heroicon-o-circle-stack class="icon-13" aria-hidden="true"/>
                 Añadir fichas
             </button>
         </div>
@@ -735,12 +735,12 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
                      x-data="{ expandida: false }">
                     <div class="plan-ficha-header">
                         <div class="plan-ficha-title" @click="expandida = !expandida" style="cursor:pointer">
-                            <i data-lucide="lock" style="width:11px;height:11px;opacity:.5"></i>
+                            <x-heroicon-o-lock-closed class="icon-12" aria-hidden="true"/>
                             {{ $pfd->ficha?->tipoFicha?->nombre ?? 'Ficha' }}
                             <span class="plan-ficha-date">
                                 {{ $pfd->ficha?->created_at?->format('d/m/Y') }}
                             </span>
-                            <i data-lucide="chevron-down" style="width:12px;height:12px"
+                            <x-heroicon-o-chevron-down class="icon-12" aria-hidden="true"
                                x-bind:style="expandida ? 'transform:rotate(180deg)' : ''"></i>
                         </div>
                         <button
@@ -748,7 +748,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
                             class="plan-ficha-remove"
                             title="Eliminar del diagnóstico"
                         >
-                            <i data-lucide="x" style="width:12px;height:12px"></i>
+                            <x-heroicon-o-x-mark class="icon-12" aria-hidden="true"/>
                         </button>
                     </div>
                     <div class="plan-ficha-content" x-show="expandida" x-cloak>
@@ -773,7 +773,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
 
                 @if($this->fichasDiagnostico->isNotEmpty())
                 <button wire:click="abrirDrawer" class="plan-add-ficha-btn">
-                    <i data-lucide="plus" style="width:13px;height:13px"></i>
+                    <x-heroicon-o-plus class="icon-13" aria-hidden="true"/>
                     Añadir otra ficha
                 </button>
                 @endif
@@ -782,7 +782,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
             {{-- Bloque B: Síntesis profesional --}}
             <div class="plan-sintesis">
                 <div class="plan-sintesis-label">
-                    <i data-lucide="pencil" style="width:13px;height:13px"></i>
+                    <x-heroicon-o-pencil-square class="icon-13" aria-hidden="true"/>
                     Síntesis profesional
                 </div>
                 <div class="plan-editor-toolbar">
@@ -792,7 +792,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
                             title="Cursiva"><em>I</em></button>
                     <button class="plan-tb-btn" onclick="document.execCommand('insertUnorderedList')"
                             title="Lista">
-                        <i data-lucide="list" style="width:13px;height:13px"></i>
+                        <x-heroicon-o-list-bullet class="icon-13" aria-hidden="true"/>
                     </button>
                 </div>
                 <div
@@ -810,11 +810,11 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
     <div class="plan-section" id="ps-objetivos">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <i data-lucide="target" style="width:15px;height:15px"></i>
+                <x-heroicon-o-cursor-arrow-rays class="icon-16" aria-hidden="true"/>
                 Objetivos
             </div>
             <button class="plan-btn">
-                <i data-lucide="plus" style="width:13px;height:13px"></i>
+                <x-heroicon-o-plus class="icon-13" aria-hidden="true"/>
                 Añadir objetivo
             </button>
         </div>
@@ -838,7 +838,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
                             {{ ucfirst(str_replace('_', ' ', $og->estado)) }}
                         </span>
                         <button class="plan-tb-btn">
-                            <i data-lucide="edit" style="width:13px;height:13px"></i>
+                            <x-heroicon-o-pencil-square class="icon-13" aria-hidden="true"/>
                         </button>
                     </div>
                 </div>
@@ -852,11 +852,11 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
     <div class="plan-section" id="ps-ayto">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <i data-lucide="building" style="width:15px;height:15px"></i>
+                <x-heroicon-o-building-office class="icon-16" aria-hidden="true"/>
                 Compromisos del Ayuntamiento
             </div>
             <button class="plan-btn">
-                <i data-lucide="plus" style="width:13px;height:13px"></i>
+                <x-heroicon-o-plus class="icon-13" aria-hidden="true"/>
                 Añadir
             </button>
         </div>
@@ -891,7 +891,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
                         </td>
                         <td class="plan-td-secondary">{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
                         <td><span class="plan-estado-badge plan-estado-{{ $act->estado }}">{{ ucfirst($act->estado) }}</span></td>
-                        <td><button class="plan-tb-btn"><i data-lucide="edit" style="width:13px;height:13px"></i></button></td>
+                        <td><button class="plan-tb-btn"><x-heroicon-o-pencil-square class="icon-13" aria-hidden="true"/></button></td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -904,11 +904,11 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
     <div class="plan-section" id="ps-ciudadano">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <i data-lucide="user-check" style="width:15px;height:15px"></i>
+                <x-heroicon-o-check-badge class="icon-16" aria-hidden="true"/>
                 Compromisos de la persona
             </div>
             <button class="plan-btn">
-                <i data-lucide="plus" style="width:13px;height:13px"></i>
+                <x-heroicon-o-plus class="icon-13" aria-hidden="true"/>
                 Añadir
             </button>
         </div>
@@ -919,7 +919,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
             <div class="plan-comp-list">
                 @foreach($this->actuacionesCiudadano as $act)
                 <div class="plan-comp-item" wire:key="aciu-{{ $act->id }}">
-                    <i data-lucide="circle-check" style="width:14px;height:14px;flex-shrink:0;margin-top:1px"></i>
+                    <x-heroicon-o-check-circle class="icon-14" aria-hidden="true"/>
                     <div>
                         <div>{{ $act->descripcion }}</div>
                         @if($act->prestacion)
@@ -927,7 +927,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
                         @endif
                     </div>
                     <button class="plan-tb-btn" style="margin-left:auto">
-                        <i data-lucide="edit" style="width:13px;height:13px"></i>
+                        <x-heroicon-o-pencil-square class="icon-13" aria-hidden="true"/>
                     </button>
                 </div>
                 @endforeach
@@ -940,11 +940,11 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
     <div class="plan-section" id="ps-participantes">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <i data-lucide="users" style="width:15px;height:15px"></i>
+                <x-heroicon-o-user-group class="icon-16" aria-hidden="true"/>
                 Profesionales participantes
             </div>
             <button class="plan-btn">
-                <i data-lucide="plus" style="width:13px;height:13px"></i>
+                <x-heroicon-o-plus class="icon-13" aria-hidden="true"/>
                 Añadir
             </button>
         </div>
@@ -964,7 +964,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
                     <span class="plan-badge-responsable">Responsable</span>
                     @else
                     <button class="plan-tb-btn">
-                        <i data-lucide="x" style="width:13px;height:13px"></i>
+                        <x-heroicon-o-x-mark class="icon-13" aria-hidden="true"/>
                     </button>
                     @endif
                 </div>
@@ -977,7 +977,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
     <div class="plan-section" id="ps-firmas">
         <div class="plan-section__header">
             <div class="plan-section__title">
-                <i data-lucide="writing" style="width:15px;height:15px"></i>
+                <x-heroicon-o-pencil-square class="icon-16" aria-hidden="true"/>
                 Seguimiento y firmas
             </div>
         </div>
@@ -1070,7 +1070,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
             {{-- Estado de activación --}}
             @if($this->puedeActivarse)
             <div class="plan-firma-lista-ok">
-                <i data-lucide="check-circle" style="width:14px;height:14px"></i>
+                <x-heroicon-o-check-circle class="icon-14" aria-hidden="true"/>
                 Ambas partes han firmado. El plan puede activarse desde el botón superior.
             </div>
             @endif
@@ -1112,7 +1112,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
         <div class="plan-drawer-header">
             <div class="plan-drawer-title">Historia social — fichas</div>
             <button wire:click="cerrarDrawer" aria-label="Cerrar">
-                <i data-lucide="x" style="width:16px;height:16px"></i>
+                <x-heroicon-o-x-mark class="icon-16" aria-hidden="true"/>
             </button>
         </div>
 
@@ -1158,7 +1158,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
                 x-on:click="$wire.aplicarSeleccionFichas(seleccion)"
                 class="plan-btn plan-btn--primary"
             >
-                <i data-lucide="check" style="width:13px;height:13px"></i>
+                <x-heroicon-o-check class="icon-13" aria-hidden="true"/>
                 Aplicar selección
             </button>
         </div>
@@ -1191,7 +1191,7 @@ Crea `Modules/Intervencion/resources/views/livewire/plan-page.blade.php`:
                 class="plan-btn plan-btn--primary"
                 @if(empty(trim($motivoTexto))) disabled @endif
             >
-                <i data-lucide="check" style="width:13px;height:13px"></i>
+                <x-heroicon-o-check class="icon-13" aria-hidden="true"/>
                 Confirmar cambio
             </button>
         </div>
@@ -1493,7 +1493,7 @@ el botón de plan existente por:
     wire:navigate
     class="hs-action-btn"
 >
-    <i data-lucide="file-text" style="width:14px;height:14px"></i>
+    <x-heroicon-o-document-text class="icon-14" aria-hidden="true"/>
     Ver {{ $this->planNombreCorto }}
 </a>
 @else
@@ -1502,7 +1502,7 @@ el botón de plan existente por:
     wire:navigate
     class="hs-action-btn hs-action-btn--primary"
 >
-    <i data-lucide="plus" style="width:14px;height:14px"></i>
+    <x-heroicon-o-plus class="icon-14" aria-hidden="true"/>
     Crear {{ $this->planNombreCorto }}
 </a>
 @endif
@@ -1761,7 +1761,7 @@ cp /mnt/user-data/outputs/ui-intervencion-plan.md docs/front/ui-intervencion-pla
 - [ ] `Activar plan` queda deshabilitado hasta marcar ambas firmas
 - [ ] Al activar, el plan pasa a estado `activo` en BD
 - [ ] El PDF se descarga al pulsar "Generar PDF"
-- [ ] Los iconos Lucide se renderizan tras re-renders de Livewire
+- [ ] Los iconos Heroicons se renderizan desde Blade sin reinicialización JS
 - [ ] `docs/front/ui-intervencion-plan.md` copiado al repositorio
 - [ ] BACKLOG: eliminar entrada "UI del Plan de Intervención en CiudadanoPage"
 - [ ] SESSION.md actualizado

@@ -303,7 +303,7 @@ Estructura del formulario:
 {{-- Botón en la topbar de BuzonPage --}}
 <button wire:click="$set('modalAbierto', true)"
         class="btn btn-primary">
-    <i data-lucide="pencil" style="width:16px;height:16px;"></i>
+    <x-heroicon-o-pencil-square class="icon-16" aria-hidden="true"/>
     Nuevo mensaje
 </button>
 ```
@@ -376,7 +376,7 @@ Mantener desactivado con atributo `disabled` y tooltip explicativo:
 <button disabled
         title="Alta de ciudadanos: pendiente de implementación"
         class="btn btn-secondary opacity-50 cursor-not-allowed">
-    <i data-lucide="user-plus" style="width:16px;height:16px;"></i>
+    <x-heroicon-o-user-plus class="icon-16" aria-hidden="true"/>
     Dar de alta nuevo ciudadano
 </button>
 ```
@@ -430,7 +430,7 @@ el patrón moviendo el menú de usuario al topbar del layout operativo.
             {{ Auth::user()->profesional?->nombre_completo ?? Auth::user()->email }}
         </span>
 
-        <i data-lucide="chevron-down" style="width:16px;height:16px;"
+        <x-heroicon-o-chevron-down class="icon-16" aria-hidden="true"
            :class="{ 'rotate-180': abierto }"></i>
     </button>
 
@@ -462,7 +462,7 @@ el patrón moviendo el menú de usuario al topbar del layout operativo.
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="topbar__user-menu-item topbar__user-menu-item--danger">
-                <i data-lucide="log-out" style="width:16px;height:16px;"></i>
+                <x-heroicon-o-arrow-right-on-rectangle class="icon-16" aria-hidden="true"/>
                 Cerrar sesión
             </button>
         </form>

@@ -69,22 +69,25 @@ class CentroSeeder extends Seeder
 
     /**
      * Tipos de actividad que pueden ofrecerse en un centro.
+     *
+     * Usa updateOrCreate con slug como clave estable para que re-ejecuciones
+     * del seeder no generen duplicados y rellenen slugs en filas existentes.
      */
     private function sembrarTiposActividad(): void
     {
         $tipos = [
-            ['nombre' => 'Taller de empleo',            'descripcion' => 'Actividades de orientación e inserción laboral.'],
-            ['nombre' => 'Grupo terapéutico',           'descripcion' => 'Sesiones grupales de apoyo psicosocial.'],
-            ['nombre' => 'Actividad deportiva',         'descripcion' => 'Deporte adaptado, fisioterapia y hábitos saludables.'],
-            ['nombre' => 'Formación y alfabetización',  'descripcion' => 'Alfabetización básica, idiomas y competencias digitales.'],
-            ['nombre' => 'Actividad cultural y ocio',   'descripcion' => 'Talleres artísticos, salidas culturales y tiempo libre.'],
-            ['nombre' => 'Acompañamiento social',       'descripcion' => 'Acompañamiento individualizado en gestiones y citas.'],
+            ['slug' => 'taller-empleo',      'nombre' => 'Taller de empleo',           'descripcion' => 'Actividades de orientación e inserción laboral.'],
+            ['slug' => 'grupo-terapeutico',  'nombre' => 'Grupo terapéutico',          'descripcion' => 'Sesiones grupales de apoyo psicosocial.'],
+            ['slug' => 'actividad-deportiva','nombre' => 'Actividad deportiva',        'descripcion' => 'Deporte adaptado, fisioterapia y hábitos saludables.'],
+            ['slug' => 'formacion',          'nombre' => 'Formación y alfabetización', 'descripcion' => 'Alfabetización básica, idiomas y competencias digitales.'],
+            ['slug' => 'cultural-ocio',      'nombre' => 'Actividad cultural y ocio',  'descripcion' => 'Talleres artísticos, salidas culturales y tiempo libre.'],
+            ['slug' => 'acompanamiento',     'nombre' => 'Acompañamiento social',      'descripcion' => 'Acompañamiento individualizado en gestiones y citas.'],
         ];
 
         foreach ($tipos as $tipo) {
-            TipoActividad::firstOrCreate(
-                ['nombre' => $tipo['nombre']],
-                array_merge($tipo, ['activo' => true])
+            TipoActividad::updateOrCreate(
+                ['slug' => $tipo['slug']],
+                ['nombre' => $tipo['nombre'], 'descripcion' => $tipo['descripcion'], 'activo' => true]
             );
         }
 

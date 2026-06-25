@@ -262,7 +262,7 @@ muestra "UC colapsable" según el CHANGELOG de Entrega 3). Reemplaza el botón
     class="uc-widget__gestionar"
     title="Gestionar unidad de convivencia"
 >
-    <i data-lucide="users" style="width:14px;height:14px;"></i>
+    <x-heroicon-o-user-group class="icon-14" aria-hidden="true"/>
     Gestionar UC
 </button>
 ```
@@ -295,14 +295,14 @@ Añade el siguiente bloque justo antes del cierre del componente raíz Livewire
                 Unidad de convivencia
             </h2>
             <button wire:click="cerrarModalUc" class="uc-modal__cerrar" aria-label="Cerrar">
-                <i data-lucide="x" style="width:18px;height:18px;"></i>
+                <x-heroicon-o-x-mark class="icon-20" aria-hidden="true"/>
             </button>
         </div>
 
         {{-- Mensaje de feedback --}}
         @if($ucMensaje)
         <div class="uc-modal__mensaje" wire:key="uc-mensaje">
-            <i data-lucide="check-circle" style="width:14px;height:14px;"></i>
+            <x-heroicon-o-check-circle class="icon-14" aria-hidden="true"/>
             {{ $ucMensaje }}
         </div>
         @endif
@@ -315,7 +315,7 @@ Añade el siguiente bloque justo antes del cierre del componente raíz Livewire
             <div class="uc-modal__vacio">
                 <p>Este ciudadano no tiene unidad de convivencia registrada.</p>
                 <button wire:click="crearUc" class="uc-modal__btn-crear">
-                    <i data-lucide="plus" style="width:14px;height:14px;"></i>
+                    <x-heroicon-o-plus class="icon-14" aria-hidden="true"/>
                     Crear unidad de convivencia
                 </button>
             </div>
@@ -347,7 +347,7 @@ Añade el siguiente bloque justo antes del cierre del componente raíz Livewire
                             {{-- Badge verificado --}}
                             @if($miembro->verificado)
                                 <span class="uc-badge uc-badge--verificado" title="Residencia verificada">
-                                    <i data-lucide="shield-check" style="width:12px;height:12px;"></i>
+                                    <x-heroicon-o-shield-check class="icon-12" aria-hidden="true"/>
                                     Verificado
                                 </span>
                             @else
@@ -356,7 +356,7 @@ Añade el siguiente bloque justo antes del cierre del componente raíz Livewire
                                     class="uc-badge uc-badge--sin-verificar"
                                     title="Verificar residencia manualmente"
                                 >
-                                    <i data-lucide="shield-alert" style="width:12px;height:12px;"></i>
+                                    <x-heroicon-o-shield-exclamation class="icon-12" aria-hidden="true"/>
                                     Sin verificar
                                 </button>
                             @endif
@@ -376,7 +376,7 @@ Añade el siguiente bloque justo antes del cierre del componente raíz Livewire
                                     class="uc-btn uc-btn--ghost-sm"
                                     title="Dar de baja como miembro"
                                 >
-                                    <i data-lucide="user-minus" style="width:13px;height:13px;"></i>
+                                    <x-heroicon-o-minus-circle class="icon-13" aria-hidden="true"/>
                                 </button>
                             @endif
                         </div>
@@ -420,7 +420,7 @@ Añade el siguiente bloque justo antes del cierre del componente raíz Livewire
                             class="uc-modal__input"
                             autocomplete="off"
                         />
-                        <i data-lucide="search"
+                        <x-heroicon-o-magnifying-glass
                            class="uc-modal__busqueda-icon"
                            style="width:14px;height:14px;"></i>
                     </div>
@@ -1119,7 +1119,7 @@ Actualiza `SESSION.md` con:
 - [ ] Suite completa Intervención sin regresiones
 - [ ] El botón "Gestionar UC" aparece en el widget UC de la pantalla del ciudadano
 - [ ] El modal abre y cierra con el botón y con Escape
-- [ ] Los iconos Lucide se renderizan (el hook `livewire:initialized` ya está en operativo.blade.php)
+- [ ] Los iconos Heroicons se renderizan desde Blade, sin hook JS adicional
 - [ ] BACKLOG actualizado
 - [ ] SESSION.md actualizado
 - [ ] Commit: `feat(intervencion): modal gestión UC en CiudadanoPage`

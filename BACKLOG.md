@@ -9,6 +9,18 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Disponibilidad de salas (validación de conflictos de reserva)** — 2026-06-25
+Módulo: Agenda (futuro)
+VIDA 360 almacena `sala_id` en `SesionActividad` como dato informativo de ubicación, pero no detecta conflictos cuando dos sesiones distintas usan la misma sala en el mismo horario. Esta funcionalidad se diseñará en el módulo de Agenda. Tampoco se valida que el aforo de la sala sea suficiente para el número de inscritos (queda a criterio del profesional).
+
+---
+
+**Migraciones de slugs en tipos_actividad existentes** — 2026-06-25
+Módulo: Centro
+El campo `slug` se añadió como nullable para compatibilidad con datos existentes. Si hay filas en `tipos_actividad` previas al seeder, tendrán `slug = NULL` hasta que se editen en Filament o se ejecute `db:seed --class=CentroSeeder`. Pendiente: valorar añadir un comando artisan de migración de slugs (slugify del `nombre`) o documentarlo para los administradores del sistema.
+
+---
+
 **Actividades grupales — gestión completa** — 2026-06-25
 Módulo: Supervision / Centro
 El modal de alta de actividades está implementado. Pendiente: edición y baja de actividades, gestión de sesiones (`SesionActividad`), e inscripción de ciudadanos desde Intervención. El modelo `Actividad` ya tiene la estructura; falta la UI de ciclo de vida completo.

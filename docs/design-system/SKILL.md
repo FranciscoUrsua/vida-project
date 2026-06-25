@@ -11,7 +11,10 @@ Use this when producing UI, slides, prototypes or marketing for **VIDA 360** (*V
 ## Getting started
 1. Read `README.md` top-to-bottom before any design work.
 2. Use `stylesheets/colors_and_type.css` as the design-token reference.
-3. For implementation, build Livewire UI with Tailwind CSS, VIDA tokens and reusable Blade/Livewire components. Filament uses its VIDA theme and native components.
+3. Read `frontend-bootstrap-guardrails.md` before any implementation work on Blade, Livewire or shared layouts.
+4. For implementation:
+   - Blade/Livewire operativo y publico: Bootstrap 5.3 como capa base, tokens VIDA y componentes `op-*` reutilizables.
+   - Filament: tema VIDA y componentes nativos.
 
 ## Palette in one line
 Primary `#2A5B8A` (Azul Retiro) · Accent `#C76E4A` (Terracotta) · Paper `#FAF7F1` · Ink-900 `#1D160E` · Protected `#6B3D6B`.
@@ -30,7 +33,7 @@ Source Sans 3 (UI) · Source Serif 4 (display only) · JetBrains Mono (codes, DN
 - Bootstrap 5.3 is the primitive layer for Blade/Livewire UI: buttons, forms, tables, modals, grid, spacing. Install locally via npm + Vite, never via CDN.
 - Layer order: (1) VIDA tokens as Bootstrap variables → (2) Bootstrap standard classes → (3) shared `op-*` product components → (4) screen-specific classes only for genuine structural needs.
 - Never create `xxx-btn`, `xxx-input`, `xxx-modal` classes when Bootstrap already covers it.
-- Icons: **Heroicons** everywhere via `<x-heroicon-o-name />` (outline) or `<x-heroicon-s-name />` (solid), using `blade-ui-kit/blade-heroicons`. Dynamic names: `<x-dynamic-component :component="'heroicon-o-' . $name" />`. No Bootstrap Icons, no Lucide, no icon CDNs, no icon fonts.
+- Icons: **Heroicons** everywhere via `<x-heroicon-o-name />` (outline) or `<x-heroicon-s-name />` (solid), using `blade-ui-kit/blade-heroicons`. Dynamic names: `<x-dynamic-component :component="'heroicon-o-' . $name" />`. No Bootstrap Icons, no Tabler Icons, no icon CDNs, no icon fonts.
 - No structural inline styles in Blade. Inline styles only for unavoidable dynamic values.
 - No gradients, no glassmorphism, no bounce animation, no decorative SVGs, no emoji in product chrome.
 

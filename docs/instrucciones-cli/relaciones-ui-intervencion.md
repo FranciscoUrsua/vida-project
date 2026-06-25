@@ -165,7 +165,7 @@ del widget UC, añade:
         {{ $this->representante->nombre }}
         {{ $this->representante->apellido1 }}
         {{ $this->representante->apellido2 }}
-        <i data-lucide="chevron-right" style="width:12px;height:12px;"></i>
+        <x-heroicon-o-chevron-right class="icon-12" aria-hidden="true"/>
     </button>
 </div>
 @endif
@@ -202,7 +202,7 @@ añade:
     class="uc-widget__ver-relaciones"
     title="Ver todas las personas relacionadas"
 >
-    <i data-lucide="network" style="width:13px;height:13px;"></i>
+    <x-heroicon-o-share class="icon-13" aria-hidden="true"/>
     Ver todas las relaciones
 </button>
 ```
@@ -235,7 +235,7 @@ que el modal de gestión de UC ya existente):
             </h2>
             <button wire:click="cerrarModalRepresentante"
                     class="uc-modal__cerrar" aria-label="Cerrar">
-                <i data-lucide="x" style="width:18px;height:18px;"></i>
+                <x-heroicon-o-x-mark class="icon-20" aria-hidden="true"/>
             </button>
         </div>
 
@@ -250,7 +250,7 @@ que el modal de gestión de UC ya existente):
                 @if($this->representante->telefono)
                 <a href="tel:{{ $this->representante->telefono }}"
                    class="rel-modal__dato">
-                    <i data-lucide="phone" style="width:13px;height:13px;"></i>
+                    <x-heroicon-o-phone class="icon-13" aria-hidden="true"/>
                     {{ $this->representante->telefono }}
                 </a>
                 @endif
@@ -258,7 +258,7 @@ que el modal de gestión de UC ya existente):
                 @if($this->representante->email)
                 <a href="mailto:{{ $this->representante->email }}"
                    class="rel-modal__dato">
-                    <i data-lucide="mail" style="width:13px;height:13px;"></i>
+                    <x-heroicon-o-envelope class="icon-13" aria-hidden="true"/>
                     {{ $this->representante->email }}
                 </a>
                 @endif
@@ -276,7 +276,7 @@ que el modal de gestión de UC ya existente):
                     class="rel-modal__link-ficha"
                     wire:navigate
                 >
-                    <i data-lucide="external-link" style="width:12px;height:12px;"></i>
+                    <x-heroicon-o-arrow-top-right-on-square class="icon-12" aria-hidden="true"/>
                     Ver ficha completa
                 </a>
             </div>
@@ -320,7 +320,7 @@ Añade inmediatamente después del modal de representante:
             </h2>
             <button wire:click="cerrarModalRelaciones"
                     class="uc-modal__cerrar" aria-label="Cerrar">
-                <i data-lucide="x" style="width:18px;height:18px;"></i>
+                <x-heroicon-o-x-mark class="icon-20" aria-hidden="true"/>
             </button>
         </div>
 
@@ -357,7 +357,7 @@ Añade inmediatamente después del modal de representante:
                                 wire:navigate
                                 title="Ver ficha"
                             >
-                                <i data-lucide="external-link" style="width:12px;height:12px;"></i>
+                                <x-heroicon-o-arrow-top-right-on-square class="icon-12" aria-hidden="true"/>
                             </a>
                         </div>
                     </li>
@@ -385,7 +385,7 @@ Añade inmediatamente después del modal de representante:
                 class="rel-modal__link-ficha"
                 wire:navigate
             >
-                <i data-lucide="external-link" style="width:12px;height:12px;"></i>
+                <x-heroicon-o-arrow-top-right-on-square class="icon-12" aria-hidden="true"/>
                 Gestionar relaciones en la ficha
             </a>
             <button wire:click="cerrarModalRelaciones" class="uc-btn uc-btn--ghost">
@@ -876,6 +876,6 @@ Actualiza `SESSION.md`:
 - [ ] Cada miembro del widget UC muestra su tipo de relación si está registrado
 - [ ] El botón "Ver todas las relaciones" abre el modal agrupado por tipo
 - [ ] Los modales se cierran con Escape (Alpine.js) y con el botón Cerrar
-- [ ] Los iconos Lucide se renderizan tras re-renders de Livewire
+- [ ] Los iconos Heroicons se renderizan desde Blade sin reinicialización JS
 - [ ] BACKLOG y SESSION.md actualizados
 - [ ] Commit: `feat(intervencion): relaciones en CiudadanoPage — representante, tipos en UC y modal completo`

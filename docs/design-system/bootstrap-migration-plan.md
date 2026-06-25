@@ -41,9 +41,9 @@ Adoptar **Bootstrap 5.3 instalado localmente vía npm + Vite** como sistema base
 Unificar la estrategia así:
 
 - **Filament**: mantener `Heroicons`.
-- **Blade/Livewire operativo y público**: usar **Lucide**.
+- **Blade/Livewire operativo y publico**: usar **Heroicons**.
 - **Bootstrap Icons**: retirarlo de la superficie operativa salvo dependencia puntual justificada.
-- **CDN de Lucide**: eliminarlo y pasar a carga local en `resources/js/app.js`.
+- **CDNs de iconos**: eliminarlos.
 
 ---
 
@@ -66,7 +66,7 @@ El frontend actual presenta estos problemas estructurales:
    - inputs estilados inline
 4. La iconografía está fragmentada:
    - `Heroicons` en Filament
-   - `Lucide` cargado por CDN
+   - otro sistema de iconos cargado por CDN
    - `Bootstrap Icons` por CDN
 5. Hay dependencia de CDNs en layouts Blade importantes.
 6. Resolver deuda del informe de frontend sin cambiar la base de UI solo reduce inline styles, pero no crea una arquitectura mantenible.
@@ -115,7 +115,7 @@ Bootstrap será la base para la **superficie de producto operativa**, no para to
 Instalar en `vida/`:
 
 ```bash
-npm install bootstrap @popperjs/core lucide
+npm install bootstrap @popperjs/core
 npm install -D sass
 ```
 
@@ -157,30 +157,29 @@ Motivo:
 - está integrado con los componentes admin actuales.
 
 #### Blade/Livewire
-Usar `Lucide` como sistema único.
+Usar `Heroicons` como sistema único.
 
 Motivo:
-- ya está muy extendido en las vistas operativas;
-- la migración es menor que cambiar a otra librería;
-- su estética encaja con la UI actual;
-- permite cargar localmente desde el build.
+- ya forma parte del ecosistema actual del proyecto;
+- evita mantener dos sistemas de iconos distintos;
+- elimina la dependencia de inicialización JS para iconos;
+- encaja con Filament y con el stack Blade existente.
 
 #### Bootstrap Icons
 No usarlo como sistema principal.
 
 Motivo:
 - hoy solo añade fragmentación;
-- no aporta una ventaja clara sobre Lucide en este repo;
+- no aporta una ventaja clara frente a Heroicons en este repo;
 - ya existe deuda de iconos suficiente.
 
 ### Implementación propuesta
 
 1. Eliminar del layout operativo:
-   - CDN de `lucide`
    - CDN de `bootstrap-icons`
    - CDN de `bootstrap.bundle.min.js`
-2. Importar Bootstrap JS y Lucide localmente desde `resources/js/app.js`.
-3. Ejecutar `createIcons()` al cargar documento y tras navegación Livewire.
+2. Importar Bootstrap JS localmente desde `resources/js/app.js`.
+3. Renderizar iconos con `blade-ui-kit/blade-heroicons`.
 4. Mantener una pequeña capa de tamaños reutilizables (`icon-12`, `icon-14`, etc.) o sustituirla por utilidades más estructuradas si se decide después.
 
 ---
@@ -301,8 +300,7 @@ Se corta la deriva del CSS antes de migrar.
 ## Fase 1. Preparar assets y build local
 
 ### Objetivo
-Dejar Bootstrap, Lucide y SCSS integrados en el pipeline del proyecto.
-
+Dejar Bootstrap y SCSS integrados en el pipeline del proyecto.
 ### Tareas
 
 1. crear `resources/scss/`;
@@ -312,9 +310,7 @@ Dejar Bootstrap, Lucide y SCSS integrados en el pipeline del proyecto.
    - `resources/scss/app-operativo.scss`
    - mantener el theme de Filament separado;
 4. importar Bootstrap localmente;
-5. importar Lucide localmente;
-6. actualizar `resources/js/app.js` para inicialización de iconos y JS de Bootstrap.
-
+5. actualizar `resources/js/app.js` para JS de Bootstrap.
 ### Archivos implicados
 
 - `vida/vite.config.js`
@@ -322,8 +318,7 @@ Dejar Bootstrap, Lucide y SCSS integrados en el pipeline del proyecto.
 - `vida/resources/scss/*`
 
 ### Resultado esperado
-El frontend deja de depender de Bootstrap/Lucide por CDN.
-
+El frontend deja de depender de Bootstrap y librerías de iconos por CDN.
 ---
 
 ## Fase 2. Crear el tema Bootstrap VIDA
@@ -540,8 +535,7 @@ Crear o actualizar una guía tipo:
 - usar `op-*` solo para componentes compartidos del producto;
 - no usar estilos inline estructurales;
 - no usar CDNs de UI en nuevas vistas;
-- iconos Blade/Livewire: solo Lucide;
-- iconos Filament: Heroicons;
+- iconos Blade/Livewire: solo Heroicons;
 - no crear una clase por botón/input/título si la semántica ya existe.
 
 ---
@@ -583,20 +577,18 @@ Migración incremental por áreas y revisión visual por pantalla.
 ### Riesgo 5. Iconos rotos tras eliminar CDNs
 
 **Problema**
-Las vistas siguen esperando `lucide` global en runtime.
+Las vistas siguen esperando iconos basados en CDN o atributos legacy de iconos.
 
 **Mitigación**
-migrar primero `resources/js/app.js` y los layouts base.
-
+migrar primero los layouts base y los iconos Blade a Heroicons.
 ---
 
 ## Criterios de aceptación
 
 La migración se puede considerar bien encaminada cuando:
 
-1. no queden CDNs de Bootstrap, Bootstrap Icons ni Lucide en layouts principales;
-2. Bootstrap y Lucide se carguen solo desde assets locales;
-3. exista un tema VIDA de Bootstrap centralizado;
+1. no queden CDNs de Bootstrap ni librerías de iconos en layouts principales;
+2. Bootstrap se cargue solo desde assets locales y los iconos se rendericen con Heroicons;
 4. las pantallas nuevas usen Bootstrap + `op-*` y no clases por elemento;
 5. `app-operativo.css` deje de crecer y empiece a reducirse;
 6. la UI operativa tenga consistencia de botones, inputs, selects, alerts y títulos;
@@ -611,8 +603,7 @@ Assets base:
 - instalar dependencias;
 - preparar SCSS;
 - conectar Vite;
-- mover Bootstrap/Lucide a local.
-
+- mover Bootstrap a local y retirar CDNs de iconos.
 ### Commit 2
 Theme Bootstrap VIDA:
 - tokens;
@@ -644,9 +635,8 @@ Para este proyecto, la recomendación es:
 
 - **sí a Bootstrap**;
 - **sí a instalación local por npm + Vite**;
-- **sí a Lucide local en Blade/Livewire**;
+- **sí a Heroicons en Blade/Livewire**;
 - **sí a Heroicons en Filament**;
-- **no a seguir creciendo el CSS operativo actual como sistema principal**;
 - **no a una adopción parcial sin reglas**.
 
 La clave no es introducir Bootstrap. La clave es introducirlo **como base arquitectónica coherente**.

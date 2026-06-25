@@ -271,7 +271,7 @@ La arquitectura objetivo tiene cuatro capas:
 
 La aplicación es **desktop-first**: el uso mayoritario se produce en PC y la interfaz debe priorizar densidad, escaneabilidad y eficiencia para trabajo profesional continuado. Esto no exime de soporte responsive: en tablet los layouts deben conservar funcionalidad completa con reorganización razonable, y en móvil deben permitir consulta y operaciones básicas sin roturas visuales ni pérdida de accesibilidad.
 
-**Iconos:** Lucide en Blade/Livewire (cargado localmente desde el build); Heroicons en Filament. Bootstrap Icons no es el sistema de iconos del producto y no debe añadirse como dependencia nueva. No cargar fuentes de iconos por CDN en layouts de la aplicación principal.
+**Iconos:** Heroicons en Blade/Livewire y en Filament, via `blade-ui-kit/blade-heroicons`. Bootstrap Icons y Tabler Icons no son el sistema de iconos del producto y no deben añadirse como dependencias nuevas. No cargar iconos por CDN en layouts de la aplicación principal.
 
 Regla de implementación: **primero Bootstrap; si hace falta un componente de producto reutilizable, `op-*`; solo al final, una clase específica de pantalla. No se usan estilos inline estructurales en Blade. Filament usa su tema VIDA y componentes nativos.**
 

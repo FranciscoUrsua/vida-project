@@ -39,10 +39,10 @@ grep -rn "#534AB7\|#EEEDFE\|#AFA9EC\|#3C3489\|#26215C\|#CECBF6" \
   resources/views/ Modules/Intervencion/resources/views/ \
   resources/css/ --include="*.blade.php" --include="*.css" -l
 
-# Buscar uso de Tabler Icons (ti-*) que deben reemplazarse por Lucide
-grep -rn "ti ti-\|class=\"ti\|class='ti" \
+# Buscar uso de iconos legacy que deben reemplazarse por Heroicons
+grep -rn "heroicon-|blade-heroicons|icon-12|icon-13|icon-14|icon-16|icon-20" \
   resources/views/ Modules/Intervencion/resources/views/ \
-  --include="*.blade.php" -l
+  --include="*.blade.php"
 
 # Buscar fuentes incorrectas o ausentes
 grep -rn "font-family\|Inter\|Roboto\|sans-serif" \
@@ -107,16 +107,11 @@ El layout debe cargar:
 {{-- CSS operativo --}}
 @vite('resources/css/app-operativo.css')
 
-{{-- Lucide Icons (sustituye a Tabler Icons) --}}
-<script src="https://unpkg.com/lucide@latest" defer></script>
-<script defer>
-    document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
-    document.addEventListener('livewire:navigated', () => lucide.createIcons());
-</script>
+{{-- Iconos --}}
+{{-- Heroicons se renderiza desde Blade mediante blade-ui-kit/blade-heroicons; no requiere JS ni CDN. --}}
 ```
 
-El segundo listener `livewire:navigated` es necesario porque Livewire 4
-re-renderiza el DOM sin recargar la página, y Lucide necesita reinicializarse.
+Livewire no necesita reinicializar iconos cuando se usan Heroicons renderizados desde Blade.
 
 ### 4.2 Tipografía base
 
@@ -140,108 +135,48 @@ Verificar que el `<body>` y el contenedor principal usan este valor.
 
 ---
 
-## Paso 5 — Migración de iconos: Tabler → Lucide
+## Paso 5 — Migración de iconos: sistema único Heroicons
 
-Todos los iconos `ti ti-*` deben reemplazarse por sus equivalentes Lucide.
-Lucide se usa con el atributo `data-lucide="nombre-del-icono"` en un elemento
-`<i>` o `<span>`, y el script de CDN los convierte en SVG.
+Todos los iconos de la superficie operativa deben expresarse con `blade-ui-kit/blade-heroicons`.
+No usar atributos o clases legacy de iconos, CDNs de iconos ni inicialización JS para iconografía.
 
-### 5.1 Tabla de equivalencias
+### 5.1 Sintaxis de uso
 
-| Tabler (`ti ti-*`) | Lucide (`data-lucide`) |
+```blade
+{{-- Antes --}}
+{{-- Icono legacy embebido directamente en el marcado --}}
+
+{{-- Después --}}
+<x-heroicon-o-calendar class="icon-16" aria-hidden="true"/>
+```
+
+### 5.2 Reglas
+
+- usar `<x-heroicon-o-nombre />` para outline;
+- usar `<x-heroicon-s-nombre />` solo cuando el estado requiera versión solid;
+- tamaños permitidos en operativo: `icon-12`, `icon-13`, `icon-14`, `icon-16`, `icon-20`;
+- no usar estilos inline para tamaño de icono salvo que el ejemplo documente un caso excepcional y justificado.
+
+### 5.3 Equivalencias frecuentes
+
+| Necesidad | Heroicon recomendado |
 |---|---|
-| `ti-calendar` | `calendar` |
-| `ti-users` | `users` |
-| `ti-bell` | `bell` |
-| `ti-search` | `search` |
-| `ti-heart-handshake` | `hand-heart` |
-| `ti-chevron-left` | `chevron-left` |
-| `ti-chevron-right` | `chevron-right` |
-| `ti-chevron-down` | `chevron-down` |
-| `ti-chevron-up` | `chevron-up` |
-| `ti-arrow-left` | `arrow-left` |
-| `ti-arrow-right` | `arrow-right` |
-| `ti-alert-circle` | `alert-circle` |
-| `ti-clock` | `clock` |
-| `ti-clock-alert` | `clock-alert` |
-| `ti-calendar-exclamation` | `calendar-x` |
-| `ti-list-check` | `list-checks` |
-| `ti-message` | `message-square` |
-| `ti-file-description` | `file-text` |
-| `ti-file-plus` | `file-plus` |
-| `ti-file-off` | `file-x` |
-| `ti-user-check` | `user-check` |
-| `ti-note` | `sticky-note` |
-| `ti-clipboard-check` | `clipboard-check` |
-| `ti-chart-bar` | `bar-chart-2` |
-| `ti-send` | `send` |
-| `ti-arrows-exchange` | `arrow-left-right` |
-| `ti-file-text` | `file-text` |
-| `ti-lock` | `lock` |
-| `ti-lock-open` | `lock-open` |
-| `ti-shield-lock` | `shield` |
-| `ti-user-plus` | `user-plus` |
-| `ti-download` | `download` |
-| `ti-edit` | `pencil` |
-| `ti-selector` | `chevrons-up-down` |
-| `ti-dots` | `more-horizontal` |
-| `ti-check` | `check` |
-| `ti-info-circle` | `info` |
-| `ti-arrows-maximize` | `maximize-2` |
-| `ti-paperclip` | `paperclip` |
-| `ti-clipboard-list` | `clipboard-list` |
+| calendario | `heroicon-o-calendar` |
+| búsqueda | `heroicon-o-magnifying-glass` |
+| usuarios | `heroicon-o-user-group` |
+| alerta | `heroicon-o-exclamation-triangle` |
+| editar | `heroicon-o-pencil-square` |
+| abrir enlace | `heroicon-o-arrow-top-right-on-square` |
+| cerrar | `heroicon-o-x-mark` |
+| desplegar | `heroicon-o-chevron-down` |
+| volver | `heroicon-o-arrow-left` |
 
-### 5.2 Sintaxis de uso
+### 5.4 Revisión
 
-```blade
-{{-- Antes (Tabler) --}}
-<i class="ti ti-calendar" aria-hidden="true"></i>
-
-{{-- Después (Lucide) --}}
-<i data-lucide="calendar" aria-hidden="true"></i>
-```
-
-Para iconos con tamaño específico, usar estilos inline o clases Tailwind:
-
-```blade
-{{-- Tamaño 16px (inline con texto) --}}
-<i data-lucide="bell" style="width:16px;height:16px;" aria-hidden="true"></i>
-
-{{-- Tamaño 20px (en botones) --}}
-<i data-lucide="search" style="width:20px;height:20px;" aria-hidden="true"></i>
-
-{{-- Tamaño 24px (sidebar, menú) --}}
-<i data-lucide="calendar" style="width:24px;height:24px;" aria-hidden="true"></i>
-```
-
-**Stroke width:** todos los iconos Lucide deben tener `stroke-width="1.75"`.
-Añadir globalmente en el script de inicialización:
-
-```javascript
-document.addEventListener('DOMContentLoaded', () => {
-    lucide.createIcons({ 'stroke-width': 1.75 });
-});
-document.addEventListener('livewire:navigated', () => {
-    lucide.createIcons({ 'stroke-width': 1.75 });
-});
-```
-
-### 5.3 Ejecución del reemplazo
-
-Usar el inventario del Paso 2 para identificar todos los ficheros afectados
-y reemplazar sistemáticamente. Para cada fichero:
-
-```bash
-# Ejemplo para agenda-page.blade.php
-sed -i 's/class="ti ti-calendar"/data-lucide="calendar"/g' \
-  Modules/Intervencion/resources/views/livewire/agenda-page.blade.php
-```
-
-No usar sed en masa para todos los ficheros a la vez — revisar cada fichero
-manualmente para asegurarse de que la sustitución es correcta y no rompe
-atributos adyacentes.
-
----
+- no dejar clases o atributos legacy de iconos;
+- no dejar atributos legacy de iconos en snippets o ejemplos;
+- no cargar CDNs de iconos en layouts;
+- no reinicializar iconos tras navegación Livewire: Heroicons se renderiza en Blade.
 
 ## Paso 6 — Corrección de colores
 
@@ -422,7 +357,7 @@ php artisan config:clear
 
 Verificación visual en el navegador — revisar en este orden:
 1. Login → ¿fondo paper? ¿Source Sans 3? ¿botón azul Retiro?
-2. Sidebar → ¿iconos Lucide? ¿azul Retiro en ítem activo?
+2. Sidebar → ¿iconos Heroicons correctamente renderizados? ¿azul Retiro en ítem activo?
 3. Agenda → ¿colores de citas correctos? ¿fondo paper?
 4. Tabla de casos → ¿cabecera sand? ¿semáforo con tokens correctos?
 5. Búsqueda → ¿chips de estado con tokens? ¿borde protegido con --color-protected?
@@ -453,7 +388,7 @@ antes de continuar.
 ## Lo que NO hay que hacer
 
 - No inventar colores nuevos. Todo valor de color debe venir de `colors_and_type.css`.
-- No usar Tabler Icons (`ti ti-*`) en ningún fichero nuevo ni modificado.
+- No usar sistemas de iconos legacy en ningún fichero nuevo ni modificado.
 - No hardcodear valores hex en atributos `style=""` de las vistas Blade.
   Usar siempre `var(--nombre-del-token)`.
 - No modificar `docs/design-system/colors_and_type.css` ni ningún fichero
@@ -471,13 +406,13 @@ antes de continuar.
 
 - [ ] `npm run build` completa sin errores
 - [ ] `php artisan test` no introduce fallos nuevos
-- [ ] No hay referencias a `ti ti-*` en ningún fichero Blade del módulo Intervención
+- [ ] No hay referencias a iconos legacy en ningún fichero Blade del módulo Intervención
 - [ ] No hay colores hex hardcodeados en los atributos `style` de las vistas
 - [ ] El sidebar usa `--color-primary` para el ítem activo (azul Retiro, no morado)
 - [ ] Los botones primarios son azul Retiro (`--color-primary`)
 - [ ] El fondo general es `--color-paper` (`#FAF7F1`), no blanco puro
 - [ ] La tipografía es Source Sans 3 (verificar en DevTools → Computed → font-family)
-- [ ] Los iconos son Lucide con stroke-width 1.75px
+- [ ] Los iconos son Heroicons y respetan los tamaños documentados (`icon-12`, `icon-13`, `icon-14`, `icon-16`, `icon-20`)
 - [ ] Los chips de estado usan `--radius-pill` y el patrón semántico del design system
 - [ ] El focus ring es visible en todos los inputs y botones interactivos
 - [ ] Los campos de código (DNIs, NI-HSU-CM) usan JetBrains Mono

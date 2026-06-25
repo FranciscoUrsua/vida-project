@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-06-25 — Módulo Centro: Sala, slug en TipoActividad, sala_id en SesionActividad
+
+### Módulos afectados
+`Modules/Centro`, `app/Filament/Resources`
+
+### Añadido
+- **`TipoActividad`**: nueva columna `slug` (unique, nullable para compatibilidad con datos existentes). El campo es un identificador estable en minúsculas con guiones (ej: `grupo-apoyo`). Añadido `scopeActivos()`. Recurso Filament `TipoActividadResource` actualizado con campo `slug` en formulario y listado.
+- **`Sala`** (nueva entidad): espacio funcional de un centro (aulas, salas de reuniones, despachos). Distinta de `Espacio` (jerarquía de alojamiento). Atributos: `nombre`, `descripcion`, `capacidad`, `accesible`, `activa`, `notas`. Con `scopeActivas()` y `SalaFactory`.
+- **`SesionActividad`**: nueva columna `sala_id` (FK nullable → salas.id, nullOnDelete). Añadida relación `sala()`.
+- **`Centro`**: añadida relación `salas()` y `@property-read` en PHPDoc.
+- **`SalaResource`** Filament: listado con filtros por centro y activa; formulario completo.
+- **`CentroSeeder`**: `sembrarTiposActividad` migrado a `updateOrCreate` con slug como clave estable.
+- **3 migraciones**: `add_slug_activo_to_tipo_actividades_table`, `create_salas_table`, `add_sala_id_to_sesiones_actividad_table`.
+
+### Tests
+- 9 tests nuevos en `SalaTest` (TF-CEN-SALA-01 a 07, TF-CEN-TIPO-01, TF-CEN-TIPO-02). 54/54 tests del módulo Centro en verde.
+
+### Decisiones de implementación
+- `slug` se añade como nullable en la migración para no romper las filas existentes sin slug. El seeder lo rellena. Para filas que no pasen por el seeder (entornos con datos previos), el slug permanecerá NULL hasta edición manual en Filament.
+- La validación de disponibilidad de sala (conflictos de reserva) es responsabilidad del módulo de Agenda, no del módulo Centro. Queda pendiente como decisión diferida.
+
+---
+
 ## 2026-06-25 — Módulo Supervision: corrección de tests TF-SUP-C02, C03, D07, E03
 
 ### Bugs corregidos

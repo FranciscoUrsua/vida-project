@@ -500,7 +500,7 @@ de la cabecera de la ficha) y añade los tres botones condicionales:
     {{-- Nueva atención — para consulta_basica e intervencion --}}
     @if($this->puedeCrearAtencion)
     <button wire:click="abrirModalAtencion" class="ficha-btn">
-        <i data-lucide="message-square-plus" style="width:14px;height:14px"></i>
+        <x-heroicon-o-chat-bubble-left-right class="icon-14" aria-hidden="true"/>
         Nueva atención
     </button>
     @endif
@@ -512,7 +512,7 @@ de la cabecera de la ficha) y añade los tres botones condicionales:
         wire:confirm="¿Abrir historia social para este ciudadano? Esta acción asignará la historia a tu UO."
         class="ficha-btn ficha-btn--primary"
     >
-        <i data-lucide="folder-plus" style="width:14px;height:14px"></i>
+        <x-heroicon-o-folder-open class="icon-14" aria-hidden="true"/>
         Abrir historia social
     </button>
     @elseif($this->puedeVerHistoria)
@@ -521,7 +521,7 @@ de la cabecera de la ficha) y añade los tres botones condicionales:
         wire:navigate
         class="ficha-btn ficha-btn--primary"
     >
-        <i data-lucide="folder-open" style="width:14px;height:14px"></i>
+        <x-heroicon-o-folder-open class="icon-14" aria-hidden="true"/>
         Ver historia social
     </a>
     @endif
@@ -537,7 +537,7 @@ Añade la sección de historial de atenciones tras los datos del ciudadano:
 <div class="ficha-section" id="ficha-atencion-historial">
     <div class="ficha-section-header">
         <div class="ficha-section-title">
-            <i data-lucide="history" style="width:14px;height:14px"></i>
+            <x-heroicon-o-clock class="icon-14" aria-hidden="true"/>
             Historial de atenciones
             <span class="ficha-count">{{ $this->historialAtenciones->count() }}</span>
         </div>
@@ -573,7 +573,7 @@ Añade la sección de historial de atenciones tras los datos del ciudadano:
             :aria-expanded="expandido"
         >
             <span x-text="expandido ? 'Ocultar' : 'Ver detalle'"></span>
-            <i data-lucide="chevron-down" style="width:12px;height:12px"
+            <x-heroicon-o-chevron-down class="icon-12" aria-hidden="true"
                :style="expandido ? 'transform:rotate(180deg)' : ''"></i>
         </button>
         <div class="ficha-atencion-detalle" x-show="expandido" x-cloak>
@@ -616,7 +616,7 @@ Añade el modal de nueva atención antes del cierre del componente:
         <div class="ficha-modal-header">
             <h2 id="modal-atencion-titulo" class="ficha-modal-titulo">Nueva atención</h2>
             <button wire:click="cerrarModalAtencion" aria-label="Cerrar" class="ficha-modal-cerrar">
-                <i data-lucide="x" style="width:16px;height:16px"></i>
+                <x-heroicon-o-x-mark class="icon-16" aria-hidden="true"/>
             </button>
         </div>
 
@@ -680,7 +680,7 @@ Añade el modal de nueva atención antes del cierre del componente:
         <div class="ficha-modal-footer">
             <button wire:click="cerrarModalAtencion" class="ficha-btn">Cancelar</button>
             <button wire:click="guardarAtencion" class="ficha-btn ficha-btn--primary">
-                <i data-lucide="check" style="width:13px;height:13px"></i>
+                <x-heroicon-o-check class="icon-13" aria-hidden="true"/>
                 Guardar atención
             </button>
         </div>
@@ -890,7 +890,7 @@ el modal prematuramente y asegúrate de que:
             x-on:click="sucio = false"
             class="plan-btn"
         >
-            <i data-lucide="save" style="width:13px;height:13px"></i>
+            <x-heroicon-o-check class="icon-13" aria-hidden="true"/>
             Guardar
         </button>
     </div>

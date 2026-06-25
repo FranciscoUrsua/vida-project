@@ -197,7 +197,7 @@ Pill (`--radius-pill`), `12px` text, `600` weight, uppercase-off. Background is 
 - **Dynamic names:** `<x-dynamic-component :component="'heroicon-o-' . $name" />`.
 - **Sizes (CSS utility classes):** `icon-12`, `icon-13`, `icon-14`, `icon-16`, `icon-20`. Set `width` and `height` in `_op-components.scss`.
 - **Colour:** inherits `currentColor`. Never two-tone.
-- **Do not add** Bootstrap Icons, Lucide, Tabler Icons, Font Awesome or any other icon library.
+- **Do not add** Bootstrap Icons, Tabler Icons, Font Awesome or any other icon library.
 
 **Loading.** `blade-ui-kit/blade-heroicons` renders SVG at PHP compile time. No additional JS setup required.
 

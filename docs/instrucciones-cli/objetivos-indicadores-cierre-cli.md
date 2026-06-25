@@ -767,7 +767,7 @@ de cada objetivo general para mostrar su indicador y los de sus específicos:
             {{ ucfirst(str_replace('_', ' ', $og->estado)) }}
         </span>
         <button class="plan-tb-btn">
-            <i data-lucide="edit" style="width:13px;height:13px"></i>
+            <x-heroicon-o-pencil-square class="icon-13" aria-hidden="true"/>
         </button>
     </div>
 </div>
@@ -813,7 +813,7 @@ Añade el modal de cierre del plan antes del cierre del componente:
 
         @if(in_array($motivoCierre, ['negativa_firma', 'imposibilidad_localizacion']))
         <div class="plan-aviso-cierre">
-            <i data-lucide="alert-triangle" style="width:14px;height:14px"></i>
+            <x-heroicon-o-exclamation-triangle class="icon-14" aria-hidden="true"/>
             Este motivo de cierre requiere dejar constancia en el historial de apuntes.
             Usa el campo de observaciones para documentarlo.
         </div>
@@ -826,7 +826,7 @@ Añade el modal de cierre del plan antes del cierre del componente:
                 class="plan-btn plan-btn--danger"
                 @if(empty($motivoCierre)) disabled @endif
             >
-                <i data-lucide="x-circle" style="width:13px;height:13px"></i>
+                <x-heroicon-o-x-circle class="icon-13" aria-hidden="true"/>
                 Confirmar cierre
             </button>
         </div>
@@ -841,7 +841,7 @@ Actualiza el botón de cierre en la banda de contexto para abrir el modal:
 {{-- Reemplaza el botón "Cerrar plan" existente --}}
 @if($this->plan?->estado === 'activo')
 <button wire:click="abrirModalCierre" class="plan-btn">
-    <i data-lucide="x-circle" style="width:13px;height:13px"></i>
+    <x-heroicon-o-x-circle class="icon-13" aria-hidden="true"/>
     Cerrar plan
 </button>
 @endif

@@ -25,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $aforo_total
  * @property int|null $aforo_prescripcion
  * @property string $estado
+ * @property int|null $sala_id
  */
 class SesionActividad extends Model
 {
@@ -41,6 +42,7 @@ class SesionActividad extends Model
         'aforo_total',
         'aforo_prescripcion',
         'estado',
+        'sala_id',
         'notas',
     ];
 
@@ -62,6 +64,18 @@ class SesionActividad extends Model
     public function actividad(): BelongsTo
     {
         return $this->belongsTo(Actividad::class, 'actividad_id');
+    }
+
+    /**
+     * Sala donde se celebra la sesión. Nullable: una sesión puede no tener sala asignada
+     * (actividad exterior, itinerante u online). La disponibilidad de la sala no se
+     * valida en este módulo; corresponde al módulo de Agenda.
+     *
+     * @return BelongsTo<Sala, self>
+     */
+    public function sala(): BelongsTo
+    {
+        return $this->belongsTo(Sala::class);
     }
 
     /**

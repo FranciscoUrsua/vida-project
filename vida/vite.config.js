@@ -19,8 +19,6 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                'resources/css/app.css',
-                'resources/css/app-operativo.css',
                 'resources/css/filament/admin/theme.css',
                 'resources/scss/app-public.scss',
                 'resources/scss/app-operativo.scss',

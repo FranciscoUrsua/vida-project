@@ -228,7 +228,7 @@ Una vez implementado:
   (mismo patrón que `BuscarCiudadanoPage`). Ver CHANGELOG 2026-06-08 para el límite
   de 500 registros y el TODO de índice hash.
 - **Alpine + Livewire:** el modal debe usar Alpine para el estado de apertura/cierre
-  (mismo patrón que modales existentes en la ficha). Lucide icons requieren
+  (mismo patrón que modales existentes en la ficha). Heroicons no requiere inicialización JS; los ejemplos deben usar componentes Blade
   `Livewire.hook('morphed', ...)` para reinicializarse tras re-renders.
 - **AmbitoUoScope:** `FichaCiudadanoPage` ya usa `withoutGlobalScope(AmbitoUoScope::class)`
   para acceder al ciudadano. Las queries sobre `ciudadano_relaciones` no necesitan este

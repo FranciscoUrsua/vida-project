@@ -24,7 +24,7 @@ La superficie operativa de VIDA usa Bootstrap 5.3 como capa de primitives, con t
 - **No crear clases `xxx-btn`, `xxx-input`, `xxx-modal`, `xxx-table`** si Bootstrap ya lo resuelve. Usar directamente las clases Bootstrap con modificadores de tokens VIDA.
 - **No usar estilos inline estructurales** en Blade. Solo se admiten para valores dinámicos inevitables (por ejemplo, `style="width: {{ $pct }}%"` en una barra de progreso calculada).
 - **No cargar Bootstrap, iconos ni fuentes por CDN.** Todo está en el build local vía Vite.
-- **Iconos: solo Heroicons** via `blade-ui-kit/blade-heroicons`. Sintaxis: `<x-heroicon-o-nombre class="icon-16" aria-hidden="true"/>`. No usar Lucide, Bootstrap Icons, Tabler ni ningún otro sistema. Tamaños disponibles: `icon-12`, `icon-13`, `icon-14`, `icon-16`, `icon-20`.
+- **Iconos: solo Heroicons** via `blade-ui-kit/blade-heroicons`. Sintaxis: `<x-heroicon-o-nombre class="icon-16" aria-hidden="true"/>`. No usar Bootstrap Icons, Tabler ni ningún otro sistema. Tamaños disponibles: `icon-12`, `icon-13`, `icon-14`, `icon-16`, `icon-20`.
 - **No usar `Tailwind` en la superficie operativa Livewire.** Bootstrap es la primitiva aquí, no Tailwind (Tailwind se usa en Filament).
 
 **Antes de añadir cualquier clase CSS nueva**, pregúntate en orden:

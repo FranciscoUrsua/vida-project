@@ -227,7 +227,7 @@ después de la historia social, antes de cerrar la columna:
                 @if($esAnomalos)
                     <span class="acceso-fila__alerta"
                           title="Modificación desde otra UO — revisar">
-                        <i data-lucide="alert-triangle" style="width:14px;height:14px;"></i>
+                        <x-heroicon-o-exclamation-triangle class="icon-14" aria-hidden="true"/>
                     </span>
                 @endif
                 <span class="acceso-fila__fecha">

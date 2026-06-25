@@ -344,7 +344,7 @@ un icono con fondo de color semántico y etiqueta.
 | Gestión / coordinación | `arrows-exchange` (ámbar) | Formulario inline. Botón: "Guardar gestión" |
 | Informes | `file-text` (coral) | Pantalla completa |
 
-Todos los iconos son Lucide, stroke-width 1.75.
+Todos los iconos son Heroicons renderizados con `blade-ui-kit/blade-heroicons`.
 
 **Estado activo (herramienta seleccionada)**
 
@@ -527,5 +527,5 @@ denegado o baja (rojo).
 | Historia social: unicidad | Cada ciudadano tiene como máximo una historia social en el sistema. Garantía en BD: índice `UNIQUE(ciudadano_id)` en `historias_sociales` (pendiente de aplicar). |
 | Widgets vacíos en ficha | No se muestran. La ausencia del widget comunica que no hay datos, sin ruido visual. |
 | Widget de permisos | Eliminado. Información redundante con la propia experiencia de la pantalla. |
-| Iconos | Lucide, stroke-width 1.75, en todas las vistas. Bootstrap Icons y Tabler Icons eliminados. |
+| Iconos | Heroicons en todas las vistas. Bootstrap Icons y Tabler Icons eliminados. |
 | Colores | Tokens CSS del design system (`var(--color-*)`) en todos los componentes. Colores hardcodeados eliminados. |
