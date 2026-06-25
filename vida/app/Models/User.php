@@ -32,7 +32,6 @@ use Spatie\Permission\Traits\HasRoles;
  *
  * @property int $id
  * @property int|null $profesional_id
- * @property string $name
  * @property string $email
  * @property Carbon|null $email_verified_at
  * @property string $password
@@ -56,7 +55,6 @@ class User extends Authenticatable implements FilamentUser
     /** @var list<string> */
     protected $fillable = [
         'profesional_id',
-        'name',
         'email',
         'password',
         'primer_acceso',
@@ -92,6 +90,12 @@ class User extends Authenticatable implements FilamentUser
      */
     protected static function booted(): void
     {
+        // La columna name existe en el esquema pero no se expone en formularios.
+        // Se rellena automáticamente con el email para mantener la restricción NOT NULL.
+        static::creating(function (User $user): void {
+            $user->name = $user->email;
+        });
+
         static::created(function (User $user): void {
             if ($user->roles()->count() === 0
                 && $user->profesional_id !== null

@@ -75,11 +75,6 @@ class UsuarioResource extends Resource
 
             Section::make('Datos de acceso')
                 ->schema([
-                    TextInput::make('name')
-                        ->label('Nombre de usuario')
-                        ->required()
-                        ->maxLength(255),
-
                     TextInput::make('email')
                         ->label('Correo electrónico')
                         ->email()
@@ -161,13 +156,14 @@ class UsuarioResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Nombre')
+                Tables\Columns\TextColumn::make('profesional.nombre_completo')
+                    ->label('Profesional')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->placeholder('—'),
 
                 Tables\Columns\TextColumn::make('email')
-                    ->label('Correo')
+                    ->label('Correo electrónico')
                     ->searchable()
                     ->sortable(),
 
