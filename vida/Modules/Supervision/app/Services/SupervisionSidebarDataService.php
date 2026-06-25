@@ -23,7 +23,6 @@ class SupervisionSidebarDataService
      * a colectivos protegidos pendientes de ese mismo ámbito.
      *
      * @param int $usuarioId ID del usuario supervisor
-     * @return int
      */
     public function aprobacionesPendientes(int $usuarioId): int
     {

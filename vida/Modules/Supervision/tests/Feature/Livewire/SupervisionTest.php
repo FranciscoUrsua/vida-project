@@ -25,6 +25,7 @@ use Modules\Usuarios\Models\Profesional;
 use Modules\Usuarios\Models\TipoRelacionProfesional;
 use Modules\Usuarios\Models\UsuarioRol;
 use PHPUnit\Framework\Attributes\Test;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 /**
@@ -51,7 +52,7 @@ class SupervisionTest extends TestCase
     /** @var UnidadOrganizativa UO paralela (fuera del ámbito del supervisor) */
     protected UnidadOrganizativa $uoParalela;
 
-    /** @var User Supervisor adscrito a $uoHija */
+    /** @var User Supervisor adscrito a */
     protected User $supervisor;
 
     /** @var Cargo Cargo de prueba para crear profesionales */
@@ -69,73 +70,71 @@ class SupervisionTest extends TestCase
 
         // Crear jerarquía de UOs
         $this->uoRaiz = UnidadOrganizativa::create([
-            'nombre'   => 'CSS Raíz Test',
-            'tipo'     => 'organizacion',
+            'nombre' => 'CSS Raíz Test',
+            'tipo' => 'organizacion',
             'parent_id' => null,
-            'activa'   => true,
+            'activa' => true,
         ]);
 
         $this->uoHija = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Hija Test',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Hija Test',
+            'tipo' => 'centro',
             'parent_id' => $this->uoRaiz->id,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $this->uoParalela = UnidadOrganizativa::create([
-            'nombre'    => 'CSS Paralela Test',
-            'tipo'      => 'centro',
+            'nombre' => 'CSS Paralela Test',
+            'tipo' => 'centro',
             'parent_id' => $this->uoRaiz->id,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         // Crear supervisor adscrito a uoHija
         $this->supervisor = User::create([
-            'name'               => 'Supervisor Test',
-            'email'              => 'supervisor@vida360.test',
-            'password'           => 'secreto',
-            'email_verified_at'  => now(),
-            'primer_acceso'      => false,
+            'name' => 'Supervisor Test',
+            'email' => 'supervisor@vida360.test',
+            'password' => 'secreto',
+            'email_verified_at' => now(),
+            'primer_acceso' => false,
         ]);
 
         $this->supervisor->assignRole('supervision');
 
         UsuarioUo::create([
-            'usuario_id'              => $this->supervisor->id,
-            'unidad_organizativa_id'  => $this->uoHija->id,
-            'tipo_vinculo'            => 'interno',
-            'fecha_inicio'            => today()->toDateString(),
+            'usuario_id' => $this->supervisor->id,
+            'unidad_organizativa_id' => $this->uoHija->id,
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         // Fixtures de catálogos compartidos
-        $this->cargo         = Cargo::create(['nombre' => 'TSR Test', 'activo' => true]);
-        $this->tipoRelacion  = TipoRelacionProfesional::create(['nombre' => 'Laboral']);
+        $this->cargo = Cargo::create(['nombre' => 'TSR Test', 'activo' => true]);
+        $this->tipoRelacion = TipoRelacionProfesional::create(['nombre' => 'Laboral']);
     }
 
     /**
      * Crea un usuario con rol intervencion adscrito a la UO indicada.
      *
-     * @param UnidadOrganizativa $uo
-     * @param string             $email Email único del usuario
-     * @return User
+     * @param string $email Email único del usuario
      */
     private function crearUsuarioEnUo(UnidadOrganizativa $uo, string $email = 'user@vida360.test'): User
     {
         $user = User::create([
-            'name'               => 'Usuario ' . $email,
-            'email'              => $email,
-            'password'           => 'secreto',
-            'email_verified_at'  => now(),
-            'primer_acceso'      => false,
+            'name' => 'Usuario '.$email,
+            'email' => $email,
+            'password' => 'secreto',
+            'email_verified_at' => now(),
+            'primer_acceso' => false,
         ]);
 
         $user->assignRole('intervencion');
 
         UsuarioUo::create([
-            'usuario_id'              => $user->id,
-            'unidad_organizativa_id'  => $uo->id,
-            'tipo_vinculo'            => 'interno',
-            'fecha_inicio'            => today()->toDateString(),
+            'usuario_id' => $user->id,
+            'unidad_organizativa_id' => $uo->id,
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         return $user;
@@ -143,43 +142,38 @@ class SupervisionTest extends TestCase
 
     /**
      * Crea una historia social abierta para el ciudadano dado en la UO indicada.
-     *
-     * @param UnidadOrganizativa $uo
-     * @return HistoriaSocial
      */
     private function crearHistoriaSocial(UnidadOrganizativa $uo): HistoriaSocial
     {
         $ciudadano = Ciudadano::create([
-            'nombre'          => 'Ciudadano',
-            'apellido1'       => 'Test',
-            'sexo'            => 'M',
+            'nombre' => 'Ciudadano',
+            'apellido1' => 'Test',
+            'sexo' => 'M',
             'fecha_nacimiento' => '1980-01-01',
         ]);
 
         return HistoriaSocial::create([
-            'ciudadano_id'            => $ciudadano->id,
-            'unidad_organizativa_id'  => $uo->id,
-            'estado'                  => 'abierta',
-            'fecha_apertura'          => today()->toDateString(),
+            'ciudadano_id' => $ciudadano->id,
+            'unidad_organizativa_id' => $uo->id,
+            'estado' => 'abierta',
+            'fecha_apertura' => today()->toDateString(),
         ]);
     }
 
     /**
      * Crea una solicitud de rol pendiente para un usuario en la UO indicada.
      *
-     * @param User   $user
-     * @param string $rol  Nombre del rol a solicitar
-     * @return UsuarioRol
+     * @param string $rol Nombre del rol a solicitar
      */
     private function crearSolicitudPendiente(User $user, string $rol = 'intervencion'): UsuarioRol
     {
-        $rolModelo = \Spatie\Permission\Models\Role::where('name', $rol)->firstOrFail();
+        $rolModelo = Role::where('name', $rol)->firstOrFail();
 
         return UsuarioRol::create([
-            'usuario_id'   => $user->id,
-            'rol_id'       => $rolModelo->id,
+            'usuario_id' => $user->id,
+            'rol_id' => $rolModelo->id,
             'fecha_inicio' => today()->toDateString(),
-            'estado'       => 'pendiente_aprobacion',
+            'estado' => 'pendiente_aprobacion',
         ]);
     }
 
@@ -335,18 +329,18 @@ class SupervisionTest extends TestCase
         for ($i = 0; $i < 5; $i++) {
             $historia = $this->crearHistoriaSocial($this->uoHija);
             AsignacionProfesional::create([
-                'historia_id'    => $historia->id,
+                'historia_id' => $historia->id,
                 'profesional_id' => $u1->id,
-                'fecha_inicio'   => today()->toDateString(),
+                'fecha_inicio' => today()->toDateString(),
             ]);
         }
 
         for ($i = 0; $i < 5; $i++) {
             $historia = $this->crearHistoriaSocial($this->uoHija);
             AsignacionProfesional::create([
-                'historia_id'    => $historia->id,
+                'historia_id' => $historia->id,
                 'profesional_id' => $u2->id,
-                'fecha_inicio'   => today()->toDateString(),
+                'fecha_inicio' => today()->toDateString(),
             ]);
         }
 
@@ -371,9 +365,9 @@ class SupervisionTest extends TestCase
         for ($i = 0; $i < 5; $i++) {
             $historia = $this->crearHistoriaSocial($this->uoHija);
             AsignacionProfesional::create([
-                'historia_id'    => $historia->id,
+                'historia_id' => $historia->id,
                 'profesional_id' => $u1->id,
-                'fecha_inicio'   => today()->toDateString(),
+                'fecha_inicio' => today()->toDateString(),
             ]);
         }
 
@@ -426,26 +420,26 @@ class SupervisionTest extends TestCase
     {
         for ($i = 0; $i < 3; $i++) {
             Profesional::create([
-                'nombre'                 => 'Prof' . $i,
-                'apellido1'              => 'Test',
-                'sexo'                   => 'M',
-                'cargo_id'               => $this->cargo->id,
-                'tipo_relacion_id'       => $this->tipoRelacion->id,
-                'fecha_inicio'           => today()->toDateString(),
-                'activo'                 => true,
+                'nombre' => 'Prof'.$i,
+                'apellido1' => 'Test',
+                'sexo' => 'M',
+                'cargo_id' => $this->cargo->id,
+                'tipo_relacion_id' => $this->tipoRelacion->id,
+                'fecha_inicio' => today()->toDateString(),
+                'activo' => true,
                 'unidad_organizativa_id' => $this->uoHija->id,
             ]);
         }
 
         // 1 profesional en la UO paralela (fuera del ámbito)
         Profesional::create([
-            'nombre'                 => 'ProfFuera',
-            'apellido1'              => 'Test',
-            'sexo'                   => 'M',
-            'cargo_id'               => $this->cargo->id,
-            'tipo_relacion_id'       => $this->tipoRelacion->id,
-            'fecha_inicio'           => today()->toDateString(),
-            'activo'                 => true,
+            'nombre' => 'ProfFuera',
+            'apellido1' => 'Test',
+            'sexo' => 'M',
+            'cargo_id' => $this->cargo->id,
+            'tipo_relacion_id' => $this->tipoRelacion->id,
+            'fecha_inicio' => today()->toDateString(),
+            'activo' => true,
             'unidad_organizativa_id' => $this->uoParalela->id,
         ]);
 
@@ -468,7 +462,7 @@ class SupervisionTest extends TestCase
             ->call('crearProfesional');
 
         $this->assertDatabaseHas('profesionales', [
-            'nombre'                 => 'Nueva',
+            'nombre' => 'Nueva',
             'unidad_organizativa_id' => $this->uoHija->id,
         ]);
 
@@ -505,20 +499,20 @@ class SupervisionTest extends TestCase
         for ($i = 0; $i < 2; $i++) {
             $historia = $this->crearHistoriaSocial($this->uoHija);
             AsignacionProfesional::create([
-                'historia_id'    => $historia->id,
+                'historia_id' => $historia->id,
                 'profesional_id' => $userProf->id,
-                'fecha_inicio'   => today()->toDateString(),
+                'fecha_inicio' => today()->toDateString(),
             ]);
         }
 
         $prof = Profesional::create([
-            'nombre'                 => 'ProfConCasos',
-            'apellido1'              => 'Test',
-            'sexo'                   => 'M',
-            'cargo_id'               => $this->cargo->id,
-            'tipo_relacion_id'       => $this->tipoRelacion->id,
-            'fecha_inicio'           => today()->toDateString(),
-            'activo'                 => true,
+            'nombre' => 'ProfConCasos',
+            'apellido1' => 'Test',
+            'sexo' => 'M',
+            'cargo_id' => $this->cargo->id,
+            'tipo_relacion_id' => $this->tipoRelacion->id,
+            'fecha_inicio' => today()->toDateString(),
+            'activo' => true,
             'unidad_organizativa_id' => $this->uoHija->id,
         ]);
 
@@ -538,13 +532,13 @@ class SupervisionTest extends TestCase
     public function baja_profesional_sin_casos_es_soft_delete(): void
     {
         $prof = Profesional::create([
-            'nombre'                 => 'ProfSinCasos',
-            'apellido1'              => 'Test',
-            'sexo'                   => 'M',
-            'cargo_id'               => $this->cargo->id,
-            'tipo_relacion_id'       => $this->tipoRelacion->id,
-            'fecha_inicio'           => today()->toDateString(),
-            'activo'                 => true,
+            'nombre' => 'ProfSinCasos',
+            'apellido1' => 'Test',
+            'sexo' => 'M',
+            'cargo_id' => $this->cargo->id,
+            'tipo_relacion_id' => $this->tipoRelacion->id,
+            'fecha_inicio' => today()->toDateString(),
+            'activo' => true,
             'unidad_organizativa_id' => $this->uoHija->id,
         ]);
 
@@ -566,13 +560,13 @@ class SupervisionTest extends TestCase
     {
         // Profesional de la UO paralela (fuera del ámbito del supervisor)
         $profAjeno = Profesional::create([
-            'nombre'                 => 'ProfAjeno',
-            'apellido1'              => 'Test',
-            'sexo'                   => 'F',
-            'cargo_id'               => $this->cargo->id,
-            'tipo_relacion_id'       => $this->tipoRelacion->id,
-            'fecha_inicio'           => today()->toDateString(),
-            'activo'                 => true,
+            'nombre' => 'ProfAjeno',
+            'apellido1' => 'Test',
+            'sexo' => 'F',
+            'cargo_id' => $this->cargo->id,
+            'tipo_relacion_id' => $this->tipoRelacion->id,
+            'fecha_inicio' => today()->toDateString(),
+            'activo' => true,
             'unidad_organizativa_id' => $this->uoParalela->id,
         ]);
 
@@ -585,7 +579,7 @@ class SupervisionTest extends TestCase
 
         // El profesional ajeno NO debe haber sido eliminado
         $this->assertDatabaseHas('profesionales', [
-            'id'         => $profAjeno->id,
+            'id' => $profAjeno->id,
             'deleted_at' => null,
         ]);
     }
@@ -647,7 +641,7 @@ class SupervisionTest extends TestCase
             ->call('aprobarSolicitud', $solicitud->id);
 
         $this->assertDatabaseHas('usuario_rol', [
-            'id'     => $solicitud->id,
+            'id' => $solicitud->id,
             'estado' => 'activo',
         ]);
     }
@@ -666,7 +660,7 @@ class SupervisionTest extends TestCase
             ->call('denegarSolicitud', $solicitud->id, 'No cumple los requisitos');
 
         $this->assertDatabaseHas('usuario_rol', [
-            'id'     => $solicitud->id,
+            'id' => $solicitud->id,
             'estado' => 'denegado',
         ]);
 
@@ -689,7 +683,7 @@ class SupervisionTest extends TestCase
 
         // El estado no debe haber cambiado
         $this->assertDatabaseHas('usuario_rol', [
-            'id'     => $solicitud->id,
+            'id' => $solicitud->id,
             'estado' => 'pendiente_aprobacion',
         ]);
     }
@@ -723,7 +717,7 @@ class SupervisionTest extends TestCase
 
         // El estado no debe haber cambiado
         $this->assertDatabaseHas('usuario_rol', [
-            'id'     => $solicitud->id,
+            'id' => $solicitud->id,
             'estado' => 'pendiente_aprobacion',
         ]);
     }
@@ -836,7 +830,7 @@ class SupervisionTest extends TestCase
             ->call('guardar');
 
         $this->assertDatabaseHas('unidades_organizativas', [
-            'id'          => $this->uoHija->id,
+            'id' => $this->uoHija->id,
             'nombre_corto' => 'Nuevo Nombre Corto',
         ]);
     }
@@ -864,19 +858,19 @@ class SupervisionTest extends TestCase
     {
         // Crear otro supervisor para uoParalela
         $otroSupervisor = User::create([
-            'name'              => 'Otro Supervisor',
-            'email'             => 'otro-sup@vida360.test',
-            'password'          => 'secreto',
+            'name' => 'Otro Supervisor',
+            'email' => 'otro-sup@vida360.test',
+            'password' => 'secreto',
             'email_verified_at' => now(),
-            'primer_acceso'     => false,
+            'primer_acceso' => false,
         ]);
         $otroSupervisor->assignRole('supervision');
 
         UsuarioUo::create([
-            'usuario_id'             => $otroSupervisor->id,
+            'usuario_id' => $otroSupervisor->id,
             'unidad_organizativa_id' => $this->uoParalela->id,
-            'tipo_vinculo'           => 'interno',
-            'fecha_inicio'           => today()->toDateString(),
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
         ]);
 
         // El supervisor original solo tiene ámbito sobre uoHija
@@ -891,7 +885,7 @@ class SupervisionTest extends TestCase
 
         // La UO paralela no debe haber sido modificada
         $this->assertDatabaseMissing('unidades_organizativas', [
-            'id'          => $this->uoParalela->id,
+            'id' => $this->uoParalela->id,
             'nombre_corto' => 'Mi UO',
         ]);
     }

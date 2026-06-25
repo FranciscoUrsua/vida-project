@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::table('objetivos_catalogo', function (Blueprint $table) {
             $table->foreignId('tipo_ficha_id')
-                  ->nullable()
-                  ->after('tipo_plan_id')
-                  ->constrained('tipo_fichas')
-                  ->nullOnDelete();
+                ->nullable()
+                ->after('tipo_plan_id')
+                ->constrained('tipo_fichas')
+                ->nullOnDelete();
         });
     }
 

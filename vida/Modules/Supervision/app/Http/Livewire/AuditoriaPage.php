@@ -41,8 +41,6 @@ class AuditoriaPage extends Component
 
     /**
      * Inicializa las fechas del filtro por defecto (últimos 30 días).
-     *
-     * @return void
      */
     public function mount(): void
     {
@@ -53,8 +51,6 @@ class AuditoriaPage extends Component
     /**
      * Indica si el centro tiene colectivos protegidos configurados.
      * Condiciona la visibilidad de columnas y filtros de acceso protegido.
-     *
-     * @return bool
      */
     #[Computed]
     public function tieneColectivosProtegidos(): bool

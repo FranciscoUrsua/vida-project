@@ -243,6 +243,7 @@ class Ciudadano extends Model
 
     /**
      * Documento de identidad vigente del ciudadano (fecha_fin null, más reciente).
+     *
      * @return HasOne<CiudadanoIdentificador, self>
      */
     public function documentoVigente(): HasOne

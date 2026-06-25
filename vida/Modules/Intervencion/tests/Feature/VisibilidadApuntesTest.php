@@ -66,11 +66,11 @@ class VisibilidadApuntesTest extends TestCase
     {
         return Apunte::create([
             'historia_id' => $plan->historia_id,
-            'plan_id'     => $plan->id,
-            'autor_id'    => $autor->id,
-            'fecha'       => today()->toDateString(),
-            'tipo'        => 'anotacion',
-            'contenido'   => 'Contenido de prueba',
+            'plan_id' => $plan->id,
+            'autor_id' => $autor->id,
+            'fecha' => today()->toDateString(),
+            'tipo' => 'anotacion',
+            'contenido' => 'Contenido de prueba',
             'visibilidad' => $visibilidad,
         ]);
     }

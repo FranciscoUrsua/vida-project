@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::table('plan_objetivos', function (Blueprint $table) {
             $table->foreignId('tipo_ficha_id')
-                  ->nullable()
-                  ->after('nivel')
-                  ->constrained('tipo_fichas')
-                  ->nullOnDelete();
+                ->nullable()
+                ->after('nivel')
+                ->constrained('tipo_fichas')
+                ->nullOnDelete();
         });
     }
 

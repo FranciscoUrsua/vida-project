@@ -7,13 +7,12 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Pages\Page;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -42,8 +41,6 @@ class GestionarObjetivos extends Page implements HasTable
 
     /**
      * Título dinámico con el nombre del tipo de plan.
-     *
-     * @return string
      */
     public function getTitle(): string
     {
@@ -52,9 +49,6 @@ class GestionarObjetivos extends Page implements HasTable
 
     /**
      * Configuración completa de la tabla de objetivos del catálogo.
-     *
-     * @param  Table $table
-     * @return Table
      */
     public function table(Table $table): Table
     {
@@ -93,10 +87,10 @@ class GestionarObjetivos extends Page implements HasTable
                 TextColumn::make('indicador.tipo_valoracion')
                     ->label('Tipo valoración')
                     ->formatStateUsing(fn ($state) => match ($state) {
-                        'conseguido_proceso_no'           => 'C/P/N',
+                        'conseguido_proceso_no' => 'C/P/N',
                         'favorable_mantiene_desfavorable' => 'F/M/D',
-                        'si_no'                           => 'Sí/No',
-                        default                           => '—',
+                        'si_no' => 'Sí/No',
+                        default => '—',
                     })
                     ->placeholder('—'),
 
@@ -139,9 +133,9 @@ class GestionarObjetivos extends Page implements HasTable
                                 Select::make('indicador_tipo_valoracion')
                                     ->label('Tipo de valoración')
                                     ->options([
-                                        'conseguido_proceso_no'           => 'Conseguido / En proceso / No conseguido',
+                                        'conseguido_proceso_no' => 'Conseguido / En proceso / No conseguido',
                                         'favorable_mantiene_desfavorable' => 'Favorable / Se mantiene / Desfavorable',
-                                        'si_no'                           => 'Sí / No',
+                                        'si_no' => 'Sí / No',
                                     ])
                                     ->default('conseguido_proceso_no')
                                     ->required(),
@@ -160,8 +154,8 @@ class GestionarObjetivos extends Page implements HasTable
 
                         IndicadorCatalogo::create([
                             'objetivo_catalogo_id' => $objetivo->id,
-                            'descripcion'          => $indicadorDesc,
-                            'tipo_valoracion'      => $indicadorTipo,
+                            'descripcion' => $indicadorDesc,
+                            'tipo_valoracion' => $indicadorTipo,
                         ]);
 
                         return $objetivo;

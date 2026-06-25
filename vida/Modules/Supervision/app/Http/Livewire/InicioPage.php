@@ -2,6 +2,7 @@
 
 namespace Modules\Supervision\Http\Livewire;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -23,8 +24,6 @@ class InicioPage extends Component
 {
     /**
      * Umbral de ratio personas/profesional para mostrar advertencia visual.
-     *
-     * @return float
      */
     #[Computed]
     public function umbralRatio(): float
@@ -34,8 +33,6 @@ class InicioPage extends Component
 
     /**
      * Ratio actual personas/profesional en la UO del supervisor.
-     *
-     * @return float
      */
     #[Computed]
     public function ratioCarga(): float
@@ -52,10 +49,10 @@ class InicioPage extends Component
     /**
      * Solicitudes pendientes de aprobación en el ámbito del supervisor (máximo 5).
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int, UsuarioRol>
+     * @return Collection<int, UsuarioRol>
      */
     #[Computed]
-    public function aprobacionesPendientes(): \Illuminate\Database\Eloquent\Collection
+    public function aprobacionesPendientes(): Collection
     {
         $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
 
@@ -76,8 +73,6 @@ class InicioPage extends Component
 
     /**
      * Total de aprobaciones pendientes para mostrar el enlace «Ver todas».
-     *
-     * @return int
      */
     #[Computed]
     public function totalAprobacionesPendientes(): int
@@ -88,8 +83,6 @@ class InicioPage extends Component
 
     /**
      * Indica si el ratio de carga supera el umbral configurado.
-     *
-     * @return bool
      */
     #[Computed]
     public function ratioSuperaUmbral(): bool
@@ -107,8 +100,6 @@ class InicioPage extends Component
 
     /**
      * ID de la primera UO activa del supervisor autenticado, o null si no tiene.
-     *
-     * @return int|null
      */
     private function uoIdSupervisor(): ?int
     {

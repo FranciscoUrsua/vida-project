@@ -158,7 +158,7 @@ class MisCasosPage extends Component
 
         // Subconsulta: plan general ASP más relevante por historia (activo > en_revision > borrador)
         $subPlan = DB::table('planes_intervencion as pp')
-            ->select(DB::raw("DISTINCT ON (pp.historia_id) pp.historia_id, pp.id as plan_id, pp.estado as plan_estado"))
+            ->select(DB::raw('DISTINCT ON (pp.historia_id) pp.historia_id, pp.id as plan_id, pp.estado as plan_estado'))
             ->where('pp.tipo', 'general_asp')
             ->where('pp.estado', '!=', 'cerrado')
             ->whereNull('pp.deleted_at')

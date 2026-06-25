@@ -15,14 +15,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * pertenecen a un área temática (tipo_ficha_id) y se añaden directamente al plan
  * sin ser hijos de ningún objetivo general.
  *
- * @property int      $id
- * @property int      $plan_id
+ * @property int $id
+ * @property int $plan_id
  * @property int|null $objetivo_catalogo_id
- * @property string   $nivel 'general' | 'especifico'
+ * @property string $nivel 'general' | 'especifico'
  * @property int|null $tipo_ficha_id Área temática (solo para específicos)
- * @property string   $texto
- * @property string   $estado 'pendiente' | 'en_proceso' | 'conseguido' | 'abandonado'
- * @property int      $orden
+ * @property string $texto
+ * @property string $estado 'pendiente' | 'en_proceso' | 'conseguido' | 'abandonado'
+ * @property int $orden
  */
 class PlanObjetivo extends Model
 {
@@ -86,9 +86,8 @@ class PlanObjetivo extends Model
      * Si el objetivo procede del catálogo y tiene indicador, lo hereda.
      * Si es ex-novo, usa la descripción y tipo pasados como parámetro.
      *
-     * @param  string|null $descripcionExnovo Descripción para indicadores sin origen en catálogo.
-     * @param  string      $tipoValoración    Tipo de escala cuando no hay catálogo.
-     * @return PlanObjetivoIndicador
+     * @param string|null $descripcionExnovo Descripción para indicadores sin origen en catálogo.
+     * @param string $tipoValoración Tipo de escala cuando no hay catálogo.
      */
     public function instanciarIndicador(
         ?string $descripcionExnovo = null,
@@ -97,11 +96,11 @@ class PlanObjetivo extends Model
         $indicadorCatalogo = $this->objetivoCatalogo?->indicador;
 
         return PlanObjetivoIndicador::create([
-            'plan_objetivo_id'      => $this->id,
+            'plan_objetivo_id' => $this->id,
             'indicador_catalogo_id' => $indicadorCatalogo?->id,
-            'descripcion'           => $indicadorCatalogo?->descripcion ?? $descripcionExnovo ?? '',
-            'tipo_valoracion'       => $indicadorCatalogo?->tipo_valoracion ?? $tipoValoración,
-            'valoracion_actual'     => null,
+            'descripcion' => $indicadorCatalogo?->descripcion ?? $descripcionExnovo ?? '',
+            'tipo_valoracion' => $indicadorCatalogo?->tipo_valoracion ?? $tipoValoración,
+            'valoracion_actual' => null,
         ]);
     }
 }

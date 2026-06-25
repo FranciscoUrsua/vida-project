@@ -68,20 +68,19 @@ class IndicadorCatalogo extends Model
     /**
      * Etiquetas visibles para cada valor según el tipo de valoración.
      *
-     * @param  string               $tipo
      * @return array<string,string>
      */
     public static function etiquetasValoración(string $tipo): array
     {
         return match ($tipo) {
             'conseguido_proceso_no' => [
-                'conseguido'    => 'Conseguido',
-                'en_proceso'    => 'En proceso',
+                'conseguido' => 'Conseguido',
+                'en_proceso' => 'En proceso',
                 'no_conseguido' => 'No conseguido',
             ],
             'favorable_mantiene_desfavorable' => [
-                'favorable'    => 'Favorable',
-                'se_mantiene'  => 'Se mantiene',
+                'favorable' => 'Favorable',
+                'se_mantiene' => 'Se mantiene',
                 'desfavorable' => 'Desfavorable',
             ],
             'si_no' => [

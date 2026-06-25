@@ -2,12 +2,14 @@
 
 namespace Modules\Supervision\Http\Livewire;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Models\Alerta;
@@ -40,8 +42,6 @@ class AprobacionesPage extends Component
     /**
      * Indica si el centro tiene colectivos protegidos configurados.
      * Condiciona la visibilidad de la pestaña «Accesos a expedientes».
-     *
-     * @return bool
      */
     #[Computed]
     public function tieneColectivosProtegidos(): bool
@@ -82,7 +82,6 @@ class AprobacionesPage extends Component
      * en el ámbito de UO del supervisor.
      *
      * @param int $solicitudId ID del registro UsuarioRol
-     * @return void
      */
     public function aprobarSolicitud(int $solicitudId): void
     {
@@ -95,16 +94,15 @@ class AprobacionesPage extends Component
         // Spatie observer sincroniza; no duplicar aquí.
         $this->notificarUsuario(
             $solicitud->usuario_id,
-            'Tu solicitud de rol «' . $solicitud->rol?->name . '» ha sido aprobada.'
+            'Tu solicitud de rol «'.$solicitud->rol?->name.'» ha sido aprobada.'
         );
     }
 
     /**
      * Deniega una solicitud de asignación de rol con motivo obligatorio.
      *
-     * @param int    $solicitudId ID del registro UsuarioRol
-     * @param string $motivo      Motivo de la denegación (requerido)
-     * @return void
+     * @param int $solicitudId ID del registro UsuarioRol
+     * @param string $motivo Motivo de la denegación (requerido)
      *
      * @throws ValidationException si el motivo es vacío
      */
@@ -129,11 +127,11 @@ class AprobacionesPage extends Component
 
         $this->notificarUsuario(
             $solicitud->usuario_id,
-            'Tu solicitud de rol «' . $solicitud->rol?->name . '» ha sido denegada. Motivo: ' . $motivo
+            'Tu solicitud de rol «'.$solicitud->rol?->name.'» ha sido denegada. Motivo: '.$motivo
         );
 
         $this->solicitudActivaId = null;
-        $this->motivoDenegacion  = '';
+        $this->motivoDenegacion = '';
     }
 
     /**
@@ -148,13 +146,12 @@ class AprobacionesPage extends Component
      * Verifica que la solicitud pertenece al ámbito de UO del supervisor.
      *
      * @param UsuarioRol $solicitud Solicitud a verificar
-     * @return void
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException si está fuera del ámbito
+     * @throws AuthorizationException si está fuera del ámbito
      */
     private function verificarAmbito(UsuarioRol $solicitud): void
     {
-        $uoIds      = auth()->user()?->uoSubtreeIds() ?? [];
+        $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
         $uoSolicitud = $solicitud->usuario?->adscripcionesVigentes()
             ->pluck('unidad_organizativa_id')
             ->toArray() ?? [];
@@ -169,20 +166,19 @@ class AprobacionesPage extends Component
     /**
      * Crea una alerta informativa para el usuario afectado por la decisión.
      *
-     * @param int    $destinatarioId ID del usuario a notificar
-     * @param string $titulo         Título corto de la alerta
-     * @return void
+     * @param int $destinatarioId ID del usuario a notificar
+     * @param string $titulo Título corto de la alerta
      */
     private function notificarUsuario(int $destinatarioId, string $titulo): void
     {
         Alerta::create([
-            'tipo'                   => TipoAlerta::Aviso,
-            'origen_type'            => UsuarioRol::class,
-            'origen_id'              => 0,
-            'titulo'                 => $titulo,
-            'cuerpo'                 => $titulo,
-            'estado'                 => EstadoAlerta::Pendiente,
-            'destinatario_type'      => \Modules\Mensajes\Enums\DestinatarioType::Usuario,
+            'tipo' => TipoAlerta::Aviso,
+            'origen_type' => UsuarioRol::class,
+            'origen_id' => 0,
+            'titulo' => $titulo,
+            'cuerpo' => $titulo,
+            'estado' => EstadoAlerta::Pendiente,
+            'destinatario_type' => DestinatarioType::Usuario,
             'destinatario_usuario_id' => $destinatarioId,
         ]);
     }

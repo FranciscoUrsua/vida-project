@@ -79,6 +79,7 @@ class AsignacionProfesional extends Model
      * Filtra asignaciones actualmente vigentes (fecha_fin null).
      *
      * @param Builder<self> $query
+     *
      * @return Builder<self>
      */
     public function scopeVigente(Builder $query): Builder

@@ -16,13 +16,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * pertenecen al plan directamente y se activan cuando el diagnóstico incluye fichas
  * del área temática correspondiente.
  *
- * @property int      $id
- * @property int      $tipo_plan_id
+ * @property int $id
+ * @property int $tipo_plan_id
  * @property int|null $tipo_ficha_id FK al área temática (solo para específicos)
- * @property string   $nivel 'general' | 'especifico'
- * @property string   $texto
- * @property bool     $activo
- * @property int      $orden
+ * @property string $nivel 'general' | 'especifico'
+ * @property string $texto
+ * @property bool $activo
+ * @property int $orden
  */
 class ObjetivoCatalogo extends Model
 {
@@ -78,8 +78,8 @@ class ObjetivoCatalogo extends Model
     /**
      * Filtra objetivos vinculados a un área temática concreta.
      *
-     * @param  Builder<self> $query
-     * @param  int           $tipoFichaId
+     * @param Builder<self> $query
+     *
      * @return Builder<self>
      */
     public function scopeDeArea(Builder $query, int $tipoFichaId): Builder

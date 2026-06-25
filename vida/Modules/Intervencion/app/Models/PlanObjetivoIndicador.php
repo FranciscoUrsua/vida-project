@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,14 +13,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * libremente por el profesional (indicador_catalogo_id = null).
  * Almacena la valoración actual del indicador y su fecha de registro.
  *
- * @property int         $id
- * @property int         $plan_objetivo_id
- * @property int|null    $indicador_catalogo_id
- * @property string      $descripcion
- * @property string      $tipo_valoracion
+ * @property int $id
+ * @property int $plan_objetivo_id
+ * @property int|null $indicador_catalogo_id
+ * @property string $descripcion
+ * @property string $tipo_valoracion
  * @property string|null $valoracion_actual
- * @property \Carbon\Carbon|null $fecha_valoracion
- * @property int|null    $seguimiento_id
+ * @property Carbon|null $fecha_valoracion
+ * @property int|null $seguimiento_id
  */
 class PlanObjetivoIndicador extends Model
 {
@@ -89,8 +90,6 @@ class PlanObjetivoIndicador extends Model
 
     /**
      * Indica si el indicador tiene una valoración registrada.
-     *
-     * @return bool
      */
     public function estaValorado(): bool
     {
@@ -100,9 +99,6 @@ class PlanObjetivoIndicador extends Model
     /**
      * Registra una nueva valoración verificando que el valor es válido para el tipo.
      *
-     * @param  string   $valor
-     * @param  int|null $seguimientoId
-     * @return void
      * @throws \InvalidArgumentException Si el valor no es válido para el tipo de valoración.
      */
     public function registrarValoracion(string $valor, ?int $seguimientoId = null): void
@@ -116,8 +112,8 @@ class PlanObjetivoIndicador extends Model
 
         $this->update([
             'valoracion_actual' => $valor,
-            'fecha_valoracion'  => now()->toDateString(),
-            'seguimiento_id'    => $seguimientoId,
+            'fecha_valoracion' => now()->toDateString(),
+            'seguimiento_id' => $seguimientoId,
         ]);
     }
 }

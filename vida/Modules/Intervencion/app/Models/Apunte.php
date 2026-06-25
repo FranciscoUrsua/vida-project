@@ -28,14 +28,14 @@ use Modules\Intervencion\Enums\VisibilidadApunte;
  * - profesionales: cualquier profesional con acceso a la historia.
  * - ciudadano: visible también en la carpeta ciudadana.
  *
- * @property int         $id
- * @property int         $historia_id
- * @property int|null    $plan_id     Vínculo opcional al plan en curso cuando se creó el apunte.
- * @property int         $autor_id
- * @property Carbon      $fecha
- * @property TipoApunte  $tipo
+ * @property int $id
+ * @property int $historia_id
+ * @property int|null $plan_id Vínculo opcional al plan en curso cuando se creó el apunte.
+ * @property int $autor_id
+ * @property Carbon $fecha
+ * @property TipoApunte $tipo
  * @property string|null $apuntable_type
- * @property int|null    $apuntable_id
+ * @property int|null $apuntable_id
  * @property string|null $contenido
  * @property VisibilidadApunte $visibilidad
  */
@@ -177,7 +177,8 @@ class Apunte extends Model
      * Los apuntes de visibilidad profesionales o ciudadano son visibles para todos.
      *
      * @param Builder<self> $query
-     * @param int           $usuarioId ID del usuario que consulta.
+     * @param int $usuarioId ID del usuario que consulta.
+     *
      * @return Builder<self>
      */
     public function scopeVisiblesParaUsuario(Builder $query, int $usuarioId): Builder

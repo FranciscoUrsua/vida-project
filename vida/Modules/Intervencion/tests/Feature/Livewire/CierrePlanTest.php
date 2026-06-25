@@ -36,16 +36,16 @@ class CierrePlanTest extends TestCase
         $this->seed(TipoPlanSeeder::class);
 
         $ciudadano = Ciudadano::factory()->create();
-        $uo        = UnidadOrganizativa::factory()->create();
-        $historia  = HistoriaSocial::factory()->create([
-            'ciudadano_id'          => $ciudadano->id,
+        $uo = UnidadOrganizativa::factory()->create();
+        $historia = HistoriaSocial::factory()->create([
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uo->id,
         ]);
 
         $plan = PlanDeIntervencion::factory()->create([
-            'historia_id'                => $historia->id,
-            'estado'                     => 'activo',
-            'tipo_plan_id'               => TipoPlan::first()->id,
+            'historia_id' => $historia->id,
+            'estado' => 'activo',
+            'tipo_plan_id' => TipoPlan::first()->id,
             'profesional_responsable_id' => $user->id,
         ]);
 
@@ -123,7 +123,7 @@ class CierrePlanTest extends TestCase
         [, $plan] = $this->montarPlanActivo();
 
         $componente = Livewire::test(PlanPage::class, ['plan' => $plan]);
-        $motivos    = $componente->instance()->motivosCierre();
+        $motivos = $componente->instance()->motivosCierre();
 
         $this->assertCount(6, $motivos);
         $this->assertArrayHasKey('negativa_firma', $motivos);

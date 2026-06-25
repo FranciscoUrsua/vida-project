@@ -107,9 +107,9 @@ class CiudadanoPageTest extends TestCase
     {
         return Apunte::factory()->create(array_merge([
             'historia_id' => $this->historia->id,
-            'plan_id'     => $this->piso->id,
-            'autor_id'    => $this->usuario->id,
-            'tipo'        => TipoApunte::Anotacion,
+            'plan_id' => $this->piso->id,
+            'autor_id' => $this->usuario->id,
+            'tipo' => TipoApunte::Anotacion,
             'visibilidad' => VisibilidadApunte::Profesionales,
         ], $attrs));
     }

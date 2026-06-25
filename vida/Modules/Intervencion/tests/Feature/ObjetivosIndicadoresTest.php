@@ -3,6 +3,7 @@
 namespace Modules\Intervencion\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Modules\Intervencion\Database\Seeders\TipoPlanSeeder;
 use Modules\Intervencion\Models\IndicadorCatalogo;
 use Modules\Intervencion\Models\ObjetivoCatalogo;
 use Modules\Intervencion\Models\PlanDeIntervencion;
@@ -22,7 +23,7 @@ class ObjetivosIndicadoresTest extends TestCase
 
     private function crearPlan(): PlanDeIntervencion
     {
-        $this->seed(\Modules\Intervencion\Database\Seeders\TipoPlanSeeder::class);
+        $this->seed(TipoPlanSeeder::class);
 
         return PlanDeIntervencion::factory()->create([
             'tipo_plan_id' => TipoPlan::first()->id,
@@ -35,15 +36,15 @@ class ObjetivosIndicadoresTest extends TestCase
         $tipo = TipoPlan::factory()->create();
         $objetivo = ObjetivoCatalogo::create([
             'tipo_plan_id' => $tipo->id,
-            'nivel'        => 'general',
-            'texto'        => 'Mejorar la situación económica',
-            'orden'        => 1,
+            'nivel' => 'general',
+            'texto' => 'Mejorar la situación económica',
+            'orden' => 1,
         ]);
 
         $indicador = IndicadorCatalogo::create([
             'objetivo_catalogo_id' => $objetivo->id,
-            'descripcion'          => 'El ciudadano ha accedido a prestaciones económicas',
-            'tipo_valoracion'      => 'conseguido_proceso_no',
+            'descripcion' => 'El ciudadano ha accedido a prestaciones económicas',
+            'tipo_valoracion' => 'conseguido_proceso_no',
         ]);
 
         $this->assertEquals($objetivo->id, $indicador->objetivoCatalogo->id);
@@ -78,23 +79,23 @@ class ObjetivosIndicadoresTest extends TestCase
 
         $objCatalogo = ObjetivoCatalogo::create([
             'tipo_plan_id' => $tipo->id,
-            'nivel'        => 'general',
-            'texto'        => 'Objetivo de prueba',
-            'orden'        => 1,
+            'nivel' => 'general',
+            'texto' => 'Objetivo de prueba',
+            'orden' => 1,
         ]);
         $indCatalogo = IndicadorCatalogo::create([
             'objetivo_catalogo_id' => $objCatalogo->id,
-            'descripcion'          => 'Indicador de prueba',
-            'tipo_valoracion'      => 'si_no',
+            'descripcion' => 'Indicador de prueba',
+            'tipo_valoracion' => 'si_no',
         ]);
 
         $planObj = PlanObjetivo::create([
-            'plan_id'              => $plan->id,
+            'plan_id' => $plan->id,
             'objetivo_catalogo_id' => $objCatalogo->id,
-            'nivel'                => 'general',
-            'texto'                => $objCatalogo->texto,
-            'estado'               => 'pendiente',
-            'orden'                => 1,
+            'nivel' => 'general',
+            'texto' => $objCatalogo->texto,
+            'estado' => 'pendiente',
+            'orden' => 1,
         ]);
 
         $indicador = $planObj->instanciarIndicador();
@@ -111,10 +112,10 @@ class ObjetivosIndicadoresTest extends TestCase
 
         $planObj = PlanObjetivo::create([
             'plan_id' => $plan->id,
-            'nivel'   => 'especifico',
-            'texto'   => 'Objetivo ex-novo del TSR',
-            'estado'  => 'pendiente',
-            'orden'   => 1,
+            'nivel' => 'especifico',
+            'texto' => 'Objetivo ex-novo del TSR',
+            'estado' => 'pendiente',
+            'orden' => 1,
         ]);
 
         $indicador = $planObj->instanciarIndicador(
@@ -139,8 +140,8 @@ class ObjetivosIndicadoresTest extends TestCase
 
         $indicador = PlanObjetivoIndicador::create([
             'plan_objetivo_id' => $planObj->id,
-            'descripcion'      => 'Test',
-            'tipo_valoracion'  => 'conseguido_proceso_no',
+            'descripcion' => 'Test',
+            'tipo_valoracion' => 'conseguido_proceso_no',
         ]);
 
         $indicador->registrarValoracion('en_proceso');
@@ -161,8 +162,8 @@ class ObjetivosIndicadoresTest extends TestCase
 
         $indicador = PlanObjetivoIndicador::create([
             'plan_objetivo_id' => $planObj->id,
-            'descripcion'      => 'Test',
-            'tipo_valoracion'  => 'si_no',
+            'descripcion' => 'Test',
+            'tipo_valoracion' => 'si_no',
         ]);
 
         $this->expectException(\InvalidArgumentException::class);
@@ -181,8 +182,8 @@ class ObjetivosIndicadoresTest extends TestCase
 
         $indicador = PlanObjetivoIndicador::create([
             'plan_objetivo_id' => $planObj->id,
-            'descripcion'      => 'Test',
-            'tipo_valoracion'  => 'si_no',
+            'descripcion' => 'Test',
+            'tipo_valoracion' => 'si_no',
         ]);
 
         $this->assertFalse($indicador->estaValorado());
@@ -197,11 +198,11 @@ class ObjetivosIndicadoresTest extends TestCase
         $tipoFicha = TipoFicha::factory()->create(['nombre' => 'Situación de vivienda']);
 
         $objetivo = ObjetivoCatalogo::create([
-            'tipo_plan_id'  => $tipo->id,
+            'tipo_plan_id' => $tipo->id,
             'tipo_ficha_id' => $tipoFicha->id,
-            'nivel'         => 'especifico',
-            'texto'         => 'Mejorar las condiciones de habitabilidad',
-            'orden'         => 1,
+            'nivel' => 'especifico',
+            'texto' => 'Mejorar las condiciones de habitabilidad',
+            'orden' => 1,
         ]);
 
         $this->assertEquals('Situación de vivienda', $objetivo->tipoFicha->nombre);

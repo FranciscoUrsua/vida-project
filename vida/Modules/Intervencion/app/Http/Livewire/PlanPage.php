@@ -14,7 +14,10 @@ use Modules\Ciudadania\Models\CiudadanoRelacion;
 use Modules\Ciudadania\Models\TipoRelacion;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Intervencion\Enums\EstadoPlan;
+use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\TipoPlan;
+use Modules\Intervencion\Enums\VisibilidadApunte;
+use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\FirmaPlan;
 use Modules\Intervencion\Models\ObjetivoCatalogo;
@@ -57,7 +60,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property bool $modalObjetivoAbierto
  * @property string $modoObjetivo
  * @property array $objetivosCatalogoSeleccionados
-
  * @property string $nuevoObjetivoTexto
  * @property bool $modalCompromisoAbierto
  * @property string $nuevoCompromisoDescripcion
@@ -233,7 +235,7 @@ class PlanPage extends Component
             $this->tipoPlanId = $plan->tipo_plan_id;
         } else {
             $this->historiaId = $historia ?? ((int) request()->query('historia') ?: null);
-            $this->ucId       = $uc       ?? ((int) request()->query('uc')       ?: null);
+            $this->ucId = $uc ?? ((int) request()->query('uc') ?: null);
         }
     }
 
@@ -317,9 +319,9 @@ class PlanPage extends Component
             ->with('tipoFicha')
             ->get()
             ->map(fn (Ficha $ficha) => (object) [
-                'id'       => $ficha->id,
+                'id' => $ficha->id,
                 'ficha_id' => $ficha->id,
-                'ficha'    => $ficha,
+                'ficha' => $ficha,
             ]);
     }
 
@@ -340,11 +342,9 @@ class PlanPage extends Component
 
     /**
      * Objetivos generales con sus específicos e indicadores cargados para la vista.
-     *
-     * @return \Illuminate\Support\Collection
      */
     #[Computed]
-    public function objetivosConIndicadores(): \Illuminate\Support\Collection
+    public function objetivosConIndicadores(): Collection
     {
         if (! $this->plan) {
             return collect();
@@ -364,12 +364,12 @@ class PlanPage extends Component
     public function motivosCierre(): array
     {
         return [
-            'negativa_firma'             => 'Cerrado por negativa a la firma / falta de colaboración',
-            'consecucion_objetivos'      => 'Cerrado por consecución de objetivos',
-            'cambio_residencia'          => 'Cerrado por cambio de residencia',
+            'negativa_firma' => 'Cerrado por negativa a la firma / falta de colaboración',
+            'consecucion_objetivos' => 'Cerrado por consecución de objetivos',
+            'cambio_residencia' => 'Cerrado por cambio de residencia',
             'imposibilidad_localizacion' => 'Cerrado por imposibilidad de localizar a la familia',
-            'fallecimiento'              => 'Cerrado por fallecimiento',
-            'fin_intervencion'           => 'Cerrado por finalización de la intervención',
+            'fallecimiento' => 'Cerrado por fallecimiento',
+            'fin_intervencion' => 'Cerrado por finalización de la intervención',
         ];
     }
 
@@ -638,8 +638,6 @@ class PlanPage extends Component
      * Aplica la selección de fichas al diagnóstico del plan.
      * wire:model actualiza fichasSeleccionadas antes de que este método se ejecute.
      * Pide motivo si el plan ya está firmado.
-     *
-     * @return void
      */
     public function aplicarSeleccionFichas(): void
     {
@@ -653,9 +651,9 @@ class PlanPage extends Component
 
         // wire:model devuelve strings desde el value del checkbox; normalizar a int
         $fichasNuevas = array_map('intval', $this->fichasSeleccionadas);
-        $fichasEnBd   = $this->plan->fichasDiagnostico()->pluck('ficha_id')->map(fn ($id) => (int) $id)->toArray();
+        $fichasEnBd = $this->plan->fichasDiagnostico()->pluck('ficha_id')->map(fn ($id) => (int) $id)->toArray();
 
-        $anadir   = array_diff($fichasNuevas, $fichasEnBd);
+        $anadir = array_diff($fichasNuevas, $fichasEnBd);
         $eliminar = array_diff($fichasEnBd, $fichasNuevas);
 
         if (empty($anadir) && empty($eliminar)) {
@@ -674,11 +672,10 @@ class PlanPage extends Component
      * por eso la comparación se hace contra la BD y no contra la propiedad en memoria.
      *
      * @param array<int> $fichas IDs de fichas a vincular (como enteros).
-     * @return void
      */
     private function _aplicarFichas(array $fichas): void
     {
-        $fichasInt  = array_map('intval', $fichas);
+        $fichasInt = array_map('intval', $fichas);
         $fichasEnBd = $this->plan->fichasDiagnostico()
             ->pluck('ficha_id')
             ->map(fn ($id) => (int) $id)
@@ -703,9 +700,6 @@ class PlanPage extends Component
     /**
      * Elimina una ficha del diagnóstico del plan.
      * Si el plan está activo pide motivo antes de persistir.
-     *
-     * @param int $fichaId
-     * @return void
      */
     public function eliminarFichaDiagnostico(int $fichaId): void
     {
@@ -730,9 +724,6 @@ class PlanPage extends Component
 
     /**
      * Elimina la asociación de una ficha al diagnóstico sin verificar estado del plan.
-     *
-     * @param int $fichaId
-     * @return void
      */
     private function _eliminarFichaDirecto(int $fichaId): void
     {
@@ -750,15 +741,12 @@ class PlanPage extends Component
     /**
      * Guarda el texto de síntesis del diagnóstico social.
      * Si el plan está activo pide motivo antes de persistir.
-     *
-     * @return void
      */
     /**
      * Recibe el HTML del editor contenteditable, actualiza la propiedad y persiste.
      * Llamado desde el x-on:blur del editor, reemplazando el botón explícito.
      *
      * @param string $html Contenido HTML del editor.
-     * @return void
      */
     public function guardarDiagnosticoDesdeEditor(string $html): void
     {
@@ -785,7 +773,6 @@ class PlanPage extends Component
      * Abre el modal de edición para un objetivo existente del plan.
      *
      * @param int $objetivoId ID del PlanObjetivo a editar.
-     * @return void
      */
     public function abrirEditarObjetivo(int $objetivoId): void
     {
@@ -797,7 +784,7 @@ class PlanPage extends Component
             return;
         }
 
-        $this->editarObjetivoId    = $objetivo->id;
+        $this->editarObjetivoId = $objetivo->id;
         $this->editarObjetivoTexto = $objetivo->texto;
         $this->editarObjetivoEstado = $objetivo->estado;
         $this->modalEditarObjetivoAbierto = true;
@@ -805,8 +792,6 @@ class PlanPage extends Component
 
     /**
      * Persiste el texto del objetivo que se está editando.
-     *
-     * @return void
      */
     public function guardarEdicionObjetivo(): void
     {
@@ -825,9 +810,9 @@ class PlanPage extends Component
         $objetivo->update(['texto' => $this->editarObjetivoTexto]);
 
         $this->modalEditarObjetivoAbierto = false;
-        $this->editarObjetivoId           = null;
-        $this->editarObjetivoTexto        = '';
-        $this->editarObjetivoEstado       = 'pendiente';
+        $this->editarObjetivoId = null;
+        $this->editarObjetivoTexto = '';
+        $this->editarObjetivoEstado = 'pendiente';
 
         unset($this->objetivosConIndicadores, $this->objetivosGenerales, $this->objetivosEspecificosIndependientes);
         $this->mensajeExito = 'Objetivo actualizado.';
@@ -835,8 +820,6 @@ class PlanPage extends Component
 
     /**
      * Elimina el objetivo que se está editando del plan.
-     *
-     * @return void
      */
     public function eliminarObjetivo(): void
     {
@@ -855,9 +838,9 @@ class PlanPage extends Component
         $objetivo->delete();
 
         $this->modalEditarObjetivoAbierto = false;
-        $this->editarObjetivoId           = null;
-        $this->editarObjetivoTexto        = '';
-        $this->editarObjetivoEstado       = 'pendiente';
+        $this->editarObjetivoId = null;
+        $this->editarObjetivoTexto = '';
+        $this->editarObjetivoEstado = 'pendiente';
 
         unset($this->objetivosConIndicadores, $this->objetivosGenerales, $this->objetivosEspecificosIndependientes);
         $this->mensajeExito = 'Objetivo eliminado.';
@@ -865,8 +848,6 @@ class PlanPage extends Component
 
     /**
      * Persiste el diagnóstico sin verificar estado del plan.
-     *
-     * @return void
      */
     private function _guardarDiagnosticoDirecto(): void
     {
@@ -880,8 +861,6 @@ class PlanPage extends Component
 
     /**
      * Guarda la periodicidad y observaciones del seguimiento.
-     *
-     * @return void
      */
     public function guardarSeguimiento(): void
     {
@@ -1003,10 +982,10 @@ class PlanPage extends Component
         );
 
         match ($this->motivoAccionPendiente) {
-            'guardarPlan'              => $this->_guardarPlanDirecto(),
-            'guardarDiagnostico'       => $this->_guardarDiagnosticoDirecto(),
+            'guardarPlan' => $this->_guardarPlanDirecto(),
+            'guardarDiagnostico' => $this->_guardarDiagnosticoDirecto(),
             'eliminarFichaDiagnostico' => $this->_eliminarFichaDirecto($this->motivoAccionParams['fichaId']),
-            default                    => null,
+            default => null,
         };
 
         $this->modalMotivoAbierto = false;
@@ -1029,8 +1008,6 @@ class PlanPage extends Component
         $this->motivoTexto = '';
     }
 
-
-
     // =========================================================
     // ACCIONES — CREAR PLAN (modo creación, sin plan previo)
     // =========================================================
@@ -1038,8 +1015,6 @@ class PlanPage extends Component
     /**
      * Hook de Livewire: crea el borrador en cuanto el usuario elige el tipo de plan.
      * Solo actúa en modo creación (sin plan previo).
-     *
-     * @return void
      */
     public function updatedTipoPlanId(): void
     {
@@ -1064,21 +1039,21 @@ class PlanPage extends Component
         $historia = HistoriaSocial::findOrFail($this->historiaId);
 
         $plan = PlanDeIntervencion::create([
-            'historia_id'                 => $historia->id,
-            'tipo_plan_id'                => $this->tipoPlanId,
-            'tipo'                        => TipoPlan::GeneralAsp,
-            'profesional_responsable_id'  => auth()->id(),
-            'estado'                      => EstadoPlan::Borrador,
-            'fecha_inicio'                => today()->toDateString(),
-            'version'                     => 1,
-            'diagnostico_social'          => $this->diagnosticoTexto ?: null,
-            'periodicidad_seguimiento'    => $this->periodicidadSeguimiento,
+            'historia_id' => $historia->id,
+            'tipo_plan_id' => $this->tipoPlanId,
+            'tipo' => TipoPlan::GeneralAsp,
+            'profesional_responsable_id' => auth()->id(),
+            'estado' => EstadoPlan::Borrador,
+            'fecha_inicio' => today()->toDateString(),
+            'version' => 1,
+            'diagnostico_social' => $this->diagnosticoTexto ?: null,
+            'periodicidad_seguimiento' => $this->periodicidadSeguimiento,
         ]);
 
         foreach ($this->fichasSeleccionadas as $orden => $fichaId) {
             $plan->fichasDiagnostico()->create([
                 'ficha_id' => $fichaId,
-                'orden'    => $orden,
+                'orden' => $orden,
             ]);
         }
 
@@ -1088,8 +1063,6 @@ class PlanPage extends Component
     /**
      * Asigna el tipo de plan a un plan existente que no lo tenga.
      * Solo aplicable a planes en borrador.
-     *
-     * @return void
      */
     public function asignarTipoPlan(): void
     {
@@ -1114,8 +1087,6 @@ class PlanPage extends Component
     /**
      * Guarda en bloque el diagnóstico y las condiciones de seguimiento.
      * Si el plan está firmado y hay cambios, abre el modal de motivo.
-     *
-     * @return void
      */
     public function guardarPlan(): void
     {
@@ -1135,13 +1106,11 @@ class PlanPage extends Component
 
     /**
      * Persiste diagnóstico y condiciones de seguimiento sin verificar estado del plan.
-     *
-     * @return void
      */
     private function _guardarPlanDirecto(): void
     {
         $this->plan->update([
-            'diagnostico_social'       => $this->diagnosticoTexto,
+            'diagnostico_social' => $this->diagnosticoTexto,
             'periodicidad_seguimiento' => $this->periodicidadSeguimiento,
         ]);
         $this->_actualizarOServicioFirma(['observaciones_seguimiento' => $this->observacionesSeguimiento]);
@@ -1154,8 +1123,6 @@ class PlanPage extends Component
 
     /**
      * Abre el modal de creación de un objetivo general, priorizando el modo catálogo si hay objetivos disponibles.
-     *
-     * @return void
      */
     public function abrirModalObjetivo(): void
     {
@@ -1170,8 +1137,6 @@ class PlanPage extends Component
     /**
      * Instancia en el plan los objetivos generales seleccionados del catálogo,
      * incluyendo sus específicos e indicadores.
-     *
-     * @return void
      */
     public function guardarObjetivosDesdeCatalogo(): void
     {
@@ -1198,12 +1163,12 @@ class PlanPage extends Component
 
             if ($objCatalogo->nivel === 'general') {
                 $planObjetivo = PlanObjetivo::create([
-                    'plan_id'              => $this->plan->id,
+                    'plan_id' => $this->plan->id,
                     'objetivo_catalogo_id' => $objCatalogo->id,
-                    'nivel'                => 'general',
-                    'texto'                => $objCatalogo->texto,
-                    'estado'               => 'pendiente',
-                    'orden'                => ++$ordenGeneral,
+                    'nivel' => 'general',
+                    'texto' => $objCatalogo->texto,
+                    'estado' => 'pendiente',
+                    'orden' => ++$ordenGeneral,
                 ]);
 
                 if ($objCatalogo->indicador) {
@@ -1212,13 +1177,13 @@ class PlanPage extends Component
                 }
             } elseif ($objCatalogo->nivel === 'especifico') {
                 $planEsp = PlanObjetivo::create([
-                    'plan_id'              => $this->plan->id,
+                    'plan_id' => $this->plan->id,
                     'objetivo_catalogo_id' => $objCatalogo->id,
-                    'nivel'                => 'especifico',
-                    'tipo_ficha_id'        => $objCatalogo->tipo_ficha_id,
-                    'texto'                => $objCatalogo->texto,
-                    'estado'               => 'pendiente',
-                    'orden'                => $objCatalogo->orden,
+                    'nivel' => 'especifico',
+                    'tipo_ficha_id' => $objCatalogo->tipo_ficha_id,
+                    'texto' => $objCatalogo->texto,
+                    'estado' => 'pendiente',
+                    'orden' => $objCatalogo->orden,
                 ]);
 
                 if ($objCatalogo->indicador) {
@@ -1239,8 +1204,6 @@ class PlanPage extends Component
 
     /**
      * Persiste un nuevo objetivo general de texto libre en el plan.
-     *
-     * @return void
      */
     public function guardarObjetivo(): void
     {
@@ -1252,10 +1215,10 @@ class PlanPage extends Component
 
         PlanObjetivo::create([
             'plan_id' => $this->plan->id,
-            'nivel'   => 'general',
-            'texto'   => trim($this->nuevoObjetivoTexto),
-            'estado'  => 'pendiente',
-            'orden'   => $this->objetivosGenerales->count() + 1,
+            'nivel' => 'general',
+            'texto' => trim($this->nuevoObjetivoTexto),
+            'estado' => 'pendiente',
+            'orden' => $this->objetivosGenerales->count() + 1,
         ]);
 
         $this->modalObjetivoAbierto = false;
@@ -1272,7 +1235,6 @@ class PlanPage extends Component
      * Abre el modal de edición de un compromiso existente del ciudadano.
      *
      * @param int $id ID del PlanActuacionCiudadano a editar.
-     * @return void
      */
     public function abrirEditarCompromisoCiudadano(int $id): void
     {
@@ -1284,7 +1246,7 @@ class PlanPage extends Component
             return;
         }
 
-        $this->editarCompromisoCiudadanoId          = $compromiso->id;
+        $this->editarCompromisoCiudadanoId = $compromiso->id;
         $this->editarCompromisoCiudadanoDescripcion = $compromiso->descripcion;
         $this->resetErrorBag();
         $this->modalEditarCompromisoCiudadanoAbierto = true;
@@ -1292,8 +1254,6 @@ class PlanPage extends Component
 
     /**
      * Persiste el texto del compromiso del ciudadano que se está editando.
-     *
-     * @return void
      */
     public function guardarEdicionCompromisoCiudadano(): void
     {
@@ -1312,16 +1272,14 @@ class PlanPage extends Component
         $compromiso->update(['descripcion' => trim($this->editarCompromisoCiudadanoDescripcion)]);
 
         $this->modalEditarCompromisoCiudadanoAbierto = false;
-        $this->editarCompromisoCiudadanoId           = null;
-        $this->editarCompromisoCiudadanoDescripcion  = '';
+        $this->editarCompromisoCiudadanoId = null;
+        $this->editarCompromisoCiudadanoDescripcion = '';
         unset($this->actuacionesCiudadano);
         $this->mensajeExito = 'Compromiso actualizado.';
     }
 
     /**
      * Elimina el compromiso del ciudadano que se está editando.
-     *
-     * @return void
      */
     public function eliminarCompromisoCiudadano(): void
     {
@@ -1340,16 +1298,14 @@ class PlanPage extends Component
         $compromiso->delete();
 
         $this->modalEditarCompromisoCiudadanoAbierto = false;
-        $this->editarCompromisoCiudadanoId           = null;
-        $this->editarCompromisoCiudadanoDescripcion  = '';
+        $this->editarCompromisoCiudadanoId = null;
+        $this->editarCompromisoCiudadanoDescripcion = '';
         unset($this->actuacionesCiudadano);
         $this->mensajeExito = 'Compromiso eliminado.';
     }
 
     /**
      * Abre el modal de creación de un compromiso del ciudadano.
-     *
-     * @return void
      */
     public function abrirModalCompromiso(): void
     {
@@ -1360,8 +1316,6 @@ class PlanPage extends Component
 
     /**
      * Persiste un nuevo compromiso del ciudadano en el plan.
-     *
-     * @return void
      */
     public function guardarCompromisoCiudadano(): void
     {
@@ -1372,10 +1326,10 @@ class PlanPage extends Component
         $this->validate(['nuevoCompromisoDescripcion' => 'required|string|min:3|max:500']);
 
         PlanActuacionCiudadano::create([
-            'plan_id'     => $this->plan->id,
+            'plan_id' => $this->plan->id,
             'descripcion' => trim($this->nuevoCompromisoDescripcion),
-            'estado'      => 'pendiente',
-            'orden'       => $this->actuacionesCiudadano->count() + 1,
+            'estado' => 'pendiente',
+            'orden' => $this->actuacionesCiudadano->count() + 1,
         ]);
 
         $this->modalCompromisoAbierto = false;
@@ -1390,8 +1344,6 @@ class PlanPage extends Component
 
     /**
      * Abre el modal de creación de una actuación del Ayuntamiento.
-     *
-     * @return void
      */
     public function abrirModalActuacionAyto(): void
     {
@@ -1403,8 +1355,6 @@ class PlanPage extends Component
 
     /**
      * Persiste una nueva actuación del Ayuntamiento vinculada a una prestación.
-     *
-     * @return void
      */
     public function guardarActuacionAyto(): void
     {
@@ -1415,11 +1365,11 @@ class PlanPage extends Component
         $this->validate(['nuevaActuacionPrestacionId' => 'required|exists:prestaciones,id']);
 
         PlanActuacionAyuntamiento::create([
-            'plan_id'                => $this->plan->id,
-            'prestacion_id'          => $this->nuevaActuacionPrestacionId,
+            'plan_id' => $this->plan->id,
+            'prestacion_id' => $this->nuevaActuacionPrestacionId,
             'descripcion_especifica' => $this->nuevaActuacionDescripcion ?: null,
-            'estado'                 => 'pendiente',
-            'orden'                  => $this->actuacionesAyuntamiento->count() + 1,
+            'estado' => 'pendiente',
+            'orden' => $this->actuacionesAyuntamiento->count() + 1,
         ]);
 
         $this->modalActuacionAytoAbierto = false;
@@ -1433,7 +1383,6 @@ class PlanPage extends Component
      * Abre el modal de edición de una actuación del Ayuntamiento existente.
      *
      * @param int $id ID del PlanActuacionAyuntamiento a editar.
-     * @return void
      */
     public function abrirEditarActuacionAyto(int $id): void
     {
@@ -1445,9 +1394,9 @@ class PlanPage extends Component
             return;
         }
 
-        $this->editarActuacionAytoId           = $actuacion->id;
+        $this->editarActuacionAytoId = $actuacion->id;
         $this->editarActuacionAytoPrestacionId = $actuacion->prestacion_id;
-        $this->editarActuacionAytoDescripcion  = $actuacion->descripcion_especifica ?? '';
+        $this->editarActuacionAytoDescripcion = $actuacion->descripcion_especifica ?? '';
         $this->resetErrorBag();
         unset($this->prestacionesCatalogo);
         $this->modalEditarActuacionAytoAbierto = true;
@@ -1455,8 +1404,6 @@ class PlanPage extends Component
 
     /**
      * Persiste los cambios de la actuación del Ayuntamiento que se está editando.
-     *
-     * @return void
      */
     public function guardarEdicionActuacionAyto(): void
     {
@@ -1473,22 +1420,20 @@ class PlanPage extends Component
         }
 
         $actuacion->update([
-            'prestacion_id'         => $this->editarActuacionAytoPrestacionId,
+            'prestacion_id' => $this->editarActuacionAytoPrestacionId,
             'descripcion_especifica' => $this->editarActuacionAytoDescripcion ?: null,
         ]);
 
         $this->modalEditarActuacionAytoAbierto = false;
-        $this->editarActuacionAytoId           = null;
+        $this->editarActuacionAytoId = null;
         $this->editarActuacionAytoPrestacionId = null;
-        $this->editarActuacionAytoDescripcion  = '';
+        $this->editarActuacionAytoDescripcion = '';
         unset($this->actuacionesAyuntamiento, $this->prestacionesCatalogo);
         $this->mensajeExito = 'Actuación actualizada.';
     }
 
     /**
      * Elimina la actuación del Ayuntamiento que se está editando.
-     *
-     * @return void
      */
     public function eliminarActuacionAyto(): void
     {
@@ -1507,9 +1452,9 @@ class PlanPage extends Component
         $actuacion->delete();
 
         $this->modalEditarActuacionAytoAbierto = false;
-        $this->editarActuacionAytoId           = null;
+        $this->editarActuacionAytoId = null;
         $this->editarActuacionAytoPrestacionId = null;
-        $this->editarActuacionAytoDescripcion  = '';
+        $this->editarActuacionAytoDescripcion = '';
         unset($this->actuacionesAyuntamiento, $this->prestacionesCatalogo);
         $this->mensajeExito = 'Actuación eliminada.';
     }
@@ -1520,8 +1465,6 @@ class PlanPage extends Component
 
     /**
      * Abre el modal de adición de un profesional participante.
-     *
-     * @return void
      */
     public function abrirModalParticipante(): void
     {
@@ -1533,8 +1476,6 @@ class PlanPage extends Component
 
     /**
      * Persiste un nuevo participante profesional en el plan.
-     *
-     * @return void
      */
     public function guardarParticipante(): void
     {
@@ -1544,13 +1485,13 @@ class PlanPage extends Component
 
         $this->validate([
             'nuevoParticipanteUserId' => 'required|exists:users,id',
-            'nuevoParticipanteRol'    => 'required|string|min:2|max:200',
+            'nuevoParticipanteRol' => 'required|string|min:2|max:200',
         ]);
 
         PlanParticipante::create([
-            'plan_id'      => $this->plan->id,
-            'user_id'      => $this->nuevoParticipanteUserId,
-            'rol_en_plan'  => trim($this->nuevoParticipanteRol),
+            'plan_id' => $this->plan->id,
+            'user_id' => $this->nuevoParticipanteUserId,
+            'rol_en_plan' => trim($this->nuevoParticipanteRol),
             'fecha_inicio' => now()->toDateString(),
         ]);
 
@@ -1567,8 +1508,6 @@ class PlanPage extends Component
 
     /**
      * Abre el modal de cierre del plan limpiando el estado previo.
-     *
-     * @return void
      */
     public function abrirModalCierre(): void
     {
@@ -1579,8 +1518,6 @@ class PlanPage extends Component
 
     /**
      * Cierra el modal de cierre sin persistir ningún cambio.
-     *
-     * @return void
      */
     public function cerrarModalCierre(): void
     {
@@ -1590,8 +1527,6 @@ class PlanPage extends Component
     /**
      * Cierra el plan con el motivo seleccionado y registra el cambio en el historial.
      * Si hay notas y el plan tiene historia_id, crea un apunte privado.
-     *
-     * @return void
      */
     public function confirmarCierrePlan(): void
     {
@@ -1602,26 +1537,26 @@ class PlanPage extends Component
 
         $this->plan->registrarCambio(
             auth()->id(),
-            'Cierre del plan: ' . ($this->motivosCierre[$this->motivoCierre] ?? $this->motivoCierre)
-                . ($this->notasCierre ? ". {$this->notasCierre}" : ''),
+            'Cierre del plan: '.($this->motivosCierre[$this->motivoCierre] ?? $this->motivoCierre)
+                .($this->notasCierre ? ". {$this->notasCierre}" : ''),
             'discrecional'
         );
 
         $this->plan->update([
-            'estado'        => 'cerrado',
-            'fecha_cierre'  => now()->toDateString(),
+            'estado' => 'cerrado',
+            'fecha_cierre' => now()->toDateString(),
             'motivo_cierre' => $this->motivoCierre,
         ]);
 
         if ($this->notasCierre && $this->plan->historia_id) {
-            \Modules\Intervencion\Models\Apunte::create([
+            Apunte::create([
                 'historia_id' => $this->plan->historia_id,
-                'plan_id'     => $this->plan->id,
-                'autor_id'    => auth()->id(),
-                'fecha'       => today()->toDateString(),
-                'tipo'        => \Modules\Intervencion\Enums\TipoApunte::Anotacion,
-                'contenido'   => "Cierre del plan: {$this->notasCierre}",
-                'visibilidad' => \Modules\Intervencion\Enums\VisibilidadApunte::Profesionales,
+                'plan_id' => $this->plan->id,
+                'autor_id' => auth()->id(),
+                'fecha' => today()->toDateString(),
+                'tipo' => TipoApunte::Anotacion,
+                'contenido' => "Cierre del plan: {$this->notasCierre}",
+                'visibilidad' => VisibilidadApunte::Profesionales,
             ]);
         }
 
@@ -1639,9 +1574,8 @@ class PlanPage extends Component
      * Guarda la valoración de un indicador del plan.
      * Verifica que el indicador pertenece al plan antes de persistir.
      *
-     * @param  int    $indicadorId ID de PlanObjetivoIndicador
-     * @param  string $valor       Valor de la valoración
-     * @return void
+     * @param int $indicadorId ID de PlanObjetivoIndicador
+     * @param string $valor Valor de la valoración
      */
     public function guardarValoracionIndicador(int $indicadorId, string $valor): void
     {

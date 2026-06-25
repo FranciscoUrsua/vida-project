@@ -23,8 +23,6 @@ class Sidebar extends Component
 {
     /**
      * Número de aprobaciones pendientes en el ámbito del supervisor.
-     *
-     * @return int
      */
     #[Computed]
     public function aprobacionesPendientes(): int
@@ -40,8 +38,6 @@ class Sidebar extends Component
     /**
      * Indica si el centro tiene plazas configuradas.
      * Determina la visibilidad del ítem «Plazas» en el sidebar.
-     *
-     * @return bool
      */
     #[Computed]
     public function tienePlazas(): bool
@@ -58,7 +54,7 @@ class Sidebar extends Component
     public function branding(): array
     {
         return [
-            'logoUrl'         => Configuracion::logoUrl(),
+            'logoUrl' => Configuracion::logoUrl(),
             'nombreAplicacion' => Configuracion::nombreAplicacion(),
         ];
     }

@@ -2,8 +2,6 @@
 
 namespace Modules\Supervision\Services;
 
-use App\Models\HistoriaSocial;
-use App\Models\User;
 use App\Models\UsuarioUo;
 use Modules\Intervencion\Models\AsignacionProfesional;
 
@@ -25,7 +23,6 @@ class IndicadoresCentroService
      * Devuelve 0.0 si no hay profesionales activos para evitar división por cero.
      *
      * @param int $uoId ID de la Unidad Organizativa
-     * @return float
      */
     public function ratioCarga(int $uoId): float
     {
@@ -60,7 +57,6 @@ class IndicadoresCentroService
      * Número de profesionales de la UO con asignación vigente.
      *
      * @param int $uoId ID de la Unidad Organizativa
-     * @return int
      */
     public function profesionalesActivos(int $uoId): int
     {

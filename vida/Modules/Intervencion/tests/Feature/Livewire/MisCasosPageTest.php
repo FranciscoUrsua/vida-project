@@ -104,7 +104,7 @@ class MisCasosPageTest extends TestCase
     private function crearAsignacion(User $usuario): HistoriaSocial
     {
         $uo = UnidadOrganizativa::create([
-            'nombre' => 'UO Test Asignacion ' . uniqid(),
+            'nombre' => 'UO Test Asignacion '.uniqid(),
             'tipo' => 'centro',
             'parent_id' => null,
             'activa' => true,
@@ -332,7 +332,7 @@ class MisCasosPageTest extends TestCase
         $usuario = $this->crearUsuario();
 
         $uo = UnidadOrganizativa::create([
-            'nombre' => 'UO Test Cerrada ' . uniqid(),
+            'nombre' => 'UO Test Cerrada '.uniqid(),
             'tipo' => 'centro',
             'parent_id' => null,
             'activa' => true,

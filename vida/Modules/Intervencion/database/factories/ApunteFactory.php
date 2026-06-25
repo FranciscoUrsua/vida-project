@@ -19,15 +19,15 @@ class ApunteFactory extends Factory
     public function definition(): array
     {
         return [
-            'historia_id'    => HistoriaSocial::factory(),
-            'plan_id'        => null,
-            'autor_id'       => User::factory(),
-            'fecha'          => today()->toDateString(),
-            'tipo'           => TipoApunte::Anotacion,
+            'historia_id' => HistoriaSocial::factory(),
+            'plan_id' => null,
+            'autor_id' => User::factory(),
+            'fecha' => today()->toDateString(),
+            'tipo' => TipoApunte::Anotacion,
             'apuntable_type' => null,
-            'apuntable_id'   => null,
-            'contenido'      => fake()->sentence(),
-            'visibilidad'    => VisibilidadApunte::Profesionales,
+            'apuntable_id' => null,
+            'contenido' => fake()->sentence(),
+            'visibilidad' => VisibilidadApunte::Profesionales,
         ];
     }
 

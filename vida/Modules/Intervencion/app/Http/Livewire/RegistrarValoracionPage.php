@@ -7,7 +7,6 @@ use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Enums\VisibilidadApunte;
@@ -243,15 +242,15 @@ class RegistrarValoracionPage extends Component
             ->first();
 
         Apunte::create([
-            'historia_id'    => $this->historiaId,
-            'plan_id'        => $plan?->id,
-            'autor_id'       => auth()->id(),
-            'fecha'          => today()->toDateString(),
-            'tipo'           => TipoApunte::Valoracion,
+            'historia_id' => $this->historiaId,
+            'plan_id' => $plan?->id,
+            'autor_id' => auth()->id(),
+            'fecha' => today()->toDateString(),
+            'tipo' => TipoApunte::Valoracion,
             'apuntable_type' => Ficha::class,
-            'apuntable_id'   => $ficha->id,
-            'contenido'      => $this->tipoFicha?->nombre,
-            'visibilidad'    => VisibilidadApunte::Profesionales,
+            'apuntable_id' => $ficha->id,
+            'contenido' => $this->tipoFicha?->nombre,
+            'visibilidad' => VisibilidadApunte::Profesionales,
         ]);
     }
 

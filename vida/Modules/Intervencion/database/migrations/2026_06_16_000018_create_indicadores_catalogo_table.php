@@ -11,9 +11,9 @@ return new class extends Migration
         Schema::create('indicadores_catalogo', function (Blueprint $table) {
             $table->id();
             $table->foreignId('objetivo_catalogo_id')
-                  ->unique()
-                  ->constrained('objetivos_catalogo')
-                  ->cascadeOnDelete();
+                ->unique()
+                ->constrained('objetivos_catalogo')
+                ->cascadeOnDelete();
             $table->text('descripcion');
             $table->enum('tipo_valoracion', [
                 'conseguido_proceso_no',

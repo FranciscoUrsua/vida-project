@@ -26,6 +26,7 @@ class PlanPdfService
      * Devuelve el contenido del PDF como string binario.
      *
      * @param PlanDeIntervencion $plan Plan de intervención a exportar.
+     *
      * @return string Binario del PDF
      */
     public function generar(PlanDeIntervencion $plan): string
@@ -65,6 +66,7 @@ class PlanPdfService
      * Devuelve el nombre de fichero sugerido para la descarga del PDF.
      *
      * @param PlanDeIntervencion $plan Plan de intervención.
+     *
      * @return string Nombre de fichero.
      */
     public function nombre(PlanDeIntervencion $plan): string
