@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     name: PHPStan + Pint
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -35,7 +35,7 @@ jobs:
           vendor/bin/pint
 
       - name: Commit cambios de formato
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "style: auto-fix Pint formatting"
           file_pattern: "vida/**/*.php" 
