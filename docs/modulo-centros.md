@@ -1,7 +1,10 @@
 # Módulo de Centros y Servicios — VIDA 360
-## Documento funcional v1.2 · Mayo 2026
+## Documento funcional v1.3 · Junio 2026
 
-> **Cambios respecto a v1.1**: se incorpora la entidad `Servicio` como recurso paralelo a `Centro` en el catálogo. Se añaden las entidades `ResponsableServicio`, `ProfesionalServicio` y `SolicitudServicio`. Se corrige la referencia a PostgreSQL en la sección de tests (la v1.1 indicaba incorrectamente SQLite). Se añaden los grupos de tests funcionales 9.8 y 9.9.
+> **Cambios respecto a v1.2**: se añaden `slug` y `activo` a `TipoActividad`. Se incorpora
+> la entidad `Sala` como espacio funcional de un centro, independiente de la jerarquía de
+> plazas (`ColeccionPlazas → Espacio`). Se añade `sala_id` en `SesionActividad`.
+> Se actualizan la sección de catálogo backoffice y las decisiones diferidas.
 
 ---
 
@@ -90,7 +93,9 @@ Un centro puede organizar actividades (talleres, charlas, seminarios, grupos de 
 
 Modos de acceso: `libre` · `prescripcion` · `mixta`.
 
-Las actividades se materializan en **sesiones** convocadas explícitamente. La inscripción apunta siempre a una sesión concreta. VIDA 360 gestiona inscripciones y control de aforo por sesión; la gestión operativa interna (recursos, asistencia, certificados) corresponde al centro.
+Las actividades se materializan en **sesiones** convocadas explícitamente. La inscripción apunta siempre a una sesión concreta. VIDA 360 gestiona inscripciones y control de aforo por sesión; la gestión operativa interna (asistencia, certificados) corresponde al centro.
+
+Cada sesión puede asociarse a una **sala** del centro donde se celebra. La sala es informativa: VIDA 360 no gestiona disponibilidad ni conflictos de reserva (esto corresponde al módulo de Agenda).
 
 ### 2.7 Inscripción en centro
 
@@ -244,7 +249,25 @@ Relación N:M con `Centro` via `red_centro`.
 
 Estado desnormalizado para consultas rápidas. La ocupación efectiva se rastrea via `Prescripcion` activa.
 
-### 4.7 Actividad
+### 4.7 Sala
+
+Espacio funcional de un centro (aula, sala de reuniones, despacho, polivalente...).
+Es una entidad distinta de `Espacio`, que pertenece a la jerarquía de alojamiento
+(`ColeccionPlazas → Espacio → Plaza`). Las salas no tienen plazas asignables; se
+referencian desde las sesiones de actividad como dato informativo de ubicación.
+
+| Atributo     | Tipo    | Notas                         |
+|--------------|---------|-------------------------------|
+| id           | PK      |                               |
+| centro_id    | FK      |                               |
+| nombre       | string  |                               |
+| descripcion  | text    | Nullable                      |
+| capacidad    | integer | Nullable. Personas, no plazas |
+| accesible    | boolean | default false                 |
+| activa       | boolean | default true                  |
+| notas        | text    | Nullable                      |
+
+### 4.8 Actividad
 
 | Atributo | Tipo | Notas |
 |---|---|---|
@@ -262,7 +285,7 @@ Estado desnormalizado para consultas rápidas. La ocupación efectiva se rastrea
 | fecha_baja | date | Nullable |
 | notas | text | Nullable |
 
-### 4.8 SesionActividad
+### 4.9 SesionActividad
 
 | Atributo | Tipo | Notas |
 |---|---|---|
@@ -273,10 +296,11 @@ Estado desnormalizado para consultas rápidas. La ocupación efectiva se rastrea
 | hora_fin | time | Nullable |
 | aforo_total | integer | Nullable. Sobreescribe el de la actividad |
 | aforo_prescripcion | integer | Nullable. Sobreescribe el de la actividad |
-| estado | enum | `programada` · `celebrada` · `cancelada` |
-| notas | text | Nullable |
+| estado  | enum | `programada` · `celebrada` · `cancelada`                 |
+| sala_id | FK   | Nullable. FK → salas.id. Sala donde se celebra la sesión |
+| notas   | text | Nullable                                                 |
 
-### 4.9 InscripcionCentro
+### 4.10 InscripcionCentro
 
 | Atributo | Tipo | Notas |
 |---|---|---|
@@ -289,7 +313,7 @@ Estado desnormalizado para consultas rápidas. La ocupación efectiva se rastrea
 | activa | boolean | |
 | notas | text | Nullable |
 
-### 4.10 DirectorCentro
+### 4.11 DirectorCentro
 
 | Atributo | Tipo | Notas |
 |---|---|---|
@@ -305,7 +329,7 @@ Estado desnormalizado para consultas rápidas. La ocupación efectiva se rastrea
 
 `profesional_id` y campos de contacto externo son mutuamente excluyentes. Validación a nivel de aplicación.
 
-### 4.11 ContactoCentro
+### 4.12 ContactoCentro
 
 | Atributo | Tipo | Notas |
 |---|---|---|
@@ -318,7 +342,7 @@ Estado desnormalizado para consultas rápidas. La ocupación efectiva se rastrea
 | activo | boolean | |
 | notas | text | Nullable |
 
-### 4.12 Prescripcion
+### 4.13 Prescripcion
 
 | Atributo | Tipo | Notas |
 |---|---|---|
@@ -337,7 +361,7 @@ Estado desnormalizado para consultas rápidas. La ocupación efectiva se rastrea
 | motivo_cancelacion | text | Nullable |
 | notas | text | Nullable |
 
-### 4.13 ListaEspera
+### 4.14 ListaEspera
 
 | Atributo | Tipo | Notas |
 |---|---|---|
@@ -444,11 +468,11 @@ Las anotaciones de seguimiento posteriores (del TSR o de los profesionales del s
 | Entidad catálogo | Descripción |
 |---|---|
 | `TipoEspacio` | Tipos de espacio físico: dormitorio individual, compartido, familiar... |
-| `TipoActividad` | Tipos de actividad: taller, charla, seminario, grupo de apoyo... |
+| `TipoActividad` | Tipos de actividad: taller, charla, seminario, grupo de apoyo... Campos: `id`, `nombre`, `slug` (único, obligatorio), `descripcion`, `activo`. |
 | `SegmentoPoblacion` | Colectivos atendidos: PSH, mayores, VVG, menores, discapacidad... |
 | `Prestacion` | Catálogo transversal. Compartido con módulo de Intervención y módulo de Prestaciones. |
 
-Gestionables desde Filament (backoffice): `Centro`, `Red`, `ColeccionPlazas`, `Servicio`, y todos los catálogos anteriores.
+Gestionables desde Filament (backoffice): `Centro`, `Red`, `ColeccionPlazas`, `Sala`, `Servicio`, y todos los catálogos anteriores.
 
 ---
 
@@ -457,7 +481,7 @@ Gestionables desde Filament (backoffice): `Centro`, `Red`, `ColeccionPlazas`, `S
 - **Módulo de Intervención**: `Prescripcion` y `SolicitudServicio` se crean en el contexto de un `PlanIntervencion`. Las anotaciones de seguimiento sobre solicitudes de servicio son hechos de la historia social y pertenecen a Intervención.
 - **Módulo de Organización (UOs)**: centros y servicios pertenecen a UOs. Los servicios heredan la dirección de su UO.
 - **Módulo de Mensajes**: las anotaciones de profesionales de servicio sobre solicitudes generan alertas al TSR vía este módulo.
-- **Módulo de Agenda**: el horario detallado de centros y la gestión de citas se diseñarán en este módulo.
+- **Módulo de Agenda**: además del horario detallado de centros y la gestión de citas, la gestión de disponibilidad de `Sala` (detección de conflictos de reserva) se diseñará en este módulo.
 - **Módulo de Ciudadanía**: `InscripcionCentro`, `Prescripcion` y `SolicitudServicio` referencian al ciudadano.
 - **Módulo de Usuarios**: `DirectorCentro`, `ResponsableServicio` y `ProfesionalServicio` referencian a `Profesional`.
 - **Módulo de Integraciones**: consulta espacial avanzada sobre `AmbitoTerritorial`; tramitación externa de solicitudes de servicio.
@@ -471,7 +495,9 @@ Gestionables desde Filament (backoffice): `Centro`, `Red`, `ColeccionPlazas`, `S
 
 **Horario detallado**: el campo `horario` en `Centro` es JSON para visualización. La gestión completa va en el módulo de Agenda.
 
-**Gestión interna de actividades**: espacios, recursos, asistencia y certificados corresponden a herramientas especializadas del centro. VIDA 360 llega hasta inscripción y control de aforo.
+**Gestión interna de actividades**: asistencia y certificados corresponden a herramientas especializadas del centro. VIDA 360 gestiona inscripciones, control de aforo y referencia de sala por sesión.
+
+**Disponibilidad de salas**: VIDA 360 almacena la sala asociada a cada sesión como dato informativo, pero no gestiona disponibilidad ni detecta conflictos de reserva entre sesiones que usen la misma sala. Esta funcionalidad corresponde al módulo de Agenda. La validación de que el aforo de la sala sea suficiente para el número de inscritos queda a criterio del profesional que programa la sesión.
 
 **Consulta espacial GIS**: los polígonos en `AmbitoTerritorial` se almacenan como GeoJSON. La consulta «qué centro atiende esta dirección» se difiere al módulo de Integraciones.
 
@@ -790,4 +816,4 @@ SolicitudServicioTest
 
 ---
 
-*Documento elaborado en fase de diseño del proyecto VIDA 360. Versión 1.2 — Mayo 2026.*
+*Documento elaborado en fase de diseño del proyecto VIDA 360. Versión 1.3 — Junio 2026.*
