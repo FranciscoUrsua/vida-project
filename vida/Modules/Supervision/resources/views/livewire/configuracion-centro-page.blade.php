@@ -57,10 +57,155 @@
         </section>
         @endif
 
-        <div class="d-flex gap-2 p-3">
+        <div class="d-flex gap-2 p-3 border-bottom">
             <button type="submit" class="btn btn-primary btn-sm">Guardar cambios</button>
         </div>
 
     </form>
+
+    {{-- Salas del centro --}}
+    <section class="p-3" aria-labelledby="salas-heading">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <h2 class="h6 fw-semibold mb-0" id="salas-heading">Salas del centro</h2>
+            <button type="button" class="btn btn-outline-primary btn-sm ms-auto"
+                    wire:click="abrirModalSala">
+                <x-heroicon-o-plus class="icon-16 me-1" aria-hidden="true"/>
+                Nueva sala
+            </button>
+        </div>
+
+        @if($this->salas->isEmpty())
+            <div class="op-empty">
+                <x-heroicon-o-building-office class="op-empty__icon" aria-hidden="true"/>
+                <p class="op-empty__text">No hay salas registradas en este centro.</p>
+            </div>
+        @else
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Capacidad</th>
+                            <th>Accesible</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($this->salas as $sala)
+                        <tr>
+                            <td class="fw-medium">{{ $sala->nombre }}</td>
+                            <td class="text-body-secondary small">{{ $sala->capacidad ?? '—' }}</td>
+                            <td>
+                                @if($sala->accesible)
+                                    <x-heroicon-s-check-circle class="icon-16 text-success" aria-label="Sí"/>
+                                @else
+                                    <span class="text-body-secondary small">No</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($sala->activa)
+                                    <span class="badge bg-success-subtle text-success-emphasis">Activa</span>
+                                @else
+                                    <span class="badge bg-secondary-subtle text-secondary-emphasis">Inactiva</span>
+                                @endif
+                            </td>
+                            <td class="text-end">
+                                <button type="button"
+                                        class="btn btn-link btn-sm p-0 me-3"
+                                        wire:click="abrirEdicionSala({{ $sala->id }})">
+                                    Editar
+                                </button>
+                                <button type="button"
+                                        class="btn btn-link btn-sm p-0 text-danger"
+                                        wire:click="eliminarSala({{ $sala->id }})"
+                                        wire:confirm="¿Eliminar la sala «{{ $sala->nombre }}»? Esta acción no puede deshacerse.">
+                                    Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </section>
+
+    {{-- Modal sala (alta y edición) --}}
+    @if($modalSalaAbierto)
+    <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
+         aria-labelledby="modal-sala-titulo">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-sala-titulo">
+                        {{ $editandoSalaId ? 'Editar sala' : 'Nueva sala' }}
+                    </h5>
+                    <button type="button" class="btn-close"
+                            wire:click="$set('modalSalaAbierto', false)" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label class="form-label" for="sala-nombre">Nombre <span class="text-danger">*</span></label>
+                        <input id="sala-nombre" type="text"
+                               class="form-control @error('salaNombre') is-invalid @enderror"
+                               wire:model="salaNombre" maxlength="100" autofocus>
+                        @error('salaNombre') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label" for="sala-capacidad">Capacidad (personas)</label>
+                            <input id="sala-capacidad" type="number" min="1"
+                                   class="form-control @error('salaCapacidad') is-invalid @enderror"
+                                   wire:model="salaCapacidad" placeholder="Sin límite">
+                            @error('salaCapacidad') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-sm-6 d-flex flex-column justify-content-end gap-2 pb-1">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="sala-accesible"
+                                       wire:model="salaAccesible">
+                                <label class="form-check-label" for="sala-accesible">Accesible para movilidad reducida</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="sala-activa"
+                                       wire:model="salaActiva">
+                                <label class="form-check-label" for="sala-activa">Sala activa</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="sala-descripcion">Descripción</label>
+                        <textarea id="sala-descripcion" class="form-control @error('salaDescripcion') is-invalid @enderror"
+                                  wire:model="salaDescripcion" rows="2" maxlength="500"
+                                  placeholder="Uso habitual, equipamiento…"></textarea>
+                        @error('salaDescripcion') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label" for="sala-notas">Notas internas</label>
+                        <textarea id="sala-notas" class="form-control @error('salaNotes') is-invalid @enderror"
+                                  wire:model="salaNotes" rows="2" maxlength="500"></textarea>
+                        @error('salaNotes') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                            wire:click="$set('modalSalaAbierto', false)">Cancelar</button>
+                    <button type="button" class="btn btn-primary btn-sm"
+                            wire:click="guardarSala" wire:loading.attr="disabled">
+                        <span wire:loading wire:target="guardarSala"
+                              class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                        {{ $editandoSalaId ? 'Guardar cambios' : 'Crear sala' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+    @endif
 
 </div>

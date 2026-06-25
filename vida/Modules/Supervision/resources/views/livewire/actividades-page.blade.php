@@ -24,6 +24,7 @@
                             <th>Aforo</th>
                             <th>Fecha alta</th>
                             <th>Estado</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -49,6 +50,13 @@
                                     <span class="badge bg-secondary-subtle text-secondary-emphasis">Inactiva</span>
                                 @endif
                             </td>
+                            <td class="text-end">
+                                <button type="button" class="btn btn-outline-secondary btn-sm"
+                                        wire:click="abrirSesiones({{ $actividad->id }})">
+                                    <x-heroicon-o-calendar-days class="icon-14 me-1" aria-hidden="true"/>
+                                    Sesiones
+                                </button>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -57,7 +65,9 @@
         @endif
     </section>
 
-    {{-- Modal actividad (alta y edición) --}}
+    {{-- ================================================================ --}}
+    {{-- Modal actividad (alta y edición)                                 --}}
+    {{-- ================================================================ --}}
     @if($modalAbierto)
     <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
          aria-labelledby="modal-actividad-titulo">
@@ -133,112 +143,21 @@
                         </label>
                     </div>
 
-                    {{-- Profesionales responsables --}}
-                    <div class="border-top pt-3">
-                        <p class="fw-semibold mb-2">
-                            Profesionales responsables <span class="text-danger">*</span>
-                        </p>
-
-                        @error('profesionalesIds')
-                            <div class="alert alert-warning py-2 px-3 small mb-2">{{ $message }}</div>
-                        @enderror
-
-                        {{-- Asignados --}}
-                        @if($this->profesionalesAsignados->isNotEmpty())
-                        <ul class="list-group list-group-flush mb-3">
-                            @foreach($this->profesionalesAsignados as $prof)
-                            <li class="list-group-item d-flex align-items-center justify-content-between px-0 py-1">
-                                <span class="small">
-                                    <x-heroicon-s-user-circle class="icon-16 text-secondary me-1" aria-hidden="true"/>
-                                    {{ $prof->nombre_completo }}
-                                    @if($prof->cargo)
-                                        <span class="text-body-secondary">({{ $prof->cargo->nombre }})</span>
-                                    @endif
-                                </span>
-                                <button type="button"
-                                        class="btn btn-link btn-sm p-0 text-danger"
-                                        wire:click="quitarProfesional({{ $prof->id }})"
-                                        aria-label="Quitar a {{ $prof->nombre_completo }}">
-                                    <x-heroicon-o-x-mark class="icon-16" aria-hidden="true"/>
-                                </button>
-                            </li>
-                            @endforeach
-                        </ul>
-                        @else
-                        <p class="text-body-secondary small mb-3">Sin profesionales asignados todavía.</p>
-                        @endif
-
-                        {{-- Picker: modo centro (lista directa) --}}
-                        @if(! $buscarEnTodo)
-                            @if($this->profesionalesParaSelector->isNotEmpty())
-                            <div class="border rounded overflow-hidden mb-2" style="max-height: 160px; overflow-y: auto;">
-                                @foreach($this->profesionalesParaSelector as $prof)
-                                <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
-                                    <span class="small">
-                                        {{ $prof->nombre_completo }}
-                                        @if($prof->cargo)
-                                            <span class="text-body-secondary">({{ $prof->cargo->nombre }})</span>
-                                        @endif
-                                    </span>
-                                    <button type="button"
-                                            class="btn btn-outline-primary btn-sm py-0 px-2 flex-shrink-0"
-                                            wire:click="agregarProfesional({{ $prof->id }})">
-                                        <x-heroicon-o-plus class="icon-14" aria-hidden="true"/>
-                                    </button>
-                                </div>
-                                @endforeach
-                            </div>
-                            @else
-                            <p class="text-body-secondary small mb-2">Todos los profesionales del centro ya están asignados.</p>
-                            @endif
-                        @endif
-
-                        {{-- Picker: modo organización (búsqueda) --}}
-                        @if($buscarEnTodo)
-                        <div class="mb-2">
-                            <input type="text"
-                                   class="form-control form-control-sm"
-                                   placeholder="Buscar por nombre o apellido…"
-                                   wire:model.live.debounce.300ms="busquedaProfesional"
-                                   autocomplete="off">
-                        </div>
-                        @if(mb_strlen(trim($busquedaProfesional)) < 2)
-                            <p class="text-body-secondary small mb-2">Escribe al menos 2 caracteres para buscar.</p>
-                        @elseif($this->profesionalesParaSelector->isEmpty())
-                            <p class="text-body-secondary small mb-2">Sin resultados para «{{ $busquedaProfesional }}».</p>
-                        @else
-                            <div class="border rounded overflow-hidden mb-2">
-                                @foreach($this->profesionalesParaSelector as $prof)
-                                <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
-                                    <span class="small">
-                                        {{ $prof->nombre_completo }}
-                                        @if($prof->cargo)
-                                            <span class="text-body-secondary">({{ $prof->cargo->nombre }})</span>
-                                        @endif
-                                    </span>
-                                    <button type="button"
-                                            class="btn btn-outline-primary btn-sm py-0 px-2 flex-shrink-0"
-                                            wire:click="agregarProfesional({{ $prof->id }})">
-                                        <x-heroicon-o-plus class="icon-14" aria-hidden="true"/>
-                                    </button>
-                                </div>
-                                @endforeach
-                            </div>
-                            @if($this->profesionalesParaSelector->count() === 15)
-                            <p class="text-body-secondary small mb-2">Mostrando los primeros 15 resultados. Ajusta la búsqueda para ver más.</p>
-                            @endif
-                        @endif
-                        @endif
-
-                        {{-- Toggle modo búsqueda --}}
-                        <div class="form-check mt-1">
-                            <input class="form-check-input" type="checkbox" id="act-buscar-todo"
-                                   wire:model.live="buscarEnTodo">
-                            <label class="form-check-label small text-body-secondary" for="act-buscar-todo">
-                                Buscar en toda la organización
-                            </label>
-                        </div>
-                    </div>
+                    {{-- Picker profesionales actividad --}}
+                    @include('supervision::livewire.partials.picker-profesionales', [
+                        'prefijo'        => 'act',
+                        'asignados'      => $this->profesionalesAsignados,
+                        'paraSelector'   => $this->profesionalesParaSelector,
+                        'buscarEnTodo'   => $buscarEnTodo,
+                        'busqueda'       => $busquedaProfesional,
+                        'agregarAction'  => 'agregarProfesional',
+                        'quitarAction'   => 'quitarProfesional',
+                        'toggleId'       => 'act-buscar-todo',
+                        'toggleModel'    => 'buscarEnTodo',
+                        'busquedaModel'  => 'busquedaProfesional',
+                        'errorKey'       => 'profesionalesIds',
+                        'requerido'      => true,
+                    ])
 
                 </div>
                 <div class="modal-footer">
@@ -251,6 +170,234 @@
                         {{ $editandoId ? 'Guardar cambios' : 'Crear actividad' }}
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+    @endif
+
+    {{-- ================================================================ --}}
+    {{-- Modal sesiones                                                    --}}
+    {{-- ================================================================ --}}
+    @if($modalSesionesAbierto)
+    <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
+         aria-labelledby="modal-sesiones-titulo">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    @if($sesionesModo === 'formulario')
+                    <button type="button" class="btn btn-link p-0 me-2 text-body"
+                            wire:click="volverALista" aria-label="Volver al listado">
+                        <x-heroicon-o-arrow-left class="icon-20" aria-hidden="true"/>
+                    </button>
+                    @endif
+                    <h5 class="modal-title" id="modal-sesiones-titulo">
+                        @if($sesionesModo === 'lista')
+                            Sesiones — {{ $this->actividadParaSesiones?->nombre }}
+                        @else
+                            {{ $editandoSesionId ? 'Editar sesión' : 'Nueva sesión' }}
+                        @endif
+                    </h5>
+                    <button type="button" class="btn-close ms-auto"
+                            wire:click="$set('modalSesionesAbierto', false)" aria-label="Cerrar"></button>
+                </div>
+
+                {{-- Vista: lista de sesiones --}}
+                @if($sesionesModo === 'lista')
+                <div class="modal-body p-0">
+                    <div class="p-3 border-bottom d-flex justify-content-end">
+                        <button type="button" class="btn btn-primary btn-sm"
+                                wire:click="nuevaSesion">
+                            <x-heroicon-o-plus class="icon-16 me-1" aria-hidden="true"/>
+                            Nueva sesión
+                        </button>
+                    </div>
+
+                    @if($this->sesiones->isEmpty())
+                        <div class="op-empty">
+                            <x-heroicon-o-calendar class="op-empty__icon" aria-hidden="true"/>
+                            <p class="op-empty__text">No hay sesiones programadas para esta actividad.</p>
+                        </div>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Hora</th>
+                                        <th>Sala</th>
+                                        <th>Profesionales</th>
+                                        <th>Estado</th>
+                                        <th class="text-end">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($this->sesiones as $sesion)
+                                    @php
+                                        $estados = ['programada' => ['bg-primary-subtle text-primary-emphasis', 'Programada'], 'celebrada' => ['bg-success-subtle text-success-emphasis', 'Celebrada'], 'cancelada' => ['bg-danger-subtle text-danger-emphasis', 'Cancelada']];
+                                        [$badgeClass, $badgeLabel] = $estados[$sesion->estado] ?? ['bg-secondary-subtle text-secondary-emphasis', $sesion->estado];
+                                    @endphp
+                                    <tr>
+                                        <td class="fw-medium small">{{ $sesion->fecha->format('d/m/Y') }}</td>
+                                        <td class="small text-body-secondary">
+                                            {{ substr($sesion->hora_inicio, 0, 5) }}
+                                            @if($sesion->hora_fin)
+                                                — {{ substr($sesion->hora_fin, 0, 5) }}
+                                            @endif
+                                        </td>
+                                        <td class="small text-body-secondary">{{ $sesion->sala?->nombre ?? '—' }}</td>
+                                        <td class="small text-body-secondary">
+                                            @if($sesion->profesionales->isNotEmpty())
+                                                {{ $sesion->profesionales->map(fn($p) => $p->nombre_completo)->join(', ') }}
+                                            @else
+                                                <span class="text-body-tertiary">—</span>
+                                            @endif
+                                        </td>
+                                        <td><span class="badge {{ $badgeClass }}">{{ $badgeLabel }}</span></td>
+                                        <td class="text-end">
+                                            <button type="button"
+                                                    class="btn btn-link btn-sm p-0 me-3"
+                                                    wire:click="editarSesion({{ $sesion->id }})">
+                                                Editar
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-link btn-sm p-0 text-danger"
+                                                    wire:click="eliminarSesion({{ $sesion->id }})"
+                                                    wire:confirm="¿Eliminar la sesión del {{ $sesion->fecha->format('d/m/Y') }}?">
+                                                Eliminar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                            wire:click="$set('modalSesionesAbierto', false)">Cerrar</button>
+                </div>
+                @endif
+
+                {{-- Vista: formulario de sesión --}}
+                @if($sesionesModo === 'formulario')
+                <div class="modal-body">
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-4">
+                            <label class="form-label" for="ses-fecha">Fecha <span class="text-danger">*</span></label>
+                            <input id="ses-fecha" type="date"
+                                   class="form-control @error('sesionFecha') is-invalid @enderror"
+                                   wire:model="sesionFecha">
+                            @error('sesionFecha') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="form-label" for="ses-inicio">Hora inicio <span class="text-danger">*</span></label>
+                            <input id="ses-inicio" type="time"
+                                   class="form-control @error('sesionHoraInicio') is-invalid @enderror"
+                                   wire:model="sesionHoraInicio">
+                            @error('sesionHoraInicio') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="form-label" for="ses-fin">Hora fin</label>
+                            <input id="ses-fin" type="time"
+                                   class="form-control @error('sesionHoraFin') is-invalid @enderror"
+                                   wire:model="sesionHoraFin">
+                            @error('sesionHoraFin') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label" for="ses-sala">Sala</label>
+                            <select id="ses-sala"
+                                    class="form-select @error('sesionSalaId') is-invalid @enderror"
+                                    wire:model="sesionSalaId">
+                                <option value="">Sin sala asignada</option>
+                                @foreach($this->salasDelCentro as $sala)
+                                    <option value="{{ $sala->id }}">
+                                        {{ $sala->nombre }}{{ $sala->capacidad ? ' (cap. '.$sala->capacidad.')' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @if($this->salasDelCentro->isEmpty())
+                                <div class="form-text">
+                                    <a href="{{ route('supervision.configuracion') }}" class="text-decoration-none">
+                                        Configura las salas del centro
+                                    </a> para poder asignarlas a las sesiones.
+                                </div>
+                            @endif
+                            @error('sesionSalaId') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label" for="ses-estado">Estado <span class="text-danger">*</span></label>
+                            <select id="ses-estado"
+                                    class="form-select @error('sesionEstado') is-invalid @enderror"
+                                    wire:model="sesionEstado">
+                                <option value="programada">Programada</option>
+                                <option value="celebrada">Celebrada</option>
+                                <option value="cancelada">Cancelada</option>
+                            </select>
+                            @error('sesionEstado') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
+
+                    @if($this->actividadParaSesiones?->modo_acceso !== 'libre')
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label" for="ses-aforo">Aforo total (sobreescribe el de la actividad)</label>
+                            <input id="ses-aforo" type="number" min="1"
+                                   class="form-control @error('sesionAforoTotal') is-invalid @enderror"
+                                   wire:model="sesionAforoTotal" placeholder="Hereda de la actividad">
+                            @error('sesionAforoTotal') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label" for="ses-aforo-presc">Aforo prescripción</label>
+                            <input id="ses-aforo-presc" type="number" min="0"
+                                   class="form-control @error('sesionAforoPresc') is-invalid @enderror"
+                                   wire:model="sesionAforoPresc" placeholder="Hereda de la actividad">
+                            @error('sesionAforoPresc') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
+                    @endif
+
+                    <div class="mb-4">
+                        <label class="form-label" for="ses-notas">Notas</label>
+                        <textarea id="ses-notas" class="form-control @error('sesionNotas') is-invalid @enderror"
+                                  wire:model="sesionNotas" rows="2" maxlength="1000"></textarea>
+                        @error('sesionNotas') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    {{-- Picker profesionales sesión --}}
+                    @include('supervision::livewire.partials.picker-profesionales', [
+                        'prefijo'        => 'ses',
+                        'asignados'      => $this->sesionProfesionalesAsignados,
+                        'paraSelector'   => $this->sesionProfesionalesParaSelector,
+                        'buscarEnTodo'   => $sesionBuscarEnTodo,
+                        'busqueda'       => $sesionBusquedaProfesional,
+                        'agregarAction'  => 'agregarSesionProfesional',
+                        'quitarAction'   => 'quitarSesionProfesional',
+                        'toggleId'       => 'ses-buscar-todo',
+                        'toggleModel'    => 'sesionBuscarEnTodo',
+                        'busquedaModel'  => 'sesionBusquedaProfesional',
+                        'errorKey'       => null,
+                        'requerido'      => false,
+                    ])
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                            wire:click="volverALista">Cancelar</button>
+                    <button type="button" class="btn btn-primary btn-sm"
+                            wire:click="guardarSesion" wire:loading.attr="disabled">
+                        <span wire:loading wire:target="guardarSesion"
+                              class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                        {{ $editandoSesionId ? 'Guardar cambios' : 'Crear sesión' }}
+                    </button>
+                </div>
+                @endif
+
             </div>
         </div>
     </div>
