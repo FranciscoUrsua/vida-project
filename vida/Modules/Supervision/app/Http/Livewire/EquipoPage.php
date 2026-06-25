@@ -8,6 +8,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Intervencion\Models\AsignacionProfesional;
+use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
 use Modules\Usuarios\Models\TipoRelacionProfesional;
 
@@ -20,16 +21,20 @@ use Modules\Usuarios\Models\TipoRelacionProfesional;
  *
  * @property bool $modalAltaAbierto
  * @property string $nuevoNombre
- * @property string $nuevoCargo
+ * @property int|null $nuevoCargo
  * @property string $nuevaFechaIncorporacion
  * @property int|null $profesionalSeleccionadoId
  * @property bool $modalBajaAbierto
  * @property string $fechaBaja
  * @property bool $confirmarBajaConCasos
+ * @property string $tabActiva
  */
 #[Layout('layouts.supervision')]
 class EquipoPage extends Component
 {
+    /** @var string Tab activa: resumen | horario | suplencias */
+    public string $tabActiva = 'resumen';
+
     /** @var bool Estado del modal de alta de profesional */
     public bool $modalAltaAbierto = false;
 
@@ -75,18 +80,30 @@ class EquipoPage extends Component
         }
 
         return Profesional::where(function ($q) use ($uoIds) {
-            // Profesionales sin cuenta de usuario pero con UO directa
             $q->whereIn('unidad_organizativa_id', $uoIds)
                 ->orWhereHas('usuario', function ($q2) use ($uoIds) {
                     $q2->whereHas('adscripcionesVigentes', function ($q3) use ($uoIds) {
                         $q3->whereIn('unidad_organizativa_id', $uoIds);
                     });
                 });
-        })->get();
+        })->with('cargo', 'usuario')->get();
+    }
+
+    /**
+     * Catálogo de cargos activos para el selector del modal de alta.
+     *
+     * @return Collection<int, Cargo>
+     */
+    #[Computed]
+    public function cargos(): Collection
+    {
+        return Cargo::where('activo', true)->orderBy('nombre')->get();
     }
 
     /**
      * Cuenta planes activos asignados al profesional seleccionado.
+     *
+     * @return int
      */
     #[Computed]
     public function casosActivosProfesionalSeleccionado(): int
@@ -109,6 +126,8 @@ class EquipoPage extends Component
 
     /**
      * Abre el modal de alta de profesional.
+     *
+     * @return void
      */
     public function abrirModalAlta(): void
     {
@@ -119,12 +138,14 @@ class EquipoPage extends Component
 
     /**
      * Crea un nuevo profesional en la UO del supervisor sin cuenta de usuario vinculada.
+     *
+     * @return void
      */
     public function crearProfesional(): void
     {
         $this->validate([
-            'nuevoNombre' => 'required|string|max:255',
-            'nuevoCargo' => 'required|integer|exists:cargos,id',
+            'nuevoNombre'             => 'required|string|max:255',
+            'nuevoCargo'              => 'required|integer|exists:cargos,id',
             'nuevaFechaIncorporacion' => 'required|date',
         ]);
 
@@ -132,11 +153,9 @@ class EquipoPage extends Component
 
         if ($uoActiva === null) {
             $this->addError('nuevoNombre', 'El supervisor no tiene UO activa asignada.');
-
             return;
         }
 
-        // Verificar que el supervisor tiene ámbito sobre la UO activa
         $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
         if (! in_array($uoActiva->id, $uoIds, true)) {
             abort(403, 'Sin permisos de gestión sobre esta unidad organizativa.');
@@ -144,33 +163,42 @@ class EquipoPage extends Component
 
         $partes = explode(' ', trim($this->nuevoNombre), 3);
 
-        // Usar el primer tipo de relación activo como predeterminado para profesionales creados sin cuenta
         $tipoRelacionDefault = TipoRelacionProfesional::where('activo', true)->orderBy('id')->value('id') ?? 1;
 
         Profesional::create([
-            'nombre' => $partes[0] ?? $this->nuevoNombre,
-            'apellido1' => $partes[1] ?? '',
-            'apellido2' => $partes[2] ?? null,
-            'sexo' => 'D',
-            'cargo_id' => $this->nuevoCargo,
-            'tipo_relacion_id' => $tipoRelacionDefault,
-            'fecha_inicio' => $this->nuevaFechaIncorporacion,
-            'activo' => true,
-            'unidad_organizativa_id' => $uoActiva->id,
+            'nombre'                  => $partes[0] ?? $this->nuevoNombre,
+            'apellido1'               => $partes[1] ?? '',
+            'apellido2'               => $partes[2] ?? null,
+            'sexo'                    => 'D',
+            'cargo_id'                => $this->nuevoCargo,
+            'tipo_relacion_id'        => $tipoRelacionDefault,
+            'fecha_inicio'            => $this->nuevaFechaIncorporacion,
+            'activo'                  => true,
+            'unidad_organizativa_id'  => $uoActiva->id,
         ]);
 
         $this->modalAltaAbierto = false;
+        unset($this->profesionales);
         $this->avisoAlta = 'Este profesional no tiene cuenta de usuario en VIDA360 todavía. '
-                                .'Comunica al administrador de usuarios que vincule la cuenta cuando esté disponible.';
+            . 'Comunica al administrador de usuarios que vincule la cuenta cuando esté disponible.';
     }
 
     /**
      * Abre el modal de confirmación de baja para el profesional indicado.
      *
-     * @param int $profesionalId ID del profesional a dar de baja
+     * Rechaza la baja si el profesional es el propio supervisor autenticado.
+     *
+     * @param int $profesionalId ID del profesional a dar de baja.
+     * @return void
      */
     public function iniciarBaja(int $profesionalId): void
     {
+        $profesional = Profesional::find($profesionalId);
+
+        if ($profesional?->usuario?->id === auth()->id()) {
+            return;
+        }
+
         $this->profesionalSeleccionadoId = $profesionalId;
         $this->modalBajaAbierto = true;
         $this->confirmarBajaConCasos = false;
@@ -181,6 +209,8 @@ class EquipoPage extends Component
      * Confirma la baja lógica (soft delete) del profesional.
      *
      * Requiere confirmación explícita si el profesional tiene casos activos.
+     *
+     * @return void
      */
     public function confirmarBaja(): void
     {
@@ -188,7 +218,11 @@ class EquipoPage extends Component
 
         $profesional = Profesional::findOrFail($this->profesionalSeleccionadoId);
 
-        // Verificar ámbito del supervisor
+        // Impedir baja del propio supervisor como segunda línea de defensa
+        if ($profesional->usuario?->id === auth()->id()) {
+            return;
+        }
+
         $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
 
         if ($profesional->usuario !== null) {
@@ -199,14 +233,11 @@ class EquipoPage extends Component
 
             if (! $enAmbito) {
                 $this->addError('fechaBaja', 'No tiene permisos para dar de baja a este profesional.');
-
                 return;
             }
         } elseif ($profesional->unidad_organizativa_id !== null) {
-            // Profesional sin cuenta: verificar por UO directa
             if (! in_array($profesional->unidad_organizativa_id, $uoIds, true)) {
                 $this->addError('fechaBaja', 'No tiene permisos para dar de baja a este profesional.');
-
                 return;
             }
         }
@@ -214,7 +245,6 @@ class EquipoPage extends Component
         $casosActivos = $this->casosActivosProfesionalSeleccionado;
 
         if ($casosActivos > 0 && ! $this->confirmarBajaConCasos) {
-            // El modal mostrará el aviso; el usuario debe marcar la confirmación
             return;
         }
 
@@ -222,10 +252,13 @@ class EquipoPage extends Component
 
         $this->modalBajaAbierto = false;
         $this->profesionalSeleccionadoId = null;
+        unset($this->profesionales);
     }
 
     /**
      * Renderiza la pantalla de equipo.
+     *
+     * @return View
      */
     public function render(): View
     {
