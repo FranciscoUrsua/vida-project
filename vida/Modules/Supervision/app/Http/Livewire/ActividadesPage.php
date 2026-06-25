@@ -22,8 +22,9 @@ use Modules\Usuarios\Models\Profesional;
  * edición cuando editandoId contiene el id de la actividad a modificar.
  *
  * Cada actividad debe tener al menos un profesional responsable asignado.
- * El selector muestra por defecto los profesionales del centro; un checkbox
- * permite ampliar la búsqueda a toda la organización.
+ * El picker de profesionales muestra el equipo del centro por defecto.
+ * Con el checkbox «toda la organización» se activa una búsqueda por nombre
+ * que devuelve hasta 15 resultados para evitar cargar miles de registros.
  *
  * @property bool $modalAbierto
  * @property int|null $editandoId
@@ -35,7 +36,7 @@ use Modules\Usuarios\Models\Profesional;
  * @property string $fechaAlta
  * @property bool $requiereInscripcion
  * @property list<int> $profesionalesIds
- * @property int|null $agregarProfesionalId
+ * @property string $busquedaProfesional
  * @property bool $buscarEnTodo
  */
 #[Layout('layouts.supervision')]
@@ -58,10 +59,10 @@ class ActividadesPage extends Component
     /** @var list<int> IDs de profesionales responsables asignados a la actividad en curso. */
     public array $profesionalesIds = [];
 
-    /** @var int|null Profesional seleccionado en el desplegable para añadir. */
-    public ?int $agregarProfesionalId = null;
+    /** @var string Texto de búsqueda libre para filtrar profesionales de toda la organización. */
+    public string $busquedaProfesional = '';
 
-    /** @var bool Si true, el selector muestra todos los profesionales de la organización. */
+    /** @var bool Si true, el picker busca en toda la organización en lugar del equipo del centro. */
     public bool $buscarEnTodo = false;
 
     /**
@@ -104,16 +105,20 @@ class ActividadesPage extends Component
     }
 
     /**
-     * Profesionales disponibles para añadir: del centro del supervisor (por defecto)
-     * o de toda la organización si buscarEnTodo es true.
-     * Excluye los ya asignados en profesionalesIds.
+     * Profesionales disponibles para añadir al picker.
+     *
+     * Modo centro (buscarEnTodo=false): devuelve todos los profesionales activos
+     * de la UO del supervisor, excluidos los ya asignados.
+     *
+     * Modo organización (buscarEnTodo=true): requiere al menos 2 caracteres en
+     * busquedaProfesional; devuelve hasta 15 coincidencias por nombre o apellido.
      *
      * @return Collection<int, Profesional>
      */
     #[Computed]
     public function profesionalesParaSelector(): Collection
     {
-        $query = Profesional::where('activo', true)
+        $base = Profesional::where('activo', true)
             ->when(! empty($this->profesionalesIds), fn ($q) => $q->whereNotIn('id', $this->profesionalesIds))
             ->with('cargo')
             ->orderBy('apellido1')
@@ -121,13 +126,26 @@ class ActividadesPage extends Component
 
         if (! $this->buscarEnTodo) {
             $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
-            $query->where(function ($q) use ($uoIds) {
+            $base->where(function ($q) use ($uoIds) {
                 $q->whereIn('unidad_organizativa_id', $uoIds)
                     ->orWhereHas('usuario', fn ($q2) => $q2->whereHas('adscripcionesVigentes', fn ($q3) => $q3->whereIn('unidad_organizativa_id', $uoIds)));
             });
+
+            return $base->get();
         }
 
-        return $query->get();
+        // Modo toda la organización: exige mínimo 2 caracteres
+        if (mb_strlen(trim($this->busquedaProfesional)) < 2) {
+            return new Collection();
+        }
+
+        $termino = '%' . trim($this->busquedaProfesional) . '%';
+
+        return $base->where(function ($q) use ($termino) {
+            $q->where('nombre', 'ilike', $termino)
+                ->orWhere('apellido1', 'ilike', $termino)
+                ->orWhere('apellido2', 'ilike', $termino);
+        })->limit(15)->get();
     }
 
     /**
@@ -150,6 +168,16 @@ class ActividadesPage extends Component
     }
 
     /**
+     * Resetea la búsqueda al cambiar entre modo centro y modo organización.
+     *
+     * @return void
+     */
+    public function updatedBuscarEnTodo(): void
+    {
+        $this->busquedaProfesional = '';
+    }
+
+    /**
      * Abre el modal en modo alta con el formulario limpio.
      *
      * @return void
@@ -159,7 +187,7 @@ class ActividadesPage extends Component
         $this->reset([
             'editandoId', 'nombre', 'tipoActividadId', 'modoAcceso',
             'aforoTotal', 'aforoPresc', 'requiereInscripcion',
-            'profesionalesIds', 'agregarProfesionalId', 'buscarEnTodo',
+            'profesionalesIds', 'busquedaProfesional', 'buscarEnTodo',
         ]);
         $this->fechaAlta = Carbon::today()->toDateString();
         $this->modalAbierto = true;
@@ -181,36 +209,37 @@ class ActividadesPage extends Component
             ->when($centro !== null, fn ($q) => $q->where('centro_id', $centro->id))
             ->firstOrFail();
 
-        $this->editandoId          = $actividad->id;
-        $this->nombre              = $actividad->nombre;
-        $this->tipoActividadId     = $actividad->tipo_actividad_id;
-        $this->modoAcceso          = $actividad->modo_acceso;
-        $this->aforoTotal          = $actividad->aforo_total;
-        $this->aforoPresc          = $actividad->aforo_prescripcion;
-        $this->fechaAlta           = $actividad->fecha_alta->toDateString();
-        $this->requiereInscripcion = (bool) $actividad->requiere_inscripcion_centro;
-        $this->profesionalesIds    = $actividad->profesionales()->pluck('profesionales.id')->map(fn ($v) => (int) $v)->toArray();
-        $this->agregarProfesionalId = null;
-        $this->buscarEnTodo        = false;
-        $this->modalAbierto        = true;
+        $this->editandoId           = $actividad->id;
+        $this->nombre               = $actividad->nombre;
+        $this->tipoActividadId      = $actividad->tipo_actividad_id;
+        $this->modoAcceso           = $actividad->modo_acceso;
+        $this->aforoTotal           = $actividad->aforo_total;
+        $this->aforoPresc           = $actividad->aforo_prescripcion;
+        $this->fechaAlta            = $actividad->fecha_alta->toDateString();
+        $this->requiereInscripcion  = (bool) $actividad->requiere_inscripcion_centro;
+        $this->profesionalesIds     = $actividad->profesionales()->pluck('profesionales.id')->map(fn ($v) => (int) $v)->toArray();
+        $this->busquedaProfesional  = '';
+        $this->buscarEnTodo         = false;
+        $this->modalAbierto         = true;
     }
 
     /**
-     * Añade el profesional seleccionado en el desplegable a la lista de asignados.
+     * Añade el profesional indicado a la lista de asignados.
+     * En modo organización limpia la búsqueda tras añadir para facilitar
+     * buscar otro profesional sin borrar manualmente.
      *
+     * @param int $profesionalId ID del profesional a añadir.
      * @return void
      */
-    public function agregarProfesional(): void
+    public function agregarProfesional(int $profesionalId): void
     {
-        if ($this->agregarProfesionalId === null) {
-            return;
+        if (! in_array($profesionalId, $this->profesionalesIds, true)) {
+            $this->profesionalesIds[] = $profesionalId;
         }
 
-        if (! in_array($this->agregarProfesionalId, $this->profesionalesIds, true)) {
-            $this->profesionalesIds[] = $this->agregarProfesionalId;
+        if ($this->buscarEnTodo) {
+            $this->busquedaProfesional = '';
         }
-
-        $this->agregarProfesionalId = null;
     }
 
     /**
@@ -236,12 +265,12 @@ class ActividadesPage extends Component
     {
         $this->validate(
             [
-                'nombre'          => ['required', 'string', 'max:200'],
-                'tipoActividadId' => ['required', 'integer', 'exists:tipos_actividad,id'],
-                'modoAcceso'      => ['required', 'in:libre,prescripcion,mixta'],
-                'aforoTotal'      => ['nullable', 'integer', 'min:1'],
-                'aforoPresc'      => ['nullable', 'integer', 'min:0'],
-                'fechaAlta'       => ['required', 'date'],
+                'nombre'             => ['required', 'string', 'max:200'],
+                'tipoActividadId'    => ['required', 'integer', 'exists:tipos_actividad,id'],
+                'modoAcceso'         => ['required', 'in:libre,prescripcion,mixta'],
+                'aforoTotal'         => ['nullable', 'integer', 'min:1'],
+                'aforoPresc'         => ['nullable', 'integer', 'min:0'],
+                'fechaAlta'          => ['required', 'date'],
                 'profesionalesIds'   => ['required', 'array', 'min:1'],
                 'profesionalesIds.*' => ['integer', 'exists:profesionales,id'],
             ],

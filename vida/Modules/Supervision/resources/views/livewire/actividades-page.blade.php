@@ -143,7 +143,7 @@
                             <div class="alert alert-warning py-2 px-3 small mb-2">{{ $message }}</div>
                         @enderror
 
-                        {{-- Lista de asignados --}}
+                        {{-- Asignados --}}
                         @if($this->profesionalesAsignados->isNotEmpty())
                         <ul class="list-group list-group-flush mb-3">
                             @foreach($this->profesionalesAsignados as $prof)
@@ -165,39 +165,77 @@
                             @endforeach
                         </ul>
                         @else
-                        <p class="text-body-secondary small mb-3">Sin profesionales asignados.</p>
+                        <p class="text-body-secondary small mb-3">Sin profesionales asignados todavía.</p>
                         @endif
 
-                        {{-- Selector para añadir --}}
-                        <div class="d-flex gap-2 align-items-center mb-2">
-                            <select class="form-select form-select-sm @error('agregarProfesionalId') is-invalid @enderror"
-                                    wire:model="agregarProfesionalId">
-                                <option value="">
-                                    @if($this->profesionalesParaSelector->isEmpty())
-                                        {{ $buscarEnTodo ? 'No hay más profesionales disponibles' : 'No hay más profesionales en el centro' }}
-                                    @else
-                                        Selecciona un profesional…
-                                    @endif
-                                </option>
+                        {{-- Picker: modo centro (lista directa) --}}
+                        @if(! $buscarEnTodo)
+                            @if($this->profesionalesParaSelector->isNotEmpty())
+                            <div class="border rounded overflow-hidden mb-2" style="max-height: 160px; overflow-y: auto;">
                                 @foreach($this->profesionalesParaSelector as $prof)
-                                    <option value="{{ $prof->id }}">
-                                        {{ $prof->nombre_completo }}{{ $prof->cargo ? ' ('.$prof->cargo->nombre.')' : '' }}
-                                    </option>
+                                <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+                                    <span class="small">
+                                        {{ $prof->nombre_completo }}
+                                        @if($prof->cargo)
+                                            <span class="text-body-secondary">({{ $prof->cargo->nombre }})</span>
+                                        @endif
+                                    </span>
+                                    <button type="button"
+                                            class="btn btn-outline-primary btn-sm py-0 px-2 flex-shrink-0"
+                                            wire:click="agregarProfesional({{ $prof->id }})">
+                                        <x-heroicon-o-plus class="icon-14" aria-hidden="true"/>
+                                    </button>
+                                </div>
                                 @endforeach
-                            </select>
-                            <button type="button"
-                                    class="btn btn-outline-secondary btn-sm flex-shrink-0"
-                                    wire:click="agregarProfesional"
-                                    @disabled(! $agregarProfesionalId)>
-                                <x-heroicon-o-plus class="icon-16 me-1" aria-hidden="true"/>
-                                Añadir
-                            </button>
+                            </div>
+                            @else
+                            <p class="text-body-secondary small mb-2">Todos los profesionales del centro ya están asignados.</p>
+                            @endif
+                        @endif
+
+                        {{-- Picker: modo organización (búsqueda) --}}
+                        @if($buscarEnTodo)
+                        <div class="mb-2">
+                            <input type="text"
+                                   class="form-control form-control-sm"
+                                   placeholder="Buscar por nombre o apellido…"
+                                   wire:model.live.debounce.300ms="busquedaProfesional"
+                                   autocomplete="off">
                         </div>
-                        <div class="form-check">
+                        @if(mb_strlen(trim($busquedaProfesional)) < 2)
+                            <p class="text-body-secondary small mb-2">Escribe al menos 2 caracteres para buscar.</p>
+                        @elseif($this->profesionalesParaSelector->isEmpty())
+                            <p class="text-body-secondary small mb-2">Sin resultados para «{{ $busquedaProfesional }}».</p>
+                        @else
+                            <div class="border rounded overflow-hidden mb-2">
+                                @foreach($this->profesionalesParaSelector as $prof)
+                                <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+                                    <span class="small">
+                                        {{ $prof->nombre_completo }}
+                                        @if($prof->cargo)
+                                            <span class="text-body-secondary">({{ $prof->cargo->nombre }})</span>
+                                        @endif
+                                    </span>
+                                    <button type="button"
+                                            class="btn btn-outline-primary btn-sm py-0 px-2 flex-shrink-0"
+                                            wire:click="agregarProfesional({{ $prof->id }})">
+                                        <x-heroicon-o-plus class="icon-14" aria-hidden="true"/>
+                                    </button>
+                                </div>
+                                @endforeach
+                            </div>
+                            @if($this->profesionalesParaSelector->count() === 15)
+                            <p class="text-body-secondary small mb-2">Mostrando los primeros 15 resultados. Ajusta la búsqueda para ver más.</p>
+                            @endif
+                        @endif
+                        @endif
+
+                        {{-- Toggle modo búsqueda --}}
+                        <div class="form-check mt-1">
                             <input class="form-check-input" type="checkbox" id="act-buscar-todo"
                                    wire:model.live="buscarEnTodo">
                             <label class="form-check-label small text-body-secondary" for="act-buscar-todo">
-                                Mostrar profesionales de toda la organización
+                                Buscar en toda la organización
                             </label>
                         </div>
                     </div>
