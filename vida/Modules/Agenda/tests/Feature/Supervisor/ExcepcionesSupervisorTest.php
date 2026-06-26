@@ -62,7 +62,7 @@ class ExcepcionesSupervisorTest extends TestCase
         $component = Livewire::actingAs($this->supervisor)
             ->test(ExcepcionesSupervisorPage::class);
 
-        $this->assertGreaterThan(0, $component->instance()->excepcionesActivas->count());
+        $this->assertGreaterThan(0, $component->get('excepcionesActivas')->count());
     }
 
     /**
@@ -183,7 +183,7 @@ class ExcepcionesSupervisorTest extends TestCase
         $component = Livewire::actingAs($this->supervisor)
             ->test(ExcepcionesSupervisorPage::class);
 
-        $ids = $component->instance()->profesionalesDelCentro->pluck('id');
+        $ids = $component->get('profesionalesDelCentro')->pluck('id');
 
         // Entonces: solo aparecen los 3 del centro del supervisor
         $this->assertCount(3, $ids);

@@ -80,6 +80,8 @@ class GestionUcTest extends TestCase
 
     /**
      * Monta el componente, opcionalmente añadiendo al ciudadano titular como miembro de una UC.
+     *
+     * @return Testable<CiudadanoPage>
      */
     private function montarComponente(?UnidadConvivencia $uc = null): Testable
     {
@@ -268,17 +270,17 @@ class GestionUcTest extends TestCase
 
         // El externo (aún no miembro) debe aparecer en resultados
         $componente->set('ucBusqueda', 'María');
-        $resultados = $componente->instance()->ucResultadosBusqueda;
+        $resultados = $componente->get('ucResultadosBusqueda');
         $this->assertTrue($resultados->contains('id', $externo->id));
 
         // El titular ya es miembro — no debe aparecer en resultados de búsqueda
-        $resultados = $componente->instance()->ucResultadosBusqueda;
+        $resultados = $componente->get('ucResultadosBusqueda');
         $this->assertFalse($resultados->contains('id', $this->ciudadano->id));
 
         // Añadir externo como miembro: ya no debe aparecer en búsqueda
         $uc->agregarMiembro($externo->id);
         $componente->set('ucBusqueda', 'María');
-        $resultados = $componente->instance()->ucResultadosBusqueda;
+        $resultados = $componente->get('ucResultadosBusqueda');
         $this->assertFalse($resultados->contains('id', $externo->id));
     }
 
@@ -292,6 +294,6 @@ class GestionUcTest extends TestCase
         $componente = $this->montarComponente($uc)->call('abrirModalUc');
 
         $componente->set('ucBusqueda', 'a');
-        $this->assertTrue($componente->instance()->ucResultadosBusqueda->isEmpty());
+        $this->assertTrue($componente->get('ucResultadosBusqueda')->isEmpty());
     }
 }

@@ -80,7 +80,8 @@ class MisCasosPageTest extends TestCase
     /**
      * Crea un plan activo de tipo general_asp asignado al usuario dado
      * y genera la asignación vigente correspondiente en asignaciones_profesional.
-     */
+     *
+     * @param array<string, mixed> $extra     */
     private function crearPlan(User $usuario, array $extra = []): PlanDeIntervencion
     {
         $plan = PlanDeIntervencion::factory()->create(array_merge([

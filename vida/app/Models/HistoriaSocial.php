@@ -47,6 +47,7 @@ use Modules\Intervencion\Models\AsignacionProfesional;
 class HistoriaSocial extends Model implements AuditableModel
 {
     use Auditable;
+    /** @use HasFactory<\Database\Factories\HistoriaSocialFactory> */
     use HasFactory;
     use SoftDeletes;
 

@@ -63,6 +63,7 @@ use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 class Ciudadano extends Model implements AuditableModel, DireccionableModel
 {
     use Auditable;
+    /** @use HasFactory<\Database\Factories\CiudadanoFactory> */
     use HasFactory;
     use SoftDeletes;
     use TieneDireccion;

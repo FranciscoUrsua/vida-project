@@ -39,6 +39,7 @@ use Illuminate\Support\Carbon;
  */
 class PerfilAnonimizacion extends Model
 {
+    /** @use HasFactory<PerfilAnonimizacionFactory> */
     use HasFactory;
 
     protected $table = 'perfiles_anonimizacion';

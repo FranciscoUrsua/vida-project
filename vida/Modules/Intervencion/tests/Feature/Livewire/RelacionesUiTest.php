@@ -80,6 +80,9 @@ class RelacionesUiTest extends TestCase
         ]);
     }
 
+    /**
+     * @return Testable<CiudadanoPage>
+     */
     private function montar(): Testable
     {
         return Livewire::actingAs($this->usuario)
@@ -206,7 +209,7 @@ class RelacionesUiTest extends TestCase
         ]);
 
         $comp = $this->montar();
-        $agrupadas = $comp->instance()->relacionesAgrupadas;
+        $agrupadas = $comp->get('relacionesAgrupadas');
 
         $this->assertArrayHasKey('hijo', $agrupadas->toArray());
         $this->assertArrayHasKey('conyuge', $agrupadas->toArray());
@@ -229,7 +232,7 @@ class RelacionesUiTest extends TestCase
             'fecha_fin' => '2023-06-01',
         ]);
 
-        $agrupadas = $this->montar()->instance()->relacionesAgrupadas;
+        $agrupadas = $this->montar()->get('relacionesAgrupadas');
 
         $this->assertArrayNotHasKey('conyuge', $agrupadas->toArray());
     }
@@ -256,7 +259,7 @@ class RelacionesUiTest extends TestCase
             'fecha_inicio' => now()->toDateString(),
         ]);
 
-        $relaciones = $this->montar()->instance()->relacionesMiembrosUc;
+        $relaciones = $this->montar()->get('relacionesMiembrosUc');
 
         $this->assertTrue(
             $relaciones->contains('Hijo/a'),
@@ -281,7 +284,7 @@ class RelacionesUiTest extends TestCase
 
         $comp = $this->montar();
 
-        $this->assertNull($comp->instance()->representante);
+        $this->assertNull($comp->get('representante'));
         $comp->assertDontSee('ExRepAnterior');
     }
 

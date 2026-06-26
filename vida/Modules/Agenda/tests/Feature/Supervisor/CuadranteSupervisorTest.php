@@ -48,7 +48,7 @@ class CuadranteSupervisorTest extends TestCase
         $component->assertOk()->assertSee('Borrador');
 
         // Y: hay al menos una fila por profesional del centro
-        $this->assertCount(3, $component->instance()->profesionales);
+        $this->assertCount(3, $component->get('profesionales'));
     }
 
     /**
@@ -97,7 +97,7 @@ class CuadranteSupervisorTest extends TestCase
             ->test(CuadranteSupervisorPage::class);
 
         // Entonces: solo aparecen los 3 profesionales del centro del supervisor
-        $this->assertCount(3, $component->instance()->profesionales);
+        $this->assertCount(3, $component->get('profesionales'));
     }
 
     /**
@@ -179,7 +179,7 @@ class CuadranteSupervisorTest extends TestCase
             EstadoCuadrante::Borrador,
             $this->cuadrante->fresh()->estado
         );
-        $this->assertNotNull($component->instance()->errorPublicacion);
+        $this->assertNotNull($component->get('errorPublicacion'));
     }
 
     /**
@@ -196,7 +196,7 @@ class CuadranteSupervisorTest extends TestCase
             ->test(CuadranteSupervisorPage::class);
 
         // Entonces: modoManual es false y no hay botón de publicar
-        $this->assertFalse($component->instance()->modoManual);
+        $this->assertFalse($component->get('modoManual'));
         $component->assertDontSee('Publicar cuadrante');
     }
 }

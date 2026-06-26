@@ -130,7 +130,7 @@ class User extends Authenticatable implements FilamentUser
      * Null para perfiles estrictamente técnicos (adm_sistema sin
      * función asistencial directa).
      *
-     * @return BelongsTo<Profesional, User>
+     * @return BelongsTo<Profesional, $this>
      */
     public function profesional(): BelongsTo
     {

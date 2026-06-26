@@ -118,8 +118,8 @@ class AusenciasSupervisorTest extends TestCase
         $component = Livewire::actingAs($this->supervisor)
             ->test(AusenciasSupervisorPage::class);
 
-        $this->assertCount(1, $component->instance()->ausenciasHoy);
-        $this->assertCount(3, $component->instance()->citasPendientes);
+        $this->assertCount(1, $component->get('ausenciasHoy'));
+        $this->assertCount(3, $component->get('citasPendientes'));
     }
 
     /**
@@ -136,7 +136,7 @@ class AusenciasSupervisorTest extends TestCase
         $sidebar = Livewire::actingAs($this->supervisor)
             ->test(Sidebar::class);
 
-        $this->assertEquals(3, $sidebar->instance()->citasPendientesBadge);
+        $this->assertEquals(3, $sidebar->get('citasPendientesBadge'));
     }
 
     /**
@@ -165,7 +165,7 @@ class AusenciasSupervisorTest extends TestCase
         $panel = Livewire::actingAs($this->supervisor)
             ->test(ReasignacionPanel::class, ['citaId' => $cita->id]);
 
-        $slots = $panel->instance()->slotsDisponiblesHoy;
+        $slots = $panel->get('slotsDisponiblesHoy');
 
         $this->assertCount(3, $slots);
         // Los primeros 2 deben ser urgencias
@@ -224,7 +224,7 @@ class AusenciasSupervisorTest extends TestCase
         $sidebar = Livewire::actingAs($this->supervisor)
             ->test(Sidebar::class);
 
-        $this->assertEquals(0, $sidebar->instance()->citasPendientesBadge);
+        $this->assertEquals(0, $sidebar->get('citasPendientesBadge'));
     }
 
     /**
@@ -258,7 +258,7 @@ class AusenciasSupervisorTest extends TestCase
         $panel = Livewire::actingAs($this->supervisor)
             ->test(ReasignacionPanel::class, ['citaId' => $cita->id]);
 
-        $this->assertCount(0, $panel->instance()->slotsDisponiblesHoy);
+        $this->assertCount(0, $panel->get('slotsDisponiblesHoy'));
         $panel->assertSee('No hay slots disponibles');
     }
 
@@ -287,8 +287,8 @@ class AusenciasSupervisorTest extends TestCase
         $component = Livewire::actingAs($this->supervisor)
             ->test(AusenciasSupervisorPage::class);
 
-        $this->assertCount(1, $component->instance()->noshowsCiudadanos);
-        $this->assertCount(0, $component->instance()->citasPendientes);
+        $this->assertCount(1, $component->get('noshowsCiudadanos'));
+        $this->assertCount(0, $component->get('citasPendientes'));
     }
 
     /**
@@ -317,6 +317,6 @@ class AusenciasSupervisorTest extends TestCase
         $component = Livewire::actingAs($this->supervisor)
             ->test(AusenciasSupervisorPage::class);
 
-        $this->assertCount(0, $component->instance()->citasPendientes);
+        $this->assertCount(0, $component->get('citasPendientes'));
     }
 }

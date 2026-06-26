@@ -130,7 +130,7 @@ class EventosSupervisorTest extends TestCase
             ->call('crear');
 
         // Entonces: se detecta conflicto y se activa el aviso
-        $this->assertTrue($component->instance()->hayConflictoEspacio);
+        $this->assertTrue($component->get('hayConflictoEspacio'));
     }
 
     /**
@@ -153,7 +153,7 @@ class EventosSupervisorTest extends TestCase
         $component = Livewire::actingAs($this->supervisor)
             ->test(EventosSupervisorPage::class);
 
-        $this->assertCount(1, $component->instance()->eventosProximos);
+        $this->assertCount(1, $component->get('eventosProximos'));
     }
 
     /**

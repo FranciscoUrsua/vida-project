@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
- * @use HasFactory<ApunteFactory>
+ * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>>
  *
  * Modelo stub de Apunte (acto profesional).
  *
@@ -41,6 +41,7 @@ use Illuminate\Support\Carbon;
  */
 class Apunte extends Model
 {
+    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
     use HasFactory;
     use SoftDeletes;
 

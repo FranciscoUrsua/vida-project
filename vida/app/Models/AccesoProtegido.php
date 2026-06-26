@@ -38,6 +38,7 @@ use Modules\Usuarios\Policies\HistoriaSocialPolicy;
  */
 class AccesoProtegido extends Model
 {
+    /** @use HasFactory<AccesoProtegidoFactory> */
     use HasFactory;
 
     protected $table = 'accesos_protegidos';

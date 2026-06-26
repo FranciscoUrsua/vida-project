@@ -123,7 +123,9 @@ class CierrePlanTest extends TestCase
         [, $plan] = $this->montarPlanActivo();
 
         $componente = Livewire::test(PlanPage::class, ['plan' => $plan]);
-        $motivos = $componente->instance()->motivosCierre();
+        $page = $componente->instance();
+        $this->assertInstanceOf(PlanPage::class, $page);
+        $motivos = $page->motivosCierre();
 
         $this->assertCount(6, $motivos);
         $this->assertArrayHasKey('negativa_firma', $motivos);
@@ -145,6 +147,6 @@ class CierrePlanTest extends TestCase
         // Este test documenta el comportamiento actual; la restricción de solo-lectura
         // en plan cerrado se aplica a nivel de UI (botones deshabilitados).
         $plan->refresh();
-        $this->assertNotNull($plan); // el plan sigue existiendo
+        $this->assertTrue($plan->exists); // el plan sigue existiendo
     }
 }

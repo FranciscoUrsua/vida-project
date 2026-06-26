@@ -43,6 +43,7 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
  */
 class UnidadOrganizativa extends Model
 {
+    /** @use HasFactory<UnidadOrganizativaFactory> */
     use HasFactory;
     use HasRecursiveRelationships;
     use SoftDeletes;

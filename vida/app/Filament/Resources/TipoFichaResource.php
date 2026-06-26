@@ -29,9 +29,9 @@ use Modules\Intervencion\Models\TipoFicha;
 /**
  * Recurso Filament para la gestión de fichas de valoración configurables.
  *
- * Cada TipoFicha define un formulario con campos tipados (texto, número, select,
+ * Cada TipoFicha define un formulario con campos tipados: texto, número, select,
+ * booleano, fecha y escala.
  *
- * @return booleano, fecha, escala) que el profesional rellena durante la valoración.
  * El schema JSON se edita mediante un Builder visual con bloques por tipo de campo.
  */
 class TipoFichaResource extends Resource
@@ -231,7 +231,10 @@ class TipoFichaResource extends Resource
 
                                     // Viene del modelo: ['campos' => [...]]
                                     if (is_array($state) && isset($state['campos'])) {
-                                        $builderState = collect($state['campos'])
+                                        /** @var array<int, mixed> $camposState */
+                                        $camposState = $state['campos'];
+
+                                        $builderState = collect($camposState)
                                             ->filter(fn ($c) => is_array($c))
                                             ->map(fn (array $campo) => [
                                                 'type' => $campo['tipo'] ?? 'texto',
@@ -254,10 +257,15 @@ class TipoFichaResource extends Resource
 
                                     $idsUsados = [];
 
-                                    $campos = collect($state)
-                                        ->filter(fn ($block) => is_array($block) && isset($block['type']))
+                                    /** @var array<int, mixed> $blocks */
+                                    $blocks = $state;
+
+                                    $campos = collect($blocks)
                                         ->values()
-                                        ->map(function (array $block, int $i) use (&$idsUsados): ?array {
+                                        ->map(function (mixed $block, int $i) use (&$idsUsados): ?array {
+                                            if (! is_array($block) || ! isset($block['type'])) {
+                                                return null;
+                                            }
                                             $tipo = $block['type'];
                                             $data = $block['data'] ?? [];
 
@@ -304,6 +312,8 @@ class TipoFichaResource extends Resource
 
     /**
      * Declara las páginas del catálogo de tipos de ficha.
+     *
+     * @return array<string, \Filament\Resources\Pages\PageRegistration>
      */
     public static function getPages(): array
     {
@@ -329,23 +339,30 @@ class TipoFichaResource extends Resource
      * Normaliza el schema JSON de bloques al formato canónico de la ficha.
      *
      * @param mixed $state Estado crudo del Builder.
+     *
+     * @return array{campos: array<int, array<string, mixed>>}
      */
     public static function convertirSchemaBlocks(mixed $state): array
     {
         if (is_array($state) && isset($state['campos'])) {
+            /** @var array{campos: array<int, array<string, mixed>>} $state */
             return $state;
         }
 
         if (empty($state) || ! is_array($state)) {
             return ['campos' => []];
         }
-
         $idsUsados = [];
 
-        $campos = collect($state)
-            ->filter(fn ($block) => is_array($block) && isset($block['type']))
+        /** @var array<int, mixed> $blocks */
+        $blocks = $state;
+
+        $campos = collect($blocks)
             ->values()
-            ->map(function (array $block, int $i) use (&$idsUsados): ?array {
+            ->map(function (mixed $block, int $i) use (&$idsUsados): ?array {
+                if (! is_array($block) || ! isset($block['type'])) {
+                    return null;
+                }
                 $tipo = $block['type'];
                 $data = $block['data'] ?? [];
 
@@ -427,7 +444,11 @@ class TipoFichaResource extends Resource
             ->all();
     }
 
-    /** Campos base compartidos por todos los bloques del Builder. */
+    /**
+     * Campos base compartidos por todos los bloques del Builder.
+     *
+     * @return array<int, \Filament\Schemas\Components\Component>
+     */
     private static function camposBase(): array
     {
         return [

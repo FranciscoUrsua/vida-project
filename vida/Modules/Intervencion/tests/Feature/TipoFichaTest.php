@@ -23,6 +23,11 @@ class TipoFichaTest extends TestCase
     // Helpers
     // -------------------------------------------------------------------------
 
+    /**
+     * @param array<int, array<string, mixed>> $extraCampos
+     *
+     * @return array{campos: array<int, array<string, mixed>>}
+     */
     private function schemaValido(array $extraCampos = []): array
     {
         return [

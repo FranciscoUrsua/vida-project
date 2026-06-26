@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * @use HasFactory<UsuarioUoFactory>
+ * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>>
  *
  * Adscripción de un usuario a una Unidad Organizativa.
  *
@@ -33,6 +33,7 @@ use Illuminate\Support\Carbon;
  */
 class UsuarioUo extends Model
 {
+    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
     use HasFactory;
 
     protected $table = 'usuario_uo';
