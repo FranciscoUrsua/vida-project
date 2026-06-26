@@ -69,6 +69,16 @@ class DemoValidateCommand extends Command
 
         $this->line("  Ciudadanos a generar: ~{$totalCiudadanos}");
 
+        $totalActividades = count($worldConfig['actividades']);
+
+        if ($totalActividades > 0) {
+            $totalSesiones = array_sum(array_map(
+                fn ($a) => count($a['sesiones'] ?? []),
+                $worldConfig['actividades']
+            ));
+            $this->line("  Actividades grupales: {$totalActividades} ({$totalSesiones} sesiones)");
+        }
+
         return self::SUCCESS;
     }
 }

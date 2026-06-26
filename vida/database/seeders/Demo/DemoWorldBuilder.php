@@ -6,6 +6,7 @@ use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Models\UsuarioUo;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Models\Sala;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
 use Modules\Usuarios\Models\TipoRelacionProfesional;
@@ -38,55 +39,61 @@ class DemoWorldBuilder
     }
 
     /**
-     * Construye la infraestructura del mundo: UOs y usuarios profesionales.
+     * Construye la infraestructura del mundo: UOs, centros, salas y usuarios profesionales.
      *
      * @param array{
      *   meta: array{nombre: string, descripcion: string, reset_cada: string},
-     *   centros: list<array{id: string, nombre: string, tipo: string, distrito: string}>,
+     *   centros: list<array{id: string, nombre: string, tipo: string, distrito: string, salas?: list<array{id: string, nombre: string, capacidad?: int, accesible?: bool}>}>,
      *   profesionales: list<array{login: string, nombre: string, rol: string, centro: string}>,
-     *   escenarios: list<mixed>
+     *   escenarios: list<mixed>,
+     *   actividades: list<mixed>
      * } $worldConfig Configuración validada del mundo
      *
      * @return array{
      *   unidades: array<string, UnidadOrganizativa>,
+     *   centros: array<string, Centro>,
+     *   salas: array<string, Sala>,
      *   profesionales: array<string, User>
-     * } Índices de UOs por id YAML y usuarios por login
+     * } Índices por id YAML (centros, salas) o login (profesionales)
      */
     public function build(array $worldConfig): array
     {
-        $unidades = $this->buildCentros($worldConfig['centros']);
-        $profesionales = $this->buildProfesionales($worldConfig['profesionales'], $unidades);
+        $centroData = $this->buildCentros($worldConfig['centros']);
+        $profesionales = $this->buildProfesionales($worldConfig['profesionales'], $centroData['unidades']);
 
         // Limpiar caché de Spatie para que el siguiente request relea roles desde BD
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         return [
-            'unidades' => $unidades,
+            'unidades' => $centroData['unidades'],
+            'centros' => $centroData['centros'],
+            'salas' => $centroData['salas'],
             'profesionales' => $profesionales,
         ];
     }
 
     /**
-     * Crea las Unidades Organizativas y los Centros definidos en el YAML.
+     * Crea las Unidades Organizativas, Centros y Salas definidos en el YAML.
      *
-     * Cada entrada del YAML genera dos entidades:
+     * Cada entrada del YAML genera dos entidades principales:
      * - UnidadOrganizativa: ubica el centro en la jerarquía organizativa.
      * - Centro: representa la entidad operativa con sus atributos propios.
+     *
+     * Opcionalmente, si el centro define 'salas', se crean las Sala asociadas.
      *
      * El tipo YAML 'asp' se mapea a UO tipo 'css' (Centro de Servicios Sociales);
      * 'especializada' se mantiene como 'especializada'. Ambos usan gestión
      * 'municipal_directo' por defecto en entornos de demo.
      *
-     * Los centros del mundo anterior son truncados por DemoResetCommand antes
-     * de llamar a este método, por lo que se usa create() en lugar de firstOrCreate().
+     * @param list<array{id: string, nombre: string, tipo: string, distrito: string, salas?: list<array{id: string, nombre: string, capacidad?: int, accesible?: bool}>}> $centros
      *
-     * @param list<array{id: string, nombre: string, tipo: string, distrito: string}> $centros
-     *
-     * @return array<string, UnidadOrganizativa> Indexado por id YAML
+     * @return array{unidades: array<string, UnidadOrganizativa>, centros: array<string, Centro>, salas: array<string, Sala>}
      */
     private function buildCentros(array $centros): array
     {
         $unidades = [];
+        $centroModels = [];
+        $salaModels = [];
 
         foreach ($centros as $centro) {
             $tipoUo = $centro['tipo'] === 'asp' ? 'css' : 'especializada';
@@ -98,7 +105,7 @@ class DemoWorldBuilder
             );
 
             // Crear la entidad Centro vinculada a la UO (la tabla se truncó al inicio del reset).
-            Centro::create([
+            $centroModel = Centro::create([
                 'nombre' => $centro['nombre'],
                 'tipo_gestion' => 'municipal_directo',
                 'unidad_organizativa_id' => $uo->id,
@@ -107,11 +114,30 @@ class DemoWorldBuilder
             ]);
 
             $unidades[$centro['id']] = $uo;
+            $centroModels[$centro['id']] = $centroModel;
 
             $this->warn("  UO + Centro: {$centro['nombre']} (uo_id={$uo->id}, tipo={$tipoUo})");
+
+            // Crear las salas del centro (opcional)
+            foreach ($centro['salas'] ?? [] as $salaConfig) {
+                $sala = Sala::create([
+                    'centro_id' => $centroModel->id,
+                    'nombre' => $salaConfig['nombre'],
+                    'capacidad' => $salaConfig['capacidad'] ?? null,
+                    'accesible' => $salaConfig['accesible'] ?? false,
+                    'activa' => true,
+                ]);
+
+                $salaModels[$salaConfig['id']] = $sala;
+                $this->warn("    Sala: {$salaConfig['nombre']} (capacidad={$sala->capacidad})");
+            }
         }
 
-        return $unidades;
+        return [
+            'unidades' => $unidades,
+            'centros' => $centroModels,
+            'salas' => $salaModels,
+        ];
     }
 
     /**

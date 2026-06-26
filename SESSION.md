@@ -6,6 +6,18 @@
 
 ## Tarea completada
 
+`Demo worlds` — Soporte de actividades grupales y salas en el sistema YAML de mundos:
+
+- **`DemoActividadBuilder`** (clase nueva): construye `Actividad` + `SesionActividad` + pivots a partir de la sección `actividades` del YAML.
+- **`DemoWorldLoader`**: valida sección `salas` (bajo centros) y sección `actividades` (fechas relativas, estados, modos de acceso, referencias de sala y profesional).
+- **`DemoWorldBuilder`**: crea `Sala` models al construir centros; devuelve `centros` y `salas` en el resultado.
+- **`DemoResetCommand`** y **`DemoValidateCommand`**: integran el nuevo builder y muestran actividades en el resumen.
+- **`demo_ciam.yaml`**: corregidos `tipo: ciam` → `especializada` y `centro: c12` → `c2`; añadidas 3 salas y 3 actividades grupales (9 sesiones).
+
+---
+
+## Tarea anterior completada
+
 `Módulo Centro` — Sala, slug en TipoActividad y sala_id en SesionActividad:
 
 - **3 migraciones ejecutadas**: `add_slug_activo_to_tipo_actividades_table`, `create_salas_table`, `add_sala_id_to_sesiones_actividad_table`.
@@ -31,11 +43,12 @@
 
 ## Siguiente paso concreto recomendado
 
-1. Continuar "pantalla por pantalla" en Supervisión — quedan por revisar en navegador: aprobaciones, auditoría, cuadrante, equipo, plazas, configuración.
-2. Corregir TF-LW-FIC-11 en `FichaCiudadanoPageTest`: cambiar `assertSee('Ver historia social')` por `assertSee('Ir a HS')`.
-3. Añadir tests para los métodos de objetivos y compromisos en Intervención (`eliminarObjetivo`, `guardarEdicionCompromisoCiudadano`, `eliminarCompromisoCiudadano`, `guardarEdicionActuacionAyto`, `eliminarActuacionAyto`).
-4. Implementar reasignación de profesional de referencia.
-5. Suite completa antes del siguiente merge a main.
+1. Ejecutar `php artisan demo:reset --world=demo_ciam` para verificar que el mundo completo (salas + actividades) se construye sin errores.
+2. Continuar "pantalla por pantalla" en Supervisión — quedan por revisar en navegador: aprobaciones, auditoría, cuadrante, equipo, plazas, configuración.
+3. Corregir TF-LW-FIC-11 en `FichaCiudadanoPageTest`: cambiar `assertSee('Ver historia social')` por `assertSee('Ir a HS')`.
+4. Añadir tests para los métodos de objetivos y compromisos en Intervención (`eliminarObjetivo`, `guardarEdicionCompromisoCiudadano`, `eliminarCompromisoCiudadano`, `guardarEdicionActuacionAyto`, `eliminarActuacionAyto`).
+5. Implementar reasignación de profesional de referencia.
+6. Suite completa antes del siguiente merge a main.
 
 ---
 

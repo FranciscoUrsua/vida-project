@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Database\Seeders\Demo\DemoActividadBuilder;
 use Database\Seeders\Demo\DemoInvariantChecker;
 use Database\Seeders\Demo\DemoScenarioBuilder;
 use Database\Seeders\Demo\DemoWorldBuilder;
@@ -138,6 +139,18 @@ class DemoResetCommand extends Command
                     $resultado['unidades']
                 );
 
+                // Construir actividades grupales y sesiones
+                if (! empty($worldConfig['actividades'])) {
+                    $this->info('Construyendo actividades grupales...');
+                    $actividadBuilder = new DemoActividadBuilder(fn (string $msg) => $this->line($msg));
+                    $actividadBuilder->buildActividades(
+                        $worldConfig['actividades'],
+                        $resultado['centros'],
+                        $resultado['salas'],
+                        $resultado['profesionales']
+                    );
+                }
+
                 // Verificar invariantes
                 $this->info('Verificando invariantes de dominio...');
                 $checker = new DemoInvariantChecker;
@@ -175,7 +188,7 @@ class DemoResetCommand extends Command
     /**
      * Muestra el resumen del mundo que se va a cargar.
      *
-     * @param array{meta: array{nombre: string, descripcion: string, reset_cada: string}, centros: list<mixed>, profesionales: list<mixed>, escenarios: list<mixed>} $worldConfig
+     * @param array{meta: array{nombre: string, descripcion: string, reset_cada: string}, centros: list<mixed>, profesionales: list<mixed>, escenarios: list<mixed>, actividades: list<mixed>} $worldConfig
      */
     private function mostrarResumen(array $worldConfig): void
     {
@@ -194,6 +207,17 @@ class DemoResetCommand extends Command
         }
 
         $this->line("Ciudadanos a crear: ~{$totalCiudadanos}");
+
+        $totalActividades = count($worldConfig['actividades']);
+
+        if ($totalActividades > 0) {
+            $totalSesiones = array_sum(array_map(
+                fn ($a) => count($a['sesiones'] ?? []),
+                $worldConfig['actividades']
+            ));
+            $this->line("Actividades grupales: {$totalActividades} ({$totalSesiones} sesiones)");
+        }
+
         $this->newLine();
     }
 

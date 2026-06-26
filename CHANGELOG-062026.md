@@ -4,6 +4,26 @@
 
 ---
 
+## 2026-06-26 — Demo worlds: actividades grupales y salas en el sistema YAML
+
+### Módulos afectados
+`database/seeders/Demo`, `app/Console/Commands`, `database/seeders/worlds`
+
+### Añadido
+- **`DemoActividadBuilder`** (clase nueva): construye `Actividad`, `SesionActividad` y los registros pivot (`actividad_profesional`, `sesion_actividad_profesional`) a partir de la sección `actividades` del YAML. Las fechas de sesión se expresan como offsets relativos al día de ejecución (`-14d`, `0d`, `+7d`). El `TipoActividad` se resuelve por slug — falla con `\RuntimeException` si el slug no existe en el catálogo.
+- **`DemoWorldLoader`**: nueva sección opcional `salas` bajo cada centro (campos `id`, `nombre`, `capacidad`, `accesible`); nueva sección opcional `actividades` con validación de centros, profesionales, slugs de sala, formato de fecha relativa, estados válidos de sesión y modo de acceso.
+- **`DemoWorldBuilder`**: `buildCentros()` crea ahora `Sala` models además de UO + Centro; `build()` devuelve también `centros` (`array<string, Centro>`) y `salas` (`array<string, Sala>`) además de `unidades` y `profesionales`.
+- **`DemoResetCommand`**: llama a `DemoActividadBuilder` tras `DemoScenarioBuilder`; muestra en el resumen el recuento de actividades y sesiones a crear.
+- **`DemoValidateCommand`**: muestra el recuento de actividades grupales y sesiones al validar un mundo.
+- **`demo_ciam.yaml`**: corregidos dos errores preexistentes (`tipo: ciam` → `tipo: especializada`; `centro: c12` → `centro: c2`); añadidas 2 salas en el CIAM (Sala Girasol, Sala Polivalente) y 1 sala en el CSS (Sala de Usos Múltiples); añadidas 3 actividades grupales con 9 sesiones en total (grupo terapéutico, gimnasia de mantenimiento, taller de empleo).
+
+### Decisiones de implementación
+- Los ids de sala en el YAML son globales al mundo (no por centro) para simplificar las referencias en sesiones.
+- El `TRUNCATE centros CASCADE` ya existente vacía en cascada `actividades`, `salas`, `sesiones_actividad` y ambas tablas pivot — no se requieren cambios en `TABLAS_TRUNCAR`.
+- La validación del slug de `TipoActividad` es en tiempo de ejecución (no en el loader YAML) porque requiere acceso a la BD. El loader valida la estructura; el builder valida la existencia del dato.
+
+---
+
 ## 2026-06-25 — Módulo Centro: Sala, slug en TipoActividad, sala_id en SesionActividad
 
 ### Módulos afectados

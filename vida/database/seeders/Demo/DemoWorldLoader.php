@@ -38,9 +38,10 @@ class DemoWorldLoader
      *
      * @return array{
      *   meta: array{nombre: string, descripcion: string, reset_cada: string},
-     *   centros: list<array{id: string, nombre: string, tipo: string, distrito: string}>,
+     *   centros: list<array{id: string, nombre: string, tipo: string, distrito: string, salas?: list<array{id: string, nombre: string, capacidad?: int, accesible?: bool}>}>,
      *   profesionales: list<array{login: string, nombre: string, rol: string, centro: string}>,
-     *   escenarios: list<array{profesional: string, ciudadanos: list<array{escenario: string, cantidad: int}>}>
+     *   escenarios: list<array{profesional: string, ciudadanos: list<array{escenario: string, cantidad: int}>}>,
+     *   actividades: list<array{centro: string, tipo: string, nombre: string, modo_acceso: string, profesionales?: list<string>, sesiones?: list<array{fecha: string, hora_inicio: string, estado: string, sala?: string, profesionales?: list<string>}>}>
      * }
      *
      * @throws \InvalidArgumentException Si el fichero no existe o la validación falla
@@ -68,6 +69,7 @@ class DemoWorldLoader
             'centros' => $raw['centros'],
             'profesionales' => $raw['profesionales'],
             'escenarios' => $raw['escenarios'] ?? [],
+            'actividades' => $raw['actividades'] ?? [],
         ];
     }
 
@@ -96,6 +98,9 @@ class DemoWorldLoader
 
     /**
      * Valida la estructura del array YAML cargado.
+     *
+     * Valida meta, centros (con salas opcionales), profesionales,
+     * escenarios (opcional) y actividades (opcional).
      *
      * @param mixed $raw Datos parseados del YAML
      * @param string $worldName Nombre del mundo (para mensajes de error)
@@ -131,6 +136,7 @@ class DemoWorldLoader
         }
 
         $centroIds = [];
+        $salaIds = [];
 
         foreach ($raw['centros'] as $idx => $centro) {
             $pos = $idx + 1;
@@ -151,6 +157,28 @@ class DemoWorldLoader
             }
 
             $centroIds[] = $centro['id'];
+
+            // --- salas del centro (opcional) ---
+            foreach ($centro['salas'] ?? [] as $sidx => $sala) {
+                $spos = $sidx + 1;
+
+                foreach (['id', 'nombre'] as $campo) {
+                    if (empty($sala[$campo])) {
+                        throw new \InvalidArgumentException(
+                            "[{$worldName}] Centro #{$pos} (id={$centro['id']}), sala #{$spos}: campo '{$campo}' obligatorio."
+                        );
+                    }
+                }
+
+                if (isset($sala['capacidad']) && (! is_int($sala['capacidad']) || $sala['capacidad'] < 1)) {
+                    throw new \InvalidArgumentException(
+                        "[{$worldName}] Centro #{$pos} (id={$centro['id']}), sala #{$spos} (id={$sala['id']}): ".
+                        "'capacidad' debe ser un entero >= 1."
+                    );
+                }
+
+                $salaIds[] = $sala['id'];
+            }
         }
 
         // --- profesionales ---
@@ -192,84 +220,170 @@ class DemoWorldLoader
         }
 
         // --- escenarios (opcional) ---
-        if (! isset($raw['escenarios'])) {
-            return;
-        }
-
-        if (! is_array($raw['escenarios'])) {
-            throw new \InvalidArgumentException(
-                "[{$worldName}] La sección 'escenarios' debe ser una lista."
-            );
-        }
-
-        // Mapa login → rol para validación de escenarios
-        $loginARol = [];
-
-        foreach ($raw['profesionales'] as $prof) {
-            $loginARol[$prof['login']] = $prof['rol'];
-        }
-
-        foreach ($raw['escenarios'] as $idx => $escenario) {
-            $pos = $idx + 1;
-
-            if (empty($escenario['profesional'])) {
+        if (isset($raw['escenarios'])) {
+            if (! is_array($raw['escenarios'])) {
                 throw new \InvalidArgumentException(
-                    "[{$worldName}] Escenario #{$pos}: campo 'profesional' obligatorio."
+                    "[{$worldName}] La sección 'escenarios' debe ser una lista."
                 );
             }
 
-            $login = $escenario['profesional'];
+            $loginARol = [];
 
-            if (! in_array($login, $profesionalesLogins, true)) {
-                throw new \InvalidArgumentException(
-                    "[{$worldName}] Escenario #{$pos}: profesional '{$login}' ".
-                    "no está declarado en la sección 'profesionales'."
-                );
-            }
-
-            $rolDelProfesional = $loginARol[$login] ?? null;
-
-            if ($rolDelProfesional !== 'intervencion') {
-                throw new \InvalidArgumentException(
-                    "[{$worldName}] Escenario #{$pos}: profesional '{$login}' ".
-                    "tiene rol '{$rolDelProfesional}'. Solo profesionales con rol 'intervencion' ".
-                    'pueden tener escenarios de ciudadanos.'
-                );
-            }
-
-            if (empty($escenario['ciudadanos']) || ! is_array($escenario['ciudadanos'])) {
-                $this->warn("[{$worldName}] Escenario #{$pos} ({$login}): no tiene ciudadanos definidos.");
-
-                continue;
+            foreach ($raw['profesionales'] as $prof) {
+                $loginARol[$prof['login']] = $prof['rol'];
             }
 
             $escenariosValidos = ['activa', 'cerrada', 'nueva', 'urgente', 'compleja'];
 
-            foreach ($escenario['ciudadanos'] as $cidx => $ciudadanoEntry) {
-                $cpos = $cidx + 1;
+            foreach ($raw['escenarios'] as $idx => $escenario) {
+                $pos = $idx + 1;
 
-                if (empty($ciudadanoEntry['escenario'])) {
+                if (empty($escenario['profesional'])) {
                     throw new \InvalidArgumentException(
-                        "[{$worldName}] Escenario #{$pos} ({$login}), ciudadano #{$cpos}: ".
-                        "campo 'escenario' obligatorio."
+                        "[{$worldName}] Escenario #{$pos}: campo 'profesional' obligatorio."
                     );
                 }
 
-                if (! in_array($ciudadanoEntry['escenario'], $escenariosValidos, true)) {
+                $login = $escenario['profesional'];
+
+                if (! in_array($login, $profesionalesLogins, true)) {
                     throw new \InvalidArgumentException(
-                        "[{$worldName}] Escenario #{$pos} ({$login}), ciudadano #{$cpos}: ".
-                        "escenario '{$ciudadanoEntry['escenario']}' no válido. ".
-                        'Válidos: '.implode(', ', $escenariosValidos).'.'
+                        "[{$worldName}] Escenario #{$pos}: profesional '{$login}' ".
+                        "no está declarado en la sección 'profesionales'."
                     );
                 }
 
-                $cantidad = $ciudadanoEntry['cantidad'] ?? 0;
+                $rolDelProfesional = $loginARol[$login] ?? null;
 
-                if (! is_int($cantidad) || $cantidad < 1) {
+                if ($rolDelProfesional !== 'intervencion') {
                     throw new \InvalidArgumentException(
-                        "[{$worldName}] Escenario #{$pos} ({$login}), ciudadano #{$cpos}: ".
-                        "'cantidad' debe ser un entero >= 1."
+                        "[{$worldName}] Escenario #{$pos}: profesional '{$login}' ".
+                        "tiene rol '{$rolDelProfesional}'. Solo profesionales con rol 'intervencion' ".
+                        'pueden tener escenarios de ciudadanos.'
                     );
+                }
+
+                if (empty($escenario['ciudadanos']) || ! is_array($escenario['ciudadanos'])) {
+                    $this->warn("[{$worldName}] Escenario #{$pos} ({$login}): no tiene ciudadanos definidos.");
+
+                    continue;
+                }
+
+                foreach ($escenario['ciudadanos'] as $cidx => $ciudadanoEntry) {
+                    $cpos = $cidx + 1;
+
+                    if (empty($ciudadanoEntry['escenario'])) {
+                        throw new \InvalidArgumentException(
+                            "[{$worldName}] Escenario #{$pos} ({$login}), ciudadano #{$cpos}: ".
+                            "campo 'escenario' obligatorio."
+                        );
+                    }
+
+                    if (! in_array($ciudadanoEntry['escenario'], $escenariosValidos, true)) {
+                        throw new \InvalidArgumentException(
+                            "[{$worldName}] Escenario #{$pos} ({$login}), ciudadano #{$cpos}: ".
+                            "escenario '{$ciudadanoEntry['escenario']}' no válido. ".
+                            'Válidos: '.implode(', ', $escenariosValidos).'.'
+                        );
+                    }
+
+                    $cantidad = $ciudadanoEntry['cantidad'] ?? 0;
+
+                    if (! is_int($cantidad) || $cantidad < 1) {
+                        throw new \InvalidArgumentException(
+                            "[{$worldName}] Escenario #{$pos} ({$login}), ciudadano #{$cpos}: ".
+                            "'cantidad' debe ser un entero >= 1."
+                        );
+                    }
+                }
+            }
+        }
+
+        // --- actividades (opcional) ---
+        if (! isset($raw['actividades'])) {
+            return;
+        }
+
+        if (! is_array($raw['actividades'])) {
+            throw new \InvalidArgumentException(
+                "[{$worldName}] La sección 'actividades' debe ser una lista."
+            );
+        }
+
+        $modosAccesoValidos = ['libre', 'prescripcion', 'mixta'];
+        $estadosSesionValidos = ['programada', 'celebrada', 'cancelada'];
+
+        foreach ($raw['actividades'] as $idx => $actividad) {
+            $pos = $idx + 1;
+
+            foreach (['centro', 'tipo', 'nombre', 'modo_acceso'] as $campo) {
+                if (empty($actividad[$campo])) {
+                    throw new \InvalidArgumentException(
+                        "[{$worldName}] Actividad #{$pos}: campo '{$campo}' obligatorio."
+                    );
+                }
+            }
+
+            if (! in_array($actividad['centro'], $centroIds, true)) {
+                throw new \InvalidArgumentException(
+                    "[{$worldName}] Actividad #{$pos}: centro '{$actividad['centro']}' no existe en 'centros'."
+                );
+            }
+
+            if (! in_array($actividad['modo_acceso'], $modosAccesoValidos, true)) {
+                throw new \InvalidArgumentException(
+                    "[{$worldName}] Actividad #{$pos}: modo_acceso '{$actividad['modo_acceso']}' no válido. ".
+                    'Válidos: '.implode(', ', $modosAccesoValidos).'.'
+                );
+            }
+
+            foreach ($actividad['profesionales'] ?? [] as $login) {
+                if (! in_array($login, $profesionalesLogins, true)) {
+                    throw new \InvalidArgumentException(
+                        "[{$worldName}] Actividad #{$pos}: profesional '{$login}' no declarado en 'profesionales'."
+                    );
+                }
+            }
+
+            foreach ($actividad['sesiones'] ?? [] as $sidx => $sesion) {
+                $spos = $sidx + 1;
+
+                foreach (['fecha', 'hora_inicio', 'estado'] as $campo) {
+                    if (empty($sesion[$campo])) {
+                        throw new \InvalidArgumentException(
+                            "[{$worldName}] Actividad #{$pos}, sesión #{$spos}: campo '{$campo}' obligatorio."
+                        );
+                    }
+                }
+
+                if (! preg_match('/^[+-]?\d+d$/', $sesion['fecha'])) {
+                    throw new \InvalidArgumentException(
+                        "[{$worldName}] Actividad #{$pos}, sesión #{$spos}: ".
+                        "fecha '{$sesion['fecha']}' inválida. Formato esperado: '-7d', '0d', '+3d'."
+                    );
+                }
+
+                if (! in_array($sesion['estado'], $estadosSesionValidos, true)) {
+                    throw new \InvalidArgumentException(
+                        "[{$worldName}] Actividad #{$pos}, sesión #{$spos}: ".
+                        "estado '{$sesion['estado']}' no válido. Válidos: ".implode(', ', $estadosSesionValidos).'.'
+                    );
+                }
+
+                if (isset($sesion['sala']) && ! in_array($sesion['sala'], $salaIds, true)) {
+                    throw new \InvalidArgumentException(
+                        "[{$worldName}] Actividad #{$pos}, sesión #{$spos}: ".
+                        "sala '{$sesion['sala']}' no declarada en ningún centro."
+                    );
+                }
+
+                foreach ($sesion['profesionales'] ?? [] as $login) {
+                    if (! in_array($login, $profesionalesLogins, true)) {
+                        throw new \InvalidArgumentException(
+                            "[{$worldName}] Actividad #{$pos}, sesión #{$spos}: ".
+                            "profesional '{$login}' no declarado en 'profesionales'."
+                        );
+                    }
                 }
             }
         }
