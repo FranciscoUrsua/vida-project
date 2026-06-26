@@ -147,10 +147,12 @@ class GestionarObjetivos extends Page implements HasTable
                         $indicadorTipo = $data['indicador_tipo_valoracion'];
                         unset($data['indicador_descripcion'], $data['indicador_tipo_valoracion']);
 
-                        $objetivo = ObjetivoCatalogo::create(array_merge(
+                        $objetivo = new ObjetivoCatalogo;
+                        $objetivo->forceFill(array_merge(
                             $data,
                             ['tipo_plan_id' => $tipoPlanId]
                         ));
+                        $objetivo->save();
 
                         IndicadorCatalogo::create([
                             'objetivo_catalogo_id' => $objetivo->id,

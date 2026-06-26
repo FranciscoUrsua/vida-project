@@ -2428,7 +2428,7 @@ parameters:
 		-
 			message: '#^Unable to resolve the template type TComponent in call to method Livewire\\LivewireManager\:\:test\(\)$#'
 			identifier: argument.templateType
-			count: 23
+			count: 26
 			path: Modules/Intervencion/tests/Feature/Livewire/CiudadanoPageTest.php
 
 		-
@@ -2491,6 +2491,13 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: Modules/Intervencion/tests/Feature/Livewire/RelacionesUiTest.php
+
+
+		-
+			message: '#^Unable to resolve the template type TComponent in call to method Livewire\\LivewireManager\:\:test\(\)$#'
+			identifier: argument.templateType
+			count: 11
+			path: Modules/Intervencion/tests/Feature/Livewire/AccesosExpedienteTest.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Testing\\TestResponse\:\:assertHasNoErrors\(\)\.$#'

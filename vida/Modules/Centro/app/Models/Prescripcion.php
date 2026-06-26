@@ -104,7 +104,7 @@ class Prescripcion extends Model
      * Compromiso del plan de intervención vinculado opcionalmente a esta prescripción.
      * El vínculo es de referencia: el estado del compromiso no cambia con la prescripción.
      *
-     * @return BelongsTo<PlanActuacionAyuntamiento, self>
+     * @return BelongsTo<PlanActuacionAyuntamiento, $this>
      */
     public function compromiso(): BelongsTo
     {

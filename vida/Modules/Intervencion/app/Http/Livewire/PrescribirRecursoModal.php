@@ -29,9 +29,9 @@ use Modules\Intervencion\Models\PlanDeIntervencion;
  * Paso 2 — Selección de destino (ColeccionPlazas o Red).
  * Paso 3 — Confirmación y vínculo opcional con compromiso del plan.
  *
- * @property-read Collection $tiposRecurso
- * @property-read Collection $opcionesDestino
- * @property-read Collection $compromisosSugeridos
+ * @property-read Collection<int, string> $tiposRecurso
+ * @property-read Collection<int, ColeccionPlazas>|Collection<int, Red> $opcionesDestino
+ * @property-read Collection<int, PlanActuacionAyuntamiento> $compromisosSugeridos
  * @property-read bool $hayPlazaDisponible
  */
 class PrescribirRecursoModal extends Component
@@ -102,7 +102,7 @@ class PrescribirRecursoModal extends Component
      * 2. Si no → devuelve ColeccionPlazas individuales.
      * Si criterio_territorial=true y ciudadano tiene dirección → ordena por proximidad (haversine).
      *
-     * @return Collection<int, ColeccionPlazas|Red>
+     * @return Collection<int, ColeccionPlazas>|Collection<int, Red>
      */
     #[Computed]
     public function opcionesDestino(): Collection
@@ -125,7 +125,7 @@ class PrescribirRecursoModal extends Component
         if ($redes->isNotEmpty()) {
             $this->tipoDestino = 'red';
 
-            return $redes;
+            return $redes->toBase();
         }
 
         $this->tipoDestino = 'coleccion_plazas';
@@ -147,7 +147,7 @@ class PrescribirRecursoModal extends Component
             $hayConCriterio = (clone $query)->where('criterio_territorial', true)->exists();
 
             if ($hayConCriterio) {
-                return $query->get()->sortBy(function (ColeccionPlazas $cp) use ($lat, $lng) {
+                return $query->get()->toBase()->sortBy(function (ColeccionPlazas $cp) use ($lat, $lng) {
                     $cLat = $cp->centro?->coordenadas_lat;
                     $cLng = $cp->centro?->coordenadas_lng;
 
@@ -160,7 +160,7 @@ class PrescribirRecursoModal extends Component
             }
         }
 
-        return $query->get();
+        return $query->get()->toBase();
     }
 
     /**

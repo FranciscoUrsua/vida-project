@@ -135,15 +135,21 @@ class AccesosExpedienteTest extends TestCase
      */
     private function crearAcceso(User $user, array $overrides = []): Audit
     {
-        return Audit::withoutEvents(fn () => Audit::create(array_merge([
-            'user_id' => $user->id,
-            'accion' => 'ver',
-            'auditable_type' => Ciudadano::class,
-            'auditable_id' => $this->ciudadano->id,
-            'ciudadano_id' => $this->ciudadano->id,
-            'ip' => '127.0.0.1',
-            'user_agent' => 'Test Browser/1.0',
-        ], $overrides)));
+        return Audit::withoutEvents(function () use ($user, $overrides): Audit {
+            $audit = new Audit;
+            $audit->forceFill(array_merge([
+                'user_id' => $user->id,
+                'accion' => 'ver',
+                'auditable_type' => Ciudadano::class,
+                'auditable_id' => $this->ciudadano->id,
+                'ciudadano_id' => $this->ciudadano->id,
+                'ip' => '127.0.0.1',
+                'user_agent' => 'Test Browser/1.0',
+            ], $overrides));
+            $audit->save();
+
+            return $audit;
+        });
     }
 
     // =========================================================================
@@ -162,8 +168,7 @@ class AccesosExpedienteTest extends TestCase
 
         $accesos = Livewire::actingAs($this->tsr)
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
-            ->instance()
-            ->accesosRecientes;
+            ->get('accesosRecientes');
 
         $this->assertCount(3, $accesos);
     }
@@ -179,8 +184,7 @@ class AccesosExpedienteTest extends TestCase
 
         $accesos = Livewire::actingAs($this->supervisor)
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
-            ->instance()
-            ->accesosRecientes;
+            ->get('accesosRecientes');
 
         $this->assertCount(2, $accesos);
     }
@@ -196,8 +200,7 @@ class AccesosExpedienteTest extends TestCase
 
         $accesos = Livewire::actingAs($this->otroTSR)
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
-            ->instance()
-            ->accesosRecientes;
+            ->get('accesosRecientes');
 
         $this->assertCount(1, $accesos);
         $this->assertEquals($this->otroTSR->id, $accesos->first()->user_id);
@@ -214,8 +217,7 @@ class AccesosExpedienteTest extends TestCase
 
         $accesos = Livewire::actingAs($this->supervisorOtraUo)
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
-            ->instance()
-            ->accesosRecientes;
+            ->get('accesosRecientes');
 
         $this->assertCount(1, $accesos);
         $this->assertEquals($this->supervisorOtraUo->id, $accesos->first()->user_id);
@@ -288,8 +290,7 @@ class AccesosExpedienteTest extends TestCase
 
         $accesos = Livewire::actingAs($this->tsr)
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
-            ->instance()
-            ->accesosRecientes;
+            ->get('accesosRecientes');
 
         $this->assertCount(5, $accesos);
     }
@@ -329,8 +330,7 @@ class AccesosExpedienteTest extends TestCase
 
         $accesos = Livewire::actingAs($this->otroTSR)
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
-            ->instance()
-            ->actividadReciente;
+            ->get('actividadReciente');
 
         $this->assertCount(1, $accesos);
         $this->assertEquals($this->otroTSR->id, $accesos->first()->user_id);

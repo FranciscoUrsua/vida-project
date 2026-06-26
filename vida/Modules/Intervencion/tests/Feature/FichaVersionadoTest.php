@@ -89,7 +89,9 @@ class FichaVersionadoTest extends TestCase
 
         $snapshotActual = $ficha->fresh()->schema_snapshot;
 
-        $idsSnapshot = collect($snapshotActual['campos'])->pluck('id')->all();
+        /** @var array<int, array<string, mixed>> $camposSnapshot */
+        $camposSnapshot = $snapshotActual['campos'];
+        $idsSnapshot = collect($camposSnapshot)->pluck('id')->all();
         $this->assertNotContains('campo_c', $idsSnapshot);
         $this->assertEquals($snapshotOriginal, $snapshotActual);
     }
@@ -206,8 +208,12 @@ class FichaVersionadoTest extends TestCase
             'completada' => true,
         ]);
 
-        $idsV1 = collect($fichaV1->schema_snapshot['campos'])->pluck('id')->all();
-        $idsV2 = collect($fichaV2->schema_snapshot['campos'])->pluck('id')->all();
+        /** @var array<int, array<string, mixed>> $camposV1 */
+        $camposV1 = $fichaV1->schema_snapshot['campos'];
+        /** @var array<int, array<string, mixed>> $camposV2 */
+        $camposV2 = $fichaV2->schema_snapshot['campos'];
+        $idsV1 = collect($camposV1)->pluck('id')->all();
+        $idsV2 = collect($camposV2)->pluck('id')->all();
 
         $this->assertNotContains('campo_c', $idsV1);
         $this->assertContains('campo_c', $idsV2);
@@ -350,6 +356,7 @@ class FichaVersionadoTest extends TestCase
             'updated_at' => $fecha,
         ]));
 
+        /** @var \Illuminate\Database\Eloquent\Collection<int, Ficha> $historial */
         $historial = Ficha::historialPara($this->historia->id, $this->tipoFicha->id)->get();
 
         $this->assertCount(3, $historial);

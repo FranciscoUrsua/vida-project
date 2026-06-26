@@ -37,7 +37,7 @@ class ListaEsperaMovimiento extends Model
     /**
      * Registro de lista de espera al que pertenece este movimiento.
      *
-     * @return BelongsTo<ListaEspera, self>
+     * @return BelongsTo<ListaEspera, $this>
      */
     public function listaEspera(): BelongsTo
     {
@@ -47,7 +47,7 @@ class ListaEsperaMovimiento extends Model
     /**
      * Profesional que realizó el reordenamiento.
      *
-     * @return BelongsTo<Profesional, self>
+     * @return BelongsTo<Profesional, $this>
      */
     public function profesional(): BelongsTo
     {

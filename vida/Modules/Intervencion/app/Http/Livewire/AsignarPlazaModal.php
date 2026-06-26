@@ -22,7 +22,7 @@ use Modules\Usuarios\Models\Profesional;
  * Verifica en servidor que la plaza asignada pertenece al centro del profesional autenticado.
  *
  * @property-read Prescripcion|null $prescripcion
- * @property-read Collection $plazasDisponibles
+ * @property-read Collection<int, Plaza> $plazasDisponibles
  */
 class AsignarPlazaModal extends Component
 {

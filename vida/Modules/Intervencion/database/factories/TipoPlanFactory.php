@@ -7,6 +7,8 @@ use Modules\Intervencion\Models\TipoPlan;
 
 /**
  * Factory para TipoPlan en tests. Genera tipos eliminables por defecto.
+ *
+ * @extends Factory<TipoPlan>
  */
 class TipoPlanFactory extends Factory
 {
@@ -15,7 +17,6 @@ class TipoPlanFactory extends Factory
     /**
      * Define el estado por defecto de un TipoPlan de test.
      *
-     * @return array<string, mixed>
      */
     public function definition(): array
     {

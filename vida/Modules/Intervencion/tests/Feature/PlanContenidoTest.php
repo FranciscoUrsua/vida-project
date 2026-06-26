@@ -253,7 +253,7 @@ class PlanContenidoTest extends TestCase
 
         $cambio = $plan->registrarCambio($profesional->id, 'Actualización de diagnóstico');
 
-        $this->assertNotNull($cambio->snapshot);
+        $this->assertArrayHasKey('diagnostico_social', $cambio->snapshot);
         $this->assertEquals(
             'Situación de vulnerabilidad económica',
             $cambio->snapshot['diagnostico_social']

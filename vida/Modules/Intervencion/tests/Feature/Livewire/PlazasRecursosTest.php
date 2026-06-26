@@ -306,7 +306,7 @@ class PlazasRecursosTest extends TestCase
             ->set('destinoId', $coleccion->id)
             ->call('avanzar');
 
-        $this->assertEmpty($component->instance()->compromisosSugeridos);
+        $this->assertEmpty($component->get('compromisosSugeridos'));
     }
 
     /**
@@ -328,7 +328,7 @@ class PlazasRecursosTest extends TestCase
             ->set('destinoId', $coleccion->id)
             ->call('avanzar');
 
-        $this->assertNotEmpty($component->instance()->compromisosSugeridos);
+        $this->assertNotEmpty($component->get('compromisosSugeridos'));
     }
 
     /**
@@ -472,7 +472,7 @@ class PlazasRecursosTest extends TestCase
             ->call('abrir')
             ->set('tipoRecurso', 'pernocta');
 
-        $opciones = $component->instance()->opcionesDestino;
+        $opciones = $component->get('opcionesDestino');
         $this->assertNotEmpty($opciones);
         $this->assertInstanceOf(\Modules\Centro\Models\Red::class, $opciones->first());
     }
@@ -491,7 +491,7 @@ class PlazasRecursosTest extends TestCase
             ->call('abrir')
             ->set('tipoRecurso', 'pernocta');
 
-        $opciones = $component->instance()->opcionesDestino;
+        $opciones = $component->get('opcionesDestino');
         $this->assertNotEmpty($opciones);
         $this->assertInstanceOf(ColeccionPlazas::class, $opciones->first());
     }
@@ -527,7 +527,7 @@ class PlazasRecursosTest extends TestCase
             ->call('abrir')
             ->set('tipoRecurso', 'pernocta');
 
-        $opciones = $component->instance()->opcionesDestino;
+        $opciones = $component->get('opcionesDestino');
         $this->assertEquals($colC->id, $opciones->first()->id, 'El centro cercano debe aparecer primero.');
     }
 
@@ -557,7 +557,7 @@ class PlazasRecursosTest extends TestCase
             ->set('tipoRecurso', 'pernocta');
 
         // No debe lanzar excepción
-        $opciones = $component->instance()->opcionesDestino;
+        $opciones = $component->get('opcionesDestino');
         $this->assertNotEmpty($opciones);
     }
 
@@ -588,7 +588,7 @@ class PlazasRecursosTest extends TestCase
             ->call('abrir')
             ->set('tipoRecurso', 'pernocta');
 
-        $opciones = $component->instance()->opcionesDestino;
+        $opciones = $component->get('opcionesDestino');
         $this->assertNotEmpty($opciones);
     }
 
@@ -650,7 +650,7 @@ class PlazasRecursosTest extends TestCase
         $this->actingAs($this->usuario);
 
         $component = Livewire::test(RecursosPage::class);
-        $this->assertCount(3, $component->instance()->prescripcionesPendientes->items());
+        $this->assertCount(3, $component->get('prescripcionesPendientes')->items());
     }
 
     /**
@@ -830,7 +830,7 @@ class PlazasRecursosTest extends TestCase
         $this->actingAs($this->usuario);
 
         $component = Livewire::test(RecursosPage::class);
-        $previsiones = $component->instance()->previsionLiberaciones;
+        $previsiones = $component->get('previsionLiberaciones');
 
         $this->assertCount(1, $previsiones);
     }
@@ -937,7 +937,7 @@ class PlazasRecursosTest extends TestCase
         $this->actingAs($this->usuario);
 
         $component = Livewire::test(CiudadanoPage::class, ['historia' => $this->historia]);
-        $this->assertCount(1, $component->instance()->prescripcionesActivas);
+        $this->assertCount(1, $component->get('prescripcionesActivas'));
     }
 
     /**

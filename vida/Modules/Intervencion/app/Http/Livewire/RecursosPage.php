@@ -25,9 +25,9 @@ use Modules\Usuarios\Models\Profesional;
  * Pestaña «Pendientes»: prescripciones en estado pendiente o en_lista_espera.
  * Pestaña «Activas»: prescripciones en estado asignada o activa.
  *
- * @property-read LengthAwarePaginator $prescripcionesPendientes
- * @property-read LengthAwarePaginator $prescripcionesActivas
- * @property-read Collection $previsionLiberaciones
+ * @property-read LengthAwarePaginator<int, Prescripcion> $prescripcionesPendientes
+ * @property-read LengthAwarePaginator<int, Prescripcion> $prescripcionesActivas
+ * @property-read Collection<int, Prescripcion> $previsionLiberaciones
  */
 #[Layout('layouts.operativo')]
 class RecursosPage extends Component
@@ -53,7 +53,7 @@ class RecursosPage extends Component
     /**
      * Prescripciones dirigidas al ámbito del profesional en estados pendiente/en_lista_espera.
      *
-     * @return LengthAwarePaginator<Prescripcion>
+     * @return LengthAwarePaginator<int, Prescripcion>
      */
     #[Computed]
     public function prescripcionesPendientes(): LengthAwarePaginator
@@ -74,7 +74,7 @@ class RecursosPage extends Component
     /**
      * Prescripciones en estados asignada/activa del ámbito del profesional.
      *
-     * @return LengthAwarePaginator<Prescripcion>
+     * @return LengthAwarePaginator<int, Prescripcion>
      */
     #[Computed]
     public function prescripcionesActivas(): LengthAwarePaginator

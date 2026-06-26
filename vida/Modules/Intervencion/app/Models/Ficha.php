@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Modules\Intervencion\Database\Factories\FichaFactory;
 
 /**
@@ -33,6 +34,8 @@ use Modules\Intervencion\Database\Factories\FichaFactory;
  * @property array<string, mixed>|null $datos
  * @property string|null $notas
  * @property bool $completada
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class Ficha extends Model
 {

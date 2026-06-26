@@ -135,8 +135,8 @@ class RegistrarValoracionPageTest extends TestCase
         $component = Livewire::test(RegistrarValoracionPage::class, ['historia' => $this->historia])
             ->call('seleccionarFicha', $this->tipoFicha->id);
 
-        $this->assertInstanceOf(TipoFicha::class, $component->instance()->tipoFicha);
-        $this->assertEquals($this->tipoFicha->id, $component->instance()->tipoFicha->id);
+        $this->assertInstanceOf(TipoFicha::class, $component->get('tipoFicha'));
+        $this->assertEquals($this->tipoFicha->id, $component->get('tipoFicha')->id);
     }
 
     /**
@@ -157,7 +157,7 @@ class RegistrarValoracionPageTest extends TestCase
 
         $component = Livewire::test(RegistrarValoracionPage::class, ['historia' => $this->historia]);
 
-        $disponibles = $component->instance()->fichasDisponibles;
+        $disponibles = $component->get('fichasDisponibles');
         $this->assertArrayHasKey($this->tipoFicha->id, $disponibles);
         $this->assertArrayNotHasKey($fichaInactiva->id, $disponibles);
     }
