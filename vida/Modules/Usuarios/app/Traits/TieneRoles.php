@@ -37,7 +37,7 @@ trait TieneRoles
 
     public function tieneRolVigente(string $rolNombre): bool
     {
-        $rol = Role::findByName($rolNombre);
+        $rol = Role::query()->where('name', $rolNombre)->first();
 
         if (! $rol) {
             return false;
