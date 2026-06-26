@@ -10,7 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 1        # Solo el commit actual; el historial completo no es necesario aquí
 
@@ -21,7 +21,7 @@ jobs:
           coverage: none        # Evita instalar Xdebug si no lo usas
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: vida/vendor
           key: composer-${{ hashFiles('vida/composer.lock') }}
@@ -39,7 +39,7 @@ jobs:
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0        # Necesario para git reset --hard en el VPS
 
