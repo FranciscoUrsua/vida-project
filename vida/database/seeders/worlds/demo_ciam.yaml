@@ -30,7 +30,6 @@ profesionales:
     nombre: Rosa Rodríguez
     rol: consulta_basica
     centro: c1
-
   - login: supervisor.css@demo.es
     nombre: Laura López
     rol: supervision
