@@ -23,7 +23,7 @@
 
         @if($this->slotsDisponiblesHoy->isEmpty())
             <div class="op-empty op-empty--compact">
-                <x-heroicon-o-calendar-x-mark class="op-empty__icon" aria-hidden="true"/>
+                <x-heroicon-o-calendar-days class="op-empty__icon" aria-hidden="true"/>
                 <p class="op-empty__text">No hay slots disponibles hoy para este tipo de atención.</p>
             </div>
         @else
