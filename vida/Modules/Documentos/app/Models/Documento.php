@@ -47,6 +47,8 @@ class Documento extends Model
 
     /**
      * Entidad relacionada de forma polimórfica.
+     *
+     * @return MorphTo<Model, $this>
      */
     public function documentable(): MorphTo
     {
@@ -56,7 +58,7 @@ class Documento extends Model
     /**
      * Catálogo del tipo de documento.
      *
-     * @return BelongsTo<CatalogoSistema, self>
+     * @return BelongsTo<CatalogoSistema, $this>
      */
     public function tipo(): BelongsTo
     {
@@ -66,7 +68,7 @@ class Documento extends Model
     /**
      * Usuario que subió el documento.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function subidoPor(): BelongsTo
     {
@@ -76,7 +78,7 @@ class Documento extends Model
     /**
      * Informe generado que produce este documento, si existe.
      *
-     * @return HasOne<Informe>
+     * @return HasOne<Informe, $this>
      */
     public function informe(): HasOne
     {

@@ -33,6 +33,7 @@ use Modules\Centro\Models\Centro;
  */
 class PerfilHorarioProfesional extends Model
 {
+    /** @use HasFactory<PerfilHorarioProfesionalFactory> */
     use HasFactory;
 
     protected static function newFactory(): PerfilHorarioProfesionalFactory
@@ -84,7 +85,7 @@ class PerfilHorarioProfesional extends Model
     /**
      * Profesional al que pertenece el perfil horario.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function usuario(): BelongsTo
     {
@@ -94,7 +95,7 @@ class PerfilHorarioProfesional extends Model
     /**
      * Centro al que pertenece el perfil horario.
      *
-     * @return BelongsTo<Centro, self>
+     * @return BelongsTo<Centro, $this>
      */
     public function centro(): BelongsTo
     {
@@ -104,7 +105,7 @@ class PerfilHorarioProfesional extends Model
     /**
      * Líneas de cuadrante asociadas al perfil.
      *
-     * @return HasMany<LineaCuadrante>
+     * @return HasMany<LineaCuadrante, $this>
      */
     public function lineasCuadrante(): HasMany
     {

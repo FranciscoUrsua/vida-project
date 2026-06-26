@@ -2,6 +2,7 @@
 
 namespace Modules\Centro\Models;
 
+use App\Contracts\DireccionableModel;
 use App\Models\UnidadOrganizativa;
 use App\Traits\TieneDireccion;
 use App\Traits\Versionable;
@@ -43,7 +44,7 @@ use Modules\Prestaciones\Models\Prestacion;
  * @property Carbon|null $fecha_baja
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Sala> $salas
  */
-class Centro extends Model
+class Centro extends Model implements DireccionableModel
 {
     use SoftDeletes;
     use TieneDireccion;

@@ -7,6 +7,7 @@ use Modules\Agenda\Enums\OrigenPermitidoSlot;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Agenda\Models\TipoSlot;
 
+/** @extends Factory<TipoSlot> */
 class TipoSlotFactory extends Factory
 {
     protected $model = TipoSlot::class;

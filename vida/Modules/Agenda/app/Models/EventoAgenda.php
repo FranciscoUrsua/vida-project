@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -41,6 +42,7 @@ use Modules\Centro\Models\Espacio;
  */
 class EventoAgenda extends Model
 {
+    /** @use HasFactory<EventoAgendaFactory> */
     use HasFactory;
     use SoftDeletes;
 
@@ -60,7 +62,7 @@ class EventoAgenda extends Model
     /**
      * Centro al que pertenece el evento.
      *
-     * @return BelongsTo<Centro, self>
+     * @return BelongsTo<Centro, $this>
      */
     public function centro(): BelongsTo
     {
@@ -70,7 +72,7 @@ class EventoAgenda extends Model
     /**
      * Espacio reservado por el evento, si existe.
      *
-     * @return BelongsTo<Espacio, self>
+     * @return BelongsTo<Espacio, $this>
      */
     public function espacio(): BelongsTo
     {
@@ -80,7 +82,7 @@ class EventoAgenda extends Model
     /**
      * Usuario que creó el evento.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function creadoPor(): BelongsTo
     {
@@ -90,7 +92,7 @@ class EventoAgenda extends Model
     /**
      * Profesionales convocados al evento.
      *
-     * @return BelongsToMany<User>
+     * @return BelongsToMany<User, $this, Pivot, 'pivot'>
      */
     public function profesionales(): BelongsToMany
     {
@@ -103,11 +105,11 @@ class EventoAgenda extends Model
      * Filtra eventos de una fecha concreta.
      *
      * @param Builder<EventoAgenda> $query
-     * @param mixed $fecha
+     * @param Carbon|string $fecha
      *
      * @return Builder<EventoAgenda>
      */
-    public function scopeDelDia(Builder $query, $fecha): Builder
+    public function scopeDelDia(Builder $query, Carbon|string $fecha): Builder
     {
         return $query->where('fecha', $fecha);
     }

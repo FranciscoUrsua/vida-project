@@ -7,6 +7,7 @@ use Modules\Agenda\Enums\ModoAgenda;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Centro\Models\Centro;
 
+/** @extends Factory<HorarioCentro> */
 class HorarioCentroFactory extends Factory
 {
     protected $model = HorarioCentro::class;

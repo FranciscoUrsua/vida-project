@@ -226,6 +226,8 @@ class HorarioCentroResource extends Resource
 
     /**
      * Declara los relation managers del recurso.
+     *
+     * @return array<int, class-string>
      */
     public static function getRelationManagers(): array
     {

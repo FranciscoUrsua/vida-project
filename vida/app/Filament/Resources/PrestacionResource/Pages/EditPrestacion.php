@@ -4,6 +4,7 @@ namespace App\Filament\Resources\PrestacionResource\Pages;
 
 use App\Filament\Resources\PrestacionResource;
 use Filament\Resources\Pages\EditRecord;
+use Modules\Prestaciones\Models\Prestacion;
 use Modules\Prestaciones\Models\PrestacionTipoCentro;
 
 /**
@@ -15,13 +16,17 @@ class EditPrestacion extends EditRecord
 
     protected function afterSave(): void
     {
-        $tiposCentro = $this->data['tiposCentroKeys'] ?? [];
+        /** @var Prestacion $prestacion */
+        $prestacion = $this->record;
+        $tiposCentro = is_array($this->data['tiposCentroKeys'] ?? null)
+            ? $this->data['tiposCentroKeys']
+            : [];
 
-        // Sincronizar tipos de centro
-        $this->record->tiposCentro()->delete();
+        $prestacion->tiposCentro()->delete();
+
         foreach ($tiposCentro as $tipo) {
             PrestacionTipoCentro::create([
-                'prestacion_id' => $this->record->id,
+                'prestacion_id' => $prestacion->id,
                 'tipo_centro' => $tipo,
             ]);
         }

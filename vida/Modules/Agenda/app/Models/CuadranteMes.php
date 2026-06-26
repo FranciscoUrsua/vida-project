@@ -34,6 +34,7 @@ use Modules\Centro\Models\Centro;
  */
 class CuadranteMes extends Model
 {
+    /** @use HasFactory<CuadranteMesFactory> */
     use HasFactory;
 
     protected static function newFactory(): CuadranteMesFactory
@@ -57,7 +58,7 @@ class CuadranteMes extends Model
     /**
      * Centro al que pertenece el cuadrante mensual.
      *
-     * @return BelongsTo<Centro, self>
+     * @return BelongsTo<Centro, $this>
      */
     public function centro(): BelongsTo
     {
@@ -67,7 +68,7 @@ class CuadranteMes extends Model
     /**
      * Usuario que publicó el cuadrante.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function publicadoPor(): BelongsTo
     {
@@ -77,7 +78,7 @@ class CuadranteMes extends Model
     /**
      * Líneas de disponibilidad planificadas para el mes.
      *
-     * @return HasMany<LineaCuadrante>
+     * @return HasMany<LineaCuadrante, $this>
      */
     public function lineas(): HasMany
     {
@@ -87,7 +88,7 @@ class CuadranteMes extends Model
     /**
      * Slots materializados a partir de las líneas del cuadrante.
      *
-     * @return HasManyThrough<Slot>
+     * @return HasManyThrough<Slot, LineaCuadrante, $this>
      */
     public function slots(): HasManyThrough
     {

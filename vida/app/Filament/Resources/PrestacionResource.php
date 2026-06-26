@@ -340,6 +340,8 @@ class PrestacionResource extends Resource
 
     /**
      * Declara los relation managers del recurso de prestaciones.
+     *
+     * @return array<int, class-string>
      */
     public static function getRelationManagers(): array
     {

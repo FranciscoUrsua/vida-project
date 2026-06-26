@@ -17,10 +17,8 @@ class LoginController extends Controller
 {
     /**
      * Muestra el formulario de login.
-     *
-     * @return View
      */
-    public function mostrar()
+    public function mostrar(): View
     {
         return view('auth.login');
     }
@@ -30,11 +28,9 @@ class LoginController extends Controller
      *
      * @param Request $request Petición entrante.
      *
-     * @return RedirectResponse
-     *
      * @throws ValidationException
      */
-    public function autenticar(Request $request)
+    public function autenticar(Request $request): RedirectResponse
     {
         $credenciales = $request->validate([
             'email' => ['required', 'email'],
@@ -53,8 +49,6 @@ class LoginController extends Controller
             return redirect()->route('onboarding');
         }
 
-        // Solo redirigir a sin-rol a usuarios asistenciales (con profesional_id)
-        // Los perfiles técnicos sin profesional (adm_sistema) no pasan por este flujo
         if (Auth::user()->profesional_id !== null && Auth::user()->roles()->count() === 0) {
             return redirect()->route('sin-rol');
         }
@@ -97,10 +91,8 @@ class LoginController extends Controller
      * Cierra la sesión activa.
      *
      * @param Request $request Petición entrante.
-     *
-     * @return RedirectResponse
      */
-    public function cerrarSesion(Request $request)
+    public function cerrarSesion(Request $request): RedirectResponse
     {
         Auth::logout();
         $request->session()->invalidate();

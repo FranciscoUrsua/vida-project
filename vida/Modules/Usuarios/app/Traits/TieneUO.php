@@ -7,25 +7,15 @@ use App\Models\UsuarioUo;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * Trait que añade al User la lógica de adscripción a Unidades Organizativas.
- *
- * Una UO determina el ÁMBITO de datos sobre el que el usuario puede
- * ejercer sus permisos: gestión completa en su UO, consulta libre fuera.
- *
- * @see docs/modulo-usuarios-permisos.md sección 1.1
  */
 trait TieneUO
 {
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
-
     /**
-     * Todas las adscripciones a UO del usuario (históricas y vigentes).
-     *
-     * @return HasMany<UsuarioUo>
+     * @return HasMany<UsuarioUo, $this>
      */
     public function adscripciones(): HasMany
     {
@@ -33,9 +23,7 @@ trait TieneUO
     }
 
     /**
-     * Únicamente las adscripciones vigentes (fecha_fin null o futura).
-     *
-     * @return HasMany<UsuarioUo>
+     * @return HasMany<UsuarioUo, $this>
      */
     public function adscripcionesVigentes(): HasMany
     {
@@ -43,10 +31,7 @@ trait TieneUO
     }
 
     /**
-     * Unidades Organizativas a las que el usuario está adscrito (historial completo).
-     * Relación muchos-a-muchos a través de la tabla usuario_uo.
-     *
-     * @return BelongsToMany<UnidadOrganizativa>
+     * @return BelongsToMany<UnidadOrganizativa, $this, Pivot, 'pivot'>
      */
     public function unidadesOrganizativas(): BelongsToMany
     {
@@ -58,14 +43,7 @@ trait TieneUO
         );
     }
 
-    // -------------------------------------------------------------------------
-    // Métodos de dominio
-    // -------------------------------------------------------------------------
-
     /**
-     * Devuelve la colección de Unidades Organizativas activas
-     * a las que el usuario está actualmente adscrito.
-     *
      * @return Collection<int, UnidadOrganizativa>
      */
     public function uosActivas(): Collection
@@ -76,15 +54,6 @@ trait TieneUO
         )->activas()->get();
     }
 
-    /**
-     * Indica si el usuario pertenece exactamente a la UO indicada
-     * (sin considerar la jerarquía).
-     *
-     * Se usa en las Policies para distinguir gestión completa (misma UO)
-     * de consulta libre (UO diferente).
-     *
-     * @param UnidadOrganizativa $uo UO a comprobar.
-     */
     public function perteneceAUo(UnidadOrganizativa $uo): bool
     {
         return $this->adscripcionesVigentes()
@@ -92,29 +61,18 @@ trait TieneUO
             ->exists();
     }
 
-    /**
-     * Indica si el usuario tiene acceso de gestión sobre la UO indicada
-     * (su propia UO o una UO descendiente que gestiona).
-     *
-     * Usado para verificar si el usuario puede gestionar recursos
-     * en una UO inferior a la suya en la jerarquía.
-     *
-     * @param UnidadOrganizativa $uo UO sobre la que se quiere operar.
-     */
     public function tieneAccesoGestionA(UnidadOrganizativa $uo): bool
     {
         $idsUoUsuario = $this->adscripcionesVigentes()
             ->pluck('unidad_organizativa_id')
             ->toArray();
 
-        // Acceso directo: la UO es una de las del usuario
-        if (in_array($uo->id, $idsUoUsuario)) {
+        if (in_array($uo->id, $idsUoUsuario, true)) {
             return true;
         }
 
-        // Acceso jerárquico: la UO es descendiente de alguna UO del usuario
         foreach ($idsUoUsuario as $idUoUsuario) {
-            /** @var UnidadOrganizativa $uoUsuario */
+            /** @var UnidadOrganizativa|null $uoUsuario */
             $uoUsuario = UnidadOrganizativa::find($idUoUsuario);
             if ($uoUsuario && $uo->isDescendantOf($uoUsuario)) {
                 return true;
@@ -125,9 +83,6 @@ trait TieneUO
     }
 
     /**
-     * Devuelve los IDs de todas las UOs gestionadas por el usuario: las suyas propias
-     * y todas sus descendientes. Útil para filtrar queries de backoffice por ámbito.
-     *
      * @return array<int>
      */
     public function uoSubtreeIds(): array
@@ -139,21 +94,8 @@ trait TieneUO
             ->all();
     }
 
-    /**
-     * Indica si el usuario puede acceder en consulta libre a la UO indicada.
-     *
-     * Cualquier usuario autenticado puede consultar en otras UO
-     * (sujeto a las restricciones de colectivos protegidos).
-     * Este método siempre devuelve true; la restricción real
-     * la impone la Policy según el ciudadano y el colectivo.
-     *
-     * @param UnidadOrganizativa $uo UO sobre la que se quiere consultar.
-     */
     public function tieneAccesoConsultaA(UnidadOrganizativa $uo): bool
     {
-        // La consulta libre (Nivel 2) está disponible para cualquier profesional
-        // con el permiso correspondiente, independientemente de la UO.
-        // La restricción de colectivos protegidos (Nivel 3) la evalúa la Policy.
         return true;
     }
 }

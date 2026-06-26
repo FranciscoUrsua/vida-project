@@ -28,8 +28,12 @@ class ViewInforme extends ViewRecord
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('gray')
                 ->visible(fn () => $informe->estaFirmado() && $informe->documento_id !== null)
-                ->url(function () use ($informe): string {
+                ->url(function () use ($informe): ?string {
                     $doc = $informe->documento;
+
+                    if ($doc === null) {
+                        return null;
+                    }
 
                     return app(ServicioAlmacenamiento::class)->urlTemporal($doc, 60);
                 })

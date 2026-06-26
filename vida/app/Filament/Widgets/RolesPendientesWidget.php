@@ -20,28 +20,20 @@ class RolesPendientesWidget extends BaseWidget
 
     protected static ?string $heading = 'Roles pendientes de aprobación';
 
-    /**
-     * Determina si el widget de roles pendientes puede verse.
-     */
     public static function canView(): bool
     {
         return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
     }
 
-    /**
-     * Configura la tabla del widget de roles pendientes.
-     *
-     * @param Table $table Tabla base.
-     */
     public function table(Table $table): Table
     {
         return $table
-            ->query(UsuarioRol::pendientes()->with(['user', 'role']))
+            ->query(UsuarioRol::pendientes()->with(['usuario', 'rol']))
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
+                Tables\Columns\TextColumn::make('usuario.name')
                     ->label('Profesional')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('role.name')
+                Tables\Columns\TextColumn::make('rol.name')
                     ->label('Rol solicitado')
                     ->badge(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -56,7 +48,9 @@ class RolesPendientesWidget extends BaseWidget
                     ->color('success')
                     ->requiresConfirmation()
                     ->authorize(fn () => auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false)
-                    ->action(fn ($record) => $record->aprobar(auth()->user())),
+                    ->action(function (UsuarioRol $record): void {
+                        $record->update(['estado' => 'activo']);
+                    }),
             ])
             ->emptyStateHeading('No hay roles pendientes')
             ->emptyStateDescription('Todas las asignaciones están al día.');

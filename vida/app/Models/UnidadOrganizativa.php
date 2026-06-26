@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\UnidadOrganizativaFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,8 @@ use Illuminate\Support\Carbon;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
 
 /**
+ * @use HasFactory<UnidadOrganizativaFactory>
+ *
  * Modelo de Unidad Organizativa (UO).
  *
  * Representa un nodo en la jerarquía organizativa del ayuntamiento:
@@ -28,17 +31,15 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
  *
  * @property int $id
  * @property string $nombre
- * @property string|null $nombre_corto Acrónimo o nombre breve para badges y cabeceras
- * @property string $tipo Código del tipo (ej: 'ayuntamiento', 'dg', 'departamento', 'centro')
+ * @property string|null $nombre_corto
+ * @property string $tipo
  * @property int|null $parent_id
  * @property bool $activa
- * @property string|null $plan_nombre_completo Nombre completo del plan de intervención; fallback «Plan de intervención»
- * @property string|null $plan_nombre_corto Acrónimo del plan de intervención; fallback «Plan»
+ * @property string|null $plan_nombre_completo
+ * @property string|null $plan_nombre_corto
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon|null $deleted_at
- *
- * @see docs/modulo-usuarios-permisos.md sección 1.2
  */
 class UnidadOrganizativa extends Model
 {
@@ -46,10 +47,8 @@ class UnidadOrganizativa extends Model
     use HasRecursiveRelationships;
     use SoftDeletes;
 
-    /** @var string Tabla de base de datos */
     protected $table = 'unidades_organizativas';
 
-    /** @var list<string> Campos asignables en masa */
     protected $fillable = [
         'nombre',
         'nombre_corto',
@@ -60,20 +59,12 @@ class UnidadOrganizativa extends Model
         'plan_nombre_corto',
     ];
 
-    /** @var array<string, string> Conversiones de tipo */
     protected $casts = [
         'activa' => 'boolean',
     ];
 
-    // -------------------------------------------------------------------------
-    // Relaciones directas
-    // -------------------------------------------------------------------------
-
     /**
-     * UO padre en la jerarquía.
-     * Devuelve null para el nodo raíz (Ayuntamiento).
-     *
-     * @return BelongsTo<UnidadOrganizativa, UnidadOrganizativa>
+     * @return BelongsTo<UnidadOrganizativa, $this>
      */
     public function padre(): BelongsTo
     {
@@ -81,9 +72,7 @@ class UnidadOrganizativa extends Model
     }
 
     /**
-     * UO hijas directas (un nivel por debajo).
-     *
-     * @return HasMany<UnidadOrganizativa>
+     * @return HasMany<UnidadOrganizativa, $this>
      */
     public function hijas(): HasMany
     {
@@ -91,74 +80,29 @@ class UnidadOrganizativa extends Model
     }
 
     /**
-     * Usuarios (profesionales) actualmente adscritos a esta UO.
-     * La adscripción pasa por la tabla pivot `usuario_uo`.
-     *
-     * @return HasMany<UsuarioUo>
+     * @return HasMany<UsuarioUo, $this>
      */
     public function usuarios(): HasMany
     {
         return $this->hasMany(UsuarioUo::class, 'unidad_organizativa_id');
     }
 
-    // -------------------------------------------------------------------------
-    // Relaciones recursivas (staudenmeir/laravel-adjacency-list)
-    // Disponibles gracias al trait HasRecursiveRelationships:
-    //   ->ancestors()      — todos los nodos por encima en la jerarquía
-    //   ->descendants()    — todos los nodos por debajo (cualquier profundidad)
-    //   ->ancestorsAndSelf()
-    //   ->descendantsAndSelf()
-    //   ->siblings()
-    // -------------------------------------------------------------------------
-
-    // -------------------------------------------------------------------------
-    // Métodos de dominio
-    // -------------------------------------------------------------------------
-
-    /**
-     * Comprueba si esta UO es descendiente del nodo dado.
-     * Útil para verificar ámbitos de supervisión jerárquica.
-     *
-     * @param UnidadOrganizativa $ancestor UO ancestro a comprobar
-     */
     public function isDescendantOf(UnidadOrganizativa $ancestor): bool
     {
-        // La CTE de staudenmeir expone las columnas sin prefijo de tabla en el contexto externo
         return $this->ancestors()->where('id', $ancestor->id)->exists();
     }
 
-    // -------------------------------------------------------------------------
-    // Accessors
-    // -------------------------------------------------------------------------
-
-    /**
-     * Nombre completo del plan de intervención con fallback.
-     * Permite personalizar el término por UO (p. ej. «PISO», «PIA»).
-     *
-     * @return string Nombre completo, nunca nulo.
-     */
     public function getPlanNombreCompletoAttribute(): string
     {
         return $this->attributes['plan_nombre_completo'] ?? 'Plan de intervención';
     }
 
-    /**
-     * Acrónimo del plan de intervención con fallback.
-     *
-     * @return string Nombre corto, nunca nulo.
-     */
     public function getPlanNombreCortoAttribute(): string
     {
         return $this->attributes['plan_nombre_corto'] ?? 'Plan';
     }
 
-    // -------------------------------------------------------------------------
-    // Scopes
-    // -------------------------------------------------------------------------
-
     /**
-     * Filtra únicamente las UO marcadas como activas.
-     *
      * @param Builder<UnidadOrganizativa> $consulta
      *
      * @return Builder<UnidadOrganizativa>
@@ -169,8 +113,6 @@ class UnidadOrganizativa extends Model
     }
 
     /**
-     * Filtra UO raíz (sin padre).
-     *
      * @param Builder<UnidadOrganizativa> $consulta
      *
      * @return Builder<UnidadOrganizativa>

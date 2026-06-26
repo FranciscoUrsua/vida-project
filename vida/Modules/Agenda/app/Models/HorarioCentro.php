@@ -38,6 +38,7 @@ use Modules\Centro\Models\Centro;
  */
 class HorarioCentro extends Model
 {
+    /** @use HasFactory<HorarioCentroFactory> */
     use HasFactory;
     use SoftDeletes;
 
@@ -63,7 +64,7 @@ class HorarioCentro extends Model
     /**
      * Centro al que pertenece el horario.
      *
-     * @return BelongsTo<Centro, self>
+     * @return BelongsTo<Centro, $this>
      */
     public function centro(): BelongsTo
     {
@@ -73,7 +74,7 @@ class HorarioCentro extends Model
     /**
      * Tipos de slot asociados al horario.
      *
-     * @return HasMany<TipoSlot>
+     * @return HasMany<TipoSlot, $this>
      */
     public function tiposSlot(): HasMany
     {

@@ -8,23 +8,11 @@ use Spatie\Permission\Models\Role;
 
 /**
  * Trait que añade al User la lógica de historial de roles.
- *
- * Los roles activos se consultan a través de Spatie (HasRoles).
- * Este trait añade la capacidad de consultar el HISTORIAL de roles
- * y provee métodos de conveniencia que unifican ambas fuentes.
- *
- * @see docs/modulo-usuarios-permisos.md sección 4.2
  */
 trait TieneRoles
 {
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
-
     /**
-     * Todos los registros de historial de roles del usuario.
-     *
-     * @return HasMany<UsuarioRol>
+     * @return HasMany<UsuarioRol, $this>
      */
     public function historialRoles(): HasMany
     {
@@ -32,9 +20,7 @@ trait TieneRoles
     }
 
     /**
-     * Únicamente los registros de rol vigentes (activos con fecha válida).
-     *
-     * @return HasMany<UsuarioRol>
+     * @return HasMany<UsuarioRol, $this>
      */
     public function rolesVigentes(): HasMany
     {
@@ -42,28 +28,13 @@ trait TieneRoles
     }
 
     /**
-     * Registros de rol pendientes de aprobación.
-     *
-     * @return HasMany<UsuarioRol>
+     * @return HasMany<UsuarioRol, $this>
      */
     public function rolesPendientes(): HasMany
     {
         return $this->historialRoles()->pendientes();
     }
 
-    // -------------------------------------------------------------------------
-    // Métodos de dominio
-    // -------------------------------------------------------------------------
-
-    /**
-     * Comprueba si el usuario tiene activo el rol indicado
-     * según el historial de VIDA (no solo Spatie).
-     *
-     * Útil cuando la sincronización de Spatie pudiera estar desactualizada,
-     * o para consultas históricas.
-     *
-     * @param string $rolNombre Nombre del rol, ej: 'intervencion'.
-     */
     public function tieneRolVigente(string $rolNombre): bool
     {
         $rol = Role::findByName($rolNombre);
@@ -77,15 +48,6 @@ trait TieneRoles
             ->exists();
     }
 
-    /**
-     * Comprueba si el usuario tiene el permiso indicado
-     * a través de alguno de sus roles vigentes en Spatie.
-     *
-     * Delega en el método can() de Spatie (HasRoles), que evalúa
-     * los roles y permisos activos en model_has_roles.
-     *
-     * @param string $permiso Nombre del permiso, ej: 'historia.leer'.
-     */
     public function tienePermiso(string $permiso): bool
     {
         return $this->can($permiso);

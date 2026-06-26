@@ -7,6 +7,7 @@ use Modules\Agenda\Enums\EstadoCuadrante;
 use Modules\Agenda\Models\CuadranteMes;
 use Modules\Centro\Models\Centro;
 
+/** @extends Factory<CuadranteMes> */
 class CuadranteMesFactory extends Factory
 {
     protected $model = CuadranteMes::class;

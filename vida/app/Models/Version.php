@@ -21,7 +21,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string $versionable_type
  * @property int $versionable_id
- * @property array $datos
+ * @property array<string, mixed> $datos
  * @property int|null $usuario_id
  * @property string|null $motivo
  * @property Carbon $created_at
@@ -51,14 +51,10 @@ class Version extends Model
         'datos' => 'array',
     ];
 
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
-
     /**
      * Entidad a la que pertenece esta versión.
      *
-     * @return MorphTo<Model, Version>
+     * @return MorphTo<Model, $this>
      */
     public function versionable(): MorphTo
     {
@@ -68,7 +64,7 @@ class Version extends Model
     /**
      * Usuario que realizó el cambio que generó esta versión.
      *
-     * @return BelongsTo<User, Version>
+     * @return BelongsTo<User, $this>
      */
     public function usuario(): BelongsTo
     {

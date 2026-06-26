@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Agenda\Models\LineaCuadrante;
 use Modules\Centro\Models\Centro;
 
+/** @extends Factory<LineaCuadrante> */
 class LineaCuadranteFactory extends Factory
 {
     protected $model = LineaCuadrante::class;

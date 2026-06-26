@@ -30,6 +30,7 @@ use Modules\Centro\Models\Centro;
  */
 class LineaCuadrante extends Model
 {
+    /** @use HasFactory<LineaCuadranteFactory> */
     use HasFactory;
 
     protected static function newFactory(): LineaCuadranteFactory
@@ -50,7 +51,7 @@ class LineaCuadrante extends Model
     /**
      * Cuadrante mensual al que pertenece la línea.
      *
-     * @return BelongsTo<CuadranteMes, self>
+     * @return BelongsTo<CuadranteMes, $this>
      */
     public function cuadranteMes(): BelongsTo
     {
@@ -60,7 +61,7 @@ class LineaCuadrante extends Model
     /**
      * Profesional asignado a la línea.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function usuario(): BelongsTo
     {
@@ -70,7 +71,7 @@ class LineaCuadrante extends Model
     /**
      * Centro al que pertenece la línea.
      *
-     * @return BelongsTo<Centro, self>
+     * @return BelongsTo<Centro, $this>
      */
     public function centro(): BelongsTo
     {
@@ -80,7 +81,7 @@ class LineaCuadrante extends Model
     /**
      * Slots generados a partir de la línea.
      *
-     * @return HasMany<Slot>
+     * @return HasMany<Slot, $this>
      */
     public function slots(): HasMany
     {
@@ -90,7 +91,7 @@ class LineaCuadrante extends Model
     /**
      * Excepción profesional que anula la línea, si existe.
      *
-     * @return BelongsTo<ExcepcionProfesional, self>
+     * @return BelongsTo<ExcepcionProfesional, $this>
      */
     public function excepcion(): BelongsTo
     {
@@ -113,11 +114,11 @@ class LineaCuadrante extends Model
      * Filtra líneas de una fecha concreta.
      *
      * @param Builder<LineaCuadrante> $query
-     * @param mixed $fecha
+     * @param Carbon|string $fecha
      *
      * @return Builder<LineaCuadrante>
      */
-    public function scopeDelDia(Builder $query, $fecha): Builder
+    public function scopeDelDia(Builder $query, Carbon|string $fecha): Builder
     {
         return $query->where('fecha', $fecha);
     }

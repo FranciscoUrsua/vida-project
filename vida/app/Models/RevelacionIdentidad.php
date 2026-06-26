@@ -27,13 +27,10 @@ use Illuminate\Support\Carbon;
  */
 class RevelacionIdentidad extends Model
 {
-    /** @var string */
     protected $table = 'revelaciones_identidad';
 
-    /** Los registros de auditoría son inmutables */
     const UPDATED_AT = null;
 
-    /** @var list<string> */
     protected $fillable = [
         'usuario_id',
         'accion',
@@ -45,7 +42,7 @@ class RevelacionIdentidad extends Model
     /**
      * Usuario que realizó la revelación.
      *
-     * @return BelongsTo<User, RevelacionIdentidad>
+     * @return BelongsTo<User, $this>
      */
     public function usuario(): BelongsTo
     {

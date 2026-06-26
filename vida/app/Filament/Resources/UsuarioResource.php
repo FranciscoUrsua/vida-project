@@ -239,6 +239,10 @@ class UsuarioResource extends Resource
             return true;
         }
         // adm_usuarios: solo puede editar usuarios adscritos a su subtree de UO
+        if (! $record instanceof User) {
+            return false;
+        }
+
         $uoIds = $user->uoSubtreeIds();
 
         return $record->adscripcionesVigentes()->whereIn('unidad_organizativa_id', $uoIds)->exists();

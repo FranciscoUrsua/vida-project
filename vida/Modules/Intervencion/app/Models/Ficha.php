@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Intervencion\Database\Factories\FichaFactory;
 
 /**
+ * @use HasFactory<FichaFactory>
+ *
  * Ficha de datos reales de una valoración.
  *
  * Cada ficha corresponde a un TipoFicha y almacena los valores
@@ -26,9 +28,9 @@ use Modules\Intervencion\Database\Factories\FichaFactory;
  * @property int|null $historia_id
  * @property int|null $valoracion_id
  * @property int $tipo_ficha_id
- * @property array|null $schema_snapshot Copia del schema del TipoFicha al crear la ficha
+ * @property array<string, mixed>|null $schema_snapshot Copia del schema del TipoFicha al crear la ficha
  * @property int|null $profesional_id
- * @property array|null $datos
+ * @property array<string, mixed>|null $datos
  * @property string|null $notas
  * @property bool $completada
  */
@@ -62,14 +64,10 @@ class Ficha extends Model
         'completada' => 'boolean',
     ];
 
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
-
     /**
      * Historia social a la que pertenece esta ficha (flujo directo, sin valoracion formal).
      *
-     * @return BelongsTo<HistoriaSocial, Ficha>
+     * @return BelongsTo<HistoriaSocial, $this>
      */
     public function historia(): BelongsTo
     {
@@ -77,7 +75,7 @@ class Ficha extends Model
     }
 
     /**
-     * @return BelongsTo<Valoracion, Ficha>
+     * @return BelongsTo<Valoracion, $this>
      */
     public function valoracion(): BelongsTo
     {
@@ -85,7 +83,7 @@ class Ficha extends Model
     }
 
     /**
-     * @return BelongsTo<TipoFicha, Ficha>
+     * @return BelongsTo<TipoFicha, $this>
      */
     public function tipoFicha(): BelongsTo
     {
@@ -99,10 +97,6 @@ class Ficha extends Model
     {
         return $this->historia?->ciudadano_id;
     }
-
-    // -------------------------------------------------------------------------
-    // Scopes
-    // -------------------------------------------------------------------------
 
     /**
      * Fichas de un tipo concreto para una historia, ordenadas de más reciente a más antigua.
@@ -121,10 +115,6 @@ class Ficha extends Model
             ->orderByDesc('created_at');
     }
 
-    // -------------------------------------------------------------------------
-    // Métodos estáticos de negocio
-    // -------------------------------------------------------------------------
-
     /**
      * Genera el array de datos pre-rellenado para una nueva valoración.
      *
@@ -140,10 +130,25 @@ class Ficha extends Model
      */
     public static function prerellenarDesde(self $fichaAnterior, TipoFicha $tipoFicha): array
     {
-        $camposActuales = collect($tipoFicha->schema['campos'] ?? [])->pluck('id')->all();
-        $datosAnteriores = $fichaAnterior->datos ?? [];
+        $camposSchema = $tipoFicha->schema['campos'] ?? [];
+        $camposActuales = [];
 
+        if (is_array($camposSchema)) {
+            foreach ($camposSchema as $campo) {
+                if (! is_array($campo)) {
+                    continue;
+                }
+
+                $campoId = $campo['id'] ?? null;
+                if (is_string($campoId) && $campoId !== '') {
+                    $camposActuales[] = $campoId;
+                }
+            }
+        }
+
+        $datosAnteriores = is_array($fichaAnterior->datos) ? $fichaAnterior->datos : [];
         $resultado = [];
+
         foreach ($camposActuales as $campoId) {
             $resultado[$campoId] = $datosAnteriores[$campoId] ?? null;
         }

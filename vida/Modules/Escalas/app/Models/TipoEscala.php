@@ -24,9 +24,9 @@ use Modules\Escalas\Database\Factories\TipoEscalaFactory;
  * @property string|null $instrucciones_aplicacion
  * @property bool $confirmar_instrucciones
  * @property string|null $fuente Referencia bibliográfica del instrumento original.
- * @property array $contextos
- * @property array $schema Estructura de secciones e ítems (ver docs/modulo-escala.md §2.2)
- * @property array $rangos_interpretacion Tabla de rangos de score (ver docs/modulo-escala.md §2.3)
+ * @property array<string, mixed> $contextos
+ * @property array<string, mixed> $schema Estructura de secciones e ítems (ver docs/modulo-escala.md §2.2)
+ * @property array<string, mixed> $rangos_interpretacion Tabla de rangos de score (ver docs/modulo-escala.md §2.3)
  * @property bool $activa
  */
 class TipoEscala extends Model
@@ -57,13 +57,6 @@ class TipoEscala extends Model
         'confirmar_instrucciones' => 'boolean',
     ];
 
-    // -------------------------------------------------------------------------
-    // Ciclo de vida
-    // -------------------------------------------------------------------------
-
-    /**
-     * Registra validaciones de integridad y restricciones de inmutabilidad.
-     */
     protected static function booted(): void
     {
         static::saving(function (self $model) {
@@ -76,14 +69,12 @@ class TipoEscala extends Model
                 return;
             }
 
-            // El código es inmutable una vez que existen pases
             if ($model->isDirty('codigo')) {
                 throw new \LogicException(
                     'El código de una escala es inmutable cuando ya existen pases asociados.'
                 );
             }
 
-            // Los ítems existentes en el schema son inmutables con pases asociados
             $schemaOriginal = $model->getOriginal('schema');
             if (is_string($schemaOriginal)) {
                 $schemaOriginal = json_decode($schemaOriginal, true);
@@ -94,10 +85,6 @@ class TipoEscala extends Model
             }
         });
     }
-
-    // -------------------------------------------------------------------------
-    // Validaciones internas
-    // -------------------------------------------------------------------------
 
     /**
      * Valida que el schema tenga al menos una sección con ítems y opciones suficientes.
@@ -152,7 +139,6 @@ class TipoEscala extends Model
             throw new \InvalidArgumentException('Debe definirse al menos un rango de interpretación.');
         }
 
-        // Ordenar por 'desde' para facilitar la validación
         usort($rangos, fn ($a, $b) => $a['desde'] <=> $b['desde']);
 
         for ($i = 0; $i < count($rangos) - 1; $i++) {
@@ -210,10 +196,6 @@ class TipoEscala extends Model
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Métodos estáticos
-    // -------------------------------------------------------------------------
-
     /**
      * Devuelve el id del TipoEscala con el código dado, desde caché.
      *
@@ -230,10 +212,6 @@ class TipoEscala extends Model
         );
     }
 
-    // -------------------------------------------------------------------------
-    // Scopes
-    // -------------------------------------------------------------------------
-
     /**
      * Escalas disponibles para aplicar a un ciudadano.
      *
@@ -246,23 +224,15 @@ class TipoEscala extends Model
         return $query->where('activa', true);
     }
 
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
-
     /**
      * Pases realizados de este instrumento.
      *
-     * @return HasMany<PaseEscala, self>
+     * @return HasMany<PaseEscala, $this>
      */
     public function pases(): HasMany
     {
         return $this->hasMany(PaseEscala::class, 'tipo_escala_id');
     }
-
-    // -------------------------------------------------------------------------
-    // Factory
-    // -------------------------------------------------------------------------
 
     protected static function newFactory(): TipoEscalaFactory
     {

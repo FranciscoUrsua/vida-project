@@ -41,7 +41,7 @@ trait Versionable
     /**
      * Todas las versiones históricas de este registro.
      *
-     * @return MorphMany<Version>
+     * @return MorphMany<Version, $this>
      */
     public function versiones(): MorphMany
     {

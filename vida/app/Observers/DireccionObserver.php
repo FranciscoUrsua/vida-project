@@ -4,17 +4,19 @@ namespace App\Observers;
 
 use App\Enums\OrigenDireccion;
 use App\Jobs\NormalizarDireccionJob;
+use App\Models\Ciudadano;
 use App\Services\Geocodificacion\GeocodificadorInterface;
 use App\Services\Geocodificacion\ResultadoGeocodificacion;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Centro\Models\Centro;
 
 /**
  * Observer de dirección para modelos que usan el trait TieneDireccion.
  *
  * Invoca el geocoder al guardar una entidad con dirección introducida
- * manualmente (origen_direccion = profesional). Si el geocoder falla o
- * supera el timeout, guarda con direccion_normalizada = false y encola
- * un job de reintento sin bloquear el guardado.
+ * manualmente (origen_direccion = profesional). Si el geocoder falla,
+ * guarda con direccion_normalizada = false y encola un job de reintento
+ * sin bloquear el guardado.
  *
  * Las direcciones procedentes del padrón (origen_direccion = padron)
  * llegan ya estructuradas y no pasan por el geocoder.
@@ -23,9 +25,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class DireccionObserver
 {
-    /** Timeout en segundos para la llamada al geocoder. */
-    private const TIMEOUT_SEGUNDOS = 3;
-
     /**
      * @param GeocodificadorInterface $geocodificador Servicio de geocodificación.
      */
@@ -39,20 +38,21 @@ class DireccionObserver
      * Inicializa siempre direccion_normalizada a false para que el modelo
      * en memoria refleje el default de la columna si no se geocodifica.
      *
-     * @param Model $model Modelo que se va a crear.
+     * @param Ciudadano|Centro $model Modelo que se va a crear.
      */
     public function creating(Model $model): void
     {
         if (! array_key_exists('direccion_normalizada', $model->getAttributes())) {
             $model->direccion_normalizada = false;
         }
+
         $this->intentarNormalizar($model);
     }
 
     /**
      * Encola el job de reintento si el guardado inicial no normalizó la dirección.
      *
-     * @param Model $model Modelo recién creado.
+     * @param Ciudadano|Centro $model Modelo recién creado.
      */
     public function created(Model $model): void
     {
@@ -64,29 +64,26 @@ class DireccionObserver
      *
      * Solo actúa si cambió el texto de la dirección o el origen.
      *
-     * @param Model $model Modelo que se va a actualizar.
+     * @param Ciudadano|Centro $model Modelo que se va a actualizar.
      */
     public function updating(Model $model): void
     {
         if (! $model->isDirty(['direccion_texto', 'origen_direccion'])) {
             return;
         }
+
         $this->intentarNormalizar($model);
     }
 
     /**
      * Encola el job de reintento si la actualización no normalizó la dirección.
      *
-     * @param Model $model Modelo recién actualizado.
+     * @param Ciudadano|Centro $model Modelo recién actualizado.
      */
     public function updated(Model $model): void
     {
         $this->encolarSiPendiente($model);
     }
-
-    // -------------------------------------------------------------------------
-    // Lógica interna
-    // -------------------------------------------------------------------------
 
     /**
      * Intenta normalizar la dirección del modelo invocando el geocoder.
@@ -94,8 +91,7 @@ class DireccionObserver
      * Solo actúa cuando origen_direccion es 'profesional' y hay texto de dirección.
      * Si el geocoder falla, marca direccion_normalizada = false sin lanzar excepción.
      *
-     * El timeout de 3 segundos se aplica a nivel de conexión HTTP en los adaptadores
-     * reales. El mock responde instantáneamente.
+     * @param Ciudadano|Centro $model
      */
     private function intentarNormalizar(Model $model): void
     {
@@ -104,7 +100,6 @@ class DireccionObserver
         }
 
         try {
-            // El timeout lo gestiona el adaptador HTTP. Aquí capturamos cualquier fallo.
             $resultado = $this->geocodificador->normalizar((string) $model->direccion_texto);
             $this->aplicarResultado($model, $resultado);
         } catch (\Throwable) {
@@ -114,13 +109,12 @@ class DireccionObserver
 
     /**
      * Encola NormalizarDireccionJob si la dirección sigue pendiente de normalización.
+     *
+     * @param Ciudadano|Centro $model
      */
     private function encolarSiPendiente(Model $model): void
     {
-        if (
-            $this->debeGeocodificar($model) &&
-            ! $model->direccion_normalizada
-        ) {
+        if ($this->debeGeocodificar($model) && ! $model->direccion_normalizada) {
             NormalizarDireccionJob::dispatch(get_class($model), $model->getKey())
                 ->onQueue('low');
         }
@@ -130,6 +124,8 @@ class DireccionObserver
      * Determina si el modelo debe pasar por el geocoder.
      *
      * Solo geocodifica cuando el origen es 'profesional' y hay texto de dirección.
+     *
+     * @param Ciudadano|Centro $model
      */
     private function debeGeocodificar(Model $model): bool
     {
@@ -140,8 +136,10 @@ class DireccionObserver
     /**
      * Aplica el resultado del geocoder a los atributos del modelo en memoria.
      *
-     * No llama a save() — el resultado se persistirá con el save() que desencadenó
+     * No llama a save(); el resultado se persistirá con el save() que desencadenó
      * el evento creating/updating.
+     *
+     * @param Ciudadano|Centro $model
      */
     private function aplicarResultado(Model $model, ResultadoGeocodificacion $resultado): void
     {

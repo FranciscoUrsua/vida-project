@@ -3,15 +3,15 @@
 namespace App\Jobs;
 
 use App\Enums\OrigenDireccion;
+use App\Models\Ciudadano;
 use App\Observers\DireccionObserver;
 use App\Services\Geocodificacion\GeocodificadorInterface;
-use App\Traits\TieneDireccion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Modules\Centro\Models\Centro;
 
 /**
  * Job de reintento de normalización de dirección.
@@ -53,7 +53,7 @@ class NormalizarDireccionJob implements ShouldQueue
     ) {}
 
     /**
-     * Segundos de espera entre reintentos — backoff exponencial.
+     * Segundos de espera entre reintentos; backoff exponencial.
      *
      * @return list<int>
      */
@@ -67,13 +67,13 @@ class NormalizarDireccionJob implements ShouldQueue
      *
      * Recupera el modelo, verifica que aún necesita normalización y llama
      * al geocoder. Si tiene éxito, guarda los campos estructurados sin pasar
-     * por el DireccionObserver (para evitar bucle).
+     * por el DireccionObserver para evitar bucle.
      *
      * @param GeocodificadorInterface $geocodificador Servicio de geocodificación.
      */
     public function handle(GeocodificadorInterface $geocodificador): void
     {
-        /** @var Model|TieneDireccion|null $modelo */
+        /** @var Ciudadano|Centro|null $modelo */
         $modelo = ($this->claseModelo)::find($this->modeloId);
 
         if ($modelo === null || $modelo->direccion_normalizada || empty($modelo->direccion_texto)) {
@@ -88,8 +88,7 @@ class NormalizarDireccionJob implements ShouldQueue
             return;
         }
 
-        // Actualizar silenciosamente sin disparar el DireccionObserver de nuevo
-        $modelo->withoutEvents(function () use ($modelo, $resultado) {
+        $modelo::withoutEvents(function () use ($modelo, $resultado): void {
             $modelo->update([
                 'direccion_normalizada' => true,
                 'tipo_via' => $resultado->tipoVia,

@@ -37,7 +37,7 @@ class ReasignacionCita extends Model
     /**
      * Cita afectada por la reasignación.
      *
-     * @return BelongsTo<Cita, self>
+     * @return BelongsTo<Cita, $this>
      */
     public function cita(): BelongsTo
     {
@@ -47,7 +47,7 @@ class ReasignacionCita extends Model
     /**
      * Slot original antes de la reasignación.
      *
-     * @return BelongsTo<Slot, self>
+     * @return BelongsTo<Slot, $this>
      */
     public function slotOriginal(): BelongsTo
     {
@@ -57,7 +57,7 @@ class ReasignacionCita extends Model
     /**
      * Slot nuevo asignado tras la reasignación.
      *
-     * @return BelongsTo<Slot, self>
+     * @return BelongsTo<Slot, $this>
      */
     public function slotNuevo(): BelongsTo
     {
@@ -67,7 +67,7 @@ class ReasignacionCita extends Model
     /**
      * Profesional que tenía la cita originalmente.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function profesionalOriginal(): BelongsTo
     {
@@ -77,7 +77,7 @@ class ReasignacionCita extends Model
     /**
      * Profesional receptor de la cita reasignada.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function profesionalNuevo(): BelongsTo
     {
@@ -87,7 +87,7 @@ class ReasignacionCita extends Model
     /**
      * Usuario que ejecutó la reasignación.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function realizadaPor(): BelongsTo
     {

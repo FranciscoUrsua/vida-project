@@ -10,6 +10,8 @@ use Illuminate\Validation\ValidationException;
 use Modules\Intervencion\Database\Factories\TipoFichaFactory;
 
 /**
+ * @use HasFactory<TipoFichaFactory>
+ *
  * Tipo de ficha configurable desde el backoffice.
  *
  * Define la estructura de campos de una ficha de valoración: qué campos existen,
@@ -24,7 +26,7 @@ use Modules\Intervencion\Database\Factories\TipoFichaFactory;
  * @property int $id
  * @property string $nombre
  * @property string|null $descripcion
- * @property array $schema Definición de campos — estructura: {'campos': [{id, tipo, etiqueta, obligatorio, orden, ...}]}
+ * @property array<string, mixed> $schema Definición de campos — estructura: {'campos': [{id, tipo, etiqueta, obligatorio, orden, ...}]}
  * @property bool $activo
  */
 class TipoFicha extends Model
@@ -52,20 +54,12 @@ class TipoFicha extends Model
         'activo' => 'boolean',
     ];
 
-    // -------------------------------------------------------------------------
-    // Hooks del modelo
-    // -------------------------------------------------------------------------
-
     protected static function booted(): void
     {
         static::saving(function (TipoFicha $ficha): void {
             $ficha->validarSchema();
         });
     }
-
-    // -------------------------------------------------------------------------
-    // Mutadores / Accessors
-    // -------------------------------------------------------------------------
 
     /**
      * Valida el schema antes de almacenarlo.
@@ -74,8 +68,6 @@ class TipoFicha extends Model
      * cast lo procese. Si se recibe un array, se serializa directamente.
      * La validación se hace en el mutador (no en el evento saving) porque el
      * cast 'array' transformaría el string antes de que el evento pudiese inspeccionarlo.
-     *
-     *
      *
      * @throws \InvalidArgumentException Si el string recibido no es JSON válido
      */
@@ -96,24 +88,24 @@ class TipoFicha extends Model
 
     /**
      * Devuelve el schema siempre como array PHP.
+     *
+     * @return array<string, mixed>
      */
     public function getSchemaAttribute(mixed $value): array
     {
         if (is_string($value)) {
+            /** @var array<string, mixed> */
             return json_decode($value, true) ?? [];
         }
 
+        /** @var array<string, mixed> */
         return (array) ($value ?? []);
     }
-
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
 
     /**
      * Fichas cumplimentadas que usan este tipo.
      *
-     * @return HasMany<Ficha>
+     * @return HasMany<Ficha, $this>
      */
     public function fichas(): HasMany
     {
@@ -123,16 +115,12 @@ class TipoFicha extends Model
     /**
      * Asociaciones de este tipo de ficha con tipos de valoración.
      *
-     * @return HasMany<TipoValoracionFicha>
+     * @return HasMany<TipoValoracionFicha, $this>
      */
     public function tipoValoracionFichas(): HasMany
     {
         return $this->hasMany(TipoValoracionFicha::class, 'tipo_ficha_id');
     }
-
-    // -------------------------------------------------------------------------
-    // Métodos de estado
-    // -------------------------------------------------------------------------
 
     /**
      * Indica si esta ficha ya tiene instancias reales de datos (fichas cumplimentadas).
@@ -143,22 +131,18 @@ class TipoFicha extends Model
         return $this->fichas()->exists();
     }
 
-    // -------------------------------------------------------------------------
-    // Validación de schema
-    // -------------------------------------------------------------------------
-
     /**
      * Valida la estructura del schema JSON antes de persistir.
      * Lanza ValidationException si el schema no cumple el contrato.
-     *
      *
      * @throws ValidationException
      */
     public function validarSchema(): void
     {
         $schema = $this->schema;
+        $campos = $schema['campos'] ?? null;
 
-        if (! is_array($schema) || ! isset($schema['campos']) || ! is_array($schema['campos'])) {
+        if (! is_array($campos)) {
             throw ValidationException::withMessages([
                 'schema' => 'El schema debe ser un objeto con la clave "campos" (array).',
             ]);
@@ -166,8 +150,14 @@ class TipoFicha extends Model
 
         $idsVistos = [];
 
-        foreach ($schema['campos'] as $i => $campo) {
+        foreach ($campos as $i => $campo) {
             $prefijo = "schema.campos.{$i}";
+
+            if (! is_array($campo)) {
+                throw ValidationException::withMessages([
+                    $prefijo => "El campo [{$i}] debe ser un objeto JSON válido.",
+                ]);
+            }
 
             foreach (['id', 'tipo', 'etiqueta', 'obligatorio', 'orden'] as $requerido) {
                 if (! isset($campo[$requerido])) {
@@ -191,12 +181,10 @@ class TipoFicha extends Model
                 }
             }
 
-            if ($campo['tipo'] === 'escala') {
-                if (empty($campo['tipo_escala_id'])) {
-                    throw ValidationException::withMessages([
-                        "{$prefijo}.tipo_escala_id" => "El campo escala [{$i}] requiere 'tipo_escala_id'.",
-                    ]);
-                }
+            if ($campo['tipo'] === 'escala' && empty($campo['tipo_escala_id'])) {
+                throw ValidationException::withMessages([
+                    "{$prefijo}.tipo_escala_id" => "El campo escala [{$i}] requiere 'tipo_escala_id'.",
+                ]);
             }
 
             if (in_array($campo['id'], $idsVistos, true)) {
@@ -208,17 +196,36 @@ class TipoFicha extends Model
             $idsVistos[] = $campo['id'];
         }
 
-        // Inmutabilidad: si ya hay fichas asociadas, no se pueden eliminar ni cambiar tipo
-        // de campos existentes. Solo se pueden añadir campos nuevos.
         if ($this->exists && $this->tieneFichasAsociadas()) {
-            $schemaOriginal = TipoFicha::find($this->id)?->schema ?? ['campos' => []];
-            $idsOriginales = collect($schemaOriginal['campos'])->pluck('tipo', 'id')->all();
+            $schemaOriginal = TipoFicha::findOrFail($this->id)->schema;
+            $camposOriginales = $schemaOriginal['campos'] ?? [];
+            $tiposOriginales = [];
 
-            foreach ($idsOriginales as $id => $tipo) {
-                $campoActual = collect($schema['campos'])->firstWhere('id', $id);
+            if (is_array($camposOriginales)) {
+                foreach ($camposOriginales as $campoOriginal) {
+                    if (! is_array($campoOriginal)) {
+                        continue;
+                    }
 
-                // Eliminar un campo está permitido: las fichas existentes conservan
-                // schema_snapshot y siguen siendo coherentes (campo marcado como «retirado»).
+                    $id = $campoOriginal['id'] ?? null;
+                    $tipo = $campoOriginal['tipo'] ?? null;
+
+                    if (is_string($id) && is_string($tipo)) {
+                        $tiposOriginales[$id] = $tipo;
+                    }
+                }
+            }
+
+            foreach ($tiposOriginales as $id => $tipo) {
+                $campoActual = null;
+
+                foreach ($campos as $campo) {
+                    if ($campo['id'] === $id) {
+                        $campoActual = $campo;
+                        break;
+                    }
+                }
+
                 if ($campoActual === null) {
                     continue;
                 }
@@ -234,16 +241,12 @@ class TipoFicha extends Model
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Scopes
-    // -------------------------------------------------------------------------
-
     /**
      * Fichas activas disponibles para componer valoraciones.
      *
-     * @param Builder<TipoFicha> $query
+     * @param Builder<self> $query
      *
-     * @return Builder<TipoFicha>
+     * @return Builder<self>
      */
     public function scopeActivos(Builder $query): Builder
     {

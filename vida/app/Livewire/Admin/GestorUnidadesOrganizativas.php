@@ -6,6 +6,7 @@ use App\Models\UnidadOrganizativa;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
@@ -90,7 +91,7 @@ class GestorUnidadesOrganizativas extends Component
         }
 
         // Raíces con todos sus descendientes cargados
-        return UnidadOrganizativa::roots()
+        return UnidadOrganizativa::raiz()
             ->with(['descendantsAndSelf' => fn ($q) => $q->orderBy('nombre')])
             ->orderBy('nombre')
             ->get();
@@ -99,7 +100,7 @@ class GestorUnidadesOrganizativas extends Component
     /**
      * Catálogo de tipos de UO disponibles para el selector del formulario.
      *
-     * @return Collection<int, object>
+     * @return Collection<int, stdClass>
      */
     #[Computed]
     public function tiposDisponibles(): Collection
@@ -246,9 +247,6 @@ class GestorUnidadesOrganizativas extends Component
             'tipo.exists' => 'El tipo seleccionado no es válido.',
             'parentId.exists' => 'La UO padre seleccionada no existe.',
         ]);
-
-        // Nota: Livewire valida con las claves de propiedades (camelCase),
-        // pero el array final se mapea a snake_case para el modelo.
     }
 
     /**

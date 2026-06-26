@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\AuditableModel;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,8 @@ use Modules\Escalas\Models\PaseEscala;
 use Modules\Intervencion\Models\AsignacionProfesional;
 
 /**
+ * @use HasFactory<\Database\Factories\HistoriaSocialFactory>
+ *
  * Modelo stub de Historia Social.
  *
  * Stub mínimo para que las Policies y los tests puedan referenciar
@@ -30,9 +33,9 @@ use Modules\Intervencion\Models\AsignacionProfesional;
  *
  * @property int $id
  * @property int $ciudadano_id
- * @property int $unidad_organizativa_id UO responsable de la Historia
- * @property bool $ciudadano_protegido Ciudadano pertenece a colectivo especialmente protegido
- * @property string $estado abierta | en_seguimiento | cerrada
+ * @property int $unidad_organizativa_id
+ * @property bool $ciudadano_protegido
+ * @property string $estado
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon|null $deleted_at
@@ -40,7 +43,7 @@ use Modules\Intervencion\Models\AsignacionProfesional;
  * @todo Mover a Modules\Intervencion\Models\Historia y completar
  *       con todos los atributos, relaciones y lógica de dominio.
  */
-class HistoriaSocial extends Model
+class HistoriaSocial extends Model implements AuditableModel
 {
     use Auditable;
     use HasFactory;
@@ -67,10 +70,6 @@ class HistoriaSocial extends Model
         'ciudadano_protegido' => 'boolean',
     ];
 
-    // -------------------------------------------------------------------------
-    // Ciclo de vida
-    // -------------------------------------------------------------------------
-
     /**
      * Registra el Global Scope de ámbito de UO para filtrado automático.
      */
@@ -79,12 +78,8 @@ class HistoriaSocial extends Model
         static::addGlobalScope(new AmbitoUoScope);
     }
 
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
-
-    /** {@inheritDoc}
-     *
+    /**
+     * {@inheritDoc}
      */
     public function getCiudadanoId(): ?int
     {
@@ -95,7 +90,7 @@ class HistoriaSocial extends Model
      * Ciudadano titular de la Historia Social.
      * Sin FK en la migración (TODO: módulo Ciudadanía), por eso sin withoutGlobalScope.
      *
-     * @return BelongsTo<Ciudadano, HistoriaSocial>
+     * @return BelongsTo<Ciudadano, $this>
      */
     public function ciudadano(): BelongsTo
     {
@@ -105,7 +100,7 @@ class HistoriaSocial extends Model
     /**
      * UO responsable de la Historia Social.
      *
-     * @return BelongsTo<UnidadOrganizativa, HistoriaSocial>
+     * @return BelongsTo<UnidadOrganizativa, $this>
      */
     public function unidadOrganizativa(): BelongsTo
     {
@@ -116,7 +111,7 @@ class HistoriaSocial extends Model
      * Pases de escala registrados en esta historia social.
      * Filtrar por tipo_escala_id para obtener la serie temporal de un instrumento concreto.
      *
-     * @return HasMany<PaseEscala, HistoriaSocial>
+     * @return HasMany<PaseEscala, $this>
      */
     public function pasesEscala(): HasMany
     {
@@ -126,7 +121,7 @@ class HistoriaSocial extends Model
     /**
      * Historial completo de asignaciones de profesional de referencia.
      *
-     * @return HasMany<AsignacionProfesional, HistoriaSocial>
+     * @return HasMany<AsignacionProfesional, $this>
      */
     public function asignaciones(): HasMany
     {
@@ -136,7 +131,7 @@ class HistoriaSocial extends Model
     /**
      * Asignación de profesional de referencia actualmente vigente (fecha_fin null).
      *
-     * @return HasOne<AsignacionProfesional, HistoriaSocial>
+     * @return HasOne<AsignacionProfesional, $this>
      */
     public function asignacionVigente(): HasOne
     {

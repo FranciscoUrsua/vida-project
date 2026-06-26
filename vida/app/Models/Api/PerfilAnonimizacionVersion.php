@@ -17,20 +17,17 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $perfil_id
- * @property int $version Versión que tenía el perfil antes del cambio
- * @property array $campos
+ * @property int $version
+ * @property array<string, mixed> $campos
  * @property int|null $k_valor
  * @property Carbon $created_at
  */
 class PerfilAnonimizacionVersion extends Model
 {
-    /** @var string */
     protected $table = 'perfil_anonimizacion_versiones';
 
-    /** Los snapshots son inmutables — no hay updated_at */
     const UPDATED_AT = null;
 
-    /** @var list<string> */
     protected $fillable = [
         'perfil_id',
         'version',
@@ -38,7 +35,6 @@ class PerfilAnonimizacionVersion extends Model
         'k_valor',
     ];
 
-    /** @var array<string, string> */
     protected $casts = [
         'campos' => 'array',
         'version' => 'integer',
@@ -46,9 +42,7 @@ class PerfilAnonimizacionVersion extends Model
     ];
 
     /**
-     * Perfil al que pertenece este snapshot.
-     *
-     * @return BelongsTo<PerfilAnonimizacion, PerfilAnonimizacionVersion>
+     * @return BelongsTo<PerfilAnonimizacion, $this>
      */
     public function perfil(): BelongsTo
     {

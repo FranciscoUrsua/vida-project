@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Centro\Models\Centro;
 
+/** @extends Factory<PerfilHorarioProfesional> */
 class PerfilHorarioProfesionalFactory extends Factory
 {
     protected $model = PerfilHorarioProfesional::class;

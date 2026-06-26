@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Contracts\AuditableModel;
 use App\Enums\AccionAuditEnum;
 use App\Models\Audit;
 use App\Models\User;
@@ -55,17 +56,16 @@ class AuditService
             : AccionAuditEnum::from($accion);
 
         $resolvedCiudadanoId = $ciudadanoId
-            ?? (in_array(Auditable::class, class_uses_recursive($modelo))
+            ?? ($this->esAuditable($modelo)
                 ? $modelo->getCiudadanoId()
                 : null);
 
         $contextoCompleto = array_merge($this->contextoBase(), $contexto);
+        $request = request();
 
-        // Usamos el query builder directamente para evitar que el AuditObserver
-        // intercepte esta inserción y genere registros de auditoría recursivos.
         Audit::withoutEvents(function () use (
             $user, $modelo, $accionEnum, $resolvedCiudadanoId,
-            $datosAntes, $datosDespues, $contextoCompleto
+            $datosAntes, $datosDespues, $contextoCompleto, $request
         ): void {
             Audit::create([
                 'user_id' => $user->id,
@@ -75,11 +75,19 @@ class AuditService
                 'ciudadano_id' => $resolvedCiudadanoId,
                 'datos_antes' => $datosAntes,
                 'datos_despues' => $datosDespues,
-                'ip' => request()?->ip(),
-                'user_agent' => request()?->userAgent(),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
                 'contexto' => $contextoCompleto ?: null,
             ]);
         });
+    }
+
+    /**
+     * @phpstan-assert-if-true Model&AuditableModel $modelo
+     */
+    private function esAuditable(Model $modelo): bool
+    {
+        return in_array(Auditable::class, class_uses_recursive($modelo), true);
     }
 
     /**
@@ -90,15 +98,13 @@ class AuditService
     private function contextoBase(): array
     {
         $request = request();
+        $path = $request->path();
 
-        if (! $request) {
+        if ($path === '') {
             return [];
         }
 
-        $path = $request->path();
-
-        // En contexto de consola la request es un objeto vacío sin ruta real
-        if (empty($path) || $path === '/') {
+        if ($path === '/') {
             return [];
         }
 

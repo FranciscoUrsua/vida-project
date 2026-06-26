@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\AccesoProtegidoFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +10,8 @@ use Illuminate\Support\Carbon;
 use Modules\Usuarios\Policies\HistoriaSocialPolicy;
 
 /**
+ * @use HasFactory<AccesoProtegidoFactory>
+ *
  * Modelo de solicitud de acceso a ciudadano especialmente protegido.
  *
  * Registra el flujo de aprobación definido en la sección 3 de
@@ -37,10 +40,8 @@ class AccesoProtegido extends Model
 {
     use HasFactory;
 
-    /** @var string Tabla de base de datos */
     protected $table = 'accesos_protegidos';
 
-    /** @var list<string> Campos asignables en masa */
     protected $fillable = [
         'usuario_id',
         'ciudadano_id',
@@ -52,20 +53,15 @@ class AccesoProtegido extends Model
         'acceso_valido_hasta',
     ];
 
-    /** @var array<string, string> Conversiones de tipo */
     protected $casts = [
         'fecha_resolucion' => 'datetime',
         'acceso_valido_hasta' => 'datetime',
     ];
 
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
-
     /**
      * Profesional que solicitó el acceso.
      *
-     * @return BelongsTo<User, AccesoProtegido>
+     * @return BelongsTo<User, $this>
      */
     public function usuario(): BelongsTo
     {
@@ -75,7 +71,7 @@ class AccesoProtegido extends Model
     /**
      * Supervisor que aprobó o denegó la solicitud.
      *
-     * @return BelongsTo<User, AccesoProtegido>
+     * @return BelongsTo<User, $this>
      */
     public function aprobador(): BelongsTo
     {

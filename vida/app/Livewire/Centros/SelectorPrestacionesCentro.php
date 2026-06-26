@@ -19,7 +19,7 @@ use Modules\Prestaciones\Models\Prestacion;
  * por objetivo general usando las etiquetas de catalogos_sistema.
  * La selección se persiste en la tabla pivote centro_prestacion al guardar.
  *
- * @property-read Collection $prestacionesFiltradas
+ * @property-read Collection<string, Collection<int, Prestacion>> $prestacionesFiltradas
  * @property-read array<string, string> $segmentosFiltro
  */
 class SelectorPrestacionesCentro extends Component
@@ -86,14 +86,12 @@ class SelectorPrestacionesCentro extends Component
     #[Computed]
     public function prestacionesFiltradas(): Collection
     {
-        // Mapa clave → etiqueta para objetivo_general
         $etiquetasObjetivo = CatalogoSistema::opcionesParaSelect('prestacion.objetivo_general');
 
         $query = Prestacion::activas()
             ->orderBy('objetivo_general')
             ->orderBy('nombre');
 
-        // Filtro por texto de búsqueda (código o nombre)
         if ($this->busqueda !== '') {
             $busqueda = $this->busqueda;
             $query->where(function ($q) use ($busqueda) {
@@ -108,11 +106,15 @@ class SelectorPrestacionesCentro extends Component
         // no una FK a segmentos_poblacion. El filtro requiere mapear claves de catalogos_sistema
         // a segmentos del centro. Ver BACKLOG.md.
 
-        return $query->get()->groupBy(function (Prestacion $p) use ($etiquetasObjetivo) {
-            $clave = $p->objetivo_general;
+        /** @var Collection<string, Collection<int, Prestacion>> $prestacionesAgrupadas */
+        $prestacionesAgrupadas = $query->get()
+            ->groupBy(function (Prestacion $prestacion) use ($etiquetasObjetivo): string {
+                $clave = $prestacion->objetivo_general;
 
-            return $etiquetasObjetivo[$clave] ?? ($clave ?? 'Sin clasificar');
-        });
+                return $etiquetasObjetivo[$clave] ?? ($clave ?? 'Sin clasificar');
+            });
+
+        return $prestacionesAgrupadas;
     }
 
     /**

@@ -31,7 +31,7 @@ use Modules\Documentos\Enums\MetodoFirma;
  * @property int $ciudadano_id
  * @property int $autor_id
  * @property EstadoInforme $estado
- * @property array $contenido
+ * @property array<string, mixed> $contenido
  * @property int|null $documento_id
  * @property Carbon|null $firmado_en
  * @property MetodoFirma|null $metodo_firma
@@ -59,7 +59,7 @@ class Informe extends Model
     /**
      * Plantilla utilizada para construir el informe.
      *
-     * @return BelongsTo<PlantillaInforme, self>
+     * @return BelongsTo<PlantillaInforme, $this>
      */
     public function plantilla(): BelongsTo
     {
@@ -69,7 +69,7 @@ class Informe extends Model
     /**
      * Historia social vinculada al informe, si existe.
      *
-     * @return BelongsTo<HistoriaSocial, self>
+     * @return BelongsTo<HistoriaSocial, $this>
      */
     public function historiaSocial(): BelongsTo
     {
@@ -87,7 +87,7 @@ class Informe extends Model
     /**
      * Ciudadano destinatario del informe.
      *
-     * @return BelongsTo<Ciudadano, self>
+     * @return BelongsTo<Ciudadano, $this>
      */
     public function ciudadano(): BelongsTo
     {
@@ -97,7 +97,7 @@ class Informe extends Model
     /**
      * Autor que creó el informe.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function autor(): BelongsTo
     {
@@ -107,7 +107,7 @@ class Informe extends Model
     /**
      * Documento PDF asociado al informe, si existe.
      *
-     * @return BelongsTo<Documento, self>
+     * @return BelongsTo<Documento, $this>
      */
     public function documento(): BelongsTo
     {

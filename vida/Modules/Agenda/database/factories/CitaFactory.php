@@ -8,6 +8,7 @@ use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Enums\OrigenCita;
 use Modules\Agenda\Models\Cita;
 
+/** @extends Factory<Cita> */
 class CitaFactory extends Factory
 {
     protected $model = Cita::class;

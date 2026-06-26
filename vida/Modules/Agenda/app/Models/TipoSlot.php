@@ -29,6 +29,7 @@ use Modules\Agenda\Enums\OrigenPermitidoSlot;
  */
 class TipoSlot extends Model
 {
+    /** @use HasFactory<TipoSlotFactory> */
     use HasFactory;
 
     protected static function newFactory(): TipoSlotFactory
@@ -52,7 +53,7 @@ class TipoSlot extends Model
     /**
      * Horario centro al que pertenece el tipo de slot.
      *
-     * @return BelongsTo<HorarioCentro, self>
+     * @return BelongsTo<HorarioCentro, $this>
      */
     public function horarioCentro(): BelongsTo
     {
@@ -62,7 +63,7 @@ class TipoSlot extends Model
     /**
      * Slots creados para este tipo de atención.
      *
-     * @return HasMany<Slot>
+     * @return HasMany<Slot, $this>
      */
     public function slots(): HasMany
     {

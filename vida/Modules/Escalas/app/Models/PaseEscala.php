@@ -26,9 +26,9 @@ use Modules\Escalas\Enums\EstadoPase;
  * @property int $historia_id
  * @property int $profesional_id
  * @property Carbon $fecha
- * @property array $respuestas
+ * @property array<string, mixed> $respuestas
  * @property int|null $score_total
- * @property array|null $scores_seccion
+ * @property array<string, mixed>|null $scores_seccion
  * @property string|null $interpretacion_codigo
  * @property string|null $notas
  * @property EstadoPase $estado
@@ -66,17 +66,12 @@ class PaseEscala extends Model
         'estado' => EstadoPase::class,
     ];
 
-    // -------------------------------------------------------------------------
-    // Ciclo de vida
-    // -------------------------------------------------------------------------
-
     /**
      * Los campos de score son inmutables en un pase completado.
      */
     protected static function booted(): void
     {
         static::updating(function (self $model) {
-            // getOriginal aplica el cast en Laravel 12, por eso comparamos contra el enum
             if ($model->getOriginal('estado') === EstadoPase::Completado) {
                 foreach (['score_total', 'scores_seccion', 'interpretacion_codigo'] as $campo) {
                     if ($model->isDirty($campo)) {
@@ -88,10 +83,6 @@ class PaseEscala extends Model
             }
         });
     }
-
-    // -------------------------------------------------------------------------
-    // Lógica de cálculo
-    // -------------------------------------------------------------------------
 
     /**
      * Suma los valores de todas las respuestas y calcula los scores por sección.
@@ -140,7 +131,6 @@ class PaseEscala extends Model
     /**
      * Orquesta el cierre del pase: valida respuestas, calcula scores, persiste.
      *
-     *
      * @throws \LogicException Si falta respuesta para algún ítem del schema.
      */
     public function completar(): void
@@ -171,14 +161,10 @@ class PaseEscala extends Model
         $this->save();
     }
 
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
-
     /**
      * Instrumento aplicado en este pase.
      *
-     * @return BelongsTo<TipoEscala, self>
+     * @return BelongsTo<TipoEscala, $this>
      */
     public function tipoEscala(): BelongsTo
     {
@@ -196,7 +182,7 @@ class PaseEscala extends Model
     /**
      * Historia social del ciudadano al que se aplica la escala.
      *
-     * @return BelongsTo<HistoriaSocial, self>
+     * @return BelongsTo<HistoriaSocial, $this>
      */
     public function historia(): BelongsTo
     {
@@ -206,16 +192,12 @@ class PaseEscala extends Model
     /**
      * Profesional que aplicó la escala.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function profesional(): BelongsTo
     {
         return $this->belongsTo(User::class, 'profesional_id');
     }
-
-    // -------------------------------------------------------------------------
-    // Factory
-    // -------------------------------------------------------------------------
 
     protected static function newFactory(): PaseEscalaFactory
     {

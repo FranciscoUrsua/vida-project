@@ -86,7 +86,7 @@ class CiudadanoPrestacionResumen extends Model
     // -------------------------------------------------------------------------
 
     /**
-     * @return BelongsTo<Ciudadano, CiudadanoPrestacionResumen>
+     * @return BelongsTo<Ciudadano, $this>
      */
     public function ciudadano(): BelongsTo
     {

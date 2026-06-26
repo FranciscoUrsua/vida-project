@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
@@ -40,7 +41,6 @@ class UnidadConvivencia extends Model
 {
     /** @use HasFactory<UnidadConvivenciaFactory> */
     use HasFactory;
-
     use SoftDeletes;
     use Versionable;
 
@@ -62,12 +62,10 @@ class UnidadConvivencia extends Model
         'longitud' => 'decimal:7',
     ];
 
-    // -------------------------------------------------------------------------
-    // Cifrado en aplicación
-    // -------------------------------------------------------------------------
-
     /**
      * El domicilio se cifra antes de persistir y se descifra al recuperar.
+     *
+     * @return Attribute<string|null, string|null>
      */
     protected function domicilio(): Attribute
     {
@@ -77,14 +75,10 @@ class UnidadConvivencia extends Model
         );
     }
 
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
-
     /**
      * Todas las membresías (históricas y activas).
      *
-     * @return HasMany<UnidadConvivenciaMiembro, self>
+     * @return HasMany<UnidadConvivenciaMiembro, $this>
      */
     public function miembros(): HasMany
     {
@@ -94,7 +88,7 @@ class UnidadConvivencia extends Model
     /**
      * Solo miembros activos (sin fecha_fin).
      *
-     * @return HasMany<UnidadConvivenciaMiembro, self>
+     * @return HasMany<UnidadConvivenciaMiembro, $this>
      */
     public function miembrosActivos(): HasMany
     {
@@ -104,7 +98,7 @@ class UnidadConvivencia extends Model
     /**
      * Miembros activos con residencia verificada.
      *
-     * @return HasMany<UnidadConvivenciaMiembro, self>
+     * @return HasMany<UnidadConvivenciaMiembro, $this>
      */
     public function miembrosVerificados(): HasMany
     {
@@ -114,7 +108,7 @@ class UnidadConvivencia extends Model
     /**
      * Ciudadanos que pertenecen o han pertenecido a esta UC.
      *
-     * @return BelongsToMany<Ciudadano, self>
+     * @return BelongsToMany<Ciudadano, $this, Pivot, 'pivot'>
      */
     public function ciudadanos(): BelongsToMany
     {
@@ -123,14 +117,9 @@ class UnidadConvivencia extends Model
             'unidad_convivencia_miembros',
             'unidad_convivencia_id',
             'ciudadano_id'
-        )->withPivot(['fecha_inicio', 'fecha_fin', 'fuente', 'verificado',
-            'verificado_por', 'verificado_en'])
+        )->withPivot(['fecha_inicio', 'fecha_fin', 'fuente', 'verificado', 'verificado_por', 'verificado_en'])
             ->withTimestamps();
     }
-
-    // -------------------------------------------------------------------------
-    // Métodos de negocio
-    // -------------------------------------------------------------------------
 
     /**
      * Indica si la unidad está disuelta (fecha_disolucion en el pasado).
@@ -197,10 +186,6 @@ class UnidadConvivencia extends Model
 
         $miembro->update(['fecha_fin' => $fechaFin ?? now()->toDateString()]);
     }
-
-    // -------------------------------------------------------------------------
-    // Factory
-    // -------------------------------------------------------------------------
 
     protected static function newFactory(): UnidadConvivenciaFactory
     {

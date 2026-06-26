@@ -262,15 +262,19 @@ class TipoEscalaResource extends Resource
                                     }
 
                                     // Viene del modelo: ['secciones' => [...]]
-                                    if (is_array($state) && isset($state['secciones'])) {
-                                        $builderState = collect($state['secciones'])
-                                            ->filter(fn ($s) => is_array($s))
-                                            ->map(fn (array $seccion) => [
+                                    if (is_array($state) && isset($state['secciones']) && is_array($state['secciones'])) {
+                                        $builderState = [];
+
+                                        foreach ($state['secciones'] as $seccion) {
+                                            if (! is_array($seccion)) {
+                                                continue;
+                                            }
+
+                                            $builderState[] = [
                                                 'type' => 'seccion',
                                                 'data' => $seccion,
-                                            ])
-                                            ->values()
-                                            ->all();
+                                            ];
+                                        }
 
                                         $component->state($builderState);
 
@@ -285,34 +289,38 @@ class TipoEscalaResource extends Resource
                                         return ['secciones' => []];
                                     }
 
-                                    $secciones = collect($state)
-                                        ->filter(fn ($block) => is_array($block) && ($block['type'] ?? null) === 'seccion')
-                                        ->map(function (array $block, int $si) {
-                                            $seccion = $block['data'] ?? [];
+                                    $secciones = [];
 
-                                            if (! is_array($seccion)) {
-                                                return null;
+                                    foreach ($state as $si => $block) {
+                                        if (! is_array($block) || (($block['type'] ?? null) !== 'seccion')) {
+                                            continue;
+                                        }
+
+                                        $seccion = $block['data'] ?? [];
+                                        if (! is_array($seccion)) {
+                                            continue;
+                                        }
+
+                                        $seccion['id'] ??= 'sec_'.($si + 1);
+                                        $seccion['orden'] = $si + 1;
+
+                                        $items = [];
+                                        $rawItems = $seccion['items'] ?? [];
+                                        if (is_array($rawItems)) {
+                                            foreach ($rawItems as $ii => $item) {
+                                                if (! is_array($item)) {
+                                                    continue;
+                                                }
+
+                                                $item['id'] ??= 'item_'.($si + 1).'_'.($ii + 1);
+                                                $item['orden'] = $ii + 1;
+                                                $items[] = $item;
                                             }
+                                        }
 
-                                            $seccion['id'] ??= 'sec_'.($si + 1);
-                                            $seccion['orden'] = $si + 1;
-
-                                            $seccion['items'] = collect($seccion['items'] ?? [])
-                                                ->filter(fn ($item) => is_array($item))
-                                                ->map(function (array $item, int $ii) use ($si) {
-                                                    $item['id'] ??= 'item_'.($si + 1).'_'.($ii + 1);
-                                                    $item['orden'] = $ii + 1;
-
-                                                    return $item;
-                                                })
-                                                ->values()
-                                                ->all();
-
-                                            return $seccion;
-                                        })
-                                        ->filter()
-                                        ->values()
-                                        ->all();
+                                        $seccion['items'] = $items;
+                                        $secciones[] = $seccion;
+                                    }
 
                                     return ['secciones' => $secciones];
                                 }),

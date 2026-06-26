@@ -20,6 +20,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\SegmentoPoblacion;
@@ -45,15 +46,9 @@ class CentroResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    /**
-     * Define el formulario de alta y edición de centros.
-     *
-     * @param Schema $schema Esquema base.
-     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-
             Section::make('Identificación')
                 ->columns(2)
                 ->schema([
@@ -177,15 +172,9 @@ class CentroResource extends Resource
                         ->options(fn () => SegmentoPoblacion::where('activo', true)->orderBy('nombre')->pluck('nombre', 'id'))
                         ->columns(3),
                 ]),
-
         ]);
     }
 
-    /**
-     * Define la tabla de listado de centros.
-     *
-     * @param Table $table Tabla base.
-     */
     public static function table(Table $table): Table
     {
         return $table
@@ -194,7 +183,7 @@ class CentroResource extends Resource
                     ->label('Nombre')
                     ->description(fn (Centro $record) => $record->nombre)
                     ->searchable(['nombre', 'nombre_corto'])
-                    ->sortable('nombre'),
+                    ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy('nombre', $direction)),
 
                 Tables\Columns\TextColumn::make('tipo_gestion')
                     ->label('Tipo de gestión')
@@ -244,29 +233,16 @@ class CentroResource extends Resource
             ->defaultSort('nombre');
     }
 
-    /** Cualquier usuario autenticado puede consultar el catálogo de centros.
-     *
-     */
     public static function canViewAny(): bool
     {
         return auth()->check();
     }
 
-    /**
-     * Indica si el usuario puede editar un centro.
-     *
-     * @param Model $record Registro objetivo.
-     */
     public static function canEdit(Model $record): bool
     {
-        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
+        return auth()->user()?->can('centros.editar') ?? false;
     }
 
-    /**
-     * Indica si el usuario puede eliminar un centro.
-     *
-     * @param Model $record Registro objetivo.
-     */
     public static function canDelete(Model $record): bool
     {
         return static::canEdit($record);
@@ -274,6 +250,8 @@ class CentroResource extends Resource
 
     /**
      * Define los relation managers del recurso de centros.
+     *
+     * @return array<int, class-string>
      */
     public static function getRelationManagers(): array
     {
@@ -283,9 +261,6 @@ class CentroResource extends Resource
         ];
     }
 
-    /**
-     * Define las páginas del recurso de centros.
-     */
     public static function getPages(): array
     {
         return [

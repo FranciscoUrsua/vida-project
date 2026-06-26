@@ -23,11 +23,11 @@ use LogicException;
  * @property string $auditable_type
  * @property int $auditable_id
  * @property int|null $ciudadano_id
- * @property array|null $datos_antes
- * @property array|null $datos_despues
+ * @property array<string, mixed>|null $datos_antes
+ * @property array<string, mixed>|null $datos_despues
  * @property string|null $ip
  * @property string|null $user_agent
- * @property array|null $contexto
+ * @property array<string, mixed>|null $contexto
  * @property Carbon $created_at
  *
  * @see docs/modulo-auditoria.md §2
@@ -64,10 +64,6 @@ class Audit extends Model
         'created_at' => 'datetime',
     ];
 
-    // -------------------------------------------------------------------------
-    // Inmutabilidad
-    // -------------------------------------------------------------------------
-
     /**
      * @param array<string, mixed> $attributes Atributos a actualizar.
      * @param array<string, mixed> $options Opciones de persistencia.
@@ -87,14 +83,10 @@ class Audit extends Model
         throw new LogicException('Los registros de auditoría no pueden eliminarse individualmente. Use AuditPurgeCommand.');
     }
 
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
-
     /**
      * Modelo afectado (polimórfico).
      *
-     * @return MorphTo<Model, Audit>
+     * @return MorphTo<Model, $this>
      */
     public function auditable(): MorphTo
     {
@@ -104,7 +96,7 @@ class Audit extends Model
     /**
      * Profesional que realizó la acción.
      *
-     * @return BelongsTo<User, Audit>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -114,7 +106,7 @@ class Audit extends Model
     /**
      * Ciudadano al que pertenece el dato accedido.
      *
-     * @return BelongsTo<Ciudadano, Audit>
+     * @return BelongsTo<Ciudadano, $this>
      */
     public function ciudadano(): BelongsTo
     {

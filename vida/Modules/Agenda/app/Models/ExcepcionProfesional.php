@@ -34,6 +34,7 @@ use Modules\Centro\Models\Centro;
  */
 class ExcepcionProfesional extends Model
 {
+    /** @use HasFactory<ExcepcionProfesionalFactory> */
     use HasFactory;
 
     protected static function newFactory(): ExcepcionProfesionalFactory
@@ -57,7 +58,7 @@ class ExcepcionProfesional extends Model
     /**
      * Profesional afectado por la excepción.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function usuario(): BelongsTo
     {
@@ -67,7 +68,7 @@ class ExcepcionProfesional extends Model
     /**
      * Centro al que se aplica la excepción.
      *
-     * @return BelongsTo<Centro, self>
+     * @return BelongsTo<Centro, $this>
      */
     public function centro(): BelongsTo
     {
@@ -77,7 +78,7 @@ class ExcepcionProfesional extends Model
     /**
      * Usuario que registró la excepción.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function creadoPor(): BelongsTo
     {
@@ -124,12 +125,12 @@ class ExcepcionProfesional extends Model
      * Filtra excepciones que solapan con un periodo dado.
      *
      * @param Builder<ExcepcionProfesional> $query
-     * @param mixed $desde
-     * @param mixed $hasta
+     * @param Carbon|string $desde
+     * @param Carbon|string $hasta
      *
      * @return Builder<ExcepcionProfesional>
      */
-    public function scopeEnPeriodo(Builder $query, $desde, $hasta): Builder
+    public function scopeEnPeriodo(Builder $query, Carbon|string $desde, Carbon|string $hasta): Builder
     {
         // Solapamiento de períodos: existen si fecha_inicio <= $hasta Y fecha_fin >= $desde
         return $query->where('fecha_inicio', '<=', $hasta)

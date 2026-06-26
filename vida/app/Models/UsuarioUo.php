@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\UsuarioUoFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
+ * @use HasFactory<UsuarioUoFactory>
+ *
  * Adscripción de un usuario a una Unidad Organizativa.
  *
  * Registra en qué UO opera el usuario y con qué tipo de vínculo laboral.
@@ -32,10 +35,8 @@ class UsuarioUo extends Model
 {
     use HasFactory;
 
-    /** @var string Tabla de base de datos */
     protected $table = 'usuario_uo';
 
-    /** @var list<string> Campos asignables en masa */
     protected $fillable = [
         'usuario_id',
         'unidad_organizativa_id',
@@ -44,20 +45,13 @@ class UsuarioUo extends Model
         'fecha_fin',
     ];
 
-    /** @var array<string, string> Conversiones de tipo */
     protected $casts = [
         'fecha_inicio' => 'date',
         'fecha_fin' => 'date',
     ];
 
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
-
     /**
-     * Usuario al que corresponde esta adscripción.
-     *
-     * @return BelongsTo<User, UsuarioUo>
+     * @return BelongsTo<User, $this>
      */
     public function usuario(): BelongsTo
     {
@@ -65,23 +59,14 @@ class UsuarioUo extends Model
     }
 
     /**
-     * Unidad Organizativa a la que el usuario está adscrito.
-     *
-     * @return BelongsTo<UnidadOrganizativa, UsuarioUo>
+     * @return BelongsTo<UnidadOrganizativa, $this>
      */
     public function unidadOrganizativa(): BelongsTo
     {
         return $this->belongsTo(UnidadOrganizativa::class, 'unidad_organizativa_id');
     }
 
-    // -------------------------------------------------------------------------
-    // Scopes
-    // -------------------------------------------------------------------------
-
     /**
-     * Filtra únicamente las adscripciones vigentes:
-     * aquellas donde fecha_fin es null o todavía no ha llegado.
-     *
      * @param Builder<UsuarioUo> $consulta
      *
      * @return Builder<UsuarioUo>

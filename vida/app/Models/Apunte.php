@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\AmbitoUoScope;
+use Database\Factories\ApunteFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
+ * @use HasFactory<ApunteFactory>
+ *
  * Modelo stub de Apunte (acto profesional).
  *
  * Stub mínimo para que las Policies y los tests puedan referenciar
@@ -63,29 +66,15 @@ class Apunte extends Model
         'privada' => 'boolean',
     ];
 
-    // -------------------------------------------------------------------------
-    // Ciclo de vida
-    // -------------------------------------------------------------------------
-
-    /**
-     * Registra el Global Scope de ámbito de UO y el filtro de privacidad.
-     *
-     * El AmbitoUoScope filtra por Historia Social. Para los apuntes privados,
-     * el acceso se controla mediante la Policy (regla absoluta de autor).
-     */
     protected static function booted(): void
     {
         static::addGlobalScope(new AmbitoUoScope);
     }
 
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
-
     /**
      * Historia Social a la que pertenece este apunte.
      *
-     * @return BelongsTo<HistoriaSocial, Apunte>
+     * @return BelongsTo<HistoriaSocial, $this>
      */
     public function historiaSocial(): BelongsTo
     {
@@ -95,7 +84,7 @@ class Apunte extends Model
     /**
      * Profesional autor del apunte.
      *
-     * @return BelongsTo<User, Apunte>
+     * @return BelongsTo<User, $this>
      */
     public function profesional(): BelongsTo
     {

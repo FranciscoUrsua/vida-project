@@ -81,7 +81,7 @@ class CiudadanoIdentificador extends Model
     /**
      * Ciudadano titular del identificador.
      *
-     * @return BelongsTo<Ciudadano, self>
+     * @return BelongsTo<Ciudadano, $this>
      */
     public function ciudadano(): BelongsTo
     {

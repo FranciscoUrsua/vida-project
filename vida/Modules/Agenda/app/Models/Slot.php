@@ -34,6 +34,7 @@ use Modules\Centro\Models\Espacio;
  */
 class Slot extends Model
 {
+    /** @use HasFactory<SlotFactory> */
     use HasFactory;
 
     protected static function newFactory(): SlotFactory
@@ -53,7 +54,7 @@ class Slot extends Model
     /**
      * Línea de cuadrante a la que pertenece el slot.
      *
-     * @return BelongsTo<LineaCuadrante, self>
+     * @return BelongsTo<LineaCuadrante, $this>
      */
     public function lineaCuadrante(): BelongsTo
     {
@@ -63,7 +64,7 @@ class Slot extends Model
     /**
      * Profesional al que pertenece el slot.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function usuario(): BelongsTo
     {
@@ -73,7 +74,7 @@ class Slot extends Model
     /**
      * Centro al que pertenece el slot.
      *
-     * @return BelongsTo<Centro, self>
+     * @return BelongsTo<Centro, $this>
      */
     public function centro(): BelongsTo
     {
@@ -83,7 +84,7 @@ class Slot extends Model
     /**
      * Tipo de slot del hueco.
      *
-     * @return BelongsTo<TipoSlot, self>
+     * @return BelongsTo<TipoSlot, $this>
      */
     public function tipoSlot(): BelongsTo
     {
@@ -93,7 +94,7 @@ class Slot extends Model
     /**
      * Espacio físico reservado por el slot, si existe.
      *
-     * @return BelongsTo<Espacio, self>
+     * @return BelongsTo<Espacio, $this>
      */
     public function espacio(): BelongsTo
     {
@@ -103,7 +104,7 @@ class Slot extends Model
     /**
      * Cita asociada al slot, si existe.
      *
-     * @return HasOne<Cita>
+     * @return HasOne<Cita, $this>
      */
     public function cita(): HasOne
     {
@@ -150,11 +151,11 @@ class Slot extends Model
      * Filtra slots de una fecha concreta.
      *
      * @param Builder<Slot> $query
-     * @param mixed $fecha
+     * @param Carbon|string $fecha
      *
      * @return Builder<Slot>
      */
-    public function scopeDelDia(Builder $query, $fecha): Builder
+    public function scopeDelDia(Builder $query, Carbon|string $fecha): Builder
     {
         return $query->where('fecha', $fecha);
     }

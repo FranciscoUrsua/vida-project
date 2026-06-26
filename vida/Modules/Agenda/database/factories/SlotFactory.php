@@ -8,6 +8,7 @@ use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Agenda\Models\Slot;
 use Modules\Centro\Models\Centro;
 
+/** @extends Factory<Slot> */
 class SlotFactory extends Factory
 {
     protected $model = Slot::class;

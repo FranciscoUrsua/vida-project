@@ -9,6 +9,7 @@ use Modules\Agenda\Enums\TipoExcepcion;
 use Modules\Agenda\Models\ExcepcionProfesional;
 use Modules\Centro\Models\Centro;
 
+/** @extends Factory<ExcepcionProfesional> */
 class ExcepcionProfesionalFactory extends Factory
 {
     protected $model = ExcepcionProfesional::class;

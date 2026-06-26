@@ -4,6 +4,7 @@ namespace App\Filament\Resources\PrestacionResource\Pages;
 
 use App\Filament\Resources\PrestacionResource;
 use Filament\Resources\Pages\CreateRecord;
+use Modules\Prestaciones\Models\Prestacion;
 use Modules\Prestaciones\Models\PrestacionTipoCentro;
 
 /**
@@ -15,11 +16,15 @@ class CreatePrestacion extends CreateRecord
 
     protected function afterCreate(): void
     {
-        $tiposCentro = $this->data['tiposCentroKeys'] ?? [];
+        /** @var Prestacion $prestacion */
+        $prestacion = $this->record;
+        $tiposCentro = is_array($this->data['tiposCentroKeys'] ?? null)
+            ? $this->data['tiposCentroKeys']
+            : [];
 
         foreach ($tiposCentro as $tipo) {
             PrestacionTipoCentro::create([
-                'prestacion_id' => $this->record->id,
+                'prestacion_id' => $prestacion->id,
                 'tipo_centro' => $tipo,
             ]);
         }

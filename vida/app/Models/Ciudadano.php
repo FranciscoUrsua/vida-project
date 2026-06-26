@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Contracts\AuditableModel;
+use App\Contracts\DireccionableModel;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Traits\Auditable;
 use App\Traits\TieneDireccion;
@@ -10,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Modules\Atencion\Models\RegistroAtencion;
@@ -19,6 +22,8 @@ use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 
 /**
+ * @use HasFactory<\Database\Factories\CiudadanoFactory>
+ *
  * Modelo stub de Ciudadano.
  *
  * Stub mínimo para que los módulos que referencian ciudadanos puedan
@@ -55,7 +60,7 @@ use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
  * @todo Mover a Modules\Ciudadania\Models\Ciudadano y completar
  *       con todos los atributos, relaciones y lógica de dominio.
  */
-class Ciudadano extends Model
+class Ciudadano extends Model implements AuditableModel, DireccionableModel
 {
     use Auditable;
     use HasFactory;
@@ -70,10 +75,6 @@ class Ciudadano extends Model
 
     /** @var string */
     protected $table = 'ciudadanos';
-
-    // -------------------------------------------------------------------------
-    // Ciclo de vida
-    // -------------------------------------------------------------------------
 
     /**
      * Registra el Global Scope de ámbito de UO para filtrado automático.
@@ -91,7 +92,6 @@ class Ciudadano extends Model
         'apellido2',
         'fecha_nacimiento',
         'sexo',
-        // Dirección canónica — campos del trait TieneDireccion
         'direccion_texto',
         'direccion_normalizada',
         'origen_direccion',
@@ -108,7 +108,6 @@ class Ciudadano extends Model
         'coordenadas_lat',
         'coordenadas_lng',
         'geocoder_proveedor',
-        // Contacto
         'telefono',
         'telefono_hash',
         'email',
@@ -117,7 +116,6 @@ class Ciudadano extends Model
         'contexto_alta',
         'primera_demanda',
         'activo',
-        // Colectivos especiales (anonimización)
         'es_vvg',
         'es_psh',
         'colectivo_extra_protegido',
@@ -141,12 +139,7 @@ class Ciudadano extends Model
         'es_vvg' => 'boolean',
         'es_psh' => 'boolean',
         'colectivo_extra_protegido' => 'boolean',
-        // TieneDireccion inyecta sus propios casts via initializeTieneDireccion()
     ];
-
-    // -------------------------------------------------------------------------
-    // Accesores
-    // -------------------------------------------------------------------------
 
     /**
      * Nombre completo del ciudadano: nombre + apellido1 [+ apellido2].
@@ -157,12 +150,8 @@ class Ciudadano extends Model
         return trim("{$this->nombre} {$this->apellido1} {$this->apellido2}");
     }
 
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
-
-    /** El ciudadano es la entidad raíz: su propio id es el ciudadano_id.
-     *
+    /**
+     * El ciudadano es la entidad raíz: su propio id es el ciudadano_id.
      */
     public function getCiudadanoId(): ?int
     {
@@ -173,7 +162,7 @@ class Ciudadano extends Model
      * Resumen de prestaciones y actividades sin historia social asociada.
      * Alimentado por observers de cada módulo origen.
      *
-     * @return HasMany<CiudadanoPrestacionResumen, self>
+     * @return HasMany<CiudadanoPrestacionResumen, $this>
      */
     public function prestacionesResumen(): HasMany
     {
@@ -183,7 +172,7 @@ class Ciudadano extends Model
     /**
      * Todas las membresías UC del ciudadano (históricas y activas).
      *
-     * @return HasMany<UnidadConvivenciaMiembro, self>
+     * @return HasMany<UnidadConvivenciaMiembro, $this>
      */
     public function membresiasUC(): HasMany
     {
@@ -193,7 +182,7 @@ class Ciudadano extends Model
     /**
      * Unidades de convivencia a las que ha pertenecido el ciudadano.
      *
-     * @return BelongsToMany<UnidadConvivencia, self>
+     * @return BelongsToMany<UnidadConvivencia, $this, Pivot, 'pivot'>
      */
     public function unidadesConvivencia(): BelongsToMany
     {
@@ -202,15 +191,14 @@ class Ciudadano extends Model
             'unidad_convivencia_miembros',
             'ciudadano_id',
             'unidad_convivencia_id'
-        )->withPivot(['fecha_inicio', 'fecha_fin', 'fuente', 'verificado',
-            'verificado_por', 'verificado_en'])
+        )->withPivot(['fecha_inicio', 'fecha_fin', 'fuente', 'verificado', 'verificado_por', 'verificado_en'])
             ->withTimestamps();
     }
 
     /**
      * Unidades de convivencia activas (puede ser más de una: custodia compartida).
      *
-     * @return BelongsToMany<UnidadConvivencia, self>
+     * @return BelongsToMany<UnidadConvivencia, $this, Pivot, 'pivot'>
      */
     public function unidadesConvivenciaActivas(): BelongsToMany
     {
@@ -221,7 +209,7 @@ class Ciudadano extends Model
     /**
      * Historial completo de atenciones, ordenado por fecha descendente.
      *
-     * @return HasMany<RegistroAtencion>
+     * @return HasMany<RegistroAtencion, $this>
      */
     public function registrosAtencion(): HasMany
     {
@@ -233,7 +221,7 @@ class Ciudadano extends Model
     /**
      * Última atención recibida por el ciudadano.
      *
-     * @return HasOne<RegistroAtencion>
+     * @return HasOne<RegistroAtencion, $this>
      */
     public function ultimaAtencion(): HasOne
     {
@@ -244,7 +232,7 @@ class Ciudadano extends Model
     /**
      * Documento de identidad vigente del ciudadano (fecha_fin null, más reciente).
      *
-     * @return HasOne<CiudadanoIdentificador, self>
+     * @return HasOne<CiudadanoIdentificador, $this>
      */
     public function documentoVigente(): HasOne
     {

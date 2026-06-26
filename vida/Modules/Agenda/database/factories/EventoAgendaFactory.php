@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Agenda\Models\EventoAgenda;
 use Modules\Centro\Models\Centro;
 
+/** @extends Factory<EventoAgenda> */
 class EventoAgendaFactory extends Factory
 {
     protected $model = EventoAgenda::class;

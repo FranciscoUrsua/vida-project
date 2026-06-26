@@ -23,8 +23,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  */
 trait Auditable
 {
-    /** Registra el observer de auditoría al arrancar el modelo.
-     *
+    /**
+     * Registra el observer de auditoría al arrancar el modelo.
      */
     public static function bootAuditable(): void
     {
@@ -34,7 +34,7 @@ trait Auditable
     /**
      * Todos los registros de auditoría de este modelo.
      *
-     * @return MorphMany<Audit>
+     * @return MorphMany<Audit, $this>
      */
     public function audits(): MorphMany
     {

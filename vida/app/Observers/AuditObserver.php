@@ -2,9 +2,9 @@
 
 namespace App\Observers;
 
+use App\Contracts\AuditableModel;
 use App\Enums\AccionAuditEnum;
 use App\Services\AuditService;
-use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,15 +25,15 @@ class AuditObserver
 {
     /**
      * Inyecta el servicio de auditoría.
-     *
-     * @param AuditService $service Servicio de auditoría.
      */
     public function __construct(private readonly AuditService $service) {}
 
     /**
      * Registra la creación de un modelo auditable.
      *
-     * @param Model&Auditable $model Modelo afectado.
+     * @param Model $model Modelo afectado.
+     *
+     * @phpstan-param Model&AuditableModel $model
      */
     public function created(Model $model): void
     {
@@ -52,7 +52,9 @@ class AuditObserver
     /**
      * Registra la edición de un modelo auditable con diff de campos cambiados.
      *
-     * @param Model&Auditable $model Modelo afectado.
+     * @param Model $model Modelo afectado.
+     *
+     * @phpstan-param Model&AuditableModel $model
      */
     public function updated(Model $model): void
     {
@@ -81,7 +83,9 @@ class AuditObserver
     /**
      * Registra la eliminación (soft o hard) de un modelo auditable.
      *
-     * @param Model&Auditable $model Modelo afectado.
+     * @param Model $model Modelo afectado.
+     *
+     * @phpstan-param Model&AuditableModel $model
      */
     public function deleting(Model $model): void
     {
@@ -100,9 +104,11 @@ class AuditObserver
     /**
      * Snapshot de todos los campos auditables del modelo.
      *
-     * @param Model&Auditable $model
+     * @param Model $model
      *
      * @return array<string, mixed>
+     *
+     * @phpstan-param Model&AuditableModel $model
      */
     private function snapshot(Model $model): array
     {

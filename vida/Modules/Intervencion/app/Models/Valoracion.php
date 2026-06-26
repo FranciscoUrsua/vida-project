@@ -14,6 +14,8 @@ use Modules\Intervencion\Database\Factories\ValoracionFactory;
 use Modules\Intervencion\Enums\EstadoValoracion;
 
 /**
+ * @use HasFactory<ValoracionFactory>
+ *
  * Valoración diagnóstica estructurada del ciudadano.
  *
  * Tiene ciclo de vida propio: puede completarse en varias sesiones,
@@ -56,10 +58,6 @@ class Valoracion extends Model
         'estado' => EstadoValoracion::class,
     ];
 
-    // -------------------------------------------------------------------------
-    // Relaciones
-    // -------------------------------------------------------------------------
-
     /**
      * Devuelve el ciudadano asociado a la historia social de la valoración.
      */
@@ -69,7 +67,7 @@ class Valoracion extends Model
     }
 
     /**
-     * @return BelongsTo<HistoriaSocial, Valoracion>
+     * @return BelongsTo<HistoriaSocial, $this>
      */
     public function historia(): BelongsTo
     {
@@ -77,7 +75,7 @@ class Valoracion extends Model
     }
 
     /**
-     * @return BelongsTo<Entrevista, Valoracion>
+     * @return BelongsTo<Entrevista, $this>
      */
     public function entrevista(): BelongsTo
     {
@@ -85,7 +83,7 @@ class Valoracion extends Model
     }
 
     /**
-     * @return BelongsTo<User, Valoracion>
+     * @return BelongsTo<User, $this>
      */
     public function profesional(): BelongsTo
     {
@@ -93,7 +91,7 @@ class Valoracion extends Model
     }
 
     /**
-     * @return BelongsTo<TipoValoracion, Valoracion>
+     * @return BelongsTo<TipoValoracion, $this>
      */
     public function tipoValoracion(): BelongsTo
     {
@@ -101,7 +99,7 @@ class Valoracion extends Model
     }
 
     /**
-     * @return HasMany<Ficha>
+     * @return HasMany<Ficha, $this>
      */
     public function fichas(): HasMany
     {
