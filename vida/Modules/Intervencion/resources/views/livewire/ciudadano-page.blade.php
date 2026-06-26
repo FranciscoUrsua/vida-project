@@ -33,6 +33,7 @@
         ['id' => 'escala',     'label' => 'Escala',      'icon' => 'chart-bar',                'fullpage' => true],
         ['id' => 'informes',   'label' => 'Informes',    'icon' => 'document-text',            'fullpage' => true],
     ];
+    $historiaAbierta = $historia->estado !== 'cerrada';
 @endphp
 
 <div class="ciudadano-page record-screen">
@@ -56,6 +57,33 @@
                class="btn btn-sm btn-outline-primary record-screen__plan-link">
                 + Crear {{ $this->planNombreCorto }}
             </a>
+        </div>
+    @endif
+
+    {{-- ------------------------------------------------------------------ --}}
+    {{-- Banda de recursos prescritos — visible si hay prescripciones activas --}}
+    {{-- ------------------------------------------------------------------ --}}
+    @if($historiaAbierta && $this->prescripcionesActivas->isNotEmpty())
+        <div class="record-screen__plan-bar record-screen__plan-bar--recursos">
+            <span class="record-screen__plan-title">
+                <x-heroicon-o-building-storefront class="icon-16" aria-hidden="true"/>
+                Recursos prescritos ({{ $this->prescripcionesActivas->count() }})
+            </span>
+            <div class="d-flex gap-2 flex-wrap">
+                @foreach($this->prescripcionesActivas as $presc)
+                    <span class="badge bg-secondary">
+                        {{ ucfirst(str_replace('_', ' ', $presc->estado)) }}
+                        · {{ ucfirst($presc->tipo_destino === 'coleccion_plazas' ? 'Plaza' : 'Actividad') }}
+                    </span>
+                    <button type="button"
+                            wire:click="cancelarPrescripcion({{ $presc->id }})"
+                            class="btn btn-sm btn-outline-danger py-0"
+                            title="Cancelar prescripción"
+                            wire:confirm="¿Cancelar esta prescripción?">
+                        <x-heroicon-o-x-mark class="icon-12" aria-hidden="true"/>
+                    </button>
+                @endforeach
+            </div>
         </div>
     @endif
 
@@ -233,6 +261,16 @@
                         </span>
                     </button>
                 @endforeach
+
+                {{-- Herramienta «Prescribir recurso» — visible solo con Historia Social abierta --}}
+                @if($historiaAbierta)
+                    <button type="button"
+                            wire:click="abrirPrescribirRecurso"
+                            class="btn btn-outline-secondary record-screen__tool">
+                        <x-heroicon-o-building-storefront class="icon-20 record-screen__tool-icon" aria-hidden="true"/>
+                        <span class="record-screen__tool-label">Prescribir recurso</span>
+                    </button>
+                @endif
             </div>
 
         </div>
@@ -997,5 +1035,8 @@
     </div>
     <div class="modal-backdrop fade show"></div>
     @endif
+
+    {{-- Modal de prescripción de recurso --}}
+    @livewire('intervencion.prescribir-recurso-modal', ['historiaId' => $historia->id], key('prescribir-'.$historia->id))
 
 </div>

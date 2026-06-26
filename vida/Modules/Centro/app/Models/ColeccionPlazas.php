@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $modo_acceso
  * @property int $capacidad
  * @property bool $activa
+ * @property bool $criterio_territorial
  * @property string|null $notas
  */
 class ColeccionPlazas extends Model
@@ -41,6 +42,7 @@ class ColeccionPlazas extends Model
         'nombre',
         'tipo_plaza',
         'modo_acceso',
+        'criterio_territorial',
         'capacidad',
         'activa',
         'fecha_alta',
@@ -51,6 +53,7 @@ class ColeccionPlazas extends Model
     protected $casts = [
         'capacidad' => 'integer',
         'activa' => 'boolean',
+        'criterio_territorial' => 'boolean',
         'fecha_alta' => 'date',
         'fecha_baja' => 'date',
     ];

@@ -34,6 +34,7 @@ use Modules\Intervencion\Models\SeguimientoPlan;
 use Modules\Intervencion\Models\TipoFicha;
 use Modules\Intervencion\Models\TipoValoracion;
 use Modules\Intervencion\Models\Valoracion;
+use Modules\Centro\Models\Prescripcion;
 use Modules\Intervencion\Services\PlanPdfService;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -55,6 +56,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property-read Collection<int, UnidadConvivenciaMiembro> $ucMiembrosActivos
  * @property-read Collection<int, Audit> $accesosRecientes
  * @property-read bool $puedeVerTodosLosAccesos
+ * @property-read Collection<int, Prescripcion> $prescripcionesActivas
  */
 #[Layout('layouts.operativo')]
 class CiudadanoPage extends Component
@@ -724,6 +726,60 @@ class CiudadanoPage extends Component
     {
         $this->filtroHS = $filtro;
         unset($this->apuntesHS);
+    }
+
+    /**
+     * Prescripciones activas del ciudadano (en curso: pendiente, en_lista_espera, asignada, activa).
+     * Se muestra en la banda de recursos bajo la banda del PISO.
+     *
+     * @return Collection<int, Prescripcion>
+     */
+    #[Computed]
+    public function prescripcionesActivas(): Collection
+    {
+        return Prescripcion::where('ciudadano_id', $this->historia->ciudadano_id)
+            ->whereIn('estado', ['pendiente', 'en_lista_espera', 'asignada', 'activa'])
+            ->orderByDesc('fecha_prescripcion')
+            ->get();
+    }
+
+    /**
+     * Cancela una prescripción activa desde la banda de recursos de CiudadanoPage.
+     * Libera la plaza si la prescripción tenía una asignada.
+     *
+     * @param int $prescripcionId ID de la prescripción a cancelar.
+     */
+    public function cancelarPrescripcion(int $prescripcionId): void
+    {
+        $prescripcion = Prescripcion::where('ciudadano_id', $this->historia->ciudadano_id)
+            ->findOrFail($prescripcionId);
+
+        if ($prescripcion->plaza_id) {
+            \Modules\Centro\Models\Plaza::where('id', $prescripcion->plaza_id)->update(['estado' => 'libre']);
+        }
+
+        if ($prescripcion->listaEspera) {
+            $prescripcion->listaEspera->update(['estado' => 'cancelada']);
+        }
+
+        $prescripcion->update([
+            'estado' => 'cancelada',
+            'motivo_cancelacion' => 'Cancelada por el profesional de referencia.',
+        ]);
+
+        unset($this->prescripcionesActivas);
+    }
+
+    /**
+     * Abre el modal de prescripción de recurso si la Historia Social está abierta.
+     */
+    public function abrirPrescribirRecurso(): void
+    {
+        if ($this->historia->estado === 'cerrada') {
+            return;
+        }
+
+        $this->dispatch('abrir-prescribir-recurso');
     }
 
     /**

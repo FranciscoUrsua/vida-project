@@ -8,9 +8,12 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
+use Modules\Intervencion\Http\Livewire\AsignarPlazaModal;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\CiudadanoPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
+use Modules\Intervencion\Http\Livewire\PrescribirRecursoModal;
+use Modules\Intervencion\Http\Livewire\RecursosPage;
 use Modules\Intervencion\Http\Livewire\RegistrarEscalaPage;
 use Modules\Intervencion\Http\Livewire\RegistrarValoracionPage;
 use Modules\Intervencion\Http\Livewire\Sidebar;
@@ -63,5 +66,8 @@ class IntervencionServiceProvider extends ServiceProvider
         Livewire::component('intervencion.ciudadano-page', CiudadanoPage::class);
         Livewire::component('intervencion.registrar-valoracion-page', RegistrarValoracionPage::class);
         Livewire::component('intervencion.registrar-escala-page', RegistrarEscalaPage::class);
+        Livewire::component('intervencion.recursos-page', RecursosPage::class);
+        Livewire::component('intervencion.prescribir-recurso-modal', PrescribirRecursoModal::class);
+        Livewire::component('intervencion.asignar-plaza-modal', AsignarPlazaModal::class);
     }
 }

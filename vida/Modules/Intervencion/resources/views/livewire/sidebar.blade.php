@@ -32,6 +32,15 @@
             @endif
         </a>
 
+        @if($this->tienePlazas)
+        <a href="{{ route('intervencion.recursos.index') }}"
+           class="op-nav-item {{ request()->routeIs('intervencion.recursos*') ? 'activo' : '' }}"
+           aria-current="{{ request()->routeIs('intervencion.recursos*') ? 'page' : 'false' }}">
+            <x-heroicon-o-building-office-2 class="op-nav-icon icon-18" aria-hidden="true"/>
+            <span>Recursos</span>
+        </a>
+        @endif
+
         <a href="{{ route('intervencion.buscar.index') }}"
            class="op-nav-item {{ request()->routeIs('intervencion.buscar*') ? 'activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.buscar*') ? 'page' : 'false' }}">

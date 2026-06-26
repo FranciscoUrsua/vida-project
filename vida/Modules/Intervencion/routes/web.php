@@ -6,6 +6,7 @@ use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\CiudadanoPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
 use Modules\Intervencion\Http\Livewire\PlanPage;
+use Modules\Intervencion\Http\Livewire\RecursosPage;
 use Modules\Intervencion\Http\Livewire\RegistrarEscalaPage;
 use Modules\Intervencion\Http\Livewire\RegistrarValoracionPage;
 use Modules\Intervencion\Http\Livewire\VerFichaPage;
@@ -27,6 +28,7 @@ Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion'])->prefix('in
 
     Route::get('/', fn () => redirect()->route('intervencion.agenda.index'));
     Route::get('/agenda', AgendaPage::class)->name('agenda.index');
+    Route::get('/recursos', RecursosPage::class)->name('recursos.index');
     Route::get('/casos', MisCasosPage::class)->name('casos.index');
     Route::get('/mensajes', BuzonPage::class)->name('mensajes.index');
     Route::get('/buscar', BuscarCiudadanoPage::class)->name('buscar.index');

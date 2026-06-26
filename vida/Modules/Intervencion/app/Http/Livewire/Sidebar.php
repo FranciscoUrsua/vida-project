@@ -7,11 +7,13 @@ use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Modules\Intervencion\Services\IntervencionSidebarDataService;
 use Modules\Organizacion\Models\Configuracion;
+use Modules\Organizacion\Services\ConfiguracionService;
 
 /**
  * Sidebar del interfaz operativo de Intervención.
  *
  * Muestra la navegación principal y badges de conteo.
+ * El ítem «Recursos» es condicional: solo visible si el centro tiene plazas configuradas.
  * Se actualiza automáticamente cada 5 minutos mediante wire:poll.
  *
  * @see docs/instrucciones-cli/ui-intervencion-entrega1.md §2
@@ -27,6 +29,16 @@ class Sidebar extends Component
     public function datos(): array
     {
         return app(IntervencionSidebarDataService::class)->getData();
+    }
+
+    /**
+     * Indica si el centro tiene plazas configuradas.
+     * Determina la visibilidad del ítem «Recursos» en el sidebar.
+     */
+    #[Computed]
+    public function tienePlazas(): bool
+    {
+        return (bool) app(ConfiguracionService::class)->get('tiene_plazas', false);
     }
 
     /**

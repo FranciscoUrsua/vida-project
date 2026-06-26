@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Modules\Centro\Models\Prescripcion;
 use Modules\Escalas\Models\PaseEscala;
 use Modules\Intervencion\Models\AsignacionProfesional;
 
@@ -136,5 +137,34 @@ class HistoriaSocial extends Model implements AuditableModel
     public function asignacionVigente(): HasOne
     {
         return $this->hasOne(AsignacionProfesional::class, 'historia_id')->whereNull('fecha_fin');
+    }
+
+    /**
+     * Prescripciones de recursos asociadas a esta Historia Social.
+     *
+     * @return HasMany<Prescripcion, $this>
+     */
+    public function prescripciones(): HasMany
+    {
+        return $this->hasMany(Prescripcion::class, 'ciudadano_id', 'ciudadano_id');
+    }
+
+    /**
+     * Cierra la Historia Social estableciendo estado = 'cerrada'.
+     *
+     * Restricción de dominio: no se puede cerrar si existen prescripciones
+     * en estado pendiente, en_lista_espera, asignada o activa.
+     *
+     * @throws \DomainException Si hay prescripciones activas pendientes de resolver.
+     */
+    public function cerrar(): void
+    {
+        if ($this->prescripciones()->enCurso()->exists()) {
+            throw new \DomainException(
+                'No se puede cerrar la historia social con prescripciones activas.'
+            );
+        }
+
+        $this->update(['estado' => 'cerrada']);
     }
 }

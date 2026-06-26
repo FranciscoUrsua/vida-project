@@ -9,6 +9,24 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Notificaciones reales al TSR tras asignación de plaza** — 2026-06-26
+Módulo: Intervencion
+`AsignarPlazaModal::notificarTsr()` actualmente solo escribe en el log (`Log::info`). Pendiente implementar notificación real (alerta en bandeja o push) cuando se asigne una plaza a una prescripción de un ciudadano con TSR activo. El módulo de Mensajes deberá gestionar el formato final.
+
+---
+
+**Asignación automática de plaza en `PrescribirRecursoModal::confirmar()`** — 2026-06-26
+Módulo: Intervencion
+Cuando `hayPlazaDisponible = true`, el estado de la prescripción se marca como 'asignada' pero `plaza_id` queda null (la asignación concreta la hace el TS del centro vía `AsignarPlazaModal`). Valorar si conviene auto-asignar la primera plaza libre disponible para reducir fricción en centros pequeños.
+
+---
+
+**Criterio territorial: reemplazar haversine PHP por PostGIS** — 2026-06-26
+Módulo: Intervencion / Centro
+`PrescribirRecursoModal::opcionesDestino()` ordena por distancia con haversine calculado en PHP (colección cargada en memoria). Con muchas colecciones (> 100), migrar a `ST_Distance` de PostGIS sería más eficiente. Por ahora la solución en PHP es suficiente.
+
+---
+
 **Disponibilidad de salas (validación de conflictos de reserva)** — 2026-06-25
 Módulo: Agenda (futuro)
 VIDA 360 almacena `sala_id` en `SesionActividad` como dato informativo de ubicación, pero no detecta conflictos cuando dos sesiones distintas usan la misma sala en el mismo horario. Esta funcionalidad se diseñará en el módulo de Agenda. Tampoco se valida que el aforo de la sala sea suficiente para el número de inscritos (queda a criterio del profesional).

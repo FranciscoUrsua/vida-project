@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Modules\Intervencion\Models\PlanActuacionAyuntamiento;
 use Modules\Usuarios\Models\Profesional;
 
 /**
@@ -25,6 +26,7 @@ use Modules\Usuarios\Models\Profesional;
  * @property int $profesional_id
  * @property int $ciudadano_id
  * @property int|null $plan_intervencion_id
+ * @property int|null $compromiso_id
  * @property string $tipo_destino
  * @property int $destino_id
  * @property int|null $plaza_id
@@ -44,6 +46,7 @@ class Prescripcion extends Model
         'profesional_id',
         'ciudadano_id',
         'plan_intervencion_id',
+        'compromiso_id',
         'tipo_destino',
         'destino_id',
         'plaza_id',
@@ -98,6 +101,17 @@ class Prescripcion extends Model
     }
 
     /**
+     * Compromiso del plan de intervención vinculado opcionalmente a esta prescripción.
+     * El vínculo es de referencia: el estado del compromiso no cambia con la prescripción.
+     *
+     * @return BelongsTo<PlanActuacionAyuntamiento, self>
+     */
+    public function compromiso(): BelongsTo
+    {
+        return $this->belongsTo(PlanActuacionAyuntamiento::class, 'compromiso_id');
+    }
+
+    /**
      * Registro de lista de espera generado por esta prescripción.
      *
      * @return HasOne<ListaEspera, self>
@@ -146,5 +160,18 @@ class Prescripcion extends Model
     public function scopePendientes(Builder $query): Builder
     {
         return $query->where('estado', 'pendiente');
+    }
+
+    /**
+     * Filtra prescripciones consideradas "activas" a efectos del guard de cierre de Historia Social.
+     * Incluye: pendiente, en_lista_espera, asignada, activa.
+     *
+     * @param Builder<static> $query
+     *
+     * @return Builder<static>
+     */
+    public function scopeEnCurso(Builder $query): Builder
+    {
+        return $query->whereIn('estado', ['pendiente', 'en_lista_espera', 'asignada', 'activa']);
     }
 }

@@ -4,6 +4,47 @@
 
 ---
 
+## 2026-06-26 — Módulo Intervencion: Plazas y Recursos (prescripción, lista de espera, asignación)
+
+### Módulos afectados
+`Modules/Intervencion`, `Modules/Centro` (modelos), `app/Models/HistoriaSocial`
+
+### Añadido
+
+**Migraciones:**
+- `2026_06_26_100001_add_compromiso_id_to_prescripciones_table` — FK nullable a `plan_actuaciones_ayuntamiento`.
+- `2026_06_26_100002_add_criterio_territorial_to_colecciones_plazas_table` — flag para ordenación geográfica por haversine.
+- `2026_06_26_100003_create_lista_espera_movimientos_table` — auditoría de reordenaciones.
+
+**Modelos:**
+- `Prescripcion`: relación `compromiso()`, scope `enCurso()`.
+- `ColeccionPlazas`: campo `criterio_territorial` con cast booleano.
+- `HistoriaSocial`: relación `prescripciones()`, método `cerrar()` con guard de `DomainException` si hay prescripciones activas.
+- `ListaEsperaMovimiento` (nuevo): auditoría de cambios de posición.
+
+**Componentes Livewire nuevos:**
+- `PrescribirRecursoModal` — modal de 3 pasos: tipo de recurso → destino (con haversine si `criterio_territorial`) → confirmación + vínculo a compromiso del plan. Crea `Prescripcion` + `ListaEspera` (si sin plaza) + `Apunte` tipo `derivacion`, todo en transacción.
+- `RecursosPage` — página del TS del centro: lista de espera (pendientes/activas), previsión de liberaciones a 30 días, reordenación con auditoría, cancelación.
+- `AsignarPlazaModal` — asignación de plaza concreta: guard que verifica que la plaza pertenece al centro del profesional autenticado. Transacción que actualiza `Prescripcion`, `Plaza` y `ListaEspera`.
+
+**Modificaciones:**
+- `CiudadanoPage`: banda de prescripciones activas, botón "Prescribir recurso", `cancelarPrescripcion()`, `abrirPrescribirRecurso()`.
+- `Sidebar`: ítem "Recursos" condicional a `ConfiguracionService::get('tiene_plazas')`.
+- `IntervencionServiceProvider`: registra los 3 nuevos componentes.
+- Ruta nueva: `GET /intervencion/recursos` → `RecursosPage`.
+
+**Tests:**
+- `PlazasRecursosTest`: 30 tests funcionales (TF-REC-A01–A03, B01–B11, C01–C05, D01–D09, E01–E02). Todos en verde.
+
+### Decisiones de implementación
+- `profesional_id` en `Prescripcion` referencia `profesionales.id`; `autor_id` en `Apunte` referencia `users.id`. Ambos campos se extraen correctamente de `Auth::user()`.
+- El orden geográfico (haversine) solo se calcula si `criterio_territorial = true` en la colección Y el ciudadano tiene `coordenadas_lat`/`coordenadas_lng`. Sin coordenadas, no lanza excepción — simplemente no ordena.
+- Las vistas Blade de modales Livewire necesitan `<div>` raíz siempre, incluso cuando `$abierto = false`.
+- `prescripcionesPendientes()` usa JOIN con `lista_espera` para ordenar por posición; todas las columnas ambiguas calificadas con nombre de tabla.
+- El flujo tiene dos actores: TSR (prescribe) y TS del centro (asigna plaza concreta). `PrescribirRecursoModal` puede dejar `plaza_id = null` con estado 'asignada' cuando hay capacidad disponible; la asignación concreta la hace `AsignarPlazaModal`.
+
+---
+
 ## 2026-06-26 — Demo worlds: actividades grupales y salas en el sistema YAML
 
 ### Módulos afectados
