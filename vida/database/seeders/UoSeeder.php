@@ -40,9 +40,11 @@ class UoSeeder extends Seeder
         $tipos = [
             ['codigo' => 'ayuntamiento', 'nombre' => 'Ayuntamiento'],
             ['codigo' => 'area_gobierno', 'nombre' => 'Área de Gobierno'],
+            ['codigo' => 'distrito', 'nombre' => 'Distrito'],
             ['codigo' => 'dg',            'nombre' => 'Dirección General'],
+            ['codigo' => 'sg',  'nombre' => 'Subdirección General'],
             ['codigo' => 'departamento',  'nombre' => 'Departamento'],
-            ['codigo' => 'centro',        'nombre' => 'Centro de Servicios Sociales'],
+            ['codigo' => 'centro',        'nombre' => 'Centro'],
         ];
 
         foreach ($tipos as $tipo) {
@@ -81,21 +83,44 @@ class UoSeeder extends Seeder
             ['parent_id' => $areaGobierno->id, 'activa' => true]
         );
 
+         // Dirección General
+        $dgIgualdad = UnidadOrganizativa::firstOrCreate(
+            ['nombre' => 'Dirección General de Igualdad', 'tipo' => 'dg'],
+            ['parent_id' => $areaGobierno->id, 'activa' => true]
+        );
+
+         // Dirección General
+        $dgMayores = UnidadOrganizativa::firstOrCreate(
+            ['nombre' => 'Dirección General de Mayores', 'tipo' => 'dg'],
+            ['parent_id' => $areaGobierno->id, 'activa' => true]
+        );
+
         // Departamento
         $deptoAtencion = UnidadOrganizativa::firstOrCreate(
             ['nombre' => 'Departamento de Atención Primaria', 'tipo' => 'departamento'],
             ['parent_id' => $dgServicios->id, 'activa' => true]
         );
 
+        // Distritos
+        $disArganzuela = UnidadOrganizativa::firstOrCreate(
+            ['nombre' => 'Arganzuela', 'tipo' => 'distrito'],
+            ['parent_id' => $ayuntamiento->id, 'activa' => true]
+        );
+
+        $disRetiro = UnidadOrganizativa::firstOrCreate(
+            ['nombre' => 'Retiro', 'tipo' => 'distrito'],
+            ['parent_id' => $ayuntamiento->id, 'activa' => true]
+        );
+
         // Centros
         UnidadOrganizativa::firstOrCreate(
             ['nombre' => 'Centro de Servicios Sociales Arganzuela', 'tipo' => 'centro'],
-            ['parent_id' => $deptoAtencion->id, 'activa' => true]
+            ['parent_id' => $disArganzuela->id, 'activa' => true]
         );
 
         UnidadOrganizativa::firstOrCreate(
             ['nombre' => 'Centro de Servicios Sociales Retiro', 'tipo' => 'centro'],
-            ['parent_id' => $deptoAtencion->id, 'activa' => true]
+            ['parent_id' => $disRetiro->id, 'activa' => true]
         );
 
         $this->command->info('✓ Estructura de UO de ejemplo creada (Ayuntamiento → Área → DG → Departamento → 2 Centros).');

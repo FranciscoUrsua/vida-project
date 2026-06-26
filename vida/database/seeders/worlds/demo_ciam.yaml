@@ -1,0 +1,105 @@
+meta:
+  nombre: "Demo CIAM"
+  descripcion: "Un centro CIAM y un CSS para validar interacciones."
+  reset_cada: "por demanda"
+
+centros:
+  - id: c1
+    nombre: CIAM Puente de Vallecas
+    tipo: ciam
+    distrito: Puente de Vallecas
+  - id: c2
+    nombre: Centro de Servicios Sociales Entrevías
+    tipo: asp
+    distrito: Puente de Vallecas
+
+profesionales:
+  - login: supervisor.ciam@demo.es
+    nombre: Marta Menéndez
+    rol: supervision
+    centro: c1
+  - login: ts1.ciam@demo.es
+    nombre: Ana Antúnez
+    rol: intervencion
+    centro: c1
+  - login: ts2.ciam@demo.es
+    nombre: Luis López
+    rol: intervencion
+    centro: c1
+  - login: auxiliar.ciam@demo.es
+    nombre: Rosa Rodríguez
+    rol: consulta_basica
+    centro: c1
+
+  - login: supervisor.css@demo.es
+    nombre: Laura López
+    rol: supervision
+    centro: c12
+  - login: tsr1.css@demo.es
+    nombre: Patricia Pérez
+    rol: intervencion
+    centro: c2
+  - login: tsr2.css@demo.es
+    nombre: Gonzalo García
+    rol: intervencion
+    centro: c2
+  - login: tsr3.css@demo.es
+    nombre: Fátima Fernández
+    rol: intervencion
+    centro: c2
+  - login: auxiliar.css@demo.es
+    nombre: Susana Sánchez
+    rol: consulta_basica
+    centro: c2
+
+escenarios:
+  - profesional: ts1.ciam@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 50
+      - escenario: cerrada
+        cantidad: 5
+      - escenario: nueva
+        cantidad: 5
+      - escenario: urgente
+        cantidad: 3
+  - profesional: ts2.ciam@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 75
+      - escenario: cerrada
+        cantidad: 5
+      - escenario: nueva
+        cantidad: 5
+      - escenario: urgente
+        cantidad: 5
+  - profesional: tsr1.css@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 75
+      - escenario: cerrada
+        cantidad: 5
+      - escenario: nueva
+        cantidad: 5
+      - escenario: urgente
+        cantidad: 5
+  - profesional: tsr2.css@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 75
+      - escenario: cerrada
+        cantidad: 5
+      - escenario: nueva
+        cantidad: 5
+      - escenario: urgente
+        cantidad: 5
+  - profesional: tsr3.css@demo.es
+    ciudadanos:
+      - escenario: activa
+        cantidad: 75
+      - escenario: cerrada
+        cantidad: 5
+      - escenario: nueva
+        cantidad: 5
+      - escenario: urgente
+        cantidad: 5
