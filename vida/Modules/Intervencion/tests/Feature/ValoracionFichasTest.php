@@ -93,9 +93,7 @@ class ValoracionFichasTest extends TestCase
 
         $fichaRecargada = Ficha::find($ficha->id);
 
-        $this->assertIsArray($fichaRecargada->datos, 'El campo datos debe ser un array PHP');
-        $this->assertEquals(850, $fichaRecargada->datos['ingresos_mensuales_hogar']);
-        $this->assertEquals(3, $fichaRecargada->datos['numero_personas_dependientes']);
+        $this->assertSame($datos, $fichaRecargada->datos);
     }
 
     /**

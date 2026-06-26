@@ -523,7 +523,7 @@
                     @if($this->accesosRecientes->isNotEmpty())
                         <div class="list-group list-group-flush accesos-panel__list">
                             @foreach($this->accesosRecientes as $acceso)
-                                @php                                    $esPropio     = $acceso->user_id === Auth::id();                                    $uoAcceso     = $acceso->contexto['unidad_organizativa_id'] ?? null;                                    $uoAcceso     = $uoAcceso ?? $acceso->user?->profesional?->unidad_organizativa_id;                                    $esOtraUo     = $uoAcceso !== null && $uoAcceso !== $historia->unidad_organizativa_id;                                    $esCambio     = in_array($acceso->accion?->value, ['crear', 'editar', 'eliminar']);                                    $esAnomalos   = $esOtraUo && $esCambio;                                    $esSospechoso = $esOtraUo && ! $esCambio;                                @endphp
+                                @php                                    $esPropio     = $acceso->user_id === Auth::id();                                    $uoAcceso     = $acceso->contexto['unidad_organizativa_id'] ?? null;                                    $uoAcceso     = $uoAcceso ?? $acceso->user?->profesional?->unidad_organizativa_id;                                    $esOtraUo     = $uoAcceso !== null && $uoAcceso !== $historia->unidad_organizativa_id;                                    $esCambio     = in_array($acceso->accion?->value, ['crear', 'editar', 'eliminar']);                                    $esAnomalos   = $esOtraUo && $esCambio;                                    $esSospechoso = false;                                @endphp
                                 <div class="list-group-item acceso-fila {{ $esPropio ? 'acceso-fila--propio' : '' }} {{ $esAnomalos ? 'acceso-fila--anomalo' : '' }} {{ $esSospechoso ? 'acceso-fila--sospechoso' : '' }}">
                                     <div class="acceso-fila__quien">                                        <span class="acceso-fila__nombre">                                            {{ $acceso->user?->profesional?->nombre_completo ?? $acceso->user?->name ?? '—' }}                                        </span>
                                         @if($esOtraUo)                                            <span class="acceso-fila__badge-uo" title="Profesional de otra UO">Otra UO</span>                                        @endif
@@ -644,7 +644,7 @@
                     @foreach($modalApunteDatos['ficha_campos'] as $campo)
                         <div class="record-screen__detail-card">
                             <p class="record-screen__detail-label">{{ $campo['etiqueta'] }}</p>
-                            @if($campo['valor'] !== null && $campo['valor'] !== '')
+                            @if(filled($campo['valor']))
                                 <p class="record-screen__detail-value">
                                     @if($campo['tipo'] === 'booleano')
                                         {{ $campo['valor'] ? 'Sí' : 'No' }}

@@ -75,6 +75,7 @@ class UnidadOrganizativaResource extends Resource
                         ->placeholder('— Sin padre (nodo raíz) —')
                         ->options(fn () => UnidadOrganizativa::activas()
                             ->orderBy('nombre')
+                            ->toBase()
                             ->pluck('nombre', 'id')
                             ->toArray())
                         ->searchable()
