@@ -2,22 +2,32 @@ name: CI/CD
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Para monorepo completo
+          fetch-depth: 1        # Solo el commit actual; el historial completo no es necesario aquí
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-      - name: Install Composer Dependencies (Backend)
+          coverage: none        # Evita instalar Xdebug si no lo usas
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vida/vendor
+          key: composer-${{ hashFiles('vida/composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install Composer Dependencies
         env:
           COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GITHUB_TOKEN }}"}}'
         run: |
@@ -29,46 +39,31 @@ jobs:
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0        # Necesario para git reset --hard en el VPS
 
       - name: Deploy to VPS
-        uses: appleboy/ssh-action@v0.1.7
+        uses: appleboy/ssh-action@v1.0.3   # v0.1.7 tiene años; v1.x es más estable
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          debug: true
           script: |
             set -e
             cd /var/www/vida-project/vida
-
             git fetch origin
             git reset --hard origin/master
-
-            # Permisos ANTES de cualquier operación de escritura sobre storage/
             sudo chown -R jupiter:www-data /var/www/vida-project/vida/storage /var/www/vida-project/vida/bootstrap/cache
             sudo chmod -R 775 /var/www/vida-project/vida/storage /var/www/vida-project/vida/bootstrap/cache
-
-            # Limpiar caché de bootstrap ANTES de composer install para evitar que
-            # package:discover (post-autoload-dump) arranque Artisan con caches obsoletos
-            # (p. ej. services.php que referencia routes-v7.php inexistente).
             rm -f /var/www/vida-project/vida/bootstrap/cache/*.php
-
             composer install --no-dev --optimize-autoloader --no-interaction
-
             npm ci --no-audit --no-fund
             npm run build
-
             php artisan migrate --force
-
-            # Limpiar cachés antes de regenerar para evitar archivos corruptos o inaccesibles
             php artisan optimize:clear
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
-
-            # Reiniciar PHP-FPM para vaciar OPcache
             sudo systemctl restart php8.3-fpm
