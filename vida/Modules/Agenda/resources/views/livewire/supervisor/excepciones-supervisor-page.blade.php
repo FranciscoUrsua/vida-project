@@ -83,7 +83,7 @@
 
         @if($this->excepcionesActivas->isEmpty())
             <div class="op-empty">
-                <x-heroicon-o-calendar-check class="op-empty__icon" aria-hidden="true"/>
+                <x-heroicon-o-calendar-days class="op-empty__icon" aria-hidden="true"/>
                 <p class="op-empty__text">No hay excepciones activas ni programadas.</p>
             </div>
         @else
