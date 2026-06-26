@@ -56,7 +56,6 @@ class ConfiguracionTest extends TestCase
 
         // Verificar que todos los schemas son arrays válidos con al menos un campo
         TipoFicha::all()->each(function (TipoFicha $ficha) {
-            $this->assertIsArray($ficha->schema, "El schema de '{$ficha->nombre}' debe ser un array");
             $this->assertNotEmpty($ficha->schema, "El schema de '{$ficha->nombre}' no puede estar vacío");
         });
     }

@@ -89,6 +89,6 @@ class Configuracion extends Model
     {
         $nombre = app(ConfiguracionService::class)->get('nombre_aplicacion');
 
-        return ($nombre && $nombre !== '') ? (string) $nombre : null;
+        return $nombre ? (string) $nombre : null;
     }
 }

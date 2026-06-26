@@ -56,7 +56,8 @@ class AuditResource extends Resource
 
         if ($user && ! $user->hasRole('adm_sistema')) {
             $uoIds = $user->unidadesOrganizativas()
-                ->pluck('unidad_organizativas.id')
+                ->get()
+                ->pluck('id')
                 ->toArray();
 
             // Limitar a profesionales cuya UO activa esté en el árbol del supervisor
