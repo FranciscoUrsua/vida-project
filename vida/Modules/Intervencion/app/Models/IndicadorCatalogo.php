@@ -34,7 +34,7 @@ class IndicadorCatalogo extends Model
     /**
      * Objetivo del catálogo al que pertenece este indicador.
      *
-     * @return BelongsTo<ObjetivoCatalogo, self>
+     * @return BelongsTo<ObjetivoCatalogo, $this>
      */
     public function objetivoCatalogo(): BelongsTo
     {
@@ -44,7 +44,7 @@ class IndicadorCatalogo extends Model
     /**
      * Indicadores instanciados en planes que proceden de este indicador del catálogo.
      *
-     * @return HasMany<PlanObjetivoIndicador>
+     * @return HasMany<PlanObjetivoIndicador, $this>
      */
     public function indicadoresPlan(): HasMany
     {

@@ -62,7 +62,7 @@ class SesionActividad extends Model
     /**
      * Actividad a la que pertenece esta sesión.
      *
-     * @return BelongsTo<Actividad, self>
+     * @return BelongsTo<Actividad, $this>
      */
     public function actividad(): BelongsTo
     {
@@ -74,7 +74,7 @@ class SesionActividad extends Model
      * (actividad exterior, itinerante u online). La disponibilidad de la sala no se
      * valida en este módulo; corresponde al módulo de Agenda.
      *
-     * @return BelongsTo<Sala, self>
+     * @return BelongsTo<Sala, $this>
      */
     public function sala(): BelongsTo
     {
@@ -85,7 +85,7 @@ class SesionActividad extends Model
      * Profesionales que dirigen esta sesión concreta.
      * Permite rotación de profesionales sesión a sesión independientemente de la actividad.
      *
-     * @return BelongsToMany<Profesional, self>
+     * @return BelongsToMany<Profesional, $this>
      */
     public function profesionales(): BelongsToMany
     {
@@ -96,7 +96,7 @@ class SesionActividad extends Model
     /**
      * Prescripciones dirigidas a esta sesión de actividad.
      *
-     * @return HasMany<Prescripcion, self>
+     * @return HasMany<Prescripcion, $this>
      */
     public function prescripciones(): HasMany
     {

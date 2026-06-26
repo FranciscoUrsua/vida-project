@@ -70,7 +70,7 @@ class Actividad extends Model
     /**
      * Centro en el que se desarrolla la actividad.
      *
-     * @return BelongsTo<Centro, self>
+     * @return BelongsTo<Centro, $this>
      */
     public function centro(): BelongsTo
     {
@@ -80,7 +80,7 @@ class Actividad extends Model
     /**
      * Tipo de actividad que clasifica esta actividad.
      *
-     * @return BelongsTo<TipoActividad, self>
+     * @return BelongsTo<TipoActividad, $this>
      */
     public function tipoActividad(): BelongsTo
     {
@@ -90,7 +90,7 @@ class Actividad extends Model
     /**
      * Sesiones concretas planificadas para esta actividad.
      *
-     * @return HasMany<SesionActividad, self>
+     * @return HasMany<SesionActividad, $this>
      */
     public function sesiones(): HasMany
     {
@@ -101,7 +101,7 @@ class Actividad extends Model
      * Profesionales responsables o coordinadores de la actividad.
      * La dirección de sesiones concretas se gestiona en sesion_actividad_profesional.
      *
-     * @return BelongsToMany<Profesional, self>
+     * @return BelongsToMany<Profesional, $this>
      */
     public function profesionales(): BelongsToMany
     {

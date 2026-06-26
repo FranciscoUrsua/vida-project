@@ -128,7 +128,7 @@ class PlanDeIntervencion extends Model
     }
 
     /**
-     * @return BelongsTo<HistoriaSocial, PlanDeIntervencion>
+     * @return BelongsTo<HistoriaSocial, $this>
      */
     public function historia(): BelongsTo
     {
@@ -136,7 +136,7 @@ class PlanDeIntervencion extends Model
     }
 
     /**
-     * @return BelongsTo<User, PlanDeIntervencion>
+     * @return BelongsTo<User, $this>
      */
     public function profesionalResponsable(): BelongsTo
     {
@@ -146,7 +146,7 @@ class PlanDeIntervencion extends Model
     /**
      * Plan general ASP al que está vinculado este plan especializado.
      *
-     * @return BelongsTo<PlanDeIntervencion, PlanDeIntervencion>
+     * @return BelongsTo<PlanDeIntervencion, $this>
      */
     public function planAsp(): BelongsTo
     {
@@ -156,7 +156,7 @@ class PlanDeIntervencion extends Model
     /**
      * Planes especializados vinculados a este plan general.
      *
-     * @return HasMany<PlanDeIntervencion>
+     * @return HasMany<PlanDeIntervencion, $this>
      */
     public function planesEspecializados(): HasMany
     {
@@ -164,7 +164,7 @@ class PlanDeIntervencion extends Model
     }
 
     /**
-     * @return HasMany<FirmaPlan>
+     * @return HasMany<FirmaPlan, $this>
      */
     public function firmas(): HasMany
     {
@@ -172,7 +172,7 @@ class PlanDeIntervencion extends Model
     }
 
     /**
-     * @return HasMany<RevisionPlan>
+     * @return HasMany<RevisionPlan, $this>
      */
     public function revisiones(): HasMany
     {
@@ -180,7 +180,7 @@ class PlanDeIntervencion extends Model
     }
 
     /**
-     * @return HasMany<SeguimientoPlan>
+     * @return HasMany<SeguimientoPlan, $this>
      */
     public function seguimientos(): HasMany
     {
@@ -188,7 +188,7 @@ class PlanDeIntervencion extends Model
     }
 
     /**
-     * @return HasMany<Apunte>
+     * @return HasMany<Apunte, $this>
      */
     public function apuntes(): HasMany
     {
@@ -273,7 +273,7 @@ class PlanDeIntervencion extends Model
      *
      * Nota: se usa FQCN para evitar colisión con el enum TipoPlan importado.
      *
-     * @return BelongsTo<\Modules\Intervencion\Models\TipoPlan, self>
+     * @return BelongsTo<\Modules\Intervencion\Models\TipoPlan, $this>
      */
     public function tipoPlan(): BelongsTo
     {
@@ -283,7 +283,7 @@ class PlanDeIntervencion extends Model
     /**
      * Unidad de convivencia vinculada al plan, si es un plan familiar.
      *
-     * @return BelongsTo<UnidadConvivencia, self>
+     * @return BelongsTo<UnidadConvivencia, $this>
      */
     public function unidadConvivencia(): BelongsTo
     {
@@ -296,7 +296,7 @@ class PlanDeIntervencion extends Model
     /**
      * Objetivos del plan ordenados.
      *
-     * @return HasMany<PlanObjetivo>
+     * @return HasMany<PlanObjetivo, $this>
      */
     public function objetivos(): HasMany
     {
@@ -306,7 +306,7 @@ class PlanDeIntervencion extends Model
     /**
      * Solo los objetivos generales del plan (nivel = 'general').
      *
-     * @return HasMany<PlanObjetivo>
+     * @return HasMany<PlanObjetivo, $this>
      */
     public function objetivosGenerales(): HasMany
     {
@@ -317,7 +317,7 @@ class PlanDeIntervencion extends Model
      * Solo los objetivos específicos del plan (nivel = 'especifico').
      * Son independientes de los generales; se vinculan a un área temática (tipo_ficha_id).
      *
-     * @return HasMany<PlanObjetivo>
+     * @return HasMany<PlanObjetivo, $this>
      */
     public function objetivosEspecificos(): HasMany
     {
@@ -327,7 +327,7 @@ class PlanDeIntervencion extends Model
     /**
      * Actuaciones del Ayuntamiento en el plan.
      *
-     * @return HasMany<PlanActuacionAyuntamiento>
+     * @return HasMany<PlanActuacionAyuntamiento, $this>
      */
     public function actuacionesAyuntamiento(): HasMany
     {
@@ -337,7 +337,7 @@ class PlanDeIntervencion extends Model
     /**
      * Compromisos del ciudadano en el plan.
      *
-     * @return HasMany<PlanActuacionCiudadano>
+     * @return HasMany<PlanActuacionCiudadano, $this>
      */
     public function actuacionesCiudadano(): HasMany
     {
@@ -347,7 +347,7 @@ class PlanDeIntervencion extends Model
     /**
      * Todos los profesionales participantes.
      *
-     * @return HasMany<PlanParticipante>
+     * @return HasMany<PlanParticipante, $this>
      */
     public function participantes(): HasMany
     {
@@ -357,7 +357,7 @@ class PlanDeIntervencion extends Model
     /**
      * Solo los participantes activos (sin fecha_fin).
      *
-     * @return HasMany<PlanParticipante>
+     * @return HasMany<PlanParticipante, $this>
      */
     public function participantesActivos(): HasMany
     {
@@ -367,7 +367,7 @@ class PlanDeIntervencion extends Model
     /**
      * Fichas de valoración incluidas en el diagnóstico social del plan.
      *
-     * @return HasMany<PlanFichaDiagnostico>
+     * @return HasMany<PlanFichaDiagnostico, $this>
      */
     public function fichasDiagnostico(): HasMany
     {
@@ -377,7 +377,7 @@ class PlanDeIntervencion extends Model
     /**
      * Historial de cambios del plan, más reciente primero.
      *
-     * @return HasMany<PlanCambio>
+     * @return HasMany<PlanCambio, $this>
      */
     public function cambios(): HasMany
     {

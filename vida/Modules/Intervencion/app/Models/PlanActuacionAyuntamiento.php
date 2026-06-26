@@ -62,7 +62,7 @@ class PlanActuacionAyuntamiento extends Model
     /**
      * Plan al que pertenece esta actuación.
      *
-     * @return BelongsTo<PlanDeIntervencion, self>
+     * @return BelongsTo<PlanDeIntervencion, $this>
      */
     public function plan(): BelongsTo
     {
@@ -72,7 +72,7 @@ class PlanActuacionAyuntamiento extends Model
     /**
      * Prestación del catálogo vinculada.
      *
-     * @return BelongsTo<Prestacion, self>
+     * @return BelongsTo<Prestacion, $this>
      */
     public function prestacion(): BelongsTo
     {
@@ -82,7 +82,7 @@ class PlanActuacionAyuntamiento extends Model
     /**
      * Profesional responsable de ejecutar esta actuación.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function responsable(): BelongsTo
     {

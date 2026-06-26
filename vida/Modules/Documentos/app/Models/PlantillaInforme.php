@@ -43,7 +43,7 @@ class PlantillaInforme extends Model
     /**
      * Unidad organizativa propietaria de la plantilla.
      *
-     * @return BelongsTo<UnidadOrganizativa, self>
+     * @return BelongsTo<UnidadOrganizativa, $this>
      */
     public function unidadOrganizativa(): BelongsTo
     {
@@ -53,7 +53,7 @@ class PlantillaInforme extends Model
     /**
      * Usuario que creó la plantilla.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function creadaPor(): BelongsTo
     {
@@ -63,7 +63,7 @@ class PlantillaInforme extends Model
     /**
      * Informes generados a partir de esta plantilla.
      *
-     * @return HasMany<Informe>
+     * @return HasMany<Informe, $this>
      */
     public function informes(): HasMany
     {

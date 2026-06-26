@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $origen 'discrecional' | 'seguimiento'
  * @property int|null $seguimiento_id
  * @property string $motivo
- * @property array $snapshot Estado completo del plan antes del cambio
+ * @property array<string, mixed> $snapshot Estado completo del plan antes del cambio
  * @property Carbon $created_at
  */
 class PlanCambio extends Model
@@ -50,7 +50,7 @@ class PlanCambio extends Model
     /**
      * Plan al que pertenece este registro de cambio.
      *
-     * @return BelongsTo<PlanDeIntervencion, self>
+     * @return BelongsTo<PlanDeIntervencion, $this>
      */
     public function plan(): BelongsTo
     {
@@ -60,7 +60,7 @@ class PlanCambio extends Model
     /**
      * Profesional que realizó el cambio.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function profesional(): BelongsTo
     {
@@ -70,7 +70,7 @@ class PlanCambio extends Model
     /**
      * Seguimiento que originó el cambio, si aplica.
      *
-     * @return BelongsTo<SeguimientoPlan, self>
+     * @return BelongsTo<SeguimientoPlan, $this>
      */
     public function seguimiento(): BelongsTo
     {

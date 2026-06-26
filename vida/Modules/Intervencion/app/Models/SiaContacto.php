@@ -30,7 +30,7 @@ use Modules\Intervencion\Enums\UrgenciaSia;
  * @property string|null $informacion_prestada
  * @property UrgenciaSia|null $urgencia
  * @property int|null $cita_id
- * @property array|null $prestaciones_identificadas
+ * @property array<string, mixed>|null $prestaciones_identificadas
  */
 class SiaContacto extends Model
 {
@@ -68,7 +68,7 @@ class SiaContacto extends Model
     // -------------------------------------------------------------------------
 
     /**
-     * @return BelongsTo<Ciudadano, SiaContacto>
+     * @return BelongsTo<Ciudadano, $this>
      */
     public function ciudadano(): BelongsTo
     {
@@ -76,7 +76,7 @@ class SiaContacto extends Model
     }
 
     /**
-     * @return BelongsTo<User, SiaContacto>
+     * @return BelongsTo<User, $this>
      */
     public function auxiliar(): BelongsTo
     {

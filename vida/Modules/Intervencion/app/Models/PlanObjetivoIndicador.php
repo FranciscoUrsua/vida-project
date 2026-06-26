@@ -47,7 +47,7 @@ class PlanObjetivoIndicador extends Model
     /**
      * Objetivo del plan al que pertenece este indicador.
      *
-     * @return BelongsTo<PlanObjetivo, self>
+     * @return BelongsTo<PlanObjetivo, $this>
      */
     public function planObjetivo(): BelongsTo
     {
@@ -57,7 +57,7 @@ class PlanObjetivoIndicador extends Model
     /**
      * Indicador del catálogo del que procede, si aplica.
      *
-     * @return BelongsTo<IndicadorCatalogo, self>
+     * @return BelongsTo<IndicadorCatalogo, $this>
      */
     public function indicadorCatalogo(): BelongsTo
     {
@@ -67,7 +67,7 @@ class PlanObjetivoIndicador extends Model
     /**
      * Seguimiento que originó la última valoración, si aplica.
      *
-     * @return BelongsTo<SeguimientoPlan, self>
+     * @return BelongsTo<SeguimientoPlan, $this>
      */
     public function seguimiento(): BelongsTo
     {

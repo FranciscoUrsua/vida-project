@@ -50,7 +50,7 @@ class Sala extends Model
     /**
      * Centro al que pertenece esta sala.
      *
-     * @return BelongsTo<Centro, self>
+     * @return BelongsTo<Centro, $this>
      */
     public function centro(): BelongsTo
     {
@@ -60,7 +60,7 @@ class Sala extends Model
     /**
      * Sesiones de actividad que se celebran en esta sala.
      *
-     * @return HasMany<SesionActividad, self>
+     * @return HasMany<SesionActividad, $this>
      */
     public function sesiones(): HasMany
     {

@@ -101,7 +101,7 @@ class Centro extends Model implements DireccionableModel
     /**
      * Unidad organizativa a la que pertenece el centro.
      *
-     * @return BelongsTo<UnidadOrganizativa, self>
+     * @return BelongsTo<UnidadOrganizativa, $this>
      */
     public function unidadOrganizativa(): BelongsTo
     {
@@ -111,7 +111,7 @@ class Centro extends Model implements DireccionableModel
     /**
      * Ámbitos territoriales de atención del centro.
      *
-     * @return HasMany<AmbitoTerritorial, self>
+     * @return HasMany<AmbitoTerritorial, $this>
      */
     public function ambitosTeritoriales(): HasMany
     {
@@ -121,7 +121,7 @@ class Centro extends Model implements DireccionableModel
     /**
      * @deprecated distrito_id fue eliminado en v1.1. Usar ambitosTeritoriales() en su lugar.
      *
-     * @return BelongsTo<Distrito, self>
+     * @return BelongsTo<Distrito, $this>
      */
     public function distrito(): BelongsTo
     {
@@ -131,7 +131,7 @@ class Centro extends Model implements DireccionableModel
     /**
      * Colecciones de plazas del centro.
      *
-     * @return HasMany<ColeccionPlazas, self>
+     * @return HasMany<ColeccionPlazas, $this>
      */
     public function coleccionesPlazas(): HasMany
     {
@@ -141,7 +141,7 @@ class Centro extends Model implements DireccionableModel
     /**
      * Salas funcionales del centro (aulas, salas de reuniones, despachos...).
      *
-     * @return HasMany<Sala, self>
+     * @return HasMany<Sala, $this>
      */
     public function salas(): HasMany
     {
@@ -151,7 +151,7 @@ class Centro extends Model implements DireccionableModel
     /**
      * Actividades programadas en el centro.
      *
-     * @return HasMany<Actividad, self>
+     * @return HasMany<Actividad, $this>
      */
     public function actividades(): HasMany
     {
@@ -161,7 +161,7 @@ class Centro extends Model implements DireccionableModel
     /**
      * Historial de directores del centro.
      *
-     * @return HasMany<DirectorCentro, self>
+     * @return HasMany<DirectorCentro, $this>
      */
     public function directores(): HasMany
     {
@@ -171,7 +171,7 @@ class Centro extends Model implements DireccionableModel
     /**
      * Personas de contacto adicionales del centro.
      *
-     * @return HasMany<ContactoCentro, self>
+     * @return HasMany<ContactoCentro, $this>
      */
     public function contactos(): HasMany
     {
@@ -181,7 +181,7 @@ class Centro extends Model implements DireccionableModel
     /**
      * Inscripciones de ciudadanos al centro.
      *
-     * @return HasMany<InscripcionCentro, self>
+     * @return HasMany<InscripcionCentro, $this>
      */
     public function inscripciones(): HasMany
     {
@@ -191,7 +191,7 @@ class Centro extends Model implements DireccionableModel
     /**
      * Redes a las que pertenece el centro.
      *
-     * @return BelongsToMany<Red, self>
+     * @return BelongsToMany<Red, $this>
      */
     public function redes(): BelongsToMany
     {
@@ -201,7 +201,7 @@ class Centro extends Model implements DireccionableModel
     /**
      * Segmentos de población a los que atiende el centro.
      *
-     * @return BelongsToMany<SegmentoPoblacion, self>
+     * @return BelongsToMany<SegmentoPoblacion, $this>
      */
     public function segmentosPoblacion(): BelongsToMany
     {
@@ -211,7 +211,7 @@ class Centro extends Model implements DireccionableModel
     /**
      * Prestaciones vinculadas al centro.
      *
-     * @return BelongsToMany<Prestacion, self>
+     * @return BelongsToMany<Prestacion, $this>
      */
     public function prestaciones(): BelongsToMany
     {
@@ -236,7 +236,7 @@ class Centro extends Model implements DireccionableModel
      * $datos debe incluir los campos de DirectorCentro (profesional_id o nombre/telefono/email)
      * y opcionalmente fecha_inicio (por defecto hoy).
      *
-     * @param array<string, mixed> $datos Datos del nuevo director.
+     * @param array{profesional_id?: int|null, nombre?: string|null, telefono?: string|null, email?: string|null, fecha_inicio?: \DateTimeInterface|string|null, fecha_fin?: \DateTimeInterface|string|null, notas?: string|null} $datos Datos del nuevo director.
      */
     public function nombrarDirector(array $datos): DirectorCentro
     {

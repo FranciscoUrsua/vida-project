@@ -168,7 +168,7 @@ class ConfiguracionCentroPage extends Component
             return;
         }
 
-        if (! in_array($uo->id, auth()->user()?->uoSubtreeIds() ?? [])) {
+        if (! in_array($uo->id, auth()->user()->uoSubtreeIds())) {
             abort(403, 'No tiene permisos para modificar la configuración de esta UO.');
         }
 

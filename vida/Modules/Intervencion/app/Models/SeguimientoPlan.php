@@ -24,7 +24,7 @@ use Modules\Intervencion\Database\Factories\SeguimientoPlanFactory;
  * @property string|null $avances
  * @property string|null $objetivos_cumplidos
  * @property string|null $incidencias
- * @property array|null $nuevas_prestaciones
+ * @property array<string, mixed>|null $nuevas_prestaciones
  * @property bool $requiere_revision_plan
  * @property Carbon|null $fecha_siguiente_seguimiento
  */
@@ -64,7 +64,7 @@ class SeguimientoPlan extends Model
     // -------------------------------------------------------------------------
 
     /**
-     * @return BelongsTo<PlanDeIntervencion, SeguimientoPlan>
+     * @return BelongsTo<PlanDeIntervencion, $this>
      */
     public function plan(): BelongsTo
     {
@@ -72,7 +72,7 @@ class SeguimientoPlan extends Model
     }
 
     /**
-     * @return BelongsTo<Entrevista, SeguimientoPlan>
+     * @return BelongsTo<Entrevista, $this>
      */
     public function entrevista(): BelongsTo
     {
@@ -80,7 +80,7 @@ class SeguimientoPlan extends Model
     }
 
     /**
-     * @return BelongsTo<User, SeguimientoPlan>
+     * @return BelongsTo<User, $this>
      */
     public function profesional(): BelongsTo
     {

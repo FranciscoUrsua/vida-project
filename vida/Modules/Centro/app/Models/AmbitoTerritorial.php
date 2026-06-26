@@ -43,7 +43,7 @@ class AmbitoTerritorial extends Model
     /**
      * Centro asociado al ámbito territorial.
      *
-     * @return BelongsTo<Centro, self>
+     * @return BelongsTo<Centro, $this>
      */
     public function centro(): BelongsTo
     {

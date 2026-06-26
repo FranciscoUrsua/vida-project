@@ -288,7 +288,7 @@ class FichaCiudadanoPage extends Component
 
         return $miembros->map(function (UnidadConvivenciaMiembro $miembro) use ($relacionesPorCiudadano): UnidadConvivenciaMiembro {
             $miembro->tipo_relacion_etiqueta = $relacionesPorCiudadano->get($miembro->ciudadano_id)
-                ?->tipoRelacion?->etiqueta ?? null;
+                ?->tipoRelacion->etiqueta;
 
             return $miembro;
         });
@@ -594,7 +594,7 @@ class FichaCiudadanoPage extends Component
         $this->relacionTipo = $relacion->tipo_relacion;
         $this->relacionCiudadanoSeleccionado = $relacion->ciudadano_relacionado_id;
         $this->relacionBusqueda = '';
-        $this->relacionFechaInicio = $relacion->fecha_inicio?->toDateString() ?? today()->toDateString();
+        $this->relacionFechaInicio = $relacion->fecha_inicio->toDateString();
         $this->relacionFechaFin = $relacion->fecha_fin?->toDateString() ?? '';
         $this->relacionObservaciones = $relacion->observaciones ?? '';
         $this->modalRelacionAbierto = true;

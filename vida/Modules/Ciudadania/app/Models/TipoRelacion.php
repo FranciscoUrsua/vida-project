@@ -33,6 +33,7 @@ use Modules\Ciudadania\Enums\ImplicacionFuncional;
  */
 class TipoRelacion extends Model
 {
+    /** @use HasFactory<TipoRelacionFactory> */
     use HasFactory;
 
     protected static function newFactory(): TipoRelacionFactory

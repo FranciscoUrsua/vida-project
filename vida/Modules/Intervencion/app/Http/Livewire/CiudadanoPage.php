@@ -47,6 +47,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *
  * Propiedades computadas expuestas como propiedades mágicas por Livewire 4 #[Computed]:
  *
+ * @property-read Ciudadano|null $ciudadano
+ * @property-read Collection<int, Apunte> $apuntesHS
+ * @property-read PlanDeIntervencion|null $pisoActivo
+ * @property-read PlanDeIntervencion|null $planActivo
+ * @property-read UnidadConvivencia|null $ucVigente
+ * @property-read Collection<int, UnidadConvivenciaMiembro> $ucMiembrosActivos
  * @property-read Collection<int, Audit> $accesosRecientes
  * @property-read bool $puedeVerTodosLosAccesos
  */
@@ -78,6 +84,7 @@ class CiudadanoPage extends Component
     public ?string $modalApunteTipo = null;
 
     /** Datos del apunte para el modal (array serializable para Livewire). */
+    /** @var array<string, mixed> */
     public array $modalApunteDatos = [];
 
     /** Controla si el modal de detalle de apunte está abierto. */
@@ -282,8 +289,8 @@ class CiudadanoPage extends Component
     #[Computed]
     public function uoNombre(): ?string
     {
-        return $this->historia->unidadOrganizativa?->nombre_corto
-            ?? $this->historia->unidadOrganizativa?->nombre
+        return $this->historia->unidadOrganizativa->nombre_corto
+            ?? $this->historia->unidadOrganizativa->nombre
             ?? null;
     }
 
@@ -294,7 +301,7 @@ class CiudadanoPage extends Component
     #[Computed]
     public function planNombreCorto(): string
     {
-        return $this->historia->unidadOrganizativa?->plan_nombre_corto ?? 'Plan';
+        return $this->historia->unidadOrganizativa->plan_nombre_corto ?? 'Plan';
     }
 
     /**
@@ -304,7 +311,7 @@ class CiudadanoPage extends Component
     #[Computed]
     public function planNombreCompleto(): string
     {
-        return $this->historia->unidadOrganizativa?->plan_nombre_completo ?? 'Plan de intervención';
+        return $this->historia->unidadOrganizativa->plan_nombre_completo ?? 'Plan de intervención';
     }
 
     /**
@@ -324,7 +331,7 @@ class CiudadanoPage extends Component
     #[Computed]
     public function ciudadanoTelefono(): ?string
     {
-        return $this->ciudadano?->telefono ?? null;
+        return $this->ciudadano->telefono ?? null;
     }
 
     /**
@@ -333,7 +340,7 @@ class CiudadanoPage extends Component
     #[Computed]
     public function ciudadanoEmail(): ?string
     {
-        return $this->ciudadano?->email ?? null;
+        return $this->ciudadano->email ?? null;
     }
 
     /**
@@ -460,7 +467,7 @@ class CiudadanoPage extends Component
      * Relaciones activas del ciudadano agrupadas por tipo (para el modal completo).
      * Excluye tipos no presentes en el catálogo activo.
      *
-     * @return Collection<string, array{etiqueta: string, miembros: Collection}>
+     * @return Collection<int|string, array{etiqueta: string, miembros: mixed}>
      */
     #[Computed]
     public function relacionesAgrupadas(): Collection
@@ -478,8 +485,8 @@ class CiudadanoPage extends Component
             ->filter(fn ($r) => $slugsActivos->has($r->tipo_relacion))
             ->groupBy('tipo_relacion')
             ->map(fn ($grupo, $slug) => [
-                'etiqueta' => $slugsActivos[$slug],
-                'miembros' => $grupo->map(fn ($r) => $r->ciudadanoRelacionado),
+                'etiqueta' => (string) $slugsActivos->get($slug),
+                'miembros' => $grupo->map(fn ($r) => $r->ciudadanoRelacionado)->values(),
             ]);
     }
 
@@ -767,7 +774,7 @@ class CiudadanoPage extends Component
 
         $this->modalApunteDatos = [
             'fecha' => $apunte->fecha->format('d/m/Y').' '.$apunte->created_at->format('H:i'),
-            'autor' => $apunte->autor?->name ?? '—',
+            'autor' => $apunte->autor->name ?? '—',
             'contenido' => $apunte->contenido,
             'tipo_label' => $apunte->tipo->label(),
         ];
@@ -789,7 +796,13 @@ class CiudadanoPage extends Component
                     'intervencion.ficha.show',
                     ['historia' => $this->historia->id, 'ficha' => $ficha->id]
                 );
-                $this->modalApunteDatos['ficha_campos'] = collect($ficha->schema_snapshot['campos'] ?? [])
+                $camposFicha = $ficha->schema_snapshot['campos'] ?? [];
+                if (! is_array($camposFicha)) {
+                    $camposFicha = [];
+                }
+
+                $this->modalApunteDatos['ficha_campos'] = collect($camposFicha)
+                    ->filter(fn (mixed $c): bool => is_array($c))
                     ->map(fn (array $c) => [
                         'etiqueta' => $c['etiqueta'] ?? $c['id'],
                         'tipo' => $c['tipo'] ?? 'texto',

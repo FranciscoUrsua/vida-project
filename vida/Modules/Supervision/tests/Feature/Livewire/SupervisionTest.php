@@ -10,6 +10,8 @@ use App\Models\UsuarioUo;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Component;
+use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Organizacion\Services\ConfiguracionService;
@@ -177,6 +179,21 @@ class SupervisionTest extends TestCase
         ]);
     }
 
+    /**
+     * Monta un componente Livewire autenticado como supervisor.
+     *
+     * @template TComponent of Component
+     * @param class-string<TComponent> $component
+     * @param array<string, mixed> $params
+     * @return Testable<TComponent>
+     */
+    private function montarComponente(string $component, array $params = []): Testable
+    {
+        $this->actingAs($this->supervisor);
+
+        return Livewire::test($component, $params);
+    }
+
     // =========================================================================
     // Grupo A — Acceso y protección de rutas
     // =========================================================================
@@ -237,8 +254,7 @@ class SupervisionTest extends TestCase
     public function sidebar_sin_plazas_no_muestra_item_plazas(): void
     {
         // Sin configuración tiene_plazas → defecto false
-        Livewire::actingAs($this->supervisor)
-            ->test(Sidebar::class)
+        $this->montarComponente(Sidebar::class)
             ->assertDontSee('Plazas')
             ->assertSee('Inicio')
             ->assertSee('Cuadrante del centro')
@@ -260,8 +276,7 @@ class SupervisionTest extends TestCase
         // Limpiar singleton para que el Computed se re-evalúe
         app()->forgetInstance(ConfiguracionService::class);
 
-        Livewire::actingAs($this->supervisor)
-            ->test(Sidebar::class)
+        $this->montarComponente(Sidebar::class)
             ->assertSee('Plazas');
     }
 
@@ -280,8 +295,7 @@ class SupervisionTest extends TestCase
         $this->crearSolicitudPendiente($u2);
         $this->crearSolicitudPendiente($u3);
 
-        Livewire::actingAs($this->supervisor)
-            ->test(Sidebar::class)
+        $this->montarComponente(Sidebar::class)
             ->assertSee('3');
     }
 
@@ -291,8 +305,7 @@ class SupervisionTest extends TestCase
     #[Test]
     public function badge_aprobaciones_no_aparece_con_cero_pendientes(): void
     {
-        Livewire::actingAs($this->supervisor)
-            ->test(Sidebar::class)
+        $this->montarComponente(Sidebar::class)
             ->assertDontSee('badge bg-danger');
     }
 
@@ -306,8 +319,7 @@ class SupervisionTest extends TestCase
     #[Test]
     public function inicio_page_se_monta_sin_errores(): void
     {
-        Livewire::actingAs($this->supervisor)
-            ->test(InicioPage::class)
+        $this->montarComponente(InicioPage::class)
             ->assertOk()
             ->assertSee('Ratio personas/profesional')
             ->assertSee('Espera media primera cita')
@@ -371,8 +383,7 @@ class SupervisionTest extends TestCase
             ]);
         }
 
-        Livewire::actingAs($this->supervisor)
-            ->test(InicioPage::class)
+        $this->montarComponente(InicioPage::class)
             ->assertSee('Supera umbral');
     }
 
@@ -382,8 +393,7 @@ class SupervisionTest extends TestCase
     #[Test]
     public function zona_aprobaciones_no_se_renderiza_sin_pendientes(): void
     {
-        Livewire::actingAs($this->supervisor)
-            ->test(InicioPage::class)
+        $this->montarComponente(InicioPage::class)
             ->assertDontSee('Aprobaciones pendientes');
     }
 
@@ -399,12 +409,11 @@ class SupervisionTest extends TestCase
             $this->crearSolicitudPendiente($u);
         }
 
-        Livewire::actingAs($this->supervisor)
-            ->test(InicioPage::class)
+        $this->montarComponente(InicioPage::class)
             ->assertSee('Ver todas');
 
         // Verificar que el computed devuelve exactamente 5
-        $component = Livewire::actingAs($this->supervisor)->test(InicioPage::class);
+        $component = $this->montarComponente(InicioPage::class);
         $this->assertCount(5, $component->instance()->aprobacionesPendientes);
     }
 
@@ -443,7 +452,7 @@ class SupervisionTest extends TestCase
             'unidad_organizativa_id' => $this->uoParalela->id,
         ]);
 
-        $component = Livewire::actingAs($this->supervisor)->test(EquipoPage::class);
+        $component = $this->montarComponente(EquipoPage::class);
 
         $this->assertCount(3, $component->instance()->profesionales);
     }
@@ -454,8 +463,7 @@ class SupervisionTest extends TestCase
     #[Test]
     public function alta_profesional_crea_registro_sin_usuario_id(): void
     {
-        Livewire::actingAs($this->supervisor)
-            ->test(EquipoPage::class)
+        $this->montarComponente(EquipoPage::class)
             ->set('nuevoNombre', 'Nueva Profesional Test')
             ->set('nuevoCargo', $this->cargo->id)
             ->set('nuevaFechaIncorporacion', today()->toDateString())
@@ -477,8 +485,7 @@ class SupervisionTest extends TestCase
     #[Test]
     public function alta_profesional_muestra_aviso_cuenta_pendiente(): void
     {
-        $component = Livewire::actingAs($this->supervisor)
-            ->test(EquipoPage::class)
+        $component = $this->montarComponente(EquipoPage::class)
             ->set('nuevoNombre', 'Nuevo Profesional Aviso')
             ->set('nuevoCargo', $this->cargo->id)
             ->set('nuevaFechaIncorporacion', today()->toDateString())
@@ -519,8 +526,7 @@ class SupervisionTest extends TestCase
         // Vincular el profesional al user
         $userProf->update(['profesional_id' => $prof->id]);
 
-        Livewire::actingAs($this->supervisor)
-            ->test(EquipoPage::class)
+        $this->montarComponente(EquipoPage::class)
             ->call('iniciarBaja', $prof->id)
             ->assertSee('casos activos');
     }
@@ -542,8 +548,7 @@ class SupervisionTest extends TestCase
             'unidad_organizativa_id' => $this->uoHija->id,
         ]);
 
-        Livewire::actingAs($this->supervisor)
-            ->test(EquipoPage::class)
+        $this->montarComponente(EquipoPage::class)
             ->call('iniciarBaja', $prof->id)
             ->set('fechaBaja', today()->toDateString())
             ->call('confirmarBaja');
@@ -571,8 +576,7 @@ class SupervisionTest extends TestCase
         ]);
 
         // Al intentar dar de baja, el sistema no debe eliminar el registro
-        Livewire::actingAs($this->supervisor)
-            ->test(EquipoPage::class)
+        $this->montarComponente(EquipoPage::class)
             ->call('iniciarBaja', $profAjeno->id)
             ->set('fechaBaja', today()->toDateString())
             ->call('confirmarBaja');
@@ -595,8 +599,7 @@ class SupervisionTest extends TestCase
             ->assertOk();
 
         // La vista debe incluir las tres pestañas
-        Livewire::actingAs($this->supervisor)
-            ->test(EquipoPage::class)
+        $this->montarComponente(EquipoPage::class)
             ->assertSee('Resumen')
             ->assertSee('Perfil horario')
             ->assertSee('Suplencias');
@@ -622,7 +625,7 @@ class SupervisionTest extends TestCase
         $uFuera = $this->crearUsuarioEnUo($this->uoParalela, 'aprobfuera@vida360.test');
         $this->crearSolicitudPendiente($uFuera);
 
-        $component = Livewire::actingAs($this->supervisor)->test(AprobacionesPage::class);
+        $component = $this->montarComponente(AprobacionesPage::class);
 
         $this->assertCount(2, $component->instance()->solicitudesRol);
     }
@@ -636,8 +639,7 @@ class SupervisionTest extends TestCase
         $u = $this->crearUsuarioEnUo($this->uoHija, 'aprobe02@vida360.test');
         $solicitud = $this->crearSolicitudPendiente($u);
 
-        Livewire::actingAs($this->supervisor)
-            ->test(AprobacionesPage::class)
+        $this->montarComponente(AprobacionesPage::class)
             ->call('aprobarSolicitud', $solicitud->id);
 
         $this->assertDatabaseHas('usuario_rol', [
@@ -655,8 +657,7 @@ class SupervisionTest extends TestCase
         $u = $this->crearUsuarioEnUo($this->uoHija, 'aprobe03@vida360.test');
         $solicitud = $this->crearSolicitudPendiente($u);
 
-        Livewire::actingAs($this->supervisor)
-            ->test(AprobacionesPage::class)
+        $this->montarComponente(AprobacionesPage::class)
             ->call('denegarSolicitud', $solicitud->id, 'No cumple los requisitos');
 
         $this->assertDatabaseHas('usuario_rol', [
@@ -676,8 +677,7 @@ class SupervisionTest extends TestCase
         $u = $this->crearUsuarioEnUo($this->uoHija, 'aprobe04@vida360.test');
         $solicitud = $this->crearSolicitudPendiente($u);
 
-        Livewire::actingAs($this->supervisor)
-            ->test(AprobacionesPage::class)
+        $this->montarComponente(AprobacionesPage::class)
             ->call('denegarSolicitud', $solicitud->id, '')
             ->assertHasErrors(['motivoDenegacion']);
 
@@ -695,8 +695,7 @@ class SupervisionTest extends TestCase
     public function pestana_accesos_no_aparece_sin_colectivos_protegidos(): void
     {
         // Sin configuración tiene_colectivos_protegidos → defecto false
-        Livewire::actingAs($this->supervisor)
-            ->test(AprobacionesPage::class)
+        $this->montarComponente(AprobacionesPage::class)
             ->assertDontSee('Accesos a expedientes');
     }
 
@@ -710,8 +709,7 @@ class SupervisionTest extends TestCase
         $solicitud = $this->crearSolicitudPendiente($uFuera);
 
         // Livewire captura las HttpException y las convierte en respuesta con el código HTTP correcto
-        Livewire::actingAs($this->supervisor)
-            ->test(AprobacionesPage::class)
+        $this->montarComponente(AprobacionesPage::class)
             ->call('aprobarSolicitud', $solicitud->id)
             ->assertForbidden();
 
@@ -732,8 +730,7 @@ class SupervisionTest extends TestCase
     #[Test]
     public function auditoria_page_se_monta_sin_errores(): void
     {
-        Livewire::actingAs($this->supervisor)
-            ->test(AuditoriaPage::class)
+        $this->montarComponente(AuditoriaPage::class)
             ->assertOk();
     }
 
@@ -744,8 +741,7 @@ class SupervisionTest extends TestCase
     public function auditoria_sin_colectivos_no_muestra_columna_protegido(): void
     {
         // Sin tiene_colectivos_protegidos → defecto false
-        Livewire::actingAs($this->supervisor)
-            ->test(AuditoriaPage::class)
+        $this->montarComponente(AuditoriaPage::class)
             ->assertDontSee('Colectivo protegido');
     }
 
@@ -758,8 +754,7 @@ class SupervisionTest extends TestCase
         app(ConfiguracionService::class)->set('tiene_colectivos_protegidos', true);
         app()->forgetInstance(ConfiguracionService::class);
 
-        Livewire::actingAs($this->supervisor)
-            ->test(AuditoriaPage::class)
+        $this->montarComponente(AuditoriaPage::class)
             ->assertSee('Colectivo protegido');
     }
 
@@ -769,8 +764,7 @@ class SupervisionTest extends TestCase
     #[Test]
     public function auditoria_inicializa_rango_ultimos_30_dias(): void
     {
-        $component = Livewire::actingAs($this->supervisor)
-            ->test(AuditoriaPage::class);
+        $component = $this->montarComponente(AuditoriaPage::class);
 
         $this->assertEquals(now()->subDays(30)->toDateString(), $component->get('fechaDesde'));
         $this->assertEquals(now()->toDateString(), $component->get('fechaHasta'));
@@ -782,8 +776,7 @@ class SupervisionTest extends TestCase
     #[Test]
     public function auditoria_sin_colectivos_no_muestra_filtros_sin_autorizacion(): void
     {
-        Livewire::actingAs($this->supervisor)
-            ->test(AuditoriaPage::class)
+        $this->montarComponente(AuditoriaPage::class)
             ->assertDontSee('Sin autorización');
     }
 
@@ -796,8 +789,7 @@ class SupervisionTest extends TestCase
         app(ConfiguracionService::class)->set('tiene_colectivos_protegidos', true);
         app()->forgetInstance(ConfiguracionService::class);
 
-        Livewire::actingAs($this->supervisor)
-            ->test(AuditoriaPage::class)
+        $this->montarComponente(AuditoriaPage::class)
             ->assertSee('Sin autorización');
     }
 
@@ -813,8 +805,7 @@ class SupervisionTest extends TestCase
     {
         $this->uoHija->update(['nombre_corto' => 'CSS Retiro']);
 
-        Livewire::actingAs($this->supervisor)
-            ->test(ConfiguracionCentroPage::class)
+        $this->montarComponente(ConfiguracionCentroPage::class)
             ->assertSet('nombreCorto', 'CSS Retiro');
     }
 
@@ -824,8 +815,7 @@ class SupervisionTest extends TestCase
     #[Test]
     public function guardar_nombre_corto_persiste_el_cambio(): void
     {
-        Livewire::actingAs($this->supervisor)
-            ->test(ConfiguracionCentroPage::class)
+        $this->montarComponente(ConfiguracionCentroPage::class)
             ->set('nombreCorto', 'Nuevo Nombre Corto')
             ->call('guardar');
 
@@ -844,8 +834,7 @@ class SupervisionTest extends TestCase
         app(ConfiguracionService::class)->set('modo_agenda', 'basico');
         app()->forgetInstance(ConfiguracionService::class);
 
-        Livewire::actingAs($this->supervisor)
-            ->test(ConfiguracionCentroPage::class)
+        $this->montarComponente(ConfiguracionCentroPage::class)
             ->set('modoAgenda', 'avanzado')
             ->assertSee('afectará a la interfaz de todos los profesionales');
     }
@@ -877,8 +866,7 @@ class SupervisionTest extends TestCase
         // Al guardar, actúa sobre su propia UO (uoHija), que está en su ámbito
         // Para probar la restricción, necesitaría un mecanismo para cambiar la UO objetivo
         // Verificamos que el guardar sobre la propia UO funciona correctamente
-        Livewire::actingAs($this->supervisor)
-            ->test(ConfiguracionCentroPage::class)
+        $this->montarComponente(ConfiguracionCentroPage::class)
             ->set('nombreCorto', 'Mi UO')
             ->call('guardar')
             ->assertHasNoErrors();

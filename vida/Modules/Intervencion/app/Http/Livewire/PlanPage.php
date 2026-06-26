@@ -43,13 +43,13 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property int|null $ucId
  * @property PlanDeIntervencion|null $plan
  * @property bool $drawerAbierto
- * @property array $fichasSeleccionadas
+ * @property array<int, int> $fichasSeleccionadas
  * @property string $drawerFiltroTipo
  * @property string $drawerFiltroFecha
  * @property bool $modalMotivoAbierto
  * @property string $motivoTexto
  * @property string $motivoAccionPendiente
- * @property array $motivoAccionParams
+ * @property array<string, mixed> $motivoAccionParams
  * @property string $diagnosticoTexto
  * @property string $periodicidadSeguimiento
  * @property string $observacionesSeguimiento
@@ -59,7 +59,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property string $mensajeExito
  * @property bool $modalObjetivoAbierto
  * @property string $modoObjetivo
- * @property array $objetivosCatalogoSeleccionados
+ * @property array<int, int> $objetivosCatalogoSeleccionados
  * @property string $nuevoObjetivoTexto
  * @property bool $modalCompromisoAbierto
  * @property string $nuevoCompromisoDescripcion
@@ -72,7 +72,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property bool $modalCierreAbierto
  * @property string $motivoCierre
  * @property string $notasCierre
- * @property array $valoracionesIndicadores
+ * @property array<int, mixed> $valoracionesIndicadores
  * @property bool $modalEditarObjetivoAbierto
  * @property int|null $editarObjetivoId
  * @property string $editarObjetivoTexto
@@ -84,6 +84,14 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property int|null $editarActuacionAytoId
  * @property int|null $editarActuacionAytoPrestacionId
  * @property string $editarActuacionAytoDescripcion
+ * @property-read Ciudadano|null $ciudadano
+ * @property-read UnidadConvivencia|null $ucVigente
+ * @property-read bool $planFirmado
+ * @property-read bool $puedeActivarse
+ * @property-read array<int, int> $catalogoIdsEnPlan
+ * @property-read Collection<int, PlanObjetivo> $objetivosGenerales
+ * @property-read Collection<int, PlanActuacionAyuntamiento> $actuacionesAyuntamiento
+ * @property-read Collection<int, PlanActuacionCiudadano> $actuacionesCiudadano
  */
 class PlanPage extends Component
 {
@@ -106,6 +114,7 @@ class PlanPage extends Component
     // --- Estado del drawer ---
     public bool $drawerAbierto = false;
 
+    /** @var array<int, int> */
     public array $fichasSeleccionadas = [];
 
     public string $drawerFiltroTipo = 'todas';
@@ -119,6 +128,7 @@ class PlanPage extends Component
 
     public string $motivoAccionPendiente = '';
 
+    /** @var array<string, mixed> */
     public array $motivoAccionParams = [];
 
     // --- Edición inline ---
@@ -173,6 +183,7 @@ class PlanPage extends Component
     public string $notasCierre = '';
 
     // --- Valoración de indicadores: [plan_objetivo_indicador_id => valor] ---
+    /** @var array<int, mixed> */
     public array $valoracionesIndicadores = [];
 
     // --- Edición de objetivo existente ---
@@ -265,12 +276,14 @@ class PlanPage extends Component
     #[Computed]
     public function ucVigente(): ?UnidadConvivencia
     {
-        return $this->plan?->unidadConvivencia
+        return $this->plan->unidadConvivencia
             ?? $this->ciudadano?->unidadesConvivenciaActivas()->first();
     }
 
     /**
      * Miembros activos de la unidad de convivencia con relación y verificación.
+     *
+     * @return Collection<int, array{ciudadano: mixed, relacion: mixed, verificado: mixed}>
      */
     #[Computed]
     public function miembrosUc(): Collection
@@ -303,6 +316,8 @@ class PlanPage extends Component
      * Fichas de valoración incluidas en el diagnóstico del plan.
      * En modo creación devuelve las fichas preseleccionadas envueltas en objetos
      * compatibles con la forma que espera la vista (id, ficha_id, ficha).
+     *
+     * @return Collection<int, mixed>
      */
     #[Computed]
     public function fichasDiagnostico(): Collection
@@ -327,6 +342,8 @@ class PlanPage extends Component
 
     /**
      * Objetivos generales del plan con sus específicos anidados.
+     *
+     * @return Collection<int, PlanObjetivo>
      */
     #[Computed]
     public function objetivosGenerales(): Collection
@@ -342,6 +359,8 @@ class PlanPage extends Component
 
     /**
      * Objetivos generales con sus específicos e indicadores cargados para la vista.
+     *
+     * @return Collection<int, PlanObjetivo>
      */
     #[Computed]
     public function objetivosConIndicadores(): Collection
@@ -375,6 +394,8 @@ class PlanPage extends Component
 
     /**
      * Actuaciones del Ayuntamiento en el plan.
+     *
+     * @return Collection<int, PlanActuacionAyuntamiento>
      */
     #[Computed]
     public function actuacionesAyuntamiento(): Collection
@@ -390,6 +411,8 @@ class PlanPage extends Component
 
     /**
      * Compromisos del ciudadano en el plan.
+     *
+     * @return Collection<int, PlanActuacionCiudadano>
      */
     #[Computed]
     public function actuacionesCiudadano(): Collection
@@ -405,6 +428,8 @@ class PlanPage extends Component
 
     /**
      * Profesionales participantes en el plan.
+     *
+     * @return Collection<int, PlanParticipante>
      */
     #[Computed]
     public function participantes(): Collection
@@ -448,7 +473,7 @@ class PlanPage extends Component
     #[Computed]
     public function fichasHistorial(): Collection
     {
-        $historiaId = $this->plan?->historia_id ?? $this->historiaId;
+        $historiaId = $this->plan->historia_id ?? $this->historiaId;
 
         if (! $historiaId) {
             return collect();
@@ -472,7 +497,7 @@ class PlanPage extends Component
     #[Computed]
     public function planNombreCorto(): string
     {
-        return auth()->user()?->unidadOrganizativa?->plan_nombre_corto ?? 'Plan';
+        return auth()->user()->profesional()->with('unidadOrganizativa')->first()?->unidadOrganizativa->plan_nombre_corto ?? 'Plan';
     }
 
     /**
@@ -524,8 +549,9 @@ class PlanPage extends Component
         }
 
         $tipoFichaIds = $this->plan->fichasDiagnostico()
-            ->join('fichas', 'fichas.id', '=', 'plan_fichas_diagnostico.ficha_id')
-            ->pluck('fichas.tipo_ficha_id')
+            ->with('ficha')
+            ->get()
+            ->pluck('ficha.tipo_ficha_id')
             ->filter()
             ->unique()
             ->values();
@@ -921,13 +947,22 @@ class PlanPage extends Component
 
     /**
      * Crea o actualiza el registro FirmaPlan para la versión actual del plan.
+     *
+     * @param array<string, mixed> $datos
      */
     private function _actualizarOServicioFirma(array $datos): void
     {
-        FirmaPlan::updateOrCreate(
-            ['plan_id' => $this->plan->id, 'version' => $this->plan->version],
-            array_merge(['metodo_firma' => 'manuscrita'], $datos)
-        );
+        $firma = FirmaPlan::firstOrNew([
+            'plan_id' => $this->plan->id,
+            'version' => $this->plan->version,
+        ]);
+
+        $firma->setAttribute('metodo_firma', 'manuscrita');
+        foreach ($datos as $atributo => $valor) {
+            $firma->setAttribute($atributo, $valor);
+        }
+
+        $firma->save();
     }
 
     /**
@@ -954,6 +989,8 @@ class PlanPage extends Component
 
     /**
      * Encola la acción pendiente y abre el modal de motivo obligatorio.
+     *
+     * @param array<string, mixed> $params
      */
     private function encolarAccion(string $accion, array $params): void
     {

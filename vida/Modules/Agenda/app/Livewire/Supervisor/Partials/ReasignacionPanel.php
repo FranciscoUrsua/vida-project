@@ -20,6 +20,8 @@ use Modules\Centro\Models\Centro;
  * para el mismo tipo de atención, ordenados urgencias primero.
  * Emite 'citaReasignada' al padre al confirmar.
  *
+ * @property-read Cita|null $cita
+ * @property-read Collection<int, Slot> $slotsDisponiblesHoy
  * @property int $citaId
  */
 class ReasignacionPanel extends Component

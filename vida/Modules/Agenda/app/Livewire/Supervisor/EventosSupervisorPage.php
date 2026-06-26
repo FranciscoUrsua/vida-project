@@ -21,7 +21,10 @@ use Modules\Centro\Models\Espacio;
  * bloquea los slots disponibles de los convocados y detecta conflictos de espacio.
  *
  * @property bool $mostrarFormulario
- * @property array $form
+ * @property array{nombre: string, fecha: string, hora_inicio: string, duracion_minutos: string, tipo_evento: string, espacio_id: string, profesionales_ids: array<int, int>} $form
+ * @property-read Collection<int, EventoAgenda> $eventosProximos
+ * @property-read Collection<int, Espacio> $espaciosDelCentro
+ * @property-read Collection<int, User> $profesionalesDelCentro
  * @property bool $hayConflictoEspacio
  */
 #[Layout('agenda::layouts.agenda-supervisor')]
@@ -36,7 +39,7 @@ class EventosSupervisorPage extends Component
     /**
      * Campos del formulario de nuevo evento.
      *
-     * @var array{nombre: string, fecha: string, hora_inicio: string, duracion_minutos: string, tipo_evento: string, espacio_id: string, profesionales_ids: array<int>}
+     * @var array{nombre: string, fecha: string, hora_inicio: string, duracion_minutos: string, tipo_evento: string, espacio_id: string, profesionales_ids: array<int, int>}
      */
     public array $form = [
         'nombre'            => '',

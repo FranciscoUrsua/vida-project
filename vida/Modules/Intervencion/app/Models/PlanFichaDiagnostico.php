@@ -23,7 +23,7 @@ class PlanFichaDiagnostico extends Model
     /**
      * Ficha de valoración incluida en el diagnóstico.
      *
-     * @return BelongsTo<Ficha, self>
+     * @return BelongsTo<Ficha, $this>
      */
     public function ficha(): BelongsTo
     {
@@ -33,7 +33,7 @@ class PlanFichaDiagnostico extends Model
     /**
      * Plan al que pertenece esta asociación de ficha.
      *
-     * @return BelongsTo<PlanDeIntervencion, self>
+     * @return BelongsTo<PlanDeIntervencion, $this>
      */
     public function plan(): BelongsTo
     {

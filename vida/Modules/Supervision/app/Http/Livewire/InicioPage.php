@@ -18,6 +18,10 @@ use Modules\Usuarios\Models\UsuarioRol;
  * Muestra los KPIs operativos del centro (ratio de carga, espera media,
  * profesionales sin agenda, actividades próximas) y las aprobaciones
  * pendientes más recientes. No es analítica histórica.
+ *
+ * @property-read float $ratioCarga
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Usuarios\Models\UsuarioRol> $aprobacionesPendientes
+ * @property-read float $umbralRatio
  */
 #[Layout('layouts.supervision')]
 class InicioPage extends Component
@@ -54,7 +58,7 @@ class InicioPage extends Component
     #[Computed]
     public function aprobacionesPendientes(): Collection
     {
-        $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
+        $uoIds = auth()->user()->uoSubtreeIds();
 
         if (empty($uoIds)) {
             return collect();

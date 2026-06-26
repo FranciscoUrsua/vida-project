@@ -23,6 +23,7 @@ use Modules\Organizacion\Services\ConfiguracionService;
  * @property string $fechaDesde
  * @property string $fechaHasta
  * @property bool $soloProtegidos
+ * @property-read LengthAwarePaginator<int, Audit> $accesos
  * @property bool $soloSinAutorizacion
  */
 #[Layout('layouts.supervision')]
@@ -89,12 +90,12 @@ class AuditoriaPage extends Component
      * No usa AccesosExpedienteQuery (scoped a un ciudadano concreto) sino una
      * subquery directa sobre historias_sociales.
      *
-     * @return LengthAwarePaginator
+     * @return LengthAwarePaginator<int, Audit>
      */
     #[Computed]
     public function accesos(): LengthAwarePaginator
     {
-        $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
+        $uoIds = auth()->user()->uoSubtreeIds();
 
         if (empty($uoIds)) {
             return Audit::whereNull('id')->paginate(50);

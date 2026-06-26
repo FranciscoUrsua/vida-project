@@ -340,7 +340,7 @@ class ActividadesPage extends Component
         $this->aforoPresc           = $actividad->aforo_prescripcion;
         $this->fechaAlta            = $actividad->fecha_alta->toDateString();
         $this->requiereInscripcion  = (bool) $actividad->requiere_inscripcion_centro;
-        $this->profesionalesIds     = $actividad->profesionales()->pluck('profesionales.id')->map(fn ($v) => (int) $v)->toArray();
+        $this->profesionalesIds     = $actividad->profesionales()->get()->pluck('id')->map(fn ($v) => (int) $v)->toArray();
         $this->busquedaProfesional  = '';
         $this->buscarEnTodo         = false;
         $this->modalAbierto         = true;
@@ -494,7 +494,7 @@ class ActividadesPage extends Component
         $this->sesionAforoTotal         = $sesion->aforo_total;
         $this->sesionAforoPresc         = $sesion->aforo_prescripcion;
         $this->sesionNotas              = $sesion->notas ?? '';
-        $this->sesionProfesionalesIds   = $sesion->profesionales()->pluck('profesionales.id')->map(fn ($v) => (int) $v)->toArray();
+        $this->sesionProfesionalesIds   = $sesion->profesionales()->get()->pluck('id')->map(fn ($v) => (int) $v)->toArray();
         $this->sesionBusquedaProfesional = '';
         $this->sesionBuscarEnTodo       = false;
         $this->sesionesModo             = 'formulario';

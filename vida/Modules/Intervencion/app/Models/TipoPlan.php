@@ -24,6 +24,7 @@ use Modules\Intervencion\Database\Factories\TipoPlanFactory;
  */
 class TipoPlan extends Model
 {
+    /** @use HasFactory<TipoPlanFactory> */
     use HasFactory;
 
     protected static function newFactory(): TipoPlanFactory
@@ -64,7 +65,7 @@ class TipoPlan extends Model
     /**
      * Planes de intervención que usan este tipo.
      *
-     * @return HasMany<PlanDeIntervencion>
+     * @return HasMany<PlanDeIntervencion, $this>
      */
     public function planes(): HasMany
     {
@@ -74,7 +75,7 @@ class TipoPlan extends Model
     /**
      * Objetivos del catálogo disponibles para este tipo de plan.
      *
-     * @return HasMany<ObjetivoCatalogo>
+     * @return HasMany<ObjetivoCatalogo, $this>
      */
     public function objetivosCatalogo(): HasMany
     {
@@ -84,7 +85,7 @@ class TipoPlan extends Model
     /**
      * Solo los objetivos generales activos, ordenados.
      *
-     * @return HasMany<ObjetivoCatalogo>
+     * @return HasMany<ObjetivoCatalogo, $this>
      */
     public function objetivosGenerales(): HasMany
     {

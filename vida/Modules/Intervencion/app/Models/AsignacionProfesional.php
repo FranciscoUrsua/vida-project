@@ -54,7 +54,7 @@ class AsignacionProfesional extends Model
     /**
      * Historia Social a la que pertenece esta asignación.
      *
-     * @return BelongsTo<HistoriaSocial, AsignacionProfesional>
+     * @return BelongsTo<HistoriaSocial, $this>
      */
     public function historia(): BelongsTo
     {
@@ -64,7 +64,7 @@ class AsignacionProfesional extends Model
     /**
      * Profesional responsable durante el período de esta asignación.
      *
-     * @return BelongsTo<User, AsignacionProfesional>
+     * @return BelongsTo<User, $this>
      */
     public function profesional(): BelongsTo
     {

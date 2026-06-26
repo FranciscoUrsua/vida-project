@@ -37,7 +37,7 @@ class TipoValoracionFicha extends Model
     // -------------------------------------------------------------------------
 
     /**
-     * @return BelongsTo<TipoValoracion, TipoValoracionFicha>
+     * @return BelongsTo<TipoValoracion, $this>
      */
     public function tipoValoracion(): BelongsTo
     {
@@ -45,7 +45,7 @@ class TipoValoracionFicha extends Model
     }
 
     /**
-     * @return BelongsTo<TipoFicha, TipoValoracionFicha>
+     * @return BelongsTo<TipoFicha, $this>
      */
     public function tipoFicha(): BelongsTo
     {

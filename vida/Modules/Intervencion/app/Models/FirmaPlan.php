@@ -56,7 +56,7 @@ class FirmaPlan extends Model
     // -------------------------------------------------------------------------
 
     /**
-     * @return BelongsTo<PlanDeIntervencion, FirmaPlan>
+     * @return BelongsTo<PlanDeIntervencion, $this>
      */
     public function plan(): BelongsTo
     {

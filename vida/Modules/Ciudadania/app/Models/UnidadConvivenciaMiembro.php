@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $verificado_en
  * @property Carbon $created_at
  * @property Carbon $updated_at
+ * @property string|null $tipo_relacion_etiqueta
  */
 class UnidadConvivenciaMiembro extends Model
 {
@@ -55,7 +56,7 @@ class UnidadConvivenciaMiembro extends Model
     // -------------------------------------------------------------------------
 
     /**
-     * @return BelongsTo<UnidadConvivencia, self>
+     * @return BelongsTo<UnidadConvivencia, $this>
      */
     public function unidadConvivencia(): BelongsTo
     {
@@ -63,7 +64,7 @@ class UnidadConvivenciaMiembro extends Model
     }
 
     /**
-     * @return BelongsTo<Ciudadano, self>
+     * @return BelongsTo<Ciudadano, $this>
      */
     public function ciudadano(): BelongsTo
     {
@@ -73,7 +74,7 @@ class UnidadConvivenciaMiembro extends Model
     /**
      * Profesional que realizó la verificación manual.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function verificadoPor(): BelongsTo
     {

@@ -40,7 +40,7 @@ class PlanObjetivo extends Model
     /**
      * Plan al que pertenece este objetivo.
      *
-     * @return BelongsTo<PlanDeIntervencion, self>
+     * @return BelongsTo<PlanDeIntervencion, $this>
      */
     public function plan(): BelongsTo
     {
@@ -50,7 +50,7 @@ class PlanObjetivo extends Model
     /**
      * Objetivo del catálogo del que procede, si aplica.
      *
-     * @return BelongsTo<ObjetivoCatalogo, self>
+     * @return BelongsTo<ObjetivoCatalogo, $this>
      */
     public function objetivoCatalogo(): BelongsTo
     {
@@ -60,7 +60,7 @@ class PlanObjetivo extends Model
     /**
      * Área temática (tipo de ficha) a la que está vinculado este objetivo específico.
      *
-     * @return BelongsTo<TipoFicha, self>
+     * @return BelongsTo<TipoFicha, $this>
      */
     public function tipoFicha(): BelongsTo
     {
@@ -70,7 +70,7 @@ class PlanObjetivo extends Model
     /**
      * Indicador de valoración de este objetivo en el plan.
      *
-     * @return HasOne<PlanObjetivoIndicador>
+     * @return HasOne<PlanObjetivoIndicador, $this>
      */
     public function indicador(): HasOne
     {
@@ -98,8 +98,8 @@ class PlanObjetivo extends Model
         return PlanObjetivoIndicador::create([
             'plan_objetivo_id' => $this->id,
             'indicador_catalogo_id' => $indicadorCatalogo?->id,
-            'descripcion' => $indicadorCatalogo?->descripcion ?? $descripcionExnovo ?? '',
-            'tipo_valoracion' => $indicadorCatalogo?->tipo_valoracion ?? $tipoValoración,
+            'descripcion' => $indicadorCatalogo->descripcion ?? $descripcionExnovo ?? '',
+            'tipo_valoracion' => $indicadorCatalogo->tipo_valoracion ?? $tipoValoración,
             'valoracion_actual' => null,
         ]);
     }

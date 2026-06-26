@@ -73,7 +73,7 @@ class Entrevista extends Model
     }
 
     /**
-     * @return BelongsTo<HistoriaSocial, Entrevista>
+     * @return BelongsTo<HistoriaSocial, $this>
      */
     public function historia(): BelongsTo
     {
@@ -81,7 +81,7 @@ class Entrevista extends Model
     }
 
     /**
-     * @return BelongsTo<User, Entrevista>
+     * @return BelongsTo<User, $this>
      */
     public function profesional(): BelongsTo
     {
@@ -91,7 +91,7 @@ class Entrevista extends Model
     /**
      * Plan de intervención al que está vinculada esta entrevista de seguimiento.
      *
-     * @return BelongsTo<PlanDeIntervencion, Entrevista>
+     * @return BelongsTo<PlanDeIntervencion, $this>
      */
     public function planDeIntervencion(): BelongsTo
     {
@@ -101,7 +101,7 @@ class Entrevista extends Model
     /**
      * Valoración generada en esta entrevista (si la hubiera).
      *
-     * @return HasOne<Valoracion>
+     * @return HasOne<Valoracion, $this>
      */
     public function valoracion(): HasOne
     {
@@ -111,7 +111,7 @@ class Entrevista extends Model
     /**
      * Seguimiento del plan generado en esta entrevista (si la hubiera).
      *
-     * @return HasOne<SeguimientoPlan>
+     * @return HasOne<SeguimientoPlan, $this>
      */
     public function seguimientoPlan(): HasOne
     {

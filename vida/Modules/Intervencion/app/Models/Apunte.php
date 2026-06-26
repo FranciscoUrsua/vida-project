@@ -33,6 +33,7 @@ use Modules\Intervencion\Enums\VisibilidadApunte;
  * @property int|null $plan_id Vínculo opcional al plan en curso cuando se creó el apunte.
  * @property int $autor_id
  * @property Carbon $fecha
+ * @property Carbon $created_at
  * @property TipoApunte $tipo
  * @property string|null $apuntable_type
  * @property int|null $apuntable_id
@@ -116,7 +117,7 @@ class Apunte extends Model
     /**
      * Historia Social a la que pertenece el apunte.
      *
-     * @return BelongsTo<HistoriaSocial, self>
+     * @return BelongsTo<HistoriaSocial, $this>
      */
     public function historia(): BelongsTo
     {
@@ -126,7 +127,7 @@ class Apunte extends Model
     /**
      * Plan de intervención en curso cuando se creó el apunte (opcional).
      *
-     * @return BelongsTo<PlanDeIntervencion, self>
+     * @return BelongsTo<PlanDeIntervencion, $this>
      */
     public function plan(): BelongsTo
     {
@@ -136,7 +137,7 @@ class Apunte extends Model
     /**
      * Autor del apunte.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function autor(): BelongsTo
     {

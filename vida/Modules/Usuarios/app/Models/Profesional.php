@@ -93,7 +93,7 @@ class Profesional extends Model
      * Unidad Organizativa de adscripción directa del profesional.
      * Permite la gestión del profesional antes de vincularle una cuenta de usuario.
      *
-     * @return BelongsTo<UnidadOrganizativa, Profesional>
+     * @return BelongsTo<UnidadOrganizativa, $this>
      */
     public function unidadOrganizativa(): BelongsTo
     {

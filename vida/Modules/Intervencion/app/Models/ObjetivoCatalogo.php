@@ -44,7 +44,7 @@ class ObjetivoCatalogo extends Model
     /**
      * Tipo de plan al que pertenece este objetivo.
      *
-     * @return BelongsTo<TipoPlan, self>
+     * @return BelongsTo<TipoPlan, $this>
      */
     public function tipoPlan(): BelongsTo
     {
@@ -54,7 +54,7 @@ class ObjetivoCatalogo extends Model
     /**
      * Área temática (tipo de ficha) a la que está vinculado este objetivo específico.
      *
-     * @return BelongsTo<TipoFicha, self>
+     * @return BelongsTo<TipoFicha, $this>
      */
     public function tipoFicha(): BelongsTo
     {
@@ -64,7 +64,7 @@ class ObjetivoCatalogo extends Model
     /**
      * Indicador de medición asociado a este objetivo del catálogo (uno por objetivo).
      *
-     * @return HasOne<IndicadorCatalogo>
+     * @return HasOne<IndicadorCatalogo, $this>
      */
     public function indicador(): HasOne
     {

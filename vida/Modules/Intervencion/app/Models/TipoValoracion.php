@@ -49,7 +49,7 @@ class TipoValoracion extends Model
     /**
      * Fichas asociadas a este tipo de valoración, con metadata de orden y obligatoriedad.
      *
-     * @return HasMany<TipoValoracionFicha>
+     * @return HasMany<TipoValoracionFicha, $this>
      */
     public function tipoValoracionFichas(): HasMany
     {

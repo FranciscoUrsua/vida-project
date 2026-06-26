@@ -256,7 +256,7 @@ class MisCasosPage extends Component
                 $term = mb_strtolower($this->busqueda);
                 $allItems = $allItems->filter(
                     fn ($caso) => str_contains(
-                        mb_strtolower($ciudadanos->get($caso->ciudadano_id)?->nombre_completo ?? ''),
+                        mb_strtolower($ciudadanos->get($caso->ciudadano_id)->nombre_completo ?? ''),
                         $term
                     )
                 )->values();
@@ -264,8 +264,8 @@ class MisCasosPage extends Component
 
             if ($this->ordenarPor === 'ciudadano') {
                 $allItems = $this->direccion === 'desc'
-                    ? $allItems->sortByDesc(fn ($caso) => $ciudadanos->get($caso->ciudadano_id)?->nombre_completo ?? "\xFF")
-                    : $allItems->sortBy(fn ($caso) => $ciudadanos->get($caso->ciudadano_id)?->nombre_completo ?? "\xFF");
+                    ? $allItems->sortByDesc(fn ($caso) => $ciudadanos->get($caso->ciudadano_id)->nombre_completo ?? "\xFF")
+                    : $allItems->sortBy(fn ($caso) => $ciudadanos->get($caso->ciudadano_id)->nombre_completo ?? "\xFF");
                 $allItems = $allItems->values();
             }
 

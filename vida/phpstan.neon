@@ -11,6 +11,9 @@ parameters:
     # Subir a 7 u 8 cuando los módulos principales estén estables.
     level: 6
 
+    # Evita que entradas antiguas del baseline oculten los errores reales entre ruido.
+    reportUnmatchedIgnoredErrors: false
+
     # Ignorar ficheros generados o de terceros dentro de módulos
     excludePaths:
         - Modules/*/database/migrations/*

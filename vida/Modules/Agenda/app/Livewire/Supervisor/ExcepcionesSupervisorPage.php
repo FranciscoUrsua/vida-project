@@ -21,7 +21,10 @@ use Modules\Centro\Models\Centro;
  * y otros cambios en la disponibilidad del equipo. Al guardar, el Observer
  * de ExcepcionProfesional gestiona el impacto sobre cuadrante y citas publicados.
  *
- * @property array $form
+ * @property-read Collection<int, ExcepcionProfesional> $excepcionesActivas
+ * @property-read Collection<int, User> $profesionalesDelCentro
+ * @property-read array<string, string> $tiposExcepcion
+ * @property array{usuario_id: string, tipo: string, fecha_inicio: string, fecha_fin: string, notas: string} $form
  */
 #[Layout('agenda::layouts.agenda-supervisor')]
 class ExcepcionesSupervisorPage extends Component

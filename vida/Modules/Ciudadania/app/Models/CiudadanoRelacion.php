@@ -6,6 +6,7 @@ use App\Models\Ciudadano;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Relación entre dos ciudadanos.
@@ -18,8 +19,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $ciudadano_id
  * @property int $ciudadano_relacionado_id
  * @property string $tipo_relacion Slug del catálogo tipos_relacion
- * @property string $fecha_inicio
- * @property string|null $fecha_fin
+ * @property Carbon $fecha_inicio
+ * @property Carbon|null $fecha_fin
  * @property string|null $observaciones
  */
 class CiudadanoRelacion extends Model
@@ -74,7 +75,7 @@ class CiudadanoRelacion extends Model
     /**
      * Ciudadano origen de la relación.
      *
-     * @return BelongsTo<Ciudadano, self>
+     * @return BelongsTo<Ciudadano, $this>
      */
     public function ciudadano(): BelongsTo
     {
@@ -84,7 +85,7 @@ class CiudadanoRelacion extends Model
     /**
      * Ciudadano relacionado al otro lado del vínculo.
      *
-     * @return BelongsTo<Ciudadano, self>
+     * @return BelongsTo<Ciudadano, $this>
      */
     public function ciudadanoRelacionado(): BelongsTo
     {
@@ -94,7 +95,7 @@ class CiudadanoRelacion extends Model
     /**
      * Tipo de relación asociado al vínculo.
      *
-     * @return BelongsTo<TipoRelacion, self>
+     * @return BelongsTo<TipoRelacion, $this>
      */
     public function tipoRelacion(): BelongsTo
     {

@@ -46,7 +46,7 @@ class PlanActuacionCiudadano extends Model
     /**
      * Plan al que pertenece este compromiso.
      *
-     * @return BelongsTo<PlanDeIntervencion, self>
+     * @return BelongsTo<PlanDeIntervencion, $this>
      */
     public function plan(): BelongsTo
     {
@@ -56,7 +56,7 @@ class PlanActuacionCiudadano extends Model
     /**
      * Prestación del catálogo relacionada, si aplica.
      *
-     * @return BelongsTo<Prestacion, self>
+     * @return BelongsTo<Prestacion, $this>
      */
     public function prestacion(): BelongsTo
     {

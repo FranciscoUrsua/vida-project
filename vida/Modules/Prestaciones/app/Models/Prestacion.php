@@ -56,6 +56,7 @@ use Modules\Prestaciones\Database\Factories\PrestacionFactory;
  */
 class Prestacion extends Model
 {
+    /** @use HasFactory<PrestacionFactory> */
     use HasFactory;
     use SoftDeletes;
     use Versionable;

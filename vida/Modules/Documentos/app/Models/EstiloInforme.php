@@ -34,7 +34,7 @@ class EstiloInforme extends Model
     /**
      * Unidad organizativa dueña del estilo.
      *
-     * @return BelongsTo<UnidadOrganizativa, self>
+     * @return BelongsTo<UnidadOrganizativa, $this>
      */
     public function unidadOrganizativa(): BelongsTo
     {
@@ -44,7 +44,7 @@ class EstiloInforme extends Model
     /**
      * Usuario que creó el estilo.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function creadoPor(): BelongsTo
     {

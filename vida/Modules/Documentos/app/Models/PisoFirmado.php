@@ -37,7 +37,7 @@ class PisoFirmado extends Model
     /**
      * Plan de intervención asociado al PISO.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function planDeIntervencion(): BelongsTo
     {
@@ -49,7 +49,7 @@ class PisoFirmado extends Model
     /**
      * Documento custodiado del PISO.
      *
-     * @return BelongsTo<Documento, self>
+     * @return BelongsTo<Documento, $this>
      */
     public function documento(): BelongsTo
     {
@@ -59,7 +59,7 @@ class PisoFirmado extends Model
     /**
      * Usuario que subió el documento.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function subidoPor(): BelongsTo
     {

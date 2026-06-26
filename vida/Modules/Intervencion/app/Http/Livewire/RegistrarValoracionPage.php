@@ -24,6 +24,8 @@ use Modules\Intervencion\Models\TipoFicha;
  * de la Historia Social para dejar constancia en el timeline.
  *
  * @see docs/instrucciones-cli/valoracion-page-implementacion.md
+ *
+ * @property-read TipoFicha|null $tipoFicha
  */
 #[Layout('layouts.operativo')]
 class RegistrarValoracionPage extends Component

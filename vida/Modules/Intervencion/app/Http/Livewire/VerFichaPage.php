@@ -66,7 +66,7 @@ class VerFichaPage extends Component
      */
     public function nombreFicha(): string
     {
-        return TipoFicha::find($this->ficha->tipo_ficha_id)?->nombre ?? 'Valoración';
+        return TipoFicha::find($this->ficha->tipo_ficha_id)->nombre ?? 'Valoración';
     }
 
     /**

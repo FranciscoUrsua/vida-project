@@ -25,6 +25,7 @@ use Modules\Usuarios\Models\UsuarioRol;
  *
  * @property string $tabActiva
  * @property string $motivoDenegacion
+ * @property-read Collection<int, UsuarioRol> $solicitudesRol
  * @property int|null $solicitudActivaId
  */
 #[Layout('layouts.supervision')]

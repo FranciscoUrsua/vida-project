@@ -5,7 +5,6 @@ namespace Modules\Atencion\Models;
 use App\Models\Ciudadano;
 use App\Models\User;
 use DateTimeInterface;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -40,6 +39,7 @@ use Modules\Prestaciones\Models\Prestacion;
  */
 class RegistroAtencion extends Model
 {
+    /** @use HasFactory<RegistroAtencionFactory> */
     use HasFactory;
 
     /** @var string Tabla de la base de datos */
@@ -48,9 +48,9 @@ class RegistroAtencion extends Model
     /**
      * Devuelve la factory específica del módulo Atencion.
      *
-     * @return Factory<self>
+     * @return RegistroAtencionFactory
      */
-    protected static function newFactory(): Factory
+    protected static function newFactory(): RegistroAtencionFactory
     {
         return RegistroAtencionFactory::new();
     }
@@ -110,7 +110,7 @@ class RegistroAtencion extends Model
     /**
      * Ciudadano titular de la atención.
      *
-     * @return BelongsTo<Ciudadano, self>
+     * @return BelongsTo<Ciudadano, $this>
      */
     public function ciudadano(): BelongsTo
     {
@@ -120,7 +120,7 @@ class RegistroAtencion extends Model
     /**
      * Profesional que registró la atención (null para registros generados por sistema).
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function profesional(): BelongsTo
     {
@@ -130,7 +130,7 @@ class RegistroAtencion extends Model
     /**
      * Prestación del catálogo vinculada a la atención.
      *
-     * @return BelongsTo<Prestacion, self>
+     * @return BelongsTo<Prestacion, $this>
      */
     public function prestacion(): BelongsTo
     {
@@ -165,10 +165,25 @@ class RegistroAtencion extends Model
     {
         return match ($this->tipo) {
             'informacion' => str($this->demanda ?? '')->limit(80)->toString(),
-            'actividad' => $this->modeloOrigen()?->nombre ?? 'Actividad',
+            'actividad' => $this->nombreModeloOrigen() ?? 'Actividad',
             'contacto' => str($this->demanda ?? '')->limit(80)->toString(),
             default => '—',
         };
+    }
+
+    /**
+     * Nombre del modelo origen para mostrarlo en el historial.
+     */
+    private function nombreModeloOrigen(): ?string
+    {
+        $modelo = $this->modeloOrigen();
+        if ($modelo === null) {
+            return null;
+        }
+
+        $nombre = $modelo->getAttribute('nombre');
+
+        return is_string($nombre) && $nombre !== '' ? $nombre : null;
     }
 
     // -------------------------------------------------------------------------

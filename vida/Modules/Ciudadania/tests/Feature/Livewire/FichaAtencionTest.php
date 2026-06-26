@@ -10,7 +10,7 @@ use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-use Livewire\Testing\TestableLivewire;
+use Livewire\Features\SupportTesting\Testable;
 use Modules\Atencion\Models\RegistroAtencion;
 use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
 use Tests\TestCase;
@@ -38,7 +38,7 @@ class FichaAtencionTest extends TestCase
      *
      * @param string|null $rol Rol a asignar al usuario.
      *
-     * @return array{0: TestableLivewire, 1: Ciudadano, 2: User}
+     * @return array{0: Testable<FichaCiudadanoPage>, 1: Ciudadano, 2: User}
      */
     private function montarFicha(?string $rol = 'intervencion'): array
     {

@@ -43,7 +43,7 @@ class PlanParticipante extends Model
     /**
      * Plan al que pertenece este participante.
      *
-     * @return BelongsTo<PlanDeIntervencion, self>
+     * @return BelongsTo<PlanDeIntervencion, $this>
      */
     public function plan(): BelongsTo
     {
@@ -53,7 +53,7 @@ class PlanParticipante extends Model
     /**
      * Usuario profesional participante.
      *
-     * @return BelongsTo<User, self>
+     * @return BelongsTo<User, $this>
      */
     public function profesional(): BelongsTo
     {
@@ -63,7 +63,7 @@ class PlanParticipante extends Model
     /**
      * Servicio de origen del participante, si aplica.
      *
-     * @return BelongsTo<Servicio, self>
+     * @return BelongsTo<Servicio, $this>
      */
     public function servicio(): BelongsTo
     {

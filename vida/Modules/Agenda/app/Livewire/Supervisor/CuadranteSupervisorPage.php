@@ -11,6 +11,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Agenda\Enums\EstadoCuadrante;
 use Modules\Agenda\Models\CuadranteMes;
+use Modules\Agenda\Models\HorarioCentro;
 use Modules\Agenda\Models\LineaCuadrante;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Agenda\Services\CuadranteGeneratorService;
@@ -25,6 +26,10 @@ use Modules\Centro\Models\Centro;
  * Solo disponible en modo de agenda estándar o avanzado.
  *
  * @property string $vistaActiva
+ * @property-read CuadranteMes|null $cuadrante
+ * @property-read array<int, Carbon> $diasEnVista
+ * @property-read array<string, LineaCuadrante> $lineasIndexadas
+ * @property-read bool $modoManual
  * @property string|null $errorPublicacion
  */
 #[Layout('agenda::layouts.agenda-supervisor')]
@@ -97,14 +102,16 @@ class CuadranteSupervisorPage extends Component
     public function diasEnVista(): array
     {
         $cuadrante = $this->cuadrante;
+        $anyo = $cuadrante instanceof CuadranteMes ? $cuadrante->anyo : now()->year;
+        $mes = $cuadrante instanceof CuadranteMes ? $cuadrante->mes : now()->month;
 
         $inicio = $this->vistaActiva === 'semana'
             ? now()->startOfWeek(Carbon::MONDAY)
-            : Carbon::create($cuadrante?->anyo ?? now()->year, $cuadrante?->mes ?? now()->month, 1);
+            : Carbon::create($anyo, $mes, 1);
 
         $fin = $this->vistaActiva === 'semana'
             ? now()->startOfWeek(Carbon::MONDAY)->addDays(4)
-            : Carbon::create($cuadrante?->anyo ?? now()->year, $cuadrante?->mes ?? now()->month, 1)->endOfMonth();
+            : Carbon::create($anyo, $mes, 1)->endOfMonth();
 
         $dias = [];
         $cursor = $inicio->copy()->startOfDay();
@@ -151,7 +158,11 @@ class CuadranteSupervisorPage extends Component
             return false;
         }
 
-        $horario = $centro->horarioVigente();
+        $horario = HorarioCentro::where('centro_id', $centro->id)
+            ->activos()
+            ->vigentes()
+            ->orderByDesc('vigente_desde')
+            ->first();
 
         return $horario !== null && ! $horario->esModoBasico();
     }

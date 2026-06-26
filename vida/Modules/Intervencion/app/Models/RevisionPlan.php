@@ -47,7 +47,7 @@ class RevisionPlan extends Model
     // -------------------------------------------------------------------------
 
     /**
-     * @return BelongsTo<PlanDeIntervencion, RevisionPlan>
+     * @return BelongsTo<PlanDeIntervencion, $this>
      */
     public function plan(): BelongsTo
     {
@@ -55,7 +55,7 @@ class RevisionPlan extends Model
     }
 
     /**
-     * @return BelongsTo<User, RevisionPlan>
+     * @return BelongsTo<User, $this>
      */
     public function profesional(): BelongsTo
     {
@@ -63,7 +63,7 @@ class RevisionPlan extends Model
     }
 
     /**
-     * @return BelongsTo<SeguimientoPlan, RevisionPlan>
+     * @return BelongsTo<SeguimientoPlan, $this>
      */
     public function seguimiento(): BelongsTo
     {

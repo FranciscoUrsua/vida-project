@@ -18,7 +18,6 @@ class PrestacionFactory extends Factory
     /**
      * Estado por defecto: prestación de servicio activa.
      *
-     * @return array<string, mixed>
      */
     public function definition(): array
     {

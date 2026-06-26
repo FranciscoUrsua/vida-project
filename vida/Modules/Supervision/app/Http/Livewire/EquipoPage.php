@@ -20,6 +20,7 @@ use Modules\Usuarios\Models\Titulacion;
  * alta, edición, baja (soft delete), cambio de perfil horario y suplencias.
  * Solo gestiona la entidad Profesional, no la cuenta de Usuario (que gestiona adm_usuarios).
  *
+ * @property-read Collection<int, Profesional> $profesionales
  * @property bool   $modalAltaAbierto
  * @property string $nuevoNombre
  * @property int|null $nuevoCargo
@@ -43,6 +44,7 @@ use Modules\Usuarios\Models\Titulacion;
  * @property string|null $editEmailProfesional
  * @property string|null $editTelefonoProfesional
  * @property string|null $editExtension
+ * @property-read int $casosActivosProfesionalSeleccionado
  * @property string $editFechaInicio
  */
 #[Layout('layouts.supervision')]
@@ -109,7 +111,7 @@ class EquipoPage extends Component
     #[Computed]
     public function profesionales(): Collection
     {
-        $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
+        $uoIds = auth()->user()->uoSubtreeIds();
 
         if (empty($uoIds)) {
             return collect();
@@ -214,7 +216,7 @@ class EquipoPage extends Component
             return;
         }
 
-        $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
+        $uoIds = auth()->user()->uoSubtreeIds();
         if (! in_array($uoActiva->id, $uoIds, true)) {
             abort(403, 'Sin permisos de gestión sobre esta unidad organizativa.');
         }
@@ -224,7 +226,7 @@ class EquipoPage extends Component
         $tipoRelacionDefault = TipoRelacionProfesional::where('activo', true)->orderBy('id')->value('id') ?? 1;
 
         Profesional::create([
-            'nombre'                  => $partes[0] ?? $this->nuevoNombre,
+            'nombre'                  => $partes[0],
             'apellido1'               => $partes[1] ?? '',
             'apellido2'               => $partes[2] ?? null,
             'sexo'                    => 'D',
@@ -281,7 +283,7 @@ class EquipoPage extends Component
             return;
         }
 
-        $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
+        $uoIds = auth()->user()->uoSubtreeIds();
 
         if ($profesional->usuario !== null) {
             $enAmbito = ! empty($uoIds)
@@ -421,7 +423,7 @@ class EquipoPage extends Component
             return null;
         }
 
-        $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
+        $uoIds = auth()->user()->uoSubtreeIds();
 
         if (empty($uoIds)) {
             return null;

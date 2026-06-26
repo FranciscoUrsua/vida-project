@@ -9,6 +9,7 @@ use App\Models\UsuarioUo;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Modules\Ciudadania\Database\Seeders\TipoRelacionSeeder;
 use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
@@ -125,6 +126,20 @@ class RelacionesCiudadanoTest extends TestCase
         ]));
     }
 
+    /**
+     * Monta la ficha con usuario y ciudadano indicados.
+     *
+     * @return Testable<FichaCiudadanoPage>
+     */
+    private function montarFicha(?User $usuario = null, ?Ciudadano $ciudadano = null): Testable
+    {
+        $this->actingAs($usuario ?? $this->usuario);
+
+        return Livewire::test(FichaCiudadanoPage::class, [
+            'ciudadano' => ($ciudadano ?? $this->ciudadano)->id,
+        ]);
+    }
+
     // -------------------------------------------------------------------------
     // GRUPO REL — Panel de relaciones
     // -------------------------------------------------------------------------
@@ -138,8 +153,7 @@ class RelacionesCiudadanoTest extends TestCase
         $otroCiudadano = $this->crearCiudadano('Luis', 'García');
         $this->crearRelacion($this->ciudadano, $otroCiudadano, $this->slugConyuge);
 
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->assertSee('Relaciones')
             ->assertSee($otroCiudadano->nombre_completo);
     }
@@ -150,8 +164,7 @@ class RelacionesCiudadanoTest extends TestCase
     #[Test]
     public function panel_relaciones_muestra_estado_vacio_sin_relaciones(): void
     {
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->assertSee('Relaciones')
             ->assertSee('Sin relaciones registradas');
     }
@@ -165,8 +178,7 @@ class RelacionesCiudadanoTest extends TestCase
         $otro = $this->crearCiudadano('Pedro', 'Ruiz');
         $this->crearRelacion($this->ciudadano, $otro, $this->slugConyuge, today()->subDay()->toDateString());
 
-        $comp = Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id]);
+        $comp = $this->montarFicha($this->usuario);
 
         $relacionesActivas = $comp->instance()->relacionesActivas;
         $this->assertTrue($relacionesActivas->isEmpty());
@@ -183,8 +195,7 @@ class RelacionesCiudadanoTest extends TestCase
         $otro = $this->crearCiudadano('Pedro', 'Ruiz');
         $this->crearRelacion($this->ciudadano, $otro, $this->slugConyuge, today()->subDay()->toDateString());
 
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->call('toggleHistorialRelaciones')
             ->assertSee($otro->nombre_completo);
     }
@@ -197,8 +208,7 @@ class RelacionesCiudadanoTest extends TestCase
     {
         foreach (['intervencion', 'tramitacion'] as $rol) {
             $user = $this->crearUsuarioConRol($rol);
-            Livewire::actingAs($user)
-                ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+            $this->montarFicha($user)
                 ->assertSee('Añadir relación');
         }
     }
@@ -210,8 +220,7 @@ class RelacionesCiudadanoTest extends TestCase
     public function boton_añadir_ausente_para_consulta_basica(): void
     {
         $user = $this->crearUsuarioConRol('consulta_basica');
-        Livewire::actingAs($user)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($user)
             ->assertDontSee('Añadir relación');
     }
 
@@ -221,8 +230,7 @@ class RelacionesCiudadanoTest extends TestCase
     #[Test]
     public function modal_nueva_relacion_se_abre(): void
     {
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->call('abrirModalNuevaRelacion')
             ->assertSet('modalRelacionAbierto', true)
             ->assertSet('relacionId', null)
@@ -237,8 +245,7 @@ class RelacionesCiudadanoTest extends TestCase
     {
         $hijo = $this->crearCiudadano('Tomás', 'Martínez');
 
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->call('abrirModalNuevaRelacion')
             ->set('relacionTipo', $this->slugPadre)
             ->call('seleccionarCiudadanoRelacion', $hijo->id)
@@ -271,8 +278,7 @@ class RelacionesCiudadanoTest extends TestCase
     {
         $conyuge = $this->crearCiudadano('Marta', 'López');
 
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->call('abrirModalNuevaRelacion')
             ->set('relacionTipo', $this->slugConyuge)
             ->call('seleccionarCiudadanoRelacion', $conyuge->id)
@@ -299,8 +305,7 @@ class RelacionesCiudadanoTest extends TestCase
         ]);
 
         // La ficha del hijo debe mostrar al padre
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $hijo->id])
+        $this->montarFicha($this->usuario, $hijo)
             ->assertSee($this->ciudadano->nombre_completo);
     }
 
@@ -310,8 +315,7 @@ class RelacionesCiudadanoTest extends TestCase
     #[Test]
     public function crear_relacion_sin_ciudadano_falla(): void
     {
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->call('abrirModalNuevaRelacion')
             ->set('relacionTipo', $this->slugConyuge)
             ->set('relacionFechaInicio', today()->toDateString())
@@ -329,8 +333,7 @@ class RelacionesCiudadanoTest extends TestCase
     {
         $otro = $this->crearCiudadano('Pedro', 'Ruiz');
 
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->call('abrirModalNuevaRelacion')
             ->call('seleccionarCiudadanoRelacion', $otro->id)
             ->set('relacionFechaInicio', today()->toDateString())
@@ -346,8 +349,7 @@ class RelacionesCiudadanoTest extends TestCase
     #[Test]
     public function no_se_puede_relacionar_ciudadano_consigo_mismo(): void
     {
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->call('abrirModalNuevaRelacion')
             ->set('relacionTipo', $this->slugConyuge)
             ->set('relacionCiudadanoSeleccionado', $this->ciudadano->id)
@@ -367,8 +369,7 @@ class RelacionesCiudadanoTest extends TestCase
         $otro = $this->crearCiudadano('Pedro', 'Ruiz');
         $relacion = $this->crearRelacion($this->ciudadano, $otro, $this->slugConyuge);
 
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->call('abrirModalEditarRelacion', $relacion->id)
             ->assertSet('modalRelacionAbierto', true)
             ->assertSet('relacionId', $relacion->id)
@@ -395,8 +396,7 @@ class RelacionesCiudadanoTest extends TestCase
 
         $relacion = CiudadanoRelacion::where('ciudadano_id', $this->ciudadano->id)->first();
 
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->call('cerrarRelacion', $relacion->id)
             ->assertSet('modalRelacionAbierto', false);
 
@@ -427,8 +427,7 @@ class RelacionesCiudadanoTest extends TestCase
 
         $relacion = CiudadanoRelacion::where('ciudadano_id', $this->ciudadano->id)->first();
 
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->call('abrirModalEditarRelacion', $relacion->id)
             ->set('relacionObservaciones', 'Matrimonio civil 2015')
             ->call('guardarRelacion')
@@ -452,8 +451,7 @@ class RelacionesCiudadanoTest extends TestCase
         $otro = $this->crearCiudadano('Pedro', 'Ruiz');
 
         // Livewire 4 intercepta abort(403) y lo convierte en respuesta de error del componente
-        Livewire::actingAs($consulta)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($consulta)
             ->set('relacionTipo', $this->slugConyuge)
             ->set('relacionCiudadanoSeleccionado', $otro->id)
             ->set('relacionFechaInicio', today()->toDateString())
@@ -474,8 +472,7 @@ class RelacionesCiudadanoTest extends TestCase
 
         $fichaUrl = route('ciudadania.ciudadano.ficha', $otro->id);
 
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->assertSee($fichaUrl, false);
     }
 
@@ -488,8 +485,7 @@ class RelacionesCiudadanoTest extends TestCase
         $this->crearCiudadano('Marcos', 'Fernández');
         $this->crearCiudadano('Marina', 'Fernández');
 
-        $comp = Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $comp = $this->montarFicha($this->usuario)
             ->call('abrirModalNuevaRelacion')
             ->set('relacionBusqueda', 'Fernández');
 
@@ -523,8 +519,7 @@ class RelacionesCiudadanoTest extends TestCase
             'fecha_inicio' => today()->subMonth()->toDateString(),
         ]));
 
-        $comp = Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id]);
+        $comp = $this->montarFicha($this->usuario);
 
         $relaciones = $comp->instance()->relacionesActivas;
         $this->assertSame($c2->id, $relaciones->first()->ciudadano_relacionado_id);
@@ -545,8 +540,7 @@ class RelacionesCiudadanoTest extends TestCase
         $uc->agregarMiembro($this->ciudadano->id);
         $uc->agregarMiembro($conviviente->id);
 
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->assertSee('Unidad de convivencia')
             ->assertSee($conviviente->nombre_completo)
             ->assertDontSee('Añadir conviviente')
@@ -573,9 +567,8 @@ class RelacionesCiudadanoTest extends TestCase
 
         $tipo = TipoRelacion::where('slug', $this->slugPadre)->first();
 
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
-            ->assertSee($tipo?->etiqueta ?? $this->slugPadre);
+        $this->montarFicha($this->usuario)
+            ->assertSee($tipo->etiqueta ?? $this->slugPadre);
     }
 
     /**
@@ -584,8 +577,7 @@ class RelacionesCiudadanoTest extends TestCase
     #[Test]
     public function panel_uc_no_se_renderiza_sin_uc_activa(): void
     {
-        Livewire::actingAs($this->usuario)
-            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+        $this->montarFicha($this->usuario)
             ->assertDontSee('Unidad de convivencia');
     }
 
