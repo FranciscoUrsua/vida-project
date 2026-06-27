@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Tests\Feature\Livewire;
 
+use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
@@ -42,9 +43,10 @@ class RegistrarValoracionPageTest extends TestCase
         ]);
 
         $this->usuario = User::factory()->create();
+        $ciudadano = Ciudadano::factory()->create();
 
         $this->historia = HistoriaSocial::withoutGlobalScopes()->create([
-            'ciudadano_id' => 1,
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uo->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',
@@ -82,8 +84,7 @@ class RegistrarValoracionPageTest extends TestCase
 
         Livewire::test(RegistrarValoracionPage::class, ['historia' => $this->historia])
             ->assertSet('historiaId', $this->historia->id)
-            ->assertSet('tipoFichaId', null)
-            ->assertSet('estadoGuardado', null);
+            ->assertSet('tipoFichaId', null);
     }
 
     /**
@@ -163,30 +164,31 @@ class RegistrarValoracionPageTest extends TestCase
     }
 
     /**
-     * TF-LW-VAL-06: guardar() persiste una Ficha con los datos y la historia correcta.
+     * TF-LW-VAL-06: guardarDefinitivo() persiste una Ficha con los datos y la historia correcta.
      */
     #[Test]
-    public function guardar_crea_ficha_con_datos_y_historia_correctos(): void
+    public function guardar_definitivo_crea_ficha_con_datos_y_historia_correctos(): void
     {
         $this->actingAs($this->usuario);
 
         Livewire::test(RegistrarValoracionPage::class, ['historia' => $this->historia])
             ->call('seleccionarFicha', $this->tipoFicha->id)
             ->set('datos.observaciones', 'Texto de prueba')
-            ->call('guardar');
+            ->call('guardarDefinitivo');
 
         $ficha = Ficha::first();
         $this->assertNotNull($ficha);
         $this->assertEquals($this->historia->id, $ficha->historia_id);
         $this->assertEquals($this->tipoFicha->id, $ficha->tipo_ficha_id);
         $this->assertEquals('Texto de prueba', $ficha->datos['observaciones']);
+        $this->assertTrue($ficha->completada);
     }
 
     /**
-     * TF-LW-VAL-07: guardar() con campo obligatorio vacío genera error y no crea Ficha.
+     * TF-LW-VAL-07: guardarDefinitivo() con campo obligatorio vacío genera error y no crea Ficha.
      */
     #[Test]
-    public function guardar_con_campo_obligatorio_vacio_genera_error(): void
+    public function guardar_definitivo_con_campo_obligatorio_vacio_genera_error(): void
     {
         $fichaObligatoria = TipoFicha::create([
             'nombre' => 'Ficha Obligatoria',
@@ -200,62 +202,60 @@ class RegistrarValoracionPageTest extends TestCase
 
         Livewire::test(RegistrarValoracionPage::class, ['historia' => $this->historia])
             ->call('seleccionarFicha', $fichaObligatoria->id)
-            ->call('guardar')
-            ->assertHasErrors(['datos.campo_req'])
-            ->assertSet('estadoGuardado', null);
+            ->call('guardarDefinitivo')
+            ->assertHasErrors(['datos.campo_req']);
 
         $this->assertEquals(0, Ficha::count());
     }
 
     /**
-     * TF-LW-VAL-08: Dos llamadas a guardar() actualizan la misma Ficha (updateOrCreate).
+     * TF-LW-VAL-08: Cada guardarDefinitivo() crea una Ficha nueva independiente.
      */
     #[Test]
-    public function guardar_dos_veces_actualiza_la_misma_ficha(): void
+    public function guardar_definitivo_dos_veces_crea_dos_fichas_independientes(): void
     {
         $this->actingAs($this->usuario);
 
         Livewire::test(RegistrarValoracionPage::class, ['historia' => $this->historia])
             ->call('seleccionarFicha', $this->tipoFicha->id)
-            ->set('datos.observaciones', 'Primera versión')
-            ->call('guardar');
+            ->set('datos.observaciones', 'Primera ficha')
+            ->call('guardarDefinitivo');
 
         Livewire::test(RegistrarValoracionPage::class, ['historia' => $this->historia])
             ->call('seleccionarFicha', $this->tipoFicha->id)
-            ->set('datos.observaciones', 'Segunda versión')
-            ->call('guardar');
+            ->set('datos.observaciones', 'Segunda ficha')
+            ->call('guardarDefinitivo');
 
-        $this->assertEquals(1, Ficha::count());
-        $this->assertEquals('Segunda versión', Ficha::first()->datos['observaciones']);
+        $this->assertEquals(2, Ficha::count());
     }
 
     /**
-     * TF-LW-VAL-09: guardar() persiste el campo notas en la Ficha.
+     * TF-LW-VAL-09: guardarDefinitivo() persiste el campo notas en la Ficha.
      */
     #[Test]
-    public function guardar_persiste_el_campo_notas(): void
+    public function guardar_definitivo_persiste_el_campo_notas(): void
     {
         $this->actingAs($this->usuario);
 
         Livewire::test(RegistrarValoracionPage::class, ['historia' => $this->historia])
             ->call('seleccionarFicha', $this->tipoFicha->id)
             ->set('notas', 'Notas de la entrevista domiciliaria')
-            ->call('guardar');
+            ->call('guardarDefinitivo');
 
         $this->assertEquals('Notas de la entrevista domiciliaria', Ficha::first()->notas);
     }
 
     /**
-     * TF-LW-VAL-10: estadoGuardado es 'guardado' tras una llamada exitosa a guardar().
+     * TF-LW-VAL-10: guardarDefinitivo() redirige al expediente del ciudadano.
      */
     #[Test]
-    public function estado_guardado_es_guardado_tras_guardar_exitoso(): void
+    public function guardar_definitivo_redirige_al_expediente_del_ciudadano(): void
     {
         $this->actingAs($this->usuario);
 
         Livewire::test(RegistrarValoracionPage::class, ['historia' => $this->historia])
             ->call('seleccionarFicha', $this->tipoFicha->id)
-            ->call('guardar')
-            ->assertSet('estadoGuardado', 'guardado');
+            ->call('guardarDefinitivo')
+            ->assertRedirect(route('intervencion.ciudadano.show', $this->historia->id));
     }
 }
