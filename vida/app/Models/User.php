@@ -39,6 +39,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property bool $primer_acceso
  * @property Carbon $created_at
  * @property Carbon $updated_at
+ * @property-read string $nombre_completo
  *
  * @see docs/modulo-usuarios-permisos.md sección 1.1
  */
@@ -118,6 +119,20 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->hasAnyRole(['adm_sistema', 'supervision', 'adm_usuarios']);
+    }
+
+    // -------------------------------------------------------------------------
+    // Accesores
+    // -------------------------------------------------------------------------
+
+    /**
+     * Nombre completo del profesional asociado, o email si no tiene perfil asistencial.
+     *
+     * @return string
+     */
+    public function getNombreCompletoAttribute(): string
+    {
+        return $this->profesional?->nombre_completo ?? $this->email;
     }
 
     // -------------------------------------------------------------------------

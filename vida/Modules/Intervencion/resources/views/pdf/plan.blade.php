@@ -331,7 +331,7 @@ body {
             <tr>
                 <td width="44%" style="border-top: 1px solid #1D160E; padding-top: 5px;
                                         text-align: center; font-size: 8.5pt;">
-                    {{ $plan->profesionalResponsable?->name ?? '—' }}<br>
+                    {{ $plan->profesionalResponsable?->nombre_completo ?? '—' }}<br>
                     <span style="color: #8A7F76;">Trabajador/a Social de referencia</span><br>
                     <span style="color: #C7BFB5;">Fecha: ___________</span>
                 </td>

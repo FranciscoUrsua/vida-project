@@ -397,7 +397,7 @@
                         <td class="text-secondary">{{ $act->descripcion_especifica ?? '—' }}</td>
                         <td>
                             @if($act->responsable)
-                            <div class="avatar avatar--sm">{{ mb_strtoupper(substr($act->responsable->name, 0, 2)) }}</div>
+                            <div class="avatar avatar--sm">{{ mb_strtoupper(substr($act->responsable->nombre_completo, 0, 2)) }}</div>
                             @else —
                             @endif
                         </td>
@@ -465,9 +465,9 @@
             <ul class="list-group list-group-flush">
                 @foreach($this->participantes as $p)
                 <li class="list-group-item d-flex align-items-center gap-3 py-3 px-4" wire:key="part-{{ $p->id }}">
-                    <div class="avatar avatar--sm flex-shrink-0">{{ mb_strtoupper(substr($p->profesional->name, 0, 2)) }}</div>
+                    <div class="avatar avatar--sm flex-shrink-0">{{ mb_strtoupper(substr($p->profesional->nombre_completo, 0, 2)) }}</div>
                     <div class="flex-fill">
-                        <div class="fw-medium">{{ $p->profesional->name }}</div>
+                        <div class="fw-medium">{{ $p->profesional->nombre_completo }}</div>
                         <div class="small text-secondary">
                             {{ $p->rol_en_plan }}
                             @if($p->servicio) · {{ $p->servicio->nombre }} @endif
@@ -529,7 +529,7 @@
             <div class="plan-firmas-grid">
                 <div class="card">
                     <div class="card-body">
-                        <div class="fw-semibold mb-1">{{ $this->plan?->profesionalResponsable?->name }}</div>
+                        <div class="fw-semibold mb-1">{{ $this->plan?->profesionalResponsable?->nombre_completo }}</div>
                         <div class="small text-secondary mb-3">Profesional responsable</div>
                         <div class="form-check">
                             <input
@@ -1001,7 +1001,7 @@ $nc = [
                             class="form-select form-select-sm @error('nuevoParticipanteUserId') is-invalid @enderror">
                         <option value="">— Selecciona un profesional —</option>
                         @foreach($this->usuariosProfesionales as $u)
-                        <option value="{{ $u->id }}">{{ $u->name }}</option>
+                        <option value="{{ $u->id }}">{{ $u->nombre_completo }}</option>
                         @endforeach
                     </select>
                     @error('nuevoParticipanteUserId')
