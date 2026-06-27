@@ -132,7 +132,9 @@ class User extends Authenticatable implements FilamentUser
      */
     public function getNombreCompletoAttribute(): string
     {
-        return $this->profesional?->nombre_completo ?? $this->email;
+        $profesional = $this->profesional;
+
+        return $profesional !== null ? $profesional->nombre_completo : $this->email;
     }
 
     // -------------------------------------------------------------------------

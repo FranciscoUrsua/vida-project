@@ -260,7 +260,7 @@ class BuzonPage extends Component
             ->get()
             ->map(fn ($u) => [
                 'id' => $u->id,
-                'nombre' => $u->profesional?->nombre_completo ?? $u->email,
+                'nombre' => $u->nombre_completo,
                 'rol' => $u->roles->first()?->name ?? '—',
             ])
             ->toArray();
