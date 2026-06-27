@@ -1,0 +1,75 @@
+name: PHPDoc
+
+on:
+  schedule:
+    - cron: '0 3 * * 6'   # Sábados a las 3:00 UTC
+  workflow_dispatch:        # Permite lanzarlo a mano desde GitHub
+
+jobs:
+  phpdoc:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vida
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v5
+        with:
+          path: vida/vendor
+          key: composer-${{ hashFiles('vida/composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      # Verificar que no hay errores de PHPDoc (clases sin @param, tipos incorrectos...)
+      # --verbose muestra qué ficheros tienen problemas
+      - name: Verificar PHPDoc
+        run: |
+          ./vendor/bin/phpdoc --dry-run --verbose 2>&1 | tee phpdoc-report.txt
+          # phpdoc devuelve 0 aunque haya warnings; grep busca líneas de error reales
+          if grep -qiE "^(ERROR|CRITICAL)" phpdoc-report.txt; then
+            echo "::error::PHPDoc encontró errores — revisa phpdoc-report.txt"
+            cat phpdoc-report.txt
+            exit 1
+          fi
+
+      # Regenerar la documentación
+      - name: Regenerar docs
+        run: ./vendor/bin/phpdoc run
+
+      # Convertir la salida HTML a Markdown para actualizar docs/codigo-phpdoc.md
+      # Si ya tienes un proceso propio para generar ese .md, sustituye este step
+      - name: Actualizar codigo-phpdoc.md
+        run: |
+          # Extrae el listado de clases/métodos en formato Markdown
+          ./vendor/bin/phpdoc run --template=xml 2>/dev/null || true
+          php -r "
+            // Parsea el XML de phpDoc y genera el Markdown
+            \$xml = simplexml_load_file('.phpdoc/cache/phpdoc-cache-*/phpdoc-cache-*.xml') ?: null;
+            // Ajusta esta lógica al formato exacto de tu codigo-phpdoc.md actual
+          " || true
+
+      # Abrir PR automática si hay cambios en la documentación
+      - name: Crear PR con cambios
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: actualizar PHPDoc generado automáticamente"
+          branch: docs/phpdoc-update
+          title: "[Automático] Actualización PHPDoc semanal"
+          body: |
+            Documentación PHPDoc regenerada automáticamente.
+            Revisa los cambios antes de hacer merge.
+          labels: documentation

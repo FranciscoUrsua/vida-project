@@ -1,0 +1,193 @@
+name: Security
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  schedule:
+    # Revisión semanal los lunes a las 7:00 UTC
+    # Detecta CVEs nuevos en dependencias que no has tocado recientemente
+    - cron: '0 7 * * 1'
+
+jobs:
+  # ───────────────────────────────────────────────────────────────────────────
+  # JOB 1: Dependencias PHP
+  # ───────────────────────────────────────────────────────────────────────────
+  php-dependencies:
+    name: PHP Dependencies
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vida
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vida/vendor
+          key: composer-${{ hashFiles('vida/composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      # composer audit: CVEs en dependencias PHP (nativo desde Composer 2.4)
+      - name: composer audit
+        run: composer audit --abandoned=ignore --no-interaction
+
+      # local-php-security-checker: fuente de datos independiente (Symfony advisories)
+      - name: local-php-security-checker
+        run: |
+          curl -sSL https://github.com/fabpot/local-php-security-checker/releases/latest/download/local-php-security-checker_linux_amd64 \
+            -o /usr/local/bin/local-php-security-checker
+          chmod +x /usr/local/bin/local-php-security-checker
+          local-php-security-checker
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # JOB 2: Dependencias JS + ESLint security
+  # ───────────────────────────────────────────────────────────────────────────
+  js-security:
+    name: JS Security
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vida
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: vida/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # npm audit: CVEs en dependencias JS de producción
+      - name: npm audit
+        run: npm audit --audit-level=moderate --omit=dev
+
+      # ESLint con plugin de seguridad
+      # Requiere: npm install --save-dev eslint eslint-plugin-security
+      - name: ESLint security
+        run: |
+          if [ -f node_modules/.bin/eslint ]; then
+            npx eslint \
+              --ext .js,.ts \
+              --no-eslintrc \
+              --plugin security \
+              --rule 'security/detect-eval-with-expression: error' \
+              --rule 'security/detect-unsafe-regex: error' \
+              --rule 'security/detect-no-csrf-before-method-override: error' \
+              --rule 'security/detect-buffer-noassert: error' \
+              --rule 'security/detect-disable-mustache-escape: error' \
+              --rule 'security/detect-new-buffer: error' \
+              --rule 'security/detect-non-literal-regexp: warn' \
+              --rule 'security/detect-non-literal-require: warn' \
+              --rule 'security/detect-possible-timing-attacks: warn' \
+              --rule 'security/detect-object-injection: warn' \
+              --rule 'security/detect-child-process: warn' \
+              --format github-actions \
+              resources/js/
+          else
+            echo "::warning::ESLint no instalado. Ejecuta: npm install --save-dev eslint eslint-plugin-security"
+          fi
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # JOB 3: Secretos hardcodeados (Gitleaks)
+  # Gitleaks escanea el repo entero — no necesita working-directory
+  # ───────────────────────────────────────────────────────────────────────────
+  secrets-scan:
+    name: Secrets Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Historial completo para escanear todos los commits
+
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # JOB 4: Comprobaciones específicas de Laravel
+  # ───────────────────────────────────────────────────────────────────────────
+  laravel-hardening:
+    name: Laravel Hardening
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: vida
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: No eval() en PHP
+        run: |
+          FOUND=$(grep -rn '\beval\s*(' \
+            --include="*.php" \
+            --exclude-dir=vendor \
+            . 2>/dev/null | grep -v '^\s*//' || true)
+          if [ -n "$FOUND" ]; then
+            echo "::error::Uso de eval() detectado en PHP:"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "✔ Sin uso de eval()"
+
+      - name: Funciones de ejecución de sistema
+        run: |
+          FOUND=$(grep -rn '\b\(shell_exec\|exec\|system\|passthru\|proc_open\)\s*(' \
+            --include="*.php" \
+            --exclude-dir=vendor \
+            . 2>/dev/null | grep -v '^\s*//' || true)
+          if [ -n "$FOUND" ]; then
+            echo "::warning::Funciones de ejecución de sistema encontradas (revisar manualmente):"
+            echo "$FOUND"
+          else
+            echo "✔ Sin llamadas a funciones de ejecución de sistema"
+          fi
+
+      - name: Consultas SQL crudas
+        run: |
+          FOUND=$(grep -rn '\bDB::\(select\|statement\|unprepared\)\s*(' \
+            --include="*.php" \
+            --exclude-dir=vendor \
+            . 2>/dev/null | grep -v '^\s*//' || true)
+          if [ -n "$FOUND" ]; then
+            echo "::warning::Consultas SQL crudas encontradas (verificar binding de parámetros):"
+            echo "$FOUND"
+          else
+            echo "✔ Sin consultas SQL crudas"
+          fi
+
+      - name: APP_DEBUG hardcodeado en config
+        run: |
+          FOUND=$(grep -rn 'APP_DEBUG.*=.*true' \
+            --include="*.php" \
+            config/ 2>/dev/null || true)
+          if [ -n "$FOUND" ]; then
+            echo "::error::APP_DEBUG hardcodeado a true en config/:"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "✔ APP_DEBUG no hardcodeado"
