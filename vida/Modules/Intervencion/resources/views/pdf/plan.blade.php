@@ -184,6 +184,48 @@ body {
     </div>
 </div>
 
+{{-- Sección: Fichas de valoración del diagnóstico --}}
+@if($plan->fichasDiagnostico->isNotEmpty())
+<div class="piso-seccion">
+    <div class="piso-seccion-titulo">Fichas de valoración</div>
+    <div class="piso-seccion-cuerpo">
+        @foreach($plan->fichasDiagnostico as $pfd)
+            @php $ficha = $pfd->ficha; @endphp
+            @if($ficha)
+            <div style="margin-bottom: 6mm; page-break-inside: avoid;">
+                <div style="font-size: 8.5pt; font-weight: 700; margin-bottom: 3px;
+                            border-bottom: 1px solid #C7BFB5; padding-bottom: 2px;">
+                    {{ $ficha->tipoFicha?->nombre ?? 'Ficha de valoración' }}
+                </div>
+                @foreach($ficha->schema_snapshot['campos'] ?? [] as $campo)
+                    @php $valor = ($ficha->datos ?? [])[$campo['id']] ?? null; @endphp
+                    @if($valor !== null && $valor !== '')
+                    <div style="margin-bottom: 2px; font-size: 8.5pt;">
+                        <strong>{{ $campo['etiqueta'] ?? $campo['id'] }}:</strong>
+                        @if(($campo['tipo'] ?? '') === 'booleano')
+                            {{ $valor == '1' ? 'Sí' : 'No' }}
+                        @elseif(($campo['tipo'] ?? '') === 'fecha')
+                            {{ \Carbon\Carbon::parse($valor)->format('d/m/Y') }}
+                        @elseif(in_array($campo['tipo'] ?? '', ['escala', 'numero']) && ($campo['unidad'] ?? null))
+                            {{ $valor }} {{ $campo['unidad'] }}
+                        @else
+                            {{ $valor }}
+                        @endif
+                    </div>
+                    @endif
+                @endforeach
+                @if($ficha->notas)
+                <div style="margin-top: 3px; font-size: 8pt; color: #8A7F76; font-style: italic;">
+                    Notas: {{ $ficha->notas }}
+                </div>
+                @endif
+            </div>
+            @endif
+        @endforeach
+    </div>
+</div>
+@endif
+
 {{-- Sección: Objetivos generales --}}
 @php
     $generales  = $plan->objetivosGenerales->all();
@@ -252,7 +294,7 @@ body {
                                 @foreach($plan->actuacionesAyuntamiento as $act)
                                     <tr>
                                         <td>{{ $act->prestacion->nombre ?? '—' }}</td>
-                                        <td>{{ $act->responsable?->name ?? '—' }}</td>
+                                        <td>{{ $act->responsable?->nombre_completo ?? '—' }}</td>
                                         <td>{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
                                     </tr>
                                 @endforeach
@@ -308,7 +350,7 @@ body {
                     <strong>Profesionales participantes:</strong><br>
                     @if($plan->participantesActivos->isNotEmpty())
                         @foreach($plan->participantesActivos as $p)
-                            {{ $p->profesional->name }} ({{ $p->rol_en_plan }})@if(!$loop->last), @endif
+                            {{ $p->profesional->nombre_completo }} ({{ $p->rol_en_plan }})@if(!$loop->last), @endif
                         @endforeach
                     @else
                         <span style="color: #8A7F76;">—</span>

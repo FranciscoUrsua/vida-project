@@ -37,11 +37,12 @@ class PlanPdfService
             'unidadConvivencia.miembrosActivos.ciudadano',
             'objetivosGenerales',
             'objetivosEspecificos.tipoFicha',
+            'fichasDiagnostico.ficha.tipoFicha',
             'actuacionesAyuntamiento.prestacion',
-            'actuacionesAyuntamiento.responsable',
+            'actuacionesAyuntamiento.responsable.profesional',
             'actuacionesCiudadano.prestacion',
-            'participantesActivos.profesional',
-            'profesionalResponsable',
+            'participantesActivos.profesional.profesional',
+            'profesionalResponsable.profesional',
         ]);
 
         $uoId = $plan->historia->unidad_organizativa_id ?? 1;

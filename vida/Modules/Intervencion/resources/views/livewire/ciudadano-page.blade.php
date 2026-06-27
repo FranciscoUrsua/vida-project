@@ -471,6 +471,7 @@
                         <div class="ciudadano-page__actions">
                             @if($formValoracion['tipo_ficha_id'])
                                 <a href="{{ route('intervencion.valoracion.nueva', ['historia' => $historia->id, 'tipo_ficha' => $formValoracion['tipo_ficha_id']]) }}"
+                                   wire:navigate
                                    class="btn btn-primary btn-sm">Abrir en pantalla completa</a>
                             @endif
                             <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
