@@ -24,103 +24,7 @@
     @if($mostrarFormulario)
     <section class="p-3 border-bottom bg-light" aria-labelledby="form-evento-heading">
         <h2 class="h6 fw-semibold mb-3" id="form-evento-heading">Nuevo evento</h2>
-
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label" for="ev-nombre">Nombre <span class="text-danger">*</span></label>
-                <input id="ev-nombre" type="text"
-                       class="form-control form-control-sm @error('form.nombre') is-invalid @enderror"
-                       wire:model="form.nombre" maxlength="200">
-                @error('form.nombre') <div class="invalid-feedback">{{ $message }}</div> @enderror
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label" for="ev-tipo">Tipo <span class="text-danger">*</span></label>
-                <select id="ev-tipo"
-                        class="form-select form-select-sm @error('form.tipo_evento') is-invalid @enderror"
-                        wire:model="form.tipo_evento">
-                    <option value="">Selecciona…</option>
-                    <option value="sesion_interna">Sesión interna</option>
-                    <option value="actividad_colectiva">Actividad colectiva</option>
-                    <option value="coordinacion">Coordinación</option>
-                </select>
-                @error('form.tipo_evento') <div class="invalid-feedback">{{ $message }}</div> @enderror
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label" for="ev-espacio">Espacio</label>
-                <select id="ev-espacio"
-                        class="form-select form-select-sm @error('form.espacio_id') is-invalid @enderror"
-                        wire:model="form.espacio_id">
-                    <option value="">Sin espacio</option>
-                    @foreach($this->espaciosDelCentro as $espacio)
-                        <option value="{{ $espacio->id }}">{{ $espacio->nombre }}</option>
-                    @endforeach
-                </select>
-                @error('form.espacio_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label" for="ev-fecha">Fecha <span class="text-danger">*</span></label>
-                <input id="ev-fecha" type="date"
-                       class="form-control form-control-sm @error('form.fecha') is-invalid @enderror"
-                       wire:model="form.fecha">
-                @error('form.fecha') <div class="invalid-feedback">{{ $message }}</div> @enderror
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label" for="ev-inicio">Hora inicio <span class="text-danger">*</span></label>
-                <input id="ev-inicio" type="time"
-                       class="form-control form-control-sm @error('form.hora_inicio') is-invalid @enderror"
-                       wire:model="form.hora_inicio">
-                @error('form.hora_inicio') <div class="invalid-feedback">{{ $message }}</div> @enderror
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label" for="ev-duracion">Duración (min) <span class="text-danger">*</span></label>
-                <input id="ev-duracion" type="number" min="5" max="480"
-                       class="form-control form-control-sm @error('form.duracion_minutos') is-invalid @enderror"
-                       wire:model="form.duracion_minutos" placeholder="60">
-                @error('form.duracion_minutos') <div class="invalid-feedback">{{ $message }}</div> @enderror
-            </div>
-
-            <div class="col-12">
-                <label class="form-label">Profesionales convocados</label>
-                <div class="d-flex flex-wrap gap-2">
-                    @forelse($this->profesionalesDelCentro as $prof)
-                    @if($prof->usuario)
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox"
-                               id="prof-{{ $prof->usuario->id }}"
-                               value="{{ $prof->usuario->id }}"
-                               wire:model="form.profesionales_ids">
-                        <label class="form-check-label small" for="prof-{{ $prof->usuario->id }}">
-                            {{ $prof->nombre_completo }}
-                        </label>
-                    </div>
-                    @endif
-                    @empty
-                    <p class="text-body-secondary small mb-0">No hay profesionales en tu unidad organizativa.</p>
-                    @endforelse
-                </div>
-            </div>
-
-            <div class="col-12 d-flex gap-2">
-                <button type="button"
-                        class="btn btn-primary btn-sm"
-                        wire:click="crear"
-                        wire:loading.attr="disabled">
-                    <span wire:loading wire:target="crear"
-                          class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
-                    Crear evento
-                </button>
-                <button type="button"
-                        class="btn btn-outline-secondary btn-sm"
-                        wire:click="$set('mostrarFormulario', false)">
-                    Cancelar
-                </button>
-            </div>
-        </div>
+        @include('agenda::livewire.supervisor.partials.form-evento', ['prefix' => 'form', 'accion' => 'crear', 'labelBoton' => 'Crear evento'])
     </section>
     @endif
 
@@ -150,23 +54,34 @@
                 <tbody>
                     @foreach($this->eventosProximos as $evento)
                     @php
+                        $esEditable = $evento->fecha->greaterThanOrEqualTo(today());
                         $tipoChip = match($evento->tipo_evento) {
-                            'sesion_interna'     => 'bg-primary-subtle text-primary-emphasis',
-                            'actividad_colectiva'=> 'bg-success-subtle text-success-emphasis',
-                            'coordinacion'       => 'bg-warning-subtle text-warning-emphasis',
-                            default              => 'bg-secondary-subtle text-secondary-emphasis',
+                            'sesion_interna'      => 'bg-primary-subtle text-primary-emphasis',
+                            'actividad_colectiva' => 'bg-success-subtle text-success-emphasis',
+                            'coordinacion'        => 'bg-warning-subtle text-warning-emphasis',
+                            default               => 'bg-secondary-subtle text-secondary-emphasis',
                         };
                         $tipoLabel = match($evento->tipo_evento) {
-                            'sesion_interna'     => 'Sesión interna',
-                            'actividad_colectiva'=> 'Actividad colectiva',
-                            'coordinacion'       => 'Coordinación',
-                            default              => $evento->tipo_evento,
+                            'sesion_interna'      => 'Sesión interna',
+                            'actividad_colectiva' => 'Actividad colectiva',
+                            'coordinacion'        => 'Coordinación',
+                            default               => $evento->tipo_evento,
                         };
                     @endphp
                     <tr>
                         <td class="fw-medium">{{ $evento->fecha->format('d/m/Y') }}</td>
                         <td>{{ substr($evento->hora_inicio, 0, 5) }} — {{ substr($evento->hora_fin, 0, 5) }}</td>
-                        <td class="fw-medium">{{ $evento->titulo }}</td>
+                        <td class="fw-medium">
+                            @if($esEditable)
+                                <button type="button"
+                                        class="btn btn-link p-0 fw-medium text-start text-body-emphasis"
+                                        wire:click="abrirEdicion({{ $evento->id }})">
+                                    {{ $evento->titulo }}
+                                </button>
+                            @else
+                                {{ $evento->titulo }}
+                            @endif
+                        </td>
                         <td><span class="badge {{ $tipoChip }}">{{ $tipoLabel }}</span></td>
                         <td class="text-body-secondary">{{ $evento->espacio?->nombre ?? '—' }}</td>
                         <td class="text-body-secondary">
@@ -191,5 +106,23 @@
         </div>
         @endif
     </section>
+
+    {{-- Modal de edición --}}
+    @if($mostrarModalEdicion)
+    <div class="modal d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="modal-edicion-titulo">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-edicion-titulo">Editar evento</h5>
+                    <button type="button" class="btn-close" wire:click="cerrarEdicion" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    @include('agenda::livewire.supervisor.partials.form-evento', ['prefix' => 'formEdicion', 'accion' => 'actualizar', 'labelBoton' => 'Guardar cambios'])
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+    @endif
 
 </div>
