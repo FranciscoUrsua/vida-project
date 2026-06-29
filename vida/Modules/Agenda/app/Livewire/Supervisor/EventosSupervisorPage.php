@@ -120,7 +120,7 @@ class EventosSupervisorPage extends Component
                 ));
         })
             ->with('usuario')
-            ->orderBy('apellidos')
+            ->orderBy('apellido1')
             ->orderBy('nombre')
             ->get();
     }
