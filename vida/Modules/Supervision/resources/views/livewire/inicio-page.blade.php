@@ -63,9 +63,50 @@
                 Ver cuadrante completo
             </a>
         </div>
-        <div class="p-3 bg-light border rounded text-body-secondary small text-center">
-            Vista de cuadrante pendiente de integración con módulo Agenda.
-        </div>
+
+        @if($this->cuadranteDeHoy->isEmpty())
+            <div class="op-empty py-3">
+                <x-heroicon-o-calendar class="op-empty__icon" aria-hidden="true"/>
+                <p class="op-empty__text">No hay slots generados para hoy.</p>
+            </div>
+        @else
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0 small">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Profesional</th>
+                            <th>Horario</th>
+                            <th class="text-center">Slots</th>
+                            <th class="text-center">Disponibles</th>
+                            <th class="text-center">Reservados</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($this->cuadranteDeHoy as $fila)
+                        <tr>
+                            <td class="fw-medium">{{ $fila['nombre'] }}</td>
+                            <td class="text-body-secondary">{{ $fila['inicio'] }} – {{ $fila['fin'] }}</td>
+                            <td class="text-center">{{ $fila['total'] }}</td>
+                            <td class="text-center">
+                                @if($fila['disponibles'] > 0)
+                                    <span class="badge bg-success-subtle text-success-emphasis">{{ $fila['disponibles'] }}</span>
+                                @else
+                                    <span class="text-body-tertiary">0</span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($fila['reservados'] > 0)
+                                    <span class="badge bg-primary-subtle text-primary-emphasis">{{ $fila['reservados'] }}</span>
+                                @else
+                                    <span class="text-body-tertiary">0</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
     </section>
 
     {{-- Aprobaciones pendientes --}}

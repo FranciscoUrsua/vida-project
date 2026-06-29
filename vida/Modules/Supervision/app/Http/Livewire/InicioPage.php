@@ -3,10 +3,14 @@
 namespace Modules\Supervision\Http\Livewire;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Modules\Agenda\Enums\EstadoSlot;
+use Modules\Agenda\Models\Slot;
+use Modules\Centro\Models\Centro;
 use Modules\Organizacion\Services\ConfiguracionService;
 use Modules\Supervision\Services\IndicadoresCentroService;
 use Modules\Supervision\Services\SupervisionSidebarDataService;
@@ -22,6 +26,7 @@ use Modules\Usuarios\Models\UsuarioRol;
  * @property-read float $ratioCarga
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Usuarios\Models\UsuarioRol> $aprobacionesPendientes
  * @property-read float $umbralRatio
+ * @property-read \Illuminate\Support\Collection<int, array{nombre: string, inicio: string, fin: string, total: int, disponibles: int, reservados: int}> $cuadranteDeHoy
  */
 #[Layout('layouts.supervision')]
 class InicioPage extends Component
@@ -48,6 +53,45 @@ class InicioPage extends Component
         }
 
         return app(IndicadoresCentroService::class)->ratioCarga($uoId);
+    }
+
+    /**
+     * Resumen compacto del cuadrante de hoy: una fila por profesional con slots activos.
+     *
+     * @return SupportCollection<int, array{nombre: string, inicio: string, fin: string, total: int, disponibles: int, reservados: int}>
+     */
+    #[Computed]
+    public function cuadranteDeHoy(): SupportCollection
+    {
+        $uoId   = $this->uoIdSupervisor();
+        $centro = $uoId ? Centro::where('unidad_organizativa_id', $uoId)->first() : null;
+
+        if ($centro === null) {
+            return collect();
+        }
+
+        $slots = Slot::where('centro_id', $centro->id)
+            ->where('fecha', today()->toDateString())
+            ->with(['usuario.profesional'])
+            ->orderBy('hora_inicio')
+            ->get();
+
+        return $slots
+            ->groupBy('usuario_id')
+            ->map(function ($grupo) {
+                $prof = $grupo->first()?->usuario?->profesional;
+
+                return [
+                    'nombre'      => $prof?->nombre_completo ?? $grupo->first()?->usuario?->email ?? '—',
+                    'inicio'      => substr($grupo->min('hora_inicio'), 0, 5),
+                    'fin'         => substr($grupo->max('hora_fin'), 0, 5),
+                    'total'       => $grupo->count(),
+                    'disponibles' => $grupo->filter(fn ($s) => $s->estado === EstadoSlot::Disponible)->count(),
+                    'reservados'  => $grupo->filter(fn ($s) => $s->estado === EstadoSlot::Reservado)->count(),
+                ];
+            })
+            ->sortBy('nombre')
+            ->values();
     }
 
     /**
