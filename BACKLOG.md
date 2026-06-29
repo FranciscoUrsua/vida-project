@@ -9,6 +9,12 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**TF-SUP-F03 falla: columna "Colectivo protegido" en auditoría** — 2026-06-29
+Módulo: Supervision
+`auditoria_con_colectivos_muestra_columna_protegido` espera `assertSee('Colectivo protegido')` pero `AuditoriaPage` devuelve estado vacío ("No hay accesos registrados"). La columna solo se renderiza si hay accesos en el periodo. El test necesita crear al menos un acceso de auditoría antes de montar el componente. Fallo pre-existente, no causado por la sesión actual.
+
+---
+
 **Notificaciones reales al TSR tras asignación de plaza** — 2026-06-26
 Módulo: Intervencion
 `AsignarPlazaModal::notificarTsr()` actualmente solo escribe en el log (`Log::info`). Pendiente implementar notificación real (alerta en bandeja o push) cuando se asigne una plaza a una prescripción de un ciudadano con TSR activo. El módulo de Mensajes deberá gestionar el formato final.
