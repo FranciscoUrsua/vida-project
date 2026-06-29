@@ -12,7 +12,7 @@ use Illuminate\Support\Carbon;
 use Modules\Agenda\Database\Factories\SlotFactory;
 use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Centro\Models\Centro;
-use Modules\Centro\Models\Espacio;
+use Modules\Centro\Models\Sala;
 
 /**
  * Hueco concreto disponible para reserva.
@@ -92,13 +92,13 @@ class Slot extends Model
     }
 
     /**
-     * Espacio físico reservado por el slot, si existe.
+     * Sala del centro reservada por el slot, si existe.
      *
-     * @return BelongsTo<Espacio, $this>
+     * @return BelongsTo<Sala, $this>
      */
     public function espacio(): BelongsTo
     {
-        return $this->belongsTo(Espacio::class);
+        return $this->belongsTo(Sala::class, 'espacio_id');
     }
 
     /**

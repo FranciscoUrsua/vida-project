@@ -11,7 +11,7 @@ use Livewire\Component;
 use Modules\Agenda\Models\EventoAgenda;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Centro\Models\Centro;
-use Modules\Centro\Models\Espacio;
+use Modules\Centro\Models\Sala;
 
 /**
  * Página de eventos internos del centro para el supervisor.
@@ -23,7 +23,7 @@ use Modules\Centro\Models\Espacio;
  * @property bool $mostrarFormulario
  * @property array{nombre: string, fecha: string, hora_inicio: string, duracion_minutos: string, tipo_evento: string, espacio_id: string, profesionales_ids: array<int, int>} $form
  * @property-read Collection<int, EventoAgenda> $eventosProximos
- * @property-read Collection<int, Espacio> $espaciosDelCentro
+ * @property-read Collection<int, Sala> $espaciosDelCentro
  * @property-read Collection<int, User> $profesionalesDelCentro
  * @property bool $hayConflictoEspacio
  */
@@ -77,9 +77,9 @@ class EventosSupervisorPage extends Component
     }
 
     /**
-     * Espacios activos del centro para el selector del formulario.
+     * Salas activas del centro para el selector del formulario.
      *
-     * @return Collection<int, Espacio>
+     * @return Collection<int, Sala>
      */
     #[Computed]
     public function espaciosDelCentro(): Collection
@@ -89,7 +89,8 @@ class EventosSupervisorPage extends Component
             return new Collection();
         }
 
-        return Espacio::where('centro_id', $centro->id)
+        return Sala::where('centro_id', $centro->id)
+            ->where('activa', true)
             ->orderBy('nombre')
             ->get();
     }
@@ -136,7 +137,7 @@ class EventosSupervisorPage extends Component
             'form.hora_inicio'      => ['required', 'date_format:H:i'],
             'form.duracion_minutos' => ['required', 'integer', 'min:5', 'max:480'],
             'form.tipo_evento'      => ['required', 'string', 'max:100'],
-            'form.espacio_id'       => ['nullable', 'integer', 'exists:espacios,id'],
+            'form.espacio_id'       => ['nullable', 'integer', 'exists:salas,id'],
             'form.profesionales_ids' => ['array'],
             'form.profesionales_ids.*' => ['integer', 'exists:users,id'],
         ]);

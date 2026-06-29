@@ -16,7 +16,7 @@ use Modules\Agenda\Database\Factories\EventoAgendaFactory;
 use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Centro\Models\Centro;
-use Modules\Centro\Models\Espacio;
+use Modules\Centro\Models\Sala;
 
 /**
  * Evento en la agenda del centro.
@@ -36,7 +36,7 @@ use Modules\Centro\Models\Espacio;
  * @property Carbon $fecha
  * @property string $hora_inicio
  * @property string $hora_fin
- * @property int|null $espacio_id
+ * @property int|null $espacio_id FK a salas.id (sala de reuniones del centro)
  * @property int $creado_por_id
  * @property string|null $origen
  * @property string|null $notas
@@ -71,13 +71,13 @@ class EventoAgenda extends Model
     }
 
     /**
-     * Espacio reservado por el evento, si existe.
+     * Sala del centro reservada por el evento, si existe.
      *
-     * @return BelongsTo<Espacio, $this>
+     * @return BelongsTo<Sala, $this>
      */
     public function espacio(): BelongsTo
     {
-        return $this->belongsTo(Espacio::class);
+        return $this->belongsTo(Sala::class, 'espacio_id');
     }
 
     /**
