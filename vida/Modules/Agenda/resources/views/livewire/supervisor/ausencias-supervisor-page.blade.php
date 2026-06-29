@@ -4,9 +4,9 @@
     <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom">
         <span class="text-body-secondary small">{{ now()->translatedFormat('l, d \d\e F') }}</span>
         <a href="{{ route('agenda.supervisor.excepciones') }}"
-           class="btn btn-primary btn-sm ms-auto">
-            <x-heroicon-o-plus class="icon-16 me-1" aria-hidden="true"/>
-            Registrar ausencia
+           class="btn btn-outline-secondary btn-sm ms-auto">
+            <x-heroicon-o-calendar class="icon-16 me-1" aria-hidden="true"/>
+            Gestionar excepciones
         </a>
     </div>
 

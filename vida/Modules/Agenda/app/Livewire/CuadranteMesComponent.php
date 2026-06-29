@@ -9,6 +9,8 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Agenda\Enums\EstadoCuadrante;
+use Modules\Agenda\Enums\OrigenExcepcion;
+use Modules\Agenda\Enums\TipoExcepcion;
 use Modules\Agenda\Models\CuadranteMes;
 use Modules\Agenda\Models\EventoAgenda;
 use Modules\Agenda\Models\ExcepcionProfesional;
@@ -27,10 +29,10 @@ use Modules\Centro\Models\Centro;
  * @property int $mes
  * @property int $semanaActual
  * @property CuadranteMes|null $cuadrante
- * @property bool $modalEventoAbierto
- * @property array $eventoForm
- * @property int|null $eventoProf
- * @property int|null $eventoDay
+ * @property bool $modalAusenciaAbierto
+ * @property array $ausenciaForm
+ * @property int|null $ausenciaProf
+ * @property int|null $ausenciaDay
  * @property bool $modalExcAbierto
  * @property array $excDetalle
  */
@@ -52,21 +54,21 @@ class CuadranteMesComponent extends Component
     /** @var CuadranteMes|null Cuadrante cargado */
     public ?CuadranteMes $cuadrante = null;
 
-    /** @var bool Controla la visibilidad del modal de añadir evento */
-    public bool $modalEventoAbierto = false;
+    /** @var bool Controla la visibilidad del modal de registrar ausencia */
+    public bool $modalAusenciaAbierto = false;
 
     /**
-     * Datos del formulario de nuevo evento.
+     * Datos del formulario de nueva ausencia/excepción.
      *
      * @var array<string, mixed>
      */
-    public array $eventoForm = [];
+    public array $ausenciaForm = [];
 
-    /** @var int|null ID del profesional para el que se abre el modal de evento */
-    public ?int $eventoProf = null;
+    /** @var int|null ID de usuario del profesional para el que se registra la ausencia */
+    public ?int $ausenciaProf = null;
 
-    /** @var int|null Día del mes para el que se abre el modal de evento */
-    public ?int $eventoDay = null;
+    /** @var int|null Día del mes para el que se registra la ausencia */
+    public ?int $ausenciaDay = null;
 
     /** @var bool Controla la visibilidad del modal de detalle de excepción */
     public bool $modalExcAbierto = false;
@@ -192,53 +194,61 @@ class CuadranteMesComponent extends Component
     }
 
     /**
-     * Abre el modal para añadir un evento puntual.
+     * Abre el modal para registrar una ausencia/excepción desde la celda del cuadrante.
      *
-     * @param int $profId ID del profesional
+     * La fecha de inicio queda fijada al día de la celda; la fecha fin
+     * se pre-rellena con el mismo día y el supervisor puede ampliarla.
+     *
+     * @param int $profId ID de usuario del profesional
      * @param int $dayNum Día del mes
      * @return void
      */
-    public function abrirModalEvento(int $profId, int $dayNum): void
+    public function abrirModalAusencia(int $profId, int $dayNum): void
     {
-        $this->eventoProf         = $profId;
-        $this->eventoDay          = $dayNum;
-        $this->eventoForm         = ['titulo' => '', 'hora_inicio' => '', 'hora_fin' => '', 'convocados' => [$profId], 'notas' => ''];
-        $this->modalEventoAbierto = true;
+        $fecha = Carbon::create($this->anyo, $this->mes, $dayNum)->toDateString();
+
+        $this->ausenciaProf = $profId;
+        $this->ausenciaDay  = $dayNum;
+        $this->ausenciaForm = [
+            'tipo'                  => '',
+            'fecha_fin'             => $fecha,
+            'notas'                 => '',
+            'afecta_disponibilidad' => true,
+        ];
+        $this->modalAusenciaAbierto = true;
     }
 
     /**
-     * Persiste el evento puntual con origen 'director'.
+     * Persiste la excepción/ausencia del profesional creada desde el cuadrante.
      *
      * @return void
      */
-    public function guardarEvento(): void
+    public function registrarAusencia(): void
     {
         $this->validate([
-            'eventoForm.titulo'      => ['required', 'string', 'max:255'],
-            'eventoForm.hora_inicio' => ['required'],
-            'eventoForm.hora_fin'    => ['required'],
+            'ausenciaForm.tipo'     => ['required', 'string'],
+            'ausenciaForm.fecha_fin' => ['nullable', 'date'],
         ]);
 
-        $fecha = Carbon::create($this->anyo, $this->mes, $this->eventoDay);
+        $fechaInicio = Carbon::create($this->anyo, $this->mes, $this->ausenciaDay)->toDateString();
+        $fechaFin    = filled($this->ausenciaForm['fecha_fin'])
+            ? $this->ausenciaForm['fecha_fin']
+            : $fechaInicio;
 
-        $evento = EventoAgenda::create([
-            'centro_id'    => $this->centro->id,
-            'tipo_evento'  => 'interno',
-            'titulo'       => $this->eventoForm['titulo'],
-            'fecha'        => $fecha->toDateString(),
-            'hora_inicio'  => $this->eventoForm['hora_inicio'],
-            'hora_fin'     => $this->eventoForm['hora_fin'],
-            'origen'       => 'director',
-            'creado_por_id'=> auth()->id(),
-            'notas'        => $this->eventoForm['notas'] ?: null,
+        ExcepcionProfesional::create([
+            'usuario_id'            => $this->ausenciaProf,
+            'centro_id'             => $this->centro->id,
+            'tipo'                  => $this->ausenciaForm['tipo'],
+            'fecha_inicio'          => $fechaInicio,
+            'fecha_fin'             => $fechaFin,
+            'notas'                 => $this->ausenciaForm['notas'] ?: null,
+            'afecta_disponibilidad' => (bool) $this->ausenciaForm['afecta_disponibilidad'],
+            'origen'                => OrigenExcepcion::Manual,
+            'creado_por_id'         => auth()->id(),
         ]);
 
-        $convocados = (array) ($this->eventoForm['convocados'] ?? []);
-        $evento->agregarProfesionales($convocados);
-
-        $this->modalEventoAbierto = false;
-        unset($this->diasSeman);
-        $this->dispatch('toast', message: 'Evento añadido al cuadrante.', type: 'success');
+        $this->modalAusenciaAbierto = false;
+        $this->dispatch('toast', message: 'Ausencia registrada en el cuadrante.', type: 'success');
     }
 
     /**

@@ -609,30 +609,29 @@ class UIAgendaSupervisorTest extends TestCase
     }
 
     /**
-     * T-AGS-25 — Añadir un evento puntual crea un EventoAgenda con origen director.
+     * T-AGS-25 — Registrar ausencia desde celda del cuadrante crea ExcepcionProfesional.
      */
     #[Test]
-    public function guardar_evento_crea_evento_con_origen_director(): void
+    public function registrar_ausencia_desde_cuadrante_crea_excepcion_profesional(): void
     {
         CuadranteMes::create($this->datosCuadranteJulio());
 
         Livewire::actingAs($this->supervisor)
             ->test(CuadranteMesComponent::class, ['centro' => $this->centro, 'anyo' => 2026, 'mes' => 7])
-            ->call('abrirModalEvento', $this->profesional1->id, 7)
-            ->set('eventoForm.titulo', 'Reunión de coordinación')
-            ->set('eventoForm.hora_inicio', '15:00')
-            ->set('eventoForm.hora_fin', '16:00')
-            ->set('eventoForm.convocados', [$this->profesional1->id, $this->profesional2->id])
-            ->call('guardarEvento');
+            ->call('abrirModalAusencia', $this->profesional1->id, 7)
+            ->assertSet('modalAusenciaAbierto', true)
+            ->set('ausenciaForm.tipo', 'baja_medica')
+            ->set('ausenciaForm.fecha_fin', '2026-07-07')
+            ->call('registrarAusencia');
 
-        $this->assertDatabaseHas('eventos_agenda', [
-            'titulo'  => 'Reunión de coordinación',
-            'fecha'   => '2026-07-07',
-            'origen'  => 'director',
+        $this->assertDatabaseHas('excepciones_profesional', [
+            'usuario_id'  => $this->profesional1->id,
+            'centro_id'   => $this->centro->id,
+            'tipo'        => 'baja_medica',
+            'fecha_inicio' => '2026-07-07',
+            'fecha_fin'   => '2026-07-07',
+            'origen'      => 'manual',
         ]);
-
-        $evento = EventoAgenda::where('titulo', 'Reunión de coordinación')->first();
-        $this->assertCount(2, $evento->profesionales);
     }
 
     /**
