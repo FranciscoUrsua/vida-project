@@ -2,11 +2,14 @@
 
 namespace Modules\Supervision\Http\Livewire;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Component;
+use Modules\Centro\Models\Centro;
 use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
@@ -21,6 +24,7 @@ use Modules\Usuarios\Models\Titulacion;
  * Solo gestiona la entidad Profesional, no la cuenta de Usuario (que gestiona adm_usuarios).
  *
  * @property-read Collection<int, Profesional> $profesionales
+ * @property-read Centro|null $centroActivo
  * @property bool   $modalAltaAbierto
  * @property string $nuevoNombre
  * @property int|null $nuevoCargo
@@ -29,7 +33,9 @@ use Modules\Usuarios\Models\Titulacion;
  * @property bool   $modalBajaAbierto
  * @property string $fechaBaja
  * @property bool   $confirmarBajaConCasos
- * @property string $tabActiva
+ * @property bool   $modalHorarioAbierto
+ * @property int|null $horarioUserId
+ * @property string|null $horarioNombreProfesional
  * @property bool   $modalEdicionAbierto
  * @property int|null $editandoProfesionalId
  * @property string $editNombre
@@ -50,9 +56,6 @@ use Modules\Usuarios\Models\Titulacion;
 #[Layout('layouts.supervision')]
 class EquipoPage extends Component
 {
-    /** @var string Tab activa: resumen | horario | suplencias */
-    public string $tabActiva = 'resumen';
-
     /** @var bool Estado del modal de alta de profesional */
     public bool $modalAltaAbierto = false;
 
@@ -70,6 +73,15 @@ class EquipoPage extends Component
 
     /** @var bool Estado del modal de confirmación de baja */
     public bool $modalBajaAbierto = false;
+
+    /** @var bool Estado del modal de perfil horario */
+    public bool $modalHorarioAbierto = false;
+
+    /** @var int|null ID de usuario (User) del profesional en edición de horario */
+    public ?int $horarioUserId = null;
+
+    /** @var string|null Nombre del profesional cuyo perfil horario se está editando */
+    public ?string $horarioNombreProfesional = null;
 
     /** @var string Fecha efectiva de la baja */
     public string $fechaBaja = '';
@@ -182,6 +194,57 @@ class EquipoPage extends Component
             ->whereNull('fecha_fin')
             ->whereNull('deleted_at')
             ->count();
+    }
+
+    /**
+     * Centro asociado a la UO activa del supervisor.
+     *
+     * @return Centro|null
+     */
+    #[Computed]
+    public function centroActivo(): ?Centro
+    {
+        $uoId = auth()->user()?->uosActivas()->first()?->id;
+
+        return $uoId ? Centro::where('unidad_organizativa_id', $uoId)->first() : null;
+    }
+
+    /**
+     * Abre el modal de perfil horario para el profesional indicado.
+     *
+     * Solo actúa si el profesional tiene cuenta de usuario vinculada,
+     * requisito para asociar un PerfilHorarioProfesional.
+     *
+     * @param int $profesionalId ID del profesional
+     * @return void
+     */
+    public function abrirModalHorario(int $profesionalId): void
+    {
+        $prof = $this->profesionalEnAmbito($profesionalId);
+
+        if ($prof === null || $prof->usuario === null) {
+            return;
+        }
+
+        $this->horarioUserId            = $prof->usuario->id;
+        $this->horarioNombreProfesional = $prof->nombre_completo;
+        $this->modalHorarioAbierto      = true;
+    }
+
+    /**
+     * Cierra el modal de perfil horario.
+     *
+     * Se invoca por el botón Cancelar del modal y por el evento
+     * 'perfil-horario-guardado' que dispara el componente hijo al guardar.
+     *
+     * @return void
+     */
+    #[On('perfil-horario-guardado')]
+    public function cerrarModalHorario(): void
+    {
+        $this->modalHorarioAbierto      = false;
+        $this->horarioUserId            = null;
+        $this->horarioNombreProfesional = null;
     }
 
     /**

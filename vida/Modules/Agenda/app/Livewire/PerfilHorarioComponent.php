@@ -174,6 +174,7 @@ class PerfilHorarioComponent extends Component
         }
 
         $this->dispatch('toast', message: 'Perfil horario guardado. Los cambios se aplicarán al generar el próximo cuadrante.', type: 'success');
+        $this->dispatch('perfil-horario-guardado');
     }
 
     /**

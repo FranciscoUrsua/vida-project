@@ -14,22 +14,7 @@
     </div>
     @endif
 
-    {{-- Navegación de secciones --}}
-    <nav class="nav nav-tabs px-3 mt-3 border-bottom" aria-label="Secciones del equipo">
-        <button type="button"
-                class="nav-link {{ $tabActiva === 'resumen' ? 'active' : '' }}"
-                wire:click="$set('tabActiva', 'resumen')">Resumen</button>
-        <button type="button"
-                class="nav-link {{ $tabActiva === 'horario' ? 'active' : '' }}"
-                wire:click="$set('tabActiva', 'horario')">Perfil horario</button>
-        <button type="button"
-                class="nav-link {{ $tabActiva === 'suplencias' ? 'active' : '' }}"
-                wire:click="$set('tabActiva', 'suplencias')">Suplencias</button>
-    </nav>
-
-    {{-- Tab: Resumen --}}
-    @if($tabActiva === 'resumen')
-    <section class="p-3">
+    <section class="p-3 mt-2">
         @if($this->profesionales->isEmpty())
             <div class="op-empty">
                 <x-heroicon-o-users class="op-empty__icon" aria-hidden="true"/>
@@ -60,13 +45,23 @@
                             </td>
                             <td class="text-body-secondary small">{{ $prof->cargo?->nombre ?? '—' }}</td>
                             <td class="text-end">
-                                @if($prof->usuario?->id !== auth()->id())
-                                <button type="button"
-                                        class="btn btn-outline-danger btn-sm"
-                                        wire:click="iniciarBaja({{ $prof->id }})">
-                                    Dar de baja
-                                </button>
-                                @endif
+                                <div class="d-flex gap-2 justify-content-end">
+                                    @if($prof->usuario !== null)
+                                    <button type="button"
+                                            class="btn btn-outline-secondary btn-sm"
+                                            wire:click="abrirModalHorario({{ $prof->id }})">
+                                        <x-heroicon-o-clock class="icon-14 me-1" aria-hidden="true"/>
+                                        Perfil horario
+                                    </button>
+                                    @endif
+                                    @if($prof->usuario?->id !== auth()->id())
+                                    <button type="button"
+                                            class="btn btn-outline-danger btn-sm"
+                                            wire:click="iniciarBaja({{ $prof->id }})">
+                                        Dar de baja
+                                    </button>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                         @endforeach
@@ -75,27 +70,6 @@
             </div>
         @endif
     </section>
-    @endif
-
-    {{-- Tab: Perfil horario --}}
-    @if($tabActiva === 'horario')
-    <section class="p-3">
-        <div class="op-empty">
-            <x-heroicon-o-clock class="op-empty__icon" aria-hidden="true"/>
-            <p class="op-empty__text">La gestión de perfiles horarios estará disponible próximamente.</p>
-        </div>
-    </section>
-    @endif
-
-    {{-- Tab: Suplencias --}}
-    @if($tabActiva === 'suplencias')
-    <section class="p-3">
-        <div class="op-empty">
-            <x-heroicon-o-arrow-path-rounded-square class="op-empty__icon" aria-hidden="true"/>
-            <p class="op-empty__text">La gestión de suplencias estará disponible próximamente.</p>
-        </div>
-    </section>
-    @endif
 
     {{-- Modal alta de profesional --}}
     @if($modalAltaAbierto)
@@ -354,6 +328,31 @@
                             @if($this->casosActivosProfesionalSeleccionado > 0 && !$confirmarBajaConCasos) disabled @endif>
                         Confirmar baja
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+    @endif
+
+    {{-- Modal perfil horario --}}
+    @if($modalHorarioAbierto && $horarioUserId && $this->centroActivo)
+    <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
+         aria-labelledby="modal-horario-titulo">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-horario-titulo">
+                        Perfil horario — {{ $horarioNombreProfesional }}
+                    </h5>
+                    <button type="button" class="btn-close"
+                            wire:click="cerrarModalHorario" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    @livewire('agenda.perfil-horario', [
+                        'profesional' => \App\Models\User::find($horarioUserId),
+                        'centro'      => $this->centroActivo,
+                    ], key('ph-' . $horarioUserId))
                 </div>
             </div>
         </div>
