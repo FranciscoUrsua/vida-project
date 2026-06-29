@@ -25,6 +25,7 @@ use Modules\Agenda\Enums\OrigenPermitidoSlot;
  * @property int $porcentaje_urgencias
  * @property OrigenPermitidoSlot $origen_permitido
  * @property bool $genera_apunte_automatico
+ * @property bool $bloquea_todos_convocados
  * @property bool $activo
  */
 class TipoSlot extends Model
@@ -47,6 +48,7 @@ class TipoSlot extends Model
         'porcentaje_urgencias' => 'integer',
         'origen_permitido' => OrigenPermitidoSlot::class,
         'genera_apunte_automatico' => 'boolean',
+        'bloquea_todos_convocados' => 'boolean',
         'activo' => 'boolean',
     ];
 

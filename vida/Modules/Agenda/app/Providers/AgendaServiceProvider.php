@@ -4,6 +4,10 @@ namespace Modules\Agenda\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
+use Modules\Agenda\Livewire\CuadranteMesComponent;
+use Modules\Agenda\Livewire\ExcepcionesComponent;
+use Modules\Agenda\Livewire\PerfilHorarioComponent;
+use Modules\Agenda\Livewire\SemanaTypoComponent;
 use Modules\Agenda\Livewire\Supervisor\AusenciasSupervisorPage;
 use Modules\Agenda\Livewire\Supervisor\CuadranteSupervisorPage;
 use Modules\Agenda\Livewire\Supervisor\EventosSupervisorPage;
@@ -53,5 +57,9 @@ class AgendaServiceProvider extends ServiceProvider
         Livewire::component('agenda.supervisor.excepciones-page', ExcepcionesSupervisorPage::class);
         Livewire::component('agenda.supervisor.eventos-page', EventosSupervisorPage::class);
         Livewire::component('agenda.supervisor.partials.reasignacion-panel', ReasignacionPanel::class);
+        Livewire::component('agenda.semana-typo', SemanaTypoComponent::class);
+        Livewire::component('agenda.perfil-horario', PerfilHorarioComponent::class);
+        Livewire::component('agenda.excepciones', ExcepcionesComponent::class);
+        Livewire::component('agenda.cuadrante-mes', CuadranteMesComponent::class);
     }
 }

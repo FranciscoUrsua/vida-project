@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Agenda\Livewire\CuadranteMesComponent;
+use Modules\Agenda\Livewire\SemanaTypoComponent;
 use Modules\Agenda\Livewire\Supervisor\AusenciasSupervisorPage;
 use Modules\Agenda\Livewire\Supervisor\CuadranteSupervisorPage;
 use Modules\Agenda\Livewire\Supervisor\EventosSupervisorPage;
@@ -25,4 +27,14 @@ Route::middleware(['web', 'auth', 'role:supervision'])
         Route::get('/ausencias', AusenciasSupervisorPage::class)->name('ausencias');
         Route::get('/excepciones', ExcepcionesSupervisorPage::class)->name('excepciones');
         Route::get('/eventos', EventosSupervisorPage::class)->name('eventos');
+    });
+
+Route::middleware(['web', 'auth'])
+    ->prefix('supervisor')
+    ->group(function () {
+        Route::get('/centro/{centro}/semana-tipo', SemanaTypoComponent::class)
+            ->name('agenda.semana-tipo');
+
+        Route::get('/centro/{centro}/cuadrante/{anyo}/{mes}', CuadranteMesComponent::class)
+            ->name('agenda.cuadrante');
     });

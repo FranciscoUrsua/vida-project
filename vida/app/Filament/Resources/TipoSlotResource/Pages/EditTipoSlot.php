@@ -3,14 +3,11 @@
 namespace App\Filament\Resources\TipoSlotResource\Pages;
 
 use App\Filament\Resources\TipoSlotResource;
-use Filament\Actions\DeleteAction;
+use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
 /**
- * Página de edición de tipos de slot.
- */
-/**
- * Página de edición de tipos de slot.
+ * Página de edición de tipo de slot.
  */
 class EditTipoSlot extends EditRecord
 {
@@ -18,6 +15,6 @@ class EditTipoSlot extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [DeleteAction::make()];
+        return [Actions\DeleteAction::make()];
     }
 }

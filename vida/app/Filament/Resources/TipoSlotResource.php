@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\TipoSlotResource\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -14,106 +13,114 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
-use Modules\Agenda\Enums\OrigenPermitidoSlot;
-use Modules\Agenda\Models\HorarioCentro;
+use Illuminate\Database\Eloquent\Model;
 use Modules\Agenda\Models\TipoSlot;
 
 /**
- * Recurso Filament para la gestión de tipos de slot.
- */
-/**
- * Recurso Filament para la gestión de tipos de slot.
+ * Backoffice: gestión del catálogo de tipos de slot (eventos internos) del centro.
+ *
+ * Accesible en /admin/tipos-slot. Solo para supervisores y administradores.
  */
 class TipoSlotResource extends Resource
 {
-    use AutorizaGestion;
-
     protected static ?string $model = TipoSlot::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-squares-2x2';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clock';
 
     protected static ?string $navigationLabel = 'Tipos de slot';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
-
-    protected static ?string $navigationParentItem = 'Configuración';
+    protected static string|\UnitEnum|null $navigationGroup = 'Agenda — Configuración';
 
     protected static ?string $modelLabel = 'Tipo de slot';
 
     protected static ?string $pluralModelLabel = 'Tipos de slot';
 
-    protected static ?int $navigationSort = 40;
+    protected static ?int $navigationSort = 1;
 
     /**
-     * Define el formulario de tipos de slot.
+     * Indica si el usuario puede ver el listado de tipos de slot.
      *
-     * @param Schema $schema Esquema base del formulario.
+     * @return bool
+     */
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasAnyRole(['supervision', 'adm_sistema', 'adm_usuarios']) ?? false;
+    }
+
+    /**
+     * Indica si el usuario puede crear un tipo de slot.
+     *
+     * @return bool
+     */
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->hasAnyRole(['supervision', 'adm_sistema', 'adm_usuarios']) ?? false;
+    }
+
+    /**
+     * Indica si el usuario puede editar un tipo de slot.
+     *
+     * @param Model $record
+     * @return bool
+     */
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()?->hasAnyRole(['supervision', 'adm_sistema', 'adm_usuarios']) ?? false;
+    }
+
+    /**
+     * Indica si el usuario puede eliminar un tipo de slot.
+     *
+     * @param Model $record
+     * @return bool
+     */
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()?->hasAnyRole(['supervision', 'adm_sistema', 'adm_usuarios']) ?? false;
+    }
+
+    /**
+     * Define el formulario de creación y edición de tipos de slot.
+     *
+     * @param Schema $schema
+     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-
-            Section::make('Horario y nombre')
-                ->columns(2)
+            Section::make('Datos del tipo de slot')
                 ->schema([
-                    Select::make('horario_centro_id')
-                        ->label('Horario de centro')
-                        ->options(fn () => HorarioCentro::with('centro')
-                            ->where('activo', true)
-                            ->get()
-                            ->mapWithKeys(fn (HorarioCentro $h) => [$h->id => "{$h->nombre} — {$h->centro->nombre}"])
-                        )
-                        ->searchable()
-                        ->required(),
-
                     TextInput::make('nombre')
                         ->label('Nombre')
                         ->required()
-                        ->maxLength(200),
-                ]),
+                        ->maxLength(100)
+                        ->placeholder('Ej: Reunión de equipo'),
 
-            Section::make('Configuración')
-                ->columns(2)
-                ->schema([
                     Textarea::make('descripcion')
                         ->label('Descripción')
                         ->rows(2)
-                        ->nullable()
-                        ->columnSpanFull(),
+                        ->nullable(),
 
-                    TextInput::make('duracion_minutos')
-                        ->label('Duración (minutos)')
-                        ->numeric()
+                    Select::make('duracion_minutos')
+                        ->label('Duración')
+                        ->options([
+                            15  => '15 min',
+                            30  => '30 min',
+                            45  => '45 min',
+                            60  => '1 hora',
+                            90  => '1 h 30 min',
+                            120 => '2 horas',
+                            150 => '2 h 30 min',
+                            180 => '3 horas',
+                        ])
                         ->required()
-                        ->minValue(1),
+                        ->helperText('La duración incluye preparación y cierre. No se añaden buffers adicionales.'),
 
-                    TextInput::make('porcentaje_urgencias')
-                        ->label('% urgencias')
-                        ->numeric()
-                        ->default(0)
-                        ->minValue(0)
-                        ->maxValue(100)
-                        ->helperText(
-                            'Porcentaje de slots de este tipo reservados para urgencias. '.
-                            'Los slots de urgencia son visibles internamente pero no se exponen al canal externo.'
-                        ),
-
-                    Select::make('origen_permitido')
-                        ->label('Origen permitido')
-                        ->options(collect(OrigenPermitidoSlot::cases())->mapWithKeys(
-                            fn (OrigenPermitidoSlot $o) => [$o->value => $o->label()]
-                        ))
-                        ->required()
-                        ->default(OrigenPermitidoSlot::Ambos->value),
-
-                    Toggle::make('requiere_espacio')
-                        ->label('Requiere espacio físico')
-                        ->default(false),
-
-                    Toggle::make('genera_apunte_automatico')
-                        ->label('Genera apunte automático')
-                        ->helperText('Al cerrar la cita, crea un apunte en la Historia Social del ciudadano.')
+                    Toggle::make('bloquea_todos_convocados')
+                        ->label('Bloquea a todos los convocados')
+                        ->helperText('Si está activo, al usar este tipo en la semana tipo bloqueará el hueco en todos los profesionales del centro.')
                         ->default(false),
 
                     Toggle::make('activo')
@@ -124,9 +131,10 @@ class TipoSlotResource extends Resource
     }
 
     /**
-     * Configura el listado de tipos de slot.
+     * Define la tabla de listado de tipos de slot.
      *
-     * @param Table $table Tabla base.
+     * @param Table $table
+     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -137,36 +145,13 @@ class TipoSlotResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('horarioCentro.centro.nombre')
-                    ->label('Centro')
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('horarioCentro.nombre')
-                    ->label('Horario')
-                    ->toggleable(),
-
                 Tables\Columns\TextColumn::make('duracion_minutos')
                     ->label('Duración')
-                    ->formatStateUsing(fn (int $state) => "{$state} min")
-                    ->alignCenter(),
+                    ->suffix(' min')
+                    ->sortable(),
 
-                Tables\Columns\TextColumn::make('porcentaje_urgencias')
-                    ->label('% urgencias')
-                    ->formatStateUsing(fn (int $state) => "{$state}%")
-                    ->alignCenter(),
-
-                Tables\Columns\TextColumn::make('origen_permitido')
-                    ->label('Origen')
-                    ->badge()
-                    ->formatStateUsing(fn (OrigenPermitidoSlot $state) => $state->label())
-                    ->color(fn (OrigenPermitidoSlot $state) => match ($state) {
-                        OrigenPermitidoSlot::Interno => 'gray',
-                        OrigenPermitidoSlot::ApiExterna => 'warning',
-                        OrigenPermitidoSlot::Ambos => 'success',
-                    }),
-
-                Tables\Columns\IconColumn::make('genera_apunte_automatico')
-                    ->label('Apunte auto.')
+                Tables\Columns\IconColumn::make('bloquea_todos_convocados')
+                    ->label('Bloquea a todos')
                     ->boolean()
                     ->alignCenter(),
 
@@ -176,11 +161,7 @@ class TipoSlotResource extends Resource
                     ->alignCenter(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('horario_centro_id')
-                    ->label('Horario')
-                    ->relationship('horarioCentro', 'nombre'),
-
-                Tables\Filters\TernaryFilter::make('activo')->label('Estado'),
+                TernaryFilter::make('activo')->label('Estado'),
             ])
             ->actions([
                 EditAction::make(),
@@ -190,14 +171,16 @@ class TipoSlotResource extends Resource
     }
 
     /**
-     * Declara las páginas del catálogo de tipos de slot.
+     * Define las páginas del recurso de tipos de slot.
+     *
+     * @return array<string, mixed>
      */
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTiposSlot::route('/'),
+            'index'  => Pages\ListTiposSlot::route('/'),
             'create' => Pages\CreateTipoSlot::route('/create'),
-            'edit' => Pages\EditTipoSlot::route('/{record}/edit'),
+            'edit'   => Pages\EditTipoSlot::route('/{record}/edit'),
         ];
     }
 }

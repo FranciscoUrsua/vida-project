@@ -38,6 +38,7 @@ use Modules\Centro\Models\Espacio;
  * @property string $hora_fin
  * @property int|null $espacio_id
  * @property int $creado_por_id
+ * @property string|null $origen
  * @property string|null $notas
  */
 class EventoAgenda extends Model

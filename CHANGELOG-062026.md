@@ -4,6 +4,48 @@
 
 ---
 
+## 2026-06-29 — Agenda: UI de supervisión (TipoSlot, Semana tipo, Perfil horario, Excepciones, Cuadrante mes)
+
+### Módulos afectados
+`Modules/Agenda`, `app/Filament/Resources/`
+
+### Añadido
+
+**Migraciones:**
+- `2026_06_29_001_add_semana_tipo_to_horarios_centro_table` — columna JSON `semana_tipo` en `horarios_centro`.
+- `2026_06_29_002_add_bloquea_todos_convocados_to_tipos_slot_table` — columna boolean `bloquea_todos_convocados` en `tipos_slot`.
+- `2026_06_29_003_add_origen_to_eventos_agenda_table` — columna string `origen` en `eventos_agenda` para distinguir eventos creados desde la pantalla de supervisor (`'director'`).
+
+**Modelos actualizados:**
+- `HorarioCentro`: cast `semana_tipo => 'array'`, propiedad PHPDoc `array|null $semana_tipo`.
+- `TipoSlot`: cast `bloquea_todos_convocados => 'boolean'`, propiedad PHPDoc.
+- `EventoAgenda`: propiedad PHPDoc `string|null $origen`.
+
+**Filament Resource (en `app/Filament/Resources/`):**
+- `TipoSlotResource` — listado, creación y edición de tipos de slot. Acceso: roles `supervision`, `adm_sistema`, `adm_usuarios`. Navigation group `'Agenda — Configuración'`.
+- `CreateTipoSlot`: `mutateFormDataBeforeCreate()` auto-detecta `horario_centro_id` leyendo la UO activa del supervisor → Centro → HorarioCentro activo.
+
+**Componentes Livewire nuevos:**
+- `SemanaTypoComponent` — configuración de la semana tipo del centro. Guarda `HorarioCentro.semana_tipo`, detecta borradores próximos y muestra aviso.
+- `PerfilHorarioComponent` — gestión del perfil horario de un profesional. Versionado: misma `vigente_desde` → update; nueva fecha → cierre del anterior + creación nuevo.
+- `ExcepcionesComponent` — gestión de excepciones del profesional. Muestra aviso si hay citas confirmadas afectadas antes de crear la excepción.
+- `CuadranteMesComponent` — cuadrante mensual por semanas. Permite añadir eventos puntuales (con `origen='director'`), ver excepciones y publicar el cuadrante vía `CuadrantePublicadorService` → `SlotMaterializadorService`.
+
+**Rutas nuevas:**
+- `GET /supervisor/centro/{centro}/semana-tipo` → `SemanaTypoComponent` (nombre: `agenda.semana-tipo`).
+- `GET /supervisor/centro/{centro}/cuadrante/{anyo}/{mes}` → `CuadranteMesComponent` (nombre: `agenda.cuadrante`).
+
+**Tests:**
+- `UIAgendaSupervisorTest` — 33 tests (T-AGS-01 a T-AGS-33), 88 assertions. Todos en verde.
+
+### Decisiones de implementación
+
+- `TipoSlotResource` en `app/Filament/Resources/` (no en el módulo), por decisión arquitectónica de CLAUDE.md.
+- `CuadranteMesComponent::getCelda()` acepta `Carbon|string` para compatibilidad con Livewire tests (tests pasan string; Blade llama con Carbon).
+- `TipoSlotResource::canViewAny()` comprueba `['supervision', 'adm_sistema', 'adm_usuarios']` (no usa `AutorizaGestion` trait porque este restringe solo a `adm_sistema/adm_usuarios`).
+
+---
+
 ## 2026-06-26 — Módulo Intervencion: Plazas y Recursos (prescripción, lista de espera, asignación)
 
 ### Módulos afectados

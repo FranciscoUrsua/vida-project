@@ -35,6 +35,7 @@ use Modules\Centro\Models\Centro;
  * @property ModoAgenda $modo_agenda
  * @property bool $activo
  * @property string|null $notas
+ * @property array|null $semana_tipo
  */
 class HorarioCentro extends Model
 {
@@ -56,6 +57,7 @@ class HorarioCentro extends Model
         'vigente_desde' => 'date',
         'vigente_hasta' => 'date',
         'modo_agenda' => ModoAgenda::class,
+        'semana_tipo' => 'array',
         'activo' => 'boolean',
         'buffer_inicio_minutos' => 'integer',
         'buffer_fin_minutos' => 'integer',
