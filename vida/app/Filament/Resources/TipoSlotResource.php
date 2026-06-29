@@ -16,6 +16,7 @@ use Filament\Tables;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Agenda\Models\HorarioCentro;
 use Modules\Agenda\Models\TipoSlot;
 
 /**
@@ -92,6 +93,18 @@ class TipoSlotResource extends Resource
         return $schema->components([
             Section::make('Datos del tipo de slot')
                 ->schema([
+                    Select::make('horario_centro_id')
+                        ->label('Horario de centro')
+                        ->options(
+                            HorarioCentro::with('centro')
+                                ->get()
+                                ->mapWithKeys(fn (HorarioCentro $h) => [
+                                    $h->id => $h->centro->nombre . ' — ' . $h->nombre,
+                                ])
+                        )
+                        ->required()
+                        ->searchable(),
+
                     TextInput::make('nombre')
                         ->label('Nombre')
                         ->required()
@@ -140,6 +153,11 @@ class TipoSlotResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('horarioCentro.centro.nombre')
+                    ->label('Centro')
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('nombre')
                     ->label('Nombre')
                     ->searchable()

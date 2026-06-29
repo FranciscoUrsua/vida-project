@@ -73,17 +73,7 @@
             <span>Accesos</span>
         </a>
 
-        <a href="{{ route('supervision.aprobaciones') }}"
-           class="op-nav-item {{ request()->routeIs('supervision.aprobaciones') ? 'activo' : '' }}"
-           aria-current="{{ request()->routeIs('supervision.aprobaciones') ? 'page' : 'false' }}">
-            <x-heroicon-o-check-badge class="op-nav-icon icon-18" aria-hidden="true"/>
-            <span>Aprobaciones</span>
-            @if($this->aprobacionesPendientes > 0)
-                <span class="badge bg-danger rounded-pill">{{ $this->aprobacionesPendientes }}</span>
-            @endif
-        </a>
-
-        <a href="{{ route('supervision.configuracion') }}"
+<a href="{{ route('supervision.configuracion') }}"
            class="op-nav-item {{ request()->routeIs('supervision.configuracion') ? 'activo' : '' }}"
            aria-current="{{ request()->routeIs('supervision.configuracion') ? 'page' : 'false' }}">
             <x-heroicon-o-cog-6-tooth class="op-nav-icon icon-18" aria-hidden="true"/>
