@@ -16,12 +16,14 @@ use Filament\Tables;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use Modules\Agenda\Models\HorarioCentro;
+use Modules\Agenda\Enums\OrigenPermitidoSlot;
 use Modules\Agenda\Models\TipoSlot;
 
 /**
- * Backoffice: gestión del catálogo de tipos de slot (eventos internos) del centro.
+ * Backoffice: gestión del catálogo global de tipos de slot.
  *
+ * Los tipos de slot son un catálogo del sistema compartido por todos los centros,
+ * análogo a tipos de espacio, cargos o titulaciones.
  * Accesible en /admin/tipos-slot. Solo para supervisores y administradores.
  */
 class TipoSlotResource extends Resource
@@ -92,29 +94,20 @@ class TipoSlotResource extends Resource
     {
         return $schema->components([
             Section::make('Datos del tipo de slot')
+                ->columns(2)
                 ->schema([
-                    Select::make('horario_centro_id')
-                        ->label('Horario de centro')
-                        ->options(
-                            HorarioCentro::with('centro')
-                                ->get()
-                                ->mapWithKeys(fn (HorarioCentro $h) => [
-                                    $h->id => $h->centro->nombre . ' — ' . $h->nombre,
-                                ])
-                        )
-                        ->required()
-                        ->searchable(),
-
                     TextInput::make('nombre')
                         ->label('Nombre')
                         ->required()
                         ->maxLength(100)
-                        ->placeholder('Ej: Reunión de equipo'),
+                        ->columnSpanFull()
+                        ->placeholder('Ej: Entrevista de seguimiento'),
 
                     Textarea::make('descripcion')
                         ->label('Descripción')
                         ->rows(2)
-                        ->nullable(),
+                        ->nullable()
+                        ->columnSpanFull(),
 
                     Select::make('duracion_minutos')
                         ->label('Duración')
@@ -128,12 +121,36 @@ class TipoSlotResource extends Resource
                             150 => '2 h 30 min',
                             180 => '3 horas',
                         ])
+                        ->required(),
+
+                    TextInput::make('porcentaje_urgencias')
+                        ->label('% urgencias')
+                        ->numeric()
+                        ->default(0)
+                        ->minValue(0)
+                        ->maxValue(100)
+                        ->helperText('Slots de este tipo reservados para urgencias internas (no visibles externamente).'),
+
+                    Select::make('origen_permitido')
+                        ->label('Origen permitido')
+                        ->options(collect(OrigenPermitidoSlot::cases())->mapWithKeys(
+                            fn (OrigenPermitidoSlot $o) => [$o->value => $o->label()]
+                        ))
                         ->required()
-                        ->helperText('La duración incluye preparación y cierre. No se añaden buffers adicionales.'),
+                        ->default(OrigenPermitidoSlot::Ambos->value),
+
+                    Toggle::make('requiere_espacio')
+                        ->label('Requiere espacio físico')
+                        ->default(false),
+
+                    Toggle::make('genera_apunte_automatico')
+                        ->label('Genera apunte automático')
+                        ->helperText('Al cerrar la cita se crea un apunte en la Historia Social.')
+                        ->default(false),
 
                     Toggle::make('bloquea_todos_convocados')
                         ->label('Bloquea a todos los convocados')
-                        ->helperText('Si está activo, al usar este tipo en la semana tipo bloqueará el hueco en todos los profesionales del centro.')
+                        ->helperText('Al usar este tipo en la semana tipo bloqueará el hueco en todos los profesionales del centro.')
                         ->default(false),
 
                     Toggle::make('activo')
@@ -153,11 +170,6 @@ class TipoSlotResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('horarioCentro.centro.nombre')
-                    ->label('Centro')
-                    ->searchable()
-                    ->sortable(),
-
                 Tables\Columns\TextColumn::make('nombre')
                     ->label('Nombre')
                     ->searchable()
@@ -167,6 +179,21 @@ class TipoSlotResource extends Resource
                     ->label('Duración')
                     ->suffix(' min')
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('origen_permitido')
+                    ->label('Origen')
+                    ->badge()
+                    ->formatStateUsing(fn (OrigenPermitidoSlot $state) => $state->label())
+                    ->color(fn (OrigenPermitidoSlot $state) => match ($state) {
+                        OrigenPermitidoSlot::Interno    => 'gray',
+                        OrigenPermitidoSlot::ApiExterna => 'warning',
+                        OrigenPermitidoSlot::Ambos      => 'success',
+                    }),
+
+                Tables\Columns\IconColumn::make('genera_apunte_automatico')
+                    ->label('Apunte auto.')
+                    ->boolean()
+                    ->alignCenter(),
 
                 Tables\Columns\IconColumn::make('bloquea_todos_convocados')
                     ->label('Bloquea a todos')

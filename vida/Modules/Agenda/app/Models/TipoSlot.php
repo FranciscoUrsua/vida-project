@@ -5,7 +5,6 @@ namespace Modules\Agenda\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\Agenda\Database\Factories\TipoSlotFactory;
 use Modules\Agenda\Enums\OrigenPermitidoSlot;
@@ -17,7 +16,6 @@ use Modules\Agenda\Enums\OrigenPermitidoSlot;
  * para urgencias. Pertenece a un HorarioCentro concreto.
  *
  * @property int $id
- * @property int $horario_centro_id
  * @property string $nombre
  * @property string|null $descripcion
  * @property int $duracion_minutos
@@ -51,16 +49,6 @@ class TipoSlot extends Model
         'bloquea_todos_convocados' => 'boolean',
         'activo' => 'boolean',
     ];
-
-    /**
-     * Horario centro al que pertenece el tipo de slot.
-     *
-     * @return BelongsTo<HorarioCentro, $this>
-     */
-    public function horarioCentro(): BelongsTo
-    {
-        return $this->belongsTo(HorarioCentro::class, 'horario_centro_id');
-    }
 
     /**
      * Slots creados para este tipo de atención.

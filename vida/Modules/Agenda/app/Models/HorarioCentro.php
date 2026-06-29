@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Modules\Agenda\Database\Factories\HorarioCentroFactory;
@@ -71,16 +70,6 @@ class HorarioCentro extends Model
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class);
-    }
-
-    /**
-     * Tipos de slot asociados al horario.
-     *
-     * @return HasMany<TipoSlot, $this>
-     */
-    public function tiposSlot(): HasMany
-    {
-        return $this->hasMany(TipoSlot::class, 'horario_centro_id');
     }
 
     /**

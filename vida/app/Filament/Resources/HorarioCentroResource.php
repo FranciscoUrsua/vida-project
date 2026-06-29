@@ -4,7 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\HorarioCentroResource\Pages;
-use App\Filament\Resources\HorarioCentroResource\RelationManagers\TiposSlotsRelationManager;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
@@ -231,9 +230,7 @@ class HorarioCentroResource extends Resource
      */
     public static function getRelationManagers(): array
     {
-        return [
-            TiposSlotsRelationManager::class,
-        ];
+        return [];
     }
 
     /**
