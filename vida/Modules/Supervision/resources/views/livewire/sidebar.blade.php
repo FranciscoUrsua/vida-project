@@ -1,6 +1,6 @@
-{{-- Sidebar operativo de Supervisión --}}
-{{-- Se refresca cada 5 minutos (wire:poll.300s) --}}
-<aside class="op-sidebar" wire:poll.300s>
+{{-- Sidebar unificado del interfaz operativo de Supervisión y Agenda --}}
+{{-- Se refresca cada 60 segundos para mantener los badges actualizados --}}
+<aside class="op-sidebar" wire:poll.60s>
 
     {{-- Navegación principal --}}
     <nav class="op-nav" aria-label="Navegación principal">
@@ -13,10 +13,34 @@
         </a>
 
         <a href="{{ route('supervision.cuadrante') }}"
-           class="op-nav-item {{ request()->routeIs('supervision.cuadrante') ? 'activo' : '' }}"
-           aria-current="{{ request()->routeIs('supervision.cuadrante') ? 'page' : 'false' }}">
+           class="op-nav-item {{ request()->routeIs('supervision.cuadrante', 'agenda.cuadrante') ? 'activo' : '' }}"
+           aria-current="{{ request()->routeIs('supervision.cuadrante', 'agenda.cuadrante') ? 'page' : 'false' }}">
             <x-heroicon-o-calendar-days class="op-nav-icon icon-18" aria-hidden="true"/>
             <span>Cuadrante del centro</span>
+        </a>
+
+        <a href="{{ route('agenda.supervisor.ausencias') }}"
+           class="op-nav-item {{ request()->routeIs('agenda.supervisor.ausencias') ? 'activo' : '' }}"
+           aria-current="{{ request()->routeIs('agenda.supervisor.ausencias') ? 'page' : 'false' }}">
+            <x-heroicon-o-exclamation-triangle class="op-nav-icon icon-18" aria-hidden="true"/>
+            <span>Ausencias</span>
+            @if($this->citasPendientesBadge > 0)
+                <span class="badge bg-danger rounded-pill ms-auto">{{ $this->citasPendientesBadge }}</span>
+            @endif
+        </a>
+
+        <a href="{{ route('agenda.supervisor.excepciones') }}"
+           class="op-nav-item {{ request()->routeIs('agenda.supervisor.excepciones') ? 'activo' : '' }}"
+           aria-current="{{ request()->routeIs('agenda.supervisor.excepciones') ? 'page' : 'false' }}">
+            <x-heroicon-o-calendar class="op-nav-icon icon-18" aria-hidden="true"/>
+            <span>Excepciones</span>
+        </a>
+
+        <a href="{{ route('agenda.supervisor.eventos') }}"
+           class="op-nav-item {{ request()->routeIs('agenda.supervisor.eventos') ? 'activo' : '' }}"
+           aria-current="{{ request()->routeIs('agenda.supervisor.eventos') ? 'page' : 'false' }}">
+            <x-heroicon-o-users class="op-nav-icon icon-18" aria-hidden="true"/>
+            <span>Eventos internos</span>
         </a>
 
         <a href="{{ route('supervision.actividades') }}"

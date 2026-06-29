@@ -1,18 +1,18 @@
 @php
     $seccion = match(true) {
-        request()->routeIs('agenda.supervisor.cuadrante')   => 'Cuadrante mensual',
-        request()->routeIs('agenda.supervisor.ausencias')   => 'Ausencias del día',
-        request()->routeIs('agenda.supervisor.excepciones') => 'Excepciones',
-        request()->routeIs('agenda.supervisor.eventos')     => 'Eventos internos',
-        default                                             => '',
+        request()->routeIs('agenda.cuadrante')               => 'Cuadrante del centro',
+        request()->routeIs('agenda.supervisor.ausencias')    => 'Ausencias del día',
+        request()->routeIs('agenda.supervisor.excepciones')  => 'Excepciones',
+        request()->routeIs('agenda.supervisor.eventos')      => 'Eventos internos',
+        default                                              => '',
     };
 @endphp
 
 <x-layouts.operativo-shell
-    :title="config('app.name') . ' — Agenda'"
-    area="Agenda"
+    :title="config('app.name') . ' — Supervisión'"
+    area="Supervisión"
     :section="$seccion"
-    sidebar="agenda.supervisor.sidebar"
+    sidebar="supervision.sidebar"
 >
     {{ $slot }}
 </x-layouts.operativo-shell>
