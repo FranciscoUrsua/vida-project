@@ -89,7 +89,7 @@ jobs:
           if [ -f node_modules/.bin/eslint ]; then
             npx eslint \
               --ext .js,.ts \
-              --no-eslintrc \
+              --no-config-lookup \
               --plugin security \
               --rule 'security/detect-eval-with-expression: error' \
               --rule 'security/detect-unsafe-regex: error' \
@@ -102,7 +102,6 @@ jobs:
               --rule 'security/detect-possible-timing-attacks: warn' \
               --rule 'security/detect-object-injection: warn' \
               --rule 'security/detect-child-process: warn' \
-              --format github-actions \
               resources/js/
           else
             echo "::warning::ESLint no instalado. Ejecuta: npm install --save-dev eslint eslint-plugin-security"
