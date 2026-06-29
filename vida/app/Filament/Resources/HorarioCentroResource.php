@@ -36,7 +36,7 @@ class HorarioCentroResource extends Resource
 
     protected static ?string $navigationLabel = 'Horarios de centro';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Sistema';
+    protected static string|\UnitEnum|null $navigationGroup = 'Agenda — Configuración';
 
     protected static ?string $modelLabel = 'Horario de centro';
 
