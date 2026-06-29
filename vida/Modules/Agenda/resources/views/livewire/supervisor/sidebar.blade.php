@@ -39,13 +39,11 @@
 
     {{-- Footer: enlace a Filament para configuración estable --}}
     <div class="op-nav-footer border-top pt-2 mt-auto">
-        <a href="{{ url('/admin/horarios-centro') }}"
+        <a href="{{ route('supervision.configuracion') }}"
            class="op-nav-item text-body-secondary"
-           target="_blank"
-           rel="noopener"
-           aria-label="Configuración del centro — abre en nueva pestaña">
+           aria-label="Configuración del centro">
             <x-heroicon-o-cog-6-tooth class="op-nav-icon icon-18" aria-hidden="true"/>
-            <span class="small">Configuración del centro ↗</span>
+            <span class="small">Configuración del centro</span>
         </a>
     </div>
 
