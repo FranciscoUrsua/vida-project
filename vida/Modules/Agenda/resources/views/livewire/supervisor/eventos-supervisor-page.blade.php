@@ -87,17 +87,21 @@
             <div class="col-12">
                 <label class="form-label">Profesionales convocados</label>
                 <div class="d-flex flex-wrap gap-2">
-                    @foreach($this->profesionalesDelCentro as $user)
+                    @forelse($this->profesionalesDelCentro as $prof)
+                    @if($prof->usuario)
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox"
-                               id="prof-{{ $user->id }}"
-                               value="{{ $user->id }}"
+                               id="prof-{{ $prof->usuario->id }}"
+                               value="{{ $prof->usuario->id }}"
                                wire:model="form.profesionales_ids">
-                        <label class="form-check-label small" for="prof-{{ $user->id }}">
-                            {{ $user->profesional?->nombre_completo ?? $user->email }}
+                        <label class="form-check-label small" for="prof-{{ $prof->usuario->id }}">
+                            {{ $prof->nombre_completo }}
                         </label>
                     </div>
-                    @endforeach
+                    @endif
+                    @empty
+                    <p class="text-body-secondary small mb-0">No hay profesionales en tu unidad organizativa.</p>
+                    @endforelse
                 </div>
             </div>
 
@@ -167,7 +171,7 @@
                         <td class="text-body-secondary">{{ $evento->espacio?->nombre ?? '—' }}</td>
                         <td class="text-body-secondary">
                             @if($evento->profesionales->isNotEmpty())
-                                {{ $evento->profesionales->map(fn($u) => $u->profesional?->nombre ?? $u->email)->join(', ') }}
+                                {{ $evento->profesionales->map(fn($u) => $u->profesional?->nombre_completo ?? $u->email)->join(', ') }}
                             @else
                                 <span class="text-body-tertiary">—</span>
                             @endif

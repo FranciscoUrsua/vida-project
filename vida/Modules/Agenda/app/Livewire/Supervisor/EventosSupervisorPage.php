@@ -2,16 +2,15 @@
 
 namespace Modules\Agenda\Livewire\Supervisor;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Agenda\Models\EventoAgenda;
-use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Sala;
+use Modules\Usuarios\Models\Profesional;
 
 /**
  * Página de eventos internos del centro para el supervisor.
@@ -24,7 +23,7 @@ use Modules\Centro\Models\Sala;
  * @property array{nombre: string, fecha: string, hora_inicio: string, duracion_minutos: string, tipo_evento: string, espacio_id: string, profesionales_ids: array<int, int>} $form
  * @property-read Collection<int, EventoAgenda> $eventosProximos
  * @property-read Collection<int, Sala> $espaciosDelCentro
- * @property-read Collection<int, User> $profesionalesDelCentro
+ * @property-read Collection<int, Profesional> $profesionalesDelCentro
  * @property bool $hayConflictoEspacio
  */
 #[Layout('agenda::layouts.agenda-supervisor')]
@@ -96,25 +95,33 @@ class EventosSupervisorPage extends Component
     }
 
     /**
-     * Usuarios con perfil horario activo en el centro del supervisor.
+     * Profesionales de la UO del supervisor para el selector de convocados.
      *
-     * @return Collection<int, User>
+     * Usa la jerarquía completa de UOs (subtree) igual que EquipoPage,
+     * de modo que aparecen todos los profesionales del centro aunque no
+     * tengan aún un PerfilHorarioProfesional asignado.
+     *
+     * @return Collection<int, Profesional>
      */
     #[Computed]
     public function profesionalesDelCentro(): Collection
     {
-        $centro = $this->centroDelSupervisor();
-        if ($centro === null) {
+        $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
+
+        if (empty($uoIds)) {
             return new Collection();
         }
 
-        $userIds = PerfilHorarioProfesional::where('centro_id', $centro->id)
-            ->where('activo', true)
-            ->pluck('usuario_id');
-
-        return User::whereIn('id', $userIds)
-            ->with('profesional')
-            ->orderBy('name')
+        return Profesional::where(function ($q) use ($uoIds) {
+            $q->whereIn('unidad_organizativa_id', $uoIds)
+                ->orWhereHas('usuario', fn ($q2) => $q2->whereHas(
+                    'adscripcionesVigentes',
+                    fn ($q3) => $q3->whereIn('unidad_organizativa_id', $uoIds)
+                ));
+        })
+            ->with('usuario')
+            ->orderBy('apellidos')
+            ->orderBy('nombre')
             ->get();
     }
 
