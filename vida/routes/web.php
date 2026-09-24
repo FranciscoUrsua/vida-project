@@ -19,22 +19,11 @@ Route::post('/bienvenida', [OnboardingController::class, 'completar'])
 
 // Raíz protegida — redirige según rol del usuario autenticado
 Route::middleware(['web', 'auth'])->get('/', function () {
-    $usuario = auth()->user();
+    // Prioridad entre roles centralizada en User::destinoInicial() (misma lógica que el login).
+    $destino = auth()->user()->destinoInicial();
 
-    if ($usuario->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
-        return redirect('/admin');
-    }
-
-    if ($usuario->hasRole('supervision')) {
-        return redirect()->route('supervision.inicio');
-    }
-
-    if ($usuario->hasRole('intervencion')) {
-        return redirect()->route('intervencion.agenda.index');
-    }
-
-    if ($usuario->roles()->count() === 0) {
-        return redirect()->route('sin-rol');
+    if ($destino !== null) {
+        return redirect($destino);
     }
 
     return view('inicio');

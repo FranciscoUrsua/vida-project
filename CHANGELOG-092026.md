@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-09-24 — Auth: la supervisión operativa tiene prioridad sobre /admin para supervision + adm_usuarios
+
+### Módulos afectados
+`app/Models/User.php`, `app/Http/Controllers/Auth/LoginController.php`, `routes/web.php`
+
+### Corregido
+- Bug reportado: la directora del CIAM (`dir.ciam@vida.local`, roles `intervencion` + `supervision` + `adm_usuarios`) entraba tras el login en el panel Filament (`/admin`) en lugar de en la supervisión operativa (Livewire). Causa: `LoginController::destino()` y la ruta `/` comprobaban `adm_usuarios` antes que `supervision`.
+- Nuevo `User::destinoInicial()`, punto único con el orden de prioridad `adm_sistema` → `/admin`, `supervision` → `supervision.inicio`, `adm_usuarios` → `/admin`, `intervencion` → agenda, y sin roles → `sin-rol`. Lo usan el login y `/`, que antes duplicaban la lógica.
+- La directora conserva el acceso a `/admin` (`canAccessPanel` no cambia), pero no entra en él por defecto.
+- Tests: `tests/Feature/Auth/DestinoTrasLoginTest.php` (3 tests: supervision + adm_usuarios → supervisión; solo adm_usuarios → /admin; adm_sistema + supervision → /admin). El primero fallaba antes de la corrección. `tests/Feature/Auth/` y `FilamentPanelAccessTest` sin regresiones; siguen los 2 fallos conocidos de TF-AUTH-16/17 (BACKLOG).
+
+---
+
 ## 2026-09-24 — Mundo demo «Prueba CIAM» en modo aditivo + plan especializado con entrada directa
 
 ### Módulos afectados

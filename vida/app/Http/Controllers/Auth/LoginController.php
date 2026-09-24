@@ -57,34 +57,13 @@ class LoginController extends Controller
     }
 
     /**
-     * Determina la ruta de destino tras el login según el rol del usuario.
+     * Determina la ruta de destino tras el login según los roles del usuario.
      *
-     * - adm_sistema, adm_usuarios → /admin (Filament backoffice)
-     * - supervision → /supervision/inicio (superficie operativa de supervisión)
-     * - intervencion → agenda operativa
-     * - Cualquier otro → pantalla de inicio genérica
+     * La prioridad entre roles está centralizada en User::destinoInicial().
      */
     private function destino(): string
     {
-        $usuario = Auth::user();
-
-        if ($usuario->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
-            return '/admin';
-        }
-
-        if ($usuario->hasRole('supervision')) {
-            return route('supervision.inicio');
-        }
-
-        if ($usuario->hasRole('intervencion')) {
-            return route('intervencion.agenda.index');
-        }
-
-        if ($usuario->roles()->count() === 0) {
-            return route('sin-rol');
-        }
-
-        return route('inicio');
+        return Auth::user()->destinoInicial() ?? route('inicio');
     }
 
     /**

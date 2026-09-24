@@ -115,6 +115,45 @@ class User extends Authenticatable implements FilamentUser
     // -------------------------------------------------------------------------
 
     /**
+     * Ruta a la que se envía al usuario tras el login o al visitar «/», según sus roles.
+     *
+     * Orden de prioridad:
+     * - adm_sistema → /admin (backoffice Filament).
+     * - supervision → supervisión operativa (Livewire). Va antes que adm_usuarios para que la
+     *   dirección de un centro (supervision + adm_usuarios) entre en su superficie de trabajo
+     *   y no en el backoffice, al que sigue pudiendo acceder (canAccessPanel).
+     * - adm_usuarios → /admin.
+     * - intervencion → agenda operativa.
+     * - sin roles → pantalla «sin rol».
+     *
+     * @return string|null URL de destino, o null si corresponde la pantalla de inicio genérica
+     */
+    public function destinoInicial(): ?string
+    {
+        if ($this->hasRole('adm_sistema')) {
+            return '/admin';
+        }
+
+        if ($this->hasRole('supervision')) {
+            return route('supervision.inicio');
+        }
+
+        if ($this->hasRole('adm_usuarios')) {
+            return '/admin';
+        }
+
+        if ($this->hasRole('intervencion')) {
+            return route('intervencion.agenda.index');
+        }
+
+        if ($this->roles()->count() === 0) {
+            return route('sin-rol');
+        }
+
+        return null;
+    }
+
+    /**
      * Solo roles de gestión y supervisión pueden acceder al panel de administración.
      *
      * @param Panel $panel Panel de Filament a evaluar.

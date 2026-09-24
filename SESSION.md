@@ -8,6 +8,8 @@
 
 Mundo demo **«Prueba CIAM»** en modo aditivo (`demo:load`, etiqueta `TEST_CIAM`) y regla de dominio de **plan especializado con entrada directa** (`tipos_plan.admite_entrada_directa`). El mundo está implementado, testeado (TF-DEMO-CIAM-01 a 16) y **ya cargado en staging**.
 
+Corrección posterior: quien tiene `supervision` + `adm_usuarios` (la directora del CIAM) entra tras el login en la supervisión operativa y no en `/admin`. La prioridad entre roles está centralizada en `User::destinoInicial()`.
+
 Detalle en `CHANGELOG-092026.md` (entrada «Mundo demo "Prueba CIAM" en modo aditivo») y en `docs/instrucciones-cli/2026-09-demo-ciam-aditivo.md`, que incluye las decisiones de la sesión.
 
 ---
