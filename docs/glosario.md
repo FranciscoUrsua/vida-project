@@ -228,7 +228,7 @@ Formulario configurable que el TSR cumplimenta durante una valoración estructur
 
 **Definición de referencia:** Instrumento de intervención social elaborado con la participación del usuario, propuesto por el profesional de referencia al equipo del centro para su aprobación en un plazo máximo de diez días (Art. 40, Ley 12/2022). En el Ayuntamiento de Madrid se denomina DIS (Diseño de Intervención Social) en el sistema CIVIS. Incluye diagnóstico social, actuaciones, prestaciones propuestas y compromisos del ciudadano.
 
-**Implicaciones para VIDA:** Existen planes de ASP (gestionados por el TSR, visión global) y planes de especializada (gestionados por el profesional especializado, autónomos pero visibles para el TSR). Una Historia Social puede tener varios planes activos simultáneamente. Ver principio 3.7.
+**Implicaciones para VIDA:** Existen planes de ASP (gestionados por el TSR, visión global) y planes de especializada (gestionados por el profesional especializado, autónomos pero visibles para el TSR). Una Historia Social puede tener varios planes activos simultáneamente. Ver principio 3.7. Por regla general el plan de especializada nace de una derivación desde el plan de ASP; los tipos de plan con **entrada directa** (`admite_entrada_directa`, p. ej. el PIA de los CIAM, puerta alternativa de entrada) pueden crearse sin plan ASP previo (ver `modulo-intervencion.md` §5.1).
 
 **Decisiones de modelado:**
 - Entidad `PlanDeIntervencion` con campos: `ambito` (asp / especializada), `tipo` (configurable desde backoffice), `profesional_id`, `historia_id`, `estado`, `fecha_inicio`, `fecha_fin`.

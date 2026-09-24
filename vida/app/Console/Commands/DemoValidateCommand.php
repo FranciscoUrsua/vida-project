@@ -56,6 +56,15 @@ class DemoValidateCommand extends Command
 
         $this->info("Mundo '{$worldConfig['meta']['nombre']}' es válido.");
         $this->line("  Descripción: {$worldConfig['meta']['descripcion']}");
+        $this->line("  Modo: {$worldConfig['modo']}".($worldConfig['etiqueta'] ? " (etiqueta {$worldConfig['etiqueta']})" : ''));
+
+        if ($worldConfig['modo'] === DemoWorldLoader::MODO_ADITIVO) {
+            // Las referencias se resuelven contra la BD al cargar; aquí solo se valida su estructura.
+            foreach ($worldConfig['existentes'] as $seccion => $entradas) {
+                $this->line("  Existentes · {$seccion}: ".count($entradas));
+            }
+        }
+
         $this->line('  Centros: '.count($worldConfig['centros']));
         $this->line('  Profesionales: '.count($worldConfig['profesionales']));
 

@@ -40,6 +40,9 @@ class DemoResetCommand extends Command
     /**
      * Tablas a truncar en orden (CASCADE gestiona FK en PostgreSQL).
      *
+     * demo_world_registros no se trunca a propósito: es el registro de lo creado
+     * por los mundos aditivos (demo:load) y debe sobrevivir a cualquier reset.
+     *
      * @var list<string>
      */
     private const TABLAS_TRUNCAR = [
@@ -112,6 +115,17 @@ class DemoResetCommand extends Command
             $worldConfig = $loader->load($worldName);
         } catch (\InvalidArgumentException $e) {
             $this->error('Error de validación: '.$e->getMessage());
+
+            return self::FAILURE;
+        }
+
+        // Protección principal contra un truncado accidental: los mundos aditivos se cargan
+        // sobre datos ajenos (p. ej. staging) y nunca deben pasar por el TRUNCATE de este comando.
+        if ($worldConfig['modo'] === DemoWorldLoader::MODO_ADITIVO) {
+            $this->error(
+                "El mundo '{$worldName}' es de modo 'aditivo' y no puede cargarse con demo:reset ".
+                '(truncaría datos existentes). Usa: php artisan demo:load --world='.$worldName
+            );
 
             return self::FAILURE;
         }

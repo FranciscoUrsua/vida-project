@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\HtmlString;
 
 /**
  * Página de gestión de entornos de demo en el backoffice.
@@ -21,6 +22,10 @@ use Illuminate\Support\Facades\Log;
  *
  * Solo visible en entornos no productivos (canAccess() devuelve false
  * en producción).
+ *
+ * Los mundos aditivos (modo: aditivo) no ofrecen reset: se muestran con la
+ * etiqueta «Aditivo» y su acción es «Cargar (aditivo)» (demo:load), con un
+ * modal que enseña el resultado del dry-run antes de confirmar.
  *
  * @see DemoWorldLoader
  * @see DemoResetCommand
@@ -55,7 +60,7 @@ class DemoWorldsPage extends Page implements HasActions
     /**
      * Datos para la vista Blade: lista de mundos disponibles con metadatos.
      *
-     * @return array{worlds: list<array{id: string, nombre: string, descripcion: string, centros: int, profesionales: int, ciudadanos: int, reset_cada: string}>}
+     * @return array{worlds: list<array{id: string, nombre: string, descripcion: string, centros: int, profesionales: int, ciudadanos: int, reset_cada: string, modo: string, etiqueta: string|null}>}
      */
     public function getViewData(): array
     {
@@ -76,14 +81,19 @@ class DemoWorldsPage extends Page implements HasActions
                     }
                 }
 
+                $aditivo = $config['modo'] === DemoWorldLoader::MODO_ADITIVO;
+
                 $worlds[] = [
                     'id' => $name,
                     'nombre' => $config['meta']['nombre'],
                     'descripcion' => $config['meta']['descripcion'],
-                    'centros' => count($config['centros']),
+                    // Un mundo aditivo no crea centros: se cuentan los referenciados.
+                    'centros' => $aditivo ? count($config['existentes']['centros'] ?? []) : count($config['centros']),
                     'profesionales' => count($config['profesionales']),
                     'ciudadanos' => $totalCiudadanos,
                     'reset_cada' => $config['meta']['reset_cada'],
+                    'modo' => $config['modo'],
+                    'etiqueta' => $config['etiqueta'],
                 ];
             } catch (\InvalidArgumentException) {
                 // YAML inválido — mostrar tarjeta de error sin botón de reset
@@ -95,6 +105,8 @@ class DemoWorldsPage extends Page implements HasActions
                     'profesionales' => 0,
                     'ciudadanos' => 0,
                     'reset_cada' => '-',
+                    'modo' => DemoWorldLoader::MODO_RESET,
+                    'etiqueta' => null,
                 ];
             }
         }
@@ -103,9 +115,10 @@ class DemoWorldsPage extends Page implements HasActions
     }
 
     /**
-     * Registra todas las Actions de reset, una por mundo disponible.
+     * Registra todas las Actions, una por mundo disponible.
      * Filament requiere que estén aquí para que Livewire las reconozca.
-     * La vista las dispara con wire:click="mountAction('reset_X')".
+     * La vista las dispara con wire:click="mountAction('reset_X')" o
+     * mountAction('cargar_X') para los mundos aditivos (que no tienen reset).
      *
      * @return array<Action>
      */
@@ -114,8 +127,76 @@ class DemoWorldsPage extends Page implements HasActions
         $loader = new DemoWorldLoader;
 
         return collect($loader->listWorlds())
-            ->map(fn (string $name) => $this->buildResetAction($name))
+            ->map(fn (string $name) => $this->esAditivo($name)
+                ? $this->buildCargarAditivoAction($name)
+                : $this->buildResetAction($name))
             ->all();
+    }
+
+    /**
+     * Indica si un mundo es de modo aditivo (un YAML inválido se trata como no aditivo).
+     *
+     * @param string $worldId Nombre del mundo (sin extensión)
+     */
+    private function esAditivo(string $worldId): bool
+    {
+        try {
+            return (new DemoWorldLoader)->load($worldId)['modo'] === DemoWorldLoader::MODO_ADITIVO;
+        } catch (\InvalidArgumentException) {
+            return false;
+        }
+    }
+
+    /**
+     * Construye la Action de carga aditiva (demo:load) para un mundo aditivo.
+     *
+     * El modal ejecuta primero `demo:load --dry-run` y muestra su resumen, de modo que
+     * quien confirma ve qué se va a crear y qué ya existe. La carga nunca borra datos.
+     *
+     * @param string $worldId Nombre del mundo (sin extensión)
+     */
+    private function buildCargarAditivoAction(string $worldId): Action
+    {
+        $config = (new DemoWorldLoader)->load($worldId);
+        $nombre = $config['meta']['nombre'];
+
+        return Action::make("cargar_{$worldId}")
+            ->label('Cargar (aditivo)')
+            ->icon('heroicon-o-plus-circle')
+            ->color('primary')
+            ->requiresConfirmation()
+            ->modalHeading("¿Cargar el mundo aditivo «{$nombre}»?")
+            ->modalDescription(function () use ($worldId, $config) {
+                Artisan::call('demo:load', ['--world' => $worldId, '--dry-run' => true, '--no-interaction' => true]);
+
+                return new HtmlString(
+                    '<p>No se borra ni se modifica ningún dato existente. Todo lo creado queda etiquetado como '.
+                    e($config['etiqueta']).'. Resultado del dry-run:</p>'.
+                    '<pre class="mt-2 max-h-80 overflow-auto text-left text-xs">'.e(Artisan::output()).'</pre>'
+                );
+            })
+            ->modalWidth('4xl')
+            ->modalSubmitActionLabel('Sí, cargar')
+            ->modalCancelActionLabel('Cancelar')
+            ->action(function () use ($worldId, $nombre) {
+                $exitCode = Artisan::call('demo:load', ['--world' => $worldId, '--no-interaction' => true]);
+                $output = Artisan::output();
+
+                if ($exitCode === 0) {
+                    Notification::make()
+                        ->title("Mundo «{$nombre}» cargado (aditivo).")
+                        ->success()
+                        ->send();
+                } else {
+                    Log::error("demo:load falló para mundo '{$worldId}'", ['output' => $output]);
+
+                    Notification::make()
+                        ->title('La carga falló. No se ha guardado nada.')
+                        ->body($output ?: 'Sin output. Revisa los logs de la aplicación.')
+                        ->danger()
+                        ->send();
+                }
+            });
     }
 
     /**

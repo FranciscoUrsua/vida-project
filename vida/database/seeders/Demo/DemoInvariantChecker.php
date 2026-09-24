@@ -14,19 +14,29 @@ use Illuminate\Support\Facades\DB;
  * Las invariantes que requieren columnas no existentes (fecha_apertura,
  * fecha_cierre en historias_sociales) o citas están omitidas.
  *
+ * En modo aditivo (`demo:load`) la comprobación se limita a los planes creados
+ * por el mundo, para no bloquear la carga por datos preexistentes ajenos.
+ *
  * @see DemoWorldBuilder
  * @see DemoScenarioBuilder
  */
 class DemoInvariantChecker
 {
+    /** @var list<int>|null Planes a los que se limita la comprobación (null = todos) */
+    private ?array $planIds = null;
+
     /**
      * Ejecuta todas las comprobaciones de invariantes.
+     *
+     * @param list<int>|null $planIds Si se indica, solo se comprueban esos planes
+     *                                (p. ej. los registrados por un mundo aditivo)
      *
      * @return list<string> Lista de strings describiendo las violaciones encontradas.
      *                      Lista vacía si no hay violaciones.
      */
-    public function check(): array
+    public function check(?array $planIds = null): array
     {
+        $this->planIds = $planIds;
         $violaciones = [];
 
         $violaciones = array_merge($violaciones, $this->checkPlanesConHistoria());
@@ -45,6 +55,7 @@ class DemoInvariantChecker
     {
         $count = DB::table('planes_intervencion')
             ->whereNotIn('historia_id', DB::table('historias_sociales')->pluck('id'))
+            ->when($this->planIds !== null, fn ($q) => $q->whereIn('id', $this->planIds))
             ->count();
 
         if ($count === 0) {
@@ -57,13 +68,19 @@ class DemoInvariantChecker
     /**
      * Invariante: los planes de tipo 'especializado' deben tener plan_asp_id.
      *
+     * Se excluyen los planes cuyo tipo de plan admite entrada directa (p. ej. PIA
+     * del CIAM): pueden existir sin plan ASP previo por regla de dominio.
+     *
      * @return list<string>
      */
     private function checkPlanesEspecializadosConPlanAsp(): array
     {
-        $count = DB::table('planes_intervencion')
-            ->where('tipo', 'especializado')
-            ->whereNull('plan_asp_id')
+        $count = DB::table('planes_intervencion as p')
+            ->leftJoin('tipos_plan as t', 't.id', '=', 'p.tipo_plan_id')
+            ->where('p.tipo', 'especializado')
+            ->whereNull('p.plan_asp_id')
+            ->where(fn ($q) => $q->whereNull('t.admite_entrada_directa')->orWhere('t.admite_entrada_directa', false))
+            ->when($this->planIds !== null, fn ($q) => $q->whereIn('p.id', $this->planIds))
             ->count();
 
         if ($count === 0) {
@@ -86,6 +103,7 @@ class DemoInvariantChecker
             ->where('p.estado', 'activo')
             ->whereNull('h.deleted_at')
             ->whereNull('p.deleted_at')
+            ->when($this->planIds !== null, fn ($q) => $q->whereIn('p.id', $this->planIds))
             ->count();
 
         if ($count === 0) {

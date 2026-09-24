@@ -30,6 +30,9 @@ use Modules\Intervencion\Enums\TipoPlan;
  * El versionado es no destructivo: crearNuevaVersion() genera un nuevo
  * registro con version+1; el original pasa a estado en_revision.
  *
+ * Un plan especializado requiere plan_asp_id salvo que su tipo de plan
+ * admita entrada directa (ver verificarOrigenPlanEspecializado()).
+ *
  * @property int $id
  * @property int $historia_id
  * @property int|null $tipo_plan_id
@@ -112,7 +115,47 @@ class PlanDeIntervencion extends Model
                     );
                 }
             }
+
+            self::verificarOrigenPlanEspecializado($plan);
         });
+    }
+
+    /**
+     * Impide guardar un plan especializado sin plan ASP salvo que su tipo admita entrada directa.
+     *
+     * Regla de dominio: el plan especializado nace de una derivación desde un plan ASP
+     * (plan_asp_id obligatorio). Excepción: los tipos de plan con admite_entrada_directa
+     * (p. ej. el PIA del CIAM, puerta alternativa de entrada) pueden no tener plan ASP.
+     * Si más adelante la persona recibe un PISO, el plan de entrada directa no se vincula
+     * retroactivamente: ambos conviven como planes independientes de la misma Historia Social.
+     *
+     * En actualizaciones solo se comprueba si cambia alguno de los campos implicados, para
+     * no bloquear la edición de planes antiguos por cambios ajenos a esta regla.
+     *
+     * @param PlanDeIntervencion $plan Plan que se va a guardar
+     *
+     * @throws \DomainException Si el plan especializado no tiene plan ASP y su tipo no admite entrada directa
+     */
+    private static function verificarOrigenPlanEspecializado(PlanDeIntervencion $plan): void
+    {
+        if ($plan->tipo !== TipoPlan::Especializado || $plan->plan_asp_id !== null) {
+            return;
+        }
+
+        if ($plan->exists && ! $plan->isDirty(['tipo', 'plan_asp_id', 'tipo_plan_id'])) {
+            return;
+        }
+
+        $admiteEntradaDirecta = $plan->tipo_plan_id !== null
+            && (bool) \Modules\Intervencion\Models\TipoPlan::whereKey($plan->tipo_plan_id)
+                ->value('admite_entrada_directa');
+
+        if (! $admiteEntradaDirecta) {
+            throw new \DomainException(
+                'Un plan especializado debe nacer de una derivación desde un plan ASP, '.
+                'salvo que su tipo de plan admita entrada directa.'
+            );
+        }
     }
 
     // -------------------------------------------------------------------------

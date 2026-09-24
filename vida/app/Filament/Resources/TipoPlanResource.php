@@ -78,6 +78,11 @@ class TipoPlanResource extends Resource
                         ->label('Activo')
                         ->default(true),
 
+                    Toggle::make('admite_entrada_directa')
+                        ->label('Admite entrada directa (sin plan ASP previo)')
+                        ->helperText('Los planes especializados de este tipo pueden crearse sin derivación desde un plan ASP, como el PIA del CIAM.')
+                        ->default(false),
+
                     Textarea::make('descripcion')
                         ->label('Descripción')
                         ->rows(2)

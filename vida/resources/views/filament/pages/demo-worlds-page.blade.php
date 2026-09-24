@@ -9,6 +9,7 @@
             <strong class="font-semibold text-danger-600 dark:text-danger-400">
                 destruirá todos los ciudadanos, historias sociales, planes y entrevistas actuales.
             </strong>
+            Los mundos marcados como «Aditivo» no borran nada: se añaden a los datos existentes.
         </x-slot>
 
         <x-filament::badge color="warning" icon="heroicon-m-exclamation-triangle">
@@ -41,6 +42,17 @@
                         {{ $world['descripcion'] }}
                     </x-slot>
 
+                    @if ($world['modo'] === 'aditivo')
+                        <div class="mb-3 flex flex-wrap gap-2">
+                            <x-filament::badge color="info" icon="heroicon-m-plus-circle">
+                                Aditivo
+                            </x-filament::badge>
+                            <x-filament::badge color="gray" icon="heroicon-m-tag">
+                                {{ $world['etiqueta'] }}
+                            </x-filament::badge>
+                        </div>
+                    @endif
+
                     {{-- Estadísticas del mundo --}}
                     <dl class="mb-4 grid grid-cols-3 gap-3 text-center">
                         <div>
@@ -69,8 +81,17 @@
                         </div>
                     </dl>
 
-                    {{-- Reset --}}
-                    @if ($world['ciudadanos'] > 0)
+                    {{-- Carga aditiva (sin reset) o reset --}}
+                    @if ($world['modo'] === 'aditivo')
+                        <x-filament::button
+                            wire:click="mountAction('cargar_{{ $world['id'] }}')"
+                            color="primary"
+                            icon="heroicon-o-plus-circle"
+                            class="w-full"
+                        >
+                            Cargar (aditivo)
+                        </x-filament::button>
+                    @elseif ($world['ciudadanos'] > 0)
                         <x-filament::button
                             wire:click="mountAction('reset_{{ $world['id'] }}')"
                             color="gray"

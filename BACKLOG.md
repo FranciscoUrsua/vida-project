@@ -9,6 +9,30 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Local y staging comparten la misma base de datos `vida`** — 2026-09-24
+Módulo: Infraestructura
+Detectado en la Fase 0 del mundo «Prueba CIAM»: `~/code/vida-project/vida/.env` (`APP_ENV=local`) y `/var/www/vida-project/vida/.env` (`APP_ENV=staging`) apuntan a `vida@127.0.0.1`. Toda migración o `demo:*` lanzado «en local» se aplica sobre staging, y un `demo:reset` en local truncaría los datos de staging (incluidos los de otros equipos). Recomendación: crear una BD de desarrollo propia (p. ej. `vida_dev`) para el entorno local.
+
+---
+
+**No existe asociación tipo de plan ↔ centro / UO / servicio** — 2026-09-24
+Módulo: Intervención
+`PlanPage::tiposPlanes()` ofrece todos los tipos activos (`piso`, `pia`…) a cualquier profesional de cualquier centro. El punto 1.4 de `docs/instrucciones-cli/2026-09-demo-ciam-aditivo.md` (asociar `pia` al CIAM) se omitió por decisión del desarrollador: no se crea un mecanismo nuevo sin diseño. Decidir si el tipo de plan se restringe por centro, por UO (junto a `plan_nombre_*`) o por servicio especializado (`planes_intervencion.servicio_especializado_id`, hoy sin uso: la tabla `servicios` está vacía).
+
+---
+
+**La interfaz no permite crear planes especializados; `PlanPage` fija siempre `tipo = general_asp`** — 2026-09-24
+Módulo: Intervención
+`PlanPage::crearNuevoPlan()` guarda `tipo = TipoPlan::GeneralAsp` sea cual sea el `tipo_plan_id` elegido. Un «PIA» creado hoy desde la UI queda como plan general sin plan ASP, y `CiudadanoPage::pisoActivo()` / `MisCasosPage` lo tratan como el PISO de la persona. Los planes PIA del mundo «Prueba CIAM» sí son `especializado` (entrada directa). Pendiente: derivar `tipo` del `ambito` del tipo de plan al crear, y diseñar el flujo de creación de planes especializados (derivación desde PISO y entrada directa con `admite_entrada_directa`). Fuera del alcance de la sesión CIAM por instrucción explícita.
+
+---
+
+**Retirada de los datos de mundos aditivos (etiqueta `TEST_CIAM`)** — 2026-09-24
+Módulo: Demo / World Building
+Todo lo creado por `demo:load` queda en `demo_world_registros` (`DemoWorldRegistro::de('TEST_CIAM')`), pero no hay comando de purga por etiqueta: por instrucción, la retirada se diseñará aparte (orden de borrado, soft vs hard delete, auditoría generada por la carga, filas pivote no registradas como `model_has_roles`, `actividad_profesional` y `sesion_actividad_profesional`).
+
+---
+
 **Suite de `Modules/Agenda` rota: `tipos_slot.horario_centro_id` no existe en el esquema** — 2026-09-24
 Módulo: Agenda
 Al ejecutar la suite completa (verificación de una actualización de dependencias) se detectaron ~60 tests de `Modules/Agenda` fallando con `QueryException: column "horario_centro_id" of relation "tipos_slot" does not exist`. Reproducible también con las dependencias de Composer anteriores a la actualización de hoy — no relacionado con dependencias. Probable causa: el commit `3003283` ("convertir TipoSlot en catálogo global del sistema") eliminó esa columna del esquema pero algún factory o helper de test (`Modules/Agenda/database/factories/CitaFactory.php`, `AgendaSupervisorTestHelpers.php`, entre otros) sigue insertándola. Revisar si falta una migración por ejecutar en `vida_testing` o si el factory quedó desactualizado tras ese refactor.

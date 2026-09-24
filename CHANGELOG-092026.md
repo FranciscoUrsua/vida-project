@@ -4,6 +4,65 @@
 
 ---
 
+## 2026-09-24 — Mundo demo «Prueba CIAM» en modo aditivo + plan especializado con entrada directa
+
+### Módulos afectados
+`database/seeders/Demo/`, `database/seeders/worlds/demo_ciam.yaml`, `app/Console/Commands/`, `app/Models/`, `app/Filament/Pages/DemoWorldsPage.php`, `app/Filament/Resources/TipoPlanResource.php`, `Modules/Intervencion` (tipos de plan, `PlanDeIntervencion`)
+
+Instrucciones: `docs/instrucciones-cli/2026-09-demo-ciam-aditivo.md` (incluye las iteraciones de la sesión).
+
+### Añadido
+
+**Modo aditivo de mundos demo:**
+- Comando `demo:load --world=X [--dry-run]` (`DemoLoadCommand`). Solo acepta mundos con `modo: aditivo`. Nunca hace TRUNCATE, DELETE ni forceDelete. Corre en una única transacción; `--dry-run` hace la carga completa y rollback. Se niega en `production`. Al final verifica invariantes solo sobre los planes del mundo y muestra un resumen por entidad (creado / ya existente / referenciado).
+- `DemoWorldLoader`: claves raíz `modo` (`reset` por defecto | `aditivo`), `etiqueta` (obligatoria en aditivo, `[A-Z0-9_]+`), `tipo_plan` y sección `existentes` (centros, tipos_plan, cargos, salas, tipos_actividad) con `buscar_por` y `crear_si_no_existe`. Los mundos existentes (reset) no cambian: se validan igual que antes.
+- `DemoReferenciaResolver`: cada referencia debe encontrar exactamente un registro. Cero sin `crear_si_no_existe`, o más de uno, hacen fallar la carga. Las entidades referenciadas nunca se modifican. Centros y tipos de plan solo pueden referenciarse, no crearse.
+- `DemoRegistrador` + migración `create_demo_world_registros_table` + modelo `DemoWorldRegistro` (`::de($etiqueta)`, scope `deTipo()`). Es el registro de todo lo que crea un mundo aditivo y la base de la idempotencia (etiqueta, clave, tipo). La tabla no se trunca en `demo:reset`.
+- `DemoMundoAditivoBuilder` + `DemoContextoAditivo`: profesionales con varios roles, actividades y sesiones, y ciudadanas con claves estables `usuaria_NNN`.
+- Escenarios `EscenarioCiam` (base) y `CiamPiaActiva`, `CiamPiaCerrada`, `CiamParticipanteActividad` y `CiamInformacion` en `database/seeders/Demo/Scenarios/`.
+- `DemoWorldsPage`: los mundos aditivos muestran las etiquetas «Aditivo» y su etiqueta. Tienen la acción «Cargar (aditivo)», cuyo modal muestra el dry-run, y no tienen reset.
+
+**Plan especializado con entrada directa:**
+- Migración `add_admite_entrada_directa_to_tipos_plan_table`: boolean con default `false`. Marca `true` solo en `pia`, solo en ese campo y sin tocar `updated_at`.
+- `PlanDeIntervencion::verificarOrigenPlanEspecializado()` (hook `saving`): un plan `especializado` sin `plan_asp_id` lanza `DomainException` salvo que su tipo tenga `admite_entrada_directa`. En actualizaciones solo actúa si cambian `tipo`, `plan_asp_id` o `tipo_plan_id`.
+- `DemoInvariantChecker`: INV-02 ignora los tipos con entrada directa; `check(?array $planIds)` permite limitar la comprobación a unos planes.
+- `TipoPlan` (fillable, cast y PHPDoc), `TipoPlanFactory::entradaDirecta()`, y toggle «Admite entrada directa (sin plan ASP previo)» en `TipoPlanResource`. `TipoPlanSeeder` no escribe el campo, así que no lo revierte.
+
+**Mundo `demo_ciam.yaml` → «Prueba CIAM»** (aditivo, etiqueta `TEST_CIAM`):
+- Referencia el centro CIAM Puente de Vallecas, el tipo `pia`, 6 cargos existentes y las salas Girasol y Polivalente. Crea 10 profesionales (todas `F`), 100 ciudadanas (30 PIA activo, 20 PIA cerrado, 35 participantes en actividades y 15 atenciones informativas) y 4 actividades con 13 sesiones. El CSS Entrevías del mundo anterior desaparece.
+
+**Tests** (16, todos en verde):
+- `tests/Feature/Demo/DemoAditivoTest.php`: TF-DEMO-CIAM-01 a 11, 15 y 16.
+- `Modules/Intervencion/tests/Feature/PlanEntradaDirectaTest.php`: TF-DEMO-CIAM-12 a 14.
+- Comprobado en negativo: al quitar la guarda del modelo falla TF-13; al quitar la excepción de INV-02 falla TF-14; al quitar el rechazo en `demo:reset` falla TF-02.
+- Regresión:
+  - `tests/Feature/Demo/`: 20 passed y 5 incomplete (ya existían).
+  - `Modules/Intervencion/tests/`: 261 passed y 1 fallo pre-existente, `AccesosExpedienteTest::acceso_de_otra_uo_con_accion_ver_tiene_clase_sospechoso`. Se ha reproducido en master sin los cambios de esta sesión.
+
+### Modificado
+- `DemoResetCommand`: rechaza los mundos aditivos antes de truncar nada, con un mensaje que remite a `demo:load`. Es la única excepción al comportamiento de `demo:reset`.
+- `DemoValidateCommand`: muestra el modo, la etiqueta y el recuento de `existentes`.
+
+### Carga en staging (autorizada por el desarrollador en la sesión)
+- La BD de desarrollo local **es la misma** que la de staging (`vida@127.0.0.1`), así que se aplicaron allí las 2 migraciones y `demo:load --world=demo_ciam`.
+- La carga creó 980 registros. Una segunda ejecución crea 0. El centro CIAM (id 13) queda idéntico, campo a campo.
+- `dir.ciam@vida.local / dir987` y `ts2.ciam@vida.local / ts2987` validan credenciales. ts2 tiene 10 historias asignadas, 6 de ellas vigentes.
+
+### Decisiones de implementación no previstas en las instrucciones
+- **Cargos:** se reutilizan los del catálogo con nombre neutro. La directora usa «Coordinador/a de Centro». No se crea ningún cargo (decisión del desarrollador).
+- **Tipos de actividad:** se crea `taller-empoderamiento`; la sesión informativa usa `charla` (equivalente existente); `formacion` y `taller-empleo` ya existían.
+- **Punto 1.4 omitido:** no existe ningún mecanismo que asocie tipo de plan con centro, UO o servicio. `pia` ya está disponible en todos los centros. Anotado en BACKLOG.
+- **Roles «ya aprobados»:** los mundos de reset asignan los roles solo en Spatie. Aquí se crea además un `UsuarioRol` en estado `activo` (el observer sincroniza Spatie), para que resistan `usuarios:reconciliar-roles`.
+- **`consulta_basica` automático:** `User::booted()` asigna `consulta_basica` a todo usuario creado con `profesional_id` y sin roles. El builder crea primero el usuario y vincula el profesional después, igual que `DemoWorldBuilder`. En la primera carga en staging los 10 usuarios recibieron ese rol extra (solo en Spatie). Se retiró únicamente de esos 10 usuarios TEST_CIAM, con la aprobación del desarrollador. TF-15 siembra ahora el rol para detectarlo.
+- **Atención informativa:** `SiaContacto` con `clasificacion = informacion_general` e `informacion_prestada`, sin historia social (principio 2.1).
+- **Participación en actividades:** `InscripcionCentro` más una `Prescripcion` por sesión (`tipo_destino = sesion_actividad`). Las sesiones pasadas quedan `finalizada` y las futuras `activa`. No existe otra entidad de inscripción en actividad.
+- **Sin documentos de identidad:** los mundos existentes no generan ninguno (decisión del desarrollador).
+- **Determinismo:** las decisiones estructurales del azar (nº de seguimientos, participación, actividades) salen de `crc32(etiqueta:clave:decisión)`. Con `mt_rand` la segunda carga desplazaba la secuencia aleatoria y creaba registros nuevos.
+- Clave raíz nueva `tipo_plan` en el YAML. Las ciudadanas reciben las claves `usuaria_NNN` según el orden de los escenarios, así que no hay que reordenarlos tras la primera carga.
+- Pint aplicado a los ficheros tocados, como hace la CI; elimina los `@return void` redundantes.
+
+---
+
 ## 2026-09-24 — Actualización de dependencias: 28 vulnerabilidades conocidas corregidas
 
 ### Módulos afectados

@@ -10,6 +10,10 @@ use Modules\Intervencion\Models\TipoPlan;
  *
  * Todos los tipos del seeder tienen eliminable=false para protegerlos
  * de borrados accidentales desde el backoffice.
+ *
+ * Los datos no incluyen 'admite_entrada_directa' a propósito: ese campo se
+ * configura desde el backoffice (o en la migración que marca el tipo 'pia'),
+ * y updateOrCreate no debe devolverlo a false en una re-ejecución del seeder.
  */
 class TipoPlanSeeder extends Seeder
 {

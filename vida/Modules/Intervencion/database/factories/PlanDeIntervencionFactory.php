@@ -75,6 +75,9 @@ class PlanDeIntervencionFactory extends Factory
 
     /**
      * Plan especializado.
+     *
+     * Al guardarse exige plan_asp_id o un tipo_plan_id con admite_entrada_directa
+     * (ver PlanDeIntervencion::verificarOrigenPlanEspecializado()).
      */
     public function especializado(): static
     {

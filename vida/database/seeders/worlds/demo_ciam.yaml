@@ -1,213 +1,245 @@
+# Mundo «Prueba CIAM» — modo ADITIVO
+#
+# Se carga con:   php artisan demo:load --world=demo_ciam [--dry-run]
+# NUNCA con demo:reset (el comando lo rechaza): en staging hay datos de otros equipos,
+# incluido el propio centro CIAM Puente de Vallecas, que aquí solo se referencia.
+#
+# Todo lo que crea este mundo queda registrado en demo_world_registros con la
+# etiqueta TEST_CIAM. La carga es idempotente: una segunda ejecución no crea nada.
+#
+# Decisiones de esta fase (ver docs/instrucciones-cli/2026-09-demo-ciam-aditivo.md):
+# - Ninguna usuaria es VVG ni pertenece a colectivo protegido; no hay escenario urgente.
+# - Los planes son de tipo PIA, especializados y de entrada directa (sin PISO previo).
+# - Cargos del catálogo existente (nombres neutros); no se crea ninguno.
+# - Sin documentos de identidad (los mundos existentes no generan ninguno).
+
 meta:
-  nombre: "Demo CIAM"
-  descripcion: "Un CIAM especializado y un CSS para validar interacciones entre centros."
-  reset_cada: "por demanda"
+  nombre: "Prueba CIAM"
+  descripcion: "CIAM Puente de Vallecas: 10 profesionales, 100 usuarias (50 con PIA de entrada directa) y 4 actividades grupales. Aditivo: no borra datos."
+  reset_cada: "no aplica (aditivo)"
 
-centros:
-  - id: c1
-    nombre: CIAM Puente de Vallecas
-    tipo: especializada
-    distrito: Puente de Vallecas
-    salas:
-      - id: s1
-        nombre: Sala Girasol
-        capacidad: 20
-        accesible: true
-      - id: s2
-        nombre: Sala Polivalente
-        capacidad: 30
-        accesible: true
-  - id: c2
-    nombre: Centro de Servicios Sociales Entrevías
-    tipo: asp
-    distrito: Puente de Vallecas
-    salas:
-      - id: s3
-        nombre: Sala de Usos Múltiples
-        capacidad: 25
-        accesible: true
+modo: aditivo
+etiqueta: TEST_CIAM
 
+# Tipo de plan (id de existentes.tipos_plan) de los escenarios con plan.
+tipo_plan: pia
+
+existentes:
+  centros:
+    - id: ciam_pv
+      buscar_por: { nombre: "CIAM Puente de Vallecas" }
+
+  tipos_plan:
+    - id: pia
+      buscar_por: { slug: pia }
+
+  cargos:
+    - id: direccion
+      buscar_por: { nombre: "Coordinador/a de Centro" }
+    - id: trabajo_social
+      buscar_por: { nombre: "Trabajador/a Social" }
+    - id: psicologia
+      buscar_por: { nombre: "Psicólogo/a" }
+    - id: abogacia
+      buscar_por: { nombre: "Abogado/a" }
+    - id: administracion
+      buscar_por: { nombre: "Administrativo/a" }
+    - id: auxiliar_ss
+      buscar_por: { nombre: "Auxiliar de Servicios Sociales" }
+
+  salas:
+    - id: girasol
+      centro: ciam_pv
+      buscar_por: { nombre: "Sala Girasol" }
+      crear_si_no_existe: { capacidad: 15, accesible: true }
+    - id: polivalente
+      centro: ciam_pv
+      buscar_por: { nombre: "Sala Polivalente" }
+      crear_si_no_existe: { capacidad: 30, accesible: true }
+
+  tipos_actividad:
+    - id: empoderamiento
+      buscar_por: { slug: taller-empoderamiento }
+      crear_si_no_existe: { nombre: "Taller de empoderamiento" }
+    - id: formacion
+      buscar_por: { slug: formacion }
+    - id: taller_empleo
+      buscar_por: { slug: taller-empleo }
+    # Equivalente existente de «sesión informativa».
+    - id: sesion_informativa
+      buscar_por: { slug: charla }
+
+# Personal: 10 mujeres adscritas a la UO del CIAM.
+# Contraseña = usuario sin dominio + "987". Sin onboarding (primer_acceso = false).
 profesionales:
-  - login: supervisor.ciam@demo.es
-    nombre: Marta Menéndez
-    rol: supervision
-    centro: c1
-  - login: ts1.ciam@demo.es
-    nombre: Ana Antúnez
-    rol: intervencion
-    centro: c1
-  - login: ts2.ciam@demo.es
-    nombre: Luis López
-    rol: intervencion
-    centro: c1
-  - login: auxiliar.ciam@demo.es
-    nombre: Rosa Rodríguez
-    rol: consulta_basica
-    centro: c1
-  - login: supervisor.css@demo.es
-    nombre: Laura López
-    rol: supervision
-    centro: c2
-  - login: tsr1.css@demo.es
-    nombre: Patricia Pérez
-    rol: intervencion
-    centro: c2
-  - login: tsr2.css@demo.es
-    nombre: Gonzalo García
-    rol: intervencion
-    centro: c2
-  - login: tsr3.css@demo.es
-    nombre: Fátima Fernández
-    rol: intervencion
-    centro: c2
-  - login: auxiliar.css@demo.es
-    nombre: Susana Sánchez
-    rol: consulta_basica
-    centro: c2
+  - login: dir.ciam@vida.local
+    password: dir987
+    nombre: Carmen
+    apellido1: Ortega
+    apellido2: Salinas
+    centro: ciam_pv
+    cargo: direccion
+    roles: [intervencion, supervision, adm_usuarios]
+  - login: ts1.ciam@vida.local
+    password: ts1987
+    nombre: Lucía
+    apellido1: Benítez
+    apellido2: Marín
+    centro: ciam_pv
+    cargo: trabajo_social
+    roles: [intervencion]
+  - login: ts2.ciam@vida.local
+    password: ts2987
+    nombre: Nuria
+    apellido1: Calvo
+    apellido2: Herrero
+    centro: ciam_pv
+    cargo: trabajo_social
+    roles: [intervencion]
+  - login: ts3.ciam@vida.local
+    password: ts3987
+    nombre: Beatriz
+    apellido1: Moya
+    apellido2: Cano
+    centro: ciam_pv
+    cargo: trabajo_social
+    roles: [intervencion]
+  - login: abogada.ciam@vida.local
+    password: abogada987
+    nombre: Elena
+    apellido1: Rubio
+    apellido2: Pastor
+    centro: ciam_pv
+    cargo: abogacia
+    roles: [intervencion]
+  - login: psicologa.ciam@vida.local
+    password: psicologa987
+    nombre: Marta
+    apellido1: Iglesias
+    apellido2: Vidal
+    centro: ciam_pv
+    cargo: psicologia
+    roles: [intervencion]
+  - login: adm1.ciam@vida.local
+    password: adm1987
+    nombre: Rosa
+    apellido1: Domínguez
+    apellido2: Lara
+    centro: ciam_pv
+    cargo: administracion
+    roles: [tramitacion]
+  - login: adm2.ciam@vida.local
+    password: adm2987
+    nombre: Pilar
+    apellido1: Gallego
+    apellido2: Soto
+    centro: ciam_pv
+    cargo: administracion
+    roles: [tramitacion]
+  - login: aux1.ciam@vida.local
+    password: aux1987
+    nombre: Silvia
+    apellido1: Prieto
+    apellido2: Nieto
+    centro: ciam_pv
+    cargo: auxiliar_ss
+    roles: [intervencion]
+  - login: aux2.ciam@vida.local
+    password: aux2987
+    nombre: Irene
+    apellido1: Méndez
+    apellido2: Crespo
+    centro: ciam_pv
+    cargo: auxiliar_ss
+    roles: [intervencion]
 
+# 100 usuarias. Responsables de plan: predominio de las trabajadoras sociales.
+# Totales: ciam_pia_activa 30 · ciam_pia_cerrada 20 · ciam_participante_actividad 35 · ciam_informacion 15.
+# Las claves usuaria_NNN se asignan en este orden: no reordenar tras la primera carga.
 escenarios:
-  - profesional: ts1.ciam@demo.es
+  - profesional: ts1.ciam@vida.local
     ciudadanos:
-      - escenario: activa
-        cantidad: 50
-      - escenario: cerrada
-        cantidad: 5
-      - escenario: nueva
-        cantidad: 5
-      - escenario: urgente
-        cantidad: 3
-  - profesional: ts2.ciam@demo.es
+      - { escenario: ciam_pia_activa, cantidad: 6 }
+      - { escenario: ciam_pia_cerrada, cantidad: 4 }
+  - profesional: ts2.ciam@vida.local
     ciudadanos:
-      - escenario: activa
-        cantidad: 75
-      - escenario: cerrada
-        cantidad: 5
-      - escenario: nueva
-        cantidad: 5
-      - escenario: urgente
-        cantidad: 5
-  - profesional: tsr1.css@demo.es
+      - { escenario: ciam_pia_activa, cantidad: 6 }
+      - { escenario: ciam_pia_cerrada, cantidad: 4 }
+      - { escenario: ciam_participante_actividad, cantidad: 8 }
+  - profesional: ts3.ciam@vida.local
     ciudadanos:
-      - escenario: activa
-        cantidad: 75
-      - escenario: cerrada
-        cantidad: 5
-      - escenario: nueva
-        cantidad: 5
-      - escenario: urgente
-        cantidad: 5
-  - profesional: tsr2.css@demo.es
+      - { escenario: ciam_pia_activa, cantidad: 6 }
+      - { escenario: ciam_pia_cerrada, cantidad: 4 }
+  - profesional: psicologa.ciam@vida.local
     ciudadanos:
-      - escenario: activa
-        cantidad: 75
-      - escenario: cerrada
-        cantidad: 5
-      - escenario: nueva
-        cantidad: 5
-      - escenario: urgente
-        cantidad: 5
-  - profesional: tsr3.css@demo.es
+      - { escenario: ciam_pia_activa, cantidad: 4 }
+      - { escenario: ciam_pia_cerrada, cantidad: 3 }
+      - { escenario: ciam_participante_actividad, cantidad: 10 }
+  - profesional: abogada.ciam@vida.local
     ciudadanos:
-      - escenario: activa
-        cantidad: 75
-      - escenario: cerrada
-        cantidad: 5
-      - escenario: nueva
-        cantidad: 5
-      - escenario: urgente
-        cantidad: 5
+      - { escenario: ciam_pia_activa, cantidad: 4 }
+      - { escenario: ciam_pia_cerrada, cantidad: 3 }
+      - { escenario: ciam_participante_actividad, cantidad: 7 }
+  - profesional: dir.ciam@vida.local
+    ciudadanos:
+      - { escenario: ciam_pia_activa, cantidad: 4 }
+      - { escenario: ciam_pia_cerrada, cantidad: 2 }
+  - profesional: aux1.ciam@vida.local
+    ciudadanos:
+      - { escenario: ciam_participante_actividad, cantidad: 10 }
+      - { escenario: ciam_informacion, cantidad: 8 }
+  - profesional: aux2.ciam@vida.local
+    ciudadanos:
+      - { escenario: ciam_informacion, cantidad: 7 }
 
+# Actividades grupales (sustituyen a las del demo_ciam anterior).
+# El estado de cada sesión se deduce de la fecha: pasada → celebrada; hoy o futura → programada.
 actividades:
-  - centro: c1
-    tipo: grupo-terapeutico
-    nombre: Grupo de apoyo para personas mayores
-    modo_acceso: libre
-    aforo_total: 15
-    requiere_inscripcion_centro: false
-    profesionales:
-      - ts1.ciam@demo.es
+  - id: empoderamiento
+    centro: ciam_pv
+    tipo: empoderamiento
+    nombre: Taller de empoderamiento
+    modo_acceso: mixta
+    aforo_total: 25
+    profesionales: [psicologa.ciam@vida.local, ts1.ciam@vida.local]
     sesiones:
-      - fecha: "-28d"
-        hora_inicio: "10:00"
-        hora_fin: "11:30"
-        estado: celebrada
-        sala: s1
-        profesionales:
-          - ts1.ciam@demo.es
-      - fecha: "-14d"
-        hora_inicio: "10:00"
-        hora_fin: "11:30"
-        estado: celebrada
-        sala: s1
-        profesionales:
-          - ts1.ciam@demo.es
-      - fecha: "0d"
-        hora_inicio: "10:00"
-        hora_fin: "11:30"
-        estado: programada
-        sala: s1
-        profesionales:
-          - ts1.ciam@demo.es
-      - fecha: "+14d"
-        hora_inicio: "10:00"
-        hora_fin: "11:30"
-        estado: programada
-        sala: s1
-        profesionales:
-          - ts1.ciam@demo.es
+      - { fecha: "-21d", hora_inicio: "10:00", hora_fin: "12:00", sala: girasol }
+      - { fecha: "-14d", hora_inicio: "10:00", hora_fin: "12:00", sala: girasol }
+      - { fecha: "-7d", hora_inicio: "10:00", hora_fin: "12:00", sala: girasol }
+      - { fecha: "+7d", hora_inicio: "10:00", hora_fin: "12:00", sala: girasol }
 
-  - centro: c1
-    tipo: actividad-deportiva
-    nombre: Gimnasia de mantenimiento
-    modo_acceso: libre
-    aforo_total: 20
-    requiere_inscripcion_centro: false
-    profesionales:
-      - ts2.ciam@demo.es
+  - id: competencias_digitales
+    centro: ciam_pv
+    tipo: formacion
+    nombre: Formación en competencias digitales
+    modo_acceso: mixta
+    aforo_total: 25
+    profesionales: [aux1.ciam@vida.local]
     sesiones:
-      - fecha: "-21d"
-        hora_inicio: "09:00"
-        hora_fin: "10:00"
-        estado: celebrada
-        sala: s2
-        profesionales:
-          - ts2.ciam@demo.es
-      - fecha: "-7d"
-        hora_inicio: "09:00"
-        hora_fin: "10:00"
-        estado: celebrada
-        sala: s2
-        profesionales:
-          - ts2.ciam@demo.es
-      - fecha: "+7d"
-        hora_inicio: "09:00"
-        hora_fin: "10:00"
-        estado: programada
-        sala: s2
-        profesionales:
-          - ts2.ciam@demo.es
+      - { fecha: "-14d", hora_inicio: "16:00", hora_fin: "18:00", sala: polivalente }
+      - { fecha: "-7d", hora_inicio: "16:00", hora_fin: "18:00", sala: polivalente }
+      - { fecha: "0d", hora_inicio: "16:00", hora_fin: "18:00", sala: polivalente }
+      - { fecha: "+7d", hora_inicio: "16:00", hora_fin: "18:00", sala: polivalente }
 
-  - centro: c2
-    tipo: taller-empleo
-    nombre: Taller de orientación laboral
-    modo_acceso: prescripcion
-    aforo_total: 12
-    aforo_prescripcion: 12
-    requiere_inscripcion_centro: false
-    profesionales:
-      - tsr1.css@demo.es
+  - id: busqueda_empleo
+    centro: ciam_pv
+    tipo: taller_empleo
+    nombre: Taller de búsqueda de empleo
+    modo_acceso: mixta
+    aforo_total: 25
+    profesionales: [ts2.ciam@vida.local, aux2.ciam@vida.local]
     sesiones:
-      - fecha: "-10d"
-        hora_inicio: "11:00"
-        hora_fin: "13:00"
-        estado: celebrada
-        sala: s3
-        profesionales:
-          - tsr1.css@demo.es
-      - fecha: "+5d"
-        hora_inicio: "11:00"
-        hora_fin: "13:00"
-        estado: programada
-        sala: s3
-        profesionales:
-          - tsr1.css@demo.es
+      - { fecha: "-10d", hora_inicio: "10:00", hora_fin: "12:00", sala: polivalente }
+      - { fecha: "-3d", hora_inicio: "10:00", hora_fin: "12:00", sala: polivalente }
+      - { fecha: "+4d", hora_inicio: "10:00", hora_fin: "12:00", sala: polivalente }
+
+  - id: derechos
+    centro: ciam_pv
+    tipo: sesion_informativa
+    nombre: Sesión informativa sobre derechos
+    modo_acceso: mixta
+    aforo_total: 25
+    profesionales: [abogada.ciam@vida.local]
+    sesiones:
+      - { fecha: "-5d", hora_inicio: "12:00", hora_fin: "13:30", sala: polivalente }
+      - { fecha: "+9d", hora_inicio: "12:00", hora_fin: "13:30", sala: polivalente }

@@ -394,6 +394,13 @@ El Plan de Intervención es el acuerdo formal entre el profesional y el ciudadan
 
 **Plan especializado**: gestionado por el profesional de atención especializada. Autónomo en contenido y seguimiento, pero visible para el TSR. El TSR no puede editarlo. Nace como consecuencia de una prestación de derivación en el plan de ASP, lo que crea el vínculo trazable entre ambos niveles.
 
+**Entrada directa (sin plan ASP previo)** — *añadido 2026-09-24*: algunos servicios especializados son una **puerta alternativa de entrada** al sistema, como los CIAM (Centros Integrales de Atención a la Mujer). Sus usuarias pueden tener o no un PISO previo; idealmente se integrarán en ASP, pero no es requisito. Por eso un tipo de plan puede marcarse con `admite_entrada_directa` (en `tipos_plan`, configurable desde `TipoPlanResource`):
+
+- Con `admite_entrada_directa = true` (p. ej. el tipo `pia` del CIAM), un plan `especializado` de ese tipo puede crearse con `plan_asp_id = null`.
+- Con `admite_entrada_directa = false` se mantiene la regla general: el plan especializado nace de una derivación y requiere `plan_asp_id`. Un plan `especializado` sin tipo de plan (`tipo_plan_id = null`) tampoco admite entrada directa.
+- Si una usuaria con un plan de entrada directa recibe después un PISO, el plan de entrada directa **no** se vincula retroactivamente: ambos conviven como planes independientes de la misma Historia Social.
+- La regla la aplica el modelo (`PlanDeIntervencion::verificarOrigenPlanEspecializado()`, en el hook `saving`, lanza `DomainException`) y el invariante INV-02 de `DemoInvariantChecker`, que ignora los tipos con entrada directa. Antes de este cambio la exigencia de `plan_asp_id` solo existía en ese invariante de demo: no había regla en modelo, Policy ni base de datos.
+
 Una Historia Social puede tener varios planes activos simultáneamente, cada uno con su responsable y su ciclo de vida independiente.
 
 ### 5.2 Atributos
@@ -401,10 +408,11 @@ Una Historia Social puede tener varios planes activos simultáneamente, cada uno
 - `id`
 - `historia_id` (FK)
 - `unidad_convivencia_id` (FK nullable — para planes de intervención familiar asignados a la UC. Exactamente uno de `ciudadano_id` (en historia_id→ciudadano) o `unidad_convivencia_id` debe determinar el destinatario del plan)
+- `tipo_plan_id` (FK nullable a `tipos_plan` — tipo de plan del catálogo configurable: `piso`, `pia`…)
 - `tipo` (enum: `general_asp`, `especializado`)
 - `servicio_especializado_id` (FK, nullable)
 - `profesional_responsable_id` (FK)
-- `plan_asp_id` (FK, nullable, self-referential — para planes especializados, referencia al plan general del que nacen)
+- `plan_asp_id` (FK, nullable, self-referential — para planes especializados, referencia al plan general del que nacen. Obligatorio en planes `especializado` salvo que su tipo de plan tenga `admite_entrada_directa = true`, ver §5.1)
 - `estado` (enum: `borrador`, `activo`, `en_revision`, `cerrado`)
 - `fecha_inicio`
 - `fecha_firma` (nullable hasta firma)
@@ -413,6 +421,8 @@ Una Historia Social puede tener varios planes activos simultáneamente, cada uno
 - `objetivos` (texto libre — fase inicial; se prevé evolución a lista estructurada con indicadores medibles en fases posteriores)
 - `version` (integer — control de revisiones)
 - `created_at`, `updated_at`
+
+**Tipo de plan (`tipos_plan`)** — catálogo configurable desde `TipoPlanResource`: `slug`, `nombre`, `ambito` (`asp` / `especializado`), `admite_entrada_directa` (boolean, default `false`: el plan especializado de este tipo puede existir sin plan ASP previo, ver §5.1), `descripcion`, `activo`, `eliminable`. `TipoPlanSeeder` no escribe `admite_entrada_directa`, para no revertir en una re-ejecución lo configurado en backoffice.
 
 **Motivos de cierre del plan:**
 

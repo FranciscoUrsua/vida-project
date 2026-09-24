@@ -14,10 +14,16 @@ use Modules\Intervencion\Database\Factories\TipoPlanFactory;
  * Define la estructura y catálogos disponibles para un Plan de Intervención.
  * Los tipos del seeder tienen eliminable=false y no pueden borrarse desde UI.
  *
+ * admite_entrada_directa: si es true, los planes especializados de este tipo
+ * pueden existir sin plan ASP previo (plan_asp_id = null). Es el caso del PIA
+ * del CIAM, que es una puerta alternativa de entrada al sistema. Si es false,
+ * el plan especializado debe nacer de una derivación desde un plan ASP.
+ *
  * @property int $id
  * @property string $slug Identificador estable no editable
  * @property string $nombre
  * @property string $ambito 'asp' | 'especializado'
+ * @property bool $admite_entrada_directa Admite planes especializados sin plan ASP previo
  * @property string|null $descripcion
  * @property bool $activo
  * @property bool $eliminable
@@ -35,12 +41,13 @@ class TipoPlan extends Model
     protected $table = 'tipos_plan';
 
     protected $fillable = [
-        'slug', 'nombre', 'ambito', 'descripcion', 'activo', 'eliminable',
+        'slug', 'nombre', 'ambito', 'admite_entrada_directa', 'descripcion', 'activo', 'eliminable',
     ];
 
     protected $casts = [
         'activo' => 'boolean',
         'eliminable' => 'boolean',
+        'admite_entrada_directa' => 'boolean',
     ];
 
     // -------------------------------------------------------------------------

@@ -6,47 +6,49 @@
 
 ## Tarea completada
 
-Sesión de pequeños cambios en Filament + actualización de dependencias:
+Mundo demo **«Prueba CIAM»** en modo aditivo (`demo:load`, etiqueta `TEST_CIAM`) y regla de dominio de **plan especializado con entrada directa** (`tipos_plan.admite_entrada_directa`). El mundo está implementado, testeado (TF-DEMO-CIAM-01 a 16) y **ya cargado en staging**.
 
-1. **Tema:** eliminado el selector claro/oscuro del panel de administración (`AdminPanelProvider::darkMode(false)`).
-2. **Documentos — pie de informe:** opción de insertar número de página en el pie (`EstiloInforme::MARCADOR_NUMERO_PAGINA`, dibujado vía `Canvas::page_text()` de dompdf en `ServicioGeneracionPDF`).
-3. **Documentos — logo:** consolidado a un único logo por organización, reutilizando el ya existente en Sistema → Configuración → «Identidad visual» (`Configuracion::logoPathAbsoluto()`). Se retira el campo de logo por UO de `EstiloInformeResource` (columna y resolución jerárquica se mantienen sin uso, no se han eliminado).
-4. **Usuarios — bug corregido:** borrar un usuario desde Filament lanzaba `QueryException` por FK. `User` ahora usa `SoftDeletes`. Efecto colateral corregido de paso: el índice único de `email` se hizo parcial (`WHERE deleted_at IS NULL`) para que el email de un usuario borrado pueda reutilizarse.
-5. **Dependencias:** `composer audit` pasó de 28 advisories (6 paquetes) a 0. `dompdf`, `guzzle`(+psr7/promises), `league/commonmark`, `livewire`, `spatie/laravel-medialibrary` y `filament/*` actualizados dentro de las constraints ya declaradas en `composer.json` (sin tocar `laravel/framework`). El hook `.git/hooks/pre-commit` (`security-check.sh`) vuelve a pasar sin `--no-verify`.
-
-Detalle completo en `CHANGELOG-092026.md` (entradas del 2026-09-24) y en `docs/decisiones-tecnicas.md` Secciones 12 y 13.
+Detalle en `CHANGELOG-092026.md` (entrada «Mundo demo "Prueba CIAM" en modo aditivo») y en `docs/instrucciones-cli/2026-09-demo-ciam-aditivo.md`, que incluye las decisiones de la sesión.
 
 ---
 
 ## Estado exacto del proyecto
 
-- **Tests Documentos**: 26/26 passed (incluye los 3 tests nuevos de número de página y logo).
-- **Tests Organización**: 3/3 passed — módulo dado de alta en el test runner por primera vez (`composer.json` autoload-dev + `phpunit.xml`); no tenía tests antes de esta sesión.
-- **Tests Usuarios**: 40 passed / 1 incomplete (pre-existente, no relacionado) — incluye los 5 tests nuevos de soft delete.
-- **Tests Auth / FilamentPanelAccess**: verificados sin regresiones nuevas. Persisten 2 fallos **pre-existentes** (confirmados reproducibles en `master` sin ninguno de los cambios de esta sesión, ver más abajo).
-- Migraciones nuevas ejecutadas en BD de desarrollo: `add_deleted_at_to_users_table`, `make_users_email_unique_index_exclude_soft_deleted`.
+- **⚠️ La BD local y la de staging son la misma** (`vida@127.0.0.1`, ver `BACKLOG.md`). Todo lo que se migre o cargue «en local» ocurre en staging. **No lanzar `demo:reset` desde local.** Hoy rechaza `demo_ciam`, pero con cualquier otro mundo trunca staging.
+- En esa BD compartida:
+  - Ya están aplicadas las migraciones `create_demo_world_registros_table` y `add_admite_entrada_directa_to_tipos_plan_table`; `pia` tiene `admite_entrada_directa = true`.
+  - El mundo `demo_ciam` ya está cargado: 980 registros TEST_CIAM. Una segunda carga crea 0.
+- Cuentas CIAM (`*.ciam@vida.local`, contraseña = usuario sin dominio + `987`, p. ej. `dir.ciam@vida.local / dir987`, `ts2.ciam@vida.local / ts2987`). Sus roles coinciden exactamente con la tabla 5.2 de las instrucciones.
+- **Código de staging** (`/var/www/vida-project/vida`): desplegado a `origin/master` en esta sesión (ver commit de hoy).
+- **Tests:**
+  - `tests/Feature/Demo/`: 20 passed y 5 incomplete (ya existían).
+  - `Modules/Intervencion/tests/`: 261 passed y 1 fallo pre-existente (`AccesosExpedienteTest::acceso_de_otra_uo_con_accion_ver_tiene_clase_sospechoso`, que falla igual en master).
 
----
+### Comandos para staging (referencia; la carga ya está hecha)
 
-## Bug pre-existente detectado (no corregido, fuera de alcance)
+```bash
+cd /var/www/vida-project/vida
+php artisan migrate --force                           # ya aplicado
+php artisan demo:load --world=demo_ciam --dry-run     # simula y hace rollback
+php artisan demo:load --world=demo_ciam               # carga real (idempotente: repetirla crea 0)
+```
 
-`User::booted()` (hook `creating`) hace `$user->name = $user->email;` de forma **incondicional**, incluso si se pasa un `name` explícito al crear el usuario. Esto rompe `TF-AUTH-16` y `TF-AUTH-17` en `tests/Feature/Auth/AutenticacionTest.php` (esperan ver el nombre completo e iniciales en la UI). Confirmado con `git stash` que ya fallaba en `master` antes de esta sesión. Anotado en `BACKLOG.md`.
+Consultar lo creado: `DemoWorldRegistro::de('TEST_CIAM')`. No existe comando de purga: la retirada está pendiente de diseño (BACKLOG).
 
 ---
 
 ## Siguiente paso concreto recomendado
 
-1. Si se retoma trabajo de Filament: revisar `BACKLOG.md` para la lista de deuda técnica pendiente, incluido el bug de `User::booted()` de arriba (corrección probable: solo rellenar `name` con el email cuando `name` esté vacío).
-2. `docs/documentacion-proyecto.md` y los docs de módulo estaban desactualizados respecto al git log real al empezar esta sesión (varias sesiones de Agenda no reflejadas en `SESSION.md` anterior). Al empezar la próxima sesión, verificar con `git log` si `SESSION.md` sigue reflejando el estado real antes de fiarse del documento.
-3. **`Modules/Agenda` tiene una suite entera rota**: `tipos_slot.horario_centro_id` ya no existe en el esquema pero factories/tests siguen insertándolo (~60 tests fallando con `QueryException`, confirmado también en las dependencias originales antes de la actualización de hoy — no es un problema de dependencias). Revisar si es una migración pendiente de ejecutar en `vida_testing` o un factory desactualizado tras el commit `3003283` (convertir TipoSlot en catálogo global).
-4. La suite completa (`php artisan test` sin filtro) se ejecutó hoy únicamente como verificación puntual de la actualización de dependencias (no como parte del flujo normal de cierre de sesión). Con el punto 3 sin resolver, seguirá reportando ~75 fallos; no usar ese número como referencia de regresión sin descontar los ya conocidos.
+1. **Separar la BD de desarrollo local de la de staging** (p. ej. `vida_dev`) antes de volver a usar `demo:reset` o migraciones experimentales en local.
+2. **Flujo de creación de planes especializados en la UI:** `PlanPage::crearNuevoPlan()` guarda siempre `tipo = general_asp`, así que un PIA creado desde la interfaz se trata como PISO. Derivar `tipo` del `ambito` del tipo de plan y diseñar la entrada directa (BACKLOG).
+3. Decidir si hace falta asociar tipos de plan a centros/UO/servicios (punto 1.4 omitido, BACKLOG).
+4. Pendientes de sesiones anteriores, sin cambios: bug de `User::booted()` (`name` = email), la suite de `Modules/Agenda` rota (`tipos_slot.horario_centro_id`) y `AccesosExpedienteTest`.
 
 ---
 
 ## Contexto para retomar sin fricción
 
-- El logo de informes y el logo del sidebar de la app son **el mismo** desde esta sesión (Sistema → Configuración → «Identidad visual», clave `logo_path`). No crear un segundo mecanismo de logo sin revisar `docs/decisiones-tecnicas.md` Sección 12 primero.
-- `EstiloInforme.logo_cabecera` (columna + resolución jerárquica en `ResolverEstiloInforme`) sigue en el código pero **no se usa** — `ServicioGeneracionPDF` la sobreescribe siempre. No es código muerto por descuido, es una decisión documentada (revertible si se necesita logo por UO en el futuro).
-- El marcador `{{ numero_pagina }}` en el pie de informe se resuelve fuera del flujo HTML normal (dompdf no soporta sustitución de texto por página en el DOM) — se dibuja aparte con `Canvas::page_text()` tras renderizar. Si se toca `ServicioGeneracionPDF::generarBorrador()`, cuidado con el orden: `dibujarNumeroPagina()` debe llamarse después de `Pdf::loadView()` y antes de `$pdf->output()`.
-- `Modules/Organizacion` no tenía tests conectados al runner antes de esta sesión — si se añaden más tests ahí, ya están correctamente dados de alta.
-- El índice único de `users.email` es ahora parcial (Postgres, `WHERE deleted_at IS NULL`), no un unique constraint normal. Cualquier cambio futuro al esquema de `users` debe tenerlo en cuenta.
+- **Idempotencia de mundos aditivos:** cada entidad se crea a través de `DemoRegistrador::obtenerOCrear(clave, Modelo, fn)`. Las decisiones del azar que determinan *qué* se crea deben salir de `DemoContextoAditivo::decidir()`, no de `mt_rand`: en la segunda carga no se ejecutan los cierres de creación y la secuencia aleatoria se desplazaría. Las fechas y los textos sí pueden usar `mt_rand` o Faker.
+- **No reordenar los `escenarios` de `demo_ciam.yaml`:** las claves `usuaria_NNN` dependen de ese orden.
+- `User::booted()` auto-asigna `consulta_basica` a los usuarios creados con `profesional_id` y sin roles. Por eso los builders de demo crean primero el usuario y vinculan el profesional después.
+- La regla «plan especializado ⇒ `plan_asp_id`» vive ahora en el modelo (`PlanDeIntervencion::verificarOrigenPlanEspecializado()`). Antes solo existía en el invariante INV-02 de demo.

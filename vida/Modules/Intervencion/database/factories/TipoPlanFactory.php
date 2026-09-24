@@ -16,7 +16,6 @@ class TipoPlanFactory extends Factory
 
     /**
      * Define el estado por defecto de un TipoPlan de test.
-     *
      */
     public function definition(): array
     {
@@ -44,6 +43,14 @@ class TipoPlanFactory extends Factory
     public function especializado(): static
     {
         return $this->state(['ambito' => 'especializado']);
+    }
+
+    /**
+     * Tipo especializado que admite entrada directa (planes sin plan ASP previo), como el PIA del CIAM.
+     */
+    public function entradaDirecta(): static
+    {
+        return $this->state(['ambito' => 'especializado', 'admite_entrada_directa' => true]);
     }
 
     /**

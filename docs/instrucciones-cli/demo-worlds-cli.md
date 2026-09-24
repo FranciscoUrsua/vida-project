@@ -566,3 +566,68 @@ Si durante la implementación algún modelo no existe todavía (por ejemplo `Sia
   crear factories mínimas solo para los modelos que las necesite el sistema de demo,
   en `database/factories/`. No crear factories para entidades que ya tienen seeder de sistema.
 - `fake('es_ES')` para datos en español (nombres, apellidos, direcciones de Madrid).
+
+---
+
+## Anexo (2026-09-24) — Modo aditivo: `demo:load`
+
+> Detalle completo y decisiones de la sesión en `docs/instrucciones-cli/2026-09-demo-ciam-aditivo.md`.
+
+`demo:reset` trunca tablas y crea los centros desde cero, así que no sirve en entornos con datos
+de otros equipos (staging). Para esos casos existe el **modo aditivo**.
+
+**Declaración en el YAML** (claves raíz):
+
+```yaml
+meta: { nombre: "Prueba CIAM", descripcion: "..." }
+modo: aditivo          # reset (por defecto) | aditivo
+etiqueta: TEST_CIAM    # obligatoria en aditivo, formato [A-Z0-9_]+
+tipo_plan: pia         # id de existentes.tipos_plan usado por los escenarios con plan
+existentes:            # entidades que el mundo referencia en lugar de crear
+  centros:         [{ id: ciam_pv, buscar_por: { nombre: "CIAM Puente de Vallecas" } }]
+  tipos_plan:      [{ id: pia, buscar_por: { slug: pia } }]
+  cargos:          [{ id: trabajo_social, buscar_por: { nombre: "Trabajador/a Social" } }]
+  salas:           [{ id: girasol, centro: ciam_pv, buscar_por: { nombre: "Sala Girasol" }, crear_si_no_existe: { capacidad: 15, accesible: true } }]
+  tipos_actividad: [{ id: empoderamiento, buscar_por: { slug: taller-empoderamiento }, crear_si_no_existe: { nombre: "Taller de empoderamiento" } }]
+```
+
+- Un mundo aditivo **no** puede declarar `centros` a crear, ni crear centros o tipos de plan: solo
+  referenciarlos. `crear_si_no_existe` solo se admite en cargos, salas y tipos de actividad.
+- Cada referencia debe encontrar **exactamente un** registro. Cero sin `crear_si_no_existe`, o más
+  de uno, hacen fallar la carga completa con un mensaje que identifica la entrada.
+- Profesionales: `login`, `nombre`, `apellido1`, `apellido2`, `centro` y `cargo` (ids de
+  `existentes`), `roles` (lista) y `password` opcional. Los roles se crean como `UsuarioRol` en
+  estado `activo` (ya aprobados), con `primer_acceso = false`. Un correo que ya pertenece a un
+  usuario ajeno al mundo hace fallar la carga.
+- Escenarios aditivos: `ciam_pia_activa`, `ciam_pia_cerrada`, `ciam_participante_actividad`,
+  `ciam_informacion` (`database/seeders/Demo/Scenarios/Ciam*.php`). Las ciudadanas reciben claves
+  estables `usuaria_NNN` en el orden del YAML, así que **no hay que reordenar los escenarios de un
+  mundo ya cargado**.
+- Actividades: requieren `id`. El `estado` de cada sesión es opcional y se deduce de la fecha.
+
+**Comando:**
+
+```bash
+php artisan demo:load --world=demo_ciam --dry-run   # simula todo y hace rollback
+php artisan demo:load --world=demo_ciam             # carga real
+```
+
+- Solo acepta mundos aditivos. `demo:reset` rechaza los mundos aditivos antes de truncar nada.
+- Nunca ejecuta TRUNCATE, DELETE ni forceDelete. Todo corre en una única transacción.
+- Se niega en `production`.
+- Al final ejecuta `DemoInvariantChecker` **solo sobre los planes del mundo** y muestra un resumen
+  por entidad (creado / ya existente / referenciado).
+
+**Etiquetado e idempotencia:** todo lo creado se registra en `demo_world_registros`
+(`etiqueta`, `clave`, `registrable_type`, `registrable_id`), que se consulta con
+`DemoWorldRegistro::de('TEST_CIAM')`. Antes de crear cada entidad, `DemoRegistrador` busca su
+clave; si existe y no está borrada, la reutiliza. Las decisiones «aleatorias» estructurales
+(nº de seguimientos, participación en actividades...) son deterministas por clave
+(`DemoContextoAditivo::decidir()`), de modo que una segunda carga crea 0 registros. Las filas pivote
+(`actividad_profesional`, `model_has_roles`...) no se registran, pero se escriben con
+`syncWithoutDetaching` o tras comprobar que no existen. La tabla no se trunca en `demo:reset`.
+No existe comando de purga por etiqueta: la retirada se diseñará aparte.
+
+**Filament (`DemoWorldsPage`):** los mundos aditivos muestran las etiquetas «Aditivo» y la de su
+`etiqueta`. Su acción es «Cargar (aditivo)», y el modal muestra el resultado del dry-run. No
+tienen acción de reset.
