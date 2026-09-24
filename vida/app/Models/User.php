@@ -7,6 +7,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -39,6 +40,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property bool $primer_acceso
  * @property Carbon $created_at
  * @property Carbon $updated_at
+ * @property Carbon|null $deleted_at
  * @property-read string $nombre_completo
  *
  * @see docs/modulo-usuarios-permisos.md sección 1.1
@@ -50,6 +52,7 @@ class User extends Authenticatable implements FilamentUser
 
     use HasRoles;
     use Notifiable;
+    use SoftDeletes;
     use TieneRoles;
     use TieneUO;
 
@@ -127,8 +130,6 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Nombre completo del profesional asociado, o email si no tiene perfil asistencial.
-     *
-     * @return string
      */
     public function getNombreCompletoAttribute(): string
     {

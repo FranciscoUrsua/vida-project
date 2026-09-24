@@ -18,6 +18,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\Rules\Unique;
 use Modules\Usuarios\Models\Profesional;
 use Spatie\Permission\Models\Role;
 
@@ -79,7 +80,10 @@ class UsuarioResource extends Resource
                         ->label('Correo electrónico')
                         ->email()
                         ->required()
-                        ->unique(ignoreRecord: true)
+                        // El índice único de BD excluye a los usuarios con soft
+                        // delete (ver migración); la validación debe hacer lo mismo,
+                        // si no un email libre por borrado seguiría bloqueado aquí.
+                        ->unique(ignoreRecord: true, modifyRuleUsing: fn (Unique $rule) => $rule->whereNull('deleted_at'))
                         ->maxLength(255),
 
                     TextInput::make('password')
