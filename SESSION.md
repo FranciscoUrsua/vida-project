@@ -1,52 +1,50 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-06-29
+**Última actualización:** 2026-09-24
 
 ---
 
 ## Tarea completada
 
-`Agenda — UI Supervisor` — Implementación completa de la pantalla de supervisión de agenda con todos sus tests:
+Sesión de pequeños cambios en Filament:
 
-- **3 migraciones ejecutadas**: `semana_tipo` (JSON) en `horarios_centro`, `bloquea_todos_convocados` (boolean) en `tipos_slot`, `origen` (string) en `eventos_agenda`.
-- **Modelos actualizados**: `HorarioCentro` (cast `semana_tipo`), `TipoSlot` (cast `bloquea_todos_convocados`), `EventoAgenda` (propiedad `origen`).
-- **Filament Resource nuevo**: `TipoSlotResource` con `ListTiposSlot`, `CreateTipoSlot` (con `mutateFormDataBeforeCreate` para auto-detectar `horario_centro_id`), `EditTipoSlot`. Roles con acceso: `supervision`, `adm_sistema`, `adm_usuarios`.
-- **4 Livewire Components nuevos**: `SemanaTypoComponent`, `PerfilHorarioComponent`, `ExcepcionesComponent`, `CuadranteMesComponent`.
-- **4 Blade views nuevas**: `semana-typo.blade.php`, `perfil-horario.blade.php`, `excepciones.blade.php`, `cuadrante-mes.blade.php`.
-- **Rutas nuevas** en `Modules/Agenda/routes/web.php`: `/supervisor/centro/{centro}/semana-tipo` y `/supervisor/centro/{centro}/cuadrante/{anyo}/{mes}`.
-- **33 tests nuevos** en `UIAgendaSupervisorTest` — todos en verde (33/33, 88 assertions).
+1. **Tema:** eliminado el selector claro/oscuro del panel de administración (`AdminPanelProvider::darkMode(false)`).
+2. **Documentos — pie de informe:** opción de insertar número de página en el pie (`EstiloInforme::MARCADOR_NUMERO_PAGINA`, dibujado vía `Canvas::page_text()` de dompdf en `ServicioGeneracionPDF`).
+3. **Documentos — logo:** consolidado a un único logo por organización, reutilizando el ya existente en Sistema → Configuración → «Identidad visual» (`Configuracion::logoPathAbsoluto()`). Se retira el campo de logo por UO de `EstiloInformeResource` (columna y resolución jerárquica se mantienen sin uso, no se han eliminado).
+4. **Usuarios — bug corregido:** borrar un usuario desde Filament lanzaba `QueryException` por FK. `User` ahora usa `SoftDeletes`. Efecto colateral corregido de paso: el índice único de `email` se hizo parcial (`WHERE deleted_at IS NULL`) para que el email de un usuario borrado pueda reutilizarse.
 
----
-
-## Tarea anterior completada
-
-`Plazas y Recursos` — Módulo de prescripción y gestión de plazas en Intervencion (30 tests).
+Detalle completo en `CHANGELOG-092026.md` (entrada 2026-09-24) y en `docs/decisiones-tecnicas.md` Secciones 12 y 13.
 
 ---
 
 ## Estado exacto del proyecto
 
-- **Tests Agenda Supervisor UI**: 33 passed / 0 failed.
-- **Tests módulo Agenda (general)**: suite existente no ejecutada; sin cambios en código existente.
-- **Tests módulo Intervencion (PlazasRecursos)**: 30 passed / 0 failed (sesión anterior).
-- **Fallo pre-existente en Ciudadania**: TF-LW-FIC-11 busca "Ver historia social" (texto renombrado a "Ir a HS"). Sin relación con cambios recientes.
+- **Tests Documentos**: 26/26 passed (incluye los 3 tests nuevos de número de página y logo).
+- **Tests Organización**: 3/3 passed — módulo dado de alta en el test runner por primera vez (`composer.json` autoload-dev + `phpunit.xml`); no tenía tests antes de esta sesión.
+- **Tests Usuarios**: 40 passed / 1 incomplete (pre-existente, no relacionado) — incluye los 5 tests nuevos de soft delete.
+- **Tests Auth / FilamentPanelAccess**: verificados sin regresiones nuevas. Persisten 2 fallos **pre-existentes** (confirmados reproducibles en `master` sin ninguno de los cambios de esta sesión, ver más abajo).
+- Migraciones nuevas ejecutadas en BD de desarrollo: `add_deleted_at_to_users_table`, `make_users_email_unique_index_exclude_soft_deleted`.
+
+---
+
+## Bug pre-existente detectado (no corregido, fuera de alcance)
+
+`User::booted()` (hook `creating`) hace `$user->name = $user->email;` de forma **incondicional**, incluso si se pasa un `name` explícito al crear el usuario. Esto rompe `TF-AUTH-16` y `TF-AUTH-17` en `tests/Feature/Auth/AutenticacionTest.php` (esperan ver el nombre completo e iniciales en la UI). Confirmado con `git stash` que ya fallaba en `master` antes de esta sesión. Anotado en `BACKLOG.md`.
 
 ---
 
 ## Siguiente paso concreto recomendado
 
-1. Ejecutar tests completos del módulo Agenda: `php artisan test Modules/Agenda/tests/` para verificar que la suite entera pasa.
-2. Revisar `AgendaSupervisorTestHelpers::crearLineaCuadrante()`: usa `json_encode([...])` para el campo `franjas` con cast `array` (doble codificación). No afecta a los tests actuales pero podría causar problemas en nuevos tests que publiquen cuadrantes con lineas del fixture. Cambiar a pasar el array PHP directamente.
-3. Leer `docs/instrucciones-cli/` si hay nueva instrucción para implementar.
-4. Suite completa antes del siguiente merge a main.
+1. Si se retoma trabajo de Filament: revisar `BACKLOG.md` para la lista de deuda técnica pendiente, incluido el bug de `User::booted()` de arriba (corrección probable: solo rellenar `name` con el email cuando `name` esté vacío).
+2. `docs/documentacion-proyecto.md` y los docs de módulo estaban desactualizados respecto al git log real al empezar esta sesión (varias sesiones de Agenda no reflejadas en `SESSION.md` anterior). Al empezar la próxima sesión, verificar con `git log` si `SESSION.md` sigue reflejando el estado real antes de fiarse del documento.
+3. Pendiente decidir si hace falta ejecutar la suite completa (`php artisan test` sin filtro) antes del próximo merge a main — no se ha ejecutado en esta sesión (solo los módulos tocados + Auth/FilamentPanelAccess como verificación transversal).
 
 ---
 
 ## Contexto para retomar sin fricción
 
-- `TipoSlotResource` está en `app/Filament/Resources/` (no en el módulo) por decisión arquitectónica de CLAUDE.md.
-- `CreateTipoSlot::mutateFormDataBeforeCreate()` auto-detecta `horario_centro_id` leyendo la UO activa del supervisor autenticado → Centro → HorarioCentro activo.
-- `CuadranteMesComponent::getCelda()` acepta `Carbon|string` (unión) para compatibilidad con los tests Livewire (se pasa string; la Blade llama con Carbon).
-- `HorarioCentro.semana_tipo` es un JSON con clave `'base'` (franjas por defecto) y claves numéricas `'1'`-`'5'` (sobreescrituras por día).
-- `EventoAgenda.origen = 'director'` marca eventos creados desde la pantalla de cuadrante del supervisor.
-- Los perfiles horarios se versionan: misma `vigente_desde` → update; nueva fecha → cerrar anterior con `vigente_hasta = vigenteDesde - 1 día` + crear nuevo.
+- El logo de informes y el logo del sidebar de la app son **el mismo** desde esta sesión (Sistema → Configuración → «Identidad visual», clave `logo_path`). No crear un segundo mecanismo de logo sin revisar `docs/decisiones-tecnicas.md` Sección 12 primero.
+- `EstiloInforme.logo_cabecera` (columna + resolución jerárquica en `ResolverEstiloInforme`) sigue en el código pero **no se usa** — `ServicioGeneracionPDF` la sobreescribe siempre. No es código muerto por descuido, es una decisión documentada (revertible si se necesita logo por UO en el futuro).
+- El marcador `{{ numero_pagina }}` en el pie de informe se resuelve fuera del flujo HTML normal (dompdf no soporta sustitución de texto por página en el DOM) — se dibuja aparte con `Canvas::page_text()` tras renderizar. Si se toca `ServicioGeneracionPDF::generarBorrador()`, cuidado con el orden: `dibujarNumeroPagina()` debe llamarse después de `Pdf::loadView()` y antes de `$pdf->output()`.
+- `Modules/Organizacion` no tenía tests conectados al runner antes de esta sesión — si se añaden más tests ahí, ya están correctamente dados de alta.
+- El índice único de `users.email` es ahora parcial (Postgres, `WHERE deleted_at IS NULL`), no un unique constraint normal. Cualquier cambio futuro al esquema de `users` debe tenerlo en cuenta.

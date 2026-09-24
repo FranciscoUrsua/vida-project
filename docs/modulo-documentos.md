@@ -58,15 +58,17 @@ El Plan de Intervención (PISO) es un caso especial: requiere firma del profesio
 |---|---|---|
 | `id` | bigint PK | |
 | `unidad_organizativa_id` | bigint FK unique | UO propietaria de este estilo |
-| `logo_path` | varchar(500) nullable | Ruta al logotipo |
-| `nombre_cabecera` | varchar(200) nullable | Nombre de la unidad a mostrar en cabecera |
+| `logo_cabecera` | varchar(500) nullable | **Sin uso desde 2026-09-24** (ver más abajo) |
+| `nombre_unidad_cabecera` | varchar(200) nullable | Nombre de la unidad a mostrar en cabecera |
 | `direccion_cabecera` | varchar(300) nullable | Dirección postal |
 | `telefono_cabecera` | varchar(50) nullable | Teléfono de contacto |
-| `html_pie` | text nullable | HTML de pie de página |
+| `html_pie` | text nullable | HTML de pie de página. Admite el marcador `{{ numero_pagina }}` (`EstiloInforme::MARCADOR_NUMERO_PAGINA`), insertable desde un botón en el formulario, que `ServicioGeneracionPDF` sustituye por el número de página real de cada página del PDF (vía `Canvas::page_text()` de dompdf). |
 | `creado_por` | bigint FK | Ref. `users` |
 | `created_at` / `updated_at` | timestamp | |
 
 **Resolución jerárquica:** `ResolverEstiloInforme` recorre la cadena de ancestros de la UO del autor (vía `laravel-adjacency-list`) hasta encontrar valor para cada campo. Resultado cacheado por UO con TTL configurable.
+
+**Logotipo (decisión 2026-09-24, ver `docs/decisiones-tecnicas.md` Sección 12):** de momento se asume un único logotipo por organización, no uno por UO. `logo_cabecera` ya no se expone en el formulario de `EstiloInformeResource` ni determina el logo del PDF: `ServicioGeneracionPDF` usa siempre `Modules\Organizacion\Models\Configuracion::logoPathAbsoluto()`, que lee el logotipo de identidad visual subido en Sistema → Configuración → «Identidad visual» (el mismo que se muestra en el sidebar operativo). La columna y la resolución jerárquica de `logo_cabecera` se mantienen en el código por si se necesita revertir a un logo por UO.
 
 ### 2.3 PlantillaInforme
 
@@ -233,7 +235,7 @@ Clase de soporte sin estado. `etiquetas()` devuelve el mapa de claves y descripc
 
 Grupo de navegación **«Informes y Plantillas»** (accesible a supervisores y administradores):
 
-- **`EstiloInformeResource`** — gestión del estilo formal por UO. El supervisor ve y edita solo los estilos de su UO y sus descendientes. Incluye vista previa del aspecto resultante.
+- **`EstiloInformeResource`** — gestión del estilo formal por UO (cabecera de texto y pie de página). El supervisor ve y edita solo los estilos de su UO y sus descendientes. El logotipo no se gestiona aquí (ver 2.2) — el formulario enlaza a Sistema → Configuración → «Identidad visual».
 - **`PlantillaInformeResource`** — CRUD de plantillas. Editor de secciones con `Builder` de Filament v5: secciones colapsables con drag-and-drop, campo `RichEditor` con merge tags nativos para secciones de tipo `texto_libre`, `Select` de fuentes para secciones de tipo `automatico`. Layout: datos generales en dos columnas, bloque de secciones a ancho completo.
 - **`InformeResource`** — listado de informes con filtros por estado y autor.
 - **`DocumentoResource`** — listado de documentos custodiados.
@@ -321,7 +323,7 @@ Dado ningún parámetro existente. Cuando se intenta crear un `ParametroInforme`
 
 | Módulo | Dependencia |
 |---|---|
-| Organización | `UnidadOrganizativa` — jerarquía para resolución de estilos y alcance de plantillas |
+| Organización | `UnidadOrganizativa` — jerarquía para resolución de estilos y alcance de plantillas. `Configuracion::logoPathAbsoluto()` — logotipo único de organización usado en la cabecera del PDF (ver 2.2) |
 | Ciudadanía | `Ciudadano`, `UnidadConvivencia` — entidades documentables |
 | Intervención | `HistoriaSocial`, `PlanDeIntervencion` — fuentes de datos para informes |
 | Escalas | `PaseEscala`, `TipoEscala` — scores de valoración disponibles como merge tags |

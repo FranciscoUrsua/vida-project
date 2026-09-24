@@ -401,3 +401,42 @@ Fecha de decisión: 2026-06-12
 **`php artisan optimize:clear` antes de `config:cache / route:cache / view:cache`.** Elimina archivos corruptos o inaccesibles de deploys anteriores.
 
 **`chown/chmod` sobre `storage/` y `bootstrap/cache/` antes de los comandos `artisan`.** Garantiza que el usuario de despliegue (`jupiter`) pueda escribir en directorios donde `www-data` puede haber generado archivos en requests previas.
+
+---
+
+## Sección 12 — Documentos: un único logotipo por organización
+
+Fecha de decisión: 2026-09-24
+
+**Contexto:** `EstiloInforme.logo_cabecera` (por UO, con herencia jerárquica) pedía una ruta de fichero escrita a mano en el formulario de Filament, sin ningún control de subida. Además, la aplicación ya tenía un logotipo de identidad visual configurable (`organizacion_configuracion` clave `logo_path`, subido desde Sistema → Configuración → «Identidad visual», usado hoy en el sidebar operativo de Intervención y Supervisión).
+
+**Decisión:** de momento se asume que cada organización que despliega VIDA 360 tiene un único logotipo, reutilizado tanto en la identidad visual de la aplicación (sidebar) como en la cabecera de los informes PDF generados. Se elimina la duplicidad: no se gestiona un logo distinto por UO.
+
+**Implementación:**
+- El logotipo se sigue gestionando en un único sitio: Sistema → Configuración → «Identidad visual» (`ConfiguracionOrganizacionResource\Pages\ListConfiguracion`), clave `logo_path` en `organizacion_configuracion`.
+- `Modules\Organizacion\Models\Configuracion::logoPathAbsoluto()` resuelve la ruta absoluta en disco (no la URL pública que usa `logoUrl()` para el navegador) porque dompdf necesita una ruta de fichero real para incrustar la imagen, no una URL.
+- `ServicioGeneracionPDF::generarBorrador()` sobreescribe siempre `estilo['logo_cabecera']` con `Configuracion::logoPathAbsoluto()`, ignorando el valor que devuelva `ResolverEstiloInforme` para ese campo.
+- El campo `logo_cabecera` de `EstiloInforme` (columna `estilos_informe.logo_cabecera` y su resolución jerárquica en `ResolverEstiloInforme`) **no se elimina del esquema ni del resolver** — se deja de exponer en el formulario de `EstiloInformeResource` por ser una ruta manual sin utilidad real, pero el código y los tests de herencia jerárquica sobre ese campo se mantienen intactos por si en el futuro se necesita volver a un logo por UO. Revisar esta decisión si esa necesidad aparece.
+
+**Alternativas descartadas:** añadir un tipo `archivo` con `FileUpload` al CRUD genérico de `ConfiguracionOrganizacionResource` (clave/valor arbitrarios) para un segundo logo específico de informes — descartada porque duplicaría el logotipo ya existente y contradice la premisa de «un único logo».
+
+**Nota técnica:** el `FileUpload` de identidad visual acepta SVG (correcto para el sidebar, renderizado por el navegador). El soporte de SVG en dompdf es limitado — si un logo SVG no se renderiza bien en el PDF, es un problema conocido de dompdf, no un bug de esta implementación. Recomendar PNG/JPG si el logo debe aparecer en informes.
+
+---
+
+## Sección 13 — Usuarios: `SoftDeletes` en `users` (antes no lo tenía)
+
+Fecha de decisión: 2026-09-24
+
+**Contexto (bug reportado):** borrar un usuario desde `UsuarioResource` en Filament lanzaba `Illuminate\Database\QueryException`. Causa: `App\Models\User` no usaba `SoftDeletes`, así que `DeleteAction` (que llama a `$record->delete()`) intentaba un `DELETE` físico sobre `users`; en cuanto el usuario tenía una fila en `usuario_uo` (FK `usuario_id` con `onDelete('restrict')`, ver migración `create_usuario_uo_rol_table`), la BD rechazaba el borrado. El principio 4.2 (soft deletes como norma en entidades de dominio) ya cubría `users` conceptualmente — de hecho `docs/modulo-usuarios-permisos.md` §4.2 nunca listó `deleted_at` en el esquema de `usuarios`, así que esto era una omisión de implementación, no una decisión deliberada de no aplicarlo.
+
+**Decisión:** `User` usa `SoftDeletes` como el resto de entidades de dominio. `DeleteAction::make()` en `UsuarioResource` no cambia — con `SoftDeletes` en el modelo, ya hace soft delete automáticamente (mismo patrón que `ProfesionalResource`, que tampoco tiene lógica especial de borrado).
+
+**Implementación:**
+- Migración `add_deleted_at_to_users_table` — añade `deleted_at` (no se edita la migración original `0001_01_01_000000_create_users_table.php`: el pasado es inmutable, principio 4.2).
+- `User` — trait `SoftDeletes` + `@property Carbon|null $deleted_at`.
+- **Efecto colateral encontrado y corregido en la misma sesión:** el índice único `users_email_unique` era un índice único normal, así que el email de un usuario con soft delete quedaba bloqueado para siempre — crear una cuenta nueva con ese email fallaba con `UniqueConstraintViolationException` aunque la cuenta original estuviera desactivada. Migración `make_users_email_unique_index_exclude_soft_deleted` sustituye el índice por uno parcial de PostgreSQL (`CREATE UNIQUE INDEX ... WHERE deleted_at IS NULL`), y `UsuarioResource` pasa `modifyRuleUsing: fn (Unique $rule) => $rule->whereNull('deleted_at')` a la validación `unique()` del campo email para que coincida con el comportamiento de la BD.
+
+**No se ha tocado:** ninguna otra tabla ni relación de `User`. No hay cascada de soft delete hacia `usuario_uo`/`usuario_rol`/roles de Spatie — esas filas se conservan tal cual (es exactamente lo que se pretende: el historial de adscripciones y roles de un usuario borrado sigue siendo consultable). No se ha añadido `TrashedFilter`/`RestoreAction`/`ForceDeleteAction` en Filament: ningún otro resource del proyecto los tiene tampoco (patrón existente, no una omisión).
+
+**Bug pre-existente detectado durante la verificación, no corregido (fuera de alcance de este cambio):** `User::booted()` sobreescribe incondicionalmente `$user->name = $user->email` en el hook `creating`, incluso cuando se pasa un `name` explícito. Esto hace fallar `TF-AUTH-16` y `TF-AUTH-17` (`tests/Feature/Auth/AutenticacionTest.php`), que esperan que el nombre completo del usuario aparezca en la UI. Confirmado reproducible en `master` sin ninguno de los cambios de esta sesión. Anotado en `BACKLOG.md`.

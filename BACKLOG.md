@@ -9,6 +9,18 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**28 vulnerabilidades conocidas en dependencias de Composer bloquean el hook pre-commit** — 2026-09-24
+Módulo: Infra / Seguridad
+`composer audit` reporta 28 advisories sobre 6 paquetes: `dompdf/dompdf`, `filament/filament`, `guzzlehttp/guzzle`, `league/commonmark`, `livewire/livewire`, `spatie/laravel-medialibrary`. El hook `.git/hooks/pre-commit` (`security-check.sh`) trata cualquier hallazgo de `composer audit` como error bloqueante, así que **ningún commit pasa el hook** en el estado actual del repo — no es algo introducido por esta sesión. Se hizo commit con `--no-verify` (autorizado explícitamente por el usuario) para la sesión del 2026-09-24. Pendiente: revisar cada advisory (algunas requieren subir a versiones con breaking changes, p. ej. `filament/filament` ^5.3 → posible major) y actualizar dependencias en una sesión dedicada, no mezclada con cambios funcionales.
+
+---
+
+**TF-AUTH-16 y TF-AUTH-17 fallan: `User::booted()` sobreescribe `name` con el email siempre** — 2026-09-24
+Módulo: Usuarios / Auth
+`User::booted()` (hook `creating`) hace `$user->name = $user->email;` de forma incondicional, incluso cuando se crea el usuario con un `name` explícito. Esto rompe `tests/Feature/Auth/AutenticacionTest.php::tf_auth_16_el_nombre_del_usuario_aparece_en_la_ui` y `tf_auth_17_las_iniciales_del_avatar_son_las_dos_primeras_letras_del_name`, que esperan ver "Juana López" y sus iniciales "JL" en la UI tras crear el usuario con ese nombre. Confirmado reproducible en `master` sin relación con ningún cambio de la sesión que lo detectó (soft delete de `User`, ver `docs/decisiones-tecnicas.md` Sección 13). Corrección probable: solo rellenar `name` con el email cuando `name` no se ha establecido explícitamente.
+
+---
+
 **TF-SUP-F03 falla: columna "Colectivo protegido" en auditoría** — 2026-06-29
 Módulo: Supervision
 `auditoria_con_colectivos_muestra_columna_protegido` espera `assertSee('Colectivo protegido')` pero `AuditoriaPage` devuelve estado vacío ("No hay accesos registrados"). La columna solo se renderiza si hay accesos en el periodo. El test necesita crear al menos un acceso de auditoría antes de montar el componente. Fallo pre-existente, no causado por la sesión actual.

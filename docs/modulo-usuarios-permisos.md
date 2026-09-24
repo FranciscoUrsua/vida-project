@@ -258,11 +258,12 @@ usuarios
 - id
 - profesional_id (FK a profesionales, nullable)
 - name
-- email
+- email                                     — único solo entre cuentas activas (índice parcial, deleted_at IS NULL)
 - password
 - email_verified_at
 - remember_token
 - created_at, updated_at
+- deleted_at                                — SoftDeletes (desde 2026-09-24; ver docs/decisiones-tecnicas.md Sección 13)
 
 unidades_organizativas
 - id
