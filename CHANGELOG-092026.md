@@ -4,6 +4,31 @@
 
 ---
 
+## 2026-09-24 — Actualización de dependencias: 28 vulnerabilidades conocidas corregidas
+
+### Módulos afectados
+`composer.json` / `composer.lock` (infraestructura, sin cambios funcionales)
+
+### Corregido
+
+`composer audit` pasó de 28 advisories en 6 paquetes a 0. Motivo original: el hook `.git/hooks/pre-commit` (`security-check.sh`) trata cualquier hallazgo de `composer audit` como error bloqueante, así que ningún commit pasaba el hook hasta corregir esto (ver entrada anterior de hoy, donde se hizo commit con `--no-verify`).
+
+**Actualizados sin tocar `composer.json`** (dentro de las constraints ya declaradas):
+- `dompdf/dompdf` v3.1.5 → v3.1.6 (6 advisories: SVG file-existence leak, DoS por bitmaps/BMP, local file read, chroot bypass).
+- `guzzlehttp/guzzle` 7.12.3 → 7.15.5 (+ `guzzlehttp/psr7`, `guzzlehttp/promises`) (6 advisories: host/cookie canonicalization, referer leak, DoS, proxy-auth header leak).
+- `league/commonmark` 2.8.2 → 2.10.3 (10 advisories: varios DoS y un bypass XSS en `AttributesExtension`).
+- `livewire/livewire` v4.3.1 → v4.4.6 (1 advisory: XSS basado en DOM en el manejo de estado cliente).
+- `spatie/laravel-medialibrary` 11.21.0 → 11.23.8 (2 advisories: bypass de restricción de subida de ficheros, SSRF).
+- `filament/filament` (+ todos sus sub-paquetes `filament/*`) v5.6.7 → v5.8.4 (3 advisories, la de mayor severidad: bypass de MFA cuando hay códigos de recuperación habilitados).
+
+**Assets regenerados:** `vida/public/{css,js,fonts}/filament/**` republicados (`vendor:publish --tag=filament-assets --force`, ejecutado automáticamente por el script `post-update-cmd` de Filament) — necesarios porque el JS/CSS compilado de Filament cambió de versión.
+
+### Verificación
+
+Ninguna actualización tocó `laravel/framework` ni Symfony (las dependencias declaradas por `laravel/framework` para guzzle/commonmark ya admitían las versiones parcheadas; los sub-paquetes `filament/*` se actualizaron juntos y se resuelven sin cascada). Se comparó contra una baseline con las dependencias originales (`git stash` de `composer.lock` + `composer install`) ejecutando los tests más proclives a verse afectados (Livewire, Filament, PDF): todos los fallos observados con las dependencias nuevas ya fallaban igual con las antiguas (deuda técnica pre-existente, no relacionada — ver `BACKLOG.md`: `TF-AUTH-16/17`, y fallos de esquema en `Modules/Agenda` por una migración de una sesión anterior). Se ejecutaron además, en verde: `tests/Feature/FilamentPanelAccessTest`, toda la suite de `Documentos`, `Organizacion` y `Usuarios`, y el directorio completo `tests/Feature`.
+
+---
+
 ## 2026-09-24 — Pequeños cambios en Filament: tema, pie de informe, logo de organización, borrado de usuario
 
 ### Módulos afectados

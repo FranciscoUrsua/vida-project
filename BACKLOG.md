@@ -9,9 +9,9 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
-**28 vulnerabilidades conocidas en dependencias de Composer bloquean el hook pre-commit** — 2026-09-24
-Módulo: Infra / Seguridad
-`composer audit` reporta 28 advisories sobre 6 paquetes: `dompdf/dompdf`, `filament/filament`, `guzzlehttp/guzzle`, `league/commonmark`, `livewire/livewire`, `spatie/laravel-medialibrary`. El hook `.git/hooks/pre-commit` (`security-check.sh`) trata cualquier hallazgo de `composer audit` como error bloqueante, así que **ningún commit pasa el hook** en el estado actual del repo — no es algo introducido por esta sesión. Se hizo commit con `--no-verify` (autorizado explícitamente por el usuario) para la sesión del 2026-09-24. Pendiente: revisar cada advisory (algunas requieren subir a versiones con breaking changes, p. ej. `filament/filament` ^5.3 → posible major) y actualizar dependencias en una sesión dedicada, no mezclada con cambios funcionales.
+**Suite de `Modules/Agenda` rota: `tipos_slot.horario_centro_id` no existe en el esquema** — 2026-09-24
+Módulo: Agenda
+Al ejecutar la suite completa (verificación de una actualización de dependencias) se detectaron ~60 tests de `Modules/Agenda` fallando con `QueryException: column "horario_centro_id" of relation "tipos_slot" does not exist`. Reproducible también con las dependencias de Composer anteriores a la actualización de hoy — no relacionado con dependencias. Probable causa: el commit `3003283` ("convertir TipoSlot en catálogo global del sistema") eliminó esa columna del esquema pero algún factory o helper de test (`Modules/Agenda/database/factories/CitaFactory.php`, `AgendaSupervisorTestHelpers.php`, entre otros) sigue insertándola. Revisar si falta una migración por ejecutar en `vida_testing` o si el factory quedó desactualizado tras ese refactor.
 
 ---
 

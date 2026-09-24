@@ -6,14 +6,15 @@
 
 ## Tarea completada
 
-Sesión de pequeños cambios en Filament:
+Sesión de pequeños cambios en Filament + actualización de dependencias:
 
 1. **Tema:** eliminado el selector claro/oscuro del panel de administración (`AdminPanelProvider::darkMode(false)`).
 2. **Documentos — pie de informe:** opción de insertar número de página en el pie (`EstiloInforme::MARCADOR_NUMERO_PAGINA`, dibujado vía `Canvas::page_text()` de dompdf en `ServicioGeneracionPDF`).
 3. **Documentos — logo:** consolidado a un único logo por organización, reutilizando el ya existente en Sistema → Configuración → «Identidad visual» (`Configuracion::logoPathAbsoluto()`). Se retira el campo de logo por UO de `EstiloInformeResource` (columna y resolución jerárquica se mantienen sin uso, no se han eliminado).
 4. **Usuarios — bug corregido:** borrar un usuario desde Filament lanzaba `QueryException` por FK. `User` ahora usa `SoftDeletes`. Efecto colateral corregido de paso: el índice único de `email` se hizo parcial (`WHERE deleted_at IS NULL`) para que el email de un usuario borrado pueda reutilizarse.
+5. **Dependencias:** `composer audit` pasó de 28 advisories (6 paquetes) a 0. `dompdf`, `guzzle`(+psr7/promises), `league/commonmark`, `livewire`, `spatie/laravel-medialibrary` y `filament/*` actualizados dentro de las constraints ya declaradas en `composer.json` (sin tocar `laravel/framework`). El hook `.git/hooks/pre-commit` (`security-check.sh`) vuelve a pasar sin `--no-verify`.
 
-Detalle completo en `CHANGELOG-092026.md` (entrada 2026-09-24) y en `docs/decisiones-tecnicas.md` Secciones 12 y 13.
+Detalle completo en `CHANGELOG-092026.md` (entradas del 2026-09-24) y en `docs/decisiones-tecnicas.md` Secciones 12 y 13.
 
 ---
 
@@ -37,7 +38,8 @@ Detalle completo en `CHANGELOG-092026.md` (entrada 2026-09-24) y en `docs/decisi
 
 1. Si se retoma trabajo de Filament: revisar `BACKLOG.md` para la lista de deuda técnica pendiente, incluido el bug de `User::booted()` de arriba (corrección probable: solo rellenar `name` con el email cuando `name` esté vacío).
 2. `docs/documentacion-proyecto.md` y los docs de módulo estaban desactualizados respecto al git log real al empezar esta sesión (varias sesiones de Agenda no reflejadas en `SESSION.md` anterior). Al empezar la próxima sesión, verificar con `git log` si `SESSION.md` sigue reflejando el estado real antes de fiarse del documento.
-3. Pendiente decidir si hace falta ejecutar la suite completa (`php artisan test` sin filtro) antes del próximo merge a main — no se ha ejecutado en esta sesión (solo los módulos tocados + Auth/FilamentPanelAccess como verificación transversal).
+3. **`Modules/Agenda` tiene una suite entera rota**: `tipos_slot.horario_centro_id` ya no existe en el esquema pero factories/tests siguen insertándolo (~60 tests fallando con `QueryException`, confirmado también en las dependencias originales antes de la actualización de hoy — no es un problema de dependencias). Revisar si es una migración pendiente de ejecutar en `vida_testing` o un factory desactualizado tras el commit `3003283` (convertir TipoSlot en catálogo global).
+4. La suite completa (`php artisan test` sin filtro) se ejecutó hoy únicamente como verificación puntual de la actualización de dependencias (no como parte del flujo normal de cierre de sesión). Con el punto 3 sin resolver, seguirá reportando ~75 fallos; no usar ese número como referencia de regresión sin descontar los ya conocidos.
 
 ---
 
