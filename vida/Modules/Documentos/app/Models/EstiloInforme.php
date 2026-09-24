@@ -32,6 +32,15 @@ class EstiloInforme extends Model
     protected $guarded = [];
 
     /**
+     * Marcador que el supervisor puede insertar en `html_pie` para que
+     * ServicioGeneracionPDF dibuje el número de página real en cada página
+     * del PDF. dompdf no sustituye texto en el flujo del documento por
+     * página, así que el marcador se retira del HTML y el número se pinta
+     * aparte sobre el lienzo (Canvas::page_text).
+     */
+    public const MARCADOR_NUMERO_PAGINA = '{{ numero_pagina }}';
+
+    /**
      * Unidad organizativa dueña del estilo.
      *
      * @return BelongsTo<UnidadOrganizativa, $this>

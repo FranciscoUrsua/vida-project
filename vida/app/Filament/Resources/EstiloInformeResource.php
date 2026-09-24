@@ -5,13 +5,17 @@ namespace App\Filament\Resources;
 use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\EstiloInformeResource\Pages;
 use App\Models\UnidadOrganizativa;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -24,6 +28,9 @@ use Modules\Documentos\Models\EstiloInforme;
  * Los campos se heredan campo a campo por la jerarquía de UOs.
  * Accesible solo a usuarios con rol supervisor o admin_sistema.
  * Cada supervisor solo puede editar los estilos de su UO y descendientes.
+ *
+ * El logotipo no se gestiona aquí: es único para toda la organización y se
+ * sube desde Sistema → Configuración (ver docs/decisiones-tecnicas.md Sección 12).
  */
 class EstiloInformeResource extends Resource
 {
@@ -86,12 +93,10 @@ class EstiloInformeResource extends Resource
                         ->nullable()
                         ->columnSpanFull(),
 
-                    TextInput::make('logo_cabecera')
-                        ->label('Ruta al logotipo')
-                        ->maxLength(500)
-                        ->nullable()
+                    Placeholder::make('logo_organizacion_aviso')
+                        ->label('Logotipo')
                         ->columnSpanFull()
-                        ->helperText('Ruta interna en el disco configurado al fichero de logotipo (PNG/SVG).'),
+                        ->content('El logotipo es único para toda la organización y se sube desde Sistema → Configuración → «Identidad visual». Se usa tanto en la aplicación como en la cabecera de los informes.'),
                 ]),
 
             Section::make('Pie de página')
@@ -100,7 +105,18 @@ class EstiloInformeResource extends Resource
                         ->label('HTML del pie de página')
                         ->rows(4)
                         ->nullable()
-                        ->helperText('HTML libre: puede incluir textos legales, URLs, información de contacto.'),
+                        ->helperText('HTML libre: puede incluir textos legales, URLs, información de contacto.')
+                        // El marcador se sustituye por el número de página real al generar el
+                        // PDF (ServicioGeneracionPDF), no en este formulario.
+                        ->hintAction(
+                            Action::make('insertarNumeroPagina')
+                                ->label('Insertar número de página')
+                                ->icon('heroicon-o-hashtag')
+                                ->action(function (Set $set, Get $get): void {
+                                    $actual = $get('html_pie') ?? '';
+                                    $set('html_pie', rtrim($actual.' '.EstiloInforme::MARCADOR_NUMERO_PAGINA));
+                                })
+                        ),
                 ]),
         ]);
     }
@@ -118,12 +134,6 @@ class EstiloInformeResource extends Resource
                     ->label('Unidad Organizativa')
                     ->sortable()
                     ->searchable(),
-
-                Tables\Columns\IconColumn::make('logo_cabecera')
-                    ->label('Logo')
-                    ->getStateUsing(fn (EstiloInforme $r) => $r->logo_cabecera !== null)
-                    ->boolean()
-                    ->alignCenter(),
 
                 Tables\Columns\TextColumn::make('nombre_unidad_cabecera')
                     ->label('Nombre cabecera')

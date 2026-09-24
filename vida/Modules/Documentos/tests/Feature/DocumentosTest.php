@@ -31,6 +31,7 @@ use Modules\Documentos\Services\ServicioGeneracionPDF;
 use Modules\Escalas\Enums\EstadoPase;
 use Modules\Escalas\Models\PaseEscala;
 use Modules\Escalas\Models\TipoEscala;
+use Modules\Organizacion\Services\ConfiguracionService;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -538,6 +539,125 @@ class DocumentosTest extends TestCase
         $informe->refresh();
         $this->assertEquals(EstadoInforme::Borrador, $informe->estado);
         $this->assertNull($informe->documento_id);
+    }
+
+    // =========================================================================
+    // TF-DOC-26: Marcador de número de página en el pie de EstiloInforme
+    // =========================================================================
+
+    #[Test]
+    public function test_tf_doc_26_marcador_numero_pagina_en_pie_genera_pdf_valido(): void
+    {
+        Storage::fake('local');
+        config(['documentos.disco' => 'local']);
+
+        // generarBorrador() resuelve el estilo de la UO 1 cuando el autor no
+        // tiene UO asignada, que es el caso de los usuarios creados en test.
+        $uo = UnidadOrganizativa::forceCreate([
+            'id' => 1,
+            'nombre' => 'CSS Numeración',
+            'tipo' => 'centro',
+            'activa' => true,
+        ]);
+        $usuario = $this->crearUser();
+
+        EstiloInforme::create([
+            'unidad_organizativa_id' => $uo->id,
+            'html_pie' => 'Ayuntamiento de Madrid — '.EstiloInforme::MARCADOR_NUMERO_PAGINA,
+            'creado_por' => $usuario->id,
+        ]);
+
+        $ciudadano = $this->crearCiudadano();
+        $plantilla = $this->crearPlantilla($uo->id);
+        $informe = $this->crearInformeBorrador($plantilla, $ciudadano, $usuario);
+
+        $servicio = app(ServicioGeneracionPDF::class);
+        $pdf = $servicio->generarBorrador($informe);
+
+        $this->assertNotEmpty($pdf);
+        $this->assertStringStartsWith(
+            '%PDF',
+            $pdf,
+            'El informe con el marcador de número de página en el pie debe seguir generando un PDF válido.'
+        );
+    }
+
+    #[Test]
+    public function test_tf_doc_27_pie_sin_marcador_numero_pagina_genera_pdf_valido(): void
+    {
+        Storage::fake('local');
+        config(['documentos.disco' => 'local']);
+
+        $uo = UnidadOrganizativa::forceCreate([
+            'id' => 1,
+            'nombre' => 'CSS Sin Numeración',
+            'tipo' => 'centro',
+            'activa' => true,
+        ]);
+        $usuario = $this->crearUser();
+
+        // Pie de página normal, sin el marcador de número de página
+        EstiloInforme::create([
+            'unidad_organizativa_id' => $uo->id,
+            'html_pie' => 'Ayuntamiento de Madrid',
+            'creado_por' => $usuario->id,
+        ]);
+
+        $ciudadano = $this->crearCiudadano();
+        $plantilla = $this->crearPlantilla($uo->id);
+        $informe = $this->crearInformeBorrador($plantilla, $ciudadano, $usuario);
+
+        $servicio = app(ServicioGeneracionPDF::class);
+        $pdf = $servicio->generarBorrador($informe);
+
+        $this->assertNotEmpty($pdf);
+        $this->assertStringStartsWith('%PDF', $pdf);
+    }
+
+    // =========================================================================
+    // TF-DOC-29: Logo único de organización sustituye al logo por UO
+    // =========================================================================
+
+    #[Test]
+    public function test_tf_doc_29_logo_global_de_organizacion_sustituye_al_logo_por_uo(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+        config(['documentos.disco' => 'local']);
+
+        // Logo global (Sistema → Configuración → Identidad visual)
+        $rutaLogoGlobal = UploadedFile::fake()->image('logo-organizacion.png')->store('branding', 'public');
+        app(ConfiguracionService::class)->set('logo_path', $rutaLogoGlobal);
+
+        $uo = UnidadOrganizativa::forceCreate([
+            'id' => 1,
+            'nombre' => 'CSS Logo',
+            'tipo' => 'centro',
+            'activa' => true,
+        ]);
+        $usuario = $this->crearUser();
+
+        // El estilo por UO define su propio logo_cabecera (legado): debe ignorarse
+        EstiloInforme::create([
+            'unidad_organizativa_id' => $uo->id,
+            'logo_cabecera' => 'logos/legado-no-usado.png',
+            'creado_por' => $usuario->id,
+        ]);
+
+        $ciudadano = $this->crearCiudadano();
+        $plantilla = $this->crearPlantilla($uo->id);
+        $informe = $this->crearInformeBorrador($plantilla, $ciudadano, $usuario);
+
+        // ResolverEstiloInforme sigue devolviendo el logo por UO (comportamiento
+        // sin cambios); es ServicioGeneracionPDF quien lo sustituye por el global.
+        $estiloResuelto = app(ResolverEstiloInforme::class)->resolverSinCache($uo->id);
+        $this->assertEquals('logos/legado-no-usado.png', $estiloResuelto['logo_cabecera']);
+
+        $servicio = app(ServicioGeneracionPDF::class);
+        $pdf = $servicio->generarBorrador($informe);
+
+        $this->assertNotEmpty($pdf);
+        $this->assertStringStartsWith('%PDF', $pdf, 'El informe con logo global configurado debe seguir generando un PDF válido.');
     }
 
     // =========================================================================

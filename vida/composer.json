@@ -112,7 +112,8 @@
             "Modules\\Escalas\\Tests\\": "Modules/Escalas/tests/",
         "Modules\\Ciudadania\\Tests\\": "Modules/Ciudadania/tests/",
             "Modules\\Atencion\\Tests\\": "Modules/Atencion/tests/",
-            "Modules\\Supervision\\Tests\\": "Modules/Supervision/tests/"
+            "Modules\\Supervision\\Tests\\": "Modules/Supervision/tests/",
+            "Modules\\Organizacion\\Tests\\": "Modules/Organizacion/tests/"
         }
     },
     "scripts": {

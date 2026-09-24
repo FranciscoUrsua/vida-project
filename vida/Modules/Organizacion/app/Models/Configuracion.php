@@ -80,6 +80,27 @@ class Configuracion extends Model
     }
 
     /**
+     * Ruta absoluta en el sistema de ficheros del logotipo de la organización.
+     *
+     * A diferencia de logoUrl() (URL para `<img>` en el navegador), esta ruta
+     * la usa ServicioGeneracionPDF (módulo Documentos): dompdf necesita una
+     * ruta de fichero real para incrustar la imagen en el PDF, no una URL.
+     * Ver docs/decisiones-tecnicas.md Sección 12.
+     *
+     * @return string|null Ruta absoluta si el fichero existe, null si no hay logo configurado.
+     */
+    public static function logoPathAbsoluto(): ?string
+    {
+        $path = app(ConfiguracionService::class)->get('logo_path');
+
+        if (! $path || ! Storage::disk('public')->exists($path)) {
+            return null;
+        }
+
+        return Storage::disk('public')->path($path);
+    }
+
+    /**
      * Nombre personalizado de la aplicación.
      * Lee la clave «nombre_aplicacion» del almacén de configuración.
      *

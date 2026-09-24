@@ -26,12 +26,12 @@ class ListConfiguracion extends ListRecords
                 ->icon('heroicon-o-photo')
                 ->form([
                     FileUpload::make('logo_path')
-                        ->label('Logotipo de la aplicación')
+                        ->label('Logotipo de la organización')
                         ->disk('public')
                         ->directory('branding')
                         ->image()
                         ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/svg+xml', 'image/webp'])
-                        ->helperText('Se muestra en la barra lateral. Si no se sube ninguno, se muestra el nombre de la aplicación o "VIDA360". Dimensiones recomendadas: 200×60 px.'),
+                        ->helperText('Logo único para toda la organización: se muestra en la barra lateral y en la cabecera de los informes PDF generados. Si no se sube ninguno, en la barra lateral se muestra el nombre de la aplicación o "VIDA360"; en los informes no aparece logo. Dimensiones recomendadas: 200×60 px.'),
 
                     TextInput::make('nombre_aplicacion')
                         ->label('Nombre de la aplicación')

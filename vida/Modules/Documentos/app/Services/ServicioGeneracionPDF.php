@@ -4,8 +4,11 @@ namespace Modules\Documentos\Services;
 
 use App\Models\CatalogoSistema;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\DomPDF\PDF as PdfDocument;
 use Modules\Documentos\Models\Documento;
+use Modules\Documentos\Models\EstiloInforme;
 use Modules\Documentos\Models\Informe;
+use Modules\Organizacion\Models\Configuracion;
 
 /**
  * Genera el PDF de un informe profesional.
@@ -47,6 +50,11 @@ class ServicioGeneracionPDF
         $plantilla = $informe->plantilla;
         $contenido = $informe->contenido ?? [];
 
+        // Un único logo por organización (docs/decisiones-tecnicas.md Sección 12):
+        // el de la identidad visual de la app (Sistema → Configuración), no el
+        // campo por UO de EstiloInforme.
+        $estilo['logo_cabecera'] = Configuracion::logoPathAbsoluto();
+
         // Resuelve datos de secciones automáticas
         $datosAuto = [];
         foreach ($plantilla->secciones ?? [] as $seccion) {
@@ -58,16 +66,63 @@ class ServicioGeneracionPDF
             }
         }
 
+        $tipografia = config('documentos.tipografia');
+
+        // El supervisor puede insertar el marcador de número de página en el pie
+        // (EstiloInformeResource). dompdf no sustituye texto por página dentro del
+        // flujo del documento, así que se retira del HTML y se dibuja aparte tras
+        // renderizar (ver dibujarNumeroPagina()).
+        $incluyeNumeroPagina = str_contains((string) ($estilo['html_pie'] ?? ''), EstiloInforme::MARCADOR_NUMERO_PAGINA);
+        if ($incluyeNumeroPagina) {
+            $estilo['html_pie'] = trim(str_replace(EstiloInforme::MARCADOR_NUMERO_PAGINA, '', $estilo['html_pie']));
+        }
+
         $pdf = Pdf::loadView('documentos::informe', [
             'informe' => $informe,
             'plantilla' => $plantilla,
             'estilo' => $estilo,
             'contenido' => $contenido,
             'datosAuto' => $datosAuto,
-            'tipografia' => config('documentos.tipografia'),
+            'tipografia' => $tipografia,
         ]);
 
+        if ($incluyeNumeroPagina) {
+            $this->dibujarNumeroPagina($pdf, $tipografia);
+        }
+
         return $pdf->output();
+    }
+
+    /**
+     * Dibuja «Página X» en la esquina inferior derecha de cada página del PDF.
+     *
+     * dompdf solo expone el número de página real a través de la API de lienzo
+     * (Canvas::page_text), nunca como sustitución de texto en el HTML — por eso
+     * se hace aparte, tras el renderizado. No se usa PHP embebido en el HTML
+     * (`<script type="text/php">`) porque el pie lo edita libremente el
+     * supervisor y evaluarlo sería ejecución de código arbitraria.
+     *
+     * @param PdfDocument $pdf PDF con la vista del informe ya cargada (sin renderizar).
+     * @param array<string, mixed>|null $tipografia Tipografía base configurada.
+     */
+    private function dibujarNumeroPagina(PdfDocument $pdf, ?array $tipografia): void
+    {
+        // Fuerza el renderizado aquí (marca $pdf como renderizado) para que
+        // output() no vuelva a renderizar y descarte el número de página dibujado.
+        $pdf->render();
+
+        $dompdf = $pdf->getDomPDF();
+        $canvas = $dompdf->getCanvas();
+        $font = $dompdf->getFontMetrics()->getFont($tipografia['familia'] ?? 'DejaVu Sans', 'normal');
+
+        $canvas->page_text(
+            $canvas->get_width() - 70,
+            $canvas->get_height() - 20,
+            'Página {PAGE_NUM}',
+            $font,
+            8,
+            [0.4, 0.4, 0.4]
+        );
     }
 
     /**
