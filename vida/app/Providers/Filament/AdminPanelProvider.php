@@ -39,6 +39,9 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Blue,
             ])
+            // Sin selector claro/oscuro: el tema VIDA solo define variantes en modo claro
+            // (docs/design-system/SKILL.md — "Don't produce dark-mode variants unless asked").
+            ->darkMode(false)
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 function (): HtmlString {
