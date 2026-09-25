@@ -419,6 +419,9 @@
             </div>
             @endif
 
+            {{-- ——— Documentos (módulo Documentos, custodia v2) ——— --}}
+            <livewire:documentos.documentos-ciudadano :ciudadano-id="$ciudadanoId" :key="'documentos-'.$ciudadanoId" />
+
         </div>{{-- /col-lg-8 --}}
 
         {{-- ===================== COLUMNA LATERAL ===================== --}}

@@ -3,7 +3,7 @@
 **Módulo:** `Documentos`
 **Namespace:** `Modules\Documentos\Models`
 **Directorio:** `vida/Modules/Documentos/`
-**Estado:** Parcial (revisado el 2026-09-25 contra el código). Backend de estilos, plantillas e informes implementado; custodia v2 en curso (pasos 1 a 6 hechos; falta la UI operativa); 78 tests pasan. **Sin UI operativa** (sección 4) y **sin variables auxiliares** (2.6). La custodia v2 (`docs/instrucciones-cli/documentos-custodia-implementacion.md`) sustituye a la custodia v1.
+**Estado:** Parcial (revisado el 2026-09-25 contra el código). Backend de estilos, plantillas e informes implementado; custodia v2 implementada (pasos 1 a 7) con la tarjeta «Documentos» en la ficha del ciudadano; 88 tests pasan. **Sin UI operativa de informes ni PISO** (sección 4) y **sin variables auxiliares** (2.6). La custodia v2 (`docs/instrucciones-cli/documentos-custodia-implementacion.md`) sustituye a la custodia v1.
 
 > **Revisión 2026-09-25.** Versiones anteriores de este documento daban por implementados las variables auxiliares (TF-DOC-22 a 25), `ParametroInformeResource`, `ConfiguracionTipografiaResource` y los componentes Livewire de la sección 4. No existen en el código ni en el historial de git. Se marcan abajo como ⏳ pendientes.
 
@@ -33,7 +33,7 @@ El Plan de Intervención (PISO) es un caso especial: requiere firma del profesio
 
 ### 2.1 Custodia v2 — tipos documentales, documentos, versiones y vínculos
 
-> Implementados el 2026-09-25 los pasos 1 a 5 de `docs/instrucciones-cli/documentos-custodia-implementacion.md` (fuente de verdad del diseño): fases 2a y 2b, y el ciclo de vida de la 2c. Implementado también el paso 6 (acceso y auditoría). Pendiente: UI operativa (paso 7).
+> Implementados el 2026-09-25 los pasos 1 a 5 de `docs/instrucciones-cli/documentos-custodia-implementacion.md` (fuente de verdad del diseño): fases 2a y 2b, y el ciclo de vida de la 2c. Implementados también el paso 6 (acceso y auditoría) y el 7 (UI operativa: tarjeta «Documentos» de la ficha).
 
 | Tabla | Modelo | Contenido |
 |---|---|---|
@@ -269,11 +269,16 @@ Grupo **«Sistema»** (solo administradores):
 
 - ⏳ **`ConfiguracionTipografiaResource`** (no implementado) — tipografía base para todos los informes generados. Hoy la tipografía sale de `config/documentos.php`.
 
-### Livewire (operativo) — ⏳ no implementado
+### Livewire (operativo)
 
-> Ninguno de estos componentes existe. Hoy un profesional no puede subir documentos, redactar ni firmar informes, ni subir el PISO desde la superficie operativa; solo hay visores en Filament. La UI de documentos del ciudadano se diseñará sobre la custodia v2.
+- ✅ **`DocumentosCiudadano`** (`documentos.documentos-ciudadano`, 2026-09-25): tarjeta «Documentos» en la columna principal de la ficha del ciudadano, debajo de «Unidad de convivencia».
+  - **Lista:** documentos con vínculo activo que el usuario puede ver (`DocumentoPolicy`), sin los destruidos. Muestra tipo, descripción, versión vigente, fechas y órgano emisor, una etiqueta «Caducado el…» o «Válido hasta…», y el historial desplegable de versiones anteriores con su estado. Las versiones anteriores no se pueden abrir: el controlador sirve solo la vigente.
+  - **Acciones:** «Ver» y «Descargar» (URL firmadas al controlador). Además, «Subir documento», «Nueva versión» (no en documentos de informes firmados) y «Desvincular» (con confirmación), que solo aparecen a quien puede editar al ciudadano (`CiudadanoPolicy::update`: `ciudadano.editar` y ámbito de UO; supervisión nunca). El servidor lo vuelve a comprobar (403).
+  - **Modal de subida** (Bootstrap, controlado por Livewire, como «Nueva atención»): tipo documental (activos y vinculables a personas), fichero, cómo se ha recibido (presencial o escaneo), descripción, fecha de emisión, órgano emisor, metadatos adicionales que exige el tipo y casillas para asociar a otros miembros activos de la unidad de convivencia (solo se aceptan miembros reales). Los rechazos de la ingesta se muestran en el modal con su mensaje.
+  - **Límite de subida:** `DOCUMENTOS_MAX_SUBIDA_KB` (50 MB por defecto, como `client_max_body_size` de nginx). El provider sube a ese valor el límite temporal de Livewire (12 MB por defecto); el tipo documental aplica después su propio límite.
 
-- **`DocumentosCiudadanoComponent`** — panel de documentos de un ciudadano. Subida, previsualización (URL firmada temporal), descarga.
+⏳ No implementados (hoy un profesional no puede redactar ni firmar informes ni subir el PISO desde la superficie operativa; solo hay visores en Filament):
+
 - **`NuevoInformeWizard`** — asistente en 4 pasos: selección de plantilla → edición de secciones de texto libre → vista previa PDF → firma con AutoFirma. Las secciones `automatico` se pre-cargan y no son editables. No avanza al paso 4 si hay secciones `obligatorio: true` vacías.
 - **`InformesHistorialComponent`** — listado de informes de una Historia Social. Acciones sobre informes firmados: ver PDF, anular (solo el autor, con motivo obligatorio).
 - **`PisoFirmadoUploadComponent`** — subida del PISO escaneado con doble firma manuscrita.
@@ -326,7 +331,8 @@ Ficheros: `Modules/Documentos/tests/Feature/DocumentosTest.php` (TF-DOC-01 a 21 
 | Custodia v2 — retenciones, informes y destrucción (TF-DOC-67 a 73) | 7 | ✅ `RetencionDestruccionTest` |
 | Custodia v2 — acceso y auditoría (TF-DOC-74 a 78) | 5 | ✅ `AccesoDocumentoTest` (TF-DOC-75 adaptado a la regla de acceso amplio) |
 | Pie con número de página y logo único (TF-DOC-79 a 81) | 3 | ✅ |
-| **Total implementado** | **77** | **77 ✅** |
+| UI operativa: tarjeta «Documentos» de la ficha (sin numerar) | 10 | ✅ `DocumentosCiudadanoTest` |
+| **Total implementado** | **87** | **87 ✅** |
 
 TF-DOC-79 a 81 se llamaban TF-DOC-26, 27 y 29 (2026-09-24); se renumeraron el 2026-09-25 para no chocar con la numeración de la custodia v2.
 

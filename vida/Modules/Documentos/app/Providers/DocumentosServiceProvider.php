@@ -6,6 +6,7 @@ use App\Models\Ciudadano;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 use Modules\Documentos\Console\LimpiarHuerfanosCommand;
 use Modules\Documentos\Console\ProponerDestruccionCommand;
 use Modules\Documentos\Console\VerificarIntegridadCommand;
@@ -13,6 +14,7 @@ use Modules\Documentos\Contracts\AlmacenDocumentos;
 use Modules\Documentos\Contracts\ConversorPdf;
 use Modules\Documentos\Contracts\EscanerAntivirus;
 use Modules\Documentos\Contracts\ProveedorClavesMaestras;
+use Modules\Documentos\Http\Livewire\DocumentosCiudadano;
 use Modules\Documentos\Exceptions\ConfiguracionDocumentosException;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\EstiloInforme;
@@ -80,7 +82,7 @@ class DocumentosServiceProvider extends ServiceProvider
     }
 
     /**
-     * Arranca el módulo Documentos: migraciones, observers, baja de ciudadano, vistas, rutas y comandos.
+     * Arranca el módulo Documentos: migraciones, observers, baja de ciudadano, vistas, rutas, Livewire y comandos.
      *
      * @return void
      */
@@ -100,6 +102,12 @@ class DocumentosServiceProvider extends ServiceProvider
         $this->loadViewsFrom(module_path($this->moduleName, 'resources/views'), 'documentos');
 
         $this->loadRoutesFrom(module_path($this->moduleName, 'routes/web.php'));
+
+        Livewire::component('documentos.documentos-ciudadano', DocumentosCiudadano::class);
+
+        // Livewire limita por defecto las subidas temporales a 12 MB, menos que el máximo de
+        // un tipo documental (20 MB). La validación de cada formulario sigue aplicándose.
+        config(['livewire.temporary_file_upload.rules' => ['required', 'file', 'max:'.config('documentos.max_subida_kb')]]);
 
         if ($this->app->runningInConsole()) {
             $this->commands([

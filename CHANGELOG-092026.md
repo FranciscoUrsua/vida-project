@@ -4,6 +4,42 @@
 
 ---
 
+## 2026-09-25 — Documentos: custodia v2, UI operativa y cierre (pasos 7 y 9)
+
+### Módulos afectados
+`Modules/Documentos` (componente Livewire `DocumentosCiudadano` y su vista, provider, config `max_subida_kb`, tests), `Modules/Ciudadania/resources/views/livewire/ficha-ciudadano-page.blade.php` (inserta la tarjeta), `.env.example`, `docs/modulo-documentos.md`, `docs/documentacion-proyecto.md` (tabla de estado y §9), `CLAUDE.md`
+
+### Añadido
+- **Tarjeta «Documentos» en la ficha del ciudadano** (`documentos.documentos-ciudadano`), en la columna principal debajo de «Unidad de convivencia». Ubicación, permisos y modal los decidió el desarrollador.
+  - Lista los documentos visibles para el usuario, con estado (caducado o validez), versión vigente e historial desplegable de versiones anteriores.
+  - «Ver» y «Descargar» van al controlador con URL firmadas.
+  - «Subir documento», «Nueva versión» y «Desvincular» exigen poder editar al ciudadano (`CiudadanoPolicy::update`), también en el servidor.
+  - Modal de Bootstrap con tipo, fichero, canal, descripción, fecha de emisión, órgano emisor, metadatos que exige el tipo y casillas para asociar a otros miembros de la unidad de convivencia. Los rechazos de la ingesta se muestran en el modal.
+- `DOCUMENTOS_MAX_SUBIDA_KB` (50 MB, como nginx). El provider sube a ese valor el límite temporal de subida de Livewire (12 MB por defecto) para toda la aplicación; cada formulario sigue validando su propio límite.
+- **Tests:** `DocumentosCiudadanoTest` (10), incluida la ficha que contiene la tarjeta. `Modules/Documentos`: **88 passed**.
+- **Comprobación en negativo:** falla el test de supervisión sin `autorizarEdicion()`, y falla el de «solo miembros de la unidad de convivencia» si se aceptan ids arbitrarios.
+- **Acceso al disco (criterio 5 de las instrucciones):** `grep` de `Storage::disk` en `app`, `Modules`, `routes` y `config`. Solo `AlmacenFlysystem` usa el disco de documentos; el resto es el disco `public` del logo (`Configuracion`).
+
+### Decisiones de implementación no previstas en las instrucciones
+- **Maquetación:** Bootstrap estándar (`list-group`, `badge rounded-pill` con colores `*-subtle`, `form-*`, `btn-*`) y `op-empty` para el estado vacío. Para la tarjeta y su título se reutilizan las clases de la ficha (`citizen-file__card`, `citizen-file__section-title`) por coherencia con el resto de tarjetas. No se ha añadido CSS nuevo.
+- Las versiones anteriores solo se listan (número, fecha y estado): no se pueden abrir porque el controlador sirve solo la versión vigente.
+- Canal elegible en el alta: «Entregado en persona» (`presencial`) o «Escaneado en el centro» (`escaneo`).
+- «Desvincular» quita el documento de la ficha de esta persona y lo conserva para las demás.
+
+### Corregido
+- **Conversión de imágenes (fase 2b):** `ConversorPdfLocal` fijaba el límite de tiempo de ImageMagick (`RESOURCETYPE_TIME`), pero ese límite cuenta desde que arranca el proceso, no por conversión. En la suite completa TF-DOC-52 fallaba con «time limit exceeded». En un worker de PHP-FPM que lleve más de 120 s vivo habría rechazado todas las imágenes. Se quita el límite; siguen los de memoria, área y tamaño de la política de ImageMagick.
+
+### Suite completa (paso 9)
+`php artisan test`: 908 passed, **76 failed**, 12 incomplete y 1 skipped (1223 s). El único fallo del módulo Documentos era TF-DOC-52 (el límite de Imagick, corregido y verificado aparte). Los otros 75 son de otros módulos y no tocan el código de esta sesión:
+- **Agenda (63):** columnas inexistentes (`tipos_slot.horario_centro_id`…), vistas y un `BadMethodCallException`. Es el módulo pendiente conocido.
+- **Mensajes (6):** rol `supervision` no sembrado en `AlertaServiceTest`, `NuevoMensajeTest` y `BuzonPageTest`.
+- **Ciudadanía (2):** `FichaCiudadanoPageTest` y `FichaAtencionTest` buscan «Ver historia social», un texto que ya no existe en la plantilla (no se tocaba desde antes de la sesión).
+- **Autenticación (2):** TF-AUTH-16/17 (nombre e iniciales en la UI).
+- **Otros (2):** `AutorizacionDatosTest` (FK de `audits.ciudadano_id` al auditar `HistoriaSocial`) y `AccesosExpedienteTest` (Intervención, ya conocido).
+- Los 3 fallos de Supervisión anotados en SESSION no aparecen en esta ejecución.
+
+---
+
 ## 2026-09-25 — Documentos: custodia v2, acceso y auditoría (paso 6)
 
 ### Módulos afectados

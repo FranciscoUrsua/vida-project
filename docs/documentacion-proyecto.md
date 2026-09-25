@@ -39,7 +39,7 @@
 | Centro | ✅ Completo | — | Entidad Servicio implementada (mayo 2026) |
 | Mensajes | ✅ Completo | — | BuzonPage operativa (junio 2026) |
 | Escalas | ✅ Fase 1 | TF-ESC-A01..C04 ✅ | Fase 2 (Livewire pases) pendiente |
-| Documentos | ✅ Completo | TF-DOC-01..21 ✅ | Merge tags implementados |
+| Documentos | ✅ Custodia v2 completa | TF-DOC-01..21 y 26..81 ✅ (22..25 ⏳) | Variables auxiliares y UI de informes/PISO pendientes |
 | Agenda | ✅ Dominio completo | 45 tests ✅ | UI en fixtures de desarrollo; 30 tests bloqueados |
 | Ciudadanía | 🚧 En desarrollo | TF-LW-NAV-16..24 ✅ | Alta + ficha implementadas; CiudadanoIdentificadores pendiente |
 | Intervención | 🚧 En desarrollo | TF-LW-AGE, CIU, CAS, BUS, BUZ ✅ | CiudadanoPage operativa; derivaciones y PISO completos pendientes |
@@ -282,7 +282,7 @@ Gestión de plantillas de informe, generación de documentos y merge tags.
 
 **Merge tags (mayo 2026):** `MergeTagsCatalogo` con 26 variables en 6 categorías. `PlantillaInformeResource` con campo `secciones` como Builder de dos tipos de bloque (automatico / texto_libre con RichEditor y merge tags). Variables pendientes de módulo Intervención devuelven `'—'`.
 
-**Custodia v2 (septiembre 2026, en curso):** tipos documentales configurables (`TipoDocumentalResource`), documento lógico con versiones cifradas por versión (AES-256-GCM, clave maestra en `DOCUMENTOS_CLAVE_MAESTRA`), vínculos n:M a personas, retenciones y actas de eliminación. Disco `documentos` fuera del proyecto (`DOCUMENTOS_RUTA`). Fases 2a (modelo, almacenamiento y cifrado) y 2b (tubería de entrada: antivirus ClamAV, conversión de imágenes y ODT/DOCX a PDF, saneado a PDF/A-2b, recompresión) hechas, y el ciclo de vida de la 2c (nuevas versiones con purga, baja de ciudadano, destrucción con propuesta, aprobación y acta); acceso por `DocumentoPolicy` con auditoría de ver/descargar; pendiente la UI operativa (ciclo de vida completo, acceso, auditoría y UI). Detalle en `docs/modulo-documentos.md`.
+**Custodia v2 (septiembre 2026, implementada):** tipos documentales configurables (`TipoDocumentalResource`), documento lógico con versiones cifradas una a una (AES-256-GCM con clave maestra en `DOCUMENTOS_CLAVE_MAESTRA`) y vínculos n:M a personas. Disco `documentos` fuera del proyecto (`DOCUMENTOS_RUTA`). Tubería de entrada con antivirus ClamAV, conversión de imágenes y ODT/DOCX a PDF, saneado a PDF/A-2b y recompresión. Ciclo de vida con nuevas versiones y purga, baja de ciudadano, retenciones, y destrucción con propuesta, aprobación de `adm_sistema` y acta. Acceso por `DocumentoPolicy` (la regla de la ficha), con auditoría de ver, descargar y borrar. Tarjeta «Documentos» en la ficha del ciudadano. Detalle en `docs/modulo-documentos.md`.
 
 **Sin UI operativa:** los profesionales aún no pueden subir documentos ni redactar informes desde la superficie Livewire.
 

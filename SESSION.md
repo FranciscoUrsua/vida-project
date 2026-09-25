@@ -6,7 +6,7 @@
 
 ## Tarea completada
 
-**Documentos: custodia v2, paso 6 (acceso y auditoría).** `DocumentoPolicy` con la regla de la ficha, `DocumentoController` (ver y descargar, auditados), y la nueva acción de auditoría `borrar` para purgas y destrucciones (TF-DOC-74 a 78). Detalle en `CHANGELOG-092026.md`.
+**Documentos: custodia v2 terminada (paso 7, UI operativa, y cierre del paso 9).** Tarjeta «Documentos» en la ficha del ciudadano, corrección de la conversión de imágenes con Imagick y primera suite completa. Detalle en `CHANGELOG-092026.md`.
 
 ---
 
@@ -22,7 +22,8 @@
 - **Servidor de pruebas preparado para la custodia** (2026-09-25): `/srv/vida/documentos` (www-data, 0700), `DOCUMENTOS_RUTA` y `DOCUMENTOS_CLAVE_MAESTRA` en el `.env` de staging, y clamd activo (`/var/run/clamav/clamd.ctl`). El `.env` **local** no tiene variables `DOCUMENTOS_*`: en local la custodia falla hasta que se añadan.
 - **Código de staging** (`/var/www/vida-project/vida`): se despliega solo con cada push a `master` (job `deploy` de `.github/workflows/ci.yml`, tras pasar `test`). No hace falta desplegar a mano.
 - **Tests:**
-  - `Modules/Documentos`: 78 passed (unos 170 s: cada ingesta pasa por Ghostscript). No lanzar a la vez dos ejecuciones de tests: comparten `vida_testing`.
+  - `Modules/Documentos`: 88 passed (unos 190 s: cada ingesta pasa por Ghostscript).
+  - **Suite completa** (2026-09-25, unos 20 min): 908 passed y 76 failed, 75 de ellos fuera de Documentos (sobre todo Agenda) y ya existentes. Ver CHANGELOG y BACKLOG. No lanzar a la vez dos ejecuciones de tests: comparten `vida_testing`.
   - `Modules/Usuarios/tests/`: 63 passed y 1 incomplete (ya existía).
   - `Modules/Supervision/tests`: 34 passed y **3 fallos ya existentes** (`sidebar_sin_plazas_no_muestra_item_plazas`, `ficha_profesional_muestra_tres_pestanas`, `auditoria_con_colectivos_muestra_columna_protegido`). Fallan igual en master sin estos cambios. La cifra anterior de «49 passed» era errónea: el módulo tiene 37 tests.
 
@@ -30,9 +31,10 @@
 
 ## Siguiente paso concreto recomendado
 
-1. **Custodia v2, paso 7 (UI operativa):** panel de documentos del ciudadano (Livewire + Bootstrap, design system): tipo documental, metadatos requeridos, asociar a otros miembros de la UC, lista con vigente, caducado y versiones anteriores, «subir nueva versión», «desvincular» y mensajes de rechazo de la ingesta. Localizar antes dónde encaja en la ficha del ciudadano. Después, paso 9: suite completa y cierre.
-2. **Prioritario, fuera de Documentos:** la ficha del ciudadano no aplica la restricción de colectivos protegidos (BACKLOG, arriba del todo).
-3. Pendientes anteriores: cuatro ojos en la aprobación de roles, variables auxiliares de informes (TF-DOC-22 a 25), UI de informes y PISO, los 3 tests rotos de Supervisión, `Modules/Agenda` y `AccesosExpedienteTest`.
+1. **Revisar en staging la tarjeta «Documentos»** de la ficha del ciudadano con un usuario de intervención: subir un PDF, una foto y un DOCX, una versión nueva y desvincular. Es la primera vez que se ve en navegador; los tests no cubren el aspecto visual.
+2. **Restricción de colectivos protegidos en la ficha del ciudadano** (BACKLOG, prioritario; el desarrollador lo ha aplazado a propósito: «tiene su miga»).
+3. Fallos previos de la suite completa (BACKLOG), antes de cualquier merge a `main`.
+4. Pendientes anteriores: cuatro ojos en la aprobación de roles, variables auxiliares de informes (TF-DOC-22 a 25), UI de informes y PISO, `Modules/Agenda`.
 
 ---
 

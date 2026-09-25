@@ -15,14 +15,13 @@ Módulo: Ciudadanía (prioritario: restricción crítica de `CLAUDE.md` §3)
 
 ---
 
-**Documentos — custodia v2: resto de la fase 2c pendiente** — 2026-09-25
-Módulo: Documentos
-Hechos los pasos 1 a 6 de `documentos-custodia-implementacion.md` (TF-DOC-26 a 78). Pendiente:
-- **Paso 7:** UI operativa de documentos del ciudadano. Después, suite completa y cierre (paso 9).
+**Suite completa con 75 fallos fuera de Documentos** — 2026-09-25
+Módulos: Agenda, Mensajes, Ciudadanía, Autenticación, Intervención
+Primera ejecución completa registrada (908 passed, 76 failed; el fallo de Documentos ya está corregido). Detalle por módulo en `CHANGELOG-092026.md` («Documentos: custodia v2, UI operativa y cierre»). La mayoría son de Agenda (esquema que no existe). En Ciudadanía, dos tests buscan un texto que ya no está en la ficha. Revisarlos antes de un merge a `main`.
 
 ---
 
-**Documentos — decisiones pendientes de la custodia v2** — 2026-09-25
+**Documentos — decisiones y mejoras pendientes de la custodia v2** — 2026-09-25
 Módulo: Documentos
 - Qué hito crea una retención `intervencion_cerrada` (`RetencionService::retener()` existe sin ningún evento conectado).
 - Proveedor de la clave maestra en producción (KMS, Vault o HSM); hoy `ProveedorClavesLocal` con `DOCUMENTOS_CLAVE_MAESTRA`.
@@ -33,6 +32,7 @@ Módulo: Documentos
 - `StreamMaxLength` de clamd (25 MB por defecto) debe ser mayor que el tamaño máximo de subida. Si no, los ficheros grandes se rechazan como «antivirus no disponible», un mensaje que confunde.
 - Programar `documentos:proponer-destruccion` en el scheduler (hoy solo a mano). Mientras ningún tipo tenga `conservacion_anyos`, no propone nada.
 - Si se restaura un ciudadano dado de baja, sus vínculos a documentos siguen inactivos. Decidir si se reactivan.
+- UI: abrir versiones anteriores sustituidas (hoy el controlador solo sirve la vigente), y el mismo panel en planes de intervención y valoraciones cuando se vinculen documentos a ellos.
 - Conformidad PDF/A estricta: Ghostscript declara PDF/A-2b, pero no se ha validado con veraPDF ni se añade un OutputIntent explícito.
 
 ---

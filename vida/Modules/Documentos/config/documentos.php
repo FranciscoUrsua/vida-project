@@ -9,6 +9,11 @@ return [
     // no existe modo de almacenamiento en claro.
     'clave_maestra' => env('DOCUMENTOS_CLAVE_MAESTRA'),
 
+    // Tamaño máximo de un fichero subido desde la UI, en KB, antes de la ingesta (que
+    // aplica después el límite del tipo, tras convertir y recomprimir). Debe ser menor
+    // o igual que client_max_body_size de nginx (50M en el servidor de pruebas).
+    'max_subida_kb' => (int) env('DOCUMENTOS_MAX_SUBIDA_KB', 50 * 1024),
+
     // Límites por defecto de un tipo documental nuevo.
     'max_bytes_defecto' => (int) env('DOCUMENTOS_MAX_BYTES', 20 * 1024 * 1024),
     'max_paginas_defecto' => (int) env('DOCUMENTOS_MAX_PAGINAS', 50),

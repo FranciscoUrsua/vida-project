@@ -49,8 +49,10 @@ class ConversorPdfLocal implements ConversorPdf
         $salida = $directorio.'/convertido.pdf';
 
         try {
+            // Sin límite de tiempo de ImageMagick: cuenta desde que arranca el proceso, no por
+            // conversión, y en un worker de PHP-FPM de larga vida haría fallar todas. La
+            // política de ImageMagick limita memoria, área y tamaño de imagen.
             $imagen = new \Imagick;
-            $imagen->setResourceLimit(\Imagick::RESOURCETYPE_TIME, (int) config('documentos.ingesta.timeout_conversion_segundos'));
             // El decodificador lo fija el tipo detectado por contenido, no lo adivina ImageMagick.
             $imagen->readImage(substr($mime, strlen('image/')).':'.$ruta);
             // Un fichero de imagen es una sola página: si trae varios fotogramas, el primero.
