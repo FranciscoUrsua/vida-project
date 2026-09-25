@@ -3,7 +3,9 @@
 **Módulo:** `Documentos`
 **Namespace:** `Modules\Documentos\Models`
 **Directorio:** `vida/Modules/Documentos/`
-**Estado:** Implementado. 25/25 tests funcionales pasan (última actualización: mayo 2026).
+**Estado:** Parcial (revisado el 2026-09-25 contra el código). Backend de estilos, plantillas, informes y custodia v1 implementado; 24 tests pasan. **Sin UI operativa** (sección 4) y **sin variables auxiliares** (2.6). La custodia v2 (`docs/instrucciones-cli/documentos-custodia-implementacion.md`) sustituye a la custodia v1 descrita en 2.1.
+
+> **Revisión 2026-09-25.** Versiones anteriores de este documento daban por implementados las variables auxiliares (TF-DOC-22 a 25), `ParametroInformeResource`, `ConfiguracionTipografiaResource` y los componentes Livewire de la sección 4. No existen en el código ni en el historial de git. Se marcan abajo como ⏳ pendientes.
 
 ---
 
@@ -171,7 +173,9 @@ El campo `contenido_plantilla` de las secciones de tipo `texto_libre` almacena H
 | `observaciones` | text nullable | |
 | `created_at` / `updated_at` | timestamp | |
 
-### 2.6 ParametroInforme
+### 2.6 ParametroInforme — ⏳ no implementado
+
+> Diseño pendiente de implementar según `docs/instrucciones-cli/documentos-variables-auxiliares.md`. No existen la tabla, el modelo ni el recurso.
 
 **Tabla:** `parametros_informe`
 **Descripción:** Par clave/valor configurable por el administrador. Permite crear variables auxiliares en plantillas de informe sin modificar código. Los valores se cachean con TTL de 1 hora; la caché se invalida automáticamente al guardar o borrar un parámetro.
@@ -211,9 +215,9 @@ Resuelve todas las variables que pueden aparecer en las plantillas de informe. O
 
 **1. Tags contextuales** (mayor prioridad) — dependen del ciudadano, profesional y fecha del informe concreto. Se construyen en `construirMapaValores()` a partir de las entidades del expediente. Incluyen: datos del ciudadano, del expediente, de las escalas de valoración (último pase de Barthel, Pfeiffer y Lawton-Brody), del plan de intervención activo, del profesional autor y del centro.
 
-**2. Variables dinámicas de sistema** — calculadas en tiempo de ejecución, iguales para todos los informes. Implementadas en `VariablesDinamicas::resolver()`. Variables disponibles: `fecha_hoy` (dd/mm/aaaa), `año_actual`, `mes_actual` (nombre del mes en español).
+**2. Variables dinámicas de sistema** (⏳ no implementado) — calculadas en tiempo de ejecución, iguales para todos los informes. Implementadas en `VariablesDinamicas::resolver()`. Variables disponibles: `fecha_hoy` (dd/mm/aaaa), `año_actual`, `mes_actual` (nombre del mes en español).
 
-**3. Parámetros configurables** (menor prioridad) — leídos de `parametros_informe` vía `ParametroInforme::comoMapa()` con caché de 1 hora. Ejemplos: `ciudad`, `web_municipal`, `telefono_atencion`.
+**3. Parámetros configurables** (⏳ no implementado; menor prioridad) — leídos de `parametros_informe` vía `ParametroInforme::comoMapa()` con caché de 1 hora. Ejemplos: `ciudad`, `web_municipal`, `telefono_atencion`.
 
 En caso de colisión de clave, los tags contextuales siempre ganan frente a los parámetros configurables. Esto garantiza que ningún administrador puede romper un informe creando un parámetro `nombre_ciudadano`.
 
@@ -221,9 +225,9 @@ El método `resolverMergeTags(string $html, int $ciudadanoId, int $profesionalId
 
 ### MergeTagsCatalogo
 
-Clase de soporte que centraliza el catálogo de variables disponibles en el editor de plantillas. `todos()` devuelve el array `['clave' => 'etiqueta']` que consume `RichEditor::mergeTags()` en Filament. Incluye las tres categorías: tags contextuales (estáticos), variables dinámicas de sistema (vía `VariablesDinamicas::etiquetas()`), y parámetros configurables (leídos de BD con caché).
+Clase de soporte que centraliza el catálogo de variables disponibles en el editor de plantillas. `todos()` devuelve el array `['clave' => 'etiqueta']` que consume `RichEditor::mergeTags()` en Filament. Hoy solo incluye los tags contextuales. Las variables dinámicas y los parámetros configurables llegarán con las variables auxiliares (⏳).
 
-### VariablesDinamicas
+### VariablesDinamicas — ⏳ no implementado
 
 Clase de soporte sin estado. `etiquetas()` devuelve el mapa de claves y descripciones para el editor. `resolver()` devuelve el mapa de claves y valores calculados en tiempo de ejecución.
 
@@ -240,13 +244,15 @@ Grupo de navegación **«Informes y Plantillas»** (accesible a supervisores y a
 - **`InformeResource`** — listado de informes con filtros por estado y autor.
 - **`DocumentoResource`** — listado de documentos custodiados.
 - **`TipoEscalaResource`** — ver módulo Escalas.
-- **`ParametroInformeResource`** — gestión de parámetros configurables de plantillas. Accesible solo a `adm_sistema`. Formulario con validación de formato de clave (`/^[a-z][a-z0-9_]*$/`).
+- ⏳ **`ParametroInformeResource`** (no implementado) — gestión de parámetros configurables de plantillas. Accesible solo a `adm_sistema`. Formulario con validación de formato de clave (`/^[a-z][a-z0-9_]*$/`).
 
 Grupo **«Sistema»** (solo administradores):
 
-- **`ConfiguracionTipografiaResource`** — tipografía base para todos los informes generados.
+- ⏳ **`ConfiguracionTipografiaResource`** (no implementado) — tipografía base para todos los informes generados. Hoy la tipografía sale de `config/documentos.php`.
 
-### Livewire (operativo)
+### Livewire (operativo) — ⏳ no implementado
+
+> Ninguno de estos componentes existe. Hoy un profesional no puede subir documentos, redactar ni firmar informes, ni subir el PISO desde la superficie operativa; solo hay visores en Filament. La UI de documentos del ciudadano se diseñará sobre la custodia v2.
 
 - **`DocumentosCiudadanoComponent`** — panel de documentos de un ciudadano. Subida, previsualización (URL firmada temporal), descarga.
 - **`NuevoInformeWizard`** — asistente en 4 pasos: selección de plantilla → edición de secciones de texto libre → vista previa PDF → firma con AutoFirma. Las secciones `automatico` se pre-cargan y no son editables. No avanza al paso 4 si hay secciones `obligatorio: true` vacías.
@@ -279,19 +285,23 @@ Grupo **«Sistema»** (solo administradores):
 
 Fichero: `Modules/Documentos/tests/Feature/DocumentosTest.php`
 
-### Estado de ejecución — mayo 2026
+### Estado de ejecución — revisado 2026-09-25
 
 | Área | Tests | Estado |
 |---|---|---|
-| Custodia de documentos (TF-DOC-01 a 05) | 5 | ✅ |
+| Custodia de documentos v1 (TF-DOC-01 a 05) | 5 | ✅ (se reescriben contra la custodia v2) |
 | Estilos e herencia jerárquica (TF-DOC-06 a 08) | 3 | ✅ |
 | Plantillas de informe (TF-DOC-09, 10) | 2 | ✅ |
 | Ciclo de vida del informe (TF-DOC-11 a 16) | 6 | ✅ |
 | PISO firmado (TF-DOC-17, 18) | 2 | ✅ |
 | Configuración y visibilidad (TF-DOC-19, 20) | 2 | ✅ |
 | Merge tags contextuales (TF-DOC-21) | 1 | ✅ |
-| Variables auxiliares (TF-DOC-22 a 25) | 4 | ✅ |
-| **Total** | **25** | **25 ✅** |
+| Variables auxiliares (TF-DOC-22 a 25) | 4 | ⏳ no implementado |
+| Custodia v2 (TF-DOC-26 a 78) | 53 | ⏳ ver `documentos-custodia-tests.md` |
+| Pie con número de página y logo único (TF-DOC-79 a 81) | 3 | ✅ |
+| **Total implementado** | **24** | **24 ✅** |
+
+TF-DOC-79 a 81 se llamaban TF-DOC-26, 27 y 29 (2026-09-24); se renumeraron el 2026-09-25 para no chocar con la numeración de la custodia v2.
 
 ### TF-DOC-01 a TF-DOC-20
 
@@ -301,19 +311,19 @@ Fichero: `Modules/Documentos/tests/Feature/DocumentosTest.php`
 
 Dado un ciudadano «María López» con expediente «EXP-2026-001» y un `PaseEscala` Barthel completado con `score_total=75`; una sección `texto_libre` con `contenido_plantilla` que contiene `{{ nombre_ciudadano }}`, `{{ numero_expediente }}` y `{{ score_barthel }}`. Cuando se llama a `ResolverFuentesInforme::resolverMergeTags()`. Entonces el HTML resultante contiene «María López», «EXP-2026-001» y «75»; no contiene ningún tag sin sustituir.
 
-### ✅ TF-DOC-22 — Variables dinámicas de sistema se resuelven correctamente
+### ⏳ TF-DOC-22 — Variables dinámicas de sistema se resuelven correctamente
 
 Dado ningún parámetro en BD; HTML con `{{ fecha_hoy }}` y `{{ año_actual }}`. Cuando se llama a `resolverMergeTags()`. Entonces `{{ fecha_hoy }}` se sustituye por la fecha de hoy en formato dd/mm/aaaa; `{{ año_actual }}` por el año actual como string de 4 dígitos.
 
-### ✅ TF-DOC-23 — Parámetro configurable se resuelve en el informe
+### ⏳ TF-DOC-23 — Parámetro configurable se resuelve en el informe
 
 Dado un `ParametroInforme` con `clave='ciudad'` y `valor='Madrid'`; HTML con `{{ ciudad }}`. Cuando se llama a `resolverMergeTags()`. Entonces `{{ ciudad }}` se sustituye por «Madrid».
 
-### ✅ TF-DOC-24 — Tag contextual tiene prioridad sobre parámetro configurable
+### ⏳ TF-DOC-24 — Tag contextual tiene prioridad sobre parámetro configurable
 
 Dado un `ParametroInforme` con `clave='nombre_ciudadano'` y `valor='VALOR_TRAMPA'`; ciudadano con nombre «María López». Cuando se llama a `resolverMergeTags()` con HTML que contiene `{{ nombre_ciudadano }}`. Entonces el resultado contiene «María López», no «VALOR_TRAMPA».
 
-### ✅ TF-DOC-25 — Clave de parámetro con formato inválido no puede guardarse
+### ⏳ TF-DOC-25 — Clave de parámetro con formato inválido no puede guardarse
 
 Dado ningún parámetro existente. Cuando se intenta crear un `ParametroInforme` con `clave='Mi Ciudad'` (contiene espacio). Entonces falla la validación; no se crea ningún registro.
 

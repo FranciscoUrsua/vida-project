@@ -542,11 +542,11 @@ class DocumentosTest extends TestCase
     }
 
     // =========================================================================
-    // TF-DOC-26: Marcador de número de página en el pie de EstiloInforme
+    // TF-DOC-79: Marcador de número de página en el pie de EstiloInforme
     // =========================================================================
 
     #[Test]
-    public function test_tf_doc_26_marcador_numero_pagina_en_pie_genera_pdf_valido(): void
+    public function test_tf_doc_79_marcador_numero_pagina_en_pie_genera_pdf_valido(): void
     {
         Storage::fake('local');
         config(['documentos.disco' => 'local']);
@@ -583,7 +583,7 @@ class DocumentosTest extends TestCase
     }
 
     #[Test]
-    public function test_tf_doc_27_pie_sin_marcador_numero_pagina_genera_pdf_valido(): void
+    public function test_tf_doc_80_pie_sin_marcador_numero_pagina_genera_pdf_valido(): void
     {
         Storage::fake('local');
         config(['documentos.disco' => 'local']);
@@ -615,11 +615,11 @@ class DocumentosTest extends TestCase
     }
 
     // =========================================================================
-    // TF-DOC-29: Logo único de organización sustituye al logo por UO
+    // TF-DOC-81: Logo único de organización sustituye al logo por UO
     // =========================================================================
 
     #[Test]
-    public function test_tf_doc_29_logo_global_de_organizacion_sustituye_al_logo_por_uo(): void
+    public function test_tf_doc_81_logo_global_de_organizacion_sustituye_al_logo_por_uo(): void
     {
         Storage::fake('local');
         Storage::fake('public');
