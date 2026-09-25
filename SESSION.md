@@ -19,7 +19,7 @@ Antes, el mismo día: roles sugeridos por cargo con asignación supervisada desd
   - Migraciones `create_cargo_roles_sugeridos_table` y `add_cargo_roles_revisado_id_to_users_table` aplicadas.
   - 9 cargos con slug (`ts`, `psicologo`, `educadorsocial`, `terapeutaocupacional`, `auxss`, `abogado`, `coordinador`, `administrativo`, `auxadmin`) y todos con roles sugeridos, configurados a mano por el desarrollador. Los seeders coinciden con este estado.
   - Siguen vigentes el mundo `demo_ciam` (980 registros TEST_CIAM) y `pia.admite_entrada_directa = true`.
-- **Código de staging** (`/var/www/vida-project/vida`): **no desplegado** con este cambio. Las migraciones ya están aplicadas en la BD, pero el código de staging no conoce las columnas nuevas (no le afecta: solo se añaden). Desplegar `origin/master` para activar el formulario nuevo.
+- **Código de staging** (`/var/www/vida-project/vida`): se despliega solo con cada push a `master` (job `deploy` de `.github/workflows/ci.yml`, tras pasar `test`). No hace falta desplegar a mano.
 - **Tests:**
   - `Modules/Usuarios/tests/`: 58 passed y 1 incomplete (ya existía). Incluye `RolesSugeridosCargoTest` (11) y `CatalogoCargosSeederTest` (2).
   - `Modules/Supervision/tests`: 49 passed y **3 fallos ya existentes** (`sidebar_sin_plazas_no_muestra_item_plazas`, `ficha_profesional_muestra_tres_pestanas`, `auditoria_con_colectivos_muestra_columna_protegido`). Fallan igual en master sin estos cambios.
@@ -28,7 +28,7 @@ Antes, el mismo día: roles sugeridos por cargo con asignación supervisada desd
 
 ## Siguiente paso concreto recomendado
 
-1. **Desplegar `origin/master` en staging** y probar el alta de un usuario de dirección: debe pre-rellenar supervision e intervencion y dejar supervision pendiente en Supervisión → Aprobaciones.
+1. **Probar en staging** el alta de un usuario de dirección: debe pre-rellenar supervision e intervencion y dejar supervision pendiente en Supervisión → Aprobaciones.
 2. Configurar explícitamente `configuracion_roles` para todos los roles y decidir qué hacer con el formulario de `UsuarioRolResource`, que aún permite saltarse la supervisión (BACKLOG).
 3. Pendientes anteriores, sin cambios: separar la BD local de la de staging, el flujo de creación de planes especializados en la UI (`PlanPage` fija `general_asp`), la asociación tipo de plan ↔ centro, el bug de `User::booted()` (`name` = email), la suite rota de `Modules/Agenda` y `AccesosExpedienteTest`.
 
