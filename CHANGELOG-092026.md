@@ -4,6 +4,35 @@
 
 ---
 
+## 2026-09-25 — Documentos: custodia v2, ciclo de vida y destrucción con acta (paso 5)
+
+### Módulos afectados
+`Modules/Documentos` (`CicloVidaDocumentoService`, `IngestaDocumentoService`, `DestructorVersiones` y `DestruccionDocumentosService` nuevos, modelo `PropuestaEliminacion`, enum `EstadoPropuestaEliminacion`, migración `create_propuestas_eliminacion_table`, comando `documentos:proponer-destruccion`, provider y tests), `app/Filament/Resources/PropuestaEliminacionResource.php` (nuevo) y sus páginas, `docs/modulo-documentos.md`, `docs/documentacion-proyecto.md` §9, `docs/instrucciones-cli/documentos-custodia-tests.md`, `CLAUDE.md`
+
+### Añadido
+- **`CicloVidaDocumentoService::nuevaVersion()`:** la nueva versión pasa a vigente y la anterior queda sustituida para todas las personas vinculadas. Si el tipo caduca, `fecha_validez` se recalcula desde hoy. Con `purgar_no_retenidas` y la anterior sin retenciones, esta se purga. No se admite sobre el documento de un informe firmado ni sobre uno que no esté vigente. `IngestaDocumentoService::ingerir()` acepta ahora el documento destino.
+- **Baja de ciudadano:** el provider escucha `Ciudadano::deleted` (el soft delete de `CiudadanoService::eliminar()`) y llama a `desvincularEntidad()`. Se desactivan sus vínculos, uno a uno para que cada baja quede auditada, y documentos y ficheros siguen existiendo.
+- **`DestructorVersiones`:** hace el crypto-shredding (`clave_cifrada = null` y estado purgada o destruida) y después borra el objeto. Lo usan la purga y la destrucción.
+- **Destrucción:** tabla `propuestas_eliminacion`, `DestruccionDocumentosService` (`proponer`, `aprobar`, `rechazar`) y comando `documentos:proponer-destruccion`. Al aprobar se revisa cada versión y se excluyen las retenidas; si se destruye alguna, se levanta el acta. `PropuestaEliminacionResource` (Sistema, orden 7, solo `adm_sistema`) muestra listado y detalle con «Aprobar y destruir» y «Rechazar».
+- **Tests:** `CicloVidaDocumentoTest` (TF-DOC-59 a 66), `RetencionDestruccionTest` (TF-DOC-67 a 73) y una prueba de acceso al recurso de Filament. `Modules/Documentos`: **73 passed**; `FilamentPanelAccessTest`: 16 passed.
+- **Comprobación en negativo** (quitando la protección, el test falla): TF-DOC-63 sin la comprobación de retenciones en la purga, TF-DOC-68 sin el bloqueo de informes firmados, TF-DOC-72 sin volver a revisar retenciones al aprobar y TF-DOC-73 sin exigir `adm_sistema`.
+
+### Decisiones de implementación no previstas en las instrucciones
+- **Esquema de `propuestas_eliminacion`:** las instrucciones solo fijaban los estados y «la lista de versiones». Se guardan `versiones` y `excluidas` como jsonb de ids, `resuelta_por`, `resuelta_en`, `acta_eliminacion_id` y `observaciones`. Las propuestas no se borran.
+- **Orden de la destrucción:** la clave se tritura dentro de la transacción y los objetos se borran después del commit, para que un rollback no deje versiones con clave y sin fichero. Si un borrado falla, el objeto queda ilegible y lo retira `limpiar-huerfanos`.
+- **Revisión al aprobar:** además de las retenciones, se comprueba que la versión sigue teniendo contenido y sigue vencida. Si no se destruye ninguna, la propuesta queda aprobada sin acta y con todas en `excluidas`.
+- `ids_ciudadanos_vinculados` del acta incluye todos los vínculos, también los dados de baja, para que conste de quién era el documento.
+- Volver a ejecutar `proponer-destruccion` no repite versiones que ya estén en una propuesta pendiente.
+- Informe firmado = documento con alguna versión con `informe_id`. La excepción es `DomainException`, como en el resto del servicio.
+- Solo se purga la versión que se acaba de sustituir. Las sustituidas antiguas cuya retención haya vencido no se purgan después.
+- El comando no se ha añadido al scheduler.
+- TF-DOC-68/69 firman el informe sin sesión, como TF-DOC-11 a 16: con un profesional autenticado, el scope de ámbito de UO oculta al ciudadano hasta que exista el ámbito de acceso del grupo G.
+
+### Incidencia
+- Durante la sesión se ejecutó por error `php artisan migrate --env=testing`. Como no existe `.env.testing`, se aplicó sobre la BD compartida `vida`: se creó la tabla `propuestas_eliminacion`, vacía (lote 21). El despliegue la habría creado igualmente y no afecta a otros datos.
+
+---
+
 ## 2026-09-25 — Documentos: custodia v2, fase 2b (tubería de entrada)
 
 ### Módulos afectados

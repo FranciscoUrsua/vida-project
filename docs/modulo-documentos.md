@@ -3,7 +3,7 @@
 **Módulo:** `Documentos`
 **Namespace:** `Modules\Documentos\Models`
 **Directorio:** `vida/Modules/Documentos/`
-**Estado:** Parcial (revisado el 2026-09-25 contra el código). Backend de estilos, plantillas e informes implementado; custodia v2 en curso (fases 2a y 2b hechas); 57 tests pasan. **Sin UI operativa** (sección 4) y **sin variables auxiliares** (2.6). La custodia v2 (`docs/instrucciones-cli/documentos-custodia-implementacion.md`) sustituye a la custodia v1.
+**Estado:** Parcial (revisado el 2026-09-25 contra el código). Backend de estilos, plantillas e informes implementado; custodia v2 en curso (pasos 1 a 5 hechos); 72 tests pasan. **Sin UI operativa** (sección 4) y **sin variables auxiliares** (2.6). La custodia v2 (`docs/instrucciones-cli/documentos-custodia-implementacion.md`) sustituye a la custodia v1.
 
 > **Revisión 2026-09-25.** Versiones anteriores de este documento daban por implementados las variables auxiliares (TF-DOC-22 a 25), `ParametroInformeResource`, `ConfiguracionTipografiaResource` y los componentes Livewire de la sección 4. No existen en el código ni en el historial de git. Se marcan abajo como ⏳ pendientes.
 
@@ -33,7 +33,7 @@ El Plan de Intervención (PISO) es un caso especial: requiere firma del profesio
 
 ### 2.1 Custodia v2 — tipos documentales, documentos, versiones y vínculos
 
-> Implementadas las **fases 2a y 2b** el 2026-09-25 (pasos 1 a 4 de `docs/instrucciones-cli/documentos-custodia-implementacion.md`, que es la fuente de verdad del diseño). Pendiente: fase 2c (nuevas versiones, purga, destrucción con acta, `DocumentoPolicy`, auditoría de accesos, baja de ciudadano y UI).
+> Implementados el 2026-09-25 los pasos 1 a 5 de `docs/instrucciones-cli/documentos-custodia-implementacion.md` (fuente de verdad del diseño): fases 2a y 2b, y el ciclo de vida de la 2c. Pendiente del resto de la fase 2c: `DocumentoPolicy`, auditoría de accesos (paso 6) y UI operativa (paso 7).
 
 | Tabla | Modelo | Contenido |
 |---|---|---|
@@ -42,7 +42,8 @@ El Plan de Intervención (PISO) es un caso especial: requiere firma del profesio
 | `documento_versiones` | `DocumentoVersion` | Un PDF cifrado por versión: `clave_almacenamiento` (UUID opaco), hash y tamaño del PDF en claro, páginas, `nombre_original` cifrado (cast `encrypted`), canal, clave de datos cifrada e id de clave maestra. Una sola vigente por documento (índice parcial) |
 | `documento_vinculos` | `DocumentoVinculo` | Vínculos n:M (morph) a `Ciudadano` y, según el tipo, `PlanDeIntervencion` o `Valoracion`. Nunca a `UnidadConvivencia`. Baja lógica. Un solo vínculo activo por entidad (índice parcial) |
 | `documento_retenciones` | `DocumentoRetencion` | Retenciones del documento o de una versión (`intervencion_cerrada`, `manual`). `RetencionService::retener()` existe; ningún evento la llama todavía |
-| `actas_eliminacion` | `ActaEliminacion` | Constancia inmutable de lo destruido (solo metadatos) |
+| `actas_eliminacion` | `ActaEliminacion` | Constancia inmutable de lo destruido (solo metadatos; todos los ciudadanos que estuvieron vinculados, también los dados de baja) |
+| `propuestas_eliminacion` | `PropuestaEliminacion` | Propuestas de destrucción por plazo vencido: estado (`pendiente`, `aprobada`, `rechazada`), ids de versiones propuestas y de las excluidas al aprobar, quién y cuándo la resolvió, acta. No se borran |
 
 Las tablas `informes.documento_id`, `piso_firmados.documento_id` y `firmas_plan.documento_firmado_id` apuntan al documento lógico.
 
@@ -203,12 +204,16 @@ Los parámetros son **globales** (un único valor por instalación). La variante
   - **Saneado:** Ghostscript a PDF/A-2b con `-dPreserveEmbeddedFiles=false -dPreserveDocView=false -dPreserveAnnots=false`. Sin esos tres parámetros, Ghostscript conserva la `OpenAction` con JavaScript y los adjuntos. Después, `qpdf --qdf` expande el resultado y se rechaza si quedan `/JavaScript`, `/JS`, `/EmbeddedFile(s)` o `/Launch`. Los PDF con solo contraseña de propietario se admiten; los que piden contraseña para abrirse, no (`pdf_protegido`).
   - **PDF firmados (canal `generado`):** no se convierten, sanean ni recomprimen, porque reescribirlos invalida la firma PAdES. Sí se comprueba que no pidan contraseña ni contengan contenido activo. **Decisión confirmada por el desarrollador (2026-09-25):** los genera la propia aplicación, así que se dan por buenos sin normalizarlos a PDF/A.
   - **Hash:** es el del PDF normalizado que se custodia, no el del fichero subido. Ghostscript incluye fechas e identificadores en el XMP, así que dos subidas del mismo fichero producen hashes distintos.
-- **`CicloVidaDocumentoService`** — `altaDocumento()` (valida tipo activo, al menos un vínculo, entidades permitidas y metadatos exigidos antes de tocar el almacén) y `desvincular()` (baja lógica).
+- **`CicloVidaDocumentoService`** — `altaDocumento()` (valida tipo activo, al menos un vínculo, entidades permitidas y metadatos exigidos antes de tocar el almacén), `nuevaVersion()`, `desvincular()` y `desvincularEntidad()` (bajas lógicas).
+  - **`nuevaVersion()`** bloquea el documento y marca la vigente como sustituida antes de insertar la nueva (el índice parcial solo admite una vigente). Si el tipo caduca, recalcula `fecha_validez` desde hoy. Con `purgar_no_retenidas` y la anterior sin retenciones, la purga. Se rechaza (`DomainException`) si el documento viene de un informe firmado (alguna versión con `informe_id`) o no está vigente.
+  - **Baja de ciudadano:** el provider escucha `Ciudadano::deleted` (el soft delete de `CiudadanoService::eliminar()`) y llama a `desvincularEntidad()`. Los documentos, las versiones y los ficheros se conservan.
+- **`DestructorVersiones`** — purga o destrucción de una versión: primero borra la clave de datos (`clave_cifrada = null`, crypto-shredding) y después el objeto del disco. Si ese borrado fallara, el objeto queda huérfano e ilegible y lo retira `limpiar-huerfanos`.
+- **`DestruccionDocumentosService`** — `proponer()` (versiones con contenido, plazo del tipo vencido, sin retenciones y no incluidas ya en otra propuesta pendiente), `aprobar()` (solo `adm_sistema`: revisa cada versión en ese momento, excluye las retenidas, tritura las claves, marca el documento `destruido` si no le quedan versiones con contenido, levanta el acta y borra los objetos después del commit) y `rechazar()`. Sin versiones destruidas no se levanta acta.
 - **`LecturaDocumentoService`** — descifra en memoria y verifica el hash; URL firmada temporal a la ruta `documentos.ver`; nombre de descarga genérico `{codigo}-{fecha}.pdf`.
 - **`AlmacenDocumentos` / `AlmacenFlysystem`** — único acceso al disco `documentos` (`DOCUMENTOS_RUTA`, permisos 0700/0600, sin URL). Ruta del objeto: `{2 primeros caracteres del UUID}/{UUID}`. Falla con mensaje claro si el directorio no existe o no se puede escribir.
 - **`ProveedorClavesMaestras` / `ProveedorClavesLocal`** — clave maestra de `DOCUMENTOS_CLAVE_MAESTRA` (`base64:`, 32 bytes, distinta de `APP_KEY`). Sin ella la custodia no funciona; no hay modo en claro.
 - **`CifradorDocumentos`** — AES-256-GCM con una clave de datos aleatoria por versión, cifrada con la clave maestra (envelope encryption).
-- **Comandos:** `documentos:verificar-integridad [--muestra=N]` y `documentos:limpiar-huerfanos [--ejecutar]`.
+- **Comandos:** `documentos:verificar-integridad [--muestra=N]`, `documentos:limpiar-huerfanos [--ejecutar]` y `documentos:proponer-destruccion` (no destruye nada; se puede programar, pero no está en el scheduler).
 
 ### ServicioGeneracionPDF
 
@@ -256,6 +261,8 @@ Grupo de navegación **«Informes y Plantillas»** (accesible a supervisores y a
 - ⏳ **`ParametroInformeResource`** (no implementado) — gestión de parámetros configurables de plantillas. Accesible solo a `adm_sistema`. Formulario con validación de formato de clave (`/^[a-z][a-z0-9_]*$/`).
 
 Grupo **«Sistema»** (solo administradores):
+
+- **`PropuestaEliminacionResource`** (orden 7, solo `adm_sistema`) — listado y detalle de las propuestas de destrucción, con las acciones «Aprobar y destruir» (pide el motivo del acta) y «Rechazar». No permite crear, editar ni borrar.
 
 - ⏳ **`ConfiguracionTipografiaResource`** (no implementado) — tipografía base para todos los informes generados. Hoy la tipografía sale de `config/documentos.php`.
 
@@ -312,9 +319,11 @@ Ficheros: `Modules/Documentos/tests/Feature/DocumentosTest.php` (TF-DOC-01 a 21 
 | Custodia v2 — modelo y vínculos n:M (TF-DOC-32 a 38) | 7 | ✅ `VinculosDocumentoTest` |
 | Custodia v2 — almacenamiento y cifrado (TF-DOC-39 a 45) | 7 | ✅ `AlmacenamientoCifradoTest` |
 | Custodia v2 — tubería de entrada (TF-DOC-46 a 58) | 13 | ✅ `IngestaDocumentoTest` (51 a 53 y 55 en `#[Group('binarios')]`) |
-| Custodia v2 — ciclo de vida, retenciones, acceso (TF-DOC-59 a 78) | 20 | ⏳ fase 2c |
+| Custodia v2 — ciclo de vida (TF-DOC-59 a 66) | 8 | ✅ `CicloVidaDocumentoTest` |
+| Custodia v2 — retenciones, informes y destrucción (TF-DOC-67 a 73) | 7 | ✅ `RetencionDestruccionTest` |
+| Custodia v2 — acceso y auditoría (TF-DOC-74 a 78) | 5 | ⏳ fase 2c, paso 6 |
 | Pie con número de página y logo único (TF-DOC-79 a 81) | 3 | ✅ |
-| **Total implementado** | **57** | **57 ✅** |
+| **Total implementado** | **72** | **72 ✅** |
 
 TF-DOC-79 a 81 se llamaban TF-DOC-26, 27 y 29 (2026-09-24); se renumeraron el 2026-09-25 para no chocar con la numeración de la custodia v2.
 

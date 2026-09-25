@@ -349,7 +349,7 @@ Requisito de referencia: Paso 6.
 | B — Modelo y vínculos n:M | TF-DOC-32 a 38 | ✅ `VinculosDocumentoTest` (2026-09-25) |
 | C — Almacenamiento y cifrado | TF-DOC-39 a 45 | ✅ `AlmacenamientoCifradoTest` (2026-09-25) |
 | D — Tubería de entrada | TF-DOC-46 a 58 | ✅ `IngestaDocumentoTest` (2026-09-25) |
-| E — Ciclo de vida | TF-DOC-59 a 66 | |
-| F — Retenciones, informes y destrucción | TF-DOC-67 a 73 | |
+| E — Ciclo de vida | TF-DOC-59 a 66 | ✅ `CicloVidaDocumentoTest` (2026-09-25) |
+| F — Retenciones, informes y destrucción | TF-DOC-67 a 73 | ✅ `RetencionDestruccionTest` (2026-09-25) |
 | G — Acceso y auditoría | TF-DOC-74 a 78 | |
 | **Total** | **53** | |

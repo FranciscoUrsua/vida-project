@@ -2,8 +2,11 @@
 
 namespace Modules\Documentos\Providers;
 
+use App\Models\Ciudadano;
+use App\Models\User;
 use Illuminate\Support\ServiceProvider;
 use Modules\Documentos\Console\LimpiarHuerfanosCommand;
+use Modules\Documentos\Console\ProponerDestruccionCommand;
 use Modules\Documentos\Console\VerificarIntegridadCommand;
 use Modules\Documentos\Contracts\AlmacenDocumentos;
 use Modules\Documentos\Contracts\ConversorPdf;
@@ -14,6 +17,7 @@ use Modules\Documentos\Models\EstiloInforme;
 use Modules\Documentos\Observers\EstiloInformeObserver;
 use Modules\Documentos\Services\Almacenamiento\AlmacenFlysystem;
 use Modules\Documentos\Services\Almacenamiento\ProveedorClavesLocal;
+use Modules\Documentos\Services\CicloVidaDocumentoService;
 use Modules\Documentos\Services\Ingesta\ConversorPdfLocal;
 use Modules\Documentos\Services\Ingesta\EscanerAntivirusFake;
 use Modules\Documentos\Services\Ingesta\EscanerClamAv;
@@ -73,7 +77,7 @@ class DocumentosServiceProvider extends ServiceProvider
     }
 
     /**
-     * Arranca el módulo Documentos: migraciones, observers, vistas, rutas y comandos.
+     * Arranca el módulo Documentos: migraciones, observers, baja de ciudadano, vistas, rutas y comandos.
      *
      * @return void
      */
@@ -83,6 +87,11 @@ class DocumentosServiceProvider extends ServiceProvider
 
         EstiloInforme::observe(EstiloInformeObserver::class);
 
+        // Baja de ciudadano (soft delete, CiudadanoService::eliminar): sus vínculos se
+        // desactivan; los documentos siguen existiendo para las demás personas.
+        Ciudadano::deleted(fn (Ciudadano $ciudadano) => app(CicloVidaDocumentoService::class)
+            ->desvincularEntidad($ciudadano, auth()->user() instanceof User ? auth()->user() : null));
+
         $this->loadViewsFrom(module_path($this->moduleName, 'resources/views'), 'documentos');
 
         $this->loadRoutesFrom(module_path($this->moduleName, 'routes/web.php'));
@@ -91,6 +100,7 @@ class DocumentosServiceProvider extends ServiceProvider
             $this->commands([
                 VerificarIntegridadCommand::class,
                 LimpiarHuerfanosCommand::class,
+                ProponerDestruccionCommand::class,
             ]);
         }
     }

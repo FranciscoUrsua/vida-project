@@ -3,6 +3,7 @@
 namespace Modules\Documentos\Services;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -58,18 +59,25 @@ class IngestaDocumentoService
     ) {}
 
     /**
-     * Ingiere un fichero como versión 1 de un documento nuevo, con sus vínculos.
+     * Ingiere un fichero como versión 1 de un documento nuevo, con sus vínculos, o
+     * como nueva versión vigente de un documento existente.
      *
      * @param UploadedFile|string $origen Fichero subido o ruta local, o contenido binario si $esContenido.
-     * @param DatosIngesta $datos Tipo, canal, vínculos y metadatos.
+     * @param DatosIngesta $datos Tipo, canal, vínculos y metadatos. En una nueva versión solo se usan
+     *                            tipo, usuario, canal y nombre original.
      * @param bool $esContenido true si $origen es el contenido binario y no una ruta.
+     * @param Documento|null $documento Documento al que se añade la versión; null = documento nuevo.
      *
      * @throws IngestaRechazadaException
      *
      * @return DocumentoVersion
      */
-    public function ingerir(UploadedFile|string $origen, DatosIngesta $datos, bool $esContenido = false): DocumentoVersion
-    {
+    public function ingerir(
+        UploadedFile|string $origen,
+        DatosIngesta $datos,
+        bool $esContenido = false,
+        ?Documento $documento = null,
+    ): DocumentoVersion {
         $directorio = $this->crearDirectorioTrabajo();
         $clave = null;
 
@@ -101,7 +109,7 @@ class IngestaDocumentoService
             $this->almacen->guardar($clave, $cifrado['contenido']);
 
             return DB::transaction(fn (): DocumentoVersion => $this->registrar(
-                $datos, $clave, $hash, (int) filesize($pdf), $paginas, $mime, $convertido, $cifrado, $origen,
+                $datos, $clave, $hash, (int) filesize($pdf), $paginas, $mime, $convertido, $cifrado, $origen, $documento,
             ));
         } catch (\Throwable $e) {
             // Si la transacción falló después de escribir, el objeto no debe quedar huérfano.
@@ -198,7 +206,7 @@ class IngestaDocumentoService
     }
 
     /**
-     * Crea documento, versión y vínculos.
+     * Crea documento, versión y vínculos, o añade la versión vigente a un documento existente.
      *
      * @param DatosIngesta $datos Datos del alta.
      * @param string $clave Clave de almacenamiento del objeto ya escrito.
@@ -209,6 +217,7 @@ class IngestaDocumentoService
      * @param bool $convertido true si la entrada no era PDF y se convirtió.
      * @param array{contenido: string, clave_cifrada: string, id_clave_maestra: string} $cifrado Resultado del cifrado.
      * @param UploadedFile|string $origen Fichero de origen, para el nombre original.
+     * @param Documento|null $existente Documento al que se añade la versión; null = documento nuevo.
      *
      * @return DocumentoVersion
      */
@@ -222,23 +231,19 @@ class IngestaDocumentoService
         bool $convertido,
         array $cifrado,
         UploadedFile|string $origen,
+        ?Documento $existente,
     ): DocumentoVersion {
         $ahora = now();
 
-        $documento = Documento::create([
-            'tipo_documental_id' => $datos->tipo->id,
-            'titulo' => $datos->titulo,
-            'fecha_emision' => $datos->fechaEmision,
-            'fecha_validez' => $datos->tipo->fechaValidezDesde($ahora),
-            'organo_emisor' => $datos->organoEmisor,
-            'visible_ciudadano' => $datos->visibleCiudadano ?? (bool) $datos->tipo->visible_ciudadano_defecto,
-            'estado' => EstadoDocumento::Vigente,
-            'metadatos' => $datos->metadatos,
-            'created_by' => $datos->usuario->id,
-        ]);
+        if ($existente !== null) {
+            [$documento, $numero] = $this->sustituirVigente($existente, $ahora);
+        } else {
+            $documento = $this->crearDocumento($datos, $ahora);
+            $numero = 1;
+        }
 
         $version = $documento->versiones()->create([
-            'numero' => 1,
+            'numero' => $numero,
             'clave_almacenamiento' => $clave,
             'disco' => $this->almacen->disco(),
             'hash_sha256' => $hash,
@@ -258,6 +263,10 @@ class IngestaDocumentoService
             'id_clave_maestra' => $cifrado['id_clave_maestra'],
         ]);
 
+        if ($existente !== null) {
+            return $version;
+        }
+
         foreach ($datos->vinculos as $entidad) {
             $documento->vinculos()->create([
                 'vinculable_type' => $entidad->getMorphClass(),
@@ -268,6 +277,60 @@ class IngestaDocumentoService
         }
 
         return $version;
+    }
+
+    /**
+     * Crea el documento lógico de un alta.
+     *
+     * @param DatosIngesta $datos Datos del alta.
+     * @param Carbon $ahora Momento del alta, base de la fecha de validez.
+     *
+     * @return Documento
+     */
+    private function crearDocumento(DatosIngesta $datos, Carbon $ahora): Documento
+    {
+        return Documento::create([
+            'tipo_documental_id' => $datos->tipo->id,
+            'titulo' => $datos->titulo,
+            'fecha_emision' => $datos->fechaEmision,
+            'fecha_validez' => $datos->tipo->fechaValidezDesde($ahora),
+            'organo_emisor' => $datos->organoEmisor,
+            'visible_ciudadano' => $datos->visibleCiudadano ?? (bool) $datos->tipo->visible_ciudadano_defecto,
+            'estado' => EstadoDocumento::Vigente,
+            'metadatos' => $datos->metadatos,
+            'created_by' => $datos->usuario->id,
+        ]);
+    }
+
+    /**
+     * Marca como sustituida la versión vigente y recalcula la validez del documento.
+     *
+     * Bloquea la fila del documento: dos versiones nuevas simultáneas se serializan y
+     * no pueden tomar el mismo número. La vigente se sustituye antes de insertar la
+     * nueva porque el índice parcial único solo admite una vigente por documento.
+     *
+     * @param Documento $documento Documento que recibe la versión.
+     * @param Carbon $ahora Momento de la nueva versión, base de la fecha de validez.
+     *
+     * @return array{0: Documento, 1: int} Documento bloqueado y número de la nueva versión.
+     */
+    private function sustituirVigente(Documento $documento, Carbon $ahora): array
+    {
+        $bloqueado = Documento::query()->lockForUpdate()->findOrFail($documento->id);
+
+        DocumentoVersion::query()
+            ->where('documento_id', $bloqueado->id)
+            ->where('estado', EstadoVersion::Vigente->value)
+            ->get()
+            ->each(fn (DocumentoVersion $anterior) => $anterior->update(['estado' => EstadoVersion::Sustituida]));
+
+        if ($bloqueado->tipo->caduca) {
+            $bloqueado->update(['fecha_validez' => $bloqueado->tipo->fechaValidezDesde($ahora)]);
+        }
+
+        $numero = (int) DocumentoVersion::query()->where('documento_id', $bloqueado->id)->max('numero') + 1;
+
+        return [$bloqueado, $numero];
     }
 
     /**
