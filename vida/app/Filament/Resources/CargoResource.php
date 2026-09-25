@@ -4,8 +4,10 @@ namespace App\Filament\Resources;
 
 use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\CargoResource\Pages;
+use Closure;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -15,9 +17,13 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Usuarios\Models\Cargo;
+use Spatie\Permission\Models\Role;
 
 /**
- * Backoffice: gestión del catálogo de cargos profesionales.
+ * Backoffice: gestión del catálogo de cargos profesionales y de sus roles sugeridos.
+ *
+ * Los roles sugeridos solo pre-rellenan el alta de usuario (sección 2.9 de
+ * docs/modulo-usuarios-permisos.md); cambiarlos no altera a ningún usuario.
  *
  * Accesible en /admin/cargos.
  */
@@ -69,6 +75,31 @@ class CargoResource extends Resource
                     Toggle::make('activo')
                         ->label('Activo')
                         ->default(true),
+                ]),
+
+            Section::make('Roles sugeridos')
+                ->schema([
+                    // Se guarda fila a fila en cargo_roles_sugeridos (auditado) mediante
+                    // Cargo::sincronizarRolesSugeridos(); no es un atributo de cargos.
+                    Select::make('roles_sugeridos')
+                        ->label('Roles sugeridos')
+                        ->multiple()
+                        ->options(fn () => Role::orderBy('name')->pluck('name', 'name'))
+                        ->rule(fn () => function (string $attribute, mixed $value, Closure $fail): void {
+                            $inexistentes = array_diff((array) $value, Role::pluck('name')->all());
+
+                            if ($inexistentes !== []) {
+                                $fail('No existe el rol: '.implode(', ', $inexistentes).'.');
+                            }
+                        })
+                        ->helperText('Se proponen al dar de alta a un usuario con este cargo. No otorgan permisos por sí mismos.')
+                        ->loadStateFromRelationshipsUsing(function (Select $component, ?Cargo $record): void {
+                            $component->state($record?->rolesSugeridos()->orderBy('rol')->pluck('rol')->all() ?? []);
+                        })
+                        ->saveRelationshipsUsing(function (Cargo $record, ?array $state): void {
+                            $record->sincronizarRolesSugeridos(array_values($state ?? []));
+                        })
+                        ->dehydrated(false),
                 ]),
         ]);
     }

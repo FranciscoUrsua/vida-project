@@ -9,6 +9,30 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Cargos sin `slug` en la BD compartida: el formulario de cargos no deja guardarlos y `CargosSeeder` los duplicaría** — 2026-09-25
+Módulo: Usuarios
+Los 13 cargos de la BD `vida` tienen `slug = null`. `CargoResource` exige `slug` (required + unique), así que editar cualquier cargo existente (por ejemplo, para cambiar sus roles sugeridos) obliga a rellenarlo antes. `CargosSeeder` hace `updateOrCreate` por `slug`: si se ejecutara sobre esta BD crearía 13 cargos duplicados. Propuesta: migración que rellene los slugs con los valores de `CargosSeeder` casando por `nombre`. `RolesSugeridosCargoSeeder` casa por `nombre` por este motivo.
+
+---
+
+**`configuracion_roles` solo tiene configurado `intervencion`** — 2026-09-25
+Módulo: Usuarios
+En la BD compartida no hay fila para `supervision`, `adm_sistema` ni el resto de roles. `ConfiguracionRol::nivelPara()` aplica el nivel por defecto documentado en 2.8 (aprobación previa para `adm_sistema` y `supervision`, alerta supervisada para el resto), pero conviene que el nivel quede configurado explícitamente desde el backoffice (Roles → Configuración) o por seeder.
+
+---
+
+**`UsuarioRolResource` permite crear asignaciones de rol eligiendo el estado a mano** — 2026-09-25
+Módulo: Usuarios
+Desde 2026-09-25 el formulario de usuarios asigna y retira roles a través de `AsignacionRolesService` (historial + aprobación previa o alerta supervisada). El recurso «Historial de roles» (`/admin/usuario-roles`) sigue permitiendo crear un `UsuarioRol` con `estado = activo` directamente, saltándose la aprobación previa y sin generar alerta. Decidir si ese formulario pasa a ser de solo lectura o si usa también el servicio.
+
+---
+
+**Destinatario de la alerta supervisada de roles: UO del usuario frente a «UO superior»** — 2026-09-25
+Módulo: Usuarios / Mensajes
+La sección 2.8 habla del «supervisor de la UO superior». `AsignacionRolesService` dirige la alerta al rol `supervision` de la UO de la primera adscripción vigente del usuario (a la raíz si no tiene adscripción), igual que las solicitudes de acceso a colectivos protegidos y que `AprobacionesPage`, que muestra al supervisor su propia UO y las inferiores. Confirmar si debe subir a la UO padre.
+
+---
+
 **Local y staging comparten la misma base de datos `vida`** — 2026-09-24
 Módulo: Infraestructura
 Detectado en la Fase 0 del mundo «Prueba CIAM»: `~/code/vida-project/vida/.env` (`APP_ENV=local`) y `/var/www/vida-project/vida/.env` (`APP_ENV=staging`) apuntan a `vida@127.0.0.1`. Toda migración o `demo:*` lanzado «en local» se aplica sobre staging, y un `demo:reset` en local truncaría los datos de staging (incluidos los de otros equipos). Recomendación: crear una BD de desarrollo propia (p. ej. `vida_dev`) para el entorno local.

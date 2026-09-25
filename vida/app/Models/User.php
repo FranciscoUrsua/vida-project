@@ -33,6 +33,7 @@ use Spatie\Permission\Traits\HasRoles;
  *
  * @property int $id
  * @property int|null $profesional_id
+ * @property int|null $cargo_roles_revisado_id Cargo para el que se revisaron sus roles (aviso de cambio de cargo, sección 2.9)
  * @property string $email
  * @property Carbon|null $email_verified_at
  * @property string $password

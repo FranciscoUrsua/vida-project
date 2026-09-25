@@ -238,7 +238,7 @@ Todo movimiento de roles queda registrado en el log de auditoría con: usuario q
 
 ### 2.9 Roles sugeridos por cargo
 
-> *Añadido 2026-09-25. Diseño aprobado; implementación en `docs/instrucciones-cli/2026-09-roles-sugeridos-cargo.md`.*
+> *Añadido 2026-09-25. Implementado el 2026-09-25 (`docs/instrucciones-cli/2026-09-roles-sugeridos-cargo.md`).*
 
 Cada cargo del catálogo puede tener una lista de **roles sugeridos**. Es una ayuda para el alta, **no una fuente de permisos**:
 
@@ -248,7 +248,9 @@ Cada cargo del catálogo puede tener una lista de **roles sugeridos**. Es una ay
 - Cambiar las sugerencias de un cargo no altera los roles de los usuarios que ya lo tienen.
 - Ningún componente fuera del formulario de alta y de ese aviso consulta las sugerencias. Los roles nunca se deducen del cargo.
 
-Sugerencias iniciales:
+Implementación: el selector del alta y el aviso leen las sugerencias a través de `RolesSugeridosService`, el único punto de lectura de `cargo_roles_sugeridos`. El aviso de la ficha compara el cargo actual del profesional con `users.cargo_roles_revisado_id` (el cargo para el que se revisaron por última vez los roles), que se actualiza al dar de alta, al guardar un cambio de roles o con la acción «Descartar aviso de cargo».
+
+Sugerencias iniciales (seeder `RolesSugeridosCargoSeeder`; en el catálogo, «Directora de centro» es `Coordinador/a de Centro`, «Administrativa» es `Administrativo/a` y «Abogada» es `Abogado/a`):
 
 | Cargo | Roles sugeridos |
 |---|---|
@@ -345,13 +347,15 @@ configuracion_roles  (extiende roles de Spatie sin modificar sus tablas)
 - nivel_supervision (enum: aprobacion_previa / alerta_supervisada)
 - created_at, updated_at
 
-cargo_roles_sugeridos  (sección 2.9; Auditable) — pendiente de implementación
+cargo_roles_sugeridos  (sección 2.9; Auditable)
 - id
 - cargo_id (FK a cargos)
-- rol                                       — nombre del rol Spatie
+- rol                                       — nombre del rol Spatie (debe existir)
 - created_at, updated_at
 unique (cargo_id, rol)
 ```
+
+`usuarios` incluye además `cargo_roles_revisado_id` (FK a `cargos`, nullable): el cargo para el que se revisaron por última vez los roles del usuario (aviso de cambio de cargo, sección 2.9).
 
 Los permisos atómicos y los roles los gestiona Spatie en sus tablas propias (`roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions`).
 
@@ -442,6 +446,10 @@ Las anotaciones privadas son un caso especial dentro del tipo `Anotacion` del mo
 - Comando de reconciliación: `App\Console\Commands\ReconciliarRoles`
 - Policies: `App\Policies\HistoriaSocialPolicy`, `App\Policies\ApuntePolicy`, etc.
 - Controladores de backoffice: `App\Http\Controllers\Admin\`
+- Asignación supervisada de roles desde el backoffice (2.8): `Modules\Usuarios\Services\AsignacionRolesService`; nivel por rol: `Modules\Usuarios\Models\ConfiguracionRol::nivelPara()`
+- Roles sugeridos por cargo (2.9): modelo `Modules\Usuarios\Models\CargoRolSugerido`, relación `Cargo::rolesSugeridos()`, lectura `Modules\Usuarios\Services\RolesSugeridosService`, seeder `Database\Seeders\RolesSugeridosCargoSeeder`
+- Formularios: `App\Filament\Resources\CargoResource` (selector «Roles sugeridos»), `App\Filament\Resources\UsuarioResource` y sus páginas `CreateUsuario` / `EditUsuario` (pre-relleno, aviso y acción `descartarAvisoCargo`)
+- Tests: `Modules/Usuarios/tests/Feature/RolesSugeridosCargoTest.php` (TF-USU-RS-01 a 06)
 
 ---
 

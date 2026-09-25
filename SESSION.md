@@ -1,56 +1,45 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-09-24
+**Última actualización:** 2026-09-25
 
 ---
 
 ## Tarea completada
 
-Mundo demo **«Prueba CIAM»** en modo aditivo (`demo:load`, etiqueta `TEST_CIAM`) y regla de dominio de **plan especializado con entrada directa** (`tipos_plan.admite_entrada_directa`). El mundo está implementado, testeado (TF-DEMO-CIAM-01 a 16) y **ya cargado en staging**.
+**Roles sugeridos por cargo** (`docs/instrucciones-cli/2026-09-roles-sugeridos-cargo.md`). Al dar de alta un usuario en Filament, el selector de roles se pre-rellena con las sugerencias del cargo de su profesional. Si el cargo cambia después, la ficha muestra un aviso y los roles no se tocan. Además, **el formulario de usuarios asigna ahora los roles por `usuario_rol` con supervisión** (aprobación previa o alerta), en lugar de escribir directamente en Spatie.
 
-Corrección posterior: quien tiene `supervision` + `adm_usuarios` (la directora del CIAM) entra tras el login en la supervisión operativa y no en `/admin`. La prioridad entre roles está centralizada en `User::destinoInicial()`.
-
-Detalle en `CHANGELOG-092026.md` (entrada «Mundo demo "Prueba CIAM" en modo aditivo») y en `docs/instrucciones-cli/2026-09-demo-ciam-aditivo.md`, que incluye las decisiones de la sesión.
+Detalle y decisiones en `CHANGELOG-092026.md` (entrada del 2026-09-25) y en `docs/modulo-usuarios-permisos.md` §2.9 y §4.8.
 
 ---
 
 ## Estado exacto del proyecto
 
-- **⚠️ La BD local y la de staging son la misma** (`vida@127.0.0.1`, ver `BACKLOG.md`). Todo lo que se migre o cargue «en local» ocurre en staging. **No lanzar `demo:reset` desde local.** Hoy rechaza `demo_ciam`, pero con cualquier otro mundo trunca staging.
-- En esa BD compartida:
-  - Ya están aplicadas las migraciones `create_demo_world_registros_table` y `add_admite_entrada_directa_to_tipos_plan_table`; `pia` tiene `admite_entrada_directa = true`.
-  - El mundo `demo_ciam` ya está cargado: 980 registros TEST_CIAM. Una segunda carga crea 0.
-- Cuentas CIAM (`*.ciam@vida.local`, contraseña = usuario sin dominio + `987`, p. ej. `dir.ciam@vida.local / dir987`, `ts2.ciam@vida.local / ts2987`). Sus roles coinciden exactamente con la tabla 5.2 de las instrucciones.
-- **Código de staging** (`/var/www/vida-project/vida`): desplegado a `origin/master` en esta sesión (ver commit de hoy).
+- **⚠️ La BD local y la de staging son la misma** (`vida@127.0.0.1`, ver `BACKLOG.md`). Todo lo que se migre o cargue «en local» ocurre en staging. **No lanzar `demo:reset` desde local.**
+- En esa BD compartida, a 2026-09-25:
+  - Migraciones `create_cargo_roles_sugeridos_table` y `add_cargo_roles_revisado_id_to_users_table` aplicadas.
+  - `RolesSugeridosCargoSeeder` ejecutado: Coordinador/a de Centro → supervision e intervencion; Trabajador/a Social, Psicólogo/a y Auxiliar de Servicios Sociales → intervencion; Administrativo/a → tramitacion.
+  - Siguen vigentes el mundo `demo_ciam` (980 registros TEST_CIAM) y `pia.admite_entrada_directa = true`.
+- **Código de staging** (`/var/www/vida-project/vida`): **no desplegado** con este cambio. Las migraciones ya están aplicadas en la BD, pero el código de staging no conoce las columnas nuevas (no le afecta: solo se añaden). Desplegar `origin/master` para activar el formulario nuevo.
 - **Tests:**
-  - `tests/Feature/Demo/`: 20 passed y 5 incomplete (ya existían).
-  - `Modules/Intervencion/tests/`: 261 passed y 1 fallo pre-existente (`AccesosExpedienteTest::acceso_de_otra_uo_con_accion_ver_tiene_clase_sospechoso`, que falla igual en master).
-
-### Comandos para staging (referencia; la carga ya está hecha)
-
-```bash
-cd /var/www/vida-project/vida
-php artisan migrate --force                           # ya aplicado
-php artisan demo:load --world=demo_ciam --dry-run     # simula y hace rollback
-php artisan demo:load --world=demo_ciam               # carga real (idempotente: repetirla crea 0)
-```
-
-Consultar lo creado: `DemoWorldRegistro::de('TEST_CIAM')`. No existe comando de purga: la retirada está pendiente de diseño (BACKLOG).
+  - `Modules/Usuarios/tests/`: 51 passed y 1 incomplete (ya existía).
+  - `RolesSugeridosCargoTest`: 11 passed.
+  - `Modules/Supervision/tests`: 49 passed y **3 fallos ya existentes** (`sidebar_sin_plazas_no_muestra_item_plazas`, `ficha_profesional_muestra_tres_pestanas`, `auditoria_con_colectivos_muestra_columna_protegido`). Fallan igual en master sin estos cambios.
 
 ---
 
 ## Siguiente paso concreto recomendado
 
-1. **Separar la BD de desarrollo local de la de staging** (p. ej. `vida_dev`) antes de volver a usar `demo:reset` o migraciones experimentales en local.
-2. **Flujo de creación de planes especializados en la UI:** `PlanPage::crearNuevoPlan()` guarda siempre `tipo = general_asp`, así que un PIA creado desde la interfaz se trata como PISO. Derivar `tipo` del `ambito` del tipo de plan y diseñar la entrada directa (BACKLOG).
-3. Decidir si hace falta asociar tipos de plan a centros/UO/servicios (punto 1.4 omitido, BACKLOG).
-4. Pendientes de sesiones anteriores, sin cambios: bug de `User::booted()` (`name` = email), la suite de `Modules/Agenda` rota (`tipos_slot.horario_centro_id`) y `AccesosExpedienteTest`.
+1. **Desplegar `origin/master` en staging** y probar el alta de un usuario de dirección: debe pre-rellenar supervision e intervencion y dejar supervision pendiente en Supervisión → Aprobaciones.
+2. **Rellenar los `slug` de los cargos** en la BD compartida (BACKLOG). Sin ellos no se puede guardar un cargo existente desde Filament para ajustar sus sugerencias.
+3. Configurar explícitamente `configuracion_roles` para todos los roles y decidir qué hacer con el formulario de `UsuarioRolResource`, que aún permite saltarse la supervisión (BACKLOG).
+4. Pendientes anteriores, sin cambios: separar la BD local de la de staging, el flujo de creación de planes especializados en la UI (`PlanPage` fija `general_asp`), la asociación tipo de plan ↔ centro, el bug de `User::booted()` (`name` = email), la suite rota de `Modules/Agenda` y `AccesosExpedienteTest`.
 
 ---
 
 ## Contexto para retomar sin fricción
 
-- **Idempotencia de mundos aditivos:** cada entidad se crea a través de `DemoRegistrador::obtenerOCrear(clave, Modelo, fn)`. Las decisiones del azar que determinan *qué* se crea deben salir de `DemoContextoAditivo::decidir()`, no de `mt_rand`: en la segunda carga no se ejecutan los cierres de creación y la secuencia aleatoria se desplazaría. Las fechas y los textos sí pueden usar `mt_rand` o Faker.
-- **No reordenar los `escenarios` de `demo_ciam.yaml`:** las claves `usuaria_NNN` dependen de ese orden.
-- `User::booted()` auto-asigna `consulta_basica` a los usuarios creados con `profesional_id` y sin roles. Por eso los builders de demo crean primero el usuario y vinculan el profesional después.
-- La regla «plan especializado ⇒ `plan_asp_id`» vive ahora en el modelo (`PlanDeIntervencion::verificarOrigenPlanEspecializado()`). Antes solo existía en el invariante INV-02 de demo.
+- **Roles desde el backoffice:** todo cambio de roles del formulario de usuarios pasa por `AsignacionRolesService::sincronizar()`, que calcula la diferencia con los roles efectivos y pendientes y asigna o retira por `usuario_rol`. El `UsuarioRolObserver` sincroniza Spatie. No volver a usar `->relationship('roles')` en ese formulario.
+- **Sugerencias por cargo:** solo `RolesSugeridosService` lee `cargo_roles_sugeridos`, y únicamente para el pre-relleno del alta y el aviso. Ningún otro código debe leerla (principio 3.3).
+- **El aviso de cambio de cargo** compara `profesional.cargo_id` con `users.cargo_roles_revisado_id`.
+- **Idempotencia de mundos aditivos:** cada entidad se crea a través de `DemoRegistrador::obtenerOCrear(clave, Modelo, fn)`. Las decisiones del azar que determinan *qué* se crea deben salir de `DemoContextoAditivo::decidir()`, no de `mt_rand`. No reordenar los `escenarios` de `demo_ciam.yaml`.
+- `User::booted()` auto-asigna `consulta_basica` a los usuarios creados con `profesional_id` y sin roles. El alta de Filament lo retira si no está marcado.

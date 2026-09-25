@@ -185,3 +185,4 @@ Ficheros disponibles:
 | `tipo-ficha-implementacion.md` | TipoFichaResource: creador de fichas de valoración + 10 tests (TF-INT-H01 a H10) |
 | `ficha-schema-snapshot.md` | Ficha con schema_snapshot + Versionable + pre-relleno: migración, modelo, inversión restricción TipoFicha, 12 tests (TF-INT-I01 a I12) |
 | `2026-09-demo-ciam-aditivo.md` | Modo aditivo de mundos demo (`demo:load`, referencias `existentes`, etiquetado `demo_world_registros`), plan especializado con entrada directa (`admite_entrada_directa`) y mundo «Prueba CIAM»; 16 tests (TF-DEMO-CIAM-01 a 16) |
+| `2026-09-roles-sugeridos-cargo.md` | Roles sugeridos por cargo (`cargo_roles_sugeridos`): pre-relleno del alta de usuario, aviso al cambiar de cargo, asignación de roles por `usuario_rol` con supervisión y seeder inicial; 6 tests (TF-USU-RS-01 a 06) |

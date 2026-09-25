@@ -47,6 +47,7 @@ class DatabaseSeeder extends Seeder
 
         // 6. Catálogos del módulo Profesional
         $this->call(CargosSeeder::class);
+        $this->call(RolesSugeridosCargoSeeder::class);
         $this->call(TitulacionesSeeder::class);
         $this->call(TiposRelacionProfesionalSeeder::class);
 

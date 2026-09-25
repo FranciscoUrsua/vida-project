@@ -4,6 +4,42 @@
 
 ---
 
+## 2026-09-25 — Usuarios: roles sugeridos por cargo y asignación supervisada de roles desde el backoffice
+
+### Módulos afectados
+`Modules/Usuarios` (modelos, servicios, migraciones, tests), `app/Filament/Resources/CargoResource.php`, `app/Filament/Resources/UsuarioResource.php` y sus páginas, `app/Models/User.php`, `database/seeders/`
+
+Instrucciones: `docs/instrucciones-cli/2026-09-roles-sugeridos-cargo.md`.
+
+### Añadido
+- Migración `create_cargo_roles_sugeridos_table` (`cargo_id`, `rol`, unique `(cargo_id, rol)`) y modelo `CargoRolSugerido` (Auditable). Guardar un rol que no existe en Spatie lanza `InvalidArgumentException`. Relación `Cargo::rolesSugeridos()` y `Cargo::sincronizarRolesSugeridos()`, que crea y borra fila a fila para que cada cambio quede auditado.
+- Migración `add_cargo_roles_revisado_id_to_users_table`: el cargo para el que se revisaron por última vez los roles del usuario. Se rellena con el cargo actual, así que ningún usuario existente muestra el aviso al migrar.
+- `RolesSugeridosService`, el único punto de lectura de las sugerencias: pre-relleno del alta, aviso de cambio de cargo y marcado como revisado.
+- `AsignacionRolesService`: asigna y retira roles por `usuario_rol`. Aprobación previa → `pendiente_aprobacion`, sin rol efectivo. Alerta supervisada → rol activo más una alerta `rol_uo` para `supervision` de la UO del usuario. `ConfiguracionRol::nivelPara()` da el nivel de cada rol, con el valor por defecto de 2.8 si falta configuración.
+- `CargoResource`: selector múltiple «Roles sugeridos» con la nota «Se proponen al dar de alta a un usuario con este cargo. No otorgan permisos por sí mismos». Valida que los roles existan.
+- `UsuarioResource`:
+  - En el alta, elegir el profesional sustituye la selección de roles por las sugerencias de su cargo (vacía si no tiene).
+  - En la edición, un aviso «El cargo ha cambiado» con los roles sugeridos del nuevo cargo y la acción de cabecera «Descartar aviso de cargo». El aviso desaparece también al guardar un cambio de roles.
+- `RolesSugeridosCargoSeeder` (idempotente, no sobrescribe, no crea cargos), registrado en `DatabaseSeeder` después de `CargosSeeder`.
+- Tests: `Modules/Usuarios/tests/Feature/RolesSugeridosCargoTest.php`, con 11 tests (TF-USU-RS-01 a 06 más las variantes negativas y el seeder). Se comprobó que RS-03b y RS-06 fallan si se quita la restricción que protegen. `Modules/Usuarios/tests/`: 51 passed y 1 incomplete (ya existía).
+
+### Cambiado
+- **El formulario de usuarios ya no escribe los roles directamente en Spatie.** Antes usaba `CheckboxList::relationship('roles')`, que escribía en `model_has_roles` sin historial, sin aprobación previa y sin alerta. Ahora los roles se guardan en `CreateUsuario::afterCreate()` y `EditUsuario::afterSave()` por `AsignacionRolesService`. Al editar, el selector muestra los roles efectivos y los pendientes (marcados como «Pendiente de aprobación»).
+- El alta ya no marca `consulta_basica` por defecto: el selector parte vacío hasta elegir el profesional. Sigue siendo obligatorio marcar al menos un rol. `consulta_basica`, que `User::booted()` añade al crear, se retira si no está marcado.
+
+### Aplicado en la BD compartida local/staging
+- Migraciones `2026_09_25_100001` y `2026_09_25_100002` aplicadas. `RolesSugeridosCargoSeeder` ejecutado: Coordinador/a de Centro → supervision e intervencion; Trabajador/a Social, Psicólogo/a y Auxiliar de Servicios Sociales → intervencion; Administrativo/a → tramitacion.
+
+### Decisiones de implementación no previstas en las instrucciones
+- **Nombres de cargo:** «Directora de centro» → `Coordinador/a de Centro` (el que usa el mundo CIAM para la dirección), «Administrativa» → `Administrativo/a` y «Abogada» → `Abogado/a`. No se creó ningún cargo.
+- **Flujo supervisado en el formulario:** la Fase 0 detectó que el alta escribía directamente en Spatie. Por decisión del desarrollador, el formulario se reencaminó por `usuario_rol` con supervisión, lo que afecta a todas las altas y ediciones, no solo a las que tienen sugerencias.
+- **Nivel por defecto sin configuración:** si un rol no tiene fila en `configuracion_roles`, `adm_sistema` y `supervision` requieren aprobación previa y el resto va con alerta supervisada. Sin este respaldo, `supervision` se habría activado sin aprobación en la BD compartida, que solo tiene configurado `intervencion`.
+- **Estado del aviso:** columna `users.cargo_roles_revisado_id` en lugar de una tabla aparte.
+- **Destino de la alerta:** `supervision` de la UO de la primera adscripción vigente del usuario, con la raíz como respaldo (la tabla `alertas` exige UO para destinatarios `rol_uo`). Pendiente de confirmar frente a «UO superior» (BACKLOG).
+- **`profesionales.cargo_id` es obligatorio,** así que el caso «profesional sin cargo» de la Fase 2 no puede darse. Solo se prueba el de cargo sin sugerencias.
+
+---
+
 ## 2026-09-24 — Auth: la supervisión operativa tiene prioridad sobre /admin para supervision + adm_usuarios
 
 ### Módulos afectados

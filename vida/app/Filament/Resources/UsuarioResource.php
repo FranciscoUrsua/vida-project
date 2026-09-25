@@ -13,13 +13,16 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rules\Unique;
 use Modules\Usuarios\Models\Profesional;
+use Modules\Usuarios\Services\RolesSugeridosService;
 use Spatie\Permission\Models\Role;
 
 /**
@@ -27,6 +30,11 @@ use Spatie\Permission\Models\Role;
  *
  * Permite crear usuarios, asignarles roles globales y adscribirlos
  * a Unidades Organizativas con rol y tipo de vínculo.
+ *
+ * En el alta, el selector de roles se pre-rellena con los roles sugeridos del
+ * cargo del profesional (sección 2.9). La sugerencia no otorga permisos: los
+ * roles que se guardan son los que adm deja marcados, y se asignan por el flujo
+ * supervisado de AsignacionRolesService.
  *
  * Accesible en /admin/usuarios.
  */
@@ -55,6 +63,14 @@ class UsuarioResource extends Resource
     {
         return $schema->components([
 
+            Callout::make('El cargo ha cambiado')
+                ->description(fn (?User $record): string => self::textoAvisoCambioCargo($record))
+                ->warning()
+                ->visible(fn (?User $record, string $operation): bool => $operation === 'edit'
+                    && $record !== null
+                    && app(RolesSugeridosService::class)->avisoCambioCargo($record) !== null)
+                ->columnSpanFull(),
+
             Section::make('Perfil profesional')
                 ->description('Vincula esta cuenta con el perfil organizativo del profesional. Déjalo vacío para perfiles estrictamente técnicos sin función asistencial.')
                 ->schema([
@@ -71,7 +87,18 @@ class UsuarioResource extends Resource
                         ->searchable()
                         ->nullable()
                         ->placeholder('Sin profesional vinculado (perfil técnico)')
-                        ->helperText('Solo los perfiles técnicos sin función asistencial (adm_sistema) pueden no tener profesional.'),
+                        ->helperText('Solo los perfiles técnicos sin función asistencial (adm_sistema) pueden no tener profesional.')
+                        ->live()
+                        // Solo en el alta: los roles sugeridos del cargo sustituyen la selección
+                        // actual. En la edición cambiar el profesional nunca toca los roles.
+                        ->afterStateUpdated(function (?string $state, Set $set, string $operation): void {
+                            if ($operation !== 'create') {
+                                return;
+                            }
+
+                            $sugeridos = app(RolesSugeridosService::class)->paraProfesional($state !== null ? (int) $state : null);
+                            $set('roles', Role::whereIn('name', $sugeridos)->orderBy('id')->pluck('id')->all());
+                        }),
                 ]),
 
             Section::make('Datos de acceso')
@@ -99,16 +126,22 @@ class UsuarioResource extends Resource
             Section::make('Roles globales')
                 ->description('Los roles globales se aplican sin restricción de UO. Para ámbitos concretos, usa la sección de adscripciones.')
                 ->schema([
+                    // Sin ->relationship(): los cambios se guardan en las páginas de alta y
+                    // edición a través de AsignacionRolesService, para que dejen historial en
+                    // usuario_rol y sigan la supervisión de 2.8 (aprobación previa o alerta).
                     CheckboxList::make('roles')
                         ->label('Roles asignados')
-                        ->relationship('roles', 'name')
+                        ->options(fn () => Role::orderBy('id')->pluck('name', 'id'))
+                        ->descriptions(fn (?User $record) => $record === null ? [] : $record->rolesPendientes()
+                            ->pluck('rol_id')
+                            ->mapWithKeys(fn (int $rolId) => [$rolId => 'Pendiente de aprobación'])
+                            ->all())
                         ->columns(2)
                         ->required()
                         ->validationMessages([
                             'required' => 'El usuario debe tener al menos un rol asignado.',
                         ])
-                        ->helperText('Si no estás seguro, asigna "Consulta básica" como mínimo.')
-                        ->default(fn () => Role::where('name', 'consulta_basica')->pluck('id')->toArray()),
+                        ->helperText('Al elegir el profesional se proponen los roles sugeridos para su cargo; revísalos antes de guardar. Supervisión y administración del sistema requieren aprobación previa.'),
                 ]),
 
             Section::make('Adscripciones a Unidades Organizativas')
@@ -149,6 +182,25 @@ class UsuarioResource extends Resource
                         ->defaultItems(0),
                 ]),
         ]);
+    }
+
+    /**
+     * Texto del aviso de cambio de cargo con los roles sugeridos del nuevo cargo.
+     *
+     * @param User|null $record Usuario en edición.
+     */
+    private static function textoAvisoCambioCargo(?User $record): string
+    {
+        $aviso = $record === null ? null : app(RolesSugeridosService::class)->avisoCambioCargo($record);
+
+        if ($aviso === null) {
+            return '';
+        }
+
+        $roles = $aviso['roles'] === [] ? 'ninguno' : implode(', ', $aviso['roles']);
+
+        return "Nuevo cargo: {$aviso['cargo']}. Roles sugeridos para el nuevo cargo: {$roles}. "
+            .'Revisa si procede ajustarlos. Los roles actuales no se han modificado.';
     }
 
     /**
