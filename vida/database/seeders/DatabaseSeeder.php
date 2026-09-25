@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
 
         // 2. Roles con sus permisos asignados
         $this->call(RolesSeeder::class);
+        $this->call(ConfiguracionRolesSeeder::class);
 
         // 3. Estructura de Unidades Organizativas de ejemplo
         $this->call(UoSeeder::class);

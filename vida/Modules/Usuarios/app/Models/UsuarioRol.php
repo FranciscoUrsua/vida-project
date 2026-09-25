@@ -134,4 +134,29 @@ class UsuarioRol extends Model
     {
         return $consulta->where('estado', 'pendiente_aprobacion');
     }
+
+    /**
+     * Solicitudes pendientes que puede resolver un supervisor.
+     *
+     * Son las de usuarios adscritos a una UO de su subárbol, excluidas las suyas:
+     * nadie aprueba ni deniega su propia solicitud de rol (2.8).
+     *
+     * @param Builder<UsuarioRol> $consulta
+     * @param User $supervisor Supervisor que las revisa.
+     *
+     * @return Builder<UsuarioRol>
+     */
+    public function scopeResolublesPor(Builder $consulta, User $supervisor): Builder
+    {
+        $uoIds = $supervisor->uoSubtreeIds();
+
+        return $consulta
+            ->pendientes()
+            ->where('usuario_id', '!=', $supervisor->id)
+            ->whereHas('usuario', function (Builder $q) use ($uoIds) {
+                $q->whereHas('adscripcionesVigentes', function (Builder $q2) use ($uoIds) {
+                    $q2->whereIn('unidad_organizativa_id', $uoIds);
+                });
+            });
+    }
 }

@@ -4,24 +4,20 @@ namespace App\Filament\Resources;
 
 use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\UsuarioRolResource\Pages;
-use App\Models\User;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Usuarios\Models\UsuarioRol;
-use Spatie\Permission\Models\Role;
 
 /**
- * Backoffice: supervisión del historial de asignaciones de rol.
+ * Backoffice: consulta del historial de asignaciones de rol.
  *
- * Muestra el historial completo de roles (pendientes, activos, inactivos)
- * y permite al supervisor aprobar asignaciones pendientes.
+ * Es de solo lectura. Los roles se asignan y retiran desde el formulario de
+ * usuarios (AsignacionRolesService, con aprobación previa o alerta según 2.8) y
+ * las solicitudes pendientes se resuelven en Supervisión → Aprobaciones. Crear
+ * o editar filas aquí permitiría activar roles saltándose esa supervisión,
+ * también sobre uno mismo, y reescribir el historial (principio 4.2).
  *
  * Accesible en /admin/usuario-roles.
  */
@@ -33,7 +29,7 @@ class UsuarioRolResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
 
-    protected static ?string $navigationLabel = 'Supervisión de roles';
+    protected static ?string $navigationLabel = 'Historial de roles';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Usuarios y Profesionales';
 
@@ -44,53 +40,6 @@ class UsuarioRolResource extends Resource
     protected static ?string $slug = 'usuario-roles';
 
     protected static ?int $navigationSort = 4;
-
-    /**
-     * Define el formulario de asignaciones de rol.
-     *
-     * @param Schema $schema Esquema base del formulario.
-     */
-    public static function form(Schema $schema): Schema
-    {
-        return $schema->components([
-            Section::make('Asignación de rol')
-                ->schema([
-                    Select::make('usuario_id')
-                        ->label('Usuario')
-                        ->options(fn () => User::orderBy('name')->pluck('name', 'id'))
-                        ->searchable()
-                        ->required(),
-
-                    Select::make('rol_id')
-                        ->label('Rol')
-                        ->options(fn () => Role::orderBy('name')->pluck('name', 'id'))
-                        ->searchable()
-                        ->required(),
-
-                    Select::make('estado')
-                        ->label('Estado')
-                        ->options([
-                            'pendiente_aprobacion' => 'Pendiente de aprobación',
-                            'activo' => 'Activo',
-                            'inactivo' => 'Inactivo',
-                        ])
-                        ->required(),
-
-                    DatePicker::make('fecha_inicio')
-                        ->label('Fecha de inicio')
-                        ->required(),
-
-                    DatePicker::make('fecha_fin')
-                        ->label('Fecha de fin')
-                        ->helperText('Dejar en blanco si no tiene fecha de expiración.'),
-
-                    Select::make('asignado_por')
-                        ->label('Asignado por')
-                        ->options(fn () => User::orderBy('name')->pluck('name', 'id'))
-                        ->searchable(),
-                ]),
-        ]);
-    }
 
     /**
      * Configura el listado de asignaciones de rol.
@@ -117,12 +66,14 @@ class UsuarioRolResource extends Resource
                         'activo' => 'success',
                         'pendiente_aprobacion' => 'warning',
                         'inactivo' => 'gray',
+                        'denegado' => 'danger',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn (string $state) => match ($state) {
                         'activo' => 'Activo',
                         'pendiente_aprobacion' => 'Pendiente',
                         'inactivo' => 'Inactivo',
+                        'denegado' => 'Denegado',
                         default => $state,
                     }),
 
@@ -147,13 +98,11 @@ class UsuarioRolResource extends Resource
                         'pendiente_aprobacion' => 'Pendiente de aprobación',
                         'activo' => 'Activo',
                         'inactivo' => 'Inactivo',
+                        'denegado' => 'Denegado',
                     ]),
                 Tables\Filters\SelectFilter::make('rol_id')
                     ->label('Rol')
                     ->relationship('rol', 'name'),
-            ])
-            ->actions([
-                EditAction::make(),
             ])
             ->defaultSort('created_at', 'desc');
     }
@@ -165,20 +114,40 @@ class UsuarioRolResource extends Resource
     {
         return [
             'index' => Pages\ListUsuarioRoles::route('/'),
-            'create' => Pages\CreateUsuarioRol::route('/create'),
-            'edit' => Pages\EditUsuarioRol::route('/{record}/edit'),
         ];
     }
 
     /**
-     * Determina si el usuario puede editar la asignación de rol.
+     * El historial no admite altas manuales: se asigna desde el formulario de usuarios.
+     *
+     * @return bool
+     */
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    /**
+     * El historial no se edita: el pasado es inmutable y las aprobaciones van por Supervisión.
      *
      * @param Model $record Registro objetivo.
+     *
+     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
-        $user = auth()->user();
+        return false;
+    }
 
-        return $user?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
+    /**
+     * El historial no se borra.
+     *
+     * @param Model $record Registro objetivo.
+     *
+     * @return bool
+     */
+    public static function canDelete(Model $record): bool
+    {
+        return false;
     }
 }

@@ -39,12 +39,7 @@ class SupervisionSidebarDataService
             return 0;
         }
 
-        $totalRoles = UsuarioRol::where('estado', 'pendiente_aprobacion')
-            ->whereHas('usuario', function ($q) use ($uoIds) {
-                $q->whereHas('adscripcionesVigentes', function ($q2) use ($uoIds) {
-                    $q2->whereIn('unidad_organizativa_id', $uoIds);
-                });
-            })
+        $totalRoles = UsuarioRol::resolublesPor($supervisor)
             ->count();
 
         $totalAccesosProtegidos = AccesoProtegido::where('estado', 'pendiente')

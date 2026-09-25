@@ -4,6 +4,33 @@
 
 ---
 
+## 2026-09-25 — Usuarios: alta rápida de profesional, historial de roles de solo lectura y nivel de supervisión explícito
+
+### Módulos afectados
+`app/Filament/Resources/UsuarioResource.php`, `ProfesionalResource.php`, `UsuarioRolResource.php` (+ páginas `CreateUsuarioRol`/`EditUsuarioRol` eliminadas), `Modules/Usuarios/app/Models/UsuarioRol.php`, `Modules/Supervision/app/Http/Livewire/AprobacionesPage.php`, `InicioPage.php`, `Modules/Supervision/app/Services/SupervisionSidebarDataService.php`, `database/seeders/ConfiguracionRolesSeeder.php` (nuevo), `DatabaseSeeder.php`, tests, `docs/modulo-usuarios-permisos.md` §2.8 y §4.8
+
+### Añadido
+- **Alta rápida de profesional** desde el selector «Profesional vinculado» del formulario de usuarios (botón «+»). Abre un modal con los mismos campos que la ficha de profesional (`ProfesionalResource::camposFormulario()`, extraído de `form()`). Al guardar, el profesional queda seleccionado y se pre-rellenan los roles sugeridos de su cargo. Solo se muestra a quien puede crear profesionales.
+- `ConfiguracionRolesSeeder`: nivel de supervisión explícito para todos los roles (aprobación previa para `adm_sistema` y `supervision`, alerta supervisada para el resto). No sobrescribe niveles existentes. Se llama desde `DatabaseSeeder` tras `RolesSeeder`. **Ejecutado en la BD compartida**: se añadieron 6 filas; la de `intervencion` ya existía y no se tocó.
+- Scope `UsuarioRol::resolublesPor(User $supervisor)`: solicitudes pendientes de usuarios del subárbol de UO del supervisor, sin las suyas. Sustituye a la misma consulta, que estaba copiada en Aprobaciones, Inicio y la barra lateral de Supervisión.
+
+### Cambiado
+- **`UsuarioRolResource` es de solo lectura** (menú «Historial de roles»). Se quitan el alta, la edición y el borrado: permitían crear una asignación `activa` sin aprobación ni alerta, también sobre uno mismo. El listado muestra además el estado `denegado`.
+- **Nadie resuelve su propia solicitud de rol** en Supervisión → Aprobaciones. No aparece en su bandeja ni en los contadores, y aprobarla o denegarla directamente devuelve 403.
+- Pint reformateó líneas preexistentes de `InicioPage.php` (alineación de arrays e imports).
+
+### Tests
+- `BackofficeRolesSupervisionTest` (5): alta rápida (crea, selecciona y pre-rellena roles; valida obligatorios), historial de solo lectura, seeder de configuración (niveles de 2.8; no sobrescribe; idempotente).
+- `SupervisionTest::supervisor_no_puede_resolver_su_propia_solicitud_de_rol` (TF-SUP-E07).
+- `Modules/Usuarios/tests/`: 63 passed y 1 incomplete (ya existía). `Modules/Supervision/tests`: 34 passed y los mismos 3 fallos que ya había en master. `FilamentPanelAccessTest` y `SinRolTest`: 26 passed.
+
+### Decisiones
+- Historial de solo lectura en lugar de pasar su formulario por `AsignacionRolesService`: ya existen un camino para asignar (formulario de usuarios) y otro para aprobar (Supervisión), y el historial no debe reescribirse (principio 4.2).
+- Alta del profesional en un modal, no en un enlace a otra pestaña: así el profesional queda seleccionado sin recargar y se aplican los roles sugeridos.
+- El caso «quien solicita el rol para otro lo aprueba él mismo» queda en el BACKLOG como decisión pendiente.
+
+---
+
 ## 2026-09-25 — Usuarios: seeders de cargos y roles sugeridos alineados con la BD compartida
 
 ### Módulos afectados

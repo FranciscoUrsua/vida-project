@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UsuarioResource\Pages;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
@@ -88,7 +89,15 @@ class UsuarioResource extends Resource
                         ->searchable()
                         ->nullable()
                         ->placeholder('Sin profesional vinculado (perfil técnico)')
-                        ->helperText('Solo los perfiles técnicos sin función asistencial (adm_sistema) pueden no tener profesional.')
+                        ->helperText('Solo los perfiles técnicos sin función asistencial (adm_sistema) pueden no tener profesional. Si aún no existe, créalo con el botón «+».')
+                        // Alta rápida del profesional sin salir del formulario; al crearlo queda
+                        // seleccionado y dispara afterStateUpdated (pre-relleno de roles sugeridos).
+                        ->createOptionForm(ProfesionalResource::camposFormulario())
+                        ->createOptionUsing(fn (array $data): int => Profesional::create($data)->getKey())
+                        ->createOptionModalHeading('Nuevo profesional')
+                        ->createOptionAction(fn (Action $action): Action => $action
+                            ->tooltip('Crear profesional')
+                            ->visible(ProfesionalResource::canCreate()))
                         ->live()
                         // Solo en el alta: los roles sugeridos del cargo sustituyen la selección
                         // actual. En la edición cambiar el profesional nunca toca los roles.

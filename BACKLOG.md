@@ -9,21 +9,9 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
-**`UsuarioRolResource` permite asignarse roles a uno mismo** — 2026-09-25
-Módulo: Usuarios
-Tras bloquear la edición del propio usuario en `UsuarioResource`, el recurso «Historial de roles» (`/admin/usuario-roles`) sigue permitiendo crear un `UsuarioRol` activo con `usuario_id` = uno mismo. Se relaciona con la entrada «`UsuarioRolResource` permite crear asignaciones de rol eligiendo el estado a mano».
-
----
-
-**`configuracion_roles` solo tiene configurado `intervencion`** — 2026-09-25
-Módulo: Usuarios
-En la BD compartida no hay fila para `supervision`, `adm_sistema` ni el resto de roles. `ConfiguracionRol::nivelPara()` aplica el nivel por defecto documentado en 2.8 (aprobación previa para `adm_sistema` y `supervision`, alerta supervisada para el resto), pero conviene que el nivel quede configurado explícitamente desde el backoffice (Roles → Configuración) o por seeder.
-
----
-
-**`UsuarioRolResource` permite crear asignaciones de rol eligiendo el estado a mano** — 2026-09-25
-Módulo: Usuarios
-Desde 2026-09-25 el formulario de usuarios asigna y retira roles a través de `AsignacionRolesService` (historial + aprobación previa o alerta supervisada). El recurso «Historial de roles» (`/admin/usuario-roles`) sigue permitiendo crear un `UsuarioRol` con `estado = activo` directamente, saltándose la aprobación previa y sin generar alerta. Decidir si ese formulario pasa a ser de solo lectura o si usa también el servicio.
+**Cuatro ojos en la aprobación de roles: quien solicita un rol para otro puede aprobarlo** — 2026-09-25
+Módulo: Usuarios / Supervisión
+Desde 2026-09-25 nadie resuelve su propia solicitud de rol. Pero si un usuario tiene `adm_usuarios` y `supervision` en la misma UO, puede pedir `supervision` o `adm_sistema` para un compañero desde el formulario de usuarios y aprobarla él mismo en Supervisión → Aprobaciones (`usuario_rol.asignado_por` = quien aprueba). Decidir si se bloquea también ese caso; en instalaciones pequeñas puede no haber un segundo supervisor.
 
 ---
 

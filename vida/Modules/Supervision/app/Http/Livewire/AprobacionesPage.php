@@ -64,12 +64,7 @@ class AprobacionesPage extends Component
             return collect();
         }
 
-        return UsuarioRol::where('estado', 'pendiente_aprobacion')
-            ->whereHas('usuario', function ($q) use ($uoIds) {
-                $q->whereHas('adscripcionesVigentes', function ($q2) use ($uoIds) {
-                    $q2->whereIn('unidad_organizativa_id', $uoIds);
-                });
-            })
+        return UsuarioRol::resolublesPor(auth()->user())
             ->with(['usuario', 'rol'])
             ->orderBy('created_at')
             ->get();
@@ -144,14 +139,20 @@ class AprobacionesPage extends Component
     }
 
     /**
-     * Verifica que la solicitud pertenece al ámbito de UO del supervisor.
+     * Verifica que la solicitud pertenece al ámbito de UO del supervisor y no es suya.
      *
      * @param UsuarioRol $solicitud Solicitud a verificar
      *
-     * @throws AuthorizationException si está fuera del ámbito
+     * @throws AuthorizationException si está fuera del ámbito o es del propio supervisor
      */
     private function verificarAmbito(UsuarioRol $solicitud): void
     {
+        // Sin esta comprobación, quien tenga una solicitud propia pendiente y el
+        // rol supervision podría aprobársela y anular la aprobación previa (2.8).
+        if ($solicitud->usuario_id === auth()->id()) {
+            abort(403, 'No puedes resolver tus propias solicitudes de rol.');
+        }
+
         $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
         $uoSolicitud = $solicitud->usuario?->adscripcionesVigentes()
             ->pluck('unidad_organizativa_id')

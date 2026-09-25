@@ -53,8 +53,19 @@ class ProfesionalResource extends Resource
      */
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([
+        return $schema->components(self::camposFormulario());
+    }
 
+    /**
+     * Campos del formulario de profesionales.
+     *
+     * Se reutilizan en el alta rápida de profesional desde el formulario de usuarios.
+     *
+     * @return list<Section>
+     */
+    public static function camposFormulario(): array
+    {
+        return [
             Section::make('Datos personales')
                 ->columns(3)
                 ->schema([
@@ -172,7 +183,7 @@ class ProfesionalResource extends Resource
                         ->label('En activo')
                         ->default(true),
                 ]),
-        ]);
+        ];
     }
 
     /**

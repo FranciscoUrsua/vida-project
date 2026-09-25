@@ -22,6 +22,7 @@ use Modules\Supervision\Http\Livewire\EquipoPage;
 use Modules\Supervision\Http\Livewire\InicioPage;
 use Modules\Supervision\Http\Livewire\Sidebar;
 use Modules\Supervision\Services\IndicadoresCentroService;
+use Modules\Supervision\Services\SupervisionSidebarDataService;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
 use Modules\Usuarios\Models\TipoRelacionProfesional;
@@ -183,8 +184,10 @@ class SupervisionTest extends TestCase
      * Monta un componente Livewire autenticado como supervisor.
      *
      * @template TComponent of Component
+     *
      * @param class-string<TComponent> $component
      * @param array<string, mixed> $params
+     *
      * @return Testable<TComponent>
      */
     private function montarComponente(string $component, array $params = []): Testable
@@ -718,6 +721,31 @@ class SupervisionTest extends TestCase
             'id' => $solicitud->id,
             'estado' => 'pendiente_aprobacion',
         ]);
+    }
+
+    /**
+     * TF-SUP-E07 — El supervisor no ve ni puede resolver su propia solicitud de rol.
+     */
+    #[Test]
+    public function supervisor_no_puede_resolver_su_propia_solicitud_de_rol(): void
+    {
+        // Dada una solicitud pendiente del propio supervisor (adscrito a su UO) y otra de un compañero
+        $propia = $this->crearSolicitudPendiente($this->supervisor, 'adm_sistema');
+        $ajena = $this->crearSolicitudPendiente($this->crearUsuarioEnUo($this->uoHija, 'aprobe07@vida360.test'));
+
+        // No aparece en su bandeja ni en los contadores
+        $component = $this->montarComponente(AprobacionesPage::class);
+        $this->assertSame([$ajena->id], $component->instance()->solicitudesRol->pluck('id')->all());
+        $this->assertSame(1, app(SupervisionSidebarDataService::class)->aprobacionesPendientes($this->supervisor->id));
+
+        // Y aunque la llame directamente, no puede aprobarla ni denegarla
+        $component->call('aprobarSolicitud', $propia->id)->assertForbidden();
+        $this->montarComponente(AprobacionesPage::class)
+            ->call('denegarSolicitud', $propia->id, 'Motivo')
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('usuario_rol', ['id' => $propia->id, 'estado' => 'pendiente_aprobacion']);
+        $this->assertFalse($this->supervisor->fresh()->hasRole('adm_sistema'));
     }
 
     // =========================================================================

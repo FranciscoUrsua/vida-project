@@ -24,9 +24,9 @@ use Modules\Usuarios\Models\UsuarioRol;
  * pendientes más recientes. No es analítica histórica.
  *
  * @property-read float $ratioCarga
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Usuarios\Models\UsuarioRol> $aprobacionesPendientes
+ * @property-read Collection<int, UsuarioRol> $aprobacionesPendientes
  * @property-read float $umbralRatio
- * @property-read \Illuminate\Support\Collection<int, array{nombre: string, inicio: string, fin: string, total: int, disponibles: int, reservados: int}> $cuadranteDeHoy
+ * @property-read SupportCollection<int, array{nombre: string, inicio: string, fin: string, total: int, disponibles: int, reservados: int}> $cuadranteDeHoy
  */
 #[Layout('layouts.supervision')]
 class InicioPage extends Component
@@ -63,7 +63,7 @@ class InicioPage extends Component
     #[Computed]
     public function cuadranteDeHoy(): SupportCollection
     {
-        $uoId   = $this->uoIdSupervisor();
+        $uoId = $this->uoIdSupervisor();
         $centro = $uoId ? Centro::where('unidad_organizativa_id', $uoId)->first() : null;
 
         if ($centro === null) {
@@ -82,12 +82,12 @@ class InicioPage extends Component
                 $prof = $grupo->first()?->usuario?->profesional;
 
                 return [
-                    'nombre'      => $prof?->nombre_completo ?? $grupo->first()?->usuario?->email ?? '—',
-                    'inicio'      => substr($grupo->min('hora_inicio'), 0, 5),
-                    'fin'         => substr($grupo->max('hora_fin'), 0, 5),
-                    'total'       => $grupo->count(),
+                    'nombre' => $prof?->nombre_completo ?? $grupo->first()?->usuario?->email ?? '—',
+                    'inicio' => substr($grupo->min('hora_inicio'), 0, 5),
+                    'fin' => substr($grupo->max('hora_fin'), 0, 5),
+                    'total' => $grupo->count(),
                     'disponibles' => $grupo->filter(fn ($s) => $s->estado === EstadoSlot::Disponible)->count(),
-                    'reservados'  => $grupo->filter(fn ($s) => $s->estado === EstadoSlot::Reservado)->count(),
+                    'reservados' => $grupo->filter(fn ($s) => $s->estado === EstadoSlot::Reservado)->count(),
                 ];
             })
             ->sortBy('nombre')
@@ -108,12 +108,7 @@ class InicioPage extends Component
             return collect();
         }
 
-        return UsuarioRol::where('estado', 'pendiente_aprobacion')
-            ->whereHas('usuario', function ($q) use ($uoIds) {
-                $q->whereHas('adscripcionesVigentes', function ($q2) use ($uoIds) {
-                    $q2->whereIn('unidad_organizativa_id', $uoIds);
-                });
-            })
+        return UsuarioRol::resolublesPor(auth()->user())
             ->orderBy('created_at')
             ->limit(5)
             ->get();

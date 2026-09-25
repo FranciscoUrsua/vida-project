@@ -234,6 +234,12 @@ La asignación de roles por parte de `adm_usuarios` está sujeta a supervisión 
 
 El nivel de supervisión requerido por cada rol es un atributo configurable desde el backoffice, no un valor hardcodeado. Se almacena en la tabla de configuración de roles (ver sección 4.2).
 
+Reglas añadidas el 2026-09-25:
+
+- Los roles solo se asignan desde el formulario de usuarios (`AsignacionRolesService`). El «Historial de roles» (`/admin/usuario-roles`) es de solo lectura: no permite crear, editar ni borrar asignaciones, porque sería un camino para activar roles sin supervisión (incluso sobre uno mismo) y para reescribir el historial (principio 4.2).
+- Nadie resuelve su propia solicitud de rol: Supervisión → Aprobaciones no la muestra al interesado ni la cuenta en sus contadores, y aprobarla o denegarla directamente devuelve 403.
+- Todos los roles tienen el nivel configurado explícitamente en `configuracion_roles` (seeder `ConfiguracionRolesSeeder`, que no sobrescribe niveles ya configurados).
+
 Todo movimiento de roles queda registrado en el log de auditoría con: usuario que realizó la asignación, rol asignado, usuario destinatario, timestamp, y resultado de la supervisión.
 
 ### 2.9 Roles sugeridos por cargo
@@ -449,10 +455,10 @@ Las anotaciones privadas son un caso especial dentro del tipo `Anotacion` del mo
 - Comando de reconciliación: `App\Console\Commands\ReconciliarRoles`
 - Policies: `App\Policies\HistoriaSocialPolicy`, `App\Policies\ApuntePolicy`, etc.
 - Controladores de backoffice: `App\Http\Controllers\Admin\`
-- Asignación supervisada de roles desde el backoffice (2.8): `Modules\Usuarios\Services\AsignacionRolesService`; nivel por rol: `Modules\Usuarios\Models\ConfiguracionRol::nivelPara()`
+- Asignación supervisada de roles desde el backoffice (2.8): `Modules\Usuarios\Services\AsignacionRolesService`; nivel por rol: `Modules\Usuarios\Models\ConfiguracionRol::nivelPara()`, seeder `Database\Seeders\ConfiguracionRolesSeeder`; solicitudes que puede resolver un supervisor: scope `UsuarioRol::resolublesPor()`; historial de solo lectura: `App\Filament\Resources\UsuarioRolResource`
 - Roles sugeridos por cargo (2.9): modelo `Modules\Usuarios\Models\CargoRolSugerido`, relación `Cargo::rolesSugeridos()`, lectura `Modules\Usuarios\Services\RolesSugeridosService`, seeder `Database\Seeders\RolesSugeridosCargoSeeder`
-- Formularios: `App\Filament\Resources\CargoResource` (selector «Roles sugeridos»), `App\Filament\Resources\UsuarioResource` y sus páginas `CreateUsuario` / `EditUsuario` (pre-relleno, aviso y acción `descartarAvisoCargo`)
-- Tests: `Modules/Usuarios/tests/Feature/RolesSugeridosCargoTest.php` (TF-USU-RS-01 a 06)
+- Formularios: `App\Filament\Resources\CargoResource` (selector «Roles sugeridos»), `App\Filament\Resources\UsuarioResource` y sus páginas `CreateUsuario` / `EditUsuario` (pre-relleno, aviso, acción `descartarAvisoCargo` y alta rápida de profesional desde el selector «Profesional vinculado», que reutiliza `ProfesionalResource::camposFormulario()`)
+- Tests: `Modules/Usuarios/tests/Feature/RolesSugeridosCargoTest.php` (TF-USU-RS-01 a 06), `CatalogoCargosSeederTest.php`, `BackofficeRolesSupervisionTest.php`; en Supervisión, `SupervisionTest::supervisor_no_puede_resolver_su_propia_solicitud_de_rol` (TF-SUP-E07)
 
 ---
 
