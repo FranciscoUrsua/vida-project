@@ -59,7 +59,6 @@ USUARIOS Y PROFESIONALES
   Profesionales
   Usuarios
   Roles y permisos
-  Supervisión de roles
   Historial de roles
 
 SISTEMA
@@ -124,8 +123,7 @@ dentro del grupo; usar los valores de la tabla para preservar el orden deseado.
 | `ProfesionalResource` | `'Usuarios y Profesionales'` | `1` | Antes en «Profesionales» |
 | `UsuarioResource` | `'Usuarios y Profesionales'` | `2` | Antes en «Organización» |
 | `ConfiguracionRolResource` | `'Usuarios y Profesionales'` | `3` | Label: «Roles y permisos» |
-| `UsuarioRolResource` | `'Usuarios y Profesionales'` | `4` | Label: «Supervisión de roles» |
-| `HistorialRolResource` | `'Usuarios y Profesionales'` | `5` | Label: «Historial de roles» |
+| `UsuarioRolResource` | `'Usuarios y Profesionales'` | `4` | Label: «Historial de roles» (solo lectura desde 2026-09-25) |
 
 > **Nota sobre labels:** si el nombre visible en el menú debe diferir del nombre de clase,
 > usar `$navigationLabel` estático en la clase. Por ejemplo, si `ConfiguracionRolResource`
