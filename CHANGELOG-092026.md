@@ -4,6 +4,41 @@
 
 ---
 
+## 2026-09-25 — Documentos: custodia v2, fase 2b (tubería de entrada)
+
+### Módulos afectados
+`Modules/Documentos` (contratos `EscanerAntivirus` y `ConversorPdf`; `Services/Ingesta/` con `DetectorFormato`, `EscanerClamAv`, `EscanerAntivirusFake`, `ConversorPdfLocal` y `SaneadorPdf`; `IngestaDocumentoService`, `IngestaRechazadaException`, `AntivirusNoDisponibleException`, provider, config, tests y fixtures), `.env.example`, `phpunit.xml`, `docs/modulo-documentos.md`, `docs/documentacion-proyecto.md` §9, `docs/instrucciones-cli/documentos-custodia-tests.md`, `CLAUDE.md`
+
+### Añadido (paso 4 de `documentos-custodia-implementacion.md`)
+- **Detección por contenido:** PDF, JPEG, PNG, HEIC, ODT y DOCX. Los zip se abren para distinguir ODT/DOCX de otros contenedores. Los paquetes con macros (proyecto VBA en OOXML; `Basic/` o `Scripts/` en ODT) se rechazan con `macros_no_admitidas`.
+- **Antivirus:** contrato `EscanerAntivirus`; `EscanerClamAv` por el socket de clamd (`INSTREAM`); `EscanerAntivirusFake` para tests. Un error del escáner es un rechazo (`antivirus_no_disponible`).
+- **Conversión:** contrato `ConversorPdf`; `ConversorPdfLocal` usa Imagick para imágenes y LibreOffice headless para ODT/DOCX.
+- **Saneado:** `SaneadorPdf` rechaza los PDF que piden contraseña, reescribe a PDF/A-2b con Ghostscript sin JavaScript, adjuntos ni anotaciones y verifica el resultado con `qpdf --qdf`. Los PDF que superan el tamaño del tipo tienen un intento de recompresión (`/ebook`).
+- Config `documentos.antivirus` (`DOCUMENTOS_ANTIVIRUS`, por defecto `clamav`) y `documentos.ingesta.timeout_antivirus_segundos` (`DOCUMENTOS_TIMEOUT_ANTIVIRUS`, 60).
+- **Tests:** `IngestaDocumentoTest` (TF-DOC-46 a 58); TF-DOC-51, 52, 53 y 55 en el grupo `binarios`. `DocumentosTestSetup` ahora tiene una zona temporal propia por test y las aserciones `assertIngestaSinRastro()`, `assertTemporalVacio()` y `assertIngestaRechazada()`. Fixtures nuevos generados por `generar-fixtures.sh`: `protegido.pdf`, `con-adjunto.pdf`, `con-javascript.pdf`, `foto.jpg`, `foto.png`, `documento.docx`, `con-macros.docm` y `ejecutable.exe`. `Modules/Documentos`: **57 passed**.
+- **Comprobación en negativo** (quitando la protección, el test falla): TF-DOC-50 ignorando el error del antivirus, TF-DOC-55 sin los parámetros de Ghostscript ni la verificación, TF-DOC-54 sin `--requires-password` y TF-DOC-48 sin la detección de macros. En este último, el `.docm` sigue sin entrar: se rechaza como `formato_no_admitido`.
+- **Paso 0 (binarios):** en el servidor están `gs` 10.02.1, `qpdf` 11.9.0, `soffice`, `pdfinfo`, `pdftotext`, clamd (activo) e `imagick` con HEIC. La política de ImageMagick permite escribir PDF. La CI no ejecuta tests.
+
+### Cambiado
+- `IngestaDocumentoService` sustituye la tubería mínima de la fase 2a (solo PDF, sin antivirus ni saneado) por la completa. El original se copia a `original` dentro de un directorio de trabajo `{uuid}` que se borra entero en el `finally`.
+- TF-DOC-01, 30, 40 y 41 comparaban el hash con el del fixture subido. Ahora el hash es el del PDF normalizado, así que comprueban que coincide con el contenido descifrado. TF-DOC-41 deja de exigir el mismo hash para dos subidas del mismo fichero y sigue comprobando claves y objetos distintos.
+
+### Decisiones de implementación no previstas en las instrucciones
+- **Los PDF firmados (canal `generado`) no se sanean ni recomprimen:** Ghostscript regenera el fichero entero, así que la firma PAdES deja de ser válida. Solo se comprueba que no pidan contraseña ni contengan JavaScript, adjuntos o `/Launch`; si los contienen, se rechazan (`pdf_no_normalizable`). Queda en BACKLOG para confirmar. No se ha verificado con un PDF firmado real, porque no hay ninguno en el proyecto.
+- **Nuevo código de rechazo `conversion_fallida`**, para los fallos de Imagick o LibreOffice. Los códigos de las instrucciones no cubrían ese caso.
+- **Ghostscript no basta para sanear:** con `-dPDFA=2` a secas conserva la `OpenAction` con JavaScript y los ficheros incrustados. Hacen falta `-dPreserveEmbeddedFiles=false -dPreserveDocView=false -dPreserveAnnots=false`. Además, el resultado se verifica siempre con `qpdf`.
+- Se admiten los PDF con solo contraseña de propietario (restricciones de impresión o copia): se pueden abrir y el saneado quita el cifrado. `pdf_protegido` queda para los que piden contraseña de usuario.
+- Las imágenes se ajustan a A4 (resolución calculada por el lado mayor) y se les quitan los metadatos EXIF, que pueden llevar la ubicación GPS.
+- **El antivirus analiza el original, antes de convertir.** clamd recibe el contenido por el socket porque no puede leer la zona temporal (0600, usuario de PHP).
+- **El antivirus simulado va por configuración** (`DOCUMENTOS_ANTIVIRUS=fake` en `phpunit.xml`) y el provider lo rechaza fuera de `APP_ENV=testing`: así lo usan todos los tests, también `DocumentosTest`, que no usa el trait.
+- La firma EICAR no se versiona como fixture, porque los antivirus de los equipos la pondrían en cuarentena. TF-DOC-51 la construye en tiempo de ejecución.
+- No se ha pasado Pint: su configuración quita los `@return` que exige `CLAUDE.md`, y el código ya versionado del módulo tampoco la cumple.
+
+### Pendiente de comprobar en staging
+Subir un JPG y un DOCX reales cuando haya UI o desde tinker como `www-data`. LibreOffice y clamd dependen de los permisos de ese usuario y no se han podido probar con él (hace falta sudo).
+
+---
+
 ## 2026-09-25 — Documentos: estado real del módulo y custodia v2, fase 2a (tipos documentales, modelo, almacenamiento cifrado)
 
 ### Módulos afectados

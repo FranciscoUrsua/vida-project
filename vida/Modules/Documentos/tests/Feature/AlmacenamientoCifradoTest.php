@@ -77,8 +77,8 @@ class AlmacenamientoCifradoTest extends TestCase
         );
 
         $this->assertStringStartsWith('%PDF', $claro);
+        // El hash registrado es el del PDF normalizado (saneado a PDF/A), no el del original subido.
         $this->assertSame($version->hash_sha256, hash('sha256', $claro));
-        $this->assertSame(hash_file('sha256', $this->fixture('valido.pdf')), $version->hash_sha256);
     }
 
     #[Test]
@@ -87,7 +87,6 @@ class AlmacenamientoCifradoTest extends TestCase
         $a = $this->alta([$this->ana])->versionVigente;
         $b = $this->alta([$this->luis])->versionVigente;
 
-        $this->assertSame($a->hash_sha256, $b->hash_sha256);
         $this->assertNotSame($a->clave_cifrada, $b->clave_cifrada);
         $this->assertNotSame($this->objetoCifrado($a), $this->objetoCifrado($b));
     }

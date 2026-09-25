@@ -9,6 +9,8 @@ use App\Models\UsuarioUo;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Documentos\Data\DatosIngesta;
@@ -16,6 +18,7 @@ use Modules\Documentos\Enums\CanalCaptura;
 use Modules\Documentos\Enums\FamiliaDocumental;
 use Modules\Documentos\Enums\OrigenEni;
 use Modules\Documentos\Enums\PoliticaVersiones;
+use Modules\Documentos\Exceptions\IngestaRechazadaException;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\TipoDocumental;
 use Modules\Documentos\Services\CicloVidaDocumentoService;
@@ -68,6 +71,11 @@ trait DocumentosTestSetup
     protected function prepararDocumentos(): void
     {
         Storage::fake('documentos');
+
+        // Zona temporal de ingesta propia de los tests, vacía al empezar cada uno.
+        $temporal = storage_path('framework/testing/ingesta');
+        File::deleteDirectory($temporal);
+        config(['documentos.ingesta.directorio_temporal' => $temporal]);
 
         $this->seed(PermisosSeeder::class);
         $this->seed(RolesSeeder::class);
@@ -142,12 +150,16 @@ trait DocumentosTestSetup
     /**
      * Ruta de un fichero de prueba.
      *
-     * @param string $nombre Nombre del fichero en tests/fixtures.
+     * @param string $nombre Nombre del fichero en tests/fixtures, o una ruta absoluta.
      *
      * @return string
      */
     protected function fixture(string $nombre): string
     {
+        if (str_starts_with($nombre, '/')) {
+            return $nombre;
+        }
+
         return dirname(__DIR__).'/fixtures/'.$nombre;
     }
 
@@ -185,5 +197,69 @@ trait DocumentosTestSetup
     protected function objetosEnDisco(): array
     {
         return Storage::disk('documentos')->allFiles();
+    }
+
+    /**
+     * Filas de la custodia y objetos en disco en este momento, para comparar tras una ingesta.
+     *
+     * @return array{documentos: int, versiones: int, vinculos: int, objetos: int}
+     */
+    protected function rastroIngesta(): array
+    {
+        return [
+            'documentos' => DB::table('documentos')->count(),
+            'versiones' => DB::table('documento_versiones')->count(),
+            'vinculos' => DB::table('documento_vinculos')->count(),
+            'objetos' => count($this->objetosEnDisco()),
+        ];
+    }
+
+    /**
+     * Comprueba que una ingesta no ha dejado nada: ni filas, ni objetos, ni temporales.
+     *
+     * @param array{documentos: int, versiones: int, vinculos: int, objetos: int} $antes Rastro previo.
+     *
+     * @return void
+     */
+    protected function assertIngestaSinRastro(array $antes): void
+    {
+        $this->assertSame($antes, $this->rastroIngesta(), 'La ingesta rechazada ha dejado filas u objetos.');
+        $this->assertTemporalVacio();
+    }
+
+    /**
+     * Comprueba que la zona temporal de ingesta no conserva ningún fichero.
+     *
+     * @return void
+     */
+    protected function assertTemporalVacio(): void
+    {
+        $temporal = (string) config('documentos.ingesta.directorio_temporal');
+        $restos = is_dir($temporal) ? File::allFiles($temporal, true) : [];
+
+        $this->assertSame([], array_map(fn ($f) => $f->getRelativePathname(), $restos), 'Quedan ficheros en la zona temporal de ingesta.');
+    }
+
+    /**
+     * Ingiere un fichero que debe rechazarse y comprueba el código y que no queda rastro.
+     *
+     * @param string $fichero Fixture o ruta absoluta.
+     * @param string $codigo Código de motivo esperado.
+     * @param TipoDocumental|null $tipo Tipo; por defecto, DNI.
+     *
+     * @return void
+     */
+    protected function assertIngestaRechazada(string $fichero, string $codigo, ?TipoDocumental $tipo = null): void
+    {
+        $antes = $this->rastroIngesta();
+
+        try {
+            $this->alta([$this->ana], $tipo, $fichero);
+            $this->fail("«{$fichero}» debió rechazarse con {$codigo}.");
+        } catch (IngestaRechazadaException $e) {
+            $this->assertSame($codigo, $e->codigo, "«{$fichero}» se rechazó por otro motivo.");
+        }
+
+        $this->assertIngestaSinRastro($antes);
     }
 }

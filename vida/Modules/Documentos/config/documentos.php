@@ -18,7 +18,12 @@ return [
         'directorio_temporal' => storage_path('app/tmp/ingesta'),
         'timeout_conversion_segundos' => (int) env('DOCUMENTOS_TIMEOUT_CONVERSION', 120),
         'timeout_saneado_segundos' => (int) env('DOCUMENTOS_TIMEOUT_SANEADO', 120),
+        'timeout_antivirus_segundos' => (int) env('DOCUMENTOS_TIMEOUT_ANTIVIRUS', 60),
     ],
+
+    // Escáner antivirus: «clamav» (clamd por socket). «fake» solo se admite en tests
+    // (APP_ENV=testing); en cualquier otro entorno la aplicación se niega a arrancarlo.
+    'antivirus' => env('DOCUMENTOS_ANTIVIRUS', 'clamav'),
 
     // Binarios externos.
     'binarios' => [

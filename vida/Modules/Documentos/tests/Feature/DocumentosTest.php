@@ -223,7 +223,11 @@ class DocumentosTest extends TestCase
         $this->assertSame([$ciudadano->id], Documento::vinculadosA($ciudadano)->pluck('id')->map(fn ($id) => $ciudadano->id)->all());
         $this->assertSame('informe.pdf', $version->nombre_original);
         $this->assertSame('application/pdf', $version->mime_original);
-        $this->assertSame(hash_file('sha256', $this->fixture('valido.pdf')), $version->hash_sha256);
+        // El hash es el del PDF normalizado que se custodia, no el del fichero subido.
+        $this->assertSame(
+            $version->hash_sha256,
+            hash('sha256', app(LecturaDocumentoService::class)->contenido($version))
+        );
         $this->assertSame('documentos', $version->disco);
 
         // El fichero debe existir (cifrado) en el disco de documentos

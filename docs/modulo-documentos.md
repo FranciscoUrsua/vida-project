@@ -3,7 +3,7 @@
 **Módulo:** `Documentos`
 **Namespace:** `Modules\Documentos\Models`
 **Directorio:** `vida/Modules/Documentos/`
-**Estado:** Parcial (revisado el 2026-09-25 contra el código). Backend de estilos, plantillas e informes implementado; custodia v2 en curso (fase 2a hecha); 44 tests pasan. **Sin UI operativa** (sección 4) y **sin variables auxiliares** (2.6). La custodia v2 (`docs/instrucciones-cli/documentos-custodia-implementacion.md`) sustituye a la custodia v1.
+**Estado:** Parcial (revisado el 2026-09-25 contra el código). Backend de estilos, plantillas e informes implementado; custodia v2 en curso (fases 2a y 2b hechas); 57 tests pasan. **Sin UI operativa** (sección 4) y **sin variables auxiliares** (2.6). La custodia v2 (`docs/instrucciones-cli/documentos-custodia-implementacion.md`) sustituye a la custodia v1.
 
 > **Revisión 2026-09-25.** Versiones anteriores de este documento daban por implementados las variables auxiliares (TF-DOC-22 a 25), `ParametroInformeResource`, `ConfiguracionTipografiaResource` y los componentes Livewire de la sección 4. No existen en el código ni en el historial de git. Se marcan abajo como ⏳ pendientes.
 
@@ -33,7 +33,7 @@ El Plan de Intervención (PISO) es un caso especial: requiere firma del profesio
 
 ### 2.1 Custodia v2 — tipos documentales, documentos, versiones y vínculos
 
-> Implementada la **fase 2a** el 2026-09-25 (pasos 1 a 3 de `docs/instrucciones-cli/documentos-custodia-implementacion.md`, que es la fuente de verdad del diseño). Pendientes: fase 2b (antivirus, conversión a PDF, saneado PDF/A) y 2c (nuevas versiones, purga, destrucción con acta, `DocumentoPolicy`, auditoría de accesos, baja de ciudadano y UI).
+> Implementadas las **fases 2a y 2b** el 2026-09-25 (pasos 1 a 4 de `docs/instrucciones-cli/documentos-custodia-implementacion.md`, que es la fuente de verdad del diseño). Pendiente: fase 2c (nuevas versiones, purga, destrucción con acta, `DocumentoPolicy`, auditoría de accesos, baja de ciudadano y UI).
 
 | Tabla | Modelo | Contenido |
 |---|---|---|
@@ -194,9 +194,15 @@ Los parámetros son **globales** (un único valor por instalación). La variante
 
 ## 3. Servicios
 
-### Custodia v2 (fase 2a)
+### Custodia v2 (fases 2a y 2b)
 
-- **`IngestaDocumentoService::ingerir()`** — tubería de entrada, único camino al almacén. En 2a: zona temporal (`storage/app/tmp/ingesta`), detección de tipo por contenido (solo PDF), páginas con `pdfinfo`, límites del tipo, hash, cifrado, almacenamiento y registro en una transacción. Si algo falla lanza `IngestaRechazadaException` (código de motivo + mensaje en castellano llano) y no queda nada ni en BBDD ni en disco.
+- **`IngestaDocumentoService::ingerir()`** — tubería de entrada, único camino al almacén. Pasos: directorio de trabajo propio en la zona temporal (`storage/app/tmp/ingesta/{uuid}`, se borra entero al terminar), detección por contenido (`DetectorFormato`), antivirus (`EscanerAntivirus`), conversión a PDF (`ConversorPdf`), rechazo de PDF con contraseña, saneado a PDF/A-2b y verificación de que no queda contenido activo (`SaneadorPdf`), límite de páginas, límite de bytes con un intento de recompresión, hash del PDF normalizado, cifrado, almacenamiento y registro en una transacción. Si algo falla lanza `IngestaRechazadaException` (código de motivo + mensaje en castellano llano) y no queda nada ni en BBDD, ni en disco, ni en el temporal.
+  - **Formatos admitidos:** PDF, JPEG, PNG, HEIC, ODT y DOCX. Los zip se abren para distinguir ODT/DOCX de cualquier otro contenedor; un paquete OOXML con proyecto VBA o un ODT con `Basic/` o `Scripts/` se rechaza con `macros_no_admitidas`.
+  - **Antivirus:** `EscanerClamAv` envía el contenido a clamd por su socket (`INSTREAM`), porque clamd no puede leer la zona temporal (0600). Si clamd no responde o devuelve un error, el fichero se rechaza (`antivirus_no_disponible`). `EscanerAntivirusFake` solo se registra con `DOCUMENTOS_ANTIVIRUS=fake` y `APP_ENV=testing`.
+  - **Conversión:** imágenes con Imagick (una página, ajustada a A4, sin EXIF, con la orientación de la cámara); ODT/DOCX con LibreOffice headless y un perfil propio por conversión. Si falla, `conversion_fallida`.
+  - **Saneado:** Ghostscript a PDF/A-2b con `-dPreserveEmbeddedFiles=false -dPreserveDocView=false -dPreserveAnnots=false`. Sin esos tres parámetros, Ghostscript conserva la `OpenAction` con JavaScript y los adjuntos. Después, `qpdf --qdf` expande el resultado y se rechaza si quedan `/JavaScript`, `/JS`, `/EmbeddedFile(s)` o `/Launch`. Los PDF con solo contraseña de propietario se admiten; los que piden contraseña para abrirse, no (`pdf_protegido`).
+  - **PDF firmados (canal `generado`):** no se convierten, sanean ni recomprimen, porque reescribirlos invalida la firma PAdES. Sí se comprueba que no pidan contraseña ni contengan contenido activo.
+  - **Hash:** es el del PDF normalizado que se custodia, no el del fichero subido. Ghostscript incluye fechas e identificadores en el XMP, así que dos subidas del mismo fichero producen hashes distintos.
 - **`CicloVidaDocumentoService`** — `altaDocumento()` (valida tipo activo, al menos un vínculo, entidades permitidas y metadatos exigidos antes de tocar el almacén) y `desvincular()` (baja lógica).
 - **`LecturaDocumentoService`** — descifra en memoria y verifica el hash; URL firmada temporal a la ruta `documentos.ver`; nombre de descarga genérico `{codigo}-{fecha}.pdf`.
 - **`AlmacenDocumentos` / `AlmacenFlysystem`** — único acceso al disco `documentos` (`DOCUMENTOS_RUTA`, permisos 0700/0600, sin URL). Ruta del objeto: `{2 primeros caracteres del UUID}/{UUID}`. Falla con mensaje claro si el directorio no existe o no se puede escribir.
@@ -305,9 +311,10 @@ Ficheros: `Modules/Documentos/tests/Feature/DocumentosTest.php` (TF-DOC-01 a 21 
 | Custodia v2 — tipos documentales (TF-DOC-26 a 31) | 6 | ✅ `TiposDocumentalesTest` |
 | Custodia v2 — modelo y vínculos n:M (TF-DOC-32 a 38) | 7 | ✅ `VinculosDocumentoTest` |
 | Custodia v2 — almacenamiento y cifrado (TF-DOC-39 a 45) | 7 | ✅ `AlmacenamientoCifradoTest` |
-| Custodia v2 — tubería, ciclo de vida, retenciones, acceso (TF-DOC-46 a 78) | 33 | ⏳ fases 2b y 2c |
+| Custodia v2 — tubería de entrada (TF-DOC-46 a 58) | 13 | ✅ `IngestaDocumentoTest` (51 a 53 y 55 en `#[Group('binarios')]`) |
+| Custodia v2 — ciclo de vida, retenciones, acceso (TF-DOC-59 a 78) | 20 | ⏳ fase 2c |
 | Pie con número de página y logo único (TF-DOC-79 a 81) | 3 | ✅ |
-| **Total implementado** | **44** | **44 ✅** |
+| **Total implementado** | **57** | **57 ✅** |
 
 TF-DOC-79 a 81 se llamaban TF-DOC-26, 27 y 29 (2026-09-24); se renumeraron el 2026-09-25 para no chocar con la numeración de la custodia v2.
 

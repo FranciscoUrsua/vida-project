@@ -282,7 +282,7 @@ Gestión de plantillas de informe, generación de documentos y merge tags.
 
 **Merge tags (mayo 2026):** `MergeTagsCatalogo` con 26 variables en 6 categorías. `PlantillaInformeResource` con campo `secciones` como Builder de dos tipos de bloque (automatico / texto_libre con RichEditor y merge tags). Variables pendientes de módulo Intervención devuelven `'—'`.
 
-**Custodia v2 (septiembre 2026, en curso):** tipos documentales configurables (`TipoDocumentalResource`), documento lógico con versiones cifradas por versión (AES-256-GCM, clave maestra en `DOCUMENTOS_CLAVE_MAESTRA`), vínculos n:M a personas, retenciones y actas de eliminación. Disco `documentos` fuera del proyecto (`DOCUMENTOS_RUTA`). Fase 2a hecha (modelo, almacenamiento y cifrado); pendientes 2b (antivirus, conversión, PDF/A) y 2c (ciclo de vida completo, acceso, auditoría y UI). Detalle en `docs/modulo-documentos.md`.
+**Custodia v2 (septiembre 2026, en curso):** tipos documentales configurables (`TipoDocumentalResource`), documento lógico con versiones cifradas por versión (AES-256-GCM, clave maestra en `DOCUMENTOS_CLAVE_MAESTRA`), vínculos n:M a personas, retenciones y actas de eliminación. Disco `documentos` fuera del proyecto (`DOCUMENTOS_RUTA`). Fases 2a (modelo, almacenamiento y cifrado) y 2b (tubería de entrada: antivirus ClamAV, conversión de imágenes y ODT/DOCX a PDF, saneado a PDF/A-2b, recompresión) hechas; pendiente 2c (ciclo de vida completo, acceso, auditoría y UI). Detalle en `docs/modulo-documentos.md`.
 
 **Sin UI operativa:** los profesionales aún no pueden subir documentos ni redactar informes desde la superficie Livewire.
 

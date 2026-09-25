@@ -170,9 +170,10 @@ class TiposDocumentalesTest extends TestCase
 
         // Sus documentos siguen accesibles
         $documento = Documento::findOrFail($documento->id);
+        $version = $documento->versionVigente;
         $this->assertSame(
-            hash_file('sha256', $this->fixture('valido.pdf')),
-            hash('sha256', app(LecturaDocumentoService::class)->contenido($documento->versionVigente))
+            $version->hash_sha256,
+            hash('sha256', app(LecturaDocumentoService::class)->contenido($version))
         );
 
         // Negativo: un tipo sin documentos sí se borra

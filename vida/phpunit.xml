@@ -44,6 +44,7 @@
         <env name="DOCUMENTOS_CLAVE_MAESTRA" value="base64:dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHQ="/>
         <env name="DOCUMENTOS_RUTA" value="storage/framework/testing/disks/documentos"/>
         <env name="DOCUMENTOS_DISCO" value="documentos"/>
+        <env name="DOCUMENTOS_ANTIVIRUS" value="fake"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>

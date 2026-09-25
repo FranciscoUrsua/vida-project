@@ -22,6 +22,7 @@ class IngestaRechazadaException extends RuntimeException
         'virus_detectado' => 'El fichero contiene un virus y no se ha guardado.',
         'antivirus_no_disponible' => 'No se ha podido comprobar el fichero con el antivirus. Inténtalo de nuevo más tarde.',
         'macros_no_admitidas' => 'El documento contiene macros y no se admite. Guárdalo sin macros o como PDF.',
+        'conversion_fallida' => 'No se ha podido convertir el fichero a PDF. Comprueba que se abre bien o súbelo como PDF.',
         'pdf_protegido' => 'El PDF está protegido con contraseña. Sube una copia sin protección.',
         'pdf_no_normalizable' => 'No se ha podido procesar el PDF. Comprueba que no esté dañado.',
         'demasiadas_paginas' => 'El documento tiene demasiadas páginas para este tipo de documento.',

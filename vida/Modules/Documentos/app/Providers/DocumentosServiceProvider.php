@@ -6,11 +6,17 @@ use Illuminate\Support\ServiceProvider;
 use Modules\Documentos\Console\LimpiarHuerfanosCommand;
 use Modules\Documentos\Console\VerificarIntegridadCommand;
 use Modules\Documentos\Contracts\AlmacenDocumentos;
+use Modules\Documentos\Contracts\ConversorPdf;
+use Modules\Documentos\Contracts\EscanerAntivirus;
 use Modules\Documentos\Contracts\ProveedorClavesMaestras;
+use Modules\Documentos\Exceptions\ConfiguracionDocumentosException;
 use Modules\Documentos\Models\EstiloInforme;
 use Modules\Documentos\Observers\EstiloInformeObserver;
 use Modules\Documentos\Services\Almacenamiento\AlmacenFlysystem;
 use Modules\Documentos\Services\Almacenamiento\ProveedorClavesLocal;
+use Modules\Documentos\Services\Ingesta\ConversorPdfLocal;
+use Modules\Documentos\Services\Ingesta\EscanerAntivirusFake;
+use Modules\Documentos\Services\Ingesta\EscanerClamAv;
 use Modules\Documentos\Services\ResolverEstiloInforme;
 
 /**
@@ -40,6 +46,30 @@ class DocumentosServiceProvider extends ServiceProvider
         // Sin singleton: la clave maestra se valida en cada resolución, así una
         // configuración ausente falla en el primer uso y no queda cacheada.
         $this->app->bind(ProveedorClavesMaestras::class, ProveedorClavesLocal::class);
+
+        $this->app->singleton(ConversorPdf::class, ConversorPdfLocal::class);
+        $this->app->singleton(EscanerAntivirus::class, fn (): EscanerAntivirus => $this->escanerAntivirus());
+    }
+
+    /**
+     * Escáner antivirus según configuración.
+     *
+     * El simulado solo se admite en tests: en cualquier otro entorno dejaría entrar
+     * ficheros sin analizar, así que la custodia se niega a funcionar.
+     *
+     * @throws ConfiguracionDocumentosException
+     *
+     * @return EscanerAntivirus
+     */
+    private function escanerAntivirus(): EscanerAntivirus
+    {
+        return match (config('documentos.antivirus')) {
+            'clamav' => new EscanerClamAv,
+            'fake' => $this->app->environment('testing')
+                ? new EscanerAntivirusFake
+                : throw new ConfiguracionDocumentosException('DOCUMENTOS_ANTIVIRUS=fake solo se admite en tests.'),
+            default => throw new ConfiguracionDocumentosException('DOCUMENTOS_ANTIVIRUS debe ser «clamav».'),
+        };
     }
 
     /**

@@ -4,16 +4,22 @@ namespace Modules\Documentos\Services;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Modules\Documentos\Contracts\AlmacenDocumentos;
+use Modules\Documentos\Contracts\ConversorPdf;
+use Modules\Documentos\Contracts\EscanerAntivirus;
 use Modules\Documentos\Data\DatosIngesta;
+use Modules\Documentos\Enums\CanalCaptura;
 use Modules\Documentos\Enums\EstadoDocumento;
 use Modules\Documentos\Enums\EstadoVersion;
+use Modules\Documentos\Exceptions\AntivirusNoDisponibleException;
 use Modules\Documentos\Exceptions\IngestaRechazadaException;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\DocumentoVersion;
 use Modules\Documentos\Services\Almacenamiento\CifradorDocumentos;
+use Modules\Documentos\Services\Ingesta\DetectorFormato;
+use Modules\Documentos\Services\Ingesta\SaneadorPdf;
 
 /**
  * Tubería de entrada de documentos: el único camino por el que un fichero llega al almacén.
@@ -21,21 +27,34 @@ use Modules\Documentos\Services\Almacenamiento\CifradorDocumentos;
  * Si falla cualquier paso se lanza IngestaRechazadaException y no queda nada ni en
  * BBDD ni en disco. El original y los intermedios se destruyen siempre.
  *
- * Fase 2a de la custodia v2: solo admite PDF. Antivirus, conversión de imágenes y
- * ofimática, saneado a PDF/A y recompresión se añaden en la fase 2b
- * (pasos 3 a 5 de documentos-custodia-implementacion.md).
+ * Pasos, en este orden (paso 4 de documentos-custodia-implementacion.md): zona
+ * temporal, detección por contenido, antivirus, conversión a PDF, saneado a PDF/A,
+ * límites del tipo (con un intento de recompresión), hash, cifrado, almacenamiento
+ * y registro en una transacción.
+ *
+ * Los PDF firmados (canal «generado») no se convierten, sanean ni recomprimen:
+ * reescribirlos con Ghostscript invalida la firma PAdES. Solo se comprueba que no
+ * estén protegidos ni contengan JavaScript, adjuntos o acciones de lanzamiento.
  */
 class IngestaDocumentoService
 {
     /**
-     * Inyecta almacén y cifrador.
+     * Inyecta almacén, cifrador y las herramientas de la tubería.
      *
      * @param AlmacenDocumentos $almacen Almacén de objetos cifrados.
      * @param CifradorDocumentos $cifrador Cifrado por versión.
+     * @param DetectorFormato $detector Detección del formato por contenido.
+     * @param EscanerAntivirus $antivirus Escáner antivirus.
+     * @param ConversorPdf $conversor Conversión de imágenes y ofimática a PDF.
+     * @param SaneadorPdf $saneador Saneado y normalización a PDF/A.
      */
     public function __construct(
         private readonly AlmacenDocumentos $almacen,
         private readonly CifradorDocumentos $cifrador,
+        private readonly DetectorFormato $detector,
+        private readonly EscanerAntivirus $antivirus,
+        private readonly ConversorPdf $conversor,
+        private readonly SaneadorPdf $saneador,
     ) {}
 
     /**
@@ -51,22 +70,38 @@ class IngestaDocumentoService
      */
     public function ingerir(UploadedFile|string $origen, DatosIngesta $datos, bool $esContenido = false): DocumentoVersion
     {
-        $temporal = $this->copiarATemporal($origen, $esContenido);
+        $directorio = $this->crearDirectorioTrabajo();
         $clave = null;
 
         try {
-            $mime = $this->detectarTipo($temporal);
-            $pdf = (string) file_get_contents($temporal);
-            $paginas = $this->contarPaginas($temporal);
-            $this->comprobarLimites($datos, strlen($pdf), $paginas);
+            $original = $this->copiarATemporal($origen, $esContenido, $directorio);
+            $mime = $this->detector->detectar($original);
+            $this->analizarAntivirus($original);
 
-            $hash = hash('sha256', $pdf);
-            $cifrado = $this->cifrador->cifrar($pdf);
+            $firmado = $datos->canal === CanalCaptura::Generado;
+            if ($firmado && $mime !== DetectorFormato::PDF) {
+                throw new IngestaRechazadaException('formato_no_admitido');
+            }
+
+            $convertido = $mime !== DetectorFormato::PDF;
+            $pdf = $convertido ? $this->conversor->convertir($original, $mime, $directorio) : $original;
+            $pdf = $this->normalizar($pdf, $directorio, $firmado);
+
+            $paginas = $this->saneador->contarPaginas($pdf);
+            if ($paginas > $datos->tipo->max_paginas) {
+                throw new IngestaRechazadaException('demasiadas_paginas');
+            }
+            $pdf = $this->ajustarTamanyo($pdf, $directorio, $datos, $firmado);
+
+            $contenido = (string) file_get_contents($pdf);
+            $hash = hash('sha256', $contenido);
+            $cifrado = $this->cifrador->cifrar($contenido);
+            unset($contenido);
             $clave = (string) Str::uuid();
             $this->almacen->guardar($clave, $cifrado['contenido']);
 
             return DB::transaction(fn (): DocumentoVersion => $this->registrar(
-                $datos, $clave, $hash, strlen($pdf), $paginas, $mime, $cifrado, $origen,
+                $datos, $clave, $hash, (int) filesize($pdf), $paginas, $mime, $convertido, $cifrado, $origen,
             ));
         } catch (\Throwable $e) {
             // Si la transacción falló después de escribir, el objeto no debe quedar huérfano.
@@ -76,8 +111,90 @@ class IngestaDocumentoService
 
             throw $e;
         } finally {
-            @unlink($temporal);
+            // Destruye el original y todos los intermedios: no se conserva copia en ningún sitio.
+            File::deleteDirectory($directorio);
         }
+    }
+
+    /**
+     * Analiza el original con el antivirus. Un error del escáner es un rechazo.
+     *
+     * @param string $ruta Fichero original en la zona temporal.
+     *
+     * @throws IngestaRechazadaException virus_detectado o antivirus_no_disponible
+     *
+     * @return void
+     */
+    private function analizarAntivirus(string $ruta): void
+    {
+        try {
+            $firma = $this->antivirus->escanear($ruta);
+        } catch (AntivirusNoDisponibleException $e) {
+            throw new IngestaRechazadaException('antivirus_no_disponible', $e);
+        }
+
+        if ($firma !== null) {
+            throw new IngestaRechazadaException('virus_detectado');
+        }
+    }
+
+    /**
+     * Rechaza PDF protegidos y reescribe a PDF/A sin contenido activo.
+     *
+     * @param string $pdf PDF original o convertido.
+     * @param string $directorio Directorio de trabajo.
+     * @param bool $firmado true para PDF firmados, que no se reescriben.
+     *
+     * @throws IngestaRechazadaException
+     *
+     * @return string Ruta del PDF que sigue por la tubería.
+     */
+    private function normalizar(string $pdf, string $directorio, bool $firmado): string
+    {
+        $this->saneador->rechazarSiProtegido($pdf);
+
+        if (! $firmado) {
+            $saneado = $directorio.'/saneado.pdf';
+            $this->saneador->sanear($pdf, $saneado);
+            $pdf = $saneado;
+        }
+
+        // En los firmados es la única defensa; en el resto, confirma que el saneado ha funcionado.
+        $this->saneador->verificarSinContenidoActivo($pdf, $directorio);
+
+        return $pdf;
+    }
+
+    /**
+     * Aplica el máximo de bytes del tipo, con un único intento de recompresión.
+     *
+     * @param string $pdf PDF normalizado.
+     * @param string $directorio Directorio de trabajo.
+     * @param DatosIngesta $datos Datos del alta (tipo).
+     * @param bool $firmado true para PDF firmados, que no se recomprimen.
+     *
+     * @throws IngestaRechazadaException tamanyo_excedido
+     *
+     * @return string Ruta del PDF definitivo.
+     */
+    private function ajustarTamanyo(string $pdf, string $directorio, DatosIngesta $datos, bool $firmado): string
+    {
+        if (filesize($pdf) <= $datos->tipo->max_bytes) {
+            return $pdf;
+        }
+
+        if ($firmado) {
+            throw new IngestaRechazadaException('tamanyo_excedido');
+        }
+
+        $recomprimido = $directorio.'/recomprimido.pdf';
+        $this->saneador->recomprimir($pdf, $recomprimido);
+
+        if (filesize($recomprimido) > $datos->tipo->max_bytes) {
+            throw new IngestaRechazadaException('tamanyo_excedido');
+        }
+
+        return $recomprimido;
     }
 
     /**
@@ -89,6 +206,7 @@ class IngestaDocumentoService
      * @param int $bytes Tamaño del PDF en claro.
      * @param int $paginas Número de páginas.
      * @param string $mime MIME detectado en la entrada.
+     * @param bool $convertido true si la entrada no era PDF y se convirtió.
      * @param array{contenido: string, clave_cifrada: string, id_clave_maestra: string} $cifrado Resultado del cifrado.
      * @param UploadedFile|string $origen Fichero de origen, para el nombre original.
      *
@@ -101,6 +219,7 @@ class IngestaDocumentoService
         int $bytes,
         int $paginas,
         string $mime,
+        bool $convertido,
         array $cifrado,
         UploadedFile|string $origen,
     ): DocumentoVersion {
@@ -128,7 +247,7 @@ class IngestaDocumentoService
             'nombre_original' => $datos->nombreOriginal
                 ?? ($origen instanceof UploadedFile ? $origen->getClientOriginalName() : 'documento.pdf'),
             'mime_original' => $mime,
-            'convertido' => false,
+            'convertido' => $convertido,
             'canal' => $datos->canal,
             'subido_por' => $datos->usuario->id,
             'fecha_captura' => $ahora,
@@ -152,24 +271,33 @@ class IngestaDocumentoService
     }
 
     /**
-     * Copia el origen a la zona temporal de ingesta (nunca al disco de documentos).
+     * Crea el directorio de trabajo de esta ingesta dentro de la zona temporal.
+     *
+     * @return string
+     */
+    private function crearDirectorioTrabajo(): string
+    {
+        $directorio = rtrim((string) config('documentos.ingesta.directorio_temporal'), '/').'/'.Str::uuid();
+        mkdir($directorio, 0700, true);
+
+        return $directorio;
+    }
+
+    /**
+     * Copia el origen al directorio de trabajo (nunca al disco de documentos).
      *
      * @param UploadedFile|string $origen Fichero, ruta o contenido.
      * @param bool $esContenido true si $origen es contenido binario.
-     *
-     * @return string Ruta del temporal.
+     * @param string $directorio Directorio de trabajo.
      *
      * @throws IngestaRechazadaException si no se puede leer el origen
+     *
+     * @return string Ruta del original en la zona temporal.
      */
-    private function copiarATemporal(UploadedFile|string $origen, bool $esContenido): string
+    private function copiarATemporal(UploadedFile|string $origen, bool $esContenido, string $directorio): string
     {
-        $directorio = (string) config('documentos.ingesta.directorio_temporal');
-
-        if (! is_dir($directorio)) {
-            mkdir($directorio, 0700, true);
-        }
-
-        $temporal = $directorio.'/'.Str::uuid();
+        // Nombre neutro: el nombre original solo se guarda cifrado en la BBDD.
+        $temporal = $directorio.'/original';
         $ruta = $origen instanceof UploadedFile ? $origen->getRealPath() : $origen;
 
         $copiado = $esContenido
@@ -177,78 +305,11 @@ class IngestaDocumentoService
             : (is_string($ruta) && is_file($ruta) && copy($ruta, $temporal));
 
         if (! $copiado) {
-            @unlink($temporal);
-
             throw new IngestaRechazadaException('fichero_no_legible');
         }
 
         chmod($temporal, 0600);
 
         return $temporal;
-    }
-
-    /**
-     * Detecta el tipo por contenido (magic bytes); la extensión se ignora.
-     *
-     * @param string $ruta Fichero temporal.
-     *
-     * @return string MIME detectado.
-     *
-     * @throws IngestaRechazadaException si no es un formato admitido
-     */
-    private function detectarTipo(string $ruta): string
-    {
-        $mime = (string) (new \finfo(FILEINFO_MIME_TYPE))->file($ruta);
-
-        // Fase 2a: solo PDF. Imágenes y ofimática se admitirán cuando exista la conversión (2b).
-        if ($mime !== 'application/pdf') {
-            throw new IngestaRechazadaException('formato_no_admitido');
-        }
-
-        return $mime;
-    }
-
-    /**
-     * Número de páginas del PDF (pdfinfo).
-     *
-     * @param string $ruta PDF temporal.
-     *
-     * @throws IngestaRechazadaException si el PDF no se puede interpretar
-     *
-     * @return int
-     */
-    private function contarPaginas(string $ruta): int
-    {
-        $resultado = Process::timeout((int) config('documentos.ingesta.timeout_saneado_segundos'))
-            ->run([(string) config('documentos.binarios.pdfinfo'), $ruta]);
-
-        if ($resultado->failed() || ! preg_match('/^Pages:\s+(\d+)/m', $resultado->output(), $coincidencia)) {
-            throw new IngestaRechazadaException('pdf_no_normalizable');
-        }
-
-        return (int) $coincidencia[1];
-    }
-
-    /**
-     * Aplica los límites de páginas y tamaño del tipo documental.
-     *
-     * @param DatosIngesta $datos Datos del alta (tipo).
-     * @param int $bytes Tamaño del PDF.
-     * @param int $paginas Páginas del PDF.
-     *
-     * @throws IngestaRechazadaException
-     *
-     * @return void
-     */
-    private function comprobarLimites(DatosIngesta $datos, int $bytes, int $paginas): void
-    {
-        if ($paginas > $datos->tipo->max_paginas) {
-            throw new IngestaRechazadaException('demasiadas_paginas');
-        }
-
-        // La recompresión previa al rechazo llega con el saneado (fase 2b).
-        if ($bytes > $datos->tipo->max_bytes) {
-            throw new IngestaRechazadaException('tamanyo_excedido');
-        }
     }
 }
