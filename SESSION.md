@@ -12,6 +12,10 @@ Detalle y decisiones en `CHANGELOG-092026.md` (entrada del 2026-09-25) y en `doc
 
 ---
 
+Corrección posterior (2026-09-25): en Filament nadie puede borrar ni editar su propio usuario. `admin@vida.local` se había borrado a sí mismo; el desarrollador lo recreó desde tinker. Ver la entrada del CHANGELOG.
+
+---
+
 ## Estado exacto del proyecto
 
 - **⚠️ La BD local y la de staging son la misma** (`vida@127.0.0.1`, ver `BACKLOG.md`). Todo lo que se migre o cargue «en local» ocurre en staging. **No lanzar `demo:reset` desde local.**

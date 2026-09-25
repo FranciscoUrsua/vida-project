@@ -9,6 +9,12 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**`UsuarioRolResource` permite asignarse roles a uno mismo** — 2026-09-25
+Módulo: Usuarios
+Tras bloquear la edición del propio usuario en `UsuarioResource`, el recurso «Historial de roles» (`/admin/usuario-roles`) sigue permitiendo crear un `UsuarioRol` activo con `usuario_id` = uno mismo. Se relaciona con la entrada «`UsuarioRolResource` permite crear asignaciones de rol eligiendo el estado a mano».
+
+---
+
 **Cargos sin `slug` en la BD compartida: el formulario de cargos no deja guardarlos y `CargosSeeder` los duplicaría** — 2026-09-25
 Módulo: Usuarios
 Los 13 cargos de la BD `vida` tienen `slug = null`. `CargoResource` exige `slug` (required + unique), así que editar cualquier cargo existente (por ejemplo, para cambiar sus roles sugeridos) obliga a rellenarlo antes. `CargosSeeder` hace `updateOrCreate` por `slug`: si se ejecutara sobre esta BD crearía 13 cargos duplicados. Propuesta: migración que rellene los slugs con los valores de `CargosSeeder` casando por `nombre`. `RolesSugeridosCargoSeeder` casa por `nombre` por este motivo.

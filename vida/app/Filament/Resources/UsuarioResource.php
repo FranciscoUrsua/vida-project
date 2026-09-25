@@ -19,6 +19,7 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Auth\Access\Response;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rules\Unique;
 use Modules\Usuarios\Models\Profesional;
@@ -246,8 +247,8 @@ class UsuarioResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
-                DeleteAction::make()
-                    ->authorize(fn () => auth()->user()?->hasRole('adm_sistema') ?? false),
+                // Sin ->authorize() propio: aplica getDeleteAuthorizationResponse(), que impide borrarse a uno mismo
+                DeleteAction::make(),
             ])
             ->defaultSort('name');
     }
@@ -283,12 +284,18 @@ class UsuarioResource extends Resource
     /**
      * Determina si el usuario puede editar el registro.
      *
+     * Nadie puede editar su propio usuario desde el backoffice: podría darse o
+     * quitarse roles sin supervisión (sección 2.8) o dejarse sin acceso.
+     *
      * @param Model $record Registro objetivo.
      */
     public static function canEdit(Model $record): bool
     {
         $user = auth()->user();
         if (! $user?->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
+            return false;
+        }
+        if (self::esElPropioUsuario($record)) {
             return false;
         }
         if ($user->hasRole('adm_sistema')) {
@@ -307,10 +314,58 @@ class UsuarioResource extends Resource
     /**
      * Determina si el usuario puede eliminar usuarios.
      *
+     * Solo adm_sistema, y nunca su propio usuario: borrarse a uno mismo deja
+     * la cuenta sin acceso (incidente de admin@vida.local, 2026-09-25).
+     *
      * @param Model $record Registro objetivo.
      */
     public static function canDelete(Model $record): bool
     {
+        if (self::esElPropioUsuario($record)) {
+            return false;
+        }
+
         return auth()->user()?->hasRole('adm_sistema') ?? false;
+    }
+
+    /**
+     * Respuesta de autorización para editar, usada por la página y las acciones de Filament.
+     *
+     * En Filament 5 las acciones consultan este método, no canEdit(): se delega
+     * en canEdit() para que ambas vías apliquen las mismas reglas.
+     *
+     * @param Model $record Registro objetivo.
+     */
+    public static function getEditAuthorizationResponse(Model $record): Response
+    {
+        if (self::esElPropioUsuario($record)) {
+            return Response::deny('No puedes modificar tu propio usuario desde el backoffice.');
+        }
+
+        return static::canEdit($record) ? Response::allow() : Response::deny();
+    }
+
+    /**
+     * Respuesta de autorización para borrar, usada por las acciones de borrado de Filament.
+     *
+     * @param Model $record Registro objetivo.
+     */
+    public static function getDeleteAuthorizationResponse(Model $record): Response
+    {
+        if (self::esElPropioUsuario($record)) {
+            return Response::deny('No puedes borrar tu propio usuario.');
+        }
+
+        return static::canDelete($record) ? Response::allow() : Response::deny();
+    }
+
+    /**
+     * Indica si el registro es el usuario autenticado.
+     *
+     * @param Model $record Registro objetivo.
+     */
+    private static function esElPropioUsuario(Model $record): bool
+    {
+        return $record instanceof User && $record->getKey() === auth()->id();
     }
 }

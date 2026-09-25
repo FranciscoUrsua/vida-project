@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-09-25 — Usuarios: nadie puede borrar ni editar su propio usuario desde Filament
+
+### Módulos afectados
+`app/Filament/Resources/UsuarioResource.php`, `Modules/Usuarios/tests/Feature/UsuarioAutogestionTest.php`
+
+### Corregido
+- Bug reportado: `admin@vida.local` se borró a sí mismo desde la tabla de usuarios y perdió el acceso. El usuario lo recreó desde tinker; la fila borrada (id 1) sigue en la BD como soft delete.
+- **Causa 1:** la `DeleteAction` de la tabla tenía un `->authorize()` propio que solo comprobaba `adm_sistema` y se saltaba `canDelete()`.
+- **Causa 2:** en Filament 5, las acciones y páginas no usan `canEdit()`/`canDelete()`, sino `getEditAuthorizationResponse()`/`getDeleteAuthorizationResponse()`. Sobrescribir solo `can*()` no protegía los botones.
+- Arreglo: `UsuarioResource` sobrescribe ambas `get*AuthorizationResponse()`. Deniegan si el registro es el usuario autenticado y, si no, delegan en `canEdit()`/`canDelete()`, que también excluyen al propio usuario. Se quitó el `->authorize()` de la acción de borrado de la tabla. Las acciones de borrar y editar desaparecen de la propia fila, la página de edición de uno mismo devuelve 403 y el botón «Borrar» de la cabecera de edición queda cubierto.
+- Tests: `UsuarioAutogestionTest` (5). Antes del arreglo fallaban 4. `Modules/Usuarios/tests/` y `FilamentPanelAccessTest`: 72 passed y 1 incomplete (ya existía).
+
+### Decisiones
+- También se bloquea **editar** el propio usuario, no solo borrarlo: permitiría darse o quitarse roles sin supervisión. El cambio de contraseña propio sigue disponible fuera de `/admin` (onboarding y avatar).
+
+---
+
 ## 2026-09-25 — Usuarios: roles sugeridos por cargo y asignación supervisada de roles desde el backoffice
 
 ### Módulos afectados
