@@ -13,6 +13,8 @@ enum AccionAuditEnum: string
     case Crear = 'crear';
     case Editar = 'editar';
     case Eliminar = 'eliminar';
+    // Borrado irreversible (documentos purgados o destruidos). «eliminar» es la baja lógica.
+    case Borrar = 'borrar';
     case Exportar = 'exportar';
     case Imprimir = 'imprimir';
     case AccesoRestringido = 'acceso_restringido';
@@ -27,6 +29,7 @@ enum AccionAuditEnum: string
             self::Crear => 'Registró nueva información',
             self::Editar => 'Modificó información existente',
             self::Eliminar => 'Eliminó un registro',
+            self::Borrar => 'Borró definitivamente un documento',
             self::Exportar => 'Exportó datos',
             self::Imprimir => 'Generó un documento',
             self::AccesoRestringido => 'Accedió a expediente con protección especial',
@@ -43,6 +46,7 @@ enum AccionAuditEnum: string
             self::Crear => 'success',
             self::Editar => 'warning',
             self::Eliminar => 'danger',
+            self::Borrar => 'danger',
             self::Exportar => 'info',
             self::Imprimir => 'info',
             self::AccesoRestringido => 'danger',

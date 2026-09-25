@@ -197,6 +197,8 @@ class DocumentoResource extends Resource
                     ->label('Ver PDF')
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('gray')
+                    // El controlador vuelve a autorizar; esto solo oculta el enlace a quien no tiene acceso.
+                    ->visible(fn (Documento $record): bool => auth()->user()?->can('view', $record) ?? false)
                     ->url(fn (Documento $record): string => app(LecturaDocumentoService::class)->urlTemporal($record, 60))
                     ->openUrlInNewTab(),
             ])

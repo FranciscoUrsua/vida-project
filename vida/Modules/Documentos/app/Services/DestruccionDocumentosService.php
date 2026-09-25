@@ -96,7 +96,7 @@ class DestruccionDocumentosService
                 }
 
                 $detalle[] = $this->detalleActa($version);
-                $this->destructor->triturarClave($version, EstadoVersion::Destruida);
+                $this->destructor->triturarClave($version, EstadoVersion::Destruida, $usuario, $motivo);
                 $this->marcarDocumentoSiDestruido($version);
                 $destruidas[] = $version;
             }

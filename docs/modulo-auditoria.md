@@ -30,7 +30,7 @@ La auditoría cubre cuatro tipos de operación: **lectura**, **creación**, **ed
 audits
   id                 bigint PK
   user_id            bigint FK → users (quién realizó la acción)
-  accion             enum    → ver | crear | editar | eliminar | exportar | imprimir | acceso_restringido
+  accion             enum    → ver | crear | editar | eliminar | borrar | exportar | imprimir | acceso_restringido
   auditable_type     varchar (clase del modelo afectado)
   auditable_id       bigint  (id del registro afectado)
   ciudadano_id       bigint FK nullable → ciudadanos (ciudadano al que pertenece el dato)
@@ -155,6 +155,7 @@ La restricción para roles no asignados es deliberada: ver que "otro profesional
 | `crear` | Registró nueva información |
 | `editar` | Modificó información existente |
 | `eliminar` | Eliminó un registro |
+| `borrar` | Borró definitivamente un documento (purga o destrucción con acta; irreversible, a diferencia de `eliminar`, que es la baja lógica) |
 | `exportar` | Exportó datos |
 | `imprimir` | Generó un documento |
 | `acceso_restringido` | Accedió a expediente con protección especial |

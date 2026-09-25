@@ -4,6 +4,7 @@ namespace Modules\Documentos\Providers;
 
 use App\Models\Ciudadano;
 use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Modules\Documentos\Console\LimpiarHuerfanosCommand;
 use Modules\Documentos\Console\ProponerDestruccionCommand;
@@ -13,8 +14,10 @@ use Modules\Documentos\Contracts\ConversorPdf;
 use Modules\Documentos\Contracts\EscanerAntivirus;
 use Modules\Documentos\Contracts\ProveedorClavesMaestras;
 use Modules\Documentos\Exceptions\ConfiguracionDocumentosException;
+use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\EstiloInforme;
 use Modules\Documentos\Observers\EstiloInformeObserver;
+use Modules\Documentos\Policies\DocumentoPolicy;
 use Modules\Documentos\Services\Almacenamiento\AlmacenFlysystem;
 use Modules\Documentos\Services\Almacenamiento\ProveedorClavesLocal;
 use Modules\Documentos\Services\CicloVidaDocumentoService;
@@ -86,6 +89,8 @@ class DocumentosServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));
 
         EstiloInforme::observe(EstiloInformeObserver::class);
+
+        Gate::policy(Documento::class, DocumentoPolicy::class);
 
         // Baja de ciudadano (soft delete, CiudadanoService::eliminar): sus vínculos se
         // desactivan; los documentos siguen existiendo para las demás personas.

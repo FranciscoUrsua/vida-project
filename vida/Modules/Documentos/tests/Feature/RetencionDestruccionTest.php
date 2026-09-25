@@ -242,6 +242,9 @@ class RetencionDestruccionTest extends TestCase
             'ids_ciudadanos_vinculados' => [$this->ana->id],
         ]], $acta->detalle);
 
+        $this->assertTrue(\App\Models\Audit::where('auditable_type', $a->getMorphClass())->where('auditable_id', $a->id)
+            ->where('accion', 'borrar')->where('user_id', $this->admin->id)->exists(), 'La destrucción debe auditarse como «borrar».');
+
         $enBruto = json_encode($acta->getAttributes());
         $this->assertStringNotContainsString('dni_ana_secreto', $enBruto);
         $this->assertStringNotContainsString('%PDF', $enBruto);

@@ -27,7 +27,8 @@ class ViewInforme extends ViewRecord
                 ->label('Ver PDF firmado')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('gray')
-                ->visible(fn () => $informe->estaFirmado() && $informe->documento_id !== null)
+                ->visible(fn () => $informe->estaFirmado() && $informe->documento_id !== null
+                    && (auth()->user()?->can('view', $informe->documento) ?? false))
                 ->url(function () use ($informe): ?string {
                     $doc = $informe->documento;
 

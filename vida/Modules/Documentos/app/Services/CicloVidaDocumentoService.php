@@ -118,7 +118,7 @@ class CicloVidaDocumentoService
         );
 
         if ($anterior !== null) {
-            $this->purgarSiProcede($anterior->refresh());
+            $this->purgarSiProcede($anterior->refresh(), $usuario);
         }
 
         return $version;
@@ -157,10 +157,11 @@ class CicloVidaDocumentoService
      * Purga la versión sustituida si el tipo lo pide y no está retenida.
      *
      * @param DocumentoVersion $version Versión recién sustituida.
+     * @param User $usuario Quien subió la versión que la sustituye.
      *
      * @return void
      */
-    private function purgarSiProcede(DocumentoVersion $version): void
+    private function purgarSiProcede(DocumentoVersion $version, User $usuario): void
     {
         $politica = $version->documento->tipo->politica_versiones;
 
@@ -170,7 +171,7 @@ class CicloVidaDocumentoService
             return;
         }
 
-        $this->destructor->destruir($version, EstadoVersion::Purgada);
+        $this->destructor->destruir($version, EstadoVersion::Purgada, $usuario, 'Purga de versión sustituida sin retenciones.');
     }
 
     /**

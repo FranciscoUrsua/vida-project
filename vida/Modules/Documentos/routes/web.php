@@ -1,44 +1,21 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Documentos\Exceptions\IntegridadDocumentoException;
-use Modules\Documentos\Models\Documento;
-use Modules\Documentos\Services\LecturaDocumentoService;
+use Modules\Documentos\Http\Controllers\DocumentoController;
 
 /*
 |--------------------------------------------------------------------------
 | Rutas web del módulo Documentos
 |--------------------------------------------------------------------------
 |
-| Única ruta de descarga, protegida por firma temporal. Ningún fichero se sirve
-| desde el almacenamiento: se descifra en memoria y se entrega con un nombre
-| genérico, nunca el original.
-|
-| Pendiente (fase 2c): autorización por DocumentoPolicy y registro del acceso
-| en auditoría.
+| Únicas salidas de documentos custodiados, con sesión y firma temporal. El
+| controlador autoriza (DocumentoPolicy), descifra en memoria, audita (ver o
+| exportar) y entrega el PDF con un nombre genérico, nunca el original. Ninguna
+| ruta sirve el disco de documentos.
 |
 */
 
-Route::middleware(['auth', 'signed'])
-    ->get('/documentos/{documento}/ver', function (Documento $documento, LecturaDocumentoService $lectura) {
-        $version = $documento->versionVigente;
-
-        if ($version === null) {
-            abort(404, 'El documento no tiene una versión disponible.');
-        }
-
-        try {
-            $contenido = $lectura->contenido($version);
-        } catch (IntegridadDocumentoException) {
-            abort(500, 'No se ha podido recuperar el documento: su integridad no está garantizada.');
-        }
-
-        return response($contenido, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="'.$lectura->nombreDescarga($version).'"',
-            'Content-Length' => (string) strlen($contenido),
-            'Cache-Control' => 'no-store, no-cache, must-revalidate',
-            'X-Content-Type-Options' => 'nosniff',
-        ]);
-    })
-    ->name('documentos.ver');
+Route::middleware(['web', 'auth', 'signed'])->group(function (): void {
+    Route::get('/documentos/{documento}/ver', [DocumentoController::class, 'ver'])->name('documentos.ver');
+    Route::get('/documentos/{documento}/descargar', [DocumentoController::class, 'descargar'])->name('documentos.descargar');
+});

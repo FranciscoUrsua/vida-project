@@ -80,7 +80,7 @@ class LecturaDocumentoService
     }
 
     /**
-     * URL firmada temporal a la ruta de descarga de la aplicación (nunca al objeto del almacén).
+     * URL firmada temporal para visualizar el documento en el navegador (nunca al objeto del almacén).
      *
      * @param Documento $documento Documento cuya versión vigente se descargará.
      * @param int $minutos Minutos de validez.
@@ -90,6 +90,19 @@ class LecturaDocumentoService
     public function urlTemporal(Documento $documento, int $minutos = 30): string
     {
         return URL::temporarySignedRoute('documentos.ver', now()->addMinutes($minutos), ['documento' => $documento->id]);
+    }
+
+    /**
+     * URL firmada temporal a la ruta de descarga como fichero (auditada como «exportar»).
+     *
+     * @param Documento $documento Documento cuya versión vigente se descargará.
+     * @param int $minutos Minutos de validez.
+     *
+     * @return string
+     */
+    public function urlDescarga(Documento $documento, int $minutos = 30): string
+    {
+        return URL::temporarySignedRoute('documentos.descargar', now()->addMinutes($minutos), ['documento' => $documento->id]);
     }
 
     /**

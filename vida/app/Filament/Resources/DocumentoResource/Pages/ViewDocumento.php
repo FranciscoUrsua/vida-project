@@ -30,6 +30,7 @@ class ViewDocumento extends ViewRecord
                 ->label('Ver PDF')
                 ->icon('heroicon-o-arrow-top-right-on-square')
                 ->color('gray')
+                ->visible(fn (): bool => auth()->user()?->can('view', $documento) ?? false)
                 ->url(fn () => app(LecturaDocumentoService::class)->urlTemporal($documento, 60))
                 ->openUrlInNewTab(),
 

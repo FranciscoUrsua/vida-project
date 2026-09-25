@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-09-25 — Documentos: custodia v2, acceso y auditoría (paso 6)
+
+### Módulos afectados
+`app/Enums/AccionAuditEnum.php` (nueva acción `borrar`), `Modules/Documentos` (`DocumentoPolicy`, `DocumentoController`, rutas, `LecturaDocumentoService`, `DestructorVersiones`, `CicloVidaDocumentoService`, `DestruccionDocumentosService`, provider y tests), `app/Filament/Resources/DocumentoResource.php`, `DocumentoResource/Pages/ViewDocumento.php`, `InformeResource/Pages/ViewInforme.php`, `docs/modulo-documentos.md`, `docs/modulo-auditoria.md`, `docs/documentacion-proyecto.md` §9, `docs/instrucciones-cli/documentos-custodia-tests.md`, `CLAUDE.md`
+
+### Añadido
+- **`AccionAuditEnum::Borrar` (`borrar`)**, decidido por el desarrollador, para el borrado irreversible de documentos. `eliminar` sigue siendo la baja lógica. La purga y la destrucción ya no se registran como `editar`: `DestructorVersiones` guarda la versión sin eventos y registra `borrar` con usuario, motivo, estado anterior y nuevo, y el ciudadano.
+- **`DocumentoPolicy`** (`view`, `download`), registrada en el provider: puede quien pueda ver, con `CiudadanoPolicy::view`, al menos una persona con vínculo activo.
+- **`DocumentoController`**, que sustituye al closure de la ruta. Hay dos rutas (`auth` + `signed`): `documentos.ver` (en línea, audita `ver`) y `documentos.descargar` (adjunto, audita `exportar`). Autoriza antes de descifrar. `LecturaDocumentoService::urlDescarga()`.
+- En Filament, «Ver PDF» (listado y ficha de documento) y la descarga del informe firmado solo aparecen si la policy lo permite.
+- **Tests:** `AccesoDocumentoTest` (TF-DOC-74 a 78). TF-DOC-62 y 71 comprueban la auditoría `borrar`. `Modules/Documentos`: **78 passed**; tests de auditoría (`--filter=Audit|Auditoria`): 33 passed.
+- **Comprobación en negativo:** TF-DOC-75 y 76 fallan sin la autorización del controlador, y TF-DOC-78 sin la llamada a `AuditService`.
+
+### Decisiones
+- **Regla de acceso (decidida por el desarrollador):** la misma que la ficha, `CiudadanoPolicy::view`. Hay lectura amplia con `ciudadano.leer` y solo los colectivos protegidos exigen un acceso aprobado. No se usa el ámbito de UO de `AmbitoUoScope`. Por eso **TF-DOC-75 se ha adaptado**: el 403 lo reciben un documento vinculado solo a una persona protegida y un usuario sin `ciudadano.leer`, y se comprueba que un ciudadano no protegido de otra UO sí es consultable. La especificación original esperaba 403 en ese caso, en contra del principio de acceso.
+- **Una entrada de auditoría por acceso**, como pide TF-DOC-78, no una por persona vinculada. `ciudadano_id` es la persona por la que se concede el acceso y todas las vinculadas van en `contexto.ciudadanos_vinculados`. Queda en BACKLOG si la traza del TSR de cada miembro debe verlo.
+- Solo los vínculos a ciudadanos dan acceso; los de planes o valoraciones, no.
+- TF-DOC-77 admite la ruta `storage/{path}` de Laravel, que sirve el disco `local` (`storage/app/private`, con firma), y comprueba que ningún disco servido contiene el de documentos.
+
+---
+
 ## 2026-09-25 — Documentos: custodia v2, ciclo de vida y destrucción con acta (paso 5)
 
 ### Módulos afectados

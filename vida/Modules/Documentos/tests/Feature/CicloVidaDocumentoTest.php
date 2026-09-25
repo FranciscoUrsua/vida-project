@@ -133,8 +133,8 @@ class CicloVidaDocumentoTest extends TestCase
 
         $this->assertTrue(
             Audit::where('auditable_type', $v1->getMorphClass())->where('auditable_id', $v1->id)
-                ->where('accion', 'editar')->exists(),
-            'La purga debe quedar en la auditoría.'
+                ->where('accion', 'borrar')->where('user_id', $this->profesional->id)->exists(),
+            'La purga debe quedar en la auditoría como «borrar».'
         );
     }
 

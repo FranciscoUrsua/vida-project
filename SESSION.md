@@ -6,7 +6,7 @@
 
 ## Tarea completada
 
-**Documentos: custodia v2, paso 5 (ciclo de vida y destrucción con acta).** Nuevas versiones con purga, baja de ciudadano, informes firmados inmutables, propuestas de destrucción con aprobación de `adm_sistema` y acta (TF-DOC-59 a 73). Detalle en `CHANGELOG-092026.md`.
+**Documentos: custodia v2, paso 6 (acceso y auditoría).** `DocumentoPolicy` con la regla de la ficha, `DocumentoController` (ver y descargar, auditados), y la nueva acción de auditoría `borrar` para purgas y destrucciones (TF-DOC-74 a 78). Detalle en `CHANGELOG-092026.md`.
 
 ---
 
@@ -22,7 +22,7 @@
 - **Servidor de pruebas preparado para la custodia** (2026-09-25): `/srv/vida/documentos` (www-data, 0700), `DOCUMENTOS_RUTA` y `DOCUMENTOS_CLAVE_MAESTRA` en el `.env` de staging, y clamd activo (`/var/run/clamav/clamd.ctl`). El `.env` **local** no tiene variables `DOCUMENTOS_*`: en local la custodia falla hasta que se añadan.
 - **Código de staging** (`/var/www/vida-project/vida`): se despliega solo con cada push a `master` (job `deploy` de `.github/workflows/ci.yml`, tras pasar `test`). No hace falta desplegar a mano.
 - **Tests:**
-  - `Modules/Documentos`: 73 passed (unos 160 s: cada ingesta pasa por Ghostscript). No lanzar a la vez dos ejecuciones de tests: comparten `vida_testing`.
+  - `Modules/Documentos`: 78 passed (unos 170 s: cada ingesta pasa por Ghostscript). No lanzar a la vez dos ejecuciones de tests: comparten `vida_testing`.
   - `Modules/Usuarios/tests/`: 63 passed y 1 incomplete (ya existía).
   - `Modules/Supervision/tests`: 34 passed y **3 fallos ya existentes** (`sidebar_sin_plazas_no_muestra_item_plazas`, `ficha_profesional_muestra_tres_pestanas`, `auditoria_con_colectivos_muestra_columna_protegido`). Fallan igual en master sin estos cambios. La cifra anterior de «49 passed» era errónea: el módulo tiene 37 tests.
 
@@ -30,8 +30,8 @@
 
 ## Siguiente paso concreto recomendado
 
-1. **Custodia v2, paso 6 (acceso y auditoría):** `DocumentoPolicy` (puede ver quien pueda ver al menos una persona vinculada, respetando colectivos protegidos), auditoría `ver`/`exportar` en la ruta de descarga y `Auditable` completo; TF-DOC-74 a 78. Antes, decidir si `AccionAuditEnum` necesita `destruir` (BACKLOG).
-2. **Paso 7:** UI operativa de documentos del ciudadano. Después, suite completa (paso 9).
+1. **Custodia v2, paso 7 (UI operativa):** panel de documentos del ciudadano (Livewire + Bootstrap, design system): tipo documental, metadatos requeridos, asociar a otros miembros de la UC, lista con vigente, caducado y versiones anteriores, «subir nueva versión», «desvincular» y mensajes de rechazo de la ingesta. Localizar antes dónde encaja en la ficha del ciudadano. Después, paso 9: suite completa y cierre.
+2. **Prioritario, fuera de Documentos:** la ficha del ciudadano no aplica la restricción de colectivos protegidos (BACKLOG, arriba del todo).
 3. Pendientes anteriores: cuatro ojos en la aprobación de roles, variables auxiliares de informes (TF-DOC-22 a 25), UI de informes y PISO, los 3 tests rotos de Supervisión, `Modules/Agenda` y `AccesosExpedienteTest`.
 
 ---
@@ -39,7 +39,7 @@
 ## Contexto para retomar sin fricción
 
 - **Roles desde el backoffice:** todo cambio de roles del formulario de usuarios pasa por `AsignacionRolesService::sincronizar()`, que calcula la diferencia con los roles efectivos y pendientes y asigna o retira por `usuario_rol`. El `UsuarioRolObserver` sincroniza Spatie. No volver a usar `->relationship('roles')` en ese formulario.
-- **Custodia de documentos:** solo `AlmacenFlysystem` toca el disco `documentos`; todo alta pasa por `CicloVidaDocumentoService::altaDocumento()` → `IngestaDocumentoService`. Los tests usan `Storage::fake('documentos')`, la clave de `phpunit.xml`, `DOCUMENTOS_ANTIVIRUS=fake` y el trait `DocumentosTestSetup` (con `assertIngestaRechazada()` / `assertIngestaSinRastro()`). El hash guardado es el del PDF normalizado, no el del fichero subido. Los PDF firmados (canal `generado`) no se sanean. Toda destrucción de contenido pasa por `DestructorVersiones` (primero la clave, después el objeto). Tras Pint, restaurar los `@return` (su configuración los elimina).
+- **Custodia de documentos:** solo `AlmacenFlysystem` toca el disco `documentos`; todo alta pasa por `CicloVidaDocumentoService::altaDocumento()` → `IngestaDocumentoService`. Los tests usan `Storage::fake('documentos')`, la clave de `phpunit.xml`, `DOCUMENTOS_ANTIVIRUS=fake` y el trait `DocumentosTestSetup` (con `assertIngestaRechazada()` / `assertIngestaSinRastro()`). El hash guardado es el del PDF normalizado, no el del fichero subido. Los PDF firmados (canal `generado`) no se sanean. Toda destrucción de contenido pasa por `DestructorVersiones` (primero la clave, después el objeto; se audita como `borrar`). Los documentos solo salen por `DocumentoController`, que autoriza con `DocumentoPolicy` antes de descifrar. Tras Pint, restaurar los `@return` (su configuración los elimina).
 - **Historial de roles** (`UsuarioRolResource`) es de solo lectura; no volver a añadirle alta ni edición. Las solicitudes pendientes que ve un supervisor salen siempre de `UsuarioRol::resolublesPor()`.
 - **Sugerencias por cargo:** solo `RolesSugeridosService` lee `cargo_roles_sugeridos`, y únicamente para el pre-relleno del alta y el aviso. Ningún otro código debe leerla (principio 3.3).
 - **El aviso de cambio de cargo** compara `profesional.cargo_id` con `users.cargo_roles_revisado_id`.

@@ -9,10 +9,16 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**⚠️ La ficha del ciudadano no aplica la restricción de colectivos protegidos** — 2026-09-25
+Módulo: Ciudadanía (prioritario: restricción crítica de `CLAUDE.md` §3)
+`FichaCiudadanoPage::mount()` carga al ciudadano con `withoutGlobalScope(AmbitoUoScope::class)` y solo comprueba el rol; no llama a `CiudadanoPolicy::view`. Cualquier profesional con rol `intervencion`, `tramitacion`, `consulta_basica` o `supervision` puede abrir la ficha de una persona de colectivo protegido de otra UO sin acceso aprobado. Detectado al implementar `DocumentoPolicy`, que sí aplica la policy. Solución probable: `Gate::authorize('view', $c)` en `mount()` y un test en negativo.
+
+---
+
 **Documentos — custodia v2: resto de la fase 2c pendiente** — 2026-09-25
 Módulo: Documentos
-Hechos los pasos 1 a 5 de `documentos-custodia-implementacion.md` (TF-DOC-26 a 73). Pendiente:
-- **Pasos 6 y 7:** `DocumentoPolicy`, auditoría de ver/descargar en la ruta de descarga (hoy solo exige sesión y URL firmada) y UI operativa. TF-DOC-74 a 78 y suite completa.
+Hechos los pasos 1 a 6 de `documentos-custodia-implementacion.md` (TF-DOC-26 a 78). Pendiente:
+- **Paso 7:** UI operativa de documentos del ciudadano. Después, suite completa y cierre (paso 9).
 
 ---
 
@@ -20,8 +26,8 @@ Hechos los pasos 1 a 5 de `documentos-custodia-implementacion.md` (TF-DOC-26 a 7
 Módulo: Documentos
 - Qué hito crea una retención `intervencion_cerrada` (`RetencionService::retener()` existe sin ningún evento conectado).
 - Proveedor de la clave maestra en producción (KMS, Vault o HSM); hoy `ProveedorClavesLocal` con `DOCUMENTOS_CLAVE_MAESTRA`.
-- Permisos sobre documentos compartidos: regla provisional «puede verlo quien pueda ver al menos una persona vinculada».
-- Si `AccionAuditEnum` necesita `destruir`.
+- Permisos sobre documentos compartidos: regla provisional «puede verlo quien pueda ver al menos una persona vinculada» (con `CiudadanoPolicy::view`, decisión del 2026-09-25). Un documento compartido entre una persona protegida y otra que no lo es se abre por la no protegida.
+- Auditoría de accesos a documentos compartidos: una entrada por acceso, con `ciudadano_id` de la persona que da el acceso y el resto en `contexto.ciudadanos_vinculados`. Decidir si la traza de cada TSR debe mostrar también los accesos a documentos compartidos por sus personas.
 - Retirar el grupo `documento.tipo` de `catalogos_sistema` (ya migrado a `tipos_documentales`). Su clave `informe_generado` se migró como tipo «aportado por el ciudadano», igual que el resto; probablemente debería desactivarse porque los informes firmados usan `informe_profesional`.
 - Futuro, sin fecha: portal del ciudadano (CSV, representantes), remisión a otras administraciones (nuevo motivo de retención).
 - `StreamMaxLength` de clamd (25 MB por defecto) debe ser mayor que el tamaño máximo de subida. Si no, los ficheros grandes se rechazan como «antivirus no disponible», un mensaje que confunde.
