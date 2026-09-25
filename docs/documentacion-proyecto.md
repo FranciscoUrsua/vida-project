@@ -282,7 +282,11 @@ Gestión de plantillas de informe, generación de documentos y merge tags.
 
 **Merge tags (mayo 2026):** `MergeTagsCatalogo` con 26 variables en 6 categorías. `PlantillaInformeResource` con campo `secciones` como Builder de dos tipos de bloque (automatico / texto_libre con RichEditor y merge tags). Variables pendientes de módulo Intervención devuelven `'—'`.
 
-**Tests:** TF-DOC-01..21 (21 tests ✅).
+**Custodia v2 (septiembre 2026, en curso):** tipos documentales configurables (`TipoDocumentalResource`), documento lógico con versiones cifradas por versión (AES-256-GCM, clave maestra en `DOCUMENTOS_CLAVE_MAESTRA`), vínculos n:M a personas, retenciones y actas de eliminación. Disco `documentos` fuera del proyecto (`DOCUMENTOS_RUTA`). Fase 2a hecha (modelo, almacenamiento y cifrado); pendientes 2b (antivirus, conversión, PDF/A) y 2c (ciclo de vida completo, acceso, auditoría y UI). Detalle en `docs/modulo-documentos.md`.
+
+**Sin UI operativa:** los profesionales aún no pueden subir documentos ni redactar informes desde la superficie Livewire.
+
+**Tests:** 44 ✅ (TF-DOC-01 a 21, 26 a 45 y 79 a 81). Variables auxiliares (TF-DOC-22 a 25) sin implementar.
 
 ---
 

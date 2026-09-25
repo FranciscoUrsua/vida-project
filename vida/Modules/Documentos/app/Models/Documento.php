@@ -2,81 +2,166 @@
 
 namespace Modules\Documentos\Models;
 
-use App\Models\CatalogoSistema;
+use App\Models\Ciudadano;
 use App\Models\User;
+use App\Traits\Auditable;
+use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Modules\Documentos\Enums\OrigenDocumento;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
+use Modules\Documentos\Enums\EstadoDocumento;
+use Modules\Documentos\Enums\EstadoVersion;
 
 /**
- * Fichero custodiado en el sistema.
+ * Documento lógico custodiado (custodia v2).
  *
- * Puede ser un documento subido externamente (PDF aportado por el ciudadano
- * o un profesional) o el PDF resultante de un informe generado y firmado.
+ * Tiene una o más versiones, cada una con su PDF cifrado, y se vincula n:M a
+ * personas (y, según el tipo, a intervenciones o valoraciones). Toda la
+ * información sobre qué es, a quién pertenece y dónde está vive aquí: el fichero
+ * del almacenamiento es un blob opaco.
  *
- * Los ficheros nunca se sirven desde rutas públicas. El acceso siempre pasa
- * por un controlador que verifica permisos y genera URLs firmadas temporales.
+ * «Caducado» no es un estado almacenado: es fecha_validez anterior a hoy.
  *
  * @property int $id
- * @property string $documentable_type
- * @property int $documentable_id
- * @property int $tipo_documento_id
- * @property OrigenDocumento $origen
- * @property string $nombre_original
- * @property string $ruta_almacenamiento
- * @property string $disco
- * @property string $mime_type
- * @property int $tamano_bytes
- * @property string $hash_sha256
- * @property int $subido_por
- * @property string|null $descripcion
+ * @property string $uuid
+ * @property int $tipo_documental_id
+ * @property string|null $titulo
+ * @property Carbon|null $fecha_emision
+ * @property Carbon|null $fecha_validez
+ * @property string|null $organo_emisor
+ * @property bool $visible_ciudadano
+ * @property EstadoDocumento $estado
+ * @property array<string, mixed> $metadatos
+ * @property int $created_by
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property-read TipoDocumental $tipo
+ * @property-read DocumentoVersion|null $versionVigente
  */
 class Documento extends Model
 {
+    use Auditable;
+    use Versionable;
+
+    /** @var string */
     protected $table = 'documentos';
 
-    protected $guarded = [];
+    /** @var list<string> */
+    protected $fillable = [
+        'uuid',
+        'tipo_documental_id',
+        'titulo',
+        'fecha_emision',
+        'fecha_validez',
+        'organo_emisor',
+        'visible_ciudadano',
+        'estado',
+        'metadatos',
+        'created_by',
+    ];
 
+    /** @var array<string, string> */
     protected $casts = [
-        'origen' => OrigenDocumento::class,
-        'tamano_bytes' => 'integer',
+        'fecha_emision' => 'date',
+        'fecha_validez' => 'date',
+        'visible_ciudadano' => 'boolean',
+        'estado' => EstadoDocumento::class,
+        'metadatos' => 'array',
     ];
 
     /**
-     * Entidad relacionada de forma polimórfica.
+     * Asigna el identificador estable (futuro identificador ENI) al crear.
      *
-     * @return MorphTo<Model, $this>
+     * @return void
      */
-    public function documentable(): MorphTo
+    protected static function booted(): void
     {
-        return $this->morphTo();
+        static::creating(function (self $documento): void {
+            $documento->uuid ??= (string) Str::uuid();
+            $documento->metadatos ??= [];
+        });
     }
 
+    // -------------------------------------------------------------------------
+    // Relaciones
+    // -------------------------------------------------------------------------
+
     /**
-     * Catálogo del tipo de documento.
+     * Tipo documental.
      *
-     * @return BelongsTo<CatalogoSistema, $this>
+     * @return BelongsTo<TipoDocumental, $this>
      */
     public function tipo(): BelongsTo
     {
-        return $this->belongsTo(CatalogoSistema::class, 'tipo_documento_id');
+        return $this->belongsTo(TipoDocumental::class, 'tipo_documental_id');
     }
 
     /**
-     * Usuario que subió el documento.
+     * Todas las versiones, de la más reciente a la más antigua.
+     *
+     * @return HasMany<DocumentoVersion, $this>
+     */
+    public function versiones(): HasMany
+    {
+        return $this->hasMany(DocumentoVersion::class)->orderByDesc('numero');
+    }
+
+    /**
+     * Versión vigente (como mucho una, garantizado por índice parcial único).
+     *
+     * @return HasOne<DocumentoVersion, $this>
+     */
+    public function versionVigente(): HasOne
+    {
+        return $this->hasOne(DocumentoVersion::class)->where('estado', EstadoVersion::Vigente->value);
+    }
+
+    /**
+     * Todos los vínculos, activos o dados de baja.
+     *
+     * @return HasMany<DocumentoVinculo, $this>
+     */
+    public function vinculos(): HasMany
+    {
+        return $this->hasMany(DocumentoVinculo::class);
+    }
+
+    /**
+     * Vínculos activos.
+     *
+     * @return HasMany<DocumentoVinculo, $this>
+     */
+    public function vinculosActivos(): HasMany
+    {
+        return $this->vinculos()->where('activo', true);
+    }
+
+    /**
+     * Retenciones del documento o de alguna de sus versiones.
+     *
+     * @return HasMany<DocumentoRetencion, $this>
+     */
+    public function retenciones(): HasMany
+    {
+        return $this->hasMany(DocumentoRetencion::class);
+    }
+
+    /**
+     * Usuario que dio de alta el documento.
      *
      * @return BelongsTo<User, $this>
      */
-    public function subidoPor(): BelongsTo
+    public function creador(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'subido_por');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     /**
-     * Informe generado que produce este documento, si existe.
+     * Informe firmado que generó este documento, si lo hay.
      *
      * @return HasOne<Informe, $this>
      */
@@ -85,27 +170,76 @@ class Documento extends Model
         return $this->hasOne(Informe::class, 'documento_id');
     }
 
+    // -------------------------------------------------------------------------
+    // Scopes
+    // -------------------------------------------------------------------------
+
     /**
-     * Filtra documentos de origen externo.
+     * Documentos con vínculo activo a la entidad dada.
      *
-     * @param Builder<Documento> $query
+     * @param Builder<self> $query
+     * @param Model $entidad Persona, intervención o valoración.
      *
-     * @return Builder<Documento>
+     * @return Builder<self>
      */
-    public function scopeExternos(Builder $query): Builder
+    public function scopeVinculadosA(Builder $query, Model $entidad): Builder
     {
-        return $query->where('origen', OrigenDocumento::Externo->value);
+        return $query->whereHas('vinculosActivos', fn (Builder $q) => $q
+            ->where('vinculable_type', $entidad->getMorphClass())
+            ->where('vinculable_id', $entidad->getKey()));
     }
 
     /**
-     * Filtra documentos generados por el sistema.
+     * Documentos caducados: con fecha de validez anterior a hoy.
      *
-     * @param Builder<Documento> $query
+     * @param Builder<self> $query
      *
-     * @return Builder<Documento>
+     * @return Builder<self>
      */
-    public function scopeGenerados(Builder $query): Builder
+    public function scopeCaducados(Builder $query): Builder
     {
-        return $query->where('origen', OrigenDocumento::Generado->value);
+        return $query->whereNotNull('fecha_validez')->whereDate('fecha_validez', '<', today());
+    }
+
+    // -------------------------------------------------------------------------
+    // Consultas
+    // -------------------------------------------------------------------------
+
+    /**
+     * Indica si el documento ha superado su fecha de validez.
+     *
+     * @return bool
+     */
+    public function estaCaducado(): bool
+    {
+        return $this->fecha_validez !== null && $this->fecha_validez->lt(today());
+    }
+
+    /**
+     * Indica si hay alguna retención activa sobre el documento entero (no sobre una versión concreta).
+     *
+     * @return bool
+     */
+    public function estaRetenido(): bool
+    {
+        return $this->retenciones()->activas()->whereNull('documento_version_id')->exists();
+    }
+
+    /**
+     * Primer ciudadano con vínculo activo, para la auditoría automática de escrituras.
+     *
+     * Un documento compartido afecta a varias personas; la auditoría de accesos
+     * registra cada una por separado (paso 6).
+     *
+     * @return ?int
+     */
+    public function getCiudadanoId(): ?int
+    {
+        $id = $this->vinculosActivos()
+            ->where('vinculable_type', (new Ciudadano)->getMorphClass())
+            ->orderBy('id')
+            ->value('vinculable_id');
+
+        return $id !== null ? (int) $id : null;
     }
 }

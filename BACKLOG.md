@@ -9,6 +9,37 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Documentos — custodia v2: fases 2b y 2c pendientes** — 2026-09-25
+Módulo: Documentos
+Hecha la fase 2a (pasos 1 a 3 de `documentos-custodia-implementacion.md`, TF-DOC-26 a 45). Pendiente:
+- **2b (paso 4):** antivirus (`EscanerAntivirus` + ClamAV; el demonio `clamd` está parado en el servidor), conversión de imágenes y ofimática a PDF, saneado a PDF/A, rechazo de PDF protegidos y recompresión antes de rechazar por tamaño. Hoy la ingesta solo admite PDF. TF-DOC-46 a 58 y fixtures restantes.
+- **2c (pasos 5 a 7):** `nuevaVersion` y purga, baja de ciudadano (desactivar vínculos), informe firmado inmutable (comprobar si PDF/A invalida PAdES), `documentos:proponer-destruccion` + `PropuestaEliminacionResource` + acta, `DocumentoPolicy`, auditoría de ver/descargar en la ruta de descarga (hoy solo exige sesión y URL firmada) y UI operativa. TF-DOC-59 a 78 y suite completa.
+
+---
+
+**Documentos — decisiones pendientes de la custodia v2** — 2026-09-25
+Módulo: Documentos
+- Qué hito crea una retención `intervencion_cerrada` (`RetencionService::retener()` existe sin ningún evento conectado).
+- Proveedor de la clave maestra en producción (KMS, Vault o HSM); hoy `ProveedorClavesLocal` con `DOCUMENTOS_CLAVE_MAESTRA`.
+- Permisos sobre documentos compartidos: regla provisional «puede verlo quien pueda ver al menos una persona vinculada».
+- Si `AccionAuditEnum` necesita `destruir`.
+- Retirar el grupo `documento.tipo` de `catalogos_sistema` (ya migrado a `tipos_documentales`). Su clave `informe_generado` se migró como tipo «aportado por el ciudadano», igual que el resto; probablemente debería desactivarse porque los informes firmados usan `informe_profesional`.
+- Futuro, sin fecha: portal del ciudadano (CSV, representantes), remisión a otras administraciones (nuevo motivo de retención).
+
+---
+
+**Documentos — preparar el servidor de pruebas para la custodia v2** — 2026-09-25
+Módulo: Documentos / despliegue
+Sin esto la custodia falla con un mensaje claro en el primer uso (no afecta al resto de la aplicación). Lo tiene que hacer una persona:
+```
+sudo mkdir -p /srv/vida/documentos
+sudo chown www-data:www-data /srv/vida/documentos   # el usuario que ejecuta PHP-FPM
+sudo chmod 0700 /srv/vida/documentos
+```
+Y en el `.env` de `/var/www/vida-project/vida`: `DOCUMENTOS_RUTA=/srv/vida/documentos` y `DOCUMENTOS_CLAVE_MAESTRA=base64:…` (generar con `php -r 'echo "base64:".base64_encode(random_bytes(32)), PHP_EOL;'`; distinta de `APP_KEY` y guardada fuera del servidor). Después, `php artisan config:cache`. Arrancar también `clamd` antes de la fase 2b.
+
+---
+
 **Cuatro ojos en la aprobación de roles: quien solicita un rol para otro puede aprobarlo** — 2026-09-25
 Módulo: Usuarios / Supervisión
 Desde 2026-09-25 nadie resuelve su propia solicitud de rol. Pero si un usuario tiene `adm_usuarios` y `supervision` en la misma UO, puede pedir `supervision` o `adm_sistema` para un compañero desde el formulario de usuarios y aprobarla él mismo en Supervisión → Aprobaciones (`usuario_rol.asignado_por` = quien aprueba). Decidir si se bloquea también ese caso; en instalaciones pequeñas puede no haber un segundo supervisor.

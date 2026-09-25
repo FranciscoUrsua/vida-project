@@ -3,7 +3,7 @@
 **Módulo:** `Documentos`
 **Namespace:** `Modules\Documentos\Models`
 **Directorio:** `vida/Modules/Documentos/`
-**Estado:** Parcial (revisado el 2026-09-25 contra el código). Backend de estilos, plantillas, informes y custodia v1 implementado; 24 tests pasan. **Sin UI operativa** (sección 4) y **sin variables auxiliares** (2.6). La custodia v2 (`docs/instrucciones-cli/documentos-custodia-implementacion.md`) sustituye a la custodia v1 descrita en 2.1.
+**Estado:** Parcial (revisado el 2026-09-25 contra el código). Backend de estilos, plantillas e informes implementado; custodia v2 en curso (fase 2a hecha); 44 tests pasan. **Sin UI operativa** (sección 4) y **sin variables auxiliares** (2.6). La custodia v2 (`docs/instrucciones-cli/documentos-custodia-implementacion.md`) sustituye a la custodia v1.
 
 > **Revisión 2026-09-25.** Versiones anteriores de este documento daban por implementados las variables auxiliares (TF-DOC-22 a 25), `ParametroInformeResource`, `ConfiguracionTipografiaResource` y los componentes Livewire de la sección 4. No existen en el código ni en el historial de git. Se marcan abajo como ⏳ pendientes.
 
@@ -13,7 +13,7 @@
 
 El módulo Documentos cubre dos necesidades diferenciadas que comparten infraestructura pero tienen ciclos de vida y reglas de negocio distintos.
 
-**Custodia de documentos externos:** los profesionales incorporan al expediente documentos generados fuera de VIDA 360 — informes médicos, certificados, documentación de identidad, resoluciones de otras administraciones, etc. Estos documentos se asocian a un Ciudadano o a una Unidad de Convivencia, se clasifican por tipo y quedan disponibles para cualquier profesional con acceso al expediente.
+**Custodia de documentos externos:** los profesionales incorporan al expediente documentos generados fuera de VIDA 360 — informes médicos, certificados, documentación de identidad, resoluciones de otras administraciones, etc. Cada documento se clasifica con un tipo documental, se guarda cifrado y se vincula a una o varias personas (un certificado de convivencia se sube una vez y se vincula a cada miembro de la unidad), y según el tipo también a planes de intervención o valoraciones.
 
 **Generación y firma de informes profesionales:** los profesionales del sistema (trabajadores sociales, psicólogos, abogados u otros perfiles colegiados) generan informes a partir de plantillas configurables. El informe nace como borrador, se completa con datos estructurados extraídos de la Historia Social y contenido libre redactado por el profesional, y finalmente se firma con el Certificado de Empleado Público del autor mediante AutoFirma. Una vez firmado, el informe queda inmutable y puede publicarse en la carpeta ciudadana.
 
@@ -31,25 +31,22 @@ El Plan de Intervención (PISO) es un caso especial: requiere firma del profesio
 
 ## 2. Entidades
 
-### 2.1 Documento
+### 2.1 Custodia v2 — tipos documentales, documentos, versiones y vínculos
 
-**Tabla:** `documentos`
-**Descripción:** Fichero custodiado en el sistema. Puede ser un documento externo subido por un profesional o el PDF generado al firmar un informe.
+> Implementada la **fase 2a** el 2026-09-25 (pasos 1 a 3 de `docs/instrucciones-cli/documentos-custodia-implementacion.md`, que es la fuente de verdad del diseño). Pendientes: fase 2b (antivirus, conversión a PDF, saneado PDF/A) y 2c (nuevas versiones, purga, destrucción con acta, `DocumentoPolicy`, auditoría de accesos, baja de ciudadano y UI).
 
-| Campo | Tipo | Descripción |
+| Tabla | Modelo | Contenido |
 |---|---|---|
-| `id` | bigint PK | |
-| `ciudadano_id` | bigint FK nullable | Ciudadano al que pertenece el documento |
-| `unidad_convivencia_id` | bigint FK nullable | Unidad de convivencia (alternativa a ciudadano_id) |
-| `tipo` | varchar(100) | Clave de `catalogos_sistema` grupo `documento.tipo` |
-| `nombre_original` | varchar(255) | Nombre del fichero tal como lo subió el profesional |
-| `ruta_almacenamiento` | varchar(500) | Ruta interna en el disco configurado |
-| `disco` | varchar(50) | Disco Laravel en el que se almacenó |
-| `mime_type` | varchar(100) | MIME verificado en el momento de la subida |
-| `tamanyo_bytes` | bigint | Tamaño del fichero |
-| `hash_sha256` | char(64) | Hash para verificación de integridad |
-| `subido_por` | bigint FK | Ref. `users` |
-| `created_at` / `updated_at` | timestamp | |
+| `tipos_documentales` | `TipoDocumental` | Configuración por tipo (familia, origen ENI, caducidad, política de versiones, conservación, límites, metadatos exigidos, entidades vinculables). Filament: `TipoDocumentalResource` (solo `adm_sistema`). Código, familia y origen son inmutables si hay documentos; un tipo con documentos no se borra, se desactiva |
+| `documentos` | `Documento` | Documento lógico: `uuid`, tipo, título, fechas de emisión y validez, órgano emisor, estado, metadatos. «Caducado» se calcula (`caducados()`, `estaCaducado()`) |
+| `documento_versiones` | `DocumentoVersion` | Un PDF cifrado por versión: `clave_almacenamiento` (UUID opaco), hash y tamaño del PDF en claro, páginas, `nombre_original` cifrado (cast `encrypted`), canal, clave de datos cifrada e id de clave maestra. Una sola vigente por documento (índice parcial) |
+| `documento_vinculos` | `DocumentoVinculo` | Vínculos n:M (morph) a `Ciudadano` y, según el tipo, `PlanDeIntervencion` o `Valoracion`. Nunca a `UnidadConvivencia`. Baja lógica. Un solo vínculo activo por entidad (índice parcial) |
+| `documento_retenciones` | `DocumentoRetencion` | Retenciones del documento o de una versión (`intervencion_cerrada`, `manual`). `RetencionService::retener()` existe; ningún evento la llama todavía |
+| `actas_eliminacion` | `ActaEliminacion` | Constancia inmutable de lo destruido (solo metadatos) |
+
+Las tablas `informes.documento_id`, `piso_firmados.documento_id` y `firmas_plan.documento_firmado_id` apuntan al documento lógico.
+
+**Custodia v1 (sustituida).** La tabla anterior (`documentable` morph, `tipo_documento_id` a `catalogos_sistema`, fichero en claro) se eliminó sin migrar datos porque no había ninguna fila. El grupo `documento.tipo` de `catalogos_sistema` se conserva hasta decidir su retirada.
 
 ### 2.2 EstiloInforme
 
@@ -197,9 +194,15 @@ Los parámetros son **globales** (un único valor por instalación). La variante
 
 ## 3. Servicios
 
-### ServicioAlmacenamiento
+### Custodia v2 (fase 2a)
 
-Abstracción sobre Laravel Filesystem. Centraliza subida, descarga y eliminación lógica. Genera URLs temporales firmadas. Valida tipo MIME, calcula hash SHA-256, construye ruta interna `documentos/{año}/{mes}/{uuid}.pdf`.
+- **`IngestaDocumentoService::ingerir()`** — tubería de entrada, único camino al almacén. En 2a: zona temporal (`storage/app/tmp/ingesta`), detección de tipo por contenido (solo PDF), páginas con `pdfinfo`, límites del tipo, hash, cifrado, almacenamiento y registro en una transacción. Si algo falla lanza `IngestaRechazadaException` (código de motivo + mensaje en castellano llano) y no queda nada ni en BBDD ni en disco.
+- **`CicloVidaDocumentoService`** — `altaDocumento()` (valida tipo activo, al menos un vínculo, entidades permitidas y metadatos exigidos antes de tocar el almacén) y `desvincular()` (baja lógica).
+- **`LecturaDocumentoService`** — descifra en memoria y verifica el hash; URL firmada temporal a la ruta `documentos.ver`; nombre de descarga genérico `{codigo}-{fecha}.pdf`.
+- **`AlmacenDocumentos` / `AlmacenFlysystem`** — único acceso al disco `documentos` (`DOCUMENTOS_RUTA`, permisos 0700/0600, sin URL). Ruta del objeto: `{2 primeros caracteres del UUID}/{UUID}`. Falla con mensaje claro si el directorio no existe o no se puede escribir.
+- **`ProveedorClavesMaestras` / `ProveedorClavesLocal`** — clave maestra de `DOCUMENTOS_CLAVE_MAESTRA` (`base64:`, 32 bytes, distinta de `APP_KEY`). Sin ella la custodia no funciona; no hay modo en claro.
+- **`CifradorDocumentos`** — AES-256-GCM con una clave de datos aleatoria por versión, cifrada con la clave maestra (envelope encryption).
+- **Comandos:** `documentos:verificar-integridad [--muestra=N]` y `documentos:limpiar-huerfanos [--ejecutar]`.
 
 ### ServicioGeneracionPDF
 
@@ -207,7 +210,7 @@ Genera el PDF a partir del contenido del informe y la plantilla. Combina datos a
 
 ### ServicioFirmaInforme
 
-Coordina la firma con AutoFirma (integración Livewire). Recibe el PDF de borrador, invoca AutoFirma en el cliente, recibe el PDF firmado con firma CAdES, verifica validez, extrae número de colegiado del certificado, persiste el documento via `ServicioAlmacenamiento`.
+Coordina la firma con AutoFirma (integración Livewire pendiente). Recibe el PDF firmado y lo custodia con `CicloVidaDocumentoService` (tipo `informe_profesional`, canal `generado`, vinculado al ciudadano del informe, con informe y plantilla de origen en la versión). La validación de la firma y la extracción del número de colegiado siguen pendientes.
 
 ### ResolverFuentesInforme
 
@@ -277,19 +280,21 @@ Grupo **«Sistema»** (solo administradores):
 
 **Publicación en carpeta ciudadana.** Pendiente de diseño de integración con `CarpetaCiudadanaInterface` (Módulo Integraciones).
 
-**Cuotas de almacenamiento.** No definidas. Establecer límites operativos antes de producción.
+**Cuotas de almacenamiento.** Límites por tipo documental (por defecto 20 MB y 50 páginas, `config/documentos.php`). Cuotas globales no definidas.
+
+**Acceso a documentos compartidos (regla provisional, pendiente de revisar).** Un usuario podrá ver o descargar un documento si puede ver al menos una de las personas con vínculo activo (paso 6 de la custodia v2, fase 2c). Hoy la ruta de descarga solo exige sesión y URL firmada.
 
 ---
 
 ## 6. Tests funcionales
 
-Fichero: `Modules/Documentos/tests/Feature/DocumentosTest.php`
+Ficheros: `Modules/Documentos/tests/Feature/DocumentosTest.php` (TF-DOC-01 a 21 y 79 a 81) y un fichero por grupo de la custodia v2. Fixtures en `Modules/Documentos/tests/fixtures/` (`generar-fixtures.sh`).
 
 ### Estado de ejecución — revisado 2026-09-25
 
 | Área | Tests | Estado |
 |---|---|---|
-| Custodia de documentos v1 (TF-DOC-01 a 05) | 5 | ✅ (se reescriben contra la custodia v2) |
+| Custodia de documentos (TF-DOC-01 a 05) | 5 | ✅ reescritos contra la custodia v2 (02 usa un ZIP) |
 | Estilos e herencia jerárquica (TF-DOC-06 a 08) | 3 | ✅ |
 | Plantillas de informe (TF-DOC-09, 10) | 2 | ✅ |
 | Ciclo de vida del informe (TF-DOC-11 a 16) | 6 | ✅ |
@@ -297,9 +302,12 @@ Fichero: `Modules/Documentos/tests/Feature/DocumentosTest.php`
 | Configuración y visibilidad (TF-DOC-19, 20) | 2 | ✅ |
 | Merge tags contextuales (TF-DOC-21) | 1 | ✅ |
 | Variables auxiliares (TF-DOC-22 a 25) | 4 | ⏳ no implementado |
-| Custodia v2 (TF-DOC-26 a 78) | 53 | ⏳ ver `documentos-custodia-tests.md` |
+| Custodia v2 — tipos documentales (TF-DOC-26 a 31) | 6 | ✅ `TiposDocumentalesTest` |
+| Custodia v2 — modelo y vínculos n:M (TF-DOC-32 a 38) | 7 | ✅ `VinculosDocumentoTest` |
+| Custodia v2 — almacenamiento y cifrado (TF-DOC-39 a 45) | 7 | ✅ `AlmacenamientoCifradoTest` |
+| Custodia v2 — tubería, ciclo de vida, retenciones, acceso (TF-DOC-46 a 78) | 33 | ⏳ fases 2b y 2c |
 | Pie con número de página y logo único (TF-DOC-79 a 81) | 3 | ✅ |
-| **Total implementado** | **24** | **24 ✅** |
+| **Total implementado** | **44** | **44 ✅** |
 
 TF-DOC-79 a 81 se llamaban TF-DOC-26, 27 y 29 (2026-09-24); se renumeraron el 2026-09-25 para no chocar con la numeración de la custodia v2.
 

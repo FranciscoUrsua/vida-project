@@ -2,7 +2,6 @@
 
 namespace Modules\Documentos\Tests\Feature;
 
-use App\Models\CatalogoSistema;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
@@ -14,18 +13,26 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
+use Modules\Documentos\Contracts\AlmacenDocumentos;
+use Modules\Documentos\Data\DatosIngesta;
+use Modules\Documentos\Enums\CanalCaptura;
 use Modules\Documentos\Enums\EstadoInforme;
+use Modules\Documentos\Enums\FamiliaDocumental;
 use Modules\Documentos\Enums\MetodoConformidadCiudadano;
-use Modules\Documentos\Enums\OrigenDocumento;
+use Modules\Documentos\Enums\OrigenEni;
 use Modules\Documentos\Enums\TipoInforme;
+use Modules\Documentos\Exceptions\IngestaRechazadaException;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\EstiloInforme;
 use Modules\Documentos\Models\Informe;
 use Modules\Documentos\Models\PisoFirmado;
 use Modules\Documentos\Models\PlantillaInforme;
+use Modules\Documentos\Models\TipoDocumental;
+use Modules\Documentos\Services\Almacenamiento\AlmacenFlysystem;
+use Modules\Documentos\Services\CicloVidaDocumentoService;
+use Modules\Documentos\Services\LecturaDocumentoService;
 use Modules\Documentos\Services\ResolverEstiloInforme;
 use Modules\Documentos\Services\ResolverFuentesInforme;
-use Modules\Documentos\Services\ServicioAlmacenamiento;
 use Modules\Documentos\Services\ServicioFirmaInforme;
 use Modules\Documentos\Services\ServicioGeneracionPDF;
 use Modules\Escalas\Enums\EstadoPase;
@@ -69,15 +76,77 @@ class DocumentosTest extends TestCase
         return Ciudadano::factory()->create();
     }
 
-    private function crearTipoDoc(string $clave = 'informe_externo', string $grupo = 'documento.tipo'): CatalogoSistema
+    /**
+     * Tipo documental genérico para los tests de custodia.
+     *
+     * @param string $codigo Código del tipo.
+     * @param FamiliaDocumental $familia Familia del tipo.
+     *
+     * @return TipoDocumental
+     */
+    private function crearTipoDoc(string $codigo = 'informe_externo', FamiliaDocumental $familia = FamiliaDocumental::AportadoCiudadano): TipoDocumental
     {
-        return CatalogoSistema::firstOrCreate(
-            ['grupo' => $grupo, 'clave' => $clave],
-            ['etiqueta' => ucwords(str_replace('_', ' ', $clave)), 'orden' => 1, 'activo' => true]
+        return TipoDocumental::firstOrCreate(['codigo' => $codigo], [
+            'nombre' => ucfirst(str_replace('_', ' ', $codigo)),
+            'familia' => $familia,
+            'origen_eni' => $familia === FamiliaDocumental::InformeProfesional ? OrigenEni::Administracion : OrigenEni::Ciudadano,
+            'vinculables' => ['ciudadano'],
+        ]);
+    }
+
+    /**
+     * Ruta de un fichero de prueba de tests/fixtures.
+     *
+     * @param string $nombre Nombre del fichero.
+     *
+     * @return string
+     */
+    private function fixture(string $nombre): string
+    {
+        return dirname(__DIR__).'/fixtures/'.$nombre;
+    }
+
+    /**
+     * Da de alta un documento del ciudadano a partir de un fixture.
+     *
+     * @param User $usuario Quien lo sube.
+     * @param Ciudadano $ciudadano Persona vinculada.
+     * @param string $nombreOriginal Nombre original.
+     * @param string $fixture Fichero de origen.
+     *
+     * @return Documento
+     */
+    private function altaDocumento(User $usuario, Ciudadano $ciudadano, string $nombreOriginal = 'documento.pdf', string $fixture = 'valido.pdf'): Documento
+    {
+        return app(CicloVidaDocumentoService::class)->altaDocumento(
+            $this->fixture($fixture),
+            new DatosIngesta(
+                tipo: $this->crearTipoDoc(),
+                usuario: $usuario,
+                canal: CanalCaptura::Presencial,
+                vinculos: [$ciudadano],
+                nombreOriginal: $nombreOriginal,
+            ),
         );
     }
 
-    /** @param array<mixed> $secciones */
+    /**
+     * Ruta en el disco de documentos del objeto de la versión vigente.
+     *
+     * @param Documento $documento Documento.
+     *
+     * @return string
+     */
+    private function rutaObjeto(Documento $documento): string
+    {
+        return app(AlmacenFlysystem::class)->ruta($documento->versionVigente->clave_almacenamiento);
+    }
+
+    /**
+     * @param array<mixed> $secciones
+     *
+     * @return PlantillaInforme
+     */
     private function crearPlantilla(int $uoId, bool $activa = true, array $secciones = []): PlantillaInforme
     {
         $usuario = $this->crearUser();
@@ -111,27 +180,26 @@ class DocumentosTest extends TestCase
         ]);
     }
 
-    /** Genera una cadena que imita un PDF mínimo válido en base64. */
+    /**
+     * PDF firmado de prueba en base64 (stub de AutoFirma).
+     *
+     * @return string
+     */
     private function pdfBase64(): string
     {
-        $contenido = "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
-            ."2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
-            ."3 0 obj<</Type/Page/MediaBox[0 0 595 842]>>endobj\n"
-            ."xref\n0 4\ntrailer<</Size 4/Root 1 0 R>>\nstartxref\n%%EOF";
-
-        return base64_encode($contenido);
+        return base64_encode((string) file_get_contents($this->fixture('valido.pdf')));
     }
 
-    /** Crea un UploadedFile de prueba que pasa la validación de MIME PDF. */
-    private function uploadedPdf(string $nombre = 'documento.pdf'): UploadedFile
+    /**
+     * Prepara el disco falso de documentos y el tipo documental de los informes firmados.
+     *
+     * @return TipoDocumental
+     */
+    private function crearTipoInformeGenerado(): TipoDocumental
     {
-        return UploadedFile::fake()->create($nombre, 10, 'application/pdf');
-    }
+        Storage::fake('documentos');
 
-    /** Crea tipo de documento 'informe_generado' necesario para la firma. */
-    private function crearTipoInformeGenerado(): CatalogoSistema
-    {
-        return $this->crearTipoDoc('informe_generado');
+        return $this->crearTipoDoc('informe_profesional', FamiliaDocumental::InformeProfesional);
     }
 
     // =========================================================================
@@ -141,58 +209,49 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_01_subida_documento_externo_valido(): void
     {
-        Storage::fake('local');
-        config(['documentos.disco' => 'local']);
+        Storage::fake('documentos');
 
         $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
         $tipo = $this->crearTipoDoc();
-        $fichero = $this->uploadedPdf('informe.pdf');
 
-        $servicio = app(ServicioAlmacenamiento::class);
-        $documento = $servicio->guardar($fichero, 'informe_externo', $usuario->id, $tipo->id, $ciudadano);
+        $documento = $this->altaDocumento($usuario, $ciudadano, 'informe.pdf');
+        $version = $documento->versionVigente;
 
         $this->assertInstanceOf(Documento::class, $documento);
-        $this->assertEquals($ciudadano->id, $documento->documentable_id);
-        $this->assertEquals(get_class($ciudadano), $documento->documentable_type);
-        $this->assertEquals($tipo->id, $documento->tipo_documento_id);
-        $this->assertEquals('informe.pdf', $documento->nombre_original);
-        $this->assertEquals('application/pdf', $documento->mime_type);
-        $this->assertNotEmpty($documento->hash_sha256);
-        $this->assertEquals('local', $documento->disco);
+        $this->assertSame($tipo->id, $documento->tipo_documental_id);
+        $this->assertSame([$ciudadano->id], Documento::vinculadosA($ciudadano)->pluck('id')->map(fn ($id) => $ciudadano->id)->all());
+        $this->assertSame('informe.pdf', $version->nombre_original);
+        $this->assertSame('application/pdf', $version->mime_original);
+        $this->assertSame(hash_file('sha256', $this->fixture('valido.pdf')), $version->hash_sha256);
+        $this->assertSame('documentos', $version->disco);
 
-        // El fichero debe existir en el disco privado
-        Storage::disk('local')->assertExists($documento->ruta_almacenamiento);
+        // El fichero debe existir (cifrado) en el disco de documentos
+        Storage::disk('documentos')->assertExists($this->rutaObjeto($documento));
     }
 
     // =========================================================================
-    // TF-DOC-02: Rechazo de formato no PDF
+    // TF-DOC-02: Rechazo de formato no admitido
     // =========================================================================
 
     #[Test]
-    public function test_tf_doc_02_rechazo_formato_no_pdf(): void
+    public function test_tf_doc_02_rechazo_formato_no_admitido(): void
     {
-        Storage::fake('local');
-        config(['documentos.disco' => 'local']);
+        Storage::fake('documentos');
 
         $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
-        $tipo = $this->crearTipoDoc();
-        $fichero = UploadedFile::fake()->create(
-            'documento.docx',
-            10,
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        );
 
-        $servicio = app(ServicioAlmacenamiento::class);
+        try {
+            $this->altaDocumento($usuario, $ciudadano, 'comprimido.zip', 'comprimido.zip');
+            $this->fail('Un ZIP debe rechazarse.');
+        } catch (IngestaRechazadaException $e) {
+            $this->assertSame('formato_no_admitido', $e->codigo);
+        }
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessageMatches('/Solo se admiten ficheros PDF/');
-
-        $servicio->guardar($fichero, 'otro', $usuario->id, $tipo->id, $ciudadano);
-
-        // No debe haberse creado ningún registro
-        $this->assertEquals(0, Documento::count());
+        // No debe haberse creado ningún registro ni objeto
+        $this->assertSame(0, Documento::count());
+        $this->assertSame([], Storage::disk('documentos')->allFiles());
     }
 
     // =========================================================================
@@ -202,48 +261,21 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_03_url_temporal_firmada_y_expirable(): void
     {
-        // ServicioAlmacenamiento::urlTemporal() usa URL::temporarySignedRoute()
-        // como fallback cuando el disco no soporta URLs temporales nativas (disco local).
-        // En producción con S3, el disco devuelve una URL firmada por AWS.
-        // Este test verifica el comportamiento del fallback de URL firmada de Laravel.
+        Storage::fake('documentos');
 
-        $ciudadano = $this->crearCiudadano();
-        $tipo = $this->crearTipoDoc();
-        $usuario = $this->crearUser();
+        $documento = $this->altaDocumento($this->crearUser(), $this->crearCiudadano());
 
-        // Crear Documento de prueba directamente (sin pasar por el servicio de almacenamiento)
-        $documento = Documento::create([
-            'documentable_type' => get_class($ciudadano),
-            'documentable_id' => $ciudadano->id,
-            'tipo_documento_id' => $tipo->id,
-            'origen' => OrigenDocumento::Externo->value,
-            'nombre_original' => 'test.pdf',
-            'ruta_almacenamiento' => 'documentos/2026/04/test.pdf',
-            'disco' => 'local',
-            'mime_type' => 'application/pdf',
-            'tamano_bytes' => 1024,
-            'hash_sha256' => hash('sha256', 'test'),
-            'subido_por' => $usuario->id,
-        ]);
+        $url = app(LecturaDocumentoService::class)->urlTemporal($documento, 60);
 
-        // Generamos la URL firmada de Laravel directamente (ruta documentos.ver)
-        $minutosExpiracion = 60;
-        $expiracion = now()->addMinutes($minutosExpiracion);
-        $url = URL::temporarySignedRoute(
-            'documentos.ver',
-            $expiracion,
-            ['documento' => $documento->id]
-        );
-
-        // La URL debe contener firma y tiempo de expiración
+        // La URL apunta a la ruta de la aplicación y contiene firma y expiración
+        $this->assertStringContainsString('/documentos/'.$documento->id.'/ver', $url);
         $this->assertStringContainsString('signature=', $url, 'La URL debe incluir firma criptográfica.');
         $this->assertStringContainsString('expires=', $url, 'La URL debe incluir tiempo de expiración.');
 
-        // La URL es válida antes de expirar
+        // La URL es válida antes de expirar e inválida después
         $request = Request::create($url);
         $this->assertTrue(URL::hasValidSignature($request), 'La URL debe ser válida antes de expirar.');
 
-        // La URL debe ser inválida después de expirar
         $this->travel(61)->minutes();
         $this->assertFalse(URL::hasValidSignature($request), 'La URL debe ser inválida tras su expiración.');
     }
@@ -255,26 +287,19 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_04_verificacion_integridad_detecta_alteracion(): void
     {
-        Storage::fake('local');
-        config(['documentos.disco' => 'local']);
+        Storage::fake('documentos');
 
-        $usuario = $this->crearUser();
-        $ciudadano = $this->crearCiudadano();
-        $tipo = $this->crearTipoDoc();
-        $fichero = $this->uploadedPdf();
-
-        $servicio = app(ServicioAlmacenamiento::class);
-        $documento = $servicio->guardar($fichero, 'otro', $usuario->id, $tipo->id, $ciudadano);
+        $documento = $this->altaDocumento($this->crearUser(), $this->crearCiudadano());
+        $lectura = app(LecturaDocumentoService::class);
 
         // El fichero recién subido debe pasar la verificación
-        $this->assertTrue($servicio->verificarIntegridad($documento));
+        $this->assertTrue($lectura->verificarIntegridad($documento->versionVigente));
 
-        // Corrompemos el fichero directamente en el disco
-        Storage::disk('local')->put($documento->ruta_almacenamiento, 'contenido corrupto que altera el hash');
+        // Corrompemos el objeto directamente en el disco
+        Storage::disk('documentos')->put($this->rutaObjeto($documento), 'contenido corrupto que altera el objeto');
 
-        // La verificación debe detectar la alteración
         $this->assertFalse(
-            $servicio->verificarIntegridad($documento),
+            $lectura->verificarIntegridad($documento->versionVigente),
             'La verificación debe fallar si el fichero ha sido alterado.'
         );
     }
@@ -286,28 +311,19 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_05_url_firmada_invalida_para_documento_diferente(): void
     {
-        Storage::fake('local');
-        config(['documentos.disco' => 'local']);
+        Storage::fake('documentos');
 
         $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
-        $tipo = $this->crearTipoDoc();
 
-        $servicio = app(ServicioAlmacenamiento::class);
-        $docA = $servicio->guardar($this->uploadedPdf('a.pdf'), 'otro', $usuario->id, $tipo->id, $ciudadano);
-        $docB = $servicio->guardar($this->uploadedPdf('b.pdf'), 'otro', $usuario->id, $tipo->id, $ciudadano);
+        $docA = $this->altaDocumento($usuario, $ciudadano, 'a.pdf');
+        $docB = $this->altaDocumento($usuario, $ciudadano, 'b.pdf');
 
-        // Generamos URL válida para docA
-        $urlA = $servicio->urlTemporal($docA, 60);
+        $urlA = app(LecturaDocumentoService::class)->urlTemporal($docA, 60);
 
         // Sustituimos el ID de docA por el de docB en la URL (tampering)
-        $urlManipulada = str_replace(
-            '/documentos/'.$docA->id.'/ver',
-            '/documentos/'.$docB->id.'/ver',
-            $urlA
-        );
+        $urlManipulada = str_replace('/documentos/'.$docA->id.'/ver', '/documentos/'.$docB->id.'/ver', $urlA);
 
-        // La URL manipulada debe tener firma inválida
         $this->assertFalse(
             URL::hasValidSignature(Request::create($urlManipulada)),
             'Una URL firmada para docA no debe ser válida para acceder a docB.'
@@ -520,7 +536,6 @@ class DocumentosTest extends TestCase
     public function test_tf_doc_11_generacion_borrador_pdf(): void
     {
         Storage::fake('local');
-        config(['documentos.disco' => 'local']);
 
         $uo = $this->crearUo('CSS Prueba');
         $usuario = $this->crearUser();
@@ -549,7 +564,6 @@ class DocumentosTest extends TestCase
     public function test_tf_doc_79_marcador_numero_pagina_en_pie_genera_pdf_valido(): void
     {
         Storage::fake('local');
-        config(['documentos.disco' => 'local']);
 
         // generarBorrador() resuelve el estilo de la UO 1 cuando el autor no
         // tiene UO asignada, que es el caso de los usuarios creados en test.
@@ -586,7 +600,6 @@ class DocumentosTest extends TestCase
     public function test_tf_doc_80_pie_sin_marcador_numero_pagina_genera_pdf_valido(): void
     {
         Storage::fake('local');
-        config(['documentos.disco' => 'local']);
 
         $uo = UnidadOrganizativa::forceCreate([
             'id' => 1,
@@ -623,7 +636,6 @@ class DocumentosTest extends TestCase
     {
         Storage::fake('local');
         Storage::fake('public');
-        config(['documentos.disco' => 'local']);
 
         // Logo global (Sistema → Configuración → Identidad visual)
         $rutaLogoGlobal = UploadedFile::fake()->image('logo-organizacion.png')->store('branding', 'public');
@@ -716,8 +728,6 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_13_firma_informe_autofirma(): void
     {
-        Storage::fake('local');
-        config(['documentos.disco' => 'local']);
         $this->crearTipoInformeGenerado();
 
         $uo = $this->crearUo('CSS Prueba');
@@ -735,10 +745,15 @@ class DocumentosTest extends TestCase
         $this->assertNotNull($firmado->metodo_firma);
         $this->assertNotNull($firmado->documento_id);
 
-        // El documento PDF firmado debe existir en el disco
+        // El PDF firmado queda custodiado: versión generada, vinculada al ciudadano, con objeto en disco
         $doc = $firmado->documento;
         $this->assertNotNull($doc);
-        Storage::disk('local')->assertExists($doc->ruta_almacenamiento);
+        $this->assertSame('informe_profesional', $doc->tipo->codigo);
+        $this->assertSame(CanalCaptura::Generado, $doc->versionVigente->canal);
+        $this->assertSame($informe->id, $doc->versionVigente->informe_id);
+        $this->assertSame($plantilla->id, $doc->versionVigente->plantilla_informe_id);
+        $this->assertSame([$doc->id], Documento::vinculadosA($ciudadano)->pluck('id')->all());
+        Storage::disk('documentos')->assertExists($this->rutaObjeto($doc));
     }
 
     // =========================================================================
@@ -748,8 +763,6 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_14_informe_firmado_es_inmutable(): void
     {
-        Storage::fake('local');
-        config(['documentos.disco' => 'local']);
         $this->crearTipoInformeGenerado();
 
         $uo = $this->crearUo('CSS Prueba');
@@ -773,8 +786,6 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_15_anulacion_por_autor(): void
     {
-        Storage::fake('local');
-        config(['documentos.disco' => 'local']);
         $this->crearTipoInformeGenerado();
 
         $uo = $this->crearUo('CSS Prueba');
@@ -796,7 +807,7 @@ class DocumentosTest extends TestCase
 
         // El PDF original permanece en el sistema
         $this->assertEquals($docId, $anulado->documento_id);
-        Storage::disk('local')->assertExists($anulado->documento->ruta_almacenamiento);
+        $this->assertTrue(app(AlmacenDocumentos::class)->existe($anulado->documento->versionVigente->clave_almacenamiento));
     }
 
     // =========================================================================
@@ -806,8 +817,6 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_16_anulacion_denegada_a_no_autor(): void
     {
-        Storage::fake('local');
-        config(['documentos.disco' => 'local']);
         $this->crearTipoInformeGenerado();
 
         $uo = $this->crearUo('CSS Prueba');
@@ -837,24 +846,12 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_17_subida_piso_firmado_manualmente(): void
     {
-        Storage::fake('local');
-        config(['documentos.disco' => 'local']);
+        Storage::fake('documentos');
 
         $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
-        $tipo = $this->crearTipoDoc('piso_firmado');
-
-        $servicio = app(ServicioAlmacenamiento::class);
-
-        // Subir el PDF escaneado del PISO con firmas manuscritas
-        // Como documentable usamos el ciudadano (en producción sería el PlanDeIntervencion)
-        $documento = $servicio->guardar(
-            $this->uploadedPdf('piso_firmado.pdf'),
-            'piso_firmado',
-            $usuario->id,
-            $tipo->id,
-            $ciudadano
-        );
+        // Subir el PDF escaneado del PISO con firmas manuscritas, vinculado al ciudadano
+        $documento = $this->altaDocumento($usuario, $ciudadano, 'piso_firmado.pdf');
 
         // Crear el registro PisoFirmado
         // plan_de_intervencion_id sin FK: tabla planes_de_intervencion aún no existe (módulo Intervención pendiente)
@@ -880,16 +877,12 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_18_piso_solo_admite_un_registro_activo(): void
     {
-        Storage::fake('local');
-        config(['documentos.disco' => 'local']);
+        Storage::fake('documentos');
 
         $usuario = $this->crearUser();
         $ciudadano = $this->crearCiudadano();
-        $tipo = $this->crearTipoDoc('piso_firmado');
-        $servicio = app(ServicioAlmacenamiento::class);
-
-        $doc1 = $servicio->guardar($this->uploadedPdf('piso1.pdf'), 'piso', $usuario->id, $tipo->id, $ciudadano);
-        $doc2 = $servicio->guardar($this->uploadedPdf('piso2.pdf'), 'piso', $usuario->id, $tipo->id, $ciudadano);
+        $doc1 = $this->altaDocumento($usuario, $ciudadano, 'piso1.pdf');
+        $doc2 = $this->altaDocumento($usuario, $ciudadano, 'piso2.pdf');
 
         $planId = 99;
 
@@ -919,29 +912,19 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_19_disco_almacenamiento_configurable(): void
     {
-        // Simulamos un cambio de disco 'local' a 'documentos_s3' sin cambios de código
+        // Simulamos un cambio del disco de documentos a otro proveedor sin cambios de código
         $discoAlternativo = 'documentos_s3';
+        config(["filesystems.disks.{$discoAlternativo}" => ['driver' => 's3']]);
         Storage::fake($discoAlternativo);
+        Storage::fake('documentos');
         config(['documentos.disco' => $discoAlternativo]);
 
-        $usuario = $this->crearUser();
-        $ciudadano = $this->crearCiudadano();
-        $tipo = $this->crearTipoDoc();
+        $documento = $this->altaDocumento($this->crearUser(), $this->crearCiudadano());
 
-        $servicio = app(ServicioAlmacenamiento::class);
-        $documento = $servicio->guardar(
-            $this->uploadedPdf(),
-            'otro',
-            $usuario->id,
-            $tipo->id,
-            $ciudadano
-        );
-
-        // El documento debe registrar el disco alternativo
-        $this->assertEquals($discoAlternativo, $documento->disco);
-
-        // El fichero debe existir en el disco alternativo, no en el local
-        Storage::disk($discoAlternativo)->assertExists($documento->ruta_almacenamiento);
+        // La versión registra el disco alternativo y el objeto está allí, no en el disco por defecto
+        $this->assertSame($discoAlternativo, $documento->versionVigente->disco);
+        Storage::disk($discoAlternativo)->assertExists($this->rutaObjeto($documento));
+        $this->assertSame([], Storage::disk('documentos')->allFiles());
     }
 
     // =========================================================================
@@ -1008,8 +991,6 @@ class DocumentosTest extends TestCase
     #[Test]
     public function test_tf_doc_20_profesional_solo_ve_sus_propios_borradores(): void
     {
-        Storage::fake('local');
-        config(['documentos.disco' => 'local']);
         $this->crearTipoInformeGenerado();
 
         $uo = $this->crearUo('CSS Prueba');

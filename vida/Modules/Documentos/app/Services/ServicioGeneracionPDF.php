@@ -2,12 +2,14 @@
 
 namespace Modules\Documentos\Services;
 
-use App\Models\CatalogoSistema;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as PdfDocument;
+use Modules\Documentos\Data\DatosIngesta;
+use Modules\Documentos\Enums\CanalCaptura;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\EstiloInforme;
 use Modules\Documentos\Models\Informe;
+use Modules\Documentos\Models\TipoDocumental;
 use Modules\Organizacion\Models\Configuracion;
 
 /**
@@ -17,20 +19,18 @@ use Modules\Organizacion\Models\Configuracion;
  * las secciones del informe. Usa barryvdh/laravel-dompdf.
  *
  * El PDF de borrador no se persiste (vista previa iterativa).
- * El PDF final firmado se persiste vía ServicioAlmacenamiento.
+ * El PDF final firmado se custodia vía CicloVidaDocumentoService (tubería de entrada, canal generado).
  */
 class ServicioGeneracionPDF
 {
     /**
-     * Crea el servicio con sus dependencias de resolución y almacenamiento.
+     * Crea el servicio con sus dependencias de resolución.
      *
      * @param ResolverEstiloInforme $resolverEstilo Resolutor de estilos.
-     * @param ServicioAlmacenamiento $almacenamiento Servicio de almacenamiento.
      * @param ResolverFuentesInforme $resolverFuentes Resolutor de fuentes de informe.
      */
     public function __construct(
         private ResolverEstiloInforme $resolverEstilo,
-        private ServicioAlmacenamiento $almacenamiento,
         private ResolverFuentesInforme $resolverFuentes,
     ) {}
 
@@ -104,6 +104,8 @@ class ServicioGeneracionPDF
      *
      * @param PdfDocument $pdf PDF con la vista del informe ya cargada (sin renderizar).
      * @param array<string, mixed>|null $tipografia Tipografía base configurada.
+     *
+     * @return void
      */
     private function dibujarNumeroPagina(PdfDocument $pdf, ?array $tipografia): void
     {
@@ -126,29 +128,37 @@ class ServicioGeneracionPDF
     }
 
     /**
-     * Persiste el PDF firmado recibido desde AutoFirma como Documento.
+     * Custodia el PDF firmado recibido desde AutoFirma como documento del ciudadano del informe.
+     *
+     * Usa el tipo documental «informe_profesional» y guarda en la versión el informe y
+     * la plantilla de origen.
      *
      * @param Informe $informe Informe en estado borrador
      * @param string $pdfFirmadoBase64 PDF firmado en base64
      *
-     * @return Documento Documento persistido
+     * @return Documento Documento custodiado
+     *
+     * @throws \DomainException si no existe el tipo documental «informe_profesional»
      */
     public function generarFinal(Informe $informe, string $pdfFirmadoBase64): Documento
     {
-        $contenidoPdf = base64_decode($pdfFirmadoBase64);
-        $nombreFichero = "informe_{$informe->id}_firmado.pdf";
+        $tipo = TipoDocumental::where('codigo', 'informe_profesional')->first()
+            ?? throw new \DomainException('Falta el tipo documental «informe_profesional» (TiposDocumentalesSeeder).');
 
-        // El tipo de documento 'informe_generado' debe existir en catalogos_sistema
-        $tipoDoc = CatalogoSistema::where('grupo', 'documento.tipo')
-            ->where('clave', 'informe_generado')
-            ->first();
-
-        return $this->almacenamiento->guardarGenerado(
-            contenidoPdf: $contenidoPdf,
-            subidoPor: $informe->autor_id,
-            tipoDocId: $tipoDoc?->id ?? 1,
-            documentable: $informe,
-            nombreOriginal: $nombreFichero,
+        // Se resuelve aquí y no en el constructor: la vista previa de borradores no
+        // necesita la clave maestra de documentos y no debe fallar si falta.
+        return app(CicloVidaDocumentoService::class)->altaDocumento(
+            base64_decode($pdfFirmadoBase64),
+            new DatosIngesta(
+                tipo: $tipo,
+                usuario: $informe->autor,
+                canal: CanalCaptura::Generado,
+                vinculos: [$informe->ciudadano],
+                nombreOriginal: "informe_{$informe->id}_firmado.pdf",
+                informeId: $informe->id,
+                plantillaInformeId: $informe->plantilla_id,
+            ),
+            esContenido: true,
         );
     }
 }

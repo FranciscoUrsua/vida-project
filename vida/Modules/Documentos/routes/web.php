@@ -1,38 +1,42 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
+use Modules\Documentos\Exceptions\IntegridadDocumentoException;
 use Modules\Documentos\Models\Documento;
+use Modules\Documentos\Services\LecturaDocumentoService;
 
 /*
 |--------------------------------------------------------------------------
 | Rutas web del módulo Documentos
 |--------------------------------------------------------------------------
 |
-| Únicamente la ruta de descarga protegida por firma temporal.
-| Todos los accesos a ficheros pasan por esta ruta — nunca por rutas públicas.
+| Única ruta de descarga, protegida por firma temporal. Ningún fichero se sirve
+| desde el almacenamiento: se descifra en memoria y se entrega con un nombre
+| genérico, nunca el original.
+|
+| Pendiente (fase 2c): autorización por DocumentoPolicy y registro del acceso
+| en auditoría.
 |
 */
 
 Route::middleware(['auth', 'signed'])
-    ->get('/documentos/{documento}/ver', function (Documento $documento) {
-        $disco = Storage::disk($documento->disco);
+    ->get('/documentos/{documento}/ver', function (Documento $documento, LecturaDocumentoService $lectura) {
+        $version = $documento->versionVigente;
 
-        if (! $disco->exists($documento->ruta_almacenamiento)) {
-            abort(404, 'El fichero no está disponible.');
+        if ($version === null) {
+            abort(404, 'El documento no tiene una versión disponible.');
         }
 
-        $contenido = $disco->get($documento->ruta_almacenamiento);
-
-        // Verificación de integridad en cada descarga
-        if (hash('sha256', $contenido) !== $documento->hash_sha256) {
-            abort(500, 'Error de integridad: el fichero ha sido alterado.');
+        try {
+            $contenido = $lectura->contenido($version);
+        } catch (IntegridadDocumentoException) {
+            abort(500, 'No se ha podido recuperar el documento: su integridad no está garantizada.');
         }
 
         return response($contenido, 200, [
-            'Content-Type' => $documento->mime_type,
-            'Content-Disposition' => 'inline; filename="'.rawurlencode($documento->nombre_original).'"',
-            'Content-Length' => $documento->tamano_bytes,
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$lectura->nombreDescarga($version).'"',
+            'Content-Length' => (string) strlen($contenido),
             'Cache-Control' => 'no-store, no-cache, must-revalidate',
             'X-Content-Type-Options' => 'nosniff',
         ]);

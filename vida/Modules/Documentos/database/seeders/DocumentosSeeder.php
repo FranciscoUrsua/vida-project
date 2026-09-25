@@ -14,13 +14,20 @@ use Modules\Documentos\Models\PlantillaInforme;
  *
  * Crea:
  * 1. Valores de catálogo para el grupo 'documento.tipo'.
- * 2. Una plantilla de informe de ejemplo en la UO raíz (inactiva por defecto).
+ * 2. Los tipos documentales de la custodia v2, a partir de ese catálogo.
+ * 3. Una plantilla de informe de ejemplo en la UO raíz (inactiva por defecto).
  */
 class DocumentosSeeder extends Seeder
 {
+    /**
+     * Siembra catálogo, tipos documentales y plantilla de ejemplo.
+     *
+     * @return void
+     */
     public function run(): void
     {
         $this->sembrarTiposDocumento();
+        $this->call(TiposDocumentalesSeeder::class);
         $this->sembrarPlantillaEjemplo();
     }
 

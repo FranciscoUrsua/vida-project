@@ -47,6 +47,27 @@ return [
             'report' => false,
         ],
 
+        // Disco de documentos custodiados (módulo Documentos, custodia v2).
+        // Raíz fuera del proyecto y de cualquier ruta servida por el servidor web. Sin url
+        // ni enlace simbólico: toda descarga pasa por la aplicación. Solo lo usa
+        // Modules\Documentos\Services\Almacenamiento\AlmacenFlysystem.
+        // Una ruta relativa se resuelve desde la raíz de la aplicación.
+        'documentos' => [
+            'driver' => 'local',
+            'root' => (static function (): string {
+                $ruta = (string) env('DOCUMENTOS_RUTA', 'storage/app/documentos');
+
+                return str_starts_with($ruta, '/') ? $ruta : base_path($ruta);
+            })(),
+            'visibility' => 'private',
+            'permissions' => [
+                'file' => ['public' => 0600, 'private' => 0600],
+                'dir' => ['public' => 0700, 'private' => 0700],
+            ],
+            'throw' => true,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

@@ -6,7 +6,7 @@ use App\Filament\Resources\DocumentoResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
 use Modules\Documentos\Models\Documento;
-use Modules\Documentos\Services\ServicioAlmacenamiento;
+use Modules\Documentos\Services\LecturaDocumentoService;
 
 /**
  * Página de detalle de documentos.
@@ -15,6 +15,11 @@ class ViewDocumento extends ViewRecord
 {
     protected static string $resource = DocumentoResource::class;
 
+    /**
+     * Acciones de cabecera: ver el PDF y verificar su integridad.
+     *
+     * @return array<Action>
+     */
     protected function getHeaderActions(): array
     {
         /** @var Documento $documento */
@@ -25,7 +30,7 @@ class ViewDocumento extends ViewRecord
                 ->label('Ver PDF')
                 ->icon('heroicon-o-arrow-top-right-on-square')
                 ->color('gray')
-                ->url(fn () => app(ServicioAlmacenamiento::class)->urlTemporal($documento, 60))
+                ->url(fn () => app(LecturaDocumentoService::class)->urlTemporal($documento, 60))
                 ->openUrlInNewTab(),
 
             Action::make('verificar_integridad')
@@ -33,12 +38,13 @@ class ViewDocumento extends ViewRecord
                 ->icon('heroicon-o-shield-check')
                 ->color('info')
                 ->action(function (Action $action) use ($documento): void {
-                    $ok = app(ServicioAlmacenamiento::class)->verificarIntegridad($documento);
+                    $version = $documento->versionVigente;
+                    $ok = $version !== null && app(LecturaDocumentoService::class)->verificarIntegridad($version);
                     if ($ok) {
                         $action->successNotificationTitle('Integridad verificada: el fichero no ha sido alterado.');
                         $action->sendSuccessNotification();
                     } else {
-                        $action->failureNotificationTitle('¡Alerta de integridad! El hash SHA-256 no coincide.');
+                        $action->failureNotificationTitle('¡Alerta de integridad! El fichero falta, no se puede descifrar o su hash no coincide.');
                         $action->sendFailureNotification();
                     }
                 }),

@@ -13,18 +13,18 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Modules\Documentos\Enums\OrigenDocumento;
+use Modules\Documentos\Enums\CanalCaptura;
+use Modules\Documentos\Enums\EstadoDocumento;
 use Modules\Documentos\Models\Documento;
-use Modules\Documentos\Services\ServicioAlmacenamiento;
+use Modules\Documentos\Services\LecturaDocumentoService;
 
 /**
- * Visor de documentos custodiados en el sistema.
+ * Visor de documentos custodiados en el sistema (custodia v2).
  *
- * Incluye documentos externos (PDFs aportados por ciudadanos o profesionales)
- * y documentos generados internamente (PDFs de informes firmados).
- *
- * Los ficheros nunca se sirven desde rutas públicas: el acceso siempre genera
- * una URL firmada temporal a través de ServicioAlmacenamiento::urlTemporal().
+ * Incluye documentación aportada y PDFs de informes firmados. No muestra el
+ * nombre original del fichero (puede contener datos personales). Los ficheros
+ * nunca se sirven desde el almacenamiento: «Ver PDF» genera una URL firmada
+ * temporal a la ruta de descarga de la aplicación.
  */
 class DocumentoResource extends Resource
 {
@@ -50,6 +50,8 @@ class DocumentoResource extends Resource
      * Construye la vista de detalle de documentos custodiados.
      *
      * @param Schema $schema Esquema base del infolist.
+     *
+     * @return Schema
      */
     public static function infolist(Schema $schema): Schema
     {
@@ -58,65 +60,70 @@ class DocumentoResource extends Resource
             Section::make('Identificación')
                 ->columns(2)
                 ->schema([
-                    TextEntry::make('nombre_original')
-                        ->label('Nombre del fichero'),
+                    TextEntry::make('tipo.nombre')
+                        ->label('Tipo documental'),
 
-                    TextEntry::make('tipo.etiqueta')
-                        ->label('Tipo de documento'),
-
-                    TextEntry::make('origen')
-                        ->label('Origen')
-                        ->formatStateUsing(fn (OrigenDocumento $state) => $state->label())
+                    TextEntry::make('estado')
+                        ->label('Estado')
                         ->badge()
-                        ->color(fn (OrigenDocumento $state) => match ($state) {
-                            OrigenDocumento::Externo => 'info',
-                            OrigenDocumento::Generado => 'success',
-                        }),
+                        ->formatStateUsing(fn (EstadoDocumento $state) => $state->etiqueta()),
 
-                    TextEntry::make('mime_type')
-                        ->label('Formato'),
+                    TextEntry::make('titulo')
+                        ->label('Título')
+                        ->placeholder('—'),
 
-                    TextEntry::make('tamano_bytes')
+                    TextEntry::make('fecha_validez')
+                        ->label('Válido hasta')
+                        ->date('d/m/Y')
+                        ->placeholder('Sin caducidad')
+                        ->color(fn (Documento $record) => $record->estaCaducado() ? 'danger' : null),
+
+                    TextEntry::make('uuid')
+                        ->label('Identificador')
+                        ->fontFamily('mono')
+                        ->columnSpanFull(),
+                ]),
+
+            Section::make('Versión vigente')
+                ->columns(2)
+                ->schema([
+                    TextEntry::make('versionVigente.numero')
+                        ->label('Versión'),
+
+                    TextEntry::make('versionVigente.canal')
+                        ->label('Canal')
+                        ->formatStateUsing(fn (?CanalCaptura $state) => $state?->etiqueta()),
+
+                    TextEntry::make('versionVigente.paginas')
+                        ->label('Páginas'),
+
+                    TextEntry::make('versionVigente.tamanyo_bytes')
                         ->label('Tamaño')
-                        ->formatStateUsing(fn (int $state) => self::formatearTamano($state)),
+                        ->formatStateUsing(fn (?int $state) => $state === null ? '—' : self::formatearTamano($state)),
 
-                    TextEntry::make('hash_sha256')
+                    TextEntry::make('versionVigente.hash_sha256')
                         ->label('SHA-256')
                         ->fontFamily('mono')
                         ->columnSpanFull(),
                 ]),
 
-            Section::make('Entidad asociada')
+            Section::make('Alta')
                 ->columns(2)
                 ->schema([
-                    TextEntry::make('documentable_type')
-                        ->label('Tipo de entidad')
-                        ->formatStateUsing(fn (string $state) => self::etiquetaTipo($state)),
-
-                    TextEntry::make('documentable_id')
-                        ->label('ID de entidad'),
-                ]),
-
-            Section::make('Auditoría')
-                ->columns(2)
-                ->schema([
-                    TextEntry::make('subidoPor.name')
-                        ->label('Subido por'),
+                    TextEntry::make('creador.name')
+                        ->label('Dado de alta por'),
 
                     TextEntry::make('created_at')
-                        ->label('Fecha de subida')
+                        ->label('Fecha de alta')
                         ->dateTime('d/m/Y H:i'),
-
-                    TextEntry::make('descripcion')
-                        ->label('Descripción')
-                        ->placeholder('—')
-                        ->columnSpanFull(),
                 ]),
         ]);
     }
 
     /**
      * Determina si el usuario puede ver el listado de documentos.
+     *
+     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -127,6 +134,8 @@ class DocumentoResource extends Resource
      * Configura el listado de documentos.
      *
      * @param Table $table Tabla base.
+     *
+     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -136,51 +145,39 @@ class DocumentoResource extends Resource
                 if ($user->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
                     return;
                 }
-                // supervision: solo documentos subidos por usuarios de su subtree de UO
+                // supervision: solo documentos dados de alta por usuarios de su subtree de UO
                 $uoIds = $user->uoSubtreeIds();
                 if (empty($uoIds)) {
                     $query->whereRaw('1 = 0');
 
                     return;
                 }
-                $query->whereHas('subidoPor', function (Builder $q) use ($uoIds) {
+                $query->whereHas('creador', function (Builder $q) use ($uoIds) {
                     $q->whereHas('adscripciones', function (Builder $q2) use ($uoIds) {
                         $q2->whereIn('unidad_organizativa_id', $uoIds);
                     });
                 });
             })
             ->columns([
-                Tables\Columns\TextColumn::make('nombre_original')
-                    ->label('Fichero')
-                    ->searchable()
-                    ->limit(40),
-
-                Tables\Columns\TextColumn::make('tipo.etiqueta')
+                Tables\Columns\TextColumn::make('tipo.nombre')
                     ->label('Tipo')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('origen')
-                    ->label('Origen')
+                Tables\Columns\TextColumn::make('estado')
+                    ->label('Estado')
                     ->badge()
-                    ->formatStateUsing(fn (OrigenDocumento $state) => $state->label())
-                    ->color(fn (OrigenDocumento $state) => match ($state) {
-                        OrigenDocumento::Externo => 'info',
-                        OrigenDocumento::Generado => 'success',
-                    }),
+                    ->formatStateUsing(fn (EstadoDocumento $state) => $state->etiqueta()),
 
-                Tables\Columns\TextColumn::make('documentable_type')
-                    ->label('Entidad')
-                    ->formatStateUsing(fn (string $state) => self::etiquetaTipo($state))
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('versionVigente.canal')
+                    ->label('Canal')
+                    ->formatStateUsing(fn (?CanalCaptura $state) => $state?->etiqueta()),
 
-                Tables\Columns\TextColumn::make('tamano_bytes')
-                    ->label('Tamaño')
-                    ->formatStateUsing(fn (int $state) => self::formatearTamano($state))
-                    ->sortable()
-                    ->toggleable(),
+                Tables\Columns\TextColumn::make('vinculos_activos_count')
+                    ->label('Vínculos')
+                    ->counts('vinculosActivos'),
 
-                Tables\Columns\TextColumn::make('subidoPor.name')
-                    ->label('Subido por')
+                Tables\Columns\TextColumn::make('creador.name')
+                    ->label('Dado de alta por')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('created_at')
@@ -189,15 +186,9 @@ class DocumentoResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('origen')
-                    ->label('Origen')
-                    ->options(collect(OrigenDocumento::cases())->mapWithKeys(
-                        fn (OrigenDocumento $o) => [$o->value => $o->label()]
-                    )),
-
-                Tables\Filters\SelectFilter::make('tipo_documento_id')
-                    ->label('Tipo de documento')
-                    ->relationship('tipo', 'etiqueta'),
+                Tables\Filters\SelectFilter::make('tipo_documental_id')
+                    ->label('Tipo documental')
+                    ->relationship('tipo', 'nombre'),
             ])
             ->actions([
                 ViewAction::make(),
@@ -206,8 +197,7 @@ class DocumentoResource extends Resource
                     ->label('Ver PDF')
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('gray')
-                    ->url(fn (Documento $record): string => app(ServicioAlmacenamiento::class)->urlTemporal($record, 60)
-                    )
+                    ->url(fn (Documento $record): string => app(LecturaDocumentoService::class)->urlTemporal($record, 60))
                     ->openUrlInNewTab(),
             ])
             ->defaultSort('created_at', 'desc');
@@ -215,6 +205,8 @@ class DocumentoResource extends Resource
 
     /**
      * Declara las páginas del visor de documentos.
+     *
+     * @return array
      */
     public static function getPages(): array
     {
@@ -224,6 +216,13 @@ class DocumentoResource extends Resource
         ];
     }
 
+    /**
+     * Tamaño legible (B, KB, MB).
+     *
+     * @param int $bytes Tamaño en bytes.
+     *
+     * @return string
+     */
     private static function formatearTamano(int $bytes): string
     {
         if ($bytes < 1024) {
@@ -234,15 +233,5 @@ class DocumentoResource extends Resource
         }
 
         return round($bytes / 1048576, 2).' MB';
-    }
-
-    private static function etiquetaTipo(string $fqcn): string
-    {
-        return match (true) {
-            str_contains($fqcn, 'Ciudadano') => 'Ciudadano',
-            str_contains($fqcn, 'Informe') => 'Informe',
-            str_contains($fqcn, 'Historia') => 'Historia social',
-            default => class_basename($fqcn),
-        };
     }
 }

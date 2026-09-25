@@ -4,6 +4,46 @@
 
 ---
 
+## 2026-09-25 — Documentos: estado real del módulo y custodia v2, fase 2a (tipos documentales, modelo, almacenamiento cifrado)
+
+### Módulos afectados
+`Modules/Documentos` (enums, modelos, contratos, servicios, comandos, migraciones, seeders, rutas, config, tests y fixtures), `app/Filament/Resources/TipoDocumentalResource.php` (nuevo) y sus páginas, `DocumentoResource.php` y `Pages/ViewDocumento.php`, `InformeResource/Pages/ViewInforme.php`, `config/filesystems.php`, `.env.example`, `phpunit.xml`, `docs/modulo-documentos.md`, `docs/documentacion-proyecto.md` §9, `CLAUDE.md`
+
+### Documentación corregida (punto 1)
+- `docs/modulo-documentos.md` daba por implementados las variables auxiliares (TF-DOC-22 a 25, `ParametroInforme`), `ConfiguracionTipografiaResource` y los cuatro componentes Livewire operativos. No existen en el código ni en el historial de git. Se marcan como ⏳ y se corrige el estado (24 tests reales, no 25).
+- Los tests del 2026-09-24 TF-DOC-26, 27 y 29 (número de página y logo) chocaban con la numeración de la custodia v2: pasan a **TF-DOC-79, 80 y 81**.
+
+### Añadido (custodia v2, pasos 1 a 3 de `documentos-custodia-implementacion.md`)
+- **Paso 0:** 24 tests del módulo en verde; binarios presentes (`gs`, `qpdf`, `soffice`, `pdfinfo`, ClamAV, `imagick`) salvo `img2pdf` (innecesario); `clamd` parado; 0 filas en `documentos`, `informes` y `piso_firmados`.
+- **Tipos documentales:** tabla `tipos_documentales`, modelo `TipoDocumental` (`Auditable`, `Versionable`; código, familia y origen inmutables con documentos; no se borra con documentos), `TipoDocumentalResource` («Informes y Plantillas», orden 5, solo `adm_sistema`) y `TiposDocumentalesSeeder` (desde `catalogos_sistema` `documento.tipo` + `informe_profesional`), llamado desde `DocumentosSeeder`.
+- **Modelo:** `documentos` reconstruida como documento lógico; `documento_versiones` (índice parcial: una vigente), `documento_vinculos` (morph, índice parcial de vínculo activo único), `documento_retenciones`, `actas_eliminacion` (inmutable). Modelos `Documento`, `DocumentoVersion` (`nombre_original` con cast `encrypted`), `DocumentoVinculo`, `DocumentoRetencion`, `ActaEliminacion`. Enums `FamiliaDocumental`, `OrigenEni`, `PoliticaVersiones`, `EstadoDocumento`, `EstadoVersion`, `CanalCaptura`, `MotivoRetencion`.
+- **Almacenamiento y cifrado:** contratos `AlmacenDocumentos` y `ProveedorClavesMaestras`; `AlmacenFlysystem` (disco `documentos`, ruta `xx/uuid`), `ProveedorClavesLocal` (`DOCUMENTOS_CLAVE_MAESTRA`), `CifradorDocumentos` (AES-256-GCM por versión). Comandos `documentos:verificar-integridad` y `documentos:limpiar-huerfanos`.
+- **Servicios:** `IngestaDocumentoService` (tubería mínima, solo PDF), `CicloVidaDocumentoService` (`altaDocumento`, `desvincular`), `LecturaDocumentoService`, `RetencionService`; excepciones `IngestaRechazadaException`, `ConfiguracionDocumentosException`, `IntegridadDocumentoException`.
+- **Tests:** `TiposDocumentalesTest` (TF-DOC-26 a 31), `VinculosDocumentoTest` (32 a 38), `AlmacenamientoCifradoTest` (39 a 45), trait `DocumentosTestSetup`, fixtures y `generar-fixtures.sh`. `Modules/Documentos`: 44 passed. `FilamentPanelAccessTest`: 16 passed. `Modules/Intervencion`: 261 passed, 1 incomplete y 1 fallo ya conocido (`AccesosExpedienteTest`).
+- **Comprobación en negativo** (quitando la protección, el test falla): TF-DOC-29 sin `impedirCambiosInmutables()`, TF-DOC-37 sin `validarMetadatos()`, TF-DOC-39 guardando el contenido en claro.
+- **Acceso al disco:** `grep` de `Storage::` en `app`, `Modules` y `routes`: solo `AlmacenFlysystem` usa el disco de documentos (el resto es el disco `public` del logo).
+
+### Cambiado
+- Eliminados `ServicioAlmacenamiento` y el enum `OrigenDocumento`. Adaptados: `ServicioGeneracionPDF::generarFinal()` (el PDF firmado entra por `CicloVidaDocumentoService` con tipo `informe_profesional`, canal `generado`, vinculado al ciudadano del informe), la ruta `documentos.ver` (descifra en memoria, nombre genérico `{codigo}-{fecha}.pdf`), `DocumentoResource`, `ViewDocumento`, `ViewInforme`, y los tests TF-DOC-01 a 05, 13, 15, 17 a 19 (misma intención; TF-DOC-02 rechaza un ZIP porque los DOCX se admitirán convertidos en la fase 2b).
+- Pint quitó los `@return` de los docblocks; se restauraron por `CLAUDE.md`.
+
+### Decisiones de implementación no previstas en las instrucciones
+- **Sin migración de datos:** con 0 documentos en la única BD con datos, la migración que reconstruye `documentos` se detiene si encuentra filas en vez de migrarlas. Recrea las tres FK que apuntan a `documentos` (incluida `firmas_plan.documento_firmado_id`, que las instrucciones no mencionaban).
+- **Fase 2a de la ingesta:** solo admite PDF; aplica ya los límites de páginas y tamaño (sin recompresión). Antivirus, conversión y saneado, en 2b.
+- `altaDocumento` exige un tipo activo y al menos un vínculo.
+- `vinculables`: `intervencion` = `PlanDeIntervencion`, `valoracion` = `Valoracion` (módulo Intervención).
+- `TiposDocumentalesSeeder` usa `firstOrCreate` y solo sincroniza el nombre, en lugar de `updateOrCreate`, para no pisar lo configurado en Filament al volver a ejecutarlo.
+- Clave maestra en formato `base64:` de 32 bytes, distinta de `APP_KEY`; `id_clave_maestra` = `local-` + 16 caracteres del SHA-256 de la clave. El proveedor se resuelve sin singleton para fallar en el primer uso si falta.
+- Formato del objeto cifrado: nonce (12) · tag (16) · texto cifrado. La clave de datos cifrada sigue el mismo formato en base64.
+- `limpiar-huerfanos` trata como huérfanos también los objetos de versiones purgadas o destruidas.
+- El visor de Filament ya no muestra el nombre original del fichero (puede contener datos personales). El filtro de supervisión pasa de «subido por» a «dado de alta por».
+- `ServicioGeneracionPDF` resuelve el alta de documentos al firmar, no en el constructor, para que la vista previa de borradores no dependa de la clave maestra.
+
+### Pendiente en el servidor de pruebas
+Crear `/srv/vida/documentos` y configurar `DOCUMENTOS_RUTA` y `DOCUMENTOS_CLAVE_MAESTRA` (comandos en BACKLOG). Hasta entonces la custodia falla con mensaje claro en el primer uso; el resto de la aplicación no se ve afectado.
+
+---
+
 ## 2026-09-25 — Usuarios: alta rápida de profesional, historial de roles de solo lectura y nivel de supervisión explícito
 
 ### Módulos afectados

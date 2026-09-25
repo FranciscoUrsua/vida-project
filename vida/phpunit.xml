@@ -41,6 +41,9 @@
         <env name="DB_USERNAME" value="vida_user"/>
         <env name="DB_PASSWORD" value="!AtTheGates65"/>
         <env name="MAIL_MAILER" value="array"/>
+        <env name="DOCUMENTOS_CLAVE_MAESTRA" value="base64:dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHQ="/>
+        <env name="DOCUMENTOS_RUTA" value="storage/framework/testing/disks/documentos"/>
+        <env name="DOCUMENTOS_DISCO" value="documentos"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>

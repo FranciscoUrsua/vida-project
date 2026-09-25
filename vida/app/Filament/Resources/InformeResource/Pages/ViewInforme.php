@@ -7,7 +7,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Pages\ViewRecord;
 use Modules\Documentos\Models\Informe;
-use Modules\Documentos\Services\ServicioAlmacenamiento;
+use Modules\Documentos\Services\LecturaDocumentoService;
 use Modules\Documentos\Services\ServicioFirmaInforme;
 
 /**
@@ -35,7 +35,7 @@ class ViewInforme extends ViewRecord
                         return null;
                     }
 
-                    return app(ServicioAlmacenamiento::class)->urlTemporal($doc, 60);
+                    return app(LecturaDocumentoService::class)->urlTemporal($doc, 60);
                 })
                 ->openUrlInNewTab(),
 
