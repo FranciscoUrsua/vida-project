@@ -39,6 +39,10 @@ Delimita el ámbito de datos sobre el que puede ejercer esas operaciones. Ejempl
 
 Los roles son **globales**: un usuario tiene un rol para todo el sistema, no un rol diferente por UO. La UO determina dónde puede ejercer ese rol. Un usuario puede tener más de un rol y pertenecer a más de una UO. Los permisos efectivos son la unión de todas las combinaciones activas.
 
+Los roles se asignan **individualmente a cada usuario**, según lo que esa persona debe hacer en su servicio. No se deducen de su cargo ni de su titulación: una abogada puede tener rol *Intervención* en un CIAM y *Consulta Profesional Puntual* en el SOJ; una directora de centro tiene *Supervisión* y, si interviene con casos, también *Intervención*. El cargo solo sirve para *sugerir* roles en el alta (ver 2.9).
+
+El permiso efectivo no incluye una tercera dimensión de titulación: dentro de lo que el rol y la UO permiten, qué profesional ejecuta cada acto lo determinan los protocolos del centro y la responsabilidad profesional, y el sistema lo hace visible mediante la auditoría (ver 1.6 y principio 3.15).
+
 La evaluación del permiso efectivo para cualquier acción sigue dos preguntas secuenciales:
 1. ¿Tiene el usuario el rol adecuado para realizar esta operación?
 2. ¿Pertenece el usuario a la UO adecuada para operar sobre este recurso?
@@ -75,6 +79,20 @@ Un usuario puede estar adscrito a más de una UO. La adscripción tiene fechas d
 **Nivel 2 — Consulta libre:** cualquier profesional con rol *Intervención* puede leer cualquier Historia Social fuera de su UO sin justificación previa. Garantiza la visión 360 y evita que la UO funcione como escudo. Queda registrado en la auditoría visible para el TSR (principio 3.5).
 
 **Nivel 3 — Consulta con aprobación:** para ciudadanos de colectivos especialmente protegidos, el acceso en consulta desde fuera de la UO responsable requiere aprobación previa del supervisor competente. Ver sección 3.
+
+### 1.6 Actos profesionales y responsabilidad
+
+> *Añadido 2026-09-25.*
+
+El rol *Intervención* reúne perfiles de titulaciones distintas: trabajadoras sociales, psicólogas, educadores, auxiliares de servicios sociales y, en los CIAM, abogadas. Todos pueden, técnicamente, crear planes de intervención, cumplimentar valoraciones, aplicar escalas o redactar informes.
+
+El sistema **no restringe estos actos por titulación ni por colegiación**. Qué profesional hace cada cosa lo determinan su responsabilidad personal y profesional y los protocolos del centro (principio 3.15). El sistema garantiza que cualquier desviación es visible:
+
+- **Autoría:** cada acto queda vinculado a su autor y fecha. Los informes profesionales los firma su autor.
+- **Supervisión:** el supervisor del centro consulta en la auditoría quién ha hecho cada acto sobre las personas de su UO y lo contrasta con los protocolos.
+- **Perfil del autor en la fecha del acto:** cargo y titulación de `Profesional` son versionados (5.3), así que siempre se puede saber qué perfil tenía el autor cuando ejecutó el acto.
+
+Se analizó un modelo de habilitación por titulación (reglas configurables por tipo de plan, informe, valoración y escala) y se descartó por ahora: los profesionales consultados consideran suficiente la responsabilidad profesional junto con los protocolos y la auditoría. Ver condición de revisión en el principio 3.15 y en la sección 6.
 
 ---
 
@@ -135,14 +153,16 @@ Cada rol tiene configurado su **nivel de supervisión** para la asignación (ver
 
 ### ROL 4 — Intervención (`intervencion`)
 
-**Perfil:** Personal técnico con intervención profesional directa: trabajadores sociales, psicólogos, educadores sociales, terapeutas ocupacionales, auxiliares de servicios sociales en ASP, y otros profesionales con responsabilidades equivalentes, tanto en ASP como en atención especializada.
+**Perfil:** Personal técnico con intervención profesional directa: trabajadores sociales, psicólogos, educadores sociales, terapeutas ocupacionales, auxiliares de servicios sociales en ASP, abogadas de los CIAM, direcciones de centro que intervienen con casos, y otros profesionales con responsabilidades equivalentes, tanto en ASP como en atención especializada.
+
+Este rol reúne titulaciones distintas y no distingue entre ellas. Qué actos corresponden a cada profesional lo fijan los protocolos del centro (ver 1.6).
 
 **Capacidades:**
 - Gestión completa de Historias Sociales asignadas en su UO: valoraciones, apuntes, planes de intervención, seguimientos.
 - Consulta de Historias Sociales fuera de su UO (Nivel 2, sujeto a auditoría).
 - Derivaciones e inter-consultas entre servicios.
 - Agenda propia con gestión de citas individuales y grupales.
-- Firma integrada de informes sociales.
+- Firma integrada de los informes profesionales de los que es autor.
 - Acceso a datos de categoría especial de ciudadanos especialmente protegidos, previa aprobación y con las restricciones del Nivel 3.
 - **Anotaciones privadas:** puede crear, leer y eliminar anotaciones de uso estrictamente personal. Ver sección 4.7.
 
@@ -174,6 +194,8 @@ Cada rol tiene configurado su **nivel de supervisión** para la asignación (ver
 ### ROL 6 — Consulta Profesional Puntual (`consulta_profesional`)
 
 **Perfil:** Abogados del Servicio de Orientación Jurídica (SOJ), servicios de gestión indirecta de distritos y otros profesionales externos con necesidad de acceso puntual.
+
+El rol depende del servicio, no de la titulación: las abogadas integradas en el equipo de un CIAM trabajan con rol *Intervención*, porque necesitan la Historia completa.
 
 **Capacidades:**
 - Consulta de informes, procesos abiertos, trámites y citas.
@@ -213,6 +235,31 @@ La asignación de roles por parte de `adm_usuarios` está sujeta a supervisión 
 El nivel de supervisión requerido por cada rol es un atributo configurable desde el backoffice, no un valor hardcodeado. Se almacena en la tabla de configuración de roles (ver sección 4.2).
 
 Todo movimiento de roles queda registrado en el log de auditoría con: usuario que realizó la asignación, rol asignado, usuario destinatario, timestamp, y resultado de la supervisión.
+
+### 2.9 Roles sugeridos por cargo
+
+> *Añadido 2026-09-25. Diseño aprobado; implementación en `docs/instrucciones-cli/2026-09-roles-sugeridos-cargo.md`.*
+
+Cada cargo del catálogo puede tener una lista de **roles sugeridos**. Es una ayuda para el alta, **no una fuente de permisos**:
+
+- Al dar de alta un usuario en el backoffice, el selector de roles se pre-rellena con los roles sugeridos del cargo de su profesional. `adm_usuarios` puede quitar o añadir roles antes de guardar.
+- Los roles pre-rellenados siguen el flujo normal de asignación (2.8): historial en `usuario_rol`, aprobación previa para `adm_sistema` y `supervision`, alerta supervisada para el resto.
+- Cambiar el cargo de un usuario existente **no modifica sus roles**; su ficha muestra un aviso con los roles sugeridos del nuevo cargo para que se revisen.
+- Cambiar las sugerencias de un cargo no altera los roles de los usuarios que ya lo tienen.
+- Ningún componente fuera del formulario de alta y de ese aviso consulta las sugerencias. Los roles nunca se deducen del cargo.
+
+Sugerencias iniciales:
+
+| Cargo | Roles sugeridos |
+|---|---|
+| Directora de centro | `supervision`, `intervencion` |
+| Trabajadora social | `intervencion` |
+| Psicóloga | `intervencion` |
+| Auxiliar de servicios sociales | `intervencion` |
+| Administrativa | `tramitacion` |
+| Abogada | *(sin sugerencia: `intervencion` en CIAM, `consulta_profesional` en SOJ; lo decide `adm_usuarios` en cada alta)* |
+
+`adm_usuarios` no se sugiere para la dirección de centro: se añade expresamente cuando procede.
 
 ---
 
@@ -297,6 +344,13 @@ configuracion_roles  (extiende roles de Spatie sin modificar sus tablas)
 - rol_id (FK a roles de Spatie, unique)
 - nivel_supervision (enum: aprobacion_previa / alerta_supervisada)
 - created_at, updated_at
+
+cargo_roles_sugeridos  (sección 2.9; Auditable) — pendiente de implementación
+- id
+- cargo_id (FK a cargos)
+- rol                                       — nombre del rol Spatie
+- created_at, updated_at
+unique (cargo_id, rol)
 ```
 
 Los permisos atómicos y los roles los gestiona Spatie en sus tablas propias (`roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions`).
@@ -358,6 +412,7 @@ El backoffice de usuarios y permisos debe ofrecer:
 - **Gestión de UO:** crear, editar, desactivar UO; cambiar su posición en la jerarquía.
 - **Gestión de usuarios:** alta, baja, modificación; adscripción a UO con tipo de vínculo y vigencia; historial de adscripciones y roles.
 - **Gestión de roles y permisos:** visualización de la matriz rol × permiso; modificación de permisos por rol (solo `adm_sistema`); configuración del nivel de supervisión por rol.
+- **Catálogo de cargos:** incluye los roles sugeridos de cada cargo (2.9).
 - **Gestión de colectivos protegidos:** alta y baja de colectivos; configuración de servicios con acceso de emergencia preautorizado.
 - **Gestión de suplencias:** delegada al módulo de mensajería interna.
 
@@ -479,6 +534,7 @@ El campo `datos` guarda siempre el snapshot completo, no el diff. Guardar solo l
 - **Integración con directorio corporativo:** en despliegues municipales, los usuarios pueden estar ya en un directorio LDAP/Active Directory. La estrategia de sincronización o federación de identidades se definirá en fase de implantación.
 - **Profesionales de servicios externalizados:** el personal de servicios de ayuda a domicilio y otros proveedores complejos se contempla en fases futuras. La estructura de `tipos_relacion_profesional` y el campo `organizacion` están preparados para absorberlos cuando llegue el momento.
 - **Número de empleado:** si se confirma la integración con el sistema de RRHH del ayuntamiento, añadir `numero_empleado` a `profesionales` para facilitar la sincronización con LDAP/AD.
+- **Control preventivo de actos por titulación (descartado por ahora):** se analizó un modelo de habilitación por titulación y colegiación, configurable por tipo de plan, informe, valoración y escala. Se descarta en favor de la responsabilidad profesional, los protocolos del centro y la auditoría (1.6, principio 3.15). Se reconsiderará si la auditoría no basta para corregir desviaciones o si una norma exige una reserva profesional verificable por el sistema.
 
 
 ## 7. Tests funcionales — Módulo Usuarios (fase 2)

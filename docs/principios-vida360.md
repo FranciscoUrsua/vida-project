@@ -34,7 +34,9 @@ Existen dos ámbitos con puerta de entrada propia, por razones de seguridad o po
 
 **Personas Sin Hogar (PSH):** También tiene puerta de entrada propia. A diferencia de VG, la atención continuada se mantiene predominantemente en el departamento de PSH dadas las características de esta población, aunque existe conexión con ASP.
 
-En ambos casos, la Historia Social de la persona es única en el sistema. La puerta de entrada alternativa no implica un expediente separado, sino un flujo de acceso diferenciado.
+**Centros Integrales de Atención a la Mujer (CIAM):** combinan prestaciones asociadas a violencia de género con otras especializadas (empoderamiento, formación, actividades comunitarias, orientación jurídica y psicológica). Sus usuarias pueden llegar sin haber pasado antes por ASP y sin PISO previo. Idealmente se integrarán en ASP, pero no es requisito para ser atendidas. Las urgencias por violencia de género no se atienden en el CIAM: se derivan a los sistemas específicos de atención a víctimas.
+
+En todos los casos, la Historia Social de la persona es única en el sistema. La puerta de entrada alternativa no implica un expediente separado, sino un flujo de acceso diferenciado. Cuando el servicio de entrada alternativa trabaja con plan de intervención propio, ese plan puede nacer sin plan de ASP previo (ver principio 3.8).
 
 ---
 
@@ -72,7 +74,11 @@ Las decisiones no maduras se documentan explícitamente como diferidas con su ju
 
 ### 3.3 Separación de dimensiones en permisos
 
-El rol (¿qué puede hacer?) y la UO (¿dónde puede hacerlo?) son dimensiones independientes que se evalúan secuencialmente. Un mismo profesional puede tener roles distintos en distintas UO. Esta separación estructural no debe colapsarse en una única dimensión.
+El rol (¿qué puede hacer?) y la UO (¿dónde puede hacerlo?) son dimensiones independientes que se evalúan secuencialmente. Los roles son globales al usuario; la UO determina dónde los ejerce. Un mismo usuario puede tener varios roles y estar adscrito a varias UO. Esta separación estructural no debe colapsarse en una única dimensión.
+
+**Los roles se asignan individualmente, por lo que la persona debe hacer en su servicio.** No se deducen de su cargo ni de su titulación: una abogada puede tener rol `intervencion` en un CIAM y `consulta_profesional` en el Servicio de Orientación Jurídica; una directora de centro tiene `supervision` y, si interviene con casos, también `intervencion`. El cargo puede servir para *sugerir* roles en el alta, nunca para asignarlos.
+
+Resolver una regla organizativa creando roles o perfiles específicos ("intervención sin planes", "rol de psicóloga") o cruzando rol y UO lleva a la proliferación de perfiles que este principio pretende evitar. Qué profesional ejecuta cada acto dentro de lo que su rol permite se rige por el principio 3.15.
 
 ### 3.4 El expediente pertenece al ciudadano, no al profesional
 
@@ -122,6 +128,8 @@ Una Historia Social puede tener varios **Planes de Intervención** activos simul
 
 Las **derivaciones a especializada son prestaciones**. Se registran en el plan de ASP como una prestación más del catálogo. Esto crea automáticamente el vínculo trazable entre el plan general y el plan específico: el plan de especializada nace como consecuencia de una prestación de derivación en el plan de ASP. Consultando el plan de ASP se puede ver de un vistazo todo lo que está activo con una persona.
 
+**Entrada directa.** Los servicios que son puerta de entrada alternativa (principio 1.4) pueden abrir su plan especializado sin plan de ASP previo. Es una propiedad configurable del tipo de plan (`admite_entrada_directa`), no una excepción ligada a un servicio concreto. Si la persona recibe después un plan de ASP, ambos planes conviven en la misma Historia Social sin vincularse retroactivamente.
+
 ### 3.9 Interoperabilidad pragmática
 
 El sistema soporta dos modos de intercambio con sistemas externos —otras administraciones, gestores de expedientes, proveedores de servicios externalizados:
@@ -168,6 +176,22 @@ El criterio que separa ambos dominios es funcional, no técnico:
 **Test de comprobación**: cuando el usuario ve el número, ¿hay algo en VIDA en lo que pueda hacer clic a continuación? Si sí, el indicador pertenece al sistema. Si la respuesta natural es "voy a comentarlo en el comité" o "voy a exportar esto", pertenece a Power BI.
 
 Este principio protege el backlog: la petición de añadir un indicador al dashboard se evalúa siempre con este criterio, no con criterios de complejidad técnica.
+
+### 3.15 Responsabilidad profesional, no control por titulación
+
+Un mismo rol reúne profesionales de titulaciones distintas. El rol `intervencion` lo tienen trabajadoras sociales, psicólogas, educadores, auxiliares de servicios sociales y, en los CIAM, abogadas. Todos pueden técnicamente crear planes, cumplimentar valoraciones o redactar informes.
+
+El sistema **no restringe esos actos por titulación ni por colegiación**. Quién hace qué, y cuándo, lo determinan la responsabilidad personal y profesional de cada persona y los protocolos de cada centro. Una asesora jurídica no hace valoraciones ni informes que corresponden a Psicología o a Trabajo Social, igual que no lo haría fuera del sistema.
+
+El papel del sistema es **hacer visible la desviación, no impedirla**:
+
+- **Autoría inequívoca.** Todo acto profesional (entrevista, apunte, valoración, pase de escala, plan, informe) queda vinculado a su autor y a su fecha. Los actos que requieren firma, como los informes profesionales, los firma su autor.
+- **Auditoría consultable por el supervisor.** El supervisor del centro puede consultar quién ha hecho cada acto sobre las personas de su UO (principio 3.5) y verificar que se ajusta a los protocolos.
+- **Pasado reconstruible.** El cargo y la titulación del profesional son versionados (principio 4.3), de modo que siempre se puede saber qué perfil tenía el autor en la fecha del acto.
+
+Este principio es coherente con el 3.5, «seguridad por responsabilidad, no por obstáculos», aplicado a los actos profesionales en lugar del acceso a la información.
+
+**Condición de revisión:** si la experiencia muestra desviaciones que la auditoría no basta para corregir, o si una norma exige una reserva profesional verificable por el sistema, se reconsiderará un control preventivo. Se ha analizado y descartado por ahora un modelo de habilitación por titulación configurable por tipo de plan, informe, valoración y escala (septiembre 2026).
 
 ---
 
@@ -291,4 +315,4 @@ Las siguientes áreas están identificadas como complejas y se abordarán en fas
 
 ---
 
-*Documento elaborado en fase de diseño del proyecto. Versión inicial: marzo 2026. Actualizado: mayo 2026.*
+*Documento elaborado en fase de diseño del proyecto. Versión inicial: marzo 2026. Actualizado: septiembre 2026 (CIAM como puerta de entrada alternativa, entrada directa de planes, asignación individual de roles y responsabilidad profesional de los actos).*

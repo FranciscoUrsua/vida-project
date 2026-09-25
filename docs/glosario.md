@@ -220,7 +220,7 @@ Formulario configurable que el TSR cumplimenta durante una valoración estructur
 **Decisiones de modelado:**
 - Entidad `Documento` generado, vinculable a cualquier `Apunte` como resultado.
 - Generación de PDF desde plantilla configurable (principio 3.3, puntos de publicación).
-- Solo puede ser firmado por un Trabajador Social (validación por rol).
+- Lo firma su autor. El sistema no verifica la titulación del firmante: que lo elabore un profesional del Trabajo Social es responsabilidad profesional y de los protocolos del centro, y queda visible en la auditoría para el supervisor (principio 3.15). *(Actualizado 2026-09-25; antes decía «validación por rol», que nunca se implementó.)*
 
 ---
 
