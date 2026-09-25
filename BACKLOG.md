@@ -12,7 +12,7 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 **Documentos — custodia v2: fase 2c pendiente** — 2026-09-25
 Módulo: Documentos
 Hechas las fases 2a y 2b (pasos 1 a 4 de `documentos-custodia-implementacion.md`, TF-DOC-26 a 58). Pendiente:
-- **2c (pasos 5 a 7):** `nuevaVersion` y purga, baja de ciudadano (desactivar vínculos), informe firmado inmutable (la ingesta ya no sanea los PDF firmados, ver «decisiones pendientes»), `documentos:proponer-destruccion` + `PropuestaEliminacionResource` + acta, `DocumentoPolicy`, auditoría de ver/descargar en la ruta de descarga (hoy solo exige sesión y URL firmada) y UI operativa. TF-DOC-59 a 78 y suite completa.
+- **2c (pasos 5 a 7):** `nuevaVersion` y purga, baja de ciudadano (desactivar vínculos), informe firmado inmutable, `documentos:proponer-destruccion` + `PropuestaEliminacionResource` + acta, `DocumentoPolicy`, auditoría de ver/descargar en la ruta de descarga (hoy solo exige sesión y URL firmada) y UI operativa. TF-DOC-59 a 78 y suite completa.
 
 ---
 
@@ -24,7 +24,6 @@ Módulo: Documentos
 - Si `AccionAuditEnum` necesita `destruir`.
 - Retirar el grupo `documento.tipo` de `catalogos_sistema` (ya migrado a `tipos_documentales`). Su clave `informe_generado` se migró como tipo «aportado por el ciudadano», igual que el resto; probablemente debería desactivarse porque los informes firmados usan `informe_profesional`.
 - Futuro, sin fecha: portal del ciudadano (CSV, representantes), remisión a otras administraciones (nuevo motivo de retención).
-- **PDF firmados sin sanear (fase 2b):** los informes firmados (canal `generado`) no pasan por Ghostscript porque invalidaría la firma PAdES. Se rechazan si contienen JavaScript, adjuntos o `/Launch`, pero no se normalizan a PDF/A. Confirmar si basta o si hay que generar el PDF/A antes de firmar (dompdf → PDF/A → AutoFirma).
 - `StreamMaxLength` de clamd (25 MB por defecto) debe ser mayor que el tamaño máximo de subida. Si no, los ficheros grandes se rechazan como «antivirus no disponible», un mensaje que confunde.
 - Conformidad PDF/A estricta: Ghostscript declara PDF/A-2b, pero no se ha validado con veraPDF ni se añade un OutputIntent explícito.
 

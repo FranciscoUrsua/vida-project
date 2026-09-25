@@ -30,8 +30,8 @@
 
 ## Siguiente paso concreto recomendado
 
-1. **Probar la fase 2b en staging como `www-data`** (hace falta sudo): subir un JPG y un DOCX reales, desde tinker o cuando haya UI. LibreOffice y clamd dependen de los permisos de ese usuario.
-2. **Fase 2c:** ciclo de vida (`nuevaVersion`, purga, baja de ciudadano), destrucción con acta, `DocumentoPolicy`, auditoría de accesos y UI operativa; TF-DOC-59 a 78 y suite completa. Antes, decidir lo que lista BACKLOG en «decisiones pendientes de la custodia v2», sobre todo si basta con no sanear los PDF firmados.
+1. **Probar la fase 2b en staging como `www-data`** (hace falta sudo): no hay UI de subida hasta el paso 7 de la fase 2c; se prueba con `sudo -u www-data php artisan tinker`. LibreOffice y clamd dependen de los permisos de ese usuario.
+2. **Fase 2c:** ciclo de vida (`nuevaVersion`, purga, baja de ciudadano), destrucción con acta, `DocumentoPolicy`, auditoría de accesos y UI operativa; TF-DOC-59 a 78 y suite completa. Antes, decidir lo que lista BACKLOG en «decisiones pendientes de la custodia v2».
 3. Pendientes anteriores: cuatro ojos en la aprobación de roles, variables auxiliares de informes (TF-DOC-22 a 25), UI de informes y PISO, los 3 tests rotos de Supervisión, `Modules/Agenda` y `AccesosExpedienteTest`.
 
 ---
