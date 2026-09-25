@@ -65,7 +65,7 @@ class CargoResource extends Resource
                         ->required()
                         ->unique(ignoreRecord: true)
                         ->maxLength(100)
-                        ->helperText('Identificador estable en minúsculas con guiones. Ej: trabajador-social'),
+                        ->helperText('Identificador estable en minúsculas, sin espacios. Ej: ts, coordinador'),
 
                     Textarea::make('descripcion')
                         ->label('Descripción')

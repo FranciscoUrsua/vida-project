@@ -15,12 +15,6 @@ Tras bloquear la edición del propio usuario en `UsuarioResource`, el recurso «
 
 ---
 
-**Cargos sin `slug` en la BD compartida: el formulario de cargos no deja guardarlos y `CargosSeeder` los duplicaría** — 2026-09-25
-Módulo: Usuarios
-Los 13 cargos de la BD `vida` tienen `slug = null`. `CargoResource` exige `slug` (required + unique), así que editar cualquier cargo existente (por ejemplo, para cambiar sus roles sugeridos) obliga a rellenarlo antes. `CargosSeeder` hace `updateOrCreate` por `slug`: si se ejecutara sobre esta BD crearía 13 cargos duplicados. Propuesta: migración que rellene los slugs con los valores de `CargosSeeder` casando por `nombre`. `RolesSugeridosCargoSeeder` casa por `nombre` por este motivo.
-
----
-
 **`configuracion_roles` solo tiene configurado `intervencion`** — 2026-09-25
 Módulo: Usuarios
 En la BD compartida no hay fila para `supervision`, `adm_sistema` ni el resto de roles. `ConfiguracionRol::nivelPara()` aplica el nivel por defecto documentado en 2.8 (aprobación previa para `adm_sistema` y `supervision`, alerta supervisada para el resto), pero conviene que el nivel quede configurado explícitamente desde el backoffice (Roles → Configuración) o por seeder.

@@ -86,13 +86,14 @@ Ayuntamiento de Madrid
 ---
 
 ### `CargosSeeder`
-Crea el **catálogo de 13 cargos profesionales** habituales en servicios sociales municipales.
-Idempotente: `firstOrCreate` por nombre.
+Crea el **catálogo de 9 cargos profesionales** habituales en servicios sociales municipales
+(revisado el 2026-09-25 para coincidir con la BD compartida).
+Idempotente: `updateOrCreate` por `slug`.
 
-Trabajador/a Social · Psicólogo/a · Educador/a Social · Terapeuta Ocupacional ·
-Auxiliar de Servicios Sociales · Abogado/a · Técnico/a de Integración Social ·
-Mediador/a Social · Coordinador/a de Centro · Técnico/a de Acogida ·
-Administrativo/a · Auxiliar Administrativo/a · Ordenanza.
+`ts` Trabajador/a Social · `psicologo` Psicólogo/a · `educadorsocial` Educador/a Social ·
+`terapeutaocupacional` Terapeuta Ocupacional · `auxss` Auxiliar de Servicios Sociales ·
+`abogado` Abogado/a · `coordinador` Coordinador/a de Centro · `administrativo` Administrativo/a ·
+`auxadmin` Auxiliar Administrativo/a.
 
 ---
 

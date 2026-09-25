@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-09-25 — Usuarios: seeders de cargos y roles sugeridos alineados con la BD compartida
+
+### Módulos afectados
+`database/seeders/CargosSeeder.php`, `database/seeders/RolesSugeridosCargoSeeder.php`, `app/Filament/Resources/CargoResource.php`, `Modules/Usuarios/app/Models/Cargo.php`, `Modules/Usuarios/tests/Feature/CatalogoCargosSeederTest.php` (nuevo), `RolesSugeridosCargoTest.php`, `docs/seeders.md`, `docs/modulo-usuarios-permisos.md` §2.9
+
+### Cambiado
+- El desarrollador rellenó a mano los slugs y las sugerencias de roles de los cargos en la BD compartida y eliminó 4 cargos sin uso (Técnico/a de Integración Social, Mediador/a Social, Técnico/a de Acogida, Ordenanza). Se comprobó que no quedan profesionales sin cargo ni con un cargo inexistente.
+- `CargosSeeder`: 9 cargos con los slugs de la BD (`ts`, `psicologo`, `educadorsocial`, `terapeutaocupacional`, `auxss`, `abogado`, `coordinador`, `administrativo`, `auxadmin`) y sus descripciones actuales. Antes habría duplicado 6 cargos y recreado los 4 eliminados.
+- `RolesSugeridosCargoSeeder`: sugerencias para los 9 cargos, iguales a las de la BD.
+- `CargoResource`: el texto de ayuda del slug ya no pide guiones (ejemplo: `ts`, `coordinador`).
+- Tests: `CatalogoCargosSeederTest` (2): una instalación nueva queda con los 9 cargos, todos con sugerencia, y sin duplicados al repetir la carga; el seeder actualiza por slug sin duplicar. `Modules/Usuarios/tests/`: 58 passed y 1 incomplete (ya existía).
+
+### Decisiones
+- La BD compartida es la referencia: los seeders copian lo configurado por el desarrollador.
+- **Abogado/a pasa a tener sugerencia** (`consulta_profesional`, `intervencion`). Antes no tenía ninguna a propósito (en el CIAM usa `intervencion` y en el SOJ `consulta_profesional`). Ahora se pre-marcan los dos y `adm_usuarios` desmarca el que no corresponda. Documentado en §2.9.
+- `RolesSugeridosCargoSeeder` sigue buscando los cargos por nombre, no por slug.
+
+---
+
 ## 2026-09-25 — Usuarios: nadie puede borrar ni editar su propio usuario desde Filament
 
 ### Módulos afectados

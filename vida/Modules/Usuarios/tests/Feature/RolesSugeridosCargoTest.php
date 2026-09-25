@@ -57,10 +57,10 @@ class RolesSugeridosCargoTest extends TestCase
         $this->admin = User::factory()->create();
         $this->admin->assignRole('adm_sistema');
 
-        $this->direccion = Cargo::create(['nombre' => 'Coordinador/a de Centro', 'slug' => 'coordinador-centro', 'activo' => true]);
+        $this->direccion = Cargo::create(['nombre' => 'Coordinador/a de Centro', 'slug' => 'coordinador', 'activo' => true]);
         $this->direccion->sincronizarRolesSugeridos(['supervision', 'intervencion']);
 
-        $this->trabajoSocial = Cargo::create(['nombre' => 'Trabajador/a Social', 'slug' => 'trabajador-social', 'activo' => true]);
+        $this->trabajoSocial = Cargo::create(['nombre' => 'Trabajador/a Social', 'slug' => 'ts', 'activo' => true]);
         $this->trabajoSocial->sincronizarRolesSugeridos(['intervencion']);
 
         $this->tipoRelacion = TipoRelacionProfesional::create([

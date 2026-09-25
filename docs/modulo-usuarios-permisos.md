@@ -250,16 +250,19 @@ Cada cargo del catálogo puede tener una lista de **roles sugeridos**. Es una ay
 
 Implementación: el selector del alta y el aviso leen las sugerencias a través de `RolesSugeridosService`, el único punto de lectura de `cargo_roles_sugeridos`. El aviso de la ficha compara el cargo actual del profesional con `users.cargo_roles_revisado_id` (el cargo para el que se revisaron por última vez los roles), que se actualiza al dar de alta, al guardar un cambio de roles o con la acción «Descartar aviso de cargo».
 
-Sugerencias iniciales (seeder `RolesSugeridosCargoSeeder`; en el catálogo, «Directora de centro» es `Coordinador/a de Centro`, «Administrativa» es `Administrativo/a` y «Abogada» es `Abogado/a`):
+Sugerencias iniciales (seeder `RolesSugeridosCargoSeeder`, alineado el 2026-09-25 con las configuradas en la BD compartida; en el catálogo, «Directora de centro» es `Coordinador/a de Centro`, «Administrativa» es `Administrativo/a` y «Abogada» es `Abogado/a`):
 
 | Cargo | Roles sugeridos |
 |---|---|
 | Directora de centro | `supervision`, `intervencion` |
 | Trabajadora social | `intervencion` |
-| Psicóloga | `intervencion` |
-| Auxiliar de servicios sociales | `intervencion` |
+| Psicóloga | `intervencion`, `consulta_profesional` |
+| Educadora social | `intervencion`, `consulta_profesional` |
+| Terapeuta ocupacional | `consulta_profesional` |
+| Auxiliar de servicios sociales | `intervencion`, `consulta_basica` |
+| Abogada | `consulta_profesional`, `intervencion` *(en el SOJ suele bastar `consulta_profesional`; `adm_usuarios` desmarca lo que no proceda en cada alta)* |
 | Administrativa | `tramitacion` |
-| Abogada | *(sin sugerencia: `intervencion` en CIAM, `consulta_profesional` en SOJ; lo decide `adm_usuarios` en cada alta)* |
+| Auxiliar administrativa | `consulta_basica`, `tramitacion` |
 
 `adm_usuarios` no se sugiere para la dirección de centro: se añade expresamente cuando procede.
 

@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
  *
  * @property int $id
  * @property string $nombre
- * @property string|null $slug Identificador estable único, ej: 'trabajador-social'
+ * @property string|null $slug Identificador estable único, ej: 'ts'
  * @property string|null $descripcion
  * @property bool $activo
  * @property Carbon $created_at
