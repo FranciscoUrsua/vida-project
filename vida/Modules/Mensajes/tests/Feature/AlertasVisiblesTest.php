@@ -50,6 +50,9 @@ class AlertasVisiblesTest extends TestCase
         $this->otraUo = UnidadOrganizativa::create(['nombre' => 'CSS Ajeno', 'tipo' => 'centro', 'activa' => true]);
 
         $this->supervisor = $this->crearUsuario('supervisor@vida360.test', 'supervision', $this->uo);
+
+        // Supervisor de la otra UO: sin él, las alertas a su colectivo nacerían vencidas.
+        $this->crearUsuario('supervisor-otra@vida360.test', 'supervision', $this->otraUo);
     }
 
     /**
@@ -82,7 +85,7 @@ class AlertasVisiblesTest extends TestCase
      */
     private function crearAlertaRolUo(UnidadOrganizativa $uo, string $rol = 'supervision', TipoAlerta $tipo = TipoAlerta::Alerta): Alerta
     {
-        return Alerta::create([
+        return app(AlertaService::class)->crear([
             'tipo' => $tipo,
             'origen_type' => User::class,
             'origen_id' => 1,
@@ -91,8 +94,6 @@ class AlertasVisiblesTest extends TestCase
             'destinatario_type' => DestinatarioType::RolUo,
             'destinatario_rol' => $rol,
             'destinatario_uo_id' => $uo->id,
-            'estado' => EstadoAlerta::Pendiente,
-            'expira_en' => now()->addHours(4),
         ]);
     }
 

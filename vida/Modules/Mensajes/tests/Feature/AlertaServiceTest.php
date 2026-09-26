@@ -6,10 +6,10 @@ use App\Models\CatalogoSistema;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Models\UsuarioUo;
-use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use LogicException;
 use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\TipoAlerta;
@@ -166,7 +166,7 @@ class AlertaServiceTest extends TestCase
         // Asignar rol supervisor via Spatie
         $supervisor->assignRole('supervision');
 
-        $alerta = Alerta::create([
+        $alerta = app(AlertaService::class)->crear([
             'tipo' => TipoAlerta::Alerta,
             'origen_type' => 'App\\Models\\User',
             'origen_id' => $destinatario->id,
@@ -174,7 +174,6 @@ class AlertaServiceTest extends TestCase
             'cuerpo' => 'Vencida sin reconocer',
             'destinatario_type' => DestinatarioType::Usuario,
             'destinatario_usuario_id' => $destinatario->id,
-            'estado' => EstadoAlerta::Pendiente,
         ]);
 
         $this->servicio->escalar($alerta);
@@ -198,7 +197,7 @@ class AlertaServiceTest extends TestCase
             'fecha_inicio' => now()->toDateString(),
         ]);
 
-        $alerta = Alerta::create([
+        $alerta = app(AlertaService::class)->crear([
             'tipo' => TipoAlerta::Alerta,
             'origen_type' => 'App\\Models\\User',
             'origen_id' => $destinatario->id,
@@ -206,7 +205,6 @@ class AlertaServiceTest extends TestCase
             'cuerpo' => 'Cuerpo',
             'destinatario_type' => DestinatarioType::Usuario,
             'destinatario_usuario_id' => $destinatario->id,
-            'estado' => EstadoAlerta::Pendiente,
         ]);
 
         $this->servicio->escalar($alerta);
@@ -248,7 +246,7 @@ class AlertaServiceTest extends TestCase
 
     /**
      * T-ALS-05 — No se puede reconocer dos veces la misma alerta.
-     * La restricción UNIQUE(alerta_id, usuario_id) impide el segundo registro.
+     * El estado del destinatario (ya no pendiente) impide el segundo registro.
      */
     #[Test]
     public function t_als_05_no_se_puede_reconocer_dos_veces_la_misma_alerta(): void
@@ -261,7 +259,7 @@ class AlertaServiceTest extends TestCase
 
         $this->servicio->reconocer($alerta, $usuario, '127.0.0.1');
 
-        $this->expectException(UniqueConstraintViolationException::class);
+        $this->expectException(LogicException::class);
 
         $this->servicio->reconocer($alerta, $usuario, '127.0.0.1');
     }
@@ -284,7 +282,7 @@ class AlertaServiceTest extends TestCase
             'fecha_inicio' => now()->toDateString(),
         ]);
 
-        $alerta = Alerta::create([
+        $alerta = app(AlertaService::class)->crear([
             'tipo' => TipoAlerta::Alerta,
             'origen_type' => 'App\\Models\\User',
             'origen_id' => $destinatario->id,
@@ -292,7 +290,6 @@ class AlertaServiceTest extends TestCase
             'cuerpo' => 'Cuerpo',
             'destinatario_type' => DestinatarioType::Usuario,
             'destinatario_usuario_id' => $destinatario->id,
-            'estado' => EstadoAlerta::Pendiente,
         ]);
 
         $this->servicio->escalar($alerta);
@@ -309,29 +306,35 @@ class AlertaServiceTest extends TestCase
     public function t_als_08_no_existe_segundo_nivel_de_escalada(): void
     {
         $uo = UnidadOrganizativa::create(['nombre' => 'UO Doble Esc', 'tipo' => 'servicio', 'activa' => true]);
+        $destinatario = User::factory()->create();
         $supervisor = User::factory()->create();
 
-        UsuarioUo::create([
-            'usuario_id' => $supervisor->id,
-            'unidad_organizativa_id' => $uo->id,
-            'tipo_vinculo' => 'adscripcion',
-            'fecha_inicio' => now()->toDateString(),
-        ]);
+        foreach ([$destinatario, $supervisor] as $usuario) {
+            UsuarioUo::create([
+                'usuario_id' => $usuario->id,
+                'unidad_organizativa_id' => $uo->id,
+                'tipo_vinculo' => 'adscripcion',
+                'fecha_inicio' => now()->toDateString(),
+            ]);
+        }
+        $supervisor->assignRole('supervision');
 
-        $alerta = Alerta::create([
+        $alerta = $this->servicio->crear([
             'tipo' => TipoAlerta::Alerta,
             'origen_type' => 'App\\Models\\User',
-            'origen_id' => $supervisor->id,
+            'origen_id' => $destinatario->id,
             'titulo' => 'Alerta ya escalada',
             'cuerpo' => 'Cuerpo',
             'destinatario_type' => DestinatarioType::Usuario,
-            'destinatario_usuario_id' => $supervisor->id,
-            'estado' => EstadoAlerta::Escalada,
-            'escalada_a_usuario_id' => $supervisor->id,
-            'escalada_en' => now()->subHours(5),
+            'destinatario_usuario_id' => $destinatario->id,
         ]);
 
+        // Primera escalada: al supervisor.
         $this->servicio->escalar($alerta);
+        $this->assertEquals(EstadoAlerta::Escalada, $alerta->fresh()->estado);
+
+        // Segunda: no hay otro nivel, vence.
+        $this->servicio->escalar($alerta->fresh());
 
         $alertaActualizada = $alerta->fresh();
         $this->assertEquals(EstadoAlerta::Vencida, $alertaActualizada->estado);
@@ -367,7 +370,7 @@ class AlertaServiceTest extends TestCase
         $ts2->assignRole('trabajador_social');
         $educador->assignRole('educador_social');
 
-        $alerta = Alerta::create([
+        $alerta = app(AlertaService::class)->crear([
             'tipo' => TipoAlerta::Aviso,
             'origen_type' => 'App\\Models\\User',
             'origen_id' => $ts1->id,
@@ -376,7 +379,6 @@ class AlertaServiceTest extends TestCase
             'destinatario_type' => DestinatarioType::RolUo,
             'destinatario_rol' => 'trabajador_social',
             'destinatario_uo_id' => $uo->id,
-            'estado' => EstadoAlerta::Pendiente,
         ]);
 
         $destinatarios = $this->servicio->resolverDestinatarios($alerta);

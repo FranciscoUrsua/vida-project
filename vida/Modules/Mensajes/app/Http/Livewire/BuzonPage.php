@@ -66,32 +66,28 @@ class BuzonPage extends Component
     // -------------------------------------------------------------------------
 
     /**
-     * Alertas (tipo alerta) pendientes visibles para el usuario:
-     * las directas y las dirigidas a su rol en su UO.
+     * Alertas (tipo alerta) que el usuario aún no ha reconocido.
      *
      * @return \Illuminate\Database\Eloquent\Collection<int, Alerta>
      */
     #[Computed]
     public function alertas(): \Illuminate\Database\Eloquent\Collection
     {
-        return Alerta::visiblesPara(Auth::user())
-            ->pendientes()
+        return Alerta::pendientesPara(Auth::user())
             ->where('tipo', TipoAlerta::Alerta)
             ->orderBy('expira_en')
             ->get();
     }
 
     /**
-     * Avisos (tipo aviso) pendientes visibles para el usuario:
-     * los directos y los dirigidos a su rol en su UO.
+     * Avisos (tipo aviso) que el usuario aún no ha descartado.
      *
      * @return \Illuminate\Database\Eloquent\Collection<int, Alerta>
      */
     #[Computed]
     public function avisos(): \Illuminate\Database\Eloquent\Collection
     {
-        return Alerta::visiblesPara(Auth::user())
-            ->pendientes()
+        return Alerta::pendientesPara(Auth::user())
             ->where('tipo', TipoAlerta::Aviso)
             ->latest()
             ->get();
@@ -177,8 +173,7 @@ class BuzonPage extends Component
      */
     public function reconocerAlerta(int $alertaId, AlertaService $alertaService): void
     {
-        $alerta = Alerta::visiblesPara(Auth::user())
-            ->pendientes()
+        $alerta = Alerta::pendientesPara(Auth::user())
             ->findOrFail($alertaId);
 
         $alertaService->reconocer($alerta, Auth::user(), request()->ip() ?? '');

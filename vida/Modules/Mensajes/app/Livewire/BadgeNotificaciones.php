@@ -34,7 +34,7 @@ class BadgeNotificaciones extends Component
             return 0;
         }
 
-        return Alerta::visiblesPara(auth()->user())->pendientes()->count();
+        return Alerta::pendientesPara(auth()->user())->count();
     }
 
     #[Computed]

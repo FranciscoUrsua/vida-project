@@ -4,6 +4,39 @@
 
 ---
 
+## 2026-09-26 — Mensajes: reconocimiento por destinatario
+
+### Módulos afectados
+`Modules/Mensajes` (3 migraciones, modelo nuevo `AlertaDestinatario`, `Alerta`, `AlertaReconocimiento`, `AlertaService`, `BuzonPage`, `BandejaAlertas`, `BadgeNotificaciones`, tests), `Modules/Intervencion/app/Services/IntervencionSidebarDataService.php`, `docs/modulo-mensajes.md` (§2.4, §2.5, §5.1, §5.3, §8, §9), `BACKLOG.md`
+
+### Decisiones del desarrollador
+1. El supervisor tendrá una **pantalla de control de alertas**, igual o parecida a la de envío de avisos a su equipo. Sin implementar; es la base del paso 3.
+2. **Cada destinatario de una alerta o aviso a un colectivo debe reconocerla o cerrarla** por su cuenta. El caso «vale cualquiera del colectivo» se aplaza (BACKLOG).
+
+### Añadido
+- **`alerta_destinatarios`**: una fila por destinatario con su estado (`pendiente`, `reconocida`, `escalada`, `vencida`), `atendida_en` y los datos de su escalada. `AlertaService::crear()` la rellena: una fila para las directas y una por miembro del colectivo para las `rol_uo`.
+- **`alerta_reconocimientos`** pasa a ser el registro de eventos: nuevo `alerta_destinatario_id` y se quita el índice único (alerta_id, usuario_id), porque un supervisor puede recibir varias escaladas de la misma alerta.
+- **Migración de datos** (`poblar_alerta_destinatarios`): crea los destinatarios de las alertas anteriores. Las directas conservan su estado; las de colectivo pendientes se reparten entre los miembros actuales; las de colectivo cerradas, solo para quien las reconoció. Es idempotente. En staging la tabla `alertas` estaba vacía.
+- `Alerta::pendientesPara($usuario)` (lo que el usuario aún no ha atendido) y `AlertaDestinatario::escaladasA($supervisor)` (base de la pantalla de control).
+- **Tests:** `AlertaDestinatariosTest` (TF-MSG-DEST-01 a 13), incluida la migración de datos. **Comprobación en negativo:** si se vuelve a cerrar la alerta para todos al reconocer, fallan DEST-03 y DEST-05.
+
+### Cambiado
+- `AlertaService::reconocer()` solo actúa sobre la parte del usuario; lanza `LogicException` si no es destinatario o ya la atendió. La actualización va condicionada al estado, por si llegan dos peticiones a la vez. El estado de la alerta se recalcula: `pendiente` mientras quede alguien; si no, el peor desenlace (`vencida` > `escalada` > `reconocida`).
+- `AlertaService::escalar()` actúa por destinatario. Cada parte pendiente pasa al supervisor activo de la UO, sin escalar nunca a uno mismo; si no hay otro supervisor, vence. Las partes ya escaladas vencen: no hay segundo nivel. La alerta guarda la primera escalada para `LogAlertasResource`.
+- Una alerta a un colectivo vacío nace `vencida`, con aviso en el log.
+- `Alerta::visiblesPara()` ya no resuelve rol y UO en cada consulta: usa los destinatarios fijados. Buzón, bandeja, badge y contador del menú usan `pendientesPara()`.
+- Tests existentes adaptados: crean las alertas con el servicio. T-ALS-05 espera `LogicException` en lugar del índice único. T-ALS-08 llega a la segunda escalada por el camino real.
+
+### Decisiones de implementación no previstas
+- Los destinatarios se fijan al crear la alerta: quien entra en la UO después no la recibe, y quien sale conserva las suyas (BACKLOG).
+- El supervisor que es a su vez destinatario no se escala a sí mismo: se busca otro supervisor de la UO.
+
+### Tests
+- `Modules/Mensajes/tests`: 74 passed, 1 failed (`t_lw_09`, ya existente).
+- `BuscarCiudadanoPageTest`: 11 passed. `Modules/Usuarios/tests`: 63 passed y 1 incomplete. `Modules/Supervision/tests`: 35 passed y los 3 fallos ya conocidos. `FilamentPanelAccessTest`: 16 passed.
+
+---
+
 ## 2026-09-26 — Mensajes: corrección de fallos previos y retirada de adjuntos (paso 1 de `instrucciones-cli-mensajes.md`)
 
 ### Módulos afectados

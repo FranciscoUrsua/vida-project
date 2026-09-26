@@ -15,7 +15,11 @@ use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\TipoAlerta;
 
 /**
- * Alerta del sistema.
+ * Alerta o aviso del sistema dirigido a una persona o a un colectivo (rol en una UO).
+ *
+ * Cada destinatario la reconoce por su cuenta (`AlertaDestinatario`). El
+ * `estado` de la alerta resume el de sus destinatarios: sigue pendiente
+ * mientras alguno lo esté. Se crea siempre con `AlertaService::crear()`.
  *
  * @property int $id
  * @property TipoAlerta $tipo
@@ -77,6 +81,16 @@ class Alerta extends Model
     }
 
     /**
+     * Personas que deben reconocerla, cada una con su estado.
+     *
+     * @return HasMany<AlertaDestinatario, self>
+     */
+    public function destinatarios(): HasMany
+    {
+        return $this->hasMany(AlertaDestinatario::class, 'alerta_id');
+    }
+
+    /**
      * Usuario al que va dirigida la alerta (cuando el destinatario es un usuario concreto).
      *
      * @return BelongsTo<User, self>
@@ -133,37 +147,37 @@ class Alerta extends Model
     }
 
     /**
-     * Filtra las alertas y avisos que un usuario puede ver y reconocer.
+     * Filtra las alertas y avisos de los que el usuario es destinatario,
+     * en cualquier estado.
      *
-     * Incluye las dirigidas a él directamente y las dirigidas a un rol que
-     * tiene, en una UO a la que está adscrito con adscripción vigente. Es la
-     * única definición de «alertas del usuario»: buzón, bandeja y contadores
-     * deben usarla para no divergir.
+     * Es la única definición de «alertas del usuario»: buzón, bandeja y
+     * contadores deben usar este scope o `pendientesPara()`.
      *
      * @param Builder<static> $query
-     * @param User $usuario Usuario para el que se resuelve la visibilidad.
-     *
+     * @param User $usuario Usuario destinatario.
      * @return Builder<static>
      */
     public function scopeVisiblesPara(Builder $query, User $usuario): Builder
     {
-        $roles = $usuario->getRoleNames()->all();
-        $uoIds = $usuario->adscripcionesVigentes()->pluck('unidad_organizativa_id')->all();
-
-        return $query->where(function (Builder $q) use ($usuario, $roles, $uoIds): void {
-            $q->where(function (Builder $directa) use ($usuario): void {
-                $directa->where('destinatario_type', DestinatarioType::Usuario)
-                    ->where('destinatario_usuario_id', $usuario->id);
-            })->orWhere(function (Builder $porRol) use ($roles, $uoIds): void {
-                $porRol->where('destinatario_type', DestinatarioType::RolUo)
-                    ->whereIn('destinatario_rol', $roles)
-                    ->whereIn('destinatario_uo_id', $uoIds);
-            });
-        });
+        return $query->whereHas('destinatarios', fn (Builder $d) => $d->where('usuario_id', $usuario->id));
     }
 
     /**
-     * Alertas de tipo 'alerta' con el plazo de reconocimiento vencido.
+     * Filtra las alertas y avisos que el usuario aún no ha reconocido ni
+     * descartado, aunque otros destinatarios ya lo hayan hecho.
+     *
+     * @param Builder<static> $query
+     * @param User $usuario Usuario destinatario.
+     * @return Builder<static>
+     */
+    public function scopePendientesPara(Builder $query, User $usuario): Builder
+    {
+        return $query->whereHas('destinatarios', fn (Builder $d) => $d->where('usuario_id', $usuario->id)
+            ->where('estado', EstadoAlerta::Pendiente));
+    }
+
+    /**
+     * Alertas de tipo 'alerta' con el plazo vencido y algún destinatario sin reconocerla.
      *
      * @param Builder<static> $query
      *
@@ -173,7 +187,7 @@ class Alerta extends Model
     {
         return $query
             ->where('tipo', TipoAlerta::Alerta)
-            ->where('estado', EstadoAlerta::Pendiente)
-            ->where('expira_en', '<', now());
+            ->where('expira_en', '<', now())
+            ->whereHas('destinatarios', fn (Builder $d) => $d->where('estado', EstadoAlerta::Pendiente));
     }
 }

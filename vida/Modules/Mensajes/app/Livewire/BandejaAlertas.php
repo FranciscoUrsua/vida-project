@@ -37,8 +37,7 @@ class BandejaAlertas extends Component
     #[Computed]
     public function alertas(): Collection
     {
-        return Alerta::visiblesPara(auth()->user())
-            ->pendientes()
+        return Alerta::pendientesPara(auth()->user())
             ->orderByRaw("CASE WHEN tipo = 'alerta' THEN 0 ELSE 1 END")
             ->orderBy('expira_en')
             ->with(['destinatarioUo'])
@@ -64,8 +63,7 @@ class BandejaAlertas extends Component
 
         // Solo se reconocen alertas visibles para el usuario: antes las rol_uo
         // de cualquier UO pasaban sin comprobación.
-        $alerta = Alerta::visiblesPara(auth()->user())
-            ->pendientes()
+        $alerta = Alerta::pendientesPara(auth()->user())
             ->find($this->alertaConfirmandoId);
 
         if (! $alerta) {

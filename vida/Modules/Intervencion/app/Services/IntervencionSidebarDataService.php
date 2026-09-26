@@ -29,7 +29,7 @@ class IntervencionSidebarDataService
             return 0;
         }
 
-        return Alerta::visiblesPara(Auth::user())->pendientes()->count();
+        return Alerta::pendientesPara(Auth::user())->count();
     }
 
     /**

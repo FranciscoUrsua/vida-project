@@ -58,7 +58,11 @@ Además de las alertas generadas por el sistema, los usuarios con rol supervisor
 Una alerta puede dirigirse a:
 
 - **Un usuario concreto** (`destinatario_type = 'usuario'`): se identifica por su `usuario_id`.
-- **Todos los usuarios con un rol en una UO** (`destinatario_type = 'rol_uo'`): se identifican por `destinatario_rol` + `destinatario_uo_id`. El sistema resuelve en tiempo real qué usuarios cumplen esa condición y crea un registro de reconocimiento individual para cada uno.
+- **Todos los usuarios con un rol en una UO** (`destinatario_type = 'rol_uo'`): se identifican por `destinatario_rol` + `destinatario_uo_id`. Es una alerta **a un colectivo**: van dirigidas a **cada** miembro (p. ej. todos los trabajadores sociales de un centro).
+
+**Reconocimiento por destinatario** (decisión de 2026-09-26): al crear la alerta se fijan sus destinatarios (`alerta_destinatarios`), uno por cada usuario que en ese momento tiene el rol y adscripción vigente en la UO. **Cada destinatario debe reconocer la alerta o cerrar el aviso por su cuenta**; que uno lo haga no lo retira a los demás. Quien entra en la UO después no la recibe. Si el colectivo está vacío, la alerta queda `vencida` y se deja aviso en el log.
+
+Queda fuera, por ahora, la alerta **a cualquier persona de un colectivo** (basta con que la atienda un trabajador social del centro, cualquiera): ver `BACKLOG.md`.
 
 ### 2.5 Ciclo de vida de una alerta
 
@@ -68,7 +72,11 @@ Una alerta puede dirigirse a:
                                                    ↘ [vence plazo supervisor] → vencida (fin, sin más escalada)
 ```
 
-La escalada es de **un único nivel**: el supervisor activo de la UO del destinatario original hereda la alerta. No se crea una alerta nueva: la alerta original cambia de estado a `escalada` y el supervisor queda registrado como destinatario heredado en `alerta_reconocimientos`.
+El ciclo se aplica **a cada destinatario** (`alerta_destinatarios.estado`). La escalada es de **un único nivel** y también es individual: al vencer el plazo, la parte de cada destinatario que no la reconoció pasa al supervisor activo de la UO (nunca a sí mismo, si el destinatario es supervisor); si no hay otro supervisor, esa parte queda `vencida`. No se crea una alerta nueva: el evento queda en `alerta_reconocimientos` (tipo `escalada`, `usuario_id` = supervisor).
+
+El `estado` de la alerta resume el de sus destinatarios: `pendiente` mientras alguno lo esté; si no, el peor desenlace (`vencida` > `escalada` > `reconocida`).
+
+El supervisor consulta y atiende las partes escaladas en una **pantalla de control de alertas**, que puede ser la misma o parecida a la de envío de avisos a su equipo (decisión de 2026-09-26; pendiente de implementar).
 
 ### 2.6 Cálculo del vencimiento
 
@@ -174,21 +182,36 @@ No hay campo de adjuntos.
 | `destinatario_usuario_id` | bigint FK nullable | Ref. a `usuarios` si tipo = `usuario` |
 | `destinatario_rol` | string nullable | Rol objetivo si tipo = `rol_uo` |
 | `destinatario_uo_id` | bigint FK nullable | Ref. a `unidades_organizativas` si tipo = `rol_uo` |
-| `estado` | enum(`pendiente`, `reconocida`, `escalada`, `vencida`) | Estado del ciclo de vida |
+| `estado` | enum(`pendiente`, `reconocida`, `escalada`, `vencida`) | Resumen del estado de sus destinatarios (ver §2.5) |
 | `expira_en` | timestamp nullable | Solo para alertas; calculado en horas laborales; null para avisos |
-| `escalada_en` | timestamp nullable | Momento en que se produjo la escalada |
-| `escalada_a_usuario_id` | bigint FK nullable | Supervisor que hereda la alerta |
+| `escalada_en` | timestamp nullable | Momento de la primera escalada (el detalle está en `alerta_destinatarios`) |
+| `escalada_a_usuario_id` | bigint FK nullable | Supervisor de la primera escalada |
 | `created_at` | timestamp | |
 
-#### `alerta_reconocimientos`
+#### `alerta_destinatarios`
 
-Registra el reconocimiento individual de cada destinatario real, incluyendo la herencia por escalada y los descartes de avisos.
+Una fila por cada persona que debe reconocer la alerta, con su propio estado. Se crean al generar la alerta.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | bigint PK | |
 | `alerta_id` | bigint FK | Ref. a `alertas` |
-| `usuario_id` | bigint FK | Usuario que reconoce |
+| `usuario_id` | bigint FK | Destinatario. Único por alerta |
+| `estado` | enum(`pendiente`, `reconocida`, `escalada`, `vencida`) | Estado de su parte |
+| `atendida_en` | timestamp nullable | Cuándo la reconoció o descartó |
+| `escalada_en` | timestamp nullable | Cuándo se escaló su parte |
+| `escalada_a_usuario_id` | bigint FK nullable | Supervisor que recibió su parte |
+
+#### `alerta_reconocimientos`
+
+Registro de eventos (solo alta): reconocimientos, descartes de avisos y escaladas. Sin índice único: un supervisor puede recibir varias escaladas de la misma alerta.
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | bigint PK | |
+| `alerta_id` | bigint FK | Ref. a `alertas` |
+| `alerta_destinatario_id` | bigint FK nullable | Parte de la alerta a la que se refiere |
+| `usuario_id` | bigint FK | Usuario que reconoce, o supervisor que recibe la escalada |
 | `tipo` | enum(`reconocida`, `escalada`, `descartada`) | Naturaleza del reconocimiento |
 | `reconocida_en` | timestamp | |
 | `ip_address` | string | Auditoría |
@@ -259,7 +282,8 @@ Materializa la decisión del TSR de incorporar un mensaje a la Historia Social. 
 
 ```
 alertas
-  ├── alerta_reconocimientos
+  ├── alerta_destinatarios (una fila por destinatario, con su estado)
+  ├── alerta_reconocimientos (eventos)
   └── [origen polimórfico → Intervención, Centros, Sistema, supervisor_manual]
 
 mensajes_hilos
@@ -310,7 +334,9 @@ Siguiendo el principio del proyecto (Filament = configuración; Livewire = opera
 |---|---|
 | Niveles de gravedad de alertas | Dos niveles: `aviso` (ignorable) y `alerta` (requiere reconocimiento). |
 | Plazo de reconocimiento de alertas | 4 horas en horario laboral. |
-| Escalada por vencimiento | Un único nivel: el supervisor de la UO hereda la alerta original. No se crea una alerta duplicada. |
+| Escalada por vencimiento | Un único nivel, por destinatario: el supervisor de la UO hereda la parte de quien no reconoció. No se crea una alerta duplicada. |
+| Reconocimiento con varios destinatarios | Cada destinatario de una alerta o aviso a un colectivo debe reconocerla o cerrarla por su cuenta. Los destinatarios se fijan al crear la alerta (2026-09-26). |
+| Control de alertas del supervisor | El supervisor tiene una pantalla de control de alertas (escaladas y estado de las de su equipo), igual o parecida a la de envío de avisos (2026-09-26). |
 | Segundo nivel de escalada | No existe. Si el supervisor tampoco reconoce en plazo, la alerta queda en estado `vencida`. |
 | Mensajería grupal | Fuera de scope. La mensajería es estrictamente uno a uno. Solo las alertas del sistema pueden dirigirse a un rol+UO. |
 | Registro en Historia Social | Acción explícita del TSR responsable del expediente. Solo él puede tomar esta decisión. |
@@ -330,6 +356,7 @@ Siguiendo el principio del proyecto (Filament = configuración; Livewire = opera
 
 | Elemento | Descripción |
 |---|---|
+| Alerta a cualquier persona de un colectivo | Alerta que basta con que atienda un miembro cualquiera del colectivo (p. ej. un trabajador social del centro). Aplazada el 2026-09-26: de momento todas las alertas a un colectivo exigen el reconocimiento de cada destinatario. Ver `BACKLOG.md`. |
 | Integración `HorarioLaboralService` con Agenda | El cálculo de vencimientos en horas laborales usará un horario por defecto hasta que el módulo de Agenda esté disponible. En ese momento, el servicio deberá actualizarse para consumir el calendario laboral real. |
 | Notificación externa de aviso | Pendiente de decidir si el sistema envía un correo de aviso ("tienes mensajes nuevos en VIDA") sin exponer contenido, como mecanismo de alerta para profesionales que no consultan la aplicación frecuentemente. Esta funcionalidad no expone información sensible pero requiere decisión explícita antes de implementarse. |
 | Delegación de mensajería por ausencia | Cuando un profesional está de baja o vacaciones, sus alertas escalan normalmente al supervisor. Sus mensajes no tienen destinatario alternativo. Se resolverá en la fase de diseño del módulo de Agenda. |

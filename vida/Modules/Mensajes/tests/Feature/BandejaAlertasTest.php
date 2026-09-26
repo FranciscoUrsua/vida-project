@@ -12,6 +12,7 @@ use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Livewire\BandejaAlertas;
 use Modules\Mensajes\Models\Alerta;
+use Modules\Mensajes\Services\AlertaService;
 use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -27,7 +28,7 @@ class BandejaAlertasTest extends TestCase
 
     private function crearAlertaDirecta(User $usuario, array $overrides = []): Alerta
     {
-        return Alerta::create(array_merge([
+        return app(AlertaService::class)->crear(array_merge([
             'tipo' => TipoAlerta::Alerta,
             'origen_type' => 'App\\Models\\User',
             'origen_id' => $usuario->id,
@@ -35,7 +36,6 @@ class BandejaAlertasTest extends TestCase
             'cuerpo' => 'Cuerpo de la alerta',
             'destinatario_type' => DestinatarioType::Usuario,
             'destinatario_usuario_id' => $usuario->id,
-            'estado' => EstadoAlerta::Pendiente,
         ], $overrides));
     }
 
@@ -80,7 +80,7 @@ class BandejaAlertasTest extends TestCase
         Role::firstOrCreate(['name' => 'trabajador_social', 'guard_name' => 'web']);
         $usuario->assignRole('trabajador_social');
 
-        $alertaRol = Alerta::create([
+        $alertaRol = app(AlertaService::class)->crear([
             'tipo' => TipoAlerta::Aviso,
             'origen_type' => 'App\\Models\\User',
             'origen_id' => $usuario->id,
@@ -89,7 +89,6 @@ class BandejaAlertasTest extends TestCase
             'destinatario_type' => DestinatarioType::RolUo,
             'destinatario_rol' => 'trabajador_social',
             'destinatario_uo_id' => $uo->id,
-            'estado' => EstadoAlerta::Pendiente,
         ]);
 
         Livewire::actingAs($usuario)
@@ -144,7 +143,7 @@ class BandejaAlertasTest extends TestCase
     {
         $usuario = User::factory()->create();
 
-        Alerta::create([
+        app(AlertaService::class)->crear([
             'tipo' => TipoAlerta::Aviso,
             'origen_type' => 'App\\Models\\User',
             'origen_id' => $usuario->id,
@@ -152,10 +151,10 @@ class BandejaAlertasTest extends TestCase
             'cuerpo' => 'Cuerpo',
             'destinatario_type' => DestinatarioType::Usuario,
             'destinatario_usuario_id' => $usuario->id,
-            'estado' => EstadoAlerta::Pendiente,
         ]);
 
-        Alerta::create([
+        // El servicio calcula expira_en; se fija después para ordenar
+        app(AlertaService::class)->crear([
             'tipo' => TipoAlerta::Alerta,
             'origen_type' => 'App\\Models\\User',
             'origen_id' => $usuario->id,
@@ -163,11 +162,10 @@ class BandejaAlertasTest extends TestCase
             'cuerpo' => 'Cuerpo',
             'destinatario_type' => DestinatarioType::Usuario,
             'destinatario_usuario_id' => $usuario->id,
-            'estado' => EstadoAlerta::Pendiente,
-            'expira_en' => now()->addHours(3),
-        ]);
+        ])->update(['expira_en' => now()->addHours(3)]);
 
-        Alerta::create([
+        // El servicio calcula expira_en; se fija después para ordenar
+        app(AlertaService::class)->crear([
             'tipo' => TipoAlerta::Alerta,
             'origen_type' => 'App\\Models\\User',
             'origen_id' => $usuario->id,
@@ -175,9 +173,7 @@ class BandejaAlertasTest extends TestCase
             'cuerpo' => 'Cuerpo',
             'destinatario_type' => DestinatarioType::Usuario,
             'destinatario_usuario_id' => $usuario->id,
-            'estado' => EstadoAlerta::Pendiente,
-            'expira_en' => now()->addHour(),
-        ]);
+        ])->update(['expira_en' => now()->addHour()]);
 
         Livewire::actingAs($usuario)
             ->test(BandejaAlertas::class)

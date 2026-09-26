@@ -15,6 +15,7 @@ use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Http\Livewire\BuzonPage;
 use Modules\Mensajes\Models\Alerta;
+use Modules\Mensajes\Services\AlertaService;
 use Modules\Mensajes\Models\MensajeHilo;
 use Modules\Mensajes\Models\MensajeParticipante;
 use PHPUnit\Framework\Attributes\Test;
@@ -70,7 +71,7 @@ class BuzonPageTest extends TestCase
      */
     private function crearAlerta(User $usuario, TipoAlerta $tipo = TipoAlerta::Alerta): Alerta
     {
-        return Alerta::create([
+        return app(AlertaService::class)->crear([
             'tipo' => $tipo,
             'origen_type' => User::class,
             'origen_id' => $usuario->id,
@@ -78,7 +79,6 @@ class BuzonPageTest extends TestCase
             'cuerpo' => 'Cuerpo de la alerta de prueba.',
             'destinatario_type' => DestinatarioType::Usuario,
             'destinatario_usuario_id' => $usuario->id,
-            'estado' => EstadoAlerta::Pendiente,
         ]);
     }
 
