@@ -38,6 +38,11 @@
 
 <div class="ciudadano-page record-screen">
 
+    {{-- Escribir un mensaje sobre este expediente (panel de redacción global) --}}
+    <div class="d-flex justify-content-end px-3 pt-2">
+        @include('mensajes::partials.boton-escribir-mensaje', ['tipo' => 'historia', 'id' => $historia->id])
+    </div>
+
     {{-- ------------------------------------------------------------------ --}}
     {{-- Banda del Plan de Intervención — ancho completo                    --}}
     {{-- ------------------------------------------------------------------ --}}

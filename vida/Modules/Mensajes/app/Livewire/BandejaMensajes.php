@@ -15,12 +15,11 @@ use Modules\Mensajes\Services\MensajeriaService;
  *
  * Muestra la lista de hilos activos (no archivados) con indicador
  * de mensajes no leídos. Al seleccionar un hilo carga HiloMensajes.
+ * «Nuevo mensaje» abre el panel de redacción global (PanelRedaccion).
  */
 class BandejaMensajes extends Component
 {
     public ?int $hiloActivoId = null;
-
-    public bool $mostrarNuevoMensaje = false;
 
     /**
      * Verifica que exista sesión autenticada antes de mostrar la bandeja.
@@ -57,7 +56,6 @@ class BandejaMensajes extends Component
     public function abrirHilo(int $hiloId): void
     {
         $this->hiloActivoId = $hiloId;
-        $this->mostrarNuevoMensaje = false;
     }
 
     /**
@@ -80,12 +78,13 @@ class BandejaMensajes extends Component
     }
 
     /**
-     * Abre el formulario de creación de un nuevo mensaje.
+     * Abre el panel de redacción global, sin contexto.
+     *
+     * @return void
      */
     public function nuevaMensaje(): void
     {
-        $this->mostrarNuevoMensaje = true;
-        $this->hiloActivoId = null;
+        $this->dispatch('abrir-panel-redaccion');
     }
 
     /**

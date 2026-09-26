@@ -19,7 +19,7 @@ use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
 use Modules\Mensajes\Livewire\BandejaMensajes;
-use Modules\Mensajes\Livewire\NuevoMensaje;
+use Modules\Mensajes\Livewire\PanelRedaccion;
 use Modules\Mensajes\Models\MensajeHilo;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
@@ -263,16 +263,15 @@ class NavegacionTest extends TestCase
     // -------------------------------------------------------------------------
 
     /**
-     * TF-LW-NAV-09 — «Nuevo mensaje» abre el formulario en la pestaña Mensajes.
+     * TF-LW-NAV-09 — «Nuevo mensaje» de la pestaña Mensajes abre el panel de redacción.
      */
     #[Test]
     public function abrir_modal_nuevo_mensaje_abre_el_modal(): void
     {
         Livewire::actingAs($this->usuario)
             ->test(BandejaMensajes::class)
-            ->assertSet('mostrarNuevoMensaje', false)
             ->call('nuevaMensaje')
-            ->assertSet('mostrarNuevoMensaje', true);
+            ->assertDispatched('abrir-panel-redaccion');
     }
 
     /**
@@ -290,8 +289,8 @@ class NavegacionTest extends TestCase
         ]);
 
         Livewire::actingAs($this->usuario)
-            ->test(NuevoMensaje::class)
-            ->set('destinatarioId', $destinatario->id)
+            ->test(PanelRedaccion::class)
+            ->call('seleccionarDestinatario', $destinatario->id)
             ->set('asunto', 'Prueba de asunto del mensaje')
             ->set('cuerpo', 'Cuerpo de prueba del mensaje enviado.')
             ->call('enviar')
@@ -324,12 +323,11 @@ class NavegacionTest extends TestCase
     public function enviar_mensaje_sin_destinatario_falla_validacion(): void
     {
         Livewire::actingAs($this->usuario)
-            ->test(NuevoMensaje::class)
-            ->set('destinatarioId', null)
+            ->test(PanelRedaccion::class)
             ->set('asunto', 'Asunto de prueba')
             ->set('cuerpo', 'Cuerpo de prueba del mensaje.')
             ->call('enviar')
-            ->assertHasErrors(['destinatarioId']);
+            ->assertHasErrors(['destinatario']);
 
         // No debe haberse creado ningun hilo
         $this->assertDatabaseMissing('mensajes_hilos', [

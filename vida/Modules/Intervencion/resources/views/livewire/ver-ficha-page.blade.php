@@ -1,12 +1,13 @@
 <div class="ver-ficha-page">
 
     {{-- Navegación --}}
-    <div class="ver-ficha-page__nav">
+    <div class="ver-ficha-page__nav d-flex align-items-center justify-content-between gap-2">
         <a href="{{ route('intervencion.ciudadano.show', $historiaId) }}"
            class="ver-ficha-page__back-link">
             <x-heroicon-o-arrow-left class="icon-14" aria-hidden="true"/>
             Volver a la Historia Social
         </a>
+        @include('mensajes::partials.boton-escribir-mensaje', ['tipo' => 'ficha', 'id' => $ficha->id])
     </div>
 
     {{-- Cabecera --}}

@@ -95,6 +95,11 @@
         {{ $slot }}
     </main>
 </div>
+
+{{-- Panel de redacción de mensajes, disponible desde cualquier pantalla --}}
+@auth
+    <livewire:mensajes-panel-redaccion />
+@endauth
 @livewireScripts
 </body>
 </html>

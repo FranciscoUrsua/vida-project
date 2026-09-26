@@ -50,9 +50,7 @@
 
         {{-- Hilo abierto o mensaje nuevo --}}
         <div class="col-md-8">
-            @if($mostrarNuevoMensaje)
-                <livewire:mensajes-nuevo-mensaje :key="'nuevo-mensaje'" />
-            @elseif($hiloActivoId)
+            @if($hiloActivoId)
                 <livewire:mensajes-hilo-mensajes :hiloId="$hiloActivoId" :key="'hilo-'.$hiloActivoId" />
             @else
                 <div class="op-empty">

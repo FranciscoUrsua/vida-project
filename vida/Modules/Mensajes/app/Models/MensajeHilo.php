@@ -15,6 +15,8 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string $asunto
  * @property int $creado_por_id
+ * @property string|null $contexto_tipo Elemento vinculado (TipoContextoMensaje)
+ * @property int|null $contexto_id
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
@@ -25,6 +27,8 @@ class MensajeHilo extends Model
     protected $fillable = [
         'asunto',
         'creado_por_id',
+        'contexto_tipo',
+        'contexto_id',
     ];
 
     // -------------------------------------------------------------------------

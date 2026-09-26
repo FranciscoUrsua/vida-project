@@ -4,6 +4,49 @@
 
 ---
 
+## 2026-09-26 — Mensajes: panel de redacción flotante y botón «Escribir mensaje» (paso 4 y fase 8)
+
+### Módulos afectados
+`Modules/Mensajes`:
+- Migración `add_contexto_to_mensajes_hilos`.
+- Enum `TipoContextoMensaje`, servicio `ContextoMensajeService` y componente `PanelRedaccion`, nuevos.
+- Cambios en `MensajeHilo`, `MensajeriaService::crearHilo()`, `BandejaMensajes`, `HiloMensajes`, vistas, el parcial `boton-escribir-mensaje`, el provider y los tests.
+
+Además:
+- `resources/views/components/layouts/operativo-shell.blade.php`.
+- Vistas de Intervención: `ciudadano-page`, `ver-ficha-page` y `plan-page`.
+- `NavegacionTest`.
+- `docs/modulo-mensajes.md` (§4.3, §5.2) y `BACKLOG.md`.
+
+### Añadido
+- **`PanelRedaccion`**: panel lateral (`offcanvas` de Bootstrap controlado por Livewire) en el layout operativo común, disponible en Intervención y Supervisión. Se abre con el evento `abrir-panel-redaccion`.
+  - **Con contexto** pre-rellena el elemento vinculado y el ciudadano, y sugiere un destinatario en un **chip gris «Sin confirmar»**:
+    - Expediente (`historia`): el TSR con asignación vigente.
+    - Ficha de valoración (`ficha`): quien la cumplimentó.
+    - Plan de intervención (`plan`): el responsable.
+  - El envío falla hasta que se confirma la sugerencia o se elige a otra persona.
+  - **Destinatario:** búsqueda por nombre (nombre y apellidos del profesional, o correo) o por filtros de cargo y UO. La lista muestra nombre, cargo y UO. No se puede elegir a uno mismo.
+  - **Referencias a ciudadanos:** solo los que el usuario puede ver (`CiudadanoPolicy::view`, además del scope de ámbito). Se vuelven a autorizar al enviar.
+  - Sin adjuntos.
+- **`ContextoMensajeService`**: el navegador solo envía tipo e id. La etiqueta, el ciudadano, el autor y el enlace se resuelven en el servidor, y solo si el usuario puede ver la Historia Social (`HistoriaSocialPolicy::view`); si no, el panel se abre sin contexto. La etiqueta no lleva datos personales («Historia Social #12»).
+- **Elemento vinculado guardado** en `mensajes_hilos.contexto_tipo`/`contexto_id`. La cabecera de la conversación lo enlaza si quien la lee puede ver el elemento; si no, solo muestra la etiqueta.
+- **Fase 8: botón «Escribir mensaje»** (parcial `mensajes::partials.boton-escribir-mensaje`) en el expediente (CiudadanoPage), la ficha de valoración (VerFichaPage) y el plan de intervención (PlanPage).
+- **Tests:** `PanelRedaccionTest` (TF-MSG-PAN-01 a 18). **Comprobación en negativo:** sin la comprobación de permiso del contexto falla PAN-05. El filtro por policy de la búsqueda de ciudadanos es una segunda barrera: el scope de ámbito ya oculta en el test al ciudadano protegido de otra UO.
+
+### Retirado
+- `NuevoMensaje`, que se sustituye por el panel. Su búsqueda de ciudadanos devolvía ciudadanos cualesquiera, sin filtrar por el texto ni por el acceso del usuario. También su vista y `NuevoMensajeTest`: sus casos pasan a TF-MSG-PAN-06, 10, 11 y 12, y `t_lw_09` a PAN-10. «Nuevo mensaje» de la pestaña Mensajes abre ahora el panel.
+
+### Decisiones de implementación no previstas
+- `abrir()` mantiene la firma de las instrucciones (`array $contexto`, `?int $sugerirDestinatarioId`), pero del contexto solo usa tipo e id. Así el navegador no puede vincular elementos ajenos ni inventar la etiqueta.
+- La «intervención» de las instrucciones corresponde al **plan de intervención**, y la «valoración» a la **ficha de valoración**, que es lo que tiene pantalla propia.
+- Un ciudadano sin acceso añadido por id da 404, no 403: no revela que existe.
+
+### Tests
+- `Modules/Mensajes/tests`: **111 passed**, ningún fallo.
+- `Modules/Intervencion/tests`: 262 passed, 1 incomplete y 1 failed (`AccesosExpedienteTest`, ya conocido). `Modules/Supervision/tests`: 35 passed y los 3 fallos ya conocidos.
+
+---
+
 ## 2026-09-26 — Mensajes: control de alertas del supervisor y avisos a su equipo (paso 3)
 
 ### Módulos afectados

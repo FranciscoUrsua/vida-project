@@ -30,6 +30,7 @@ class MensajeriaService
      * @param string $asunto Asunto del hilo.
      * @param string $cuerpo Cuerpo del primer mensaje.
      * @param int[] $ciudadanoIds IDs de ciudadanos referenciados en el mensaje
+     * @param array{tipo: string, id: int}|null $contexto Elemento vinculado, ya resuelto y autorizado por ContextoMensajeService.
      * @return MensajeHilo
      */
     public function crearHilo(
@@ -37,11 +38,14 @@ class MensajeriaService
         User $destinatario,
         string $asunto,
         string $cuerpo,
-        array $ciudadanoIds = []
+        array $ciudadanoIds = [],
+        ?array $contexto = null
     ): MensajeHilo {
         $hilo = MensajeHilo::create([
             'asunto' => $asunto,
             'creado_por_id' => $remitente->id,
+            'contexto_tipo' => $contexto['tipo'] ?? null,
+            'contexto_id' => $contexto['id'] ?? null,
         ]);
 
         // Crear los dos participantes del hilo

@@ -23,14 +23,14 @@ Módulo: Mensajes
 - **Destinatarios que dejan la UO** conservan sus alertas pendientes (los destinatarios se fijan al crear). Revisar si al cerrar una adscripción deben traspasarse o cerrarse.
 - **Bandeja: enlace al contexto de origen** (instrucciones, `BandejaAlertas`): cada alerta debería enlazar a su origen (p. ej. la solicitud de acceso o la asignación de rol) si existe y el usuario puede verlo. No se ha hecho en el paso 2: cada `origen_type` necesita su ruta y su comprobación de permiso.
 - **`Modules/Agenda` tiene un sidebar de supervisor (`agenda.supervisor.sidebar`) registrado que ningún layout usa**: el de Supervisión lo sustituyó. No tiene las entradas de la bandeja; retirarlo si se confirma que está muerto.
-- **`t_lw_09` (`NuevoMensajeTest`) falla desde antes:** la búsqueda de destinatarios por rol y UO no muestra los nombres. `NuevoMensaje` se sustituirá por `PanelRedaccion`: recuperar este caso en sus tests.
+- **Panel de redacción, pendientes:** (a) más contextos (apunte, entrevista, prestación) cuando haga falta; (b) la búsqueda de ciudadanos filtra por nombre en PHP sobre 500 registros como mucho, igual que la de Intervención: sustituir por el índice de búsqueda cuando exista; (c) el panel no se ha probado en navegador (foco, teclado, pantallas estrechas).
 - **Error en `instrucciones-cli-mensajes.md` (tests mínimos):** «17:30 de un día laborable → 09:00 del día siguiente» es incorrecto con 4 horas laborales; lo correcto es 12:00 (lo que ya comprueba T-HLS-04).
 
 ---
 
 **Suite completa con 75 fallos fuera de Documentos** — 2026-09-25
 Módulos: Agenda, Mensajes, Ciudadanía, Autenticación, Intervención
-(2026-09-26: de los 6 de Mensajes queda solo `t_lw_09`; ver la entrada de Mensajes.)
+(2026-09-26: los 6 fallos de Mensajes están resueltos; `t_lw_09` se sustituyó por TF-MSG-PAN-10 al retirar `NuevoMensaje`.)
 Primera ejecución completa registrada (908 passed, 76 failed; el fallo de Documentos ya está corregido). Detalle por módulo en `CHANGELOG-092026.md` («Documentos: custodia v2, UI operativa y cierre»). La mayoría son de Agenda (esquema que no existe). En Ciudadanía, dos tests buscan un texto que ya no está en la ficha. Revisarlos antes de un merge a `main`.
 
 ---

@@ -8,9 +8,11 @@ use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Modules\Mensajes\Enums\TipoContextoMensaje;
 use Modules\Mensajes\Enums\VisibilidadMensaje;
 use Modules\Mensajes\Models\Mensaje;
 use Modules\Mensajes\Models\MensajeHilo;
+use Modules\Mensajes\Services\ContextoMensajeService;
 use Modules\Mensajes\Services\MensajeriaService;
 
 /**
@@ -68,6 +70,30 @@ class HiloMensajes extends Component
     {
         return MensajeHilo::with(['mensajes.remitente', 'mensajes.referenciasCiudadano.ciudadano'])
             ->findOrFail($this->hiloId);
+    }
+
+    /**
+     * Elemento vinculado al hilo, para la cabecera. Solo lleva enlace si quien
+     * lee puede ver el elemento; si no, solo la etiqueta (sin datos personales).
+     *
+     * @return array{etiqueta: string, url: string|null}|null
+     */
+    #[Computed]
+    public function contexto(): ?array
+    {
+        $hilo = $this->hilo;
+        $tipo = TipoContextoMensaje::tryFrom((string) $hilo->contexto_tipo);
+
+        if ($tipo === null || $hilo->contexto_id === null) {
+            return null;
+        }
+
+        $resuelto = app(ContextoMensajeService::class)->resolver($tipo->value, $hilo->contexto_id, auth()->user());
+
+        return [
+            'etiqueta' => $tipo->etiqueta().' #'.$hilo->contexto_id,
+            'url' => $resuelto['url'] ?? null,
+        ];
     }
 
     /**

@@ -23,6 +23,7 @@
 
     <div class="d-flex gap-2 align-items-center ms-auto">
         @if($this->plan)
+        @include('mensajes::partials.boton-escribir-mensaje', ['tipo' => 'plan', 'id' => $this->plan->id])
         <span class="badge rounded-pill plan-badge--{{ $this->plan->estado->value }}">
             {{ $this->plan->estado->label() }}
         </span>

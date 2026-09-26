@@ -166,6 +166,8 @@ La sugerencia de destinatario es orientativa. Es frecuente querer enviar un mens
 
 No hay campo de adjuntos.
 
+**Implementación (2026-09-26):** `PanelRedaccion` está en el layout operativo común (Intervención y Supervisión) y se abre con el evento `abrir-panel-redaccion`. Contextos admitidos: expediente (`historia`, sugiere el TSR con asignación vigente), ficha de valoración (`ficha`, sugiere a quien la cumplimentó) y plan de intervención (`plan`, sugiere al responsable). El navegador solo envía tipo e id: `ContextoMensajeService` resuelve en el servidor la etiqueta, el ciudadano, el autor y el enlace, y solo si el usuario puede ver la Historia Social; si no, el panel se abre sin contexto. El elemento vinculado se guarda en `mensajes_hilos.contexto_tipo`/`contexto_id`. La conversación lo enlaza solo para quien puede verlo; el resto ve la etiqueta sin datos personales («Historia Social #12»). Las referencias a ciudadanos solo admiten a quienes el usuario puede ver (`CiudadanoPolicy::view`). El botón «Escribir mensaje» está en el expediente, la ficha de valoración y el plan de intervención. `NuevoMensaje` se ha retirado.
+
 ---
 
 ## 5. Modelo de datos
@@ -225,6 +227,8 @@ Registro de eventos (solo alta): reconocimientos, descartes de avisos y escalada
 ### 5.2 Mensajería
 
 #### `mensajes_hilos`
+
+Además de las columnas de abajo: `contexto_tipo` (`historia` | `ficha` | `plan`, nullable) y `contexto_id` (nullable), el elemento vinculado desde el panel de redacción (2026-09-26).
 
 | Campo | Tipo | Descripción |
 |---|---|---|

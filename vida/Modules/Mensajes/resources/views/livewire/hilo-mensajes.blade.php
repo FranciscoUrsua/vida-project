@@ -2,6 +2,16 @@
 <div>
     <div class="p-3 border-bottom">
         <h6 class="mb-0">{{ $this->hilo->asunto }}</h6>
+        @if($this->contexto)
+            <div class="small mt-1 d-inline-flex align-items-center gap-1">
+                <x-heroicon-o-link class="icon-14" aria-hidden="true"/>
+                @if($this->contexto['url'])
+                    <a href="{{ $this->contexto['url'] }}">{{ $this->contexto['etiqueta'] }}</a>
+                @else
+                    <span class="text-body-secondary">{{ $this->contexto['etiqueta'] }}</span>
+                @endif
+            </div>
+        @endif
     </div>
 
     {{-- Lista de mensajes --}}
