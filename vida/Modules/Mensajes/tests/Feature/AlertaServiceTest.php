@@ -299,8 +299,8 @@ class AlertaServiceTest extends TestCase
     }
 
     /**
-     * T-ALS-08 — No existe segundo nivel de escalada.
-     * Una alerta ya en estado 'escalada' pasa a 'vencida' sin asignar nuevo escalado.
+     * T-ALS-08 — No existe segundo nivel de escalada, y el supervisor no tiene plazo
+     * (decisión de 2026-09-26): volver a escalar no reasigna ni vence la parte escalada.
      */
     #[Test]
     public function t_als_08_no_existe_segundo_nivel_de_escalada(): void
@@ -333,11 +333,11 @@ class AlertaServiceTest extends TestCase
         $this->servicio->escalar($alerta);
         $this->assertEquals(EstadoAlerta::Escalada, $alerta->fresh()->estado);
 
-        // Segunda: no hay otro nivel, vence.
+        // Segunda: no hay otro nivel ni plazo del supervisor; sigue escalada.
         $this->servicio->escalar($alerta->fresh());
 
         $alertaActualizada = $alerta->fresh();
-        $this->assertEquals(EstadoAlerta::Vencida, $alertaActualizada->estado);
+        $this->assertEquals(EstadoAlerta::Escalada, $alertaActualizada->estado);
         // El campo escalada_a_usuario_id no se modifica: sigue apuntando al supervisor original
         $this->assertEquals($supervisor->id, $alertaActualizada->escalada_a_usuario_id);
     }

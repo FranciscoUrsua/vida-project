@@ -2,6 +2,7 @@
     $seccion = match(true) {
         request()->routeIs('supervision.inicio')             => 'Inicio',
         request()->routeIs('supervision.bandeja')            => 'Alertas y mensajes',
+        request()->routeIs('supervision.control-alertas')    => 'Control de alertas',
         request()->routeIs('supervision.cuadrante')         => 'Cuadrante del centro',
         request()->routeIs('agenda.cuadrante')               => 'Cuadrante del centro',
         request()->routeIs('agenda.supervisor.ausencias')    => 'Ausencias del día',

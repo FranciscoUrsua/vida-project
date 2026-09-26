@@ -4,6 +4,41 @@
 
 ---
 
+## 2026-09-26 — Mensajes: control de alertas del supervisor y avisos a su equipo (paso 3)
+
+### Módulos afectados
+`Modules/Mensajes` (migración `add_uo_destinatario_y_cerrada`, enums `DestinatarioType`, `TipoReconocimiento` y `EstadoAlerta`, `AlertaService`, `UnauthorizedException`, `ControlAlertasPage` nuevo, `NuevoAvisoSupervisor` nuevo, vistas, provider, tests), `Modules/Supervision` (ruta, sidebar), `resources/views/layouts/supervision.blade.php`, `docs/modulo-mensajes.md` (§2.3, §2.5, §5.1, §8), `BACKLOG.md`
+
+### Decisiones del desarrollador
+1. El supervisor cierra las partes escaladas con un botón **«Cerrar alerta»**.
+2. El supervisor **no tiene plazo** para atender las alertas escaladas.
+
+### Añadido
+- **Pantalla «Control de alertas»** (`/supervision/control-alertas`, `supervision.control-alertas`, solo rol `supervision`), con entrada propia en el menú de Supervisión. El contador en rojo cuenta las escaladas sin cerrar. Tiene tres bloques:
+  - **Alertas escaladas a ti**, con «Cerrar alerta» y confirmación.
+  - **Enviar aviso al equipo** (`NuevoAvisoSupervisor`).
+  - **Alertas y avisos de tu equipo**: cuántas personas los han atendido («2 de 3») y el estado de cada una. Filtro «Sin atender por todos» o «Últimos 30 días». No muestra el cuerpo: basta con el seguimiento.
+- **`AlertaService::crearAvisoSupervisor()`**: aviso a todo el equipo de la UO, sin incluir al supervisor. Exige el rol `supervision` y adscripción vigente en esa UO; si no, `UnauthorizedException`.
+- **`AlertaService::cerrarEscalada()`**: solo el supervisor al que se escaló. La parte queda `reconocida` y el evento se registra con el tipo nuevo `cerrada`.
+- **Valores nuevos:** `DestinatarioType::Uo` (`uo`, todo el equipo) y `TipoReconocimiento::Cerrada`. La migración amplía las restricciones CHECK de `alertas` y `alerta_reconocimientos`.
+- **Tests:** `ControlAlertasSupervisorTest` (TF-MSG-SUP-01 a 16). **Comprobación en negativo:** sin la comprobación de rol, de UO o de «escalada a este supervisor», fallan SUP-02, SUP-03 y SUP-10.
+
+### Cambiado
+- `AlertaService::escalar()` ya no vence las partes escaladas: siguen abiertas hasta que el supervisor las cierra. T-ALS-08 se ajusta a esta regla.
+- `resolverDestinatarios()` resuelve también `uo`, sin filtrar por rol. En los avisos del supervisor excluye al remitente.
+- La constante `ORIGEN_SUPERVISOR` (`supervisor_manual`) pasa a `AlertaService`.
+
+### Decisiones de implementación no previstas
+- Los avisos del supervisor van a todo el equipo, no a un rol: los roles no tienen nombre legible y el colectivo natural sería el cargo (BACKLOG).
+- El «equipo» es quien tiene adscripción vigente en las UO del supervisor, sin bajar a las UO hijas (BACKLOG).
+- `Alerta::origen()` no debe resolverse en los avisos del supervisor: su `origen_type` no es una clase.
+
+### Tests
+- `Modules/Mensajes/tests`: 97 passed, 1 failed (`t_lw_09`, ya existente).
+- `Modules/Supervision/tests`: 35 passed y los 3 fallos ya conocidos. `Modules/Usuarios/tests`: 63 passed y 1 incomplete. `BuscarCiudadanoPageTest`: 11 passed. `FilamentPanelAccessTest`: 16 passed.
+
+---
+
 ## 2026-09-26 — Mensajes: bandeja unificada con tres entradas de menú (paso 2)
 
 ### Módulos afectados

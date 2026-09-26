@@ -9,6 +9,7 @@ use Modules\Mensajes\Jobs\EscalarAlertasVencidasJob;
 use Modules\Mensajes\Livewire\BandejaAlertas;
 use Modules\Mensajes\Livewire\BandejaMensajes;
 use Modules\Mensajes\Livewire\HiloMensajes;
+use Modules\Mensajes\Livewire\NuevoAvisoSupervisor;
 use Modules\Mensajes\Livewire\NuevoMensaje;
 use Modules\Mensajes\Services\AlertaService;
 use Modules\Mensajes\Services\HorarioLaboralService;
@@ -48,6 +49,7 @@ class MensajesServiceProvider extends ServiceProvider
         Livewire::component('mensajes-bandeja-mensajes', BandejaMensajes::class);
         Livewire::component('mensajes-hilo-mensajes', HiloMensajes::class);
         Livewire::component('mensajes-nuevo-mensaje', NuevoMensaje::class);
+        Livewire::component('mensajes-nuevo-aviso-supervisor', NuevoAvisoSupervisor::class);
 
         // Registrar el job de escalada en el scheduler
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {

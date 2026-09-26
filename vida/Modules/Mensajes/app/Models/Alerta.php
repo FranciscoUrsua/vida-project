@@ -123,6 +123,9 @@ class Alerta extends Model
     /**
      * Entidad que originó la alerta (relación polimórfica).
      *
+     * No resolver para los avisos del supervisor: su `origen_type` es
+     * `supervisor_manual` (no es una clase) y `origen_id` es el supervisor.
+     *
      * @return MorphTo<Model, self>
      */
     public function origen(): MorphTo

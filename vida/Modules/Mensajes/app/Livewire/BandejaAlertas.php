@@ -24,9 +24,6 @@ use Modules\Mensajes\Services\AlertaService;
  */
 class BandejaAlertas extends Component
 {
-    /** Valor de `origen_type` de los avisos creados a mano por un supervisor. */
-    public const ORIGEN_SUPERVISOR = 'supervisor_manual';
-
     /** Tipo que muestra la pestaña: 'alerta' o 'aviso'. */
     #[Locked]
     public string $tipo = 'alerta';

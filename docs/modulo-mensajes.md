@@ -53,6 +53,8 @@ Además de las alertas generadas por el sistema, los usuarios con rol supervisor
 - La comunicación es **unidireccional**: el destinatario no puede responder al aviso. Se muestra con una etiqueta visual clara ("Aviso del supervisor") para diferenciarlo de las alertas automáticas del sistema.
 - Estos avisos siguen el mismo ciclo de vida que cualquier otro aviso: el destinatario puede descartarlos sin plazo, y no generan escalada.
 
+**Implementación (2026-09-26):** el aviso va a **todo el equipo** de la UO: quienes tienen adscripción vigente en ella, salvo el propio supervisor (`destinatario_type = 'uo'`). Cada miembro lo descarta por su cuenta. Se envía desde la pantalla «Control de alertas» del interfaz de Supervisión (`NuevoAvisoSupervisor`). Enviarlo solo a un cargo concreto (p. ej. los trabajadores sociales) queda en `BACKLOG.md`.
+
 ### 2.4 Destinatarios
 
 Una alerta puede dirigirse a:
@@ -68,15 +70,15 @@ Queda fuera, por ahora, la alerta **a cualquier persona de un colectivo** (basta
 
 ```
 [generada] → pendiente → reconocida (fin)
-                       ↘ [vence plazo] → escalada → reconocida por supervisor (fin)
-                                                   ↘ [vence plazo supervisor] → vencida (fin, sin más escalada)
+                       ↘ [vence plazo] → escalada → cerrada por el supervisor (fin; estado `reconocida`, evento `cerrada`)
+                       ↘ [vence plazo, sin otro supervisor en la UO] → vencida (fin)
 ```
 
 El ciclo se aplica **a cada destinatario** (`alerta_destinatarios.estado`). La escalada es de **un único nivel** y también es individual: al vencer el plazo, la parte de cada destinatario que no la reconoció pasa al supervisor activo de la UO (nunca a sí mismo, si el destinatario es supervisor); si no hay otro supervisor, esa parte queda `vencida`. No se crea una alerta nueva: el evento queda en `alerta_reconocimientos` (tipo `escalada`, `usuario_id` = supervisor).
 
 El `estado` de la alerta resume el de sus destinatarios: `pendiente` mientras alguno lo esté; si no, el peor desenlace (`vencida` > `escalada` > `reconocida`).
 
-El supervisor consulta y atiende las partes escaladas en una **pantalla de control de alertas**, que puede ser la misma o parecida a la de envío de avisos a su equipo (decisión de 2026-09-26; pendiente de implementar).
+El supervisor atiende las partes escaladas en la **pantalla de control de alertas** del interfaz de Supervisión (`/supervision/control-alertas`), junto al envío de avisos a su equipo y al seguimiento de las alertas del equipo. Las cierra con el botón **«Cerrar alerta»** y **no tiene plazo**: una parte escalada sigue abierta hasta que la cierra (decisiones de 2026-09-26).
 
 ### 2.6 Cálculo del vencimiento
 
@@ -180,7 +182,7 @@ No hay campo de adjuntos.
 | `origen_id` | bigint | ID del objeto generador (polimórfico); ID del supervisor para avisos manuales |
 | `titulo` | string | Texto corto para listados |
 | `cuerpo` | text | Contenido completo de la alerta |
-| `destinatario_type` | enum(`usuario`, `rol_uo`) | Tipo de destinatario |
+| `destinatario_type` | enum(`usuario`, `rol_uo`, `uo`) | Tipo de destinatario (`uo`: todo el equipo de la UO, avisos del supervisor) |
 | `destinatario_usuario_id` | bigint FK nullable | Ref. a `usuarios` si tipo = `usuario` |
 | `destinatario_rol` | string nullable | Rol objetivo si tipo = `rol_uo` |
 | `destinatario_uo_id` | bigint FK nullable | Ref. a `unidades_organizativas` si tipo = `rol_uo` |
@@ -214,7 +216,7 @@ Registro de eventos (solo alta): reconocimientos, descartes de avisos y escalada
 | `alerta_id` | bigint FK | Ref. a `alertas` |
 | `alerta_destinatario_id` | bigint FK nullable | Parte de la alerta a la que se refiere |
 | `usuario_id` | bigint FK | Usuario que reconoce, o supervisor que recibe la escalada |
-| `tipo` | enum(`reconocida`, `escalada`, `descartada`) | Naturaleza del reconocimiento |
+| `tipo` | enum(`reconocida`, `escalada`, `descartada`, `cerrada`) | Naturaleza del evento (`cerrada`: el supervisor cierra una parte escalada) |
 | `reconocida_en` | timestamp | |
 | `ip_address` | string | Auditoría |
 
@@ -338,8 +340,9 @@ Siguiendo el principio del proyecto (Filament = configuración; Livewire = opera
 | Plazo de reconocimiento de alertas | 4 horas en horario laboral. |
 | Escalada por vencimiento | Un único nivel, por destinatario: el supervisor de la UO hereda la parte de quien no reconoció. No se crea una alerta duplicada. |
 | Reconocimiento con varios destinatarios | Cada destinatario de una alerta o aviso a un colectivo debe reconocerla o cerrarla por su cuenta. Los destinatarios se fijan al crear la alerta (2026-09-26). |
-| Control de alertas del supervisor | El supervisor tiene una pantalla de control de alertas (escaladas y estado de las de su equipo), igual o parecida a la de envío de avisos (2026-09-26). |
-| Segundo nivel de escalada | No existe. Si el supervisor tampoco reconoce en plazo, la alerta queda en estado `vencida`. |
+| Control de alertas del supervisor | Pantalla «Control de alertas» del interfaz de Supervisión con las escaladas, el envío de avisos al equipo y el seguimiento de las alertas del equipo (2026-09-26). |
+| Cierre de una escalada | Botón «Cerrar alerta» del supervisor al que se escaló (2026-09-26). |
+| Segundo nivel de escalada | No existe. El supervisor no tiene plazo: la parte escalada sigue abierta hasta que la cierra (2026-09-26; antes vencía). |
 | Mensajería grupal | Fuera de scope. La mensajería es estrictamente uno a uno. Solo las alertas del sistema pueden dirigirse a un rol+UO. |
 | Registro en Historia Social | Acción explícita del TSR responsable del expediente. Solo él puede tomar esta decisión. |
 | Contenido registrado en historia | Copia editable del mensaje original. Lo que se registra puede diferir del mensaje enviado. |
@@ -349,7 +352,7 @@ Siguiendo el principio del proyecto (Filament = configuración; Livewire = opera
 | Paquete para notificaciones | Sistema de Notifications nativo de Laravel como backbone. Las tablas propias (`alertas`, `alerta_reconocimientos`) añaden la lógica de reconocimiento, escalada y trazabilidad que el sistema nativo no cubre. |
 | Navegación al módulo | Tres entradas de menú separadas (Alertas, Avisos, Mensajes) que abren la misma pantalla con la pestaña correspondiente pre-seleccionada. |
 | Toast para alertas | Toasts persistentes (no auto-dismiss) que aparecen al login y en tiempo real. Reaparecen cada 30 minutos si el usuario no actúa. Solo para alertas, no para avisos. |
-| Avisos manuales de supervisor | Los supervisores pueden crear avisos dirigidos a sus subordinados en su propia UO. Comunicación unidireccional, sin posibilidad de respuesta. |
+| Avisos manuales de supervisor | Los supervisores pueden crear avisos dirigidos a sus subordinados en su propia UO. Comunicación unidireccional, sin posibilidad de respuesta. Van a todo el equipo de la UO (2026-09-26). |
 | Panel de redacción flotante | Componente global invocable desde cualquier pantalla. Con contexto, pre-rellena el elemento vinculado y sugiere el autor como destinatario con un chip gris (no confirmado). El usuario debe confirmar o cambiar la sugerencia. |
 
 ---

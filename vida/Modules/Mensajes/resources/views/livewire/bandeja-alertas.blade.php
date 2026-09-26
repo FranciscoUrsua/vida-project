@@ -13,7 +13,7 @@
                 <li class="list-group-item d-flex justify-content-between align-items-start gap-3 py-3" wire:key="alerta-{{ $alerta->id }}">
                     <div class="flex-grow-1">
                         <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                            @if($alerta->origen_type === \Modules\Mensajes\Livewire\BandejaAlertas::ORIGEN_SUPERVISOR)
+                            @if($alerta->origen_type === \Modules\Mensajes\Services\AlertaService::ORIGEN_SUPERVISOR)
                                 <span class="badge rounded-pill text-bg-primary">Aviso del supervisor</span>
                             @endif
                             <span class="fw-semibold">{{ $alerta->titulo }}</span>

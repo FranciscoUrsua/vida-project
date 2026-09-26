@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Mensajes\Http\Livewire\BandejaAlertasYMensajes;
+use Modules\Mensajes\Http\Livewire\ControlAlertasPage;
 use Modules\Supervision\Http\Livewire\ActividadesPage;
 use Modules\Supervision\Http\Livewire\AprobacionesPage;
 use Modules\Supervision\Http\Livewire\AuditoriaPage;
@@ -27,6 +28,7 @@ Route::middleware(['web', 'auth', 'role:supervision'])->prefix('supervision')->n
     Route::get('/bandeja/{pestana?}', BandejaAlertasYMensajes::class)
         ->whereIn('pestana', ['alertas', 'avisos', 'mensajes'])
         ->name('bandeja');
+    Route::get('/control-alertas', ControlAlertasPage::class)->name('control-alertas');
     Route::get('/cuadrante', CuadrantePage::class)->name('cuadrante');
     Route::get('/actividades', ActividadesPage::class)->name('actividades');
     Route::get('/actividades/{id}', ActividadesPage::class)->name('actividades.detalle');

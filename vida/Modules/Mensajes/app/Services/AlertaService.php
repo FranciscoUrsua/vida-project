@@ -13,6 +13,7 @@ use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Enums\TipoReconocimiento;
+use Modules\Mensajes\Exceptions\UnauthorizedException;
 use Modules\Mensajes\Models\Alerta;
 use Modules\Mensajes\Models\AlertaDestinatario;
 use Modules\Mensajes\Models\AlertaReconocimiento;
@@ -23,6 +24,9 @@ use Modules\Mensajes\Models\AlertaReconocimiento;
  */
 class AlertaService
 {
+    /** Valor de `origen_type` de los avisos creados a mano por un supervisor. */
+    public const ORIGEN_SUPERVISOR = 'supervisor_manual';
+
     /**
      * Inyecta el servicio de horario laboral.
      *
@@ -58,9 +62,9 @@ class AlertaService
 
             $alerta->save();
 
-            $usuarioIds = $alerta->destinatario_type === DestinatarioType::RolUo
-                ? $this->resolverDestinatarios($alerta)->pluck('id')
-                : collect([$alerta->destinatario_usuario_id])->filter();
+            $usuarioIds = $alerta->destinatario_type === DestinatarioType::Usuario
+                ? collect([$alerta->destinatario_usuario_id])->filter()
+                : $this->resolverDestinatarios($alerta)->pluck('id');
 
             foreach ($usuarioIds->unique() as $usuarioId) {
                 $alerta->destinatarios()->create([
@@ -70,7 +74,7 @@ class AlertaService
             }
 
             if ($usuarioIds->isEmpty()) {
-                Log::warning('Alerta sin destinatarios: nadie tiene el rol en la UO', [
+                Log::warning('Alerta sin destinatarios: nadie cumple la condición en la UO', [
                     'alerta_id' => $alerta->id,
                     'rol' => $alerta->destinatario_rol,
                     'uo_id' => $alerta->destinatario_uo_id,
@@ -136,7 +140,9 @@ class AlertaService
      *
      * - Destinatario pendiente → escalada al supervisor (nunca a sí mismo);
      *   si no hay otro supervisor activo, vencida y aviso en el log.
-     * - Destinatario ya escalado → vencida: no hay segundo nivel de escalada.
+     * - Destinatario ya escalado → sin cambios: no hay segundo nivel de
+     *   escalada y el supervisor no tiene plazo (decisión de 2026-09-26);
+     *   la parte sigue abierta hasta que la cierra (`cerrarEscalada()`).
      *
      * @param Alerta $alerta Alerta vencida.
      * @return void
@@ -144,12 +150,6 @@ class AlertaService
     public function escalar(Alerta $alerta): void
     {
         DB::transaction(function () use ($alerta): void {
-            // Primero las ya escaladas, para no vencer en esta misma llamada
-            // las que se escalan a continuación.
-            $alerta->destinatarios()
-                ->where('estado', EstadoAlerta::Escalada)
-                ->update(['estado' => EstadoAlerta::Vencida, 'updated_at' => now()]);
-
             foreach ($alerta->destinatarios()->pendientes()->get() as $destinatario) {
                 $this->escalarDestinatario($alerta, $destinatario);
             }
@@ -159,25 +159,108 @@ class AlertaService
     }
 
     /**
-     * Resuelve qué usuarios son destinatarios reales de una alerta rol_uo.
+     * Crea un aviso del supervisor para todo su equipo (quienes tienen
+     * adscripción vigente en la UO, salvo él). Sin plazo ni escalada; cada
+     * miembro lo descarta por su cuenta y no admite respuesta.
      *
-     * @param Alerta $alerta Alerta dirigida a un rol en una UO.
+     * @param User $supervisor Supervisor que envía el aviso.
+     * @param UnidadOrganizativa $uo UO del equipo; debe ser la del supervisor.
+     * @param string $titulo Título del aviso.
+     * @param string $cuerpo Texto del aviso.
+     * @return Alerta
+     *
+     * @throws UnauthorizedException Si no tiene el rol de supervisión o la UO no es la suya.
+     */
+    public function crearAvisoSupervisor(User $supervisor, UnidadOrganizativa $uo, string $titulo, string $cuerpo): Alerta
+    {
+        if (! $supervisor->hasRole('supervision')) {
+            throw UnauthorizedException::noEsSupervisor($supervisor->id);
+        }
+
+        // Solo a su propia UO: adscripción vigente, sin extenderse a UO hijas.
+        if (! $supervisor->adscripcionesVigentes()->where('unidad_organizativa_id', $uo->id)->exists()) {
+            throw UnauthorizedException::uoAjena($supervisor->id, $uo->id);
+        }
+
+        return $this->crear([
+            'tipo' => TipoAlerta::Aviso,
+            'origen_type' => self::ORIGEN_SUPERVISOR,
+            'origen_id' => $supervisor->id,
+            'titulo' => $titulo,
+            'cuerpo' => $cuerpo,
+            'destinatario_type' => DestinatarioType::Uo,
+            'destinatario_uo_id' => $uo->id,
+        ]);
+    }
+
+    /**
+     * Cierra una parte escalada («Cerrar alerta»). Solo puede hacerlo el
+     * supervisor al que se escaló; no tiene plazo.
+     *
+     * @param AlertaDestinatario $destinatario Parte escalada.
+     * @param User $supervisor Supervisor que la cierra.
+     * @param string $ipAddress IP de origen.
+     * @return AlertaReconocimiento
+     *
+     * @throws LogicException Si la parte no está escalada a este supervisor.
+     */
+    public function cerrarEscalada(AlertaDestinatario $destinatario, User $supervisor, string $ipAddress): AlertaReconocimiento
+    {
+        return DB::transaction(function () use ($destinatario, $supervisor, $ipAddress): AlertaReconocimiento {
+            // Actualización condicionada: solo si sigue escalada a este supervisor.
+            $actualizadas = AlertaDestinatario::whereKey($destinatario->id)
+                ->where('estado', EstadoAlerta::Escalada)
+                ->where('escalada_a_usuario_id', $supervisor->id)
+                ->update(['estado' => EstadoAlerta::Reconocida, 'atendida_en' => now(), 'updated_at' => now()]);
+
+            if ($actualizadas === 0) {
+                throw new LogicException("La parte {$destinatario->id} no está escalada al usuario {$supervisor->id}.");
+            }
+
+            $evento = AlertaReconocimiento::create([
+                'alerta_id' => $destinatario->alerta_id,
+                'alerta_destinatario_id' => $destinatario->id,
+                'usuario_id' => $supervisor->id,
+                'tipo' => TipoReconocimiento::Cerrada,
+                'reconocida_en' => now(),
+                'ip_address' => $ipAddress,
+            ]);
+
+            $this->recalcularEstado($destinatario->alerta);
+
+            return $evento;
+        });
+    }
+
+    /**
+     * Resuelve qué usuarios forman el colectivo de una alerta `rol_uo` o `uo`
+     * en este momento. En los avisos del supervisor no se incluye al remitente.
+     *
+     * @param Alerta $alerta Alerta dirigida a un colectivo.
      * @return Collection<int, User>
      */
     public function resolverDestinatarios(Alerta $alerta): Collection
     {
-        if ($alerta->destinatario_type !== DestinatarioType::RolUo) {
+        if ($alerta->destinatario_type === DestinatarioType::Usuario) {
             return collect();
         }
 
         // El filtro de vigencia va agrupado: un orWhere suelto dentro de
         // whereHas anula la condición de UO y la correlación con el usuario.
-        return User::whereHas('adscripciones', function ($query) use ($alerta) {
+        $consulta = User::whereHas('adscripciones', function ($query) use ($alerta) {
             $query->where('unidad_organizativa_id', $alerta->destinatario_uo_id)
                 ->vigentes();
-        })
-            ->role($alerta->destinatario_rol)
-            ->get();
+        });
+
+        if ($alerta->destinatario_type === DestinatarioType::RolUo) {
+            $consulta->role($alerta->destinatario_rol);
+        }
+
+        if ($alerta->origen_type === self::ORIGEN_SUPERVISOR) {
+            $consulta->where('id', '!=', $alerta->origen_id);
+        }
+
+        return $consulta->get();
     }
 
     // -------------------------------------------------------------------------
@@ -273,7 +356,7 @@ class AlertaService
      */
     private function resolverUoDelDestinatario(Alerta $alerta, int $destinatarioId): ?UnidadOrganizativa
     {
-        if ($alerta->destinatario_type === DestinatarioType::RolUo) {
+        if ($alerta->destinatario_type !== DestinatarioType::Usuario) {
             return $alerta->destinatarioUo;
         }
 

@@ -8,6 +8,7 @@ use Livewire\Component;
 use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Models\Cita;
 use Modules\Centro\Models\Centro;
+use Modules\Mensajes\Models\AlertaDestinatario;
 use Modules\Mensajes\Services\ContadoresBandejaService;
 use Modules\Organizacion\Models\Configuracion;
 use Modules\Organizacion\Services\ConfiguracionService;
@@ -23,6 +24,7 @@ use Modules\Supervision\Services\SupervisionSidebarDataService;
  * configuración del centro. Se actualiza cada 60 segundos.
  *
  * @property array{alertas: int, avisos: int, mensajes: int} $contadoresBandeja
+ * @property int $escaladasAbiertas
  * @property int $aprobacionesPendientes
  * @property int $citasPendientesBadge
  * @property bool $tienePlazas
@@ -42,6 +44,21 @@ class Sidebar extends Component
         }
 
         return app(ContadoresBandejaService::class)->para(auth()->user());
+    }
+
+    /**
+     * Partes de alertas escaladas al supervisor que aún no ha cerrado.
+     *
+     * @return int
+     */
+    #[Computed]
+    public function escaladasAbiertas(): int
+    {
+        if (! auth()->check()) {
+            return 0;
+        }
+
+        return AlertaDestinatario::escaladasA(auth()->user())->count();
     }
 
     /**

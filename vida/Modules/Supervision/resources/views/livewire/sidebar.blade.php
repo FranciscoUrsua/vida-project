@@ -17,6 +17,18 @@
             'contadores' => $this->contadoresBandeja,
         ])
 
+        <a href="{{ route('supervision.control-alertas') }}"
+           class="op-nav-item {{ request()->routeIs('supervision.control-alertas') ? 'activo' : '' }}"
+           aria-current="{{ request()->routeIs('supervision.control-alertas') ? 'page' : 'false' }}">
+            <x-heroicon-o-shield-exclamation class="op-nav-icon icon-18" aria-hidden="true"/>
+            <span>Control de alertas</span>
+            @if($this->escaladasAbiertas > 0)
+                <span class="op-nav-badge alerta">
+                    {{ $this->escaladasAbiertas }}<span class="visually-hidden"> escaladas sin cerrar</span>
+                </span>
+            @endif
+        </a>
+
         <a href="{{ route('supervision.cuadrante') }}"
            class="op-nav-item {{ request()->routeIs('supervision.cuadrante', 'agenda.cuadrante') ? 'activo' : '' }}"
            aria-current="{{ request()->routeIs('supervision.cuadrante', 'agenda.cuadrante') ? 'page' : 'false' }}">

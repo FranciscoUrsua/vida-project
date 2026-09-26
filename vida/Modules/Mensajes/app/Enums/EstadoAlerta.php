@@ -7,8 +7,11 @@ namespace Modules\Mensajes\Enums;
  *
  * pendiente  → reconocida (fin)
  * pendiente  → escalada (si vence el plazo de reconocimiento)
- * escalada   → reconocida (por el supervisor)
- * escalada   → vencida (si el supervisor tampoco reconoce en plazo)
+ * escalada   → reconocida (el supervisor la cierra; no tiene plazo)
+ * pendiente  → vencida (si vence el plazo y no hay supervisor al que escalar)
+ *
+ * Se aplica a cada destinatario (`alerta_destinatarios`); el estado de la
+ * alerta es el resumen de los de sus destinatarios.
  */
 enum EstadoAlerta: string
 {
