@@ -5,9 +5,7 @@ namespace Modules\Mensajes\Providers;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
-use Modules\Mensajes\Http\Livewire\BuzonPage;
 use Modules\Mensajes\Jobs\EscalarAlertasVencidasJob;
-use Modules\Mensajes\Livewire\BadgeNotificaciones;
 use Modules\Mensajes\Livewire\BandejaAlertas;
 use Modules\Mensajes\Livewire\BandejaMensajes;
 use Modules\Mensajes\Livewire\HiloMensajes;
@@ -46,8 +44,6 @@ class MensajesServiceProvider extends ServiceProvider
         $this->loadViewsFrom(module_path($this->moduleName, 'resources/views'), 'mensajes');
 
         // Registrar componentes Livewire del módulo
-        Livewire::component('mensajes.buzon-page', BuzonPage::class);
-        Livewire::component('mensajes-badge-notificaciones', BadgeNotificaciones::class);
         Livewire::component('mensajes-bandeja-alertas', BandejaAlertas::class);
         Livewire::component('mensajes-bandeja-mensajes', BandejaMensajes::class);
         Livewire::component('mensajes-hilo-mensajes', HiloMensajes::class);

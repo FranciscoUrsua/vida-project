@@ -12,6 +12,11 @@
             <span>Inicio</span>
         </a>
 
+        @include('mensajes::partials.nav-bandeja', [
+            'ruta' => 'supervision.bandeja',
+            'contadores' => $this->contadoresBandeja,
+        ])
+
         <a href="{{ route('supervision.cuadrante') }}"
            class="op-nav-item {{ request()->routeIs('supervision.cuadrante', 'agenda.cuadrante') ? 'activo' : '' }}"
            aria-current="{{ request()->routeIs('supervision.cuadrante', 'agenda.cuadrante') ? 'page' : 'false' }}">

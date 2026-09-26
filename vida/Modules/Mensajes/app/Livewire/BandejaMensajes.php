@@ -5,6 +5,7 @@ namespace Modules\Mensajes\Livewire;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Modules\Mensajes\Models\MensajeParticipante;
 use Modules\Mensajes\Services\MensajeriaService;
@@ -85,6 +86,19 @@ class BandejaMensajes extends Component
     {
         $this->mostrarNuevoMensaje = true;
         $this->hiloActivoId = null;
+    }
+
+    /**
+     * Abre la conversación recién creada desde el formulario de mensaje nuevo.
+     *
+     * @param int $hiloId ID del hilo creado.
+     * @return void
+     */
+    #[On('hilo-creado')]
+    public function hiloCreado(int $hiloId): void
+    {
+        unset($this->hilos);
+        $this->abrirHilo($hiloId);
     }
 
     /**

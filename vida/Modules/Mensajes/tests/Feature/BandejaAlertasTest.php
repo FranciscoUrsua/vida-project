@@ -92,7 +92,7 @@ class BandejaAlertasTest extends TestCase
         ]);
 
         Livewire::actingAs($usuario)
-            ->test(BandejaAlertas::class)
+            ->test(BandejaAlertas::class, ['tipo' => 'aviso'])
             ->assertSee('Aviso para rol UO');
     }
 
@@ -136,7 +136,7 @@ class BandejaAlertasTest extends TestCase
     }
 
     /**
-     * T-LW-05 — Las alertas se ordenan por urgencia: alertas con vencimiento antes que avisos.
+     * T-LW-05 — Las alertas se ordenan por vencimiento; los avisos van en su propia pestaña.
      */
     #[Test]
     public function t_lw_05_alertas_ordenadas_por_urgencia(): void
@@ -176,7 +176,8 @@ class BandejaAlertasTest extends TestCase
         ])->update(['expira_en' => now()->addHour()]);
 
         Livewire::actingAs($usuario)
-            ->test(BandejaAlertas::class)
-            ->assertSeeInOrder(['ALERTA 1H', 'ALERTA 3H', 'AVISO SIN VTO']);
+            ->test(BandejaAlertas::class, ['tipo' => 'alerta'])
+            ->assertSeeInOrder(['ALERTA 1H', 'ALERTA 3H'])
+            ->assertDontSee('AVISO SIN VTO');
     }
 }

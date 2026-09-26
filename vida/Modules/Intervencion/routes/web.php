@@ -10,7 +10,7 @@ use Modules\Intervencion\Http\Livewire\RecursosPage;
 use Modules\Intervencion\Http\Livewire\RegistrarEscalaPage;
 use Modules\Intervencion\Http\Livewire\RegistrarValoracionPage;
 use Modules\Intervencion\Http\Livewire\VerFichaPage;
-use Modules\Mensajes\Http\Livewire\BuzonPage;
+use Modules\Mensajes\Http\Livewire\BandejaAlertasYMensajes;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +30,9 @@ Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion'])->prefix('in
     Route::get('/agenda', AgendaPage::class)->name('agenda.index');
     Route::get('/recursos', RecursosPage::class)->name('recursos.index');
     Route::get('/casos', MisCasosPage::class)->name('casos.index');
-    Route::get('/mensajes', BuzonPage::class)->name('mensajes.index');
+    Route::get('/mensajes/{pestana?}', BandejaAlertasYMensajes::class)
+        ->whereIn('pestana', ['alertas', 'avisos', 'mensajes'])
+        ->name('mensajes.index');
     Route::get('/buscar', BuscarCiudadanoPage::class)->name('buscar.index');
     Route::get('/ciudadano/{historia}', CiudadanoPage::class)
         ->name('ciudadano.show')

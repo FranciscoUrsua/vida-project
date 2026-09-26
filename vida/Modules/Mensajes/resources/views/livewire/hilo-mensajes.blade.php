@@ -10,11 +10,10 @@
             @php $esMio = $mensaje->remitente_id === auth()->id(); @endphp
 
             <div class="mb-3 d-flex {{ $esMio ? 'justify-content-end' : 'justify-content-start' }}">
-                <div class="card {{ $esMio ? 'bg-primary text-white' : 'bg-light' }}"
-                     class="mensajes-hilo__bubble">
+                <div class="card mensajes-hilo__bubble {{ $esMio ? 'bg-primary text-white' : 'bg-light' }}">
                     <div class="card-body py-2 px-3">
                         <div class="small {{ $esMio ? 'text-white-50' : 'text-muted' }} mb-1">
-                            {{ $mensaje->remitente->name }} · {{ $mensaje->created_at->format('d/m H:i') }}
+                            {{ $mensaje->remitente->nombre_completo }} · {{ $mensaje->created_at->format('d/m H:i') }}
                         </div>
                         <p class="mb-1">{{ $mensaje->cuerpo }}</p>
 

@@ -6,7 +6,7 @@
 
 ## Tarea completada
 
-**Mensajes: reconocimiento por destinatario** (decisión del desarrollador). Cada destinatario de una alerta o aviso a un colectivo la reconoce por su cuenta; la escalada también es por destinatario. Antes, en la misma fecha: paso 1 del plan (fallos previos y adjuntos). Detalle en `CHANGELOG-092026.md`.
+**Mensajes, paso 2: bandeja unificada.** Tres entradas de menú (Alertas, Avisos, Mensajes) que abren `BandejaAlertasYMensajes` con la pestaña correspondiente, en Intervención y en Supervisión. Además, `HiloMensajes` ya no deja leer hilos ajenos. Antes, en la misma fecha: paso 1 y reconocimiento por destinatario. Detalle en `CHANGELOG-092026.md`.
 
 ---
 
@@ -22,7 +22,7 @@
 - **Servidor de pruebas preparado para la custodia** (2026-09-25): `/srv/vida/documentos` (www-data, 0700), `DOCUMENTOS_RUTA` y `DOCUMENTOS_CLAVE_MAESTRA` en el `.env` de staging, y clamd activo (`/var/run/clamav/clamd.ctl`). El `.env` **local** no tiene variables `DOCUMENTOS_*`: en local la custodia falla hasta que se añadan.
 - **Código de staging** (`/var/www/vida-project/vida`): se despliega solo con cada push a `master` (job `deploy` de `.github/workflows/ci.yml`, tras pasar `test`). No hace falta desplegar a mano.
 - **Tests:**
-  - `Modules/Mensajes/tests`: 74 passed, 1 failed (`t_lw_09`, ya existente; ver BACKLOG).
+  - `Modules/Mensajes/tests`: 81 passed, 1 failed (`t_lw_09`, ya existente; ver BACKLOG).
   - `Modules/Documentos`: 88 passed (unos 190 s: cada ingesta pasa por Ghostscript).
   - **Suite completa** (2026-09-25, unos 20 min): 908 passed y 76 failed, 75 de ellos fuera de Documentos (sobre todo Agenda) y ya existentes. Ver CHANGELOG y BACKLOG. No lanzar a la vez dos ejecuciones de tests: comparten `vida_testing`.
   - `Modules/Usuarios/tests/`: 63 passed y 1 incomplete (ya existía).
@@ -32,10 +32,10 @@
 
 ## Siguiente paso concreto recomendado
 
-1. **Mensajes, paso 2 del plan: unificar la bandeja.** Convertir `BuzonPage` en `BandejaAlertasYMensajes` usando los subcomponentes (`BandejaAlertas`, `BandejaMensajes`, `HiloMensajes`), que hoy no están colocados en ninguna pantalla. Quitar la lógica duplicada de `BuzonPage`, recibir la pestaña inicial como parámetro y poner tres entradas en el menú (Alertas en rojo, Avisos, Mensajes).
+1. **Revisar en staging la bandeja** con un usuario de intervención y con un coordinador (supervisión + intervención): las tres entradas del menú, los contadores, reconocer una alerta, descartar un aviso y una conversación. Es la primera vez que se ve en navegador.
 2. Mensajes, pasos siguientes:
-   - (3) **Pantalla de control de alertas del supervisor** y envío de avisos a su equipo (`crearAvisoSupervisor()` + `NuevoAvisoSupervisor`). Van juntas por decisión del desarrollador. La base ya existe: `AlertaDestinatario::escaladasA()`. Antes, decidir cómo atiende el supervisor una parte escalada (BACKLOG).
-   - (4) `PanelRedaccion` global, en lugar de `NuevoMensaje` y del modal de `BuzonPage`, y después la fase 8.
+   - (3) **Pantalla de control de alertas del supervisor** y envío de avisos a su equipo (`crearAvisoSupervisor()` + `NuevoAvisoSupervisor`). Encaja como pantalla del interfaz de Supervisión, que ya enlaza la bandeja. Antes, decidir con el desarrollador cómo atiende el supervisor una parte escalada y si tiene plazo propio (BACKLOG).
+   - (4) `PanelRedaccion` global, en lugar de `NuevoMensaje`, y después la fase 8.
    - (5) `AlertaToast`.
    - (6) Llamar a `HistoriaSocialService::obtenerEntradas()` desde la línea de tiempo del ciudadano.
 3. Revisar en staging la tarjeta «Documentos» de la ficha del ciudadano (pendiente de la sesión anterior).
@@ -48,7 +48,7 @@
 
 - **Mensajes, adaptación a las instrucciones nuevas:** `instrucciones-cli-mensajes.md` está escrito como si el módulo fuera nuevo, pero ya existía. Ya cumplen: migraciones, modelos, `HorarioLaboralService`, el job cada 15 min y los recursos Filament (en `app/Filament/Resources/`, no en el módulo, como manda `CLAUDE.md`). Las rutas de las instrucciones (`Modules/Mensajes/Models/`…) no son las del proyecto (`Modules/Mensajes/app/...`). El rol es `supervision`, no «supervisor». Entre fases se pasan solo los tests del módulo, no la suite completa.
 - **Alertas por destinatario:** cada alerta tiene sus filas en `alerta_destinatarios`, fijadas al crearla (directa: una; `rol_uo`: una por cada miembro del colectivo en ese momento). Lo que un usuario tiene por atender = `Alerta::pendientesPara($usuario)`; todo lo que recibió = `visiblesPara()`. No escribir consultas propias. Toda alerta se crea con `AlertaService::crear()`, nunca con `Alerta::create`: sin él no tiene destinatarios (nadie la ve) ni `expira_en` (no escala). En los tests, crear las alertas con el servicio. El `estado` de `alertas` es un resumen que recalcula el servicio.
-- La pantalla operativa real es `BuzonPage` (`intervencion.mensajes.index`, una sola entrada «Alertas y mensajes» en el menú). En los tests de Livewire, un `findOrFail` fallido llega como 404 (`assertNotFound()`), no como excepción.
+- **Bandeja:** `BandejaAlertasYMensajes` (pantalla, pestaña por ruta) → `BandejaAlertas` (`tipo` alerta|aviso) y `BandejaMensajes` → `HiloMensajes` / `NuevoMensaje`. Rutas: `intervencion.mensajes.index` y `supervision.bandeja`, las dos con `{pestana?}`. Las entradas de menú salen del parcial `mensajes::partials.nav-bandeja`, y los contadores, de `ContadoresBandejaService` (no calcularlos en otro sitio). En los tests de Livewire, un `findOrFail` fallido llega como 404 (`assertNotFound()`), no como excepción.
 
 - **Roles desde el backoffice:** todo cambio de roles del formulario de usuarios pasa por `AsignacionRolesService::sincronizar()`, que calcula la diferencia con los roles efectivos y pendientes y asigna o retira por `usuario_rol`. El `UsuarioRolObserver` sincroniza Spatie. No volver a usar `->relationship('roles')` en ese formulario.
 - **Custodia de documentos:** solo `AlmacenFlysystem` toca el disco `documentos`; todo alta pasa por `CicloVidaDocumentoService::altaDocumento()` → `IngestaDocumentoService`. Los tests usan `Storage::fake('documentos')`, la clave de `phpunit.xml`, `DOCUMENTOS_ANTIVIRUS=fake` y el trait `DocumentosTestSetup` (con `assertIngestaRechazada()` / `assertIngestaSinRastro()`). El hash guardado es el del PDF normalizado, no el del fichero subido. Los PDF firmados (canal `generado`) no se sanean. Toda destrucción de contenido pasa por `DestructorVersiones` (primero la clave, después el objeto; se audita como `borrar`). Los documentos solo salen por `DocumentoController`, que autoriza con `DocumentoPolicy` antes de descifrar. Tras Pint, restaurar los `@return` (su configuración los elimina).

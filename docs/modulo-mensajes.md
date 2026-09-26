@@ -126,6 +126,8 @@ El módulo ocupa **tres entradas separadas** en el menú lateral de la aplicaci�
 
 Las tres entradas abren la misma pantalla unificada (componente Livewire `BandejaAlertasYMensajes`) con la pestaña correspondiente ya seleccionada. Esto simplifica la implementación manteniendo la claridad visual de tres puntos de entrada diferenciados.
 
+**Implementación (2026-09-26):** la pantalla está publicada en los dos interfaces operativos, cada uno con su layout y su menú: Intervención (`/intervencion/mensajes/{alertas|avisos|mensajes}`) y Supervisión (`/supervision/bandeja/{...}`). La supervisión se incluyó porque las alertas dirigidas al rol `supervision` no tenían dónde verse. Los contadores del menú salen de `ContadoresBandejaService` y los menús se refrescan cada 60 segundos. Hacen el papel del `BadgeNotificaciones` descrito en las instrucciones, que se ha retirado.
+
 ### 4.2 Notificaciones toast para alertas
 
 Las alertas pendientes de reconocimiento se muestran además como **toast notifications persistentes** en la parte superior de la pantalla. El comportamiento es deliberadamente intrusivo porque la urgencia lo requiere:
@@ -323,7 +325,7 @@ Siguiendo el principio del proyecto (Filament = configuración; Livewire = opera
 - Bandeja de entrada de mensajes: listado de hilos, redacción, respuesta, archivo.
 - Selección de destinatario por nombre o por rol+UO al redactar un mensaje nuevo.
 - Acción de registrar un mensaje en la Historia Social (con editor previo y selector de visibilidad).
-- Indicador permanente de alertas y mensajes no leídos en la barra de navegación (`BadgeNotificaciones`, polling cada 60 segundos).
+- Indicador permanente de alertas, avisos y mensajes pendientes: contadores en las tres entradas del menú lateral (Intervención y Supervisión), con polling cada 60 segundos (sustituye a `BadgeNotificaciones`).
 - Formulario de creación de aviso manual para supervisores (con validación de rol y restricción a subordinados de la propia UO).
 
 ---

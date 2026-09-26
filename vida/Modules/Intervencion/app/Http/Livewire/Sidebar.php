@@ -14,7 +14,7 @@ use Modules\Organizacion\Services\ConfiguracionService;
  *
  * Muestra la navegación principal y badges de conteo.
  * El ítem «Recursos» es condicional: solo visible si el centro tiene plazas configuradas.
- * Se actualiza automáticamente cada 5 minutos mediante wire:poll.
+ * Se actualiza cada 60 segundos mediante wire:poll (contadores de la bandeja).
  *
  * @see docs/instrucciones-cli/ui-intervencion-entrega1.md §2
  */
@@ -23,7 +23,7 @@ class Sidebar extends Component
     /**
      * Contadores para los badges del sidebar.
      *
-     * @return array{alertas: int, mensajes: int, notificaciones: int, casos: int}
+     * @return array{alertas: int, avisos: int, mensajes: int, casos: int}
      */
     #[Computed]
     public function datos(): array

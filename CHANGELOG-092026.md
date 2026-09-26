@@ -4,6 +4,41 @@
 
 ---
 
+## 2026-09-26 — Mensajes: bandeja unificada con tres entradas de menú (paso 2)
+
+### Módulos afectados
+`Modules/Mensajes` (`BandejaAlertasYMensajes` nuevo; `BandejaAlertas`, `BandejaMensajes`, `HiloMensajes`, `ContadoresBandejaService` nuevo, vistas, parcial `partials/nav-bandeja`, provider, tests), `Modules/Intervencion` (rutas, sidebar, `IntervencionSidebarDataService`, tests), `Modules/Supervision` (rutas, sidebar), `resources/views/layouts/supervision.blade.php`, `resources/scss/_op-mensajes.scss`, `docs/modulo-mensajes.md` (§4.1, §7)
+
+### Añadido
+- **`BandejaAlertasYMensajes`**: pantalla única con pestañas Alertas, Avisos y Mensajes (`nav-tabs` de Bootstrap con contador). La pestaña la fija la ruta: `/intervencion/mensajes/{alertas|avisos|mensajes}`, que conserva el nombre `intervencion.mensajes.index`. Cualquier otro valor da 404.
+- **También en Supervisión** (`/supervision/bandeja/{pestana}`, `supervision.bandeja`), con su layout y su menú. Las alertas dirigidas al rol `supervision` (rol asignado, solicitud de acceso protegido) no tenían dónde verse: la bandeja exigía el rol `intervencion`, y el coordinador entra por Supervisión.
+- **Tres entradas de menú** (Alertas, Avisos, Mensajes) en los dos menús laterales, con un parcial compartido. Solo el contador de Alertas va en rojo. Los contadores salen de `ContadoresBandejaService`, el mismo que usan las pestañas. El menú de Intervención pasa a refrescarse cada 60 s (antes cada 5 min).
+- `BandejaAlertas` recibe el tipo (`alerta` o `aviso`), bloqueado con `#[Locked]`. Las alertas se reconocen con confirmación y se ordenan por vencimiento, que se muestra con su fecha. Los avisos se **descartan sin confirmación** (`descartar()`, que rechaza alertas con 403) y los manuales del supervisor llevan la etiqueta «Aviso del supervisor».
+- `BandejaMensajes` muestra el otro participante de cada conversación y abre la conversación recién creada (escucha `hilo-creado`, que nadie escuchaba).
+- **Tests:** `BandejaAlertasYMensajesTest` (TF-MSG-BAN-01 a 13). **Comprobación en negativo:** sin la comprobación de participante o sin `#[Locked]`, fallan BAN-11 y BAN-12.
+
+### Corregido
+- **`HiloMensajes` permitía leer y responder hilos ajenos.** `hiloId` era una propiedad pública que el navegador podía cambiar, y no se comprobaba que el usuario participara. Ahora `hiloId` va con `#[Locked]` y `mount()` exige ser participante (403).
+- La vista del hilo tenía dos atributos `class` en la burbuja, y el segundo se ignoraba.
+
+### Retirado
+- `BuzonPage`: la pantalla anterior, con estilos inline y lógica duplicada, sustituida por la bandeja. También su vista, `BuzonPageTest` (sus casos ya los cubren `BandejaAlertasTest`, `BandejaAlertasYMensajesTest` y los nuevos de navegación) y las clases `mensajes-buzon__*` de `_op-mensajes.scss`.
+- `BadgeNotificaciones`, que no estaba colocado en ninguna pantalla: su función la cumplen los contadores del menú.
+- `IntervencionSidebarDataService`: `totalAlertas()`, `mensajesNoLeidos()` y `totalNotificaciones()` se sustituyen por `ContadoresBandejaService`. `getData()` devuelve `alertas`, `avisos`, `mensajes` y `casos`.
+
+### Decisiones de implementación no previstas
+- Pestañas como enlaces a la ruta (no `wire:click`): así la URL, la entrada activa del menú y el botón «atrás» coinciden con la pestaña.
+- Sin CSS nuevo: Bootstrap (`nav-tabs`, `list-group`, `badge`, `card`) y `op-page`/`op-empty`. Solo quedan en `_op-mensajes.scss` las alturas de scroll de la lista y del hilo, que ya existían.
+- Tests de navegación TF-LW-NAV-09 a 11 reescritos sobre `BandejaMensajes`/`NuevoMensaje`. TF-LW-AGE-13 comprueba las tres entradas en lugar de «Alertas y mensajes».
+- El «Nuevo mensaje» sigue siendo `NuevoMensaje` hasta el paso 4 (`PanelRedaccion`).
+
+### Tests
+- `Modules/Mensajes/tests`: 81 passed, 1 failed (`t_lw_09`, ya existente).
+- `Modules/Supervision/tests`: 35 passed y los 3 fallos ya conocidos. `NavegacionTest`: 23 passed y 1 incomplete. `AgendaPageTest` (Intervención): 14 passed.
+- `Modules/Intervencion/tests` completo: 262 passed, 1 incomplete y 1 failed (`AccesosExpedienteTest`, «acceso de otra UO con acción ver tiene clase sospechoso», ya conocido; ver BACKLOG «Suite completa»).
+
+---
+
 ## 2026-09-26 — Mensajes: reconocimiento por destinatario
 
 ### Módulos afectados

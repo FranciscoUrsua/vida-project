@@ -16,7 +16,7 @@ use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Enums\TipoReconocimiento;
-use Modules\Mensajes\Http\Livewire\BuzonPage;
+use Modules\Mensajes\Livewire\BandejaAlertas;
 use Modules\Mensajes\Models\Alerta;
 use Modules\Mensajes\Models\AlertaDestinatario;
 use Modules\Mensajes\Services\AlertaService;
@@ -168,15 +168,15 @@ class AlertaDestinatariosTest extends TestCase
         $this->assertSame(EstadoAlerta::Reconocida, $alerta->fresh()->estado);
     }
 
-    /** TF-MSG-DEST-05 — Descartar un aviso de colectivo no se lo quita a los demás (también desde el buzón). */
+    /** TF-MSG-DEST-05 — Descartar un aviso de colectivo no se lo quita a los demás (también desde la bandeja). */
     #[Test]
     public function descartar_aviso_no_lo_quita_a_los_demas(): void
     {
         $aviso = $this->crearParaColectivo(TipoAlerta::Aviso);
 
         Livewire::actingAs($this->ts1)
-            ->test(BuzonPage::class)
-            ->call('reconocerAlerta', $aviso->id);
+            ->test(BandejaAlertas::class, ['tipo' => 'aviso'])
+            ->call('descartar', $aviso->id);
 
         $this->assertDatabaseHas('alerta_reconocimientos', [
             'alerta_id' => $aviso->id,
@@ -184,7 +184,7 @@ class AlertaDestinatariosTest extends TestCase
             'tipo' => TipoReconocimiento::Descartada->value,
         ]);
 
-        $avisosTs2 = Livewire::actingAs($this->ts2)->test(BuzonPage::class)->instance()->avisos;
+        $avisosTs2 = Livewire::actingAs($this->ts2)->test(BandejaAlertas::class, ['tipo' => 'aviso'])->instance()->alertas;
         $this->assertTrue($avisosTs2->contains('id', $aviso->id));
     }
 

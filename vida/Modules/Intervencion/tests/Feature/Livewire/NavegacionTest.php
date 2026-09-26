@@ -18,7 +18,8 @@ use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
-use Modules\Mensajes\Http\Livewire\BuzonPage;
+use Modules\Mensajes\Livewire\BandejaMensajes;
+use Modules\Mensajes\Livewire\NuevoMensaje;
 use Modules\Mensajes\Models\MensajeHilo;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
@@ -258,24 +259,24 @@ class NavegacionTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
-    // Modal nuevo mensaje — TF-LW-NAV-09 a TF-LW-NAV-11
+    // Mensaje nuevo desde la bandeja — TF-LW-NAV-09 a TF-LW-NAV-11
     // -------------------------------------------------------------------------
 
     /**
-     * TF-LW-NAV-09 — abrirModalNuevoMensaje establece modalNuevoMensaje = true.
+     * TF-LW-NAV-09 — «Nuevo mensaje» abre el formulario en la pestaña Mensajes.
      */
     #[Test]
     public function abrir_modal_nuevo_mensaje_abre_el_modal(): void
     {
         Livewire::actingAs($this->usuario)
-            ->test(BuzonPage::class)
-            ->assertSet('modalNuevoMensaje', false)
-            ->call('abrirModalNuevoMensaje')
-            ->assertSet('modalNuevoMensaje', true);
+            ->test(BandejaMensajes::class)
+            ->assertSet('mostrarNuevoMensaje', false)
+            ->call('nuevaMensaje')
+            ->assertSet('mostrarNuevoMensaje', true);
     }
 
     /**
-     * TF-LW-NAV-10 — enviarMensaje() con datos validos crea un hilo y un mensaje.
+     * TF-LW-NAV-10 — Enviar el formulario con datos válidos crea un hilo y un mensaje.
      */
     #[Test]
     public function enviar_mensaje_crea_hilo_y_mensaje(): void
@@ -289,13 +290,13 @@ class NavegacionTest extends TestCase
         ]);
 
         Livewire::actingAs($this->usuario)
-            ->test(BuzonPage::class)
+            ->test(NuevoMensaje::class)
             ->set('destinatarioId', $destinatario->id)
             ->set('asunto', 'Prueba de asunto del mensaje')
             ->set('cuerpo', 'Cuerpo de prueba del mensaje enviado.')
-            ->call('enviarMensaje')
+            ->call('enviar')
             ->assertHasNoErrors()
-            ->assertSet('modalNuevoMensaje', false);
+            ->assertDispatched('hilo-creado');
 
         // Verificar que se crea el hilo en BD
         $this->assertDatabaseHas('mensajes_hilos', [
@@ -317,17 +318,17 @@ class NavegacionTest extends TestCase
     }
 
     /**
-     * TF-LW-NAV-11 — enviarMensaje() con destinatarioId vacio no crea el hilo (falla validacion).
+     * TF-LW-NAV-11 — Sin destinatario no se crea el hilo (falla la validación).
      */
     #[Test]
     public function enviar_mensaje_sin_destinatario_falla_validacion(): void
     {
         Livewire::actingAs($this->usuario)
-            ->test(BuzonPage::class)
+            ->test(NuevoMensaje::class)
             ->set('destinatarioId', null)
             ->set('asunto', 'Asunto de prueba')
             ->set('cuerpo', 'Cuerpo de prueba del mensaje.')
-            ->call('enviarMensaje')
+            ->call('enviar')
             ->assertHasErrors(['destinatarioId']);
 
         // No debe haberse creado ningun hilo

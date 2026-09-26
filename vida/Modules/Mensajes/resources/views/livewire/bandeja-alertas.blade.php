@@ -1,68 +1,58 @@
-{{-- Bandeja de alertas del profesional --}}
+{{-- Pestaña de alertas o avisos de la bandeja --}}
 <div>
-    <h2 class="mb-4">Alertas pendientes</h2>
-
     @if($this->alertas->isEmpty())
-        <div class="alert alert-success">
-            <x-heroicon-o-check-circle class="me-2 icon-14"/>No tienes alertas pendientes.
+        <div class="op-empty">
+            <x-heroicon-o-check-circle class="op-empty__icon" aria-hidden="true"/>
+            <p class="op-empty__text">
+                {{ $tipo === 'alerta' ? 'No tienes alertas pendientes.' : 'No tienes avisos pendientes.' }}
+            </p>
         </div>
     @else
-        <div class="list-group">
+        <ul class="list-group">
             @foreach($this->alertas as $alerta)
-                <div class="list-group-item list-group-item-action
-                    {{ $alerta->tipo->value === 'alerta' ? 'border-warning' : '' }}">
-
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="flex-grow-1">
-                            {{-- Indicador de tipo --}}
-                            @if($alerta->tipo->value === 'alerta')
-                                <span class="badge bg-warning text-dark me-2">
-                                    <x-heroicon-s-exclamation-triangle class="icon-14"/> Alerta
-                                </span>
-                            @else
-                                <span class="badge bg-info me-2">
-                                    <x-heroicon-o-information-circle class="icon-14"/> Aviso
-                                </span>
+                <li class="list-group-item d-flex justify-content-between align-items-start gap-3 py-3" wire:key="alerta-{{ $alerta->id }}">
+                    <div class="flex-grow-1">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                            @if($alerta->origen_type === \Modules\Mensajes\Livewire\BandejaAlertas::ORIGEN_SUPERVISOR)
+                                <span class="badge rounded-pill text-bg-primary">Aviso del supervisor</span>
                             @endif
-
-                            <strong>{{ $alerta->titulo }}</strong>
-
-                            {{-- Tiempo restante para alertas con plazo --}}
-                            @if($alerta->expira_en)
-                                <small class="text-muted ms-2">
-                                    Vence: {{ $alerta->expira_en->diffForHumans() }}
-                                </small>
-                            @endif
-
-                            <p class="mt-2 mb-1">{{ $alerta->cuerpo }}</p>
+                            <span class="fw-semibold">{{ $alerta->titulo }}</span>
                         </div>
 
-                        <div class="ms-3 d-flex flex-column gap-2">
-                            @if($alerta->tipo->value === 'alerta')
-                                @if($alertaConfirmandoId === $alerta->id)
-                                    <span class="text-muted small">¿Confirmar reconocimiento?</span>
-                                    <button wire:click="reconocer" class="btn btn-sm btn-success">
-                                        Sí, reconocer
-                                    </button>
-                                    <button wire:click="cancelarReconocimiento" class="btn btn-sm btn-secondary">
-                                        Cancelar
-                                    </button>
-                                @else
-                                    <button wire:click="confirmarReconocimiento({{ $alerta->id }})"
-                                            class="btn btn-sm btn-outline-success">
-                                        <x-heroicon-o-check class="icon-14"/> Reconocer
-                                    </button>
-                                @endif
+                        <p class="mb-1">{{ $alerta->cuerpo }}</p>
+
+                        @if($alerta->expira_en)
+                            <small class="{{ $alerta->expira_en->isPast() ? 'text-danger fw-semibold' : 'text-body-secondary' }} d-inline-flex align-items-center gap-1">
+                                <x-heroicon-o-clock class="icon-14" aria-hidden="true"/>
+                                {{ $alerta->expira_en->isPast() ? 'Plazo vencido' : 'Vence '.$alerta->expira_en->diffForHumans() }}
+                                ({{ $alerta->expira_en->format('d/m/Y H:i') }})
+                            </small>
+                        @else
+                            <small class="text-body-secondary">{{ $alerta->created_at->format('d/m/Y H:i') }}</small>
+                        @endif
+                    </div>
+
+                    <div class="d-flex flex-column align-items-end gap-2 flex-shrink-0">
+                        @if($tipo === 'alerta')
+                            @if($alertaConfirmandoId === $alerta->id)
+                                <span class="small text-body-secondary">¿Confirmas que la has leído?</span>
+                                <div class="d-flex gap-2">
+                                    <button type="button" wire:click="cancelarReconocimiento" class="btn btn-sm btn-outline-secondary">Cancelar</button>
+                                    <button type="button" wire:click="reconocer" class="btn btn-sm btn-primary">Sí, reconocer</button>
+                                </div>
                             @else
-                                <button wire:click="confirmarReconocimiento({{ $alerta->id }})"
-                                        class="btn btn-sm btn-outline-secondary">
-                                    <x-heroicon-o-x-mark class="icon-14"/> Descartar
+                                <button type="button" wire:click="confirmarReconocimiento({{ $alerta->id }})" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
+                                    <x-heroicon-o-check class="icon-14" aria-hidden="true"/> Reconocer
                                 </button>
                             @endif
-                        </div>
+                        @else
+                            <button type="button" wire:click="descartar({{ $alerta->id }})" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1">
+                                <x-heroicon-o-x-mark class="icon-14" aria-hidden="true"/> Descartar
+                            </button>
+                        @endif
                     </div>
-                </div>
+                </li>
             @endforeach
-        </div>
+        </ul>
     @endif
 </div>

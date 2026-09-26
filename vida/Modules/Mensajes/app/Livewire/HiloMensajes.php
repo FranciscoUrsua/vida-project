@@ -6,6 +6,7 @@ use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Modules\Mensajes\Enums\VisibilidadMensaje;
 use Modules\Mensajes\Models\Mensaje;
@@ -22,6 +23,8 @@ use Modules\Mensajes\Services\MensajeriaService;
  */
 class HiloMensajes extends Component
 {
+    /** Hilo abierto. Bloqueado: si el navegador pudiera cambiarlo, leería hilos ajenos. */
+    #[Locked]
     public int $hiloId;
 
     public string $respuesta = '';
@@ -46,10 +49,14 @@ class HiloMensajes extends Component
     {
         abort_unless(auth()->check(), 401);
 
+        $hilo = MensajeHilo::findOrFail($hiloId);
+
+        // Solo los participantes pueden abrir el hilo.
+        abort_unless($hilo->tieneParticipante(auth()->id()), 403);
+
         $this->hiloId = $hiloId;
 
         // Marcar como leído al abrir
-        $hilo = MensajeHilo::findOrFail($hiloId);
         app(MensajeriaService::class)->marcarComoLeido($hilo, auth()->user());
     }
 

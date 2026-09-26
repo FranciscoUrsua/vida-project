@@ -270,7 +270,7 @@ class AgendaPageTest extends TestCase
     }
 
     /**
-     * TF-LW-AGE-13 — El sidebar contiene los cuatro ítems de navegación.
+     * TF-LW-AGE-13 — El sidebar contiene los ítems de navegación (la bandeja en tres entradas).
      */
     #[Test]
     public function sidebar_contiene_cuatro_items_de_navegacion(): void
@@ -281,7 +281,9 @@ class AgendaPageTest extends TestCase
             ->get('/intervencion/agenda')
             ->assertSee('Agenda')
             ->assertSee('Mis casos')
-            ->assertSee('Alertas y mensajes')
+            ->assertSee('Alertas')
+            ->assertSee('Avisos')
+            ->assertSee('Mensajes')
             ->assertSee('Buscar ciudadano');
     }
 

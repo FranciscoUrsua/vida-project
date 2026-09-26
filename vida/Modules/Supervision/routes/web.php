@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Mensajes\Http\Livewire\BandejaAlertasYMensajes;
 use Modules\Supervision\Http\Livewire\ActividadesPage;
 use Modules\Supervision\Http\Livewire\AprobacionesPage;
 use Modules\Supervision\Http\Livewire\AuditoriaPage;
@@ -23,6 +24,9 @@ use Modules\Supervision\Http\Livewire\PlazasPage;
 Route::middleware(['web', 'auth', 'role:supervision'])->prefix('supervision')->name('supervision.')->group(function () {
     Route::redirect('/', '/supervision/inicio');
     Route::get('/inicio', InicioPage::class)->name('inicio');
+    Route::get('/bandeja/{pestana?}', BandejaAlertasYMensajes::class)
+        ->whereIn('pestana', ['alertas', 'avisos', 'mensajes'])
+        ->name('bandeja');
     Route::get('/cuadrante', CuadrantePage::class)->name('cuadrante');
     Route::get('/actividades', ActividadesPage::class)->name('actividades');
     Route::get('/actividades/{id}', ActividadesPage::class)->name('actividades.detalle');

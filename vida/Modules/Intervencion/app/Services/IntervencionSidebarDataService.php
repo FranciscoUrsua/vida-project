@@ -4,58 +4,17 @@ namespace Modules\Intervencion\Services;
 
 use Illuminate\Support\Facades\Auth;
 use Modules\Intervencion\Models\AsignacionProfesional;
-use Modules\Mensajes\Models\Alerta;
-use Modules\Mensajes\Models\MensajeParticipante;
+use Modules\Mensajes\Services\ContadoresBandejaService;
 
 /**
  * Servicio de datos para el sidebar del interfaz operativo de Intervención.
  *
  * Proporciona los contadores para los badges del sidebar:
- * - Total de alertas y avisos pendientes visibles para el usuario
- * - Total de mensajes no leídos
+ * - Alertas, avisos y mensajes pendientes (los mismos que la bandeja)
  * - Número de ciudadanos con plan activo asignados al profesional
  */
 class IntervencionSidebarDataService
 {
-    /**
-     * Número de alertas y avisos pendientes visibles para el usuario autenticado:
-     * los directos y los dirigidos a su rol en su UO.
-     *
-     * @return int
-     */
-    public function totalAlertas(): int
-    {
-        if (! Auth::check()) {
-            return 0;
-        }
-
-        return Alerta::pendientesPara(Auth::user())->count();
-    }
-
-    /**
-     * Número de mensajes no leídos del usuario autenticado.
-     */
-    public function mensajesNoLeidos(): int
-    {
-        if (! Auth::check()) {
-            return 0;
-        }
-
-        return MensajeParticipante::where('usuario_id', Auth::id())
-            ->whereNull('archivado_en')
-            ->get()
-            ->sum(fn (MensajeParticipante $p) => $p->mensajesNoLeidos());
-    }
-
-    /**
-     * Total de notificaciones (alertas + mensajes no leídos).
-     * Usado para el badge del ítem "Alertas y mensajes".
-     */
-    public function totalNotificaciones(): int
-    {
-        return $this->totalAlertas() + $this->mensajesNoLeidos();
-    }
-
     /**
      * Número de historias sociales asignadas al profesional con asignación vigente.
      * Usado para el badge del ítem "Mis casos".
@@ -73,17 +32,17 @@ class IntervencionSidebarDataService
     }
 
     /**
-     * Devuelve todos los datos del sidebar en un array.
+     * Contadores de los badges del sidebar: los de la bandeja (alertas, avisos
+     * y mensajes, desde ContadoresBandejaService) y los casos asignados.
      *
-     * @return array{alertas: int, mensajes: int, notificaciones: int, casos: int}
+     * @return array{alertas: int, avisos: int, mensajes: int, casos: int}
      */
     public function getData(): array
     {
-        return [
-            'alertas' => $this->totalAlertas(),
-            'mensajes' => $this->mensajesNoLeidos(),
-            'notificaciones' => $this->totalNotificaciones(),
-            'casos' => $this->misCasosCount(),
-        ];
+        $bandeja = Auth::check()
+            ? app(ContadoresBandejaService::class)->para(Auth::user())
+            : ['alertas' => 0, 'avisos' => 0, 'mensajes' => 0];
+
+        return $bandeja + ['casos' => $this->misCasosCount()];
     }
 }

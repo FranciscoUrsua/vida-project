@@ -21,6 +21,8 @@ Módulo: Mensajes
 - **Pantalla de control de alertas del supervisor** (decidida, sin implementar): mostrar las partes escaladas (`AlertaDestinatario::escaladasA()`) y cómo van las alertas de su equipo, junto a (o en) la pantalla de envío de avisos. Falta decidir cómo atiende el supervisor una parte escalada (qué estado final y qué evento se registra).
 - **Las partes escaladas no vencen solas.** El job solo mira las alertas con algún destinatario pendiente; una parte escalada solo pasa a `vencida` si se vuelve a llamar a `escalar()`. Decidir si el supervisor tiene su propio plazo.
 - **Destinatarios que dejan la UO** conservan sus alertas pendientes (los destinatarios se fijan al crear). Revisar si al cerrar una adscripción deben traspasarse o cerrarse.
+- **Bandeja: enlace al contexto de origen** (instrucciones, `BandejaAlertas`): cada alerta debería enlazar a su origen (p. ej. la solicitud de acceso o la asignación de rol) si existe y el usuario puede verlo. No se ha hecho en el paso 2: cada `origen_type` necesita su ruta y su comprobación de permiso.
+- **`Modules/Agenda` tiene un sidebar de supervisor (`agenda.supervisor.sidebar`) registrado que ningún layout usa**: el de Supervisión lo sustituyó. No tiene las entradas de la bandeja; retirarlo si se confirma que está muerto.
 - **`t_lw_09` (`NuevoMensajeTest`) falla desde antes:** la búsqueda de destinatarios por rol y UO no muestra los nombres. `NuevoMensaje` se sustituirá por `PanelRedaccion`: recuperar este caso en sus tests.
 - **Error en `instrucciones-cli-mensajes.md` (tests mínimos):** «17:30 de un día laborable → 09:00 del día siguiente» es incorrecto con 4 horas laborales; lo correcto es 12:00 (lo que ya comprueba T-HLS-04).
 

@@ -14,7 +14,6 @@ use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Enums\TipoReconocimiento;
-use Modules\Mensajes\Http\Livewire\BuzonPage;
 use Modules\Mensajes\Livewire\BandejaAlertas;
 use Modules\Mensajes\Models\Alerta;
 use Modules\Mensajes\Services\AlertaService;
@@ -122,7 +121,7 @@ class AlertasVisiblesTest extends TestCase
         $this->assertFalse(Alerta::visiblesPara($exSupervisor)->whereKey($alerta->id)->exists());
     }
 
-    /** TF-MSG-VIS-03 — El buzón muestra al supervisor las alertas rol_uo de su UO. */
+    /** TF-MSG-VIS-03 — La bandeja muestra al supervisor las alertas rol_uo de su UO. */
     #[Test]
     public function buzon_muestra_alertas_rol_uo_de_la_propia_uo(): void
     {
@@ -130,36 +129,36 @@ class AlertasVisiblesTest extends TestCase
         $ajena = $this->crearAlertaRolUo($this->otraUo);
 
         $alertas = Livewire::actingAs($this->supervisor)
-            ->test(BuzonPage::class)
-            ->set('pestana', 'alertas')
+            ->test(BandejaAlertas::class, ['tipo' => 'alerta'])
             ->instance()->alertas;
 
         $this->assertTrue($alertas->contains('id', $propia->id));
         $this->assertFalse($alertas->contains('id', $ajena->id));
     }
 
-    /** TF-MSG-VIS-04 — El buzón muestra en «Avisos» los avisos rol_uo de la propia UO. */
+    /** TF-MSG-VIS-04 — La pestaña «Avisos» muestra los avisos rol_uo de la propia UO. */
     #[Test]
     public function buzon_muestra_avisos_rol_uo_de_la_propia_uo(): void
     {
         $aviso = $this->crearAlertaRolUo($this->uo, 'supervision', TipoAlerta::Aviso);
 
         $avisos = Livewire::actingAs($this->supervisor)
-            ->test(BuzonPage::class)
-            ->instance()->avisos;
+            ->test(BandejaAlertas::class, ['tipo' => 'aviso'])
+            ->instance()->alertas;
 
         $this->assertTrue($avisos->contains('id', $aviso->id));
     }
 
-    /** TF-MSG-VIS-05 — Reconocer desde el buzón deja constancia de quién y desde qué IP. */
+    /** TF-MSG-VIS-05 — Reconocer desde la bandeja deja constancia de quién y desde qué IP. */
     #[Test]
     public function reconocer_desde_buzon_registra_reconocimiento(): void
     {
         $alerta = $this->crearAlertaRolUo($this->uo);
 
         Livewire::actingAs($this->supervisor)
-            ->test(BuzonPage::class)
-            ->call('reconocerAlerta', $alerta->id);
+            ->test(BandejaAlertas::class, ['tipo' => 'alerta'])
+            ->call('confirmarReconocimiento', $alerta->id)
+            ->call('reconocer');
 
         $this->assertSame(EstadoAlerta::Reconocida, $alerta->fresh()->estado);
         $this->assertDatabaseHas('alerta_reconocimientos', [
@@ -169,16 +168,16 @@ class AlertasVisiblesTest extends TestCase
         ]);
     }
 
-    /** TF-MSG-VIS-06 — Desde el buzón no se puede reconocer una alerta rol_uo de otra UO. */
+    /** TF-MSG-VIS-06 — Desde la pestaña de avisos no se puede descartar un aviso rol_uo de otra UO. */
     #[Test]
     public function buzon_no_reconoce_alerta_rol_uo_de_otra_uo(): void
     {
-        $ajena = $this->crearAlertaRolUo($this->otraUo);
+        $ajena = $this->crearAlertaRolUo($this->otraUo, 'supervision', TipoAlerta::Aviso);
 
         Livewire::actingAs($this->supervisor)
-            ->test(BuzonPage::class)
-            ->call('reconocerAlerta', $ajena->id)
-            ->assertNotFound();
+            ->test(BandejaAlertas::class, ['tipo' => 'aviso'])
+            ->call('descartar', $ajena->id)
+            ->assertForbidden();
 
         $this->assertSame(EstadoAlerta::Pendiente, $ajena->fresh()->estado);
         $this->assertDatabaseMissing('alerta_reconocimientos', ['alerta_id' => $ajena->id]);
@@ -209,7 +208,7 @@ class AlertasVisiblesTest extends TestCase
 
         $this->actingAs($this->supervisor);
 
-        $this->assertSame(1, app(IntervencionSidebarDataService::class)->totalAlertas());
+        $this->assertSame(1, app(IntervencionSidebarDataService::class)->getData()['alertas']);
     }
 
     /** TF-MSG-VIS-09 — resolverDestinatarios no incluye usuarios del mismo rol adscritos a otra UO. */
