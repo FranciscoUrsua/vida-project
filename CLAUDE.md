@@ -188,3 +188,4 @@ Ficheros disponibles:
 | `2026-09-roles-sugeridos-cargo.md` | Roles sugeridos por cargo (`cargo_roles_sugeridos`): pre-relleno del alta de usuario, aviso al cambiar de cargo, asignación de roles por `usuario_rol` con supervisión y seeder inicial; 6 tests (TF-USU-RS-01 a 06) |
 | `documentos-custodia-implementacion.md` | Custodia v2 de documentos: tipos documentales, documento con versiones cifradas, vínculos n:M, tubería de entrada, ciclo de vida, retenciones, destrucción con acta, acceso y auditoría. Implementada el 2026-09-25 (pasos 1 a 9) |
 | `documentos-custodia-tests.md` | 53 tests de la custodia v2 (TF-DOC-26 a 78); hechos todos |
+| `instrucciones-cli-mensajes.md` | Mensajería y alertas: bandeja unificada, toasts de alertas, panel de redacción flotante, avisos de supervisor, sin adjuntos. El módulo ya existía: ver en SESSION el análisis de lo que falta |

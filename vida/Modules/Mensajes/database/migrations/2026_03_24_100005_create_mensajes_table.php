@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Tabla de mensajes individuales dentro de un hilo.
  *
- * Los adjuntos se gestionan a través de spatie/laravel-medialibrary
- * en la colección 'adjuntos_mensaje'.
+ * Los mensajes no tienen adjuntos: los documentos pertenecen a la
+ * Historia Social (decisión de 2026-09).
  *
  * @see docs/modulo-mensajes.md § 4.2
  */

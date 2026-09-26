@@ -46,8 +46,8 @@ class AlertaServiceTest extends TestCase
 
         $this->servicio = new AlertaService(new HorarioLaboralService);
 
-        // Crear roles necesarios para los tests de escalada
-        Role::firstOrCreate(['name' => 'supervisor', 'guard_name' => 'web']);
+        // Rol canónico de supervisión (el antiguo 'supervisor' se renombró)
+        Role::firstOrCreate(['name' => 'supervision', 'guard_name' => 'web']);
     }
 
     private function datosAvisoBásico(array $overrides = []): array
@@ -164,7 +164,7 @@ class AlertaServiceTest extends TestCase
         ]);
 
         // Asignar rol supervisor via Spatie
-        $supervisor->assignRole('supervisor');
+        $supervisor->assignRole('supervision');
 
         $alerta = Alerta::create([
             'tipo' => TipoAlerta::Alerta,

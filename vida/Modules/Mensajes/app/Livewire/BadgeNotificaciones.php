@@ -5,8 +5,6 @@ namespace Modules\Mensajes\Livewire;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
-use Modules\Mensajes\Enums\DestinatarioType;
-use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Models\Alerta;
 use Modules\Mensajes\Models\MensajeParticipante;
 
@@ -24,36 +22,19 @@ class BadgeNotificaciones extends Component
     /** @var int Intervalo de polling en segundos */
     public int $intervalo = 60;
 
-    #[Computed]
     /**
-     * Total de alertas pendientes dirigidas al usuario.
+     * Total de alertas y avisos pendientes visibles para el usuario.
+     *
+     * @return int
      */
+    #[Computed]
     public function totalAlertas(): int
     {
         if (! auth()->check()) {
             return 0;
         }
 
-        $usuario = auth()->user();
-
-        // Alertas directas al usuario
-        $directas = Alerta::where('estado', EstadoAlerta::Pendiente)
-            ->where('destinatario_type', DestinatarioType::Usuario)
-            ->where('destinatario_usuario_id', $usuario->id)
-            ->count();
-
-        // Alertas por rol+UO que corresponden al usuario
-        $porRol = Alerta::where('estado', EstadoAlerta::Pendiente)
-            ->where('destinatario_type', DestinatarioType::RolUo)
-            ->whereHas('destinatarioUo', function ($query) use ($usuario) {
-                $query->whereHas('usuarios', function ($q) use ($usuario) {
-                    $q->where('usuario_id', $usuario->id);
-                });
-            })
-            ->whereIn('destinatario_rol', $usuario->getRoleNames()->all())
-            ->count();
-
-        return $directas + $porRol;
+        return Alerta::visiblesPara(auth()->user())->pendientes()->count();
     }
 
     #[Computed]

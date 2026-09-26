@@ -10,13 +10,12 @@ use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use Modules\Mensajes\Enums\DestinatarioType;
-use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\RolParticipante;
 use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Models\Alerta;
 use Modules\Mensajes\Models\MensajeHilo;
 use Modules\Mensajes\Models\MensajeParticipante;
+use Modules\Mensajes\Services\AlertaService;
 use Modules\Mensajes\Services\MensajeriaService;
 
 /**
@@ -67,33 +66,33 @@ class BuzonPage extends Component
     // -------------------------------------------------------------------------
 
     /**
-     * Alertas (tipo alerta) directas al usuario en estado pendiente.
+     * Alertas (tipo alerta) pendientes visibles para el usuario:
+     * las directas y las dirigidas a su rol en su UO.
      *
      * @return \Illuminate\Database\Eloquent\Collection<int, Alerta>
      */
     #[Computed]
     public function alertas(): \Illuminate\Database\Eloquent\Collection
     {
-        return Alerta::where('tipo', TipoAlerta::Alerta)
-            ->where('estado', EstadoAlerta::Pendiente)
-            ->where('destinatario_type', DestinatarioType::Usuario)
-            ->where('destinatario_usuario_id', Auth::id())
+        return Alerta::visiblesPara(Auth::user())
+            ->pendientes()
+            ->where('tipo', TipoAlerta::Alerta)
             ->orderBy('expira_en')
             ->get();
     }
 
     /**
-     * Avisos (tipo aviso) directos al usuario en estado pendiente.
+     * Avisos (tipo aviso) pendientes visibles para el usuario:
+     * los directos y los dirigidos a su rol en su UO.
      *
      * @return \Illuminate\Database\Eloquent\Collection<int, Alerta>
      */
     #[Computed]
     public function avisos(): \Illuminate\Database\Eloquent\Collection
     {
-        return Alerta::where('tipo', TipoAlerta::Aviso)
-            ->where('estado', EstadoAlerta::Pendiente)
-            ->where('destinatario_type', DestinatarioType::Usuario)
-            ->where('destinatario_usuario_id', Auth::id())
+        return Alerta::visiblesPara(Auth::user())
+            ->pendientes()
+            ->where('tipo', TipoAlerta::Aviso)
             ->latest()
             ->get();
     }
@@ -116,6 +115,8 @@ class BuzonPage extends Component
 
     /**
      * Alerta seleccionada actualmente en la pestaña Alertas/Avisos.
+     *
+     * @return Alerta|null
      */
     #[Computed]
     public function alertaSeleccionada(): ?Alerta
@@ -124,8 +125,7 @@ class BuzonPage extends Component
             return null;
         }
 
-        return Alerta::where('destinatario_usuario_id', Auth::id())
-            ->find($this->itemSeleccionado);
+        return Alerta::visiblesPara(Auth::user())->find($this->itemSeleccionado);
     }
 
     /**
@@ -167,19 +167,24 @@ class BuzonPage extends Component
     }
 
     /**
-     * Reconoce una alerta del usuario autenticado.
-     * Actualiza su estado a 'reconocida' y la retira del listado.
+     * Reconoce (o descarta, si es un aviso) una alerta visible para el usuario
+     * y la retira del listado. Pasa por AlertaService para dejar constancia
+     * de quién la reconoce y desde qué IP.
+     *
+     * @param int $alertaId ID de la alerta.
+     * @param AlertaService $alertaService Servicio de ciclo de vida de alertas.
+     * @return void
      */
-    public function reconocerAlerta(int $alertaId): void
+    public function reconocerAlerta(int $alertaId, AlertaService $alertaService): void
     {
-        $alerta = Alerta::where('destinatario_usuario_id', Auth::id())
-            ->where('destinatario_type', DestinatarioType::Usuario)
+        $alerta = Alerta::visiblesPara(Auth::user())
+            ->pendientes()
             ->findOrFail($alertaId);
 
-        $alerta->update(['estado' => EstadoAlerta::Reconocida]);
+        $alertaService->reconocer($alerta, Auth::user(), request()->ip() ?? '');
 
         $this->itemSeleccionado = null;
-        unset($this->alertas);
+        unset($this->alertas, $this->avisos);
 
         $this->dispatch('alerta-reconocida');
     }

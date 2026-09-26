@@ -5,7 +5,6 @@ namespace Modules\Mensajes\Services;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\User;
-use Illuminate\Http\UploadedFile;
 use Modules\Mensajes\Enums\RolParticipante;
 use Modules\Mensajes\Enums\VisibilidadMensaje;
 use Modules\Mensajes\Exceptions\UnauthorizedException;
@@ -23,16 +22,22 @@ class MensajeriaService
     /**
      * Crea un hilo nuevo y envía el primer mensaje.
      *
+     * Los mensajes no admiten adjuntos: los documentos pertenecen a la
+     * Historia Social y solo se referencian como contexto.
+     *
+     * @param User $remitente Usuario que inicia la conversación.
+     * @param User $destinatario Usuario que recibe el primer mensaje.
+     * @param string $asunto Asunto del hilo.
+     * @param string $cuerpo Cuerpo del primer mensaje.
      * @param int[] $ciudadanoIds IDs de ciudadanos referenciados en el mensaje
-     * @param UploadedFile[] $adjuntos
+     * @return MensajeHilo
      */
     public function crearHilo(
         User $remitente,
         User $destinatario,
         string $asunto,
         string $cuerpo,
-        array $ciudadanoIds = [],
-        array $adjuntos = []
+        array $ciudadanoIds = []
     ): MensajeHilo {
         $hilo = MensajeHilo::create([
             'asunto' => $asunto,
@@ -52,7 +57,7 @@ class MensajeriaService
             'rol' => RolParticipante::Participante,
         ]);
 
-        $this->crearMensaje($hilo, $remitente, $cuerpo, $ciudadanoIds, $adjuntos);
+        $this->crearMensaje($hilo, $remitente, $cuerpo, $ciudadanoIds);
 
         return $hilo->fresh(['participantes', 'mensajes']);
     }
@@ -60,15 +65,14 @@ class MensajeriaService
     /**
      * Añade un mensaje de respuesta a un hilo existente.
      *
-     * @param UploadedFile[] $adjuntos
+     * @param MensajeHilo $hilo Hilo al que se responde.
+     * @param User $remitente Usuario que responde.
+     * @param string $cuerpo Texto de la respuesta.
+     * @return Mensaje
      */
-    public function responder(
-        MensajeHilo $hilo,
-        User $remitente,
-        string $cuerpo,
-        array $adjuntos = []
-    ): Mensaje {
-        return $this->crearMensaje($hilo, $remitente, $cuerpo, [], $adjuntos);
+    public function responder(MensajeHilo $hilo, User $remitente, string $cuerpo): Mensaje
+    {
+        return $this->crearMensaje($hilo, $remitente, $cuerpo, []);
     }
 
     /**
@@ -122,15 +126,15 @@ class MensajeriaService
     // -------------------------------------------------------------------------
 
     /**
+     * Crea el mensaje y sus referencias a ciudadanos.
+     *
      * @param int[] $ciudadanoIds
-     * @param UploadedFile[] $adjuntos
      */
     private function crearMensaje(
         MensajeHilo $hilo,
         User $remitente,
         string $cuerpo,
-        array $ciudadanoIds,
-        array $adjuntos
+        array $ciudadanoIds
     ): Mensaje {
         $mensaje = Mensaje::create([
             'hilo_id' => $hilo->id,
@@ -143,10 +147,6 @@ class MensajeriaService
                 'mensaje_id' => $mensaje->id,
                 'ciudadano_id' => $ciudadanoId,
             ]);
-        }
-
-        foreach ($adjuntos as $adjunto) {
-            $mensaje->addMedia($adjunto)->toMediaCollection('adjuntos_mensaje');
         }
 
         return $mensaje;

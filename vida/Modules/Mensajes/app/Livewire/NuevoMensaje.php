@@ -8,19 +8,17 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Modules\Mensajes\Services\MensajeriaService;
 
 /**
  * Formulario de redacción de un mensaje nuevo.
  *
  * Permite buscar el destinatario por nombre o filtrar por rol y UO.
- * También permite referenciar ciudadanos y adjuntar archivos.
+ * También permite referenciar ciudadanos. No admite adjuntos: los
+ * documentos pertenecen a la Historia Social.
  */
 class NuevoMensaje extends Component
 {
-    use WithFileUploads;
-
     // Destinatario
     public string $busquedaDestinatario = '';
 
@@ -39,9 +37,6 @@ class NuevoMensaje extends Component
     public string $busquedaCiudadano = '';
 
     public array $ciudadanosSeleccionados = [];
-
-    // Adjuntos
-    public array $adjuntos = [];
 
     /**
      * Inicializa la pantalla y exige autenticación.
@@ -167,7 +162,6 @@ class NuevoMensaje extends Component
             ],
             'asunto' => 'required|string|max:255',
             'cuerpo' => 'required|string|max:10000',
-            'adjuntos.*' => 'file|max:10240',
         ]);
 
         $destinatario = User::findOrFail($this->destinatarioId);
@@ -178,12 +172,11 @@ class NuevoMensaje extends Component
             asunto: $this->asunto,
             cuerpo: $this->cuerpo,
             ciudadanoIds: $this->ciudadanosSeleccionados,
-            adjuntos: $this->adjuntos,
         );
 
         $this->dispatch('hilo-creado', hiloId: $hilo->id);
 
-        $this->reset(['asunto', 'cuerpo', 'destinatarioId', 'ciudadanosSeleccionados', 'adjuntos']);
+        $this->reset(['asunto', 'cuerpo', 'destinatarioId', 'ciudadanosSeleccionados']);
     }
 
     /**

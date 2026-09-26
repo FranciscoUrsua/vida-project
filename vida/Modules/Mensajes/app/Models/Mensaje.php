@@ -7,15 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * Mensaje individual dentro de un hilo de mensajería interna.
  *
- * Los adjuntos se gestionan a través de spatie/laravel-medialibrary
- * en la colección 'adjuntos_mensaje'.
+ * Los mensajes no tienen adjuntos (decisión de seguridad): los documentos
+ * pertenecen a la Historia Social y solo se enlazan como contexto.
  *
  * @property int $id
  * @property int $hilo_id
@@ -24,10 +21,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
-class Mensaje extends Model implements HasMedia
+class Mensaje extends Model
 {
-    use InteractsWithMedia;
-
     protected $table = 'mensajes';
 
     protected $fillable = [
@@ -35,27 +30,6 @@ class Mensaje extends Model implements HasMedia
         'remitente_id',
         'cuerpo',
     ];
-
-    // -------------------------------------------------------------------------
-    // Medialibrary
-    // -------------------------------------------------------------------------
-
-    /**
-     * Registra la colección de adjuntos del mensaje en disco local.
-     */
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('adjuntos_mensaje')
-            ->useDisk('local');
-    }
-
-    /**
-     * Sin conversiones de imagen para documentos adjuntos.
-     */
-    public function registerMediaConversions(?Media $media = null): void
-    {
-        // Sin conversiones por defecto para documentos adjuntos
-    }
 
     // -------------------------------------------------------------------------
     // Relaciones

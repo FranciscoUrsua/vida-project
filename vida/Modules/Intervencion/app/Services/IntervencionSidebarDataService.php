@@ -4,8 +4,6 @@ namespace Modules\Intervencion\Services;
 
 use Illuminate\Support\Facades\Auth;
 use Modules\Intervencion\Models\AsignacionProfesional;
-use Modules\Mensajes\Enums\DestinatarioType;
-use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Models\Alerta;
 use Modules\Mensajes\Models\MensajeParticipante;
 
@@ -13,17 +11,17 @@ use Modules\Mensajes\Models\MensajeParticipante;
  * Servicio de datos para el sidebar del interfaz operativo de Intervención.
  *
  * Proporciona los contadores para los badges del sidebar:
- * - Total de alertas directas pendientes de reconocimiento
+ * - Total de alertas y avisos pendientes visibles para el usuario
  * - Total de mensajes no leídos
  * - Número de ciudadanos con plan activo asignados al profesional
  */
 class IntervencionSidebarDataService
 {
     /**
-     * Número de alertas directas al usuario autenticado pendientes de reconocimiento.
+     * Número de alertas y avisos pendientes visibles para el usuario autenticado:
+     * los directos y los dirigidos a su rol en su UO.
      *
-     * Solo cuenta alertas con destinatario_type = usuario. Las alertas por rol+UO
-     * se tratan en la bandeja completa de alertas.
+     * @return int
      */
     public function totalAlertas(): int
     {
@@ -31,10 +29,7 @@ class IntervencionSidebarDataService
             return 0;
         }
 
-        return Alerta::where('estado', EstadoAlerta::Pendiente)
-            ->where('destinatario_type', DestinatarioType::Usuario)
-            ->where('destinatario_usuario_id', Auth::id())
-            ->count();
+        return Alerta::visiblesPara(Auth::user())->pendientes()->count();
     }
 
     /**

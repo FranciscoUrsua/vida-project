@@ -15,8 +15,18 @@ Módulo: Ciudadanía (prioritario: restricción crítica de `CLAUDE.md` §3)
 
 ---
 
+**Mensajes — pendientes detectados al corregir el módulo** — 2026-09-26
+Módulo: Mensajes
+- **Las alertas escaladas no las ve nadie.** `AlertaService::escalar()` pone la alerta en estado `escalada` y rellena `escalada_a_usuario_id`, pero todas las bandejas y contadores filtran por `pendiente`. El supervisor al que se escala no la ve en ningún sitio. Hay que decidir cómo se le muestra y si puede reconocerla.
+- **Reconocer una alerta `rol_uo` la cierra para todos.** `reconocer()` cambia el estado de la alerta, no solo el del usuario. Vale para «un supervisor la atiende», pero no para `crearAvisoSupervisor()` (instrucciones, `destinatario_type = rol_uo`): el primer subordinado que descarte el aviso se lo quitaría a los demás. Decidirlo antes de implementar los avisos de supervisor (una fila por destinatario, o estado por usuario vía `alerta_reconocimientos`).
+- **`t_lw_09` (`NuevoMensajeTest`) falla desde antes:** la búsqueda de destinatarios por rol y UO no muestra los nombres. `NuevoMensaje` se sustituirá por `PanelRedaccion`: recuperar este caso en sus tests.
+- **Error en `instrucciones-cli-mensajes.md` (tests mínimos):** «17:30 de un día laborable → 09:00 del día siguiente» es incorrecto con 4 horas laborales; lo correcto es 12:00 (lo que ya comprueba T-HLS-04).
+
+---
+
 **Suite completa con 75 fallos fuera de Documentos** — 2026-09-25
 Módulos: Agenda, Mensajes, Ciudadanía, Autenticación, Intervención
+(2026-09-26: de los 6 de Mensajes queda solo `t_lw_09`; ver la entrada de Mensajes.)
 Primera ejecución completa registrada (908 passed, 76 failed; el fallo de Documentos ya está corregido). Detalle por módulo en `CHANGELOG-092026.md` («Documentos: custodia v2, UI operativa y cierre»). La mayoría son de Agenda (esquema que no existe). En Ciudadanía, dos tests buscan un texto que ya no está en la ficha. Revisarlos antes de un merge a `main`.
 
 ---

@@ -10,9 +10,8 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Mensajes\Enums\DestinatarioType;
-use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\TipoAlerta;
-use Modules\Mensajes\Models\Alerta;
+use Modules\Mensajes\Services\AlertaService;
 use Modules\Organizacion\Services\ConfiguracionService;
 use Modules\Usuarios\Models\UsuarioRol;
 
@@ -89,7 +88,7 @@ class AprobacionesPage extends Component
 
         // Spatie observer sincroniza; no duplicar aquí.
         $this->notificarUsuario(
-            $solicitud->usuario_id,
+            $solicitud,
             'Tu solicitud de rol «'.$solicitud->rol?->name.'» ha sido aprobada.'
         );
     }
@@ -122,7 +121,7 @@ class AprobacionesPage extends Component
         }
 
         $this->notificarUsuario(
-            $solicitud->usuario_id,
+            $solicitud,
             'Tu solicitud de rol «'.$solicitud->rol?->name.'» ha sido denegada. Motivo: '.$motivo
         );
 
@@ -166,22 +165,21 @@ class AprobacionesPage extends Component
     }
 
     /**
-     * Crea una alerta informativa para el usuario afectado por la decisión.
+     * Envía al solicitante un aviso con el resultado de su solicitud de rol.
      *
-     * @param int $destinatarioId ID del usuario a notificar
-     * @param string $titulo Título corto de la alerta
+     * @param UsuarioRol $solicitud Solicitud resuelta; es el origen del aviso.
+     * @param string $titulo Título corto del aviso
      */
-    private function notificarUsuario(int $destinatarioId, string $titulo): void
+    private function notificarUsuario(UsuarioRol $solicitud, string $titulo): void
     {
-        Alerta::create([
+        app(AlertaService::class)->crear([
             'tipo' => TipoAlerta::Aviso,
             'origen_type' => UsuarioRol::class,
-            'origen_id' => 0,
+            'origen_id' => $solicitud->id,
             'titulo' => $titulo,
             'cuerpo' => $titulo,
-            'estado' => EstadoAlerta::Pendiente,
             'destinatario_type' => DestinatarioType::Usuario,
-            'destinatario_usuario_id' => $destinatarioId,
+            'destinatario_usuario_id' => $solicitud->usuario_id,
         ]);
     }
 }

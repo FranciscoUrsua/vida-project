@@ -4,6 +4,39 @@
 
 ---
 
+## 2026-09-26 — Mensajes: corrección de fallos previos y retirada de adjuntos (paso 1 de `instrucciones-cli-mensajes.md`)
+
+### Módulos afectados
+`Modules/Mensajes` (modelos `Alerta` y `Mensaje`, `AlertaService`, `MensajeriaService`, `BuzonPage`, `BandejaAlertas`, `BadgeNotificaciones`, `HiloMensajes`, `NuevoMensaje`, vistas, comentario de migración, tests), `Modules/Intervencion` (`IntervencionSidebarDataService`, `BuscarCiudadanoPage`, test), `Modules/Supervision` (`AprobacionesPage`, test), `CLAUDE.md`
+
+### Contexto
+Llegan `docs/modulo-mensajes.md` (actualizado) y `docs/instrucciones-cli/instrucciones-cli-mensajes.md` (nuevo). El módulo ya existía desde marzo, así que se hizo primero un análisis de lo que falta respecto a lo ya implementado (ver SESSION). Esta entrada cubre el paso 1 de ese análisis: arreglar lo que ya está en uso y quitar los adjuntos.
+
+### Corregido
+- **Las alertas y avisos dirigidos a un rol en una UO no se veían.** `BuzonPage` y el contador del menú solo contaban los dirigidos a un usuario concreto. Por eso los supervisores no veían «Rol asignado» (`AsignacionRolesService`) ni «Solicitud de acceso a ciudadano protegido». Nuevo scope `Alerta::visiblesPara(User)`: directas, o `rol_uo` con un rol que el usuario tiene y en una UO con adscripción vigente. Lo usan `BuzonPage`, `BandejaAlertas`, `BadgeNotificaciones` e `IntervencionSidebarDataService`, que antes tenían tres consultas distintas.
+- **`BandejaAlertas::reconocer()` permitía reconocer alertas `rol_uo` de cualquier UO.** Ahora solo reconoce alertas visibles para el usuario; si no, 403 (como antes para las directas ajenas).
+- **Reconocer desde `BuzonPage` no registraba el reconocimiento.** Solo cambiaba el estado. Ahora pasa por `AlertaService::reconocer()`, que guarda usuario e IP.
+- **`AlertaService::resolverDestinatarios()` devolvía usuarios de otras UO.** Un `orWhere` sin agrupar dentro de `whereHas` anulaba la condición de UO: bastaba una adscripción con `fecha_fin` futura en cualquier UO. Usa ahora `UsuarioUo::vigentes()`.
+- **La alerta de solicitud de acceso a ciudadano protegido nunca escalaba.** `BuscarCiudadanoPage` la creaba con `Alerta::create`, sin `expira_en`, y el job solo escala las que tienen plazo. Ahora pasa por `AlertaService::crear()`, y `origen_id` apunta al `AccesoProtegido` (antes era `0`). `AprobacionesPage` también pasa por el servicio, con `origen_id` igual a la solicitud `UsuarioRol` (antes `0`). No queda ningún `Alerta::create` fuera de tests.
+- Tests previos rotos: `AlertaServiceTest` usaba el rol antiguo `supervisor` (renombrado a `supervision`). `BuzonPageTest` esperaba una excepción que Livewire convierte en 404. `t_msg_04` era inestable: la relación ordena por `created_at` y empata dentro del mismo segundo.
+
+### Retirado
+- **Adjuntos en mensajes** (decisión del nuevo `modulo-mensajes.md`): `Mensaje` deja de implementar `HasMedia`. `MensajeriaService::crearHilo()` y `responder()` pierden el parámetro `$adjuntos`. `HiloMensajes` y `NuevoMensaje` pierden la subida y la lista de adjuntos. Antes de retirarlo se comprobó en la BD compartida que no había ninguna fila de `media` de mensajes.
+
+### Añadido
+- `AlertasVisiblesTest` (TF-MSG-VIS-01 a 10). Nuevo test TF-LW-BUS-08b (vencimiento y origen de la alerta de acceso) y TF-SUP-E02b (origen del aviso de aprobación). Los tres de «otra UO», el de `resolverDestinatarios` y los dos de origen se vieron fallar antes del arreglo.
+- `CLAUDE.md` §6: fila para `instrucciones-cli-mensajes.md`.
+
+### Decisiones de implementación no previstas en las instrucciones
+- «Alertas del usuario» se define en un único sitio (`Alerta::visiblesPara`). Los roles salen de Spatie, que `UsuarioRolObserver` mantiene sincronizado con `usuario_rol`.
+- Se elimina de `AlertaService::crear()` un bucle vacío que resolvía destinatarios sin usarlos.
+
+### Tests
+- `Modules/Mensajes/tests`: 61 passed, 1 failed (`t_lw_09`, ya existente: búsqueda de `NuevoMensaje`, que se sustituirá por `PanelRedaccion`). Antes: 46 passed, 6 failed.
+- `BuscarCiudadanoPageTest`: 11 passed. `Modules/Supervision/tests`: 35 passed y los 3 fallos ya conocidos. `Modules/Usuarios/tests`: 63 passed y 1 incomplete.
+
+---
+
 ## 2026-09-25 — Documentos: custodia v2, UI operativa y cierre (pasos 7 y 9)
 
 ### Módulos afectados

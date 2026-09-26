@@ -216,7 +216,8 @@ class MensajeriaServiceTest extends TestCase
         $this->assertDatabaseCount('mensajes_hilos', 1);
         $this->assertDatabaseCount('mensajes', 2);
 
-        $segundoMensaje = $hilo->mensajes()->orderBy('id', 'desc')->first();
+        // reorder: la relación ya ordena por created_at, que empata dentro del mismo segundo
+        $segundoMensaje = $hilo->mensajes()->reorder('id', 'desc')->first();
         $this->assertEquals($destinatario->id, $segundoMensaje->remitente_id);
     }
 

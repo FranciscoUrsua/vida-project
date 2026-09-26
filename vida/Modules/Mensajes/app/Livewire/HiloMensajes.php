@@ -7,7 +7,6 @@ use App\Models\HistoriaSocial;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Modules\Mensajes\Enums\VisibilidadMensaje;
 use Modules\Mensajes\Models\Mensaje;
 use Modules\Mensajes\Models\MensajeHilo;
@@ -18,19 +17,14 @@ use Modules\Mensajes\Services\MensajeriaService;
  *
  * Muestra los mensajes en orden cronológico y permite:
  * - Responder al hilo
- * - Adjuntar archivos
  * - Registrar un mensaje en la Historia Social (solo si el usuario
  *   es TSR del ciudadano referenciado)
  */
 class HiloMensajes extends Component
 {
-    use WithFileUploads;
-
     public int $hiloId;
 
     public string $respuesta = '';
-
-    public array $adjuntos = [];
 
     // Estado del modal "Registrar en Historia Social"
     public bool $mostrarModalHistoria = false;
@@ -78,18 +72,15 @@ class HiloMensajes extends Component
     {
         $this->validate([
             'respuesta' => 'required|string|max:10000',
-            'adjuntos.*' => 'file|max:10240',
         ]);
 
         $mensajeriaService->responder(
             $this->hilo,
             auth()->user(),
-            $this->respuesta,
-            $this->adjuntos
+            $this->respuesta
         );
 
         $this->respuesta = '';
-        $this->adjuntos = [];
 
         unset($this->hilo);
     }

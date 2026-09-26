@@ -652,6 +652,26 @@ class SupervisionTest extends TestCase
     }
 
     /**
+     * TF-SUP-E02b — El aviso de aprobación apunta a la solicitud que lo origina.
+     */
+    #[Test]
+    public function aprobar_solicitud_avisa_al_usuario_con_origen_en_la_solicitud(): void
+    {
+        $u = $this->crearUsuarioEnUo($this->uoHija, 'aprobe02b@vida360.test');
+        $solicitud = $this->crearSolicitudPendiente($u);
+
+        $this->montarComponente(AprobacionesPage::class)
+            ->call('aprobarSolicitud', $solicitud->id);
+
+        $this->assertDatabaseHas('alertas', [
+            'destinatario_usuario_id' => $u->id,
+            'origen_type' => UsuarioRol::class,
+            'origen_id' => $solicitud->id,
+            'estado' => 'pendiente',
+        ]);
+    }
+
+    /**
      * TF-SUP-E03 — Denegar solicitud con motivo cambia estado a denegado.
      */
     #[Test]

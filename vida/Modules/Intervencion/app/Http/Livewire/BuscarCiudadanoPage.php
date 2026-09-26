@@ -14,7 +14,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\TipoAlerta;
-use Modules\Mensajes\Models\Alerta;
+use Modules\Mensajes\Services\AlertaService;
 
 /**
  * Pantalla de búsqueda de ciudadanos del interfaz operativo de Intervención.
@@ -265,7 +265,7 @@ class BuscarCiudadanoPage extends Component
             ->first();
 
         // Registrar la solicitud
-        AccesoProtegido::create([
+        $acceso = AccesoProtegido::create([
             'usuario_id' => Auth::id(),
             'ciudadano_id' => $ciudadanoId,
             'solicitante_id' => Auth::id(),
@@ -275,16 +275,16 @@ class BuscarCiudadanoPage extends Component
 
         // Enviar alerta al supervisor de la UO responsable
         if ($historia !== null) {
-            Alerta::create([
+            // Por AlertaService: calcula expira_en, sin el cual el job no escala nunca.
+            app(AlertaService::class)->crear([
                 'tipo' => TipoAlerta::Alerta,
                 'origen_type' => AccesoProtegido::class,
-                'origen_id' => 0,
+                'origen_id' => $acceso->id,
                 'titulo' => 'Solicitud de acceso a ciudadano protegido',
                 'cuerpo' => 'El profesional '.Auth::user()->name.' solicita acceso. Justificación: '.$justificacion,
                 'destinatario_type' => DestinatarioType::RolUo,
                 'destinatario_rol' => 'supervision',
                 'destinatario_uo_id' => $historia->unidad_organizativa_id,
-                'estado' => 'pendiente',
             ]);
         }
 

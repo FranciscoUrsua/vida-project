@@ -145,11 +145,13 @@ class BuzonPageTest extends TestCase
 
         $alertaAjena = $this->crearAlerta($otro);
 
-        $this->expectException(ModelNotFoundException::class);
-
+        // Livewire convierte el ModelNotFoundException en una respuesta 404.
         Livewire::actingAs($this->usuario)
             ->test(BuzonPage::class)
-            ->call('reconocerAlerta', $alertaAjena->id);
+            ->call('reconocerAlerta', $alertaAjena->id)
+            ->assertNotFound();
+
+        $this->assertSame(EstadoAlerta::Pendiente, $alertaAjena->fresh()->estado);
     }
 
     /**

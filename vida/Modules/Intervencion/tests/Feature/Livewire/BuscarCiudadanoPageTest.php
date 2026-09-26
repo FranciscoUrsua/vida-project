@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Tests\Feature\Livewire;
 
+use App\Models\AccesoProtegido;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
@@ -276,6 +277,28 @@ class BuscarCiudadanoPageTest extends TestCase
             'destinatario_uo_id' => $this->uo->id,
         ]);
         $this->assertDatabaseCount('accesos_protegidos', 1);
+    }
+
+    /**
+     * TF-LW-BUS-08b — La alerta de solicitud de acceso tiene plazo de vencimiento
+     * (para que el job la pueda escalar) y apunta a la solicitud que la origina.
+     */
+    #[Test]
+    public function solicitar_acceso_crea_alerta_con_vencimiento_y_origen(): void
+    {
+        $ciudadano = $this->crearCiudadano(['colectivo_extra_protegido' => true]);
+        $this->crearHistoria($ciudadano, $this->uo);
+
+        Livewire::actingAs($this->usuario)
+            ->test(BuscarCiudadanoPage::class)
+            ->call('solicitarAcceso', $ciudadano->id, 'Justificación suficientemente larga para superar el mínimo.');
+
+        $alerta = Alerta::sole();
+        $acceso = AccesoProtegido::sole();
+
+        $this->assertNotNull($alerta->expira_en);
+        $this->assertSame(AccesoProtegido::class, $alerta->origen_type);
+        $this->assertSame($acceso->id, $alerta->origen_id);
     }
 
     /**

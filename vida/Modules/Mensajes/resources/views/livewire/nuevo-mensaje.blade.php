@@ -102,13 +102,6 @@
             @endif
         </div>
 
-        {{-- Adjuntos --}}
-        <div class="mb-3">
-            <label class="form-label">Adjuntos <span class="text-muted small">(opcional)</span></label>
-            <input type="file" wire:model="adjuntos" multiple class="form-control" />
-            @error('adjuntos.*') <span class="text-danger small">{{ $message }}</span> @enderror
-        </div>
-
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary">
                 <x-heroicon-o-paper-airplane class="icon-14"/> Enviar

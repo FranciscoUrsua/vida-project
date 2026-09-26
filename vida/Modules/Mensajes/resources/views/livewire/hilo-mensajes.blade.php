@@ -35,17 +35,6 @@
                                 @endif
                             </div>
                         @endforeach
-
-                        {{-- Adjuntos --}}
-                        @foreach($mensaje->getMedia('adjuntos_mensaje') as $media)
-                            <div class="mt-1">
-                                <a href="{{ $media->getUrl() }}"
-                                   class="{{ $esMio ? 'text-white' : 'text-primary' }}"
-                                   target="_blank">
-                                    <x-heroicon-o-paper-clip class="icon-14"/> {{ $media->file_name }}
-                                </a>
-                            </div>
-                        @endforeach
                     </div>
                 </div>
             </div>
@@ -62,10 +51,7 @@
                           placeholder="Escribe tu respuesta..."></textarea>
                 @error('respuesta') <span class="text-danger small">{{ $message }}</span> @enderror
             </div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <input type="file" wire:model="adjuntos" multiple class="form-control form-control-sm" />
-                </div>
+            <div class="d-flex justify-content-end">
                 <button type="submit" class="btn btn-primary btn-sm">
                     <x-heroicon-o-paper-airplane class="icon-14"/> Enviar
                 </button>

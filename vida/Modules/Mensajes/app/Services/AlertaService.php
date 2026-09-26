@@ -29,14 +29,13 @@ class AlertaService
     ) {}
 
     /**
-     * Crea una alerta y calcula su expiración si es de tipo 'alerta'.
+     * Crea una alerta en estado pendiente y calcula su expiración si es de tipo 'alerta'.
      *
-     * @param array<string, mixed> $datos
-     */
-    /**
-     * Crea una alerta con su estado inicial.
+     * Todo el código que genere alertas debe pasar por aquí: crear la fila
+     * directamente deja las alertas sin `expira_en` y el job no las escala nunca.
      *
      * @param array<string, mixed> $datos Datos de la alerta.
+     * @return Alerta
      */
     public function crear(array $datos): Alerta
     {
@@ -49,28 +48,16 @@ class AlertaService
 
         $alerta->save();
 
-        // Si la alerta es para un rol+UO, crear registros de reconocimiento
-        // para cada destinatario real en ese momento
-        if ($alerta->destinatario_type === DestinatarioType::RolUo) {
-            $destinatarios = $this->resolverDestinatarios($alerta);
-            foreach ($destinatarios as $usuario) {
-                // Los reconocimientos se crean bajo demanda cuando el usuario accede
-                // La resolución aquí es solo para verificación
-            }
-        }
-
         return $alerta;
     }
 
     /**
-     * Marca una alerta como reconocida por un usuario.
-     */
-    /**
-     * Registra el reconocimiento de una alerta por un usuario.
+     * Registra el reconocimiento (o el descarte, si es un aviso) de una alerta por un usuario.
      *
      * @param Alerta $alerta Alerta objetivo.
      * @param User $usuario Usuario que reconoce.
      * @param string $ipAddress IP de origen.
+     * @return AlertaReconocimiento
      */
     public function reconocer(Alerta $alerta, User $usuario, string $ipAddress): AlertaReconocimiento
     {
@@ -92,15 +79,13 @@ class AlertaService
     }
 
     /**
-     * Ejecuta la escalada de una alerta vencida al supervisor de la UO.
+     * Escala una alerta vencida al supervisor de la UO.
      *
      * Si no existe supervisor activo en la UO, la alerta pasa directamente
      * a estado 'vencida'.
-     */
-    /**
-     * Escala una alerta vencida al supervisor de la UO.
      *
      * @param Alerta $alerta Alerta vencida.
+     * @return void
      */
     public function escalar(Alerta $alerta): void
     {
@@ -135,7 +120,7 @@ class AlertaService
     /**
      * Resuelve qué usuarios son destinatarios reales de una alerta rol_uo.
      *
-     *
+     * @param Alerta $alerta Alerta dirigida a un rol en una UO.
      * @return Collection<int, User>
      */
     public function resolverDestinatarios(Alerta $alerta): Collection
@@ -144,10 +129,11 @@ class AlertaService
             return collect();
         }
 
+        // El filtro de vigencia va agrupado: un orWhere suelto dentro de
+        // whereHas anula la condición de UO y la correlación con el usuario.
         return User::whereHas('adscripciones', function ($query) use ($alerta) {
             $query->where('unidad_organizativa_id', $alerta->destinatario_uo_id)
-                ->whereNull('fecha_fin')
-                ->orWhere('fecha_fin', '>=', now()->toDateString());
+                ->vigentes();
         })
             ->role($alerta->destinatario_rol)
             ->get();
