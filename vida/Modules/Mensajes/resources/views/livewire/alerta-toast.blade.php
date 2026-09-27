@@ -80,8 +80,8 @@
 {{-- Alertas minimizadas: siguen a la vista, en pequeño, en cualquier pantalla --}}
 @if($this->minimizadasPendientes->isNotEmpty())
     @php($minimizadas = $this->minimizadasPendientes)
-    <div class="position-fixed bottom-0 start-50 translate-middle-x p-3 mensajes-toasts-minimizadas" role="region" aria-label="Alertas minimizadas">
-        <div class="d-flex flex-wrap align-items-center gap-2 px-3 py-2 rounded-pill border border-danger shadow mensajes-toasts-minimizadas__barra">
+    <div class="position-fixed start-50 translate-middle-x mensajes-toasts-minimizadas" role="region" aria-label="Alertas minimizadas">
+        <div class="d-flex flex-wrap align-items-center gap-2 px-3 py-2 rounded-pill border border-danger mensajes-toasts-minimizadas__barra">
             <x-heroicon-s-exclamation-triangle class="icon-16 flex-shrink-0" aria-hidden="true"/>
             <span class="fw-semibold small">
                 {{ $minimizadas->count() === 1 ? '1 alerta sin reconocer' : $minimizadas->count().' alertas sin reconocer' }}

@@ -40,11 +40,13 @@
     }
 }
 
-// Barra de alertas minimizadas: fija al pie, compacta y con el tinte de
-// urgencia, para que una alerta minimizada no quede solo en el menú.
+// Barra de alertas minimizadas: fija al pie, compacta y opaca (fondo blanco,
+// sin transparencias ni difuminado) para que se lea sobre cualquier contenido.
+// El tinte de urgencia va en el borde, el icono y el texto.
 .mensajes-toasts-minimizadas {
     z-index: $zindex-toast;
-    max-width: 100%;
+    bottom: 1rem;
+    max-width: calc(100% - 2rem);
 
     @include media-breakpoint-up(md) {
         max-width: 75%;
@@ -52,10 +54,14 @@
 }
 
 .mensajes-toasts-minimizadas__barra {
-    background: $vida-danger-soft;
+    background: $vida-surface;
     color: $vida-danger-ink;
+    box-shadow: $vida-shadow-2;
 }
 
 .mensajes-toasts-minimizadas__chip {
     max-width: 16rem;
+    --bs-btn-bg: #{$vida-danger-soft};
+    --bs-btn-border-color: #{$vida-danger-soft};
+    --bs-btn-color: #{$vida-danger-ink};
 }

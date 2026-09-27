@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-09-27 — Mensajes: barra de alertas minimizadas opaca
+
+- Fondo blanco y opaco, con sombra, en lugar del rosa claro, que se confundía con el contenido de debajo. Los títulos van en chips rosas.
+- Se quita el margen transparente que rodeaba la barra.
+- No se usa difuminado de fondo: el design system prohíbe el glassmorphism.
+
+---
+
 ## 2026-09-27 — Mensajes: las alertas minimizadas pasan a una barra fija al pie
 
 ### Motivo
