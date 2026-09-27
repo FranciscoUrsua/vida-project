@@ -6,6 +6,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Modules\Mensajes\Jobs\EscalarAlertasVencidasJob;
+use Modules\Mensajes\Livewire\AlertaToast;
 use Modules\Mensajes\Livewire\BandejaAlertas;
 use Modules\Mensajes\Livewire\BandejaMensajes;
 use Modules\Mensajes\Livewire\HiloMensajes;
@@ -49,6 +50,7 @@ class MensajesServiceProvider extends ServiceProvider
         Livewire::component('mensajes-bandeja-mensajes', BandejaMensajes::class);
         Livewire::component('mensajes-hilo-mensajes', HiloMensajes::class);
         Livewire::component('mensajes-panel-redaccion', PanelRedaccion::class);
+        Livewire::component('mensajes-alerta-toast', AlertaToast::class);
         Livewire::component('mensajes-nuevo-aviso-supervisor', NuevoAvisoSupervisor::class);
 
         // Registrar el job de escalada en el scheduler

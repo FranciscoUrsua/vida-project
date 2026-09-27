@@ -32,6 +32,14 @@ use Modules\Supervision\Services\SupervisionSidebarDataService;
 class Sidebar extends Component
 {
     /**
+     * Actualiza los contadores en cuanto se reconoce una alerta o un aviso,
+     * sin esperar al siguiente polling.
+     *
+     * @var array<string, string>
+     */
+    protected $listeners = ['alerta-reconocida' => '$refresh'];
+
+    /**
      * Contadores de las entradas Alertas, Avisos y Mensajes de la bandeja.
      *
      * @return array{alertas: int, avisos: int, mensajes: int}

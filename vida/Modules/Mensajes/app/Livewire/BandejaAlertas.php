@@ -32,6 +32,13 @@ class BandejaAlertas extends Component
     public ?int $alertaConfirmandoId = null;
 
     /**
+     * Refresca la lista cuando se reconoce una alerta desde su toast.
+     *
+     * @var array<string, string>
+     */
+    protected $listeners = ['alerta-reconocida' => '$refresh'];
+
+    /**
      * Comprueba la sesión y el tipo de la pestaña.
      *
      * @param string $tipo Tipo que muestra la pestaña.
@@ -89,6 +96,7 @@ class BandejaAlertas extends Component
 
         $this->alertaConfirmandoId = null;
         unset($this->alertas);
+        $this->dispatch('alerta-reconocida');
     }
 
     /**
@@ -112,6 +120,7 @@ class BandejaAlertas extends Component
         $alertaService->reconocer($aviso, auth()->user(), request()->ip() ?? '');
 
         unset($this->alertas);
+        $this->dispatch('alerta-reconocida');
     }
 
     /**

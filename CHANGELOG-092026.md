@@ -4,6 +4,31 @@
 
 ---
 
+## 2026-09-27 — Mensajes: toasts persistentes de alertas (`AlertaToast`, paso 5)
+
+### Módulos afectados
+`Modules/Mensajes`:
+- Componente `AlertaToast` y su vista `alerta-toast`, nuevos; registrado como `mensajes-alerta-toast`.
+- `BandejaAlertas` emite y escucha `alerta-reconocida`.
+- Tests `AlertaToastTest` (TF-MSG-TOAST-01 a 12). Verificados en negativo: TF-10 y TF-11 fallan si se quitan el filtro de tipo o la comprobación de acceso al origen.
+
+Además:
+- `operativo-shell` monta el componente.
+- Los sidebars de Intervención y Supervisión escuchan `alerta-reconocida`.
+- `_op-mensajes.scss`: clase `mensajes-toasts`.
+- `docs/modulo-mensajes.md` §4.2.
+
+### Decisiones no previstas en las instrucciones
+- Polling de 60 s en lugar de 30 min, para que las alertas nuevas salgan en tiempo real. Los 30 minutos se aplican solo a la reaparición de los toasts minimizados, que se gestiona en el navegador.
+- Como mucho 3 toasts apilados, más una línea resumen con «Ver todas» y «Minimizar todas», para no tapar la pantalla.
+- «Ver origen» solo con origen autorizado (plan, ficha, Historia Social o solicitud de rol). Las demás alertas no llevan enlace.
+
+### Tests
+- `Modules/Mensajes/tests`: 123 passed.
+- `--filter='Sidebar|Navegacion'`: 25 passed, 1 incomplete y 1 fallo ya existente en Agenda (`badge_sidebar_refleja_citas_pendientes`, falla igual sin estos cambios).
+
+---
+
 ## 2026-09-27 — Mensajes: alertas y avisos de prueba en el CIAM Puente de Vallecas (solo datos)
 
 Sin cambios de código. Creadas en la BD compartida local/staging, todas con `AlertaService` (`crear()` y `crearAvisoSupervisor()`), para revisar la bandeja en navegador:

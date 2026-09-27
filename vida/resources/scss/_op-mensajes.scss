@@ -18,3 +18,13 @@
     max-height: 65vh;
 }
 
+
+// Toasts de alertas pendientes: debajo del topbar fijo (56px), opacos y con
+// el tinte de urgencia en la cabecera.
+.mensajes-toasts {
+    top: 56px;
+    --bs-toast-bg: #{$vida-surface};
+    --bs-toast-header-bg: #{$vida-danger-soft};
+    --bs-toast-header-color: #{$vida-danger-ink};
+    --bs-toast-box-shadow: #{$vida-shadow-2};
+}

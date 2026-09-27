@@ -24,6 +24,11 @@ Módulo: Mensajes
 - **Bandeja: enlace al contexto de origen** (instrucciones, `BandejaAlertas`): cada alerta debería enlazar a su origen (p. ej. la solicitud de acceso o la asignación de rol) si existe y el usuario puede verlo. No se ha hecho en el paso 2: cada `origen_type` necesita su ruta y su comprobación de permiso.
 - **`Modules/Agenda` tiene un sidebar de supervisor (`agenda.supervisor.sidebar`) registrado que ningún layout usa**: el de Supervisión lo sustituyó. No tiene las entradas de la bandeja; retirarlo si se confirma que está muerto.
 - **Panel de redacción, pendientes:** (a) más contextos (apunte, entrevista, prestación) cuando haga falta; (b) la búsqueda de ciudadanos filtra por nombre en PHP sobre 500 registros como mucho, igual que la de Intervención: sustituir por el índice de búsqueda cuando exista; (c) el panel no se ha probado en navegador (foco, teclado, pantallas estrechas).
+- **Toasts de alertas (2026-09-27), pendientes:**
+  - (a) Las alertas de `AccesoProtegido` no llevan «Ver origen»: no hay pantalla que resuelva esas solicitudes (Aprobaciones solo trata `UsuarioRol`).
+  - (b) La bandeja podría reutilizar `AlertaToast::enlaceOrigen()` para su propio enlace al origen (punto anterior).
+  - (c) No hay toasts en el backoffice Filament.
+  - (d) No se han probado en navegador pantallas estrechas ni la convivencia con el panel de redacción.
 - **Error en `instrucciones-cli-mensajes.md` (tests mínimos):** «17:30 de un día laborable → 09:00 del día siguiente» es incorrecto con 4 horas laborales; lo correcto es 12:00 (lo que ya comprueba T-HLS-04).
 
 ---

@@ -142,6 +142,15 @@ Las alertas pendientes de reconocimiento se muestran además como **toast notifi
 
 Los avisos (incluyendo los del supervisor) **no generan toasts**. Solo se reflejan en el contador del menú.
 
+**Implementación (2026-09-27):** componente `AlertaToast` (`mensajes-alerta-toast`), montado en `operativo-shell`: sale en todas las pantallas de Intervención y Supervisión, no en el backoffice Filament.
+- Toasts Bootstrap arriba a la derecha, bajo el topbar. Cabecera con el tinte de urgencia, título, texto, plazo restante, «Ver origen» y «Reconocer».
+- «Reconocer» pide confirmación, igual que en la bandeja.
+- «Ver origen» solo aparece si la alerta viene de un plan, una ficha o una Historia Social que el usuario puede ver (`ContextoMensajeService`), o de una solicitud de rol y el usuario supervisa (lleva a Aprobaciones).
+- Las alertas nuevas se detectan por `wire:poll.60s`, el mismo ciclo que los contadores del menú. Las instrucciones decían 30 minutos, pero así no serían «en tiempo real».
+- Minimizar guarda en `sessionStorage` el instante por alerta (`vida.alertas.minimizadas`), y el toast reaparece a los 30 minutos, sin necesidad de recargar.
+- Se apilan como mucho 3 toasts. El resto se resume en una línea «Y N alertas pendientes más», con «Ver todas» (bandeja) y «Minimizar todas».
+- Al reconocer, desde el toast o desde la bandeja, se emite `alerta-reconocida`: la bandeja, los toasts y los menús se refrescan al momento.
+
 ### 4.3 Panel de redacción flotante global
 
 El módulo expone un **panel de redacción flotante** que puede lanzarse desde cualquier punto de la aplicación, no solo desde la bandeja de mensajes.

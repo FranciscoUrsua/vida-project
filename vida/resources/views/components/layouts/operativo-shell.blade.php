@@ -96,8 +96,9 @@
     </main>
 </div>
 
-{{-- Panel de redacción de mensajes, disponible desde cualquier pantalla --}}
+{{-- Toasts de alertas pendientes y panel de redacción, disponibles desde cualquier pantalla --}}
 @auth
+    <livewire:mensajes-alerta-toast />
     <livewire:mensajes-panel-redaccion />
 @endauth
 @livewireScripts

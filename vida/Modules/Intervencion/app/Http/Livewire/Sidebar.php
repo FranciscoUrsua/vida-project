@@ -21,6 +21,14 @@ use Modules\Organizacion\Services\ConfiguracionService;
 class Sidebar extends Component
 {
     /**
+     * Actualiza los contadores en cuanto se reconoce una alerta o un aviso,
+     * sin esperar al siguiente polling.
+     *
+     * @var array<string, string>
+     */
+    protected $listeners = ['alerta-reconocida' => '$refresh'];
+
+    /**
      * Contadores para los badges del sidebar.
      *
      * @return array{alertas: int, avisos: int, mensajes: int, casos: int}
