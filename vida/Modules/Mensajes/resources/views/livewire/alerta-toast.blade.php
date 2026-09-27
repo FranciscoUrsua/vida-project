@@ -1,12 +1,14 @@
 {{--
     Toasts persistentes de alertas pendientes (modulo-mensajes.md §4.2).
-    Sin auto-dismiss. Lo minimizado lo decide el servidor (sesión de Laravel):
+    Sin auto-dismiss. Minimizar no hace desaparecer la alerta: pasa a una
+    barra fija al pie hasta que vuelve a desplegarse (30 minutos o clic).
+    Lo minimizado lo decide el servidor (sesión de Laravel):
     sin estado en Alpine, que el morph de Livewire no respetaba. Se muestran
     como mucho AlertaToast::MAXIMO_VISIBLES; el resto se resume en una línea.
 --}}
 @php($restantes = max(0, $this->visibles->count() - \Modules\Mensajes\Livewire\AlertaToast::MAXIMO_VISIBLES))
-<div wire:poll.60s
-     class="toast-container position-fixed start-50 translate-middle-x p-3 mensajes-toasts"
+<div wire:poll.60s>
+<div class="toast-container position-fixed start-50 translate-middle-x p-3 mensajes-toasts"
      aria-live="assertive">
     @foreach($this->visibles->take(\Modules\Mensajes\Livewire\AlertaToast::MAXIMO_VISIBLES) as $alerta)
         <div class="toast show border-danger"
@@ -73,4 +75,31 @@
             </div>
         </div>
     @endif
+</div>
+
+{{-- Alertas minimizadas: siguen a la vista, en pequeño, en cualquier pantalla --}}
+@if($this->minimizadasPendientes->isNotEmpty())
+    @php($minimizadas = $this->minimizadasPendientes)
+    <div class="position-fixed bottom-0 start-50 translate-middle-x p-3 mensajes-toasts-minimizadas" role="region" aria-label="Alertas minimizadas">
+        <div class="d-flex flex-wrap align-items-center gap-2 px-3 py-2 rounded-pill border border-danger shadow mensajes-toasts-minimizadas__barra">
+            <x-heroicon-s-exclamation-triangle class="icon-16 flex-shrink-0" aria-hidden="true"/>
+            <span class="fw-semibold small">
+                {{ $minimizadas->count() === 1 ? '1 alerta sin reconocer' : $minimizadas->count().' alertas sin reconocer' }}
+            </span>
+            @foreach($minimizadas->take(\Modules\Mensajes\Livewire\AlertaToast::MAXIMO_VISIBLES) as $alerta)
+                <button type="button"
+                        wire:key="alerta-minimizada-{{ $alerta->id }}"
+                        wire:click="restaurar({{ $alerta->id }})"
+                        class="btn btn-sm btn-light rounded-pill text-truncate mensajes-toasts-minimizadas__chip"
+                        title="Mostrar: {{ $alerta->titulo }}">
+                    {{ $alerta->titulo }}
+                </button>
+            @endforeach
+            @if($minimizadas->count() > \Modules\Mensajes\Livewire\AlertaToast::MAXIMO_VISIBLES)
+                <span class="small">y {{ $minimizadas->count() - \Modules\Mensajes\Livewire\AlertaToast::MAXIMO_VISIBLES }} más</span>
+            @endif
+            <button type="button" wire:click="restaurarTodas" class="btn btn-sm btn-danger rounded-pill">Mostrar</button>
+        </div>
+    </div>
+@endif
 </div>

@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-09-27 — Mensajes: las alertas minimizadas pasan a una barra fija al pie
+
+### Motivo
+Al minimizar un toast, la alerta quedaba 30 minutos solo en el menú lateral, que es justo lo que los toasts debían evitar. Un profesional que minimiza pensando «luego lo miro» no vuelve a verla hasta que se despliega de nuevo.
+
+### Cambios
+- `AlertaToast`:
+  - Computed `minimizadasPendientes`, nuevo.
+  - Métodos `restaurar()` y `restaurarTodas()`, nuevos.
+  - La vista añade una barra fija al pie (`mensajes-toasts-minimizadas`), con el número de alertas sin reconocer, hasta 3 títulos (cada uno despliega su alerta) y el botón «Mostrar».
+  - La reaparición automática a los 30 minutos se mantiene.
+- No se quita el botón de minimizar: un toast del 75 % del ancho que no se puede apartar bloquea el trabajo.
+- Tests: TF-MSG-TOAST-13, 15, 16 y 17 adaptados; TF-18 a 20, nuevos.
+- `Modules/Mensajes/tests`: 131 passed.
+
+---
+
 ## 2026-09-27 — Mensajes: toasts centrados y minimización en la sesión del servidor
 
 ### Corrección

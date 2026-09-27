@@ -6,7 +6,7 @@
 
 ## Tarea completada
 
-**Mensajes, paso 5: toasts persistentes de alertas** (`AlertaToast`, en el layout operativo). Corregida la minimización (ahora en la sesión del servidor) y los toasts van centrados, con el 75 % del ancho. Salen en cualquier pantalla, se reconocen con confirmación y, al minimizarlos, reaparecen a los 30 minutos. Detalle en `CHANGELOG-092026.md`.
+**Mensajes, paso 5: toasts persistentes de alertas** (`AlertaToast`, en el layout operativo). Los toasts van centrados, con el 75 % del ancho. Al minimizarlos pasan a una barra fija al pie y a los 30 minutos vuelven a desplegarse. Salen en cualquier pantalla, se reconocen con confirmación y, al minimizarlos, reaparecen a los 30 minutos. Detalle en `CHANGELOG-092026.md`.
 
 ---
 
@@ -23,7 +23,7 @@
 - **Servidor de pruebas preparado para la custodia** (2026-09-25): `/srv/vida/documentos` (www-data, 0700), `DOCUMENTOS_RUTA` y `DOCUMENTOS_CLAVE_MAESTRA` en el `.env` de staging, y clamd activo (`/var/run/clamav/clamd.ctl`). El `.env` **local** no tiene variables `DOCUMENTOS_*`: en local la custodia falla hasta que se añadan.
 - **Código de staging** (`/var/www/vida-project/vida`): se despliega solo con cada push a `master` (job `deploy` de `.github/workflows/ci.yml`, tras pasar `test`). No hace falta desplegar a mano.
 - **Tests:**
-  - `Modules/Mensajes/tests`: 128 passed (2026-09-27).
+  - `Modules/Mensajes/tests`: 131 passed (2026-09-27).
   - `Modules/Documentos`: 88 passed (unos 190 s: cada ingesta pasa por Ghostscript).
   - **Suite completa** (2026-09-25, unos 20 min): 908 passed y 76 failed, 75 de ellos fuera de Documentos (sobre todo Agenda) y ya existentes. Ver CHANGELOG y BACKLOG. No lanzar a la vez dos ejecuciones de tests: comparten `vida_testing`.
   - `Modules/Usuarios/tests/`: 63 passed y 1 incomplete (ya existía).
@@ -35,7 +35,7 @@
 
 1. **Revisar los toasts en staging** con ts1.ciam@demo.es (6 alertas pendientes):
    - Que salgan en todas las pantallas.
-   - Minimizar: deben volver a los 30 minutos.
+   - Minimizar: la alerta debe quedar en la barra del pie en todas las pantallas; al pulsarla, se despliega; a los 30 minutos, se despliega sola.
    - Reconocer desde el toast: el contador del menú debe bajar al momento.
    - La línea «Y N alertas pendientes más».
    - Las alertas de prueba vencen el 2026-09-28 a las 12:00 y después se escalan.

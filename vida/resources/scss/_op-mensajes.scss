@@ -39,3 +39,23 @@
         width: 75%;
     }
 }
+
+// Barra de alertas minimizadas: fija al pie, compacta y con el tinte de
+// urgencia, para que una alerta minimizada no quede solo en el menú.
+.mensajes-toasts-minimizadas {
+    z-index: $zindex-toast;
+    max-width: 100%;
+
+    @include media-breakpoint-up(md) {
+        max-width: 75%;
+    }
+}
+
+.mensajes-toasts-minimizadas__barra {
+    background: $vida-danger-soft;
+    color: $vida-danger-ink;
+}
+
+.mensajes-toasts-minimizadas__chip {
+    max-width: 16rem;
+}

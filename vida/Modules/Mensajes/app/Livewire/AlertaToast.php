@@ -24,7 +24,8 @@ use Modules\Usuarios\Models\UsuarioRol;
  *
  * Solo alertas: los avisos no generan toasts. No desaparecen solos; el
  * usuario reconoce la alerta (con confirmación) o minimiza el toast, que
- * vuelve a aparecer a los 30 minutos. Lo minimizado se guarda en la sesión
+ * pasa a una barra fija al pie de la pantalla (nunca queda solo en el menú)
+ * y vuelve a desplegarse a los 30 minutos o cuando el usuario la pulsa. Lo minimizado se guarda en la sesión
  * de Laravel, no en el navegador: así va ligado a cada inicio de sesión
  * (el `sessionStorage` de la pestaña lo compartían los usuarios que
  * entraban en ella, y una alerta a un colectivo quedaba oculta para todos).
@@ -34,6 +35,7 @@ use Modules\Usuarios\Models\UsuarioRol;
  *
  * @property-read Collection<int, Alerta> $alertas
  * @property-read Collection<int, Alerta> $visibles
+ * @property-read Collection<int, Alerta> $minimizadasPendientes
  */
 class AlertaToast extends Component
 {
@@ -126,7 +128,46 @@ class AlertaToast extends Component
     }
 
     /**
-     * Minimiza el toast de una alerta: vuelve a aparecer a los 30 minutos
+     * Alertas pendientes con el toast minimizado, que se muestran en la barra del pie.
+     *
+     * @return Collection<int, Alerta>
+     */
+    #[Computed]
+    public function minimizadasPendientes(): Collection
+    {
+        $minimizadas = $this->minimizadas();
+
+        return $this->alertas->filter(fn (Alerta $alerta): bool => isset($minimizadas[$alerta->id]))->values();
+    }
+
+    /**
+     * Vuelve a desplegar el toast de una alerta minimizada.
+     *
+     * @param int $alertaId ID de la alerta.
+     * @return void
+     */
+    public function restaurar(int $alertaId): void
+    {
+        $minimizadas = $this->minimizadas();
+        unset($minimizadas[$alertaId]);
+
+        session([$this->claveSesion() => $minimizadas]);
+        unset($this->visibles, $this->minimizadasPendientes);
+    }
+
+    /**
+     * Vuelve a desplegar todos los toasts minimizados.
+     *
+     * @return void
+     */
+    public function restaurarTodas(): void
+    {
+        session()->forget($this->claveSesion());
+        unset($this->visibles, $this->minimizadasPendientes);
+    }
+
+    /**
+     * Minimiza el toast de una alerta: pasa a la barra del pie y se despliega de nuevo a los 30 minutos
      * si sigue pendiente. No cambia el estado de la alerta.
      *
      * @param int $alertaId ID de la alerta.
@@ -229,7 +270,7 @@ class AlertaToast extends Component
         $alertaService->reconocer($alerta, auth()->user(), request()->ip() ?? '');
 
         $this->alertaConfirmandoId = null;
-        unset($this->alertas, $this->visibles);
+        unset($this->alertas, $this->visibles, $this->minimizadasPendientes);
         $this->dispatch('alerta-reconocida');
     }
 
@@ -286,6 +327,6 @@ class AlertaToast extends Component
         }
 
         session([$this->claveSesion() => $minimizadas]);
-        unset($this->visibles);
+        unset($this->visibles, $this->minimizadasPendientes);
     }
 }

@@ -26,7 +26,7 @@ use Tests\TestCase;
  * Toasts persistentes de alertas (paso 5 del plan de Mensajes,
  * `modulo-mensajes.md` §4.2): solo alertas pendientes del usuario,
  * reconocimiento con confirmación y enlace al origen solo si es accesible.
- * TF-MSG-TOAST-01 a 17.
+ * TF-MSG-TOAST-01 a 20.
  */
 class AlertaToastTest extends TestCase
 {
@@ -81,6 +81,18 @@ class AlertaToastTest extends TestCase
             'destinatario_type' => DestinatarioType::Usuario,
             'destinatario_usuario_id' => $usuario->id,
         ], $overrides));
+    }
+
+    /** Marca HTML del toast desplegado de una alerta. */
+    private function toast(Alerta $alerta): string
+    {
+        return 'wire:key="alerta-toast-'.$alerta->id.'"';
+    }
+
+    /** Marca HTML de una alerta en la barra de minimizadas del pie. */
+    private function enBarra(Alerta $alerta): string
+    {
+        return 'wire:key="alerta-minimizada-'.$alerta->id.'"';
     }
 
     /**
@@ -290,18 +302,23 @@ class AlertaToastTest extends TestCase
             ->assertSee('Alerta global');
     }
 
-    /** TF-MSG-TOAST-13 — Minimizar oculta ese toast y deja los demás. */
+    /** TF-MSG-TOAST-13 — Minimizar pliega ese toast a la barra del pie y deja los demás desplegados. */
     #[Test]
-    public function minimizar_oculta_solo_ese_toast(): void
+    public function minimizar_pliega_el_toast_a_la_barra(): void
     {
         $minimizada = $this->crearAlerta($this->usuario, ['titulo' => 'La minimizo']);
-        $this->crearAlerta($this->usuario, ['titulo' => 'Sigue a la vista']);
+        $otra = $this->crearAlerta($this->usuario, ['titulo' => 'Sigue a la vista']);
 
         Livewire::actingAs($this->usuario)
             ->test(AlertaToast::class)
+            ->assertDontSee('alertas sin reconocer')
             ->call('minimizar', $minimizada->id)
-            ->assertDontSee('La minimizo')
-            ->assertSee('Sigue a la vista');
+            ->assertDontSeeHtml($this->toast($minimizada))
+            ->assertSeeHtml($this->enBarra($minimizada))
+            ->assertSee('La minimizo')
+            ->assertSee('1 alerta sin reconocer')
+            ->assertSeeHtml($this->toast($otra))
+            ->assertDontSeeHtml($this->enBarra($otra));
     }
 
     /** TF-MSG-TOAST-14 — Minimizar no reconoce la alerta: sigue pendiente y en la bandeja. */
@@ -319,25 +336,29 @@ class AlertaToastTest extends TestCase
         $this->assertSame(EstadoAlerta::Pendiente, $alerta->fresh()->estado);
     }
 
-    /** TF-MSG-TOAST-15 — El toast minimizado vuelve a aparecer a los 30 minutos, no antes. */
+    /** TF-MSG-TOAST-15 — El toast minimizado se despliega solo a los 30 minutos, no antes. */
     #[Test]
-    public function minimizado_reaparece_a_los_30_minutos(): void
+    public function minimizado_se_despliega_a_los_30_minutos(): void
     {
-        $alerta = $this->crearAlerta($this->usuario, ['titulo' => 'Vuelve luego']);
+        $alerta = $this->crearAlerta($this->usuario);
 
         $componente = Livewire::actingAs($this->usuario)
             ->test(AlertaToast::class)
             ->call('minimizar', $alerta->id)
-            ->assertDontSee('Vuelve luego');
+            ->assertDontSeeHtml($this->toast($alerta));
 
         $this->travel(29)->minutes();
-        $componente->call('$refresh')->assertDontSee('Vuelve luego');
+        $componente->call('$refresh')
+            ->assertDontSeeHtml($this->toast($alerta))
+            ->assertSeeHtml($this->enBarra($alerta));
 
         $this->travel(2)->minutes();
-        $componente->call('$refresh')->assertSee('Vuelve luego');
+        $componente->call('$refresh')
+            ->assertSeeHtml($this->toast($alerta))
+            ->assertDontSeeHtml($this->enBarra($alerta));
     }
 
-    /** TF-MSG-TOAST-16 — Minimizar una alerta de colectivo no la oculta a los demás destinatarios. */
+    /** TF-MSG-TOAST-16 — Minimizar una alerta de colectivo no la pliega a los demás destinatarios. */
     #[Test]
     public function minimizar_no_afecta_a_otro_usuario(): void
     {
@@ -356,29 +377,79 @@ class AlertaToastTest extends TestCase
         Livewire::actingAs($this->usuario)
             ->test(AlertaToast::class)
             ->call('minimizar', $alerta->id)
-            ->assertDontSee('Alerta al equipo');
+            ->assertDontSeeHtml($this->toast($alerta));
 
         // Misma sesión, otro usuario
         Livewire::actingAs($otro)
             ->test(AlertaToast::class)
-            ->assertSee('Alerta al equipo');
+            ->assertSeeHtml($this->toast($alerta))
+            ->assertDontSeeHtml($this->enBarra($alerta));
     }
 
-    /** TF-MSG-TOAST-17 — Con más de 3 alertas se resumen las demás, y «Minimizar todas» oculta todo. */
+    /** TF-MSG-TOAST-17 — Con más de 3 alertas se resumen las demás, y «Minimizar todas» las lleva todas a la barra. */
     #[Test]
     public function resume_las_que_no_caben_y_minimiza_todas(): void
     {
-        foreach (range(1, 5) as $n) {
-            $this->crearAlerta($this->usuario, ['titulo' => "Alerta número {$n}"]);
-        }
+        $alertas = collect(range(1, 5))->map(fn (int $n) => $this->crearAlerta($this->usuario, ['titulo' => "Alerta número {$n}"]));
 
         Livewire::actingAs($this->usuario)
             ->test(AlertaToast::class)
-            ->assertSee('Alerta número 1')
-            ->assertDontSee('Alerta número 4')
+            ->assertSeeHtml($this->toast($alertas[0]))
+            ->assertDontSeeHtml($this->toast($alertas[3]))
             ->assertSeeHtml('<strong>2</strong> alertas pendientes más')
             ->call('minimizarTodas')
-            ->assertDontSee('Alerta número')
-            ->assertDontSee('pendientes más');
+            ->assertDontSeeHtml('wire:key="alerta-toast-')
+            ->assertDontSee('pendientes más')
+            ->assertSee('5 alertas sin reconocer')
+            ->assertSee('y 2 más');
+    }
+
+    /** TF-MSG-TOAST-18 — Pulsar una alerta de la barra la vuelve a desplegar al momento. */
+    #[Test]
+    public function restaurar_despliega_la_alerta(): void
+    {
+        $alerta = $this->crearAlerta($this->usuario);
+
+        Livewire::actingAs($this->usuario)
+            ->test(AlertaToast::class)
+            ->call('minimizar', $alerta->id)
+            ->call('restaurar', $alerta->id)
+            ->assertSeeHtml($this->toast($alerta))
+            ->assertDontSeeHtml($this->enBarra($alerta))
+            ->assertDontSee('sin reconocer');
+    }
+
+    /** TF-MSG-TOAST-19 — «Mostrar» despliega todas las minimizadas. */
+    #[Test]
+    public function restaurar_todas(): void
+    {
+        $a = $this->crearAlerta($this->usuario);
+        $b = $this->crearAlerta($this->usuario);
+
+        Livewire::actingAs($this->usuario)
+            ->test(AlertaToast::class)
+            ->call('minimizarTodas')
+            ->call('restaurarTodas')
+            ->assertSeeHtml($this->toast($a))
+            ->assertSeeHtml($this->toast($b))
+            ->assertDontSee('sin reconocer');
+    }
+
+    /** TF-MSG-TOAST-20 — Una alerta minimizada reconocida desde la bandeja desaparece también de la barra. */
+    #[Test]
+    public function minimizada_reconocida_sale_de_la_barra(): void
+    {
+        $alerta = $this->crearAlerta($this->usuario);
+
+        $componente = Livewire::actingAs($this->usuario)
+            ->test(AlertaToast::class)
+            ->call('minimizar', $alerta->id)
+            ->assertSeeHtml($this->enBarra($alerta));
+
+        app(AlertaService::class)->reconocer($alerta, $this->usuario, '127.0.0.1');
+
+        $componente->dispatch('alerta-reconocida')
+            ->assertDontSeeHtml($this->enBarra($alerta))
+            ->assertDontSee('sin reconocer');
     }
 }
