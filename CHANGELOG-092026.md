@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-09-27 — Mensajes: alertas y avisos de prueba en el CIAM Puente de Vallecas (solo datos)
+
+Sin cambios de código. Creadas en la BD compartida local/staging, todas con `AlertaService` (`crear()` y `crearAvisoSupervisor()`), para revisar la bandeja en navegador:
+- Alertas #1–#17 de la UO 13 (CIAM Puente de Vallecas):
+  - 7 alertas y 3 avisos directos a las trabajadoras sociales (usuarios 26, 27, 49, 50 y 51), con un plan activo no protegido de cada una como origen.
+  - Una alerta y un aviso directos a cada coordinadora (25 Marta Menéndez y 48 Carmen Ortega).
+  - Una alerta `rol_uo` (`intervencion`, 10 destinatarios).
+  - Un aviso de supervisor de cada coordinadora a su equipo (13 destinatarios cada uno).
+- Las alertas vencen el 2026-09-28 a las 12:00. Después el job las escala a la supervisión.
+
+---
+
 ## 2026-09-26 — Mensajes: panel de redacción flotante y botón «Escribir mensaje» (paso 4 y fase 8)
 
 ### Módulos afectados
