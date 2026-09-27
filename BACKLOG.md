@@ -28,7 +28,7 @@ Módulo: Mensajes
   - (a) Las alertas de `AccesoProtegido` no llevan «Ver origen»: no hay pantalla que resuelva esas solicitudes (Aprobaciones solo trata `UsuarioRol`).
   - (b) La bandeja podría reutilizar `AlertaToast::enlaceOrigen()` para su propio enlace al origen (punto anterior).
   - (c) No hay toasts en el backoffice Filament.
-  - (d) No se han probado en navegador pantallas estrechas ni la convivencia con el panel de redacción.
+  - (d) No se han probado en navegador pantallas estrechas ni la convivencia con el panel de redacción. Tampoco hay test de navegador (Dusk o Playwright): la interacción entre el morph de Livewire y Alpine no se detecta con `Livewire::test`.
 - **Error en `instrucciones-cli-mensajes.md` (tests mínimos):** «17:30 de un día laborable → 09:00 del día siguiente» es incorrecto con 4 horas laborales; lo correcto es 12:00 (lo que ya comprueba T-HLS-04).
 
 ---

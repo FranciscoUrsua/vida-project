@@ -24,22 +24,30 @@ use Modules\Usuarios\Models\UsuarioRol;
  *
  * Solo alertas: los avisos no generan toasts. No desaparecen solos; el
  * usuario reconoce la alerta (con confirmación) o minimiza el toast, que
- * vuelve a aparecer a los 30 minutos. La minimización vive en el navegador
- * (`sessionStorage`); el servidor solo decide qué alertas siguen pendientes.
+ * vuelve a aparecer a los 30 minutos. Lo minimizado se guarda en la sesión
+ * de Laravel, no en el navegador: así va ligado a cada inicio de sesión
+ * (el `sessionStorage` de la pestaña lo compartían los usuarios que
+ * entraban en ella, y una alerta a un colectivo quedaba oculta para todos).
  *
  * Las alertas nuevas se detectan por polling cada 60 segundos, el mismo
  * ciclo que los contadores del menú.
  *
  * @property-read Collection<int, Alerta> $alertas
+ * @property-read Collection<int, Alerta> $visibles
  */
 class AlertaToast extends Component
 {
     /** Número máximo de toasts apilados; el resto se resume en una línea. */
     public const MAXIMO_VISIBLES = 3;
 
+    /** Minutos que un toast minimizado tarda en volver a aparecer. */
+    public const MINUTOS_REAPARICION = 30;
+
+    /** Prefijo de la clave de sesión con los toasts minimizados: [alerta_id => timestamp]. */
+    private const CLAVE_SESION = 'mensajes.alertas_minimizadas';
+
     /**
-     * IDs de las alertas pendientes, en el orden de los toasts. El navegador
-     * los usa para decidir cuáles mostrar según lo que se haya minimizado.
+     * IDs de las alertas pendientes, en el orden de los toasts (minimizadas incluidas).
      *
      * @var list<int>
      */
@@ -101,6 +109,42 @@ class AlertaToast extends Component
             ->where('tipo', TipoAlerta::Alerta->value)
             ->orderBy('expira_en')
             ->get();
+    }
+
+    /**
+     * Alertas pendientes cuyo toast no está minimizado (o lleva minimizado
+     * más de MINUTOS_REAPARICION).
+     *
+     * @return Collection<int, Alerta>
+     */
+    #[Computed]
+    public function visibles(): Collection
+    {
+        $minimizadas = $this->minimizadas();
+
+        return $this->alertas->reject(fn (Alerta $alerta): bool => isset($minimizadas[$alerta->id]))->values();
+    }
+
+    /**
+     * Minimiza el toast de una alerta: vuelve a aparecer a los 30 minutos
+     * si sigue pendiente. No cambia el estado de la alerta.
+     *
+     * @param int $alertaId ID de la alerta.
+     * @return void
+     */
+    public function minimizar(int $alertaId): void
+    {
+        $this->guardarMinimizadas([$alertaId]);
+    }
+
+    /**
+     * Minimiza todos los toasts visibles.
+     *
+     * @return void
+     */
+    public function minimizarTodas(): void
+    {
+        $this->guardarMinimizadas($this->visibles->pluck('id')->all());
     }
 
     /**
@@ -185,7 +229,7 @@ class AlertaToast extends Component
         $alertaService->reconocer($alerta, auth()->user(), request()->ip() ?? '');
 
         $this->alertaConfirmandoId = null;
-        unset($this->alertas);
+        unset($this->alertas, $this->visibles);
         $this->dispatch('alerta-reconocida');
     }
 
@@ -199,5 +243,49 @@ class AlertaToast extends Component
         $this->alertaIds = $this->alertas->pluck('id')->all();
 
         return view('mensajes::livewire.alerta-toast');
+    }
+
+    /**
+     * Toasts minimizados hace menos de MINUTOS_REAPARICION, descartando los caducados.
+     *
+     * @return array<int, int> [alerta_id => timestamp]
+     */
+    private function minimizadas(): array
+    {
+        $limite = now()->subMinutes(self::MINUTOS_REAPARICION)->getTimestamp();
+
+        return array_filter(
+            (array) session($this->claveSesion(), []),
+            fn (int $instante): bool => $instante > $limite
+        );
+    }
+
+    /**
+     * Clave de sesión de lo minimizado, por usuario: una alerta a un
+     * colectivo tiene el mismo ID para todos sus destinatarios.
+     *
+     * @return string
+     */
+    private function claveSesion(): string
+    {
+        return self::CLAVE_SESION.'.'.auth()->id();
+    }
+
+    /**
+     * Añade alertas a las minimizadas de la sesión con el instante actual.
+     *
+     * @param list<int> $alertaIds IDs de las alertas.
+     * @return void
+     */
+    private function guardarMinimizadas(array $alertaIds): void
+    {
+        $minimizadas = $this->minimizadas();
+
+        foreach ($alertaIds as $alertaId) {
+            $minimizadas[$alertaId] = now()->getTimestamp();
+        }
+
+        session([$this->claveSesion() => $minimizadas]);
+        unset($this->visibles);
     }
 }

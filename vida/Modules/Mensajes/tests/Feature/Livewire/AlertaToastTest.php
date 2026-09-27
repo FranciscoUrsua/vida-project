@@ -26,7 +26,7 @@ use Tests\TestCase;
  * Toasts persistentes de alertas (paso 5 del plan de Mensajes,
  * `modulo-mensajes.md` §4.2): solo alertas pendientes del usuario,
  * reconocimiento con confirmación y enlace al origen solo si es accesible.
- * TF-MSG-TOAST-01 a 12.
+ * TF-MSG-TOAST-01 a 17.
  */
 class AlertaToastTest extends TestCase
 {
@@ -288,5 +288,97 @@ class AlertaToastTest extends TestCase
             ->assertOk()
             ->assertSeeLivewire(AlertaToast::class)
             ->assertSee('Alerta global');
+    }
+
+    /** TF-MSG-TOAST-13 — Minimizar oculta ese toast y deja los demás. */
+    #[Test]
+    public function minimizar_oculta_solo_ese_toast(): void
+    {
+        $minimizada = $this->crearAlerta($this->usuario, ['titulo' => 'La minimizo']);
+        $this->crearAlerta($this->usuario, ['titulo' => 'Sigue a la vista']);
+
+        Livewire::actingAs($this->usuario)
+            ->test(AlertaToast::class)
+            ->call('minimizar', $minimizada->id)
+            ->assertDontSee('La minimizo')
+            ->assertSee('Sigue a la vista');
+    }
+
+    /** TF-MSG-TOAST-14 — Minimizar no reconoce la alerta: sigue pendiente y en la bandeja. */
+    #[Test]
+    public function minimizar_no_reconoce(): void
+    {
+        $alerta = $this->crearAlerta($this->usuario);
+
+        Livewire::actingAs($this->usuario)
+            ->test(AlertaToast::class)
+            ->call('minimizar', $alerta->id)
+            ->assertNotDispatched('alerta-reconocida')
+            ->assertSet('alertaIds', [$alerta->id]);
+
+        $this->assertSame(EstadoAlerta::Pendiente, $alerta->fresh()->estado);
+    }
+
+    /** TF-MSG-TOAST-15 — El toast minimizado vuelve a aparecer a los 30 minutos, no antes. */
+    #[Test]
+    public function minimizado_reaparece_a_los_30_minutos(): void
+    {
+        $alerta = $this->crearAlerta($this->usuario, ['titulo' => 'Vuelve luego']);
+
+        $componente = Livewire::actingAs($this->usuario)
+            ->test(AlertaToast::class)
+            ->call('minimizar', $alerta->id)
+            ->assertDontSee('Vuelve luego');
+
+        $this->travel(29)->minutes();
+        $componente->call('$refresh')->assertDontSee('Vuelve luego');
+
+        $this->travel(2)->minutes();
+        $componente->call('$refresh')->assertSee('Vuelve luego');
+    }
+
+    /** TF-MSG-TOAST-16 — Minimizar una alerta de colectivo no la oculta a los demás destinatarios. */
+    #[Test]
+    public function minimizar_no_afecta_a_otro_usuario(): void
+    {
+        $otro = $this->crearUsuario('otro@vida360.test', $this->uo);
+        $alerta = app(AlertaService::class)->crear([
+            'tipo' => TipoAlerta::Alerta,
+            'origen_type' => UnidadOrganizativa::class,
+            'origen_id' => $this->uo->id,
+            'titulo' => 'Alerta al equipo',
+            'cuerpo' => 'Para todo el colectivo',
+            'destinatario_type' => DestinatarioType::RolUo,
+            'destinatario_rol' => 'intervencion',
+            'destinatario_uo_id' => $this->uo->id,
+        ]);
+
+        Livewire::actingAs($this->usuario)
+            ->test(AlertaToast::class)
+            ->call('minimizar', $alerta->id)
+            ->assertDontSee('Alerta al equipo');
+
+        // Misma sesión, otro usuario
+        Livewire::actingAs($otro)
+            ->test(AlertaToast::class)
+            ->assertSee('Alerta al equipo');
+    }
+
+    /** TF-MSG-TOAST-17 — Con más de 3 alertas se resumen las demás, y «Minimizar todas» oculta todo. */
+    #[Test]
+    public function resume_las_que_no_caben_y_minimiza_todas(): void
+    {
+        foreach (range(1, 5) as $n) {
+            $this->crearAlerta($this->usuario, ['titulo' => "Alerta número {$n}"]);
+        }
+
+        Livewire::actingAs($this->usuario)
+            ->test(AlertaToast::class)
+            ->assertSee('Alerta número 1')
+            ->assertDontSee('Alerta número 4')
+            ->assertSeeHtml('<strong>2</strong> alertas pendientes más')
+            ->call('minimizarTodas')
+            ->assertDontSee('Alerta número')
+            ->assertDontSee('pendientes más');
     }
 }

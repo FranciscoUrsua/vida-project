@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-09-27 — Mensajes: toasts centrados y minimización en la sesión del servidor
+
+### Corrección
+Tras minimizar un toast, dejaban de verse, incluso al entrar con otro usuario. Había dos causas:
+- Lo minimizado estaba en el `sessionStorage` de la pestaña, identificado solo por el ID de la alerta. Las alertas a un colectivo tienen el mismo ID para todos sus destinatarios, y quedaban ocultas para cualquier usuario que entrase en esa pestaña.
+- El morph de Livewire (polling cada 60 s) volvía a poner `x-cloak` a los toasts ocultos con Alpine, y ya no reaparecían.
+
+### Cambios
+- `AlertaToast`: métodos `minimizar()` y `minimizarTodas()` y computed `visibles`. Lo minimizado se guarda en la sesión de Laravel por usuario, y la vista ya no usa Alpine.
+- Estilo: centrados y con el 75 % del ancho de la ventana (todo el ancho en móvil).
+- Tests TF-MSG-TOAST-13 a 17. TF-16 verificado en negativo: falla si la clave de sesión no lleva el usuario.
+- `Modules/Mensajes/tests`: 128 passed.
+
+---
+
 ## 2026-09-27 — Mensajes: toasts persistentes de alertas (`AlertaToast`, paso 5)
 
 ### Módulos afectados

@@ -143,11 +143,11 @@ Las alertas pendientes de reconocimiento se muestran además como **toast notifi
 Los avisos (incluyendo los del supervisor) **no generan toasts**. Solo se reflejan en el contador del menú.
 
 **Implementación (2026-09-27):** componente `AlertaToast` (`mensajes-alerta-toast`), montado en `operativo-shell`: sale en todas las pantallas de Intervención y Supervisión, no en el backoffice Filament.
-- Toasts Bootstrap arriba a la derecha, bajo el topbar. Cabecera con el tinte de urgencia, título, texto, plazo restante, «Ver origen» y «Reconocer».
+- Toasts Bootstrap centrados bajo el topbar, con el 75 % del ancho de la ventana (todo el ancho en móvil). Cabecera con el tinte de urgencia, título, texto, plazo restante, «Ver origen» y «Reconocer».
 - «Reconocer» pide confirmación, igual que en la bandeja.
 - «Ver origen» solo aparece si la alerta viene de un plan, una ficha o una Historia Social que el usuario puede ver (`ContextoMensajeService`), o de una solicitud de rol y el usuario supervisa (lleva a Aprobaciones).
 - Las alertas nuevas se detectan por `wire:poll.60s`, el mismo ciclo que los contadores del menú. Las instrucciones decían 30 minutos, pero así no serían «en tiempo real».
-- Minimizar guarda en `sessionStorage` el instante por alerta (`vida.alertas.minimizadas`), y el toast reaparece a los 30 minutos, sin necesidad de recargar.
+- Minimizar guarda el instante en la sesión de Laravel, por usuario (`mensajes.alertas_minimizadas.{usuario}`). El toast reaparece en el primer ciclo de polling tras 30 minutos. Al principio se guardaba en el `sessionStorage` del navegador, pero se descartó (2026-09-27): lo compartían los usuarios que entraban en la misma pestaña, y como una alerta a un colectivo tiene el mismo ID para todos, al minimizarla uno quedaba oculta para los demás. Además, el morph de Livewire volvía a poner `x-cloak` a los toasts ocultos con Alpine, y ya no reaparecían. El componente no usa Alpine.
 - Se apilan como mucho 3 toasts. El resto se resume en una línea «Y N alertas pendientes más», con «Ver todas» (bandeja) y «Minimizar todas».
 - Al reconocer, desde el toast o desde la bandeja, se emite `alerta-reconocida`: la bandeja, los toasts y los menús se refrescan al momento.
 

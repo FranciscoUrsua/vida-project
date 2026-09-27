@@ -6,7 +6,7 @@
 
 ## Tarea completada
 
-**Mensajes, paso 5: toasts persistentes de alertas** (`AlertaToast`, en el layout operativo). Salen en cualquier pantalla, se reconocen con confirmación y, al minimizarlos, reaparecen a los 30 minutos. Detalle en `CHANGELOG-092026.md`.
+**Mensajes, paso 5: toasts persistentes de alertas** (`AlertaToast`, en el layout operativo). Corregida la minimización (ahora en la sesión del servidor) y los toasts van centrados, con el 75 % del ancho. Salen en cualquier pantalla, se reconocen con confirmación y, al minimizarlos, reaparecen a los 30 minutos. Detalle en `CHANGELOG-092026.md`.
 
 ---
 
@@ -23,7 +23,7 @@
 - **Servidor de pruebas preparado para la custodia** (2026-09-25): `/srv/vida/documentos` (www-data, 0700), `DOCUMENTOS_RUTA` y `DOCUMENTOS_CLAVE_MAESTRA` en el `.env` de staging, y clamd activo (`/var/run/clamav/clamd.ctl`). El `.env` **local** no tiene variables `DOCUMENTOS_*`: en local la custodia falla hasta que se añadan.
 - **Código de staging** (`/var/www/vida-project/vida`): se despliega solo con cada push a `master` (job `deploy` de `.github/workflows/ci.yml`, tras pasar `test`). No hace falta desplegar a mano.
 - **Tests:**
-  - `Modules/Mensajes/tests`: 123 passed (2026-09-27).
+  - `Modules/Mensajes/tests`: 128 passed (2026-09-27).
   - `Modules/Documentos`: 88 passed (unos 190 s: cada ingesta pasa por Ghostscript).
   - **Suite completa** (2026-09-25, unos 20 min): 908 passed y 76 failed, 75 de ellos fuera de Documentos (sobre todo Agenda) y ya existentes. Ver CHANGELOG y BACKLOG. No lanzar a la vez dos ejecuciones de tests: comparten `vida_testing`.
   - `Modules/Usuarios/tests/`: 63 passed y 1 incomplete (ya existía).
@@ -50,7 +50,7 @@
 
 - **Mensajes, adaptación a las instrucciones nuevas:** `instrucciones-cli-mensajes.md` está escrito como si el módulo fuera nuevo, pero ya existía. Ya cumplen: migraciones, modelos, `HorarioLaboralService`, el job cada 15 min y los recursos Filament (en `app/Filament/Resources/`, no en el módulo, como manda `CLAUDE.md`). Las rutas de las instrucciones (`Modules/Mensajes/Models/`…) no son las del proyecto (`Modules/Mensajes/app/...`). El rol es `supervision`, no «supervisor». Entre fases se pasan solo los tests del módulo, no la suite completa.
 - **Alertas por destinatario:** cada alerta tiene sus filas en `alerta_destinatarios`, fijadas al crearla (directa: una; `rol_uo`: una por cada miembro del colectivo en ese momento). Lo que un usuario tiene por atender = `Alerta::pendientesPara($usuario)`; todo lo que recibió = `visiblesPara()`. No escribir consultas propias. Toda alerta se crea con `AlertaService::crear()`, nunca con `Alerta::create`: sin él no tiene destinatarios (nadie la ve) ni `expira_en` (no escala). En los tests, crear las alertas con el servicio. El `estado` de `alertas` es un resumen que recalcula el servicio.
-- **Toasts de alertas:** `AlertaToast` vive en `operativo-shell`, junto al panel. Hace polling cada 60 s. La minimización está en `sessionStorage` (`vida.alertas.minimizadas`). Todo reconocimiento emite `alerta-reconocida`, que escuchan la bandeja, los toasts y los dos sidebars: si se añade otro sitio donde reconocer, emitir el mismo evento.
+- **Toasts de alertas:** `AlertaToast` vive en `operativo-shell`, junto al panel. Hace polling cada 60 s. Lo minimizado está en la sesión de Laravel, por usuario (no en el navegador: ver CHANGELOG). La vista no usa Alpine: el morph de Livewire rompía su estado. Todo reconocimiento emite `alerta-reconocida`, que escuchan la bandeja, los toasts y los dos sidebars: si se añade otro sitio donde reconocer, emitir el mismo evento.
 - **Panel de redacción:** `PanelRedaccion` vive en `operativo-shell`. Se abre con `$dispatch('abrir-panel-redaccion', { contexto: { tipo, id } })`, o con el parcial `mensajes::partials.boton-escribir-mensaje`, que debe ir dentro de un componente Livewire. Contextos: `TipoContextoMensaje` (historia, ficha, plan). El contexto siempre se resuelve y autoriza con `ContextoMensajeService`, nunca con datos del navegador.
 - **Supervisor:** `ControlAlertasPage` (`supervision.control-alertas`) incluye `NuevoAvisoSupervisor`. Avisos del supervisor = `AlertaService::crearAvisoSupervisor()` (`destinatario_type = uo`, todo el equipo salvo él). Escaladas = `AlertaDestinatario::escaladasA()`; se cierran solo con `AlertaService::cerrarEscalada()`, sin plazo (`escalar()` no las toca).
 - **Bandeja:** `BandejaAlertasYMensajes` (pantalla, pestaña por ruta) → `BandejaAlertas` (`tipo` alerta|aviso) y `BandejaMensajes` → `HiloMensajes` / `NuevoMensaje`. Rutas: `intervencion.mensajes.index` y `supervision.bandeja`, las dos con `{pestana?}`. Las entradas de menú salen del parcial `mensajes::partials.nav-bandeja`, y los contadores, de `ContadoresBandejaService` (no calcularlos en otro sitio). En los tests de Livewire, un `findOrFail` fallido llega como 404 (`assertNotFound()`), no como excepción.
