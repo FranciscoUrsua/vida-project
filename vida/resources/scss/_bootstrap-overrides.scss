@@ -10,6 +10,20 @@ $danger: #9A3A2F;
 $light: #F2EADA;
 $dark: #1D160E;
 
+// Tonos suaves VIDA como variantes Bootstrap: en Blade se usan
+// .bg-{color}-subtle, .text-{color}-emphasis y .border-{color}-subtle,
+// que también toman alerts, badges y list-groups contextuales.
+$primary-bg-subtle: #E3ECF5;
+$primary-text-emphasis: #163A5C;
+$info-bg-subtle: #E1EAF2;
+$info-text-emphasis: #274863;
+$success-bg-subtle: #E2EEE4;
+$success-text-emphasis: #2F5A39;
+$warning-bg-subtle: #F5EBD4;
+$warning-text-emphasis: #7A5818;
+$danger-bg-subtle: #F5DFD8;
+$danger-text-emphasis: #7A2D1E;
+
 $body-bg: #FAF7F1;
 $body-color: #1D160E;
 $body-secondary-color: #6A5F4C;

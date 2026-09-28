@@ -10,7 +10,8 @@ Use this when producing UI, slides, prototypes or marketing for **VIDA 360** (*V
 
 ## Getting started
 1. Read `README.md` top-to-bottom before any design work.
-2. Use `stylesheets/colors_and_type.css` as the design-token reference.
+2. Tokens: in the application they live in `vida/resources/scss/_bootstrap-overrides.scss` (everything Bootstrap models) and `_vida-sass-tokens.scss` (the rest). In Blade use Bootstrap classes; in SCSS use those Sass variables or Bootstrap's `--bs-*`. **Never `var(--color-*)` outside Filament**: those variables do not exist in the operational or public bundles. `stylesheets/colors_and_type.css` is a reference for design artifacts only.
+   Read `docs/instrucciones-cli/2026-09-bootstrap-unico.md` before touching Blade or SCSS.
 3. Read `frontend-bootstrap-guardrails.md` before any implementation work on Blade, Livewire or shared layouts.
 4. For implementation:
    - Blade/Livewire operativo y publico: Bootstrap 5.3 como capa base, tokens VIDA y componentes `op-*` reutilizables.
@@ -27,7 +28,7 @@ Source Sans 3 (UI) · Source Serif 4 (display only) · JetBrains Mono (codes, DN
 - Buttons: sentence case. No Title Case.
 - Chips: `--radius-pill`, 12px / 600, semantic soft-bg + ink-coloured text.
 - Cards: white bg, 1px ink-200 border, `--shadow-1`, 8px radius, 20px padding.
-- Focus ring is mandatory: 2px `--color-primary`, 2px offset.
+- Focus ring is mandatory: Bootstrap's focus ring (`$focus-ring-*` in `_bootstrap-overrides.scss`).
 - AI-assisted output carries the `Sugerencia IA` chip + `<x-heroicon-o-sparkles />` icon and needs professional validation.
 - Protected records (menores, VG): show the protected banner; never hide the status.
 - Bootstrap 5.3 is the primitive layer for Blade/Livewire UI: buttons, forms, tables, modals, grid, spacing. Install locally via npm + Vite, never via CDN.

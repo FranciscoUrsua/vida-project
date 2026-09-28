@@ -1,6 +1,13 @@
 /* =============================================================================
    VIDA 360 — Design Tokens
    Import into any artifact from this folder: <link rel="stylesheet" href="stylesheets/colors_and_type.css">
+
+   Referencia para artefactos de diseño. NO es la fuente de la aplicación:
+   la aplicación (operativo y público) toma los tokens de
+   vida/resources/scss/_bootstrap-overrides.scss y _vida-sass-tokens.scss;
+   Filament, de vida/resources/css/filament/admin/theme.css.
+   Si cambia un valor, se cambia primero allí. Ver
+   docs/instrucciones-cli/2026-09-bootstrap-unico.md.
    Fonts: Source Sans 3, Source Serif 4, JetBrains Mono (Google Fonts).
    ========================================================================== */
 
@@ -35,19 +42,19 @@
   --color-ink-100:        #F2EEE5;  /* subtle divider */
 
   /* --- Semantic ------------------------------------------------------- */
-  --color-success:        #4B8A5B;
+  --color-success:        #27500A;
   --color-success-soft:   #E2EEE4;
   --color-success-ink:    #2F5A39;
 
-  --color-warning:        #B8852F;
+  --color-warning:        #8A5A14;
   --color-warning-soft:   #F5EBD4;
   --color-warning-ink:    #7A5818;
 
-  --color-danger:         #B0432E;
+  --color-danger:         #9A3A2F;
   --color-danger-soft:    #F5DFD8;
   --color-danger-ink:     #7A2D1E;
 
-  --color-info:           #3F6E99;
+  --color-info:           #2A5B8A;
   --color-info-soft:      #E1EAF2;
   --color-info-ink:       #274863;
 

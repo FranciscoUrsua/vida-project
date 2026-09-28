@@ -1,10 +1,13 @@
 // Tokens de diseño VIDA como variables Sass.
 // Compiladas en tiempo de build — sin salida CSS propia.
-// Fuente de verdad: resources/css/vida/colors_and_type.css
+// Junto con _bootstrap-overrides.scss, es la única fuente de tokens de las
+// superficies operativa y pública (docs/instrucciones-cli/2026-09-bootstrap-unico.md).
+// docs/design-system/stylesheets/colors_and_type.css es solo referencia de diseño.
 //
-// Usar aquí, NO en CSS custom properties de :root.
-// Los tokens que coinciden con variables Bootstrap ($primary, $body-bg...)
-// se definen únicamente en _bootstrap-overrides.scss.
+// Aquí solo va lo que Bootstrap no modela. Los tokens que coinciden con
+// variables Bootstrap ($primary, $danger, $body-bg...) se definen únicamente
+// en _bootstrap-overrides.scss. No se exponen como CSS custom properties:
+// en Blade se usan clases Bootstrap; en SCSS, estas variables o las --bs-*.
 
 $vida-surface:       #FFFFFF;
 $vida-sand:          #F2EADA;
@@ -28,6 +31,11 @@ $vida-success-soft:  #E2EEE4;
 $vida-success-ink:   #2F5A39;
 $vida-warning-soft:  #F5EBD4;
 $vida-warning-ink:   #7A5818;
+$vida-accent-soft:   #F5E4D9;
+$vida-accent-ink:    #7F3E22;
+$vida-protected:      #6B3D6B;  // colectivos especialmente protegidos
+$vida-protected-soft: #EDE1ED;
+$vida-protected-ink:  #4A2A4A;
 $vida-radius-pill:   999px;
 $vida-shadow-sm:     0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .04);
 $vida-shadow-2:      0 2px 8px rgba(0, 0, 0, .12), 0 1px 3px rgba(0, 0, 0, .08);

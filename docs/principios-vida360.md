@@ -286,7 +286,7 @@ La superficie operativa de VIDA (Blade/Livewire) usa **Bootstrap 5.3 como capa b
 
 La arquitectura objetivo tiene cuatro capas:
 
-1. **Tokens VIDA** — variables CSS de color, tipografía, radios, spacing y sombras, expresadas como variables Bootstrap.
+1. **Tokens VIDA** — color, tipografía, radios, spacing y sombras como variables Sass compiladas en Bootstrap (`_bootstrap-overrides.scss` y `_vida-sass-tokens.scss`). No se usan variables CSS propias (`var(--color-*)`) fuera de Filament.
 2. **Bootstrap como primitive layer** — botones (`btn`), formularios (`form-control`, `form-select`), tablas (`table`), modales (`modal`), alerts, grid y spacing utilitario. Se usan las clases estándar sin reinventarlas.
 3. **Componentes compartidos VIDA (`op-*`)** — piezas de producto reutilizables que Bootstrap no modela: `op-page`, `op-section`, `op-toolbar`, `op-chip`, `op-empty`, `op-filter-row`, etc.
 4. **Clases específicas de pantalla** — solo cuando existe una necesidad estructural genuina. No se crean clases tipo `xxx-btn`, `xxx-input` o `xxx-modal` si Bootstrap ya lo resuelve.
@@ -296,6 +296,8 @@ La arquitectura objetivo tiene cuatro capas:
 La aplicación es **desktop-first**: el uso mayoritario se produce en PC y la interfaz debe priorizar densidad, escaneabilidad y eficiencia para trabajo profesional continuado. Esto no exime de soporte responsive: en tablet los layouts deben conservar funcionalidad completa con reorganización razonable, y en móvil deben permitir consulta y operaciones básicas sin roturas visuales ni pérdida de accesibilidad.
 
 **Iconos:** Heroicons en Blade/Livewire y en Filament, via `blade-ui-kit/blade-heroicons`. Bootstrap Icons y Tabler Icons no son el sistema de iconos del producto y no deben añadirse como dependencias nuevas. No cargar iconos por CDN en layouts de la aplicación principal.
+
+Bootstrap es el **único** sistema de estilos de las superficies operativa y pública: sin Tailwind, sin estilos inline estructurales y sin clases propias fuera del catálogo `config/ui-catalogo.php`. Ver `docs/instrucciones-cli/2026-09-bootstrap-unico.md`.
 
 Regla de implementación: **primero Bootstrap; si hace falta un componente de producto reutilizable, `op-*`; solo al final, una clase específica de pantalla. No se usan estilos inline estructurales en Blade. Filament usa su tema VIDA y componentes nativos.**
 

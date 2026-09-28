@@ -78,7 +78,9 @@ confirmar que cada clase y cada método público/protegido tienen su docblock an
 - Toda integración con sistemas externos mediante adaptador con mock activo por defecto (principio 3.6).
 
 ### Frontend y UI
-- **Bootstrap 5.3** es la capa base de primitives para la superficie operativa Blade/Livewire: botones, formularios, tablas, modales, alerts, grid y spacing. Ver principio 4.18 de `docs/principios-vida360.md` y `docs/design-system/bootstrap-migration-plan.md`.
+- **Bootstrap 5.3 es el único sistema de estilos** de las superficies operativa y pública (Blade/Livewire): botones, formularios, tablas, modales, alerts, grid y spacing. Ver principio 4.18 y `docs/instrucciones-cli/2026-09-bootstrap-unico.md`, que hay que leer antes de tocar Blade o SCSS.
+- Tokens: solo variables Sass de `_bootstrap-overrides.scss` y `_vida-sass-tokens.scss` (o `--bs-*`). **Nunca `var(--color-*)` ni colores literales** fuera de Filament: esas variables no existen en los bundles operativo y público.
+- Sin Tailwind fuera de Filament.
 - Bootstrap se instala localmente vía npm + Vite. No usar Bootstrap por CDN en la aplicación principal.
 - Arquitectura en cuatro capas: (1) tokens VIDA como variables Bootstrap, (2) primitives Bootstrap estándar, (3) componentes compartidos VIDA (`op-page`, `op-section`, `op-toolbar`, `op-chip`, `op-empty`, etc.), (4) clases específicas de pantalla solo para necesidades estructurales genuinas.
 - No crear clases tipo `xxx-btn`, `xxx-input`, `xxx-modal` si Bootstrap ya lo resuelve.
@@ -189,3 +191,4 @@ Ficheros disponibles:
 | `documentos-custodia-implementacion.md` | Custodia v2 de documentos: tipos documentales, documento con versiones cifradas, vínculos n:M, tubería de entrada, ciclo de vida, retenciones, destrucción con acta, acceso y auditoría. Implementada el 2026-09-25 (pasos 1 a 9) |
 | `documentos-custodia-tests.md` | 53 tests de la custodia v2 (TF-DOC-26 a 78); hechos todos |
 | `instrucciones-cli-mensajes.md` | Mensajería y alertas: bandeja unificada, toasts de alertas, panel de redacción flotante, avisos de supervisor, sin adjuntos. El módulo ya existía: ver en SESSION el análisis de lo que falta |
+| `2026-09-bootstrap-unico.md` | Bootstrap como único sistema de estilos (operativo y público): tokens únicos, comando `ui:auditar`, catálogo cerrado de clases y migración por módulos. En ejecución |

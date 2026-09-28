@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-09-28 — Frontend: Bootstrap como único sistema de estilos (plan y fase 1)
+
+### Motivo
+El botón «Dar de alta nueva persona» de `alta-ciudadano` era invisible: texto blanco sobre `var(--color-primary)`, que no existe en el bundle operativo. La auditoría posterior encontró cuatro formas de dar estilo mezcladas (Bootstrap, unas 560 clases propias, estilos inline con variables inexistentes y clases Tailwind sin efecto), dos paletas de tokens con valores distintos y ficheros CSS huérfanos. Se decide que Bootstrap sea el único sistema fuera de Filament.
+
+### Cambios
+- Plan nuevo: `docs/instrucciones-cli/2026-09-bootstrap-unico.md` (fases 1 a 5, comando `ui:auditar`, catálogo cerrado `config/ui-catalogo.php`). Sustituye a `bootstrap-migration-plan.md`, `app-operativo-remediation-plan.md` y `frontend-bootstrap-guardrails.md`, marcados como sustituidos.
+- Fase 1 hecha:
+  - `app-public.scss` ya no importa Tailwind. Las vistas públicas no usaban clases Tailwind.
+  - Borrados `resources/css/app.css`, `resources/css/app-operativo.css`, `resources/css/vida/colors_and_type.css` y `resources/scss/_vida-tokens.scss`. Ninguno se compilaba ni se importaba.
+  - `_bootstrap-overrides.scss`: tonos suaves VIDA como `$*-bg-subtle` y `$*-text-emphasis` (primary, info, success, warning, danger). Cambio visible: alerts, badges `*-subtle` y list-groups contextuales toman esos tonos.
+  - `_vida-sass-tokens.scss`: `accent-soft`, `accent-ink` y `protected*`.
+  - `docs/design-system/stylesheets/colors_and_type.css`: alineado con los valores canónicos y marcado como referencia de diseño, no fuente de la aplicación.
+  - `CLAUDE.md`, principio 4.18, `SKILL.md`, `README.md` del design system y `docs/front/ui-intervencion-design-system.md` actualizados.
+
+### Decisiones no previstas en las instrucciones
+- Donde las dos paletas diferían manda Bootstrap: `--color-success` y `--color-warning` no llegaban a contraste AA; en `danger` e `info` cumplían las dos y se conserva el valor visible en el operativo.
+- La regla R3 del plan se amplía a cualquier `var(--…)` no definida (unas 60 distintas en vistas y SCSS), no solo `--color-*`.
+- Los PDF quedan fuera del ámbito junto con Filament.
+- El botón de `alta-ciudadano` no se corrige suelto: se arregla al migrar Ciudadanía en la fase 3.
+
+---
+
 ## 2026-09-27 — Mensajes: barra de alertas minimizadas opaca
 
 - Fondo blanco y opaco, con sombra, en lugar del rosa claro, que se confundía con el contenido de debajo. Los títulos van en chips rosas.

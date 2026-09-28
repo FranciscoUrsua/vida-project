@@ -1,5 +1,7 @@
 # Guardrails de Bootstrap para VIDA 360
 
+> **Sustituido (2026-09-28)** por `docs/instrucciones-cli/2026-09-bootstrap-unico.md`. Se conserva hasta la fase 5 de ese plan; no seguir sus instrucciones.
+
 Norma transitoria obligatoria para la migración descrita en
 `docs/design-system/bootstrap-migration-plan.md`.
 

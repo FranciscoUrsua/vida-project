@@ -6,7 +6,9 @@
 > desviaciones para que el entorno operativo sea visualmente coherente con el
 > backoffice Filament.
 >
-> **Fuente de verdad absoluta:** `docs/design-system/colors_and_type.css`
+> **Obsoleto (2026-09-28):** la fuente de tokens es ahora `vida/resources/scss/_bootstrap-overrides.scss` y `_vida-sass-tokens.scss`. Ver `docs/instrucciones-cli/2026-09-bootstrap-unico.md`.
+>
+> **Fuente de verdad absoluta (histórico):** `docs/design-system/colors_and_type.css`
 > **Patrones de componentes:** `docs/design-system/ui_kits/vida_app/kit.css`
 > **Resumen del sistema:** `docs/design-system/SKILL.md` y `docs/design-system/README.md`
 > **Módulos afectados:** `resources/css/`, `resources/views/layouts/`,

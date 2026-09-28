@@ -9,6 +9,14 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Bootstrap único: pendientes fuera del plan** — 2026-09-28
+Módulo: Frontend / Filament
+- **Tema de Filament con la paleta antigua:** `resources/css/filament/admin/theme.css` conserva `success` #4B8A5B, `warning` #B8852F, `danger` #B0432E e `info` #3F6E99, que no son los canónicos (ver anexo A de `docs/instrucciones-cli/2026-09-bootstrap-unico.md`) y en success/warning no llegan a AA. Filament queda fuera del plan; decidir si se alinea.
+- **Hasta la fase 3, las vistas con `var(--color-*)` siguen rotas sin avisar** (alta, búsqueda, valoración, escala y ficha de Intervención, entre otras): partes sin color, bordes o fondos. El botón «Dar de alta nueva persona» de `alta-ciudadano` es invisible (texto blanco sin fondo).
+- **Vistas públicas con clases sin definir:** `welcome-page__hero`, `welcome-page__summary-section` (welcome) y `auth-card__form` (login). Se resuelven en la fase 3.
+
+---
+
 **⚠️ La ficha del ciudadano no aplica la restricción de colectivos protegidos** — 2026-09-25
 Módulo: Ciudadanía (prioritario: restricción crítica de `CLAUDE.md` §3)
 `FichaCiudadanoPage::mount()` carga al ciudadano con `withoutGlobalScope(AmbitoUoScope::class)` y solo comprueba el rol; no llama a `CiudadanoPolicy::view`. Cualquier profesional con rol `intervencion`, `tramitacion`, `consulta_basica` o `supervision` puede abrir la ficha de una persona de colectivo protegido de otra UO sin acceso aprobado. Detectado al implementar `DocumentoPolicy`, que sí aplica la policy. Solución probable: `Gate::authorize('view', $c)` en `mount()` y un test en negativo.

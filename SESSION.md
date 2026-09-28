@@ -1,12 +1,12 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-09-26
+**Última actualización:** 2026-09-28
 
 ---
 
 ## Tarea completada
 
-**Mensajes, paso 5: toasts persistentes de alertas** (`AlertaToast`, en el layout operativo). Los toasts van centrados, con el 75 % del ancho. Al minimizarlos pasan a una barra fija al pie y a los 30 minutos vuelven a desplegarse. Salen en cualquier pantalla, se reconocen con confirmación y, al minimizarlos, reaparecen a los 30 minutos. Detalle en `CHANGELOG-092026.md`.
+**Bootstrap como único sistema de estilos: plan y fase 1.** Plan en `docs/instrucciones-cli/2026-09-bootstrap-unico.md`. Hecha la fase 1: una sola fuente de tokens (Sass y Bootstrap), Tailwind fuera del bundle público, ficheros CSS huérfanos borrados y documentación alineada. Detalle en `CHANGELOG-092026.md`.
 
 ---
 
@@ -33,21 +33,15 @@
 
 ## Siguiente paso concreto recomendado
 
-1. **Revisar los toasts en staging** con ts1.ciam@demo.es (6 alertas pendientes):
-   - Que salgan en todas las pantallas.
-   - Minimizar: la alerta debe quedar en la barra del pie en todas las pantallas; al pulsarla, se despliega; a los 30 minutos, se despliega sola.
-   - Reconocer desde el toast: el contador del menú debe bajar al momento.
-   - La línea «Y N alertas pendientes más».
-   - Las alertas de prueba vencen el 2026-09-28 a las 12:00 y después se escalan.
-2. Mensajes, paso que queda: (6) llamar a `HistoriaSocialService::obtenerEntradas()` desde la línea de tiempo del ciudadano, para que se vean los mensajes registrados en la Historia Social.
-3. Revisar en staging la tarjeta «Documentos» de la ficha del ciudadano (pendiente de la sesión anterior).
-4. Restricción de colectivos protegidos en la ficha del ciudadano (BACKLOG, prioritario).
-5. Fallos previos de la suite completa (BACKLOG), antes de cualquier merge a `main`.
+1. **Bootstrap único, fase 2:** tests TF-UI-* y comando `php artisan ui:auditar` (reglas R1 a R6), `config/ui-catalogo.php` inicial con todas las clases en `pendiente`, paso en el CI con `--informe` y el informe inicial en el anexo B del plan. Leer antes el plan completo.
+2. Después, fase 3 empezando por Ciudadanía (`alta-ciudadano`, cuyo botón «Dar de alta nueva persona» sigue invisible hasta entonces). Cada módulo migrado lo revisa Grok sobre el código antes de pasar al siguiente.
+3. Pendientes anteriores: revisar los toasts de alertas en staging con ts1.ciam@demo.es; Mensajes, paso 6 (`HistoriaSocialService::obtenerEntradas()` en la línea de tiempo); tarjeta «Documentos» de la ficha; restricción de colectivos protegidos en la ficha (BACKLOG, prioritario); fallos previos de la suite completa.
 
 ---
 
 ## Contexto para retomar sin fricción
 
+- **Frontend:** Bootstrap es el único sistema de estilos fuera de Filament y de los PDF. Los tokens solo están en `_bootstrap-overrides.scss` y `_vida-sass-tokens.scss`. Las variables `--color-*`, `--space-*`, `--radius-*`… **no existen** en los bundles operativo y público. El anexo A del plan tiene la tabla de equivalencias. Los tonos suaves se usan con `bg-*-subtle` y `text-*-emphasis`. El script de auditoría provisional de la sesión del 2026-09-28 no está en el repositorio: el definitivo es `ui:auditar` (fase 2).
 - **Mensajes, adaptación a las instrucciones nuevas:** `instrucciones-cli-mensajes.md` está escrito como si el módulo fuera nuevo, pero ya existía. Ya cumplen: migraciones, modelos, `HorarioLaboralService`, el job cada 15 min y los recursos Filament (en `app/Filament/Resources/`, no en el módulo, como manda `CLAUDE.md`). Las rutas de las instrucciones (`Modules/Mensajes/Models/`…) no son las del proyecto (`Modules/Mensajes/app/...`). El rol es `supervision`, no «supervisor». Entre fases se pasan solo los tests del módulo, no la suite completa.
 - **Alertas por destinatario:** cada alerta tiene sus filas en `alerta_destinatarios`, fijadas al crearla (directa: una; `rol_uo`: una por cada miembro del colectivo en ese momento). Lo que un usuario tiene por atender = `Alerta::pendientesPara($usuario)`; todo lo que recibió = `visiblesPara()`. No escribir consultas propias. Toda alerta se crea con `AlertaService::crear()`, nunca con `Alerta::create`: sin él no tiene destinatarios (nadie la ve) ni `expira_en` (no escala). En los tests, crear las alertas con el servicio. El `estado` de `alertas` es un resumen que recalcula el servicio.
 - **Toasts de alertas:** `AlertaToast` vive en `operativo-shell`, junto al panel. Hace polling cada 60 s. Lo minimizado está en la sesión de Laravel, por usuario (no en el navegador: ver CHANGELOG). La vista no usa Alpine: el morph de Livewire rompía su estado. Todo reconocimiento emite `alerta-reconocida`, que escuchan la bandeja, los toasts y los dos sidebars: si se añade otro sitio donde reconocer, emitir el mismo evento.

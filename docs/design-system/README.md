@@ -12,7 +12,7 @@ This folder is the design system that drives every UI, slide, prototype, mock an
 
 ## Product context
 
-VIDA 360 is a Laravel 12 / PHP 8.3 monolith with a Blade + Livewire + Alpine.js frontend, Tailwind CSS, VIDA design tokens, reusable Blade/Livewire components, and a Filament 5.3 admin backoffice. Interfaces split into two distinct surfaces with different ergonomics:
+VIDA 360 is a Laravel 12 / PHP 8.3 monolith with a Blade + Livewire + Alpine.js frontend styled **only with Bootstrap 5.3** (tokens as Sass/Bootstrap variables, a closed catalogue of `op-*` components), and a Filament 5.3 admin backoffice that keeps its own Tailwind theme. See `docs/instrucciones-cli/2026-09-bootstrap-unico.md`. Interfaces split into two distinct surfaces with different ergonomics:
 
 - **Filament backoffice** — configuration, catalogues, users, roles, permissions. Table-dense, keyboard-driven.
 - **Livewire operational surface** — the daily professional workspace: citizen histories, intervention plans, notes, agenda, prescriptions, alerts, internal messaging. New operational UI is built on **Bootstrap 5.3** (installed locally via npm + Vite) as the primitive layer, with VIDA tokens applied as Bootstrap variables and a shared `op-*` product component library on top. Structural inline styles are not used.
@@ -37,7 +37,7 @@ Two kinds of people use it, with different access rules:
   - `docs/principios-vida360.md` — design principles, tone, privacy posture
   - `docs/documentacion-proyecto.md` — full module and entity documentation
   - `docs/glosario.md`, `docs/modulo-*.md` — module briefs (ciudadanía, agenda, centros, documentos, integraciones, intervención, mensajes, prestaciones, usuarios-permisos)
-  - `vida/resources/views/livewire/admin/gestor-unidades-organizativas.blade.php` — real Livewire page, source of truth for existing Tailwind utility patterns
+  - `vida/resources/views/livewire/admin/gestor-unidades-organizativas.blade.php` — Livewire page rendered inside Filament (Tailwind); not a reference for the operational surface
   - `vida/resources/views/filament/prestaciones/snapshot-modal.blade.php` — Filament partial showing the admin table style
 - The original `vida/resources/views/welcome.blade.php` was the stock Laravel welcome page with no VIDA branding; it was not used as a reference and is not imported.
 
@@ -217,7 +217,7 @@ Pill (`--radius-pill`), `12px` text, `600` weight, uppercase-off. Background is 
 |---|---|
 | `README.md` | This file — the one document to read first. |
 | `SKILL.md` | Portable skill descriptor for Claude Code / agents. |
-| `stylesheets/colors_and_type.css` | Design tokens shared by design artifacts and implementation references. |
+| `stylesheets/colors_and_type.css` | Design tokens for design artifacts only. The application does not load it: operational and public surfaces take tokens from `vida/resources/scss/_bootstrap-overrides.scss` and `_vida-sass-tokens.scss`; Filament from its theme. Never use `var(--color-*)` outside Filament. |
 | `vida360-mark.svg` | Provisional VIDA 360 mark. |
 | `vida360-wordmark.svg` | Provisional VIDA 360 wordmark. |
 

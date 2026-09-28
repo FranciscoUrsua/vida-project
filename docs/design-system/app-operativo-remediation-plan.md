@@ -1,5 +1,7 @@
 # Saneamiento de `vida/resources/css/app-operativo.css`
 
+> **Sustituido (2026-09-28)** por `docs/instrucciones-cli/2026-09-bootstrap-unico.md`. Se conserva hasta la fase 5 de ese plan; no seguir sus instrucciones.
+
 ## Motivo
 
 `vida/resources/scss/app-operativo.scss` importa Bootstrap y, a continuación, reinyecta `vida/resources/css/app-operativo.css`. Eso deja a Bootstrap como una base incompleta: sus componentes existen, pero quedan sobrescritos o duplicados por un archivo heredado de 2238 líneas.

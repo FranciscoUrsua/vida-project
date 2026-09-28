@@ -1,5 +1,7 @@
 # Plan de migración a Bootstrap para VIDA 360
 
+> **Sustituido (2026-09-28)** por `docs/instrucciones-cli/2026-09-bootstrap-unico.md`. Se conserva hasta la fase 5 de ese plan; no seguir sus instrucciones.
+
 ## Estado de esta propuesta
 
 Este documento propone **cambiar la dirección actual del frontend operativo** de VIDA 360.

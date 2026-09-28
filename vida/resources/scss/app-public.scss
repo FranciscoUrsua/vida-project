@@ -3,16 +3,5 @@
 @import 'bootstrap/scss/bootstrap';
 @import './vida-sass-tokens';
 @import './bootstrap-components';
-@import 'tailwindcss';
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
-
-@theme {
-    --font-sans: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
-}
-
 @import './public-pages';
 @import './op-utilities';
