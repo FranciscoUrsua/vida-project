@@ -68,3 +68,10 @@
     height: 1.75rem;
     font-size: 0.7rem;
 }
+
+// op-lista-scroll: lista corta con scroll propio dentro de un formulario
+// (p. ej. el selector de profesionales). Bootstrap no tiene utilidad de alto máximo.
+.op-lista-scroll {
+    max-height: 10rem;
+    overflow-y: auto;
+}

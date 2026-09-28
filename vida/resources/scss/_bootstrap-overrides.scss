@@ -82,3 +82,14 @@ $table-hover-bg: rgba(227, 236, 245, 0.35);
 // Paneles laterales (offcanvas): un único ancho para toda la aplicación
 // (detalle de apunte, reasignación de ausencias, redacción de mensajes).
 $offcanvas-horizontal-width: 480px;
+
+// Bordes suaves de los colores de estado (alertas, list-group, border-*-subtle).
+$success-border-subtle: #C7DDCB;
+$info-border-subtle: #C9D7E5;
+$warning-border-subtle: #E5D2A6;
+$danger-border-subtle: #E7C4BC;
+
+// Tablas: filas con aire (la variante table-sm conserva su densidad).
+$table-cell-padding-y: 0.7rem;
+$table-color: #1D160E;
+$table-th-font-weight: 700;

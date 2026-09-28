@@ -42,8 +42,8 @@ jobs:
           cache-dependency-path: vida/package-lock.json
 
       # Bootstrap único (docs/instrucciones-cli/2026-09-bootstrap-unico.md):
-      # ui:auditar necesita el CSS compilado y no toca la BD. Con --informe
-      # hasta la fase 5 del plan; después, sin él, bloquea el despliegue.
+      # ui:auditar necesita el CSS compilado y no toca la BD.
+      # Bloquea el despliegue si hay infracciones (fase 5, 2026-09-28).
       - name: Auditoría de estilos (ui:auditar)
         run: |
           cd vida
@@ -51,7 +51,7 @@ jobs:
           php artisan key:generate --no-interaction
           npm ci --no-audit --no-fund
           npm run build
-          php artisan ui:auditar --informe
+          php artisan ui:auditar
 
   deploy:
     needs: test

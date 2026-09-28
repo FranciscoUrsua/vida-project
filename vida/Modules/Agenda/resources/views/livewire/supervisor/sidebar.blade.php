@@ -38,7 +38,7 @@
     </nav>
 
     {{-- Footer: enlace a Filament para configuración estable --}}
-    <div class="op-nav-footer border-top pt-2 mt-auto">
+    <div class="border-top pt-2 mt-auto">
         <a href="{{ route('supervision.configuracion') }}"
            class="op-nav-item text-body-secondary"
            aria-label="Configuración del centro">

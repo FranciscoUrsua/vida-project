@@ -1,10 +1,9 @@
 # Bootstrap como único sistema de estilos (operativo y público)
 
 **Fecha:** 2026-09-28
-**Estado:** plan aprobado, en ejecución. Fases 1 y 2 hechas el 2026-09-28. Fase 3: Ciudadanía hecha (pendiente de revisión de Grok).
-**Sustituye a:** `docs/design-system/bootstrap-migration-plan.md`,
-`docs/design-system/app-operativo-remediation-plan.md` y
-`docs/design-system/frontend-bootstrap-guardrails.md` (se borran en la fase 5).
+**Estado:** completado el 2026-09-28 (fases 1 a 5). Pendiente de la revisión de Grok del conjunto.
+**Sustituye a:** `bootstrap-migration-plan.md`, `app-operativo-remediation-plan.md`
+y `frontend-bootstrap-guardrails.md` de `docs/design-system/` (borrados en la fase 5).
 
 ---
 
@@ -233,6 +232,49 @@ de `_op-*.scss` se revisan: o se convierten en variables de
    catálogo.
 
 ---
+
+## 5. Resultado (2026-09-28)
+
+- `php artisan ui:auditar` sin infracciones y bloqueante en el CI.
+- Todas las vistas del ámbito usan solo Bootstrap. Sin estilos inline salvo
+  valores dinámicos, sin colores literales ni variables CSS inexistentes, sin
+  Tailwind.
+- Catálogo: **47 clases propias**, todas aprobadas con su motivo (antes, unas
+  560). SCSS propio: de unas 4.450 líneas a unas 600. Borrados
+  `_public-pages.scss`, `_op-ciudadano.scss` y `_op-support-pages.scss`.
+- Tokens: una sola fuente. `$vida-topbar-height` sustituye a los `56px`
+  repetidos. Colores de alertas, tablas, campos y foco pasan a variables de
+  Bootstrap en `_bootstrap-overrides.scss`.
+
+### Decisiones tomadas durante la migración
+
+- **Color de tema `protected`** (colectivos especialmente protegidos) añadido a
+  los mapas de Bootstrap. Para ello `_bootstrap-vida.scss` importa Bootstrap por
+  partes, en el orden que recomienda su documentación. Existen `text-protected`,
+  `bg-protected-subtle`, `text-protected-emphasis`, `btn-outline-protected`…
+- **Componentes nuevos del catálogo:** `op-page--fill` (pantallas de alto fijo
+  con scroll por zonas: expediente, mis casos), `op-avatar` (con el componente
+  `<x-avatar>`, que ahora acepta `nombre`) y `op-lista-scroll`.
+- **Clases de pantalla** que se quedan: `plan-index` (índice fijo bajo la barra
+  del plan) y `plan-editor-area` (alto mínimo del editor contenteditable).
+- **Ancho único de offcanvas** (`$offcanvas-horizontal-width: 480px`) para los
+  tres paneles laterales.
+- **`table-sm` recupera su densidad**: antes una regla global le forzaba el
+  mismo relleno vertical que a `table` (`$table-cell-padding-y: .7rem`).
+- **Calendario mensual** de la agenda como tabla (`row-cols-*` llega a 6).
+- **Menú de usuario del topbar** con el `dropdown` de Bootstrap.
+- **Nada de nombres de clase concatenados:** `match` o arrays con clases
+  completas.
+- Accesos al expediente: el acceso de lectura desde otra UO se marca como
+  «sospechoso» (lo pedía TF-AUD-INT-05, que ya fallaba). Los tests que miraban
+  clases CSS miran ahora un marcador semántico (`data-acceso`) o el texto.
+
+### Límites conocidos del auditor
+
+- Las clases que se asignan desde PHP (arrays en `@php`, `match`, variables)
+  no se comprueban contra el CSS (R1 solo ve literales en atributos de clase).
+- R5 da por usada una clase que se llama igual que una vista o ruta
+  (`alta-ciudadano`): al retirar una pantalla, revisar su clase raíz a mano.
 
 ## Anexo A. Equivalencias de tokens
 

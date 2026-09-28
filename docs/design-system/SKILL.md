@@ -12,7 +12,7 @@ Use this when producing UI, slides, prototypes or marketing for **VIDA 360** (*V
 1. Read `README.md` top-to-bottom before any design work.
 2. Tokens: in the application they live in `vida/resources/scss/_bootstrap-overrides.scss` (everything Bootstrap models) and `_vida-sass-tokens.scss` (the rest). In Blade use Bootstrap classes; in SCSS use those Sass variables or Bootstrap's `--bs-*`. **Never `var(--color-*)` outside Filament**: those variables do not exist in the operational or public bundles. `stylesheets/colors_and_type.css` is a reference for design artifacts only.
    Read `docs/instrucciones-cli/2026-09-bootstrap-unico.md` before touching Blade or SCSS.
-3. Read `frontend-bootstrap-guardrails.md` before any implementation work on Blade, Livewire or shared layouts.
+3. Before any work on Blade, Livewire or SCSS: every class that is not Bootstrap must be in `vida/config/ui-catalogo.php`, and `php artisan ui:auditar` must pass (it blocks CI).
 4. For implementation:
    - Blade/Livewire operativo y publico: Bootstrap 5.3 como capa base, tokens VIDA y componentes `op-*` reutilizables.
    - Filament: tema VIDA y componentes nativos.

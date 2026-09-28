@@ -6,7 +6,7 @@
 
 ## Tarea completada
 
-**Bootstrap único, fase 3, Ciudadanía:** `alta-ciudadano` y `ficha-ciudadano-page` reescritas solo con Bootstrap (el botón de alta vuelve a verse), tarjeta de Documentos alineada y 111 clases muertas borradas del SCSS y del catálogo. `ui:auditar --modulo=Ciudadania` sin infracciones; total del proyecto 1.107 (antes 1.724).
+**Bootstrap único, completo (fases 1 a 5).** Todas las vistas operativas y públicas usan solo Bootstrap. El catálogo tiene 47 clases propias, todas aprobadas. `php artisan ui:auditar` sale sin infracciones y bloquea el CI. Detalle en `CHANGELOG-092026.md` y en `docs/instrucciones-cli/2026-09-bootstrap-unico.md` §5.
 
 ---
 
@@ -33,16 +33,21 @@
 
 ## Siguiente paso concreto recomendado
 
-1. **Revisión de Grok del commit de Ciudadanía** (acordado con el desarrollador: cada módulo migrado lo revisa Grok antes de pasar al siguiente). Corregir lo que señale.
-2. Revisar en staging el alta y la ficha del ciudadano (no se ha hecho revisión visual en navegador).
-3. Después, fase 3 de Intervención: `buscar-ciudadano-page`, `registrar-valoracion-page`, `ver-ficha-page`, `registrar-escala-page`, `ciudadano-page`, `plan-page` y el resto, hasta `ui:auditar --modulo=Intervencion` sin infracciones.
-4. Pendientes anteriores: toasts de alertas en staging con ts1.ciam@demo.es; Mensajes, paso 6; restricción de colectivos protegidos en la ficha (BACKLOG, prioritario); fallos previos de la suite completa (entre ellos, los dos de Ciudadanía que buscan «Ver historia social»).
+1. **Revisión de Grok del conjunto de la migración** (acordado con el desarrollador: al terminar todo). Commits: `0da904d` (fase 1), `d620571` (fase 2), `2a93e27` (Ciudadanía), `82b213b` (Intervención) y el del cierre (resto de módulos, fases 4 y 5). Corregir lo que señale.
+2. **Revisión visual en staging**: aún no se ha mirado ninguna pantalla migrada en el navegador. Prioridad: expediente (`ciudadano-page`), plan, agenda, alta, ficha y login.
+3. Pendientes anteriores: toasts de alertas en staging con ts1.ciam@demo.es; Mensajes, paso 6; restricción de colectivos protegidos en la ficha (BACKLOG, prioritario); fallos previos de la suite (BACKLOG).
 
 ---
 
 ## Contexto para retomar sin fricción
 
-- **Frontend:** Bootstrap es el único sistema de estilos fuera de Filament y de los PDF. Los tokens solo están en `_bootstrap-overrides.scss` y `_vida-sass-tokens.scss`. Las variables `--color-*`, `--space-*`, `--radius-*`… **no existen** en los bundles operativo y público; el anexo A del plan tiene las equivalencias, y los tonos suaves van con `bg-*-subtle` y `text-*-emphasis`. Toda tarea que toque Blade o SCSS se comprueba con `php artisan ui:auditar` (necesita `npm run build` previo; `--modulo=X` para un módulo). Una clase propia nueva va al catálogo `config/ui-catalogo.php` o no existe. Tras Pint, restaurar los `@return` de `app/Support/Ui` y del comando.
+- **Frontend:** solo Bootstrap fuera de Filament y de los PDF.
+  - Tokens: solo en `_bootstrap-overrides.scss` y `_vida-sass-tokens.scss`. No existen variables `--color-*`.
+  - Color de tema propio: `protected` (`text-protected`, `bg-protected-subtle`…), añadido en `_bootstrap-vida.scss`.
+  - Toda clase propia está en `config/ui-catalogo.php`; una nueva va al catálogo en el mismo commit.
+  - Toda tarea con Blade o SCSS termina con `npm run build` + `php artisan ui:auditar` en verde. El CI lo exige.
+  - Nada de clases concatenadas: `match` o arrays con clases completas.
+  - Tras Pint, restaurar los `@return`.
 - **Mensajes, adaptación a las instrucciones nuevas:** `instrucciones-cli-mensajes.md` está escrito como si el módulo fuera nuevo, pero ya existía. Ya cumplen: migraciones, modelos, `HorarioLaboralService`, el job cada 15 min y los recursos Filament (en `app/Filament/Resources/`, no en el módulo, como manda `CLAUDE.md`). Las rutas de las instrucciones (`Modules/Mensajes/Models/`…) no son las del proyecto (`Modules/Mensajes/app/...`). El rol es `supervision`, no «supervisor». Entre fases se pasan solo los tests del módulo, no la suite completa.
 - **Alertas por destinatario:** cada alerta tiene sus filas en `alerta_destinatarios`, fijadas al crearla (directa: una; `rol_uo`: una por cada miembro del colectivo en ese momento). Lo que un usuario tiene por atender = `Alerta::pendientesPara($usuario)`; todo lo que recibió = `visiblesPara()`. No escribir consultas propias. Toda alerta se crea con `AlertaService::crear()`, nunca con `Alerta::create`: sin él no tiene destinatarios (nadie la ve) ni `expira_en` (no escala). En los tests, crear las alertas con el servicio. El `estado` de `alertas` es un resumen que recalcula el servicio.
 - **Toasts de alertas:** `AlertaToast` vive en `operativo-shell`, junto al panel. Hace polling cada 60 s. Lo minimizado está en la sesión de Laravel, por usuario (no en el navegador: ver CHANGELOG). La vista no usa Alpine: el morph de Livewire rompía su estado. Todo reconocimiento emite `alerta-reconocida`, que escuchan la bandeja, los toasts y los dos sidebars: si se añade otro sitio donde reconocer, emitir el mismo evento.

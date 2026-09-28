@@ -64,21 +64,21 @@
                 <x-heroicon-o-chevron-down class="icon-16 op-toggle-icon" aria-hidden="true"/>
             </button>
 
-            <div class="topbar__user-menu dropdown-menu dropdown-menu-end">
-                <div class="topbar__user-info">
-                    <div class="topbar__user-detail-name">
+            <div class="dropdown-menu dropdown-menu-end p-0 overflow-hidden">
+                <div class="px-3 py-2">
+                    <div class="small fw-semibold">
                         {{ Auth::user()->profesional?->nombre_completo ?? Auth::user()->email }}
                     </div>
-                    <div class="topbar__user-detail-role">
+                    <div class="small text-body-secondary">
                         {{ Auth::user()->roles->first()?->name ?? '—' }}
                     </div>
                 </div>
 
-                <div class="topbar__user-divider"></div>
+                <hr class="dropdown-divider m-0">
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="btn btn-link text-danger text-decoration-none d-flex align-items-center gap-2 w-100 justify-content-start px-4 py-2 rounded-0">
+                    <button type="submit" class="dropdown-item text-danger d-flex align-items-center gap-2 py-2">
                         <x-heroicon-o-arrow-right-on-rectangle class="icon-16" aria-hidden="true"/>
                         Cerrar sesión
                     </button>

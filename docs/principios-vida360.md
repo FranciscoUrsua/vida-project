@@ -282,13 +282,13 @@ La anonimización es parte del cumplimiento del RGPD por diseño (privacy by des
 
 ### 4.18 Sistema unificado de frontend
 
-La superficie operativa de VIDA (Blade/Livewire) usa **Bootstrap 5.3 como capa base de primitives**, instalado localmente vía npm + Vite. Los tokens VIDA se aplican como variables Bootstrap para que los componentes estándar hablen el lenguaje visual del producto. Por encima existe una biblioteca corta de componentes de producto compartidos (`op-*`). Ver el plan de arquitectura en `docs/design-system/bootstrap-migration-plan.md`.
+La superficie operativa de VIDA (Blade/Livewire) usa **Bootstrap 5.3 como capa base de primitives**, instalado localmente vía npm + Vite. Los tokens VIDA se aplican como variables Bootstrap para que los componentes estándar hablen el lenguaje visual del producto. Por encima existe una biblioteca corta de componentes de producto compartidos (`op-*`). Ver `docs/instrucciones-cli/2026-09-bootstrap-unico.md`.
 
 La arquitectura objetivo tiene cuatro capas:
 
 1. **Tokens VIDA** — color, tipografía, radios, spacing y sombras como variables Sass compiladas en Bootstrap (`_bootstrap-overrides.scss` y `_vida-sass-tokens.scss`). No se usan variables CSS propias (`var(--color-*)`) fuera de Filament.
 2. **Bootstrap como primitive layer** — botones (`btn`), formularios (`form-control`, `form-select`), tablas (`table`), modales (`modal`), alerts, grid y spacing utilitario. Se usan las clases estándar sin reinventarlas.
-3. **Componentes compartidos VIDA (`op-*`)** — piezas de producto reutilizables que Bootstrap no modela: `op-page`, `op-section`, `op-toolbar`, `op-chip`, `op-empty`, `op-filter-row`, etc.
+3. **Componentes compartidos VIDA (`op-*`)** — piezas de producto reutilizables que Bootstrap no modela (`op-page`, `op-empty`, `op-avatar`…). La lista cerrada está en `config/ui-catalogo.php`.
 4. **Clases específicas de pantalla** — solo cuando existe una necesidad estructural genuina. No se crean clases tipo `xxx-btn`, `xxx-input` o `xxx-modal` si Bootstrap ya lo resuelve.
 
 **Filament** mantiene su propio sistema de componentes y tema VIDA. No se usa Bootstrap en la superficie Filament. Los overrides sobre clases internas (`.fi-*`) se centralizan en el tema y son excepcionales.

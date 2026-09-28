@@ -70,12 +70,12 @@
 
     {{-- Modal: Registrar en Historia Social --}}
     @if($mostrarModalHistoria)
-        <div class="modal d-block mensajes-hilo__modal" tabindex="-1">
-            <div class="modal-dialog">
+        <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="modal-historia-titulo">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Registrar en Historia Social</h5>
-                        <button wire:click="cerrarModalHistoria" type="button" class="btn-close"></button>
+                        <h5 id="modal-historia-titulo" class="modal-title">Registrar en Historia Social</h5>
+                        <button wire:click="cerrarModalHistoria" type="button" class="btn-close" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
                         <p class="text-body-secondary small">
@@ -107,5 +107,6 @@
                 </div>
             </div>
         </div>
+        <div class="modal-backdrop fade show"></div>
     @endif
 </div>

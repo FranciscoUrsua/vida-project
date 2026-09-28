@@ -76,13 +76,12 @@
                 'default'   => 'bg-light text-body-secondary',
             ];
         @endphp
-        <table class="table table-bordered table-sm align-middle mb-0" style="min-width: max-content;">
+        <table class="table table-bordered table-sm align-middle text-nowrap mb-0">
             <thead class="table-light">
                 <tr>
-                    <th class="fw-semibold" style="min-width:160px">Profesional</th>
+                    <th class="fw-semibold">Profesional</th>
                     @foreach($this->diasEnVista as $dia)
-                    <th class="text-center small {{ $dia->toDateString() === $hoy ? 'table-primary' : '' }}"
-                        style="min-width:90px">
+                    <th class="text-center small {{ $dia->toDateString() === $hoy ? 'table-primary' : '' }}">
                         {{ $dia->translatedFormat('D') }}<br>
                         <span class="fw-bold">{{ $dia->format('d/m') }}</span>
                     </th>

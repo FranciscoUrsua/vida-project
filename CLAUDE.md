@@ -82,7 +82,10 @@ confirmar que cada clase y cada método público/protegido tienen su docblock an
 - Tokens: solo variables Sass de `_bootstrap-overrides.scss` y `_vida-sass-tokens.scss` (o `--bs-*`). **Nunca `var(--color-*)` ni colores literales** fuera de Filament: esas variables no existen en los bundles operativo y público.
 - Sin Tailwind fuera de Filament.
 - Bootstrap se instala localmente vía npm + Vite. No usar Bootstrap por CDN en la aplicación principal.
-- Arquitectura en cuatro capas: (1) tokens VIDA como variables Bootstrap, (2) primitives Bootstrap estándar, (3) componentes compartidos VIDA (`op-page`, `op-section`, `op-toolbar`, `op-chip`, `op-empty`, etc.), (4) clases específicas de pantalla solo para necesidades estructurales genuinas.
+- Arquitectura en cuatro capas: (1) tokens VIDA como variables Bootstrap, (2) primitives Bootstrap estándar, (3) componentes compartidos VIDA del catálogo (`op-page`, `op-empty`, `op-avatar`…), (4) clases específicas de pantalla solo para necesidades estructurales genuinas.
+- **Catálogo cerrado:** toda clase propia (no Bootstrap) está en `config/ui-catalogo.php` con su motivo. Una clase nueva va al catálogo en el mismo commit o no existe.
+- **Toda tarea que toque Blade o SCSS termina con `php artisan ui:auditar` en verde** (tras `npm run build`). El CI lo ejecuta y bloquea el despliegue si falla.
+- No construir nombres de clase concatenando (`"badge-{{ $tipo }}"`): usar un `match` o un array que devuelva clases completas.
 - No crear clases tipo `xxx-btn`, `xxx-input`, `xxx-modal` si Bootstrap ya lo resuelve.
 - Overrides de Bootstrap centralizados en `_bootstrap-overrides.scss`.
 - Evitar estilos inline estructurales en Blade. Solo se admiten para valores dinámicos inevitables.
@@ -191,4 +194,4 @@ Ficheros disponibles:
 | `documentos-custodia-implementacion.md` | Custodia v2 de documentos: tipos documentales, documento con versiones cifradas, vínculos n:M, tubería de entrada, ciclo de vida, retenciones, destrucción con acta, acceso y auditoría. Implementada el 2026-09-25 (pasos 1 a 9) |
 | `documentos-custodia-tests.md` | 53 tests de la custodia v2 (TF-DOC-26 a 78); hechos todos |
 | `instrucciones-cli-mensajes.md` | Mensajería y alertas: bandeja unificada, toasts de alertas, panel de redacción flotante, avisos de supervisor, sin adjuntos. El módulo ya existía: ver en SESSION el análisis de lo que falta |
-| `2026-09-bootstrap-unico.md` | Bootstrap como único sistema de estilos (operativo y público): tokens únicos, comando `ui:auditar`, catálogo cerrado de clases y migración por módulos. En ejecución |
+| `2026-09-bootstrap-unico.md` | Bootstrap como único sistema de estilos (operativo y público): tokens únicos, comando `ui:auditar`, catálogo cerrado de clases. Completado el 2026-09-28 |

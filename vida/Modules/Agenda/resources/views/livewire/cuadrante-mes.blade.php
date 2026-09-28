@@ -38,7 +38,7 @@
             <table class="table table-bordered table-sm align-middle mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th style="min-width:160px">Profesional</th>
+                        <th class="text-nowrap">Profesional</th>
                         @foreach ($this->diasSeman as $dia)
                             <th class="text-center">{{ $dia->translatedFormat('D d') }}</th>
                         @endforeach
@@ -52,8 +52,7 @@
                         </td>
                         @foreach ($this->diasSeman as $dia)
                             @php $celda = $this->getCelda($perfil->usuario_id, $dia); @endphp
-                            <td class="text-center {{ $celda['tipo_celda'] === 'excepcion' ? 'bg-light' : '' }}"
-                                style="vertical-align:middle">
+                            <td class="text-center {{ $celda['tipo_celda'] === 'excepcion' ? 'bg-light' : '' }}">
                                 @if ($celda['tipo_celda'] === 'excepcion')
                                     <button type="button"
                                             wire:click="abrirModalExc({{ $perfil->usuario_id }}, {{ $dia->day }})"

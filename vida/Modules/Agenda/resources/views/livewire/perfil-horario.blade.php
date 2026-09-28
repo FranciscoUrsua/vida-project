@@ -23,8 +23,7 @@
             @foreach ([1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V'] as $num => $letra)
             <button type="button"
                     wire:click="toggleDia({{ $num }})"
-                    class="btn btn-sm rounded-circle fw-medium {{ in_array($num, $diasActivos) ? 'btn-primary' : 'btn-outline-secondary' }}"
-                    style="width:32px;height:32px;padding:0"
+                    class="btn btn-sm rounded-pill px-3 fw-medium {{ in_array($num, $diasActivos) ? 'btn-primary' : 'btn-outline-secondary' }}"
                     title="{{ ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'][$num] }}">
                 {{ $letra }}
             </button>
@@ -39,14 +38,14 @@
         @foreach ($diasActivos as $dia)
         @php $f = $franjasPorDia[$dia] ?? ['mIni' => '09:00', 'mFin' => '14:00', 'tIni' => null, 'tFin' => null]; @endphp
         <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-            <span class="text-body-secondary small fw-medium" style="width:1.5rem">
+            <span class="text-body-secondary small fw-medium font-monospace">
                 {{ ['', 'L', 'M', 'X', 'J', 'V'][$dia] }}
             </span>
             <input type="time" wire:model="franjasPorDia.{{ $dia }}.mIni"
-                   class="form-control form-control-sm" style="width:7rem">
+                   class="form-control form-control-sm w-auto">
             <span class="text-body-secondary">–</span>
             <input type="time" wire:model="franjasPorDia.{{ $dia }}.mFin"
-                   class="form-control form-control-sm" style="width:7rem">
+                   class="form-control form-control-sm w-auto">
             @if(empty($f['tIni']))
             <button type="button" wire:click="addTarde({{ $dia }})"
                     class="btn btn-outline-secondary btn-sm">
@@ -55,10 +54,10 @@
             @else
             <span class="text-body-secondary">|</span>
             <input type="time" wire:model="franjasPorDia.{{ $dia }}.tIni"
-                   class="form-control form-control-sm" style="width:7rem">
+                   class="form-control form-control-sm w-auto">
             <span class="text-body-secondary">–</span>
             <input type="time" wire:model="franjasPorDia.{{ $dia }}.tFin"
-                   class="form-control form-control-sm" style="width:7rem">
+                   class="form-control form-control-sm w-auto">
             <button type="button" wire:click="removeTarde({{ $dia }})"
                     class="btn btn-outline-danger btn-sm px-2">
                 <x-heroicon-o-x-mark class="icon-14" aria-hidden="true"/>

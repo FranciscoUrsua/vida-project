@@ -12,7 +12,10 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 **Bootstrap único: pendientes fuera del plan** — 2026-09-28
 Módulo: Frontend / Filament
 - **Tema de Filament con la paleta antigua:** `resources/css/filament/admin/theme.css` conserva `success` #4B8A5B, `warning` #B8852F, `danger` #B0432E e `info` #3F6E99, que no son los canónicos (ver anexo A de `docs/instrucciones-cli/2026-09-bootstrap-unico.md`) y en success/warning no llegan a AA. Filament queda fuera del plan; decidir si se alinea.
-- **Hasta la fase 3, las vistas con `var(--color-*)` siguen rotas sin avisar** (búsqueda, valoración, escala y ficha de Intervención, entre otras): partes sin color, bordes o fondos. Ciudadanía ya está migrada (2026-09-28).
+- **`ui:auditar` no verifica clases asignadas desde PHP** (arrays en `@php`, `match`, variables): solo literales en atributos de clase. Valorar extraer esas tablas a un helper con test que compruebe que cada clase existe en el CSS compilado.
+- **R5 da por usada una clase que coincide con un nombre de vista o ruta.** Valorar excluir de la búsqueda de usos las cadenas `vista::…`/`route('…')`.
+- **Tests con fallo previo detectados al migrar**: TF-AUTH-16/17 (`User::name` devuelve el correo en la portada `inicio`), `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`), Agenda (columna `horario_centro_id` inexistente en `tipos_slot` en `vida_testing`; `foreach` sobre cadena en `cuadrante-supervisor-page`).
+- **Revisión visual pendiente**: ninguna pantalla migrada se ha revisado en navegador; conviene recorrer staging (expediente, plan, agenda, login).
 - **Vistas públicas con clases sin definir:** `welcome-page__hero`, `welcome-page__summary-section` (welcome) y `auth-card__form` (login). Se resuelven en la fase 3.
 
 ---

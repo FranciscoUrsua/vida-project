@@ -4,6 +4,49 @@
 
 ---
 
+## 2026-09-28 — Frontend: Bootstrap único, fases 3 (resto), 4 y 5
+
+### Cambios
+- **Vistas migradas a Bootstrap:**
+  - Intervención: valoración, escala, `ver-ficha`, búsqueda, expediente (`ciudadano-page`), mis casos, agenda y plan.
+  - Agenda (perfil horario, cuadrantes, ausencias).
+  - Supervisión (picker, auditoría).
+  - Mensajes (modal del hilo).
+  - Layout operativo (menú de usuario con `dropdown`).
+  - Públicas: login, onboarding, sin rol, inicio y portada.
+- **Tema Bootstrap** (`_bootstrap-vida.scss`, nuevo): Bootstrap se importa por partes para añadir el color de tema `protected`.
+  - `_bootstrap-overrides.scss` recoge los bordes suaves de estado, las tablas y el ancho de offcanvas.
+  - `_bootstrap-components.scss` queda sin colores literales, solo con tokens.
+- **Catálogo cerrado:** 47 clases aprobadas con su motivo (eran ~560).
+  - Nuevas: `op-page--fill`, `op-avatar` (con `<x-avatar>` rehecho), `op-lista-scroll`, `plan-index` y `plan-editor-area`.
+  - Borrados `_public-pages.scss`, `_op-ciudadano.scss` y `_op-support-pages.scss`, y unas 380 clases muertas más.
+  - SCSS propio: de ~4.450 líneas a ~600.
+- **Fase 5:**
+  - `ui:auditar` bloquea el CI.
+  - Borrados los tres planes antiguos de `docs/design-system/`.
+  - Nueva decisión técnica 3.9, que sustituye a la 3.8.
+  - Reglas nuevas en `CLAUDE.md`: catálogo, `ui:auditar` en verde, nada de clases concatenadas.
+- **Accesos al expediente:** un acceso de lectura desde otra UO se marca como sospechoso (fondo ámbar), como pedía TF-AUD-INT-05, que ya fallaba.
+- **Tests adaptados:**
+  - TF-AUD-INT-05/06/07 y TF-LW-REL-01 comprobaban clases CSS; ahora comprueban `data-acceso` o el texto visible.
+- **Resultado de los tests:**
+  - Mensajes (131), Documentos (88), `UiAuditarTest` (21) y Accesos (11): todo pasa.
+  - Fallos previos, comprobados con las vistas anteriores:
+    - Agenda: esquema de `tipos_slot` y cuadrante de supervisor.
+    - Supervisión: 3.
+    - TF-AUTH-16/17: `name` devuelve el correo.
+    - `AutorizacionDatosTest`: clave foránea de `audits`.
+    - Ciudadanía: 2 que buscan «Ver historia social».
+
+### Decisiones no previstas en las instrucciones
+- **`protected` como color de tema de Bootstrap**, en lugar de clases propias.
+- **Ancho único de offcanvas: 480 px.**
+- **`table-sm` recupera su densidad:** una regla global la anulaba.
+- **Calendario mensual como tabla:** `row-cols-*` no llega a 7 columnas.
+- **Clases asignadas desde PHP:** se aceptan con `match` y arrays de clases completas. El auditor no las verifica (límite documentado en el plan).
+
+---
+
 ## 2026-09-28 — Frontend: Bootstrap único, fase 3, módulo Ciudadanía
 
 ### Cambios

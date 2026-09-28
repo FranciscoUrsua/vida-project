@@ -154,7 +154,17 @@ Los modelos sensibles de ciudadanos (`HistoriaSocial`, `Apunte`, `Ciudadano`, `P
 
 ---
 
-### 3.8 CSS BEM para componentes operativos
+### 3.9 Bootstrap como único sistema de estilos y catálogo cerrado de clases
+
+**Decisión (2026-09-28):** sustituye a la 3.8. Las superficies operativa y pública usan solo Bootstrap 5.3. Las clases propias se limitan a un catálogo cerrado (`config/ui-catalogo.php`: 47 clases al cerrar la migración, frente a unas 560 antes), cada una con su motivo. Tokens solo como variables Sass (`_bootstrap-overrides.scss`, `_vida-sass-tokens.scss`); sin `var(--color-*)`, colores literales ni estilos inline estructurales. `php artisan ui:auditar` lo comprueba y bloquea el CI. Colores de tema propios (`protected`) se añaden a los mapas de Bootstrap en `_bootstrap-vida.scss`. Filament y los PDF quedan fuera.
+
+**Motivo:** las normas anteriores se incumplían sin que nada lo detectara (botón invisible por una variable CSS inexistente, cuatro formas de pintar un mismo elemento). Ver `docs/instrucciones-cli/2026-09-bootstrap-unico.md`.
+
+**BEM** sigue siendo la nomenclatura de las clases del catálogo.
+
+---
+
+### 3.8 CSS BEM para componentes operativos (sustituida por la 3.9)
 
 **Decisión (2026-06-14):** los estilos de los paneles operativos (intervención, ciudadano, auditoría) usan nomenclatura BEM (Bloque__Elemento--Modificador) en lugar de estilos inline o clases utilitarias ad hoc.
 

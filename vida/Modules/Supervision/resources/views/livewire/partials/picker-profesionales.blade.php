@@ -56,7 +56,7 @@
     {{-- Picker modo centro --}}
     @if(! $buscarEnTodo)
         @if($paraSelector->isNotEmpty())
-        <div class="border rounded overflow-hidden mb-2" style="max-height: 160px; overflow-y: auto;">
+        <div class="border rounded mb-2 op-lista-scroll">
             @foreach($paraSelector as $prof)
             <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
                 <span class="small">

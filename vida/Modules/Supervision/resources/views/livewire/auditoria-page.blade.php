@@ -4,11 +4,11 @@
     <section class="p-3 border-bottom">
         <div class="d-flex gap-2 flex-wrap align-items-end">
             <div>
-                <label class="form-label form-label-sm" for="fechaDesde">Desde</label>
+                <label class="form-label small" for="fechaDesde">Desde</label>
                 <input id="fechaDesde" type="date" class="form-control form-control-sm" wire:model.live="fechaDesde">
             </div>
             <div>
-                <label class="form-label form-label-sm" for="fechaHasta">Hasta</label>
+                <label class="form-label small" for="fechaHasta">Hasta</label>
                 <input id="fechaHasta" type="date" class="form-control form-control-sm" wire:model.live="fechaHasta">
             </div>
             @if($this->tieneColectivosProtegidos)
