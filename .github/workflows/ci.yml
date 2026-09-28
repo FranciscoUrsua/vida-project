@@ -34,6 +34,25 @@ jobs:
           cd vida
           composer install --no-progress --no-interaction --prefer-dist
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vida/package-lock.json
+
+      # Bootstrap único (docs/instrucciones-cli/2026-09-bootstrap-unico.md):
+      # ui:auditar necesita el CSS compilado y no toca la BD. Con --informe
+      # hasta la fase 5 del plan; después, sin él, bloquea el despliegue.
+      - name: Auditoría de estilos (ui:auditar)
+        run: |
+          cd vida
+          cp .env.example .env
+          php artisan key:generate --no-interaction
+          npm ci --no-audit --no-fund
+          npm run build
+          php artisan ui:auditar --informe
+
   deploy:
     needs: test
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'

@@ -1,7 +1,7 @@
 # Bootstrap como único sistema de estilos (operativo y público)
 
 **Fecha:** 2026-09-28
-**Estado:** plan aprobado, en ejecución. Fase 1 hecha el 2026-09-28.
+**Estado:** plan aprobado, en ejecución. Fases 1 y 2 hechas el 2026-09-28.
 **Sustituye a:** `docs/design-system/bootstrap-migration-plan.md`,
 `docs/design-system/app-operativo-remediation-plan.md` y
 `docs/design-system/frontend-bootstrap-guardrails.md` (se borran en la fase 5).
@@ -14,10 +14,13 @@ El 2026-09-28 el botón «Dar de alta nueva persona» de `alta-ciudadano` era
 invisible: texto blanco sobre `var(--color-primary)`, una variable que no existe
 en el bundle operativo. No es un fallo aislado. La auditoría de ese día encontró:
 
-- **Cuatro formas de pintar lo mismo** en las vistas operativas: clases
-  Bootstrap, unas 560 clases propias en `resources/scss/_op-*.scss`, estilos
-  inline (248 `style=`, 94 colores hexadecimales) y clases Tailwind que no hacen
-  nada porque el operativo no carga Tailwind (`items-center` aparece 83 veces).
+- **Tres formas de pintar lo mismo** en las vistas operativas: clases
+  Bootstrap, unas 560 clases propias en `resources/scss/_*.scss` y estilos
+  inline (248 `style=`, 94 colores hexadecimales). La primera auditoría también
+  señaló clases Tailwind sin efecto (`items-center` 83 veces); era un falso
+  positivo del script provisional, que confundía `align-items-center` con
+  `items-center`. El informe de `ui:auditar` (anexo B) no encuentra Tailwind en
+  las vistas del ámbito.
 - **Dos sistemas de tokens que no coinciden:** las variables Sass
   (`_bootstrap-overrides.scss`, `_vida-sass-tokens.scss`), que son las únicas
   compiladas en el operativo, y las variables CSS `--color-*` de
@@ -59,8 +62,9 @@ comprobación como definición de «terminado».
    variables Sass o las variables `--bs-*` que Bootstrap genera.
    `var(--color-*)` queda prohibido fuera de Filament.
 4. **Catálogo cerrado de clases propias.** Toda clase que no sea de Bootstrap
-   debe figurar en `vida/config/ui-catalogo.php` con su propósito y el motivo por
-   el que Bootstrap no basta. Lo que no está en el catálogo no existe.
+   debe figurar en `vida/config/ui-catalogo.php` con su tipo (`componente`,
+   `pantalla` o `gancho`), su estado y el motivo por el que Bootstrap no basta.
+   Lo que no está en el catálogo no existe.
 5. **Revisión:** cada módulo migrado lo revisa Grok sobre el código antes de
    darlo por cerrado.
 
@@ -68,9 +72,17 @@ comprobación como definición de «terminado».
 
 ## 3. La comprobación: `php artisan ui:auditar`
 
-Comando Artisan sin acceso a BD. Lee las vistas, el SCSS y el CSS compilado de
-`public/build` (requiere `npm run build` previo). Sale con código distinto de 0 si
-encuentra infracciones.
+Comando Artisan sin acceso a BD (`app/Console/Commands/UiAuditarCommand.php`,
+lógica en `app/Support/Ui/AuditorUi.php`). Lee las vistas, el SCSS, el CSS de
+Bootstrap sin modificar y el CSS compilado de `public/build` (requiere
+`npm run build` previo). Sale con código distinto de 0 si encuentra infracciones
+o si falta el CSS compilado.
+
+Configuración:
+- `config/ui-auditoria.php`: ámbito. Qué vistas van con cada bundle, qué queda
+  fuera (Filament, PDF), ficheros de tokens y dónde se busca el uso de las
+  clases.
+- `config/ui-catalogo.php`: el catálogo cerrado de clases propias.
 
 | Regla | Comprueba | Cubre |
 |---|---|---|
@@ -86,19 +98,32 @@ Opciones:
 - `--modulo=Ciudadania` limita la salida a las vistas de un módulo (para cerrar
   módulos uno a uno en la fase 3).
 - `--informe` lista las infracciones sin fallar (solo durante la migración).
+- `--generar-catalogo` imprime, en formato PHP y agrupadas por fichero, las
+  clases propias del SCSS que faltan en el catálogo, como `pendiente`.
+
+Detalles de las reglas:
+- R1 lee `class="…"`, `wire:*.class`, `:class` (claves literales),
+  `@class([...])` y `'class' => '…'`. Dentro de `{{ }}` toma los literales que
+  actúan como resultado (tras `?`, `:`, `=>`), no los que se comparan.
+- R2 cuenta declaraciones, no atributos: `style="a: 1; b: 2"` son dos.
+- R4 no exige catálogo para reestilar una clase de Bootstrap (`.op-x .btn`).
+  Las clases `pendiente` fallan en modo bloqueante y se resumen por fichero.
+- R5 busca el nombre completo de la clase como palabra en vistas, PHP y JS.
+  Las clases que solo se construyen por concatenación salen como huérfanas.
+- Con `--modulo` solo se aplican R1 a R3 (las vistas); R4 a R6 son globales.
 
 Límite conocido: las clases construidas dinámicamente (`"badge-{{ $tipo }}"`) no
 se pueden verificar. R1 las marca como aviso y deben sustituirse por un `match`
 en PHP que devuelva clases completas o por `@class([...])`.
 
-Tests: `tests/Feature/UiAuditarTest.php` (TF-UI-01 en adelante), con vistas y
+Tests: `tests/Feature/Ui/UiAuditarTest.php` (TF-UI-01 a TF-UI-21), con vistas y
 SCSS de ejemplo en un directorio temporal. Cada regla tiene al menos un caso que
-debe pasar y uno que debe fallar.
+debe pasar y uno que debe fallar. No usan la BD.
 
-CI: el job `test` de `.github/workflows/ci.yml` gana los pasos `npm ci`,
-`npm run build` y `php artisan ui:auditar` (con `--informe` hasta el final de
-la fase 4; bloqueante desde la fase 5). Hoy el job `test` solo instala
-dependencias; no se añaden aquí los tests PHP, que requieren PostgreSQL.
+CI: el job `test` de `.github/workflows/ci.yml` tiene el paso «Auditoría de
+estilos»: `npm ci`, `npm run build` y `php artisan ui:auditar --informe`. En la
+fase 5 se quita `--informe` y pasa a bloquear el despliegue. El job `test` no
+ejecuta los tests PHP, que requieren PostgreSQL; eso no cambia aquí.
 
 ---
 
@@ -150,7 +175,8 @@ documentación no se contradice.
    trabajo de las fases 3 y 4.
 
 **Terminada cuando:** los tests pasan y el informe cubre todas las vistas del
-ámbito.
+ámbito. Hecho el 2026-09-28: 21 tests, catálogo con 559 clases `pendiente`,
+informe en el anexo B.
 
 ### Fase 3. Migrar las vistas, por módulos
 
@@ -160,8 +186,8 @@ Orden (de más a menos infracciones según la auditoría del 2026-09-28):
 2. **Intervención:** `buscar-ciudadano-page`, `registrar-valoracion-page`,
    `ver-ficha-page`, `registrar-escala-page`, `ciudadano-page`, `plan-page`,
    resto.
-3. **Mensajes:** clases Tailwind muertas.
-4. **Agenda, Supervisión y Documentos.**
+3. **Agenda y Supervisión** (Mensajes y Documentos no tienen infracciones en
+   sus vistas; solo quedan las clases de su SCSS, en la fase 4).
 5. **Público y layouts** (`operativo-shell`, `operativo`, `supervision`,
    `public`).
 
@@ -242,4 +268,39 @@ de los que Bootstrap calculaba a partir del color base.
 
 ## Anexo B. Informe inicial de `ui:auditar`
 
-Se completa en la fase 2.
+Ejecución del 2026-09-28, tras la fase 2 (`php artisan ui:auditar --informe`):
+**1.724 infracciones y 8 avisos.** Para el detalle actual, ejecutar el comando.
+
+| Ámbito | R1 | R2 | R3 | R4 | R5 | R6 | Avisos |
+|---|---|---|---|---|---|---|---|
+| Agenda | 3 | 14 | | | | | |
+| Ciudadanía | 7 | 374 | 99 | | | | 1 |
+| Intervención | 11 | 309 | 104 | | | | 7 |
+| Supervisión | 1 | 2 | | | | | |
+| `resources/views` (app) | 6 | | | | | | |
+| SCSS | | | 736 | | | | |
+| Catálogo | | | | 8 | 50 | | |
+
+Lectura:
+- **R2 y R3 en vistas se concentran en cinco pantallas**: `alta-ciudadano`
+  (374 declaraciones inline, 96 colores o variables),
+  `registrar-valoracion-page` (112 / 33), `buscar-ciudadano-page` (100 / 28),
+  `ver-ficha-page` (52 / 15) y `registrar-escala-page` (41 / 12). El resto de
+  vistas tiene como mucho unas pocas declaraciones.
+- **R1 (28 clases inexistentes)**: casi todas son clases propias que se usan
+  pero nunca se definieron (`avatar`, `op-toolbar`, `op-empty--compact`,
+  `op-nav-footer`, `citizen-file__*`, `cases-screen__*`, `form-label-sm`…). Solo
+  `col-span-2` es de Tailwind.
+- **R3 en SCSS (736)**: 570 son `var(--…)` que no existen (sobre todo `--color-*`)
+  y el resto, colores literales repetidos de la paleta. Por fichero:
+  `_op-components.scss` 396, `_op-ciudadano.scss` 134, `_public-pages.scss` 122,
+  `_bootstrap-components.scss` 33, `_op-support-pages.scss` 32, `_op-plan.scss` 18,
+  `_op-mensajes.scss` 1.
+- **R4**: las 559 clases del catálogo están `pendiente` (una línea por fichero).
+- **R5 (50 huérfanas)**: parte son clases que solo se construyen por
+  concatenación (`plan-badge--{estado}`, `plan-estado-{estado}`,
+  `ficha-atencion-tipo--{tipo}`, `acceso-fila__accion--{accion}`…): son los 8
+  avisos de R1. Al migrar, se escriben con el nombre completo (un `match` que
+  devuelva la clase entera) o se sustituyen por clases Bootstrap.
+- **Sin infracciones en vistas**: Mensajes, Documentos y la mayor parte de
+  Supervisión y Agenda. No hay Tailwind en ninguna entrada del ámbito (R6).

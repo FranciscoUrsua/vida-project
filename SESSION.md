@@ -6,7 +6,7 @@
 
 ## Tarea completada
 
-**Bootstrap como único sistema de estilos: plan y fase 1.** Plan en `docs/instrucciones-cli/2026-09-bootstrap-unico.md`. Hecha la fase 1: una sola fuente de tokens (Sass y Bootstrap), Tailwind fuera del bundle público, ficheros CSS huérfanos borrados y documentación alineada. Detalle en `CHANGELOG-092026.md`.
+**Bootstrap único, fase 2:** comando `php artisan ui:auditar` (reglas R1 a R6), catálogo `config/ui-catalogo.php` con las 559 clases actuales en `pendiente`, 21 tests y paso en el CI con `--informe`. Informe inicial (1.724 infracciones) en el anexo B de `docs/instrucciones-cli/2026-09-bootstrap-unico.md`.
 
 ---
 
@@ -33,15 +33,14 @@
 
 ## Siguiente paso concreto recomendado
 
-1. **Bootstrap único, fase 2:** tests TF-UI-* y comando `php artisan ui:auditar` (reglas R1 a R6), `config/ui-catalogo.php` inicial con todas las clases en `pendiente`, paso en el CI con `--informe` y el informe inicial en el anexo B del plan. Leer antes el plan completo.
-2. Después, fase 3 empezando por Ciudadanía (`alta-ciudadano`, cuyo botón «Dar de alta nueva persona» sigue invisible hasta entonces). Cada módulo migrado lo revisa Grok sobre el código antes de pasar al siguiente.
-3. Pendientes anteriores: revisar los toasts de alertas en staging con ts1.ciam@demo.es; Mensajes, paso 6 (`HistoriaSocialService::obtenerEntradas()` en la línea de tiempo); tarjeta «Documentos» de la ficha; restricción de colectivos protegidos en la ficha (BACKLOG, prioritario); fallos previos de la suite completa.
+1. **Bootstrap único, fase 3, módulo Ciudadanía:** migrar `alta-ciudadano` y `ficha-ciudadano-page` hasta que `php artisan ui:auditar --modulo=Ciudadania` salga sin infracciones. Seguir la tabla de equivalencias del anexo A y el §4 del plan. Después, tests del módulo, commit, push y revisión de Grok antes de pasar a Intervención.
+2. Pendientes anteriores: revisar los toasts de alertas en staging con ts1.ciam@demo.es; Mensajes, paso 6 (`HistoriaSocialService::obtenerEntradas()` en la línea de tiempo); tarjeta «Documentos» de la ficha; restricción de colectivos protegidos en la ficha (BACKLOG, prioritario); fallos previos de la suite completa.
 
 ---
 
 ## Contexto para retomar sin fricción
 
-- **Frontend:** Bootstrap es el único sistema de estilos fuera de Filament y de los PDF. Los tokens solo están en `_bootstrap-overrides.scss` y `_vida-sass-tokens.scss`. Las variables `--color-*`, `--space-*`, `--radius-*`… **no existen** en los bundles operativo y público. El anexo A del plan tiene la tabla de equivalencias. Los tonos suaves se usan con `bg-*-subtle` y `text-*-emphasis`. El script de auditoría provisional de la sesión del 2026-09-28 no está en el repositorio: el definitivo es `ui:auditar` (fase 2).
+- **Frontend:** Bootstrap es el único sistema de estilos fuera de Filament y de los PDF. Los tokens solo están en `_bootstrap-overrides.scss` y `_vida-sass-tokens.scss`. Las variables `--color-*`, `--space-*`, `--radius-*`… **no existen** en los bundles operativo y público; el anexo A del plan tiene las equivalencias, y los tonos suaves van con `bg-*-subtle` y `text-*-emphasis`. Toda tarea que toque Blade o SCSS se comprueba con `php artisan ui:auditar` (necesita `npm run build` previo; `--modulo=X` para un módulo). Una clase propia nueva va al catálogo `config/ui-catalogo.php` o no existe. Tras Pint, restaurar los `@return` de `app/Support/Ui` y del comando.
 - **Mensajes, adaptación a las instrucciones nuevas:** `instrucciones-cli-mensajes.md` está escrito como si el módulo fuera nuevo, pero ya existía. Ya cumplen: migraciones, modelos, `HorarioLaboralService`, el job cada 15 min y los recursos Filament (en `app/Filament/Resources/`, no en el módulo, como manda `CLAUDE.md`). Las rutas de las instrucciones (`Modules/Mensajes/Models/`…) no son las del proyecto (`Modules/Mensajes/app/...`). El rol es `supervision`, no «supervisor». Entre fases se pasan solo los tests del módulo, no la suite completa.
 - **Alertas por destinatario:** cada alerta tiene sus filas en `alerta_destinatarios`, fijadas al crearla (directa: una; `rol_uo`: una por cada miembro del colectivo en ese momento). Lo que un usuario tiene por atender = `Alerta::pendientesPara($usuario)`; todo lo que recibió = `visiblesPara()`. No escribir consultas propias. Toda alerta se crea con `AlertaService::crear()`, nunca con `Alerta::create`: sin él no tiene destinatarios (nadie la ve) ni `expira_en` (no escala). En los tests, crear las alertas con el servicio. El `estado` de `alertas` es un resumen que recalcula el servicio.
 - **Toasts de alertas:** `AlertaToast` vive en `operativo-shell`, junto al panel. Hace polling cada 60 s. Lo minimizado está en la sesión de Laravel, por usuario (no en el navegador: ver CHANGELOG). La vista no usa Alpine: el morph de Livewire rompía su estado. Todo reconocimiento emite `alerta-reconocida`, que escuchan la bandeja, los toasts y los dos sidebars: si se añade otro sitio donde reconocer, emitir el mismo evento.

@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-09-28 — Frontend: Bootstrap único, fase 2 (comando `ui:auditar`)
+
+### Cambios
+- Comando `php artisan ui:auditar` (`app/Console/Commands/UiAuditarCommand.php`), con la lógica en `app/Support/Ui/AuditorUi.php` e `Infraccion.php`. Reglas R1 a R6 del plan. Opciones: `--modulo`, `--informe` y `--generar-catalogo`. No toca la BD.
+- `config/ui-auditoria.php` (nuevo): ámbito (bundles, vistas excluidas, tokens, dónde buscar usos).
+- `config/ui-catalogo.php` (nuevo): catálogo cerrado con las 559 clases propias actuales, todas `pendiente`.
+- Tests: `tests/Feature/Ui/UiAuditarTest.php`, TF-UI-01 a 21, 21 passed. Comprobados en negativo: al desactivar R1 o R5 fallan sus tests.
+- CI: paso «Auditoría de estilos» en el job `test` (`npm run build` + `ui:auditar --informe`).
+- Informe inicial en el anexo B del plan: 1.724 infracciones y 8 avisos.
+
+### Decisiones no previstas en las instrucciones
+- El ámbito va en un fichero de configuración aparte (`ui-auditoria.php`); el catálogo queda solo con las clases.
+- Una clase que reestila una de Bootstrap (`.op-x .btn`) no necesita catálogo. Las clases de Bootstrap se toman del CSS sin modificar de `node_modules/bootstrap/dist`.
+- R2 cuenta declaraciones, no atributos. Los bloques `<style>` en vistas también son R2.
+- Las clases `pendiente` fallan en modo bloqueante y se resumen con una línea por fichero.
+- **Corrección:** la auditoría de la fase 1 decía que había clases Tailwind sin efecto en las vistas operativas (`items-center` 83 veces). Era un falso positivo del script provisional, que confundía `align-items-center` con `items-center`. Con `ui:auditar` solo aparece `col-span-2`. Plan corregido; Mensajes y Documentos salen del orden de la fase 3, porque sus vistas no tienen infracciones.
+
+---
+
 ## 2026-09-28 — Frontend: Bootstrap como único sistema de estilos (plan y fase 1)
 
 ### Motivo
