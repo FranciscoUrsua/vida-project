@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-09-28 — Frontend: Bootstrap único, fase 3, módulo Ciudadanía
+
+### Cambios
+- `alta-ciudadano.blade.php` reescrita solo con Bootstrap: rejilla para centrar, `nav-pills` como indicador de fase y `card`, `form-*`, `alert` y `badge` estándar. Tenía 374 declaraciones inline y 96 colores o variables inexistentes. Se corrige el botón «Dar de alta nueva persona», que era invisible. Comportamiento y textos sin cambios. Se añaden `id`/`for` a etiquetas y campos.
+- `ficha-ciudadano-page.blade.php` reescrita con Bootstrap. Las ~80 clases `citizen-file__*` y `ficha-*` pasan a `card`, `table`, `list-group`, `badge *-subtle`, `modal` y `form-check`. Los tres modales usan el mismo marcado de modal Bootstrap. Los colores de estado (nivel de identificación, documentos, prestaciones, tipo de atención) pasan de hex en PHP a clases Bootstrap elegidas con `match`.
+- `documentos-ciudadano.blade.php` (Documentos): la tarjeta embebida en la ficha pasa a `card card-body`, igual que el resto de tarjetas.
+- SCSS: borradas las reglas de 111 clases que la migración dejó sin uso (`citizen-file__*`, `ficha-*`, `alta-ciudadano`), unas 640 líneas de `_op-components.scss` y `_op-support-pages.scss`. También salen del catálogo.
+- `ui:auditar --modulo=Ciudadania` y `--modulo=Documentos`: sin infracciones. Total del proyecto: de 1.724 a 1.107.
+- Tests: `Modules/Documentos` 88 passed. `Modules/Ciudadania` 97 passed y 2 fallos ya existentes (buscan «Ver historia social», que desde junio es «Ir a HS»; comprobado que fallan igual con la vista anterior).
+
+### Decisiones no previstas en las instrucciones
+- Las clases que deja sin uso la migración de un módulo se borran en el mismo commit, no en la fase 4. Añadido al plan.
+- Límite de R5: `alta-ciudadano` contaba como usada porque coincide con el nombre de la vista. Se borró a mano; el límite queda documentado en el plan.
+
+---
+
 ## 2026-09-28 — Frontend: Bootstrap único, fase 2 (comando `ui:auditar`)
 
 ### Cambios

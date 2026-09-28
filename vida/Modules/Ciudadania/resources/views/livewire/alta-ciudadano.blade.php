@@ -1,130 +1,137 @@
-<div class="alta-ciudadano">
+<div class="op-page">
+<div class="row justify-content-center g-0 p-3 p-lg-4">
+<div class="col-12 col-lg-9 col-xl-7">
 
     {{-- Indicador de fase --}}
-    <div style="display: flex; gap: 0; margin-bottom: 2rem; border: 1px solid var(--color-ink-200); border-radius: 8px; overflow: hidden; font-size: 0.78rem;">
+    <ol class="nav nav-pills nav-fill small mb-4" aria-label="Pasos del alta">
         @foreach(['busqueda' => 'Búsqueda previa', 'padron' => 'Verificación padrón', 'formulario' => 'Datos', 'confirmacion' => 'Confirmación'] as $f => $etiqueta)
-            <div style="flex: 1; padding: 0.5rem 0.75rem; text-align: center; font-weight: 600;
-                background: {{ $fase === $f ? 'var(--color-primary)' : 'var(--color-bg-50)' }};
-                color: {{ $fase === $f ? '#fff' : 'var(--color-ink-400)' }};
-                border-right: 1px solid var(--color-ink-200);">
-                {{ $etiqueta }}
-            </div>
+            <li class="nav-item">
+                <span @class(['nav-link fw-semibold', 'active' => $fase === $f, 'disabled' => $fase !== $f])
+                      @if($fase === $f) aria-current="step" @endif>
+                    {{ $etiqueta }}
+                </span>
+            </li>
         @endforeach
-    </div>
+    </ol>
 
     {{-- ================================================================== --}}
     {{-- FASE 1: BÚSQUEDA PREVIA                                            --}}
     {{-- ================================================================== --}}
     @if($fase === 'busqueda')
 
-        <h2 style="font-size: 1.05rem; font-weight: 700; color: var(--color-ink-900); margin: 0 0 0.25rem;">Alta de ciudadano/a</h2>
-        <p style="font-size: 0.85rem; color: var(--color-ink-600); margin: 0 0 1.5rem;">
+        <h2 class="h5 fw-bold mb-1">Alta de ciudadano/a</h2>
+        <p class="text-body-secondary mb-4">
             Antes de registrar a nadie, comprueba que la persona no existe ya en el sistema.
         </p>
 
         {{-- Búsqueda por documento --}}
-        <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
-            <p style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-500); margin: 0 0 0.75rem;">Buscar por documento</p>
-            <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
-                <div>
-                    <label style="font-size: 0.78rem; color: var(--color-ink-600); display: block; margin-bottom: 0.25rem;">Tipo</label>
-                    <select wire:model="busquedaTipoDoc" class="form-select form-select-sm" style="width: 120px; font-size: 0.82rem;">
-                        <option value="nif">NIF/DNI</option>
-                        <option value="nie">NIE</option>
-                        <option value="pasaporte">Pasaporte</option>
-                    </select>
-                </div>
-                <div style="flex: 1;">
-                    <label style="font-size: 0.78rem; color: var(--color-ink-600); display: block; margin-bottom: 0.25rem;">Número de documento</label>
-                    <input wire:model="busquedaValorDoc" type="text" class="form-control form-control-sm"
-                           placeholder="Ej: 12345678A"
-                           style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; text-transform: uppercase;"
-                           autocomplete="off" />
+        <div class="card mb-3">
+            <div class="card-body">
+                <h3 class="small text-uppercase fw-bold text-body-secondary mb-3">Buscar por documento</h3>
+                <div class="row g-2 align-items-end">
+                    <div class="col-auto">
+                        <label for="busqueda-tipo-doc" class="form-label small">Tipo</label>
+                        <select id="busqueda-tipo-doc" wire:model="busquedaTipoDoc" class="form-select form-select-sm">
+                            <option value="nif">NIF/DNI</option>
+                            <option value="nie">NIE</option>
+                            <option value="pasaporte">Pasaporte</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label for="busqueda-valor-doc" class="form-label small">Número de documento</label>
+                        <input id="busqueda-valor-doc" wire:model="busquedaValorDoc" type="text"
+                               class="form-control form-control-sm font-monospace text-uppercase"
+                               placeholder="Ej: 12345678A" autocomplete="off" />
+                    </div>
                 </div>
             </div>
         </div>
 
         {{-- Búsqueda por datos personales --}}
-        <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
-            <p style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-500); margin: 0 0 0.75rem;">O buscar por datos personales</p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 0.75rem;">
-                <div>
-                    <label style="font-size: 0.78rem; color: var(--color-ink-600); display: block; margin-bottom: 0.25rem;">Nombre</label>
-                    <input wire:model="busquedaNombre" type="text" class="form-control form-control-sm" style="font-size: 0.85rem;" autocomplete="off" />
-                </div>
-                <div>
-                    <label style="font-size: 0.78rem; color: var(--color-ink-600); display: block; margin-bottom: 0.25rem;">Primer apellido</label>
-                    <input wire:model="busquedaApellido1" type="text" class="form-control form-control-sm" style="font-size: 0.85rem;" autocomplete="off" />
-                </div>
-                <div>
-                    <label style="font-size: 0.78rem; color: var(--color-ink-600); display: block; margin-bottom: 0.25rem;">Segundo apellido</label>
-                    <input wire:model="busquedaApellido2" type="text" class="form-control form-control-sm" style="font-size: 0.85rem;" autocomplete="off" />
-                </div>
-                <div>
-                    <label style="font-size: 0.78rem; color: var(--color-ink-600); display: block; margin-bottom: 0.25rem;">Fecha de nacimiento</label>
-                    <input wire:model="busquedaFechaNacimiento" type="date" class="form-control form-control-sm" style="font-size: 0.85rem;" />
+        <div class="card mb-3">
+            <div class="card-body">
+                <h3 class="small text-uppercase fw-bold text-body-secondary mb-3">O buscar por datos personales</h3>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label for="busqueda-nombre" class="form-label small">Nombre</label>
+                        <input id="busqueda-nombre" wire:model="busquedaNombre" type="text" class="form-control form-control-sm" autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="busqueda-apellido1" class="form-label small">Primer apellido</label>
+                        <input id="busqueda-apellido1" wire:model="busquedaApellido1" type="text" class="form-control form-control-sm" autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="busqueda-apellido2" class="form-label small">Segundo apellido</label>
+                        <input id="busqueda-apellido2" wire:model="busquedaApellido2" type="text" class="form-control form-control-sm" autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="busqueda-fecha" class="form-label small">Fecha de nacimiento</label>
+                        <input id="busqueda-fecha" wire:model="busquedaFechaNacimiento" type="date" class="form-control form-control-sm" />
+                    </div>
                 </div>
             </div>
         </div>
 
         @error('busqueda')
-            <div class="alert alert-warning py-2" style="font-size: 0.82rem;">{{ $message }}</div>
+            <div class="alert alert-warning py-2 small">{{ $message }}</div>
         @enderror
 
-        <button wire:click="buscar" class="btn btn-primary btn-sm" style="font-size: 0.85rem;">
-            <x-heroicon-o-magnifying-glass style="width:14px;height:14px;vertical-align:-2px;" aria-hidden="true"/>
+        <button type="button" wire:click="buscar" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">
+            <x-heroicon-o-magnifying-glass class="icon-14" aria-hidden="true"/>
             Buscar
         </button>
 
         {{-- Resultados --}}
         @if($busquedaRealizada)
-            <div style="margin-top: 1.5rem;">
+            <div class="mt-4">
                 @if(count($resultadosBusqueda) === 0)
-                    <div style="padding: 0.75rem 1rem; background: var(--color-bg-50); border: 1px solid var(--color-ink-200); border-radius: 8px; font-size: 0.85rem; color: var(--color-ink-600);">
+                    <div class="alert alert-secondary small mb-0">
                         No se han encontrado personas con los criterios indicados.
                     </div>
                 @else
-                    <p style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-500); margin: 0 0 0.5rem;">
+                    <p class="small text-uppercase fw-bold text-body-secondary mb-2">
                         {{ count($resultadosBusqueda) }} posible{{ count($resultadosBusqueda) !== 1 ? 's coincidencias' : ' coincidencia' }} encontrada{{ count($resultadosBusqueda) !== 1 ? 's' : '' }}
                     </p>
                     @foreach($resultadosBusqueda as $r)
-                        <div style="background: #fff; border: 1px solid {{ $r['bloquea'] ? 'var(--color-danger, #c0392b)' : 'var(--color-ink-200)' }}; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
-                            <div>
-                                <div style="font-weight: 600; font-size: 0.9rem; color: var(--color-ink-900);">{{ $r['nombreCompleto'] }}</div>
-                                <div style="font-size: 0.75rem; color: var(--color-ink-500); margin-top: 0.15rem;">
-                                    @if($r['fechaNacimiento'])
-                                        {{ \Carbon\Carbon::parse($r['fechaNacimiento'])->format('d/m/Y') }} ·
-                                    @endif
-                                    Coincide en: {{ implode(', ', $r['camposCoincidentes']) }}
-                                    · Score: {{ number_format($r['score'] * 100, 0) }}%
-                                </div>
-                                @if($r['bloquea'])
-                                    <div style="margin-top: 0.3rem; font-size: 0.75rem; color: var(--color-danger, #c0392b); font-weight: 600;">
-                                        Coincidencia muy probable — revisa la ficha antes de continuar
+                        <div @class(['card mb-2', 'border-danger' => $r['bloquea']]) wire:key="resultado-{{ $r['ciudadanoId'] }}">
+                            <div class="card-body py-2 d-flex align-items-center justify-content-between gap-3">
+                                <div>
+                                    <div class="fw-semibold">{{ $r['nombreCompleto'] }}</div>
+                                    <div class="small text-body-secondary">
+                                        @if($r['fechaNacimiento'])
+                                            {{ \Carbon\Carbon::parse($r['fechaNacimiento'])->format('d/m/Y') }} ·
+                                        @endif
+                                        Coincide en: {{ implode(', ', $r['camposCoincidentes']) }}
+                                        · Score: {{ number_format($r['score'] * 100, 0) }}%
                                     </div>
-                                @endif
+                                    @if($r['bloquea'])
+                                        <div class="small fw-semibold text-danger mt-1">
+                                            Coincidencia muy probable — revisa la ficha antes de continuar
+                                        </div>
+                                    @endif
+                                </div>
+                                <button type="button" wire:click="seleccionarExistente({{ $r['ciudadanoId'] }})"
+                                        class="btn btn-outline-secondary btn-sm text-nowrap">
+                                    Ver ficha
+                                </button>
                             </div>
-                            <button wire:click="seleccionarExistente({{ $r['ciudadanoId'] }})"
-                                    class="btn btn-outline-secondary btn-sm" style="font-size: 0.78rem; white-space: nowrap;">
-                                Ver ficha
-                            </button>
                         </div>
                     @endforeach
                 @endif
 
                 {{-- Acción continuar con el alta (solo si no hay bloqueo) --}}
                 @php $hayBloqueo = collect($resultadosBusqueda)->contains('bloquea', true); @endphp
-                @if(!$hayBloqueo)
-                    <div style="margin-top: 1.25rem; padding: 1rem; border: 1px dashed var(--color-ink-300); border-radius: 8px; text-align: center; font-size: 0.85rem; color: var(--color-ink-600);">
-                        ¿No está la persona que buscas?
-                        <button wire:click="continuarConNuevoAlta"
-                                class="btn btn-sm"
-                                style="margin-left: 0.75rem; font-size: 0.82rem; background: var(--color-primary); color: #fff; border: none; padding: 0.3rem 0.9rem; border-radius: 6px;">
-                            Dar de alta nueva persona
-                        </button>
+                @if(! $hayBloqueo)
+                    <div class="card bg-body-tertiary mt-3">
+                        <div class="card-body d-flex flex-wrap align-items-center justify-content-center gap-2 text-body-secondary">
+                            ¿No está la persona que buscas?
+                            <button type="button" wire:click="continuarConNuevoAlta" class="btn btn-primary btn-sm">
+                                Dar de alta nueva persona
+                            </button>
+                        </div>
                     </div>
                 @else
-                    <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; font-size: 0.82rem; color: #7d5000;">
+                    <div class="alert alert-warning small mt-3 mb-0">
                         Hay una coincidencia casi segura. Revisa la ficha de la persona antes de continuar con el alta.
                     </div>
                 @endif
@@ -136,50 +143,48 @@
     {{-- ================================================================== --}}
     @elseif($fase === 'padron')
 
-        <h2 style="font-size: 1.05rem; font-weight: 700; color: var(--color-ink-900); margin: 0 0 0.25rem;">Verificación en el padrón</h2>
-        <p style="font-size: 0.85rem; color: var(--color-ink-600); margin: 0 0 1.5rem;">
+        <h2 class="h5 fw-bold mb-1">Verificación en el padrón</h2>
+        <p class="text-body-secondary mb-4">
             Consulta si la persona está empadronada. Si no lo está, selecciona el motivo para continuar.
         </p>
 
-        @if(!$padronConsultado)
-            <button wire:click="consultarPadron" class="btn btn-primary btn-sm" style="font-size: 0.85rem;">
-                <x-heroicon-o-magnifying-glass style="width:14px;height:14px;vertical-align:-2px;" aria-hidden="true"/>
+        @if(! $padronConsultado)
+            <button type="button" wire:click="consultarPadron" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">
+                <x-heroicon-o-magnifying-glass class="icon-14" aria-hidden="true"/>
                 Consultar padrón
             </button>
         @endif
 
-        @if($padronConsultado && !$padronEncontrado)
-            <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1.25rem; margin-top: 1rem;">
-                <p style="font-size: 0.85rem; color: var(--color-ink-700); margin: 0 0 1rem;">
-                    La persona no consta en el padrón municipal. Selecciona el motivo para continuar:
-                </p>
+        @if($padronConsultado && ! $padronEncontrado)
+            <div class="card mt-3">
+                <div class="card-body">
+                    <p class="mb-3">
+                        La persona no consta en el padrón municipal. Selecciona el motivo para continuar:
+                    </p>
 
-                @php $esIntervencion = auth()->user()?->hasAnyRole(['intervencion', 'supervision']); @endphp
+                    @php $esIntervencion = auth()->user()?->hasAnyRole(['intervencion', 'supervision']); @endphp
 
-                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    @if($esIntervencion)
-                        <button wire:click="seleccionarExcepcionPadron('psh')"
-                                class="btn btn-outline-secondary btn-sm text-start" style="font-size: 0.85rem; padding: 0.6rem 1rem;">
-                            <strong>Persona sin hogar (PSH)</strong> — sin domicilio formal, se usarán coordenadas de pernocta
+                    <div class="d-grid gap-2">
+                        @if($esIntervencion)
+                            <button type="button" wire:click="seleccionarExcepcionPadron('psh')" class="btn btn-outline-secondary text-start">
+                                <strong>Persona sin hogar (PSH)</strong> — sin domicilio formal, se usarán coordenadas de pernocta
+                            </button>
+                            <button type="button" wire:click="seleccionarExcepcionPadron('vvg')" class="btn btn-outline-secondary text-start">
+                                <strong>Víctima de violencia de género (VVG)</strong> — domicilio protegido, sin consulta al padrón
+                            </button>
+                        @else
+                            <p class="small text-body-secondary fst-italic mb-0">
+                                Las situaciones PSH y VVG requieren intervención de un profesional con rol de intervención.
+                            </p>
+                        @endif
+
+                        <button type="button" wire:click="seleccionarExcepcionPadron('representante')" class="btn btn-outline-secondary text-start">
+                            <strong>Representante</strong> — residente en otro municipio, alta solo para contacto y seguimiento
                         </button>
-                        <button wire:click="seleccionarExcepcionPadron('vvg')"
-                                class="btn btn-outline-secondary btn-sm text-start" style="font-size: 0.85rem; padding: 0.6rem 1rem;">
-                            <strong>Víctima de violencia de género (VVG)</strong> — domicilio protegido, sin consulta al padrón
+                        <button type="button" wire:click="seleccionarExcepcionPadron('otra')" class="btn btn-outline-secondary text-start">
+                            <strong>Otra excepción</strong> — requiere justificación; queda registrada en auditoría
                         </button>
-                    @else
-                        <p style="font-size: 0.78rem; color: var(--color-ink-500); font-style: italic;">
-                            Las situaciones PSH y VVG requieren intervención de un profesional con rol de intervención.
-                        </p>
-                    @endif
-
-                    <button wire:click="seleccionarExcepcionPadron('representante')"
-                            class="btn btn-outline-secondary btn-sm text-start" style="font-size: 0.85rem; padding: 0.6rem 1rem;">
-                        <strong>Representante</strong> — residente en otro municipio, alta solo para contacto y seguimiento
-                    </button>
-                    <button wire:click="seleccionarExcepcionPadron('otra')"
-                            class="btn btn-outline-secondary btn-sm text-start" style="font-size: 0.85rem; padding: 0.6rem 1rem;">
-                        <strong>Otra excepción</strong> — requiere justificación; queda registrada en auditoría
-                    </button>
+                    </div>
                 </div>
             </div>
         @endif
@@ -189,176 +194,186 @@
     {{-- ================================================================== --}}
     @elseif($fase === 'formulario')
 
-        <h2 style="font-size: 1.05rem; font-weight: 700; color: var(--color-ink-900); margin: 0 0 0.25rem;">Datos del ciudadano/a</h2>
+        <h2 class="h5 fw-bold mb-2">Datos del ciudadano/a</h2>
         @if($excepcionPadron)
-            <div style="margin-bottom: 1rem; padding: 0.5rem 0.85rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; font-size: 0.8rem; color: #7d5000; display: inline-block;">
+            <div class="alert alert-warning d-inline-block py-1 px-3 small">
                 Alta sin padrón — {{ match($excepcionPadron) { 'psh' => 'Persona sin hogar', 'vvg' => 'VVG', 'representante' => 'Representante', default => 'Otra excepción' } }}
             </div>
         @endif
 
-        <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
-            <p style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-500); margin: 0 0 0.75rem;">Identificación</p>
+        <div class="card mb-3">
+            <div class="card-body">
+                <h3 class="small text-uppercase fw-bold text-body-secondary mb-3">Identificación</h3>
 
-            @if($excepcionPadron === 'psh')
-                <div class="mb-3">
-                    <label style="font-size: 0.82rem; color: var(--color-ink-700); font-weight: 600;">Alias / nombre operativo <span style="color: var(--color-danger, #c0392b);">*</span></label>
-                    <input wire:model="alias" type="text" class="form-control form-control-sm @error('alias') is-invalid @enderror"
-                           placeholder="Ej: Juan el del cajero de la calle X" style="font-size: 0.85rem;" />
-                    @error('alias') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-            @endif
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 0.75rem;">
-                <div>
-                    <label style="font-size: 0.82rem; color: var(--color-ink-700);">Nombre {{ $excepcionPadron !== 'psh' ? '*' : '' }}</label>
-                    @if(isset($fuenteCampos['nombre']))
-                        <span style="font-size: 0.7rem; background: #d4edda; color: #155724; border-radius: 4px; padding: 1px 5px; margin-left: 4px;">padrón</span>
-                    @endif
-                    <input wire:model="nombre" type="text" class="form-control form-control-sm @error('nombre') is-invalid @enderror" style="font-size: 0.85rem;" />
-                    @error('nombre') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-                <div>
-                    <label style="font-size: 0.82rem; color: var(--color-ink-700);">Primer apellido {{ $excepcionPadron !== 'psh' ? '*' : '' }}</label>
-                    @if(isset($fuenteCampos['apellido1']))
-                        <span style="font-size: 0.7rem; background: #d4edda; color: #155724; border-radius: 4px; padding: 1px 5px; margin-left: 4px;">padrón</span>
-                    @endif
-                    <input wire:model="apellido1" type="text" class="form-control form-control-sm @error('apellido1') is-invalid @enderror" style="font-size: 0.85rem;" />
-                    @error('apellido1') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-                <div>
-                    <label style="font-size: 0.82rem; color: var(--color-ink-700);">Segundo apellido</label>
-                    @if(isset($fuenteCampos['apellido2']))
-                        <span style="font-size: 0.7rem; background: #d4edda; color: #155724; border-radius: 4px; padding: 1px 5px; margin-left: 4px;">padrón</span>
-                    @endif
-                    <input wire:model="apellido2" type="text" class="form-control form-control-sm" style="font-size: 0.85rem;" />
-                </div>
-                <div>
-                    <label style="font-size: 0.82rem; color: var(--color-ink-700);">Fecha de nacimiento</label>
-                    @if(isset($fuenteCampos['fecha_nacimiento']))
-                        <span style="font-size: 0.7rem; background: #d4edda; color: #155724; border-radius: 4px; padding: 1px 5px; margin-left: 4px;">padrón</span>
-                    @endif
-                    <input wire:model="fechaNacimiento" type="date" class="form-control form-control-sm @error('fechaNacimiento') is-invalid @enderror" style="font-size: 0.85rem;" />
-                    @error('fechaNacimiento') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-                <div>
-                    <label style="font-size: 0.82rem; color: var(--color-ink-700);">Sexo <span style="color: var(--color-danger, #c0392b);">*</span></label>
-                    @if(isset($fuenteCampos['sexo']))
-                        <span style="font-size: 0.7rem; background: #d4edda; color: #155724; border-radius: 4px; padding: 1px 5px; margin-left: 4px;">padrón</span>
-                    @endif
-                    <select wire:model="sexo" class="form-select form-select-sm @error('sexo') is-invalid @enderror" style="font-size: 0.85rem;">
-                        <option value="">-- Selecciona --</option>
-                        <option value="M">Masculino</option>
-                        <option value="F">Femenino</option>
-                        <option value="D">No especificado</option>
-                    </select>
-                    @error('sexo') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-            </div>
-        </div>
-
-        <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
-            <p style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-500); margin: 0 0 0.75rem;">Documento de identidad</p>
-            <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
-                <div>
-                    <label style="font-size: 0.78rem; color: var(--color-ink-600); display: block; margin-bottom: 0.25rem;">Tipo</label>
-                    <select wire:model="tipoDocumento" class="form-select form-select-sm" style="width: 120px; font-size: 0.82rem;">
-                        <option value="nif">NIF/DNI</option>
-                        <option value="nie">NIE</option>
-                        <option value="pasaporte">Pasaporte</option>
-                    </select>
-                </div>
-                <div style="flex: 1;">
-                    <label style="font-size: 0.78rem; color: var(--color-ink-600); display: block; margin-bottom: 0.25rem;">Número</label>
-                    <input wire:model="valorDocumento" type="text" class="form-control form-control-sm"
-                           style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; text-transform: uppercase;"
-                           autocomplete="off" />
-                </div>
-            </div>
-        </div>
-
-        <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem;">
-            <p style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-500); margin: 0 0 0.75rem;">Contacto</p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 0.75rem;">
-                @if($excepcionPadron !== 'psh')
-                    <div class="col-span-2" style="grid-column: 1 / -1;">
-                        <label style="font-size: 0.82rem; color: var(--color-ink-700);">Domicilio</label>
-                        @if(isset($fuenteCampos['direccion_texto']))
-                            <span style="font-size: 0.7rem; background: #d4edda; color: #155724; border-radius: 4px; padding: 1px 5px; margin-left: 4px;">padrón</span>
-                        @endif
-                        <input wire:model="direccionTexto" type="text" class="form-control form-control-sm"
-                               placeholder="Texto libre — se normalizará automáticamente"
-                               style="font-size: 0.85rem;" />
+                @if($excepcionPadron === 'psh')
+                    <div class="mb-3">
+                        <label for="alta-alias" class="form-label small fw-semibold">Alias / nombre operativo <span class="text-danger">*</span></label>
+                        <input id="alta-alias" wire:model="alias" type="text" class="form-control form-control-sm @error('alias') is-invalid @enderror"
+                               placeholder="Ej: Juan el del cajero de la calle X" />
+                        @error('alias') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                 @endif
-                <div>
-                    <label style="font-size: 0.82rem; color: var(--color-ink-700);">Teléfono</label>
-                    <input wire:model="telefono" type="text" class="form-control form-control-sm" style="font-size: 0.85rem;" />
-                </div>
-                <div>
-                    <label style="font-size: 0.82rem; color: var(--color-ink-700);">Correo electrónico</label>
-                    <input wire:model="email" type="email" class="form-control form-control-sm @error('email') is-invalid @enderror" style="font-size: 0.85rem;" />
-                    @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label for="alta-nombre" class="form-label small">Nombre {{ $excepcionPadron !== 'psh' ? '*' : '' }}</label>
+                        @if(isset($fuenteCampos['nombre']))
+                            <span class="badge bg-success-subtle text-success-emphasis ms-1">padrón</span>
+                        @endif
+                        <input id="alta-nombre" wire:model="nombre" type="text" class="form-control form-control-sm @error('nombre') is-invalid @enderror" />
+                        @error('nombre') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label for="alta-apellido1" class="form-label small">Primer apellido {{ $excepcionPadron !== 'psh' ? '*' : '' }}</label>
+                        @if(isset($fuenteCampos['apellido1']))
+                            <span class="badge bg-success-subtle text-success-emphasis ms-1">padrón</span>
+                        @endif
+                        <input id="alta-apellido1" wire:model="apellido1" type="text" class="form-control form-control-sm @error('apellido1') is-invalid @enderror" />
+                        @error('apellido1') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label for="alta-apellido2" class="form-label small">Segundo apellido</label>
+                        @if(isset($fuenteCampos['apellido2']))
+                            <span class="badge bg-success-subtle text-success-emphasis ms-1">padrón</span>
+                        @endif
+                        <input id="alta-apellido2" wire:model="apellido2" type="text" class="form-control form-control-sm" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="alta-fecha" class="form-label small">Fecha de nacimiento</label>
+                        @if(isset($fuenteCampos['fecha_nacimiento']))
+                            <span class="badge bg-success-subtle text-success-emphasis ms-1">padrón</span>
+                        @endif
+                        <input id="alta-fecha" wire:model="fechaNacimiento" type="date" class="form-control form-control-sm @error('fechaNacimiento') is-invalid @enderror" />
+                        @error('fechaNacimiento') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label for="alta-sexo" class="form-label small">Sexo <span class="text-danger">*</span></label>
+                        @if(isset($fuenteCampos['sexo']))
+                            <span class="badge bg-success-subtle text-success-emphasis ms-1">padrón</span>
+                        @endif
+                        <select id="alta-sexo" wire:model="sexo" class="form-select form-select-sm @error('sexo') is-invalid @enderror">
+                            <option value="">-- Selecciona --</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                            <option value="D">No especificado</option>
+                        </select>
+                        @error('sexo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div style="display: flex; gap: 0.75rem;">
-            <button wire:click="guardar" class="btn btn-primary btn-sm" style="font-size: 0.85rem;">
-                Guardar y continuar
-            </button>
+        <div class="card mb-3">
+            <div class="card-body">
+                <h3 class="small text-uppercase fw-bold text-body-secondary mb-3">Documento de identidad</h3>
+                <div class="row g-2 align-items-end">
+                    <div class="col-auto">
+                        <label for="alta-tipo-doc" class="form-label small">Tipo</label>
+                        <select id="alta-tipo-doc" wire:model="tipoDocumento" class="form-select form-select-sm">
+                            <option value="nif">NIF/DNI</option>
+                            <option value="nie">NIE</option>
+                            <option value="pasaporte">Pasaporte</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label for="alta-valor-doc" class="form-label small">Número</label>
+                        <input id="alta-valor-doc" wire:model="valorDocumento" type="text"
+                               class="form-control form-control-sm font-monospace text-uppercase" autocomplete="off" />
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h3 class="small text-uppercase fw-bold text-body-secondary mb-3">Contacto</h3>
+                <div class="row g-2">
+                    @if($excepcionPadron !== 'psh')
+                        <div class="col-12">
+                            <label for="alta-direccion" class="form-label small">Domicilio</label>
+                            @if(isset($fuenteCampos['direccion_texto']))
+                                <span class="badge bg-success-subtle text-success-emphasis ms-1">padrón</span>
+                            @endif
+                            <input id="alta-direccion" wire:model="direccionTexto" type="text" class="form-control form-control-sm"
+                                   placeholder="Texto libre — se normalizará automáticamente" />
+                        </div>
+                    @endif
+                    <div class="col-md-6">
+                        <label for="alta-telefono" class="form-label small">Teléfono</label>
+                        <input id="alta-telefono" wire:model="telefono" type="text" class="form-control form-control-sm" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="alta-email" class="form-label small">Correo electrónico</label>
+                        <input id="alta-email" wire:model="email" type="email" class="form-control form-control-sm @error('email') is-invalid @enderror" />
+                        @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" wire:click="guardar" class="btn btn-primary btn-sm">
+            Guardar y continuar
+        </button>
 
     {{-- ================================================================== --}}
     {{-- FASE 4: CONFIRMACIÓN                                               --}}
     {{-- ================================================================== --}}
     @elseif($fase === 'confirmacion')
 
-        <h2 style="font-size: 1.05rem; font-weight: 700; color: var(--color-ink-900); margin: 0 0 0.25rem;">Ciudadano/a registrado/a</h2>
-        <p style="font-size: 0.85rem; color: var(--color-ink-600); margin: 0 0 1.5rem;">
+        <h2 class="h5 fw-bold mb-1">Ciudadano/a registrado/a</h2>
+        <p class="text-body-secondary mb-4">
             El alta se ha completado. Antes de terminar, puedes anotar el motivo de la visita y elegir el siguiente paso.
         </p>
 
-        <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
-            <p style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-500); margin: 0 0 0.5rem;">Resumen</p>
-            <div style="font-size: 0.88rem; color: var(--color-ink-800); line-height: 1.7;">
-                <strong>{{ trim("$nombre $apellido1 $apellido2") ?: ($alias ?: '—') }}</strong><br>
-                @if($fechaNacimiento) Nacimiento: {{ \Carbon\Carbon::parse($fechaNacimiento)->format('d/m/Y') }}<br> @endif
-                @if($valorDocumento) Documento: {{ strtoupper($tipoDocumento) }} {{ $valorDocumento }}<br> @endif
-                Nivel de identificación:
-                <span style="font-weight: 600;">{{ match($nombre || $valorDocumento) { true => ($valorDocumento ? 'identificado' : 'probable'), default => 'no identificado' } }}</span>
-                @if($excepcionPadron)
-                    <br>Contexto: {{ match($excepcionPadron) { 'psh' => 'PSH', 'vvg' => 'VVG', 'representante' => 'Representante', default => 'Otra excepción' } }}
-                @endif
+        <div class="card mb-3">
+            <div class="card-body">
+                <h3 class="small text-uppercase fw-bold text-body-secondary mb-2">Resumen</h3>
+                <p class="mb-0">
+                    <strong>{{ trim("$nombre $apellido1 $apellido2") ?: ($alias ?: '—') }}</strong><br>
+                    @if($fechaNacimiento) Nacimiento: {{ \Carbon\Carbon::parse($fechaNacimiento)->format('d/m/Y') }}<br> @endif
+                    @if($valorDocumento) Documento: {{ strtoupper($tipoDocumento) }} {{ $valorDocumento }}<br> @endif
+                    Nivel de identificación:
+                    <span class="fw-semibold">{{ match($nombre || $valorDocumento) { true => ($valorDocumento ? 'identificado' : 'probable'), default => 'no identificado' } }}</span>
+                    @if($excepcionPadron)
+                        <br>Contexto: {{ match($excepcionPadron) { 'psh' => 'PSH', 'vvg' => 'VVG', 'representante' => 'Representante', default => 'Otra excepción' } }}
+                    @endif
+                </p>
             </div>
         </div>
 
-        <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
-            <label style="font-size: 0.82rem; color: var(--color-ink-700); font-weight: 600; display: block; margin-bottom: 0.35rem;">Primera demanda (opcional)</label>
-            <p style="font-size: 0.78rem; color: var(--color-ink-500); margin: 0 0 0.5rem;">Motivo de la visita en las propias palabras del ciudadano/a. No es una valoración profesional.</p>
-            <textarea wire:model="primeraDemanda" rows="3" class="form-control form-control-sm"
-                      placeholder="Ej: «Vengo porque me han dicho que puedo pedir ayuda para pagar el alquiler»"
-                      style="font-size: 0.85rem; resize: vertical;"></textarea>
-        </div>
-
-        <div style="background: #fff; border: 1px solid var(--color-ink-200); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem;">
-            <p style="font-size: 0.82rem; font-weight: 600; color: var(--color-ink-700); margin: 0 0 0.75rem;">¿Qué hacemos a continuación?</p>
-            <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.85rem;">
-                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                    <input type="radio" wire:model="accionPostAlta" value="ficha"> Ir a la ficha del ciudadano/a
-                </label>
-                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                    <input type="radio" wire:model="accionPostAlta" value="cita"> Crear una cita ahora
-                </label>
-                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                    <input type="radio" wire:model="accionPostAlta" value="solo_alta"> Solo guardar y volver a la búsqueda
-                </label>
+        <div class="card mb-3">
+            <div class="card-body">
+                <label for="alta-primera-demanda" class="form-label fw-semibold mb-1">Primera demanda (opcional)</label>
+                <p class="small text-body-secondary mb-2">Motivo de la visita en las propias palabras del ciudadano/a. No es una valoración profesional.</p>
+                <textarea id="alta-primera-demanda" wire:model="primeraDemanda" rows="3" class="form-control form-control-sm"
+                          placeholder="Ej: «Vengo porque me han dicho que puedo pedir ayuda para pagar el alquiler»"></textarea>
             </div>
         </div>
 
-        <button wire:click="confirmarAlta" class="btn btn-primary btn-sm" style="font-size: 0.85rem;">
+        <fieldset class="card mb-3">
+            <div class="card-body">
+                <legend class="fs-6 fw-semibold mb-3">¿Qué hacemos a continuación?</legend>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="accion-ficha" wire:model="accionPostAlta" value="ficha">
+                    <label class="form-check-label" for="accion-ficha">Ir a la ficha del ciudadano/a</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="accion-cita" wire:model="accionPostAlta" value="cita">
+                    <label class="form-check-label" for="accion-cita">Crear una cita ahora</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="accion-solo-alta" wire:model="accionPostAlta" value="solo_alta">
+                    <label class="form-check-label" for="accion-solo-alta">Solo guardar y volver a la búsqueda</label>
+                </div>
+            </div>
+        </fieldset>
+
+        <button type="button" wire:click="confirmarAlta" class="btn btn-primary btn-sm">
             Confirmar y terminar
         </button>
 
     @endif
 
+</div>
+</div>
 </div>

@@ -6,7 +6,7 @@
 
 ## Tarea completada
 
-**Bootstrap único, fase 2:** comando `php artisan ui:auditar` (reglas R1 a R6), catálogo `config/ui-catalogo.php` con las 559 clases actuales en `pendiente`, 21 tests y paso en el CI con `--informe`. Informe inicial (1.724 infracciones) en el anexo B de `docs/instrucciones-cli/2026-09-bootstrap-unico.md`.
+**Bootstrap único, fase 3, Ciudadanía:** `alta-ciudadano` y `ficha-ciudadano-page` reescritas solo con Bootstrap (el botón de alta vuelve a verse), tarjeta de Documentos alineada y 111 clases muertas borradas del SCSS y del catálogo. `ui:auditar --modulo=Ciudadania` sin infracciones; total del proyecto 1.107 (antes 1.724).
 
 ---
 
@@ -33,8 +33,10 @@
 
 ## Siguiente paso concreto recomendado
 
-1. **Bootstrap único, fase 3, módulo Ciudadanía:** migrar `alta-ciudadano` y `ficha-ciudadano-page` hasta que `php artisan ui:auditar --modulo=Ciudadania` salga sin infracciones. Seguir la tabla de equivalencias del anexo A y el §4 del plan. Después, tests del módulo, commit, push y revisión de Grok antes de pasar a Intervención.
-2. Pendientes anteriores: revisar los toasts de alertas en staging con ts1.ciam@demo.es; Mensajes, paso 6 (`HistoriaSocialService::obtenerEntradas()` en la línea de tiempo); tarjeta «Documentos» de la ficha; restricción de colectivos protegidos en la ficha (BACKLOG, prioritario); fallos previos de la suite completa.
+1. **Revisión de Grok del commit de Ciudadanía** (acordado con el desarrollador: cada módulo migrado lo revisa Grok antes de pasar al siguiente). Corregir lo que señale.
+2. Revisar en staging el alta y la ficha del ciudadano (no se ha hecho revisión visual en navegador).
+3. Después, fase 3 de Intervención: `buscar-ciudadano-page`, `registrar-valoracion-page`, `ver-ficha-page`, `registrar-escala-page`, `ciudadano-page`, `plan-page` y el resto, hasta `ui:auditar --modulo=Intervencion` sin infracciones.
+4. Pendientes anteriores: toasts de alertas en staging con ts1.ciam@demo.es; Mensajes, paso 6; restricción de colectivos protegidos en la ficha (BACKLOG, prioritario); fallos previos de la suite completa (entre ellos, los dos de Ciudadanía que buscan «Ver historia social»).
 
 ---
 

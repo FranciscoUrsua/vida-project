@@ -1,7 +1,7 @@
 # Bootstrap como único sistema de estilos (operativo y público)
 
 **Fecha:** 2026-09-28
-**Estado:** plan aprobado, en ejecución. Fases 1 y 2 hechas el 2026-09-28.
+**Estado:** plan aprobado, en ejecución. Fases 1 y 2 hechas el 2026-09-28. Fase 3: Ciudadanía hecha (pendiente de revisión de Grok).
 **Sustituye a:** `docs/design-system/bootstrap-migration-plan.md`,
 `docs/design-system/app-operativo-remediation-plan.md` y
 `docs/design-system/frontend-bootstrap-guardrails.md` (se borran en la fase 5).
@@ -110,6 +110,9 @@ Detalles de las reglas:
   Las clases `pendiente` fallan en modo bloqueante y se resumen por fichero.
 - R5 busca el nombre completo de la clase como palabra en vistas, PHP y JS.
   Las clases que solo se construyen por concatenación salen como huérfanas.
+  Al revés, una clase que se llama igual que una vista o ruta (p. ej.
+  `alta-ciudadano`, por `livewire.alta-ciudadano`) cuenta como usada aunque no
+  lo esté: al migrar una pantalla, revisar a mano la clase raíz.
 - Con `--modulo` solo se aplican R1 a R3 (las vistas); R4 a R6 son globales.
 
 Límite conocido: las clases construidas dinámicamente (`"badge-{{ $tipo }}"`) no
@@ -197,7 +200,8 @@ En cada vista, cada elemento acaba en:
 - una clase de pantalla documentada en el catálogo (solo estructura real).
 
 Por módulo:
-1. Migrar las vistas.
+1. Migrar las vistas. Las clases propias que la migración deja sin uso (R5) se
+   borran en el mismo commit, del SCSS y del catálogo; no se dejan para la fase 4.
 2. `php artisan ui:auditar --modulo=X` sin infracciones.
 3. Tests del módulo en verde.
 4. Commit y push (staging se despliega solo).

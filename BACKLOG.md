@@ -12,7 +12,7 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 **Bootstrap único: pendientes fuera del plan** — 2026-09-28
 Módulo: Frontend / Filament
 - **Tema de Filament con la paleta antigua:** `resources/css/filament/admin/theme.css` conserva `success` #4B8A5B, `warning` #B8852F, `danger` #B0432E e `info` #3F6E99, que no son los canónicos (ver anexo A de `docs/instrucciones-cli/2026-09-bootstrap-unico.md`) y en success/warning no llegan a AA. Filament queda fuera del plan; decidir si se alinea.
-- **Hasta la fase 3, las vistas con `var(--color-*)` siguen rotas sin avisar** (alta, búsqueda, valoración, escala y ficha de Intervención, entre otras): partes sin color, bordes o fondos. El botón «Dar de alta nueva persona» de `alta-ciudadano` es invisible (texto blanco sin fondo).
+- **Hasta la fase 3, las vistas con `var(--color-*)` siguen rotas sin avisar** (búsqueda, valoración, escala y ficha de Intervención, entre otras): partes sin color, bordes o fondos. Ciudadanía ya está migrada (2026-09-28).
 - **Vistas públicas con clases sin definir:** `welcome-page__hero`, `welcome-page__summary-section` (welcome) y `auth-card__form` (login). Se resuelven en la fase 3.
 
 ---

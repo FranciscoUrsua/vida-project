@@ -1,7 +1,7 @@
 {{-- Tarjeta «Documentos» de la ficha del ciudadano (custodia v2, paso 7). --}}
-<div class="citizen-file__card mt-3" id="ficha-documentos">
+<div class="card card-body mb-3" id="ficha-documentos">
     <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
-        <h2 class="citizen-file__section-title mb-0">
+        <h2 class="h6 fw-semibold d-flex align-items-center gap-2 mb-0">
             <x-heroicon-o-paper-clip class="icon-16" aria-hidden="true"/>
             Documentos
         </h2>
