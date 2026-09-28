@@ -95,7 +95,7 @@ class RelacionesUiTest extends TestCase
     #[Test]
     public function sin_representante_no_muestra_linea(): void
     {
-        $this->montar()->assertDontSee('hs-representante');
+        $this->montar()->assertDontSee('Representante');
     }
 
     /**

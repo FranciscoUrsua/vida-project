@@ -1,15 +1,20 @@
-@props(['usuario'])
+{{-- Avatar con iniciales (componente de catálogo `op-avatar`). Recibe un usuario o un nombre. --}}
+@props(['usuario' => null, 'nombre' => null, 'pequeno' => false])
 
 @php
-    $palabras = explode(' ', trim($usuario->name));
-    $iniciales = '';
-    if (isset($palabras[0])) $iniciales .= strtoupper(substr($palabras[0], 0, 1));
-    if (isset($palabras[1])) $iniciales .= strtoupper(substr($palabras[1], 0, 1));
+    $texto = trim((string) ($nombre ?? $usuario?->name ?? ''));
+    $palabras = preg_split('/\s+/', $texto) ?: [];
+    $iniciales = mb_strtoupper(mb_substr($palabras[0] ?? '', 0, 1) . mb_substr($palabras[1] ?? '', 0, 1));
 
-    $colores = ['bg-teal', 'bg-blue', 'bg-purple', 'bg-amber'];
-    $color = $colores[$usuario->id % count($colores)];
+    // Color estable por persona: el id del usuario o, sin usuario, el propio nombre
+    $colores = [
+        'bg-primary-subtle text-primary-emphasis',
+        'bg-success-subtle text-success-emphasis',
+        'bg-warning-subtle text-warning-emphasis',
+        'bg-info-subtle text-info-emphasis',
+    ];
+    $semilla = $usuario?->id ?? crc32($texto);
+    $color = $colores[$semilla % count($colores)];
 @endphp
 
-<div class="avatar {{ $color }}" title="{{ $usuario->name }}">
-    {{ $iniciales }}
-</div>
+<span {{ $attributes->class(['op-avatar', 'op-avatar--sm' => $pequeno, $color]) }} title="{{ $texto }}">{{ $iniciales }}</span>

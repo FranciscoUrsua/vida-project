@@ -224,7 +224,7 @@ class AccesosExpedienteTest extends TestCase
     }
 
     /**
-     * TF-AUD-INT-05 — Accesos de otra UO con acción 'ver' tienen clase CSS 'acceso-fila--sospechoso'.
+     * TF-AUD-INT-05 — Los accesos de otra UO con acción 'ver' se marcan como sospechosos (no como anomalía).
      */
     #[Test]
     public function acceso_de_otra_uo_con_accion_ver_tiene_clase_sospechoso(): void
@@ -239,12 +239,12 @@ class AccesosExpedienteTest extends TestCase
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
             ->html();
 
-        $this->assertStringContainsString('acceso-fila--sospechoso', $html);
-        $this->assertStringNotContainsString('acceso-fila--anomalo', $html);
+        $this->assertStringContainsString('data-acceso="sospechoso"', $html);
+        $this->assertStringNotContainsString('data-acceso="anomalo"', $html);
     }
 
     /**
-     * TF-AUD-INT-06 — Accesos de otra UO con acción 'editar' tienen clase CSS 'acceso-fila--anomalo'.
+     * TF-AUD-INT-06 — Los accesos de otra UO con acción 'editar' se marcan como anomalía, con aviso de revisión.
      */
     #[Test]
     public function acceso_de_otra_uo_con_accion_editar_tiene_clase_anomalo(): void
@@ -259,12 +259,12 @@ class AccesosExpedienteTest extends TestCase
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
             ->html();
 
-        $this->assertStringContainsString('acceso-fila--anomalo', $html);
-        $this->assertStringContainsString('alert-triangle', $html);
+        $this->assertStringContainsString('data-acceso="anomalo"', $html);
+        $this->assertStringContainsString('Modificación desde otra UO — revisar', $html);
     }
 
     /**
-     * TF-AUD-INT-07 — Los accesos propios tienen clase CSS 'acceso-fila--propio'.
+     * TF-AUD-INT-07 — Los accesos propios se marcan como propios.
      */
     #[Test]
     public function accesos_propios_tienen_clase_propio(): void
@@ -275,7 +275,7 @@ class AccesosExpedienteTest extends TestCase
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
             ->html();
 
-        $this->assertStringContainsString('acceso-fila--propio', $html);
+        $this->assertStringContainsString('data-acceso="propio"', $html);
     }
 
     /**

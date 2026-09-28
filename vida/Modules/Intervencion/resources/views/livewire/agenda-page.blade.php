@@ -4,35 +4,65 @@
     $ancla = Carbon::parse($fechaAncla)->locale('es');
     $hoy = today()->toDateString();
 
+    // Tipos de cita: etiqueta y color de tema Bootstrap
     $estiloCita = [
-        'entrevista' => ['label' => 'Entrevista'],
-        'seguimiento' => ['label' => 'Seguimiento'],
-        'urgencia' => ['label' => 'Urgencia'],
-        'evento' => ['label' => 'Evento'],
+        'entrevista' => ['label' => 'Entrevista', 'color' => 'primary'],
+        'seguimiento' => ['label' => 'Seguimiento', 'color' => 'success'],
+        'urgencia' => ['label' => 'Urgencia', 'color' => 'danger'],
+        'evento' => ['label' => 'Evento', 'color' => 'secondary'],
+    ];
+
+    // Clases completas de una entrada de agenda según su tipo (sin concatenar nombres de clase)
+    $claseEntrada = [
+        'entrevista' => 'bg-primary-subtle border-primary',
+        'seguimiento' => 'bg-success-subtle border-success',
+        'urgencia' => 'bg-danger-subtle border-danger',
+        'evento' => 'bg-secondary-subtle border-secondary',
+    ];
+    $clasePastilla = [
+        'entrevista' => 'bg-primary-subtle text-primary-emphasis',
+        'seguimiento' => 'bg-success-subtle text-success-emphasis',
+        'urgencia' => 'bg-danger-subtle text-danger-emphasis',
+        'evento' => 'bg-secondary-subtle text-secondary-emphasis',
+    ];
+    $claseMuestra = [
+        'entrevista' => 'bg-primary',
+        'seguimiento' => 'bg-success',
+        'urgencia' => 'bg-danger',
+        'evento' => 'bg-secondary',
     ];
 
     $horas = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+
+    // URL de destino de una cita: la historia social para intervención; si no, la ficha
+    $urlCita = function (array $cita): ?string {
+        if ($cita['historia_id'] && auth()->user()->hasRole('intervencion')) {
+            return route('intervencion.ciudadano.show', $cita['historia_id']);
+        }
+
+        return isset($cita['ciudadano_id']) ? route('ciudadania.ciudadano.ficha', $cita['ciudadano_id']) : null;
+    };
 @endphp
 
-<div class="agenda-screen">
-    <section class="agenda-screen__toolbar">
-        <div class="agenda-screen__heading">
-            <p class="agenda-screen__eyebrow">Planificacion diaria</p>
-            <span class="agenda-screen__range">{{ $this->tituloFecha }}</span>
+<div class="op-page d-flex flex-column gap-3 p-3">
+    <section class="d-flex flex-wrap align-items-end justify-content-between gap-3">
+        <div>
+            <p class="small text-uppercase fw-semibold text-body-secondary mb-0">Planificacion diaria</p>
+            <span class="fs-5 fw-bold">{{ $this->tituloFecha }}</span>
         </div>
 
-        <div class="agenda-screen__toolbar-actions">
-            <div class="btn-group btn-group-sm agenda-screen__nav-group" aria-label="Navegacion temporal">
-                <button wire:click="navegarAnterior" type="button" class="btn btn-sm btn-outline-secondary" aria-label="Periodo anterior">
+        <div class="d-flex flex-wrap gap-2">
+            <div class="btn-group btn-group-sm" role="group" aria-label="Navegacion temporal">
+                <button wire:click="navegarAnterior" type="button" class="btn btn-outline-secondary" aria-label="Periodo anterior">
                     <x-heroicon-o-chevron-left class="icon-16" aria-hidden="true"/>
                 </button>
-                <button wire:click="navegarSiguiente" type="button" class="btn btn-sm btn-outline-secondary" aria-label="Periodo siguiente">
+                <button wire:click="navegarSiguiente" type="button" class="btn btn-outline-secondary" aria-label="Periodo siguiente">
                     <x-heroicon-o-chevron-right class="icon-16" aria-hidden="true"/>
                 </button>
-                <button wire:click="irAHoy" type="button" class="btn btn-sm btn-outline-primary">Hoy</button>
+                <button wire:click="irAHoy" type="button" class="btn btn-outline-primary">Hoy</button>
             </div>
 
-            <div class="btn-group btn-group-sm agenda-screen__view-toggle" role="group" aria-label="Vista de agenda">
+            <div class="btn-group btn-group-sm" role="group" aria-label="Vista de agenda">
                 <button wire:click="setVista('dia')" type="button" class="btn {{ $vista === 'dia' ? 'btn-primary' : 'btn-outline-primary' }}">Dia</button>
                 <button wire:click="setVista('semana')" type="button" class="btn {{ $vista === 'semana' ? 'btn-primary' : 'btn-outline-primary' }}">Semana</button>
                 <button wire:click="setVista('mes')" type="button" class="btn {{ $vista === 'mes' ? 'btn-primary' : 'btn-outline-primary' }}">Mes</button>
@@ -40,87 +70,89 @@
         </div>
     </section>
 
-    <section class="agenda-screen__kpis" aria-label="Resumen de actividad">
-        <article class="agenda-screen__kpi {{ $this->kpis['alertas_sin_reconocer'] > 0 ? 'agenda-screen__kpi--accent' : '' }}">
-            <div class="agenda-screen__kpi-value">{{ $this->kpis['alertas_sin_reconocer'] }}</div>
-            <div class="agenda-screen__kpi-label">Alertas sin reconocer</div>
-        </article>
-        <article class="agenda-screen__kpi {{ $this->kpis['seguimientos_vencidos'] > 0 ? 'agenda-screen__kpi--warning' : '' }}">
-            <div class="agenda-screen__kpi-value">{{ $this->kpis['seguimientos_vencidos'] }}</div>
-            <div class="agenda-screen__kpi-label">Seguimientos vencidos</div>
-        </article>
-        <article class="agenda-screen__kpi">
-            <div class="agenda-screen__kpi-value">{{ $this->kpis['citas'] }}</div>
-            <div class="agenda-screen__kpi-label">
-                @if($vista === 'dia')
-                    Citas hoy
-                @elseif($vista === 'semana')
-                    Citas esta semana
-                @else
-                    Citas este mes
-                @endif
-            </div>
-        </article>
-        <article class="agenda-screen__kpi">
-            <div class="agenda-screen__kpi-value">{{ $this->kpis['mensajes_sin_leer'] }}</div>
-            <div class="agenda-screen__kpi-label">Mensajes sin leer</div>
-        </article>
+    <section class="row row-cols-2 row-cols-lg-4 g-2" aria-label="Resumen de actividad">
+        <div class="col">
+            <article class="card card-body py-2 h-100">
+                <div @class(['fs-4 fw-bold', 'text-danger' => $this->kpis['alertas_sin_reconocer'] > 0])>{{ $this->kpis['alertas_sin_reconocer'] }}</div>
+                <div class="small text-body-secondary">Alertas sin reconocer</div>
+            </article>
+        </div>
+        <div class="col">
+            <article class="card card-body py-2 h-100">
+                <div @class(['fs-4 fw-bold', 'text-warning' => $this->kpis['seguimientos_vencidos'] > 0])>{{ $this->kpis['seguimientos_vencidos'] }}</div>
+                <div class="small text-body-secondary">Seguimientos vencidos</div>
+            </article>
+        </div>
+        <div class="col">
+            <article class="card card-body py-2 h-100">
+                <div class="fs-4 fw-bold">{{ $this->kpis['citas'] }}</div>
+                <div class="small text-body-secondary">
+                    @if($vista === 'dia')
+                        Citas hoy
+                    @elseif($vista === 'semana')
+                        Citas esta semana
+                    @else
+                        Citas este mes
+                    @endif
+                </div>
+            </article>
+        </div>
+        <div class="col">
+            <article class="card card-body py-2 h-100">
+                <div class="fs-4 fw-bold">{{ $this->kpis['mensajes_sin_leer'] }}</div>
+                <div class="small text-body-secondary">Mensajes sin leer</div>
+            </article>
+        </div>
     </section>
 
-    <section class="agenda-screen__surface">
-        <div class="agenda-screen__content">
+    <section class="card flex-grow-1">
+        <div class="card-body">
             @if($vista === 'dia')
-                <div class="agenda-screen__day-grid">
+                <div class="row g-3">
                     @foreach($this->citasDia as $fecha => $citas)
                         @php
                             $col = Carbon::parse($fecha)->locale('es');
                             $esHoy = $fecha === $hoy;
                             $esPasado = $fecha < $hoy;
                         @endphp
-                        <section class="agenda-screen__day-column {{ $esHoy ? 'agenda-screen__day-column--today' : '' }} {{ $esPasado ? 'agenda-screen__day-column--past' : '' }}">
-                            <header class="agenda-screen__day-header">
-                                <div class="agenda-screen__day-weekday">{{ $col->isoFormat('ddd') }}</div>
-                                <div class="agenda-screen__day-number">{{ $col->day }}</div>
+                        <section @class(['col', 'opacity-75' => $esPasado])>
+                            <header @class(['text-center rounded py-1 mb-2', 'bg-primary-subtle text-primary-emphasis' => $esHoy, 'bg-body-tertiary' => ! $esHoy])>
+                                <div class="small text-uppercase">{{ $col->isoFormat('ddd') }}</div>
+                                <div class="fs-5 fw-bold">{{ $col->day }}</div>
                             </header>
 
-                            <div class="agenda-screen__day-items">
+                            <div class="d-flex flex-column gap-1">
                                 @forelse($citas as $cita)
                                     @php
                                         $tipo = $cita['tipo'] ?? 'evento';
-                                        $url = null;
-                                        if ($cita['historia_id'] && auth()->user()->hasRole('intervencion')) {
-                                            $url = route('intervencion.ciudadano.show', $cita['historia_id']);
-                                        } elseif (isset($cita['ciudadano_id'])) {
-                                            $url = route('ciudadania.ciudadano.ficha', $cita['ciudadano_id']);
-                                        }
+                                        $url = $urlCita($cita);
+                                        $clases = 'd-block rounded border-start border-3 px-2 py-1 small text-body text-decoration-none '.($claseEntrada[$tipo] ?? $claseEntrada['evento']);
                                     @endphp
 
                                     @if($url)
-                                        <a href="{{ $url }}" wire:navigate class="agenda-screen__entry agenda-screen__entry--{{ $tipo }}">
+                                        <a href="{{ $url }}" wire:navigate class="{{ $clases }}">
+                                    @else
+                                        <div class="{{ $clases }}" title="{{ $cita['ciudadano'] ?? 'Evento interno' }}">
+                                    @endif
                                             @if($tipo === 'urgencia')
-                                                <span class="agenda-screen__entry-badge">Urgencia</span>
+                                                <span class="badge text-bg-danger">Urgencia</span>
                                             @endif
-                                            <div class="agenda-screen__entry-time">{{ $cita['hora'] }}</div>
-                                            <div class="agenda-screen__entry-title">{{ $cita['ciudadano'] }}</div>
+                                            <div class="fw-semibold">{{ $cita['hora'] }}</div>
+                                            <div class="text-truncate">{{ $cita['ciudadano'] ?? 'Evento interno' }}</div>
+                                    @if($url)
                                         </a>
                                     @else
-                                        <div class="agenda-screen__entry agenda-screen__entry--{{ $tipo }}" title="{{ $cita['ciudadano'] ?? 'Evento interno' }}">
-                                            @if($tipo === 'urgencia')
-                                                <span class="agenda-screen__entry-badge">Urgencia</span>
-                                            @endif
-                                            <div class="agenda-screen__entry-time">{{ $cita['hora'] }}</div>
-                                            <div class="agenda-screen__entry-title">{{ $cita['ciudadano'] ?? 'Evento interno' }}</div>
                                         </div>
                                     @endif
                                 @empty
-                                    <div class="agenda-screen__empty">Sin citas programadas.</div>
+                                    <p class="small text-body-secondary text-center mb-0">Sin citas programadas.</p>
                                 @endforelse
 
                                 @if(! $esPasado)
                                     @php $horasCitas = collect($citas)->pluck('hora')->toArray(); @endphp
                                     @foreach($horas as $hora)
                                         @if(! in_array($hora, $horasCitas))
-                                            <div class="agenda-screen__slot">{{ $hora }} <span>Disponible</span></div>
+                                            <div class="small text-body-tertiary border-bottom py-1">{{ $hora }} <span class="ms-1">Disponible</span></div>
                                         @endif
                                     @endforeach
                                 @endif
@@ -133,19 +165,19 @@
                     $diasSemana = array_keys($this->citasSemana);
                     $citasSemana = $this->citasSemana;
                 @endphp
-                <div class="agenda-screen__table-wrap">
-                    <table class="agenda-screen__table">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm align-top mb-0">
                         <thead>
                             <tr>
-                                <th class="agenda-screen__table-hour-head"></th>
+                                <th scope="col"><span class="visually-hidden">Hora</span></th>
                                 @foreach($diasSemana as $fecha)
                                     @php
                                         $dia = Carbon::parse($fecha)->locale('es');
                                         $esHoy = $fecha === $hoy;
                                     @endphp
-                                    <th class="agenda-screen__table-day-head {{ $esHoy ? 'agenda-screen__table-day-head--today' : '' }}">
-                                        <div class="agenda-screen__table-weekday">{{ $dia->isoFormat('ddd') }}</div>
-                                        <div class="agenda-screen__table-daynum">{{ $dia->day }}</div>
+                                    <th scope="col" @class(['text-center', 'table-primary' => $esHoy])>
+                                        <div class="small text-uppercase fw-normal">{{ $dia->isoFormat('ddd') }}</div>
+                                        <div>{{ $dia->day }}</div>
                                     </th>
                                 @endforeach
                             </tr>
@@ -153,31 +185,23 @@
                         <tbody>
                             @foreach($horas as $hora)
                                 <tr>
-                                    <td class="agenda-screen__table-hour">{{ $hora }}</td>
+                                    <th scope="row" class="small fw-normal text-body-secondary text-nowrap">{{ $hora }}</th>
                                     @foreach($diasSemana as $fecha)
                                         @php
                                             $citasHora = collect($citasSemana[$fecha] ?? [])->filter(fn($c) => $c['hora'] === $hora)->values();
                                             $esHoy = $fecha === $hoy;
                                         @endphp
-                                        <td class="agenda-screen__table-cell {{ $esHoy ? 'agenda-screen__table-cell--today' : '' }}">
+                                        <td @class(['table-primary' => $esHoy])>
                                             @foreach($citasHora as $cita)
                                                 @php
                                                     $tipo = $cita['tipo'] ?? 'evento';
-                                                    $url = null;
-                                                    if ($cita['historia_id'] && auth()->user()->hasRole('intervencion')) {
-                                                        $url = route('intervencion.ciudadano.show', $cita['historia_id']);
-                                                    } elseif (isset($cita['ciudadano_id'])) {
-                                                        $url = route('ciudadania.ciudadano.ficha', $cita['ciudadano_id']);
-                                                    }
+                                                    $url = $urlCita($cita);
+                                                    $clases = 'd-block rounded border-start border-3 px-1 mb-1 small text-body text-decoration-none text-truncate '.($claseEntrada[$tipo] ?? $claseEntrada['evento']);
                                                 @endphp
                                                 @if($url)
-                                                    <a href="{{ $url }}" wire:navigate class="agenda-screen__entry agenda-screen__entry--compact agenda-screen__entry--{{ $tipo }}">
-                                                        <div class="agenda-screen__entry-title">{{ $cita['ciudadano'] }}</div>
-                                                    </a>
+                                                    <a href="{{ $url }}" wire:navigate class="{{ $clases }}">{{ $cita['ciudadano'] }}</a>
                                                 @else
-                                                    <div class="agenda-screen__entry agenda-screen__entry--compact agenda-screen__entry--{{ $tipo }}" title="{{ $cita['ciudadano'] ?? 'Evento interno' }}">
-                                                        <div class="agenda-screen__entry-title">{{ $cita['ciudadano'] ?? 'Evento interno' }}</div>
-                                                    </div>
+                                                    <div class="{{ $clases }}" title="{{ $cita['ciudadano'] ?? 'Evento interno' }}">{{ $cita['ciudadano'] ?? 'Evento interno' }}</div>
                                                 @endif
                                             @endforeach
                                         </td>
@@ -200,51 +224,60 @@
                         $cur->addDay();
                     }
                     $datosMes = $this->datosMes;
+                    $prioridad = ['urgencia' => 0, 'entrevista' => 1, 'seguimiento' => 2, 'evento' => 3];
                 @endphp
 
-                <div class="agenda-screen__month-grid">
-                    @foreach(['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'] as $nombreDia)
-                        <div class="agenda-screen__month-head">{{ $nombreDia }}</div>
-                    @endforeach
-
-                    @foreach($diasCalendario as $dia)
-                        @php
-                            $fechaDia = $dia->toDateString();
-                            $esMesActual = $dia->month === $inicioMes->month;
-                            $esHoy = $fechaDia === $hoy;
-                            $esFinDeSemana = $dia->isWeekend();
-                            $numeroDia = (int) $dia->day;
-                            $datosDia = $datosMes[$numeroDia] ?? null;
-                            $tiposDia = $datosDia ? $datosDia['tipos'] : [];
-                            $prioridad = ['urgencia' => 0, 'entrevista' => 1, 'seguimiento' => 2, 'evento' => 3];
-                            uksort($tiposDia, fn($a, $b) => ($prioridad[$a] ?? 9) <=> ($prioridad[$b] ?? 9));
-                            $visibles = array_slice($tiposDia, 0, 3, true);
-                        @endphp
-
-                        @if($esMesActual)
-                            <button type="button" wire:click="irADia('{{ $fechaDia }}')" class="agenda-screen__month-cell {{ $esHoy ? 'agenda-screen__month-cell--today' : '' }} {{ $esFinDeSemana ? 'agenda-screen__month-cell--weekend' : '' }}">
-                                <div class="agenda-screen__month-day">{{ $dia->day }}</div>
-                                <div class="agenda-screen__month-pills">
-                                    @foreach($visibles as $tipo => $conteo)
-                                        <span class="agenda-screen__month-pill agenda-screen__month-pill--{{ $tipo }}">{{ $conteo }}</span>
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                @foreach(['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'] as $nombreDia)
+                                    <th scope="col" class="small text-center text-body-secondary">{{ $nombreDia }}</th>
+                                @endforeach
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(array_chunk($diasCalendario, 7) as $semana)
+                                <tr>
+                                    @foreach($semana as $dia)
+                                        @php
+                                            $fechaDia = $dia->toDateString();
+                                            $esMesActual = $dia->month === $inicioMes->month;
+                                            $esHoy = $fechaDia === $hoy;
+                                            $numeroDia = (int) $dia->day;
+                                            $datosDia = $esMesActual ? ($datosMes[$numeroDia] ?? null) : null;
+                                            $tiposDia = $datosDia ? $datosDia['tipos'] : [];
+                                            uksort($tiposDia, fn($a, $b) => ($prioridad[$a] ?? 9) <=> ($prioridad[$b] ?? 9));
+                                            $visibles = array_slice($tiposDia, 0, 3, true);
+                                        @endphp
+                                        @if($esMesActual)
+                                            <td @class(['p-0', 'table-primary' => $esHoy, 'bg-body-tertiary' => ! $esHoy && $dia->isWeekend()])>
+                                                <button type="button" wire:click="irADia('{{ $fechaDia }}')" class="btn w-100 h-100 text-start rounded-0 p-2">
+                                                    <div @class(['small', 'fw-bold text-primary' => $esHoy])>{{ $dia->day }}</div>
+                                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                                        @foreach($visibles as $tipo => $conteo)
+                                                            <span class="badge rounded-pill {{ $clasePastilla[$tipo] ?? $clasePastilla['evento'] }}">{{ $conteo }}</span>
+                                                        @endforeach
+                                                    </div>
+                                                </button>
+                                            </td>
+                                        @else
+                                            <td class="small text-body-tertiary bg-body-tertiary p-2">{{ $dia->day }}</td>
+                                        @endif
                                     @endforeach
-                                </div>
-                            </button>
-                        @else
-                            <div class="agenda-screen__month-cell agenda-screen__month-cell--muted {{ $esFinDeSemana ? 'agenda-screen__month-cell--weekend' : '' }}">
-                                <div class="agenda-screen__month-day">{{ $dia->day }}</div>
-                            </div>
-                        @endif
-                    @endforeach
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             @endif
         </div>
 
-        <footer class="agenda-screen__legend" aria-label="Leyenda de tipos de cita">
-            <span class="agenda-screen__legend-title">Leyenda</span>
+        <footer class="card-footer d-flex flex-wrap align-items-center gap-3 small" aria-label="Leyenda de tipos de cita">
+            <span class="fw-semibold text-body-secondary">Leyenda</span>
             @foreach($estiloCita as $tipo => $estilos)
-                <span class="agenda-screen__legend-item">
-                    <span class="agenda-screen__legend-swatch agenda-screen__legend-swatch--{{ $tipo }}"></span>
+                <span class="d-inline-flex align-items-center gap-1">
+                    <span class="d-inline-block rounded p-1 {{ $claseMuestra[$tipo] }}" aria-hidden="true"></span>
                     {{ $estilos['label'] }}
                 </span>
             @endforeach

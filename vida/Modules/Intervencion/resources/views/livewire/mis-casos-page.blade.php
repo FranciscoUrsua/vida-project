@@ -19,84 +19,101 @@
         return 'programado';
     };
 
+    $claseSeguimiento = [
+        'vencido'    => 'bg-danger-subtle text-danger-emphasis',
+        'proximo'    => 'bg-warning-subtle text-warning-emphasis',
+        'programado' => 'bg-success-subtle text-success-emphasis',
+        'sin'        => 'text-body-secondary fw-normal',
+    ];
+
     $nombrePlan = $this->nombrePlanAsp();
+
+    // Columnas de la tabla: [campo de orden o null si no se ordena, etiqueta]
+    $columnas = [
+        ['ciudadano', 'Ciudadano/a'],
+        ['historia', 'Historia Social'],
+        ['seg', 'Proximo seguimiento'],
+        [null, $nombrePlan],
+        ['esp', 'Especializados'],
+        ['inicio', 'Inicio'],
+    ];
 @endphp
 
-<div class="cases-screen">
-    <section class="cases-screen__toolbar">
-        <div class="cases-screen__filters">
-            <label class="cases-screen__search" aria-label="Buscar por nombre">
-                <x-heroicon-o-magnifying-glass class="icon-14 cases-screen__search-icon" aria-hidden="true"/>
-                <input
-                    wire:model.live.debounce.300ms="busqueda"
-                    type="search"
-                    class="form-control cases-screen__search-input"
-                    placeholder="Buscar por nombre"
-                    autocomplete="off"
-                >
-            </label>
+<div class="op-page op-page--fill">
+    <section class="bg-white border-bottom px-3 py-3">
+        <div class="row g-2 align-items-center">
+            <div class="col-12 col-lg-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text" aria-hidden="true">
+                        <x-heroicon-o-magnifying-glass class="icon-14"/>
+                    </span>
+                    <input
+                        wire:model.live.debounce.300ms="busqueda"
+                        type="search"
+                        class="form-control"
+                        placeholder="Buscar por nombre"
+                        aria-label="Buscar por nombre"
+                        autocomplete="off"
+                    >
+                </div>
+            </div>
 
-            <select wire:model.live="filtroSeguimiento" class="form-select cases-screen__filter">
-                <option value="">Todos los seguimientos</option>
-                <option value="vencido">Vencidos</option>
-                <option value="proximo">Proximos (7 dias)</option>
-                <option value="programado">Programados</option>
-                <option value="sin">Sin programar</option>
-            </select>
+            <div class="col-auto">
+                <select wire:model.live="filtroSeguimiento" class="form-select form-select-sm" aria-label="Filtrar por seguimiento">
+                    <option value="">Todos los seguimientos</option>
+                    <option value="vencido">Vencidos</option>
+                    <option value="proximo">Proximos (7 dias)</option>
+                    <option value="programado">Programados</option>
+                    <option value="sin">Sin programar</option>
+                </select>
+            </div>
 
-            <select wire:model.live="filtroPiso" class="form-select cases-screen__filter">
-                <option value="">Todos los {{ $nombrePlan }}</option>
-                <option value="activo">{{ $nombrePlan }} activo</option>
-                <option value="revision">{{ $nombrePlan }} en revision</option>
-                <option value="sin">Sin {{ $nombrePlan }}</option>
-            </select>
+            <div class="col-auto">
+                <select wire:model.live="filtroPiso" class="form-select form-select-sm" aria-label="Filtrar por {{ $nombrePlan }}">
+                    <option value="">Todos los {{ $nombrePlan }}</option>
+                    <option value="activo">{{ $nombrePlan }} activo</option>
+                    <option value="revision">{{ $nombrePlan }} en revision</option>
+                    <option value="sin">Sin {{ $nombrePlan }}</option>
+                </select>
+            </div>
 
-            <select wire:model.live="filtroEsp" class="form-select cases-screen__filter">
-                <option value="">Con/sin especializados</option>
-                <option value="con">Con derivacion</option>
-                <option value="sin">Sin derivacion</option>
-            </select>
+            <div class="col-auto">
+                <select wire:model.live="filtroEsp" class="form-select form-select-sm" aria-label="Filtrar por especializados">
+                    <option value="">Con/sin especializados</option>
+                    <option value="con">Con derivacion</option>
+                    <option value="sin">Sin derivacion</option>
+                </select>
+            </div>
         </div>
     </section>
 
-    <section class="cases-screen__surface">
-        <div class="cases-screen__content">
-            @if($this->casos->isEmpty())
-                <div class="cases-screen__empty">
-                    No hay casos que coincidan con los filtros seleccionados.
-                </div>
-            @else
-                @php
-                    $ordenarPor = $this->ordenarPor;
-                    $direccion = $this->direccion;
-
-                    $th = function (string $campo, string $label) use ($ordenarPor, $direccion): string {
-                        $activo = $ordenarPor === $campo;
-                        $flecha = $activo ? ($direccion === 'asc' ? '↑' : '↓') : '';
-                        $clase = $activo ? 'btn btn-sm btn-link text-decoration-none cases-screen__sort cases-screen__sort--active' : 'btn btn-sm btn-link text-decoration-none cases-screen__sort';
-
-                        return '<th class="cases-screen__th">'
-                            . '<button wire:click="sortBy(\'' . $campo . '\')" type="button" class="' . $clase . '">'
-                            . e($label)
-                            . ($flecha ? '<span class="cases-screen__sort-arrow">' . $flecha . '</span>' : '')
-                            . '</button>'
-                            . '</th>';
-                    };
-
-                    $thStatic = fn (string $label): string =>
-                        '<th class="cases-screen__th cases-screen__th--static">' . e($label) . '</th>';
-                @endphp
-
-                <div class="table-responsive cases-screen__table-wrap">
-                    <table class="table table-sm table-hover align-middle mb-0 cases-screen__table">
+    <section class="flex-grow-1 overflow-auto p-3">
+        @if($this->casos->isEmpty())
+            <p class="text-center text-body-secondary py-5 mb-0">
+                No hay casos que coincidan con los filtros seleccionados.
+            </p>
+        @else
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle mb-0">
                         <thead>
-                            <tr class="cases-screen__head-row">
-                                {!! $th('ciudadano', 'Ciudadano/a') !!}
-                                {!! $th('historia', 'Historia Social') !!}
-                                {!! $th('seg', 'Proximo seguimiento') !!}
-                                {!! $thStatic($nombrePlan) !!}
-                                {!! $th('esp', 'Especializados') !!}
-                                {!! $th('inicio', 'Inicio') !!}
+                            <tr>
+                                @foreach($columnas as [$campo, $etiqueta])
+                                    @if($campo === null)
+                                        <th scope="col" class="small text-body-secondary">{{ $etiqueta }}</th>
+                                    @else
+                                        @php $activo = $this->ordenarPor === $campo; @endphp
+                                        <th scope="col" @if($activo) aria-sort="{{ $this->direccion === 'asc' ? 'ascending' : 'descending' }}" @endif>
+                                            <button wire:click="sortBy('{{ $campo }}')" type="button"
+                                                    @class(['btn btn-sm btn-link text-decoration-none p-0', 'fw-bold' => $activo, 'link-secondary' => ! $activo])>
+                                                {{ $etiqueta }}
+                                                @if($activo)
+                                                    <span aria-hidden="true">{{ $this->direccion === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </button>
+                                        </th>
+                                    @endif
+                                @endforeach
                             </tr>
                         </thead>
                         <tbody>
@@ -105,19 +122,19 @@
                                     $estado = $estadoSeguimiento($caso->fecha_siguiente_seguimiento);
                                     $nombreCiudadano = $this->ciudadanosDelPage->get($caso->ciudadano_id)?->nombre_completo ?? 'Ciudadano #' . $caso->ciudadano_id;
                                 @endphp
-                                <tr class="cases-screen__row" onclick="event.target.closest('a') || (window.location.href='{{ route('intervencion.ciudadano.show', $caso->historia_id) }}')">
-                                    <td class="cases-screen__cell cases-screen__cell--strong">
-                                        <a href="{{ route('ciudadania.ciudadano.ficha', $caso->ciudadano_id) }}" class="cases-screen__primary-link">
+                                <tr role="button" onclick="event.target.closest('a') || (window.location.href='{{ route('intervencion.ciudadano.show', $caso->historia_id) }}')">
+                                    <td class="fw-semibold">
+                                        <a href="{{ route('ciudadania.ciudadano.ficha', $caso->ciudadano_id) }}" class="text-decoration-none">
                                             {{ $nombreCiudadano }}
                                         </a>
                                     </td>
-                                    <td class="cases-screen__cell cases-screen__cell--mono">
-                                        <a href="{{ route('intervencion.ciudadano.show', $caso->historia_id) }}" class="cases-screen__secondary-link">
+                                    <td class="font-monospace small">
+                                        <a href="{{ route('intervencion.ciudadano.show', $caso->historia_id) }}" class="link-secondary text-decoration-none">
                                             HS-{{ str_pad($caso->historia_id, 6, '0', STR_PAD_LEFT) }}
                                         </a>
                                     </td>
-                                    <td class="cases-screen__cell">
-                                        <span class="cases-screen__status-chip cases-screen__status-chip--{{ $estado }}">
+                                    <td>
+                                        <span class="badge rounded-pill d-inline-flex align-items-center gap-1 {{ $claseSeguimiento[$estado] }}">
                                             @if($estado === 'vencido')
                                                 <x-heroicon-o-clock class="icon-13" aria-hidden="true"/>
                                             @endif
@@ -128,25 +145,25 @@
                                             @endif
                                         </span>
                                     </td>
-                                    <td class="cases-screen__cell">
+                                    <td>
                                         @if($caso->plan_id === null)
-                                            <span class="cases-screen__muted">Sin plan</span>
+                                            <span class="small text-body-secondary">Sin plan</span>
                                         @elseif($caso->plan_estado === 'activo')
-                                            <span class="cases-screen__pill cases-screen__pill--success">Activo</span>
+                                            <span class="badge rounded-pill bg-success-subtle text-success-emphasis">Activo</span>
                                         @elseif($caso->plan_estado === 'en_revision')
-                                            <span class="cases-screen__pill cases-screen__pill--warning">En revisión</span>
+                                            <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis">En revisión</span>
                                         @else
-                                            <span class="cases-screen__pill cases-screen__pill--secondary">Borrador</span>
+                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis">Borrador</span>
                                         @endif
                                     </td>
-                                    <td class="cases-screen__cell cases-screen__cell--center">
+                                    <td class="text-center">
                                         @if($caso->planes_esp_count > 0)
-                                            <span class="cases-screen__pill cases-screen__pill--primary">{{ $caso->planes_esp_count }}</span>
+                                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis">{{ $caso->planes_esp_count }}</span>
                                         @else
-                                            <span class="cases-screen__muted">—</span>
+                                            <span class="text-body-secondary">—</span>
                                         @endif
                                     </td>
-                                    <td class="cases-screen__cell cases-screen__cell--date">
+                                    <td class="small text-body-secondary text-nowrap">
                                         {{ Carbon::parse($caso->fecha_inicio)->format('d/m/Y') }}
                                     </td>
                                 </tr>
@@ -155,14 +172,14 @@
                     </table>
                 </div>
 
-                <footer class="cases-screen__footer">
-                    <span class="cases-screen__count">{{ $this->casos->firstItem() }}-{{ $this->casos->lastItem() }} de {{ $this->casos->total() }} casos</span>
+                <footer class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <span class="small text-body-secondary">{{ $this->casos->firstItem() }}-{{ $this->casos->lastItem() }} de {{ $this->casos->total() }} casos</span>
                     <nav aria-label="Paginacion">
-                        <ul class="pagination pagination-sm mb-0 cases-screen__pager">
+                        <ul class="pagination pagination-sm mb-0">
                             @if($this->casos->onFirstPage())
                                 <li class="page-item disabled"><span class="page-link">‹</span></li>
                             @else
-                                <li class="page-item"><button wire:click="previousPage" type="button" class="page-link">‹</button></li>
+                                <li class="page-item"><button wire:click="previousPage" type="button" class="page-link" aria-label="Página anterior">‹</button></li>
                             @endif
 
                             @foreach(range(1, $this->casos->lastPage()) as $p)
@@ -170,14 +187,14 @@
                             @endforeach
 
                             @if($this->casos->hasMorePages())
-                                <li class="page-item"><button wire:click="nextPage" type="button" class="page-link">›</button></li>
+                                <li class="page-item"><button wire:click="nextPage" type="button" class="page-link" aria-label="Página siguiente">›</button></li>
                             @else
                                 <li class="page-item disabled"><span class="page-link">›</span></li>
                             @endif
                         </ul>
                     </nav>
                 </footer>
-            @endif
-        </div>
+            </div>
+        @endif
     </section>
 </div>

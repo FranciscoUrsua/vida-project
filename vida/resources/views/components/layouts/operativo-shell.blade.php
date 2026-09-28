@@ -54,12 +54,8 @@
                     data-bs-toggle="dropdown"
                     data-bs-offset="[0,8]"
                     aria-expanded="false">
-                <div class="avatar avatar--sm">
-                    {{ mb_strtoupper(
-                        mb_substr(Auth::user()->profesional?->nombre ?? Auth::user()->email, 0, 1)
-                        . mb_substr(Auth::user()->profesional?->apellido1 ?? '', 0, 1)
-                    ) }}
-                </div>
+                <x-avatar pequeno :usuario="Auth::user()"
+                          :nombre="trim((Auth::user()->profesional?->nombre ?? Auth::user()->email).' '.(Auth::user()->profesional?->apellido1 ?? ''))" />
 
                 <span class="topbar__user-nombre">
                     {{ Auth::user()->profesional?->nombre_completo ?? Auth::user()->email }}

@@ -27,7 +27,7 @@
                 {{-- PASO 1 — Tipo de recurso --}}
                 @if($paso === 1)
                     <div wire:key="paso-1">
-                        <p class="text-muted small mb-3">Selecciona el tipo de recurso que necesita el ciudadano.</p>
+                        <p class="text-body-secondary small mb-3">Selecciona el tipo de recurso que necesita el ciudadano.</p>
                         @if($this->tiposRecurso->isEmpty())
                             <div class="alert alert-warning">No hay recursos disponibles configurados en el sistema.</div>
                         @else
@@ -47,7 +47,7 @@
                 {{-- PASO 2 — Destino --}}
                 @if($paso === 2)
                     <div wire:key="paso-2">
-                        <p class="text-muted small mb-3">Selecciona el centro o red de destino.</p>
+                        <p class="text-body-secondary small mb-3">Selecciona el centro o red de destino.</p>
                         @if($this->opcionesDestino->isEmpty())
                             <div class="alert alert-info">No hay centros disponibles para este tipo de recurso.</div>
                         @else
@@ -68,7 +68,7 @@
                                                 <td class="text-center">
                                                     {{ method_exists($opcion, 'plazasDisponibles') ? $opcion->plazasDisponibles() : '—' }}
                                                 </td>
-                                                <td class="text-center text-muted small">—</td>
+                                                <td class="text-center text-body-secondary small">—</td>
                                                 <td>
                                                     <button type="button"
                                                             wire:click="$set('destinoId', {{ $opcion->id }})"
@@ -109,7 +109,7 @@
                         </dl>
 
                         <div class="mb-3">
-                            <label class="form-label">Notas para el TS del centro receptor <span class="text-muted">(opcional)</span></label>
+                            <label class="form-label">Notas para el TS del centro receptor <span class="text-body-secondary">(opcional)</span></label>
                             <textarea wire:model="notas" class="form-control form-control-sm" rows="3"
                                       placeholder="Información relevante para la gestión de la plaza..."></textarea>
                         </div>
@@ -117,7 +117,7 @@
                         {{-- Selector de compromiso del plan (solo si hay compromisos sugeridos) --}}
                         @if($this->compromisosSugeridos->isNotEmpty())
                             <div class="mb-3">
-                                <label class="form-label">Vincular a un compromiso del plan <span class="text-muted">(opcional)</span></label>
+                                <label class="form-label">Vincular a un compromiso del plan <span class="text-body-secondary">(opcional)</span></label>
                                 <select wire:model="compromisoId" class="form-select form-select-sm">
                                     <option value="">— Sin vincular —</option>
                                     @foreach($this->compromisosSugeridos as $compromiso)

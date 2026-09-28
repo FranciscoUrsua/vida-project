@@ -2,11 +2,9 @@
     use Illuminate\Support\Carbon;
 @endphp
 
-<div class="op-page">
+<div class="op-page p-3 p-lg-4">
 
-    <div class="op-toolbar">
-        <h1 class="op-toolbar__title">Recursos y plazas</h1>
-    </div>
+    <h1 class="h5 fw-bold mb-3">Recursos y plazas</h1>
 
     {{-- Previsión de liberaciones (solo en pestaña pendientes) --}}
     @if($pestana === 'pendientes' && $this->previsionLiberaciones->isNotEmpty())
@@ -22,13 +20,13 @@
     {{-- Pestañas --}}
     <ul class="nav nav-tabs mb-3">
         <li class="nav-item">
-            <button class="nav-link {{ $pestana === 'pendientes' ? 'active' : '' }}"
+            <button type="button" class="nav-link {{ $pestana === 'pendientes' ? 'active' : '' }}"
                     wire:click="cambiarPestana('pendientes')">
                 Pendientes
             </button>
         </li>
         <li class="nav-item">
-            <button class="nav-link {{ $pestana === 'activas' ? 'active' : '' }}"
+            <button type="button" class="nav-link {{ $pestana === 'activas' ? 'active' : '' }}"
                     wire:click="cambiarPestana('activas')">
                 Activas
             </button>
@@ -64,7 +62,7 @@
                                            target="_blank" class="text-decoration-none">
                                             {{ $prescripcion->ciudadano->nombre }}
                                             {{ $prescripcion->ciudadano->apellido1 }}
-                                            <x-heroicon-o-arrow-top-right-on-square class="icon-12 text-muted" aria-hidden="true"/>
+                                            <x-heroicon-o-arrow-top-right-on-square class="icon-12 text-body-secondary" aria-hidden="true"/>
                                         </a>
                                     @else
                                         #{{ $prescripcion->ciudadano_id }}
@@ -79,7 +77,7 @@
                                         —
                                     @endif
                                 </td>
-                                <td class="text-muted small">{{ $prescripcion->notas ?? '—' }}</td>
+                                <td class="text-body-secondary small">{{ $prescripcion->notas ?? '—' }}</td>
                                 <td>
                                     <div class="d-flex gap-1">
                                         <button type="button"
@@ -133,7 +131,7 @@
                                            target="_blank" class="text-decoration-none">
                                             {{ $prescripcion->ciudadano->nombre }}
                                             {{ $prescripcion->ciudadano->apellido1 }}
-                                            <x-heroicon-o-arrow-top-right-on-square class="icon-12 text-muted" aria-hidden="true"/>
+                                            <x-heroicon-o-arrow-top-right-on-square class="icon-12 text-body-secondary" aria-hidden="true"/>
                                         </a>
                                     @else
                                         #{{ $prescripcion->ciudadano_id }}

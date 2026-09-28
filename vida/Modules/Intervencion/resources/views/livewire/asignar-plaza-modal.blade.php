@@ -28,7 +28,7 @@
                         </a>
                     @endif
                     @if($this->prescripcion->notas)
-                        <div class="mt-2 text-muted small">
+                        <div class="mt-2 text-body-secondary small">
                             <strong>Notas del TSR:</strong> {{ $this->prescripcion->notas }}
                         </div>
                     @endif
@@ -57,13 +57,13 @@
                                     @endphp
                                     <tr>
                                         <td>{{ $plaza->nombre }}</td>
-                                        <td class="text-muted small">{{ $plaza->espacio?->nombre ?? '—' }}</td>
+                                        <td class="text-body-secondary small">{{ $plaza->espacio?->nombre ?? '—' }}</td>
                                         <td>
                                             <span class="badge {{ $esLibre ? 'bg-success' : ($plaza->estado === 'mantenimiento' ? 'bg-danger' : 'bg-warning text-dark') }}">
                                                 {{ ucfirst($plaza->estado) }}
                                             </span>
                                         </td>
-                                        <td class="text-muted small">
+                                        <td class="text-body-secondary small">
                                             @if(! $esLibre && $prescripcionActiva?->fecha_fin)
                                                 {{ \Carbon\Carbon::parse($prescripcionActiva->fecha_fin)->format('d/m/Y') }} (estimado)
                                             @else

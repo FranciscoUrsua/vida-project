@@ -22,7 +22,7 @@
             <div class="mb-3 d-flex {{ $esMio ? 'justify-content-end' : 'justify-content-start' }}">
                 <div class="card mensajes-hilo__bubble {{ $esMio ? 'bg-primary text-white' : 'bg-light' }}">
                     <div class="card-body py-2 px-3">
-                        <div class="small {{ $esMio ? 'text-white-50' : 'text-muted' }} mb-1">
+                        <div class="small {{ $esMio ? 'text-white-50' : 'text-body-secondary' }} mb-1">
                             {{ $mensaje->remitente->nombre_completo }} · {{ $mensaje->created_at->format('d/m H:i') }}
                         </div>
                         <p class="mb-1">{{ $mensaje->cuerpo }}</p>
@@ -78,7 +78,7 @@
                         <button wire:click="cerrarModalHistoria" type="button" class="btn-close"></button>
                     </div>
                     <div class="modal-body">
-                        <p class="text-muted small">
+                        <p class="text-body-secondary small">
                             Puedes editar el contenido antes de registrarlo. Lo que se registre
                             puede diferir del mensaje original.
                         </p>

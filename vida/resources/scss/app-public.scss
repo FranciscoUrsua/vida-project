@@ -1,7 +1,4 @@
-@use './bootstrap-overrides' as *;
-
-@import 'bootstrap/scss/bootstrap';
-@import './vida-sass-tokens';
+@import './bootstrap-vida';
 @import './bootstrap-components';
 @import './public-pages';
 @import './op-utilities';

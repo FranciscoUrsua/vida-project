@@ -1,0 +1,68 @@
+// Bootstrap 5.3 con el tema VIDA.
+//
+// Se importa por partes, en el orden que recomienda la documentación de
+// Bootstrap para personalizar, para poder añadir colores de tema propios
+// (`protected`) a los mapas antes de que se generen componentes y utilidades.
+// Así existen `text-protected`, `btn-outline-protected`, `bg-protected-subtle`,
+// `text-protected-emphasis`, `border-protected-subtle`, `alert-protected`…
+// sin clases inventadas. Ver docs/instrucciones-cli/2026-09-bootstrap-unico.md.
+
+// Configuración
+@import 'bootstrap/scss/functions';
+@import './bootstrap-overrides';
+@import './vida-sass-tokens';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/variables-dark';
+
+// Colores de tema propios: antes de `maps`, que deriva de aquí los mapas RGB.
+$theme-colors: map-merge($theme-colors, (
+    'protected': $vida-protected,
+));
+
+@import 'bootstrap/scss/maps';
+
+// Variantes suaves y de énfasis de los colores propios.
+$theme-colors-text: map-merge($theme-colors-text, ('protected': $vida-protected-ink));
+$theme-colors-bg-subtle: map-merge($theme-colors-bg-subtle, ('protected': $vida-protected-soft));
+$theme-colors-border-subtle: map-merge($theme-colors-border-subtle, ('protected': tint-color($vida-protected, 60%)));
+$utilities-text-emphasis-colors: map-merge($utilities-text-emphasis-colors, ('protected-emphasis': var(--#{$prefix}protected-text-emphasis)));
+$utilities-bg-subtle: map-merge($utilities-bg-subtle, ('protected-subtle': var(--#{$prefix}protected-bg-subtle)));
+$utilities-border-subtle: map-merge($utilities-border-subtle, ('protected-subtle': var(--#{$prefix}protected-border-subtle)));
+
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/utilities';
+
+// Componentes (mismo orden que bootstrap/scss/bootstrap.scss)
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/reboot';
+@import 'bootstrap/scss/type';
+@import 'bootstrap/scss/images';
+@import 'bootstrap/scss/containers';
+@import 'bootstrap/scss/grid';
+@import 'bootstrap/scss/tables';
+@import 'bootstrap/scss/forms';
+@import 'bootstrap/scss/buttons';
+@import 'bootstrap/scss/transitions';
+@import 'bootstrap/scss/dropdown';
+@import 'bootstrap/scss/button-group';
+@import 'bootstrap/scss/nav';
+@import 'bootstrap/scss/navbar';
+@import 'bootstrap/scss/card';
+@import 'bootstrap/scss/accordion';
+@import 'bootstrap/scss/breadcrumb';
+@import 'bootstrap/scss/pagination';
+@import 'bootstrap/scss/badge';
+@import 'bootstrap/scss/alert';
+@import 'bootstrap/scss/progress';
+@import 'bootstrap/scss/list-group';
+@import 'bootstrap/scss/close';
+@import 'bootstrap/scss/toasts';
+@import 'bootstrap/scss/modal';
+@import 'bootstrap/scss/tooltip';
+@import 'bootstrap/scss/popover';
+@import 'bootstrap/scss/carousel';
+@import 'bootstrap/scss/spinners';
+@import 'bootstrap/scss/offcanvas';
+@import 'bootstrap/scss/placeholders';
+@import 'bootstrap/scss/helpers';
+@import 'bootstrap/scss/utilities/api';

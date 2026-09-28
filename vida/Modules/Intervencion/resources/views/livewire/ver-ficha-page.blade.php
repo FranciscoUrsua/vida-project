@@ -1,9 +1,11 @@
-<div class="ver-ficha-page">
+<div class="op-page">
+<div class="row justify-content-center g-0 p-3 p-lg-4">
+<div class="col-12 col-lg-9 col-xl-7">
 
     {{-- Navegación --}}
-    <div class="ver-ficha-page__nav d-flex align-items-center justify-content-between gap-2">
+    <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
         <a href="{{ route('intervencion.ciudadano.show', $historiaId) }}"
-           class="ver-ficha-page__back-link">
+           class="link-secondary small text-decoration-none d-inline-flex align-items-center gap-1">
             <x-heroicon-o-arrow-left class="icon-14" aria-hidden="true"/>
             Volver a la Historia Social
         </a>
@@ -11,31 +13,31 @@
     </div>
 
     {{-- Cabecera --}}
-    <div class="ver-ficha-page__header">
-        <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-ink-400); margin: 0 0 0.2rem;">Ficha de valoración</p>
-        <h1 style="font-size: 1.1rem; font-weight: 700; color: var(--color-ink-900); margin: 0 0 0.4rem;">{{ $this->nombreFicha() }}</h1>
-        <p style="font-size: 0.78rem; color: var(--color-ink-400); margin: 0;">
+    <header class="mb-4">
+        <p class="small text-uppercase fw-semibold text-body-secondary mb-1">Ficha de valoración</p>
+        <h1 class="h5 fw-bold mb-1">{{ $this->nombreFicha() }}</h1>
+        <p class="small text-body-secondary mb-0">
             Guardada el {{ $ficha->created_at->translatedFormat('j M Y') }}
             @if($ficha->profesional_id)
                 · {{ $ficha->profesional?->name ?? '—' }}
             @endif
         </p>
-    </div>
+    </header>
 
     {{-- Campos --}}
     @php $campos = $this->camposConValor(); @endphp
 
     @if(empty($campos))
-        <p style="font-size: 0.85rem; color: var(--color-ink-400);">Esta ficha no tiene campos registrados.</p>
+        <p class="text-body-secondary">Esta ficha no tiene campos registrados.</p>
     @else
-        <div class="ver-ficha-page__fields">
+        <div class="d-flex flex-column gap-2">
             @foreach($campos as $campo)
-                <div style="padding: 0.75rem 1rem; background: var(--color-ink-50, #f8fafc); border-radius: 8px; border: 1px solid var(--color-ink-100);">
-                    <p style="font-size: 0.73rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-ink-400); margin: 0 0 0.3rem;">
+                <div class="bg-body-tertiary border rounded p-3">
+                    <p class="small text-uppercase fw-semibold text-body-secondary mb-1">
                         {{ $campo['etiqueta'] }}
                     </p>
                     @if($campo['valor'] !== null && $campo['valor'] !== '')
-                        <p style="font-size: 0.88rem; color: var(--color-ink-900); margin: 0;">
+                        <p class="mb-0">
                             @if($campo['tipo'] === 'booleano')
                                 {{ $campo['valor'] ? 'Sí' : 'No' }}
                             @elseif($campo['tipo'] === 'fecha')
@@ -43,12 +45,12 @@
                             @else
                                 {{ $campo['valor'] }}
                                 @if($campo['unidad'])
-                                    <span style="font-size: 0.78rem; color: var(--color-ink-400);">{{ $campo['unidad'] }}</span>
+                                    <span class="small text-body-secondary">{{ $campo['unidad'] }}</span>
                                 @endif
                             @endif
                         </p>
                     @else
-                        <p style="font-size: 0.82rem; color: var(--color-ink-300); margin: 0; font-style: italic;">Sin respuesta</p>
+                        <p class="small text-body-tertiary fst-italic mb-0">Sin respuesta</p>
                     @endif
                 </div>
             @endforeach
@@ -57,15 +59,17 @@
 
     {{-- Notas --}}
     @if($ficha->notas)
-        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--color-ink-100);">
-            <p style="font-size: 0.73rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-ink-400); margin: 0 0 0.5rem;">Notas</p>
-            <p style="font-size: 0.85rem; color: var(--color-ink-700); margin: 0; line-height: 1.6; white-space: pre-wrap;">{{ $ficha->notas }}</p>
+        <div class="border-top pt-3 mt-4">
+            <p class="small text-uppercase fw-semibold text-body-secondary mb-2">Notas</p>
+            <p class="mb-0 text-break">{!! nl2br(e($ficha->notas)) !!}</p>
         </div>
     @endif
 
     {{-- Inmutabilidad --}}
-    <p style="margin-top: 1.5rem; font-size: 0.73rem; color: var(--color-ink-300); text-align: center;">
+    <p class="small text-body-tertiary text-center mt-4 mb-0">
         Solo lectura · El pasado es inmutable
     </p>
 
+</div>
+</div>
 </div>

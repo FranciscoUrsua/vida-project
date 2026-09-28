@@ -5,23 +5,23 @@
     $ciudadano = $this->ciudadano;
     $piso      = $this->pisoActivo;
 
-    $badgeEstado = [
-        'abierta'        => ['bg' => 'var(--color-primary-soft)', 'color' => 'var(--color-primary-ink)', 'label' => 'Abierta'],
-        'en_seguimiento' => ['bg' => 'var(--color-success-soft)', 'color' => 'var(--color-success-ink)', 'label' => 'En seguimiento'],
-        'cerrada'        => ['bg' => 'var(--color-ink-100)',      'color' => 'var(--color-ink-500)',      'label' => 'Cerrada'],
-    ];
-    $badge = $badgeEstado[$historia->estado] ?? $badgeEstado['abierta'];
+    [$estadoEtiqueta, $estadoClase] = match($historia->estado) {
+        'en_seguimiento' => ['En seguimiento', 'bg-success-subtle text-success-emphasis'],
+        'cerrada'        => ['Cerrada', 'bg-secondary-subtle text-secondary-emphasis'],
+        default          => ['Abierta', 'bg-primary-subtle text-primary-emphasis'],
+    };
 
+    // Color del punto de cada tipo de apunte en la línea de tiempo
     $coloresTipo = [
-        'plan_intervencion'    => 'var(--color-warning)',
-        'entrevista'           => 'var(--color-primary)',
-        'valoracion'           => 'var(--color-success)',
-        'escala'               => 'var(--color-primary)',
-        'derivacion'           => 'var(--color-success)',
-        'anotacion'            => 'var(--color-ink-500)',
-        'gestion_coordinacion' => 'var(--color-ink-500)',
-        'seguimiento'          => 'var(--color-primary)',
-        'documento'            => 'var(--color-ink-500)',
+        'plan_intervencion'    => 'bg-warning',
+        'entrevista'           => 'bg-primary',
+        'valoracion'           => 'bg-success',
+        'escala'               => 'bg-primary',
+        'derivacion'           => 'bg-success',
+        'anotacion'            => 'bg-secondary',
+        'gestion_coordinacion' => 'bg-secondary',
+        'seguimiento'          => 'bg-primary',
+        'documento'            => 'bg-secondary',
     ];
 
     $herramientas = [
@@ -36,7 +36,7 @@
     $historiaAbierta = $historia->estado !== 'cerrada';
 @endphp
 
-<div class="ciudadano-page record-screen">
+<div class="op-page op-page--fill">
 
     {{-- Escribir un mensaje sobre este expediente (panel de redacción global) --}}
     <div class="d-flex justify-content-end px-3 pt-2">
@@ -47,19 +47,19 @@
     {{-- Banda del Plan de Intervención — ancho completo                    --}}
     {{-- ------------------------------------------------------------------ --}}
     @if($this->planActivo)
-        <div class="record-screen__plan-bar">
-            <span class="record-screen__plan-title">{{ $this->planNombreCorto }} · {{ $this->planActivo->estado->label() }}</span>
-            <span class="record-screen__plan-meta">v{{ $this->planActivo->version }} · desde {{ Carbon::parse($this->planActivo->fecha_inicio)->format('d/m/Y') }}</span>
+        <div class="d-flex flex-wrap align-items-center gap-3 px-3 py-2 border-bottom bg-primary-subtle small">
+            <span class="fw-bold text-primary-emphasis">{{ $this->planNombreCorto }} · {{ $this->planActivo->estado->label() }}</span>
+            <span class="text-body-secondary">v{{ $this->planActivo->version }} · desde {{ Carbon::parse($this->planActivo->fecha_inicio)->format('d/m/Y') }}</span>
             <a href="{{ route('intervencion.plan.show', $this->planActivo) }}" wire:navigate
-               class="btn btn-sm btn-outline-primary record-screen__plan-link">
+               class="btn btn-sm btn-outline-primary ms-auto">
                 Ver {{ $this->planNombreCorto }} →
             </a>
         </div>
-                    @else
-        <div class="record-screen__plan-bar record-screen__plan-bar--empty">
+    @else
+        <div class="d-flex flex-wrap align-items-center gap-3 px-3 py-2 border-bottom bg-body small text-body-secondary">
             Sin {{ $this->planNombreCorto }} activo
             <a href="{{ route('intervencion.plan.crear', ['historia' => $this->historia->id]) }}" wire:navigate
-               class="btn btn-sm btn-outline-primary record-screen__plan-link">
+               class="btn btn-sm btn-outline-primary ms-auto">
                 + Crear {{ $this->planNombreCorto }}
             </a>
         </div>
@@ -69,8 +69,8 @@
     {{-- Banda de recursos prescritos — visible si hay prescripciones activas --}}
     {{-- ------------------------------------------------------------------ --}}
     @if($historiaAbierta && $this->prescripcionesActivas->isNotEmpty())
-        <div class="record-screen__plan-bar record-screen__plan-bar--recursos">
-            <span class="record-screen__plan-title">
+        <div class="d-flex flex-wrap align-items-center gap-3 px-3 py-2 border-bottom bg-body-tertiary small">
+            <span class="fw-bold d-inline-flex align-items-center gap-1">
                 <x-heroicon-o-building-storefront class="icon-16" aria-hidden="true"/>
                 Recursos prescritos ({{ $this->prescripcionesActivas->count() }})
             </span>
@@ -84,6 +84,7 @@
                             wire:click="cancelarPrescripcion({{ $presc->id }})"
                             class="btn btn-sm btn-outline-danger py-0"
                             title="Cancelar prescripción"
+                            aria-label="Cancelar prescripción"
                             wire:confirm="¿Cancelar esta prescripción?">
                         <x-heroicon-o-x-mark class="icon-12" aria-hidden="true"/>
                     </button>
@@ -93,26 +94,24 @@
     @endif
 
     {{-- ------------------------------------------------------------------ --}}
-    {{-- Layout 4 cuadrantes                                                --}}
+    {{-- Cabecera: datos del ciudadano (izquierda) + herramientas (derecha) --}}
     {{-- ------------------------------------------------------------------ --}}
-    <div class="ciudadano-layout ciudadano-layout--fill">
+    <div class="row g-0 bg-white border-bottom">
 
-        {{-- ============================================================== --}}
-        {{-- ZONA SUPERIOR IZQUIERDA — datos del ciudadano + UC colapsable  --}}
-        {{-- ============================================================== --}}
-        <div class="ciudadano-header-left ciudadano-header-left--padded">
+        {{-- ZONA SUPERIOR IZQUIERDA — datos del ciudadano + UC colapsable --}}
+        <div class="col-4 border-end p-3">
 
             {{-- Fila superior: retorno + acciones --}}
-            <div class="ciudadano-page__top-row">
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
                 <a href="{{ route('intervencion.casos.index') }}"
-                   class="ciudadano-page__back-link">
+                   class="link-secondary small text-decoration-none d-inline-flex align-items-center gap-1">
                     <x-heroicon-o-arrow-left class="icon-12" aria-hidden="true"/> Mis casos
                 </a>
-                <div class="ciudadano-page__top-actions">
+                <div>
                     @if($ciudadano)
                         <a href="{{ route('ciudadania.ciudadano.ficha', $ciudadano->id) }}"
                            wire:navigate
-                           class="btn btn-sm btn-outline-primary record-screen__summary-link">
+                           class="btn btn-sm btn-outline-primary">
                             Ficha completa
                         </a>
                     @endif
@@ -121,172 +120,180 @@
             </div>
 
             {{-- Nombre completo --}}
-            <div class="record-screen__person-name">
+            <div class="fs-5 fw-bold mb-1">
                 {{ $ciudadano ? ($ciudadano->nombre . ' ' . $ciudadano->apellido1 . ($ciudadano->apellido2 ? ' ' . $ciudadano->apellido2 : '')) : 'Ciudadano #' . $historia->ciudadano_id }}
             </div>
 
             {{-- HS + UO + Estado HS --}}
-            <div class="ciudadano-page__meta-row">
-                <span class="record-screen__meta-text">HS #{{ $historia->id }}</span>
-                <span class="record-screen__meta-separator">·</span>
+            <div class="d-flex flex-wrap align-items-center gap-1 small text-body-secondary mb-1">
+                <span>HS #{{ $historia->id }}</span>
+                <span aria-hidden="true">·</span>
                 @if($this->uoNombre)
-                    <span class="record-screen__meta-text">{{ $this->uoNombre }}</span>
+                    <span>{{ $this->uoNombre }}</span>
                 @else
-                    <span class="record-screen__meta-text">UO #{{ $historia->unidad_organizativa_id }}</span>
+                    <span>UO #{{ $historia->unidad_organizativa_id }}</span>
                 @endif
-                <span class="record-screen__status-chip" style="--record-status-bg: {{ $badge['bg'] }}; --record-status-color: {{ $badge['color'] }};">
-                    Estado HS: {{ $badge['label'] }}
+                <span class="badge rounded-pill {{ $estadoClase }}">
+                    Estado HS: {{ $estadoEtiqueta }}
                 </span>
             </div>
 
             {{-- Fecha de nacimiento · edad --}}
             @if($ciudadano?->fecha_nacimiento)
-                <div class="record-screen__summary-line">
+                <div class="small">
                     {{ Carbon::parse($ciudadano->fecha_nacimiento)->format('d/m/Y') }} · {{ Carbon::parse($ciudadano->fecha_nacimiento)->age }} años
                 </div>
             @endif
 
             {{-- Domicilio --}}
             @if($ciudadano?->direccion_texto)
-                <div class="record-screen__summary-line record-screen__summary-line--multiline">
+                <div class="small">
                     {{ $ciudadano->direccion_texto }}
                 </div>
             @endif
 
             {{-- Documento · Teléfono · Email --}}
-            @if($this->ciudadanoDocumento || $this->ciudadanoTelefono || $this->ciudadanoEmail)
-                <p class="hs-ciudadano-contacto">
-                    @if($this->ciudadanoDocumento)
-                        <span>{{ $this->ciudadanoDocumento }}</span>
-                    @endif
-                    @if($this->ciudadanoTelefono)
-                        <span>{{ $this->ciudadanoTelefono }}</span>
-                    @endif
-                    @if($this->ciudadanoEmail)
-                        <span>{{ $this->ciudadanoEmail }}</span>
-                    @endif
-                </p>
-                    @endif
+            @php
+                $contacto = array_filter([$this->ciudadanoDocumento, $this->ciudadanoTelefono, $this->ciudadanoEmail]);
+            @endphp
+            @if($contacto)
+                <p class="small text-body-secondary mb-1">{{ implode(' · ', $contacto) }}</p>
+            @endif
 
             {{-- Representante (solo si existe relación activa) --}}
             @if($this->representante)
-            <div class="hs-representante">
-                <span class="hs-representante__label">Representante</span>
+            <div class="d-flex align-items-center gap-2 small mt-1">
+                <span class="text-body-secondary">Representante</span>
                 <button
+                    type="button"
                     wire:click="abrirModalRepresentante"
-                    class="hs-representante__nombre"
+                    class="btn btn-link btn-sm p-0 fw-semibold text-decoration-none d-inline-flex align-items-center gap-1"
                     title="Ver datos de contacto del representante"
                 >
                     {{ $this->representante->nombre }}
                     {{ $this->representante->apellido1 }}
                     {{ $this->representante->apellido2 }}
-                    <x-heroicon-o-chevron-right class="icon-12"/>
+                    <x-heroicon-o-chevron-right class="icon-12" aria-hidden="true"/>
                 </button>
             </div>
             @endif
 
             {{-- Unidad de convivencia --}}
-            <div class="record-screen__uc-card">
-                <button wire:click="toggleUC"
-                        class="btn btn-light btn-sm record-screen__uc-toggle">
+            <div class="card mt-3">
+                <button type="button" wire:click="toggleUC"
+                        class="btn btn-light btn-sm d-flex align-items-center justify-content-between w-100 rounded-bottom-0"
+                        aria-expanded="{{ $ucExpandida ? 'true' : 'false' }}">
                     <span>
                         Unidad de convivencia
                         @if($this->ucVigente)
-                            <span class="record-screen__uc-count">
+                            <span class="text-body-secondary ms-1">
                                 {{ $this->ucMiembrosActivos->count() }} miembro{{ $this->ucMiembrosActivos->count() !== 1 ? 's' : '' }}
                             </span>
                         @endif
                     </span>
-                    <x-dynamic-component :component="$ucExpandida ? 'heroicon-o-chevron-up' : 'heroicon-o-chevron-down'" class="record-screen__uc-chevron" aria-hidden="true"/>
+                    <x-dynamic-component :component="$ucExpandida ? 'heroicon-o-chevron-up' : 'heroicon-o-chevron-down'" class="icon-14" aria-hidden="true"/>
                 </button>
                 @if($ucExpandida)
-                    <div class="record-screen__uc-body">
+                    <div class="card-body p-2">
                         @if($this->ucVigente)
-                            <ul class="ciudadano-page__uc-list">
+                            <ul class="list-unstyled small mb-2">
                                 @foreach($this->ucMiembrosActivos as $ucm)
-                                    <li class="record-screen__uc-item">
+                                    <li class="d-flex align-items-center gap-1 py-1">
                                         @if($ucm->verificado)
-                                            <x-heroicon-o-shield-check class="record-screen__uc-icon record-screen__uc-icon--verified" aria-hidden="true"/>
+                                            <x-heroicon-o-shield-check class="icon-14 text-success flex-shrink-0" aria-hidden="true"/>
                                         @else
-                                            <x-heroicon-o-shield-exclamation class="record-screen__uc-icon record-screen__uc-icon--pending" aria-hidden="true"/>
+                                            <x-heroicon-o-shield-exclamation class="icon-14 text-warning flex-shrink-0" aria-hidden="true"/>
                                         @endif
                                         @if($ucm->ciudadano)
                                             @php $tipoRelUc = $this->relacionesMiembrosUc->get($ucm->ciudadano_id); @endphp
-                                            <a href="{{ route('ciudadania.ciudadano.ficha', $ucm->ciudadano) }}"
-                                               class="ciudadano-page__member-link">
-                                                <span class="uc-widget-miembro__nombre">{{ $ucm->ciudadano->nombre }} {{ $ucm->ciudadano->apellido1 }}</span>
+                                            <a href="{{ route('ciudadania.ciudadano.ficha', $ucm->ciudadano) }}" class="text-decoration-none">
+                                                {{ $ucm->ciudadano->nombre }} {{ $ucm->ciudadano->apellido1 }}
                                             </a>
                                             @if($tipoRelUc)
-                                                <span class="uc-widget-miembro__relacion">{{ $tipoRelUc }}</span>
+                                                <span class="text-body-secondary">{{ $tipoRelUc }}</span>
                                             @endif
                                         @endif
                                     </li>
                                 @endforeach
                             </ul>
                         @else
-                            <p class="record-screen__empty-note">Sin unidad de convivencia registrada.</p>
+                            <p class="small text-body-secondary fst-italic mb-2">Sin unidad de convivencia registrada.</p>
                         @endif
-                        {{-- Botón gestionar UC --}}
-                        <button wire:click="abrirModalUc" class="btn btn-sm btn-outline-primary uc-widget__gestionar" title="Gestionar unidad de convivencia">
-                            <x-heroicon-o-users class="icon-14" aria-hidden="true"/>
-                            Gestionar UC
-                        </button>
-                        {{-- Botón para ver todas las relaciones del ciudadano --}}
-                        <button
-                            wire:click="abrirModalRelaciones"
-                            class="btn btn-sm btn-outline-secondary uc-widget__ver-relaciones"
-                            title="Ver todas las personas relacionadas"
-                        >
-                            <x-heroicon-o-share class="icon-12"/>
-                            Ver todas las relaciones
-                        </button>
+                        <div class="d-flex flex-wrap gap-2">
+                            {{-- Botón gestionar UC --}}
+                            <button type="button" wire:click="abrirModalUc" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1" title="Gestionar unidad de convivencia">
+                                <x-heroicon-o-users class="icon-14" aria-hidden="true"/>
+                                Gestionar UC
+                            </button>
+                            {{-- Botón para ver todas las relaciones del ciudadano --}}
+                            <button
+                                type="button"
+                                wire:click="abrirModalRelaciones"
+                                class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+                                title="Ver todas las personas relacionadas"
+                            >
+                                <x-heroicon-o-share class="icon-12" aria-hidden="true"/>
+                                Ver todas las relaciones
+                            </button>
+                        </div>
                     </div>
                 @endif
             </div>
 
         </div>
 
-        {{-- ============================================================== --}}
-        {{-- ZONA SUPERIOR DERECHA — toolbox de herramientas                --}}
-        {{-- ============================================================== --}}
-        <div class="ciudadano-header-right ciudadano-header-right--padded">
+        {{-- ZONA SUPERIOR DERECHA — toolbox de herramientas --}}
+        <div class="col-8 p-3">
 
-            <div wire:key="toolbox-grid" class="ciudadano-page__toolbox-grid record-screen__toolbox-grid">
+            <div wire:key="toolbox-grid" class="row row-cols-4 g-2">
                 @foreach($herramientas as $h)
-                    <button wire:key="tool-{{ $h['id'] }}"
-                            type="button"
-                            wire:click="seleccionarHerramienta('{{ $h['id'] }}')"
-                            class="btn record-screen__tool {{ $herramientaActiva === $h['id'] ? 'btn-primary record-screen__tool--active' : 'btn-outline-secondary' }}">
-                        <x-dynamic-component :component="'heroicon-o-' . $h['icon']" class="icon-20 record-screen__tool-icon" aria-hidden="true"/>
-                        <span class="record-screen__tool-label">
-                            {{ $h['label'] }}
-                            @if($h['fullpage'])
-                                <span class="record-screen__tool-hint">↗ pantalla completa</span>
-                            @endif
-                        </span>
-                    </button>
+                    <div class="col">
+                        <button wire:key="tool-{{ $h['id'] }}"
+                                type="button"
+                                wire:click="seleccionarHerramienta('{{ $h['id'] }}')"
+                                @if($herramientaActiva === $h['id']) aria-pressed="true" @endif
+                                @class([
+                                    'btn w-100 h-100 d-flex flex-column align-items-center justify-content-center gap-1 py-3',
+                                    'btn-primary fw-bold' => $herramientaActiva === $h['id'],
+                                    'btn-outline-secondary' => $herramientaActiva !== $h['id'],
+                                ])>
+                            <x-dynamic-component :component="'heroicon-o-' . $h['icon']" class="icon-20" aria-hidden="true"/>
+                            <span class="small lh-sm">
+                                {{ $h['label'] }}
+                                @if($h['fullpage'])
+                                    <span class="d-block small fw-normal opacity-75">↗ pantalla completa</span>
+                                @endif
+                            </span>
+                        </button>
+                    </div>
                 @endforeach
 
                 {{-- Herramienta «Prescribir recurso» — visible solo con Historia Social abierta --}}
                 @if($historiaAbierta)
-                    <button type="button"
-                            wire:click="abrirPrescribirRecurso"
-                            class="btn btn-outline-secondary record-screen__tool">
-                        <x-heroicon-o-building-storefront class="icon-20 record-screen__tool-icon" aria-hidden="true"/>
-                        <span class="record-screen__tool-label">Prescribir recurso</span>
-                    </button>
+                    <div class="col">
+                        <button type="button"
+                                wire:click="abrirPrescribirRecurso"
+                                class="btn btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center gap-1 py-3">
+                            <x-heroicon-o-building-storefront class="icon-20" aria-hidden="true"/>
+                            <span class="small lh-sm">Prescribir recurso</span>
+                        </button>
+                    </div>
                 @endif
             </div>
 
         </div>
+    </div>
 
-        {{-- ============================================================== --}}
-        {{-- ZONA INFERIOR IZQUIERDA — filtros + timeline + últimos accesos --}}
-        {{-- ============================================================== --}}
-        <div class="ciudadano-body-left ciudadano-body-left--padded">
+    {{-- ------------------------------------------------------------------ --}}
+    {{-- Cuerpo: línea de tiempo (izquierda) + área de trabajo (derecha)    --}}
+    {{-- ------------------------------------------------------------------ --}}
+    <div class="row g-0 flex-grow-1 overflow-hidden">
+
+        {{-- ZONA INFERIOR IZQUIERDA — filtros + timeline --}}
+        <div class="col-4 h-100 overflow-auto border-end p-3">
 
             {{-- Filtros del timeline --}}
-            <div class="ciudadano-page__timeline-filters">
+            <div class="d-flex flex-wrap gap-1 mb-3">
                 @foreach([
                     ['todos',      'Todos'],
                     ['plan',       $this->planNombreCorto],
@@ -301,7 +308,7 @@
                         $esActivo   = $filtroHS === $filtroKey;
                         $esSugerido = ! $esActivo && $filtroSugerido === $filtroKey;
                     @endphp
-                    <button wire:click="setFiltroHS('{{ $filtroKey }}')"
+                    <button type="button" wire:click="setFiltroHS('{{ $filtroKey }}')"
                             class="btn btn-sm {{ $esActivo ? 'btn-primary' : ($esSugerido ? 'btn-outline-primary' : 'btn-outline-secondary') }}">
                         {{ $filtroLabel }}@if($esSugerido)<span class="small opacity-75 ms-1" title="Filtrar por este tipo">↑</span>@endif
                     </button>
@@ -310,59 +317,56 @@
 
             {{-- Timeline de apuntes --}}
             @if($this->apuntesHS->isNotEmpty())
-                <div class="list-group list-group-flush ciudadano-page__history-list">
+                <div class="list-group list-group-flush">
                     @foreach($this->apuntesHS as $apunte)
-                                @php $colorPunto = $coloresTipo[$apunte->tipo->value] ?? 'var(--color-ink-500)'; @endphp
-                <div wire:click="verApunte({{ $apunte->id }})"
-                     role="button"
-                     class="list-group-item ciudadano-page__history-item record-screen__history-item">
-                    <span class="record-screen__history-dot" style="--record-history-dot: {{ $colorPunto }};"></span>
-                    <div class="ciudadano-page__history-main">
-                        <div class="record-screen__history-title">
-                            {{ $apunte->tipo->label() }}
+                        <div wire:click="verApunte({{ $apunte->id }})"
+                             role="button"
+                             class="list-group-item list-group-item-action bg-transparent d-flex gap-2 px-2 rounded">
+                            <span class="d-inline-block rounded-circle p-1 mt-2 flex-shrink-0 {{ $coloresTipo[$apunte->tipo->value] ?? 'bg-secondary' }}" aria-hidden="true"></span>
+                            <div class="flex-grow-1 text-break">
+                                <div class="small fw-semibold">
+                                    {{ $apunte->tipo->label() }}
+                                </div>
+                                <div class="small text-body-secondary">
+                                    {{ $apunte->fecha->format('d/m/Y') }} · {{ $apunte->autor?->name ?? '' }}
+                                </div>
+                                @if($apunte->contenido)
+                                    <div class="small text-truncate">{{ $apunte->contenido }}</div>
+                                @endif
+                            </div>
                         </div>
-                        <div class="record-screen__history-meta">
-                            {{ $apunte->fecha->format('d/m/Y') }} · {{ $apunte->autor?->name ?? '' }}
-                        </div>
-                        @if($apunte->contenido)
-                            <div class="record-screen__history-copy">{{ $apunte->contenido }}</div>
-                        @endif
-                    </div>
-                </div>
-                            @endforeach
+                    @endforeach
                 </div>
             @else
-                <div class="record-screen__empty-state">
+                <p class="small text-body-secondary text-center py-4 mb-0">
                     Sin registros en la historia social.
-                </div>
+                </p>
             @endif
 
         </div>
 
-        {{-- ============================================================== --}}
-        {{-- ZONA INFERIOR DERECHA — área de trabajo activa + estadísticas  --}}
-        {{-- ============================================================== --}}
-        <div class="ciudadano-body-right">
+        {{-- ZONA INFERIOR DERECHA — área de trabajo activa + estadísticas --}}
+        <div class="col-8 h-100 d-flex flex-column">
 
             {{-- Área de trabajo de la herramienta activa --}}
-            <div class="ciudadano-body-right ciudadano-body-right--scrollable">
+            <div class="flex-grow-1 overflow-auto p-3">
 
                 @if($herramientaActiva === 'entrevista')
-                    <div class="record-screen__workspace-card">
-                        <h3 class="record-screen__workspace-title">Registrar entrevista</h3>
-                        <div class="ciudadano-page__two-col-grid">
-                            <div>
-                                <label class="record-screen__field-label">Tipo</label>
-                                <select wire:model="formEntrevista.tipo" class="form-select form-select-sm">
+                    <div class="card card-body mb-3">
+                        <h3 class="h6 fw-bold mb-3">Registrar entrevista</h3>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label for="entrevista-tipo" class="form-label small fw-semibold mb-1">Tipo</label>
+                                <select id="entrevista-tipo" wire:model="formEntrevista.tipo" class="form-select form-select-sm">
                                     <option value="seguimiento">Seguimiento</option>
                                     <option value="inicial">Inicial</option>
                                     <option value="urgencia">Urgencia</option>
                                     <option value="informativa">Informativa</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="record-screen__field-label">Modalidad</label>
-                                <select wire:model="formEntrevista.modalidad" class="form-select form-select-sm">
+                            <div class="col-md-6">
+                                <label for="entrevista-modalidad" class="form-label small fw-semibold mb-1">Modalidad</label>
+                                <select id="entrevista-modalidad" wire:model="formEntrevista.modalidad" class="form-select form-select-sm">
                                     <option value="presencial">Presencial</option>
                                     <option value="telefonica">Telefónica</option>
                                     <option value="videollamada">Videollamada</option>
@@ -370,74 +374,76 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="ciudadano-page__section">
-                            <label class="record-screen__field-label">Notas generales</label>
-                            <textarea wire:model="formEntrevista.notas" rows="3" class="form-control form-control-sm" placeholder="Observaciones de la entrevista..."></textarea>
+                        <div class="mb-3">
+                            <label for="entrevista-notas" class="form-label small fw-semibold mb-1">Notas generales</label>
+                            <textarea id="entrevista-notas" wire:model="formEntrevista.notas" rows="3" class="form-control form-control-sm" placeholder="Observaciones de la entrevista..."></textarea>
                         </div>
-                        <div class="ciudadano-page__choice-row">
-                            <label class="ciudadano-page__check-label">
-                                <input type="checkbox" wire:model="formEntrevista.programar_seguimiento"> Programar siguiente seguimiento
-                            </label>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="entrevista-programar" wire:model="formEntrevista.programar_seguimiento">
+                            <label class="form-check-label small" for="entrevista-programar">Programar siguiente seguimiento</label>
                         </div>
                         @if($formEntrevista['programar_seguimiento'])
-                            <div class="record-screen__field-block">
-                                <label class="record-screen__field-label">Fecha siguiente seguimiento</label>
-                                <input type="date" wire:model="formEntrevista.fecha_siguiente_seguimiento" class="form-control form-control-sm">
+                            <div class="mb-3">
+                                <label for="entrevista-fecha-seguimiento" class="form-label small fw-semibold mb-1">Fecha siguiente seguimiento</label>
+                                <input id="entrevista-fecha-seguimiento" type="date" wire:model="formEntrevista.fecha_siguiente_seguimiento" class="form-control form-control-sm w-auto">
                             </div>
                         @endif
-                        <div class="ciudadano-page__actions">
-                            <button wire:click="guardarEntrevista" class="btn btn-primary btn-sm">Guardar entrevista</button>
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                        <div class="d-flex gap-2">
+                            <button type="button" wire:click="guardarEntrevista" class="btn btn-primary btn-sm">Guardar entrevista</button>
+                            <button type="button" wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                         </div>
                     </div>
 
                 @elseif($herramientaActiva === 'anotacion')
-                    <div class="record-screen__workspace-card">
-                        <h3 class="record-screen__workspace-title">Guardar anotación</h3>
-                        <div class="record-screen__field-block">
-                            <textarea wire:model="formAnotacion.contenido" rows="4" class="form-control form-control-sm" placeholder="Escribe la anotación..."></textarea>
+                    <div class="card card-body mb-3">
+                        <h3 class="h6 fw-bold mb-3">Guardar anotación</h3>
+                        <div class="mb-3">
+                            <label for="anotacion-contenido" class="visually-hidden">Anotación</label>
+                            <textarea id="anotacion-contenido" wire:model="formAnotacion.contenido" rows="4" class="form-control form-control-sm" placeholder="Escribe la anotación..."></textarea>
                         </div>
-                        <div class="ciudadano-page__radio-group">
-                            <label class="ciudadano-page__radio-label">
-                                <input type="radio" wire:model="formAnotacion.visibilidad" value="profesionales"> Para profesionales
-                            </label>
-                            <label class="ciudadano-page__radio-label">
-                                <input type="radio" wire:model="formAnotacion.visibilidad" value="privada"> Privada (solo yo)
-                            </label>
+                        <div class="mb-3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="anotacion-profesionales" wire:model="formAnotacion.visibilidad" value="profesionales">
+                                <label class="form-check-label small" for="anotacion-profesionales">Para profesionales</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="anotacion-privada" wire:model="formAnotacion.visibilidad" value="privada">
+                                <label class="form-check-label small" for="anotacion-privada">Privada (solo yo)</label>
+                            </div>
                         </div>
-                        <div class="ciudadano-page__actions">
-                            <button wire:click="guardarAnotacion" class="btn btn-primary btn-sm">Guardar anotación</button>
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                        <div class="d-flex gap-2">
+                            <button type="button" wire:click="guardarAnotacion" class="btn btn-primary btn-sm">Guardar anotación</button>
+                            <button type="button" wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                         </div>
                     </div>
 
                 @elseif($herramientaActiva === 'derivacion')
-                    <div class="record-screen__workspace-card">
-                        <h3 class="record-screen__workspace-title">Crear derivación</h3>
-                        <div class="record-screen__field-block">
-                            <label class="record-screen__field-label">Urgencia</label>
-                            <select wire:model="formDerivacion.urgencia" class="form-select form-select-sm">
+                    <div class="card card-body mb-3">
+                        <h3 class="h6 fw-bold mb-3">Crear derivación</h3>
+                        <div class="mb-3">
+                            <label for="derivacion-urgencia" class="form-label small fw-semibold mb-1">Urgencia</label>
+                            <select id="derivacion-urgencia" wire:model="formDerivacion.urgencia" class="form-select form-select-sm">
                                 <option value="ordinaria">Ordinaria</option>
                                 <option value="preferente">Preferente</option>
                                 <option value="urgente">Urgente</option>
                             </select>
                         </div>
-                        <div class="record-screen__field-block">
-                            <label class="record-screen__field-label">Motivo</label>
-                            <textarea wire:model="formDerivacion.motivo" rows="3" class="form-control form-control-sm" placeholder="Motivo de la derivación..."></textarea>
+                        <div class="mb-3">
+                            <label for="derivacion-motivo" class="form-label small fw-semibold mb-1">Motivo</label>
+                            <textarea id="derivacion-motivo" wire:model="formDerivacion.motivo" rows="3" class="form-control form-control-sm" placeholder="Motivo de la derivación..."></textarea>
                         </div>
-                        <div class="ciudadano-page__actions">
-                            <button wire:click="crearDerivacion" class="btn btn-primary btn-sm">Crear derivación</button>
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                        <div class="d-flex gap-2">
+                            <button type="button" wire:click="crearDerivacion" class="btn btn-primary btn-sm">Crear derivación</button>
+                            <button type="button" wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                         </div>
                     </div>
 
                 @elseif($herramientaActiva === 'gestion')
-                    <div class="record-screen__workspace-card">
-                        <h3 class="record-screen__workspace-title">Guardar gestión</h3>
-                        <div class="record-screen__field-block">
-                            <label class="record-screen__field-label">Tipo de gestión</label>
-                            <select wire:model="formGestion.tipo_gestion" class="form-select form-select-sm">
+                    <div class="card card-body mb-3">
+                        <h3 class="h6 fw-bold mb-3">Guardar gestión</h3>
+                        <div class="mb-3">
+                            <label for="gestion-tipo" class="form-label small fw-semibold mb-1">Tipo de gestión</label>
+                            <select id="gestion-tipo" wire:model="formGestion.tipo_gestion" class="form-select form-select-sm">
                                 <option value="">Selecciona...</option>
                                 <option value="coordinacion">Coordinación con otro servicio</option>
                                 <option value="tramite">Trámite administrativo</option>
@@ -446,125 +452,151 @@
                                 <option value="otro">Otro</option>
                             </select>
                         </div>
-                        <div class="record-screen__field-block">
-                            <label class="record-screen__field-label">Recurso / interlocutor</label>
-                            <input type="text" wire:model="formGestion.recurso_interlocutor" class="form-control form-control-sm" placeholder="Nombre del recurso o persona...">
+                        <div class="mb-3">
+                            <label for="gestion-interlocutor" class="form-label small fw-semibold mb-1">Recurso / interlocutor</label>
+                            <input id="gestion-interlocutor" type="text" wire:model="formGestion.recurso_interlocutor" class="form-control form-control-sm" placeholder="Nombre del recurso o persona...">
                         </div>
-                        <div class="record-screen__field-block">
-                            <label class="record-screen__field-label">Descripción</label>
-                            <textarea wire:model="formGestion.descripcion" rows="3" class="form-control form-control-sm" placeholder="Describe la gestión realizada..."></textarea>
+                        <div class="mb-3">
+                            <label for="gestion-descripcion" class="form-label small fw-semibold mb-1">Descripción</label>
+                            <textarea id="gestion-descripcion" wire:model="formGestion.descripcion" rows="3" class="form-control form-control-sm" placeholder="Describe la gestión realizada..."></textarea>
                         </div>
-                        <div class="ciudadano-page__actions">
-                            <button wire:click="guardarGestion" class="btn btn-primary btn-sm">Guardar gestión</button>
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                        <div class="d-flex gap-2">
+                            <button type="button" wire:click="guardarGestion" class="btn btn-primary btn-sm">Guardar gestión</button>
+                            <button type="button" wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                         </div>
                     </div>
 
                 @elseif($herramientaActiva === 'valoracion')
-                    <div class="record-screen__workspace-card">
-                        <h3 class="record-screen__workspace-title">Valoración</h3>
-                        <p class="record-screen__workspace-copy">La ficha se abrirá en pantalla completa.</p>
-                        <div class="record-screen__field-block">
-                            <label class="record-screen__field-label">Tipo de ficha</label>
-                            <select wire:model.live="formValoracion.tipo_ficha_id" class="form-select form-select-sm">
+                    <div class="card card-body mb-3">
+                        <h3 class="h6 fw-bold mb-1">Valoración</h3>
+                        <p class="small text-body-secondary mb-3">La ficha se abrirá en pantalla completa.</p>
+                        <div class="mb-3">
+                            <label for="valoracion-tipo-ficha" class="form-label small fw-semibold mb-1">Tipo de ficha</label>
+                            <select id="valoracion-tipo-ficha" wire:model.live="formValoracion.tipo_ficha_id" class="form-select form-select-sm">
                                 <option value="">Selecciona...</option>
                                 @foreach($this->tiposFicha as $tf)
                                     <option value="{{ $tf->id }}">{{ $tf->nombre }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="ciudadano-page__actions">
+                        <div class="d-flex gap-2">
                             @if($formValoracion['tipo_ficha_id'])
                                 <a href="{{ route('intervencion.valoracion.nueva', ['historia' => $historia->id, 'tipo_ficha' => $formValoracion['tipo_ficha_id']]) }}"
                                    wire:navigate
                                    class="btn btn-primary btn-sm">Abrir en pantalla completa</a>
                             @endif
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                            <button type="button" wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                         </div>
                     </div>
 
                 @elseif($herramientaActiva === 'escala')
-                    <div class="record-screen__workspace-card">
-                        <h3 class="record-screen__workspace-title">Escala</h3>
-                        <p class="record-screen__workspace-copy">La escala se abrirá en pantalla completa.</p>
-                        <div class="record-screen__field-block">
-                            <label class="record-screen__field-label">Instrumento</label>
-                            <select wire:model.live="formEscala.tipo_escala_id" class="form-select form-select-sm">
+                    <div class="card card-body mb-3">
+                        <h3 class="h6 fw-bold mb-1">Escala</h3>
+                        <p class="small text-body-secondary mb-3">La escala se abrirá en pantalla completa.</p>
+                        <div class="mb-3">
+                            <label for="escala-instrumento" class="form-label small fw-semibold mb-1">Instrumento</label>
+                            <select id="escala-instrumento" wire:model.live="formEscala.tipo_escala_id" class="form-select form-select-sm">
                                 <option value="">Selecciona...</option>
                                 @foreach($this->tiposEscala as $te)
                                     <option value="{{ $te->id }}">{{ $te->nombre }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="ciudadano-page__actions">
+                        <div class="d-flex gap-2">
                             @if($formEscala['tipo_escala_id'])
                                 <a href="{{ route('intervencion.escala.nueva', ['historia' => $historia->id, 'tipo_escala' => $formEscala['tipo_escala_id']]) }}"
                                    class="btn btn-primary btn-sm">Abrir en pantalla completa</a>
                             @endif
-                            <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                            <button type="button" wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                         </div>
                     </div>
 
                 @elseif($herramientaActiva === 'informes')
-                    <div class="record-screen__workspace-card">
-                        <h3 class="record-screen__workspace-title">Informes</h3>
+                    <div class="card card-body mb-3">
+                        <h3 class="h6 fw-bold mb-1">Informes</h3>
                         {{-- TODO: conectar con módulo Documentos cuando implemente la vista de edición --}}
-                        <p class="record-screen__workspace-copy">Módulo de informes en construcción.</p>
-                        <button wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm mt-2">Cerrar</button>
+                        <p class="small text-body-secondary mb-2">Módulo de informes en construcción.</p>
+                        <div>
+                            <button type="button" wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cerrar</button>
+                        </div>
                     </div>
 
                 @endif
 
-            <div class="record-screen__access-panel">
                 {{-- ── Últimos accesos al expediente ──────────────────────── --}}
-                <div class="accesos-panel">
-                    <div class="accesos-panel__header">
-                        <span class="accesos-panel__titulo">Últimos accesos</span>
+                <section class="border-top pt-3" aria-labelledby="titulo-accesos">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h3 id="titulo-accesos" class="small text-uppercase fw-bold text-body-secondary mb-0">Últimos accesos</h3>
                         @if($this->puedeVerTodosLosAccesos)
                             {{-- TODO: modal historial completo --}}
-                            <a href="#" class="btn btn-link btn-sm text-decoration-none px-0 accesos-panel__ver-todo">Ver todo</a>
+                            <a href="#" class="btn btn-link btn-sm text-decoration-none px-0">Ver todo</a>
                         @endif
                     </div>
 
                     @if($this->accesosRecientes->isNotEmpty())
-                        <div class="list-group list-group-flush accesos-panel__list">
+                        <div class="list-group list-group-flush">
                             @foreach($this->accesosRecientes as $acceso)
-                                @php                                    $esPropio     = $acceso->user_id === Auth::id();                                    $uoAcceso     = $acceso->contexto['unidad_organizativa_id'] ?? null;                                    $uoAcceso     = $uoAcceso ?? $acceso->user?->profesional?->unidad_organizativa_id;                                    $esOtraUo     = $uoAcceso !== null && $uoAcceso !== $historia->unidad_organizativa_id;                                    $esCambio     = in_array($acceso->accion?->value, ['crear', 'editar', 'eliminar']);                                    $esAnomalos   = $esOtraUo && $esCambio;                                    $esSospechoso = false;                                @endphp
-                                <div class="list-group-item acceso-fila {{ $esPropio ? 'acceso-fila--propio' : '' }} {{ $esAnomalos ? 'acceso-fila--anomalo' : '' }} {{ $esSospechoso ? 'acceso-fila--sospechoso' : '' }}">
-                                    <div class="acceso-fila__quien">                                        <span class="acceso-fila__nombre">                                            {{ $acceso->user?->profesional?->nombre_completo ?? $acceso->user?->name ?? '—' }}                                        </span>
-                                        @if($esOtraUo)                                            <span class="acceso-fila__badge-uo" title="Profesional de otra UO">Otra UO</span>                                        @endif
+                                @php
+                                    $esPropio  = $acceso->user_id === Auth::id();
+                                    $uoAcceso  = $acceso->contexto['unidad_organizativa_id'] ?? null;
+                                    $uoAcceso  = $uoAcceso ?? $acceso->user?->profesional?->unidad_organizativa_id;
+                                    $esOtraUo  = $uoAcceso !== null && $uoAcceso !== $historia->unidad_organizativa_id;
+                                    $esCambio  = in_array($acceso->accion?->value, ['crear', 'editar', 'eliminar']);
+                                    // Otra UO: la lectura es sospechosa; la modificación, una anomalía grave que hay que revisar
+                                    $esAnomalo    = $esOtraUo && $esCambio;
+                                    $esSospechoso = $esOtraUo && ! $esCambio;
+                                    $tipoAcceso   = $esAnomalo ? 'anomalo' : ($esSospechoso ? 'sospechoso' : ($esPropio ? 'propio' : 'normal'));
+                                @endphp
+                                <div data-acceso="{{ $tipoAcceso }}" @class([
+                                    'list-group-item px-2 py-2 small',
+                                    'bg-transparent' => ! $esOtraUo,
+                                    'opacity-75' => $esPropio,
+                                    'bg-warning-subtle rounded' => $esSospechoso,
+                                    'bg-danger-subtle border-start border-3 border-danger rounded' => $esAnomalo,
+                                ])>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-semibold">
+                                            {{ $acceso->user?->profesional?->nombre_completo ?? $acceso->user?->name ?? '—' }}
+                                        </span>
+                                        @if($esOtraUo)
+                                            <span @class(['badge', 'bg-danger-subtle text-danger-emphasis' => $esAnomalo, 'bg-warning-subtle text-warning-emphasis' => ! $esAnomalo]) title="Profesional de otra UO">Otra UO</span>
+                                        @endif
                                     </div>
-
-                                    <div class="acceso-fila__detalle">
-                                        <span class="acceso-fila__accion acceso-fila__accion--{{ $acceso->accion?->value }}">                                            {{ $acceso->accion?->etiqueta() ?? '—' }}                                        </span>
-                                        @if($esAnomalos)                                            <span class="acceso-fila__alerta alert-triangle" title="Modificación desde otra UO — revisar">                                                <x-heroicon-o-exclamation-triangle class="ciudadano-page__alert-icon" aria-hidden="true"/>                                            </span>                                        @endif
-                                        <span class="acceso-fila__fecha">{{ $acceso->created_at->diffForHumans() }}</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span @class(['fw-semibold' => $esCambio, 'text-body-secondary' => ! $esCambio])>
+                                            {{ $acceso->accion?->etiqueta() ?? '—' }}
+                                        </span>
+                                        @if($esAnomalo)
+                                            <span class="text-danger" title="Modificación desde otra UO — revisar">
+                                                <x-heroicon-o-exclamation-triangle class="icon-14" aria-hidden="true"/>
+                                                <span class="visually-hidden">Modificación desde otra UO — revisar</span>
+                                            </span>
+                                        @endif
+                                        <span class="text-body-secondary ms-auto">{{ $acceso->created_at->diffForHumans() }}</span>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                     @else
-                        <p class="accesos-panel__vacio">Sin accesos registrados.</p>
+                        <p class="small text-body-secondary mb-0">Sin accesos registrados.</p>
                     @endif
-                </div>
-            </div>
-
+                </section>
 
             </div>
 
             {{-- Barra de estadísticas de contexto --}}
-            <div class="hs-stats-bar">
-                <div class="hs-stat">
-                    <span class="hs-stat__val">{{ $this->statApuntes }}</span>
-                    <span class="hs-stat__label">Apuntes</span>
+            <div class="d-flex border-top bg-white text-center">
+                <div class="flex-fill py-2 border-end">
+                    <div class="fw-semibold text-primary">{{ $this->statApuntes }}</div>
+                    <div class="small text-body-secondary">Apuntes</div>
                 </div>
-                <div class="hs-stat">
-                    <span class="hs-stat__val">{{ $this->statPrestaciones ?? '—' }}</span>
-                    <span class="hs-stat__label">Prestaciones activas</span>
+                <div class="flex-fill py-2 border-end">
+                    <div class="fw-semibold text-primary">{{ $this->statPrestaciones ?? '—' }}</div>
+                    <div class="small text-body-secondary">Prestaciones activas</div>
                 </div>
-                <div class="hs-stat">
-                    <span class="hs-stat__val">{{ $this->statUltimoContacto ?? '—' }}</span>
-                    <span class="hs-stat__label">Último contacto</span>
+                <div class="flex-fill py-2">
+                    <div class="fw-semibold text-primary">{{ $this->statUltimoContacto ?? '—' }}</div>
+                    <div class="small text-body-secondary">Último contacto</div>
                 </div>
             </div>
 
@@ -582,20 +614,20 @@
          role="dialog" aria-modal="true" aria-label="Detalle del apunte" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header">
-                    <span class="hs-modal__tipo">{{ $modalApunteDatos['tipo_label'] ?? '' }}</span>
-                    <span class="hs-modal__fecha">{{ $modalApunteDatos['fecha'] ?? '' }}</span>
+                <div class="modal-header gap-2">
+                    <span class="fw-semibold">{{ $modalApunteDatos['tipo_label'] ?? '' }}</span>
+                    <span class="small text-body-secondary">{{ $modalApunteDatos['fecha'] ?? '' }}</span>
                     <button wire:click="cerrarModalApunte" type="button" class="btn-close" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="hs-modal__autor"><strong>Profesional:</strong> {{ $modalApunteDatos['autor'] ?? '—' }}</p>
+                    <p class="small"><strong>Profesional:</strong> {{ $modalApunteDatos['autor'] ?? '—' }}</p>
                     @if($modalApunteDatos['contenido'] ?? null)
-                        <div class="hs-modal__contenido">{!! nl2br(e($modalApunteDatos['contenido'])) !!}</div>
+                        <div>{!! nl2br(e($modalApunteDatos['contenido'])) !!}</div>
                     @endif
                 </div>
                 <div class="modal-footer justify-content-between">
-                    <span class="hs-modal__inmutable">Solo lectura · El pasado es inmutable</span>
-                    <button wire:click="cerrarModalApunte" class="btn btn-outline-secondary btn-sm">Cerrar</button>
+                    <span class="small text-body-tertiary">Solo lectura · El pasado es inmutable</span>
+                    <button type="button" wire:click="cerrarModalApunte" class="btn btn-outline-secondary btn-sm">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -604,54 +636,53 @@
     @endif
 
     {{-- ================================================================== --}}
-    {{-- SlideOver de detalle — escala y valoración (ancho amplio)           --}}
+    {{-- Panel lateral de detalle — escala y valoración (ancho amplio)       --}}
     {{-- ================================================================== --}}
     @if($modalApunteAbierto && in_array($modalApunteTipo, ['escala', 'valoracion']))
     <div class="modal-backdrop fade show"></div>
     <div class="offcanvas offcanvas-end show d-block border-start shadow"
          wire:click.self="cerrarModalApunte"
          x-data x-on:keydown.escape.window="$wire.cerrarModalApunte()"
-         role="dialog" aria-modal="true" tabindex="-1"
-         style="--bs-offcanvas-width: min(520px, 90vw);">
-        <div class="offcanvas-header">
-            <span class="hs-modal__tipo">{{ $modalApunteDatos['tipo_label'] ?? '' }}</span>
-            <span class="hs-modal__fecha">{{ $modalApunteDatos['fecha'] ?? '' }}</span>
-            <button wire:click="cerrarModalApunte" type="button" class="btn-close" aria-label="Cerrar"></button>
+         role="dialog" aria-modal="true" tabindex="-1">
+        <div class="offcanvas-header gap-2">
+            <span class="fw-semibold">{{ $modalApunteDatos['tipo_label'] ?? '' }}</span>
+            <span class="small text-body-secondary">{{ $modalApunteDatos['fecha'] ?? '' }}</span>
+            <button wire:click="cerrarModalApunte" type="button" class="btn-close ms-auto" aria-label="Cerrar"></button>
         </div>
         <div class="offcanvas-body d-flex flex-column gap-3">
-            <p class="hs-modal__autor"><strong>Profesional:</strong> {{ $modalApunteDatos['autor'] ?? '—' }}</p>
+            <p class="small mb-0"><strong>Profesional:</strong> {{ $modalApunteDatos['autor'] ?? '—' }}</p>
 
             @if($modalApunteTipo === 'escala')
                 @if($modalApunteDatos['escala_nombre'] ?? null)
-                    <h3 class="hs-slideover__subtitulo">{{ $modalApunteDatos['escala_nombre'] }}</h3>
+                    <h3 class="h6 fw-bold mb-0">{{ $modalApunteDatos['escala_nombre'] }}</h3>
                 @endif
                 @if(isset($modalApunteDatos['escala_score']))
-                    <div class="hs-escala-score">
-                        <span class="hs-escala-score__val">{{ $modalApunteDatos['escala_score'] }}</span>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <span class="fs-2 fw-bold text-primary">{{ $modalApunteDatos['escala_score'] }}</span>
                         @if($modalApunteDatos['escala_interpretacion'] ?? null)
-                            <span class="hs-escala-score__interp">{{ $modalApunteDatos['escala_interpretacion'] }}</span>
+                            <span class="text-body-secondary">{{ $modalApunteDatos['escala_interpretacion'] }}</span>
                         @endif
                     </div>
                 @endif
                 @if(! empty($modalApunteDatos['escala_secciones']))
-                    <div class="hs-escala-secciones">
+                    <ul class="list-group">
                         @foreach($modalApunteDatos['escala_secciones'] as $sec => $score)
-                            <div class="hs-escala-seccion">
+                            <li class="list-group-item d-flex justify-content-between small">
                                 <span>{{ $sec }}</span>
-                                <span>{{ $score }}</span>
-                            </div>
+                                <span class="fw-semibold">{{ $score }}</span>
+                            </li>
                         @endforeach
-                    </div>
+                    </ul>
                 @endif
             @endif
 
             @if($modalApunteTipo === 'valoracion' && ! empty($modalApunteDatos['ficha_campos']))
-                <div class="ciudadano-page__stack-sm">
+                <div class="d-flex flex-column gap-2">
                     @foreach($modalApunteDatos['ficha_campos'] as $campo)
-                        <div class="record-screen__detail-card">
-                            <p class="record-screen__detail-label">{{ $campo['etiqueta'] }}</p>
+                        <div class="bg-body-tertiary border rounded p-2">
+                            <p class="small text-uppercase fw-semibold text-body-secondary mb-1">{{ $campo['etiqueta'] }}</p>
                             @if(filled($campo['valor']))
-                                <p class="record-screen__detail-value">
+                                <p class="mb-0">
                                     @if($campo['tipo'] === 'booleano')
                                         {{ $campo['valor'] ? 'Sí' : 'No' }}
                                     @elseif($campo['tipo'] === 'fecha')
@@ -661,34 +692,34 @@
                                     @endif
                                 </p>
                             @else
-                                <p class="record-screen__detail-empty">Sin respuesta</p>
+                                <p class="small text-body-tertiary fst-italic mb-0">Sin respuesta</p>
                             @endif
                         </div>
                     @endforeach
                 </div>
                 @if($modalApunteDatos['ficha_notas'] ?? null)
-                    <div class="record-screen__detail-notes">
-                        <p class="record-screen__detail-label">Notas</p>
-                        <p class="record-screen__detail-value">{{ $modalApunteDatos['ficha_notas'] }}</p>
+                    <div class="border-top pt-2">
+                        <p class="small text-uppercase fw-semibold text-body-secondary mb-1">Notas</p>
+                        <p class="mb-0">{{ $modalApunteDatos['ficha_notas'] }}</p>
                     </div>
                 @endif
             @endif
 
             @if($modalApunteDatos['contenido'] ?? null)
-                <div class="hs-modal__contenido hs-modal__contenido--spaced">{!! nl2br(e($modalApunteDatos['contenido'])) !!}</div>
+                <div class="border-top pt-2">{!! nl2br(e($modalApunteDatos['contenido'])) !!}</div>
             @endif
         </div>
         <div class="border-top d-flex align-items-center justify-content-between gap-3 px-4 py-3">
-            <span class="hs-modal__inmutable">Solo lectura · El pasado es inmutable</span>
+            <span class="small text-body-tertiary">Solo lectura · El pasado es inmutable</span>
             <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
                 @if(($modalApunteDatos['ficha_url'] ?? null))
                     <a href="{{ $modalApunteDatos['ficha_url'] }}" wire:navigate
-                       class="btn btn-link btn-sm text-decoration-none px-0">
+                       class="btn btn-link btn-sm text-decoration-none px-0 d-inline-flex align-items-center gap-1">
                         <x-heroicon-o-arrow-top-right-on-square class="icon-13" aria-hidden="true"/>
                         Ver ficha completa
                     </a>
                 @endif
-                <button wire:click="cerrarModalApunte" class="btn btn-outline-secondary btn-sm">Cerrar</button>
+                <button type="button" wire:click="cerrarModalApunte" class="btn btn-outline-secondary btn-sm">Cerrar</button>
             </div>
         </div>
     </div>
@@ -712,64 +743,64 @@
             <div class="modal-content border-0 shadow">
 
                 <div class="modal-header">
-                    <h2 id="uc-modal-titulo" class="uc-modal__titulo">Unidad de convivencia</h2>
+                    <h2 id="uc-modal-titulo" class="modal-title fs-6">Unidad de convivencia</h2>
                     <button wire:click="cerrarModalUc" type="button" class="btn-close" aria-label="Cerrar"></button>
                 </div>
 
-                @if($ucMensaje)
-                <div class="uc-modal__mensaje" wire:key="uc-mensaje">
-                    <x-heroicon-o-check-circle class="icon-14" aria-hidden="true"/>
-                    {{ $ucMensaje }}
-                </div>
-                @endif
+                <div class="modal-body">
 
-                <div class="uc-modal__cuerpo">
+                    @if($ucMensaje)
+                    <div class="alert alert-success py-2 small d-flex align-items-center gap-2" role="status" wire:key="uc-mensaje">
+                        <x-heroicon-o-check-circle class="icon-14" aria-hidden="true"/>
+                        {{ $ucMensaje }}
+                    </div>
+                    @endif
 
                     @if(! $this->ucVigente)
-                        <div class="uc-modal__vacio">
+                        <div class="text-center py-3">
                             <p>Este ciudadano no tiene unidad de convivencia registrada.</p>
-                            <button wire:click="crearUc" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">
+                            <button type="button" wire:click="crearUc" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">
                                 <x-heroicon-o-plus class="icon-14" aria-hidden="true"/>
                                 Crear unidad de convivencia
                             </button>
                         </div>
 
                     @else
-                        <div class="uc-modal__seccion">
-                            <h3 class="uc-modal__seccion-titulo">
+                        <section class="mb-4">
+                            <h3 class="h6 fw-semibold d-flex align-items-center gap-2">
                                 Miembros activos
-                                <span class="uc-modal__badge">{{ $this->ucMiembrosActivos->count() }}</span>
+                                <span class="badge rounded-pill text-bg-secondary">{{ $this->ucMiembrosActivos->count() }}</span>
                             </h3>
 
-                            <ul class="uc-modal__lista">
+                            <ul class="list-group list-group-flush">
                                 @forelse($this->ucMiembrosActivos as $miembro)
-                                <li class="uc-modal__miembro" wire:key="miembro-{{ $miembro->id }}">
-                                    <div class="uc-modal__miembro-info">
+                                <li class="list-group-item d-flex align-items-center justify-content-between gap-2 px-0" wire:key="miembro-{{ $miembro->id }}">
+                                    <div>
                                         @if($miembro->ciudadano)
-                                        <a href="{{ route('ciudadania.ciudadano.ficha', $miembro->ciudadano) }}"
-                                           class="uc-modal__miembro-nombre">
+                                        <a href="{{ route('ciudadania.ciudadano.ficha', $miembro->ciudadano) }}" class="fw-semibold text-decoration-none">
                                             {{ $miembro->ciudadano->nombre }}
                                             {{ $miembro->ciudadano->apellido1 }}
                                             {{ $miembro->ciudadano->apellido2 }}
                                         </a>
                                         @else
-                                        <span class="uc-modal__miembro-nombre">—</span>
+                                        <span class="fw-semibold">—</span>
                                         @endif
-                                        <span class="uc-modal__miembro-meta">
+                                        <div class="small text-body-secondary">
                                             Desde {{ $miembro->fecha_inicio?->format('d/m/Y') }}
-                                        </span>
+                                        </div>
                                     </div>
 
-                                    <div class="uc-modal__miembro-acciones">
+                                    <div class="d-flex align-items-center gap-2 flex-shrink-0">
                                         @if($miembro->verificado)
-                                            <span class="uc-badge uc-badge--verificado" title="Residencia verificada">
+                                            <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle d-inline-flex align-items-center gap-1" title="Residencia verificada">
                                                 <x-heroicon-o-shield-check class="icon-12" aria-hidden="true"/>
                                                 Verificado
                                             </span>
                                         @else
                                             <button
+                                                type="button"
                                                 wire:click="verificarMiembro({{ $miembro->id }})"
-                                                class="uc-badge uc-badge--sin-verificar"
+                                                class="btn btn-sm btn-outline-warning d-inline-flex align-items-center gap-1 py-0"
                                                 title="Verificar residencia manualmente"
                                             >
                                                 <x-heroicon-o-shield-exclamation class="icon-12" aria-hidden="true"/>
@@ -778,16 +809,18 @@
                                         @endif
 
                                         @if($ucMiembroParaBaja === $miembro->id)
-                                            <span class="uc-modal__confirmar-baja">
+                                            <span class="d-inline-flex align-items-center gap-1 small">
                                                 ¿Confirmar baja?
-                                                <button wire:click="confirmarBajaMiembro" class="btn btn-danger btn-sm">Sí</button>
-                                                <button wire:click="cancelarBajaMiembro" class="btn btn-outline-secondary btn-sm">No</button>
+                                                <button type="button" wire:click="confirmarBajaMiembro" class="btn btn-danger btn-sm">Sí</button>
+                                                <button type="button" wire:click="cancelarBajaMiembro" class="btn btn-outline-secondary btn-sm">No</button>
                                             </span>
                                         @else
                                             <button
+                                                type="button"
                                                 wire:click="iniciarBajaMiembro({{ $miembro->id }})"
                                                 class="btn btn-outline-secondary btn-sm"
                                                 title="Dar de baja como miembro"
+                                                aria-label="Dar de baja como miembro"
                                             >
                                                 <x-heroicon-o-user-minus class="icon-13" aria-hidden="true"/>
                                             </button>
@@ -795,71 +828,75 @@
                                     </div>
                                 </li>
                                 @empty
-                                <li class="uc-modal__vacio-lista">No hay miembros activos.</li>
+                                <li class="list-group-item px-0 small text-body-secondary">No hay miembros activos.</li>
                                 @endforelse
                             </ul>
-                        </div>
+                        </section>
 
-                        <div class="uc-modal__seccion">
-                            <h3 class="uc-modal__seccion-titulo">Añadir miembro</h3>
+                        <section>
+                            <h3 class="h6 fw-semibold">Añadir miembro</h3>
 
                             @if($ucCiudadanoSeleccionado)
                                 @php $cSeleccionado = \App\Models\Ciudadano::find($ucCiudadanoSeleccionado); @endphp
-                                <div class="uc-modal__confirmar-adicion">
+                                <div class="alert alert-primary d-flex flex-wrap align-items-center justify-content-between gap-2 small">
                                     <span>
                                         ¿Añadir a <strong>{{ $cSeleccionado?->nombre }} {{ $cSeleccionado?->apellido1 }}</strong> como miembro de esta unidad?
                                     </span>
-                                    <div class="uc-modal__confirmar-acciones">
-                                        <button wire:click="confirmarAnadirMiembro" class="btn btn-primary btn-sm">Confirmar</button>
-                                        <button wire:click="cancelarSeleccionUc" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" wire:click="confirmarAnadirMiembro" class="btn btn-primary btn-sm">Confirmar</button>
+                                        <button type="button" wire:click="cancelarSeleccionUc" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                                     </div>
                                 </div>
 
                             @else
-                                <div class="uc-modal__busqueda">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text" aria-hidden="true">
+                                        <x-heroicon-o-magnifying-glass class="icon-14"/>
+                                    </span>
                                     <input
                                         type="text"
                                         wire:model.live.debounce.300ms="ucBusqueda"
                                         placeholder="Buscar por nombre…"
-                                        class="uc-modal__input"
+                                        aria-label="Buscar ciudadano por nombre"
+                                        class="form-control"
                                         autocomplete="off"
                                     />
-                                    <x-heroicon-o-magnifying-glass class="uc-modal__busqueda-icon icon-14" aria-hidden="true"/>
                                 </div>
 
                                 @if($this->ucResultadosBusqueda->isNotEmpty())
-                                <ul class="uc-modal__resultados">
+                                <div class="list-group mt-2">
                                     @foreach($this->ucResultadosBusqueda as $resultado)
-                                    <li
+                                    <button
+                                        type="button"
                                         wire:click="seleccionarCiudadanoUc({{ $resultado->id }})"
-                                        class="uc-modal__resultado"
+                                        class="list-group-item list-group-item-action d-flex align-items-center justify-content-between small"
                                         wire:key="resultado-{{ $resultado->id }}"
                                     >
-                                        <span class="uc-modal__resultado-nombre">
+                                        <span>
                                             {{ $resultado->nombre }} {{ $resultado->apellido1 }} {{ $resultado->apellido2 }}
                                         </span>
                                         @if(! $resultado->tieneResidenciaVerificada())
-                                            <span class="uc-badge uc-badge--sin-verificar uc-badge--sm">Sin verificar</span>
+                                            <span class="badge bg-warning-subtle text-warning-emphasis">Sin verificar</span>
                                         @endif
-                                    </li>
+                                    </button>
                                     @endforeach
-                                </ul>
+                                </div>
                                 @elseif(strlen(trim($ucBusqueda)) >= 2)
-                                <div class="uc-modal__sin-resultados">
+                                <p class="small text-body-secondary mt-2 mb-0">
                                     No se encontró ningún ciudadano con ese nombre.
-                                    <a href="{{ route('ciudadania.alta') }}" class="uc-modal__alta-link">
+                                    <a href="{{ route('ciudadania.alta') }}">
                                         Dar de alta ciudadano nuevo
                                     </a>
-                                </div>
+                                </p>
                                 @endif
                             @endif
-                        </div>
+                        </section>
                     @endif
 
                 </div>
 
                 <div class="modal-footer">
-                    <button wire:click="cerrarModalUc" class="btn btn-outline-secondary btn-sm">Cerrar</button>
+                    <button type="button" wire:click="cerrarModalUc" class="btn btn-outline-secondary btn-sm">Cerrar</button>
                 </div>
 
             </div>
@@ -886,55 +923,46 @@
             <div class="modal-content border-0 shadow">
 
                 <div class="modal-header">
-                    <h2 id="modal-representante-titulo" class="uc-modal__titulo">Representante</h2>
+                    <h2 id="modal-representante-titulo" class="modal-title fs-6">Representante</h2>
                     <button wire:click="cerrarModalRepresentante" type="button" class="btn-close" aria-label="Cerrar"></button>
                 </div>
 
-                <div class="uc-modal__cuerpo">
-                    <div class="rel-modal__persona">
-                        <span class="rel-modal__nombre">
-                            {{ $this->representante->nombre }}
-                            {{ $this->representante->apellido1 }}
-                            {{ $this->representante->apellido2 }}
-                        </span>
+                <div class="modal-body d-flex flex-column gap-2">
+                    <span class="fw-semibold">
+                        {{ $this->representante->nombre }}
+                        {{ $this->representante->apellido1 }}
+                        {{ $this->representante->apellido2 }}
+                    </span>
 
-                        @if($this->representante->telefono)
-                        <a href="tel:{{ $this->representante->telefono }}"
-                           class="rel-modal__dato">
-                            <x-heroicon-o-phone class="icon-13"/>
-                            {{ $this->representante->telefono }}
-                        </a>
-                        @endif
+                    @if($this->representante->telefono)
+                    <a href="tel:{{ $this->representante->telefono }}" class="d-inline-flex align-items-center gap-1 text-decoration-none">
+                        <x-heroicon-o-phone class="icon-13" aria-hidden="true"/>
+                        {{ $this->representante->telefono }}
+                    </a>
+                    @endif
 
-                        @if($this->representante->email)
-                        <a href="mailto:{{ $this->representante->email }}"
-                           class="rel-modal__dato">
-                            <x-heroicon-o-envelope class="icon-13"/>
-                            {{ $this->representante->email }}
-                        </a>
-                        @endif
+                    @if($this->representante->email)
+                    <a href="mailto:{{ $this->representante->email }}" class="d-inline-flex align-items-center gap-1 text-decoration-none">
+                        <x-heroicon-o-envelope class="icon-13" aria-hidden="true"/>
+                        {{ $this->representante->email }}
+                    </a>
+                    @endif
 
-                        @if(! $this->representante->telefono && ! $this->representante->email)
-                        <span class="rel-modal__sin-contacto">
-                            Sin datos de contacto registrados.
-                        </span>
-                        @endif
-                    </div>
+                    @if(! $this->representante->telefono && ! $this->representante->email)
+                    <span class="small text-body-secondary fst-italic">
+                        Sin datos de contacto registrados.
+                    </span>
+                    @endif
 
-                    <div class="rel-modal__pie-accion">
-                        <a
-                            href="{{ route('ciudadania.ciudadano.ficha', $this->representante->id) }}"
-                            class="rel-modal__link-ficha"
-                            wire:navigate
-                        >
-                            <x-heroicon-o-arrow-top-right-on-square class="icon-12"/>
-                            Ver ficha completa
-                        </a>
-                    </div>
+                    <a href="{{ route('ciudadania.ciudadano.ficha', $this->representante->id) }}"
+                       class="small d-inline-flex align-items-center gap-1 mt-2" wire:navigate>
+                        <x-heroicon-o-arrow-top-right-on-square class="icon-12" aria-hidden="true"/>
+                        Ver ficha completa
+                    </a>
                 </div>
 
                 <div class="modal-footer">
-                    <button wire:click="cerrarModalRepresentante" class="btn btn-outline-secondary btn-sm">
+                    <button type="button" wire:click="cerrarModalRepresentante" class="btn btn-outline-secondary btn-sm">
                         Cerrar
                     </button>
                 </div>
@@ -963,58 +991,53 @@
             <div class="modal-content border-0 shadow">
 
                 <div class="modal-header">
-                    <h2 id="modal-relaciones-titulo" class="uc-modal__titulo">Personas relacionadas</h2>
+                    <h2 id="modal-relaciones-titulo" class="modal-title fs-6">Personas relacionadas</h2>
                     <button wire:click="cerrarModalRelaciones" type="button" class="btn-close" aria-label="Cerrar"></button>
                 </div>
 
-                <div class="uc-modal__cuerpo">
+                <div class="modal-body">
 
                     @forelse($this->relacionesAgrupadas as $slug => $grupo)
-                    <div class="uc-modal__seccion" wire:key="grupo-{{ $slug }}">
-                        <h3 class="uc-modal__seccion-titulo">
+                    <section class="mb-3" wire:key="grupo-{{ $slug }}">
+                        <h3 class="h6 fw-semibold d-flex align-items-center gap-2">
                             {{ $grupo['etiqueta'] }}
-                            <span class="uc-modal__badge">
+                            <span class="badge rounded-pill text-bg-secondary">
                                 {{ $grupo['miembros']->count() }}
                             </span>
                         </h3>
 
-                        <ul class="uc-modal__lista">
+                        <ul class="list-group list-group-flush">
                             @foreach($grupo['miembros'] as $persona)
-                            <li class="uc-modal__miembro" wire:key="rel-{{ $slug }}-{{ $persona->id }}">
-                                <div class="uc-modal__miembro-info">
-                                    <span class="uc-modal__miembro-nombre">
+                            <li class="list-group-item d-flex align-items-center justify-content-between gap-2 px-0" wire:key="rel-{{ $slug }}-{{ $persona->id }}">
+                                <div>
+                                    <span class="fw-semibold">
                                         {{ $persona->nombre }}
                                         {{ $persona->apellido1 }}
                                         {{ $persona->apellido2 }}
                                     </span>
                                     @if($persona->telefono)
-                                    <span class="uc-modal__miembro-meta">
+                                    <div class="small text-body-secondary">
                                         {{ $persona->telefono }}
-                                    </span>
+                                    </div>
                                     @endif
                                 </div>
-                                <div class="uc-modal__miembro-acciones">
-                                    <a
-                                        href="{{ route('ciudadania.ciudadano.ficha', $persona->id) }}"
-                                        class="btn btn-outline-secondary btn-sm"
-                                        wire:navigate
-                                        title="Ver ficha"
-                                    >
-                                        <x-heroicon-o-arrow-top-right-on-square class="icon-12"/>
-                                    </a>
-                                </div>
+                                <a
+                                    href="{{ route('ciudadania.ciudadano.ficha', $persona->id) }}"
+                                    class="btn btn-outline-secondary btn-sm"
+                                    wire:navigate
+                                    title="Ver ficha"
+                                    aria-label="Ver ficha"
+                                >
+                                    <x-heroicon-o-arrow-top-right-on-square class="icon-12" aria-hidden="true"/>
+                                </a>
                             </li>
                             @endforeach
                         </ul>
-                    </div>
+                    </section>
                     @empty
-                    <div class="uc-modal__vacio">
+                    <div class="text-center py-3">
                         <p>No hay personas relacionadas registradas.</p>
-                        <a
-                            href="{{ route('ciudadania.ciudadano.ficha', $this->ciudadano->id) }}"
-                            class="uc-modal__alta-link"
-                            wire:navigate
-                        >
+                        <a href="{{ route('ciudadania.ciudadano.ficha', $this->ciudadano->id) }}" wire:navigate>
                             Gestionar relaciones en la ficha del ciudadano
                         </a>
                     </div>
@@ -1022,16 +1045,13 @@
 
                 </div>
 
-                <div class="modal-footer">
-                    <a
-                        href="{{ route('ciudadania.ciudadano.ficha', $this->ciudadano->id) }}"
-                        class="rel-modal__link-ficha"
-                        wire:navigate
-                    >
-                        <x-heroicon-o-arrow-top-right-on-square class="icon-12"/>
+                <div class="modal-footer justify-content-between">
+                    <a href="{{ route('ciudadania.ciudadano.ficha', $this->ciudadano->id) }}"
+                       class="small d-inline-flex align-items-center gap-1" wire:navigate>
+                        <x-heroicon-o-arrow-top-right-on-square class="icon-12" aria-hidden="true"/>
                         Gestionar relaciones en la ficha
                     </a>
-                    <button wire:click="cerrarModalRelaciones" class="btn btn-outline-secondary btn-sm">
+                    <button type="button" wire:click="cerrarModalRelaciones" class="btn btn-outline-secondary btn-sm">
                         Cerrar
                     </button>
                 </div>

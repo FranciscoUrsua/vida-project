@@ -159,8 +159,7 @@
     @if($panelAbierto && $citaSeleccionadaId)
     <div class="offcanvas offcanvas-end show"
          tabindex="-1"
-         aria-labelledby="reasignacion-label"
-         style="width: 400px;">
+         aria-labelledby="reasignacion-label">
         <div class="offcanvas-header border-bottom">
             <h5 class="offcanvas-title fw-semibold" id="reasignacion-label">Reasignar cita</h5>
             <button type="button" class="btn-close"

@@ -1,52 +1,56 @@
-<div class="registro-page">
+<div class="op-page">
+<div class="row justify-content-center g-0 p-3 p-lg-4">
+<div class="col-12 col-lg-9 col-xl-7">
 
-    <div class="registro-page__nav">
-        <a href="{{ route('intervencion.ciudadano.show', $historia->id) }}" class="registro-page__back-link">
-            <x-heroicon-o-arrow-left class="icon-14" aria-hidden="true"/> Volver a la Historia Social
-        </a>
-    </div>
+    <a href="{{ route('intervencion.ciudadano.show', $historia->id) }}"
+       class="link-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-3">
+        <x-heroicon-o-arrow-left class="icon-14" aria-hidden="true"/> Volver a la Historia Social
+    </a>
 
-    <h1 style="font-size: 1.1rem; font-weight: 700; color: var(--color-ink-900); margin: 0 0 1.25rem;">Aplicar escala</h1>
+    <h1 class="h5 fw-bold mb-3">Aplicar escala</h1>
 
     @if($this->tipoEscala)
-        <h2 style="font-size: 0.95rem; font-weight: 700; color: var(--color-primary); margin: 0 0 0.5rem;">{{ $this->tipoEscala->nombre }}</h2>
+        <h2 class="h6 fw-bold text-primary mb-2">{{ $this->tipoEscala->nombre }}</h2>
         @if($this->tipoEscala->instrucciones_aplicacion)
-            <p style="font-size: 0.8rem; color: var(--color-ink-600); margin: 0 0 1.25rem; line-height: 1.5;">
+            <p class="small text-body-secondary mb-4">
                 {{ $this->tipoEscala->instrucciones_aplicacion }}
             </p>
         @endif
 
         @foreach($this->tipoEscala->schema['secciones'] ?? [] as $seccion)
-            <div class="registro-page__section">
-                <h3 style="font-size: 0.85rem; font-weight: 700; color: var(--color-ink-700); margin: 0 0 0.75rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--color-ink-200);">
+            <section class="mb-4">
+                <h3 class="small fw-bold border-bottom pb-1 mb-3">
                     {{ $seccion['titulo'] }}
                 </h3>
                 @foreach($seccion['items'] ?? [] as $item)
-                    <div style="margin-bottom: 0.75rem; padding: 0.6rem 0.75rem; background: #fff; border: 1px solid var(--color-ink-100); border-radius: 6px;">
-                        <div style="font-size: 0.82rem; font-weight: 600; color: var(--color-ink-900); margin-bottom: 0.35rem;">{{ $item['texto'] }}</div>
+                    <fieldset class="card card-body py-2 mb-2">
+                        <legend class="fs-6 small fw-semibold mb-1">{{ $item['texto'] }}</legend>
                         @if($item['instrucciones'] ?? null)
-                            <div style="font-size: 0.72rem; color: var(--color-ink-400); margin-bottom: 0.35rem;">{{ $item['instrucciones'] }}</div>
+                            <p class="form-text mt-0 mb-2">{{ $item['instrucciones'] }}</p>
                         @endif
-                        <div class="registro-page__options">
+                        <div class="d-flex flex-wrap gap-2">
                             @foreach($item['opciones'] ?? [] as $opcion)
-                                <label style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; cursor: pointer; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid var(--color-ink-200); background: var(--color-paper);">
-                                    <input type="radio"
-                                           wire:model="respuestas.{{ $item['id'] }}"
-                                           value="{{ $opcion['valor'] }}">
+                                @php $idOpcion = 'escala-'.$item['id'].'-'.$loop->index; @endphp
+                                <input type="radio" class="btn-check" id="{{ $idOpcion }}" autocomplete="off"
+                                       wire:model="respuestas.{{ $item['id'] }}"
+                                       value="{{ $opcion['valor'] }}">
+                                <label class="btn btn-outline-secondary btn-sm" for="{{ $idOpcion }}">
                                     {{ $opcion['etiqueta'] }}
                                 </label>
                             @endforeach
                         </div>
-                    </div>
+                    </fieldset>
                 @endforeach
-            </div>
+            </section>
         @endforeach
 
-        <button wire:click="guardar" class="btn btn-primary btn-sm">
+        <button type="button" wire:click="guardar" class="btn btn-primary btn-sm">
             Guardar escala
         </button>
     @else
-        <p style="color: var(--color-ink-600); font-size: 0.85rem;">No se encontró el instrumento seleccionado.</p>
+        <p class="text-body-secondary">No se encontró el instrumento seleccionado.</p>
     @endif
 
+</div>
+</div>
 </div>

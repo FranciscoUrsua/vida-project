@@ -78,3 +78,7 @@ $card-border-radius: 0.875rem;
 $table-border-color: #E6E1D8;
 $table-striped-bg: rgba(242, 234, 218, 0.55);
 $table-hover-bg: rgba(227, 236, 245, 0.35);
+
+// Paneles laterales (offcanvas): un único ancho para toda la aplicación
+// (detalle de apunte, reasignación de ausencias, redacción de mensajes).
+$offcanvas-horizontal-width: 480px;

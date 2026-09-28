@@ -1,145 +1,129 @@
-<div class="registro-page">
+<div class="op-page">
+<div class="row justify-content-center g-0 p-3 p-lg-4">
+<div class="col-12 col-lg-9 col-xl-7">
 
     {{-- Navegación --}}
-    <div class="registro-page__nav">
-        <a href="{{ route('intervencion.ciudadano.show', $historiaId) }}"
-           class="registro-page__back-link">
-            <x-heroicon-o-arrow-left class="icon-14" aria-hidden="true"/>
-            Volver a la Historia Social
-        </a>
-    </div>
+    <a href="{{ route('intervencion.ciudadano.show', $historiaId) }}"
+       class="link-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-3">
+        <x-heroicon-o-arrow-left class="icon-14" aria-hidden="true"/>
+        Volver a la Historia Social
+    </a>
 
-    <h1 style="font-size: 1.1rem; font-weight: 700; color: var(--color-ink-900); margin: 0 0 1.25rem;">Registrar valoración</h1>
+    <h1 class="h5 fw-bold mb-3">Registrar valoración</h1>
 
     {{-- Selector de ficha --}}
-    <div class="registro-page__section">
-        <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.3rem;">
-            Tipo de ficha
-        </label>
-        <select wire:change="seleccionarFicha($event.target.value)"
-                style="width: 100%; max-width: 420px; padding: 0.4rem 0.6rem; font-size: 0.82rem; border: 1px solid var(--color-ink-300); border-radius: 6px; background: #fff; color: var(--color-ink-900);">
+    <div class="mb-4">
+        <label for="valoracion-tipo-ficha" class="form-label small fw-semibold">Tipo de ficha</label>
+        <select id="valoracion-tipo-ficha" wire:change="seleccionarFicha($event.target.value)"
+                class="form-select form-select-sm w-auto mw-100 @error('tipoFichaId') is-invalid @enderror">
             <option value="">Selecciona una ficha…</option>
             @foreach($this->fichasDisponibles as $id => $nombre)
                 <option value="{{ $id }}" @selected($id == $tipoFichaId)>{{ $nombre }}</option>
             @endforeach
         </select>
         @error('tipoFichaId')
-            <p style="font-size: 0.75rem; color: var(--color-danger); margin: 0.25rem 0 0;">{{ $message }}</p>
+            <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
 
     {{-- Formulario de la ficha --}}
     @if($tipoFichaId && $this->tipoFicha)
 
-        <h2 style="font-size: 0.95rem; font-weight: 700; color: var(--color-primary); margin: 0 0 0.25rem;">
-            {{ $this->tipoFicha->nombre }}
-        </h2>
+        <div class="card card-body">
+            <h2 class="h6 fw-bold text-primary mb-1">
+                {{ $this->tipoFicha->nombre }}
+            </h2>
 
-        @if($this->tipoFicha->descripcion)
-            <p style="font-size: 0.8rem; color: var(--color-ink-500); margin: 0 0 1.1rem; line-height: 1.5;">
-                {{ $this->tipoFicha->descripcion }}
-            </p>
-        @else
-            <div class="ciudadano-page__section"></div>
-        @endif
+            @if($this->tipoFicha->descripcion)
+                <p class="small text-body-secondary mb-3">
+                    {{ $this->tipoFicha->descripcion }}
+                </p>
+            @endif
 
-        @foreach($this->tipoFicha->schema['campos'] ?? [] as $campo)
-            <div class="ciudadano-page__section">
-
-                <label style="font-size: 0.8rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">
-                    {{ $campo['etiqueta'] ?? $campo['id'] }}
-                    @if($campo['obligatorio'] ?? false)
-                        <span style="color: var(--color-danger);" aria-hidden="true"> *</span>
-                    @endif
-                </label>
-
-                @if($campo['descripcion'] ?? null)
-                    <p style="font-size: 0.73rem; color: var(--color-ink-400); margin: 0 0 0.3rem; line-height: 1.4;">
-                        {{ $campo['descripcion'] }}
-                    </p>
-                @endif
-
-                @php $tipo = $campo['tipo'] ?? 'texto'; @endphp
-
-                @if($tipo === 'texto')
-                    <textarea wire:model.live="datos.{{ $campo['id'] }}"
-                              rows="2"
-                              style="width: 100%; padding: 0.4rem 0.6rem; font-size: 0.82rem; border: 1px solid var(--color-ink-300); border-radius: 6px; resize: vertical; font-family: inherit; color: var(--color-ink-900);"></textarea>
-
-                @elseif($tipo === 'numero')
-                    <div class="registro-page__inline">
-                        <input type="number"
-                               wire:model.live="datos.{{ $campo['id'] }}"
-                               style="width: 140px; padding: 0.4rem 0.6rem; font-size: 0.82rem; border: 1px solid var(--color-ink-300); border-radius: 6px; color: var(--color-ink-900);">
-                        @if($campo['unidad'] ?? null)
-                            <span style="font-size: 0.78rem; color: var(--color-ink-500);">{{ $campo['unidad'] }}</span>
+            @foreach($this->tipoFicha->schema['campos'] ?? [] as $campo)
+                @php
+                    $tipo = $campo['tipo'] ?? 'texto';
+                    $idCampo = 'campo-'.$campo['id'];
+                    $conError = $errors->has("datos.{$campo['id']}");
+                @endphp
+                <div class="mb-3">
+                    <label for="{{ $idCampo }}" class="form-label small fw-semibold mb-1">
+                        {{ $campo['etiqueta'] ?? $campo['id'] }}
+                        @if($campo['obligatorio'] ?? false)
+                            <span class="text-danger" aria-hidden="true"> *</span>
                         @endif
-                    </div>
+                    </label>
 
-                @elseif($tipo === 'select')
-                    <select wire:model.live="datos.{{ $campo['id'] }}"
-                            style="width: 100%; max-width: 320px; padding: 0.4rem 0.6rem; font-size: 0.82rem; border: 1px solid var(--color-ink-300); border-radius: 6px; background: #fff; color: var(--color-ink-900);">
-                        <option value="">Selecciona…</option>
-                        @foreach($campo['opciones'] ?? [] as $opcion)
-                            <option value="{{ $opcion }}">{{ $opcion }}</option>
-                        @endforeach
-                    </select>
+                    @if($campo['descripcion'] ?? null)
+                        <p class="form-text mt-0 mb-1">{{ $campo['descripcion'] }}</p>
+                    @endif
 
-                @elseif($tipo === 'booleano')
-                    <div class="registro-page__boolean-row">
-                        <label style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.82rem; cursor: pointer; color: var(--color-ink-800);">
-                            <input type="radio"
-                                   wire:model.live="datos.{{ $campo['id'] }}"
-                                   value="1">
-                            Sí
-                        </label>
-                        <label style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.82rem; cursor: pointer; color: var(--color-ink-800);">
-                            <input type="radio"
-                                   wire:model.live="datos.{{ $campo['id'] }}"
-                                   value="0">
-                            No
-                        </label>
-                    </div>
+                    @if($tipo === 'texto')
+                        <textarea id="{{ $idCampo }}" wire:model.live="datos.{{ $campo['id'] }}" rows="2"
+                                  @class(['form-control form-control-sm', 'is-invalid' => $conError])></textarea>
 
-                @elseif($tipo === 'fecha')
-                    <input type="date"
-                           wire:model.live="datos.{{ $campo['id'] }}"
-                           style="padding: 0.4rem 0.6rem; font-size: 0.82rem; border: 1px solid var(--color-ink-300); border-radius: 6px; color: var(--color-ink-900);">
+                    @elseif($tipo === 'numero')
+                        <div class="d-flex align-items-center gap-2">
+                            <input id="{{ $idCampo }}" type="number" wire:model.live="datos.{{ $campo['id'] }}"
+                                   @class(['form-control form-control-sm w-auto', 'is-invalid' => $conError])>
+                            @if($campo['unidad'] ?? null)
+                                <span class="small text-body-secondary">{{ $campo['unidad'] }}</span>
+                            @endif
+                        </div>
 
-                @elseif($tipo === 'escala')
-                    {{-- Solo puntuación total; el pase completo se hace en módulo Escalas --}}
-                    <div class="registro-page__inline">
-                        <input type="number"
-                               wire:model.live="datos.{{ $campo['id'] }}"
-                               min="0"
-                               style="width: 100px; padding: 0.4rem 0.6rem; font-size: 0.82rem; border: 1px solid var(--color-ink-300); border-radius: 6px; color: var(--color-ink-900);">
-                        <span style="font-size: 0.73rem; color: var(--color-ink-400);">puntuación total</span>
-                    </div>
-                @endif
+                    @elseif($tipo === 'select')
+                        <select id="{{ $idCampo }}" wire:model.live="datos.{{ $campo['id'] }}"
+                                @class(['form-select form-select-sm w-auto mw-100', 'is-invalid' => $conError])>
+                            <option value="">Selecciona…</option>
+                            @foreach($campo['opciones'] ?? [] as $opcion)
+                                <option value="{{ $opcion }}">{{ $opcion }}</option>
+                            @endforeach
+                        </select>
 
-                @error("datos.{$campo['id']}")
-                    <p style="font-size: 0.75rem; color: var(--color-danger); margin: 0.2rem 0 0;">{{ $message }}</p>
-                @enderror
+                    @elseif($tipo === 'booleano')
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="{{ $idCampo }}-si"
+                                       wire:model.live="datos.{{ $campo['id'] }}" value="1">
+                                <label class="form-check-label" for="{{ $idCampo }}-si">Sí</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="{{ $idCampo }}-no"
+                                       wire:model.live="datos.{{ $campo['id'] }}" value="0">
+                                <label class="form-check-label" for="{{ $idCampo }}-no">No</label>
+                            </div>
+                        </div>
 
+                    @elseif($tipo === 'fecha')
+                        <input id="{{ $idCampo }}" type="date" wire:model.live="datos.{{ $campo['id'] }}"
+                               @class(['form-control form-control-sm w-auto', 'is-invalid' => $conError])>
+
+                    @elseif($tipo === 'escala')
+                        {{-- Solo puntuación total; el pase completo se hace en módulo Escalas --}}
+                        <div class="d-flex align-items-center gap-2">
+                            <input id="{{ $idCampo }}" type="number" min="0" wire:model.live="datos.{{ $campo['id'] }}"
+                                   @class(['form-control form-control-sm w-auto', 'is-invalid' => $conError])>
+                            <span class="small text-body-secondary">puntuación total</span>
+                        </div>
+                    @endif
+
+                    @error("datos.{$campo['id']}")
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                </div>
+            @endforeach
+
+            {{-- Notas --}}
+            <div class="border-top pt-3 mt-2">
+                <label for="valoracion-notas" class="form-label small fw-semibold mb-1">Notas libres</label>
+                <p class="form-text mt-0 mb-1">Observaciones no estructuradas de la entrevista.</p>
+                <textarea id="valoracion-notas" wire:model.live="notas" rows="3" class="form-control form-control-sm"></textarea>
             </div>
-        @endforeach
-
-        {{-- Notas --}}
-        <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--color-ink-100);">
-            <label style="font-size: 0.78rem; font-weight: 600; color: var(--color-ink-700); display: block; margin-bottom: 0.25rem;">
-                Notas libres
-            </label>
-            <p style="font-size: 0.73rem; color: var(--color-ink-400); margin: 0 0 0.35rem;">
-                Observaciones no estructuradas de la entrevista.
-            </p>
-            <textarea wire:model.live="notas"
-                      rows="3"
-                      style="width: 100%; padding: 0.4rem 0.6rem; font-size: 0.82rem; border: 1px solid var(--color-ink-300); border-radius: 6px; resize: vertical; font-family: inherit; color: var(--color-ink-900);"></textarea>
         </div>
 
         {{-- Acciones --}}
         <div class="d-flex gap-2 mt-4">
-            <button wire:click="guardarDefinitivo" class="btn btn-primary">
+            <button type="button" wire:click="guardarDefinitivo" class="btn btn-primary">
                 Guardar
             </button>
             <a href="{{ route('intervencion.ciudadano.show', $historiaId) }}" class="btn btn-outline-secondary">
@@ -148,9 +132,11 @@
         </div>
 
     @elseif(! $tipoFichaId)
-        <p style="font-size: 0.85rem; color: var(--color-ink-500); margin-top: 0.5rem;">
+        <p class="text-body-secondary">
             Selecciona un tipo de ficha para comenzar.
         </p>
     @endif
 
+</div>
+</div>
 </div>
