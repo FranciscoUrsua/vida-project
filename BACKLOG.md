@@ -18,6 +18,12 @@ Módulo: Frontend / Filament
 
 ---
 
+**CI «Calidad de código» (PHPStan + Pint) en rojo** — 2026-09-29
+Módulo: transversal
+El workflow falla en todos los commits al menos desde `d620571` (2026-09-28); el despliegue no depende de él. Unos 195 errores de PHPStan: falsos positivos de `Livewire::test()` (`argument.templateType`, recuentos del baseline superados por tests nuevos), propiedades de `#[Computed]` en `Livewire\Component`, `HorarioCentro::tiposSlot()` inexistente (Agenda), `env()` fuera de `config/`, etc. Resolver la causa del falso positivo de Livewire (stub o extensión) en lugar de ampliar el baseline, corregir los errores reales y volver a ponerlo en verde.
+
+---
+
 **Frontend: rendimiento de las pantallas grandes (revisión de Grok, fases 6 y 7)** — 2026-09-29
 Módulo: Intervención / Ciudadanía / Mensajes
 Detalle en `docs/front/revision-frontend-ui.md` §6 y `docs/front/plan-correccion-frontend-ui.md` fases 6 y 7.
