@@ -3,11 +3,14 @@
 namespace Modules\Ciudadania\Http\Livewire;
 
 use App\Enums\OrigenDireccion;
+use App\Models\CatalogoSistema;
 use App\Models\Ciudadano;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Ciudadania\Contracts\FuenteIdentidadInterface;
@@ -23,6 +26,8 @@ use Modules\Ciudadania\Services\NormalizadorCiudadano;
  *
  * Ver docs/instrucciones-cli/instrucciones-cli-alta-ciudadano.md Tarea 4.
  * Ver docs/front/alta-ciudadano-funcional.md.
+ *
+ * @property-read array<string, string> $opcionesSexo
  */
 #[Layout('layouts.operativo')]
 class AltaCiudadano extends Component
@@ -372,7 +377,9 @@ class AltaCiudadano extends Component
     // -------------------------------------------------------------------------
 
     /**
-     * @return array<string, string>
+     * Reglas de validación del formulario de alta.
+     *
+     * @return array<string, mixed>
      */
     protected function rules(): array
     {
@@ -383,7 +390,7 @@ class AltaCiudadano extends Component
             'apellido1' => $esPsh ? 'nullable|string|max:100' : 'required|string|max:100',
             'apellido2' => 'nullable|string|max:100',
             'fechaNacimiento' => 'nullable|date|before:today',
-            'sexo' => 'required|string',
+            'sexo' => ['required', Rule::in(array_keys($this->opcionesSexo))],
             'alias' => $esPsh ? 'required|string|max:200' : 'nullable|string|max:200',
             'tipoDocumento' => 'nullable|string|in:nif,nie,pasaporte',
             'valorDocumento' => 'nullable|string|max:20',
@@ -409,6 +416,17 @@ class AltaCiudadano extends Component
 
         // Solo posible en contexto PSH sin ningún dato de identidad
         return 'no_identificado';
+    }
+
+    /**
+     * Valores admitidos para el sexo, del catálogo `ciudadano.sexo` (clave => etiqueta).
+     *
+     * @return array<string, string>
+     */
+    #[Computed]
+    public function opcionesSexo(): array
+    {
+        return CatalogoSistema::opcionesParaSelect('ciudadano.sexo');
     }
 
     /**

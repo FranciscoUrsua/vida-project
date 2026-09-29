@@ -159,12 +159,13 @@
                         @if($modoEdicion)
                             <select id="ficha-sexo" wire:model="sexo" class="form-select form-select-sm">
                                 <option value="">— Seleccionar —</option>
-                                <option value="H">Hombre</option>
-                                <option value="M">Mujer</option>
-                                <option value="NB">No binario</option>
+                                @foreach($this->opcionesSexo as $clave => $etiqueta)
+                                    <option value="{{ $clave }}">{{ $etiqueta }}</option>
+                                @endforeach
                             </select>
                         @else
-                            <div>{{ match($sexo) { 'H' => 'Hombre', 'M' => 'Mujer', 'NB' => 'No binario', default => ($sexo ?: '—') } }}</div>
+                            {{-- Un código fuera del catálogo se muestra tal cual para que se vea y se corrija --}}
+                            <div>{{ $this->opcionesSexo[$sexo] ?? ($sexo ?: '—') }}</div>
                         @endif
                     </div>
                     {{-- Alias --}}

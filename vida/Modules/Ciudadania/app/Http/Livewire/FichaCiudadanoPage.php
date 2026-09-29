@@ -3,6 +3,7 @@
 namespace Modules\Ciudadania\Http\Livewire;
 
 use App\Models\Audit;
+use App\Models\CatalogoSistema;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
@@ -10,6 +11,7 @@ use App\Models\User;
 use App\Queries\AccesosExpedienteQuery;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
@@ -40,6 +42,7 @@ use Modules\Intervencion\Models\AsignacionProfesional;
  * Propiedades computadas expuestas como propiedades mágicas por Livewire 4 #[Computed]:
  *
  * @property-read bool $puedeEditar
+ * @property-read array<string, string> $opcionesSexo
  * @property-read Ciudadano $ciudadano
  * @property-read HistoriaSocial|null $historiaSocial
  * @property-read bool $puedeVerHistoria
@@ -195,6 +198,17 @@ class FichaCiudadanoPage extends Component
     public function ciudadano(): Ciudadano
     {
         return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->findOrFail($this->ciudadanoId);
+    }
+
+    /**
+     * Valores admitidos para el sexo, del catálogo `ciudadano.sexo` (clave => etiqueta).
+     *
+     * @return array<string, string>
+     */
+    #[Computed]
+    public function opcionesSexo(): array
+    {
+        return CatalogoSistema::opcionesParaSelect('ciudadano.sexo');
     }
 
     /**
@@ -515,7 +529,7 @@ class FichaCiudadanoPage extends Component
             'apellido1' => 'required|string|max:100',
             'apellido2' => 'nullable|string|max:100',
             'fechaNacimiento' => 'nullable|date|before:today',
-            'sexo' => 'required|string',
+            'sexo' => ['required', Rule::in(array_keys($this->opcionesSexo))],
             'alias' => 'nullable|string|max:200',
             'direccionTexto' => 'nullable|string|max:500',
             'telefono' => 'nullable|string|max:20',

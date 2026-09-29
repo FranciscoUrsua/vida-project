@@ -22,7 +22,7 @@ use Tests\TestCase;
 /**
  * Tests funcionales de la Ficha del Ciudadano.
  *
- * TF-LW-FIC-01 a TF-LW-FIC-16
+ * TF-LW-FIC-01 a TF-LW-FIC-18
  *
  * @see docs/instrucciones-cli/instrucciones-cli-ficha-ciudadano.md §Tarea 5
  */
@@ -56,7 +56,7 @@ class FichaCiudadanoPageTest extends TestCase
             'nombre' => 'Ana',
             'apellido1' => 'Martínez',
             'apellido2' => 'López',
-            'sexo' => 'M',
+            'sexo' => 'F',
             'activo' => true,
         ]);
     }
@@ -188,14 +188,14 @@ class FichaCiudadanoPageTest extends TestCase
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
             ->call('activarEdicion')
             ->assertSet('modoEdicion', true)
-            ->set('sexo', 'H')
+            ->set('sexo', 'D')
             ->call('guardar')
             ->assertHasNoErrors()
             ->assertSet('modoEdicion', false);
 
         $this->assertDatabaseHas('ciudadanos', [
             'id' => $this->ciudadano->id,
-            'sexo' => 'H',
+            'sexo' => 'D',
         ]);
     }
 
@@ -209,14 +209,14 @@ class FichaCiudadanoPageTest extends TestCase
 
         Livewire::actingAs($supervision)
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
-            ->set('sexo', 'H')
+            ->set('sexo', 'D')
             ->call('guardar')
             ->assertSet('modoEdicion', false);
 
-        // El campo sexo original era 'M' — no debe haber cambiado
+        // El campo sexo original era 'F' — no debe haber cambiado
         $this->assertDatabaseHas('ciudadanos', [
             'id' => $this->ciudadano->id,
-            'sexo' => 'M',
+            'sexo' => 'F',
         ]);
     }
 
@@ -232,6 +232,38 @@ class FichaCiudadanoPageTest extends TestCase
             ->set('nombre', '')
             ->call('guardar')
             ->assertHasErrors(['nombre']);
+    }
+
+    /**
+     * TF-LW-FIC-17 — La ficha muestra la etiqueta del catálogo `ciudadano.sexo`.
+     *
+     * `M` es «Masculino» (clave del alta y del padrón), nunca «Mujer».
+     */
+    #[Test]
+    public function ficha_muestra_el_sexo_con_la_etiqueta_del_catalogo(): void
+    {
+        $this->ciudadano->update(['sexo' => 'M']);
+
+        Livewire::actingAs($this->usuario)
+            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+            ->assertSee('Masculino')
+            ->assertDontSee('Mujer');
+    }
+
+    /**
+     * TF-LW-FIC-18 — guardar() rechaza un sexo que no está en el catálogo.
+     */
+    #[Test]
+    public function guardar_con_sexo_fuera_del_catalogo_falla_validacion(): void
+    {
+        Livewire::actingAs($this->usuario)
+            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
+            ->call('activarEdicion')
+            ->set('sexo', 'NB')
+            ->call('guardar')
+            ->assertHasErrors(['sexo']);
+
+        $this->assertDatabaseHas('ciudadanos', ['id' => $this->ciudadano->id, 'sexo' => 'F']);
     }
 
     // -------------------------------------------------------------------------

@@ -20,7 +20,7 @@ use Tests\TestCase;
 /**
  * Tests funcionales del componente Livewire AltaCiudadano.
  *
- * TF-LW-ALT-01 a TF-LW-ALT-19
+ * TF-LW-ALT-01 a TF-LW-ALT-20
  *
  * @see docs/instrucciones-cli/instrucciones-cli-alta-ciudadano.md § Tarea 5
  */
@@ -537,5 +537,24 @@ class AltaCiudadanoTest extends TestCase
         // El ciudadano existente no debe haberse duplicado
         $this->assertDatabaseCount('ciudadanos', 1);
         $this->assertDatabaseCount('ciudadano_identificadores', 1);
+    }
+
+    // -------------------------------------------------------------------------
+    // TF-LW-ALT-20: el sexo sale del catálogo `ciudadano.sexo`
+    // -------------------------------------------------------------------------
+
+    #[Test]
+    public function sexo_se_ofrece_y_valida_con_el_catalogo(): void
+    {
+        Livewire::actingAs($this->usuario)
+            ->test(AltaCiudadano::class)
+            ->set('fase', 'formulario')
+            ->assertSeeHtml('<option value="M">Masculino</option>')
+            ->assertSeeHtml('<option value="D">No especificado</option>')
+            ->set('nombre', 'Luis')
+            ->set('apellido1', 'Pérez')
+            ->set('sexo', 'H')
+            ->call('guardar')
+            ->assertHasErrors(['sexo']);
     }
 }

@@ -253,9 +253,9 @@
                         @endif
                         <select id="alta-sexo" wire:model="sexo" class="form-select form-select-sm @error('sexo') is-invalid @enderror">
                             <option value="">-- Selecciona --</option>
-                            <option value="M">Masculino</option>
-                            <option value="F">Femenino</option>
-                            <option value="D">No especificado</option>
+                            @foreach($this->opcionesSexo as $clave => $etiqueta)
+                                <option value="{{ $clave }}">{{ $etiqueta }}</option>
+                            @endforeach
                         </select>
                         @error('sexo') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
