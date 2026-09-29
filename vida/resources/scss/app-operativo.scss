@@ -1,3 +1,9 @@
+// Escala del bundle operativo: 1rem = 18px. Va por la variable de Bootstrap
+// (no por una regla sobre `html`) para que textos, rellenos y utilidades `rem`
+// compartan escala. El bundle público se queda en la del navegador (16px), por
+// eso no está en `_bootstrap-overrides.scss`, que comparten los dos.
+$font-size-root: 18px;
+
 @import './bootstrap-vida';
 @import './bootstrap-components';
 @import './op-layout';

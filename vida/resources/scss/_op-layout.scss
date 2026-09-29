@@ -1,12 +1,8 @@
-// Bootstrap ya establece body { background-color: $body-bg; color: $body-color; }.
-// Solo se necesita [x-cloak] y el ajuste de font-size base.
+// Bootstrap ya establece body { background-color: $body-bg; color: $body-color; }
+// y el tamaño raíz ($font-size-root, en app-operativo.scss). Solo falta [x-cloak].
 
 [x-cloak] {
     display: none !important;
-}
-
-html {
-    font-size: 18px;
 }
 
 // -----------------------------------------------------------------------------
