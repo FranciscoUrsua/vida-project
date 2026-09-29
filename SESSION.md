@@ -6,7 +6,7 @@
 
 ## Tarea completada
 
-**Corrección del frontend tras la revisión de Grok (pasos 1 a 5 acordados).** Error del sexo en la ficha corregido con el catálogo `ciudadano.sexo`; tests que anclan el marcado visual; `ui:auditar` comprueba las clases que se deciden en PHP (`FuenteClasesCss`, `Tono`) y la familia `protected` (R7); `$font-size-root`; catálogo de 47 a 39 clases. Detalle en `CHANGELOG-092026.md` (2026-09-29) y `docs/instrucciones-cli/2026-09-bootstrap-unico.md` §6.
+**Alta: el profesional de intervención queda como profesional de referencia.** En la confirmación del alta, el rol `intervencion` tiene «Abrir la historia social y quedar como profesional de referencia», marcado por defecto; la apertura pasa por `AperturaHistoriaService` (también desde la ficha). Antes, en la misma fecha: corrección del frontend tras la revisión de Grok y detalles del expediente. Ver `CHANGELOG-092026.md` (2026-09-29).
 
 ---
 
@@ -35,7 +35,7 @@
 
 ## Siguiente paso concreto recomendado
 
-1. **Comprobar en staging** tras el despliegue: estados de badges (expediente, plan, mis casos, agenda, ficha), sexo en alta y ficha, navegación lateral activa, topbar y estados vacíos. El cuadrante del supervisor no lo cubre ningún test que pase.
+1. **Comprobar en staging** el alta con un usuario de intervención (la opción de abrir historia, y que el caso sale en «Mis casos») y, tras el despliegue de la corrección del frontend: estados de badges (expediente, plan, mis casos, agenda, ficha), sexo en alta y ficha, navegación lateral activa, topbar y estados vacíos. El cuadrante del supervisor no lo cubre ningún test que pase.
 2. **Ficha: restricción de colectivos protegidos** (BACKLOG, prioritario: restricción crítica de `CLAUDE.md` §3).
 3. Rendimiento de `CiudadanoPage`/`plan-page` y polling de toasts (BACKLOG, fases 6 y 7 de Grok).
 4. Pendientes anteriores: Mensajes, paso 6; fallos previos de Agenda (esquema de `tipos_slot` en `vida_testing`, `franjas` codificado dos veces).

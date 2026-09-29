@@ -36,7 +36,7 @@ Se definen los siguientes contextos de alta, configurables desde el backoffice:
 
 **Reglas estructurales:**
 
-- El registro de un ciudadano **nunca abre una Historia Social de forma automática**. La apertura de Historia es siempre un acto profesional explícito del TSR, en los contextos que lo permiten (`asp_primera_atencion`, `equipo_calle_psh`, `circuito_vvg`).
+- El registro de un ciudadano **nunca abre una Historia Social de forma automática**. La apertura de Historia es siempre un acto profesional explícito del TSR, en los contextos que lo permiten (`asp_primera_atencion`, `equipo_calle_psh`, `circuito_vvg`). Ese acto puede hacerse en la misma confirmación del alta: al profesional con rol `intervencion` se le ofrece abrirla y quedar como profesional de referencia, con la opción marcada por defecto (ver `docs/front/alta-ciudadano-funcional.md` §4.4).
 - Un ciudadano registrado en contexto `actividad_centro` **computa en las estadísticas de personas atendidas** del centro, aunque no tenga Historia Social.
 - Su actividad en el sistema (inscripciones, asistencias) queda registrada y es accesible si posteriormente se abre una Historia Social, aportando contexto longitudinal al profesional.
 - El caso paradigmático es el de una persona mayor que accede a un Centro de Mayores para actividades (contexto `actividad_centro`, sin Historia), y que con el tiempo puede desarrollar necesidades de dependencia que justifican la apertura de Historia. El identificador de ciudadano es el mismo en todo momento; la actividad acumulada —incluyendo inscripciones y asistencias anteriores— es visible para el TSR cuando se abre la Historia.

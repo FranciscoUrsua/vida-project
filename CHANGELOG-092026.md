@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-09-29 — Alta: el profesional de intervención queda como profesional de referencia
+
+### Cambios
+- **Confirmación del alta:** para el rol `intervencion` (con permiso `historia.crear`), interruptor «Abrir la historia social y quedar como profesional de referencia», marcado por defecto. Al confirmar se abre la historia en la UO activa y se crea la asignación vigente: el caso aparece en «Mis casos».
+- **`AperturaHistoriaService`** (Intervención): apertura de historia más asignación, en transacción y sin duplicar si ya existe. Lo usan el alta y `FichaCiudadanoPage::abrirHistoriaSocial()`, que deja de tener la lógica propia.
+- Tests TF-LW-ALT-21 a 23 (el 23 en negativo: tramitación no abre historia aunque el navegador envíe `abrirHistoria = true`; verificado quitando la comprobación del servidor).
+- Documentación: `alta-ciudadano-funcional.md` §4.4, §7 y §9; `modulo-ciudadania.md` (reglas estructurales); `modulo-intervencion.md` §1.1.3.
+
+### Decisiones no previstas en las instrucciones
+- La documentación decía que el alta nunca abre historia y que la asignación nace al abrirla desde la ficha. El desarrollador eligió mantener la apertura como acto explícito, pero ofrecida y marcada por defecto en la confirmación del alta, en lugar de hacerla automática o separar la referencia de la historia.
+- Solo `intervencion`: `tramitacion` también tiene `historia.crear`, pero la regla es del profesional de referencia.
+
+---
+
 ## 2026-09-29 — Expediente: detalles visuales y logo en staging
 
 ### Cambios

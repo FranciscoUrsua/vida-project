@@ -3,6 +3,7 @@
 namespace Modules\Ciudadania\Tests\Feature\Livewire;
 
 use App\Models\Ciudadano;
+use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
@@ -14,13 +15,14 @@ use Livewire\Livewire;
 use Modules\Ciudadania\Contracts\FuenteIdentidadInterface;
 use Modules\Ciudadania\Http\Livewire\AltaCiudadano;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
+use Modules\Intervencion\Http\Livewire\MisCasosPage;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Tests funcionales del componente Livewire AltaCiudadano.
  *
- * TF-LW-ALT-01 a TF-LW-ALT-20
+ * TF-LW-ALT-01 a TF-LW-ALT-23
  *
  * @see docs/instrucciones-cli/instrucciones-cli-alta-ciudadano.md § Tarea 5
  */
@@ -557,4 +559,74 @@ class AltaCiudadanoTest extends TestCase
             ->call('guardar')
             ->assertHasErrors(['sexo']);
     }
+
+    // -------------------------------------------------------------------------
+    // TF-LW-ALT-21 a 23: abrir la historia al confirmar el alta
+    // -------------------------------------------------------------------------
+
+    /**
+     * Número de historias sociales del ciudadano, sin scopes de ámbito.
+     */
+    private function historiasDe(int $ciudadanoId): int
+    {
+        return HistoriaSocial::withoutGlobalScopes()->where('ciudadano_id', $ciudadanoId)->count();
+    }
+
+    #[Test]
+    public function intervencion_abre_la_historia_al_confirmar_y_el_caso_aparece_en_mis_casos(): void
+    {
+        $ciudadano = $this->crearCiudadanoConDocumento('nif', '11111111H');
+
+        Livewire::actingAs($this->usuario)
+            ->test(AltaCiudadano::class)
+            ->set('fase', 'confirmacion')
+            ->set('ciudadanoIdCreado', $ciudadano->id)
+            ->assertSee('Abrir la historia social y quedar como profesional de referencia')
+            ->assertSet('abrirHistoria', true)
+            ->call('confirmarAlta');
+
+        $historia = HistoriaSocial::withoutGlobalScopes()->where('ciudadano_id', $ciudadano->id)->firstOrFail();
+        $this->assertSame($this->uo->id, $historia->unidad_organizativa_id);
+        $this->assertDatabaseHas('asignaciones_profesional', [
+            'historia_id' => $historia->id,
+            'profesional_id' => $this->usuario->id,
+            'fecha_fin' => null,
+        ]);
+
+        $casos = Livewire::actingAs($this->usuario)->test(MisCasosPage::class)->get('casos')->items();
+        $this->assertSame([$historia->id], array_map(fn ($c) => $c->historia_id, $casos));
+    }
+
+    #[Test]
+    public function intervencion_puede_confirmar_sin_abrir_historia(): void
+    {
+        $ciudadano = $this->crearCiudadanoConDocumento('nif', '22222222J');
+
+        Livewire::actingAs($this->usuario)
+            ->test(AltaCiudadano::class)
+            ->set('fase', 'confirmacion')
+            ->set('ciudadanoIdCreado', $ciudadano->id)
+            ->set('abrirHistoria', false)
+            ->call('confirmarAlta');
+
+        $this->assertSame(0, $this->historiasDe($ciudadano->id));
+    }
+
+    #[Test]
+    public function tramitacion_no_abre_historia_aunque_lo_pida_el_navegador(): void
+    {
+        $tramitacion = $this->crearUsuario('tramitacion');
+        $ciudadano = $this->crearCiudadanoConDocumento('nif', '33333333P');
+
+        Livewire::actingAs($tramitacion)
+            ->test(AltaCiudadano::class)
+            ->set('fase', 'confirmacion')
+            ->set('ciudadanoIdCreado', $ciudadano->id)
+            ->assertDontSee('Abrir la historia social y quedar como profesional de referencia')
+            ->set('abrirHistoria', true)
+            ->call('confirmarAlta');
+
+        $this->assertSame(0, $this->historiasDe($ciudadano->id));
+    }
 }
+

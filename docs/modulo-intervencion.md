@@ -57,10 +57,20 @@ qué casos aparecen en "Mis casos" del profesional.
 
 ### 1.1.3 Origen de la asignación inicial
 
-Cuando un profesional con rol `intervencion` crea la Historia Social de un ciudadano
-desde la ficha ciudadana (`FichaCiudadanoPage::abrirHistoriaSocial()`), el sistema
-genera automáticamente la primera asignación vigente con `profesional_id = auth()->id()`
-y `fecha_inicio = today()`.
+Quien abre la Historia Social queda como profesional de referencia: el sistema
+genera la primera asignación vigente con `profesional_id` = quien la abre y
+`fecha_inicio = today()`, y el caso aparece en su «Mis casos». La historia se puede
+abrir en dos momentos, los dos por `AperturaHistoriaService::abrir()`:
+
+- **En la confirmación del alta** (`AltaCiudadano::confirmarAlta()`): al profesional con
+  rol `intervencion` se le ofrece abrirla, con la opción marcada por defecto. Quien da de
+  alta a un ciudadano con ese rol queda, salvo que lo desmarque, como su profesional de
+  referencia.
+- **Desde la ficha ciudadana** (`FichaCiudadanoPage::abrirHistoriaSocial()`), si el
+  ciudadano aún no tiene historia.
+
+Si el ciudadano ya tiene historia (la historia social es única), no se crea otra ni se
+cambia la asignación.
 
 La reasignación en masa con criterios geográficos u organizativos (sin acción individual
 del profesional) es funcionalidad pendiente de implementar en el backoffice.

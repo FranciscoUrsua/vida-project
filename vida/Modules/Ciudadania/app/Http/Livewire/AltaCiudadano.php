@@ -5,6 +5,7 @@ namespace Modules\Ciudadania\Http\Livewire;
 use App\Enums\OrigenDireccion;
 use App\Models\CatalogoSistema;
 use App\Models\Ciudadano;
+use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,7 @@ use Modules\Ciudadania\Contracts\FuenteIdentidadInterface;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
 use Modules\Ciudadania\Services\MotorMatching;
 use Modules\Ciudadania\Services\NormalizadorCiudadano;
+use Modules\Intervencion\Services\AperturaHistoriaService;
 
 /**
  * Componente Livewire del flujo de alta de ciudadano.
@@ -28,6 +30,7 @@ use Modules\Ciudadania\Services\NormalizadorCiudadano;
  * Ver docs/front/alta-ciudadano-funcional.md.
  *
  * @property-read array<string, string> $opcionesSexo
+ * @property-read bool $puedeAbrirHistoria
  */
 #[Layout('layouts.operativo')]
 class AltaCiudadano extends Component
@@ -108,6 +111,12 @@ class AltaCiudadano extends Component
     public string $primeraDemanda = '';
 
     public string $accionPostAlta = 'ficha'; // cita | ficha | solo_alta
+
+    /**
+     * Abrir la historia social al confirmar y quedar como profesional de referencia.
+     * Solo tiene efecto si puedeAbrirHistoria (rol intervención con permiso de crear).
+     */
+    public bool $abrirHistoria = true;
 
     public ?int $ciudadanoIdCreado = null;
 
@@ -353,7 +362,16 @@ class AltaCiudadano extends Component
     }
 
     /**
-     * Persiste la primera demanda y redirige según la acción elegida.
+     * Persiste la primera demanda, abre la historia si se ha pedido y redirige
+     * según la acción elegida.
+     *
+     * Abrir la historia deja a quien da el alta como profesional de referencia,
+     * de modo que el caso aparece en su «Mis casos». Es opcional (el alta nunca
+     * abre historia de forma automática: docs/modulo-ciudadania.md) y solo para
+     * el rol intervención; el servidor lo comprueba aunque el navegador mande
+     * `abrirHistoria = true`.
+     *
+     * @return void
      */
     public function confirmarAlta(): void
     {
@@ -363,6 +381,12 @@ class AltaCiudadano extends Component
             Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
                 ->find($this->ciudadanoIdCreado)
                 ?->update(['primera_demanda' => $this->primeraDemanda]);
+        }
+
+        if ($this->abrirHistoria && $this->puedeAbrirHistoria && $this->ciudadanoIdCreado !== null) {
+            /** @var User $profesional */
+            $profesional = auth()->user();
+            app(AperturaHistoriaService::class)->abrir($this->ciudadanoIdCreado, $profesional);
         }
 
         match ($this->accionPostAlta) {
@@ -416,6 +440,21 @@ class AltaCiudadano extends Component
 
         // Solo posible en contexto PSH sin ningún dato de identidad
         return 'no_identificado';
+    }
+
+    /**
+     * Indica si quien da el alta puede abrir la historia y quedar como
+     * profesional de referencia: rol intervención y permiso de crear historias.
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeAbrirHistoria(): bool
+    {
+        /** @var User $usuario */
+        $usuario = auth()->user();
+
+        return $usuario->hasRole('intervencion') && $usuario->can('create', HistoriaSocial::class);
     }
 
     /**

@@ -350,6 +350,18 @@
             </div>
         </div>
 
+        @if($this->puedeAbrirHistoria)
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" role="switch" id="alta-abrir-historia" wire:model="abrirHistoria">
+                        <label class="form-check-label fw-semibold" for="alta-abrir-historia">Abrir la historia social y quedar como profesional de referencia</label>
+                    </div>
+                    <p class="small text-body-secondary mb-0 mt-1">El caso aparecerá en «Mis casos». Desmárcalo si la persona solo necesita información o una gestión puntual.</p>
+                </div>
+            </div>
+        @endif
+
         <fieldset class="card mb-3">
             <div class="card-body">
                 <legend class="fs-6 fw-semibold mb-3">¿Qué hacemos a continuación?</legend>
