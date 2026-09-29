@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-09-29 — Expediente: detalles visuales y logo en staging
+
+### Cambios
+- **Unidad de convivencia** (`ciudadano-page`): era una card (radio 0,875rem) con un botón de radio menor dentro, y asomaba la esquina de la card. Pasa a `accordion` de Bootstrap; la apertura sigue en Livewire (`toggleUC`) y el chevron es el del propio `accordion-button`.
+- **Puntos del timeline:** el punto se estiraba al alto del apunte (hijo de un `d-flex` sin alineación). `align-self-start`.
+- **Logo 403 en staging:** faltaba el enlace `public/storage` (nunca se había ejecutado `storage:link` en el servidor), y la petición acababa en la ruta `/storage` de Laravel. El despliegue ejecuta ahora `php artisan storage:link --force`.
+
+---
+
 ## 2026-09-29 — Frontend: corrección tras la revisión de Grok
 
 Revisión en `docs/front/revision-frontend-ui.md`, plan en `docs/front/plan-correccion-frontend-ui.md`. Se aplicaron los pasos acordados con el desarrollador (1 a 5); el rendimiento (fases 6 y 7 del plan) va al BACKLOG.

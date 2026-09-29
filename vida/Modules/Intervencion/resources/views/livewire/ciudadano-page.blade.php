@@ -166,66 +166,71 @@
             </div>
             @endif
 
-            {{-- Unidad de convivencia --}}
-            <div class="card mt-3">
-                <button type="button" wire:click="toggleUC"
-                        class="btn btn-light btn-sm d-flex align-items-center justify-content-between w-100 rounded-bottom-0"
-                        aria-expanded="{{ $ucExpandida ? 'true' : 'false' }}">
-                    <span>
-                        Unidad de convivencia
-                        @if($this->ucVigente)
-                            <span class="text-body-secondary ms-1">
-                                {{ $this->ucMiembrosActivos->count() }} miembro{{ $this->ucMiembrosActivos->count() !== 1 ? 's' : '' }}
+            {{-- Unidad de convivencia: acordeón de Bootstrap; la apertura la gobierna Livewire (toggleUC) --}}
+            <div class="accordion mt-3">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button type="button" wire:click="toggleUC"
+                                class="accordion-button py-2 px-3 small {{ $ucExpandida ? '' : 'collapsed' }}"
+                                aria-expanded="{{ $ucExpandida ? 'true' : 'false' }}">
+                            <span>
+                                Unidad de convivencia
+                                @if($this->ucVigente)
+                                    <span class="text-body-secondary ms-1">
+                                        {{ $this->ucMiembrosActivos->count() }} miembro{{ $this->ucMiembrosActivos->count() !== 1 ? 's' : '' }}
+                                    </span>
+                                @endif
                             </span>
-                        @endif
-                    </span>
-                    <x-dynamic-component :component="$ucExpandida ? 'heroicon-o-chevron-up' : 'heroicon-o-chevron-down'" class="icon-14" aria-hidden="true"/>
-                </button>
-                @if($ucExpandida)
-                    <div class="card-body p-2">
-                        @if($this->ucVigente)
-                            <ul class="list-unstyled small mb-2">
-                                @foreach($this->ucMiembrosActivos as $ucm)
-                                    <li class="d-flex align-items-center gap-1 py-1">
-                                        @if($ucm->verificado)
-                                            <x-heroicon-o-shield-check class="icon-14 text-success flex-shrink-0" aria-hidden="true"/>
-                                        @else
-                                            <x-heroicon-o-shield-exclamation class="icon-14 text-warning flex-shrink-0" aria-hidden="true"/>
-                                        @endif
-                                        @if($ucm->ciudadano)
-                                            @php $tipoRelUc = $this->relacionesMiembrosUc->get($ucm->ciudadano_id); @endphp
-                                            <a href="{{ route('ciudadania.ciudadano.ficha', $ucm->ciudadano) }}" class="text-decoration-none">
-                                                {{ $ucm->ciudadano->nombre }} {{ $ucm->ciudadano->apellido1 }}
-                                            </a>
-                                            @if($tipoRelUc)
-                                                <span class="text-body-secondary">{{ $tipoRelUc }}</span>
-                                            @endif
-                                        @endif
-                                    </li>
-                                @endforeach
-                            </ul>
-                        @else
-                            <p class="small text-body-secondary fst-italic mb-2">Sin unidad de convivencia registrada.</p>
-                        @endif
-                        <div class="d-flex flex-wrap gap-2">
-                            {{-- Botón gestionar UC --}}
-                            <button type="button" wire:click="abrirModalUc" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1" title="Gestionar unidad de convivencia">
-                                <x-heroicon-o-users class="icon-14" aria-hidden="true"/>
-                                Gestionar UC
-                            </button>
-                            {{-- Botón para ver todas las relaciones del ciudadano --}}
-                            <button
-                                type="button"
-                                wire:click="abrirModalRelaciones"
-                                class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
-                                title="Ver todas las personas relacionadas"
-                            >
-                                <x-heroicon-o-share class="icon-12" aria-hidden="true"/>
-                                Ver todas las relaciones
-                            </button>
+                        </button>
+                    </h2>
+                    @if($ucExpandida)
+                        <div class="accordion-collapse collapse show">
+                            <div class="accordion-body p-2">
+                                @if($this->ucVigente)
+                                    <ul class="list-unstyled small mb-2">
+                                        @foreach($this->ucMiembrosActivos as $ucm)
+                                            <li class="d-flex align-items-center gap-1 py-1">
+                                                @if($ucm->verificado)
+                                                    <x-heroicon-o-shield-check class="icon-14 text-success flex-shrink-0" aria-hidden="true"/>
+                                                @else
+                                                    <x-heroicon-o-shield-exclamation class="icon-14 text-warning flex-shrink-0" aria-hidden="true"/>
+                                                @endif
+                                                @if($ucm->ciudadano)
+                                                    @php $tipoRelUc = $this->relacionesMiembrosUc->get($ucm->ciudadano_id); @endphp
+                                                    <a href="{{ route('ciudadania.ciudadano.ficha', $ucm->ciudadano) }}" class="text-decoration-none">
+                                                        {{ $ucm->ciudadano->nombre }} {{ $ucm->ciudadano->apellido1 }}
+                                                    </a>
+                                                    @if($tipoRelUc)
+                                                        <span class="text-body-secondary">{{ $tipoRelUc }}</span>
+                                                    @endif
+                                                @endif
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    <p class="small text-body-secondary fst-italic mb-2">Sin unidad de convivencia registrada.</p>
+                                @endif
+                                <div class="d-flex flex-wrap gap-2">
+                                    {{-- Botón gestionar UC --}}
+                                    <button type="button" wire:click="abrirModalUc" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1" title="Gestionar unidad de convivencia">
+                                        <x-heroicon-o-users class="icon-14" aria-hidden="true"/>
+                                        Gestionar UC
+                                    </button>
+                                    {{-- Botón para ver todas las relaciones del ciudadano --}}
+                                    <button
+                                        type="button"
+                                        wire:click="abrirModalRelaciones"
+                                        class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+                                        title="Ver todas las personas relacionadas"
+                                    >
+                                        <x-heroicon-o-share class="icon-12" aria-hidden="true"/>
+                                        Ver todas las relaciones
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                @endif
+                    @endif
+                </div>
             </div>
 
         </div>
@@ -310,7 +315,7 @@
                         <div wire:click="verApunte({{ $apunte->id }})"
                              role="button"
                              class="list-group-item list-group-item-action bg-transparent d-flex gap-2 px-2 rounded">
-                            <span class="d-inline-block rounded-circle p-1 mt-2 flex-shrink-0 {{ $apunte->tipo->tono()->clasesPunto() }}" aria-hidden="true"></span>
+                            <span class="d-inline-block rounded-circle p-1 mt-2 flex-shrink-0 align-self-start {{ $apunte->tipo->tono()->clasesPunto() }}" aria-hidden="true"></span>
                             <div class="flex-grow-1 text-break">
                                 <div class="small fw-semibold">
                                     {{ $apunte->tipo->label() }}
