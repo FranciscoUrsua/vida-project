@@ -1,10 +1,11 @@
 {{-- Control de alertas del supervisor: escaladas, aviso al equipo y seguimiento --}}
 @php
+    // Etiqueta del estado de cada destinatario; el color sale de EstadoAlerta::tono()
     $estados = [
-        'pendiente' => ['Pendiente', 'bg-warning-subtle text-warning-emphasis'],
-        'reconocida' => ['Atendida', 'bg-success-subtle text-success-emphasis'],
-        'escalada' => ['Escalada', 'bg-danger-subtle text-danger-emphasis'],
-        'vencida' => ['Vencida', 'bg-secondary-subtle text-secondary-emphasis'],
+        'pendiente' => 'Pendiente',
+        'reconocida' => 'Atendida',
+        'escalada' => 'Escalada',
+        'vencida' => 'Vencida',
     ];
 @endphp
 <div class="op-page">
@@ -116,9 +117,8 @@
                                         <td>
                                             <div class="d-flex flex-wrap gap-1">
                                                 @foreach($alerta->destinatarios as $d)
-                                                    @php [$etiqueta, $clases] = $estados[$d->estado->value]; @endphp
-                                                    <span class="badge rounded-pill {{ $clases }}">
-                                                        {{ $d->usuario?->nombre_completo }} · {{ $etiqueta }}
+                                                    <span class="badge rounded-pill {{ $d->estado->tono()->clasesSuave() }}">
+                                                        {{ $d->usuario?->nombre_completo }} · {{ $estados[$d->estado->value] }}
                                                     </span>
                                                 @endforeach
                                             </div>

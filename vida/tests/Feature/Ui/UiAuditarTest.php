@@ -11,7 +11,7 @@ use Tests\TestCase;
  * Tests del comando `ui:auditar`: comprobación de que las superficies operativa
  * y pública usan solo Bootstrap, sin estilos inventados ni huérfanos.
  *
- * TF-UI-01 a TF-UI-23. Cada test monta un proyecto mínimo en un directorio
+ * TF-UI-01 a TF-UI-26. Cada test monta un proyecto mínimo en un directorio
  * temporal (vistas, SCSS, CSS compilado y CSS de Bootstrap) y ejecuta el
  * comando contra él.
  *
@@ -202,13 +202,15 @@ class UiAuditarTest extends TestCase
     }
 
     #[Test]
-    public function r1_clase_construida_dinamicamente_es_aviso_no_infraccion(): void
+    public function r1_clase_construida_dinamicamente_falla(): void
     {
+        // CLAUDE.md prohíbe concatenar nombres de clase: el resultado no se puede comprobar
         $this->escribir('resources/views/dinamica.blade.php', '<span class="badge-{{ $tipo }} d-flex">x</span>');
 
         [$codigo, $salida] = $this->auditar();
 
-        $this->assertSame(0, $codigo, $salida);
+        $this->assertSame(1, $codigo, $salida);
+        $this->assertStringContainsString('no se puede comprobar', $salida);
         $this->assertStringContainsString('dinámica', $salida);
         $this->assertStringContainsString('badge-', $salida);
     }
@@ -406,6 +408,75 @@ class UiAuditarTest extends TestCase
         $this->assertSame(1, $codigo);
         $this->assertStringContainsString('R6', $salida);
         $this->assertStringContainsString('app-public.scss', $salida);
+    }
+
+    // -------------------------------------------------------------------------
+    // TF-UI-24 a 26: R1 sobre clases que se deciden en PHP
+    // -------------------------------------------------------------------------
+
+    #[Test]
+    public function r1_interpolacion_de_variable_o_de_tabla_en_clase_falla(): void
+    {
+        $this->escribir('resources/views/opaca.blade.php', <<<'BLADE'
+            @php $x = 'btn-fantasma'; $mapa = ['a' => 'bg-protectd']; @endphp
+            <span class="btn {{ $x }}">x</span>
+            <span class="btn {{ $mapa[$k] ?? 'btn-primary' }}">y</span>
+            <span class="btn {{ $x ?: 'btn-sm' }}">z</span>
+            BLADE);
+
+        [$codigo, $salida] = $this->auditar();
+
+        $this->assertSame(1, $codigo);
+        $this->assertStringContainsString('opaca.blade.php:2', $salida);
+        $this->assertStringContainsString('opaca.blade.php:3', $salida);
+        // `a ?: b` devuelve la propia condición
+        $this->assertStringContainsString('opaca.blade.php:4', $salida);
+        $this->assertStringContainsString('{{ $x }}', $salida);
+    }
+
+    #[Test]
+    public function r1_ternarios_de_literales_y_metodos_clases_se_aceptan(): void
+    {
+        $this->escribir('resources/views/comprobable.blade.php', <<<'BLADE'
+            <span class="btn {{ $a ? 'btn-primary' : ($b ? 'btn-sm' : '') }}">x</span>
+            <span class="btn {{ $tono->clasesSuave() }}">x</span>
+            <span class="btn {{ \App\Tonos::estado($e)?->clasesPunto() ?? 'btn-sm' }}">x</span>
+            <span class="btn {{ $estado->tono()->clasesFuerte() }}">x</span>
+            BLADE);
+
+        [$codigo, $salida] = $this->auditar();
+
+        $this->assertSame(0, $codigo, $salida);
+    }
+
+    #[Test]
+    public function r1_fuente_de_clases_con_una_clase_inexistente_falla(): void
+    {
+        $nombre = 'FuentePrueba'.uniqid();
+        $this->escribir("app/Ui/{$nombre}.php", <<<PHP
+            <?php
+
+            namespace Tests\\Temporal;
+
+            use App\\Support\\Ui\\FuenteClasesCss;
+
+            enum {$nombre}: string implements FuenteClasesCss
+            {
+                case A = 'a';
+
+                public static function clasesCss(): array
+                {
+                    return ['btn-primary', 'bg-protectd'];
+                }
+            }
+            PHP);
+
+        [$codigo, $salida] = $this->auditar();
+
+        $this->assertSame(1, $codigo);
+        $this->assertStringContainsString("app/Ui/{$nombre}.php", $salida);
+        $this->assertStringContainsString('bg-protectd', $salida);
+        $this->assertStringNotContainsString('btn-primary', $salida);
     }
 
     // -------------------------------------------------------------------------

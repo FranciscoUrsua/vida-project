@@ -57,17 +57,17 @@
 
             @foreach($resultados as $resultado)
                 @php
-                    [$puntoClase, $puntoTexto] = match($resultado['nivel']) {
-                        3 => ['bg-protected', 'Colectivo especialmente protegido'],
-                        2 => ['bg-warning', 'Historia Social en otra UO'],
-                        default => ['bg-success', 'Historia Social en tu UO'],
+                    $puntoTexto = match($resultado['nivel']) {
+                        3 => 'Colectivo especialmente protegido',
+                        2 => 'Historia Social en otra UO',
+                        default => 'Historia Social en tu UO',
                     };
                 @endphp
                 <div class="card mb-2" wire:key="resultado-{{ $resultado['ciudadano_id'] }}">
                     <div class="card-body py-2 d-flex align-items-center gap-3">
 
                         {{-- Indicador de nivel --}}
-                        <span class="d-inline-block rounded-circle p-1 flex-shrink-0 {{ $puntoClase }}" title="{{ $puntoTexto }}">
+                        <span class="d-inline-block rounded-circle p-1 flex-shrink-0 {{ \Modules\Intervencion\Support\Ui\Tonos::nivelBusqueda($resultado['nivel'])->clasesPunto() }}" title="{{ $puntoTexto }}">
                             <span class="visually-hidden">{{ $puntoTexto }}</span>
                         </span>
 

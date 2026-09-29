@@ -85,7 +85,7 @@ confirmar que cada clase y cada método público/protegido tienen su docblock an
 - Arquitectura en cuatro capas: (1) tokens VIDA como variables Bootstrap, (2) primitives Bootstrap estándar, (3) componentes compartidos VIDA del catálogo (`op-page`, `op-empty`, `op-avatar`…), (4) clases específicas de pantalla solo para necesidades estructurales genuinas.
 - **Catálogo cerrado:** toda clase propia (no Bootstrap) está en `config/ui-catalogo.php` con su motivo. Una clase nueva va al catálogo en el mismo commit o no existe.
 - **Toda tarea que toque Blade o SCSS termina con `php artisan ui:auditar` en verde** (tras `npm run build`). El CI lo ejecuta y bloquea el despliegue si falla.
-- No construir nombres de clase concatenando (`"badge-{{ $tipo }}"`): usar un `match` o un array que devuelva clases completas.
+- No construir nombres de clase concatenando (`"badge-{{ $tipo }}"`) ni escribir tablas de clases (`match`, arrays) en las vistas. El color de un estado o tipo sale de `App\Support\Ui\Tono` (`$estado->tono()->clasesSuave()`, o `Tonos::…()` del módulo si el valor no tiene enum). Toda clase decidida en PHP sale de una `FuenteClasesCss`; `ui:auditar` rechaza cualquier otra interpolación en un atributo de clase.
 - No crear clases tipo `xxx-btn`, `xxx-input`, `xxx-modal` si Bootstrap ya lo resuelve.
 - Overrides de Bootstrap centralizados en `_bootstrap-overrides.scss`.
 - Evitar estilos inline estructurales en Blade. Solo se admiten para valores dinámicos inevitables.

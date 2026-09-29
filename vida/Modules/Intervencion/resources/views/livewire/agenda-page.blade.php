@@ -1,36 +1,18 @@
 @php
     use Carbon\Carbon;
+    use Modules\Intervencion\Support\Ui\Tonos;
 
     $ancla = Carbon::parse($fechaAncla)->locale('es');
     $hoy = today()->toDateString();
 
-    // Tipos de cita: etiqueta y color de tema Bootstrap
+    // Tipos de cita y su etiqueta; el color sale de Tonos::tipoCita()
     $estiloCita = [
-        'entrevista' => ['label' => 'Entrevista', 'color' => 'primary'],
-        'seguimiento' => ['label' => 'Seguimiento', 'color' => 'success'],
-        'urgencia' => ['label' => 'Urgencia', 'color' => 'danger'],
-        'evento' => ['label' => 'Evento', 'color' => 'secondary'],
+        'entrevista' => ['label' => 'Entrevista'],
+        'seguimiento' => ['label' => 'Seguimiento'],
+        'urgencia' => ['label' => 'Urgencia'],
+        'evento' => ['label' => 'Evento'],
     ];
 
-    // Clases completas de una entrada de agenda según su tipo (sin concatenar nombres de clase)
-    $claseEntrada = [
-        'entrevista' => 'bg-primary-subtle border-primary',
-        'seguimiento' => 'bg-success-subtle border-success',
-        'urgencia' => 'bg-danger-subtle border-danger',
-        'evento' => 'bg-secondary-subtle border-secondary',
-    ];
-    $clasePastilla = [
-        'entrevista' => 'bg-primary-subtle text-primary-emphasis',
-        'seguimiento' => 'bg-success-subtle text-success-emphasis',
-        'urgencia' => 'bg-danger-subtle text-danger-emphasis',
-        'evento' => 'bg-secondary-subtle text-secondary-emphasis',
-    ];
-    $claseMuestra = [
-        'entrevista' => 'bg-primary',
-        'seguimiento' => 'bg-success',
-        'urgencia' => 'bg-danger',
-        'evento' => 'bg-secondary',
-    ];
 
     $horas = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
 
@@ -126,13 +108,12 @@
                                     @php
                                         $tipo = $cita['tipo'] ?? 'evento';
                                         $url = $urlCita($cita);
-                                        $clases = 'd-block rounded border-start border-3 px-2 py-1 small text-body text-decoration-none '.($claseEntrada[$tipo] ?? $claseEntrada['evento']);
                                     @endphp
 
                                     @if($url)
-                                        <a href="{{ $url }}" wire:navigate class="{{ $clases }}">
+                                        <a href="{{ $url }}" wire:navigate class="d-block rounded border-start border-3 px-2 py-1 small text-body text-decoration-none {{ Tonos::tipoCita($tipo)->clasesBloque() }}">
                                     @else
-                                        <div class="{{ $clases }}" title="{{ $cita['ciudadano'] ?? 'Evento interno' }}">
+                                        <div class="d-block rounded border-start border-3 px-2 py-1 small text-body text-decoration-none {{ Tonos::tipoCita($tipo)->clasesBloque() }}" title="{{ $cita['ciudadano'] ?? 'Evento interno' }}">
                                     @endif
                                             @if($tipo === 'urgencia')
                                                 <span class="badge text-bg-danger">Urgencia</span>
@@ -196,12 +177,11 @@
                                                 @php
                                                     $tipo = $cita['tipo'] ?? 'evento';
                                                     $url = $urlCita($cita);
-                                                    $clases = 'd-block rounded border-start border-3 px-1 mb-1 small text-body text-decoration-none text-truncate '.($claseEntrada[$tipo] ?? $claseEntrada['evento']);
                                                 @endphp
                                                 @if($url)
-                                                    <a href="{{ $url }}" wire:navigate class="{{ $clases }}">{{ $cita['ciudadano'] }}</a>
+                                                    <a href="{{ $url }}" wire:navigate class="d-block rounded border-start border-3 px-1 mb-1 small text-body text-decoration-none text-truncate {{ Tonos::tipoCita($tipo)->clasesBloque() }}">{{ $cita['ciudadano'] }}</a>
                                                 @else
-                                                    <div class="{{ $clases }}" title="{{ $cita['ciudadano'] ?? 'Evento interno' }}">{{ $cita['ciudadano'] ?? 'Evento interno' }}</div>
+                                                    <div class="d-block rounded border-start border-3 px-1 mb-1 small text-body text-decoration-none text-truncate {{ Tonos::tipoCita($tipo)->clasesBloque() }}" title="{{ $cita['ciudadano'] ?? 'Evento interno' }}">{{ $cita['ciudadano'] ?? 'Evento interno' }}</div>
                                                 @endif
                                             @endforeach
                                         </td>
@@ -256,7 +236,7 @@
                                                     <div @class(['small', 'fw-bold text-primary' => $esHoy])>{{ $dia->day }}</div>
                                                     <div class="d-flex flex-wrap gap-1 mt-1">
                                                         @foreach($visibles as $tipo => $conteo)
-                                                            <span class="badge rounded-pill {{ $clasePastilla[$tipo] ?? $clasePastilla['evento'] }}">{{ $conteo }}</span>
+                                                            <span class="badge rounded-pill {{ Tonos::tipoCita($tipo)->clasesSuave() }}">{{ $conteo }}</span>
                                                         @endforeach
                                                     </div>
                                                 </button>
@@ -277,7 +257,7 @@
             <span class="fw-semibold text-body-secondary">Leyenda</span>
             @foreach($estiloCita as $tipo => $estilos)
                 <span class="d-inline-flex align-items-center gap-1">
-                    <span class="d-inline-block rounded p-1 {{ $claseMuestra[$tipo] }}" aria-hidden="true"></span>
+                    <span class="d-inline-block rounded p-1 {{ Tonos::tipoCita($tipo)->clasesPunto() }}" aria-hidden="true"></span>
                     {{ $estilos['label'] }}
                 </span>
             @endforeach

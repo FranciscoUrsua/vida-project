@@ -101,20 +101,11 @@
                 </thead>
                 <tbody>
                     @foreach($this->excepcionesActivas as $exc)
-                    @php
-                        $chipClass = match($exc->tipo->value) {
-                            'baja_medica'       => 'bg-danger-subtle text-danger-emphasis',
-                            'vacaciones'        => 'bg-success-subtle text-success-emphasis',
-                            'reduccion_jornada' => 'bg-warning-subtle text-warning-emphasis',
-                            'dia_libre'         => 'bg-info-subtle text-info-emphasis',
-                            default             => 'bg-secondary-subtle text-secondary-emphasis',
-                        };
-                    @endphp
                     <tr>
                         <td class="fw-medium">
                             {{ $exc->usuario?->profesional?->nombre_completo ?? $exc->usuario?->email ?? '—' }}
                         </td>
-                        <td><span class="badge {{ $chipClass }}">{{ $exc->tipo->label() }}</span></td>
+                        <td><span class="badge {{ $exc->tipo->tono()->clasesSuave() }}">{{ $exc->tipo->label() }}</span></td>
                         <td>{{ $exc->fecha_inicio->format('d/m/Y') }}</td>
                         <td>{{ $exc->fecha_fin ? $exc->fecha_fin->format('d/m/Y') : '—' }}</td>
                         <td class="text-body-secondary">{{ Str::limit($exc->notas ?? '—', 40) }}</td>

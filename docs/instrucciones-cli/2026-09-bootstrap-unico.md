@@ -271,8 +271,8 @@ de `_op-*.scss` se revisan: o se convierten en variables de
 
 ### Límites conocidos del auditor
 
-- Las clases que se asignan desde PHP (arrays en `@php`, `match`, variables)
-  no se comprueban contra el CSS (R1 solo ve literales en atributos de clase).
+- ~~Las clases que se asignan desde PHP no se comprueban contra el CSS.~~
+  Resuelto el 2026-09-29 (§6).
 - R5 da por usada una clase que se llama igual que una vista o ruta
   (`alta-ciudadano`): al retirar una pantalla, revisar su clase raíz a mano.
 
@@ -350,3 +350,29 @@ Lectura:
   devuelva la clase entera) o se sustituyen por clases Bootstrap.
 - **Sin infracciones en vistas**: Mensajes, Documentos y la mayor parte de
   Supervisión y Agenda. No hay Tailwind en ninguna entrada del ámbito (R6).
+
+## 6. Corrección tras la revisión de Grok (2026-09-29)
+
+Revisión en `docs/front/revision-frontend-ui.md` y plan en
+`docs/front/plan-correccion-frontend-ui.md`, con los cambios acordados.
+
+- **Clases que se deciden en PHP.** Dentro de un atributo de clase, cada `{{ }}`
+  tiene que resolverse en literales (también en ternarios y `??`) o en una
+  llamada a un método `clases…()`. Si no, R1 falla («no se puede comprobar»).
+  Las clases de esos métodos salen de una `App\Support\Ui\FuenteClasesCss`,
+  que declara en `clasesCss()` todas las que puede devolver. El auditor localiza
+  las fuentes solo (busca `implements FuenteClasesCss`) y comprueba cada clase
+  contra el CSS del bundle operativo. Concatenar (`badge-{{ $x }}`) también
+  falla ahora.
+- **Paleta única de estados:** `App\Support\Ui\Tono` (primario, éxito, aviso,
+  peligro, info, neutro, protegido) con `clasesSuave()`, `clasesFuerte()`,
+  `clasesPunto()` y `clasesBloque()`. Los enums con estado o tipo visible tienen
+  `tono()`; los valores sin enum, una clase `Tonos` por módulo
+  (`Modules\X\Support\Ui\Tonos`). No se vuelven a escribir tablas de clases en
+  las vistas.
+- **R7:** clases exigidas en el CSS compilado (`clases_exigidas` en
+  `config/ui-auditoria.php`), para la familia `protected`.
+- Salieron a la luz clases inexistentes que el auditor no veía:
+  `bg-purple-subtle`, `text-purple-emphasis` y `border-dashed` en el cuadrante
+  del supervisor (las sesiones pasan a tono info; las reservas, a neutro).
+

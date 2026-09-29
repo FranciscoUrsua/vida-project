@@ -2,6 +2,8 @@
 
 namespace Modules\Agenda\Enums;
 
+use App\Support\Ui\Tono;
+
 /**
  * Tipos de excepcion que afectan a la disponibilidad profesional.
  */
@@ -28,6 +30,22 @@ enum TipoExcepcion: string
             self::ReduccionJornada => 'Reducción de jornada',
             self::Guardia => 'Guardia',
             self::Otros => 'Otros',
+        };
+    }
+
+    /**
+     * Color del badge del tipo de excepción de horario.
+     *
+     * @return Tono
+     */
+    public function tono(): Tono
+    {
+        return match ($this) {
+            self::BajaMedica => Tono::Peligro,
+            self::Vacaciones => Tono::Exito,
+            self::ReduccionJornada => Tono::Aviso,
+            self::DiaLibre => Tono::Info,
+            self::Formacion, self::Guardia, self::Otros => Tono::Neutro,
         };
     }
 }

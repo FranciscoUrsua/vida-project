@@ -1,5 +1,6 @@
 @php
     use Carbon\Carbon;
+    use Modules\Intervencion\Support\Ui\Tonos;
 
     $hoy = today();
 
@@ -19,12 +20,6 @@
         return 'programado';
     };
 
-    $claseSeguimiento = [
-        'vencido'    => 'bg-danger-subtle text-danger-emphasis',
-        'proximo'    => 'bg-warning-subtle text-warning-emphasis',
-        'programado' => 'bg-success-subtle text-success-emphasis',
-        'sin'        => 'text-body-secondary fw-normal',
-    ];
 
     $nombrePlan = $this->nombrePlanAsp();
 
@@ -134,7 +129,7 @@
                                         </a>
                                     </td>
                                     <td>
-                                        <span class="badge rounded-pill d-inline-flex align-items-center gap-1 {{ $claseSeguimiento[$estado] }}">
+                                        <span class="badge rounded-pill d-inline-flex align-items-center gap-1 {{ Tonos::estadoSeguimiento($estado)?->clasesSuave() ?? 'text-body-secondary fw-normal' }}">
                                             @if($estado === 'vencido')
                                                 <x-heroicon-o-clock class="icon-13" aria-hidden="true"/>
                                             @endif

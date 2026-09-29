@@ -55,12 +55,6 @@
                     @foreach($this->eventosProximos as $evento)
                     @php
                         $esEditable = $evento->fecha->greaterThanOrEqualTo(today());
-                        $tipoChip = match($evento->tipo_evento) {
-                            'sesion_interna'      => 'bg-primary-subtle text-primary-emphasis',
-                            'actividad_colectiva' => 'bg-success-subtle text-success-emphasis',
-                            'coordinacion'        => 'bg-warning-subtle text-warning-emphasis',
-                            default               => 'bg-secondary-subtle text-secondary-emphasis',
-                        };
                         $tipoLabel = match($evento->tipo_evento) {
                             'sesion_interna'      => 'Sesión interna',
                             'actividad_colectiva' => 'Actividad colectiva',
@@ -82,7 +76,7 @@
                                 {{ $evento->titulo }}
                             @endif
                         </td>
-                        <td><span class="badge {{ $tipoChip }}">{{ $tipoLabel }}</span></td>
+                        <td><span class="badge {{ \Modules\Agenda\Support\Ui\Tonos::tipoEvento($evento->tipo_evento)->clasesSuave() }}">{{ $tipoLabel }}</span></td>
                         <td class="text-body-secondary">{{ $evento->espacio?->nombre ?? '—' }}</td>
                         <td class="text-body-secondary">
                             @if($evento->profesionales->isNotEmpty())

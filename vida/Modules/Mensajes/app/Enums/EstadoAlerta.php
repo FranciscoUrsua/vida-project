@@ -2,6 +2,8 @@
 
 namespace Modules\Mensajes\Enums;
 
+use App\Support\Ui\Tono;
+
 /**
  * Estado del ciclo de vida de una alerta.
  *
@@ -19,4 +21,19 @@ enum EstadoAlerta: string
     case Reconocida = 'reconocida';
     case Escalada = 'escalada';
     case Vencida = 'vencida';
+
+    /**
+     * Color del badge de estado de un destinatario de la alerta.
+     *
+     * @return Tono
+     */
+    public function tono(): Tono
+    {
+        return match ($this) {
+            self::Pendiente => Tono::Aviso,
+            self::Reconocida => Tono::Exito,
+            self::Escalada => Tono::Peligro,
+            self::Vencida => Tono::Neutro,
+        };
+    }
 }

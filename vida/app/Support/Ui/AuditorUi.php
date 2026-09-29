@@ -12,7 +12,11 @@ use Symfony\Component\Finder\Finder;
  * estilos inventados ni clases huérfanas. Reglas:
  *
  * - R1: toda clase usada en una vista existe en el CSS compilado de su bundle
- *   (o es un gancho del catálogo).
+ *   (o es un gancho del catálogo). Dentro de un atributo de clase, cada `{{ }}`
+ *   se resuelve en literales (también en ternarios y `??`) o en una llamada a
+ *   un método `clases…()`; las clases de esos métodos salen de fuentes que
+ *   implementan {@see FuenteClasesCss}, y todas las que declaran tienen que
+ *   existir en el CSS del bundle operativo.
  * - R2: sin estilos inline salvo valores dinámicos; sin bloques `<style>`.
  * - R3: sin colores literales en Blade ni en SCSS (salvo ficheros de tokens) y
  *   sin `var(--…)` que no estén definidas.
@@ -107,6 +111,7 @@ final class AuditorUi
             $this->auditarUso();
             $this->auditarTailwind();
             $this->auditarClasesExigidas();
+            $this->auditarFuentesClases();
         }
 
         return $this->hallazgos;
@@ -246,16 +251,21 @@ final class AuditorUi
         $informadas = [];
 
         // R1: clases de atributos class, wire:*.class, :class, @class y 'class' => '…'
-        foreach ($this->clasesUsadas($contenido) as [$clase, $offset, $dinamica]) {
-            $clave = ($dinamica ? 'd:' : 'c:').$clase;
+        foreach ($this->clasesUsadas($contenido) as [$clase, $offset, $tipo]) {
+            $linea = $this->linea($contenido, $offset);
+            $clave = "{$tipo}:{$clase}".($tipo === 'opaca' ? ":{$linea}" : '');
             if (isset($informadas[$clave])) {
                 continue;
             }
             $informadas[$clave] = true;
-            $linea = $this->linea($contenido, $offset);
 
-            if ($dinamica) {
+            if ($tipo === 'dinamica') {
                 $this->anotar('R1', $ruta, $linea, "clase construida de forma dinámica: {$clase}…", $modulo, true);
+
+                continue;
+            }
+            if ($tipo === 'opaca') {
+                $this->anotar('R1', $ruta, $linea, "no se puede comprobar {{ {$clase} }}: usa literales o un método clases…() de una FuenteClasesCss", $modulo);
 
                 continue;
             }
@@ -321,9 +331,10 @@ final class AuditorUi
      * Clases literales usadas en una vista, con su posición.
      *
      * Devuelve también los prefijos de clases construidas dinámicamente
-     * (`badge-{{ $tipo }}`), marcados como dinámicos.
+     * (`badge-{{ $tipo }}`), de tipo `dinamica`, y las interpolaciones que no se
+     * pueden comprobar, de tipo `opaca` (con la expresión en lugar de la clase).
      *
-     * @return list<array{0: string, 1: int, 2: bool}> [clase, offset, dinámica]
+     * @return list<array{0: string, 1: int, 2: string}> [clase, offset, tipo: clase|dinamica|opaca]
      */
     private function clasesUsadas(string $contenido): array
     {
@@ -333,8 +344,8 @@ final class AuditorUi
         $patron = '/(?<![\w:.-])(?:wire:[\w.-]*\.)?class\s*=\s*"([^"]*)"/';
         if (preg_match_all($patron, $contenido, $m, PREG_OFFSET_CAPTURE)) {
             foreach ($m[1] as [$valor, $offset]) {
-                foreach ($this->clasesDeValorBlade($valor) as [$clase, $dinamica]) {
-                    $clases[] = [$clase, $offset, $dinamica];
+                foreach ($this->clasesDeValorBlade($valor) as [$clase, $tipo]) {
+                    $clases[] = [$clase, $offset, $tipo];
                 }
             }
         }
@@ -344,7 +355,7 @@ final class AuditorUi
             foreach ($m[1] as [$valor, $offset]) {
                 foreach ($this->literalesDeExpresion($valor) as $literal) {
                     foreach (preg_split('/\s+/', trim($literal)) ?: [] as $clase) {
-                        $clases[] = [$clase, $offset, false];
+                        $clases[] = [$clase, $offset, 'clase'];
                     }
                 }
             }
@@ -355,7 +366,7 @@ final class AuditorUi
             foreach ($m[0] as [$inicio, $offset]) {
                 $argumentos = $this->entreParentesis($contenido, $offset + strlen($inicio) - 1);
                 foreach ($this->clasesDeArrayPhp($argumentos) as $clase) {
-                    $clases[] = [$clase, $offset, false];
+                    $clases[] = [$clase, $offset, 'clase'];
                 }
             }
         }
@@ -364,14 +375,14 @@ final class AuditorUi
         if (preg_match_all("/'class'\s*=>\s*'([^']*)'/", $contenido, $m, PREG_OFFSET_CAPTURE)) {
             foreach ($m[1] as [$valor, $offset]) {
                 foreach (preg_split('/\s+/', trim($valor)) ?: [] as $clase) {
-                    $clases[] = [$clase, $offset, false];
+                    $clases[] = [$clase, $offset, 'clase'];
                 }
             }
         }
 
         return array_values(array_filter(
             $clases,
-            fn (array $c) => $c[0] !== '' && ($c[2] || preg_match(self::PATRON_TOKEN_CLASE, $c[0]) === 1),
+            fn (array $c) => $c[0] !== '' && ($c[2] !== 'clase' || preg_match(self::PATRON_TOKEN_CLASE, $c[0]) === 1),
         ));
     }
 
@@ -380,18 +391,23 @@ final class AuditorUi
      *
      * Los literales de `{{ }}` que actúan como resultado (tras `?`, `:`, `=>`…)
      * se tratan como clases; las directivas (`@if`, `@error`…) se ignoran; un
-     * texto pegado a `{{` o `}}` es una clase dinámica.
+     * texto pegado a `{{` o `}}` es una clase dinámica. Una expresión cuyo
+     * resultado no se puede comprobar se devuelve entera, como `opaca`.
      *
-     * @return list<array{0: string, 1: bool}> [clase, dinámica]
+     * @return list<array{0: string, 1: string}> [clase, tipo: clase|dinamica|opaca]
      */
     private function clasesDeValorBlade(string $valor): array
     {
         $clases = [];
 
         $valor = preg_replace_callback('/\{\{(.*?)\}\}|\{!!(.*?)!!\}/s', function (array $m) use (&$clases) {
-            foreach ($this->literalesDeExpresion($m[1] !== '' ? $m[1] : ($m[2] ?? '')) as $literal) {
+            $expresion = $m[1] !== '' ? $m[1] : ($m[2] ?? '');
+            if (! $this->esResultadoComprobable($expresion)) {
+                $clases[] = [trim($expresion), 'opaca'];
+            }
+            foreach ($this->literalesDeExpresion($expresion) as $literal) {
                 foreach (preg_split('/\s+/', trim($literal)) ?: [] as $clase) {
-                    $clases[] = [$clase, false];
+                    $clases[] = [$clase, 'clase'];
                 }
             }
 
@@ -408,15 +424,156 @@ final class AuditorUi
             if (str_contains($token, self::INTERPOLACION)) {
                 $prefijo = explode(self::INTERPOLACION, $token)[0];
                 if ($prefijo !== '') {
-                    $clases[] = [$prefijo, true];
+                    $clases[] = [$prefijo, 'dinamica'];
                 }
 
                 continue;
             }
-            $clases[] = [$token, false];
+            $clases[] = [$token, 'clase'];
         }
 
         return $clases;
+    }
+
+    /**
+     * Indica si todo lo que puede devolver una expresión de un atributo de clase
+     * es comprobable: un literal, una llamada a un método `clases…()` (sus clases
+     * se comprueban en su {@see FuenteClasesCss}), o un ternario o `??` cuyas
+     * ramas lo son. Las condiciones de los ternarios no cuentan.
+     *
+     * @param string $expresion Código PHP de dentro de `{{ }}`.
+     * @return bool
+     */
+    private function esResultadoComprobable(string $expresion): bool
+    {
+        $tokens = @token_get_all('<?php '.$expresion.';');
+        $tokens = array_values(array_filter(
+            $tokens,
+            fn ($t) => ! is_array($t) || ! in_array($t[0], [T_OPEN_TAG, T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true),
+        ));
+        array_pop($tokens);
+
+        return $this->tokensComprobables($tokens);
+    }
+
+    /**
+     * Parte recursiva de {@see esResultadoComprobable()} sobre tokens de PHP.
+     *
+     * @param list<string|array{0: int, 1: string, 2: int}> $tokens
+     * @return bool
+     */
+    private function tokensComprobables(array $tokens): bool
+    {
+        // Paréntesis que envuelven toda la expresión
+        while (count($tokens) >= 2 && $tokens[0] === '(' && $this->cierreDe($tokens, 0) === count($tokens) - 1) {
+            $tokens = array_slice($tokens, 1, -1);
+        }
+        if ($tokens === []) {
+            return false;
+        }
+
+        // Ternario de nivel superior (en PHP 8 los anidados van entre paréntesis)
+        $pregunta = $this->posicionNivelSuperior($tokens, fn ($t) => $t === '?');
+        if ($pregunta !== null) {
+            $resto = array_slice($tokens, $pregunta + 1);
+            $dosPuntos = $this->posicionNivelSuperior($resto, fn ($t) => $t === ':');
+            if ($dosPuntos === null) {
+                return false;
+            }
+            $siVerdadero = array_slice($resto, 0, $dosPuntos);
+            if ($siVerdadero === []) {
+                // `a ?: b` devuelve la propia condición
+                $siVerdadero = array_slice($tokens, 0, $pregunta);
+            }
+
+            return $this->tokensComprobables($siVerdadero)
+                && $this->tokensComprobables(array_slice($resto, $dosPuntos + 1));
+        }
+
+        // `a ?? b`: puede salir cualquiera de las dos partes
+        $coalesce = $this->posicionNivelSuperior($tokens, fn ($t) => is_array($t) && $t[0] === T_COALESCE);
+        if ($coalesce !== null) {
+            return $this->tokensComprobables(array_slice($tokens, 0, $coalesce))
+                && $this->tokensComprobables(array_slice($tokens, $coalesce + 1));
+        }
+
+        if (count($tokens) === 1) {
+            return is_array($tokens[0]) && $tokens[0][0] === T_CONSTANT_ENCAPSED_STRING;
+        }
+
+        // Llamada final a un método clases…(): `$x->clasesSuave()`, `Clase::clasesPunto($v)`
+        $ultimo = count($tokens) - 1;
+        if ($tokens[$ultimo] !== ')') {
+            return false;
+        }
+        $apertura = $this->aperturaDe($tokens, $ultimo);
+        $nombre = $tokens[$apertura - 1] ?? null;
+        $operador = $tokens[$apertura - 2] ?? null;
+
+        return is_array($nombre) && $nombre[0] === T_STRING && preg_match('/^clases[A-Z]/', $nombre[1]) === 1
+            && is_array($operador) && in_array($operador[0], [T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR, T_DOUBLE_COLON], true);
+    }
+
+    /**
+     * Primera posición de nivel superior (fuera de paréntesis, corchetes y
+     * llaves) cuyo token cumple la condición.
+     *
+     * @param list<string|array{0: int, 1: string, 2: int}> $tokens
+     * @param callable(string|array{0: int, 1: string, 2: int}): bool $condicion
+     * @return int|null
+     */
+    private function posicionNivelSuperior(array $tokens, callable $condicion): ?int
+    {
+        $nivel = 0;
+        foreach ($tokens as $i => $token) {
+            if (in_array($token, ['(', '[', '{'], true)) {
+                $nivel++;
+            } elseif (in_array($token, [')', ']', '}'], true)) {
+                $nivel--;
+            } elseif ($nivel === 0 && $condicion($token)) {
+                return $i;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Posición del paréntesis que cierra el que abre en `$inicio`.
+     *
+     * @param list<string|array{0: int, 1: string, 2: int}> $tokens
+     * @return int|null
+     */
+    private function cierreDe(array $tokens, int $inicio): ?int
+    {
+        $nivel = 0;
+        for ($i = $inicio, $n = count($tokens); $i < $n; $i++) {
+            $nivel += match ($tokens[$i]) { '(' => 1, ')' => -1, default => 0 };
+            if ($nivel === 0) {
+                return $i;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Posición del paréntesis que abre el que cierra en `$fin`.
+     *
+     * @param list<string|array{0: int, 1: string, 2: int}> $tokens
+     * @return int
+     */
+    private function aperturaDe(array $tokens, int $fin): int
+    {
+        $nivel = 0;
+        for ($i = $fin; $i >= 0; $i--) {
+            $nivel += match ($tokens[$i]) { ')' => 1, '(' => -1, default => 0 };
+            if ($nivel === 0) {
+                return $i;
+            }
+        }
+
+        return 0;
     }
 
     /**
@@ -717,6 +874,50 @@ final class AuditorUi
             foreach ($clases as $clase) {
                 if (! isset($this->clasesBundle[$bundle][$clase])) {
                     $this->anotar('R7', 'config/ui-auditoria.php', 0, "«{$clase}» no está en el CSS compilado del bundle {$bundle}", 'scss');
+                }
+            }
+        }
+    }
+
+    /**
+     * R1 sobre las fuentes de clases: toda clase que declara una
+     * {@see FuenteClasesCss} existe en el CSS compilado del bundle operativo.
+     *
+     * Las fuentes se localizan buscando `implements … FuenteClasesCss` en los
+     * directorios de uso, de modo que una fuente nueva queda auditada sin
+     * registrarla en ningún sitio.
+     *
+     * @return void
+     */
+    private function auditarFuentesClases(): void
+    {
+        $bundle = (string) ($this->config['bundle_fuentes'] ?? 'operativo');
+        $clasesValidas = $this->clasesBundle[$bundle] ?? [];
+
+        foreach ($this->config['directorios_uso'] as $directorio) {
+            $ruta = "{$this->base}/{$directorio}";
+            if (! is_dir($ruta)) {
+                continue;
+            }
+            foreach (Finder::create()->files()->in($ruta)->name('*.php')->notName('*.blade.php') as $fichero) {
+                $contenido = $fichero->getContents();
+                if (! preg_match('/\bimplements\s+[\w\\\\,\s]*\bFuenteClasesCss\b/', $contenido)
+                    || ! preg_match('/^\s*(?:final\s+|abstract\s+|readonly\s+)*(?:class|enum)\s+(\w+)/m', $contenido, $nombre)) {
+                    continue;
+                }
+                $espacio = preg_match('/^namespace\s+([\w\\\\]+);/m', $contenido, $m) ? $m[1].'\\' : '';
+                $fqcn = $espacio.$nombre[1];
+                if (! class_exists($fqcn) && ! enum_exists($fqcn)) {
+                    require_once $fichero->getRealPath();
+                }
+                $relativa = substr($fichero->getRealPath(), strlen((string) realpath($this->base)) + 1);
+
+                foreach ($fqcn::clasesCss() as $clase) {
+                    if (! isset($clasesValidas[$clase]) && ($this->catalogo[$clase]['tipo'] ?? null) !== 'gancho') {
+                        $posicion = strpos($contenido, $clase);
+                        $linea = $posicion === false ? 0 : $this->linea($contenido, $posicion);
+                        $this->anotar('R1', $relativa, $linea, $clase, 'php');
+                    }
                 }
             }
         }

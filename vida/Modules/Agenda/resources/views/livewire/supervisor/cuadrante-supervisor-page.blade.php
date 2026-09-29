@@ -6,14 +6,7 @@
             {{ ucfirst(\Carbon\Carbon::create($this->cuadrante?->anyo ?? now()->year, $this->cuadrante?->mes ?? now()->month, 1)->translatedFormat('F Y')) }}
         </div>
         @if($this->cuadrante)
-            @php
-                $estadoClass = match($this->cuadrante->estado->value) {
-                    'publicado' => 'bg-success-subtle text-success-emphasis',
-                    'revision'  => 'bg-warning-subtle text-warning-emphasis',
-                    default     => 'bg-secondary-subtle text-secondary-emphasis',
-                };
-            @endphp
-            <span class="badge {{ $estadoClass }}">{{ $this->cuadrante->estado->label() }}</span>
+            <span class="badge {{ $this->cuadrante->estado->tono()->clasesSuave() }}">{{ $this->cuadrante->estado->label() }}</span>
         @endif
 
         {{-- Selector de vista --}}
@@ -68,13 +61,6 @@
     <div class="p-3 overflow-auto">
         @php
             $hoy = now()->toDateString();
-            $tiposColor = [
-                'atencion'  => 'bg-primary-subtle text-primary-emphasis',
-                'sesion'    => 'bg-purple-subtle text-purple-emphasis',
-                'colectivo' => 'bg-success-subtle text-success-emphasis',
-                'reserva'   => 'bg-secondary-subtle text-secondary-emphasis border-dashed',
-                'default'   => 'bg-light text-body-secondary',
-            ];
         @endphp
         <table class="table table-bordered table-sm align-middle text-nowrap mb-0">
             <thead class="table-light">
@@ -108,11 +94,7 @@
                             </span>
                         @else
                             @foreach($linea->franjas as $franja)
-                            @php
-                                $tipo = $franja['tipo'] ?? 'default';
-                                $colorClass = $tiposColor[$tipo] ?? $tiposColor['default'];
-                            @endphp
-                            <span class="badge {{ $colorClass }} d-block mb-1 text-start">
+                            <span class="badge {{ \Modules\Agenda\Support\Ui\Tonos::tipoFranja($franja['tipo'] ?? '')?->clasesSuave() ?? 'bg-light text-body-secondary' }} d-block mb-1 text-start">
                                 {{ substr($franja['inicio'], 0, 5) }}–{{ substr($franja['fin'], 0, 5) }}
                             </span>
                             @endforeach

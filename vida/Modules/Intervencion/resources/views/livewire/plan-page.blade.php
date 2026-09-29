@@ -1,18 +1,4 @@
-@php
-    // Estado del plan y de las actuaciones → clases de badge de Bootstrap
-    $claseEstadoPlan = [
-        'borrador' => 'bg-warning-subtle text-warning-emphasis',
-        'activo' => 'bg-success-subtle text-success-emphasis',
-        'en_revision' => 'bg-primary-subtle text-primary-emphasis',
-    ];
-    $claseEstadoActuacion = [
-        'pendiente' => 'bg-warning-subtle text-warning-emphasis',
-        'en_proceso' => 'bg-primary-subtle text-primary-emphasis',
-        'en_curso' => 'bg-primary-subtle text-primary-emphasis',
-        'conseguido' => 'bg-success-subtle text-success-emphasis',
-        'completada' => 'bg-success-subtle text-success-emphasis',
-    ];
-@endphp
+@use('Modules\Intervencion\Support\Ui\Tonos')
 <div
     class="op-page d-flex flex-column"
     x-data="{ seccionActiva: '' }"
@@ -39,7 +25,7 @@
     <div class="d-flex gap-2 align-items-center ms-auto">
         @if($this->plan)
         @include('mensajes::partials.boton-escribir-mensaje', ['tipo' => 'plan', 'id' => $this->plan->id])
-        <span class="badge rounded-pill {{ $claseEstadoPlan[$this->plan->estado->value] ?? 'bg-secondary-subtle text-secondary-emphasis' }}">
+        <span class="badge rounded-pill {{ $this->plan->estado->tono()->clasesSuave() }}">
             {{ $this->plan->estado->label() }}
         </span>
         <span class="badge rounded-pill bg-body-tertiary text-body-secondary border">v{{ $this->plan->version }}</span>
@@ -432,7 +418,7 @@
                             @endif
                         </td>
                         <td class="text-secondary">{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
-                        <td><span class="badge rounded-pill {{ $claseEstadoActuacion[$act->estado] ?? 'bg-secondary-subtle text-secondary-emphasis' }}">{{ ucfirst($act->estado) }}</span></td>
+                        <td><span class="badge rounded-pill {{ Tonos::estadoActuacion($act->estado)->clasesSuave() }}">{{ ucfirst($act->estado) }}</span></td>
                         <td><button wire:click="abrirEditarActuacionAyto({{ $act->id }})" class="btn btn-outline-secondary btn-sm"><x-heroicon-o-pencil-square class="icon-13"/> Editar</button></td>
                     </tr>
                     @endforeach

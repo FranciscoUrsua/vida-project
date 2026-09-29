@@ -234,8 +234,7 @@
                                 <tbody>
                                     @foreach($this->sesiones as $sesion)
                                     @php
-                                        $estados = ['programada' => ['bg-primary-subtle text-primary-emphasis', 'Programada'], 'celebrada' => ['bg-success-subtle text-success-emphasis', 'Celebrada'], 'cancelada' => ['bg-danger-subtle text-danger-emphasis', 'Cancelada']];
-                                        [$badgeClass, $badgeLabel] = $estados[$sesion->estado] ?? ['bg-secondary-subtle text-secondary-emphasis', $sesion->estado];
+                                        $badgeLabel = ['programada' => 'Programada', 'celebrada' => 'Celebrada', 'cancelada' => 'Cancelada'][$sesion->estado] ?? $sesion->estado;
                                     @endphp
                                     <tr>
                                         <td class="fw-medium small">{{ $sesion->fecha->format('d/m/Y') }}</td>
@@ -253,7 +252,7 @@
                                                 <span class="text-body-tertiary">—</span>
                                             @endif
                                         </td>
-                                        <td><span class="badge {{ $badgeClass }}">{{ $badgeLabel }}</span></td>
+                                        <td><span class="badge {{ \Modules\Supervision\Support\Ui\Tonos::estadoSesion($sesion->estado)->clasesSuave() }}">{{ $badgeLabel }}</span></td>
                                         <td class="text-end">
                                             <button type="button"
                                                     class="btn btn-link btn-sm p-0 me-3"

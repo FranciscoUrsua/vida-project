@@ -2,6 +2,8 @@
 
 namespace Modules\Intervencion\Enums;
 
+use App\Support\Ui\Tono;
+
 /**
  * Tipos de apunte registrados en la historia social.
  */
@@ -33,6 +35,21 @@ enum TipoApunte: string
             self::Escala => 'Escala',
             self::GestionCoordinacion => 'Gestión / coordinación',
             self::PlanIntervencion => 'Plan de intervención',
+        };
+    }
+
+    /**
+     * Color del punto del apunte en la línea de tiempo de la historia.
+     *
+     * @return Tono
+     */
+    public function tono(): Tono
+    {
+        return match ($this) {
+            self::Entrevista, self::Escala, self::Seguimiento => Tono::Primario,
+            self::Valoracion, self::Derivacion => Tono::Exito,
+            self::PlanIntervencion => Tono::Aviso,
+            self::Anotacion, self::GestionCoordinacion, self::Documento => Tono::Neutro,
         };
     }
 }

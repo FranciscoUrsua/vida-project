@@ -2,6 +2,8 @@
 
 namespace Modules\Agenda\Enums;
 
+use App\Support\Ui\Tono;
+
 /**
  * Estados editoriales de un cuadrante mensual de agenda.
  */
@@ -20,6 +22,20 @@ enum EstadoCuadrante: string
             self::Borrador => 'Borrador',
             self::Revision => 'En revisión',
             self::Publicado => 'Publicado',
+        };
+    }
+
+    /**
+     * Color del badge de estado del cuadrante.
+     *
+     * @return Tono
+     */
+    public function tono(): Tono
+    {
+        return match ($this) {
+            self::Publicado => Tono::Exito,
+            self::Revision => Tono::Aviso,
+            self::Borrador => Tono::Neutro,
         };
     }
 }

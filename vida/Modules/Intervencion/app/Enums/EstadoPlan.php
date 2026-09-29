@@ -2,6 +2,8 @@
 
 namespace Modules\Intervencion\Enums;
 
+use App\Support\Ui\Tono;
+
 /**
  * Estados del ciclo de vida de un plan de intervencion.
  */
@@ -22,6 +24,21 @@ enum EstadoPlan: string
             self::Activo => 'Activo',
             self::EnRevision => 'En revisión',
             self::Cerrado => 'Cerrado',
+        };
+    }
+
+    /**
+     * Color del badge de estado del plan.
+     *
+     * @return Tono
+     */
+    public function tono(): Tono
+    {
+        return match ($this) {
+            self::Borrador => Tono::Aviso,
+            self::Activo => Tono::Exito,
+            self::EnRevision => Tono::Primario,
+            self::Cerrado => Tono::Neutro,
         };
     }
 }

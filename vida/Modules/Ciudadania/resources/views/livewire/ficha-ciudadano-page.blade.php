@@ -2,6 +2,8 @@
 {{-- Pivota sobre Ciudadano, no sobre HistoriaSocial --}}
 <div class="op-page">
 @php
+    use Modules\Ciudadania\Support\Ui\Tonos;
+
     $ciudadano      = $this->ciudadano;
     $historiaSocial = $this->historiaSocial;
     $documentos     = $this->documentos;
@@ -12,10 +14,10 @@
     $docActivo      = $documentos->first(fn($d) => $d->fecha_fin === null);
     $edad           = $fechaNacimiento ? \Carbon\Carbon::parse($fechaNacimiento)->age : null;
 
-    [$nivelEtiqueta, $nivelClase] = match($ciudadano->nivel_identificacion ?? 'no_identificado') {
-        'identificado' => ['Identificado', 'text-bg-success'],
-        'probable'     => ['Probable', 'text-bg-warning'],
-        default        => ['No identificado', 'text-bg-danger'],
+    $nivelEtiqueta = match($ciudadano->nivel_identificacion ?? 'no_identificado') {
+        'identificado' => 'Identificado',
+        'probable'     => 'Probable',
+        default        => 'No identificado',
     };
 @endphp
 
@@ -26,7 +28,7 @@
             <h1 class="h4 fw-bold mb-0">
                 {{ $ciudadano->nombre_completo ?: '—' }}
             </h1>
-            <span class="badge {{ $nivelClase }}">{{ $nivelEtiqueta }}</span>
+            <span class="badge {{ Tonos::nivelIdentificacion($ciudadano->nivel_identificacion)->clasesFuerte() }}">{{ $nivelEtiqueta }}</span>
         </div>
         <div class="d-flex flex-wrap gap-3 small text-body-secondary mt-1">
             @if($docActivo)
@@ -419,13 +421,13 @@
                     <div class="list-group list-group-flush">
                         @foreach($prestaciones as $pres)
                         @php
-                            [$estadoLabel, $estadoClase] = match($pres->estado) {
-                                'activo'     => ['Activo', 'bg-success-subtle text-success-emphasis'],
-                                'en_tramite' => ['En trámite', 'bg-warning-subtle text-warning-emphasis'],
-                                'finalizado' => ['Finalizado', 'bg-secondary-subtle text-secondary-emphasis'],
-                                'denegado'   => ['Denegado', 'bg-danger-subtle text-danger-emphasis'],
-                                'baja'       => ['Baja', 'bg-danger-subtle text-danger-emphasis'],
-                                default      => [$pres->estado, 'bg-danger-subtle text-danger-emphasis'],
+                            $estadoLabel = match($pres->estado) {
+                                'activo'     => 'Activo',
+                                'en_tramite' => 'En trámite',
+                                'finalizado' => 'Finalizado',
+                                'denegado'   => 'Denegado',
+                                'baja'       => 'Baja',
+                                default      => $pres->estado,
                             };
                         @endphp
                         <div class="list-group-item d-flex align-items-start justify-content-between gap-2 px-0">
@@ -433,7 +435,7 @@
                                 <div class="small fw-semibold">{{ $pres->descripcion }}</div>
                                 <div class="small text-body-secondary">{{ $pres->fecha_inicio?->format('d/m/Y') }}</div>
                             </div>
-                            <span class="badge {{ $estadoClase }}">{{ $estadoLabel }}</span>
+                            <span class="badge {{ Tonos::estadoPrestacion($pres->estado)->clasesSuave() }}">{{ $estadoLabel }}</span>
                         </div>
                         @endforeach
                     </div>
@@ -455,17 +457,17 @@
                 <div class="list-group list-group-flush">
                     @foreach($this->historialAtenciones as $registro)
                     @php
-                        [$tipoLabel, $tipoClase] = match($registro->tipo) {
-                            'informacion' => ['Información', 'bg-primary-subtle text-primary-emphasis'],
-                            'actividad'   => ['Actividad', 'bg-success-subtle text-success-emphasis'],
-                            'contacto'    => ['Contacto', 'bg-warning-subtle text-warning-emphasis'],
-                            default       => [$registro->tipo, 'bg-secondary-subtle text-secondary-emphasis'],
+                        $tipoLabel = match($registro->tipo) {
+                            'informacion' => 'Información',
+                            'actividad'   => 'Actividad',
+                            'contacto'    => 'Contacto',
+                            default       => $registro->tipo,
                         };
                     @endphp
                     <div class="list-group-item" wire:key="ra-{{ $registro->id }}">
                         <div class="d-flex flex-wrap align-items-center gap-2 small">
                             <span class="fw-semibold">{{ $registro->fecha->format('d/m/Y') }}</span>
-                            <span class="badge {{ $tipoClase }}">{{ $tipoLabel }}</span>
+                            <span class="badge {{ Tonos::tipoRegistroAtencion($registro->tipo)->clasesSuave() }}">{{ $tipoLabel }}</span>
                             @if($registro->profesional)
                             <span class="text-body-secondary">{{ $registro->profesional->name }}</span>
                             @endif

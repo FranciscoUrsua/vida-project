@@ -1,28 +1,16 @@
 @php
     use Carbon\Carbon;
     use Modules\Intervencion\Enums\TipoApunte;
+    use Modules\Intervencion\Support\Ui\Tonos;
 
     $ciudadano = $this->ciudadano;
     $piso      = $this->pisoActivo;
 
-    [$estadoEtiqueta, $estadoClase] = match($historia->estado) {
-        'en_seguimiento' => ['En seguimiento', 'bg-success-subtle text-success-emphasis'],
-        'cerrada'        => ['Cerrada', 'bg-secondary-subtle text-secondary-emphasis'],
-        default          => ['Abierta', 'bg-primary-subtle text-primary-emphasis'],
+    $estadoEtiqueta = match($historia->estado) {
+        'en_seguimiento' => 'En seguimiento',
+        'cerrada'        => 'Cerrada',
+        default          => 'Abierta',
     };
-
-    // Color del punto de cada tipo de apunte en la línea de tiempo
-    $coloresTipo = [
-        'plan_intervencion'    => 'bg-warning',
-        'entrevista'           => 'bg-primary',
-        'valoracion'           => 'bg-success',
-        'escala'               => 'bg-primary',
-        'derivacion'           => 'bg-success',
-        'anotacion'            => 'bg-secondary',
-        'gestion_coordinacion' => 'bg-secondary',
-        'seguimiento'          => 'bg-primary',
-        'documento'            => 'bg-secondary',
-    ];
 
     $herramientas = [
         ['id' => 'entrevista', 'label' => 'Entrevista',  'icon' => 'chat-bubble-left',         'fullpage' => false],
@@ -133,7 +121,7 @@
                 @else
                     <span>UO #{{ $historia->unidad_organizativa_id }}</span>
                 @endif
-                <span class="badge rounded-pill {{ $estadoClase }}">
+                <span class="badge rounded-pill {{ Tonos::estadoHistoria($historia->estado)->clasesSuave() }}">
                     Estado HS: {{ $estadoEtiqueta }}
                 </span>
             </div>
@@ -322,7 +310,7 @@
                         <div wire:click="verApunte({{ $apunte->id }})"
                              role="button"
                              class="list-group-item list-group-item-action bg-transparent d-flex gap-2 px-2 rounded">
-                            <span class="d-inline-block rounded-circle p-1 mt-2 flex-shrink-0 {{ $coloresTipo[$apunte->tipo->value] ?? 'bg-secondary' }}" aria-hidden="true"></span>
+                            <span class="d-inline-block rounded-circle p-1 mt-2 flex-shrink-0 {{ $apunte->tipo->tono()->clasesPunto() }}" aria-hidden="true"></span>
                             <div class="flex-grow-1 text-break">
                                 <div class="small fw-semibold">
                                     {{ $apunte->tipo->label() }}
