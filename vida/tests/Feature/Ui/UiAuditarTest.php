@@ -11,7 +11,7 @@ use Tests\TestCase;
  * Tests del comando `ui:auditar`: comprobación de que las superficies operativa
  * y pública usan solo Bootstrap, sin estilos inventados ni huérfanos.
  *
- * TF-UI-01 a TF-UI-21. Cada test monta un proyecto mínimo en un directorio
+ * TF-UI-01 a TF-UI-23. Cada test monta un proyecto mínimo en un directorio
  * temporal (vistas, SCSS, CSS compilado y CSS de Bootstrap) y ejecuta el
  * comando contra él.
  *
@@ -23,6 +23,9 @@ class UiAuditarTest extends TestCase
 
     /** @var array<string, array<string, string>> */
     private array $catalogo = [];
+
+    /** @var array<string, list<string>> Clases exigidas por bundle (R7). */
+    private array $exigidas = [];
 
     protected function setUp(): void
     {
@@ -118,6 +121,7 @@ class UiAuditarTest extends TestCase
         config([
             'ui-auditoria.base' => $this->base,
             'ui-auditoria.excluir_uso' => [],
+            'ui-auditoria.clases_exigidas' => $this->exigidas,
             'ui-catalogo.clases' => $this->catalogo,
         ]);
     }
@@ -402,6 +406,40 @@ class UiAuditarTest extends TestCase
         $this->assertSame(1, $codigo);
         $this->assertStringContainsString('R6', $salida);
         $this->assertStringContainsString('app-public.scss', $salida);
+    }
+
+    // -------------------------------------------------------------------------
+    // TF-UI-22 y 23: R7 — clases exigidas en el CSS compilado
+    // -------------------------------------------------------------------------
+
+    #[Test]
+    public function r7_clase_exigida_ausente_del_css_compilado_falla(): void
+    {
+        $this->exigidas = ['operativo' => ['bg-protected', 'btn-outline-protected']];
+        $this->compilar('.bg-protected{background:var(--bs-primary)}');
+
+        [$codigo, $salida] = $this->auditar();
+
+        $this->assertSame(1, $codigo);
+        $this->assertStringContainsString('R7', $salida);
+        $this->assertStringContainsString('btn-outline-protected', $salida);
+        $this->assertStringNotContainsString('«bg-protected»', $salida);
+    }
+
+    #[Test]
+    public function r7_clase_exigida_presente_solo_en_otro_bundle_falla(): void
+    {
+        $this->exigidas = ['publico' => ['op-demo']];
+
+        [$codigo, $salida] = $this->auditar();
+
+        $this->assertSame(1, $codigo);
+        $this->assertStringContainsString('R7', $salida);
+
+        $this->exigidas = ['operativo' => ['op-demo']];
+        [$codigo] = $this->auditar();
+
+        $this->assertSame(0, $codigo);
     }
 
     // -------------------------------------------------------------------------

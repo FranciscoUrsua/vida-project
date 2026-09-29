@@ -36,6 +36,7 @@ class UiAuditarCommand extends Command
         'R4' => 'Clase propia fuera del catálogo o pendiente',
         'R5' => 'Clase del catálogo sin uso',
         'R6' => 'Tailwind en una hoja del ámbito',
+        'R7' => 'Clase exigida ausente del CSS compilado',
     ];
 
     /**

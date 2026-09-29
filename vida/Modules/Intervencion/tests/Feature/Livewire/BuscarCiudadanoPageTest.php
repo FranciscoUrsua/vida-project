@@ -170,6 +170,9 @@ class BuscarCiudadanoPageTest extends TestCase
 
     /**
      * TF-LW-BUS-04 — Resultado de colectivo protegido muestra nivel 3 (botón "Solicitar acceso").
+     *
+     * Además del nivel, fija el marcado que lo hace visible: el color `protected`,
+     * el aviso y el botón de solicitud. Si se quita cualquiera, el test falla.
      */
     #[Test]
     public function resultado_colectivo_protegido_muestra_nivel_3(): void
@@ -190,6 +193,14 @@ class BuscarCiudadanoPageTest extends TestCase
         $resultados = $componente->get('resultados');
         $this->assertNotEmpty($resultados);
         $this->assertEquals(3, $resultados[0]['nivel']);
+
+        $html = $componente->html();
+        $this->assertTieneClase('bg-protected', $html);
+        $this->assertTieneClase('text-protected-emphasis', $html);
+        $this->assertTieneClase('btn-outline-protected', $html);
+        $this->assertStringContainsString('Requiere solicitud de acceso', $html);
+        $this->assertStringContainsString('Solicitar acceso', $html);
+        $this->assertStringNotContainsString('Ver Historia Social', $html);
     }
 
     /**
@@ -337,5 +348,22 @@ class BuscarCiudadanoPageTest extends TestCase
             ->set('query', 'inexistente-xyz')
             ->call('buscar')
             ->assertSee('Dar de alta nuevo ciudadano');
+    }
+
+    /**
+     * Comprueba que alguna etiqueta del HTML lleva la clase exacta (no un prefijo:
+     * `bg-protected` no se da por buena con `bg-protected-subtle`).
+     *
+     * @param  string  $clase
+     * @param  string  $html
+     * @return void
+     */
+    private function assertTieneClase(string $clase, string $html): void
+    {
+        $this->assertMatchesRegularExpression(
+            '/class="[^"]*(?<![\w-])'.preg_quote($clase, '/').'(?![\w-])/',
+            $html,
+            "Ningún elemento tiene la clase «{$clase}»."
+        );
     }
 }

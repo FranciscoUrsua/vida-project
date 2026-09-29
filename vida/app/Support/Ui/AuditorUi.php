@@ -20,6 +20,10 @@ use Symfony\Component\Finder\Finder;
  *   catálogo está definida, y ninguna sigue `pendiente`.
  * - R5: toda clase del catálogo se usa en alguna vista, clase PHP o JS.
  * - R6: ninguna entrada de Vite del ámbito carga Tailwind.
+ * - R7: las clases exigidas (`clases_exigidas`) existen en el CSS compilado de
+ *   su bundle. Protege lo que ninguna vista usa como literal, como la familia
+ *   del color de tema `protected`, que desaparece sin error de Sass si se
+ *   reordenan los imports de `_bootstrap-vida.scss`.
  *
  * No toca la base de datos. Necesita el CSS compilado (`npm run build`).
  *
@@ -102,6 +106,7 @@ final class AuditorUi
             $this->auditarCatalogo($definidas);
             $this->auditarUso();
             $this->auditarTailwind();
+            $this->auditarClasesExigidas();
         }
 
         return $this->hallazgos;
@@ -696,6 +701,22 @@ final class AuditorUi
             if (preg_match_all('/@import\s+[\'"]tailwindcss[\'"]|@tailwind\b|@source\b|@theme\b|@apply\b/', $limpio, $m, PREG_OFFSET_CAPTURE)) {
                 foreach ($m[0] as [$directiva, $offset]) {
                     $this->anotar('R6', $relativa, $this->linea($limpio, $offset), "Tailwind: {$directiva}", 'scss');
+                }
+            }
+        }
+    }
+
+    /**
+     * R7: toda clase exigida existe en el CSS compilado de su bundle.
+     *
+     * @return void
+     */
+    private function auditarClasesExigidas(): void
+    {
+        foreach ($this->config['clases_exigidas'] ?? [] as $bundle => $clases) {
+            foreach ($clases as $clase) {
+                if (! isset($this->clasesBundle[$bundle][$clase])) {
+                    $this->anotar('R7', 'config/ui-auditoria.php', 0, "«{$clase}» no está en el CSS compilado del bundle {$bundle}", 'scss');
                 }
             }
         }

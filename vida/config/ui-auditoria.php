@@ -69,6 +69,26 @@ return [
     // Manifest de Vite con el CSS compilado de cada entrada.
     'manifest' => 'public/build/manifest.json',
 
+    // Clases que tienen que existir en el CSS compilado de cada bundle (regla R7).
+    // La familia del color de tema `protected` (colectivos especialmente
+    // protegidos) sale de mapas Sass: si se reordenan los imports de
+    // `_bootstrap-vida.scss`, desaparece sin que Sass dé error.
+    'clases_exigidas' => [
+        'operativo' => [
+            'bg-protected',
+            'bg-protected-subtle',
+            'text-protected',
+            'text-protected-emphasis',
+            'text-bg-protected',
+            'border-protected',
+            'border-protected-subtle',
+            'btn-protected',
+            'btn-outline-protected',
+            'alert-protected',
+            'link-protected',
+        ],
+    ],
+
     // Dónde se busca el uso de las clases del catálogo (regla R5).
     'directorios_uso' => [
         'resources/views',

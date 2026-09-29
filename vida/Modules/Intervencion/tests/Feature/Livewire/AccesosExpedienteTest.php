@@ -224,10 +224,11 @@ class AccesosExpedienteTest extends TestCase
     }
 
     /**
-     * TF-AUD-INT-05 — Los accesos de otra UO con acción 'ver' se marcan como sospechosos (no como anomalía).
+     * TF-AUD-INT-05 — Los accesos de otra UO con acción 'ver' se marcan como sospechosos (no como anomalía),
+     * con fondo de aviso.
      */
     #[Test]
-    public function acceso_de_otra_uo_con_accion_ver_tiene_clase_sospechoso(): void
+    public function acceso_de_otra_uo_con_accion_ver_se_marca_como_sospechoso(): void
     {
         // Acceso de otra UO, acción 'ver' (solo lectura)
         $this->crearAcceso($this->otroTSR, [
@@ -239,15 +240,18 @@ class AccesosExpedienteTest extends TestCase
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
             ->html();
 
-        $this->assertStringContainsString('data-acceso="sospechoso"', $html);
         $this->assertStringNotContainsString('data-acceso="anomalo"', $html);
+        $clases = $this->clasesDelAcceso('sospechoso', $html);
+        $this->assertContains('bg-warning-subtle', $clases);
+        $this->assertNotContains('bg-danger-subtle', $clases);
     }
 
     /**
-     * TF-AUD-INT-06 — Los accesos de otra UO con acción 'editar' se marcan como anomalía, con aviso de revisión.
+     * TF-AUD-INT-06 — Los accesos de otra UO con acción 'editar' se marcan como anomalía, con aviso de revisión,
+     * fondo de peligro y borde rojo.
      */
     #[Test]
-    public function acceso_de_otra_uo_con_accion_editar_tiene_clase_anomalo(): void
+    public function acceso_de_otra_uo_con_accion_editar_se_marca_como_anomalo(): void
     {
         // Acceso de otra UO, acción 'editar' (modificación)
         $this->crearAcceso($this->otroTSR, [
@@ -259,15 +263,17 @@ class AccesosExpedienteTest extends TestCase
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
             ->html();
 
-        $this->assertStringContainsString('data-acceso="anomalo"', $html);
         $this->assertStringContainsString('Modificación desde otra UO — revisar', $html);
+        $clases = $this->clasesDelAcceso('anomalo', $html);
+        $this->assertContains('bg-danger-subtle', $clases);
+        $this->assertContains('border-danger', $clases);
     }
 
     /**
-     * TF-AUD-INT-07 — Los accesos propios se marcan como propios.
+     * TF-AUD-INT-07 — Los accesos propios se marcan como propios, atenuados.
      */
     #[Test]
-    public function accesos_propios_tienen_clase_propio(): void
+    public function accesos_propios_se_marcan_como_propios(): void
     {
         $this->crearAcceso($this->tsr, ['accion' => 'ver']);
 
@@ -275,7 +281,9 @@ class AccesosExpedienteTest extends TestCase
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
             ->html();
 
-        $this->assertStringContainsString('data-acceso="propio"', $html);
+        $clases = $this->clasesDelAcceso('propio', $html);
+        $this->assertContains('opacity-75', $clases);
+        $this->assertNotContains('bg-warning-subtle', $clases);
     }
 
     /**
@@ -354,5 +362,24 @@ class AccesosExpedienteTest extends TestCase
 
         $this->assertStringNotContainsString('accesos-panel', $html);
         $this->assertStringNotContainsString('Últimos accesos', $html);
+    }
+
+    /**
+     * Devuelve las clases del primer acceso del widget marcado con el tipo dado.
+     *
+     * Falla si ningún acceso tiene ese marcador: el tipo es el contrato y las clases,
+     * lo que lo hace visible al profesional.
+     *
+     * @param  string  $tipo  propio|normal|sospechoso|anomalo
+     * @param  string  $html
+     * @return list<string>
+     */
+    private function clasesDelAcceso(string $tipo, string $html): array
+    {
+        $patron = '/<div data-acceso="'.preg_quote($tipo, '/').'"\s+class="([^"]*)"/';
+        $this->assertMatchesRegularExpression($patron, $html, "Ningún acceso marcado como «{$tipo}».");
+        preg_match($patron, $html, $m);
+
+        return preg_split('/\s+/', trim($m[1]));
     }
 }
