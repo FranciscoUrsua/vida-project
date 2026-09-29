@@ -703,7 +703,7 @@
                 @if(($modalApunteDatos['ficha_url'] ?? null))
                     <a href="{{ $modalApunteDatos['ficha_url'] }}" wire:navigate
                        class="btn btn-link btn-sm text-decoration-none px-0 d-inline-flex align-items-center gap-1">
-                        <x-heroicon-o-arrow-top-right-on-square class="icon-13" aria-hidden="true"/>
+                        <x-heroicon-o-arrow-top-right-on-square class="icon-14" aria-hidden="true"/>
                         Ver ficha completa
                     </a>
                 @endif
@@ -810,7 +810,7 @@
                                                 title="Dar de baja como miembro"
                                                 aria-label="Dar de baja como miembro"
                                             >
-                                                <x-heroicon-o-user-minus class="icon-13" aria-hidden="true"/>
+                                                <x-heroicon-o-user-minus class="icon-14" aria-hidden="true"/>
                                             </button>
                                         @endif
                                     </div>
@@ -924,14 +924,14 @@
 
                     @if($this->representante->telefono)
                     <a href="tel:{{ $this->representante->telefono }}" class="d-inline-flex align-items-center gap-1 text-decoration-none">
-                        <x-heroicon-o-phone class="icon-13" aria-hidden="true"/>
+                        <x-heroicon-o-phone class="icon-14" aria-hidden="true"/>
                         {{ $this->representante->telefono }}
                     </a>
                     @endif
 
                     @if($this->representante->email)
                     <a href="mailto:{{ $this->representante->email }}" class="d-inline-flex align-items-center gap-1 text-decoration-none">
-                        <x-heroicon-o-envelope class="icon-13" aria-hidden="true"/>
+                        <x-heroicon-o-envelope class="icon-14" aria-hidden="true"/>
                         {{ $this->representante->email }}
                     </a>
                     @endif

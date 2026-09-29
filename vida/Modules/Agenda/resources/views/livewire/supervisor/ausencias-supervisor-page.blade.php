@@ -20,10 +20,7 @@
                 <h2 class="h6 fw-semibold mb-3" id="ausencias-heading">Ausencias sobrevenidas con citas pendientes</h2>
 
                 @if($this->ausenciasHoy->isEmpty())
-                    <div class="op-empty py-3">
-                        <x-heroicon-o-check-circle class="op-empty__icon" aria-hidden="true"/>
-                        <p class="op-empty__text">No hay ausencias registradas para hoy.</p>
-                    </div>
+                    <x-op.empty icono="check-circle" class="py-3">No hay ausencias registradas para hoy.</x-op.empty>
                 @else
                     @foreach($this->ausenciasHoy as $excepcion)
                     @php
@@ -112,10 +109,7 @@
                 <h2 class="h6 fw-semibold mb-3" id="noshows-heading">No-shows de ciudadanos hoy</h2>
 
                 @if($this->noshowsCiudadanos->isEmpty())
-                    <div class="op-empty py-3">
-                        <x-heroicon-o-check-circle class="op-empty__icon" aria-hidden="true"/>
-                        <p class="op-empty__text">Sin no-shows registrados hoy.</p>
-                    </div>
+                    <x-op.empty icono="check-circle" class="py-3">Sin no-shows registrados hoy.</x-op.empty>
                 @else
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0 small">

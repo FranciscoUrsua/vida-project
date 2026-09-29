@@ -27,10 +27,7 @@
     {{-- Tabla de accesos --}}
     <section class="p-3">
         @if($this->accesos->isEmpty())
-            <div class="op-empty">
-                <x-heroicon-o-shield-check class="op-empty__icon" aria-hidden="true"/>
-                <p class="op-empty__text">No hay accesos registrados en el periodo seleccionado.</p>
-            </div>
+            <x-op.empty icono="shield-check">No hay accesos registrados en el periodo seleccionado.</x-op.empty>
         @else
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 small">

@@ -38,17 +38,17 @@
             @endif
         </div>
 
-        <div class="topbar__section" aria-label="Sección actual">
-            <h1 class="topbar__title h5 mb-0 fw-semibold text-body">
+        <div class="flex-grow-1 d-flex align-items-center justify-content-center px-3 overflow-hidden" aria-label="Sección actual">
+            <h1 class="d-inline-flex align-items-center gap-2 mw-100 overflow-hidden text-nowrap h5 mb-0 fw-semibold text-body">
                 <span>{{ $area }}</span>
                 @if($section)
-                    <span class="topbar__title-sep text-body-secondary" aria-hidden="true">-</span>
+                    <span class="flex-shrink-0 text-body-secondary" aria-hidden="true">-</span>
                     <span>{{ $section }}</span>
                 @endif
             </h1>
         </div>
 
-        <div class="topbar__user dropdown">
+        <div class="dropdown d-flex align-items-center flex-shrink-0 pe-2">
             <button type="button"
                     class="btn btn-sm btn-light d-flex align-items-center gap-2 px-2 py-1 border-0 shadow-none"
                     data-bs-toggle="dropdown"
@@ -57,7 +57,7 @@
                 <x-avatar pequeno :usuario="Auth::user()"
                           :nombre="trim((Auth::user()->profesional?->nombre ?? Auth::user()->email).' '.(Auth::user()->profesional?->apellido1 ?? ''))" />
 
-                <span class="topbar__user-nombre">
+                <span class="topbar__user-nombre text-truncate">
                     {{ Auth::user()->profesional?->nombre_completo ?? Auth::user()->email }}
                 </span>
 

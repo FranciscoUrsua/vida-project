@@ -6,14 +6,14 @@
     <nav class="op-nav" aria-label="Navegación principal">
 
         <a href="{{ route('intervencion.agenda.index') }}"
-           class="op-nav-item {{ request()->routeIs('intervencion.agenda*') ? 'activo' : '' }}"
+           class="op-nav-item {{ request()->routeIs('intervencion.agenda*') ? 'op-nav-item--activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.agenda*') ? 'page' : 'false' }}">
             <x-heroicon-o-calendar class="op-nav-icon icon-18" aria-hidden="true"/>
             <span>Agenda</span>
         </a>
 
         <a href="{{ route('intervencion.casos.index') }}"
-           class="op-nav-item {{ request()->routeIs('intervencion.casos*') ? 'activo' : '' }}"
+           class="op-nav-item {{ request()->routeIs('intervencion.casos*') ? 'op-nav-item--activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.casos*') ? 'page' : 'false' }}">
             <x-heroicon-o-users class="op-nav-icon icon-18" aria-hidden="true"/>
             <span>Mis casos</span>
@@ -29,7 +29,7 @@
 
         @if($this->tienePlazas)
         <a href="{{ route('intervencion.recursos.index') }}"
-           class="op-nav-item {{ request()->routeIs('intervencion.recursos*') ? 'activo' : '' }}"
+           class="op-nav-item {{ request()->routeIs('intervencion.recursos*') ? 'op-nav-item--activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.recursos*') ? 'page' : 'false' }}">
             <x-heroicon-o-building-office-2 class="op-nav-icon icon-18" aria-hidden="true"/>
             <span>Recursos</span>
@@ -37,14 +37,14 @@
         @endif
 
         <a href="{{ route('intervencion.buscar.index') }}"
-           class="op-nav-item {{ request()->routeIs('intervencion.buscar*') ? 'activo' : '' }}"
+           class="op-nav-item {{ request()->routeIs('intervencion.buscar*') ? 'op-nav-item--activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.buscar*') ? 'page' : 'false' }}">
             <x-heroicon-o-magnifying-glass class="op-nav-icon icon-18" aria-hidden="true"/>
             <span>Buscar ciudadano/a</span>
         </a>
 
         <a href="{{ route('ciudadania.alta') }}"
-           class="op-nav-item {{ request()->routeIs('ciudadania.alta') ? 'activo' : '' }}"
+           class="op-nav-item {{ request()->routeIs('ciudadania.alta') ? 'op-nav-item--activo' : '' }}"
            aria-current="{{ request()->routeIs('ciudadania.alta') ? 'page' : 'false' }}">
             <x-heroicon-o-user-plus class="op-nav-icon icon-18" aria-hidden="true"/>
             <span>Alta de ciudadano/a</span>

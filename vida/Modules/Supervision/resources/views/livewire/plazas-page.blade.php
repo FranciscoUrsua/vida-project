@@ -8,10 +8,7 @@
     </div>
 
     <section class="p-3">
-        <div class="op-empty">
-            <x-heroicon-o-building-office class="op-empty__icon" aria-hidden="true"/>
-            <p class="op-empty__text">No hay plazas configuradas.</p>
-        </div>
+        <x-op.empty icono="building-office">No hay plazas configuradas.</x-op.empty>
     </section>
 
 </div>

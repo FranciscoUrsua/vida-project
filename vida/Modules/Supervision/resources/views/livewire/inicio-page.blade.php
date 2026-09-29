@@ -65,10 +65,7 @@
         </div>
 
         @if($this->cuadranteDeHoy->isEmpty())
-            <div class="op-empty py-3">
-                <x-heroicon-o-calendar class="op-empty__icon" aria-hidden="true"/>
-                <p class="op-empty__text">No hay slots generados para hoy.</p>
-            </div>
+            <x-op.empty icono="calendar" class="py-3">No hay slots generados para hoy.</x-op.empty>
         @else
             <div class="table-responsive">
                 <table class="table table-sm align-middle mb-0 small">

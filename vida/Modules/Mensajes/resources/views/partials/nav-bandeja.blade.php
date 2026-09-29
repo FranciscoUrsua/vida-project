@@ -18,13 +18,13 @@
 
 @foreach($entradas as [$pestana, $etiqueta, $icono])
     <a href="{{ route($ruta, $pestana) }}"
-       class="op-nav-item {{ $pestanaActual === $pestana ? 'activo' : '' }}"
+       class="op-nav-item {{ $pestanaActual === $pestana ? 'op-nav-item--activo' : '' }}"
        aria-current="{{ $pestanaActual === $pestana ? 'page' : 'false' }}">
         <x-dynamic-component :component="'heroicon-o-' . $icono" class="op-nav-icon icon-18" aria-hidden="true"/>
         <span>{{ $etiqueta }}</span>
         @if($contadores[$pestana] > 0)
             {{-- Solo las alertas llevan el tinte de urgencia --}}
-            <span class="op-nav-badge {{ $pestana === 'alertas' ? 'alerta' : '' }}">
+            <span class="op-nav-badge {{ $pestana === 'alertas' ? 'op-nav-badge--alerta' : '' }}">
                 {{ $contadores[$pestana] }}
                 <span class="visually-hidden">{{ $pestana === 'mensajes' ? 'sin leer' : 'pendientes' }}</span>
             </span>

@@ -30,7 +30,7 @@
         </span>
         <span class="badge rounded-pill bg-body-tertiary text-body-secondary border">v{{ $this->plan->version }}</span>
         <button wire:click="generarPdf" class="btn btn-outline-secondary btn-sm">
-            <x-heroicon-o-arrow-down-tray class="icon-13"/>
+            <x-heroicon-o-arrow-down-tray class="icon-14"/>
             Generar PDF
         </button>
         @endif
@@ -41,14 +41,14 @@
             class="btn btn-primary btn-sm"
             @if(! $this->puedeActivarse) disabled title="Marca ambas firmas para activar" @endif
         >
-            <x-heroicon-o-check class="icon-13"/>
+            <x-heroicon-o-check class="icon-14"/>
             Activar plan
         </button>
         @endif
 
         @if($this->plan?->estado->value === 'activo')
         <button wire:click="abrirModalCierre" class="btn btn-outline-secondary btn-sm">
-            <x-heroicon-o-x-circle class="icon-13"/>
+            <x-heroicon-o-x-circle class="icon-14"/>
             Cerrar plan
         </button>
         @endif
@@ -74,7 +74,7 @@
     <div class="card" id="ps-datos"         x-on:focusin="seccionActiva = 'datos'"         x-on:click="seccionActiva = 'datos'">
         <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-2 fw-semibold">
-                <x-heroicon-o-user class="icon-15"/>
+                <x-heroicon-o-user class="icon-16"/>
                 Datos de la persona
             </div>
             <span class="badge rounded-pill border text-secondary fw-normal">Solo lectura · Historia Social</span>
@@ -132,7 +132,7 @@
     @if(! $this->plan)
     <div class="card border-primary border-2" id="ps-tipo-plan">
         <div class="card-header bg-transparent d-flex align-items-center gap-2">
-            <x-heroicon-o-clipboard-document-list class="icon-15 text-primary"/>
+            <x-heroicon-o-clipboard-document-list class="icon-16 text-primary"/>
             <span class="d-flex align-items-center gap-2 fw-semibold">Tipo de plan</span>
             <span class="badge bg-primary-subtle text-primary ms-auto">Obligatorio</span>
         </div>
@@ -163,11 +163,11 @@
     <div class="card" id="ps-diagnostico" x-on:focusin="seccionActiva = 'diagnostico'" x-on:click="seccionActiva = 'diagnostico'">
         <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-2 fw-semibold">
-                <x-heroicon-o-document-text class="icon-15"/>
+                <x-heroicon-o-document-text class="icon-16"/>
                 Diagnóstico social
             </div>
             <button wire:click="abrirDrawer" class="btn btn-outline-secondary btn-sm">
-                <x-heroicon-o-circle-stack class="icon-13"/>
+                <x-heroicon-o-circle-stack class="icon-14"/>
                 Añadir fichas
             </button>
         </div>
@@ -222,7 +222,7 @@
 
                 @if($this->fichasDiagnostico->isNotEmpty())
                 <button wire:click="abrirDrawer" class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-1">
-                    <x-heroicon-o-plus class="icon-13"/>
+                    <x-heroicon-o-plus class="icon-14"/>
                     Añadir otra ficha
                 </button>
                 @endif
@@ -231,7 +231,7 @@
             {{-- Bloque B: Síntesis profesional --}}
             <div>
                 <div class="d-flex align-items-center gap-1 small text-secondary mb-2">
-                    <x-heroicon-o-pencil class="icon-13"/>
+                    <x-heroicon-o-pencil class="icon-14"/>
                     Síntesis profesional
                 </div>
                 <div class="btn-toolbar gap-1 p-1 border border-bottom-0 rounded-top bg-body-tertiary" role="toolbar" aria-label="Formato del texto">
@@ -241,7 +241,7 @@
                             title="Cursiva"><em>I</em></button>
                     <button type="button" class="btn btn-outline-secondary btn-sm p-1 lh-1" onclick="document.execCommand('insertUnorderedList')"
                             title="Lista">
-                        <x-heroicon-o-list-bullet class="icon-13"/>
+                        <x-heroicon-o-list-bullet class="icon-14"/>
                     </button>
                 </div>
                 <div
@@ -259,11 +259,11 @@
     <div class="card" id="ps-objetivos"     x-on:focusin="seccionActiva = 'objetivos'"     x-on:click="seccionActiva = 'objetivos'">
         <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-2 fw-semibold">
-                <x-heroicon-o-viewfinder-circle class="icon-15"/>
+                <x-heroicon-o-viewfinder-circle class="icon-16"/>
                 Objetivos
             </div>
             <button wire:click="abrirModalObjetivo" class="btn btn-outline-secondary btn-sm">
-                <x-heroicon-o-plus class="icon-13"/>
+                <x-heroicon-o-plus class="icon-14"/>
                 Añadir objetivo
             </button>
         </div>
@@ -311,7 +311,7 @@
                     </div>
                     <div class="card-footer d-flex justify-content-end">
                         <button wire:click="abrirEditarObjetivo({{ $og->id }})" class="btn btn-outline-secondary btn-sm">
-                            <x-heroicon-o-pencil-square class="icon-13"/>
+                            <x-heroicon-o-pencil-square class="icon-14"/>
                             Editar
                         </button>
                     </div>
@@ -362,7 +362,7 @@
                     </div>
                     <div class="card-footer d-flex justify-content-end">
                         <button wire:click="abrirEditarObjetivo({{ $oe->id }})" class="btn btn-outline-secondary btn-sm">
-                            <x-heroicon-o-pencil-square class="icon-13"/>
+                            <x-heroicon-o-pencil-square class="icon-14"/>
                             Editar
                         </button>
                     </div>
@@ -380,11 +380,11 @@
     <div class="card" id="ps-ayto"          x-on:focusin="seccionActiva = 'ayto'"          x-on:click="seccionActiva = 'ayto'">
         <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-2 fw-semibold">
-                <x-heroicon-o-building-office class="icon-15"/>
+                <x-heroicon-o-building-office class="icon-16"/>
                 Compromisos del Ayuntamiento
             </div>
             <button wire:click="abrirModalActuacionAyto" class="btn btn-outline-secondary btn-sm">
-                <x-heroicon-o-plus class="icon-13"/>
+                <x-heroicon-o-plus class="icon-14"/>
                 Añadir
             </button>
         </div>
@@ -419,7 +419,7 @@
                         </td>
                         <td class="text-secondary">{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
                         <td><span class="badge rounded-pill {{ Tonos::estadoActuacion($act->estado)->clasesSuave() }}">{{ ucfirst($act->estado) }}</span></td>
-                        <td><button wire:click="abrirEditarActuacionAyto({{ $act->id }})" class="btn btn-outline-secondary btn-sm"><x-heroicon-o-pencil-square class="icon-13"/> Editar</button></td>
+                        <td><button wire:click="abrirEditarActuacionAyto({{ $act->id }})" class="btn btn-outline-secondary btn-sm"><x-heroicon-o-pencil-square class="icon-14"/> Editar</button></td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -432,11 +432,11 @@
     <div class="card" id="ps-ciudadano"    x-on:focusin="seccionActiva = 'ciudadano'"    x-on:click="seccionActiva = 'ciudadano'">
         <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-2 fw-semibold">
-                <x-heroicon-o-check-badge class="icon-15"/>
+                <x-heroicon-o-check-badge class="icon-16"/>
                 Compromisos de la persona
             </div>
             <button wire:click="abrirModalCompromiso" class="btn btn-outline-secondary btn-sm">
-                <x-heroicon-o-plus class="icon-13"/>
+                <x-heroicon-o-plus class="icon-14"/>
                 Añadir
             </button>
         </div>
@@ -455,7 +455,7 @@
                         @endif
                     </div>
                     <button wire:click="abrirEditarCompromisoCiudadano({{ $act->id }})" class="btn btn-outline-secondary btn-sm ms-auto flex-shrink-0">
-                        <x-heroicon-o-pencil-square class="icon-13"/>
+                        <x-heroicon-o-pencil-square class="icon-14"/>
                         Editar
                     </button>
                 </li>
@@ -469,11 +469,11 @@
     <div class="card" id="ps-participantes" x-on:focusin="seccionActiva = 'participantes'" x-on:click="seccionActiva = 'participantes'">
         <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-2 fw-semibold">
-                <x-heroicon-o-users class="icon-15"/>
+                <x-heroicon-o-users class="icon-16"/>
                 Profesionales participantes
             </div>
             <button wire:click="abrirModalParticipante" class="btn btn-outline-secondary btn-sm">
-                <x-heroicon-o-plus class="icon-13"/>
+                <x-heroicon-o-plus class="icon-14"/>
                 Añadir
             </button>
         </div>
@@ -493,7 +493,7 @@
                     <span class="badge rounded-pill bg-success-subtle text-success-emphasis">Responsable</span>
                     @else
                     <button class="btn btn-outline-secondary btn-sm p-1 lh-1">
-                        <x-heroicon-o-x-mark class="icon-13"/>
+                        <x-heroicon-o-x-mark class="icon-14"/>
                     </button>
                     @endif
                 </li>
@@ -506,7 +506,7 @@
     <div class="card" id="ps-firmas"        x-on:focusin="seccionActiva = 'firmas'"        x-on:click="seccionActiva = 'firmas'">
         <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-2 fw-semibold">
-                <x-heroicon-o-pencil class="icon-15"/>
+                <x-heroicon-o-pencil class="icon-16"/>
                 Seguimiento y firmas
             </div>
         </div>
@@ -624,7 +624,7 @@
     @if($this->plan && $this->plan->estado->value !== 'cerrado')
     <div class="d-flex justify-content-end py-2">
         <button wire:click="guardarPlan" class="btn btn-primary">
-            <x-heroicon-o-check class="icon-13"/>
+            <x-heroicon-o-check class="icon-14"/>
             Guardar plan
         </button>
     </div>
@@ -716,7 +716,7 @@ $nc = [
             <div class="modal-footer">
                 <button wire:click="cerrarDrawer" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                 <button wire:click="aplicarSeleccionFichas" class="btn btn-primary btn-sm">
-                    <x-heroicon-o-check class="icon-13"/>
+                    <x-heroicon-o-check class="icon-14"/>
                     Aplicar selección
                 </button>
             </div>
@@ -757,7 +757,7 @@ $nc = [
                     class="btn btn-primary btn-sm"
                     @if(empty(trim($motivoTexto))) disabled @endif
                 >
-                    <x-heroicon-o-check class="icon-13"/>
+                    <x-heroicon-o-check class="icon-14"/>
                     Confirmar cambio
                 </button>
             </div>
@@ -784,12 +784,12 @@ $nc = [
                 <div class="d-flex gap-2 mb-3">
                     <button wire:click="$set('modoObjetivo', 'catalogo')"
                             class="btn btn-sm {{ $modoObjetivo === 'catalogo' ? 'btn-primary' : 'btn-outline-secondary' }}">
-                        <x-heroicon-o-list-bullet class="icon-13"/>
+                        <x-heroicon-o-list-bullet class="icon-14"/>
                         Del catálogo
                     </button>
                     <button wire:click="$set('modoObjetivo', 'libre')"
                             class="btn btn-sm {{ $modoObjetivo === 'libre' ? 'btn-primary' : 'btn-outline-secondary' }}">
-                        <x-heroicon-o-pencil class="icon-13"/>
+                        <x-heroicon-o-pencil class="icon-14"/>
                         Objetivo libre
                     </button>
                 </div>
@@ -811,7 +811,7 @@ $nc = [
                         </select>
                         @if($tipoPlanId)
                         <button wire:click="asignarTipoPlan" class="btn btn-sm btn-warning">
-                            <x-heroicon-o-check class="icon-13"/>
+                            <x-heroicon-o-check class="icon-14"/>
                             Asignar tipo y ver objetivos
                         </button>
                         @endif
@@ -884,7 +884,7 @@ $nc = [
                 <button wire:click="guardarObjetivosDesdeCatalogo"
                         class="btn btn-primary btn-sm"
                         x-bind:disabled="$wire.objetivosCatalogoSeleccionados.length === 0">
-                    <x-heroicon-o-check class="icon-13"/>
+                    <x-heroicon-o-check class="icon-14"/>
                     Añadir seleccionados
                 </button>
             </div>
@@ -905,7 +905,7 @@ $nc = [
             <div class="modal-footer">
                 <button wire:click="$set('modalObjetivoAbierto', false)" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                 <button wire:click="guardarObjetivo" class="btn btn-primary btn-sm">
-                    <x-heroicon-o-check class="icon-13"/>
+                    <x-heroicon-o-check class="icon-14"/>
                     Guardar objetivo
                 </button>
             </div>
@@ -955,7 +955,7 @@ $nc = [
             <div class="modal-footer">
                 <button wire:click="$set('modalActuacionAytoAbierto', false)" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                 <button wire:click="guardarActuacionAyto" class="btn btn-primary btn-sm">
-                    <x-heroicon-o-check class="icon-13"/>
+                    <x-heroicon-o-check class="icon-14"/>
                     Guardar actuación
                 </button>
             </div>
@@ -990,7 +990,7 @@ $nc = [
             <div class="modal-footer">
                 <button wire:click="$set('modalCompromisoAbierto', false)" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                 <button wire:click="guardarCompromisoCiudadano" class="btn btn-primary btn-sm">
-                    <x-heroicon-o-check class="icon-13"/>
+                    <x-heroicon-o-check class="icon-14"/>
                     Guardar compromiso
                 </button>
             </div>
@@ -1039,7 +1039,7 @@ $nc = [
             <div class="modal-footer">
                 <button wire:click="$set('modalParticipanteAbierto', false)" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                 <button wire:click="guardarParticipante" class="btn btn-primary btn-sm">
-                    <x-heroicon-o-check class="icon-13"/>
+                    <x-heroicon-o-check class="icon-14"/>
                     Añadir participante
                 </button>
             </div>
@@ -1108,7 +1108,7 @@ $nc = [
                     class="btn btn-danger btn-sm"
                     @if(empty($motivoCierre)) disabled @endif
                 >
-                    <x-heroicon-o-x-circle class="icon-13"/>
+                    <x-heroicon-o-x-circle class="icon-14"/>
                     Confirmar cierre
                 </button>
             </div>
@@ -1143,12 +1143,12 @@ $nc = [
                         class="btn btn-outline-secondary btn-sm">Cancelar</button>
                 <button wire:click="eliminarObjetivo"
                         class="btn btn-outline-danger btn-sm">
-                    <x-heroicon-o-trash class="icon-13"/>
+                    <x-heroicon-o-trash class="icon-14"/>
                     Eliminar
                 </button>
                 <button wire:click="guardarEdicionObjetivo"
                         class="btn btn-primary btn-sm">
-                    <x-heroicon-o-check class="icon-13"/>
+                    <x-heroicon-o-check class="icon-14"/>
                     Guardar cambios
                 </button>
             </div>
@@ -1186,12 +1186,12 @@ $nc = [
                         class="btn btn-outline-secondary btn-sm">Cancelar</button>
                 <button wire:click="eliminarCompromisoCiudadano"
                         class="btn btn-outline-danger btn-sm">
-                    <x-heroicon-o-trash class="icon-13"/>
+                    <x-heroicon-o-trash class="icon-14"/>
                     Eliminar
                 </button>
                 <button wire:click="guardarEdicionCompromisoCiudadano"
                         class="btn btn-primary btn-sm">
-                    <x-heroicon-o-check class="icon-13"/>
+                    <x-heroicon-o-check class="icon-14"/>
                     Guardar cambios
                 </button>
             </div>
@@ -1243,12 +1243,12 @@ $nc = [
                         class="btn btn-outline-secondary btn-sm">Cancelar</button>
                 <button wire:click="eliminarActuacionAyto"
                         class="btn btn-outline-danger btn-sm">
-                    <x-heroicon-o-trash class="icon-13"/>
+                    <x-heroicon-o-trash class="icon-14"/>
                     Eliminar
                 </button>
                 <button wire:click="guardarEdicionActuacionAyto"
                         class="btn btn-primary btn-sm">
-                    <x-heroicon-o-check class="icon-13"/>
+                    <x-heroicon-o-check class="icon-14"/>
                     Guardar cambios
                 </button>
             </div>

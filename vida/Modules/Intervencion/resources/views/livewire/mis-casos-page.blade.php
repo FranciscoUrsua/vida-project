@@ -131,7 +131,7 @@
                                     <td>
                                         <span class="badge rounded-pill d-inline-flex align-items-center gap-1 {{ Tonos::estadoSeguimiento($estado)?->clasesSuave() ?? 'text-body-secondary fw-normal' }}">
                                             @if($estado === 'vencido')
-                                                <x-heroicon-o-clock class="icon-13" aria-hidden="true"/>
+                                                <x-heroicon-o-clock class="icon-14" aria-hidden="true"/>
                                             @endif
                                             @if($caso->fecha_siguiente_seguimiento)
                                                 {{ Carbon::parse($caso->fecha_siguiente_seguimiento)->format('d/m/Y') }}

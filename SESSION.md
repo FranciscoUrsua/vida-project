@@ -1,12 +1,12 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-09-28
+**Última actualización:** 2026-09-29
 
 ---
 
 ## Tarea completada
 
-**Bootstrap único, completo (fases 1 a 5).** Todas las vistas operativas y públicas usan solo Bootstrap. El catálogo tiene 47 clases propias, todas aprobadas. `php artisan ui:auditar` sale sin infracciones y bloquea el CI. Detalle en `CHANGELOG-092026.md` y en `docs/instrucciones-cli/2026-09-bootstrap-unico.md` §5.
+**Corrección del frontend tras la revisión de Grok (pasos 1 a 5 acordados).** Error del sexo en la ficha corregido con el catálogo `ciudadano.sexo`; tests que anclan el marcado visual; `ui:auditar` comprueba las clases que se deciden en PHP (`FuenteClasesCss`, `Tono`) y la familia `protected` (R7); `$font-size-root`; catálogo de 47 a 39 clases. Detalle en `CHANGELOG-092026.md` (2026-09-29) y `docs/instrucciones-cli/2026-09-bootstrap-unico.md` §6.
 
 ---
 
@@ -22,8 +22,10 @@
   - Siguen vigentes el mundo `demo_ciam` (980 registros TEST_CIAM) y `pia.admite_entrada_directa = true`.
 - **Servidor de pruebas preparado para la custodia** (2026-09-25): `/srv/vida/documentos` (www-data, 0700), `DOCUMENTOS_RUTA` y `DOCUMENTOS_CLAVE_MAESTRA` en el `.env` de staging, y clamd activo (`/var/run/clamav/clamd.ctl`). El `.env` **local** no tiene variables `DOCUMENTOS_*`: en local la custodia falla hasta que se añadan.
 - **Código de staging** (`/var/www/vida-project/vida`): se despliega solo con cada push a `master` (job `deploy` de `.github/workflows/ci.yml`, tras pasar `test`). No hace falta desplegar a mano.
+- **Migración `2026_09_29_100000_seed_catalogo_ciudadano_sexo`**: se aplica en la BD compartida con el despliegue de este push. Queda un ciudadano con `sexo = 'H'` (ver BACKLOG).
+- La revisión visual de staging la hizo el desarrollador el 2026-09-29: correcta.
 - **Tests:**
-  - `Modules/Mensajes/tests`: 131 passed (2026-09-27).
+  - 2026-09-29, tras la corrección: Intervención 263 passed (1 incomplete); Mensajes 131 passed; Documentos 88 passed; `tests/Feature/Ui` 26 passed; Ciudadanía 100 passed y 2 fallos previos («Ver historia social»); Agenda 63 fallos previos, los mismos sin estos cambios.
   - `Modules/Documentos`: 88 passed (unos 190 s: cada ingesta pasa por Ghostscript).
   - **Suite completa** (2026-09-25, unos 20 min): 908 passed y 76 failed, 75 de ellos fuera de Documentos (sobre todo Agenda) y ya existentes. Ver CHANGELOG y BACKLOG. No lanzar a la vez dos ejecuciones de tests: comparten `vida_testing`.
   - `Modules/Usuarios/tests/`: 63 passed y 1 incomplete (ya existía).
@@ -33,9 +35,10 @@
 
 ## Siguiente paso concreto recomendado
 
-1. **Revisión de Grok del conjunto de la migración** (acordado con el desarrollador: al terminar todo). Commits: `0da904d` (fase 1), `d620571` (fase 2), `2a93e27` (Ciudadanía), `82b213b` (Intervención) y el del cierre (resto de módulos, fases 4 y 5). Corregir lo que señale.
-2. **Revisión visual en staging**: aún no se ha mirado ninguna pantalla migrada en el navegador. Prioridad: expediente (`ciudadano-page`), plan, agenda, alta, ficha y login.
-3. Pendientes anteriores: toasts de alertas en staging con ts1.ciam@demo.es; Mensajes, paso 6; restricción de colectivos protegidos en la ficha (BACKLOG, prioritario); fallos previos de la suite (BACKLOG).
+1. **Comprobar en staging** tras el despliegue: estados de badges (expediente, plan, mis casos, agenda, ficha), sexo en alta y ficha, navegación lateral activa, topbar y estados vacíos. El cuadrante del supervisor no lo cubre ningún test que pase.
+2. **Ficha: restricción de colectivos protegidos** (BACKLOG, prioritario: restricción crítica de `CLAUDE.md` §3).
+3. Rendimiento de `CiudadanoPage`/`plan-page` y polling de toasts (BACKLOG, fases 6 y 7 de Grok).
+4. Pendientes anteriores: Mensajes, paso 6; fallos previos de Agenda (esquema de `tipos_slot` en `vida_testing`, `franjas` codificado dos veces).
 
 ---
 
@@ -45,8 +48,9 @@
   - Tokens: solo en `_bootstrap-overrides.scss` y `_vida-sass-tokens.scss`. No existen variables `--color-*`.
   - Color de tema propio: `protected` (`text-protected`, `bg-protected-subtle`…), añadido en `_bootstrap-vida.scss`.
   - Toda clase propia está en `config/ui-catalogo.php`; una nueva va al catálogo en el mismo commit.
+  - Colores de estado y tipo: `$enum->tono()->clasesSuave()` (o `clasesFuerte`, `clasesPunto`, `clasesBloque`), o `Tonos::…()` del módulo si el valor no tiene enum. Nada de tablas de clases en las vistas: `ui:auditar` rechaza en `class` cualquier `{{ }}` que no sea literal o `clases…()`.
+  - Estados vacíos: `<x-op.empty icono="…">texto</x-op.empty>`.
   - Toda tarea con Blade o SCSS termina con `npm run build` + `php artisan ui:auditar` en verde. El CI lo exige.
-  - Nada de clases concatenadas: `match` o arrays con clases completas.
   - Tras Pint, restaurar los `@return`.
 - **Mensajes, adaptación a las instrucciones nuevas:** `instrucciones-cli-mensajes.md` está escrito como si el módulo fuera nuevo, pero ya existía. Ya cumplen: migraciones, modelos, `HorarioLaboralService`, el job cada 15 min y los recursos Filament (en `app/Filament/Resources/`, no en el módulo, como manda `CLAUDE.md`). Las rutas de las instrucciones (`Modules/Mensajes/Models/`…) no son las del proyecto (`Modules/Mensajes/app/...`). El rol es `supervision`, no «supervisor». Entre fases se pasan solo los tests del módulo, no la suite completa.
 - **Alertas por destinatario:** cada alerta tiene sus filas en `alerta_destinatarios`, fijadas al crearla (directa: una; `rol_uo`: una por cada miembro del colectivo en ese momento). Lo que un usuario tiene por atender = `Alerta::pendientesPara($usuario)`; todo lo que recibió = `visiblesPara()`. No escribir consultas propias. Toda alerta se crea con `AlertaService::crear()`, nunca con `Alerta::create`: sin él no tiene destinatarios (nadie la ve) ni `expira_en` (no escala). En los tests, crear las alertas con el servicio. El `estado` de `alertas` es un resumen que recalcula el servicio.

@@ -288,15 +288,20 @@ class AgendaPageTest extends TestCase
     }
 
     /**
-     * TF-LW-AGE-14 — El ítem "Agenda" tiene clase activa cuando la ruta es intervencion.agenda.*.
+     * TF-LW-AGE-14 — El ítem "Agenda" se marca como activo cuando la ruta es intervencion.agenda.*,
+     * y el de "Mis casos" no.
      */
     #[Test]
-    public function item_agenda_tiene_clase_activo_en_ruta_agenda(): void
+    public function item_agenda_se_marca_activo_en_ruta_agenda(): void
     {
         $usuario = $this->crearUsuarioIntervencion();
 
-        $this->actingAs($usuario)
+        $html = $this->actingAs($usuario)
             ->get('/intervencion/agenda')
-            ->assertSee('activo');
+            ->assertOk()
+            ->getContent();
+
+        $this->assertMatchesRegularExpression('#<a href="[^"]*/intervencion/agenda"[^>]*class="op-nav-item op-nav-item--activo"#', $html);
+        $this->assertDoesNotMatchRegularExpression('#<a href="[^"]*/intervencion/casos"[^>]*class="op-nav-item op-nav-item--activo"#', $html);
     }
 }

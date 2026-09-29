@@ -12,11 +12,25 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 **Bootstrap único: pendientes fuera del plan** — 2026-09-28
 Módulo: Frontend / Filament
 - **Tema de Filament con la paleta antigua:** `resources/css/filament/admin/theme.css` conserva `success` #4B8A5B, `warning` #B8852F, `danger` #B0432E e `info` #3F6E99, que no son los canónicos (ver anexo A de `docs/instrucciones-cli/2026-09-bootstrap-unico.md`) y en success/warning no llegan a AA. Filament queda fuera del plan; decidir si se alinea.
-- **`ui:auditar` no verifica clases asignadas desde PHP** (arrays en `@php`, `match`, variables): solo literales en atributos de clase. Valorar extraer esas tablas a un helper con test que compruebe que cada clase existe en el CSS compilado.
 - **R5 da por usada una clase que coincide con un nombre de vista o ruta.** Valorar excluir de la búsqueda de usos las cadenas `vista::…`/`route('…')`.
 - **Tests con fallo previo detectados al migrar**: TF-AUTH-16/17 (`User::name` devuelve el correo en la portada `inicio`), `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`), Agenda (columna `horario_centro_id` inexistente en `tipos_slot` en `vida_testing`; `foreach` sobre cadena en `cuadrante-supervisor-page`).
-- **Revisión visual pendiente**: ninguna pantalla migrada se ha revisado en navegador; conviene recorrer staging (expediente, plan, agenda, login).
 - **Vistas públicas con clases sin definir:** `welcome-page__hero`, `welcome-page__summary-section` (welcome) y `auth-card__form` (login). Se resuelven en la fase 3.
+
+---
+
+**Frontend: rendimiento de las pantallas grandes (revisión de Grok, fases 6 y 7)** — 2026-09-29
+Módulo: Intervención / Ciudadanía / Mensajes
+Detalle en `docs/front/revision-frontend-ui.md` §6 y `docs/front/plan-correccion-frontend-ui.md` fases 6 y 7.
+- **`CiudadanoPage`** (1.131 líneas, ~20 `#[Computed]`) y **`plan-page`** (~66 KB): un buscador `wire:model.live` (UC en el expediente, `relacionBusqueda` en la ficha) vuelve a pintar toda la pantalla. Partir en componentes hijos (timeline, accesos, UC, herramientas).
+- **Consultas en la vista:** `\App\Models\Ciudadano::find($ucCiudadanoSeleccionado)` en `ciudadano-page.blade.php`; `$datos`, `$doc` y `$yaEnPlan` dentro de bucles en `plan-page`; `Configuracion::logoUrl()` y `nombreAplicacion()` en cada request del shell.
+- **Toasts:** `wire:poll.60s` sobre todo el árbol de `AlertaToast` en todas las pantallas. No volver a Alpine con `wire:ignore`: el morph rompía el estado minimizado (ver CHANGELOG 2026-09-27). Buscar un polling más ligero (solo el contador).
+- `$herramientas` del expediente se reconstruye en cada render: sacarla a una constante.
+
+---
+
+**Dato de sexo fuera del catálogo** — 2026-09-29
+Módulo: Ciudadanía
+En la BD compartida hay un ciudadano con `sexo = 'H'`, guardado desde la ficha antes de alinearla con el catálogo `ciudadano.sexo` (M/F/D). La ficha lo muestra tal cual («H»). Corregirlo desde la ficha (editar y guardar) para que quede versionado; no con un `UPDATE`.
 
 ---
 

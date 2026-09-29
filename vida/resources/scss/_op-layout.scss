@@ -51,7 +51,7 @@
     color: $vida-ink-900;
 }
 
-.op-nav-item.activo {
+.op-nav-item--activo {
     background: $vida-primary-soft;
     color: $primary;
     font-weight: 600;
@@ -74,7 +74,7 @@
     line-height: 1.5;
 }
 
-.op-nav-badge.alerta {
+.op-nav-badge--alerta {
     background: $vida-danger-soft;
     color: $vida-danger-ink;
 }
@@ -128,39 +128,8 @@
     letter-spacing: -0.01em;
 }
 
-.topbar__section {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 1rem;
-    overflow: hidden;
-}
-
-.topbar__title {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    min-width: 0;
-    max-width: 100%;
-    white-space: nowrap;
-}
-
-.topbar__title-sep {
-    flex-shrink: 0;
-}
-
-.topbar__user {
-    position: relative;
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-    padding-right: 0.5rem;
-}
-
+// Nombre del usuario: el recorte lo pone `text-truncate`; Bootstrap no tiene
+// utilidad de ancho máximo en píxeles.
 .topbar__user-nombre {
     max-width: 180px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }

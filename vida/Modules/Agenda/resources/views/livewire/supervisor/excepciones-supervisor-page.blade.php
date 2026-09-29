@@ -82,10 +82,7 @@
         <h2 class="h6 fw-semibold mb-3" id="lista-heading">Excepciones activas y próximas</h2>
 
         @if($this->excepcionesActivas->isEmpty())
-            <div class="op-empty">
-                <x-heroicon-o-calendar-days class="op-empty__icon" aria-hidden="true"/>
-                <p class="op-empty__text">No hay excepciones activas ni programadas.</p>
-            </div>
+            <x-op.empty icono="calendar-days">No hay excepciones activas ni programadas.</x-op.empty>
         @else
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 small">

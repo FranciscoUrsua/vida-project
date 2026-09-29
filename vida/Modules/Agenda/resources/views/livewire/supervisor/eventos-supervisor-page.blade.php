@@ -33,10 +33,7 @@
         <h2 class="h6 fw-semibold mb-3" id="eventos-heading">Eventos próximos</h2>
 
         @if($this->eventosProximos->isEmpty())
-            <div class="op-empty">
-                <x-heroicon-o-users class="op-empty__icon" aria-hidden="true"/>
-                <p class="op-empty__text">No hay eventos próximos programados.</p>
-            </div>
+            <x-op.empty icono="users">No hay eventos próximos programados.</x-op.empty>
         @else
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 small">

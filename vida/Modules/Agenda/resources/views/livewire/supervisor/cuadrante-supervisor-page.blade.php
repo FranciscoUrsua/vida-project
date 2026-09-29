@@ -51,10 +51,7 @@
 
     {{-- Sin cuadrante --}}
     @if(! $this->cuadrante)
-    <div class="op-empty">
-        <x-heroicon-o-calendar-days class="op-empty__icon" aria-hidden="true"/>
-        <p class="op-empty__text">No hay cuadrante para este mes. Genera uno desde la configuración.</p>
-    </div>
+    <x-op.empty icono="calendar-days">No hay cuadrante para este mes. Genera uno desde la configuración.</x-op.empty>
     @else
 
     {{-- Grid del cuadrante --}}

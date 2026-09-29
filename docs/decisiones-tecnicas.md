@@ -158,6 +158,8 @@ Los modelos sensibles de ciudadanos (`HistoriaSocial`, `Apunte`, `Ciudadano`, `P
 
 **Decisión (2026-09-28):** sustituye a la 3.8. Las superficies operativa y pública usan solo Bootstrap 5.3. Las clases propias se limitan a un catálogo cerrado (`config/ui-catalogo.php`: 47 clases al cerrar la migración, frente a unas 560 antes), cada una con su motivo. Tokens solo como variables Sass (`_bootstrap-overrides.scss`, `_vida-sass-tokens.scss`); sin `var(--color-*)`, colores literales ni estilos inline estructurales. `php artisan ui:auditar` lo comprueba y bloquea el CI. Colores de tema propios (`protected`) se añaden a los mapas de Bootstrap en `_bootstrap-vida.scss`. Filament y los PDF quedan fuera.
 
+**Ampliación (2026-09-29):** las clases que se deciden en PHP salen de una `App\Support\Ui\FuenteClasesCss`, que declara todas las que puede devolver; el auditor las comprueba contra el CSS compilado y no admite en un atributo de clase ninguna otra interpolación. El color de un estado o tipo sale siempre del enum `Tono` (`tono()` en el enum del valor o `Tonos` del módulo): las tablas de clases no se escriben en las vistas. El catálogo queda en 39 clases.
+
 **Motivo:** las normas anteriores se incumplían sin que nada lo detectara (botón invisible por una variable CSS inexistente, cuatro formas de pintar un mismo elemento). Ver `docs/instrucciones-cli/2026-09-bootstrap-unico.md`.
 
 **BEM** sigue siendo la nomenclatura de las clases del catálogo.

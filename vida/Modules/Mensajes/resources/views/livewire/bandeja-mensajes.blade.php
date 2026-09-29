@@ -40,10 +40,7 @@
                         </div>
                     </div>
                 @empty
-                    <div class="op-empty">
-                        <x-heroicon-o-chat-bubble-left-right class="op-empty__icon" aria-hidden="true"/>
-                        <p class="op-empty__text">No tienes conversaciones.</p>
-                    </div>
+                    <x-op.empty icono="chat-bubble-left-right">No tienes conversaciones.</x-op.empty>
                 @endforelse
             </div>
         </div>
@@ -53,9 +50,7 @@
             @if($hiloActivoId)
                 <livewire:mensajes-hilo-mensajes :hiloId="$hiloActivoId" :key="'hilo-'.$hiloActivoId" />
             @else
-                <div class="op-empty">
-                    <p class="op-empty__text">Selecciona una conversación o escribe un mensaje nuevo.</p>
-                </div>
+                <x-op.empty>Selecciona una conversación o escribe un mensaje nuevo.</x-op.empty>
             @endif
         </div>
 

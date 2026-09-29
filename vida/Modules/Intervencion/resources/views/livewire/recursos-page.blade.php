@@ -36,10 +36,7 @@
     {{-- PESTAÑA PENDIENTES --}}
     @if($pestana === 'pendientes')
         @if($this->prescripcionesPendientes->isEmpty())
-            <div class="op-empty">
-                <x-heroicon-o-inbox class="op-empty__icon" aria-hidden="true"/>
-                <p class="op-empty__text">No hay prescripciones pendientes.</p>
-            </div>
+            <x-op.empty icono="inbox">No hay prescripciones pendientes.</x-op.empty>
         @else
             <div class="table-responsive">
                 <table class="table table-sm table-hover">
@@ -105,10 +102,7 @@
     {{-- PESTAÑA ACTIVAS --}}
     @if($pestana === 'activas')
         @if($this->prescripcionesActivas->isEmpty())
-            <div class="op-empty">
-                <x-heroicon-o-inbox class="op-empty__icon" aria-hidden="true"/>
-                <p class="op-empty__text">No hay prescripciones activas.</p>
-            </div>
+            <x-op.empty icono="inbox">No hay prescripciones activas.</x-op.empty>
         @else
             <div class="table-responsive">
                 <table class="table table-sm table-hover">

@@ -4,6 +4,48 @@
 
 ---
 
+## 2026-09-29 — Frontend: corrección tras la revisión de Grok
+
+Revisión en `docs/front/revision-frontend-ui.md`, plan en `docs/front/plan-correccion-frontend-ui.md`. Se aplicaron los pasos acordados con el desarrollador (1 a 5); el rendimiento (fases 6 y 7 del plan) va al BACKLOG.
+
+### Cambios
+- **Ciudadanía, sexo del ciudadano (error de datos en pantalla):** la ficha mostraba `M` como «Mujer», pero el alta lo guarda como «Masculino»; y ofrecía `H`/`M`/`NB` al editar.
+  - Migración `2026_09_29_100000_seed_catalogo_ciudadano_sexo`: catálogo `ciudadano.sexo` (M Masculino, F Femenino, D No especificado).
+  - Alta y ficha leen las opciones con `opcionesSexo` y validan con `Rule::in` contra el catálogo.
+  - Tests TF-LW-FIC-17 y 18 y TF-LW-ALT-20; FIC-06/07 y el fixture corregidos (usaban `M` para una mujer).
+- **Tests que anclan el marcado visual:**
+  - TF-LW-BUS-04 pinta el HTML y exige `bg-protected`, `text-protected-emphasis`, `btn-outline-protected`, el aviso y «Solicitar acceso».
+  - TF-AUD-INT-05 a 07 comprueban las clases del acceso marcado con `data-acceso`; renombrados (`…_se_marca_como_…`).
+  - TF-LW-AGE-14 comprueba el enlace activo concreto, no la palabra «activo».
+  - Todos verificados en negativo: fallan al quitar la clase de la vista.
+- **`ui:auditar`:**
+  - **R7:** clases exigidas en el CSS compilado (`clases_exigidas` en `config/ui-auditoria.php`): la familia `protected`. Probado reordenando los imports de `_bootstrap-vida.scss`: faltan 3 clases y el auditor falla.
+  - **R1 sobre clases decididas en PHP:** en un atributo de clase, cada `{{ }}` se resuelve en literales (también ternarios y `??`) o en una llamada a un método `clases…()`. Las clases de esos métodos salen de una `FuenteClasesCss` (`App\Support\Ui`), que el auditor localiza sola y comprueba contra el CSS operativo. Concatenar clases pasa de aviso a infracción.
+  - Tests TF-UI-22 a 26.
+- **Paleta única de estados:** enum `App\Support\Ui\Tono` con `clasesSuave()`, `clasesFuerte()`, `clasesPunto()` y `clasesBloque()`.
+  - `tono()` en `TipoApunte`, `EstadoPlan`, `EstadoCuadrante`, `TipoExcepcion` y `EstadoAlerta`.
+  - Clase `Tonos` en Intervención, Ciudadanía, Agenda y Supervisión para los valores sin enum.
+  - Fuera las tablas de clases de 11 vistas.
+- **Sass:** `html { font-size: 18px }` pasa a `$font-size-root: 18px` en `app-operativo.scss` (misma escala; el público sigue a 16px). `_bootstrap-vida.scss` documenta el orden obligatorio (A a F).
+- **Catálogo: de 47 a 39 clases.**
+  - `activo` → `op-nav-item--activo`, `alerta` → `op-nav-badge--alerta` (los nombres genéricos colisionaban con valores de estado y R5 no podía detectar el desuso).
+  - Fuera `op-collapse-label-*` (el botón dice «Detalle» y el chevron gira), `topbar__section`, `topbar__title`, `topbar__title-sep` y `topbar__user` (utilidades de Bootstrap), `icon-13` (→ `icon-14`) e `icon-15` (→ `icon-16`).
+  - Componente `<x-op.empty icono="…">` para los 23 estados vacíos.
+
+### Decisiones no previstas en las instrucciones
+- **El CI no ejecuta PHPUnit**, solo `ui:auditar`. Por eso la comprobación de las clases de PHP va en el auditor y no en un test.
+- **Se descarta `$font-size-base`** (propuesta de Grok): no equivale a la regla sobre `html`. `$font-size-root` sí.
+- **No se toca `mensajes-toasts`:** tematiza los toasts y fija el ancho responsive, no solo el desplazamiento. **`mensajes-hilo__bubble`** se queda (ancho máximo del 70 %). **`op-empty`** se queda dentro del componente.
+- **No se crea `<x-op.badge-estado>`:** con `Tono`, un badge es `badge` más una llamada, y el componente no ahorra nada.
+- **Clases inexistentes descubiertas:** `bg-purple-subtle`, `text-purple-emphasis` y `border-dashed` en el cuadrante del supervisor. Las sesiones pasan a tono info y las reservas a neutro.
+- **Etiquetas de estado:** siguen en las vistas; solo salen las clases.
+
+### Tests
+- Ciudadanía, Intervención, Mensajes y `tests/Feature/Ui`: en verde salvo fallos previos (FIC-11 y `FichaAtencionTest`, texto «Ver historia social»).
+- Supervisión: 3 fallos previos. Agenda: 63 fallos previos, iguales sin estos cambios (esquema de `tipos_slot` y `franjas` codificado dos veces). Las vistas de supervisor de Agenda migradas no las cubre ningún test que pase: se comprobó que compilan.
+
+---
+
 ## 2026-09-28 — Frontend: Bootstrap único, fases 3 (resto), 4 y 5
 
 ### Cambios

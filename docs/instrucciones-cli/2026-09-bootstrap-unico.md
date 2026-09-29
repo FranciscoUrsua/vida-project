@@ -375,4 +375,7 @@ Revisión en `docs/front/revision-frontend-ui.md` y plan en
 - Salieron a la luz clases inexistentes que el auditor no veía:
   `bg-purple-subtle`, `text-purple-emphasis` y `border-dashed` en el cuadrante
   del supervisor (las sesiones pasan a tono info; las reservas, a neutro).
+- **Catálogo:** de 47 a 39 clases. `op-nav-item--activo` y `op-nav-badge--alerta`
+  sustituyen a `activo` y `alerta`. Estados vacíos con `<x-op.empty icono="…">`.
+  Tamaño raíz del operativo con `$font-size-root` (18px), no con una regla sobre `html`.
 

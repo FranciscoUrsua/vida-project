@@ -9,10 +9,7 @@
 
     <section class="p-3">
         @if($this->actividades->isEmpty())
-            <div class="op-empty">
-                <x-heroicon-o-user-group class="op-empty__icon" aria-hidden="true"/>
-                <p class="op-empty__text">No hay actividades programadas.</p>
-            </div>
+            <x-op.empty icono="user-group">No hay actividades programadas.</x-op.empty>
         @else
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
@@ -214,10 +211,7 @@
                     </div>
 
                     @if($this->sesiones->isEmpty())
-                        <div class="op-empty">
-                            <x-heroicon-o-calendar class="op-empty__icon" aria-hidden="true"/>
-                            <p class="op-empty__text">No hay sesiones programadas para esta actividad.</p>
-                        </div>
+                        <x-op.empty icono="calendar">No hay sesiones programadas para esta actividad.</x-op.empty>
                     @else
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">

@@ -1,12 +1,7 @@
 {{-- Pestaña de alertas o avisos de la bandeja --}}
 <div>
     @if($this->alertas->isEmpty())
-        <div class="op-empty">
-            <x-heroicon-o-check-circle class="op-empty__icon" aria-hidden="true"/>
-            <p class="op-empty__text">
-                {{ $tipo === 'alerta' ? 'No tienes alertas pendientes.' : 'No tienes avisos pendientes.' }}
-            </p>
-        </div>
+        <x-op.empty icono="check-circle">{{ $tipo === 'alerta' ? 'No tienes alertas pendientes.' : 'No tienes avisos pendientes.' }}</x-op.empty>
     @else
         <ul class="list-group">
             @foreach($this->alertas as $alerta)

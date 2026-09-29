@@ -35,28 +35,22 @@ return [
         'op-avatar--sm' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Avatar pequeño (topbar, listas).'],
         'op-lista-scroll' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Lista corta con scroll propio y alto máximo (selector de profesionales). Bootstrap no tiene utilidad de alto máximo.'],
         'op-toggle-icon' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Chevron que gira cuando su ancestro tiene aria-expanded="true" (collapse y dropdown de Bootstrap).'],
-        'op-collapse-label-collapsed' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Texto del botón de un collapse cuando está cerrado (Bootstrap añade .collapsed).'],
-        'op-collapse-label-expanded' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Texto del botón de un collapse cuando está abierto.'],
 
         // resources/scss/_op-layout.scss
         'op-layout' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Shell operativo: sidebar fija y contenido. Estructura propia de la aplicación.'],
         'op-sidebar' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Barra lateral fija bajo el topbar, con scroll propio.'],
         'op-nav' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Lista de navegación de la barra lateral.'],
         'op-nav-item' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Elemento de la navegación lateral.'],
-        'activo' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Estado del elemento de navegación de la ruta actual (.op-nav-item.activo). Lo comprueban los tests de navegación.'],
+        'op-nav-item--activo' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Elemento de la navegación de la ruta actual. Lo comprueban los tests de navegación.'],
         'op-nav-icon' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Icono de un elemento de la navegación lateral.'],
         'op-nav-badge' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Contador de un elemento de la navegación lateral.'],
-        'alerta' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Contador de la navegación en tono de alerta (.op-nav-badge.alerta).'],
+        'op-nav-badge--alerta' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Contador de la navegación en tono de alerta.'],
         'op-main' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Zona de contenido del shell, desplazada por la sidebar y el topbar fijos.'],
         'op-topbar' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Barra superior fija del shell operativo.'],
         'topbar__logo' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Zona del logo del topbar, alineada con el ancho de la sidebar.'],
         'topbar__logo-img' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Imagen del logo (alto máximo).'],
         'topbar__logo-text' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Nombre de la aplicación junto al logo.'],
-        'topbar__section' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Zona central del topbar con el título de la sección.'],
-        'topbar__title' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Título de sección del topbar en una línea.'],
-        'topbar__title-sep' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Separador entre área y sección en el título del topbar.'],
-        'topbar__user' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Zona del usuario (dropdown) en el topbar.'],
-        'topbar__user-nombre' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Nombre del usuario en el topbar, recortado con puntos suspensivos a un ancho máximo.'],
+        'topbar__user-nombre' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Ancho máximo del nombre del usuario en el topbar (el recorte lo pone text-truncate). Bootstrap no tiene utilidad de ancho máximo en píxeles.'],
 
         // resources/scss/_op-mensajes.scss
         'mensajes-bandeja' => ['tipo' => 'pantalla', 'estado' => 'aprobada', 'descripcion' => 'Alto mínimo de la bandeja de alertas y mensajes.'],
@@ -74,9 +68,7 @@ return [
 
         // resources/scss/_op-utilities.scss
         'icon-12' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Tamaño de icono Heroicons de 12px. Bootstrap no dimensiona SVG.'],
-        'icon-13' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Tamaño de icono Heroicons de 13px. Bootstrap no dimensiona SVG.'],
         'icon-14' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Tamaño de icono Heroicons de 14px. Bootstrap no dimensiona SVG.'],
-        'icon-15' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Tamaño de icono Heroicons de 15px. Bootstrap no dimensiona SVG.'],
         'icon-16' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Tamaño de icono Heroicons de 16px. Bootstrap no dimensiona SVG.'],
         'icon-18' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Tamaño de icono Heroicons de 18px. Bootstrap no dimensiona SVG.'],
         'icon-20' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Tamaño de icono Heroicons de 20px. Bootstrap no dimensiona SVG.'],

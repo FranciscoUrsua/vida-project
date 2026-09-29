@@ -22,10 +22,7 @@
                 </div>
 
                 @if($this->escaladas->isEmpty())
-                    <div class="op-empty">
-                        <x-heroicon-o-check-circle class="op-empty__icon" aria-hidden="true"/>
-                        <p class="op-empty__text">No tienes alertas escaladas.</p>
-                    </div>
+                    <x-op.empty icono="check-circle">No tienes alertas escaladas.</x-op.empty>
                 @else
                     <ul class="list-group list-group-flush">
                         @foreach($this->escaladas as $parte)
@@ -84,10 +81,7 @@
                 </div>
 
                 @if($this->alertasEquipo->isEmpty())
-                    <div class="op-empty">
-                        <x-heroicon-o-bell class="op-empty__icon" aria-hidden="true"/>
-                        <p class="op-empty__text">No hay alertas ni avisos que mostrar.</p>
-                    </div>
+                    <x-op.empty icono="bell">No hay alertas ni avisos que mostrar.</x-op.empty>
                 @else
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">

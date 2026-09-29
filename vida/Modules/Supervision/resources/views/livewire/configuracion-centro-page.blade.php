@@ -75,10 +75,7 @@
         </div>
 
         @if($this->salas->isEmpty())
-            <div class="op-empty">
-                <x-heroicon-o-building-office class="op-empty__icon" aria-hidden="true"/>
-                <p class="op-empty__text">No hay salas registradas en este centro.</p>
-            </div>
+            <x-op.empty icono="building-office">No hay salas registradas en este centro.</x-op.empty>
         @else
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">

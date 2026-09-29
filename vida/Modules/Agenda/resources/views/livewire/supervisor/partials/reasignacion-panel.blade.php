@@ -22,10 +22,7 @@
         <p class="fw-semibold mb-3">Slots disponibles hoy</p>
 
         @if($this->slotsDisponiblesHoy->isEmpty())
-            <div class="op-empty py-3">
-                <x-heroicon-o-calendar-days class="op-empty__icon" aria-hidden="true"/>
-                <p class="op-empty__text">No hay slots disponibles hoy para este tipo de atención.</p>
-            </div>
+            <x-op.empty icono="calendar-days" class="py-3">No hay slots disponibles hoy para este tipo de atención.</x-op.empty>
         @else
             @foreach($this->slotsDisponiblesHoy as $slot)
             @php $esUrgencia = $slot->estado->value === 'bloqueado_urgencia'; @endphp

@@ -7,7 +7,7 @@
         </h2>
         @if($this->puedeEditar)
             <button type="button" wire:click="abrirAlta" class="btn btn-outline-primary btn-sm">
-                <x-heroicon-o-arrow-up-tray class="icon-13" aria-hidden="true"/>
+                <x-heroicon-o-arrow-up-tray class="icon-14" aria-hidden="true"/>
                 Subir documento
             </button>
         @endif
@@ -18,10 +18,7 @@
     @endif
 
     @if($this->documentos->isEmpty())
-        <div class="op-empty">
-            <x-heroicon-o-document-text class="op-empty__icon" aria-hidden="true"/>
-            <p class="op-empty__text">No hay documentos asociados a esta persona.</p>
-        </div>
+        <x-op.empty icono="document-text">No hay documentos asociados a esta persona.</x-op.empty>
     @else
         <ul class="list-group list-group-flush">
             @foreach($this->documentos as $documento)
@@ -65,15 +62,15 @@
                         <div class="d-flex flex-wrap gap-1">
                             @if($vigente)
                                 <a href="{{ $this->urlVer($documento) }}" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm">
-                                    <x-heroicon-o-eye class="icon-13" aria-hidden="true"/> Ver
+                                    <x-heroicon-o-eye class="icon-14" aria-hidden="true"/> Ver
                                 </a>
                                 <a href="{{ $this->urlDescarga($documento) }}" class="btn btn-outline-secondary btn-sm">
-                                    <x-heroicon-o-arrow-down-tray class="icon-13" aria-hidden="true"/> Descargar
+                                    <x-heroicon-o-arrow-down-tray class="icon-14" aria-hidden="true"/> Descargar
                                 </a>
                             @endif
                             @if($this->puedeEditar && $this->admiteVersiones($documento))
                                 <button type="button" wire:click="abrirNuevaVersion({{ $documento->id }})" class="btn btn-outline-secondary btn-sm">
-                                    <x-heroicon-o-arrow-path class="icon-13" aria-hidden="true"/> Nueva versión
+                                    <x-heroicon-o-arrow-path class="icon-14" aria-hidden="true"/> Nueva versión
                                 </button>
                             @endif
                             @if($this->puedeEditar)
@@ -81,7 +78,7 @@
                                         wire:click="desvincular({{ $documento->id }})"
                                         wire:confirm="El documento dejará de estar asociado a esta persona. No se borra y las demás personas vinculadas lo seguirán viendo. ¿Continuar?"
                                         class="btn btn-outline-danger btn-sm">
-                                    <x-heroicon-o-link-slash class="icon-13" aria-hidden="true"/> Desvincular
+                                    <x-heroicon-o-link-slash class="icon-14" aria-hidden="true"/> Desvincular
                                 </button>
                             @endif
                         </div>
@@ -90,7 +87,7 @@
                     @if($anteriores->isNotEmpty())
                         <button type="button" wire:click="alternarHistorial({{ $documento->id }})"
                                 class="btn btn-link btn-sm px-0 mt-1" aria-expanded="{{ $abierto ? 'true' : 'false' }}">
-                            <x-heroicon-o-clock class="icon-13" aria-hidden="true"/>
+                            <x-heroicon-o-clock class="icon-14" aria-hidden="true"/>
                             {{ $abierto ? 'Ocultar' : 'Ver' }} versiones anteriores ({{ $anteriores->count() }})
                         </button>
                         @if($abierto)
@@ -226,7 +223,7 @@
                         <button type="button" wire:click="cerrarModal" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                         <button type="submit" class="btn btn-primary btn-sm" wire:loading.attr="disabled" wire:target="guardar,fichero">
                             <span wire:loading.remove wire:target="guardar">
-                                <x-heroicon-o-check class="icon-13" aria-hidden="true"/> Guardar
+                                <x-heroicon-o-check class="icon-14" aria-hidden="true"/> Guardar
                             </span>
                             <span wire:loading wire:target="guardar">Comprobando y guardando…</span>
                         </button>

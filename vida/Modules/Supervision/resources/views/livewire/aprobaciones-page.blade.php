@@ -25,10 +25,7 @@
         {{-- Solicitudes de rol --}}
         @if(in_array($tabActiva, ['todas', 'roles']))
             @if($this->solicitudesRol->isEmpty())
-                <div class="op-empty">
-                    <x-heroicon-o-check-badge class="op-empty__icon" aria-hidden="true"/>
-                    <p class="op-empty__text">No hay solicitudes de rol pendientes.</p>
-                </div>
+                <x-op.empty icono="check-badge">No hay solicitudes de rol pendientes.</x-op.empty>
             @else
                 <div class="list-group list-group-flush border rounded mb-3">
                     @foreach($this->solicitudesRol as $solicitud)

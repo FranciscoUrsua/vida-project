@@ -235,7 +235,7 @@
                     </h2>
                     @if($puedeEditar)
                         <button wire:click="abrirModalDocumento" type="button" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
-                            <x-heroicon-o-plus class="icon-13" aria-hidden="true"/>
+                            <x-heroicon-o-plus class="icon-14" aria-hidden="true"/>
                             Añadir documento
                         </button>
                     @endif
@@ -293,7 +293,7 @@
                     </h2>
                     @if($puedeEditarRel)
                         <button wire:click="abrirModalNuevaRelacion" type="button" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
-                            <x-heroicon-o-plus class="icon-13" aria-hidden="true"/>
+                            <x-heroicon-o-plus class="icon-14" aria-hidden="true"/>
                             Añadir relación
                         </button>
                     @endif
@@ -343,7 +343,7 @@
                     <div class="mt-2">
                         <button wire:click="toggleHistorialRelaciones" type="button"
                             class="btn btn-link btn-sm text-decoration-none px-0 d-inline-flex align-items-center gap-1">
-                            <x-dynamic-component :component="$mostrarHistorialRelaciones ? 'heroicon-o-chevron-up' : 'heroicon-o-chevron-down'" class="icon-13" aria-hidden="true"/>
+                            <x-dynamic-component :component="$mostrarHistorialRelaciones ? 'heroicon-o-chevron-up' : 'heroicon-o-chevron-down'" class="icon-14" aria-hidden="true"/>
                             {{ $mostrarHistorialRelaciones ? 'Ocultar historial' : "Ver historial ({$relacionesHist->count()})" }}
                         </button>
                         @if($mostrarHistorialRelaciones)
@@ -487,8 +487,7 @@
                             aria-expanded="false"
                             aria-controls="atencion-{{ $registro->id }}"
                         >
-                            <span class="op-collapse-label-collapsed">Ver detalle</span>
-                            <span class="op-collapse-label-expanded">Ocultar</span>
+                            Detalle
                             <x-heroicon-o-chevron-down class="icon-12 op-toggle-icon" aria-hidden="true"/>
                         </button>
                         <div class="collapse" id="atencion-{{ $registro->id }}">
@@ -750,7 +749,7 @@
             <div class="modal-footer">
                 <button wire:click="cerrarModalAtencion" class="btn btn-outline-secondary btn-sm" type="button">Cancelar</button>
                 <button wire:click="guardarAtencion" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1" type="button">
-                    <x-heroicon-o-check class="icon-13" aria-hidden="true"/>
+                    <x-heroicon-o-check class="icon-14" aria-hidden="true"/>
                     Guardar atención
                 </button>
             </div>

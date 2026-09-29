@@ -16,10 +16,7 @@
 
     <section class="p-3 mt-2">
         @if($this->profesionales->isEmpty())
-            <div class="op-empty">
-                <x-heroicon-o-users class="op-empty__icon" aria-hidden="true"/>
-                <p class="op-empty__text">No hay profesionales en este centro.</p>
-            </div>
+            <x-op.empty icono="users">No hay profesionales en este centro.</x-op.empty>
         @else
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
