@@ -1,6 +1,8 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-09-30
+**Última actualización:** 2026-09-30 (tarde)
+
+> **En curso: Citas** (`docs/instrucciones-cli/2026-09-citas-implementacion.md`). Paso 0 hecho: tests de Agenda en verde (commit `c0b4584`, con 4 fallos de la aplicación corregidos y el pivote `horario_centro_tipo_slot`). Decidido: eliminar la columna `tipos_slot.genera_apunte_automatico` (nadie la lee). **Siguiente: paso 1 (tipos de cita).**
 
 ---
 
