@@ -240,11 +240,13 @@ Trait `AsignacionTestSetup`:
 
 | Grupo | Tests | Estado |
 |---|---|---|
-| A — Territorio y geocodificación | TF-ASG-01..04 | |
-| B — Ámbitos y cobertura | TF-ASG-05..08 | |
-| C — Asignación de centro | TF-ASG-09..15 | |
-| D — Profesionales del reparto | TF-ASG-16..17 | |
-| E — Sorteo | TF-ASG-18..24 | |
-| F — Asignación inicial | TF-ASG-25..30 | |
-| G — Reparto por salida | TF-ASG-31..32 | |
-| H — Actividad y bandeja | TF-ASG-33..34 | |
+| A — Territorio y geocodificación | TF-ASG-01..04 | ✅ 2026-09-30 |
+| B — Ámbitos y cobertura | TF-ASG-05..08 | ✅ 2026-09-30 |
+| C — Asignación de centro | TF-ASG-09..15 | ✅ 2026-09-30 |
+| D — Profesionales del reparto | TF-ASG-16..17 | ✅ 2026-09-30 |
+| E — Sorteo | TF-ASG-18..24 | ✅ 2026-09-30 |
+| F — Asignación inicial | TF-ASG-25..30 | ✅ 2026-09-30 |
+| G — Reparto por salida | TF-ASG-31..32 | ✅ 2026-09-30 |
+| H — Actividad y bandeja | TF-ASG-33..34 | ✅ 2026-09-30 |
+
+Además de los 34, hay casos de pantalla y de límites: la acción de Filament de cobertura (`AmbitoCoberturaTest`), el umbral por centro, el plan cerrado y el N+1 del resumen (`ActividadCasosTest`), y la resolución desde la bandeja, el reparto de otro centro y la ficha (`BandejaAsignacionesTest`).

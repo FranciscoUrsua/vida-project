@@ -5,8 +5,10 @@ namespace Database\Seeders\Demo;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Models\UsuarioUo;
+use Modules\Centro\Models\AmbitoTerritorial;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Sala;
+use Modules\Organizacion\Models\Distrito;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
 use Modules\Usuarios\Models\TipoRelacionProfesional;
@@ -108,10 +110,23 @@ class DemoWorldBuilder
             $centroModel = Centro::create([
                 'nombre' => $centro['nombre'],
                 'tipo_gestion' => 'municipal_directo',
+                // Los centros de ASP son centros de servicios sociales; el resto no tiene tipo en los mundos
+                'tipo_centro' => $centro['tipo'] === 'asp' ? 'css_general' : null,
                 'unidad_organizativa_id' => $uo->id,
                 'activo' => true,
                 'fecha_alta' => today(),
             ]);
+
+            // El distrito del mundo pasa a ser el ámbito del centro, para que la asignación por domicilio funcione en la demo
+            $distrito = Distrito::where('nombre', $centro['distrito'] ?? '')->first();
+            if ($distrito !== null && $centroModel->tipo_centro !== null) {
+                AmbitoTerritorial::create([
+                    'centro_id' => $centroModel->id,
+                    'tipo' => 'demarcacion_oficial',
+                    'descripcion' => 'Distrito de '.$distrito->nombre,
+                    'referencia_id' => $distrito->id,
+                ]);
+            }
 
             $unidades[$centro['id']] = $uo;
             $centroModels[$centro['id']] = $centroModel;

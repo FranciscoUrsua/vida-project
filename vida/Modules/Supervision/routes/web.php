@@ -5,12 +5,14 @@ use Modules\Mensajes\Http\Livewire\BandejaAlertasYMensajes;
 use Modules\Mensajes\Http\Livewire\ControlAlertasPage;
 use Modules\Supervision\Http\Livewire\ActividadesPage;
 use Modules\Supervision\Http\Livewire\AprobacionesPage;
+use Modules\Supervision\Http\Livewire\AsignacionesPage;
 use Modules\Supervision\Http\Livewire\AuditoriaPage;
 use Modules\Supervision\Http\Livewire\ConfiguracionCentroPage;
 use Modules\Supervision\Http\Livewire\CuadrantePage;
 use Modules\Supervision\Http\Livewire\EquipoPage;
 use Modules\Supervision\Http\Livewire\InicioPage;
 use Modules\Supervision\Http\Livewire\PlazasPage;
+use Modules\Supervision\Http\Livewire\RepartoCasosPage;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +37,10 @@ Route::middleware(['web', 'auth', 'role:supervision'])->prefix('supervision')->n
     Route::get('/plazas', PlazasPage::class)->name('plazas');
     Route::get('/equipo', EquipoPage::class)->name('equipo');
     Route::get('/equipo/{profesional}', EquipoPage::class)->name('equipo.profesional');
+    Route::get('/asignaciones/reparto/{reparto}', RepartoCasosPage::class)->name('asignaciones.reparto');
+    Route::get('/asignaciones/{pestana?}', AsignacionesPage::class)
+        ->whereIn('pestana', ['pendientes', 'actividad'])
+        ->name('asignaciones');
     Route::get('/auditoria', AuditoriaPage::class)->name('auditoria');
     Route::get('/aprobaciones', AprobacionesPage::class)->name('aprobaciones');
     Route::get('/configuracion', ConfiguracionCentroPage::class)->name('configuracion');

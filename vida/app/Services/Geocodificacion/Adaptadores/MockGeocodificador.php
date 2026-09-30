@@ -3,8 +3,10 @@
 namespace App\Services\Geocodificacion\Adaptadores;
 
 use App\Enums\TipoNumeracion;
+use Closure;
 use App\Services\Geocodificacion\GeocodificadorInterface;
 use App\Services\Geocodificacion\ResultadoGeocodificacion;
+use Modules\Organizacion\Models\SeccionCensal;
 
 /**
  * Adaptador de geocodificación para desarrollo y pruebas.
@@ -12,6 +14,12 @@ use App\Services\Geocodificacion\ResultadoGeocodificacion;
  * Implementa un parser de texto libre con reglas para extraer los campos
  * estructurados de una dirección española, más coordenadas aleatorias dentro
  * del bounding box del municipio de Madrid.
+ *
+ * Los códigos territoriales (NDP, distrito, barrio y sección) son coherentes con
+ * el catálogo sembrado: la sección se elige de forma determinista a partir del
+ * portal (vía + número), de modo que la misma dirección cae siempre en la misma
+ * sección y dos personas del mismo portal comparten NDP y sección. Si el catálogo
+ * está vacío, los códigos quedan a null.
  *
  * No valida que la dirección exista realmente ni calcula coordenadas precisas.
  * Su objetivo es que toda la lógica que consume ResultadoGeocodificacion funcione
@@ -22,6 +30,19 @@ use App\Services\Geocodificacion\ResultadoGeocodificacion;
 class MockGeocodificador implements GeocodificadorInterface
 {
     private const IDENTIFICADOR = 'mock';
+
+    /** @var Closure(string, int): (SeccionCensal|null) Elige la sección para una clave de portal y su hash. */
+    private readonly Closure $elegirSeccion;
+
+    /**
+     * @param Closure(string, int): (SeccionCensal|null)|null $elegirSeccion Cómo se elige la sección
+     *        de un portal. Por defecto, del catálogo de la BD; el test del parser pasa uno sin catálogo
+     *        para probar el texto sin base de datos.
+     */
+    public function __construct(?Closure $elegirSeccion = null)
+    {
+        $this->elegirSeccion = $elegirSeccion ?? fn (string $clave, int $hash) => $this->seccionDelCatalogo($hash);
+    }
 
     /** Bbox aproximado del municipio de Madrid (WGS84). */
     private const LAT_MIN = 40.31;
@@ -87,6 +108,10 @@ class MockGeocodificador implements GeocodificadorInterface
         // Coordenadas aleatorias dentro del bbox de Madrid
         [$latitud, $longitud] = $this->coordenadasAleatorias();
 
+        // Códigos territoriales deterministas por portal
+        $clavePortal = $this->clavePortal($texto, $tipoVia, $nombreVia, $numero);
+        $seccion = $this->seccionDeterminista($clavePortal);
+
         return new ResultadoGeocodificacion(
             exito: true,
             tipoVia: $tipoVia,
@@ -102,7 +127,61 @@ class MockGeocodificador implements GeocodificadorInterface
             latitud: $latitud,
             longitud: $longitud,
             proveedor: self::IDENTIFICADOR,
+            codigoNdp: $seccion ? 'MOCK'.strtoupper(substr(md5($clavePortal), 0, 12)) : null,
+            codigoDistrito: $seccion?->distrito?->codigo,
+            codigoBarrio: $seccion?->barrio?->codigo,
+            seccionCensal: $seccion?->codigo_ine,
         );
+    }
+
+    /**
+     * Clave que identifica el portal: vía y número, sin piso ni puerta. Si el
+     * parser no extrajo la vía, se usa el texto completo.
+     *
+     * @param string $texto Texto original.
+     * @param string|null $tipoVia Tipo de vía extraído.
+     * @param string|null $nombreVia Nombre de vía extraído.
+     * @param string|null $numero Número extraído.
+     * @return string
+     */
+    private function clavePortal(string $texto, ?string $tipoVia, ?string $nombreVia, ?string $numero): string
+    {
+        $clave = $nombreVia ? implode('|', [$tipoVia, $nombreVia, $numero]) : $texto;
+
+        return mb_strtolower(preg_replace('/\s+/', ' ', trim($clave)));
+    }
+
+    /**
+     * Elige una sección censal en función de la clave del portal: el mismo
+     * portal da siempre la misma sección mientras no cambie el catálogo.
+     *
+     * @param string $clavePortal Clave del portal.
+     * @return SeccionCensal|null
+     */
+    private function seccionDeterminista(string $clavePortal): ?SeccionCensal
+    {
+        return ($this->elegirSeccion)($clavePortal, crc32($clavePortal));
+    }
+
+    /**
+     * Sección activa del catálogo en la posición que marca el hash del portal.
+     *
+     * @param int $hash Hash de la clave del portal.
+     * @return SeccionCensal|null Null si el catálogo está vacío.
+     */
+    private function seccionDelCatalogo(int $hash): ?SeccionCensal
+    {
+        $total = SeccionCensal::activas()->count();
+
+        if ($total === 0) {
+            return null;
+        }
+
+        return SeccionCensal::activas()
+            ->with(['distrito', 'barrio'])
+            ->orderBy('codigo_ine')
+            ->offset($hash % $total)
+            ->first();
     }
 
     // -------------------------------------------------------------------------

@@ -18,7 +18,11 @@ use Modules\Ciudadania\Contracts\FuenteIdentidadInterface;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
 use Modules\Ciudadania\Services\MotorMatching;
 use Modules\Ciudadania\Services\NormalizadorCiudadano;
+use Modules\Centro\Enums\ModoAsignacionReferenciaCentro;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
+use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Intervencion\Services\AperturaHistoriaService;
+use Modules\Intervencion\Services\Asignacion\PoolReferenciaService;
 
 /**
  * Componente Livewire del flujo de alta de ciudadano.
@@ -31,6 +35,9 @@ use Modules\Intervencion\Services\AperturaHistoriaService;
  *
  * @property-read array<string, string> $opcionesSexo
  * @property-read bool $puedeAbrirHistoria
+ * @property-read ModoAsignacionReferenciaCentro|null $modoReferencia
+ * @property-read array<int, string> $profesionalesElegibles
+ * @property-read bool $referenciaQuienAbre
  */
 #[Layout('layouts.operativo')]
 class AltaCiudadano extends Component
@@ -113,10 +120,15 @@ class AltaCiudadano extends Component
     public string $accionPostAlta = 'ficha'; // cita | ficha | solo_alta
 
     /**
-     * Abrir la historia social al confirmar y quedar como profesional de referencia.
+     * Abrir la historia social al confirmar. En centros «quien abre», quien da el
+     * alta queda como profesional de referencia; en los demás la referencia la
+     * decide el modo del centro (docs/modulo-asignacion.md §4.4).
      * Solo tiene efecto si puedeAbrirHistoria (rol intervención con permiso de crear).
      */
     public bool $abrirHistoria = true;
+
+    /** Profesional de referencia elegido por la persona (centros de libre elección); vacío = sorteo. */
+    public ?int $referenciaElegidaId = null;
 
     public ?int $ciudadanoIdCreado = null;
 
@@ -127,6 +139,8 @@ class AltaCiudadano extends Component
     /**
      * Busca posibles duplicados usando el motor de matching.
      * No transiciona de fase. Solo requiere al menos un criterio.
+     *
+     * @return void
      */
     public function buscar(): void
     {
@@ -168,6 +182,7 @@ class AltaCiudadano extends Component
      * Redirige a la ficha de un ciudadano existente.
      *
      * @param int $ciudadanoId ID del ciudadano seleccionado.
+     * @return void
      */
     public function seleccionarExistente(int $ciudadanoId): void
     {
@@ -177,6 +192,8 @@ class AltaCiudadano extends Component
     /**
      * Precarga datos de búsqueda en el formulario y transiciona a la fase padron.
      * Requiere que la búsqueda haya sido realizada.
+     *
+     * @return void
      */
     public function continuarConNuevoAlta(): void
     {
@@ -207,6 +224,8 @@ class AltaCiudadano extends Component
      * RESTRICCIÓN DE SEGURIDAD VVG: si la excepción es 'vvg', este método
      * no invoca FuenteIdentidadInterface bajo ninguna circunstancia.
      * La condición se evalúa antes de cualquier llamada HTTP.
+     *
+     * @return void
      */
     public function consultarPadron(): void
     {
@@ -247,6 +266,7 @@ class AltaCiudadano extends Component
      * PSH y VVG solo están disponibles para roles intervencion y supervision.
      *
      * @param string $excepcion psh | vvg | representante | otra
+     * @return void
      */
     public function seleccionarExcepcionPadron(string $excepcion): void
     {
@@ -269,6 +289,8 @@ class AltaCiudadano extends Component
 
     /**
      * Valida, normaliza, ejecuta segunda pasada de matching y guarda el ciudadano.
+     *
+     * @return void
      */
     public function guardar(): void
     {
@@ -386,7 +408,14 @@ class AltaCiudadano extends Component
         if ($this->abrirHistoria && $this->puedeAbrirHistoria && $this->ciudadanoIdCreado !== null) {
             /** @var User $profesional */
             $profesional = auth()->user();
-            app(AperturaHistoriaService::class)->abrir($this->ciudadanoIdCreado, $profesional);
+
+            // Solo se admite un elegido de la lista del reparto; lo demás se ignora (y el servicio lo revalida)
+            $elegido = $this->referenciaElegidaId !== null && array_key_exists($this->referenciaElegidaId, $this->profesionalesElegibles)
+                ? User::find($this->referenciaElegidaId)
+                : null;
+
+            $historia = app(AperturaHistoriaService::class)->abrir($this->ciudadanoIdCreado, $profesional, $elegido);
+            session()->flash('referencia-asignada', $this->textoReferencia($historia));
         }
 
         match ($this->accionPostAlta) {
@@ -443,8 +472,86 @@ class AltaCiudadano extends Component
     }
 
     /**
-     * Indica si quien da el alta puede abrir la historia y quedar como
-     * profesional de referencia: rol intervención y permiso de crear historias.
+     * Modo de asignación de referencia del centro de quien da el alta. Null si
+     * su UO no tiene centro: se comporta como «quien abre».
+     *
+     * @return ModoAsignacionReferenciaCentro|null
+     */
+    #[Computed]
+    public function modoReferencia(): ?ModoAsignacionReferenciaCentro
+    {
+        /** @var User $usuario */
+        $usuario = auth()->user();
+
+        return app(AperturaHistoriaService::class)->modoDelCentro($usuario);
+    }
+
+    /**
+     * Si quien abre la historia queda como referencia (centro «quien abre» o sin centro).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function referenciaQuienAbre(): bool
+    {
+        return in_array($this->modoReferencia, [null, ModoAsignacionReferenciaCentro::QuienAbre], true);
+    }
+
+    /**
+     * Profesionales del reparto del centro entre los que la persona puede elegir
+     * (solo en centros de libre elección), como id => nombre.
+     *
+     * @return array<int, string>
+     */
+    #[Computed]
+    public function profesionalesElegibles(): array
+    {
+        if ($this->modoReferencia !== ModoAsignacionReferenciaCentro::LibreEleccion) {
+            return [];
+        }
+
+        $centro = app(CentroDeUsuario::class)->centroActivo(auth()->user());
+
+        return app(PoolReferenciaService::class)->elegibles($centro, today())
+            ->mapWithKeys(fn (array $e) => [$e['usuario']->id => $this->nombreProfesional($e['usuario'])])
+            ->all();
+    }
+
+    /**
+     * Texto que informa, tras abrir la historia, de quién ha quedado como referencia y cómo.
+     *
+     * @param HistoriaSocial $historia
+     * @return string
+     */
+    private function textoReferencia(HistoriaSocial $historia): string
+    {
+        $referencia = AsignacionProfesional::vigente()->where('historia_id', $historia->id)->with('profesional.profesional')->first();
+
+        if ($referencia === null) {
+            return 'Historia social abierta sin profesional de referencia: queda en la bandeja de asignaciones de supervisión.';
+        }
+
+        return 'Historia social abierta. Profesional de referencia: '
+            .$this->nombreProfesional($referencia->profesional)
+            .' ('.mb_strtolower($referencia->origen->label()).').';
+    }
+
+    /**
+     * Nombre visible de un usuario profesional.
+     *
+     * @param User $usuario
+     * @return string
+     */
+    private function nombreProfesional(User $usuario): string
+    {
+        $profesional = $usuario->profesional;
+
+        return $profesional ? trim("{$profesional->nombre} {$profesional->apellido1}") : $usuario->email;
+    }
+
+    /**
+     * Indica si quien da el alta puede abrir la historia: rol intervención y
+     * permiso de crear historias.
      *
      * @return bool
      */
@@ -470,6 +577,8 @@ class AltaCiudadano extends Component
 
     /**
      * Renderiza la vista de alta de ciudadano.
+     *
+     * @return View
      */
     public function render(): View
     {

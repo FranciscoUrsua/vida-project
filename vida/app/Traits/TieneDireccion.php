@@ -35,11 +35,17 @@ use Illuminate\Database\Eloquent\Builder;
  * @property float|null $coordenadas_lat
  * @property float|null $coordenadas_lng
  * @property string|null $geocoder_proveedor
+ * @property string|null $codigo_ndp Identificador del portal (NDP de la BDC).
+ * @property string|null $distrito_codigo Dos dígitos.
+ * @property string|null $barrio_codigo Código municipal completo (tres dígitos).
+ * @property string|null $seccion_censal_codigo Código INE de diez dígitos.
  */
 trait TieneDireccion
 {
     /**
      * Inyecta los casts de los campos de dirección al instanciar el modelo.
+     *
+     * @return void
      */
     public function initializeTieneDireccion(): void
     {
@@ -61,6 +67,8 @@ trait TieneDireccion
      *
      * Construye la representación a partir de los campos normalizados cuando
      * están disponibles. Usa el texto libre como fallback.
+     *
+     * @return string
      */
     public function direccionFormateada(): string
     {

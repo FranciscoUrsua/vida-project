@@ -6,6 +6,8 @@ use App\Models\HistoriaSocial;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Random\Engine\Secure;
+use Random\Randomizer;
 use Livewire\Livewire;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\AsignarPlazaModal;
@@ -35,14 +37,21 @@ class IntervencionServiceProvider extends ServiceProvider
 
     /**
      * Registra los servicios singleton del módulo.
+     *
+     * @return void
      */
     public function register(): void
     {
         $this->app->singleton(IntervencionSidebarDataService::class);
+
+        // Azar del sorteo de referencias: seguro en producción; los tests fijan la semilla con app()->instance()
+        $this->app->bind(Randomizer::class, fn () => new Randomizer(new Secure));
     }
 
     /**
      * Carga la configuración, rutas, vistas y componentes del módulo.
+     *
+     * @return void
      */
     public function boot(): void
     {

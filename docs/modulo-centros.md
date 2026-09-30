@@ -67,7 +67,7 @@ El ámbito puede expresarse de varias formas, no mutuamente excluyentes:
 
 El modelo almacena el ámbito como una colección de registros `AmbitoTerritorial` asociados al centro. Esto permite combinar tipos (p. ej., tres distritos completos más dos barrios concretos de un cuarto distrito).
 
-> **Nota de diseño**: la consulta espacial avanzada (qué centro atiende esta dirección) se difiere al módulo de Integraciones. Los polígonos GIS se almacenan como GeoJSON sin capacidad de consulta espacial nativa hasta entonces.
+> **Qué centro atiende esta dirección** (desde el 2026-09-30): se resuelve por códigos, sin consulta espacial. La dirección normalizada guarda distrito, barrio y sección censal, y `ResolucionCentroService` busca el centro activo del tipo cuyo ámbito incluye la sección; si no, el barrio; si no, el distrito; si no, «toda la ciudad». Gana la coincidencia más específica; sin ninguna, o con varias en el mismo nivel, la persona va a la bandeja del supervisor. No se admiten solapamientos del mismo tipo y nivel, y la acción «Comprobar cobertura» (Filament, o `centros:comprobar-cobertura`) lista las secciones sin centro. Los polígonos GIS se siguen guardando como GeoJSON y no se usan para asignar. Ver `docs/modulo-asignacion.md` §3.
 
 ### 2.4 Red de centros
 
@@ -499,7 +499,7 @@ Gestionables desde Filament (backoffice): `Centro`, `Red`, `ColeccionPlazas`, `S
 
 **Disponibilidad de salas**: VIDA 360 almacena la sala asociada a cada sesión como dato informativo, pero no gestiona disponibilidad ni detecta conflictos de reserva entre sesiones que usen la misma sala. Esta funcionalidad corresponde al módulo de Agenda. La validación de que el aforo de la sala sea suficiente para el número de inscritos queda a criterio del profesional que programa la sesión.
 
-**Consulta espacial GIS**: los polígonos en `AmbitoTerritorial` se almacenan como GeoJSON. La consulta «qué centro atiende esta dirección» se difiere al módulo de Integraciones.
+**Consulta espacial GIS**: los polígonos en `AmbitoTerritorial` se almacenan como GeoJSON y no se consultan. La pregunta «qué centro atiende esta dirección» ya no está diferida: se resuelve por códigos de distrito, barrio y sección censal (§2.3, `docs/modulo-asignacion.md` §3). Queda diferida solo la consulta espacial propiamente dicha (PostGIS).
 
 **Tramitación interna vs. externa de solicitudes de servicio**: ambos casos producen el mismo objeto `SolicitudServicio`. La diferencia se refleja en el estado y en las anotaciones del módulo de Intervención. El mecanismo de integración con sistemas externos de tramitación corresponde al módulo de Integraciones.
 

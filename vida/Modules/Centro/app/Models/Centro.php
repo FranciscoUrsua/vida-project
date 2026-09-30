@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Modules\Centro\Enums\ModoAsignacionReferenciaCentro;
 use Modules\Organizacion\Models\Distrito;
 use Modules\Prestaciones\Models\Prestacion;
 
@@ -29,6 +30,10 @@ use Modules\Prestaciones\Models\Prestacion;
  * @property string $nombre
  * @property string|null $nombre_corto
  * @property string $tipo_gestion
+ * @property string|null $tipo_centro Clave de catalogos_sistema, grupo 'centro.tipo'.
+ * @property ModoAsignacionReferenciaCentro $modo_asignacion_referencia
+ * @property int $ventana_reparto_meses Meses hacia atrás que cuenta el sorteo de referencias.
+ * @property int $meses_inactividad_caso Meses sin apuntes para considerar dormido un caso.
  * @property int|null $unidad_organizativa_id
  * @property string|null $direccion_texto
  * @property bool $direccion_normalizada
@@ -56,6 +61,7 @@ class Centro extends Model implements DireccionableModel
         'nombre',
         'nombre_corto',
         'tipo_gestion',
+        'tipo_centro',
         'unidad_organizativa_id',
         // Dirección canónica — campos del trait TieneDireccion
         'direccion_texto',
@@ -74,6 +80,10 @@ class Centro extends Model implements DireccionableModel
         'coordenadas_lat',
         'coordenadas_lng',
         'geocoder_proveedor',
+        'codigo_ndp',
+        'distrito_codigo',
+        'barrio_codigo',
+        'seccion_censal_codigo',
         // Contacto y configuración
         'telefono',
         'email',
@@ -84,9 +94,23 @@ class Centro extends Model implements DireccionableModel
         'activo',
         'fecha_alta',
         'fecha_baja',
+        // Asignación de personas y referencia (docs/modulo-asignacion.md §8)
+        'modo_asignacion_referencia',
+        'ventana_reparto_meses',
+        'meses_inactividad_caso',
+    ];
+
+    /** @var array<string, mixed> Valores por defecto en memoria, iguales a los de la columna */
+    protected $attributes = [
+        'modo_asignacion_referencia' => 'sorteo',
+        'ventana_reparto_meses' => 12,
+        'meses_inactividad_caso' => 6,
     ];
 
     protected $casts = [
+        'modo_asignacion_referencia' => ModoAsignacionReferenciaCentro::class,
+        'ventana_reparto_meses' => 'integer',
+        'meses_inactividad_caso' => 'integer',
         'inscripcion_libre' => 'boolean',
         'activo' => 'boolean',
         'fecha_alta' => 'date',
@@ -224,6 +248,8 @@ class Centro extends Model implements DireccionableModel
 
     /**
      * Devuelve el DirectorCentro activo (fecha_fin null), o null si no lo hay.
+     *
+     * @return DirectorCentro|null
      */
     public function directorActivo(): ?DirectorCentro
     {
@@ -237,6 +263,7 @@ class Centro extends Model implements DireccionableModel
      * y opcionalmente fecha_inicio (por defecto hoy).
      *
      * @param array{profesional_id?: int|null, nombre?: string|null, telefono?: string|null, email?: string|null, fecha_inicio?: \DateTimeInterface|string|null, fecha_fin?: \DateTimeInterface|string|null, notas?: string|null} $datos Datos del nuevo director.
+     * @return DirectorCentro
      */
     public function nombrarDirector(array $datos): DirectorCentro
     {

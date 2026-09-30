@@ -35,6 +35,7 @@ use Modules\Centro\Models\Centro;
  * @property bool $activo
  * @property string|null $notas
  * @property array|null $semana_tipo
+ * @property int $dias_ausencia_prolongada Umbral a partir del cual una ausencia saca al profesional del sorteo de referencias.
  */
 class HorarioCentro extends Model
 {
@@ -42,6 +43,11 @@ class HorarioCentro extends Model
     use HasFactory;
     use SoftDeletes;
 
+    /**
+     * Factoría del modelo (vive en el módulo, no en database/factories).
+     *
+     * @return HorarioCentroFactory
+     */
     protected static function newFactory(): HorarioCentroFactory
     {
         return HorarioCentroFactory::new();
@@ -60,6 +66,7 @@ class HorarioCentro extends Model
         'activo' => 'boolean',
         'buffer_inicio_minutos' => 'integer',
         'buffer_fin_minutos' => 'integer',
+        'dias_ausencia_prolongada' => 'integer',
     ];
 
     /**
@@ -115,6 +122,8 @@ class HorarioCentro extends Model
 
     /**
      * Indica si el horario usa modo basico.
+     *
+     * @return bool
      */
     public function esModoBasico(): bool
     {
@@ -123,6 +132,8 @@ class HorarioCentro extends Model
 
     /**
      * Indica si el horario usa modo avanzado.
+     *
+     * @return bool
      */
     public function esModoAvanzado(): bool
     {

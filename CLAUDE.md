@@ -195,3 +195,5 @@ Ficheros disponibles:
 | `documentos-custodia-tests.md` | 53 tests de la custodia v2 (TF-DOC-26 a 78); hechos todos |
 | `instrucciones-cli-mensajes.md` | Mensajería y alertas: bandeja unificada, toasts de alertas, panel de redacción flotante, avisos de supervisor, sin adjuntos. El módulo ya existía: ver en SESSION el análisis de lo que falta |
 | `2026-09-bootstrap-unico.md` | Bootstrap como único sistema de estilos (operativo y público): tokens únicos, comando `ui:auditar`, catálogo cerrado de clases. Completado el 2026-09-28 |
+| `2026-09-asignacion-implementacion.md` | Asignación de centro (por domicilio con barrios y secciones censales, o por elección) y del profesional de referencia (sorteo con corrección de desvío, libre elección, quien abre), reparto por salida, actividad de los casos y bandeja del supervisor. Implementada el 2026-09-30 |
+| `2026-09-asignacion-tests.md` | 34 tests de la asignación (TF-ASG-01 a 34); hechos todos |

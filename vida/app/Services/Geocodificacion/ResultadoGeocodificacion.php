@@ -28,6 +28,14 @@ use App\Enums\TipoNumeracion;
  * @property-read float|null          $longitud       WGS84
  * @property-read string              $proveedor      Identificador del adaptador
  * @property-read string|null         $errorMensaje
+ * @property-read string|null         $codigoNdp      Identificador del portal (NDP de la BDC)
+ * @property-read string|null         $codigoDistrito Dos dígitos, ej: 21
+ * @property-read string|null         $codigoBarrio   Código municipal completo, ej: 214
+ * @property-read string|null         $seccionCensal  Código INE de 10 dígitos, ej: 2807921028
+ *
+ * Los cuatro códigos territoriales llegan ya normalizados: el adaptador es
+ * quien compone el código de barrio completo y el código INE de la sección a
+ * partir de lo que devuelva su proveedor (docs/modulo-asignacion.md §2.2).
  */
 final class ResultadoGeocodificacion
 {
@@ -49,6 +57,10 @@ final class ResultadoGeocodificacion
      * @param float|null $longitud Longitud.
      * @param string $proveedor Identificador del adaptador.
      * @param string|null $errorMensaje Mensaje de error.
+     * @param string|null $codigoNdp Identificador del portal.
+     * @param string|null $codigoDistrito Código de distrito (dos dígitos).
+     * @param string|null $codigoBarrio Código de barrio completo (tres dígitos).
+     * @param string|null $seccionCensal Código INE de la sección (diez dígitos).
      */
     public function __construct(
         public readonly bool $exito,
@@ -66,13 +78,18 @@ final class ResultadoGeocodificacion
         public readonly ?float $longitud,
         public readonly string $proveedor,
         public readonly ?string $errorMensaje = null,
+        public readonly ?string $codigoNdp = null,
+        public readonly ?string $codigoDistrito = null,
+        public readonly ?string $codigoBarrio = null,
+        public readonly ?string $seccionCensal = null,
     ) {}
 
     /**
-     * Crea un resultado de fallo.
+     * Crea un resultado de fallo, sin dirección, coordenadas ni códigos territoriales.
      *
      * @param string $proveedor Identificador del adaptador.
      * @param string $errorMensaje Descripción del fallo.
+     * @return self
      */
     public static function fallo(string $proveedor, string $errorMensaje): self
     {
@@ -92,6 +109,25 @@ final class ResultadoGeocodificacion
             longitud: null,
             proveedor: $proveedor,
             errorMensaje: $errorMensaje,
+            codigoNdp: null,
+            codigoDistrito: null,
+            codigoBarrio: null,
+            seccionCensal: null,
         );
+    }
+
+    /**
+     * Códigos territoriales como atributos de las columnas del modelo de dirección.
+     *
+     * @return array{codigo_ndp: string|null, distrito_codigo: string|null, barrio_codigo: string|null, seccion_censal_codigo: string|null}
+     */
+    public function codigosTerritoriales(): array
+    {
+        return [
+            'codigo_ndp' => $this->codigoNdp,
+            'distrito_codigo' => $this->codigoDistrito,
+            'barrio_codigo' => $this->codigoBarrio,
+            'seccion_censal_codigo' => $this->seccionCensal,
+        ];
     }
 }

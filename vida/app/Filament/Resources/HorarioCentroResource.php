@@ -47,6 +47,7 @@ class HorarioCentroResource extends Resource
      * Define el formulario de horarios de centro.
      *
      * @param Schema $schema Esquema base del formulario.
+     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -134,6 +135,15 @@ class HorarioCentroResource extends Resource
                         ->default(0)
                         ->minValue(0)
                         ->helperText('Minutos sin citas al final del turno.'),
+
+                    TextInput::make('dias_ausencia_prolongada')
+                        ->label('Umbral de ausencia prolongada (días)')
+                        ->numeric()
+                        ->integer()
+                        ->default(15)
+                        ->minValue(1)
+                        ->required()
+                        ->helperText('Una ausencia más larga saca al profesional del sorteo de referencias mientras dure.'),
                 ]),
 
             Section::make('Vigencia')
@@ -167,6 +177,7 @@ class HorarioCentroResource extends Resource
      * Configura el listado de horarios de centro.
      *
      * @param Table $table Tabla base.
+     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -235,6 +246,8 @@ class HorarioCentroResource extends Resource
 
     /**
      * Declara las páginas del recurso de horarios de centro.
+     *
+     * @return array
      */
     public static function getPages(): array
     {

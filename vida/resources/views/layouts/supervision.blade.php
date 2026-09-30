@@ -11,6 +11,7 @@
         request()->routeIs('supervision.actividades*')       => 'Actividades grupales',
         request()->routeIs('supervision.plazas')             => 'Plazas',
         request()->routeIs('supervision.equipo*')            => 'Mi equipo',
+        request()->routeIs('supervision.asignaciones*')      => 'Asignaciones',
         request()->routeIs('supervision.auditoria')          => 'Accesos',
         request()->routeIs('supervision.aprobaciones')       => 'Aprobaciones',
         request()->routeIs('supervision.configuracion')      => 'Configuración',

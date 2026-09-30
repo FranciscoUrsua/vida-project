@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\OrigenDireccion;
+use App\Events\DireccionCiudadanoNormalizada;
 use App\Models\Ciudadano;
 use App\Observers\DireccionObserver;
 use App\Services\Geocodificacion\GeocodificadorInterface;
@@ -70,6 +71,7 @@ class NormalizarDireccionJob implements ShouldQueue
      * por el DireccionObserver para evitar bucle.
      *
      * @param GeocodificadorInterface $geocodificador Servicio de geocodificación.
+     * @return void
      */
     public function handle(GeocodificadorInterface $geocodificador): void
     {
@@ -105,7 +107,13 @@ class NormalizarDireccionJob implements ShouldQueue
                 'coordenadas_lng' => $resultado->longitud,
                 'geocoder_proveedor' => $resultado->proveedor,
                 'origen_direccion' => OrigenDireccion::Geocodificacion,
+                ...$resultado->codigosTerritoriales(),
             ]);
         });
+
+        // Se guarda sin eventos (para no volver a geocodificar); la asignación de centro se avisa aparte
+        if ($modelo instanceof Ciudadano) {
+            DireccionCiudadanoNormalizada::dispatch($modelo);
+        }
     }
 }

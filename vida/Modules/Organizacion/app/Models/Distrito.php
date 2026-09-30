@@ -58,6 +58,26 @@ class Distrito extends Model
     }
 
     /**
+     * Barrios del distrito.
+     *
+     * @return HasMany<Barrio, $this>
+     */
+    public function barrios(): HasMany
+    {
+        return $this->hasMany(Barrio::class, 'distrito_id');
+    }
+
+    /**
+     * Secciones censales del distrito.
+     *
+     * @return HasMany<SeccionCensal, $this>
+     */
+    public function secciones(): HasMany
+    {
+        return $this->hasMany(SeccionCensal::class, 'distrito_id');
+    }
+
+    /**
      * Filtra únicamente los distritos activos.
      *
      * @param Builder<Distrito> $consulta

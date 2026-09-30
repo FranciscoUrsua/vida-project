@@ -33,7 +33,7 @@ Tres ideas vertebran el diseño:
 
 **RN-03 — Destino de la cita.** Una cita puede pedirse:
 - para un **profesional concreto**;
-- para el **profesional de referencia** del ciudadano;
+- para el **profesional de referencia** del ciudadano: la asignación vigente de su historia (`AsignacionReferenciaService::vigente()`, ver `docs/modulo-asignacion.md`);
 - para el **primer profesional libre** de un servicio o perfil, cuando no hay referencia o cuando la referencia no va a estar disponible durante un periodo prolongado.
 
 **RN-04 — El rol `intervencion` no gestiona citas.** Puede crear una **solicitud de cita**: enlaza al ciudadano, indica para qué profesional o servicio, el tipo de cita y su urgencia. La solicitud llega a la bandeja de citación del centro.

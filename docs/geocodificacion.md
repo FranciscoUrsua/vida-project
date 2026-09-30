@@ -103,6 +103,12 @@ La geocodificación define el modelo canónico de dirección en VIDA. Este model
 | `coordenadas_lng` | decimal(10,7) nullable | Longitud WGS84. |
 | `geocoder_proveedor` | string nullable | Qué adaptador normalizó esta dirección. Trazabilidad. |
 | `origen_direccion` | enum | `profesional` / `padron` / `geocodificacion` |
+| `codigo_ndp` | string nullable | Identificador del portal (NDP de la BDC). Permite recalcular la asignación de centro si cambian los límites sin volver a geocodificar, y saber que dos personas viven en el mismo portal. Desde el 2026-09-30. |
+| `distrito_codigo` | string(2) nullable | Código de distrito. |
+| `barrio_codigo` | string(3) nullable | Código de barrio: distrito + barrio (el número de barrio solo es único dentro de su distrito). |
+| `seccion_censal_codigo` | string(10) nullable | Código INE de la sección censal: provincia, municipio, distrito y sección (ej. `2807921028`). |
+
+Los cuatro códigos se rellenan solo con una normalización con éxito y deben existir en el catálogo territorial (`distritos`, `barrios`, `secciones_censales`, módulo Organización). Con un fallo quedan a null. Son la base de la asignación de centro por domicilio (`docs/modulo-asignacion.md` §2.2 y §3). No se guardan la parcela catastral ni la sección de cartería (minimización).
 
 ### 3.2 Implementación como trait
 
@@ -202,7 +208,11 @@ $lng = -3.83 + (mt_rand() / mt_getrandmax()) * (-3.52 - (-3.83));
 
 Para otros municipios, el bbox sería configurable — un argumento más para tener el geocoder desacoplado de la configuración del municipio.
 
-### 5.3 Lo que el mock no hace
+### 5.3 Códigos territoriales en el mock
+
+El mock rellena NDP, distrito, barrio y sección coherentes con el catálogo sembrado: elige la sección de forma determinista a partir del portal (vía + número, sin piso ni puerta). La misma dirección cae siempre en la misma sección y dos personas del mismo portal comparten NDP y sección. No tiene relación con la geografía real. Si el catálogo está vacío, los códigos quedan a null.
+
+### 5.4 Lo que el mock no hace
 
 El mock no valida que la dirección exista realmente, no calcula coordenadas precisas, y no resuelve ambigüedades entre calles con el mismo nombre. Todo esto es responsabilidad de los adaptadores reales. El mock garantiza que el contrato de `ResultadoGeocodificacion` se cumple y que los campos tienen valores razonables para desarrollo.
 
@@ -210,7 +220,11 @@ El mock no valida que la dirección exista realmente, no calcula coordenadas pre
 
 ## 6. Implementación del adaptador BDC (pendiente)
 
-La Base de Datos Ciudad del Ayuntamiento de Madrid es el geocoder de referencia para producción. Devuelve direcciones normalizadas según el callejero oficial municipal y coordenadas en el sistema de referencia ETRS89, que habrá que convertir a WGS84 para coherencia con el resto del sistema.
+La Base de Datos Ciudad del Ayuntamiento de Madrid es el geocoder de referencia para producción. Devuelve direcciones normalizadas según el callejero oficial municipal, el NDP del portal, los códigos de distrito, barrio y sección censal, y coordenadas UTM (ETRS89, huso 30N). El adaptador debe:
+
+- convertir las coordenadas a latitud y longitud WGS84, que es lo que guarda VIDA;
+- construir el código INE de la sección (`28` + `079` + distrito en dos dígitos + sección en tres), porque la BDC devuelve el número de sección dentro del distrito;
+- devolver los códigos en `ResultadoGeocodificacion` (`codigoNdp`, `codigoDistrito`, `codigoBarrio`, `seccionCensal`).
 
 La implementación del adaptador `BdcGeocodificador` queda pendiente para cuando la integración con el BDC esté disponible. El contrato de la interfaz no cambia — solo se añade un nuevo adaptador y se cambia la configuración del proveedor activo.
 
@@ -232,7 +246,7 @@ El modelo `Ciudadano` usa el trait `TieneDireccion`. La dirección introducida e
 
 ### Módulo de Centros
 
-El modelo `Centro` usa el trait `TieneDireccion`. Las coordenadas de los centros son relevantes para funcionalidades futuras de proximidad (asignación de ciudadanos al centro más cercano, mapas de cobertura territorial).
+El modelo `Centro` usa el trait `TieneDireccion`. La asignación de centro por domicilio no usa coordenadas sino los códigos territoriales de la dirección: al normalizarse la dirección de un ciudadano se dispara `DireccionCiudadanoNormalizada` y se asigna centro, o se propone un cambio si ya tenía uno (`docs/modulo-asignacion.md` §3). Las coordenadas siguen siendo relevantes para funcionalidades futuras de proximidad.
 
 ### Funcionalidades futuras dependientes de coordenadas
 

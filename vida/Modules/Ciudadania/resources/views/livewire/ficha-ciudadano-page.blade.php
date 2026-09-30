@@ -95,6 +95,11 @@
     </div>
 </div>
 
+{{-- ===== AVISO TRAS ABRIR LA HISTORIA EN EL ALTA ===== --}}
+@if(session('referencia-asignada'))
+    <div class="alert alert-info small mx-3 mt-3 mb-0" role="status">{{ session('referencia-asignada') }}</div>
+@endif
+
 {{-- ===== VALIDACIÓN ===== --}}
 @if($errors->any())
     <div class="alert alert-danger small mx-3 mt-3 mb-0">
@@ -410,6 +415,72 @@
 
         {{-- ===================== COLUMNA LATERAL ===================== --}}
         <div class="col-lg-4">
+
+            {{-- ——— Centro y profesional de referencia (docs/modulo-asignacion.md) ——— --}}
+            @php
+                $centrosAsig = $this->asignacionesCentro;
+                $referencias = $this->asignacionesReferencia;
+                $referenciaVigente = $referencias->first(fn ($a) => $a->fecha_fin === null);
+                $historialAsig = $centrosAsig->whereNotNull('fecha_fin')->count() + $referencias->whereNotNull('fecha_fin')->count();
+            @endphp
+            <div class="card card-body mb-3" id="ficha-asignaciones">
+                <h2 class="h6 fw-semibold d-flex align-items-center gap-2 mb-2">
+                    <x-heroicon-o-building-office class="icon-16" aria-hidden="true"/>
+                    Centro y referencia
+                </h2>
+                <dl class="small mb-0">
+                    @forelse($centrosAsig->whereNull('fecha_fin') as $asig)
+                        <dt class="text-body-secondary fw-normal">{{ $this->tiposCentro[$asig->tipo_centro] ?? $asig->tipo_centro }}</dt>
+                        <dd class="mb-2">
+                            <span class="fw-semibold">{{ $asig->centro?->nombre }}</span>
+                            <span class="d-block text-body-secondary">{{ $asig->modo->label() }} · desde el {{ $asig->fecha_inicio->format('d/m/Y') }}</span>
+                        </dd>
+                    @empty
+                        <dt class="text-body-secondary fw-normal">Centro</dt>
+                        <dd class="mb-2">Sin centro asignado</dd>
+                    @endforelse
+
+                    @if($historiaSocial)
+                        <dt class="text-body-secondary fw-normal">Profesional de referencia</dt>
+                        <dd class="mb-0">
+                            @if($referenciaVigente)
+                                <span class="fw-semibold">{{ $referenciaVigente->profesional?->nombre_completo }}</span>
+                                <span class="d-block text-body-secondary">
+                                    {{ $referenciaVigente->origen?->label() }} · desde el {{ $referenciaVigente->fecha_inicio?->format('d/m/Y') }}
+                                </span>
+                            @else
+                                Sin profesional de referencia
+                            @endif
+                        </dd>
+                    @endif
+                </dl>
+
+                @if($historialAsig > 0)
+                    <button type="button"
+                            class="btn btn-link btn-sm p-0 mt-2 d-inline-flex align-items-center gap-1 collapsed"
+                            data-bs-toggle="collapse" data-bs-target="#asignaciones-historial"
+                            aria-expanded="false" aria-controls="asignaciones-historial">
+                        Historial ({{ $historialAsig }})
+                        <x-heroicon-o-chevron-down class="icon-12 op-toggle-icon" aria-hidden="true"/>
+                    </button>
+                    <div class="collapse" id="asignaciones-historial" wire:ignore.self>
+                        <ul class="list-unstyled small mt-2 mb-0">
+                            @foreach($centrosAsig->whereNotNull('fecha_fin') as $asig)
+                                <li class="mb-1">
+                                    {{ $asig->centro?->nombre }} <span class="text-body-secondary">({{ $asig->modo->label() }})</span>
+                                    <span class="d-block text-body-secondary">{{ $asig->fecha_inicio->format('d/m/Y') }} – {{ $asig->fecha_fin->format('d/m/Y') }}</span>
+                                </li>
+                            @endforeach
+                            @foreach($referencias->whereNotNull('fecha_fin') as $asig)
+                                <li class="mb-1">
+                                    Referencia: {{ $asig->profesional?->nombre_completo }} <span class="text-body-secondary">({{ $asig->origen?->label() }})</span>
+                                    <span class="d-block text-body-secondary">{{ $asig->fecha_inicio?->format('d/m/Y') }} – {{ $asig->fecha_fin->format('d/m/Y') }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+            </div>
 
             {{-- ——— Otras prestaciones ——— --}}
             @if($prestaciones->isNotEmpty())

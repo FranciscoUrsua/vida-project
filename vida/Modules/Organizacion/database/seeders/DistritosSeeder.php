@@ -49,6 +49,8 @@ class DistritosSeeder extends Seeder
 
     /**
      * Crea los 21 distritos de Madrid si no existen.
+     *
+     * @return void
      */
     public function run(): void
     {
@@ -59,6 +61,6 @@ class DistritosSeeder extends Seeder
             );
         }
 
-        $this->command->info('✓ '.count(self::DISTRITOS).' distritos de Madrid creados.');
+        $this->command?->info('✓ '.count(self::DISTRITOS).' distritos de Madrid creados.');
     }
 }

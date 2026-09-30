@@ -21,7 +21,8 @@ class MockGeocodificadorParserTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->geocodificador = new MockGeocodificador;
+        // Sin catálogo territorial: el parser se prueba sin base de datos
+        $this->geocodificador = new MockGeocodificador(fn () => null);
     }
 
     // -------------------------------------------------------------------------

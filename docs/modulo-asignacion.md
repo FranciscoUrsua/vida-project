@@ -1,7 +1,7 @@
 # Asignación de centro y profesional de referencia — Diseño funcional
 
 **Módulos afectados:** `Organizacion` (unidades territoriales), `Centro` (ámbitos territoriales, configuración), `Ciudadania` (dirección y centro asignado), `Intervencion` (profesional de referencia), `Usuarios` (cargos), geocodificación (`app/Services/Geocodificacion`).
-**Estado:** diseño funcional v1 cerrado. Sin implementar.
+**Estado:** diseño funcional v1 cerrado. Implementado el 2026-09-30 (ver `CHANGELOG.md`).
 **Última revisión:** septiembre 2026
 
 **Documentos relacionados:**

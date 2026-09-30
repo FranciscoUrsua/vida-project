@@ -349,6 +349,8 @@ El registro mínimo viable para una PSH:
 
 Cuando la persona obtiene documentación o se confirma su identidad, el registro existente se enriquece sin crear uno nuevo. Si posteriormente se detecta que ya existía un registro con su identidad real, se ejecuta la fusión.
 
+**Centro y profesional de referencia (v1, 2026-09-30):** a las PSH no se les asigna centro por domicilio. La asignación de centro es manual, por el supervisor, desde la bandeja de asignaciones. Al abrir su historia se mantiene el comportamiento anterior: quien la abre queda de referencia. La asignación por coordenadas de pernocta y la zonificación de los equipos de calle quedan pendientes (`docs/modulo-asignacion.md` §11).
+
 ### 6.2 Mujeres víctimas de violencia de género (VVG)
 
 Dos protecciones específicas en el alta:

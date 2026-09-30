@@ -4,6 +4,52 @@
 
 ---
 
+## 2026-09-30 — Asignación de centro y profesional de referencia
+
+Instrucciones: `docs/instrucciones-cli/2026-09-asignacion-implementacion.md` (pasos 1 a 9) y tests TF-ASG-01 a 34. Diseño: `docs/modulo-asignacion.md`.
+
+### Cambios
+- **Organización, unidades territoriales:** tablas `barrios` y `secciones_censales` (migraciones `2026_09_30_100001/100002`), cargadas desde `Modules/Organizacion/database/data/*.csv` con `CargaUnidadesTerritoriales` (migración `100003` y `UnidadesTerritorialesSeeder`). Los ficheros de origen `database/Barrios.txt` y `Secciones_Censales.txt` pasan a `Modules/Organizacion/database/data/`. Filament: `BarrioResource` y `SeccionCensalResource`.
+- **Centro, cargo y horario:** `centros.tipo_centro`, `modo_asignacion_referencia`, `ventana_reparto_meses`, `meses_inactividad_caso` (`100010`, con la entrada CIAM en el catálogo `centro.tipo`); `cargos.puede_ser_referencia` (`100011`, activado para `ts`); `horarios_centro.dias_ausencia_prolongada` (`100012`). Campos en `CentroResource`, `CargoResource` y `HorarioCentroResource`.
+- **Dirección y geocodificación:** `codigo_ndp`, `distrito_codigo`, `barrio_codigo` y `seccion_censal_codigo` en `ciudadanos` y `centros` (`100020`). `ResultadoGeocodificacion` los devuelve y `MockGeocodificador` los rellena de forma determinista por portal. `DireccionObserver` y `NormalizarDireccionJob` los persisten y disparan `DireccionCiudadanoNormalizada`.
+- **Asignación de centro:** `asignaciones_centro` y `asignaciones_pendientes` (`100030/100031`). `ResolucionCentroService`, `AsignacionCentroService`, listener `AsignarCentroPorDireccion`. `AmbitosTerritorialesRelationManager` con barrios y secciones y control de solapamientos. Comando `centros:comprobar-cobertura` y acción «Comprobar cobertura» en el listado de centros.
+- **Profesional de referencia:** `asignaciones_profesional` con `centro_id`, `origen`, `cuenta_en_reparto`, `sorteo`, `motivo` (cifrado), `asignado_por_id` y `reparto_id` (`100040`). `PoolReferenciaService`, `SorteoReferenciaService`, `AsignacionReferenciaService`. `AperturaHistoriaService::abrir()` asegura el centro y delega la referencia; el alta adapta el texto al modo del centro y ofrece la elección en `libre_eleccion`.
+- **Reparto por salida y actividad:** `repartos_casos` y `repartos_casos_lineas` (`100050`), `RepartoCasosService` y `ActividadCasosService`.
+- **Interfaz de supervisión:** entrada «Asignaciones» en el menú, con contador (`supervision.asignaciones`, pestañas «Pendientes» y «Actividad del equipo»; `AsignacionesPage`), y revisión del reparto (`supervision.asignaciones.reparto`, `RepartoCasosPage`). `BandejaAsignacionesService` es la única lectura del alcance de la bandeja (pantalla y contador).
+- **Ficha del ciudadano:** bloque «Centro y referencia» con el centro por tipo, la referencia con su modo y el historial desplegable.
+- **Demo:** los centros de ASP de los mundos tienen tipo `css_general` y el distrito del mundo como ámbito.
+- **Tests:** 50 en `Modules/Centro/tests/Feature/Asignacion` y `Modules/Intervencion/tests/Feature/Asignacion` (TF-ASG-01 a 34 y casos de pantalla), con el trait `Modules/Centro/tests/Concerns/AsignacionTestSetup`.
+- **Documentación:** `modulo-asignacion.md` (estado), `modulo-intervencion.md` §1.1.3, `modulo-centros.md` §2.3 y §9, `modulo-ciudadania.md` §6.1, `geocodificacion.md` (§3.1, §5.3, §6, §7), `front/alta-ciudadano-funcional.md` §1 y §4.4, `modulo-citas.md` RN-03, `documentacion-proyecto.md` (Organización, Centro, Ciudadanía, Intervención).
+- **PHPDoc:** se completan los `@return` y los docblocks que faltaban en los ficheros tocados.
+
+### Decisiones no previstas en las instrucciones
+- **Casos existentes (RN-12):** la migración `100010` deja todos los centros existentes en `quien_abre`. Al desplegar no cambia nada; el sorteo empieza cuando alguien configura el centro en Filament.
+- **Centro de la apertura** = centro de la UO activa de quien abre (`CentroDeUsuario`, el mismo criterio que `EquipoPage`). Sin centro en la UO, o si la persona es PSH, se mantiene «quien abre». La asignación de las PSH queda fuera de esta fase.
+- **Bandeja por centro:** una entrada «sin centro» aparece en la bandeja del centro de quien la provocó, en la de los centros candidatos si es ambigua y, si no hay ninguno, en la de todos los supervisores del tipo. Las decisiones se toman con `AsignacionCentroService`/`AsignacionReferenciaService`, que exigen rol de supervisión; que el supervisor sea del centro lo garantiza la pantalla, que recarga cada entrada con `visiblesPara()` antes de actuar.
+- **Asignar referencia desde la bandeja:** se ofrecen los profesionales del centro con cargo elegible **aunque estén ausentes** (`PoolReferenciaService::profesionalesReferencia()`). Si no, una historia en la bandeja por «sin elegibles» no tendría a quién asignarse. La asignación es `manual` y no cuenta en el reparto. Una historia sin referencia no se puede descartar, solo asignar.
+- **`AsignacionPendiente::ciudadano()` sin `AmbitoUoScope`:** con un supervisor conectado, la relación salía nula (la persona aún no tiene historia en su UO) y `confirmarCambioDomicilio()` fallaba con un `TypeError`. Lo sacaron a la luz los tests de pantalla. El alcance lo pone `visiblesPara()`.
+- **Reparto:** cada grupo se da al destino con más déficit respecto a su parte, recorriendo los grupos en orden aleatorio. La confirmación es todo o nada: si algún caso cambió de referencia desde la propuesta, no se aplica y hay que proponer de nuevo. Solo un reparto propuesto a la vez por profesional.
+- **Actividad:** los casos de un centro son las referencias vigentes hechas en él más las anteriores sin centro cuya historia está en la UO del centro.
+- **Pantallas en Supervisión** (no en Intervención): la bandeja, el reparto y la actividad son del rol `supervision` y viven junto al resto de su menú.
+
+### Negativos comprobados
+- TF-ASG-33: quitando el criterio de plan activo de `ActividadCasosService`, el test falla.
+- TF-ASG-34: quitando `visiblesPara()` de `BandejaAsignacionesService`, fallan el test de alcance y el de resolver una entrada de otro centro.
+- Los de los grupos A a G los comprobó la sesión anterior; no quedaron anotados.
+
+### Suite completa
+- 1066 passed, 80 failed, 12 incomplete, 1 skipped (unos 24 min). 12 fallos eran nuevos: `MockGeocodificadorParserTest` (test unitario sin Laravel) fallaba porque el mock pasó a consultar el catálogo de secciones en la BD. Corregido de raíz: la elección de sección se inyecta en el constructor del mock (por defecto, el catálogo), y el test del parser pasa una sin catálogo. Tras la corrección, los 19 tests de geocodificación pasan.
+- Los otros 68 fallos son previos y conocidos (BACKLOG): Agenda 63 (51 por `tipos_slot.horario_centro_id` en `vida_testing`, 5 por el `foreach` de `cuadrante-supervisor-page`, `HorarioCentro::tiposSlot()` y otros de Agenda), TF-AUTH-16/17, `AutorizacionDatosTest` (FK de `audits`) y Ciudadanía 2 («Ver historia social»).
+
+### Dependencias (commit aparte)
+- El hook de seguridad bloqueaba el commit por CVE-2026-102279 (`laravel/framework` < 12.69) y CVE-2026-102601 (`league/flysystem` ≤ 3.35.2), de severidad baja. `composer update laravel/framework league/flysystem --with-dependencies`: Laravel 12.62.0 → 12.69.3, flysystem 3.35.1 → 3.36.0, y parches y menores de sus dependencias (Symfony 7.4, etc.). Tras actualizar pasan los tests de asignación, UI, Auth y Ciudadanía, salvo los 4 fallos previos (TF-AUTH-16/17 y dos de «Ver historia social»).
+
+### Criterios de finalización
+- Escrituras en `asignaciones_centro` / `asignaciones_profesional` (`grep` de `create`/`insert`/`update` sobre los modelos y las tablas): solo en `AsignacionCentroService`, `AsignacionReferenciaService`, `RepartoCasosService` y `AperturaHistoriaService`, más los escenarios demo (`database/seeders/Demo/Scenarios/*`). Ningún `update` de `centro_id` ni `profesional_id`: los servicios cierran con `fecha_fin` y crean otra.
+- `npm run build` + `php artisan ui:auditar`: sin infracciones.
+
+---
+
 ## 2026-09-29 — Alta: el profesional de intervención queda como profesional de referencia
 
 ### Cambios

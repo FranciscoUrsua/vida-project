@@ -5,6 +5,8 @@ namespace Modules\Centro\Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Centro\Models\AmbitoTerritorial;
 use Modules\Centro\Models\Centro;
+use Modules\Organizacion\Models\Barrio;
+use Modules\Organizacion\Models\Distrito;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -16,6 +18,17 @@ use Tests\TestCase;
 class AmbitoTerritorialTest extends TestCase
 {
     use RefreshDatabase;
+
+    /**
+     * Referencia a un distrito real del catálogo cargado por la migración.
+     *
+     * @param string $codigo Código de distrito de dos dígitos.
+     * @return array{referencia_id: int, referencia_tipo: class-string}
+     */
+    private function distrito(string $codigo): array
+    {
+        return ['referencia_id' => Distrito::where('codigo', $codigo)->value('id'), 'referencia_tipo' => Distrito::class];
+    }
 
     private function crearCentro(): Centro
     {
@@ -66,6 +79,7 @@ class AmbitoTerritorialTest extends TestCase
             'centro_id' => $centro->id,
             'tipo' => 'demarcacion_oficial',
             'descripcion' => 'Distrito de Arganzuela',
+            ...$this->distrito('02'),
         ]);
     }
 
@@ -82,14 +96,14 @@ class AmbitoTerritorialTest extends TestCase
             'centro_id' => $centro->id,
             'tipo' => 'demarcacion_oficial',
             'descripcion' => 'Distrito de Arganzuela',
-            'referencia_id' => 1,
+            ...$this->distrito('02'),
         ]);
 
         AmbitoTerritorial::create([
             'centro_id' => $centro->id,
             'tipo' => 'demarcacion_oficial',
             'descripcion' => 'Distrito de Retiro',
-            'referencia_id' => 2,
+            ...$this->distrito('03'),
         ]);
 
         $this->assertEquals(2, $centro->ambitosTeritoriales()->count());
@@ -108,12 +122,14 @@ class AmbitoTerritorialTest extends TestCase
             'centro_id' => $centro->id,
             'tipo' => 'demarcacion_oficial',
             'descripcion' => 'Distrito de Arganzuela',
+            ...$this->distrito('02'),
         ]);
 
         AmbitoTerritorial::create([
             'centro_id' => $centro->id,
             'tipo' => 'barrios',
-            'descripcion' => 'Barrio de Lavapiés',
+            'descripcion' => 'Barrio de Embajadores',
+            'referencia_id' => Barrio::where('codigo', '012')->value('id'),
         ]);
 
         $this->assertEquals(2, $centro->ambitosTeritoriales()->count());
@@ -151,12 +167,14 @@ class AmbitoTerritorialTest extends TestCase
             'centro_id' => $centro->id,
             'tipo' => 'demarcacion_oficial',
             'descripcion' => 'Distrito A',
+            ...$this->distrito('01'),
         ]);
 
         AmbitoTerritorial::create([
             'centro_id' => $centro->id,
             'tipo' => 'demarcacion_oficial',
             'descripcion' => 'Distrito B',
+            ...$this->distrito('02'),
         ]);
 
         $a1->delete();

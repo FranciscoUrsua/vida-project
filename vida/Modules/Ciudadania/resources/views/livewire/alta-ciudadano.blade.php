@@ -354,10 +354,28 @@
             <div class="card mb-3">
                 <div class="card-body">
                     <div class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" role="switch" id="alta-abrir-historia" wire:model="abrirHistoria">
-                        <label class="form-check-label fw-semibold" for="alta-abrir-historia">Abrir la historia social y quedar como profesional de referencia</label>
+                        <input class="form-check-input" type="checkbox" role="switch" id="alta-abrir-historia" wire:model.live="abrirHistoria">
+                        <label class="form-check-label fw-semibold" for="alta-abrir-historia">
+                            {{ $this->referenciaQuienAbre ? 'Abrir la historia social y quedar como profesional de referencia' : 'Abrir la historia social' }}
+                        </label>
                     </div>
-                    <p class="small text-body-secondary mb-0 mt-1">El caso aparecerá en «Mis casos». Desmárcalo si la persona solo necesita información o una gestión puntual.</p>
+                    @if($this->referenciaQuienAbre)
+                        <p class="small text-body-secondary mb-0 mt-1">El caso aparecerá en «Mis casos». Desmárcalo si la persona solo necesita información o una gestión puntual.</p>
+                    @else
+                        <p class="small text-body-secondary mb-0 mt-1">El centro asigna el profesional de referencia; al confirmar verás quién es. Desmárcalo si la persona solo necesita información o una gestión puntual.</p>
+                    @endif
+
+                    @if($abrirHistoria && $this->profesionalesElegibles !== [])
+                        <div class="mt-3">
+                            <label for="alta-referencia-elegida" class="form-label small fw-semibold mb-1">Profesional que elige la persona (opcional)</label>
+                            <select id="alta-referencia-elegida" wire:model="referenciaElegidaId" class="form-select form-select-sm">
+                                <option value="">Sin preferencia: se sortea</option>
+                                @foreach($this->profesionalesElegibles as $id => $nombre)
+                                    <option value="{{ $id }}">{{ $nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
                 </div>
             </div>
         @endif

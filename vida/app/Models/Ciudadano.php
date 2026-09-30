@@ -79,6 +79,8 @@ class Ciudadano extends Model implements AuditableModel, DireccionableModel
 
     /**
      * Registra el Global Scope de ámbito de UO para filtrado automático.
+     *
+     * @return void
      */
     protected static function booted(): void
     {
@@ -109,6 +111,10 @@ class Ciudadano extends Model implements AuditableModel, DireccionableModel
         'coordenadas_lat',
         'coordenadas_lng',
         'geocoder_proveedor',
+        'codigo_ndp',
+        'distrito_codigo',
+        'barrio_codigo',
+        'seccion_censal_codigo',
         'telefono',
         'telefono_hash',
         'email',
@@ -145,6 +151,8 @@ class Ciudadano extends Model implements AuditableModel, DireccionableModel
     /**
      * Nombre completo del ciudadano: nombre + apellido1 [+ apellido2].
      * Los campos están cifrados — solo accesible mediante Eloquent ORM.
+     *
+     * @return string
      */
     public function getNombreCompletoAttribute(): string
     {
@@ -153,6 +161,8 @@ class Ciudadano extends Model implements AuditableModel, DireccionableModel
 
     /**
      * El ciudadano es la entidad raíz: su propio id es el ciudadano_id.
+     *
+     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {
@@ -245,6 +255,8 @@ class Ciudadano extends Model implements AuditableModel, DireccionableModel
     /**
      * Indica si el ciudadano tiene verificada su residencia en alguna UC activa.
      * Determina si puede ser perceptor de prestaciones municipales.
+     *
+     * @return bool
      */
     public function tieneResidenciaVerificada(): bool
     {

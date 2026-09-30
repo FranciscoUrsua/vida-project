@@ -57,23 +57,41 @@ qué casos aparecen en "Mis casos" del profesional.
 
 ### 1.1.3 Origen de la asignación inicial
 
-Quien abre la Historia Social queda como profesional de referencia: el sistema
-genera la primera asignación vigente con `profesional_id` = quien la abre y
-`fecha_inicio = today()`, y el caso aparece en su «Mis casos». La historia se puede
-abrir en dos momentos, los dos por `AperturaHistoriaService::abrir()`:
+La referencia inicial depende del modo de asignación del centro en el que se abre la
+historia (`docs/modulo-asignacion.md` §4, desde el 2026-09-30):
+
+- **Sorteo** (por defecto): la decide `SorteoReferenciaService` entre los profesionales
+  del reparto del centro, con corrección de desvío. Quien abre la historia no queda de
+  referencia por abrirla.
+- **Libre elección**: el profesional que elige la persona, si está en el reparto; si no
+  elige, sorteo.
+- **Quien abre** (sin asignación automática): quien abre la historia, como hasta ahora.
+- Si algún miembro de la unidad de convivencia ya tiene referencia en el centro, la
+  misma, sin sorteo.
+
+Antes, la apertura asegura el centro de la persona (por domicilio o por elección). Si no
+se puede asignar, o no hay profesionales en el reparto, la historia se abre sin
+referencia y queda en la bandeja de asignaciones del supervisor. Si la UO de quien abre
+no tiene centro, o la persona es PSH, se mantiene el comportamiento anterior (quien abre).
+Cada asignación guarda su `origen`, si `cuenta_en_reparto` y, en el sorteo, los
+candidatos con peso, esperado y recibido. La historia se puede abrir en dos momentos,
+los dos por `AperturaHistoriaService::abrir()`:
 
 - **En la confirmación del alta** (`AltaCiudadano::confirmarAlta()`): al profesional con
-  rol `intervencion` se le ofrece abrirla, con la opción marcada por defecto. Quien da de
-  alta a un ciudadano con ese rol queda, salvo que lo desmarque, como su profesional de
-  referencia.
+  rol `intervencion` se le ofrece abrirla, con la opción marcada por defecto. Solo en
+  centros «quien abre» queda además como profesional de referencia; en los demás se le
+  informa de quién ha sido asignado.
 - **Desde la ficha ciudadana** (`FichaCiudadanoPage::abrirHistoriaSocial()`), si el
   ciudadano aún no tiene historia.
 
 Si el ciudadano ya tiene historia (la historia social es única), no se crea otra ni se
 cambia la asignación.
 
-La reasignación en masa con criterios geográficos u organizativos (sin acción individual
-del profesional) es funcionalidad pendiente de implementar en el backoffice.
+El cambio de referencia lo hace solo supervisión, con motivo
+(`AsignacionReferenciaService::cambiarManual()`). La reasignación en masa cuando un
+profesional sale del centro es el **reparto por salida** (`RepartoCasosService`,
+pantalla «Asignaciones» de Supervisión): el sistema propone, el supervisor revisa y
+confirma. Ver `docs/modulo-asignacion.md` §5.
 
 ---
 

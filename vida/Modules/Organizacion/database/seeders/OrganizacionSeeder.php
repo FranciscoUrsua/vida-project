@@ -19,6 +19,8 @@ class OrganizacionSeeder extends Seeder
 {
     /**
      * Ejecuta los seeders del módulo Organizacion en orden.
+     *
+     * @return void
      */
     public function run(): void
     {
@@ -27,6 +29,7 @@ class OrganizacionSeeder extends Seeder
             ColectivosProtegidosSeeder::class,
             ServiciosEmergenciaSeeder::class,
             DistritosSeeder::class,
+            UnidadesTerritorialesSeeder::class,
         ]);
     }
 }

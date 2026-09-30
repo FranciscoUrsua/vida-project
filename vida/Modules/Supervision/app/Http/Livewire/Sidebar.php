@@ -8,6 +8,8 @@ use Livewire\Component;
 use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Models\Cita;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
+use Modules\Intervencion\Services\Asignacion\BandejaAsignacionesService;
 use Modules\Mensajes\Models\AlertaDestinatario;
 use Modules\Mensajes\Services\ContadoresBandejaService;
 use Modules\Organizacion\Models\Configuracion;
@@ -25,6 +27,7 @@ use Modules\Supervision\Services\SupervisionSidebarDataService;
  *
  * @property array{alertas: int, avisos: int, mensajes: int} $contadoresBandeja
  * @property int $escaladasAbiertas
+ * @property int $asignacionesPendientes
  * @property int $aprobacionesPendientes
  * @property int $citasPendientesBadge
  * @property bool $tienePlazas
@@ -55,6 +58,25 @@ class Sidebar extends Component
     }
 
     /**
+     * Personas, historias y repartos por decidir en la bandeja de asignaciones del centro.
+     *
+     * @return int
+     */
+    #[Computed]
+    public function asignacionesPendientes(): int
+    {
+        $usuario = auth()->user();
+        $centros = app(CentroDeUsuario::class);
+        $centro = $centros->centroActivo($usuario);
+
+        if ($centro === null || ! $centros->supervisa($usuario, $centro)) {
+            return 0;
+        }
+
+        return app(BandejaAsignacionesService::class)->total($centro);
+    }
+
+    /**
      * Partes de alertas escaladas al supervisor que aún no ha cerrado.
      *
      * @return int
@@ -71,6 +93,8 @@ class Sidebar extends Component
 
     /**
      * Número de aprobaciones pendientes en el ámbito del supervisor.
+     *
+     * @return int
      */
     #[Computed]
     public function aprobacionesPendientes(): int
@@ -86,6 +110,8 @@ class Sidebar extends Component
     /**
      * Indica si el centro tiene plazas configuradas.
      * Determina la visibilidad del ítem «Plazas» en el sidebar.
+     *
+     * @return bool
      */
     #[Computed]
     public function tienePlazas(): bool
@@ -136,6 +162,8 @@ class Sidebar extends Component
 
     /**
      * Renderiza el sidebar del módulo.
+     *
+     * @return View
      */
     public function render(): View
     {

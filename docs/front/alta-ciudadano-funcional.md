@@ -12,7 +12,7 @@
 
 Este documento especifica el flujo y comportamiento del formulario de alta de ciudadano en VIDA 360. El alta es el acto por el que una persona queda identificada unívocamente en el sistema, con un identificador interno que no cambia y que acumula toda su actividad con los servicios sociales municipales, desde las interacciones más ligeras (inscripción en actividades de centro) hasta las más complejas (historia social, plan de intervención, prestaciones económicas).
 
-El alta por sí sola no abre historia social, no genera valoraciones ni implica ningún derecho. Solo establece que esta persona existe en el sistema y quién es. Si quien da el alta es un profesional de intervención, puede abrir la historia en el mismo paso de confirmación y quedar como profesional de referencia (§4.4); es una opción explícita, no un efecto automático del alta.
+El alta por sí sola no abre historia social, no genera valoraciones ni implica ningún derecho. Solo establece que esta persona existe en el sistema y quién es. Si quien da el alta es un profesional de intervención, puede abrir la historia en el mismo paso de confirmación; si queda como profesional de referencia depende del modo de asignación del centro (§4.4); es una opción explícita, no un efecto automático del alta.
 
 ---
 
@@ -129,7 +129,13 @@ El profesional elige qué hacer a continuación:
 - **Ir a la ficha**: redirige a la ficha del ciudadano recién creado.
 - **Solo guardar**: guarda y vuelve a la pantalla de búsqueda.
 
-**Abrir la historia social (solo rol `intervencion`).** Si el usuario tiene rol `intervencion` y permiso para crear historias, la confirmación muestra el interruptor «Abrir la historia social y quedar como profesional de referencia», **marcado por defecto**. Al confirmar, se abre la historia en la UO activa del profesional y se crea su primera asignación de referencia vigente, así que el caso aparece en su «Mis casos» (ver `docs/modulo-intervencion.md` §1.1.3). El profesional lo desmarca si la persona solo necesita información o una gestión puntual. Para el resto de roles (tramitación, SIA…) no se muestra, y el servidor lo ignora aunque llegue marcado. Decisión del 2026-09-29.
+**Abrir la historia social (solo rol `intervencion`).** Si el usuario tiene rol `intervencion` y permiso para crear historias, la confirmación muestra el interruptor para abrir la historia, **marcado por defecto**. El profesional lo desmarca si la persona solo necesita información o una gestión puntual. Para el resto de roles (tramitación, SIA…) no se muestra, y el servidor lo ignora aunque llegue marcado. Decisión del 2026-09-29. Desde el 2026-09-30 el texto y el efecto dependen del modo de asignación del centro (`docs/modulo-asignacion.md` §4.4):
+
+- **Centro «quien abre»** (o UO sin centro): «Abrir la historia social y quedar como profesional de referencia». Quien abre queda de referencia y el caso aparece en su «Mis casos».
+- **Centro con sorteo:** «Abrir la historia social». Tras abrirla, la ficha informa del profesional asignado (o de que ha quedado en la bandeja del supervisor).
+- **Centro de libre elección:** además, un selector opcional con los profesionales del reparto. Sin elección, se sortea.
+
+Ver `docs/modulo-intervencion.md` §1.1.3.
 
 La cita con el trabajador social y la valoración son eventos conceptualmente distintos del alta. Pueden ocurrir en el mismo momento y con el mismo profesional, pero no son parte del alta. Si el ciudadano se ha acercado al centro sin cita y está siendo atendido en ese momento, puede pasar directamente del alta a la valoración sin necesidad de cita previa.
 

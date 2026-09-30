@@ -6,6 +6,7 @@ use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\CentroResource\Pages;
 use App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager;
 use App\Filament\Resources\CentroResource\RelationManagers\ColeccionesPlazasRelationManager;
+use App\Models\CatalogoSistema;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
@@ -22,6 +23,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Centro\Enums\ModoAsignacionReferenciaCentro;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\SegmentoPoblacion;
 
@@ -46,6 +48,12 @@ class CentroResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    /**
+     * Formulario de alta y edición de centros, con la configuración de asignación.
+     *
+     * @param Schema $schema
+     * @return Schema
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -134,7 +142,7 @@ class CentroResource extends Resource
                 ->schema([
                     Toggle::make('inscripcion_libre')
                         ->label('Inscripción libre')
-                        ->helperText('Si está activo, los ciudadanos pueden inscribirse sin derivación de un profesional.')
+                        ->helperText('Si está activo, la persona elige este centro. Si no, se le asigna por su domicilio según el ámbito territorial.')
                         ->default(false),
 
                     KeyValue::make('horario')
@@ -148,6 +156,40 @@ class CentroResource extends Resource
                         ->label('Notas internas')
                         ->rows(3)
                         ->nullable(),
+                ]),
+
+            Section::make('Asignación')
+                ->description('Cómo se asignan a este centro las personas y su profesional de referencia.')
+                ->columns(2)
+                ->schema([
+                    Select::make('tipo_centro')
+                        ->label('Tipo de centro')
+                        ->options(fn () => CatalogoSistema::opcionesParaSelect('centro.tipo'))
+                        ->helperText('Una persona tiene como máximo un centro asignado de cada tipo.')
+                        ->nullable(),
+
+                    Select::make('modo_asignacion_referencia')
+                        ->label('Profesional de referencia')
+                        ->options(ModoAsignacionReferenciaCentro::opciones())
+                        ->default(ModoAsignacionReferenciaCentro::Sorteo->value)
+                        ->required(),
+
+                    TextInput::make('ventana_reparto_meses')
+                        ->label('Ventana de reparto (meses)')
+                        ->numeric()
+                        ->integer()
+                        ->minValue(1)
+                        ->default(12)
+                        ->required()
+                        ->helperText('Periodo en el que el sorteo compara las entradas recibidas con las que corresponden a cada profesional.'),
+
+                    TextInput::make('meses_inactividad_caso')
+                        ->label('Meses sin apuntes para caso dormido')
+                        ->numeric()
+                        ->integer()
+                        ->minValue(1)
+                        ->default(6)
+                        ->required(),
                 ]),
 
             Section::make('Vigencia')
@@ -175,6 +217,12 @@ class CentroResource extends Resource
         ]);
     }
 
+    /**
+     * Listado de centros.
+     *
+     * @param Table $table
+     * @return Table
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -184,6 +232,11 @@ class CentroResource extends Resource
                     ->description(fn (Centro $record) => $record->nombre)
                     ->searchable(['nombre', 'nombre_corto'])
                     ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy('nombre', $direction)),
+
+                Tables\Columns\TextColumn::make('tipo_centro')
+                    ->label('Tipo de centro')
+                    ->formatStateUsing(fn (?string $state) => $state ? (CatalogoSistema::opcionesParaSelect('centro.tipo')[$state] ?? $state) : '—')
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('tipo_gestion')
                     ->label('Tipo de gestión')
@@ -233,16 +286,33 @@ class CentroResource extends Resource
             ->defaultSort('nombre');
     }
 
+    /**
+     * Cualquier usuario autenticado del backoffice puede ver los centros.
+     *
+     * @return bool
+     */
     public static function canViewAny(): bool
     {
         return auth()->check();
     }
 
+    /**
+     * Editar exige el permiso centro.gestionar.
+     *
+     * @param Model $record
+     * @return bool
+     */
     public static function canEdit(Model $record): bool
     {
         return auth()->user()?->can('centro.gestionar') ?? false;
     }
 
+    /**
+     * Borrar exige el mismo permiso que editar.
+     *
+     * @param Model $record
+     * @return bool
+     */
     public static function canDelete(Model $record): bool
     {
         return static::canEdit($record);
@@ -261,6 +331,11 @@ class CentroResource extends Resource
         ];
     }
 
+    /**
+     * Páginas del recurso.
+     *
+     * @return array<string, \Filament\Resources\Pages\PageRegistration>
+     */
     public static function getPages(): array
     {
         return [

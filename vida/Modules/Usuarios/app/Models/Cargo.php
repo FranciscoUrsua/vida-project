@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
  * @property string|null $slug Identificador estable único, ej: 'ts'
  * @property string|null $descripcion
  * @property bool $activo
+ * @property bool $puede_ser_referencia Si entra en el reparto de profesionales de referencia.
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read Collection<int, CargoRolSugerido> $rolesSugeridos
@@ -37,11 +38,13 @@ class Cargo extends Model
         'slug',
         'descripcion',
         'activo',
+        'puede_ser_referencia',
     ];
 
     /** @var array<string, string> */
     protected $casts = [
         'activo' => 'boolean',
+        'puede_ser_referencia' => 'boolean',
     ];
 
     // -------------------------------------------------------------------------
@@ -84,6 +87,7 @@ class Cargo extends Model
      * @param list<string> $roles Nombres de roles Spatie.
      *
      * @throws \InvalidArgumentException si algún rol no existe.
+     * @return void
      */
     public function sincronizarRolesSugeridos(array $roles): void
     {

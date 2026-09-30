@@ -83,6 +83,18 @@
             <span>Mi equipo</span>
         </a>
 
+        <a href="{{ route('supervision.asignaciones') }}"
+           class="op-nav-item {{ request()->routeIs('supervision.asignaciones*') ? 'op-nav-item--activo' : '' }}"
+           aria-current="{{ request()->routeIs('supervision.asignaciones*') ? 'page' : 'false' }}">
+            <x-heroicon-o-arrows-right-left class="op-nav-icon icon-18" aria-hidden="true"/>
+            <span>Asignaciones</span>
+            @if($this->asignacionesPendientes > 0)
+                <span class="op-nav-badge">
+                    {{ $this->asignacionesPendientes }}<span class="visually-hidden"> por decidir</span>
+                </span>
+            @endif
+        </a>
+
         <a href="{{ route('supervision.auditoria') }}"
            class="op-nav-item {{ request()->routeIs('supervision.auditoria') ? 'op-nav-item--activo' : '' }}"
            aria-current="{{ request()->routeIs('supervision.auditoria') ? 'page' : 'false' }}">

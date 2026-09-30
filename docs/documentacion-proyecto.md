@@ -194,7 +194,9 @@ Los siguientes modelos existen como stubs o implementaciones parciales:
 
 Mantiene las tablas maestras de la estructura territorial y organizativa municipal: distritos, zonas de trabajo, colectivos especialmente protegidos y configuración de la organización. Diseñado para ser adaptable a cualquier municipio.
 
-**Modelos:** `Distrito`, `Zona`, `ColectivoProtegido`, `Configuracion`
+**Modelos:** `Distrito`, `Barrio`, `SeccionCensal`, `Zona`, `ColectivoProtegido`, `Configuracion`
+
+**Unidades territoriales (2026-09-30):** distritos, barrios (código único dentro del distrito) y secciones censales (código INE de 10 dígitos) como catálogo. Se cargan de `Modules/Organizacion/database/data/*.csv` con `CargaUnidadesTerritoriales` (migración de carga y `UnidadesTerritorialesSeeder`). Filament: `BarrioResource` y `SeccionCensalResource`. Son la base de la asignación de centro por domicilio (`docs/modulo-asignacion.md`).
 
 **Configuración de la organización (junio 2026):** `Configuracion` expone métodos estáticos `logoUrl()` y `nombreAplicacion()` (claves `logo_path` y `nombre_aplicacion` en `organizacion_configuracion`). La acción «Identidad visual» en Filament permite subir logotipo y cambiar el nombre de la aplicación. El sidebar Livewire muestra el logo con tres niveles de fallback: imagen → nombre texto → "VIDA360" + icono por defecto.
 
@@ -233,6 +235,8 @@ Catálogo de ~112 prestaciones organizadas en 8 objetivos generales. 13 tests fu
 Gestiona centros de servicios sociales, redes de centros, espacios, actividades y prescripciones de plaza.
 
 **Entidad Servicio (mayo 2026):** Servicio ≠ Centro. El servicio no tiene infraestructura propia (Art. 53, Ley 12/2022). Implementado como entidad independiente relacionada opcionalmente con Centro.
+
+**Asignación de centro (2026-09-30, `docs/modulo-asignacion.md`):** cada centro tiene modo de asignación de referencia (`sorteo`, `libre_eleccion`, `quien_abre`), ventana de reparto y meses de inactividad de caso; los cargos, `puede_ser_referencia`; el horario del centro, `dias_ausencia_prolongada`. `ResolucionCentroService` resuelve el centro de una dirección por sección, barrio, distrito o ciudad completa (gana la más específica). `AsignacionCentroService` es el único que escribe en `asignaciones_centro` (historial aditivo, modo `geografico`, `eleccion` o `manual`) y en `asignaciones_pendientes` (bandeja del supervisor: sin centro, cambio de domicilio). `AmbitosTerritorialesRelationManager` impide solapamientos del mismo tipo y nivel; «Comprobar cobertura» en el listado de centros y `centros:comprobar-cobertura` listan las secciones sin centro.
 
 **PrescripcionService:** `liberarPlaza()` usa un resolver inyectable para el TSR activo. En producción debe conectarse al módulo Ciudadanía cuando esté disponible. Actualmente devuelve null (ver BACKLOG).
 
@@ -324,6 +328,8 @@ Gestión del expediente del ciudadano: alta, identificación, situación social 
 
 **Acceso con `withoutGlobalScope(AmbitoUoScope::class)`:** la ficha es accesible aunque el ciudadano no tenga historia social en la UO del usuario.
 
+**Centro y referencia (2026-09-30):** la dirección normalizada guarda NDP, distrito, barrio y sección censal. Al normalizarse se asigna el centro por domicilio o se propone el cambio al supervisor. La ficha muestra el centro asignado por tipo y el profesional de referencia con su modo, con el historial desplegable. En el alta, la opción de abrir la historia depende del modo del centro (`docs/front/alta-ciudadano-funcional.md` §4.4).
+
 ---
 
 ## 12. Módulo Intervención
@@ -340,6 +346,8 @@ Gestión de la Historia Social, planes de intervención, apuntes y herramientas 
 - `MisCasosPage`: tabla paginada de planes activos con semáforo de colores y cabecera PISO configurable.
 - `AccesosExpedienteQuery`: query object compartido que encapsula la lógica de filtrado por visibilidad.
 - Panel de últimos accesos al expediente en `CiudadanoPage` y `FichaCiudadanoPage`.
+
+**Profesional de referencia (2026-09-30, `docs/modulo-asignacion.md`):** `AperturaHistoriaService` asegura el centro de la persona y delega en `AsignacionReferenciaService` (sorteo, libre elección, quien abre o unidad de convivencia). `PoolReferenciaService` calcula los elegibles y su peso (jornada); `SorteoReferenciaService` sortea con corrección de desvío y `Random\Randomizer` inyectado. `RepartoCasosService` reparte los casos de quien sale del centro (propuesta, revisión y confirmación) y `ActividadCasosService` resume asignados, con actividad y dormidos. En Supervisión, «Asignaciones» (`AsignacionesPage`, `RepartoCasosPage`): bandeja, actividad del equipo y reparto.
 
 **Nombre del Plan configurable por UO (junio 2026):** `CiudadanoPage` usa `planNombreCorto()` y `planNombreCompleto()` en lugar del literal «PISO». Los valores se configuran en `UnidadOrganizativa`.
 

@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Enums\OrigenDireccion;
+use App\Events\DireccionCiudadanoNormalizada;
 use App\Jobs\NormalizarDireccionJob;
 use App\Models\Ciudadano;
 use App\Services\Geocodificacion\GeocodificadorInterface;
@@ -21,10 +22,22 @@ use Modules\Centro\Models\Centro;
  * Las direcciones procedentes del padrón (origen_direccion = padron)
  * llegan ya estructuradas y no pasan por el geocoder.
  *
+ * Tras normalizar la dirección de un Ciudadano dispara
+ * DireccionCiudadanoNormalizada, que resuelve su centro por domicilio
+ * (docs/modulo-asignacion.md §3.5).
+ *
  * Ver docs/geocodificacion.md § 4.1.
  */
 class DireccionObserver
 {
+    /** Códigos territoriales a null, para una dirección que no se ha podido geocodificar. */
+    private const CODIGOS_VACIOS = [
+        'codigo_ndp' => null,
+        'distrito_codigo' => null,
+        'barrio_codigo' => null,
+        'seccion_censal_codigo' => null,
+    ];
+
     /**
      * @param GeocodificadorInterface $geocodificador Servicio de geocodificación.
      */
@@ -39,6 +52,7 @@ class DireccionObserver
      * en memoria refleje el default de la columna si no se geocodifica.
      *
      * @param Ciudadano|Centro $model Modelo que se va a crear.
+     * @return void
      */
     public function creating(Model $model): void
     {
@@ -53,10 +67,15 @@ class DireccionObserver
      * Encola el job de reintento si el guardado inicial no normalizó la dirección.
      *
      * @param Ciudadano|Centro $model Modelo recién creado.
+     * @return void
      */
     public function created(Model $model): void
     {
         $this->encolarSiPendiente($model);
+
+        if ($model instanceof Ciudadano && $model->direccion_normalizada) {
+            DireccionCiudadanoNormalizada::dispatch($model);
+        }
     }
 
     /**
@@ -65,6 +84,7 @@ class DireccionObserver
      * Solo actúa si cambió el texto de la dirección o el origen.
      *
      * @param Ciudadano|Centro $model Modelo que se va a actualizar.
+     * @return void
      */
     public function updating(Model $model): void
     {
@@ -79,10 +99,18 @@ class DireccionObserver
      * Encola el job de reintento si la actualización no normalizó la dirección.
      *
      * @param Ciudadano|Centro $model Modelo recién actualizado.
+     * @return void
      */
     public function updated(Model $model): void
     {
         $this->encolarSiPendiente($model);
+
+        // Solo si esta actualización ha normalizado la dirección (nueva o cambiada)
+        if ($model instanceof Ciudadano
+            && $model->direccion_normalizada
+            && $model->wasChanged(['direccion_texto', 'direccion_normalizada', 'seccion_censal_codigo', 'codigo_ndp'])) {
+            DireccionCiudadanoNormalizada::dispatch($model);
+        }
     }
 
     /**
@@ -104,6 +132,7 @@ class DireccionObserver
             $this->aplicarResultado($model, $resultado);
         } catch (\Throwable) {
             $model->direccion_normalizada = false;
+            $model->forceFill(self::CODIGOS_VACIOS);
         }
     }
 
@@ -145,6 +174,8 @@ class DireccionObserver
     {
         if (! $resultado->exito) {
             $model->direccion_normalizada = false;
+            // Los códigos de una dirección anterior ya no valen para la nueva
+            $model->forceFill(self::CODIGOS_VACIOS);
 
             return;
         }
@@ -163,5 +194,6 @@ class DireccionObserver
         $model->coordenadas_lat = $resultado->latitud;
         $model->coordenadas_lng = $resultado->longitud;
         $model->geocoder_proveedor = $resultado->proveedor;
+        $model->forceFill($resultado->codigosTerritoriales());
     }
 }

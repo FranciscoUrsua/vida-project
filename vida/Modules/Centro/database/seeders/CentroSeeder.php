@@ -30,6 +30,11 @@ use Modules\Centro\Models\TipoEspacio;
  */
 class CentroSeeder extends Seeder
 {
+    /**
+     * Crea o actualiza los centros de ejemplo con su configuración.
+     *
+     * @return void
+     */
     public function run(): void
     {
         $this->sembrarTiposEspacio();
@@ -143,6 +148,7 @@ class CentroSeeder extends Seeder
         $albergueSanIsidro = Centro::firstOrCreate(
             ['nombre' => 'Albergue Municipal San Isidro'],
             [
+                'tipo_centro' => 'albergue',
                 'nombre_corto' => 'Albergue San Isidro',
                 'tipo_gestion' => 'municipal_directo',
                 'unidad_organizativa_id' => $uoDepartamento?->id,
@@ -164,6 +170,7 @@ class CentroSeeder extends Seeder
         $albergueVallecas = Centro::firstOrCreate(
             ['nombre' => 'Albergue Municipal Vallecas'],
             [
+                'tipo_centro' => 'albergue',
                 'nombre_corto' => 'Albergue Vallecas',
                 'tipo_gestion' => 'municipal_concertado',
                 'unidad_organizativa_id' => $uoDepartamento?->id,
@@ -185,6 +192,7 @@ class CentroSeeder extends Seeder
         $centroDiaRetiro = Centro::firstOrCreate(
             ['nombre' => 'Centro de Día Retiro'],
             [
+                'tipo_centro' => 'centro_dia',
                 'nombre_corto' => 'CD Retiro',
                 'tipo_gestion' => 'municipal_directo',
                 'unidad_organizativa_id' => $uoCssRetiro?->id,

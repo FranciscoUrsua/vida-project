@@ -13,6 +13,11 @@ use Illuminate\Database\Seeder;
  */
 class CatalogosSistemaSeeder extends Seeder
 {
+    /**
+     * Crea o actualiza las entradas de catálogo del módulo.
+     *
+     * @return void
+     */
     public function run(): void
     {
         $this->cargarGrupo('prestacion.objetivo_general', [
@@ -121,6 +126,7 @@ class CatalogosSistemaSeeder extends Seeder
             ['clave' => 'servicio_especifico', 'etiqueta' => 'Servicio o recurso específico',               'orden' => 10],
             ['clave' => 'recurso_educativo',  'etiqueta' => 'Recurso educativo o de formación',            'orden' => 11],
             ['clave' => 'centro_dia_inf',     'etiqueta' => 'Centro de Día para infancia y adolescencia',  'orden' => 12],
+            ['clave' => 'ciam',               'etiqueta' => 'Centro Integral de Atención a la Mujer (CIAM)', 'orden' => 13],
         ]);
     }
 
