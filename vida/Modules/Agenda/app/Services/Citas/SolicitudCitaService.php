@@ -187,6 +187,24 @@ class SolicitudCitaService
     }
 
     /**
+     * Solicitud sin guardar con los datos validados, para proponer huecos antes
+     * de citar en ventanilla (la solicitud real la crea citarDirecto() al confirmar).
+     *
+     * @param array<string, mixed> $datos Los de crear().
+     * @param User $usuario
+     * @return SolicitudCita No persistida.
+     *
+     * @throws AuthorizationException
+     * @throws ValidationException
+     */
+    public function borrador(array $datos, User $usuario): SolicitudCita
+    {
+        Gate::forUser($usuario)->authorize('create', SolicitudCita::class);
+
+        return new SolicitudCita($this->validar($datos) + ['solicitante_id' => $usuario->id, 'estado' => EstadoSolicitudCita::Pendiente]);
+    }
+
+    /**
      * Fecha límite por defecto: plazo de la urgencia en días laborables del centro.
      *
      * @param int $centroId

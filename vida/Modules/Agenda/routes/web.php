@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Agenda\Livewire\Citas\BandejaCitacionPage;
+use Modules\Agenda\Livewire\Citas\CitaDirectaPage;
+use Modules\Agenda\Livewire\Citas\CitaPage;
 use Modules\Agenda\Livewire\CuadranteMesComponent;
 use Modules\Agenda\Livewire\SemanaTypoComponent;
 use Modules\Agenda\Livewire\Supervisor\AusenciasSupervisorPage;
@@ -37,4 +40,24 @@ Route::middleware(['web', 'auth'])
 
         Route::get('/centro/{centro}/cuadrante/{anyo}/{mes}', CuadranteMesComponent::class)
             ->name('agenda.cuadrante');
+    });
+
+/*
+|--------------------------------------------------------------------------
+| Citas (docs/modulo-citas.md)
+|--------------------------------------------------------------------------
+|
+| Bandeja de citación y cita directa: quien da citas en su centro (la página
+| comprueba la política). Detalle e historial de una cita: su profesional,
+| quien gestiona las del centro o quien accede a la Historia Social.
+|
+*/
+
+Route::middleware(['web', 'auth', 'tiene.rol'])
+    ->prefix('agenda/citas')
+    ->name('agenda.citas.')
+    ->group(function () {
+        Route::get('/bandeja', BandejaCitacionPage::class)->name('bandeja');
+        Route::get('/nueva', CitaDirectaPage::class)->name('nueva');
+        Route::get('/{cita}', CitaPage::class)->name('show')->middleware('can:view,cita');
     });

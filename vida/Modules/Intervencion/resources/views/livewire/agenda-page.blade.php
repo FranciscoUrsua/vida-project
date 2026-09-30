@@ -1,29 +1,23 @@
 @php
+    use App\Support\Ui\Tono;
     use Carbon\Carbon;
     use Modules\Intervencion\Support\Ui\Tonos;
 
     $ancla = Carbon::parse($fechaAncla)->locale('es');
     $hoy = today()->toDateString();
 
-    // Tipos de cita y su etiqueta; el color sale de Tonos::tipoCita()
+    // Leyenda: el color de cada clave sale de Tonos::tipoCita()
     $estiloCita = [
-        'entrevista' => ['label' => 'Entrevista'],
+        'entrevista' => ['label' => 'Cita'],
         'seguimiento' => ['label' => 'Seguimiento'],
-        'urgencia' => ['label' => 'Urgencia'],
+        'urgencia' => ['label' => 'Urgente'],
         'evento' => ['label' => 'Evento'],
     ];
 
-
     $horas = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
 
-    // URL de destino de una cita: la historia social para intervención; si no, la ficha
-    $urlCita = function (array $cita): ?string {
-        if ($cita['historia_id'] && auth()->user()->hasRole('intervencion')) {
-            return route('intervencion.ciudadano.show', $cita['historia_id']);
-        }
-
-        return isset($cita['ciudadano_id']) ? route('ciudadania.ciudadano.ficha', $cita['ciudadano_id']) : null;
-    };
+    // Destino de una entrada: atender la cita si se puede; si no, su detalle. Los eventos no enlazan.
+    $urlEntrada = fn (array $e): ?string => $e['es_cita'] ? ($e['url_atender'] ?? route('agenda.citas.show', $e['id'])) : null;
 @endphp
 
 <div class="op-page d-flex flex-column gap-3 p-3">
@@ -87,6 +81,16 @@
         </div>
     </section>
 
+    @if($aviso)
+        <div class="alert alert-success d-flex align-items-center gap-2 py-2 mb-0" role="status">
+            {{ $aviso }}
+            <button type="button" class="btn-close btn-sm ms-auto" wire:click="$set('aviso', null)" aria-label="Cerrar aviso"></button>
+        </div>
+    @endif
+    @error('agenda')
+        <div class="alert alert-danger py-2 mb-0" role="alert">{{ $message }}</div>
+    @enderror
+
     <section class="card flex-grow-1">
         <div class="card-body">
             @if($vista === 'dia')
@@ -104,37 +108,56 @@
                             </header>
 
                             <div class="d-flex flex-column gap-1">
-                                @forelse($citas as $cita)
-                                    @php
-                                        $tipo = $cita['tipo'] ?? 'evento';
-                                        $url = $urlCita($cita);
-                                    @endphp
-
-                                    @if($url)
-                                        <a href="{{ $url }}" wire:navigate class="d-block rounded border-start border-3 px-2 py-1 small text-body text-decoration-none {{ Tonos::tipoCita($tipo)->clasesBloque() }}">
-                                    @else
-                                        <div class="d-block rounded border-start border-3 px-2 py-1 small text-body text-decoration-none {{ Tonos::tipoCita($tipo)->clasesBloque() }}" title="{{ $cita['ciudadano'] ?? 'Evento interno' }}">
-                                    @endif
-                                            @if($tipo === 'urgencia')
-                                                <span class="badge text-bg-danger">Urgencia</span>
+                                @forelse($citas as $entrada)
+                                    @php $url = $urlEntrada($entrada); @endphp
+                                    <article class="rounded border-start border-3 px-2 py-1 small {{ Tonos::tipoCita($entrada['tipo'])->clasesBloque() }}" wire:key="{{ $entrada['clave'] }}">
+                                        <div class="d-flex flex-wrap align-items-center gap-1">
+                                            <span class="fw-semibold">{{ $entrada['hora'] }}</span>
+                                            @if($entrada['tipo'] === 'urgencia')
+                                                <span class="badge {{ Tono::Peligro->clasesSuave() }}">Urgente</span>
                                             @endif
-                                            <div class="fw-semibold">{{ $cita['hora'] }}</div>
-                                            <div class="text-truncate">{{ $cita['ciudadano'] ?? 'Evento interno' }}</div>
-                                    @if($url)
-                                        </a>
-                                    @else
+                                            @if($entrada['es_cita'] && $entrada['estado'] !== \Modules\Agenda\Enums\EstadoCita::Confirmada)
+                                                <span class="badge {{ $entrada['estado']->tono()->clasesSuave() }}">{{ $entrada['estado']->label() }}</span>
+                                            @endif
+                                            @if($entrada['es_cita'] && $entrada['pendiente_cierre'])
+                                                <span class="badge {{ Tono::Aviso->clasesSuave() }}">Pendiente de cierre</span>
+                                            @endif
                                         </div>
-                                    @endif
+                                        @if($url)
+                                            <a href="{{ $url }}" wire:navigate class="d-block text-truncate text-body fw-semibold">{{ $entrada['titulo'] }}</a>
+                                        @else
+                                            <div @class(['text-truncate', 'fst-italic' => $entrada['es_cita'] && $entrada['pendiente_identificar']])>{{ $entrada['titulo'] }}</div>
+                                        @endif
+                                        @if($entrada['subtitulo'])
+                                            <div class="text-body-secondary text-truncate">{{ $entrada['subtitulo'] }}</div>
+                                        @endif
+
+                                        @if($entrada['es_cita'])
+                                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                                @if($entrada['url_atender'])
+                                                    <a href="{{ $entrada['url_atender'] }}" wire:navigate class="btn btn-primary btn-sm py-0">Atender</a>
+                                                @endif
+                                                @if($entrada['puede_incomparecencia'])
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm py-0"
+                                                            wire:click="marcarIncomparecencia({{ $entrada['id'] }})"
+                                                            wire:confirm="¿Marcar que la persona no ha venido a la cita de las {{ $entrada['hora'] }}?">Incomparecencia</button>
+                                                @endif
+                                                @if($entrada['puede_acompanantes'])
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm py-0" wire:click="abrirAccion({{ $entrada['id'] }}, 'acompanantes')">Acompañantes</button>
+                                                @endif
+                                                @if($entrada['puede_pedir_cambio'])
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm py-0" wire:click="abrirAccion({{ $entrada['id'] }}, 'cambio')">Pedir cambio</button>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </article>
                                 @empty
                                     <p class="small text-body-secondary text-center mb-0">Sin citas programadas.</p>
                                 @endforelse
 
                                 @if(! $esPasado)
-                                    @php $horasCitas = collect($citas)->pluck('hora')->toArray(); @endphp
-                                    @foreach($horas as $hora)
-                                        @if(! in_array($hora, $horasCitas))
-                                            <div class="small text-body-tertiary border-bottom py-1">{{ $hora }} <span class="ms-1">Disponible</span></div>
-                                        @endif
+                                    @foreach($this->huecosLibres[$fecha] ?? [] as $hora)
+                                        <div class="small text-body-tertiary border-bottom py-1">{{ $hora }} <span class="ms-1">Disponible</span></div>
                                     @endforeach
                                 @endif
                             </div>
@@ -145,6 +168,10 @@
                 @php
                     $diasSemana = array_keys($this->citasSemana);
                     $citasSemana = $this->citasSemana;
+                    // Franja base y, además, cualquier hora con citas fuera de ella
+                    $horasSemana = collect($horas)
+                        ->merge(collect($citasSemana)->flatten(1)->map(fn ($e) => substr($e['hora'], 0, 2).':00'))
+                        ->unique()->sort()->values();
                 @endphp
                 <div class="table-responsive">
                     <table class="table table-bordered table-sm align-top mb-0">
@@ -164,24 +191,21 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($horas as $hora)
+                            @foreach($horasSemana as $hora)
                                 <tr>
                                     <th scope="row" class="small fw-normal text-body-secondary text-nowrap">{{ $hora }}</th>
                                     @foreach($diasSemana as $fecha)
                                         @php
-                                            $citasHora = collect($citasSemana[$fecha] ?? [])->filter(fn($c) => $c['hora'] === $hora)->values();
+                                            $citasHora = collect($citasSemana[$fecha] ?? [])->filter(fn ($c) => substr($c['hora'], 0, 2) === substr($hora, 0, 2))->values();
                                             $esHoy = $fecha === $hoy;
                                         @endphp
                                         <td @class(['table-primary' => $esHoy])>
-                                            @foreach($citasHora as $cita)
-                                                @php
-                                                    $tipo = $cita['tipo'] ?? 'evento';
-                                                    $url = $urlCita($cita);
-                                                @endphp
+                                            @foreach($citasHora as $entrada)
+                                                @php $url = $urlEntrada($entrada); @endphp
                                                 @if($url)
-                                                    <a href="{{ $url }}" wire:navigate class="d-block rounded border-start border-3 px-1 mb-1 small text-body text-decoration-none text-truncate {{ Tonos::tipoCita($tipo)->clasesBloque() }}">{{ $cita['ciudadano'] }}</a>
+                                                    <a href="{{ $url }}" wire:navigate wire:key="sem-{{ $entrada['clave'] }}" class="d-block rounded border-start border-3 px-1 mb-1 small text-body text-decoration-none text-truncate {{ Tonos::tipoCita($entrada['tipo'])->clasesBloque() }}">{{ $entrada['hora'] }} {{ $entrada['titulo'] }}</a>
                                                 @else
-                                                    <div class="d-block rounded border-start border-3 px-1 mb-1 small text-body text-decoration-none text-truncate {{ Tonos::tipoCita($tipo)->clasesBloque() }}" title="{{ $cita['ciudadano'] ?? 'Evento interno' }}">{{ $cita['ciudadano'] ?? 'Evento interno' }}</div>
+                                                    <div wire:key="sem-{{ $entrada['clave'] }}" class="d-block rounded border-start border-3 px-1 mb-1 small text-body text-truncate {{ Tonos::tipoCita($entrada['tipo'])->clasesBloque() }}" title="{{ $entrada['titulo'] }}">{{ $entrada['hora'] }} {{ $entrada['titulo'] }}</div>
                                                 @endif
                                             @endforeach
                                         </td>
@@ -263,4 +287,80 @@
             @endforeach
         </footer>
     </section>
+
+    @if($accion && $this->citaEnAccion)
+        @php $citaAccion = $this->citaEnAccion; @endphp
+        <div class="modal-backdrop fade show"></div>
+        <div class="modal fade show d-block"
+             wire:click.self="cerrarAccion"
+             x-data x-on:keydown.escape.window="$wire.cerrarAccion()"
+             role="dialog" aria-modal="true" aria-labelledby="agenda-accion-titulo" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header">
+                        <h2 id="agenda-accion-titulo" class="modal-title h6 fw-bold">
+                            {{ $accion === 'cambio' ? 'Pedir cambio al supervisor' : 'Acompañantes' }}
+                            <span class="d-block small fw-normal text-body-secondary">
+                                Cita del {{ $citaAccion->fecha->format('d/m/Y') }} a las {{ substr((string) $citaAccion->hora_inicio, 0, 5) }}
+                            </span>
+                        </h2>
+                        <button type="button" class="btn-close" wire:click="cerrarAccion" aria-label="Cerrar"></button>
+                    </div>
+
+                    @if($accion === 'cambio')
+                        <div class="modal-body">
+                            <p class="small text-body-secondary">Tus citas las mueve quien gestiona las del centro. Tu supervisor recibirá un mensaje con enlace a la cita.</p>
+                            <label for="agenda-texto-cambio" class="form-label small fw-semibold">Qué cambio necesitas</label>
+                            <textarea id="agenda-texto-cambio" wire:model="textoCambio" rows="3" @class(['form-control', 'is-invalid' => $errors->has('cambio')])></textarea>
+                            @error('cambio') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" wire:click="cerrarAccion">Cancelar</button>
+                            <button type="button" class="btn btn-primary btn-sm" wire:click="pedirCambio">Enviar</button>
+                        </div>
+                    @else
+                        <div class="modal-body">
+                            @if($citaAccion->acompanantes->isNotEmpty())
+                                <ul class="list-unstyled small mb-3">
+                                    @foreach($citaAccion->acompanantes as $a)
+                                        <li wire:key="acompanante-{{ $a->id }}">{{ $a->nombreVisible() }} · {{ $this->relacionesAcompanante[$a->relacion] ?? $a->relacion }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
+
+                            <p class="small text-body-secondary">Solo es un registro: no crea citas ni vínculos para quien acompaña.</p>
+
+                            <div class="mb-3">
+                                <label for="agenda-acompanante-relacion" class="form-label small fw-semibold">Relación</label>
+                                <select id="agenda-acompanante-relacion" wire:model="formAcompanante.relacion" class="form-select form-select-sm">
+                                    <option value="">Elige…</option>
+                                    @foreach($this->relacionesAcompanante as $clave => $etiqueta)
+                                        <option value="{{ $clave }}">{{ $etiqueta }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            @if($formAcompanante['ciudadano_id'])
+                                <p class="small mb-3">
+                                    <span class="fw-semibold">{{ $formAcompanante['ciudadano_nombre'] }}</span>
+                                    <button type="button" class="btn btn-link btn-sm" wire:click="quitarAcompananteEnlazado">Cambiar</button>
+                                </p>
+                            @else
+                                <p class="small fw-semibold mb-1">Persona que está en VIDA</p>
+                                @include('agenda::livewire.citas.partials.buscar-persona', ['accion' => 'elegirAcompanante', 'etiqueta' => 'Elegir'])
+                                <label for="agenda-acompanante-nombre" class="form-label small fw-semibold">O su nombre, si no está</label>
+                                <input id="agenda-acompanante-nombre" type="text" wire:model="formAcompanante.nombre" class="form-control form-control-sm">
+                            @endif
+
+                            @error('acompanante') <div class="alert alert-danger small py-2 mt-3 mb-0" role="alert">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" wire:click="cerrarAccion">Cerrar</button>
+                            <button type="button" class="btn btn-primary btn-sm" wire:click="guardarAcompanante">Añadir acompañante</button>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

@@ -83,6 +83,15 @@
             <span>Mi equipo</span>
         </a>
 
+        @if(auth()->user()->can('citas.gestionar') || auth()->user()->can('citas.supervisar'))
+        <a href="{{ route('agenda.citas.bandeja') }}"
+           class="op-nav-item {{ request()->routeIs('agenda.citas*') ? 'op-nav-item--activo' : '' }}"
+           aria-current="{{ request()->routeIs('agenda.citas*') ? 'page' : 'false' }}">
+            <x-heroicon-o-calendar-days class="op-nav-icon icon-18" aria-hidden="true"/>
+            <span>Citación</span>
+        </a>
+        @endif
+
         <a href="{{ route('supervision.asignaciones') }}"
            class="op-nav-item {{ request()->routeIs('supervision.asignaciones*') ? 'op-nav-item--activo' : '' }}"
            aria-current="{{ request()->routeIs('supervision.asignaciones*') ? 'page' : 'false' }}">

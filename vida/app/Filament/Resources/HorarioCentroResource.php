@@ -146,6 +146,19 @@ class HorarioCentroResource extends Resource
                         ->helperText('Una ausencia más larga saca al profesional del sorteo de referencias mientras dure.'),
                 ]),
 
+            Section::make('Citas')
+                ->description('Plazos máximos por urgencia (días laborables) para calcular la fecha límite de una solicitud de cita.')
+                ->columns(4)
+                ->schema([
+                    TextInput::make('plazos_urgencia.ordinaria')->label('Ordinaria')->numeric()->integer()->minValue(1)->default(20)->required(),
+                    TextInput::make('plazos_urgencia.preferente')->label('Preferente')->numeric()->integer()->minValue(1)->default(7)->required(),
+                    TextInput::make('plazos_urgencia.urgente')->label('Urgente')->numeric()->integer()->minValue(1)->default(2)->required(),
+                    TextInput::make('dias_aviso_cierre_supervisor')
+                        ->label('Aviso de citas sin cerrar (días)')
+                        ->numeric()->integer()->minValue(1)->default(3)->required()
+                        ->helperText('Días laborables que una cita puede seguir sin apunte ni incomparecencia antes de avisar al supervisor.'),
+                ]),
+
             Section::make('Tipos de slot')
                 ->schema([
                     Select::make('tiposSlot')

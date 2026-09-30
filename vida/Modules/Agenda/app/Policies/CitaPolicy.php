@@ -2,6 +2,7 @@
 
 namespace Modules\Agenda\Policies;
 
+use App\Models\HistoriaSocial;
 use App\Models\User;
 use Modules\Agenda\Models\Cita;
 use Modules\Agenda\Models\Slot;
@@ -20,7 +21,10 @@ use Modules\Agenda\Models\Slot;
 class CitaPolicy
 {
     /**
-     * Ver la cita: su profesional o quien gestiona o supervisa las del centro.
+     * Ver la cita y su historial: su profesional, quien gestiona o supervisa las
+     * del centro, o quien puede leer la Historia Social de la persona (el
+     * historial forma parte de su expediente y se abre desde el timeline,
+     * docs/modulo-citas.md §2.4 y §5).
      *
      * @param User $user
      * @param Cita $cita
@@ -28,9 +32,17 @@ class CitaPolicy
      */
     public function view(User $user, Cita $cita): bool
     {
-        return $cita->profesional_id === $user->id
+        if ($cita->profesional_id === $user->id
             || ($this->delCentro($user, $cita->centro_id)
-                && ($user->can('citas.gestionar') || $user->can('citas.supervisar')));
+                && ($user->can('citas.gestionar') || $user->can('citas.supervisar')))) {
+            return true;
+        }
+
+        $historia = $cita->ciudadano_id
+            ? HistoriaSocial::withoutGlobalScopes()->where('ciudadano_id', $cita->ciudadano_id)->first()
+            : null;
+
+        return $historia !== null && $user->can('view', $historia);
     }
 
     /**

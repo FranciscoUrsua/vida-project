@@ -272,6 +272,23 @@
                         </button>
                     </div>
                 @endif
+
+                {{-- Herramienta «Solicitar cita»: la solicitud cae en la bandeja de citación del centro --}}
+                @if($historiaAbierta && $this->puedeSolicitarCita)
+                    <div class="col">
+                        <button type="button"
+                                wire:click="seleccionarHerramienta('cita')"
+                                @if($herramientaActiva === 'cita') aria-pressed="true" @endif
+                                @class([
+                                    'btn w-100 h-100 d-flex flex-column align-items-center justify-content-center gap-1 py-3',
+                                    'btn-primary fw-bold' => $herramientaActiva === 'cita',
+                                    'btn-outline-secondary' => $herramientaActiva !== 'cita',
+                                ])>
+                            <x-heroicon-o-calendar-days class="icon-20" aria-hidden="true"/>
+                            <span class="small lh-sm">Solicitar cita</span>
+                        </button>
+                    </div>
+                @endif
             </div>
 
         </div>
@@ -344,6 +361,30 @@
             {{-- Área de trabajo de la herramienta activa --}}
             <div class="flex-grow-1 overflow-auto p-3">
 
+                @if($avisoCita)
+                    <div class="alert alert-info d-flex align-items-center gap-2 py-2" role="status">
+                        <x-heroicon-o-calendar-days class="icon-16 flex-shrink-0" aria-hidden="true"/>
+                        {{ $avisoCita }}
+                        <button type="button" class="btn-close btn-sm ms-auto" wire:click="$set('avisoCita', null)" aria-label="Cerrar aviso"></button>
+                    </div>
+                @endif
+
+                @if(in_array($herramientaActiva, ['entrevista', 'anotacion', 'derivacion', 'gestion', 'valoracion'], true))
+                    @include('intervencion::partials.vincular-cita')
+                @endif
+
+                @if($herramientaActiva === 'cita')
+                    <div class="card card-body mb-3">
+                        <h3 class="h6 fw-bold mb-1">Solicitar cita</h3>
+                        <p class="small text-body-secondary mb-3">La solicitud llega a la bandeja de citación del centro; quien da las citas contacta con la persona.</p>
+                        @include('agenda::livewire.citas.partials.formulario-solicitud', ['prefijo' => 'ficha-cita', 'conMotivo' => true])
+                        <div class="d-flex gap-2 mt-3">
+                            <button type="button" wire:click="solicitarCita" class="btn btn-primary btn-sm">Enviar solicitud</button>
+                            <button type="button" wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                        </div>
+                    </div>
+                @endif
+
                 @if($herramientaActiva === 'entrevista')
                     <div class="card card-body mb-3">
                         <h3 class="h6 fw-bold mb-3">Registrar entrevista</h3>
@@ -380,6 +421,24 @@
                                 <label for="entrevista-fecha-seguimiento" class="form-label small fw-semibold mb-1">Fecha siguiente seguimiento</label>
                                 <input id="entrevista-fecha-seguimiento" type="date" wire:model="formEntrevista.fecha_siguiente_seguimiento" class="form-control form-control-sm w-auto">
                             </div>
+                            @if($this->planActivo && $this->puedeSolicitarCita)
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="entrevista-solicitar-cita" wire:model.live="formEntrevista.solicitar_cita">
+                                    <label class="form-check-label small" for="entrevista-solicitar-cita">Solicitar cita para ese seguimiento</label>
+                                </div>
+                                @if($formEntrevista['solicitar_cita'])
+                                    <div class="mb-3">
+                                        <label for="entrevista-tipo-cita" class="form-label small fw-semibold mb-1">Tipo de cita</label>
+                                        <select id="entrevista-tipo-cita" wire:model="formEntrevista.tipo_cita_id" class="form-select form-select-sm w-auto">
+                                            <option value="">Elige…</option>
+                                            @foreach($this->tiposCitaSeguimiento as $id => $nombre)
+                                                <option value="{{ $id }}">{{ $nombre }}</option>
+                                            @endforeach
+                                        </select>
+                                        <div class="form-text">Contigo, a partir de la fecha del seguimiento.</div>
+                                    </div>
+                                @endif
+                            @endif
                         @endif
                         <div class="d-flex gap-2">
                             <button type="button" wire:click="guardarEntrevista" class="btn btn-primary btn-sm">Guardar entrevista</button>
@@ -474,7 +533,7 @@
                         </div>
                         <div class="d-flex gap-2">
                             @if($formValoracion['tipo_ficha_id'])
-                                <a href="{{ route('intervencion.valoracion.nueva', ['historia' => $historia->id, 'tipo_ficha' => $formValoracion['tipo_ficha_id']]) }}"
+                                <a href="{{ route('intervencion.valoracion.nueva', ['historia' => $historia->id, 'tipo_ficha' => $formValoracion['tipo_ficha_id'], 'cita' => $vincularCita ? $this->citaVinculable?->id : null]) }}"
                                    wire:navigate
                                    class="btn btn-primary btn-sm">Abrir en pantalla completa</a>
                             @endif
@@ -617,6 +676,7 @@
                     @if($modalApunteDatos['contenido'] ?? null)
                         <div>{!! nl2br(e($modalApunteDatos['contenido'])) !!}</div>
                     @endif
+                    @include('intervencion::partials.cita-de-apunte', ['datos' => $modalApunteDatos])
                 </div>
                 <div class="modal-footer justify-content-between">
                     <span class="small text-body-tertiary">Solo lectura · El pasado es inmutable</span>

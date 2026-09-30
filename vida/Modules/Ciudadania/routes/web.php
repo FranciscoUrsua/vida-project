@@ -21,6 +21,7 @@ Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion|supervision|tr
         Route::get('/ciudadania/alta', AltaCiudadano::class)->name('ciudadania.alta');
         Route::get('/ciudadania/ciudadano/{ciudadano}', FichaCiudadanoPage::class)->name('ciudadania.ciudadano.ficha');
 
-        // Ruta pendiente de implementación — stub para que los redirects de agenda funcionen.
-        Route::get('/ciudadania/ciudadano/{ciudadano}/nueva-cita', fn () => abort(501, 'Nueva cita — pendiente'))->name('ciudadania.ciudadano.nueva-cita');
+        // Tras el alta, «dar cita» lleva a la cita directa de Agenda con la persona elegida
+        Route::get('/ciudadania/ciudadano/{ciudadano}/nueva-cita', fn (int $ciudadano) => redirect()->route('agenda.citas.nueva', ['ciudadano' => $ciudadano]))
+            ->name('ciudadania.ciudadano.nueva-cita');
     });

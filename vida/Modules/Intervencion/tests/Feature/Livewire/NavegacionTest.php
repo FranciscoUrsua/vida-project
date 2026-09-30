@@ -21,9 +21,6 @@ use Modules\Intervencion\Http\Livewire\MisCasosPage;
 use Modules\Mensajes\Livewire\BandejaMensajes;
 use Modules\Mensajes\Livewire\PanelRedaccion;
 use Modules\Mensajes\Models\MensajeHilo;
-use Modules\Usuarios\Models\Cargo;
-use Modules\Usuarios\Models\Profesional;
-use Modules\Usuarios\Models\TipoRelacionProfesional;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -400,60 +397,10 @@ class NavegacionTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
-    // Agenda — bifurcación de enlace por rol — TF-LW-NAV-16 a TF-LW-NAV-17
+    // Agenda — TF-LW-NAV-16 y 17 retirados: probaban los enlaces de la fixture de
+    // AgendaPage. El destino de una cita real (ficha de Intervención o de
+    // Ciudadanía según el tipo de cita) está en Agenda/tests/Feature/Citas/InterfazCitasTest.
     // -------------------------------------------------------------------------
-
-    /**
-     * TF-LW-NAV-16 — Agenda con rol tramitacion: cita con ciudadano_id enlaza a ciudadania.ciudadano.ficha.
-     *
-     * fechaAncla='2026-06-12' garantiza citas con historia_id en la ventana de cuatro días:
-     * 2026-06-11 (count=1, seguimiento) y 2026-06-13 (count=1, seguimiento) usan $historias[0].
-     * Con rol tramitacion: @elseif(isset($cita['ciudadano_id'])) → ciudadania.ciudadano.ficha.
-     */
-    #[Test]
-    public function agenda_tramitacion_enlaza_ciudadano_a_ficha_ciudadano(): void
-    {
-        $tramitacion = User::create([
-            'name' => 'TSR Tramitacion',
-            'email' => 'tramitacion-agenda@vida360.test',
-            'password' => 'secreto',
-            'email_verified_at' => now(),
-            'primer_acceso' => false,
-        ]);
-        $tramitacion->assignRole('tramitacion');
-        UsuarioUo::create([
-            'usuario_id' => $tramitacion->id,
-            'unidad_organizativa_id' => $this->uo->id,
-            'tipo_vinculo' => 'interno',
-            'fecha_inicio' => today()->toDateString(),
-        ]);
-
-        $data = $this->crearEntornoAgenda($tramitacion);
-
-        Livewire::actingAs($tramitacion)
-            ->test(AgendaPage::class)
-            ->set('fechaAncla', '2026-06-12')
-            ->assertSee(route('ciudadania.ciudadano.ficha', $data['ciudadano']->id))
-            ->assertDontSee(route('intervencion.ciudadano.show', $data['historia']->id));
-    }
-
-    /**
-     * TF-LW-NAV-17 — Agenda con rol intervencion: cita con historia_id enlaza a intervencion.ciudadano.show.
-     *
-     * Con rol intervencion y historia_id en la cita: @if($cita['historia_id'] && hasRole('intervencion'))
-     * → intervencion.ciudadano.show. La ruta a ficha ciudadano no debe aparecer.
-     */
-    #[Test]
-    public function agenda_intervencion_enlaza_historia_a_ciudadano_show(): void
-    {
-        $data = $this->crearEntornoAgenda($this->usuario);
-
-        Livewire::actingAs($this->usuario)
-            ->test(AgendaPage::class)
-            ->set('fechaAncla', '2026-06-12')
-            ->assertSee(route('intervencion.ciudadano.show', $data['historia']->id))
-            ->assertDontSee(route('ciudadania.ciudadano.ficha', $data['ciudadano']->id));
-    }
 
     // -------------------------------------------------------------------------
     // Mis casos — enlaces separados — TF-LW-NAV-18 a TF-LW-NAV-19
@@ -691,47 +638,5 @@ class NavegacionTest extends TestCase
         Livewire::actingAs($this->usuario)
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $ciudadano->id])
             ->assertDontSee('Permisos del rol activo');
-    }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
-    /**
-     * Crea Cargo + Profesional + asigna profesional_id al usuario + Ciudadano + HistoriaSocial.
-     * Necesario para que la fixture de AgendaPage incluya historia_id y ciudadano_id en las citas.
-     *
-     * @return array{historia: HistoriaSocial, ciudadano: Ciudadano}
-     */
-    private function crearEntornoAgenda(User $usuario): array
-    {
-        $cargo = Cargo::create(['nombre' => 'TSR Test Nav', 'activo' => true]);
-        $tipoRelacion = TipoRelacionProfesional::create(['nombre' => 'Funcionario Test', 'activo' => true]);
-        $profesional = Profesional::create([
-            'nombre' => 'Test',
-            'apellido1' => 'Profesional',
-            'sexo' => 'M',
-            'cargo_id' => $cargo->id,
-            'tipo_relacion_id' => $tipoRelacion->id,
-            'fecha_inicio' => today()->toDateString(),
-            'activo' => true,
-        ]);
-        $usuario->update(['profesional_id' => $profesional->id]);
-
-        $ciudadano = Ciudadano::create([
-            'nombre' => 'Agenda',
-            'apellido1' => 'Test',
-            'apellido2' => null,
-            'fecha_nacimiento' => '1985-06-01',
-            'sexo' => 'H',
-            'activo' => true,
-        ]);
-        $historia = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id' => $ciudadano->id,
-            'unidad_organizativa_id' => $this->uo->id,
-            'estado' => 'abierta',
-        ]);
-
-        return compact('historia', 'ciudadano');
     }
 }

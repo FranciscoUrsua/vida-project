@@ -9,6 +9,8 @@ use Illuminate\Support\Collection;
 use Modules\Agenda\Enums\DestinoCita;
 use Modules\Agenda\Enums\ModoAsignacionCita;
 use Modules\Agenda\Enums\OrigenPermitidoSlot;
+use Modules\Agenda\Enums\UrgenciaCita;
+use Modules\Agenda\Models\Cita;
 use Modules\Agenda\Models\ExcepcionProfesional;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Agenda\Models\Slot;
@@ -37,10 +39,12 @@ class BusquedaHuecosService
     /**
      * @param DisponibilidadService $disponibilidad
      * @param AsignacionReferenciaService $referencias
+     * @param SolicitudCitaService $solicitudes
      */
     public function __construct(
         private readonly DisponibilidadService $disponibilidad,
         private readonly AsignacionReferenciaService $referencias,
+        private readonly SolicitudCitaService $solicitudes,
     ) {}
 
     /**
@@ -79,6 +83,40 @@ class BusquedaHuecosService
         };
 
         return $propuestas->take($limite)->values();
+    }
+
+    /**
+     * Huecos para mover una cita: del mismo profesional o de cualquiera de su
+     * perfil, con el tipo de cita y la urgencia de la solicitud original (las
+     * externas, ordinaria). La ventana va de hoy a la fecha indicada o, si no, al
+     * plazo de la urgencia. El slot actual de la cita no se propone.
+     *
+     * @param Cita $cita
+     * @param bool $mismoProfesional
+     * @param Carbon|null $hasta
+     * @param int $limite
+     * @return Collection<int, PropuestaHueco>
+     */
+    public function paraReprogramar(Cita $cita, bool $mismoProfesional, ?Carbon $hasta = null, int $limite = 10): Collection
+    {
+        $urgencia = $cita->solicitud?->urgencia ?? UrgenciaCita::Ordinaria;
+        $perfil = $cita->profesional?->profesional?->cargo?->slug;
+
+        $busqueda = new SolicitudCita([
+            'ciudadano_id' => $cita->ciudadano_id,
+            'centro_id' => $cita->centro_id,
+            'tipo_cita_id' => $cita->tipo_cita_id,
+            'urgencia' => $urgencia,
+            'destino' => $mismoProfesional ? DestinoCita::ProfesionalConcreto : DestinoCita::Servicio,
+            'profesional_destino_id' => $mismoProfesional ? $cita->profesional_id : null,
+            'servicio_destino' => $mismoProfesional ? null : $perfil,
+            'no_despues_de' => ($hasta ?? $this->solicitudes->fechaLimite($cita->centro_id, $urgencia))->toDateString(),
+        ]);
+
+        return $this->buscar($busqueda, $limite + 1)
+            ->reject(fn (PropuestaHueco $p) => $p->slot->id === $cita->slot_id)
+            ->take($limite)
+            ->values();
     }
 
     /**

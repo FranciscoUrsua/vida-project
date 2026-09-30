@@ -5,8 +5,10 @@ namespace Modules\Intervencion\Http\Livewire;
 use App\Models\HistoriaSocial;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Url;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Modules\Agenda\Services\Citas\AtencionCitaService;
 use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Enums\VisibilidadApunte;
@@ -41,6 +43,10 @@ class RegistrarValoracionPage extends Component
 
     /** @var int|null Entrevista que origina esta valoración */
     public ?int $entrevistaId = null;
+
+    /** @var int|null Cita que atiende la valoración (?cita=, desde la ficha o la agenda). */
+    #[Url(as: 'cita', except: null)]
+    public ?int $citaId = null;
 
     /** @var array<string, mixed> Valores del formulario dinámico, indexados por campo id */
     public array $datos = [];
@@ -188,6 +194,10 @@ class RegistrarValoracionPage extends Component
             'tipo' => TipoApunte::Valoracion,
             'apuntable_type' => Ficha::class,
             'apuntable_id' => $ficha->id,
+            // Solo si sigue siendo una cita vinculable de esta persona con este profesional
+            'cita_id' => $this->citaId ? app(AtencionCitaService::class)->citaVinculable(
+                HistoriaSocial::withoutGlobalScopes()->whereKey($this->historiaId)->value('ciudadano_id'), auth()->user(), $this->citaId
+            )?->id : null,
             'contenido' => $this->tipoFicha?->nombre,
             'visibilidad' => VisibilidadApunte::Profesionales,
         ]);

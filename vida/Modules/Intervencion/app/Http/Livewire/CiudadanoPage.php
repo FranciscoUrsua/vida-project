@@ -7,11 +7,13 @@ use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Queries\AccesosExpedienteQuery;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Modules\Ciudadania\Enums\ImplicacionFuncional;
 use Modules\Ciudadania\Models\CiudadanoRelacion;
@@ -35,6 +37,21 @@ use Modules\Intervencion\Models\TipoFicha;
 use Modules\Intervencion\Models\TipoValoracion;
 use Modules\Intervencion\Models\Valoracion;
 use Modules\Centro\Models\Prescripcion;
+use Illuminate\Validation\ValidationException;
+use Modules\Agenda\Enums\CanalSolicitudCita;
+use Modules\Agenda\Enums\DestinoCita;
+use Modules\Agenda\Enums\HerramientaCita;
+use Modules\Agenda\Enums\UrgenciaCita;
+use Modules\Agenda\Livewire\Citas\Concerns\FormularioSolicitudCita;
+use Modules\Agenda\Models\Cita;
+use Modules\Agenda\Models\SolicitudCita;
+use Modules\Agenda\Models\TipoCita;
+use Modules\Agenda\Services\Citas\AtencionCitaService;
+use Modules\Agenda\Services\Citas\ResumenCita;
+use Modules\Agenda\Services\Citas\SolicitudCitaService;
+use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
+use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
 use Modules\Intervencion\Services\PlanPdfService;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -57,10 +74,15 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property-read Collection<int, Audit> $accesosRecientes
  * @property-read bool $puedeVerTodosLosAccesos
  * @property-read Collection<int, Prescripcion> $prescripcionesActivas
+ * @property-read Cita|null $citaVinculable
+ * @property-read bool $puedeSolicitarCita
+ * @property-read array<int, string> $tiposCitaSeguimiento
  */
 #[Layout('layouts.operativo')]
 class CiudadanoPage extends Component
 {
+    use FormularioSolicitudCita;
+
     /** @var HistoriaSocial Inyectada por route model binding */
     public HistoriaSocial $historia;
 
@@ -75,6 +97,13 @@ class CiudadanoPage extends Component
 
     /** @var string|null Herramienta activa */
     public ?string $herramientaActiva = null;
+
+    /** @var int|null Cita con la que se abrió el expediente desde la agenda (?cita=). */
+    #[Url(as: 'cita', except: null)]
+    public ?int $citaPedida = null;
+
+    /** @var bool Si el apunte que se guarde se vincula a la cita propuesta (marcado por defecto). */
+    public bool $vincularCita = true;
 
     /** Tipo de apunte sugerido visualmente según la herramienta activa. No filtra solo. */
     public ?string $filtroSugerido = null;
@@ -129,7 +158,12 @@ class CiudadanoPage extends Component
         'generar_valoracion' => false,
         'programar_seguimiento' => false,
         'fecha_siguiente_seguimiento' => '',
+        'solicitar_cita' => false,
+        'tipo_cita_id' => '',
     ];
+
+    /** @var string|null Aviso tras solicitar una cita (o por qué no se pudo). */
+    public ?string $avisoCita = null;
 
     /** @var array<string, mixed> */
     public array $formAnotacion = [
@@ -783,6 +817,165 @@ class CiudadanoPage extends Component
     }
 
     /**
+     * Cita que se propone vincular al apunte: la de la agenda o la de hoy con
+     * este profesional (docs/modulo-citas.md §3.5).
+     *
+     * @return Cita|null
+     */
+    #[Computed]
+    public function citaVinculable(): ?Cita
+    {
+        return app(AtencionCitaService::class)->citaVinculable($this->historia->ciudadano_id, Auth::user(), $this->citaPedida);
+    }
+
+    /**
+     * Abre la herramienta del tipo de cita cuando se entra desde la agenda (?herramienta=).
+     *
+     * @return void
+     */
+    public function mount(): void
+    {
+        $herramienta = request()->query('herramienta');
+
+        if (in_array($herramienta, ['entrevista', 'valoracion', 'anotacion'], true)) {
+            $this->seleccionarHerramienta($herramienta);
+        }
+
+        // Entrevista inicial o de seguimiento, según el tipo de cita que se atiende
+        if ($herramienta === 'entrevista' && in_array(request()->query('tipo'), ['inicial', 'seguimiento'], true)) {
+            $this->formEntrevista['tipo'] = request()->query('tipo');
+        }
+    }
+
+    /**
+     * Id de la cita a la que se vincula el apunte que se va a guardar, o null.
+     *
+     * @return int|null
+     */
+    private function citaParaApunte(): ?int
+    {
+        return $this->vincularCita ? $this->citaVinculable?->id : null;
+    }
+
+    /**
+     * Tras guardar un apunte, la propuesta de vinculación se recalcula.
+     *
+     * @return void
+     */
+    private function olvidarCita(): void
+    {
+        $this->citaPedida = null;
+        $this->vincularCita = true;
+        unset($this->citaVinculable);
+    }
+
+    /**
+     * Si el usuario puede pedir citas (herramienta «Solicitar cita»).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeSolicitarCita(): bool
+    {
+        return Auth::user()->can('create', SolicitudCita::class) && $this->centroDeLaSolicitud() !== null;
+    }
+
+    /**
+     * Tipos de cita para pedir la del siguiente seguimiento: primero los de
+     * entrevista de seguimiento.
+     *
+     * @return array<int, string>
+     */
+    #[Computed]
+    public function tiposCitaSeguimiento(): array
+    {
+        return TipoCita::activos()->get()
+            ->sortBy(fn (TipoCita $t) => [$t->herramienta === HerramientaCita::EntrevistaSeguimiento ? 0 : 1, $t->nombre])
+            ->mapWithKeys(fn (TipoCita $t) => [$t->id => $t->nombreParaUsuario(Auth::user())])
+            ->all();
+    }
+
+    /**
+     * Crea la solicitud de cita con el formulario de la herramienta: cae en la
+     * bandeja de citación del centro (docs/modulo-citas.md §3.1).
+     *
+     * @return void
+     */
+    public function solicitarCita(): void
+    {
+        $centro = $this->centroDeLaSolicitud();
+        abort_if($centro === null, 403);
+
+        app(SolicitudCitaService::class)->crear(
+            $this->datosSolicitud($this->historia->ciudadano_id, $centro->id, CanalSolicitudCita::Interno->value),
+            Auth::user(),
+        );
+
+        $this->reiniciarFormularioSolicitud();
+        $this->herramientaActiva = null;
+        $this->avisoCita = 'Solicitud de cita enviada a la bandeja de citación del centro.';
+    }
+
+    /**
+     * Centro en el que se pide la cita: el del profesional que la pide.
+     *
+     * @return Centro|null
+     */
+    protected function centroDeLaSolicitud(): ?Centro
+    {
+        return app(CentroDeUsuario::class)->centroActivo(Auth::user());
+    }
+
+    /**
+     * Destino por defecto: la referencia si la persona la tiene; si no, el primer libre.
+     *
+     * @return void
+     */
+    private function prepararSolicitudCita(): void
+    {
+        $this->reiniciarFormularioSolicitud();
+        $this->resetErrorBag();
+        $tieneReferencia = app(AsignacionReferenciaService::class)->vigente($this->historia) !== null;
+        $this->formSolicitud['destino'] = ($tieneReferencia ? DestinoCita::Referencia : DestinoCita::PrimerLibre)->value;
+    }
+
+    /**
+     * Pide la cita del siguiente seguimiento programado al guardar una entrevista:
+     * para el propio profesional, desde la fecha prevista y con el plazo
+     * ordinario a partir de ella. La entrevista ya está guardada; si la solicitud
+     * no es válida, se avisa sin deshacerla.
+     *
+     * @param SeguimientoPlan $seguimiento
+     * @return void
+     */
+    private function solicitarCitaSeguimiento(SeguimientoPlan $seguimiento): void
+    {
+        $centro = $this->centroDeLaSolicitud();
+        $servicio = app(SolicitudCitaService::class);
+        $desde = Carbon::parse($this->formEntrevista['fecha_siguiente_seguimiento']);
+
+        try {
+            abort_if($centro === null, 403);
+            $servicio->crear([
+                'ciudadano_id' => $this->historia->ciudadano_id,
+                'centro_id' => $centro->id,
+                'canal' => CanalSolicitudCita::Seguimiento->value,
+                'tipo_cita_id' => $this->formEntrevista['tipo_cita_id'] !== '' ? (int) $this->formEntrevista['tipo_cita_id'] : null,
+                'urgencia' => UrgenciaCita::Ordinaria->value,
+                'destino' => DestinoCita::ProfesionalConcreto->value,
+                'profesional_destino_id' => Auth::id(),
+                'no_antes_de' => $desde->toDateString(),
+                'no_despues_de' => $servicio->fechaLimite($centro->id, UrgenciaCita::Ordinaria, $desde)->toDateString(),
+                'contexto_type' => $seguimiento->getMorphClass(),
+                'contexto_id' => $seguimiento->id,
+            ], Auth::user());
+            $this->avisoCita = 'Seguimiento programado y cita solicitada a la bandeja de citación.';
+        } catch (ValidationException $e) {
+            $this->avisoCita = 'La entrevista se ha guardado, pero no se ha podido solicitar la cita: '.collect($e->errors())->flatten()->first();
+        }
+    }
+
+    /**
      * Activa una herramienta del panel lateral.
      *
      * @param string $herramienta Identificador de la herramienta.
@@ -790,6 +983,10 @@ class CiudadanoPage extends Component
     public function seleccionarHerramienta(string $herramienta): void
     {
         $this->herramientaActiva = $herramienta;
+
+        if ($herramienta === 'cita') {
+            $this->prepararSolicitudCita();
+        }
 
         $mapa = [
             'entrevista' => 'entrevista',
@@ -870,6 +1067,10 @@ class CiudadanoPage extends Component
             }
         }
 
+        // Sección Cita / Coordinación: solo en el detalle, no en el resumen (docs/modulo-citas.md §5)
+        $this->modalApunteDatos['cita'] = app(ResumenCita::class)->deApunte($apunte);
+        $this->modalApunteDatos['coordinacion'] = app(ResumenCita::class)->coordinacion($apunte);
+
         $this->modalApunteAbierto = true;
     }
 
@@ -898,7 +1099,7 @@ class CiudadanoPage extends Component
         $entrevista = Entrevista::create([
             'historia_id' => $this->historia->id,
             'profesional_id' => Auth::id(),
-            'cita_id' => null,
+            'cita_id' => $citaId = $this->citaParaApunte(),
             'plan_intervencion_id' => $plan?->id,
             'fecha_hora' => now()->toDateTimeString(),
             'modalidad' => $this->formEntrevista['modalidad'],
@@ -915,23 +1116,29 @@ class CiudadanoPage extends Component
             'tipo' => TipoApunte::Entrevista,
             'apuntable_type' => Entrevista::class,
             'apuntable_id' => $entrevista->id,
+            'cita_id' => $citaId,
             'contenido' => $this->formEntrevista['notas'] ?: null,
             'visibilidad' => VisibilidadApunte::Profesionales,
         ]);
 
         if ($plan && $this->formEntrevista['programar_seguimiento'] && $this->formEntrevista['fecha_siguiente_seguimiento']) {
-            SeguimientoPlan::create([
+            $seguimiento = SeguimientoPlan::create([
                 'plan_id' => $plan->id,
                 'entrevista_id' => $entrevista->id,
                 'profesional_id' => Auth::id(),
                 'fecha' => today()->toDateString(),
                 'fecha_siguiente_seguimiento' => $this->formEntrevista['fecha_siguiente_seguimiento'],
             ]);
+
+            if ($this->formEntrevista['solicitar_cita']) {
+                $this->solicitarCitaSeguimiento($seguimiento);
+            }
         }
 
-        $this->formEntrevista = ['tipo' => 'seguimiento', 'modalidad' => 'presencial', 'notas' => '', 'generar_valoracion' => false, 'programar_seguimiento' => false, 'fecha_siguiente_seguimiento' => ''];
+        $this->formEntrevista = ['tipo' => 'seguimiento', 'modalidad' => 'presencial', 'notas' => '', 'generar_valoracion' => false, 'programar_seguimiento' => false, 'fecha_siguiente_seguimiento' => '', 'solicitar_cita' => false, 'tipo_cita_id' => ''];
         $this->herramientaActiva = null;
         unset($this->apuntesHS);
+        $this->olvidarCita();
     }
 
     /**
@@ -946,6 +1153,7 @@ class CiudadanoPage extends Component
             'autor_id' => Auth::id(),
             'fecha' => today()->toDateString(),
             'tipo' => TipoApunte::Anotacion,
+            'cita_id' => $this->citaParaApunte(),
             'contenido' => $this->formAnotacion['contenido'],
             'visibilidad' => VisibilidadApunte::from($this->formAnotacion['visibilidad']),
         ]);
@@ -953,6 +1161,7 @@ class CiudadanoPage extends Component
         $this->formAnotacion = ['contenido' => '', 'visibilidad' => 'profesionales'];
         $this->herramientaActiva = null;
         unset($this->apuntesHS);
+        $this->olvidarCita();
     }
 
     /**
@@ -968,6 +1177,7 @@ class CiudadanoPage extends Component
             'autor_id' => Auth::id(),
             'fecha' => today()->toDateString(),
             'tipo' => TipoApunte::Derivacion,
+            'cita_id' => $this->citaParaApunte(),
             'contenido' => trim(
                 'Urgencia: '.($this->formDerivacion['urgencia'] ?? '')."\n".
                 'Motivo: '.($this->formDerivacion['motivo'] ?? '')
@@ -978,6 +1188,7 @@ class CiudadanoPage extends Component
         $this->formDerivacion = ['servicio_receptor_id' => '', 'urgencia' => 'ordinaria', 'motivo' => ''];
         $this->herramientaActiva = null;
         unset($this->apuntesHS);
+        $this->olvidarCita();
     }
 
     /**
@@ -991,6 +1202,7 @@ class CiudadanoPage extends Component
             'autor_id' => Auth::id(),
             'fecha' => today()->toDateString(),
             'tipo' => TipoApunte::GestionCoordinacion,
+            'cita_id' => $this->citaParaApunte(),
             'contenido' => trim(
                 'Tipo: '.($this->formGestion['tipo_gestion'] ?? '')."\n".
                 'Interlocutor: '.($this->formGestion['recurso_interlocutor'] ?? '')."\n".
@@ -1002,6 +1214,7 @@ class CiudadanoPage extends Component
         $this->formGestion = ['tipo_gestion' => '', 'recurso_interlocutor' => '', 'descripcion' => ''];
         $this->herramientaActiva = null;
         unset($this->apuntesHS);
+        $this->olvidarCita();
     }
 
     /**
@@ -1035,6 +1248,7 @@ class CiudadanoPage extends Component
             'autor_id' => Auth::id(),
             'fecha' => today()->toDateString(),
             'tipo' => TipoApunte::Valoracion,
+            'cita_id' => $this->citaParaApunte(),
             'apuntable_type' => Valoracion::class,
             'apuntable_id' => $valoracion->id,
             'contenido' => 'Valoración registrada.',
@@ -1043,6 +1257,7 @@ class CiudadanoPage extends Component
 
         $this->herramientaActiva = null;
         unset($this->apuntesHS);
+        $this->olvidarCita();
     }
 
     /**
@@ -1072,6 +1287,7 @@ class CiudadanoPage extends Component
             'autor_id' => Auth::id(),
             'fecha' => today()->toDateString(),
             'tipo' => TipoApunte::Escala,
+            'cita_id' => $this->citaParaApunte(),
             'apuntable_type' => PaseEscala::class,
             'apuntable_id' => $pase->id,
             'contenido' => "{$tipoEscala->nombre}: puntuación {$scoreTotal}",
@@ -1080,6 +1296,7 @@ class CiudadanoPage extends Component
 
         $this->herramientaActiva = null;
         unset($this->apuntesHS);
+        $this->olvidarCita();
     }
 
     /**

@@ -83,6 +83,33 @@ class AtencionCitaService
     }
 
     /**
+     * Cita que se propone vincular al registrar un apunte desde la ficha
+     * (docs/modulo-citas.md §3.5.3): la pedida desde la agenda si es válida o,
+     * si no, la primera de la persona con el profesional hoy o pendiente de cierre.
+     *
+     * @param int $ciudadanoId
+     * @param User $profesional
+     * @param int|null $citaPedida Cita con la que se abrió la herramienta desde la agenda.
+     * @return Cita|null
+     */
+    public function citaVinculable(int $ciudadanoId, User $profesional, ?int $citaPedida = null): ?Cita
+    {
+        $base = Cita::where('ciudadano_id', $ciudadanoId)
+            ->where('profesional_id', $profesional->id)
+            ->whereIn('estado', self::ESTADOS_VINCULABLES);
+
+        if ($citaPedida !== null && ($pedida = (clone $base)->whereKey($citaPedida)->first()) !== null) {
+            return $pedida;
+        }
+
+        return $base->where('estado', EstadoCita::Confirmada)
+            ->where(fn ($q) => $q->whereDate('fecha', today())->orWhere('pendiente_cierre', true))
+            ->orderBy('fecha')
+            ->orderBy('hora_inicio')
+            ->first();
+    }
+
+    /**
      * Valida que un apunte nuevo pueda vincularse a su cita. Lo llama el observer
      * de Apunte antes de crearlo.
      *
