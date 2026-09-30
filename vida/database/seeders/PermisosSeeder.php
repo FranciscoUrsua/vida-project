@@ -106,6 +106,12 @@ class PermisosSeeder extends Seeder
         ['atencion.crear',      'Crear un Registro de Atención'],
         ['atencion.leer',       'Consultar el historial de atenciones de un ciudadano'],
         ['atencion.leer_ajeno', 'Ver atenciones registradas por otros profesionales fuera de la propia UO'],
+
+        // Citas (docs/modulo-citas.md §7)
+        ['citas.solicitar',  'Crear solicitudes de cita'],
+        ['citas.gestionar',  'Dar, reprogramar y cancelar citas; bandeja de citación'],
+        ['citas.atender',    'Marcar incomparecencias, registrar acompañantes y pedir cambios en las citas propias'],
+        ['citas.supervisar', 'Reasignar por ausencia, cancelación retroactiva y correcciones de marcado'],
     ];
 
     /**

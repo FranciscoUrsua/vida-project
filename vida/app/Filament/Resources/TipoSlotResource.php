@@ -143,11 +143,6 @@ class TipoSlotResource extends Resource
                         ->label('Requiere espacio físico')
                         ->default(false),
 
-                    Toggle::make('genera_apunte_automatico')
-                        ->label('Genera apunte automático')
-                        ->helperText('Al cerrar la cita se crea un apunte en la Historia Social.')
-                        ->default(false),
-
                     Toggle::make('bloquea_todos_convocados')
                         ->label('Bloquea a todos los convocados')
                         ->helperText('Al usar este tipo en la semana tipo bloqueará el hueco en todos los profesionales del centro.')
@@ -189,11 +184,6 @@ class TipoSlotResource extends Resource
                         OrigenPermitidoSlot::ApiExterna => 'warning',
                         OrigenPermitidoSlot::Ambos      => 'success',
                     }),
-
-                Tables\Columns\IconColumn::make('genera_apunte_automatico')
-                    ->label('Apunte auto.')
-                    ->boolean()
-                    ->alignCenter(),
 
                 Tables\Columns\IconColumn::make('bloquea_todos_convocados')
                     ->label('Bloquea a todos')

@@ -5,6 +5,9 @@ namespace Modules\Mensajes\Services;
 use App\Models\HistoriaSocial;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
+use Modules\Agenda\Models\Cita;
+use Modules\Agenda\Models\Slot;
+use Modules\Agenda\Policies\AlcanceCentro;
 use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Mensajes\Enums\TipoContextoMensaje;
@@ -37,10 +40,16 @@ class ContextoMensajeService
             return null;
         }
 
+        // Cita y slot de agenda no se autorizan por la Historia Social sino por la agenda
+        if (in_array($tipoContexto, [TipoContextoMensaje::Cita, TipoContextoMensaje::Slot], true)) {
+            return $this->deAgenda($tipoContexto, $id, $usuario);
+        }
+
         [$historia, $autorId, $url] = match ($tipoContexto) {
             TipoContextoMensaje::Historia => $this->deHistoria($id),
             TipoContextoMensaje::Ficha => $this->deFicha($id),
             TipoContextoMensaje::Plan => $this->dePlan($id),
+            default => [null, null, ''],
         };
 
         if ($historia === null || ! Gate::forUser($usuario)->allows('view', $historia)) {
@@ -104,6 +113,50 @@ class ContextoMensajeService
             $historia,
             $plan?->profesional_responsable_id,
             $plan ? route('intervencion.plan.show', $plan) : '',
+        ];
+    }
+
+    /**
+     * Cita o slot de agenda: visible para su profesional y para quien gestiona o
+     * supervisa las citas del centro. Se sugiere al profesional como destinatario.
+     *
+     * @param TipoContextoMensaje $tipo
+     * @param int $id
+     * @param User $usuario
+     * @return array{tipo: string, id: int, etiqueta: string, ciudadano_id: int|null, autor_id: int|null, url: string}|null
+     */
+    private function deAgenda(TipoContextoMensaje $tipo, int $id, User $usuario): ?array
+    {
+        if ($tipo === TipoContextoMensaje::Cita) {
+            $cita = Cita::find($id);
+
+            if ($cita === null || ! Gate::forUser($usuario)->allows('view', $cita)) {
+                return null;
+            }
+
+            return [
+                'tipo' => $tipo->value,
+                'id' => $id,
+                'etiqueta' => $tipo->etiqueta().' #'.$id,
+                'ciudadano_id' => $cita->ciudadano_id,
+                'autor_id' => $cita->profesional_id,
+                'url' => route('agenda.citas.show', $cita),
+            ];
+        }
+
+        $slot = Slot::find($id);
+
+        if ($slot === null || ($slot->usuario_id !== $usuario->id && ! AlcanceCentro::incluye($usuario, $slot->centro_id))) {
+            return null;
+        }
+
+        return [
+            'tipo' => $tipo->value,
+            'id' => $id,
+            'etiqueta' => $tipo->etiqueta().' #'.$id,
+            'ciudadano_id' => null,
+            'autor_id' => $slot->usuario_id,
+            'url' => $usuario->hasRole('supervision') ? route('agenda.supervisor.cuadrante') : route('intervencion.agenda.index'),
         ];
     }
 }

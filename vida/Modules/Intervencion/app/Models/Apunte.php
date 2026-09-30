@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
+use Modules\Agenda\Models\Cita;
+use Modules\Agenda\Models\EventoAgenda;
 use Modules\Intervencion\Database\Factories\ApunteFactory;
 use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\VisibilidadApunte;
@@ -39,6 +41,8 @@ use Modules\Intervencion\Enums\VisibilidadApunte;
  * @property int|null $apuntable_id
  * @property string|null $contenido
  * @property VisibilidadApunte $visibilidad
+ * @property int|null $cita_id Cita que atiende.
+ * @property int|null $evento_agenda_id Evento de agenda del que nace.
  */
 class Apunte extends Model
 {
@@ -102,6 +106,8 @@ class Apunte extends Model
         'apuntable_id',
         'contenido',
         'visibilidad',
+        'cita_id',
+        'evento_agenda_id',
     ];
 
     protected $casts = [
@@ -113,6 +119,26 @@ class Apunte extends Model
     // -------------------------------------------------------------------------
     // Relaciones
     // -------------------------------------------------------------------------
+
+    /**
+     * Cita que atiende este apunte (la completa si es el primero).
+     *
+     * @return BelongsTo<Cita, $this>
+     */
+    public function cita(): BelongsTo
+    {
+        return $this->belongsTo(Cita::class, 'cita_id');
+    }
+
+    /**
+     * Evento de agenda (mesa de caso, coordinación) del que nace el apunte.
+     *
+     * @return BelongsTo<EventoAgenda, $this>
+     */
+    public function eventoAgenda(): BelongsTo
+    {
+        return $this->belongsTo(EventoAgenda::class, 'evento_agenda_id');
+    }
 
     /**
      * Historia Social a la que pertenece el apunte.

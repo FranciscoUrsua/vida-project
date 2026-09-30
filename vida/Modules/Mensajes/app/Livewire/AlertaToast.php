@@ -206,6 +206,7 @@ class AlertaToast extends Component
             PlanDeIntervencion::class => TipoContextoMensaje::Plan,
             Ficha::class => TipoContextoMensaje::Ficha,
             HistoriaSocial::class => TipoContextoMensaje::Historia,
+            \Modules\Agenda\Models\Cita::class => TipoContextoMensaje::Cita,
             default => null,
         };
 

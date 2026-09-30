@@ -68,12 +68,23 @@ class RegistroAtencion extends Model
         'origen_tipo',
         'origen_id',
         'cita_generada_id',
+        'cita_id',
     ];
 
     /** @var array<string, string> Conversiones de tipo */
     protected $casts = [
         'fecha' => 'date',
     ];
+
+    /**
+     * Cita que atiende este registro (la completa). Distinta de la cita que genera.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Agenda\Models\Cita, $this>
+     */
+    public function citaAtendida(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\Modules\Agenda\Models\Cita::class, 'cita_id');
+    }
 
     // -------------------------------------------------------------------------
     // Reglas de negocio

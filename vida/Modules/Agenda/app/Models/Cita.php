@@ -3,6 +3,7 @@
 namespace Modules\Agenda\Models;
 
 use App\Models\Ciudadano;
+use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -10,12 +11,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use LogicException;
 use Modules\Agenda\Database\Factories\CitaFactory;
 use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Enums\EstadoSlot;
+use Modules\Agenda\Enums\ModalidadCita;
+use Modules\Agenda\Enums\ModoAsignacionCita;
 use Modules\Agenda\Enums\OrigenCita;
+use Modules\Agenda\Enums\PedidoPor;
+use Modules\Atencion\Models\RegistroAtencion;
 use Modules\Centro\Models\Centro;
 use Modules\Intervencion\Models\Apunte;
 
@@ -26,9 +32,16 @@ use Modules\Intervencion\Models\Apunte;
  * Puede originarse en el sistema interno o vía API externa. Al crearse,
  * el slot asociado pasa a estado 'reservado'.
  *
+ * Solo la crean, mueven y cierran los servicios de Agenda (CitacionService,
+ * AtencionCitaService, GestionAusenciaService), que escriben su evento en
+ * `cita_eventos` en la misma transacción (docs/modulo-citas.md). Reprogramar
+ * crea una cita nueva enlazada por `cita_anterior_id`; el sistema nunca cierra
+ * una cita por su cuenta. Solo una cita externa pendiente de identificar puede
+ * no tener ciudadano.
+ *
  * @property int $id
  * @property int $slot_id
- * @property int $ciudadano_id
+ * @property int|null $ciudadano_id Null solo en citas externas pendientes de identificar.
  * @property int $profesional_id
  * @property int $tipo_slot_id
  * @property int $centro_id
@@ -44,6 +57,20 @@ use Modules\Intervencion\Models\Apunte;
  * @property string|null $motivo_cancelacion
  * @property \Illuminate\Support\Carbon|null $completada_en
  * @property string|null $notas_profesional
+ * @property int|null $solicitud_cita_id
+ * @property int $tipo_cita_id
+ * @property ModalidadCita $modalidad
+ * @property ModoAsignacionCita $modo_asignacion
+ * @property int|null $cita_anterior_id
+ * @property array<string, mixed>|null $datos_identificacion_externos Cifrado.
+ * @property bool $pendiente_cierre
+ * @property \Illuminate\Support\Carbon|null $pendiente_cierre_desde
+ * @property \Illuminate\Support\Carbon|null $aviso_cierre_supervisor_en
+ * @property PedidoPor|null $pedido_por_cancelacion
+ * @property-read SolicitudCita|null $solicitud
+ * @property-read TipoCita $tipoCita
+ * @property-read Cita|null $citaAnterior
+ * @property-read Cita|null $reprogramacion
  */
 class Cita extends Model
 {
@@ -72,7 +99,30 @@ class Cita extends Model
         'estado' => EstadoCita::class,
         'origen' => OrigenCita::class,
         'completada_en' => 'datetime',
+        'modalidad' => ModalidadCita::class,
+        'modo_asignacion' => ModoAsignacionCita::class,
+        'datos_identificacion_externos' => 'encrypted:array',
+        'pendiente_cierre' => 'boolean',
+        'pendiente_cierre_desde' => 'datetime',
+        'aviso_cierre_supervisor_en' => 'datetime',
+        'pedido_por_cancelacion' => PedidoPor::class,
     ];
+
+    /**
+     * Solo una cita externa puede crearse sin ciudadano (pendiente de identificar).
+     * Sin tipo de cita, toma el genérico, como las citas anteriores a los tipos.
+     *
+     * @return void
+     *
+     * @throws LogicException
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (self $cita): void {
+            $cita->tipo_cita_id ??= TipoCita::generico()->id;
+        });
+        static::saving(fn (self $cita) => $cita->exigirCiudadano());
+    }
 
     /**
      * Slot reservado por la cita.
@@ -91,7 +141,8 @@ class Cita extends Model
      */
     public function ciudadano(): BelongsTo
     {
-        return $this->belongsTo(Ciudadano::class);
+        // Quien cita (consulta_basica) no suele tener la historia de la persona en su UO
+        return $this->belongsTo(Ciudadano::class)->withoutGlobalScope(AmbitoUoScope::class);
     }
 
     /**
@@ -243,6 +294,8 @@ class Cita extends Model
      *
      * El slot permanece en 'reservado'; el SlotExpirationJob lo transitará
      * a 'no_ocupado' cuando la franja haya expirado al final del día.
+     *
+     * Interno: solo lo llama AtencionCitaService, que escribe el evento.
      */
     public function noShowCiudadano(): void
     {
@@ -251,6 +304,8 @@ class Cita extends Model
 
     /**
      * Marca la cita como completada y registra el momento exacto.
+     *
+     * Interno: solo lo llama AtencionCitaService, que escribe el evento.
      */
     public function completar(): void
     {
@@ -268,6 +323,8 @@ class Cita extends Model
      *
      * @param User $canceladoPor Usuario que ejecuta la cancelación
      * @param string $motivo Motivo de la cancelación
+     *
+     * Interno: solo lo llaman CitacionService y GestionAusenciaService, que escriben el evento.
      */
     public function cancelar(User $canceladoPor, string $motivo): void
     {
@@ -293,14 +350,133 @@ class Cita extends Model
     // =========================================================================
 
     /**
-     * Apuntes de Historia Social vinculados a esta cita (polimórficos).
+     * Apuntes de Historia Social que atienden esta cita (`plan_apuntes.cita_id`).
+     * La cita se completa con el primero.
      *
-     * Permite detectar apuntes existentes antes de una cancelación retroactiva.
-     *
-     * @return MorphMany<Apunte, $this>
+     * @return HasMany<Apunte, $this>
      */
-    public function apuntes(): MorphMany
+    public function apuntes(): HasMany
     {
-        return $this->morphMany(Apunte::class, 'apuntable');
+        return $this->hasMany(Apunte::class, 'cita_id');
+    }
+
+    /**
+     * Registros de atención que atienden esta cita (personas sin Historia Social).
+     *
+     * @return HasMany<RegistroAtencion, $this>
+     */
+    public function registrosAtencion(): HasMany
+    {
+        return $this->hasMany(RegistroAtencion::class, 'cita_id');
+    }
+
+    /**
+     * Solicitud de la que nace (null en citas externas).
+     *
+     * @return BelongsTo<SolicitudCita, $this>
+     */
+    public function solicitud(): BelongsTo
+    {
+        return $this->belongsTo(SolicitudCita::class, 'solicitud_cita_id');
+    }
+
+    /**
+     * Tipo de cita.
+     *
+     * @return BelongsTo<TipoCita, $this>
+     */
+    public function tipoCita(): BelongsTo
+    {
+        return $this->belongsTo(TipoCita::class, 'tipo_cita_id')->withTrashed();
+    }
+
+    /**
+     * Cita que esta sustituye por reprogramación.
+     *
+     * @return BelongsTo<Cita, $this>
+     */
+    public function citaAnterior(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'cita_anterior_id');
+    }
+
+    /**
+     * Cita que sustituye a esta si se reprogramó.
+     *
+     * @return HasOne<Cita, $this>
+     */
+    public function reprogramacion(): HasOne
+    {
+        return $this->hasOne(self::class, 'cita_anterior_id');
+    }
+
+    /**
+     * Historial de la cita.
+     *
+     * @return HasMany<CitaEvento, $this>
+     */
+    public function eventos(): HasMany
+    {
+        return $this->hasMany(CitaEvento::class, 'cita_id')->orderBy('id');
+    }
+
+    /**
+     * Acompañantes registrados al atenderla.
+     *
+     * @return HasMany<CitaAcompanante, $this>
+     */
+    public function acompanantes(): HasMany
+    {
+        return $this->hasMany(CitaAcompanante::class, 'cita_id');
+    }
+
+    /**
+     * Cadena de reprogramaciones hasta esta cita, de la primera a esta.
+     *
+     * @return \Illuminate\Support\Collection<int, Cita>
+     */
+    public function cadenaReprogramaciones(): \Illuminate\Support\Collection
+    {
+        $cadena = collect([$this]);
+        $actual = $this;
+
+        while ($actual->cita_anterior_id !== null && ($anterior = self::withTrashed()->find($actual->cita_anterior_id)) !== null) {
+            $cadena->prepend($anterior);
+            $actual = $anterior;
+        }
+
+        return $cadena;
+    }
+
+    /**
+     * Si es una cita externa aún sin persona identificada.
+     *
+     * @return bool
+     */
+    public function pendienteDeIdentificar(): bool
+    {
+        return $this->ciudadano_id === null;
+    }
+
+    /**
+     * Ciudadano para auditoría.
+     *
+     * @return int|null
+     */
+    public function getCiudadanoId(): ?int
+    {
+        return $this->ciudadano_id;
+    }
+
+    /**
+     * @return void
+     *
+     * @throws LogicException Si una cita no externa no tiene ciudadano.
+     */
+    private function exigirCiudadano(): void
+    {
+        if ($this->ciudadano_id === null && $this->origen !== OrigenCita::ApiExterna) {
+            throw new LogicException('Solo una cita del canal externo puede quedar pendiente de identificar.');
+        }
     }
 }

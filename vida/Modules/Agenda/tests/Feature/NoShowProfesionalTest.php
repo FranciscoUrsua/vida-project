@@ -276,7 +276,6 @@ class NoShowProfesionalTest extends TestCase
             'requiere_espacio' => false,
             'porcentaje_urgencias' => 0,
             'origen_permitido' => 'ambos',
-            'genera_apunte_automatico' => false,
             'activo' => true,
         ]), fn (TipoSlot $t) => $horario->tiposSlot()->attach($t));
 

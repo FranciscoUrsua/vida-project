@@ -37,6 +37,8 @@ use Modules\Centro\Models\Centro;
  * @property string|null $notas
  * @property array|null $semana_tipo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TipoSlot> $tiposSlot
+ * @property array<string, int>|null $plazos_urgencia Días laborables por urgencia.
+ * @property int $dias_aviso_cierre_supervisor Días laborables pendientes de cierre antes de avisar al supervisor.
  * @property int $dias_ausencia_prolongada Umbral a partir del cual una ausencia saca al profesional del sorteo de referencias.
  */
 class HorarioCentro extends Model
@@ -61,6 +63,7 @@ class HorarioCentro extends Model
 
     protected $casts = [
         'dias_laborables' => 'array',
+        'plazos_urgencia' => 'array',
         'vigente_desde' => 'date',
         'vigente_hasta' => 'date',
         'modo_agenda' => ModoAgenda::class,
@@ -131,6 +134,93 @@ class HorarioCentro extends Model
     public function scopeDelCentro(Builder $query, int $centroId): Builder
     {
         return $query->where('centro_id', $centroId);
+    }
+
+    /**
+     * Plazo máximo en días laborables para una urgencia (docs/modulo-citas.md §8).
+     *
+     * @param \Modules\Agenda\Enums\UrgenciaCita $urgencia
+     * @return int
+     */
+    public function plazoUrgencia(\Modules\Agenda\Enums\UrgenciaCita $urgencia): int
+    {
+        $defecto = ['ordinaria' => 20, 'preferente' => 7, 'urgente' => 2];
+
+        return (int) (($this->plazos_urgencia ?? [])[$urgencia->value] ?? $defecto[$urgencia->value]);
+    }
+
+    /**
+     * Si una fecha es laborable según los días del horario.
+     *
+     * @param Carbon $fecha
+     * @return bool
+     */
+    public function esLaborable(Carbon $fecha): bool
+    {
+        return in_array($fecha->isoWeekday(), array_map('intval', $this->dias_laborables ?? [1, 2, 3, 4, 5]), true);
+    }
+
+    /**
+     * Fecha que resulta de sumar días laborables a otra.
+     *
+     * @param Carbon $desde
+     * @param int $dias
+     * @return Carbon
+     */
+    public function sumarDiasLaborables(Carbon $desde, int $dias): Carbon
+    {
+        $fecha = $desde->copy()->startOfDay();
+
+        while ($dias > 0) {
+            $fecha->addDay();
+            if ($this->esLaborable($fecha)) {
+                $dias--;
+            }
+        }
+
+        return $fecha;
+    }
+
+    /**
+     * Días laborables entre dos fechas (sin contar la inicial).
+     *
+     * @param Carbon $desde
+     * @param Carbon $hasta
+     * @return int
+     */
+    public function diasLaborablesEntre(Carbon $desde, Carbon $hasta): int
+    {
+        $dias = 0;
+        $fecha = $desde->copy()->startOfDay();
+        $fin = $hasta->copy()->startOfDay();
+
+        while ($fecha->lt($fin)) {
+            $fecha->addDay();
+            if ($this->esLaborable($fecha)) {
+                $dias++;
+            }
+        }
+
+        return $dias;
+    }
+
+    /**
+     * Horario vigente de un centro en una fecha.
+     *
+     * @param int $centroId
+     * @param Carbon|null $fecha Por defecto, hoy.
+     * @return self|null
+     */
+    public static function vigenteDelCentro(int $centroId, ?Carbon $fecha = null): ?self
+    {
+        $dia = ($fecha ?? now())->toDateString();
+
+        return static::where('centro_id', $centroId)
+            ->where('activo', true)
+            ->whereDate('vigente_desde', '<=', $dia)
+            ->where(fn ($q) => $q->whereNull('vigente_hasta')->orWhereDate('vigente_hasta', '>=', $dia))
+            ->orderByDesc('vigente_desde')
+            ->first();
     }
 
     /**

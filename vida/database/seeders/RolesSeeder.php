@@ -87,6 +87,10 @@ class RolesSeeder extends Seeder
             'colectivo_protegido.aprobar_acceso',
             'atencion.leer',
             'atencion.leer_ajeno',
+            'citas.solicitar',
+            'citas.gestionar',
+            'citas.atender',
+            'citas.supervisar',
         ],
 
         // -----------------------------------------------------------------
@@ -128,6 +132,8 @@ class RolesSeeder extends Seeder
             'atencion.crear',
             'atencion.leer',
             'atencion.leer_ajeno',
+            'citas.solicitar',
+            'citas.atender',
         ],
 
         // -----------------------------------------------------------------
@@ -173,6 +179,8 @@ class RolesSeeder extends Seeder
             'ciudadano.editar',  // Modificar datos de identificación básicos
             'atencion.crear',
             'atencion.leer',
+            'citas.solicitar',
+            'citas.gestionar',
         ],
     ];
 

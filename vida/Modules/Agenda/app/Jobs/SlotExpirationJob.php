@@ -18,7 +18,8 @@ use Modules\Agenda\Models\Slot;
  * - Pasa a 'no_ocupado' los slots en estado 'reservado' de fechas pasadas sin cita activa
  *   (no-shows de ciudadano cuyo slot no fue liberado a tiempo).
  *
- * No realiza ninguna acción sobre profesionales ni citas.
+ * No realiza ninguna acción sobre profesionales ni citas. Se ejecuta después de
+ * CitaCierreJob, que marca las citas pendientes de cierre.
  * Se ejecuta diariamente al final del día laboral vía scheduler.
  */
 class SlotExpirationJob implements ShouldQueue
@@ -43,10 +44,12 @@ class SlotExpirationJob implements ShouldQueue
             ->where('estado', EstadoSlot::Disponible->value)
             ->update(['estado' => EstadoSlot::NoOcupado->value]);
 
-        // Slots reservados sin cita activa (no-show de ciudadano no procesado)
+        // Slots reservados sin cita activa (no-show de ciudadano no procesado).
+        // Una cita pendiente de cierre sigue confirmada: su slot no se da por no ocupado
+        // hasta que se cierre (docs/modulo-citas.md §3.6)
         $sinCitaActiva = Slot::where('fecha', '<', $hoy)
             ->where('estado', EstadoSlot::Reservado->value)
-            ->whereDoesntHave('cita', fn ($q) => $q->whereIn('estado', ['confirmada', 'completada']))
+            ->whereDoesntHave('cita', fn ($q) => $q->whereIn('estado', ['confirmada', 'completada'])->orWhere('pendiente_cierre', true))
             ->pluck('id');
 
         if ($sinCitaActiva->isNotEmpty()) {

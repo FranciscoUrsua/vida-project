@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+use Modules\Agenda\Jobs\CitaCierreJob;
 use Modules\Agenda\Jobs\SlotExpirationJob;
 
 Artisan::command('inspire', function () {
@@ -10,6 +11,8 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Agenda: expira slots no consumidos al final de cada día laboral
+// Cierre de citas antes de expirar slots: una cita pendiente de cierre conserva su slot
+Schedule::job(CitaCierreJob::class)->weekdays()->dailyAt('19:45');
 Schedule::job(SlotExpirationJob::class)->dailyAt('20:00');
 
 // Auditoría: purga registros que superan el período de retención (defecto 5 años)

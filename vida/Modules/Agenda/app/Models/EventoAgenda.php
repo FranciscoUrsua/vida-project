@@ -106,6 +106,20 @@ class EventoAgenda extends Model
     }
 
     /**
+     * Ciudadanos sobre los que trata el evento (mesa de caso, coordinación), sin
+     * su presencia. No lo convierte en cita. Solo los ve quien tiene acceso a
+     * su Historia Social (docs/modulo-citas.md §2.6).
+     *
+     * @return BelongsToMany<\App\Models\Ciudadano, $this>
+     */
+    public function ciudadanos(): BelongsToMany
+    {
+        return $this->belongsToMany(\App\Models\Ciudadano::class, 'evento_ciudadano', 'evento_agenda_id', 'ciudadano_id')
+            ->withoutGlobalScope(\App\Models\Scopes\AmbitoUoScope::class)
+            ->withTimestamps();
+    }
+
+    /**
      * Profesionales convocados al evento.
      *
      * @return BelongsToMany<User, $this, Pivot, 'pivot'>

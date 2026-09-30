@@ -2,14 +2,19 @@
 
 namespace Modules\Agenda\Services;
 
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Modules\Agenda\Enums\AccionCitaEvento;
 use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Enums\EstadoSlot;
+use Modules\Agenda\Enums\PedidoPor;
 use Modules\Agenda\Models\Cita;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Agenda\Models\ReasignacionCita;
 use Modules\Agenda\Models\Slot;
+use Modules\Agenda\Services\Citas\RegistroEventosCita;
 
 /**
  * Gestiona el flujo cuando un profesional no se presenta.
@@ -19,6 +24,7 @@ use Modules\Agenda\Models\Slot;
  *   como candidatos para reasignación.
  * - En modo basico devuelve slots disponibles de otros profesionales.
  * - La reasignación siempre la confirma un supervisor (Principio 3.9).
+ * - Cancelaciones y reasignaciones dejan su evento en el historial de la cita.
  */
 class GestionAusenciaService
 {
@@ -46,10 +52,18 @@ class GestionAusenciaService
             ->get();
 
         foreach ($citas as $cita) {
-            $cita->update([
-                'estado' => EstadoCita::Cancelada->value,
-                'motivo_cancelacion' => Cita::MOTIVO_CANCELACION_AUSENCIA,
-            ]);
+            DB::transaction(function () use ($cita) {
+                $cita->update([
+                    'estado' => EstadoCita::Cancelada->value,
+                    'motivo_cancelacion' => Cita::MOTIVO_CANCELACION_AUSENCIA,
+                    'pedido_por_cancelacion' => PedidoPor::Centro,
+                    'pendiente_cierre' => false,
+                ]);
+
+                app(RegistroEventosCita::class)->registrar(AccionCitaEvento::CitaCancelada, cita: $cita, pedidoPor: PedidoPor::Centro,
+                    estadoAntes: EstadoCita::Confirmada->value, estadoDespues: EstadoCita::Cancelada->value,
+                    motivo: Cita::MOTIVO_CANCELACION_AUSENCIA, datos: RegistroEventosCita::datosSlot($cita));
+            });
         }
 
         // Determinar el modo del centro a partir del HorarioCentro vigente en la fecha
@@ -93,6 +107,23 @@ class GestionAusenciaService
      */
     public function reasignar(Cita $cita, Slot $slotDestino, int $supervisorId, string $motivo): ReasignacionCita
     {
+        return DB::transaction(fn () => $this->aplicarReasignacion($cita, $slotDestino, $supervisorId, $motivo));
+    }
+
+    /**
+     * Aplica la reasignación y escribe su evento (dentro de la transacción de reasignar()).
+     *
+     * @param Cita $cita
+     * @param Slot $slotDestino
+     * @param int $supervisorId
+     * @param string $motivo
+     * @return ReasignacionCita
+     */
+    private function aplicarReasignacion(Cita $cita, Slot $slotDestino, int $supervisorId, string $motivo): ReasignacionCita
+    {
+        $origen = RegistroEventosCita::datosSlot($cita);
+        $estadoAntes = $cita->estado->value;
+
         $reasignacion = ReasignacionCita::create([
             'cita_id' => $cita->id,
             'slot_original_id' => $cita->slot_id,
@@ -115,6 +146,10 @@ class GestionAusenciaService
 
         // El slot destino queda reservado
         $slotDestino->update(['estado' => EstadoSlot::Reservado->value]);
+
+        app(RegistroEventosCita::class)->registrar(AccionCitaEvento::CitaReasignada, cita: $cita, actor: User::find($supervisorId),
+            pedidoPor: PedidoPor::Centro, estadoAntes: $estadoAntes, estadoDespues: EstadoCita::Confirmada->value,
+            datos: ['origen' => $origen, 'destino' => RegistroEventosCita::datosSlot($cita), 'motivo_reasignacion' => $motivo]);
 
         return $reasignacion;
     }

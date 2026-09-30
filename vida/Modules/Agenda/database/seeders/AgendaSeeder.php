@@ -58,7 +58,6 @@ class AgendaSeeder extends Seeder
                 'requiere_espacio' => false,
                 'porcentaje_urgencias' => 20,
                 'origen_permitido' => OrigenPermitidoSlot::Ambos->value,
-                'genera_apunte_automatico' => false,
                 'activo' => true,
             ],
             [
@@ -68,7 +67,6 @@ class AgendaSeeder extends Seeder
                 'requiere_espacio' => false,
                 'porcentaje_urgencias' => 30,
                 'origen_permitido' => OrigenPermitidoSlot::Ambos->value,
-                'genera_apunte_automatico' => false,
                 'activo' => true,
             ],
             [
@@ -78,7 +76,6 @@ class AgendaSeeder extends Seeder
                 'requiere_espacio' => true,
                 'porcentaje_urgencias' => 0,
                 'origen_permitido' => OrigenPermitidoSlot::Interno->value,
-                'genera_apunte_automatico' => false,
                 'activo' => true,
             ],
         ];

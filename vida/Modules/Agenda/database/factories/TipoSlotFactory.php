@@ -30,7 +30,6 @@ class TipoSlotFactory extends Factory
             'requiere_espacio' => false,
             'porcentaje_urgencias' => 0,
             'origen_permitido' => OrigenPermitidoSlot::Ambos->value,
-            'genera_apunte_automatico' => false,
             'activo' => true,
         ];
     }
@@ -54,15 +53,5 @@ class TipoSlotFactory extends Factory
     public function soloInterno(): static
     {
         return $this->state(['origen_permitido' => OrigenPermitidoSlot::Interno->value]);
-    }
-
-    /**
-     * Marca el tipo con generación de apunte automático.
-     *
-     * @return static
-     */
-    public function generaApunte(): static
-    {
-        return $this->state(['genera_apunte_automatico' => true]);
     }
 }

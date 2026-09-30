@@ -40,13 +40,37 @@ class DisponibilidadService
         Carbon $hasta,
         bool $incluirUrgencias = false
     ): Collection {
+        return $this->obtenerSlotsDe([$usuarioId], $centroId, [$tipoSlotId], $desde, $hasta, $incluirUrgencias);
+    }
+
+    /**
+     * Slots libres de varios profesionales y tipos de slot en un período, en una
+     * sola consulta (búsqueda de huecos para citas).
+     *
+     * @param list<int>|null $usuarioIds Null: todos los profesionales del centro.
+     * @param int $centroId
+     * @param list<int> $tipoSlotIds
+     * @param Carbon $desde Inclusive.
+     * @param Carbon $hasta Inclusive.
+     * @param bool $incluirUrgencias Si se incluyen los slots reservados para urgencias.
+     * @return Collection<int, Slot>
+     */
+    public function obtenerSlotsDe(
+        ?array $usuarioIds,
+        int $centroId,
+        array $tipoSlotIds,
+        Carbon $desde,
+        Carbon $hasta,
+        bool $incluirUrgencias = false
+    ): Collection {
         $estados = $incluirUrgencias
             ? [EstadoSlot::Disponible->value, EstadoSlot::BloqueadoUrgencia->value]
             : [EstadoSlot::Disponible->value];
 
-        return Slot::where('usuario_id', $usuarioId)
+        return Slot::query()
+            ->when($usuarioIds !== null, fn ($q) => $q->whereIn('usuario_id', $usuarioIds))
             ->where('centro_id', $centroId)
-            ->where('tipo_slot_id', $tipoSlotId)
+            ->whereIn('tipo_slot_id', $tipoSlotIds)
             ->whereBetween('fecha', [$desde->toDateString(), $hasta->toDateString()])
             ->whereIn('estado', $estados)
             ->orderBy('fecha')

@@ -243,11 +243,9 @@ class CitaCicloVidaTest extends TestCase
             'fecha' => now()->subDays(2)->toDateString(),
         ]);
 
-        // Apunte creado automáticamente al completar la cita (polimórfico vía apuntable)
-        $apunte = Apunte::factory()->create([
-            'apuntable_type' => Cita::class,
-            'apuntable_id' => $cita->id,
-        ]);
+        // Apunte que atendió la cita (plan_apuntes.cita_id), en la historia de la misma persona
+        $historia = \App\Models\HistoriaSocial::factory()->create(['ciudadano_id' => $cita->ciudadano_id]);
+        $apunte = Apunte::factory()->create(['cita_id' => $cita->id, 'historia_id' => $historia->id]);
 
         // Antes de cancelar: el servicio detecta el apunte asociado
         $this->assertCount(
