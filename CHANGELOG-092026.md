@@ -4,6 +4,30 @@
 
 ---
 
+## 2026-09-30 — Agenda: tests en verde y fallos de la aplicación
+
+Paso 0 de `docs/instrucciones-cli/2026-09-citas-implementacion.md`: los tests de Agenda fallaban (63) y había que arreglarlos antes de construir las citas. Autorizado por el desarrollador. Agenda pasa de 63 fallos a 110 tests en verde.
+
+### Fallos de la aplicación (afectaban a staging)
+- **Publicar un cuadrante fallaba siempre** desde el 29 de junio: `SlotMaterializadorService` pedía `HorarioCentro::tiposSlot()`, eliminada al convertir `TipoSlot` en catálogo global. Decisión del desarrollador: cada horario elige sus tipos del catálogo, en el pivote `horario_centro_tipo_slot` (migración `2026_09_30_110001`, se crea vacío: en la BD compartida no había slots ni cuadrantes publicados). Selector en `HorarioCentroResource`. `AgendaSeeder` usaba aún `horario_centro_id`; ahora enlaza por el pivote. Se borra `TiposSlotsRelationManager`, que no estaba registrado.
+- **Reasignar desde el panel de ausencias fallaba siempre:** `ReasignacionPanel` pasaba el texto «Reasignación por supervisor» a un campo con cast `MotivoReasignacion`. Ahora `BajaSobrevenida`, que es el origen de esas citas.
+- **Eliminar un evento no liberaba los slots** de los convocados; un comentario atribuía la liberación a un observer que no existía. `EventoAgenda::liberarSlots()`, llamado al borrar el modelo, devuelve a `disponible` los slots `bloqueado_evento` de la franja, salvo los que cubra otro evento vigente del mismo profesional.
+- **Descartar una cita cancelada por ausencia no la sacaba de pendientes** ni del contador del menú: el motivo del descarte empieza igual y los filtros usaban `LIKE '%Ausencia del profesional%'`. Constantes `Cita::MOTIVO_CANCELACION_AUSENCIA` y `MOTIVO_AUSENCIA_DESCARTADA` y un único scope `Cita::canceladasPorAusenciaSinGestionar()` (igualdad exacta) para la pantalla y los dos menús.
+- **Cuadrantes:** `CuadrantePublicadorService` comprobaba «ya hay otro publicado este mes», imposible con el índice único `(centro_id, anyo, mes)`. Decisión del desarrollador: un cuadrante por centro y mes. Se quita la comprobación y publicar pasa a ser idempotente (el publicado no se vuelve a materializar).
+
+### Tests desfasados corregidos
+- `horario_centro_id` al crear `TipoSlot` (factory y 14 creaciones); ahora se enlazan al horario por el pivote.
+- Citas con `slot_id` nulo (la columna no lo admite): tienen un slot real.
+- `franjas` codificadas con `json_encode` sobre un cast `array`.
+- Eventos con `Espacio`: `eventos_agenda.espacio_id` apunta a `salas` desde junio.
+- Fechas fijas de julio y septiembre: pasan a relativas.
+- El enlace de configuración del menú lleva a `supervision.configuracion` desde `f446c6d` (cambio deliberado).
+- «No se puede publicar si ya existe uno publicado» pasa a «publicar dos veces no duplica slots».
+
+### Tests nuevos
+- `HorarioCentroTest`: solo se materializan los tipos del horario (negativo comprobado: con todos los tipos activos, falla) y Filament guarda la selección.
+- `EventosSupervisorTest`: eliminar un evento no libera los slots que cubre otro evento solapado.
+
 ## 2026-09-30 — Asignación de centro y profesional de referencia
 
 Instrucciones: `docs/instrucciones-cli/2026-09-asignacion-implementacion.md` (pasos 1 a 9) y tests TF-ASG-01 a 34. Diseño: `docs/modulo-asignacion.md`.

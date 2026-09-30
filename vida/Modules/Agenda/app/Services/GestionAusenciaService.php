@@ -48,7 +48,7 @@ class GestionAusenciaService
         foreach ($citas as $cita) {
             $cita->update([
                 'estado' => EstadoCita::Cancelada->value,
-                'motivo_cancelacion' => 'Ausencia del profesional',
+                'motivo_cancelacion' => Cita::MOTIVO_CANCELACION_AUSENCIA,
             ]);
         }
 

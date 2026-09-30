@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Modules\Agenda\Database\Factories\HorarioCentroFactory;
@@ -35,6 +36,7 @@ use Modules\Centro\Models\Centro;
  * @property bool $activo
  * @property string|null $notas
  * @property array|null $semana_tipo
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, TipoSlot> $tiposSlot
  * @property int $dias_ausencia_prolongada Umbral a partir del cual una ausencia saca al profesional del sorteo de referencias.
  */
 class HorarioCentro extends Model
@@ -77,6 +79,17 @@ class HorarioCentro extends Model
     public function centro(): BelongsTo
     {
         return $this->belongsTo(Centro::class);
+    }
+
+    /**
+     * Tipos de slot del catálogo global que ofrece este horario: son los que se
+     * materializan al publicar el cuadrante.
+     *
+     * @return BelongsToMany<TipoSlot, $this>
+     */
+    public function tiposSlot(): BelongsToMany
+    {
+        return $this->belongsToMany(TipoSlot::class, 'horario_centro_tipo_slot')->withTimestamps();
     }
 
     /**

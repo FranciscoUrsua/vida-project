@@ -41,20 +41,23 @@ class ExcepcionesSupervisorTest extends TestCase
     public function supervisor_puede_crear_excepcion_vacaciones(): void
     {
         // Dado: profesional1 sin excepciones activas (setUp)
+        // Fechas relativas: con fechas fijas, la excepción deja de estar activa cuando pasan
+        $inicio = now()->addDays(3)->toDateString();
+
         // Cuando: el supervisor rellena el formulario y guarda
         Livewire::actingAs($this->supervisor)
             ->test(ExcepcionesSupervisorPage::class)
             ->set('form.usuario_id', (string) $this->profesional1->id)
             ->set('form.tipo', 'vacaciones')
-            ->set('form.fecha_inicio', '2026-07-14')
-            ->set('form.fecha_fin', '2026-08-01')
+            ->set('form.fecha_inicio', $inicio)
+            ->set('form.fecha_fin', now()->addDays(20)->toDateString())
             ->call('guardar');
 
         // Entonces: existe la excepción con afecta_disponibilidad = true
         $this->assertDatabaseHas('excepciones_profesional', [
             'usuario_id'            => $this->profesional1->id,
             'tipo'                  => 'vacaciones',
-            'fecha_inicio'          => '2026-07-14',
+            'fecha_inicio'          => $inicio,
             'afecta_disponibilidad' => true,
         ]);
 

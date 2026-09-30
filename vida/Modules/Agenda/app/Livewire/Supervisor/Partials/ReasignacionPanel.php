@@ -8,6 +8,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Modules\Agenda\Enums\EstadoSlot;
+use Modules\Agenda\Enums\MotivoReasignacion;
 use Modules\Agenda\Models\Cita;
 use Modules\Agenda\Models\Slot;
 use Modules\Agenda\Services\GestionAusenciaService;
@@ -129,7 +130,8 @@ class ReasignacionPanel extends Component
             $cita,
             $slot,
             auth()->id(),
-            'Reasignación por supervisor'
+            // Las citas del panel son las canceladas por una ausencia sobrevenida del profesional
+            MotivoReasignacion::BajaSobrevenida->value,
         );
 
         unset($this->cita, $this->slotsDisponiblesHoy);

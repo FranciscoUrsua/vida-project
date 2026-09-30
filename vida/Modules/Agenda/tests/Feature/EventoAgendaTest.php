@@ -15,9 +15,7 @@ use Modules\Agenda\Models\LineaCuadrante;
 use Modules\Agenda\Models\Slot;
 use Modules\Agenda\Models\TipoSlot;
 use Modules\Centro\Models\Centro;
-use Modules\Centro\Models\ColeccionPlazas;
-use Modules\Centro\Models\Espacio;
-use Modules\Centro\Models\TipoEspacio;
+use Modules\Centro\Models\Sala;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -55,8 +53,7 @@ class EventoAgendaTest extends TestCase
 
     private function crearTipoSlot(HorarioCentro $horario): TipoSlot
     {
-        return TipoSlot::create([
-            'horario_centro_id' => $horario->id,
+        return tap(TipoSlot::create([
             'nombre' => 'Cita',
             'duracion_minutos' => 60,
             'requiere_espacio' => false,
@@ -64,7 +61,7 @@ class EventoAgendaTest extends TestCase
             'origen_permitido' => 'ambos',
             'genera_apunte_automatico' => false,
             'activo' => true,
-        ]);
+        ]), fn (TipoSlot $t) => $horario->tiposSlot()->attach($t));
     }
 
     private function crearSlotDisponible(User $usuario, Centro $centro, TipoSlot $tipoSlot, LineaCuadrante $linea, string $horaInicio, string $horaFin): Slot
@@ -222,22 +219,8 @@ class EventoAgendaTest extends TestCase
         $supervisor = User::factory()->create();
         $centro = $this->crearCentro('Centro PF-08.3');
 
-        $tipoEspacio = TipoEspacio::create(['nombre' => 'Sala de reuniones', 'activo' => true]);
-        $coleccion = ColeccionPlazas::create([
-            'centro_id' => $centro->id,
-            'nombre' => 'Colección principal',
-            'tipo_plaza' => 'pernocta',
-            'modo_acceso' => 'prescripcion_directa',
-            'capacidad' => 10,
-            'activa' => true,
-            'fecha_alta' => now()->toDateString(),
-        ]);
-        $espacio = Espacio::create([
-            'coleccion_plazas_id' => $coleccion->id,
-            'tipo_espacio_id' => $tipoEspacio->id,
-            'nombre' => 'Sala A',
-            'capacidad' => 10,
-        ]);
+        // Los eventos reservan salas del centro (eventos_agenda.espacio_id → salas)
+        $espacio = Sala::create(['centro_id' => $centro->id, 'nombre' => 'Sala A', 'capacidad' => 10]);
 
         $evento1 = EventoAgenda::create([
             'centro_id' => $centro->id,

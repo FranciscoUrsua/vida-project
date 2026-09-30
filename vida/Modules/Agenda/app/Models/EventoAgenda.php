@@ -47,9 +47,24 @@ class EventoAgenda extends Model
     use HasFactory;
     use SoftDeletes;
 
+    /**
+     * Factoría del modelo (vive en el módulo).
+     *
+     * @return EventoAgendaFactory
+     */
     protected static function newFactory(): EventoAgendaFactory
     {
         return EventoAgendaFactory::new();
+    }
+
+    /**
+     * Al eliminar el evento (baja lógica), sus convocados recuperan los slots que bloqueaba.
+     *
+     * @return void
+     */
+    protected static function booted(): void
+    {
+        static::deleted(fn (self $evento) => $evento->liberarSlots());
     }
 
     protected $table = 'eventos_agenda';
@@ -181,6 +196,45 @@ class EventoAgenda extends Model
         }
 
         return $conflictos;
+    }
+
+    /**
+     * Devuelve a disponibles los slots que el evento bloqueó a sus convocados,
+     * salvo los que siga cubriendo otro evento vigente del mismo profesional.
+     * Se llama al eliminar el evento (ver booted()).
+     *
+     * @return int Número de slots liberados.
+     */
+    public function liberarSlots(): int
+    {
+        $fechaStr = $this->fecha->toDateString();
+        $liberados = 0;
+
+        foreach ($this->profesionales()->pluck('users.id') as $usuarioId) {
+            $otrosEventos = static::query()
+                ->whereKeyNot($this->id)
+                ->where('centro_id', $this->centro_id)
+                ->where('fecha', $fechaStr)
+                ->delProfesional($usuarioId)
+                ->get(['hora_inicio', 'hora_fin']);
+
+            $slots = Slot::where('usuario_id', $usuarioId)
+                ->where('centro_id', $this->centro_id)
+                ->where('fecha', $fechaStr)
+                ->where('hora_inicio', '>=', $this->hora_inicio)
+                ->where('hora_inicio', '<', $this->hora_fin)
+                ->where('estado', EstadoSlot::BloqueadoEvento->value)
+                ->get(['id', 'hora_inicio']);
+
+            // Mismo criterio que agregarProfesionales(): el slot cae en un evento si su inicio está en la franja
+            $ids = $slots->reject(fn (Slot $slot) => $otrosEventos->contains(
+                fn (self $otro) => $slot->hora_inicio >= $otro->hora_inicio && $slot->hora_inicio < $otro->hora_fin,
+            ))->pluck('id');
+
+            $liberados += Slot::whereIn('id', $ids)->update(['estado' => EstadoSlot::Disponible->value]);
+        }
+
+        return $liberados;
     }
 
     /**

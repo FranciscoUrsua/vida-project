@@ -105,21 +105,20 @@ Un centro puede tener varios registros de horario a lo largo del tiempo (p. ej.,
 | Método | Tipo | Descripción |
 |---|---|---|
 | `centro()` | `BelongsTo<Centro>` | Centro al que pertenece |
-| `tiposSlot()` | `HasMany<TipoSlot>` | Tipos de slot definidos para este horario |
+| `tiposSlot()` | `BelongsToMany<TipoSlot>` | Tipos del catálogo global que ofrece este horario (pivote `horario_centro_tipo_slot`). Son los que se materializan al publicar el cuadrante |
 
-**Filament:** `HorarioCentroResource` (grupo *Agenda — Configuración*)
+**Filament:** `HorarioCentroResource` (grupo *Agenda — Configuración*), con el selector «Tipos de slot que ofrece el centro».
 
 ---
 
 ### 2.2 TipoSlot
 
 **Tabla:** `tipos_slot`  
-**Descripción:** Define los tipos de atención que pueden reservarse como cita en un centro: entrevista con TSR, primera atención SIA, reunión de coordinación con familia, sesión grupal, etc. Cada tipo tiene una duración por defecto y reglas de uso.
+**Descripción:** Catálogo global (desde junio de 2026) de los tipos de atención que pueden reservarse como cita; cada horario de centro elige los que ofrece: entrevista con TSR, primera atención SIA, reunión de coordinación con familia, sesión grupal, etc. Cada tipo tiene una duración por defecto y reglas de uso.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | int PK | |
-| `horario_centro_id` | int FK | Horario de centro al que pertenece |
 | `nombre` | string | Ej: "Entrevista TSR", "Primera atención SIA" |
 | `descripcion` | text nullable | |
 | `duracion_minutos` | int | Duración por defecto del slot |
@@ -131,13 +130,13 @@ Un centro puede tener varios registros de horario a lo largo del tiempo (p. ej.,
 
 **Nota sobre `porcentaje_urgencias`:** El sistema calcula cuántos slots de urgencia deben existir por día en función de este porcentaje sobre el total de slots generados de ese tipo. Los slots de urgencia son visibles internamente pero no se exponen al canal externo (API).
 
-**Nota sobre modo básico:** En centros con `modo_agenda = basico`, no es necesario configurar tipos de slot. El sistema crea automáticamente un tipo genérico "Cita" al activar la agenda del centro. Los campos `porcentaje_urgencias`, `requiere_espacio` y `genera_apunte_automatico` quedan en sus valores por defecto (0, false, false respectivamente).
+**Nota sobre modo básico:** El diseño prevé un tipo genérico "Cita" para los centros en `modo_agenda = basico`, pero no se crea automáticamente: el horario también debe tener sus tipos elegidos (pendiente en BACKLOG). Los campos `porcentaje_urgencias`, `requiere_espacio` y `genera_apunte_automatico` quedan en sus valores por defecto (0, false, false respectivamente).
 
 **Relaciones:**
 
 | Método | Tipo | Descripción |
 |---|---|---|
-| `horarioCentro()` | `BelongsTo<HorarioCentro>` | Horario al que pertenece |
+| `horariosCentro()` | `BelongsToMany<HorarioCentro>` | Horarios que ofrecen este tipo |
 | `slots()` | `HasMany<Slot>` | Slots generados de este tipo |
 
 **Filament:** `TipoSlotResource` (grupo *Agenda — Configuración*)

@@ -80,11 +80,7 @@ class AusenciasSupervisorPage extends Component
             return new Collection();
         }
 
-        return Cita::where('centro_id', $centro->id)
-            ->where('fecha', now()->toDateString())
-            ->where('estado', EstadoCita::Cancelada->value)
-            ->where('motivo_cancelacion', 'like', '%Ausencia del profesional%')
-            ->whereDoesntHave('reasignacion')
+        return Cita::canceladasPorAusenciaSinGestionar($centro->id)
             ->with(['profesional', 'profesional.profesional', 'ciudadano', 'tipoSlot', 'reasignacion'])
             ->orderBy('hora_inicio')
             ->get();
@@ -154,7 +150,7 @@ class AusenciasSupervisorPage extends Component
         }
 
         $cita->update([
-            'motivo_cancelacion' => 'Ausencia del profesional — descartada por supervisor',
+            'motivo_cancelacion' => Cita::MOTIVO_AUSENCIA_DESCARTADA,
         ]);
 
         unset($this->citasPendientes);

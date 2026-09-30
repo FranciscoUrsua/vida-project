@@ -2,8 +2,10 @@
 
 namespace Modules\Agenda\Tests\Feature;
 
+use App\Filament\Resources\HorarioCentroResource\Pages\EditHorarioCentro;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Modules\Agenda\Enums\EstadoCuadrante;
 use Modules\Agenda\Models\CuadranteMes;
 use Modules\Agenda\Models\HorarioCentro;
@@ -52,8 +54,7 @@ class HorarioCentroTest extends TestCase
             'activo' => true,
         ]);
 
-        TipoSlot::create([
-            'horario_centro_id' => $horario->id,
+        tap(TipoSlot::create([
             'nombre' => 'Entrevista',
             'duracion_minutos' => 45,
             'requiere_espacio' => false,
@@ -61,7 +62,7 @@ class HorarioCentroTest extends TestCase
             'origen_permitido' => 'ambos',
             'genera_apunte_automatico' => false,
             'activo' => true,
-        ]);
+        ]), fn (TipoSlot $t) => $horario->tiposSlot()->attach($t));
 
         $usuario = User::factory()->create();
         $cuadrante = CuadranteMes::create([
@@ -211,8 +212,7 @@ class HorarioCentroTest extends TestCase
             'activo' => true,
         ]);
 
-        TipoSlot::create([
-            'horario_centro_id' => $horario->id,
+        tap(TipoSlot::create([
             'nombre' => 'Entrevista',
             'duracion_minutos' => 45,
             'requiere_espacio' => false,
@@ -220,7 +220,7 @@ class HorarioCentroTest extends TestCase
             'origen_permitido' => 'ambos',
             'genera_apunte_automatico' => false,
             'activo' => true,
-        ]);
+        ]), fn (TipoSlot $t) => $horario->tiposSlot()->attach($t));
 
         $usuario = User::factory()->create();
         $cuadrante = CuadranteMes::create([
@@ -247,5 +247,86 @@ class HorarioCentroTest extends TestCase
 
         $this->assertEquals(0, $creados, 'No deben generarse slots para un sábado');
         $this->assertEquals(0, $cuadrante->slots()->count());
+    }
+
+    // =========================================================================
+    // Tipos de slot del centro (catálogo global, pivote horario_centro_tipo_slot)
+    // =========================================================================
+
+    /**
+     * Horario estándar de 9 a 14 con un tipo de slot elegido y otro del catálogo sin elegir.
+     *
+     * @param Centro $centro
+     * @return array{0: HorarioCentro, 1: TipoSlot, 2: TipoSlot}
+     */
+    private function horarioConUnTipoElegido(Centro $centro): array
+    {
+        $horario = HorarioCentro::factory()->create([
+            'centro_id' => $centro->id,
+            'hora_inicio_atencion' => '09:00',
+            'hora_fin_atencion' => '14:00',
+            'buffer_inicio_minutos' => 0,
+            'buffer_fin_minutos' => 0,
+            'vigente_desde' => '2026-01-01',
+            'dias_laborables' => [1, 2, 3, 4, 5],
+            'modo_agenda' => 'estandar',
+        ]);
+
+        $elegido = TipoSlot::factory()->create(['nombre' => 'Entrevista', 'duracion_minutos' => 60]);
+        $otro = TipoSlot::factory()->create(['nombre' => 'Grupal', 'duracion_minutos' => 60]);
+        $horario->tiposSlot()->attach($elegido);
+
+        return [$horario, $elegido, $otro];
+    }
+
+    #[Test]
+    public function solo_se_materializan_los_tipos_de_slot_del_horario(): void
+    {
+        $centro = $this->crearCentro();
+        [, $elegido, $otro] = $this->horarioConUnTipoElegido($centro);
+
+        $cuadrante = CuadranteMes::create([
+            'centro_id' => $centro->id,
+            'anyo' => 2026,
+            'mes' => 6,
+            'estado' => EstadoCuadrante::Publicado->value,
+            'generado_con_ia' => false,
+            'generado_automaticamente' => false,
+            'publicado_en' => now(),
+        ]);
+        LineaCuadrante::create([
+            'cuadrante_mes_id' => $cuadrante->id,
+            'usuario_id' => User::factory()->create()->id,
+            'centro_id' => $centro->id,
+            'fecha' => '2026-06-01',
+            'franjas' => [['inicio' => '09:00', 'fin' => '14:00']],
+            'anulada' => false,
+        ]);
+
+        (new SlotMaterializadorService)->materializar($cuadrante);
+
+        // 9:00-14:00 con slots de 60 minutos: 5, todos del tipo elegido
+        $this->assertSame(5, $cuadrante->slots()->where('tipo_slot_id', $elegido->id)->count());
+        $this->assertSame(0, $cuadrante->slots()->where('tipo_slot_id', $otro->id)->count());
+    }
+
+    #[Test]
+    public function filament_guarda_los_tipos_de_slot_del_horario(): void
+    {
+        $this->seed(\Database\Seeders\PermisosSeeder::class);
+        $this->seed(\Database\Seeders\RolesSeeder::class);
+        $admin = User::factory()->create();
+        $admin->assignRole('adm_sistema');
+
+        [$horario, $elegido, $otro] = $this->horarioConUnTipoElegido($this->crearCentro());
+
+        Livewire::actingAs($admin)
+            ->test(EditHorarioCentro::class, ['record' => $horario->getRouteKey()])
+            ->assertFormSet(['tiposSlot' => [$elegido->id]])
+            ->fillForm(['tiposSlot' => [$elegido->id, $otro->id]])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertEqualsCanonicalizing([$elegido->id, $otro->id], $horario->tiposSlot()->pluck('tipos_slot.id')->all());
     }
 }

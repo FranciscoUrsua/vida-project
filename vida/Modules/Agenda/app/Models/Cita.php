@@ -47,6 +47,12 @@ use Modules\Intervencion\Models\Apunte;
  */
 class Cita extends Model
 {
+    /** Motivo con el que GestionAusenciaService cancela las citas de un profesional ausente. */
+    public const MOTIVO_CANCELACION_AUSENCIA = 'Ausencia del profesional';
+
+    /** Motivo que deja el supervisor al descartar la reasignación de una de esas citas. */
+    public const MOTIVO_AUSENCIA_DESCARTADA = 'Ausencia del profesional — descartada por supervisor';
+
     /** @use HasFactory<CitaFactory> */
     use HasFactory;
 
@@ -195,6 +201,25 @@ class Cita extends Model
     public function scopeDelCiudadano(Builder $query, int $ciudadanoId): Builder
     {
         return $query->where('ciudadano_id', $ciudadanoId);
+    }
+
+    /**
+     * Citas de hoy del centro canceladas por ausencia del profesional que el
+     * supervisor aún no ha reasignado ni descartado. Única definición para la
+     * pantalla de ausencias y los contadores de los menús.
+     *
+     * @param Builder<Cita> $query
+     * @param int $centroId
+     * @return Builder<Cita>
+     */
+    public function scopeCanceladasPorAusenciaSinGestionar(Builder $query, int $centroId): Builder
+    {
+        return $query->where('centro_id', $centroId)
+            ->where('fecha', now()->toDateString())
+            ->where('estado', EstadoCita::Cancelada->value)
+            // Igualdad exacta: el motivo de las descartadas empieza igual y no debe contar
+            ->where('motivo_cancelacion', self::MOTIVO_CANCELACION_AUSENCIA)
+            ->whereDoesntHave('reasignacion');
     }
 
     /**

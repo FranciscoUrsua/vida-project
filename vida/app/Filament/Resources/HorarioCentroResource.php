@@ -146,6 +146,16 @@ class HorarioCentroResource extends Resource
                         ->helperText('Una ausencia más larga saca al profesional del sorteo de referencias mientras dure.'),
                 ]),
 
+            Section::make('Tipos de slot')
+                ->schema([
+                    Select::make('tiposSlot')
+                        ->label('Tipos de slot que ofrece el centro')
+                        ->relationship('tiposSlot', 'nombre', fn ($query) => $query->where('activo', true))
+                        ->multiple()
+                        ->preload()
+                        ->helperText('Del catálogo global de tipos de slot. Al publicar el cuadrante se generan slots de estos tipos; sin ninguno, no se genera ninguno.'),
+                ]),
+
             Section::make('Vigencia')
                 ->columns(2)
                 ->schema([

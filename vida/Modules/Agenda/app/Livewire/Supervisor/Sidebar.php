@@ -5,7 +5,6 @@ namespace Modules\Agenda\Livewire\Supervisor;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
-use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Models\Cita;
 use Modules\Centro\Models\Centro;
 
@@ -36,12 +35,7 @@ class Sidebar extends Component
             return 0;
         }
 
-        return Cita::where('centro_id', $centro->id)
-            ->where('fecha', now()->toDateString())
-            ->where('estado', EstadoCita::Cancelada->value)
-            ->where('motivo_cancelacion', 'like', '%Ausencia del profesional%')
-            ->whereDoesntHave('reasignacion')
-            ->count();
+        return Cita::canceladasPorAusenciaSinGestionar($centro->id)->count();
     }
 
     /**

@@ -46,8 +46,7 @@ class ProfesionalItineranteTest extends TestCase
             'modo_agenda' => 'estandar',
             'activo' => true,
         ]);
-        $tipoSlot = TipoSlot::create([
-            'horario_centro_id' => $horario->id,
+        $tipoSlot = tap(TipoSlot::create([
             'nombre' => 'Cita',
             'duracion_minutos' => 45,
             'requiere_espacio' => false,
@@ -55,7 +54,7 @@ class ProfesionalItineranteTest extends TestCase
             'origen_permitido' => 'ambos',
             'genera_apunte_automatico' => false,
             'activo' => true,
-        ]);
+        ]), fn (TipoSlot $t) => $horario->tiposSlot()->attach($t));
 
         return [$centro, $tipoSlot];
     }

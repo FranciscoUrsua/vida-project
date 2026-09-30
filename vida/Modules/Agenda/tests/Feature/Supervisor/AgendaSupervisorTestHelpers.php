@@ -165,7 +165,7 @@ trait AgendaSupervisorTestHelpers
             'usuario_id'       => $user->id,
             'centro_id'        => $this->centro->id,
             'fecha'            => now()->toDateString(),
-            'franjas'          => json_encode([['tipo' => 'atencion', 'inicio' => '09:30', 'fin' => '14:00']]),
+            'franjas'          => [['tipo' => 'atencion', 'inicio' => '09:30', 'fin' => '14:00']],
             'anulada'          => $anulada,
             'excepcion_id'     => $excepcionId,
         ]);
@@ -176,12 +176,11 @@ trait AgendaSupervisorTestHelpers
      */
     protected function crearTipoSlot(int $duracionMinutos = 30, int $pctUrgencias = 10): TipoSlot
     {
-        return TipoSlot::create([
-            'horario_centro_id'   => $this->horario->id,
+        return tap(TipoSlot::create([
             'nombre'              => 'Atención general',
             'duracion_minutos'    => $duracionMinutos,
             'porcentaje_urgencias'=> $pctUrgencias,
             'activo'              => true,
-        ]);
+        ]), fn (TipoSlot $t) => $this->horario->tiposSlot()->attach($t));
     }
 }

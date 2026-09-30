@@ -343,7 +343,7 @@ class EventosSupervisorPage extends Component
             return;
         }
 
-        // El Observer de EventoAgenda libera los slots al eliminar
+        // EventoAgenda::booted() libera los slots de los convocados al eliminar
         $evento->delete();
         unset($this->eventosProximos);
     }

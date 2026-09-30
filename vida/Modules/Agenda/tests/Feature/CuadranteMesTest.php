@@ -140,8 +140,7 @@ class CuadranteMesTest extends TestCase
             'activo' => true,
         ]);
 
-        TipoSlot::create([
-            'horario_centro_id' => $horario->id,
+        tap(TipoSlot::create([
             'nombre' => 'Cita',
             'duracion_minutos' => 60,
             'requiere_espacio' => false,
@@ -149,7 +148,7 @@ class CuadranteMesTest extends TestCase
             'origen_permitido' => 'ambos',
             'genera_apunte_automatico' => false,
             'activo' => true,
-        ]);
+        ]), fn (TipoSlot $t) => $horario->tiposSlot()->attach($t));
 
         $usuario = User::factory()->create();
         $cuadrante = $this->crearCuadrante($centro, [

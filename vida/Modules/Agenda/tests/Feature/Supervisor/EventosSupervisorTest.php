@@ -10,8 +10,7 @@ use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Agenda\Livewire\Supervisor\EventosSupervisorPage;
 use Modules\Agenda\Models\EventoAgenda;
 use Modules\Agenda\Models\Slot;
-use Modules\Centro\Models\Espacio;
-use Modules\Centro\Models\TipoEspacio;
+use Modules\Centro\Models\Sala;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -35,16 +34,15 @@ class EventosSupervisorTest extends TestCase
     // Helpers
     // -------------------------------------------------------------------------
 
-    private function crearEspacio(string $nombre = 'Sala A'): Espacio
+    /**
+     * Sala del centro para los eventos (eventos_agenda.espacio_id → salas).
+     *
+     * @param string $nombre
+     * @return Sala
+     */
+    private function crearEspacio(string $nombre = 'Sala A'): Sala
     {
-        $tipo = TipoEspacio::first() ?? TipoEspacio::create(['nombre' => 'Sala']);
-
-        return Espacio::create([
-            'centro_id'      => $this->centro->id,
-            'tipo_espacio_id'=> $tipo->id,
-            'nombre'         => $nombre,
-            'capacidad'      => 10,
-        ]);
+        return Sala::create(['centro_id' => $this->centro->id, 'nombre' => $nombre, 'capacidad' => 10]);
     }
 
     private function crearSlotDisponible(): Slot
@@ -191,5 +189,31 @@ class EventosSupervisorTest extends TestCase
         $this->assertEquals(EstadoSlot::Disponible, $slot1->fresh()->estado);
         $this->assertEquals(EstadoSlot::Disponible, $slot2->fresh()->estado);
         $this->assertSoftDeleted('eventos_agenda', ['id' => $evento->id]);
+    }
+
+    /**
+     * Eliminar un evento no libera los slots que sigue cubriendo otro evento del mismo profesional.
+     */
+    #[Test]
+    public function eliminar_evento_no_libera_slots_de_otro_evento_solapado(): void
+    {
+        $tipoSlot = $this->crearTipoSlot();
+        $linea    = $this->crearLineaCuadrante($this->profesional1);
+
+        $compartido = Slot::create(['linea_cuadrante_id' => $linea->id, 'usuario_id' => $this->profesional1->id, 'centro_id' => $this->centro->id, 'tipo_slot_id' => $tipoSlot->id, 'fecha' => now()->toDateString(), 'hora_inicio' => '10:30', 'hora_fin' => '11:00', 'estado' => EstadoSlot::BloqueadoEvento->value]);
+        $soloDelPrimero = Slot::create(['linea_cuadrante_id' => $linea->id, 'usuario_id' => $this->profesional1->id, 'centro_id' => $this->centro->id, 'tipo_slot_id' => $tipoSlot->id, 'fecha' => now()->toDateString(), 'hora_inicio' => '10:00', 'hora_fin' => '10:30', 'estado' => EstadoSlot::BloqueadoEvento->value]);
+
+        $datos = ['centro_id' => $this->centro->id, 'fecha' => now()->toDateString(), 'tipo_evento' => 'coordinacion', 'creado_por_id' => $this->supervisor->id];
+        $primero = EventoAgenda::create($datos + ['titulo' => 'Primero', 'hora_inicio' => '10:00', 'hora_fin' => '11:00']);
+        $segundo = EventoAgenda::create($datos + ['titulo' => 'Segundo', 'hora_inicio' => '10:30', 'hora_fin' => '11:30']);
+        $primero->profesionales()->sync([$this->profesional1->id]);
+        $segundo->profesionales()->sync([$this->profesional1->id]);
+
+        Livewire::actingAs($this->supervisor)
+            ->test(EventosSupervisorPage::class)
+            ->call('eliminar', $primero->id);
+
+        $this->assertEquals(EstadoSlot::Disponible, $soloDelPrimero->fresh()->estado);
+        $this->assertEquals(EstadoSlot::BloqueadoEvento, $compartido->fresh()->estado);
     }
 }

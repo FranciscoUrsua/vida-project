@@ -55,10 +55,10 @@ class AccesoSupervisorTest extends TestCase
     #[Test]
     public function enlace_configuracion_apunta_a_filament(): void
     {
-        // El sidebar incluye el enlace a /admin/horarios-centro
+        // El enlace Configuración lleva a la pantalla operativa del centro (f446c6d), no a Filament
         $this->actingAs($this->supervisor)
             ->get('/agenda/supervisor/ausencias')
             ->assertOk()
-            ->assertSee('/admin/horarios-centro');
+            ->assertSee(route('supervision.configuracion'), false);
     }
 }

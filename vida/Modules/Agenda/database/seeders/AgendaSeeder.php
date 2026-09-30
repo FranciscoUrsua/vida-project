@@ -83,11 +83,10 @@ class AgendaSeeder extends Seeder
             ],
         ];
 
+        // El tipo de slot es un catálogo global; el horario elige los que ofrece
         foreach ($tipos as $tipo) {
-            TipoSlot::firstOrCreate(
-                ['horario_centro_id' => $horario->id, 'nombre' => $tipo['nombre']],
-                $tipo
-            );
+            $tipoSlot = TipoSlot::firstOrCreate(['nombre' => $tipo['nombre']], $tipo);
+            $horario->tiposSlot()->syncWithoutDetaching([$tipoSlot->id]);
         }
 
         // Crear valor en catalogos_sistema para tipo_evento_agenda si la tabla existe

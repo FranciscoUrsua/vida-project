@@ -16,6 +16,7 @@ use Modules\Agenda\Models\Cita;
 use Modules\Agenda\Models\ExcepcionProfesional;
 use Modules\Agenda\Models\ReasignacionCita;
 use Modules\Agenda\Models\Slot;
+use Modules\Agenda\Models\TipoSlot;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -68,7 +69,7 @@ class AusenciasSupervisorTest extends TestCase
         $tipoSlot = $this->crearTipoSlot();
 
         return Cita::create([
-            'slot_id'           => null,
+            'slot_id'           => $this->slotDeCita($tipoSlot, now()->toDateString(), EstadoSlot::Anulado)->id,
             'ciudadano_id'      => $ciudadanoId,
             'profesional_id'    => $this->profesional1->id,
             'tipo_slot_id'      => $tipoSlot->id,
@@ -79,6 +80,32 @@ class AusenciasSupervisorTest extends TestCase
             'estado'            => EstadoCita::Cancelada->value,
             'motivo_cancelacion'=> 'Ausencia del profesional',
             'origen'            => 'interno',
+        ]);
+    }
+
+    /**
+     * Slot del profesional 1 a las 10:00 en la fecha y estado dados. Toda cita
+     * tiene slot (citas.slot_id no admite nulos): al cancelarse por ausencia
+     * conserva el suyo, que queda anulado.
+     *
+     * @param TipoSlot $tipoSlot
+     * @param string $fecha
+     * @param EstadoSlot $estado
+     * @return Slot
+     */
+    private function slotDeCita(TipoSlot $tipoSlot, string $fecha, EstadoSlot $estado): Slot
+    {
+        $linea = $this->crearLineaCuadrante($this->profesional1);
+
+        return Slot::create([
+            'linea_cuadrante_id' => $linea->id,
+            'usuario_id'         => $this->profesional1->id,
+            'centro_id'          => $this->centro->id,
+            'tipo_slot_id'       => $tipoSlot->id,
+            'fecha'              => $fecha,
+            'hora_inicio'        => '10:00',
+            'hora_fin'           => '10:30',
+            'estado'             => $estado->value,
         ]);
     }
 
@@ -272,7 +299,7 @@ class AusenciasSupervisorTest extends TestCase
         $ciudadano = $this->crearCiudadano();
 
         Cita::create([
-            'slot_id'       => null,
+            'slot_id'       => $this->slotDeCita($tipoSlot, now()->toDateString(), EstadoSlot::Reservado)->id,
             'ciudadano_id'  => $ciudadano->id,
             'profesional_id'=> $this->profesional1->id,
             'tipo_slot_id'  => $tipoSlot->id,
@@ -301,7 +328,7 @@ class AusenciasSupervisorTest extends TestCase
         $ciudadano = $this->crearCiudadano();
 
         Cita::create([
-            'slot_id'           => null,
+            'slot_id'           => $this->slotDeCita($tipoSlot, now()->subDay()->toDateString(), EstadoSlot::Anulado)->id,
             'ciudadano_id'      => $ciudadano->id,
             'profesional_id'    => $this->profesional1->id,
             'tipo_slot_id'      => $tipoSlot->id,

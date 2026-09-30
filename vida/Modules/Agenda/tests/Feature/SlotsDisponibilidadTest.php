@@ -59,8 +59,7 @@ class SlotsDisponibilidadTest extends TestCase
             'activo' => true,
         ]);
 
-        TipoSlot::create([
-            'horario_centro_id' => $horario->id,
+        tap(TipoSlot::create([
             'nombre' => 'Entrevista TSR',
             'duracion_minutos' => 45,
             'requiere_espacio' => false,
@@ -68,7 +67,7 @@ class SlotsDisponibilidadTest extends TestCase
             'origen_permitido' => 'ambos',
             'genera_apunte_automatico' => false,
             'activo' => true,
-        ]);
+        ]), fn (TipoSlot $t) => $horario->tiposSlot()->attach($t));
 
         $usuario = User::factory()->create();
         $cuadrante = CuadranteMes::create([
@@ -136,8 +135,7 @@ class SlotsDisponibilidadTest extends TestCase
             'activo' => true,
         ]);
 
-        $tipoSlot = TipoSlot::create([
-            'horario_centro_id' => $horario->id,
+        $tipoSlot = tap(TipoSlot::create([
             'nombre' => 'Cita estándar',
             'duracion_minutos' => 30,
             'requiere_espacio' => false,
@@ -145,7 +143,7 @@ class SlotsDisponibilidadTest extends TestCase
             'origen_permitido' => 'ambos',
             'genera_apunte_automatico' => false,
             'activo' => true,
-        ]);
+        ]), fn (TipoSlot $t) => $horario->tiposSlot()->attach($t));
 
         $cuadrante = CuadranteMes::create([
             'centro_id' => $centro->id,
@@ -248,8 +246,7 @@ class SlotsDisponibilidadTest extends TestCase
             'activo' => true,
         ]);
 
-        $tipoSlot = TipoSlot::create([
-            'horario_centro_id' => $horario->id,
+        $tipoSlot = tap(TipoSlot::create([
             'nombre' => 'Cita',
             'duracion_minutos' => 60,
             'requiere_espacio' => false,
@@ -257,7 +254,7 @@ class SlotsDisponibilidadTest extends TestCase
             'origen_permitido' => 'ambos',
             'genera_apunte_automatico' => false,
             'activo' => true,
-        ]);
+        ]), fn (TipoSlot $t) => $horario->tiposSlot()->attach($t));
 
         $linea = LineaCuadrante::create([
             'cuadrante_mes_id' => $cuadrante->id,

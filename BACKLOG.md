@@ -9,6 +9,13 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Suite de tests: Supervisión no se ejecuta** — 2026-09-30
+Módulo: transversal
+- `phpunit.xml` no incluye `Modules/Supervision/tests`: la suite completa nunca ha ejecutado esos tests. Tres fallan (ya anotados el 2026-09-26): `sidebar_sin_plazas_no_muestra_item_plazas` (el menú no tiene «Aprobaciones»), `ficha_profesional_muestra_tres_pestanas` y `auditoria_con_colectivos_muestra_columna_protegido`. Añadir el directorio a `phpunit.xml` y corregirlos.
+- **Tipo de slot genérico en modo básico:** `modulo-agenda.md` prevé un tipo «Cita» automático para los centros en `modo_agenda = basico`, pero no existe ni hay forma estable de identificarlo (`tipos_slot` no tiene código). Hoy también el horario básico debe tener sus tipos elegidos en Filament.
+
+---
+
 **Asignación de centro y referencia: pendientes** — 2026-09-30
 Módulos: Centro, Intervención, Ciudadanía, geocodificación
 - **Adaptador real de la BDC** (`BdcGeocodificador`): NDP, distrito, barrio y sección, código INE de la sección y conversión UTM (ETRS89 30N) → WGS84. Hoy solo el mock rellena los códigos. Ver `docs/geocodificacion.md` §6.

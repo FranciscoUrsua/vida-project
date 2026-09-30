@@ -102,7 +102,6 @@ class UIAgendaSupervisorTest extends TestCase
         Livewire::actingAs($this->supervisor)
             ->test(CreateTipoSlot::class)
             ->fillForm([
-                'horario_centro_id' => $this->horario->id,
                 'nombre'            => '',
                 'duracion_minutos'  => 30,
             ])
@@ -119,7 +118,6 @@ class UIAgendaSupervisorTest extends TestCase
         Livewire::actingAs($this->supervisor)
             ->test(CreateTipoSlot::class)
             ->fillForm([
-                'horario_centro_id' => $this->horario->id,
                 'nombre'            => 'Reunión de equipo',
                 'duracion_minutos'  => null,
             ])
@@ -450,10 +448,14 @@ class UIAgendaSupervisorTest extends TestCase
     {
         $tipoSlot = $this->crearTipoSlot(30, 0);
 
+        // Un día del mes que viene: el setup ya tiene el cuadrante del mes actual
+        $dia = now()->addMonthNoOverflow()->startOfMonth()->addDays(9);
+        $fecha = $dia->toDateString();
+
         $cuadrante = CuadranteMes::create([
             'centro_id'                => $this->centro->id,
-            'anyo'                     => 2026,
-            'mes'                      => 9,
+            'anyo'                     => $dia->year,
+            'mes'                      => $dia->month,
             'estado'                   => EstadoCuadrante::Publicado->value,
             'generado_con_ia'          => false,
             'generado_automaticamente' => false,
@@ -465,8 +467,8 @@ class UIAgendaSupervisorTest extends TestCase
             'cuadrante_mes_id' => $cuadrante->id,
             'usuario_id'       => $this->profesional1->id,
             'centro_id'        => $this->centro->id,
-            'fecha'            => '2026-09-10',
-            'franjas'          => json_encode([['tipo' => 'atencion', 'inicio' => '09:00', 'fin' => '14:00']]),
+            'fecha'            => $fecha,
+            'franjas'          => [['tipo' => 'atencion', 'inicio' => '09:00', 'fin' => '14:00']],
             'anulada'          => false,
         ]);
 
@@ -475,7 +477,7 @@ class UIAgendaSupervisorTest extends TestCase
             'usuario_id'         => $this->profesional1->id,
             'centro_id'          => $this->centro->id,
             'tipo_slot_id'       => $tipoSlot->id,
-            'fecha'              => '2026-09-10',
+            'fecha'              => $fecha,
             'hora_inicio'        => '09:00',
             'hora_fin'           => '09:30',
             'estado'             => EstadoSlot::Reservado->value,
@@ -488,7 +490,7 @@ class UIAgendaSupervisorTest extends TestCase
             'profesional_id' => $this->profesional1->id,
             'tipo_slot_id' => $tipoSlot->id,
             'centro_id'    => $this->centro->id,
-            'fecha'        => '2026-09-10',
+            'fecha'        => $fecha,
             'hora_inicio'  => '09:00',
             'hora_fin'     => '09:30',
             'estado'       => EstadoCita::Confirmada->value,
@@ -502,8 +504,8 @@ class UIAgendaSupervisorTest extends TestCase
             ])
             ->call('abrirModal')
             ->set('form.tipo', 'vacaciones')
-            ->set('form.fecha_inicio', '2026-09-10')
-            ->set('form.fecha_fin', '2026-09-10')
+            ->set('form.fecha_inicio', $fecha)
+            ->set('form.fecha_fin', $fecha)
             ->set('form.afecta_disponibilidad', true)
             ->call('guardar');
 
@@ -811,14 +813,13 @@ class UIAgendaSupervisorTest extends TestCase
      */
     private function crearTipoSlotConNombre(string $nombre, int $duracion = 60): TipoSlot
     {
-        return TipoSlot::create([
-            'horario_centro_id'        => $this->horario->id,
+        return tap(TipoSlot::create([
             'nombre'                   => $nombre,
             'duracion_minutos'         => $duracion,
             'porcentaje_urgencias'     => 0,
             'bloquea_todos_convocados' => false,
             'activo'                   => true,
-        ]);
+        ]), fn (TipoSlot $t) => $this->horario->tiposSlot()->attach($t));
     }
 
     /**

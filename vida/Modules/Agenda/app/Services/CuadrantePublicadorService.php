@@ -2,14 +2,14 @@
 
 namespace Modules\Agenda\Services;
 
-use DomainException;
 use Modules\Agenda\Enums\EstadoCuadrante;
 use Modules\Agenda\Models\CuadranteMes;
 
 /**
  * Publica un CuadranteMes borrador y materializa los slots resultantes.
  *
- * Verifica que no exista ya un cuadrante publicado para el mismo centro y período.
+ * Hay un único cuadrante por centro y mes (índice único en cuadrantes_mes), así
+ * que publicar es idempotente: uno ya publicado no se vuelve a materializar.
  * La IA nunca puede invocar este servicio directamente; siempre pasa por el supervisor.
  */
 class CuadrantePublicadorService
@@ -19,23 +19,13 @@ class CuadrantePublicadorService
      *
      * @param CuadranteMes $cuadrante Cuadrante en estado 'borrador' o 'revision'
      * @param int $supervisorId ID del usuario que autoriza la publicación
-     *
-     * @throws DomainException Si ya existe un cuadrante publicado para el mismo período
+     * @return void
      */
     public function publicar(CuadranteMes $cuadrante, int $supervisorId): void
     {
-        $existePublicado = CuadranteMes::where('centro_id', $cuadrante->centro_id)
-            ->where('anyo', $cuadrante->anyo)
-            ->where('mes', $cuadrante->mes)
-            ->where('estado', EstadoCuadrante::Publicado->value)
-            ->where('id', '!=', $cuadrante->id)
-            ->exists();
-
-        if ($existePublicado) {
-            throw new DomainException(
-                'Ya existe un cuadrante publicado para este período. '
-                . 'Solo puede haber un cuadrante publicado por centro y mes.'
-            );
+        // Solo hay un cuadrante por centro y mes (índice único): publicar el ya publicado no hace nada
+        if ($cuadrante->estado === EstadoCuadrante::Publicado) {
+            return;
         }
 
         $cuadrante->update([

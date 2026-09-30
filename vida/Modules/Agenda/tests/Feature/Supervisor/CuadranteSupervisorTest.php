@@ -14,6 +14,8 @@ use Modules\Agenda\Models\LineaCuadrante;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Agenda\Services\SlotMaterializadorService;
 use Modules\Centro\Models\Centro;
+use Modules\Agenda\Models\Slot;
+use Modules\Agenda\Services\CuadrantePublicadorService;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -154,32 +156,27 @@ class CuadranteSupervisorTest extends TestCase
     }
 
     /**
-     * TF-AGS-06 — No se puede publicar si ya existe un cuadrante publicado para ese mes.
+     * TF-AGS-06 — Solo hay un cuadrante por centro y mes: publicar otra vez el ya
+     * publicado no hace nada ni vuelve a materializar slots.
      */
     #[Test]
-    public function no_se_puede_publicar_si_ya_existe_uno_publicado(): void
+    public function publicar_dos_veces_no_duplica_slots(): void
     {
-        // Dado: ya existe un cuadrante publicado para el mismo período
-        CuadranteMes::create([
-            'centro_id'              => $this->centro->id,
-            'anyo'                   => now()->year,
-            'mes'                    => now()->month,
-            'estado'                 => EstadoCuadrante::Publicado->value,
-            'generado_con_ia'        => false,
-            'generado_automaticamente' => false,
-        ]);
+        // Dado: el borrador del mes con líneas y un tipo de slot del horario
+        $this->crearTipoSlot();
+        $this->crearLineaCuadrante($this->profesional1);
 
-        // Cuando: el supervisor intenta publicar el borrador
-        $component = Livewire::actingAs($this->supervisor)
-            ->test(CuadranteSupervisorPage::class)
-            ->call('publicar');
+        $pagina = Livewire::actingAs($this->supervisor)->test(CuadranteSupervisorPage::class);
+        $pagina->call('publicar');
+        $slots = Slot::count();
 
-        // Entonces: el borrador no ha cambiado de estado y hay mensaje de error
-        $this->assertEquals(
-            EstadoCuadrante::Borrador,
-            $this->cuadrante->fresh()->estado
-        );
-        $this->assertNotNull($component->get('errorPublicacion'));
+        // Cuando: se vuelve a publicar
+        app(CuadrantePublicadorService::class)->publicar($this->cuadrante->fresh(), $this->supervisor->id);
+
+        // Entonces: sigue publicado, con los mismos slots
+        $this->assertEquals(EstadoCuadrante::Publicado, $this->cuadrante->fresh()->estado);
+        $this->assertGreaterThan(0, $slots);
+        $this->assertSame($slots, Slot::count());
     }
 
     /**

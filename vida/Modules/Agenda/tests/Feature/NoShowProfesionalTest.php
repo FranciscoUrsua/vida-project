@@ -270,8 +270,7 @@ class NoShowProfesionalTest extends TestCase
 
         // Cuadrante publicado con líneas y slots materializados para junio 2026
         $horario = $this->crearHorario($centro, 'estandar');
-        $tipoSlot = TipoSlot::create([
-            'horario_centro_id' => $horario->id,
+        $tipoSlot = tap(TipoSlot::create([
             'nombre' => 'Cita',
             'duracion_minutos' => 60,
             'requiere_espacio' => false,
@@ -279,7 +278,7 @@ class NoShowProfesionalTest extends TestCase
             'origen_permitido' => 'ambos',
             'genera_apunte_automatico' => false,
             'activo' => true,
-        ]);
+        ]), fn (TipoSlot $t) => $horario->tiposSlot()->attach($t));
 
         $cuadrante = CuadranteMes::create([
             'centro_id' => $centro->id,

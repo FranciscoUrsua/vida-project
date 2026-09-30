@@ -5,6 +5,7 @@ namespace Modules\Agenda\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\Agenda\Database\Factories\TipoSlotFactory;
 use Modules\Agenda\Enums\OrigenPermitidoSlot;
@@ -49,6 +50,16 @@ class TipoSlot extends Model
         'bloquea_todos_convocados' => 'boolean',
         'activo' => 'boolean',
     ];
+
+    /**
+     * Horarios de centro que ofrecen este tipo de slot.
+     *
+     * @return BelongsToMany<HorarioCentro, $this>
+     */
+    public function horariosCentro(): BelongsToMany
+    {
+        return $this->belongsToMany(HorarioCentro::class, 'horario_centro_tipo_slot')->withTimestamps();
+    }
 
     /**
      * Slots creados para este tipo de atención.
