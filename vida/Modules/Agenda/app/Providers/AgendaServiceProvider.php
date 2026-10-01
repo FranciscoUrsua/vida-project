@@ -2,6 +2,8 @@
 
 namespace Modules\Agenda\Providers;
 
+use App\Models\User;
+use App\Models\UsuarioUo;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -21,6 +23,8 @@ use Modules\Agenda\Models\SolicitudCita;
 use Modules\Agenda\Observers\CierreCitaObserver;
 use Modules\Agenda\Observers\CitaObserver;
 use Modules\Agenda\Observers\ExcepcionProfesionalObserver;
+use Modules\Agenda\Observers\UsuarioProfesionalObserver;
+use Modules\Agenda\Observers\UsuarioUoObserver;
 use Modules\Agenda\Policies\CitaPolicy;
 use Modules\Agenda\Policies\SolicitudCitaPolicy;
 use Modules\Agenda\Services\Citas\AtencionCitaService;
@@ -70,6 +74,10 @@ class AgendaServiceProvider extends ServiceProvider
 
         Cita::observe(CitaObserver::class);
         ExcepcionProfesional::observe(ExcepcionProfesionalObserver::class);
+
+        // Ningún profesional sin horario: al adscribirse recibe el del centro
+        UsuarioUo::observe(UsuarioUoObserver::class);
+        User::observe(UsuarioProfesionalObserver::class);
 
         // Cierre implícito: el apunte o el registro de atención completan la cita
         Apunte::observe(CierreCitaObserver::class);

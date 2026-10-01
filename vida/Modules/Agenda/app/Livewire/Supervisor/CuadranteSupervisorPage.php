@@ -68,7 +68,8 @@ class CuadranteSupervisorPage extends Component
     }
 
     /**
-     * Usuarios con perfil horario activo en el centro del supervisor.
+     * Usuarios con perfil horario activo y vigente hoy en el centro del supervisor
+     * (el mismo criterio que el sorteo de referencias).
      *
      * @return Collection<int, \App\Models\User>
      */
@@ -80,8 +81,9 @@ class CuadranteSupervisorPage extends Component
             return new Collection();
         }
 
-        $userIds = PerfilHorarioProfesional::where('centro_id', $centro->id)
-            ->where('activo', true)
+        $userIds = PerfilHorarioProfesional::delCentro($centro->id)
+            ->activos()
+            ->vigentes()
             ->pluck('usuario_id');
 
         return \App\Models\User::whereIn('id', $userIds)

@@ -163,6 +163,7 @@ Un centro puede tener varios registros de horario a lo largo del tiempo (p. ej.,
 | `vigente_desde` | date | |
 | `vigente_hasta` | date nullable | null = vigente indefinidamente |
 | `activo` | boolean | |
+| `pendiente_verificar` | boolean | `true` en los perfiles creados por defecto con el horario del centro hasta que el supervisor los guarda («horario no personalizado») |
 | `notas` | text nullable | Ej: "Reducción por conciliación familiar" |
 
 **Relaciones:**
@@ -172,6 +173,8 @@ Un centro puede tener varios registros de horario a lo largo del tiempo (p. ej.,
 | `usuario()` | `BelongsTo<Usuario>` | Profesional |
 | `centro()` | `BelongsTo<Centro>` | Centro al que pertenece este perfil |
 | `lineasCuadrante()` | `HasMany<LineaCuadrante>` | Líneas de cuadrante generadas para este perfil |
+
+**Perfil por defecto (2026-10-01):** ningún profesional queda sin horario en su centro. Al adscribirse una cuenta con ficha de profesional a la UO de un centro (o al vincular la ficha a una cuenta ya adscrita), `PerfilHorarioPorDefectoService` le crea un perfil con el horario vigente del centro: una franja de apertura a cierre en cada día laborable y la jornada que resulta. Rige desde la fecha de adscripción, o desde hoy si es anterior. Queda con `pendiente_verificar = true` («horario no personalizado» en Mi equipo y en el propio perfil) y la supervisión del centro recibe el aviso «Nuevo profesional en el centro: verifica su horario». Guardar el perfil (en Mi equipo o en Filament) lo verifica. Si el centro no tiene horario vigente no se crea nada y Mi equipo muestra «Sin horario en el centro». Para cuentas adscritas antes de esto: `php artisan agenda:horarios-por-defecto --centro=ID` (o `--todos`), que manda un único aviso por centro.
 
 **Filament:** `PerfilHorarioProfesionalResource` (grupo *Agenda — Configuración*)
 

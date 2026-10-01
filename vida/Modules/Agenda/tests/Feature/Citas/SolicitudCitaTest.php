@@ -81,7 +81,9 @@ class SolicitudCitaTest extends TestCase
         $this->assertSame(AccionCitaEvento::SolicitudCreada, $evento->accion);
         $this->assertSame($this->tsr->id, $evento->actor_id);
 
-        $avisados = AlertaDestinatario::pluck('usuario_id')->all();
+        // Solo los avisos de la solicitud: el escenario genera también los de horario por defecto
+        $avisados = AlertaDestinatario::whereHas('alerta', fn ($q) => $q->where('origen_type', $solicitud::class)->where('origen_id', $solicitud->id))
+            ->pluck('usuario_id')->all();
         $this->assertEqualsCanonicalizing([$this->consulta->id, $this->auxiliar->id], $avisados);
 
         $crudo = DB::table('solicitudes_cita')->where('id', $solicitud->id)->value('motivo');

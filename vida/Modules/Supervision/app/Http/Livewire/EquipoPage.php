@@ -9,6 +9,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Centro\Models\Centro;
 use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Usuarios\Models\Cargo;
@@ -25,6 +26,7 @@ use Modules\Usuarios\Models\Titulacion;
  *
  * @property-read Collection<int, Profesional> $profesionales
  * @property-read Centro|null $centroActivo
+ * @property-read array<int, string> $estadosHorario
  * @property bool   $modalAltaAbierto
  * @property string $nuevoNombre
  * @property int|null $nuevoCargo
@@ -207,6 +209,38 @@ class EquipoPage extends Component
         $uoId = auth()->user()?->uosActivas()->first()?->id;
 
         return $uoId ? Centro::where('unidad_organizativa_id', $uoId)->first() : null;
+    }
+
+    /**
+     * Estado del horario en el centro de cada cuenta del equipo que no lo tiene
+     * confirmado: `no_personalizado` (el del centro, sin revisar) o
+     * `sin_horario` (sin perfil activo). Quien no aparece tiene su horario verificado.
+     *
+     * @return array<int, string> Id de usuario => estado.
+     */
+    #[Computed]
+    public function estadosHorario(): array
+    {
+        $centro = $this->centroActivo;
+        $usuarioIds = $this->profesionales->pluck('usuario.id')->filter()->all();
+
+        if ($centro === null || $usuarioIds === []) {
+            return [];
+        }
+
+        $perfiles = PerfilHorarioProfesional::activos()
+            ->delCentro($centro->id)
+            ->whereIn('usuario_id', $usuarioIds)
+            ->pluck('pendiente_verificar', 'usuario_id');
+
+        return collect($usuarioIds)
+            ->mapWithKeys(fn (int $id) => [$id => match (true) {
+                ! $perfiles->has($id) => 'sin_horario',
+                (bool) $perfiles[$id] => 'no_personalizado',
+                default => null,
+            }])
+            ->filter()
+            ->all();
     }
 
     /**

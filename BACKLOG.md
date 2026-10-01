@@ -22,6 +22,15 @@ Módulo: Usuarios / Asignación
 
 ---
 
+**Perfil horario por defecto: pendientes** — 2026-10-01
+Módulo: Agenda / Supervisión
+- El horario por defecto va de apertura a cierre sin pausa (en el CIAM son 45 h/semana). Valorar descontar una pausa o usar la jornada estándar del tipo de relación.
+- Si una UO llega a tener varios centros, el profesional recibe un perfil en cada uno; habría que decidir el centro de destino al adscribir.
+- «Mi equipo», el cuadrante y la asignación resuelven el centro con `Centro::where('unidad_organizativa_id', …)->first()` repetido en varias páginas: extraerlo a un único sitio.
+- Las fichas de profesional sin cuenta de usuario no pueden tener horario ni entrar en el sorteo; Mi equipo no lo indica.
+
+---
+
 **CI «Calidad de código» (PHPStan + Pint) en rojo** — 2026-10-01
 Módulo: transversal
 No bloquea el despliegue (lo hace el workflow `CI/CD`), pero falla desde antes de las citas. El 2026-09-30 por PHPDoc `@property` de arrays sin tipo de valor en componentes Livewire de Agenda (`PerfilHorarioComponent`, `ExcepcionesComponent`, `CuadranteMesComponent`); el 2026-10-01 PHPStan ni siquiera termina: se queda sin memoria (512M) en un worker paralelo. Subir `--memory-limit` en el workflow y corregir después los errores que aparezcan.

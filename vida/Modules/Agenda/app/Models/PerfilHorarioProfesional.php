@@ -29,6 +29,7 @@ use Modules\Centro\Models\Centro;
  * @property Carbon $vigente_desde
  * @property Carbon|null $vigente_hasta
  * @property bool $activo
+ * @property bool $pendiente_verificar Creado por defecto con el horario del centro y aún no revisado por el supervisor («horario no personalizado»).
  * @property string|null $notas
  */
 class PerfilHorarioProfesional extends Model
@@ -80,6 +81,7 @@ class PerfilHorarioProfesional extends Model
         'vigente_desde' => 'date',
         'vigente_hasta' => 'date',
         'activo' => 'boolean',
+        'pendiente_verificar' => 'boolean',
     ];
 
     /**

@@ -24,6 +24,7 @@ use Modules\Centro\Models\Centro;
  * @property float $jornadaSemanal
  * @property string $vigenteDesde
  * @property string $notas
+ * @property bool $pendienteVerificar
  */
 #[Layout('agenda::layouts.agenda-supervisor')]
 class PerfilHorarioComponent extends Component
@@ -55,6 +56,9 @@ class PerfilHorarioComponent extends Component
     /** @var string Notas informativas sobre el perfil */
     public string $notas = '';
 
+    /** @var bool Perfil por defecto con el horario del centro, aún sin revisar: «horario no personalizado» */
+    public bool $pendienteVerificar = false;
+
     /**
      * Inicializa el componente cargando el perfil activo del profesional.
      *
@@ -76,6 +80,7 @@ class PerfilHorarioComponent extends Component
             $this->jornadaSemanal = (float) $perfil->jornada_semanal_horas;
             $this->vigenteDesde   = $perfil->vigente_desde->toDateString();
             $this->notas          = $perfil->notas ?? '';
+            $this->pendienteVerificar = $perfil->pendiente_verificar;
             $this->diasActivos    = array_map('intval', array_keys($perfil->horario_habitual ?? []));
             $this->franjasPorDia  = $this->parsearHorario($perfil->horario_habitual ?? []);
         } else {
@@ -131,7 +136,8 @@ class PerfilHorarioComponent extends Component
      * Persiste el perfil horario.
      *
      * Si la fecha de vigencia coincide con el perfil activo, lo actualiza.
-     * Si es diferente, cierra el anterior y crea uno nuevo.
+     * Si es diferente, cierra el anterior y crea uno nuevo. Guardar es
+     * verificar: el perfil deja de ser «horario no personalizado».
      *
      * @return void
      */
@@ -154,6 +160,7 @@ class PerfilHorarioComponent extends Component
                 'jornada_semanal_horas' => $this->jornadaSemanal,
                 'horario_habitual'      => $horario,
                 'notas'                 => $this->notas ?: null,
+                'pendiente_verificar'   => false,
             ]);
         } else {
             if ($perfilActual !== null) {
@@ -172,6 +179,8 @@ class PerfilHorarioComponent extends Component
                 'notas'                 => $this->notas ?: null,
             ]);
         }
+
+        $this->pendienteVerificar = false;
 
         $this->dispatch('toast', message: 'Perfil horario guardado. Los cambios se aplicarán al generar el próximo cuadrante.', type: 'success');
         $this->dispatch('perfil-horario-guardado');

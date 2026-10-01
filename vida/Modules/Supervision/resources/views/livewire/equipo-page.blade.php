@@ -39,6 +39,14 @@
                                 @if($prof->usuario?->id === auth()->id())
                                     <span class="badge bg-secondary-subtle text-secondary-emphasis ms-1">Tú</span>
                                 @endif
+                                @switch($this->estadosHorario[$prof->usuario?->id] ?? null)
+                                    @case('no_personalizado')
+                                        <span class="badge bg-warning-subtle text-warning-emphasis ms-1">Horario no personalizado</span>
+                                        @break
+                                    @case('sin_horario')
+                                        <span class="badge bg-danger-subtle text-danger-emphasis ms-1">Sin horario en el centro</span>
+                                        @break
+                                @endswitch
                             </td>
                             <td class="text-body-secondary small">{{ $prof->cargo?->nombre ?? '—' }}</td>
                             <td class="text-end">

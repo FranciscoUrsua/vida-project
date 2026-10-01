@@ -6,7 +6,7 @@
 
 ## Tarea completada
 
-**Fix de la actividad del equipo (asignación):** error 500 en `supervision/asignaciones/actividad` por un profesional dado de baja con casos vigentes. Ahora aparece con «Dado de baja» y sus casos se pueden repartir. Detalle en `CHANGELOG-102026.md`. Antes: **Citas** (ver `CHANGELOG-092026.md`, 2026-09-30).
+**Perfil horario por defecto (Agenda):** al adscribirse a la UO de un centro, el profesional recibe el horario del centro como «horario no personalizado» y la supervisión recibe un aviso. Guardar el perfil lo verifica. El cuadrante solo muestra perfiles vigentes y el error del reparto explica qué falta. Viene de la incoherencia del CIAM: 11 en Mi equipo y 1 en el cuadrante. Antes, en esta misma fecha: fix de la actividad del equipo con profesionales dados de baja. Detalle en `CHANGELOG-102026.md`.
 
 ---
 
@@ -20,7 +20,9 @@
 - En esa BD compartida, a 2026-09-25/27 (sin cambios): cargos con slug y roles sugeridos; custodia v2 (fase 2a aplicada, `propuestas_eliminacion` vacía); `configuracion_roles` completa; alertas y avisos de prueba #1–#17 en el CIAM Puente de Vallecas (UO 13); mundo `demo_ciam` (980 registros TEST_CIAM) y `pia.admite_entrada_directa = true`.
 - **Servidor de pruebas preparado para la custodia** (2026-09-25): `/srv/vida/documentos`, `DOCUMENTOS_RUTA` y `DOCUMENTOS_CLAVE_MAESTRA` en el `.env` de staging, clamd activo. El `.env` **local** no tiene variables `DOCUMENTOS_*`.
 - **Código de staging** (`/var/www/vida-project/vida`): se despliega solo con cada push a `master` (job `deploy` de `.github/workflows/ci.yml`).
+- **Perfiles por defecto en el CIAM (UO 13):** se crean con `agenda:horarios-por-defecto --centro=13` tras el despliegue (ver CHANGELOG). Los demás centros no se han completado; se puede hacer con `--todos` cuando el desarrollador lo decida.
 - **Tests:**
+  - 2026-10-01, perfil por defecto: Agenda, Supervisión, Usuarios, Centro y `Intervencion/tests/Feature/Asignacion`: 387 passed, 1 incomplete, 4 failed. Tres son los de `SupervisionTest` ya anotados; el cuarto (`SolicitudCitaTest`, que contaba todas las alertas) está corregido y pasa. `ui:auditar` sin infracciones.
   - 2026-10-01, fix de actividad: `Modules/Intervencion/tests/Feature/Asignacion` y `Modules/Supervision/tests`: 70 passed, 3 failed (los tres de `SupervisionTest` ya anotados en BACKLOG, fallan igual sin el cambio). `ui:auditar` sin infracciones.
   - 2026-10-01, Agenda completo (`Modules/Agenda/tests`, incluye las citas): **173 passed**. `ui:auditar` sin infracciones tras `npm run build`.
   - 2026-09-30, asignación: 50 tests en `Modules/Centro/tests/Feature/Asignacion` y `Modules/Intervencion/tests/Feature/Asignacion`, en verde. Geocodificación (mock, observer, códigos): 19 passed.

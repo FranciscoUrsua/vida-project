@@ -1,4 +1,11 @@
 <div>
+    @if($pendienteVerificar)
+    <div class="alert alert-warning d-flex align-items-start gap-2" role="alert">
+        <x-heroicon-o-exclamation-triangle class="icon-20 flex-shrink-0 mt-1" aria-hidden="true"/>
+        <span><strong>Horario no personalizado.</strong> Es el horario del centro, asignado al incorporarse. Revísalo y guárdalo para confirmarlo.</span>
+    </div>
+    @endif
+
     {{-- Jornada y vigencia --}}
     <div class="row g-3 mb-3">
         <div class="col-sm-4">

@@ -154,6 +154,12 @@ class PerfilHorarioProfesionalResource extends Resource
                     ->label('Activo')
                     ->boolean()
                     ->alignCenter(),
+
+                Tables\Columns\TextColumn::make('pendiente_verificar')
+                    ->label('Horario')
+                    ->badge()
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'No personalizado' : 'Verificado')
+                    ->color(fn (bool $state): string => $state ? 'warning' : 'gray'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('centro_id')

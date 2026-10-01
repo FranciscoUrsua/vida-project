@@ -90,7 +90,7 @@ class RepartoCasosService
         $destinos = $this->destinos($centro, $origen);
 
         if ($destinos->isEmpty()) {
-            throw new LogicException('No hay otros profesionales en el reparto del centro a los que asignar los casos.');
+            throw new LogicException('No hay otros profesionales a los que asignar los casos: hace falta al menos uno con cargo de referencia y perfil horario activo en el centro, sin ausencia prolongada. Revisa los horarios en Mi equipo.');
         }
 
         $grupos = $this->agrupar($centro, $historiaIds);
