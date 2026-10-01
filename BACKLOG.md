@@ -16,6 +16,12 @@ Módulo: transversal
 
 ---
 
+**CI «Calidad de código» (PHPStan + Pint) en rojo** — 2026-10-01
+Módulo: transversal
+No bloquea el despliegue (lo hace el workflow `CI/CD`), pero falla desde antes de las citas. El 2026-09-30 por PHPDoc `@property` de arrays sin tipo de valor en componentes Livewire de Agenda (`PerfilHorarioComponent`, `ExcepcionesComponent`, `CuadranteMesComponent`); el 2026-10-01 PHPStan ni siquiera termina: se queda sin memoria (512M) en un worker paralelo. Subir `--memory-limit` en el workflow y corregir después los errores que aparezcan.
+
+---
+
 **Citas: pendientes de la fase** — 2026-09-30
 Módulos: Agenda, Atención, demo
 - **Citas en los mundos demo (paso 10, pospuesto por decisión del desarrollador):** los mundos demo no crean agenda (horario de centro, tipos de slot, cuadrante publicado ni slots), y una cita necesita un slot libre: `CitacionService::citarDirecto()` no basta. Hace falta una agenda mínima para el centro demo (horario, tipo de slot enlazado a tipos de cita, cuadrante publicado y slots de las próximas semanas de los TSR) y después dar citas en algunos escenarios (`TrayectoriaNueva`, `TrayectoriaActiva`). Solo se podrá probar con tests: `demo:reset` no se lanza desde local (BD compartida con staging).
