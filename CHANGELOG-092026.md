@@ -4,6 +4,52 @@
 
 ---
 
+## 2026-09-30 — Citas (Agenda): implementación completa
+
+`docs/instrucciones-cli/2026-09-citas-implementacion.md`, pasos 1 a 9 y 11 (commits `d3080da` y siguientes). El paso 10 (citas en los mundos demo) queda en BACKLOG por decisión del desarrollador: los mundos demo no tienen agenda (ni horario, ni cuadrantes, ni slots) y `citarDirecto()` no basta.
+
+### Modelo de datos (migraciones `2026_09_30_120001` a `120006`)
+- `tipos_cita` (+ pivote con `tipos_slot`), con un tipo genérico `cita` para las citas existentes; `solicitudes_cita`; `cita_eventos` (solo inserción: trigger de PostgreSQL que rechaza UPDATE y DELETE); `cita_acompanantes` y catálogo `cita.relacion_acompanante`.
+- `citas`: solicitud, tipo de cita, modalidad, modo de asignación, cita anterior (reprogramación), datos de identificación externos (cifrados), pendiente de cierre, aviso al supervisor, quién pidió la cancelación; `ciudadano_id` admite null (citas externas pendientes de identificar). Estado nuevo `reprogramada`.
+- `plan_apuntes.cita_id` y `evento_agenda_id`; `registros_atencion.cita_id`; `horarios_centro.plazos_urgencia` y `dias_aviso_cierre_supervisor`; `eventos_agenda` referencia ciudadanos.
+- Se elimina `tipos_slot.genera_apunte_automatico`.
+- Permisos `citas.solicitar`, `citas.gestionar`, `citas.atender`, `citas.supervisar`.
+
+### Servicios y políticas
+- `SolicitudCitaService`, `BusquedaHuecosService` (también `paraReprogramar()`), `CitacionService`, `AtencionCitaService` (cierre implícito, incomparecencia, acompañantes, identificar, pedir cambio, `citaVinculable()`), `AvisosCitas`, `RegistroEventosCita`; job `CitaCierreJob`; `CierreCitaObserver`; adaptador `AdaptadorCitaPrevia` con `MockCitaPrevia`.
+- `SolicitudCitaPolicy` y `CitaPolicy` (regla de citas propias). `CitaPolicy::view` admite también a quien puede leer la Historia Social de la persona (el historial se abre desde el timeline).
+
+### Interfaz
+- **Bandeja de citación** (`agenda.citas.bandeja`): solicitudes por urgencia y fecha límite (tomar, soltar, buscar huecos y citar, desistir, anular), citas externas pendientes de identificar y citas del día. Solo la etiqueta pública del tipo, nunca el motivo.
+- **Cita directa** (`agenda.citas.nueva`), en ventanilla o por teléfono; con `?atencion=` queda como cita generada del registro de atención.
+- **Detalle e historial de la cita** (`agenda.citas.show`): cadena de reprogramaciones y eventos; reprogramar y cancelar (con «Abrir nueva solicitud») para quien gestiona.
+- **Ficha de Intervención** (`CiudadanoPage`): herramienta «Solicitar cita»; casilla «Solicitar cita para ese seguimiento» al programarlo; propuesta «Vincular a la cita de las HH:MM» en las herramientas; secciones *Cita* y *Coordinación* en el detalle del apunte. `RegistrarValoracionPage` recibe `?cita=`.
+- **Ficha de Ciudadanía**: con `?cita=` (desde *Atender*) abre el registro de atención con la cita propuesta, que el registro completa; tras registrar una atención, «Dar cita» para quien da citas.
+- **Agenda del profesional** (`AgendaPage`): sustituye la fixture de desarrollo por las citas reales y los eventos a los que el usuario está convocado, con sus huecos libres, marcas de *pendiente de cierre* y *pendiente de identificar*, y las acciones *Atender*, *Incomparecencia*, *Acompañantes* y *Pedir cambio*. Sin reprogramar ni cancelar.
+- Menú: «Citación» en Intervención y Supervisión para quien da citas.
+- Filament: `TipoCitaResource`, `RelacionAcompananteResource` (catálogo) y sección «Citas» en `HorarioCentroResource` (plazos por urgencia y aviso de citas sin cerrar).
+- La ruta `ciudadania.ciudadano.nueva-cita` (antes 501) lleva a la cita directa.
+
+### Tests
+- TF-CIT-01 a 43 en `Modules/Agenda/tests/Feature/Citas/` (9 ficheros, más `InterfazCitasTest`), y PF-05.1, PF-05.5 y PF-06.2 reescritos en `RevisionAgendaTest` (los originales se retiran de `CitaCicloVidaTest` y `NoShowCiudadanoTest`).
+- `NavegacionTest`: se retiran TF-LW-NAV-16 y 17, que probaban los enlaces de la fixture de la agenda; su equivalente con citas reales está en `InterfazCitasTest`.
+- `ui:auditar` sin infracciones tras `npm run build`.
+
+### Decisiones de implementación no previstas en las instrucciones
+- **Buscador de personas de citación y colectivos protegidos:** quien no puede ver a una persona de un colectivo protegido no la encuentra por nombre; por documento exacto sí, sin su teléfono (`BuscadorPersonasCita`).
+- **Layout de las pantallas de citas:** el de Supervisión para `supervision` y el operativo para el resto (`ConLayoutDeCitas`), en vez de un entorno nuevo.
+- **Destino por defecto:** en la ficha, la referencia si la persona la tiene y, si no, el primer libre; en la cita directa, el primer libre.
+- **Cita del siguiente seguimiento:** para el propio profesional, desde la fecha prevista y con el plazo ordinario contado desde ella; si la solicitud no es válida, la entrevista se guarda igual y se avisa.
+- **Reprogramar:** propone huecos del mismo profesional o de cualquiera de su perfil, con la urgencia de la solicitud original (las externas, ordinaria).
+- **Colores en la agenda:** urgente si la solicitud es urgente; seguimiento si la herramienta del tipo es entrevista de seguimiento; el resto, cita.
+- **Plazos por urgencia opcionales en Filament:** los horarios sin plazos (`null`) usan 20, 7 y 2 días (`HorarioCentro`); el formulario ya no los exige, porque impedía guardar horarios creados sin ellos.
+- **`AusenciasSupervisorPage::descartar()`** escribía en `citas` desde la pantalla; pasa a `GestionAusenciaService::descartarReasignacion()`.
+
+### Criterio 4 (escrituras en `citas`, `solicitudes_cita`, `cita_eventos`)
+`grep` de `create`/`update`/`save`/`delete` y de los métodos de estado del modelo sobre esas tablas, fuera de tests, factories y migraciones: solo aparecen en `Modules/Agenda/app/Services/` (`Citas/*`, `GestionAusenciaService`) y en `CitaCierreJob` (marca de pendiente de cierre y aviso, sin cambiar el estado). Ninguna en vistas, componentes Livewire u otros módulos.
+
+---
+
 ## 2026-09-30 — Agenda: tests en verde y fallos de la aplicación
 
 Paso 0 de `docs/instrucciones-cli/2026-09-citas-implementacion.md`: los tests de Agenda fallaban (63) y había que arreglarlos antes de construir las citas. Autorizado por el desarrollador. Agenda pasa de 63 fallos a 110 tests en verde.

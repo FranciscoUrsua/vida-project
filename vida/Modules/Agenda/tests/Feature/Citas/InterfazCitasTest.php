@@ -9,6 +9,7 @@ use Livewire\Livewire;
 use Modules\Agenda\Enums\AccionCitaEvento;
 use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Enums\PedidoPor;
+use Modules\Agenda\Livewire\Citas\CitaDirectaPage;
 use Modules\Agenda\Models\CitaAcompanante;
 use Modules\Agenda\Models\CitaEvento;
 use Modules\Agenda\Models\EventoAgenda;
@@ -17,6 +18,8 @@ use Modules\Agenda\Services\Citas\BuscadorPersonasCita;
 use Modules\Agenda\Services\Citas\CitacionService;
 use Modules\Agenda\Services\Citas\SolicitudCitaService;
 use Modules\Agenda\Tests\Concerns\CitasTestSetup;
+use Modules\Atencion\Models\RegistroAtencion;
+use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
 use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\VisibilidadApunte;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
@@ -183,6 +186,32 @@ class InterfazCitasTest extends TestCase
     }
 
     /**
+     * TF-CIT-43 (agenda) — Quien está convocado a una mesa de caso ve en su
+     * agenda el título del evento, pero no a la persona referenciada.
+     *
+     * @return void
+     */
+    #[Test]
+    public function la_agenda_muestra_el_evento_sin_la_persona_referenciada(): void
+    {
+        $evento = EventoAgenda::create([
+            'centro_id' => $this->centro->id,
+            'tipo_evento' => 'reunion_equipo',
+            'titulo' => 'Mesa de caso',
+            'fecha' => '2026-10-06',
+            'hora_inicio' => '12:00',
+            'hora_fin' => '13:00',
+            'creado_por_id' => $this->supervisor->id,
+        ]);
+        $evento->ciudadanos()->attach($this->maria->id);
+        $evento->profesionales()->attach($this->consulta->id);
+
+        Livewire::actingAs($this->consulta)->test(AgendaPage::class)
+            ->assertSee('Mesa de caso')
+            ->assertDontSee('María');
+    }
+
+    /**
      * Agenda del profesional: sus citas con Atender, Incomparecencia,
      * Acompañantes y Pedir cambio; nunca reprogramar ni cancelar (RN-05).
      *
@@ -293,6 +322,88 @@ class InterfazCitasTest extends TestCase
             ->assertHasNoErrors();
 
         $this->assertTrue(CitaEvento::where('cita_id', $cita->id)->where('accion', AccionCitaEvento::CambioSolicitado)->exists());
+    }
+
+    /**
+     * Atender una cita de atención: la ficha de Ciudadanía abre el registro con
+     * la cita propuesta, y el registro la completa.
+     *
+     * @return void
+     */
+    #[Test]
+    public function el_registro_de_atencion_completa_la_cita_desde_la_ficha(): void
+    {
+        $cita = $this->citaConfirmada($this->juan, $this->auxiliar, '2026-10-06', '11:00', $this->tipoInformacion);
+
+        Livewire::withQueryParams(['cita' => $cita->id])
+            ->actingAs($this->auxiliar)
+            ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->juan->id])
+            ->assertSet('modalAtencionAbierto', true)
+            ->assertSee('Vincular a la cita de las 11:00')
+            ->set('atencionDemanda', 'Información sobre ayudas de comedor')
+            ->call('guardarAtencion')
+            ->assertHasNoErrors();
+
+        $this->assertSame(EstadoCita::Completada, $cita->fresh()->estado);
+        $this->assertSame($cita->id, RegistroAtencion::where('ciudadano_id', $this->juan->id)->value('cita_id'));
+    }
+
+    /**
+     * Dar cita desde un registro de atención: la cita queda como su cita generada;
+     * para otra persona, no.
+     *
+     * @return void
+     */
+    #[Test]
+    public function la_cita_dada_desde_una_atencion_queda_como_cita_generada(): void
+    {
+        $registro = RegistroAtencion::create([
+            'ciudadano_id' => $this->juan->id,
+            'tipo' => 'informacion',
+            'fecha' => today()->toDateString(),
+            'profesional_id' => $this->consulta->id,
+            'demanda' => 'Pide cita con la trabajadora social',
+            'origen' => 'manual',
+        ]);
+
+        $this->darCitaDirecta($this->juan->id, $registro->id);
+        $this->assertNotNull($registro->fresh()->cita_generada_id);
+
+        $otro = RegistroAtencion::create([
+            'ciudadano_id' => $this->maria->id,
+            'tipo' => 'informacion',
+            'fecha' => today()->toDateString(),
+            'profesional_id' => $this->consulta->id,
+            'demanda' => 'Otra consulta distinta',
+            'origen' => 'manual',
+        ]);
+
+        $this->darCitaDirecta($this->juan->id, $otro->id, '12:00');
+        $this->assertNull($otro->fresh()->cita_generada_id);
+    }
+
+    /**
+     * Cita directa en ventanilla para Juan con el TSR, desde un registro de atención.
+     *
+     * @param int $ciudadanoId
+     * @param int $atencionId
+     * @param string $hora
+     * @return void
+     */
+    private function darCitaDirecta(int $ciudadanoId, int $atencionId, string $hora = '11:00'): void
+    {
+        $pagina = Livewire::withQueryParams(['ciudadano' => $ciudadanoId, 'atencion' => $atencionId])
+            ->actingAs($this->consulta)
+            ->test(CitaDirectaPage::class)
+            ->set('formSolicitud.tipo_cita_id', (string) $this->tipoInformacion->id)
+            ->set('formSolicitud.destino', 'profesional_concreto')
+            ->set('formSolicitud.profesional_destino_id', (string) $this->tsr->id)
+            ->call('buscarHuecos');
+
+        $propuesta = collect($pagina->get('propuestas'))->first(fn ($p) => $p['hora'] === $hora);
+        $this->assertNotNull($propuesta, 'Debe proponerse el hueco de las '.$hora);
+
+        $pagina->call('citar', $propuesta['slot_id'])->assertHasNoErrors();
     }
 
     /**

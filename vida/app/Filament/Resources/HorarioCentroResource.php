@@ -147,12 +147,12 @@ class HorarioCentroResource extends Resource
                 ]),
 
             Section::make('Citas')
-                ->description('Plazos máximos por urgencia (días laborables) para calcular la fecha límite de una solicitud de cita.')
+                ->description('Plazos máximos por urgencia (días laborables) para calcular la fecha límite de una solicitud de cita. Vacío: 20, 7 y 2 días.')
                 ->columns(4)
                 ->schema([
-                    TextInput::make('plazos_urgencia.ordinaria')->label('Ordinaria')->numeric()->integer()->minValue(1)->default(20)->required(),
-                    TextInput::make('plazos_urgencia.preferente')->label('Preferente')->numeric()->integer()->minValue(1)->default(7)->required(),
-                    TextInput::make('plazos_urgencia.urgente')->label('Urgente')->numeric()->integer()->minValue(1)->default(2)->required(),
+                    TextInput::make('plazos_urgencia.ordinaria')->label('Ordinaria')->numeric()->integer()->minValue(1)->placeholder('20'),
+                    TextInput::make('plazos_urgencia.preferente')->label('Preferente')->numeric()->integer()->minValue(1)->placeholder('7'),
+                    TextInput::make('plazos_urgencia.urgente')->label('Urgente')->numeric()->integer()->minValue(1)->placeholder('2'),
                     TextInput::make('dias_aviso_cierre_supervisor')
                         ->label('Aviso de citas sin cerrar (días)')
                         ->numeric()->integer()->minValue(1)->default(3)->required()

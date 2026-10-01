@@ -1,26 +1,27 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-09-30 (tarde)
-
-> **En curso: Citas** (`docs/instrucciones-cli/2026-09-citas-implementacion.md`). Paso 0 hecho: tests de Agenda en verde (commit `c0b4584`, con 4 fallos de la aplicación corregidos y el pivote `horario_centro_tipo_slot`). Decidido: eliminar la columna `tipos_slot.genera_apunte_automatico` (nadie la lee). **Siguiente: paso 1 (tipos de cita).**
+**Última actualización:** 2026-10-01
 
 ---
 
 ## Tarea completada
 
-**Asignación de centro y profesional de referencia** (`docs/instrucciones-cli/2026-09-asignacion-implementacion.md`, pasos 1 a 9; TF-ASG-01 a 34). Unidades territoriales (barrios, secciones censales), códigos territoriales en la dirección, asignación de centro por domicilio o elección, referencia por sorteo con corrección de desvío, libre elección o quien abre, reparto por salida, actividad de los casos, bandeja del supervisor («Asignaciones» en Supervisión) y bloque «Centro y referencia» en la ficha. Detalle y decisiones en `CHANGELOG-092026.md` (2026-09-30).
+**Citas** (`docs/instrucciones-cli/2026-09-citas-implementacion.md`, pasos 1 a 9 y 11; TF-CIT-01 a 43 y revisión de PF-05.1, PF-05.5 y PF-06.2). Tipos de cita, solicitudes y bandeja de citación, cita directa, búsqueda de huecos, reprogramación y cancelación, historial inmutable, cierre implícito por apunte o registro de atención, acompañantes, canal externo (mock), permisos `citas.*` y la agenda del profesional con citas reales. El **paso 10 (citas en la demo) se pospone** (BACKLOG): los mundos demo no tienen agenda. Detalle y decisiones en `CHANGELOG-092026.md` (2026-09-30, «Citas»).
 
 ---
 
 ## Estado exacto del proyecto
 
 - **⚠️ La BD local y la de staging son la misma** (`vida@127.0.0.1`, ver `BACKLOG.md`). Todo lo que se migre o cargue «en local» ocurre en staging. **No lanzar `demo:reset` desde local.**
-- **Migraciones de esta fase** (`2026_09_30_100001` a `100050`): se aplican en la BD compartida con el despliegue de este push. Cargan el catálogo de barrios y secciones, ponen **todos los centros existentes en `quien_abre`** (nada cambia hasta configurarlos) y marcan el cargo `ts` como elegible para referencia.
+- **Migraciones de citas** (`2026_09_30_120001` a `120006`): se aplican en la BD compartida con el push del 2026-10-01. Crean `tipos_cita` (con un tipo genérico `cita` para las citas existentes), `solicitudes_cita`, `cita_eventos` (trigger que rechaza UPDATE y DELETE) y `cita_acompanantes`; amplían `citas`, `plan_apuntes`, `registros_atencion` y `horarios_centro`; **eliminan `tipos_slot.genera_apunte_automatico`**; crean los permisos `citas.*`.
+- Para probar citas en staging: el centro necesita horario con tipos de slot enlazados a tipos de cita (Filament: `TipoCitaResource` y sección «Citas» de `HorarioCentroResource`), cuadrante publicado y slots; y el usuario, los permisos `citas.*` que correspondan. Los mundos demo no tienen agenda.
+- **Migraciones de la asignación** (`2026_09_30_100001` a `100050`): ya aplicadas en la BD compartida (push del 2026-09-30). Cargan el catálogo de barrios y secciones, ponen **todos los centros existentes en `quien_abre`** (nada cambia hasta configurarlos) y marcan el cargo `ts` como elegible para referencia.
 - Para probar el sorteo en staging hay que dar a algún centro, en Filament, tipo (`css_general`), ámbito (barrios o distrito) y modo `sorteo`; y los profesionales necesitan perfil horario activo en ese centro.
 - En esa BD compartida, a 2026-09-25/27 (sin cambios): cargos con slug y roles sugeridos; custodia v2 (fase 2a aplicada, `propuestas_eliminacion` vacía); `configuracion_roles` completa; alertas y avisos de prueba #1–#17 en el CIAM Puente de Vallecas (UO 13); mundo `demo_ciam` (980 registros TEST_CIAM) y `pia.admite_entrada_directa = true`.
 - **Servidor de pruebas preparado para la custodia** (2026-09-25): `/srv/vida/documentos`, `DOCUMENTOS_RUTA` y `DOCUMENTOS_CLAVE_MAESTRA` en el `.env` de staging, clamd activo. El `.env` **local** no tiene variables `DOCUMENTOS_*`.
 - **Código de staging** (`/var/www/vida-project/vida`): se despliega solo con cada push a `master` (job `deploy` de `.github/workflows/ci.yml`).
 - **Tests:**
+  - 2026-10-01, Agenda completo (`Modules/Agenda/tests`, incluye las citas): **173 passed**. `ui:auditar` sin infracciones tras `npm run build`.
   - 2026-09-30, asignación: 50 tests en `Modules/Centro/tests/Feature/Asignacion` y `Modules/Intervencion/tests/Feature/Asignacion`, en verde. Geocodificación (mock, observer, códigos): 19 passed.
   - **Suite completa** 2026-09-30 (unos 24 min): 1066 passed, 80 failed; 12 eran del mock y están corregidos; los 68 restantes son previos (Agenda 63, TF-AUTH-16/17, `AutorizacionDatosTest`, Ciudadanía 2 «Ver historia social»). No lanzar a la vez dos ejecuciones de tests: comparten `vida_testing`.
   - `ui:auditar` sin infracciones tras `npm run build`.
@@ -29,15 +30,22 @@
 
 ## Siguiente paso concreto recomendado
 
-1. **Comprobar en staging la asignación**, tras el despliegue: configurar un centro con tipo, ámbito y modo `sorteo`; dar de alta una persona con dirección y abrir su historia (texto del alta, aviso del profesional asignado, bloque «Centro y referencia» de la ficha); bandeja «Asignaciones» del supervisor, actividad del equipo y un reparto. Las pantallas nuevas solo se han probado con tests, no en el navegador.
-2. **Ficha: restricción de colectivos protegidos** (BACKLOG, prioritario: `CLAUDE.md` §3). Revisar a la vez la bandeja de asignaciones, que muestra nombres.
-3. **Citas** (`docs/instrucciones-cli/2026-09-citas-implementacion.md`): ya puede empezar, usa la referencia vigente de esta fase.
+1. **El desarrollador prueba en staging asignación y citas** tras el despliegue (las pantallas solo se han probado con tests). Después, repasar juntos los errores o cambios que salgan.
+   - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto.
+   - Citas: bandeja de citación (solicitudes, huecos, citar, desistir), cita directa, detalle con reprogramar y cancelar, agenda del profesional (*Atender*, *Incomparecencia*, *Acompañantes*, *Pedir cambio*), «Solicitar cita» y vinculación en la ficha de Intervención, *Atender* → registro de atención → «Dar cita» en la ficha de Ciudadanía.
+2. **Colectivos protegidos** (BACKLOG, prioritario: `CLAUDE.md` §3): `FichaCiudadanoPage` no aplica `CiudadanoPolicy::view`. Revisar a la vez la bandeja de asignaciones (muestra nombres) y el buscador de personas de citación (`BuscadorPersonasCita`).
+3. Pendientes de citas en BACKLOG: agenda en los mundos demo (paso 10), contrato con Cita Previa, enlace del cuadrante del supervisor con el detalle de la cita.
 4. Pendientes de la asignación en BACKLOG: cambio de referencia de un caso ya asignado desde la interfaz, autorización por centro dentro de los servicios, adaptador BDC.
-5. Rendimiento de `CiudadanoPage`/`plan-page` y polling de toasts (BACKLOG); fallos previos de Agenda.
+5. Rendimiento de `CiudadanoPage`/`plan-page` y polling de toasts (BACKLOG); `Modules/Supervision/tests` fuera de `phpunit.xml`.
 
 ---
 
 ## Contexto para retomar sin fricción
+
+- **Citas (2026-09-30):**
+  - Solo escriben en `citas`, `solicitudes_cita` y `cita_eventos` los servicios de `Modules/Agenda/app/Services/Citas/`, `GestionAusenciaService` y `CitaCierreJob`. Todo cambio de estado deja un evento en `cita_eventos` (solo inserción).
+  - Tests en `Modules/Agenda/tests/Feature/Citas/` con el trait `CitasTestSetup`.
+  - Pantallas: `agenda.citas.bandeja`, `agenda.citas.nueva` (`?atencion=`), `agenda.citas.show`; layout según rol (`ConLayoutDeCitas`).
 
 - **Asignación (2026-09-30):**
   - Escriben en `asignaciones_centro` solo `AsignacionCentroService`; en `asignaciones_profesional`, `AsignacionReferenciaService`, `RepartoCasosService` y `AperturaHistoriaService`. Historial aditivo: se cierra con `fecha_fin` y se crea otra; nunca se cambia `centro_id` ni `profesional_id`.

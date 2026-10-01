@@ -16,6 +16,16 @@ Módulo: transversal
 
 ---
 
+**Citas: pendientes de la fase** — 2026-09-30
+Módulos: Agenda, Atención, demo
+- **Citas en los mundos demo (paso 10, pospuesto por decisión del desarrollador):** los mundos demo no crean agenda (horario de centro, tipos de slot, cuadrante publicado ni slots), y una cita necesita un slot libre: `CitacionService::citarDirecto()` no basta. Hace falta una agenda mínima para el centro demo (horario, tipo de slot enlazado a tipos de cita, cuadrante publicado y slots de las próximas semanas de los TSR) y después dar citas en algunos escenarios (`TrayectoriaNueva`, `TrayectoriaActiva`). Solo se podrá probar con tests: `demo:reset` no se lanza desde local (BD compartida con staging).
+- **Contrato con Cita Previa:** mapeo de servicios a tipos de cita, datos de identificación que envía y reconciliación. Hoy solo el mock (`MockCitaPrevia`). Ver `docs/modulo-citas.md` §11.
+- **Indicadores de citas** (demora, incomparecencias, atención por sustituto, reprogramaciones): con el módulo de analítica (principio 3.14). El historial (`cita_eventos`) ya guarda los datos.
+- **Buscador de personas de citación y colectivos protegidos:** quien da citas no encuentra por nombre a una persona protegida que no puede ver; por documento exacto sí (la tiene delante), sin su teléfono. Revisar el criterio junto con la restricción pendiente de la ficha (`CLAUDE.md` §3).
+- **Gestión de citas desde la agenda del centro:** reprogramar y cancelar se hacen desde el detalle de la cita, al que se llega por la pestaña «Citas del día» de la bandeja de citación. El cuadrante del supervisor aún no enlaza las citas con su detalle.
+
+---
+
 **Asignación de centro y referencia: pendientes** — 2026-09-30
 Módulos: Centro, Intervención, Ciudadanía, geocodificación
 - **Adaptador real de la BDC** (`BdcGeocodificador`): NDP, distrito, barrio y sección, código INE de la sección y conversión UTM (ETRS89 30N) → WGS84. Hoy solo el mock rellena los códigos. Ver `docs/geocodificacion.md` §6.
@@ -61,6 +71,7 @@ En la BD compartida hay un ciudadano con `sexo = 'H'`, guardado desde la ficha a
 **⚠️ La ficha del ciudadano no aplica la restricción de colectivos protegidos** — 2026-09-25
 Módulo: Ciudadanía (prioritario: restricción crítica de `CLAUDE.md` §3)
 `FichaCiudadanoPage::mount()` carga al ciudadano con `withoutGlobalScope(AmbitoUoScope::class)` y solo comprueba el rol; no llama a `CiudadanoPolicy::view`. Cualquier profesional con rol `intervencion`, `tramitacion`, `consulta_basica` o `supervision` puede abrir la ficha de una persona de colectivo protegido de otra UO sin acceso aprobado. Detectado al implementar `DocumentoPolicy`, que sí aplica la policy. Solución probable: `Gate::authorize('view', $c)` en `mount()` y un test en negativo.
+*2026-10-01: siguiente tarea tras probar asignación y citas en staging. Abordar a la vez los otros dos puntos que muestran personas protegidas: la bandeja de asignaciones del supervisor (nombre visible) y el buscador de personas de citación (`BuscadorPersonasCita`: por documento exacto sí la encuentra). Ver «Citas: pendientes de la fase» y «Asignación de centro y referencia: pendientes».*
 
 ---
 
@@ -246,7 +257,7 @@ El registro de acceso nivel 2 usa `\Log::info()` con TODO. Ya existe la tabla `a
 
 ---
 
-**[Demo] Citas en escenarios de demo** — 2026-06-03
+**[Demo] Citas en escenarios de demo** — 2026-06-03 · *2026-09-30: la creación de citas ya existe, pero falta agenda en los mundos demo; ver «Citas: pendientes de la fase».*
 Módulo: Demo world-building
 Las trayectorias del sistema de demo no generan citas porque requieren `slot_id` (FK NOT NULL a la tabla `slots`) y toda la maquinaria de agenda (cuadrantes, perfiles horarios, excepciones). Pendiente para cuando el módulo Agenda exponga una API simplificada de creación de citas de test.
 Ver: `database/seeders/Demo/Scenarios/` — todos los escenarios tienen comentario explicit documentando la omisión.
@@ -447,8 +458,8 @@ Diferido hasta que se identifique el sistema SIEM del municipio adoptante.
 
 ---
 
-**Notificación al ciudadano por cambio de cita** — (desde `docs/modulo-agenda.md`)
-Avisar al ciudadano cuando su cita se modifica o cancela.
+**Notificación al ciudadano por cambio de cita** — (desde `docs/modulo-agenda.md`; confirmado en la fase Citas, 2026-09-30)
+Avisar al ciudadano cuando su cita se da, se modifica o se cancela, y recordatorios. Usará solo la etiqueta pública del tipo de cita (`docs/modulo-citas.md` §11).
 Diferido a la definición del módulo de comunicaciones ciudadanas (canal a determinar:
 carpeta ciudadana, SMS, email).
 
@@ -545,7 +556,8 @@ cuando el módulo de Agenda esté operativo (llamadas de seguimiento).
 
 ---
 
-**Generar cita desde RegistroAtencion** — 2026-06-19
+**✅ Resuelto 2026-09-30 — Generar cita desde RegistroAtencion** — 2026-06-19
+Tras registrar una atención, quien da citas ve «Dar cita» en la ficha; la cita directa (`agenda.citas.nueva?atencion=`) la guarda como `cita_generada_id`.
 `Módulo: Atención / Agenda`
 El campo `cita_generada_id` existe en la tabla pero el formulario de nueva
 atención no permite crear la cita desde FichaCiudadanoPage aún. Se activará

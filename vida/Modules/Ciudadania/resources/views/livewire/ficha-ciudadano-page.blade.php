@@ -44,6 +44,14 @@
 
     <div class="d-flex flex-wrap align-items-center gap-2">
 
+        {{-- Tras registrar una atención, quien da citas puede darla desde ella (cita generada) --}}
+        @if($atencionMensaje !== '' && $ultimaAtencionId && $this->puedeDarCita)
+        <a href="{{ route('agenda.citas.nueva', ['ciudadano' => $ciudadanoId, 'atencion' => $ultimaAtencionId]) }}" wire:navigate class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1">
+            <x-heroicon-o-calendar-days class="icon-14" aria-hidden="true"/>
+            Dar cita
+        </a>
+        @endif
+
         {{-- Botones de atención e historia social --}}
         @if($this->puedeCrearAtencion)
         <button wire:click="abrirModalAtencion" type="button" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
@@ -803,6 +811,8 @@
                     ></textarea>
                     @error('atencionDemanda') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
+
+                @include('intervencion::partials.vincular-cita')
 
                 <div>
                     <label class="form-label small fw-semibold" for="at-respuesta">Respuesta / actuación</label>

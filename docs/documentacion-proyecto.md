@@ -300,13 +300,15 @@ Gestión de plantillas de informe, generación de documentos y merge tags.
 
 Sistema de agenda configurable por centro con tres modos (básico, estándar, avanzado).
 
-**Estado:** dominio completo (45 tests pasando). La interfaz de usuario usa fixtures de desarrollo en `AgendaPage`. 30 tests bloqueados por servicios pendientes (ver BACKLOG).
+**Estado (2026-09-30):** dominio completo y subdominio **Citas** implementado (`docs/modulo-citas.md`, `docs/instrucciones-cli/2026-09-citas-implementacion.md`). Detalle de entidades y servicios en `docs/modulo-agenda.md`.
 
-**Servicios implementados:** `SlotMaterializadorService`, lógica de dominio completa de cuadrantes, horarios y excepciones.
+**Servicios:** `SlotMaterializadorService`, `CuadranteGeneratorService`, `DisponibilidadService`, `GestionAusenciaService`, `SlotExpirationJob`; y, de citas, `SolicitudCitaService`, `BusquedaHuecosService`, `CitacionService`, `AtencionCitaService`, `AvisosCitas` y el job `CitaCierreJob`. Canal externo por el adaptador `AdaptadorCitaPrevia` (mock activo por defecto).
 
-**Servicios pendientes:** `CuadranteGeneratorService`, `DisponibilidadService`, `SlotExpirationJob`, lógica de ciclo de vida de `Cita`, `GestionAusenciaService`.
+**Citas:** la demanda es una `SolicitudCita` que cae en la bandeja de citación del centro (`consulta_basica` y supervisión); el sistema propone huecos y la persona elige. Reprogramar crea una cita nueva enlazada. El apunte o el registro de atención vinculados completan la cita; el sistema nunca la cierra solo (marca *pendiente de cierre* y avisa). `cita_eventos` es de solo inserción (trigger de BD). Ninguna escritura en `citas`, `solicitudes_cita` o `cita_eventos` fuera de los servicios de Agenda.
 
-**AgendaPage (junio 2026):** vistas día/semana/mes con navegación de fechas, 4 KPIs y leyenda de colores de tipos de cita. Los KPIs usan `// TODO:` hasta que los servicios exporten los métodos necesarios. Enlace del nombre del ciudadano en cita bifurca según rol: `intervencion` → `CiudadanoPage`, otros → `FichaCiudadanoPage`.
+**Interfaz operativa:** bandeja de citación, cita directa (ventanilla/teléfono) y detalle con historial en `agenda.citas.*`; «Solicitar cita» y propuesta de vinculación en `CiudadanoPage`; secciones *Cita* y *Coordinación* en el detalle del timeline.
+
+**AgendaPage:** vistas día/semana/mes con las citas reales del profesional y los eventos a los que está convocado, sus huecos libres y acciones *Atender* (ficha con la herramienta del tipo de cita), *Incomparecencia*, *Acompañantes* y *Pedir cambio*. Sin reprogramar ni cancelar (RN-05). Los KPIs de alertas, seguimientos y mensajes siguen con `// TODO:`.
 
 ---
 

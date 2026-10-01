@@ -12,6 +12,7 @@ use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Agenda\Models\Cita;
 use Modules\Agenda\Models\ExcepcionProfesional;
 use Modules\Agenda\Models\Slot;
+use Modules\Agenda\Services\GestionAusenciaService;
 use Modules\Centro\Models\Centro;
 
 /**
@@ -149,9 +150,7 @@ class AusenciasSupervisorPage extends Component
             return;
         }
 
-        $cita->update([
-            'motivo_cancelacion' => Cita::MOTIVO_AUSENCIA_DESCARTADA,
-        ]);
+        app(GestionAusenciaService::class)->descartarReasignacion($cita);
 
         unset($this->citasPendientes);
     }

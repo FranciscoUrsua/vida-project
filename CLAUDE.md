@@ -197,3 +197,5 @@ Ficheros disponibles:
 | `2026-09-bootstrap-unico.md` | Bootstrap como único sistema de estilos (operativo y público): tokens únicos, comando `ui:auditar`, catálogo cerrado de clases. Completado el 2026-09-28 |
 | `2026-09-asignacion-implementacion.md` | Asignación de centro (por domicilio con barrios y secciones censales, o por elección) y del profesional de referencia (sorteo con corrección de desvío, libre elección, quien abre), reparto por salida, actividad de los casos y bandeja del supervisor. Implementada el 2026-09-30 |
 | `2026-09-asignacion-tests.md` | 34 tests de la asignación (TF-ASG-01 a 34); hechos todos |
+| `2026-09-citas-implementacion.md` | Citas: tipos de cita, solicitudes y bandeja de citación, búsqueda de huecos, citación, reprogramación y cancelación, historial inmutable (`cita_eventos`), cierre implícito por apunte o registro de atención, acompañantes, canal externo (mock Cita Previa), permisos `citas.*` e interfaz. Implementada el 2026-09-30 (el paso 10, demo, pospuesto al BACKLOG) |
+| `2026-09-citas-tests.md` | 43 tests de citas (TF-CIT-01 a 43) y revisión de PF-05.1, PF-05.5 y PF-06.2; hechos todos |

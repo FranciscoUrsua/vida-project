@@ -74,7 +74,8 @@ sin que el módulo Atención dependa de ellos — la dependencia es inversa.
 | `origen` | enum | `manual` / `sistema` |
 | `origen_tipo` | string nullable | Clase del modelo que origina el registro (ej: `Modules\Centro\Models\Inscripcion`) |
 | `origen_id` | bigint nullable | ID del modelo origen |
-| `cita_generada_id` | FK nullable | Cita con TSR generada como resultado de la atención |
+| `cita_generada_id` | FK nullable | Cita generada como resultado de la atención (la cita directa con `?atencion=` la rellena) |
+| `cita_id` | FK nullable | Cita que atiende el registro. Si la persona no tiene Historia Social, el registro completa la cita (fase Citas, 2026-09-30) |
 | `created_at` | timestamp | |
 | `updated_at` | timestamp | |
 

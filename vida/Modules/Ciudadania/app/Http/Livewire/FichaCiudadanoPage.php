@@ -16,7 +16,10 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Livewire\Component;
+use Modules\Agenda\Models\Cita;
+use Modules\Agenda\Services\Citas\AtencionCitaService;
 use Modules\Atencion\Models\RegistroAtencion;
 use Modules\Centro\Models\AsignacionCentro;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
@@ -127,6 +130,16 @@ class FichaCiudadanoPage extends Component
     /** Mensaje de confirmación tras guardar. */
     public string $atencionMensaje = '';
 
+    /** @var int|null Cita con la que se llega desde la agenda (?cita=), para que el registro la complete. */
+    #[Url(as: 'cita', except: null)]
+    public ?int $citaPedida = null;
+
+    /** @var bool Si el registro de atención se vincula a la cita propuesta (marcado por defecto). */
+    public bool $vincularCita = true;
+
+    /** @var int|null Último registro de atención guardado, para dar cita desde él. */
+    public ?int $ultimaAtencionId = null;
+
     // -------------------------------------------------------------------------
     // Modal de nuevo documento
     // -------------------------------------------------------------------------
@@ -191,6 +204,11 @@ class FichaCiudadanoPage extends Component
         $this->direccionTexto = $c->direccion_texto ?? '';
         $this->telefono = $c->telefono ?? '';
         $this->email = $c->email ?? '';
+
+        // Desde «Atender» en la agenda: el registro de atención se abre ya con la cita propuesta
+        if ($this->citaPedida !== null && $this->puedeCrearAtencion && $this->citaVinculable !== null) {
+            $this->abrirModalAtencion();
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -1017,8 +1035,10 @@ class FichaCiudadanoPage extends Component
             'atencionDemanda.min' => 'Describe la demanda con al menos 5 caracteres.',
         ]);
 
-        RegistroAtencion::create([
+        $registro = RegistroAtencion::create([
             'ciudadano_id' => $this->ciudadanoId,
+            // Completa la cita si sigue siendo vinculable (docs/modulo-citas.md §3.5.2)
+            'cita_id' => $this->vincularCita ? $this->citaVinculable?->id : null,
             'tipo' => $this->atencionTipo,
             'fecha' => $this->atencionFecha,
             'profesional_id' => auth()->id(),
@@ -1029,8 +1049,35 @@ class FichaCiudadanoPage extends Component
         ]);
 
         $this->atencionMensaje = 'Atención registrada correctamente.';
+        $this->ultimaAtencionId = $registro->id;
         $this->modalAtencionAbierto = false;
-        unset($this->historialAtenciones);
+        $this->citaPedida = null;
+        $this->vincularCita = true;
+        unset($this->historialAtenciones, $this->citaVinculable);
+    }
+
+    /**
+     * Cita que se propone vincular al registro de atención: la de la agenda o
+     * la de hoy de esta persona con el usuario (docs/modulo-citas.md §3.5).
+     *
+     * @return Cita|null
+     */
+    #[Computed]
+    public function citaVinculable(): ?Cita
+    {
+        return app(AtencionCitaService::class)->citaVinculable($this->ciudadanoId, auth()->user(), $this->citaPedida);
+    }
+
+    /**
+     * Si el usuario da citas: tras registrar una atención se le ofrece dar cita
+     * (queda como cita generada del registro).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeDarCita(): bool
+    {
+        return auth()->user()->can('citas.gestionar') || auth()->user()->can('citas.supervisar');
     }
 
     // -------------------------------------------------------------------------

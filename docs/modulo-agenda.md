@@ -24,7 +24,9 @@ El módulo Agenda gestiona la disponibilidad horaria de los profesionales de cad
 El módulo distingue dos tipos de ocupación del tiempo de un profesional:
 
 - **Citas:** reservas de tiempo con un ciudadano concreto para un tipo de atención determinado. Tienen ciclo de vida propio, pueden venir de canales internos o externos vía API, y generan trazabilidad en la Historia Social.
-- **Eventos:** bloqueos de tiempo sin ciudadano asociado (reuniones de equipo, formaciones internas, mesas de coordinación). No generan historia social. Pueden reservar un espacio físico del centro.
+- **Eventos:** bloqueos de tiempo sin compromiso con el ciudadano (reuniones de equipo, formaciones internas, mesas de coordinación). Pueden referenciar ciudadanos (mesas de caso), que solo ve quien accede a su Historia Social; no generan historia social por sí mismos, solo a través del apunte de coordinación que los enlace. Pueden reservar un espacio físico del centro.
+
+El subdominio **Citas** (tipos de cita, solicitudes y bandeja de citación, historial inmutable, acompañantes, cierre implícito, canal externo) está diseñado en `docs/modulo-citas.md` y resumido en el §2.11.
 
 La disponibilidad efectiva de un profesional es siempre la intersección de tres elementos: el horario del centro, el perfil horario del profesional en ese centro y las excepciones vigentes para ese período.
 
@@ -125,12 +127,13 @@ Un centro puede tener varios registros de horario a lo largo del tiempo (p. ej.,
 | `requiere_espacio` | boolean | Si `true`, la cita debe reservar un espacio físico |
 | `porcentaje_urgencias` | int | % de slots de este tipo reservados para urgencias (0-100) |
 | `origen_permitido` | enum | `interno` / `api_externa` / `ambos` |
-| `genera_apunte_automatico` | boolean | Si la cita genera un apunte en Historia Social al cerrarse |
 | `activo` | boolean | |
 
 **Nota sobre `porcentaje_urgencias`:** El sistema calcula cuántos slots de urgencia deben existir por día en función de este porcentaje sobre el total de slots generados de ese tipo. Los slots de urgencia son visibles internamente pero no se exponen al canal externo (API).
 
-**Nota sobre modo básico:** El diseño prevé un tipo genérico "Cita" para los centros en `modo_agenda = basico`, pero no se crea automáticamente: el horario también debe tener sus tipos elegidos (pendiente en BACKLOG). Los campos `porcentaje_urgencias`, `requiere_espacio` y `genera_apunte_automatico` quedan en sus valores por defecto (0, false, false respectivamente).
+**Nota sobre modo básico:** El diseño prevé un tipo genérico "Cita" para los centros en `modo_agenda = basico`, pero no se crea automáticamente: el horario también debe tener sus tipos elegidos (pendiente en BACKLOG). Los campos `porcentaje_urgencias` y `requiere_espacio` quedan en sus valores por defecto (0 y false).
+
+**`genera_apunte_automatico` retirado (2026-09-30):** ahora es el apunte el que completa la cita (§4.4), así que la columna se eliminó.
 
 **Relaciones:**
 
@@ -329,24 +332,37 @@ La cita se vincula a un slot, que cambia a estado `reservado` al crearse. Si la 
 |---|---|---|
 | `id` | int PK | |
 | `slot_id` | int FK unique | Slot reservado |
-| `ciudadano_id` | int FK | Ciudadano con quien se cita |
+| `ciudadano_id` | int FK nullable | Ciudadano con quien se cita. Null solo en citas externas pendientes de identificar |
 | `profesional_id` | int FK | Profesional asignado (desnormalizado del slot para consultas) |
 | `tipo_slot_id` | int FK | Tipo de atención (desnormalizado) |
 | `centro_id` | int FK | Centro (desnormalizado) |
 | `fecha` | date | Fecha de la cita (desnormalizada) |
 | `hora_inicio` | time | Hora de inicio (desnormalizada) |
 | `hora_fin` | time | Hora de fin (desnormalizada) |
-| `estado` | enum | `confirmada` / `cancelada` / `completada` / `no_show_ciudadano` / `no_show_profesional` / `reasignada` |
+| `estado` | enum | `confirmada` / `cancelada` / `completada` / `no_show_ciudadano` / `no_show_profesional` / `reasignada` / `reprogramada` |
 | `motivo` | text nullable | Motivo de la cita, introducido al crear |
 | `origen` | enum | `interno` / `api_externa` |
 | `referencia_externa` | string nullable | ID de la cita en el sistema externo (para sincronización) |
 | `creado_por_id` | int FK nullable | Usuario que creó la cita (null si viene de API) |
 | `cancelado_por_id` | int FK nullable | Usuario que canceló (si aplica) |
 | `motivo_cancelacion` | text nullable | |
-| `completada_en` | timestamp nullable | Momento en que el profesional marcó la cita como completada |
+| `completada_en` | timestamp nullable | Momento en que el primer apunte o registro de atención vinculado completó la cita |
 | `notas_profesional` | text nullable | Notas post-cita del profesional (no van a Historia Social automáticamente) |
+| `solicitud_cita_id` | int FK nullable | Solicitud de la que nace (null en externas) |
+| `tipo_cita_id` | int FK | Tipo de cita (`tipos_cita`) |
+| `modalidad` | enum | `presencial` / `telefonica` / `videollamada` / `domicilio` (`ModalidadCita`) |
+| `modo_asignacion` | enum | Cómo se eligió al profesional: `referencia` / `sustituto` / `profesional_concreto` / `primer_libre` (`ModoAsignacionCita`) |
+| `cita_anterior_id` | int FK nullable | Cita que esta reprograma |
+| `datos_identificacion_externos` | text cifrado nullable | Datos recibidos del canal externo mientras la persona no está identificada |
+| `pendiente_cierre` / `pendiente_cierre_desde` | boolean / timestamp | Hora pasada sin apunte ni incomparecencia (lo marca `CitaCierreJob`; el sistema nunca la cierra) |
+| `aviso_cierre_supervisor_en` | timestamp nullable | Cuándo se avisó al supervisor de la cita sin cerrar |
+| `pedido_por_cancelacion` | enum nullable | `ciudadano` / `centro` / `profesional` |
 
-**Nota sobre `no_show_ciudadano`:** El profesional marca manualmente el no-show al finalizar la franja o en cualquier momento posterior. No hay automatismo por tiempo transcurrido.
+**Escritura solo por servicios (fase Citas):** ningún camino crea, mueve o cierra citas fuera de `CitacionService`, `AtencionCitaService` y `SolicitudCitaService` (y el observer de cierre implícito). Todo cambio de estado deja su `CitaEvento` en la misma transacción.
+
+**Reprogramación:** crea una cita nueva enlazada (`cita_anterior_id`) y deja la original en `reprogramada`.
+
+**Nota sobre `no_show_ciudadano`:** El profesional marca la incomparecencia desde su agenda (`AtencionCitaService::registrarNoShow()`), solo en una cita confirmada y sin apunte ni registro de atención. No hay automatismo por tiempo transcurrido, ni aparece en el timeline.
 
 **Nota sobre `no_show_profesional`:** Reservado para situaciones de abandono sin justificación por parte del profesional. Las ausencias sobrevenidas con justificación (baja médica, emergencia) generan citas en estado `cancelada` con `motivo_cancelacion` descriptivo, no `no_show_profesional`. Esta distinción es relevante para las estadísticas de gestión.
 
@@ -363,7 +379,7 @@ La cita se vincula a un slot, que cambia a estado `reservado` al crearse. Si la 
 
 **Scopes:** `scopeConfirmadas()`, `scopeDelDia($fecha)`, `scopeDelProfesional($usuarioId)`, `scopePendientesReasignacion()`
 
-**Livewire:** Vista de agenda del profesional, vista de gestión de ausencias del supervisor.
+**Livewire:** Agenda del profesional (`intervencion.agenda.index`: Atender, Incomparecencia, Acompañantes, Pedir cambio), detalle e historial de la cita (`agenda.citas.show`), vista de gestión de ausencias del supervisor.
 
 ---
 
@@ -400,7 +416,7 @@ La reasignación siempre la realiza un supervisor. El sistema asiste al supervis
 ### 2.10 EventoAgenda
 
 **Tabla:** `eventos_agenda`  
-**Descripción:** Bloqueo de tiempo en la agenda de uno o varios profesionales, sin ciudadano asociado. Representa reuniones internas, formaciones, mesas de coordinación, supervisiones de equipo, etc. Los eventos se muestran en el calendario junto a las citas pero no generan historia social. Pueden reservar un espacio físico del centro.
+**Descripción:** Bloqueo de tiempo en la agenda de uno o varios profesionales, sin compromiso con un ciudadano (puede referenciar ciudadanos, relación `ciudadanos()` vía `evento_agenda_ciudadano`, que solo ve quien accede a su Historia Social). Representa reuniones internas, formaciones, mesas de coordinación, supervisiones de equipo, etc. Los eventos se muestran en el calendario junto a las citas pero no generan historia social. Pueden reservar un espacio físico del centro.
 
 En modo `basico`, los eventos son el mecanismo principal para bloquear franjas horarias: el supervisor selecciona profesionales, marca el rango horario y elige un motivo de lista corta. No hay gestión de espacios ni convocatoria formal. El formulario completo (tipo configurable, espacio, confirmación de asistencia por profesional) solo está disponible en modos `estandar` y `avanzado`.
 
@@ -437,6 +453,27 @@ Cuando un evento se solapa con slots existentes marcados como `disponible`, esto
 
 **Livewire:** Vista de calendario del centro (citas + eventos unificados).  
 **Filament:** Catálogo de tipos de evento (`catalogos_sistema`).
+
+---
+
+### 2.11 Subdominio Citas (fase 2026-09)
+
+Diseño en `docs/modulo-citas.md`; instrucciones en `docs/instrucciones-cli/2026-09-citas-implementacion.md`.
+
+| Tabla | Modelo | Qué guarda |
+|---|---|---|
+| `tipos_cita` (+ pivote con `tipos_slot`) | `TipoCita` | Tipo de cita: `codigo` inmutable con citas, `nombre` interno, `etiqueta_publica` (lo que ve quien cita y la persona), `herramienta` que abre *Atender*, modalidad por defecto, si requiere Historia Social. Filament: `TipoCitaResource` |
+| `solicitudes_cita` | `SolicitudCita` | La demanda: persona, centro, canal, tipo, urgencia, destino (referencia, profesional, servicio, primer libre), ventana `no_antes_de`/`no_despues_de`, motivo y observaciones (cifrados), contexto polimórfico (p. ej. un seguimiento), estado y quién la gestiona |
+| `cita_eventos` | `CitaEvento` | Historial de citas y solicitudes. **Solo inserción**: un trigger de PostgreSQL rechaza UPDATE y DELETE; no entra en la purga de `audits` |
+| `cita_acompanantes` | `CitaAcompanante` | Quién acompañó a la persona (relación del catálogo `cita.relacion_acompanante` y persona enlazada o nombre cifrado). Solo registro |
+
+`HorarioCentro` suma `plazos_urgencia` (días laborables por urgencia) y `dias_aviso_cierre_supervisor`. `plan_apuntes` y `registros_atencion` suman `cita_id` (y el apunte, `evento_agenda_id`).
+
+**Servicios:** `SolicitudCitaService` (crear, tomar, soltar, desistir, anular, fecha límite), `BusquedaHuecosService` (propone huecos; la persona elige), `CitacionService` (citar, citar directo, reprogramar, cancelar, recibir externa), `AtencionCitaService` (cierre implícito, incomparecencia, acompañantes, identificar, pedir cambio), `AvisosCitas` (alertas). Job diario `CitaCierreJob` (pendientes de cierre y avisos).
+
+**Permisos:** `citas.solicitar`, `citas.gestionar`, `citas.atender`, `citas.supervisar`; políticas `SolicitudCitaPolicy` y `CitaPolicy` (regla de citas propias, RN-05 bis).
+
+**Interfaz:** bandeja de citación (`agenda.citas.bandeja`), cita directa en ventanilla o por teléfono (`agenda.citas.nueva`), detalle e historial (`agenda.citas.show`), «Solicitar cita» en la ficha de Intervención y agenda del profesional.
 
 ---
 
@@ -503,7 +540,9 @@ No realiza ninguna acción sobre profesionales ni sobre citas.
 
 ### 4.1 Canal API externo (citas entrantes)
 
-Las citas pueden llegar desde sistemas externos (p. ej., el sistema centralizado de Cita Previa del Ayuntamiento de Madrid). El módulo expone un endpoint para recepción de citas que sigue el patrón adaptador (Principio 3.6).
+> **Fase Citas:** la entrada pasa por `CitacionService::recibirExterna()` con el adaptador `AdaptadorCitaPrevia` (mock `MockCitaPrevia` activo por defecto, principio 4.6). Si la persona no se puede identificar, la cita queda *pendiente de identificar* (`ciudadano_id` null) y aparece en la bandeja de citación. El contrato real con Cita Previa está pendiente (BACKLOG).
+
+Las citas pueden llegar desde sistemas externos (p. ej., el sistema centralizado de Cita Previa del Ayuntamiento de Madrid). El módulo expone un endpoint para recepción de citas que sigue el patrón adaptador (Principio 4.6).
 
 ```
 POST /api/v1/agenda/citas
@@ -527,16 +566,19 @@ Las siguientes situaciones generan alertas (Módulo Mensajes):
 - Cita reasignada: alerta al ciudadano afectado (si hay canal disponible) y al profesional nuevo.
 - Conflicto de espacio al crear un evento: aviso al creador.
 - Cuadrante publicado: aviso a todos los profesionales del centro.
+- Citas (`AvisosCitas`): solicitud creada (a `consulta_basica` del centro), solicitud fuera de plazo (supervisor), cita pendiente de cierre (profesional) y pendiente de cierre prolongada (supervisor).
+
+La cita y el slot son elementos enlazables de un mensaje (`TipoContextoMensaje::Cita` y `Slot`); *Pedir cambio* abre un hilo con el supervisor enlazado a la cita.
 
 ### 4.4 Integración con Módulo Intervención
 
-Al completarse una cita con `tipo_slot.genera_apunte_automatico = true`, el módulo Intervención crea automáticamente un apunte en la Historia Social del ciudadano con el tipo, fecha, duración y profesional. El profesional puede enriquecer el apunte posteriormente.
+La integración se invierte (fase Citas): ya no hay apunte automático. Es el **apunte** (o, sin Historia Social, el **registro de atención**) vinculado por `cita_id` el que completa la cita (`CierreCitaObserver` → `AtencionCitaService`). *Atender* abre la ficha con la herramienta del tipo de cita y la cita enlazada; desde la ficha, si hay cita con el profesional hoy o pendiente de cierre, se propone vincularla (marcado por defecto). No se vincula un apunte a una cita con incomparecencia o cancelada, salvo supervisión con motivo. El detalle del apunte en el timeline muestra las secciones *Cita* y *Coordinación*.
 
 ---
 
 ## 5. Interfaz: separación Filament / Livewire
 
-Siguiendo el Principio 3.12. El `modo_agenda` del centro determina qué elementos de la interfaz se muestran activos.
+Siguiendo el Principio 4.12. El `modo_agenda` del centro determina qué elementos de la interfaz se muestran activos.
 
 **Filament (configuración):**
 - `HorarioCentroResource` — gestión del horario del centro y configuración del modo de agenda
@@ -710,8 +752,8 @@ Esperado: el slot pasa a estado `no_ocupado`.
 
 **PF-05.1 ✅ — Creación de cita desde canal interno**
 Contexto: slot en estado `disponible`.
-Pasos: el profesional o supervisor crea una cita asociando un ciudadano al slot.
-Esperado: se crea la `Cita` en estado `confirmada` con `origen = interno`. El slot asociado cambia a estado `reservado`.
+Pasos: quien da citas (`consulta_basica`) o el supervisor crea la cita a través de `CitacionService`.
+Esperado: se crea la `Cita` en estado `confirmada` con `origen = interno` y su solicitud. El slot asociado cambia a estado `reservado`. Un usuario solo con `intervencion` recibe 403 (también TF-CIT-25). *Reescrito en la fase Citas: `Citas/RevisionAgendaTest`.*
 
 **PF-05.2 ✅ — Creación de cita desde API externa**
 Contexto: slot disponible cuyo `tipo_slot.origen_permitido = ambos`.
@@ -730,8 +772,8 @@ Esperado: el sistema rechaza la petición. Los slots de urgencia no son visibles
 
 **PF-05.5 ✅ — Marcado de cita como completada**
 Contexto: cita en estado `confirmada`, la hora ha llegado.
-Pasos: el profesional marca la cita como completada.
-Esperado: la cita pasa a estado `completada`. Se registra `completada_en`. Si `tipo_slot.genera_apunte_automatico = true`, el módulo Intervención crea el apunte correspondiente en la Historia Social.
+Pasos: el profesional registra un apunte vinculado a la cita.
+Esperado: la cita pasa a estado `completada` con `completada_en` (TF-CIT-29). No hay acción manual de completar ni apunte automático (`genera_apunte_automatico` se ha retirado). *Reescrito en la fase Citas: `Citas/RevisionAgendaTest`.*
 
 **PF-05.6 ✅ — Cancelación de cita activa**
 Contexto: cita en estado `confirmada`, la hora aún no ha llegado.
@@ -759,7 +801,7 @@ Esperado: la cita pasa a estado `no_show_ciudadano`. El slot permanece como esta
 
 **PF-06.2 ✅ — No-show con cancelación anticipada: reasignación del slot**
 Contexto: el ciudadano llama con unas horas de antelación para cancelar su cita de las 16:00. El slot está en estado `reservado`.
-Pasos: el profesional o supervisor registra la cancelación por parte del ciudadano y libera el slot.
+Pasos: quien da citas (`consulta_basica`) o el supervisor registra la cancelación con `pedido_por = ciudadano`; el profesional de la cita no puede hacerlo (TF-CIT-26). *Reescrito en la fase Citas: `Citas/RevisionAgendaTest`.*
 Esperado: la cita pasa a estado `cancelada` con `motivo_cancelacion` indicando cancelación por el ciudadano. El slot vuelve a estado `disponible`. Puede asignarse a un ciudadano que acuda sin cita previa o gestionarse como disponibilidad ordinaria. Este caso se diferencia del no-show puro en que hay margen de actuación.
 
 **PF-06.3 ✅ — No-show en el momento: el profesional dedica el hueco a otras tareas**

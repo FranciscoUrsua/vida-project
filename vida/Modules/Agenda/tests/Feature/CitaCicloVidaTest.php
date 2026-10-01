@@ -47,24 +47,9 @@ class CitaCicloVidaTest extends TestCase
     }
 
     // =========================================================================
-    // PF-05.1 — Crear una cita interna cambia el slot a reservado
+    // PF-05.1 — reescrito en Citas/RevisionAgendaTest (la cita se crea, completa y
+    // cancela por los servicios de citas; docs/instrucciones-cli/2026-09-citas-tests.md)
     // =========================================================================
-
-    #[Test]
-    public function test_pf_05_1_crear_cita_interna_cambia_slot_a_reservado(): void
-    {
-        $slot = Slot::factory()->create(); // estado = disponible
-        $datos = $this->datosCita($slot);
-
-        $cita = Cita::create($datos);
-
-        $this->assertEquals(EstadoCita::Confirmada, $cita->estado);
-        $this->assertEquals(
-            EstadoSlot::Reservado,
-            $slot->fresh()->estado,
-            'El slot debe pasar a reservado al crear la cita'
-        );
-    }
 
     // =========================================================================
     // PF-05.2 — Cita desde API externa registra la referencia externa
@@ -147,22 +132,9 @@ class CitaCicloVidaTest extends TestCase
     }
 
     // =========================================================================
-    // PF-05.5 — Marcar cita como completada registra el timestamp
+    // PF-05.5 — reescrito en Citas/RevisionAgendaTest (la cita se crea, completa y
+    // cancela por los servicios de citas; docs/instrucciones-cli/2026-09-citas-tests.md)
     // =========================================================================
-
-    #[Test]
-    public function test_pf_05_5_completar_cita_registra_timestamp(): void
-    {
-        $cita = Cita::factory()->create(); // confirmada
-
-        $this->assertNull($cita->completada_en, 'Antes de completar no debe haber timestamp');
-
-        $cita->completar();
-
-        $citaFresh = $cita->fresh();
-        $this->assertEquals(EstadoCita::Completada, $citaFresh->estado);
-        $this->assertNotNull($citaFresh->completada_en, 'Debe registrarse el momento de completado');
-    }
 
     // =========================================================================
     // PF-05.6 — Cancelar una cita activa libera el slot

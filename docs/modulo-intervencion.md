@@ -677,6 +677,10 @@ El apunte es el nodo de conexión de la Historia Social con entidades heterogén
 - `apuntable_type` + `apuntable_id` (polimórfico — la entidad concreta vinculada)
 - `contenido` (texto, nullable — para anotaciones sin entidad vinculada)
 - `visibilidad` (enum: `privada`, `profesionales`, `ciudadano`)
+- `cita_id` (FK nullable — cita que atiende el apunte; fase Citas, 2026-09-30)
+- `evento_agenda_id` (FK nullable — evento de agenda del que nace, p. ej. una mesa de caso)
+
+**Apunte y cita (docs/modulo-citas.md §3.5 y §5):** el primer apunte vinculado completa la cita (una cita puede tener varios). Desde la agenda, *Atender* abre la ficha con la herramienta del tipo de cita y la cita enlazada (`?cita=`); desde la ficha, si la persona tiene cita con el profesional hoy o pendiente de cierre, las herramientas proponen vincularla con la casilla «Vincular a la cita de las HH:MM», marcada por defecto. No se vincula a una cita con incomparecencia o cancelada, salvo supervisión con motivo. El detalle del apunte en el timeline añade la sección *Cita* (origen, solicitud, fecha prevista y real, demora, modo de asignación, reprogramaciones, acompañantes y enlace al historial) o *Coordinación* (evento y convocados); el resumen de la tarjeta no cambia. La herramienta «Solicitar cita» y la casilla «Solicitar cita para ese seguimiento» al programar un seguimiento crean una solicitud en la bandeja de citación del centro.
 
 ### 7.2 Tres niveles de visibilidad
 

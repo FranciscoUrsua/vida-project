@@ -304,13 +304,13 @@ Definir en un trait `CitasTestSetup`:
 
 | Grupo | Tests | Estado |
 |---|---|---|
-| A — Tipos de cita | TF-CIT-01..03 | |
-| B — Solicitudes y bandeja | TF-CIT-04..09 | |
-| C — Búsqueda de huecos | TF-CIT-10..17 | |
-| D — Dar, reprogramar, cancelar | TF-CIT-18..24 | |
-| E — Permisos | TF-CIT-25..28 | |
-| F — Atención y cierre | TF-CIT-29..36 | |
-| G — Citas sin cerrar | TF-CIT-37..38 | |
-| H — Canal externo | TF-CIT-39..41 | |
-| I — Integridad y timeline | TF-CIT-42..43 | |
-| Revisión Agenda | PF-05.1, PF-05.5, PF-06.2 | |
+| A — Tipos de cita | TF-CIT-01..03 | ✅ `TiposCitaTest` |
+| B — Solicitudes y bandeja | TF-CIT-04..09 | ✅ `SolicitudCitaTest`; 09 en `InterfazCitasTest` |
+| C — Búsqueda de huecos | TF-CIT-10..17 | ✅ `BusquedaHuecosTest` |
+| D — Dar, reprogramar, cancelar | TF-CIT-18..24 | ✅ `CitacionTest` |
+| E — Permisos | TF-CIT-25..28 | ✅ `PermisosCitaTest` |
+| F — Atención y cierre | TF-CIT-29..36 | ✅ `AtencionCitaTest`; 34 en `InterfazCitasTest` |
+| G — Citas sin cerrar | TF-CIT-37..38 | ✅ `CierreCitaJobTest` |
+| H — Canal externo | TF-CIT-39..41 | ✅ `CanalExternoCitaTest` |
+| I — Integridad y timeline | TF-CIT-42..43 | ✅ 42 en `IntegridadCitaTest`; 43 en `InterfazCitasTest` (agenda y ficha) |
+| Revisión Agenda | PF-05.1, PF-05.5, PF-06.2 | ✅ `Citas/RevisionAgendaTest` (los originales se retiran) |

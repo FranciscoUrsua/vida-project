@@ -62,33 +62,9 @@ class NoShowCiudadanoTest extends TestCase
     }
 
     // =========================================================================
-    // PF-06.2 — Cancelación anticipada del ciudadano libera el slot
+    // PF-06.2 — reescrito en Citas/RevisionAgendaTest (la cita se crea, completa y
+    // cancela por los servicios de citas; docs/instrucciones-cli/2026-09-citas-tests.md)
     // =========================================================================
-
-    #[Test]
-    public function test_pf_06_2_cancelacion_anticipada_libera_slot(): void
-    {
-        // El ciudadano cancela con antelación; la cita es mañana a las 16:00
-        $slot = Slot::factory()->create([
-            'fecha' => now()->addDay()->toDateString(),
-            'hora_inicio' => '16:00',
-            'hora_fin' => '16:45',
-        ]);
-
-        $cita = $this->crearCita($slot);
-        $this->assertEquals(EstadoSlot::Reservado, $slot->fresh()->estado);
-
-        $supervisor = User::factory()->create();
-        $cita->cancelar($supervisor, 'Cancelación solicitada por el ciudadano');
-
-        $this->assertEquals(EstadoCita::Cancelada, $cita->fresh()->estado);
-        $this->assertStringContainsString('ciudadano', $cita->fresh()->motivo_cancelacion);
-        $this->assertEquals(
-            EstadoSlot::Disponible,
-            $slot->fresh()->estado,
-            'El slot con hora futura debe volver a disponible para que pueda reasignarse'
-        );
-    }
 
     // =========================================================================
     // PF-06.3 — No-show en el momento no libera el slot; expira al final del día

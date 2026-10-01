@@ -153,4 +153,16 @@ class GestionAusenciaService
 
         return $reasignacion;
     }
+
+    /**
+     * El supervisor descarta reasignar una cita cancelada por ausencia: deja de
+     * contar como pendiente (pantalla y contadores del menú), sin cambiar su estado.
+     *
+     * @param Cita $cita Cancelada por ausencia del profesional.
+     * @return void
+     */
+    public function descartarReasignacion(Cita $cita): void
+    {
+        $cita->update(['motivo_cancelacion' => Cita::MOTIVO_AUSENCIA_DESCARTADA]);
+    }
 }
