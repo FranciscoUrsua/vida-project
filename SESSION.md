@@ -1,12 +1,12 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-10-01
+**Última actualización:** 2026-10-01 (fix actividad)
 
 ---
 
 ## Tarea completada
 
-**Citas** (`docs/instrucciones-cli/2026-09-citas-implementacion.md`, pasos 1 a 9 y 11; TF-CIT-01 a 43 y revisión de PF-05.1, PF-05.5 y PF-06.2). Tipos de cita, solicitudes y bandeja de citación, cita directa, búsqueda de huecos, reprogramación y cancelación, historial inmutable, cierre implícito por apunte o registro de atención, acompañantes, canal externo (mock), permisos `citas.*` y la agenda del profesional con citas reales. El **paso 10 (citas en la demo) se pospone** (BACKLOG): los mundos demo no tienen agenda. Detalle y decisiones en `CHANGELOG-092026.md` (2026-09-30, «Citas»).
+**Fix de la actividad del equipo (asignación):** error 500 en `supervision/asignaciones/actividad` por un profesional dado de baja con casos vigentes. Ahora aparece con «Dado de baja» y sus casos se pueden repartir. Detalle en `CHANGELOG-102026.md`. Antes: **Citas** (ver `CHANGELOG-092026.md`, 2026-09-30).
 
 ---
 
@@ -21,6 +21,7 @@
 - **Servidor de pruebas preparado para la custodia** (2026-09-25): `/srv/vida/documentos`, `DOCUMENTOS_RUTA` y `DOCUMENTOS_CLAVE_MAESTRA` en el `.env` de staging, clamd activo. El `.env` **local** no tiene variables `DOCUMENTOS_*`.
 - **Código de staging** (`/var/www/vida-project/vida`): se despliega solo con cada push a `master` (job `deploy` de `.github/workflows/ci.yml`).
 - **Tests:**
+  - 2026-10-01, fix de actividad: `Modules/Intervencion/tests/Feature/Asignacion` y `Modules/Supervision/tests`: 70 passed, 3 failed (los tres de `SupervisionTest` ya anotados en BACKLOG, fallan igual sin el cambio). `ui:auditar` sin infracciones.
   - 2026-10-01, Agenda completo (`Modules/Agenda/tests`, incluye las citas): **173 passed**. `ui:auditar` sin infracciones tras `npm run build`.
   - 2026-09-30, asignación: 50 tests en `Modules/Centro/tests/Feature/Asignacion` y `Modules/Intervencion/tests/Feature/Asignacion`, en verde. Geocodificación (mock, observer, códigos): 19 passed.
   - **Suite completa** 2026-09-30 (unos 24 min): 1066 passed, 80 failed; 12 eran del mock y están corregidos; los 68 restantes son previos (Agenda 63, TF-AUTH-16/17, `AutorizacionDatosTest`, Ciudadanía 2 «Ver historia social»). No lanzar a la vez dos ejecuciones de tests: comparten `vida_testing`.

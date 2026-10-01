@@ -91,13 +91,14 @@ class AsignacionProfesional extends Model
     }
 
     /**
-     * Profesional responsable durante el período de esta asignación.
+     * Profesional responsable durante el período de esta asignación. Incluye los
+     * dados de baja: el historial de referencias no cambia aunque el usuario se borre.
      *
      * @return BelongsTo<User, $this>
      */
     public function profesional(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'profesional_id');
+        return $this->belongsTo(User::class, 'profesional_id')->withTrashed();
     }
 
     /**

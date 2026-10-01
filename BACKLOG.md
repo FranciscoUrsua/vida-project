@@ -16,6 +16,12 @@ Módulo: transversal
 
 ---
 
+**Borrar un usuario con casos vigentes** — 2026-10-01
+Módulo: Usuarios / Asignación
+- Filament permite dar de baja (soft delete) a un profesional que aún es referencia de casos; esos casos quedan con un profesional borrado hasta que el supervisor los reparte. Desde el 2026-10-01 la actividad del equipo lo muestra con «Dado de baja», pero conviene decidir si el borrado debe avisar, bloquearse o lanzar el reparto por salida (RN-08). Revisar también otras relaciones a `User` del módulo (planes, apuntes, entrevistas) que no incluyen borrados.
+
+---
+
 **CI «Calidad de código» (PHPStan + Pint) en rojo** — 2026-10-01
 Módulo: transversal
 No bloquea el despliegue (lo hace el workflow `CI/CD`), pero falla desde antes de las citas. El 2026-09-30 por PHPDoc `@property` de arrays sin tipo de valor en componentes Livewire de Agenda (`PerfilHorarioComponent`, `ExcepcionesComponent`, `CuadranteMesComponent`); el 2026-10-01 PHPStan ni siquiera termina: se queda sin memoria (512M) en un worker paralelo. Subir `--memory-limit` en el workflow y corregir después los errores que aparezcan.

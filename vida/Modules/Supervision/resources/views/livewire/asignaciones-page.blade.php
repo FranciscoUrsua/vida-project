@@ -53,7 +53,12 @@
                         <tbody>
                             @foreach($this->actividad as $fila)
                                 <tr wire:key="actividad-{{ $fila['profesional']->id }}">
-                                    <td class="fw-medium">{{ $fila['profesional']->nombre_completo }}</td>
+                                    <td class="fw-medium">
+                                        {{ $fila['profesional']->nombre_completo }}
+                                        @if($fila['profesional']->trashed())
+                                            <span class="badge text-bg-secondary ms-1">Dado de baja</span>
+                                        @endif
+                                    </td>
                                     <td class="text-end">{{ $fila['asignados'] }}</td>
                                     <td class="text-end">{{ $fila['con_actividad'] }}</td>
                                     <td class="text-end">{{ $fila['dormidos'] }}</td>

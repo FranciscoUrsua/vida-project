@@ -26,7 +26,8 @@ use Modules\Intervencion\Enums\EstadoPlan;
 class ActividadCasosService
 {
     /**
-     * Resumen por profesional de los casos del centro.
+     * Resumen por profesional de los casos del centro, incluidos los profesionales
+     * dados de baja que aún conservan casos.
      *
      * @param Centro $centro
      * @return Collection<int, array{profesional: User, asignados: int, con_actividad: int, dormidos: int}>
@@ -35,7 +36,9 @@ class ActividadCasosService
     {
         $casos = $this->casosVigentes($centro)->get(['ap.profesional_id', 'ap.historia_id']);
         $activas = $this->historiasConActividad($centro, $casos->pluck('historia_id')->all());
-        $profesionales = User::whereIn('id', $casos->pluck('profesional_id')->unique())->with('profesional')->get()->keyBy('id');
+        // Con los dados de baja: sus casos siguen vigentes hasta que se repartan (RN-08)
+        // y el supervisor tiene que verlos para iniciar el reparto.
+        $profesionales = User::withTrashed()->whereIn('id', $casos->pluck('profesional_id')->unique())->with('profesional')->get()->keyBy('id');
 
         return $casos->groupBy('profesional_id')
             ->map(function (Collection $suyos, int $profesionalId) use ($activas, $profesionales) {

@@ -65,13 +65,14 @@ class RepartoCasos extends Model
     }
 
     /**
-     * Profesional cuyos casos se reparten.
+     * Profesional cuyos casos se reparten. Incluye los dados de baja: la salida
+     * del profesional es justo el motivo habitual del reparto.
      *
      * @return BelongsTo<User, $this>
      */
     public function profesionalOrigen(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'profesional_origen_id');
+        return $this->belongsTo(User::class, 'profesional_origen_id')->withTrashed();
     }
 
     /**

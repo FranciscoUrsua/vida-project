@@ -299,4 +299,21 @@ class RepartoCasosTest extends TestCase
 
         $this->assertFalse($linea->fresh()->modificada_por_supervisor);
     }
+
+    /**
+     * Los casos de un profesional dado de baja se pueden repartir, y el
+     * reparto sigue mostrando quién era el profesional de origen.
+     *
+     * @return void
+     */
+    #[Test]
+    public function se_reparten_los_casos_de_un_profesional_dado_de_baja(): void
+    {
+        $this->ts1->delete();
+
+        $reparto = $this->servicio()->proponer($this->cssNorte, User::withTrashed()->find($this->ts1->id), 'Baja definitiva', $this->supervisor);
+
+        $this->assertCount(60, $reparto->lineas()->get());
+        $this->assertSame($this->ts1->id, $reparto->fresh()->profesionalOrigen?->id);
+    }
 }
