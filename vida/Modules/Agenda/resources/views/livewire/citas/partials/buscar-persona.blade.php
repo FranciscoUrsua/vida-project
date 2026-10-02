@@ -15,6 +15,11 @@
         <div class="list-group mb-2">
             @foreach($personas as $persona)
                 <div class="list-group-item d-flex flex-wrap align-items-center gap-2 small" wire:key="persona-{{ $accion }}-{{ $persona['id'] }}">
+                    @if($persona['restringido'])
+                        {{-- Colectivo protegido que no se puede ver: sin datos ni opción de citar --}}
+                        <span class="text-body-secondary">Persona con protección especial. Solo puede citarla su unidad responsable o quien tenga acceso aprobado.</span>
+                        @continue
+                    @endif
                     <span class="fw-semibold">{{ $persona['nombre'] }}</span>
                     @if($persona['documento'])
                         <span class="font-monospace text-body-secondary">{{ $persona['documento'] }}</span>

@@ -16,7 +16,7 @@ trait BuscaPersonas
     /** @var string Documento o nombre buscado. */
     public string $busquedaPersona = '';
 
-    /** @var list<array{id: int, nombre: string, documento: string|null, telefono: string|null}>|null Resultados; null si no se ha buscado. */
+    /** @var list<array{id: int, nombre: string|null, documento: string|null, telefono: string|null, restringido: bool}>|null Resultados; null si no se ha buscado. */
     public ?array $personas = null;
 
     /**
@@ -29,13 +29,17 @@ trait BuscaPersonas
         $buscador = app(BuscadorPersonasCita::class);
         $usuario = Auth::user();
 
+        // Un protegido que no se puede ver sale sin datos personales: solo la restricción
         $this->personas = $buscador->buscar($this->busquedaPersona, $usuario)
-            ->map(fn (Ciudadano $c) => [
-                'id' => $c->id,
-                'nombre' => $c->nombre_completo,
-                'documento' => $c->documentoVigente?->valor,
-                'telefono' => $buscador->telefonoVisible($c, $usuario),
-            ])
+            ->map(fn (Ciudadano $c) => $buscador->visible($c, $usuario)
+                ? [
+                    'id' => $c->id,
+                    'nombre' => $c->nombre_completo,
+                    'documento' => $c->documentoVigente?->valor,
+                    'telefono' => $c->telefono,
+                    'restringido' => false,
+                ]
+                : ['id' => $c->id, 'nombre' => null, 'documento' => null, 'telefono' => null, 'restringido' => true])
             ->all();
     }
 

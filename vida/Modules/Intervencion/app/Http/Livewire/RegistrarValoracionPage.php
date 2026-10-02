@@ -3,6 +3,7 @@
 namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\HistoriaSocial;
+use App\Services\AccesoExpediente;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
@@ -61,7 +62,8 @@ class RegistrarValoracionPage extends Component
      */
     public function mount(HistoriaSocial $historia): void
     {
-        $this->historiaId = $historia->id;
+        // El binding de {historia} carga sin scope: policy y auditoría antes de leer nada
+        $this->historiaId = app(AccesoExpediente::class)->historia(auth()->user(), $historia->id)->id;
 
         // Livewire 4 full-page: query string no llega a mount(), se lee directamente.
         $tipoFicha = request()->query('tipo_ficha');
@@ -196,7 +198,7 @@ class RegistrarValoracionPage extends Component
             'apuntable_id' => $ficha->id,
             // Solo si sigue siendo una cita vinculable de esta persona con este profesional
             'cita_id' => $this->citaId ? app(AtencionCitaService::class)->citaVinculable(
-                HistoriaSocial::withoutGlobalScopes()->whereKey($this->historiaId)->value('ciudadano_id'), auth()->user(), $this->citaId
+                app(AccesoExpediente::class)->historia(auth()->user(), $this->historiaId, registrar: false)->ciudadano_id, auth()->user(), $this->citaId
             )?->id : null,
             'contenido' => $this->tipoFicha?->nombre,
             'visibilidad' => VisibilidadApunte::Profesionales,

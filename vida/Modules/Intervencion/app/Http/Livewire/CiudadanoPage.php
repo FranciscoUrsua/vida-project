@@ -7,9 +7,11 @@ use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Queries\AccesosExpedienteQuery;
+use App\Services\AccesoExpediente;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -200,13 +202,15 @@ class CiudadanoPage extends Component
     // -------------------------------------------------------------------------
 
     /**
-     * Ciudadano titular de la Historia Social.
+     * Ciudadano titular de la Historia Social, autorizado por la policy en cada
+     * petición (la apertura ya se auditó en mount).
+     *
+     * @return Ciudadano|null
      */
     #[Computed]
     public function ciudadano(): ?Ciudadano
     {
-        return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
-            ->find($this->historia->ciudadano_id);
+        return app(AccesoExpediente::class)->ciudadano(Auth::user(), $this->historia->ciudadano_id, registrar: false);
     }
 
     /**
@@ -466,6 +470,8 @@ class CiudadanoPage extends Component
                 mb_strtolower($c->nombre.' '.$c->apellido1.' '.($c->apellido2 ?? '')),
                 mb_strtolower(trim($this->ucBusqueda))
             ))
+            // Colectivos protegidos: quien no puede ver a la persona no la encuentra (CLAUDE.md §3)
+            ->reject(fn ($c) => $c->colectivo_extra_protegido && Gate::denies('view', $c))
             ->take(8)
             ->values();
     }
@@ -835,6 +841,10 @@ class CiudadanoPage extends Component
      */
     public function mount(): void
     {
+        // El binding de {historia} carga sin scope para poder responder 403: se autoriza
+        // y se audita la apertura antes de leer ningún atributo (AccesoExpediente).
+        $this->historia = app(AccesoExpediente::class)->historia(Auth::user(), $this->historia->id);
+
         $herramienta = request()->query('herramienta');
 
         if (in_array($herramienta, ['entrevista', 'valoracion', 'anotacion'], true)) {

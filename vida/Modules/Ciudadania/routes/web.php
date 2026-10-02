@@ -19,9 +19,15 @@ Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion|supervision|tr
     ->group(function () {
         Route::get('/ciudadania/buscar', BuscarCiudadanoPage::class)->name('ciudadania.buscar');
         Route::get('/ciudadania/alta', AltaCiudadano::class)->name('ciudadania.alta');
-        Route::get('/ciudadania/ciudadano/{ciudadano}', FichaCiudadanoPage::class)->name('ciudadania.ciudadano.ficha');
 
         // Tras el alta, «dar cita» lleva a la cita directa de Agenda con la persona elegida
         Route::get('/ciudadania/ciudadano/{ciudadano}/nueva-cita', fn (int $ciudadano) => redirect()->route('agenda.citas.nueva', ['ciudadano' => $ciudadano]))
             ->name('ciudadania.ciudadano.nueva-cita');
     });
+
+// La ficha autoriza y audita en AccesoExpediente (policy, rol operativo y colectivo
+// protegido): sin middleware de rol ni audit.ciudadano, para que también el intento
+// denegado quede en audits y no haya filas duplicadas.
+Route::middleware(['web', 'auth', 'tiene.rol'])
+    ->get('/ciudadania/ciudadano/{ciudadano}', FichaCiudadanoPage::class)
+    ->name('ciudadania.ciudadano.ficha');

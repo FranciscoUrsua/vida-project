@@ -2,9 +2,9 @@
 
 namespace Modules\Usuarios\Policies;
 
-use App\Models\AccesoProtegido;
 use App\Models\HistoriaSocial;
 use App\Models\User;
+use App\Policies\CiudadanoPolicy;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
@@ -174,34 +174,14 @@ class HistoriaSocialPolicy
     // -------------------------------------------------------------------------
 
     /**
-     * Resuelve el acceso cuando el usuario es externo al ámbito de UO de la Historia.
+     * Resuelve el acceso en consulta libre (Nivel 2) delegando en CiudadanoPolicy.
      *
-     * Si el ciudadano no es especialmente protegido → consulta libre (Nivel 2).
-     * Si el ciudadano es especialmente protegido → requiere aprobación (Nivel 3).
+     * El criterio de colectivo protegido vive en un solo sitio (CLAUDE.md §3):
+     * CiudadanoPolicy::consultaExternaPermitida().
      */
     private function resolverConsultaExterna(User $usuario, HistoriaSocial $historia): bool
     {
-        // Paso 3: ¿El ciudadano está marcado como especialmente protegido?
-        if (! $historia->ciudadano_protegido) {
-            return true; // Nivel 2: consulta libre
-        }
-
-        // Nivel 3: Ciudadano protegido → requiere aprobación vigente
-        return $this->tieneAprobacionVigente($usuario, $historia);
-    }
-
-    /**
-     * Comprueba si existe una aprobación de acceso vigente para el usuario y el ciudadano.
-     */
-    private function tieneAprobacionVigente(User $usuario, HistoriaSocial $historia): bool
-    {
-        return AccesoProtegido::where('usuario_id', $usuario->id)
-            ->where('ciudadano_id', $historia->ciudadano_id)
-            ->where('estado', 'aprobado')
-            ->where(function ($consulta) {
-                $consulta->whereNull('acceso_valido_hasta')
-                    ->orWhere('acceso_valido_hasta', '>=', now());
-            })
-            ->exists();
+        return app(CiudadanoPolicy::class)
+            ->consultaExternaPermitida($usuario, $historia->ciudadano_id, (bool) $historia->ciudadano_protegido);
     }
 }

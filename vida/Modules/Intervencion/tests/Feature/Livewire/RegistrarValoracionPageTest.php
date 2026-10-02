@@ -6,6 +6,9 @@ use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
+use App\Models\UsuarioUo;
+use Database\Seeders\PermisosSeeder;
+use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Modules\Intervencion\Http\Livewire\RegistrarValoracionPage;
@@ -42,7 +45,17 @@ class RegistrarValoracionPageTest extends TestCase
             'activa' => true,
         ]);
 
+        // La página autoriza la historia (AccesoExpediente): profesional de intervención de la UO
+        $this->seed(PermisosSeeder::class);
+        $this->seed(RolesSeeder::class);
         $this->usuario = User::factory()->create();
+        $this->usuario->assignRole('intervencion');
+        UsuarioUo::create([
+            'usuario_id' => $this->usuario->id,
+            'unidad_organizativa_id' => $uo->id,
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
+        ]);
         $ciudadano = Ciudadano::factory()->create();
 
         $this->historia = HistoriaSocial::withoutGlobalScopes()->create([

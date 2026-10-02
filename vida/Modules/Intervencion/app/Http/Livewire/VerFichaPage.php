@@ -3,6 +3,7 @@
 namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\HistoriaSocial;
+use App\Services\AccesoExpediente;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -35,7 +36,8 @@ class VerFichaPage extends Component
      */
     public function mount(HistoriaSocial $historia, Ficha $ficha): void
     {
-        $this->historiaId = $historia->id;
+        // El binding de {historia} carga sin scope: policy y auditoría antes de leer nada
+        $this->historiaId = app(AccesoExpediente::class)->historia(auth()->user(), $historia->id)->id;
         $this->ficha = $ficha;
     }
 

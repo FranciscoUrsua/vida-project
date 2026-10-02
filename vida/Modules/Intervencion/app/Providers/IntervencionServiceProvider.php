@@ -60,6 +60,8 @@ class IntervencionServiceProvider extends ServiceProvider
         // El binding ignora el AmbitoUoScope para que la policy pueda emitir 403
         // en lugar de 404 cuando el usuario no tiene acceso al recurso.
         Route::bind('historia', fn ($value) => HistoriaSocial::withoutGlobalScopes()->findOrFail($value));
+        // Igual para {plan}: PlanPage autoriza (y audita) en AccesoExpediente antes de leerlo.
+        Route::bind('plan', fn ($value) => PlanDeIntervencion::withoutGlobalScopes()->findOrFail($value));
 
         $this->loadViewsFrom(module_path($this->moduleName, 'resources/views'), 'intervencion');
 

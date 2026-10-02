@@ -222,4 +222,26 @@ class AccesoDocumentoTest extends TestCase
         $tablas = collect(DB::select("select tablename from pg_tables where schemaname = 'public' and tablename like 'documento%'"))->pluck('tablename');
         $this->assertSame([], $tablas->filter(fn (string $t): bool => str_contains($t, 'acceso'))->values()->all());
     }
+
+    /**
+     * TF-ACC-11 — La descarga sigue dejando exactamente una fila: los documentos
+     * quedan fuera de AccesoExpediente y el controlador es el único que anota.
+     *
+     * @see tests/Feature/Acceso/AccesoExpedienteTest.php
+     */
+    #[Test]
+    public function tf_acc_11_la_descarga_deja_una_sola_fila_de_auditoria(): void
+    {
+        $documento = $this->alta([$this->ana]);
+
+        $this->pedir($this->profesional, $documento)->assertOk();
+
+        $filas = Audit::where('ciudadano_id', $this->ana->id)
+            ->whereIn('accion', ['ver', 'exportar', 'acceso_restringido'])
+            ->get();
+
+        $this->assertCount(1, $filas);
+        $this->assertSame(Documento::class, $filas[0]->auditable_type);
+        $this->assertSame('exportar', $filas[0]->accion->value);
+    }
 }

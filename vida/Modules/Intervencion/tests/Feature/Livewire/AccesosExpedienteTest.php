@@ -170,7 +170,8 @@ class AccesosExpedienteTest extends TestCase
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
             ->get('accesosRecientes');
 
-        $this->assertCount(3, $accesos);
+        // La propia apertura también queda en audits (AccesoExpediente, TF-ACC-06)
+        $this->assertCount(4, $accesos);
     }
 
     /**
@@ -186,7 +187,8 @@ class AccesosExpedienteTest extends TestCase
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
             ->get('accesosRecientes');
 
-        $this->assertCount(2, $accesos);
+        // La propia apertura también queda en audits (AccesoExpediente, TF-ACC-06)
+        $this->assertCount(3, $accesos);
     }
 
     /**
@@ -202,7 +204,8 @@ class AccesosExpedienteTest extends TestCase
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
             ->get('accesosRecientes');
 
-        $this->assertCount(1, $accesos);
+        // La propia apertura también queda en audits (AccesoExpediente, TF-ACC-06)
+        $this->assertCount(2, $accesos);
         $this->assertEquals($this->otroTSR->id, $accesos->first()->user_id);
     }
 
@@ -219,7 +222,8 @@ class AccesosExpedienteTest extends TestCase
             ->test(CiudadanoPage::class, ['historia' => $this->historia])
             ->get('accesosRecientes');
 
-        $this->assertCount(1, $accesos);
+        // La propia apertura también queda en audits (AccesoExpediente, TF-ACC-06)
+        $this->assertCount(2, $accesos);
         $this->assertEquals($this->supervisorOtraUo->id, $accesos->first()->user_id);
     }
 
@@ -340,7 +344,8 @@ class AccesosExpedienteTest extends TestCase
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
             ->get('actividadReciente');
 
-        $this->assertCount(1, $accesos);
+        // La propia apertura también queda en audits (AccesoExpediente, TF-ACC-06)
+        $this->assertCount(2, $accesos);
         $this->assertEquals($this->otroTSR->id, $accesos->first()->user_id);
     }
 

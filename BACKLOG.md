@@ -9,6 +9,17 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Acceso a expedientes: pendientes tras AccesoExpediente** — 2026-10-02
+Módulo: Ciudadanía / Intervención / Supervisión
+- **Personas relacionadas sin filtro de protegido:** la ficha y el expediente cargan convivientes (`ucMiembros`), relaciones (`ciudadanoRelacionado`) y representante sin scope y muestran su nombre aunque sean de colectivo protegido de otra UO. Los buscadores de relación y de UC ya los filtran.
+- **`VerFichaPage` no comprueba que la ficha pertenezca a la historia** de la ruta: `/intervencion/ciudadano/{historia}/ficha/{ficha}` autoriza la historia, pero pinta cualquier `Ficha` por id.
+- **Búsqueda por documento en `BuscarCiudadanoPage`:** sigue sin implementar (`buscarPorIdentificador()` devuelve vacío) aunque `ciudadano_identificadores` existe; `BuscadorPersonasCita` ya busca por hash.
+- **Bandeja de asignaciones con protegidos:** el supervisor ve «Persona con protección especial» y puede resolver la entrada sin saber de quién es. Decidir si la bandeja de la UO responsable debe verla siempre (hoy sin historia la policy pide acceso aprobado).
+- **`AuditarAccesoCiudadano`** ya no cubre ninguna ruta útil (la ficha audita en el servicio). Valorar retirarlo o aplicarlo a las rutas `{historia}` como red de seguridad sin duplicar filas.
+- **`guardar()` de la ficha** sigue decidiendo por rol (`puedeEditar`), no por `CiudadanoPolicy::update`.
+
+---
+
 **Suite de tests: Supervisión no se ejecuta** — 2026-09-30
 Módulo: transversal
 - `phpunit.xml` no incluye `Modules/Supervision/tests`: la suite completa nunca ha ejecutado esos tests. Tres fallan (ya anotados el 2026-09-26): `sidebar_sin_plazas_no_muestra_item_plazas` (el menú no tiene «Aprobaciones»), `ficha_profesional_muestra_tres_pestanas` y `auditoria_con_colectivos_muestra_columna_protegido`. Añadir el directorio a `phpunit.xml` y corregirlos.
@@ -43,7 +54,7 @@ Módulos: Agenda, Atención, demo
 - **Citas en los mundos demo (paso 10, pospuesto por decisión del desarrollador):** los mundos demo no crean agenda (horario de centro, tipos de slot, cuadrante publicado ni slots), y una cita necesita un slot libre: `CitacionService::citarDirecto()` no basta. Hace falta una agenda mínima para el centro demo (horario, tipo de slot enlazado a tipos de cita, cuadrante publicado y slots de las próximas semanas de los TSR) y después dar citas en algunos escenarios (`TrayectoriaNueva`, `TrayectoriaActiva`). Solo se podrá probar con tests: `demo:reset` no se lanza desde local (BD compartida con staging).
 - **Contrato con Cita Previa:** mapeo de servicios a tipos de cita, datos de identificación que envía y reconciliación. Hoy solo el mock (`MockCitaPrevia`). Ver `docs/modulo-citas.md` §11.
 - **Indicadores de citas** (demora, incomparecencias, atención por sustituto, reprogramaciones): con el módulo de analítica (principio 3.14). El historial (`cita_eventos`) ya guarda los datos.
-- **Buscador de personas de citación y colectivos protegidos:** quien da citas no encuentra por nombre a una persona protegida que no puede ver; por documento exacto sí (la tiene delante), sin su teléfono. Revisar el criterio junto con la restricción pendiente de la ficha (`CLAUDE.md` §3).
+- ~~**Buscador de personas de citación y colectivos protegidos:**~~ Cerrado el 2026-10-02 (TF-ACC-09): por documento exacto aparece solo «Persona con protección especial», sin nombre, documento ni opción de citar.
 - **Gestión de citas desde la agenda del centro:** reprogramar y cancelar se hacen desde el detalle de la cita, al que se llega por la pestaña «Citas del día» de la bandeja de citación. El cuadrante del supervisor aún no enlaza las citas con su detalle.
 
 ---
@@ -54,7 +65,7 @@ Módulos: Centro, Intervención, Ciudadanía, geocodificación
 - **Decisiones pendientes de `docs/modulo-asignacion.md` §11:** personas sin hogar (asignación por coordenadas de pernocta y zonificación de equipos de calle; hoy, «quien abre» y centro manual); asignación geográfica de profesionales (zonas por profesional); cambio a petición de la persona y cupos; fórmulas mixtas de centro (elegir dentro del distrito); procedimiento de revisión de secciones censales y reasignación por NDP.
 - **Cambiar la referencia de un caso ya asignado desde la interfaz:** el servicio existe (`AsignacionReferenciaService::cambiarManual()`, TF-ASG-30), pero la pantalla solo lo usa para historias sin referencia (bandeja) y en el reparto. Falta la acción del supervisor en la ficha o el expediente (conflicto, parentesco, corrección…).
 - **Autorización por centro en los servicios:** `AsignacionCentroService::asignarManual()/descartar()` y `AsignacionReferenciaService::cambiarManual()` exigen rol `supervision`, pero no que el supervisor lo sea del centro afectado; hoy lo garantiza la pantalla. Valorar moverlo al servicio, como ya hace `RepartoCasosService`.
-- **Colectivos protegidos en la bandeja:** la bandeja muestra el nombre de la persona para que el supervisor decida. Revisarlo junto con la restricción pendiente de la ficha (prioritaria, `CLAUDE.md` §3).
+- ~~**Colectivos protegidos en la bandeja:**~~ Cerrado el 2026-10-02 (TF-ACC-10): sin nombre ni enlace si la policy no deja ver a la persona. Queda por decidir cómo resuelve el supervisor una entrada que no puede identificar (ver «Acceso a expedientes: pendientes»).
 - **Configurar los centros reales en staging:** tras el despliegue todos quedan en `quien_abre` y sin tipo. Para probar el sorteo hay que dar tipo, ámbito y modo a algún centro en Filament.
 
 ---
@@ -90,10 +101,11 @@ En la BD compartida hay un ciudadano con `sexo = 'H'`, guardado desde la ficha a
 
 ---
 
-**⚠️ La ficha del ciudadano no aplica la restricción de colectivos protegidos** — 2026-09-25
+**✅ CERRADO 2026-10-02 (TF-ACC-01 a TF-ACC-12) — ~~La ficha del ciudadano no aplica la restricción de colectivos protegidos~~** — 2026-09-25
 Módulo: Ciudadanía (prioritario: restricción crítica de `CLAUDE.md` §3)
 `FichaCiudadanoPage::mount()` carga al ciudadano con `withoutGlobalScope(AmbitoUoScope::class)` y solo comprueba el rol; no llama a `CiudadanoPolicy::view`. Cualquier profesional con rol `intervencion`, `tramitacion`, `consulta_basica` o `supervision` puede abrir la ficha de una persona de colectivo protegido de otra UO sin acceso aprobado. Detectado al implementar `DocumentoPolicy`, que sí aplica la policy. Solución probable: `Gate::authorize('view', $c)` en `mount()` y un test en negativo.
 *2026-10-01: siguiente tarea tras probar asignación y citas en staging. Abordar a la vez los otros dos puntos que muestran personas protegidas: la bandeja de asignaciones del supervisor (nombre visible) y el buscador de personas de citación (`BuscadorPersonasCita`: por documento exacto sí la encuentra). Ver «Citas: pendientes de la fase» y «Asignación de centro y referencia: pendientes».*
+*2026-10-02: cerrado. Ficha, expediente, plan, valoración y ficha de valoración autorizan y auditan en `App\Services\AccesoExpediente`; las policies de historia y plan delegan el criterio de protegido en `CiudadanoPolicy::consultaExternaPermitida()`; el buscador de ciudadanos, el de citación y la bandeja de asignaciones no muestran nombre ni documento de un protegido sin acceso. Tests en `tests/Feature/Acceso/AccesoExpedienteTest.php` y TF-ACC-11 en `AccesoDocumentoTest`.*
 
 ---
 

@@ -115,6 +115,16 @@ Middleware aplicado a todas las rutas que acceden a recursos de ciudadanos. Act�
 
 El middleware **no sustituye** la llamada explícita — complementa. Un acceso registrado dos veces (middleware + servicio) es un bug de implementación menor; un acceso no registrado es una rotura del principio de accountability.
 
+### 3.5 `AccesoExpediente` — lectura intencional de una persona
+
+`App\Services\AccesoExpediente` es el punto único por el que las pantallas abren a una persona (ficha, expediente, plan, valoración y ficha de valoración). Carga el registro sin `AmbitoUoScope` (para responder 403 y no 404), aplica la policy y anota la lectura con `AuditService`, gane o pierda la policy:
+
+- Persona de colectivo protegido → `acceso_restringido`; resto → `ver`.
+- `contexto.autorizado` (bool) siempre; `contexto.motivo = denegado` si no se autoriza; `contexto.acceso_protegido_id` si hay aprobación vigente.
+- Una apertura, una fila: lo ya anotado en la petición no se repite y los computed que recargan pasan `registrar: false`. Las denegaciones se anotan siempre.
+
+Las policies de historia y plan delegan el criterio de colectivo protegido en `CiudadanoPolicy::consultaExternaPermitida()`; el indicador que manda es `ciudadanos.colectivo_extra_protegido`. Tests: `tests/Feature/Acceso/AccesoExpedienteTest.php` (TF-ACC-01 a 12). Los documentos siguen anotando en su controlador.
+
 ---
 
 ## 4. Retención de registros

@@ -199,3 +199,5 @@ Ficheros disponibles:
 | `2026-09-asignacion-tests.md` | 34 tests de la asignación (TF-ASG-01 a 34); hechos todos |
 | `2026-09-citas-implementacion.md` | Citas: tipos de cita, solicitudes y bandeja de citación, búsqueda de huecos, citación, reprogramación y cancelación, historial inmutable (`cita_eventos`), cierre implícito por apunte o registro de atención, acompañantes, canal externo (mock Cita Previa), permisos `citas.*` e interfaz. Implementada el 2026-09-30 (el paso 10, demo, pospuesto al BACKLOG) |
 | `2026-09-citas-tests.md` | 43 tests de citas (TF-CIT-01 a 43) y revisión de PF-05.1, PF-05.5 y PF-06.2; hechos todos |
+| `instrucciones-cli-acceso-auditoria.md` | Acceso y auditoría de lectura de expedientes: `AccesoExpediente`, policies que delegan en `CiudadanoPolicy`, buscadores y bandeja sin datos de protegidos; 12 tests (TF-ACC-01 a 12). Hecho el 2026-10-02 |
+| `informe-calidad-vida360.md` | Informe cualitativo de calidad (2026-10-01): hallazgos priorizados y propuesta de prohibiciones para `CLAUDE.md`. El punto 1 está cerrado |

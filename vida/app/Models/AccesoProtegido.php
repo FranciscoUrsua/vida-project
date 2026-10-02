@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\AccesoProtegidoFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -77,5 +78,23 @@ class AccesoProtegido extends Model
     public function aprobador(): BelongsTo
     {
         return $this->belongsTo(User::class, 'aprobado_por');
+    }
+
+    /**
+     * Aprobaciones vigentes de un usuario para un ciudadano: aprobadas y sin caducar.
+     *
+     * Único criterio de vigencia: lo usan CiudadanoPolicy y AccesoExpediente.
+     *
+     * @param Builder<self> $query
+     * @param int $usuarioId
+     * @param int $ciudadanoId
+     * @return Builder<self>
+     */
+    public function scopeVigentePara(Builder $query, int $usuarioId, int $ciudadanoId): Builder
+    {
+        return $query->where('usuario_id', $usuarioId)
+            ->where('ciudadano_id', $ciudadanoId)
+            ->where('estado', 'aprobado')
+            ->where(fn (Builder $q) => $q->whereNull('acceso_valido_hasta')->orWhere('acceso_valido_hasta', '>=', now()));
     }
 }

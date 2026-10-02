@@ -5,6 +5,7 @@ namespace Modules\Intervencion\Http\Livewire;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\User;
+use App\Services\AccesoExpediente;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -221,7 +222,11 @@ class PlanPage extends Component
      */
     public function mount(?PlanDeIntervencion $plan = null, ?int $historia = null, ?int $uc = null): void
     {
+        $acceso = app(AccesoExpediente::class);
+
         if ($plan && $plan->exists) {
+            // Policy de la persona (colectivo protegido) y fila de auditoría de la apertura
+            $acceso->historia(auth()->user(), $plan->historia_id);
             $this->authorize('view', $plan);
             $this->plan = $plan;
             $this->planId = $plan->id;
@@ -246,6 +251,9 @@ class PlanPage extends Component
             $this->tipoPlanId = $plan->tipo_plan_id;
         } else {
             $this->historiaId = $historia ?? ((int) request()->query('historia') ?: null);
+            if ($this->historiaId !== null) {
+                $acceso->historia(auth()->user(), $this->historiaId);
+            }
             $this->ucId = $uc ?? ((int) request()->query('uc') ?: null);
         }
     }
@@ -261,13 +269,17 @@ class PlanPage extends Component
     #[Computed]
     public function ciudadano(): ?Ciudadano
     {
-        if ($this->plan) {
-            return $this->plan->historia?->ciudadano;
+        $historiaId = $this->plan?->historia_id ?? $this->historiaId;
+
+        if ($historiaId === null) {
+            return null;
         }
 
-        return $this->historiaId
-            ? HistoriaSocial::find($this->historiaId)?->ciudadano
-            : null;
+        // Autoriza en cada petición sin anotar otra lectura: la apertura se auditó en mount
+        $acceso = app(AccesoExpediente::class);
+        $historia = $acceso->historia(auth()->user(), $historiaId, registrar: false);
+
+        return $acceso->ciudadano(auth()->user(), $historia->ciudadano_id, registrar: false);
     }
 
     /**

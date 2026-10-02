@@ -34,9 +34,9 @@ Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion'])->prefix('in
         ->whereIn('pestana', ['alertas', 'avisos', 'mensajes'])
         ->name('mensajes.index');
     Route::get('/buscar', BuscarCiudadanoPage::class)->name('buscar.index');
+    // Sin can:view: CiudadanoPage autoriza en AccesoExpediente para auditar también el 403
     Route::get('/ciudadano/{historia}', CiudadanoPage::class)
-        ->name('ciudadano.show')
-        ->middleware('can:view,historia');
+        ->name('ciudadano.show');
     Route::get('/ciudadano/{historia}/valoracion', RegistrarValoracionPage::class)
         ->name('valoracion.nueva');
     Route::get('/ciudadano/{historia}/ficha/{ficha}', VerFichaPage::class)

@@ -6,9 +6,10 @@ use App\Models\AccesoProtegido;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
+use App\Services\AccesoExpediente;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -154,12 +155,13 @@ class BuscarCiudadanoPage extends Component
      */
     private function resolverResultado(Ciudadano $ciudadano, array $uoIds): array
     {
-        // Ciudadano con colectivo extra protegido → nivel 3
-        if ($ciudadano->colectivo_extra_protegido) {
+        // Colectivo protegido que la policy no deja ver → nivel 3 sin datos personales:
+        // solo consta que existe una restricción y se ofrece solicitar acceso (CLAUDE.md §3)
+        if ($ciudadano->colectivo_extra_protegido && Gate::denies('view', $ciudadano)) {
             return [
                 'ciudadano_id' => $ciudadano->id,
-                'nombre' => $ciudadano->nombre.' '.$ciudadano->apellido1,
-                'alias' => $ciudadano->alias,
+                'nombre' => null,
+                'alias' => null,
                 'nivel' => 3,
                 'historia_id' => null,
                 // No se expone domicilio para ciudadanos protegidos (principio 3.7)
@@ -194,24 +196,18 @@ class BuscarCiudadanoPage extends Component
     // -------------------------------------------------------------------------
 
     /**
-     * Registra el acceso de nivel 2 en el log de auditoría y navega a la Historia Social.
-     * El campo audits no existe aún — se registra en el log de la aplicación.
+     * Abre la Historia Social de otra UO (Nivel 2) tras autorizarla y auditarla.
      *
-     * TODO: conectar con tabla audits cuando esté disponible.
+     * Si la policy no lo permite, AccesoExpediente anota la denegación y lanza
+     * la AuthorizationException (403): no se redirige.
      *
      * @param int $historiaId ID de la historia social accedida.
+     * @return void
      */
     public function registrarAccesoNivel2(int $historiaId): void
     {
-        // TODO: conectar con tabla audits cuando esté disponible
-        Log::info('acceso_nivel2', [
-            'auditable_type' => 'HistoriaSocial',
-            'auditable_id' => $historiaId,
-            'event' => 'acceso_nivel2',
-            'user_id' => Auth::id(),
-        ]);
+        app(AccesoExpediente::class)->historia(Auth::user(), $historiaId);
 
-        // Navegar a la Historia Social registrando el acceso de nivel 2
         $this->redirectRoute('intervencion.ciudadano.show', $historiaId);
     }
 

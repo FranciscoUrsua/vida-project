@@ -82,7 +82,8 @@
                                 @else
                                     {{-- Nivel 2 (otra UO), nivel 3 (protegido) o sin HS: nombre no es enlace;
                                          en nivel 2 el botón «Ver Historia Social» registra el acceso --}}
-                                    <span class="fw-semibold">{{ $resultado['nombre'] }}</span>
+                                    {{-- Sin nombre: protegido que la policy no deja ver --}}
+                                    <span class="fw-semibold">{{ $resultado['nombre'] ?? 'Persona con protección especial' }}</span>
                                 @endif
                                 @if($resultado['alias'])
                                     <span class="small text-body-secondary">({{ $resultado['alias'] }})</span>

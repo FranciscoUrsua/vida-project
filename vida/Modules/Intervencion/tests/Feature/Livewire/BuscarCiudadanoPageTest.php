@@ -2,7 +2,9 @@
 
 namespace Modules\Intervencion\Tests\Feature\Livewire;
 
+use App\Enums\AccionAuditEnum;
 use App\Models\AccesoProtegido;
+use App\Models\Audit;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
@@ -11,7 +13,6 @@ use App\Models\UsuarioUo;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Mensajes\Models\Alerta;
@@ -228,7 +229,7 @@ class BuscarCiudadanoPageTest extends TestCase
     }
 
     /**
-     * TF-LW-BUS-06 — Acceso nivel 2 registra entrada en audits con event = 'acceso_nivel2'.
+     * TF-LW-BUS-06 — Acceso nivel 2 deja una fila «ver» en audits y navega a la Historia Social.
      */
     #[Test]
     public function acceso_nivel_2_registra_en_log_de_auditoria(): void
@@ -242,17 +243,17 @@ class BuscarCiudadanoPageTest extends TestCase
         $ciudadano = $this->crearCiudadano(['nombre' => 'Pedro', 'apellido1' => 'Sáez']);
         $historia = $this->crearHistoria($ciudadano, $otraUo);
 
-        Log::shouldReceive('info')
-            ->once()
-            ->withArgs(fn ($msg, $ctx) => $msg === 'acceso_nivel2'
-                && $ctx['auditable_type'] === 'HistoriaSocial'
-                && $ctx['auditable_id'] === $historia->id
-                && $ctx['event'] === 'acceso_nivel2'
-                && $ctx['user_id'] === $this->usuario->id);
-
         Livewire::actingAs($this->usuario)
             ->test(BuscarCiudadanoPage::class)
-            ->call('registrarAccesoNivel2', $historia->id);
+            ->call('registrarAccesoNivel2', $historia->id)
+            ->assertRedirect(route('intervencion.ciudadano.show', $historia->id));
+
+        $fila = Audit::where('ciudadano_id', $ciudadano->id)->sole();
+        $this->assertSame(AccionAuditEnum::Ver, $fila->accion);
+        $this->assertSame($this->usuario->id, $fila->user_id);
+        $this->assertSame(HistoriaSocial::class, $fila->auditable_type);
+        $this->assertSame($historia->id, $fila->auditable_id);
+        $this->assertTrue($fila->contexto['autorizado']);
     }
 
     /**

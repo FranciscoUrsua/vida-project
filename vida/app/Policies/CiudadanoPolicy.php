@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\AccesoProtegido;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
+use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -161,6 +162,33 @@ class CiudadanoPolicy
         return in_array($historia->unidad_organizativa_id, $uoIds);
     }
 
+    /**
+     * Decide la consulta de una persona desde fuera de la UO responsable (Niveles 2 y 3).
+     *
+     * Punto único del criterio de colectivo protegido (CLAUDE.md §3): la policy de
+     * la historia y la del plan delegan aquí. Un colectivo protegido solo es visible
+     * fuera de su UO con un AccesoProtegido aprobado y vigente para ese usuario.
+     * El indicador que manda es `ciudadanos.colectivo_extra_protegido`; el de la
+     * historia (`ciudadano_protegido`) se suma por si alguna lo tuviera marcado.
+     *
+     * @param User $usuario Usuario que consulta.
+     * @param int $ciudadanoId Persona consultada.
+     * @param bool $protegidoSegunRecurso Indicador de protección del recurso (historia o plan).
+     * @return bool
+     */
+    public function consultaExternaPermitida(User $usuario, int $ciudadanoId, bool $protegidoSegunRecurso = false): bool
+    {
+        $protegido = $protegidoSegunRecurso
+            || (bool) Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->whereKey($ciudadanoId)->value('colectivo_extra_protegido');
+
+        if (! $protegido) {
+            return true; // Nivel 2: consulta libre
+        }
+
+        // Nivel 3: requiere aprobación vigente
+        return AccesoProtegido::vigentePara($usuario->id, $ciudadanoId)->exists();
+    }
+
     // -------------------------------------------------------------------------
     // Métodos privados
     // -------------------------------------------------------------------------
@@ -173,20 +201,7 @@ class CiudadanoPolicy
      */
     private function resolverConsultaExterna(User $usuario, Ciudadano $ciudadano): bool
     {
-        // ¿El ciudadano pertenece a un colectivo especialmente protegido?
-        if (! $ciudadano->colectivo_extra_protegido) {
-            return true; // Nivel 2: consulta libre
-        }
-
-        // Nivel 3: requiere aprobación vigente
-        return AccesoProtegido::where('usuario_id', $usuario->id)
-            ->where('ciudadano_id', $ciudadano->id)
-            ->where('estado', 'aprobado')
-            ->where(function ($consulta) {
-                $consulta->whereNull('acceso_valido_hasta')
-                    ->orWhere('acceso_valido_hasta', '>=', now());
-            })
-            ->exists();
+        return $this->consultaExternaPermitida($usuario, $ciudadano->id, $ciudadano->colectivo_extra_protegido);
     }
 
     /**

@@ -8,9 +8,11 @@ use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
+use App\Services\AccesoExpediente;
 use App\Queries\AccesosExpedienteQuery;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -188,11 +190,15 @@ class FichaCiudadanoPage extends Component
     {
         /** @var User $user */
         $user = auth()->user();
+        $acceso = app(AccesoExpediente::class);
+
+        // El rol se comprueba aquí y no en la ruta para que el intento quede auditado
         if (! $user->hasAnyRole(['intervencion', 'tramitacion', 'consulta_basica', 'supervision'])) {
-            abort(403);
+            $acceso->denegarCiudadano($user, $ciudadano);
         }
 
-        $c = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->findOrFail($ciudadano);
+        // Policy (ámbito y colectivo protegido) y fila de auditoría de la apertura
+        $c = $acceso->ciudadano($user, $ciudadano);
 
         $this->ciudadanoId = $c->id;
         $this->nombre = $c->nombre ?? '';
@@ -216,14 +222,14 @@ class FichaCiudadanoPage extends Component
     // -------------------------------------------------------------------------
 
     /**
-     * Ciudadano sin AmbitoUoScope — accesible aunque no tenga historia social en la UO.
+     * Ciudadano autorizado por la policy en cada petición (la apertura ya se auditó en mount).
      *
      * @return Ciudadano
      */
     #[Computed]
     public function ciudadano(): Ciudadano
     {
-        return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->findOrFail($this->ciudadanoId);
+        return app(AccesoExpediente::class)->ciudadano(auth()->user(), $this->ciudadanoId, registrar: false);
     }
 
     /**
@@ -252,7 +258,7 @@ class FichaCiudadanoPage extends Component
     }
 
     /**
-     * Historia social sin AmbitoUoScope ni SoftDeletes — solo comprueba existencia.
+     * Historia social de la persona, para saber si existe y de qué UO es.
      * La historia es única y permanente: nunca se cierra.
      *
      * @return HistoriaSocial|null
@@ -260,9 +266,7 @@ class FichaCiudadanoPage extends Component
     #[Computed]
     public function historiaSocial(): ?HistoriaSocial
     {
-        return HistoriaSocial::withoutGlobalScopes()
-            ->where('ciudadano_id', $this->ciudadanoId)
-            ->first();
+        return app(AccesoExpediente::class)->historiaDe(auth()->user(), $this->ciudadanoId);
     }
 
     /**
@@ -350,12 +354,7 @@ class FichaCiudadanoPage extends Component
     #[Computed]
     public function ucVigente(): ?UnidadConvivencia
     {
-        $ciudadano = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->find($this->ciudadanoId);
-        if (! $ciudadano) {
-            return null;
-        }
-
-        return $ciudadano->unidadesConvivenciaActivas()->first();
+        return $this->ciudadano->unidadesConvivenciaActivas()->first();
     }
 
     /**
@@ -547,6 +546,8 @@ class FichaCiudadanoPage extends Component
                 mb_strtolower($ciudadano->nombre_completo),
                 mb_strtolower(trim($this->relacionBusqueda))
             ))
+            // Colectivos protegidos: quien no puede ver a la persona no la encuentra (CLAUDE.md §3)
+            ->reject(fn (Ciudadano $ciudadano) => $ciudadano->colectivo_extra_protegido && Gate::denies('view', $ciudadano))
             ->take(8)
             ->values();
     }
@@ -563,8 +564,12 @@ class FichaCiudadanoPage extends Component
             return null;
         }
 
-        return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
+        $ciudadano = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
             ->find($this->relacionCiudadanoSeleccionado);
+
+        return $ciudadano !== null && $ciudadano->colectivo_extra_protegido && Gate::denies('view', $ciudadano)
+            ? null
+            : $ciudadano;
     }
 
     // -------------------------------------------------------------------------
@@ -592,7 +597,7 @@ class FichaCiudadanoPage extends Component
      */
     public function cancelarEdicion(): void
     {
-        $c = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->findOrFail($this->ciudadanoId);
+        $c = $this->ciudadano;
 
         $this->nombre = $c->nombre ?? '';
         $this->apellido1 = $c->apellido1 ?? '';
@@ -640,9 +645,7 @@ class FichaCiudadanoPage extends Component
             'email' => $this->email,
         ]);
 
-        Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
-            ->findOrFail($this->ciudadanoId)
-            ->update([
+        $this->ciudadano->update([
                 'nombre' => $norm['nombre'] ?? $this->nombre,
                 'apellido1' => $norm['apellido1'] ?? $this->apellido1,
                 'apellido2' => $norm['apellido2'] ?? ($this->apellido2 ?: null),

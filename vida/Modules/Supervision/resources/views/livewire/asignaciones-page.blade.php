@@ -136,7 +136,7 @@
                             <div class="list-group-item" wire:key="pendiente-{{ $pendiente->id }}">
                                 <div class="d-flex align-items-start justify-content-between gap-2">
                                     <div>
-                                        <a href="{{ route('ciudadania.ciudadano.ficha', $pendiente->ciudadano_id) }}" wire:navigate class="fw-medium">{{ $pendiente->ciudadano?->nombre_completo }}</a>
+                                        @include('supervision::livewire.partials.persona-pendiente', ['pendiente' => $pendiente])
                                         <div class="small text-body-secondary">
                                             {{ $tiposCentro[$pendiente->tipo_centro] ?? $pendiente->tipo_centro }} · desde el {{ $pendiente->created_at->format('d/m/Y') }}
                                         </div>
@@ -186,7 +186,7 @@
                             <div class="list-group-item" wire:key="pendiente-{{ $pendiente->id }}">
                                 <div class="d-flex align-items-start justify-content-between gap-2">
                                     <div>
-                                        <a href="{{ route('ciudadania.ciudadano.ficha', $pendiente->ciudadano_id) }}" wire:navigate class="fw-medium">{{ $pendiente->ciudadano?->nombre_completo }}</a>
+                                        @include('supervision::livewire.partials.persona-pendiente', ['pendiente' => $pendiente])
                                         <div class="small text-body-secondary">Historia abierta el {{ $pendiente->created_at->format('d/m/Y') }}</div>
                                     </div>
                                     @if($pendiente->motivo)
@@ -229,7 +229,7 @@
                     <div class="list-group list-group-flush">
                         @foreach($this->cambiosDomicilio as $pendiente)
                             <div class="list-group-item" wire:key="pendiente-{{ $pendiente->id }}">
-                                <a href="{{ route('ciudadania.ciudadano.ficha', $pendiente->ciudadano_id) }}" wire:navigate class="fw-medium">{{ $pendiente->ciudadano?->nombre_completo }}</a>
+                                @include('supervision::livewire.partials.persona-pendiente', ['pendiente' => $pendiente])
                                 <div class="small text-body-secondary">
                                     Su nuevo domicilio corresponde a {{ $pendiente->centroPropuesto?->nombre }}. Sigue en {{ $pendiente->centro?->nombre }} hasta que decidas.
                                 </div>

@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use InvalidArgumentException;
 use Livewire\Attributes\Computed;
@@ -257,7 +258,11 @@ class AsignacionesPage extends Component
             return;
         }
 
-        $nombre = $pendiente->ciudadano?->nombre_completo;
+        // Sin el nombre de un protegido que la policy no deja ver (CLAUDE.md §3)
+        $ciudadano = $pendiente->ciudadano;
+        $nombre = $ciudadano !== null && (! $ciudadano->colectivo_extra_protegido || Gate::allows('view', $ciudadano))
+            ? $ciudadano->nombre_completo
+            : 'la persona con protección especial';
         $this->cancelar();
         $this->aviso = "Decisión registrada para {$nombre}.";
         $this->limpiarCache();

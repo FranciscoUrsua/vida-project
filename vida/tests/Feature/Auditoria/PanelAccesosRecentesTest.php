@@ -116,7 +116,8 @@ class PanelAccesosRecentesTest extends TestCase
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id]);
 
         $accesos = $component->instance()->actividadReciente;
-        $this->assertCount(3, $accesos);
+        // La propia apertura de la ficha también queda en audits (AccesoExpediente, TF-ACC-01)
+        $this->assertCount(4, $accesos);
     }
 
     /**
@@ -133,7 +134,8 @@ class PanelAccesosRecentesTest extends TestCase
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id]);
 
         $accesos = $component->instance()->actividadReciente;
-        $this->assertCount(3, $accesos);
+        // La propia apertura de la ficha también queda en audits (AccesoExpediente, TF-ACC-01)
+        $this->assertCount(4, $accesos);
     }
 
     /**
@@ -149,8 +151,9 @@ class PanelAccesosRecentesTest extends TestCase
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id]);
 
         $accesos = $component->instance()->actividadReciente;
-        $this->assertCount(1, $accesos);
-        $this->assertEquals($this->profesional->id, $accesos->first()->user_id);
+        // La propia apertura de la ficha también queda en audits (AccesoExpediente, TF-ACC-01)
+        $this->assertCount(2, $accesos);
+        $this->assertSame([$this->profesional->id], $accesos->pluck('user_id')->unique()->values()->all());
     }
 
     /**

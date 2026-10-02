@@ -1,14 +1,12 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-10-02 (badge sin cuenta)
+**Última actualización:** 2026-10-02 (acceso y auditoría de expedientes)
 
 ---
 
 ## Tarea completada
 
-**«Mi equipo» marca las fichas de profesional sin cuenta de usuario** (2026-10-02) con el badge «Sin cuenta de usuario»: no pueden tener horario ni entrar en el sorteo. `PerfilHorarioPorDefectoTest`: 12 passed; `ui:auditar` sin infracciones.
-
-Antes, el 2026-10-01: **Perfil horario por defecto (Agenda):** al adscribirse a la UO de un centro, el profesional recibe el horario del centro como «horario no personalizado» y la supervisión recibe un aviso. Guardar el perfil lo verifica. El cuadrante solo muestra perfiles vigentes y el error del reparto explica qué falta. Viene de la incoherencia del CIAM: 11 en Mi equipo y 1 en el cuadrante. Antes, en esta misma fecha: fix de la actividad del equipo con profesionales dados de baja. Detalle en `CHANGELOG-102026.md`.
+**Acceso y auditoría de lectura de expedientes** (2026-10-02, `instrucciones-cli-acceso-auditoria.md`): el hueco de colectivos protegidos está **cerrado**. Ficha, expediente, plan, valoración y ficha de valoración autorizan y auditan en `App\Services\AccesoExpediente`; las policies de historia y plan delegan en `CiudadanoPolicy::consultaExternaPermitida()`; buscadores y bandeja de asignaciones no muestran a protegidos sin acceso. TF-ACC-01 a 12 en verde. Nivel 2 se mantiene (decisión del desarrollador). Antes, ese mismo día: badge «Sin cuenta de usuario» en Mi equipo. Detalle en `CHANGELOG-102026.md`.
 
 ---
 
@@ -24,6 +22,7 @@ Antes, el 2026-10-01: **Perfil horario por defecto (Agenda):** al adscribirse a 
 - **Código de staging** (`/var/www/vida-project/vida`): se despliega solo con cada push a `master` (job `deploy` de `.github/workflows/ci.yml`).
 - **Perfiles por defecto en el CIAM (UO 13):** se crean con `agenda:horarios-por-defecto --centro=13` tras el despliegue (ver CHANGELOG). Hecho: 9 perfiles pendientes de verificar + 1 previo (comprobado el 2026-10-02). Los demás centros no se completan por ahora: al desarrollador solo le preocupa el CIAM.
 - **Tests:**
+  - 2026-10-02, acceso: `tests/Feature/Acceso` 12 passed, TF-ACC-11 y TF-DOC-78 en verde, TF-LW-BUS-06 en verde; Auditoría 29 passed; Intervención 296 passed (1 incomplete); Usuarios 63 passed; Citas 66 passed; AccesoDocumento 6 passed; Ciudadanía 103 passed y 2 fallos previos («Ver historia social», fallan igual sin el cambio); Supervisión 35 passed y los 3 fallos previos del BACKLOG. `ui:auditar` sin infracciones.
   - 2026-10-01, perfil por defecto: Agenda, Supervisión, Usuarios, Centro y `Intervencion/tests/Feature/Asignacion`: 387 passed, 1 incomplete, 4 failed. Tres son los de `SupervisionTest` ya anotados; el cuarto (`SolicitudCitaTest`, que contaba todas las alertas) está corregido y pasa. `ui:auditar` sin infracciones.
   - 2026-10-01, fix de actividad: `Modules/Intervencion/tests/Feature/Asignacion` y `Modules/Supervision/tests`: 70 passed, 3 failed (los tres de `SupervisionTest` ya anotados en BACKLOG, fallan igual sin el cambio). `ui:auditar` sin infracciones.
   - 2026-10-01, Agenda completo (`Modules/Agenda/tests`, incluye las citas): **173 passed**. `ui:auditar` sin infracciones tras `npm run build`.
@@ -38,7 +37,7 @@ Antes, el 2026-10-01: **Perfil horario por defecto (Agenda):** al adscribirse a 
 1. **El desarrollador prueba en staging asignación y citas** tras el despliegue (las pantallas solo se han probado con tests). Después, repasar juntos los errores o cambios que salgan.
    - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto.
    - Citas: bandeja de citación (solicitudes, huecos, citar, desistir), cita directa, detalle con reprogramar y cancelar, agenda del profesional (*Atender*, *Incomparecencia*, *Acompañantes*, *Pedir cambio*), «Solicitar cita» y vinculación en la ficha de Intervención, *Atender* → registro de atención → «Dar cita» en la ficha de Ciudadanía.
-2. **Colectivos protegidos** (BACKLOG, prioritario: `CLAUDE.md` §3): `FichaCiudadanoPage` no aplica `CiudadanoPolicy::view`. Revisar a la vez la bandeja de asignaciones (muestra nombres) y el buscador de personas de citación (`BuscadorPersonasCita`).
+2. **Informe de calidad** (`docs/instrucciones-cli/informe-calidad-vida360.md`): el punto 1 ya está hecho. Siguen el 3 (dos `Apunte` y dos policies) y la propuesta de prohibiciones para `CLAUDE.md`, que tiene que decidir el desarrollador. Pendientes del acceso en BACKLOG («Acceso a expedientes: pendientes»): personas relacionadas sin filtro, `VerFichaPage` sin comprobar la historia de la ficha, búsqueda por documento en `BuscarCiudadanoPage`.
 3. Pendientes de citas en BACKLOG: agenda en los mundos demo (paso 10), contrato con Cita Previa, enlace del cuadrante del supervisor con el detalle de la cita.
 4. Pendientes de la asignación en BACKLOG: cambio de referencia de un caso ya asignado desde la interfaz, autorización por centro dentro de los servicios, adaptador BDC.
 5. Rendimiento de `CiudadanoPage`/`plan-page` y polling de toasts (BACKLOG); `Modules/Supervision/tests` fuera de `phpunit.xml`.
@@ -47,6 +46,7 @@ Antes, el 2026-10-01: **Perfil horario por defecto (Agenda):** al adscribirse a 
 
 ## Contexto para retomar sin fricción
 
+- **Acceso a expedientes (2026-10-02):** toda pantalla que abre a una persona usa `AccesoExpediente` (`ciudadano()`/`historia()` en `mount()`; en computed, `registrar: false`). No cargar `Ciudadano` ni `HistoriaSocial` con `withoutGlobalScope` en una página. Un protegido que la policy no deja ver no muestra nombre, documento ni alias en ningún listado.
 - **Citas (2026-09-30):**
   - Solo escriben en `citas`, `solicitudes_cita` y `cita_eventos` los servicios de `Modules/Agenda/app/Services/Citas/`, `GestionAusenciaService` y `CitaCierreJob`. Todo cambio de estado deja un evento en `cita_eventos` (solo inserción).
   - Tests en `Modules/Agenda/tests/Feature/Citas/` con el trait `CitasTestSetup`.

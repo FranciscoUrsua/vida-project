@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-10-02 — Acceso: policy y auditoría de lectura de expediente
+
+Encargo `docs/instrucciones-cli/instrucciones-cli-acceso-auditoria.md` (y punto 1 del informe de calidad). La ficha del ciudadano solo comprobaba el rol, y las policies de historia y plan miraban `historias_sociales.ciudadano_protegido`, un indicador que nada pone a `true`: un protegido de otra UO se abría por Nivel 2. Casi ninguna lectura quedaba en `audits`.
+
+### Cambios
+- `App\Services\AccesoExpediente` (nuevo): `ciudadano()`, `historia()`, `historiaDe()` y `denegarCiudadano()`. Carga sin `AmbitoUoScope`, autoriza con la policy y anota la lectura antes de relanzar el 403. Protegido → `acceso_restringido`; resto → `ver`; contexto con `autorizado`, `motivo = denegado` y `acceso_protegido_id`. Una fila por apertura (atributo de la petición + `registrar: false` en los computed).
+- `CiudadanoPolicy::consultaExternaPermitida()` (público): criterio único de colectivo protegido; `HistoriaSocialPolicy` y `PlanDeIntervencionPolicy` delegan en él. Manda `ciudadanos.colectivo_extra_protegido` (se suma el de la historia).
+- `AccesoProtegido::scopeVigentePara()`: criterio único de aprobación vigente.
+- Cableado: `FichaCiudadanoPage` (mount y computed `ciudadano`, `historiaSocial`, `ucVigente`; `cancelarEdicion` y `guardar`), `CiudadanoPage` (mount y `ciudadano`), `PlanPage` (mount y `ciudadano`), `RegistrarValoracionPage`, `VerFichaPage` y `BuscarCiudadanoPage::registrarAccesoNivel2` (sin `Log::info` ni TODO; no redirige si no autoriza).
+- Rutas: la ficha sale del middleware de rol y de `audit.ciudadano` (el rol se comprueba en `mount()` para auditar el intento); el expediente pierde `can:view,historia`; `Route::bind('plan')` sin scope (403 y no 404).
+- Buscadores y bandeja (regla 6): `BuscarCiudadanoPage` devuelve nivel 3 sin nombre ni alias; el buscador de citación muestra «Persona con protección especial» sin nombre, documento ni botón (`BuscadorPersonasCita::visible()`, se retira `telefonoVisible()`); la bandeja de asignaciones usa el parcial `persona-pendiente` con la policy. Los buscadores de relación (ficha) y de UC (expediente) descartan protegidos que no se pueden ver.
+- Tests: `tests/Feature/Acceso/AccesoExpedienteTest.php` (TF-ACC-01 a 10 y 12, más el caso Nivel 2 de TF-ACC-05), TF-ACC-11 en `AccesoDocumentoTest`, TF-LW-BUS-06 afirma la fila en `audits`. Comprobado en negativo: sin la restricción de protegido fallan 02, 04, 07, 09 y 10. `PanelAccesosRecentesTest` y `Intervencion/.../AccesosExpedienteTest`: los recuentos incluyen la propia apertura; `RegistrarValoracionPageTest`: el usuario del fixture pasa a ser de intervención y adscrito a la UO (la página antes no autorizaba).
+- `docs/modulo-auditoria.md` §3.5.
+
+### Decisiones
+- **Nivel 2 se mantiene** (decisión del desarrollador): intervención abre sin aprobación el expediente de un no protegido de otra UO, con fila `ver`. TF-ACC-05 y 08 usan tramitación (sin `historia.leer`) para el 403.
+- Un 403 ordinario (sin permiso o fuera de ámbito) se anota como `ver` con `autorizado = false`; no se añade acción al enum. TF-ACC-12: sin rol operativo, fila `ver` denegada.
+- La fila de abrir un plan apunta a la historia (`auditable_type = HistoriaSocial`), con la ruta del plan en el contexto.
+- Documentos fuera del encargo: el controlador sigue siendo el único que anota la descarga.
+- `historiaDe()` no exige `historia.leer`: la ficha (también para tramitación) solo necesita saber si hay historia.
+
+---
+
 ## 2026-10-02 — Supervisión: «Mi equipo» marca la ficha de profesional sin cuenta
 
 Una ficha de profesional sin cuenta de usuario (p. ej. María López en el CIAM) no puede tener perfil horario ni entrar en el sorteo de referencias, y «Mi equipo» no lo indicaba.

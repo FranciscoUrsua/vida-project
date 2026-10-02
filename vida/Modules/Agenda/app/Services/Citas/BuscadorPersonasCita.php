@@ -18,8 +18,9 @@ use Modules\Ciudadania\Models\CiudadanoIdentificador;
  * No crea personas: si no aparece, se da de alta con el flujo normal.
  *
  * Colectivos protegidos (CLAUDE.md §3): quien no puede ver a la persona no la
- * encuentra por nombre; solo por su documento exacto, que implica tenerla
- * delante, y sin su teléfono (telefonoVisible()).
+ * encuentra por nombre. Por su documento exacto aparece, pero quien pinta el
+ * resultado no muestra nombre, documento ni teléfono (visible()): solo que hay
+ * una restricción.
  */
 class BuscadorPersonasCita
 {
@@ -56,30 +57,20 @@ class BuscadorPersonasCita
 
         return $consulta->limit(self::MAX_DESCIFRADOS)->get()
             ->filter(fn (Ciudadano $c) => str_contains(mb_strtolower($c->nombre_completo), $buscado))
-            ->reject(fn (Ciudadano $c) => ! $this->puedeVer($c, $usuario))
+            ->reject(fn (Ciudadano $c) => ! $this->visible($c, $usuario))
             ->take($limite)
             ->values();
     }
 
     /**
-     * Datos de contacto que se muestran de la persona: el teléfono de alguien
-     * de un colectivo protegido solo lo ve quien puede ver a esa persona.
+     * Si se pueden mostrar los datos personales de la persona: siempre, salvo
+     * colectivo protegido que la policy no deja ver al usuario.
      *
-     * @param Ciudadano $ciudadano
-     * @param User $usuario
-     * @return string|null
-     */
-    public function telefonoVisible(Ciudadano $ciudadano, User $usuario): ?string
-    {
-        return $this->puedeVer($ciudadano, $usuario) ? $ciudadano->telefono : null;
-    }
-
-    /**
      * @param Ciudadano $ciudadano
      * @param User $usuario
      * @return bool
      */
-    private function puedeVer(Ciudadano $ciudadano, User $usuario): bool
+    public function visible(Ciudadano $ciudadano, User $usuario): bool
     {
         return ! $ciudadano->colectivo_extra_protegido || $usuario->can('view', $ciudadano);
     }
