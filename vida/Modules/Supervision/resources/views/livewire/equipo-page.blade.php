@@ -39,6 +39,11 @@
                                 @if($prof->usuario?->id === auth()->id())
                                     <span class="badge bg-secondary-subtle text-secondary-emphasis ms-1">Tú</span>
                                 @endif
+                                {{-- El perfil horario se asocia a la cuenta: sin ella no hay horario ni sorteo --}}
+                                @if($prof->usuario === null)
+                                    <span class="badge bg-danger-subtle text-danger-emphasis ms-1"
+                                          title="Sin cuenta no puede tener horario ni recibir casos. Pide su alta como usuario.">Sin cuenta de usuario</span>
+                                @endif
                                 @switch($this->estadosHorario[$prof->usuario?->id] ?? null)
                                     @case('no_personalizado')
                                         <span class="badge bg-warning-subtle text-warning-emphasis ms-1">Horario no personalizado</span>

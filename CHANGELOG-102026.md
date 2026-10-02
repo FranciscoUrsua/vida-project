@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-10-02 — Supervisión: «Mi equipo» marca la ficha de profesional sin cuenta
+
+Una ficha de profesional sin cuenta de usuario (p. ej. María López en el CIAM) no puede tener perfil horario ni entrar en el sorteo de referencias, y «Mi equipo» no lo indicaba.
+
+### Cambios
+- `equipo-page.blade.php`: badge «Sin cuenta de usuario» (rojo suave) junto al nombre, con un `title` que explica la consecuencia y pide el alta como usuario.
+- Test: `PerfilHorarioPorDefectoTest::mi_equipo_marca_la_ficha_de_profesional_sin_cuenta_de_usuario`.
+
+### Decisiones
+- Solo etiqueta; el alta de la cuenta sigue por el circuito habitual (Filament), sin acción nueva en «Mi equipo».
+
+---
+
 ## 2026-10-01 — Asignación: profesionales dados de baja con casos vigentes
 
 Error 500 en staging en `supervision/asignaciones/actividad` («Undefined array key 26»): el usuario `ts1.ciam@demo.es` se borró desde Filament (soft delete) conservando 58 referencias vigentes, y `ActividadCasosService::resumen()` no cargaba usuarios borrados.

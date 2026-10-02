@@ -263,6 +263,31 @@ class PerfilHorarioPorDefectoTest extends TestCase
     }
 
     #[Test]
+    public function mi_equipo_marca_la_ficha_de_profesional_sin_cuenta_de_usuario(): void
+    {
+        $conCuenta = $this->cuentaDeProfesional('concuenta');
+        $this->adscribir($conCuenta);
+
+        $html = Livewire::actingAs($this->supervisor)->test(EquipoPage::class)->html();
+        $this->assertStringNotContainsString('Sin cuenta de usuario', $html);
+
+        // Ficha creada por el supervisor directamente en la UO, sin cuenta
+        Profesional::create([
+            'nombre' => 'Sincuenta',
+            'apellido1' => 'Prueba',
+            'sexo' => 'F',
+            'cargo_id' => $conCuenta->profesional->cargo_id,
+            'tipo_relacion_id' => $conCuenta->profesional->tipo_relacion_id,
+            'fecha_inicio' => '2020-01-01',
+            'activo' => true,
+            'unidad_organizativa_id' => $this->uoSupervisor->id,
+        ]);
+
+        Livewire::actingAs($this->supervisor)->test(EquipoPage::class)
+            ->assertSeeInOrder(['Sincuenta', 'Sin cuenta de usuario']);
+    }
+
+    #[Test]
     public function el_cuadrante_solo_muestra_perfiles_vigentes(): void
     {
         PerfilHorarioProfesional::where('usuario_id', $this->profesional3->id)

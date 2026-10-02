@@ -27,7 +27,8 @@ Módulo: Agenda / Supervisión
 - El horario por defecto va de apertura a cierre sin pausa (en el CIAM son 45 h/semana). Valorar descontar una pausa o usar la jornada estándar del tipo de relación.
 - Si una UO llega a tener varios centros, el profesional recibe un perfil en cada uno; habría que decidir el centro de destino al adscribir.
 - «Mi equipo», el cuadrante y la asignación resuelven el centro con `Centro::where('unidad_organizativa_id', …)->first()` repetido en varias páginas: extraerlo a un único sitio.
-- Las fichas de profesional sin cuenta de usuario no pueden tener horario ni entrar en el sorteo; Mi equipo no lo indica.
+- ~~Las fichas de profesional sin cuenta de usuario no pueden tener horario ni entrar en el sorteo; Mi equipo no lo indica.~~ Resuelto el 2026-10-02: badge «Sin cuenta de usuario».
+- Varias UO con varios centros: el desarrollador lo está pensando (2026-10-02).
 
 ---
 
