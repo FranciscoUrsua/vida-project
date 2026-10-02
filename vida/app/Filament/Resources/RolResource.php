@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\RolResource\Pages;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -12,15 +13,21 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Usuarios\Models\ConfiguracionRol;
 use Spatie\Permission\Models\Role;
 
 /**
- * Resource Filament para gestionar Roles y su matriz de permisos.
+ * Backoffice «Roles y permisos»: en una sola pantalla, los permisos atómicos de
+ * cada rol y el nivel de supervisión que exige su asignación (§2.8).
  *
- * Permite visualizar y modificar qué permisos atómicos tiene cada rol.
- * Solo el rol adm_sistema debe tener acceso a este recurso (sección 4.5).
+ * El nivel vive en `configuracion_roles` (los roles de Spatie no se tocan): las
+ * páginas de creación y edición lo cargan y lo guardan con ConfiguracionRol.
+ * Solo adm_sistema: adm_usuarios no configura roles (§2.3) y no debe poder
+ * relajar la supervisión de las asignaciones que él mismo hace.
  *
  * Accesible en /admin/rols.
+ *
+ * @see docs/modulo-usuarios-permisos.md secciones 2.8 y 4.5
  */
 class RolResource extends Resource
 {
@@ -30,13 +37,13 @@ class RolResource extends Resource
 
     protected static ?string $navigationLabel = 'Roles y permisos';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Organización';
+    protected static string|\UnitEnum|null $navigationGroup = 'Usuarios y Profesionales';
 
     protected static ?string $modelLabel = 'Rol';
 
     protected static ?string $pluralModelLabel = 'Roles';
 
-    protected static ?int $navigationSort = 70;
+    protected static ?int $navigationSort = 3;
 
     /**
      * Define el formulario de roles.
@@ -53,6 +60,19 @@ class RolResource extends Resource
                         ->label('Nombre del rol')
                         ->required()
                         ->maxLength(255),
+                ]),
+
+            Section::make('Supervisión de la asignación')
+                ->description('Qué control exige asignar este rol a un usuario.')
+                ->schema([
+                    Select::make('nivel_supervision')
+                        ->label('Nivel de supervisión')
+                        ->options([
+                            ConfiguracionRol::APROBACION_PREVIA => 'Aprobación previa — la asignación no es efectiva hasta que el supervisor la aprueba',
+                            ConfiguracionRol::ALERTA_SUPERVISADA => 'Alerta supervisada — efectiva inmediatamente, el supervisor recibe una alerta',
+                        ])
+                        ->required()
+                        ->default(ConfiguracionRol::ALERTA_SUPERVISADA),
                 ]),
 
             Section::make('Permisos asignados')
@@ -80,6 +100,13 @@ class RolResource extends Resource
                     ->label('Nombre')
                     ->searchable()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('nivel_supervision')
+                    ->label('Supervisión de la asignación')
+                    ->badge()
+                    ->getStateUsing(fn (Role $record): string => ConfiguracionRol::nivelPara($record))
+                    ->formatStateUsing(fn (string $state): string => ConfiguracionRol::ETIQUETAS[$state] ?? $state)
+                    ->color(fn (string $state): string => $state === ConfiguracionRol::APROBACION_PREVIA ? 'danger' : 'warning'),
 
                 Tables\Columns\TextColumn::make('permissions_count')
                     ->label('Permisos')

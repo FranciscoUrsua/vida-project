@@ -48,16 +48,6 @@ class Distrito extends Model
     ];
 
     /**
-     * Zonas pertenecientes a este distrito.
-     *
-     * @return HasMany<Zona>
-     */
-    public function zonas(): HasMany
-    {
-        return $this->hasMany(Zona::class, 'distrito_id');
-    }
-
-    /**
      * Barrios del distrito.
      *
      * @return HasMany<Barrio, $this>

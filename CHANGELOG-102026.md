@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-10-02 — Filament: «Roles y permisos» en una sola pantalla y retirada de Zonas
+
+### Cambios
+- **Roles y permisos:** `RolResource` recoge ahora también el nivel de supervisión de la asignación (sección «Supervisión de la asignación», obligatoria) y lo muestra como columna del listado. Las páginas `CreateRol` y `EditRol` lo leen con `ConfiguracionRol::nivelPara()` y lo guardan con `ConfiguracionRol::fijarNivel()` (nuevo; una fila por rol). `ConfiguracionRol::ETIQUETAS` (nuevo) da las etiquetas.
+- Se elimina `ConfiguracionRolResource` (`/admin/configuracion-rols`). El menú pasa a tener una sola entrada «Roles y permisos», en «Usuarios y Profesionales» (orden 3, donde estaba la de supervisión).
+- **Zonas:** se eliminan `ZonaResource`, el modelo `Modules\Organizacion\Models\Zona` y `Distrito::zonas()`. Migración `2026_10_02_100001_drop_zonas_table` (la tabla estaba vacía en la base compartida y nada la referenciaba; el `down()` la recrea). En el listado de distritos, la columna «Zonas» pasa a «Barrios» y «Secciones censales».
+- Tests: `Modules/Usuarios/tests/Feature/RolesBackofficeTest.php` (8).
+- Docs: glosario («Zona»), `modulo-usuarios-permisos.md` §2.8.
+
+### Decisiones
+- La pantalla común queda **solo para `adm_sistema`**, como estaba la de permisos. La de supervisión admitía también `adm_usuarios`, pero el documento de permisos le niega la configuración de roles y, además, podría relajar la supervisión de las asignaciones que él mismo hace.
+- Grupo de menú: «Usuarios y Profesionales», junto a usuarios y profesionales (la de permisos estaba en «Organización»).
+
+---
+
 ## 2026-10-02 — Acceso: policy y auditoría de lectura de expediente
 
 Encargo `docs/instrucciones-cli/instrucciones-cli-acceso-auditoria.md` (y punto 1 del informe de calidad). La ficha del ciudadano solo comprobaba el rol, y las policies de historia y plan miraban `historias_sociales.ciudadano_protegido`, un indicador que nada pone a `true`: un protegido de otra UO se abría por Nivel 2. Casi ninguna lectura quedaba en `audits`.

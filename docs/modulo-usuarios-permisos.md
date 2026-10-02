@@ -232,7 +232,7 @@ La asignación de roles por parte de `adm_usuarios` está sujeta a supervisión 
 
 **Alerta supervisada** (resto de roles): la asignación es efectiva inmediatamente. Se genera una alerta que el supervisor de la UO superior debe reconocer explícitamente como leída. El módulo de alertas gestiona el escalado si la alerta no se reconoce en el plazo configurado.
 
-El nivel de supervisión requerido por cada rol es un atributo configurable desde el backoffice, no un valor hardcodeado. Se almacena en la tabla de configuración de roles (ver sección 4.2).
+El nivel de supervisión requerido por cada rol es un atributo configurable desde el backoffice, no un valor hardcodeado. Se almacena en la tabla de configuración de roles (ver sección 4.2). Se configura en Filament → Usuarios y Profesionales → «Roles y permisos», la misma pantalla que los permisos del rol, solo para `adm_sistema` (2026-10-02).
 
 Reglas añadidas el 2026-09-25:
 

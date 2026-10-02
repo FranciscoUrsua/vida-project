@@ -37,6 +37,16 @@ class ConfiguracionRol extends Model
     public const ALERTA_SUPERVISADA = 'alerta_supervisada';
 
     /**
+     * Etiqueta corta de cada nivel, para listados y selectores del backoffice.
+     *
+     * @var array<string, string>
+     */
+    public const ETIQUETAS = [
+        self::APROBACION_PREVIA => 'Aprobación previa',
+        self::ALERTA_SUPERVISADA => 'Alerta supervisada',
+    ];
+
+    /**
      * Roles que requieren aprobación previa cuando no tienen configuración explícita.
      *
      * Es el nivel documentado en 2.8. Sin este respaldo, un rol crítico sin fila
@@ -93,5 +103,17 @@ class ConfiguracionRol extends Model
         return in_array($rol->name, self::ROLES_APROBACION_POR_DEFECTO, true)
             ? self::APROBACION_PREVIA
             : self::ALERTA_SUPERVISADA;
+    }
+
+    /**
+     * Fija el nivel de supervisión de un rol: una sola fila por rol.
+     *
+     * @param Role $rol Rol configurado.
+     * @param string $nivel APROBACION_PREVIA o ALERTA_SUPERVISADA.
+     * @return void
+     */
+    public static function fijarNivel(Role $rol, string $nivel): void
+    {
+        self::updateOrCreate(['rol_id' => $rol->id], ['nivel_supervision' => $nivel]);
     }
 }

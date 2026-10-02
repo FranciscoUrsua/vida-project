@@ -92,9 +92,14 @@ class DistritoResource extends Resource
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('zonas_count')
-                    ->label('Zonas')
-                    ->counts('zonas')
+                Tables\Columns\TextColumn::make('barrios_count')
+                    ->label('Barrios')
+                    ->counts('barrios')
+                    ->alignCenter(),
+
+                Tables\Columns\TextColumn::make('secciones_count')
+                    ->label('Secciones censales')
+                    ->counts('secciones')
                     ->alignCenter(),
 
                 Tables\Columns\IconColumn::make('activo')

@@ -6,6 +6,8 @@
 
 ## Tarea completada
 
+**Filament (2026-10-02):** «Roles y permisos» fundido en una sola pantalla (permisos + nivel de supervisión, solo `adm_sistema`, grupo «Usuarios y Profesionales») y retirada de «Zonas» (migración `2026_10_02_100001_drop_zonas_table`, se aplica con el despliegue). `RolesBackofficeTest` 8 passed; Usuarios 71 passed.
+
 **Acceso y auditoría de lectura de expedientes** (2026-10-02, `instrucciones-cli-acceso-auditoria.md`): el hueco de colectivos protegidos está **cerrado**. Ficha, expediente, plan, valoración y ficha de valoración autorizan y auditan en `App\Services\AccesoExpediente`; las policies de historia y plan delegan en `CiudadanoPolicy::consultaExternaPermitida()`; buscadores y bandeja de asignaciones no muestran a protegidos sin acceso. TF-ACC-01 a 12 en verde. Nivel 2 se mantiene (decisión del desarrollador). Antes, ese mismo día: badge «Sin cuenta de usuario» en Mi equipo. Detalle en `CHANGELOG-102026.md`.
 
 ---

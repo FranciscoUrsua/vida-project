@@ -376,7 +376,7 @@ Formulario configurable que el TSR cumplimenta durante una valoración estructur
 **Implicaciones para VIDA:** La zona es el nivel de granularidad territorial por debajo del distrito. Permite asignar cargas de trabajo entre trabajadores sociales de un mismo centro.
 
 **Decisiones de modelado:**
-- Entidad `Zona` como agrupación configurable de unidades censales, vinculada a `Distrito` y a `Profesional` de referencia.
+- ~~Entidad `Zona` como agrupación configurable de unidades censales, vinculada a `Distrito` y a `Profesional` de referencia.~~ Retirada el 2026-10-02 (tabla `zonas` eliminada, estaba vacía): el territorio por debajo del distrito se modela con el catálogo oficial de **barrios y secciones censales** (`docs/modulo-asignacion.md`), y la carga de trabajo se reparte con la asignación del profesional de referencia.
 
 ---
 
