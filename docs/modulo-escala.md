@@ -1,6 +1,6 @@
 # Módulo Escalas
 
-> **Estado:** especificado y diseñado. Pendiente de implementación.
+> **Estado:** fase 1 implementada el 2026-05-26 (modelos, `TipoEscalaResource` y escalas iniciales; `CHANGELOG-052026.md`). Pendiente la fase 2: aplicación del pase desde la Historia Social (ver `BACKLOG.md`).
 
 Las escalas son instrumentos estandarizados de valoración que el profesional aplica a un ciudadano para obtener una puntuación objetiva sobre un aspecto concreto de su situación (grado de dependencia funcional, riesgo de exclusión, carga del cuidador, etc.). A diferencia de las fichas de valoración —que recogen información heterogénea que el TSR interpreta con criterio profesional—, las escalas tienen una lógica interna predefinida: la puntuación total es la suma de los valores de las respuestas, y su interpretación está embebida en el propio instrumento.
 

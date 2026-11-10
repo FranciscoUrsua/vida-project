@@ -30,7 +30,7 @@ Source Sans 3 (UI) · Source Serif 4 (display only) · JetBrains Mono (codes, DN
 - Cards: white bg, 1px ink-200 border, `--shadow-1`, 8px radius, 20px padding.
 - Focus ring is mandatory: Bootstrap's focus ring (`$focus-ring-*` in `_bootstrap-overrides.scss`).
 - AI-assisted output carries the `Sugerencia IA` chip + `<x-heroicon-o-sparkles />` icon and needs professional validation.
-- Protected records (menores, VG): show the protected banner; never hide the status.
+- Protected records (menores, VG): show the protected banner only to intervencion when they try to open sensitive data (social situation, health, Historia Social content). Never show it on identification/contact views or to roles without access to sensitive data (consulta_basica, tramitacion): the banner itself would reveal the protection.
 - Bootstrap 5.3 is the primitive layer for Blade/Livewire UI: buttons, forms, tables, modals, grid, spacing. Install locally via npm + Vite, never via CDN.
 - Layer order: (1) VIDA tokens as Bootstrap variables → (2) Bootstrap standard classes → (3) shared `op-*` product components → (4) screen-specific classes only for genuine structural needs.
 - Never create `xxx-btn`, `xxx-input`, `xxx-modal` classes when Bootstrap already covers it.

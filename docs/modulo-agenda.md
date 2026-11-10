@@ -1,7 +1,7 @@
 # Módulo Agenda
 
 **Módulo Laravel:** `Modules\Agenda`  
-**Estado:** Fase 1 completa — lógica de dominio y tests funcionales implementados; interfaz Livewire/Filament pendiente  
+**Estado:** Fase 1 completa (dominio y tests) e interfaz implementada (revisado el 2026-11-10 contra el código). Hay: en Filament, `HorarioCentroResource` (con la sección «Citas»), `TipoSlotResource`, `TipoCitaResource`, `TipoEspacioResource`, `PerfilHorarioProfesionalResource`, `CuadranteMesResource` y `ConfiguracionHorarioLaboralResource`; en Livewire, para supervisión, cuadrante, ausencias, excepciones y eventos (`agenda.supervisor.*`), semana tipo y cuadrante mensual del centro, y el perfil horario desde «Mi equipo»; agenda del profesional en Intervención (`AgendaPage`: atender, incomparecencia, acompañantes, pedir cambio); citación: bandeja, cita directa y detalle de la cita (`agenda.citas.*`, ver `modulo-citas.md`). Falta: citas en los mundos demo (paso 10 de citas), enlace del cuadrante del supervisor con el detalle de la cita, tipo de slot genérico en modo `basico` y el soporte de varias UO con varios centros (ver `BACKLOG.md`).  
 **Última revisión:** mayo 2026  
 **Dependencias:** Módulo Centro, Módulo Usuarios/Permisos, Módulo Mensajes, Módulo Intervención (consumidor), Módulo Integraciones (canal API externo)
 

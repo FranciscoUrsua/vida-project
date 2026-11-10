@@ -174,11 +174,13 @@ Este rol reúne titulaciones distintas y no distingue entre ellas. Qué actos co
 
 ### ROL 5 — Tramitación (`tramitacion`)
 
+> Implantación diferida. Lo decidido y lo pendiente está en `docs/roles-consulta-basica-tramitacion.md` §4.
+
 **Perfil:** Auxiliares administrativos, administrativos, jefes de negociado.
 
 **Capacidades:**
 - Alta y modificación de ciudadanos en el sistema.
-- Gestión de citas y agendas.
+- Gestión de citas y agendas. Gestiona citas con los permisos de `docs/modulo-citas.md` §7 (los mismos que `consulta_basica`).
 - Apertura, cierre y reactivación de Historias Sociales.
 - Incorporación de personas a unidades de convivencia.
 - Gestión de traslados y fusiones de registros.
@@ -213,12 +215,15 @@ El rol depende del servicio, no de la titulación: las abogadas integradas en el
 
 **Perfil:** Ordenanzas, personal de información y control, personal auxiliar de programas temporales de empleo en servicios de gestión directa, personal auxiliar de gestión indirecta.
 
-**Capacidades:**
-- Consulta básica: acceso a la ficha/cabecera del ciudadano (datos de identificación), sin acceso al contenido de la Historia Social.
-- Visualización de citas pendientes.
-- Gestión básica de soporte: crear y modificar citas, modificar datos de identificación del ciudadano, subida de documentos a carpeta de usuario o a procesos administrativos de solicitudes.
+**Capacidades** (diseño cerrado, sin implementar; detalle en `docs/roles-consulta-basica-tramitacion.md` §3):
+- Buscar ciudadanos y abrir su ficha: identificación y contacto, unidad de convivencia (solo lectura), relaciones, existencia y estado de la Historia Social con su profesional de referencia, e historial de citas. Sin prestaciones, situación social ni contenido de la Historia Social.
+- Dar de alta ciudadanos, con el control de duplicados del flujo existente (`AltaCiudadano`).
+- Modificar datos de identificación y contacto.
+- Crear, editar y cerrar relaciones entre ciudadanos. No edita la unidad de convivencia.
+- Gestionar citas según `docs/modulo-citas.md` §7: bandeja de citación, dar citas, reprogramar y cancelar (no las propias), identificar citas externas pendientes.
+- Subir documentos a la carpeta del ciudadano o a una solicitud, y gestionar solo los suyos durante el día de la subida (sustituir, recatalogar, retirar).
 
-**Ámbito por UO:** Limitado a su UO.
+**Ámbito por UO:** Limita la operación (citas, documentos, modificaciones), no la consulta: puede abrir la ficha de cualquier ciudadano (ver documento de roles §2).
 
 **Nivel de supervisión:** Alerta supervisada con reconocimiento obligatorio.
 
@@ -405,6 +410,14 @@ configuracion.acceder
 trazabilidad.consultar
 colectivo_protegido.solicitar_acceso
 colectivo_protegido.aprobar_acceso
+```
+
+Permisos nuevos previstos para `consulta_basica` y `tramitacion` (`docs/roles-consulta-basica-tramitacion.md` §5). **No implementados:**
+
+```
+historia.ver_estado          # existencia, estado y profesional de referencia de la Historia Social
+cita.ver_historial           # historial de citas en la ficha del ciudadano
+documento.gestionar_propios  # ver, sustituir, recatalogar y retirar los documentos propios del día
 ```
 
 Los **roles** son configurables desde el backoffice: el administrador del sistema puede ver qué permisos tiene cada rol, añadir o quitar permisos de un rol, y crear nuevos roles asignándoles permisos existentes. Crear un permiso nuevo sigue requiriendo código porque implica implementar la verificación correspondiente en el sistema.

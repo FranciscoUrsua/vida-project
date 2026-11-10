@@ -1,9 +1,9 @@
 # Decisiones pendientes — VIDA 360
 
 > Inventario de decisiones pospostas durante el análisis funcional, organizado por módulo.
-> Generado: mayo 2026. Actualizado: junio 2026. Fuente: revisión de `docs/`, `BACKLOG.md` y `CHANGELOG.md`.
+> Generado: mayo 2026. Actualizado: 10 noviembre 2026. Fuente: revisión de `docs/`, `BACKLOG.md` y `CHANGELOG-*.md`.
 
-**Total: 32 decisiones** — 4 bloqueantes · 15 técnicas/organizativas · 13 diferidas a fases posteriores
+**Total: 34 decisiones** — 4 bloqueantes · 16 técnicas/organizativas · 14 diferidas a fases posteriores
 
 ---
 
@@ -28,7 +28,6 @@
 | A-03 | **Integración RRHH vía API para excepciones de profesional** | 🔵 técnica | Campo `origen = api_rrhh` en `ExcepcionProfesional` preparado; adaptador mock activo. Diferido hasta identificar el sistema de RRHH del municipio adoptante. |
 | A-04 | **Onboarding de un centro nuevo en el módulo Agenda** | ⚪ diferida | Configuración mínima necesaria para activar el módulo en un centro nuevo y comportamiento del sistema si no existe `HorarioCentro`. Diferido al diseño de la interfaz de onboarding. |
 | A-05 | **Estrategia de migración entre modos de agenda** | ⚪ diferida | La subida de modo `basico` → `estandar` es compatible sin transformación de datos. Documentar explícitamente en la guía de adopción. |
-| A-06 | **Interfaz Livewire / Filament del módulo Agenda** | 🔵 técnica | Pendiente de implementar toda la capa de presentación: vista de agenda del profesional, gestión de ausencias, cuadrante del supervisor, formularios de eventos. La pantalla `AgendaPage` (fixture de desarrollo) está operativa desde la Entrega 1 (2026-06-01), pero usa datos ficticios. Ver `docs/modulo-agenda.md §5`. |
 | A-07 | **Generación IA de cuadrantes (modo avanzado)** | ⚪ diferida | Diseño del componente IA: modelo, inputs, outputs, criterios de calidad. Requiere datos históricos suficientes. Diferido hasta que el módulo lleve al menos un año en producción. |
 
 ---
@@ -39,8 +38,6 @@
 
 | # | Decisión | Tipo | Notas |
 |---|---|---|---|
-| CIU-01 | **Tabla y modelo `CiudadanoIdentificador`** | 🔴 bloqueante | La búsqueda por `doc`/`hsu` devuelve vacío. El DNI en la cabecera del ciudadano también depende de `CiudadanoIdentificador::activo()`. Desbloquea varias funcionalidades de la UI. |
-| CIU-02 | **Tabla y modelo `UnidadDeConvivencia`** | 🔵 técnica | El bloque UC de `FichaCiudadanoPage` tiene TODO explícito. Necesario para el botón "Ver ficha" y para las prestaciones asociadas a UC. |
 | CIU-03 | **`centroActivo()` en `CiudadanoPage`** | 🔵 técnica | Pendiente de implementación en la cabecera de ciudadano. Requiere la relación profesional↔centro del módulo Centro. |
 
 ---
@@ -62,7 +59,6 @@
 
 | # | Decisión | Tipo | Notas |
 |---|---|---|---|
-| C-01 | **Diseño de la entidad Servicio** | ~~🔴 bloqueante~~ → **✅ Resuelto** | Implementado en mayo 2026 (Módulo Centro — Entidad Servicio Fase 2, 2026-05-21). Cerrado. |
 | C-02 | **Conectar `PrescripcionService` al TSR activo del ciudadano** | 🔵 técnica | `PrescripcionService::liberarPlaza()` usa un resolver inyectable. Actualmente devuelve `null`. En producción debe conectarse al módulo Ciudadanía o a `HistoriaSocial` de Intervención cuando esté disponible. Ref: `Modules/Centro/app/Services/PrescripcionService.php`. |
 | C-03 | **Gestión presupuestaria de centros privados puros** | ⚪ diferida | Coste por plaza contratada y distribución presupuestaria anual para centros tipo `privado_puro` (pensiones, hoteles). Diferido por complejidad y dependencia de procesos administrativos externos. |
 
@@ -127,18 +123,30 @@
 
 | Módulo | Bloqueantes | Técnicas/Org. | Diferidas | Total |
 |---|---|---|---|---|
-| Agenda | — | 3 | 3 | **6** *(A-01 cerrado; A-06, A-07 añadidos)* |
-| Ciudadanía | 1 | 2 | — | **3** *(nuevo, junio 2026)* |
-| Intervención | 1 | 2 | 3 | **6** *(+I-05, I-06)* |
-| Centros | — | 1 | 1 | **2** *(C-01 cerrado)* |
-| Prestaciones | 1 | 2 | — | **3** *(+P-03)* |
+| Agenda | — | 2 | 3 | **5** *(A-06 resuelto)* |
+| Ciudadanía | — | 1 | — | **1** *(CIU-01 y CIU-02 resueltos)* |
+| Intervención | 1 | 2 | 3 | **6** |
+| Centros | — | 1 | 1 | **2** *(C-01 retirado del fichero)* |
+| Prestaciones | 1 | 2 | — | **3** |
 | Usuarios y permisos | 1 | 1 | — | **2** |
 | Mensajes y alertas | — | 1 | 2 | **3** |
-| Integraciones | 1 | 3 | — | **6** *(+ 2 org.)* |
+| Integraciones | 1 | 5 | — | **6** *(3 técnicas + 2 organizativas)* |
 | Transversal | — | 1 | 5 | **6** |
-| **Total** | **4** | **16** | **13** | **33** |
+| **Total** | **4** | **16** | **14** | **34** |
 
 ---
 
-*Documento actualizado junio 2026.
+## Decisiones pendientes registradas en otros documentos
+
+Desde septiembre de 2026 las decisiones pendientes de cada diseño se registran en su propio documento. No se copian aquí:
+
+- `docs/modulo-asignacion.md` §11
+- `docs/modulo-citas.md` §11
+- `docs/modulo-tipo-centro.md` §13
+- `docs/roles-consulta-basica-tramitacion.md` §4.2
+- `docs/propuesta-requisitos-y-tareas-guiadas.md` («Por decidir»)
+
+---
+
+*Documento actualizado el 10 de noviembre de 2026.
 Para registrar la resolución de una decisión, mover la entrada a `CHANGELOG.md` con la nota "Resuelto en [fecha]" y eliminarla de este fichero.*

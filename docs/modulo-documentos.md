@@ -15,6 +15,8 @@ El módulo Documentos cubre dos necesidades diferenciadas que comparten infraest
 
 **Custodia de documentos externos:** los profesionales incorporan al expediente documentos generados fuera de VIDA 360 — informes médicos, certificados, documentación de identidad, resoluciones de otras administraciones, etc. Cada documento se clasifica con un tipo documental, se guarda cifrado y se vincula a una o varias personas (un certificado de convivencia se sube una vez y se vincula a cada miembro de la unidad), y según el tipo también a planes de intervención o valoraciones.
 
+Los documentos custodiados están disponibles para cualquier profesional con acceso al expediente, **con una excepción: `consulta_basica`**, que solo ve los documentos que ha subido él mismo y solo durante el día natural de la subida (diseño cerrado, sin implementar; `docs/roles-consulta-basica-tramitacion.md` §3.3).
+
 **Generación y firma de informes profesionales:** los profesionales del sistema (trabajadores sociales, psicólogos, abogados u otros perfiles colegiados) generan informes a partir de plantillas configurables. El informe nace como borrador, se completa con datos estructurados extraídos de la Historia Social y contenido libre redactado por el profesional, y finalmente se firma con el Certificado de Empleado Público del autor mediante AutoFirma. Una vez firmado, el informe queda inmutable y puede publicarse en la carpeta ciudadana.
 
 El aspecto formal de los informes (logotipos, cabeceras, pies de página) se gestiona mediante **estilos de informe** vinculados a la jerarquía de Unidades Organizativas. Un supervisor define el estilo de su UO; las UOs descendientes heredan ese estilo campo a campo y pueden sobreescribir campos concretos sin afectar al resto. La tipografía es transversal a toda la organización y la configura el administrador del sistema. Las plantillas de informe (estructura de secciones y contenido) son independientes del estilo y también tienen alcance jerárquico: una plantilla creada en una UO está disponible para todos los profesionales de esa UO y sus descendientes.
@@ -46,6 +48,10 @@ El Plan de Intervención (PISO) es un caso especial: requiere firma del profesio
 | `propuestas_eliminacion` | `PropuestaEliminacion` | Propuestas de destrucción por plazo vencido: estado (`pendiente`, `aprobada`, `rechazada`), ids de versiones propuestas y de las excluidas al aprobar, quién y cuándo la resolvió, acta. No se borran |
 
 Las tablas `informes.documento_id`, `piso_firmados.documento_id` y `firmas_plan.documento_firmado_id` apuntan al documento lógico.
+
+**Pendiente para los documentos propios del día de `consulta_basica`** (`docs/roles-consulta-basica-tramitacion.md` §3.3; revisado contra el código el 2026-11-10). Ya existen las versiones del fichero (`documento_versiones`, una vigente) y los vínculos n:M con baja lógica. Falta:
+- **Retirada lógica del documento** con quién, cuándo y motivo: `EstadoDocumento` solo tiene `pendiente_validacion`, `vigente`, `rechazado` y `destruido`.
+- **Vínculo con una solicitud administrativa:** los vínculos admiten `Ciudadano`, `PlanDeIntervencion` y `Valoracion`, no una solicitud.
 
 **Custodia v1 (sustituida).** La tabla anterior (`documentable` morph, `tipo_documento_id` a `catalogos_sistema`, fichero en claro) se eliminó sin migrar datos porque no había ninguna fila. El grupo `documento.tipo` de `catalogos_sistema` se conserva hasta decidir su retirada.
 

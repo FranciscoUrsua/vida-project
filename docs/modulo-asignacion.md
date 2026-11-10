@@ -205,6 +205,8 @@ Cada caso se resuelve con asignación manual y motivo.
 
 ## 8. Configuración
 
+> Cuando se implemente `docs/modulo-tipo-centro.md`, la adscripción, el modo de referencia, la ventana de reparto y los meses de inactividad pasan del centro al tipo (ver su §7).
+
 | Dónde | Qué | Por defecto |
 |---|---|---|
 | Centro | Tipo de centro | — |

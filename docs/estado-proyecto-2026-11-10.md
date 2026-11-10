@@ -101,3 +101,14 @@ Ejecutar Tipo de Centro (rama A): es requisito de CIAM, de los requisitos de acc
 Corregir la creación de planes especializados (PIA), imprescindible para el CIAM.
 Delta de citas + consulta_basica en un mismo juego de instrucciones y tests (RN-05 ter, §6 bis, ficha por rol, documentos propios del día).
 Seguir con requisitos de acción y tareas guiadas cuando lo anterior esté en verde.
+
+Seguimiento
+
+Puesta al día documental del 2026-11-10 (docs/instrucciones-cli/2026-11-puesta-al-dia-documental.md; detalle en CHANGELOG-112026.md). Una línea por punto de §3:
+
+3.A Estados desactualizados — Resuelto. modulo-citas.md y modulo-agenda.md reescriben su línea Estado; también se corrigen modulo-auditoria.md y modulo-escala.md, que decían «pendiente de implementación». decisiones-pendientes.md actualizado (34 decisiones, totales recalculados). modulo-asignacion.md del repo ya decía «implementado».
+3.B Dos versiones de modulo-citas.md — Resuelto en documentación: la revisión de la tarde sustituye a la del repo. RN-05 ter ya la cumple el código (CitaPolicy, SolicitudCitaPolicy y AlcanceCentro). §6 bis no está implementado: BACKLOG «Citas: delta de la revisión del 30 sep».
+3.C Decisiones de roles no propagadas — Resuelto: modulo-usuarios-permisos.md (ROL 5, ROL 7, §4.4), modulo-ciudadania.md, modulo-documentos.md, docs/design-system/SKILL.md y README.md. Implementación pendiente: BACKLOG «consulta_basica: diseño cerrado sin instrucciones de implementación».
+3.D Tipo de Centro frente a lo construido — Resuelto en documentación: modulo-tipo-centro.md §11 (rama A), nota al principio de modulo-asignacion.md §8, aviso del paso 3 en BACKLOG («Configurar los centros reales en staging») y remisión a Tipo de Centro en «No existe asociación tipo de plan ↔ centro». Nueva entrada «Tipo de Centro: listo para ejecutar».
+3.E Propuesta de requisitos y tareas guiadas — Sin resolver: a qué se refieren los «Procesos» lo decide el desarrollador (candidatos en el informe final de la sesión, no anotados). Dependencias registradas en BACKLOG «Requisitos de acción y tareas guiadas — en análisis».
+3.F BACKLOG con entradas obsoletas — Resuelto: cerradas con evidencia Agenda rota, servicios pendientes de Agenda, auditoría nivel 2, ciudadano_identificadores, UC en intervención, dompdf, TipoRelacionSeeder y [Demo] citas (duplicada); CI de calidad fundida en una entrada. Siguen abiertas, con nota: «Suite completa con 75 fallos» (solo los fallos que quedan), «Seguimiento del plan — UI» (falta la evaluación de objetivos) y, dentro de «TODOs activos en CiudadanoPage», centroActivo(), el menú ⋯ y statPrestaciones().

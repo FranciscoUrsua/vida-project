@@ -168,6 +168,8 @@ Estas restricciones nunca pueden relajarse sin decisión explícita documentada:
 | `docs/documentacion-proyecto.md` | Siempre, antes de cualquier sesión |
 | `docs/decisiones-tecnicas.md` | Antes de tomar decisiones de arquitectura o elegir herramientas |
 | `docs/modulo-{nombre}.md` | Antes de tocar ese módulo |
+| `docs/roles-consulta-basica-tramitacion.md` | Antes de tocar permisos, ficha del ciudadano o citas para roles administrativos |
+| `docs/estado-proyecto-2026-11-10.md` | Foto del estado del proyecto a noviembre 2026 |
 | `docs/instrucciones-cli/{fichero}.md` | Cuando se indique explícitamente en el prompt |
 
 ---
@@ -201,3 +203,6 @@ Ficheros disponibles:
 | `2026-09-citas-tests.md` | 43 tests de citas (TF-CIT-01 a 43) y revisión de PF-05.1, PF-05.5 y PF-06.2; hechos todos |
 | `instrucciones-cli-acceso-auditoria.md` | Acceso y auditoría de lectura de expedientes: `AccesoExpediente`, policies que delegan en `CiudadanoPolicy`, buscadores y bandeja sin datos de protegidos; 12 tests (TF-ACC-01 a 12). Hecho el 2026-10-02 |
 | `informe-calidad-vida360.md` | Informe cualitativo de calidad (2026-10-01): hallazgos priorizados y propuesta de prohibiciones para `CLAUDE.md`. El punto 1 está cerrado |
+| `2026-10-tipo-centro-implementacion.md` | Tipo de Centro como entidad: denominaciones con vigencia, herencia tipo → centro (`ConfiguracionEfectivaCentro`), horario y cierres de calendario, catálogo por tipo, evolución y bajas. Sin ejecutar; rama A |
+| `2026-10-tipo-centro-tests.md` | 34 tests de Tipo de Centro (TF-TCE-01 a 34). Sin implementar |
+| `2026-11-puesta-al-dia-documental.md` | Alineación de la documentación con lo implementado y con las decisiones de septiembre a noviembre. Hecho el 2026-11-10 |

@@ -9,6 +9,40 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Symfony 8 en `composer update` sin restricciones** — 2026-11-10
+Módulo: transversal / dependencias
+Las restricciones de Laravel 12 admiten Symfony 8 en algunos componentes. Al aplicar los parches de seguridad del 2026-11-10, `symfony/event-dispatcher`, `html-sanitizer` y `string` subían a la 8.1 y se mantuvieron en 7.4 con `--with` (no queda en `composer.json`). Un `composer update` general volverá a subirlos. Decidir si se fijan a `^7.4` en `composer.json` o si se acepta la 8.x con su propia prueba.
+
+---
+
+**Citas: delta de la revisión del 30 sep** — 2026-11-10
+Módulos: Agenda, Ciudadanía
+`docs/modulo-citas.md` se implementó el 2026-09-30 sobre la versión de la mañana; la revisión de la tarde (incorporada al repo el 2026-11-10) añade reglas que no están en el código:
+- **§6 bis — historial de citas en la ficha del ciudadano** para `consulta_basica` y `tramitacion`: pasadas y programadas de cualquier centro, con etiqueta pública, centro, profesional, modalidad y estado; reprogramadas agrupadas con su sustituta; reprogramar y cancelar desde ahí las de su UO (no las propias). `FichaCiudadanoPage` no tiene ese bloque: solo usa citas para vincular el registro de atención (`citaVinculable()`, línea 1069) y el botón «Dar cita» (`puedeDarCita()`, línea 1081). Falta también el permiso `cita.ver_historial` (`docs/roles-consulta-basica-tramitacion.md` §5).
+- **`tramitacion` en citas (§7, ⏸):** la migración `2026_09_30_120006_add_permisos_citas.php` no le da permisos `citas.*`. Se implanta con el resto del rol (diferido).
+- **RN-05 ter ya se cumple** (gestión limitada a centros de la UO del usuario): `CitaPolicy::citar()` (línea 55), `gestionaAjena()` (línea 152) y `SolicitudCitaPolicy::verBandeja()/gestionar()` (líneas 37 y 49) usan `AlcanceCentro::incluye()` (UO activas del usuario), y `CitacionService` autoriza con ellas (líneas 72, 133, 160–161 y 216). No requiere cambios.
+Se implementa junto con `consulta_basica` (ver la entrada siguiente).
+
+---
+
+**`consulta_basica`: diseño cerrado sin instrucciones de implementación** — 2026-11-10
+Módulos: Usuarios, Ciudadanía, Agenda, Documentos
+`docs/roles-consulta-basica-tramitacion.md` §3. Faltan instrucciones CLI y tests. Incluye la ficha por rol (§3.1: sin prestaciones ni situación social, sin banner de protegido), el bloque de estado de la Historia Social con profesional de referencia, el historial de citas (`docs/modulo-citas.md` §6 bis), el alta de ciudadanos, la edición de relaciones, los documentos propios del día (retirada lógica y vínculo con solicitud aún no existen en la custodia v2: `docs/modulo-documentos.md` §2.1) y los permisos nuevos de §5.
+
+---
+
+**Tipo de Centro: listo para ejecutar** — 2026-11-10
+Módulos: Centro, Organización, Prestaciones, Agenda, Intervención, Usuarios
+Diseño (`docs/modulo-tipo-centro.md`), instrucciones (`docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`) y tests TF-TCE-01 a 34 (`docs/instrucciones-cli/2026-10-tipo-centro-tests.md`) en el repo. Se sigue la rama A (la asignación ya está implementada). Depende de la decisión sobre varias UO con varios centros (ver «Perfil horario por defecto: pendientes») y de que los centros de un mismo tipo tengan la misma configuración de asignación (ver el aviso en «Asignación de centro y referencia: pendientes»).
+
+---
+
+**Requisitos de acción y tareas guiadas — en análisis** — 2026-11-10
+Módulos: transversal
+`docs/propuesta-requisitos-y-tareas-guiadas.md`, con bastante por decidir (sus apartados «Por decidir»). Dependencias: TipoCentro (ver «Tipo de Centro: listo para ejecutar»), varios centros por UO (ver «Perfil horario por defecto: pendientes») e inscripción de ciudadanos en actividades (ver «Actividades grupales — gestión completa»).
+
+---
+
 **Acceso a expedientes: pendientes tras AccesoExpediente** — 2026-10-02
 Módulo: Ciudadanía / Intervención / Supervisión
 - **Personas relacionadas sin filtro de protegido:** la ficha y el expediente cargan convivientes (`ucMiembros`), relaciones (`ciudadanoRelacionado`) y representante sin scope y muestran su nombre aunque sean de colectivo protegido de otra UO. Los buscadores de relación y de UC ya los filtran.
@@ -43,9 +77,11 @@ Módulo: Agenda / Supervisión
 
 ---
 
-**CI «Calidad de código» (PHPStan + Pint) en rojo** — 2026-10-01
+**CI «Calidad de código» (PHPStan + Pint) en rojo** — 2026-09-29 · 2026-10-01
 Módulo: transversal
-No bloquea el despliegue (lo hace el workflow `CI/CD`), pero falla desde antes de las citas. El 2026-09-30 por PHPDoc `@property` de arrays sin tipo de valor en componentes Livewire de Agenda (`PerfilHorarioComponent`, `ExcepcionesComponent`, `CuadranteMesComponent`); el 2026-10-01 PHPStan ni siquiera termina: se queda sin memoria (512M) en un worker paralelo. Subir `--memory-limit` en el workflow y corregir después los errores que aparezcan.
+*(2026-11-10: fundidas las dos entradas del 2026-09-29 y del 2026-10-01.)*
+El workflow falla en todos los commits al menos desde `d620571` (2026-09-28); el despliegue no depende de él. Unos 195 errores de PHPStan: falsos positivos de `Livewire::test()` (`argument.templateType`, recuentos del baseline superados por tests nuevos), propiedades de `#[Computed]` en `Livewire\Component`, `HorarioCentro::tiposSlot()` inexistente (Agenda), `env()` fuera de `config/`, etc. Resolver la causa del falso positivo de Livewire (stub o extensión) en lugar de ampliar el baseline, corregir los errores reales y volver a ponerlo en verde.
+2026-10-01: no bloquea el despliegue (lo hace el workflow `CI/CD`), pero falla desde antes de las citas. El 2026-09-30 por PHPDoc `@property` de arrays sin tipo de valor en componentes Livewire de Agenda (`PerfilHorarioComponent`, `ExcepcionesComponent`, `CuadranteMesComponent`); el 2026-10-01 PHPStan ni siquiera termina: se queda sin memoria (512M) en un worker paralelo. Subir `--memory-limit` en el workflow y corregir después los errores que aparezcan.
 
 ---
 
@@ -66,7 +102,7 @@ Módulos: Centro, Intervención, Ciudadanía, geocodificación
 - **Cambiar la referencia de un caso ya asignado desde la interfaz:** el servicio existe (`AsignacionReferenciaService::cambiarManual()`, TF-ASG-30), pero la pantalla solo lo usa para historias sin referencia (bandeja) y en el reparto. Falta la acción del supervisor en la ficha o el expediente (conflicto, parentesco, corrección…).
 - **Autorización por centro en los servicios:** `AsignacionCentroService::asignarManual()/descartar()` y `AsignacionReferenciaService::cambiarManual()` exigen rol `supervision`, pero no que el supervisor lo sea del centro afectado; hoy lo garantiza la pantalla. Valorar moverlo al servicio, como ya hace `RepartoCasosService`.
 - ~~**Colectivos protegidos en la bandeja:**~~ Cerrado el 2026-10-02 (TF-ACC-10): sin nombre ni enlace si la policy no deja ver a la persona. Queda por decidir cómo resuelve el supervisor una entrada que no puede identificar (ver «Acceso a expedientes: pendientes»).
-- **Configurar los centros reales en staging:** tras el despliegue todos quedan en `quien_abre` y sin tipo. Para probar el sorteo hay que dar tipo, ámbito y modo a algún centro en Filament.
+- **Configurar los centros reales en staging:** tras el despliegue todos quedan en `quien_abre` y sin tipo. Para probar el sorteo hay que dar tipo, ámbito y modo a algún centro en Filament. **Aviso (2026-11-10):** el paso 3 de `docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md` aborta si dos centros del mismo tipo tienen distinto modo de asignación, ventana o segmentos. Al configurar centros para probar el sorteo, configurar igual todos los del tipo.
 
 ---
 
@@ -76,12 +112,6 @@ Módulo: Frontend / Filament
 - **R5 da por usada una clase que coincide con un nombre de vista o ruta.** Valorar excluir de la búsqueda de usos las cadenas `vista::…`/`route('…')`.
 - **Tests con fallo previo detectados al migrar**: TF-AUTH-16/17 (`User::name` devuelve el correo en la portada `inicio`), `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`), Agenda (columna `horario_centro_id` inexistente en `tipos_slot` en `vida_testing`; `foreach` sobre cadena en `cuadrante-supervisor-page`).
 - **Vistas públicas con clases sin definir:** `welcome-page__hero`, `welcome-page__summary-section` (welcome) y `auth-card__form` (login). Se resuelven en la fase 3.
-
----
-
-**CI «Calidad de código» (PHPStan + Pint) en rojo** — 2026-09-29
-Módulo: transversal
-El workflow falla en todos los commits al menos desde `d620571` (2026-09-28); el despliegue no depende de él. Unos 195 errores de PHPStan: falsos positivos de `Livewire::test()` (`argument.templateType`, recuentos del baseline superados por tests nuevos), propiedades de `#[Computed]` en `Livewire\Component`, `HorarioCentro::tiposSlot()` inexistente (Agenda), `env()` fuera de `config/`, etc. Resolver la causa del falso positivo de Livewire (stub o extensión) en lugar de ampliar el baseline, corregir los errores reales y volver a ponerlo en verde.
 
 ---
 
@@ -131,6 +161,7 @@ Módulo: Mensajes
 Módulos: Agenda, Mensajes, Ciudadanía, Autenticación, Intervención
 (2026-09-26: los 6 fallos de Mensajes están resueltos; `t_lw_09` se sustituyó por TF-MSG-PAN-10 al retirar `NuevoMensaje`.)
 Primera ejecución completa registrada (908 passed, 76 failed; el fallo de Documentos ya está corregido). Detalle por módulo en `CHANGELOG-092026.md` («Documentos: custodia v2, UI operativa y cierre»). La mayoría son de Agenda (esquema que no existe). En Ciudadanía, dos tests buscan un texto que ya no está en la ficha. Revisarlos antes de un merge a `main`.
+*2026-11-10: los de Agenda están corregidos (ver la entrada cerrada «Suite de `Modules/Agenda` rota»). Quedan: TF-AUTH-16/17 (ver «TF-AUTH-16 y TF-AUTH-17 fallan»), `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`; ver «Bootstrap único: pendientes fuera del plan») y Ciudadanía 2 («Ver historia social»: `FichaCiudadanoPageTest` y `FichaAtencionTest`). Fuera de `phpunit.xml`, los 3 de Supervisión (ver «Suite de tests: Supervisión no se ejecuta»).*
 
 ---
 
@@ -171,12 +202,14 @@ Detectado en la Fase 0 del mundo «Prueba CIAM»: `~/code/vida-project/vida/.env
 **No existe asociación tipo de plan ↔ centro / UO / servicio** — 2026-09-24
 Módulo: Intervención
 `PlanPage::tiposPlanes()` ofrece todos los tipos activos (`piso`, `pia`…) a cualquier profesional de cualquier centro. El punto 1.4 de `docs/instrucciones-cli/2026-09-demo-ciam-aditivo.md` (asociar `pia` al CIAM) se omitió por decisión del desarrollador: no se crea un mecanismo nuevo sin diseño. Decidir si el tipo de plan se restringe por centro, por UO (junto a `plan_nombre_*`) o por servicio especializado (`planes_intervencion.servicio_especializado_id`, hoy sin uso: la tabla `servicios` está vacía).
+*2026-11-10: resuelto en diseño por `docs/modulo-tipo-centro.md` (tipos de plan por tipo de centro, §6.2). Se cierra al implementar esa fase.*
 
 ---
 
 **La interfaz no permite crear planes especializados; `PlanPage` fija siempre `tipo = general_asp`** — 2026-09-24
 Módulo: Intervención
 `PlanPage::crearNuevoPlan()` guarda `tipo = TipoPlan::GeneralAsp` sea cual sea el `tipo_plan_id` elegido. Un «PIA» creado hoy desde la UI queda como plan general sin plan ASP, y `CiudadanoPage::pisoActivo()` / `MisCasosPage` lo tratan como el PISO de la persona. Los planes PIA del mundo «Prueba CIAM» sí son `especializado` (entrada directa). Pendiente: derivar `tipo` del `ambito` del tipo de plan al crear, y diseñar el flujo de creación de planes especializados (derivación desde PISO y entrada directa con `admite_entrada_directa`). Fuera del alcance de la sesión CIAM por instrucción explícita.
+*2026-11-10: Tipo de Centro no lo resuelve: solo filtra los tipos de plan ofrecidos. Prioritario para el CIAM.*
 
 ---
 
@@ -186,7 +219,8 @@ Todo lo creado por `demo:load` queda en `demo_world_registros` (`DemoWorldRegist
 
 ---
 
-**Suite de `Modules/Agenda` rota: `tipos_slot.horario_centro_id` no existe en el esquema** — 2026-09-24
+**✅ CERRADO 2026-11-10 — ~~Suite de `Modules/Agenda` rota: `tipos_slot.horario_centro_id` no existe en el esquema~~** — 2026-09-24
+*2026-11-10: cerrado. Paso 0 de citas (`CHANGELOG-092026.md`, «2026-09-30 — Agenda: tests en verde y fallos de la aplicación»): factories y `AgendaSeeder` enlazan por el pivote `horario_centro_tipo_slot`; `Modules/Agenda/tests` 173 passed el 2026-10-01 (SESSION).*
 Módulo: Agenda
 Al ejecutar la suite completa (verificación de una actualización de dependencias) se detectaron ~60 tests de `Modules/Agenda` fallando con `QueryException: column "horario_centro_id" of relation "tipos_slot" does not exist`. Reproducible también con las dependencias de Composer anteriores a la actualización de hoy — no relacionado con dependencias. Probable causa: el commit `3003283` ("convertir TipoSlot en catálogo global del sistema") eliminó esa columna del esquema pero algún factory o helper de test (`Modules/Agenda/database/factories/CitaFactory.php`, `AgendaSupervisorTestHelpers.php`, entre otros) sigue insertándola. Revisar si falta una migración por ejecutar en `vida_testing` o si el factory quedó desactualizado tras ese refactor.
 
@@ -251,20 +285,22 @@ Ver: `app/Livewire/Centros/SelectorPrestacionesCentro.php` — comentario TODO e
 **TODOs activos en CiudadanoPage** — 2026-06-15
 Módulo: Intervención / Ciudadanía
 Varios TODOs documentados en `ciudadano-page.blade.php` que requieren trabajo pendiente:
-- `centroActivo()` en `CiudadanoPage.php` — pendiente de implementación.
-- DNI en cabecera — requiere `CiudadanoIdentificador::activo()` (tabla `ciudadano_identificadores` aún no existe).
-- Menú ⋯ contextual — sin implementar.
-- `statPrestaciones()` devuelve null — pendiente integración con módulo Prestaciones.
+- `centroActivo()` en `CiudadanoPage.php` — pendiente de implementación. *2026-11-10: el TODO ya no está en la vista y el centro de la persona se ve en el bloque «Centro y referencia» de la ficha (asignación, 2026-09-30), pero la cabecera del expediente sigue sin mostrarlo. Sin cerrar.*
+- ~~DNI en cabecera — requiere `CiudadanoIdentificador::activo()` (tabla `ciudadano_identificadores` aún no existe).~~ *Resuelto (comprobado el 2026-11-10): `CiudadanoPage::ciudadanoDocumento()` lo lee de `documentoVigente` y la cabecera lo muestra (`ciudadano-page.blade.php:145`).*
+- Menú ⋯ contextual — sin implementar (sigue el TODO en `ciudadano-page.blade.php:106`).
+- `statPrestaciones()` devuelve null — pendiente integración con módulo Prestaciones (sigue igual, `CiudadanoPage.php:404`).
 
 ---
 
-**Tabla `ciudadano_identificadores` pendiente de crear** — 2026-06-10
+**✅ CERRADO 2026-11-10 — ~~Tabla `ciudadano_identificadores` pendiente de crear~~** — 2026-06-10
+*2026-11-10: cerrado. La tabla existe desde el 2026-06-09 (migración `2026_06_09_100002_create_ciudadano_identificadores_table.php`, `CHANGELOG-062026.md`) y el DNI de la cabecera del expediente sale de ella (`CiudadanoPage::ciudadanoDocumento()`, `documentoVigente`). Sigue abierta la búsqueda por documento de `BuscarCiudadanoPage` (`buscarPorIdentificador()`, línea 143, devuelve vacío): ver «Acceso a expedientes: pendientes tras AccesoExpediente».*
 Módulo: Ciudadanía
 La búsqueda por `doc`/`hsu` en `BuscarCiudadanoPage` devuelve vacío con TODO. La tabla y modelo `CiudadanoIdentificador` no existen aún. Necesario también para `CiudadanoIdentificador::activo()` que se usa en cabecera de ciudadano.
 
 ---
 
-**UC en UI de intervención** — 2026-06-16
+**✅ CERRADO 2026-11-10 — ~~UC en UI de intervención~~** — 2026-06-16
+*2026-11-10: cerrado. El expediente gestiona la UC (`CiudadanoPage`: modal y buscador de UC, `confirmarAnadirMiembro()`, `confirmarBajaMiembro()`, `verificarMiembro()`, `crearUc()`, líneas 612–732) y el bloque UC de la ficha enlaza la ficha de cada miembro (`ficha-ciudadano-page.blade.php:396`), sin TODO.*
 `Módulo: Ciudadanía / Intervención`
 Los modelos y migraciones de UnidadConvivencia están implementados.
 Pendiente: UI Livewire para gestión de UC dentro de la pantalla de intervención
@@ -285,13 +321,15 @@ Módulo: Ciudadanía
 
 ---
 
-**Integración real de auditoría en BuscarCiudadanoPage (nivel 2)** — 2026-06-01
+**✅ CERRADO 2026-11-10 — ~~Integración real de auditoría en BuscarCiudadanoPage (nivel 2)~~** — 2026-06-01
+*2026-11-10: cerrado el 2026-10-02 (`CHANGELOG-102026.md`, «Acceso: policy y auditoría de lectura de expediente»): `BuscarCiudadanoPage::registrarAccesoNivel2()` (`Modules/Intervencion/app/Http/Livewire/BuscarCiudadanoPage.php:207`) audita con `AccesoExpediente`, sin `Log::info` ni TODO.*
 Módulo: Ciudadanía / Auditoría
 El registro de acceso nivel 2 usa `\Log::info()` con TODO. Ya existe la tabla `audits` e `AuditService` desde 2026-06-14; pendiente conectar `BuscarCiudadanoPage` al `AuditService` en lugar del `\Log::info()`.
 
 ---
 
-**[Demo] Citas en escenarios de demo** — 2026-06-03 · *2026-09-30: la creación de citas ya existe, pero falta agenda en los mundos demo; ver «Citas: pendientes de la fase».*
+**✅ CERRADO 2026-11-10 — ~~[Demo] Citas en escenarios de demo~~** — 2026-06-03 · *2026-09-30: la creación de citas ya existe, pero falta agenda en los mundos demo; ver «Citas: pendientes de la fase».*
+*2026-11-10: cerrada por duplicada: sigue como viñeta «Citas en los mundos demo (paso 10)» de «Citas: pendientes de la fase».*
 Módulo: Demo world-building
 Las trayectorias del sistema de demo no generan citas porque requieren `slot_id` (FK NOT NULL a la tabla `slots`) y toda la maquinaria de agenda (cuadrantes, perfiles horarios, excepciones). Pendiente para cuando el módulo Agenda exponga una API simplificada de creación de citas de test.
 Ver: `database/seeders/Demo/Scenarios/` — todos los escenarios tienen comentario explicit documentando la omisión.
@@ -364,7 +402,8 @@ Ref: `Modules/Centro/app/Services/PrescripcionService.php` — método `setTsrRe
 
 ---
 
-**Implementar servicios pendientes del módulo Agenda (30 tests bloqueados)** — 2026-05-18
+**✅ CERRADO 2026-11-10 — ~~Implementar servicios pendientes del módulo Agenda (30 tests bloqueados)~~** — 2026-05-18
+*2026-11-10: cerrado. Existen `Services/CuadranteGeneratorService.php`, `Services/DisponibilidadService.php`, `Jobs/SlotExpirationJob.php`, `Services/GestionAusenciaService.php`, el ciclo de vida de `Cita` (`Models/Cita.php` `noShowCiudadano()`, `completar()`, `cancelar()`), el bloqueo y la liberación de slots de `EventoAgenda` (`Models/EventoAgenda.php:197` y `:222`) y PF-02.3 (`tests/Feature/PerfilHorarioTest.php:230`). No queda ningún `markTestIncomplete` en `Modules/Agenda/tests`; Agenda 173 passed el 2026-10-01.*
 Módulo: Agenda
 Tras implementar `SlotMaterializadorService`, quedan pendientes:
 - `CuadranteGeneratorService` (bloquea PF-03.1, PF-03.4, PF-03.5, PF-10.1)
@@ -537,7 +576,8 @@ en ciudadanos, y decisión sobre nodos ligeros para personas no registradas.
 
 ---
 
-**Añadir TipoRelacionSeeder al DatabaseSeeder raíz** — 2026-06-16
+**✅ CERRADO 2026-11-10 — ~~Añadir TipoRelacionSeeder al DatabaseSeeder raíz~~** — 2026-06-16
+*2026-11-10: cerrado: `vida/database/seeders/DatabaseSeeder.php:47` llama a `TipoRelacionSeeder`.*
 `Módulo: Ciudadanía`
 El seeder existe (`TipoRelacionSeeder`) pero no está encadenado al DatabaseSeeder
 raíz del módulo ni al global. Añadir cuando se haga el primer deploy con datos
@@ -551,7 +591,8 @@ PlanPage Livewire implementado con diagnóstico, objetivos, actuaciones, partici
 
 ---
 
-**Instalar barryvdh/laravel-dompdf si no está** — 2026-06-18
+**✅ CERRADO 2026-11-10 — ~~Instalar barryvdh/laravel-dompdf si no está~~** — 2026-06-18
+*2026-11-10: cerrado: `"barryvdh/laravel-dompdf": "^3.1"` en `vida/composer.json:10`.*
 `Infraestructura`
 El servicio PlanPdfService usa dompdf. Verificar si está instalado:
 `composer require barryvdh/laravel-dompdf`
@@ -564,6 +605,7 @@ Documentar en SESSION.md tras instalación.
 El modelo SeguimientoPlan ya existe (tests TF-INT-C). Pendiente: integrar el
 seguimiento en la UI de CiudadanoPage, con evaluación de objetivos por estado
 y programación del siguiente seguimiento.
+*2026-11-10: la programación del siguiente seguimiento ya existe (casilla «Programar siguiente seguimiento» al guardar una entrevista, `ciudadano-page.blade.php:417`; crea el `SeguimientoPlan` en `CiudadanoPage.php:1135` y pide la cita). Falta la evaluación de objetivos por estado: sin cerrar.*
 
 ---
 

@@ -1,19 +1,18 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-10-02 (acceso y auditoría de expedientes)
+**Última actualización:** 2026-11-10 (puesta al día documental)
 
 ---
 
 ## Tarea completada
 
-**Filament (2026-10-02):** «Roles y permisos» fundido en una sola pantalla (permisos + nivel de supervisión, solo `adm_sistema`, grupo «Usuarios y Profesionales») y retirada de «Zonas» (migración `2026_10_02_100001_drop_zonas_table`, se aplica con el despliegue). `RolesBackofficeTest` 8 passed; Usuarios 71 passed.
-
-**Acceso y auditoría de lectura de expedientes** (2026-10-02, `instrucciones-cli-acceso-auditoria.md`): el hueco de colectivos protegidos está **cerrado**. Ficha, expediente, plan, valoración y ficha de valoración autorizan y auditan en `App\Services\AccesoExpediente`; las policies de historia y plan delegan en `CiudadanoPolicy::consultaExternaPermitida()`; buscadores y bandeja de asignaciones no muestran a protegidos sin acceso. TF-ACC-01 a 12 en verde. Nivel 2 se mantiene (decisión del desarrollador). Antes, ese mismo día: badge «Sin cuenta de usuario» en Mi equipo. Detalle en `CHANGELOG-102026.md`.
+**Puesta al día documental** (2026-11-10, `docs/instrucciones-cli/2026-11-puesta-al-dia-documental.md`): documentos nuevos incorporados (citas revisado, roles, Tipo de Centro, propuesta de tareas guiadas, informe de estado); estados de módulo corregidos; decisiones de roles propagadas (incluido el design system: banner de protegido solo para `intervencion`); `decisiones-pendientes.md` y BACKLOG limpios. Solo documentación. Antes del commit, parches de seguridad de Livewire 4.4.8 y Symfony 7.4.x (`composer.lock`), que bloqueaban el hook de pre-commit. Detalle y lista de dudas en `CHANGELOG-112026.md`.
 
 ---
 
 ## Estado exacto del proyecto
 
+- **Sin cambios de código desde el 2026-10-02.** Lo posterior (Tipo de Centro, roles `consulta_basica`/`tramitacion`, revisión de citas, requisitos y tareas guiadas) es solo análisis, ya incorporado a `docs/`. Lo que sigue describe el estado a 2026-10-02 y sigue vigente.
 - **⚠️ La BD local y la de staging son la misma** (`vida@127.0.0.1`, ver `BACKLOG.md`). Todo lo que se migre o cargue «en local» ocurre en staging. **No lanzar `demo:reset` desde local.**
 - **Migraciones de citas** (`2026_09_30_120001` a `120006`): se aplican en la BD compartida con el push del 2026-10-01. Crean `tipos_cita` (con un tipo genérico `cita` para las citas existentes), `solicitudes_cita`, `cita_eventos` (trigger que rechaza UPDATE y DELETE) y `cita_acompanantes`; amplían `citas`, `plan_apuntes`, `registros_atencion` y `horarios_centro`; **eliminan `tipos_slot.genera_apunte_automatico`**; crean los permisos `citas.*`.
 - Para probar citas en staging: el centro necesita horario con tipos de slot enlazados a tipos de cita (Filament: `TipoCitaResource` y sección «Citas» de `HorarioCentroResource`), cuadrante publicado y slots; y el usuario, los permisos `citas.*` que correspondan. Los mundos demo no tienen agenda.
@@ -36,18 +35,20 @@
 
 ## Siguiente paso concreto recomendado
 
-1. **El desarrollador prueba en staging asignación y citas** tras el despliegue (las pantallas solo se han probado con tests). Después, repasar juntos los errores o cambios que salgan.
-   - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto.
-   - Citas: bandeja de citación (solicitudes, huecos, citar, desistir), cita directa, detalle con reprogramar y cancelar, agenda del profesional (*Atender*, *Incomparecencia*, *Acompañantes*, *Pedir cambio*), «Solicitar cita» y vinculación en la ficha de Intervención, *Atender* → registro de atención → «Dar cita» en la ficha de Ciudadanía.
-2. **Informe de calidad** (`docs/instrucciones-cli/informe-calidad-vida360.md`): el punto 1 ya está hecho. Siguen el 3 (dos `Apunte` y dos policies) y la propuesta de prohibiciones para `CLAUDE.md`, que tiene que decidir el desarrollador. Pendientes del acceso en BACKLOG («Acceso a expedientes: pendientes»): personas relacionadas sin filtro, `VerFichaPage` sin comprobar la historia de la ficha, búsqueda por documento en `BuscarCiudadanoPage`.
-3. Pendientes de citas en BACKLOG: agenda en los mundos demo (paso 10), contrato con Cita Previa, enlace del cuadrante del supervisor con el detalle de la cita.
-4. Pendientes de la asignación en BACKLOG: cambio de referencia de un caso ya asignado desde la interfaz, autorización por centro dentro de los servicios, adaptador BDC.
-5. Rendimiento de `CiudadanoPage`/`plan-page` y polling de toasts (BACKLOG); `Modules/Supervision/tests` fuera de `phpunit.xml`.
+1. **El desarrollador prueba en staging asignación y citas** (pendiente desde el 2026-10-01; las pantallas solo se han probado con tests).
+   - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto. **Configurar igual todos los centros del mismo tipo:** el paso 3 de Tipo de Centro aborta si difieren.
+   - Citas: bandeja de citación, cita directa, detalle con reprogramar y cancelar, agenda del profesional, «Solicitar cita» en Intervención, *Atender* → registro de atención → «Dar cita».
+2. **Decidir el modelo de varias UO con varios centros** (BACKLOG «Perfil horario por defecto: pendientes»): condiciona Tipo de Centro y los requisitos de acción.
+3. **Ejecutar `docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md` (rama A)** con sus tests TF-TCE-01 a 34.
+4. **Corregir la creación de planes especializados (PIA):** `PlanPage::crearNuevoPlan()` fija `tipo = general_asp` (BACKLOG; prioritario para el CIAM).
+5. **Instrucciones del delta de citas y de `consulta_basica`** (BACKLOG «Citas: delta de la revisión del 30 sep» y «`consulta_basica`: diseño cerrado sin instrucciones»): §6 bis, ficha por rol, estado de la Historia Social, documentos propios del día.
+6. Revisar las dudas de `CHANGELOG-112026.md` (sobre todo: los documentos nuevos llegaron sin formato Markdown).
 
 ---
 
 ## Contexto para retomar sin fricción
 
+- Documentación al día a 2026-11-10: ver `docs/estado-proyecto-2026-11-10.md` y su sección Seguimiento.
 - **Acceso a expedientes (2026-10-02):** toda pantalla que abre a una persona usa `AccesoExpediente` (`ciudadano()`/`historia()` en `mount()`; en computed, `registrar: false`). No cargar `Ciudadano` ni `HistoriaSocial` con `withoutGlobalScope` en una página. Un protegido que la policy no deja ver no muestra nombre, documento ni alias en ningún listado.
 - **Citas (2026-09-30):**
   - Solo escriben en `citas`, `solicitudes_cita` y `cita_eventos` los servicios de `Modules/Agenda/app/Services/Citas/`, `GestionAusenciaService` y `CitaCierreJob`. Todo cambio de estado deja un evento en `cita_eventos` (solo inserción).

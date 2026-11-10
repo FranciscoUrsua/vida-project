@@ -1,6 +1,6 @@
 # Módulo Auditoría — Diseño Funcional
 
-> **Estado:** diseñado. Pendiente de implementación.
+> **Estado:** implementado el 2026-06-14 (`CHANGELOG-062026.md`, «Módulo Auditoría — implementación completa»); auditoría de lectura de expedientes completada el 2026-10-02 (§3.5, `CHANGELOG-102026.md`).
 >
 > **Propósito:** registrar de forma fiable y completa todos los accesos a datos de ciudadanos, y exponer esos registros de manera útil para los profesionales y supervisores.
 

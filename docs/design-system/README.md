@@ -29,7 +29,7 @@ Two kinds of people use it, with different access rules:
 - **Prestación** — a benefit (service or monetary). Referenced from a municipal catalogue of ~112 entries organised into 8 *objetivos generales*.
 - **Centros, redes, plazas, actividades** — places, pools, beds/slots, activities.
 - **Alertas** — app-generated notifications with two severities: `aviso` (dismissible) and `alerta` (requires explicit acknowledgement within 4 working hours).
-- **Colectivos especialmente protegidos** — minors, gender-violence victims — require prior authorisation to read their record. This is a UI flag, not a hidden field.
+- **Colectivos especialmente protegidos** — minors, gender-violence victims — require prior authorisation to read their record. This is a UI flag, not a hidden field. The banner is shown only to intervencion when they try to open sensitive data (social situation, health, Historia Social content), never on identification/contact views or to consulta_basica and tramitacion, because the banner itself would reveal the protection.
 
 ### Sources consulted to build this system
 - GitHub repo: `FranciscoUrsua/vida-project@master` (imported on demand via `github_read_file` / `github_import_files`)

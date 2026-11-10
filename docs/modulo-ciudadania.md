@@ -52,6 +52,8 @@ Los datos del ciudadano se organizan en tres capas con distintos niveles de acce
 ### Capa 1 — Identificación y contacto (cabecera)
 Nombre, fecha de nacimiento, sexo, domicilio, teléfono, email, documentos de identidad. Accesible para un conjunto amplio de roles: `tramitacion`, `consulta_basica`, `intervencion` y superiores. Es la capa que permite citar a una persona, verificar su identidad o localizarla.
 
+Para `consulta_basica` y `tramitacion` la ficha es accesible **sin ámbito de UO**: pueden abrir la de cualquier ciudadano, tenga o no Historia Social en su UO; el ámbito limita solo la operación (citas, documentos, modificaciones). Diseño cerrado, sin implementar (`docs/roles-consulta-basica-tramitacion.md` §2; `tramitacion`, implantación diferida).
+
 ### Capa 2 — Situación social
 Situación familiar, económica, laboral, de vivienda, de salud relevante para la intervención. La situación social refleja el estado del mundo en un momento dado. Es versionada: cada cambio genera una nueva versión con fecha de inicio, y la anterior recibe fecha de fin. 
 
@@ -146,7 +148,7 @@ La reciprocidad automática la gestiona el trait TieneRelacionesReciprocas aplic
 Esta tabla es la fuente única de verdad sobre el vínculo entre dos ciudadanos. No existe ningún otro lugar en el modelo donde se registre el rol de una persona respecto a otra.
 
 **Dónde se gestionan**: las relaciones se crean y editan en la **ficha del ciudadano** (módulo Ciudadanía, FichaCiudadanoPage), no en la pantalla de intervención. Las razones:
-- Pueden ser editadas por cualquier usuario con permiso ciudadano.editar (rol tramitación incluido), sin necesitar a un trabajador social.
+- Pueden ser editadas por cualquier usuario con permiso ciudadano.editar (rol tramitación incluido, y también `consulta_basica`: diseño cerrado, sin implementar, ver `docs/roles-consulta-basica-tramitacion.md` §3.4), sin necesitar a un trabajador social.
 - Tienen utilidad administrativa y de comunicación más allá del diagnóstico social (p. ej., saber quién es el representante legal de un ciudadano a efectos de notificaciones). 
 - La pantalla de intervención ya tiene suficiente densidad funcional.
 
@@ -235,6 +237,8 @@ ciudadano_fichas
 ## 4. Flujo de alta de ciudadano
 
 El alta de un ciudadano sigue un flujo estructurado que garantiza la unicidad del registro y la calidad de los datos.
+
+`consulta_basica` también puede dar altas, con el mismo control de duplicados (diseño cerrado, sin implementar: hoy el rol no tiene `ciudadano.crear`; ver `docs/roles-consulta-basica-tramitacion.md` §3.4).
 
 ```
 1. El profesional selecciona el contexto de alta
@@ -359,6 +363,8 @@ Dos protecciones específicas en el alta:
 
 **Domicilio protegido:** el domicilio registrado en VIDA puede ser diferente al del padrón (por ejemplo, un recurso de acogida). Esta diferencia es intencionada y está protegida. El domicilio real no se comparte con otros sistemas mediante sincronización automática.
 
+**Banner de colectivo protegido:** la ficha de identificación y contacto no muestra el banner de protegido. El banner es solo para `intervencion`, cuando intenta acceder a datos sensibles (situación social, salud, contenido de la Historia Social); mostrarlo en la ficha revelaría por sí mismo la protección. Vale para todos los colectivos especialmente protegidos, no solo VVG (`docs/roles-consulta-basica-tramitacion.md` §3.2; diseño cerrado, sin implementar).
+
 ### 6.3 Ciudadanos sin empadronamiento
 
 Para ciudadanos que no aparecen en el padrón por razones distintas a las anteriores (ciudadanos de otros municipios en urgencia, solicitantes de asilo en proceso, menores en acogida), el alta sin padrón requiere autorización explícita del usuario con permisos suficientes y justificación que queda en la auditoría. No es una excepción estructural como PSH o VVG — es una excepción puntual gestionada caso a caso.
@@ -406,6 +412,7 @@ En entornos de desarrollo y pruebas, los adaptadores mock devuelven datos fictic
 - `Modules\Ciudadania\Traits\TieneRelacionesReciprocas`
 - `App\Filament\Resources\TipoRelacionResource`
 - `Modules\Ciudadania\Database\Seeders\TipoRelacionSeeder`
+- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage` — ficha del ciudadano. **Bloques por rol** (diseño cerrado, sin implementar; `docs/roles-consulta-basica-tramitacion.md` §3.1): para `consulta_basica` (y `tramitacion`, diferido), identificación y contacto (lectura y edición), unidad de convivencia (lectura), relaciones (lectura y edición), un bloque de **estado de la Historia Social** (existencia, estado y profesional de referencia, nada más), un bloque de **historial de citas** (pasadas y programadas, de cualquier centro; `docs/modulo-citas.md` §6 bis) y sus documentos del día. El widget de prestaciones se oculta para `consulta_basica`; tampoco ve la situación social ni los accesos recientes.
 
 ---
 

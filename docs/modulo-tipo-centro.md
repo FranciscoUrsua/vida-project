@@ -214,7 +214,7 @@ Centro	Horario: heredado o propio	Heredado
 Centro	Cierres propios, protocolo propio, exclusiones	Ninguno
 11. Impacto en otros documentos
 modulo-centros.md §2.1 y §4.1: nuevo tipo_centro_id y centro_antecesor_id; inscripcion_libre, segmentos de población y centro_prestacion pasan al tipo; el campo horario pasa a ser calculado. Nueva entidad TipoCentro.
-modulo-asignacion.md §8: la configuración de adscripción, modo de referencia, ventana y meses de inactividad se lee del tipo (§7 de este documento). Si la fase de asignación no está implementada, sus instrucciones deben ajustarse antes de ejecutarla.
+modulo-asignacion.md §8: la configuración de adscripción, modo de referencia, ventana y meses de inactividad se lee del tipo (§7 de este documento). La asignación está implementada (2026-09-30): al ejecutar esta fase se sigue la rama A de las instrucciones.
 modulo-agenda.md §2.1: HorarioCentro puede heredar el horario del tipo; nuevos cierres de calendario; la generación de cuadrantes usa el calendario efectivo.
 modulo-prestaciones.md: prestacion_tipo_centro referencia la entidad TipoCentro; el grupo centro.tipo de catalogos_sistema se retira.
 modulo-intervencion.md: al abrir un plan, solo se ofrecen los tipos de plan del tipo del centro.
