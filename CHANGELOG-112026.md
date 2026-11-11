@@ -18,7 +18,10 @@
 - **Los despliegues fallaban desde el 2026-11-10** (9 ejecuciones seguidas) con `npm: command not found` (exit 127). npm está instalado con nvm, que solo se carga desde `.bashrc` en sesiones interactivas. Por eso esas ejecuciones no llegaron a `migrate`, a los `*:cache` ni al reinicio del FPM. Sí se aplicaron `git reset` y `composer install`. El reinicio a `php8.3-fpm` también habría fallado, porque el servicio ya no existe.
 
 ### Verificación del despliegue
-PENDIENTE
+Commit `1e74c8d`, ejecución de CI/CD `42988736089`: `test` y `deploy` en verde. El job `deploy` terminó a las 08:43:53 UTC.
+- Log del job: `npm ci` y `npm run build` sin errores (`✓ built in 1m 59s`), con nvm cargado. `migrate --force` da «Nothing to migrate». El script termina en `sudo systemctl restart php8.5-fpm` sin errores.
+- Servidor: `systemctl show php8.5-fpm` muestra `ActiveState=active`, `SubState=running` y `ActiveEnterTimestamp=2026-11-11 08:43:51 UTC`, dos segundos antes del fin del job. Eso confirma que el reinicio fue del servicio correcto.
+- `/var/www/vida-project/vida` está en `1e74c8d`.
 
 ---
 
