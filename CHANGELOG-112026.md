@@ -4,6 +4,26 @@
 
 ---
 
+## 2026-11-11 — Supervisión: tests en la suite y tres fallos corregidos (A2 de estabilización)
+
+### Cambios
+- `vida/phpunit.xml`: `Modules/Supervision/tests/Feature` en la suite `Feature` (único fichero, `tests/Feature/Livewire/SupervisionTest.php`).
+- `SupervisionTest`, sin cambios en la aplicación:
+  - TF-SUP-B01 `sidebar_sin_plazas_no_muestra_item_plazas`: exige que «Aprobaciones» **no** esté en el menú.
+  - TF-SUP-B03/B04: pasaban en vacío (`assertSee('3')` y la ausencia de un badge que ya no existe). Ahora `contador_aprobaciones_cuenta_las_solicitudes_del_ambito` (3 en el ámbito y 1 fuera, cuenta 3) y `contador_aprobaciones_es_cero_sin_pendientes`, sobre `SupervisionSidebarDataService::aprobacionesPendientes()`.
+  - TF-SUP-D07 `ficha_profesional_muestra_tres_pestanas` → `el_perfil_horario_se_abre_desde_la_fila_del_profesional_con_cuenta`: botón por fila solo con cuenta de usuario, el modal no se abre para quien no la tiene, sin «Suplencias».
+  - TF-SUP-F03: registra antes, con `AuditService::registrarAcceso()`, un acceso a un ciudadano protegido de la UO; TF-SUP-F02 usa el mismo acceso para que su negativo no pase con la tabla vacía.
+- `BACKLOG.md`: cerradas «Suite de tests: Supervisión no se ejecuta» y «TF-SUP-F03 falla»; la viñeta «Tipo de slot genérico en modo básico» pasa a «Citas: pendientes de la fase»; nueva «Supervisión: "Aprobaciones" fuera del menú».
+- Tests: `Modules/Supervision/tests` **38 passed** (75 assertions).
+
+### Evidencia de cada fallo
+- **«Aprobaciones»:** retirada del menú a propósito el 2026-06-29 (`3eb4458`, «pantalla sin contenido operativo, gestionable desde Filament»), sin entrada en ningún CHANGELOG. Desde el 2026-09-25 la pantalla resuelve solicitudes de rol y de acceso, y se llega a ella desde Inicio y desde las alertas. **Decisión del desarrollador (2026-11-11): test desfasado, el menú se queda sin el ítem.**
+- **Tres pestañas:** retiradas el 2026-06-29 (`a81f340`, «eran stubs») y sustituidas por el botón «Perfil horario» de cada fila con su modal. Test desfasado.
+- **TF-SUP-F03:** la marca «Colectivo protegido» solo se pinta en las filas (`aria-label` del icono) y el test no creaba ningún acceso: la página mostraba «No hay accesos registrados». Test incompleto, como decía el BACKLOG.
+
+### Decisiones
+- En D07 se comprueba el estado del modal (`modalHorarioAbierto`, `horarioUserId`) y no su título: el modal exige un centro activo de la UO, que este test no prepara.
+
 ## 2026-11-11 — Documentos: rechazos que faltaban y causa técnica (A1 de estabilización)
 
 ### Cambios

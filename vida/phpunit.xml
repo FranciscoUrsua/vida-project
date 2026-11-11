@@ -21,6 +21,7 @@
             <directory>Modules/Ciudadania/tests/Feature</directory>
             <directory>Modules/Atencion/tests/Feature</directory>
             <directory>Modules/Organizacion/tests/Feature</directory>
+            <directory>Modules/Supervision/tests/Feature</directory>
         </testsuite>
     </testsuites>
     <source>

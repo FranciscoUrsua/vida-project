@@ -60,10 +60,19 @@ Módulo: Ciudadanía / Intervención / Supervisión
 
 ---
 
-**Suite de tests: Supervisión no se ejecuta** — 2026-09-30
+**Supervisión: «Aprobaciones» fuera del menú** — 2026-11-11
+Módulo: Supervision
+Se retiró del menú el 2026-06-29, cuando la pantalla no tenía contenido operativo. Desde el 2026-09-25 resuelve las solicitudes de rol y de acceso, y `docs/modulo-usuarios-permisos.md` y el CHANGELOG hablan de «Supervisión → Aprobaciones». Hoy solo se llega desde la zona de aprobaciones de Inicio (si hay pendientes) y desde las alertas. Decidido el 2026-11-11 dejarlo así; reconsiderar si los supervisores no la encuentran. `Sidebar::aprobacionesPendientes()` (computed) ya no lo usa la vista: retirarlo o volver a usarlo según se decida.
+
+---
+
+**✅ CERRADO 2026-11-11 — ~~Suite de tests: Supervisión no se ejecuta~~** — 2026-09-30
 Módulo: transversal
-- `phpunit.xml` no incluye `Modules/Supervision/tests`: la suite completa nunca ha ejecutado esos tests. Tres fallan (ya anotados el 2026-09-26): `sidebar_sin_plazas_no_muestra_item_plazas` (el menú no tiene «Aprobaciones»), `ficha_profesional_muestra_tres_pestanas` y `auditoria_con_colectivos_muestra_columna_protegido`. Añadir el directorio a `phpunit.xml` y corregirlos.
-- **Tipo de slot genérico en modo básico:** `modulo-agenda.md` prevé un tipo «Cita» automático para los centros en `modo_agenda = basico`, pero no existe ni hay forma estable de identificarlo (`tipos_slot` no tiene código). Hoy también el horario básico debe tener sus tipos elegidos en Filament.
+`Modules/Supervision/tests/Feature` está en la suite `Feature` de `phpunit.xml` (único fichero: `tests/Feature/Livewire/SupervisionTest.php`). `Modules/Supervision/tests`: 38 passed. Los tres fallos eran tests desfasados:
+- `sidebar_sin_plazas_no_muestra_item_plazas`: «Aprobaciones» se retiró del menú a propósito el 2026-06-29 (`3eb4458`, «pantalla sin contenido operativo»), sin entrada en el CHANGELOG. Confirmado por el desarrollador el 2026-11-11: el test pasa a exigir que no esté. Los tests del badge (B03/B04) pasaban en vacío y ahora comprueban el contador de `SupervisionSidebarDataService`. Ver la entrada «Supervisión: "Aprobaciones" fuera del menú».
+- `ficha_profesional_muestra_tres_pestanas`: las pestañas se retiraron el 2026-06-29 (`a81f340`, «eran stubs») y se sustituyeron por el botón «Perfil horario» de cada fila. Reescrito como `el_perfil_horario_se_abre_desde_la_fila_del_profesional_con_cuenta`.
+- `auditoria_con_colectivos_muestra_columna_protegido`: ver «TF-SUP-F03 falla» (cerrada).
+La viñeta «Tipo de slot genérico en modo básico» pasa a «Citas: pendientes de la fase».
 
 ---
 
@@ -123,6 +132,7 @@ Módulos: Agenda, Atención, demo
 - ~~**Buscador de personas de citación y colectivos protegidos:**~~ Cerrado el 2026-10-02 (TF-ACC-09): por documento exacto aparece solo «Persona con protección especial», sin nombre, documento ni opción de citar.
 - **Gestión de citas desde la agenda del centro:** reprogramar y cancelar se hacen desde el detalle de la cita, al que se llega por la pestaña «Citas del día» de la bandeja de citación. El cuadrante del supervisor aún no enlaza las citas con su detalle.
 
+- **Tipo de slot genérico en modo básico:** `modulo-agenda.md` prevé un tipo «Cita» automático para los centros en `modo_agenda = basico`, pero no existe ni hay forma estable de identificarlo (`tipos_slot` no tiene código). Hoy también el horario básico debe tener sus tipos elegidos en Filament. *(movida el 2026-11-11 desde «Suite de tests: Supervisión no se ejecuta»)*
 ---
 
 **Asignación de centro y referencia: pendientes** — 2026-09-30
@@ -191,7 +201,7 @@ Módulo: Mensajes
 Módulos: Agenda, Mensajes, Ciudadanía, Autenticación, Intervención
 (2026-09-26: los 6 fallos de Mensajes están resueltos; `t_lw_09` se sustituyó por TF-MSG-PAN-10 al retirar `NuevoMensaje`.)
 Primera ejecución completa registrada (908 passed, 76 failed; el fallo de Documentos ya está corregido). Detalle por módulo en `CHANGELOG-092026.md` («Documentos: custodia v2, UI operativa y cierre»). La mayoría son de Agenda (esquema que no existe). En Ciudadanía, dos tests buscan un texto que ya no está en la ficha. Revisarlos antes de un merge a `main`.
-*2026-11-10: los de Agenda están corregidos (ver la entrada cerrada «Suite de `Modules/Agenda` rota»). Quedan: `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`; ver «Bootstrap único: pendientes fuera del plan») (TF-AUTH-16/17 y los 2 de Ciudadanía «Ver historia social» corregidos el 2026-11-11). Fuera de `phpunit.xml`, los 3 de Supervisión (ver «Suite de tests: Supervisión no se ejecuta»).*
+*2026-11-10: los de Agenda están corregidos (ver la entrada cerrada «Suite de `Modules/Agenda` rota»). Quedan: `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`; ver «Bootstrap único: pendientes fuera del plan») (TF-AUTH-16/17 y los 2 de Ciudadanía «Ver historia social» corregidos el 2026-11-11). Los 3 de Supervisión, corregidos e incluidos en `phpunit.xml` el 2026-11-11.*
 
 ---
 
@@ -265,10 +275,9 @@ Módulo: Usuarios / Auth
 
 ---
 
-**TF-SUP-F03 falla: columna "Colectivo protegido" en auditoría** — 2026-06-29
+**✅ CERRADO 2026-11-11 — ~~TF-SUP-F03 falla: columna "Colectivo protegido" en auditoría~~** — 2026-06-29
 Módulo: Supervision
-`auditoria_con_colectivos_muestra_columna_protegido` espera `assertSee('Colectivo protegido')` pero `AuditoriaPage` devuelve estado vacío ("No hay accesos registrados"). La columna solo se renderiza si hay accesos en el periodo. El test necesita crear al menos un acceso de auditoría antes de montar el componente. Fallo pre-existente, no causado por la sesión actual.
-
+Confirmado: la marca «Colectivo protegido» solo se pinta en las filas de accesos y el test no creaba ninguno (la página mostraba el estado vacío). El test registra ahora, con `AuditService::registrarAcceso()`, un acceso a un ciudadano protegido de la UO del supervisor. TF-SUP-F02 usa el mismo acceso, para que su negativo no pase en vacío.
 ---
 
 **Notificaciones reales al TSR tras asignación de plaza** — 2026-06-26

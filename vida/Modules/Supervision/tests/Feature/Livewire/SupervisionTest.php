@@ -2,11 +2,13 @@
 
 namespace Modules\Supervision\Tests\Feature\Livewire;
 
+use App\Enums\AccionAuditEnum;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Models\UsuarioUo;
+use App\Services\AuditService;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -252,6 +254,9 @@ class SupervisionTest extends TestCase
 
     /**
      * TF-SUP-B01 — Sidebar sin plazas configuradas no muestra el ítem Plazas.
+     *
+     * «Aprobaciones» no está en el menú desde el 2026-06-29 (3eb4458): se llega desde la
+     * zona de aprobaciones de Inicio y desde las alertas. Decisión confirmada el 2026-11-11.
      */
     #[Test]
     public function sidebar_sin_plazas_no_muestra_item_plazas(): void
@@ -264,7 +269,7 @@ class SupervisionTest extends TestCase
             ->assertSee('Actividades grupales')
             ->assertSee('Mi equipo')
             ->assertSee('Accesos')
-            ->assertSee('Aprobaciones')
+            ->assertDontSee('Aprobaciones')
             ->assertSee('Configuración');
     }
 
@@ -284,32 +289,31 @@ class SupervisionTest extends TestCase
     }
 
     /**
-     * TF-SUP-B03 — Badge de aprobaciones muestra el count correcto.
+     * TF-SUP-B03 — El contador de aprobaciones cuenta solo las solicitudes del ámbito.
+     *
+     * El badge del menú desapareció con el ítem «Aprobaciones» (2026-06-29); el contador
+     * sigue alimentando la zona de aprobaciones de Inicio.
      */
     #[Test]
-    public function badge_aprobaciones_muestra_count_correcto(): void
+    public function contador_aprobaciones_cuenta_las_solicitudes_del_ambito(): void
     {
         // 3 usuarios en el ámbito del supervisor con solicitudes pendientes
-        $u1 = $this->crearUsuarioEnUo($this->uoHija, 'u1@vida360.test');
-        $u2 = $this->crearUsuarioEnUo($this->uoHija, 'u2@vida360.test');
-        $u3 = $this->crearUsuarioEnUo($this->uoHija, 'u3@vida360.test');
+        foreach (['u1', 'u2', 'u3'] as $nombre) {
+            $this->crearSolicitudPendiente($this->crearUsuarioEnUo($this->uoHija, "{$nombre}@vida360.test"));
+        }
+        // 1 fuera del ámbito
+        $this->crearSolicitudPendiente($this->crearUsuarioEnUo($this->uoParalela, 'fuera@vida360.test'));
 
-        $this->crearSolicitudPendiente($u1);
-        $this->crearSolicitudPendiente($u2);
-        $this->crearSolicitudPendiente($u3);
-
-        $this->montarComponente(Sidebar::class)
-            ->assertSee('3');
+        $this->assertSame(3, app(SupervisionSidebarDataService::class)->aprobacionesPendientes($this->supervisor->id));
     }
 
     /**
-     * TF-SUP-B04 — Badge de aprobaciones no aparece con cero pendientes.
+     * TF-SUP-B04 — Sin solicitudes pendientes, el contador de aprobaciones es cero.
      */
     #[Test]
-    public function badge_aprobaciones_no_aparece_con_cero_pendientes(): void
+    public function contador_aprobaciones_es_cero_sin_pendientes(): void
     {
-        $this->montarComponente(Sidebar::class)
-            ->assertDontSee('badge bg-danger');
+        $this->assertSame(0, app(SupervisionSidebarDataService::class)->aprobacionesPendientes($this->supervisor->id));
     }
 
     // =========================================================================
@@ -592,20 +596,39 @@ class SupervisionTest extends TestCase
     }
 
     /**
-     * TF-SUP-D07 — Ficha de profesional muestra las tres pestañas de navegación.
+     * TF-SUP-D07 — El perfil horario se abre desde la fila del profesional, solo si tiene cuenta.
+     *
+     * Las tres pestañas (Resumen, Perfil horario, Suplencias) se retiraron el 2026-06-29
+     * (a81f340): eran stubs. El perfil horario pasó a un botón por fila que abre un modal;
+     * sin cuenta de usuario no hay perfil horario.
      */
     #[Test]
-    public function ficha_profesional_muestra_tres_pestanas(): void
+    public function el_perfil_horario_se_abre_desde_la_fila_del_profesional_con_cuenta(): void
     {
-        $this->actingAs($this->supervisor)
-            ->get(route('supervision.equipo.profesional', ['profesional' => 1]))
-            ->assertOk();
+        $datos = [
+            'apellido1' => 'Test',
+            'sexo' => 'M',
+            'cargo_id' => $this->cargo->id,
+            'tipo_relacion_id' => $this->tipoRelacion->id,
+            'fecha_inicio' => today()->toDateString(),
+            'activo' => true,
+            'unidad_organizativa_id' => $this->uoHija->id,
+        ];
+        $conCuenta = Profesional::create(['nombre' => 'Carmen'] + $datos);
+        $sinCuenta = Profesional::create(['nombre' => 'Luis'] + $datos);
+        $cuenta = $this->crearUsuarioEnUo($this->uoHija, 'carmen@vida360.test');
+        $cuenta->update(['profesional_id' => $conCuenta->id]);
 
-        // La vista debe incluir las tres pestañas
         $this->montarComponente(EquipoPage::class)
-            ->assertSee('Resumen')
-            ->assertSee('Perfil horario')
-            ->assertSee('Suplencias');
+            ->assertSeeHtml('wire:click="abrirModalHorario('.$conCuenta->id.')"')
+            ->assertDontSeeHtml('wire:click="abrirModalHorario('.$sinCuenta->id.')"')
+            ->assertSee('Sin cuenta de usuario')
+            ->assertDontSee('Suplencias')
+            ->call('abrirModalHorario', $sinCuenta->id)
+            ->assertSet('modalHorarioAbierto', false)
+            ->call('abrirModalHorario', $conCuenta->id)
+            ->assertSet('modalHorarioAbierto', true)
+            ->assertSet('horarioUserId', $cuenta->id);
     }
 
     // =========================================================================
@@ -783,27 +806,57 @@ class SupervisionTest extends TestCase
     }
 
     /**
-     * TF-SUP-F02 — Filtros de colectivos protegidos no aparecen sin la configuración.
+     * TF-SUP-F02 — Sin la configuración de colectivos, los accesos no se marcan como protegidos.
      */
     #[Test]
     public function auditoria_sin_colectivos_no_muestra_columna_protegido(): void
     {
-        // Sin tiene_colectivos_protegidos → defecto false
+        // Sin tiene_colectivos_protegidos → defecto false. El acceso existe: la tabla se pinta.
+        $ciudadano = $this->registrarAccesoAProtegido();
+
         $this->montarComponente(AuditoriaPage::class)
+            ->assertSee($ciudadano->nombre_completo)
             ->assertDontSee('Colectivo protegido');
     }
 
     /**
-     * TF-SUP-F03 — Columna colectivo protegido aparece cuando el centro tiene colectivos.
+     * TF-SUP-F03 — Con colectivos protegidos, el acceso a un ciudadano protegido se marca.
+     *
+     * La marca solo se pinta en las filas: sin ningún acceso en el periodo, la página
+     * muestra el estado vacío. Por eso el test registra antes un acceso.
      */
     #[Test]
     public function auditoria_con_colectivos_muestra_columna_protegido(): void
     {
         app(ConfiguracionService::class)->set('tiene_colectivos_protegidos', true);
         app()->forgetInstance(ConfiguracionService::class);
+        $ciudadano = $this->registrarAccesoAProtegido();
 
         $this->montarComponente(AuditoriaPage::class)
+            ->assertSee($ciudadano->nombre_completo)
             ->assertSee('Colectivo protegido');
+    }
+
+    /**
+     * Registra, por el servicio de auditoría, un acceso de un profesional de la UO
+     * del supervisor a un ciudadano protegido de esa UO.
+     *
+     * @return Ciudadano Ciudadano accedido.
+     */
+    private function registrarAccesoAProtegido(): Ciudadano
+    {
+        $historia = $this->crearHistoriaSocial($this->uoHija);
+        $historia->update(['ciudadano_protegido' => true]);
+        $profesional = $this->crearUsuarioEnUo($this->uoHija, 'accede@vida360.test');
+
+        app(AuditService::class)->registrarAcceso(
+            user: $profesional,
+            modelo: $historia->ciudadano,
+            accion: AccionAuditEnum::Ver,
+            ciudadanoId: $historia->ciudadano_id,
+        );
+
+        return $historia->ciudadano;
     }
 
     /**
