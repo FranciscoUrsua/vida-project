@@ -9,6 +9,12 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Servidor: revisar las reglas AppArmor de qpdf y gs tras cada actualización del sistema** — 2026-11-11
+Módulo: Documentos / infraestructura
+En el servidor hay reglas locales de AppArmor en `/etc/apparmor.d/local/qpdf` y `/etc/apparmor.d/local/gs` (`/var/www/vida-project/vida/storage/app/tmp/** rwk,`). Sin ellas, los perfiles de Ubuntu impiden a qpdf y gs leer la zona temporal de ingesta y **se rechazan todos los PDF** con `pdf_no_normalizable` (la causa queda en el log: `Permission denied`). **Revisar tras cada actualización del sistema** (`apt upgrade`, cambio de versión de Ubuntu o del paquete `apparmor`): que las reglas siguen, que `sudo aa-status` carga los perfiles y que se puede subir un PDF. Las reglas incluyen también las rutas del repositorio local (`storage/framework/testing/**` y `storage/app/tmp/**`, añadidas el 2026-11-11); sin ellas fallan los tests que suben PDF. Detalle en `docs/modulo-documentos.md` §3.
+
+---
+
 **Symfony fijado a `^7.4`: revisar con Laravel 13** — 2026-11-11
 Módulo: transversal / dependencias
 `symfony/event-dispatcher`, `symfony/html-sanitizer` y `symfony/string` están fijados a `^7.4` en `composer.json` desde el 2026-11-11. Motivo: Laravel 12 fija su núcleo de Symfony a `^7.2`, y no se mezclan componentes 8.x con un núcleo 7.x. Las restricciones de Laravel y Filament admiten la 8.x en esos tres paquetes, y un `composer update` general los subía a la 8.1. **Revisar al migrar a Laravel 13:** quitar las tres restricciones o subirlas junto con el resto de Symfony.

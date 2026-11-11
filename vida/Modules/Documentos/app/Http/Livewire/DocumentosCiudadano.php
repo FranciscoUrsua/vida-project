@@ -346,6 +346,11 @@ class DocumentosCiudadano extends Component
                 $servicio->altaDocumento($this->fichero, $this->datosAlta($usuario, $canal));
             }
         } catch (IngestaRechazadaException|\DomainException $e) {
+            // Un rechazo con causa técnica (fallo de qpdf, gs, antivirus…) no es culpa del
+            // fichero: se registra con su excepción previa para poder diagnosticarlo.
+            if ($e instanceof IngestaRechazadaException && $e->getPrevious() !== null) {
+                report($e);
+            }
             $this->errorIngesta = $e->getMessage();
 
             return;

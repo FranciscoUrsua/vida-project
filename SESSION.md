@@ -1,20 +1,22 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-11 (nombre visible del usuario; TF-AUTH-16/17 y «Ver historia social» reparados)
+**Última actualización:** 2026-11-11 (Documentos: fallos de qpdf/gs con causa en el log; reglas AppArmor del entorno local)
 
 ---
 
 ## Tarea completada
 
-**Nombre visible del usuario y tests previos** (2026-11-11): `User::nombreVisible()` (nombre del Profesional vinculado o email) en topbar, avatar, portada, onboarding y cuadrante de Agenda. TF-AUTH-16/17 y los dos de «Ver historia social» (ahora «Ir a HS») en verde. `booted()` sigue copiando el email en `name`. Detalle en `CHANGELOG-112026.md`.
+**Documentos: fallos de qpdf y Ghostscript diagnosticables** (2026-11-11): `qpdf --requires-password` con código 2 y salida de error ya no pasa como «sin cifrar»; todo fallo de proceso de `SaneadorPdf` lleva una `ProcesoExternoFallidoException` y `DocumentosCiudadano::guardar()` lo registra con `report()`. Reglas AppArmor locales de qpdf y gs ampliadas a las rutas del repositorio local (tests y `storage/app/tmp`). `Modules/Documentos/tests`: 91 passed. Detalle en `CHANGELOG-112026.md`.
 
-Antes, el mismo día: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, `php8.5-fpm`).
+Antes, el mismo día: **nombre visible del usuario y tests previos**: `User::nombreVisible()` (nombre del Profesional vinculado o email) en topbar, avatar, portada, onboarding y cuadrante de Agenda. TF-AUTH-16/17 y los dos de «Ver historia social» (ahora «Ir a HS») en verde. `booted()` sigue copiando el email en `name`. Detalle en `CHANGELOG-112026.md`.
+
+Y antes: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, `php8.5-fpm`).
 
 ---
 
 ## Estado exacto del proyecto
 
-- **Único cambio de código desde el 2026-10-02:** `User::nombreVisible()` y vistas asociadas (2026-11-11). Lo posterior (Tipo de Centro, roles `consulta_basica`/`tramitacion`, revisión de citas, requisitos y tareas guiadas) es solo análisis, ya incorporado a `docs/`. Lo que sigue describe el estado a 2026-10-02 y sigue vigente.
+- **Únicos cambios de código desde el 2026-10-02:** `User::nombreVisible()` y vistas asociadas, y el diagnóstico de fallos de `SaneadorPdf` (ambos 2026-11-11). Lo posterior (Tipo de Centro, roles `consulta_basica`/`tramitacion`, revisión de citas, requisitos y tareas guiadas) es solo análisis, ya incorporado a `docs/`. Lo que sigue describe el estado a 2026-10-02 y sigue vigente.
 - **⚠️ La BD local y la de staging son la misma** (`vida@127.0.0.1`, ver `BACKLOG.md`). Todo lo que se migre o cargue «en local» ocurre en staging. **No lanzar `demo:reset` desde local.**
 - **Migraciones de citas** (`2026_09_30_120001` a `120006`): se aplican en la BD compartida con el push del 2026-10-01. Crean `tipos_cita` (con un tipo genérico `cita` para las citas existentes), `solicitudes_cita`, `cita_eventos` (trigger que rechaza UPDATE y DELETE) y `cita_acompanantes`; amplían `citas`, `plan_apuntes`, `registros_atencion` y `horarios_centro`; **eliminan `tipos_slot.genera_apunte_automatico`**; crean los permisos `citas.*`.
 - Para probar citas en staging: el centro necesita horario con tipos de slot enlazados a tipos de cita (Filament: `TipoCitaResource` y sección «Citas» de `HorarioCentroResource`), cuadrante publicado y slots; y el usuario, los permisos `citas.*` que correspondan. Los mundos demo no tienen agenda.
@@ -24,7 +26,9 @@ Antes, el mismo día: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue repara
 - **Servidor de pruebas preparado para la custodia** (2026-09-25): `/srv/vida/documentos`, `DOCUMENTOS_RUTA` y `DOCUMENTOS_CLAVE_MAESTRA` en el `.env` de staging, clamd activo. El `.env` **local** no tiene variables `DOCUMENTOS_*`.
 - **Código de staging** (`/var/www/vida-project/vida`): se despliega solo con cada push a `master` (job `deploy` de `.github/workflows/ci.yml`). El servidor ejecuta **PHP 8.5** (`php8.5-fpm`); CI usa la misma versión.
 - **Perfiles por defecto en el CIAM (UO 13):** se crean con `agenda:horarios-por-defecto --centro=13` tras el despliegue (ver CHANGELOG). Hecho: 9 perfiles pendientes de verificar + 1 previo (comprobado el 2026-10-02). Los demás centros no se completan por ahora: al desarrollador solo le preocupa el CIAM.
+- **AppArmor:** qpdf y gs están confinados; las reglas locales (`/etc/apparmor.d/local/{qpdf,gs}`) cubren `/var/www/.../storage/app/tmp` y, en el repositorio local, `storage/framework/testing` y `storage/app/tmp`. Revisar tras cada `apt upgrade` (BACKLOG).
 - **Tests:**
+  - 2026-11-11, Documentos (qpdf/gs): `Modules/Documentos/tests` 91 passed.
   - 2026-11-11, nombre visible: `AutenticacionTest`, `FichaAtencionTest`, `FichaCiudadanoPageTest` 51 passed, 1 incomplete, 1 skipped (previos); `CuadranteMesTest` 5 passed. Ya no quedan TF-AUTH-16/17 ni «Ver historia social» como fallos previos. `ui:auditar` sin infracciones.
   - 2026-11-11, Symfony fijado: UI, Auth, Acceso, Ciudadanía y Citas: 244 passed, 1 incomplete, 1 skipped y los 4 fallos previos (TF-AUTH-16/17 y los dos de «Ver historia social»).
   - 2026-10-02, acceso: `tests/Feature/Acceso` 12 passed, TF-ACC-11 y TF-DOC-78 en verde, TF-LW-BUS-06 en verde; Auditoría 29 passed; Intervención 296 passed (1 incomplete); Usuarios 63 passed; Citas 66 passed; AccesoDocumento 6 passed; Ciudadanía 103 passed y 2 fallos previos («Ver historia social», fallan igual sin el cambio); Supervisión 35 passed y los 3 fallos previos del BACKLOG. `ui:auditar` sin infracciones.

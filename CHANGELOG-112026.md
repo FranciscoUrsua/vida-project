@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-11-11 — Documentos: fallos de qpdf y Ghostscript con causa y registro
+
+### Cambios
+- `SaneadorPdf::rechazarSiProtegido()`: el código 2 de `qpdf --requires-password` solo cuenta como «sin cifrar» si la salida de error está vacía. Con salida de error, el PDF se rechaza con `pdf_no_normalizable`.
+- Nueva `Modules/Documentos/app/Exceptions/ProcesoExternoFallidoException` (comando, código de salida y salida de error; código `null` si el proceso no terminó). Todos los rechazos por fallo de proceso de `SaneadorPdf` (protección, conteo de páginas, saneado, recompresión, expansión con qpdf y timeout) la llevan como excepción previa de `IngestaRechazadaException`.
+- `DocumentosCiudadano::guardar()`: registra con `report()` los rechazos de la ingesta que tienen excepción previa (causa técnica). Los que no la tienen (formato, virus, páginas…) siguen sin ir al log.
+- Tests en `DocumentosCiudadanoTest`: «un fallo de qpdf con salida de error se rechaza y queda en el log» (binario falso que devuelve 2 y escribe en la salida de error; falla con la condición anterior) y «un rechazo sin causa técnica no se registra en el log».
+- `docs/modulo-documentos.md` §3 y `BACKLOG.md`: reglas locales de AppArmor para qpdf y gs sobre `storage/app/tmp` en el servidor, que hay que revisar tras cada actualización del sistema.
+- Máquina de desarrollo: reglas locales de AppArmor ampliadas (sudo, por el desarrollador) con `/home/jupiter/code/vida-project/vida/storage/framework/testing/** rwk,` y `/home/jupiter/code/vida-project/vida/storage/app/tmp/** rwk,` en `/etc/apparmor.d/local/qpdf` y `/etc/apparmor.d/local/gs`, y perfiles recargados con `apparmor_parser -r`.
+- Tests: `Modules/Documentos/tests` **91 passed** (445 assertions). Antes de ampliar las reglas: 64 fallos, todos por `Permission denied` de qpdf/gs; sin el cambio de código, `IngestaDocumentoTest` ya fallaba (7) por la misma causa.
+
+### Decisiones
+- **Los rechazos sin causa técnica no se registran,** para no llenar el log con errores del usuario. El criterio es si la `IngestaRechazadaException` tiene excepción previa (el antivirus no disponible también la tiene y también se registra).
+- **El test llama a `guardar()` sobre la instancia del componente**, no con `->call()`: `Livewire::test()` sustituye el manejador de excepciones por uno que no registra nada mientras atiende cada llamada, así que `report()` no llegaría al log.
+- **Se descubre un fallo oculto en la máquina de desarrollo:** el perfil AppArmor de qpdf le impide leer `storage/framework/testing/ingesta/{uuid}/original`, la zona temporal de los tests, que no tiene extensión y que las reglas locales no cubren. Antes se aceptaba como «sin cifrar» sin que se notara. El desarrollador ha añadido a mano (sudo) las rutas de tests y de la zona temporal local a las reglas; `DocumentosTest` usa `storage/app/tmp`, no la zona de tests, así que hacen falta las dos.
+
 ## 2026-11-11 — Usuarios / UI: nombre visible del usuario y tests previos reparados
 
 ### Cambios

@@ -5,7 +5,10 @@ namespace Modules\Documentos\Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
+use Modules\Documentos\Exceptions\IngestaRechazadaException;
+use Modules\Documentos\Exceptions\ProcesoExternoFallidoException;
 use Modules\Documentos\Http\Livewire\DocumentosCiudadano;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Tests\Concerns\DocumentosTestSetup;
@@ -96,6 +99,63 @@ class DocumentosCiudadanoTest extends TestCase
             ->assertSee('Este tipo de fichero no se admite.');
 
         $this->assertSame(0, Documento::count());
+    }
+
+    #[Test]
+    public function un_fallo_de_qpdf_con_salida_de_error_se_rechaza_y_queda_en_el_log(): void
+    {
+        // qpdf --requires-password devuelve 2 tanto para «sin cifrar» como cuando no
+        // puede abrir el fichero (p. ej. AppArmor le niega la lectura). Simulamos lo segundo.
+        $binario = storage_path('framework/testing/qpdf-falla-'.uniqid().'.sh');
+        file_put_contents($binario, "#!/bin/sh\necho 'qpdf: open /tmp/x.pdf: Permission denied' >&2\nexit 2\n");
+        chmod($binario, 0755);
+        $this->beforeApplicationDestroyed(fn () => @unlink($binario));
+        config(['documentos.binarios.qpdf' => $binario]);
+
+        $componente = Livewire::test(DocumentosCiudadano::class, ['ciudadanoId' => $this->ana->id])
+            ->call('abrirAlta')
+            ->set('tipoId', $this->tipoDni->id)
+            ->set('fichero', $this->subida())
+            ->instance();
+
+        // Livewire::test() sustituye el manejador de excepciones por uno que no registra
+        // nada mientras atiende cada ->call(); se invoca guardar() directamente para que
+        // report() llegue al registro real.
+        Log::spy();
+        $componente->guardar();
+
+        $this->assertTrue($componente->modalAbierto);
+        $this->assertSame('No se ha podido procesar el PDF. Comprueba que no esté dañado.', $componente->errorIngesta);
+        $this->assertSame(0, Documento::count());
+
+        Log::shouldHaveReceived('error')->withArgs(function (string $mensaje, array $contexto) use ($binario): bool {
+            $rechazo = $contexto['exception'] ?? null;
+            $causa = $rechazo?->getPrevious();
+
+            return $rechazo instanceof IngestaRechazadaException
+                && $rechazo->codigo === 'pdf_no_normalizable'
+                && $causa instanceof ProcesoExternoFallidoException
+                && $causa->codigoSalida === 2
+                && $causa->comando[0] === $binario
+                && in_array('--requires-password', $causa->comando, true)
+                && str_contains($causa->salidaError, 'Permission denied');
+        })->once();
+    }
+
+    #[Test]
+    public function un_rechazo_sin_causa_tecnica_no_se_registra_en_el_log(): void
+    {
+        $componente = Livewire::test(DocumentosCiudadano::class, ['ciudadanoId' => $this->ana->id])
+            ->call('abrirAlta')
+            ->set('tipoId', $this->tipoDni->id)
+            ->set('fichero', $this->subida('comprimido.zip', 'papeles.zip'))
+            ->instance();
+
+        Log::spy();
+        $componente->guardar();
+
+        $this->assertStringStartsWith('Este tipo de fichero no se admite.', (string) $componente->errorIngesta);
+        Log::shouldNotHaveReceived('error');
     }
 
     #[Test]

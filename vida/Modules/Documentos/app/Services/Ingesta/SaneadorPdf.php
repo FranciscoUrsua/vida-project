@@ -5,6 +5,7 @@ namespace Modules\Documentos\Services\Ingesta;
 use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Support\Facades\Process;
 use Modules\Documentos\Exceptions\IngestaRechazadaException;
+use Modules\Documentos\Exceptions\ProcesoExternoFallidoException;
 
 /**
  * Saneado y normalización de PDF con qpdf y Ghostscript.
@@ -12,6 +13,11 @@ use Modules\Documentos\Exceptions\IngestaRechazadaException;
  * Reescribe el PDF a PDF/A-2b eliminando JavaScript, ficheros incrustados,
  * anotaciones y acciones (incluidas las de lanzamiento de programas), y después
  * comprueba que el resultado no conserva ninguno de esos objetos.
+ *
+ * Todo rechazo por un fallo de proceso lleva como excepción previa una
+ * ProcesoExternoFallidoException con el comando, el código de salida y la salida
+ * de error, para poder diagnosticarlo en el registro (p. ej. un perfil de AppArmor
+ * que impide a qpdf o gs leer la zona temporal).
  */
 class SaneadorPdf
 {
@@ -33,6 +39,10 @@ class SaneadorPdf
      * Un PDF con solo contraseña de propietario (restricciones de impresión o copia)
      * se puede abrir y se admite: el saneado quita esas restricciones.
      *
+     * El código 2 de qpdf significa «sin cifrar» solo si la salida de error está vacía:
+     * qpdf también devuelve 2 cuando no puede abrir o interpretar el fichero (permiso
+     * denegado, PDF dañado), y aceptar ese caso como «sin cifrar» oculta el error.
+     *
      * @param string $ruta PDF.
      *
      * @throws IngestaRechazadaException pdf_protegido o pdf_no_normalizable
@@ -41,13 +51,15 @@ class SaneadorPdf
      */
     public function rechazarSiProtegido(string $ruta): void
     {
-        // qpdf --requires-password: 0 = necesita contraseña, 2 = sin cifrar, 3 = cifrado sin contraseña de usuario.
-        $resultado = $this->ejecutar([(string) config('documentos.binarios.qpdf'), '--requires-password', $ruta]);
+        // qpdf --requires-password: 0 = necesita contraseña, 2 = sin cifrar (o error), 3 = cifrado sin contraseña de usuario.
+        $comando = [(string) config('documentos.binarios.qpdf'), '--requires-password', $ruta];
+        $resultado = $this->ejecutar($comando);
 
-        match ($resultado->exitCode()) {
-            0 => throw new IngestaRechazadaException('pdf_protegido'),
-            2, 3 => null,
-            default => throw new IngestaRechazadaException('pdf_no_normalizable'),
+        match (true) {
+            $resultado->exitCode() === 0 => throw new IngestaRechazadaException('pdf_protegido'),
+            $resultado->exitCode() === 3 => null,
+            $resultado->exitCode() === 2 && trim($resultado->errorOutput()) === '' => null,
+            default => throw $this->rechazo($comando, $resultado, 'qpdf no ha podido determinar si el PDF pide contraseña'),
         };
     }
 
@@ -92,10 +104,11 @@ class SaneadorPdf
      */
     public function contarPaginas(string $ruta): int
     {
-        $resultado = $this->ejecutar([(string) config('documentos.binarios.pdfinfo'), $ruta]);
+        $comando = [(string) config('documentos.binarios.pdfinfo'), $ruta];
+        $resultado = $this->ejecutar($comando);
 
         if ($resultado->failed() || ! preg_match('/^Pages:\s+(\d+)/m', $resultado->output(), $coincidencia)) {
-            throw new IngestaRechazadaException('pdf_no_normalizable');
+            throw $this->rechazo($comando, $resultado, 'pdfinfo no ha devuelto el número de páginas');
         }
 
         return (int) $coincidencia[1];
@@ -117,15 +130,16 @@ class SaneadorPdf
     public function verificarSinContenidoActivo(string $ruta, string $directorio): void
     {
         $expandido = $directorio.'/expandido.pdf';
-        $resultado = $this->ejecutar([
+        $comando = [
             (string) config('documentos.binarios.qpdf'),
             '--qdf', '--object-streams=disable', '--decode-level=generalized',
             $ruta, $expandido,
-        ]);
+        ];
+        $resultado = $this->ejecutar($comando);
 
         // qpdf devuelve 3 cuando termina con avisos; el fichero es válido igualmente.
         if (! in_array($resultado->exitCode(), [0, 3], true) || ! is_file($expandido)) {
-            throw new IngestaRechazadaException('pdf_no_normalizable');
+            throw $this->rechazo($comando, $resultado, 'qpdf no ha generado la forma expandida del PDF');
         }
 
         $contenido = (string) file_get_contents($expandido);
@@ -149,17 +163,18 @@ class SaneadorPdf
      */
     private function reescribir(string $ruta, string $salida, array $extra): void
     {
-        $resultado = $this->ejecutar([
+        $comando = [
             (string) config('documentos.binarios.gs'),
             ...self::GS_PDFA,
             ...$extra,
             '-o', $salida,
             $ruta,
-        ]);
+        ];
+        $resultado = $this->ejecutar($comando);
 
         // Ghostscript puede terminar con código 0 sin generar páginas (p. ej. si no puede abrir el PDF).
         if ($resultado->failed() || ! is_file($salida) || filesize($salida) === 0) {
-            throw new IngestaRechazadaException('pdf_no_normalizable');
+            throw $this->rechazo($comando, $resultado, 'Ghostscript no ha generado el PDF/A');
         }
     }
 
@@ -168,7 +183,7 @@ class SaneadorPdf
      *
      * @param list<string> $comando Comando y argumentos.
      *
-     * @throws IngestaRechazadaException pdf_no_normalizable si se agota el tiempo
+     * @throws IngestaRechazadaException pdf_no_normalizable si se agota el tiempo o no se puede lanzar
      *
      * @return ProcessResult
      */
@@ -177,7 +192,27 @@ class SaneadorPdf
         try {
             return Process::timeout((int) config('documentos.ingesta.timeout_saneado_segundos'))->run($comando);
         } catch (\Throwable $e) {
-            throw new IngestaRechazadaException('pdf_no_normalizable', $e);
+            throw new IngestaRechazadaException(
+                'pdf_no_normalizable',
+                new ProcesoExternoFallidoException($comando, null, '', 'El proceso no ha terminado: '.$e->getMessage(), $e),
+            );
         }
+    }
+
+    /**
+     * Rechazo pdf_no_normalizable con la causa técnica del proceso adjunta.
+     *
+     * @param list<string> $comando Comando y argumentos ejecutados.
+     * @param ProcessResult $resultado Resultado del proceso.
+     * @param string $motivo Qué se esperaba y no se obtuvo.
+     *
+     * @return IngestaRechazadaException
+     */
+    private function rechazo(array $comando, ProcessResult $resultado, string $motivo): IngestaRechazadaException
+    {
+        return new IngestaRechazadaException(
+            'pdf_no_normalizable',
+            ProcesoExternoFallidoException::desde($comando, $resultado, $motivo),
+        );
     }
 }
