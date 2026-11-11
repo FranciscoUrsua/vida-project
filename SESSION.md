@@ -1,14 +1,16 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-11 (formato Markdown de los documentos del 10 nov, punto A5 de `2026_11_estabilizacion_y_privacidad.md`)
+**Última actualización:** 2026-11-11 (personas relacionadas protegidas, punto B1 de `2026_11_estabilizacion_y_privacidad.md`)
 
 ---
 
 ## Tarea completada
 
-**Formato Markdown de los documentos del 10 nov (A5 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-11): los ocho ficheros en Markdown sin cambiar una palabra (comprobado por fichero); en `modulo-citas.md`, precisión de RN-03 sobre el profesional de referencia y retirado el bloque duplicado de §9–§11 (decisión del desarrollador). Dudas 1 y 2 del 10 nov resueltas. Detalle en `CHANGELOG-112026.md`.
+**Personas relacionadas protegidas (B1 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-11): `App\Services\PresentacionPersona` en ficha, expediente, plan (pantalla y PDF), alta de documentos, buscadores y bandeja; las acciones sobre una relación o un conviviente protegido que no se puede ver no se ofrecen y el servidor las rechaza. TF-ACC-PR-01 a 08 (comprobados en negativo). Detalle en `CHANGELOG-112026.md`.
 
-Antes, el mismo día: **Supervisión: tests en la suite (A2 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-11): `Modules/Supervision/tests/Feature` en `phpunit.xml`; los tres fallos eran tests desfasados o incompletos y se han corregido sin tocar la aplicación («Aprobaciones» fuera del menú desde junio, confirmado por el desarrollador; pestañas del equipo retiradas en junio; F03 sin acceso previo). `Modules/Supervision/tests` 38 passed. Detalle en `CHANGELOG-112026.md`.
+Antes, el mismo día: **Formato Markdown de los documentos del 10 nov (A5 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-11): los ocho ficheros en Markdown sin cambiar una palabra (comprobado por fichero); en `modulo-citas.md`, precisión de RN-03 sobre el profesional de referencia y retirado el bloque duplicado de §9–§11 (decisión del desarrollador). Dudas 1 y 2 del 10 nov resueltas. Detalle en `CHANGELOG-112026.md`.
+
+Y antes: **Supervisión: tests en la suite (A2 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-11): `Modules/Supervision/tests/Feature` en `phpunit.xml`; los tres fallos eran tests desfasados o incompletos y se han corregido sin tocar la aplicación («Aprobaciones» fuera del menú desde junio, confirmado por el desarrollador; pestañas del equipo retiradas en junio; F03 sin acceso previo). `Modules/Supervision/tests` 38 passed. Detalle en `CHANGELOG-112026.md`.
 
 Y antes: **Documentos: rechazos que faltaban y causa técnica (A1 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-11): `fichero_vacio` (servicio y pantalla), `pdf_sin_contenido` con `SaneadorPdf::tintaTotal()` (inkcov, umbral 0,00001), `ProcesoExternoFallidoException` renombrada a `FalloHerramientaExterna` (nombre del binario, salida de error recortada a 2.000) y extendida a LibreOffice, `report()` de la causa en `DocumentosCiudadano`. TF-DOC-ING-01 a 08 en verde; `Modules/Documentos/tests` 100 passed. El 0 bytes «guardado» en staging no se reproduce (ni hay versión de 0 bytes en la BD). TF-DOC-ING-03 usa un PDF con contenido dañado: el truncado sin trailer lo para antes qpdf (`pdf_no_normalizable`). Docs: `modulo-documentos.md` §3 y `decisiones-tecnicas.md` §14. Detalle y mediciones en `CHANGELOG-112026.md`.
 
@@ -36,6 +38,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 - **Perfiles por defecto en el CIAM (UO 13):** se crean con `agenda:horarios-por-defecto --centro=13` tras el despliegue (ver CHANGELOG). Hecho: 9 perfiles pendientes de verificar + 1 previo (comprobado el 2026-10-02). Los demás centros no se completan por ahora: al desarrollador solo le preocupa el CIAM.
 - **AppArmor:** qpdf y gs están confinados; las reglas locales (`/etc/apparmor.d/local/{qpdf,gs}`) cubren `/var/www/.../storage/app/tmp` y, en el repositorio local, `storage/framework/testing` y `storage/app/tmp`. Revisar tras cada `apt upgrade` (BACKLOG).
 - **Tests:**
+  - 2026-11-11, B1: Acceso, Ciudadanía, Supervisión, Agenda, Intervención y `DocumentosCiudadanoTest`: 657 passed, 1 incomplete (previo) y 1 fallo propio (`RelacionesUiTest`, corregido). Tras los retoques finales, Acceso + Livewire de Intervención: 198 passed, 1 incomplete. `ui:auditar` sin infracciones.
   - 2026-11-11, Supervisión (A2): `Modules/Supervision/tests` 38 passed; ya forman parte de la suite `Feature`.
   - 2026-11-11, Documentos (A1): `Modules/Documentos/tests` 100 passed (477 assertions); TF-DOC-ING-03, 04 y 07 comprobados en negativo.
   - 2026-11-11, CI calidad: `AmbitoCoberturaTest` 5 passed. PHPStan: 281 errores (recuento en el BACKLOG).
@@ -55,7 +58,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 
 ## Siguiente paso concreto recomendado
 
-0. **Seguir `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`:** hechos A3, A1, A2 y A5 (bloque A completo; A4 aplazado por el desarrollador hasta la 1.0: la BD compartida local/staging se mantiene a propósito). Siguiente: **B1** (personas relacionadas protegidas), después B2–B4; A4 espera la confirmación del desarrollador. Tras el despliegue de A1, probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (prueba rápida de `decisiones-tecnicas.md` §14).
+0. **Seguir `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`:** hechos A3, A1, A2 y A5 (bloque A completo; A4 aplazado por el desarrollador hasta la 1.0: la BD compartida local/staging se mantiene a propósito). Hecho B1. Siguiente: **B2** (`VerFichaPage` y la historia de la ruta), después B3 y B4; A4 espera la confirmación del desarrollador. Tras el despliegue de A1, probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (prueba rápida de `decisiones-tecnicas.md` §14).
 1. **El desarrollador prueba en staging asignación y citas** (pendiente desde el 2026-10-01; las pantallas solo se han probado con tests).
    - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto. **Configurar igual todos los centros del mismo tipo:** el paso 3 de Tipo de Centro aborta si difieren.
    - Citas: bandeja de citación, cita directa, detalle con reprogramar y cancelar, agenda del profesional, «Solicitar cita» en Intervención, *Atender* → registro de atención → «Dar cita».

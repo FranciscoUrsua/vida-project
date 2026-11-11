@@ -150,19 +150,23 @@
 
             {{-- Representante (solo si existe relación activa) --}}
             @if($this->representante)
+            @php $personaRepresentante = $this->personasRelacionadas[$this->representante->id]; @endphp
             <div class="d-flex align-items-center gap-2 small mt-1">
                 <span class="text-body-secondary">Representante</span>
+                @if($personaRepresentante['visible'])
                 <button
                     type="button"
                     wire:click="abrirModalRepresentante"
                     class="btn btn-link btn-sm p-0 fw-semibold text-decoration-none d-inline-flex align-items-center gap-1"
                     title="Ver datos de contacto del representante"
                 >
-                    {{ $this->representante->nombre }}
-                    {{ $this->representante->apellido1 }}
-                    {{ $this->representante->apellido2 }}
+                    {{ $personaRepresentante['nombre'] }}
                     <x-heroicon-o-chevron-right class="icon-12" aria-hidden="true"/>
                 </button>
+                @else
+                {{-- Colectivo protegido que no se puede ver: sin nombre, contacto ni enlace (CLAUDE.md §3) --}}
+                <span class="fw-semibold text-body-secondary">{{ $personaRepresentante['nombre'] }}</span>
+                @endif
             </div>
             @endif
 
@@ -196,10 +200,17 @@
                                                     <x-heroicon-o-shield-exclamation class="icon-14 text-warning flex-shrink-0" aria-hidden="true"/>
                                                 @endif
                                                 @if($ucm->ciudadano)
-                                                    @php $tipoRelUc = $this->relacionesMiembrosUc->get($ucm->ciudadano_id); @endphp
-                                                    <a href="{{ route('ciudadania.ciudadano.ficha', $ucm->ciudadano) }}" class="text-decoration-none">
-                                                        {{ $ucm->ciudadano->nombre }} {{ $ucm->ciudadano->apellido1 }}
+                                                    @php
+                                                        $tipoRelUc = $this->relacionesMiembrosUc->get($ucm->ciudadano_id);
+                                                        $personaUc = $this->personasRelacionadas[$ucm->ciudadano_id];
+                                                    @endphp
+                                                    @if($personaUc['visible'])
+                                                    <a href="{{ $personaUc['url'] }}" class="text-decoration-none">
+                                                        {{ $personaUc['nombre'] }}
                                                     </a>
+                                                    @else
+                                                    <span class="text-body-secondary">{{ $personaUc['nombre'] }}</span>
+                                                    @endif
                                                     @if($tipoRelUc)
                                                         <span class="text-body-secondary">{{ $tipoRelUc }}</span>
                                                     @endif
@@ -827,14 +838,16 @@
 
                             <ul class="list-group list-group-flush">
                                 @forelse($this->ucMiembrosActivos as $miembro)
+                                @php $personaMiembro = $miembro->ciudadano ? $this->personasRelacionadas[$miembro->ciudadano_id] : null; @endphp
                                 <li class="list-group-item d-flex align-items-center justify-content-between gap-2 px-0" wire:key="miembro-{{ $miembro->id }}">
                                     <div>
-                                        @if($miembro->ciudadano)
-                                        <a href="{{ route('ciudadania.ciudadano.ficha', $miembro->ciudadano) }}" class="fw-semibold text-decoration-none">
-                                            {{ $miembro->ciudadano->nombre }}
-                                            {{ $miembro->ciudadano->apellido1 }}
-                                            {{ $miembro->ciudadano->apellido2 }}
+                                        @if($personaMiembro && $personaMiembro['visible'])
+                                        <a href="{{ $personaMiembro['url'] }}" class="fw-semibold text-decoration-none">
+                                            {{ $personaMiembro['nombre'] }}
                                         </a>
+                                        @elseif($personaMiembro)
+                                        {{-- Colectivo protegido que no se puede ver: sin nombre, enlace ni acciones (CLAUDE.md §3) --}}
+                                        <span class="fw-semibold text-body-secondary">{{ $personaMiembro['nombre'] }}</span>
                                         @else
                                         <span class="fw-semibold">—</span>
                                         @endif
@@ -843,6 +856,7 @@
                                         </div>
                                     </div>
 
+                                    @if($personaMiembro === null || $personaMiembro['visible'])
                                     <div class="d-flex align-items-center gap-2 flex-shrink-0">
                                         @if($miembro->verificado)
                                             <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle d-inline-flex align-items-center gap-1" title="Residencia verificada">
@@ -879,6 +893,7 @@
                                             </button>
                                         @endif
                                     </div>
+                                    @endif
                                 </li>
                                 @empty
                                 <li class="list-group-item px-0 small text-body-secondary">No hay miembros activos.</li>
@@ -961,7 +976,7 @@
     {{-- ================================================================== --}}
     {{-- MODAL: DATOS DE CONTACTO DEL REPRESENTANTE                         --}}
     {{-- ================================================================== --}}
-    @if($this->modalRepresentanteAbierto && $this->representante)
+    @if($this->modalRepresentanteAbierto && $this->representante && $this->personasRelacionadas[$this->representante->id]['visible'])
     <div
         class="modal fade show d-block"
         wire:click.self="cerrarModalRepresentante"
@@ -1061,21 +1076,22 @@
 
                         <ul class="list-group list-group-flush">
                             @foreach($grupo['miembros'] as $persona)
-                            <li class="list-group-item d-flex align-items-center justify-content-between gap-2 px-0" wire:key="rel-{{ $slug }}-{{ $persona->id }}">
+                            @php $presentada = $this->personasRelacionadas[$persona->id]; @endphp
+                            {{-- La clave no usa el id: de una persona protegida que no se puede ver no sale ningún dato (CLAUDE.md §3) --}}
+                            <li class="list-group-item d-flex align-items-center justify-content-between gap-2 px-0" wire:key="rel-{{ $slug }}-{{ $loop->index }}">
                                 <div>
-                                    <span class="fw-semibold">
-                                        {{ $persona->nombre }}
-                                        {{ $persona->apellido1 }}
-                                        {{ $persona->apellido2 }}
+                                    <span @class(['fw-semibold', 'text-body-secondary' => ! $presentada['visible']])>
+                                        {{ $presentada['nombre'] }}
                                     </span>
-                                    @if($persona->telefono)
+                                    @if($presentada['visible'] && $persona->telefono)
                                     <div class="small text-body-secondary">
                                         {{ $persona->telefono }}
                                     </div>
                                     @endif
                                 </div>
+                                @if($presentada['visible'])
                                 <a
-                                    href="{{ route('ciudadania.ciudadano.ficha', $persona->id) }}"
+                                    href="{{ $presentada['url'] }}"
                                     class="btn btn-outline-secondary btn-sm"
                                     wire:navigate
                                     title="Ver ficha"
@@ -1083,6 +1099,7 @@
                                 >
                                     <x-heroicon-o-arrow-top-right-on-square class="icon-12" aria-hidden="true"/>
                                 </a>
+                                @endif
                             </li>
                             @endforeach
                         </ul>

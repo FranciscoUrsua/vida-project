@@ -4,8 +4,10 @@ namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
+use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use App\Services\AccesoExpediente;
+use App\Services\PresentacionPersona;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -295,7 +297,9 @@ class PlanPage extends Component
     /**
      * Miembros activos de la unidad de convivencia con relación y verificación.
      *
-     * @return Collection<int, array{ciudadano: mixed, relacion: mixed, verificado: mixed}>
+     * Cada elemento: persona (salida de PresentacionPersona::paraListado()), relacion (etiqueta o null) y verificado.
+     *
+     * @return Collection<int, array{persona: mixed, relacion: mixed, verificado: mixed}>
      */
     #[Computed]
     public function miembrosUc(): Collection
@@ -306,22 +310,28 @@ class PlanPage extends Component
 
         $slugsEtiquetas = TipoRelacion::activos()->pluck('etiqueta', 'slug');
 
-        return $this->ucVigente->miembrosActivos()
-            ->with('ciudadano')
-            ->get()
-            ->map(function ($m) use ($slugsEtiquetas) {
-                $relacion = CiudadanoRelacion::where(
-                    'ciudadano_id', $this->ciudadano?->id
-                )->where('ciudadano_relacionado_id', $m->ciudadano_id)
-                    ->whereNull('fecha_fin')
-                    ->value('tipo_relacion');
+        // Sin AmbitoUoScope: un conviviente puede ser de otra UO. Qué se muestra de él lo
+        // decide PresentacionPersona (CLAUDE.md §3).
+        $miembros = $this->ucVigente->miembrosActivos()
+            ->with(['ciudadano' => fn ($q) => $q->withoutGlobalScope(AmbitoUoScope::class)])
+            ->get();
 
-                return [
-                    'ciudadano' => $m->ciudadano,
-                    'relacion' => $relacion ? ($slugsEtiquetas[$relacion] ?? null) : null,
-                    'verificado' => $m->verificado,
-                ];
-            });
+        /** @var array<int, array{persona: mixed, relacion: mixed, verificado: mixed}> $filas */
+        $filas = [];
+        foreach ($miembros as $m) {
+            $relacion = CiudadanoRelacion::where('ciudadano_id', $this->ciudadano?->id)
+                ->where('ciudadano_relacionado_id', $m->ciudadano_id)
+                ->whereNull('fecha_fin')
+                ->value('tipo_relacion');
+
+            $filas[] = [
+                'persona' => PresentacionPersona::paraListado($m->ciudadano, auth()->user()),
+                'relacion' => $relacion ? ($slugsEtiquetas[$relacion] ?? null) : null,
+                'verificado' => $m->verificado,
+            ];
+        }
+
+        return collect($filas);
     }
 
     /**

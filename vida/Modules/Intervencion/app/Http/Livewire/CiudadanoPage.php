@@ -6,12 +6,13 @@ use App\Models\Audit;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
+use App\Models\User;
 use App\Queries\AccesosExpedienteQuery;
 use App\Services\AccesoExpediente;
+use App\Services\PresentacionPersona;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -73,6 +74,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property-read PlanDeIntervencion|null $planActivo
  * @property-read UnidadConvivencia|null $ucVigente
  * @property-read Collection<int, UnidadConvivenciaMiembro> $ucMiembrosActivos
+ * @property-read Ciudadano|null $representante
+ * @property-read Collection<int|string, array{etiqueta: string, miembros: Collection<int, Ciudadano>}> $relacionesAgrupadas
+ * @property-read array<int, array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}> $personasRelacionadas
  * @property-read Collection<int, Audit> $accesosRecientes
  * @property-read bool $puedeVerTodosLosAccesos
  * @property-read Collection<int, Prescripcion> $prescripcionesActivas
@@ -439,8 +443,12 @@ class CiudadanoPage extends Component
     #[Computed]
     public function ucMiembrosActivos(): Collection
     {
+        // Sin AmbitoUoScope: un conviviente puede ser de otra UO. Qué se muestra de él
+        // lo decide PresentacionPersona (personasRelacionadas).
         return $this->ucVigente
-            ? $this->ucVigente->miembrosActivos()->with('ciudadano')->get()
+            ? $this->ucVigente->miembrosActivos()
+                ->with(['ciudadano' => fn ($q) => $q->withoutGlobalScope(AmbitoUoScope::class)])
+                ->get()
             : collect();
     }
 
@@ -471,7 +479,7 @@ class CiudadanoPage extends Component
                 mb_strtolower(trim($this->ucBusqueda))
             ))
             // Colectivos protegidos: quien no puede ver a la persona no la encuentra (CLAUDE.md §3)
-            ->reject(fn ($c) => $c->colectivo_extra_protegido && Gate::denies('view', $c))
+            ->reject(fn ($c) => ! PresentacionPersona::visible($c, auth()->user()))
             ->take(8)
             ->values();
     }
@@ -520,16 +528,47 @@ class CiudadanoPage extends Component
 
         $slugsActivos = TipoRelacion::activos()->pluck('etiqueta', 'slug');
 
+        // Sin AmbitoUoScope: la persona relacionada puede ser de otra UO (antes llegaba
+        // null y rompía el modal). Qué se muestra lo decide personasRelacionadas.
         return CiudadanoRelacion::where('ciudadano_id', $this->ciudadano->id)
             ->whereNull('fecha_fin')
-            ->with('ciudadanoRelacionado')
+            ->with(['ciudadanoRelacionado' => fn ($q) => $q->withoutGlobalScope(AmbitoUoScope::class)])
             ->get()
-            ->filter(fn ($r) => $slugsActivos->has($r->tipo_relacion))
+            ->filter(fn ($r) => $slugsActivos->has($r->tipo_relacion) && $r->ciudadanoRelacionado !== null)
             ->groupBy('tipo_relacion')
             ->map(fn ($grupo, $slug) => [
                 'etiqueta' => (string) $slugsActivos->get($slug),
                 'miembros' => $grupo->map(fn ($r) => $r->ciudadanoRelacionado)->values(),
             ]);
+    }
+
+    /**
+     * Cómo se muestra cada persona relacionada (representante, convivientes y
+     * relaciones), por id.
+     *
+     * Un colectivo protegido que la policy no deja ver sale como «Persona con
+     * protección especial», sin enlace, contacto ni datos (CLAUDE.md §3).
+     *
+     * @return array<int, array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}>
+     */
+    #[Computed]
+    public function personasRelacionadas(): array
+    {
+        /** @var User $usuario */
+        $usuario = auth()->user();
+        /** @var Collection<int, Ciudadano|null> $personas */
+        $personas = collect([$this->representante]);
+        $personas = $personas
+            ->merge($this->ucMiembrosActivos->map(fn (UnidadConvivenciaMiembro $m) => $m->ciudadano))
+            ->merge($this->relacionesAgrupadas->flatMap(fn (array $grupo) => $grupo['miembros']))
+            ->filter();
+
+        $resultado = [];
+        foreach ($personas as $persona) {
+            $resultado[$persona->id] ??= PresentacionPersona::paraListado($persona, $usuario);
+        }
+
+        return $resultado;
     }
 
     /**
@@ -595,6 +634,11 @@ class CiudadanoPage extends Component
      */
     public function abrirModalRepresentante(): void
     {
+        // El modal muestra contacto: no se abre si el representante es un colectivo protegido que no se puede ver.
+        if ($this->representante !== null && ! PresentacionPersona::visible($this->representante, auth()->user())) {
+            return;
+        }
+
         $this->modalRepresentanteAbierto = true;
     }
 
@@ -650,7 +694,7 @@ class CiudadanoPage extends Component
             $this->ucVigente->agregarMiembro($this->ucCiudadanoSeleccionado);
             $this->ucCiudadanoSeleccionado = null;
             $this->ucMensaje = 'Miembro añadido correctamente.';
-            unset($this->ucMiembrosActivos);
+            unset($this->ucMiembrosActivos, $this->personasRelacionadas);
             unset($this->ucVigente);
         } catch (\LogicException $e) {
             $this->ucMensaje = $e->getMessage();
@@ -672,6 +716,10 @@ class CiudadanoPage extends Component
      */
     public function iniciarBajaMiembro(int $miembroId): void
     {
+        if (! $this->miembroVisible($miembroId)) {
+            return;
+        }
+
         $this->ucMiembroParaBaja = $miembroId;
     }
 
@@ -686,7 +734,7 @@ class CiudadanoPage extends Component
 
         $miembro = UnidadConvivenciaMiembro::find($this->ucMiembroParaBaja);
 
-        if (! $miembro || $miembro->unidad_convivencia_id !== $this->ucVigente->id) {
+        if (! $miembro || $miembro->unidad_convivencia_id !== $this->ucVigente->id || ! $this->miembroVisible($miembro->id)) {
             $this->ucMiembroParaBaja = null;
 
             return;
@@ -695,7 +743,7 @@ class CiudadanoPage extends Component
         $this->ucVigente->darDeBajaMiembro($miembro->ciudadano_id);
         $this->ucMiembroParaBaja = null;
         $this->ucMensaje = 'Miembro dado de baja correctamente.';
-        unset($this->ucMiembrosActivos);
+        unset($this->ucMiembrosActivos, $this->personasRelacionadas);
         unset($this->ucVigente);
     }
 
@@ -716,13 +764,13 @@ class CiudadanoPage extends Component
     {
         $miembro = UnidadConvivenciaMiembro::find($miembroId);
 
-        if (! $miembro || $miembro->unidad_convivencia_id !== $this->ucVigente?->id) {
+        if (! $miembro || $miembro->unidad_convivencia_id !== $this->ucVigente?->id || ! $this->miembroVisible($miembro->id)) {
             return;
         }
 
         $miembro->verificar(auth()->user());
         $this->ucMensaje = 'Residencia verificada.';
-        unset($this->ucMiembrosActivos);
+        unset($this->ucMiembrosActivos, $this->personasRelacionadas);
     }
 
     /**
@@ -745,7 +793,7 @@ class CiudadanoPage extends Component
         $uc->agregarMiembro($this->ciudadano->id, fuente: 'manual');
 
         unset($this->ucVigente);
-        unset($this->ucMiembrosActivos);
+        unset($this->ucMiembrosActivos, $this->personasRelacionadas);
         $this->ucMensaje = 'Unidad de convivencia creada.';
     }
 
@@ -1354,5 +1402,26 @@ class CiudadanoPage extends Component
     public function render(): View
     {
         return view('intervencion::livewire.ciudadano-page');
+    }
+
+    /**
+     * Si el usuario puede ver al conviviente de un registro de la UC.
+     *
+     * Las acciones sobre un conviviente (baja, verificar residencia) solo se ofrecen
+     * y se ejecutan si se le puede ver: de un colectivo protegido ajeno solo se sabe
+     * que forma parte de la UC (CLAUDE.md §3).
+     *
+     * @param int $miembroId ID de UnidadConvivenciaMiembro.
+     *
+     * @return bool
+     */
+    private function miembroVisible(int $miembroId): bool
+    {
+        $miembro = UnidadConvivenciaMiembro::find($miembroId);
+        $persona = $miembro
+            ? Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->find($miembro->ciudadano_id)
+            : null;
+
+        return $persona !== null && PresentacionPersona::visible($persona, auth()->user());
     }
 }

@@ -4,6 +4,35 @@
 
 ---
 
+## 2026-11-11 — Privacidad: personas relacionadas protegidas (B1 de estabilización)
+
+### Cambios
+- Nuevo `App\Services\PresentacionPersona` (`visible()`, `paraListado()`): un único presentador para «persona en un listado». Un colectivo protegido que la policy no deja ver sale como «Persona con protección especial», sin id, enlace, contacto ni modelo; el resto, como siempre. Criterio: `CiudadanoPolicy::view()` (no se crea otro). Sin usuario (proceso sin sesión), un protegido nunca se muestra.
+- **Ficha** (`FichaCiudadanoPage`): nueva propiedad calculada `personasRelacionadas` para relaciones (vigentes e historial) y convivientes. Una relación con una persona que no se puede ver no es clicable ni enlaza; `abrirModalEditarRelacion()` no la abre y `guardarRelacion()` (edición y alta) y `cerrarRelacion()` responden 403. El buscador y la selección de relación usan el presentador.
+- **Expediente** (`CiudadanoPage`): `personasRelacionadas` para representante, convivientes y relaciones. El representante protegido sale sin nombre ni botón de contacto y `abrirModalRepresentante()` no abre el modal; en la UC (cabecera y modal) no hay nombre, enlace, baja ni verificación, y `iniciarBajaMiembro()`, `confirmarBajaMiembro()` y `verificarMiembro()` lo rechazan; el modal «Personas relacionadas» no muestra nombre, teléfono ni enlace (y su `wire:key` ya no lleva el id).
+- **Corrección de paso:** `relacionesAgrupadas` y `ucMiembrosActivos` del expediente cargaban a la persona **con** el scope de UO: una persona de otra UO llegaba `null` (en el modal de relaciones daba error al leer `$persona->id`) y un conviviente de otra UO salía vacío. Ahora se cargan sin scope y decide el presentador, como en la ficha.
+- Buscadores y bandeja que filtraban por su cuenta, pasados al presentador (cambio de una línea): `CiudadanoPage::ucResultadosBusqueda()`, `BuscadorPersonasCita::visible()`, `BuscarCiudadanoPage::resolverResultado()`, `AsignacionesPage` (aviso tras decidir) y el parcial `persona-pendiente` de la bandeja.
+- `docs/modulo-ciudadania.md` §6.2: la regla. `BACKLOG.md`: cerrada la viñeta «Personas relacionadas sin filtro de protegido».
+- Suites: Acceso, Ciudadanía, Supervisión, Agenda, Intervención y `DocumentosCiudadanoTest`: 657 passed, 1 incomplete (previo); el único fallo (`RelacionesUiTest`, modal del representante sin representante) se corrigió y, tras los retoques, Acceso + Livewire de Intervención: 198 passed, 1 incomplete. `ui:auditar` sin infracciones. PHPStan sin errores nuevos en el código modificado (los del test nuevo son los falsos positivos de `Livewire::test()` y `create()` ya medidos en el BACKLOG).
+- Tests: `tests/Feature/Acceso/PersonasRelacionadasProtegidasTest.php`, TF-ACC-PR-01 a 08. **En negativo** (sin los cambios de la aplicación) fallan 01, 04, 05, 06 y 08; 02, 03 y 07 comprueban lo que ya funcionaba (la persona visible sigue viéndose y el presentador).
+
+### Otros sitios que pintan personas relacionadas (punto 3)
+| Sitio | Qué mostraba | Qué se ha hecho |
+|---|---|---|
+| PDF del plan (`PlanPdfService`, `pdf/plan.blade.php`) | Nombres de los convivientes; cargados con scope (un conviviente de otra UO daba error) | Presentador, sin scope |
+| Pantalla del plan (`PlanPage::miembrosUc()`) | Nombres de los convivientes, cargados con scope | Presentador, sin scope |
+| Alta de documentos (`DocumentosCiudadano::otrosMiembros()`) | Nombre del conviviente para vincularle el documento | No se ofrece el conviviente que no se puede ver; `datosAlta()` solo acepta los ofrecidos, así que tampoco se puede forzar |
+| Bandeja de asignaciones | Ya ocultaba al protegido | Pasa al presentador |
+| Participantes del plan y de mensajes | Profesionales, no ciudadanos | Nada |
+
+No queda ninguno para el BACKLOG.
+
+### Decisiones
+- **Baja y verificación de convivientes** se tratan como acciones sobre la relación: con un conviviente protegido que no se puede ver no se ofrecen ni se ejecutan. La instrucción habla de «editar, cerrar, abrir su ficha»; extenderlo a la UC es lo coherente con la regla (quien no puede saber quién es no debería actuar sobre esa persona). Si la UO del titular necesita dar de baja a ese conviviente, tendrá que pedir acceso.
+- `abrirModalRepresentante()` sin representante sigue abriendo el modal vacío, como antes (lo exige `RelacionesUiTest`); solo se bloquea con un representante que no se puede ver.
+- El presentador es estático (lo llaman componentes, servicios y un parcial Blade) y devuelve un array, como proponía la instrucción.
+- `PlanPage::miembrosUc()` se reescribe con un bucle para que PHPStan acepte el tipo (la clave del elemento `persona` cambió de `ciudadano`, que daba el modelo entero a la vista).
+
 ## 2026-11-11 — Documentación: formato Markdown de los documentos del 10 nov (A5 de estabilización)
 
 ### Cambios

@@ -8,11 +8,11 @@ use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
+use App\Services\PresentacionPersona;
 use App\Services\AccesoExpediente;
 use App\Queries\AccesosExpedienteQuery;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -62,6 +62,7 @@ use Modules\Intervencion\Services\AperturaHistoriaService;
  * @property-read bool $puedeEditarRelaciones
  * @property-read Collection<int, CiudadanoRelacion> $relacionesActivas
  * @property-read Collection<int, CiudadanoRelacion> $relacionesHistoricas
+ * @property-read array<int, array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}> $personasRelacionadas
  * @property-read Collection<int, Ciudadano> $relacionResultadosBusqueda
  * @property-read Ciudadano|null $ciudadanoSeleccionadoRelacion
  * @property-read Collection<int, CiudadanoPrestacionResumen> $prestaciones
@@ -526,6 +527,31 @@ class FichaCiudadanoPage extends Component
     }
 
     /**
+     * Cómo se muestra cada persona relacionada (relaciones y convivientes), por id.
+     *
+     * Un colectivo protegido que la policy no deja ver sale como «Persona con
+     * protección especial», sin enlace ni datos (CLAUDE.md §3, PresentacionPersona).
+     *
+     * @return array<int, array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}>
+     */
+    #[Computed]
+    public function personasRelacionadas(): array
+    {
+        /** @var User $usuario */
+        $usuario = auth()->user();
+        $personas = $this->relacionesHistoricas->map(fn (CiudadanoRelacion $r) => $r->ciudadanoRelacionado)
+            ->merge($this->ucMiembros->map(fn (UnidadConvivenciaMiembro $m) => $m->ciudadano))
+            ->filter();
+
+        $resultado = [];
+        foreach ($personas as $persona) {
+            $resultado[$persona->id] ??= PresentacionPersona::paraListado($persona, $usuario);
+        }
+
+        return $resultado;
+    }
+
+    /**
      * Resultados de búsqueda para añadir una relación. Los nombres están cifrados,
      * por eso se filtra en memoria siguiendo el patrón del buscador de ciudadanos.
      *
@@ -547,7 +573,7 @@ class FichaCiudadanoPage extends Component
                 mb_strtolower(trim($this->relacionBusqueda))
             ))
             // Colectivos protegidos: quien no puede ver a la persona no la encuentra (CLAUDE.md §3)
-            ->reject(fn (Ciudadano $ciudadano) => $ciudadano->colectivo_extra_protegido && Gate::denies('view', $ciudadano))
+            ->reject(fn (Ciudadano $ciudadano) => ! PresentacionPersona::visible($ciudadano, auth()->user()))
             ->take(8)
             ->values();
     }
@@ -567,7 +593,7 @@ class FichaCiudadanoPage extends Component
         $ciudadano = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
             ->find($this->relacionCiudadanoSeleccionado);
 
-        return $ciudadano !== null && $ciudadano->colectivo_extra_protegido && Gate::denies('view', $ciudadano)
+        return $ciudadano !== null && ! PresentacionPersona::visible($ciudadano, auth()->user())
             ? null
             : $ciudadano;
     }
@@ -702,7 +728,8 @@ class FichaCiudadanoPage extends Component
             ->where('id', $relacionId)
             ->first();
 
-        if (! $relacion) {
+        // Una relación con una persona protegida que no se puede ver no se edita (CLAUDE.md §3).
+        if (! $relacion || ! $this->relacionVisible($relacion)) {
             return;
         }
 
@@ -784,6 +811,10 @@ class FichaCiudadanoPage extends Component
                 ->where('id', $this->relacionId)
                 ->firstOrFail();
 
+            if (! $this->relacionVisible($relacion)) {
+                abort(403);
+            }
+
             $relacion->update(['observaciones' => $this->relacionObservaciones ?: null]);
             $this->relacionMensaje = 'Relación actualizada correctamente.';
         } else {
@@ -794,6 +825,12 @@ class FichaCiudadanoPage extends Component
                 'relacionFechaInicio' => 'required|date',
                 'relacionObservaciones' => 'nullable|string|max:1000',
             ]);
+
+            // Con una persona protegida que no se puede ver no se crea relación: no se la
+            // encuentra en el buscador, y una llamada directa tampoco lo consigue.
+            if ($this->ciudadanoSeleccionadoRelacion === null) {
+                abort(403);
+            }
 
             if (! TipoRelacion::activos()->where('slug', $this->relacionTipo)->exists()) {
                 throw ValidationException::withMessages([
@@ -825,7 +862,7 @@ class FichaCiudadanoPage extends Component
         }
 
         $this->cerrarModalRelacion();
-        unset($this->relacionesActivas, $this->relacionesHistoricas, $this->ucMiembros);
+        unset($this->relacionesActivas, $this->relacionesHistoricas, $this->ucMiembros, $this->personasRelacionadas);
     }
 
     /**
@@ -851,10 +888,14 @@ class FichaCiudadanoPage extends Component
             return;
         }
 
+        if (! $this->relacionVisible($relacion)) {
+            abort(403);
+        }
+
         $relacion->update(['fecha_fin' => today()->toDateString()]);
         $this->cerrarModalRelacion();
         $this->relacionMensaje = 'Relación cerrada correctamente.';
-        unset($this->relacionesActivas, $this->relacionesHistoricas, $this->ucMiembros);
+        unset($this->relacionesActivas, $this->relacionesHistoricas, $this->ucMiembros, $this->personasRelacionadas);
     }
 
     // -------------------------------------------------------------------------
@@ -1095,5 +1136,22 @@ class FichaCiudadanoPage extends Component
     public function render(): View
     {
         return view('ciudadania::livewire.ficha-ciudadano-page');
+    }
+
+    /**
+     * Si el usuario puede ver a la persona relacionada de una relación del titular.
+     *
+     * Las acciones sobre la relación (editar, cerrar) solo se permiten si la puede
+     * ver: con un colectivo protegido ajeno solo se sabe que la relación existe.
+     *
+     * @param CiudadanoRelacion $relacion Relación del titular.
+     *
+     * @return bool
+     */
+    private function relacionVisible(CiudadanoRelacion $relacion): bool
+    {
+        $persona = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->find($relacion->ciudadano_relacionado_id);
+
+        return $persona !== null && PresentacionPersona::visible($persona, auth()->user());
     }
 }

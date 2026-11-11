@@ -5,6 +5,7 @@ namespace Modules\Documentos\Http\Livewire;
 use App\Models\Ciudadano;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
+use App\Services\PresentacionPersona;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
@@ -181,10 +182,14 @@ class DocumentosCiudadano extends Component
             return collect();
         }
 
+        // Un colectivo protegido que no se puede ver no se ofrece: ni su nombre ni la
+        // opción de vincularle el documento (CLAUDE.md §3). datosAlta() solo acepta estos.
         return $uc->miembrosActivos()
             ->with(['ciudadano' => fn ($q) => $q->withoutGlobalScope(AmbitoUoScope::class)])
             ->where('ciudadano_id', '!=', $this->ciudadanoId)
-            ->get();
+            ->get()
+            ->filter(fn (UnidadConvivenciaMiembro $m): bool => $m->ciudadano !== null && PresentacionPersona::visible($m->ciudadano, auth()->user()))
+            ->values();
     }
 
     /**

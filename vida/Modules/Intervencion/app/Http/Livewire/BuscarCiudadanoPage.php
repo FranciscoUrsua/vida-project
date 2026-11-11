@@ -7,9 +7,9 @@ use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Services\AccesoExpediente;
+use App\Services\PresentacionPersona;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -157,7 +157,7 @@ class BuscarCiudadanoPage extends Component
     {
         // Colectivo protegido que la policy no deja ver → nivel 3 sin datos personales:
         // solo consta que existe una restricción y se ofrece solicitar acceso (CLAUDE.md §3)
-        if ($ciudadano->colectivo_extra_protegido && Gate::denies('view', $ciudadano)) {
+        if (! PresentacionPersona::visible($ciudadano, auth()->user())) {
             return [
                 'ciudadano_id' => $ciudadano->id,
                 'nombre' => null,

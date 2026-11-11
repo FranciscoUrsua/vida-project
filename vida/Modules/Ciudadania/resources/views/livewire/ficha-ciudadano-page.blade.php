@@ -297,6 +297,8 @@
                 $relacionesActivas  = $this->relacionesActivas;
                 $relacionesHist     = $this->relacionesHistoricas->filter(fn($r) => $r->fecha_fin !== null);
                 $puedeEditarRel     = $this->puedeEditarRelaciones;
+                // Colectivo protegido que no se puede ver: «Persona con protección especial», sin enlace ni acciones (CLAUDE.md §3)
+                $personas           = $this->personasRelacionadas;
             @endphp
             <div class="card card-body mb-3">
                 <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
@@ -327,13 +329,13 @@
                         @foreach($relacionesActivas as $rel)
                         @php
                             $etiquetaTipo = $rel->tipoRelacion?->etiqueta ?? $rel->tipo_relacion;
-                            $nombreRel    = $rel->ciudadanoRelacionado?->nombre_completo ?? '—';
-                            $fichaUrl     = $rel->ciudadano_relacionado_id
-                                ? route('ciudadania.ciudadano.ficha', $rel->ciudadano_relacionado_id)
-                                : null;
+                            $persona      = $personas[$rel->ciudadano_relacionado_id] ?? ['visible' => false, 'nombre' => '—', 'url' => null];
+                            $nombreRel    = $persona['nombre'];
+                            $fichaUrl     = $persona['url'];
+                            $editable     = $puedeEditarRel && $persona['visible'];
                         @endphp
-                        <div @class(['list-group-item d-flex align-items-center gap-2 px-0', 'list-group-item-action' => $puedeEditarRel])
-                             @if($puedeEditarRel) wire:click="abrirModalEditarRelacion({{ $rel->id }})" role="button" @endif>
+                        <div @class(['list-group-item d-flex align-items-center gap-2 px-0', 'list-group-item-action' => $editable])
+                             @if($editable) wire:click="abrirModalEditarRelacion({{ $rel->id }})" role="button" @endif>
                             <span class="badge bg-primary-subtle text-primary-emphasis">
                                 {{ $etiquetaTipo }}
                             </span>
@@ -342,9 +344,9 @@
                                     {{ $nombreRel }}
                                 </a>
                             @else
-                                <span class="fw-semibold">{{ $nombreRel }}</span>
+                                <span @class(['fw-semibold', 'text-body-secondary' => ! $persona['visible']])>{{ $nombreRel }}</span>
                             @endif
-                            @if($puedeEditarRel)
+                            @if($editable)
                                 <x-heroicon-o-chevron-right class="icon-14 ms-auto text-body-tertiary" aria-hidden="true"/>
                             @endif
                         </div>
@@ -369,7 +371,7 @@
                                     <span class="badge bg-secondary-subtle text-secondary-emphasis">
                                         {{ $etiquetaTipo }}
                                     </span>
-                                    <span>{{ $rel->ciudadanoRelacionado?->nombre_completo ?? '—' }}</span>
+                                    <span>{{ ($personas[$rel->ciudadano_relacionado_id] ?? null)['nombre'] ?? '—' }}</span>
                                     <span class="ms-auto">
                                         hasta {{ $rel->fecha_fin?->format('d/m/Y') }}
                                     </span>
@@ -392,10 +394,9 @@
                 <div class="list-group list-group-flush">
                     @foreach($ucMiembros as $miembro)
                     @php
-                        $nombreMiembro = $miembro->ciudadano?->nombre_completo ?? '—';
-                        $fichaUrl      = $miembro->ciudadano_id
-                            ? route('ciudadania.ciudadano.ficha', $miembro->ciudadano_id)
-                            : null;
+                        $persona       = $this->personasRelacionadas[$miembro->ciudadano_id] ?? ['visible' => false, 'nombre' => '—', 'url' => null];
+                        $nombreMiembro = $persona['nombre'];
+                        $fichaUrl      = $persona['url'];
                     @endphp
                     <div class="list-group-item d-flex align-items-center gap-2 px-0">
                         @if($miembro->tipo_relacion_etiqueta)
@@ -408,7 +409,7 @@
                                 {{ $nombreMiembro }}
                             </a>
                         @else
-                            <span class="fw-semibold">{{ $nombreMiembro }}</span>
+                            <span @class(['fw-semibold', 'text-body-secondary' => ! $persona['visible']])>{{ $nombreMiembro }}</span>
                         @endif
                     </div>
                     @endforeach

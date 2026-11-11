@@ -2,6 +2,8 @@
 
 namespace Modules\Intervencion\Services;
 
+use App\Models\Scopes\AmbitoUoScope;
+use App\Services\PresentacionPersona;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Modules\Documentos\Services\ResolverEstiloInforme;
 use Modules\Intervencion\Models\PlanDeIntervencion;
@@ -34,7 +36,8 @@ class PlanPdfService
         $plan->load([
             'tipoPlan',
             'historia.ciudadano',
-            'unidadConvivencia.miembrosActivos.ciudadano',
+            // Sin AmbitoUoScope: un conviviente puede ser de otra UO; su nombre lo decide PresentacionPersona.
+            'unidadConvivencia.miembrosActivos.ciudadano' => fn ($q) => $q->withoutGlobalScope(AmbitoUoScope::class),
             'objetivosGenerales',
             'objetivosEspecificos.tipoFicha',
             'fichasDiagnostico.ficha.tipoFicha',
@@ -48,9 +51,15 @@ class PlanPdfService
         $uoId = $plan->historia->unidad_organizativa_id ?? 1;
         $estilo = $this->resolverEstilo->resolver($uoId);
 
+        // Convivientes: un colectivo protegido que el usuario no puede ver sale sin nombre (CLAUDE.md §3).
+        $convivientes = $plan->unidadConvivencia?->miembrosActivos
+            ->map(fn ($m) => PresentacionPersona::paraListado($m->ciudadano, auth()->user())['nombre'])
+            ->all() ?? [];
+
         $html = view('intervencion::pdf.plan', [
             'plan' => $plan,
             'estilo' => $estilo,
+            'convivientes' => $convivientes,
         ])->render();
 
         $pdf = Pdf::loadHTML($html)

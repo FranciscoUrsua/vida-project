@@ -5,6 +5,7 @@ namespace Modules\Agenda\Services\Citas;
 use App\Models\Ciudadano;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
+use App\Services\PresentacionPersona;
 use Illuminate\Support\Collection;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
 
@@ -72,6 +73,6 @@ class BuscadorPersonasCita
      */
     public function visible(Ciudadano $ciudadano, User $usuario): bool
     {
-        return ! $ciudadano->colectivo_extra_protegido || $usuario->can('view', $ciudadano);
+        return PresentacionPersona::visible($ciudadano, $usuario);
     }
 }

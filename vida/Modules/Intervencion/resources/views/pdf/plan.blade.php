@@ -162,9 +162,7 @@ body {
                     <strong>Domicilio:</strong> {{ $ciudadano->domicilio ?? '—' }}<br>
                     @if($plan->unidadConvivencia)
                         <strong>Unidad de convivencia:</strong>
-                        {{ $plan->unidadConvivencia->miembrosActivos
-                            ->map(fn ($m) => $m->ciudadano->nombre_completo)
-                            ->implode(', ') }}
+                        {{ implode(', ', $convivientes) }}
                     @endif
                 </td>
             </tr>

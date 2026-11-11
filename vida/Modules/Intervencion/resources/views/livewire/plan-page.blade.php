@@ -117,7 +117,7 @@
                 <div class="small text-uppercase fw-semibold text-body-secondary mb-2">Unidad de convivencia</div>
                 @foreach($this->miembrosUc as $m)
                 <span class="badge rounded-pill border border-secondary-subtle text-body fw-normal me-1 mb-1">
-                    {{ $m['ciudadano']->nombre_completo }}
+                    {{ $m['persona']['nombre'] }}
                     @if($m['relacion'])
                     <span class="text-secondary ms-1">{{ $m['relacion'] }}</span>
                     @endif

@@ -51,7 +51,7 @@ Módulos: transversal
 
 **Acceso a expedientes: pendientes tras AccesoExpediente** — 2026-10-02
 Módulo: Ciudadanía / Intervención / Supervisión
-- **Personas relacionadas sin filtro de protegido:** la ficha y el expediente cargan convivientes (`ucMiembros`), relaciones (`ciudadanoRelacionado`) y representante sin scope y muestran su nombre aunque sean de colectivo protegido de otra UO. Los buscadores de relación y de UC ya los filtran.
+- ~~**Personas relacionadas sin filtro de protegido:**~~ Cerrado el 2026-11-11 (B1, TF-ACC-PR-01 a 08): `App\Services\PresentacionPersona` en ficha, expediente, plan (pantalla y PDF), alta de documentos, buscadores y bandeja; acciones rechazadas en servidor. Ver `CHANGELOG-112026.md`.
 - **`VerFichaPage` no comprueba que la ficha pertenezca a la historia** de la ruta: `/intervencion/ciudadano/{historia}/ficha/{ficha}` autoriza la historia, pero pinta cualquier `Ficha` por id.
 - **Búsqueda por documento en `BuscarCiudadanoPage`:** sigue sin implementar (`buscarPorIdentificador()` devuelve vacío) aunque `ciudadano_identificadores` existe; `BuscadorPersonasCita` ya busca por hash.
 - **Bandeja de asignaciones con protegidos:** el supervisor ve «Persona con protección especial» y puede resolver la entrada sin saber de quién es. Decidir si la bandeja de la UO responsable debe verla siempre (hoy sin historia la policy pide acceso aprobado).
