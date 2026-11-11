@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-11-11 — CI «Calidad de código»: PHPStan medido (A3 de estabilización)
+
+### Cambios
+- `vida/composer.json`: `analyse-ci` con `--memory-limit=2G` (antes 512M).
+- `ResolucionCentroService::seccionesSinCobertura()` declara y devuelve siempre `Illuminate\Database\Eloquent\Collection` (antes `Support\Collection` y `collect()` en el caso «ciudad completa»). Sus dos llamadores (`ComprobarCoberturaCommand` y `ListCentros`) llaman a `->load()`, que solo existe en la colección de Eloquent; hoy no fallaba porque salen antes si está vacía. Sin cambio de comportamiento, sin test nuevo: `AmbitoCoberturaTest` 5 passed.
+- `BACKLOG.md`: entrada de CI reescrita con el recuento por identificador (281 errores en local; 287 en CI sobre `584d5ad`), la propuesta para el falso positivo de `Livewire::test()` y el conflicto de Pint con los docblocks.
+
+### Decisiones
+- **En CI PHPStan ya terminaba** con 512M (1 min 36 s, 287 errores): la falta de memoria que citaba el BACKLOG no se reproduce. Se sube igualmente a 2G, como piden las instrucciones. En la máquina de desarrollo (1 CPU, 1 GB) el modo paralelo se queda parado; se ha medido por módulo con `--debug`.
+- **Solo un fallo real con corrección local evidente** (el de `seccionesSinCobertura()`). El resto son falsos positivos de Livewire y de Larastan, anotaciones de tipos o `?->` innecesarios, que se quedan medidos en el BACKLOG. No se toca el baseline.
+- **`argument.templateType` sin solución estándar:** Livewire 4.4.8 es la última versión y su docblock de `test()` impide inferir el componente; no hay extensión oficial de Larastan para Livewire. Propuesta en el BACKLOG.
+- **Pint solo sobre el fichero modificado.** Su única corrección aplicable era `new EloquentCollection` sin paréntesis; `no_superfluous_phpdoc_tags` se deja sin aplicar porque borraría los `@param`/`@return` exigidos por `CLAUDE.md`. El auto-commit de Pint del workflow no commitea nada por la expansión del patrón `vida/**/*.php`; se documenta en el BACKLOG en lugar de arreglarlo, porque arreglarlo borraría docblocks en todo el proyecto.
+
 ## 2026-11-11 — Documentos: fallos de qpdf y Ghostscript con causa y registro
 
 ### Cambios

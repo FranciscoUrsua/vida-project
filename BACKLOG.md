@@ -83,11 +83,35 @@ Módulo: Agenda / Supervisión
 
 ---
 
-**CI «Calidad de código» (PHPStan + Pint) en rojo** — 2026-09-29 · 2026-10-01
+**CI «Calidad de código» (PHPStan + Pint) en rojo** — 2026-09-29 · 2026-10-01 · 2026-11-11
 Módulo: transversal
-*(2026-11-10: fundidas las dos entradas del 2026-09-29 y del 2026-10-01.)*
-El workflow falla en todos los commits al menos desde `d620571` (2026-09-28); el despliegue no depende de él. Unos 195 errores de PHPStan: falsos positivos de `Livewire::test()` (`argument.templateType`, recuentos del baseline superados por tests nuevos), propiedades de `#[Computed]` en `Livewire\Component`, `HorarioCentro::tiposSlot()` inexistente (Agenda), `env()` fuera de `config/`, etc. Resolver la causa del falso positivo de Livewire (stub o extensión) en lugar de ampliar el baseline, corregir los errores reales y volver a ponerlo en verde.
-2026-10-01: no bloquea el despliegue (lo hace el workflow `CI/CD`), pero falla desde antes de las citas. El 2026-09-30 por PHPDoc `@property` de arrays sin tipo de valor en componentes Livewire de Agenda (`PerfilHorarioComponent`, `ExcepcionesComponent`, `CuadranteMesComponent`); el 2026-10-01 PHPStan ni siquiera termina: se queda sin memoria (512M) en un worker paralelo. Subir `--memory-limit` en el workflow y corregir después los errores que aparezcan.
+*(2026-11-10: fundidas las dos entradas del 2026-09-29 y del 2026-10-01. 2026-11-11: medido y reescrito, punto A3 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`.)*
+El workflow falla desde junio de 2026 (último verde: `80c3325`, 2026-06-27); el despliegue no depende de él. Desde el 2026-11-11 `analyse-ci` usa `--memory-limit=2G`. En CI ya terminaba con 512M (1 min 36 s): el fallo es por errores, no por memoria. En la máquina de desarrollo (1 CPU, 1 GB) el análisis paralelo no termina; hay que lanzarlo por módulo con `--debug` (sin workers).
+
+**Recuento (2026-11-11, local por módulo, 281 errores; CI daba 287 sobre `584d5ad`)** por identificador:
+
+| Identificador | Nº | Naturaleza |
+|---|---|---|
+| `argument.templateType` | 164 | Falso positivo de `Livewire::test()` (ver abajo) |
+| `argument.type` | 23 | Larastan estricto con `model property` (`create()`/`update()` con `array<string, mixed>`, columnas cualificadas `tabla.columna` en `where()`/`pluck()`) y formas de colección en Asignación |
+| `nullsafe.neverNull` | 17 | `?->` innecesario a la izquierda de `??`; sin efecto |
+| `property.notFound` | 14 | Propiedades `#[Computed]` vistas desde `Livewire\Component` en tests; `RegistroAtencion::$cita_id` sin `@property`; `HiloMensajes::$hilo` (computed) |
+| `larastan.noEnvCallsOutsideOfConfig` | 13 | `Modules/Documentos/config/documentos.php`: es configuración del módulo, que se fusiona en la caché; falso positivo |
+| `return.type` | 10 | `$this` frente a la clase en genéricos de relaciones (Mensajes) y formas de array en colecciones |
+| `missingType.iterableValue` | 9 | `@property array` sin tipo de valor en componentes de Agenda |
+| `method.notFound` | 7 | `Log::shouldHaveReceived()` (spy), `assertSeeLivewire()`, scope `vigentes()` sobre `Builder` genérico y métodos de componentes en tests: falsos positivos |
+| `ignore.count` | 6 | Recuentos del baseline superados por tests nuevos (todos de `argument.templateType` o `property.notFound`) |
+| `trait.unused` | 3 | Artefacto del análisis por módulo (`Versionable`, `TieneRoles`, `TieneUO` se usan desde otra ruta) |
+| `staticMethod.notFound` | 3 | `Log::shouldHaveReceived()` / `shouldNotHaveReceived()` tras `Log::spy()` |
+| Otros (1–2 cada uno) | 12 | `nullCoalesce.offset`, `notIdentical.alwaysTrue`, `ternary.alwaysTrue`, `match.alwaysTrue`, `return.missing` (tras `$action->halt()`, que siempre lanza), `property.nonObject`, `missingType.generics`, `method.childReturnType`, `method.alreadyNarrowedType`, `expr.resultUnused` |
+
+Ningún fallo real pendiente con corrección local evidente: el único (`ResolucionCentroService::seccionesSinCobertura()` con `->load()` sobre `Support\Collection`) se corrigió el 2026-11-11.
+
+**Propuesta para `argument.templateType`:** el docblock de `LivewireManager::test()` (Livewire 4.4.8, la última) declara `class-string<TComponent>|TComponent|string|array`, y con ese `|string` PHPStan no infiere `TComponent` aunque se pase `Componente::class` (comprobado con `dumpType`: `Testable<Livewire\Component>`). No hay extensión ni stubs oficiales de Larastan para Livewire. Propuesta: en `phpstan.neon`, `ignoreErrors` con `identifier: argument.templateType` limitado a `Modules/*/tests/*` y `tests/*`, y retirar del baseline las entradas equivalentes. Los `property.notFound`/`method.notFound` de tests sobre `Livewire\Component` tienen la misma causa (`Testable` no conoce el componente) y seguirían; para ellos no hay solución sin ignorar también esos identificadores en tests. Pendiente de decisión del desarrollador (no se amplía el baseline).
+
+**Pint y PHPDoc (decisión pendiente):** el preset `laravel` de `pint.json` incluye `no_superfluous_phpdoc_tags`, que borra los `@param`/`@return` obligatorios por `CLAUDE.md` §2 (277 de los 334 ficheros que Pint cambiaría). El paso «Commit cambios de formato» del workflow no llega a commitear nada porque `file_pattern: "vida/**/*.php"` se expande en el shell sin `globstar` (solo `vida/*/*.php`); si se arreglara el patrón sin más, el CI borraría los docblocks en cada push. Propuesta: `"no_superfluous_phpdoc_tags": false` en `pint.json` y, después, pasar Pint a `--test` en CI (o arreglar el patrón del auto-commit).
+
+**Actualizaciones disponibles** (sin aplicar, para no cambiar la medición): `larastan/larastan` 3.10 → 3.14, `phpstan/phpstan` 2.2.1 → 2.3.5.
 
 ---
 

@@ -3,6 +3,7 @@
 namespace Modules\Centro\Services\Asignacion;
 
 use App\Models\Ciudadano;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Modules\Centro\Enums\MotivoAsignacionPendiente;
 use Modules\Centro\Models\AmbitoTerritorial;
@@ -117,17 +118,18 @@ class ResolucionCentroService
     /**
      * Secciones censales activas que no cubre ningún centro del tipo, a ningún
      * nivel. Sirve para ver los huecos al configurar, no al dar de alta.
+     * Devuelve siempre una colección de Eloquent: los llamadores cargan relaciones con load().
      *
      * @param string $tipoCentro
-     * @return Collection<int, SeccionCensal>
+     * @return EloquentCollection<int, SeccionCensal>
      */
-    public function seccionesSinCobertura(string $tipoCentro): Collection
+    public function seccionesSinCobertura(string $tipoCentro): EloquentCollection
     {
         $centros = $this->centrosPorDomicilio($tipoCentro)->pluck('id');
         $ambitos = AmbitoTerritorial::whereIn('centro_id', $centros)->get(['tipo', 'referencia_tipo', 'referencia_id']);
 
         if ($ambitos->contains('tipo', 'ciudad_completa')) {
-            return collect();
+            return new EloquentCollection;
         }
 
         $ids = fn (string $clase) => $ambitos->where('referencia_tipo', $clase)->pluck('referencia_id')->all();

@@ -1,16 +1,18 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-11 (Documentos: fallos de qpdf/gs con causa en el log; reglas AppArmor del entorno local)
+**Última actualización:** 2026-11-11 (CI «Calidad de código»: PHPStan medido, punto A3 de `2026_11_estabilizacion_y_privacidad.md`)
 
 ---
 
 ## Tarea completada
 
-**Documentos: fallos de qpdf y Ghostscript diagnosticables** (2026-11-11): `qpdf --requires-password` con código 2 y salida de error ya no pasa como «sin cifrar»; todo fallo de proceso de `SaneadorPdf` lleva una `ProcesoExternoFallidoException` y `DocumentosCiudadano::guardar()` lo registra con `report()`. Reglas AppArmor locales de qpdf y gs ampliadas a las rutas del repositorio local (tests y `storage/app/tmp`). `Modules/Documentos/tests`: 91 passed. Detalle en `CHANGELOG-112026.md`.
+**CI «Calidad de código» medido (A3 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-11): `analyse-ci` con 2G; 281 errores de PHPStan clasificados por identificador en el BACKLOG (164 son el falso positivo de `Livewire::test()`); corregido el único fallo real (`ResolucionCentroService::seccionesSinCobertura()` devolvía `Support\Collection` y los llamadores usan `load()`). Pendiente de decisión: ignorar `argument.templateType` en tests y desactivar `no_superfluous_phpdoc_tags` en Pint. Detalle en `CHANGELOG-112026.md`.
 
-Antes, el mismo día: **nombre visible del usuario y tests previos**: `User::nombreVisible()` (nombre del Profesional vinculado o email) en topbar, avatar, portada, onboarding y cuadrante de Agenda. TF-AUTH-16/17 y los dos de «Ver historia social» (ahora «Ir a HS») en verde. `booted()` sigue copiando el email en `name`. Detalle en `CHANGELOG-112026.md`.
+Antes, el mismo día: **Documentos: fallos de qpdf y Ghostscript diagnosticables** (2026-11-11): `qpdf --requires-password` con código 2 y salida de error ya no pasa como «sin cifrar»; todo fallo de proceso de `SaneadorPdf` lleva una `ProcesoExternoFallidoException` y `DocumentosCiudadano::guardar()` lo registra con `report()`. Reglas AppArmor locales de qpdf y gs ampliadas a las rutas del repositorio local (tests y `storage/app/tmp`). `Modules/Documentos/tests`: 91 passed. Detalle en `CHANGELOG-112026.md`.
 
-Y antes: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, `php8.5-fpm`).
+Y antes: **nombre visible del usuario y tests previos**: `User::nombreVisible()` (nombre del Profesional vinculado o email) en topbar, avatar, portada, onboarding y cuadrante de Agenda. TF-AUTH-16/17 y los dos de «Ver historia social» (ahora «Ir a HS») en verde. `booted()` sigue copiando el email en `name`. Detalle en `CHANGELOG-112026.md`.
+
+Y antes aún: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, `php8.5-fpm`).
 
 ---
 
@@ -28,7 +30,9 @@ Y antes: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, `php
 - **Perfiles por defecto en el CIAM (UO 13):** se crean con `agenda:horarios-por-defecto --centro=13` tras el despliegue (ver CHANGELOG). Hecho: 9 perfiles pendientes de verificar + 1 previo (comprobado el 2026-10-02). Los demás centros no se completan por ahora: al desarrollador solo le preocupa el CIAM.
 - **AppArmor:** qpdf y gs están confinados; las reglas locales (`/etc/apparmor.d/local/{qpdf,gs}`) cubren `/var/www/.../storage/app/tmp` y, en el repositorio local, `storage/framework/testing` y `storage/app/tmp`. Revisar tras cada `apt upgrade` (BACKLOG).
 - **Tests:**
+  - 2026-11-11, CI calidad: `AmbitoCoberturaTest` 5 passed. PHPStan: 281 errores (recuento en el BACKLOG).
   - 2026-11-11, Documentos (qpdf/gs): `Modules/Documentos/tests` 91 passed.
+  - **PHPStan en local:** el modo paralelo no termina en esta máquina (1 CPU, 1 GB). Lanzar por módulo: `vendor/bin/phpstan analyse --memory-limit=750M --debug --no-progress --error-format=raw Modules/X`.
   - 2026-11-11, nombre visible: `AutenticacionTest`, `FichaAtencionTest`, `FichaCiudadanoPageTest` 51 passed, 1 incomplete, 1 skipped (previos); `CuadranteMesTest` 5 passed. Ya no quedan TF-AUTH-16/17 ni «Ver historia social» como fallos previos. `ui:auditar` sin infracciones.
   - 2026-11-11, Symfony fijado: UI, Auth, Acceso, Ciudadanía y Citas: 244 passed, 1 incomplete, 1 skipped y los 4 fallos previos (TF-AUTH-16/17 y los dos de «Ver historia social»).
   - 2026-10-02, acceso: `tests/Feature/Acceso` 12 passed, TF-ACC-11 y TF-DOC-78 en verde, TF-LW-BUS-06 en verde; Auditoría 29 passed; Intervención 296 passed (1 incomplete); Usuarios 63 passed; Citas 66 passed; AccesoDocumento 6 passed; Ciudadanía 103 passed y 2 fallos previos («Ver historia social», fallan igual sin el cambio); Supervisión 35 passed y los 3 fallos previos del BACKLOG. `ui:auditar` sin infracciones.
@@ -43,6 +47,7 @@ Y antes: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, `php
 
 ## Siguiente paso concreto recomendado
 
+0. **Seguir `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`:** hecho A3. Siguiente: **A1** (el desarrollador lo ha pedido a continuación). Parte de A1 ya está hecha en `584d5ad` (qpdf con código 2 y causa técnica, con `ProcesoExternoFallidoException` en lugar de `FalloHerramientaExterna`: decidir si se renombra). Quedan `fichero_vacio`, `pdf_sin_contenido` (`tintaTotal()`), `ConversorPdfLocal` y la documentación. Después A2, A5 y B1–B4; A4 espera la confirmación del desarrollador.
 1. **El desarrollador prueba en staging asignación y citas** (pendiente desde el 2026-10-01; las pantallas solo se han probado con tests).
    - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto. **Configurar igual todos los centros del mismo tipo:** el paso 3 de Tipo de Centro aborta si difieren.
    - Citas: bandeja de citación, cita directa, detalle con reprogramar y cancelar, agenda del profesional, «Solicitar cita» en Intervención, *Atender* → registro de atención → «Dar cita».

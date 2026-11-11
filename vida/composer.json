@@ -137,7 +137,7 @@
             "@php artisan test"
         ],
         "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
-        "analyse-ci": "vendor/bin/phpstan analyse --memory-limit=512M --no-progress --error-format=github",
+        "analyse-ci": "vendor/bin/phpstan analyse --memory-limit=2G --no-progress --error-format=github",
         "format": "vendor/bin/pint",
         "format-check": "vendor/bin/pint --test",
         "rector": "vendor/bin/rector process",
