@@ -20,6 +20,9 @@
         "spatie/laravel-permission": "^7.2",
         "spatie/period": "^2.4",
         "staudenmeir/laravel-adjacency-list": "^1.25",
+        "symfony/event-dispatcher": "^7.4",
+        "symfony/html-sanitizer": "^7.4",
+        "symfony/string": "^7.4",
         "symfony/yaml": "^7.4"
     },
     "require-dev": {

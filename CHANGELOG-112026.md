@@ -4,6 +4,24 @@
 
 ---
 
+## 2026-11-11 — Dependencias y CI: Symfony fijado a 7.4, PHP 8.5 y despliegue reparado
+
+### Cambios
+- `composer.json`: `symfony/event-dispatcher`, `symfony/html-sanitizer` y `symfony/string` fijados a `^7.4`, seguido de `composer update --lock`. Las versiones instaladas no cambian (7.4.17, 7.4.23 y 7.4.22). En `composer.lock` solo cambian el `content-hash` y la URL del repositorio de `vlucas/phpdotenv`, que ahora es `phpdotenv/phpdotenv` con la misma referencia. `composer audit`: sin avisos. Motivo y revisión pendiente en el BACKLOG.
+- `.github/workflows/` (`ci.yml`, `quality.yml`, `security.yml`, `phpdoc.yml`): `php-version: '8.5'`.
+- `ci.yml`, despliegue: `sudo systemctl restart php8.5-fpm`. Además, el script carga nvm (`NVM_DIR` y `nvm.sh`) antes de `npm`.
+- Sudoers del servidor, cambiado por el desarrollador: las reglas NOPASSWD de `systemctl restart|reload php8.3-fpm` pasan a `php8.5-fpm`.
+- Tests (`tests/Feature/Ui`, `tests/Feature/Auth`, `tests/Feature/Acceso`, `Modules/Ciudadania/tests`, `Modules/Agenda/tests/Feature/Citas`): 244 passed, 1 incomplete, 1 skipped y los mismos 4 fallos previos (TF-AUTH-16/17 y los dos de «Ver historia social»).
+
+### Decisiones
+- **PHP 8.5, no 8.4.** El encargo pedía 8.4, pero `systemctl list-units 'php*-fpm*'` en el servidor mostró `php8.5-fpm` activo, `php8.3-fpm` como `not-found` y ningún `php8.4-fpm`. En el servidor solo está instalado `/usr/bin/php8.5`. El desarrollador eligió 8.5 en todo, para que CI pruebe con la misma versión que ejecuta el servidor.
+- **Los despliegues fallaban desde el 2026-11-10** (9 ejecuciones seguidas) con `npm: command not found` (exit 127). npm está instalado con nvm, que solo se carga desde `.bashrc` en sesiones interactivas. Por eso esas ejecuciones no llegaron a `migrate`, a los `*:cache` ni al reinicio del FPM. Sí se aplicaron `git reset` y `composer install`. El reinicio a `php8.3-fpm` también habría fallado, porque el servicio ya no existe.
+
+### Verificación del despliegue
+PENDIENTE
+
+---
+
 ## 2026-11-10 — Dependencias: parches de seguridad de Livewire y Symfony
 
 El hook de pre-commit bloqueaba todo commit: `composer audit` y `local-php-security-checker` daban 13 avisos en 7 paquetes, publicados entre el 23 de octubre y principios de noviembre (Livewire: bypass de `#[Authorize]`; Symfony `html-sanitizer`, `http-foundation`, `http-kernel`, `mime`, `routing` y `yaml`, uno de severidad alta). Autorizado por el desarrollador.

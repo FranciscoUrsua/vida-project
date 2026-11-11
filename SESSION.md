@@ -1,12 +1,12 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-10 (puesta al día documental)
+**Última actualización:** 2026-11-11 (Symfony fijado a 7.4, CI en PHP 8.5, despliegue reparado)
 
 ---
 
 ## Tarea completada
 
-**Puesta al día documental** (2026-11-10, `docs/instrucciones-cli/2026-11-puesta-al-dia-documental.md`): documentos nuevos incorporados (citas revisado, roles, Tipo de Centro, propuesta de tareas guiadas, informe de estado); estados de módulo corregidos; decisiones de roles propagadas (incluido el design system: banner de protegido solo para `intervencion`); `decisiones-pendientes.md` y BACKLOG limpios. Solo documentación. Antes del commit, parches de seguridad de Livewire 4.4.8 y Symfony 7.4.x (`composer.lock`), que bloqueaban el hook de pre-commit. Detalle y lista de dudas en `CHANGELOG-112026.md`.
+**Dependencias y CI** (2026-11-11): `symfony/event-dispatcher`, `html-sanitizer` y `string` fijados a `^7.4` en `composer.json` (revisar con Laravel 13, ver BACKLOG). Workflows en PHP 8.5, la versión del servidor; el encargo pedía 8.4, pero en el servidor no existe. El despliegue reinicia `php8.5-fpm` y carga nvm: fallaba desde el 2026-11-10 con `npm: command not found`. Sudoers del servidor actualizado a `php8.5-fpm`. Detalle en `CHANGELOG-112026.md`.
 
 ---
 
@@ -20,9 +20,10 @@
 - Para probar el sorteo en staging hay que dar a algún centro, en Filament, tipo (`css_general`), ámbito (barrios o distrito) y modo `sorteo`; y los profesionales necesitan perfil horario activo en ese centro.
 - En esa BD compartida, a 2026-09-25/27 (sin cambios): cargos con slug y roles sugeridos; custodia v2 (fase 2a aplicada, `propuestas_eliminacion` vacía); `configuracion_roles` completa; alertas y avisos de prueba #1–#17 en el CIAM Puente de Vallecas (UO 13); mundo `demo_ciam` (980 registros TEST_CIAM) y `pia.admite_entrada_directa = true`.
 - **Servidor de pruebas preparado para la custodia** (2026-09-25): `/srv/vida/documentos`, `DOCUMENTOS_RUTA` y `DOCUMENTOS_CLAVE_MAESTRA` en el `.env` de staging, clamd activo. El `.env` **local** no tiene variables `DOCUMENTOS_*`.
-- **Código de staging** (`/var/www/vida-project/vida`): se despliega solo con cada push a `master` (job `deploy` de `.github/workflows/ci.yml`).
+- **Código de staging** (`/var/www/vida-project/vida`): se despliega solo con cada push a `master` (job `deploy` de `.github/workflows/ci.yml`). El servidor ejecuta **PHP 8.5** (`php8.5-fpm`); CI usa la misma versión.
 - **Perfiles por defecto en el CIAM (UO 13):** se crean con `agenda:horarios-por-defecto --centro=13` tras el despliegue (ver CHANGELOG). Hecho: 9 perfiles pendientes de verificar + 1 previo (comprobado el 2026-10-02). Los demás centros no se completan por ahora: al desarrollador solo le preocupa el CIAM.
 - **Tests:**
+  - 2026-11-11, Symfony fijado: UI, Auth, Acceso, Ciudadanía y Citas: 244 passed, 1 incomplete, 1 skipped y los 4 fallos previos (TF-AUTH-16/17 y los dos de «Ver historia social»).
   - 2026-10-02, acceso: `tests/Feature/Acceso` 12 passed, TF-ACC-11 y TF-DOC-78 en verde, TF-LW-BUS-06 en verde; Auditoría 29 passed; Intervención 296 passed (1 incomplete); Usuarios 63 passed; Citas 66 passed; AccesoDocumento 6 passed; Ciudadanía 103 passed y 2 fallos previos («Ver historia social», fallan igual sin el cambio); Supervisión 35 passed y los 3 fallos previos del BACKLOG. `ui:auditar` sin infracciones.
   - 2026-10-01, perfil por defecto: Agenda, Supervisión, Usuarios, Centro y `Intervencion/tests/Feature/Asignacion`: 387 passed, 1 incomplete, 4 failed. Tres son los de `SupervisionTest` ya anotados; el cuarto (`SolicitudCitaTest`, que contaba todas las alertas) está corregido y pasa. `ui:auditar` sin infracciones.
   - 2026-10-01, fix de actividad: `Modules/Intervencion/tests/Feature/Asignacion` y `Modules/Supervision/tests`: 70 passed, 3 failed (los tres de `SupervisionTest` ya anotados en BACKLOG, fallan igual sin el cambio). `ui:auditar` sin infracciones.

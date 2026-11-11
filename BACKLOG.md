@@ -9,9 +9,9 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
-**Symfony 8 en `composer update` sin restricciones** — 2026-11-10
+**Symfony fijado a `^7.4`: revisar con Laravel 13** — 2026-11-11
 Módulo: transversal / dependencias
-Las restricciones de Laravel 12 admiten Symfony 8 en algunos componentes. Al aplicar los parches de seguridad del 2026-11-10, `symfony/event-dispatcher`, `html-sanitizer` y `string` subían a la 8.1 y se mantuvieron en 7.4 con `--with` (no queda en `composer.json`). Un `composer update` general volverá a subirlos. Decidir si se fijan a `^7.4` en `composer.json` o si se acepta la 8.x con su propia prueba.
+`symfony/event-dispatcher`, `symfony/html-sanitizer` y `symfony/string` están fijados a `^7.4` en `composer.json` desde el 2026-11-11. Motivo: Laravel 12 fija su núcleo de Symfony a `^7.2`, y no se mezclan componentes 8.x con un núcleo 7.x. Las restricciones de Laravel y Filament admiten la 8.x en esos tres paquetes, y un `composer update` general los subía a la 8.1. **Revisar al migrar a Laravel 13:** quitar las tres restricciones o subirlas junto con el resto de Symfony.
 
 ---
 

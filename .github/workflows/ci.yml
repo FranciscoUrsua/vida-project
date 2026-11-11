@@ -17,7 +17,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.5'
           coverage: none        # Evita instalar Xdebug si no lo usas
 
       - name: Cache Composer dependencies
@@ -71,6 +71,10 @@ jobs:
           port: 22
           script: |
             set -e
+            # npm está instalado con nvm, que solo se carga en sesiones interactivas:
+            # el script SSH no lee .bashrc y sin esto falla con «npm: command not found».
+            export NVM_DIR="$HOME/.nvm"
+            . "$NVM_DIR/nvm.sh"
             cd /var/www/vida-project/vida
             git fetch origin
             git reset --hard origin/master
@@ -87,4 +91,4 @@ jobs:
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
-            sudo systemctl restart php8.3-fpm
+            sudo systemctl restart php8.5-fpm
