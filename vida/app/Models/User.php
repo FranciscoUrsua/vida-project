@@ -194,4 +194,20 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->belongsTo(Profesional::class, 'profesional_id');
     }
+
+    /**
+     * Nombre con el que se muestra al usuario en la interfaz (topbar, avatar, portada, onboarding).
+     *
+     * `name` no sirve para esto: booted() lo rellena siempre con el email porque la
+     * columna no se expone en formularios. La identidad visible es la del Profesional
+     * vinculado; los perfiles técnicos sin Profesional se muestran por su email.
+     *
+     * @return string
+     */
+    public function nombreVisible(): string
+    {
+        $nombre = $this->profesional?->nombre_completo;
+
+        return $nombre !== null && $nombre !== '' ? $nombre : $this->email;
+    }
 }

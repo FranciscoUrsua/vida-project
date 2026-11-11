@@ -48,7 +48,7 @@
                     @foreach (\Modules\Agenda\Models\PerfilHorarioProfesional::where('centro_id', $centro->id)->where('activo', true)->with('usuario.profesional')->get() as $perfil)
                     <tr>
                         <td class="fw-medium small">
-                            {{ $perfil->usuario->profesional?->nombre_completo ?? $perfil->usuario->name }}
+                            {{ $perfil->usuario->nombreVisible() }}
                         </td>
                         @foreach ($this->diasSeman as $dia)
                             @php $celda = $this->getCelda($perfil->usuario_id, $dia); @endphp

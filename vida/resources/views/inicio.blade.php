@@ -4,7 +4,7 @@
 <nav class="d-flex align-items-center justify-content-between px-4 py-3 bg-white border-bottom" aria-label="Barra superior">
     <span class="fw-bold">{{ config('app.name') }}</span>
     <div class="d-flex align-items-center gap-2">
-        <span class="small text-body-secondary">{{ Auth::user()->name }}</span>
+        <span class="small text-body-secondary">{{ Auth::user()->nombreVisible() }}</span>
         <x-avatar :usuario="Auth::user()" />
     </div>
 </nav>

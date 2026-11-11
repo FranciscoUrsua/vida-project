@@ -161,7 +161,7 @@ Módulo: Mensajes
 Módulos: Agenda, Mensajes, Ciudadanía, Autenticación, Intervención
 (2026-09-26: los 6 fallos de Mensajes están resueltos; `t_lw_09` se sustituyó por TF-MSG-PAN-10 al retirar `NuevoMensaje`.)
 Primera ejecución completa registrada (908 passed, 76 failed; el fallo de Documentos ya está corregido). Detalle por módulo en `CHANGELOG-092026.md` («Documentos: custodia v2, UI operativa y cierre»). La mayoría son de Agenda (esquema que no existe). En Ciudadanía, dos tests buscan un texto que ya no está en la ficha. Revisarlos antes de un merge a `main`.
-*2026-11-10: los de Agenda están corregidos (ver la entrada cerrada «Suite de `Modules/Agenda` rota»). Quedan: TF-AUTH-16/17 (ver «TF-AUTH-16 y TF-AUTH-17 fallan»), `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`; ver «Bootstrap único: pendientes fuera del plan») y Ciudadanía 2 («Ver historia social»: `FichaCiudadanoPageTest` y `FichaAtencionTest`). Fuera de `phpunit.xml`, los 3 de Supervisión (ver «Suite de tests: Supervisión no se ejecuta»).*
+*2026-11-10: los de Agenda están corregidos (ver la entrada cerrada «Suite de `Modules/Agenda` rota»). Quedan: `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`; ver «Bootstrap único: pendientes fuera del plan») (TF-AUTH-16/17 y los 2 de Ciudadanía «Ver historia social» corregidos el 2026-11-11). Fuera de `phpunit.xml`, los 3 de Supervisión (ver «Suite de tests: Supervisión no se ejecuta»).*
 
 ---
 
@@ -226,7 +226,8 @@ Al ejecutar la suite completa (verificación de una actualización de dependenci
 
 ---
 
-**TF-AUTH-16 y TF-AUTH-17 fallan: `User::booted()` sobreescribe `name` con el email siempre** — 2026-09-24
+**✅ CERRADO 2026-11-11** — **TF-AUTH-16 y TF-AUTH-17 fallan: `User::booted()` sobreescribe `name` con el email siempre** — 2026-09-24
+*Cerrado: la UI usa `User::nombreVisible()` (nombre del Profesional vinculado o email) y los tests vinculan el usuario a un Profesional; `booted()` no cambia. Ver `CHANGELOG-112026.md`.*
 Módulo: Usuarios / Auth
 `User::booted()` (hook `creating`) hace `$user->name = $user->email;` de forma incondicional, incluso cuando se crea el usuario con un `name` explícito. Esto rompe `tests/Feature/Auth/AutenticacionTest.php::tf_auth_16_el_nombre_del_usuario_aparece_en_la_ui` y `tf_auth_17_las_iniciales_del_avatar_son_las_dos_primeras_letras_del_name`, que esperan ver "Juana López" y sus iniciales "JL" en la UI tras crear el usuario con ese nombre. Confirmado reproducible en `master` sin relación con ningún cambio de la sesión que lo detectó (soft delete de `User`, ver `docs/decisiones-tecnicas.md` Sección 13). Corrección probable: solo rellenar `name` con el email cuando `name` no se ha establecido explícitamente.
 

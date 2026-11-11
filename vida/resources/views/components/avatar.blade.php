@@ -1,8 +1,8 @@
-{{-- Avatar con iniciales (componente de catálogo `op-avatar`). Recibe un usuario o un nombre. --}}
+{{-- Avatar con iniciales (componente de catálogo `op-avatar`). Recibe un usuario (usa nombreVisible()) o un nombre. --}}
 @props(['usuario' => null, 'nombre' => null, 'pequeno' => false])
 
 @php
-    $texto = trim((string) ($nombre ?? $usuario?->name ?? ''));
+    $texto = trim((string) ($nombre ?? $usuario?->nombreVisible() ?? ''));
     $palabras = preg_split('/\s+/', $texto) ?: [];
     $iniciales = mb_strtoupper(mb_substr($palabras[0] ?? '', 0, 1) . mb_substr($palabras[1] ?? '', 0, 1));
 

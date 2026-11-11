@@ -77,7 +77,7 @@ class FichaAtencionTest extends TestCase
         $componente->assertSee('Abrir historia social');
     }
 
-    // TF-LW-AT-04: Usuario con intervencion ve "Ver historia social" si ya tiene HS
+    // TF-LW-AT-04: Usuario con intervencion ve "Ir a HS" (no "Abrir") si ya tiene HS
     public function test_intervencion_ve_ver_historia_con_hs(): void
     {
         [$componente, $ciudadano, $user] = $this->montarFicha('intervencion');
@@ -93,7 +93,7 @@ class FichaAtencionTest extends TestCase
         ]);
 
         $componente
-            ->assertSee('Ver historia social')
+            ->assertSee('Ir a HS')
             ->assertDontSee('Abrir historia social');
     }
 

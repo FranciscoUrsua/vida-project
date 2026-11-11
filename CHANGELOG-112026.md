@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-11-11 — Usuarios / UI: nombre visible del usuario y tests previos reparados
+
+### Cambios
+- `User::nombreVisible()`: nombre completo del Profesional vinculado; si no hay Profesional (perfiles técnicos), el email.
+- Vistas que mostraban `User::name` (que siempre es el email) o montaban el nombre a mano pasan a `nombreVisible()`: topbar y menú de usuario de `operativo-shell`, componente `x-avatar` (las iniciales salen de `nombreVisible()` si no se pasa `nombre`), portada `inicio`, onboarding y `Modules/Agenda/.../cuadrante-mes.blade.php`.
+- `tests/Feature/Auth/AutenticacionTest.php`: el usuario de prueba se vincula a un Profesional «Juana López García» en lugar de fijar `name`. Nuevo TF-AUTH-16b: sin Profesional la UI muestra el email.
+- `FichaAtencionTest` (TF-LW-AT-04) y `FichaCiudadanoPageTest`: el texto esperado pasa de «Ver historia social» a «Ir a HS», que es lo que muestra la ficha.
+- Tests: `AutenticacionTest`, `FichaAtencionTest` y `FichaCiudadanoPageTest`: 51 passed, 1 incomplete (TF-AUTH-20) y 1 skipped (TF-AUTH-04), los dos previos. `CuadranteMesTest`: 5 passed. `ui:auditar` sin infracciones tras `npm run build`.
+
+### Decisiones
+- **No se toca `User::booted()`.** La corrección propuesta en el BACKLOG (rellenar `name` solo si viene vacío) se descarta: `name` no se expone en formularios y la identidad del usuario es la del Profesional. Los tests TF-AUTH-16/17 se adaptan a ese modelo.
+- Los dos fallos de «Ver historia social» eran de los tests, no de la vista: el enlace se renombró a «Ir a HS» y los tests no se actualizaron.
+
+---
+
 ## 2026-11-11 — Dependencias y CI: Symfony fijado a 7.4, PHP 8.5 y despliegue reparado
 
 ### Cambios

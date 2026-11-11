@@ -16,7 +16,7 @@
 
                     <header class="mb-4">
                         <h2 class="h4 fw-bold mb-1">
-                            Bienvenido, {{ explode(' ', trim($usuario->name))[0] }} {{ explode(' ', trim($usuario->name))[1] ?? '' }}
+                            Bienvenido, {{ implode(' ', array_slice(explode(' ', $usuario->nombreVisible()), 0, 2)) }}
                         </h2>
                         <p class="text-body-secondary mb-0">Tu cuenta está lista. Revisa los datos iniciales antes de entrar.</p>
                     </header>
@@ -24,7 +24,7 @@
                     <section class="list-group mb-4" aria-label="Datos de la cuenta">
                         <div class="list-group-item bg-body-tertiary">
                             <div class="small fw-semibold text-body-secondary">Nombre completo</div>
-                            <div class="fw-semibold">{{ $usuario->name }}</div>
+                            <div class="fw-semibold">{{ $usuario->nombreVisible() }}</div>
                         </div>
                         @if ($centro)
                             <div class="list-group-item bg-body-tertiary">

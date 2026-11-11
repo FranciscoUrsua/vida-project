@@ -348,7 +348,7 @@ class FichaCiudadanoPageTest extends TestCase
 
         Livewire::actingAs($this->usuario)
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
-            ->assertSee('Ver historia social');
+            ->assertSee('Ir a HS');
     }
 
     /**
@@ -359,7 +359,7 @@ class FichaCiudadanoPageTest extends TestCase
     {
         Livewire::actingAs($this->usuario)
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $this->ciudadano->id])
-            ->assertDontSee('Ver historia social');
+            ->assertDontSee('Ir a HS');
     }
 
     /**

@@ -54,11 +54,10 @@
                     data-bs-toggle="dropdown"
                     data-bs-offset="[0,8]"
                     aria-expanded="false">
-                <x-avatar pequeno :usuario="Auth::user()"
-                          :nombre="trim((Auth::user()->profesional?->nombre ?? Auth::user()->email).' '.(Auth::user()->profesional?->apellido1 ?? ''))" />
+                <x-avatar pequeno :usuario="Auth::user()" />
 
                 <span class="topbar__user-nombre text-truncate">
-                    {{ Auth::user()->profesional?->nombre_completo ?? Auth::user()->email }}
+                    {{ Auth::user()->nombreVisible() }}
                 </span>
 
                 <x-heroicon-o-chevron-down class="icon-16 op-toggle-icon" aria-hidden="true"/>
@@ -67,7 +66,7 @@
             <div class="dropdown-menu dropdown-menu-end p-0 overflow-hidden">
                 <div class="px-3 py-2">
                     <div class="small fw-semibold">
-                        {{ Auth::user()->profesional?->nombre_completo ?? Auth::user()->email }}
+                        {{ Auth::user()->nombreVisible() }}
                     </div>
                     <div class="small text-body-secondary">
                         {{ Auth::user()->roles->first()?->name ?? '—' }}

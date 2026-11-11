@@ -8,6 +8,9 @@ use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Modules\Usuarios\Models\Cargo;
+use Modules\Usuarios\Models\Profesional;
+use Modules\Usuarios\Models\TipoRelacionProfesional;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -30,8 +33,10 @@ class AutenticacionTest extends TestCase
         $this->seed(PermisosSeeder::class);
         $this->seed(RolesSeeder::class);
 
+        // La identidad visible sale del Profesional vinculado: User::name guarda
+        // siempre el email (ver User::booted() y User::nombreVisible()).
         $this->usuario = User::factory()->create([
-            'name' => 'Juana López García',
+            'profesional_id' => $this->crearProfesional()->id,
             'email' => 'juana@madrid.es',
             'password' => 'secreto123',
             'email_verified_at' => now(),
@@ -300,6 +305,23 @@ class AutenticacionTest extends TestCase
         $respuesta->assertDontSee('JLG');
     }
 
+    #[Test]
+    public function tf_auth_16b_sin_profesional_vinculado_la_ui_muestra_el_email(): void
+    {
+        // Perfil técnico sin Profesional: no hay nombre que mostrar y se usa el email.
+        $tecnico = User::factory()->create([
+            'email' => 'soporte@madrid.es',
+            'primer_acceso' => false,
+        ]);
+        $tecnico->assignRole('consulta_basica');
+
+        $respuesta = $this->actingAs($tecnico)->get('/');
+
+        $respuesta->assertStatus(200);
+        $respuesta->assertSee('soporte@madrid.es');
+        $respuesta->assertDontSee('Juana López');
+    }
+
     // =========================================================================
     // Grupo H — Primer acceso (onboarding)
     // =========================================================================
@@ -376,5 +398,30 @@ class AutenticacionTest extends TestCase
 
         $respuesta->assertStatus(200);
         $respuesta->assertSee('Staging');
+    }
+
+    /**
+     * Crea el Profesional «Juana López García» al que se vincula el usuario de los tests.
+     *
+     * @return Profesional
+     */
+    private function crearProfesional(): Profesional
+    {
+        $cargo = Cargo::firstOrCreate(['nombre' => 'TSR Test', 'activo' => true]);
+        $tipoRelacion = TipoRelacionProfesional::firstOrCreate(
+            ['nombre' => 'Funcionario/a test'],
+            ['es_externo' => false, 'activo' => true]
+        );
+
+        return Profesional::create([
+            'nombre' => 'Juana',
+            'apellido1' => 'López',
+            'apellido2' => 'García',
+            'sexo' => 'F',
+            'cargo_id' => $cargo->id,
+            'tipo_relacion_id' => $tipoRelacion->id,
+            'fecha_inicio' => today()->toDateString(),
+            'activo' => true,
+        ]);
     }
 }
