@@ -55,7 +55,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 
 ## Siguiente paso concreto recomendado
 
-0. **Seguir `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`:** hechos A3, A1, A2 y A5 (bloque A completo salvo A4). Siguiente: **B1** (personas relacionadas protegidas), después B2–B4; A4 espera la confirmación del desarrollador. Tras el despliegue de A1, probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (prueba rápida de `decisiones-tecnicas.md` §14).
+0. **Seguir `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`:** hechos A3, A1, A2 y A5 (bloque A completo; A4 aplazado por el desarrollador hasta la 1.0: la BD compartida local/staging se mantiene a propósito). Siguiente: **B1** (personas relacionadas protegidas), después B2–B4; A4 espera la confirmación del desarrollador. Tras el despliegue de A1, probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (prueba rápida de `decisiones-tecnicas.md` §14).
 1. **El desarrollador prueba en staging asignación y citas** (pendiente desde el 2026-10-01; las pantallas solo se han probado con tests).
    - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto. **Configurar igual todos los centros del mismo tipo:** el paso 3 de Tipo de Centro aborta si difieren.
    - Citas: bandeja de citación, cita directa, detalle con reprogramar y cancelar, agenda del profesional, «Solicitar cita» en Intervención, *Atender* → registro de atención → «Dar cita».

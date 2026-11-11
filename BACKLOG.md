@@ -239,6 +239,7 @@ La sección 2.8 habla del «supervisor de la UO superior». `AsignacionRolesServ
 Módulo: Infraestructura
 Detectado en la Fase 0 del mundo «Prueba CIAM»: `~/code/vida-project/vida/.env` (`APP_ENV=local`) y `/var/www/vida-project/vida/.env` (`APP_ENV=staging`) apuntan a `vida@127.0.0.1`. Toda migración o `demo:*` lanzado «en local» se aplica sobre staging, y un `demo:reset` en local truncaría los datos de staging (incluidos los de otros equipos). Recomendación: crear una BD de desarrollo propia (p. ej. `vida_dev`) para el entorno local.
 
+*2026-11-11: **aplazada por decisión del desarrollador** (A4 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`). Con un solo desarrollador, compartir la BD garantiza ver lo mismo en local y en staging y evita cambiar de contexto. Reconsiderar al cerrar la versión 1.0. Mientras tanto siguen vigentes las precauciones: nada de `demo:reset` ni `migrate:fresh` desde local.*
 ---
 
 **No existe asociación tipo de plan ↔ centro / UO / servicio** — 2026-09-24
