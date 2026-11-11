@@ -452,3 +452,32 @@ Fecha de decisión: 2026-09-24
 **No se ha tocado:** ninguna otra tabla ni relación de `User`. No hay cascada de soft delete hacia `usuario_uo`/`usuario_rol`/roles de Spatie — esas filas se conservan tal cual (es exactamente lo que se pretende: el historial de adscripciones y roles de un usuario borrado sigue siendo consultable). No se ha añadido `TrashedFilter`/`RestoreAction`/`ForceDeleteAction` en Filament: ningún otro resource del proyecto los tiene tampoco (patrón existente, no una omisión).
 
 **Bug pre-existente detectado durante la verificación, no corregido (fuera de alcance de este cambio):** `User::booted()` sobreescribe incondicionalmente `$user->name = $user->email` en el hook `creating`, incluso cuando se pasa un `name` explícito. Esto hace fallar `TF-AUTH-16` y `TF-AUTH-17` (`tests/Feature/Auth/AutenticacionTest.php`), que esperan que el nombre completo del usuario aparezca en la UI. Confirmado reproducible en `master` sin ninguno de los cambios de esta sesión. Anotado en `BACKLOG.md`.
+
+---
+
+## Sección 14 — Dependencias del sistema de la custodia
+
+Fecha: 2026-11-11
+
+**Contexto:** la tubería de entrada de documentos (`IngestaDocumentoService`) depende de binarios y servicios del sistema operativo, no de paquetes de Composer. Tras una actualización del sistema en el servidor de pruebas, AppArmor dejó de permitir a `qpdf` y `gs` leer la zona temporal y la subida de PDF falló sin dejar causa en el log (se tardó una hora en verlo). Desde el 2026-11-11 la causa queda registrada (`FalloHerramientaExterna`, ver `docs/modulo-documentos.md` §3), pero las dependencias tienen que estar documentadas y revisarse.
+
+**Dependencias** (rutas configurables en `config/documentos.php`, claves `binarios.*`):
+
+| Dependencia | Para qué | Paquete (Ubuntu) |
+|---|---|---|
+| `qpdf` | Saber si un PDF pide contraseña; forma expandida para buscar contenido activo | `qpdf` |
+| `gs` (Ghostscript) | Saneado a PDF/A-2b, recompresión y medición de tinta (`inkcov`) | `ghostscript` |
+| `pdfinfo` | Número de páginas | `poppler-utils` |
+| `soffice` (LibreOffice headless) | Conversión de ODT y DOCX a PDF | `libreoffice-writer-nogui` |
+| Imagick | Conversión de JPEG, PNG y HEIC a PDF | `php8.5-imagick` (con la política de ImageMagick que limita memoria y área) |
+| clamd (ClamAV) | Antivirus por socket (`binarios.clamd_socket`) | `clamav-daemon` |
+
+**AppArmor en el servidor de pruebas:** Ubuntu confina `qpdf` y `gs`. Sus perfiles no dejan leer la zona temporal de ingesta (`storage/app/tmp/ingesta/{uuid}/original`, sin extensión). Hay reglas locales con esta línea exacta en `/etc/apparmor.d/local/qpdf` y en `/etc/apparmor.d/local/gs`:
+
+```
+/var/www/vida-project/vida/storage/app/tmp/** rwk,
+```
+
+Tras editarlas: `sudo apparmor_parser -r /etc/apparmor.d/qpdf /etc/apparmor.d/gs`. En la máquina de desarrollo las reglas cubren también `storage/framework/testing/**` y `storage/app/tmp/**` del repositorio local.
+
+**Revisión obligatoria tras cada actualización del sistema** (`apt upgrade`, cambio de versión de Ubuntu o de los paquetes de arriba): una actualización puede cambiar los perfiles de AppArmor o los binarios. Prueba rápida en staging: subir desde la ficha de un ciudadano **un PDF y una imagen**. Si alguno falla con «No se ha podido procesar el PDF» o «No se ha podido convertir el fichero», buscar `FalloHerramientaExterna` en `storage/logs/laravel.log`: el registro trae el binario, el código de salida y la salida de error (p. ej. `Permission denied`). Comprobar también `sudo aa-status` y `systemctl status clamav-daemon`.

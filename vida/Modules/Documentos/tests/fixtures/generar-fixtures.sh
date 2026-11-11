@@ -104,5 +104,30 @@ struct.pack_into('<I', cabecera, 0x3c, 0x80)
 open('ejecutable.exe', 'wb').write(bytes(cabecera) + b'PE\0\0' + b'\0' * 256)
 "
 
+# en-blanco.pdf: una página sin nada dibujado (TF-DOC-ING-04).
+gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -o en-blanco.pdf -c "showpage"
+
+# tres-paginas-segunda-en-blanco.pdf: contenido en las páginas 1 y 3 (TF-DOC-ING-05).
+gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -o tres-paginas-segunda-en-blanco.pdf \
+  -c "$(pagina 'Documento de prueba VIDA - pagina 1') showpage $(pagina 'Documento de prueba VIDA - pagina 3')"
+
+# truncado.pdf: los primeros 400 bytes de valido.pdf, sin trailer (TF-DOC-ING-03).
+head -c 400 valido.pdf > truncado.pdf
+
+# contenido-danado.pdf: valido.pdf con los flujos de contenido de las páginas puestos a
+# cero, sin tocar la tabla de referencias (TF-DOC-ING-03). qpdf lo abre sin avisos y
+# Ghostscript lo «repara» y termina con código 0, pero el resultado queda en blanco.
+python3 - <<'PY'
+import re
+datos = bytearray(open("valido.pdf", "rb").read())
+for m in list(re.finditer(rb"(?<!end)stream\r?\n", datos)):
+    inicio, fin = m.end(), datos.index(b"endstream", m.end())
+    cabecera = bytes(datos[max(0, m.start() - 120):m.start()])
+    if b"/Subtype" in cabecera:  # metadatos XMP, no es contenido de página
+        continue
+    datos[inicio:fin - 1] = b"\0" * (fin - 1 - inicio)
+open("contenido-danado.pdf", "wb").write(datos)
+PY
+
 # La firma de prueba EICAR no se versiona (los antivirus de los equipos la pondrían
 # en cuarentena): el test TF-DOC-51 la construye en tiempo de ejecución.

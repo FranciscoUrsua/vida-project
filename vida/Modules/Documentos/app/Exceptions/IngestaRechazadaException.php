@@ -28,6 +28,8 @@ class IngestaRechazadaException extends RuntimeException
         'demasiadas_paginas' => 'El documento tiene demasiadas páginas para este tipo de documento.',
         'tamanyo_excedido' => 'El fichero es demasiado grande para este tipo de documento.',
         'fichero_no_legible' => 'No se ha podido leer el fichero.',
+        'fichero_vacio' => 'El fichero está vacío.',
+        'pdf_sin_contenido' => 'El documento no tiene contenido visible. Comprueba que no esté dañado o en blanco.',
     ];
 
     /**

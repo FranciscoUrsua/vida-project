@@ -208,6 +208,8 @@ Módulo: Documentos
 - Si se restaura un ciudadano dado de baja, sus vínculos a documentos siguen inactivos. Decidir si se reactivan.
 - UI: abrir versiones anteriores sustituidas (hoy el controlador solo sirve la vigente), y el mismo panel en planes de intervención y valoraciones cuando se vinculen documentos a ellos.
 - Conformidad PDF/A estricta: Ghostscript declara PDF/A-2b, pero no se ha validado con veraPDF ni se añade un OutputIntent explícito.
+- (2026-11-11) **Coste de la medición de tinta** (`SaneadorPdf::tintaTotal()`, `pdf_sin_contenido`): `inkcov` rasteriza todas las páginas y, en el servidor de 1 CPU, añade unos 6,5 s a un PDF de 51 páginas y 14 s a un escaneo de alta resolución de 6 páginas (además del saneado). Opciones si molesta: `-r36` (la mitad de tiempo; una «x» de 10 pt se sigue detectando) o parar en la primera página con tinta (página a página con `-dFirstPage/-dLastPage`). Medir antes con uso real.
+- (2026-11-11) `TF-DOC-ING-01`: el «fichero de 0 bytes se guarda» observado en staging el 11 nov no se reproduce y no hay ninguna versión de 0 bytes en la BD. Si vuelve a verse, anotar el navegador y si la subida de Livewire llegó a terminar.
 
 ---
 

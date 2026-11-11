@@ -7,8 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
-use Modules\Documentos\Exceptions\IngestaRechazadaException;
-use Modules\Documentos\Exceptions\ProcesoExternoFallidoException;
+use Modules\Documentos\Exceptions\FalloHerramientaExterna;
 use Modules\Documentos\Http\Livewire\DocumentosCiudadano;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Tests\Concerns\DocumentosTestSetup;
@@ -102,6 +101,20 @@ class DocumentosCiudadanoTest extends TestCase
     }
 
     #[Test]
+    public function tf_doc_ing_01_un_fichero_de_0_bytes_desde_la_pantalla_no_crea_documento(): void
+    {
+        Livewire::test(DocumentosCiudadano::class, ['ciudadanoId' => $this->ana->id])
+            ->call('abrirAlta')
+            ->set('tipoId', $this->tipoDni->id)
+            ->set('fichero', UploadedFile::fake()->createWithContent('vacio.pdf', ''))
+            ->call('guardar')
+            ->assertSet('modalAbierto', true)
+            ->assertSee('El fichero está vacío.');
+
+        $this->assertSame(0, Documento::count());
+    }
+
+    #[Test]
     public function un_fallo_de_qpdf_con_salida_de_error_se_rechaza_y_queda_en_el_log(): void
     {
         // qpdf --requires-password devuelve 2 tanto para «sin cifrar» como cuando no
@@ -129,16 +142,47 @@ class DocumentosCiudadanoTest extends TestCase
         $this->assertSame(0, Documento::count());
 
         Log::shouldHaveReceived('error')->withArgs(function (string $mensaje, array $contexto) use ($binario): bool {
-            $rechazo = $contexto['exception'] ?? null;
-            $causa = $rechazo?->getPrevious();
+            $causa = $contexto['exception'] ?? null;
 
-            return $rechazo instanceof IngestaRechazadaException
-                && $rechazo->codigo === 'pdf_no_normalizable'
-                && $causa instanceof ProcesoExternoFallidoException
+            return $causa instanceof FalloHerramientaExterna
                 && $causa->codigoSalida === 2
-                && $causa->comando[0] === $binario
+                && $causa->comando[0] === basename($binario)
                 && in_array('--requires-password', $causa->comando, true)
                 && str_contains($causa->salidaError, 'Permission denied');
+        })->once();
+    }
+
+    #[Test]
+    public function tf_doc_ing_08_un_fallo_de_ghostscript_desde_la_pantalla_deja_la_causa_en_el_log(): void
+    {
+        $binario = storage_path('framework/testing/gs-falla-'.uniqid().'.sh');
+        file_put_contents($binario, "#!/bin/sh\necho 'GPL Ghostscript: Unrecoverable error, exit code 1' >&2\nexit 1\n");
+        chmod($binario, 0755);
+        $this->beforeApplicationDestroyed(fn () => @unlink($binario));
+        config(['documentos.binarios.gs' => $binario]);
+
+        $componente = Livewire::test(DocumentosCiudadano::class, ['ciudadanoId' => $this->ana->id])
+            ->call('abrirAlta')
+            ->set('tipoId', $this->tipoDni->id)
+            ->set('fichero', $this->subida())
+            ->instance();
+
+        // Igual que en el test de qpdf: guardar() directo para que report() llegue al registro.
+        Log::spy();
+        $componente->guardar();
+
+        // El profesional ve el mensaje de siempre, sin detalles técnicos.
+        $this->assertSame('No se ha podido procesar el PDF. Comprueba que no esté dañado.', $componente->errorIngesta);
+        $this->assertSame(0, Documento::count());
+
+        Log::shouldHaveReceived('error')->withArgs(function (string $mensaje, array $contexto) use ($binario): bool {
+            $causa = $contexto['exception'] ?? null;
+
+            return $causa instanceof FalloHerramientaExterna
+                && $causa->codigoSalida === 1
+                && $causa->comando[0] === basename($binario)
+                && in_array('-sDEVICE=pdfwrite', $causa->comando, true)
+                && str_contains($causa->salidaError, 'Unrecoverable error');
         })->once();
     }
 

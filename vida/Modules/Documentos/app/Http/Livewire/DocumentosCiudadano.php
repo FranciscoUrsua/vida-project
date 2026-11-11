@@ -6,6 +6,7 @@ use App\Models\Ciudadano;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
@@ -315,7 +316,8 @@ class DocumentosCiudadano extends Component
         $maxKb = (int) config('documentos.max_subida_kb');
         $this->validate(
             [
-                'fichero' => ['required', 'file', "max:{$maxKb}"],
+                // Sin «min:1»: Laravel mide en KB con decimales y rechazaría todo fichero de menos de 1 KB.
+                'fichero' => ['required', 'file', "max:{$maxKb}", $this->reglaNoVacio(...)],
                 'canal' => ['required', 'in:presencial,escaneo'],
                 'tipoId' => $this->documentoVersionId === null ? ['required', 'integer'] : ['nullable'],
                 'fechaEmision' => ['nullable', 'date', 'before_or_equal:today'],
@@ -349,7 +351,7 @@ class DocumentosCiudadano extends Component
             // Un rechazo con causa técnica (fallo de qpdf, gs, antivirus…) no es culpa del
             // fichero: se registra con su excepción previa para poder diagnosticarlo.
             if ($e instanceof IngestaRechazadaException && $e->getPrevious() !== null) {
-                report($e);
+                report($e->getPrevious());
             }
             $this->errorIngesta = $e->getMessage();
 
@@ -362,6 +364,22 @@ class DocumentosCiudadano extends Component
         $this->cerrarModal();
         unset($this->documentos);
         session()->flash('documentos-ok', 'Documento guardado.');
+    }
+
+    /**
+     * Regla de validación: el fichero subido no puede tener 0 bytes.
+     *
+     * @param string $atributo Nombre del campo.
+     * @param mixed $valor Fichero subido.
+     * @param \Closure(string): mixed $fallo Callback de error de la validación.
+     *
+     * @return void
+     */
+    private function reglaNoVacio(string $atributo, mixed $valor, \Closure $fallo): void
+    {
+        if ($valor instanceof UploadedFile && $valor->getSize() === 0) {
+            $fallo('El fichero está vacío.');
+        }
     }
 
     /**

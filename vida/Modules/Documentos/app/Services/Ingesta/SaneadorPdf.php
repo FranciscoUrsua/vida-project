@@ -5,7 +5,7 @@ namespace Modules\Documentos\Services\Ingesta;
 use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Support\Facades\Process;
 use Modules\Documentos\Exceptions\IngestaRechazadaException;
-use Modules\Documentos\Exceptions\ProcesoExternoFallidoException;
+use Modules\Documentos\Exceptions\FalloHerramientaExterna;
 
 /**
  * Saneado y normalización de PDF con qpdf y Ghostscript.
@@ -15,7 +15,7 @@ use Modules\Documentos\Exceptions\ProcesoExternoFallidoException;
  * comprueba que el resultado no conserva ninguno de esos objetos.
  *
  * Todo rechazo por un fallo de proceso lleva como excepción previa una
- * ProcesoExternoFallidoException con el comando, el código de salida y la salida
+ * FalloHerramientaExterna con el comando, el código de salida y la salida
  * de error, para poder diagnosticarlo en el registro (p. ej. un perfil de AppArmor
  * que impide a qpdf o gs leer la zona temporal).
  */
@@ -115,6 +115,40 @@ class SaneadorPdf
     }
 
     /**
+     * Tinta del documento entero: suma de la cobertura C+M+Y+K de todas sus páginas.
+     *
+     * Sirve para detectar un PDF sin contenido visible (dañado y «reparado» en blanco
+     * por Ghostscript, o en blanco sin más). Se mide el documento completo, de modo que
+     * una página en blanco entre otras con contenido no lo deja por debajo del umbral.
+     * No reescribe el fichero: se puede aplicar a PDF firmados.
+     *
+     * @param string $ruta PDF.
+     *
+     * @throws IngestaRechazadaException pdf_no_normalizable si Ghostscript no puede medirlo
+     *
+     * @return float Cobertura total, en fracción de la superficie de una página.
+     */
+    public function tintaTotal(string $ruta): float
+    {
+        $comando = [(string) config('documentos.binarios.gs'), '-q', '-dSAFER', '-o', '-', '-sDEVICE=inkcov', $ruta];
+        $resultado = $this->ejecutar($comando);
+
+        // Una línea por página: «0.00227  0.00227  0.00227  0.00227 CMYK OK».
+        preg_match_all('/^\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+CMYK/m', $resultado->output(), $paginas, PREG_SET_ORDER);
+
+        if ($resultado->failed() || $paginas === []) {
+            throw $this->rechazo($comando, $resultado, 'Ghostscript no ha medido la tinta del PDF');
+        }
+
+        $total = 0.0;
+        foreach ($paginas as $pagina) {
+            $total += (float) $pagina[1] + (float) $pagina[2] + (float) $pagina[3] + (float) $pagina[4];
+        }
+
+        return $total;
+    }
+
+    /**
      * Comprueba que el PDF no contiene JavaScript, adjuntos ni acciones de lanzamiento.
      *
      * Se examina la forma expandida (qpdf --qdf, sin flujos de objetos ni compresión)
@@ -194,7 +228,7 @@ class SaneadorPdf
         } catch (\Throwable $e) {
             throw new IngestaRechazadaException(
                 'pdf_no_normalizable',
-                new ProcesoExternoFallidoException($comando, null, '', 'El proceso no ha terminado: '.$e->getMessage(), $e),
+                new FalloHerramientaExterna($comando, null, '', 'El proceso no ha terminado: '.$e->getMessage(), $e),
             );
         }
     }
@@ -212,7 +246,7 @@ class SaneadorPdf
     {
         return new IngestaRechazadaException(
             'pdf_no_normalizable',
-            ProcesoExternoFallidoException::desde($comando, $resultado, $motivo),
+            FalloHerramientaExterna::desde($comando, $resultado, $motivo),
         );
     }
 }

@@ -29,9 +29,10 @@ use Modules\Documentos\Services\Ingesta\SaneadorPdf;
  * BBDD ni en disco. El original y los intermedios se destruyen siempre.
  *
  * Pasos, en este orden (paso 4 de documentos-custodia-implementacion.md): zona
- * temporal, detección por contenido, antivirus, conversión a PDF, saneado a PDF/A,
- * límites del tipo (con un intento de recompresión), hash, cifrado, almacenamiento
- * y registro en una transacción.
+ * temporal (un fichero vacío se rechaza aquí), detección por contenido, antivirus,
+ * conversión a PDF, saneado a PDF/A, comprobación de contenido visible, límites del
+ * tipo (con un intento de recompresión), hash, cifrado, almacenamiento y registro en
+ * una transacción.
  *
  * Los PDF firmados (canal «generado») no se convierten, sanean ni recomprimen:
  * reescribirlos con Ghostscript invalida la firma PAdES. Solo se comprueba que no
@@ -83,6 +84,9 @@ class IngestaDocumentoService
 
         try {
             $original = $this->copiarATemporal($origen, $esContenido, $directorio);
+            if (filesize($original) === 0) {
+                throw new IngestaRechazadaException('fichero_vacio');
+            }
             $mime = $this->detector->detectar($original);
             $this->analizarAntivirus($original);
 
@@ -94,6 +98,7 @@ class IngestaDocumentoService
             $convertido = $mime !== DetectorFormato::PDF;
             $pdf = $convertido ? $this->conversor->convertir($original, $mime, $directorio) : $original;
             $pdf = $this->normalizar($pdf, $directorio, $firmado);
+            $this->rechazarSiSinContenido($pdf);
 
             $paginas = $this->saneador->contarPaginas($pdf);
             if ($paginas > $datos->tipo->max_paginas) {
@@ -171,6 +176,27 @@ class IngestaDocumentoService
         $this->saneador->verificarSinContenidoActivo($pdf, $directorio);
 
         return $pdf;
+    }
+
+    /**
+     * Rechaza el PDF si el documento entero no tiene tinta visible.
+     *
+     * Ghostscript «repara» un PDF truncado o dañado y termina bien, pero el resultado
+     * queda en blanco; su aviso de reparación no sirve para rechazar porque también lo
+     * dan PDF reales válidos. Se mide tras normalizar, también en los firmados (la
+     * medición no los reescribe).
+     *
+     * @param string $pdf PDF normalizado.
+     *
+     * @throws IngestaRechazadaException pdf_sin_contenido o pdf_no_normalizable
+     *
+     * @return void
+     */
+    private function rechazarSiSinContenido(string $pdf): void
+    {
+        if ($this->saneador->tintaTotal($pdf) < (float) config('documentos.ingesta.umbral_tinta_minimo')) {
+            throw new IngestaRechazadaException('pdf_sin_contenido');
+        }
     }
 
     /**

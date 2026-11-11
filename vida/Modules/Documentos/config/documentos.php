@@ -24,6 +24,13 @@ return [
         'timeout_conversion_segundos' => (int) env('DOCUMENTOS_TIMEOUT_CONVERSION', 120),
         'timeout_saneado_segundos' => (int) env('DOCUMENTOS_TIMEOUT_SANEADO', 120),
         'timeout_antivirus_segundos' => (int) env('DOCUMENTOS_TIMEOUT_ANTIVIRUS', 60),
+        // Tinta mínima del documento entero (suma de C+M+Y+K de todas las páginas según
+        // «gs -sDEVICE=inkcov», en fracción de la superficie de una página). Por debajo,
+        // el PDF se rechaza como sin contenido visible: típicamente uno dañado que
+        // Ghostscript «repara» en blanco. 0,00001 es la resolución de inkcov: una sola
+        // letra de 10 pt mide 0,00002 y los documentos reales del juego de pruebas, 0,30
+        // o más. Mediciones en CHANGELOG-112026.md (2026-11-11).
+        'umbral_tinta_minimo' => (float) env('DOCUMENTOS_UMBRAL_TINTA_MINIMO', 0.00001),
     ],
 
     // Escáner antivirus: «clamav» (clamd por socket). «fake» solo se admite en tests

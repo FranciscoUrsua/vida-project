@@ -6,10 +6,15 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Modules\Documentos\Contracts\EscanerAntivirus;
+use Modules\Documentos\Data\DatosIngesta;
+use Modules\Documentos\Enums\CanalCaptura;
+use Modules\Documentos\Exceptions\FalloHerramientaExterna;
 use Modules\Documentos\Exceptions\IngestaRechazadaException;
 use Modules\Documentos\Models\DocumentoVersion;
 use Modules\Documentos\Services\Ingesta\EscanerAntivirusFake;
 use Modules\Documentos\Services\Ingesta\EscanerClamAv;
+use Modules\Documentos\Services\Ingesta\SaneadorPdf;
+use Modules\Documentos\Services\IngestaDocumentoService;
 use Modules\Documentos\Services\LecturaDocumentoService;
 use Modules\Documentos\Tests\Concerns\DocumentosTestSetup;
 use PHPUnit\Framework\Attributes\Group;
@@ -274,5 +279,120 @@ class IngestaDocumentoTest extends TestCase
         }
 
         $this->assertIngestaSinRastro($antes);
+    }
+
+    // ── Rechazos que faltaban (TF-DOC-ING-02 a 07, instrucciones 2026_11_estabilizacion_y_privacidad A1) ──
+
+    #[Test]
+    public function tf_doc_ing_02_un_fichero_de_0_bytes_se_rechaza_en_el_servicio(): void
+    {
+        $antes = $this->rastroIngesta();
+        $datos = new DatosIngesta(
+            tipo: $this->tipoDni,
+            usuario: $this->profesional,
+            canal: CanalCaptura::Presencial,
+            vinculos: [$this->ana],
+        );
+
+        try {
+            app(IngestaDocumentoService::class)->ingerir('', $datos, esContenido: true);
+            $this->fail('Un fichero vacío debe rechazarse.');
+        } catch (IngestaRechazadaException $e) {
+            $this->assertSame('fichero_vacio', $e->codigo);
+            $this->assertSame('El fichero está vacío.', $e->getMessage());
+        }
+
+        $this->assertIngestaSinRastro($antes);
+        $this->assertSame([], $this->antivirus()->analizados, 'Un fichero vacío no llega al antivirus.');
+    }
+
+    #[Test]
+    public function tf_doc_ing_03_un_pdf_danado_que_ghostscript_repara_en_blanco_se_rechaza(): void
+    {
+        // Flujos de contenido dañados y referencias intactas: qpdf lo abre sin avisos y
+        // Ghostscript lo «repara» con código 0, pero el resultado no tiene nada visible.
+        $this->assertIngestaRechazada('contenido-danado.pdf', 'pdf_sin_contenido');
+
+        // Un PDF truncado sin trailer no llega a Ghostscript: qpdf no puede abrirlo.
+        $this->assertIngestaRechazada('truncado.pdf', 'pdf_no_normalizable');
+    }
+
+    #[Test]
+    public function tf_doc_ing_04_un_pdf_de_una_pagina_en_blanco_se_rechaza(): void
+    {
+        $this->assertIngestaRechazada('en-blanco.pdf', 'pdf_sin_contenido');
+    }
+
+    #[Test]
+    public function tf_doc_ing_05_una_pagina_en_blanco_entre_otras_con_contenido_se_admite(): void
+    {
+        $version = $this->alta([$this->ana], fichero: 'tres-paginas-segunda-en-blanco.pdf')->versionVigente;
+
+        $this->assertSame(3, $version->paginas);
+    }
+
+    #[Test]
+    #[Group('binarios')]
+    public function tf_doc_ing_06_la_imagen_jpeg_de_un_documento_se_admite(): void
+    {
+        if (! extension_loaded('imagick')) {
+            $this->markTestSkipped('Falta la extensión imagick.');
+        }
+
+        $version = $this->alta([$this->ana], fichero: 'foto.jpg')->versionVigente;
+
+        $this->assertTrue($version->convertido);
+        $this->assertSame('image/jpeg', $version->mime_original);
+    }
+
+    #[Test]
+    public function tf_doc_ing_07_qpdf_con_codigo_2_y_salida_de_error_no_se_toma_como_sin_cifrar(): void
+    {
+        $binario = $this->binarioFalso('qpdf', "echo 'qpdf: open /tmp/x.pdf: Permission denied' >&2\nexit 2");
+        config(['documentos.binarios.qpdf' => $binario]);
+
+        try {
+            app(SaneadorPdf::class)->rechazarSiProtegido($this->fixture('valido.pdf'));
+            $this->fail('Con salida de error, el código 2 de qpdf no es «sin cifrar».');
+        } catch (IngestaRechazadaException $e) {
+            $this->assertSame('pdf_no_normalizable', $e->codigo);
+            $causa = $e->getPrevious();
+            $this->assertInstanceOf(FalloHerramientaExterna::class, $causa);
+            $this->assertSame(2, $causa->codigoSalida);
+            $this->assertSame(basename($binario), $causa->comando[0], 'Del binario solo se guarda el nombre.');
+            $this->assertContains('--requires-password', $causa->comando);
+            $this->assertStringContainsString('Permission denied', $causa->salidaError);
+        }
+
+        // Sin salida de error, el mismo código 2 sí significa «sin cifrar».
+        config(['documentos.binarios.qpdf' => $this->binarioFalso('qpdf', 'exit 2')]);
+        app(SaneadorPdf::class)->rechazarSiProtegido($this->fixture('valido.pdf'));
+    }
+
+    #[Test]
+    public function la_causa_tecnica_conserva_solo_los_primeros_2000_caracteres_de_la_salida_de_error(): void
+    {
+        $causa = new FalloHerramientaExterna(['/usr/bin/gs', '-q'], 1, str_repeat('x', 5000), 'Prueba');
+
+        $this->assertSame(FalloHerramientaExterna::MAX_SALIDA_ERROR, mb_strlen($causa->salidaError));
+        $this->assertSame(['gs', '-q'], $causa->comando);
+    }
+
+    /**
+     * Script ejecutable que sustituye a un binario externo, borrado al terminar el test.
+     *
+     * @param string $nombre Prefijo del nombre del script.
+     * @param string $cuerpo Órdenes de shell (sin la línea #!).
+     *
+     * @return string Ruta del script.
+     */
+    private function binarioFalso(string $nombre, string $cuerpo): string
+    {
+        $ruta = storage_path('framework/testing/'.$nombre.'-falso-'.Str::random(8).'.sh');
+        file_put_contents($ruta, "#!/bin/sh\n{$cuerpo}\n");
+        chmod($ruta, 0755);
+        $this->beforeApplicationDestroyed(fn () => @unlink($ruta));
+
+        return $ruta;
     }
 }

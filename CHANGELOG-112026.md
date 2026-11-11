@@ -4,6 +4,48 @@
 
 ---
 
+## 2026-11-11 — Documentos: rechazos que faltaban y causa técnica (A1 de estabilización)
+
+### Cambios
+- `IngestaDocumentoService::ingerir()`: rechaza con `fichero_vacio` un fichero de 0 bytes justo después de copiarlo a la zona temporal (antes del antivirus), y con `pdf_sin_contenido` un PDF sin tinta visible después de `normalizar()` (nuevo `rechazarSiSinContenido()`, también para los firmados).
+- `SaneadorPdf::tintaTotal()`: `gs -q -dSAFER -o - -sDEVICE=inkcov`, suma C+M+Y+K de todas las páginas. Si Ghostscript falla o no devuelve ninguna página, `pdf_no_normalizable` con la causa adjunta.
+- `config/documentos.php`: `ingesta.umbral_tinta_minimo` = 0,00001 (`DOCUMENTOS_UMBRAL_TINTA_MINIMO`).
+- `ProcesoExternoFallidoException` (de `584d5ad`) **renombrada a `FalloHerramientaExterna`**, el nombre que fijan las instrucciones. Ahora guarda solo el nombre del binario (no su ruta) y recorta la salida de error a 2.000 caracteres (`MAX_SALIDA_ERROR`).
+- `ConversorPdfLocal::desdeOfimatica()`: el fallo y el timeout de LibreOffice llevan `FalloHerramientaExterna` como previa de `conversion_fallida`.
+- `DocumentosCiudadano::guardar()`: regla propia «El fichero está vacío.» sobre `fichero`, y `report($e->getPrevious())` en lugar de `report($e)` (al log va la causa técnica).
+- `IngestaRechazadaException::MENSAJES`: `fichero_vacio` y `pdf_sin_contenido`.
+- Fixtures nuevos (y su generación en `generar-fixtures.sh`): `en-blanco.pdf`, `tres-paginas-segunda-en-blanco.pdf`, `truncado.pdf` y `contenido-danado.pdf`.
+- Tests TF-DOC-ING-01 y 08 en `DocumentosCiudadanoTest`; TF-DOC-ING-02 a 07 y el recorte de la salida de error en `IngestaDocumentoTest`. El test de qpdf de `584d5ad` se adapta (al log va la causa, no el rechazo). 03, 04 y 07 comprobados en negativo: fallan sin la medición de tinta y sin la condición de qpdf.
+- `docs/modulo-documentos.md` §3: los dos motivos nuevos, la medición de tinta y el registro de la causa. `docs/decisiones-tecnicas.md` §14 «Dependencias del sistema de la custodia».
+- Tests: `Modules/Documentos/tests` **100 passed** (477 assertions). PHPStan sin errores nuevos en lo modificado.
+
+### Por dónde pasaba el fichero de 0 bytes
+- **No se reproduce.** En local, `finfo` devuelve `application/x-empty` y `DetectorFormato` lo rechaza como `formato_no_admitido` (TF-DOC-ING-01 escrito antes del cambio: mostraba «Este tipo de fichero no se admite»). En la BD compartida no hay ninguna versión de 0 bytes: las cinco subidas del 11 nov son `09_informe…` (24.780 B), `02_documento_identidad…jpg`, `14_informe_derivacion….docx`, `E07_pdf_con_javascript.pdf` y `E04_pdf_corrupto_truncado.pdf` (2.669 B, el que se guardó en blanco). `E10_fichero_vacio.pdf` no llegó a guardarse; lo más probable es que se viera el error y se tomara por otro caso. El rechazo explícito se añade igualmente, con su mensaje propio.
+
+### Umbral de tinta: mediciones
+Tinta total (C+M+Y+K, todas las páginas) tras sanear con los parámetros de la tubería:
+
+| Fichero | Páginas | Tinta |
+|---|---|---|
+| Documentos reales del juego (01 a 22, PDF de ReportLab) | 1–4 | 0,305 a 1,611 |
+| `E05_documento_51_paginas.pdf` | 51 | 10,54 |
+| `E06_escaneo_alta_resolucion.pdf` | 6 | 18,28 |
+| `E07_pdf_con_javascript.pdf` | 1 | 0,054 |
+| `valido.pdf` (fixture: una línea de 18 pt por página) | 2 | 0,0045 |
+| Página con una sola «x» de 10 pt | 1 | 0,00002 |
+| Página con un solo «.» de 10 pt | 1 | 0 |
+| Página en blanco | 1 | 0 |
+| `E04_pdf_corrupto_truncado.pdf` tras el saneado de entonces | 1 | 0 |
+
+**Propuesta: 0,00001**, la resolución de inkcov (cinco decimales por canal). Rechaza lo que mide 0 (en blanco o «reparado» en blanco) y admite cualquier página con un carácter legible. Un umbral mayor no separa mejor: los casos reales están cuatro órdenes de magnitud por encima, y el riesgo de subirlo es rechazar documentos válidos con muy poco texto.
+
+### Decisiones
+- **TF-DOC-ING-03 con un PDF dañado, no truncado.** Con la regla del punto 3 (qpdf con código 2 y salida de error → `pdf_no_normalizable`), un PDF truncado sin trailer, como `E04`, ya no llega a Ghostscript: qpdf escribe «unable to find trailer dictionary» y se rechaza antes. El caso «Ghostscript lo repara y queda en blanco» solo se da con un PDF cuyas referencias están intactas y el contenido dañado (`qpdf --requires-password` no lee los flujos): `contenido-danado.pdf`. El test comprueba los dos: el dañado da `pdf_sin_contenido` y el truncado `pdf_no_normalizable`.
+- **Sin `min:1` en la regla de `fichero`:** Laravel mide los ficheros en KB con decimales, así que `min:1` rechazaría todo fichero de menos de 1.024 bytes (una imagen pequeña válida) con «El fichero está vacío.». Se usa una regla propia que mira si son 0 bytes, con el mismo mensaje.
+- **Comando sin la ruta del binario, con las rutas de trabajo:** los argumentos son rutas de la zona temporal con nombres neutros (`original`, `saneado.pdf`) y sirven para diagnosticar AppArmor; no llevan datos personales.
+- **Coste de la medición:** `inkcov` rasteriza todas las páginas. En esta máquina (1 CPU) añade 6,5 s al PDF de 51 páginas y unos 14 s al escaneo de alta resolución de 6 páginas. Se deja la resolución por defecto (72 ppp); a 36 ppp el escaneo baja a 6,7 s y la «x» se sigue detectando. Anotado en el BACKLOG.
+- Pint no se aplica: sus reglas pendientes de decisión (A3) borrarían docblocks.
+
 ## 2026-11-11 — CI «Calidad de código»: PHPStan medido (A3 de estabilización)
 
 ### Cambios

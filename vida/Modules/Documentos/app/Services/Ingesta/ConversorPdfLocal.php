@@ -4,6 +4,7 @@ namespace Modules\Documentos\Services\Ingesta;
 
 use Illuminate\Support\Facades\Process;
 use Modules\Documentos\Contracts\ConversorPdf;
+use Modules\Documentos\Exceptions\FalloHerramientaExterna;
 use Modules\Documentos\Exceptions\IngestaRechazadaException;
 
 /**
@@ -82,6 +83,9 @@ class ConversorPdfLocal implements ConversorPdf
      * trabajo: evita bloqueos entre conversiones simultáneas y no depende del HOME
      * del usuario de PHP-FPM.
      *
+     * Todo fallo lleva como excepción previa una FalloHerramientaExterna con el
+     * comando, el código de salida y la salida de error de LibreOffice.
+     *
      * @param string $ruta Documento de entrada.
      * @param string $directorio Directorio de trabajo.
      *
@@ -92,27 +96,34 @@ class ConversorPdfLocal implements ConversorPdf
     private function desdeOfimatica(string $ruta, string $directorio): string
     {
         $salida = $directorio.'/convertido';
+        $comando = [
+            (string) config('documentos.binarios.soffice'),
+            '-env:UserInstallation=file://'.$directorio.'/perfil-libreoffice',
+            '--headless',
+            '--norestore',
+            '--convert-to', 'pdf:writer_pdf_Export',
+            '--outdir', $salida,
+            $ruta,
+        ];
 
         try {
             $resultado = Process::timeout((int) config('documentos.ingesta.timeout_conversion_segundos'))
                 ->env(['HOME' => $directorio])
-                ->run([
-                    (string) config('documentos.binarios.soffice'),
-                    '-env:UserInstallation=file://'.$directorio.'/perfil-libreoffice',
-                    '--headless',
-                    '--norestore',
-                    '--convert-to', 'pdf:writer_pdf_Export',
-                    '--outdir', $salida,
-                    $ruta,
-                ]);
+                ->run($comando);
         } catch (\Throwable $e) {
-            throw new IngestaRechazadaException('conversion_fallida', $e);
+            throw new IngestaRechazadaException(
+                'conversion_fallida',
+                new FalloHerramientaExterna($comando, null, '', 'LibreOffice no ha terminado: '.$e->getMessage(), $e),
+            );
         }
 
         $pdf = $salida.'/'.pathinfo($ruta, PATHINFO_FILENAME).'.pdf';
 
         if ($resultado->failed() || ! is_file($pdf)) {
-            throw new IngestaRechazadaException('conversion_fallida');
+            throw new IngestaRechazadaException(
+                'conversion_fallida',
+                FalloHerramientaExterna::desde($comando, $resultado, 'LibreOffice no ha generado el PDF'),
+            );
         }
 
         return $pdf;
