@@ -4,6 +4,37 @@
 
 ---
 
+## 2026-11-11 — Documentación: formato Markdown de los documentos del 10 nov (A5 de estabilización)
+
+### Cambios
+- Formato Markdown, sin cambiar el texto, en `docs/modulo-citas.md`, `docs/modulo-tipo-centro.md`, `docs/roles-consulta-basica-tramitacion.md`, `docs/propuesta-requisitos-y-tareas-guiadas.md`, `docs/estado-proyecto-2026-11-10.md`, `docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`, `docs/instrucciones-cli/2026-10-tipo-centro-tests.md` y `docs/instrucciones-cli/2026-11-puesta-al-dia-documental.md`: `#` según la jerarquía, tablas Markdown en lugar de tabuladores, listas (con sublistas donde el texto las marca), código, rutas, clases, métodos, comandos y claves entre comillas invertidas, y negrita en «RN-xx — título.».
+- `docs/modulo-citas.md`, RN-03 (duda 2 del 10 nov, decidida): «para el profesional de referencia del ciudadano (la asignación vigente de su historia: `AsignacionReferenciaService::vigente()`, ver `docs/modulo-asignacion.md`);».
+- `docs/modulo-citas.md`: **retirado el bloque duplicado** del final (§9, §10 y §11 de la versión antigua, ya en Markdown, líneas 293–332), que llegó así en la subida del 10 nov (`e6c2a4b`). Le faltaban la línea de `modulo-ciudadania.md` y las filas de `tramitacion`, ámbito e historial de citas. Decisión del desarrollador (2026-11-11).
+
+### Comprobación de palabras (obligatoria)
+Secuencia de palabras antes y después con `tr -c '[:alnum:]áéíóúüñÁÉÍÓÚÜÑ' '\n' < f | grep .`, comparada con `diff` contra la versión de `HEAD`:
+
+| Fichero | Palabras | Resultado |
+|---|---|---|
+| `modulo-citas.md` | 3.664 (sin el bloque retirado) | Idéntica salvo las 13 palabras de la precisión de RN-03 |
+| `modulo-tipo-centro.md` | 2.939 | Idéntica |
+| `roles-consulta-basica-tramitacion.md` | 1.507 | Idéntica |
+| `propuesta-requisitos-y-tareas-guiadas.md` | 954 | Idéntica |
+| `estado-proyecto-2026-11-10.md` | 2.255 | Idéntica |
+| `instrucciones-cli/2026-10-tipo-centro-implementacion.md` | 2.993 | Idéntica |
+| `instrucciones-cli/2026-10-tipo-centro-tests.md` | 2.143 | Idéntica |
+| `instrucciones-cli/2026-11-puesta-al-dia-documental.md` | 2.397 | Idéntica |
+
+En `modulo-citas.md` la comparación es contra las líneas 1–292 de `HEAD` (sin el bloque duplicado).
+
+### Decisiones de formato (casos ambiguos: lo más simple)
+- **Listas sin numerar** aunque el orden importe (pasos de una tarea guiada, orden de trabajo, puntos del paso 0 citados como «paso 0.3»): numerarlas añadiría palabras (los números cuentan en la comprobación).
+- **Sublistas** solo donde una línea acaba en «:» y las siguientes la desarrollan (destinos de §3.3 y sección Cita de §5 en citas; plazo de documentos en roles; niveles, contextos y ejemplo en la propuesta; paso 0, `CentroPolicy` y `CentroResource` en las instrucciones de Tipo de Centro; pasos 1, 3 y 8 de la puesta al día). En `CentroPolicy` y en el último punto del paso 8 de la puesta al día, las líneas finales podrían ser hermanas y no hijas; se han dejado todas como hijas.
+- **Títulos de nivel 3** para los nombres de tabla que preceden a su esquema (`tipos_centro`, `denominaciones`, `centros`…), los subapartados «Decidido», «Ideas planteadas», «Por decidir» de la propuesta y los «A.», «B.»… del estado del proyecto. «Nota de diseño», «Contexto», «Convenciones», «Seguimiento», «Antes de empezar» y «Criterios de finalización», de nivel 2.
+- **Textos literales a insertar** (la línea Estado y la regla de `SKILL.md` de la puesta al día) como cita (`>`).
+- **Código:** se marcan identificadores con guion bajo, rutas, ficheros, clases en CamelCase, métodos, variables, comandos y claves con punto. Las palabras sueltas que solo son código por contexto (p. ej. `activo` en un texto) se dejan como texto salvo en las tablas de campos y métodos, donde la primera columna va entera como código, y los nombres de rol (`intervencion`, `tramitacion`, `supervision`) y `basico`/`ciam`, que se marcan siempre. «PostgreSQL» no se marca.
+- La conversión se ha hecho con un script de apoyo (fuera del repositorio) y revisión fichero a fichero.
+
 ## 2026-11-11 — Supervisión: tests en la suite y tres fallos corregidos (A2 de estabilización)
 
 ### Cambios
@@ -209,8 +240,8 @@ Subidos por el desarrollador desde el proyecto de Claude «VIDA 360»:
 - En `modulo-ciudadania.md` no hay un apartado que describa `FichaCiudadanoPage`: los bloques por rol van como elemento de §7.4 (referencias de código), y el banner de protegido al final de §6.2, aclarando que vale para todos los colectivos protegidos.
 
 ### Dudas (contradicciones no previstas en las instrucciones, sin resolver)
-1. **Los ficheros incorporados han llegado sin formato Markdown** (`modulo-citas.md`, `modulo-tipo-centro.md`, `roles-consulta-basica-tramitacion.md`, `propuesta-requisitos-y-tareas-guiadas.md`, `estado-proyecto-2026-11-10.md` y las tres instrucciones nuevas): sin `#` en los títulos, tablas separadas por tabuladores, sin código entre comillas invertidas. Parecen copiados como texto plano. No se han reformateado (las instrucciones prohíben mejorar la redacción). Conviene volver a subirlos en Markdown o autorizar la conversión.
-2. **`modulo-citas.md` pierde una precisión de la versión del repo:** la regla del profesional de referencia decía «la asignación vigente de su historia (`AsignacionReferenciaService::vigente()`, ver `docs/modulo-asignacion.md`)», añadido al implementar; la versión nueva dice solo «para el profesional de referencia del ciudadano». ¿Se repone?
+1. *(Resuelta el 2026-11-11, A5.)* **Los ficheros incorporados han llegado sin formato Markdown** (`modulo-citas.md`, `modulo-tipo-centro.md`, `roles-consulta-basica-tramitacion.md`, `propuesta-requisitos-y-tareas-guiadas.md`, `estado-proyecto-2026-11-10.md` y las tres instrucciones nuevas): sin `#` en los títulos, tablas separadas por tabuladores, sin código entre comillas invertidas. Parecen copiados como texto plano. No se han reformateado (las instrucciones prohíben mejorar la redacción). Conviene volver a subirlos en Markdown o autorizar la conversión.
+2. *(Resuelta el 2026-11-11, A5.)* **`modulo-citas.md` pierde una precisión de la versión del repo:** la regla del profesional de referencia decía «la asignación vigente de su historia (`AsignacionReferenciaService::vigente()`, ver `docs/modulo-asignacion.md`)», añadido al implementar; la versión nueva dice solo «para el profesional de referencia del ciudadano». ¿Se repone?
 3. **`modulo-documentos.md` §1 no contiene literalmente** la frase «para cualquier profesional con acceso al expediente» que citan las instrucciones; se ha añadido una frase con la disponibilidad general y la excepción de `consulta_basica`.
 4. **`docs/decisiones-pendientes.md`, indicios sin constancia:** A-02 (la agenda del profesional ya existe, con «Pedir cambio», pero no consta qué ve del cuadrante de sus compañeros), CIU-03 (el centro se ve en el bloque «Centro y referencia» de la ficha, pero no en la cabecera del expediente) y T-01 (existe `MotorMatching`, pero no consta la estrategia para cambios de documento, nombre o sexo). Se dejan.
 5. **`modulo-intervencion.md:793`** dice «Implementado (fase 1 — modelos, policies, factories, tests funcionales)» y no menciona la interfaz, que existe desde junio. No contradice el CHANGELOG, pero se queda corto; no se ha tocado.

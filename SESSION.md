@@ -1,14 +1,16 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-11 (Supervisión: tests en la suite, punto A2 de `2026_11_estabilizacion_y_privacidad.md`)
+**Última actualización:** 2026-11-11 (formato Markdown de los documentos del 10 nov, punto A5 de `2026_11_estabilizacion_y_privacidad.md`)
 
 ---
 
 ## Tarea completada
 
-**Supervisión: tests en la suite (A2 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-11): `Modules/Supervision/tests/Feature` en `phpunit.xml`; los tres fallos eran tests desfasados o incompletos y se han corregido sin tocar la aplicación («Aprobaciones» fuera del menú desde junio, confirmado por el desarrollador; pestañas del equipo retiradas en junio; F03 sin acceso previo). `Modules/Supervision/tests` 38 passed. Detalle en `CHANGELOG-112026.md`.
+**Formato Markdown de los documentos del 10 nov (A5 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-11): los ocho ficheros en Markdown sin cambiar una palabra (comprobado por fichero); en `modulo-citas.md`, precisión de RN-03 sobre el profesional de referencia y retirado el bloque duplicado de §9–§11 (decisión del desarrollador). Dudas 1 y 2 del 10 nov resueltas. Detalle en `CHANGELOG-112026.md`.
 
-Antes, el mismo día: **Documentos: rechazos que faltaban y causa técnica (A1 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-11): `fichero_vacio` (servicio y pantalla), `pdf_sin_contenido` con `SaneadorPdf::tintaTotal()` (inkcov, umbral 0,00001), `ProcesoExternoFallidoException` renombrada a `FalloHerramientaExterna` (nombre del binario, salida de error recortada a 2.000) y extendida a LibreOffice, `report()` de la causa en `DocumentosCiudadano`. TF-DOC-ING-01 a 08 en verde; `Modules/Documentos/tests` 100 passed. El 0 bytes «guardado» en staging no se reproduce (ni hay versión de 0 bytes en la BD). TF-DOC-ING-03 usa un PDF con contenido dañado: el truncado sin trailer lo para antes qpdf (`pdf_no_normalizable`). Docs: `modulo-documentos.md` §3 y `decisiones-tecnicas.md` §14. Detalle y mediciones en `CHANGELOG-112026.md`.
+Antes, el mismo día: **Supervisión: tests en la suite (A2 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-11): `Modules/Supervision/tests/Feature` en `phpunit.xml`; los tres fallos eran tests desfasados o incompletos y se han corregido sin tocar la aplicación («Aprobaciones» fuera del menú desde junio, confirmado por el desarrollador; pestañas del equipo retiradas en junio; F03 sin acceso previo). `Modules/Supervision/tests` 38 passed. Detalle en `CHANGELOG-112026.md`.
+
+Y antes: **Documentos: rechazos que faltaban y causa técnica (A1 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-11): `fichero_vacio` (servicio y pantalla), `pdf_sin_contenido` con `SaneadorPdf::tintaTotal()` (inkcov, umbral 0,00001), `ProcesoExternoFallidoException` renombrada a `FalloHerramientaExterna` (nombre del binario, salida de error recortada a 2.000) y extendida a LibreOffice, `report()` de la causa en `DocumentosCiudadano`. TF-DOC-ING-01 a 08 en verde; `Modules/Documentos/tests` 100 passed. El 0 bytes «guardado» en staging no se reproduce (ni hay versión de 0 bytes en la BD). TF-DOC-ING-03 usa un PDF con contenido dañado: el truncado sin trailer lo para antes qpdf (`pdf_no_normalizable`). Docs: `modulo-documentos.md` §3 y `decisiones-tecnicas.md` §14. Detalle y mediciones en `CHANGELOG-112026.md`.
 
 Y antes: **CI «Calidad de código» medido (A3 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-11): `analyse-ci` con 2G; 281 errores de PHPStan clasificados por identificador en el BACKLOG (164 son el falso positivo de `Livewire::test()`); corregido el único fallo real (`ResolucionCentroService::seccionesSinCobertura()` devolvía `Support\Collection` y los llamadores usan `load()`). Pendiente de decisión: ignorar `argument.templateType` en tests y desactivar `no_superfluous_phpdoc_tags` en Pint. Detalle en `CHANGELOG-112026.md`.
 
@@ -53,7 +55,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 
 ## Siguiente paso concreto recomendado
 
-0. **Seguir `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`:** hechos A3, A1 y A2. Siguiente: **A5** (formato Markdown de los documentos del 10 nov), después B1–B4; A4 espera la confirmación del desarrollador. Tras el despliegue de A1, probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (prueba rápida de `decisiones-tecnicas.md` §14).
+0. **Seguir `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`:** hechos A3, A1, A2 y A5 (bloque A completo salvo A4). Siguiente: **B1** (personas relacionadas protegidas), después B2–B4; A4 espera la confirmación del desarrollador. Tras el despliegue de A1, probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (prueba rápida de `decisiones-tecnicas.md` §14).
 1. **El desarrollador prueba en staging asignación y citas** (pendiente desde el 2026-10-01; las pantallas solo se han probado con tests).
    - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto. **Configurar igual todos los centros del mismo tipo:** el paso 3 de Tipo de Centro aborta si difieren.
    - Citas: bandeja de citación, cita directa, detalle con reprogramar y cancelar, agenda del profesional, «Solicitar cita» en Intervención, *Atender* → registro de atención → «Dar cita».
@@ -61,7 +63,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 3. **Ejecutar `docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md` (rama A)** con sus tests TF-TCE-01 a 34.
 4. **Corregir la creación de planes especializados (PIA):** `PlanPage::crearNuevoPlan()` fija `tipo = general_asp` (BACKLOG; prioritario para el CIAM).
 5. **Instrucciones del delta de citas y de `consulta_basica`** (BACKLOG «Citas: delta de la revisión del 30 sep» y «`consulta_basica`: diseño cerrado sin instrucciones»): §6 bis, ficha por rol, estado de la Historia Social, documentos propios del día.
-6. Revisar las dudas de `CHANGELOG-112026.md` (sobre todo: los documentos nuevos llegaron sin formato Markdown).
+6. Revisar las dudas 3 a 5 de `CHANGELOG-112026.md` (la 1 y la 2 se resolvieron en A5).
 
 ---
 
