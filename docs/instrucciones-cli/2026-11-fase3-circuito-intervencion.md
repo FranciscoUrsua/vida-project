@@ -2,10 +2,10 @@
 
 **Plan:** `docs/plan-cierre-funcional-2026-11.md`, fase 3.
 **Requisito previo:** fase 2 (Tipo de Centro con la addenda D1/D2/D4/D5) terminada y desplegada. Esta fase usa `ConfiguracionEfectivaCentro::tiposPlan()`, `CentroDeUsuario::centroActivo()`, `AmbitoUsuario` y la regla de personas protegidas (RN-17 de la addenda).
-**Tests:** TF-CIR-01 a TF-CIR-38 (al final de este documento).
+**Tests:** TF-CIR-01 a TF-CIR-43 (al final de este documento).
 
 **Alcance:**
-- **A.** Planes especializados: creación correcta, centro del plan y acceso del equipo especializado.
+- **A.** Tipos de plan y planes especializados: varios tipos por ámbito, plan principal, creación correcta, centro del plan y acceso del equipo del plan.
 - **B.** Derivación a atención especializada.
 - **C.** Evaluación de objetivos en el seguimiento.
 - **D.** Prescripción de plazas conectada al profesional de referencia.
@@ -20,9 +20,9 @@
 ## Hechos que no hay que redescubrir
 
 - `PlanPage::crearNuevoPlan()` (`Modules/Intervencion/app/Http/Livewire/PlanPage.php:1092`) crea **siempre** `tipo = TipoPlan::GeneralAsp`, aunque el `tipo_plan_id` elegido sea de ámbito `especializado`. `CiudadanoPage::pisoActivo()` y `MisCasos` filtran por `tipo = general_asp`: un PIA creado a mano se trata como el PISO.
-- `tipos_plan` tiene `ambito` (`asp` / `especializado`) y `admite_entrada_directa`. `PlanDeIntervencion` tiene `tipo`, `tipo_plan_id`, `plan_asp_id`, `servicio_especializado_id` y `profesional_responsable_id`, pero **no tiene centro ni UO**. `PlanDeIntervencion::verificarOrigenPlanEspecializado()` exige `plan_asp_id` en los especializados salvo entrada directa.
+- `tipos_plan` tiene `ambito` (`asp` / `especializado`) y `admite_entrada_directa`. El seeder (`TipoPlanSeeder`) solo tiene **un** tipo de ámbito `asp` (`general_asp`, el PISO) y varios especializados; el código da por hecho que el único plan de ámbito ASP es el PISO (`CiudadanoPage::pisoActivo()`, `MisCasosPage`, `RegistrarValoracionPage` filtran por `tipo = general_asp`). `PlanDeIntervencion` tiene `tipo`, `tipo_plan_id`, `plan_asp_id`, `servicio_especializado_id` y `profesional_responsable_id`, pero **no tiene centro ni UO**. `PlanDeIntervencion::verificarOrigenPlanEspecializado()` exige `plan_asp_id` en los especializados salvo entrada directa.
 - **La Historia Social es única por persona** (`AperturaHistoriaService::abrir()` devuelve la existente) y su UO es la del centro donde se abrió. `PlanDeIntervencionPolicy` y `CiudadanoPolicy` deciden el nivel 1 por la UO de la historia. **Hoy el personal de un CIAM no puede gestionar un PIA de una persona cuya historia se abrió en un CSS.**
-- No existe tabla `derivaciones` ni acción de derivar. El glosario define la derivación como una prestación del catálogo que crea el vínculo entre el plan ASP y el especializado.
+- No existe tabla `derivaciones`. La caja de herramientas de la Historia Social tiene una herramienta «Derivación» (`ciudadano-page.blade.php`, `CiudadanoPage::crearDerivacion()` hacia la línea 1226) que solo registra un apunte de tipo `derivacion`, con un TODO. El glosario define la derivación como una prestación del catálogo que crea el vínculo entre el plan ASP y el especializado.
 - `plan_objetivo_indicadores` tiene `tipo_valoracion`, `valoracion_actual`, `fecha_valoracion` y `seguimiento_id`. `PlanPage` permite valorar indicadores al editar el plan, pero el seguimiento (`CiudadanoPage`, línea ~1183, `SeguimientoPlan::create`) no los evalúa y `valoracion_actual` se sobrescribe sin historial.
 - `PrescripcionService` tiene un `tsrResolver` que devuelve siempre `null` y nadie llama a `setTsrResolver()`. `AsignarPlazaModal::alertarTsr()` (línea ~195) solo escribe en el log.
 - `AsignacionReferenciaService::cambiarManual()` existe (con motivo y supervisor) pero no tiene interfaz.
@@ -31,16 +31,16 @@
 
 ## Decisiones de diseño de esta fase
 
-Las decisiones con ⚑ las ha tomado el analista por coherencia con lo ya decidido; están pendientes de la confirmación del Delegado Digital. Si al empezar no consta su confirmación en `SESSION.md`, **pregunta antes del bloque A**.
+Todas confirmadas por el Delegado Digital el 12 nov 2026.
 
 | Id | Decisión |
 |---|---|
-| F3-1 | `PlanDeIntervencion::tipo` se deriva de `tipos_plan.ambito`: `asp` → `general_asp`; `especializado` → `especializado`. Nadie lo elige a mano |
-| F3-2 ⚑ | **Todo plan tiene centro** (`centro_id`): el centro donde se crea, que debe ofrecer su tipo de plan (`tiposPlan()`). El PISO, el del centro de la historia; un especializado, el centro especializado |
-| F3-3 ⚑ | **Acceso del equipo del plan.** El personal adscrito al centro de un plan activo tiene, según su rol, nivel 1 sobre ese plan y lectura de la Historia Social completa de la persona (para tener el contexto, como piden los grupos multifuncionales). Solo el responsable del plan y la supervisión de su centro lo editan. El TSR ve el plan especializado, no lo edita (`modulo-intervencion.md` §5.1) |
-| F3-4 ⚑ | **Personas protegidas (amplía RN-17 de la addenda).** El ámbito reducido de una persona protegida incluye a los adscritos directamente al centro de su historia **y** a los adscritos al centro de cualquier plan activo suyo. Las UO superiores siguen necesitando acceso concedido |
-| F3-5 ⚑ | **La derivación es una prestación con vía de acceso `derivacion`** (amplía `modulo-solicitudes-expedientes.md` RN-01, que tenía cuatro vías). La prestación de derivación indica el tipo de plan especializado que genera |
-| F3-6 ⚑ | **Flujo de derivación:** el TSR deriva desde el PISO (y, si quiere, desde un objetivo) eligiendo la prestación de derivación y el centro de destino entre los que ofrecen ese tipo de plan. Cae en la **bandeja de derivaciones del centro de destino**. La dirección o la supervisión del centro de destino la **acepta asignando un profesional responsable** (o la rechaza con motivo). Al aceptarla se crea el plan especializado en borrador, con `plan_asp_id`, centro y responsable |
+| F3-1 | **Varios tipos de plan por ámbito.** En un mismo ámbito y centro puede haber varios tipos de plan (p. ej. en ASP: el PISO, un plan psicológico, un plan socioeducativo), cada uno con su responsable. **Quien crea el plan elige el tipo** entre los que ofrece el centro. Uno de los tipos de ASP es el **plan principal** (el PISO): como máximo uno activo por historia, lo gestiona el TSR y es el origen de las derivaciones. Una historia tiene como máximo un plan activo de cada tipo. `PlanDeIntervencion::tipo` (`general_asp`/`especializado`) se sigue derivando del ámbito del tipo elegido, pero **nada decide «es el PISO» por `tipo`**: se decide por el tipo de plan principal |
+| F3-2 | **Todo plan tiene centro** (`centro_id`): el centro donde se crea, que debe ofrecer su tipo de plan (`tiposPlan()`). El PISO, el del centro de la historia; un especializado, el centro especializado |
+| F3-3 | **Acceso del equipo del plan.** El personal adscrito al centro de un plan activo tiene, según su rol, nivel 1 sobre ese plan y lectura de la Historia Social completa de la persona (para tener el contexto, como piden los grupos multifuncionales). Solo el responsable del plan y la supervisión de su centro lo editan. El TSR edita el plan principal; los demás planes de la persona los ve y no los edita (`modulo-intervencion.md` §5.1) |
+| F3-4 | **Personas protegidas (amplía RN-17 de la addenda).** El ámbito reducido de una persona protegida incluye a los adscritos directamente al centro de su historia **y** a los adscritos al centro de cualquier plan activo suyo. **Salvedad:** un usuario de una UO superior **con rol `intervencion`** cuyo ámbito (orgánico o funcional, RN-13) incluye esos centros también accede a la historia. Los usuarios de UO superiores sin rol `intervencion` (p. ej. solo `supervision`) siguen necesitando acceso concedido por el director del centro |
+| F3-5 | **La derivación es una prestación con vía de acceso `derivacion`** (amplía `modulo-solicitudes-expedientes.md` RN-01, que tenía cuatro vías). La prestación de derivación indica el tipo de plan especializado que genera |
+| F3-6 | **Flujo de derivación:** el TSR deriva desde el plan principal (y, si quiere, desde un objetivo) eligiendo la prestación de derivación y el centro de destino entre los que ofrecen ese tipo de plan. Cae en la **bandeja de derivaciones del centro de destino**. La dirección o la supervisión del centro de destino la **acepta asignando un profesional responsable** (o la rechaza con motivo). Al aceptarla se crea el plan especializado en borrador, con `plan_asp_id`, centro y responsable. **La herramienta «Derivación» desaparece de la caja de herramientas de la Historia Social**: derivar se hace solo desde el plan principal |
 | F3-7 | Evaluación de objetivos en cada seguimiento, con historial de valoraciones por indicador. El estado del objetivo se propone a partir de la valoración y el profesional lo confirma |
 | F3-8 | Al liberarse o asignarse una plaza, la alerta va al TSR vigente (`AsignacionReferenciaService::vigente()`) por `AlertaService` |
 
@@ -60,7 +60,8 @@ Las decisiones con ⚑ las ha tomado el analista por coherencia con lo ya decidi
 1. `git pull`, suites de Intervención, Centro, Ciudadanía, Mensajes y `tests/Feature/Acceso`. Anota los fallos previos.
 2. Confirma que existen `ConfiguracionEfectivaCentro::tiposPlan()`, `CentroDeUsuario::centroActivo()`, `AmbitoUsuario::gestionaProtegido()` y `TipoCentro`. **Si falta alguno, detente: la fase 2 no está terminada.**
 3. Lista los planes existentes con `tipo` incoherente con el `ambito` de su `tipo_plan_id`, y los que no tienen `tipo_plan_id`. Informa del recuento por caso.
-4. Lista todos los lectores de `PlanDeIntervencion::tipo` y de `TipoPlan::GeneralAsp` (fichero y línea).
+4. Lista todos los lectores de `PlanDeIntervencion::tipo` y de `TipoPlan::GeneralAsp` (fichero y línea): todos los que lo usan para decidir «es el PISO» pasan a usar el plan principal (A1).
+7. Cuenta los apuntes de tipo `derivacion` existentes creados con la herramienta de la caja (para el informe; no se tocan).
 5. Localiza en `PlanDeIntervencionPolicy`, `CiudadanoPolicy`, `HistoriaSocialPolicy`, `AmbitoUoScope` y `AccesoExpediente` los puntos donde se decide el nivel 1 por la UO de la historia. Informa antes del bloque A.
 6. Comprueba cómo se modelan hoy las alertas con enlace a un elemento (`AlertaService::crear()`, campos de origen) para reutilizarlo en derivaciones y plazas.
 
@@ -68,30 +69,37 @@ Las decisiones con ⚑ las ha tomado el analista por coherencia con lo ya decidi
 
 ## Bloque A — Planes especializados
 
-### A1. Tipo derivado del tipo de plan
-1. `PlanDeIntervencion`: en `saving`, si hay `tipo_plan_id`, `tipo` se fija desde `tipoPlan->ambito`. Un `tipo` que no coincida con el ámbito lanza `DomainException`. Sin `tipo_plan_id` no se puede crear un plan nuevo (los antiguos sin tipo siguen siendo legibles).
-2. `PlanPage::crearNuevoPlan()` deja de fijar `tipo`.
-3. Migración de datos: corrige `tipo` en los planes con `tipo_plan_id` incoherente (paso 0.3) y anota el recuento en el CHANGELOG. Los planes sin `tipo_plan_id` no se tocan.
+### A1. Tipos de plan, plan principal y elección del tipo (F3-1)
+1. `tipos_plan.es_principal` (bool, por defecto `false`). Exactamente un tipo activo de ámbito `asp` con `es_principal = true` (validación en `TipoPlanResource` y en el modelo); el seeder lo marca en `general_asp`. Un tipo especializado no puede ser principal.
+2. `TipoPlanSeeder`: añade, como datos de ejemplo de ámbito `asp` no principal, «Plan de intervención psicológica» (`asp_psicologico`) y «Plan socioeducativo» (`asp_socioeducativo`). Asígnalos al tipo de centro `css_general` (`tipo_centro_tipo_plan`).
+3. `PlanDeIntervencion`:
+   - en `saving`, si hay `tipo_plan_id`, `tipo` se fija desde `tipoPlan->ambito`; un `tipo` incoherente lanza `DomainException`; sin `tipo_plan_id` no se puede crear un plan nuevo (los antiguos sin tipo siguen siendo legibles);
+   - método `esPrincipal(): bool` (por su tipo de plan) y scope `principal()`;
+   - **como máximo un plan activo de cada `tipo_plan_id` por historia** (validación en el servicio de creación; índice único parcial si el modelo de estados lo permite).
+4. Sustituye **todas** las lecturas que deciden «es el PISO» por `tipo = general_asp` (paso 0.4) por el plan principal: `CiudadanoPage::pisoActivo()` (renómbralo `planPrincipalActivo()` o mantén el nombre con la nueva lógica, y explícalo), `MisCasosPage`, `RegistrarValoracionPage` y el resto de la lista.
+5. **Elección del tipo al crear**: `PlanPage::crearNuevoPlan()` deja de fijar `tipo` y obliga a elegir el tipo de plan entre los de `tiposPlan()` del centro (paso A2), excluyendo los que ya tienen un plan activo en la historia. Si solo hay uno disponible, se preselecciona pero se muestra.
+6. Migración de datos: corrige `tipo` en los planes con `tipo_plan_id` incoherente (paso 0.3) y anota el recuento en el CHANGELOG. Los planes sin `tipo_plan_id` no se tocan.
 
 ### A2. Centro del plan
 1. Migración: `planes_intervencion.centro_id` (FK nullable a `centros`). Relleno: para cada plan, el centro de la UO de su historia; si no se puede deducir, `null` y al informe. En un paso posterior, obligatorio para planes nuevos (validación de modelo, no `NOT NULL`, mientras queden antiguos sin centro).
 2. Al crear un plan:
    - el centro es el del contexto o el centro activo del usuario (addenda §3.5);
    - el tipo de plan debe estar en `tiposPlan()` de ese centro (validación en el servicio, no solo en el selector);
-   - un plan `general_asp` solo puede crearse en el centro de la historia;
+   - el plan principal solo puede crearse en el centro de la historia, y lo crea el TSR o la supervisión de ese centro;
+   - los demás planes de ámbito `asp` se crean en el centro que ofrece su tipo, por cualquier profesional de ese centro con permiso para crear planes, que queda como responsable;
    - un `especializado` con entrada directa (`admite_entrada_directa`) puede crearse en cualquier centro que ofrezca su tipo; sin entrada directa, solo nace de una derivación (bloque B).
-3. Una historia puede tener a la vez su PISO y varios planes especializados de centros distintos.
+3. Una historia puede tener a la vez su plan principal, otros planes de ASP (p. ej. psicológico) y varios planes especializados de centros distintos.
 
 ### A3. Acceso del equipo del plan (F3-3, F3-4)
 1. `AmbitoUsuario`: método `centrosDeLaPersona(Ciudadano): Collection` (centro de la historia + centros de planes activos) y regla de lectura de la historia para el personal adscrito a cualquiera de ellos.
 2. `PlanDeIntervencionPolicy`:
    - `view`: el ámbito actual **o** adscripción al centro del plan;
-   - `update`: el responsable del plan o la supervisión de su centro; el TSR, solo en planes `general_asp`;
+   - `update`: el responsable del plan o la supervisión de su centro; el TSR, además, en el plan principal;
    - las demás acciones de escritura, igual que `update`.
 3. `CiudadanoPolicy::view` y `HistoriaSocialPolicy::view`: añaden el acceso de lectura por `centrosDeLaPersona()`. **No dan `update` de la ficha** por esta vía.
-4. Personas protegidas: `gestionaProtegido()` pasa a ser verdadero también para los adscritos directos al centro de un plan activo (F3-4).
-5. `CiudadanoPage`: `pisoActivo()` sigue buscando `general_asp`. Nuevo bloque «Planes de la persona»: cada plan activo con tipo, centro, responsable, estado y próximo seguimiento, con enlace al plan según permisos.
-6. `MisCasos`: el profesional ve también los planes especializados de los que es responsable, identificados por tipo de plan.
+4. Personas protegidas (F3-4): `gestionaProtegido()` pasa a ser verdadero también para (a) los adscritos directos al centro de un plan activo de la persona y (b) los usuarios con rol `intervencion` cuyo `AmbitoUsuario` (orgánico o funcional) incluye el centro de la historia o de un plan activo. Para el resto de usuarios de UO superiores, sin cambios: acceso concedido. La salvedad (b) para la historia ya la implanta la fase 2 (RN-17 de la addenda, TF-TCE-60): aquí se extiende a los centros de los planes activos.
+5. `CiudadanoPage`: el plan principal se busca por `es_principal` (A1.4). Nuevo bloque «Planes de la persona»: cada plan activo con tipo, centro, responsable, estado y próximo seguimiento, con enlace al plan según permisos.
+6. `MisCasos`: el profesional ve también los planes no principales de los que es responsable (de ASP o especializados), identificados por tipo de plan.
 
 ---
 
@@ -110,8 +118,8 @@ Módulo `Intervencion`.
 |---|---|---|
 | `id` | bigint PK | |
 | `historia_id` | FK | |
-| `plan_origen_id` | FK | Plan `general_asp` desde el que se deriva |
-| `plan_objetivo_id` | FK nullable | Objetivo del PISO, si se deriva desde él |
+| `plan_origen_id` | FK | Plan principal desde el que se deriva |
+| `plan_objetivo_id` | FK nullable | Objetivo del plan principal, si se deriva desde él |
 | `prestacion_id` | FK | Prestación con `via_acceso = derivacion` |
 | `tipo_plan_id` | FK | Copia del tipo de plan de la prestación en el momento de derivar |
 | `centro_destino_id` | FK | Debe ofrecer `tipo_plan_id` |
@@ -127,15 +135,16 @@ Módulo `Intervencion`.
 Eventos: `derivacion_eventos`, inmutable (trigger que rechaza UPDATE y DELETE, como `cita_eventos`): quién, cuándo, estado antes y después, motivo.
 
 ### B3. Servicio `DerivacionService`
-- `derivar(PlanDeIntervencion $piso, Prestacion, Centro $destino, string $motivo, ?PlanObjetivo, User $tsr)`: valida que el plan es `general_asp` activo, que el usuario puede editarlo, que la prestación es de derivación, que el destino ofrece el tipo de plan y que no hay otra derivación `pendiente` igual (mismo destino y tipo). Crea la derivación, el evento, un apunte `derivacion` en la historia y una alerta a la dirección y la supervisión del centro de destino.
+- `derivar(PlanDeIntervencion $piso, Prestacion, Centro $destino, string $motivo, ?PlanObjetivo, User $tsr)`: valida que el plan es el principal activo, que el usuario puede editarlo, que la prestación es de derivación, que el destino ofrece el tipo de plan y que no hay otra derivación `pendiente` igual (mismo destino y tipo). Crea la derivación, el evento, un apunte `derivacion` en la historia y una alerta a la dirección y la supervisión del centro de destino.
 - `aceptar(Derivacion, User $responsable, User $actor)`: solo dirección o supervisión del centro de destino; el responsable debe estar adscrito a ese centro. Crea el plan especializado en borrador (`tipo_plan_id`, `plan_asp_id`, `centro_id = destino`, responsable). Evento, apunte y alerta al TSR y al responsable.
 - `rechazar(Derivacion, string $motivo, User $actor)`: mismo permiso. Evento y alerta al TSR.
 - `anular(Derivacion, string $motivo, User $actor)`: solo el TSR que derivó o la supervisión del centro de origen, y solo si está `pendiente`.
 
 ### B4. Interfaz
-1. **PISO** (`PlanPage`): acción «Derivar a atención especializada», en el plan y en cada objetivo. Modal: prestación de derivación, centro de destino (lista de centros que ofrecen el tipo de plan, con el de la persona del tipo correspondiente primero si tiene asignado), motivo. Sección «Derivaciones» con estado y acceso al historial.
+1. **Plan principal** (`PlanPage`): acción «Derivar a atención especializada», en el plan y en cada objetivo. Modal: prestación de derivación, centro de destino (lista de centros que ofrecen el tipo de plan, con el de la persona del tipo correspondiente primero si tiene asignado), motivo. Sección «Derivaciones» con estado y acceso al historial.
 2. **Bandeja de derivaciones** del centro de destino (pantalla de Supervisión, Livewire): pendientes con persona, centro de origen, TSR, tipo de plan, motivo y antigüedad; acciones aceptar (con selector de profesional adscrito al centro) y rechazar. Personas protegidas: identidad visible solo para la supervisión adscrita al centro de destino (RN-19 de la addenda).
-3. **Plan especializado:** cabecera con «Nace de la derivación del PISO de [centro]», enlace al PISO para quien pueda verlo.
+3. **Plan especializado:** cabecera con «Nace de la derivación del plan principal de [centro]», enlace a ese plan para quien pueda verlo.
+4. **Caja de herramientas** (F3-6): retira la herramienta «Derivación» de `ciudadano-page.blade.php` y el método `CiudadanoPage::crearDerivacion()`, con su TODO. Los apuntes de tipo `derivacion` ya existentes se siguen mostrando en el timeline. El tipo de apunte `derivacion` lo siguen generando `DerivacionService::derivar()` y `aceptar()`.
 
 ---
 
@@ -179,21 +188,22 @@ Eventos: `derivacion_eventos`, inmutable (trigger que rechaza UPDATE y DELETE, c
    - `modulo-prestaciones.md`: `via_acceso` y `tipo_plan_derivacion_id`;
    - `modulo-solicitudes-expedientes.md` RN-01: añade la vía `derivacion`;
    - `modulo-asignacion.md` §4.5: interfaz del cambio de referencia;
-   - la addenda de Tipo de Centro: RN-17 ampliada (F3-4).
-4. CHANGELOG (recuentos de la migración de datos, decisiones no previstas, negativos comprobados), BACKLOG (cierra «La interfaz no permite crear planes especializados», «No existe asociación tipo de plan ↔ centro», «Tabla `derivaciones` inexistente», «Seguimiento del plan — UI», el aviso al TSR tras asignar plaza y el cambio de referencia), SESSION, `CLAUDE.md` §6.
+   - la addenda de Tipo de Centro: RN-17 ampliada (F3-4, incluida la salvedad del rol `intervencion`);
+   - `modulo-intervencion.md` §5.2: `tipos_plan.es_principal` y varios tipos por ámbito.
+4. CHANGELOG (recuentos de la migración de datos y de apuntes de derivación antiguos, decisiones no previstas, negativos comprobados), BACKLOG (cierra «La interfaz no permite crear planes especializados», «No existe asociación tipo de plan ↔ centro», «Tabla `derivaciones` inexistente», «Seguimiento del plan — UI», el aviso al TSR tras asignar plaza y el cambio de referencia), SESSION, `CLAUDE.md` §6.
 5. Push y despliegue en verde.
 
 ## Criterios de finalización
 
-1. TF-CIR-01 a 38 en verde, con los negativos comprobados.
-2. Ningún plan nuevo con `tipo` distinto del ámbito de su tipo de plan; ningún lector de `tipo` roto.
+1. TF-CIR-01 a 43 en verde, con los negativos comprobados.
+2. Ningún plan nuevo con `tipo` distinto del ámbito de su tipo de plan; ninguna lógica decide «es el PISO» por `tipo`.
 3. Un profesional de un CIAM gestiona el PIA de una persona cuya historia es de un CSS, y lee su historia.
 4. Ninguna alerta de plazas queda solo en el log.
 5. Suite completa sin fallos nuevos, documentación al día, despliegue en verde.
 
 ---
 
-# Tests — TF-CIR-01 a TF-CIR-38
+# Tests — TF-CIR-01 a TF-CIR-43
 
 **Convenciones:** PHPUnit con `#[Test]`, PostgreSQL (`vida_testing`), Dado / Cuando / Entonces. Ubicación: `Modules/Intervencion/tests/Feature/Circuito/` (`PlanTipoTest`, `PlanCentroTest`, `AccesoPlanTest`, `DerivacionTest`, `BandejaDerivacionesTest`, `EvaluacionObjetivosTest`, `PrescripcionTsrTest`, `CambioReferenciaTest`). Los marcados **[negativo]** deben fallar sin la protección; compruébalo y anótalo.
 
@@ -202,13 +212,15 @@ Eventos: `derivacion_eventos`, inmutable (trigger que rechaza UPDATE y DELETE, c
 - `$psicologaVallecas` (`intervencion`, `$uoCiamVallecas`); `$directoraVallecas` (`DirectorCentro` vigente y `supervision` en `$uoCiamVallecas`).
 - `$ana`: ciudadana con historia en `$cssNorte`, referencia `$tsNorte`, PISO activo `$pisoAna` con dos objetivos (uno con indicador `conseguido_proceso_no` y otro `si_no`).
 - `$marta`: ciudadana **protegida** con historia en `$cssNorte` y PISO activo.
+- `$psicologoNorte` (`intervencion`, adscrito a `$uoCssNorte`, cargo psicólogo). Tipos de plan de ASP en `$tipoCss`: `general_asp` (principal), `asp_psicologico` y `asp_socioeducativo`.
+- `$tecnicaIgualdad` (`intervencion`, adscrita a `$uoIgualdad`, sin centro).
 - `$derivPia`: prestación con `via_acceso = derivacion` y `tipo_plan_derivacion_id = pia`.
 
-## Grupo A — Tipo y centro del plan
+## Grupo A — Tipos de plan y centro del plan
 
 **TF-CIR-01 — El tipo sale del tipo de plan** **[negativo]**: crear desde `PlanPage` un plan PIA en `$ciamVallecas` → `tipo = especializado`. Crear un PISO en `$cssNorte` → `general_asp`. Forzar `tipo = general_asp` con `tipo_plan_id = pia` → `DomainException`.
 
-**TF-CIR-02 — El PIA no se confunde con el PISO**: con un PIA activo y sin PISO, `pisoActivo()` es `null` y `MisCasos` del responsable muestra el PIA como «PIA», no como PISO.
+**TF-CIR-02 — Ni el PIA ni otro plan de ASP se confunden con el PISO** **[negativo]**: con un PIA activo y un plan psicológico activo y sin PISO, el plan principal es `null` y `MisCasos` del responsable muestra cada plan por su tipo, ninguno como PISO.
 
 **TF-CIR-03 — Migración de tipos**: planes con `tipo` incoherente se corrigen; los que no tienen `tipo_plan_id` quedan igual; el recuento coincide con el informe.
 
@@ -220,19 +232,27 @@ Eventos: `derivacion_eventos`, inmutable (trigger que rechaza UPDATE y DELETE, c
 
 **TF-CIR-07 — Centro del plan relleno**: tras la migración, los planes existentes tienen el centro de su historia; los no deducibles, `null` y en el informe.
 
+**TF-CIR-39 — Varios tipos de plan en ASP: hay que elegir**: `$psicologoNorte` crea un plan para `$ana` en `$cssNorte`: se le ofrecen `asp_psicologico` y `asp_socioeducativo` (no el principal, que ya existe); sin elegir tipo no se crea; elige `asp_psicologico` → plan de ámbito ASP no principal, responsable él, `centro_id = $cssNorte`.
+
+**TF-CIR-40 — Un plan activo por tipo** **[negativo]**: crear un segundo `asp_psicologico` activo para `$ana` → rechazado; tras cerrar el primero, permitido. Un segundo plan principal activo → rechazado.
+
+**TF-CIR-41 — Un solo tipo principal**: marcar `asp_psicologico` como principal con `general_asp` ya principal → rechazado; marcar como principal un tipo especializado → rechazado.
+
 ## Grupo B — Acceso del equipo del plan
 
 **TF-CIR-08 — El equipo especializado gestiona su plan** **[negativo]**: con un PIA de `$ana` en `$ciamVallecas` (responsable `$psicologaVallecas`), la psicóloga ve y edita el PIA y lee la historia de `$ana` (apuntes, valoraciones). Sin el PIA, no puede editar nada de `$ana`.
 
 **TF-CIR-09 — Leer no es editar la ficha**: `$psicologaVallecas` no puede editar la ficha de identificación de `$ana` (`CiudadanoPolicy::update`) por tener el PIA.
 
-**TF-CIR-10 — El TSR ve el PIA y no lo edita** **[negativo]**: `$tsNorte` ve el PIA de `$ana`; cualquier escritura (objetivo, seguimiento, cierre) se rechaza en el servidor.
+**TF-CIR-10 — El TSR ve los demás planes y no los edita** **[negativo]**: `$tsNorte` ve el PIA y el plan psicológico de `$ana`; cualquier escritura (objetivo, seguimiento, cierre) se rechaza en el servidor. `$psicologoNorte` edita su plan psicológico y no el PISO.
 
 **TF-CIR-11 — Otro profesional del centro especializado**: una trabajadora de `$ciamVallecas` que no es responsable ve el PIA y no lo edita; `$directoraVallecas` lo edita.
 
 **TF-CIR-12 — Plan cerrado, acceso cerrado**: al cerrar el PIA, `$psicologaVallecas` pierde el acceso a la historia de `$ana` (salvo otro motivo de acceso).
 
-**TF-CIR-13 — Persona protegida con plan especializado** **[negativo]**: con un PIA activo de `$marta` en `$ciamVallecas`, `$psicologaVallecas` la ve con identidad (F3-4). `$coordIgualdad` (UO funcional) la sigue viendo como «Persona con protección especial».
+**TF-CIR-13 — Persona protegida con plan especializado** **[negativo]**: con un PIA activo de `$marta` en `$ciamVallecas`, `$psicologaVallecas` la ve con identidad (F3-4). `$coordIgualdad` (UO funcional, solo `supervision`) la sigue viendo como «Persona con protección especial».
+
+**TF-CIR-42 — Salvedad del rol `intervencion` en UO superior**: `$tecnicaIgualdad` (`intervencion` en `$uoIgualdad`, que tiene `$ciamVallecas` en su ámbito funcional) accede a la historia de `$marta` con identidad; si `$marta` no tiene plan en `$ciamVallecas` ni historia en un centro de su ámbito, no. Quitarle el rol `intervencion` la deja sin acceso.
 
 **TF-CIR-14 — Bloque «Planes de la persona»**: la ficha de `$ana` lista el PISO y el PIA con tipo, centro, responsable y estado; el enlace al PIA solo aparece a quien puede verlo.
 
@@ -244,7 +264,9 @@ Eventos: `derivacion_eventos`, inmutable (trigger que rechaza UPDATE y DELETE, c
 
 **TF-CIR-17 — Destino que no ofrece el tipo** **[negativo]**: derivar a `$cssNorte` con `$derivPia` → rechazado.
 
-**TF-CIR-18 — Solo desde un PISO activo y editable**: derivar desde un PIA, desde un PISO cerrado o por un usuario que no puede editar el PISO → rechazado.
+**TF-CIR-18 — Solo desde el plan principal activo y editable**: derivar desde un PIA, desde el plan psicológico, desde un PISO cerrado o por un usuario que no puede editar el PISO → rechazado.
+
+**TF-CIR-43 — Sin herramienta «Derivación» en la caja** **[negativo]**: la ficha de `$ana` no muestra la herramienta «Derivación»; la acción antigua no existe (llamarla por Livewire falla); los apuntes `derivacion` antiguos siguen en el timeline.
 
 **TF-CIR-19 — Sin duplicados**: segunda derivación igual con otra `pendiente` → rechazada; a otro centro (`$ciamUsera`) → permitida.
 
@@ -294,8 +316,8 @@ Eventos: `derivacion_eventos`, inmutable (trigger que rechaza UPDATE y DELETE, c
 
 | Grupo | Tests | Estado |
 |---|---|---|
-| A — Tipo y centro del plan | TF-CIR-01..07 | |
-| B — Acceso del equipo del plan | TF-CIR-08..14 | |
-| C — Derivación | TF-CIR-15..27 | |
+| A — Tipos de plan y centro del plan | TF-CIR-01..07, 39..41 | |
+| B — Acceso del equipo del plan | TF-CIR-08..14, 42 | |
+| C — Derivación | TF-CIR-15..27, 43 | |
 | D — Evaluación de objetivos | TF-CIR-28..33 | |
 | E — Plazas y referencia | TF-CIR-34..38 | |
