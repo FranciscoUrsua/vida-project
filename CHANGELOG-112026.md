@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-11-12 — Cierre de `2026_11_estabilizacion_y_privacidad.md`
+
+- **Suite completa** (unos 61 min): 1318 passed, 12 incomplete, 1 skipped y 1 failed, el previo `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`, en el BACKLOG). **Sin fallos nuevos.**
+- Despliegue (`deploy` de `CI/CD`) en verde para B2, B3 y B4 (`ac75415`, `e4b49a6`, `3d85806`). El job «Calidad de código» sigue en rojo por los errores de PHPStan medidos en A3, sin errores nuevos de este bloque.
+- Criterios de finalización: TF-DOC-ING-01 a 08 y los de B (TF-ACC-PR-01 a 08, TF-ACC-17 a 22 con sus variantes) en verde con negativos; Supervisión en `phpunit.xml`; PHPStan termina y está medido; los ocho documentos en Markdown; **A4 aplazado a la 1.0 por el desarrollador**; CHANGELOG, BACKLOG, SESSION y `CLAUDE.md` §6 al día.
+
+## 2026-11-12 — Documentación: addenda de Tipo de Centro incorporada
+
+- `docs/instrucciones-cli/2026-11-tipo-centro-addenda-d1.md` (subida por el desarrollador) incorporada a `modulo-tipo-centro.md`, `2026-10-tipo-centro-implementacion.md` y `2026-10-tipo-centro-tests.md`, con la nota «Incluye la addenda D1». Se han aplicado §2–§4 (como pide §5) y también §6–§8 (D2, D4, D5), que están escritas como cambios a esos mismos documentos. RN-13 a RN-23 en el diseño; pasos 8 bis a 8 quinquies en las instrucciones; tests hasta TF-TCE-60.
+- **Salvedad de RN-17** (decisión del desarrollador, 12 nov, para que la fase 3 pueda dar por hecha la fase 2): un usuario de una UO superior con rol `intervencion` y el centro de la historia en su ámbito accede a una persona protegida; solo `supervision` sigue necesitando acceso concedido. `gestionaProtegido()` y TF-TCE-60 lo recogen. `$tecnicaIgualdad` en los datos de prueba.
+- Paso 0 de la fase 2 iniciado (rama A). Decisiones del desarrollador: centro 14 (CSS Entrevías) → `css_general`, centro 15 (centro de día Entrevías) → `centro_dia` y se le crea su UO instrumental, hija de la UO 4; UO funcionales: `css_general` → UO 4, `ciam` → UO 16, `centro_vg` → UO 15, los otros diez tipos → UO 3; `ciam` y `centro_vg` son tipos distintos.
+
 ## 2026-11-12 — Privacidad: búsqueda por documento en el buscador principal (B4 de estabilización)
 
 ### Cambios

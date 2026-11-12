@@ -1,10 +1,12 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-12 (búsqueda por documento, punto B4 de `2026_11_estabilizacion_y_privacidad.md`; bloque B completo)
+**Última actualización:** 2026-11-12 (cerrado `2026_11_estabilizacion_y_privacidad.md`; addenda de Tipo de Centro incorporada; paso 0 de la fase 2 iniciado)
 
 ---
 
 ## Tarea completada
+
+**Cierre de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`** (2026-11-12): suite completa 1318 passed, 12 incomplete, 1 skipped, 1 failed (el previo de `AutorizacionDatosTest`); sin fallos nuevos; despliegue en verde. A4 aplazado a la 1.0. Además, la addenda de Tipo de Centro está incorporada a sus tres documentos (con la salvedad de RN-17 para `intervencion` de UO superior y TF-TCE-60) y se han tomado las decisiones del paso 0 de la fase 2 (ver `CHANGELOG-112026.md`).
 
 **Búsqueda por documento en el buscador principal (B4 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-12): `CiudadanoIdentificador::hashDe()` como único cálculo (modelo, matching, citas, cita externa y buscador) y `buscarPorIdentificador()` exacto por hash, sin filtrar por UO (`hsu` = `ni_hsu_cm`; incluye documentos anteriores). TF-ACC-21 a 22. Detalle en `CHANGELOG-112026.md`. **Ojo:** la normalización de lo guardado no es uniforme (el alta guarda el NIE con guiones, la ficha lo que se escribe): ver BACKLOG «Normalización de los documentos de identidad».
 
@@ -44,6 +46,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 - **Perfiles por defecto en el CIAM (UO 13):** se crean con `agenda:horarios-por-defecto --centro=13` tras el despliegue (ver CHANGELOG). Hecho: 9 perfiles pendientes de verificar + 1 previo (comprobado el 2026-10-02). Los demás centros no se completan por ahora: al desarrollador solo le preocupa el CIAM.
 - **AppArmor:** qpdf y gs están confinados; las reglas locales (`/etc/apparmor.d/local/{qpdf,gs}`) cubren `/var/www/.../storage/app/tmp` y, en el repositorio local, `storage/framework/testing` y `storage/app/tmp`. Revisar tras cada `apt upgrade` (BACKLOG).
 - **Tests:**
+  - 2026-11-12, **suite completa**: 1318 passed, 12 incomplete, 1 skipped, 1 failed (`AutorizacionDatosTest`, FK de `audits`, previo). Unos 61 min.
   - 2026-11-12, B4: Acceso, `BuscarCiudadanoPageTest`, Ciudadanía y Citas de Agenda: 218 passed. `ui:auditar` sin infracciones.
   - 2026-11-12, B3: Acceso, Auth, `AutorizacionDatosTest`, Ciudadanía, Documentos e Intervención: 588 passed, 2 incomplete, 1 skipped y el fallo previo de `AutorizacionDatosTest` (FK de `audits`).
   - 2026-11-12, B2: `tests/Feature/Acceso` y los tests de Intervención y Mensajes que usan `Ficha`: 177 passed, 1 incomplete (previo).
@@ -67,7 +70,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 
 ## Siguiente paso concreto recomendado
 
-0. **Seguir `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`:** hechos A3, A1, A2 y A5 (bloque A completo; A4 aplazado por el desarrollador hasta la 1.0: la BD compartida local/staging se mantiene a propósito). Bloque B completo (B1 a B4). Queda el **cierre** del fichero: suite completa sin fallos nuevos y verificar el despliegue; A4 espera la confirmación del desarrollador. Tras el despliegue de A1, probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (prueba rápida de `decisiones-tecnicas.md` §14).
+0. **Fase 2 del plan: Tipo de Centro** (`2026-10-tipo-centro-implementacion.md` con la addenda, TF-TCE-01 a 60). Rama A. Paso 0 iniciado: decisiones de mapeo de tipos, UO del centro 15 y UO funcionales tomadas (`CHANGELOG-112026.md`); inventario de lectores en el scratchpad de la sesión, a pasar al CHANGELOG al implementar. **Antes del paso 5** hay que preguntar: el horario lo leen por separado `CuadranteGeneratorService`, `SlotMaterializadorService`, `PerfilHorarioPorDefectoService` y `SolicitudCitaService` (propuesta: todos por `ConfiguracionEfectivaCentro::dia()`). **Ojo:** la BD local es la de staging; las migraciones de la fase (que eliminan columnas del centro según D2) se aplican allí con el push. Después, la fase 3 (`2026-11-fase3-circuito-intervencion.md`, decisiones F3 confirmadas el 12 nov). Pendiente aparte: tras el despliegue de A1, probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (prueba rápida de `decisiones-tecnicas.md` §14).
 1. **El desarrollador prueba en staging asignación y citas** (pendiente desde el 2026-10-01; las pantallas solo se han probado con tests).
    - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto. **Configurar igual todos los centros del mismo tipo:** el paso 3 de Tipo de Centro aborta si difieren.
    - Citas: bandeja de citación, cita directa, detalle con reprogramar y cancelar, agenda del profesional, «Solicitar cita» en Intervención, *Atender* → registro de atención → «Dar cita».

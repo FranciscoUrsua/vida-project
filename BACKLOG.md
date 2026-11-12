@@ -203,6 +203,7 @@ Módulo: Mensajes
 ---
 
 **Suite completa con 75 fallos fuera de Documentos** — 2026-09-25
+*2026-11-12: suite completa con 1318 passed, 12 incomplete, 1 skipped y **un solo fallo**: `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`). Es lo único que queda de esta entrada.*
 Módulos: Agenda, Mensajes, Ciudadanía, Autenticación, Intervención
 (2026-09-26: los 6 fallos de Mensajes están resueltos; `t_lw_09` se sustituyó por TF-MSG-PAN-10 al retirar `NuevoMensaje`.)
 Primera ejecución completa registrada (908 passed, 76 failed; el fallo de Documentos ya está corregido). Detalle por módulo en `CHANGELOG-092026.md` («Documentos: custodia v2, UI operativa y cierre»). La mayoría son de Agenda (esquema que no existe). En Ciudadanía, dos tests buscan un texto que ya no está en la ficha. Revisarlos antes de un merge a `main`.
