@@ -9,6 +9,8 @@ use Modules\Agenda\Models\HorarioCentro;
 use Modules\Agenda\Models\LineaCuadrante;
 use Modules\Agenda\Models\Slot;
 use Modules\Agenda\Models\TipoSlot;
+use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 
 /**
  * Materializa los slots al publicar un CuadranteMes.
@@ -48,20 +50,25 @@ class SlotMaterializadorService
             return 0;
         }
 
-        // Effective attention window in minutes since midnight, after applying buffers
-        $atencionInicioMin = $this->toMinutes($horario->hora_inicio_atencion) + $horario->buffer_inicio_minutos;
-        $atencionFinMin = $this->toMinutes($horario->hora_fin_atencion) - $horario->buffer_fin_minutos;
+        // Horario de cada día con herencia del tipo y cierres de calendario (docs/modulo-tipo-centro.md §5):
+        // un día cerrado no tiene slots y uno con horario reducido se recorta a su franja
+        $config = app(ConfiguracionEfectivaCentro::class);
+        $centro = Centro::findOrFail($cuadrante->centro_id);
+        $dias = [];
 
-        $diasLaborables = $horario->dias_laborables;
         $slotsParaCrear = [];
         $now = now();
 
         foreach ($cuadrante->lineas()->activas()->get() as $linea) {
-            // ISO weekday: 1 = Monday … 7 = Sunday
-            $diaSemana = Carbon::parse($linea->fecha)->isoWeekday();
-            if (! in_array($diaSemana, $diasLaborables)) {
+            $fecha = Carbon::parse($linea->fecha);
+            $dia = $dias[$fecha->toDateString()] ??= $config->dia($centro, $fecha);
+            if (! $dia->abierto) {
                 continue;
             }
+
+            // Ventana de atención efectiva en minutos desde medianoche, con los márgenes del horario
+            $atencionInicioMin = $this->toMinutes($dia->inicioAtencion) + $horario->buffer_inicio_minutos;
+            $atencionFinMin = $this->toMinutes($dia->finAtencion) - $horario->buffer_fin_minutos;
 
             foreach ($tiposSlot as $tipoSlot) {
                 foreach ($linea->franjas as $franja) {

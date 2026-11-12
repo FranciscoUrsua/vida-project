@@ -8,8 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Modules\Agenda\Models\HorarioCentro;
+use Modules\Centro\Data\HorarioEfectivo;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Services\AlertaService;
@@ -32,8 +34,12 @@ class PerfilHorarioPorDefectoService
 {
     /**
      * @param AlertaService $alertas
+     * @param ConfiguracionEfectivaCentro $configuracion
      */
-    public function __construct(private readonly AlertaService $alertas) {}
+    public function __construct(
+        private readonly AlertaService $alertas,
+        private readonly ConfiguracionEfectivaCentro $configuracion,
+    ) {}
 
     /**
      * Da el horario del centro a quien acaba de adscribirse a su UO y avisa a
@@ -136,13 +142,14 @@ class PerfilHorarioPorDefectoService
             ->where('usuario_id', $usuario->id)
             ->exists();
 
-        $horario = $this->horarioVigente($centro, $desde);
+        // Sin agenda configurada en el centro no hay perfil; el horario semanal es el efectivo (propio o del tipo)
+        $efectivo = $this->horarioVigente($centro, $desde) === null ? null : $this->configuracion->horario($centro, $desde);
 
-        if ($tieneActivo || $horario === null) {
+        if ($tieneActivo || $efectivo === null) {
             return null;
         }
 
-        $franjas = $this->horarioHabitual($horario);
+        $franjas = $this->horarioHabitual($efectivo);
 
         return PerfilHorarioProfesional::create([
             'usuario_id' => $usuario->id,
@@ -176,19 +183,16 @@ class PerfilHorarioPorDefectoService
     }
 
     /**
-     * Franjas del perfil: una por día laborable del centro, de apertura a cierre.
+     * Franjas del perfil: una por día laborable del horario efectivo, de apertura a cierre.
      *
-     * @param HorarioCentro $horario
+     * @param HorarioEfectivo $horario
      * @return array<string, list<array{inicio: string, fin: string}>>
      */
-    private function horarioHabitual(HorarioCentro $horario): array
+    private function horarioHabitual(HorarioEfectivo $horario): array
     {
-        $franja = [
-            'inicio' => substr((string) $horario->hora_apertura, 0, 5),
-            'fin' => substr((string) $horario->hora_cierre, 0, 5),
-        ];
+        $franja = ['inicio' => $horario->apertura, 'fin' => $horario->cierre];
 
-        return collect($horario->dias_laborables ?? [])
+        return collect($horario->diasLaborables)
             ->mapWithKeys(fn ($dia) => [(string) $dia => [$franja]])
             ->all();
     }

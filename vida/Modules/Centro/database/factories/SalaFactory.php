@@ -20,6 +20,7 @@ class SalaFactory extends Factory
     {
         return [
             "centro_id" => fn () => Centro::create([
+                'tipo_centro_id' => TipoCentroFactory::new()->create()->id,
                 "nombre" => "Centro ".fake()->unique()->numerify("###"),
                 "tipo_gestion" => "municipal_directo",
                 "fecha_alta" => now()->toDateString(),

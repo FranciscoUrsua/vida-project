@@ -8,6 +8,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -15,12 +16,14 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Agenda\Enums\ModoAgenda;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 
 /**
  * Recurso Filament para la gestión de horarios de centro.
@@ -88,6 +91,26 @@ class HorarioCentroResource extends Resource
             Section::make('Días y horario')
                 ->columns(2)
                 ->schema([
+                    // Con herencia, el horario semanal es el del tipo y los campos quedan vacíos (docs/modulo-tipo-centro.md §5.1)
+                    Toggle::make('hereda_horario_tipo')
+                        ->label('Heredar horario del tipo')
+                        ->default(true)
+                        ->live()
+                        ->columnSpanFull(),
+
+                    Placeholder::make('horario_del_tipo')
+                        ->label('Horario del tipo')
+                        ->visible(fn (Get $get) => (bool) $get('hereda_horario_tipo'))
+                        ->content(function (Get $get): string {
+                            $centro = Centro::find($get('centro_id'));
+                            $horario = $centro === null ? null : app(ConfiguracionEfectivaCentro::class)->horario($centro, today());
+
+                            return $horario === null || $horario->origen !== 'tipo'
+                                ? '—'
+                                : sprintf('Días %s · %s–%s (atención %s–%s)', implode(', ', $horario->diasLaborables), $horario->apertura, $horario->cierre, $horario->inicioAtencion, $horario->finAtencion);
+                        })
+                        ->columnSpanFull(),
+
                     CheckboxList::make('dias_laborables')
                         ->label('Días laborables')
                         ->options([
@@ -100,26 +123,31 @@ class HorarioCentroResource extends Resource
                             7 => 'Domingo',
                         ])
                         ->columns(4)
+                        ->hidden(fn (Get $get) => (bool) $get('hereda_horario_tipo'))
                         ->columnSpanFull(),
 
                     TimePicker::make('hora_apertura')
+                        ->hidden(fn (Get $get) => (bool) $get('hereda_horario_tipo'))
                         ->label('Hora de apertura')
-                        ->required()
+                        ->required(fn (Get $get) => ! $get('hereda_horario_tipo'))
                         ->seconds(false),
 
                     TimePicker::make('hora_cierre')
+                        ->hidden(fn (Get $get) => (bool) $get('hereda_horario_tipo'))
                         ->label('Hora de cierre')
-                        ->required()
+                        ->required(fn (Get $get) => ! $get('hereda_horario_tipo'))
                         ->seconds(false),
 
                     TimePicker::make('hora_inicio_atencion')
+                        ->hidden(fn (Get $get) => (bool) $get('hereda_horario_tipo'))
                         ->label('Inicio de atención al público')
-                        ->required()
+                        ->required(fn (Get $get) => ! $get('hereda_horario_tipo'))
                         ->seconds(false),
 
                     TimePicker::make('hora_fin_atencion')
+                        ->hidden(fn (Get $get) => (bool) $get('hereda_horario_tipo'))
                         ->label('Fin de atención al público')
-                        ->required()
+                        ->required(fn (Get $get) => ! $get('hereda_horario_tipo'))
                         ->seconds(false),
 
                     TextInput::make('buffer_inicio_minutos')
@@ -228,7 +256,7 @@ class HorarioCentroResource extends Resource
 
                 Tables\Columns\TextColumn::make('horario')
                     ->label('Horario de atención')
-                    ->getStateUsing(fn (HorarioCentro $r) => "{$r->hora_inicio_atencion} – {$r->hora_fin_atencion}"),
+                    ->getStateUsing(fn (HorarioCentro $r) => $r->hereda_horario_tipo ? 'Del tipo de centro' : "{$r->hora_inicio_atencion} – {$r->hora_fin_atencion}"),
 
                 Tables\Columns\TextColumn::make('vigente_desde')
                     ->label('Vigente desde')

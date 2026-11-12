@@ -53,6 +53,7 @@ use Modules\Organizacion\Models\Distrito;
  * @property Carbon|null $fecha_baja
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Sala> $salas
  * @property-read TipoCentro $tipoCentro
+ * @property-read array<string, mixed>|null $horario Horario efectivo de hoy (accesor).
  * @property-read Centro|null $antecesor
  */
 class Centro extends Model implements DireccionableModel
@@ -131,6 +132,25 @@ class Centro extends Model implements DireccionableModel
         static::saving(function (self $centro): void {
             $centro->exigirUoSinOtroCentro();
         });
+    }
+
+    /**
+     * Horario efectivo de hoy, en lectura (sustituye a la antigua columna `horario`).
+     *
+     * @return array{dias_laborables: list<int>, apertura: string, cierre: string, inicio_atencion: string, fin_atencion: string, origen: string}|null
+     */
+    public function getHorarioAttribute(): ?array
+    {
+        $horario = app(\Modules\Centro\Services\ConfiguracionEfectivaCentro::class)->horario($this, today());
+
+        return $horario === null ? null : [
+            'dias_laborables' => $horario->diasLaborables,
+            'apertura' => $horario->apertura,
+            'cierre' => $horario->cierre,
+            'inicio_atencion' => $horario->inicioAtencion,
+            'fin_atencion' => $horario->finAtencion,
+            'origen' => $horario->origen,
+        ];
     }
 
     /**

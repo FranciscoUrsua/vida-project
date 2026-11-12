@@ -133,6 +133,7 @@ trait TipoCentroTestSetup
             'codigo' => 'css_general', 'nombre' => 'Centro de Servicios Sociales', 'siglas' => 'CSS',
             'unidad_organizativa_id' => $this->uoPrimaria->id, 'inscripcion_libre' => false,
             'modo_asignacion_referencia' => 'sorteo', 'fecha_alta' => '2026-01-01',
+            'horario' => ['dias_laborables' => [1, 2, 3, 4, 5], 'hora_apertura' => '09:00', 'hora_cierre' => '14:00', 'hora_inicio_atencion' => '09:00', 'hora_fin_atencion' => '14:00'],
         ], $this->admin);
         $this->tipoCss->segmentos()->attach($general->id);
         $this->tipoCss->tiposPlan()->attach($this->planPiso->id);
@@ -141,6 +142,7 @@ trait TipoCentroTestSetup
             'codigo' => 'ciam', 'nombre' => 'Centro Integral de Atención a la Mujer', 'siglas' => 'CIAM',
             'unidad_organizativa_id' => $this->uoIgualdad->id, 'inscripcion_libre' => true,
             'modo_asignacion_referencia' => 'libre_eleccion', 'fecha_alta' => '2026-01-01',
+            'horario' => ['dias_laborables' => [1, 2, 3, 4, 5], 'hora_apertura' => '09:00', 'hora_cierre' => '19:00', 'hora_inicio_atencion' => '09:00', 'hora_fin_atencion' => '19:00'],
         ], $this->admin);
         $this->tipoCiam->segmentos()->attach($vg->id);
         $this->tipoCiam->tiposPlan()->attach($this->planPia->id);

@@ -23,6 +23,8 @@ use Modules\Agenda\Enums\UrgenciaCita;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Agenda\Models\SolicitudCita;
 use Modules\Agenda\Models\TipoCita;
+use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
 use Modules\Usuarios\Models\Cargo;
 
@@ -215,9 +217,13 @@ class SolicitudCitaService
     public function fechaLimite(int $centroId, UrgenciaCita $urgencia, ?Carbon $desde = null): Carbon
     {
         $desde ??= today();
-        $horario = HorarioCentro::vigenteDelCentro($centroId, $desde) ?? new HorarioCentro(['dias_laborables' => [1, 2, 3, 4, 5]]);
+        $horario = HorarioCentro::vigenteDelCentro($centroId, $desde) ?? new HorarioCentro;
+        $centro = Centro::find($centroId);
 
-        return $horario->sumarDiasLaborables($desde, $horario->plazoUrgencia($urgencia));
+        // Días en que abre el centro, con herencia del tipo y cierres (docs/modulo-tipo-centro.md §5)
+        return $centro === null
+            ? $desde->copy()->addWeekdays($horario->plazoUrgencia($urgencia))
+            : app(ConfiguracionEfectivaCentro::class)->sumarDiasLaborables($centro, $desde, $horario->plazoUrgencia($urgencia));
     }
 
     /**

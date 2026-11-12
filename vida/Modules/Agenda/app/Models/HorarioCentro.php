@@ -20,14 +20,20 @@ use Modules\Centro\Models\Centro;
  * y el modo de agenda (básico, estándar o avanzado). Un centro puede tener
  * múltiples horarios históricos pero solo uno vigente en cada momento.
  *
+ * Con `hereda_horario_tipo` el horario semanal es el del tipo de centro y los
+ * campos de horario de este registro van a null; los parámetros de agenda
+ * (buffers, tipos de slot, modo, plazos) son siempre de este registro. El horario
+ * de un día se lee por ConfiguracionEfectivaCentro::dia() (docs/modulo-tipo-centro.md §5).
+ *
  * @property int $id
  * @property int $centro_id
  * @property string $nombre
- * @property array $dias_laborables
- * @property string $hora_apertura
- * @property string $hora_cierre
- * @property string $hora_inicio_atencion
- * @property string $hora_fin_atencion
+ * @property bool $hereda_horario_tipo Si el horario semanal es el del tipo de centro.
+ * @property array|null $dias_laborables Null si hereda.
+ * @property string|null $hora_apertura Null si hereda.
+ * @property string|null $hora_cierre Null si hereda.
+ * @property string|null $hora_inicio_atencion Null si hereda.
+ * @property string|null $hora_fin_atencion Null si hereda.
  * @property int $buffer_inicio_minutos
  * @property int $buffer_fin_minutos
  * @property Carbon $vigente_desde
@@ -62,6 +68,7 @@ class HorarioCentro extends Model
     protected $guarded = [];
 
     protected $casts = [
+        'hereda_horario_tipo' => 'boolean',
         'dias_laborables' => 'array',
         'plazos_urgencia' => 'array',
         'vigente_desde' => 'date',
@@ -73,6 +80,46 @@ class HorarioCentro extends Model
         'buffer_fin_minutos' => 'integer',
         'dias_ausencia_prolongada' => 'integer',
     ];
+
+    /** Campos de horario semanal que se heredan del tipo. */
+    public const CAMPOS_HORARIO = ['dias_laborables', 'hora_apertura', 'hora_cierre', 'hora_inicio_atencion', 'hora_fin_atencion'];
+
+    /**
+     * Herencia por defecto y coherencia de los campos de horario.
+     *
+     * Un horario nuevo hereda el del tipo salvo que traiga su propio horario
+     * (compatibilidad con las altas que ya fijan días y horas). Con herencia, los
+     * campos de horario quedan a null y no se leen.
+     *
+     * @return void
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (self $horario): void {
+            if (! array_key_exists('hereda_horario_tipo', $horario->getAttributes())) {
+                $horario->hereda_horario_tipo = $horario->getAttribute('hora_apertura') === null;
+            }
+        });
+
+        static::saving(function (self $horario): void {
+            if ($horario->hereda_horario_tipo) {
+                foreach (self::CAMPOS_HORARIO as $campo) {
+                    $horario->{$campo} = null;
+                }
+            }
+        });
+    }
+
+    /**
+     * Vuelve al horario del tipo: herencia activada y campos de horario vacíos;
+     * el resto de parámetros de agenda se conservan (§4, «Volver al valor del tipo»).
+     *
+     * @return void
+     */
+    public function volverAlTipo(): void
+    {
+        $this->update(['hereda_horario_tipo' => true]);
+    }
 
     /**
      * Centro al que pertenece el horario.
@@ -150,14 +197,19 @@ class HorarioCentro extends Model
     }
 
     /**
-     * Si una fecha es laborable según los días del horario.
+     * Si el centro abre en una fecha: horario efectivo con los cierres de calendario.
      *
      * @param Carbon $fecha
      * @return bool
      */
     public function esLaborable(Carbon $fecha): bool
     {
-        return in_array($fecha->isoWeekday(), array_map('intval', $this->dias_laborables ?? [1, 2, 3, 4, 5]), true);
+        // Horario sin centro guardado (p. ej. el de reserva de SolicitudCitaService): solo sus días
+        if ($this->centro_id === null || $this->centro === null) {
+            return in_array($fecha->isoWeekday(), array_map('intval', $this->dias_laborables ?? [1, 2, 3, 4, 5]), true);
+        }
+
+        return app(\Modules\Centro\Services\ConfiguracionEfectivaCentro::class)->dia($this->centro, $fecha)->abierto;
     }
 
     /**

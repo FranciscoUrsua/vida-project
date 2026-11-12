@@ -10,6 +10,7 @@ use Modules\Agenda\Models\HorarioCentro;
 use Modules\Agenda\Models\LineaCuadrante;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 
 /**
  * Genera el borrador de LineaCuadrante para un mes.
@@ -46,7 +47,13 @@ class CuadranteGeneratorService
             return;
         }
 
-        $diasLaborables = $horario->dias_laborables;
+        // Días en que abre el centro: horario efectivo y cierres de calendario (docs/modulo-tipo-centro.md §5)
+        $config = app(ConfiguracionEfectivaCentro::class);
+        $centro = Centro::findOrFail($cuadrante->centro_id);
+        $abre = [];
+        for ($d = $primerDia->copy(); $d->lte($ultimoDia); $d->addDay()) {
+            $abre[$d->toDateString()] = $config->dia($centro, $d)->abierto;
+        }
 
         // Perfiles activos cuya vigencia se solapa con el mes a generar
         $perfiles = PerfilHorarioProfesional::where('centro_id', $cuadrante->centro_id)
@@ -82,7 +89,7 @@ class CuadranteGeneratorService
             while ($dia->lte($ultimoDia)) {
                 $diaSemana = $dia->isoWeekday(); // 1 = lunes … 7 = domingo
 
-                if (in_array($diaSemana, $diasLaborables)) {
+                if ($abre[$dia->toDateString()] ?? false) {
                     // Los keys del JSON horario_habitual son strings tras el cast
                     $franjas = $perfil->horario_habitual[(string) $diaSemana] ?? null;
 

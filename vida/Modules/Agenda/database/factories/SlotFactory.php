@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Agenda\Models\Slot;
+use Modules\Centro\Database\Factories\TipoCentroFactory;
 use Modules\Centro\Models\Centro;
 
 /** @extends Factory<Slot> */
@@ -19,6 +20,7 @@ class SlotFactory extends Factory
             'linea_cuadrante_id' => LineaCuadranteFactory::new(),
             'usuario_id' => User::factory(),
             'centro_id' => fn () => Centro::create([
+                'tipo_centro_id' => TipoCentroFactory::new()->create()->id,
                 'nombre' => 'Centro '.fake()->unique()->numerify('###'),
                 'tipo_gestion' => 'municipal_directo',
                 'fecha_alta' => now()->toDateString(),

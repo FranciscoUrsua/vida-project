@@ -5,6 +5,7 @@ namespace Modules\Agenda\Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Agenda\Enums\ModoAgenda;
 use Modules\Agenda\Models\HorarioCentro;
+use Modules\Centro\Database\Factories\TipoCentroFactory;
 use Modules\Centro\Models\Centro;
 
 /** @extends Factory<HorarioCentro> */
@@ -16,6 +17,7 @@ class HorarioCentroFactory extends Factory
     {
         return [
             'centro_id' => fn () => Centro::create([
+                'tipo_centro_id' => TipoCentroFactory::new()->create()->id,
                 'nombre' => 'Centro '.fake()->unique()->numerify('###'),
                 'tipo_gestion' => 'municipal_directo',
                 'fecha_alta' => now()->toDateString(),
