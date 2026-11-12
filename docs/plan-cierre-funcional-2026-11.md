@@ -118,6 +118,21 @@ Ciclo de vida completo: edición, baja, sesiones e inscripción de personas desd
 - Fase 1: en curso (B1).
 - Decisiones D1 a D6 cerradas. D1, D2, D4 y D5 están en la addenda de Tipo de Centro; D3, en `docs/modulo-solicitudes-expedientes.md`.
 
+## 4 ter. Instrucciones de las fases (12 nov)
+
+| Fase | Instrucciones y tests |
+|---|---|
+| 2 | `2026-10-tipo-centro-implementacion.md` + `2026-10-tipo-centro-tests.md` + `2026-11-tipo-centro-addenda-d1.md` (TF-TCE-01..59) |
+| 3 | `2026-11-fase3-circuito-intervencion.md` (TF-CIR-01..38) |
+| 3 bis | `2026-11-fase3bis-solicitudes-expedientes.md` (TF-SOL-01..44) |
+| 4 | `2026-11-fase4-consulta-basica.md` (TF-CBA-01..30) |
+| 5 | `2026-11-fase5-informes.md` (TF-INF-01..28 y TF-DOC-22..25) |
+| 6 | `2026-11-fase6-actividades.md` (TF-ACT-01..26) |
+
+Todas están en `docs/instrucciones-cli/`. Cada una se ejecuta cuando la anterior está terminada y desplegada.
+
+**Decisiones del analista pendientes de confirmar (⚑ en las instrucciones):** F3-2 a F3-6 (centro del plan, acceso del equipo del plan, personas protegidas con plan especializado, derivación como vía de acceso y su flujo), F4-1 (personas protegidas y `consulta_basica`), F5-1 y F5-2 (firma con PDF subido y validación mínima), F6-1 y F6-3 (inscribir en todas las sesiones futuras; aforo completo se rechaza). Cada documento pide a Claude CLI que pregunte si la confirmación no consta en `SESSION.md`.
+
 ## 5. Lo que se puede hacer en paralelo con el equipo
 
 Mientras el equipo prueba en staging y toma D1–D3, Claude CLI puede hacer la fase 0 (puntos 2–5) y la fase 1, que no dependen de ninguna decisión.
