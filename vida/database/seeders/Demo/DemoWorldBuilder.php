@@ -8,6 +8,8 @@ use App\Models\UsuarioUo;
 use Modules\Centro\Models\AmbitoTerritorial;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Sala;
+use Modules\Centro\Models\TipoCentro;
+use Modules\Centro\Support\MigracionTipoCentro;
 use Modules\Organizacion\Models\Distrito;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
@@ -97,6 +99,9 @@ class DemoWorldBuilder
         $centroModels = [];
         $salaModels = [];
 
+        // Tipos de centro desde el catálogo (idempotente)
+        app(MigracionTipoCentro::class)->ejecutar();
+
         foreach ($centros as $centro) {
             $tipoUo = $centro['tipo'] === 'asp' ? 'css' : 'especializada';
 
@@ -107,11 +112,12 @@ class DemoWorldBuilder
             );
 
             // Crear la entidad Centro vinculada a la UO (la tabla se truncó al inicio del reset).
+            // Todo centro tiene tipo (RN-01): ASP → centro de servicios sociales; el resto, especializado
+            $codigoTipo = $centro['tipo'] === 'asp' ? 'css_general' : 'css_especializado';
             $centroModel = Centro::create([
                 'nombre' => $centro['nombre'],
                 'tipo_gestion' => 'municipal_directo',
-                // Los centros de ASP son centros de servicios sociales; el resto no tiene tipo en los mundos
-                'tipo_centro' => $centro['tipo'] === 'asp' ? 'css_general' : null,
+                'tipo_centro_id' => TipoCentro::where('codigo', $codigoTipo)->firstOrFail()->id,
                 'unidad_organizativa_id' => $uo->id,
                 'activo' => true,
                 'fecha_alta' => today(),
@@ -119,7 +125,7 @@ class DemoWorldBuilder
 
             // El distrito del mundo pasa a ser el ámbito del centro, para que la asignación por domicilio funcione en la demo
             $distrito = Distrito::where('nombre', $centro['distrito'] ?? '')->first();
-            if ($distrito !== null && $centroModel->tipo_centro !== null) {
+            if ($distrito !== null && $centro['tipo'] === 'asp') {
                 AmbitoTerritorial::create([
                     'centro_id' => $centroModel->id,
                     'tipo' => 'demarcacion_oficial',

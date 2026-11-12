@@ -22,7 +22,7 @@ class ColeccionPlazasTest extends TestCase
 
     private function crearColeccion(array $override = []): ColeccionPlazas
     {
-        $centro = Centro::create([
+        $centro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre' => 'Centro de prueba',
             'tipo_gestion' => 'municipal_directo',
             'fecha_alta' => today()->toDateString(),

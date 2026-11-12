@@ -167,7 +167,7 @@ trait AsignacionTestSetup
     ): Centro {
         $uo = UnidadOrganizativa::create(['nombre' => 'UO '.$nombre, 'tipo' => 'centro', 'parent_id' => null, 'activa' => true]);
 
-        return Centro::create([
+        return Centro::create(['tipo_centro_id' => $this->tipoCentroId($tipoCentro),
             'nombre' => $nombre,
             'tipo_gestion' => 'municipal_directo',
             'tipo_centro' => $tipoCentro,

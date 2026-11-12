@@ -5,6 +5,7 @@ namespace Modules\Centro\Providers;
 use App\Events\DireccionCiudadanoNormalizada;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Modules\Centro\Console\AplicarDenominacionesCommand;
 use Modules\Centro\Console\ComprobarCoberturaCommand;
 use Modules\Centro\Listeners\AsignarCentroPorDireccion;
 
@@ -27,7 +28,7 @@ class CentroServiceProvider extends ServiceProvider
 
     /**
      * Arranca los servicios del módulo: asignación de centro por domicilio y
-     * comando de cobertura.
+     * comandos de cobertura y de denominaciones.
      *
      * @return void
      */
@@ -36,7 +37,7 @@ class CentroServiceProvider extends ServiceProvider
         Event::listen(DireccionCiudadanoNormalizada::class, AsignarCentroPorDireccion::class);
 
         if ($this->app->runningInConsole()) {
-            $this->commands([ComprobarCoberturaCommand::class]);
+            $this->commands([ComprobarCoberturaCommand::class, AplicarDenominacionesCommand::class]);
         }
     }
 }

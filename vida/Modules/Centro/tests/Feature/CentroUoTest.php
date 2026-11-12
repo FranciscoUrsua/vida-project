@@ -29,7 +29,7 @@ class CentroUoTest extends TestCase
 
     private function crearCentro(array $override = []): Centro
     {
-        return Centro::create(array_merge([
+        return Centro::create(array_merge(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre' => 'Centro de prueba',
             'tipo_gestion' => 'municipal_directo',
             'fecha_alta' => today()->toDateString(),

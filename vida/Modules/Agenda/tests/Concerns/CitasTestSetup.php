@@ -89,7 +89,7 @@ trait CitasTestSetup
         $this->seed(RolesSeeder::class);
 
         $uo = UnidadOrganizativa::create(['nombre' => 'UO CSS Citas', 'tipo' => 'centro', 'parent_id' => null, 'activa' => true]);
-        $this->centro = Centro::create([
+        $this->centro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre' => 'CSS Citas',
             'tipo_gestion' => 'municipal_directo',
             'unidad_organizativa_id' => $uo->id,

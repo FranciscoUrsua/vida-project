@@ -23,7 +23,7 @@ class RedCentrosTest extends TestCase
 
     private function crearCentro(string $nombre = 'Centro de prueba'): Centro
     {
-        return Centro::create([
+        return Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre' => $nombre,
             'tipo_gestion' => 'municipal_directo',
             'fecha_alta' => today()->toDateString(),

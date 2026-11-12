@@ -66,7 +66,7 @@ class PlazasRecursosTest extends TestCase
             'activa' => true,
         ]);
 
-        $this->centro = Centro::create([
+        $this->centro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre' => 'Centro Recursos Test',
             'tipo_gestion' => 'municipal_directo',
             'unidad_organizativa_id' => $this->uo->id,
@@ -514,11 +514,11 @@ class PlazasRecursosTest extends TestCase
         ]);
 
         // Centro cercano (~0.5 km)
-        $centroC = Centro::create(['nombre' => 'Centro Cercano', 'tipo_gestion' => 'municipal_directo', 'activo' => true, 'fecha_alta' => today()->toDateString(), 'coordenadas_lat' => 40.4172, 'coordenadas_lng' => -3.7040]);
+        $centroC = Centro::create(['tipo_centro_id' => $this->tipoCentroId(), 'nombre' => 'Centro Cercano', 'tipo_gestion' => 'municipal_directo', 'activo' => true, 'fecha_alta' => today()->toDateString(), 'coordenadas_lat' => 40.4172, 'coordenadas_lng' => -3.7040]);
         $colC = ColeccionPlazas::create(['centro_id' => $centroC->id, 'nombre' => 'Col Cercana', 'tipo_plaza' => 'pernocta', 'modo_acceso' => 'prescripcion_directa', 'capacidad' => 5, 'activa' => true, 'criterio_territorial' => true, 'fecha_alta' => today()->toDateString()]);
 
         // Centro lejano (~5 km)
-        $centroL = Centro::create(['nombre' => 'Centro Lejano', 'tipo_gestion' => 'municipal_directo', 'activo' => true, 'fecha_alta' => today()->toDateString(), 'coordenadas_lat' => 40.4600, 'coordenadas_lng' => -3.7500]);
+        $centroL = Centro::create(['tipo_centro_id' => $this->tipoCentroId(), 'nombre' => 'Centro Lejano', 'tipo_gestion' => 'municipal_directo', 'activo' => true, 'fecha_alta' => today()->toDateString(), 'coordenadas_lat' => 40.4600, 'coordenadas_lng' => -3.7500]);
         $colL = ColeccionPlazas::create(['centro_id' => $centroL->id, 'nombre' => 'Col Lejana', 'tipo_plaza' => 'pernocta', 'modo_acceso' => 'prescripcion_directa', 'capacidad' => 5, 'activa' => true, 'criterio_territorial' => true, 'fecha_alta' => today()->toDateString()]);
 
         $this->actingAs($this->usuario);
@@ -633,7 +633,7 @@ class PlazasRecursosTest extends TestCase
 
         // 2 prescripciones de otro centro (no deben aparecer)
         $otraUo = UnidadOrganizativa::create(['nombre' => 'Otra UO D02', 'tipo' => 'centro', 'activa' => true]);
-        $otroCentro = Centro::create(['nombre' => 'Otro Centro D02', 'tipo_gestion' => 'municipal_directo', 'unidad_organizativa_id' => $otraUo->id, 'activo' => true, 'fecha_alta' => today()->toDateString()]);
+        $otroCentro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(), 'nombre' => 'Otro Centro D02', 'tipo_gestion' => 'municipal_directo', 'unidad_organizativa_id' => $otraUo->id, 'activo' => true, 'fecha_alta' => today()->toDateString()]);
         $otraColeccion = ColeccionPlazas::create(['centro_id' => $otroCentro->id, 'nombre' => 'Otra Col', 'tipo_plaza' => 'pernocta', 'modo_acceso' => 'prescripcion_directa', 'capacidad' => 5, 'activa' => true, 'fecha_alta' => today()->toDateString()]);
 
         for ($i = 0; $i < 2; $i++) {
@@ -744,7 +744,7 @@ class PlazasRecursosTest extends TestCase
     {
         // Plaza de otro centro (fuera del ámbito del usuario)
         $otraUo = UnidadOrganizativa::create(['nombre' => 'Otra UO D05', 'tipo' => 'centro', 'activa' => true]);
-        $otroCentro = Centro::create(['nombre' => 'Otro Centro D05', 'tipo_gestion' => 'municipal_directo', 'unidad_organizativa_id' => $otraUo->id, 'activo' => true, 'fecha_alta' => today()->toDateString()]);
+        $otroCentro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(), 'nombre' => 'Otro Centro D05', 'tipo_gestion' => 'municipal_directo', 'unidad_organizativa_id' => $otraUo->id, 'activo' => true, 'fecha_alta' => today()->toDateString()]);
         $otraColeccion = ColeccionPlazas::create(['centro_id' => $otroCentro->id, 'nombre' => 'Otra Col D05', 'tipo_plaza' => 'pernocta', 'modo_acceso' => 'prescripcion_directa', 'capacidad' => 5, 'activa' => true, 'fecha_alta' => today()->toDateString()]);
         $tipoEspacio = TipoEspacio::create(['nombre' => 'Habitación D05', 'slug' => 'habitacion-d05', 'activo' => true]);
         $espacio = Espacio::create(['coleccion_plazas_id' => $otraColeccion->id, 'tipo_espacio_id' => $tipoEspacio->id, 'nombre' => 'Hab D05', 'capacidad' => 1, 'accesible' => false, 'activo' => true]);

@@ -6,6 +6,7 @@ use App\Contracts\DireccionableModel;
 use App\Models\UnidadOrganizativa;
 use App\Traits\TieneDireccion;
 use App\Traits\Versionable;
+use DomainException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use LogicException;
 use Modules\Centro\Enums\ModoAsignacionReferenciaCentro;
+use Modules\Centro\Traits\TieneDenominaciones;
 use Modules\Organizacion\Models\Distrito;
 use Modules\Prestaciones\Models\Prestacion;
 
@@ -24,13 +27,21 @@ use Modules\Prestaciones\Models\Prestacion;
  * Pertenece a una UnidadOrganizativa. El ámbito territorial se modela
  * a través de AmbitoTerritorial (tabla ambitos_territoriales).
  *
+ * Todo centro es de un tipo (TipoCentro) toda su vida (RN-01): el tipo es
+ * obligatorio al alta, no puede ser un tipo dado de baja y no cambia nunca; si
+ * un centro debe ser de otro tipo, se da de baja y se crea otro con este como
+ * antecesor. Cada centro tiene su propia UO instrumental y una UO no tiene más
+ * de un centro (RN-14).
+ *
  * tipo_gestion: municipal_directo | municipal_concertado | privado_concertado | privado_puro
  *
  * @property int $id
  * @property string $nombre
  * @property string|null $nombre_corto
  * @property string $tipo_gestion
- * @property string|null $tipo_centro Clave de catalogos_sistema, grupo 'centro.tipo'.
+ * @property string|null $tipo_centro Clave de catalogos_sistema, grupo 'centro.tipo' (antigua; deja de leerse).
+ * @property int $tipo_centro_id Tipo de centro (RN-01), inmutable.
+ * @property int|null $centro_antecesor_id Centro al que sustituye (RN-01).
  * @property ModoAsignacionReferenciaCentro $modo_asignacion_referencia
  * @property int $ventana_reparto_meses Meses hacia atrás que cuenta el sorteo de referencias.
  * @property int $meses_inactividad_caso Meses sin apuntes para considerar dormido un caso.
@@ -48,10 +59,13 @@ use Modules\Prestaciones\Models\Prestacion;
  * @property Carbon $fecha_alta
  * @property Carbon|null $fecha_baja
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Sala> $salas
+ * @property-read TipoCentro $tipoCentro
+ * @property-read Centro|null $antecesor
  */
 class Centro extends Model implements DireccionableModel
 {
     use SoftDeletes;
+    use TieneDenominaciones;
     use TieneDireccion;
     use Versionable;
 
@@ -62,6 +76,8 @@ class Centro extends Model implements DireccionableModel
         'nombre_corto',
         'tipo_gestion',
         'tipo_centro',
+        'tipo_centro_id',
+        'centro_antecesor_id',
         'unidad_organizativa_id',
         // Dirección canónica — campos del trait TieneDireccion
         'direccion_texto',
@@ -118,9 +134,63 @@ class Centro extends Model implements DireccionableModel
         'horario' => 'array',
     ];
 
+    /**
+     * Protege el tipo (RN-01) y la relación 1:1 con la UO (RN-14).
+     *
+     * @throws DomainException|LogicException
+     *
+     * @return void
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (self $centro): void {
+            $centro->exigirTipoActivo();
+        });
+
+        static::updating(function (self $centro): void {
+            if ($centro->isDirty('tipo_centro_id')) {
+                throw new LogicException('El tipo de un centro no se cambia (RN-01): da de baja el centro y crea otro.');
+            }
+        });
+
+        static::saving(function (self $centro): void {
+            $centro->exigirUoSinOtroCentro();
+        });
+    }
+
+    /**
+     * Columnas que guardan la denominación vigente.
+     *
+     * @return array{0: string, 1: string}
+     */
+    public function columnasCacheDenominacion(): array
+    {
+        return ['nombre', 'nombre_corto'];
+    }
+
     // -------------------------------------------------------------------------
     // Relaciones
     // -------------------------------------------------------------------------
+
+    /**
+     * Tipo del centro (RN-01).
+     *
+     * @return BelongsTo<TipoCentro, $this>
+     */
+    public function tipoCentro(): BelongsTo
+    {
+        return $this->belongsTo(TipoCentro::class, 'tipo_centro_id');
+    }
+
+    /**
+     * Centro al que sustituye, si nació de una baja y alta (RN-01).
+     *
+     * @return BelongsTo<Centro, $this>
+     */
+    public function antecesor(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'centro_antecesor_id')->withTrashed();
+    }
 
     /**
      * Unidad organizativa a la que pertenece el centro.
@@ -289,5 +359,51 @@ class Centro extends Model implements DireccionableModel
     public function scopeActivos(Builder $query): Builder
     {
         return $query->where('activo', true)->whereNull('fecha_baja');
+    }
+
+    // -------------------------------------------------------------------------
+    // Invariantes
+    // -------------------------------------------------------------------------
+
+    /**
+     * Todo centro nace con un tipo activo (RN-01, RN-11).
+     *
+     * @throws DomainException
+     *
+     * @return void
+     */
+    private function exigirTipoActivo(): void
+    {
+        if ($this->tipo_centro_id === null) {
+            throw new DomainException('Todo centro tiene un tipo de centro (RN-01).');
+        }
+
+        if (! TipoCentro::whereKey($this->tipo_centro_id)->where('activo', true)->exists()) {
+            throw new DomainException('No se puede dar de alta un centro en un tipo dado de baja (RN-11).');
+        }
+    }
+
+    /**
+     * Una UO tiene como mucho un centro (RN-14). El índice único parcial
+     * `centros_una_por_uo` lo garantiza también en base de datos.
+     *
+     * @throws DomainException
+     *
+     * @return void
+     */
+    private function exigirUoSinOtroCentro(): void
+    {
+        if ($this->unidad_organizativa_id === null || ! $this->isDirty('unidad_organizativa_id')) {
+            return;
+        }
+
+        $ocupada = self::query()
+            ->where('unidad_organizativa_id', $this->unidad_organizativa_id)
+            ->when($this->exists, fn (Builder $q) => $q->whereKeyNot($this->getKey()))
+            ->exists();
+
+        if ($ocupada) {
+            throw new DomainException('Esa UO ya tiene un centro: cada centro tiene su propia UO (RN-14).');
+        }
     }
 }

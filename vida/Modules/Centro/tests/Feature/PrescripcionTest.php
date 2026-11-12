@@ -66,7 +66,7 @@ class PrescripcionTest extends TestCase
 
     private function crearColeccionConPlazas(int $libres, int $ocupadas = 0, string $modo = 'prescripcion_directa'): ColeccionPlazas
     {
-        $centro = Centro::create([
+        $centro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre' => 'Centro '.uniqid(),
             'tipo_gestion' => 'municipal_directo',
             'fecha_alta' => today()->toDateString(),

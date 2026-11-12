@@ -178,7 +178,7 @@ class ExcepcionesSupervisorTest extends TestCase
     {
         // Dado: un profesional de otro centro
         $otraUo     = UnidadOrganizativa::create(['nombre' => 'Otra UO', 'tipo' => 'centro', 'activa' => true]);
-        $otroCentro = Centro::create(['nombre' => 'Otro Centro', 'tipo_gestion' => 'municipal_directo', 'fecha_alta' => now()->toDateString()]);
+        $otroCentro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(), 'nombre' => 'Otro Centro', 'tipo_gestion' => 'municipal_directo', 'fecha_alta' => now()->toDateString()]);
 
         $profOtro = $this->crearUsuarioConRol('intervencion', 'otro.prof@vida360.test', $otraUo);
 

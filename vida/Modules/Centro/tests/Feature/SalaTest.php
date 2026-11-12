@@ -22,7 +22,7 @@ class SalaTest extends TestCase
 
     private function crearCentro(): Centro
     {
-        return Centro::create([
+        return Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre'         => 'Centro de prueba',
             'tipo_gestion'   => 'municipal_directo',
             'inscripcion_libre' => false,

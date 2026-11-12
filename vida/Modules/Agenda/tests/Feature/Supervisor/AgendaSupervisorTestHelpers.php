@@ -43,7 +43,7 @@ trait AgendaSupervisorTestHelpers
             'activa'    => true,
         ]);
 
-        $this->centro = Centro::create([
+        $this->centro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre'                  => 'Centro Test Agenda',
             'tipo_gestion'            => 'municipal_directo',
             'unidad_organizativa_id'  => $this->uoSupervisor->id,

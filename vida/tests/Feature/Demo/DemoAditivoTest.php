@@ -71,7 +71,7 @@ class DemoAditivoTest extends TestCase
 
         $uo = UnidadOrganizativa::create(['nombre' => 'CIAM Puente de Vallecas', 'tipo' => 'centro', 'activa' => true]);
 
-        $this->centroCiam = Centro::create([
+        $this->centroCiam = Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre' => 'CIAM Puente de Vallecas',
             'tipo_gestion' => 'municipal_concertado',
             'unidad_organizativa_id' => $uo->id,
@@ -202,7 +202,7 @@ YAML;
     {
         $ciudadanos = Ciudadano::factory()->count(3)->create()->pluck('id');
         $usuarios = User::factory()->count(3)->create()->pluck('id');
-        $otroCentro = Centro::create(['nombre' => 'CSS Entrevías', 'tipo_gestion' => 'municipal_directo', 'activo' => true, 'fecha_alta' => '2026-01-01']);
+        $otroCentro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(), 'nombre' => 'CSS Entrevías', 'tipo_gestion' => 'municipal_directo', 'activo' => true, 'fecha_alta' => '2026-01-01']);
         $centros = collect([$this->centroCiam->id, $otroCentro->id]);
         $antes = $this->recuentos();
 

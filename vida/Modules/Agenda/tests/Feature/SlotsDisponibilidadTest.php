@@ -37,7 +37,7 @@ class SlotsDisponibilidadTest extends TestCase
         // urgencia = floor(6 * 20/100) = floor(1.2) = 1
         // normal = 5
 
-        $centro = Centro::create([
+        $centro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre' => 'Centro PF-04.1',
             'tipo_gestion' => 'municipal_directo',
             'fecha_alta' => now()->toDateString(),
@@ -112,7 +112,7 @@ class SlotsDisponibilidadTest extends TestCase
     public function test_pf_04_2_urgencias_no_visibles_en_consulta_externa(): void
     {
         $usuario = User::factory()->create();
-        $centro = Centro::create([
+        $centro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre' => 'Centro PF-04.2',
             'tipo_gestion' => 'municipal_directo',
             'fecha_alta' => now()->toDateString(),
@@ -212,7 +212,7 @@ class SlotsDisponibilidadTest extends TestCase
     {
         $usuario = User::factory()->create();
         $supervisor = User::factory()->create();
-        $centro = Centro::create([
+        $centro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre' => 'Centro PF-04.3',
             'tipo_gestion' => 'municipal_directo',
             'fecha_alta' => now()->toDateString(),

@@ -26,7 +26,7 @@ class ProfesionalItineranteTest extends TestCase
 
     private function crearCentroConHorario(string $nombre): array
     {
-        $centro = Centro::create([
+        $centro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre' => $nombre,
             'tipo_gestion' => 'municipal_directo',
             'fecha_alta' => now()->toDateString(),

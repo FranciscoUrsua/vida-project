@@ -8,7 +8,9 @@ use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Red;
 use Modules\Centro\Models\SegmentoPoblacion;
 use Modules\Centro\Models\TipoActividad;
+use Modules\Centro\Models\TipoCentro;
 use Modules\Centro\Models\TipoEspacio;
+use Modules\Centro\Support\MigracionTipoCentro;
 
 /**
  * Seeder del módulo Centro.
@@ -17,11 +19,12 @@ use Modules\Centro\Models\TipoEspacio;
  * 1. Catálogo de tipos de espacio físico (tipos_espacio).
  * 2. Catálogo de tipos de actividad (tipos_actividad).
  * 3. Catálogo de segmentos de población (segmentos_poblacion).
- * 4. Tres centros de ejemplo:
+ * 4. Tipos de centro a partir del catálogo `centro.tipo` (MigracionTipoCentro).
+ * 5. Tres centros de ejemplo, cada uno con su UO instrumental (RN-14):
  *    - Albergue Municipal San Isidro (personas sin hogar) — en Red de Albergues
  *    - Albergue Municipal Vallecas (personas sin hogar)  — en Red de Albergues
  *    - Centro de Día Retiro (personas mayores)           — sin red, segmento distinto
- * 5. Una red de ejemplo que agrupa los dos albergues.
+ * 6. Una red de ejemplo que agrupa los dos albergues.
  *
  * Seeder idempotente: usa firstOrCreate en todos los registros.
  *
@@ -139,76 +142,79 @@ class CentroSeeder extends Seeder
      */
     private function sembrarCentrosYRed(array $segmentos): void
     {
-        // UO de referencia: el Departamento de Atención Primaria es el padre común
+        // Tipos de centro desde el catálogo (idempotente)
+        app(MigracionTipoCentro::class)->ejecutar();
+
+        // Cada centro tiene su propia UO (RN-14), colgada del Departamento de Atención Primaria
         $uoDepartamento = UnidadOrganizativa::where('nombre', 'Departamento de Atención Primaria')->first();
-        $uoCssArganzuela = UnidadOrganizativa::where('nombre', 'Centro de Servicios Sociales Arganzuela')->first();
-        $uoCssRetiro = UnidadOrganizativa::where('nombre', 'Centro de Servicios Sociales Retiro')->first();
+        $uoDe = fn (string $nombre): ?int => UnidadOrganizativa::firstOrCreate(
+            ['nombre' => $nombre],
+            ['tipo' => 'centro', 'parent_id' => $uoDepartamento?->id, 'activa' => true],
+        )->id;
+        $tipo = fn (string $codigo): TipoCentro => TipoCentro::where('codigo', $codigo)->firstOrFail();
 
         // ---- Centro 1: Albergue Municipal San Isidro ----------------------------
         $albergueSanIsidro = Centro::firstOrCreate(
             ['nombre' => 'Albergue Municipal San Isidro'],
             [
-                'tipo_centro' => 'albergue',
+                'tipo_centro_id' => $tipo('albergue')->id,
                 'nombre_corto' => 'Albergue San Isidro',
                 'tipo_gestion' => 'municipal_directo',
-                'unidad_organizativa_id' => $uoDepartamento?->id,
+                'unidad_organizativa_id' => $uoDe('Albergue Municipal San Isidro'),
                 'direccion_texto' => 'Calle Mesón de Paredes, 2',
                 'direccion_normalizada' => false,
                 'codigo_postal' => '28012',
                 'municipio' => 'Madrid',
                 'telefono' => '915 000 001',
                 'email' => 'albergue.sanisidro@madrid.es',
-                'inscripcion_libre' => false,
                 'activo' => true,
                 'fecha_alta' => '2020-01-01',
                 'notas' => 'Centro de referencia de acogida nocturna y atención a personas sin hogar.',
             ]
         );
-        $albergueSanIsidro->segmentosPoblacion()->syncWithoutDetaching([$segmentos['personas_sin_hogar']->id]);
+        // El público destinatario es del tipo, no del centro (docs/modulo-tipo-centro.md §4)
+        $tipo('albergue')->segmentos()->syncWithoutDetaching([$segmentos['personas_sin_hogar']->id]);
 
         // ---- Centro 2: Albergue Municipal Vallecas ------------------------------
         $albergueVallecas = Centro::firstOrCreate(
             ['nombre' => 'Albergue Municipal Vallecas'],
             [
-                'tipo_centro' => 'albergue',
+                'tipo_centro_id' => $tipo('albergue')->id,
                 'nombre_corto' => 'Albergue Vallecas',
                 'tipo_gestion' => 'municipal_concertado',
-                'unidad_organizativa_id' => $uoDepartamento?->id,
+                'unidad_organizativa_id' => $uoDe('Albergue Municipal Vallecas'),
                 'direccion_texto' => 'Avenida de la Albufera, 89',
                 'direccion_normalizada' => false,
                 'codigo_postal' => '28038',
                 'municipio' => 'Madrid',
                 'telefono' => '915 000 002',
                 'email' => 'albergue.vallecas@madrid.es',
-                'inscripcion_libre' => false,
                 'activo' => true,
                 'fecha_alta' => '2021-06-01',
                 'notas' => 'Centro concertado de acogida nocturna para el distrito de Vallecas.',
             ]
         );
-        $albergueVallecas->segmentosPoblacion()->syncWithoutDetaching([$segmentos['personas_sin_hogar']->id]);
 
         // ---- Centro 3: Centro de Día Retiro (personas mayores) -----------------
         $centroDiaRetiro = Centro::firstOrCreate(
             ['nombre' => 'Centro de Día Retiro'],
             [
-                'tipo_centro' => 'centro_dia',
+                'tipo_centro_id' => $tipo('centro_dia')->id,
                 'nombre_corto' => 'CD Retiro',
                 'tipo_gestion' => 'municipal_directo',
-                'unidad_organizativa_id' => $uoCssRetiro?->id,
+                'unidad_organizativa_id' => $uoDe('Centro de Día Retiro'),
                 'direccion_texto' => 'Calle Ibiza, 45',
                 'direccion_normalizada' => false,
                 'codigo_postal' => '28009',
                 'municipio' => 'Madrid',
                 'telefono' => '915 000 003',
                 'email' => 'centrodia.retiro@madrid.es',
-                'inscripcion_libre' => false,
                 'activo' => true,
                 'fecha_alta' => '2019-03-15',
                 'notas' => 'Centro de atención diurna para personas mayores del distrito de Retiro.',
             ]
         );
-        $centroDiaRetiro->segmentosPoblacion()->syncWithoutDetaching([$segmentos['personas_mayores']->id]);
+        $tipo('centro_dia')->segmentos()->syncWithoutDetaching([$segmentos['personas_mayores']->id]);
 
         // ---- Red: agrupa los dos albergues --------------------------------------
         $redAlbergues = Red::firstOrCreate(

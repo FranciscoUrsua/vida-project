@@ -278,7 +278,7 @@ class AccesoExpedienteTest extends TestCase
 
         // Buscador de citación, por documento exacto
         $citador = $this->usuarioEnUo('cita.a', 'consulta_basica', $this->uoA);
-        Centro::create([
+        Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre' => 'Centro Acceso A',
             'tipo_gestion' => 'municipal_directo',
             'unidad_organizativa_id' => $this->uoA->id,
@@ -303,7 +303,7 @@ class AccesoExpedienteTest extends TestCase
     public function tf_acc_10_la_bandeja_de_asignaciones_oculta_al_protegido_ajeno(): void
     {
         $supervisor = $this->usuarioEnUo('sup.a', 'supervision', $this->uoA);
-        $centro = Centro::create([
+        $centro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre' => 'Centro Acceso A',
             'tipo_gestion' => 'municipal_directo',
             'unidad_organizativa_id' => $this->uoA->id,

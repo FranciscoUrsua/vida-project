@@ -17,3 +17,6 @@ Schedule::job(SlotExpirationJob::class)->dailyAt('20:00');
 
 // Auditoría: purga registros que superan el período de retención (defecto 5 años)
 Schedule::command('audit:purge')->dailyAt('03:00');
+
+// Denominaciones de tipos de centro y centros que entran en vigor hoy (docs/modulo-tipo-centro.md §8.1)
+Schedule::command('denominaciones:aplicar')->dailyAt('00:10');

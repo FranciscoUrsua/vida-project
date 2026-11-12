@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\UnidadOrganizativaFactory;
+use DomainException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -28,6 +29,9 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
  *
  * El tipo de UO es una referencia blanda al catálogo configurable
  * `tipos_unidad_organizativa`, evitando enums cerrados (principio 4.12).
+ *
+ * La UO de un centro es instrumental y no tiene UO hijas (RN-14 de
+ * docs/modulo-tipo-centro.md): equipos o zonas dentro de un centro serían otra entidad.
  *
  * @property int $id
  * @property string $nombre
@@ -63,6 +67,23 @@ class UnidadOrganizativa extends Model
     protected $casts = [
         'activa' => 'boolean',
     ];
+
+    /**
+     * Impide colgar una UO de la UO de un centro (RN-14).
+     *
+     * @throws DomainException
+     *
+     * @return void
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (self $uo): void {
+            if ($uo->parent_id !== null && $uo->isDirty('parent_id')
+                && \Modules\Centro\Models\Centro::where('unidad_organizativa_id', $uo->parent_id)->exists()) {
+                throw new DomainException('La UO de un centro no puede tener UO hijas (RN-14).');
+            }
+        });
+    }
 
     /**
      * @return BelongsTo<UnidadOrganizativa, $this>

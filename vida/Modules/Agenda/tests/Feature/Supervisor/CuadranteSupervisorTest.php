@@ -78,7 +78,7 @@ class CuadranteSupervisorTest extends TestCase
     public function profesional_de_otro_centro_no_aparece_en_el_cuadrante(): void
     {
         // Dado: un profesional con perfil en otro centro
-        $otroCentro = Centro::create([
+        $otroCentro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre'       => 'Otro Centro',
             'tipo_gestion' => 'municipal_directo',
             'fecha_alta'   => now()->toDateString(),
