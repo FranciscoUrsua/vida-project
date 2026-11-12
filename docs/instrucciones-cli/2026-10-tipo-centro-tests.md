@@ -1,6 +1,8 @@
 # Tests funcionales — Tipo de Centro
 
-TF-TCE-01 a TF-TCE-34. Diseño funcional: `docs/modulo-tipo-centro.md`. Instrucciones de implementación: `docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`.
+> Incluye la addenda D1 (11 nov 2026): `docs/instrucciones-cli/2026-11-tipo-centro-addenda-d1.md` (D1, D2, D4 y D5).
+
+TF-TCE-01 a TF-TCE-59. Diseño funcional: `docs/modulo-tipo-centro.md`. Instrucciones de implementación: `docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`.
 
 Especificaciones de comportamiento, no código. Claude CLI implementa cada test siguiendo los patrones del proyecto y rellena la tabla de estado del final.
 
@@ -27,6 +29,13 @@ Trait `TipoCentroTestSetup`:
 - `$directoraNorte` — directora de `$cssNorte`. `$directoraSur` — directora de `$cssSur`.
 - `$p1`, `$p2` — prestaciones en `$tipoCss`. `$p3` — prestación en `$tipoCiam`.
 - Fichas de valoración `$fichaVivienda` y `$fichaVG`.
+
+Estructura organizativa (addenda D1, §4.1):
+
+- `$uoArea`, con `$uoPrimaria` y `$uoIgualdad` como hijas orgánicas; `$uoJuntaNorte` y `$uoJuntaVallecas` (UO orgánicas, sin centro).
+- Cada centro con **su UO instrumental**: `$uoCssNorte`, `$uoCssSur` (hijas orgánicas de `$uoJuntaNorte`) y `$uoCiamVallecas` (hija orgánica de `$uoJuntaVallecas`).
+- `$ciamUsera` (tipo `$tipoCiam`, UO `$uoCiamUsera`, hija de otra junta).
+- Usuarios: `$coordIgualdad` (`supervision`, adscrito a `$uoIgualdad`); `$jefaJuntaVallecas` (`supervision`, adscrita a `$uoJuntaVallecas`); `$coordPrimaria` (`supervision`, `$uoPrimaria`); `$psicologa` (`intervencion`, adscrita a `$uoCiamVallecas` y `$uoCiamUsera`, perfil horario L-M en Vallecas y X-J en Usera); `$tecnicaArea` (`intervencion`, adscrita a `$uoArea`, sin centro).
 
 ## Grupo A — Tipo de centro
 
@@ -92,11 +101,11 @@ Trait `TipoCentroTestSetup`:
 - Cuando `$admin` lo da de baja y crea `$ciamSur` de tipo `$tipoCiam` con `$cssSur` como antecesor.
 - Entonces `$cssSur` tiene activo = false y sigue existiendo; `$ciamSur`->antecesor es `$cssSur`; las asignaciones e historias vinculadas a `$cssSur` no cambian.
 
-### TF-TCE-11 — UO funcional y UO administrativa
+### TF-TCE-11 — UO funcional y UO orgánica
 
 - Dado `$ciamVallecas`.
 - Cuando se consulta su configuración efectiva.
-- Entonces `uoFuncional()` es `$uoIgualdad` y su `unidad_organizativa_id` sigue siendo la Junta de Puente de Vallecas. Cambiar la UO funcional de `$tipoCiam` cambia la de `$ciamVallecas` sin tocar su UO administrativa.
+- Entonces `uoFuncional($ciamVallecas)` es `$uoIgualdad`; su UO es `$uoCiamVallecas`, cuyo padre orgánico es `$uoJuntaVallecas`. Cambiar la UO funcional de `$tipoCiam` cambia la de `$ciamVallecas` sin tocar su UO ni su padre orgánico.
 
 ## Grupo C — Horario y calendario
 
@@ -216,9 +225,9 @@ Trait `TipoCentroTestSetup`:
 
 ### TF-TCE-30 — Migración de la configuración de asignación (solo rama A)
 
-- Dado dos centros de `css_general` con `modo_asignacion_referencia` distinto en centros.
+- Dado dos centros de `css_general` con `modo_asignacion_referencia` distinto en `centros`.
 - Cuando se ejecuta la migración de datos del paso 3.
-- Entonces aborta con un informe que nombra los dos centros y los dos valores, y no deja datos a medias. Con valores iguales, el tipo recibe ese valor.
+- Entonces no aborta; `$tipoCss` queda con el valor de la addenda §6.1 (`quien_abre`); el informe de descartes nombra el centro, la propiedad y el valor descartado.
 
 ## Grupo G — Permisos
 
@@ -246,7 +255,139 @@ Trait `TipoCentroTestSetup`:
 
 - Dado una base con el catálogo `centro.tipo` (`css_general`, `centro_dia`), centros de seeders con su tipo deducible y filas en `prestacion_tipo_centro` por clave.
 - Cuando se ejecutan las migraciones y seeders de la fase.
-- Entonces existe un `TipoCentro` por clave, con una denominación vigente; todos los centros tienen `tipo_centro_id`; todas las filas de `prestacion_tipo_centro` tienen `tipo_centro_id` coherente con su clave; las entradas del grupo `centro.tipo` siguen existiendo con activo = false; los `HorarioCentro` existentes tienen `hereda_horario_tipo` = false y su horario no ha cambiado.
+- Entonces existe un `TipoCentro` por clave, con una denominación vigente; todos los centros tienen `tipo_centro_id`; todas las filas de `prestacion_tipo_centro` tienen `tipo_centro_id` coherente con su clave; las entradas del grupo `centro.tipo` siguen existiendo con activo = false; los `HorarioCentro` existentes tienen `hereda_horario_tipo` = false y su horario no ha cambiado. Las columnas y tablas de la addenda §6.2 ya no existen; `centros.horario` se sigue pudiendo leer como accesor y coincide con el horario efectivo.
+
+## Grupo I — Estructura, ámbito y centro de trabajo (addenda D1 y D2)
+
+### TF-TCE-35 — Ámbito funcional [negativo]
+
+- Dado una historia y un ciudadano de `$ciamVallecas`.
+- Cuando `$coordIgualdad` los consulta (scope y policy).
+- Entonces los ve, aunque `$uoCiamVallecas` no desciende orgánicamente de `$uoIgualdad`.
+
+### TF-TCE-36 — Ámbito orgánico sin cambios
+
+- Dado el mismo caso.
+- Cuando `$jefaJuntaVallecas` los consulta.
+- Entonces los ve; y no ve los de `$ciamUsera`.
+
+### TF-TCE-37 — Fuera de ámbito [negativo]
+
+- Dado el mismo caso.
+- Cuando `$coordPrimaria` los consulta.
+- Entonces no los ve (salvo acceso aprobado, como hoy).
+
+### TF-TCE-38 — El ámbito sigue a la UO funcional del tipo
+
+- Dado `$tipoCiam` con UO funcional `$uoIgualdad`.
+- Cuando `$admin` la cambia a `$uoPrimaria` y se hace una petición nueva.
+- Entonces `$coordPrimaria` ve los datos de `$ciamVallecas` y `$coordIgualdad` deja de verlos.
+
+### TF-TCE-39 — Sin centro no se atiende [negativo]
+
+- Dado `$tecnicaArea`.
+- Cuando intenta abrir una Historia Social, dar una cita y registrar una atención, llamando a los servicios y a las acciones Livewire.
+- Entonces las tres se rechazan con el mensaje de RN-15. `centros()` está vacío y `centroActivo()` es `null`. Puede consultar a un ciudadano dentro de su ámbito según su rol.
+
+### TF-TCE-40 — Centro activo por defecto del multicentro
+
+- Dado `$psicologa`.
+- Cuando se pide `centroActivo()` el lunes 2026-11-02 y el miércoles 2026-11-04.
+- Entonces es `$ciamVallecas` y `$ciamUsera` respectivamente.
+
+### TF-TCE-41 — Elegir centro [negativo]
+
+- Dado `$psicologa` el lunes.
+- Cuando elige `$ciamUsera`; y después intenta elegir `$cssNorte`.
+- Entonces `centroActivo()` pasa a `$ciamUsera` para esa sesión; la segunda elección se rechaza.
+
+### TF-TCE-42 — El contexto manda
+
+- Dado `$psicologa` con centro activo `$ciamVallecas` y una cita suya en un slot de `$ciamUsera`.
+- Cuando atiende la cita y registra el apunte.
+- Entonces la operación se hace en `$ciamUsera` (centro de la cita), sin cambiar su centro activo.
+
+### TF-TCE-43 — Barra superior
+
+- Dado `$psicologa`, una usuaria adscrita solo a `$ciamVallecas` y `$tecnicaArea`.
+- Cuando cargan una pantalla operativa.
+- Entonces la primera ve «CIAM · Puente de Vallecas» (el lunes) con selector de dos centros; la segunda, el mismo texto sin selector; la tercera, el nombre de `$uoArea` sin selector.
+
+### TF-TCE-44 — Pantallas de equipo con el centro activo
+
+- Dado una supervisora adscrita a `$uoCiamVallecas` y a `$uoCiamUsera`.
+- Cuando abre Mi equipo con cada centro activo.
+- Entonces ve el equipo del centro activo en cada caso; `$psicologa` aparece en los dos.
+
+### TF-TCE-45 — Integridad UO–centro [negativo]
+
+- Dado `$uoCssNorte`.
+- Cuando se intenta crear otro centro con esa UO; y crear una UO con `parent_id = $uoCssNorte`.
+- Entonces las dos se rechazan.
+
+### TF-TCE-46 — Supervisión funcional y centros dependientes
+
+- Dado `$coordIgualdad`.
+- Cuando se evalúa `supervisa()` sobre `$ciamVallecas`, `$ciamUsera` y `$cssNorte`; y se pide `$uoArea->centrosDependientes('funcional')`, `('organica')` y `('ambas')`.
+- Entonces `supervisa()` es verdadero para los dos CIAM y falso para `$cssNorte`. `$uoArea` tiene los cuatro centros por la funcional, ninguno por la orgánica y los cuatro por ambas.
+
+### TF-TCE-47 — El centro no fija lo que es del tipo [negativo]
+
+- Dado `$admin`.
+- Cuando envía al servicio de centros y al formulario de `CentroResource` una petición con `inscripcion_libre`, `modo_asignacion_referencia` o segmentos para `$cssNorte`.
+- Entonces se rechaza (o se ignora con aviso) y la configuración efectiva de `$cssNorte` sigue siendo la de `$tipoCss`.
+
+## Grupo J — Personas protegidas (addenda D4)
+
+### TF-TCE-48 — La UO superior no ve a la persona protegida [negativo]
+
+Una persona protegida con historia en `$ciamVallecas`. `$coordIgualdad` (funcional) y `$jefaJuntaVallecas` (orgánica) la ven como «Persona con protección especial», sin nombre, documento ni enlace, por scope, policy y buscador. Una persona no protegida del mismo centro sí la ven (TF-TCE-35 y 36 siguen en verde).
+
+### TF-TCE-49 — El centro sí la ve
+
+Una profesional de `intervencion` y la directora, adscritas a `$uoCiamVallecas`, la ven con nivel 1.
+
+### TF-TCE-50 — Concede el director del centro [negativo]
+
+`$coordIgualdad` solicita acceso con motivo. Lo intentan resolver `$coordIgualdad`, `$jefaJuntaVallecas` y la directora de `$ciamVallecas`. Solo la directora puede; tras aprobarlo, `$coordIgualdad` la ve hasta la caducidad y su acceso se audita como `acceso_restringido`.
+
+### TF-TCE-51 — Sin director, la supervisión del centro
+
+Sin `DirectorCentro` vigente en `$ciamVallecas`, resuelve quien tiene `supervision` adscrito a `$uoCiamVallecas`, y no `$coordIgualdad`.
+
+### TF-TCE-52 — Nadie resuelve lo suyo
+
+La directora solicita acceso a una persona protegida de otro centro del que también es supervisora por ámbito superior; no puede resolverlo ella.
+
+### TF-TCE-53 — Bandeja de asignaciones [negativo]
+
+Una entrada de una persona protegida de `$ciamVallecas`. La supervisión adscrita al centro la ve con identidad y la resuelve; `$coordIgualdad` la ve sin identidad y la acción de resolver se rechaza en el servidor.
+
+### TF-TCE-54 — El aviso de solicitud va al director
+
+Al crear una solicitud desde el buscador, la alerta llega a la directora de `$ciamVallecas` y no a `$coordIgualdad` ni a `$jefaJuntaVallecas`.
+
+## Grupo K — Bajas de profesionales (addenda D5)
+
+### TF-TCE-55 — No se borra [negativo]
+
+`$admin` intenta borrar un usuario y un profesional por Filament y por servicio; se rechaza y siguen existiendo sin `deleted_at`. «Desactivar» sí funciona y el usuario no puede iniciar sesión.
+
+### TF-TCE-56 — Salida bloqueada con casos [negativo]
+
+`$psicologa` es referencia de 3 casos en `$ciamVallecas`. Cerrar su adscripción a `$uoCiamVallecas` se rechaza con el recuento y el enlace al reparto. Sigue adscrita.
+
+### TF-TCE-57 — Salida tras el reparto
+
+Tras confirmar el reparto de sus 3 casos y no tener citas futuras en `$ciamVallecas`, la adscripción se cierra. Sus casos tienen nueva referencia en `$ciamVallecas`; su adscripción a `$uoCiamUsera` y sus casos allí no cambian.
+
+### TF-TCE-58 — Salida bloqueada con citas
+
+Sin casos, pero con una cita confirmada la semana próxima en un slot de `$ciamVallecas`. La salida se rechaza hasta reasignar la cita.
+
+### TF-TCE-59 — Los casos no viajan
+
+`$psicologa` se adscribe a un tercer centro. Sus asignaciones en `$ciamVallecas` y `$ciamUsera` no cambian y no aparecen en el nuevo centro.
 
 ## Tabla de estado (rellenar al implementar)
 
@@ -260,3 +401,6 @@ Trait `TipoCentroTestSetup`:
 | F — Reglas de asignación | TF-TCE-28..30 |  |
 | G — Permisos | TF-TCE-31..33 |  |
 | H — Migración | TF-TCE-34 |  |
+| I — Estructura, ámbito y centro de trabajo | TF-TCE-35..47 |  |
+| J — Personas protegidas | TF-TCE-48..54 |  |
+| K — Bajas de profesionales | TF-TCE-55..59 |  |

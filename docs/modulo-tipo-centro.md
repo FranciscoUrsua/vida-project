@@ -1,11 +1,13 @@
 # Tipo de Centro — Diseño funcional
 
+> Incluye la addenda D1 (11 nov 2026): `docs/instrucciones-cli/2026-11-tipo-centro-addenda-d1.md` (D1, D2, D4 y D5).
+
 Módulos afectados: Centro (tipo de centro, centro, configuración efectiva), Organizacion (UO funcional), Prestaciones (`prestacion_tipo_centro`), Agenda (horario y calendario), Intervencion (tipos de plan y fichas de valoración disponibles), Usuarios (permisos de administración y dirección de centro). Estado: diseño funcional v1 cerrado. Sin implementar. Última revisión: octubre 2026
 
 Documentos relacionados:
 
 - Instrucciones de implementación: `docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`
-- Tests funcionales: `docs/instrucciones-cli/2026-10-tipo-centro-tests.md` (TF-TCE-01 a TF-TCE-34)
+- Tests funcionales: `docs/instrucciones-cli/2026-10-tipo-centro-tests.md` (TF-TCE-01 a TF-TCE-59)
 - Modifica: `docs/modulo-centros.md`, `docs/modulo-asignacion.md`, `docs/modulo-agenda.md`, `docs/modulo-prestaciones.md` (ver §11).
 
 ## Nota de diseño
@@ -15,11 +17,12 @@ Hoy el tipo de un centro es una clave del catálogo `centro.tipo` que solo usa e
 - No hay forma de colgar todos los centros de un mismo tipo de la UO que dirige ese servicio.
 - Lo que es común a todos los centros de un tipo (horario, prestaciones, público, reglas de asignación) se repite en cada centro y puede divergir sin que nadie lo haya decidido.
 
-Este diseño convierte el tipo de centro en una entidad propia. Tres ideas lo vertebran:
+Este diseño convierte el tipo de centro en una entidad propia. Cuatro ideas lo vertebran:
 
 - El tipo manda; el centro solo personaliza lo que el tipo permite. Cada propiedad tiene una política de herencia fija, conocida de antemano. No se decide caso a caso.
 - Identidad estable, denominación cambiante. Un tipo puede cambiar de nombre y de catálogo sin dejar de ser el mismo tipo (los CAF pasan a ser CEF). Si un cambio merece un tipo nuevo o no es una decisión de la dirección, a veces política; el sistema ofrece los dos caminos y no decide.
 - Un centro es de un tipo toda su vida. Si tiene que ser de otro tipo, se da de baja y se da de alta otro centro, enlazados.
+- **Dos jerarquías.** La orgánica es el árbol de UO; la funcional va por tipo de centro. El ámbito de un usuario es la unión de ambas (RN-13).
 
 ## 1. Reglas de negocio
 
@@ -27,7 +30,7 @@ Este diseño convierte el tipo de centro en una entidad propia. Tres ideas lo ve
 
 **RN-02 — Identidad estable del tipo.** El tipo tiene un código interno inmutable. Su nombre y sus siglas tienen historial con vigencia: un renombrado cierra la denominación vigente y abre otra, sin cambiar la identidad del tipo ni la de sus centros.
 
-**RN-03 — Dependencia funcional en el tipo.** Cada tipo depende de una UO funcional: la que dirige ese servicio. Todos los centros del tipo dependen funcionalmente de ella sin configurarlo centro a centro. La pertenencia administrativa del centro (`unidad_organizativa_id`, p. ej. la Junta de Distrito; `modulo-centros.md` §2.2) no cambia y es independiente.
+**RN-03 — Dependencia funcional en el tipo.** Cada tipo depende de una UO funcional: la que coordina ese servicio. Todos los centros del tipo dependen funcionalmente de ella sin configurarlo centro a centro. La dependencia orgánica del centro es la de su UO instrumental (RN-14) en el árbol de UO, que no cambia y es independiente.
 
 **RN-04 — Políticas de herencia.** Cada propiedad sigue una de estas políticas (detalle en §4):
 
@@ -55,6 +58,28 @@ Este diseño convierte el tipo de centro en una entidad propia. Tres ideas lo ve
 
 **RN-12 — Todo deja rastro.** Los cambios en tipos y centros se versionan (estrategia transversal versiones) y se auditan. Las denominaciones y los horarios tienen vigencia explícita, de modo que siempre se puede responder "cómo era a fecha X".
 
+**RN-13 — Ámbito por las dos jerarquías.** El ámbito de un usuario son sus UO con sus descendientes orgánicas, más las UO de los centros cuyo tipo tiene la UO funcional dentro de ese ámbito orgánico. Cambiar la UO funcional de un tipo cambia de inmediato el ámbito de quien la tenga dentro del suyo.
+
+**RN-14 — UO instrumental del centro.** Cada centro tiene su propia UO, con el mismo nombre, y ninguna UO tiene más de un centro. La UO de un centro no puede tener UO hijas. Cuelga orgánicamente de la UO a la que el centro está adscrito (p. ej. su junta de distrito).
+
+**RN-15 — Atención individual solo desde un centro.** Abrir Historia Social, dar o atender citas, registrar atención, hacer apuntes e inscribir en actividades exige que el usuario esté adscrito al centro en que se hace la operación. Un usuario sin centro consulta y supervisa según su rol, pero no atiende.
+
+**RN-16 — Centro de trabajo.** La operación toma el centro de su contexto; sin contexto, el centro activo del usuario (el elegido en la sesión o, por defecto, el de su perfil horario del día). Un profesional puede estar adscrito a varios centros, con un perfil horario en cada uno.
+
+**RN-17 — Ámbito reducido para personas protegidas.** Para una persona de colectivo especialmente protegido, el ámbito de gestión (nivel 1) se limita a los usuarios **adscritos directamente a la UO del centro** de su Historia Social, según su rol. Para cualquier otro usuario, aunque el centro esté dentro de su ámbito orgánico o funcional (RN-13), la persona está fuera de ámbito: la ve como «Persona con protección especial», sin datos identificativos, y necesita un acceso aprobado y vigente.
+
+**RN-18 — Concede el director del centro.** Las solicitudes de acceso a una persona protegida, con motivo obligatorio, las resuelve el **director vigente del centro** de su Historia Social (`DirectorCentro`). Si el centro no tiene director registrado, las resuelve quien tenga rol `supervision` adscrito directamente a la UO del centro. Nadie resuelve su propia solicitud. El acceso concedido tiene fecha de caducidad y queda auditado (`acceso_restringido`).
+
+**RN-19 — Bandeja de asignaciones.** Las entradas de personas protegidas solo las ve con identidad, y solo las resuelve, la supervisión adscrita directamente al centro. Los supervisores que llegan al centro por una UO superior ven «Persona con protección especial» y no pueden resolverlas.
+
+**RN-20 — Sin borrado.** `User` y `Profesional` no se eliminan, ni siquiera con borrado lógico, desde ninguna pantalla ni servicio. La baja de un usuario es su desactivación: no puede iniciar sesión, conserva su historial y sus registros siguen apuntando a él.
+
+**RN-21 — Salida de un centro.** Cerrar la adscripción de un profesional a la UO de un centro exige que no tenga asignaciones de referencia vigentes en ese centro ni citas confirmadas futuras en sus slots de ese centro. Si las tiene, la acción ofrece «Repartir casos» (reparto por salida) y «Reasignar citas» (flujo de ausencia existente), y solo cierra la adscripción cuando las dos cosas están resueltas.
+
+**RN-22 — Desactivación.** Desactivar un usuario exige lo mismo de RN-21 en todos sus centros.
+
+**RN-23 — El caso pertenece al centro.** La asignación de referencia es de una historia en un centro. Ningún cambio de adscripción del profesional mueve, cierra ni reasigna casos automáticamente.
+
 ## 2. Tipo de Centro
 
 ### 2.1 Qué contiene
@@ -81,10 +106,9 @@ La equivalencia con la tipología autonómica (HSU) no forma parte del tipo de c
 
 ### 2.2 Para qué se usa la UO funcional en la v1
 
-- Agrupar y filtrar centros por la UO que dirige el servicio (listados, informes, analítica).
+- Ámbito de permisos de los usuarios de esa UO y de sus ascendientes sobre todos los centros del tipo (RN-13).
+- Agrupar y filtrar centros por la UO que coordina el servicio (listados, informes, analítica).
 - Mostrar en la ficha del centro de quién depende funcionalmente.
-
-Si la UO funcional debe ampliar el ámbito de permisos (que un supervisor de la UO funcional opere en todos los centros del tipo) queda pendiente (§13).
 
 ## 3. Centro
 
@@ -103,6 +127,7 @@ El centro conserva lo que ya tiene en `modulo-centros.md` §4.1, con estos cambi
 | Cierres de calendario propios | Nuevo, opcional; se suman a los del tipo |
 | Protocolo propio | Nuevo, opcional; sustituye al del tipo |
 | Exclusiones de catálogo | Nuevo, solo si el tipo lo permite |
+| UO del centro | **Aclarado:** UO instrumental propia, 1:1, sin hijas, colgada orgánicamente de su UO de adscripción (RN-14). |
 
 Se mantienen sin cambios: UO administrativa, tipo de gestión, dirección y contacto, ámbito territorial, colecciones de plazas, actividades, salas, directores, inscripciones, estado y fechas.
 
@@ -220,6 +245,8 @@ No hay operación de "cambiar tipo". Se sigue §8.2 para ese centro.
 
 El director solo ve y edita su centro. Las propiedades "solo tipo" no son editables desde el centro por nadie: se cambian en el tipo. Las restricciones se aplican en el servidor, no solo ocultando campos.
 
+Los usuarios con rol `supervision` cuyo ámbito incluye el centro por la jerarquía funcional (RN-13) lo supervisan como si estuvieran en su UO.
+
 ## 10. Configuración
 
 | Dónde | Qué | Por defecto |
@@ -247,6 +274,9 @@ El director solo ve y edita su centro. Las propiedades "solo tipo" no son editab
 - `modulo-agenda.md` §2.1: `HorarioCentro` puede heredar el horario del tipo; nuevos cierres de calendario; la generación de cuadrantes usa el calendario efectivo.
 - `modulo-prestaciones.md`: `prestacion_tipo_centro` referencia la entidad `TipoCentro`; el grupo `centro.tipo` de `catalogos_sistema` se retira.
 - `modulo-intervencion.md`: al abrir un plan, solo se ofrecen los tipos de plan del tipo del centro.
+- `modulo-centros.md` §2.2: la UO del centro es instrumental (RN-14). El ejemplo «un CSS de Vallecas depende administrativamente de la Junta de Distrito» se reformula: la UO del CSS cuelga orgánicamente de la junta.
+- `modulo-usuarios-permisos.md`, «Ámbito por UO»: unión de la jerarquía orgánica y la funcional (RN-13); atención individual solo con adscripción a un centro (RN-15); profesional multicentro (RN-16).
+- `propuesta-requisitos-y-tareas-guiadas.md` §3: decidido el selector de centro en la barra superior y el centro por defecto.
 
 ## 12. Decisiones tomadas
 
@@ -265,10 +295,20 @@ El director solo ve y edita su centro. Las propiedades "solo tipo" no son editab
 | Cobertura de áreas | Sin validaciones nuevas; responsabilidad de quien las define |
 | Sede compartida | No en v1: dos centros con la misma dirección |
 | Gestión | Administrador del sistema: tipos y alta y baja de centros. Director: datos de su centro |
+| D1.1 — Centro y UO (11 nov 2026) | 1:1. Cada centro municipal tiene su propia UO instrumental, con el mismo nombre y sin UO hijas |
+| D1.2 — Dos jerarquías | Orgánica: el árbol de UO (`parent_id`). Funcional: por tipo de centro, hacia la UO funcional del tipo |
+| D1.3 — Ámbito | Unión de las dos jerarquías (RN-13) |
+| D1.4 — Atención individual | Solo con adscripción a un centro (RN-15). Sin centro, se consulta y supervisa según el rol |
+| D1.5 — Multicentro | Una adscripción por centro, con su perfil horario en cada uno |
+| D1.6 — Centro de trabajo | El del contexto; sin contexto, el centro activo del usuario (RN-16) |
+| D1.7 — Barra superior | Tipo y nombre del centro activo, con selector si tiene varios; sin centro, el nombre de su UO |
+| D1.8 — Supervisión de un centro | Rol `supervision` y el centro dentro de su ámbito (RN-13); las operaciones que exigen centro, sobre uno elegido |
+| D2 — Migración (11 nov 2026) | El tipo manda: la migración fija los valores del tipo, descarta los del centro y elimina sus columnas (addenda §6) |
+| D4 — Personas protegidas (11 nov 2026) | Solo las gestiona el personal adscrito al centro; las UO superiores necesitan acceso concedido por el director del centro (RN-17 a RN-19) |
+| D5 — Bajas de profesionales (11 nov 2026) | Sin borrado; no se sale de un centro con casos o citas pendientes; los casos son del centro (RN-20 a RN-23) |
 
 ## 13. Decisiones pendientes
 
-- UO funcional y permisos: si la dependencia funcional amplía el ámbito de operación de los supervisores de la UO funcional sobre todos los centros del tipo.
 - Canales de cita por tipo (presencial, teléfono, Cita Previa): se definen con la integración de Cita Previa.
 - Traslado en bloque de personas y casos al crear un tipo nuevo o mover prestaciones entre tipos.
 - Cargos habituales por tipo como ayuda al alta de profesionales.

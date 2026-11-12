@@ -1,6 +1,8 @@
 # Instrucciones de implementación — Tipo de Centro
 
-Módulos: Centro, Organizacion, Prestaciones, Agenda, Intervencion, Usuarios. Tipo de trabajo: evolución de módulos existentes. Diseño funcional: `docs/modulo-tipo-centro.md`. Tests asociados: `docs/instrucciones-cli/2026-10-tipo-centro-tests.md` (TF-TCE-01 a TF-TCE-34). Orden respecto a Asignación: ver paso 0.2. Esta fase puede ir antes o después de `2026-09-asignacion-implementacion.md`; el paso 0 determina la rama.
+> Incluye la addenda D1 (11 nov 2026): `docs/instrucciones-cli/2026-11-tipo-centro-addenda-d1.md` (D1, D2, D4 y D5). La addenda prevalece donde este texto la contradiga.
+
+Módulos: Centro, Organizacion, Prestaciones, Agenda, Intervencion, Usuarios. Tipo de trabajo: evolución de módulos existentes. Diseño funcional: `docs/modulo-tipo-centro.md`. Tests asociados: `docs/instrucciones-cli/2026-10-tipo-centro-tests.md` (TF-TCE-01 a TF-TCE-59). Orden respecto a Asignación: ver paso 0.2. Esta fase puede ir antes o después de `2026-09-asignacion-implementacion.md`; el paso 0 determina la rama.
 
 ## Antes de empezar
 
@@ -41,7 +43,6 @@ Principios que no se negocian:
 - Operación de "cambiar el tipo de un centro".
 - Traslado en bloque de personas o casos entre centros o tipos.
 - Validaciones nuevas de cobertura o solapamiento de áreas. Las de `modulo-asignacion.md` §3.3, si ya existen, no se tocan.
-- Ampliación del ámbito de permisos por la UO funcional.
 - Canales de cita por tipo. Cargos habituales por tipo. Modelos de informe por tipo.
 - Personas protegidas por defecto y derivaciones permitidas en el tipo.
 - Cancelación automática de citas o slots por un cierre de calendario.
@@ -65,6 +66,10 @@ Principios que no se negocian:
 - Permisos. Averigua cómo se identifica hoy al administrador del sistema (rol) y al director de un centro (`DirectorCentro` vigente, rol `supervision` del centro, o ambos). Si no hay una forma inequívoca de saber si un usuario es director de un centro concreto, detente y pregunta.
 - Catálogos de Intervención. Comprueba cómo se modelan los tipos de plan (catálogo, enum o tabla) y si `TipoFicha` tiene hoy alguna relación con centros. Informa antes del paso 6.
 - Calendario. Comprueba que no existe ya una entidad de festivos o cierres de centro. Si existe, detente y pregunta.
+- **Integridad UO–centro** (10). Lista los centros cuya UO tenga otro centro, los centros sin UO (externos, si los hay) y las UO de centro con UO hijas. **Si hay alguno de los dos primeros casos entre centros municipales, o alguna UO de centro con hijas, detente e informa.**
+- **Consumidores del ámbito** (11). Informa, con fichero y línea, de todos los usos de `User::uoSubtreeIds()`, de los `descendientes`/`descendants` de `UnidadOrganizativa` usados para permisos o filtrado, de `AmbitoUoScope`, de `CiudadanoPolicy` y de los recursos de Filament que filtran por «UO y descendientes».
+- **Consumidores del centro del usuario** (12). Informa de todos los usos de `CentroDeUsuario`, de `uosActivas()->first()` y de `Centro::where('unidad_organizativa_id', …)->first()` (Mi equipo, cuadrante, asignación, perfil horario por defecto, citas, bandejas…).
+- **Operaciones de atención individual** (13). Lista los puntos de entrada (servicios y acciones Livewire) de: abrir Historia Social, dar/reprogramar/cancelar cita, atender cita, registrar atención, crear apunte, inscribir en actividad. Informa de cuáles comprueban hoy la adscripción a un centro y cuáles no.
 
 ## Paso 1 — `TipoCentro` y denominaciones
 
@@ -129,17 +134,18 @@ Unique en cada pivote.
 - `tipo_centro_id` FK. Se crea nullable, se rellena con el mapeo del paso 0.3 y se pasa a NOT NULL en una segunda migración. El modelo lanza `LogicException` si cambia en un registro existente.
 - `centro_antecesor_id` FK nullable a centros.
 - No se permite crear un centro en un tipo con activo = false.
-- Rama A: después de migrar, `centros.tipo_centro` (varchar) deja de leerse. Pregunta antes de eliminar la columna.
+- Rama A: después de migrar, `centros.tipo_centro` (varchar) deja de leerse y se elimina (addenda §6.2, ver «Eliminación de lo que pasa al tipo» en el paso 3).
+- **Integridad UO–centro (addenda §3.3):** en el modelo `Centro`, no se puede crear ni cambiar un centro municipal a una UO que ya tenga otro centro. En el modelo `UnidadOrganizativa`, no se puede dar `parent_id` = UO de un centro. Las dos reglas, también en base de datos si es posible (índice único parcial en `centros.unidad_organizativa_id`).
 
 ### `prestacion_tipo_centro`
 
 - Nueva columna `tipo_centro_id` FK, rellenada por codigo desde `tipo_centro`. Unique (`prestacion_id`, `tipo_centro_id`). Después, NOT NULL.
-- La columna varchar deja de leerse. Pregunta antes de eliminarla.
+- La columna varchar deja de leerse y se elimina (paso 3, «Eliminación de lo que pasa al tipo»).
 - `PrestacionResource`: la sección Tipos de centro pasa a seleccionar de `tipos_centro` activos. El snapshot de versiones de Prestacion debe seguir incluyendo los tipos asociados (ahora por id y código).
 
 ### `asignaciones_centro` (solo rama A)
 
-Añade `tipo_centro_id`, rellénalo desde el varchar y rehace el índice único parcial (`ciudadano_id`, `tipo_centro_id`) WHERE `fecha_fin` IS NULL AND `deleted_at` IS NULL. El varchar deja de leerse; pregunta antes de eliminarlo.
+Añade `tipo_centro_id`, rellénalo desde el varchar y rehace el índice único parcial (`ciudadano_id`, `tipo_centro_id`) WHERE `fecha_fin` IS NULL AND `deleted_at` IS NULL. El varchar deja de leerse y se elimina (paso 3, «Eliminación de lo que pasa al tipo»).
 
 ### Catálogo `centro.tipo`
 
@@ -155,14 +161,29 @@ Actualiza los seeders de centros y los mundos demo (incluido "Prueba CIAM") para
 | `centro_segmento_poblacion` | `tipo_centro_segmento_poblacion` |
 | Rama A: `modo_asignacion_referencia`, `ventana_reparto_meses`, `meses_inactividad_caso` | Mismos campos en `tipos_centro` |
 
-Migración de datos: para cada tipo, todos sus centros deben tener el mismo valor. Si dos centros del mismo tipo difieren, la migración aborta con un informe de las diferencias (no elige un valor). En rama A, el valor `quien_abre` con que se migraron los centros existentes se conserva en el tipo.
+Migración de datos (**D2, addenda §6: el tipo manda**): la migración asigna al tipo los valores de esta tabla y escribe en el CHANGELOG, por tipo, **los valores de centro descartados** (centro, propiedad, valor anterior). No aborta por diferencias. Sigue deteniéndose si un centro no tiene tipo deducible (paso 0.3).
 
-Para los segmentos, el tipo recibe la unión de los segmentos de sus centros solo si todos los centros tienen el mismo conjunto; si no, aborta con informe.
+| Propiedad | `css_general` | `ciam` | Otros tipos del catálogo |
+|---|---|---|---|
+| Adscripción | Por domicilio | Libre elección | Por domicilio |
+| Modo de referencia | Quien abre | Quien abre | Quien abre |
+| Ventana de reparto | 12 meses | 12 meses | 12 meses |
+| Meses para caso dormido | 6 | 6 | 6 |
+| Segmentos de población | Unión de los de sus centros | Unión de los de sus centros | Unión de los de sus centros |
+| Permite restricción en centro | No | No | No |
+
+«Quien abre» es el comportamiento actual de staging: así la migración no cambia cómo funciona nada. El sorteo se activa después desde la ficha del tipo y solo afecta a las historias nuevas (RN-07). Prestaciones: el catálogo del tipo es el de `prestacion_tipo_centro`; lo que haya en `centro_prestacion` se descarta.
 
 Después de migrar:
 
 - Sustituye cada lectura del paso 0.5 por `ConfiguracionEfectivaCentro` (paso 4).
-- Las columnas y tablas del centro dejan de escribirse y de leerse. Pregunta antes de eliminarlas.
+- **Eliminación de lo que pasa al tipo** (sustituye a «pregunta antes de eliminar» en los pasos 2, 3, 5 y 6): en una migración posterior a la de datos, y después de comprobar con `grep` que nada los lee fuera de las migraciones, se eliminan:
+  - `centros.inscripcion_libre`, `centros.tipo_centro` (varchar), `centros.modo_asignacion_referencia`, `centros.ventana_reparto_meses`, `centros.meses_inactividad_caso` y `centros.horario` (JSON; pasa a ser un accesor calculado);
+  - las tablas `centro_segmento_poblacion` y `centro_prestacion`;
+  - las columnas varchar `prestacion_tipo_centro.tipo_centro` y `asignaciones_centro.tipo_centro`.
+
+  El `down()` las recrea vacías. Las entradas del catálogo `centro.tipo` se dejan con `activo = false`.
+- **Formularios:** `CentroResource` no muestra campos editables de esas propiedades; las enseña en lectura con el valor del tipo y un enlace a la ficha del tipo. Los servicios rechazan cualquier petición que intente fijarlas en un centro.
 
 ## Paso 4 — `ConfiguracionEfectivaCentro`
 
@@ -203,6 +224,8 @@ En rama A, los servicios de asignación (`ResolucionCentroService`, `AsignacionC
 
 Validación: sin solape de vigencias por tipo. Versionado con Versionable.
 
+Horario inicial de cada tipo (addenda §6.1): el más frecuente entre sus centros (en empate, el del centro con menor `id`); si un tipo no tiene centros con horario, L-V 9:00-14:00. Los `HorarioCentro` existentes quedan como horario propio (`hereda_horario_tipo = false`).
+
 ### `horarios_centro` (ampliación)
 
 - `hereda_horario_tipo` boolean. Los registros existentes: false (ya tienen su horario). Los nuevos: true por defecto.
@@ -231,7 +254,7 @@ Validación: sin solape de vigencias por tipo. Versionado con Versionable.
 - Sustituye las lecturas de los campos de horario de `horarios_centro` (paso 0.5) por `ConfiguracionEfectivaCentro::horario()` y `dia()`.
 - La generación de cuadrantes y slots no genera slots en días cerrados y recorta los de días con horario reducido.
 - Al guardar un cierre (de tipo o de centro), la acción devuelve el número de citas confirmada afectadas por centro y lo muestra como aviso. No cancela citas ni slots.
-- `centros.horario` (JSON) pasa a ser un accesor calculado del horario efectivo. Pregunta antes de eliminar la columna.
+- `centros.horario` (JSON) pasa a ser un accesor calculado del horario efectivo; la columna se elimina (paso 3, «Eliminación de lo que pasa al tipo»).
 
 ## Paso 6 — Catálogo y restricción
 
@@ -255,7 +278,7 @@ Unique (`centro_id`, `elemento_tipo`, `elemento_id`). Validación: solo se puede
 
 ### Consumidores
 
-- Sustituye las lecturas de `centro_prestacion` por `prestaciones()`. La tabla deja de escribirse; pregunta antes de eliminarla.
+- Sustituye las lecturas de `centro_prestacion` por `prestaciones()`. La tabla deja de escribirse y se elimina (paso 3, «Eliminación de lo que pasa al tipo»).
 - Apertura de plan de intervención: solo se ofrecen y se aceptan (validación en el servicio, no solo en la UI) los tipos de plan de `tiposPlan()` del centro en que se abre.
 - Selección de ficha de valoración: solo los de `tiposFicha()` del centro.
 
@@ -275,6 +298,45 @@ Unique (`centro_id`, `elemento_tipo`, `elemento_id`). Validación: solo se puede
   - update: administrador; o director del centro, limitado a los campos de §9 del diseño funcional (contacto y descripción, horario, cierres propios, protocolo propio y exclusiones si el tipo lo permite).
   - Los servicios validan los campos que cambia el director y rechazan los demás aunque lleguen en la petición.
   - `tipo_centro_id`, `inscripcion_libre` y el resto de propiedades "solo tipo" no son editables desde el centro por nadie.
+
+## Paso 8 bis — Ámbito por las dos jerarquías (addenda §3.4)
+
+1. Servicio `App\Services\AmbitoUsuario` (cache por petición), único punto de cálculo:
+   - `uoIds(User): array` — UO de las adscripciones vigentes y sus descendientes orgánicas, **más** las UO de los centros activos cuyo `tipo_centro.unidad_organizativa_id` esté entre esas UO orgánicas.
+   - `incluyeCentro(User, Centro): bool`.
+   - `centrosEnAmbito(User): Collection`.
+2. `User::uoSubtreeIds()` delega en `AmbitoUsuario::uoIds()` (o se sustituye en sus consumidores; elige lo que menos toque y explícalo en el CHANGELOG). **Todos** los consumidores del punto 11 del paso 0 pasan por él. Nadie más calcula ámbitos.
+3. Analítica: `UnidadOrganizativa::centrosDependientes(string $jerarquia = 'ambas')` (`organica` / `funcional` / `ambas`), con la misma lógica.
+4. Rendimiento: una sola consulta por petición para el ámbito (CTE orgánica + join con `tipos_centro`). Mide el tiempo de una página con scope (p. ej. `MisCasos`) antes y después, y anótalo en el CHANGELOG.
+
+## Paso 8 ter — Centro de trabajo (addenda §3.5)
+
+1. `CentroDeUsuario` pasa a ofrecer:
+   - `centros(User): Collection` — centros cuya UO es una adscripción vigente directa del usuario (no descendientes ni ámbito funcional).
+   - `centroActivo(User): ?Centro` — el elegido en la sesión, si sigue estando en `centros()`; si no, el del perfil horario del usuario para hoy; si no, el único de `centros()`; si no, `null`.
+   - `elegir(User, Centro): void` — guarda la elección en la sesión. Rechaza un centro que no esté en `centros()`.
+   - `supervisa(User, Centro): bool` — rol `supervision` y `AmbitoUsuario::incluyeCentro()` (D1.8).
+2. Sustituye cada uso del punto 12 del paso 0. En cada uno, si la pantalla u operación tiene un centro de contexto, usa ese; si no, `centroActivo()`. Las pantallas de supervisión que exigen centro (bandeja de asignaciones, reparto, cuadrante, Mi equipo) muestran un selector con `centrosEnAmbito()` cuando el supervisor tiene más de uno.
+3. **RN-15 en el servidor:** cada punto de entrada del punto 13 del paso 0 comprueba que el usuario está adscrito al centro de la operación. Si no, rechaza con el mensaje «Para atender a ciudadanos tienes que estar adscrito a un centro.» (o «…a este centro.» si tiene otros). Ocultar botones no basta.
+4. **Barra superior** (`operativo-shell`): «Tipo · Centro» del centro activo (siglas del tipo y nombre del centro, por la denominación vigente); selector si `centros()` tiene más de uno; nombre de la UO sin selector si no tiene centros. Sin colores por tipo (aplazado). Componentes y clases según el design system y el catálogo de UI.
+5. Perfil horario por defecto (`agenda:horarios-por-defecto`): un perfil por adscripción a centro, no por usuario.
+
+## Paso 8 quater — Personas protegidas (addenda §7.3)
+
+1. `AmbitoUsuario`: nuevo método `gestionaProtegido(User, Ciudadano|HistoriaSocial): bool`. Es verdadero si la UO de la historia está entre las adscripciones **directas** vigentes del usuario.
+2. `CiudadanoPolicy` (`view`, `update` y el resto de métodos con nivel 1), `HistoriaSocialPolicy`, `AmbitoUoScope` y `AccesoExpediente`: para personas protegidas, nivel 1 solo con `gestionaProtegido()`; en otro caso, el camino de consulta externa (acceso aprobado vigente). Para personas no protegidas, sin cambios (ámbito de RN-13).
+3. Resolución de accesos en `AprobacionesPage`, pestaña «Accesos a expedientes»: aprobar (con fecha de caducidad; por defecto, la configurada) o denegar (con motivo). Solo el resolutor de RN-18; validado en el servidor. Se avisa al solicitante. Todo queda auditado.
+4. El aviso de una solicitud nueva va al resolutor de RN-18, no «al supervisor de la UO».
+5. Bandeja de asignaciones según RN-19.
+
+Hechos que no hay que redescubrir (addenda §7.2): `CiudadanoPolicy::view()` da nivel 1 si la UO de la historia está en `uoSubtreeIds()`, sea o no persona protegida; `BuscarCiudadanoPage` crea la solicitud (`AccesoProtegido`, `pendiente`) y avisa «al supervisor de la UO»; `AprobacionesPage` tiene la pestaña «Accesos a expedientes» pero no hay acción para aprobar o denegar accesos, y ningún código pone un `AccesoProtegido` en `aprobado`.
+
+## Paso 8 quinquies — Bajas de profesionales (addenda §8.2)
+
+1. Busca todas las vías de borrado de `User` y `Profesional` (acciones de Filament, policies `delete`/`forceDelete`, servicios, comandos) y elimínalas o haz que la policy las deniegue. Sustitúyelas por «Desactivar» donde haya acción de borrado. **Si quitar `SoftDeletes` de los modelos afecta a datos existentes, pregunta antes.**
+2. En el servicio que cierra adscripciones (localízalo en el paso 0) y en la desactivación de usuarios, aplica RN-21 y RN-22 en el servidor, con un mensaje que diga cuántos casos y citas quedan, y enlaces a «Repartir casos» y a la gestión de la ausencia.
+3. Comprueba que la asignación de referencia queda ligada al centro (historia + centro) y que nada en el cambio de adscripción la toca (RN-23). Si no es así, detente e informa.
+4. Cierra en el BACKLOG «Borrar un usuario con casos vigentes» con esta decisión.
 
 ## Paso 9 — Interfaz
 
@@ -303,16 +365,16 @@ Antes de cualquier Blade o Filament: design system y `2026-09-bootstrap-unico.md
 
 - Implementa los tests de `docs/instrucciones-cli/2026-10-tipo-centro-tests.md`.
 - Ejecuta los filtros de Centro, Agenda, Prestacion, Intervencion y, en rama A, los tests de asignación (TF-ASG); después la suite completa. No des la fase por terminada con fallos nuevos.
-- Actualiza los documentos de `modulo-tipo-centro.md` §11.
+- Actualiza los documentos de `modulo-tipo-centro.md` §11, incluidos `modulo-centros.md` §2.2, `modulo-usuarios-permisos.md` («Ámbito por UO») y `propuesta-requisitos-y-tareas-guiadas.md` §3 (addenda §2.7).
 - `docs/documentacion-proyecto.md`: secciones de Centros, Agenda y Prestaciones.
 - `CHANGELOG.md`, con la rama seguida (A o B), el mapeo de tipos aplicado y las decisiones de implementación que no estaban en estas instrucciones.
-- `BACKLOG.md`: decisiones pendientes de `modulo-tipo-centro.md` §13; columnas y tablas retiradas pendientes de eliminar; en rama B, el ajuste pendiente de `2026-09-asignacion-implementacion.md`.
+- `BACKLOG.md`: decisiones pendientes de `modulo-tipo-centro.md` §13; en rama B, el ajuste pendiente de `2026-09-asignacion-implementacion.md`. Cierra «Perfil horario por defecto: pendientes» en lo que toca a varias UO con varios centros, la decisión D1 del plan, «Bandeja de asignaciones con protegidos» (RN-19) y «Borrar un usuario con casos vigentes» (D5).
 - Añade este fichero y el de tests a la tabla de `CLAUDE.md` (sección 6). Actualiza `SESSION.md`.
 
 ## Criterios de finalización
 
 - Tests existentes de los módulos afectados sin fallos nuevos.
-- TF-TCE-01 a TF-TCE-34 implementados y pasando.
+- TF-TCE-01 a TF-TCE-59 implementados y pasando.
 - Suite completa sin fallos nuevos.
 - Ninguna lectura de `centros.inscripcion_libre`, `centro_prestacion`, `centro_segmento_poblacion`, `centros.horario` ni de los campos de horario de `horarios_centro` fuera de `ConfiguracionEfectivaCentro` y de las migraciones (verificable con grep; indica el resultado en el CHANGELOG).
 - Todos los centros con `tipo_centro_id`; ninguna fila de `prestacion_tipo_centro` sin `tipo_centro_id`.
