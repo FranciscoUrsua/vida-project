@@ -11,8 +11,10 @@ use App\Models\User;
 use App\Services\PresentacionPersona;
 use App\Services\AccesoExpediente;
 use App\Queries\AccesosExpedienteQuery;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -245,17 +247,17 @@ class FichaCiudadanoPage extends Component
     }
 
     /**
-     * El rol supervision tiene acceso de solo lectura. Todos los demás con acceso pueden editar.
+     * Indica si el usuario puede editar los datos de la persona, para ofrecer o no la edición.
+     *
+     * Delega en CiudadanoPolicy::update, el mismo criterio con el que guardar() autoriza:
+     * ámbito de la UO propia (o persona sin historia); fuera de él, solo lectura.
      *
      * @return bool
      */
     #[Computed]
     public function puedeEditar(): bool
     {
-        /** @var User $user */
-        $user = auth()->user();
-
-        return $user->hasAnyRole(['intervencion', 'tramitacion', 'consulta_basica']);
+        return Gate::allows('update', $this->ciudadano);
     }
 
     /**
@@ -639,17 +641,17 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Valida, normaliza y persiste los campos de Capa 1.
-     * Solo si puedeEditar. DireccionObserver procesará geocodificación si cambia direccion_texto.
+     * Autoriza con CiudadanoPolicy::update (403 si no puede editar).
+     * DireccionObserver procesará geocodificación si cambia direccion_texto.
      *
-     *
+     * @throws AuthorizationException
      * @throws ValidationException
+     *
      * @return void
      */
     public function guardar(): void
     {
-        if (! $this->puedeEditar) {
-            return;
-        }
+        Gate::authorize('update', $this->ciudadano);
 
         $this->validate([
             'nombre' => 'required|string|max:100',

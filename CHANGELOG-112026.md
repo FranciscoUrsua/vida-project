@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-11-12 — Privacidad: edición de la ficha por policy (B3 de estabilización)
+
+### Cambios
+- `FichaCiudadanoPage::guardar()` autoriza con `Gate::authorize('update', $ciudadano)` (403 si no puede); antes volvía en silencio si el rol no editaba. `puedeEditar()` (botón «Editar datos», `activarEdicion()`, alta de documentos de identidad) delega en la misma policy.
+- **Corregido en `CiudadanoPolicy`:** `obtenerHistoriaPrincipal()` buscaba la historia **con** `AmbitoUoScope`. Con sesión iniciada, la historia de otra UO no aparecía y `update()`/`delete()` la tomaban por «sin historia», que permiten: cualquier usuario con `ciudadano.editar` podía editar (también por `DocumentosCiudadano` y `CiudadanoService`) o dar de baja a una persona de otra UO. Ahora se busca sin el scope. `view()` no cambia de resultado (la historia ajena ya caía en la consulta externa).
+- `CiudadanoPolicy::update()`: `supervision` solo bloquea si el usuario no tiene otro rol con `ciudadano.editar` (nuevo `otroRolConcede()`).
+- `docs/modulo-usuarios-permisos.md` §4.5: la regla de edición.
+- Tests: `tests/Feature/Acceso/GuardarFichaPolicyTest.php`, TF-ACC-19, 20 (por `intervencion`, `tramitacion` y `consulta_basica`, con historia en su UO y sin historia), 20 bis (otra UO, no protegida: solo lectura; `update` y `delete` denegados), 20 ter (solo supervisión) y 20 quater (supervisión + intervención edita). **En negativo** (sin los cambios) fallan 19, 20 bis, 20 ter y 20 quater; el 20 pasa antes y después (sin cambio para los roles que editan en su UO). 20 bis falló también con solo el cambio de la ficha: así apareció el fallo del scope.
+- Suites: `tests/Feature/Acceso`, `AutorizacionDatosTest`, `tests/Feature/Auth`, `Modules/Ciudadania/tests`, `Modules/Documentos/tests` y `Modules/Intervencion/tests`: 588 passed, 2 incomplete, 1 skipped, 1 failed (el previo `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso`, FK de `audits.ciudadano_id`, ya en el BACKLOG). PHPStan sin errores nuevos en la policy y la ficha (quedan los dos de `$citaVinculable`, falso positivo de `#[Computed]`).
+
+### Decisiones (del desarrollador, 2026-11-12, al detectar diferencias entre la policy y `puedeEditar()`)
+- **Fuera de la UO manda la policy:** una persona no protegida de otra UO (consulta libre, nivel 2) se ve pero no se edita, igual que un protegido con acceso aprobado. Hasta ahora `intervencion`, `tramitacion` y `consulta_basica` podían editarla desde la ficha.
+- **Supervisión con otro rol que edita, edita.** Solo en `update()`; `create()` y `delete()` quedan como estaban (al BACKLOG).
+- Visto y llevado al BACKLOG: las relaciones de la ficha siguen decidiéndose por rol (`puedeEditarRelaciones()`).
+
 ## 2026-11-12 — Privacidad: `VerFichaPage` y la historia de la ruta (B2 de estabilización)
 
 ### Cambios

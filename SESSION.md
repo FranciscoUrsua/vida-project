@@ -1,12 +1,14 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-12 (`VerFichaPage` y la historia de la ruta, punto B2 de `2026_11_estabilizacion_y_privacidad.md`)
+**Última actualización:** 2026-11-12 (edición de la ficha por policy, punto B3 de `2026_11_estabilizacion_y_privacidad.md`)
 
 ---
 
 ## Tarea completada
 
-**`VerFichaPage` y la historia de la ruta (B2 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-12): `Ficha::perteneceAHistoria()` (por `historia_id`; por la valoración solo si es nulo) y 404 sin datos en `VerFichaPage::mount()` tras autorizar la historia. TF-ACC-17, 18 y 18 bis (`tests/Feature/Acceso/VerFichaHistoriaTest.php`; 17 y 18 bis comprobados en negativo). Detalle en `CHANGELOG-112026.md`.
+**Edición de la ficha por policy (B3 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-12): `FichaCiudadanoPage::guardar()` con `Gate::authorize('update')` y `puedeEditar()` por la policy; corregido `CiudadanoPolicy::obtenerHistoriaPrincipal()` (con el scope de UO tomaba la historia ajena por «sin historia» y dejaba editar y dar de baja a personas de otra UO). Decisiones del desarrollador: fuera de la UO, solo lectura; supervisión con otro rol que edita, edita. TF-ACC-19 a 20 quater. Detalle en `CHANGELOG-112026.md`.
+
+Antes: **`VerFichaPage` y la historia de la ruta (B2 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-12): `Ficha::perteneceAHistoria()` (por `historia_id`; por la valoración solo si es nulo) y 404 sin datos en `VerFichaPage::mount()` tras autorizar la historia. TF-ACC-17, 18 y 18 bis (`tests/Feature/Acceso/VerFichaHistoriaTest.php`; 17 y 18 bis comprobados en negativo). Detalle en `CHANGELOG-112026.md`.
 
 Antes: **Personas relacionadas protegidas (B1 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`)** (2026-11-11): `App\Services\PresentacionPersona` en ficha, expediente, plan (pantalla y PDF), alta de documentos, buscadores y bandeja; las acciones sobre una relación o un conviviente protegido que no se puede ver no se ofrecen y el servidor las rechaza. TF-ACC-PR-01 a 08 (comprobados en negativo). Detalle en `CHANGELOG-112026.md`.
 
@@ -28,7 +30,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 
 ## Estado exacto del proyecto
 
-- **Únicos cambios de código desde el 2026-10-02:** `User::nombreVisible()` y vistas asociadas, el diagnóstico de fallos de `SaneadorPdf`, los rechazos `fichero_vacio`/`pdf_sin_contenido` de la ingesta, `PresentacionPersona` (todo 2026-11-11) y la comprobación de historia de `VerFichaPage` (2026-11-12). Lo posterior (Tipo de Centro, roles `consulta_basica`/`tramitacion`, revisión de citas, requisitos y tareas guiadas) es solo análisis, ya incorporado a `docs/`. Lo que sigue describe el estado a 2026-10-02 y sigue vigente.
+- **Únicos cambios de código desde el 2026-10-02:** `User::nombreVisible()` y vistas asociadas, el diagnóstico de fallos de `SaneadorPdf`, los rechazos `fichero_vacio`/`pdf_sin_contenido` de la ingesta, `PresentacionPersona` (todo 2026-11-11) la comprobación de historia de `VerFichaPage` y la edición de la ficha por `CiudadanoPolicy::update` (2026-11-12). Lo posterior (Tipo de Centro, roles `consulta_basica`/`tramitacion`, revisión de citas, requisitos y tareas guiadas) es solo análisis, ya incorporado a `docs/`. Lo que sigue describe el estado a 2026-10-02 y sigue vigente.
 - **⚠️ La BD local y la de staging son la misma** (`vida@127.0.0.1`, ver `BACKLOG.md`). Todo lo que se migre o cargue «en local» ocurre en staging. **No lanzar `demo:reset` desde local.**
 - **Migraciones de citas** (`2026_09_30_120001` a `120006`): se aplican en la BD compartida con el push del 2026-10-01. Crean `tipos_cita` (con un tipo genérico `cita` para las citas existentes), `solicitudes_cita`, `cita_eventos` (trigger que rechaza UPDATE y DELETE) y `cita_acompanantes`; amplían `citas`, `plan_apuntes`, `registros_atencion` y `horarios_centro`; **eliminan `tipos_slot.genera_apunte_automatico`**; crean los permisos `citas.*`.
 - Para probar citas en staging: el centro necesita horario con tipos de slot enlazados a tipos de cita (Filament: `TipoCitaResource` y sección «Citas» de `HorarioCentroResource`), cuadrante publicado y slots; y el usuario, los permisos `citas.*` que correspondan. Los mundos demo no tienen agenda.
@@ -40,6 +42,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 - **Perfiles por defecto en el CIAM (UO 13):** se crean con `agenda:horarios-por-defecto --centro=13` tras el despliegue (ver CHANGELOG). Hecho: 9 perfiles pendientes de verificar + 1 previo (comprobado el 2026-10-02). Los demás centros no se completan por ahora: al desarrollador solo le preocupa el CIAM.
 - **AppArmor:** qpdf y gs están confinados; las reglas locales (`/etc/apparmor.d/local/{qpdf,gs}`) cubren `/var/www/.../storage/app/tmp` y, en el repositorio local, `storage/framework/testing` y `storage/app/tmp`. Revisar tras cada `apt upgrade` (BACKLOG).
 - **Tests:**
+  - 2026-11-12, B3: Acceso, Auth, `AutorizacionDatosTest`, Ciudadanía, Documentos e Intervención: 588 passed, 2 incomplete, 1 skipped y el fallo previo de `AutorizacionDatosTest` (FK de `audits`).
   - 2026-11-12, B2: `tests/Feature/Acceso` y los tests de Intervención y Mensajes que usan `Ficha`: 177 passed, 1 incomplete (previo).
   - 2026-11-11, B1: Acceso, Ciudadanía, Supervisión, Agenda, Intervención y `DocumentosCiudadanoTest`: 657 passed, 1 incomplete (previo) y 1 fallo propio (`RelacionesUiTest`, corregido). Tras los retoques finales, Acceso + Livewire de Intervención: 198 passed, 1 incomplete. `ui:auditar` sin infracciones.
   - 2026-11-11, Supervisión (A2): `Modules/Supervision/tests` 38 passed; ya forman parte de la suite `Feature`.
@@ -61,7 +64,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 
 ## Siguiente paso concreto recomendado
 
-0. **Seguir `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`:** hechos A3, A1, A2 y A5 (bloque A completo; A4 aplazado por el desarrollador hasta la 1.0: la BD compartida local/staging se mantiene a propósito). Hechos B1 y B2. Siguiente: **B3** (`guardar()` de la ficha por `CiudadanoPolicy::update`), después B4; A4 espera la confirmación del desarrollador. Tras el despliegue de A1, probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (prueba rápida de `decisiones-tecnicas.md` §14).
+0. **Seguir `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`:** hechos A3, A1, A2 y A5 (bloque A completo; A4 aplazado por el desarrollador hasta la 1.0: la BD compartida local/staging se mantiene a propósito). Hechos B1, B2 y B3. Siguiente: **B4** (búsqueda por documento en el buscador principal); A4 espera la confirmación del desarrollador. Tras el despliegue de A1, probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (prueba rápida de `decisiones-tecnicas.md` §14).
 1. **El desarrollador prueba en staging asignación y citas** (pendiente desde el 2026-10-01; las pantallas solo se han probado con tests).
    - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto. **Configurar igual todos los centros del mismo tipo:** el paso 3 de Tipo de Centro aborta si difieren.
    - Citas: bandeja de citación, cita directa, detalle con reprogramar y cancelar, agenda del profesional, «Solicitar cita» en Intervención, *Atender* → registro de atención → «Dar cita».

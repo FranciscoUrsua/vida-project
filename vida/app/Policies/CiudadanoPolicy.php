@@ -8,6 +8,7 @@ use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Policy de autorización para el modelo Ciudadano.
@@ -101,16 +102,21 @@ class CiudadanoPolicy
     /**
      * Decide si el usuario puede editar el ciudadano.
      *
-     * La edición solo está permitida dentro del ámbito de UO del usuario.
-     * El rol supervision no puede editar.
+     * La edición solo está permitida dentro del ámbito de UO del usuario (nivel 1)
+     * o sobre una persona sin historia; fuera de él, la consulta es de solo lectura,
+     * también para un colectivo protegido con acceso aprobado.
+     * El rol supervision no edita, salvo que el usuario tenga además otro rol que
+     * conceda la edición (decisión del 2026-11-12, B3 de estabilización).
      *
      * @param User $usuario Usuario autenticado.
      * @param Ciudadano $ciudadano Ciudadano objetivo.
+     *
+     * @return bool
      */
     public function update(User $usuario, Ciudadano $ciudadano): bool
     {
-        // supervision: solo lectura
-        if ($usuario->hasRole('supervision')) {
+        // supervision: solo lectura, salvo que otro rol del usuario edite
+        if ($usuario->hasRole('supervision') && ! $this->otroRolConcede($usuario, self::PERMISO_EDITAR, 'supervision')) {
             return false;
         }
 
@@ -194,6 +200,26 @@ class CiudadanoPolicy
     // -------------------------------------------------------------------------
 
     /**
+     * Indica si algún rol del usuario distinto del excluido concede el permiso.
+     *
+     * Sirve para que una restricción de rol (supervision: solo lectura) no anule
+     * lo que el usuario puede hacer por otro de sus roles.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @param string $permiso Permiso atómico.
+     * @param string $rolExcluido Rol que no cuenta.
+     *
+     * @return bool
+     */
+    private function otroRolConcede(User $usuario, string $permiso, string $rolExcluido): bool
+    {
+        return $usuario->roles()
+            ->where('name', '!=', $rolExcluido)
+            ->whereHas('permissions', fn (Builder $permisos) => $permisos->where('name', $permiso))
+            ->exists();
+    }
+
+    /**
      * Resuelve el acceso en consulta libre (Nivel 2).
      *
      * Si el ciudadano pertenece a un colectivo especialmente protegido,
@@ -209,10 +235,15 @@ class CiudadanoPolicy
      *
      * Devuelve la Historia Social más reciente y activa del ciudadano,
      * que determina a qué UO pertenece funcionalmente.
+     *
+     * Sin AmbitoUoScope: con el scope, la historia de otra UO no se encuentra y se
+     * confundía con «sin historia», que update() y delete() permiten (corregido el
+     * 2026-11-12, B3 de estabilización).
      */
     private function obtenerHistoriaPrincipal(Ciudadano $ciudadano): ?HistoriaSocial
     {
-        return HistoriaSocial::where('ciudadano_id', $ciudadano->id)
+        return HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)
+            ->where('ciudadano_id', $ciudadano->id)
             ->whereIn('estado', ['abierta', 'en_seguimiento'])
             ->latest()
             ->first();

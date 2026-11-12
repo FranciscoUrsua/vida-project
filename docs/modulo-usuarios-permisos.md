@@ -431,6 +431,8 @@ Cada recurso sensible (HistoriaSocial, Apunte, PlanDeIntervencion, Ciudadano) ti
 3. Si es consulta libre: ¿el ciudadano pertenece a un colectivo especialmente protegido?
 4. Si es colectivo protegido: ¿existe una aprobación de acceso vigente para este usuario y este ciudadano?
 
+**Edición de los datos del ciudadano (`CiudadanoPolicy::update`, 2026-11-12):** solo en el nivel 1 o sobre una persona sin historia. En consulta libre (nivel 2) y con acceso aprobado a un colectivo protegido (nivel 3) la ficha es de solo lectura. La UO de la persona se toma de su historia **sin** el scope de UO (con él, la historia de otra UO pasaba por «sin historia» y se permitía editar). El rol `supervision` no edita, salvo que el usuario tenga además otro rol con `ciudadano.editar`. La ficha (`FichaCiudadanoPage::guardar()` y el botón «Editar datos») autoriza con esta misma policy.
+
 ### 4.6 Backoffice de administración
 
 El backoffice de usuarios y permisos debe ofrecer:
