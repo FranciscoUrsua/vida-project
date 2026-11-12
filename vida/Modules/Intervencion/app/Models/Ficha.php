@@ -102,6 +102,35 @@ class Ficha extends Model
     }
 
     /**
+     * Indica si la ficha es de la historia social dada, para no mostrar por id una ficha ajena.
+     *
+     * La ficha guarda su historia en historia_id (flujo de RegistrarValoracionPage).
+     * Solo si historia_id es nulo se toma la historia de su valoración formal; si
+     * tampoco hay valoración, la ficha no pertenece a ninguna historia.
+     *
+     * @param int $historiaId Identificador de la historia social.
+     *
+     * @return bool
+     */
+    public function perteneceAHistoria(int $historiaId): bool
+    {
+        if ($this->historia_id !== null) {
+            return (int) $this->historia_id === $historiaId;
+        }
+
+        if ($this->valoracion_id === null) {
+            return false;
+        }
+
+        // Sin scopes: la historia de la página ya se ha autorizado; aquí solo se compara el id
+        $historiaDeValoracion = Valoracion::withoutGlobalScopes()
+            ->whereKey($this->valoracion_id)
+            ->value('historia_id');
+
+        return $historiaDeValoracion !== null && (int) $historiaDeValoracion === $historiaId;
+    }
+
+    /**
      * Fichas de un tipo concreto para una historia, ordenadas de más reciente a más antigua.
      *
      * @param Builder<self> $query Consulta base.

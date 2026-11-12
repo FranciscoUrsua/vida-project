@@ -52,11 +52,13 @@ Módulos: transversal
 **Acceso a expedientes: pendientes tras AccesoExpediente** — 2026-10-02
 Módulo: Ciudadanía / Intervención / Supervisión
 - ~~**Personas relacionadas sin filtro de protegido:**~~ Cerrado el 2026-11-11 (B1, TF-ACC-PR-01 a 08): `App\Services\PresentacionPersona` en ficha, expediente, plan (pantalla y PDF), alta de documentos, buscadores y bandeja; acciones rechazadas en servidor. Ver `CHANGELOG-112026.md`.
-- **`VerFichaPage` no comprueba que la ficha pertenezca a la historia** de la ruta: `/intervencion/ciudadano/{historia}/ficha/{ficha}` autoriza la historia, pero pinta cualquier `Ficha` por id.
+- ~~**`VerFichaPage` no comprueba que la ficha pertenezca a la historia**~~ Cerrado el 2026-11-12 (B2, TF-ACC-17, 18 y 18 bis): `Ficha::perteneceAHistoria()` en `mount()`; una ficha de otra historia responde 404 sin datos. Ver `CHANGELOG-112026.md`.
 - **Búsqueda por documento en `BuscarCiudadanoPage`:** sigue sin implementar (`buscarPorIdentificador()` devuelve vacío) aunque `ciudadano_identificadores` existe; `BuscadorPersonasCita` ya busca por hash.
 - **Bandeja de asignaciones con protegidos:** el supervisor ve «Persona con protección especial» y puede resolver la entrada sin saber de quién es. Decidir si la bandeja de la UO responsable debe verla siempre (hoy sin historia la policy pide acceso aprobado).
 - **`AuditarAccesoCiudadano`** ya no cubre ninguna ruta útil (la ficha audita en el servicio). Valorar retirarlo o aplicarlo a las rutas `{historia}` como red de seguridad sin duplicar filas.
 - **`guardar()` de la ficha** sigue decidiendo por rol (`puedeEditar`), no por `CiudadanoPolicy::update`.
+- **`VerFichaPage`: el autor de la ficha nunca se muestra** (2026-11-12, visto en B2): la vista lee `$ficha->profesional?->name`, pero `Ficha` no tiene relación `profesional` y siempre sale «—». Además, `RegistrarValoracionPage` guarda `profesional_id = auth()->id()` (id de usuario), así que la relación sería con `User` y el nombre, `nombreVisible()`. Fuera del alcance de B2.
+- **`Ficha`: doble vínculo con la historia** (2026-11-12): `historia_id` (el que se usa) y `valoracion_id` (nulo en todas las fichas de la BD compartida a 2026-11-12, 11 fichas). `perteneceAHistoria()` usa la valoración solo si `historia_id` es nulo. Cuando se cierre el TODO de vincular siempre a `Valoracion`, mantener `historia_id` o derivarlo, pero no dejar dos fuentes que puedan discrepar.
 
 ---
 

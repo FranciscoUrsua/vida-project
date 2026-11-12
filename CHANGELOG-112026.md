@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-11-12 — Privacidad: `VerFichaPage` y la historia de la ruta (B2 de estabilización)
+
+### Cambios
+- `Ficha::perteneceAHistoria(int $historiaId): bool`: la ficha es de la historia de su `historia_id`; solo si es nulo, de la historia de su valoración (`valoracion_id`); sin ninguno de los dos, de ninguna.
+- `VerFichaPage::mount()`: tras autorizar la historia por `AccesoExpediente`, `abort_unless($ficha->perteneceAHistoria(...), 404)`. La respuesta 404 no lleva nada de la ficha. Orden: primero la historia (403 y auditoría como siempre), después la ficha.
+- Docblocks de `VerFichaPage` completados (`@return` de `mount()`, `nombreFicha()` y `render()`; forma del array de `camposConValor()` con `obligatorio`).
+- Tests: `tests/Feature/Acceso/VerFichaHistoriaTest.php`, TF-ACC-17, 18 y 18 bis (vínculo por valoración y ficha sin vínculo). **En negativo** (sin el `abort_unless`) fallan 17 y 18 bis; 18 comprueba lo que ya funcionaba.
+- Suites: `tests/Feature/Acceso` y los tests de Intervención y Mensajes que usan `Ficha` (12 ficheros): 177 passed, 1 incomplete (previo). PHPStan sin errores en los dos ficheros. Pint solo pide quitar el `@return bool` nuevo (regla `no_superfluous_phpdoc_tags`, pendiente de decisión desde A3); se mantiene por `CLAUDE.md`.
+
+### Decisiones
+- **Relación ficha → historia:** el modelo tiene dos vínculos (`historia_id`, que usan `RegistrarValoracionPage`, `PlanPage::fichasHistorial()` y `ContextoMensajeService`, y `valoracion_id`, nulo en las 11 fichas de la BD compartida y sin código que lo rellene salvo la factoría). Se ha tomado `historia_id` como vínculo principal y la valoración como respaldo solo cuando `historia_id` es nulo, en lugar de preguntar: no hay ninguna ficha con ambos ni con historias distintas, y la regla no admite una ficha ajena por ninguno de los dos caminos. Anotado en el BACKLOG para cuando se cierre el TODO del modelo.
+- Numeración: se usan los ids de la instrucción (TF-ACC-17 y 18); el caso de la valoración, como 18 bis.
+- Visto de paso y llevado al BACKLOG: la vista nunca muestra el autor de la ficha (`Ficha` no tiene relación `profesional`).
+
 ## 2026-11-11 — Privacidad: personas relacionadas protegidas (B1 de estabilización)
 
 ### Cambios

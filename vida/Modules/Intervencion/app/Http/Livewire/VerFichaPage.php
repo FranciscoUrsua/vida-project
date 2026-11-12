@@ -31,13 +31,21 @@ class VerFichaPage extends Component
     /**
      * Inicializa la página con la historia y la ficha solicitadas.
      *
+     * Una ficha que no es de la historia de la ruta responde 404, sin datos: la
+     * autorización es de la historia, así que no basta con conocer el id de la ficha.
+     *
      * @param HistoriaSocial $historia Historia Social propietaria de la ficha.
      * @param Ficha $ficha Ficha que se desea visualizar.
+     *
+     * @return void
      */
     public function mount(HistoriaSocial $historia, Ficha $ficha): void
     {
         // El binding de {historia} carga sin scope: policy y auditoría antes de leer nada
         $this->historiaId = app(AccesoExpediente::class)->historia(auth()->user(), $historia->id)->id;
+
+        abort_unless($ficha->perteneceAHistoria($this->historiaId), 404);
+
         $this->ficha = $ficha;
     }
 
@@ -45,7 +53,7 @@ class VerFichaPage extends Component
      * Devuelve los campos del schema_snapshot con su valor correspondiente
      * en datos[], listos para renderizar.
      *
-     * @return array<int, array{etiqueta: string, tipo: string, valor: mixed, unidad: string|null}>
+     * @return array<int, array{etiqueta: string, tipo: string, valor: mixed, unidad: string|null, obligatorio: bool}>
      */
     public function camposConValor(): array
     {
@@ -64,7 +72,9 @@ class VerFichaPage extends Component
     }
 
     /**
-     * Nombre del TipoFicha: usa schema_snapshot si está disponible, si no busca en BD.
+     * Nombre del TipoFicha de la ficha, para la cabecera.
+     *
+     * @return string
      */
     public function nombreFicha(): string
     {
@@ -73,6 +83,8 @@ class VerFichaPage extends Component
 
     /**
      * Renderiza la vista de solo lectura de la ficha.
+     *
+     * @return View
      */
     public function render(): View
     {
