@@ -2,7 +2,7 @@
 
 > Incluye la addenda D1 (11 nov 2026): `docs/instrucciones-cli/2026-11-tipo-centro-addenda-d1.md` (D1, D2, D4 y D5). La addenda prevalece donde este texto la contradiga.
 
-Módulos: Centro, Organizacion, Prestaciones, Agenda, Intervencion, Usuarios. Tipo de trabajo: evolución de módulos existentes. Diseño funcional: `docs/modulo-tipo-centro.md`. Tests asociados: `docs/instrucciones-cli/2026-10-tipo-centro-tests.md` (TF-TCE-01 a TF-TCE-59). Orden respecto a Asignación: ver paso 0.2. Esta fase puede ir antes o después de `2026-09-asignacion-implementacion.md`; el paso 0 determina la rama.
+Módulos: Centro, Organizacion, Prestaciones, Agenda, Intervencion, Usuarios. Tipo de trabajo: evolución de módulos existentes. Diseño funcional: `docs/modulo-tipo-centro.md`. Tests asociados: `docs/instrucciones-cli/2026-10-tipo-centro-tests.md` (TF-TCE-01 a TF-TCE-60). Orden respecto a Asignación: ver paso 0.2. Esta fase puede ir antes o después de `2026-09-asignacion-implementacion.md`; el paso 0 determina la rama.
 
 ## Antes de empezar
 
@@ -323,7 +323,7 @@ Unique (`centro_id`, `elemento_tipo`, `elemento_id`). Validación: solo se puede
 
 ## Paso 8 quater — Personas protegidas (addenda §7.3)
 
-1. `AmbitoUsuario`: nuevo método `gestionaProtegido(User, Ciudadano|HistoriaSocial): bool`. Es verdadero si la UO de la historia está entre las adscripciones **directas** vigentes del usuario.
+1. `AmbitoUsuario`: nuevo método `gestionaProtegido(User, Ciudadano|HistoriaSocial): bool`. Es verdadero si la UO de la historia está entre las adscripciones **directas** vigentes del usuario, **o** si el usuario tiene rol `intervencion` y la UO de la historia está en su ámbito (`uoIds()`, RN-13): salvedad de RN-17 (12 nov 2026, fase 3 F3-4). La fase 3 la extiende a los centros de los planes activos.
 2. `CiudadanoPolicy` (`view`, `update` y el resto de métodos con nivel 1), `HistoriaSocialPolicy`, `AmbitoUoScope` y `AccesoExpediente`: para personas protegidas, nivel 1 solo con `gestionaProtegido()`; en otro caso, el camino de consulta externa (acceso aprobado vigente). Para personas no protegidas, sin cambios (ámbito de RN-13).
 3. Resolución de accesos en `AprobacionesPage`, pestaña «Accesos a expedientes»: aprobar (con fecha de caducidad; por defecto, la configurada) o denegar (con motivo). Solo el resolutor de RN-18; validado en el servidor. Se avisa al solicitante. Todo queda auditado.
 4. El aviso de una solicitud nueva va al resolutor de RN-18, no «al supervisor de la UO».
@@ -374,7 +374,7 @@ Antes de cualquier Blade o Filament: design system y `2026-09-bootstrap-unico.md
 ## Criterios de finalización
 
 - Tests existentes de los módulos afectados sin fallos nuevos.
-- TF-TCE-01 a TF-TCE-59 implementados y pasando.
+- TF-TCE-01 a TF-TCE-60 implementados y pasando.
 - Suite completa sin fallos nuevos.
 - Ninguna lectura de `centros.inscripcion_libre`, `centro_prestacion`, `centro_segmento_poblacion`, `centros.horario` ni de los campos de horario de `horarios_centro` fuera de `ConfiguracionEfectivaCentro` y de las migraciones (verificable con grep; indica el resultado en el CHANGELOG).
 - Todos los centros con `tipo_centro_id`; ninguna fila de `prestacion_tipo_centro` sin `tipo_centro_id`.

@@ -233,7 +233,7 @@ La cabecera de los tests pasa a «TF-TCE-01 a TF-TCE-47» y el grupo I a «TF-TC
 
 ### 7.1 Reglas
 
-**RN-17 — Ámbito reducido para personas protegidas.** Para una persona de colectivo especialmente protegido, el ámbito de gestión (nivel 1) se limita a los usuarios **adscritos directamente a la UO del centro** de su Historia Social, según su rol. Para cualquier otro usuario, aunque el centro esté dentro de su ámbito orgánico o funcional (RN-13), la persona está fuera de ámbito: la ve como «Persona con protección especial», sin datos identificativos, y necesita un acceso aprobado y vigente.
+**RN-17 — Ámbito reducido para personas protegidas.** Para una persona de colectivo especialmente protegido, el ámbito de gestión (nivel 1) se limita a los usuarios **adscritos directamente a la UO del centro** de su Historia Social, según su rol. Para cualquier otro usuario, aunque el centro esté dentro de su ámbito orgánico o funcional (RN-13), la persona está fuera de ámbito: la ve como «Persona con protección especial», sin datos identificativos, y necesita un acceso aprobado y vigente. **Salvedad (12 nov 2026, fase 3 F3-4):** un usuario de una UO superior **con rol `intervencion`** cuyo ámbito (orgánico o funcional, RN-13) incluye el centro de la historia también tiene nivel 1 sobre ella. Los usuarios de UO superiores sin rol `intervencion` (p. ej. solo `supervision`) siguen necesitando acceso concedido (RN-18).
 
 **RN-18 — Concede el director del centro.** Las solicitudes de acceso a una persona protegida, con motivo obligatorio, las resuelve el **director vigente del centro** de su Historia Social (`DirectorCentro`). Si el centro no tiene director registrado, las resuelve quien tenga rol `supervision` adscrito directamente a la UO del centro. Nadie resuelve su propia solicitud. El acceso concedido tiene fecha de caducidad y queda auditado (`acceso_restringido`).
 
@@ -249,13 +249,13 @@ Los datos agregados (recuentos, analítica) pueden incluir a personas protegidas
 
 ### 7.3 Qué hacer (paso 8 quater de las instrucciones)
 
-1. `AmbitoUsuario` (paso 8 bis): nuevo método `gestionaProtegido(User, Ciudadano|HistoriaSocial): bool`. Es verdadero si la UO de la historia está entre las adscripciones **directas** vigentes del usuario.
+1. `AmbitoUsuario` (paso 8 bis): nuevo método `gestionaProtegido(User, Ciudadano|HistoriaSocial): bool`. Es verdadero si la UO de la historia está entre las adscripciones **directas** vigentes del usuario, **o** si el usuario tiene rol `intervencion` y la UO de la historia está en su ámbito (`AmbitoUsuario::uoIds()`, RN-13) (salvedad de RN-17).
 2. `CiudadanoPolicy` (`view`, `update` y el resto de métodos con nivel 1), `HistoriaSocialPolicy`, `AmbitoUoScope` y `AccesoExpediente`: para personas protegidas, nivel 1 solo con `gestionaProtegido()`; en otro caso, el camino de consulta externa (acceso aprobado vigente). Para personas no protegidas, sin cambios (ámbito de RN-13).
 3. Resolución de accesos en `AprobacionesPage`, pestaña «Accesos a expedientes»: aprobar (con fecha de caducidad; por defecto, la configurada) o denegar (con motivo). Solo el resolutor de RN-18; validado en el servidor. Se avisa al solicitante. Todo queda auditado.
 4. El aviso de una solicitud nueva va al resolutor de RN-18, no «al supervisor de la UO».
 5. Bandeja de asignaciones según RN-19.
 
-### 7.4 Tests (TF-TCE-48 a 54)
+### 7.4 Tests (TF-TCE-48 a 54 y 60)
 
 **TF-TCE-48 — La UO superior no ve a la persona protegida** **[negativo]**: una persona protegida con historia en `$ciamVallecas`. `$coordIgualdad` (funcional) y `$jefaJuntaVallecas` (orgánica) la ven como «Persona con protección especial», sin nombre, documento ni enlace, por scope, policy y buscador. Una persona no protegida del mismo centro sí la ven (TF-TCE-35 y 36 siguen en verde).
 
@@ -270,6 +270,8 @@ Los datos agregados (recuentos, analítica) pueden incluir a personas protegidas
 **TF-TCE-53 — Bandeja de asignaciones** **[negativo]**: una entrada de una persona protegida de `$ciamVallecas`. La supervisión adscrita al centro la ve con identidad y la resuelve; `$coordIgualdad` la ve sin identidad y la acción de resolver se rechaza en el servidor.
 
 **TF-TCE-54 — El aviso de solicitud va al director**: al crear una solicitud desde el buscador, la alerta llega a la directora de `$ciamVallecas` y no a `$coordIgualdad` ni a `$jefaJuntaVallecas`.
+
+**TF-TCE-60 — Salvedad del rol `intervencion` en UO superior** **[negativo]**: una persona protegida con historia en `$ciamVallecas`. `$tecnicaIgualdad` (`intervencion`, adscrita a `$uoIgualdad`, que tiene `$ciamVallecas` en su ámbito funcional) accede a su historia con identidad (nivel 1), por scope, policy y buscador. Con la historia en un centro fuera de su ámbito (`$cssNorte`), no. Quitarle el rol `intervencion` la deja sin acceso. `$coordIgualdad` (solo `supervision`, misma UO) sigue sin verla (TF-TCE-48). Necesita en los datos `$tecnicaIgualdad` (`intervencion`, adscrita a `$uoIgualdad`).
 
 ---
 
@@ -309,4 +311,4 @@ Los datos agregados (recuentos, analítica) pueden incluir a personas protegidas
 
 **TF-TCE-59 — Los casos no viajan**: `$psicologa` se adscribe a un tercer centro. Sus asignaciones en `$ciamVallecas` y `$ciamUsera` no cambian y no aparecen en el nuevo centro.
 
-La cabecera de los tests pasa a «TF-TCE-01 a TF-TCE-59». Añade a la tabla de estado «J — Personas protegidas | TF-TCE-48..54» y «K — Bajas de profesionales | TF-TCE-55..59».
+La cabecera de los tests pasa a «TF-TCE-01 a TF-TCE-60». Añade a la tabla de estado «J — Personas protegidas | TF-TCE-48..54 y 60» y «K — Bajas de profesionales | TF-TCE-55..59».

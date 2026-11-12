@@ -2,7 +2,7 @@
 
 > Incluye la addenda D1 (11 nov 2026): `docs/instrucciones-cli/2026-11-tipo-centro-addenda-d1.md` (D1, D2, D4 y D5).
 
-TF-TCE-01 a TF-TCE-59. Diseño funcional: `docs/modulo-tipo-centro.md`. Instrucciones de implementación: `docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`.
+TF-TCE-01 a TF-TCE-60. Diseño funcional: `docs/modulo-tipo-centro.md`. Instrucciones de implementación: `docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`.
 
 Especificaciones de comportamiento, no código. Claude CLI implementa cada test siguiendo los patrones del proyecto y rellena la tabla de estado del final.
 
@@ -35,7 +35,7 @@ Estructura organizativa (addenda D1, §4.1):
 - `$uoArea`, con `$uoPrimaria` y `$uoIgualdad` como hijas orgánicas; `$uoJuntaNorte` y `$uoJuntaVallecas` (UO orgánicas, sin centro).
 - Cada centro con **su UO instrumental**: `$uoCssNorte`, `$uoCssSur` (hijas orgánicas de `$uoJuntaNorte`) y `$uoCiamVallecas` (hija orgánica de `$uoJuntaVallecas`).
 - `$ciamUsera` (tipo `$tipoCiam`, UO `$uoCiamUsera`, hija de otra junta).
-- Usuarios: `$coordIgualdad` (`supervision`, adscrito a `$uoIgualdad`); `$jefaJuntaVallecas` (`supervision`, adscrita a `$uoJuntaVallecas`); `$coordPrimaria` (`supervision`, `$uoPrimaria`); `$psicologa` (`intervencion`, adscrita a `$uoCiamVallecas` y `$uoCiamUsera`, perfil horario L-M en Vallecas y X-J en Usera); `$tecnicaArea` (`intervencion`, adscrita a `$uoArea`, sin centro).
+- Usuarios: `$coordIgualdad` (`supervision`, adscrito a `$uoIgualdad`); `$jefaJuntaVallecas` (`supervision`, adscrita a `$uoJuntaVallecas`); `$coordPrimaria` (`supervision`, `$uoPrimaria`); `$psicologa` (`intervencion`, adscrita a `$uoCiamVallecas` y `$uoCiamUsera`, perfil horario L-M en Vallecas y X-J en Usera); `$tecnicaArea` (`intervencion`, adscrita a `$uoArea`, sin centro); `$tecnicaIgualdad` (`intervencion`, adscrita a `$uoIgualdad`).
 
 ## Grupo A — Tipo de centro
 
@@ -367,6 +367,10 @@ Una entrada de una persona protegida de `$ciamVallecas`. La supervisión adscrit
 
 Al crear una solicitud desde el buscador, la alerta llega a la directora de `$ciamVallecas` y no a `$coordIgualdad` ni a `$jefaJuntaVallecas`.
 
+### TF-TCE-60 — Salvedad del rol `intervencion` en UO superior [negativo]
+
+una persona protegida con historia en `$ciamVallecas`. `$tecnicaIgualdad` (`intervencion`, adscrita a `$uoIgualdad`, que tiene `$ciamVallecas` en su ámbito funcional) accede a su historia con identidad (nivel 1), por scope, policy y buscador. Con la historia en un centro fuera de su ámbito (`$cssNorte`), no. Quitarle el rol `intervencion` la deja sin acceso. `$coordIgualdad` (solo `supervision`, misma UO) sigue sin verla (TF-TCE-48).
+
 ## Grupo K — Bajas de profesionales (addenda D5)
 
 ### TF-TCE-55 — No se borra [negativo]
@@ -402,5 +406,5 @@ Sin casos, pero con una cita confirmada la semana próxima en un slot de `$ciamV
 | G — Permisos | TF-TCE-31..33 |  |
 | H — Migración | TF-TCE-34 |  |
 | I — Estructura, ámbito y centro de trabajo | TF-TCE-35..47 |  |
-| J — Personas protegidas | TF-TCE-48..54 |  |
+| J — Personas protegidas | TF-TCE-48..54 y 60 |  |
 | K — Bajas de profesionales | TF-TCE-55..59 |  |

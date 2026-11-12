@@ -7,7 +7,7 @@ Módulos afectados: Centro (tipo de centro, centro, configuración efectiva), Or
 Documentos relacionados:
 
 - Instrucciones de implementación: `docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`
-- Tests funcionales: `docs/instrucciones-cli/2026-10-tipo-centro-tests.md` (TF-TCE-01 a TF-TCE-59)
+- Tests funcionales: `docs/instrucciones-cli/2026-10-tipo-centro-tests.md` (TF-TCE-01 a TF-TCE-60)
 - Modifica: `docs/modulo-centros.md`, `docs/modulo-asignacion.md`, `docs/modulo-agenda.md`, `docs/modulo-prestaciones.md` (ver §11).
 
 ## Nota de diseño
@@ -66,7 +66,7 @@ Este diseño convierte el tipo de centro en una entidad propia. Cuatro ideas lo 
 
 **RN-16 — Centro de trabajo.** La operación toma el centro de su contexto; sin contexto, el centro activo del usuario (el elegido en la sesión o, por defecto, el de su perfil horario del día). Un profesional puede estar adscrito a varios centros, con un perfil horario en cada uno.
 
-**RN-17 — Ámbito reducido para personas protegidas.** Para una persona de colectivo especialmente protegido, el ámbito de gestión (nivel 1) se limita a los usuarios **adscritos directamente a la UO del centro** de su Historia Social, según su rol. Para cualquier otro usuario, aunque el centro esté dentro de su ámbito orgánico o funcional (RN-13), la persona está fuera de ámbito: la ve como «Persona con protección especial», sin datos identificativos, y necesita un acceso aprobado y vigente.
+**RN-17 — Ámbito reducido para personas protegidas.** Para una persona de colectivo especialmente protegido, el ámbito de gestión (nivel 1) se limita a los usuarios **adscritos directamente a la UO del centro** de su Historia Social, según su rol. Para cualquier otro usuario, aunque el centro esté dentro de su ámbito orgánico o funcional (RN-13), la persona está fuera de ámbito: la ve como «Persona con protección especial», sin datos identificativos, y necesita un acceso aprobado y vigente. **Salvedad (12 nov 2026, fase 3 F3-4):** un usuario de una UO superior **con rol `intervencion`** cuyo ámbito (orgánico o funcional, RN-13) incluye el centro de la historia también tiene nivel 1 sobre ella. Los usuarios de UO superiores sin rol `intervencion` (p. ej. solo `supervision`) siguen necesitando acceso concedido (RN-18).
 
 **RN-18 — Concede el director del centro.** Las solicitudes de acceso a una persona protegida, con motivo obligatorio, las resuelve el **director vigente del centro** de su Historia Social (`DirectorCentro`). Si el centro no tiene director registrado, las resuelve quien tenga rol `supervision` adscrito directamente a la UO del centro. Nadie resuelve su propia solicitud. El acceso concedido tiene fecha de caducidad y queda auditado (`acceso_restringido`).
 
@@ -304,7 +304,7 @@ Los usuarios con rol `supervision` cuyo ámbito incluye el centro por la jerarqu
 | D1.7 — Barra superior | Tipo y nombre del centro activo, con selector si tiene varios; sin centro, el nombre de su UO |
 | D1.8 — Supervisión de un centro | Rol `supervision` y el centro dentro de su ámbito (RN-13); las operaciones que exigen centro, sobre uno elegido |
 | D2 — Migración (11 nov 2026) | El tipo manda: la migración fija los valores del tipo, descarta los del centro y elimina sus columnas (addenda §6) |
-| D4 — Personas protegidas (11 nov 2026) | Solo las gestiona el personal adscrito al centro; las UO superiores necesitan acceso concedido por el director del centro (RN-17 a RN-19) |
+| D4 — Personas protegidas (11 nov 2026) | Solo las gestiona el personal adscrito al centro; las UO superiores necesitan acceso concedido por el director del centro (RN-17 a RN-19). Salvedad (12 nov): el rol `intervencion` de una UO superior con el centro en su ámbito sí accede |
 | D5 — Bajas de profesionales (11 nov 2026) | Sin borrado; no se sale de un centro con casos o citas pendientes; los casos son del centro (RN-20 a RN-23) |
 
 ## 13. Decisiones pendientes
