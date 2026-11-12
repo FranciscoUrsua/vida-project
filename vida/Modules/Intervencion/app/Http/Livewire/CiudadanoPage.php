@@ -13,11 +13,27 @@ use App\Services\PresentacionPersona;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Modules\Agenda\Enums\CanalSolicitudCita;
+use Modules\Agenda\Enums\DestinoCita;
+use Modules\Agenda\Enums\HerramientaCita;
+use Modules\Agenda\Enums\UrgenciaCita;
+use Modules\Agenda\Livewire\Citas\Concerns\FormularioSolicitudCita;
+use Modules\Agenda\Models\Cita;
+use Modules\Agenda\Models\SolicitudCita;
+use Modules\Agenda\Models\TipoCita;
+use Modules\Agenda\Services\Citas\AtencionCitaService;
+use Modules\Agenda\Services\Citas\ResumenCita;
+use Modules\Agenda\Services\Citas\SolicitudCitaService;
+use Modules\Centro\Models\Centro;
+use Modules\Centro\Models\Prescripcion;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Ciudadania\Enums\ImplicacionFuncional;
 use Modules\Ciudadania\Models\CiudadanoRelacion;
 use Modules\Ciudadania\Models\TipoRelacion;
@@ -39,21 +55,6 @@ use Modules\Intervencion\Models\SeguimientoPlan;
 use Modules\Intervencion\Models\TipoFicha;
 use Modules\Intervencion\Models\TipoValoracion;
 use Modules\Intervencion\Models\Valoracion;
-use Modules\Centro\Models\Prescripcion;
-use Illuminate\Validation\ValidationException;
-use Modules\Agenda\Enums\CanalSolicitudCita;
-use Modules\Agenda\Enums\DestinoCita;
-use Modules\Agenda\Enums\HerramientaCita;
-use Modules\Agenda\Enums\UrgenciaCita;
-use Modules\Agenda\Livewire\Citas\Concerns\FormularioSolicitudCita;
-use Modules\Agenda\Models\Cita;
-use Modules\Agenda\Models\SolicitudCita;
-use Modules\Agenda\Models\TipoCita;
-use Modules\Agenda\Services\Citas\AtencionCitaService;
-use Modules\Agenda\Services\Citas\ResumenCita;
-use Modules\Agenda\Services\Citas\SolicitudCitaService;
-use Modules\Centro\Models\Centro;
-use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
 use Modules\Intervencion\Services\PlanPdfService;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -283,7 +284,12 @@ class CiudadanoPage extends Component
     #[Computed]
     public function tiposFicha(): Collection
     {
-        return TipoFicha::where('activo', true)->orderBy('nombre')->get();
+        // Solo las fichas del centro en que se atiende (docs/modulo-tipo-centro.md §6.2)
+        $centro = app(CentroDeUsuario::class)->centroActivo(auth()->user());
+
+        return $centro !== null
+            ? app(ConfiguracionEfectivaCentro::class)->tiposFicha($centro)->sortBy('nombre')->values()
+            : TipoFicha::where('activo', true)->orderBy('nombre')->get();
     }
 
     /**

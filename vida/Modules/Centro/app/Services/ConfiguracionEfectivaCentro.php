@@ -10,9 +10,11 @@ use Illuminate\Support\Carbon;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Centro\Data\DiaCalendario;
 use Modules\Centro\Data\HorarioEfectivo;
+use Modules\Centro\Enums\ElementoCatalogo;
 use Modules\Centro\Enums\ModoAsignacionReferenciaCentro;
 use Modules\Centro\Enums\TipoCierre;
 use Modules\Centro\Models\CierreCalendario;
+use Modules\Centro\Models\ExclusionCatalogo;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\HorarioTipoCentro;
 use Modules\Centro\Models\TipoCentro;
@@ -272,7 +274,9 @@ class ConfiguracionEfectivaCentro
      */
     public function prestaciones(Centro $centro): EloquentCollection
     {
-        return $this->tipo($centro)->prestaciones()->where('prestaciones.activa', true)->orderBy('prestaciones.nombre')->get();
+        return $this->tipo($centro)->prestaciones()->where('prestaciones.activa', true)
+            ->whereNotIn('prestaciones.id', $this->excluidos($centro, ElementoCatalogo::Prestacion))
+            ->orderBy('prestaciones.nombre')->get();
     }
 
     /**
@@ -284,7 +288,9 @@ class ConfiguracionEfectivaCentro
      */
     public function tiposPlan(Centro $centro): EloquentCollection
     {
-        return $this->tipo($centro)->tiposPlan()->where('tipos_plan.activo', true)->orderBy('tipos_plan.nombre')->get();
+        return $this->tipo($centro)->tiposPlan()->where('tipos_plan.activo', true)
+            ->whereNotIn('tipos_plan.id', $this->excluidos($centro, ElementoCatalogo::TipoPlan))
+            ->orderBy('tipos_plan.nombre')->get();
     }
 
     /**
@@ -297,8 +303,10 @@ class ConfiguracionEfectivaCentro
     public function tiposFicha(Centro $centro): EloquentCollection
     {
         $delTipo = $this->tipo($centro)->tiposFicha()->where('tipo_fichas.activo', true)->get();
+        $fichas = $delTipo->isNotEmpty() ? $delTipo : TipoFicha::where('activo', true)->get();
+        $excluidas = $this->excluidos($centro, ElementoCatalogo::TipoFicha);
 
-        return $delTipo->isNotEmpty() ? $delTipo : TipoFicha::where('activo', true)->get();
+        return $fichas->reject(fn (TipoFicha $ficha) => in_array($ficha->id, $excluidas, true))->values();
     }
 
     /**
@@ -316,6 +324,25 @@ class ConfiguracionEfectivaCentro
             'horario' => $this->horario($centro, today())?->origen ?? 'tipo',
             default => 'tipo',
         };
+    }
+
+    /**
+     * Ids que el centro excluye del catálogo del tipo; solo si el tipo lo permite (RN-08).
+     * Las exclusiones se conservan aunque el tipo desactive la restricción.
+     *
+     * @param Centro $centro
+     * @param ElementoCatalogo $tipo
+     *
+     * @return list<int>
+     */
+    private function excluidos(Centro $centro, ElementoCatalogo $tipo): array
+    {
+        if (! $this->tipo($centro)->permite_restriccion_en_centro) {
+            return [];
+        }
+
+        return ExclusionCatalogo::where('centro_id', $centro->id)->where('elemento_tipo', $tipo)
+            ->pluck('elemento_id')->map(fn ($id) => (int) $id)->all();
     }
 
     /**

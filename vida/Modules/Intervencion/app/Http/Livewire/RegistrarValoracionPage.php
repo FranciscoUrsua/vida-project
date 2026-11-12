@@ -6,10 +6,12 @@ use App\Models\HistoriaSocial;
 use App\Services\AccesoExpediente;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
-use Livewire\Attributes\Url;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Modules\Agenda\Services\Citas\AtencionCitaService;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Enums\VisibilidadApunte;
@@ -102,6 +104,12 @@ class RegistrarValoracionPage extends Component
     #[Computed]
     public function fichasDisponibles(): array
     {
+        // Solo las fichas del centro en que se atiende (docs/modulo-tipo-centro.md §6.2)
+        $centro = app(CentroDeUsuario::class)->centroActivo(auth()->user());
+        if ($centro !== null) {
+            return app(ConfiguracionEfectivaCentro::class)->tiposFicha($centro)->sortBy('nombre')->pluck('nombre', 'id')->toArray();
+        }
+
         return TipoFicha::activos()->orderBy('nombre')->pluck('nombre', 'id')->toArray();
     }
 
@@ -130,6 +138,13 @@ class RegistrarValoracionPage extends Component
     {
         if (! $this->tipoFichaId) {
             $this->addError('tipoFichaId', 'Selecciona un tipo de ficha.');
+
+            return null;
+        }
+
+        // En el servidor, no solo en el selector
+        if (! array_key_exists((int) $this->tipoFichaId, $this->fichasDisponibles)) {
+            $this->addError('tipoFichaId', 'Esa ficha de valoración no está disponible en este centro.');
 
             return null;
         }

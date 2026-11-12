@@ -8,11 +8,14 @@ use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use App\Services\AccesoExpediente;
 use App\Services\PresentacionPersona;
+use DomainException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Ciudadania\Models\CiudadanoRelacion;
 use Modules\Ciudadania\Models\TipoRelacion;
 use Modules\Ciudadania\Models\UnidadConvivencia;
@@ -30,6 +33,7 @@ use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\PlanObjetivo;
 use Modules\Intervencion\Models\PlanObjetivoIndicador;
 use Modules\Intervencion\Models\PlanParticipante;
+use Modules\Intervencion\Services\PlanDeIntervencionService;
 use Modules\Intervencion\Services\PlanPdfService;
 use Modules\Prestaciones\Models\Prestacion;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -530,6 +534,12 @@ class PlanPage extends Component
     #[Computed]
     public function tiposPlanes(): array
     {
+        // Solo los tipos de plan del centro en que se abre (docs/modulo-tipo-centro.md §6.2)
+        $centro = app(CentroDeUsuario::class)->centroActivo(auth()->user());
+        if ($centro !== null) {
+            return app(ConfiguracionEfectivaCentro::class)->tiposPlan($centro)->pluck('nombre', 'id')->toArray();
+        }
+
         return \Modules\Intervencion\Models\TipoPlan::activos()
             ->orderBy('nombre')
             ->pluck('nombre', 'id')
@@ -1096,6 +1106,17 @@ class PlanPage extends Component
         }
 
         $historia = HistoriaSocial::findOrFail($this->historiaId);
+
+        try {
+            app(PlanDeIntervencionService::class)->exigirTipoPlanDelCentro(
+                (int) $this->tipoPlanId,
+                app(CentroDeUsuario::class)->centroActivo(auth()->user()),
+            );
+        } catch (DomainException $e) {
+            $this->addError('tipoPlanId', $e->getMessage());
+
+            return null;
+        }
 
         $plan = PlanDeIntervencion::create([
             'historia_id' => $historia->id,
