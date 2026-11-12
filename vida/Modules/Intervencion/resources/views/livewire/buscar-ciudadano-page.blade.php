@@ -32,9 +32,8 @@
             </p>
         @endif
         @if(in_array($campoBusqueda, ['doc', 'hsu']))
-            <p class="small text-warning-emphasis mt-2 mb-0">
-                {{-- TODO: implementar cuando exista la tabla ciudadano_identificadores --}}
-                La búsqueda por documento no está disponible todavía.
+            <p class="small text-body-secondary mt-2 mb-0">
+                Introduce el número completo: solo se encuentran coincidencias exactas.
             </p>
         @endif
     </div>

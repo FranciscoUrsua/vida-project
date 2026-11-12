@@ -206,3 +206,4 @@ Ficheros disponibles:
 | `2026-10-tipo-centro-implementacion.md` | Tipo de Centro como entidad: denominaciones con vigencia, herencia tipo → centro (`ConfiguracionEfectivaCentro`), horario y cierres de calendario, catálogo por tipo, evolución y bajas. Sin ejecutar; rama A |
 | `2026-10-tipo-centro-tests.md` | 34 tests de Tipo de Centro (TF-TCE-01 a 34). Sin implementar |
 | `2026-11-puesta-al-dia-documental.md` | Alineación de la documentación con lo implementado y con las decisiones de septiembre a noviembre. Hecho el 2026-11-10 |
+| `2026_11_estabilizacion_y_privacidad.md` | Fases 0 y 1 del plan de cierre: subida de documentos, tests de Supervisión, CI de calidad y formato de documentos (bloque A; A4 aplazado a la 1.0) y huecos de privacidad: personas relacionadas protegidas, `VerFichaPage`, edición por policy y búsqueda por documento (bloque B). Hecho el 2026-11-12 |

@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-11-12 — Privacidad: búsqueda por documento en el buscador principal (B4 de estabilización)
+
+### Cambios
+- `CiudadanoIdentificador::hashDe(string $valor): string` (`sha256(strtolower(valor))`, sin cambios en la normalización) y `TIPO_NI_HSU_CM`. Lo usan el propio modelo al guardar, `MotorMatching`, `BuscadorPersonasCita`, `CitacionService::identificar()` (cita externa, quinto sitio que calculaba el hash) y el buscador. En las consultas, `trim()` antes del hash.
+- `BuscarCiudadanoPage::buscarPorIdentificador()`: coincidencia exacta por hash, sin filtrar por UO, solo personas activas, máximo 50; cada resultado por `resolverResultado()` (nivel 3 sin datos para el protegido sin acceso). `doc` admite cualquier tipo; `hsu`, solo `ni_hsu_cm` (valor ya previsto en la migración de `ciudadano_identificadores`). Quitados el TODO y el aviso «no disponible todavía» de la vista, que ahora indica que solo hay coincidencias exactas.
+- `BuscarCiudadanoPageTest`, TF-LW-BUS-09: docblock y nombre al día (sin identificador no hay resultados).
+- Tests: `tests/Feature/Acceso/BusquedaPorDocumentoTest.php`, TF-ACC-21 (con espacios y minúsculas), 21 bis (otra UO en nivel 2; un número parcial no encuentra), 21 ter (`hsu` por tipo), 21 quater (documento anterior), 22 (protegido sin acceso: nivel 3, sin nombre, alias ni historia) y el hash de la consulta igual al guardado. **En negativo** (sin el cambio) fallan los seis, también 22.
+- Suites: `tests/Feature/Acceso`, `BuscarCiudadanoPageTest`, `Modules/Ciudadania/tests` y `Modules/Agenda/tests/Feature/Citas`: 218 passed. `npm run build` + `ui:auditar` sin infracciones. PHPStan sin errores nuevos (los dos de `CitacionService` son previos y en otras líneas).
+
+### Decisiones
+- **Documentos anteriores incluidos:** a diferencia de `BuscadorPersonasCita` (solo vigentes), el buscador principal encuentra también por un documento con `fecha_fin`: un NIE antiguo sigue identificando a la persona, y la coincidencia es exacta.
+- **Normalización:** no se ha cambiado (instrucción B4). Se ha visto que el alta guarda el NIE con guiones y la ficha guarda lo que se escribe, así que la búsqueda exacta depende de por dónde se guardó: al BACKLOG con la propuesta.
+
 ## 2026-11-12 — Privacidad: edición de la ficha por policy (B3 de estabilización)
 
 ### Cambios

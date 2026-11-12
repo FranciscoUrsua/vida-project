@@ -47,7 +47,7 @@ class BuscadorPersonasCita
         $consulta = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->with('documentoVigente')->where('activo', true);
 
         if (preg_match('/\d/', $termino) === 1) {
-            $ids = CiudadanoIdentificador::where('valor_hash', hash('sha256', strtolower($termino)))
+            $ids = CiudadanoIdentificador::where('valor_hash', CiudadanoIdentificador::hashDe($termino))
                 ->whereNull('fecha_fin')
                 ->pluck('ciudadano_id');
 

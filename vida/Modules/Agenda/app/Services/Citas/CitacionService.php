@@ -302,7 +302,7 @@ class CitacionService
         }
 
         $ids = CiudadanoIdentificador::query()
-            ->where('valor_hash', hash('sha256', strtolower($recibida->numeroDocumento)))
+            ->where('valor_hash', CiudadanoIdentificador::hashDe(trim($recibida->numeroDocumento)))
             ->when($recibida->tipoDocumento !== null, fn ($q) => $q->where('tipo', $recibida->tipoDocumento))
             ->whereNull('fecha_fin')
             ->distinct()

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Modules\Ciudadania\Models\CiudadanoIdentificador;
 use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Services\AlertaService;
@@ -131,19 +132,32 @@ class BuscarCiudadanoPage extends Component
     }
 
     /**
-     * Búsqueda por documento de identidad o NI-HSU-CM.
-     * Requiere tabla ciudadano_identificadores (no implementada aún).
+     * Busca por documento de identidad o por NI-HSU-CM, por coincidencia exacta.
      *
-     * TODO: implementar cuando exista la tabla ciudadano_identificadores.
+     * Compara el hash de `ciudadano_identificadores` (el valor está cifrado), sin
+     * filtrar por UO: cada resultado pasa después por resolverResultado(), que deja
+     * en nivel 3 sin datos a un colectivo protegido que la policy no deja ver.
+     * Cuentan también los documentos anteriores (con fecha de fin): un número antiguo
+     * sigue identificando a la persona. 'doc' admite cualquier tipo; 'hsu', solo NI-HSU-CM.
      *
+     * @param string $termino Texto introducido, ya sin espacios alrededor.
      * @param string $tipo 'doc' | 'hsu'
      *
-     * @return array<int, never>
+     * @return Collection<int, Ciudadano>
      */
-    private function buscarPorIdentificador(string $termino, string $tipo): array
+    private function buscarPorIdentificador(string $termino, string $tipo): Collection
     {
-        // TODO: implementar cuando exista la tabla ciudadano_identificadores
-        return [];
+        $ids = CiudadanoIdentificador::query()
+            ->where('valor_hash', CiudadanoIdentificador::hashDe(trim($termino)))
+            ->when($tipo === 'hsu', fn ($q) => $q->where('tipo', CiudadanoIdentificador::TIPO_NI_HSU_CM))
+            ->distinct()
+            ->pluck('ciudadano_id');
+
+        return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
+            ->whereKey($ids)
+            ->where('activo', true)
+            ->limit(50)
+            ->get();
     }
 
     /**

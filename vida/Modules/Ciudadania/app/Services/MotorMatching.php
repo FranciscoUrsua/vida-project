@@ -42,7 +42,7 @@ class MotorMatching
 
         // Paso 1: documento exacto
         if (! empty($datosNormalizados['valor_documento'])) {
-            $hash = hash('sha256', strtolower($datosNormalizados['valor_documento']));
+            $hash = CiudadanoIdentificador::hashDe(trim($datosNormalizados['valor_documento']));
             $id = CiudadanoIdentificador::where('valor_hash', $hash)
                 ->value('ciudadano_id');
 

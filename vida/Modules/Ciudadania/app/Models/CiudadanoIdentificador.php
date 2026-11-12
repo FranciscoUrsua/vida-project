@@ -52,20 +52,41 @@ class CiudadanoIdentificador extends Model
         'fecha_fin' => 'date',
     ];
 
+    /** Tipo del identificador NI-HSU-CM (número de historia de servicios sociales de la CM). */
+    public const TIPO_NI_HSU_CM = 'ni_hsu_cm';
+
+    /**
+     * Hash con el que se guarda y se busca un identificador sin descifrarlo.
+     *
+     * Único cálculo de `valor_hash`: lo usan el modelo al guardar y todas las búsquedas.
+     * Solo pasa a minúsculas; cambiar la normalización invalidaría los hashes guardados.
+     * Las consultas aplican además trim() al texto introducido antes de llamarlo.
+     *
+     * @param string $valor Valor del identificador.
+     *
+     * @return string
+     */
+    public static function hashDe(string $valor): string
+    {
+        return hash('sha256', strtolower($valor));
+    }
+
     /**
      * Auto-calcula valor_hash al crear o actualizar si no está asignado.
+     *
+     * @return void
      */
     protected static function booted(): void
     {
         static::creating(function (self $model): void {
             if (empty($model->valor_hash) && ! empty($model->valor)) {
-                $model->valor_hash = hash('sha256', strtolower($model->valor));
+                $model->valor_hash = self::hashDe($model->valor);
             }
         });
 
         static::updating(function (self $model): void {
             if ($model->isDirty('valor')) {
-                $model->valor_hash = hash('sha256', strtolower($model->valor));
+                $model->valor_hash = self::hashDe($model->valor);
             }
         });
     }

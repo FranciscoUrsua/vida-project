@@ -314,11 +314,13 @@ class BuscarCiudadanoPageTest extends TestCase
     }
 
     /**
-     * TF-LW-BUS-09 — NI-HSU-CM solo aparece en resultados que tienen Historia Social.
-     * (Búsqueda por doc/hsu retorna vacío al no existir la tabla ciudadano_identificadores.)
+     * TF-LW-BUS-09 — Por NI-HSU-CM sin ningún identificador que coincida no hay resultados.
+     * (La búsqueda con coincidencia está en tests/Feature/Acceso/BusquedaPorDocumentoTest.php.)
+     *
+     * @return void
      */
     #[Test]
-    public function busqueda_por_hsu_retorna_sin_resultados_por_falta_de_tabla(): void
+    public function busqueda_por_hsu_sin_identificador_no_devuelve_resultados(): void
     {
         $this->crearCiudadano();
 
