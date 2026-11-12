@@ -19,6 +19,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Modules\Centro\Models\TipoCentro;
 use Modules\Prestaciones\Models\Prestacion;
 
 /**
@@ -142,12 +143,12 @@ class PrestacionResource extends Resource
                 ->schema([
                     CheckboxList::make('tiposCentroKeys')
                         ->label('Tipos de centro que pueden ofrecer esta prestación')
-                        ->options(fn () => CatalogoSistema::opcionesParaSelect('centro.tipo'))
+                        ->options(fn () => TipoCentro::activos()->orderBy('nombre')->pluck('nombre', 'id'))
                         ->columns(3)
                         ->dehydrated(false)
                         ->afterStateHydrated(function ($state, $record, $set) {
                             if ($record) {
-                                $set('tiposCentroKeys', $record->tiposCentro->pluck('tipo_centro')->toArray());
+                                $set('tiposCentroKeys', $record->tiposCentro->pluck('tipo_centro_id')->toArray());
                             }
                         }),
                 ]),

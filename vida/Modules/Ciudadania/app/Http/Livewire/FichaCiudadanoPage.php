@@ -57,7 +57,6 @@ use Modules\Intervencion\Services\AperturaHistoriaService;
  * @property-read bool $puedeVerHistoria
  * @property-read Collection<int, AsignacionCentro> $asignacionesCentro
  * @property-read Collection<int, AsignacionProfesional> $asignacionesReferencia
- * @property-read array<string, string> $tiposCentro
  * @property-read Collection<int, CiudadanoIdentificador> $documentos
  * @property-read UnidadConvivencia|null $ucVigente
  * @property-read Collection<int, UnidadConvivenciaMiembro> $ucMiembros
@@ -281,7 +280,7 @@ class FichaCiudadanoPage extends Component
     public function asignacionesCentro(): Collection
     {
         return AsignacionCentro::where('ciudadano_id', $this->ciudadanoId)
-            ->with('centro')
+            ->with(['centro', 'tipoCentro'])
             ->orderByRaw('fecha_fin is not null')
             ->orderByDesc('fecha_inicio')
             ->orderByDesc('id')
@@ -308,17 +307,6 @@ class FichaCiudadanoPage extends Component
             ->orderByDesc('id')
             ->get()
             ->toBase();
-    }
-
-    /**
-     * Etiquetas de los tipos de centro del catálogo.
-     *
-     * @return array<string, string>
-     */
-    #[Computed]
-    public function tiposCentro(): array
-    {
-        return CatalogoSistema::opcionesParaSelect('centro.tipo');
     }
 
     /**

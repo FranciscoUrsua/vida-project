@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use Modules\Centro\Console\AplicarDenominacionesCommand;
 use Modules\Centro\Console\ComprobarCoberturaCommand;
 use Modules\Centro\Listeners\AsignarCentroPorDireccion;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 
 /**
  * Provider del módulo Centro.
@@ -20,11 +21,15 @@ class CentroServiceProvider extends ServiceProvider
     protected string $moduleName = 'Centro';
 
     /**
-     * Registra los servicios del módulo en el contenedor.
+     * Registra los servicios del módulo en el contenedor: la configuración
+     * efectiva de los centros, con ámbito de petición.
      *
      * @return void
      */
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->scoped(ConfiguracionEfectivaCentro::class);
+    }
 
     /**
      * Arranca los servicios del módulo: asignación de centro por domicilio y

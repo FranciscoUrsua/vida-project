@@ -2,7 +2,6 @@
 
 namespace Modules\Supervision\Http\Livewire;
 
-use App\Models\CatalogoSistema;
 use App\Models\User;
 use App\Services\PresentacionPersona;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -17,8 +16,10 @@ use LogicException;
 use Modules\Centro\Enums\TipoAsignacionPendiente;
 use Modules\Centro\Models\AsignacionPendiente;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Models\TipoCentro;
 use Modules\Centro\Services\Asignacion\AsignacionCentroService;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Intervencion\Models\RepartoCasos;
 use Modules\Intervencion\Services\Asignacion\ActividadCasosService;
 use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
@@ -46,6 +47,7 @@ use Modules\Intervencion\Services\Asignacion\RepartoCasosService;
  * @property-read Collection<int, array{profesional: User, asignados: int, con_actividad: int, dormidos: int}> $actividad
  * @property-read Collection<int, User> $profesionalesReferencia
  * @property-read array<string, string> $tiposCentro
+ * @property-read int|null $mesesInactividad
  * @property string $pestana
  * @property int|null $resolviendoId
  * @property string $accion
@@ -179,14 +181,25 @@ class AsignacionesPage extends Component
     }
 
     /**
-     * Etiquetas de los tipos de centro del catálogo.
+     * Nombre vigente de cada tipo de centro, por código.
      *
      * @return array<string, string>
      */
     #[Computed]
     public function tiposCentro(): array
     {
-        return CatalogoSistema::opcionesParaSelect('centro.tipo');
+        return TipoCentro::orderBy('nombre')->pluck('nombre', 'codigo')->all();
+    }
+
+    /**
+     * Meses sin apuntes para considerar dormido un caso en el centro de la bandeja.
+     *
+     * @return int|null
+     */
+    #[Computed]
+    public function mesesInactividad(): ?int
+    {
+        return $this->centro === null ? null : app(ConfiguracionEfectivaCentro::class)->mesesInactividadCaso($this->centro);
     }
 
     /**
@@ -197,7 +210,7 @@ class AsignacionesPage extends Component
      */
     public function centrosDelTipo(?string $tipoCentro): EloquentCollection
     {
-        return Centro::where('tipo_centro', $tipoCentro)->where('activo', true)->orderBy('nombre')->get();
+        return Centro::whereHas('tipoCentro', fn ($q) => $q->where('codigo', $tipoCentro))->where('activo', true)->orderBy('nombre')->get();
     }
 
     /**

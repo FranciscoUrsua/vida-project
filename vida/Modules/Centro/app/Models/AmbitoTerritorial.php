@@ -195,9 +195,11 @@ class AmbitoTerritorial extends Model
     {
         $centro = Centro::find($this->centro_id);
 
-        if ($centro === null || ! $centro->activo || $centro->inscripcion_libre || $centro->tipo_centro === null) {
+        $config = app(\Modules\Centro\Services\ConfiguracionEfectivaCentro::class);
+        if ($centro === null || ! $centro->activo || $config->inscripcionLibre($centro)) {
             return;
         }
+        $mismoTipo = $config->centrosPorDomicilio($centro->codigoTipo())->pluck('id');
 
         $otro = static::query()
             ->where('tipo', $this->tipo)
@@ -205,10 +207,7 @@ class AmbitoTerritorial extends Model
             ->when($this->tipo !== 'ciudad_completa', fn ($q) => $q
                 ->where('referencia_tipo', $this->referencia_tipo)
                 ->where('referencia_id', $this->referencia_id))
-            ->whereHas('centro', fn ($q) => $q
-                ->where('activo', true)
-                ->where('inscripcion_libre', false)
-                ->where('tipo_centro', $centro->tipo_centro))
+            ->whereIn('centro_id', $mismoTipo)
             ->with('centro')
             ->first();
 

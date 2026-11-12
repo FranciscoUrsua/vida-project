@@ -79,11 +79,13 @@ class AsignacionReferenciaService
             return $this->crear($historia, $centro, $deLaUnidad, OrigenAsignacionReferencia::UnidadConvivencia);
         }
 
-        if ($centro->modo_asignacion_referencia === ModoAsignacionReferenciaCentro::QuienAbre) {
+        $modo = app(\Modules\Centro\Services\ConfiguracionEfectivaCentro::class)->modoAsignacionReferencia($centro);
+
+        if ($modo === ModoAsignacionReferenciaCentro::QuienAbre) {
             return $this->crear($historia, $centro, $actor->id, OrigenAsignacionReferencia::QuienAbre);
         }
 
-        if ($centro->modo_asignacion_referencia === ModoAsignacionReferenciaCentro::LibreEleccion && $elegido !== null) {
+        if ($modo === ModoAsignacionReferenciaCentro::LibreEleccion && $elegido !== null) {
             if (! $this->pool->elegibles($centro, $hoy)->contains(fn (array $e) => $e['usuario']->id === $elegido->id)) {
                 throw new LogicException('El profesional elegido no está en el reparto de referencias del centro.');
             }

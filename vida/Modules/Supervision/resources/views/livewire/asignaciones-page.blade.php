@@ -32,7 +32,7 @@
 
         @elseif($pestana === 'actividad')
             <p class="text-body-secondary">
-                Casos con actividad: con plan activo o con algún apunte en los últimos {{ $this->centro->meses_inactividad_caso }} meses.
+                Casos con actividad: con plan activo o con algún apunte en los últimos {{ $this->mesesInactividad }} meses.
                 Es información para el equipo: no cambia el sorteo ni cierra historias.
             </p>
 

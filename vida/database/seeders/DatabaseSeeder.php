@@ -52,11 +52,13 @@ class DatabaseSeeder extends Seeder
         $this->call(TitulacionesSeeder::class);
         $this->call(TiposRelacionProfesionalSeeder::class);
 
-        // 7. Módulo Centro: catálogos base + 3 centros de ejemplo + red
+        // 7. Catálogos del sistema (incluye `centro.tipo`, del que salen los tipos de centro)
+        $this->call(CatalogosSistemaSeeder::class);
+
+        // 7 bis. Módulo Centro: catálogos base, tipos de centro, 3 centros de ejemplo y red
         $this->call(CentroSeeder::class);
 
-        // 8. Módulo Prestaciones: catálogos del sistema y prestaciones de cartera
-        $this->call(CatalogosSistemaSeeder::class);
+        // 8. Módulo Prestaciones: prestaciones de cartera
         $this->call(PrestacionesSeeder::class);
 
         // 9. Módulo Agenda: horario y tipos de slot de ejemplo (requiere centros)

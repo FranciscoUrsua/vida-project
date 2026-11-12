@@ -63,7 +63,7 @@ class AsignacionCentroTest extends TestCase
     {
         $this->normalizarEn($this->ana, '2807901001');
 
-        $vigentes = AsignacionCentro::vigentes()->where('ciudadano_id', $this->ana->id)->where('tipo_centro', $this->tipoCss)->get();
+        $vigentes = AsignacionCentro::vigentes()->where('ciudadano_id', $this->ana->id)->delTipo($this->tipoCss)->get();
         $this->assertCount(1, $vigentes);
         $this->assertSame($this->cssNorte->id, $vigentes->first()->centro_id);
         $this->assertSame(ModoAsignacionCentro::Geografico, $vigentes->first()->modo);
@@ -143,7 +143,7 @@ class AsignacionCentroTest extends TestCase
 
         $this->servicio->asignarPorEleccion($this->ana, $this->ciam, $this->ts1);
 
-        $vigentes = AsignacionCentro::vigentes()->where('ciudadano_id', $this->ana->id)->get()->keyBy('tipo_centro');
+        $vigentes = AsignacionCentro::vigentes()->where('ciudadano_id', $this->ana->id)->with('tipoCentro')->get()->keyBy('tipoCentro.codigo');
         $this->assertCount(2, $vigentes);
         $this->assertSame($this->cssNorte->id, $vigentes[$this->tipoCss]->centro_id);
         $this->assertSame(ModoAsignacionCentro::Geografico, $vigentes[$this->tipoCss]->modo);

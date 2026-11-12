@@ -25,7 +25,6 @@ class SalaTest extends TestCase
         return Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
             'nombre'         => 'Centro de prueba',
             'tipo_gestion'   => 'municipal_directo',
-            'inscripcion_libre' => false,
             'fecha_alta'     => today()->toDateString(),
         ]);
     }

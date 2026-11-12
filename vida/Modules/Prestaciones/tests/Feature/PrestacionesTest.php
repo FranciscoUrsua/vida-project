@@ -330,8 +330,8 @@ class PrestacionesTest extends TestCase
     {
         $prestacion = Prestacion::create($this->prestacionBase());
 
-        $prestacion->tiposCentro()->create(['tipo_centro' => 'css_general']);
-        $prestacion->tiposCentro()->create(['tipo_centro' => 'centro_dia']);
+        $prestacion->tiposCentro()->create(['tipo_centro_id' => $this->tipoCentroId('css_general')]);
+        $prestacion->tiposCentro()->create(['tipo_centro_id' => $this->tipoCentroId('centro_dia')]);
 
         $this->assertEquals(2, $prestacion->tiposCentro()->count());
     }
@@ -340,19 +340,19 @@ class PrestacionesTest extends TestCase
     public function no_pueden_existir_dos_registros_con_la_misma_prestacion_y_tipo_centro(): void
     {
         $prestacion = Prestacion::create($this->prestacionBase());
-        $prestacion->tiposCentro()->create(['tipo_centro' => 'css_general']);
+        $prestacion->tiposCentro()->create(['tipo_centro_id' => $this->tipoCentroId('css_general')]);
 
         $this->expectException(UniqueConstraintViolationException::class);
 
-        $prestacion->tiposCentro()->create(['tipo_centro' => 'css_general']);
+        $prestacion->tiposCentro()->create(['tipo_centro_id' => $this->tipoCentroId('css_general')]);
     }
 
     #[Test]
     public function eliminar_una_prestacion_elimina_en_cascada_sus_tipos_de_centro(): void
     {
         $prestacion = Prestacion::create($this->prestacionBase());
-        $prestacion->tiposCentro()->create(['tipo_centro' => 'css_general']);
-        $prestacion->tiposCentro()->create(['tipo_centro' => 'centro_dia']);
+        $prestacion->tiposCentro()->create(['tipo_centro_id' => $this->tipoCentroId('css_general')]);
+        $prestacion->tiposCentro()->create(['tipo_centro_id' => $this->tipoCentroId('centro_dia')]);
 
         $this->assertDatabaseCount('prestacion_tipo_centro', 2);
 

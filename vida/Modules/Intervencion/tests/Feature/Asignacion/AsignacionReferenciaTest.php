@@ -91,7 +91,7 @@ class AsignacionReferenciaTest extends TestCase
     #[Test]
     public function un_centro_quien_abre_mantiene_el_comportamiento_anterior(): void
     {
-        $this->cssNorte->update(['modo_asignacion_referencia' => ModoAsignacionReferenciaCentro::QuienAbre]);
+        $this->cssNorte->tipoCentro->update(['modo_asignacion_referencia' => ModoAsignacionReferenciaCentro::QuienAbre]);
 
         $referencia = $this->referencia($this->abrir($this->ana->id));
 
@@ -109,7 +109,7 @@ class AsignacionReferenciaTest extends TestCase
     #[Test]
     public function en_libre_eleccion_se_asigna_el_elegido_o_se_sortea(): void
     {
-        $this->cssNorte->update(['modo_asignacion_referencia' => ModoAsignacionReferenciaCentro::LibreEleccion]);
+        $this->cssNorte->tipoCentro->update(['modo_asignacion_referencia' => ModoAsignacionReferenciaCentro::LibreEleccion]);
         $sinElegir = $this->normalizarEn($this->crearCiudadano('Marta'), '2807901002');
         $conEducador = $this->normalizarEn($this->crearCiudadano('Elena'), '2807901002');
 
@@ -133,7 +133,7 @@ class AsignacionReferenciaTest extends TestCase
     #[Test]
     public function la_eleccion_cuenta_en_el_reparto(): void
     {
-        $this->cssNorte->update(['modo_asignacion_referencia' => ModoAsignacionReferenciaCentro::LibreEleccion]);
+        $this->cssNorte->tipoCentro->update(['modo_asignacion_referencia' => ModoAsignacionReferenciaCentro::LibreEleccion]);
         $servicio = app(AsignacionReferenciaService::class);
 
         for ($i = 0; $i < 10; $i++) {

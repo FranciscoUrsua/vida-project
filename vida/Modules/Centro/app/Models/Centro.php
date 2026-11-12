@@ -15,10 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use LogicException;
-use Modules\Centro\Enums\ModoAsignacionReferenciaCentro;
 use Modules\Centro\Traits\TieneDenominaciones;
 use Modules\Organizacion\Models\Distrito;
-use Modules\Prestaciones\Models\Prestacion;
 
 /**
  * Centro de servicios sociales.
@@ -39,12 +37,8 @@ use Modules\Prestaciones\Models\Prestacion;
  * @property string $nombre
  * @property string|null $nombre_corto
  * @property string $tipo_gestion
- * @property string|null $tipo_centro Clave de catalogos_sistema, grupo 'centro.tipo' (antigua; deja de leerse).
  * @property int $tipo_centro_id Tipo de centro (RN-01), inmutable.
  * @property int|null $centro_antecesor_id Centro al que sustituye (RN-01).
- * @property ModoAsignacionReferenciaCentro $modo_asignacion_referencia
- * @property int $ventana_reparto_meses Meses hacia atrás que cuenta el sorteo de referencias.
- * @property int $meses_inactividad_caso Meses sin apuntes para considerar dormido un caso.
  * @property int|null $unidad_organizativa_id
  * @property string|null $direccion_texto
  * @property bool $direccion_normalizada
@@ -52,9 +46,8 @@ use Modules\Prestaciones\Models\Prestacion;
  * @property string|null $telefono
  * @property string|null $email
  * @property string|null $web
- * @property bool $inscripcion_libre
- * @property array|null $horario
  * @property string|null $notas
+ * @property string|null $protocolo Protocolo propio; si es null, rige el del tipo.
  * @property bool $activo
  * @property Carbon $fecha_alta
  * @property Carbon|null $fecha_baja
@@ -75,7 +68,6 @@ class Centro extends Model implements DireccionableModel
         'nombre',
         'nombre_corto',
         'tipo_gestion',
-        'tipo_centro',
         'tipo_centro_id',
         'centro_antecesor_id',
         'unidad_organizativa_id',
@@ -104,34 +96,17 @@ class Centro extends Model implements DireccionableModel
         'telefono',
         'email',
         'web',
-        'inscripcion_libre',
-        'horario',
         'notas',
+        'protocolo',
         'activo',
         'fecha_alta',
         'fecha_baja',
-        // Asignación de personas y referencia (docs/modulo-asignacion.md §8)
-        'modo_asignacion_referencia',
-        'ventana_reparto_meses',
-        'meses_inactividad_caso',
-    ];
-
-    /** @var array<string, mixed> Valores por defecto en memoria, iguales a los de la columna */
-    protected $attributes = [
-        'modo_asignacion_referencia' => 'sorteo',
-        'ventana_reparto_meses' => 12,
-        'meses_inactividad_caso' => 6,
     ];
 
     protected $casts = [
-        'modo_asignacion_referencia' => ModoAsignacionReferenciaCentro::class,
-        'ventana_reparto_meses' => 'integer',
-        'meses_inactividad_caso' => 'integer',
-        'inscripcion_libre' => 'boolean',
         'activo' => 'boolean',
         'fecha_alta' => 'date',
         'fecha_baja' => 'date',
-        'horario' => 'array',
     ];
 
     /**
@@ -156,6 +131,16 @@ class Centro extends Model implements DireccionableModel
         static::saving(function (self $centro): void {
             $centro->exigirUoSinOtroCentro();
         });
+    }
+
+    /**
+     * Código del tipo del centro (estable, RN-02), p. ej. `css_general`.
+     *
+     * @return string
+     */
+    public function codigoTipo(): string
+    {
+        return app(\Modules\Centro\Services\ConfiguracionEfectivaCentro::class)->tipo($this)->codigo;
     }
 
     /**
@@ -290,26 +275,6 @@ class Centro extends Model implements DireccionableModel
     public function redes(): BelongsToMany
     {
         return $this->belongsToMany(Red::class, 'red_centro', 'centro_id', 'red_id');
-    }
-
-    /**
-     * Segmentos de población a los que atiende el centro.
-     *
-     * @return BelongsToMany<SegmentoPoblacion, $this>
-     */
-    public function segmentosPoblacion(): BelongsToMany
-    {
-        return $this->belongsToMany(SegmentoPoblacion::class, 'centro_segmento_poblacion', 'centro_id', 'segmento_poblacion_id');
-    }
-
-    /**
-     * Prestaciones vinculadas al centro.
-     *
-     * @return BelongsToMany<Prestacion, $this>
-     */
-    public function prestaciones(): BelongsToMany
-    {
-        return $this->belongsToMany(Prestacion::class, 'centro_prestacion', 'centro_id', 'prestacion_id');
     }
 
     // -------------------------------------------------------------------------

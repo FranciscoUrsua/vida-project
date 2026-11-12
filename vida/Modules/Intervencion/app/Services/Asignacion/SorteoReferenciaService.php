@@ -121,7 +121,7 @@ class SorteoReferenciaService
         $entradas = AsignacionProfesional::query()
             ->where('centro_id', $centro->id)
             ->where('cuenta_en_reparto', true)
-            ->whereDate('fecha_inicio', '>', $fecha->copy()->subMonths($centro->ventana_reparto_meses)->toDateString())
+            ->whereDate('fecha_inicio', '>', $fecha->copy()->subMonths(app(\Modules\Centro\Services\ConfiguracionEfectivaCentro::class)->ventanaRepartoMeses($centro))->toDateString())
             ->whereDate('fecha_inicio', '<=', $fecha->toDateString())
             ->get(['profesional_id', 'sorteo']);
 

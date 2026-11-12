@@ -13,7 +13,9 @@ use Modules\Centro\Models\SegmentoPoblacion;
 use Modules\Centro\Models\TipoCentro;
 use Modules\Centro\Services\TipoCentro\CentroService;
 use Modules\Centro\Services\TipoCentro\TipoCentroService;
+use Modules\Intervencion\Models\TipoFicha;
 use Modules\Intervencion\Models\TipoPlan;
+use Modules\Prestaciones\Models\Prestacion;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
 use Modules\Usuarios\Models\TipoRelacionProfesional;
@@ -68,6 +70,18 @@ trait TipoCentroTestSetup
     protected TipoPlan $planPiso;
 
     protected TipoPlan $planPia;
+
+    /** Prestaciones de `$tipoCss`. */
+    protected Prestacion $p1;
+
+    protected Prestacion $p2;
+
+    /** Prestación de `$tipoCiam`. */
+    protected Prestacion $p3;
+
+    protected TipoFicha $fichaVivienda;
+
+    protected TipoFicha $fichaVG;
 
     protected User $directoraNorte;
 
@@ -136,6 +150,14 @@ trait TipoCentroTestSetup
             'unidad_organizativa_id' => $this->uoPrimaria->id, 'fecha_alta' => '2026-01-01',
         ], $this->admin);
 
+        $this->p1 = $this->prestacion('P1', 'Información y orientación', $this->tipoCss);
+        $this->p2 = $this->prestacion('P2', 'Ayuda a domicilio', $this->tipoCss);
+        $this->p3 = $this->prestacion('P3', 'Atención psicológica a víctimas', $this->tipoCiam);
+
+        $this->fichaVivienda = TipoFicha::create(['nombre' => 'Vivienda', 'activo' => true, 'schema' => ['campos' => []]]);
+        $this->fichaVG = TipoFicha::create(['nombre' => 'Violencia de género', 'activo' => true, 'schema' => ['campos' => []]]);
+        $this->tipoCiam->tiposFicha()->attach($this->fichaVG->id);
+
         $this->uoCssNorte = $this->uo('CSS Norte', 'centro', $this->uoJuntaNorte);
         $this->uoCssSur = $this->uo('CSS Sur', 'centro', $this->uoJuntaNorte);
         $this->uoCiamVallecas = $this->uo('CIAM Puente de Vallecas', 'centro', $this->uoJuntaVallecas);
@@ -170,6 +192,29 @@ trait TipoCentroTestSetup
     protected function uo(string $nombre, string $tipo, ?UnidadOrganizativa $padre = null): UnidadOrganizativa
     {
         return UnidadOrganizativa::create(['nombre' => $nombre, 'tipo' => $tipo, 'parent_id' => $padre?->id, 'activa' => true]);
+    }
+
+    /**
+     * Prestación activa en el catálogo de un tipo.
+     *
+     * @param string $codigo Código.
+     * @param string $nombre Nombre.
+     * @param TipoCentro $tipo Tipo que la ofrece.
+     *
+     * @return Prestacion
+     */
+    protected function prestacion(string $codigo, string $nombre, TipoCentro $tipo): Prestacion
+    {
+        $prestacion = Prestacion::create([
+            'codigo' => $codigo,
+            'nombre' => $nombre,
+            'tipo_prestacion' => 'servicio',
+            'nivel_garantia' => 'garantizada',
+            'activa' => true,
+        ]);
+        $prestacion->tiposCentro()->create(['tipo_centro_id' => $tipo->id]);
+
+        return $prestacion;
     }
 
     /**

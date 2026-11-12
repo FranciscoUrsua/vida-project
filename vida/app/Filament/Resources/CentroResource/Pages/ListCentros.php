@@ -4,11 +4,11 @@ namespace App\Filament\Resources\CentroResource\Pages;
 
 use App\Filament\Resources\CentroResource;
 use App\Filament\Resources\Pages\ListRecords;
-use App\Models\CatalogoSistema;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
+use Modules\Centro\Models\TipoCentro;
 use Modules\Centro\Services\Asignacion\ResolucionCentroService;
 use Modules\Organizacion\Models\SeccionCensal;
 
@@ -42,7 +42,7 @@ class ListCentros extends ListRecords
                 ->form([
                     Select::make('tipo_centro')
                         ->label('Tipo de centro')
-                        ->options(fn () => CatalogoSistema::opcionesParaSelect('centro.tipo'))
+                        ->options(fn () => TipoCentro::activos()->orderBy('nombre')->pluck('nombre', 'codigo'))
                         ->required(),
                 ])
                 ->action(fn (array $data) => $this->notificarCobertura($data['tipo_centro'])),

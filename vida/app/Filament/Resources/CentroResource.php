@@ -6,12 +6,9 @@ use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\CentroResource\Pages;
 use App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager;
 use App\Filament\Resources\CentroResource\RelationManagers\ColeccionesPlazasRelationManager;
-use App\Models\CatalogoSistema;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -23,9 +20,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Modules\Centro\Enums\ModoAsignacionReferenciaCentro;
 use Modules\Centro\Models\Centro;
-use Modules\Centro\Models\SegmentoPoblacion;
+use Modules\Centro\Models\TipoCentro;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 
 /**
  * Recurso Filament para la gestión de centros.
@@ -140,56 +137,67 @@ class CentroResource extends Resource
 
             Section::make('Configuración')
                 ->schema([
-                    Toggle::make('inscripcion_libre')
-                        ->label('Inscripción libre')
-                        ->helperText('Si está activo, la persona elige este centro. Si no, se le asigna por su domicilio según el ámbito territorial.')
-                        ->default(false),
-
-                    KeyValue::make('horario')
-                        ->label('Horario de atención')
-                        ->keyLabel('Día / tramo')
-                        ->valueLabel('Horario')
-                        ->nullable()
-                        ->helperText('Ej: "Lunes–Viernes" → "08:30–15:00"'),
-
                     Textarea::make('notas')
                         ->label('Notas internas')
                         ->rows(3)
                         ->nullable(),
+
+                    Textarea::make('protocolo')
+                        ->label('Protocolo propio')
+                        ->rows(4)
+                        ->nullable()
+                        ->helperText('Vacío: rige el protocolo del tipo de centro.'),
                 ]),
 
-            Section::make('Asignación')
-                ->description('Cómo se asignan a este centro las personas y su profesional de referencia.')
+            Section::make('Tipo de centro')
+                ->description('El tipo fija la UO funcional, el público, el catálogo y las reglas de asignación. No se cambia: para pasar a otro tipo, da de baja el centro y crea otro con este como antecesor.')
                 ->columns(2)
                 ->schema([
-                    Select::make('tipo_centro')
+                    // Inmutable (RN-01): solo se elige al crear; en edición no se envía
+                    Select::make('tipo_centro_id')
                         ->label('Tipo de centro')
-                        ->options(fn () => CatalogoSistema::opcionesParaSelect('centro.tipo'))
-                        ->helperText('Una persona tiene como máximo un centro asignado de cada tipo.')
-                        ->nullable(),
-
-                    Select::make('modo_asignacion_referencia')
-                        ->label('Profesional de referencia')
-                        ->options(ModoAsignacionReferenciaCentro::opciones())
-                        ->default(ModoAsignacionReferenciaCentro::Sorteo->value)
-                        ->required(),
-
-                    TextInput::make('ventana_reparto_meses')
-                        ->label('Ventana de reparto (meses)')
-                        ->numeric()
-                        ->integer()
-                        ->minValue(1)
-                        ->default(12)
+                        ->options(fn () => TipoCentro::activos()->orderBy('nombre')->pluck('nombre', 'id'))
                         ->required()
-                        ->helperText('Periodo en el que el sorteo compara las entradas recibidas con las que corresponden a cada profesional.'),
+                        ->disabledOn('edit')
+                        ->dehydrated(fn (string $operation) => $operation === 'create'),
 
-                    TextInput::make('meses_inactividad_caso')
-                        ->label('Meses sin apuntes para caso dormido')
-                        ->numeric()
-                        ->integer()
-                        ->minValue(1)
-                        ->default(6)
-                        ->required(),
+                    Select::make('centro_antecesor_id')
+                        ->label('Centro antecesor')
+                        ->relationship('antecesor', 'nombre')
+                        ->searchable()
+                        ->nullable()
+                        ->disabledOn('edit')
+                        ->dehydrated(fn (string $operation) => $operation === 'create')
+                        ->helperText('Centro al que sustituye, si nace de una baja y alta.'),
+
+                    // Propiedades «solo tipo»: en lectura, con el valor del tipo (docs/modulo-tipo-centro.md §4)
+                    Placeholder::make('config_adscripcion')
+                        ->label('Adscripción de personas')
+                        ->content(fn (?Centro $record) => $record === null ? '—'
+                            : (app(ConfiguracionEfectivaCentro::class)->inscripcionLibre($record) ? 'Libre elección' : 'Por domicilio')),
+
+                    Placeholder::make('config_referencia')
+                        ->label('Profesional de referencia')
+                        ->content(fn (?Centro $record) => $record === null ? '—'
+                            : app(ConfiguracionEfectivaCentro::class)->modoAsignacionReferencia($record)->label()),
+
+                    Placeholder::make('config_reparto')
+                        ->label('Reparto')
+                        ->content(fn (?Centro $record) => $record === null ? '—' : sprintf(
+                            'Ventana de %d meses · caso dormido a los %d meses sin apuntes',
+                            app(ConfiguracionEfectivaCentro::class)->ventanaRepartoMeses($record),
+                            app(ConfiguracionEfectivaCentro::class)->mesesInactividadCaso($record),
+                        )),
+
+                    Placeholder::make('config_prestaciones')
+                        ->label('Prestaciones')
+                        ->content(fn (?Centro $record) => $record === null ? '—'
+                            : app(ConfiguracionEfectivaCentro::class)->prestaciones($record)->count().' del catálogo del tipo'),
+
+                    Placeholder::make('config_segmentos')
+                        ->label('Público destinatario')
+                        ->content(fn (?Centro $record) => $record === null ? '—'
+                            : (app(ConfiguracionEfectivaCentro::class)->segmentos($record)->pluck('nombre')->implode(', ') ?: '—')),
                 ]),
 
             Section::make('Vigencia')
@@ -206,14 +214,6 @@ class CentroResource extends Resource
                         ->helperText('Solo informar si el centro ha cerrado definitivamente.'),
                 ]),
 
-            Section::make('Segmentos de población')
-                ->schema([
-                    CheckboxList::make('segmentosPoblacion')
-                        ->label('Colectivos atendidos')
-                        ->relationship('segmentosPoblacion', 'nombre')
-                        ->options(fn () => SegmentoPoblacion::where('activo', true)->orderBy('nombre')->pluck('nombre', 'id'))
-                        ->columns(3),
-                ]),
         ]);
     }
 
@@ -233,9 +233,8 @@ class CentroResource extends Resource
                     ->searchable(['nombre', 'nombre_corto'])
                     ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy('nombre', $direction)),
 
-                Tables\Columns\TextColumn::make('tipo_centro')
+                Tables\Columns\TextColumn::make('tipoCentro.nombre')
                     ->label('Tipo de centro')
-                    ->formatStateUsing(fn (?string $state) => $state ? (CatalogoSistema::opcionesParaSelect('centro.tipo')[$state] ?? $state) : '—')
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('tipo_gestion')
@@ -279,9 +278,8 @@ class CentroResource extends Resource
                 Tables\Filters\TernaryFilter::make('activo')->label('Estado'),
             ])
             ->actions([
+                // Sin borrado: los centros se dan de baja (RN-11)
                 EditAction::make(),
-                DeleteAction::make()
-                    ->authorize(fn (Model $record) => static::canDelete($record)),
             ])
             ->defaultSort('nombre');
     }

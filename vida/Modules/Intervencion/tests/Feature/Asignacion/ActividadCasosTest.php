@@ -132,7 +132,7 @@ class ActividadCasosTest extends TestCase
         $fila = $this->filaDe($this->ts1);
 
         // Entonces
-        $this->assertSame(6, $this->cssNorte->meses_inactividad_caso);
+        $this->assertSame(6, $this->cssNorte->tipoCentro->meses_inactividad_caso);
         $this->assertSame(3, $fila['asignados']);
         $this->assertSame(2, $fila['con_actividad']);
         $this->assertSame(1, $fila['dormidos']);
@@ -161,7 +161,7 @@ class ActividadCasosTest extends TestCase
 
         $this->assertSame(0, $this->filaDe($this->ts1)['con_actividad']);
 
-        $this->cssNorte->update(['meses_inactividad_caso' => 12]);
+        $this->cssNorte->tipoCentro->update(['meses_inactividad_caso' => 12]);
 
         $fila = $this->filaDe($this->ts1);
         $this->assertSame(1, $fila['con_actividad']);
@@ -207,6 +207,8 @@ class ActividadCasosTest extends TestCase
     {
         $this->casoDe($this->ts1, 'Uno');
         $this->casoDe($this->ts2, 'Dos');
+        // El tipo del centro (configuración del reparto) se carga una vez por instancia: fuera de la medida
+        $this->cssNorte->load('tipoCentro');
 
         $consultasCon = function (): int {
             DB::flushQueryLog();

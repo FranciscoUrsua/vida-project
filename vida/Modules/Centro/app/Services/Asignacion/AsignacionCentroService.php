@@ -14,6 +14,7 @@ use Modules\Centro\Enums\TipoAsignacionPendiente;
 use Modules\Centro\Models\AsignacionCentro;
 use Modules\Centro\Models\AsignacionPendiente;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 
 /**
  * Único punto de escritura de las asignaciones de centro y de sus entradas en
@@ -52,7 +53,7 @@ class AsignacionCentroService
     {
         return AsignacionCentro::vigentes()
             ->where('ciudadano_id', $ciudadano->id)
-            ->where('tipo_centro', $tipoCentro)
+            ->delTipo($tipoCentro)
             ->first();
     }
 
@@ -87,7 +88,7 @@ class AsignacionCentroService
         return DB::transaction(function () use ($ciudadano, $tipoCentro, $resultado) {
             $asignacion = AsignacionCentro::create([
                 'ciudadano_id' => $ciudadano->id,
-                'tipo_centro' => $tipoCentro,
+                'tipo_centro_id' => $resultado->centro->tipo_centro_id,
                 'centro_id' => $resultado->centro->id,
                 'modo' => ModoAsignacionCentro::Geografico,
                 'seccion_censal_codigo' => $resultado->seccionCensal,
@@ -112,11 +113,11 @@ class AsignacionCentroService
      */
     public function asignarPorEleccion(Ciudadano $ciudadano, Centro $centro, User $actor): AsignacionCentro
     {
-        if (! $centro->inscripcion_libre || $centro->tipo_centro === null) {
+        if (! app(ConfiguracionEfectivaCentro::class)->inscripcionLibre($centro)) {
             throw new LogicException("{$centro->nombre} no es un centro de libre elección: se asigna por domicilio.");
         }
 
-        $vigente = $this->vigente($ciudadano, $centro->tipo_centro);
+        $vigente = $this->vigente($ciudadano, $centro->codigoTipo());
 
         if ($vigente !== null) {
             if ($vigente->centro_id === $centro->id) {
@@ -129,7 +130,7 @@ class AsignacionCentroService
 
         return AsignacionCentro::create([
             'ciudadano_id' => $ciudadano->id,
-            'tipo_centro' => $centro->tipo_centro,
+            'tipo_centro_id' => $centro->tipo_centro_id,
             'centro_id' => $centro->id,
             'modo' => ModoAsignacionCentro::Eleccion,
             'asignado_por_id' => $actor->id,
@@ -149,22 +150,17 @@ class AsignacionCentroService
      *
      * @throws AuthorizationException Si el usuario no tiene rol de supervisión.
      * @throws InvalidArgumentException Si falta el motivo.
-     * @throws LogicException Si el centro no tiene tipo.
      */
     public function asignarManual(Ciudadano $ciudadano, Centro $centro, string $motivo, User $supervisor): AsignacionCentro
     {
         $this->exigirSupervision($supervisor);
         $motivo = $this->exigirMotivo($motivo);
 
-        if ($centro->tipo_centro === null) {
-            throw new LogicException("{$centro->nombre} no tiene tipo de centro configurado.");
-        }
-
         return DB::transaction(function () use ($ciudadano, $centro, $motivo, $supervisor) {
             // Bloquea la vigente para que dos asignaciones simultáneas no se pisen
             $vigente = AsignacionCentro::vigentes()
                 ->where('ciudadano_id', $ciudadano->id)
-                ->where('tipo_centro', $centro->tipo_centro)
+                ->where('tipo_centro_id', $centro->tipo_centro_id)
                 ->lockForUpdate()
                 ->first();
 
@@ -172,7 +168,7 @@ class AsignacionCentroService
 
             $asignacion = AsignacionCentro::create([
                 'ciudadano_id' => $ciudadano->id,
-                'tipo_centro' => $centro->tipo_centro,
+                'tipo_centro_id' => $centro->tipo_centro_id,
                 'centro_id' => $centro->id,
                 'modo' => ModoAsignacionCentro::Manual,
                 'motivo' => $motivo,
@@ -182,7 +178,7 @@ class AsignacionCentroService
 
             $this->cerrarPendientes(
                 $ciudadano,
-                $centro->tipo_centro,
+                $centro->codigoTipo(),
                 [TipoAsignacionPendiente::SinCentro, TipoAsignacionPendiente::CambioDomicilio],
                 $supervisor,
                 $motivo,

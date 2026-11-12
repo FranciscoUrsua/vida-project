@@ -104,7 +104,7 @@ class ActividadCasosService
 
         $conApuntes = DB::table('plan_apuntes')
             ->whereIn('historia_id', $historiaIds)
-            ->where('fecha', '>=', now()->subMonths($centro->meses_inactividad_caso))
+            ->where('fecha', '>=', now()->subMonths(app(\Modules\Centro\Services\ConfiguracionEfectivaCentro::class)->mesesInactividadCaso($centro)))
             ->distinct()
             ->pluck('historia_id');
 

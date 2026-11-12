@@ -4,6 +4,7 @@ namespace Modules\Centro\Support;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use RuntimeException;
 
 /**
@@ -21,7 +22,8 @@ use RuntimeException;
  * Trabaja con el constructor de consultas, no con modelos: la migración no debe
  * depender de reglas de modelo que cambien después. Es idempotente: no repite
  * tipos ya creados ni denominaciones ya existentes, así que también sirve de
- * seeder de tipos (TiposCentroSeeder) en una base nueva.
+ * seeder de tipos en una base nueva. Cuando las columnas antiguas del centro ya
+ * no existen (después de 2026_11_12_100006), solo crea los tipos que falten.
  *
  * Decisiones del desarrollador del 2026-11-12 (ver CHANGELOG-112026.md): mapeo de
  * centros sin tipo, UO del centro de día de Entrevías y UO funcionales por tipo.
@@ -90,9 +92,13 @@ class MigracionTipoCentro
     {
         $informe = ['tipos' => 0, 'descartes' => [], 'uo_creadas' => []];
         $hoy = Carbon::today()->toDateString();
+        // Antes de eliminar la configuración del centro hay que migrarla; después, solo crear tipos
+        $conDatosAntiguos = Schema::hasColumn('centros', 'tipo_centro');
 
-        $this->asignarTipoACentrosSinTipo();
-        $informe['uo_creadas'] = $this->crearUoDeCentrosSinUo();
+        if ($conDatosAntiguos) {
+            $this->asignarTipoACentrosSinTipo();
+            $informe['uo_creadas'] = $this->crearUoDeCentrosSinUo();
+        }
 
         $claves = DB::table('catalogos_sistema')->where('grupo', 'centro.tipo')->orderBy('orden')->get(['clave', 'etiqueta']);
         $uoRaiz = DB::table('unidades_organizativas')->whereNull('parent_id')->orderBy('id')->value('id');
@@ -131,6 +137,10 @@ class MigracionTipoCentro
                 'updated_at' => now(),
             ]);
 
+            if (! $conDatosAntiguos) {
+                continue;
+            }
+
             $centros = DB::table('centros')->where('tipo_centro', $clave->clave)->get();
             foreach ($centros as $centro) {
                 array_push($informe['descartes'], ...$this->descartes($clave->clave, $centro, $config));
@@ -151,7 +161,7 @@ class MigracionTipoCentro
         }
 
         // Prestaciones configuradas centro a centro: se descartan (addenda §6.1)
-        foreach (DB::table('centro_prestacion')->join('centros', 'centros.id', '=', 'centro_prestacion.centro_id')->get(['centros.nombre', 'centros.tipo_centro', 'centro_prestacion.prestacion_id']) as $fila) {
+        foreach (! $conDatosAntiguos ? [] : DB::table('centro_prestacion')->join('centros', 'centros.id', '=', 'centro_prestacion.centro_id')->get(['centros.nombre', 'centros.tipo_centro', 'centro_prestacion.prestacion_id']) as $fila) {
             $informe['descartes'][] = ['tipo' => (string) $fila->tipo_centro, 'centro' => $fila->nombre, 'propiedad' => 'centro_prestacion', 'valor' => (string) $fila->prestacion_id];
         }
 

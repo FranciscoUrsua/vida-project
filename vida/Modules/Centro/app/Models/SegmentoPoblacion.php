@@ -26,12 +26,12 @@ class SegmentoPoblacion extends Model
     protected $casts = ['activo' => 'boolean'];
 
     /**
-     * Centros que atienden a este segmento de población.
+     * Tipos de centro que atienden a este segmento de población (el público es del tipo).
      *
-     * @return BelongsToMany<Centro, self>
+     * @return BelongsToMany<TipoCentro, self>
      */
-    public function centros(): BelongsToMany
+    public function tiposCentro(): BelongsToMany
     {
-        return $this->belongsToMany(Centro::class, 'centro_segmento_poblacion', 'segmento_poblacion_id', 'centro_id');
+        return $this->belongsToMany(TipoCentro::class, 'tipo_centro_segmento_poblacion', 'segmento_poblacion_id', 'tipo_centro_id');
     }
 }

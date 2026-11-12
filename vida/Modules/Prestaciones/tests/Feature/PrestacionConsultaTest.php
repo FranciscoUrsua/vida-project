@@ -60,14 +60,14 @@ class PrestacionConsultaTest extends TestCase
     public function se_puede_obtener_la_lista_de_tipos_de_centro_de_una_prestacion(): void
     {
         $prestacion = Prestacion::create($this->prestacionBase());
-        $prestacion->tiposCentro()->create(['tipo_centro' => 'css_general']);
-        $prestacion->tiposCentro()->create(['tipo_centro' => 'centro_dia']);
+        $prestacion->tiposCentro()->create(['tipo_centro_id' => $this->tipoCentroId('css_general')]);
+        $prestacion->tiposCentro()->create(['tipo_centro_id' => $this->tipoCentroId('centro_dia')]);
 
         $tipos = $prestacion->tiposCentro;
 
         $this->assertCount(2, $tipos);
-        $this->assertTrue($tipos->pluck('tipo_centro')->contains('css_general'));
-        $this->assertTrue($tipos->pluck('tipo_centro')->contains('centro_dia'));
+        $this->assertTrue($tipos->load('tipoCentro')->pluck('tipoCentro.codigo')->contains('css_general'));
+        $this->assertTrue($tipos->pluck('tipoCentro.codigo')->contains('centro_dia'));
     }
 
     #[Test]

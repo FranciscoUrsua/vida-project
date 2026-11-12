@@ -21,7 +21,7 @@ use Modules\Centro\Enums\ModoAsignacionCentro;
  *
  * @property int $id
  * @property int $ciudadano_id
- * @property string $tipo_centro
+ * @property int $tipo_centro_id Tipo de centro: como mucho una asignación vigente por tipo (RN-02).
  * @property int $centro_id
  * @property ModoAsignacionCentro $modo
  * @property string|null $seccion_censal_codigo Sección con la que se resolvió (modo geográfico).
@@ -48,7 +48,7 @@ class AsignacionCentro extends Model
     /** @var list<string> */
     protected $fillable = [
         'ciudadano_id',
-        'tipo_centro',
+        'tipo_centro_id',
         'centro_id',
         'modo',
         'seccion_censal_codigo',
@@ -65,6 +65,29 @@ class AsignacionCentro extends Model
         'fecha_inicio' => 'date',
         'fecha_fin' => 'date',
     ];
+
+    /**
+     * Tipo de centro de la asignación.
+     *
+     * @return BelongsTo<TipoCentro, $this>
+     */
+    public function tipoCentro(): BelongsTo
+    {
+        return $this->belongsTo(TipoCentro::class, 'tipo_centro_id');
+    }
+
+    /**
+     * Asignaciones de un tipo de centro, por su código.
+     *
+     * @param Builder<self> $query
+     * @param string $codigoTipo Código del tipo (p. ej. `css_general`).
+     *
+     * @return Builder<self>
+     */
+    public function scopeDelTipo(Builder $query, string $codigoTipo): Builder
+    {
+        return $query->whereIn('tipo_centro_id', TipoCentro::where('codigo', $codigoTipo)->select('id'));
+    }
 
     /**
      * Persona asignada.

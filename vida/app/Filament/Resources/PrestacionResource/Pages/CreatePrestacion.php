@@ -25,7 +25,7 @@ class CreatePrestacion extends CreateRecord
         foreach ($tiposCentro as $tipo) {
             PrestacionTipoCentro::create([
                 'prestacion_id' => $prestacion->id,
-                'tipo_centro' => $tipo,
+                'tipo_centro_id' => (int) $tipo,
             ]);
         }
     }

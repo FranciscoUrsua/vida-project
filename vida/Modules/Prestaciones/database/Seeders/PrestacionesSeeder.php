@@ -3,6 +3,7 @@
 namespace Modules\Prestaciones\Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Modules\Centro\Models\TipoCentro;
 use Modules\Prestaciones\Models\Prestacion;
 
 /**
@@ -29,9 +30,10 @@ class PrestacionesSeeder extends Seeder
             );
 
             // Sincronizar tipos de centro
+            // Por código del tipo de centro (TipoCentro, creado desde el catálogo `centro.tipo`)
             $prestacion->tiposCentro()->delete();
-            foreach ($tiposCentro as $tipo) {
-                $prestacion->tiposCentro()->create(['tipo_centro' => $tipo]);
+            foreach (TipoCentro::whereIn('codigo', $tiposCentro)->pluck('id') as $tipoId) {
+                $prestacion->tiposCentro()->create(['tipo_centro_id' => $tipoId]);
             }
         }
     }

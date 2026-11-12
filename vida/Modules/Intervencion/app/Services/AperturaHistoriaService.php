@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Modules\Centro\Enums\ModoAsignacionReferenciaCentro;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Centro\Services\Asignacion\AsignacionCentroService;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Centro\Services\Asignacion\ResolucionCentroService;
@@ -43,12 +44,14 @@ class AperturaHistoriaService
      * @param ResolucionCentroService $resolucion
      * @param AsignacionCentroService $asignacionCentro
      * @param AsignacionReferenciaService $asignacionReferencia
+     * @param ConfiguracionEfectivaCentro $configuracion
      */
     public function __construct(
         private readonly CentroDeUsuario $centros,
         private readonly ResolucionCentroService $resolucion,
         private readonly AsignacionCentroService $asignacionCentro,
         private readonly AsignacionReferenciaService $asignacionReferencia,
+        private readonly ConfiguracionEfectivaCentro $configuracion,
     ) {}
 
     /**
@@ -96,7 +99,9 @@ class AperturaHistoriaService
      */
     public function modoDelCentro(User $profesional): ?ModoAsignacionReferenciaCentro
     {
-        return $this->centros->centroActivo($profesional)?->modo_asignacion_referencia;
+        $centro = $this->centros->centroActivo($profesional);
+
+        return $centro === null ? null : $this->configuracion->modoAsignacionReferencia($centro);
     }
 
     /**
@@ -128,7 +133,7 @@ class AperturaHistoriaService
 
         if ($centroPersona === null) {
             // En «quien abre» la referencia no depende de la geografía
-            if ($centroApertura->modo_asignacion_referencia === ModoAsignacionReferenciaCentro::QuienAbre) {
+            if ($this->configuracion->modoAsignacionReferencia($centroApertura) === ModoAsignacionReferenciaCentro::QuienAbre) {
                 return $this->asignacionReferencia->asignarInicial($historia, $centroApertura, $profesional);
             }
 
@@ -142,8 +147,8 @@ class AperturaHistoriaService
 
     /**
      * Centro de la persona del mismo tipo que el de la apertura, asignándolo si
-     * aún no lo tiene. Si el centro de la apertura no tiene tipo, o su tipo no
-     * se asigna ni por domicilio ni por elección, la persona se atiende en él.
+     * aún no lo tiene. Si el tipo del centro de la apertura no se asigna ni por
+     * domicilio ni por elección, la persona se atiende en él.
      *
      * @param Ciudadano $ciudadano
      * @param Centro $centroApertura
@@ -152,18 +157,14 @@ class AperturaHistoriaService
      */
     private function centroDeLaPersona(Ciudadano $ciudadano, Centro $centroApertura, User $profesional): ?Centro
     {
-        $tipo = $centroApertura->tipo_centro;
-
-        if ($tipo === null) {
-            return $centroApertura;
-        }
+        $tipo = $centroApertura->codigoTipo();
 
         if ($vigente = $this->asignacionCentro->vigente($ciudadano, $tipo)) {
             return $vigente->centro;
         }
 
         // Acudir a un centro de libre elección y abrir allí la historia es elegirlo
-        if ($centroApertura->inscripcion_libre) {
+        if ($this->configuracion->inscripcionLibre($centroApertura)) {
             return $this->asignacionCentro->asignarPorEleccion($ciudadano, $centroApertura, $profesional)->centro;
         }
 

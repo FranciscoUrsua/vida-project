@@ -146,6 +146,6 @@ class AsignacionPendiente extends Model
             ->orWhereJsonContains('centros_candidatos', $centro->id)
             ->orWhere(fn (Builder $sin) => $sin
                 ->whereNull('centro_id')
-                ->where('tipo_centro', $centro->tipo_centro)));
+                ->where('tipo_centro', $centro->codigoTipo())));
     }
 }

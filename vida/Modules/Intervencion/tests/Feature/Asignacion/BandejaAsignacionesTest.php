@@ -221,7 +221,7 @@ class BandejaAsignacionesTest extends TestCase
             $ciudadano = $this->crearCiudadano($nombre);
             AsignacionCentro::create([
                 'ciudadano_id' => $ciudadano->id,
-                'tipo_centro' => $this->tipoCss,
+                'tipo_centro_id' => $this->tipoCentroId($this->tipoCss),
                 'centro_id' => $this->cssNorte->id,
                 'modo' => ModoAsignacionCentro::Geografico,
                 'fecha_inicio' => '2026-01-01',
@@ -329,7 +329,7 @@ class BandejaAsignacionesTest extends TestCase
     {
         AsignacionCentro::create([
             'ciudadano_id' => $this->ana->id,
-            'tipo_centro' => $this->tipoCss,
+            'tipo_centro_id' => $this->tipoCentroId($this->tipoCss),
             'centro_id' => $this->cssNorte->id,
             'modo' => ModoAsignacionCentro::Geografico,
             'fecha_inicio' => '2026-01-01',

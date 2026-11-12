@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use Modules\Centro\Enums\MotivoAsignacionPendiente;
 use Modules\Centro\Models\AmbitoTerritorial;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Organizacion\Models\Barrio;
 use Modules\Organizacion\Models\Distrito;
 use Modules\Organizacion\Models\SeccionCensal;
@@ -87,11 +88,7 @@ class ResolucionCentroService
      */
     public function centrosPorDomicilio(string $tipoCentro): Collection
     {
-        return Centro::query()
-            ->where('activo', true)
-            ->where('inscripcion_libre', false)
-            ->where('tipo_centro', $tipoCentro)
-            ->get();
+        return app(ConfiguracionEfectivaCentro::class)->centrosPorDomicilio($tipoCentro)->get();
     }
 
     /**
@@ -104,14 +101,14 @@ class ResolucionCentroService
      */
     public function tiposPorDomicilio(): array
     {
-        return Centro::query()
-            ->where('activo', true)
-            ->where('inscripcion_libre', false)
-            ->whereNotNull('tipo_centro')
+        return app(ConfiguracionEfectivaCentro::class)->centrosPorDomicilio()
             ->whereHas('ambitosTeritoriales', fn ($q) => $q->where('tipo', '!=', 'poligono_gis'))
-            ->distinct()
-            ->orderBy('tipo_centro')
-            ->pluck('tipo_centro')
+            ->with('tipoCentro:id,codigo')
+            ->get()
+            ->map(fn (Centro $centro) => $centro->tipoCentro->codigo)
+            ->unique()
+            ->sort()
+            ->values()
             ->all();
     }
 

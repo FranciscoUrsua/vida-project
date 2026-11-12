@@ -167,13 +167,14 @@ trait AsignacionTestSetup
     ): Centro {
         $uo = UnidadOrganizativa::create(['nombre' => 'UO '.$nombre, 'tipo' => 'centro', 'parent_id' => null, 'activa' => true]);
 
-        return Centro::create(['tipo_centro_id' => $this->tipoCentroId($tipoCentro),
+        // La configuración de asignación es del tipo (RN-09): se fija al crear el tipo la primera vez
+        $tipoId = $this->tipoCentroId($tipoCentro, ['inscripcion_libre' => $inscripcionLibre, 'modo_asignacion_referencia' => $modo]);
+
+        return Centro::create([
+            'tipo_centro_id' => $tipoId,
             'nombre' => $nombre,
             'tipo_gestion' => 'municipal_directo',
-            'tipo_centro' => $tipoCentro,
             'unidad_organizativa_id' => $uo->id,
-            'inscripcion_libre' => $inscripcionLibre,
-            'modo_asignacion_referencia' => $modo,
             'activo' => true,
             'fecha_alta' => '2020-01-01',
         ]);

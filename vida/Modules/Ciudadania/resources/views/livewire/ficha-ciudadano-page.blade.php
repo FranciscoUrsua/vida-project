@@ -439,7 +439,7 @@
                 </h2>
                 <dl class="small mb-0">
                     @forelse($centrosAsig->whereNull('fecha_fin') as $asig)
-                        <dt class="text-body-secondary fw-normal">{{ $this->tiposCentro[$asig->tipo_centro] ?? $asig->tipo_centro }}</dt>
+                        <dt class="text-body-secondary fw-normal">{{ $asig->tipoCentro?->nombre }}</dt>
                         <dd class="mb-2">
                             <span class="fw-semibold">{{ $asig->centro?->nombre }}</span>
                             <span class="d-block text-body-secondary">{{ $asig->modo->label() }} · desde el {{ $asig->fecha_inicio->format('d/m/Y') }}</span>

@@ -1,0 +1,215 @@
+<?php
+
+namespace Modules\Centro\Services;
+
+use App\Models\UnidadOrganizativa;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Modules\Centro\Enums\ModoAsignacionReferenciaCentro;
+use Modules\Centro\Models\Centro;
+use Modules\Centro\Models\TipoCentro;
+use Modules\Intervencion\Models\TipoFicha;
+use Modules\Intervencion\Models\TipoPlan;
+use Modules\Prestaciones\Models\Prestacion;
+
+/**
+ * Único punto de lectura de la configuración heredable de un centro (RN-05).
+ *
+ * La aplicación nunca lee la configuración del tipo o la del centro por separado:
+ * pide aquí el valor efectivo. Las propiedades «solo tipo» salen del tipo; las
+ * sobrescribibles, del centro si las tiene y, si no, del tipo. El tipo se carga
+ * una vez por instancia de centro (relación `tipoCentro`), así que un cambio del
+ * tipo hecho en la misma petición sobre esa instancia se ve de inmediato.
+ *
+ * @see docs/modulo-tipo-centro.md §4
+ */
+class ConfiguracionEfectivaCentro
+{
+    /**
+     * Tipo del centro.
+     *
+     * @param Centro $centro
+     *
+     * @return TipoCentro
+     */
+    public function tipo(Centro $centro): TipoCentro
+    {
+        $tipo = $centro->tipoCentro;
+        if ($tipo === null) {
+            throw new \LogicException("El centro {$centro->id} no tiene tipo (RN-01).");
+        }
+
+        return $tipo;
+    }
+
+    /**
+     * UO funcional de la que depende el centro (solo tipo, RN-03).
+     *
+     * @param Centro $centro
+     *
+     * @return UnidadOrganizativa
+     */
+    public function uoFuncional(Centro $centro): UnidadOrganizativa
+    {
+        return $this->tipo($centro)->unidadOrganizativa()->firstOrFail();
+    }
+
+    /**
+     * Público destinatario (solo tipo).
+     *
+     * @param Centro $centro
+     *
+     * @return EloquentCollection<int, \Modules\Centro\Models\SegmentoPoblacion>
+     */
+    public function segmentos(Centro $centro): EloquentCollection
+    {
+        return $this->tipo($centro)->segmentos()->get();
+    }
+
+    /**
+     * Si el centro se elige libremente en lugar de asignarse por domicilio (solo tipo, RN-09).
+     *
+     * @param Centro $centro
+     *
+     * @return bool
+     */
+    public function inscripcionLibre(Centro $centro): bool
+    {
+        return $this->tipo($centro)->inscripcion_libre;
+    }
+
+    /**
+     * Cómo se asigna el profesional de referencia al abrir una historia (solo tipo, RN-09).
+     *
+     * @param Centro $centro
+     *
+     * @return ModoAsignacionReferenciaCentro
+     */
+    public function modoAsignacionReferencia(Centro $centro): ModoAsignacionReferenciaCentro
+    {
+        return $this->tipo($centro)->modo_asignacion_referencia;
+    }
+
+    /**
+     * Meses hacia atrás que cuenta el reparto de referencias (solo tipo).
+     *
+     * @param Centro $centro
+     *
+     * @return int
+     */
+    public function ventanaRepartoMeses(Centro $centro): int
+    {
+        return $this->tipo($centro)->ventana_reparto_meses;
+    }
+
+    /**
+     * Meses sin apuntes para considerar dormido un caso (solo tipo).
+     *
+     * @param Centro $centro
+     *
+     * @return int
+     */
+    public function mesesInactividadCaso(Centro $centro): int
+    {
+        return $this->tipo($centro)->meses_inactividad_caso;
+    }
+
+    /**
+     * Protocolo del centro, o el del tipo si no tiene propio (sobrescribible).
+     *
+     * @param Centro $centro
+     *
+     * @return string|null
+     */
+    public function protocolo(Centro $centro): ?string
+    {
+        return $centro->protocolo ?? $this->tipo($centro)->protocolo;
+    }
+
+    /**
+     * Prestaciones activas del catálogo del tipo (restringible, RN-08).
+     *
+     * @param Centro $centro
+     *
+     * @return EloquentCollection<int, Prestacion>
+     */
+    public function prestaciones(Centro $centro): EloquentCollection
+    {
+        return $this->tipo($centro)->prestaciones()->where('prestaciones.activa', true)->orderBy('prestaciones.nombre')->get();
+    }
+
+    /**
+     * Tipos de plan que se pueden abrir en el centro (restringible, RN-08).
+     *
+     * @param Centro $centro
+     *
+     * @return EloquentCollection<int, TipoPlan>
+     */
+    public function tiposPlan(Centro $centro): EloquentCollection
+    {
+        return $this->tipo($centro)->tiposPlan()->where('tipos_plan.activo', true)->orderBy('tipos_plan.nombre')->get();
+    }
+
+    /**
+     * Fichas de valoración disponibles en el centro; sin filas en el tipo, todas las activas (restringible).
+     *
+     * @param Centro $centro
+     *
+     * @return EloquentCollection<int, TipoFicha>
+     */
+    public function tiposFicha(Centro $centro): EloquentCollection
+    {
+        $delTipo = $this->tipo($centro)->tiposFicha()->where('tipo_fichas.activo', true)->get();
+
+        return $delTipo->isNotEmpty() ? $delTipo : TipoFicha::where('activo', true)->get();
+    }
+
+    /**
+     * De dónde sale el valor efectivo de una propiedad, para la interfaz.
+     *
+     * @param Centro $centro
+     * @param string $propiedad `protocolo` u otra; las «solo tipo» siempre son del tipo.
+     *
+     * @return string 'tipo' | 'centro'
+     */
+    public function origen(Centro $centro, string $propiedad): string
+    {
+        return match ($propiedad) {
+            'protocolo' => $centro->protocolo !== null ? 'centro' : 'tipo',
+            default => 'tipo',
+        };
+    }
+
+    /**
+     * Centros activos con adscripción por domicilio, opcionalmente de un tipo.
+     *
+     * Consulta por la configuración del tipo sin sacarla de este servicio.
+     *
+     * @param string|null $codigoTipo Código del tipo, o null para todos.
+     *
+     * @return Builder<Centro>
+     */
+    public function centrosPorDomicilio(?string $codigoTipo = null): Builder
+    {
+        return Centro::query()
+            ->where('activo', true)
+            ->whereHas('tipoCentro', fn (Builder $tipo) => $tipo
+                ->where('inscripcion_libre', false)
+                ->when($codigoTipo !== null, fn (Builder $q) => $q->where('codigo', $codigoTipo)));
+    }
+
+    /**
+     * Códigos de los tipos con adscripción por domicilio que tienen algún centro activo.
+     *
+     * @return list<string>
+     */
+    public function tiposConDomicilio(): array
+    {
+        return TipoCentro::query()
+            ->where('inscripcion_libre', false)
+            ->whereHas('centros', fn (Builder $c) => $c->where('activo', true))
+            ->orderBy('codigo')
+            ->pluck('codigo')
+            ->all();
+    }
+}
