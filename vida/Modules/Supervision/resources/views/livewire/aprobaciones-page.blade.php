@@ -22,6 +22,60 @@
             </li>
         </ul>
 
+        {{-- Solicitudes de acceso a personas protegidas (RN-18) --}}
+        @if(in_array($tabActiva, ['todas', 'accesos']) && $this->tieneColectivosProtegidos)
+            @if($this->accesosPendientes->isEmpty())
+                @if($tabActiva === 'accesos')
+                    <x-op.empty icono="shield-check">No hay solicitudes de acceso pendientes.</x-op.empty>
+                @endif
+            @else
+                <div class="list-group list-group-flush border rounded mb-3">
+                    @foreach($this->accesosPendientes as $acceso)
+                    <div class="list-group-item py-3" wire:key="acceso-{{ $acceso->id }}">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div>
+                                <strong>{{ $acceso->usuario?->nombreVisible() ?? '—' }}</strong>
+                                <span class="text-body-secondary">solicita acceso a</span>
+                                <strong>{{ $this->personaDe($acceso) }}</strong>
+                            </div>
+                            <span class="text-body-secondary small flex-shrink-0">{{ $acceso->created_at?->format('d/m/Y H:i') }}</span>
+                        </div>
+                        <p class="small mb-2 mt-1">{{ $acceso->justificacion }}</p>
+
+                        @if($accesoActivoId === $acceso->id)
+                            @if($accionAcceso === 'aprobar')
+                                <div class="d-flex flex-wrap align-items-end gap-2">
+                                    <div>
+                                        <label for="caducidad-acceso" class="form-label small mb-1">Acceso válido hasta</label>
+                                        <input id="caducidad-acceso" type="date" class="form-control form-control-sm" wire:model="caducidadAcceso">
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-success" wire:click="resolverAcceso">Confirmar aprobación</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" wire:click="cancelarAcceso">Cancelar</button>
+                                </div>
+                            @else
+                                <div class="d-flex flex-wrap gap-2">
+                                    <label for="motivo-acceso" class="visually-hidden">Motivo de la denegación</label>
+                                    <input id="motivo-acceso" type="text" class="form-control form-control-sm flex-grow-1 w-auto"
+                                           wire:model="motivoAcceso" placeholder="Motivo de la denegación (obligatorio)">
+                                    <button type="button" class="btn btn-sm btn-danger" wire:click="resolverAcceso">Confirmar denegación</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" wire:click="cancelarAcceso">Cancelar</button>
+                                </div>
+                            @endif
+                            @error('accesoActivo')
+                                <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
+                            @enderror
+                        @else
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-success" wire:click="iniciarAcceso({{ $acceso->id }}, 'aprobar')">Aprobar</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" wire:click="iniciarAcceso({{ $acceso->id }}, 'denegar')">Denegar</button>
+                            </div>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
+            @endif
+        @endif
+
         {{-- Solicitudes de rol --}}
         @if(in_array($tabActiva, ['todas', 'roles']))
             @if($this->solicitudesRol->isEmpty())

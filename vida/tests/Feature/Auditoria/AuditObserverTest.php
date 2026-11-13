@@ -49,6 +49,13 @@ class AuditObserverTest extends TestCase
             ['tipo' => 'centro', 'parent_id' => null, 'activa' => true]
         );
 
+        // RN-15: registrar apuntes exige estar adscrito a la UO de un centro
+        $this->centroParaUo($uo);
+        $this->profesional->adscripciones()->create([
+            'unidad_organizativa_id' => $uo->id,
+            'fecha_inicio' => today()->toDateString(),
+        ]);
+
         $historia = HistoriaSocial::withoutGlobalScopes()->create([
             'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uo->id,

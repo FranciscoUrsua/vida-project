@@ -1,12 +1,14 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-13 (fase 2, Tipo de Centro: pasos 1 a 8, 8 bis y 8 ter hechos)
+**Última actualización:** 2026-11-13 (fase 2, Tipo de Centro: pasos 1 a 8, 8 bis, 8 ter y 8 quater hechos)
 
 ---
 
 ## Tarea completada
 
-**Fase 2, Tipo de Centro: permisos (paso 8)** (2026-11-13): `TipoCentroPolicy` y `CentroPolicy`; servicios con la policy y el director limitado a contacto, notas y protocolo; `EditCentro` por el servicio; `HorarioCentroResource` abierto al director para su centro. TF-TCE-31 a 33 (comprobados en negativo). Detalle en `CHANGELOG-112026.md`.
+**Fase 2, Tipo de Centro: personas protegidas (paso 8 quater)** (2026-11-13): RN-17 en policies, scope, apuntes y buscador; resolución de accesos por el director del centro en Aprobaciones (RN-18) con aviso al director; RN-19 en la bandeja de asignaciones. TF-TCE-48 a 54 y 60 (comprobados en negativo). Suite completa sin fallos nuevos. Detalle en `CHANGELOG-112026.md`.
+
+Antes: **Fase 2, Tipo de Centro: permisos (paso 8)** (2026-11-13): `TipoCentroPolicy` y `CentroPolicy`; servicios con la policy y el director limitado a contacto, notas y protocolo; `EditCentro` por el servicio; `HorarioCentroResource` abierto al director para su centro. TF-TCE-31 a 33 (comprobados en negativo). Detalle en `CHANGELOG-112026.md`.
 
 Antes: **Fase 2, Tipo de Centro: barra superior y centro supervisado (paso 8 ter cerrado)** (2026-11-13): `CentroTrabajo` en la barra (TF-TCE-43), `centroSupervisado()` y selector en el menú de Supervisión, Mi equipo por centro y cuadrante por `supervisa()` (TF-TCE-44). Detalle en `CHANGELOG-112026.md`.
 
@@ -54,6 +56,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 - **Perfiles por defecto en el CIAM (UO 13):** se crean con `agenda:horarios-por-defecto --centro=13` tras el despliegue (ver CHANGELOG). Hecho: 9 perfiles pendientes de verificar + 1 previo (comprobado el 2026-10-02). Los demás centros no se completan por ahora: al desarrollador solo le preocupa el CIAM.
 - **AppArmor:** qpdf y gs están confinados; las reglas locales (`/etc/apparmor.d/local/{qpdf,gs}`) cubren `/var/www/.../storage/app/tmp` y, en el repositorio local, `storage/framework/testing` y `storage/app/tmp`. Revisar tras cada `apt upgrade` (BACKLOG).
 - **Tests:**
+  - 2026-11-13, **suite completa** tras personas protegidas: 1373 passed, 12 incomplete, 1 skipped, 4 failed (el previo de `AutorizacionDatosTest` y tres tests desfasados, corregidos). Unos 46 min.
   - 2026-11-13, permisos: Centro, Prestaciones, Supervisión, Usuarios, Auth, acceso al panel y Filament de horarios, tipos de cita y retención: 354 passed, 2 incomplete, 1 skipped (previos).
   - 2026-11-13, barra y centro supervisado: Supervisión, Agenda, Centro, Livewire de Intervención, Ciudadanía, Acceso y Auth: 693 passed, 2 incomplete, 1 skipped (previos) y 6 de `SupervisionTest` adaptados (38 passed). `ui:auditar` sin infracciones.
   - 2026-11-13, RN-15 en pantallas: Ciudadanía, Citas de Agenda y `EstructuraAmbitoTest`: 183 passed. `ui:auditar` sin infracciones.
@@ -82,7 +85,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 
 ## Siguiente paso concreto recomendado
 
-0. **Fase 2, Tipo de Centro: paso 8 quater (personas protegidas)** (`docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`, TF-TCE grupo J, con la salvedad de RN-17 para `intervencion` de UO superior y TF-TCE-60). Después 8 quinquies (bajas de profesionales), 9 (interfaz: `TipoCentroResource`, formulario de centro con lo del director deshabilitado y la parte de Filament de TF-TCE-31) y 10 (cierre con suite completa). Hechos: pasos 1 a 8, 8 bis y 8 ter. **Ojo:** la BD local es la de staging; las migraciones se aplican allí con el push. Los tests que hagan atender a un profesional necesitan que su UO tenga centro (`$this->centroParaUo($uo)`); las pantallas de supervisión trabajan sobre `CentroDeUsuario::centroSupervisado()`; los servicios de centros y tipos comprueban la policy cuando reciben actor (el administrador es quien tiene `centro.gestionar`). Después, la fase 3 (`2026-11-fase3-circuito-intervencion.md`). Pendiente aparte: probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (`decisiones-tecnicas.md` §14).
+0. **Fase 2, Tipo de Centro: paso 8 quinquies (bajas de profesionales)** (`docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`, TF-TCE grupo K, RN-20 a 23). Después 9 (interfaz: `TipoCentroResource`, formulario de centro con lo del director deshabilitado y la parte de Filament de TF-TCE-31) y 10 (cierre con suite completa). Hechos: pasos 1 a 8, 8 bis, 8 ter y 8 quater. **Ojo:** la BD local es la de staging; las migraciones se aplican allí con el push (la última, `2026_11_13_100001`, añade `accesos_protegidos.motivo_resolucion`). Reglas transversales ya en el código: RN-15 (atender exige centro: en tests, `$this->centroParaUo($uo)`), centro supervisado en supervisión, policies de centros y tipos con actor, y RN-17 en `AmbitoUsuario::gestionaHistoria()` (personas protegidas: nivel 1 solo para el centro y la salvedad de `intervencion`). Después, la fase 3 (`2026-11-fase3-circuito-intervencion.md`). Pendiente aparte: probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (`decisiones-tecnicas.md` §14).
 1. **El desarrollador prueba en staging asignación y citas** (pendiente desde el 2026-10-01; las pantallas solo se han probado con tests).
    - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto. **Configurar igual todos los centros del mismo tipo:** el paso 3 de Tipo de Centro aborta si difieren.
    - Citas: bandeja de citación, cita directa, detalle con reprogramar y cancelar, agenda del profesional, «Solicitar cita» en Intervención, *Atender* → registro de atención → «Dar cita».

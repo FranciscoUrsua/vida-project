@@ -30,6 +30,7 @@ use Modules\Usuarios\Policies\HistoriaSocialPolicy;
  * @property string $estado pendiente | aprobado | denegado
  * @property int|null $aprobado_por Supervisor que resuelve
  * @property Carbon|null $fecha_resolucion
+ * @property string|null $motivo_resolucion Motivo de la resolución (obligatorio al denegar)
  * @property Carbon|null $acceso_valido_hasta
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -52,6 +53,7 @@ class AccesoProtegido extends Model
         'estado',
         'aprobado_por',
         'fecha_resolucion',
+        'motivo_resolucion',
         'acceso_valido_hasta',
     ];
 

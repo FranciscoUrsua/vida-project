@@ -38,7 +38,7 @@ Módulos: Usuarios, Ciudadanía, Agenda, Documentos
 ---
 
 **Tipo de Centro: en ejecución** — 2026-11-10 (actualizado 2026-11-13)
-*2026-11-13: hechos los pasos 1 a 8, 8 bis y 8 ter. Quedan 8 quater (protegidos), 8 quinquies (bajas), 9 (interfaz, con la parte de Filament de TF-TCE-31) y 10 (cierre).*
+*2026-11-13: hechos los pasos 1 a 8, 8 bis, 8 ter y 8 quater. Quedan 8 quinquies (bajas), 9 (interfaz, con la parte de Filament de TF-TCE-31) y 10 (cierre).*
 Módulos: Centro, Organización, Prestaciones, Agenda, Intervención, Usuarios
 Diseño (`docs/modulo-tipo-centro.md`), instrucciones (`docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`) y tests TF-TCE-01 a 34 (`docs/instrucciones-cli/2026-10-tipo-centro-tests.md`) en el repo. Se sigue la rama A (la asignación ya está implementada). Depende de la decisión sobre varias UO con varios centros (ver «Perfil horario por defecto: pendientes») y de que los centros de un mismo tipo tengan la misma configuración de asignación (ver el aviso en «Asignación de centro y referencia: pendientes»).
 

@@ -7,6 +7,7 @@ use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
+use App\Services\AmbitoUsuario;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -19,6 +20,11 @@ use Illuminate\Database\Eloquent\Builder;
  *   Paso 2 — Ámbito de UO: ¿el ciudadano tiene Historia en la UO del usuario
  *             o en una UO descendiente? (Nivel 1 = gestión, Nivel 2 = consulta)
  *   Paso 3 — Colectivo protegido: solo en Nivel 2, verificar aprobación vigente.
+ *
+ * Personas protegidas (RN-17): el nivel 1 se limita a quien está adscrito a la
+ * UO del centro de su historia (o tiene `intervencion` con el centro en su
+ * ámbito); el resto pasa al paso 3 aunque el centro esté en su ámbito
+ * (AmbitoUsuario::gestionaHistoria()).
  *
  * La UO se determina vía la Historia Social activa del ciudadano. Si el ciudadano
  * no tiene Historia Social, el acceso corresponde a la UO del usuario activo.
@@ -69,12 +75,10 @@ class CiudadanoPolicy
             return false;
         }
 
-        // Paso 2: Verificar ámbito de UO vía Historia Social activa
-        $uoIds = $usuario->uoSubtreeIds();
+        // Paso 2: Nivel 1 si gestiona la historia activa (ámbito, y RN-17 si la persona está protegida)
         $historia = $this->obtenerHistoriaPrincipal($ciudadano);
 
-        if ($historia !== null && in_array($historia->unidad_organizativa_id, $uoIds)) {
-            // Nivel 1: gestión completa dentro del ámbito de UO
+        if ($historia !== null && app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia)) {
             return true;
         }
 
@@ -125,8 +129,7 @@ class CiudadanoPolicy
             return false;
         }
 
-        // Paso 2: Solo permite editar si el ciudadano está en el ámbito de UO
-        $uoIds = $usuario->uoSubtreeIds();
+        // Paso 2: Solo permite editar si gestiona la historia (ámbito y RN-17)
         $historia = $this->obtenerHistoriaPrincipal($ciudadano);
 
         if ($historia === null) {
@@ -134,7 +137,7 @@ class CiudadanoPolicy
             return true;
         }
 
-        return in_array($historia->unidad_organizativa_id, $uoIds);
+        return app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia);
     }
 
     /**
@@ -157,15 +160,14 @@ class CiudadanoPolicy
             return false;
         }
 
-        // Paso 2: Solo permite eliminar si el ciudadano está en el ámbito de UO
-        $uoIds = $usuario->uoSubtreeIds();
+        // Paso 2: Solo permite eliminar si gestiona la historia (ámbito y RN-17)
         $historia = $this->obtenerHistoriaPrincipal($ciudadano);
 
         if ($historia === null) {
             return true;
         }
 
-        return in_array($historia->unidad_organizativa_id, $uoIds);
+        return app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Modules\Intervencion\Models;
 
 use App\Models\HistoriaSocial;
 use App\Models\User;
+use App\Services\AmbitoUsuario;
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -94,15 +95,13 @@ class Apunte extends Model
                 return;
             }
 
-            $uoIds = $usuario->uoSubtreeIds();
-
-            $builder->where(function (Builder $q) use ($uoIds, $usuario) {
-                // Condición A: la historia del apunte pertenece al ámbito de UO
-                $q->whereIn('plan_apuntes.historia_id', function ($sub) use ($uoIds) {
+            $builder->where(function (Builder $q) use ($usuario) {
+                // Condición A: el usuario gestiona la historia del apunte (ámbito y personas protegidas, RN-17)
+                $q->whereIn('plan_apuntes.historia_id', function ($sub) use ($usuario) {
                     $sub->select('historias_sociales.id')
                         ->from('historias_sociales')
-                        ->whereIn('historias_sociales.unidad_organizativa_id', $uoIds)
                         ->whereNull('historias_sociales.deleted_at');
+                    app(AmbitoUsuario::class)->restringirHistoriasGestionables($sub, $usuario);
                 });
 
                 // Condición B: el apunte es del propio usuario (privados solo visibles para el autor)

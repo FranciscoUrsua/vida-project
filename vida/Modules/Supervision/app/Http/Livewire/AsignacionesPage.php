@@ -347,6 +347,13 @@ class AsignacionesPage extends Component
      */
     private function aplicar(AsignacionPendiente $pendiente, User $supervisor): void
     {
+        // RN-19: las entradas de personas protegidas solo las resuelve la supervisión
+        // adscrita directamente al centro, no quien llega por una UO superior
+        if ($pendiente->ciudadano?->colectivo_extra_protegido
+            && ! ($this->centro !== null && app(CentroDeUsuario::class)->adscritoA($supervisor, $this->centro))) {
+            throw new AuthorizationException('Las entradas de personas con protección especial las resuelve la supervisión del propio centro.');
+        }
+
         $centros = app(AsignacionCentroService::class);
 
         // Una historia no puede quedarse sin referencia: solo se descartan las demás

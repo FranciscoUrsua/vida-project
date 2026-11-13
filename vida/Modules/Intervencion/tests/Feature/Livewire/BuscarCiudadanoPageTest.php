@@ -87,6 +87,32 @@ class BuscarCiudadanoPageTest extends TestCase
     }
 
     /**
+     * Supervisora adscrita a la UO del test: resuelve las solicitudes de acceso
+     * cuando el centro no tiene director (RN-18).
+     *
+     * @return User
+     */
+    private function crearSupervisora(): User
+    {
+        $supervisora = User::create([
+            'name' => 'Supervisora Test',
+            'email' => 'supervisora-buscar@vida360.test',
+            'password' => 'secreto',
+            'email_verified_at' => now(),
+            'primer_acceso' => false,
+        ]);
+        $supervisora->assignRole('supervision');
+        UsuarioUo::create([
+            'usuario_id' => $supervisora->id,
+            'unidad_organizativa_id' => $this->uo->id,
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
+        ]);
+
+        return $supervisora;
+    }
+
+    /**
      * Crea una Historia Social del ciudadano en la UO dada.
      */
     private function crearHistoria(Ciudadano $ciudadano, UnidadOrganizativa $uo): HistoriaSocial
@@ -272,21 +298,23 @@ class BuscarCiudadanoPageTest extends TestCase
     }
 
     /**
-     * TF-LW-BUS-08 — Solicitar acceso crea una alerta para el supervisor de la UO responsable.
+     * TF-LW-BUS-08 — Solicitar acceso crea una alerta para quien la resuelve (RN-18):
+     * sin director del centro, la supervisión adscrita a la UO de la historia.
      */
     #[Test]
     public function solicitar_acceso_crea_alerta_para_supervisor(): void
     {
         $ciudadano = $this->crearCiudadano(['colectivo_extra_protegido' => true]);
-        $historia = $this->crearHistoria($ciudadano, $this->uo);
+        $this->crearHistoria($ciudadano, $this->uo);
+        $supervisora = $this->crearSupervisora();
 
         Livewire::actingAs($this->usuario)
             ->test(BuscarCiudadanoPage::class)
             ->call('solicitarAcceso', $ciudadano->id, 'Justificación suficientemente larga para superar el mínimo.');
 
         $this->assertDatabaseHas('alertas', [
-            'destinatario_rol' => 'supervision',
-            'destinatario_uo_id' => $this->uo->id,
+            'destinatario_type' => 'usuario',
+            'destinatario_usuario_id' => $supervisora->id,
         ]);
         $this->assertDatabaseCount('accesos_protegidos', 1);
     }
@@ -300,6 +328,7 @@ class BuscarCiudadanoPageTest extends TestCase
     {
         $ciudadano = $this->crearCiudadano(['colectivo_extra_protegido' => true]);
         $this->crearHistoria($ciudadano, $this->uo);
+        $this->crearSupervisora();
 
         Livewire::actingAs($this->usuario)
             ->test(BuscarCiudadanoPage::class)

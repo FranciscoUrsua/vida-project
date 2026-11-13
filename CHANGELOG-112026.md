@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-11-13 — Tipo de Centro: personas protegidas (fase 2, paso 8 quater; RN-17 a 19)
+
+### Cambios
+- `AmbitoUsuario`: `uoIdsProtegidos()` (adscripciones directas vigentes; con rol `intervencion`, todo el ámbito: salvedad de RN-17), `gestionaHistoria()` (nivel 1: ámbito y, si la persona está protegida, RN-17), `gestionaProtegido()`, `historiaProtegida()` y `restringirHistoriasGestionables()` (subconsulta de historias que el usuario gestiona).
+- `CiudadanoPolicy`, `HistoriaSocialPolicy` y `PlanDeIntervencionPolicy` (`view`, `update` y `delete`): el nivel 1 pasa por `gestionaHistoria()`; una persona protegida de un centro donde el usuario no la gestiona va al camino de la consulta con acceso aprobado.
+- `AmbitoUoScope` (historias, personas, planes) y el scope de `Apunte`: la condición de ámbito es la subconsulta de historias gestionables.
+- `BuscarCiudadanoPage`: el nivel de cada resultado sale de `gestionaHistoria()` (antes, solo de las adscripciones directas, distinto de las policies); el aviso de una solicitud de acceso va a cada resolutor de RN-18 y no al rol `supervision` de la UO.
+- `App\Services\ResolucionAccesoProtegido`: `resolutores()` (director vigente del centro con cuenta; sin él, `supervision` adscrita directamente a la UO del centro), `puedeResolver()` (nadie resuelve la suya), `pendientesPara()`, `aprobar()` (caducidad futura; por defecto `dias_acceso_protegido`, 30 días) y `denegar()` (motivo obligatorio). Cada resolución se audita (`editar` con antes y después) y se avisa al solicitante.
+- Migración `2026_11_13_100001_add_motivo_resolucion_to_accesos_protegidos` (columna nullable) y `AccesoProtegido::motivo_resolucion`.
+- `AprobacionesPage`, pestaña «Accesos a expedientes»: lista las solicitudes que el usuario resuelve, con aprobar (fecha de caducidad) y denegar (motivo); la pestaña aparece también sin `tiene_colectivos_protegidos` si hay solicitudes que resolver.
+- `AsignacionesPage::aplicar()`: una entrada de persona protegida solo la resuelve la supervisión adscrita al centro (RN-19); la identidad ya seguía a la policy.
+- Tests: `Modules/Centro/tests/Feature/TipoCentro/PersonasProtegidasTest.php`, TF-TCE-48 a 54 (50 con aprobar y denegar) y 60, por scope, policy, listados y buscador. **En negativo** (sin la restricción de RN-17) fallan 48, 53 y 60.
+- Adaptados: `BuscarCiudadanoPageTest` BUS-08 y 08b (el aviso va a la supervisión adscrita, sin director) y `AuditObserverTest` (el profesional crea apuntes: necesita centro por RN-15 del bloque anterior; no estaba en las suites de impacto).
+- **Suite completa** (unos 46 min): 1373 passed, 12 incomplete, 1 skipped y 4 failed: el previo de `AutorizacionDatosTest` y los tres citados, corregidos (16 passed). `npm run build` + `ui:auditar` sin infracciones.
+
+### Decisiones
+- **Caducidad por defecto:** no había ninguna configurada; clave `dias_acceso_protegido` de `ConfiguracionService`, 30 días si no está.
+- **Motivo de denegación** en una columna de la solicitud (antes no se guardaba en ningún sitio).
+- **Nivel del buscador** alineado con las policies (RN-13): quien gestiona por la jerarquía superior ve nivel 1, no 2.
+- RN-19 se comprueba con la adscripción al centro (`CentroDeUsuario::adscritoA()`), no con `gestionaProtegido()`: la salvedad de `intervencion` no alcanza a resolver la bandeja de supervisión.
+
 ## 2026-11-13 — Tipo de Centro: permisos de tipos y centros (fase 2, paso 8)
 
 ### Cambios

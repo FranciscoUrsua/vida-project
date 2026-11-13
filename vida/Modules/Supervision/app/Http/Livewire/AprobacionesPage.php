@@ -2,8 +2,17 @@
 
 namespace Modules\Supervision\Http\Livewire;
 
+use App\Models\AccesoProtegido;
+use App\Models\Ciudadano;
+use App\Models\Scopes\AmbitoUoScope;
+use App\Models\User;
+use App\Services\PresentacionPersona;
+use App\Services\ResolucionAccesoProtegido;
+use Carbon\Exceptions\InvalidFormatException;
+use DomainException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
@@ -20,12 +29,15 @@ use Modules\Usuarios\Models\UsuarioRol;
  *
  * Bandeja unificada de solicitudes pendientes de acción del supervisor:
  * asignaciones de rol con estado=pendiente_aprobacion (en ámbito de la UO)
- * y, si el centro tiene colectivos protegidos, accesos a expedientes protegidos.
+ * y solicitudes de acceso a personas protegidas que el usuario resuelve
+ * (RN-18: director del centro o, sin director, su supervisión). La comprobación
+ * de quién resuelve está en ResolucionAccesoProtegido, en el servidor.
  *
  * @property string $tabActiva
  * @property string $motivoDenegacion
  * @property-read Collection<int, UsuarioRol> $solicitudesRol
  * @property int|null $solicitudActivaId
+ * @property-read Collection<int, AccesoProtegido> $accesosPendientes
  */
 #[Layout('layouts.supervision')]
 class AprobacionesPage extends Component
@@ -39,6 +51,18 @@ class AprobacionesPage extends Component
     /** @var int|null ID de la solicitud de rol expandida/activa */
     public ?int $solicitudActivaId = null;
 
+    /** Solicitud de acceso abierta para resolver. */
+    public ?int $accesoActivoId = null;
+
+    /** Acción sobre la solicitud de acceso abierta: aprobar | denegar. */
+    public string $accionAcceso = '';
+
+    /** Caducidad del acceso al aprobar (Y-m-d). */
+    public string $caducidadAcceso = '';
+
+    /** Motivo al denegar un acceso. */
+    public string $motivoAcceso = '';
+
     /**
      * Indica si el centro tiene colectivos protegidos configurados.
      * Condiciona la visibilidad de la pestaña «Accesos a expedientes».
@@ -46,7 +70,97 @@ class AprobacionesPage extends Component
     #[Computed]
     public function tieneColectivosProtegidos(): bool
     {
-        return (bool) app(ConfiguracionService::class)->get('tiene_colectivos_protegidos', false);
+        // Quien tiene solicitudes que resolver ve la pestaña aunque no esté configurado
+        return (bool) app(ConfiguracionService::class)->get('tiene_colectivos_protegidos', false)
+            || $this->accesosPendientes->isNotEmpty();
+    }
+
+    /**
+     * Solicitudes de acceso a personas protegidas que el usuario resuelve.
+     *
+     * @return Collection<int, AccesoProtegido>
+     */
+    #[Computed]
+    public function accesosPendientes(): Collection
+    {
+        $usuario = auth()->user();
+
+        return $usuario instanceof User ? app(ResolucionAccesoProtegido::class)->pendientesPara($usuario) : new Collection;
+    }
+
+    /**
+     * Abre el formulario para aprobar o denegar una solicitud de acceso.
+     *
+     * @param int $accesoId
+     * @param string $accion aprobar | denegar
+     *
+     * @return void
+     */
+    public function iniciarAcceso(int $accesoId, string $accion): void
+    {
+        $this->resetErrorBag();
+        $this->accesoActivoId = $accesoId;
+        $this->accionAcceso = in_array($accion, ['aprobar', 'denegar'], true) ? $accion : '';
+        $this->caducidadAcceso = app(ResolucionAccesoProtegido::class)->caducidadPorDefecto()->toDateString();
+        $this->motivoAcceso = '';
+    }
+
+    /**
+     * Cierra el formulario de la solicitud de acceso sin resolverla.
+     *
+     * @return void
+     */
+    public function cancelarAcceso(): void
+    {
+        $this->reset(['accesoActivoId', 'accionAcceso', 'caducidadAcceso', 'motivoAcceso']);
+        $this->resetErrorBag();
+    }
+
+    /**
+     * Resuelve la solicitud de acceso abierta. Quién puede y las reglas las
+     * comprueba ResolucionAccesoProtegido, aunque la petición llegue manipulada.
+     *
+     * @return void
+     */
+    public function resolverAcceso(): void
+    {
+        $acceso = AccesoProtegido::find($this->accesoActivoId);
+        $servicio = app(ResolucionAccesoProtegido::class);
+        /** @var User $usuario */
+        $usuario = auth()->user();
+
+        if ($acceso === null) {
+            return;
+        }
+
+        try {
+            match ($this->accionAcceso) {
+                'aprobar' => $servicio->aprobar($acceso, $usuario, $this->caducidadAcceso !== '' ? Carbon::parse($this->caducidadAcceso) : null),
+                'denegar' => $servicio->denegar($acceso, $usuario, $this->motivoAcceso),
+                default => throw new DomainException('Elige aprobar o denegar.'),
+            };
+        } catch (AuthorizationException|DomainException|InvalidFormatException $e) {
+            $this->addError('accesoActivo', $e->getMessage());
+
+            return;
+        }
+
+        $this->cancelarAcceso();
+        unset($this->accesosPendientes);
+    }
+
+    /**
+     * Persona de la solicitud tal como la puede ver el usuario (PresentacionPersona).
+     *
+     * @param AccesoProtegido $acceso
+     *
+     * @return string
+     */
+    public function personaDe(AccesoProtegido $acceso): string
+    {
+        $ciudadano = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->find($acceso->ciudadano_id);
+
+        return PresentacionPersona::paraListado($ciudadano, auth()->user())['nombre'];
     }
 
     /**

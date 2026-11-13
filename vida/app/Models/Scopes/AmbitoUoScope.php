@@ -6,6 +6,8 @@ use App\Models\AccesoProtegido;
 use App\Models\Apunte;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
+use App\Services\AmbitoUsuario;
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
@@ -22,8 +24,9 @@ use Modules\Intervencion\Models\PlanDeIntervencion;
  *   - Sin usuario autenticado (consola, artisan, tests sin login): NO filtra.
  *   - Usuario con rol adm_sistema: NO filtra (acceso global de configuración).
  *   - Cualquier otro usuario autenticado: devuelve solo los registros de
- *     su UO o descendientes, MÁS los registros de otras UOs para los que
- *     tenga AccesoProtegido vigente.
+ *     su ámbito (RN-13), sin las personas protegidas de los centros donde no
+ *     las gestiona (RN-17, AmbitoUsuario::restringirHistoriasGestionables()),
+ *     MÁS los registros de personas para las que tenga AccesoProtegido vigente.
  *
  * El scope se desactiva con withoutGlobalScope(AmbitoUoScope::class) para
  * auditorías, comandos de consola o consultas de supervisión global.
@@ -81,8 +84,9 @@ class AmbitoUoScope implements Scope
             return;
         }
 
-        // Obtener los IDs de UO del usuario (subtree: propia + descendientes)
-        $uoIds = $usuario->uoSubtreeIds();
+        // Historias que gestiona (ámbito y RN-17), como subconsulta de ids
+        $gestionables = fn ($sub) => app(AmbitoUsuario::class)
+            ->restringirHistoriasGestionables($sub->from('historias_sociales')->whereNull('historias_sociales.deleted_at'), $usuario);
 
         // Obtener los ciudadano_ids con AccesoProtegido vigente para este usuario
         $ciudadanosConAcceso = AccesoProtegido::where('usuario_id', $usuario->id)
@@ -101,13 +105,13 @@ class AmbitoUoScope implements Scope
 
         if ($uoColumn !== null) {
             // Estrategia directa: el modelo tiene FK a unidades_organizativas
-            $this->aplicarFiltroDirecto($builder, $model, $uoColumn, $uoIds, $ciudadanosConAcceso);
+            $this->aplicarFiltroDirecto($builder, $model, $uoColumn, $usuario->uoSubtreeIds(), $ciudadanosConAcceso, $gestionables);
         } elseif ($historiaColumn !== null) {
             // Estrategia indirecta vía Historia Social
-            $this->aplicarFiltroViaHistoria($builder, $model, $historiaColumn, $uoIds, $ciudadanosConAcceso);
+            $this->aplicarFiltroViaHistoria($builder, $model, $historiaColumn, $ciudadanosConAcceso, $gestionables);
         } elseif ($ciudadanoPk !== null) {
             // Estrategia ciudadano: el modelo ES Ciudadano; la UO se resuelve por sus Historias Sociales
-            $this->aplicarFiltroCiudadano($builder, $model, $ciudadanoPk, $uoIds, $ciudadanosConAcceso);
+            $this->aplicarFiltroCiudadano($builder, $model, $ciudadanoPk, $ciudadanosConAcceso, $gestionables);
         }
         // Si no se puede determinar la estrategia, no filtrar (seguro por defecto para no romper consultas)
     }
@@ -115,26 +119,34 @@ class AmbitoUoScope implements Scope
     /**
      * Aplica filtro directo cuando el modelo tiene FK a unidades_organizativas.
      *
-     * Para modelos con privada (Apunte): añade también la cláusula
-     * `(privada = false OR profesional_id = <id>)`.
+     * Para la propia historia, el filtro es la subconsulta de historias
+     * gestionables (incluye RN-17); otro modelo con FK directa a UO se filtra
+     * solo por el ámbito.
      *
      * @param Builder<Model> $builder
+     * @param Model $model
      * @param string $uoColumn Nombre de la columna FK a UO
-     * @param array<int> $uoIds IDs de UO accesibles
+     * @param array<int> $uoIds IDs de UO del ámbito
      * @param array<int> $ciudadanosConAcceso IDs de ciudadanos con acceso protegido vigente
+     * @param Closure $gestionables Subconsulta de historias gestionables
      */
     private function aplicarFiltroDirecto(
         Builder $builder,
         Model $model,
         string $uoColumn,
         array $uoIds,
-        array $ciudadanosConAcceso
+        array $ciudadanosConAcceso,
+        Closure $gestionables
     ): void {
         $tabla = $model->getTable();
 
-        $builder->where(function (Builder $q) use ($tabla, $uoColumn, $uoIds, $ciudadanosConAcceso) {
-            // Condición A: el registro pertenece al ámbito de UO del usuario
-            $q->whereIn("{$tabla}.{$uoColumn}", $uoIds);
+        $builder->where(function (Builder $q) use ($tabla, $uoColumn, $uoIds, $ciudadanosConAcceso, $gestionables) {
+            // Condición A: el registro pertenece al ámbito del usuario (y, si es una historia, la gestiona: RN-17)
+            if ($tabla === 'historias_sociales') {
+                $q->whereIn("{$tabla}.id", fn ($sub) => $gestionables($sub->select('historias_sociales.id')));
+            } else {
+                $q->whereIn("{$tabla}.{$uoColumn}", $uoIds);
+            }
 
             // Condición B: el registro corresponde a un ciudadano con acceso protegido vigente
             if (! empty($ciudadanosConAcceso)) {
@@ -148,27 +160,23 @@ class AmbitoUoScope implements Scope
      * no tiene FK directa a unidades_organizativas.
      *
      * @param Builder<Model> $builder
+     * @param Model $model
      * @param string $historiaColumn Nombre de la columna FK a historias_sociales
-     * @param array<int> $uoIds IDs de UO accesibles
      * @param array<int> $ciudadanosConAcceso IDs de ciudadanos con acceso protegido vigente
+     * @param Closure $gestionables Subconsulta de historias gestionables
      */
     private function aplicarFiltroViaHistoria(
         Builder $builder,
         Model $model,
         string $historiaColumn,
-        array $uoIds,
-        array $ciudadanosConAcceso
+        array $ciudadanosConAcceso,
+        Closure $gestionables
     ): void {
         $tabla = $model->getTable();
 
-        $builder->where(function (Builder $q) use ($tabla, $historiaColumn, $uoIds, $ciudadanosConAcceso) {
-            // Condición A: la Historia del registro pertenece al ámbito de UO del usuario
-            $q->whereIn("{$tabla}.{$historiaColumn}", function ($sub) use ($uoIds) {
-                $sub->select('id')
-                    ->from('historias_sociales')
-                    ->whereIn('unidad_organizativa_id', $uoIds)
-                    ->whereNull('deleted_at');
-            });
+        $builder->where(function (Builder $q) use ($tabla, $historiaColumn, $ciudadanosConAcceso, $gestionables) {
+            // Condición A: el usuario gestiona la historia del registro (ámbito y RN-17)
+            $q->whereIn("{$tabla}.{$historiaColumn}", fn ($sub) => $gestionables($sub->select('historias_sociales.id')));
 
             // Condición B: la Historia del registro corresponde a un ciudadano con acceso protegido vigente
             if (! empty($ciudadanosConAcceso)) {
@@ -187,31 +195,27 @@ class AmbitoUoScope implements Scope
      * buscando Historias Sociales asociadas al ciudadano.
      *
      * Un ciudadano pertenece al ámbito del usuario si tiene al menos una
-     * Historia Social asignada a alguna UO en el árbol del usuario.
+     * Historia Social que el usuario gestiona (ámbito y RN-17).
      * También se incluyen ciudadanos con AccesoProtegido vigente.
      *
      * @param Builder<Model> $builder
+     * @param Model $model
      * @param string $ciudadanoPk Columna PK del ciudadano (normalmente 'id')
-     * @param array<int> $uoIds IDs de UO accesibles
      * @param array<int> $ciudadanosConAcceso IDs de ciudadanos con acceso protegido vigente
+     * @param Closure $gestionables Subconsulta de historias gestionables
      */
     private function aplicarFiltroCiudadano(
         Builder $builder,
         Model $model,
         string $ciudadanoPk,
-        array $uoIds,
-        array $ciudadanosConAcceso
+        array $ciudadanosConAcceso,
+        Closure $gestionables
     ): void {
         $tabla = $model->getTable();
 
-        $builder->where(function (Builder $q) use ($tabla, $ciudadanoPk, $uoIds, $ciudadanosConAcceso) {
-            // Condición A: el ciudadano tiene al menos una Historia Social en el ámbito de UO
-            $q->whereIn("{$tabla}.{$ciudadanoPk}", function ($sub) use ($uoIds) {
-                $sub->select('ciudadano_id')
-                    ->from('historias_sociales')
-                    ->whereIn('unidad_organizativa_id', $uoIds)
-                    ->whereNull('deleted_at');
-            });
+        $builder->where(function (Builder $q) use ($tabla, $ciudadanoPk, $ciudadanosConAcceso, $gestionables) {
+            // Condición A: el ciudadano tiene al menos una Historia Social que el usuario gestiona
+            $q->whereIn("{$tabla}.{$ciudadanoPk}", fn ($sub) => $gestionables($sub->select('historias_sociales.ciudadano_id')));
 
             // Condición B: el ciudadano tiene AccesoProtegido vigente para este usuario
             if (! empty($ciudadanosConAcceso)) {

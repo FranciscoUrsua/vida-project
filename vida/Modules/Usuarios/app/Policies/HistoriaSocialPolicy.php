@@ -5,6 +5,7 @@ namespace Modules\Usuarios\Policies;
 use App\Models\HistoriaSocial;
 use App\Models\User;
 use App\Policies\CiudadanoPolicy;
+use App\Services\AmbitoUsuario;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
@@ -28,6 +29,8 @@ use Illuminate\Auth\Access\HandlesAuthorization;
  * Caso especial — adm_sistema: NO tiene acceso privilegiado sobre datos de
  * ciudadanos; también debe pasar los filtros de UO y colectivo protegido.
  * Caso especial — supervision: solo lectura en su ámbito, nunca escritura.
+ * Personas protegidas (RN-17): nivel 1 solo para quien las gestiona
+ * (AmbitoUsuario::gestionaHistoria()); el resto, por consulta con aprobación.
  *
  * @see docs/modulo-usuarios-permisos.md secciones 1.4 y 4.4
  */
@@ -77,13 +80,9 @@ class HistoriaSocialPolicy
             return false;
         }
 
-        // Paso 2: ¿La UO del recurso está en el ámbito del usuario?
-        if ($historia->unidad_organizativa_id !== null) {
-            $uoIds = $usuario->uoSubtreeIds();
-            if (in_array($historia->unidad_organizativa_id, $uoIds)) {
-                // Nivel 1: gestión completa — permitir lectura
-                return true;
-            }
+        // Paso 2: Nivel 1 si gestiona la historia (ámbito, y RN-17 si la persona está protegida)
+        if (app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia)) {
+            return true;
         }
 
         // Paso 3: UO diferente → consulta libre sujeta a colectivo protegido
@@ -129,14 +128,12 @@ class HistoriaSocialPolicy
             return false;
         }
 
-        // Paso 2: Solo permite editar si la Historia está en el ámbito de UO del usuario
+        // Paso 2: Solo permite editar si gestiona la historia (ámbito y RN-17)
         if ($historia->unidad_organizativa_id === null) {
             return true;
         }
 
-        $uoIds = $usuario->uoSubtreeIds();
-
-        return in_array($historia->unidad_organizativa_id, $uoIds);
+        return app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia);
     }
 
     /**
@@ -159,14 +156,12 @@ class HistoriaSocialPolicy
             return false;
         }
 
-        // Paso 2: Solo permite eliminar si la Historia está en el ámbito de UO del usuario
+        // Paso 2: Solo permite eliminar si gestiona la historia (ámbito y RN-17)
         if ($historia->unidad_organizativa_id === null) {
             return true;
         }
 
-        $uoIds = $usuario->uoSubtreeIds();
-
-        return in_array($historia->unidad_organizativa_id, $uoIds);
+        return app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia);
     }
 
     // -------------------------------------------------------------------------

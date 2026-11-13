@@ -5,6 +5,7 @@ namespace Modules\Intervencion\Policies;
 use App\Models\HistoriaSocial;
 use App\Models\User;
 use App\Policies\CiudadanoPolicy;
+use App\Services\AmbitoUsuario;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Usuarios\Policies\HistoriaSocialPolicy;
@@ -73,10 +74,8 @@ class PlanDeIntervencionPolicy
             return false;
         }
 
-        $uoIds = $usuario->uoSubtreeIds();
-
-        if (in_array($historia->unidad_organizativa_id, $uoIds)) {
-            // Nivel 1: gestión completa dentro del ámbito de UO
+        // Nivel 1 si gestiona la historia (ámbito, y RN-17 si la persona está protegida)
+        if (app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia)) {
             return true;
         }
 
@@ -126,9 +125,7 @@ class PlanDeIntervencionPolicy
             return false;
         }
 
-        $uoIds = $usuario->uoSubtreeIds();
-
-        return in_array($historia->unidad_organizativa_id, $uoIds);
+        return app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia);
     }
 
     /**
@@ -157,9 +154,7 @@ class PlanDeIntervencionPolicy
             return false;
         }
 
-        $uoIds = $usuario->uoSubtreeIds();
-
-        return in_array($historia->unidad_organizativa_id, $uoIds);
+        return app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia);
     }
 
     // -------------------------------------------------------------------------

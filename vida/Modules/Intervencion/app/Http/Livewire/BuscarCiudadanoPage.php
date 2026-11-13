@@ -6,8 +6,11 @@ use App\Models\AccesoProtegido;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
+use App\Models\User;
 use App\Services\AccesoExpediente;
+use App\Services\AmbitoUsuario;
 use App\Services\PresentacionPersona;
+use App\Services\ResolucionAccesoProtegido;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -75,8 +78,6 @@ class BuscarCiudadanoPage extends Component
         }
 
         $termino = trim($this->query);
-        $user = Auth::user();
-        $uoIds = $user->adscripcionesVigentes()->pluck('unidad_organizativa_id')->toArray();
 
         $ciudadanos = match ($this->campoBusqueda) {
             'alias' => $this->buscarPorAlias($termino),
@@ -85,7 +86,7 @@ class BuscarCiudadanoPage extends Component
         };
 
         foreach ($ciudadanos as $ciudadano) {
-            $this->resultados[] = $this->resolverResultado($ciudadano, $uoIds);
+            $this->resultados[] = $this->resolverResultado($ciudadano);
         }
     }
 
@@ -163,11 +164,10 @@ class BuscarCiudadanoPage extends Component
     /**
      * Resuelve el nivel de acceso y construye los datos de un resultado.
      *
-     * @param array<int> $uoIds UOs vigentes del profesional
      *
      * @return array<string, mixed>
      */
-    private function resolverResultado(Ciudadano $ciudadano, array $uoIds): array
+    private function resolverResultado(Ciudadano $ciudadano): array
     {
         // Colectivo protegido que la policy no deja ver → nivel 3 sin datos personales:
         // solo consta que existe una restricción y se ofrece solicitar acceso (CLAUDE.md §3)
@@ -190,8 +190,9 @@ class BuscarCiudadanoPage extends Component
             ->latest()
             ->first();
 
+        // Nivel 1 si gestiona la historia (ámbito por las dos jerarquías y RN-17), como las policies
         $nivel = 1;
-        if ($historia !== null && ! in_array($historia->unidad_organizativa_id, $uoIds)) {
+        if ($historia !== null && ! app(AmbitoUsuario::class)->gestionaHistoria(Auth::user(), $historia)) {
             $nivel = 2;
         }
 
@@ -255,8 +256,8 @@ class BuscarCiudadanoPage extends Component
     /**
      * Crea la solicitud de acceso a un ciudadano protegido.
      *
-     * Registra el AccesoProtegido y envía una alerta al supervisor de la UO
-     * responsable de la Historia Social del ciudadano.
+     * Registra el AccesoProtegido y avisa a quien la resuelve (RN-18): el
+     * director del centro de la Historia Social o, sin director, su supervisión.
      *
      * @param int $ciudadanoId ID del ciudadano protegido.
      * @param string $justificacion Justificación profesional de acceso.
@@ -284,19 +285,24 @@ class BuscarCiudadanoPage extends Component
             'estado' => 'pendiente',
         ]);
 
-        // Enviar alerta al supervisor de la UO responsable
+        // Avisar a quien resuelve (RN-18): el director del centro de la persona o, sin
+        // director, la supervisión adscrita al centro; no «al supervisor de la UO»
         if ($historia !== null) {
-            // Por AlertaService: calcula expira_en, sin el cual el job no escala nunca.
-            app(AlertaService::class)->crear([
-                'tipo' => TipoAlerta::Alerta,
-                'origen_type' => AccesoProtegido::class,
-                'origen_id' => $acceso->id,
-                'titulo' => 'Solicitud de acceso a ciudadano protegido',
-                'cuerpo' => 'El profesional '.Auth::user()->name.' solicita acceso. Justificación: '.$justificacion,
-                'destinatario_type' => DestinatarioType::RolUo,
-                'destinatario_rol' => 'supervision',
-                'destinatario_uo_id' => $historia->unidad_organizativa_id,
-            ]);
+            $resolutores = app(ResolucionAccesoProtegido::class)->resolutores($ciudadanoId)
+                ->reject(fn (User $u) => $u->id === Auth::id());
+
+            foreach ($resolutores as $resolutor) {
+                // Por AlertaService: calcula expira_en, sin el cual el job no escala nunca.
+                app(AlertaService::class)->crear([
+                    'tipo' => TipoAlerta::Alerta,
+                    'origen_type' => AccesoProtegido::class,
+                    'origen_id' => $acceso->id,
+                    'titulo' => 'Solicitud de acceso a ciudadano protegido',
+                    'cuerpo' => 'El profesional '.Auth::user()->nombreVisible().' solicita acceso. Justificación: '.$justificacion,
+                    'destinatario_type' => DestinatarioType::Usuario,
+                    'destinatario_usuario_id' => $resolutor->id,
+                ]);
+            }
         }
 
         $this->modalSolicitud = false;
