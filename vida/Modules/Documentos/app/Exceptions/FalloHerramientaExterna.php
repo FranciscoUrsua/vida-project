@@ -63,8 +63,6 @@ class FalloHerramientaExterna extends RuntimeException
      * @param list<string> $comando Comando y argumentos ejecutados.
      * @param ProcessResult $resultado Resultado del proceso.
      * @param string $motivo Qué se esperaba y no se obtuvo.
-     *
-     * @return self
      */
     public static function desde(array $comando, ProcessResult $resultado, string $motivo): self
     {

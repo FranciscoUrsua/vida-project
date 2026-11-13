@@ -42,8 +42,6 @@ class ConversorPdfLocal implements ConversorPdf
      * @param string $directorio Directorio de trabajo.
      *
      * @throws IngestaRechazadaException
-     *
-     * @return string
      */
     private function desdeImagen(string $ruta, string $mime, string $directorio): string
     {
@@ -90,8 +88,6 @@ class ConversorPdfLocal implements ConversorPdf
      * @param string $directorio Directorio de trabajo.
      *
      * @throws IngestaRechazadaException
-     *
-     * @return string
      */
     private function desdeOfimatica(string $ruta, string $directorio): string
     {

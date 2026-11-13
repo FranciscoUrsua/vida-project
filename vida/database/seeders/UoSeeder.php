@@ -83,13 +83,13 @@ class UoSeeder extends Seeder
             ['parent_id' => $areaGobierno->id, 'activa' => true]
         );
 
-         // Dirección General
+        // Dirección General
         $dgIgualdad = UnidadOrganizativa::firstOrCreate(
             ['nombre' => 'Dirección General de Igualdad', 'tipo' => 'dg'],
             ['parent_id' => $areaGobierno->id, 'activa' => true]
         );
 
-         // Dirección General
+        // Dirección General
         $dgMayores = UnidadOrganizativa::firstOrCreate(
             ['nombre' => 'Dirección General de Mayores', 'tipo' => 'dg'],
             ['parent_id' => $areaGobierno->id, 'activa' => true]

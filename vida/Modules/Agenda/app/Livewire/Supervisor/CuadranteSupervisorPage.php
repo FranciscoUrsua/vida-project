@@ -2,6 +2,7 @@
 
 namespace Modules\Agenda\Livewire\Supervisor;
 
+use App\Models\User;
 use Carbon\Carbon;
 use DomainException;
 use Illuminate\Database\Eloquent\Collection;
@@ -50,8 +51,6 @@ class CuadranteSupervisorPage extends Component
      * Cuadrante del mes actual para el centro del supervisor.
      *
      * Devuelve el borrador o el publicado; prioriza el borrador si ambos existen.
-     *
-     * @return CuadranteMes|null
      */
     #[Computed]
     public function cuadrante(): ?CuadranteMes
@@ -72,14 +71,14 @@ class CuadranteSupervisorPage extends Component
      * Usuarios con perfil horario activo y vigente hoy en el centro del supervisor
      * (el mismo criterio que el sorteo de referencias).
      *
-     * @return Collection<int, \App\Models\User>
+     * @return Collection<int, User>
      */
     #[Computed]
     public function profesionales(): Collection
     {
         $centro = $this->centroDelSupervisor();
         if ($centro === null) {
-            return new Collection();
+            return new Collection;
         }
 
         $userIds = PerfilHorarioProfesional::delCentro($centro->id)
@@ -87,7 +86,7 @@ class CuadranteSupervisorPage extends Component
             ->vigentes()
             ->pluck('usuario_id');
 
-        return \App\Models\User::whereIn('id', $userIds)
+        return User::whereIn('id', $userIds)
             ->with('profesional')
             ->orderBy('name')
             ->get();
@@ -144,14 +143,12 @@ class CuadranteSupervisorPage extends Component
         return $cuadrante->lineas()
             ->with('excepcion')
             ->get()
-            ->keyBy(fn (LineaCuadrante $l) => $l->usuario_id . '_' . $l->fecha->toDateString())
+            ->keyBy(fn (LineaCuadrante $l) => $l->usuario_id.'_'.$l->fecha->toDateString())
             ->all();
     }
 
     /**
      * Indica si el modo de agenda del centro permite gestión manual del cuadrante.
-     *
-     * @return bool
      */
     #[Computed]
     public function modoManual(): bool
@@ -176,8 +173,6 @@ class CuadranteSupervisorPage extends Component
 
     /**
      * Publica el cuadrante en borrador y materializa los slots.
-     *
-     * @return void
      */
     public function publicar(): void
     {
@@ -200,8 +195,6 @@ class CuadranteSupervisorPage extends Component
      * Regenera el borrador del cuadrante a partir de los perfiles horarios actuales.
      *
      * Elimina las líneas existentes y recalcula desde cero. Solo disponible en borrador.
-     *
-     * @return void
      */
     public function regenerar(): void
     {
@@ -219,8 +212,6 @@ class CuadranteSupervisorPage extends Component
 
     /**
      * Renderiza la pantalla del cuadrante.
-     *
-     * @return View
      */
     public function render(): View
     {
@@ -233,8 +224,6 @@ class CuadranteSupervisorPage extends Component
 
     /**
      * Resuelve el Centro del supervisor autenticado.
-     *
-     * @return Centro|null
      */
     private function centroDelSupervisor(): ?Centro
     {

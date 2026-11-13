@@ -11,16 +11,10 @@ use Modules\Agenda\Services\PerfilHorarioPorDefectoService;
  */
 class UsuarioUoObserver
 {
-    /**
-     * @param PerfilHorarioPorDefectoService $perfiles
-     */
     public function __construct(private readonly PerfilHorarioPorDefectoService $perfiles) {}
 
     /**
      * Crea el perfil horario por defecto y avisa a la supervisión del centro.
-     *
-     * @param UsuarioUo $model
-     * @return void
      */
     public function created(UsuarioUo $model): void
     {

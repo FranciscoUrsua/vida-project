@@ -7,6 +7,7 @@ use App\Contracts\DireccionableModel;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Traits\Auditable;
 use App\Traits\TieneDireccion;
+use Database\Factories\CiudadanoFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -22,7 +23,7 @@ use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 
 /**
- * @use HasFactory<\Database\Factories\CiudadanoFactory>
+ * @use HasFactory<CiudadanoFactory>
  *
  * Modelo stub de Ciudadano.
  *
@@ -63,8 +64,10 @@ use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 class Ciudadano extends Model implements AuditableModel, DireccionableModel
 {
     use Auditable;
-    /** @use HasFactory<\Database\Factories\CiudadanoFactory> */
+
+    /** @use HasFactory<CiudadanoFactory> */
     use HasFactory;
+
     use SoftDeletes;
     use TieneDireccion;
 
@@ -79,8 +82,6 @@ class Ciudadano extends Model implements AuditableModel, DireccionableModel
 
     /**
      * Registra el Global Scope de ámbito de UO para filtrado automático.
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -151,8 +152,6 @@ class Ciudadano extends Model implements AuditableModel, DireccionableModel
     /**
      * Nombre completo del ciudadano: nombre + apellido1 [+ apellido2].
      * Los campos están cifrados — solo accesible mediante Eloquent ORM.
-     *
-     * @return string
      */
     public function getNombreCompletoAttribute(): string
     {
@@ -161,8 +160,6 @@ class Ciudadano extends Model implements AuditableModel, DireccionableModel
 
     /**
      * El ciudadano es la entidad raíz: su propio id es el ciudadano_id.
-     *
-     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {
@@ -255,8 +252,6 @@ class Ciudadano extends Model implements AuditableModel, DireccionableModel
     /**
      * Indica si el ciudadano tiene verificada su residencia en alguna UC activa.
      * Determina si puede ser perceptor de prestaciones municipales.
-     *
-     * @return bool
      */
     public function tieneResidenciaVerificada(): bool
     {

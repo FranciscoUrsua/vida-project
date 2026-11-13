@@ -23,8 +23,6 @@ return new class extends Migration
 {
     /**
      * Crea la tabla y el índice único parcial de entradas abiertas.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -59,8 +57,6 @@ return new class extends Migration
 
     /**
      * Elimina la tabla.
-     *
-     * @return void
      */
     public function down(): void
     {

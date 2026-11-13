@@ -30,8 +30,6 @@ class TiposDocumentalesTest extends TestCase
 
     /**
      * Prepara actores y tipos comunes.
-     *
-     * @return void
      */
     protected function setUp(): void
     {

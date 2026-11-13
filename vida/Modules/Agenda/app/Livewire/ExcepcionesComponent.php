@@ -46,11 +46,11 @@ class ExcepcionesComponent extends Component
      * @var array{tipo: string, fecha_inicio: string, fecha_fin: string, afecta_disponibilidad: bool, notas: string}
      */
     public array $form = [
-        'tipo'                  => '',
-        'fecha_inicio'          => '',
-        'fecha_fin'             => '',
+        'tipo' => '',
+        'fecha_inicio' => '',
+        'fecha_fin' => '',
         'afecta_disponibilidad' => true,
-        'notas'                 => '',
+        'notas' => '',
     ];
 
     /** @var int|null ID de la excepción que se está editando; null si es creación */
@@ -61,38 +61,33 @@ class ExcepcionesComponent extends Component
 
     /**
      * Inicializa el componente con el profesional y su centro.
-     *
-     * @param User $profesional
-     * @param Centro $centro
-     * @return void
      */
     public function mount(User $profesional, Centro $centro): void
     {
         $this->profesional = $profesional;
-        $this->centro      = $centro;
+        $this->centro = $centro;
     }
 
     /**
      * Abre el modal de registro o edición de una excepción.
      *
      * @param int|null $excepcionId ID a editar; null para creación
-     * @return void
      */
     public function abrirModal(?int $excepcionId = null): void
     {
         $this->resetErrorBag();
         $this->citasAfectadas = 0;
-        $this->editandoId     = $excepcionId;
+        $this->editandoId = $excepcionId;
 
         if ($excepcionId !== null) {
             $excepcion = ExcepcionProfesional::find($excepcionId);
             if ($excepcion !== null) {
                 $this->form = [
-                    'tipo'                  => $excepcion->tipo->value,
-                    'fecha_inicio'          => $excepcion->fecha_inicio->toDateString(),
-                    'fecha_fin'             => $excepcion->fecha_fin->toDateString(),
+                    'tipo' => $excepcion->tipo->value,
+                    'fecha_inicio' => $excepcion->fecha_inicio->toDateString(),
+                    'fecha_fin' => $excepcion->fecha_fin->toDateString(),
                     'afecta_disponibilidad' => $excepcion->afecta_disponibilidad,
-                    'notas'                 => $excepcion->notas ?? '',
+                    'notas' => $excepcion->notas ?? '',
                 ];
             }
         } else {
@@ -107,16 +102,14 @@ class ExcepcionesComponent extends Component
      *
      * Si hay citas confirmadas en el período y aún no se ha mostrado el aviso,
      * establece $citasAfectadas y detiene el guardado para mostrar la advertencia.
-     *
-     * @return void
      */
     public function guardar(): void
     {
         $this->validate([
-            'form.tipo'         => ['required', 'in:' . implode(',', array_column(TipoExcepcion::cases(), 'value'))],
+            'form.tipo' => ['required', 'in:'.implode(',', array_column(TipoExcepcion::cases(), 'value'))],
             'form.fecha_inicio' => ['required', 'date'],
-            'form.fecha_fin'    => ['required', 'date', 'after_or_equal:form.fecha_inicio'],
-            'form.notas'        => ['nullable', 'string', 'max:500'],
+            'form.fecha_fin' => ['required', 'date', 'after_or_equal:form.fecha_inicio'],
+            'form.notas' => ['nullable', 'string', 'max:500'],
         ]);
 
         if ($this->form['afecta_disponibilidad'] && $this->citasAfectadas === 0) {
@@ -129,20 +122,21 @@ class ExcepcionesComponent extends Component
 
             if ($count > 0) {
                 $this->citasAfectadas = $count;
+
                 return;
             }
         }
 
         $datos = [
-            'usuario_id'            => $this->profesional->id,
-            'centro_id'             => $this->centro->id,
-            'tipo'                  => $this->form['tipo'],
-            'fecha_inicio'          => $this->form['fecha_inicio'],
-            'fecha_fin'             => $this->form['fecha_fin'],
+            'usuario_id' => $this->profesional->id,
+            'centro_id' => $this->centro->id,
+            'tipo' => $this->form['tipo'],
+            'fecha_inicio' => $this->form['fecha_inicio'],
+            'fecha_fin' => $this->form['fecha_fin'],
             'afecta_disponibilidad' => $this->form['afecta_disponibilidad'],
-            'origen'                => OrigenExcepcion::Manual->value,
-            'creado_por_id'         => auth()->id(),
-            'notas'                 => filled($this->form['notas']) ? trim($this->form['notas']) : null,
+            'origen' => OrigenExcepcion::Manual->value,
+            'creado_por_id' => auth()->id(),
+            'notas' => filled($this->form['notas']) ? trim($this->form['notas']) : null,
         ];
 
         if ($this->editandoId !== null) {
@@ -151,9 +145,9 @@ class ExcepcionesComponent extends Component
             ExcepcionProfesional::create($datos);
         }
 
-        $this->modalAbierto    = false;
-        $this->editandoId      = null;
-        $this->citasAfectadas  = 0;
+        $this->modalAbierto = false;
+        $this->editandoId = null;
+        $this->citasAfectadas = 0;
         unset($this->proximas, $this->historial);
         $this->dispatch('toast', message: 'Excepción guardada correctamente.', type: 'success');
     }
@@ -162,7 +156,6 @@ class ExcepcionesComponent extends Component
      * Elimina la excepción indicada si pertenece al profesional y centro actuales.
      *
      * @param int $id ID de la excepción a eliminar
-     * @return void
      */
     public function eliminar(int $id): void
     {
@@ -206,8 +199,6 @@ class ExcepcionesComponent extends Component
 
     /**
      * Renderiza la vista del componente.
-     *
-     * @return View
      */
     public function render(): View
     {

@@ -112,6 +112,7 @@ class CargaUnidadesTerritoriales
      * Lee un CSV del directorio de datos del módulo como filas asociativas por cabecera.
      *
      * @param string $fichero Nombre del fichero dentro de `database/data/`.
+     *
      * @return list<array<string, string>>
      *
      * @throws RuntimeException Si el fichero no existe.

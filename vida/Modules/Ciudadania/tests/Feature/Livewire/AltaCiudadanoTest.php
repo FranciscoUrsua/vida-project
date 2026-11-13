@@ -633,4 +633,3 @@ class AltaCiudadanoTest extends TestCase
         $this->assertSame(0, $this->historiasDe($ciudadano->id));
     }
 }
-

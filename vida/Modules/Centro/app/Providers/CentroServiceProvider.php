@@ -23,8 +23,6 @@ class CentroServiceProvider extends ServiceProvider
     /**
      * Registra los servicios del módulo en el contenedor: la configuración
      * efectiva de los centros, con ámbito de petición.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -34,8 +32,6 @@ class CentroServiceProvider extends ServiceProvider
     /**
      * Arranca los servicios del módulo: asignación de centro por domicilio y
      * comandos de cobertura y de denominaciones.
-     *
-     * @return void
      */
     public function boot(): void
     {

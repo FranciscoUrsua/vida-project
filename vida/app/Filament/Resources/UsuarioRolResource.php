@@ -119,8 +119,6 @@ class UsuarioRolResource extends Resource
 
     /**
      * El historial no admite altas manuales: se asigna desde el formulario de usuarios.
-     *
-     * @return bool
      */
     public static function canCreate(): bool
     {
@@ -131,8 +129,6 @@ class UsuarioRolResource extends Resource
      * El historial no se edita: el pasado es inmutable y las aprobaciones van por Supervisión.
      *
      * @param Model $record Registro objetivo.
-     *
-     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -143,8 +139,6 @@ class UsuarioRolResource extends Resource
      * El historial no se borra.
      *
      * @param Model $record Registro objetivo.
-     *
-     * @return bool
      */
     public static function canDelete(Model $record): bool
     {

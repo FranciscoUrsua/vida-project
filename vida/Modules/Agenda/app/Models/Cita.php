@@ -10,9 +10,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use LogicException;
 use Modules\Agenda\Database\Factories\CitaFactory;
 use Modules\Agenda\Enums\EstadoCita;
@@ -112,7 +113,6 @@ class Cita extends Model
      * Solo una cita externa puede crearse sin ciudadano (pendiente de identificar).
      * Sin tipo de cita, toma el genérico, como las citas anteriores a los tipos.
      *
-     * @return void
      *
      * @throws LogicException
      */
@@ -260,7 +260,7 @@ class Cita extends Model
      * pantalla de ausencias y los contadores de los menús.
      *
      * @param Builder<Cita> $query
-     * @param int $centroId
+     *
      * @return Builder<Cita>
      */
     public function scopeCanceladasPorAusenciaSinGestionar(Builder $query, int $centroId): Builder
@@ -433,9 +433,9 @@ class Cita extends Model
     /**
      * Cadena de reprogramaciones hasta esta cita, de la primera a esta.
      *
-     * @return \Illuminate\Support\Collection<int, Cita>
+     * @return Collection<int, Cita>
      */
-    public function cadenaReprogramaciones(): \Illuminate\Support\Collection
+    public function cadenaReprogramaciones(): Collection
     {
         $cadena = collect([$this]);
         $actual = $this;
@@ -450,8 +450,6 @@ class Cita extends Model
 
     /**
      * Si es una cita externa aún sin persona identificada.
-     *
-     * @return bool
      */
     public function pendienteDeIdentificar(): bool
     {
@@ -460,8 +458,6 @@ class Cita extends Model
 
     /**
      * Ciudadano para auditoría.
-     *
-     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {
@@ -469,8 +465,6 @@ class Cita extends Model
     }
 
     /**
-     * @return void
-     *
      * @throws LogicException Si una cita no externa no tiene ciudadano.
      */
     private function exigirCiudadano(): void

@@ -51,8 +51,6 @@ class Denominacion extends Model
      * Valida el solape de vigencias y la inmutabilidad del nombre al guardar.
      *
      * @throws DomainException
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -102,8 +100,6 @@ class Denominacion extends Model
      * titular y cambios de nombre en una denominación que ya ha entrado en vigor.
      *
      * @throws DomainException
-     *
-     * @return void
      */
     private function validarCoherencia(): void
     {

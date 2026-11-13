@@ -107,8 +107,6 @@ class TipoDocumental extends Model
      *
      *
      * @throws \DomainException al cambiar un campo inmutable o borrar un tipo con documentos
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -139,8 +137,6 @@ class TipoDocumental extends Model
      * Rechaza el cambio de código, familia u origen ENI cuando el tipo ya tiene documentos.
      *
      * @throws \DomainException
-     *
-     * @return void
      */
     private function impedirCambiosInmutables(): void
     {
@@ -187,8 +183,6 @@ class TipoDocumental extends Model
      * Indica si un documento de este tipo puede vincularse a una entidad de la clase dada.
      *
      * @param class-string<Model> $clase Clase Eloquent de la entidad.
-     *
-     * @return bool
      */
     public function permiteVincularA(string $clase): bool
     {
@@ -219,8 +213,6 @@ class TipoDocumental extends Model
 
     /**
      * Indica si los documentos de este tipo son informes profesionales.
-     *
-     * @return bool
      */
     public function esInforme(): bool
     {

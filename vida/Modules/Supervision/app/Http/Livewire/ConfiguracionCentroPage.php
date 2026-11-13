@@ -71,10 +71,15 @@ class ConfiguracionCentroPage extends Component
     public ?int $editandoSalaId = null;
 
     public string $salaNombre = '';
+
     public ?int $salaCapacidad = null;
+
     public string $salaDescripcion = '';
+
     public bool $salaAccesible = false;
+
     public bool $salaActiva = true;
+
     public string $salaNotes = '';
 
     // -------------------------------------------------------------------------
@@ -84,8 +89,6 @@ class ConfiguracionCentroPage extends Component
     /**
      * Indica si el centro tiene plazas configuradas.
      * Condiciona la sección «Plazas» del formulario.
-     *
-     * @return bool
      */
     #[Computed]
     public function tienePlazas(): bool
@@ -104,7 +107,7 @@ class ConfiguracionCentroPage extends Component
         $centro = $this->centroDelSupervisor();
 
         if ($centro === null) {
-            return new Collection();
+            return new Collection;
         }
 
         return Sala::where('centro_id', $centro->id)
@@ -156,9 +159,9 @@ class ConfiguracionCentroPage extends Component
     public function guardar(): void
     {
         $this->validate([
-            'nombreCorto'      => 'nullable|string|max:50',
-            'modoAgenda'       => 'required|in:basico,estandar,avanzado',
-            'umbralRatio'      => 'required|numeric|min:1|max:100',
+            'nombreCorto' => 'nullable|string|max:50',
+            'modoAgenda' => 'required|in:basico,estandar,avanzado',
+            'umbralRatio' => 'required|numeric|min:1|max:100',
             'umbralEsperaDias' => 'required|integer|min:1|max:365',
         ]);
 
@@ -166,6 +169,7 @@ class ConfiguracionCentroPage extends Component
 
         if ($uo === null) {
             $this->addError('nombreCorto', 'El supervisor no tiene UO activa asignada.');
+
             return;
         }
 
@@ -190,14 +194,12 @@ class ConfiguracionCentroPage extends Component
 
     /**
      * Abre el modal en modo alta con el formulario de sala limpio.
-     *
-     * @return void
      */
     public function abrirModalSala(): void
     {
         $this->reset(['editandoSalaId', 'salaNombre', 'salaCapacidad', 'salaDescripcion', 'salaNotes']);
         $this->salaAccesible = false;
-        $this->salaActiva    = true;
+        $this->salaActiva = true;
         $this->modalSalaAbierto = true;
     }
 
@@ -207,7 +209,6 @@ class ConfiguracionCentroPage extends Component
      * Solo actúa si la sala pertenece al centro del supervisor.
      *
      * @param int $salaId ID de la sala a editar.
-     * @return void
      */
     public function abrirEdicionSala(int $salaId): void
     {
@@ -217,37 +218,35 @@ class ConfiguracionCentroPage extends Component
             return;
         }
 
-        $this->editandoSalaId  = $sala->id;
-        $this->salaNombre      = $sala->nombre;
-        $this->salaCapacidad   = $sala->capacidad;
+        $this->editandoSalaId = $sala->id;
+        $this->salaNombre = $sala->nombre;
+        $this->salaCapacidad = $sala->capacidad;
         $this->salaDescripcion = $sala->descripcion ?? '';
-        $this->salaAccesible   = $sala->accesible;
-        $this->salaActiva      = $sala->activa;
-        $this->salaNotes       = $sala->notas ?? '';
+        $this->salaAccesible = $sala->accesible;
+        $this->salaActiva = $sala->activa;
+        $this->salaNotes = $sala->notas ?? '';
         $this->modalSalaAbierto = true;
     }
 
     /**
      * Crea o actualiza la sala con los datos del formulario.
-     *
-     * @return void
      */
     public function guardarSala(): void
     {
         $this->validate([
-            'salaNombre'      => ['required', 'string', 'max:100'],
-            'salaCapacidad'   => ['nullable', 'integer', 'min:1'],
+            'salaNombre' => ['required', 'string', 'max:100'],
+            'salaCapacidad' => ['nullable', 'integer', 'min:1'],
             'salaDescripcion' => ['nullable', 'string', 'max:500'],
-            'salaNotes'       => ['nullable', 'string', 'max:500'],
+            'salaNotes' => ['nullable', 'string', 'max:500'],
         ]);
 
         $datos = [
-            'nombre'      => trim($this->salaNombre),
-            'capacidad'   => $this->salaCapacidad,
+            'nombre' => trim($this->salaNombre),
+            'capacidad' => $this->salaCapacidad,
             'descripcion' => filled($this->salaDescripcion) ? trim($this->salaDescripcion) : null,
-            'accesible'   => $this->salaAccesible,
-            'activa'      => $this->salaActiva,
-            'notas'       => filled($this->salaNotes) ? trim($this->salaNotes) : null,
+            'accesible' => $this->salaAccesible,
+            'activa' => $this->salaActiva,
+            'notas' => filled($this->salaNotes) ? trim($this->salaNotes) : null,
         ];
 
         if ($this->editandoSalaId !== null) {
@@ -261,6 +260,7 @@ class ConfiguracionCentroPage extends Component
 
             if ($centro === null) {
                 $this->addError('salaNombre', 'No se ha encontrado un centro asociado a tu unidad organizativa.');
+
                 return;
             }
 
@@ -275,7 +275,6 @@ class ConfiguracionCentroPage extends Component
      * Elimina (soft-delete) la sala indicada si pertenece al centro del supervisor.
      *
      * @param int $salaId ID de la sala a eliminar.
-     * @return void
      */
     public function eliminarSala(int $salaId): void
     {
@@ -295,8 +294,6 @@ class ConfiguracionCentroPage extends Component
 
     /**
      * Renderiza la pantalla de configuración del centro.
-     *
-     * @return View
      */
     public function render(): View
     {
@@ -309,9 +306,6 @@ class ConfiguracionCentroPage extends Component
 
     /**
      * Devuelve la Sala solo si pertenece al centro del supervisor.
-     *
-     * @param int $salaId
-     * @return Sala|null
      */
     private function salaEnAmbito(int $salaId): ?Sala
     {
@@ -328,8 +322,6 @@ class ConfiguracionCentroPage extends Component
 
     /**
      * Resuelve el Centro asociado a la primera UO activa del supervisor autenticado.
-     *
-     * @return Centro|null
      */
     private function centroDelSupervisor(): ?Centro
     {

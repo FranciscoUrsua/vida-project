@@ -26,9 +26,6 @@ class ActividadCasosTest extends TestCase
     use AsignacionTestSetup;
     use RefreshDatabase;
 
-    /**
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -39,9 +36,7 @@ class ActividadCasosTest extends TestCase
     /**
      * Crea una historia en CSS Norte con el profesional como referencia vigente.
      *
-     * @param User $profesional
      * @param string $nombre Nombre del ciudadano.
-     * @return HistoriaSocial
      */
     private function casoDe(User $profesional, string $nombre): HistoriaSocial
     {
@@ -59,11 +54,6 @@ class ActividadCasosTest extends TestCase
         return $historia;
     }
 
-    /**
-     * @param HistoriaSocial $historia
-     * @param string $fecha
-     * @return void
-     */
     private function apunte(HistoriaSocial $historia, string $fecha): void
     {
         Apunte::factory()->create([
@@ -73,11 +63,6 @@ class ActividadCasosTest extends TestCase
         ]);
     }
 
-    /**
-     * @param HistoriaSocial $historia
-     * @param EstadoPlan $estado
-     * @return void
-     */
     private function plan(HistoriaSocial $historia, EstadoPlan $estado = EstadoPlan::Activo): void
     {
         PlanDeIntervencion::factory()->create([
@@ -87,9 +72,6 @@ class ActividadCasosTest extends TestCase
         ]);
     }
 
-    /**
-     * @return ActividadCasosService
-     */
     private function servicio(): ActividadCasosService
     {
         return app(ActividadCasosService::class);
@@ -98,7 +80,6 @@ class ActividadCasosTest extends TestCase
     /**
      * Fila del resumen de un profesional.
      *
-     * @param User $profesional
      * @return array{profesional: User, asignados: int, con_actividad: int, dormidos: int}|null
      */
     private function filaDe(User $profesional): ?array
@@ -110,8 +91,6 @@ class ActividadCasosTest extends TestCase
     /**
      * TF-ASG-33 — Plan activo o apunte reciente es actividad; el último apunte
      * de hace 8 meses sin plan es un caso dormido. El resumen no toca nada.
-     *
-     * @return void
      */
     #[Test]
     public function distingue_casos_con_actividad_y_dormidos_sin_alterar_asignaciones(): void
@@ -147,8 +126,6 @@ class ActividadCasosTest extends TestCase
     /**
      * Un plan cerrado no es actividad y el umbral es el del centro: con
      * 12 meses de inactividad, el apunte de hace 8 meses vuelve a contar.
-     *
-     * @return void
      */
     #[Test]
     public function el_plan_cerrado_no_cuenta_y_el_umbral_es_el_del_centro(): void
@@ -171,8 +148,6 @@ class ActividadCasosTest extends TestCase
     /**
      * Solo cuentan las referencias vigentes del centro: las cerradas y las de
      * otro centro no suman.
-     *
-     * @return void
      */
     #[Test]
     public function solo_cuenta_las_referencias_vigentes_del_centro(): void
@@ -199,8 +174,6 @@ class ActividadCasosTest extends TestCase
 
     /**
      * El resumen hace un número fijo de consultas, sea cual sea el número de casos.
-     *
-     * @return void
      */
     #[Test]
     public function el_resumen_no_hace_una_consulta_por_caso(): void
@@ -233,8 +206,6 @@ class ActividadCasosTest extends TestCase
      * Un profesional dado de baja (soft delete) con casos vigentes sigue en el
      * resumen, marcado como borrado: son justo los casos que hay que repartir
      * (RN-08). Antes rompía la pantalla con «Undefined array key».
-     *
-     * @return void
      */
     #[Test]
     public function el_profesional_dado_de_baja_con_casos_sigue_en_el_resumen(): void

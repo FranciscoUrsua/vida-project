@@ -52,8 +52,6 @@ class TipoDocumentalResource extends Resource
      * Define el formulario de tipos documentales.
      *
      * @param Schema $schema Esquema base del formulario.
-     *
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -170,8 +168,6 @@ class TipoDocumentalResource extends Resource
      * Configura el listado de tipos documentales.
      *
      * @param Table $table Tabla base.
-     *
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -212,8 +208,6 @@ class TipoDocumentalResource extends Resource
 
     /**
      * Solo adm_sistema ve el recurso.
-     *
-     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -222,8 +216,6 @@ class TipoDocumentalResource extends Resource
 
     /**
      * Solo adm_sistema crea tipos.
-     *
-     * @return bool
      */
     public static function canCreate(): bool
     {
@@ -234,8 +226,6 @@ class TipoDocumentalResource extends Resource
      * Solo adm_sistema edita tipos.
      *
      * @param Model $record Registro objetivo.
-     *
-     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -246,8 +236,6 @@ class TipoDocumentalResource extends Resource
      * Solo adm_sistema borra, y solo tipos sin documentos.
      *
      * @param Model $record Registro objetivo.
-     *
-     * @return bool
      */
     public static function canDelete(Model $record): bool
     {
@@ -256,8 +244,6 @@ class TipoDocumentalResource extends Resource
 
     /**
      * Indica si el usuario autenticado es adm_sistema.
-     *
-     * @return bool
      */
     private static function esAdmSistema(): bool
     {

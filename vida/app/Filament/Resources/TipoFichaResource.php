@@ -13,7 +13,9 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -313,7 +315,7 @@ class TipoFichaResource extends Resource
     /**
      * Declara las páginas del catálogo de tipos de ficha.
      *
-     * @return array<string, \Filament\Resources\Pages\PageRegistration>
+     * @return array<string, PageRegistration>
      */
     public static function getPages(): array
     {
@@ -447,7 +449,7 @@ class TipoFichaResource extends Resource
     /**
      * Campos base compartidos por todos los bloques del Builder.
      *
-     * @return array<int, \Filament\Schemas\Components\Component>
+     * @return array<int, Component>
      */
     private static function camposBase(): array
     {

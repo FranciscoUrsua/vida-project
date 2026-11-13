@@ -15,7 +15,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property string $nombre
- * @property string|null $slug  Identificador estable único, ej: 'menores', 'vvg'
+ * @property string|null $slug Identificador estable único, ej: 'menores', 'vvg'
  * @property string $descripcion
  * @property bool $requiere_aprobacion_previa
  * @property bool $activo

@@ -316,8 +316,6 @@ class BuscarCiudadanoPageTest extends TestCase
     /**
      * TF-LW-BUS-09 — Por NI-HSU-CM sin ningún identificador que coincida no hay resultados.
      * (La búsqueda con coincidencia está en tests/Feature/Acceso/BusquedaPorDocumentoTest.php.)
-     *
-     * @return void
      */
     #[Test]
     public function busqueda_por_hsu_sin_identificador_no_devuelve_resultados(): void
@@ -356,10 +354,6 @@ class BuscarCiudadanoPageTest extends TestCase
     /**
      * Comprueba que alguna etiqueta del HTML lleva la clase exacta (no un prefijo:
      * `bg-protected` no se da por buena con `bg-protected-subtle`).
-     *
-     * @param  string  $clase
-     * @param  string  $html
-     * @return void
      */
     private function assertTieneClase(string $clase, string $html): void
     {

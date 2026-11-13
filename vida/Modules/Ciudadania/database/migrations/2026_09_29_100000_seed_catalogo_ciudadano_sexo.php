@@ -14,8 +14,6 @@ return new class extends Migration
 {
     /**
      * Inserta o actualiza los tres valores del catálogo.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -31,8 +29,6 @@ return new class extends Migration
 
     /**
      * Elimina el catálogo.
-     *
-     * @return void
      */
     public function down(): void
     {

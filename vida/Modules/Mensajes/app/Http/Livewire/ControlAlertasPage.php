@@ -41,8 +41,6 @@ class ControlAlertasPage extends Component
 
     /**
      * Exige el rol de supervisión.
-     *
-     * @return void
      */
     public function mount(): void
     {
@@ -92,7 +90,6 @@ class ControlAlertasPage extends Component
      * Pide confirmación antes de cerrar una parte escalada.
      *
      * @param int $destinatarioId ID de la parte escalada.
-     * @return void
      */
     public function confirmarCierre(int $destinatarioId): void
     {
@@ -101,8 +98,6 @@ class ControlAlertasPage extends Component
 
     /**
      * Cancela el diálogo de confirmación.
-     *
-     * @return void
      */
     public function cancelarCierre(): void
     {
@@ -113,7 +108,6 @@ class ControlAlertasPage extends Component
      * Cierra la parte escalada confirmada («Cerrar alerta»).
      *
      * @param AlertaService $alertaService Servicio de ciclo de vida de alertas.
-     * @return void
      *
      * @throws AuthorizationException Si la parte no está escalada a este supervisor.
      */
@@ -137,8 +131,6 @@ class ControlAlertasPage extends Component
 
     /**
      * Refresca el seguimiento tras enviar un aviso al equipo.
-     *
-     * @return void
      */
     #[On('aviso-enviado')]
     public function refrescar(): void
@@ -148,8 +140,6 @@ class ControlAlertasPage extends Component
 
     /**
      * Renderiza la pantalla.
-     *
-     * @return View
      */
     public function render(): View
     {

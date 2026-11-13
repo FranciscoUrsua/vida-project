@@ -28,8 +28,6 @@ final readonly class DiaCalendario
      * Día cerrado.
      *
      * @param string $origen Motivo del cierre.
-     *
-     * @return self
      */
     public static function cerrado(string $origen): self
     {

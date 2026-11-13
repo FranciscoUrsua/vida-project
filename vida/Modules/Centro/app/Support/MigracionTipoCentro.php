@@ -5,6 +5,8 @@ namespace Modules\Centro\Support;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Modules\Centro\Models\Centro;
+use Modules\Centro\Models\TipoCentro;
 use RuntimeException;
 
 /**
@@ -84,9 +86,10 @@ class MigracionTipoCentro
     /**
      * Ejecuta la migración de datos.
      *
-     * @throws RuntimeException Si un centro queda sin tipo deducible.
      *
      * @return array{tipos: int, descartes: list<array{tipo: string, centro: string, propiedad: string, valor: string}>, uo_creadas: list<string>}
+     *
+     * @throws RuntimeException Si un centro queda sin tipo deducible.
      */
     public function ejecutar(): array
     {
@@ -128,7 +131,7 @@ class MigracionTipoCentro
             $informe['tipos']++;
 
             DB::table('denominaciones')->insert([
-                'denominable_type' => \Modules\Centro\Models\TipoCentro::class,
+                'denominable_type' => TipoCentro::class,
                 'denominable_id' => $tipoId,
                 'nombre' => $clave->etiqueta,
                 'nombre_corto' => self::SIGLAS[$clave->clave] ?? mb_strtoupper(mb_substr($clave->clave, 0, 20)),
@@ -177,8 +180,6 @@ class MigracionTipoCentro
 
     /**
      * Pone `tipo_centro` a los centros que no lo tenían, según el mapeo decidido.
-     *
-     * @return void
      */
     private function asignarTipoACentrosSinTipo(): void
     {
@@ -219,15 +220,13 @@ class MigracionTipoCentro
 
     /**
      * Denominación inicial de cada centro, vigente desde su alta.
-     *
-     * @return void
      */
     private function crearDenominacionesDeCentros(): void
     {
-        $conDenominacion = DB::table('denominaciones')->where('denominable_type', \Modules\Centro\Models\Centro::class)->pluck('denominable_id');
+        $conDenominacion = DB::table('denominaciones')->where('denominable_type', Centro::class)->pluck('denominable_id');
         foreach (DB::table('centros')->whereNotIn('id', $conDenominacion)->get(['id', 'nombre', 'nombre_corto', 'fecha_alta', 'created_at']) as $centro) {
             DB::table('denominaciones')->insert([
-                'denominable_type' => \Modules\Centro\Models\Centro::class,
+                'denominable_type' => Centro::class,
                 'denominable_id' => $centro->id,
                 'nombre' => $centro->nombre,
                 'nombre_corto' => mb_substr($centro->nombre_corto ?? $centro->nombre, 0, 50),
@@ -264,8 +263,6 @@ class MigracionTipoCentro
      * Id de la UO con ese nombre, o null.
      *
      * @param string $nombre Nombre exacto.
-     *
-     * @return int|null
      */
     private function uoPorNombre(string $nombre): ?int
     {

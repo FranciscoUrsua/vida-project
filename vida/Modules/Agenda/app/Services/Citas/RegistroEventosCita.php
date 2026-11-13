@@ -23,18 +23,11 @@ class RegistroEventosCita
     /**
      * Inserta un evento del historial.
      *
-     * @param AccionCitaEvento $accion
-     * @param Cita|null $cita
      * @param SolicitudCita|null $solicitud Por defecto, la de la cita.
      * @param User|null $actor Null si la acción la hace el canal externo o el sistema.
      * @param ActorTipoCitaEvento|null $actorTipo Por defecto, usuario si hay actor y sistema si no.
-     * @param CanalCitaEvento|null $canal
-     * @param PedidoPor|null $pedidoPor
-     * @param string|null $estadoAntes
-     * @param string|null $estadoDespues
      * @param string|null $motivo Se guarda cifrado.
      * @param array<string, mixed> $datos
-     * @return CitaEvento
      */
     public function registrar(
         AccionCitaEvento $accion,
@@ -67,7 +60,6 @@ class RegistroEventosCita
     /**
      * Datos de un slot para el historial (sin datos personales).
      *
-     * @param Cita $cita
      * @return array{slot_id: int, profesional_id: int, fecha: string, hora_inicio: string}
      */
     public static function datosSlot(Cita $cita): array

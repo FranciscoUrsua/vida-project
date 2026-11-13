@@ -19,8 +19,6 @@ return new class extends Migration
 {
     /**
      * Crea la tabla `secciones_censales`.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -41,8 +39,6 @@ return new class extends Migration
 
     /**
      * Elimina la tabla `secciones_censales`.
-     *
-     * @return void
      */
     public function down(): void
     {

@@ -17,8 +17,6 @@ return new class extends Migration
 {
     /**
      * Añade el vínculo al destinatario y retira el índice único.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -32,8 +30,6 @@ return new class extends Migration
 
     /**
      * Restaura la estructura anterior.
-     *
-     * @return void
      */
     public function down(): void
     {

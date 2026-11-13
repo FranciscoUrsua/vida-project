@@ -22,7 +22,6 @@ class RegistroAtencionFactory extends Factory
 
     /**
      * Estado por defecto: atención de tipo información con profesional.
-     *
      */
     public function definition(): array
     {

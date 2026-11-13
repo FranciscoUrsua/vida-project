@@ -14,8 +14,8 @@ use Modules\Documentos\Contracts\AlmacenDocumentos;
 use Modules\Documentos\Contracts\ConversorPdf;
 use Modules\Documentos\Contracts\EscanerAntivirus;
 use Modules\Documentos\Contracts\ProveedorClavesMaestras;
-use Modules\Documentos\Http\Livewire\DocumentosCiudadano;
 use Modules\Documentos\Exceptions\ConfiguracionDocumentosException;
+use Modules\Documentos\Http\Livewire\DocumentosCiudadano;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\EstiloInforme;
 use Modules\Documentos\Observers\EstiloInformeObserver;
@@ -39,8 +39,6 @@ class DocumentosServiceProvider extends ServiceProvider
 
     /**
      * Registra configuración y servicios del módulo.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -67,8 +65,6 @@ class DocumentosServiceProvider extends ServiceProvider
      * ficheros sin analizar, así que la custodia se niega a funcionar.
      *
      * @throws ConfiguracionDocumentosException
-     *
-     * @return EscanerAntivirus
      */
     private function escanerAntivirus(): EscanerAntivirus
     {
@@ -83,8 +79,6 @@ class DocumentosServiceProvider extends ServiceProvider
 
     /**
      * Arranca el módulo Documentos: migraciones, observers, baja de ciudadano, vistas, rutas, Livewire y comandos.
-     *
-     * @return void
      */
     public function boot(): void
     {

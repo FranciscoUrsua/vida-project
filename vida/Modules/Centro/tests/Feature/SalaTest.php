@@ -2,6 +2,7 @@
 
 namespace Modules\Centro\Tests\Feature;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Centro\Models\Actividad;
 use Modules\Centro\Models\Centro;
@@ -23,30 +24,30 @@ class SalaTest extends TestCase
     private function crearCentro(): Centro
     {
         return Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
-            'nombre'         => 'Centro de prueba',
-            'tipo_gestion'   => 'municipal_directo',
-            'fecha_alta'     => today()->toDateString(),
+            'nombre' => 'Centro de prueba',
+            'tipo_gestion' => 'municipal_directo',
+            'fecha_alta' => today()->toDateString(),
         ]);
     }
 
     private function crearSesion(Centro $centro): SesionActividad
     {
-        $tipo = TipoActividad::create(['nombre' => 'Tipo ' . uniqid(), 'activo' => true]);
+        $tipo = TipoActividad::create(['nombre' => 'Tipo '.uniqid(), 'activo' => true]);
         $actividad = Actividad::create([
-            'centro_id'                  => $centro->id,
-            'tipo_actividad_id'          => $tipo->id,
-            'nombre'                     => 'Actividad prueba',
-            'modo_acceso'                => 'libre',
+            'centro_id' => $centro->id,
+            'tipo_actividad_id' => $tipo->id,
+            'nombre' => 'Actividad prueba',
+            'modo_acceso' => 'libre',
             'requiere_inscripcion_centro' => false,
-            'activa'                     => true,
-            'fecha_alta'                 => today()->toDateString(),
+            'activa' => true,
+            'fecha_alta' => today()->toDateString(),
         ]);
 
         return SesionActividad::create([
             'actividad_id' => $actividad->id,
-            'fecha'        => today()->toDateString(),
-            'hora_inicio'  => '10:00:00',
-            'estado'       => 'programada',
+            'fecha' => today()->toDateString(),
+            'hora_inicio' => '10:00:00',
+            'estado' => 'programada',
         ]);
     }
 
@@ -61,14 +62,14 @@ class SalaTest extends TestCase
 
         $sala = Sala::create([
             'centro_id' => $centro->id,
-            'nombre'    => 'Aula A',
+            'nombre' => 'Aula A',
         ]);
 
         $this->assertDatabaseHas('salas', [
-            'id'        => $sala->id,
-            'nombre'    => 'Aula A',
+            'id' => $sala->id,
+            'nombre' => 'Aula A',
             'accesible' => false,
-            'activa'    => true,
+            'activa' => true,
         ]);
     }
 
@@ -80,7 +81,7 @@ class SalaTest extends TestCase
     public function una_sala_pertenece_a_un_centro(): void
     {
         $centro = $this->crearCentro();
-        $sala   = Sala::create(['centro_id' => $centro->id, 'nombre' => 'Aula B']);
+        $sala = Sala::create(['centro_id' => $centro->id, 'nombre' => 'Aula B']);
 
         $this->assertEquals($centro->id, $sala->centro->id);
     }
@@ -127,9 +128,9 @@ class SalaTest extends TestCase
     #[Test]
     public function se_puede_asignar_una_sala_a_una_sesion(): void
     {
-        $centro  = $this->crearCentro();
-        $sala    = Sala::create(['centro_id' => $centro->id, 'nombre' => 'Aula C']);
-        $sesion  = $this->crearSesion($centro);
+        $centro = $this->crearCentro();
+        $sala = Sala::create(['centro_id' => $centro->id, 'nombre' => 'Aula C']);
+        $sesion = $this->crearSesion($centro);
 
         $sesion->sala_id = $sala->id;
         $sesion->save();
@@ -162,7 +163,7 @@ class SalaTest extends TestCase
     public function eliminar_sala_pone_sala_id_a_null_en_sus_sesiones(): void
     {
         $centro = $this->crearCentro();
-        $sala   = Sala::create(['centro_id' => $centro->id, 'nombre' => 'Aula D']);
+        $sala = Sala::create(['centro_id' => $centro->id, 'nombre' => 'Aula D']);
         $sesion = $this->crearSesion($centro);
 
         $sesion->sala_id = $sala->id;
@@ -182,7 +183,7 @@ class SalaTest extends TestCase
     {
         TipoActividad::create(['nombre' => 'Taller', 'slug' => 'taller', 'activo' => true]);
 
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         TipoActividad::create(['nombre' => 'Otro taller', 'slug' => 'taller', 'activo' => true]);
     }

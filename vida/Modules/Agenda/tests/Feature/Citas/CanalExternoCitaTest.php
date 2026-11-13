@@ -29,9 +29,6 @@ class CanalExternoCitaTest extends TestCase
     use CitasTestSetup;
     use RefreshDatabase;
 
-    /**
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -42,6 +39,7 @@ class CanalExternoCitaTest extends TestCase
      * Recibe una petición del mock de Cita Previa.
      *
      * @param array<string, mixed> $payload
+     *
      * @return array{cita: Cita, creada: bool}
      */
     private function recibir(array $payload): array
@@ -51,8 +49,6 @@ class CanalExternoCitaTest extends TestCase
 
     /**
      * TF-CIT-39 — La misma referencia no crea otra cita ni escribe evento.
-     *
-     * @return void
      */
     #[Test]
     public function idempotencia(): void
@@ -73,8 +69,6 @@ class CanalExternoCitaTest extends TestCase
 
     /**
      * TF-CIT-40 — Persona no identificada: sin ciudadano, datos cifrados, ningún ciudadano nuevo.
-     *
-     * @return void
      */
     #[Test]
     public function persona_no_identificada(): void
@@ -99,8 +93,6 @@ class CanalExternoCitaTest extends TestCase
 
     /**
      * Con un documento que casa con una sola persona, la cita queda identificada.
-     *
-     * @return void
      */
     #[Test]
     public function persona_identificada_por_documento(): void
@@ -122,8 +114,6 @@ class CanalExternoCitaTest extends TestCase
 
     /**
      * TF-CIT-41 — Identificación posterior en ventanilla.
-     *
-     * @return void
      */
     #[Test]
     public function identificacion_posterior(): void
@@ -139,8 +129,6 @@ class CanalExternoCitaTest extends TestCase
 
     /**
      * El canal externo no reserva slots de urgencia (PF-05.4).
-     *
-     * @return void
      */
     #[Test]
     public function el_canal_externo_no_reserva_slots_de_urgencia(): void

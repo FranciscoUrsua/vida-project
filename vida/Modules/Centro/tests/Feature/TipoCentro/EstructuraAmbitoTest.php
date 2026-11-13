@@ -5,6 +5,7 @@ namespace Modules\Centro\Tests\Feature\TipoCentro;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
+use App\Models\User;
 use App\Services\AmbitoUsuario;
 use DomainException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,6 +19,7 @@ use Modules\Agenda\Services\Citas\CitacionService;
 use Modules\Atencion\Models\RegistroAtencion;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Centro\Services\TipoCentro\CentroService;
 use Modules\Centro\Tests\Concerns\TipoCentroTestSetup;
 use Modules\Intervencion\Enums\TipoApunte;
@@ -45,8 +47,6 @@ class EstructuraAmbitoTest extends TestCase
 
     /**
      * Escenario común y una persona atendida en el CIAM de Vallecas.
-     *
-     * @return void
      */
     protected function setUp(): void
     {
@@ -60,11 +60,10 @@ class EstructuraAmbitoTest extends TestCase
     /**
      * Si el usuario ve la historia por el scope y a la persona por la policy.
      *
-     * @param \App\Models\User $usuario
      *
      * @return array{0: bool, 1: bool}
      */
-    private function ve(\App\Models\User $usuario): array
+    private function ve(User $usuario): array
     {
         $this->actingAs($usuario);
         app(AmbitoUsuario::class)->olvidar();
@@ -142,8 +141,6 @@ class EstructuraAmbitoTest extends TestCase
 
     /**
      * Perfiles de la psicóloga: lunes y martes en Vallecas, miércoles y jueves en Usera.
-     *
-     * @return void
      */
     private function perfilesDeLaPsicologa(): void
     {
@@ -244,6 +241,6 @@ class EstructuraAmbitoTest extends TestCase
             }
         }
 
-        $this->assertFalse(app(\Modules\Centro\Services\ConfiguracionEfectivaCentro::class)->inscripcionLibre(Centro::find($this->cssNorte->id)));
+        $this->assertFalse(app(ConfiguracionEfectivaCentro::class)->inscripcionLibre(Centro::find($this->cssNorte->id)));
     }
 }

@@ -76,7 +76,6 @@ class BandejaCitacionPage extends Component
     /**
      * Comprueba que el usuario ve la bandeja de su centro.
      *
-     * @return void
      *
      * @throws AuthorizationException
      */
@@ -89,8 +88,6 @@ class BandejaCitacionPage extends Component
 
     /**
      * Centro de la UO activa del usuario.
-     *
-     * @return Centro
      */
     #[Computed]
     public function centro(): Centro
@@ -159,9 +156,6 @@ class BandejaCitacionPage extends Component
 
     /**
      * Cambia de pestaña.
-     *
-     * @param string $pestana
-     * @return void
      */
     public function verPestana(string $pestana): void
     {
@@ -171,9 +165,6 @@ class BandejaCitacionPage extends Component
 
     /**
      * Toma una solicitud para gestionarla (nadie más la llamará mientras tanto).
-     *
-     * @param int $id
-     * @return void
      */
     public function tomar(int $id): void
     {
@@ -183,9 +174,7 @@ class BandejaCitacionPage extends Component
     /**
      * Abre el formulario de soltar, desistir o anular.
      *
-     * @param int $id
      * @param string $accion 'soltar', 'desistir' o 'anular'.
-     * @return void
      */
     public function prepararCierre(int $id, string $accion): void
     {
@@ -195,8 +184,6 @@ class BandejaCitacionPage extends Component
 
     /**
      * Suelta (con nota opcional), desiste o anula (con motivo obligatorio).
-     *
-     * @return void
      */
     public function confirmarCierre(): void
     {
@@ -222,8 +209,6 @@ class BandejaCitacionPage extends Component
     /**
      * Propone huecos para una solicitud.
      *
-     * @param int $id
-     * @return void
      *
      * @throws AuthorizationException
      */
@@ -248,9 +233,6 @@ class BandejaCitacionPage extends Component
 
     /**
      * Da la cita en el hueco elegido.
-     *
-     * @param int $slotId
-     * @return void
      */
     public function citar(int $slotId): void
     {
@@ -272,9 +254,6 @@ class BandejaCitacionPage extends Component
 
     /**
      * Abre la identificación de una cita externa.
-     *
-     * @param int $citaId
-     * @return void
      */
     public function prepararIdentificacion(int $citaId): void
     {
@@ -284,9 +263,6 @@ class BandejaCitacionPage extends Component
 
     /**
      * Asocia la cita externa a la persona elegida.
-     *
-     * @param int $ciudadanoId
-     * @return void
      */
     public function identificar(int $ciudadanoId): void
     {
@@ -298,8 +274,6 @@ class BandejaCitacionPage extends Component
 
     /**
      * Cierra los paneles abiertos.
-     *
-     * @return void
      */
     public function reiniciarPaneles(): void
     {
@@ -313,8 +287,6 @@ class BandejaCitacionPage extends Component
 
     /**
      * Pinta la bandeja.
-     *
-     * @return View
      */
     public function render(): View
     {
@@ -323,9 +295,6 @@ class BandejaCitacionPage extends Component
 
     /**
      * Solicitud del centro (una de otro centro no existe para esta pantalla).
-     *
-     * @param int $id
-     * @return SolicitudCita
      */
     private function solicitud(int $id): SolicitudCita
     {
@@ -337,8 +306,6 @@ class BandejaCitacionPage extends Component
      * muestra; si va bien, deja el aviso y recarga las listas.
      *
      * @param callable(): mixed $accion
-     * @param string $ok
-     * @return bool
      */
     private function ejecutar(callable $accion, string $ok): bool
     {
@@ -357,9 +324,6 @@ class BandejaCitacionPage extends Component
         return true;
     }
 
-    /**
-     * @return Centro|null
-     */
     private function centroOrNull(): ?Centro
     {
         return app(CentroDeUsuario::class)->centroActivo(Auth::user());

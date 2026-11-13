@@ -36,11 +36,6 @@ use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
  */
 class BusquedaHuecosService
 {
-    /**
-     * @param DisponibilidadService $disponibilidad
-     * @param AsignacionReferenciaService $referencias
-     * @param SolicitudCitaService $solicitudes
-     */
     public function __construct(
         private readonly DisponibilidadService $disponibilidad,
         private readonly AsignacionReferenciaService $referencias,
@@ -50,8 +45,6 @@ class BusquedaHuecosService
     /**
      * Huecos propuestos, ordenados por fecha y hora.
      *
-     * @param SolicitudCita $solicitud
-     * @param int $limite
      * @return Collection<int, PropuestaHueco>
      */
     public function buscar(SolicitudCita $solicitud, int $limite = 10): Collection
@@ -91,10 +84,6 @@ class BusquedaHuecosService
      * externas, ordinaria). La ventana va de hoy a la fecha indicada o, si no, al
      * plazo de la urgencia. El slot actual de la cita no se propone.
      *
-     * @param Cita $cita
-     * @param bool $mismoProfesional
-     * @param Carbon|null $hasta
-     * @param int $limite
      * @return Collection<int, PropuestaHueco>
      */
     public function paraReprogramar(Cita $cita, bool $mismoProfesional, ?Carbon $hasta = null, int $limite = 10): Collection
@@ -122,10 +111,8 @@ class BusquedaHuecosService
     /**
      * Destino referencia: la referencia o, si no está disponible, sustitutos de su perfil.
      *
-     * @param SolicitudCita $solicitud
      * @param callable(list<int>|null): Collection<int, Slot> $buscar
-     * @param Carbon $desde
-     * @param Carbon $hasta
+     *
      * @return Collection<int, PropuestaHueco>
      */
     private function paraReferencia(SolicitudCita $solicitud, callable $buscar, Carbon $desde, Carbon $hasta): Collection
@@ -157,12 +144,6 @@ class BusquedaHuecosService
 
     /**
      * Si las ausencias del profesional cubren más días de la ventana que el umbral del centro.
-     *
-     * @param User $profesional
-     * @param int $centroId
-     * @param Carbon $desde
-     * @param Carbon $hasta
-     * @return bool
      */
     private function ausenciaProlongada(User $profesional, int $centroId, Carbon $desde, Carbon $hasta): bool
     {
@@ -188,11 +169,9 @@ class BusquedaHuecosService
     /**
      * Slots libres (sin empezar) de los profesionales dados.
      *
-     * @param SolicitudCita $solicitud
      * @param list<int>|null $usuarios Null: todos los del centro.
      * @param list<int> $tipos
-     * @param Carbon $desde
-     * @param Carbon $hasta
+     *
      * @return Collection<int, Slot>
      */
     private function libres(SolicitudCita $solicitud, ?array $usuarios, array $tipos, Carbon $desde, Carbon $hasta): Collection
@@ -209,7 +188,7 @@ class BusquedaHuecosService
      * Convierte slots en propuestas con su profesional.
      *
      * @param Collection<int, Slot> $slots
-     * @param ModoAsignacionCita $modo
+     *
      * @return Collection<int, PropuestaHueco>
      */
     private function propuestas(Collection $slots, ModoAsignacionCita $modo): Collection
@@ -225,7 +204,6 @@ class BusquedaHuecosService
     /**
      * Usuarios cuyo profesional tiene el cargo (perfil) dado.
      *
-     * @param string $slug
      * @return list<int>
      */
     private function usuariosDelPerfil(string $slug): array
@@ -236,7 +214,6 @@ class BusquedaHuecosService
     /**
      * Ventana de búsqueda: desde hoy (o no antes de) hasta la fecha límite.
      *
-     * @param SolicitudCita $solicitud
      * @return array{0: Carbon, 1: Carbon}
      */
     private function ventana(SolicitudCita $solicitud): array

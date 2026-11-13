@@ -3,6 +3,7 @@
 namespace Modules\Agenda\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Modules\Agenda\Database\Factories\HorarioCentroFactory;
 use Modules\Agenda\Enums\ModoAgenda;
+use Modules\Agenda\Enums\UrgenciaCita;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 
 /**
  * Horario operativo de un centro.
@@ -42,7 +45,7 @@ use Modules\Centro\Models\Centro;
  * @property bool $activo
  * @property string|null $notas
  * @property array|null $semana_tipo
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TipoSlot> $tiposSlot
+ * @property-read Collection<int, TipoSlot> $tiposSlot
  * @property array<string, int>|null $plazos_urgencia Días laborables por urgencia.
  * @property int $dias_aviso_cierre_supervisor Días laborables pendientes de cierre antes de avisar al supervisor.
  * @property int $dias_ausencia_prolongada Umbral a partir del cual una ausencia saca al profesional del sorteo de referencias.
@@ -51,12 +54,11 @@ class HorarioCentro extends Model
 {
     /** @use HasFactory<HorarioCentroFactory> */
     use HasFactory;
+
     use SoftDeletes;
 
     /**
      * Factoría del modelo (vive en el módulo, no en database/factories).
-     *
-     * @return HorarioCentroFactory
      */
     protected static function newFactory(): HorarioCentroFactory
     {
@@ -90,8 +92,6 @@ class HorarioCentro extends Model
      * Un horario nuevo hereda el del tipo salvo que traiga su propio horario
      * (compatibilidad con las altas que ya fijan días y horas). Con herencia, los
      * campos de horario quedan a null y no se leen.
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -113,8 +113,6 @@ class HorarioCentro extends Model
     /**
      * Vuelve al horario del tipo: herencia activada y campos de horario vacíos;
      * el resto de parámetros de agenda se conservan (§4, «Volver al valor del tipo»).
-     *
-     * @return void
      */
     public function volverAlTipo(): void
     {
@@ -185,11 +183,8 @@ class HorarioCentro extends Model
 
     /**
      * Plazo máximo en días laborables para una urgencia (docs/modulo-citas.md §8).
-     *
-     * @param \Modules\Agenda\Enums\UrgenciaCita $urgencia
-     * @return int
      */
-    public function plazoUrgencia(\Modules\Agenda\Enums\UrgenciaCita $urgencia): int
+    public function plazoUrgencia(UrgenciaCita $urgencia): int
     {
         $defecto = ['ordinaria' => 20, 'preferente' => 7, 'urgente' => 2];
 
@@ -198,9 +193,6 @@ class HorarioCentro extends Model
 
     /**
      * Si el centro abre en una fecha: horario efectivo con los cierres de calendario.
-     *
-     * @param Carbon $fecha
-     * @return bool
      */
     public function esLaborable(Carbon $fecha): bool
     {
@@ -209,15 +201,11 @@ class HorarioCentro extends Model
             return in_array($fecha->isoWeekday(), array_map('intval', $this->dias_laborables ?? [1, 2, 3, 4, 5]), true);
         }
 
-        return app(\Modules\Centro\Services\ConfiguracionEfectivaCentro::class)->dia($this->centro, $fecha)->abierto;
+        return app(ConfiguracionEfectivaCentro::class)->dia($this->centro, $fecha)->abierto;
     }
 
     /**
      * Fecha que resulta de sumar días laborables a otra.
-     *
-     * @param Carbon $desde
-     * @param int $dias
-     * @return Carbon
      */
     public function sumarDiasLaborables(Carbon $desde, int $dias): Carbon
     {
@@ -235,10 +223,6 @@ class HorarioCentro extends Model
 
     /**
      * Días laborables entre dos fechas (sin contar la inicial).
-     *
-     * @param Carbon $desde
-     * @param Carbon $hasta
-     * @return int
      */
     public function diasLaborablesEntre(Carbon $desde, Carbon $hasta): int
     {
@@ -259,9 +243,7 @@ class HorarioCentro extends Model
     /**
      * Horario vigente de un centro en una fecha.
      *
-     * @param int $centroId
      * @param Carbon|null $fecha Por defecto, hoy.
-     * @return self|null
      */
     public static function vigenteDelCentro(int $centroId, ?Carbon $fecha = null): ?self
     {
@@ -277,8 +259,6 @@ class HorarioCentro extends Model
 
     /**
      * Indica si el horario usa modo basico.
-     *
-     * @return bool
      */
     public function esModoBasico(): bool
     {
@@ -287,8 +267,6 @@ class HorarioCentro extends Model
 
     /**
      * Indica si el horario usa modo avanzado.
-     *
-     * @return bool
      */
     public function esModoAvanzado(): bool
     {

@@ -34,8 +34,6 @@ class PlanDeIntervencionService
      *
      * @throws AuthorizationException Si el usuario no tiene permiso de crear planes
      * @throws DomainException Si el centro no ofrece el tipo de plan.
-     *
-     * @return PlanDeIntervencion
      */
     public function crear(array $datos, ?Centro $centro = null): PlanDeIntervencion
     {
@@ -58,8 +56,6 @@ class PlanDeIntervencionService
      * @param Centro|null $centro Centro en que se abre el plan.
      *
      * @throws DomainException
-     *
-     * @return void
      */
     public function exigirTipoPlanDelCentro(int $tipoPlanId, ?Centro $centro): void
     {

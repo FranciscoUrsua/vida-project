@@ -27,8 +27,6 @@ class GeocodificacionCodigosTest extends TestCase
 
     /**
      * Evita que el job de reintento se ejecute de forma síncrona en los tests.
-     *
-     * @return void
      */
     protected function setUp(): void
     {
@@ -41,7 +39,6 @@ class GeocodificacionCodigosTest extends TestCase
      * Crea un ciudadano con dirección introducida por un profesional.
      *
      * @param string $direccion Texto libre de la dirección.
-     * @return Ciudadano
      */
     private function ciudadanoConDireccion(string $direccion): Ciudadano
     {
@@ -53,8 +50,6 @@ class GeocodificacionCodigosTest extends TestCase
 
     /**
      * TF-ASG-03 — La dirección normalizada guarda NDP, distrito, barrio y sección coherentes.
-     *
-     * @return void
      */
     #[Test]
     public function la_direccion_normalizada_guarda_codigos_coherentes_con_el_catalogo(): void
@@ -83,8 +78,6 @@ class GeocodificacionCodigosTest extends TestCase
 
     /**
      * TF-ASG-04 — Un fallo de geocodificación deja los cuatro códigos a null.
-     *
-     * @return void
      */
     #[Test]
     public function un_fallo_de_geocodificacion_deja_los_codigos_nulos(): void

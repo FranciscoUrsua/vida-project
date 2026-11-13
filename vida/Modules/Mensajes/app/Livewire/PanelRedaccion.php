@@ -89,7 +89,6 @@ class PanelRedaccion extends Component
      *
      * @param array<string, mixed> $contexto ['tipo' => 'historia'|'ficha'|'plan', 'id' => int]
      * @param int|null $sugerirDestinatarioId Sugerencia explícita; si falta, el autor del elemento.
-     * @return void
      */
     #[On('abrir-panel-redaccion')]
     public function abrir(array $contexto = [], ?int $sugerirDestinatarioId = null): void
@@ -124,8 +123,6 @@ class PanelRedaccion extends Component
 
     /**
      * Cierra el panel sin enviar.
-     *
-     * @return void
      */
     public function cerrar(): void
     {
@@ -134,8 +131,6 @@ class PanelRedaccion extends Component
 
     /**
      * Confirma el destinatario sugerido (el chip pasa de gris a normal).
-     *
-     * @return void
      */
     public function confirmarSugerencia(): void
     {
@@ -147,8 +142,6 @@ class PanelRedaccion extends Component
 
     /**
      * Quita el destinatario, sugerido o confirmado, para buscar otro.
-     *
-     * @return void
      */
     public function quitarDestinatario(): void
     {
@@ -160,7 +153,6 @@ class PanelRedaccion extends Component
      * Elige un destinatario de los resultados de búsqueda.
      *
      * @param int $usuarioId ID del usuario.
-     * @return void
      */
     public function seleccionarDestinatario(int $usuarioId): void
     {
@@ -179,8 +171,6 @@ class PanelRedaccion extends Component
 
     /**
      * Quita el elemento vinculado.
-     *
-     * @return void
      */
     public function quitarContexto(): void
     {
@@ -191,7 +181,6 @@ class PanelRedaccion extends Component
      * Añade un ciudadano a las referencias, si el usuario puede verlo.
      *
      * @param int $ciudadanoId ID del ciudadano.
-     * @return void
      */
     public function agregarCiudadano(int $ciudadanoId): void
     {
@@ -209,7 +198,6 @@ class PanelRedaccion extends Component
      * Quita un ciudadano de las referencias.
      *
      * @param int $ciudadanoId ID del ciudadano.
-     * @return void
      */
     public function quitarCiudadano(int $ciudadanoId): void
     {
@@ -220,7 +208,6 @@ class PanelRedaccion extends Component
      * Envía el mensaje: crea el hilo con su elemento vinculado y cierra el panel.
      *
      * @param MensajeriaService $mensajeriaService Servicio de mensajería.
-     * @return void
      *
      * @throws ValidationException Si falta el destinatario confirmado, el asunto o el cuerpo.
      */
@@ -366,7 +353,6 @@ class PanelRedaccion extends Component
      * Nombre completo del ciudadano para listas y chips.
      *
      * @param Ciudadano $ciudadano Ciudadano.
-     * @return string
      */
     public function nombreCiudadano(Ciudadano $ciudadano): string
     {
@@ -375,8 +361,6 @@ class PanelRedaccion extends Component
 
     /**
      * Renderiza el panel.
-     *
-     * @return View
      */
     public function render(): View
     {

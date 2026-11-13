@@ -141,9 +141,9 @@ class SalaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListSalas::route('/'),
+            'index' => Pages\ListSalas::route('/'),
             'create' => Pages\CreateSala::route('/create'),
-            'edit'   => Pages\EditSala::route('/{record}/edit'),
+            'edit' => Pages\EditSala::route('/{record}/edit'),
         ];
     }
 }

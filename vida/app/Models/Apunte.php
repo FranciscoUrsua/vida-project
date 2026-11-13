@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\AmbitoUoScope;
-use Database\Factories\ApunteFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
- * @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>>
+ * @use HasFactory<Factory<self>>
  *
  * Modelo stub de Apunte (acto profesional).
  *
@@ -41,8 +41,9 @@ use Illuminate\Support\Carbon;
  */
 class Apunte extends Model
 {
-    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<self>> */
+    /** @use HasFactory<Factory<self>> */
     use HasFactory;
+
     use SoftDeletes;
 
     /**

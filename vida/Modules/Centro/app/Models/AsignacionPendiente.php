@@ -5,7 +5,6 @@ namespace Modules\Centro\Models;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -123,6 +122,7 @@ class AsignacionPendiente extends Model
      * Filtra las entradas abiertas.
      *
      * @param Builder<self> $query
+     *
      * @return Builder<self>
      */
     public function scopeAbiertas(Builder $query): Builder
@@ -137,6 +137,7 @@ class AsignacionPendiente extends Model
      *
      * @param Builder<self> $query
      * @param Centro $centro Centro del supervisor.
+     *
      * @return Builder<self>
      */
     public function scopeVisiblesPara(Builder $query, Centro $centro): Builder

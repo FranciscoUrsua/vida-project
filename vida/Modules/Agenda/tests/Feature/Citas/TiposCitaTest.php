@@ -23,9 +23,6 @@ class TiposCitaTest extends TestCase
     use CitasTestSetup;
     use RefreshDatabase;
 
-    /**
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -34,8 +31,6 @@ class TiposCitaTest extends TestCase
 
     /**
      * TF-CIT-01 — Solo administración gestiona tipos de cita (con auditoría y versión).
-     *
-     * @return void
      */
     #[Test]
     public function solo_administracion_gestiona_tipos_de_cita(): void
@@ -68,8 +63,6 @@ class TiposCitaTest extends TestCase
 
     /**
      * TF-CIT-02 — El código es inmutable si hay citas del tipo; sin citas, se puede cambiar.
-     *
-     * @return void
      */
     #[Test]
     public function el_codigo_es_inmutable_con_citas(): void
@@ -90,8 +83,6 @@ class TiposCitaTest extends TestCase
     /**
      * TF-CIT-03 — Nombre interno para quien accede a la Historia Social; etiqueta
      * pública para el resto. [negativo]
-     *
-     * @return void
      */
     #[Test]
     public function nombre_interno_y_etiqueta_publica_segun_rol(): void

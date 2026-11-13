@@ -16,9 +16,9 @@ interface ConversorPdf
      * @param string $mime MIME detectado por contenido.
      * @param string $directorio Directorio de trabajo de esta ingesta (zona temporal).
      *
-     * @throws IngestaRechazadaException con código conversion_fallida si no se puede convertir
-     *
      * @return string Ruta del PDF resultante, dentro de $directorio.
+     *
+     * @throws IngestaRechazadaException con código conversion_fallida si no se puede convertir
      */
     public function convertir(string $ruta, string $mime, string $directorio): string;
 }

@@ -18,6 +18,7 @@ class ContadoresBandejaService
      * Pendientes del usuario en cada pestaña.
      *
      * @param User $usuario Usuario autenticado.
+     *
      * @return array{alertas: int, avisos: int, mensajes: int}
      */
     public function para(User $usuario): array
@@ -38,7 +39,6 @@ class ContadoresBandejaService
      * Mensajes no leídos del usuario en hilos no archivados.
      *
      * @param User $usuario Usuario autenticado.
-     * @return int
      */
     public function mensajesNoLeidos(User $usuario): int
     {

@@ -50,8 +50,6 @@ class AgendaServiceProvider extends ServiceProvider
      *   petición para que se puedan consultar sus notificaciones.
      * - AtencionCitaService es único por petición: guarda la corrección de
      *   supervisión en curso que consulta el observador de cierre.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -61,8 +59,6 @@ class AgendaServiceProvider extends ServiceProvider
 
     /**
      * Arranca el módulo: migraciones, vistas, rutas, observers, políticas y Livewire.
-     *
-     * @return void
      */
     public function boot(): void
     {

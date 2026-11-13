@@ -26,8 +26,6 @@ class CatalogoCargosSeederTest extends TestCase
 
     /**
      * Prepara los roles del sistema, necesarios para validar las sugerencias.
-     *
-     * @return void
      */
     protected function setUp(): void
     {

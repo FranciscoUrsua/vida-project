@@ -6,11 +6,11 @@ use App\Models\UnidadOrganizativa;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use stdClass;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use stdClass;
 
 /**
  * Componente Livewire para la gestión de Unidades Organizativas en el backoffice.

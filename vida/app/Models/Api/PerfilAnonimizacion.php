@@ -2,7 +2,6 @@
 
 namespace App\Models\Api;
 
-use App\Exceptions\Anonimizacion\PerfilConExtraccionesException;
 use App\Exceptions\Anonimizacion\PerfilSistemaNoEliminableException;
 use Database\Factories\PerfilAnonimizacionFactory;
 use Illuminate\Database\Eloquent\Builder;

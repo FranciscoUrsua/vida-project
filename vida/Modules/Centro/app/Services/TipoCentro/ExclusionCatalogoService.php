@@ -7,6 +7,7 @@ use DomainException;
 use Modules\Centro\Enums\ElementoCatalogo;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\ExclusionCatalogo;
+use Modules\Intervencion\Models\TipoFicha;
 
 /**
  * Exclusiones del catálogo del tipo en un centro (RN-08, §6.3).
@@ -25,8 +26,6 @@ class ExclusionCatalogoService
      * @param User|null $actor Usuario que la crea.
      *
      * @throws DomainException Si el tipo no permite restricción o el elemento no es del tipo.
-     *
-     * @return ExclusionCatalogo
      */
     public function excluir(Centro $centro, ElementoCatalogo $tipo, int $elementoId, ?User $actor): ExclusionCatalogo
     {
@@ -44,7 +43,7 @@ class ExclusionCatalogoService
 
         // Sin fichas en el tipo, todas las activas forman parte de su catálogo
         $enCatalogo = $tipo === ElementoCatalogo::TipoFicha && ! $tipoCentro->tiposFicha()->exists()
-            ? \Modules\Intervencion\Models\TipoFicha::whereKey($elementoId)->where('activo', true)->exists()
+            ? TipoFicha::whereKey($elementoId)->where('activo', true)->exists()
             : $relacion->whereKey($elementoId)->exists();
 
         if (! $enCatalogo) {
@@ -63,8 +62,6 @@ class ExclusionCatalogoService
      * @param Centro $centro Centro.
      * @param ElementoCatalogo $tipo Clase de elemento.
      * @param int $elementoId Id del elemento.
-     *
-     * @return void
      */
     public function quitar(Centro $centro, ElementoCatalogo $tipo, int $elementoId): void
     {

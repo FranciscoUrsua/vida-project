@@ -12,6 +12,7 @@ use App\Services\PresentacionPersona;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Modules\Ciudadania\Database\Seeders\TipoRelacionSeeder;
 use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
@@ -63,8 +64,6 @@ class PersonasRelacionadasProtegidasTest extends TestCase
     /**
      * Titular con representante protegido de otra UO, conviviente con él, y una
      * relación con una persona no protegida de otra UO.
-     *
-     * @return void
      */
     protected function setUp(): void
     {
@@ -254,9 +253,9 @@ class PersonasRelacionadasProtegidasTest extends TestCase
     /**
      * Monta la ficha del titular como profesional de la UO A.
      *
-     * @return \Livewire\Features\SupportTesting\Testable<FichaCiudadanoPage>
+     * @return Testable<FichaCiudadanoPage>
      */
-    private function montarFicha(): \Livewire\Features\SupportTesting\Testable
+    private function montarFicha(): Testable
     {
         $this->actingAs($this->tsA);
 
@@ -269,8 +268,6 @@ class PersonasRelacionadasProtegidasTest extends TestCase
      * @param string $alias Prefijo del email.
      * @param string $rol Rol.
      * @param UnidadOrganizativa $uo UO de adscripción.
-     *
-     * @return User
      */
     private function usuarioEnUo(string $alias, string $rol, UnidadOrganizativa $uo): User
     {
@@ -299,8 +296,6 @@ class PersonasRelacionadasProtegidasTest extends TestCase
      * @param string $nombre Nombre.
      * @param string $apellido Primer apellido.
      * @param array<string, mixed> $attrs Atributos adicionales.
-     *
-     * @return Ciudadano
      */
     private function crearCiudadano(string $nombre, string $apellido, array $attrs = []): Ciudadano
     {
@@ -320,8 +315,6 @@ class PersonasRelacionadasProtegidasTest extends TestCase
      *
      * @param Ciudadano $ciudadano Persona.
      * @param UnidadOrganizativa $uo UO de la historia.
-     *
-     * @return HistoriaSocial
      */
     private function crearHistoria(Ciudadano $ciudadano, UnidadOrganizativa $uo): HistoriaSocial
     {
@@ -335,8 +328,6 @@ class PersonasRelacionadasProtegidasTest extends TestCase
 
     /**
      * Acceso aprobado y vigente del profesional de la UO A a la persona protegida.
-     *
-     * @return AccesoProtegido
      */
     private function aprobarAcceso(): AccesoProtegido
     {

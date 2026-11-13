@@ -40,8 +40,6 @@ trait TieneDenominaciones
      * Denominación vigente en una fecha, o null si no había ninguna.
      *
      * @param Carbon|string $fecha Fecha de referencia.
-     *
-     * @return Denominacion|null
      */
     public function denominacionEn(Carbon|string $fecha): ?Denominacion
     {
@@ -50,8 +48,6 @@ trait TieneDenominaciones
 
     /**
      * Denominación vigente hoy.
-     *
-     * @return Denominacion|null
      */
     public function denominacionVigente(): ?Denominacion
     {
@@ -68,8 +64,6 @@ trait TieneDenominaciones
      * @param User|null $actor Usuario que la programa.
      *
      * @throws DomainException
-     *
-     * @return Denominacion
      */
     public function programarDenominacion(string $nombre, string $corto, Carbon $desde, ?User $actor): Denominacion
     {

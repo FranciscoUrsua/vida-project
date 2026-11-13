@@ -2,13 +2,16 @@
 
 namespace Modules\Intervencion\Http\Livewire;
 
+use App\Models\HistoriaSocial;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\ColeccionPlazas;
 use Modules\Centro\Models\Plaza;
 use Modules\Centro\Models\Prescripcion;
@@ -101,8 +104,8 @@ class AsignarPlazaModal extends Component
      * Asigna la plaza seleccionada a la prescripción activa.
      * Verifica en servidor que la plaza pertenece al centro del profesional.
      *
-     * @param int         $plazaId       ID de la plaza a asignar.
-     * @param string|null $notaExtra     Nota justificativa (si el tipo difiere del solicitado).
+     * @param int $plazaId ID de la plaza a asignar.
+     * @param string|null $notaExtra Nota justificativa (si el tipo difiere del solicitado).
      */
     public function asignar(int $plazaId, ?string $notaExtra = null): void
     {
@@ -174,7 +177,7 @@ class AsignarPlazaModal extends Component
         }
 
         $centroId = $profesional->unidad_organizativa_id
-            ? \Modules\Centro\Models\Centro::where('unidad_organizativa_id', $profesional->unidad_organizativa_id)
+            ? Centro::where('unidad_organizativa_id', $profesional->unidad_organizativa_id)
                 ->value('id')
             : null;
 
@@ -193,26 +196,26 @@ class AsignarPlazaModal extends Component
      */
     private function notificarTsr(Prescripcion $prescripcion): void
     {
-        $historia = \App\Models\HistoriaSocial::withoutGlobalScopes()
+        $historia = HistoriaSocial::withoutGlobalScopes()
             ->where('ciudadano_id', $prescripcion->ciudadano_id)
             ->latest()
             ->first();
 
         if (! $historia) {
-            \Illuminate\Support\Facades\Log::warning('AsignarPlazaModal: no se encontró Historia Social para el ciudadano '.$prescripcion->ciudadano_id);
+            Log::warning('AsignarPlazaModal: no se encontró Historia Social para el ciudadano '.$prescripcion->ciudadano_id);
 
             return;
         }
 
         $asignacion = $historia->asignacionVigente;
         if (! $asignacion) {
-            \Illuminate\Support\Facades\Log::warning('AsignarPlazaModal: el ciudadano '.$prescripcion->ciudadano_id.' no tiene TSR activo; alerta no generada.');
+            Log::warning('AsignarPlazaModal: el ciudadano '.$prescripcion->ciudadano_id.' no tiene TSR activo; alerta no generada.');
 
             return;
         }
 
         // Registro mínimo de alerta — el módulo de Mensajes gestionará el formato final
-        \Illuminate\Support\Facades\Log::info(
+        Log::info(
             'AsignarPlazaModal: alerta enviada al profesional '.$asignacion->profesional_id.
             ' por asignación de plaza en prescripción '.$prescripcion->id
         );

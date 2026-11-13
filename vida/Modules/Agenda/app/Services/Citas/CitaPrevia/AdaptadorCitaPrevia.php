@@ -17,7 +17,6 @@ interface AdaptadorCitaPrevia
      * Traduce una petición del sistema externo a los datos de VIDA.
      *
      * @param array<string, mixed> $payload
-     * @return CitaExternaRecibida
      */
     public function interpretar(array $payload): CitaExternaRecibida;
 
@@ -27,7 +26,6 @@ interface AdaptadorCitaPrevia
      * @param Cita $cita Cita afectada (la original).
      * @param string $accion reprogramada | cancelada
      * @param array<string, mixed> $datos Sin datos personales.
-     * @return void
      */
     public function notificar(Cita $cita, string $accion, array $datos = []): void;
 }

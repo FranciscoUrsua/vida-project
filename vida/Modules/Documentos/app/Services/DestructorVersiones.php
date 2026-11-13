@@ -43,8 +43,6 @@ class DestructorVersiones
      * @param string $motivo Motivo que consta en la auditoría.
      *
      * @throws \DomainException si la versión ya no tiene contenido o el estado final no es de destrucción
-     *
-     * @return void
      */
     public function destruir(DocumentoVersion $version, EstadoVersion $estadoFinal, User $usuario, string $motivo): void
     {
@@ -66,8 +64,6 @@ class DestructorVersiones
      * @param string $motivo Motivo que consta en la auditoría.
      *
      * @throws \DomainException si la versión ya no tiene contenido o el estado final no es de destrucción
-     *
-     * @return void
      */
     public function triturarClave(DocumentoVersion $version, EstadoVersion $estadoFinal, User $usuario, string $motivo): void
     {
@@ -98,8 +94,6 @@ class DestructorVersiones
      * Elimina del almacén el objeto de una versión ya triturada.
      *
      * @param DocumentoVersion $version Versión purgada o destruida.
-     *
-     * @return void
      */
     public function eliminarObjeto(DocumentoVersion $version): void
     {

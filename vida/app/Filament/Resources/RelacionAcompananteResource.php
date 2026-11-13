@@ -47,9 +47,6 @@ class RelacionAcompananteResource extends Resource
 
     /**
      * Formulario de un valor del catálogo.
-     *
-     * @param Schema $schema
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -68,9 +65,6 @@ class RelacionAcompananteResource extends Resource
 
     /**
      * Listado del catálogo.
-     *
-     * @param Table $table
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -111,8 +105,6 @@ class RelacionAcompananteResource extends Resource
 
     /**
      * Solo adm_sistema.
-     *
-     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -121,9 +113,6 @@ class RelacionAcompananteResource extends Resource
 
     /**
      * Los valores no se borran: se desactivan.
-     *
-     * @param Model $record
-     * @return bool
      */
     public static function canDelete(Model $record): bool
     {

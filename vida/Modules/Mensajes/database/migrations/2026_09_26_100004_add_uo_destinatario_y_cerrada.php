@@ -19,8 +19,6 @@ return new class extends Migration
 {
     /**
      * Amplía las restricciones.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -42,8 +40,6 @@ return new class extends Migration
 
     /**
      * Restaura las restricciones anteriores (falla si ya hay filas con los valores nuevos).
-     *
-     * @return void
      */
     public function down(): void
     {

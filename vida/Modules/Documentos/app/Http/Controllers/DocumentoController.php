@@ -31,8 +31,6 @@ class DocumentoController extends Controller
      *
      * @param Request $request Petición.
      * @param Documento $documento Documento solicitado.
-     *
-     * @return Response
      */
     public function ver(Request $request, Documento $documento): Response
     {
@@ -44,8 +42,6 @@ class DocumentoController extends Controller
      *
      * @param Request $request Petición.
      * @param Documento $documento Documento solicitado.
-     *
-     * @return Response
      */
     public function descargar(Request $request, Documento $documento): Response
     {
@@ -59,8 +55,6 @@ class DocumentoController extends Controller
      * @param Documento $documento Documento solicitado.
      * @param AccionAuditEnum $accion Ver o Exportar.
      * @param string $disposicion inline o attachment.
-     *
-     * @return Response
      */
     private function entregar(Request $request, Documento $documento, AccionAuditEnum $accion, string $disposicion): Response
     {

@@ -201,8 +201,6 @@ class User extends Authenticatable implements FilamentUser
      * `name` no sirve para esto: booted() lo rellena siempre con el email porque la
      * columna no se expone en formularios. La identidad visible es la del Profesional
      * vinculado; los perfiles técnicos sin Profesional se muestran por su email.
-     *
-     * @return string
      */
     public function nombreVisible(): string
     {

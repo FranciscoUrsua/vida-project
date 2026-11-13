@@ -53,7 +53,7 @@ class AusenciasSupervisorPage extends Component
     {
         $centro = $this->centroDelSupervisor();
         if ($centro === null) {
-            return new Collection();
+            return new Collection;
         }
 
         $hoy = now()->toDateString();
@@ -78,7 +78,7 @@ class AusenciasSupervisorPage extends Component
     {
         $centro = $this->centroDelSupervisor();
         if ($centro === null) {
-            return new Collection();
+            return new Collection;
         }
 
         return Cita::canceladasPorAusenciaSinGestionar($centro->id)
@@ -97,7 +97,7 @@ class AusenciasSupervisorPage extends Component
     {
         $centro = $this->centroDelSupervisor();
         if ($centro === null) {
-            return new Collection();
+            return new Collection;
         }
 
         return Cita::where('centro_id', $centro->id)
@@ -114,9 +114,6 @@ class AusenciasSupervisorPage extends Component
 
     /**
      * Abre el panel de reasignación para la cita indicada.
-     *
-     * @param int $citaId
-     * @return void
      */
     public function abrirReasignacion(int $citaId): void
     {
@@ -129,9 +126,6 @@ class AusenciasSupervisorPage extends Component
      *
      * La cita permanece cancelada con un motivo que indica el descarte explícito.
      * No crea ReasignacionCita.
-     *
-     * @param int $citaId
-     * @return void
      */
     public function descartar(int $citaId): void
     {
@@ -157,9 +151,6 @@ class AusenciasSupervisorPage extends Component
 
     /**
      * Libera el slot de un no-show ciudadano, devolviéndolo a estado disponible.
-     *
-     * @param int $citaId
-     * @return void
      */
     public function liberarSlot(int $citaId): void
     {
@@ -187,8 +178,6 @@ class AusenciasSupervisorPage extends Component
 
     /**
      * Recibe el evento del panel hijo cuando se confirma una reasignación.
-     *
-     * @return void
      */
     public function cerrarPanelReasignacion(): void
     {
@@ -199,8 +188,6 @@ class AusenciasSupervisorPage extends Component
 
     /**
      * Renderiza la pantalla de ausencias del día.
-     *
-     * @return View
      */
     public function render(): View
     {
@@ -213,8 +200,6 @@ class AusenciasSupervisorPage extends Component
 
     /**
      * Resuelve el Centro del supervisor autenticado.
-     *
-     * @return Centro|null
      */
     private function centroDelSupervisor(): ?Centro
     {

@@ -31,7 +31,6 @@ class MensajeriaService
      * @param string $cuerpo Cuerpo del primer mensaje.
      * @param int[] $ciudadanoIds IDs de ciudadanos referenciados en el mensaje
      * @param array{tipo: string, id: int}|null $contexto Elemento vinculado, ya resuelto y autorizado por ContextoMensajeService.
-     * @return MensajeHilo
      */
     public function crearHilo(
         User $remitente,
@@ -72,7 +71,6 @@ class MensajeriaService
      * @param MensajeHilo $hilo Hilo al que se responde.
      * @param User $remitente Usuario que responde.
      * @param string $cuerpo Texto de la respuesta.
-     * @return Mensaje
      */
     public function responder(MensajeHilo $hilo, User $remitente, string $cuerpo): Mensaje
     {

@@ -8,6 +8,7 @@ use App\Models\UsuarioUo;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 use Modules\Intervencion\Http\Livewire\Sidebar as SidebarIntervencion;
 use Modules\Mensajes\Enums\DestinatarioType;
@@ -246,7 +247,7 @@ class BandejaAlertasYMensajesTest extends TestCase
         $propio = app(MensajeriaService::class)->crearHilo($this->supervisor, $this->profesional, 'Propio', 'Hola');
         $ajeno = app(MensajeriaService::class)->crearHilo($this->supervisor, $otro, 'Ajeno', 'Secreto');
 
-        $this->expectException(\Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException::class);
+        $this->expectException(CannotUpdateLockedPropertyException::class);
 
         Livewire::actingAs($this->profesional)
             ->test(HiloMensajes::class, ['hiloId' => $propio->id])

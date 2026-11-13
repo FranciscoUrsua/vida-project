@@ -61,7 +61,6 @@ class CitaDirectaPage extends Component
     /**
      * Solo quien da citas en su centro.
      *
-     * @return void
      *
      * @throws AuthorizationException
      */
@@ -76,8 +75,6 @@ class CitaDirectaPage extends Component
 
     /**
      * Persona elegida.
-     *
-     * @return Ciudadano|null
      */
     #[Computed]
     public function persona(): ?Ciudadano
@@ -87,8 +84,6 @@ class CitaDirectaPage extends Component
 
     /**
      * Centro de quien da la cita.
-     *
-     * @return Centro|null
      */
     #[Computed]
     public function centro(): ?Centro
@@ -98,9 +93,6 @@ class CitaDirectaPage extends Component
 
     /**
      * Elige a la persona encontrada.
-     *
-     * @param int $ciudadanoId
-     * @return void
      */
     public function elegirPersona(int $ciudadanoId): void
     {
@@ -112,8 +104,6 @@ class CitaDirectaPage extends Component
 
     /**
      * Vuelve a buscar a otra persona.
-     *
-     * @return void
      */
     public function cambiarPersona(): void
     {
@@ -124,8 +114,6 @@ class CitaDirectaPage extends Component
 
     /**
      * Propone huecos con los datos del formulario (sin guardar nada).
-     *
-     * @return void
      */
     public function buscarHuecos(): void
     {
@@ -149,9 +137,6 @@ class CitaDirectaPage extends Component
 
     /**
      * Da la cita en el hueco elegido: solicitud y cita a la vez, o ninguna.
-     *
-     * @param int $slotId
-     * @return void
      */
     public function citar(int $slotId): void
     {
@@ -183,17 +168,12 @@ class CitaDirectaPage extends Component
 
     /**
      * Pinta la página.
-     *
-     * @return View
      */
     public function render(): View
     {
         return $this->vistaConLayout('agenda::livewire.citas.cita-directa-page');
     }
 
-    /**
-     * @return Centro|null
-     */
     protected function centroDeLaSolicitud(): ?Centro
     {
         return $this->centro;
@@ -214,9 +194,6 @@ class CitaDirectaPage extends Component
     /**
      * Si la cita nace de un registro de atención de la misma persona, queda
      * como su cita generada (distinta de la cita que el registro atiende).
-     *
-     * @param int $citaId
-     * @return void
      */
     private function anotarEnAtencion(int $citaId): void
     {

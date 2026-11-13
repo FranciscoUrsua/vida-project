@@ -151,7 +151,6 @@ class Slot extends Model
      * Filtra slots de una fecha concreta.
      *
      * @param Builder<Slot> $query
-     * @param Carbon|string $fecha
      *
      * @return Builder<Slot>
      */

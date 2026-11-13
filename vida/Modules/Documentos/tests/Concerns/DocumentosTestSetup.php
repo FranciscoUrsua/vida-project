@@ -65,8 +65,6 @@ trait DocumentosTestSetup
      *
      * El ámbito de acceso de los profesionales a los ciudadanos se completará con
      * los tests de acceso (grupo G).
-     *
-     * @return void
      */
     protected function prepararDocumentos(): void
     {
@@ -106,8 +104,6 @@ trait DocumentosTestSetup
      * Crea un usuario con rol intervencion adscrito a la UO indicada.
      *
      * @param UnidadOrganizativa $uo UO de adscripción.
-     *
-     * @return User
      */
     protected function usuarioEnUo(UnidadOrganizativa $uo): User
     {
@@ -129,8 +125,6 @@ trait DocumentosTestSetup
      *
      * @param string $codigo Código del tipo.
      * @param array<string, mixed> $atributos Atributos que sustituyen a los por defecto.
-     *
-     * @return TipoDocumental
      */
     protected function tipo(string $codigo, array $atributos = []): TipoDocumental
     {
@@ -151,8 +145,6 @@ trait DocumentosTestSetup
      * Ruta de un fichero de prueba.
      *
      * @param string $nombre Nombre del fichero en tests/fixtures, o una ruta absoluta.
-     *
-     * @return string
      */
     protected function fixture(string $nombre): string
     {
@@ -170,8 +162,6 @@ trait DocumentosTestSetup
      * @param TipoDocumental|null $tipo Tipo; por defecto, DNI.
      * @param string $fichero Fixture de origen.
      * @param array<string, mixed> $datos Argumentos adicionales de DatosIngesta.
-     *
-     * @return Documento
      */
     protected function alta(array $vinculos, ?TipoDocumental $tipo = null, string $fichero = 'valido.pdf', array $datos = []): Documento
     {
@@ -218,8 +208,6 @@ trait DocumentosTestSetup
      * Comprueba que una ingesta no ha dejado nada: ni filas, ni objetos, ni temporales.
      *
      * @param array{documentos: int, versiones: int, vinculos: int, objetos: int} $antes Rastro previo.
-     *
-     * @return void
      */
     protected function assertIngestaSinRastro(array $antes): void
     {
@@ -229,8 +217,6 @@ trait DocumentosTestSetup
 
     /**
      * Comprueba que la zona temporal de ingesta no conserva ningún fichero.
-     *
-     * @return void
      */
     protected function assertTemporalVacio(): void
     {
@@ -246,8 +232,6 @@ trait DocumentosTestSetup
      * @param string $fichero Fixture o ruta absoluta.
      * @param string $codigo Código de motivo esperado.
      * @param TipoDocumental|null $tipo Tipo; por defecto, DNI.
-     *
-     * @return void
      */
     protected function assertIngestaRechazada(string $fichero, string $codigo, ?TipoDocumental $tipo = null): void
     {

@@ -20,8 +20,6 @@ return new class extends Migration
 {
     /**
      * Añade las columnas, migra los centros existentes y carga la clave `ciam`.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -47,8 +45,6 @@ return new class extends Migration
 
     /**
      * Elimina las columnas. La clave `ciam` del catálogo se conserva: puede estar en uso.
-     *
-     * @return void
      */
     public function down(): void
     {

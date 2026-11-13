@@ -35,9 +35,6 @@ class BandejaAsignacionesTest extends TestCase
     use AsignacionTestSetup;
     use RefreshDatabase;
 
-    /**
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -48,10 +45,6 @@ class BandejaAsignacionesTest extends TestCase
 
     /**
      * Persona sin centro en la bandeja del centro dado.
-     *
-     * @param string $nombre
-     * @param Centro $centro
-     * @return AsignacionPendiente
      */
     private function sinCentroEn(string $nombre, Centro $centro): AsignacionPendiente
     {
@@ -67,9 +60,6 @@ class BandejaAsignacionesTest extends TestCase
 
     /**
      * Referencia vigente de ts1 en CSS Norte para una historia nueva.
-     *
-     * @param Ciudadano $ciudadano
-     * @return HistoriaSocial
      */
     private function casoDeTs1(Ciudadano $ciudadano): HistoriaSocial
     {
@@ -90,8 +80,6 @@ class BandejaAsignacionesTest extends TestCase
     /**
      * TF-ASG-34 — Cada supervisor ve solo las pendientes de su centro; un
      * profesional sin rol de supervisión no entra.
-     *
-     * @return void
      */
     #[Test]
     public function cada_supervisor_ve_solo_la_bandeja_de_su_centro(): void
@@ -118,8 +106,6 @@ class BandejaAsignacionesTest extends TestCase
 
     /**
      * Un supervisor no puede resolver una entrada de otro centro aunque conozca su id. [negativo]
-     *
-     * @return void
      */
     #[Test]
     public function no_se_resuelve_una_entrada_de_otro_centro(): void
@@ -140,8 +126,6 @@ class BandejaAsignacionesTest extends TestCase
 
     /**
      * Asignar centro a mano desde la bandeja exige motivo y crea la asignación manual.
-     *
-     * @return void
      */
     #[Test]
     public function asignar_centro_desde_la_bandeja_exige_motivo(): void
@@ -172,8 +156,6 @@ class BandejaAsignacionesTest extends TestCase
     /**
      * Una historia sin referencia se asigna a un profesional del centro, aunque
      * el sorteo no tenga a nadie; no se ofrece a quien no puede ser referencia.
-     *
-     * @return void
      */
     #[Test]
     public function asignar_referencia_desde_la_bandeja(): void
@@ -211,8 +193,6 @@ class BandejaAsignacionesTest extends TestCase
 
     /**
      * La propuesta de cambio de domicilio se confirma o se descarta desde la bandeja.
-     *
-     * @return void
      */
     #[Test]
     public function confirmar_y_descartar_cambios_de_domicilio(): void
@@ -257,8 +237,6 @@ class BandejaAsignacionesTest extends TestCase
     /**
      * Desde la actividad del equipo se prepara el reparto, que se revisa,
      * se modifica y se confirma en su pantalla.
-     *
-     * @return void
      */
     #[Test]
     public function reparto_desde_la_actividad_del_equipo_hasta_la_confirmacion(): void
@@ -300,8 +278,6 @@ class BandejaAsignacionesTest extends TestCase
 
     /**
      * El reparto de un centro no lo abre la supervisión de otro. [negativo]
-     *
-     * @return void
      */
     #[Test]
     public function el_reparto_de_otro_centro_no_se_abre(): void
@@ -321,8 +297,6 @@ class BandejaAsignacionesTest extends TestCase
 
     /**
      * La ficha muestra el centro por tipo y la referencia con su modo.
-     *
-     * @return void
      */
     #[Test]
     public function la_ficha_muestra_centro_y_referencia(): void

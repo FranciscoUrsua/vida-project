@@ -3,6 +3,7 @@
 namespace Modules\Organizacion\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -24,7 +25,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read Distrito $distrito
- * @property-read \Illuminate\Database\Eloquent\Collection<int, SeccionCensal> $secciones
+ * @property-read Collection<int, SeccionCensal> $secciones
  *
  * @see docs/modulo-asignacion.md §2
  */
@@ -71,6 +72,7 @@ class Barrio extends Model
      * Filtra únicamente los barrios activos.
      *
      * @param Builder<self> $query
+     *
      * @return Builder<self>
      */
     public function scopeActivos(Builder $query): Builder

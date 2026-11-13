@@ -38,8 +38,6 @@ class AccesoExpediente
 
     /**
      * Inyecta el servicio de auditoría, único que escribe en `audits`.
-     *
-     * @param AuditService $auditoria
      */
     public function __construct(private readonly AuditService $auditoria) {}
 
@@ -49,7 +47,6 @@ class AccesoExpediente
      * @param User $user Quien lee.
      * @param int $ciudadanoId Persona.
      * @param bool $registrar false en las recargas que no son una apertura.
-     * @return Ciudadano
      *
      * @throws AuthorizationException Si la policy deniega la lectura (tras anotarla).
      */
@@ -68,7 +65,6 @@ class AccesoExpediente
      * @param User $user Quien lee.
      * @param int $historiaId Historia social.
      * @param bool $registrar false en las recargas que no son una apertura.
-     * @return HistoriaSocial
      *
      * @throws AuthorizationException Si la policy deniega la lectura (tras anotarla).
      */
@@ -91,7 +87,6 @@ class AccesoExpediente
      *
      * @param User $user Quien lee.
      * @param int $ciudadanoId Persona.
-     * @return HistoriaSocial|null
      *
      * @throws AuthorizationException Si la policy deniega la lectura de la persona.
      */
@@ -110,7 +105,6 @@ class AccesoExpediente
      *
      * @param User $user Quien lee.
      * @param int $ciudadanoId Persona.
-     * @return never
      *
      * @throws AuthorizationException Siempre.
      */
@@ -126,11 +120,8 @@ class AccesoExpediente
     /**
      * Aplica la policy y anota el resultado.
      *
-     * @param User $user
      * @param Model $modelo Registro que se abre (ciudadano o historia).
      * @param Ciudadano|null $ciudadano Persona a la que pertenece.
-     * @param bool $registrar
-     * @return void
      *
      * @throws AuthorizationException
      */
@@ -151,12 +142,6 @@ class AccesoExpediente
 
     /**
      * Deja la fila de auditoría de la lectura, una sola vez por registro y petición.
-     *
-     * @param User $user
-     * @param Model $modelo
-     * @param Ciudadano|null $ciudadano
-     * @param bool $autorizado
-     * @return void
      */
     private function anotar(User $user, Model $modelo, ?Ciudadano $ciudadano, bool $autorizado): void
     {

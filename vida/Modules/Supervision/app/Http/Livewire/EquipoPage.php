@@ -28,18 +28,18 @@ use Modules\Usuarios\Models\Titulacion;
  * @property-read Collection<int, Profesional> $profesionales
  * @property-read Centro|null $centroActivo
  * @property-read array<int, string> $estadosHorario
- * @property bool   $modalAltaAbierto
+ * @property bool $modalAltaAbierto
  * @property string $nuevoNombre
  * @property int|null $nuevoCargo
  * @property string $nuevaFechaIncorporacion
  * @property int|null $profesionalSeleccionadoId
- * @property bool   $modalBajaAbierto
+ * @property bool $modalBajaAbierto
  * @property string $fechaBaja
- * @property bool   $confirmarBajaConCasos
- * @property bool   $modalHorarioAbierto
+ * @property bool $confirmarBajaConCasos
+ * @property bool $modalHorarioAbierto
  * @property int|null $horarioUserId
  * @property string|null $horarioNombreProfesional
- * @property bool   $modalEdicionAbierto
+ * @property bool $modalEdicionAbierto
  * @property int|null $editandoProfesionalId
  * @property string $editNombre
  * @property string $editApellido1
@@ -102,17 +102,29 @@ class EquipoPage extends Component
     public ?int $editandoProfesionalId = null;
 
     public string $editNombre = '';
+
     public string $editApellido1 = '';
+
     public ?string $editApellido2 = null;
+
     public string $editSexo = 'D';
+
     public ?int $editCargoId = null;
+
     public ?int $editTipoRelacionId = null;
+
     public ?int $editTitulacionId = null;
+
     public ?string $editCategoriaProfesional = null;
+
     public ?string $editOrganizacion = null;
+
     public ?string $editEmailProfesional = null;
+
     public ?string $editTelefonoProfesional = null;
+
     public ?string $editExtension = null;
+
     public string $editFechaInicio = '';
 
     /**
@@ -177,8 +189,6 @@ class EquipoPage extends Component
 
     /**
      * Cuenta planes activos asignados al profesional seleccionado.
-     *
-     * @return int
      */
     #[Computed]
     public function casosActivosProfesionalSeleccionado(): int
@@ -201,8 +211,6 @@ class EquipoPage extends Component
 
     /**
      * Centro asociado a la UO activa del supervisor.
-     *
-     * @return Centro|null
      */
     #[Computed]
     public function centroActivo(): ?Centro
@@ -249,7 +257,6 @@ class EquipoPage extends Component
      * requisito para asociar un PerfilHorarioProfesional.
      *
      * @param int $profesionalId ID del profesional
-     * @return void
      */
     public function abrirModalHorario(int $profesionalId): void
     {
@@ -259,9 +266,9 @@ class EquipoPage extends Component
             return;
         }
 
-        $this->horarioUserId            = $prof->usuario->id;
+        $this->horarioUserId = $prof->usuario->id;
         $this->horarioNombreProfesional = $prof->nombre_completo;
-        $this->modalHorarioAbierto      = true;
+        $this->modalHorarioAbierto = true;
     }
 
     /**
@@ -269,21 +276,17 @@ class EquipoPage extends Component
      *
      * Se invoca por el botón Cancelar del modal y por el evento
      * 'perfil-horario-guardado' que dispara el componente hijo al guardar.
-     *
-     * @return void
      */
     #[On('perfil-horario-guardado')]
     public function cerrarModalHorario(): void
     {
-        $this->modalHorarioAbierto      = false;
-        $this->horarioUserId            = null;
+        $this->modalHorarioAbierto = false;
+        $this->horarioUserId = null;
         $this->horarioNombreProfesional = null;
     }
 
     /**
      * Abre el modal de alta de profesional.
-     *
-     * @return void
      */
     public function abrirModalAlta(): void
     {
@@ -294,14 +297,12 @@ class EquipoPage extends Component
 
     /**
      * Crea un nuevo profesional en la UO del supervisor sin cuenta de usuario vinculada.
-     *
-     * @return void
      */
     public function crearProfesional(): void
     {
         $this->validate([
-            'nuevoNombre'             => 'required|string|max:255',
-            'nuevoCargo'              => 'required|integer|exists:cargos,id',
+            'nuevoNombre' => 'required|string|max:255',
+            'nuevoCargo' => 'required|integer|exists:cargos,id',
             'nuevaFechaIncorporacion' => 'required|date',
         ]);
 
@@ -309,6 +310,7 @@ class EquipoPage extends Component
 
         if ($uoActiva === null) {
             $this->addError('nuevoNombre', 'El supervisor no tiene UO activa asignada.');
+
             return;
         }
 
@@ -322,21 +324,21 @@ class EquipoPage extends Component
         $tipoRelacionDefault = TipoRelacionProfesional::where('activo', true)->orderBy('id')->value('id') ?? 1;
 
         Profesional::create([
-            'nombre'                  => $partes[0],
-            'apellido1'               => $partes[1] ?? '',
-            'apellido2'               => $partes[2] ?? null,
-            'sexo'                    => 'D',
-            'cargo_id'                => $this->nuevoCargo,
-            'tipo_relacion_id'        => $tipoRelacionDefault,
-            'fecha_inicio'            => $this->nuevaFechaIncorporacion,
-            'activo'                  => true,
-            'unidad_organizativa_id'  => $uoActiva->id,
+            'nombre' => $partes[0],
+            'apellido1' => $partes[1] ?? '',
+            'apellido2' => $partes[2] ?? null,
+            'sexo' => 'D',
+            'cargo_id' => $this->nuevoCargo,
+            'tipo_relacion_id' => $tipoRelacionDefault,
+            'fecha_inicio' => $this->nuevaFechaIncorporacion,
+            'activo' => true,
+            'unidad_organizativa_id' => $uoActiva->id,
         ]);
 
         $this->modalAltaAbierto = false;
         unset($this->profesionales);
         $this->avisoAlta = 'Este profesional no tiene cuenta de usuario en VIDA360 todavía. '
-            . 'Comunica al administrador de usuarios que vincule la cuenta cuando esté disponible.';
+            .'Comunica al administrador de usuarios que vincule la cuenta cuando esté disponible.';
     }
 
     /**
@@ -345,7 +347,6 @@ class EquipoPage extends Component
      * Rechaza la baja si el profesional es el propio supervisor autenticado.
      *
      * @param int $profesionalId ID del profesional a dar de baja.
-     * @return void
      */
     public function iniciarBaja(int $profesionalId): void
     {
@@ -365,8 +366,6 @@ class EquipoPage extends Component
      * Confirma la baja lógica (soft delete) del profesional.
      *
      * Requiere confirmación explícita si el profesional tiene casos activos.
-     *
-     * @return void
      */
     public function confirmarBaja(): void
     {
@@ -389,11 +388,13 @@ class EquipoPage extends Component
 
             if (! $enAmbito) {
                 $this->addError('fechaBaja', 'No tiene permisos para dar de baja a este profesional.');
+
                 return;
             }
         } elseif ($profesional->unidad_organizativa_id !== null) {
             if (! in_array($profesional->unidad_organizativa_id, $uoIds, true)) {
                 $this->addError('fechaBaja', 'No tiene permisos para dar de baja a este profesional.');
+
                 return;
             }
         }
@@ -417,7 +418,6 @@ class EquipoPage extends Component
      * Solo actúa si el profesional está dentro del ámbito de la UO del supervisor.
      *
      * @param int $profesionalId ID del profesional a editar.
-     * @return void
      */
     public function abrirEdicion(int $profesionalId): void
     {
@@ -427,67 +427,66 @@ class EquipoPage extends Component
             return;
         }
 
-        $this->editandoProfesionalId   = $profesional->id;
-        $this->editNombre              = $profesional->nombre;
-        $this->editApellido1           = $profesional->apellido1;
-        $this->editApellido2           = $profesional->apellido2;
-        $this->editSexo                = $profesional->sexo;
-        $this->editCargoId             = $profesional->cargo_id;
-        $this->editTipoRelacionId      = $profesional->tipo_relacion_id;
-        $this->editTitulacionId        = $profesional->titulacion_id;
+        $this->editandoProfesionalId = $profesional->id;
+        $this->editNombre = $profesional->nombre;
+        $this->editApellido1 = $profesional->apellido1;
+        $this->editApellido2 = $profesional->apellido2;
+        $this->editSexo = $profesional->sexo;
+        $this->editCargoId = $profesional->cargo_id;
+        $this->editTipoRelacionId = $profesional->tipo_relacion_id;
+        $this->editTitulacionId = $profesional->titulacion_id;
         $this->editCategoriaProfesional = $profesional->categoria_profesional;
-        $this->editOrganizacion        = $profesional->organizacion;
-        $this->editEmailProfesional    = $profesional->email_profesional;
+        $this->editOrganizacion = $profesional->organizacion;
+        $this->editEmailProfesional = $profesional->email_profesional;
         $this->editTelefonoProfesional = $profesional->telefono_profesional;
-        $this->editExtension           = $profesional->extension;
-        $this->editFechaInicio         = $profesional->fecha_inicio->toDateString();
-        $this->modalEdicionAbierto     = true;
+        $this->editExtension = $profesional->extension;
+        $this->editFechaInicio = $profesional->fecha_inicio->toDateString();
+        $this->modalEdicionAbierto = true;
     }
 
     /**
      * Valida y persiste los cambios sobre el profesional en edición.
-     *
-     * @return void
      */
     public function guardarEdicion(): void
     {
         $this->validate([
-            'editNombre'               => ['required', 'string', 'max:100'],
-            'editApellido1'            => ['required', 'string', 'max:100'],
-            'editApellido2'            => ['nullable', 'string', 'max:100'],
-            'editSexo'                 => ['required', 'in:M,F,D'],
-            'editCargoId'              => ['required', 'integer', 'exists:cargos,id'],
-            'editTipoRelacionId'       => ['required', 'integer', 'exists:tipos_relacion_profesional,id'],
-            'editTitulacionId'         => ['nullable', 'integer', 'exists:titulaciones,id'],
+            'editNombre' => ['required', 'string', 'max:100'],
+            'editApellido1' => ['required', 'string', 'max:100'],
+            'editApellido2' => ['nullable', 'string', 'max:100'],
+            'editSexo' => ['required', 'in:M,F,D'],
+            'editCargoId' => ['required', 'integer', 'exists:cargos,id'],
+            'editTipoRelacionId' => ['required', 'integer', 'exists:tipos_relacion_profesional,id'],
+            'editTitulacionId' => ['nullable', 'integer', 'exists:titulaciones,id'],
             'editCategoriaProfesional' => ['nullable', 'string', 'max:150'],
-            'editOrganizacion'         => ['nullable', 'string', 'max:200'],
-            'editEmailProfesional'     => ['nullable', 'email', 'max:150'],
-            'editTelefonoProfesional'  => ['nullable', 'string', 'max:30'],
-            'editExtension'            => ['nullable', 'string', 'max:10'],
-            'editFechaInicio'          => ['required', 'date'],
+            'editOrganizacion' => ['nullable', 'string', 'max:200'],
+            'editEmailProfesional' => ['nullable', 'email', 'max:150'],
+            'editTelefonoProfesional' => ['nullable', 'string', 'max:30'],
+            'editExtension' => ['nullable', 'string', 'max:10'],
+            'editFechaInicio' => ['required', 'date'],
         ]);
 
         $profesional = $this->profesionalEnAmbito($this->editandoProfesionalId);
 
         if ($profesional === null) {
             $this->addError('editNombre', 'No tiene permisos para editar este profesional.');
+
             return;
         }
 
         $profesional->update([
-            'nombre'                => trim($this->editNombre),
-            'apellido1'             => trim($this->editApellido1),
-            'apellido2'             => filled($this->editApellido2) ? trim($this->editApellido2) : null,
-            'sexo'                  => $this->editSexo,
-            'cargo_id'              => $this->editCargoId,
-            'tipo_relacion_id'      => $this->editTipoRelacionId,
-            'titulacion_id'         => $this->editTitulacionId,
+            'nombre' => trim($this->editNombre),
+            'apellido1' => trim($this->editApellido1),
+            'apellido2' => filled($this->editApellido2) ? trim($this->editApellido2) : null,
+            'sexo' => $this->editSexo,
+            'cargo_id' => $this->editCargoId,
+            'tipo_relacion_id' => $this->editTipoRelacionId,
+            'titulacion_id' => $this->editTitulacionId,
             'categoria_profesional' => filled($this->editCategoriaProfesional) ? trim($this->editCategoriaProfesional) : null,
-            'organizacion'          => filled($this->editOrganizacion) ? trim($this->editOrganizacion) : null,
-            'email_profesional'     => $this->editEmailProfesional ?: null,
-            'telefono_profesional'  => $this->editTelefonoProfesional ?: null,
-            'extension'             => $this->editExtension ?: null,
-            'fecha_inicio'          => $this->editFechaInicio,
+            'organizacion' => filled($this->editOrganizacion) ? trim($this->editOrganizacion) : null,
+            'email_profesional' => $this->editEmailProfesional ?: null,
+            'telefono_profesional' => $this->editTelefonoProfesional ?: null,
+            'extension' => $this->editExtension ?: null,
+            'fecha_inicio' => $this->editFechaInicio,
         ]);
 
         $this->modalEdicionAbierto = false;
@@ -496,8 +495,6 @@ class EquipoPage extends Component
 
     /**
      * Renderiza la pantalla de equipo.
-     *
-     * @return View
      */
     public function render(): View
     {
@@ -509,9 +506,6 @@ class EquipoPage extends Component
      *
      * Comprueba primero la adscripción vigente del usuario vinculado y,
      * si el profesional no tiene cuenta, verifica el campo unidad_organizativa_id.
-     *
-     * @param int|null $profesionalId
-     * @return Profesional|null
      */
     private function profesionalEnAmbito(?int $profesionalId): ?Profesional
     {

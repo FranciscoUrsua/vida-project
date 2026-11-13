@@ -123,6 +123,7 @@ class AsignacionCentro extends Model
      * Filtra las asignaciones vigentes (sin fecha de fin).
      *
      * @param Builder<self> $query
+     *
      * @return Builder<self>
      */
     public function scopeVigentes(Builder $query): Builder

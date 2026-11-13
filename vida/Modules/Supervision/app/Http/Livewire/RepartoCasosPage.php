@@ -42,9 +42,6 @@ class RepartoCasosPage extends Component
 
     /**
      * Comprueba que el reparto es del centro que supervisa el usuario.
-     *
-     * @param RepartoCasos $reparto
-     * @return void
      */
     public function mount(RepartoCasos $reparto): void
     {
@@ -54,8 +51,6 @@ class RepartoCasosPage extends Component
 
     /**
      * Reparto, cargado siempre con el alcance del centro del supervisor.
-     *
-     * @return RepartoCasos
      */
     #[Computed]
     public function reparto(): RepartoCasos
@@ -105,8 +100,6 @@ class RepartoCasosPage extends Component
 
     /**
      * Si el reparto aún se puede cambiar, confirmar o descartar.
-     *
-     * @return bool
      */
     public function esPropuesto(): bool
     {
@@ -115,10 +108,6 @@ class RepartoCasosPage extends Component
 
     /**
      * Cambia el destino de un caso de la propuesta.
-     *
-     * @param int $lineaId
-     * @param int|string $destinoId
-     * @return void
      */
     public function cambiarDestino(int $lineaId, int|string $destinoId): void
     {
@@ -136,8 +125,6 @@ class RepartoCasosPage extends Component
 
     /**
      * Aplica el reparto: cierra las referencias del profesional de origen y crea las nuevas.
-     *
-     * @return void
      */
     public function confirmar(): void
     {
@@ -148,8 +135,6 @@ class RepartoCasosPage extends Component
 
     /**
      * Descarta la propuesta sin cambiar ninguna asignación.
-     *
-     * @return void
      */
     public function descartar(): void
     {
@@ -158,9 +143,6 @@ class RepartoCasosPage extends Component
         }
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('supervision::livewire.reparto-casos-page');
@@ -170,6 +152,7 @@ class RepartoCasosPage extends Component
      * Ejecuta una acción del servicio, muestra su error si lo hay y refresca los datos.
      *
      * @param callable(RepartoCasosService): mixed $accion
+     *
      * @return bool Si se aplicó.
      */
     private function ejecutar(callable $accion): bool

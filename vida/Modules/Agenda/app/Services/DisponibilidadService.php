@@ -48,11 +48,11 @@ class DisponibilidadService
      * sola consulta (búsqueda de huecos para citas).
      *
      * @param list<int>|null $usuarioIds Null: todos los profesionales del centro.
-     * @param int $centroId
      * @param list<int> $tipoSlotIds
      * @param Carbon $desde Inclusive.
      * @param Carbon $hasta Inclusive.
      * @param bool $incluirUrgencias Si se incluyen los slots reservados para urgencias.
+     *
      * @return Collection<int, Slot>
      */
     public function obtenerSlotsDe(

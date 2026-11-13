@@ -27,8 +27,6 @@ class TipoCentroTest extends TestCase
 
     /**
      * Escenario común de Tipo de Centro.
-     *
-     * @return void
      */
     protected function setUp(): void
     {

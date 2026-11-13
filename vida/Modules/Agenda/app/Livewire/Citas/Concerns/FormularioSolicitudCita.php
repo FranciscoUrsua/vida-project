@@ -81,9 +81,8 @@ trait FormularioSolicitudCita
     /**
      * Datos para SolicitudCitaService a partir del formulario.
      *
-     * @param int $ciudadanoId
-     * @param int $centroId
      * @param string $canal Valor de CanalSolicitudCita.
+     *
      * @return array<string, mixed>
      */
     protected function datosSolicitud(int $ciudadanoId, int $centroId, string $canal): array
@@ -108,8 +107,6 @@ trait FormularioSolicitudCita
 
     /**
      * Vacía el formulario.
-     *
-     * @return void
      */
     protected function reiniciarFormularioSolicitud(): void
     {
@@ -118,8 +115,6 @@ trait FormularioSolicitudCita
 
     /**
      * Centro en el que se pedirá la cita.
-     *
-     * @return Centro|null
      */
     abstract protected function centroDeLaSolicitud(): ?Centro;
 }

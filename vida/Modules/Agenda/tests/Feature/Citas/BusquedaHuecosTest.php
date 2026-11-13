@@ -3,6 +3,7 @@
 namespace Modules\Agenda\Tests\Feature\Citas;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Collection;
 use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Agenda\Enums\EstadoSolicitudCita;
 use Modules\Agenda\Enums\ModoAsignacionCita;
@@ -30,9 +31,6 @@ class BusquedaHuecosTest extends TestCase
     use CitasTestSetup;
     use RefreshDatabase;
 
-    /**
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -43,7 +41,6 @@ class BusquedaHuecosTest extends TestCase
      * Crea una solicitud de María (o de otra persona) como consulta.
      *
      * @param array<string, mixed> $cambios
-     * @return SolicitudCita
      */
     private function solicitud(array $cambios = []): SolicitudCita
     {
@@ -57,8 +54,7 @@ class BusquedaHuecosTest extends TestCase
     }
 
     /**
-     * @param SolicitudCita $solicitud
-     * @return \Illuminate\Support\Collection<int, PropuestaHueco>
+     * @return Collection<int, PropuestaHueco>
      */
     private function buscar(SolicitudCita $solicitud, int $limite = 100)
     {
@@ -67,8 +63,6 @@ class BusquedaHuecosTest extends TestCase
 
     /**
      * TF-CIT-10 — Profesional concreto: solo ese profesional.
-     *
-     * @return void
      */
     #[Test]
     public function profesional_concreto(): void
@@ -84,8 +78,6 @@ class BusquedaHuecosTest extends TestCase
 
     /**
      * TF-CIT-11 — La referencia con hueco va primero, aunque sea más tarde que otros.
-     *
-     * @return void
      */
     #[Test]
     public function la_referencia_disponible_va_primero(): void
@@ -102,8 +94,6 @@ class BusquedaHuecosTest extends TestCase
 
     /**
      * TF-CIT-12 — Ausencia prolongada de la referencia: sustitutos del mismo perfil.
-     *
-     * @return void
      */
     #[Test]
     public function la_ausencia_prolongada_propone_sustitutos_del_mismo_perfil(): void
@@ -132,8 +122,6 @@ class BusquedaHuecosTest extends TestCase
 
     /**
      * TF-CIT-13 — Una ausencia corta no deriva a sustitutos.
-     *
-     * @return void
      */
     #[Test]
     public function la_ausencia_corta_no_deriva_a_sustitutos(): void
@@ -159,8 +147,6 @@ class BusquedaHuecosTest extends TestCase
 
     /**
      * TF-CIT-14 — Una solicitud ordinaria nunca consume slots de urgencia. [negativo]
-     *
-     * @return void
      */
     #[Test]
     public function la_urgencia_ordinaria_no_consume_slots_de_urgencia(): void
@@ -173,8 +159,6 @@ class BusquedaHuecosTest extends TestCase
 
     /**
      * TF-CIT-15 — Una urgente puede consumir un slot de urgencia; se avisa a supervisión.
-     *
-     * @return void
      */
     #[Test]
     public function la_urgente_consume_un_slot_de_urgencia_y_avisa(): void
@@ -198,8 +182,6 @@ class BusquedaHuecosTest extends TestCase
 
     /**
      * TF-CIT-16 — Los tipos de slot incompatibles quedan fuera.
-     *
-     * @return void
      */
     #[Test]
     public function los_tipos_de_slot_incompatibles_quedan_fuera(): void
@@ -216,8 +198,6 @@ class BusquedaHuecosTest extends TestCase
 
     /**
      * TF-CIT-17 — Sin huecos compatibles: resultado vacío y la solicitud no cambia.
-     *
-     * @return void
      */
     #[Test]
     public function sin_huecos_el_resultado_es_vacio(): void
@@ -231,8 +211,6 @@ class BusquedaHuecosTest extends TestCase
 
     /**
      * Los huecos de hoy que ya empezaron no se proponen.
-     *
-     * @return void
      */
     #[Test]
     public function no_se_proponen_huecos_que_ya_empezaron(): void

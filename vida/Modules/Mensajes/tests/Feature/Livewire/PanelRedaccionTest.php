@@ -10,6 +10,7 @@ use App\Models\UsuarioUo;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Intervencion\Models\Ficha;
@@ -373,7 +374,7 @@ class PanelRedaccionTest extends TestCase
     #[Test]
     public function referencias_y_contexto_bloqueados(): void
     {
-        $this->expectException(\Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException::class);
+        $this->expectException(CannotUpdateLockedPropertyException::class);
 
         Livewire::actingAs($this->usuario)
             ->test(PanelRedaccion::class)

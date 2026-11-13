@@ -13,11 +13,6 @@ use Modules\Agenda\Models\Slot;
  */
 final class PropuestaHueco
 {
-    /**
-     * @param Slot $slot
-     * @param User $profesional
-     * @param ModoAsignacionCita $modo
-     */
     public function __construct(
         public readonly Slot $slot,
         public readonly User $profesional,

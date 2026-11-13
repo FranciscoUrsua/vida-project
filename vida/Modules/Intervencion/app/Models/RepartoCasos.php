@@ -3,6 +3,7 @@
 namespace Modules\Intervencion\Models;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -28,7 +29,7 @@ use Modules\Intervencion\Enums\EstadoRepartoCasos;
  * @property-read Centro $centro
  * @property-read User $profesionalOrigen
  * @property-read User $iniciadoPor
- * @property-read \Illuminate\Database\Eloquent\Collection<int, RepartoCasosLinea> $lineas
+ * @property-read Collection<int, RepartoCasosLinea> $lineas
  *
  * @see docs/modulo-asignacion.md §5
  */

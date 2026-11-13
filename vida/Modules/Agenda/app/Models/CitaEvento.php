@@ -74,7 +74,6 @@ class CitaEvento extends Model
     /**
      * Rechaza cualquier modificación o borrado.
      *
-     * @return void
      *
      * @throws LogicException
      */
@@ -116,8 +115,6 @@ class CitaEvento extends Model
 
     /**
      * Ciudadano para auditoría.
-     *
-     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {

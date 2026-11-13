@@ -55,9 +55,10 @@ class EscanerClamAv implements EscanerAntivirus
     /**
      * Abre el socket de clamd con el timeout configurado.
      *
-     * @throws AntivirusNoDisponibleException
      *
      * @return resource
+     *
+     * @throws AntivirusNoDisponibleException
      */
     private function conectar()
     {
@@ -85,8 +86,6 @@ class EscanerClamAv implements EscanerAntivirus
      * @param string $datos Datos que se envían.
      *
      * @throws AntivirusNoDisponibleException
-     *
-     * @return void
      */
     private function escribir($socket, string $datos): void
     {
@@ -101,8 +100,6 @@ class EscanerClamAv implements EscanerAntivirus
      * @param string $respuesta Respuesta sin terminadores.
      *
      * @throws AntivirusNoDisponibleException ante cualquier respuesta que no sea OK ni FOUND
-     *
-     * @return string|null
      */
     private function interpretar(string $respuesta): ?string
     {

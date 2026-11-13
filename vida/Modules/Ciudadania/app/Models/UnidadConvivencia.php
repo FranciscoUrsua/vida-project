@@ -41,6 +41,7 @@ class UnidadConvivencia extends Model
 {
     /** @use HasFactory<UnidadConvivenciaFactory> */
     use HasFactory;
+
     use SoftDeletes;
     use Versionable;
 

@@ -33,10 +33,6 @@ use Modules\Centro\Services\ConfiguracionEfectivaCentro;
  */
 class AsignacionCentroService
 {
-    /**
-     * @param ResolucionCentroService $resolucion
-     * @param CentroDeUsuario $centros
-     */
     public function __construct(
         private readonly ResolucionCentroService $resolucion,
         private readonly CentroDeUsuario $centros,
@@ -44,10 +40,6 @@ class AsignacionCentroService
 
     /**
      * Asignación vigente de la persona para un tipo de centro.
-     *
-     * @param Ciudadano $ciudadano
-     * @param string $tipoCentro
-     * @return AsignacionCentro|null
      */
     public function vigente(Ciudadano $ciudadano, string $tipoCentro): ?AsignacionCentro
     {
@@ -62,9 +54,8 @@ class AsignacionCentroService
      * no tiene uno y la resolución es inequívoca. Si no lo es, abre o actualiza
      * su entrada en la bandeja. Nunca cambia una asignación vigente.
      *
-     * @param Ciudadano $ciudadano
-     * @param string $tipoCentro
      * @param User|null $actor Usuario que provoca la evaluación; su centro es la bandeja.
+     *
      * @return AsignacionCentro|null La asignación vigente, o null si queda pendiente.
      */
     public function asignarPorDireccion(Ciudadano $ciudadano, string $tipoCentro, ?User $actor = null): ?AsignacionCentro
@@ -104,10 +95,8 @@ class AsignacionCentroService
     /**
      * Asigna un centro de libre elección elegido por la persona (CIAM).
      *
-     * @param Ciudadano $ciudadano
      * @param Centro $centro Centro elegido; debe ser de libre elección.
      * @param User $actor Profesional que registra la elección.
-     * @return AsignacionCentro
      *
      * @throws LogicException Si el centro no es de libre elección o la persona ya tiene otro del tipo.
      */
@@ -142,11 +131,7 @@ class AsignacionCentroService
      * Asignación manual por el supervisor: cierra la vigente del tipo y crea la
      * nueva. Resuelve las entradas abiertas de la persona para ese tipo.
      *
-     * @param Ciudadano $ciudadano
-     * @param Centro $centro
      * @param string $motivo Obligatorio.
-     * @param User $supervisor
-     * @return AsignacionCentro
      *
      * @throws AuthorizationException Si el usuario no tiene rol de supervisión.
      * @throws InvalidArgumentException Si falta el motivo.
@@ -193,8 +178,6 @@ class AsignacionCentroService
      * domicilio vigente y la nueva dirección corresponde a otro centro, abre una
      * propuesta de traslado en la bandeja del centro actual. No cambia nada.
      *
-     * @param Ciudadano $ciudadano
-     * @param string $tipoCentro
      * @return AsignacionPendiente|null La propuesta abierta, si la hay.
      */
     public function evaluarCambioDomicilio(Ciudadano $ciudadano, string $tipoCentro): ?AsignacionPendiente
@@ -244,10 +227,6 @@ class AsignacionCentroService
      * Confirma una propuesta de cambio de centro por domicilio: asignación
      * manual al centro propuesto, con el motivo del supervisor.
      *
-     * @param AsignacionPendiente $propuesta
-     * @param string $motivo
-     * @param User $supervisor
-     * @return AsignacionCentro
      *
      * @throws LogicException Si la entrada no es una propuesta abierta.
      */
@@ -265,10 +244,6 @@ class AsignacionCentroService
     /**
      * Descarta una entrada de la bandeja sin asignar nada, con motivo.
      *
-     * @param AsignacionPendiente $pendiente
-     * @param string $motivo
-     * @param User $supervisor
-     * @return void
      *
      * @throws AuthorizationException Si el usuario no tiene rol de supervisión.
      * @throws InvalidArgumentException Si falta el motivo.
@@ -290,12 +265,6 @@ class AsignacionCentroService
      * centro de quien actúa; sin usuario (reintento en cola), se conserva la de
      * la entrada ya abierta; si nunca hubo, queda sin bandeja (la ven todos los
      * supervisores del tipo).
-     *
-     * @param Ciudadano $ciudadano
-     * @param string $tipoCentro
-     * @param ResultadoResolucionCentro $resultado
-     * @param User|null $actor
-     * @return AsignacionPendiente
      */
     private function registrarSinCentro(Ciudadano $ciudadano, string $tipoCentro, ResultadoResolucionCentro $resultado, ?User $actor): AsignacionPendiente
     {
@@ -323,11 +292,6 @@ class AsignacionCentroService
 
     /**
      * Entrada abierta de un tipo para la persona y el tipo de centro.
-     *
-     * @param Ciudadano $ciudadano
-     * @param TipoAsignacionPendiente $tipo
-     * @param string $tipoCentro
-     * @return AsignacionPendiente|null
      */
     private function pendienteAbierta(Ciudadano $ciudadano, TipoAsignacionPendiente $tipo, string $tipoCentro): ?AsignacionPendiente
     {
@@ -341,12 +305,8 @@ class AsignacionCentroService
     /**
      * Marca como resueltas las entradas abiertas de la persona de los tipos dados.
      *
-     * @param Ciudadano $ciudadano
-     * @param string $tipoCentro
      * @param list<TipoAsignacionPendiente> $tipos
      * @param User|null $resueltaPor Null si la resolvió el sistema.
-     * @param string $motivo
-     * @return void
      */
     private function cerrarPendientes(Ciudadano $ciudadano, string $tipoCentro, array $tipos, ?User $resueltaPor, string $motivo): void
     {
@@ -366,8 +326,6 @@ class AsignacionCentroService
     /**
      * Exige rol de supervisión (RN-04: solo el supervisor cambia asignaciones).
      *
-     * @param User $usuario
-     * @return void
      *
      * @throws AuthorizationException
      */
@@ -381,8 +339,6 @@ class AsignacionCentroService
     /**
      * Exige un motivo no vacío y lo devuelve recortado.
      *
-     * @param string $motivo
-     * @return string
      *
      * @throws InvalidArgumentException
      */

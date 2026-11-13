@@ -27,8 +27,6 @@ class ConfiguracionRolesSeeder extends Seeder
 
     /**
      * Crea la configuración de los roles que aún no la tienen.
-     *
-     * @return void
      */
     public function run(): void
     {

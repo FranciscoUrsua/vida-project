@@ -82,8 +82,6 @@ class AgendaPage extends Component
 
     /**
      * Inicializa la fecha ancla al día de hoy.
-     *
-     * @return void
      */
     public function mount(): void
     {
@@ -96,8 +94,6 @@ class AgendaPage extends Component
 
     /**
      * Retrocede 1 día, semana o mes según la vista activa.
-     *
-     * @return void
      */
     public function navegarAnterior(): void
     {
@@ -112,8 +108,6 @@ class AgendaPage extends Component
 
     /**
      * Avanza 1 día, semana o mes según la vista activa.
-     *
-     * @return void
      */
     public function navegarSiguiente(): void
     {
@@ -128,8 +122,6 @@ class AgendaPage extends Component
 
     /**
      * Resetea la fecha ancla al día de hoy.
-     *
-     * @return void
      */
     public function irAHoy(): void
     {
@@ -140,7 +132,6 @@ class AgendaPage extends Component
      * Cambia la vista activa.
      *
      * @param string $vista 'dia' | 'semana' | 'mes'
-     * @return void
      */
     public function setVista(string $vista): void
     {
@@ -151,7 +142,6 @@ class AgendaPage extends Component
      * Al hacer clic en un día en la vista de mes, navega a la vista de día.
      *
      * @param string $fecha ISO 8601
-     * @return void
      */
     public function irADia(string $fecha): void
     {
@@ -165,8 +155,6 @@ class AgendaPage extends Component
 
     /**
      * Título descriptivo de la fecha según la vista activa.
-     *
-     * @return string
      */
     #[Computed]
     public function tituloFecha(): string
@@ -268,8 +256,6 @@ class AgendaPage extends Component
 
     /**
      * Cita propia sobre la que hay un formulario abierto.
-     *
-     * @return Cita|null
      */
     #[Computed]
     public function citaEnAccion(): ?Cita
@@ -294,9 +280,6 @@ class AgendaPage extends Component
 
     /**
      * Marca que la persona no vino a la cita.
-     *
-     * @param int $citaId
-     * @return void
      */
     public function marcarIncomparecencia(int $citaId): void
     {
@@ -309,9 +292,7 @@ class AgendaPage extends Component
     /**
      * Abre el formulario de acompañantes o de petición de cambio de una cita.
      *
-     * @param int $citaId
      * @param string $accion 'acompanantes' o 'cambio'.
-     * @return void
      */
     public function abrirAccion(int $citaId, string $accion): void
     {
@@ -322,8 +303,6 @@ class AgendaPage extends Component
 
     /**
      * Cierra el formulario abierto.
-     *
-     * @return void
      */
     public function cerrarAccion(): void
     {
@@ -335,9 +314,6 @@ class AgendaPage extends Component
 
     /**
      * Enlaza el acompañante con una persona que ya está en VIDA.
-     *
-     * @param int $ciudadanoId
-     * @return void
      */
     public function elegirAcompanante(int $ciudadanoId): void
     {
@@ -353,8 +329,6 @@ class AgendaPage extends Component
 
     /**
      * Quita la persona enlazada para escribir el nombre a mano.
-     *
-     * @return void
      */
     public function quitarAcompananteEnlazado(): void
     {
@@ -364,8 +338,6 @@ class AgendaPage extends Component
 
     /**
      * Registra quién acompañó a la persona. Solo registro: no crea citas ni vínculos.
-     *
-     * @return void
      */
     public function guardarAcompanante(): void
     {
@@ -387,8 +359,6 @@ class AgendaPage extends Component
 
     /**
      * Pide al supervisor del centro un cambio en la cita (le llega un mensaje con enlace).
-     *
-     * @return void
      */
     public function pedirCambio(): void
     {
@@ -406,18 +376,12 @@ class AgendaPage extends Component
     // Consultas KPI — se conectarán con los módulos reales progresivamente
     // -------------------------------------------------------------------------
 
-    /**
-     * @return int
-     */
     private function contarAlertasPendientes(): int
     {
         // TODO: conectar con módulo Mensajes cuando esté disponible
         return 0;
     }
 
-    /**
-     * @return int
-     */
     private function contarSeguimientosVencidos(): int
     {
         // TODO: conectar con módulo Intervencion (planes activos con seguimiento vencido)
@@ -426,8 +390,6 @@ class AgendaPage extends Component
 
     /**
      * Citas propias (sin eventos) en el periodo de la vista activa.
-     *
-     * @return int
      */
     private function contarCitasRango(): int
     {
@@ -444,9 +406,6 @@ class AgendaPage extends Component
             ->count();
     }
 
-    /**
-     * @return int
-     */
     private function contarMensajesSinLeer(): int
     {
         // TODO: conectar con módulo Mensajes cuando esté disponible
@@ -461,8 +420,6 @@ class AgendaPage extends Component
      * Citas del profesional y eventos a los que está convocado, por día (todos
      * los días del rango, aunque estén vacíos) y por hora.
      *
-     * @param Carbon $desde
-     * @param Carbon $hasta
      * @return array<string, list<array<string, mixed>>>
      */
     private function entradasPorDia(Carbon $desde, Carbon $hasta): array
@@ -504,7 +461,6 @@ class AgendaPage extends Component
     /**
      * Lo que la agenda pinta de una cita y las acciones que el usuario tiene sobre ella.
      *
-     * @param Cita $cita
      * @return array<string, mixed>
      */
     private function entradaDeCita(Cita $cita): array
@@ -534,9 +490,6 @@ class AgendaPage extends Component
 
     /**
      * Clave de color de la cita en la agenda (App\Support\Ui\Tono vía Tonos::tipoCita).
-     *
-     * @param Cita $cita
-     * @return string
      */
     private function tipoVisual(Cita $cita): string
     {
@@ -549,9 +502,6 @@ class AgendaPage extends Component
 
     /**
      * Cita de la agenda del usuario (una ajena no existe para esta pantalla).
-     *
-     * @param int $citaId
-     * @return Cita
      */
     private function citaPropia(int $citaId): Cita
     {
@@ -563,9 +513,6 @@ class AgendaPage extends Component
      * muestra en el campo de error; si va bien, deja el aviso y recarga la agenda.
      *
      * @param callable(): mixed $accion
-     * @param string $ok
-     * @param string $campoError
-     * @return void
      */
     private function ejecutar(callable $accion, string $ok, string $campoError = 'agenda'): void
     {
@@ -584,8 +531,6 @@ class AgendaPage extends Component
 
     /**
      * Renderiza la pantalla de agenda.
-     *
-     * @return View
      */
     public function render(): View
     {

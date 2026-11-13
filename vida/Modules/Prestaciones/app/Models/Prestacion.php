@@ -58,6 +58,7 @@ class Prestacion extends Model
 {
     /** @use HasFactory<PrestacionFactory> */
     use HasFactory;
+
     use SoftDeletes;
     use Versionable;
 

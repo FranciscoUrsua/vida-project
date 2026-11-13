@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @property int $id
  * @property string $nombre
- * @property string|null $slug  Identificador estable único, ej: 'taller', 'grupo-apoyo'
+ * @property string|null $slug Identificador estable único, ej: 'taller', 'grupo-apoyo'
  * @property string|null $descripcion
  * @property bool $activo
  */
@@ -30,6 +30,7 @@ class TipoActividad extends Model
      * Filtra solo los tipos activos. Usar en selects de backoffice y formularios.
      *
      * @param Builder<self> $query
+     *
      * @return Builder<self>
      */
     public function scopeActivos(Builder $query): Builder

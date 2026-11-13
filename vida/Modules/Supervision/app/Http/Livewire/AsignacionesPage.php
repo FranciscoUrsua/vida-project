@@ -90,9 +90,6 @@ class AsignacionesPage extends Component
 
     /**
      * Fija la pestaña de la ruta.
-     *
-     * @param string|null $pestana
-     * @return void
      */
     public function mount(?string $pestana = null): void
     {
@@ -101,8 +98,6 @@ class AsignacionesPage extends Component
 
     /**
      * Centro que supervisa el usuario, o null si no supervisa ninguno.
-     *
-     * @return Centro|null
      */
     #[Computed]
     public function centro(): ?Centro
@@ -155,7 +150,7 @@ class AsignacionesPage extends Component
     #[Computed]
     public function repartos(): EloquentCollection
     {
-        return $this->centro ? app(BandejaAsignacionesService::class)->repartosPropuestos($this->centro) : new EloquentCollection();
+        return $this->centro ? app(BandejaAsignacionesService::class)->repartosPropuestos($this->centro) : new EloquentCollection;
     }
 
     /**
@@ -193,8 +188,6 @@ class AsignacionesPage extends Component
 
     /**
      * Meses sin apuntes para considerar dormido un caso en el centro de la bandeja.
-     *
-     * @return int|null
      */
     #[Computed]
     public function mesesInactividad(): ?int
@@ -205,7 +198,6 @@ class AsignacionesPage extends Component
     /**
      * Centros activos de un tipo, para asignar a mano una persona sin centro.
      *
-     * @param string|null $tipoCentro
      * @return EloquentCollection<int, Centro>
      */
     public function centrosDelTipo(?string $tipoCentro): EloquentCollection
@@ -216,9 +208,7 @@ class AsignacionesPage extends Component
     /**
      * Abre el formulario de una entrada de la bandeja.
      *
-     * @param int $id
      * @param string $accion asignar, confirmar o descartar.
-     * @return void
      */
     public function iniciar(int $id, string $accion): void
     {
@@ -237,8 +227,6 @@ class AsignacionesPage extends Component
 
     /**
      * Cierra el formulario abierto sin hacer nada.
-     *
-     * @return void
      */
     public function cancelar(): void
     {
@@ -248,8 +236,6 @@ class AsignacionesPage extends Component
 
     /**
      * Aplica la decisión del supervisor sobre la entrada abierta.
-     *
-     * @return void
      */
     public function resolver(): void
     {
@@ -284,9 +270,6 @@ class AsignacionesPage extends Component
 
     /**
      * Abre el formulario para repartir los casos de un profesional.
-     *
-     * @param int $usuarioId
-     * @return void
      */
     public function iniciarReparto(int $usuarioId): void
     {
@@ -297,8 +280,6 @@ class AsignacionesPage extends Component
 
     /**
      * Propone el reparto y lleva a la pantalla de revisión. No cambia ninguna asignación.
-     *
-     * @return void
      */
     public function proponerReparto(): void
     {
@@ -323,9 +304,6 @@ class AsignacionesPage extends Component
         $this->redirectRoute('supervision.asignaciones.reparto', $reparto, navigate: true);
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('supervision::livewire.asignaciones-page');
@@ -334,9 +312,6 @@ class AsignacionesPage extends Component
     /**
      * Ejecuta la acción abierta con el servicio que corresponde.
      *
-     * @param AsignacionPendiente $pendiente
-     * @param User $supervisor
-     * @return void
      *
      * @throws AuthorizationException|InvalidArgumentException|LogicException
      */
@@ -379,19 +354,15 @@ class AsignacionesPage extends Component
     /**
      * Entradas abiertas de un tipo del alcance del centro.
      *
-     * @param TipoAsignacionPendiente $tipo
      * @return EloquentCollection<int, AsignacionPendiente>
      */
     private function pendientesDe(TipoAsignacionPendiente $tipo): EloquentCollection
     {
-        return $this->centro ? app(BandejaAsignacionesService::class)->pendientes($this->centro, $tipo) : new EloquentCollection();
+        return $this->centro ? app(BandejaAsignacionesService::class)->pendientes($this->centro, $tipo) : new EloquentCollection;
     }
 
     /**
      * Carga una entrada abierta solo si es del alcance del centro.
-     *
-     * @param int $id
-     * @return AsignacionPendiente|null
      */
     private function cargarPendiente(int $id): ?AsignacionPendiente
     {
@@ -400,8 +371,6 @@ class AsignacionesPage extends Component
 
     /**
      * Olvida las listas calculadas para que la vista refleje la decisión.
-     *
-     * @return void
      */
     private function limpiarCache(): void
     {

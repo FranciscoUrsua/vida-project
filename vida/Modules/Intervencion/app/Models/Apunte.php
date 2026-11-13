@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 use Modules\Agenda\Models\Cita;
 use Modules\Agenda\Models\EventoAgenda;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Intervencion\Database\Factories\ApunteFactory;
 use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\VisibilidadApunte;
@@ -72,12 +73,12 @@ class Apunte extends Model
         // de la cita que atiende, si la hay; si no, el centro activo del usuario.
         static::creating(function (self $apunte): void {
             $usuario = auth()->user();
-            if (! $usuario instanceof \App\Models\User) {
+            if (! $usuario instanceof User) {
                 return;
             }
-            $centros = app(\Modules\Centro\Services\Asignacion\CentroDeUsuario::class);
+            $centros = app(CentroDeUsuario::class);
             $centro = $apunte->cita_id !== null
-                ? \Modules\Agenda\Models\Cita::find($apunte->cita_id)?->centro
+                ? Cita::find($apunte->cita_id)?->centro
                 : $centros->centroActivo($usuario);
             $centros->exigirAtencion($usuario, $centro);
         });

@@ -2,6 +2,8 @@
 
 namespace Modules\Centro\Data;
 
+use Illuminate\Support\Carbon;
+
 /**
  * Horario semanal efectivo de un centro en una fecha: el propio o el heredado del tipo.
  *
@@ -28,12 +30,8 @@ final readonly class HorarioEfectivo
 
     /**
      * Si el día de la semana de la fecha es laborable en este horario.
-     *
-     * @param \Illuminate\Support\Carbon $fecha
-     *
-     * @return bool
      */
-    public function abreEl(\Illuminate\Support\Carbon $fecha): bool
+    public function abreEl(Carbon $fecha): bool
     {
         return in_array($fecha->isoWeekday(), $this->diasLaborables, true);
     }

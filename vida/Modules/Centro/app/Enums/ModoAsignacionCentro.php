@@ -15,8 +15,6 @@ enum ModoAsignacionCentro: string
 
     /**
      * Etiqueta legible, tal como se muestra en la ficha («por domicilio»…).
-     *
-     * @return string
      */
     public function label(): string
     {

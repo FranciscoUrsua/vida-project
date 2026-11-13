@@ -3,7 +3,6 @@
 namespace Modules\Agenda\Tests\Feature;
 
 use App\Models\Ciudadano;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Enums\EstadoSlot;

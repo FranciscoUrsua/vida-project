@@ -33,9 +33,9 @@ class DetectorFormato
      *
      * @param string $ruta Fichero en la zona temporal.
      *
-     * @throws IngestaRechazadaException formato_no_admitido o macros_no_admitidas
-     *
      * @return string MIME normalizado (una de las constantes de esta clase).
+     *
+     * @throws IngestaRechazadaException formato_no_admitido o macros_no_admitidas
      */
     public function detectar(string $ruta): string
     {
@@ -57,8 +57,6 @@ class DetectorFormato
      * @param string $ruta Fichero en la zona temporal.
      *
      * @throws IngestaRechazadaException
-     *
-     * @return string
      */
     private function detectarPaquete(string $ruta): string
     {
@@ -106,8 +104,6 @@ class DetectorFormato
      * @param string $patron Expresión regular de las entradas de macros.
      *
      * @throws IngestaRechazadaException
-     *
-     * @return void
      */
     private function rechazarSiHayMacros(array $entradas, string $patron): void
     {

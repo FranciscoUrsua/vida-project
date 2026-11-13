@@ -70,10 +70,10 @@ class DestruccionDocumentosService
      * @param User $usuario Quien aprueba; debe ser adm_sistema.
      * @param string $motivo Motivo que consta en el acta.
      *
+     * @return PropuestaEliminacion La propuesta resuelta, con su acta (si se destruyó algo).
+     *
      * @throws AuthorizationException si el usuario no es adm_sistema
      * @throws \DomainException si la propuesta ya está resuelta
-     *
-     * @return PropuestaEliminacion La propuesta resuelta, con su acta (si se destruyó algo).
      */
     public function aprobar(PropuestaEliminacion $propuesta, User $usuario, string $motivo = self::MOTIVO_DEFECTO): PropuestaEliminacion
     {
@@ -137,8 +137,6 @@ class DestruccionDocumentosService
      *
      * @throws AuthorizationException si el usuario no es adm_sistema
      * @throws \DomainException si la propuesta ya está resuelta
-     *
-     * @return PropuestaEliminacion
      */
     public function rechazar(PropuestaEliminacion $propuesta, User $usuario, ?string $observaciones = null): PropuestaEliminacion
     {
@@ -181,8 +179,6 @@ class DestruccionDocumentosService
      * vencida y no está retenida.
      *
      * @param DocumentoVersion $version Versión propuesta.
-     *
-     * @return bool
      */
     private function sigueSiendoDestruible(DocumentoVersion $version): bool
     {
@@ -224,8 +220,6 @@ class DestruccionDocumentosService
      * Marca el documento como destruido si ya no le queda ninguna versión con contenido.
      *
      * @param DocumentoVersion $version Versión recién destruida.
-     *
-     * @return void
      */
     private function marcarDocumentoSiDestruido(DocumentoVersion $version): void
     {
@@ -245,8 +239,6 @@ class DestruccionDocumentosService
      * @param PropuestaEliminacion $propuesta Propuesta.
      *
      * @throws \DomainException si ya está resuelta
-     *
-     * @return PropuestaEliminacion
      */
     private function bloquearPendiente(PropuestaEliminacion $propuesta): PropuestaEliminacion
     {
@@ -265,8 +257,6 @@ class DestruccionDocumentosService
      * @param User $usuario Usuario que actúa.
      *
      * @throws AuthorizationException
-     *
-     * @return void
      */
     private function exigirAdministrador(User $usuario): void
     {

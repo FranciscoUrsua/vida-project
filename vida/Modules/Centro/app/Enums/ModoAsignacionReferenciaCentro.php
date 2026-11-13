@@ -19,8 +19,6 @@ enum ModoAsignacionReferenciaCentro: string
 
     /**
      * Etiqueta legible del modo.
-     *
-     * @return string
      */
     public function label(): string
     {

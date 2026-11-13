@@ -15,7 +15,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property string $nombre
- * @property string|null $slug  Identificador estable único, ej: 'grado-trabajo-social'
+ * @property string|null $slug Identificador estable único, ej: 'grado-trabajo-social'
  * @property bool $activo
  * @property Carbon $created_at
  * @property Carbon $updated_at

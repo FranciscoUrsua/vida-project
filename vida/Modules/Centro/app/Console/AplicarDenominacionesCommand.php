@@ -21,8 +21,6 @@ class AplicarDenominacionesCommand extends Command
 
     /**
      * Recorre tipos y centros y actualiza los que han cambiado.
-     *
-     * @return int
      */
     public function handle(): int
     {

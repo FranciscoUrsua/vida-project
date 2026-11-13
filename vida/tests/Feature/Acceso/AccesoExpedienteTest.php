@@ -69,9 +69,6 @@ class AccesoExpedienteTest extends TestCase
 
     private HistoriaSocial $historiaPropio;
 
-    /**
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -356,11 +353,6 @@ class AccesoExpedienteTest extends TestCase
 
     /**
      * Usuario con un rol, adscrito a una UO.
-     *
-     * @param string $alias
-     * @param string $rol
-     * @param UnidadOrganizativa $uo
-     * @return User
      */
     private function usuarioEnUo(string $alias, string $rol, UnidadOrganizativa $uo): User
     {
@@ -384,10 +376,7 @@ class AccesoExpedienteTest extends TestCase
     }
 
     /**
-     * @param string $nombre
-     * @param string $apellido
      * @param array<string, mixed> $attrs
-     * @return Ciudadano
      */
     private function crearCiudadano(string $nombre, string $apellido, array $attrs = []): Ciudadano
     {
@@ -402,11 +391,6 @@ class AccesoExpedienteTest extends TestCase
         ], $attrs));
     }
 
-    /**
-     * @param Ciudadano $ciudadano
-     * @param UnidadOrganizativa $uo
-     * @return HistoriaSocial
-     */
     private function crearHistoria(Ciudadano $ciudadano, UnidadOrganizativa $uo): HistoriaSocial
     {
         return HistoriaSocial::create([
@@ -417,11 +401,6 @@ class AccesoExpedienteTest extends TestCase
         ]);
     }
 
-    /**
-     * @param Ciudadano $ciudadano
-     * @param string $valor
-     * @return void
-     */
     private function documento(Ciudadano $ciudadano, string $valor): void
     {
         CiudadanoIdentificador::create([
@@ -436,9 +415,6 @@ class AccesoExpedienteTest extends TestCase
 
     /**
      * Acceso aprobado del profesional de la UO A a la persona protegida.
-     *
-     * @param \DateTimeInterface $hasta
-     * @return AccesoProtegido
      */
     private function aprobarAcceso(\DateTimeInterface $hasta): AccesoProtegido
     {
@@ -456,19 +432,11 @@ class AccesoExpedienteTest extends TestCase
         ]);
     }
 
-    /**
-     * @param Ciudadano $ciudadano
-     * @return string
-     */
     private function rutaFicha(Ciudadano $ciudadano): string
     {
         return route('ciudadania.ciudadano.ficha', $ciudadano->id);
     }
 
-    /**
-     * @param HistoriaSocial $historia
-     * @return string
-     */
     private function rutaExpediente(HistoriaSocial $historia): string
     {
         return route('intervencion.ciudadano.show', $historia->id);
@@ -477,7 +445,6 @@ class AccesoExpedienteTest extends TestCase
     /**
      * Filas de lectura (ver o acceso restringido) de una persona, en orden.
      *
-     * @param Ciudadano $ciudadano
      * @return Collection<int, Audit>
      */
     private function filas(Ciudadano $ciudadano): Collection
@@ -491,9 +458,6 @@ class AccesoExpedienteTest extends TestCase
 
     /**
      * La única fila de lectura de una persona.
-     *
-     * @param Ciudadano $ciudadano
-     * @return Audit
      */
     private function filaUnica(Ciudadano $ciudadano): Audit
     {

@@ -10,7 +10,6 @@ use Livewire\Livewire;
 use Modules\Agenda\Enums\EstadoCuadrante;
 use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Agenda\Livewire\Supervisor\ExcepcionesSupervisorPage;
-use Modules\Agenda\Models\CuadranteMes;
 use Modules\Agenda\Models\ExcepcionProfesional;
 use Modules\Agenda\Models\Slot;
 use Modules\Agenda\Services\SlotMaterializadorService;
@@ -23,8 +22,8 @@ use Tests\TestCase;
  */
 class ExcepcionesSupervisorTest extends TestCase
 {
-    use RefreshDatabase;
     use AgendaSupervisorTestHelpers;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -55,9 +54,9 @@ class ExcepcionesSupervisorTest extends TestCase
 
         // Entonces: existe la excepción con afecta_disponibilidad = true
         $this->assertDatabaseHas('excepciones_profesional', [
-            'usuario_id'            => $this->profesional1->id,
-            'tipo'                  => 'vacaciones',
-            'fecha_inicio'          => $inicio,
+            'usuario_id' => $this->profesional1->id,
+            'tipo' => 'vacaciones',
+            'fecha_inicio' => $inicio,
             'afecta_disponibilidad' => true,
         ]);
 
@@ -101,7 +100,7 @@ class ExcepcionesSupervisorTest extends TestCase
         // Entonces: existe la excepción en BD
         $this->assertDatabaseHas('excepciones_profesional', [
             'usuario_id' => $this->profesional1->id,
-            'tipo'       => 'baja_medica',
+            'tipo' => 'baja_medica',
         ]);
     }
 
@@ -122,7 +121,7 @@ class ExcepcionesSupervisorTest extends TestCase
 
         $this->assertDatabaseHas('excepciones_profesional', [
             'usuario_id' => $this->profesional1->id,
-            'tipo'       => 'baja_medica',
+            'tipo' => 'baja_medica',
         ]);
     }
 
@@ -134,14 +133,14 @@ class ExcepcionesSupervisorTest extends TestCase
     {
         // Dado: una excepción de vacaciones en el futuro
         $excepcion = ExcepcionProfesional::create([
-            'usuario_id'            => $this->profesional1->id,
-            'centro_id'             => $this->centro->id,
-            'tipo'                  => 'vacaciones',
-            'fecha_inicio'          => now()->addMonth()->toDateString(),
-            'fecha_fin'             => now()->addMonth()->addDays(14)->toDateString(),
+            'usuario_id' => $this->profesional1->id,
+            'centro_id' => $this->centro->id,
+            'tipo' => 'vacaciones',
+            'fecha_inicio' => now()->addMonth()->toDateString(),
+            'fecha_fin' => now()->addMonth()->addDays(14)->toDateString(),
             'afecta_disponibilidad' => true,
-            'origen'                => 'manual',
-            'creado_por_id'         => $this->supervisor->id,
+            'origen' => 'manual',
+            'creado_por_id' => $this->supervisor->id,
         ]);
 
         // Cuando: el supervisor la elimina
@@ -177,7 +176,7 @@ class ExcepcionesSupervisorTest extends TestCase
     public function selector_solo_muestra_profesionales_del_centro(): void
     {
         // Dado: un profesional de otro centro
-        $otraUo     = UnidadOrganizativa::create(['nombre' => 'Otra UO', 'tipo' => 'centro', 'activa' => true]);
+        $otraUo = UnidadOrganizativa::create(['nombre' => 'Otra UO', 'tipo' => 'centro', 'activa' => true]);
         $otroCentro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(), 'nombre' => 'Otro Centro', 'tipo_gestion' => 'municipal_directo', 'fecha_alta' => now()->toDateString()]);
 
         $profOtro = $this->crearUsuarioConRol('intervencion', 'otro.prof@vida360.test', $otraUo);

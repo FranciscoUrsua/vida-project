@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * Renombra el rol 'supervisor' a 'supervision' para unificar el nombre canónico.
@@ -16,7 +17,7 @@ return new class extends Migration
     {
         // Reasignar en model_has_roles las asignaciones del rol 'supervisor' al rol 'supervision'
         $rolSupervision = DB::table('roles')->where('name', 'supervision')->where('guard_name', 'web')->first();
-        $rolSupervisor  = DB::table('roles')->where('name', 'supervisor')->where('guard_name', 'web')->first();
+        $rolSupervisor = DB::table('roles')->where('name', 'supervisor')->where('guard_name', 'web')->first();
 
         if ($rolSupervisor && $rolSupervision) {
             // Mover asignaciones evitando duplicados
@@ -43,7 +44,7 @@ return new class extends Migration
         }
 
         // Limpiar la caché de permisos de Spatie
-        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 
     public function down(): void

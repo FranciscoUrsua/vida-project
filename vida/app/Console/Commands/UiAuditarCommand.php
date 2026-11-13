@@ -92,7 +92,6 @@ class UiAuditarCommand extends Command
      *
      * @param list<Infraccion> $infracciones
      * @param list<Infraccion> $avisos
-     * @return void
      */
     private function mostrarDetalle(array $infracciones, array $avisos): void
     {
@@ -123,7 +122,6 @@ class UiAuditarCommand extends Command
      *
      * @param list<Infraccion> $infracciones
      * @param list<Infraccion> $avisos
-     * @return void
      */
     private function mostrarResumen(array $infracciones, array $avisos): void
     {
@@ -154,8 +152,6 @@ class UiAuditarCommand extends Command
     /**
      * Imprime las entradas de catálogo que faltan, como `pendiente`, para
      * pegarlas en config/ui-catalogo.php.
-     *
-     * @return int
      */
     private function generarCatalogo(AuditorUi $auditor): int
     {

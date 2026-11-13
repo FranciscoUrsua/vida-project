@@ -24,15 +24,11 @@ class CentroDeUsuario
     /** Clave de sesión con el centro elegido. */
     public const CLAVE_SESION = 'centro_activo_id';
 
-    /**
-     * @param AmbitoUsuario $ambito
-     */
     public function __construct(private readonly AmbitoUsuario $ambito) {}
 
     /**
      * Centros activos cuya UO es una adscripción vigente directa del usuario.
      *
-     * @param User|null $usuario
      *
      * @return Collection<int, Centro>
      */
@@ -53,10 +49,6 @@ class CentroDeUsuario
      *
      * Orden: el elegido en la sesión si sigue entre sus centros; el de su perfil
      * horario de hoy; el único que tenga; si no, null.
-     *
-     * @param User|null $usuario
-     *
-     * @return Centro|null
      */
     public function centroActivo(?User $usuario): ?Centro
     {
@@ -89,12 +81,8 @@ class CentroDeUsuario
     /**
      * Guarda en la sesión el centro elegido por el usuario.
      *
-     * @param User $usuario
-     * @param Centro $centro
      *
      * @throws DomainException Si no es uno de sus centros.
-     *
-     * @return void
      */
     public function elegir(User $usuario, Centro $centro): void
     {
@@ -107,11 +95,6 @@ class CentroDeUsuario
 
     /**
      * Si el usuario supervisa el centro: rol `supervision` y el centro en su ámbito (D1.8).
-     *
-     * @param User $usuario
-     * @param Centro $centro
-     *
-     * @return bool
      */
     public function supervisa(User $usuario, Centro $centro): bool
     {
@@ -120,11 +103,6 @@ class CentroDeUsuario
 
     /**
      * Si el usuario está adscrito directamente a la UO del centro (RN-15).
-     *
-     * @param User $usuario
-     * @param Centro $centro
-     *
-     * @return bool
      */
     public function adscritoA(User $usuario, Centro $centro): bool
     {
@@ -135,12 +113,9 @@ class CentroDeUsuario
      * Rechaza una operación de atención individual si el usuario no está adscrito
      * al centro en que se hace (RN-15). Ocultar el botón no basta.
      *
-     * @param User $usuario
      * @param Centro|null $centro Centro de la operación; null si no lo hay.
      *
      * @throws DomainException
-     *
-     * @return void
      */
     public function exigirAtencion(User $usuario, ?Centro $centro): void
     {

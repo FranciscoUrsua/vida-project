@@ -21,7 +21,7 @@ use Modules\Centro\Database\Factories\SalaFactory;
  * @property int $centro_id
  * @property string $nombre
  * @property string|null $descripcion
- * @property int|null $capacidad  Personas, no plazas de alojamiento
+ * @property int|null $capacidad Personas, no plazas de alojamiento
  * @property bool $accesible
  * @property bool $activa
  * @property string|null $notas
@@ -43,7 +43,7 @@ class Sala extends Model
 
     protected $casts = [
         'accesible' => 'boolean',
-        'activa'    => 'boolean',
+        'activa' => 'boolean',
         'capacidad' => 'integer',
     ];
 
@@ -71,6 +71,7 @@ class Sala extends Model
      * Filtra solo las salas activas.
      *
      * @param Builder<self> $query
+     *
      * @return Builder<self>
      */
     public function scopeActivas(Builder $query): Builder

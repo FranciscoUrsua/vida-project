@@ -3,6 +3,7 @@
 namespace Modules\Agenda\Tests\Feature;
 
 use App\Models\Ciudadano;
+use App\Models\HistoriaSocial;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -216,7 +217,7 @@ class CitaCicloVidaTest extends TestCase
         ]);
 
         // Apunte que atendió la cita (plan_apuntes.cita_id), en la historia de la misma persona
-        $historia = \App\Models\HistoriaSocial::factory()->create(['ciudadano_id' => $cita->ciudadano_id]);
+        $historia = HistoriaSocial::factory()->create(['ciudadano_id' => $cita->ciudadano_id]);
         $apunte = Apunte::factory()->create(['cita_id' => $cita->id, 'historia_id' => $historia->id]);
 
         // Antes de cancelar: el servicio detecta el apunte asociado

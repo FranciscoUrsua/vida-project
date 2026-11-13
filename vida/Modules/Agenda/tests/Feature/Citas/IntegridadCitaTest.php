@@ -24,9 +24,6 @@ class IntegridadCitaTest extends TestCase
     use CitasTestSetup;
     use RefreshDatabase;
 
-    /**
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -35,8 +32,6 @@ class IntegridadCitaTest extends TestCase
 
     /**
      * TF-CIT-42 — El historial es inmutable: modelo, SQL directo y purga de audits. [negativo]
-     *
-     * @return void
      */
     #[Test]
     public function el_historial_es_inmutable(): void

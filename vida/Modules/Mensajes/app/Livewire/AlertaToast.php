@@ -9,6 +9,7 @@ use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Modules\Agenda\Models\Cita;
 use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Mensajes\Enums\TipoAlerta;
@@ -75,8 +76,6 @@ class AlertaToast extends Component
      * Fija el enlace a la bandeja según el interfaz de la página (Supervisión
      * o Intervención). Se calcula aquí porque en las peticiones de polling
      * la ruta actual es la de Livewire.
-     *
-     * @return void
      */
     public function mount(): void
     {
@@ -104,7 +103,7 @@ class AlertaToast extends Component
     public function alertas(): Collection
     {
         if (! auth()->check()) {
-            return new Collection();
+            return new Collection;
         }
 
         return Alerta::pendientesPara(auth()->user())
@@ -144,7 +143,6 @@ class AlertaToast extends Component
      * Vuelve a desplegar el toast de una alerta minimizada.
      *
      * @param int $alertaId ID de la alerta.
-     * @return void
      */
     public function restaurar(int $alertaId): void
     {
@@ -157,8 +155,6 @@ class AlertaToast extends Component
 
     /**
      * Vuelve a desplegar todos los toasts minimizados.
-     *
-     * @return void
      */
     public function restaurarTodas(): void
     {
@@ -171,7 +167,6 @@ class AlertaToast extends Component
      * si sigue pendiente. No cambia el estado de la alerta.
      *
      * @param int $alertaId ID de la alerta.
-     * @return void
      */
     public function minimizar(int $alertaId): void
     {
@@ -180,8 +175,6 @@ class AlertaToast extends Component
 
     /**
      * Minimiza todos los toasts visibles.
-     *
-     * @return void
      */
     public function minimizarTodas(): void
     {
@@ -196,7 +189,6 @@ class AlertaToast extends Component
      * de rol llevan a Aprobaciones si el usuario supervisa.
      *
      * @param Alerta $alerta Alerta del toast.
-     * @return string|null
      */
     public function enlaceOrigen(Alerta $alerta): ?string
     {
@@ -206,7 +198,7 @@ class AlertaToast extends Component
             PlanDeIntervencion::class => TipoContextoMensaje::Plan,
             Ficha::class => TipoContextoMensaje::Ficha,
             HistoriaSocial::class => TipoContextoMensaje::Historia,
-            \Modules\Agenda\Models\Cita::class => TipoContextoMensaje::Cita,
+            Cita::class => TipoContextoMensaje::Cita,
             default => null,
         };
 
@@ -228,7 +220,6 @@ class AlertaToast extends Component
      * Pide confirmación antes de reconocer una alerta desde su toast.
      *
      * @param int $alertaId ID de la alerta.
-     * @return void
      */
     public function confirmarReconocimiento(int $alertaId): void
     {
@@ -237,8 +228,6 @@ class AlertaToast extends Component
 
     /**
      * Cancela el diálogo de confirmación.
-     *
-     * @return void
      */
     public function cancelarReconocimiento(): void
     {
@@ -250,7 +239,6 @@ class AlertaToast extends Component
      * bandeja) para que actualicen sus contadores.
      *
      * @param AlertaService $alertaService Servicio de ciclo de vida de alertas.
-     * @return void
      *
      * @throws AuthorizationException Si el usuario no la tiene pendiente.
      */
@@ -277,8 +265,6 @@ class AlertaToast extends Component
 
     /**
      * Renderiza la pila de toasts.
-     *
-     * @return View
      */
     public function render(): View
     {
@@ -305,8 +291,6 @@ class AlertaToast extends Component
     /**
      * Clave de sesión de lo minimizado, por usuario: una alerta a un
      * colectivo tiene el mismo ID para todos sus destinatarios.
-     *
-     * @return string
      */
     private function claveSesion(): string
     {
@@ -317,7 +301,6 @@ class AlertaToast extends Component
      * Añade alertas a las minimizadas de la sesión con el instante actual.
      *
      * @param list<int> $alertaIds IDs de las alertas.
-     * @return void
      */
     private function guardarMinimizadas(array $alertaIds): void
     {

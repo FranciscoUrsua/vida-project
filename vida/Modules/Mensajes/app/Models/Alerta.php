@@ -158,6 +158,7 @@ class Alerta extends Model
      *
      * @param Builder<static> $query
      * @param User $usuario Usuario destinatario.
+     *
      * @return Builder<static>
      */
     public function scopeVisiblesPara(Builder $query, User $usuario): Builder
@@ -171,6 +172,7 @@ class Alerta extends Model
      *
      * @param Builder<static> $query
      * @param User $usuario Usuario destinatario.
+     *
      * @return Builder<static>
      */
     public function scopePendientesPara(Builder $query, User $usuario): Builder

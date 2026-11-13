@@ -13,8 +13,8 @@ use Tests\TestCase;
  */
 class AccesoSupervisorTest extends TestCase
 {
-    use RefreshDatabase;
     use AgendaSupervisorTestHelpers;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {

@@ -96,7 +96,6 @@ class UiAuditarTest extends TestCase
      * propias, y manifest de Vite.
      *
      * @param string $extraOperativo CSS adicional del bundle operativo.
-     * @return void
      */
     private function compilar(string $extraOperativo = ''): void
     {
@@ -113,8 +112,6 @@ class UiAuditarTest extends TestCase
 
     /**
      * Configura el auditor contra el proyecto temporal.
-     *
-     * @return void
      */
     private function configurar(): void
     {

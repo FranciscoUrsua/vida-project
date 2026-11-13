@@ -87,7 +87,6 @@ class Cargo extends Model
      * @param list<string> $roles Nombres de roles Spatie.
      *
      * @throws \InvalidArgumentException si algún rol no existe.
-     * @return void
      */
     public function sincronizarRolesSugeridos(array $roles): void
     {

@@ -5,12 +5,14 @@ namespace App\Models;
 use Database\Factories\UnidadOrganizativaFactory;
 use DomainException;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Modules\Centro\Models\Centro;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
 
 /**
@@ -49,6 +51,7 @@ class UnidadOrganizativa extends Model
 {
     /** @use HasFactory<UnidadOrganizativaFactory> */
     use HasFactory;
+
     use HasRecursiveRelationships;
     use SoftDeletes;
 
@@ -72,14 +75,12 @@ class UnidadOrganizativa extends Model
      * Impide colgar una UO de la UO de un centro (RN-14).
      *
      * @throws DomainException
-     *
-     * @return void
      */
     protected static function booted(): void
     {
         static::saving(function (self $uo): void {
             if ($uo->parent_id !== null && $uo->isDirty('parent_id')
-                && \Modules\Centro\Models\Centro::where('unidad_organizativa_id', $uo->parent_id)->exists()) {
+                && Centro::where('unidad_organizativa_id', $uo->parent_id)->exists()) {
                 throw new DomainException('La UO de un centro no puede tener UO hijas (RN-14).');
             }
         });
@@ -116,13 +117,13 @@ class UnidadOrganizativa extends Model
      *
      * @param string $jerarquia 'organica' | 'funcional' | 'ambas'.
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int, \Modules\Centro\Models\Centro>
+     * @return Collection<int, Centro>
      */
-    public function centrosDependientes(string $jerarquia = 'ambas'): \Illuminate\Database\Eloquent\Collection
+    public function centrosDependientes(string $jerarquia = 'ambas'): Collection
     {
         $subarbol = $this->descendantsAndSelf()->pluck('id');
 
-        return \Modules\Centro\Models\Centro::query()
+        return Centro::query()
             ->where('activo', true)
             ->where(function (Builder $q) use ($jerarquia, $subarbol): void {
                 if ($jerarquia !== 'funcional') {
@@ -140,8 +141,6 @@ class UnidadOrganizativa extends Model
      * Si esta UO desciende orgánicamente de la indicada.
      *
      * @param UnidadOrganizativa $ancestor UO antecesora candidata.
-     *
-     * @return bool
      */
     public function isDescendantOf(UnidadOrganizativa $ancestor): bool
     {

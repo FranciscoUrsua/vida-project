@@ -19,8 +19,8 @@ use Tests\TestCase;
  */
 class EventosSupervisorTest extends TestCase
 {
-    use RefreshDatabase;
     use AgendaSupervisorTestHelpers;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -36,9 +36,6 @@ class EventosSupervisorTest extends TestCase
 
     /**
      * Sala del centro para los eventos (eventos_agenda.espacio_id → salas).
-     *
-     * @param string $nombre
-     * @return Sala
      */
     private function crearEspacio(string $nombre = 'Sala A'): Sala
     {
@@ -48,17 +45,17 @@ class EventosSupervisorTest extends TestCase
     private function crearSlotDisponible(): Slot
     {
         $tipoSlot = $this->crearTipoSlot();
-        $linea    = $this->crearLineaCuadrante($this->profesional1);
+        $linea = $this->crearLineaCuadrante($this->profesional1);
 
         return Slot::create([
             'linea_cuadrante_id' => $linea->id,
-            'usuario_id'         => $this->profesional1->id,
-            'centro_id'          => $this->centro->id,
-            'tipo_slot_id'       => $tipoSlot->id,
-            'fecha'              => now()->toDateString(),
-            'hora_inicio'        => '10:00',
-            'hora_fin'           => '10:30',
-            'estado'             => EstadoSlot::Disponible->value,
+            'usuario_id' => $this->profesional1->id,
+            'centro_id' => $this->centro->id,
+            'tipo_slot_id' => $tipoSlot->id,
+            'fecha' => now()->toDateString(),
+            'hora_inicio' => '10:00',
+            'hora_fin' => '10:30',
+            'estado' => EstadoSlot::Disponible->value,
         ]);
     }
 
@@ -91,7 +88,7 @@ class EventosSupervisorTest extends TestCase
 
         // Y: el evento aparece en la lista
         $this->assertDatabaseHas('eventos_agenda', [
-            'titulo'    => 'Reunión de equipo',
+            'titulo' => 'Reunión de equipo',
             'centro_id' => $this->centro->id,
         ]);
     }
@@ -106,14 +103,14 @@ class EventosSupervisorTest extends TestCase
 
         // Dado: un evento existente que ocupa el espacio
         EventoAgenda::create([
-            'centro_id'    => $this->centro->id,
-            'titulo'       => 'Evento previo',
-            'fecha'        => now()->addDay()->toDateString(),
-            'hora_inicio'  => '10:00',
-            'hora_fin'     => '12:00',
-            'tipo_evento'  => 'coordinacion',
-            'espacio_id'   => $espacio->id,
-            'creado_por_id'=> $this->supervisor->id,
+            'centro_id' => $this->centro->id,
+            'titulo' => 'Evento previo',
+            'fecha' => now()->addDay()->toDateString(),
+            'hora_inicio' => '10:00',
+            'hora_fin' => '12:00',
+            'tipo_evento' => 'coordinacion',
+            'espacio_id' => $espacio->id,
+            'creado_por_id' => $this->supervisor->id,
         ]);
 
         // Cuando: el supervisor crea un evento en el mismo espacio y franja
@@ -138,14 +135,14 @@ class EventosSupervisorTest extends TestCase
     public function evento_aparece_en_lista_proximos(): void
     {
         EventoAgenda::create([
-            'centro_id'    => $this->centro->id,
-            'titulo'       => 'Formación PHP',
-            'fecha'        => now()->addDays(3)->toDateString(),
-            'hora_inicio'  => '09:00',
-            'hora_fin'     => '11:00',
-            'tipo_evento'  => 'sesion_interna',
-            'espacio_id'   => null,
-            'creado_por_id'=> $this->supervisor->id,
+            'centro_id' => $this->centro->id,
+            'titulo' => 'Formación PHP',
+            'fecha' => now()->addDays(3)->toDateString(),
+            'hora_inicio' => '09:00',
+            'hora_fin' => '11:00',
+            'tipo_evento' => 'sesion_interna',
+            'espacio_id' => null,
+            'creado_por_id' => $this->supervisor->id,
         ]);
 
         $component = Livewire::actingAs($this->supervisor)
@@ -162,20 +159,20 @@ class EventosSupervisorTest extends TestCase
     {
         // Dado: dos slots bloqueados por un evento
         $tipoSlot = $this->crearTipoSlot();
-        $linea    = $this->crearLineaCuadrante($this->profesional1);
+        $linea = $this->crearLineaCuadrante($this->profesional1);
 
         $slot1 = Slot::create(['linea_cuadrante_id' => $linea->id, 'usuario_id' => $this->profesional1->id, 'centro_id' => $this->centro->id, 'tipo_slot_id' => $tipoSlot->id, 'fecha' => now()->toDateString(), 'hora_inicio' => '10:00', 'hora_fin' => '10:30', 'estado' => EstadoSlot::BloqueadoEvento->value]);
         $slot2 = Slot::create(['linea_cuadrante_id' => $linea->id, 'usuario_id' => $this->profesional1->id, 'centro_id' => $this->centro->id, 'tipo_slot_id' => $tipoSlot->id, 'fecha' => now()->toDateString(), 'hora_inicio' => '10:30', 'hora_fin' => '11:00', 'estado' => EstadoSlot::BloqueadoEvento->value]);
 
         $evento = EventoAgenda::create([
-            'centro_id'    => $this->centro->id,
-            'titulo'       => 'Evento a eliminar',
-            'fecha'        => now()->toDateString(),
-            'hora_inicio'  => '10:00',
-            'hora_fin'     => '11:00',
-            'tipo_evento'  => 'coordinacion',
-            'espacio_id'   => null,
-            'creado_por_id'=> $this->supervisor->id,
+            'centro_id' => $this->centro->id,
+            'titulo' => 'Evento a eliminar',
+            'fecha' => now()->toDateString(),
+            'hora_inicio' => '10:00',
+            'hora_fin' => '11:00',
+            'tipo_evento' => 'coordinacion',
+            'espacio_id' => null,
+            'creado_por_id' => $this->supervisor->id,
         ]);
 
         $evento->profesionales()->sync([$this->profesional1->id]);
@@ -198,7 +195,7 @@ class EventosSupervisorTest extends TestCase
     public function eliminar_evento_no_libera_slots_de_otro_evento_solapado(): void
     {
         $tipoSlot = $this->crearTipoSlot();
-        $linea    = $this->crearLineaCuadrante($this->profesional1);
+        $linea = $this->crearLineaCuadrante($this->profesional1);
 
         $compartido = Slot::create(['linea_cuadrante_id' => $linea->id, 'usuario_id' => $this->profesional1->id, 'centro_id' => $this->centro->id, 'tipo_slot_id' => $tipoSlot->id, 'fecha' => now()->toDateString(), 'hora_inicio' => '10:30', 'hora_fin' => '11:00', 'estado' => EstadoSlot::BloqueadoEvento->value]);
         $soloDelPrimero = Slot::create(['linea_cuadrante_id' => $linea->id, 'usuario_id' => $this->profesional1->id, 'centro_id' => $this->centro->id, 'tipo_slot_id' => $tipoSlot->id, 'fecha' => now()->toDateString(), 'hora_inicio' => '10:00', 'hora_fin' => '10:30', 'estado' => EstadoSlot::BloqueadoEvento->value]);

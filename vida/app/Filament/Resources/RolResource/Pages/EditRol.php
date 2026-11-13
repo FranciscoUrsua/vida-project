@@ -19,6 +19,7 @@ class EditRol extends EditRecord
      * Añade al formulario el nivel de supervisión, que no es columna del rol.
      *
      * @param array<string, mixed> $data
+     *
      * @return array<string, mixed>
      */
     protected function mutateFormDataBeforeFill(array $data): array
@@ -33,9 +34,7 @@ class EditRol extends EditRecord
     /**
      * Guarda el rol y, aparte, su nivel de supervisión en configuracion_roles.
      *
-     * @param Model $record
      * @param array<string, mixed> $data
-     * @return Model
      */
     protected function handleRecordUpdate(Model $record, array $data): Model
     {

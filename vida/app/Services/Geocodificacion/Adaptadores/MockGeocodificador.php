@@ -3,9 +3,9 @@
 namespace App\Services\Geocodificacion\Adaptadores;
 
 use App\Enums\TipoNumeracion;
-use Closure;
 use App\Services\Geocodificacion\GeocodificadorInterface;
 use App\Services\Geocodificacion\ResultadoGeocodificacion;
+use Closure;
 use Modules\Organizacion\Models\SeccionCensal;
 
 /**
@@ -36,8 +36,8 @@ class MockGeocodificador implements GeocodificadorInterface
 
     /**
      * @param Closure(string, int): (SeccionCensal|null)|null $elegirSeccion Cómo se elige la sección
-     *        de un portal. Por defecto, del catálogo de la BD; el test del parser pasa uno sin catálogo
-     *        para probar el texto sin base de datos.
+     *                                                                       de un portal. Por defecto, del catálogo de la BD; el test del parser pasa uno sin catálogo
+     *                                                                       para probar el texto sin base de datos.
      */
     public function __construct(?Closure $elegirSeccion = null)
     {
@@ -142,7 +142,6 @@ class MockGeocodificador implements GeocodificadorInterface
      * @param string|null $tipoVia Tipo de vía extraído.
      * @param string|null $nombreVia Nombre de vía extraído.
      * @param string|null $numero Número extraído.
-     * @return string
      */
     private function clavePortal(string $texto, ?string $tipoVia, ?string $nombreVia, ?string $numero): string
     {
@@ -156,7 +155,6 @@ class MockGeocodificador implements GeocodificadorInterface
      * portal da siempre la misma sección mientras no cambie el catálogo.
      *
      * @param string $clavePortal Clave del portal.
-     * @return SeccionCensal|null
      */
     private function seccionDeterminista(string $clavePortal): ?SeccionCensal
     {
@@ -167,6 +165,7 @@ class MockGeocodificador implements GeocodificadorInterface
      * Sección activa del catálogo en la posición que marca el hash del portal.
      *
      * @param int $hash Hash de la clave del portal.
+     *
      * @return SeccionCensal|null Null si el catálogo está vacío.
      */
     private function seccionDelCatalogo(int $hash): ?SeccionCensal

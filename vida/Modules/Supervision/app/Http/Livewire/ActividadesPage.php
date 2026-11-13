@@ -69,11 +69,17 @@ class ActividadesPage extends Component
     public ?int $editandoId = null;
 
     public string $nombre = '';
+
     public ?int $tipoActividadId = null;
+
     public string $modoAcceso = 'libre';
+
     public ?int $aforoTotal = null;
+
     public ?int $aforoPresc = null;
+
     public string $fechaAlta = '';
+
     public bool $requiereInscripcion = false;
 
     /** @var list<int> IDs de profesionales responsables asignados a la actividad. */
@@ -102,12 +108,19 @@ class ActividadesPage extends Component
     public ?int $editandoSesionId = null;
 
     public string $sesionFecha = '';
+
     public string $sesionHoraInicio = '';
+
     public string $sesionHoraFin = '';
+
     public ?int $sesionSalaId = null;
+
     public string $sesionEstado = 'programada';
+
     public ?int $sesionAforoTotal = null;
+
     public ?int $sesionAforoPresc = null;
+
     public string $sesionNotas = '';
 
     /** @var list<int> IDs de profesionales que dirigen esta sesión. */
@@ -146,7 +159,7 @@ class ActividadesPage extends Component
         $centro = $this->centroDelSupervisor();
 
         if ($centro === null) {
-            return new Collection();
+            return new Collection;
         }
 
         return Actividad::where('centro_id', $centro->id)
@@ -200,8 +213,6 @@ class ActividadesPage extends Component
 
     /**
      * Actividad cuyas sesiones se están gestionando en el modal.
-     *
-     * @return Actividad|null
      */
     #[Computed]
     public function actividadParaSesiones(): ?Actividad
@@ -222,7 +233,7 @@ class ActividadesPage extends Component
     public function sesiones(): Collection
     {
         if ($this->actividadIdSesiones === null) {
-            return new Collection();
+            return new Collection;
         }
 
         return SesionActividad::where('actividad_id', $this->actividadIdSesiones)
@@ -243,7 +254,7 @@ class ActividadesPage extends Component
         $centro = $this->centroDelSupervisor();
 
         if ($centro === null) {
-            return new Collection();
+            return new Collection;
         }
 
         return Sala::where('centro_id', $centro->id)
@@ -304,8 +315,6 @@ class ActividadesPage extends Component
 
     /**
      * Abre el modal en modo alta con el formulario limpio.
-     *
-     * @return void
      */
     public function abrirModal(): void
     {
@@ -323,7 +332,6 @@ class ActividadesPage extends Component
      * Solo permite editar actividades del propio centro del supervisor.
      *
      * @param int $id Id de la actividad a editar.
-     * @return void
      */
     public function abrirEdicion(int $id): void
     {
@@ -333,25 +341,22 @@ class ActividadesPage extends Component
             ->when($centro !== null, fn ($q) => $q->where('centro_id', $centro->id))
             ->firstOrFail();
 
-        $this->editandoId           = $actividad->id;
-        $this->nombre               = $actividad->nombre;
-        $this->tipoActividadId      = $actividad->tipo_actividad_id;
-        $this->modoAcceso           = $actividad->modo_acceso;
-        $this->aforoTotal           = $actividad->aforo_total;
-        $this->aforoPresc           = $actividad->aforo_prescripcion;
-        $this->fechaAlta            = $actividad->fecha_alta->toDateString();
-        $this->requiereInscripcion  = (bool) $actividad->requiere_inscripcion_centro;
-        $this->profesionalesIds     = $actividad->profesionales()->get()->pluck('id')->map(fn ($v) => (int) $v)->toArray();
-        $this->busquedaProfesional  = '';
-        $this->buscarEnTodo         = false;
-        $this->modalAbierto         = true;
+        $this->editandoId = $actividad->id;
+        $this->nombre = $actividad->nombre;
+        $this->tipoActividadId = $actividad->tipo_actividad_id;
+        $this->modoAcceso = $actividad->modo_acceso;
+        $this->aforoTotal = $actividad->aforo_total;
+        $this->aforoPresc = $actividad->aforo_prescripcion;
+        $this->fechaAlta = $actividad->fecha_alta->toDateString();
+        $this->requiereInscripcion = (bool) $actividad->requiere_inscripcion_centro;
+        $this->profesionalesIds = $actividad->profesionales()->get()->pluck('id')->map(fn ($v) => (int) $v)->toArray();
+        $this->busquedaProfesional = '';
+        $this->buscarEnTodo = false;
+        $this->modalAbierto = true;
     }
 
     /**
      * Añade el profesional indicado a la lista de la actividad.
-     *
-     * @param int $profesionalId
-     * @return void
      */
     public function agregarProfesional(int $profesionalId): void
     {
@@ -366,9 +371,6 @@ class ActividadesPage extends Component
 
     /**
      * Quita el profesional indicado de la lista de la actividad.
-     *
-     * @param int $profesionalId
-     * @return void
      */
     public function quitarProfesional(int $profesionalId): void
     {
@@ -379,36 +381,34 @@ class ActividadesPage extends Component
 
     /**
      * Guarda el formulario de actividad (crea o actualiza) y sincroniza profesionales.
-     *
-     * @return void
      */
     public function guardar(): void
     {
         $this->validate(
             [
-                'nombre'             => ['required', 'string', 'max:200'],
-                'tipoActividadId'    => ['required', 'integer', 'exists:tipos_actividad,id'],
-                'modoAcceso'         => ['required', 'in:libre,prescripcion,mixta'],
-                'aforoTotal'         => ['nullable', 'integer', 'min:1'],
-                'aforoPresc'         => ['nullable', 'integer', 'min:0'],
-                'fechaAlta'          => ['required', 'date'],
-                'profesionalesIds'   => ['required', 'array', 'min:1'],
+                'nombre' => ['required', 'string', 'max:200'],
+                'tipoActividadId' => ['required', 'integer', 'exists:tipos_actividad,id'],
+                'modoAcceso' => ['required', 'in:libre,prescripcion,mixta'],
+                'aforoTotal' => ['nullable', 'integer', 'min:1'],
+                'aforoPresc' => ['nullable', 'integer', 'min:0'],
+                'fechaAlta' => ['required', 'date'],
+                'profesionalesIds' => ['required', 'array', 'min:1'],
                 'profesionalesIds.*' => ['integer', 'exists:profesionales,id'],
             ],
             [
                 'profesionalesIds.required' => 'Debes asignar al menos un profesional responsable.',
-                'profesionalesIds.min'      => 'Debes asignar al menos un profesional responsable.',
+                'profesionalesIds.min' => 'Debes asignar al menos un profesional responsable.',
             ]
         );
 
         $datos = [
-            'tipo_actividad_id'           => $this->tipoActividadId,
-            'nombre'                      => trim($this->nombre),
-            'modo_acceso'                 => $this->modoAcceso,
-            'aforo_total'                 => $this->aforoTotal,
-            'aforo_prescripcion'          => $this->modoAcceso !== 'libre' ? $this->aforoPresc : null,
+            'tipo_actividad_id' => $this->tipoActividadId,
+            'nombre' => trim($this->nombre),
+            'modo_acceso' => $this->modoAcceso,
+            'aforo_total' => $this->aforoTotal,
+            'aforo_prescripcion' => $this->modoAcceso !== 'libre' ? $this->aforoPresc : null,
             'requiere_inscripcion_centro' => $this->requiereInscripcion,
-            'fecha_alta'                  => $this->fechaAlta,
+            'fecha_alta' => $this->fechaAlta,
         ];
 
         if ($this->editandoId !== null) {
@@ -422,12 +422,13 @@ class ActividadesPage extends Component
 
             if ($centro === null) {
                 $this->addError('nombre', 'No se ha encontrado un centro asociado a tu unidad organizativa.');
+
                 return;
             }
 
             $actividad = Actividad::create(array_merge($datos, [
                 'centro_id' => $centro->id,
-                'activa'    => true,
+                'activa' => true,
             ]));
         }
 
@@ -443,14 +444,11 @@ class ActividadesPage extends Component
 
     /**
      * Abre el modal de sesiones para la actividad indicada en modo lista.
-     *
-     * @param int $actividadId
-     * @return void
      */
     public function abrirSesiones(int $actividadId): void
     {
         $this->actividadIdSesiones = $actividadId;
-        $this->sesionesModo        = 'lista';
+        $this->sesionesModo = 'lista';
         $this->modalSesionesAbierto = true;
         unset($this->sesiones);
         unset($this->actividadParaSesiones);
@@ -458,8 +456,6 @@ class ActividadesPage extends Component
 
     /**
      * Cambia el modal de sesiones al formulario en modo alta.
-     *
-     * @return void
      */
     public function nuevaSesion(): void
     {
@@ -468,17 +464,14 @@ class ActividadesPage extends Component
             'sesionAforoTotal', 'sesionAforoPresc', 'sesionNotas',
             'sesionProfesionalesIds', 'sesionBusquedaProfesional', 'sesionBuscarEnTodo',
         ]);
-        $this->sesionFecha      = Carbon::today()->toDateString();
+        $this->sesionFecha = Carbon::today()->toDateString();
         $this->sesionHoraInicio = '09:00';
-        $this->sesionEstado     = 'programada';
-        $this->sesionesModo     = 'formulario';
+        $this->sesionEstado = 'programada';
+        $this->sesionesModo = 'formulario';
     }
 
     /**
      * Carga los datos de la sesión indicada y abre el formulario en modo edición.
-     *
-     * @param int $sesionId
-     * @return void
      */
     public function editarSesion(int $sesionId): void
     {
@@ -486,50 +479,48 @@ class ActividadesPage extends Component
             ->where('actividad_id', $this->actividadIdSesiones)
             ->firstOrFail();
 
-        $this->editandoSesionId         = $sesion->id;
-        $this->sesionFecha              = $sesion->fecha->toDateString();
-        $this->sesionHoraInicio         = substr((string) $sesion->hora_inicio, 0, 5);
-        $this->sesionHoraFin            = $sesion->hora_fin ? substr((string) $sesion->hora_fin, 0, 5) : '';
-        $this->sesionSalaId             = $sesion->sala_id;
-        $this->sesionEstado             = $sesion->estado;
-        $this->sesionAforoTotal         = $sesion->aforo_total;
-        $this->sesionAforoPresc         = $sesion->aforo_prescripcion;
-        $this->sesionNotas              = $sesion->notas ?? '';
-        $this->sesionProfesionalesIds   = $sesion->profesionales()->get()->pluck('id')->map(fn ($v) => (int) $v)->toArray();
+        $this->editandoSesionId = $sesion->id;
+        $this->sesionFecha = $sesion->fecha->toDateString();
+        $this->sesionHoraInicio = substr((string) $sesion->hora_inicio, 0, 5);
+        $this->sesionHoraFin = $sesion->hora_fin ? substr((string) $sesion->hora_fin, 0, 5) : '';
+        $this->sesionSalaId = $sesion->sala_id;
+        $this->sesionEstado = $sesion->estado;
+        $this->sesionAforoTotal = $sesion->aforo_total;
+        $this->sesionAforoPresc = $sesion->aforo_prescripcion;
+        $this->sesionNotas = $sesion->notas ?? '';
+        $this->sesionProfesionalesIds = $sesion->profesionales()->get()->pluck('id')->map(fn ($v) => (int) $v)->toArray();
         $this->sesionBusquedaProfesional = '';
-        $this->sesionBuscarEnTodo       = false;
-        $this->sesionesModo             = 'formulario';
+        $this->sesionBuscarEnTodo = false;
+        $this->sesionesModo = 'formulario';
     }
 
     /**
      * Guarda el formulario de sesión (crea o actualiza) y sincroniza profesionales.
-     *
-     * @return void
      */
     public function guardarSesion(): void
     {
         $this->validate([
-            'sesionFecha'              => ['required', 'date'],
-            'sesionHoraInicio'         => ['required', 'date_format:H:i'],
-            'sesionHoraFin'            => ['nullable', 'date_format:H:i', 'after:sesionHoraInicio'],
-            'sesionSalaId'             => ['nullable', 'integer', 'exists:salas,id'],
-            'sesionEstado'             => ['required', 'in:programada,celebrada,cancelada'],
-            'sesionAforoTotal'         => ['nullable', 'integer', 'min:1'],
-            'sesionAforoPresc'         => ['nullable', 'integer', 'min:0'],
-            'sesionNotas'              => ['nullable', 'string', 'max:1000'],
+            'sesionFecha' => ['required', 'date'],
+            'sesionHoraInicio' => ['required', 'date_format:H:i'],
+            'sesionHoraFin' => ['nullable', 'date_format:H:i', 'after:sesionHoraInicio'],
+            'sesionSalaId' => ['nullable', 'integer', 'exists:salas,id'],
+            'sesionEstado' => ['required', 'in:programada,celebrada,cancelada'],
+            'sesionAforoTotal' => ['nullable', 'integer', 'min:1'],
+            'sesionAforoPresc' => ['nullable', 'integer', 'min:0'],
+            'sesionNotas' => ['nullable', 'string', 'max:1000'],
             'sesionProfesionalesIds.*' => ['integer', 'exists:profesionales,id'],
         ]);
 
         $datos = [
-            'actividad_id'       => $this->actividadIdSesiones,
-            'fecha'              => $this->sesionFecha,
-            'hora_inicio'        => $this->sesionHoraInicio,
-            'hora_fin'           => $this->sesionHoraFin ?: null,
-            'sala_id'            => $this->sesionSalaId,
-            'estado'             => $this->sesionEstado,
-            'aforo_total'        => $this->sesionAforoTotal,
+            'actividad_id' => $this->actividadIdSesiones,
+            'fecha' => $this->sesionFecha,
+            'hora_inicio' => $this->sesionHoraInicio,
+            'hora_fin' => $this->sesionHoraFin ?: null,
+            'sala_id' => $this->sesionSalaId,
+            'estado' => $this->sesionEstado,
+            'aforo_total' => $this->sesionAforoTotal,
             'aforo_prescripcion' => $this->sesionAforoPresc,
-            'notas'              => filled($this->sesionNotas) ? trim($this->sesionNotas) : null,
+            'notas' => filled($this->sesionNotas) ? trim($this->sesionNotas) : null,
         ];
 
         if ($this->editandoSesionId !== null) {
@@ -549,9 +540,6 @@ class ActividadesPage extends Component
 
     /**
      * Elimina (soft delete) la sesión indicada.
-     *
-     * @param int $sesionId
-     * @return void
      */
     public function eliminarSesion(int $sesionId): void
     {
@@ -565,8 +553,6 @@ class ActividadesPage extends Component
 
     /**
      * Vuelve a la vista de lista dentro del modal de sesiones.
-     *
-     * @return void
      */
     public function volverALista(): void
     {
@@ -575,9 +561,6 @@ class ActividadesPage extends Component
 
     /**
      * Añade el profesional indicado a la lista de la sesión.
-     *
-     * @param int $profesionalId
-     * @return void
      */
     public function agregarSesionProfesional(int $profesionalId): void
     {
@@ -592,9 +575,6 @@ class ActividadesPage extends Component
 
     /**
      * Quita el profesional indicado de la lista de la sesión.
-     *
-     * @param int $profesionalId
-     * @return void
      */
     public function quitarSesionProfesional(int $profesionalId): void
     {
@@ -609,8 +589,6 @@ class ActividadesPage extends Component
 
     /**
      * Renderiza la pantalla de actividades grupales.
-     *
-     * @return View
      */
     public function render(): View
     {
@@ -625,8 +603,9 @@ class ActividadesPage extends Component
      * Profesionales disponibles para un picker, aplicando filtros de ámbito y búsqueda.
      *
      * @param list<int> $excluidos IDs ya asignados.
-     * @param bool      $todoOrg   Si true, busca en toda la organización.
-     * @param string    $busqueda  Texto libre (mín. 2 chars en modo org.).
+     * @param bool $todoOrg Si true, busca en toda la organización.
+     * @param string $busqueda Texto libre (mín. 2 chars en modo org.).
+     *
      * @return Collection<int, Profesional>
      */
     private function profesionalesDisponibles(array $excluidos, bool $todoOrg, string $busqueda): Collection
@@ -648,10 +627,10 @@ class ActividadesPage extends Component
         }
 
         if (mb_strlen(trim($busqueda)) < 2) {
-            return new Collection();
+            return new Collection;
         }
 
-        $termino = '%' . trim($busqueda) . '%';
+        $termino = '%'.trim($busqueda).'%';
 
         return $query->where(function ($q) use ($termino) {
             $q->where('nombre', 'ilike', $termino)
@@ -664,12 +643,13 @@ class ActividadesPage extends Component
      * Devuelve una colección de profesionales a partir de una lista de IDs.
      *
      * @param list<int> $ids
+     *
      * @return Collection<int, Profesional>
      */
     private function profesionalesPorIds(array $ids): Collection
     {
         if (empty($ids)) {
-            return new Collection();
+            return new Collection;
         }
 
         return Profesional::whereIn('id', $ids)
@@ -681,8 +661,6 @@ class ActividadesPage extends Component
 
     /**
      * Resuelve el Centro asociado a la primera UO activa del supervisor autenticado.
-     *
-     * @return Centro|null
      */
     private function centroDelSupervisor(): ?Centro
     {

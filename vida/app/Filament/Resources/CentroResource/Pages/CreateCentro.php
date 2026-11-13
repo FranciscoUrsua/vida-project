@@ -20,8 +20,6 @@ class CreateCentro extends CreateRecord
      * Da de alta el centro con su tipo y su denominación inicial.
      *
      * @param array<string, mixed> $data Datos del formulario.
-     *
-     * @return Model
      */
     protected function handleRecordCreation(array $data): Model
     {

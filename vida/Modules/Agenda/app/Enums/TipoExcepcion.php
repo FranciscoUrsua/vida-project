@@ -35,8 +35,6 @@ enum TipoExcepcion: string
 
     /**
      * Color del badge del tipo de excepción de horario.
-     *
-     * @return Tono
      */
     public function tono(): Tono
     {

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PropuestaEliminacionResource\Pages;
 
 use App\Filament\Resources\PropuestaEliminacionResource;
+use Filament\Actions\Action;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Section;
@@ -24,7 +25,7 @@ class ViewPropuestaEliminacion extends ViewRecord
     /**
      * Acciones de cabecera: aprobar o rechazar si sigue pendiente.
      *
-     * @return array<\Filament\Actions\Action>
+     * @return array<Action>
      */
     protected function getHeaderActions(): array
     {
@@ -38,8 +39,6 @@ class ViewPropuestaEliminacion extends ViewRecord
      * Esquema de detalle de la propuesta.
      *
      * @param Schema $schema Esquema base.
-     *
-     * @return Schema
      */
     public function infolist(Schema $schema): Schema
     {

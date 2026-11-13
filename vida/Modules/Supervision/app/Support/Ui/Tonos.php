@@ -14,7 +14,6 @@ final class Tonos
      * Badge de estado de una sesión de actividad.
      *
      * @param string $estado programada|celebrada|cancelada
-     * @return Tono
      */
     public static function estadoSesion(string $estado): Tono
     {

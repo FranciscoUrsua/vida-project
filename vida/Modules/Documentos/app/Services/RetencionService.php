@@ -30,8 +30,6 @@ class RetencionService
      * @param string|null $observaciones Observaciones libres.
      *
      * @throws \InvalidArgumentException si la versión no es de ese documento
-     *
-     * @return DocumentoRetencion
      */
     public function retener(
         Documento $documento,

@@ -4,8 +4,8 @@ namespace Modules\Documentos\Services\Ingesta;
 
 use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Support\Facades\Process;
-use Modules\Documentos\Exceptions\IngestaRechazadaException;
 use Modules\Documentos\Exceptions\FalloHerramientaExterna;
+use Modules\Documentos\Exceptions\IngestaRechazadaException;
 
 /**
  * Saneado y normalización de PDF con qpdf y Ghostscript.
@@ -46,8 +46,6 @@ class SaneadorPdf
      * @param string $ruta PDF.
      *
      * @throws IngestaRechazadaException pdf_protegido o pdf_no_normalizable
-     *
-     * @return void
      */
     public function rechazarSiProtegido(string $ruta): void
     {
@@ -70,8 +68,6 @@ class SaneadorPdf
      * @param string $salida Ruta del PDF saneado.
      *
      * @throws IngestaRechazadaException pdf_no_normalizable
-     *
-     * @return void
      */
     public function sanear(string $ruta, string $salida): void
     {
@@ -85,8 +81,6 @@ class SaneadorPdf
      * @param string $salida Ruta del PDF recomprimido.
      *
      * @throws IngestaRechazadaException pdf_no_normalizable
-     *
-     * @return void
      */
     public function recomprimir(string $ruta, string $salida): void
     {
@@ -99,8 +93,6 @@ class SaneadorPdf
      * @param string $ruta PDF.
      *
      * @throws IngestaRechazadaException pdf_no_normalizable si no se puede interpretar
-     *
-     * @return int
      */
     public function contarPaginas(string $ruta): int
     {
@@ -124,9 +116,9 @@ class SaneadorPdf
      *
      * @param string $ruta PDF.
      *
-     * @throws IngestaRechazadaException pdf_no_normalizable si Ghostscript no puede medirlo
-     *
      * @return float Cobertura total, en fracción de la superficie de una página.
+     *
+     * @throws IngestaRechazadaException pdf_no_normalizable si Ghostscript no puede medirlo
      */
     public function tintaTotal(string $ruta): float
     {
@@ -158,8 +150,6 @@ class SaneadorPdf
      * @param string $directorio Directorio de trabajo donde dejar la forma expandida.
      *
      * @throws IngestaRechazadaException pdf_no_normalizable si queda algún objeto prohibido
-     *
-     * @return void
      */
     public function verificarSinContenidoActivo(string $ruta, string $directorio): void
     {
@@ -192,8 +182,6 @@ class SaneadorPdf
      * @param list<string> $extra Parámetros adicionales.
      *
      * @throws IngestaRechazadaException
-     *
-     * @return void
      */
     private function reescribir(string $ruta, string $salida, array $extra): void
     {
@@ -218,8 +206,6 @@ class SaneadorPdf
      * @param list<string> $comando Comando y argumentos.
      *
      * @throws IngestaRechazadaException pdf_no_normalizable si se agota el tiempo o no se puede lanzar
-     *
-     * @return ProcessResult
      */
     private function ejecutar(array $comando): ProcessResult
     {
@@ -239,8 +225,6 @@ class SaneadorPdf
      * @param list<string> $comando Comando y argumentos ejecutados.
      * @param ProcessResult $resultado Resultado del proceso.
      * @param string $motivo Qué se esperaba y no se obtuvo.
-     *
-     * @return IngestaRechazadaException
      */
     private function rechazo(array $comando, ProcessResult $resultado, string $motivo): IngestaRechazadaException
     {

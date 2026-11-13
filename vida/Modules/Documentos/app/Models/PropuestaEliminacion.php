@@ -58,8 +58,6 @@ class PropuestaEliminacion extends Model
      * Impide borrar propuestas: son parte del rastro de la destrucción.
      *
      * @throws \LogicException al intentar borrar
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -112,8 +110,6 @@ class PropuestaEliminacion extends Model
 
     /**
      * Indica si la propuesta aún se puede aprobar o rechazar.
-     *
-     * @return bool
      */
     public function estaPendiente(): bool
     {

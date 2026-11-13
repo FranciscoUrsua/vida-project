@@ -4,6 +4,7 @@ namespace Modules\Centro\Models;
 
 use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -30,7 +31,7 @@ use Modules\Usuarios\Models\Profesional;
  * @property bool $activa
  * @property Carbon $fecha_alta
  * @property Carbon|null $fecha_baja
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Profesional> $profesionales
+ * @property-read Collection<int, Profesional> $profesionales
  */
 class Actividad extends Model
 {

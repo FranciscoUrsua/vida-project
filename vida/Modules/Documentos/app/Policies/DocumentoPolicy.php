@@ -28,8 +28,6 @@ class DocumentoPolicy
      *
      * @param User $usuario Usuario autenticado.
      * @param Documento $documento Documento solicitado.
-     *
-     * @return bool
      */
     public function view(User $usuario, Documento $documento): bool
     {
@@ -41,8 +39,6 @@ class DocumentoPolicy
      *
      * @param User $usuario Usuario autenticado.
      * @param Documento $documento Documento solicitado.
-     *
-     * @return bool
      */
     public function download(User $usuario, Documento $documento): bool
     {
@@ -57,8 +53,6 @@ class DocumentoPolicy
      *
      * @param User $usuario Usuario.
      * @param Documento $documento Documento.
-     *
-     * @return Ciudadano|null
      */
     public function ciudadanoAccesible(User $usuario, Documento $documento): ?Ciudadano
     {

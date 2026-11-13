@@ -22,8 +22,6 @@ class EscanerAntivirusFake implements EscanerAntivirus
      * Hace que todos los análisis den positivo.
      *
      * @param string $firma Nombre de la firma que se devuelve.
-     *
-     * @return static
      */
     public function infectado(string $firma = 'Vida-Test-Signature'): static
     {
@@ -34,8 +32,6 @@ class EscanerAntivirusFake implements EscanerAntivirus
 
     /**
      * Hace que todos los análisis fallen como si clamd no respondiera.
-     *
-     * @return static
      */
     public function fallando(): static
     {

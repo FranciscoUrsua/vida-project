@@ -27,6 +27,7 @@ class EditPerfilHorarioProfesional extends EditRecord
      * Guardar el perfil es verificarlo: deja de ser «horario no personalizado».
      *
      * @param array<string, mixed> $data
+     *
      * @return array<string, mixed>
      */
     protected function mutateFormDataBeforeSave(array $data): array

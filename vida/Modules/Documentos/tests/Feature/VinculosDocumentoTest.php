@@ -27,8 +27,6 @@ class VinculosDocumentoTest extends TestCase
 
     /**
      * Prepara actores y tipos comunes, autenticado como profesional.
-     *
-     * @return void
      */
     protected function setUp(): void
     {
@@ -39,8 +37,6 @@ class VinculosDocumentoTest extends TestCase
 
     /**
      * Certificado de empadronamiento vinculado a los cuatro miembros de la unidad.
-     *
-     * @return Documento
      */
     private function empadronamientoFamiliar(): Documento
     {

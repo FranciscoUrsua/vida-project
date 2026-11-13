@@ -17,9 +17,6 @@ class EnlaceAtencionCita
 {
     /**
      * URL de atención de la cita, o null si aún no tiene persona identificada.
-     *
-     * @param Cita $cita
-     * @return string|null
      */
     public function url(Cita $cita): ?string
     {

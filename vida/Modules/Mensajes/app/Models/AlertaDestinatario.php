@@ -82,6 +82,7 @@ class AlertaDestinatario extends Model
      * Filtra los destinatarios que aún no la han reconocido.
      *
      * @param Builder<self> $query
+     *
      * @return Builder<self>
      */
     public function scopePendientes(Builder $query): Builder
@@ -95,6 +96,7 @@ class AlertaDestinatario extends Model
      *
      * @param Builder<self> $query
      * @param User $supervisor Supervisor que recibió la escalada.
+     *
      * @return Builder<self>
      */
     public function scopeEscaladasA(Builder $query, User $supervisor): Builder

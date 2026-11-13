@@ -375,8 +375,8 @@ class AccesosExpedienteTest extends TestCase
      * Falla si ningún acceso tiene ese marcador: el tipo es el contrato y las clases,
      * lo que lo hace visible al profesional.
      *
-     * @param  string  $tipo  propio|normal|sospechoso|anomalo
-     * @param  string  $html
+     * @param string $tipo propio|normal|sospechoso|anomalo
+     *
      * @return list<string>
      */
     private function clasesDelAcceso(string $tipo, string $html): array

@@ -14,8 +14,6 @@ enum ModalidadCita: string
 
     /**
      * Etiqueta para la interfaz.
-     *
-     * @return string
      */
     public function label(): string
     {

@@ -4,6 +4,7 @@ namespace Modules\Intervencion\Tests\Feature;
 
 use App\Models\HistoriaSocial;
 use App\Models\Version;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Modules\Intervencion\Models\Ficha;
@@ -356,7 +357,7 @@ class FichaVersionadoTest extends TestCase
             'updated_at' => $fecha,
         ]));
 
-        /** @var \Illuminate\Database\Eloquent\Collection<int, Ficha> $historial */
+        /** @var Collection<int, Ficha> $historial */
         $historial = Ficha::historialPara($this->historia->id, $this->tipoFicha->id)->get();
 
         $this->assertCount(3, $historial);

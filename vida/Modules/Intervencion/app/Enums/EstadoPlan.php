@@ -29,8 +29,6 @@ enum EstadoPlan: string
 
     /**
      * Color del badge de estado del plan.
-     *
-     * @return Tono
      */
     public function tono(): Tono
     {

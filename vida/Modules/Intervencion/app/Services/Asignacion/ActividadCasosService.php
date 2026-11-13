@@ -8,6 +8,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Intervencion\Enums\EstadoPlan;
 
 /**
@@ -29,7 +30,6 @@ class ActividadCasosService
      * Resumen por profesional de los casos del centro, incluidos los profesionales
      * dados de baja que aún conservan casos.
      *
-     * @param Centro $centro
      * @return Collection<int, array{profesional: User, asignados: int, con_actividad: int, dormidos: int}>
      */
     public function resumen(Centro $centro): Collection
@@ -57,10 +57,6 @@ class ActividadCasosService
 
     /**
      * Si una historia tiene actividad según el criterio del centro.
-     *
-     * @param HistoriaSocial $historia
-     * @param Centro $centro
-     * @return bool
      */
     public function conActividad(HistoriaSocial $historia, Centro $centro): bool
     {
@@ -70,8 +66,6 @@ class ActividadCasosService
     /**
      * Historias vigentes de un profesional en el centro.
      *
-     * @param Centro $centro
-     * @param User $profesional
      * @return list<int>
      */
     public function historiasDe(Centro $centro, User $profesional): array
@@ -85,8 +79,8 @@ class ActividadCasosService
     /**
      * De las historias dadas, las que tienen actividad (como claves del array).
      *
-     * @param Centro $centro
      * @param list<int> $historiaIds
+     *
      * @return array<int, true>
      */
     public function historiasConActividad(Centro $centro, array $historiaIds): array
@@ -104,7 +98,7 @@ class ActividadCasosService
 
         $conApuntes = DB::table('plan_apuntes')
             ->whereIn('historia_id', $historiaIds)
-            ->where('fecha', '>=', now()->subMonths(app(\Modules\Centro\Services\ConfiguracionEfectivaCentro::class)->mesesInactividadCaso($centro)))
+            ->where('fecha', '>=', now()->subMonths(app(ConfiguracionEfectivaCentro::class)->mesesInactividadCaso($centro)))
             ->distinct()
             ->pluck('historia_id');
 
@@ -113,9 +107,6 @@ class ActividadCasosService
 
     /**
      * Consulta de las referencias vigentes del centro (alias `ap`).
-     *
-     * @param Centro $centro
-     * @return Builder
      */
     private function casosVigentes(Centro $centro): Builder
     {

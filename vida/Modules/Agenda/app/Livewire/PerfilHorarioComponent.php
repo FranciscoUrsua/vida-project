@@ -61,10 +61,6 @@ class PerfilHorarioComponent extends Component
 
     /**
      * Inicializa el componente cargando el perfil activo del profesional.
-     *
-     * @param User $profesional
-     * @param Centro $centro
-     * @return void
      */
     public function mount(User $profesional, Centro $centro): void
     {
@@ -78,11 +74,11 @@ class PerfilHorarioComponent extends Component
 
         if ($perfil !== null) {
             $this->jornadaSemanal = (float) $perfil->jornada_semanal_horas;
-            $this->vigenteDesde   = $perfil->vigente_desde->toDateString();
-            $this->notas          = $perfil->notas ?? '';
+            $this->vigenteDesde = $perfil->vigente_desde->toDateString();
+            $this->notas = $perfil->notas ?? '';
             $this->pendienteVerificar = $perfil->pendiente_verificar;
-            $this->diasActivos    = array_map('intval', array_keys($perfil->horario_habitual ?? []));
-            $this->franjasPorDia  = $this->parsearHorario($perfil->horario_habitual ?? []);
+            $this->diasActivos = array_map('intval', array_keys($perfil->horario_habitual ?? []));
+            $this->franjasPorDia = $this->parsearHorario($perfil->horario_habitual ?? []);
         } else {
             $this->vigenteDesde = now()->toDateString();
             $this->inicializarFranjasPorDefecto();
@@ -93,7 +89,6 @@ class PerfilHorarioComponent extends Component
      * Activa o desactiva un día de la semana en el perfil.
      *
      * @param int $dia Número de día (1=lun…5=vie)
-     * @return void
      */
     public function toggleDia(int $dia): void
     {
@@ -112,7 +107,6 @@ class PerfilHorarioComponent extends Component
      * Añade franja vespertina al día indicado con valores por defecto.
      *
      * @param int $dia Número de día (1=lun…5=vie)
-     * @return void
      */
     public function addTarde(int $dia): void
     {
@@ -124,7 +118,6 @@ class PerfilHorarioComponent extends Component
      * Elimina la franja vespertina del día indicado.
      *
      * @param int $dia Número de día (1=lun…5=vie)
-     * @return void
      */
     public function removeTarde(int $dia): void
     {
@@ -138,14 +131,12 @@ class PerfilHorarioComponent extends Component
      * Si la fecha de vigencia coincide con el perfil activo, lo actualiza.
      * Si es diferente, cierra el anterior y crea uno nuevo. Guardar es
      * verificar: el perfil deja de ser «horario no personalizado».
-     *
-     * @return void
      */
     public function guardar(): void
     {
         $this->validate([
             'jornadaSemanal' => ['required', 'numeric', 'min:0'],
-            'vigenteDesde'   => ['required', 'date'],
+            'vigenteDesde' => ['required', 'date'],
         ]);
 
         $perfilActual = PerfilHorarioProfesional::where('usuario_id', $this->profesional->id)
@@ -158,9 +149,9 @@ class PerfilHorarioComponent extends Component
         if ($perfilActual !== null && $perfilActual->vigente_desde->toDateString() === $this->vigenteDesde) {
             $perfilActual->update([
                 'jornada_semanal_horas' => $this->jornadaSemanal,
-                'horario_habitual'      => $horario,
-                'notas'                 => $this->notas ?: null,
-                'pendiente_verificar'   => false,
+                'horario_habitual' => $horario,
+                'notas' => $this->notas ?: null,
+                'pendiente_verificar' => false,
             ]);
         } else {
             if ($perfilActual !== null) {
@@ -169,14 +160,14 @@ class PerfilHorarioComponent extends Component
             }
 
             PerfilHorarioProfesional::create([
-                'usuario_id'            => $this->profesional->id,
-                'centro_id'             => $this->centro->id,
+                'usuario_id' => $this->profesional->id,
+                'centro_id' => $this->centro->id,
                 'jornada_semanal_horas' => $this->jornadaSemanal,
-                'horario_habitual'      => $horario,
-                'vigente_desde'         => $this->vigenteDesde,
-                'vigente_hasta'         => null,
-                'activo'                => true,
-                'notas'                 => $this->notas ?: null,
+                'horario_habitual' => $horario,
+                'vigente_desde' => $this->vigenteDesde,
+                'vigente_hasta' => null,
+                'activo' => true,
+                'notas' => $this->notas ?: null,
             ]);
         }
 
@@ -197,8 +188,8 @@ class PerfilHorarioComponent extends Component
         $principal = $this->franjasPorDia[1] ?? $this->franjasPorDia[array_key_first($this->franjasPorDia) ?? 1] ?? [];
 
         return [
-            'jornada'          => $this->jornadaSemanal,
-            'dias'             => count($this->diasActivos),
+            'jornada' => $this->jornadaSemanal,
+            'dias' => count($this->diasActivos),
             'horario_principal' => isset($principal['mIni'], $principal['mFin'])
                 ? "{$principal['mIni']}–{$principal['mFin']}"
                 : '',
@@ -207,8 +198,6 @@ class PerfilHorarioComponent extends Component
 
     /**
      * Renderiza la vista del componente.
-     *
-     * @return View
      */
     public function render(): View
     {
@@ -219,6 +208,7 @@ class PerfilHorarioComponent extends Component
      * Convierte horario_habitual de PerfilHorarioProfesional al formato interno del componente.
      *
      * @param array<string, array<int, array<string, string>>> $horario
+     *
      * @return array<int, array<string, string|null>>
      */
     private function parsearHorario(array $horario): array
@@ -229,11 +219,12 @@ class PerfilHorarioComponent extends Component
             $t = $franjas[1] ?? [];
             $resultado[(int) $dia] = [
                 'mIni' => $m['inicio'] ?? '09:00',
-                'mFin' => $m['fin']    ?? '14:00',
+                'mFin' => $m['fin'] ?? '14:00',
                 'tIni' => $t['inicio'] ?? null,
-                'tFin' => $t['fin']    ?? null,
+                'tFin' => $t['fin'] ?? null,
             ];
         }
+
         return $resultado;
     }
 
@@ -253,13 +244,12 @@ class PerfilHorarioComponent extends Component
             }
             $horario[(string) $dia] = $franjas;
         }
+
         return $horario;
     }
 
     /**
      * Inicializa las franjas con valores por defecto para los 5 días laborables.
-     *
-     * @return void
      */
     private function inicializarFranjasPorDefecto(): void
     {

@@ -30,8 +30,6 @@ return new class extends Migration
 
     /**
      * Crea los permisos y los asigna.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -61,8 +59,6 @@ return new class extends Migration
 
     /**
      * Elimina los permisos y sus asignaciones.
-     *
-     * @return void
      */
     public function down(): void
     {

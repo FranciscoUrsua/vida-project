@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
@@ -19,8 +20,6 @@ return new class extends Migration
 {
     /**
      * Rellena los destinatarios de las alertas existentes.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -29,8 +28,6 @@ return new class extends Migration
 
     /**
      * Sin marcha atrás: la tabla desaparece con la migración que la crea.
-     *
-     * @return void
      */
     public function down(): void
     {
@@ -39,8 +36,6 @@ return new class extends Migration
 
     /**
      * Inserta los destinatarios. Público para poder probarlo con datos previos.
-     *
-     * @return void
      */
     public function poblar(): void
     {
@@ -68,7 +63,7 @@ return new class extends Migration
             JOIN users u ON u.id = uu.usuario_id AND u.deleted_at IS NULL
             WHERE a.destinatario_type = 'rol_uo' AND a.estado = 'pendiente'
             ON CONFLICT (alerta_id, usuario_id) DO NOTHING
-        ", [(new \App\Models\User)->getMorphClass()]);
+        ", [(new User)->getMorphClass()]);
 
         DB::statement("
             INSERT INTO alerta_destinatarios (alerta_id, usuario_id, estado, atendida_en, created_at, updated_at)

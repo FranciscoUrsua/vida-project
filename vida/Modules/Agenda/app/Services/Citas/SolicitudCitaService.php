@@ -2,7 +2,6 @@
 
 namespace Modules\Agenda\Services\Citas;
 
-use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -26,7 +25,6 @@ use Modules\Agenda\Models\TipoCita;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
-use Modules\Usuarios\Models\Cargo;
 
 /**
  * Ciclo de vida de las solicitudes de cita (docs/modulo-citas.md §2.2 y §3.1).
@@ -37,11 +35,6 @@ use Modules\Usuarios\Models\Cargo;
  */
 class SolicitudCitaService
 {
-    /**
-     * @param RegistroEventosCita $eventos
-     * @param AvisosCitas $avisos
-     * @param AsignacionReferenciaService $referencias
-     */
     public function __construct(
         private readonly RegistroEventosCita $eventos,
         private readonly AvisosCitas $avisos,
@@ -55,11 +48,9 @@ class SolicitudCitaService
      * laborables del horario del centro.
      *
      * @param array<string, mixed> $datos ciudadano_id, centro_id, tipo_cita_id, urgencia, destino,
-     *        profesional_destino_id, servicio_destino, no_antes_de, no_despues_de, motivo,
-     *        observaciones_citacion, canal, contexto_type, contexto_id.
-     * @param User $solicitante
+     *                                    profesional_destino_id, servicio_destino, no_antes_de, no_despues_de, motivo,
+     *                                    observaciones_citacion, canal, contexto_type, contexto_id.
      * @param bool $avisar False cuando la solicitud se cita en el mismo momento (ventanilla).
-     * @return SolicitudCita
      *
      * @throws AuthorizationException
      * @throws ValidationException
@@ -96,9 +87,6 @@ class SolicitudCitaService
     /**
      * Toma la solicitud para gestionarla: evita que dos personas llamen a la misma persona.
      *
-     * @param SolicitudCita $solicitud
-     * @param User $usuario
-     * @return SolicitudCita
      *
      * @throws AuthorizationException
      * @throws LogicException Si ya no está pendiente (otro la tomó antes).
@@ -124,10 +112,7 @@ class SolicitudCitaService
     /**
      * Suelta una solicitud en gestión: vuelve a pendiente, con una nota opcional.
      *
-     * @param SolicitudCita $solicitud
      * @param User $usuario Quien la tiene en gestión (o supervisión).
-     * @param string|null $nota
-     * @return SolicitudCita
      *
      * @throws AuthorizationException
      * @throws LogicException
@@ -153,10 +138,7 @@ class SolicitudCitaService
     /**
      * La persona no quiere cita o no se la localiza. Final.
      *
-     * @param SolicitudCita $solicitud
-     * @param User $usuario
      * @param string $motivo Obligatorio.
-     * @return SolicitudCita
      *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
@@ -172,10 +154,7 @@ class SolicitudCitaService
     /**
      * Quien la pidió (o quien gestiona) la retira. Final.
      *
-     * @param SolicitudCita $solicitud
-     * @param User $usuario
      * @param string $motivo Obligatorio.
-     * @return SolicitudCita
      *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
@@ -193,7 +172,7 @@ class SolicitudCitaService
      * de citar en ventanilla (la solicitud real la crea citarDirecto() al confirmar).
      *
      * @param array<string, mixed> $datos Los de crear().
-     * @param User $usuario
+     *
      * @return SolicitudCita No persistida.
      *
      * @throws AuthorizationException
@@ -209,10 +188,7 @@ class SolicitudCitaService
     /**
      * Fecha límite por defecto: plazo de la urgencia en días laborables del centro.
      *
-     * @param int $centroId
-     * @param UrgenciaCita $urgencia
      * @param Carbon|null $desde Por defecto, hoy.
-     * @return Carbon
      */
     public function fechaLimite(int $centroId, UrgenciaCita $urgencia, ?Carbon $desde = null): Carbon
     {
@@ -230,6 +206,7 @@ class SolicitudCitaService
      * Valida y normaliza los datos de una solicitud nueva.
      *
      * @param array<string, mixed> $datos
+     *
      * @return array<string, mixed>
      *
      * @throws ValidationException
@@ -290,12 +267,6 @@ class SolicitudCitaService
     /**
      * Cierra la solicitud (desistida o anulada) con motivo obligatorio.
      *
-     * @param SolicitudCita $solicitud
-     * @param User $usuario
-     * @param string $motivo
-     * @param EstadoSolicitudCita $estado
-     * @param AccionCitaEvento $accion
-     * @return SolicitudCita
      *
      * @throws InvalidArgumentException
      * @throws LogicException
@@ -322,12 +293,7 @@ class SolicitudCitaService
      * Cambia el estado (el modelo valida la transición) y escribe el evento.
      *
      * @param SolicitudCita $solicitud Bloqueada.
-     * @param EstadoSolicitudCita $nuevo
-     * @param AccionCitaEvento $accion
-     * @param User $usuario
      * @param array<string, mixed> $extra
-     * @param string|null $motivo
-     * @return SolicitudCita
      *
      * @throws LogicException Si la transición no es válida.
      */
@@ -343,9 +309,6 @@ class SolicitudCitaService
 
     /**
      * Canal del historial a partir del canal de la solicitud.
-     *
-     * @param CanalSolicitudCita $canal
-     * @return CanalCitaEvento
      */
     private function canalEvento(CanalSolicitudCita $canal): CanalCitaEvento
     {

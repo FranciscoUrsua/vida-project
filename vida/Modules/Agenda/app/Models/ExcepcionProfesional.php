@@ -125,8 +125,6 @@ class ExcepcionProfesional extends Model
      * Filtra excepciones que solapan con un periodo dado.
      *
      * @param Builder<ExcepcionProfesional> $query
-     * @param Carbon|string $desde
-     * @param Carbon|string $hasta
      *
      * @return Builder<ExcepcionProfesional>
      */

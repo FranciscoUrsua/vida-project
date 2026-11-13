@@ -15,8 +15,6 @@ return new class extends Migration
 {
     /**
      * Crea la tabla, el check y el trigger.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -55,8 +53,6 @@ return new class extends Migration
 
     /**
      * Elimina el trigger, la función y la tabla.
-     *
-     * @return void
      */
     public function down(): void
     {

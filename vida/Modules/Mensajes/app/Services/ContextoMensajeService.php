@@ -30,6 +30,7 @@ class ContextoMensajeService
      * @param string $tipo Valor de TipoContextoMensaje.
      * @param int $id ID del elemento.
      * @param User $usuario Usuario que abre el panel o lee el hilo.
+     *
      * @return array{tipo: string, id: int, etiqueta: string, ciudadano_id: int|null, autor_id: int|null, url: string}|null
      */
     public function resolver(string $tipo, int $id, User $usuario): ?array
@@ -120,9 +121,6 @@ class ContextoMensajeService
      * Cita o slot de agenda: visible para su profesional y para quien gestiona o
      * supervisa las citas del centro. Se sugiere al profesional como destinatario.
      *
-     * @param TipoContextoMensaje $tipo
-     * @param int $id
-     * @param User $usuario
      * @return array{tipo: string, id: int, etiqueta: string, ciudadano_id: int|null, autor_id: int|null, url: string}|null
      */
     private function deAgenda(TipoContextoMensaje $tipo, int $id, User $usuario): ?array

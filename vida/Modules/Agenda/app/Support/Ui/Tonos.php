@@ -14,7 +14,6 @@ final class Tonos
      * Badge del tipo de evento interno.
      *
      * @param string $tipo sesion_interna|actividad_colectiva|coordinacion
-     * @return Tono
      */
     public static function tipoEvento(string $tipo): Tono
     {
@@ -30,7 +29,6 @@ final class Tonos
      * Badge de una franja del cuadrante; `null` si el tipo no tiene color.
      *
      * @param string $tipo atencion|sesion|colectivo|reserva
-     * @return Tono|null
      */
     public static function tipoFranja(string $tipo): ?Tono
     {

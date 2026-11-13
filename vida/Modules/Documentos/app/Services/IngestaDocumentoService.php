@@ -70,8 +70,6 @@ class IngestaDocumentoService
      * @param Documento|null $documento Documento al que se añade la versión; null = documento nuevo.
      *
      * @throws IngestaRechazadaException
-     *
-     * @return DocumentoVersion
      */
     public function ingerir(
         UploadedFile|string $origen,
@@ -135,8 +133,6 @@ class IngestaDocumentoService
      * @param string $ruta Fichero original en la zona temporal.
      *
      * @throws IngestaRechazadaException virus_detectado o antivirus_no_disponible
-     *
-     * @return void
      */
     private function analizarAntivirus(string $ruta): void
     {
@@ -158,9 +154,9 @@ class IngestaDocumentoService
      * @param string $directorio Directorio de trabajo.
      * @param bool $firmado true para PDF firmados, que no se reescriben.
      *
-     * @throws IngestaRechazadaException
-     *
      * @return string Ruta del PDF que sigue por la tubería.
+     *
+     * @throws IngestaRechazadaException
      */
     private function normalizar(string $pdf, string $directorio, bool $firmado): string
     {
@@ -189,8 +185,6 @@ class IngestaDocumentoService
      * @param string $pdf PDF normalizado.
      *
      * @throws IngestaRechazadaException pdf_sin_contenido o pdf_no_normalizable
-     *
-     * @return void
      */
     private function rechazarSiSinContenido(string $pdf): void
     {
@@ -207,9 +201,9 @@ class IngestaDocumentoService
      * @param DatosIngesta $datos Datos del alta (tipo).
      * @param bool $firmado true para PDF firmados, que no se recomprimen.
      *
-     * @throws IngestaRechazadaException tamanyo_excedido
-     *
      * @return string Ruta del PDF definitivo.
+     *
+     * @throws IngestaRechazadaException tamanyo_excedido
      */
     private function ajustarTamanyo(string $pdf, string $directorio, DatosIngesta $datos, bool $firmado): string
     {
@@ -244,8 +238,6 @@ class IngestaDocumentoService
      * @param array{contenido: string, clave_cifrada: string, id_clave_maestra: string} $cifrado Resultado del cifrado.
      * @param UploadedFile|string $origen Fichero de origen, para el nombre original.
      * @param Documento|null $existente Documento al que se añade la versión; null = documento nuevo.
-     *
-     * @return DocumentoVersion
      */
     private function registrar(
         DatosIngesta $datos,
@@ -310,8 +302,6 @@ class IngestaDocumentoService
      *
      * @param DatosIngesta $datos Datos del alta.
      * @param Carbon $ahora Momento del alta, base de la fecha de validez.
-     *
-     * @return Documento
      */
     private function crearDocumento(DatosIngesta $datos, Carbon $ahora): Documento
     {
@@ -361,8 +351,6 @@ class IngestaDocumentoService
 
     /**
      * Crea el directorio de trabajo de esta ingesta dentro de la zona temporal.
-     *
-     * @return string
      */
     private function crearDirectorioTrabajo(): string
     {
@@ -379,9 +367,9 @@ class IngestaDocumentoService
      * @param bool $esContenido true si $origen es contenido binario.
      * @param string $directorio Directorio de trabajo.
      *
-     * @throws IngestaRechazadaException si no se puede leer el origen
-     *
      * @return string Ruta del original en la zona temporal.
+     *
+     * @throws IngestaRechazadaException si no se puede leer el origen
      */
     private function copiarATemporal(UploadedFile|string $origen, bool $esContenido, string $directorio): string
     {

@@ -24,7 +24,6 @@ class AmbitoUsuario
     /**
      * UO del ámbito del usuario (orgánica + funcional).
      *
-     * @param User $usuario
      *
      * @return list<int>
      */
@@ -35,11 +34,6 @@ class AmbitoUsuario
 
     /**
      * Si el centro está dentro del ámbito del usuario.
-     *
-     * @param User $usuario
-     * @param Centro $centro
-     *
-     * @return bool
      */
     public function incluyeCentro(User $usuario, Centro $centro): bool
     {
@@ -49,7 +43,6 @@ class AmbitoUsuario
     /**
      * Centros activos dentro del ámbito del usuario.
      *
-     * @param User $usuario
      *
      * @return Collection<int, Centro>
      */
@@ -60,8 +53,6 @@ class AmbitoUsuario
 
     /**
      * Olvida lo calculado (tras cambiar adscripciones o la UO funcional de un tipo en la misma petición).
-     *
-     * @return void
      */
     public function olvidar(): void
     {
@@ -71,7 +62,6 @@ class AmbitoUsuario
     /**
      * Calcula el ámbito con una CTE recursiva (orgánica) unida a los centros por la funcional.
      *
-     * @param User $usuario
      *
      * @return list<int>
      */

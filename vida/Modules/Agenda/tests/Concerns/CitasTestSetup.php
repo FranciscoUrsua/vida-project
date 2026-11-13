@@ -77,8 +77,6 @@ trait CitasTestSetup
 
     /**
      * Monta el escenario completo.
-     *
-     * @return void
      */
     protected function montarEscenarioCitas(): void
     {
@@ -177,10 +175,8 @@ trait CitasTestSetup
     /**
      * Usuario con roles y adscripción a la UO del centro.
      *
-     * @param string $alias
      * @param list<string> $roles
      * @param Cargo|null $cargo Si se indica, con perfil profesional de ese cargo.
-     * @return User
      */
     protected function usuarioCitas(string $alias, array $roles, ?Cargo $cargo = null): User
     {
@@ -219,9 +215,6 @@ trait CitasTestSetup
 
     /**
      * Slots de las tres próximas semanas (laborables) del profesional.
-     *
-     * @param User $profesional
-     * @return void
      */
     protected function materializarSlots(User $profesional): void
     {
@@ -250,14 +243,6 @@ trait CitasTestSetup
 
     /**
      * Crea un slot.
-     *
-     * @param LineaCuadrante $linea
-     * @param User $profesional
-     * @param TipoSlot $tipo
-     * @param string $fecha
-     * @param string $hora
-     * @param EstadoSlot $estado
-     * @return Slot
      */
     protected function slot(LineaCuadrante $linea, User $profesional, TipoSlot $tipo, string $fecha, string $hora, EstadoSlot $estado = EstadoSlot::Disponible): Slot
     {
@@ -275,9 +260,6 @@ trait CitasTestSetup
 
     /**
      * Cuadrante publicado del mes de una fecha (se crea si no existe).
-     *
-     * @param Carbon $dia
-     * @return CuadranteMes
      */
     protected function cuadrante(Carbon $dia): CuadranteMes
     {
@@ -289,11 +271,6 @@ trait CitasTestSetup
 
     /**
      * Slot libre de un profesional en una fecha y hora.
-     *
-     * @param User $profesional
-     * @param string $fecha
-     * @param string $hora
-     * @return Slot
      */
     protected function slotDe(User $profesional, string $fecha, string $hora): Slot
     {
@@ -304,12 +281,7 @@ trait CitasTestSetup
      * Da una cita confirmada (vía CitacionService, como consulta) en el slot de
      * un profesional.
      *
-     * @param Ciudadano $ciudadano
-     * @param User $profesional
-     * @param string $fecha
-     * @param string $hora
      * @param TipoCita|null $tipo Por defecto, seguimiento.
-     * @return Cita
      */
     protected function citaConfirmada(Ciudadano $ciudadano, User $profesional, string $fecha, string $hora = '11:00', ?TipoCita $tipo = null): Cita
     {

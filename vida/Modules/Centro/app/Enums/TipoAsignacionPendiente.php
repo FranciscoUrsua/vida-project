@@ -15,8 +15,6 @@ enum TipoAsignacionPendiente: string
 
     /**
      * Etiqueta legible del tipo de pendiente.
-     *
-     * @return string
      */
     public function label(): string
     {

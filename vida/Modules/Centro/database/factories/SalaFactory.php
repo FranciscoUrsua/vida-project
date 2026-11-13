@@ -19,24 +19,24 @@ class SalaFactory extends Factory
     public function definition(): array
     {
         return [
-            "centro_id" => fn () => Centro::create([
+            'centro_id' => fn () => Centro::create([
                 'tipo_centro_id' => TipoCentroFactory::new()->create()->id,
-                "nombre" => "Centro ".fake()->unique()->numerify("###"),
-                "tipo_gestion" => "municipal_directo",
-                "fecha_alta" => now()->toDateString(),
+                'nombre' => 'Centro '.fake()->unique()->numerify('###'),
+                'tipo_gestion' => 'municipal_directo',
+                'fecha_alta' => now()->toDateString(),
             ])->id,
-            "nombre" => fake()->randomElement(["Aula A", "Sala de reuniones", "Despacho 1", "Sala polivalente", "Sala multiusos"]),
-            "descripcion" => fake()->optional()->sentence(),
-            "capacidad" => fake()->optional()->numberBetween(5, 50),
-            "accesible" => fake()->boolean(70),
-            "activa" => true,
-            "notas" => null,
+            'nombre' => fake()->randomElement(['Aula A', 'Sala de reuniones', 'Despacho 1', 'Sala polivalente', 'Sala multiusos']),
+            'descripcion' => fake()->optional()->sentence(),
+            'capacidad' => fake()->optional()->numberBetween(5, 50),
+            'accesible' => fake()->boolean(70),
+            'activa' => true,
+            'notas' => null,
         ];
     }
 
     /** Estado sala inactiva. */
     public function inactiva(): static
     {
-        return $this->state(["activa" => false]);
+        return $this->state(['activa' => false]);
     }
 }

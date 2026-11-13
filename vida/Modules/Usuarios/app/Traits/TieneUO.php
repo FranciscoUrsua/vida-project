@@ -4,6 +4,7 @@ namespace Modules\Usuarios\Traits;
 
 use App\Models\UnidadOrganizativa;
 use App\Models\UsuarioUo;
+use App\Services\AmbitoUsuario;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -91,7 +92,7 @@ trait TieneUO
      */
     public function uoSubtreeIds(): array
     {
-        return app(\App\Services\AmbitoUsuario::class)->uoIds($this);
+        return app(AmbitoUsuario::class)->uoIds($this);
     }
 
     public function tieneAccesoConsultaA(UnidadOrganizativa $uo): bool

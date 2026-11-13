@@ -21,8 +21,6 @@ trait BuscaPersonas
 
     /**
      * Busca personas por documento o nombre.
-     *
-     * @return void
      */
     public function buscarPersona(): void
     {
@@ -45,8 +43,6 @@ trait BuscaPersonas
 
     /**
      * Limpia la búsqueda.
-     *
-     * @return void
      */
     public function limpiarBusquedaPersona(): void
     {

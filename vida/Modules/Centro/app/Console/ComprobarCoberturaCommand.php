@@ -20,9 +20,6 @@ class ComprobarCoberturaCommand extends Command
 
     /**
      * Ejecuta la comprobación y muestra los huecos.
-     *
-     * @param ResolucionCentroService $resolucion
-     * @return int
      */
     public function handle(ResolucionCentroService $resolucion): int
     {

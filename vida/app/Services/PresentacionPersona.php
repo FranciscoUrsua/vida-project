@@ -32,8 +32,6 @@ class PresentacionPersona
      *
      * @param Ciudadano $ciudadano Persona relacionada.
      * @param User|null $usuario Usuario que consulta.
-     *
-     * @return bool
      */
     public static function visible(Ciudadano $ciudadano, ?User $usuario): bool
     {

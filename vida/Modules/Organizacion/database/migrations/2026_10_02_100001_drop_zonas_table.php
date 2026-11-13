@@ -16,8 +16,6 @@ return new class extends Migration
 {
     /**
      * Elimina la tabla de zonas.
-     *
-     * @return void
      */
     public function up(): void
     {
@@ -26,8 +24,6 @@ return new class extends Migration
 
     /**
      * Restaura la tabla con su estructura original, sin datos.
-     *
-     * @return void
      */
     public function down(): void
     {

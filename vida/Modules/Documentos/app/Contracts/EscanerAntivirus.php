@@ -17,9 +17,9 @@ interface EscanerAntivirus
      *
      * @param string $ruta Ruta del fichero en la zona temporal de ingesta.
      *
-     * @throws AntivirusNoDisponibleException si el escáner no responde o devuelve un error
-     *
      * @return string|null Nombre de la firma detectada, o null si el fichero está limpio.
+     *
+     * @throws AntivirusNoDisponibleException si el escáner no responde o devuelve un error
      */
     public function escanear(string $ruta): ?string;
 }

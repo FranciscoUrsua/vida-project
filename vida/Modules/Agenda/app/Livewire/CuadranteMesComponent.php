@@ -10,11 +10,9 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Agenda\Enums\EstadoCuadrante;
 use Modules\Agenda\Enums\OrigenExcepcion;
-use Modules\Agenda\Enums\TipoExcepcion;
 use Modules\Agenda\Models\CuadranteMes;
 use Modules\Agenda\Models\EventoAgenda;
 use Modules\Agenda\Models\ExcepcionProfesional;
-use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Agenda\Services\CuadrantePublicadorService;
 use Modules\Centro\Models\Centro;
 
@@ -82,19 +80,14 @@ class CuadranteMesComponent extends Component
 
     /**
      * Inicializa el componente verificando autorización y cargando el cuadrante.
-     *
-     * @param Centro $centro
-     * @param int $anyo
-     * @param int $mes
-     * @return void
      */
     public function mount(Centro $centro, int $anyo, int $mes): void
     {
         $this->autorizarAcceso($centro);
 
         $this->centro = $centro;
-        $this->anyo   = $anyo;
-        $this->mes    = $mes;
+        $this->anyo = $anyo;
+        $this->mes = $mes;
 
         $this->cuadrante = CuadranteMes::where('centro_id', $centro->id)
             ->where('anyo', $anyo)
@@ -105,8 +98,6 @@ class CuadranteMesComponent extends Component
 
     /**
      * Avanza a la semana siguiente (máximo 4).
-     *
-     * @return void
      */
     public function nextSemana(): void
     {
@@ -117,8 +108,6 @@ class CuadranteMesComponent extends Component
 
     /**
      * Retrocede a la semana anterior (mínimo 0).
-     *
-     * @return void
      */
     public function prevSemana(): void
     {
@@ -131,7 +120,6 @@ class CuadranteMesComponent extends Component
      * Salta directamente a una semana del mes.
      *
      * @param int $idx Índice de semana (0-4)
-     * @return void
      */
     public function goSemana(int $idx): void
     {
@@ -165,6 +153,7 @@ class CuadranteMesComponent extends Component
      *
      * @param int $profId ID del profesional
      * @param Carbon $fecha Fecha de la celda
+     *
      * @return array{tipo_celda: string, excepcion: ExcepcionProfesional|null, eventos: array<int, EventoAgenda>, franjas: array<int, mixed>}
      */
     public function getCelda(int $profId, Carbon|string $fecha): array
@@ -201,18 +190,17 @@ class CuadranteMesComponent extends Component
      *
      * @param int $profId ID de usuario del profesional
      * @param int $dayNum Día del mes
-     * @return void
      */
     public function abrirModalAusencia(int $profId, int $dayNum): void
     {
         $fecha = Carbon::create($this->anyo, $this->mes, $dayNum)->toDateString();
 
         $this->ausenciaProf = $profId;
-        $this->ausenciaDay  = $dayNum;
+        $this->ausenciaDay = $dayNum;
         $this->ausenciaForm = [
-            'tipo'                  => '',
-            'fecha_fin'             => $fecha,
-            'notas'                 => '',
+            'tipo' => '',
+            'fecha_fin' => $fecha,
+            'notas' => '',
             'afecta_disponibilidad' => true,
         ];
         $this->modalAusenciaAbierto = true;
@@ -220,31 +208,29 @@ class CuadranteMesComponent extends Component
 
     /**
      * Persiste la excepción/ausencia del profesional creada desde el cuadrante.
-     *
-     * @return void
      */
     public function registrarAusencia(): void
     {
         $this->validate([
-            'ausenciaForm.tipo'     => ['required', 'string'],
+            'ausenciaForm.tipo' => ['required', 'string'],
             'ausenciaForm.fecha_fin' => ['nullable', 'date'],
         ]);
 
         $fechaInicio = Carbon::create($this->anyo, $this->mes, $this->ausenciaDay)->toDateString();
-        $fechaFin    = filled($this->ausenciaForm['fecha_fin'])
+        $fechaFin = filled($this->ausenciaForm['fecha_fin'])
             ? $this->ausenciaForm['fecha_fin']
             : $fechaInicio;
 
         ExcepcionProfesional::create([
-            'usuario_id'            => $this->ausenciaProf,
-            'centro_id'             => $this->centro->id,
-            'tipo'                  => $this->ausenciaForm['tipo'],
-            'fecha_inicio'          => $fechaInicio,
-            'fecha_fin'             => $fechaFin,
-            'notas'                 => $this->ausenciaForm['notas'] ?: null,
+            'usuario_id' => $this->ausenciaProf,
+            'centro_id' => $this->centro->id,
+            'tipo' => $this->ausenciaForm['tipo'],
+            'fecha_inicio' => $fechaInicio,
+            'fecha_fin' => $fechaFin,
+            'notas' => $this->ausenciaForm['notas'] ?: null,
             'afecta_disponibilidad' => (bool) $this->ausenciaForm['afecta_disponibilidad'],
-            'origen'                => OrigenExcepcion::Manual,
-            'creado_por_id'         => auth()->id(),
+            'origen' => OrigenExcepcion::Manual,
+            'creado_por_id' => auth()->id(),
         ]);
 
         $this->modalAusenciaAbierto = false;
@@ -256,7 +242,6 @@ class CuadranteMesComponent extends Component
      *
      * @param int $profId ID del profesional
      * @param int $dayNum Día del mes
-     * @return void
      */
     public function abrirModalExc(int $profId, int $dayNum): void
     {
@@ -269,7 +254,7 @@ class CuadranteMesComponent extends Component
             ->first();
 
         if ($excepcion !== null) {
-            $this->excDetalle     = ['tipo' => $excepcion->tipo->value, 'id' => $excepcion->id, 'profesional_id' => $profId];
+            $this->excDetalle = ['tipo' => $excepcion->tipo->value, 'id' => $excepcion->id, 'profesional_id' => $profId];
             $this->modalExcAbierto = true;
         }
     }
@@ -278,7 +263,6 @@ class CuadranteMesComponent extends Component
      * Publica el cuadrante en borrador y materializa los slots.
      *
      * @param string $notasEquipo Notas opcionales para el equipo
-     * @return void
      */
     public function publicar(string $notasEquipo = ''): void
     {
@@ -299,8 +283,8 @@ class CuadranteMesComponent extends Component
     #[Computed]
     public function metricas(): array
     {
-        $iniciMes  = Carbon::create($this->anyo, $this->mes, 1);
-        $finMes    = $iniciMes->copy()->endOfMonth();
+        $iniciMes = Carbon::create($this->anyo, $this->mes, 1);
+        $finMes = $iniciMes->copy()->endOfMonth();
 
         $excepciones = ExcepcionProfesional::where('centro_id', $this->centro->id)
             ->where('fecha_inicio', '<=', $finMes->toDateString())
@@ -323,9 +307,9 @@ class CuadranteMesComponent extends Component
 
         return [
             'dias_con_excepciones' => $diasConExcepciones,
-            'slots_disponibles'    => 0,
-            'eventos_internos'     => 0,
-            'slots_afectados'      => 0,
+            'slots_disponibles' => 0,
+            'eventos_internos' => 0,
+            'slots_afectados' => 0,
         ];
     }
 
@@ -346,8 +330,6 @@ class CuadranteMesComponent extends Component
 
     /**
      * Renderiza la vista del cuadrante mensual.
-     *
-     * @return View
      */
     public function render(): View
     {
@@ -356,9 +338,6 @@ class CuadranteMesComponent extends Component
 
     /**
      * Verifica que el usuario autenticado es supervisor asignado al centro dado.
-     *
-     * @param Centro $centro
-     * @return void
      */
     private function autorizarAcceso(Centro $centro): void
     {

@@ -15,13 +15,17 @@ use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\ColeccionPlazas;
 use Modules\Centro\Models\Espacio;
 use Modules\Centro\Models\ListaEspera;
-use Modules\Centro\Models\ListaEsperaMovimiento;
 use Modules\Centro\Models\Plaza;
 use Modules\Centro\Models\Prescripcion;
+use Modules\Centro\Models\Red;
 use Modules\Centro\Models\TipoEspacio;
+use Modules\Intervencion\Enums\EstadoPlan;
+use Modules\Intervencion\Enums\TipoPlan;
+use Modules\Intervencion\Http\Livewire\AsignarPlazaModal;
 use Modules\Intervencion\Http\Livewire\CiudadanoPage;
 use Modules\Intervencion\Http\Livewire\PrescribirRecursoModal;
 use Modules\Intervencion\Http\Livewire\RecursosPage;
+use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\PlanActuacionAyuntamiento;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Prestaciones\Models\Prestacion;
@@ -280,7 +284,7 @@ class PlazasRecursosTest extends TestCase
             ->call('confirmar');
 
         $prescripcion = Prescripcion::where('ciudadano_id', $this->ciudadano->id)->first();
-        $apunte = \Modules\Intervencion\Models\Apunte::where('historia_id', $this->historia->id)
+        $apunte = Apunte::where('historia_id', $this->historia->id)
             ->where('apuntable_type', Prescripcion::class)
             ->where('apuntable_id', $prescripcion->id)
             ->first();
@@ -395,7 +399,7 @@ class PlazasRecursosTest extends TestCase
         $this->crearPlazaEnColeccion($coleccion, 'libre');
 
         // Simular fallo en Apunte::create via observer falso que lanza excepción
-        \Modules\Intervencion\Models\Apunte::creating(function () {
+        Apunte::creating(function () {
             throw new \RuntimeException('Error simulado en Apunte::create');
         });
 
@@ -459,7 +463,7 @@ class PlazasRecursosTest extends TestCase
     public function con_red_disponible_opciones_destino_devuelve_redes(): void
     {
         $coleccion = $this->crearColeccion();
-        $red = \Modules\Centro\Models\Red::create([
+        $red = Red::create([
             'nombre' => 'Red de Recursos',
             'activa' => true,
             'fecha_alta' => today()->toDateString(),
@@ -474,7 +478,7 @@ class PlazasRecursosTest extends TestCase
 
         $opciones = $component->get('opcionesDestino');
         $this->assertNotEmpty($opciones);
-        $this->assertInstanceOf(\Modules\Centro\Models\Red::class, $opciones->first());
+        $this->assertInstanceOf(Red::class, $opciones->first());
     }
 
     /**
@@ -682,7 +686,7 @@ class PlazasRecursosTest extends TestCase
 
         $this->actingAs($this->usuario);
 
-        Livewire::test(\Modules\Intervencion\Http\Livewire\AsignarPlazaModal::class)
+        Livewire::test(AsignarPlazaModal::class)
             ->call('abrir', $prescripcion->id)
             ->call('asignar', $plaza->id);
 
@@ -728,7 +732,7 @@ class PlazasRecursosTest extends TestCase
 
         $this->actingAs($this->usuario);
 
-        Livewire::test(\Modules\Intervencion\Http\Livewire\AsignarPlazaModal::class)
+        Livewire::test(AsignarPlazaModal::class)
             ->call('abrir', $prescripcion->id)
             ->call('asignar', $plaza->id, 'Se asigna habitación disponible por falta de individual.');
 
@@ -771,7 +775,7 @@ class PlazasRecursosTest extends TestCase
 
         $this->actingAs($this->usuario);
 
-        Livewire::test(\Modules\Intervencion\Http\Livewire\AsignarPlazaModal::class)
+        Livewire::test(AsignarPlazaModal::class)
             ->call('abrir', $prescripcion->id)
             ->call('asignar', $plazaOtroCentro->id)
             ->assertHasErrors(['plaza']);
@@ -1048,8 +1052,8 @@ class PlazasRecursosTest extends TestCase
         return PlanDeIntervencion::factory()->create([
             'historia_id' => $this->historia->id,
             'profesional_responsable_id' => $this->usuario->id,
-            'tipo' => \Modules\Intervencion\Enums\TipoPlan::GeneralAsp,
-            'estado' => \Modules\Intervencion\Enums\EstadoPlan::Activo,
+            'tipo' => TipoPlan::GeneralAsp,
+            'estado' => EstadoPlan::Activo,
         ]);
     }
 

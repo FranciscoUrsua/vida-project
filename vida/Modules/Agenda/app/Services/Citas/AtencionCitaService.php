@@ -40,11 +40,6 @@ class AtencionCitaService
     /** Autorización de corrección en curso: cita => [supervisor, motivo]. */
     private array $correcciones = [];
 
-    /**
-     * @param RegistroEventosCita $eventos
-     * @param AvisosCitas $avisos
-     * @param MensajeriaService $mensajeria
-     */
     public function __construct(
         private readonly RegistroEventosCita $eventos,
         private readonly AvisosCitas $avisos,
@@ -55,8 +50,6 @@ class AtencionCitaService
      * El ciudadano no vino. La cita no desaparece del historial ni genera avisos.
      *
      * @param Cita $cita Confirmada.
-     * @param User $usuario
-     * @return Cita
      *
      * @throws AuthorizationException
      * @throws LogicException
@@ -87,10 +80,7 @@ class AtencionCitaService
      * (docs/modulo-citas.md §3.5.3): la pedida desde la agenda si es válida o,
      * si no, la primera de la persona con el profesional hoy o pendiente de cierre.
      *
-     * @param int $ciudadanoId
-     * @param User $profesional
      * @param int|null $citaPedida Cita con la que se abrió la herramienta desde la agenda.
-     * @return Cita|null
      */
     public function citaVinculable(int $ciudadanoId, User $profesional, ?int $citaPedida = null): ?Cita
     {
@@ -114,7 +104,6 @@ class AtencionCitaService
      * de Apunte antes de crearlo.
      *
      * @param Apunte $apunte Con cita_id informado.
-     * @return void
      *
      * @throws LogicException Si la cita es de otra persona o está cerrada sin corrección autorizada.
      */
@@ -134,7 +123,6 @@ class AtencionCitaService
      * Valida que un registro de atención nuevo pueda vincularse a su cita.
      *
      * @param RegistroAtencion $registro Con cita_id informado.
-     * @return void
      *
      * @throws LogicException
      */
@@ -152,10 +140,6 @@ class AtencionCitaService
     /**
      * Completa la cita al registrar un apunte vinculado. Idempotente: si ya está
      * completada, no hace nada ni escribe evento.
-     *
-     * @param Cita $cita
-     * @param Apunte $apunte
-     * @return void
      */
     public function completarPorApunte(Cita $cita, Apunte $apunte): void
     {
@@ -164,10 +148,6 @@ class AtencionCitaService
 
     /**
      * Completa la cita al registrar un registro de atención vinculado. Idempotente.
-     *
-     * @param Cita $cita
-     * @param RegistroAtencion $registro
-     * @return void
      */
     public function completarPorAtencion(Cita $cita, RegistroAtencion $registro): void
     {
@@ -178,11 +158,8 @@ class AtencionCitaService
      * Supervisión vincula un apunte a una cita con incomparecencia o cancelada,
      * para corregir un error de marcado. La cita queda completada.
      *
-     * @param Cita $cita
-     * @param User $supervisor
      * @param string $motivo Obligatorio.
      * @param callable(): Apunte $crearApunte Crea el apunte con cita_id (dentro de la corrección).
-     * @return Apunte
      *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
@@ -210,10 +187,7 @@ class AtencionCitaService
     /**
      * Registra quién acompañó a la persona. Solo registro: no crea citas ni vínculos.
      *
-     * @param Cita $cita
      * @param list<array{relacion: string, ciudadano_id?: int|null, nombre?: string|null}> $acompanantes
-     * @param User $usuario
-     * @return void
      *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
@@ -254,10 +228,6 @@ class AtencionCitaService
      * Asocia una cita externa pendiente de identificar a la persona, tras buscarla
      * o darla de alta en ventanilla. Borra los datos de identificación recibidos.
      *
-     * @param Cita $cita
-     * @param Ciudadano $ciudadano
-     * @param User $usuario
-     * @return Cita
      *
      * @throws AuthorizationException
      * @throws LogicException
@@ -285,10 +255,6 @@ class AtencionCitaService
      * El profesional pide al supervisor del centro un cambio en una cita o un slot
      * de su agenda (RN-05): mensaje uno a uno con enlace, y evento en la cita.
      *
-     * @param Cita|Slot $elemento
-     * @param string $texto
-     * @param User $usuario
-     * @return void
      *
      * @throws AuthorizationException
      * @throws InvalidArgumentException
@@ -330,10 +296,7 @@ class AtencionCitaService
     }
 
     /**
-     * @param Cita $cita
-     * @param int|null $actorId
      * @param array<string, mixed> $datos
-     * @return void
      */
     private function completar(Cita $cita, ?int $actorId, array $datos): void
     {
@@ -358,9 +321,6 @@ class AtencionCitaService
     }
 
     /**
-     * @param Cita $cita
-     * @return void
-     *
      * @throws LogicException Si la cita está cerrada y no hay corrección autorizada en curso.
      */
     private function exigirVinculable(Cita $cita): void

@@ -4,6 +4,7 @@ namespace Modules\Centro\Models;
 
 use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -28,7 +29,7 @@ use Modules\Usuarios\Models\Profesional;
  * @property int|null $aforo_prescripcion
  * @property string $estado
  * @property int|null $sala_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Profesional> $profesionales
+ * @property-read Collection<int, Profesional> $profesionales
  */
 class SesionActividad extends Model
 {

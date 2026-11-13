@@ -23,6 +23,7 @@ class AmbitoTerritorialTest extends TestCase
      * Referencia a un distrito real del catálogo cargado por la migración.
      *
      * @param string $codigo Código de distrito de dos dígitos.
+     *
      * @return array{referencia_id: int, referencia_tipo: class-string}
      */
     private function distrito(string $codigo): array

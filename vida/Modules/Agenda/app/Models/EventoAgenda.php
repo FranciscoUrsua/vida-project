@@ -2,6 +2,8 @@
 
 namespace Modules\Agenda\Models;
 
+use App\Models\Ciudadano;
+use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -45,12 +47,11 @@ class EventoAgenda extends Model
 {
     /** @use HasFactory<EventoAgendaFactory> */
     use HasFactory;
+
     use SoftDeletes;
 
     /**
      * Factoría del modelo (vive en el módulo).
-     *
-     * @return EventoAgendaFactory
      */
     protected static function newFactory(): EventoAgendaFactory
     {
@@ -59,8 +60,6 @@ class EventoAgenda extends Model
 
     /**
      * Al eliminar el evento (baja lógica), sus convocados recuperan los slots que bloqueaba.
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -110,12 +109,12 @@ class EventoAgenda extends Model
      * su presencia. No lo convierte en cita. Solo los ve quien tiene acceso a
      * su Historia Social (docs/modulo-citas.md §2.6).
      *
-     * @return BelongsToMany<\App\Models\Ciudadano, $this>
+     * @return BelongsToMany<Ciudadano, $this>
      */
     public function ciudadanos(): BelongsToMany
     {
-        return $this->belongsToMany(\App\Models\Ciudadano::class, 'evento_ciudadano', 'evento_agenda_id', 'ciudadano_id')
-            ->withoutGlobalScope(\App\Models\Scopes\AmbitoUoScope::class)
+        return $this->belongsToMany(Ciudadano::class, 'evento_ciudadano', 'evento_agenda_id', 'ciudadano_id')
+            ->withoutGlobalScope(AmbitoUoScope::class)
             ->withTimestamps();
     }
 
@@ -135,7 +134,6 @@ class EventoAgenda extends Model
      * Filtra eventos de una fecha concreta.
      *
      * @param Builder<EventoAgenda> $query
-     * @param Carbon|string $fecha
      *
      * @return Builder<EventoAgenda>
      */

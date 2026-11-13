@@ -22,8 +22,6 @@ enum MotivoAsignacionPendiente: string
 
     /**
      * Etiqueta legible del motivo.
-     *
-     * @return string
      */
     public function label(): string
     {
@@ -37,8 +35,6 @@ enum MotivoAsignacionPendiente: string
 
     /**
      * Color del distintivo del motivo en la bandeja.
-     *
-     * @return Tono
      */
     public function tono(): Tono
     {

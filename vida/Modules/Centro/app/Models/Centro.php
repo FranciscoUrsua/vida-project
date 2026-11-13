@@ -8,6 +8,7 @@ use App\Traits\TieneDireccion;
 use App\Traits\Versionable;
 use DomainException;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use LogicException;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Centro\Traits\TieneDenominaciones;
 use Modules\Organizacion\Models\Distrito;
 
@@ -51,7 +53,7 @@ use Modules\Organizacion\Models\Distrito;
  * @property bool $activo
  * @property Carbon $fecha_alta
  * @property Carbon|null $fecha_baja
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Sala> $salas
+ * @property-read Collection<int, Sala> $salas
  * @property-read TipoCentro $tipoCentro
  * @property-read array<string, mixed>|null $horario Horario efectivo de hoy (accesor).
  * @property-read Centro|null $antecesor
@@ -114,8 +116,6 @@ class Centro extends Model implements DireccionableModel
      * Protege el tipo (RN-01) y la relación 1:1 con la UO (RN-14).
      *
      * @throws DomainException|LogicException
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -141,7 +141,7 @@ class Centro extends Model implements DireccionableModel
      */
     public function getHorarioAttribute(): ?array
     {
-        $horario = app(\Modules\Centro\Services\ConfiguracionEfectivaCentro::class)->horario($this, today());
+        $horario = app(ConfiguracionEfectivaCentro::class)->horario($this, today());
 
         return $horario === null ? null : [
             'dias_laborables' => $horario->diasLaborables,
@@ -155,12 +155,10 @@ class Centro extends Model implements DireccionableModel
 
     /**
      * Código del tipo del centro (estable, RN-02), p. ej. `css_general`.
-     *
-     * @return string
      */
     public function codigoTipo(): string
     {
-        return app(\Modules\Centro\Services\ConfiguracionEfectivaCentro::class)->tipo($this)->codigo;
+        return app(ConfiguracionEfectivaCentro::class)->tipo($this)->codigo;
     }
 
     /**
@@ -303,8 +301,6 @@ class Centro extends Model implements DireccionableModel
 
     /**
      * Devuelve el DirectorCentro activo (fecha_fin null), o null si no lo hay.
-     *
-     * @return DirectorCentro|null
      */
     public function directorActivo(): ?DirectorCentro
     {
@@ -318,7 +314,6 @@ class Centro extends Model implements DireccionableModel
      * y opcionalmente fecha_inicio (por defecto hoy).
      *
      * @param array{profesional_id?: int|null, nombre?: string|null, telefono?: string|null, email?: string|null, fecha_inicio?: \DateTimeInterface|string|null, fecha_fin?: \DateTimeInterface|string|null, notas?: string|null} $datos Datos del nuevo director.
-     * @return DirectorCentro
      */
     public function nombrarDirector(array $datos): DirectorCentro
     {
@@ -354,8 +349,6 @@ class Centro extends Model implements DireccionableModel
      * Todo centro nace con un tipo activo (RN-01, RN-11).
      *
      * @throws DomainException
-     *
-     * @return void
      */
     private function exigirTipoActivo(): void
     {
@@ -373,8 +366,6 @@ class Centro extends Model implements DireccionableModel
      * `centros_una_por_uo` lo garantiza también en base de datos.
      *
      * @throws DomainException
-     *
-     * @return void
      */
     private function exigirUoSinOtroCentro(): void
     {

@@ -43,8 +43,6 @@ class VerFichaHistoriaTest extends TestCase
 
     /**
      * Dos historias de la misma UO y un profesional de esa UO.
-     *
-     * @return void
      */
     protected function setUp(): void
     {
@@ -132,8 +130,6 @@ class VerFichaHistoriaTest extends TestCase
      *
      * @param string $nombre Nombre de la persona.
      * @param UnidadOrganizativa $uo UO de la historia.
-     *
-     * @return HistoriaSocial
      */
     private function crearHistoria(string $nombre, UnidadOrganizativa $uo): HistoriaSocial
     {
@@ -160,8 +156,6 @@ class VerFichaHistoriaTest extends TestCase
      *
      * @param array<string, mixed> $vinculo historia_id y/o valoracion_id.
      * @param string $valor Valor del campo de prueba.
-     *
-     * @return Ficha
      */
     private function crearFicha(array $vinculo, string $valor): Ficha
     {

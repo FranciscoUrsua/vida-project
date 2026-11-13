@@ -25,8 +25,6 @@ class BandejaAsignacionesService
     /**
      * Entradas abiertas de un tipo que ve el supervisor del centro, las más antiguas primero.
      *
-     * @param Centro $centro
-     * @param TipoAsignacionPendiente $tipo
      * @return Collection<int, AsignacionPendiente>
      */
     public function pendientes(Centro $centro, TipoAsignacionPendiente $tipo): Collection
@@ -41,10 +39,6 @@ class BandejaAsignacionesService
 
     /**
      * Entrada abierta visible para el supervisor del centro, o null si no existe o no le corresponde.
-     *
-     * @param Centro $centro
-     * @param int $id
-     * @return AsignacionPendiente|null
      */
     public function pendiente(Centro $centro, int $id): ?AsignacionPendiente
     {
@@ -54,7 +48,6 @@ class BandejaAsignacionesService
     /**
      * Repartos por salida del centro pendientes de confirmar.
      *
-     * @param Centro $centro
      * @return Collection<int, RepartoCasos>
      */
     public function repartosPropuestos(Centro $centro): Collection
@@ -69,9 +62,6 @@ class BandejaAsignacionesService
 
     /**
      * Número de cosas por decidir en la bandeja del centro (para el menú).
-     *
-     * @param Centro $centro
-     * @return int
      */
     public function total(Centro $centro): int
     {
@@ -82,7 +72,6 @@ class BandejaAsignacionesService
     /**
      * Entradas abiertas del alcance del centro.
      *
-     * @param Centro $centro
      * @return Builder<AsignacionPendiente>
      */
     private function consultaPendientes(Centro $centro): Builder

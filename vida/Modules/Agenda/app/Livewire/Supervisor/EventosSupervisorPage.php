@@ -51,12 +51,12 @@ class EventosSupervisorPage extends Component
      * @var array{nombre: string, fecha: string, hora_inicio: string, duracion_minutos: string, tipo_evento: string, espacio_id: string, profesionales_ids: array<int, int>}
      */
     public array $form = [
-        'nombre'            => '',
-        'fecha'             => '',
-        'hora_inicio'       => '',
-        'duracion_minutos'  => '',
-        'tipo_evento'       => '',
-        'espacio_id'        => '',
+        'nombre' => '',
+        'fecha' => '',
+        'hora_inicio' => '',
+        'duracion_minutos' => '',
+        'tipo_evento' => '',
+        'espacio_id' => '',
         'profesionales_ids' => [],
     ];
 
@@ -66,12 +66,12 @@ class EventosSupervisorPage extends Component
      * @var array{nombre: string, fecha: string, hora_inicio: string, duracion_minutos: string, tipo_evento: string, espacio_id: string, profesionales_ids: array<int, int>}
      */
     public array $formEdicion = [
-        'nombre'            => '',
-        'fecha'             => '',
-        'hora_inicio'       => '',
-        'duracion_minutos'  => '',
-        'tipo_evento'       => '',
-        'espacio_id'        => '',
+        'nombre' => '',
+        'fecha' => '',
+        'hora_inicio' => '',
+        'duracion_minutos' => '',
+        'tipo_evento' => '',
+        'espacio_id' => '',
         'profesionales_ids' => [],
     ];
 
@@ -89,7 +89,7 @@ class EventosSupervisorPage extends Component
     {
         $centro = $this->centroDelSupervisor();
         if ($centro === null) {
-            return new Collection();
+            return new Collection;
         }
 
         return EventoAgenda::where('centro_id', $centro->id)
@@ -110,7 +110,7 @@ class EventosSupervisorPage extends Component
     {
         $centro = $this->centroDelSupervisor();
         if ($centro === null) {
-            return new Collection();
+            return new Collection;
         }
 
         return Sala::where('centro_id', $centro->id)
@@ -134,7 +134,7 @@ class EventosSupervisorPage extends Component
         $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
 
         if (empty($uoIds)) {
-            return new Collection();
+            return new Collection;
         }
 
         return Profesional::where(function ($q) use ($uoIds) {
@@ -158,19 +158,17 @@ class EventosSupervisorPage extends Component
      * Crea el evento y bloquea los slots de los convocados.
      *
      * Muestra aviso si hay conflicto de espacio pero no bloquea la creación.
-     *
-     * @return void
      */
     public function crear(): void
     {
         $this->validate([
-            'form.nombre'              => ['required', 'string', 'max:200'],
-            'form.fecha'               => ['required', 'date'],
-            'form.hora_inicio'         => ['required', 'date_format:H:i'],
-            'form.duracion_minutos'    => ['required', 'integer', 'min:5', 'max:480'],
-            'form.tipo_evento'         => ['required', 'string', 'max:100'],
-            'form.espacio_id'          => ['nullable', 'integer', 'exists:salas,id'],
-            'form.profesionales_ids'   => ['array'],
+            'form.nombre' => ['required', 'string', 'max:200'],
+            'form.fecha' => ['required', 'date'],
+            'form.hora_inicio' => ['required', 'date_format:H:i'],
+            'form.duracion_minutos' => ['required', 'integer', 'min:5', 'max:480'],
+            'form.tipo_evento' => ['required', 'string', 'max:100'],
+            'form.espacio_id' => ['nullable', 'integer', 'exists:salas,id'],
+            'form.profesionales_ids' => ['array'],
             'form.profesionales_ids.*' => ['integer', 'exists:users,id'],
         ]);
 
@@ -179,17 +177,17 @@ class EventosSupervisorPage extends Component
             return;
         }
 
-        $horaFin   = $this->calcularHoraFin($this->form['hora_inicio'], (int) $this->form['duracion_minutos']);
+        $horaFin = $this->calcularHoraFin($this->form['hora_inicio'], (int) $this->form['duracion_minutos']);
         $espacioId = filled($this->form['espacio_id']) ? (int) $this->form['espacio_id'] : null;
 
         $evento = EventoAgenda::create([
-            'centro_id'     => $centro->id,
-            'titulo'        => trim($this->form['nombre']),
-            'fecha'         => $this->form['fecha'],
-            'hora_inicio'   => $this->form['hora_inicio'],
-            'hora_fin'      => $horaFin,
-            'tipo_evento'   => $this->form['tipo_evento'],
-            'espacio_id'    => $espacioId,
+            'centro_id' => $centro->id,
+            'titulo' => trim($this->form['nombre']),
+            'fecha' => $this->form['fecha'],
+            'hora_inicio' => $this->form['hora_inicio'],
+            'hora_fin' => $horaFin,
+            'tipo_evento' => $this->form['tipo_evento'],
+            'espacio_id' => $espacioId,
             'creado_por_id' => auth()->id(),
         ]);
 
@@ -216,9 +214,6 @@ class EventosSupervisorPage extends Component
      *
      * Solo actúa si el evento existe en el centro del supervisor y su fecha
      * es igual o posterior a hoy (no se editan eventos ya ocurridos).
-     *
-     * @param int $eventoId
-     * @return void
      */
     public function abrirEdicion(int $eventoId): void
     {
@@ -237,14 +232,14 @@ class EventosSupervisorPage extends Component
             return;
         }
 
-        $this->editandoId   = $eventoId;
-        $this->formEdicion  = [
-            'nombre'            => $evento->titulo,
-            'fecha'             => $evento->fecha->toDateString(),
-            'hora_inicio'       => substr($evento->hora_inicio, 0, 5),
-            'duracion_minutos'  => (string) $this->calcularDuracion($evento->hora_inicio, $evento->hora_fin),
-            'tipo_evento'       => $evento->tipo_evento,
-            'espacio_id'        => (string) ($evento->espacio_id ?? ''),
+        $this->editandoId = $eventoId;
+        $this->formEdicion = [
+            'nombre' => $evento->titulo,
+            'fecha' => $evento->fecha->toDateString(),
+            'hora_inicio' => substr($evento->hora_inicio, 0, 5),
+            'duracion_minutos' => (string) $this->calcularDuracion($evento->hora_inicio, $evento->hora_fin),
+            'tipo_evento' => $evento->tipo_evento,
+            'espacio_id' => (string) ($evento->espacio_id ?? ''),
             'profesionales_ids' => $evento->profesionales->pluck('id')->toArray(),
         ];
         $this->mostrarModalEdicion = true;
@@ -256,19 +251,17 @@ class EventosSupervisorPage extends Component
      * Los convocados se sincronizan (sync) sin tocar el estado de los slots,
      * que ya fueron gestionados al crear el evento o al eliminar convocados
      * previos. La hora de fin se recalcula a partir de la nueva duración.
-     *
-     * @return void
      */
     public function actualizar(): void
     {
         $this->validate([
-            'formEdicion.nombre'              => ['required', 'string', 'max:200'],
-            'formEdicion.fecha'               => ['required', 'date'],
-            'formEdicion.hora_inicio'         => ['required', 'date_format:H:i'],
-            'formEdicion.duracion_minutos'    => ['required', 'integer', 'min:5', 'max:480'],
-            'formEdicion.tipo_evento'         => ['required', 'string', 'max:100'],
-            'formEdicion.espacio_id'          => ['nullable', 'integer', 'exists:salas,id'],
-            'formEdicion.profesionales_ids'   => ['array'],
+            'formEdicion.nombre' => ['required', 'string', 'max:200'],
+            'formEdicion.fecha' => ['required', 'date'],
+            'formEdicion.hora_inicio' => ['required', 'date_format:H:i'],
+            'formEdicion.duracion_minutos' => ['required', 'integer', 'min:5', 'max:480'],
+            'formEdicion.tipo_evento' => ['required', 'string', 'max:100'],
+            'formEdicion.espacio_id' => ['nullable', 'integer', 'exists:salas,id'],
+            'formEdicion.profesionales_ids' => ['array'],
             'formEdicion.profesionales_ids.*' => ['integer', 'exists:users,id'],
         ]);
 
@@ -286,35 +279,33 @@ class EventosSupervisorPage extends Component
             return;
         }
 
-        $horaFin   = $this->calcularHoraFin($this->formEdicion['hora_inicio'], (int) $this->formEdicion['duracion_minutos']);
+        $horaFin = $this->calcularHoraFin($this->formEdicion['hora_inicio'], (int) $this->formEdicion['duracion_minutos']);
         $espacioId = filled($this->formEdicion['espacio_id']) ? (int) $this->formEdicion['espacio_id'] : null;
 
         $evento->update([
-            'titulo'      => trim($this->formEdicion['nombre']),
-            'fecha'       => $this->formEdicion['fecha'],
+            'titulo' => trim($this->formEdicion['nombre']),
+            'fecha' => $this->formEdicion['fecha'],
             'hora_inicio' => $this->formEdicion['hora_inicio'],
-            'hora_fin'    => $horaFin,
+            'hora_fin' => $horaFin,
             'tipo_evento' => $this->formEdicion['tipo_evento'],
-            'espacio_id'  => $espacioId,
+            'espacio_id' => $espacioId,
         ]);
 
         // Sincroniza convocados sin volver a bloquear slots (mantiene el estado actual de los slots)
         $evento->profesionales()->sync($this->formEdicion['profesionales_ids']);
 
         $this->mostrarModalEdicion = false;
-        $this->editandoId          = null;
+        $this->editandoId = null;
         unset($this->eventosProximos);
     }
 
     /**
      * Cierra el modal de edición sin guardar cambios.
-     *
-     * @return void
      */
     public function cerrarEdicion(): void
     {
         $this->mostrarModalEdicion = false;
-        $this->editandoId          = null;
+        $this->editandoId = null;
         $this->resetValidation();
     }
 
@@ -324,9 +315,6 @@ class EventosSupervisorPage extends Component
 
     /**
      * Elimina el evento y libera los slots bloqueados.
-     *
-     * @param int $eventoId
-     * @return void
      */
     public function eliminar(int $eventoId): void
     {
@@ -350,8 +338,6 @@ class EventosSupervisorPage extends Component
 
     /**
      * Renderiza la pantalla de eventos internos.
-     *
-     * @return View
      */
     public function render(): View
     {
@@ -364,8 +350,6 @@ class EventosSupervisorPage extends Component
 
     /**
      * Resuelve el Centro del supervisor autenticado.
-     *
-     * @return Centro|null
      */
     private function centroDelSupervisor(): ?Centro
     {
@@ -378,7 +362,7 @@ class EventosSupervisorPage extends Component
      * Calcula la hora de fin sumando los minutos de duración a la hora de inicio.
      *
      * @param string $horaInicio Formato HH:MM o HH:MM:SS
-     * @param int $duracionMinutos
+     *
      * @return string Formato HH:MM
      */
     private function calcularHoraFin(string $horaInicio, int $duracionMinutos): string
@@ -391,10 +375,6 @@ class EventosSupervisorPage extends Component
 
     /**
      * Calcula los minutos de duración entre dos horas en formato HH:MM o HH:MM:SS.
-     *
-     * @param string $horaInicio
-     * @param string $horaFin
-     * @return int
      */
     private function calcularDuracion(string $horaInicio, string $horaFin): int
     {

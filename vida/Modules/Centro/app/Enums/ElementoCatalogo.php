@@ -14,8 +14,6 @@ enum ElementoCatalogo: string
 
     /**
      * Etiqueta legible.
-     *
-     * @return string
      */
     public function label(): string
     {

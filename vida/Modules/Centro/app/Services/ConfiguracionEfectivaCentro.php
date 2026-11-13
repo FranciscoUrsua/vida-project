@@ -3,9 +3,9 @@
 namespace Modules\Centro\Services;
 
 use App\Models\UnidadOrganizativa;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Centro\Data\DiaCalendario;
@@ -13,10 +13,11 @@ use Modules\Centro\Data\HorarioEfectivo;
 use Modules\Centro\Enums\ElementoCatalogo;
 use Modules\Centro\Enums\ModoAsignacionReferenciaCentro;
 use Modules\Centro\Enums\TipoCierre;
+use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\CierreCalendario;
 use Modules\Centro\Models\ExclusionCatalogo;
-use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\HorarioTipoCentro;
+use Modules\Centro\Models\SegmentoPoblacion;
 use Modules\Centro\Models\TipoCentro;
 use Modules\Intervencion\Models\TipoFicha;
 use Modules\Intervencion\Models\TipoPlan;
@@ -37,10 +38,6 @@ class ConfiguracionEfectivaCentro
 {
     /**
      * Tipo del centro.
-     *
-     * @param Centro $centro
-     *
-     * @return TipoCentro
      */
     public function tipo(Centro $centro): TipoCentro
     {
@@ -54,10 +51,6 @@ class ConfiguracionEfectivaCentro
 
     /**
      * UO funcional de la que depende el centro (solo tipo, RN-03).
-     *
-     * @param Centro $centro
-     *
-     * @return UnidadOrganizativa
      */
     public function uoFuncional(Centro $centro): UnidadOrganizativa
     {
@@ -67,9 +60,8 @@ class ConfiguracionEfectivaCentro
     /**
      * Público destinatario (solo tipo).
      *
-     * @param Centro $centro
      *
-     * @return EloquentCollection<int, \Modules\Centro\Models\SegmentoPoblacion>
+     * @return EloquentCollection<int, SegmentoPoblacion>
      */
     public function segmentos(Centro $centro): EloquentCollection
     {
@@ -78,10 +70,6 @@ class ConfiguracionEfectivaCentro
 
     /**
      * Si el centro se elige libremente en lugar de asignarse por domicilio (solo tipo, RN-09).
-     *
-     * @param Centro $centro
-     *
-     * @return bool
      */
     public function inscripcionLibre(Centro $centro): bool
     {
@@ -90,10 +78,6 @@ class ConfiguracionEfectivaCentro
 
     /**
      * Cómo se asigna el profesional de referencia al abrir una historia (solo tipo, RN-09).
-     *
-     * @param Centro $centro
-     *
-     * @return ModoAsignacionReferenciaCentro
      */
     public function modoAsignacionReferencia(Centro $centro): ModoAsignacionReferenciaCentro
     {
@@ -102,10 +86,6 @@ class ConfiguracionEfectivaCentro
 
     /**
      * Meses hacia atrás que cuenta el reparto de referencias (solo tipo).
-     *
-     * @param Centro $centro
-     *
-     * @return int
      */
     public function ventanaRepartoMeses(Centro $centro): int
     {
@@ -114,10 +94,6 @@ class ConfiguracionEfectivaCentro
 
     /**
      * Meses sin apuntes para considerar dormido un caso (solo tipo).
-     *
-     * @param Centro $centro
-     *
-     * @return int
      */
     public function mesesInactividadCaso(Centro $centro): int
     {
@@ -130,12 +106,9 @@ class ConfiguracionEfectivaCentro
      * Toma el HorarioCentro vigente del centro; si hereda (o el centro no tiene
      * horario propio), el del tipo vigente en esa fecha. Null si no hay ninguno.
      *
-     * @param Centro $centro
      * @param CarbonInterface $fecha Fecha de referencia.
      *
      * @throws \RuntimeException Si el centro hereda y el tipo no tiene horario vigente.
-     *
-     * @return HorarioEfectivo|null
      */
     public function horario(Centro $centro, CarbonInterface $fecha): ?HorarioEfectivo
     {
@@ -175,10 +148,7 @@ class ConfiguracionEfectivaCentro
     /**
      * Cómo abre el centro un día: cierre del centro > cierre del tipo > horario efectivo (§5.2).
      *
-     * @param Centro $centro
      * @param CarbonInterface $fecha Día.
-     *
-     * @return DiaCalendario
      */
     public function dia(Centro $centro, CarbonInterface $fecha): DiaCalendario
     {
@@ -209,11 +179,8 @@ class ConfiguracionEfectivaCentro
     /**
      * Fecha que resulta de sumar días en que el centro abre (con cierres aplicados).
      *
-     * @param Centro $centro
      * @param CarbonInterface $desde Fecha de partida (no cuenta).
      * @param int $dias Días a sumar.
-     *
-     * @return Carbon
      */
     public function sumarDiasLaborables(Centro $centro, CarbonInterface $desde, int $dias): Carbon
     {
@@ -231,12 +198,6 @@ class ConfiguracionEfectivaCentro
 
     /**
      * Días en que el centro abre entre dos fechas (sin contar la inicial).
-     *
-     * @param Centro $centro
-     * @param CarbonInterface $desde
-     * @param CarbonInterface $hasta
-     *
-     * @return int
      */
     public function diasLaborablesEntre(Centro $centro, CarbonInterface $desde, CarbonInterface $hasta): int
     {
@@ -255,10 +216,6 @@ class ConfiguracionEfectivaCentro
 
     /**
      * Protocolo del centro, o el del tipo si no tiene propio (sobrescribible).
-     *
-     * @param Centro $centro
-     *
-     * @return string|null
      */
     public function protocolo(Centro $centro): ?string
     {
@@ -268,7 +225,6 @@ class ConfiguracionEfectivaCentro
     /**
      * Prestaciones activas del catálogo del tipo (restringible, RN-08).
      *
-     * @param Centro $centro
      *
      * @return EloquentCollection<int, Prestacion>
      */
@@ -282,7 +238,6 @@ class ConfiguracionEfectivaCentro
     /**
      * Tipos de plan que se pueden abrir en el centro (restringible, RN-08).
      *
-     * @param Centro $centro
      *
      * @return EloquentCollection<int, TipoPlan>
      */
@@ -296,7 +251,6 @@ class ConfiguracionEfectivaCentro
     /**
      * Fichas de valoración disponibles en el centro; sin filas en el tipo, todas las activas (restringible).
      *
-     * @param Centro $centro
      *
      * @return EloquentCollection<int, TipoFicha>
      */
@@ -312,7 +266,6 @@ class ConfiguracionEfectivaCentro
     /**
      * De dónde sale el valor efectivo de una propiedad, para la interfaz.
      *
-     * @param Centro $centro
      * @param string $propiedad `protocolo`, `horario` u otra; las «solo tipo» siempre son del tipo.
      *
      * @return string 'tipo' | 'centro'
@@ -330,8 +283,6 @@ class ConfiguracionEfectivaCentro
      * Ids que el centro excluye del catálogo del tipo; solo si el tipo lo permite (RN-08).
      * Las exclusiones se conservan aunque el tipo desactive la restricción.
      *
-     * @param Centro $centro
-     * @param ElementoCatalogo $tipo
      *
      * @return list<int>
      */
@@ -348,10 +299,7 @@ class ConfiguracionEfectivaCentro
     /**
      * Día abierto o cerrado según un cierre de calendario.
      *
-     * @param CierreCalendario $cierre
      * @param string $origen 'cierre_centro' | 'cierre_tipo'.
-     *
-     * @return DiaCalendario
      */
     private function aplicarCierre(CierreCalendario $cierre, string $origen): DiaCalendario
     {

@@ -3,11 +3,13 @@
 namespace Modules\Documentos\Tests\Feature;
 
 use App\Filament\Resources\PropuestaEliminacionResource;
+use App\Models\Audit;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
 use Modules\Documentos\Contracts\AlmacenDocumentos;
 use Modules\Documentos\Enums\CanalCaptura;
 use Modules\Documentos\Enums\EstadoDocumento;
@@ -45,8 +47,6 @@ class RetencionDestruccionTest extends TestCase
 
     /**
      * Prepara actores y tipos comunes, autenticado como profesional.
-     *
-     * @return void
      */
     protected function setUp(): void
     {
@@ -60,8 +60,6 @@ class RetencionDestruccionTest extends TestCase
      *
      * @param TipoDocumental $tipo Tipo del documento.
      * @param int $anyos Años de antigüedad de la captura.
-     *
-     * @return DocumentoVersion
      */
     private function versionCapturadaHace(TipoDocumental $tipo, int $anyos): DocumentoVersion
     {
@@ -95,8 +93,6 @@ class RetencionDestruccionTest extends TestCase
      * Indica si el objeto de la versión sigue en el disco.
      *
      * @param DocumentoVersion $version Versión.
-     *
-     * @return bool
      */
     private function objetoExiste(DocumentoVersion $version): bool
     {
@@ -105,8 +101,6 @@ class RetencionDestruccionTest extends TestCase
 
     /**
      * Informe firmado con el mecanismo de TF-DOC-11 a 16 (stub de AutoFirma con valido.pdf).
-     *
-     * @return Informe
      */
     private function informeFirmado(): Informe
     {
@@ -187,7 +181,7 @@ class RetencionDestruccionTest extends TestCase
         $this->assertSame($informe->plantilla_id, $version->plantilla_informe_id);
         $this->assertSame([$documento->id], Documento::vinculadosA($this->ana)->pluck('id')->all());
         $this->assertTrue($this->objetoExiste($version));
-        $this->assertStringStartsNotWith('%PDF', \Illuminate\Support\Facades\Storage::disk('documentos')->get($this->objetosEnDisco()[0]));
+        $this->assertStringStartsNotWith('%PDF', Storage::disk('documentos')->get($this->objetosEnDisco()[0]));
     }
 
     #[Test]
@@ -242,7 +236,7 @@ class RetencionDestruccionTest extends TestCase
             'ids_ciudadanos_vinculados' => [$this->ana->id],
         ]], $acta->detalle);
 
-        $this->assertTrue(\App\Models\Audit::where('auditable_type', $a->getMorphClass())->where('auditable_id', $a->id)
+        $this->assertTrue(Audit::where('auditable_type', $a->getMorphClass())->where('auditable_id', $a->id)
             ->where('accion', 'borrar')->where('user_id', $this->admin->id)->exists(), 'La destrucción debe auditarse como «borrar».');
 
         $enBruto = json_encode($acta->getAttributes());

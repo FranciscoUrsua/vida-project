@@ -27,10 +27,6 @@ final class ResultadoResolucionCentro
 
     /**
      * Resultado con un único centro.
-     *
-     * @param Centro $centro
-     * @param string|null $seccionCensal
-     * @return self
      */
     public static function centro(Centro $centro, ?string $seccionCensal): self
     {
@@ -40,10 +36,7 @@ final class ResultadoResolucionCentro
     /**
      * Resultado sin centro asignable.
      *
-     * @param MotivoAsignacionPendiente $motivo
      * @param Collection<int, Centro>|null $candidatos
-     * @param string|null $seccionCensal
-     * @return self
      */
     public static function pendiente(MotivoAsignacionPendiente $motivo, ?Collection $candidatos = null, ?string $seccionCensal = null): self
     {

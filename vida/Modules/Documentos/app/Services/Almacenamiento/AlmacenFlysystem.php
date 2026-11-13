@@ -78,8 +78,6 @@ class AlmacenFlysystem implements AlmacenDocumentos
      * Ruta del objeto en el disco: subdirectorio con los dos primeros caracteres y el UUID.
      *
      * @param string $clave Clave de almacenamiento.
-     *
-     * @return string
      */
     public function ruta(string $clave): string
     {
@@ -95,8 +93,6 @@ class AlmacenFlysystem implements AlmacenDocumentos
      * @param string|null $disco Disco concreto; null = disco configurado.
      *
      * @throws ConfiguracionDocumentosException si la raíz no existe o no se puede escribir
-     *
-     * @return Filesystem
      */
     private function filesystem(?string $disco = null): Filesystem
     {

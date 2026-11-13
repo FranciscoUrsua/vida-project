@@ -49,8 +49,6 @@ class CicloVidaDocumentoService
      * @throws ValidationException si faltan metadatos exigidos por el tipo
      * @throws \DomainException si el tipo está inactivo o algún vínculo no está permitido
      * @throws IngestaRechazadaException si la tubería de entrada rechaza el fichero
-     *
-     * @return Documento
      */
     public function altaDocumento(UploadedFile|string $origen, DatosIngesta $datos, bool $esContenido = false): Documento
     {
@@ -88,8 +86,6 @@ class CicloVidaDocumentoService
      *
      * @throws \DomainException si el documento procede de un informe firmado o ya no está vigente
      * @throws IngestaRechazadaException si la tubería de entrada rechaza el fichero
-     *
-     * @return DocumentoVersion
      */
     public function nuevaVersion(
         Documento $documento,
@@ -158,8 +154,6 @@ class CicloVidaDocumentoService
      *
      * @param DocumentoVersion $version Versión recién sustituida.
      * @param User $usuario Quien subió la versión que la sustituye.
-     *
-     * @return void
      */
     private function purgarSiProcede(DocumentoVersion $version, User $usuario): void
     {
@@ -182,8 +176,6 @@ class CicloVidaDocumentoService
      * @param User $usuario Quien da de baja el vínculo.
      *
      * @throws \DomainException si no hay vínculo activo con esa entidad
-     *
-     * @return DocumentoVinculo
      */
     public function desvincular(Documento $documento, Model $entidad, User $usuario): DocumentoVinculo
     {
@@ -212,8 +204,6 @@ class CicloVidaDocumentoService
      * @param Model $entidad Entidad que se vincularía.
      *
      * @throws \DomainException
-     *
-     * @return void
      */
     private function validarVinculable(DatosIngesta $datos, Model $entidad): void
     {
@@ -232,8 +222,6 @@ class CicloVidaDocumentoService
      * @param DatosIngesta $datos Datos del alta.
      *
      * @throws ValidationException
-     *
-     * @return void
      */
     private function validarMetadatos(DatosIngesta $datos): void
     {

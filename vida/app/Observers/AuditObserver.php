@@ -104,11 +104,11 @@ class AuditObserver
     /**
      * Snapshot de todos los campos auditables del modelo.
      *
-     * @param Model $model
      *
-     * @return array<string, mixed>
      *
      * @phpstan-param Model&AuditableModel $model
+     *
+     * @return array<string, mixed>
      */
     private function snapshot(Model $model): array
     {

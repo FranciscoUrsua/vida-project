@@ -4,8 +4,8 @@ namespace Modules\Agenda\Tests\Feature\Supervisor;
 
 use App\Filament\Resources\TipoSlotResource\Pages\CreateTipoSlot;
 use App\Filament\Resources\TipoSlotResource\Pages\ListTiposSlot;
+use App\Models\Ciudadano;
 use App\Models\UnidadOrganizativa;
-use App\Models\UsuarioUo;
 use Carbon\Carbon;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
@@ -22,7 +22,6 @@ use Modules\Agenda\Livewire\PerfilHorarioComponent;
 use Modules\Agenda\Livewire\SemanaTypoComponent;
 use Modules\Agenda\Models\Cita;
 use Modules\Agenda\Models\CuadranteMes;
-use Modules\Agenda\Models\EventoAgenda;
 use Modules\Agenda\Models\ExcepcionProfesional;
 use Modules\Agenda\Models\LineaCuadrante;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
@@ -39,8 +38,8 @@ use Tests\TestCase;
  */
 class UIAgendaSupervisorTest extends TestCase
 {
-    use RefreshDatabase;
     use AgendaSupervisorTestHelpers;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -78,17 +77,17 @@ class UIAgendaSupervisorTest extends TestCase
         Livewire::actingAs($this->supervisor)
             ->test(CreateTipoSlot::class)
             ->fillForm([
-                'nombre'                   => 'Reunión de equipo',
-                'duracion_minutos'         => 60,
+                'nombre' => 'Reunión de equipo',
+                'duracion_minutos' => 60,
                 'bloquea_todos_convocados' => true,
-                'activo'                   => true,
+                'activo' => true,
             ])
             ->call('create')
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('tipos_slot', [
-            'nombre'                   => 'Reunión de equipo',
-            'duracion_minutos'         => 60,
+            'nombre' => 'Reunión de equipo',
+            'duracion_minutos' => 60,
             'bloquea_todos_convocados' => true,
         ]);
     }
@@ -102,8 +101,8 @@ class UIAgendaSupervisorTest extends TestCase
         Livewire::actingAs($this->supervisor)
             ->test(CreateTipoSlot::class)
             ->fillForm([
-                'nombre'            => '',
-                'duracion_minutos'  => 30,
+                'nombre' => '',
+                'duracion_minutos' => 30,
             ])
             ->call('create')
             ->assertHasFormErrors(['nombre' => 'required']);
@@ -118,8 +117,8 @@ class UIAgendaSupervisorTest extends TestCase
         Livewire::actingAs($this->supervisor)
             ->test(CreateTipoSlot::class)
             ->fillForm([
-                'nombre'            => 'Reunión de equipo',
-                'duracion_minutos'  => null,
+                'nombre' => 'Reunión de equipo',
+                'duracion_minutos' => null,
             ])
             ->call('create')
             ->assertHasFormErrors(['duracion_minutos' => 'required']);
@@ -160,7 +159,7 @@ class UIAgendaSupervisorTest extends TestCase
     {
         $semana = [
             'base' => [['tipo' => 'atencion', 'inicio' => '09:00', 'fin' => '13:00']],
-            '5'    => [['tipo' => 'atencion', 'inicio' => '09:00', 'fin' => '11:00']],
+            '5' => [['tipo' => 'atencion', 'inicio' => '09:00', 'fin' => '11:00']],
         ];
 
         Livewire::actingAs($this->supervisor)
@@ -233,11 +232,11 @@ class UIAgendaSupervisorTest extends TestCase
     {
         $nextMonth = now()->addMonth();
         CuadranteMes::create([
-            'centro_id'                => $this->centro->id,
-            'anyo'                     => $nextMonth->year,
-            'mes'                      => $nextMonth->month,
-            'estado'                   => EstadoCuadrante::Borrador->value,
-            'generado_con_ia'          => false,
+            'centro_id' => $this->centro->id,
+            'anyo' => $nextMonth->year,
+            'mes' => $nextMonth->month,
+            'estado' => EstadoCuadrante::Borrador->value,
+            'generado_con_ia' => false,
             'generado_automaticamente' => false,
         ]);
 
@@ -267,7 +266,7 @@ class UIAgendaSupervisorTest extends TestCase
         $component = Livewire::actingAs($this->supervisor)
             ->test(PerfilHorarioComponent::class, [
                 'profesional' => $this->profesional1,
-                'centro'      => $this->centro,
+                'centro' => $this->centro,
             ]);
 
         $this->assertEquals(17.5, (float) $component->get('jornadaSemanal'));
@@ -282,7 +281,7 @@ class UIAgendaSupervisorTest extends TestCase
         $component = Livewire::actingAs($this->supervisor)
             ->test(PerfilHorarioComponent::class, [
                 'profesional' => $this->profesional1,
-                'centro'      => $this->centro,
+                'centro' => $this->centro,
             ]);
 
         $component
@@ -308,7 +307,7 @@ class UIAgendaSupervisorTest extends TestCase
         $component = Livewire::actingAs($this->supervisor)
             ->test(PerfilHorarioComponent::class, [
                 'profesional' => $this->profesional1,
-                'centro'      => $this->centro,
+                'centro' => $this->centro,
             ]);
 
         $component
@@ -339,7 +338,7 @@ class UIAgendaSupervisorTest extends TestCase
         $component = Livewire::actingAs($this->supervisor)
             ->test(PerfilHorarioComponent::class, [
                 'profesional' => $this->profesional1,
-                'centro'      => $this->centro,
+                'centro' => $this->centro,
             ])
             ->call('toggleDia', 5);
 
@@ -355,7 +354,7 @@ class UIAgendaSupervisorTest extends TestCase
         $component = Livewire::actingAs($this->supervisor)
             ->test(PerfilHorarioComponent::class, [
                 'profesional' => $this->profesional1,
-                'centro'      => $this->centro,
+                'centro' => $this->centro,
             ])
             ->call('addTarde', 2);
 
@@ -375,20 +374,20 @@ class UIAgendaSupervisorTest extends TestCase
     public function excepciones_futuras_aparecen_en_proximas(): void
     {
         $excepcion = ExcepcionProfesional::create([
-            'usuario_id'            => $this->profesional1->id,
-            'centro_id'             => $this->centro->id,
-            'tipo'                  => 'vacaciones',
-            'fecha_inicio'          => now()->addDays(10)->toDateString(),
-            'fecha_fin'             => now()->addDays(17)->toDateString(),
+            'usuario_id' => $this->profesional1->id,
+            'centro_id' => $this->centro->id,
+            'tipo' => 'vacaciones',
+            'fecha_inicio' => now()->addDays(10)->toDateString(),
+            'fecha_fin' => now()->addDays(17)->toDateString(),
             'afecta_disponibilidad' => true,
-            'origen'                => OrigenExcepcion::Manual->value,
-            'creado_por_id'         => $this->supervisor->id,
+            'origen' => OrigenExcepcion::Manual->value,
+            'creado_por_id' => $this->supervisor->id,
         ]);
 
         $component = Livewire::actingAs($this->supervisor)
             ->test(ExcepcionesComponent::class, [
                 'profesional' => $this->profesional1,
-                'centro'      => $this->centro,
+                'centro' => $this->centro,
             ]);
 
         $proximas = $component->get('proximas');
@@ -404,7 +403,7 @@ class UIAgendaSupervisorTest extends TestCase
         Livewire::actingAs($this->supervisor)
             ->test(ExcepcionesComponent::class, [
                 'profesional' => $this->profesional1,
-                'centro'      => $this->centro,
+                'centro' => $this->centro,
             ])
             ->call('abrirModal')
             ->set('form.tipo', 'formacion')
@@ -415,8 +414,8 @@ class UIAgendaSupervisorTest extends TestCase
             ->assertSet('modalAbierto', false);
 
         $this->assertDatabaseHas('excepciones_profesional', [
-            'usuario_id'   => $this->profesional1->id,
-            'tipo'         => 'formacion',
+            'usuario_id' => $this->profesional1->id,
+            'tipo' => 'formacion',
             'fecha_inicio' => '2026-09-10',
         ]);
     }
@@ -430,7 +429,7 @@ class UIAgendaSupervisorTest extends TestCase
         Livewire::actingAs($this->supervisor)
             ->test(ExcepcionesComponent::class, [
                 'profesional' => $this->profesional1,
-                'centro'      => $this->centro,
+                'centro' => $this->centro,
             ])
             ->call('abrirModal')
             ->set('form.tipo', 'vacaciones')
@@ -453,54 +452,54 @@ class UIAgendaSupervisorTest extends TestCase
         $fecha = $dia->toDateString();
 
         $cuadrante = CuadranteMes::create([
-            'centro_id'                => $this->centro->id,
-            'anyo'                     => $dia->year,
-            'mes'                      => $dia->month,
-            'estado'                   => EstadoCuadrante::Publicado->value,
-            'generado_con_ia'          => false,
+            'centro_id' => $this->centro->id,
+            'anyo' => $dia->year,
+            'mes' => $dia->month,
+            'estado' => EstadoCuadrante::Publicado->value,
+            'generado_con_ia' => false,
             'generado_automaticamente' => false,
-            'publicado_en'             => now(),
-            'publicado_por_id'         => $this->supervisor->id,
+            'publicado_en' => now(),
+            'publicado_por_id' => $this->supervisor->id,
         ]);
 
         $linea = LineaCuadrante::create([
             'cuadrante_mes_id' => $cuadrante->id,
-            'usuario_id'       => $this->profesional1->id,
-            'centro_id'        => $this->centro->id,
-            'fecha'            => $fecha,
-            'franjas'          => [['tipo' => 'atencion', 'inicio' => '09:00', 'fin' => '14:00']],
-            'anulada'          => false,
+            'usuario_id' => $this->profesional1->id,
+            'centro_id' => $this->centro->id,
+            'fecha' => $fecha,
+            'franjas' => [['tipo' => 'atencion', 'inicio' => '09:00', 'fin' => '14:00']],
+            'anulada' => false,
         ]);
 
         $slot = Slot::create([
             'linea_cuadrante_id' => $linea->id,
-            'usuario_id'         => $this->profesional1->id,
-            'centro_id'          => $this->centro->id,
-            'tipo_slot_id'       => $tipoSlot->id,
-            'fecha'              => $fecha,
-            'hora_inicio'        => '09:00',
-            'hora_fin'           => '09:30',
-            'estado'             => EstadoSlot::Reservado->value,
+            'usuario_id' => $this->profesional1->id,
+            'centro_id' => $this->centro->id,
+            'tipo_slot_id' => $tipoSlot->id,
+            'fecha' => $fecha,
+            'hora_inicio' => '09:00',
+            'hora_fin' => '09:30',
+            'estado' => EstadoSlot::Reservado->value,
         ]);
 
-        $ciudadano = \App\Models\Ciudadano::factory()->create();
+        $ciudadano = Ciudadano::factory()->create();
         Cita::create([
-            'slot_id'      => $slot->id,
+            'slot_id' => $slot->id,
             'ciudadano_id' => $ciudadano->id,
             'profesional_id' => $this->profesional1->id,
             'tipo_slot_id' => $tipoSlot->id,
-            'centro_id'    => $this->centro->id,
-            'fecha'        => $fecha,
-            'hora_inicio'  => '09:00',
-            'hora_fin'     => '09:30',
-            'estado'       => EstadoCita::Confirmada->value,
-            'origen'       => OrigenCita::Interno->value,
+            'centro_id' => $this->centro->id,
+            'fecha' => $fecha,
+            'hora_inicio' => '09:00',
+            'hora_fin' => '09:30',
+            'estado' => EstadoCita::Confirmada->value,
+            'origen' => OrigenCita::Interno->value,
         ]);
 
         $component = Livewire::actingAs($this->supervisor)
             ->test(ExcepcionesComponent::class, [
                 'profesional' => $this->profesional1,
-                'centro'      => $this->centro,
+                'centro' => $this->centro,
             ])
             ->call('abrirModal')
             ->set('form.tipo', 'vacaciones')
@@ -519,20 +518,20 @@ class UIAgendaSupervisorTest extends TestCase
     public function eliminar_excepcion_futura_la_borra_de_bd(): void
     {
         $excepcion = ExcepcionProfesional::create([
-            'usuario_id'            => $this->profesional1->id,
-            'centro_id'             => $this->centro->id,
-            'tipo'                  => 'vacaciones',
-            'fecha_inicio'          => now()->addMonth()->startOfMonth()->toDateString(),
-            'fecha_fin'             => now()->addMonth()->startOfMonth()->addDays(5)->toDateString(),
+            'usuario_id' => $this->profesional1->id,
+            'centro_id' => $this->centro->id,
+            'tipo' => 'vacaciones',
+            'fecha_inicio' => now()->addMonth()->startOfMonth()->toDateString(),
+            'fecha_fin' => now()->addMonth()->startOfMonth()->addDays(5)->toDateString(),
             'afecta_disponibilidad' => true,
-            'origen'                => OrigenExcepcion::Manual->value,
-            'creado_por_id'         => $this->supervisor->id,
+            'origen' => OrigenExcepcion::Manual->value,
+            'creado_por_id' => $this->supervisor->id,
         ]);
 
         Livewire::actingAs($this->supervisor)
             ->test(ExcepcionesComponent::class, [
                 'profesional' => $this->profesional1,
-                'centro'      => $this->centro,
+                'centro' => $this->centro,
             ])
             ->call('eliminar', $excepcion->id);
 
@@ -566,14 +565,14 @@ class UIAgendaSupervisorTest extends TestCase
         CuadranteMes::create($this->datosCuadranteJulio());
 
         ExcepcionProfesional::create([
-            'usuario_id'            => $this->profesional1->id,
-            'centro_id'             => $this->centro->id,
-            'tipo'                  => 'vacaciones',
-            'fecha_inicio'          => '2026-07-21',
-            'fecha_fin'             => '2026-07-21',
+            'usuario_id' => $this->profesional1->id,
+            'centro_id' => $this->centro->id,
+            'tipo' => 'vacaciones',
+            'fecha_inicio' => '2026-07-21',
+            'fecha_fin' => '2026-07-21',
             'afecta_disponibilidad' => true,
-            'origen'                => OrigenExcepcion::Manual->value,
-            'creado_por_id'         => $this->supervisor->id,
+            'origen' => OrigenExcepcion::Manual->value,
+            'creado_por_id' => $this->supervisor->id,
         ]);
 
         // July 21 is in semana index 3; the blade renders a 'Vacaciones' badge on that cell
@@ -592,14 +591,14 @@ class UIAgendaSupervisorTest extends TestCase
         CuadranteMes::create($this->datosCuadranteJulio());
 
         ExcepcionProfesional::create([
-            'usuario_id'            => $this->profesional1->id,
-            'centro_id'             => $this->centro->id,
-            'tipo'                  => 'formacion',
-            'fecha_inicio'          => '2026-07-14',
-            'fecha_fin'             => '2026-07-14',
+            'usuario_id' => $this->profesional1->id,
+            'centro_id' => $this->centro->id,
+            'tipo' => 'formacion',
+            'fecha_inicio' => '2026-07-14',
+            'fecha_fin' => '2026-07-14',
             'afecta_disponibilidad' => true,
-            'origen'                => OrigenExcepcion::Manual->value,
-            'creado_por_id'         => $this->supervisor->id,
+            'origen' => OrigenExcepcion::Manual->value,
+            'creado_por_id' => $this->supervisor->id,
         ]);
 
         $component = Livewire::actingAs($this->supervisor)
@@ -627,12 +626,12 @@ class UIAgendaSupervisorTest extends TestCase
             ->call('registrarAusencia');
 
         $this->assertDatabaseHas('excepciones_profesional', [
-            'usuario_id'  => $this->profesional1->id,
-            'centro_id'   => $this->centro->id,
-            'tipo'        => 'baja_medica',
+            'usuario_id' => $this->profesional1->id,
+            'centro_id' => $this->centro->id,
+            'tipo' => 'baja_medica',
             'fecha_inicio' => '2026-07-07',
-            'fecha_fin'   => '2026-07-07',
-            'origen'      => 'manual',
+            'fecha_fin' => '2026-07-07',
+            'origen' => 'manual',
         ]);
     }
 
@@ -662,17 +661,17 @@ class UIAgendaSupervisorTest extends TestCase
     public function publicar_cuadrante_materializa_slots_de_30_minutos(): void
     {
         $cuadrante = CuadranteMes::create($this->datosCuadranteJulio());
-        $tipoSlot  = $this->crearTipoSlot(30, 0);
+        $tipoSlot = $this->crearTipoSlot(30, 0);
 
         // Crear líneas de cuadrante para un día laborable de julio (lunes 6)
         foreach ([$this->profesional1, $this->profesional2, $this->profesional3] as $prof) {
             LineaCuadrante::create([
                 'cuadrante_mes_id' => $cuadrante->id,
-                'usuario_id'       => $prof->id,
-                'centro_id'        => $this->centro->id,
-                'fecha'            => '2026-07-06',
-                'franjas'          => [['tipo' => 'atencion', 'inicio' => '09:00', 'fin' => '14:00']],
-                'anulada'          => false,
+                'usuario_id' => $prof->id,
+                'centro_id' => $this->centro->id,
+                'fecha' => '2026-07-06',
+                'franjas' => [['tipo' => 'atencion', 'inicio' => '09:00', 'fin' => '14:00']],
+                'anulada' => false,
             ]);
         }
 
@@ -701,8 +700,8 @@ class UIAgendaSupervisorTest extends TestCase
     public function cuadrante_publicado_no_muestra_boton_publicar(): void
     {
         CuadranteMes::create(array_merge($this->datosCuadranteJulio(), [
-            'estado'           => EstadoCuadrante::Publicado->value,
-            'publicado_en'     => now(),
+            'estado' => EstadoCuadrante::Publicado->value,
+            'publicado_en' => now(),
             'publicado_por_id' => $this->supervisor->id,
         ]));
 
@@ -738,14 +737,14 @@ class UIAgendaSupervisorTest extends TestCase
 
         // Lunes 13 a miércoles 15 de julio = 3 días laborables
         ExcepcionProfesional::create([
-            'usuario_id'            => $this->profesional1->id,
-            'centro_id'             => $this->centro->id,
-            'tipo'                  => 'vacaciones',
-            'fecha_inicio'          => '2026-07-13',
-            'fecha_fin'             => '2026-07-15',
+            'usuario_id' => $this->profesional1->id,
+            'centro_id' => $this->centro->id,
+            'tipo' => 'vacaciones',
+            'fecha_inicio' => '2026-07-13',
+            'fecha_fin' => '2026-07-15',
             'afecta_disponibilidad' => true,
-            'origen'                => OrigenExcepcion::Manual->value,
-            'creado_por_id'         => $this->supervisor->id,
+            'origen' => OrigenExcepcion::Manual->value,
+            'creado_por_id' => $this->supervisor->id,
         ]);
 
         $component = Livewire::actingAs($this->supervisor)
@@ -791,10 +790,10 @@ class UIAgendaSupervisorTest extends TestCase
         CuadranteMes::create($this->datosCuadranteJulio());
 
         $otraUo = UnidadOrganizativa::create([
-            'nombre'    => 'Otra UO',
-            'tipo'      => 'centro',
+            'nombre' => 'Otra UO',
+            'tipo' => 'centro',
             'parent_id' => null,
-            'activa'    => true,
+            'activa' => true,
         ]);
 
         $otroSupervisor = $this->crearUsuarioConRol('supervision', 'otro.super@vida360.test', $otraUo);
@@ -814,11 +813,11 @@ class UIAgendaSupervisorTest extends TestCase
     private function crearTipoSlotConNombre(string $nombre, int $duracion = 60): TipoSlot
     {
         return tap(TipoSlot::create([
-            'nombre'                   => $nombre,
-            'duracion_minutos'         => $duracion,
-            'porcentaje_urgencias'     => 0,
+            'nombre' => $nombre,
+            'duracion_minutos' => $duracion,
+            'porcentaje_urgencias' => 0,
             'bloquea_todos_convocados' => false,
-            'activo'                   => true,
+            'activo' => true,
         ]), fn (TipoSlot $t) => $this->horario->tiposSlot()->attach($t));
     }
 
@@ -830,11 +829,11 @@ class UIAgendaSupervisorTest extends TestCase
     private function datosCuadranteJulio(): array
     {
         return [
-            'centro_id'                => $this->centro->id,
-            'anyo'                     => 2026,
-            'mes'                      => 7,
-            'estado'                   => EstadoCuadrante::Borrador->value,
-            'generado_con_ia'          => false,
+            'centro_id' => $this->centro->id,
+            'anyo' => 2026,
+            'mes' => 7,
+            'estado' => EstadoCuadrante::Borrador->value,
+            'generado_con_ia' => false,
             'generado_automaticamente' => false,
         ];
     }

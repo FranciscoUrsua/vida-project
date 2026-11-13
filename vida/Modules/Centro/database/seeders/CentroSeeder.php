@@ -35,8 +35,6 @@ class CentroSeeder extends Seeder
 {
     /**
      * Crea o actualiza los centros de ejemplo con su configuración.
-     *
-     * @return void
      */
     public function run(): void
     {
@@ -86,7 +84,7 @@ class CentroSeeder extends Seeder
         $tipos = [
             ['slug' => 'taller-empleo',      'nombre' => 'Taller de empleo',           'descripcion' => 'Actividades de orientación e inserción laboral.'],
             ['slug' => 'grupo-terapeutico',  'nombre' => 'Grupo terapéutico',          'descripcion' => 'Sesiones grupales de apoyo psicosocial.'],
-            ['slug' => 'actividad-deportiva','nombre' => 'Actividad deportiva',        'descripcion' => 'Deporte adaptado, fisioterapia y hábitos saludables.'],
+            ['slug' => 'actividad-deportiva', 'nombre' => 'Actividad deportiva',        'descripcion' => 'Deporte adaptado, fisioterapia y hábitos saludables.'],
             ['slug' => 'formacion',          'nombre' => 'Formación y alfabetización', 'descripcion' => 'Alfabetización básica, idiomas y competencias digitales.'],
             ['slug' => 'cultural-ocio',      'nombre' => 'Actividad cultural y ocio',  'descripcion' => 'Talleres artísticos, salidas culturales y tiempo libre.'],
             ['slug' => 'acompanamiento',     'nombre' => 'Acompañamiento social',      'descripcion' => 'Acompañamiento individualizado en gestiones y citas.'],
@@ -111,11 +109,11 @@ class CentroSeeder extends Seeder
     {
         $definiciones = [
             'personas_sin_hogar' => ['slug' => 'personas-sin-hogar', 'nombre' => 'Personas sin hogar',         'descripcion' => 'Personas en situación de sinhogarismo o exclusión residencial grave.'],
-            'personas_mayores'   => ['slug' => 'personas-mayores',   'nombre' => 'Personas mayores',            'descripcion' => 'Personas de 65 años o más con necesidades de atención o apoyo social.'],
-            'menores_familia'    => ['slug' => 'menores-familia',     'nombre' => 'Menores y familia',           'descripcion' => 'Menores en situación de riesgo y sus unidades familiares.'],
-            'discapacidad'       => ['slug' => 'discapacidad',        'nombre' => 'Personas con discapacidad',   'descripcion' => 'Personas con discapacidad física, intelectual o del desarrollo.'],
-            'vvg'                => ['slug' => 'segmento-vvg',        'nombre' => 'Víctimas de violencia de género', 'descripcion' => 'Mujeres y menores víctimas de violencia de género.'],
-            'atencion_primaria'  => ['slug' => 'atencion-primaria',   'nombre' => 'Atención primaria general',   'descripcion' => 'Población general derivada a los servicios sociales de base.'],
+            'personas_mayores' => ['slug' => 'personas-mayores',   'nombre' => 'Personas mayores',            'descripcion' => 'Personas de 65 años o más con necesidades de atención o apoyo social.'],
+            'menores_familia' => ['slug' => 'menores-familia',     'nombre' => 'Menores y familia',           'descripcion' => 'Menores en situación de riesgo y sus unidades familiares.'],
+            'discapacidad' => ['slug' => 'discapacidad',        'nombre' => 'Personas con discapacidad',   'descripcion' => 'Personas con discapacidad física, intelectual o del desarrollo.'],
+            'vvg' => ['slug' => 'segmento-vvg',        'nombre' => 'Víctimas de violencia de género', 'descripcion' => 'Mujeres y menores víctimas de violencia de género.'],
+            'atencion_primaria' => ['slug' => 'atencion-primaria',   'nombre' => 'Atención primaria general',   'descripcion' => 'Población general derivada a los servicios sociales de base.'],
         ];
 
         $resultado = [];

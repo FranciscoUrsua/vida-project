@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use Modules\Agenda\Models\Cita;
 use Modules\Atencion\Database\Factories\RegistroAtencionFactory;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Prestaciones\Models\Prestacion;
 
 /**
@@ -47,8 +49,6 @@ class RegistroAtencion extends Model
 
     /**
      * Devuelve la factory específica del módulo Atencion.
-     *
-     * @return RegistroAtencionFactory
      */
     protected static function newFactory(): RegistroAtencionFactory
     {
@@ -79,11 +79,11 @@ class RegistroAtencion extends Model
     /**
      * Cita que atiende este registro (la completa). Distinta de la cita que genera.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Agenda\Models\Cita, $this>
+     * @return BelongsTo<Cita, $this>
      */
-    public function citaAtendida(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function citaAtendida(): BelongsTo
     {
-        return $this->belongsTo(\Modules\Agenda\Models\Cita::class, 'cita_id');
+        return $this->belongsTo(Cita::class, 'cita_id');
     }
 
     // -------------------------------------------------------------------------
@@ -101,12 +101,12 @@ class RegistroAtencion extends Model
         // RN-15: registrar una atención exige adscripción al centro (el de la cita, o el activo)
         static::creating(function (self $registro): void {
             $usuario = auth()->user();
-            if (! $usuario instanceof \App\Models\User) {
+            if (! $usuario instanceof User) {
                 return;
             }
-            $centros = app(\Modules\Centro\Services\Asignacion\CentroDeUsuario::class);
+            $centros = app(CentroDeUsuario::class);
             $centro = $registro->cita_id !== null
-                ? \Modules\Agenda\Models\Cita::find($registro->cita_id)?->centro
+                ? Cita::find($registro->cita_id)?->centro
                 : $centros->centroActivo($usuario);
             $centros->exigirAtencion($usuario, $centro);
         });

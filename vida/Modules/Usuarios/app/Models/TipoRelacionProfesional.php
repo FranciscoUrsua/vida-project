@@ -19,7 +19,7 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property string $nombre
- * @property string|null $slug  Identificador estable único, ej: 'funcionario', 'empresa-externa'
+ * @property string|null $slug Identificador estable único, ej: 'funcionario', 'empresa-externa'
  * @property bool $es_externo
  * @property bool $activo
  * @property Carbon $created_at

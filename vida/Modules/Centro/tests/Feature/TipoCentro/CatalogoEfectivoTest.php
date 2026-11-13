@@ -7,6 +7,7 @@ use App\Models\Version;
 use DomainException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Centro\Enums\ElementoCatalogo;
+use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\ColeccionPlazas;
 use Modules\Centro\Models\ExclusionCatalogo;
 use Modules\Centro\Models\Prescripcion;
@@ -31,8 +32,6 @@ class CatalogoEfectivoTest extends TestCase
 
     /**
      * Escenario común de Tipo de Centro.
-     *
-     * @return void
      */
     protected function setUp(): void
     {
@@ -43,7 +42,7 @@ class CatalogoEfectivoTest extends TestCase
     /**
      * Ids de las prestaciones efectivas de un centro, ordenados.
      *
-     * @param \Modules\Centro\Models\Centro $centro
+     * @param Centro $centro
      *
      * @return list<int>
      */

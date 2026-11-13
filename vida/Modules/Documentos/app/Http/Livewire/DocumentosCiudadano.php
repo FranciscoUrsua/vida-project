@@ -92,8 +92,6 @@ class DocumentosCiudadano extends Component
      * Recibe el ciudadano de la ficha.
      *
      * @param int $ciudadanoId Ciudadano.
-     *
-     * @return void
      */
     public function mount(int $ciudadanoId): void
     {
@@ -106,8 +104,6 @@ class DocumentosCiudadano extends Component
 
     /**
      * Ciudadano de la ficha, sin ámbito de UO (la ficha ya lo ha cargado igual).
-     *
-     * @return Ciudadano
      */
     #[Computed]
     public function ciudadano(): Ciudadano
@@ -117,8 +113,6 @@ class DocumentosCiudadano extends Component
 
     /**
      * Indica si el usuario puede subir documentos, versiones y desvincular.
-     *
-     * @return bool
      */
     #[Computed]
     public function puedeEditar(): bool
@@ -159,8 +153,6 @@ class DocumentosCiudadano extends Component
 
     /**
      * Tipo documental elegido en el formulario.
-     *
-     * @return TipoDocumental|null
      */
     #[Computed]
     public function tipoSeleccionado(): ?TipoDocumental
@@ -208,8 +200,6 @@ class DocumentosCiudadano extends Component
      * Indica si el tipo elegido exige un dato.
      *
      * @param string $clave Clave del metadato.
-     *
-     * @return bool
      */
     public function exige(string $clave): bool
     {
@@ -220,8 +210,6 @@ class DocumentosCiudadano extends Component
      * URL firmada para ver el documento en el navegador.
      *
      * @param Documento $documento Documento.
-     *
-     * @return string
      */
     public function urlVer(Documento $documento): string
     {
@@ -232,8 +220,6 @@ class DocumentosCiudadano extends Component
      * URL firmada para descargar el documento.
      *
      * @param Documento $documento Documento.
-     *
-     * @return string
      */
     public function urlDescarga(Documento $documento): string
     {
@@ -244,8 +230,6 @@ class DocumentosCiudadano extends Component
      * Indica si el documento admite versiones nuevas (no procede de un informe firmado).
      *
      * @param Documento $documento Documento.
-     *
-     * @return bool
      */
     public function admiteVersiones(Documento $documento): bool
     {
@@ -258,8 +242,6 @@ class DocumentosCiudadano extends Component
 
     /**
      * Abre el modal para dar de alta un documento nuevo.
-     *
-     * @return void
      */
     public function abrirAlta(): void
     {
@@ -272,8 +254,6 @@ class DocumentosCiudadano extends Component
      * Abre el modal para subir una nueva versión de un documento.
      *
      * @param int $documentoId Documento.
-     *
-     * @return void
      */
     public function abrirNuevaVersion(int $documentoId): void
     {
@@ -285,8 +265,6 @@ class DocumentosCiudadano extends Component
 
     /**
      * Cierra el modal y limpia el formulario.
-     *
-     * @return void
      */
     public function cerrarModal(): void
     {
@@ -298,8 +276,6 @@ class DocumentosCiudadano extends Component
      * Despliega o pliega el historial de versiones de un documento.
      *
      * @param int $documentoId Documento.
-     *
-     * @return void
      */
     public function alternarHistorial(int $documentoId): void
     {
@@ -310,8 +286,6 @@ class DocumentosCiudadano extends Component
 
     /**
      * Guarda el alta o la nueva versión. Los rechazos de la ingesta se muestran en el modal.
-     *
-     * @return void
      */
     public function guardar(): void
     {
@@ -377,8 +351,6 @@ class DocumentosCiudadano extends Component
      * @param string $atributo Nombre del campo.
      * @param mixed $valor Fichero subido.
      * @param \Closure(string): mixed $fallo Callback de error de la validación.
-     *
-     * @return void
      */
     private function reglaNoVacio(string $atributo, mixed $valor, \Closure $fallo): void
     {
@@ -391,8 +363,6 @@ class DocumentosCiudadano extends Component
      * Da de baja el vínculo del documento con este ciudadano. No borra el documento.
      *
      * @param int $documentoId Documento.
-     *
-     * @return void
      */
     public function desvincular(int $documentoId): void
     {
@@ -408,8 +378,6 @@ class DocumentosCiudadano extends Component
 
     /**
      * Renderiza la tarjeta.
-     *
-     * @return View
      */
     public function render(): View
     {
@@ -425,8 +393,6 @@ class DocumentosCiudadano extends Component
      *
      * @param User $usuario Quien sube el documento.
      * @param CanalCaptura $canal Canal de entrada.
-     *
-     * @return DatosIngesta
      */
     private function datosAlta(User $usuario, CanalCaptura $canal): DatosIngesta
     {
@@ -473,8 +439,6 @@ class DocumentosCiudadano extends Component
      * Documento con vínculo activo a este ciudadano; cualquier otro id se rechaza.
      *
      * @param int $documentoId Documento.
-     *
-     * @return Documento
      */
     private function documentoDeLaFicha(int $documentoId): Documento
     {
@@ -483,8 +447,6 @@ class DocumentosCiudadano extends Component
 
     /**
      * Exige poder editar al ciudadano.
-     *
-     * @return void
      */
     private function autorizarEdicion(): void
     {
@@ -493,8 +455,6 @@ class DocumentosCiudadano extends Component
 
     /**
      * Vacía el formulario y el último rechazo.
-     *
-     * @return void
      */
     private function limpiarFormulario(): void
     {

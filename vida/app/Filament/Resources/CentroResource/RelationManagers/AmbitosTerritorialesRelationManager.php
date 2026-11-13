@@ -51,7 +51,6 @@ class AmbitosTerritorialesRelationManager extends RelationManager
      * Define el formulario del relation manager de ámbitos territoriales.
      *
      * @param Schema $schema Esquema base.
-     * @return Schema
      */
     public function form(Schema $schema): Schema
     {
@@ -105,7 +104,6 @@ class AmbitosTerritorialesRelationManager extends RelationManager
      * Define la tabla del relation manager de ámbitos territoriales.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public function table(Table $table): Table
     {
@@ -143,7 +141,6 @@ class AmbitosTerritorialesRelationManager extends RelationManager
      *
      * @param callable(): Model $guardar
      * @param Action $action Acción en curso, para detenerla si se rechaza.
-     * @return Model
      */
     private function guardar(callable $guardar, Action $action): Model
     {
@@ -160,6 +157,7 @@ class AmbitosTerritorialesRelationManager extends RelationManager
      *
      * @param string|null $tipo Tipo de ámbito.
      * @param string $texto Texto de búsqueda.
+     *
      * @return array<int, string>
      */
     private static function buscarUnidades(?string $tipo, string $texto): array
@@ -190,7 +188,6 @@ class AmbitosTerritorialesRelationManager extends RelationManager
      *
      * @param string|null $tipo Tipo de ámbito.
      * @param int $id Id de la unidad.
-     * @return string|null
      */
     private static function etiquetaUnidad(?string $tipo, int $id): ?string
     {
@@ -204,7 +201,6 @@ class AmbitosTerritorialesRelationManager extends RelationManager
      * Texto que identifica una unidad territorial en el selector.
      *
      * @param Model $unidad Distrito, barrio o sección censal.
-     * @return string
      */
     private static function etiqueta(Model $unidad): string
     {

@@ -36,8 +36,6 @@ class VerFichaPage extends Component
      *
      * @param HistoriaSocial $historia Historia Social propietaria de la ficha.
      * @param Ficha $ficha Ficha que se desea visualizar.
-     *
-     * @return void
      */
     public function mount(HistoriaSocial $historia, Ficha $ficha): void
     {
@@ -73,8 +71,6 @@ class VerFichaPage extends Component
 
     /**
      * Nombre del TipoFicha de la ficha, para la cabecera.
-     *
-     * @return string
      */
     public function nombreFicha(): string
     {
@@ -83,8 +79,6 @@ class VerFichaPage extends Component
 
     /**
      * Renderiza la vista de solo lectura de la ficha.
-     *
-     * @return View
      */
     public function render(): View
     {

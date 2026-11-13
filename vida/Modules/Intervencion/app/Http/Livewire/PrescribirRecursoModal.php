@@ -333,6 +333,7 @@ class PrescribirRecursoModal extends Component
      * @param float $lng1 Longitud del punto de referencia.
      * @param float $lat2 Latitud del destino (centro).
      * @param float $lng2 Longitud del destino.
+     *
      * @return float Distancia en kilómetros.
      */
     private function haversineKm(float $lat1, float $lng1, float $lat2, float $lng2): float

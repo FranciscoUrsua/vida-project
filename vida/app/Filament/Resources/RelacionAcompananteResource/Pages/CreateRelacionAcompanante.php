@@ -16,6 +16,7 @@ class CreateRelacionAcompanante extends CreateRecord
      * Fija el grupo del catálogo.
      *
      * @param array<string, mixed> $data
+     *
      * @return array<string, mixed>
      */
     protected function mutateFormDataBeforeCreate(array $data): array

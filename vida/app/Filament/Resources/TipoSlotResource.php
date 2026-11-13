@@ -44,8 +44,6 @@ class TipoSlotResource extends Resource
 
     /**
      * Indica si el usuario puede ver el listado de tipos de slot.
-     *
-     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -54,8 +52,6 @@ class TipoSlotResource extends Resource
 
     /**
      * Indica si el usuario puede crear un tipo de slot.
-     *
-     * @return bool
      */
     public static function canCreate(): bool
     {
@@ -64,9 +60,6 @@ class TipoSlotResource extends Resource
 
     /**
      * Indica si el usuario puede editar un tipo de slot.
-     *
-     * @param Model $record
-     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -75,9 +68,6 @@ class TipoSlotResource extends Resource
 
     /**
      * Indica si el usuario puede eliminar un tipo de slot.
-     *
-     * @param Model $record
-     * @return bool
      */
     public static function canDelete(Model $record): bool
     {
@@ -86,9 +76,6 @@ class TipoSlotResource extends Resource
 
     /**
      * Define el formulario de creación y edición de tipos de slot.
-     *
-     * @param Schema $schema
-     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -112,11 +99,11 @@ class TipoSlotResource extends Resource
                     Select::make('duracion_minutos')
                         ->label('Duración')
                         ->options([
-                            15  => '15 min',
-                            30  => '30 min',
-                            45  => '45 min',
-                            60  => '1 hora',
-                            90  => '1 h 30 min',
+                            15 => '15 min',
+                            30 => '30 min',
+                            45 => '45 min',
+                            60 => '1 hora',
+                            90 => '1 h 30 min',
                             120 => '2 horas',
                             150 => '2 h 30 min',
                             180 => '3 horas',
@@ -157,9 +144,6 @@ class TipoSlotResource extends Resource
 
     /**
      * Define la tabla de listado de tipos de slot.
-     *
-     * @param Table $table
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -180,9 +164,9 @@ class TipoSlotResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn (OrigenPermitidoSlot $state) => $state->label())
                     ->color(fn (OrigenPermitidoSlot $state) => match ($state) {
-                        OrigenPermitidoSlot::Interno    => 'gray',
+                        OrigenPermitidoSlot::Interno => 'gray',
                         OrigenPermitidoSlot::ApiExterna => 'warning',
-                        OrigenPermitidoSlot::Ambos      => 'success',
+                        OrigenPermitidoSlot::Ambos => 'success',
                     }),
 
                 Tables\Columns\IconColumn::make('bloquea_todos_convocados')
@@ -213,9 +197,9 @@ class TipoSlotResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListTiposSlot::route('/'),
+            'index' => Pages\ListTiposSlot::route('/'),
             'create' => Pages\CreateTipoSlot::route('/create'),
-            'edit'   => Pages\EditTipoSlot::route('/{record}/edit'),
+            'edit' => Pages\EditTipoSlot::route('/{record}/edit'),
         ];
     }
 }

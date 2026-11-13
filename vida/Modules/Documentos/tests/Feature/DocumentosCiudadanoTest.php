@@ -27,8 +27,6 @@ class DocumentosCiudadanoTest extends TestCase
 
     /**
      * Prepara actores y tipos comunes, autenticado como profesional.
-     *
-     * @return void
      */
     protected function setUp(): void
     {
@@ -42,8 +40,6 @@ class DocumentosCiudadanoTest extends TestCase
      *
      * @param string $fixture Fixture.
      * @param string $nombre Nombre que ve el servidor.
-     *
-     * @return UploadedFile
      */
     private function subida(string $fixture = 'valido.pdf', string $nombre = 'dni_ana.pdf'): UploadedFile
     {

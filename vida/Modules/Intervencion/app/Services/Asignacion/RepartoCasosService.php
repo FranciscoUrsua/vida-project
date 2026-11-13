@@ -39,10 +39,6 @@ use Random\Randomizer;
 class RepartoCasosService
 {
     /**
-     * @param ActividadCasosService $actividad
-     * @param PoolReferenciaService $pool
-     * @param CentroDeUsuario $centros
-     * @param AlertaService $alertas
      * @param Randomizer $azar Inyectado para fijar la semilla en los tests.
      */
     public function __construct(
@@ -57,11 +53,9 @@ class RepartoCasosService
      * Propone el reparto de los casos vigentes de un profesional en el centro.
      * No toca ninguna asignación.
      *
-     * @param Centro $centro
      * @param User $origen Profesional cuyos casos se reparten.
      * @param string $motivo Obligatorio.
      * @param User $supervisor Supervisor del centro que inicia el reparto.
-     * @return RepartoCasos
      *
      * @throws AuthorizationException Si el usuario no supervisa el centro.
      * @throws InvalidArgumentException Si falta el motivo.
@@ -131,10 +125,7 @@ class RepartoCasosService
      * Cambia el destino de un caso de un reparto propuesto. Solo mueve esa
      * línea: si el supervisor separa a una unidad de convivencia, es su decisión.
      *
-     * @param RepartoCasosLinea $linea
      * @param User $destino Debe estar en el reparto del centro y no ser el profesional de origen.
-     * @param User $supervisor
-     * @return RepartoCasosLinea
      *
      * @throws AuthorizationException Si el usuario no supervisa el centro.
      * @throws LogicException Si el reparto ya no está propuesto o el destino no es válido.
@@ -160,9 +151,6 @@ class RepartoCasosService
     /**
      * Descarta un reparto propuesto. Ninguna asignación cambia.
      *
-     * @param RepartoCasos $reparto
-     * @param User $supervisor
-     * @return RepartoCasos
      *
      * @throws AuthorizationException Si el usuario no supervisa el centro.
      * @throws LogicException Si el reparto ya no está propuesto.
@@ -185,9 +173,6 @@ class RepartoCasosService
      * Todo o nada: si algún caso ha cambiado de referencia desde la propuesta,
      * no se aplica ninguno y hay que proponer de nuevo.
      *
-     * @param RepartoCasos $reparto
-     * @param User $supervisor
-     * @return RepartoCasos
      *
      * @throws AuthorizationException Si el usuario no supervisa el centro.
      * @throws LogicException Si el reparto ya no está propuesto o la propuesta ha quedado desfasada.
@@ -246,7 +231,6 @@ class RepartoCasosService
      * Profesionales a los que se puede mover un caso del reparto: los del
      * reparto de referencias del centro, salvo el de origen.
      *
-     * @param RepartoCasos $reparto
      * @return Collection<int, User>
      */
     public function destinosPosibles(RepartoCasos $reparto): Collection
@@ -259,8 +243,6 @@ class RepartoCasosService
     /**
      * Profesionales del reparto del centro, salvo el de origen, con su peso.
      *
-     * @param Centro $centro
-     * @param User $origen
      * @return Collection<int, float> Peso por id de usuario.
      */
     private function destinos(Centro $centro, User $origen): Collection
@@ -275,8 +257,8 @@ class RepartoCasosService
      * actividad si la tiene alguno de sus casos: la unidad entera va al bloque
      * de casos vivos.
      *
-     * @param Centro $centro
      * @param list<int> $historiaIds
+     *
      * @return Collection<int, array{historias: list<int>, unidad_convivencia_id: int|null, con_actividad: bool}>
      */
     private function agrupar(Centro $centro, array $historiaIds): Collection
@@ -314,6 +296,7 @@ class RepartoCasosService
      *
      * @param Collection<int, array{historias: list<int>, unidad_convivencia_id: int|null, con_actividad: bool}> $grupos
      * @param Collection<int, float> $destinos Peso por id de usuario.
+     *
      * @return array<int, list<array{historias: list<int>, unidad_convivencia_id: int|null, con_actividad: bool}>>
      */
     private function repartirBloque(Collection $grupos, Collection $destinos): array
@@ -352,9 +335,7 @@ class RepartoCasosService
     /**
      * Un aviso por profesional de destino con los casos que recibe.
      *
-     * @param RepartoCasos $reparto
      * @param Collection<int, RepartoCasosLinea> $lineas
-     * @return void
      */
     private function avisarDestinos(RepartoCasos $reparto, Collection $lineas): void
     {
@@ -374,10 +355,6 @@ class RepartoCasosService
     }
 
     /**
-     * @param User $usuario
-     * @param Centro $centro
-     * @return void
-     *
      * @throws AuthorizationException Si el usuario no supervisa el centro.
      */
     private function exigirSupervision(User $usuario, Centro $centro): void
@@ -388,7 +365,6 @@ class RepartoCasosService
     }
 
     /**
-     * @param string $motivo
      * @return string Motivo sin espacios sobrantes.
      *
      * @throws InvalidArgumentException Si está vacío.
@@ -405,9 +381,6 @@ class RepartoCasosService
     }
 
     /**
-     * @param RepartoCasos $reparto
-     * @return void
-     *
      * @throws LogicException Si el reparto ya se confirmó o descartó.
      */
     private function exigirPropuesto(RepartoCasos $reparto): void

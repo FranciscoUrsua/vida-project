@@ -19,8 +19,6 @@ class CargosSeeder extends Seeder
 {
     /**
      * Crea o actualiza cada cargo del catálogo por su slug.
-     *
-     * @return void
      */
     public function run(): void
     {

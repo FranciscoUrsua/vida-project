@@ -21,16 +21,10 @@ use Modules\Mensajes\Services\AlertaService;
  */
 class AvisosCitas
 {
-    /**
-     * @param AlertaService $alertas
-     */
     public function __construct(private readonly AlertaService $alertas) {}
 
     /**
      * Solicitud nueva: a quienes dan citas en el centro (`consulta_basica`).
-     *
-     * @param SolicitudCita $solicitud
-     * @return void
      */
     public function solicitudCreada(SolicitudCita $solicitud): void
     {
@@ -41,9 +35,6 @@ class AvisosCitas
 
     /**
      * Solicitud sin cita pasada su fecha límite: a supervisión del centro.
-     *
-     * @param SolicitudCita $solicitud
-     * @return void
      */
     public function solicitudFueraDePlazo(SolicitudCita $solicitud): void
     {
@@ -54,9 +45,6 @@ class AvisosCitas
 
     /**
      * Cita pendiente de cierre: a su profesional.
-     *
-     * @param Cita $cita
-     * @return void
      */
     public function citaPendienteCierre(Cita $cita): void
     {
@@ -67,9 +55,6 @@ class AvisosCitas
 
     /**
      * Cita que sigue pendiente de cierre pasados los días del centro: a supervisión.
-     *
-     * @param Cita $cita
-     * @return void
      */
     public function citaPendienteCierreProlongada(Cita $cita): void
     {
@@ -80,9 +65,6 @@ class AvisosCitas
 
     /**
      * Se ha dado una cita en un slot reservado para urgencias: a supervisión.
-     *
-     * @param Cita $cita
-     * @return void
      */
     public function slotUrgenciaConsumido(Cita $cita): void
     {
@@ -93,9 +75,6 @@ class AvisosCitas
 
     /**
      * Supervisor del centro para mensajes uno a uno (el de id menor si hay varios).
-     *
-     * @param Centro $centro
-     * @return User|null
      */
     public function supervisorDelCentro(Centro $centro): ?User
     {
@@ -105,23 +84,11 @@ class AvisosCitas
             ->first();
     }
 
-    /**
-     * @param Cita $cita
-     * @return string
-     */
     private function hora(Cita $cita): string
     {
         return substr((string) $cita->hora_inicio, 0, 5);
     }
 
-    /**
-     * @param Centro $centro
-     * @param string $rol
-     * @param Model $origen
-     * @param string $titulo
-     * @param string $cuerpo
-     * @return void
-     */
     private function aRol(Centro $centro, string $rol, Model $origen, string $titulo, string $cuerpo): void
     {
         $this->alertas->crear([
@@ -136,13 +103,6 @@ class AvisosCitas
         ]);
     }
 
-    /**
-     * @param int $usuarioId
-     * @param Model $origen
-     * @param string $titulo
-     * @param string $cuerpo
-     * @return void
-     */
     private function aUsuario(int $usuarioId, Model $origen, string $titulo, string $cuerpo): void
     {
         $this->alertas->crear([

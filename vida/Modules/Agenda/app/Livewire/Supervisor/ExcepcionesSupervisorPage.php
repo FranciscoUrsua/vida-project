@@ -35,11 +35,11 @@ class ExcepcionesSupervisorPage extends Component
      * @var array{usuario_id: string, tipo: string, fecha_inicio: string, fecha_fin: string, notas: string}
      */
     public array $form = [
-        'usuario_id'   => '',
-        'tipo'         => '',
+        'usuario_id' => '',
+        'tipo' => '',
         'fecha_inicio' => '',
-        'fecha_fin'    => '',
-        'notas'        => '',
+        'fecha_fin' => '',
+        'notas' => '',
     ];
 
     // -------------------------------------------------------------------------
@@ -58,7 +58,7 @@ class ExcepcionesSupervisorPage extends Component
     {
         $centro = $this->centroDelSupervisor();
         if ($centro === null) {
-            return new Collection();
+            return new Collection;
         }
 
         $hoy = now()->toDateString();
@@ -84,7 +84,7 @@ class ExcepcionesSupervisorPage extends Component
     {
         $centro = $this->centroDelSupervisor();
         if ($centro === null) {
-            return new Collection();
+            return new Collection;
         }
 
         $userIds = PerfilHorarioProfesional::where('centro_id', $centro->id)
@@ -119,17 +119,15 @@ class ExcepcionesSupervisorPage extends Component
      *
      * Si hay cuadrante publicado con líneas afectadas, el Observer de
      * ExcepcionProfesional las anulará automáticamente.
-     *
-     * @return void
      */
     public function guardar(): void
     {
         $this->validate([
-            'form.usuario_id'   => ['required', 'integer', 'exists:users,id'],
-            'form.tipo'         => ['required', 'string', 'in:' . implode(',', array_column(TipoExcepcion::cases(), 'value'))],
+            'form.usuario_id' => ['required', 'integer', 'exists:users,id'],
+            'form.tipo' => ['required', 'string', 'in:'.implode(',', array_column(TipoExcepcion::cases(), 'value'))],
             'form.fecha_inicio' => ['required', 'date'],
-            'form.fecha_fin'    => ['nullable', 'date', 'after_or_equal:form.fecha_inicio'],
-            'form.notas'        => ['nullable', 'string', 'max:500'],
+            'form.fecha_fin' => ['nullable', 'date', 'after_or_equal:form.fecha_inicio'],
+            'form.notas' => ['nullable', 'string', 'max:500'],
         ]);
 
         $centro = $this->centroDelSupervisor();
@@ -145,19 +143,20 @@ class ExcepcionesSupervisorPage extends Component
 
         if (! $perteneceAlCentro) {
             $this->addError('form.usuario_id', 'El profesional no pertenece al centro.');
+
             return;
         }
 
         ExcepcionProfesional::create([
-            'usuario_id'            => (int) $this->form['usuario_id'],
-            'centro_id'             => $centro->id,
-            'tipo'                  => $this->form['tipo'],
-            'fecha_inicio'          => $this->form['fecha_inicio'],
-            'fecha_fin'             => $this->form['fecha_fin'] ?: $this->form['fecha_inicio'],
+            'usuario_id' => (int) $this->form['usuario_id'],
+            'centro_id' => $centro->id,
+            'tipo' => $this->form['tipo'],
+            'fecha_inicio' => $this->form['fecha_inicio'],
+            'fecha_fin' => $this->form['fecha_fin'] ?: $this->form['fecha_inicio'],
             'afecta_disponibilidad' => true,
-            'origen'                => OrigenExcepcion::Manual->value,
-            'creado_por_id'         => auth()->id(),
-            'notas'                 => filled($this->form['notas']) ? trim($this->form['notas']) : null,
+            'origen' => OrigenExcepcion::Manual->value,
+            'creado_por_id' => auth()->id(),
+            'notas' => filled($this->form['notas']) ? trim($this->form['notas']) : null,
         ]);
 
         $this->form = ['usuario_id' => '', 'tipo' => '', 'fecha_inicio' => '', 'fecha_fin' => '', 'notas' => ''];
@@ -166,9 +165,6 @@ class ExcepcionesSupervisorPage extends Component
 
     /**
      * Elimina la excepción indicada si pertenece al centro del supervisor.
-     *
-     * @param int $excepcionId
-     * @return void
      */
     public function eliminar(int $excepcionId): void
     {
@@ -191,8 +187,6 @@ class ExcepcionesSupervisorPage extends Component
 
     /**
      * Renderiza la pantalla de excepciones.
-     *
-     * @return View
      */
     public function render(): View
     {
@@ -205,8 +199,6 @@ class ExcepcionesSupervisorPage extends Component
 
     /**
      * Resuelve el Centro del supervisor autenticado.
-     *
-     * @return Centro|null
      */
     private function centroDelSupervisor(): ?Centro
     {

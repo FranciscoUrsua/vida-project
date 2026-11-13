@@ -104,8 +104,6 @@ trait TipoCentroTestSetup
 
     /**
      * Monta el escenario común con fecha 2026-11-02 (lunes).
-     *
-     * @return void
      */
     protected function montarTipoCentro(): void
     {
@@ -188,8 +186,6 @@ trait TipoCentroTestSetup
      * @param string $nombre Nombre.
      * @param string $tipo Tipo de UO.
      * @param UnidadOrganizativa|null $padre UO padre orgánica.
-     *
-     * @return UnidadOrganizativa
      */
     protected function uo(string $nombre, string $tipo, ?UnidadOrganizativa $padre = null): UnidadOrganizativa
     {
@@ -202,8 +198,6 @@ trait TipoCentroTestSetup
      * @param string $codigo Código.
      * @param string $nombre Nombre.
      * @param TipoCentro $tipo Tipo que la ofrece.
-     *
-     * @return Prestacion
      */
     protected function prestacion(string $codigo, string $nombre, TipoCentro $tipo): Prestacion
     {
@@ -226,8 +220,6 @@ trait TipoCentroTestSetup
      * @param string $corto Nombre corto.
      * @param TipoCentro $tipo Tipo.
      * @param UnidadOrganizativa $uo UO del centro.
-     *
-     * @return Centro
      */
     protected function centro(string $nombre, string $corto, TipoCentro $tipo, UnidadOrganizativa $uo): Centro
     {
@@ -247,8 +239,6 @@ trait TipoCentroTestSetup
      * @param string $rol Rol.
      * @param UnidadOrganizativa $uo UO de adscripción.
      * @param Profesional|null $profesional Ficha de profesional vinculada.
-     *
-     * @return User
      */
     protected function usuario(string $alias, string $rol, UnidadOrganizativa $uo, ?Profesional $profesional = null): User
     {
@@ -270,8 +260,6 @@ trait TipoCentroTestSetup
      *
      * @param User $usuario Usuario.
      * @param UnidadOrganizativa $uo UO.
-     *
-     * @return void
      */
     protected function adscribir(User $usuario, UnidadOrganizativa $uo): void
     {
@@ -288,8 +276,6 @@ trait TipoCentroTestSetup
      *
      * @param string $alias Prefijo del email.
      * @param Centro $centro Centro que dirige.
-     *
-     * @return User
      */
     protected function directora(string $alias, Centro $centro): User
     {

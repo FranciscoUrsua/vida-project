@@ -5,6 +5,7 @@ namespace Modules\Centro\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Organizacion\Models\Barrio;
 use Modules\Organizacion\Models\Distrito;
 use Modules\Organizacion\Models\SeccionCensal;
@@ -96,8 +97,6 @@ class AmbitoTerritorial extends Model
 
     /**
      * Registra la validación de coherencia antes de crear o actualizar.
-     *
-     * @return void
      */
     protected static function booted(): void
     {
@@ -118,7 +117,6 @@ class AmbitoTerritorial extends Model
      * - la unidad no puede estar ya en otro centro del mismo tipo con
      *   adscripción por domicilio (RN-02).
      *
-     * @return void
      *
      * @throws \InvalidArgumentException
      */
@@ -154,7 +152,6 @@ class AmbitoTerritorial extends Model
      * Comprueba que el tipo de ámbito y la clase referenciada coinciden y que la
      * unidad existe. Si la clase no viene informada, la deduce del tipo.
      *
-     * @return void
      *
      * @throws \InvalidArgumentException
      */
@@ -187,7 +184,6 @@ class AmbitoTerritorial extends Model
      * dos centros y la asignación sería ambigua. Unidades de distinto nivel no
      * cuentan como solapamiento (se resuelve por la más específica).
      *
-     * @return void
      *
      * @throws \InvalidArgumentException
      */
@@ -195,7 +191,7 @@ class AmbitoTerritorial extends Model
     {
         $centro = Centro::find($this->centro_id);
 
-        $config = app(\Modules\Centro\Services\ConfiguracionEfectivaCentro::class);
+        $config = app(ConfiguracionEfectivaCentro::class);
         if ($centro === null || ! $centro->activo || $config->inscripcionLibre($centro)) {
             return;
         }

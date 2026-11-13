@@ -6,8 +6,6 @@ use App\Models\HistoriaSocial;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Random\Engine\Secure;
-use Random\Randomizer;
 use Livewire\Livewire;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\AsignarPlazaModal;
@@ -24,6 +22,8 @@ use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Policies\ApuntePolicy;
 use Modules\Intervencion\Policies\PlanDeIntervencionPolicy;
 use Modules\Intervencion\Services\IntervencionSidebarDataService;
+use Random\Engine\Secure;
+use Random\Randomizer;
 
 /**
  * Provider del módulo Intervención.
@@ -37,8 +37,6 @@ class IntervencionServiceProvider extends ServiceProvider
 
     /**
      * Registra los servicios singleton del módulo.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -50,8 +48,6 @@ class IntervencionServiceProvider extends ServiceProvider
 
     /**
      * Carga la configuración, rutas, vistas y componentes del módulo.
-     *
-     * @return void
      */
     public function boot(): void
     {

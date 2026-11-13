@@ -18,9 +18,6 @@ class SolicitudCitaPolicy
 {
     /**
      * Crear solicitudes.
-     *
-     * @param User $user
-     * @return bool
      */
     public function create(User $user): bool
     {
@@ -29,10 +26,6 @@ class SolicitudCitaPolicy
 
     /**
      * Ver la bandeja de citación de un centro.
-     *
-     * @param User $user
-     * @param Centro $centro
-     * @return bool
      */
     public function verBandeja(User $user, Centro $centro): bool
     {
@@ -41,10 +34,6 @@ class SolicitudCitaPolicy
 
     /**
      * Tomar, soltar, citar y desistir.
-     *
-     * @param User $user
-     * @param SolicitudCita $solicitud
-     * @return bool
      */
     public function gestionar(User $user, SolicitudCita $solicitud): bool
     {
@@ -53,10 +42,6 @@ class SolicitudCitaPolicy
 
     /**
      * Anular: quien gestiona las del centro o quien la pidió.
-     *
-     * @param User $user
-     * @param SolicitudCita $solicitud
-     * @return bool
      */
     public function anular(User $user, SolicitudCita $solicitud): bool
     {

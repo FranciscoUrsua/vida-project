@@ -2,7 +2,6 @@
 
 namespace Modules\Centro\Tests\Feature\TipoCentro;
 
-use App\Models\HistoriaSocial;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -32,8 +31,6 @@ class ConfiguracionAsignacionTest extends TestCase
 
     /**
      * Escenario de asignación.
-     *
-     * @return void
      */
     protected function setUp(): void
     {

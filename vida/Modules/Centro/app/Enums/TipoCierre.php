@@ -13,8 +13,6 @@ enum TipoCierre: string
 
     /**
      * Etiqueta legible.
-     *
-     * @return string
      */
     public function label(): string
     {

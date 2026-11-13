@@ -22,8 +22,6 @@ final class ResultadoSorteo
 
     /**
      * Resultado sin elegibles: no se asigna a nadie.
-     *
-     * @return self
      */
     public static function vacio(): self
     {
@@ -32,8 +30,6 @@ final class ResultadoSorteo
 
     /**
      * Si hubo a quién asignar.
-     *
-     * @return bool
      */
     public function hayElegido(): bool
     {

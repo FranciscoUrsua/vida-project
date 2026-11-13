@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\AuditableModel;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Traits\Auditable;
+use Database\Factories\HistoriaSocialFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,7 +18,7 @@ use Modules\Escalas\Models\PaseEscala;
 use Modules\Intervencion\Models\AsignacionProfesional;
 
 /**
- * @use HasFactory<\Database\Factories\HistoriaSocialFactory>
+ * @use HasFactory<HistoriaSocialFactory>
  *
  * Modelo stub de Historia Social.
  *
@@ -47,8 +48,10 @@ use Modules\Intervencion\Models\AsignacionProfesional;
 class HistoriaSocial extends Model implements AuditableModel
 {
     use Auditable;
-    /** @use HasFactory<\Database\Factories\HistoriaSocialFactory> */
+
+    /** @use HasFactory<HistoriaSocialFactory> */
     use HasFactory;
+
     use SoftDeletes;
 
     /**

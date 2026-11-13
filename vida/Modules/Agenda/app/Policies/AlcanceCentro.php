@@ -13,10 +13,6 @@ final class AlcanceCentro
 {
     /**
      * Si el usuario está adscrito (adscripción vigente) a la UO del centro.
-     *
-     * @param User $user
-     * @param int $centroId
-     * @return bool
      */
     public static function incluye(User $user, int $centroId): bool
     {

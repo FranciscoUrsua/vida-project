@@ -54,8 +54,6 @@ class HorarioTipoCentro extends Model
      * Rechaza solapes de vigencia dentro del mismo tipo.
      *
      * @throws DomainException
-     *
-     * @return void
      */
     protected static function booted(): void
     {

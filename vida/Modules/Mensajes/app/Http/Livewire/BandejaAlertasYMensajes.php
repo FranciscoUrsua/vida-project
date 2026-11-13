@@ -38,7 +38,6 @@ class BandejaAlertasYMensajes extends Component
      * Fija la pestaña activa y el interfaz desde el que se abre.
      *
      * @param string $pestana Pestaña pedida por la ruta.
-     * @return void
      */
     public function mount(string $pestana = 'alertas'): void
     {
@@ -61,8 +60,6 @@ class BandejaAlertasYMensajes extends Component
 
     /**
      * Renderiza la bandeja con el layout del interfaz desde el que se abre.
-     *
-     * @return View
      */
     public function render(): View
     {

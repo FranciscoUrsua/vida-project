@@ -2,7 +2,6 @@
 
 namespace Modules\Intervencion\Http\Livewire;
 
-use App\Models\HistoriaSocial;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +11,8 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Modules\Centro\Models\ListaEspera;
+use Modules\Centro\Models\Centro;
+use Modules\Centro\Models\ColeccionPlazas;
 use Modules\Centro\Models\ListaEsperaMovimiento;
 use Modules\Centro\Models\Plaza;
 use Modules\Centro\Models\Prescripcion;
@@ -129,7 +129,7 @@ class RecursosPage extends Component
      * Registra el movimiento en la tabla de auditoría.
      *
      * @param int $prescripcionId ID de la prescripción a mover.
-     * @param int $nuevaPosicion  Nueva posición en la lista.
+     * @param int $nuevaPosicion Nueva posición en la lista.
      */
     public function moverEnLista(int $prescripcionId, int $nuevaPosicion): void
     {
@@ -160,8 +160,8 @@ class RecursosPage extends Component
     /**
      * Cancela una prescripción. Si tenía plaza asignada, la libera.
      *
-     * @param int    $prescripcionId ID de la prescripción a cancelar.
-     * @param string $motivo         Motivo obligatorio de cancelación.
+     * @param int $prescripcionId ID de la prescripción a cancelar.
+     * @param string $motivo Motivo obligatorio de cancelación.
      */
     public function cancelarPrescripcion(int $prescripcionId, string $motivo): void
     {
@@ -186,8 +186,8 @@ class RecursosPage extends Component
     /**
      * Marca una prescripción como activa (inicio efectivo del servicio).
      *
-     * @param int    $prescripcionId ID de la prescripción.
-     * @param string $fechaInicio    Fecha de inicio efectivo (Y-m-d).
+     * @param int $prescripcionId ID de la prescripción.
+     * @param string $fechaInicio Fecha de inicio efectivo (Y-m-d).
      */
     public function marcarActiva(int $prescripcionId, string $fechaInicio): void
     {
@@ -258,7 +258,7 @@ class RecursosPage extends Component
         }
 
         $centroId = $profesional->unidad_organizativa_id
-            ? \Modules\Centro\Models\Centro::where('unidad_organizativa_id', $profesional->unidad_organizativa_id)
+            ? Centro::where('unidad_organizativa_id', $profesional->unidad_organizativa_id)
                 ->value('id')
             : null;
 
@@ -266,7 +266,7 @@ class RecursosPage extends Component
             return [];
         }
 
-        return \Modules\Centro\Models\ColeccionPlazas::where('centro_id', $centroId)
+        return ColeccionPlazas::where('centro_id', $centroId)
             ->pluck('id')
             ->toArray();
     }

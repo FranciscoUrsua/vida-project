@@ -42,7 +42,6 @@ class BandejaAlertas extends Component
      * Comprueba la sesión y el tipo de la pestaña.
      *
      * @param string $tipo Tipo que muestra la pestaña.
-     * @return void
      */
     public function mount(string $tipo = 'alerta'): void
     {
@@ -71,7 +70,6 @@ class BandejaAlertas extends Component
      * Pide confirmación antes de reconocer una alerta.
      *
      * @param int $alertaId ID de la alerta.
-     * @return void
      */
     public function confirmarReconocimiento(int $alertaId): void
     {
@@ -82,7 +80,6 @@ class BandejaAlertas extends Component
      * Reconoce la alerta confirmada.
      *
      * @param AlertaService $alertaService Servicio de ciclo de vida de alertas.
-     * @return void
      *
      * @throws AuthorizationException Si el usuario no la tiene pendiente.
      */
@@ -105,7 +102,6 @@ class BandejaAlertas extends Component
      *
      * @param int $alertaId ID del aviso.
      * @param AlertaService $alertaService Servicio de ciclo de vida de alertas.
-     * @return void
      *
      * @throws AuthorizationException Si no es un aviso pendiente del usuario.
      */
@@ -125,8 +121,6 @@ class BandejaAlertas extends Component
 
     /**
      * Cancela el diálogo de confirmación.
-     *
-     * @return void
      */
     public function cancelarReconocimiento(): void
     {
@@ -135,8 +129,6 @@ class BandejaAlertas extends Component
 
     /**
      * Renderiza la pestaña.
-     *
-     * @return View
      */
     public function render(): View
     {

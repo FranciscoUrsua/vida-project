@@ -15,9 +15,6 @@ class UnidadesTerritorialesSeeder extends Seeder
 {
     /**
      * Carga barrios y secciones censales desde los ficheros oficiales.
-     *
-     * @param CargaUnidadesTerritoriales $carga
-     * @return void
      */
     public function run(CargaUnidadesTerritoriales $carga): void
     {

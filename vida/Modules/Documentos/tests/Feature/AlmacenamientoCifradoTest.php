@@ -28,8 +28,6 @@ class AlmacenamientoCifradoTest extends TestCase
 
     /**
      * Prepara actores y tipos comunes, autenticado como profesional.
-     *
-     * @return void
      */
     protected function setUp(): void
     {
@@ -42,8 +40,6 @@ class AlmacenamientoCifradoTest extends TestCase
      * Contenido cifrado tal como está en el disco para una versión.
      *
      * @param DocumentoVersion $version Versión.
-     *
-     * @return string
      */
     private function objetoCifrado(DocumentoVersion $version): string
     {

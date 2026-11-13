@@ -35,8 +35,8 @@ class CuadrantePage extends Component
         return $this->redirect(
             route('agenda.cuadrante', [
                 'centro' => $centro->id,
-                'anyo'   => now()->year,
-                'mes'    => now()->month,
+                'anyo' => now()->year,
+                'mes' => now()->month,
             ]),
             navigate: true
         );
@@ -44,8 +44,6 @@ class CuadrantePage extends Component
 
     /**
      * Renderiza la vista de espera mientras se resuelve la redirección.
-     *
-     * @return View
      */
     public function render(): View
     {

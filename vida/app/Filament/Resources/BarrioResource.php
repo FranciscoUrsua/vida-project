@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\BarrioResource\Pages;
+use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -36,8 +37,6 @@ class BarrioResource extends Resource
 
     /**
      * El catálogo no se da de alta a mano.
-     *
-     * @return bool
      */
     public static function canCreate(): bool
     {
@@ -48,7 +47,6 @@ class BarrioResource extends Resource
      * El catálogo no se edita a mano (salvo activar/desactivar desde el listado).
      *
      * @param Model $record Registro objetivo.
-     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -59,7 +57,6 @@ class BarrioResource extends Resource
      * Los barrios no se borran: se desactivan.
      *
      * @param Model $record Registro objetivo.
-     * @return bool
      */
     public static function canDelete(Model $record): bool
     {
@@ -70,7 +67,6 @@ class BarrioResource extends Resource
      * Configura el listado de barrios.
      *
      * @param Table $table Tabla base.
-     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -112,7 +108,7 @@ class BarrioResource extends Resource
     /**
      * Declara las páginas del catálogo de barrios.
      *
-     * @return array<string, \Filament\Resources\Pages\PageRegistration>
+     * @return array<string, PageRegistration>
      */
     public static function getPages(): array
     {

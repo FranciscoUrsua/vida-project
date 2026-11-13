@@ -8,14 +8,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Modules\Agenda\Enums\EstadoCuadrante;
 use Modules\Agenda\Livewire\Supervisor\CuadranteSupervisorPage;
-use Modules\Agenda\Models\CuadranteMes;
 use Modules\Agenda\Models\ExcepcionProfesional;
 use Modules\Agenda\Models\LineaCuadrante;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
-use Modules\Agenda\Services\SlotMaterializadorService;
-use Modules\Centro\Models\Centro;
 use Modules\Agenda\Models\Slot;
 use Modules\Agenda\Services\CuadrantePublicadorService;
+use Modules\Centro\Models\Centro;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -24,8 +22,8 @@ use Tests\TestCase;
  */
 class CuadranteSupervisorTest extends TestCase
 {
-    use RefreshDatabase;
     use AgendaSupervisorTestHelpers;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -79,19 +77,19 @@ class CuadranteSupervisorTest extends TestCase
     {
         // Dado: un profesional con perfil en otro centro
         $otroCentro = Centro::create(['tipo_centro_id' => $this->tipoCentroId(),
-            'nombre'       => 'Otro Centro',
+            'nombre' => 'Otro Centro',
             'tipo_gestion' => 'municipal_directo',
-            'fecha_alta'   => now()->toDateString(),
+            'fecha_alta' => now()->toDateString(),
         ]);
 
         $profOtro = $this->crearUsuarioConRol('intervencion', 'otro.centro@vida360.test', $this->uoSupervisor);
         PerfilHorarioProfesional::create([
-            'usuario_id'           => $profOtro->id,
-            'centro_id'            => $otroCentro->id,
-            'jornada_semanal_horas'=> 35,
-            'horario_habitual'     => [],
-            'vigente_desde'        => '2026-01-01',
-            'activo'               => true,
+            'usuario_id' => $profOtro->id,
+            'centro_id' => $otroCentro->id,
+            'jornada_semanal_horas' => 35,
+            'horario_habitual' => [],
+            'vigente_desde' => '2026-01-01',
+            'activo' => true,
         ]);
 
         // Cuando: el supervisor ve su cuadrante
@@ -110,14 +108,14 @@ class CuadranteSupervisorTest extends TestCase
     {
         // Dado: una excepción de baja médica para profesional1
         $excepcion = ExcepcionProfesional::create([
-            'usuario_id'            => $this->profesional1->id,
-            'centro_id'             => $this->centro->id,
-            'tipo'                  => 'baja_medica',
-            'fecha_inicio'          => now()->toDateString(),
-            'fecha_fin'             => now()->toDateString(),
+            'usuario_id' => $this->profesional1->id,
+            'centro_id' => $this->centro->id,
+            'tipo' => 'baja_medica',
+            'fecha_inicio' => now()->toDateString(),
+            'fecha_fin' => now()->toDateString(),
             'afecta_disponibilidad' => true,
-            'origen'                => 'manual',
-            'creado_por_id'         => $this->supervisor->id,
+            'origen' => 'manual',
+            'creado_por_id' => $this->supervisor->id,
         ]);
 
         // Y: la línea del cuadrante de esa fecha está anulada
