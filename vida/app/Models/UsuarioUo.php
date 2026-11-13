@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use LogicException;
+use Modules\Intervencion\Services\Asignacion\SalidaCentroBloqueada;
+use Modules\Intervencion\Services\Asignacion\SalidaCentroService;
 
 /**
  * @use HasFactory<Factory<self>>
@@ -21,6 +24,12 @@ use Illuminate\Support\Carbon;
  * Los roles del usuario son globales (Spatie model_has_roles) y determinan
  * qué puede hacer; la adscripción determina dónde puede hacerlo con
  * acceso completo (nivel 1). En UOs ajenas solo puede consultar (nivel 2).
+ *
+ * Una adscripción no se borra: se cierra con fecha de fin. Cerrar la de la UO de
+ * un centro exige que el profesional no tenga casos ni citas pendientes en él
+ * (RN-21 de docs/modulo-tipo-centro.md); se comprueba aquí para que ningún
+ * camino (Filament, servicios) se lo salte, y cierra sus perfiles horarios en
+ * ese centro.
  *
  * @property int $id
  * @property int $usuario_id
@@ -50,6 +59,51 @@ class UsuarioUo extends Model
         'fecha_inicio' => 'date',
         'fecha_fin' => 'date',
     ];
+
+    /**
+     * Restricciones del ciclo de vida: sin borrado y salida de centro con RN-21.
+     *
+     * @return void
+     *
+     * @throws SalidaCentroBloqueada Al cerrar con casos o citas pendientes en el centro.
+     * @throws LogicException Al borrar.
+     */
+    protected static function booted(): void
+    {
+        static::updating(function (UsuarioUo $adscripcion): void {
+            if ($adscripcion->seCierra()) {
+                app(SalidaCentroService::class)->exigirSalidaLibre($adscripcion);
+            }
+        });
+
+        static::updated(function (UsuarioUo $adscripcion): void {
+            if ($adscripcion->wasChanged('fecha_fin') && $adscripcion->fecha_fin !== null) {
+                app(SalidaCentroService::class)->cerrarPerfilesHorarios($adscripcion);
+            }
+        });
+
+        // El historial de adscripciones es inmutable (principio 4.2): se cierra, no se borra
+        static::deleting(function (): void {
+            throw new LogicException('Las adscripciones no se borran: se cierran con fecha de fin.');
+        });
+    }
+
+    /**
+     * Si el cambio pendiente de guardar adelanta el fin de la adscripción
+     * (de abierta a cerrada, o a una fecha anterior), que es una salida.
+     *
+     * @return bool
+     */
+    public function seCierra(): bool
+    {
+        if (! $this->isDirty('fecha_fin') || $this->fecha_fin === null) {
+            return false;
+        }
+
+        $anterior = $this->getOriginal('fecha_fin');
+
+        return $anterior === null || $this->fecha_fin->lt($anterior);
+    }
 
     /**
      * @return BelongsTo<User, $this>

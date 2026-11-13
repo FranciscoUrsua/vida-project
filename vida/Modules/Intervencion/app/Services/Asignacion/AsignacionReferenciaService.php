@@ -236,19 +236,19 @@ class AsignacionReferenciaService
      * Crea la asignación con su origen; solo sorteo y elección cuentan en el reparto.
      *
      * @param HistoriaSocial $historia
-     * @param Centro|null $centro
+     * @param Centro $centro Centro del caso (RN-23).
      * @param int $profesionalId
      * @param OrigenAsignacionReferencia $origen
      * @param array<string, mixed> $extra
      *
      * @return AsignacionProfesional
      */
-    private function crear(HistoriaSocial $historia, ?Centro $centro, int $profesionalId, OrigenAsignacionReferencia $origen, array $extra = []): AsignacionProfesional
+    private function crear(HistoriaSocial $historia, Centro $centro, int $profesionalId, OrigenAsignacionReferencia $origen, array $extra = []): AsignacionProfesional
     {
         return AsignacionProfesional::create([
             'historia_id' => $historia->id,
             'profesional_id' => $profesionalId,
-            'centro_id' => $centro?->id,
+            'centro_id' => $centro->id,
             'origen' => $origen,
             'cuenta_en_reparto' => $origen->cuentaEnReparto(),
             'fecha_inicio' => today(),

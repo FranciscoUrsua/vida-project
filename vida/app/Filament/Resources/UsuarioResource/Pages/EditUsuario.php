@@ -2,11 +2,14 @@
 
 namespace App\Filament\Resources\UsuarioResource\Pages;
 
+use App\Filament\Acciones\DesactivarAction;
 use App\Filament\Resources\UsuarioResource;
 use App\Models\User;
-use Filament\Actions;
+use App\Models\UsuarioUo;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
+use Modules\Intervencion\Services\Asignacion\SalidaCentroBloqueada;
+use Modules\Intervencion\Services\Asignacion\SalidaCentroService;
 use Modules\Usuarios\Services\AsignacionRolesService;
 use Modules\Usuarios\Services\RolesSugeridosService;
 
@@ -17,6 +20,9 @@ use Modules\Usuarios\Services\RolesSugeridosService;
  * supervisión). Si el cargo del profesional ha cambiado desde la última
  * revisión de roles, el formulario muestra un aviso que desaparece al editar
  * los roles o al descartarlo.
+ *
+ * Cerrar desde el formulario la adscripción a la UO de un centro exige RN-21: se
+ * comprueba antes de guardar nada, y el modelo UsuarioUo lo vuelve a exigir.
  */
 class EditUsuario extends EditRecord
 {
@@ -30,7 +36,7 @@ class EditUsuario extends EditRecord
     protected array $rolesMarcados = [];
 
     /**
-     * Acciones de cabecera: descartar el aviso de cambio de cargo y borrar.
+     * Acciones de cabecera: descartar el aviso de cambio de cargo y desactivar (RN-20).
      *
      * @return array<Action>
      */
@@ -43,7 +49,7 @@ class EditUsuario extends EditRecord
                 ->color('gray')
                 ->visible(fn (): bool => app(RolesSugeridosService::class)->avisoCambioCargo($this->usuario()) !== null)
                 ->action(fn () => app(RolesSugeridosService::class)->marcarRevisado($this->usuario())),
-            Actions\DeleteAction::make(),
+            DesactivarAction::usuario(),
         ];
     }
 
@@ -74,6 +80,43 @@ class EditUsuario extends EditRecord
         unset($data['roles']);
 
         return $data;
+    }
+
+    /**
+     * Antes de guardar, rechaza el cierre de una adscripción a un centro con casos o
+     * citas pendientes (RN-21), para no guardar el resto del formulario a medias.
+     *
+     * @return void
+     */
+    protected function beforeSave(): void
+    {
+        $estado = $this->form->getRawState()['adscripciones'] ?? [];
+
+        foreach ($estado as $clave => $fila) {
+            // Las filas existentes del repeater llegan como «record-{id}»
+            if (! str_starts_with((string) $clave, 'record-')) {
+                continue;
+            }
+
+            $adscripcion = UsuarioUo::find((int) substr((string) $clave, 7));
+
+            if ($adscripcion === null || $adscripcion->usuario_id !== $this->usuario()->id) {
+                continue;
+            }
+
+            $adscripcion->fecha_fin = $fila['fecha_fin'] ?? null;
+
+            if (! $adscripcion->seCierra()) {
+                continue;
+            }
+
+            try {
+                app(SalidaCentroService::class)->exigirSalidaLibre($adscripcion);
+            } catch (SalidaCentroBloqueada $e) {
+                DesactivarAction::notificarBloqueo($e);
+                $this->halt();
+            }
+        }
     }
 
     /**

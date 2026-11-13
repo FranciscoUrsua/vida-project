@@ -326,7 +326,8 @@ usuarios
 - email_verified_at
 - remember_token
 - created_at, updated_at
-- deleted_at                                — SoftDeletes (desde 2026-09-24; ver docs/decisiones-tecnicas.md Sección 13)
+- desactivado_en, desactivado_por_id        — desactivación (RN-20, desde 2026-11-13): sin acceso
+- deleted_at                                — solo cuentas borradas antes de 2026-11-13; ya no se borra ninguna (docs/decisiones-tecnicas.md Sección 15)
 
 unidades_organizativas
 - id

@@ -9,6 +9,15 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Bajas de profesionales: lo que queda tras RN-20 a 23** — 2026-11-13
+Módulo: Usuarios / Asignación / Agenda
+- No hay «Reactivar» para un usuario desactivado (ni en Filament ni en Mi equipo). Hoy habría que poner `desactivado_en` a null a mano y volver a adscribirlo.
+- La desactivación cierra las adscripciones con fecha de hoy, que siguen siendo vigentes hasta el final del día (`UsuarioUo::scopeVigentes`). Los listados que leen adscripciones (destinatarios de mensajes, equipos) pueden mostrarlo hasta mañana; el sorteo y el reparto ya lo excluyen.
+- Las citas confirmadas que bloquean la salida se cuentan desde hoy, sin mirar la hora: una cita de esta mañana ya pasada pero sin cerrar también bloquea. Valorar contar solo desde ahora.
+- El enlace «Repartir casos» lleva a la pestaña de actividad del centro supervisado, que puede no ser el centro del aviso si el supervisor tiene varios.
+
+---
+
 **Servidor: revisar las reglas AppArmor de qpdf y gs tras cada actualización del sistema** — 2026-11-11
 Módulo: Documentos / infraestructura
 En el servidor hay reglas locales de AppArmor en `/etc/apparmor.d/local/qpdf` y `/etc/apparmor.d/local/gs` (`/var/www/vida-project/vida/storage/app/tmp/** rwk,`). Sin ellas, los perfiles de Ubuntu impiden a qpdf y gs leer la zona temporal de ingesta y **se rechazan todos los PDF** con `pdf_no_normalizable` (la causa queda en el log: `Permission denied`). **Revisar tras cada actualización del sistema** (`apt upgrade`, cambio de versión de Ubuntu o del paquete `apparmor`): que las reglas siguen, que `sudo aa-status` carga los perfiles y que se puede subir un PDF. Las reglas incluyen también las rutas del repositorio local (`storage/framework/testing/**` y `storage/app/tmp/**`, añadidas el 2026-11-11); sin ellas fallan los tests que suben PDF. Detalle en `docs/modulo-documentos.md` §3.
@@ -82,9 +91,9 @@ La viñeta «Tipo de slot genérico en modo básico» pasa a «Citas: pendientes
 
 ---
 
-**Borrar un usuario con casos vigentes** — 2026-10-01
+**~~Borrar un usuario con casos vigentes~~** — 2026-10-01 · **Cerrado el 2026-11-13** (D5, RN-20 a 23): no se borra nadie; «Desactivar» y la salida de un centro se rechazan con casos de referencia o citas confirmadas pendientes, con enlaces al reparto y a la gestión de ausencias (`decisiones-tecnicas.md` §15). Las relaciones a `User` (planes, apuntes, entrevistas) ya no pueden apuntar a un borrado nuevo.
 Módulo: Usuarios / Asignación
-- Filament permite dar de baja (soft delete) a un profesional que aún es referencia de casos; esos casos quedan con un profesional borrado hasta que el supervisor los reparte. Desde el 2026-10-01 la actividad del equipo lo muestra con «Dado de baja», pero conviene decidir si el borrado debe avisar, bloquearse o lanzar el reparto por salida (RN-08). Revisar también otras relaciones a `User` del módulo (planes, apuntes, entrevistas) que no incluyen borrados.
+- Filament permitía dar de baja (soft delete) a un profesional que aún es referencia de casos; esos casos quedan con un profesional borrado hasta que el supervisor los reparte. Desde el 2026-10-01 la actividad del equipo lo muestra con «Dado de baja», pero conviene decidir si el borrado debe avisar, bloquearse o lanzar el reparto por salida (RN-08). Revisar también otras relaciones a `User` del módulo (planes, apuntes, entrevistas) que no incluyen borrados.
 
 ---
 

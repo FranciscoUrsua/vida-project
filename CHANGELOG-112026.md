@@ -4,6 +4,28 @@
 
 ---
 
+## 2026-11-13 — Tipo de Centro: bajas de profesionales (fase 2, paso 8 quinquies; RN-20 a 23)
+
+### Cambios
+- **Sin borrado (RN-20):** `User::delete()`/`forceDelete()` y `Profesional::delete()`/`forceDelete()` lanzan `LogicException`. `UsuarioResource` y `ProfesionalResource` sin borrado (`canDelete()` y `canDeleteAny()` falsos, `getDeleteAuthorizationResponse()` deniega); la acción «Desactivar» (`App\Filament\Acciones\DesactivarAction`) sustituye a `DeleteAction` en las tablas y en las páginas de edición. Mi equipo (`EquipoPage`): «Dar de baja» pasa a «Desactivar» (sin fecha ni casilla «confirmo que se reasignarán»), con lo pendiente por centro y enlaces; el equipo ya no lista profesionales inactivos.
+- Migración `2026_11_13_100003_add_desactivacion_to_users_table`: `users.desactivado_en` y `desactivado_por_id`. `User::estaDesactivado()`, scope `noDesactivados()`; `canAccessPanel()` falso para desactivados.
+- Proveedor de autenticación `eloquent_activos` (`AppServiceProvider`, `config/auth.php`): excluye a los desactivados del login, la sesión, «recordarme» y Filament.
+- `UsuarioUo`: no se borra (`LogicException`); al adelantar `fecha_fin` exige RN-21 (`SalidaCentroService::exigirSalidaLibre()`) y, guardada, cierra los perfiles horarios del usuario en ese centro. Repeater de adscripciones con `deletable(false)`; `EditUsuario::beforeSave()` comprueba RN-21 antes de guardar nada y notifica con enlaces.
+- `Modules\Intervencion\Services\Asignacion\SalidaCentroService`: `pendientes()` (casos de referencia vigentes con `ActividadCasosService::historiasDe()` y citas confirmadas desde hoy en el centro), `exigirSalidaLibre()`, `cerrarAdscripcion()`, `cerrarPerfilesHorarios()`, `pendientesDeUsuario()`, `desactivarUsuario()` (RN-22: todos sus centros; cierra sus adscripciones), `desactivarProfesional()` y `puedeDesactivar()` (nunca a uno mismo; `adm_sistema`; `adm_usuarios` y `supervision` en su ámbito). `PendientesSalida` y `SalidaCentroBloqueada` (mensaje con el recuento y `enlaces()`: «Repartir casos» → Asignaciones, pestaña actividad; «Reasignar citas» → ausencias).
+- **RN-23:** migración `2026_11_13_100002_centro_obligatorio_en_asignaciones_profesional` (rellena `centro_id` con el centro de la UO de la historia, 474 filas en la BD compartida, 371 vigentes, y lo hace `NOT NULL`; se detiene si alguna no tiene centro deducible). `AsignacionProfesional` toma el centro de la UO de la historia si no se indica. Fuera el respaldo por UO de `ActividadCasosService::casosVigentes()`; `AperturaHistoriaService` y `AsignacionReferenciaService::crear()` reciben el centro no nulo. Nada en el cambio de adscripción toca las asignaciones (comprobado: el único observer de `UsuarioUo` crea perfiles horarios).
+- `PoolReferenciaService`: los usuarios desactivados no entran en el sorteo ni en el reparto. Actividad del equipo: «Dado de baja» también para desactivados.
+- Tests: `Modules/Centro/tests/Feature/TipoCentro/BajasProfesionalesTest.php`, TF-TCE-55 a 59 con 56 bis (formulario de Filament) y 58 bis (RN-22). **En negativo:** sin la comprobación del modelo `UsuarioUo` fallan 56 y 58; sin el `delete()` de `User`, falla 55.
+- Adaptados: `UsuarioSoftDeleteTest` → `UsuarioSinBorradoTest` (el borrado se rechaza; las cuentas borradas antes siguen ocultas), `UsuarioAutogestionTest` (acción `desactivar`), `SupervisionTest` D04 a D06 (desactivar en Mi equipo), y datos de prueba sin centro por RN-23 (`MisCasosPageTest`, `NavegacionTest`, `PanelRedaccionTest`); `ActividadCasosTest` y `RepartoCasosTest` simulan el «dado de baja» como borrado anterior a RN-20.
+- Ejecutados: Usuarios, Supervisión, Centro, Agenda, Auth, Demo, Acceso y `FilamentPanelAccessTest` en verde (previos: 1+1+5 incomplete, 1 skipped); Intervención y Mensajes, 31 fallos de datos de prueba (RN-23 y borrado), corregidos y en verde (ficheros afectados: 35 + los de Asignación y Navegación). `npm run build` + `ui:auditar` sin infracciones.
+
+### Decisiones
+- **Decisiones del desarrollador (13 nov):** rellenar `centro_id` y hacerlo obligatorio; conservar el trait `SoftDeletes` solo para las 13 cuentas y 6 profesionales borrados antes (todos de prueba), que siguen ocultos, en lugar de convertirlos en desactivados.
+- No había servicio que cerrase adscripciones (solo el repeater de Filament): RN-21 se exige en el modelo `UsuarioUo` para cubrir cualquier camino.
+- Cerrar la salida de un centro cierra los perfiles horarios del profesional en él (`activo = false`, `vigente_hasta`): el sorteo y el reparto se basan en el perfil, no en la adscripción.
+- Desactivar cierra las adscripciones vigentes con fecha de hoy. La desactivación es inmediata (sin fecha futura).
+- Las citas que bloquean son las confirmadas con fecha desde hoy, en el centro y del profesional.
+- Pendientes en el BACKLOG («Bajas de profesionales: lo que queda tras RN-20 a 23»): reactivar, vigencia hasta fin del día, hora de las citas, centro del enlace al reparto.
+
 ## 2026-11-13 — Tipo de Centro: personas protegidas (fase 2, paso 8 quater; RN-17 a 19)
 
 ### Cambios

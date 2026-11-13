@@ -55,6 +55,9 @@ class PanelRedaccionTest extends TestCase
 
         $this->uo = UnidadOrganizativa::create(['nombre' => 'CSS Panel', 'tipo' => 'centro', 'activa' => true]);
         $this->otraUo = UnidadOrganizativa::create(['nombre' => 'CSS Lejano', 'tipo' => 'centro', 'activa' => true]);
+        // RN-23: las asignaciones de referencia son de un centro
+        $this->centroParaUo($this->uo);
+        $this->centroParaUo($this->otraUo);
 
         $this->usuario = $this->crearUsuario('yo@vida360.test', $this->uo, 'Remitente', 'Prueba');
         $this->tsr = $this->crearUsuario('tsr@vida360.test', $this->uo, 'Teresa', 'Referente');

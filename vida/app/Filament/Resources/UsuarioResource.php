@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Acciones\DesactivarAction;
 use App\Filament\Resources\UsuarioResource\Pages;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
@@ -37,6 +37,10 @@ use Spatie\Permission\Models\Role;
  * cargo del profesional (sección 2.9). La sugerencia no otorga permisos: los
  * roles que se guardan son los que adm deja marcados, y se asignan por el flujo
  * supervisado de AsignacionRolesService.
+ *
+ * Los usuarios no se borran (RN-20): «Desactivar» les quita el acceso y exige
+ * que no tengan casos ni citas pendientes (RN-22). Las adscripciones tampoco se
+ * borran: se cierran con fecha de fin, y cerrar la de un centro exige RN-21.
  *
  * Accesible en /admin/usuarios.
  */
@@ -189,6 +193,8 @@ class UsuarioResource extends Resource
                         ])
                         ->columns(2)
                         ->addActionLabel('+ Añadir adscripción')
+                        // El historial de adscripciones no se borra: se cierra con fecha de fin
+                        ->deletable(false)
                         ->defaultItems(0),
                 ]),
         ]);
@@ -238,6 +244,14 @@ class UsuarioResource extends Resource
                     ->badge()
                     ->separator(','),
 
+                Tables\Columns\TextColumn::make('desactivado_en')
+                    ->label('Desactivado')
+                    ->dateTime('d/m/Y')
+                    ->badge()
+                    ->color('danger')
+                    ->placeholder('—')
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('adscripcionesVigentes_count')
                     ->label('UO activas')
                     ->counts('adscripcionesVigentes')
@@ -253,11 +267,22 @@ class UsuarioResource extends Resource
                 Tables\Filters\SelectFilter::make('roles')
                     ->label('Rol')
                     ->relationship('roles', 'name'),
+
+                Tables\Filters\TernaryFilter::make('desactivado')
+                    ->label('Desactivados')
+                    ->placeholder('Solo activos')
+                    ->trueLabel('Solo desactivados')
+                    ->falseLabel('Todos')
+                    ->queries(
+                        true: fn ($query) => $query->whereNotNull('desactivado_en'),
+                        false: fn ($query) => $query,
+                        blank: fn ($query) => $query->whereNull('desactivado_en'),
+                    ),
             ])
             ->actions([
                 EditAction::make(),
-                // Sin ->authorize() propio: aplica getDeleteAuthorizationResponse(), que impide borrarse a uno mismo
-                DeleteAction::make(),
+                // Sustituye al borrado (RN-20); no se ofrece sobre el propio usuario
+                DesactivarAction::usuario(),
             ])
             ->defaultSort('name');
     }
@@ -321,20 +346,26 @@ class UsuarioResource extends Resource
     }
 
     /**
-     * Determina si el usuario puede eliminar usuarios.
-     *
-     * Solo adm_sistema, y nunca su propio usuario: borrarse a uno mismo deja
-     * la cuenta sin acceso (incidente de admin@vida.local, 2026-09-25).
+     * Los usuarios no se borran, ni siquiera con borrado lógico (RN-20): se
+     * desactivan con DesactivarAction.
      *
      * @param Model $record Registro objetivo.
+     *
+     * @return bool
      */
     public static function canDelete(Model $record): bool
     {
-        if (self::esElPropioUsuario($record)) {
-            return false;
-        }
+        return false;
+    }
 
-        return auth()->user()?->hasRole('adm_sistema') ?? false;
+    /**
+     * Tampoco el borrado masivo (RN-20).
+     *
+     * @return bool
+     */
+    public static function canDeleteAny(): bool
+    {
+        return false;
     }
 
     /**
@@ -355,17 +386,15 @@ class UsuarioResource extends Resource
     }
 
     /**
-     * Respuesta de autorización para borrar, usada por las acciones de borrado de Filament.
+     * Respuesta de autorización para borrar: siempre denegada (RN-20).
      *
      * @param Model $record Registro objetivo.
+     *
+     * @return Response
      */
     public static function getDeleteAuthorizationResponse(Model $record): Response
     {
-        if (self::esElPropioUsuario($record)) {
-            return Response::deny('No puedes borrar tu propio usuario.');
-        }
-
-        return static::canDelete($record) ? Response::allow() : Response::deny();
+        return Response::deny('Los usuarios no se borran: se desactivan.');
     }
 
     /**

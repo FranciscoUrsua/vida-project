@@ -5,12 +5,14 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use LogicException;
 use Modules\Usuarios\Models\Profesional;
 use Modules\Usuarios\Traits\TieneRoles;
 use Modules\Usuarios\Traits\TieneUO;
@@ -31,6 +33,11 @@ use Spatie\Permission\Traits\HasRoles;
  * El ámbito de datos lo delimita la adscripción a UO — ver TieneUO.
  * El historial de roles se gestiona mediante usuario_rol — ver TieneRoles.
  *
+ * RN-20 (docs/modulo-tipo-centro.md): un usuario no se borra, ni siquiera con
+ * borrado lógico; se desactiva (SalidaCentroService::desactivarUsuario()). Sus
+ * registros siguen apuntando a él. El trait SoftDeletes se conserva solo por las
+ * cuentas borradas antes de esa regla, que siguen ocultas (decisión del 13 nov 2026).
+ *
  * @property int $id
  * @property int|null $profesional_id
  * @property int|null $cargo_roles_revisado_id Cargo para el que se revisaron sus roles (aviso de cambio de cargo, sección 2.9)
@@ -41,7 +48,9 @@ use Spatie\Permission\Traits\HasRoles;
  * @property bool $primer_acceso
  * @property Carbon $created_at
  * @property Carbon $updated_at
- * @property Carbon|null $deleted_at
+ * @property Carbon|null $desactivado_en Desactivación (RN-20): sin acceso; null si está activo
+ * @property int|null $desactivado_por_id
+ * @property Carbon|null $deleted_at Solo cuentas borradas antes de RN-20 (13 nov 2026): ya no se borra ninguna
  * @property-read string $nombre_completo
  *
  * @see docs/modulo-usuarios-permisos.md sección 1.1
@@ -78,6 +87,7 @@ class User extends Authenticatable implements FilamentUser
     {
         return [
             'email_verified_at' => 'datetime',
+            'desactivado_en' => 'datetime',
             'password' => 'hashed',
             'primer_acceso' => 'boolean',
         ];
@@ -163,7 +173,7 @@ class User extends Authenticatable implements FilamentUser
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->accedeAlBackoffice();
+        return ! $this->estaDesactivado() && $this->accedeAlBackoffice();
     }
 
     /**
@@ -175,6 +185,57 @@ class User extends Authenticatable implements FilamentUser
     public function accedeAlBackoffice(): bool
     {
         return $this->hasAnyRole(['adm_sistema', 'supervision', 'adm_usuarios']);
+    }
+
+    // -------------------------------------------------------------------------
+    // Desactivación (RN-20)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Si la cuenta está desactivada y, por tanto, sin acceso.
+     *
+     * @return bool
+     */
+    public function estaDesactivado(): bool
+    {
+        return $this->desactivado_en !== null;
+    }
+
+    /**
+     * Usuarios no desactivados.
+     *
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
+    public function scopeNoDesactivados(Builder $query): Builder
+    {
+        return $query->whereNull('desactivado_en');
+    }
+
+    /**
+     * Un usuario no se borra (RN-20). Restricción de dominio: el historial y la
+     * auditoría apuntan a él; la baja es la desactivación.
+     *
+     * @return bool|null
+     *
+     * @throws LogicException Siempre.
+     */
+    public function delete(): ?bool
+    {
+        throw new LogicException('Los usuarios no se borran: se desactivan (RN-20).');
+    }
+
+    /**
+     * Tampoco se borra físicamente (RN-20).
+     *
+     * @return bool|null
+     *
+     * @throws LogicException Siempre.
+     */
+    public function forceDelete(): ?bool
+    {
+        throw new LogicException('Los usuarios no se borran: se desactivan (RN-20).');
     }
 
     // -------------------------------------------------------------------------

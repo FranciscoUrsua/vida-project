@@ -504,10 +504,11 @@ class SupervisionTest extends TestCase
     }
 
     /**
-     * TF-SUP-D04 — Baja de profesional con casos activos requiere confirmación explícita.
+     * TF-SUP-D04 — Con casos de referencia vigentes no se puede desactivar al
+     * profesional (RN-22, antes bastaba con confirmarlo): se muestra el recuento.
      */
     #[Test]
-    public function baja_profesional_con_casos_activos_requiere_confirmacion(): void
+    public function desactivar_profesional_con_casos_activos_se_rechaza(): void
     {
         $userProf = $this->crearUsuarioEnUo($this->uoHija, 'profbaja@vida360.test');
 
@@ -537,14 +538,20 @@ class SupervisionTest extends TestCase
 
         $this->montarComponente(EquipoPage::class)
             ->call('iniciarBaja', $prof->id)
-            ->assertSee('casos activos');
+            ->assertSee('2 casos de referencia')
+            ->assertSee('Repartir casos')
+            ->call('confirmarBaja')
+            ->assertHasErrors('baja');
+
+        $this->assertTrue($prof->fresh()->activo);
+        $this->assertFalse($userProf->fresh()->estaDesactivado());
     }
 
     /**
-     * TF-SUP-D05 — Baja de profesional sin casos es soft delete.
+     * TF-SUP-D05 — Sin casos, el profesional se desactiva y no se borra (RN-20).
      */
     #[Test]
-    public function baja_profesional_sin_casos_es_soft_delete(): void
+    public function desactivar_profesional_sin_casos_lo_deja_inactivo_sin_borrarlo(): void
     {
         $prof = Profesional::create([
             'nombre' => 'ProfSinCasos',
@@ -559,11 +566,12 @@ class SupervisionTest extends TestCase
 
         $this->montarComponente(EquipoPage::class)
             ->call('iniciarBaja', $prof->id)
-            ->set('fechaBaja', today()->toDateString())
-            ->call('confirmarBaja');
+            ->call('confirmarBaja')
+            ->assertHasNoErrors();
 
-        $this->assertSoftDeleted('profesionales', ['id' => $prof->id]);
-        $this->assertNotNull(Profesional::withTrashed()->find($prof->id));
+        $this->assertNotSoftDeleted('profesionales', ['id' => $prof->id]);
+        $this->assertFalse($prof->fresh()->activo);
+        $this->assertNotNull($prof->fresh()->fecha_fin);
     }
 
     /**
@@ -584,15 +592,16 @@ class SupervisionTest extends TestCase
             'unidad_organizativa_id' => $this->uoParalela->id,
         ]);
 
-        // Al intentar dar de baja, el sistema no debe eliminar el registro
+        // Al intentar desactivarlo, el sistema lo rechaza
         $this->montarComponente(EquipoPage::class)
             ->call('iniciarBaja', $profAjeno->id)
-            ->set('fechaBaja', today()->toDateString())
-            ->call('confirmarBaja');
+            ->call('confirmarBaja')
+            ->assertHasErrors('baja');
 
-        // El profesional ajeno NO debe haber sido eliminado
+        // El profesional ajeno sigue activo y sin borrar
         $this->assertDatabaseHas('profesionales', [
             'id' => $profAjeno->id,
+            'activo' => true,
             'deleted_at' => null,
         ]);
     }

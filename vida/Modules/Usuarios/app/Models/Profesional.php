@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use LogicException;
 
 /**
  * Perfil organizativo de una persona en el sistema.
@@ -47,6 +48,11 @@ use Illuminate\Support\Carbon;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon|null $deleted_at
+ *
+ * RN-20 (docs/modulo-tipo-centro.md): un profesional no se borra, ni siquiera
+ * con borrado lógico; su baja es `activo = false` con `fecha_fin`
+ * (SalidaCentroService::desactivarProfesional()). El trait SoftDeletes se
+ * conserva solo por los registros borrados antes de esa regla (13 nov 2026).
  *
  * @see docs/modulo-usuarios-permisos.md sección 5
  */
@@ -166,5 +172,34 @@ class Profesional extends Model
     public function scopeActivos(Builder $consulta): Builder
     {
         return $consulta->where('activo', true);
+    }
+
+    // -------------------------------------------------------------------------
+    // Sin borrado (RN-20)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Un profesional no se borra (RN-20): se desactiva. Restricción de dominio:
+     * sus registros y su historial siguen apuntando a él.
+     *
+     * @return bool|null
+     *
+     * @throws LogicException Siempre.
+     */
+    public function delete(): ?bool
+    {
+        throw new LogicException('Los profesionales no se borran: se desactivan (RN-20).');
+    }
+
+    /**
+     * Tampoco se borra físicamente (RN-20).
+     *
+     * @return bool|null
+     *
+     * @throws LogicException Siempre.
+     */
+    public function forceDelete(): ?bool
+    {
+        throw new LogicException('Los profesionales no se borran: se desactivan (RN-20).');
     }
 }

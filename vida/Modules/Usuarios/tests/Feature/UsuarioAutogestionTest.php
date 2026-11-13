@@ -47,16 +47,16 @@ class UsuarioAutogestionTest extends TestCase
     }
 
     #[Test]
-    public function adm_sistema_no_ve_la_accion_de_borrar_sobre_su_propio_usuario(): void
+    public function adm_sistema_no_ve_la_accion_de_desactivar_sobre_su_propio_usuario(): void
     {
         $admin = $this->usuarioCon('adm_sistema');
         $otro = $this->usuarioCon('consulta_basica');
 
         Livewire::actingAs($admin)
             ->test(ListUsuarios::class)
-            ->assertTableActionHidden('delete', $admin)
+            ->assertTableActionHidden('desactivar', $admin)
             ->assertTableActionHidden('edit', $admin)
-            ->assertTableActionVisible('delete', $otro)
+            ->assertTableActionVisible('desactivar', $otro)
             ->assertTableActionVisible('edit', $otro);
     }
 
@@ -75,16 +75,17 @@ class UsuarioAutogestionTest extends TestCase
     }
 
     #[Test]
-    public function adm_sistema_sigue_pudiendo_borrar_a_otro_usuario(): void
+    public function adm_sistema_puede_desactivar_a_otro_usuario_sin_borrarlo(): void
     {
         $admin = $this->usuarioCon('adm_sistema');
         $otro = $this->usuarioCon('consulta_basica');
 
         Livewire::actingAs($admin)
             ->test(ListUsuarios::class)
-            ->callTableAction('delete', $otro);
+            ->callTableAction('desactivar', $otro);
 
-        $this->assertSoftDeleted('users', ['id' => $otro->id]);
+        $this->assertNotSoftDeleted('users', ['id' => $otro->id]);
+        $this->assertTrue($otro->fresh()->estaDesactivado());
     }
 
     #[Test]

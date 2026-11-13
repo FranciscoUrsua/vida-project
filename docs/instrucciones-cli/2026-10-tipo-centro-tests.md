@@ -407,4 +407,4 @@ Sin casos, pero con una cita confirmada la semana próxima en un slot de `$ciamV
 | H — Migración | TF-TCE-34 |  |
 | I — Estructura, ámbito y centro de trabajo | TF-TCE-35..47 |  |
 | J — Personas protegidas | TF-TCE-48..54 y 60 |  |
-| K — Bajas de profesionales | TF-TCE-55..59 |  |
+| K — Bajas de profesionales | TF-TCE-55..59 | ✅ 2026-11-13 (`BajasProfesionalesTest`, con 56 bis y 58 bis; 55, 56 y 58 comprobados en negativo) |

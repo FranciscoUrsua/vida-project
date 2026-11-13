@@ -89,7 +89,7 @@ class AperturaHistoriaService
                 'estado' => 'abierta',
             ]);
 
-            $this->asignarReferencia($historia, Ciudadano::findOrFail($ciudadanoId), $profesional, $elegido);
+            $this->asignarReferencia($historia, Ciudadano::findOrFail($ciudadanoId), $profesional, $centro, $elegido);
 
             return $historia;
         });
@@ -117,21 +117,20 @@ class AperturaHistoriaService
      * @param HistoriaSocial $historia
      * @param Ciudadano $ciudadano
      * @param User $profesional
+     * @param Centro $centroApertura Centro en el que se abre (RN-15 ya comprobado).
      * @param User|null $elegido
      *
      * @return AsignacionProfesional|null
      */
-    private function asignarReferencia(HistoriaSocial $historia, Ciudadano $ciudadano, User $profesional, ?User $elegido): ?AsignacionProfesional
+    private function asignarReferencia(HistoriaSocial $historia, Ciudadano $ciudadano, User $profesional, Centro $centroApertura, ?User $elegido): ?AsignacionProfesional
     {
-        $centroApertura = $this->centros->centroActivo($profesional);
-
-        // Sin centro no hay reparto posible, y las personas sin hogar quedan fuera de
-        // esta fase (se asignarán por el servicio de calle y sus zonas): comportamiento anterior
-        if ($centroApertura === null || $ciudadano->es_psh) {
+        // Las personas sin hogar quedan fuera de esta fase (se asignarán por el servicio
+        // de calle y sus zonas): las asigna quien abre, en el centro de la apertura
+        if ($ciudadano->es_psh) {
             return AsignacionProfesional::create([
                 'historia_id' => $historia->id,
                 'profesional_id' => $profesional->id,
-                'centro_id' => $centroApertura?->id,
+                'centro_id' => $centroApertura->id,
                 'origen' => OrigenAsignacionReferencia::QuienAbre,
                 'fecha_inicio' => today(),
             ]);

@@ -6,6 +6,7 @@ use App\Models\HistoriaSocial;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use LogicException;
 use Modules\Centro\Tests\Concerns\AsignacionTestSetup;
@@ -302,7 +303,8 @@ class RepartoCasosTest extends TestCase
     }
 
     /**
-     * Los casos de un profesional dado de baja se pueden repartir, y el
+     * Los casos de un profesional dado de baja (soft delete anterior a RN-20,
+     * que sigue en los datos; hoy nadie se borra) se pueden repartir, y el
      * reparto sigue mostrando quién era el profesional de origen.
      *
      * @return void
@@ -310,7 +312,7 @@ class RepartoCasosTest extends TestCase
     #[Test]
     public function se_reparten_los_casos_de_un_profesional_dado_de_baja(): void
     {
-        $this->ts1->delete();
+        DB::table('users')->where('id', $this->ts1->id)->update(['deleted_at' => now()]);
 
         $reparto = $this->servicio()->proponer($this->cssNorte, User::withTrashed()->find($this->ts1->id), 'Baja definitiva', $this->supervisor);
 

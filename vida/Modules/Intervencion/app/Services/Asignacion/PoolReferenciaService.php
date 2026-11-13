@@ -84,6 +84,8 @@ class PoolReferenciaService
             ->whereDate('vigente_desde', '<=', $dia)
             ->where(fn ($q) => $q->whereNull('vigente_hasta')->orWhereDate('vigente_hasta', '>=', $dia))
             ->whereHas('usuario.profesional.cargo', fn ($q) => $q->where('puede_ser_referencia', true))
+            // Un usuario desactivado no recibe casos (RN-20), aunque le quede un perfil abierto
+            ->whereHas('usuario', fn ($q) => $q->whereNull('desactivado_en'))
             ->with('usuario.profesional')
             ->get()
             ->toBase();

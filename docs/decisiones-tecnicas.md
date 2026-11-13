@@ -440,6 +440,8 @@ Fecha de decisión: 2026-09-24
 
 Fecha de decisión: 2026-09-24
 
+> **Sustituida el 2026-11-13 por la Sección 15** (RN-20: los usuarios y profesionales no se borran, ni siquiera con borrado lógico). Se conserva como historia.
+
 **Contexto (bug reportado):** borrar un usuario desde `UsuarioResource` en Filament lanzaba `Illuminate\Database\QueryException`. Causa: `App\Models\User` no usaba `SoftDeletes`, así que `DeleteAction` (que llama a `$record->delete()`) intentaba un `DELETE` físico sobre `users`; en cuanto el usuario tenía una fila en `usuario_uo` (FK `usuario_id` con `onDelete('restrict')`, ver migración `create_usuario_uo_rol_table`), la BD rechazaba el borrado. El principio 4.2 (soft deletes como norma en entidades de dominio) ya cubría `users` conceptualmente — de hecho `docs/modulo-usuarios-permisos.md` §4.2 nunca listó `deleted_at` en el esquema de `usuarios`, así que esto era una omisión de implementación, no una decisión deliberada de no aplicarlo.
 
 **Decisión:** `User` usa `SoftDeletes` como el resto de entidades de dominio. `DeleteAction::make()` en `UsuarioResource` no cambia — con `SoftDeletes` en el modelo, ya hace soft delete automáticamente (mismo patrón que `ProfesionalResource`, que tampoco tiene lógica especial de borrado).
@@ -481,3 +483,19 @@ Fecha: 2026-11-11
 Tras editarlas: `sudo apparmor_parser -r /etc/apparmor.d/qpdf /etc/apparmor.d/gs`. En la máquina de desarrollo las reglas cubren también `storage/framework/testing/**` y `storage/app/tmp/**` del repositorio local.
 
 **Revisión obligatoria tras cada actualización del sistema** (`apt upgrade`, cambio de versión de Ubuntu o de los paquetes de arriba): una actualización puede cambiar los perfiles de AppArmor o los binarios. Prueba rápida en staging: subir desde la ficha de un ciudadano **un PDF y una imagen**. Si alguno falla con «No se ha podido procesar el PDF» o «No se ha podido convertir el fichero», buscar `FalloHerramientaExterna` en `storage/logs/laravel.log`: el registro trae el binario, el código de salida y la salida de error (p. ej. `Permission denied`). Comprobar también `sudo aa-status` y `systemctl status clamav-daemon`.
+
+---
+
+## Sección 15 — Usuarios y profesionales: sin borrado; desactivación y salida de centro
+
+Fecha de decisión: 2026-11-13 (addenda D5 de Tipo de Centro, RN-20 a RN-23 de `docs/modulo-tipo-centro.md`)
+
+**Decisión:** `User` y `Profesional` no se borran. `delete()` y `forceDelete()` lanzan `LogicException`, los recursos de Filament no ofrecen borrado (`canDelete()` y `canDeleteAny()` falsos) y la acción «Desactivar» (`App\Filament\Acciones\DesactivarAction`, también en Mi equipo) los sustituye. Las adscripciones (`UsuarioUo`) tampoco se borran: se cierran con fecha de fin.
+
+- **Desactivar un usuario** (`users.desactivado_en`, `desactivado_por_id`): no puede iniciar sesión, cierra sus adscripciones vigentes y conserva sus registros. El proveedor de autenticación `eloquent_activos` (`AppServiceProvider`, `config/auth.php`) excluye a los desactivados: vale para el login, la sesión abierta, «recordarme» y Filament.
+- **Desactivar un profesional**: `activo = false` y `fecha_fin`; si tiene cuenta, se desactiva antes.
+- **Salida de un centro (RN-21):** cerrar la adscripción a la UO de un centro exige que el profesional no tenga casos de referencia vigentes en él ni citas confirmadas desde hoy en sus slots de ese centro. Lo comprueba el modelo `UsuarioUo` al adelantar la fecha de fin (cualquier camino, también el repeater de Filament) con `SalidaCentroService::exigirSalidaLibre()`; el rechazo (`SalidaCentroBloqueada`) trae el recuento por centro y los enlaces a «Repartir casos» y a la gestión de ausencias. Desactivar exige lo mismo en todos los centros (RN-22). Al cerrarse, los perfiles horarios del profesional en ese centro se cierran: si no, seguiría entrando en el sorteo y el reparto.
+- **El caso es del centro (RN-23):** `asignaciones_profesional.centro_id` es obligatorio. La migración `2026_11_13_100002` rellenó las 474 filas anteriores a la asignación por centro con el centro de la UO de su historia; sin centro indicado, `AsignacionProfesional` toma el de la UO de la historia.
+
+**Datos anteriores:** las 13 cuentas y 6 profesionales con `deleted_at` (todos de prueba) se dejan como están, por decisión del desarrollador: el trait `SoftDeletes` se conserva solo para que sigan ocultos, y el índice único parcial del email no cambia.
+

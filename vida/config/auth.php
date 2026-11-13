@@ -62,8 +62,9 @@ return [
     */
 
     'providers' => [
+        // Eloquent sin los usuarios desactivados (RN-20, AppServiceProvider)
         'users' => [
-            'driver' => 'eloquent',
+            'driver' => 'eloquent_activos',
             'model' => env('AUTH_MODEL', User::class),
         ],
 

@@ -130,10 +130,7 @@ class ActividadCasosService
             ->whereNull('ap.fecha_fin')
             ->whereNull('ap.deleted_at')
             ->whereNull('h.deleted_at')
-            ->where(fn ($q) => $q
-                ->where('ap.centro_id', $centro->id)
-                ->orWhere(fn ($sin) => $sin
-                    ->whereNull('ap.centro_id')
-                    ->where('h.unidad_organizativa_id', $centro->unidad_organizativa_id)));
+            // RN-23: el caso es de la historia en el centro (centro_id obligatorio desde el 13 nov)
+            ->where('ap.centro_id', $centro->id);
     }
 }

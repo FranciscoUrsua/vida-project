@@ -3,6 +3,7 @@
 namespace Modules\Supervision\Http\Livewire;
 
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
@@ -12,7 +13,9 @@ use Livewire\Component;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
-use Modules\Intervencion\Models\AsignacionProfesional;
+use Modules\Intervencion\Services\Asignacion\PendientesSalida;
+use Modules\Intervencion\Services\Asignacion\SalidaCentroBloqueada;
+use Modules\Intervencion\Services\Asignacion\SalidaCentroService;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
 use Modules\Usuarios\Models\TipoRelacionProfesional;
@@ -22,7 +25,7 @@ use Modules\Usuarios\Models\Titulacion;
  * Pantalla «Mi equipo» para el módulo de Supervisión.
  *
  * Gestión del ciclo de vida de los profesionales adscritos a la UO del supervisor:
- * alta, edición, baja (soft delete), cambio de perfil horario y suplencias.
+ * alta, edición, desactivación (RN-20 y RN-22), cambio de perfil horario y suplencias.
  * Solo gestiona la entidad Profesional, no la cuenta de Usuario (que gestiona adm_usuarios).
  *
  * @property-read Collection<int, Profesional> $profesionales
@@ -34,8 +37,6 @@ use Modules\Usuarios\Models\Titulacion;
  * @property string $nuevaFechaIncorporacion
  * @property int|null $profesionalSeleccionadoId
  * @property bool $modalBajaAbierto
- * @property string $fechaBaja
- * @property bool $confirmarBajaConCasos
  * @property bool $modalHorarioAbierto
  * @property int|null $horarioUserId
  * @property string|null $horarioNombreProfesional
@@ -53,7 +54,8 @@ use Modules\Usuarios\Models\Titulacion;
  * @property string|null $editEmailProfesional
  * @property string|null $editTelefonoProfesional
  * @property string|null $editExtension
- * @property-read int $casosActivosProfesionalSeleccionado
+ * @property-read list<PendientesSalida> $pendientesBaja
+ * @property-read array<string, string> $enlacesBaja
  * @property string $editFechaInicio
  */
 #[Layout('layouts.supervision')]
@@ -85,12 +87,6 @@ class EquipoPage extends Component
 
     /** @var string|null Nombre del profesional cuyo perfil horario se está editando */
     public ?string $horarioNombreProfesional = null;
-
-    /** @var string Fecha efectiva de la baja */
-    public string $fechaBaja = '';
-
-    /** @var bool Confirmación explícita de baja cuando hay casos activos */
-    public bool $confirmarBajaConCasos = false;
 
     /** @var string|null Aviso posterior al alta (cuenta de usuario pendiente de vinculación) */
     public ?string $avisoAlta = null;
@@ -147,7 +143,8 @@ class EquipoPage extends Component
             return collect();
         }
 
-        return Profesional::where(function ($q) use ($uoIds) {
+        // Los desactivados (RN-20) ya no forman parte del equipo
+        return Profesional::activos()->where(function ($q) use ($uoIds) {
             $q->whereIn('unidad_organizativa_id', $uoIds)
                 ->orWhereHas('usuario', function ($q2) use ($uoIds) {
                     $q2->whereHas('adscripcionesVigentes', function ($q3) use ($uoIds) {
@@ -191,27 +188,30 @@ class EquipoPage extends Component
     }
 
     /**
-     * Cuenta planes activos asignados al profesional seleccionado.
+     * Centros en los que el profesional seleccionado aún tiene casos o citas, lo
+     * que impide desactivarlo (RN-22).
      *
-     * @return int
+     * @return list<PendientesSalida>
      */
     #[Computed]
-    public function casosActivosProfesionalSeleccionado(): int
+    public function pendientesBaja(): array
     {
-        if ($this->profesionalSeleccionadoId === null) {
-            return 0;
-        }
+        $usuario = $this->profesionalSeleccionadoId === null
+            ? null
+            : Profesional::find($this->profesionalSeleccionadoId)?->usuario;
 
-        $profesional = Profesional::find($this->profesionalSeleccionadoId);
+        return $usuario === null ? [] : app(SalidaCentroService::class)->pendientesDeUsuario($usuario);
+    }
 
-        if ($profesional === null || $profesional->usuario === null) {
-            return 0;
-        }
-
-        return AsignacionProfesional::where('profesional_id', $profesional->usuario->id)
-            ->whereNull('fecha_fin')
-            ->whereNull('deleted_at')
-            ->count();
+    /**
+     * Enlaces para resolver lo pendiente: reparto de casos y gestión de ausencias.
+     *
+     * @return array<string, string> Etiqueta => URL.
+     */
+    #[Computed]
+    public function enlacesBaja(): array
+    {
+        return $this->pendientesBaja === [] ? [] : (new SalidaCentroBloqueada($this->pendientesBaja, 'desactivar al usuario'))->enlaces();
     }
 
     /**
@@ -358,11 +358,11 @@ class EquipoPage extends Component
     }
 
     /**
-     * Abre el modal de confirmación de baja para el profesional indicado.
+     * Abre el modal de desactivación para el profesional indicado.
      *
-     * Rechaza la baja si el profesional es el propio supervisor autenticado.
+     * Rechaza la desactivación si el profesional es el propio supervisor autenticado.
      *
-     * @param int $profesionalId ID del profesional a dar de baja.
+     * @param int $profesionalId ID del profesional a desactivar.
      *
      * @return void
      */
@@ -374,58 +374,35 @@ class EquipoPage extends Component
             return;
         }
 
+        $this->resetErrorBag('baja');
         $this->profesionalSeleccionadoId = $profesionalId;
         $this->modalBajaAbierto = true;
-        $this->confirmarBajaConCasos = false;
-        $this->fechaBaja = now()->toDateString();
+        unset($this->pendientesBaja, $this->enlacesBaja);
     }
 
     /**
-     * Confirma la baja lógica (soft delete) del profesional.
-     *
-     * Requiere confirmación explícita si el profesional tiene casos activos.
+     * Desactiva al profesional y su cuenta (RN-20). No se puede con casos o citas
+     * pendientes en alguno de sus centros (RN-22): hay que repartirlos y
+     * reasignarlas antes. El servicio comprueba el ámbito del supervisor.
      *
      * @return void
      */
     public function confirmarBaja(): void
     {
-        $this->validate(['fechaBaja' => 'required|date']);
-
         $profesional = Profesional::findOrFail($this->profesionalSeleccionadoId);
 
-        // Impedir baja del propio supervisor como segunda línea de defensa
-        if ($profesional->usuario?->id === auth()->id()) {
+        try {
+            app(SalidaCentroService::class)->desactivarProfesional($profesional, auth()->user());
+        } catch (AuthorizationException) {
+            $this->addError('baja', 'No tiene permisos para desactivar a este profesional.');
+
+            return;
+        } catch (SalidaCentroBloqueada $e) {
+            unset($this->pendientesBaja, $this->enlacesBaja);
+            $this->addError('baja', $e->getMessage());
+
             return;
         }
-
-        $uoIds = auth()->user()->uoSubtreeIds();
-
-        if ($profesional->usuario !== null) {
-            $enAmbito = ! empty($uoIds)
-                && collect($uoIds)->intersect(
-                    $profesional->usuario->adscripcionesVigentes()->pluck('unidad_organizativa_id')
-                )->isNotEmpty();
-
-            if (! $enAmbito) {
-                $this->addError('fechaBaja', 'No tiene permisos para dar de baja a este profesional.');
-
-                return;
-            }
-        } elseif ($profesional->unidad_organizativa_id !== null) {
-            if (! in_array($profesional->unidad_organizativa_id, $uoIds, true)) {
-                $this->addError('fechaBaja', 'No tiene permisos para dar de baja a este profesional.');
-
-                return;
-            }
-        }
-
-        $casosActivos = $this->casosActivosProfesionalSeleccionado;
-
-        if ($casosActivos > 0 && ! $this->confirmarBajaConCasos) {
-            return;
-        }
-
-        $profesional->delete();
 
         $this->modalBajaAbierto = false;
         $this->profesionalSeleccionadoId = null;

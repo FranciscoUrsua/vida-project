@@ -22,10 +22,13 @@ use Modules\Intervencion\Enums\OrigenAsignacionReferencia;
  * se crea otra. Solo escriben aquí AperturaHistoriaService y los servicios de
  * asignación (docs/modulo-asignacion.md).
  *
+ * RN-23 (docs/modulo-tipo-centro.md): el caso es de una historia en un centro, no
+ * del profesional. Ningún cambio de adscripción del profesional toca estas filas.
+ *
  * @property int $id
  * @property int $historia_id
  * @property int $profesional_id
- * @property int|null $centro_id Centro en el que se hizo; null en las anteriores a la asignación por centro.
+ * @property int $centro_id Centro del caso (RN-23); obligatorio desde el 13 nov 2026.
  * @property OrigenAsignacionReferencia $origen
  * @property bool $cuenta_en_reparto Solo sorteo y elección cuentan como entrada.
  * @property array{profesionales: list<array{usuario_id: int, peso: float, esperado?: float, recibido?: int, candidato?: bool}>, elegido: int|null}|null $sorteo
@@ -75,6 +78,39 @@ class AsignacionProfesional extends Model
         'origen' => 'quien_abre',
         'cuenta_en_reparto' => false,
     ];
+
+    /**
+     * Sin centro indicado, el caso es del centro de la UO de su historia (RN-23;
+     * centro y UO 1:1, addenda D1). Si la UO no tiene centro, la BD rechaza la fila.
+     *
+     * @return void
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (AsignacionProfesional $asignacion): void {
+            if ($asignacion->centro_id === null) {
+                $asignacion->centro_id = self::centroDeLaHistoria($asignacion->historia_id);
+            }
+        });
+    }
+
+    /**
+     * Centro de la UO de una historia; el activo si la UO tuviera también uno de baja.
+     *
+     * @param int $historiaId
+     *
+     * @return int|null
+     */
+    private static function centroDeLaHistoria(int $historiaId): ?int
+    {
+        $uoId = HistoriaSocial::withoutGlobalScopes()->whereKey($historiaId)->value('unidad_organizativa_id');
+
+        return $uoId === null ? null : Centro::withoutGlobalScopes()
+            ->where('unidad_organizativa_id', $uoId)
+            ->orderByRaw('deleted_at IS NULL DESC')
+            ->orderByDesc('id')
+            ->value('id');
+    }
 
     // -------------------------------------------------------------------------
     // Relaciones

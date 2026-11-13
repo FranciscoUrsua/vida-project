@@ -68,7 +68,7 @@
                                     <button type="button"
                                             class="btn btn-outline-danger btn-sm"
                                             wire:click="iniciarBaja({{ $prof->id }})">
-                                        Dar de baja
+                                        Desactivar
                                     </button>
                                     @endif
                                 </div>
@@ -294,49 +294,47 @@
     <div class="modal-backdrop fade show"></div>
     @endif
 
-    {{-- Modal baja de profesional --}}
+    {{-- Modal de desactivación del profesional (RN-20 y RN-22) --}}
     @if($modalBajaAbierto)
     <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
          aria-labelledby="modal-baja-titulo">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modal-baja-titulo">Dar de baja al profesional</h5>
+                    <h5 class="modal-title" id="modal-baja-titulo">Desactivar al profesional</h5>
                     <button type="button" class="btn-close" wire:click="$set('modalBajaAbierto', false)" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                    @if($this->casosActivosProfesionalSeleccionado > 0)
-                    <div class="alert alert-warning d-flex align-items-start gap-2">
+                    @if($this->pendientesBaja !== [])
+                    <div class="alert alert-warning d-flex align-items-start gap-2 mb-0">
                         <x-heroicon-o-exclamation-triangle class="icon-20 flex-shrink-0 mt-1" aria-hidden="true"/>
                         <div>
-                            <strong>Atención:</strong> Este profesional tiene
-                            <strong>{{ $this->casosActivosProfesionalSeleccionado }} casos activos</strong>.
-                            Confirma que serán reasignados antes de proceder.
+                            <p class="mb-2">No se puede desactivar mientras tenga casos o citas pendientes:</p>
+                            <ul class="mb-2">
+                                @foreach($this->pendientesBaja as $pendiente)
+                                <li>{{ $pendiente->descripcion() }}</li>
+                                @endforeach
+                            </ul>
+                            <p class="mb-2">Reparte antes sus casos y reasigna sus citas.</p>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach($this->enlacesBaja as $etiqueta => $url)
+                                <a href="{{ $url }}" class="btn btn-outline-secondary btn-sm">{{ $etiqueta }}</a>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="confirmarBajaConCasos"
-                               wire:model="confirmarBajaConCasos">
-                        <label class="form-check-label" for="confirmarBajaConCasos">
-                            Confirmo que los casos activos serán reasignados.
-                        </label>
-                    </div>
+                    @else
+                    <p class="mb-0">El profesional queda inactivo y, si tiene cuenta, no podrá iniciar sesión. Se cierran sus adscripciones y se conservan todos sus registros.</p>
                     @endif
-                    <div class="mb-0">
-                        <label class="form-label" for="fechaBaja">Fecha de baja <span class="text-danger">*</span></label>
-                        <input id="fechaBaja" type="date"
-                               class="form-control @error('fechaBaja') is-invalid @enderror"
-                               wire:model="fechaBaja">
-                        @error('fechaBaja') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
+                    @error('baja') <div class="alert alert-danger mt-3 mb-0">{{ $message }}</div> @enderror
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary btn-sm"
                             wire:click="$set('modalBajaAbierto', false)">Cancelar</button>
                     <button type="button" class="btn btn-danger btn-sm"
                             wire:click="confirmarBaja"
-                            @if($this->casosActivosProfesionalSeleccionado > 0 && !$confirmarBajaConCasos) disabled @endif>
-                        Confirmar baja
+                            @if($this->pendientesBaja !== []) disabled @endif>
+                        Desactivar
                     </button>
                 </div>
             </div>

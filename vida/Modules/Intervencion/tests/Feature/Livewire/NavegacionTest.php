@@ -440,6 +440,7 @@ class NavegacionTest extends TestCase
 
         DB::table('asignaciones_profesional')->insert([
             'historia_id' => $historia->id,
+            'centro_id' => $this->centroParaUo($this->uo)->id,
             'profesional_id' => $this->usuario->id,
             'fecha_inicio' => today()->toDateString(),
             'fecha_fin' => null,
@@ -488,6 +489,7 @@ class NavegacionTest extends TestCase
 
         DB::table('asignaciones_profesional')->insert([
             'historia_id' => $historia->id,
+            'centro_id' => $this->centroParaUo($this->uo)->id,
             'profesional_id' => $this->usuario->id,
             'fecha_inicio' => today()->toDateString(),
             'fecha_fin' => null,

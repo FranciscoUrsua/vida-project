@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Acciones\DesactivarAction;
 use App\Filament\Resources\ProfesionalResource\Pages;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -232,8 +232,8 @@ class ProfesionalResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
-                DeleteAction::make()
-                    ->authorize(fn () => auth()->user()?->hasRole('adm_sistema') ?? false),
+                // Sustituye al borrado (RN-20)
+                DesactivarAction::profesional(),
             ])
             ->defaultSort('apellido1');
     }
@@ -277,12 +277,25 @@ class ProfesionalResource extends Resource
     }
 
     /**
-     * Determina si el usuario puede eliminar profesionales.
+     * Los profesionales no se borran, ni siquiera con borrado lógico (RN-20): se
+     * desactivan con DesactivarAction.
      *
      * @param Model $record Registro objetivo.
+     *
+     * @return bool
      */
     public static function canDelete(Model $record): bool
     {
-        return auth()->user()?->hasRole('adm_sistema') ?? false;
+        return false;
+    }
+
+    /**
+     * Tampoco el borrado masivo (RN-20).
+     *
+     * @return bool
+     */
+    public static function canDeleteAny(): bool
+    {
+        return false;
     }
 }

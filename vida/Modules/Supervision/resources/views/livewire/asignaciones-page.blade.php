@@ -55,7 +55,7 @@
                                 <tr wire:key="actividad-{{ $fila['profesional']->id }}">
                                     <td class="fw-medium">
                                         {{ $fila['profesional']->nombre_completo }}
-                                        @if($fila['profesional']->trashed())
+                                        @if($fila['profesional']->trashed() || $fila['profesional']->estaDesactivado())
                                             <span class="badge text-bg-secondary ms-1">Dado de baja</span>
                                         @endif
                                     </td>

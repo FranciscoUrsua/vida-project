@@ -234,7 +234,8 @@ class ActividadCasosTest extends TestCase
     }
 
     /**
-     * Un profesional dado de baja (soft delete) con casos vigentes sigue en el
+     * Un profesional dado de baja (soft delete anterior a RN-20, que sigue en
+     * los datos; hoy nadie se borra) con casos vigentes sigue en el
      * resumen, marcado como borrado: son justo los casos que hay que repartir
      * (RN-08). Antes rompía la pantalla con «Undefined array key».
      *
@@ -244,7 +245,7 @@ class ActividadCasosTest extends TestCase
     public function el_profesional_dado_de_baja_con_casos_sigue_en_el_resumen(): void
     {
         $this->casoDe($this->ts1, 'De quien se fue');
-        $this->ts1->delete();
+        DB::table('users')->where('id', $this->ts1->id)->update(['deleted_at' => now()]);
 
         $fila = $this->filaDe($this->ts1);
 

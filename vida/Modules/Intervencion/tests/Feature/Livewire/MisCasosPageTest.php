@@ -56,6 +56,8 @@ class MisCasosPageTest extends TestCase
             'parent_id' => null,
             'activa' => true,
         ]);
+        // RN-23: las asignaciones de referencia son de un centro
+        $this->centroParaUo($uo);
 
         $usuario = User::create([
             'name' => 'TSR Test',
@@ -89,6 +91,8 @@ class MisCasosPageTest extends TestCase
             'tipo' => TipoPlan::GeneralAsp,
             'estado' => EstadoPlan::Activo,
         ], $extra));
+        // RN-23: el caso es del centro de la UO de la historia
+        $this->centroParaUo(HistoriaSocial::withoutGlobalScopes()->findOrFail($plan->historia_id)->unidad_organizativa_id);
 
         AsignacionProfesional::create([
             'historia_id' => $plan->historia_id,
@@ -116,6 +120,7 @@ class MisCasosPageTest extends TestCase
             'unidad_organizativa_id' => $uo->id,
             'estado' => 'abierta',
         ]);
+        $this->centroParaUo($uo);
 
         AsignacionProfesional::create([
             'historia_id' => $historia->id,
@@ -344,6 +349,7 @@ class MisCasosPageTest extends TestCase
             'unidad_organizativa_id' => $uo->id,
             'estado' => 'abierta',
         ]);
+        $this->centroParaUo($uo);
 
         // Asignación ya cerrada
         AsignacionProfesional::create([
