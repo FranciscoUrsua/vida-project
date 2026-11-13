@@ -19,6 +19,8 @@ enum EstadoCita: string
 
     /**
      * Etiqueta legible para mostrar el estado de la cita en la interfaz.
+     *
+     * @return string
      */
     public function label(): string
     {
@@ -35,6 +37,8 @@ enum EstadoCita: string
 
     /**
      * Tono con que se pinta el estado.
+     *
+     * @return Tono
      */
     public function tono(): Tono
     {

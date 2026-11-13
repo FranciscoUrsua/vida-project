@@ -32,12 +32,18 @@ class CitacionTest extends TestCase
     use CitasTestSetup;
     use RefreshDatabase;
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
         parent::setUp();
         $this->montarEscenarioCitas();
     }
 
+    /**
+     * @return CitacionService
+     */
     private function citacion(): CitacionService
     {
         return app(CitacionService::class);
@@ -62,6 +68,8 @@ class CitacionTest extends TestCase
 
     /**
      * TF-CIT-18 — Citar desde una solicitud en gestión.
+     *
+     * @return void
      */
     #[Test]
     public function citar_desde_una_solicitud(): void
@@ -91,6 +99,8 @@ class CitacionTest extends TestCase
 
     /**
      * TF-CIT-19 — La cita directa es atómica: con un slot ya ocupado no queda ni la solicitud.
+     *
+     * @return void
      */
     #[Test]
     public function la_cita_directa_es_atomica(): void
@@ -113,6 +123,8 @@ class CitacionTest extends TestCase
 
     /**
      * TF-CIT-20 — Reprogramar crea una cita nueva y libera el slot original.
+     *
+     * @return void
      */
     #[Test]
     public function reprogramar_crea_una_cita_nueva(): void
@@ -136,6 +148,8 @@ class CitacionTest extends TestCase
 
     /**
      * TF-CIT-21 — Una cita reprogramada no se reprograma otra vez; la cadena crece desde la vigente.
+     *
+     * @return void
      */
     #[Test]
     public function la_cadena_solo_crece_desde_la_cita_vigente(): void
@@ -157,6 +171,8 @@ class CitacionTest extends TestCase
 
     /**
      * TF-CIT-22 — Cancelar exige motivo; con él cancela, deja evento y libera el slot futuro.
+     *
+     * @return void
      */
     #[Test]
     public function cancelar_exige_motivo_y_quien_lo_pide(): void
@@ -179,6 +195,8 @@ class CitacionTest extends TestCase
 
     /**
      * TF-CIT-23 — Cancelar abriendo una solicitud nueva enlazada; sin la opción, ninguna.
+     *
+     * @return void
      */
     #[Test]
     public function cancelar_abriendo_una_solicitud_nueva(): void
@@ -201,6 +219,8 @@ class CitacionTest extends TestCase
 
     /**
      * TF-CIT-24 — Los cambios sobre citas externas se notifican al sistema externo.
+     *
+     * @return void
      */
     #[Test]
     public function los_cambios_sobre_citas_externas_se_notifican(): void

@@ -97,6 +97,8 @@ class AmbitoTerritorial extends Model
 
     /**
      * Registra la validación de coherencia antes de crear o actualizar.
+     *
+     * @return void
      */
     protected static function booted(): void
     {
@@ -117,6 +119,7 @@ class AmbitoTerritorial extends Model
      * - la unidad no puede estar ya en otro centro del mismo tipo con
      *   adscripción por domicilio (RN-02).
      *
+     * @return void
      *
      * @throws \InvalidArgumentException
      */
@@ -152,6 +155,7 @@ class AmbitoTerritorial extends Model
      * Comprueba que el tipo de ámbito y la clase referenciada coinciden y que la
      * unidad existe. Si la clase no viene informada, la deduce del tipo.
      *
+     * @return void
      *
      * @throws \InvalidArgumentException
      */
@@ -184,6 +188,7 @@ class AmbitoTerritorial extends Model
      * dos centros y la asignación sería ambigua. Unidades de distinto nivel no
      * cuentan como solapamiento (se resuelve por la más específica).
      *
+     * @return void
      *
      * @throws \InvalidArgumentException
      */

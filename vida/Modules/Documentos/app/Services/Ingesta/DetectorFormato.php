@@ -56,6 +56,8 @@ class DetectorFormato
      *
      * @param string $ruta Fichero en la zona temporal.
      *
+     * @return string
+     *
      * @throws IngestaRechazadaException
      */
     private function detectarPaquete(string $ruta): string
@@ -102,6 +104,8 @@ class DetectorFormato
      *
      * @param list<string> $entradas Nombres de las entradas del zip.
      * @param string $patron Expresión regular de las entradas de macros.
+     *
+     * @return void
      *
      * @throws IngestaRechazadaException
      */

@@ -18,6 +18,8 @@ return new class extends Migration
 {
     /**
      * Añade las columnas.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -36,6 +38,8 @@ return new class extends Migration
 
     /**
      * Elimina las columnas.
+     *
+     * @return void
      */
     public function down(): void
     {

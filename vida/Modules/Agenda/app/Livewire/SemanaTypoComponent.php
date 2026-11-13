@@ -43,6 +43,8 @@ class SemanaTypoComponent extends Component
      * Inicializa el componente con el centro y carga la semana tipo vigente.
      *
      * @param Centro $centro Centro del supervisor
+     *
+     * @return void
      */
     public function mount(Centro $centro): void
     {
@@ -60,6 +62,8 @@ class SemanaTypoComponent extends Component
      *
      * Valida coherencia temporal de las franjas. Si hay un cuadrante en borrador
      * para el mes siguiente, activa el aviso correspondiente.
+     *
+     * @return void
      */
     public function guardar(): void
     {
@@ -92,6 +96,8 @@ class SemanaTypoComponent extends Component
      *
      * @param int $diaOrigen Día a copiar (1=lunes…5=viernes)
      * @param array<int> $diasDestino Días de destino
+     *
+     * @return void
      */
     public function copiarDia(int $diaOrigen, array $diasDestino): void
     {
@@ -137,6 +143,8 @@ class SemanaTypoComponent extends Component
 
     /**
      * Renderiza la vista del componente.
+     *
+     * @return View
      */
     public function render(): View
     {
@@ -145,6 +153,8 @@ class SemanaTypoComponent extends Component
 
     /**
      * Obtiene el HorarioCentro activo y vigente para el centro.
+     *
+     * @return HorarioCentro|null
      */
     private function horarioActivo(): ?HorarioCentro
     {
@@ -180,6 +190,8 @@ class SemanaTypoComponent extends Component
 
     /**
      * Verifica que el usuario autenticado es supervisor asignado al centro.
+     *
+     * @return void
      */
     private function autorizarAcceso(): void
     {
@@ -191,6 +203,10 @@ class SemanaTypoComponent extends Component
 
     /**
      * Convierte "HH:MM" a minutos desde medianoche.
+     *
+     * @param string $time
+     *
+     * @return int
      */
     private function toMinutos(string $time): int
     {

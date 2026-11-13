@@ -46,6 +46,8 @@ final readonly class DatosIngesta
      * Valor de un metadato, buscando primero en los campos propios del documento.
      *
      * @param string $clave Clave del metadato (p. ej. fecha_emision, organo_emisor).
+     *
+     * @return mixed
      */
     public function metadato(string $clave): mixed
     {

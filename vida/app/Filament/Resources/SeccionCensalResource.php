@@ -37,6 +37,8 @@ class SeccionCensalResource extends Resource
 
     /**
      * El catálogo no se da de alta a mano.
+     *
+     * @return bool
      */
     public static function canCreate(): bool
     {
@@ -47,6 +49,8 @@ class SeccionCensalResource extends Resource
      * El catálogo no se edita a mano (salvo activar/desactivar desde el listado).
      *
      * @param Model $record Registro objetivo.
+     *
+     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -57,6 +61,8 @@ class SeccionCensalResource extends Resource
      * Las secciones no se borran: se desactivan.
      *
      * @param Model $record Registro objetivo.
+     *
+     * @return bool
      */
     public static function canDelete(Model $record): bool
     {
@@ -67,6 +73,8 @@ class SeccionCensalResource extends Resource
      * Configura el listado de secciones censales.
      *
      * @param Table $table Tabla base.
+     *
+     * @return Table
      */
     public static function table(Table $table): Table
     {

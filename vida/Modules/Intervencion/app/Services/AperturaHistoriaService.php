@@ -39,6 +39,13 @@ use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
  */
 class AperturaHistoriaService
 {
+    /**
+     * @param CentroDeUsuario $centros
+     * @param ResolucionCentroService $resolucion
+     * @param AsignacionCentroService $asignacionCentro
+     * @param AsignacionReferenciaService $asignacionReferencia
+     * @param ConfiguracionEfectivaCentro $configuracion
+     */
     public function __construct(
         private readonly CentroDeUsuario $centros,
         private readonly ResolucionCentroService $resolucion,
@@ -55,6 +62,8 @@ class AperturaHistoriaService
      * @param int $ciudadanoId Ciudadano cuya historia se abre.
      * @param User $profesional Profesional que la abre.
      * @param User|null $elegido Profesional elegido por la persona (centros de libre elección).
+     *
+     * @return HistoriaSocial
      *
      * @throws AuthorizationException Si el profesional no puede crear historias.
      * @throws \DomainException Si el profesional no está adscrito a un centro (RN-15).
@@ -90,6 +99,10 @@ class AperturaHistoriaService
      * Modo de asignación de referencia del centro en el que abriría la historia
      * el profesional, para adaptar la interfaz. Null si su UO no tiene centro
      * (se comporta como «quien abre»).
+     *
+     * @param User $profesional
+     *
+     * @return ModoAsignacionReferenciaCentro|null
      */
     public function modoDelCentro(User $profesional): ?ModoAsignacionReferenciaCentro
     {
@@ -100,6 +113,13 @@ class AperturaHistoriaService
 
     /**
      * Asigna la referencia de la historia recién abierta.
+     *
+     * @param HistoriaSocial $historia
+     * @param Ciudadano $ciudadano
+     * @param User $profesional
+     * @param User|null $elegido
+     *
+     * @return AsignacionProfesional|null
      */
     private function asignarReferencia(HistoriaSocial $historia, Ciudadano $ciudadano, User $profesional, ?User $elegido): ?AsignacionProfesional
     {
@@ -137,6 +157,10 @@ class AperturaHistoriaService
      * Centro de la persona del mismo tipo que el de la apertura, asignándolo si
      * aún no lo tiene. Si el tipo del centro de la apertura no se asigna ni por
      * domicilio ni por elección, la persona se atiende en él.
+     *
+     * @param Ciudadano $ciudadano
+     * @param Centro $centroApertura
+     * @param User $profesional
      *
      * @return Centro|null Null si no se puede asignar (queda en la bandeja).
      */

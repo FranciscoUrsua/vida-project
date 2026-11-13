@@ -12,6 +12,8 @@ interface AlmacenDocumentos
 {
     /**
      * Nombre del disco donde se escriben los objetos nuevos.
+     *
+     * @return string
      */
     public function disco(): string;
 
@@ -20,6 +22,8 @@ interface AlmacenDocumentos
      *
      * @param string $clave Clave de almacenamiento (UUID).
      * @param string $contenidoCifrado Contenido ya cifrado.
+     *
+     * @return void
      */
     public function guardar(string $clave, string $contenidoCifrado): void;
 
@@ -28,6 +32,8 @@ interface AlmacenDocumentos
      *
      * @param string $clave Clave de almacenamiento.
      * @param string|null $disco Disco donde se guardó; null = disco actual.
+     *
+     * @return string
      */
     public function leer(string $clave, ?string $disco = null): string;
 
@@ -36,6 +42,8 @@ interface AlmacenDocumentos
      *
      * @param string $clave Clave de almacenamiento.
      * @param string|null $disco Disco donde se guardó; null = disco actual.
+     *
+     * @return bool
      */
     public function existe(string $clave, ?string $disco = null): bool;
 
@@ -44,6 +52,8 @@ interface AlmacenDocumentos
      *
      * @param string $clave Clave de almacenamiento.
      * @param string|null $disco Disco donde se guardó; null = disco actual.
+     *
+     * @return void
      */
     public function eliminar(string $clave, ?string $disco = null): void;
 

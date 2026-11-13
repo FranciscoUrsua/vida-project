@@ -74,6 +74,7 @@ class TipoCita extends Model
     /**
      * Impide cambiar el código de un tipo con citas: las existentes se clasificaron con él.
      *
+     * @return void
      *
      * @throws DomainException
      */
@@ -84,6 +85,8 @@ class TipoCita extends Model
 
     /**
      * Tipo genérico «cita».
+     *
+     * @return self
      */
     public static function generico(): self
     {
@@ -116,6 +119,10 @@ class TipoCita extends Model
 
     /**
      * Si una cita de este tipo puede darse en un slot del tipo dado.
+     *
+     * @param int $tipoSlotId
+     *
+     * @return bool
      */
     public function admiteTipoSlot(int $tipoSlotId): bool
     {
@@ -147,6 +154,10 @@ class TipoCita extends Model
     /**
      * Nombre que puede ver el usuario: el interno si tiene acceso a la Historia
      * Social (permiso `historia.leer`); si no, la etiqueta pública.
+     *
+     * @param User|null $usuario
+     *
+     * @return string
      */
     public function nombreParaUsuario(?User $usuario): string
     {
@@ -154,6 +165,8 @@ class TipoCita extends Model
     }
 
     /**
+     * @return void
+     *
      * @throws DomainException Si cambia el código y hay citas del tipo.
      */
     private function impedirCambioDeCodigo(): void

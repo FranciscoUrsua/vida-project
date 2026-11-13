@@ -40,6 +40,9 @@ class InterfazCitasTest extends TestCase
     use CitasTestSetup;
     use RefreshDatabase;
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -48,6 +51,8 @@ class InterfazCitasTest extends TestCase
 
     /**
      * TF-CIT-09 — La bandeja no expone el motivo ni el nombre interno.
+     *
+     * @return void
      */
     #[Test]
     public function la_bandeja_no_expone_el_motivo_ni_el_nombre_interno(): void
@@ -75,6 +80,8 @@ class InterfazCitasTest extends TestCase
 
     /**
      * TF-CIT-09 (negativo) — Quien no da citas no ve la bandeja.
+     *
+     * @return void
      */
     #[Test]
     public function la_bandeja_no_la_ve_quien_no_da_citas(): void
@@ -87,6 +94,8 @@ class InterfazCitasTest extends TestCase
     /**
      * TF-CIT-34 — Con cita hoy, la herramienta propone vincularla, marcada, y el
      * apunte la completa.
+     *
+     * @return void
      */
     #[Test]
     public function la_ficha_propone_vincular_la_cita_de_hoy(): void
@@ -107,6 +116,8 @@ class InterfazCitasTest extends TestCase
 
     /**
      * TF-CIT-34 (negativo) — Sin cita hoy no aparece la casilla; desmarcada, no se vincula.
+     *
+     * @return void
      */
     #[Test]
     public function sin_cita_hoy_no_se_propone_y_desmarcada_no_se_vincula(): void
@@ -134,6 +145,8 @@ class InterfazCitasTest extends TestCase
     /**
      * TF-CIT-43 (ficha) — El detalle del apunte muestra las secciones Cita y
      * Coordinación; sin cita ni evento, no.
+     *
+     * @return void
      */
     #[Test]
     public function el_detalle_del_apunte_muestra_cita_y_coordinacion(): void
@@ -175,6 +188,8 @@ class InterfazCitasTest extends TestCase
     /**
      * TF-CIT-43 (agenda) — Quien está convocado a una mesa de caso ve en su
      * agenda el título del evento, pero no a la persona referenciada.
+     *
+     * @return void
      */
     #[Test]
     public function la_agenda_muestra_el_evento_sin_la_persona_referenciada(): void
@@ -199,6 +214,8 @@ class InterfazCitasTest extends TestCase
     /**
      * Agenda del profesional: sus citas con Atender, Incomparecencia,
      * Acompañantes y Pedir cambio; nunca reprogramar ni cancelar (RN-05).
+     *
+     * @return void
      */
     #[Test]
     public function la_agenda_muestra_las_citas_propias_con_sus_acciones(): void
@@ -225,6 +242,8 @@ class InterfazCitasTest extends TestCase
     /**
      * Atender una cita de un tipo de atención (sin herramienta de Intervención)
      * lleva a la ficha de Ciudadanía, donde el registro de atención la cierra.
+     *
+     * @return void
      */
     #[Test]
     public function atender_una_cita_de_atencion_lleva_a_la_ficha_de_ciudadania(): void
@@ -238,6 +257,8 @@ class InterfazCitasTest extends TestCase
 
     /**
      * Incomparecencia desde la agenda; sobre una cita ajena no hay acción.
+     *
+     * @return void
      */
     #[Test]
     public function la_incomparecencia_se_marca_solo_en_citas_propias(): void
@@ -261,6 +282,8 @@ class InterfazCitasTest extends TestCase
 
     /**
      * Acompañantes desde la agenda: con relación y nombre; sin ninguno de los dos, error.
+     *
+     * @return void
      */
     #[Test]
     public function los_acompanantes_se_registran_desde_la_agenda(): void
@@ -281,6 +304,8 @@ class InterfazCitasTest extends TestCase
 
     /**
      * Pedir cambio: exige texto y deja evento en la cita.
+     *
+     * @return void
      */
     #[Test]
     public function pedir_cambio_exige_texto_y_deja_evento(): void
@@ -302,6 +327,8 @@ class InterfazCitasTest extends TestCase
     /**
      * Atender una cita de atención: la ficha de Ciudadanía abre el registro con
      * la cita propuesta, y el registro la completa.
+     *
+     * @return void
      */
     #[Test]
     public function el_registro_de_atencion_completa_la_cita_desde_la_ficha(): void
@@ -324,6 +351,8 @@ class InterfazCitasTest extends TestCase
     /**
      * Dar cita desde un registro de atención: la cita queda como su cita generada;
      * para otra persona, no.
+     *
+     * @return void
      */
     #[Test]
     public function la_cita_dada_desde_una_atencion_queda_como_cita_generada(): void
@@ -355,6 +384,12 @@ class InterfazCitasTest extends TestCase
 
     /**
      * Cita directa en ventanilla para Juan con el TSR, desde un registro de atención.
+     *
+     * @param int $ciudadanoId
+     * @param int $atencionId
+     * @param string $hora
+     *
+     * @return void
      */
     private function darCitaDirecta(int $ciudadanoId, int $atencionId, string $hora = '11:00'): void
     {
@@ -375,6 +410,8 @@ class InterfazCitasTest extends TestCase
     /**
      * Colectivos protegidos (CLAUDE.md §3): quien da citas no encuentra por
      * nombre a una persona protegida que no puede ver; a una no protegida, sí.
+     *
+     * @return void
      */
     #[Test]
     public function el_buscador_de_citas_no_encuentra_por_nombre_a_personas_protegidas(): void
@@ -390,6 +427,8 @@ class InterfazCitasTest extends TestCase
 
     /**
      * Primera relación de acompañante del catálogo.
+     *
+     * @return string
      */
     private function relacion(): string
     {
@@ -400,6 +439,8 @@ class InterfazCitasTest extends TestCase
      * Apunte de María escrito por el TSR.
      *
      * @param array<string, mixed> $datos
+     *
+     * @return Apunte
      */
     private function apunteDeMaria(array $datos = []): Apunte
     {

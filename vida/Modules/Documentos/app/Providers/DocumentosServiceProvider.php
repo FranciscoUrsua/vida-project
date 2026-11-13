@@ -39,6 +39,8 @@ class DocumentosServiceProvider extends ServiceProvider
 
     /**
      * Registra configuración y servicios del módulo.
+     *
+     * @return void
      */
     public function register(): void
     {
@@ -64,6 +66,9 @@ class DocumentosServiceProvider extends ServiceProvider
      * El simulado solo se admite en tests: en cualquier otro entorno dejaría entrar
      * ficheros sin analizar, así que la custodia se niega a funcionar.
      *
+     *
+     * @return EscanerAntivirus
+     *
      * @throws ConfiguracionDocumentosException
      */
     private function escanerAntivirus(): EscanerAntivirus
@@ -79,6 +84,8 @@ class DocumentosServiceProvider extends ServiceProvider
 
     /**
      * Arranca el módulo Documentos: migraciones, observers, baja de ciudadano, vistas, rutas, Livewire y comandos.
+     *
+     * @return void
      */
     public function boot(): void
     {

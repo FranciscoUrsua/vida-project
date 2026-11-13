@@ -30,6 +30,8 @@ class UnauthorizedException extends RuntimeException
      * Construye la excepción cuando el usuario no tiene el rol de supervisión.
      *
      * @param int $usuarioId ID del usuario.
+     *
+     * @return self
      */
     public static function noEsSupervisor(int $usuarioId): self
     {
@@ -41,6 +43,8 @@ class UnauthorizedException extends RuntimeException
      *
      * @param int $usuarioId ID del supervisor.
      * @param int $uoId ID de la UO.
+     *
+     * @return self
      */
     public static function uoAjena(int $usuarioId, int $uoId): self
     {

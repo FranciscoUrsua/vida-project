@@ -69,6 +69,8 @@ class CitaAcompanante extends Model
 
     /**
      * Nombre para mostrar: el del ciudadano enlazado o el anotado.
+     *
+     * @return string
      */
     public function nombreVisible(): string
     {
@@ -77,6 +79,8 @@ class CitaAcompanante extends Model
 
     /**
      * Ciudadano para auditoría: la titular de la cita.
+     *
+     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {

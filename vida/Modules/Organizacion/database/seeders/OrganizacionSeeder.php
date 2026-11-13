@@ -19,6 +19,8 @@ class OrganizacionSeeder extends Seeder
 {
     /**
      * Ejecuta los seeders del módulo Organizacion en orden.
+     *
+     * @return void
      */
     public function run(): void
     {

@@ -87,6 +87,12 @@ class AusenciasSupervisorTest extends TestCase
      * Slot del profesional 1 a las 10:00 en la fecha y estado dados. Toda cita
      * tiene slot (citas.slot_id no admite nulos): al cancelarse por ausencia
      * conserva el suyo, que queda anulado.
+     *
+     * @param TipoSlot $tipoSlot
+     * @param string $fecha
+     * @param EstadoSlot $estado
+     *
+     * @return Slot
      */
     private function slotDeCita(TipoSlot $tipoSlot, string $fecha, EstadoSlot $estado): Slot
     {

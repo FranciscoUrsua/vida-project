@@ -158,6 +158,8 @@ class EventosSupervisorPage extends Component
      * Crea el evento y bloquea los slots de los convocados.
      *
      * Muestra aviso si hay conflicto de espacio pero no bloquea la creación.
+     *
+     * @return void
      */
     public function crear(): void
     {
@@ -214,6 +216,10 @@ class EventosSupervisorPage extends Component
      *
      * Solo actúa si el evento existe en el centro del supervisor y su fecha
      * es igual o posterior a hoy (no se editan eventos ya ocurridos).
+     *
+     * @param int $eventoId
+     *
+     * @return void
      */
     public function abrirEdicion(int $eventoId): void
     {
@@ -251,6 +257,8 @@ class EventosSupervisorPage extends Component
      * Los convocados se sincronizan (sync) sin tocar el estado de los slots,
      * que ya fueron gestionados al crear el evento o al eliminar convocados
      * previos. La hora de fin se recalcula a partir de la nueva duración.
+     *
+     * @return void
      */
     public function actualizar(): void
     {
@@ -301,6 +309,8 @@ class EventosSupervisorPage extends Component
 
     /**
      * Cierra el modal de edición sin guardar cambios.
+     *
+     * @return void
      */
     public function cerrarEdicion(): void
     {
@@ -315,6 +325,10 @@ class EventosSupervisorPage extends Component
 
     /**
      * Elimina el evento y libera los slots bloqueados.
+     *
+     * @param int $eventoId
+     *
+     * @return void
      */
     public function eliminar(int $eventoId): void
     {
@@ -338,6 +352,8 @@ class EventosSupervisorPage extends Component
 
     /**
      * Renderiza la pantalla de eventos internos.
+     *
+     * @return View
      */
     public function render(): View
     {
@@ -350,6 +366,8 @@ class EventosSupervisorPage extends Component
 
     /**
      * Resuelve el Centro del supervisor autenticado.
+     *
+     * @return Centro|null
      */
     private function centroDelSupervisor(): ?Centro
     {
@@ -362,6 +380,7 @@ class EventosSupervisorPage extends Component
      * Calcula la hora de fin sumando los minutos de duración a la hora de inicio.
      *
      * @param string $horaInicio Formato HH:MM o HH:MM:SS
+     * @param int $duracionMinutos
      *
      * @return string Formato HH:MM
      */
@@ -375,6 +394,11 @@ class EventosSupervisorPage extends Component
 
     /**
      * Calcula los minutos de duración entre dos horas en formato HH:MM o HH:MM:SS.
+     *
+     * @param string $horaInicio
+     * @param string $horaFin
+     *
+     * @return int
      */
     private function calcularDuracion(string $horaInicio, string $horaFin): int
     {

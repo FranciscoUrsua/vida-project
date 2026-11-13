@@ -15,7 +15,12 @@
         },
         "phpdoc_separation": true,
         "no_extra_blank_lines": {
-            "tokens": ["extra", "throw", "use"]
-        }
+            "tokens": [
+                "extra",
+                "throw",
+                "use"
+            ]
+        },
+        "no_superfluous_phpdoc_tags": false
     }
 }

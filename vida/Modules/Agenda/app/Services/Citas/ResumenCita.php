@@ -17,10 +17,15 @@ use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
  */
 class ResumenCita
 {
+    /**
+     * @param AsignacionReferenciaService $referencias
+     */
     public function __construct(private readonly AsignacionReferenciaService $referencias) {}
 
     /**
      * Sección de la cita que atiende el apunte, o null si no tiene.
+     *
+     * @param Apunte $apunte
      *
      * @return array{origen: string, solicitada_por: string|null, solicitada_en: string|null, prevista: string, real: string, demora_dias: int|null, modo: string, referencia: string|null, reprogramaciones: int, cita_id: int, acompanantes: list<string>}|null
      */
@@ -55,6 +60,8 @@ class ResumenCita
 
     /**
      * Sección del evento de agenda del que nace el apunte, o null.
+     *
+     * @param Apunte $apunte
      *
      * @return array{titulo: string, tipo: string, fecha: string, convocados: list<string>}|null
      */

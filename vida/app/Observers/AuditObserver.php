@@ -104,7 +104,7 @@ class AuditObserver
     /**
      * Snapshot de todos los campos auditables del modelo.
      *
-     *
+     * @param Model $model
      *
      * @phpstan-param Model&AuditableModel $model
      *

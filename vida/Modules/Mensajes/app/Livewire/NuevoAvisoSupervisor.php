@@ -35,6 +35,8 @@ class NuevoAvisoSupervisor extends Component
 
     /**
      * Exige el rol de supervisión y preselecciona la UO del supervisor.
+     *
+     * @return void
      */
     public function mount(): void
     {
@@ -60,6 +62,8 @@ class NuevoAvisoSupervisor extends Component
      * Envía el aviso a todo el equipo de la UO elegida.
      *
      * @param AlertaService $alertaService Servicio de ciclo de vida de alertas.
+     *
+     * @return void
      */
     public function enviar(AlertaService $alertaService): void
     {
@@ -91,6 +95,8 @@ class NuevoAvisoSupervisor extends Component
 
     /**
      * Renderiza el formulario.
+     *
+     * @return View
      */
     public function render(): View
     {

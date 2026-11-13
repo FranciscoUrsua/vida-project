@@ -110,6 +110,8 @@ class ConfiguracionRol extends Model
      *
      * @param Role $rol Rol configurado.
      * @param string $nivel APROBACION_PREVIA o ALERTA_SUPERVISADA.
+     *
+     * @return void
      */
     public static function fijarNivel(Role $rol, string $nivel): void
     {

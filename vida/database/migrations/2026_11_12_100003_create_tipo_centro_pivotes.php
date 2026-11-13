@@ -14,6 +14,8 @@ return new class extends Migration
 {
     /**
      * Crea los tres pivotes del tipo.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -38,6 +40,8 @@ return new class extends Migration
 
     /**
      * Elimina los pivotes.
+     *
+     * @return void
      */
     public function down(): void
     {

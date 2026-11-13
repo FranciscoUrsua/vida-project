@@ -16,6 +16,8 @@ enum UrgenciaCita: string
 
     /**
      * Etiqueta para la interfaz.
+     *
+     * @return string
      */
     public function label(): string
     {
@@ -28,6 +30,8 @@ enum UrgenciaCita: string
 
     /**
      * Tono con que se pinta la urgencia.
+     *
+     * @return Tono
      */
     public function tono(): Tono
     {
@@ -40,6 +44,8 @@ enum UrgenciaCita: string
 
     /**
      * Si puede consumir slots reservados para urgencias.
+     *
+     * @return bool
      */
     public function admiteSlotsUrgencia(): bool
     {
@@ -48,6 +54,8 @@ enum UrgenciaCita: string
 
     /**
      * Orden de prioridad en la bandeja (menor, antes).
+     *
+     * @return int
      */
     public function prioridad(): int
     {

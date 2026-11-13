@@ -44,6 +44,8 @@ class TipoSlotResource extends Resource
 
     /**
      * Indica si el usuario puede ver el listado de tipos de slot.
+     *
+     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -52,6 +54,8 @@ class TipoSlotResource extends Resource
 
     /**
      * Indica si el usuario puede crear un tipo de slot.
+     *
+     * @return bool
      */
     public static function canCreate(): bool
     {
@@ -60,6 +64,10 @@ class TipoSlotResource extends Resource
 
     /**
      * Indica si el usuario puede editar un tipo de slot.
+     *
+     * @param Model $record
+     *
+     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -68,6 +76,10 @@ class TipoSlotResource extends Resource
 
     /**
      * Indica si el usuario puede eliminar un tipo de slot.
+     *
+     * @param Model $record
+     *
+     * @return bool
      */
     public static function canDelete(Model $record): bool
     {
@@ -76,6 +88,10 @@ class TipoSlotResource extends Resource
 
     /**
      * Define el formulario de creación y edición de tipos de slot.
+     *
+     * @param Schema $schema
+     *
+     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -144,6 +160,10 @@ class TipoSlotResource extends Resource
 
     /**
      * Define la tabla de listado de tipos de slot.
+     *
+     * @param Table $table
+     *
+     * @return Table
      */
     public static function table(Table $table): Table
     {

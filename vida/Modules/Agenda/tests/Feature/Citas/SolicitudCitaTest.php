@@ -28,12 +28,18 @@ class SolicitudCitaTest extends TestCase
     use CitasTestSetup;
     use RefreshDatabase;
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
         parent::setUp();
         $this->montarEscenarioCitas();
     }
 
+    /**
+     * @return SolicitudCitaService
+     */
     private function servicio(): SolicitudCitaService
     {
         return app(SolicitudCitaService::class);
@@ -43,6 +49,8 @@ class SolicitudCitaTest extends TestCase
      * Solicitud ordinaria de María a su referencia, pedida por el TSR.
      *
      * @param array<string, mixed> $cambios
+     *
+     * @return SolicitudCita
      */
     private function solicitud(array $cambios = []): SolicitudCita
     {
@@ -60,6 +68,8 @@ class SolicitudCitaTest extends TestCase
     /**
      * TF-CIT-04 — Intervención crea una solicitud: pendiente, con evento, aviso a
      * quienes dan citas y motivo cifrado.
+     *
+     * @return void
      */
     #[Test]
     public function intervencion_crea_una_solicitud(): void
@@ -85,6 +95,8 @@ class SolicitudCitaTest extends TestCase
 
     /**
      * TF-CIT-05 — Sin fecha límite, se calcula con 7 días laborables para preferente.
+     *
+     * @return void
      */
     #[Test]
     public function la_fecha_limite_se_calcula_en_dias_laborables(): void
@@ -97,6 +109,8 @@ class SolicitudCitaTest extends TestCase
 
     /**
      * TF-CIT-06 — Destino profesional concreto exige profesional.
+     *
+     * @return void
      */
     #[Test]
     public function el_destino_profesional_concreto_exige_profesional(): void
@@ -114,6 +128,8 @@ class SolicitudCitaTest extends TestCase
 
     /**
      * TF-CIT-07 — Una solicitud solo la toma una persona. [negativo del bloqueo por estado]
+     *
+     * @return void
      */
     #[Test]
     public function una_solicitud_solo_la_toma_una_persona(): void
@@ -135,6 +151,8 @@ class SolicitudCitaTest extends TestCase
 
     /**
      * TF-CIT-08 — Desistir exige motivo y es final; sin límite de intentos.
+     *
+     * @return void
      */
     #[Test]
     public function desistir_exige_motivo_y_es_final(): void
@@ -157,6 +175,8 @@ class SolicitudCitaTest extends TestCase
 
     /**
      * Soltar devuelve a pendiente; solo quien la tiene puede soltarla.
+     *
+     * @return void
      */
     #[Test]
     public function soltar_la_devuelve_a_pendiente(): void
@@ -176,6 +196,8 @@ class SolicitudCitaTest extends TestCase
 
     /**
      * Quien la pidió puede anularla; la referencia es obligatoria para el destino «referencia».
+     *
+     * @return void
      */
     #[Test]
     public function el_solicitante_anula_y_sin_referencia_no_hay_destino_referencia(): void

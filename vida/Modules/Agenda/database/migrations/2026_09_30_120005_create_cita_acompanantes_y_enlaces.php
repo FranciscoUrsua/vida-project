@@ -29,6 +29,8 @@ return new class extends Migration
 
     /**
      * Aplica los cambios.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -85,6 +87,8 @@ return new class extends Migration
 
     /**
      * Revierte los cambios.
+     *
+     * @return void
      */
     public function down(): void
     {

@@ -46,6 +46,8 @@ class CicloVidaDocumentoService
      * @param DatosIngesta $datos Tipo, canal, vínculos y metadatos.
      * @param bool $esContenido true si $origen es el contenido binario.
      *
+     * @return Documento
+     *
      * @throws ValidationException si faltan metadatos exigidos por el tipo
      * @throws \DomainException si el tipo está inactivo o algún vínculo no está permitido
      * @throws IngestaRechazadaException si la tubería de entrada rechaza el fichero
@@ -83,6 +85,8 @@ class CicloVidaDocumentoService
      * @param CanalCaptura $canal Canal de entrada.
      * @param string|null $nombreOriginal Nombre original del fichero; se guarda cifrado.
      * @param bool $esContenido true si $origen es el contenido binario.
+     *
+     * @return DocumentoVersion
      *
      * @throws \DomainException si el documento procede de un informe firmado o ya no está vigente
      * @throws IngestaRechazadaException si la tubería de entrada rechaza el fichero
@@ -154,6 +158,8 @@ class CicloVidaDocumentoService
      *
      * @param DocumentoVersion $version Versión recién sustituida.
      * @param User $usuario Quien subió la versión que la sustituye.
+     *
+     * @return void
      */
     private function purgarSiProcede(DocumentoVersion $version, User $usuario): void
     {
@@ -174,6 +180,8 @@ class CicloVidaDocumentoService
      * @param Documento $documento Documento vinculado.
      * @param Model $entidad Entidad que deja de estar vinculada.
      * @param User $usuario Quien da de baja el vínculo.
+     *
+     * @return DocumentoVinculo
      *
      * @throws \DomainException si no hay vínculo activo con esa entidad
      */
@@ -203,6 +211,8 @@ class CicloVidaDocumentoService
      * @param DatosIngesta $datos Datos del alta.
      * @param Model $entidad Entidad que se vincularía.
      *
+     * @return void
+     *
      * @throws \DomainException
      */
     private function validarVinculable(DatosIngesta $datos, Model $entidad): void
@@ -220,6 +230,8 @@ class CicloVidaDocumentoService
      * Comprueba que están todos los metadatos que exige el tipo.
      *
      * @param DatosIngesta $datos Datos del alta.
+     *
+     * @return void
      *
      * @throws ValidationException
      */

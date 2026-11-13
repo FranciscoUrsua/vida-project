@@ -31,6 +31,8 @@ class ConfiguracionAsignacionTest extends TestCase
 
     /**
      * Escenario de asignación.
+     *
+     * @return void
      */
     protected function setUp(): void
     {

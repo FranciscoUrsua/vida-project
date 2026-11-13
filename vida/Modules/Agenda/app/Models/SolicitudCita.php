@@ -113,6 +113,7 @@ class SolicitudCita extends Model
     /**
      * Valida la transición de estado antes de guardar.
      *
+     * @return void
      *
      * @throws LogicException
      */
@@ -252,6 +253,10 @@ class SolicitudCita extends Model
     /**
      * Motivo profesional si el usuario tiene acceso a la Historia Social; si no, null.
      * Única comprobación: las vistas no deciden.
+     *
+     * @param User|null $usuario
+     *
+     * @return string|null
      */
     public function motivoVisiblePara(?User $usuario): ?string
     {
@@ -260,6 +265,8 @@ class SolicitudCita extends Model
 
     /**
      * Ciudadano para auditoría.
+     *
+     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {
@@ -267,6 +274,8 @@ class SolicitudCita extends Model
     }
 
     /**
+     * @return void
+     *
      * @throws LogicException Si la transición no es válida.
      */
     private function validarTransicion(): void

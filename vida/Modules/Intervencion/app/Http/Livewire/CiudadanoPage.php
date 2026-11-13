@@ -210,6 +210,8 @@ class CiudadanoPage extends Component
     /**
      * Ciudadano titular de la Historia Social, autorizado por la policy en cada
      * petición (la apertura ya se auditó en mount).
+     *
+     * @return Ciudadano|null
      */
     #[Computed]
     public function ciudadano(): ?Ciudadano
@@ -878,6 +880,8 @@ class CiudadanoPage extends Component
     /**
      * Cita que se propone vincular al apunte: la de la agenda o la de hoy con
      * este profesional (docs/modulo-citas.md §3.5).
+     *
+     * @return Cita|null
      */
     #[Computed]
     public function citaVinculable(): ?Cita
@@ -887,6 +891,8 @@ class CiudadanoPage extends Component
 
     /**
      * Abre la herramienta del tipo de cita cuando se entra desde la agenda (?herramienta=).
+     *
+     * @return void
      */
     public function mount(): void
     {
@@ -908,6 +914,8 @@ class CiudadanoPage extends Component
 
     /**
      * Id de la cita a la que se vincula el apunte que se va a guardar, o null.
+     *
+     * @return int|null
      */
     private function citaParaApunte(): ?int
     {
@@ -916,6 +924,8 @@ class CiudadanoPage extends Component
 
     /**
      * Tras guardar un apunte, la propuesta de vinculación se recalcula.
+     *
+     * @return void
      */
     private function olvidarCita(): void
     {
@@ -926,6 +936,8 @@ class CiudadanoPage extends Component
 
     /**
      * Si el usuario puede pedir citas (herramienta «Solicitar cita»).
+     *
+     * @return bool
      */
     #[Computed]
     public function puedeSolicitarCita(): bool
@@ -951,6 +963,8 @@ class CiudadanoPage extends Component
     /**
      * Crea la solicitud de cita con el formulario de la herramienta: cae en la
      * bandeja de citación del centro (docs/modulo-citas.md §3.1).
+     *
+     * @return void
      */
     public function solicitarCita(): void
     {
@@ -969,6 +983,8 @@ class CiudadanoPage extends Component
 
     /**
      * Centro en el que se pide la cita: el del profesional que la pide.
+     *
+     * @return Centro|null
      */
     protected function centroDeLaSolicitud(): ?Centro
     {
@@ -977,6 +993,8 @@ class CiudadanoPage extends Component
 
     /**
      * Destino por defecto: la referencia si la persona la tiene; si no, el primer libre.
+     *
+     * @return void
      */
     private function prepararSolicitudCita(): void
     {
@@ -991,6 +1009,10 @@ class CiudadanoPage extends Component
      * para el propio profesional, desde la fecha prevista y con el plazo
      * ordinario a partir de ella. La entrevista ya está guardada; si la solicitud
      * no es válida, se avisa sin deshacerla.
+     *
+     * @param SeguimientoPlan $seguimiento
+     *
+     * @return void
      */
     private function solicitarCitaSeguimiento(SeguimientoPlan $seguimiento): void
     {
@@ -1398,6 +1420,8 @@ class CiudadanoPage extends Component
      * que forma parte de la UC (CLAUDE.md §3).
      *
      * @param int $miembroId ID de UnidadConvivenciaMiembro.
+     *
+     * @return bool
      */
     private function miembroVisible(int $miembroId): bool
     {

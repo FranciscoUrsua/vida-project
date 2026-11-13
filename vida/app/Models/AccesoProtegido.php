@@ -86,6 +86,8 @@ class AccesoProtegido extends Model
      * Único criterio de vigencia: lo usan CiudadanoPolicy y AccesoExpediente.
      *
      * @param Builder<self> $query
+     * @param int $usuarioId
+     * @param int $ciudadanoId
      *
      * @return Builder<self>
      */

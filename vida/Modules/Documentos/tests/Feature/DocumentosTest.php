@@ -81,6 +81,8 @@ class DocumentosTest extends TestCase
      *
      * @param string $codigo Código del tipo.
      * @param FamiliaDocumental $familia Familia del tipo.
+     *
+     * @return TipoDocumental
      */
     private function crearTipoDoc(string $codigo = 'informe_externo', FamiliaDocumental $familia = FamiliaDocumental::AportadoCiudadano): TipoDocumental
     {
@@ -96,6 +98,8 @@ class DocumentosTest extends TestCase
      * Ruta de un fichero de prueba de tests/fixtures.
      *
      * @param string $nombre Nombre del fichero.
+     *
+     * @return string
      */
     private function fixture(string $nombre): string
     {
@@ -109,6 +113,8 @@ class DocumentosTest extends TestCase
      * @param Ciudadano $ciudadano Persona vinculada.
      * @param string $nombreOriginal Nombre original.
      * @param string $fixture Fichero de origen.
+     *
+     * @return Documento
      */
     private function altaDocumento(User $usuario, Ciudadano $ciudadano, string $nombreOriginal = 'documento.pdf', string $fixture = 'valido.pdf'): Documento
     {
@@ -128,6 +134,8 @@ class DocumentosTest extends TestCase
      * Ruta en el disco de documentos del objeto de la versión vigente.
      *
      * @param Documento $documento Documento.
+     *
+     * @return string
      */
     private function rutaObjeto(Documento $documento): string
     {
@@ -136,6 +144,8 @@ class DocumentosTest extends TestCase
 
     /**
      * @param array<mixed> $secciones
+     *
+     * @return PlantillaInforme
      */
     private function crearPlantilla(int $uoId, bool $activa = true, array $secciones = []): PlantillaInforme
     {
@@ -172,6 +182,8 @@ class DocumentosTest extends TestCase
 
     /**
      * PDF firmado de prueba en base64 (stub de AutoFirma).
+     *
+     * @return string
      */
     private function pdfBase64(): string
     {
@@ -180,6 +192,8 @@ class DocumentosTest extends TestCase
 
     /**
      * Prepara el disco falso de documentos y el tipo documental de los informes firmados.
+     *
+     * @return TipoDocumental
      */
     private function crearTipoInformeGenerado(): TipoDocumental
     {

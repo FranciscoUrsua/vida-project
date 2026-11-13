@@ -28,6 +28,10 @@ class HorariosPorDefectoCommand extends Command
 
     /**
      * Ejecuta el comando.
+     *
+     * @param PerfilHorarioPorDefectoService $perfiles
+     *
+     * @return int
      */
     public function handle(PerfilHorarioPorDefectoService $perfiles): int
     {

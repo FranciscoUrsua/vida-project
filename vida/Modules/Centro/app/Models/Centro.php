@@ -115,6 +115,9 @@ class Centro extends Model implements DireccionableModel
     /**
      * Protege el tipo (RN-01) y la relación 1:1 con la UO (RN-14).
      *
+     *
+     * @return void
+     *
      * @throws DomainException|LogicException
      */
     protected static function booted(): void
@@ -155,6 +158,8 @@ class Centro extends Model implements DireccionableModel
 
     /**
      * Código del tipo del centro (estable, RN-02), p. ej. `css_general`.
+     *
+     * @return string
      */
     public function codigoTipo(): string
     {
@@ -301,6 +306,8 @@ class Centro extends Model implements DireccionableModel
 
     /**
      * Devuelve el DirectorCentro activo (fecha_fin null), o null si no lo hay.
+     *
+     * @return DirectorCentro|null
      */
     public function directorActivo(): ?DirectorCentro
     {
@@ -314,6 +321,8 @@ class Centro extends Model implements DireccionableModel
      * y opcionalmente fecha_inicio (por defecto hoy).
      *
      * @param array{profesional_id?: int|null, nombre?: string|null, telefono?: string|null, email?: string|null, fecha_inicio?: \DateTimeInterface|string|null, fecha_fin?: \DateTimeInterface|string|null, notas?: string|null} $datos Datos del nuevo director.
+     *
+     * @return DirectorCentro
      */
     public function nombrarDirector(array $datos): DirectorCentro
     {
@@ -348,6 +357,9 @@ class Centro extends Model implements DireccionableModel
     /**
      * Todo centro nace con un tipo activo (RN-01, RN-11).
      *
+     *
+     * @return void
+     *
      * @throws DomainException
      */
     private function exigirTipoActivo(): void
@@ -364,6 +376,9 @@ class Centro extends Model implements DireccionableModel
     /**
      * Una UO tiene como mucho un centro (RN-14). El índice único parcial
      * `centros_una_por_uo` lo garantiza también en base de datos.
+     *
+     *
+     * @return void
      *
      * @throws DomainException
      */

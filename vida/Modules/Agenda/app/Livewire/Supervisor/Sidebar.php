@@ -21,6 +21,8 @@ class Sidebar extends Component
 {
     /**
      * Número de citas canceladas por ausencia sin gestionar hoy.
+     *
+     * @return int
      */
     #[Computed]
     public function citasPendientesBadge(): int
@@ -39,6 +41,8 @@ class Sidebar extends Component
 
     /**
      * Renderiza el sidebar del módulo de agenda.
+     *
+     * @return View
      */
     public function render(): View
     {
@@ -47,6 +51,8 @@ class Sidebar extends Component
 
     /**
      * Resuelve el Centro del supervisor autenticado por su primera UO activa.
+     *
+     * @return Centro|null
      */
     private function centroDelSupervisor(): ?Centro
     {

@@ -16,6 +16,8 @@ enum EstadoRepartoCasos: string
 
     /**
      * Etiqueta legible del estado.
+     *
+     * @return string
      */
     public function label(): string
     {
@@ -28,6 +30,8 @@ enum EstadoRepartoCasos: string
 
     /**
      * Color del distintivo del estado.
+     *
+     * @return Tono
      */
     public function tono(): Tono
     {

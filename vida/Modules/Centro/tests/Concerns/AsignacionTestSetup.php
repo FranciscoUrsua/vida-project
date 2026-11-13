@@ -74,6 +74,8 @@ trait AsignacionTestSetup
 
     /**
      * Monta el escenario completo del documento de tests.
+     *
+     * @return void
      */
     protected function montarEscenarioAsignacion(): void
     {
@@ -122,6 +124,8 @@ trait AsignacionTestSetup
 
     /**
      * Sustituye el catálogo territorial por el mini-catálogo de los tests.
+     *
+     * @return void
      */
     protected function montarMiniCatalogo(): void
     {
@@ -148,6 +152,13 @@ trait AsignacionTestSetup
 
     /**
      * Crea un centro activo con su UO.
+     *
+     * @param string $nombre
+     * @param string $tipoCentro
+     * @param bool $inscripcionLibre
+     * @param ModoAsignacionReferenciaCentro $modo
+     *
+     * @return Centro
      */
     protected function crearCentro(
         string $nombre,
@@ -173,8 +184,11 @@ trait AsignacionTestSetup
     /**
      * Añade una unidad territorial al ámbito de un centro.
      *
+     * @param Centro $centro
      * @param string $tipo Tipo de ámbito.
      * @param int|null $referenciaId Id de la unidad (null en ciudad_completa).
+     *
+     * @return AmbitoTerritorial
      */
     protected function anadirAmbito(Centro $centro, string $tipo, ?int $referenciaId): AmbitoTerritorial
     {
@@ -188,6 +202,13 @@ trait AsignacionTestSetup
 
     /**
      * Crea un usuario con rol y adscripción a la UO del centro.
+     *
+     * @param string $alias
+     * @param Centro $centro
+     * @param string $rol
+     * @param Profesional|null $profesional
+     *
+     * @return User
      */
     protected function crearUsuario(string $alias, Centro $centro, string $rol, ?Profesional $profesional = null): User
     {
@@ -213,8 +234,13 @@ trait AsignacionTestSetup
     /**
      * Crea un profesional con cargo, rol de intervención y perfil horario activo en el centro.
      *
+     * @param string $alias
+     * @param Centro $centro
+     * @param Cargo $cargo
      * @param float $jornada Horas semanales en el centro.
      * @param string $desde Inicio de vigencia del perfil horario.
+     *
+     * @return User
      */
     protected function crearProfesionalEnCentro(string $alias, Centro $centro, Cargo $cargo, float $jornada, string $desde = '2025-01-01'): User
     {
@@ -247,6 +273,10 @@ trait AsignacionTestSetup
 
     /**
      * Crea un ciudadano sin dirección.
+     *
+     * @param string $nombre
+     *
+     * @return Ciudadano
      */
     protected function crearCiudadano(string $nombre): Ciudadano
     {
@@ -257,8 +287,11 @@ trait AsignacionTestSetup
      * Simula la normalización de la dirección en una sección del mini-catálogo
      * (o sin códigos si es null), como haría el geocodificador, y dispara el evento.
      *
+     * @param Ciudadano $ciudadano
      * @param string|null $seccion Código INE, o null para una dirección no geocodificable.
      * @param bool $disparar Si se dispara DireccionCiudadanoNormalizada.
+     *
+     * @return Ciudadano
      */
     protected function normalizarEn(Ciudadano $ciudadano, ?string $seccion, bool $disparar = true): Ciudadano
     {
@@ -282,6 +315,10 @@ trait AsignacionTestSetup
 
     /**
      * Fija la semilla del azar del sorteo (Mt19937) para los servicios que se resuelvan después.
+     *
+     * @param int $semilla
+     *
+     * @return void
      */
     protected function fijarSemilla(int $semilla): void
     {
@@ -291,7 +328,10 @@ trait AsignacionTestSetup
     /**
      * Crea la historia social de un ciudadano (sin asignación) en la UO del centro.
      *
+     * @param Ciudadano $ciudadano
      * @param Centro|null $centro Por defecto, CSS Norte.
+     *
+     * @return HistoriaSocial
      */
     protected function historiaDe(Ciudadano $ciudadano, ?Centro $centro = null): HistoriaSocial
     {

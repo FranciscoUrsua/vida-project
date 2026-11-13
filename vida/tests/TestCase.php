@@ -22,6 +22,8 @@ abstract class TestCase extends BaseTestCase
      *
      * @param string $codigo Código del tipo (p. ej. `css_general`, `ciam`).
      * @param array<string, mixed> $atributos Configuración del tipo si hay que crearlo.
+     *
+     * @return int
      */
     protected function tipoCentroId(string $codigo = 'css_general', array $atributos = []): int
     {
@@ -53,6 +55,8 @@ abstract class TestCase extends BaseTestCase
      *
      * @param UnidadOrganizativa|int $uo UO del centro.
      * @param string $codigoTipo Código del tipo de centro si hay que crearlo.
+     *
+     * @return Centro
      */
     protected function centroParaUo(UnidadOrganizativa|int $uo, string $codigoTipo = 'css_general'): Centro
     {

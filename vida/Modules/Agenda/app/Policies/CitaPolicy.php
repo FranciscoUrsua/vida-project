@@ -25,6 +25,11 @@ class CitaPolicy
      * del centro, o quien puede leer la Historia Social de la persona (el
      * historial forma parte de su expediente y se abre desde el timeline,
      * docs/modulo-citas.md §2.4 y §5).
+     *
+     * @param User $user
+     * @param Cita $cita
+     *
+     * @return bool
      */
     public function view(User $user, Cita $cita): bool
     {
@@ -43,6 +48,11 @@ class CitaPolicy
 
     /**
      * Dar una cita en un slot (también propio, RN-05 bis).
+     *
+     * @param User $user
+     * @param Slot $slot
+     *
+     * @return bool
      */
     public function citar(User $user, Slot $slot): bool
     {
@@ -51,6 +61,11 @@ class CitaPolicy
 
     /**
      * Reprogramar: gestión del centro y no en la agenda propia (salvo supervisión).
+     *
+     * @param User $user
+     * @param Cita $cita
+     *
+     * @return bool
      */
     public function reprogramar(User $user, Cita $cita): bool
     {
@@ -59,6 +74,11 @@ class CitaPolicy
 
     /**
      * Cancelar: igual que reprogramar.
+     *
+     * @param User $user
+     * @param Cita $cita
+     *
+     * @return bool
      */
     public function cancelar(User $user, Cita $cita): bool
     {
@@ -67,6 +87,11 @@ class CitaPolicy
 
     /**
      * Cancelación retroactiva (la hora ya pasó): solo supervisión.
+     *
+     * @param User $user
+     * @param Cita $cita
+     *
+     * @return bool
      */
     public function cancelarRetroactiva(User $user, Cita $cita): bool
     {
@@ -76,6 +101,11 @@ class CitaPolicy
     /**
      * Marcar incomparecencia y registrar acompañantes: el profesional de la
      * cita, o supervisión del centro.
+     *
+     * @param User $user
+     * @param Cita $cita
+     *
+     * @return bool
      */
     public function atender(User $user, Cita $cita): bool
     {
@@ -85,6 +115,11 @@ class CitaPolicy
 
     /**
      * Pedir un cambio al supervisor sobre una cita propia (RN-05).
+     *
+     * @param User $user
+     * @param Cita $cita
+     *
+     * @return bool
      */
     public function pedirCambio(User $user, Cita $cita): bool
     {
@@ -93,6 +128,11 @@ class CitaPolicy
 
     /**
      * Identificar a la persona de una cita externa.
+     *
+     * @param User $user
+     * @param Cita $cita
+     *
+     * @return bool
      */
     public function identificar(User $user, Cita $cita): bool
     {
@@ -102,12 +142,23 @@ class CitaPolicy
     /**
      * Vincular un apunte a una cita con incomparecencia o cancelada, para
      * corregir un error de marcado: solo supervisión del centro.
+     *
+     * @param User $user
+     * @param Cita $cita
+     *
+     * @return bool
      */
     public function corregirCierre(User $user, Cita $cita): bool
     {
         return $this->supervisa($user, $cita);
     }
 
+    /**
+     * @param User $user
+     * @param Cita $cita
+     *
+     * @return bool
+     */
     private function gestionaAjena(User $user, Cita $cita): bool
     {
         if (! $user->can('citas.gestionar') || ! $this->delCentro($user, $cita->centro_id)) {
@@ -118,6 +169,12 @@ class CitaPolicy
         return $cita->profesional_id !== $user->id || $user->can('citas.supervisar');
     }
 
+    /**
+     * @param User $user
+     * @param Cita $cita
+     *
+     * @return bool
+     */
     private function supervisa(User $user, Cita $cita): bool
     {
         return $user->can('citas.supervisar') && $this->delCentro($user, $cita->centro_id);
@@ -125,6 +182,11 @@ class CitaPolicy
 
     /**
      * Si el usuario está adscrito a la UO del centro.
+     *
+     * @param User $user
+     * @param int $centroId
+     *
+     * @return bool
      */
     private function delCentro(User $user, int $centroId): bool
     {

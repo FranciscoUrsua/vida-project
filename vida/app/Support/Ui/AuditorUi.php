@@ -153,6 +153,8 @@ final class AuditorUi
     /**
      * Lee el manifest de Vite y extrae clases y variables del CSS de cada bundle.
      *
+     * @return void
+     *
      * @throws RuntimeException Si falta el manifest o el CSS de una entrada.
      */
     private function cargarCssCompilado(): void
@@ -217,6 +219,8 @@ final class AuditorUi
 
     /**
      * Primer bundle cuyo patrón de vistas encaja con la ruta.
+     *
+     * @return ?string
      */
     private function bundleDe(string $relativa): ?string
     {
@@ -237,6 +241,8 @@ final class AuditorUi
      * Aplica R1, R2 y R3 a una vista.
      *
      * @param array{ruta: string, contenido: string, bundle: string, modulo: string} $vista
+     *
+     * @return void
      */
     private function auditarVista(array $vista): void
     {
@@ -310,6 +316,8 @@ final class AuditorUi
 
     /**
      * Colores hexadecimales y rgb()/hsl() con valores literales dentro de CSS.
+     *
+     * @return void
      */
     private function coloresLiterales(string $css, string $ruta, int $linea, string $ambito): void
     {
@@ -436,6 +444,8 @@ final class AuditorUi
      * ramas lo son. Las condiciones de los ternarios no cuentan.
      *
      * @param string $expresion Código PHP de dentro de `{{ }}`.
+     *
+     * @return bool
      */
     private function esResultadoComprobable(string $expresion): bool
     {
@@ -453,6 +463,8 @@ final class AuditorUi
      * Parte recursiva de {@see esResultadoComprobable()} sobre tokens de PHP.
      *
      * @param list<string|array{0: int, 1: string, 2: int}> $tokens
+     *
+     * @return bool
      */
     private function tokensComprobables(array $tokens): bool
     {
@@ -512,6 +524,8 @@ final class AuditorUi
      *
      * @param list<string|array{0: int, 1: string, 2: int}> $tokens
      * @param callable(string|array{0: int, 1: string, 2: int}): bool $condicion
+     *
+     * @return int|null
      */
     private function posicionNivelSuperior(array $tokens, callable $condicion): ?int
     {
@@ -533,6 +547,8 @@ final class AuditorUi
      * Posición del paréntesis que cierra el que abre en `$inicio`.
      *
      * @param list<string|array{0: int, 1: string, 2: int}> $tokens
+     *
+     * @return int|null
      */
     private function cierreDe(array $tokens, int $inicio): ?int
     {
@@ -553,6 +569,8 @@ final class AuditorUi
      * Posición del paréntesis que abre el que cierra en `$fin`.
      *
      * @param list<string|array{0: int, 1: string, 2: int}> $tokens
+     *
+     * @return int
      */
     private function aperturaDe(array $tokens, int $fin): int
     {
@@ -681,6 +699,8 @@ final class AuditorUi
      * R4: catálogo y SCSS deben coincidir, sin clases pendientes.
      *
      * @param array<string, array{0: string, 1: int}> $definidas
+     *
+     * @return void
      */
     private function auditarCatalogo(array $definidas): void
     {
@@ -801,6 +821,8 @@ final class AuditorUi
 
     /**
      * R5: cada clase del catálogo aparece en alguna vista, clase PHP o JS.
+     *
+     * @return void
      */
     private function auditarUso(): void
     {
@@ -832,6 +854,8 @@ final class AuditorUi
 
     /**
      * R6: ninguna hoja del ámbito carga Tailwind.
+     *
+     * @return void
      */
     private function auditarTailwind(): void
     {
@@ -853,6 +877,8 @@ final class AuditorUi
 
     /**
      * R7: toda clase exigida existe en el CSS compilado de su bundle.
+     *
+     * @return void
      */
     private function auditarClasesExigidas(): void
     {
@@ -872,6 +898,8 @@ final class AuditorUi
      * Las fuentes se localizan buscando `implements … FuenteClasesCss` en los
      * directorios de uso, de modo que una fuente nueva queda auditada sin
      * registrarla en ningún sitio.
+     *
+     * @return void
      */
     private function auditarFuentesClases(): void
     {
@@ -1032,6 +1060,8 @@ final class AuditorUi
 
     /**
      * Contenido entre el paréntesis de apertura en `$apertura` y su cierre.
+     *
+     * @return string
      */
     private function entreParentesis(string $texto, int $apertura): string
     {
@@ -1050,6 +1080,8 @@ final class AuditorUi
 
     /**
      * Quita comentarios Blade conservando los saltos de línea.
+     *
+     * @return string
      */
     private function sinComentariosBlade(string $contenido): string
     {
@@ -1058,6 +1090,8 @@ final class AuditorUi
 
     /**
      * Quita comentarios SCSS (de bloque y de línea, salvo `//` en URLs) conservando los saltos de línea.
+     *
+     * @return string
      */
     private function sinComentariosScss(string $contenido): string
     {
@@ -1066,6 +1100,8 @@ final class AuditorUi
 
     /**
      * Número de línea (desde 1) de un offset.
+     *
+     * @return int
      */
     private function linea(string $texto, int $offset): int
     {
@@ -1076,6 +1112,8 @@ final class AuditorUi
      * Si una ruta relativa encaja con alguno de los patrones fnmatch().
      *
      * @param list<string> $patrones
+     *
+     * @return bool
      */
     private function encaja(string $ruta, array $patrones): bool
     {
@@ -1091,6 +1129,8 @@ final class AuditorUi
     /**
      * Lee un fichero relativo a la base o lanza una excepción con `$mensaje`.
      *
+     * @return string
+     *
      * @throws RuntimeException
      */
     private function leerObligatorio(string $relativa, string $mensaje): string
@@ -1105,6 +1145,8 @@ final class AuditorUi
 
     /**
      * Registra un hallazgo.
+     *
+     * @return void
      */
     private function anotar(string $regla, string $fichero, int $linea, string $detalle, string $ambito, bool $esAviso = false): void
     {

@@ -58,6 +58,8 @@ class Sidebar extends Component
 
     /**
      * Personas, historias y repartos por decidir en la bandeja de asignaciones del centro.
+     *
+     * @return int
      */
     #[Computed]
     public function asignacionesPendientes(): int
@@ -75,6 +77,8 @@ class Sidebar extends Component
 
     /**
      * Partes de alertas escaladas al supervisor que aún no ha cerrado.
+     *
+     * @return int
      */
     #[Computed]
     public function escaladasAbiertas(): int
@@ -88,6 +92,8 @@ class Sidebar extends Component
 
     /**
      * Número de aprobaciones pendientes en el ámbito del supervisor.
+     *
+     * @return int
      */
     #[Computed]
     public function aprobacionesPendientes(): int
@@ -103,6 +109,8 @@ class Sidebar extends Component
     /**
      * Indica si el centro tiene plazas configuradas.
      * Determina la visibilidad del ítem «Plazas» en el sidebar.
+     *
+     * @return bool
      */
     #[Computed]
     public function tienePlazas(): bool
@@ -112,6 +120,8 @@ class Sidebar extends Component
 
     /**
      * Citas canceladas por ausencia pendientes de gestionar hoy en el centro.
+     *
+     * @return int
      */
     #[Computed]
     public function citasPendientesBadge(): int
@@ -145,6 +155,8 @@ class Sidebar extends Component
 
     /**
      * Renderiza el sidebar del módulo.
+     *
+     * @return View
      */
     public function render(): View
     {

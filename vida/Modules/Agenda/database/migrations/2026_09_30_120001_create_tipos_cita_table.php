@@ -17,6 +17,8 @@ return new class extends Migration
 {
     /**
      * Crea la tabla, el pivote con los tipos de slot y el tipo genérico.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -66,6 +68,8 @@ return new class extends Migration
 
     /**
      * Elimina el pivote y la tabla.
+     *
+     * @return void
      */
     public function down(): void
     {

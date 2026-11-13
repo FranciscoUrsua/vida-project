@@ -22,6 +22,8 @@ class MockCitaPrevia implements AdaptadorCitaPrevia
      * @param array<string, mixed> $payload slot_id, referencia_externa y, opcionales,
      *                                      tipo_documento, numero_documento, nombre, apellidos, telefono.
      *
+     * @return CitaExternaRecibida
+     *
      * @throws InvalidArgumentException Si faltan el slot o la referencia.
      */
     public function interpretar(array $payload): CitaExternaRecibida
@@ -44,7 +46,11 @@ class MockCitaPrevia implements AdaptadorCitaPrevia
     /**
      * Registra la notificación sin enviarla.
      *
+     * @param Cita $cita
+     * @param string $accion
      * @param array<string, mixed> $datos
+     *
+     * @return void
      */
     public function notificar(Cita $cita, string $accion, array $datos = []): void
     {

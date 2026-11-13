@@ -32,6 +32,10 @@ use Modules\Mensajes\Services\AlertaService;
  */
 class PerfilHorarioPorDefectoService
 {
+    /**
+     * @param AlertaService $alertas
+     * @param ConfiguracionEfectivaCentro $configuracion
+     */
     public function __construct(
         private readonly AlertaService $alertas,
         private readonly ConfiguracionEfectivaCentro $configuracion,
@@ -40,6 +44,8 @@ class PerfilHorarioPorDefectoService
     /**
      * Da el horario del centro a quien acaba de adscribirse a su UO y avisa a
      * la supervisión del centro.
+     *
+     * @param UsuarioUo $adscripcion
      *
      * @return Collection<int, PerfilHorarioProfesional> Perfiles creados.
      */
@@ -74,6 +80,8 @@ class PerfilHorarioPorDefectoService
      * Da el horario del centro a una cuenta ya adscrita cuando se vincula a su
      * ficha de profesional (hasta entonces era un perfil técnico sin horario).
      *
+     * @param User $usuario
+     *
      * @return Collection<int, PerfilHorarioProfesional> Perfiles creados.
      */
     public function alVincularProfesional(User $usuario): Collection
@@ -86,6 +94,8 @@ class PerfilHorarioPorDefectoService
     /**
      * Da el horario del centro a todos los profesionales adscritos que no
      * tienen perfil activo en él. Un único aviso a la supervisión si crea alguno.
+     *
+     * @param Centro $centro
      *
      * @return Collection<int, PerfilHorarioProfesional> Perfiles creados.
      */
@@ -119,6 +129,8 @@ class PerfilHorarioPorDefectoService
     /**
      * Crea el perfil con el horario del centro si el profesional no tiene uno activo.
      *
+     * @param User $usuario
+     * @param Centro $centro
      * @param Carbon $desde Fecha desde la que rige el perfil.
      *
      * @return PerfilHorarioProfesional|null El perfil creado, o null si no procede.
@@ -157,6 +169,11 @@ class PerfilHorarioPorDefectoService
 
     /**
      * Horario del centro vigente en una fecha (el más reciente si hay varios).
+     *
+     * @param Centro $centro
+     * @param Carbon $fecha
+     *
+     * @return HorarioCentro|null
      */
     private function horarioVigente(Centro $centro, Carbon $fecha): ?HorarioCentro
     {
@@ -173,6 +190,8 @@ class PerfilHorarioPorDefectoService
     /**
      * Franjas del perfil: una por día laborable del horario efectivo, de apertura a cierre.
      *
+     * @param HorarioEfectivo $horario
+     *
      * @return array<string, list<array{inicio: string, fin: string}>>
      */
     private function horarioHabitual(HorarioEfectivo $horario): array
@@ -188,6 +207,8 @@ class PerfilHorarioPorDefectoService
      * Horas semanales de las franjas.
      *
      * @param array<string, list<array{inicio: string, fin: string}>> $franjas
+     *
+     * @return float
      */
     private function jornada(array $franjas): float
     {
@@ -200,6 +221,13 @@ class PerfilHorarioPorDefectoService
 
     /**
      * Aviso a la supervisión de la UO del centro.
+     *
+     * @param Centro $centro
+     * @param Model $origen
+     * @param string $titulo
+     * @param string $cuerpo
+     *
+     * @return void
      */
     private function avisar(Centro $centro, Model $origen, string $titulo, string $cuerpo): void
     {

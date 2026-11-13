@@ -189,6 +189,8 @@ class EquipoPage extends Component
 
     /**
      * Cuenta planes activos asignados al profesional seleccionado.
+     *
+     * @return int
      */
     #[Computed]
     public function casosActivosProfesionalSeleccionado(): int
@@ -211,6 +213,8 @@ class EquipoPage extends Component
 
     /**
      * Centro asociado a la UO activa del supervisor.
+     *
+     * @return Centro|null
      */
     #[Computed]
     public function centroActivo(): ?Centro
@@ -257,6 +261,8 @@ class EquipoPage extends Component
      * requisito para asociar un PerfilHorarioProfesional.
      *
      * @param int $profesionalId ID del profesional
+     *
+     * @return void
      */
     public function abrirModalHorario(int $profesionalId): void
     {
@@ -276,6 +282,8 @@ class EquipoPage extends Component
      *
      * Se invoca por el botón Cancelar del modal y por el evento
      * 'perfil-horario-guardado' que dispara el componente hijo al guardar.
+     *
+     * @return void
      */
     #[On('perfil-horario-guardado')]
     public function cerrarModalHorario(): void
@@ -287,6 +295,8 @@ class EquipoPage extends Component
 
     /**
      * Abre el modal de alta de profesional.
+     *
+     * @return void
      */
     public function abrirModalAlta(): void
     {
@@ -297,6 +307,8 @@ class EquipoPage extends Component
 
     /**
      * Crea un nuevo profesional en la UO del supervisor sin cuenta de usuario vinculada.
+     *
+     * @return void
      */
     public function crearProfesional(): void
     {
@@ -347,6 +359,8 @@ class EquipoPage extends Component
      * Rechaza la baja si el profesional es el propio supervisor autenticado.
      *
      * @param int $profesionalId ID del profesional a dar de baja.
+     *
+     * @return void
      */
     public function iniciarBaja(int $profesionalId): void
     {
@@ -366,6 +380,8 @@ class EquipoPage extends Component
      * Confirma la baja lógica (soft delete) del profesional.
      *
      * Requiere confirmación explícita si el profesional tiene casos activos.
+     *
+     * @return void
      */
     public function confirmarBaja(): void
     {
@@ -418,6 +434,8 @@ class EquipoPage extends Component
      * Solo actúa si el profesional está dentro del ámbito de la UO del supervisor.
      *
      * @param int $profesionalId ID del profesional a editar.
+     *
+     * @return void
      */
     public function abrirEdicion(int $profesionalId): void
     {
@@ -446,6 +464,8 @@ class EquipoPage extends Component
 
     /**
      * Valida y persiste los cambios sobre el profesional en edición.
+     *
+     * @return void
      */
     public function guardarEdicion(): void
     {
@@ -495,6 +515,8 @@ class EquipoPage extends Component
 
     /**
      * Renderiza la pantalla de equipo.
+     *
+     * @return View
      */
     public function render(): View
     {
@@ -506,6 +528,10 @@ class EquipoPage extends Component
      *
      * Comprueba primero la adscripción vigente del usuario vinculado y,
      * si el profesional no tiene cuenta, verifica el campo unidad_organizativa_id.
+     *
+     * @param int|null $profesionalId
+     *
+     * @return Profesional|null
      */
     private function profesionalEnAmbito(?int $profesionalId): ?Profesional
     {

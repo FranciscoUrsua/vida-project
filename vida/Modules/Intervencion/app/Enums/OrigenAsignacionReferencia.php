@@ -20,6 +20,8 @@ enum OrigenAsignacionReferencia: string
 
     /**
      * Etiqueta legible, tal como se muestra en la ficha («por sorteo», «elegido»…).
+     *
+     * @return string
      */
     public function label(): string
     {
@@ -35,6 +37,8 @@ enum OrigenAsignacionReferencia: string
 
     /**
      * Si la asignación cuenta como entrada nueva en el reparto proporcional.
+     *
+     * @return bool
      */
     public function cuentaEnReparto(): bool
     {

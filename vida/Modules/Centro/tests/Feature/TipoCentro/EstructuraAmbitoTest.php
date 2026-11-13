@@ -47,6 +47,8 @@ class EstructuraAmbitoTest extends TestCase
 
     /**
      * Escenario común y una persona atendida en el CIAM de Vallecas.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -60,6 +62,7 @@ class EstructuraAmbitoTest extends TestCase
     /**
      * Si el usuario ve la historia por el scope y a la persona por la policy.
      *
+     * @param User $usuario
      *
      * @return array{0: bool, 1: bool}
      */
@@ -141,6 +144,8 @@ class EstructuraAmbitoTest extends TestCase
 
     /**
      * Perfiles de la psicóloga: lunes y martes en Vallecas, miércoles y jueves en Usera.
+     *
+     * @return void
      */
     private function perfilesDeLaPsicologa(): void
     {

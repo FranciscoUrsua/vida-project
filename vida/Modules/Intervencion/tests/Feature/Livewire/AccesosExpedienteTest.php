@@ -376,6 +376,7 @@ class AccesosExpedienteTest extends TestCase
      * lo que lo hace visible al profesional.
      *
      * @param string $tipo propio|normal|sospechoso|anomalo
+     * @param string $html
      *
      * @return list<string>
      */

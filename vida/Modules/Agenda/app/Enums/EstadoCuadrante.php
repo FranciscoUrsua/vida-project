@@ -27,6 +27,8 @@ enum EstadoCuadrante: string
 
     /**
      * Color del badge de estado del cuadrante.
+     *
+     * @return Tono
      */
     public function tono(): Tono
     {

@@ -91,6 +91,9 @@ class TipoCentro extends Model
     /**
      * Protege el código (RN-02) y la baja con centros activos (RN-11).
      *
+     *
+     * @return void
+     *
      * @throws LogicException
      */
     protected static function booted(): void
@@ -202,6 +205,9 @@ class TipoCentro extends Model
     /**
      * El código identifica al tipo para siempre (RN-02).
      *
+     *
+     * @return void
+     *
      * @throws LogicException
      */
     private function impedirCambioDeCodigo(): void
@@ -213,6 +219,9 @@ class TipoCentro extends Model
 
     /**
      * Un tipo con centros activos no se da de baja (RN-11).
+     *
+     *
+     * @return void
      *
      * @throws LogicException
      */

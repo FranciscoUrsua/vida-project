@@ -31,6 +31,8 @@ class SorteoReferenciaTest extends TestCase
 
     /**
      * Monta el escenario común.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -42,6 +44,9 @@ class SorteoReferenciaTest extends TestCase
     /**
      * Abre $n historias nuevas en el centro y asigna su referencia; devuelve la
      * secuencia de profesionales asignados.
+     *
+     * @param int $n
+     * @param Centro|null $centro
      *
      * @return list<int>
      */
@@ -62,6 +67,9 @@ class SorteoReferenciaTest extends TestCase
      * Recuento de asignaciones por profesional en una secuencia.
      *
      * @param list<int> $secuencia
+     * @param User $profesional
+     *
+     * @return int
      */
     private function cuenta(array $secuencia, User $profesional): int
     {
@@ -70,6 +78,13 @@ class SorteoReferenciaTest extends TestCase
 
     /**
      * Crea entradas que cuentan en el reparto, con el reparto de ts1-ts3 guardado.
+     *
+     * @param User $profesional
+     * @param int $n
+     * @param OrigenAsignacionReferencia $origen
+     * @param string|null $fecha
+     *
+     * @return void
      */
     private function entradasPrevias(User $profesional, int $n, OrigenAsignacionReferencia $origen = OrigenAsignacionReferencia::Sorteo, ?string $fecha = null): void
     {
@@ -94,6 +109,8 @@ class SorteoReferenciaTest extends TestCase
 
     /**
      * TF-ASG-18 — A medio plazo el reparto es proporcional a la jornada.
+     *
+     * @return void
      */
     #[Test]
     public function el_reparto_es_proporcional_a_la_jornada(): void
@@ -112,6 +129,8 @@ class SorteoReferenciaTest extends TestCase
 
     /**
      * TF-ASG-19 — Quien va por debajo de lo que le corresponde es el único candidato.
+     *
+     * @return void
      */
     #[Test]
     public function corrige_el_desvio_a_favor_de_quien_va_por_debajo(): void
@@ -128,6 +147,8 @@ class SorteoReferenciaTest extends TestCase
 
     /**
      * TF-ASG-20 — No es un turno predecible.
+     *
+     * @return void
      */
     #[Test]
     public function no_es_un_turno_predecible(): void
@@ -156,6 +177,8 @@ class SorteoReferenciaTest extends TestCase
 
     /**
      * TF-ASG-21 [negativo] — Los casos acumulados no influyen: se reparten entradas, no carga.
+     *
+     * @return void
      */
     #[Test]
     public function los_casos_acumulados_no_influyen_en_el_sorteo(): void
@@ -174,6 +197,8 @@ class SorteoReferenciaTest extends TestCase
 
     /**
      * TF-ASG-22 — Quien se incorpora no arrastra déficit de las entradas anteriores.
+     *
+     * @return void
      */
     #[Test]
     public function quien_se_incorpora_no_acapara_las_entradas_siguientes(): void
@@ -197,6 +222,8 @@ class SorteoReferenciaTest extends TestCase
 
     /**
      * TF-ASG-23 — Cada sorteo guarda candidatos, pesos, esperado, recibido y elegido.
+     *
+     * @return void
      */
     #[Test]
     public function el_sorteo_es_auditable(): void
@@ -224,6 +251,8 @@ class SorteoReferenciaTest extends TestCase
 
     /**
      * TF-ASG-24 — Sin elegibles, la historia queda sin referencia y en la bandeja.
+     *
+     * @return void
      */
     #[Test]
     public function sin_elegibles_la_historia_queda_sin_referencia_en_la_bandeja(): void

@@ -31,6 +31,9 @@ class RolesBackofficeTest extends TestCase
 
     private User $admin;
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
         parent::setUp();

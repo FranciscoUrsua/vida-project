@@ -34,6 +34,8 @@ class LecturaDocumentoService
      *
      * @param DocumentoVersion $version Versión con contenido (vigente o sustituida).
      *
+     * @return string
+     *
      * @throws IntegridadDocumentoException si falta, no se descifra o no coincide con el hash
      */
     public function contenido(DocumentoVersion $version): string
@@ -63,6 +65,8 @@ class LecturaDocumentoService
      * Indica si una versión se puede leer y coincide con su hash.
      *
      * @param DocumentoVersion $version Versión que se comprueba.
+     *
+     * @return bool
      */
     public function verificarIntegridad(DocumentoVersion $version): bool
     {
@@ -80,6 +84,8 @@ class LecturaDocumentoService
      *
      * @param Documento $documento Documento cuya versión vigente se descargará.
      * @param int $minutos Minutos de validez.
+     *
+     * @return string
      */
     public function urlTemporal(Documento $documento, int $minutos = 30): string
     {
@@ -91,6 +97,8 @@ class LecturaDocumentoService
      *
      * @param Documento $documento Documento cuya versión vigente se descargará.
      * @param int $minutos Minutos de validez.
+     *
+     * @return string
      */
     public function urlDescarga(Documento $documento, int $minutos = 30): string
     {
@@ -101,6 +109,8 @@ class LecturaDocumentoService
      * Nombre genérico de descarga: código del tipo y fecha de captura.
      *
      * @param DocumentoVersion $version Versión descargada.
+     *
+     * @return string
      */
     public function nombreDescarga(DocumentoVersion $version): string
     {

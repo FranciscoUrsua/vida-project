@@ -16,11 +16,17 @@ use Modules\Intervencion\Models\Apunte;
  */
 class CierreCitaObserver
 {
+    /**
+     * @param AtencionCitaService $atencion
+     */
     public function __construct(private readonly AtencionCitaService $atencion) {}
 
     /**
      * Valida el vínculo antes de crear el apunte o el registro.
      *
+     * @param Apunte|RegistroAtencion $model
+     *
+     * @return void
      *
      * @throws \LogicException
      */
@@ -37,6 +43,10 @@ class CierreCitaObserver
 
     /**
      * Completa la cita con el primer apunte o registro vinculado.
+     *
+     * @param Apunte|RegistroAtencion $model
+     *
+     * @return void
      */
     public function created(Apunte|RegistroAtencion $model): void
     {

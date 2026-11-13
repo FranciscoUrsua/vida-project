@@ -80,6 +80,12 @@ class CuadranteMesComponent extends Component
 
     /**
      * Inicializa el componente verificando autorización y cargando el cuadrante.
+     *
+     * @param Centro $centro
+     * @param int $anyo
+     * @param int $mes
+     *
+     * @return void
      */
     public function mount(Centro $centro, int $anyo, int $mes): void
     {
@@ -98,6 +104,8 @@ class CuadranteMesComponent extends Component
 
     /**
      * Avanza a la semana siguiente (máximo 4).
+     *
+     * @return void
      */
     public function nextSemana(): void
     {
@@ -108,6 +116,8 @@ class CuadranteMesComponent extends Component
 
     /**
      * Retrocede a la semana anterior (mínimo 0).
+     *
+     * @return void
      */
     public function prevSemana(): void
     {
@@ -120,6 +130,8 @@ class CuadranteMesComponent extends Component
      * Salta directamente a una semana del mes.
      *
      * @param int $idx Índice de semana (0-4)
+     *
+     * @return void
      */
     public function goSemana(int $idx): void
     {
@@ -190,6 +202,8 @@ class CuadranteMesComponent extends Component
      *
      * @param int $profId ID de usuario del profesional
      * @param int $dayNum Día del mes
+     *
+     * @return void
      */
     public function abrirModalAusencia(int $profId, int $dayNum): void
     {
@@ -208,6 +222,8 @@ class CuadranteMesComponent extends Component
 
     /**
      * Persiste la excepción/ausencia del profesional creada desde el cuadrante.
+     *
+     * @return void
      */
     public function registrarAusencia(): void
     {
@@ -242,6 +258,8 @@ class CuadranteMesComponent extends Component
      *
      * @param int $profId ID del profesional
      * @param int $dayNum Día del mes
+     *
+     * @return void
      */
     public function abrirModalExc(int $profId, int $dayNum): void
     {
@@ -263,6 +281,8 @@ class CuadranteMesComponent extends Component
      * Publica el cuadrante en borrador y materializa los slots.
      *
      * @param string $notasEquipo Notas opcionales para el equipo
+     *
+     * @return void
      */
     public function publicar(string $notasEquipo = ''): void
     {
@@ -330,6 +350,8 @@ class CuadranteMesComponent extends Component
 
     /**
      * Renderiza la vista del cuadrante mensual.
+     *
+     * @return View
      */
     public function render(): View
     {
@@ -338,6 +360,10 @@ class CuadranteMesComponent extends Component
 
     /**
      * Verifica que el usuario autenticado es supervisor asignado al centro dado.
+     *
+     * @param Centro $centro
+     *
+     * @return void
      */
     private function autorizarAcceso(Centro $centro): void
     {

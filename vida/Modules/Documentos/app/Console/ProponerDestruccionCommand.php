@@ -23,6 +23,8 @@ class ProponerDestruccionCommand extends Command
      * Crea la propuesta e informa de cuántas versiones incluye (solo ids, nunca contenido).
      *
      * @param DestruccionDocumentosService $servicio Servicio de destrucción.
+     *
+     * @return int
      */
     public function handle(DestruccionDocumentosService $servicio): int
     {

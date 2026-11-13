@@ -17,6 +17,8 @@ return new class extends Migration
 {
     /**
      * Crea las tablas y la referencia desde asignaciones_profesional.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -53,6 +55,8 @@ return new class extends Migration
 
     /**
      * Elimina las tablas y la referencia.
+     *
+     * @return void
      */
     public function down(): void
     {

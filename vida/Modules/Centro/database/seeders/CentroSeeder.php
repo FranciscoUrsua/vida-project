@@ -35,6 +35,8 @@ class CentroSeeder extends Seeder
 {
     /**
      * Crea o actualiza los centros de ejemplo con su configuración.
+     *
+     * @return void
      */
     public function run(): void
     {

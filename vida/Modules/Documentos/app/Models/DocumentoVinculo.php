@@ -61,6 +61,9 @@ class DocumentoVinculo extends Model
      * Valida la entidad vinculada antes de crear el vínculo.
      *
      *
+     *
+     * @return void
+     *
      * @throws \DomainException si la entidad es una unidad de convivencia o el tipo no la admite
      */
     protected static function booted(): void
@@ -74,6 +77,9 @@ class DocumentoVinculo extends Model
 
     /**
      * Rechaza vínculos a unidades de convivencia y a entidades que el tipo documental no admite.
+     *
+     *
+     * @return void
      *
      * @throws \DomainException
      */
@@ -136,6 +142,8 @@ class DocumentoVinculo extends Model
 
     /**
      * Ciudadano del vínculo, para la auditoría automática.
+     *
+     * @return ?int
      */
     public function getCiudadanoId(): ?int
     {

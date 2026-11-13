@@ -18,6 +18,8 @@ enum TipoContextoMensaje: string
 
     /**
      * Nombre del tipo de elemento para la interfaz.
+     *
+     * @return string
      */
     public function etiqueta(): string
     {

@@ -26,6 +26,8 @@ class TipoCentroService
      *                                    `horario` opcional (dias_laborables, hora_apertura, hora_cierre, hora_inicio_atencion, hora_fin_atencion).
      * @param User|null $actor Usuario que lo crea.
      *
+     * @return TipoCentro
+     *
      * @throws DomainException Si falta un dato obligatorio.
      */
     public function crear(array $datos, ?User $actor): TipoCentro
@@ -72,6 +74,8 @@ class TipoCentroService
      * @param Carbon $desde Fecha de entrada en vigor.
      * @param User|null $actor Usuario que lo programa (queda en la versión del horario cerrado).
      *
+     * @return HorarioTipoCentro
+     *
      * @throws DomainException Si empieza antes que el vigente o se solapa con otro.
      */
     public function programarHorario(TipoCentro $tipo, array $horario, Carbon $desde, ?User $actor): HorarioTipoCentro
@@ -100,6 +104,8 @@ class TipoCentroService
      * @param TipoCentro $tipo Tipo que se da de baja.
      * @param Carbon $fecha Fecha de baja.
      * @param User|null $actor Usuario que la ejecuta (queda en la versión).
+     *
+     * @return TipoCentro
      *
      * @throws LogicException Si tiene centros activos.
      */

@@ -45,6 +45,8 @@ class SaneadorPdf
      *
      * @param string $ruta PDF.
      *
+     * @return void
+     *
      * @throws IngestaRechazadaException pdf_protegido o pdf_no_normalizable
      */
     public function rechazarSiProtegido(string $ruta): void
@@ -67,6 +69,8 @@ class SaneadorPdf
      * @param string $ruta PDF de entrada.
      * @param string $salida Ruta del PDF saneado.
      *
+     * @return void
+     *
      * @throws IngestaRechazadaException pdf_no_normalizable
      */
     public function sanear(string $ruta, string $salida): void
@@ -80,6 +84,8 @@ class SaneadorPdf
      * @param string $ruta PDF ya saneado.
      * @param string $salida Ruta del PDF recomprimido.
      *
+     * @return void
+     *
      * @throws IngestaRechazadaException pdf_no_normalizable
      */
     public function recomprimir(string $ruta, string $salida): void
@@ -91,6 +97,8 @@ class SaneadorPdf
      * Número de páginas del PDF.
      *
      * @param string $ruta PDF.
+     *
+     * @return int
      *
      * @throws IngestaRechazadaException pdf_no_normalizable si no se puede interpretar
      */
@@ -149,6 +157,8 @@ class SaneadorPdf
      * @param string $ruta PDF.
      * @param string $directorio Directorio de trabajo donde dejar la forma expandida.
      *
+     * @return void
+     *
      * @throws IngestaRechazadaException pdf_no_normalizable si queda algún objeto prohibido
      */
     public function verificarSinContenidoActivo(string $ruta, string $directorio): void
@@ -181,6 +191,8 @@ class SaneadorPdf
      * @param string $salida PDF de salida.
      * @param list<string> $extra Parámetros adicionales.
      *
+     * @return void
+     *
      * @throws IngestaRechazadaException
      */
     private function reescribir(string $ruta, string $salida, array $extra): void
@@ -205,6 +217,8 @@ class SaneadorPdf
      *
      * @param list<string> $comando Comando y argumentos.
      *
+     * @return ProcessResult
+     *
      * @throws IngestaRechazadaException pdf_no_normalizable si se agota el tiempo o no se puede lanzar
      */
     private function ejecutar(array $comando): ProcessResult
@@ -225,6 +239,8 @@ class SaneadorPdf
      * @param list<string> $comando Comando y argumentos ejecutados.
      * @param ProcessResult $resultado Resultado del proceso.
      * @param string $motivo Qué se esperaba y no se obtuvo.
+     *
+     * @return IngestaRechazadaException
      */
     private function rechazo(array $comando, ProcessResult $resultado, string $motivo): IngestaRechazadaException
     {

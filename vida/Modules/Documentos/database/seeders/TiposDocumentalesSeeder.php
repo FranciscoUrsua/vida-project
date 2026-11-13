@@ -21,6 +21,8 @@ class TiposDocumentalesSeeder extends Seeder
 {
     /**
      * Crea o actualiza los tipos documentales.
+     *
+     * @return void
      */
     public function run(): void
     {
@@ -55,6 +57,8 @@ class TiposDocumentalesSeeder extends Seeder
      * @param string $codigo Código del tipo.
      * @param string $nombre Nombre visible.
      * @param array<string, mixed> $defectos Valores para un tipo nuevo.
+     *
+     * @return void
      */
     private function crearOActualizar(string $codigo, string $nombre, array $defectos): void
     {

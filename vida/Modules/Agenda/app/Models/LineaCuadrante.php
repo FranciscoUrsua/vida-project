@@ -114,6 +114,7 @@ class LineaCuadrante extends Model
      * Filtra líneas de una fecha concreta.
      *
      * @param Builder<LineaCuadrante> $query
+     * @param Carbon|string $fecha
      *
      * @return Builder<LineaCuadrante>
      */

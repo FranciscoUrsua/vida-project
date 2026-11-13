@@ -402,6 +402,8 @@ class AutenticacionTest extends TestCase
 
     /**
      * Crea el Profesional «Juana López García» al que se vincula el usuario de los tests.
+     *
+     * @return Profesional
      */
     private function crearProfesional(): Profesional
     {

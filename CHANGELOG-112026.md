@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-11-13 — CI: Pint ya no borra los `@param`/`@return`
+
+- El workflow «Calidad de código» hizo su auto-commit de Pint tras el push de `c563617` (`db260c7`, 382 ficheros) y, por la regla `no_superfluous_phpdoc_tags` del preset `laravel`, quitó los `@param`/`@return` que exige `CLAUDE.md` §2.
+- Decisión del desarrollador: desactivar la regla y restaurar. `vida/pint.json` con `"no_superfluous_phpdoc_tags": false`; revertido `db260c7` y pasado `vendor/bin/pint` en local con la nueva configuración: se queda el formato del resto de reglas y vuelven 1164 líneas `@return` (ninguna se pierde). `pint --test` pasa, así que el próximo auto-commit del CI no debería cambiar nada.
+- Comprobación: `php -l` en todos los PHP reformateados sin errores; `tests/Feature/Acceso`, `tests/Feature/Ui` y `Modules/Centro/tests`: 174 passed.
+- Despliegue de `c563617` en verde: las ocho migraciones de la fase 2 (`2026_11_12_100001` a `100008`) aplicadas en la BD compartida (lote 31).
+
 ## 2026-11-13 — Tipo de Centro: ámbito por las dos jerarquías, centro de trabajo y RN-15 en el servidor (fase 2, pasos 8 bis y 8 ter, parcial)
 
 ### Cambios

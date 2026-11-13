@@ -180,6 +180,8 @@ class MigracionTipoCentro
 
     /**
      * Pone `tipo_centro` a los centros que no lo tenían, según el mapeo decidido.
+     *
+     * @return void
      */
     private function asignarTipoACentrosSinTipo(): void
     {
@@ -220,6 +222,8 @@ class MigracionTipoCentro
 
     /**
      * Denominación inicial de cada centro, vigente desde su alta.
+     *
+     * @return void
      */
     private function crearDenominacionesDeCentros(): void
     {
@@ -263,6 +267,8 @@ class MigracionTipoCentro
      * Id de la UO con ese nombre, o null.
      *
      * @param string $nombre Nombre exacto.
+     *
+     * @return int|null
      */
     private function uoPorNombre(string $nombre): ?int
     {

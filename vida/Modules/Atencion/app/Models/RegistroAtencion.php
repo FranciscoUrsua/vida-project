@@ -49,6 +49,8 @@ class RegistroAtencion extends Model
 
     /**
      * Devuelve la factory específica del módulo Atencion.
+     *
+     * @return RegistroAtencionFactory
      */
     protected static function newFactory(): RegistroAtencionFactory
     {

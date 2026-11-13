@@ -46,6 +46,10 @@ class TipoCitaResource extends Resource
 
     /**
      * Formulario del tipo de cita.
+     *
+     * @param Schema $schema
+     *
+     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -99,6 +103,10 @@ class TipoCitaResource extends Resource
 
     /**
      * Listado de tipos de cita.
+     *
+     * @param Table $table
+     *
+     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -136,6 +144,8 @@ class TipoCitaResource extends Resource
 
     /**
      * Solo adm_sistema ve el catálogo.
+     *
+     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -144,6 +154,8 @@ class TipoCitaResource extends Resource
 
     /**
      * Solo adm_sistema crea tipos.
+     *
+     * @return bool
      */
     public static function canCreate(): bool
     {
@@ -152,6 +164,10 @@ class TipoCitaResource extends Resource
 
     /**
      * Solo adm_sistema edita tipos.
+     *
+     * @param Model $record
+     *
+     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -160,12 +176,19 @@ class TipoCitaResource extends Resource
 
     /**
      * Solo adm_sistema borra, y solo tipos sin citas (con citas, se desactivan).
+     *
+     * @param Model $record
+     *
+     * @return bool
      */
     public static function canDelete(Model $record): bool
     {
         return self::esAdmSistema() && $record instanceof TipoCita && ! $record->citas()->withTrashed()->exists();
     }
 
+    /**
+     * @return bool
+     */
     private static function esAdmSistema(): bool
     {
         return auth()->user()?->hasRole('adm_sistema') ?? false;

@@ -36,6 +36,10 @@ class EventosSupervisorTest extends TestCase
 
     /**
      * Sala del centro para los eventos (eventos_agenda.espacio_id → salas).
+     *
+     * @param string $nombre
+     *
+     * @return Sala
      */
     private function crearEspacio(string $nombre = 'Sala A'): Sala
     {

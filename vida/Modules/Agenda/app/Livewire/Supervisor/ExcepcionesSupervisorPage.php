@@ -119,6 +119,8 @@ class ExcepcionesSupervisorPage extends Component
      *
      * Si hay cuadrante publicado con líneas afectadas, el Observer de
      * ExcepcionProfesional las anulará automáticamente.
+     *
+     * @return void
      */
     public function guardar(): void
     {
@@ -165,6 +167,10 @@ class ExcepcionesSupervisorPage extends Component
 
     /**
      * Elimina la excepción indicada si pertenece al centro del supervisor.
+     *
+     * @param int $excepcionId
+     *
+     * @return void
      */
     public function eliminar(int $excepcionId): void
     {
@@ -187,6 +193,8 @@ class ExcepcionesSupervisorPage extends Component
 
     /**
      * Renderiza la pantalla de excepciones.
+     *
+     * @return View
      */
     public function render(): View
     {
@@ -199,6 +207,8 @@ class ExcepcionesSupervisorPage extends Component
 
     /**
      * Resuelve el Centro del supervisor autenticado.
+     *
+     * @return Centro|null
      */
     private function centroDelSupervisor(): ?Centro
     {

@@ -39,6 +39,8 @@ class ContadoresBandejaService
      * Mensajes no leídos del usuario en hilos no archivados.
      *
      * @param User $usuario Usuario autenticado.
+     *
+     * @return int
      */
     public function mensajesNoLeidos(User $usuario): int
     {

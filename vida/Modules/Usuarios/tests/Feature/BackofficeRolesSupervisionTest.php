@@ -38,6 +38,8 @@ class BackofficeRolesSupervisionTest extends TestCase
 
     /**
      * Prepara roles, un administrador y los catálogos mínimos para dar de alta profesionales.
+     *
+     * @return void
      */
     protected function setUp(): void
     {

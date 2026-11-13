@@ -34,6 +34,9 @@ class PerfilHorarioPorDefectoTest extends TestCase
     use AgendaSupervisorTestHelpers;
     use RefreshDatabase;
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -44,6 +47,10 @@ class PerfilHorarioPorDefectoTest extends TestCase
 
     /**
      * Cuenta vinculada a una ficha de profesional, aún sin adscripción.
+     *
+     * @param string $alias
+     *
+     * @return User
      */
     private function cuentaDeProfesional(string $alias): User
     {
@@ -69,6 +76,12 @@ class PerfilHorarioPorDefectoTest extends TestCase
         ]);
     }
 
+    /**
+     * @param User $usuario
+     * @param string|null $desde
+     *
+     * @return UsuarioUo
+     */
     private function adscribir(User $usuario, ?string $desde = null): UsuarioUo
     {
         return UsuarioUo::create([
@@ -79,6 +92,11 @@ class PerfilHorarioPorDefectoTest extends TestCase
         ]);
     }
 
+    /**
+     * @param User $usuario
+     *
+     * @return PerfilHorarioProfesional|null
+     */
     private function perfilDe(User $usuario): ?PerfilHorarioProfesional
     {
         return PerfilHorarioProfesional::where('usuario_id', $usuario->id)->where('centro_id', $this->centro->id)->where('activo', true)->first();
@@ -86,6 +104,8 @@ class PerfilHorarioPorDefectoTest extends TestCase
 
     /**
      * Avisos de horario a la supervisión de la UO del centro.
+     *
+     * @return int
      */
     private function avisosDeHorario(): int
     {

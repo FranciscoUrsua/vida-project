@@ -37,6 +37,8 @@ class IntervencionServiceProvider extends ServiceProvider
 
     /**
      * Registra los servicios singleton del módulo.
+     *
+     * @return void
      */
     public function register(): void
     {
@@ -48,6 +50,8 @@ class IntervencionServiceProvider extends ServiceProvider
 
     /**
      * Carga la configuración, rutas, vistas y componentes del módulo.
+     *
+     * @return void
      */
     public function boot(): void
     {

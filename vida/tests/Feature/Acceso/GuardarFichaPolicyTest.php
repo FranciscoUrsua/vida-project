@@ -36,6 +36,8 @@ class GuardarFichaPolicyTest extends TestCase
 
     /**
      * Dos UO independientes.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -181,6 +183,8 @@ class GuardarFichaPolicyTest extends TestCase
      *
      * @param array<int, string> $roles Roles del usuario.
      * @param UnidadOrganizativa $uo UO de adscripción.
+     *
+     * @return User
      */
     private function usuario(array $roles, UnidadOrganizativa $uo): User
     {
@@ -207,6 +211,8 @@ class GuardarFichaPolicyTest extends TestCase
      * Ciudadano identificado llamado Ana.
      *
      * @param array<string, mixed> $attrs Atributos adicionales.
+     *
+     * @return Ciudadano
      */
     private function ciudadano(array $attrs = []): Ciudadano
     {
@@ -226,6 +232,8 @@ class GuardarFichaPolicyTest extends TestCase
      *
      * @param Ciudadano $ciudadano Persona.
      * @param UnidadOrganizativa $uo UO de la historia.
+     *
+     * @return HistoriaSocial
      */
     private function historia(Ciudadano $ciudadano, UnidadOrganizativa $uo): HistoriaSocial
     {
@@ -242,6 +250,8 @@ class GuardarFichaPolicyTest extends TestCase
      *
      * @param User $usuario Profesional.
      * @param Ciudadano $protegido Persona protegida.
+     *
+     * @return AccesoProtegido
      */
     private function aprobarAcceso(User $usuario, Ciudadano $protegido): AccesoProtegido
     {

@@ -109,6 +109,8 @@ class Ficha extends Model
      * tampoco hay valoración, la ficha no pertenece a ninguna historia.
      *
      * @param int $historiaId Identificador de la historia social.
+     *
+     * @return bool
      */
     public function perteneceAHistoria(int $historiaId): bool
     {

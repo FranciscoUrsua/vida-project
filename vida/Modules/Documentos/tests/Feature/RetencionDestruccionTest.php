@@ -47,6 +47,8 @@ class RetencionDestruccionTest extends TestCase
 
     /**
      * Prepara actores y tipos comunes, autenticado como profesional.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -60,6 +62,8 @@ class RetencionDestruccionTest extends TestCase
      *
      * @param TipoDocumental $tipo Tipo del documento.
      * @param int $anyos Años de antigüedad de la captura.
+     *
+     * @return DocumentoVersion
      */
     private function versionCapturadaHace(TipoDocumental $tipo, int $anyos): DocumentoVersion
     {
@@ -93,6 +97,8 @@ class RetencionDestruccionTest extends TestCase
      * Indica si el objeto de la versión sigue en el disco.
      *
      * @param DocumentoVersion $version Versión.
+     *
+     * @return bool
      */
     private function objetoExiste(DocumentoVersion $version): bool
     {
@@ -101,6 +107,8 @@ class RetencionDestruccionTest extends TestCase
 
     /**
      * Informe firmado con el mecanismo de TF-DOC-11 a 16 (stub de AutoFirma con valido.pdf).
+     *
+     * @return Informe
      */
     private function informeFirmado(): Informe
     {

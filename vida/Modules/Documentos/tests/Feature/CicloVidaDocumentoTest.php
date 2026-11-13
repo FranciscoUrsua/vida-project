@@ -30,6 +30,8 @@ class CicloVidaDocumentoTest extends TestCase
 
     /**
      * Prepara actores y tipos comunes, autenticado como profesional.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -43,6 +45,8 @@ class CicloVidaDocumentoTest extends TestCase
      *
      * @param Documento $documento Documento que recibe la versión.
      * @param string $fichero Fixture de origen.
+     *
+     * @return DocumentoVersion
      */
     private function nuevaVersion(Documento $documento, string $fichero = 'valido.pdf'): DocumentoVersion
     {
@@ -53,6 +57,8 @@ class CicloVidaDocumentoTest extends TestCase
      * Indica si el objeto de la versión sigue en el disco.
      *
      * @param DocumentoVersion $version Versión.
+     *
+     * @return bool
      */
     private function objetoExiste(DocumentoVersion $version): bool
     {

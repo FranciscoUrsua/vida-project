@@ -61,6 +61,11 @@ class PerfilHorarioComponent extends Component
 
     /**
      * Inicializa el componente cargando el perfil activo del profesional.
+     *
+     * @param User $profesional
+     * @param Centro $centro
+     *
+     * @return void
      */
     public function mount(User $profesional, Centro $centro): void
     {
@@ -89,6 +94,8 @@ class PerfilHorarioComponent extends Component
      * Activa o desactiva un día de la semana en el perfil.
      *
      * @param int $dia Número de día (1=lun…5=vie)
+     *
+     * @return void
      */
     public function toggleDia(int $dia): void
     {
@@ -107,6 +114,8 @@ class PerfilHorarioComponent extends Component
      * Añade franja vespertina al día indicado con valores por defecto.
      *
      * @param int $dia Número de día (1=lun…5=vie)
+     *
+     * @return void
      */
     public function addTarde(int $dia): void
     {
@@ -118,6 +127,8 @@ class PerfilHorarioComponent extends Component
      * Elimina la franja vespertina del día indicado.
      *
      * @param int $dia Número de día (1=lun…5=vie)
+     *
+     * @return void
      */
     public function removeTarde(int $dia): void
     {
@@ -131,6 +142,8 @@ class PerfilHorarioComponent extends Component
      * Si la fecha de vigencia coincide con el perfil activo, lo actualiza.
      * Si es diferente, cierra el anterior y crea uno nuevo. Guardar es
      * verificar: el perfil deja de ser «horario no personalizado».
+     *
+     * @return void
      */
     public function guardar(): void
     {
@@ -198,6 +211,8 @@ class PerfilHorarioComponent extends Component
 
     /**
      * Renderiza la vista del componente.
+     *
+     * @return View
      */
     public function render(): View
     {
@@ -250,6 +265,8 @@ class PerfilHorarioComponent extends Component
 
     /**
      * Inicializa las franjas con valores por defecto para los 5 días laborables.
+     *
+     * @return void
      */
     private function inicializarFranjasPorDefecto(): void
     {

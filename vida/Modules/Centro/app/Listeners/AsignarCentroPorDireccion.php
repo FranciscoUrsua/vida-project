@@ -14,6 +14,10 @@ use Modules\Centro\Services\Asignacion\ResolucionCentroService;
  */
 class AsignarCentroPorDireccion
 {
+    /**
+     * @param AsignacionCentroService $asignacion
+     * @param ResolucionCentroService $resolucion
+     */
     public function __construct(
         private readonly AsignacionCentroService $asignacion,
         private readonly ResolucionCentroService $resolucion,
@@ -21,6 +25,10 @@ class AsignarCentroPorDireccion
 
     /**
      * Evalúa la asignación de centro de la persona.
+     *
+     * @param DireccionCiudadanoNormalizada $evento
+     *
+     * @return void
      */
     public function handle(DireccionCiudadanoNormalizada $evento): void
     {

@@ -11,10 +11,17 @@ use Modules\Agenda\Services\PerfilHorarioPorDefectoService;
  */
 class UsuarioProfesionalObserver
 {
+    /**
+     * @param PerfilHorarioPorDefectoService $perfiles
+     */
     public function __construct(private readonly PerfilHorarioPorDefectoService $perfiles) {}
 
     /**
      * Crea los perfiles por defecto si el usuario acaba de recibir profesional.
+     *
+     * @param User $model
+     *
+     * @return void
      */
     public function updated(User $model): void
     {

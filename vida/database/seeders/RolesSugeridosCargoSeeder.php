@@ -43,6 +43,8 @@ class RolesSugeridosCargoSeeder extends Seeder
 
     /**
      * Carga las sugerencias en los cargos que aún no tienen ninguna.
+     *
+     * @return void
      */
     public function run(): void
     {

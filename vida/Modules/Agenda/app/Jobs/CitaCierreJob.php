@@ -35,6 +35,11 @@ class CitaCierreJob implements ShouldQueue
 
     /**
      * Ejecuta las tres comprobaciones.
+     *
+     * @param RegistroEventosCita $eventos
+     * @param AvisosCitas $avisos
+     *
+     * @return void
      */
     public function handle(RegistroEventosCita $eventos, AvisosCitas $avisos): void
     {
@@ -43,6 +48,12 @@ class CitaCierreJob implements ShouldQueue
         $this->avisarSolicitudesFueraDePlazo($avisos);
     }
 
+    /**
+     * @param RegistroEventosCita $eventos
+     * @param AvisosCitas $avisos
+     *
+     * @return void
+     */
     private function marcarPendientes(RegistroEventosCita $eventos, AvisosCitas $avisos): void
     {
         $ahora = now();
@@ -64,6 +75,11 @@ class CitaCierreJob implements ShouldQueue
             });
     }
 
+    /**
+     * @param AvisosCitas $avisos
+     *
+     * @return void
+     */
     private function avisarPendientesProlongadas(AvisosCitas $avisos): void
     {
         Cita::where('estado', EstadoCita::Confirmada)
@@ -84,6 +100,11 @@ class CitaCierreJob implements ShouldQueue
             });
     }
 
+    /**
+     * @param AvisosCitas $avisos
+     *
+     * @return void
+     */
     private function avisarSolicitudesFueraDePlazo(AvisosCitas $avisos): void
     {
         SolicitudCita::abiertas()

@@ -50,6 +50,8 @@ class DocumentoResource extends Resource
      * Construye la vista de detalle de documentos custodiados.
      *
      * @param Schema $schema Esquema base del infolist.
+     *
+     * @return Schema
      */
     public static function infolist(Schema $schema): Schema
     {
@@ -120,6 +122,8 @@ class DocumentoResource extends Resource
 
     /**
      * Determina si el usuario puede ver el listado de documentos.
+     *
+     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -130,6 +134,8 @@ class DocumentoResource extends Resource
      * Configura el listado de documentos.
      *
      * @param Table $table Tabla base.
+     *
+     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -201,6 +207,8 @@ class DocumentoResource extends Resource
 
     /**
      * Declara las páginas del visor de documentos.
+     *
+     * @return array
      */
     public static function getPages(): array
     {
@@ -214,6 +222,8 @@ class DocumentoResource extends Resource
      * Tamaño legible (B, KB, MB).
      *
      * @param int $bytes Tamaño en bytes.
+     *
+     * @return string
      */
     private static function formatearTamano(int $bytes): string
     {

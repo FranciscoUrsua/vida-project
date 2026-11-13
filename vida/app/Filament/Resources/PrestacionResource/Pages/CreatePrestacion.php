@@ -16,6 +16,8 @@ class CreatePrestacion extends CreateRecord
 
     /**
      * Guarda los tipos de centro que ofrecen la prestación recién creada.
+     *
+     * @return void
      */
     protected function afterCreate(): void
     {

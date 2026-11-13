@@ -138,6 +138,8 @@ class DocumentoVersion extends Model
 
     /**
      * Indica si la versión está retenida, por una retención suya o del documento entero.
+     *
+     * @return bool
      */
     public function estaRetenida(): bool
     {
@@ -150,6 +152,8 @@ class DocumentoVersion extends Model
 
     /**
      * Indica si la versión aún tiene clave y objeto (no está purgada ni destruida).
+     *
+     * @return bool
      */
     public function tieneContenido(): bool
     {

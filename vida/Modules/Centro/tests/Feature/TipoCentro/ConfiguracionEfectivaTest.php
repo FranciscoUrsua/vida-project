@@ -23,6 +23,8 @@ class ConfiguracionEfectivaTest extends TestCase
 
     /**
      * Escenario común de Tipo de Centro.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -32,6 +34,8 @@ class ConfiguracionEfectivaTest extends TestCase
 
     /**
      * Servicio bajo prueba.
+     *
+     * @return ConfiguracionEfectivaCentro
      */
     private function config(): ConfiguracionEfectivaCentro
     {

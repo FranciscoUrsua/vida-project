@@ -24,6 +24,8 @@ enum EstadoAlerta: string
 
     /**
      * Color del badge de estado de un destinatario de la alerta.
+     *
+     * @return Tono
      */
     public function tono(): Tono
     {

@@ -17,6 +17,8 @@ return new class extends Migration
 {
     /**
      * Elimina columnas y tablas y fija los NOT NULL.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -48,6 +50,8 @@ return new class extends Migration
 
     /**
      * Recrea vacías las columnas y tablas eliminadas.
+     *
+     * @return void
      */
     public function down(): void
     {

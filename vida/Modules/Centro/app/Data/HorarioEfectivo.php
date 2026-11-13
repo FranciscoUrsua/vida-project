@@ -30,6 +30,10 @@ final readonly class HorarioEfectivo
 
     /**
      * Si el día de la semana de la fecha es laborable en este horario.
+     *
+     * @param Carbon $fecha
+     *
+     * @return bool
      */
     public function abreEl(Carbon $fecha): bool
     {

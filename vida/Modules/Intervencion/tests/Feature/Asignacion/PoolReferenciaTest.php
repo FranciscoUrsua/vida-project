@@ -21,6 +21,8 @@ class PoolReferenciaTest extends TestCase
 
     /**
      * Monta el escenario común.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -43,6 +45,8 @@ class PoolReferenciaTest extends TestCase
 
     /**
      * TF-ASG-16 — Solo cargos elegibles con perfil activo, con su jornada como peso.
+     *
+     * @return void
      */
     #[Test]
     public function solo_entran_cargos_elegibles_con_perfil_activo(): void
@@ -57,6 +61,8 @@ class PoolReferenciaTest extends TestCase
 
     /**
      * TF-ASG-17 — Una ausencia larga excluye del reparto; una corta no.
+     *
+     * @return void
      */
     #[Test]
     public function la_ausencia_larga_excluye_y_la_corta_no(): void

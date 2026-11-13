@@ -110,6 +110,8 @@ class CiudadanoPolicy
      *
      * @param User $usuario Usuario autenticado.
      * @param Ciudadano $ciudadano Ciudadano objetivo.
+     *
+     * @return bool
      */
     public function update(User $usuario, Ciudadano $ciudadano): bool
     {
@@ -178,6 +180,8 @@ class CiudadanoPolicy
      * @param User $usuario Usuario que consulta.
      * @param int $ciudadanoId Persona consultada.
      * @param bool $protegidoSegunRecurso Indicador de protección del recurso (historia o plan).
+     *
+     * @return bool
      */
     public function consultaExternaPermitida(User $usuario, int $ciudadanoId, bool $protegidoSegunRecurso = false): bool
     {
@@ -205,6 +209,8 @@ class CiudadanoPolicy
      * @param User $usuario Usuario autenticado.
      * @param string $permiso Permiso atómico.
      * @param string $rolExcluido Rol que no cuenta.
+     *
+     * @return bool
      */
     private function otroRolConcede(User $usuario, string $permiso, string $rolExcluido): bool
     {

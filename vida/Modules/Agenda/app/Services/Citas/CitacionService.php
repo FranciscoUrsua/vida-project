@@ -42,6 +42,12 @@ use Modules\Ciudadania\Models\CiudadanoIdentificador;
  */
 class CitacionService
 {
+    /**
+     * @param SolicitudCitaService $solicitudes
+     * @param RegistroEventosCita $eventos
+     * @param AvisosCitas $avisos
+     * @param AdaptadorCitaPrevia $citaPrevia
+     */
     public function __construct(
         private readonly SolicitudCitaService $solicitudes,
         private readonly RegistroEventosCita $eventos,
@@ -53,7 +59,11 @@ class CitacionService
      * Da la cita de una solicitud en el slot elegido.
      *
      * @param SolicitudCita $solicitud Pendiente o en gestión (por quien cita).
+     * @param Slot $slot
      * @param ModoAsignacionCita $modo El de la propuesta elegida.
+     * @param User $usuario
+     *
+     * @return Cita
      *
      * @throws AuthorizationException
      * @throws LogicException Si la solicitud ya no admite cita o el slot no es válido o ya está ocupado.
@@ -114,6 +124,11 @@ class CitacionService
      * Cita en ventanilla o por teléfono: solicitud y cita a la vez, o ninguna.
      *
      * @param array<string, mixed> $datos Datos de la solicitud (ver SolicitudCitaService::crear()).
+     * @param Slot $slot
+     * @param ModoAsignacionCita $modo
+     * @param User $usuario
+     *
+     * @return Cita
      *
      * @throws AuthorizationException
      * @throws ValidationException
@@ -139,7 +154,10 @@ class CitacionService
      * desde la vigente.
      *
      * @param Cita $cita Confirmada.
+     * @param Slot $nuevo
+     * @param PedidoPor $pedidoPor
      * @param string $motivo Obligatorio.
+     * @param User $usuario
      *
      * @return Cita La nueva cita.
      *
@@ -196,7 +214,10 @@ class CitacionService
      * se abre una solicitud nueva enlazada (no hay regla automática).
      *
      * @param Cita $cita Confirmada.
+     * @param PedidoPor $pedidoPor
      * @param string $motivo Obligatorio.
+     * @param User $usuario
+     * @param bool $abrirSolicitud
      *
      * @return SolicitudCita|null La solicitud nueva, si se abre.
      *
@@ -242,6 +263,8 @@ class CitacionService
      * identifica de forma única por su documento, la cita queda pendiente de
      * identificar con los datos recibidos cifrados. No crea ciudadanos.
      *
+     * @param CitaExternaRecibida $recibida
+     *
      * @return array{cita: Cita, creada: bool}
      *
      * @throws LogicException Si el slot no existe, no está libre o su tipo no admite el canal externo.
@@ -286,6 +309,10 @@ class CitacionService
 
     /**
      * Ciudadano con ese documento vigente, si hay exactamente uno.
+     *
+     * @param CitaExternaRecibida $recibida
+     *
+     * @return int|null
      */
     private function identificar(CitaExternaRecibida $recibida): ?int
     {
@@ -307,7 +334,11 @@ class CitacionService
      * Crea la cita en el slot. El observer de Cita pasa el slot a reservado.
      *
      * @param Slot $slot Bloqueado.
+     * @param TipoCita $tipo
+     * @param ModoAsignacionCita $modo
      * @param array<string, mixed> $datos
+     *
+     * @return Cita
      */
     private function crearCita(Slot $slot, TipoCita $tipo, ModoAsignacionCita $modo, array $datos): Cita
     {
@@ -329,6 +360,9 @@ class CitacionService
     /**
      * Bloquea el slot y comprueba que sigue libre.
      *
+     * @param Slot $slot
+     * @param bool $admiteUrgencia
+     *
      * @return Slot Bloqueado y recargado.
      *
      * @throws LogicException
@@ -348,6 +382,11 @@ class CitacionService
     /**
      * El slot debe ser del centro y de un tipo compatible con el tipo de cita.
      *
+     * @param TipoCita $tipo
+     * @param Slot $slot
+     * @param int $centroId
+     *
+     * @return void
      *
      * @throws LogicException
      */
@@ -364,6 +403,10 @@ class CitacionService
 
     /**
      * Libera el slot de una cita con la misma regla que Cita::cancelar().
+     *
+     * @param Cita $cita
+     *
+     * @return void
      */
     private function liberarSlot(Cita $cita): void
     {
@@ -374,6 +417,10 @@ class CitacionService
 
     /**
      * Si la hora de la cita ya pasó.
+     *
+     * @param Cita $cita
+     *
+     * @return bool
      */
     private function yaEmpezo(Cita $cita): bool
     {
@@ -382,6 +429,9 @@ class CitacionService
 
     /**
      * Solicitud nueva tras cancelar: mismo tipo, urgencia y destino, enlazada a la anterior.
+     *
+     * @param Cita $cita
+     * @param User $usuario
      *
      * @return SolicitudCita|null Null si la cita no tenía persona identificada.
      */
@@ -414,7 +464,12 @@ class CitacionService
     /**
      * Si la cita viene del canal externo, notifica el cambio al sistema externo y lo deja en el historial.
      *
+     * @param Cita $cita
+     * @param string $accion
+     * @param User $usuario
      * @param array<string, mixed> $datos
+     *
+     * @return void
      */
     private function notificarExterna(Cita $cita, string $accion, User $usuario, array $datos = []): void
     {
@@ -431,6 +486,10 @@ class CitacionService
     }
 
     /**
+     * @param string $motivo
+     *
+     * @return string
+     *
      * @throws InvalidArgumentException
      */
     private function exigirMotivo(string $motivo): string

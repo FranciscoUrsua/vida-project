@@ -14,6 +14,8 @@ return new class extends Migration
 {
     /**
      * Añade la columna y la activa para el cargo `ts`.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -26,6 +28,8 @@ return new class extends Migration
 
     /**
      * Elimina la columna.
+     *
+     * @return void
      */
     public function down(): void
     {

@@ -30,6 +30,8 @@ class AsignacionCentroTest extends TestCase
 
     /**
      * Monta el escenario común.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -41,6 +43,11 @@ class AsignacionCentroTest extends TestCase
 
     /**
      * Entrada abierta de la bandeja para una persona.
+     *
+     * @param int $ciudadanoId
+     * @param TipoAsignacionPendiente $tipo
+     *
+     * @return AsignacionPendiente|null
      */
     private function pendiente(int $ciudadanoId, TipoAsignacionPendiente $tipo): ?AsignacionPendiente
     {
@@ -49,6 +56,8 @@ class AsignacionCentroTest extends TestCase
 
     /**
      * TF-ASG-09 — Asignación geográfica inequívoca al normalizar la dirección.
+     *
+     * @return void
      */
     #[Test]
     public function la_direccion_inequivoca_asigna_el_centro_por_domicilio(): void
@@ -69,6 +78,8 @@ class AsignacionCentroTest extends TestCase
 
     /**
      * TF-ASG-10 — Gana la unidad más específica.
+     *
+     * @return void
      */
     #[Test]
     public function gana_la_unidad_mas_especifica(): void
@@ -84,6 +95,8 @@ class AsignacionCentroTest extends TestCase
 
     /**
      * TF-ASG-11 — Sin cobertura, la persona va a la bandeja y no tiene centro.
+     *
+     * @return void
      */
     #[Test]
     public function sin_cobertura_va_a_la_bandeja(): void
@@ -102,6 +115,8 @@ class AsignacionCentroTest extends TestCase
 
     /**
      * TF-ASG-12 — Sin códigos, la persona va a la bandeja con motivo sin_codigos.
+     *
+     * @return void
      */
     #[Test]
     public function sin_codigos_va_a_la_bandeja(): void
@@ -119,6 +134,8 @@ class AsignacionCentroTest extends TestCase
 
     /**
      * TF-ASG-13 — La libre elección añade un centro de otro tipo sin tocar el de domicilio.
+     *
+     * @return void
      */
     #[Test]
     public function la_libre_eleccion_convive_con_el_centro_por_domicilio(): void
@@ -140,6 +157,8 @@ class AsignacionCentroTest extends TestCase
 
     /**
      * TF-ASG-14 [negativo] — Un cambio de domicilio no traslada: genera una propuesta.
+     *
+     * @return void
      */
     #[Test]
     public function el_cambio_de_domicilio_no_traslada_y_propone_al_supervisor(): void
@@ -166,6 +185,8 @@ class AsignacionCentroTest extends TestCase
 
     /**
      * TF-ASG-15 — La asignación manual exige motivo y registra quién la hizo.
+     *
+     * @return void
      */
     #[Test]
     public function la_asignacion_manual_exige_motivo(): void

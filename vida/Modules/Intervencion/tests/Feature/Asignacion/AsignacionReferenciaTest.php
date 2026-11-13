@@ -31,6 +31,8 @@ class AsignacionReferenciaTest extends TestCase
 
     /**
      * Monta el escenario común; Ana ya tiene asignado CSS Norte por domicilio.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -42,6 +44,11 @@ class AsignacionReferenciaTest extends TestCase
 
     /**
      * Abre la historia de un ciudadano con el servicio real de apertura.
+     *
+     * @param int $ciudadanoId
+     * @param User|null $elegido
+     *
+     * @return HistoriaSocial
      */
     private function abrir(int $ciudadanoId, ?User $elegido = null): HistoriaSocial
     {
@@ -50,6 +57,10 @@ class AsignacionReferenciaTest extends TestCase
 
     /**
      * Referencia vigente de una historia.
+     *
+     * @param HistoriaSocial $historia
+     *
+     * @return AsignacionProfesional|null
      */
     private function referencia(HistoriaSocial $historia): ?AsignacionProfesional
     {
@@ -58,6 +69,8 @@ class AsignacionReferenciaTest extends TestCase
 
     /**
      * TF-ASG-25 — Al abrir la historia en un centro de sorteo, la referencia la decide el sorteo.
+     *
+     * @return void
      */
     #[Test]
     public function en_un_centro_de_sorteo_la_referencia_la_decide_el_sorteo(): void
@@ -75,6 +88,8 @@ class AsignacionReferenciaTest extends TestCase
 
     /**
      * TF-ASG-26 — Un centro «quien abre» mantiene el comportamiento anterior.
+     *
+     * @return void
      */
     #[Test]
     public function un_centro_quien_abre_mantiene_el_comportamiento_anterior(): void
@@ -91,6 +106,8 @@ class AsignacionReferenciaTest extends TestCase
 
     /**
      * TF-ASG-27 — Libre elección: se asigna el elegido; sin elección, sorteo; un no elegible se rechaza.
+     *
+     * @return void
      */
     #[Test]
     public function en_libre_eleccion_se_asigna_el_elegido_o_se_sortea(): void
@@ -113,6 +130,8 @@ class AsignacionReferenciaTest extends TestCase
 
     /**
      * TF-ASG-28 — Las elecciones cuentan en el reparto: a quien eligen mucho le tocan menos.
+     *
+     * @return void
      */
     #[Test]
     public function la_eleccion_cuenta_en_el_reparto(): void
@@ -134,6 +153,8 @@ class AsignacionReferenciaTest extends TestCase
 
     /**
      * TF-ASG-29 — Quien se incorpora a una unidad de convivencia recibe la referencia de sus miembros.
+     *
+     * @return void
      */
     #[Test]
     public function la_unidad_de_convivencia_comparte_referencia(): void
@@ -158,6 +179,8 @@ class AsignacionReferenciaTest extends TestCase
 
     /**
      * TF-ASG-30 [negativo] — Solo el supervisor cambia la referencia, con motivo y sin reescribir el pasado.
+     *
+     * @return void
      */
     #[Test]
     public function solo_el_supervisor_cambia_la_referencia(): void

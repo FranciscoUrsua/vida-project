@@ -25,6 +25,8 @@ class ExclusionCatalogoService
      * @param int $elementoId Id de la prestación, tipo de plan o ficha.
      * @param User|null $actor Usuario que la crea.
      *
+     * @return ExclusionCatalogo
+     *
      * @throws DomainException Si el tipo no permite restricción o el elemento no es del tipo.
      */
     public function excluir(Centro $centro, ElementoCatalogo $tipo, int $elementoId, ?User $actor): ExclusionCatalogo
@@ -62,6 +64,8 @@ class ExclusionCatalogoService
      * @param Centro $centro Centro.
      * @param ElementoCatalogo $tipo Clase de elemento.
      * @param int $elementoId Id del elemento.
+     *
+     * @return void
      */
     public function quitar(Centro $centro, ElementoCatalogo $tipo, int $elementoId): void
     {

@@ -31,12 +31,18 @@ class AtencionCitaTest extends TestCase
     use CitasTestSetup;
     use RefreshDatabase;
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
         parent::setUp();
         $this->montarEscenarioCitas();
     }
 
+    /**
+     * @return AtencionCitaService
+     */
     private function atencion(): AtencionCitaService
     {
         return app(AtencionCitaService::class);
@@ -44,6 +50,11 @@ class AtencionCitaTest extends TestCase
 
     /**
      * Apunte de María del TSR, vinculado a una cita.
+     *
+     * @param Cita $cita
+     * @param TipoApunte $tipo
+     *
+     * @return Apunte
      */
     private function apunte(Cita $cita, TipoApunte $tipo = TipoApunte::Entrevista): Apunte
     {
@@ -60,6 +71,8 @@ class AtencionCitaTest extends TestCase
 
     /**
      * TF-CIT-29 — El apunte completa la cita.
+     *
+     * @return void
      */
     #[Test]
     public function el_apunte_completa_la_cita(): void
@@ -76,6 +89,8 @@ class AtencionCitaTest extends TestCase
 
     /**
      * TF-CIT-30 — Un segundo apunte se vincula sin duplicar el cierre.
+     *
+     * @return void
      */
     #[Test]
     public function un_segundo_apunte_no_duplica_el_cierre(): void
@@ -93,6 +108,8 @@ class AtencionCitaTest extends TestCase
 
     /**
      * TF-CIT-31 — No se vincula un apunte a una incomparecencia; supervisión sí, con motivo. [negativo]
+     *
+     * @return void
      */
     #[Test]
     public function no_se_vincula_un_apunte_a_una_incomparecencia(): void
@@ -118,6 +135,8 @@ class AtencionCitaTest extends TestCase
 
     /**
      * TF-CIT-32 — La cita debe ser de la misma persona.
+     *
+     * @return void
      */
     #[Test]
     public function la_cita_debe_ser_de_la_misma_persona(): void
@@ -130,6 +149,8 @@ class AtencionCitaTest extends TestCase
 
     /**
      * TF-CIT-33 — El registro de atención completa la cita de quien no tiene Historia Social.
+     *
+     * @return void
      */
     #[Test]
     public function el_registro_de_atencion_completa_la_cita(): void
@@ -151,6 +172,8 @@ class AtencionCitaTest extends TestCase
 
     /**
      * TF-CIT-35 — Incomparecencia: estado y evento. (El timeline, en Intervención.)
+     *
+     * @return void
      */
     #[Test]
     public function incomparecencia(): void
@@ -171,6 +194,8 @@ class AtencionCitaTest extends TestCase
     /**
      * TF-CIT-36 — Acompañantes: un familiar sin ficha (cifrado) y Juan como
      * miembro de la unidad; sin citas para Juan.
+     *
+     * @return void
      */
     #[Test]
     public function acompanantes(): void

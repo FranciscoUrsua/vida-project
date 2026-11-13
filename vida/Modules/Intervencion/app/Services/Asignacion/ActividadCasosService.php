@@ -30,6 +30,8 @@ class ActividadCasosService
      * Resumen por profesional de los casos del centro, incluidos los profesionales
      * dados de baja que aún conservan casos.
      *
+     * @param Centro $centro
+     *
      * @return Collection<int, array{profesional: User, asignados: int, con_actividad: int, dormidos: int}>
      */
     public function resumen(Centro $centro): Collection
@@ -57,6 +59,11 @@ class ActividadCasosService
 
     /**
      * Si una historia tiene actividad según el criterio del centro.
+     *
+     * @param HistoriaSocial $historia
+     * @param Centro $centro
+     *
+     * @return bool
      */
     public function conActividad(HistoriaSocial $historia, Centro $centro): bool
     {
@@ -65,6 +72,9 @@ class ActividadCasosService
 
     /**
      * Historias vigentes de un profesional en el centro.
+     *
+     * @param Centro $centro
+     * @param User $profesional
      *
      * @return list<int>
      */
@@ -79,6 +89,7 @@ class ActividadCasosService
     /**
      * De las historias dadas, las que tienen actividad (como claves del array).
      *
+     * @param Centro $centro
      * @param list<int> $historiaIds
      *
      * @return array<int, true>
@@ -107,6 +118,10 @@ class ActividadCasosService
 
     /**
      * Consulta de las referencias vigentes del centro (alias `ap`).
+     *
+     * @param Centro $centro
+     *
+     * @return Builder
      */
     private function casosVigentes(Centro $centro): Builder
     {

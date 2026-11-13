@@ -39,6 +39,8 @@ class ViewPropuestaEliminacion extends ViewRecord
      * Esquema de detalle de la propuesta.
      *
      * @param Schema $schema Esquema base.
+     *
+     * @return Schema
      */
     public function infolist(Schema $schema): Schema
     {

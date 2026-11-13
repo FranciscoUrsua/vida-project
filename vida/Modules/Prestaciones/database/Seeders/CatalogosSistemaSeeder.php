@@ -15,6 +15,8 @@ class CatalogosSistemaSeeder extends Seeder
 {
     /**
      * Crea o actualiza las entradas de catálogo del módulo.
+     *
+     * @return void
      */
     public function run(): void
     {

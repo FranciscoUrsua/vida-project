@@ -27,6 +27,9 @@ class CierreCitaJobTest extends TestCase
     use CitasTestSetup;
     use RefreshDatabase;
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -35,6 +38,8 @@ class CierreCitaJobTest extends TestCase
 
     /**
      * Ejecuta el cierre del día y la expiración de slots, como el scheduler.
+     *
+     * @return void
      */
     private function finDelDia(): void
     {
@@ -46,6 +51,9 @@ class CierreCitaJobTest extends TestCase
      * Avisos recibidos por un usuario con un título.
      *
      * @param User $usuario
+     * @param string $titulo
+     *
+     * @return int
      */
     private function avisos($usuario, string $titulo): int
     {
@@ -55,6 +63,8 @@ class CierreCitaJobTest extends TestCase
     /**
      * TF-CIT-37 — La cita de esta mañana sin apunte queda pendiente de cierre, sigue
      * confirmada y su slot no pasa a no ocupado. [negativo]
+     *
+     * @return void
      */
     #[Test]
     public function la_cita_sin_apunte_queda_pendiente_de_cierre(): void
@@ -80,6 +90,8 @@ class CierreCitaJobTest extends TestCase
 
     /**
      * TF-CIT-38 — Pendiente más de 3 días laborables: un solo aviso a supervisión.
+     *
+     * @return void
      */
     #[Test]
     public function el_supervisor_recibe_un_solo_aviso(): void
@@ -101,6 +113,8 @@ class CierreCitaJobTest extends TestCase
 
     /**
      * Una solicitud abierta pasada su fecha límite avisa a supervisión una vez.
+     *
+     * @return void
      */
     #[Test]
     public function la_solicitud_fuera_de_plazo_avisa_una_vez(): void

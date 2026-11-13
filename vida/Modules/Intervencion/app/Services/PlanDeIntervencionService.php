@@ -32,6 +32,8 @@ class PlanDeIntervencionService
      * @param array<string, mixed> $datos Datos del plan a crear
      * @param Centro|null $centro Centro en que se abre: su tipo debe ofrecer el tipo de plan.
      *
+     * @return PlanDeIntervencion
+     *
      * @throws AuthorizationException Si el usuario no tiene permiso de crear planes
      * @throws DomainException Si el centro no ofrece el tipo de plan.
      */
@@ -54,6 +56,8 @@ class PlanDeIntervencionService
      *
      * @param int $tipoPlanId Tipo de plan elegido.
      * @param Centro|null $centro Centro en que se abre el plan.
+     *
+     * @return void
      *
      * @throws DomainException
      */

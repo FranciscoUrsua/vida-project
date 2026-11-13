@@ -20,6 +20,8 @@ return new class extends Migration
 {
     /**
      * Crea las tablas, amplía `horarios_centro` y da a cada tipo su horario inicial.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -70,6 +72,8 @@ return new class extends Migration
 
     /**
      * Horario por defecto de cada tipo: el más frecuente entre sus centros.
+     *
+     * @return void
      */
     private function horariosInicialesDeLosTipos(): void
     {
@@ -106,6 +110,8 @@ return new class extends Migration
 
     /**
      * Elimina las tablas y la columna; los horarios heredados quedan sin horas.
+     *
+     * @return void
      */
     public function down(): void
     {

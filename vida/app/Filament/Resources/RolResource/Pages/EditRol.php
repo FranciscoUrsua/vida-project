@@ -34,7 +34,10 @@ class EditRol extends EditRecord
     /**
      * Guarda el rol y, aparte, su nivel de supervisión en configuracion_roles.
      *
+     * @param Model $record
      * @param array<string, mixed> $data
+     *
+     * @return Model
      */
     protected function handleRecordUpdate(Model $record, array $data): Model
     {

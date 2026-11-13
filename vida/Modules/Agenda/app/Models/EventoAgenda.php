@@ -52,6 +52,8 @@ class EventoAgenda extends Model
 
     /**
      * Factoría del modelo (vive en el módulo).
+     *
+     * @return EventoAgendaFactory
      */
     protected static function newFactory(): EventoAgendaFactory
     {
@@ -60,6 +62,8 @@ class EventoAgenda extends Model
 
     /**
      * Al eliminar el evento (baja lógica), sus convocados recuperan los slots que bloqueaba.
+     *
+     * @return void
      */
     protected static function booted(): void
     {
@@ -134,6 +138,7 @@ class EventoAgenda extends Model
      * Filtra eventos de una fecha concreta.
      *
      * @param Builder<EventoAgenda> $query
+     * @param Carbon|string $fecha
      *
      * @return Builder<EventoAgenda>
      */

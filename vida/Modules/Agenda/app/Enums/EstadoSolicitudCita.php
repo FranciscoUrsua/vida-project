@@ -18,6 +18,8 @@ enum EstadoSolicitudCita: string
 
     /**
      * Etiqueta para la interfaz.
+     *
+     * @return string
      */
     public function label(): string
     {
@@ -32,6 +34,8 @@ enum EstadoSolicitudCita: string
 
     /**
      * Si es un estado final (no admite más cambios).
+     *
+     * @return bool
      */
     public function esFinal(): bool
     {
@@ -40,6 +44,10 @@ enum EstadoSolicitudCita: string
 
     /**
      * Si la transición a otro estado es válida.
+     *
+     * @param self $destino
+     *
+     * @return bool
      */
     public function puedePasarA(self $destino): bool
     {
@@ -52,6 +60,8 @@ enum EstadoSolicitudCita: string
 
     /**
      * Tono con que se pinta el estado.
+     *
+     * @return Tono
      */
     public function tono(): Tono
     {

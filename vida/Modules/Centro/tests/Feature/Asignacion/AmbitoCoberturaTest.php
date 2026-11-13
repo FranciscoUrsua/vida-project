@@ -27,6 +27,8 @@ class AmbitoCoberturaTest extends TestCase
 
     /**
      * Monta el escenario común.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -37,6 +39,8 @@ class AmbitoCoberturaTest extends TestCase
 
     /**
      * TF-ASG-05 [negativo] — Una misma unidad no puede estar en dos centros del mismo tipo.
+     *
+     * @return void
      */
     #[Test]
     public function no_se_puede_anadir_una_unidad_que_ya_tiene_otro_centro_del_mismo_tipo(): void
@@ -54,6 +58,8 @@ class AmbitoCoberturaTest extends TestCase
 
     /**
      * TF-ASG-06 — Entre tipos distintos, o con un centro de libre elección, no hay solapamiento.
+     *
+     * @return void
      */
     #[Test]
     public function la_misma_unidad_se_permite_en_un_centro_de_libre_eleccion(): void
@@ -65,6 +71,8 @@ class AmbitoCoberturaTest extends TestCase
 
     /**
      * TF-ASG-07 — Una sección dentro de un distrito de otro centro no es solapamiento.
+     *
+     * @return void
      */
     #[Test]
     public function distinto_nivel_no_es_solapamiento(): void
@@ -78,6 +86,8 @@ class AmbitoCoberturaTest extends TestCase
 
     /**
      * TF-ASG-08 — La comprobación de cobertura lista las secciones sin centro.
+     *
+     * @return void
      */
     #[Test]
     public function la_comprobacion_de_cobertura_lista_las_secciones_sin_centro(): void
@@ -96,6 +106,8 @@ class AmbitoCoberturaTest extends TestCase
 
     /**
      * La misma comprobación desde Filament, como acción del listado de centros.
+     *
+     * @return void
      */
     #[Test]
     public function la_accion_de_filament_avisa_de_las_secciones_sin_centro(): void

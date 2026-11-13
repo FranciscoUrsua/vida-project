@@ -44,6 +44,8 @@ class CuadrantePage extends Component
 
     /**
      * Renderiza la vista de espera mientras se resuelve la redirección.
+     *
+     * @return View
      */
     public function render(): View
     {

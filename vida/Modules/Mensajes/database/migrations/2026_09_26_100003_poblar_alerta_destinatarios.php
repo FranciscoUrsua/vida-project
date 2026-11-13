@@ -20,6 +20,8 @@ return new class extends Migration
 {
     /**
      * Rellena los destinatarios de las alertas existentes.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -28,6 +30,8 @@ return new class extends Migration
 
     /**
      * Sin marcha atrás: la tabla desaparece con la migración que la crea.
+     *
+     * @return void
      */
     public function down(): void
     {
@@ -36,6 +40,8 @@ return new class extends Migration
 
     /**
      * Inserta los destinatarios. Público para poder probarlo con datos previos.
+     *
+     * @return void
      */
     public function poblar(): void
     {

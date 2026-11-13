@@ -48,6 +48,10 @@ class CentroResource extends Resource
 
     /**
      * Formulario de alta y edición de centros, con la configuración de asignación.
+     *
+     * @param Schema $schema
+     *
+     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -217,6 +221,10 @@ class CentroResource extends Resource
 
     /**
      * Listado de centros.
+     *
+     * @param Table $table
+     *
+     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -281,6 +289,8 @@ class CentroResource extends Resource
 
     /**
      * Cualquier usuario autenticado del backoffice puede ver los centros.
+     *
+     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -289,6 +299,10 @@ class CentroResource extends Resource
 
     /**
      * Editar exige el permiso centro.gestionar.
+     *
+     * @param Model $record
+     *
+     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -297,6 +311,10 @@ class CentroResource extends Resource
 
     /**
      * Borrar exige el mismo permiso que editar.
+     *
+     * @param Model $record
+     *
+     * @return bool
      */
     public static function canDelete(Model $record): bool
     {

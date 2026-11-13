@@ -33,6 +33,7 @@ class BuscadorPersonasCita
      *
      * @param string $termino Documento o parte del nombre (mínimo 2 caracteres).
      * @param User $usuario Quien busca.
+     * @param int $limite
      *
      * @return Collection<int, Ciudadano>
      */
@@ -66,6 +67,11 @@ class BuscadorPersonasCita
     /**
      * Si se pueden mostrar los datos personales de la persona: siempre, salvo
      * colectivo protegido que la policy no deja ver al usuario.
+     *
+     * @param Ciudadano $ciudadano
+     * @param User $usuario
+     *
+     * @return bool
      */
     public function visible(Ciudadano $ciudadano, User $usuario): bool
     {

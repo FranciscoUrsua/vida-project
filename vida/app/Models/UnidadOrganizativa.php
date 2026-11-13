@@ -74,6 +74,9 @@ class UnidadOrganizativa extends Model
     /**
      * Impide colgar una UO de la UO de un centro (RN-14).
      *
+     *
+     * @return void
+     *
      * @throws DomainException
      */
     protected static function booted(): void
@@ -141,6 +144,8 @@ class UnidadOrganizativa extends Model
      * Si esta UO desciende orgánicamente de la indicada.
      *
      * @param UnidadOrganizativa $ancestor UO antecesora candidata.
+     *
+     * @return bool
      */
     public function isDescendantOf(UnidadOrganizativa $ancestor): bool
     {

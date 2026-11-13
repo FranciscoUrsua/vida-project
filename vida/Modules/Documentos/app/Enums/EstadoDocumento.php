@@ -17,6 +17,8 @@ enum EstadoDocumento: string
 
     /**
      * Etiqueta legible para la interfaz.
+     *
+     * @return string
      */
     public function etiqueta(): string
     {

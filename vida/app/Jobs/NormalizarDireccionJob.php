@@ -71,6 +71,8 @@ class NormalizarDireccionJob implements ShouldQueue
      * por el DireccionObserver para evitar bucle.
      *
      * @param GeocodificadorInterface $geocodificador Servicio de geocodificación.
+     *
+     * @return void
      */
     public function handle(GeocodificadorInterface $geocodificador): void
     {

@@ -46,6 +46,8 @@ class AuditoriaPage extends Component
 
     /**
      * Inicializa las fechas del filtro por defecto (últimos 30 días).
+     *
+     * @return void
      */
     public function mount(): void
     {
@@ -55,22 +57,27 @@ class AuditoriaPage extends Component
 
     /**
      * Resetea la paginación cuando cambia cualquier filtro.
+     *
+     * @return void
      */
     public function updatedFechaDesde(): void
     {
         $this->resetPage();
     }
 
+    /** @return void */
     public function updatedFechaHasta(): void
     {
         $this->resetPage();
     }
 
+    /** @return void */
     public function updatedSoloProtegidos(): void
     {
         $this->resetPage();
     }
 
+    /** @return void */
     public function updatedSoloSinAutorizacion(): void
     {
         $this->resetPage();
@@ -79,6 +86,8 @@ class AuditoriaPage extends Component
     /**
      * Indica si el centro tiene colectivos protegidos configurados.
      * Condiciona la visibilidad de columnas y filtros.
+     *
+     * @return bool
      */
     #[Computed]
     public function tieneColectivosProtegidos(): bool
@@ -163,6 +172,8 @@ class AuditoriaPage extends Component
 
     /**
      * Renderiza la pantalla de auditoría de accesos.
+     *
+     * @return View
      */
     public function render(): View
     {

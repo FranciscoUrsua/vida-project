@@ -36,6 +36,10 @@ class TipoSlotFactory extends Factory
 
     /**
      * Reserva un porcentaje de los slots para urgencias.
+     *
+     * @param int $porcentaje
+     *
+     * @return static
      */
     public function conUrgencias(int $porcentaje): static
     {
@@ -44,6 +48,8 @@ class TipoSlotFactory extends Factory
 
     /**
      * Solo admite citas del canal interno.
+     *
+     * @return static
      */
     public function soloInterno(): static
     {

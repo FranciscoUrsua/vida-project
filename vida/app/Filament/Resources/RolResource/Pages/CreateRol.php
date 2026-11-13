@@ -19,6 +19,8 @@ class CreateRol extends CreateRecord
      * Crea el rol y, aparte, su nivel de supervisión en configuracion_roles.
      *
      * @param array<string, mixed> $data
+     *
+     * @return Model
      */
     protected function handleRecordCreation(array $data): Model
     {

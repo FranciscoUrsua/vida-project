@@ -21,6 +21,8 @@ class UnidadesTerritorialesTest extends TestCase
 
     /**
      * TF-ASG-01 — Código INE de sección.
+     *
+     * @return void
      */
     #[Test]
     public function el_codigo_ine_se_construye_con_distrito_y_seccion_rellenos_de_ceros(): void
@@ -33,6 +35,8 @@ class UnidadesTerritorialesTest extends TestCase
 
     /**
      * TF-ASG-02 — El número de barrio es único dentro de su distrito, no globalmente.
+     *
+     * @return void
      */
     #[Test]
     public function el_numero_de_barrio_solo_es_unico_dentro_de_su_distrito(): void
@@ -53,6 +57,8 @@ class UnidadesTerritorialesTest extends TestCase
 
     /**
      * El catálogo oficial queda cargado por la migración de datos y es coherente.
+     *
+     * @return void
      */
     #[Test]
     public function la_migracion_carga_el_catalogo_oficial_coherente(): void

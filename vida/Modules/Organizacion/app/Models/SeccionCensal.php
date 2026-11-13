@@ -62,6 +62,8 @@ class SeccionCensal extends Model
      *
      * @param string $distrito Código de distrito, ej: 21 o 2.
      * @param string $seccion Número de sección dentro del distrito, ej: 28.
+     *
+     * @return string
      */
     public static function codigoIne(string $distrito, string $seccion): string
     {

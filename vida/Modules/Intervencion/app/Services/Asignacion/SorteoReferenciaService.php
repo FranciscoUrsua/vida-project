@@ -31,6 +31,10 @@ class SorteoReferenciaService
     /** Tolerancia para comparar lo esperado (decimal) con lo recibido (entero). */
     private const EPSILON = 1e-9;
 
+    /**
+     * @param PoolReferenciaService $pool
+     * @param Randomizer $azar
+     */
     public function __construct(
         private readonly PoolReferenciaService $pool,
         private readonly Randomizer $azar,
@@ -39,6 +43,11 @@ class SorteoReferenciaService
     /**
      * Sortea el profesional de referencia del centro en una fecha. Solo decide;
      * no crea la asignación.
+     *
+     * @param Centro $centro
+     * @param Carbon $fecha
+     *
+     * @return ResultadoSorteo
      */
     public function sortear(Centro $centro, Carbon $fecha): ResultadoSorteo
     {
@@ -81,6 +90,10 @@ class SorteoReferenciaService
      * Instantánea del reparto de un día (profesionales y pesos), para guardar en
      * las asignaciones por elección, que también cuentan como entrada.
      *
+     * @param Centro $centro
+     * @param Carbon $fecha
+     * @param int $elegidoId
+     *
      * @return array{profesionales: list<array{usuario_id: int, peso: float}>, elegido: int}
      */
     public function instantanea(Centro $centro, Carbon $fecha, int $elegidoId): array
@@ -98,6 +111,9 @@ class SorteoReferenciaService
      * Cada entrada se reparte entre los profesionales que estaban en el reparto
      * en su fecha (guardados en su campo `sorteo`), en proporción a su peso: quien
      * se incorpora no arrastra un déficit de lo que entró antes.
+     *
+     * @param Centro $centro
+     * @param Carbon $fecha
      *
      * @return array{0: array<int, float>, 1: array<int, int>}
      */

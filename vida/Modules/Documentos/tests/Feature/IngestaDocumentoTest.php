@@ -39,6 +39,8 @@ class IngestaDocumentoTest extends TestCase
 
     /**
      * Prepara actores y tipos comunes, autenticado como profesional.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -49,6 +51,8 @@ class IngestaDocumentoTest extends TestCase
 
     /**
      * El escáner simulado que usa la tubería en los tests.
+     *
+     * @return EscanerAntivirusFake
      */
     private function antivirus(): EscanerAntivirusFake
     {
@@ -78,6 +82,8 @@ class IngestaDocumentoTest extends TestCase
      * Omite el test si falta un binario del sistema.
      *
      * @param string $binario Nombre del ejecutable.
+     *
+     * @return void
      */
     private function requiereBinario(string $binario): void
     {

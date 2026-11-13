@@ -51,6 +51,10 @@ class ListCentros extends ListRecords
 
     /**
      * Muestra el resultado de la comprobación de cobertura de un tipo de centro.
+     *
+     * @param string $tipoCentro
+     *
+     * @return void
      */
     private function notificarCobertura(string $tipoCentro): void
     {

@@ -113,6 +113,7 @@ class Cita extends Model
      * Solo una cita externa puede crearse sin ciudadano (pendiente de identificar).
      * Sin tipo de cita, toma el genérico, como las citas anteriores a los tipos.
      *
+     * @return void
      *
      * @throws LogicException
      */
@@ -260,6 +261,7 @@ class Cita extends Model
      * pantalla de ausencias y los contadores de los menús.
      *
      * @param Builder<Cita> $query
+     * @param int $centroId
      *
      * @return Builder<Cita>
      */
@@ -450,6 +452,8 @@ class Cita extends Model
 
     /**
      * Si es una cita externa aún sin persona identificada.
+     *
+     * @return bool
      */
     public function pendienteDeIdentificar(): bool
     {
@@ -458,6 +462,8 @@ class Cita extends Model
 
     /**
      * Ciudadano para auditoría.
+     *
+     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {
@@ -465,6 +471,8 @@ class Cita extends Model
     }
 
     /**
+     * @return void
+     *
      * @throws LogicException Si una cita no externa no tiene ciudadano.
      */
     private function exigirCiudadano(): void

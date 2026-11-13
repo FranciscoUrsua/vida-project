@@ -48,6 +48,8 @@ class AlertaService
      * alerta queda vencida y se deja aviso en el log.
      *
      * @param array<string, mixed> $datos Datos de la alerta.
+     *
+     * @return Alerta
      */
     public function crear(array $datos): Alerta
     {
@@ -94,6 +96,8 @@ class AlertaService
      * @param Alerta $alerta Alerta objetivo.
      * @param User $usuario Destinatario que reconoce.
      * @param string $ipAddress IP de origen.
+     *
+     * @return AlertaReconocimiento
      *
      * @throws LogicException Si el usuario no es destinatario o ya no tiene la alerta pendiente.
      */
@@ -143,6 +147,8 @@ class AlertaService
      *   la parte sigue abierta hasta que la cierra (`cerrarEscalada()`).
      *
      * @param Alerta $alerta Alerta vencida.
+     *
+     * @return void
      */
     public function escalar(Alerta $alerta): void
     {
@@ -164,6 +170,8 @@ class AlertaService
      * @param UnidadOrganizativa $uo UO del equipo; debe ser la del supervisor.
      * @param string $titulo Título del aviso.
      * @param string $cuerpo Texto del aviso.
+     *
+     * @return Alerta
      *
      * @throws UnauthorizedException Si no tiene el rol de supervisión o la UO no es la suya.
      */
@@ -196,6 +204,8 @@ class AlertaService
      * @param AlertaDestinatario $destinatario Parte escalada.
      * @param User $supervisor Supervisor que la cierra.
      * @param string $ipAddress IP de origen.
+     *
+     * @return AlertaReconocimiento
      *
      * @throws LogicException Si la parte no está escalada a este supervisor.
      */

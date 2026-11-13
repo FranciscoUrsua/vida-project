@@ -63,6 +63,8 @@ class CiudadanoIdentificador extends Model
      * Las consultas aplican además trim() al texto introducido antes de llamarlo.
      *
      * @param string $valor Valor del identificador.
+     *
+     * @return string
      */
     public static function hashDe(string $valor): string
     {
@@ -71,6 +73,8 @@ class CiudadanoIdentificador extends Model
 
     /**
      * Auto-calcula valor_hash al crear o actualizar si no está asignado.
+     *
+     * @return void
      */
     protected static function booted(): void
     {

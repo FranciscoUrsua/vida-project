@@ -85,6 +85,8 @@ class EscanerClamAv implements EscanerAntivirus
      * @param resource $socket Socket de clamd.
      * @param string $datos Datos que se envían.
      *
+     * @return void
+     *
      * @throws AntivirusNoDisponibleException
      */
     private function escribir($socket, string $datos): void
@@ -98,6 +100,8 @@ class EscanerClamAv implements EscanerAntivirus
      * Traduce la respuesta de clamd: «stream: OK», «stream: <firma> FOUND» o un error.
      *
      * @param string $respuesta Respuesta sin terminadores.
+     *
+     * @return string|null
      *
      * @throws AntivirusNoDisponibleException ante cualquier respuesta que no sea OK ni FOUND
      */

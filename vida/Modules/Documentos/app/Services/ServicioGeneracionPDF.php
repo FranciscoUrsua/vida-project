@@ -104,6 +104,8 @@ class ServicioGeneracionPDF
      *
      * @param PdfDocument $pdf PDF con la vista del informe ya cargada (sin renderizar).
      * @param array<string, mixed>|null $tipografia Tipografía base configurada.
+     *
+     * @return void
      */
     private function dibujarNumeroPagina(PdfDocument $pdf, ?array $tipografia): void
     {

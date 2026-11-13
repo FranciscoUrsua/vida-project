@@ -36,6 +36,8 @@ class BusquedaPorDocumentoTest extends TestCase
 
     /**
      * Dos UO y un profesional de la UO A.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -182,6 +184,8 @@ class BusquedaPorDocumentoTest extends TestCase
      * @param string $nombre Nombre.
      * @param UnidadOrganizativa $uo UO de la historia.
      * @param array<string, mixed> $attrs Atributos adicionales.
+     *
+     * @return Ciudadano
      */
     private function persona(string $nombre, UnidadOrganizativa $uo, array $attrs = []): Ciudadano
     {
@@ -212,6 +216,8 @@ class BusquedaPorDocumentoTest extends TestCase
      * @param string $tipo Tipo de identificador.
      * @param string $valor Valor tal como se guarda.
      * @param string|null $fechaFin Fecha de fin si ya no está vigente.
+     *
+     * @return CiudadanoIdentificador
      */
     private function identificador(Ciudadano $ciudadano, string $tipo, string $valor, ?string $fechaFin = null): CiudadanoIdentificador
     {

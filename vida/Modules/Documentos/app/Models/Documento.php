@@ -75,6 +75,8 @@ class Documento extends Model
 
     /**
      * Asigna el identificador estable (futuro identificador ENI) al crear.
+     *
+     * @return void
      */
     protected static function booted(): void
     {
@@ -205,6 +207,8 @@ class Documento extends Model
 
     /**
      * Indica si el documento ha superado su fecha de validez.
+     *
+     * @return bool
      */
     public function estaCaducado(): bool
     {
@@ -213,6 +217,8 @@ class Documento extends Model
 
     /**
      * Indica si hay alguna retención activa sobre el documento entero (no sobre una versión concreta).
+     *
+     * @return bool
      */
     public function estaRetenido(): bool
     {
@@ -224,6 +230,8 @@ class Documento extends Model
      *
      * Un documento compartido afecta a varias personas; la auditoría de accesos
      * registra cada una por separado (paso 6).
+     *
+     * @return ?int
      */
     public function getCiudadanoId(): ?int
     {

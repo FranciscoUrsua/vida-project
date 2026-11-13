@@ -40,6 +40,8 @@ enum TipoApunte: string
 
     /**
      * Color del punto del apunte en la línea de tiempo de la historia.
+     *
+     * @return Tono
      */
     public function tono(): Tono
     {

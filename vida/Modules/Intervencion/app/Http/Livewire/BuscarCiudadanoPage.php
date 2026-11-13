@@ -216,6 +216,8 @@ class BuscarCiudadanoPage extends Component
      * la AuthorizationException (403): no se redirige.
      *
      * @param int $historiaId ID de la historia social accedida.
+     *
+     * @return void
      */
     public function registrarAccesoNivel2(int $historiaId): void
     {

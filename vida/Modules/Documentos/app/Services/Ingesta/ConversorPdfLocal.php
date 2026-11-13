@@ -41,6 +41,8 @@ class ConversorPdfLocal implements ConversorPdf
      * @param string $mime MIME detectado, que fija el decodificador.
      * @param string $directorio Directorio de trabajo.
      *
+     * @return string
+     *
      * @throws IngestaRechazadaException
      */
     private function desdeImagen(string $ruta, string $mime, string $directorio): string
@@ -86,6 +88,8 @@ class ConversorPdfLocal implements ConversorPdf
      *
      * @param string $ruta Documento de entrada.
      * @param string $directorio Directorio de trabajo.
+     *
+     * @return string
      *
      * @throws IngestaRechazadaException
      */

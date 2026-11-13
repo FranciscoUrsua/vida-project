@@ -256,6 +256,8 @@ class HorarioCentroTest extends TestCase
     /**
      * Horario estándar de 9 a 14 con un tipo de slot elegido y otro del catálogo sin elegir.
      *
+     * @param Centro $centro
+     *
      * @return array{0: HorarioCentro, 1: TipoSlot, 2: TipoSlot}
      */
     private function horarioConUnTipoElegido(Centro $centro): array

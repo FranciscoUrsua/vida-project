@@ -44,6 +44,8 @@ class PropuestaEliminacionResource extends Resource
      * Tabla de propuestas con las acciones de aprobar y rechazar.
      *
      * @param Table $table Tabla base.
+     *
+     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -82,6 +84,8 @@ class PropuestaEliminacionResource extends Resource
 
     /**
      * Acción de aprobación: destruye las versiones que sigan siendo destruibles y levanta el acta.
+     *
+     * @return Action
      */
     public static function accionAprobar(): Action
     {
@@ -114,6 +118,8 @@ class PropuestaEliminacionResource extends Resource
 
     /**
      * Acción de rechazo: la propuesta se cierra sin destruir nada.
+     *
+     * @return Action
      */
     public static function accionRechazar(): Action
     {
@@ -147,6 +153,8 @@ class PropuestaEliminacionResource extends Resource
 
     /**
      * Solo adm_sistema ve las propuestas.
+     *
+     * @return bool
      */
     public static function canViewAny(): bool
     {
@@ -155,6 +163,8 @@ class PropuestaEliminacionResource extends Resource
 
     /**
      * Las propuestas las crea el comando, nunca el formulario.
+     *
+     * @return bool
      */
     public static function canCreate(): bool
     {
@@ -165,6 +175,8 @@ class PropuestaEliminacionResource extends Resource
      * Una propuesta no se edita: se aprueba o se rechaza.
      *
      * @param Model $record Registro objetivo.
+     *
+     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
@@ -175,6 +187,8 @@ class PropuestaEliminacionResource extends Resource
      * Una propuesta no se borra.
      *
      * @param Model $record Registro objetivo.
+     *
+     * @return bool
      */
     public static function canDelete(Model $record): bool
     {

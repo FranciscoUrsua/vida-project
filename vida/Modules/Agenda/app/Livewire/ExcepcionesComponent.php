@@ -61,6 +61,11 @@ class ExcepcionesComponent extends Component
 
     /**
      * Inicializa el componente con el profesional y su centro.
+     *
+     * @param User $profesional
+     * @param Centro $centro
+     *
+     * @return void
      */
     public function mount(User $profesional, Centro $centro): void
     {
@@ -72,6 +77,8 @@ class ExcepcionesComponent extends Component
      * Abre el modal de registro o edición de una excepción.
      *
      * @param int|null $excepcionId ID a editar; null para creación
+     *
+     * @return void
      */
     public function abrirModal(?int $excepcionId = null): void
     {
@@ -102,6 +109,8 @@ class ExcepcionesComponent extends Component
      *
      * Si hay citas confirmadas en el período y aún no se ha mostrado el aviso,
      * establece $citasAfectadas y detiene el guardado para mostrar la advertencia.
+     *
+     * @return void
      */
     public function guardar(): void
     {
@@ -156,6 +165,8 @@ class ExcepcionesComponent extends Component
      * Elimina la excepción indicada si pertenece al profesional y centro actuales.
      *
      * @param int $id ID de la excepción a eliminar
+     *
+     * @return void
      */
     public function eliminar(int $id): void
     {
@@ -199,6 +210,8 @@ class ExcepcionesComponent extends Component
 
     /**
      * Renderiza la vista del componente.
+     *
+     * @return View
      */
     public function render(): View
     {

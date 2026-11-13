@@ -142,6 +142,8 @@ class MockGeocodificador implements GeocodificadorInterface
      * @param string|null $tipoVia Tipo de vía extraído.
      * @param string|null $nombreVia Nombre de vía extraído.
      * @param string|null $numero Número extraído.
+     *
+     * @return string
      */
     private function clavePortal(string $texto, ?string $tipoVia, ?string $nombreVia, ?string $numero): string
     {
@@ -155,6 +157,8 @@ class MockGeocodificador implements GeocodificadorInterface
      * portal da siempre la misma sección mientras no cambie el catálogo.
      *
      * @param string $clavePortal Clave del portal.
+     *
+     * @return SeccionCensal|null
      */
     private function seccionDeterminista(string $clavePortal): ?SeccionCensal
     {

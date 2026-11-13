@@ -16,6 +16,8 @@ class EditPrestacion extends EditRecord
 
     /**
      * Guarda los tipos de centro que ofrecen la prestación, con versión del estado anterior.
+     *
+     * @return void
      */
     protected function afterSave(): void
     {

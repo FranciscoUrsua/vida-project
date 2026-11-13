@@ -61,6 +61,10 @@ class CitaPage extends Component
 
     /**
      * Carga la cita (la ruta ya ha comprobado `view`).
+     *
+     * @param Cita $cita
+     *
+     * @return void
      */
     public function mount(Cita $cita): void
     {
@@ -112,6 +116,8 @@ class CitaPage extends Component
 
     /**
      * Si el usuario puede reprogramar esta cita ahora (política y estado).
+     *
+     * @return bool
      */
     #[Computed]
     public function puedeReprogramar(): bool
@@ -121,6 +127,8 @@ class CitaPage extends Component
 
     /**
      * Si el usuario puede cancelar esta cita ahora (política y estado).
+     *
+     * @return bool
      */
     #[Computed]
     public function puedeCancelar(): bool
@@ -132,6 +140,8 @@ class CitaPage extends Component
      * Abre o cierra el formulario de una acción.
      *
      * @param string|null $accion 'reprogramar', 'cancelar' o null.
+     *
+     * @return void
      */
     public function abrir(?string $accion): void
     {
@@ -143,6 +153,7 @@ class CitaPage extends Component
     /**
      * Busca huecos para mover la cita (el sistema propone; la persona elige).
      *
+     * @return void
      *
      * @throws AuthorizationException
      */
@@ -168,6 +179,10 @@ class CitaPage extends Component
     /**
      * Mueve la cita al hueco elegido. La original queda reprogramada y se pasa a
      * mostrar la nueva.
+     *
+     * @param int $slotId
+     *
+     * @return void
      */
     public function reprogramar(int $slotId): void
     {
@@ -195,6 +210,8 @@ class CitaPage extends Component
 
     /**
      * Cancela la cita y, si se ha marcado, abre una solicitud nueva enlazada.
+     *
+     * @return void
      */
     public function cancelar(): void
     {
@@ -227,6 +244,8 @@ class CitaPage extends Component
 
     /**
      * Pinta la página.
+     *
+     * @return View
      */
     public function render(): View
     {

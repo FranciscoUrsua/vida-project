@@ -213,6 +213,8 @@ class ActividadesPage extends Component
 
     /**
      * Actividad cuyas sesiones se están gestionando en el modal.
+     *
+     * @return Actividad|null
      */
     #[Computed]
     public function actividadParaSesiones(): ?Actividad
@@ -315,6 +317,8 @@ class ActividadesPage extends Component
 
     /**
      * Abre el modal en modo alta con el formulario limpio.
+     *
+     * @return void
      */
     public function abrirModal(): void
     {
@@ -332,6 +336,8 @@ class ActividadesPage extends Component
      * Solo permite editar actividades del propio centro del supervisor.
      *
      * @param int $id Id de la actividad a editar.
+     *
+     * @return void
      */
     public function abrirEdicion(int $id): void
     {
@@ -357,6 +363,10 @@ class ActividadesPage extends Component
 
     /**
      * Añade el profesional indicado a la lista de la actividad.
+     *
+     * @param int $profesionalId
+     *
+     * @return void
      */
     public function agregarProfesional(int $profesionalId): void
     {
@@ -371,6 +381,10 @@ class ActividadesPage extends Component
 
     /**
      * Quita el profesional indicado de la lista de la actividad.
+     *
+     * @param int $profesionalId
+     *
+     * @return void
      */
     public function quitarProfesional(int $profesionalId): void
     {
@@ -381,6 +395,8 @@ class ActividadesPage extends Component
 
     /**
      * Guarda el formulario de actividad (crea o actualiza) y sincroniza profesionales.
+     *
+     * @return void
      */
     public function guardar(): void
     {
@@ -444,6 +460,10 @@ class ActividadesPage extends Component
 
     /**
      * Abre el modal de sesiones para la actividad indicada en modo lista.
+     *
+     * @param int $actividadId
+     *
+     * @return void
      */
     public function abrirSesiones(int $actividadId): void
     {
@@ -456,6 +476,8 @@ class ActividadesPage extends Component
 
     /**
      * Cambia el modal de sesiones al formulario en modo alta.
+     *
+     * @return void
      */
     public function nuevaSesion(): void
     {
@@ -472,6 +494,10 @@ class ActividadesPage extends Component
 
     /**
      * Carga los datos de la sesión indicada y abre el formulario en modo edición.
+     *
+     * @param int $sesionId
+     *
+     * @return void
      */
     public function editarSesion(int $sesionId): void
     {
@@ -496,6 +522,8 @@ class ActividadesPage extends Component
 
     /**
      * Guarda el formulario de sesión (crea o actualiza) y sincroniza profesionales.
+     *
+     * @return void
      */
     public function guardarSesion(): void
     {
@@ -540,6 +568,10 @@ class ActividadesPage extends Component
 
     /**
      * Elimina (soft delete) la sesión indicada.
+     *
+     * @param int $sesionId
+     *
+     * @return void
      */
     public function eliminarSesion(int $sesionId): void
     {
@@ -553,6 +585,8 @@ class ActividadesPage extends Component
 
     /**
      * Vuelve a la vista de lista dentro del modal de sesiones.
+     *
+     * @return void
      */
     public function volverALista(): void
     {
@@ -561,6 +595,10 @@ class ActividadesPage extends Component
 
     /**
      * Añade el profesional indicado a la lista de la sesión.
+     *
+     * @param int $profesionalId
+     *
+     * @return void
      */
     public function agregarSesionProfesional(int $profesionalId): void
     {
@@ -575,6 +613,10 @@ class ActividadesPage extends Component
 
     /**
      * Quita el profesional indicado de la lista de la sesión.
+     *
+     * @param int $profesionalId
+     *
+     * @return void
      */
     public function quitarSesionProfesional(int $profesionalId): void
     {
@@ -589,6 +631,8 @@ class ActividadesPage extends Component
 
     /**
      * Renderiza la pantalla de actividades grupales.
+     *
+     * @return View
      */
     public function render(): View
     {
@@ -661,6 +705,8 @@ class ActividadesPage extends Component
 
     /**
      * Resuelve el Centro asociado a la primera UO activa del supervisor autenticado.
+     *
+     * @return Centro|null
      */
     private function centroDelSupervisor(): ?Centro
     {

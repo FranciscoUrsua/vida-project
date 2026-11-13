@@ -19,6 +19,8 @@ return new class extends Migration
 {
     /**
      * Añade las columnas, ejecuta la migración de datos y rehace los índices.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -58,6 +60,8 @@ return new class extends Migration
 
     /**
      * Quita las columnas e índices; los tipos y denominaciones se borran con sus tablas.
+     *
+     * @return void
      */
     public function down(): void
     {

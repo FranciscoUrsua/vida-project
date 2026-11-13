@@ -36,6 +36,10 @@ use Modules\Intervencion\Models\AsignacionProfesional;
  */
 class AsignacionReferenciaService
 {
+    /**
+     * @param SorteoReferenciaService $sorteo
+     * @param PoolReferenciaService $pool
+     */
     public function __construct(
         private readonly SorteoReferenciaService $sorteo,
         private readonly PoolReferenciaService $pool,
@@ -43,6 +47,10 @@ class AsignacionReferenciaService
 
     /**
      * Asignación vigente de una historia.
+     *
+     * @param HistoriaSocial $historia
+     *
+     * @return AsignacionProfesional|null
      */
     public function vigente(HistoriaSocial $historia): ?AsignacionProfesional
     {
@@ -53,6 +61,7 @@ class AsignacionReferenciaService
      * Asigna la referencia inicial de una historia recién abierta en un centro.
      * Si la historia ya tiene referencia vigente, la devuelve sin cambiarla.
      *
+     * @param HistoriaSocial $historia
      * @param Centro $centro Centro de la persona para el tipo de la apertura.
      * @param User $actor Profesional que abre la historia.
      * @param User|null $elegido Profesional elegido por la persona (centros de libre elección).
@@ -106,8 +115,11 @@ class AsignacionReferenciaService
     /**
      * Deja constancia en la bandeja de una historia que se abre sin referencia.
      *
+     * @param HistoriaSocial $historia
      * @param Centro|null $centro Bandeja en la que aparece.
      * @param MotivoAsignacionPendiente|null $motivo Null si la causa es que la persona no tiene centro.
+     *
+     * @return AsignacionPendiente
      */
     public function registrarSinReferencia(HistoriaSocial $historia, ?Centro $centro, ?MotivoAsignacionPendiente $motivo): AsignacionPendiente
     {
@@ -130,9 +142,13 @@ class AsignacionReferenciaService
      * Cambio de referencia por el supervisor, con motivo (RN-04). Cierra la
      * vigente sin tocar su profesional y crea una manual, que no cuenta en el reparto.
      *
+     * @param HistoriaSocial $historia
      * @param User $nuevo Nuevo profesional de referencia.
      * @param string $motivo Obligatorio.
+     * @param User $supervisor
      * @param Centro|null $centro Centro de la nueva asignación; por defecto, el de la vigente.
+     *
+     * @return AsignacionProfesional
      *
      * @throws AuthorizationException Si el usuario no tiene rol de supervisión.
      * @throws InvalidArgumentException Si falta el motivo.
@@ -185,6 +201,9 @@ class AsignacionReferenciaService
      * Referencia vigente en el centro de algún miembro activo de la unidad de
      * convivencia de la persona (la más reciente, si hubiera varias).
      *
+     * @param HistoriaSocial $historia
+     * @param Centro $centro
+     *
      * @return int|null Id del profesional.
      */
     private function referenciaDeLaUnidad(HistoriaSocial $historia, Centro $centro): ?int
@@ -216,7 +235,13 @@ class AsignacionReferenciaService
     /**
      * Crea la asignación con su origen; solo sorteo y elección cuentan en el reparto.
      *
+     * @param HistoriaSocial $historia
+     * @param Centro|null $centro
+     * @param int $profesionalId
+     * @param OrigenAsignacionReferencia $origen
      * @param array<string, mixed> $extra
+     *
+     * @return AsignacionProfesional
      */
     private function crear(HistoriaSocial $historia, ?Centro $centro, int $profesionalId, OrigenAsignacionReferencia $origen, array $extra = []): AsignacionProfesional
     {

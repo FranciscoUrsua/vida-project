@@ -19,6 +19,8 @@ class CuadrantePublicadorService
      *
      * @param CuadranteMes $cuadrante Cuadrante en estado 'borrador' o 'revision'
      * @param int $supervisorId ID del usuario que autoriza la publicación
+     *
+     * @return void
      */
     public function publicar(CuadranteMes $cuadrante, int $supervisorId): void
     {

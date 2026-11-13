@@ -35,6 +35,8 @@ class ReasignacionPanel extends Component
 
     /**
      * Cita que se va a reasignar, con sus relaciones cargadas.
+     *
+     * @return Cita|null
      */
     #[Computed]
     public function cita(): ?Cita
@@ -100,6 +102,8 @@ class ReasignacionPanel extends Component
      * y actualiza la cita y el slot. Despacha 'citaReasignada' al componente padre.
      *
      * @param int $slotId ID del slot destino
+     *
+     * @return void
      */
     public function confirmarReasignacion(int $slotId): void
     {
@@ -137,6 +141,8 @@ class ReasignacionPanel extends Component
 
     /**
      * Renderiza el panel de reasignación.
+     *
+     * @return View
      */
     public function render(): View
     {
@@ -149,6 +155,8 @@ class ReasignacionPanel extends Component
 
     /**
      * Resuelve el Centro del supervisor autenticado.
+     *
+     * @return Centro|null
      */
     private function centroDelSupervisor(): ?Centro
     {

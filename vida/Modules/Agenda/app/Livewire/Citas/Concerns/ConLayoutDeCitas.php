@@ -14,6 +14,10 @@ trait ConLayoutDeCitas
 {
     /**
      * Pinta la vista con el layout que corresponde al usuario.
+     *
+     * @param string $vista
+     *
+     * @return View
      */
     protected function vistaConLayout(string $vista): View
     {

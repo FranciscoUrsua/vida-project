@@ -36,6 +36,8 @@ class AccesoDocumentoTest extends TestCase
 
     /**
      * Prepara actores y tipos comunes, autenticado como profesional.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -46,6 +48,8 @@ class AccesoDocumentoTest extends TestCase
 
     /**
      * Ciudadano de colectivo especialmente protegido.
+     *
+     * @return Ciudadano
      */
     private function ciudadanoProtegido(): Ciudadano
     {
@@ -58,6 +62,8 @@ class AccesoDocumentoTest extends TestCase
      * @param User $usuario Usuario que lo pide.
      * @param Documento $documento Documento.
      * @param string $ruta documentos.ver o documentos.descargar.
+     *
+     * @return TestResponse
      */
     private function pedir(User $usuario, Documento $documento, string $ruta = 'documentos.descargar'): TestResponse
     {
@@ -71,6 +77,8 @@ class AccesoDocumentoTest extends TestCase
      *
      * @param User $usuario Usuario que lo pide.
      * @param Documento $documento Documento.
+     *
+     * @return void
      */
     private function assertDenegadoSinDescifrar(User $usuario, Documento $documento): void
     {

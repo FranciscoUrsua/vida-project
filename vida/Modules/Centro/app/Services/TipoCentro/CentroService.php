@@ -26,6 +26,8 @@ class CentroService
      * @param Centro|null $antecesor Centro al que sustituye.
      * @param User|null $actor Usuario que lo crea.
      *
+     * @return Centro
+     *
      * @throws DomainException Si el tipo está de baja o falta el nombre.
      */
     public function darDeAlta(array $datos, TipoCentro $tipo, ?Centro $antecesor, ?User $actor): Centro
@@ -75,6 +77,8 @@ class CentroService
      * @param array<string, mixed> $datos Campos a cambiar.
      * @param User|null $actor Usuario que lo cambia (queda en la versión).
      *
+     * @return Centro
+     *
      * @throws DomainException Si incluye propiedades del tipo.
      */
     public function actualizar(Centro $centro, array $datos, ?User $actor): Centro
@@ -96,6 +100,8 @@ class CentroService
      * @param Centro $centro Centro que se da de baja.
      * @param Carbon $fecha Fecha de baja.
      * @param User|null $actor Usuario que la ejecuta (queda en la versión).
+     *
+     * @return Centro
      */
     public function darDeBaja(Centro $centro, Carbon $fecha, ?User $actor): Centro
     {

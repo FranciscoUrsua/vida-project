@@ -53,6 +53,9 @@ class CierreCalendario extends Model
     /**
      * Valida fechas y horas al guardar.
      *
+     *
+     * @return void
+     *
      * @throws DomainException
      */
     protected static function booted(): void

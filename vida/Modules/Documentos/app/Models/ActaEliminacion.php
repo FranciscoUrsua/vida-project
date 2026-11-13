@@ -45,6 +45,9 @@ class ActaEliminacion extends Model
      * Impide modificar o borrar un acta.
      *
      *
+     *
+     * @return void
+     *
      * @throws \LogicException al intentar actualizar o borrar
      */
     protected static function booted(): void
@@ -62,6 +65,8 @@ class ActaEliminacion extends Model
      * Siguiente número de acta del año indicado (formato AAAA/NNNN).
      *
      * @param int $anyo Año del acta.
+     *
+     * @return string
      */
     public static function siguienteNumero(int $anyo): string
     {

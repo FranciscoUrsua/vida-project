@@ -31,12 +31,18 @@ class PermisosCitaTest extends TestCase
     use CitasTestSetup;
     use RefreshDatabase;
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
         parent::setUp();
         $this->montarEscenarioCitas();
     }
 
+    /**
+     * @return CitacionService
+     */
     private function citacion(): CitacionService
     {
         return app(CitacionService::class);
@@ -63,6 +69,8 @@ class PermisosCitaTest extends TestCase
 
     /**
      * TF-CIT-25 — Intervención no da citas, ni directas ni desde una solicitud. [negativo]
+     *
+     * @return void
      */
     #[Test]
     public function intervencion_no_da_citas(): void
@@ -91,6 +99,8 @@ class PermisosCitaTest extends TestCase
 
     /**
      * TF-CIT-26 — Un profesional no reprograma ni cancela sus citas. [negativo]
+     *
+     * @return void
      */
     #[Test]
     public function un_profesional_no_reprograma_ni_cancela_sus_citas(): void
@@ -114,6 +124,8 @@ class PermisosCitaTest extends TestCase
     /**
      * TF-CIT-27 — Auxiliar con doble rol: cita en su agenda, no cancela las suyas,
      * sí las de otros. [negativo]
+     *
+     * @return void
      */
     #[Test]
     public function el_auxiliar_cita_en_su_agenda_pero_no_cancela_las_suyas(): void
@@ -137,6 +149,8 @@ class PermisosCitaTest extends TestCase
     /**
      * TF-CIT-28 — Pedir un cambio abre un mensaje al supervisor con enlace a la
      * cita y deja evento; la cita no cambia.
+     *
+     * @return void
      */
     #[Test]
     public function pedir_cambio_al_supervisor(): void
@@ -161,6 +175,8 @@ class PermisosCitaTest extends TestCase
 
     /**
      * La supervisión sí mueve citas de su centro, también las de otros profesionales.
+     *
+     * @return void
      */
     #[Test]
     public function la_supervision_reprograma_citas_del_centro(): void

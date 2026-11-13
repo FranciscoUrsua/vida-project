@@ -112,6 +112,13 @@ class GestionAusenciaService
 
     /**
      * Aplica la reasignación y escribe su evento (dentro de la transacción de reasignar()).
+     *
+     * @param Cita $cita
+     * @param Slot $slotDestino
+     * @param int $supervisorId
+     * @param string $motivo
+     *
+     * @return ReasignacionCita
      */
     private function aplicarReasignacion(Cita $cita, Slot $slotDestino, int $supervisorId, string $motivo): ReasignacionCita
     {
@@ -153,6 +160,8 @@ class GestionAusenciaService
      * contar como pendiente (pantalla y contadores del menú), sin cambiar su estado.
      *
      * @param Cita $cita Cancelada por ausencia del profesional.
+     *
+     * @return void
      */
     public function descartarReasignacion(Cita $cita): void
     {

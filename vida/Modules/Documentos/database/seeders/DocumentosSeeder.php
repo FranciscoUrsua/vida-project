@@ -21,6 +21,8 @@ class DocumentosSeeder extends Seeder
 {
     /**
      * Siembra catálogo, tipos documentales y plantilla de ejemplo.
+     *
+     * @return void
      */
     public function run(): void
     {

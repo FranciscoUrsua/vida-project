@@ -14,6 +14,8 @@ final class Tonos
      * Badge del nivel de identificación del ciudadano.
      *
      * @param string|null $nivel identificado|probable|no_identificado
+     *
+     * @return Tono
      */
     public static function nivelIdentificacion(?string $nivel): Tono
     {
@@ -28,6 +30,8 @@ final class Tonos
      * Badge de estado de una prestación del resumen.
      *
      * @param string $estado Estado de la prestación.
+     *
+     * @return Tono
      */
     public static function estadoPrestacion(string $estado): Tono
     {
@@ -43,6 +47,8 @@ final class Tonos
      * Badge del tipo de registro de atención.
      *
      * @param string $tipo informacion|actividad|contacto
+     *
+     * @return Tono
      */
     public static function tipoRegistroAtencion(string $tipo): Tono
     {

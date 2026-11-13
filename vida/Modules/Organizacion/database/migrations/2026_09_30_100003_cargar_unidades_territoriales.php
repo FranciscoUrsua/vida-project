@@ -19,6 +19,8 @@ return new class extends Migration
 {
     /**
      * Carga distritos (si faltan), barrios y secciones censales.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -33,6 +35,8 @@ return new class extends Migration
 
     /**
      * Vacía el catálogo de barrios y secciones (los distritos se conservan).
+     *
+     * @return void
      */
     public function down(): void
     {

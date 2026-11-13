@@ -51,6 +51,8 @@ class CuadranteSupervisorPage extends Component
      * Cuadrante del mes actual para el centro del supervisor.
      *
      * Devuelve el borrador o el publicado; prioriza el borrador si ambos existen.
+     *
+     * @return CuadranteMes|null
      */
     #[Computed]
     public function cuadrante(): ?CuadranteMes
@@ -149,6 +151,8 @@ class CuadranteSupervisorPage extends Component
 
     /**
      * Indica si el modo de agenda del centro permite gestión manual del cuadrante.
+     *
+     * @return bool
      */
     #[Computed]
     public function modoManual(): bool
@@ -173,6 +177,8 @@ class CuadranteSupervisorPage extends Component
 
     /**
      * Publica el cuadrante en borrador y materializa los slots.
+     *
+     * @return void
      */
     public function publicar(): void
     {
@@ -195,6 +201,8 @@ class CuadranteSupervisorPage extends Component
      * Regenera el borrador del cuadrante a partir de los perfiles horarios actuales.
      *
      * Elimina las líneas existentes y recalcula desde cero. Solo disponible en borrador.
+     *
+     * @return void
      */
     public function regenerar(): void
     {
@@ -212,6 +220,8 @@ class CuadranteSupervisorPage extends Component
 
     /**
      * Renderiza la pantalla del cuadrante.
+     *
+     * @return View
      */
     public function render(): View
     {
@@ -224,6 +234,8 @@ class CuadranteSupervisorPage extends Component
 
     /**
      * Resuelve el Centro del supervisor autenticado.
+     *
+     * @return Centro|null
      */
     private function centroDelSupervisor(): ?Centro
     {

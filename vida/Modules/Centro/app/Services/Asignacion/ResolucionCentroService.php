@@ -30,7 +30,10 @@ class ResolucionCentroService
     /**
      * Resuelve el centro del tipo indicado para la dirección del ciudadano.
      *
+     * @param Ciudadano $ciudadano
      * @param string $tipoCentro Clave de `centro.tipo`.
+     *
+     * @return ResultadoResolucionCentro
      */
     public function resolver(Ciudadano $ciudadano, string $tipoCentro): ResultadoResolucionCentro
     {
@@ -81,6 +84,8 @@ class ResolucionCentroService
     /**
      * Centros activos del tipo con adscripción por domicilio.
      *
+     * @param string $tipoCentro
+     *
      * @return Collection<int, Centro>
      */
     public function centrosPorDomicilio(string $tipoCentro): Collection
@@ -113,6 +118,8 @@ class ResolucionCentroService
      * Secciones censales activas que no cubre ningún centro del tipo, a ningún
      * nivel. Sirve para ver los huecos al configurar, no al dar de alta.
      * Devuelve siempre una colección de Eloquent: los llamadores cargan relaciones con load().
+     *
+     * @param string $tipoCentro
      *
      * @return EloquentCollection<int, SeccionCensal>
      */

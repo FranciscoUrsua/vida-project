@@ -31,6 +31,8 @@ final class Infraccion
 
     /**
      * Posición legible (`fichero:línea`) para la salida de consola.
+     *
+     * @return string
      */
     public function posicion(): string
     {

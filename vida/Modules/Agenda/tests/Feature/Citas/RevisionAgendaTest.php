@@ -29,12 +29,18 @@ class RevisionAgendaTest extends TestCase
     use CitasTestSetup;
     use RefreshDatabase;
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
         parent::setUp();
         $this->montarEscenarioCitas();
     }
 
+    /**
+     * @return CitacionService
+     */
     private function citacion(): CitacionService
     {
         return app(CitacionService::class);
@@ -59,6 +65,8 @@ class RevisionAgendaTest extends TestCase
 
     /**
      * PF-05.1 — La cita interna la crea quien da citas, con solicitud, y reserva el slot.
+     *
+     * @return void
      */
     #[Test]
     public function pf_05_1_la_cita_interna_se_crea_por_citacion_y_reserva_el_slot(): void
@@ -75,6 +83,8 @@ class RevisionAgendaTest extends TestCase
 
     /**
      * PF-05.1 (negativo) — Quien solo tiene intervención no da citas.
+     *
+     * @return void
      */
     #[Test]
     public function pf_05_1_intervencion_no_da_citas(): void
@@ -93,6 +103,8 @@ class RevisionAgendaTest extends TestCase
     /**
      * PF-05.5 — La cita se completa al vincular un apunte, con marca de tiempo;
      * ya no hay apunte automático por tipo de slot.
+     *
+     * @return void
      */
     #[Test]
     public function pf_05_5_la_cita_se_completa_con_el_apunte(): void
@@ -120,6 +132,8 @@ class RevisionAgendaTest extends TestCase
     /**
      * PF-06.2 — La cancelación a petición de la persona la registra quien da
      * citas; el slot futuro vuelve a estar disponible.
+     *
+     * @return void
      */
     #[Test]
     public function pf_06_2_la_cancelacion_del_ciudadano_la_registra_citacion(): void
@@ -136,6 +150,8 @@ class RevisionAgendaTest extends TestCase
 
     /**
      * PF-06.2 (negativo) — El profesional de la cita no la cancela.
+     *
+     * @return void
      */
     #[Test]
     public function pf_06_2_el_profesional_no_cancela_su_cita(): void

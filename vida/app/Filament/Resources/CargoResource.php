@@ -49,6 +49,8 @@ class CargoResource extends Resource
      * Define el formulario de alta y edición de cargos.
      *
      * @param Schema $schema Esquema base.
+     *
+     * @return Schema
      */
     public static function form(Schema $schema): Schema
     {
@@ -113,6 +115,8 @@ class CargoResource extends Resource
      * Define la tabla de listado de cargos.
      *
      * @param Table $table Tabla base.
+     *
+     * @return Table
      */
     public static function table(Table $table): Table
     {
@@ -151,6 +155,8 @@ class CargoResource extends Resource
 
     /**
      * Define las páginas del recurso de cargos.
+     *
+     * @return array
      */
     public static function getPages(): array
     {

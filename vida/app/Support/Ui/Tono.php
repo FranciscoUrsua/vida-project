@@ -22,6 +22,8 @@ enum Tono: string implements FuenteClasesCss
 
     /**
      * Fondo suave con texto de énfasis: badges de estado y de tipo.
+     *
+     * @return string
      */
     public function clasesSuave(): string
     {
@@ -38,6 +40,8 @@ enum Tono: string implements FuenteClasesCss
 
     /**
      * Fondo lleno con texto de contraste: badges que tienen que destacar.
+     *
+     * @return string
      */
     public function clasesFuerte(): string
     {
@@ -54,6 +58,8 @@ enum Tono: string implements FuenteClasesCss
 
     /**
      * Solo el fondo lleno: puntos y muestras de color sin texto.
+     *
+     * @return string
      */
     public function clasesPunto(): string
     {
@@ -71,6 +77,8 @@ enum Tono: string implements FuenteClasesCss
     /**
      * Fondo suave con borde del color: bloques de la agenda (el grosor y el lado
      * del borde los pone la vista).
+     *
+     * @return string
      */
     public function clasesBloque(): string
     {

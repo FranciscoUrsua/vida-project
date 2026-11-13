@@ -29,6 +29,9 @@ class PoolReferenciaService
     /**
      * Profesionales elegibles con su peso, ordenados por id de usuario.
      *
+     * @param Centro $centro
+     * @param Carbon $fecha
+     *
      * @return Collection<int, array{usuario: User, peso: float}>
      */
     public function elegibles(Centro $centro, Carbon $fecha): Collection
@@ -50,6 +53,9 @@ class PoolReferenciaService
      * entre ellos elige el supervisor en una asignación manual, también cuando
      * el sorteo no tiene a nadie por las ausencias.
      *
+     * @param Centro $centro
+     * @param Carbon $fecha
+     *
      * @return Collection<int, User>
      */
     public function profesionalesReferencia(Centro $centro, Carbon $fecha): Collection
@@ -65,6 +71,7 @@ class PoolReferenciaService
      * Perfiles horarios activos y vigentes en el centro de usuarios con cargo
      * elegible para referencia.
      *
+     * @param Centro $centro
      * @param string $dia Fecha Y-m-d.
      *
      * @return Collection<int, PerfilHorarioProfesional>
@@ -85,7 +92,10 @@ class PoolReferenciaService
     /**
      * Umbral de ausencia prolongada del centro en una fecha (días).
      *
+     * @param Centro $centro
      * @param string $dia Fecha Y-m-d.
+     *
+     * @return int
      */
     public function diasAusenciaProlongada(Centro $centro, string $dia): int
     {
@@ -102,6 +112,7 @@ class PoolReferenciaService
      * Usuarios con una ausencia que afecta a su disponibilidad en el centro,
      * cubre el día y dura más que el umbral.
      *
+     * @param Centro $centro
      * @param string $dia Fecha Y-m-d.
      * @param list<int> $usuarios
      *

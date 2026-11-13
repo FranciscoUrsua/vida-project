@@ -17,6 +17,8 @@ return new class extends Migration
 {
     /**
      * Crea la tabla `barrios`.
+     *
+     * @return void
      */
     public function up(): void
     {
@@ -35,6 +37,8 @@ return new class extends Migration
 
     /**
      * Elimina la tabla `barrios`.
+     *
+     * @return void
      */
     public function down(): void
     {

@@ -79,6 +79,8 @@ class BandejaMensajes extends Component
 
     /**
      * Abre el panel de redacción global, sin contexto.
+     *
+     * @return void
      */
     public function nuevaMensaje(): void
     {
@@ -89,6 +91,8 @@ class BandejaMensajes extends Component
      * Abre la conversación recién creada desde el formulario de mensaje nuevo.
      *
      * @param int $hiloId ID del hilo creado.
+     *
+     * @return void
      */
     #[On('hilo-creado')]
     public function hiloCreado(int $hiloId): void

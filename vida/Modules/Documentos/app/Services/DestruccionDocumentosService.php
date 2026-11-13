@@ -135,6 +135,8 @@ class DestruccionDocumentosService
      * @param User $usuario Quien rechaza; debe ser adm_sistema.
      * @param string|null $observaciones Motivo del rechazo.
      *
+     * @return PropuestaEliminacion
+     *
      * @throws AuthorizationException si el usuario no es adm_sistema
      * @throws \DomainException si la propuesta ya está resuelta
      */
@@ -179,6 +181,8 @@ class DestruccionDocumentosService
      * vencida y no está retenida.
      *
      * @param DocumentoVersion $version Versión propuesta.
+     *
+     * @return bool
      */
     private function sigueSiendoDestruible(DocumentoVersion $version): bool
     {
@@ -220,6 +224,8 @@ class DestruccionDocumentosService
      * Marca el documento como destruido si ya no le queda ninguna versión con contenido.
      *
      * @param DocumentoVersion $version Versión recién destruida.
+     *
+     * @return void
      */
     private function marcarDocumentoSiDestruido(DocumentoVersion $version): void
     {
@@ -238,6 +244,8 @@ class DestruccionDocumentosService
      *
      * @param PropuestaEliminacion $propuesta Propuesta.
      *
+     * @return PropuestaEliminacion
+     *
      * @throws \DomainException si ya está resuelta
      */
     private function bloquearPendiente(PropuestaEliminacion $propuesta): PropuestaEliminacion
@@ -255,6 +263,8 @@ class DestruccionDocumentosService
      * Solo adm_sistema aprueba o rechaza propuestas de destrucción.
      *
      * @param User $usuario Usuario que actúa.
+     *
+     * @return void
      *
      * @throws AuthorizationException
      */

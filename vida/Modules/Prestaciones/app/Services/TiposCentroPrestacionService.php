@@ -24,6 +24,8 @@ class TiposCentroPrestacionService
      * @param list<int> $tipoCentroIds Tipos de centro que la ofrecen.
      * @param User|null $actor Usuario que hace el cambio.
      * @param bool $versionar False al dar de alta la prestación (no hay estado anterior).
+     *
+     * @return void
      */
     public function sincronizar(Prestacion $prestacion, array $tipoCentroIds, ?User $actor, bool $versionar = true): void
     {

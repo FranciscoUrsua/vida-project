@@ -34,6 +34,8 @@ class HorarioCalendarioTest extends TestCase
 
     /**
      * Escenario común de Tipo de Centro.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -43,6 +45,8 @@ class HorarioCalendarioTest extends TestCase
 
     /**
      * Servicio bajo prueba.
+     *
+     * @return ConfiguracionEfectivaCentro
      */
     private function config(): ConfiguracionEfectivaCentro
     {
@@ -51,6 +55,10 @@ class HorarioCalendarioTest extends TestCase
 
     /**
      * Horario de agenda del centro que hereda el del tipo.
+     *
+     * @param Centro $centro
+     *
+     * @return HorarioCentro
      */
     private function horarioHeredado(Centro $centro): HorarioCentro
     {
@@ -59,6 +67,8 @@ class HorarioCalendarioTest extends TestCase
 
     /**
      * Horario propio L-J 8:00-15:00 para `$cssSur`.
+     *
+     * @return HorarioCentro
      */
     private function horarioPropioSur(): HorarioCentro
     {
@@ -153,6 +163,8 @@ class HorarioCalendarioTest extends TestCase
 
     /**
      * Calendario de TF-TCE-17: en el tipo, cierre el 9 y reducido 9-12 el 10; en `$cssNorte`, reducido 10-13 el 9.
+     *
+     * @return void
      */
     private function calendarioDeNoviembre(): void
     {

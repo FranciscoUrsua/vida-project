@@ -42,6 +42,8 @@ class RepartoCasosTest extends TestCase
     /**
      * Escenario: ts1 con 20 casos con actividad (entre ellos la unidad García
      * completa) y 40 dormidos en CSS Norte.
+     *
+     * @return void
      */
     protected function setUp(): void
     {
@@ -66,6 +68,9 @@ class RepartoCasosTest extends TestCase
     /**
      * Deja a ts1 como referencia de la historia y, si procede, le da actividad
      * con un apunte reciente.
+     *
+     * @param HistoriaSocial $historia
+     * @param bool $conActividad
      *
      * @return int Id de la historia.
      */
@@ -94,11 +99,17 @@ class RepartoCasosTest extends TestCase
         return $historia->id;
     }
 
+    /**
+     * @return RepartoCasosService
+     */
     private function servicio(): RepartoCasosService
     {
         return app(RepartoCasosService::class);
     }
 
+    /**
+     * @return RepartoCasos
+     */
     private function proponer(): RepartoCasos
     {
         return $this->servicio()->proponer($this->cssNorte, $this->ts1, 'Traslado a otro centro', $this->supervisor);
@@ -106,6 +117,8 @@ class RepartoCasosTest extends TestCase
 
     /**
      * Vigentes de ts1 en el centro.
+     *
+     * @return int
      */
     private function vigentesDeTs1(): int
     {
@@ -115,6 +128,8 @@ class RepartoCasosTest extends TestCase
     /**
      * TF-ASG-31 — La propuesta reparte cada bloque en proporción a la jornada,
      * deja entera la unidad de convivencia y no cambia ninguna asignación.
+     *
+     * @return void
      */
     #[Test]
     public function la_propuesta_reparte_por_bloques_en_proporcion_sin_cambiar_nada(): void
@@ -146,6 +161,8 @@ class RepartoCasosTest extends TestCase
 
     /**
      * TF-ASG-31 — Solo la supervisión del centro puede proponer, y con motivo.
+     *
+     * @return void
      */
     #[Test]
     public function solo_la_supervision_del_centro_propone_y_con_motivo(): void
@@ -167,6 +184,8 @@ class RepartoCasosTest extends TestCase
      * TF-ASG-32 — Al confirmar se cierran las 60 asignaciones de ts1 y se crean
      * 60 de reparto que no cuentan en el sorteo; la línea modificada manda y los
      * destinos reciben aviso.
+     *
+     * @return void
      */
     #[Test]
     public function confirmar_aplica_el_reparto_con_la_linea_modificada_y_avisa(): void
@@ -207,6 +226,8 @@ class RepartoCasosTest extends TestCase
     /**
      * TF-ASG-32 — Descartar una propuesta no cambia nada, y después ya no se
      * puede confirmar.
+     *
+     * @return void
      */
     #[Test]
     public function descartar_no_cambia_nada(): void
@@ -226,6 +247,8 @@ class RepartoCasosTest extends TestCase
     /**
      * TF-ASG-32 [negativo] — Si un caso cambia de referencia tras la propuesta,
      * la confirmación no aplica nada: ni ese caso ni los demás.
+     *
+     * @return void
      */
     #[Test]
     public function una_propuesta_desfasada_no_se_aplica_a_medias(): void
@@ -249,6 +272,8 @@ class RepartoCasosTest extends TestCase
     /**
      * TF-ASG-31 [negativo] — Solo puede haber un reparto propuesto por
      * profesional, y el destino modificado debe estar en el reparto del centro.
+     *
+     * @return void
      */
     #[Test]
     public function no_admite_dos_propuestas_ni_destinos_fuera_del_reparto(): void
@@ -279,6 +304,8 @@ class RepartoCasosTest extends TestCase
     /**
      * Los casos de un profesional dado de baja se pueden repartir, y el
      * reparto sigue mostrando quién era el profesional de origen.
+     *
+     * @return void
      */
     #[Test]
     public function se_reparten_los_casos_de_un_profesional_dado_de_baja(): void

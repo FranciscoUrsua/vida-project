@@ -29,6 +29,8 @@ class RetencionService
      * @param Carbon|null $hasta Fin; null = indefinida.
      * @param string|null $observaciones Observaciones libres.
      *
+     * @return DocumentoRetencion
+     *
      * @throws \InvalidArgumentException si la versión no es de ese documento
      */
     public function retener(

@@ -11,8 +11,11 @@ namespace Modules\Agenda\Services\Citas\CitaPrevia;
 final class CitaExternaRecibida
 {
     /**
+     * @param int $slotId
      * @param string $referenciaExterna Identificador de la cita en el sistema externo.
+     * @param int $tipoCitaId
      * @param string|null $tipoDocumento dni | nie | pasaporte
+     * @param string|null $numeroDocumento
      * @param array<string, mixed> $identificacion
      */
     public function __construct(

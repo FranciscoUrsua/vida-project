@@ -28,6 +28,8 @@ class LimpiarHuerfanosCommand extends Command
      * Ejecuta la comprobación.
      *
      * @param AlmacenDocumentos $almacen Almacén de objetos.
+     *
+     * @return int
      */
     public function handle(AlmacenDocumentos $almacen): int
     {
