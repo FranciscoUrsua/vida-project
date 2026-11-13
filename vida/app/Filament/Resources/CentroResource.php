@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Acciones\CentroTipoAcciones;
 use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\CentroResource\Pages;
 use App\Filament\Resources\CentroResource\RelationManagers\AmbitosTerritorialesRelationManager;
@@ -12,7 +13,6 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -21,12 +21,23 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\HtmlString;
+use Modules\Agenda\Models\HorarioCentro;
+use Modules\Centro\Enums\ElementoCatalogo;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Models\ExclusionCatalogo;
 use Modules\Centro\Models\TipoCentro;
 use Modules\Centro\Services\ConfiguracionEfectivaCentro;
+use Modules\Intervencion\Models\TipoFicha;
 
 /**
- * Recurso Filament para la gestión de centros.
+ * Recurso Filament para la gestión de centros (docs/modulo-tipo-centro.md §3, §4 y §9).
+ *
+ * El administrador da de alta, renombra y da de baja; el director de un centro
+ * edita solo contacto, notas y protocolo (el resto aparece deshabilitado) y
+ * personaliza horario, cierres y exclusiones. Lo que es del tipo se muestra en
+ * lectura con el valor del tipo. Los límites se aplican en el servidor
+ * (CentroService y CentroPolicy); el formulario solo los refleja.
  */
 class CentroResource extends Resource
 {
@@ -55,20 +66,36 @@ class CentroResource extends Resource
      */
     public static function form(Schema $schema): Schema
     {
+        // Lo que no es de la dirección del centro (§9), deshabilitado para quien no administra
+        $soloAdmin = fn (): bool => ! self::administra();
+        $config = fn (): ConfiguracionEfectivaCentro => app(ConfiguracionEfectivaCentro::class);
+
         return $schema->components([
             Section::make('Identificación')
                 ->columns(2)
                 ->schema([
+                    // La denominación se fija al alta; después se programa con fecha (§8.1)
                     TextInput::make('nombre')
                         ->label('Nombre completo')
                         ->required()
-                        ->maxLength(200),
+                        ->maxLength(200)
+                        ->disabledOn('edit')
+                        ->dehydrated(fn (string $operation) => $operation === 'create')
+                        ->helperText(fn (string $operation) => $operation === 'edit' ? 'Para cambiarlo, «Programar nueva denominación».' : null),
 
                     TextInput::make('nombre_corto')
                         ->label('Nombre corto')
                         ->maxLength(60)
                         ->nullable()
+                        ->disabledOn('edit')
+                        ->dehydrated(fn (string $operation) => $operation === 'create')
                         ->helperText('Abreviatura usada en listados y etiquetas.'),
+
+                    Placeholder::make('historial_denominaciones')
+                        ->label('Historial de denominaciones')
+                        ->content(fn (?Centro $record) => CentroTipoAcciones::historialDenominaciones($record))
+                        ->columnSpanFull()
+                        ->visibleOn('edit'),
 
                     Select::make('tipo_gestion')
                         ->label('Tipo de gestión')
@@ -79,7 +106,8 @@ class CentroResource extends Resource
                             'privado_puro' => 'Privado puro',
                         ])
                         ->required()
-                        ->default('municipal_directo'),
+                        ->default('municipal_directo')
+                        ->disabled($soloAdmin),
 
                     Select::make('unidad_organizativa_id')
                         ->label('Unidad organizativa')
@@ -87,11 +115,8 @@ class CentroResource extends Resource
                         ->searchable()
                         ->preload()
                         ->nullable()
-                        ->placeholder('Sin unidad asignada'),
-
-                    Toggle::make('activo')
-                        ->label('Activo')
-                        ->default(true),
+                        ->placeholder('Sin unidad asignada')
+                        ->disabled($soloAdmin),
                 ]),
 
             Section::make('Ubicación')
@@ -101,17 +126,20 @@ class CentroResource extends Resource
                         ->label('Dirección')
                         ->maxLength(300)
                         ->nullable()
+                        ->disabled($soloAdmin)
                         ->columnSpanFull(),
 
                     TextInput::make('codigo_postal')
                         ->label('Código postal')
                         ->maxLength(10)
-                        ->nullable(),
+                        ->nullable()
+                        ->disabled($soloAdmin),
 
                     TextInput::make('coordenadas')
                         ->label('Coordenadas')
                         ->maxLength(100)
                         ->nullable()
+                        ->disabled($soloAdmin)
                         ->helperText('Formato: latitud,longitud — ej: 40.416775,-3.703790'),
                 ]),
 
@@ -144,12 +172,49 @@ class CentroResource extends Resource
                         ->rows(3)
                         ->nullable(),
 
+                    // Sobrescribible (§4): vacío, rige el del tipo
                     Textarea::make('protocolo')
                         ->label('Protocolo propio')
                         ->rows(4)
                         ->nullable()
-                        ->helperText('Vacío: rige el protocolo del tipo de centro.'),
+                        ->hint(fn (?Centro $record) => $record === null ? null : self::insigniaOrigen($config()->origen($record, 'protocolo')))
+                        ->hintColor(fn (?Centro $record) => $record !== null && $config()->origen($record, 'protocolo') === 'centro' ? 'warning' : 'gray')
+                        ->helperText('Vacío: rige el protocolo del tipo de centro. «Volver al protocolo del tipo» lo vacía.'),
+
+                    Placeholder::make('protocolo_tipo')
+                        ->label('Protocolo del tipo')
+                        ->content(fn (?Centro $record) => $record === null ? '—' : ($config()->tipo($record)->protocolo ?: '—'))
+                        ->visibleOn('edit'),
                 ]),
+
+            Section::make('Horario y calendario')
+                ->columns(2)
+                ->schema([
+                    Placeholder::make('horario_efectivo')
+                        ->label('Horario')
+                        ->hint(fn (?Centro $record) => $record === null ? null : self::insigniaOrigen($config()->origen($record, 'horario')))
+                        ->hintColor(fn (?Centro $record) => $record !== null && $config()->origen($record, 'horario') === 'centro' ? 'warning' : 'gray')
+                        ->content(fn (?Centro $record) => self::horarioEfectivo($record))
+                        ->columnSpanFull(),
+                    Placeholder::make('cierres_tipo')
+                        ->label('Cierres comunes del tipo')
+                        ->content(fn (?Centro $record) => CentroTipoAcciones::cierres($record?->tipoCentro))
+                        ->helperText('Se cambian en el tipo de centro.'),
+                    Placeholder::make('cierres_centro')
+                        ->label('Cierres propios')
+                        ->content(fn (?Centro $record) => CentroTipoAcciones::cierres($record))
+                        ->helperText('Se suman a los del tipo y prevalecen sobre ellos. Para añadir uno, «Añadir cierre».'),
+                ])
+                ->visibleOn('edit'),
+
+            Section::make('Exclusiones de catálogo')
+                ->description('El tipo permite que este centro no ofrezca parte de su catálogo (RN-08). Para cambiarlas, «Exclusiones de catálogo».')
+                ->schema([
+                    Placeholder::make('exclusiones')
+                        ->hiddenLabel()
+                        ->content(fn (?Centro $record) => self::exclusiones($record)),
+                ])
+                ->visible(fn (?Centro $record) => $record?->tipoCentro?->permite_restriccion_en_centro ?? false),
 
             Section::make('Tipo de centro')
                 ->description('El tipo fija la UO funcional, el público, el catálogo y las reglas de asignación. No se cambia: para pasar a otro tipo, da de baja el centro y crea otro con este como antecesor.')
@@ -173,6 +238,10 @@ class CentroResource extends Resource
                         ->helperText('Centro al que sustituye, si nace de una baja y alta.'),
 
                     // Propiedades «solo tipo»: en lectura, con el valor del tipo (docs/modulo-tipo-centro.md §4)
+                    Placeholder::make('config_uo_funcional')
+                        ->label('UO funcional')
+                        ->content(fn (?Centro $record) => $record === null ? '—' : $config()->uoFuncional($record)->nombre),
+
                     Placeholder::make('config_adscripcion')
                         ->label('Adscripción de personas')
                         ->content(fn (?Centro $record) => $record === null ? '—'
@@ -202,21 +271,123 @@ class CentroResource extends Resource
                             : (app(ConfiguracionEfectivaCentro::class)->segmentos($record)->pluck('nombre')->implode(', ') ?: '—')),
                 ]),
 
+            // La baja va por su acción (CentroService::darDeBaja), no por el formulario
             Section::make('Vigencia')
                 ->columns(2)
                 ->schema([
                     DatePicker::make('fecha_alta')
                         ->label('Fecha de alta')
                         ->required()
-                        ->default(now()),
+                        ->default(now())
+                        ->disabledOn('edit')
+                        ->dehydrated(fn (string $operation) => $operation === 'create'),
 
-                    DatePicker::make('fecha_baja')
-                        ->label('Fecha de cierre')
-                        ->nullable()
-                        ->helperText('Solo informar si el centro ha cerrado definitivamente.'),
+                    Placeholder::make('estado')
+                        ->label('Estado')
+                        ->content(fn (?Centro $record) => $record === null ? '—'
+                            : ($record->activo ? 'Activo' : 'De baja desde '.$record->fecha_baja?->format('d/m/Y')))
+                        ->visibleOn('edit'),
                 ]),
 
         ]);
+    }
+
+    /**
+     * Si el usuario administra centros (alta, baja, renombrado y todos los campos).
+     *
+     * @return bool
+     */
+    public static function administra(): bool
+    {
+        return auth()->user()?->can('create', Centro::class) ?? false;
+    }
+
+    /**
+     * Texto de la insignia de una propiedad sobrescribible (§4).
+     *
+     * @param string $origen 'tipo' o 'centro'.
+     *
+     * @return string
+     */
+    public static function insigniaOrigen(string $origen): string
+    {
+        return $origen === 'centro' ? 'Personalizado' : 'Heredado del tipo';
+    }
+
+    /**
+     * Horario efectivo de hoy, con enlace al horario del centro para cambiarlo.
+     *
+     * @param Centro|null $record
+     *
+     * @return HtmlString|string
+     */
+    private static function horarioEfectivo(?Centro $record): HtmlString|string
+    {
+        if ($record === null) {
+            return '—';
+        }
+
+        try {
+            $horario = app(ConfiguracionEfectivaCentro::class)->horario($record, today());
+        } catch (\RuntimeException $e) {
+            return $e->getMessage();
+        }
+
+        $texto = $horario === null ? 'Sin horario' : sprintf(
+            '%s · %s–%s (atención %s–%s)',
+            collect($horario->diasLaborables)->map(fn (int $d) => mb_substr(TipoCentroResource::DIAS[$d], 0, 3))->implode(', '),
+            $horario->apertura,
+            $horario->cierre,
+            $horario->inicioAtencion,
+            $horario->finAtencion,
+        );
+
+        $propio = HorarioCentro::vigenteDelCentro($record->id);
+        if ($propio === null) {
+            return $texto;
+        }
+
+        return new HtmlString(e($texto).'<br><a href="'.e(HorarioCentroResource::getUrl('edit', ['record' => $propio])).'">Abrir el horario del centro</a>');
+    }
+
+    /**
+     * Exclusiones del catálogo vigentes en el centro.
+     *
+     * @param Centro|null $record
+     *
+     * @return HtmlString|string
+     */
+    private static function exclusiones(?Centro $record): HtmlString|string
+    {
+        if ($record === null) {
+            return '—';
+        }
+
+        $nombres = self::opcionesCatalogo($record);
+
+        return CentroTipoAcciones::lineas(ExclusionCatalogo::where('centro_id', $record->id)->get()
+            ->map(fn (ExclusionCatalogo $e) => $e->elemento_tipo->label().': '.($nombres[$e->elemento_tipo->value][$e->elemento_id] ?? "#{$e->elemento_id}")));
+    }
+
+    /**
+     * Catálogo del tipo del centro por clase de elemento (id => nombre), sin
+     * aplicar exclusiones: lo que el centro puede excluir.
+     *
+     * @param Centro $centro
+     *
+     * @return array<string, array<int, string>>
+     */
+    public static function opcionesCatalogo(Centro $centro): array
+    {
+        $tipo = $centro->tipoCentro;
+        $fichas = $tipo->tiposFicha()->pluck('tipo_fichas.nombre', 'tipo_fichas.id');
+
+        return [
+            ElementoCatalogo::Prestacion->value => $tipo->prestaciones()->orderBy('prestaciones.nombre')->pluck('prestaciones.nombre', 'prestaciones.id')->all(),
+            ElementoCatalogo::TipoPlan->value => $tipo->tiposPlan()->orderBy('tipos_plan.nombre')->pluck('tipos_plan.nombre', 'tipos_plan.id')->all(),
+            // Sin fichas en el tipo, están todas: el centro puede excluir cualquiera
+            ElementoCatalogo::TipoFicha->value => ($fichas->isNotEmpty() ? $fichas : TipoFicha::where('activo', true)->orderBy('nombre')->pluck('nombre', 'id'))->all(),
+        ];
     }
 
     /**

@@ -403,7 +403,7 @@ Sin casos, pero con una cita confirmada la semana próxima en un slot de `$ciamV
 | D — Catálogo | TF-TCE-20..26 |  |
 | E — Público destinatario | TF-TCE-27 |  |
 | F — Reglas de asignación | TF-TCE-28..30 |  |
-| G — Permisos | TF-TCE-31..33 |  |
+| G — Permisos | TF-TCE-31..33 | ✅ 2026-11-13 (`PermisosTest`; la parte de Filament de 31 en `InterfazTipoCentroTest`, comprobada en negativo) |
 | H — Migración | TF-TCE-34 |  |
 | I — Estructura, ámbito y centro de trabajo | TF-TCE-35..47 |  |
 | J — Personas protegidas | TF-TCE-48..54 y 60 |  |

@@ -22,7 +22,7 @@ use Tests\TestCase;
 /**
  * Grupo G — Permisos (TF-TCE-31 a 33; docs/modulo-tipo-centro.md §9).
  *
- * La parte de Filament de TF-TCE-31 (TipoCentroResource) va con la interfaz (paso 9).
+ * La parte de Filament de TF-TCE-31 (TipoCentroResource) está en InterfazTipoCentroTest.
  *
  * @see docs/instrucciones-cli/2026-10-tipo-centro-tests.md
  */

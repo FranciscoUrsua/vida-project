@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-11-13 — Tipo de Centro: interfaz en Filament (fase 2, paso 9)
+
+### Cambios
+- `TipoCentroResource` (grupo «Centros y Servicios», solo administrador por `TipoCentroPolicy::create`/`update`): identificación (código en lectura tras el alta, denominación vigente e historial), UO funcional y público, catálogo (prestaciones en lectura con enlace a `PrestacionResource`, tipos de plan, fichas, restricción en centro), horarios con vigencia y cierres comunes, asignación, protocolo y centros del tipo en lectura. Alta con denominación y horario inicial por `TipoCentroService::crear()`; edición por `actualizar()` (solo lo que cambia). Acciones: «Programar nueva denominación», «Programar horario», «Añadir cierre» y «Dar de baja» (RN-11: con centros activos se rechaza y se notifica). Sin borrado.
+- `CentroResource`: nombre y nombre corto en lectura tras el alta (historial de denominaciones y «Programar nueva denominación»); tipo de gestión, UO, dirección, código postal y coordenadas deshabilitados para quien no administra (la dirección del centro edita contacto, notas y protocolo); fuera el interruptor «Activo» y la fecha de cierre del formulario (baja por la acción «Dar de baja»); UO funcional entre lo «solo tipo»; protocolo y horario con insignia «Heredado del tipo»/«Personalizado» (hint de Filament) y «Volver al protocolo del tipo»/«Volver al horario del tipo»; cierres del tipo (lectura) y propios con «Añadir cierre» (avisa de las citas afectadas, que no se cancelan); exclusiones de catálogo solo si el tipo lo permite («Exclusiones de catálogo», por `ExclusionCatalogoService`).
+- `App\Filament\Acciones\CentroTipoAcciones`: acciones y listados comunes a tipos y centros (renombrar, añadir cierre, dar de baja, historiales), todas por los servicios con su policy.
+- `HorarioCentroResource` ya tenía el interruptor «Heredar horario del tipo» con el horario del tipo en lectura: sin cambios.
+- Tests: `Modules/Centro/tests/Feature/TipoCentro/InterfazTipoCentroTest.php` (5): TF-TCE-31 por Filament, denominación y horario del tipo programados, la directora en el formulario del centro, exclusiones y renombrado y baja de un centro. **En negativo:** abriendo `TipoCentroResource` al backoffice falla TF-TCE-31; sin el deshabilitado de los campos, falla el de la directora.
+
+### Decisiones
+- No hay ficha pública del centro en Livewire: esa parte del paso 9 no aplica.
+- La insignia de herencia es el *hint* nativo de Filament (sin clases propias).
+- `ConfiguracionCentroPage` (Supervisión) cambia el nombre corto de la UO, no del centro: no afecta a las denominaciones y no se toca.
+- No se pueden quitar cierres desde la interfaz (no estaba pedido; los cierres pasados no se tocan). Anotado en el BACKLOG.
+
 ## 2026-11-13 — Tipo de Centro: bajas de profesionales (fase 2, paso 8 quinquies; RN-20 a 23)
 
 ### Cambios

@@ -9,6 +9,14 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Tipo de Centro: interfaz, pendientes** — 2026-11-13
+Módulo: Centro
+- No hay acción para anular un cierre de calendario futuro (tipo o centro) registrado por error.
+- No hay vista pública del centro en Livewire con denominación vigente, tipo y UO funcional (el paso 9 la pedía «si existe»).
+- Las fichas de valoración del tipo: sin ninguna marcada valen todas; en el formulario no se distingue «todas» de «ninguna elegida todavía».
+
+---
+
 **Bajas de profesionales: lo que queda tras RN-20 a 23** — 2026-11-13
 Módulo: Usuarios / Asignación / Agenda
 - No hay «Reactivar» para un usuario desactivado (ni en Filament ni en Mi equipo). Hoy habría que poner `desactivado_en` a null a mano y volver a adscribirlo.
