@@ -10,6 +10,7 @@ use Livewire\Component;
 use Modules\Agenda\Models\EventoAgenda;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Sala;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Usuarios\Models\Profesional;
 
 /**
@@ -365,15 +366,13 @@ class EventosSupervisorPage extends Component
     // -------------------------------------------------------------------------
 
     /**
-     * Resuelve el Centro del supervisor autenticado.
+     * Centro supervisado por el usuario autenticado (activo o elegido en el selector).
      *
      * @return Centro|null
      */
     private function centroDelSupervisor(): ?Centro
     {
-        $uoId = auth()->user()?->uosActivas()->first()?->id;
-
-        return $uoId ? Centro::where('unidad_organizativa_id', $uoId)->first() : null;
+        return app(CentroDeUsuario::class)->centroSupervisado(auth()->user());
     }
 
     /**

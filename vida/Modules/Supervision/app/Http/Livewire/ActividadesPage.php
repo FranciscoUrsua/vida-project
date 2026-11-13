@@ -710,6 +710,6 @@ class ActividadesPage extends Component
      */
     private function centroDelSupervisor(): ?Centro
     {
-        return app(CentroDeUsuario::class)->centroActivo(auth()->user());
+        return app(CentroDeUsuario::class)->centroSupervisado(auth()->user());
     }
 }

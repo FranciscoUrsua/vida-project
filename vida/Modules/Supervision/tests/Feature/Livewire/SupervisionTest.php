@@ -112,6 +112,8 @@ class SupervisionTest extends TestCase
             'tipo_vinculo' => 'interno',
             'fecha_inicio' => today()->toDateString(),
         ]);
+        // Las pantallas de supervisión trabajan sobre el centro supervisado (D1: centro y UO 1:1)
+        $this->centroParaUo($this->uoHija);
 
         // Fixtures de catálogos compartidos
         $this->cargo = Cargo::create(['nombre' => 'TSR Test', 'activo' => true]);

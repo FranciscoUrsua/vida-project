@@ -4,6 +4,24 @@
 
 ---
 
+## 2026-11-13 — Tipo de Centro: centro de trabajo en la barra superior y centro supervisado (fase 2, paso 8 ter cerrado)
+
+### Cambios
+- `App\Livewire\CentroTrabajo` (`<livewire:centro-trabajo />` en `operativo-shell`, junto al menú del usuario): «Siglas del tipo · Nombre corto del centro» del centro activo; desplegable para cambiar si el usuario tiene más de un centro (`CentroDeUsuario::elegir()`, y recarga la pantalla); con un solo centro, el texto sin selector; sin centro, el nombre de su UO. Solo clases de Bootstrap.
+- `CentroDeUsuario`: `centrosSupervisables()` (los del ámbito con rol `supervision`; si no, los propios), `centroSupervisado()` (elegido en el selector de supervisión → activo si es supervisable → el primero por nombre) y `elegirSupervisado()` (rechaza un centro fuera del ámbito). `elegir()` borra la elección de supervisión.
+- `Modules\Supervision\Http\Livewire\SelectorCentro` (`supervision.selector-centro`), arriba del menú de Supervisión, compartido por las pantallas de Supervisión y de Agenda del supervisor: solo aparece si hay más de un centro supervisable.
+- Pantallas de supervisión con `centroSupervisado()`: Inicio (también el ratio de carga), Mi equipo (también el alta de profesional), Configuración, Asignaciones, Cuadrante, Actividades, menú de Supervisión y, en Agenda, cuadrante, ausencias, excepciones, eventos, reasignación y menú del supervisor (estas cuatro aún buscaban el centro por la primera UO).
+- `EquipoPage::profesionales()`: el equipo del centro supervisado (sin centro, todo el ámbito, como antes). Quien trabaja en dos centros aparece en los dos.
+- `CuadranteMesComponent::autorizarAcceso()`: supervisión entra en los centros que `supervisa()` (ámbito por las dos jerarquías); antes, solo en los de sus UO activas, y la coordinación funcional recibía 403.
+- Tests: `Modules/Centro/tests/Feature/TipoCentro/CentroTrabajoInterfazTest.php`, TF-TCE-43 (barra y elección) y 44 (Mi equipo con el centro activo; selector de supervisión y cuadrante dentro y fuera del ámbito). **En negativo**, sin los cambios de `EquipoPage` y del cuadrante fallan los dos de TF-TCE-44.
+- `SupervisionTest`: la UO del supervisor (`uoHija`, tipo `centro`) tiene ya su centro; seis tests leían «la primera UO» del supervisor y ahora leen el centro supervisado.
+- Suites: Supervisión, Agenda, Centro, Livewire de Intervención, Ciudadanía, Acceso y Auth: 693 passed, 2 incomplete y 1 skipped (previos) y los 6 de `SupervisionTest`, corregidos (`Modules/Supervision/tests` 38 passed). `npm run build` + `ui:auditar` sin infracciones.
+
+### Decisiones
+- **Centro supervisado por defecto:** si el supervisor no tiene centro activo en su ámbito (p. ej. una coordinación funcional sin centros propios), el primero por nombre, para que las pantallas no queden vacías; el selector permite cambiarlo.
+- **Selector de supervisión en el menú lateral** y no encima de cada pantalla: está en todas las de supervisión sin cambiar su alto (las `op-page--fill` tienen alto fijo). Es un componente aparte porque el menú se refresca cada 60 s.
+- Al cambiar de centro de trabajo en la barra, las pantallas de supervisión vuelven a seguirlo.
+
 ## 2026-11-13 — Tipo de Centro: RN-15 en las pantallas y medición del ámbito (fase 2, paso 8 ter y 8 bis.4)
 
 ### Cambios

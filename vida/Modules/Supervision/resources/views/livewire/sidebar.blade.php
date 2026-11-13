@@ -2,6 +2,9 @@
 {{-- Se refresca cada 60 segundos para mantener los badges actualizados --}}
 <aside class="op-sidebar" wire:poll.60s>
 
+    {{-- Centro supervisado (componente aparte: el sondeo no lo vuelve a pintar) --}}
+    <livewire:supervision.selector-centro />
+
     {{-- Navegación principal --}}
     <nav class="op-nav" aria-label="Navegación principal">
 

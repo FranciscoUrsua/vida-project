@@ -126,7 +126,8 @@ class ConfiguracionCentroPage extends Component
      */
     public function mount(): void
     {
-        $uo = auth()->user()?->uosActivas()->first();
+        // UO del centro supervisado (activo o elegido en el selector)
+        $uo = app(CentroDeUsuario::class)->centroSupervisado(auth()->user())?->unidadOrganizativa;
 
         if ($uo !== null) {
             $this->nombreCorto = $uo->nombre_corto ?? '';
@@ -167,10 +168,10 @@ class ConfiguracionCentroPage extends Component
             'umbralEsperaDias' => 'required|integer|min:1|max:365',
         ]);
 
-        $uo = auth()->user()?->uosActivas()->first();
+        $uo = app(CentroDeUsuario::class)->centroSupervisado(auth()->user())?->unidadOrganizativa;
 
         if ($uo === null) {
-            $this->addError('nombreCorto', 'El supervisor no tiene UO activa asignada.');
+            $this->addError('nombreCorto', 'No hay un centro supervisado que configurar.');
 
             return;
         }
@@ -343,6 +344,6 @@ class ConfiguracionCentroPage extends Component
      */
     private function centroDelSupervisor(): ?Centro
     {
-        return app(CentroDeUsuario::class)->centroActivo(auth()->user());
+        return app(CentroDeUsuario::class)->centroSupervisado(auth()->user());
     }
 }

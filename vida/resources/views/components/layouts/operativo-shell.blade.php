@@ -48,6 +48,10 @@
             </h1>
         </div>
 
+        @auth
+            <livewire:centro-trabajo />
+        @endauth
+
         <div class="dropdown d-flex align-items-center flex-shrink-0 pe-2">
             <button type="button"
                     class="btn btn-sm btn-light d-flex align-items-center gap-2 px-2 py-1 border-0 shadow-none"

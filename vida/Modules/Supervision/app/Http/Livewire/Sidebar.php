@@ -66,7 +66,7 @@ class Sidebar extends Component
     {
         $usuario = auth()->user();
         $centros = app(CentroDeUsuario::class);
-        $centro = $centros->centroActivo($usuario);
+        $centro = $centros->centroSupervisado($usuario);
 
         if ($centro === null || ! $centros->supervisa($usuario, $centro)) {
             return 0;
@@ -130,7 +130,7 @@ class Sidebar extends Component
             return 0;
         }
 
-        $centro = app(CentroDeUsuario::class)->centroActivo(auth()->user());
+        $centro = app(CentroDeUsuario::class)->centroSupervisado(auth()->user());
 
         if ($centro === null) {
             return 0;

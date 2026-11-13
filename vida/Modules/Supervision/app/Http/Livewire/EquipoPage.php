@@ -128,17 +128,20 @@ class EquipoPage extends Component
     public string $editFechaInicio = '';
 
     /**
-     * Profesionales adscritos a la UO del supervisor.
+     * Profesionales del centro supervisado (TF-TCE-44); sin centro, los de todo el ámbito.
      *
      * Incluye tanto los que tienen cuenta de usuario (con adscripciones vigentes)
      * como los creados directamente por el supervisor (sin cuenta, unidad_organizativa_id directo).
+     * Quien trabaja en varios centros aparece en el equipo de cada uno.
      *
      * @return Collection<int, Profesional>
      */
     #[Computed]
     public function profesionales(): Collection
     {
-        $uoIds = auth()->user()->uoSubtreeIds();
+        $uoIds = $this->centroActivo !== null
+            ? [$this->centroActivo->unidad_organizativa_id]
+            : auth()->user()->uoSubtreeIds();
 
         if (empty($uoIds)) {
             return collect();
@@ -212,14 +215,14 @@ class EquipoPage extends Component
     }
 
     /**
-     * Centro asociado a la UO activa del supervisor.
+     * Centro supervisado: el activo o el elegido en el selector de supervisión.
      *
      * @return Centro|null
      */
     #[Computed]
     public function centroActivo(): ?Centro
     {
-        return app(CentroDeUsuario::class)->centroActivo(auth()->user());
+        return app(CentroDeUsuario::class)->centroSupervisado(auth()->user());
     }
 
     /**
@@ -318,10 +321,11 @@ class EquipoPage extends Component
             'nuevaFechaIncorporacion' => 'required|date',
         ]);
 
-        $uoActiva = auth()->user()?->uosActivas()->first();
+        // El profesional se da de alta en la UO del centro supervisado
+        $uoActiva = $this->centroActivo?->unidadOrganizativa;
 
         if ($uoActiva === null) {
-            $this->addError('nuevoNombre', 'El supervisor no tiene UO activa asignada.');
+            $this->addError('nuevoNombre', 'No hay un centro supervisado en el que dar de alta al profesional.');
 
             return;
         }

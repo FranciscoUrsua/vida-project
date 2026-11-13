@@ -64,7 +64,7 @@ class InicioPage extends Component
     #[Computed]
     public function cuadranteDeHoy(): SupportCollection
     {
-        $centro = app(CentroDeUsuario::class)->centroActivo(auth()->user());
+        $centro = app(CentroDeUsuario::class)->centroSupervisado(auth()->user());
 
         if ($centro === null) {
             return collect();
@@ -142,10 +142,10 @@ class InicioPage extends Component
     }
 
     /**
-     * ID de la primera UO activa del supervisor autenticado, o null si no tiene.
+     * UO del centro supervisado (activo o elegido en el selector), o null si no hay.
      */
     private function uoIdSupervisor(): ?int
     {
-        return auth()->user()?->uosActivas()->first()?->id;
+        return app(CentroDeUsuario::class)->centroSupervisado(auth()->user())?->unidad_organizativa_id;
     }
 }

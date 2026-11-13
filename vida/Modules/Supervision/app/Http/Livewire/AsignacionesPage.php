@@ -110,7 +110,7 @@ class AsignacionesPage extends Component
     {
         $usuario = auth()->user();
         $servicio = app(CentroDeUsuario::class);
-        $centro = $servicio->centroActivo($usuario);
+        $centro = $servicio->centroSupervisado($usuario);
 
         return $centro !== null && $servicio->supervisa($usuario, $centro) ? $centro : null;
     }

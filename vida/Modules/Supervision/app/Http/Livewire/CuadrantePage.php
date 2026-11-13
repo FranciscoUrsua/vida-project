@@ -26,7 +26,7 @@ class CuadrantePage extends Component
      */
     public function mount(): mixed
     {
-        $centro = app(CentroDeUsuario::class)->centroActivo(auth()->user());
+        $centro = app(CentroDeUsuario::class)->centroSupervisado(auth()->user());
 
         if ($centro === null) {
             return null;

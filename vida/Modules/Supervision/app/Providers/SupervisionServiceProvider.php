@@ -12,6 +12,7 @@ use Modules\Supervision\Http\Livewire\CuadrantePage;
 use Modules\Supervision\Http\Livewire\EquipoPage;
 use Modules\Supervision\Http\Livewire\InicioPage;
 use Modules\Supervision\Http\Livewire\PlazasPage;
+use Modules\Supervision\Http\Livewire\SelectorCentro;
 use Modules\Supervision\Http\Livewire\Sidebar;
 use Modules\Supervision\Services\IndicadoresCentroService;
 use Modules\Supervision\Services\SupervisionSidebarDataService;
@@ -47,6 +48,7 @@ class SupervisionServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(module_path($this->moduleName, 'routes/web.php'));
 
         Livewire::component('supervision.sidebar', Sidebar::class);
+        Livewire::component('supervision.selector-centro', SelectorCentro::class);
         Livewire::component('supervision.inicio-page', InicioPage::class);
         Livewire::component('supervision.cuadrante-page', CuadrantePage::class);
         Livewire::component('supervision.actividades-page', ActividadesPage::class);

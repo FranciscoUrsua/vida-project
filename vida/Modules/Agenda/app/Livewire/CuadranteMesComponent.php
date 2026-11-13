@@ -15,6 +15,7 @@ use Modules\Agenda\Models\EventoAgenda;
 use Modules\Agenda\Models\ExcepcionProfesional;
 use Modules\Agenda\Services\CuadrantePublicadorService;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 
 /**
  * Componente Livewire para la pantalla de cuadrante mensual del supervisor.
@@ -374,13 +375,9 @@ class CuadranteMesComponent extends Component
             403
         );
 
-        // Supervisor solo puede gestionar centros de su UO
+        // Supervisión solo gestiona los centros que supervisa: los de su ámbito por las dos jerarquías (D1.8)
         if ($user->hasRole('supervision') && ! $user->hasRole('adm_sistema')) {
-            $uoIds = $user->uosActivas()->pluck('id')->all();
-            abort_unless(
-                in_array($centro->unidad_organizativa_id, $uoIds, true),
-                403
-            );
+            abort_unless(app(CentroDeUsuario::class)->supervisa($user, $centro), 403);
         }
     }
 }

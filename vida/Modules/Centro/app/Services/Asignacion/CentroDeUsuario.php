@@ -18,11 +18,18 @@ use Modules\Centro\Models\Centro;
  * los de su ámbito). Las operaciones toman el centro de su contexto; sin
  * contexto, el centro activo: el elegido en la sesión o, por defecto, el de su
  * perfil horario de hoy, o el único que tenga.
+ *
+ * Las pantallas de supervisión trabajan sobre el centro supervisado, que puede
+ * ser cualquiera de los de su ámbito (D1.8): por defecto el activo, y si no,
+ * el que elija en el selector de supervisión.
  */
 class CentroDeUsuario
 {
     /** Clave de sesión con el centro elegido. */
     public const CLAVE_SESION = 'centro_activo_id';
+
+    /** Clave de sesión con el centro elegido en las pantallas de supervisión. */
+    public const CLAVE_SESION_SUPERVISION = 'centro_supervisado_id';
 
     /**
      * @param AmbitoUsuario $ambito
@@ -103,6 +110,76 @@ class CentroDeUsuario
         }
 
         Session::put(self::CLAVE_SESION, $centro->id);
+        // Cambiar de centro de trabajo arrastra a las pantallas de supervisión
+        Session::forget(self::CLAVE_SESION_SUPERVISION);
+    }
+
+    /**
+     * Centros sobre los que el usuario puede abrir las pantallas de supervisión:
+     * los de su ámbito si tiene rol `supervision` (D1.8); si no, sus centros.
+     *
+     * @param User|null $usuario
+     *
+     * @return Collection<int, Centro>
+     */
+    public function centrosSupervisables(?User $usuario): Collection
+    {
+        if ($usuario === null) {
+            return new Collection;
+        }
+
+        return $usuario->hasRole('supervision')
+            ? $this->ambito->centrosEnAmbito($usuario)
+            : $this->centros($usuario);
+    }
+
+    /**
+     * Centro de las pantallas de supervisión (Mi equipo, cuadrante, asignaciones…).
+     *
+     * Orden: el elegido en el selector de supervisión si sigue siendo supervisable;
+     * el centro activo si lo es; si no, el primero de los supervisables; si no, null.
+     *
+     * @param User|null $usuario
+     *
+     * @return Centro|null
+     */
+    public function centroSupervisado(?User $usuario): ?Centro
+    {
+        $candidatos = $this->centrosSupervisables($usuario);
+        if ($candidatos->isEmpty()) {
+            return null;
+        }
+
+        $elegido = Session::get(self::CLAVE_SESION_SUPERVISION);
+        if ($elegido !== null && ($centro = $candidatos->firstWhere('id', (int) $elegido)) !== null) {
+            return $centro;
+        }
+
+        $activo = $this->centroActivo($usuario);
+        if ($activo !== null && $candidatos->contains('id', $activo->id)) {
+            return $candidatos->firstWhere('id', $activo->id);
+        }
+
+        return $candidatos->first();
+    }
+
+    /**
+     * Guarda en la sesión el centro elegido en el selector de supervisión.
+     *
+     * @param User $usuario
+     * @param Centro $centro
+     *
+     * @return void
+     *
+     * @throws DomainException Si no es un centro que pueda supervisar.
+     */
+    public function elegirSupervisado(User $usuario, Centro $centro): void
+    {
+        if (! $this->centrosSupervisables($usuario)->contains('id', $centro->id)) {
+            throw new DomainException('Solo puedes supervisar centros de tu ámbito.');
+        }
+
+        Session::put(self::CLAVE_SESION_SUPERVISION, $centro->id);
     }
 
     /**

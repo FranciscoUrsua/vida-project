@@ -1,12 +1,14 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-13 (fase 2, Tipo de Centro: pasos 1 a 7, 8 bis y 8 ter parcial hechos)
+**Última actualización:** 2026-11-13 (fase 2, Tipo de Centro: pasos 1 a 7, 8 bis y 8 ter hechos)
 
 ---
 
 ## Tarea completada
 
-**Fase 2, Tipo de Centro: RN-15 en las pantallas y medición del ámbito** (2026-11-13): ficha, alta y citación muestran el rechazo de RN-15 en lugar de un 500; TF-TCE-39 por Livewire (comprobado en negativo); ámbito medido (9 → 4 consultas, unos 100 → 45 ms; `MisCasos` no calcula el ámbito). Detalle en `CHANGELOG-112026.md`.
+**Fase 2, Tipo de Centro: barra superior y centro supervisado (paso 8 ter cerrado)** (2026-11-13): `CentroTrabajo` en la barra (TF-TCE-43), `centroSupervisado()` y selector en el menú de Supervisión, Mi equipo por centro y cuadrante por `supervisa()` (TF-TCE-44). Detalle en `CHANGELOG-112026.md`.
+
+Antes: **Fase 2, Tipo de Centro: RN-15 en las pantallas y medición del ámbito** (2026-11-13): ficha, alta y citación muestran el rechazo de RN-15 en lugar de un 500; TF-TCE-39 por Livewire (comprobado en negativo); ámbito medido (9 → 4 consultas, unos 100 → 45 ms; `MisCasos` no calcula el ámbito). Detalle en `CHANGELOG-112026.md`.
 
 Antes: **Fase 2, Tipo de Centro: ámbito por las dos jerarquías, centro de trabajo y RN-15 en el servidor (pasos 8 bis y 8 ter, parcial)** (2026-11-13): `AmbitoUsuario` como único cálculo del ámbito (`uoSubtreeIds()` delega en él), `CentroDeUsuario` con `centros()`, `centroActivo()`, `elegir()`, `supervisa()` y `exigirAtencion()`; RN-15 en la apertura de historias, la citación y la creación de apuntes y atenciones. Grupo I (TF-TCE-35 a 42 y 45 a 47) en verde; cinco ficheros de tests adaptados a RN-15 con `TestCase::centroParaUo()`. Desplegado: las ocho migraciones de la fase 2 (`2026_11_12_100001` a `100008`) están aplicadas en la BD compartida. Después, el auto-commit de Pint del CI quitó los `@return` de 382 ficheros: revertido y `no_superfluous_phpdoc_tags` desactivado en `pint.json`. Antes, en commits del 12 nov: pasos 1 a 7 (`0e33f3f`, `5ace6db`, `cd5c241`, `9dbb097`). Detalle en `CHANGELOG-112026.md`.
 
@@ -50,6 +52,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 - **Perfiles por defecto en el CIAM (UO 13):** se crean con `agenda:horarios-por-defecto --centro=13` tras el despliegue (ver CHANGELOG). Hecho: 9 perfiles pendientes de verificar + 1 previo (comprobado el 2026-10-02). Los demás centros no se completan por ahora: al desarrollador solo le preocupa el CIAM.
 - **AppArmor:** qpdf y gs están confinados; las reglas locales (`/etc/apparmor.d/local/{qpdf,gs}`) cubren `/var/www/.../storage/app/tmp` y, en el repositorio local, `storage/framework/testing` y `storage/app/tmp`. Revisar tras cada `apt upgrade` (BACKLOG).
 - **Tests:**
+  - 2026-11-13, barra y centro supervisado: Supervisión, Agenda, Centro, Livewire de Intervención, Ciudadanía, Acceso y Auth: 693 passed, 2 incomplete, 1 skipped (previos) y 6 de `SupervisionTest` adaptados (38 passed). `ui:auditar` sin infracciones.
   - 2026-11-13, RN-15 en pantallas: Ciudadanía, Citas de Agenda y `EstructuraAmbitoTest`: 183 passed. `ui:auditar` sin infracciones.
   - 2026-11-13, pasos 8 bis y 8 ter: Intervención, Agenda, Ciudadanía, Atención, Supervisión y Acceso: 645 passed, 1 incomplete (previo) y 23 fallos de RN-15 en tests que atendían sin centro, adaptados; esos ficheros y el grupo I de Tipo de Centro: 99 passed. Centro y Usuarios: 183 passed, 1 incomplete (previo). No se han ejecutado Documentos ni Mensajes.
   - 2026-11-12, **suite completa**: 1318 passed, 12 incomplete, 1 skipped, 1 failed (`AutorizacionDatosTest`, FK de `audits`, previo). Unos 61 min.
@@ -76,7 +79,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 
 ## Siguiente paso concreto recomendado
 
-0. **Fase 2, Tipo de Centro: terminar el paso 8 ter** (`docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`): (a) barra superior «Tipo · Centro» del centro activo con selector si hay varios centros y nombre de la UO si no hay ninguno (TF-TCE-43); (b) selector de centro con `centrosEnAmbito()` en la bandeja de asignaciones, el reparto, el cuadrante y Mi equipo (TF-TCE-44); los dos con `npm run build` y `ui:auditar`; (c) y (d), TF-TCE-39 por Livewire y medición del ámbito, hechos el 2026-11-13. Después: paso 8 (permisos, sin hacer), 8 quater (protegidos), 8 quinquies (bajas), 9 (interfaz) y 10 (cierre con suite completa). **Ojo:** la BD local es la de staging; las migraciones de la fase se aplican allí con el push. Los tests que hagan atender a un profesional necesitan que su UO tenga centro (`$this->centroParaUo($uo)`). Después, la fase 3 (`2026-11-fase3-circuito-intervencion.md`). Pendiente aparte: probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (`decisiones-tecnicas.md` §14).
+0. **Fase 2, Tipo de Centro: paso 8 (permisos)** (`docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`, sin hacer). Después 8 quater (personas protegidas, TF-TCE grupo J), 8 quinquies (bajas de profesionales), 9 (interfaz) y 10 (cierre con suite completa). Hechos: pasos 1 a 7, 8 bis y 8 ter. **Ojo:** la BD local es la de staging; las migraciones se aplican allí con el push. Los tests que hagan atender a un profesional necesitan que su UO tenga centro (`$this->centroParaUo($uo)`), y las pantallas de supervisión trabajan sobre el centro supervisado (`CentroDeUsuario::centroSupervisado()`). Después, la fase 3 (`2026-11-fase3-circuito-intervencion.md`). Pendiente aparte: probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (`decisiones-tecnicas.md` §14). En staging se puede ver ya la barra «Tipo · Centro» y el selector de centro supervisado.
 1. **El desarrollador prueba en staging asignación y citas** (pendiente desde el 2026-10-01; las pantallas solo se han probado con tests).
    - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto. **Configurar igual todos los centros del mismo tipo:** el paso 3 de Tipo de Centro aborta si difieren.
    - Citas: bandeja de citación, cita directa, detalle con reprogramar y cancelar, agenda del profesional, «Solicitar cita» en Intervención, *Atender* → registro de atención → «Dar cita».
