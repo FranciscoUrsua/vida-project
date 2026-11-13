@@ -13,6 +13,7 @@ use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Sala;
 use Modules\Centro\Models\SesionActividad;
 use Modules\Centro\Models\TipoActividad;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Usuarios\Models\Profesional;
 
 /**
@@ -685,12 +686,6 @@ class ActividadesPage extends Component
      */
     private function centroDelSupervisor(): ?Centro
     {
-        $uoId = auth()->user()?->uosActivas()->first()?->id;
-
-        if ($uoId === null) {
-            return null;
-        }
-
-        return Centro::where('unidad_organizativa_id', $uoId)->first();
+        return app(CentroDeUsuario::class)->centroActivo(auth()->user());
     }
 }

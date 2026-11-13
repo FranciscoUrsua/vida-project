@@ -109,6 +109,40 @@ class UnidadOrganizativa extends Model
         return $this->hasMany(UsuarioUo::class, 'unidad_organizativa_id');
     }
 
+    /**
+     * Centros activos que dependen de esta UO, por la jerarquía orgánica (su UO
+     * desciende de esta), por la funcional (su tipo tiene la UO funcional en este
+     * subárbol) o por ambas (RN-13). Para analítica y listados.
+     *
+     * @param string $jerarquia 'organica' | 'funcional' | 'ambas'.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, \Modules\Centro\Models\Centro>
+     */
+    public function centrosDependientes(string $jerarquia = 'ambas'): \Illuminate\Database\Eloquent\Collection
+    {
+        $subarbol = $this->descendantsAndSelf()->pluck('id');
+
+        return \Modules\Centro\Models\Centro::query()
+            ->where('activo', true)
+            ->where(function (Builder $q) use ($jerarquia, $subarbol): void {
+                if ($jerarquia !== 'funcional') {
+                    $q->orWhereIn('unidad_organizativa_id', $subarbol);
+                }
+                if ($jerarquia !== 'organica') {
+                    $q->orWhereHas('tipoCentro', fn (Builder $t) => $t->whereIn('unidad_organizativa_id', $subarbol));
+                }
+            })
+            ->orderBy('nombre')
+            ->get();
+    }
+
+    /**
+     * Si esta UO desciende orgánicamente de la indicada.
+     *
+     * @param UnidadOrganizativa $ancestor UO antecesora candidata.
+     *
+     * @return bool
+     */
     public function isDescendantOf(UnidadOrganizativa $ancestor): bool
     {
         return $this->ancestors()->where('id', $ancestor->id)->exists();

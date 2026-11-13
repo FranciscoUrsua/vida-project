@@ -8,6 +8,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 
 /**
  * Pantalla de cuadrante del centro para el módulo de Supervisión.
@@ -25,8 +26,7 @@ class CuadrantePage extends Component
      */
     public function mount(): mixed
     {
-        $uoId  = auth()->user()?->uosActivas()->first()?->id;
-        $centro = $uoId ? Centro::where('unidad_organizativa_id', $uoId)->first() : null;
+        $centro = app(CentroDeUsuario::class)->centroActivo(auth()->user());
 
         if ($centro === null) {
             return null;

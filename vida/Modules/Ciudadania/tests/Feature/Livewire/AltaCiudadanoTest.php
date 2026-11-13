@@ -47,6 +47,10 @@ class AltaCiudadanoTest extends TestCase
             'parent_id' => null,
             'activa' => true,
         ]);
+        // RN-15: abrir la historia al dar de alta exige que la UO sea la de un centro.
+        // Su tipo asigna la referencia a quien abre, el caso que prueban estos tests.
+        $this->tipoCentroId('css_quien_abre', ['modo_asignacion_referencia' => 'quien_abre']);
+        $this->centroParaUo($this->uo, 'css_quien_abre');
 
         $this->usuario = $this->crearUsuario('intervencion');
     }

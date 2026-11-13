@@ -65,6 +65,7 @@ class AperturaHistoriaService
      * @return HistoriaSocial
      *
      * @throws AuthorizationException Si el profesional no puede crear historias.
+     * @throws \DomainException Si el profesional no está adscrito a un centro (RN-15).
      */
     public function abrir(int $ciudadanoId, User $profesional, ?User $elegido = null): HistoriaSocial
     {
@@ -77,9 +78,13 @@ class AperturaHistoriaService
                 return $existente;
             }
 
+            // RN-15: abrir una historia es atención individual y exige adscripción al centro
+            $centro = $this->centros->centroActivo($profesional);
+            $this->centros->exigirAtencion($profesional, $centro);
+
             $historia = HistoriaSocial::create([
                 'ciudadano_id' => $ciudadanoId,
-                'unidad_organizativa_id' => $profesional->uosActivas()->first()?->id,
+                'unidad_organizativa_id' => $centro->unidad_organizativa_id,
                 'estado' => 'abierta',
             ]);
 

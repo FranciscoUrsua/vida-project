@@ -35,6 +35,10 @@ class CentroService
         if (blank($datos['nombre'] ?? null)) {
             throw new DomainException('Falta el nombre del centro.');
         }
+        $delTipo = array_intersect(array_keys($datos), array_diff(self::PROPIEDADES_DEL_TIPO, ['tipo_centro_id']));
+        if ($delTipo !== []) {
+            throw new DomainException('Estas propiedades son del tipo de centro y no se fijan en el centro: '.implode(', ', $delTipo).'.');
+        }
 
         $alta = Carbon::parse($datos['fecha_alta'] ?? today());
 
@@ -58,6 +62,35 @@ class CentroService
 
             return $centro;
         });
+    }
+
+    /** Propiedades «solo tipo»: el centro no las fija (docs/modulo-tipo-centro.md §4; addenda §6.2). */
+    public const PROPIEDADES_DEL_TIPO = [
+        'tipo_centro_id', 'inscripcion_libre', 'modo_asignacion_referencia', 'ventana_reparto_meses',
+        'meses_inactividad_caso', 'segmentos', 'segmentosPoblacion', 'prestaciones', 'uo_funcional',
+    ];
+
+    /**
+     * Actualiza datos del centro. Rechaza cualquier propiedad que es del tipo.
+     *
+     * @param Centro $centro Centro.
+     * @param array<string, mixed> $datos Campos a cambiar.
+     * @param User|null $actor Usuario que lo cambia (queda en la versión).
+     *
+     * @throws DomainException Si incluye propiedades del tipo.
+     *
+     * @return Centro
+     */
+    public function actualizar(Centro $centro, array $datos, ?User $actor): Centro
+    {
+        $delTipo = array_intersect(array_keys($datos), self::PROPIEDADES_DEL_TIPO);
+        if ($delTipo !== []) {
+            throw new DomainException('Estas propiedades son del tipo de centro y no se cambian en el centro: '.implode(', ', $delTipo).'.');
+        }
+
+        $centro->update($datos);
+
+        return $centro;
     }
 
     /**

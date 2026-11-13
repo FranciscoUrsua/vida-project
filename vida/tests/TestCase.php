@@ -4,6 +4,7 @@ namespace Tests;
 
 use App\Models\UnidadOrganizativa;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\TipoCentro;
 
 /**
@@ -43,5 +44,31 @@ abstract class TestCase extends BaseTestCase
             'unidad_organizativa_id' => $uoFuncional->id,
             'fecha_alta' => '2020-01-01',
         ], $atributos))->id;
+    }
+
+    /**
+     * Centro de la UO (relación 1:1, RN-14); lo crea la primera vez.
+     *
+     * Atender a ciudadanos exige estar adscrito a la UO de un centro (RN-15): los
+     * tests que crean un profesional adscrito a una UO y le hacen abrir historias,
+     * registrar apuntes o dar citas llaman a esto para que esa UO tenga centro.
+     *
+     * @param UnidadOrganizativa|int $uo UO del centro.
+     * @param string $codigoTipo Código del tipo de centro si hay que crearlo.
+     *
+     * @return Centro
+     */
+    protected function centroParaUo(UnidadOrganizativa|int $uo, string $codigoTipo = 'css_general'): Centro
+    {
+        $uoId = $uo instanceof UnidadOrganizativa ? $uo->id : $uo;
+
+        return Centro::where('unidad_organizativa_id', $uoId)->first()
+            ?? Centro::create([
+                'tipo_centro_id' => $this->tipoCentroId($codigoTipo),
+                'unidad_organizativa_id' => $uoId,
+                'nombre' => 'Centro de '.UnidadOrganizativa::find($uoId)?->nombre,
+                'tipo_gestion' => 'municipal_directo',
+                'fecha_alta' => '2020-01-01',
+            ]);
     }
 }

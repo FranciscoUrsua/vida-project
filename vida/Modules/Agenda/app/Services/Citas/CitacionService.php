@@ -28,6 +28,7 @@ use Modules\Agenda\Models\SolicitudCita;
 use Modules\Agenda\Models\TipoCita;
 use Modules\Agenda\Services\Citas\CitaPrevia\AdaptadorCitaPrevia;
 use Modules\Agenda\Services\Citas\CitaPrevia\CitaExternaRecibida;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
 
 /**
@@ -68,6 +69,9 @@ class CitacionService
      */
     public function citar(SolicitudCita $solicitud, Slot $slot, ModoAsignacionCita $modo, User $usuario): Cita
     {
+        // RN-15: dar, mover o anular una cita exige adscripción al centro de la cita
+        app(CentroDeUsuario::class)->exigirAtencion($usuario, $slot->centro);
+
         Gate::forUser($usuario)->authorize('gestionar', $solicitud);
         Gate::forUser($usuario)->authorize('citar', [Cita::class, $slot]);
 
@@ -130,6 +134,9 @@ class CitacionService
      */
     public function citarDirecto(array $datos, Slot $slot, ModoAsignacionCita $modo, User $usuario): Cita
     {
+        // RN-15: dar, mover o anular una cita exige adscripción al centro de la cita
+        app(CentroDeUsuario::class)->exigirAtencion($usuario, $slot->centro);
+
         Gate::forUser($usuario)->authorize('citar', [Cita::class, $slot]);
 
         return DB::transaction(function () use ($datos, $slot, $modo, $usuario) {
@@ -157,6 +164,9 @@ class CitacionService
      */
     public function reprogramar(Cita $cita, Slot $nuevo, PedidoPor $pedidoPor, string $motivo, User $usuario): Cita
     {
+        // RN-15: dar, mover o anular una cita exige adscripción al centro de la cita
+        app(CentroDeUsuario::class)->exigirAtencion($usuario, $nuevo->centro);
+
         Gate::forUser($usuario)->authorize('reprogramar', $cita);
         Gate::forUser($usuario)->authorize('citar', [Cita::class, $nuevo]);
         $motivo = $this->exigirMotivo($motivo);
@@ -213,6 +223,9 @@ class CitacionService
      */
     public function cancelar(Cita $cita, PedidoPor $pedidoPor, string $motivo, User $usuario, bool $abrirSolicitud = false): ?SolicitudCita
     {
+        // RN-15: dar, mover o anular una cita exige adscripción al centro de la cita
+        app(CentroDeUsuario::class)->exigirAtencion($usuario, $cita->centro);
+
         Gate::forUser($usuario)->authorize('cancelar', $cita);
         $motivo = $this->exigirMotivo($motivo);
 

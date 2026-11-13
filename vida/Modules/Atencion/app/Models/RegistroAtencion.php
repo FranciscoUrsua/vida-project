@@ -98,6 +98,19 @@ class RegistroAtencion extends Model
      */
     protected static function booted(): void
     {
+        // RN-15: registrar una atención exige adscripción al centro (el de la cita, o el activo)
+        static::creating(function (self $registro): void {
+            $usuario = auth()->user();
+            if (! $usuario instanceof \App\Models\User) {
+                return;
+            }
+            $centros = app(\Modules\Centro\Services\Asignacion\CentroDeUsuario::class);
+            $centro = $registro->cita_id !== null
+                ? \Modules\Agenda\Models\Cita::find($registro->cita_id)?->centro
+                : $centros->centroActivo($usuario);
+            $centros->exigirAtencion($usuario, $centro);
+        });
+
         static::saving(function (self $registro): void {
             if ($registro->tipo === 'informacion' && empty($registro->profesional_id)) {
                 throw new \LogicException(

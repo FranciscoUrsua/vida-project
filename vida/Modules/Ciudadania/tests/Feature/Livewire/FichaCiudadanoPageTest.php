@@ -49,6 +49,8 @@ class FichaCiudadanoPageTest extends TestCase
             'parent_id' => null,
             'activa' => true,
         ]);
+        // RN-15: abrir la historia al dar de alta exige que la UO sea la de un centro
+        $this->centroParaUo($this->uo);
 
         $this->usuario = $this->crearUsuarioConRol('intervencion');
 

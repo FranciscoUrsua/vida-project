@@ -83,15 +83,15 @@ trait TieneUO
     }
 
     /**
+     * UO del ámbito del usuario: jerarquía orgánica y funcional (RN-13).
+     *
+     * Delega en AmbitoUsuario, único punto de cálculo del ámbito.
+     *
      * @return array<int>
      */
     public function uoSubtreeIds(): array
     {
-        return $this->uosActivas()
-            ->flatMap(fn (UnidadOrganizativa $uo) => $uo->descendantsAndSelf()->pluck('id'))
-            ->unique()
-            ->values()
-            ->all();
+        return app(\App\Services\AmbitoUsuario::class)->uoIds($this);
     }
 
     public function tieneAccesoConsultaA(UnidadOrganizativa $uo): bool

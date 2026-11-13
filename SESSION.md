@@ -1,10 +1,12 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-12 (cerrado `2026_11_estabilizacion_y_privacidad.md`; addenda de Tipo de Centro incorporada; paso 0 de la fase 2 iniciado)
+**Última actualización:** 2026-11-13 (fase 2, Tipo de Centro: pasos 1 a 7, 8 bis y 8 ter parcial hechos)
 
 ---
 
 ## Tarea completada
+
+**Fase 2, Tipo de Centro: ámbito por las dos jerarquías, centro de trabajo y RN-15 en el servidor (pasos 8 bis y 8 ter, parcial)** (2026-11-13): `AmbitoUsuario` como único cálculo del ámbito (`uoSubtreeIds()` delega en él), `CentroDeUsuario` con `centros()`, `centroActivo()`, `elegir()`, `supervisa()` y `exigirAtencion()`; RN-15 en la apertura de historias, la citación y la creación de apuntes y atenciones. Grupo I (TF-TCE-35 a 42 y 45 a 47) en verde; cinco ficheros de tests adaptados a RN-15 con `TestCase::centroParaUo()`. Antes, en commits del 12 nov: pasos 1 a 7 (`0e33f3f`, `5ace6db`, `cd5c241`, `9dbb097`). Detalle en `CHANGELOG-112026.md`.
 
 **Cierre de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`** (2026-11-12): suite completa 1318 passed, 12 incomplete, 1 skipped, 1 failed (el previo de `AutorizacionDatosTest`); sin fallos nuevos; despliegue en verde. A4 aplazado a la 1.0. Además, la addenda de Tipo de Centro está incorporada a sus tres documentos (con la salvedad de RN-17 para `intervencion` de UO superior y TF-TCE-60) y se han tomado las decisiones del paso 0 de la fase 2 (ver `CHANGELOG-112026.md`).
 
@@ -46,6 +48,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 - **Perfiles por defecto en el CIAM (UO 13):** se crean con `agenda:horarios-por-defecto --centro=13` tras el despliegue (ver CHANGELOG). Hecho: 9 perfiles pendientes de verificar + 1 previo (comprobado el 2026-10-02). Los demás centros no se completan por ahora: al desarrollador solo le preocupa el CIAM.
 - **AppArmor:** qpdf y gs están confinados; las reglas locales (`/etc/apparmor.d/local/{qpdf,gs}`) cubren `/var/www/.../storage/app/tmp` y, en el repositorio local, `storage/framework/testing` y `storage/app/tmp`. Revisar tras cada `apt upgrade` (BACKLOG).
 - **Tests:**
+  - 2026-11-13, pasos 8 bis y 8 ter: Intervención, Agenda, Ciudadanía, Atención, Supervisión y Acceso: 645 passed, 1 incomplete (previo) y 23 fallos de RN-15 en tests que atendían sin centro, adaptados; esos ficheros y el grupo I de Tipo de Centro: 99 passed. Centro y Usuarios: 183 passed, 1 incomplete (previo). No se han ejecutado Documentos ni Mensajes.
   - 2026-11-12, **suite completa**: 1318 passed, 12 incomplete, 1 skipped, 1 failed (`AutorizacionDatosTest`, FK de `audits`, previo). Unos 61 min.
   - 2026-11-12, B4: Acceso, `BuscarCiudadanoPageTest`, Ciudadanía y Citas de Agenda: 218 passed. `ui:auditar` sin infracciones.
   - 2026-11-12, B3: Acceso, Auth, `AutorizacionDatosTest`, Ciudadanía, Documentos e Intervención: 588 passed, 2 incomplete, 1 skipped y el fallo previo de `AutorizacionDatosTest` (FK de `audits`).
@@ -70,7 +73,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 
 ## Siguiente paso concreto recomendado
 
-0. **Fase 2 del plan: Tipo de Centro** (`2026-10-tipo-centro-implementacion.md` con la addenda, TF-TCE-01 a 60). Rama A. Paso 0 iniciado: decisiones de mapeo de tipos, UO del centro 15 y UO funcionales tomadas (`CHANGELOG-112026.md`); inventario de lectores en el scratchpad de la sesión, a pasar al CHANGELOG al implementar. **Antes del paso 5** hay que preguntar: el horario lo leen por separado `CuadranteGeneratorService`, `SlotMaterializadorService`, `PerfilHorarioPorDefectoService` y `SolicitudCitaService` (propuesta: todos por `ConfiguracionEfectivaCentro::dia()`). **Ojo:** la BD local es la de staging; las migraciones de la fase (que eliminan columnas del centro según D2) se aplican allí con el push. Después, la fase 3 (`2026-11-fase3-circuito-intervencion.md`, decisiones F3 confirmadas el 12 nov). Pendiente aparte: tras el despliegue de A1, probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (prueba rápida de `decisiones-tecnicas.md` §14).
+0. **Fase 2, Tipo de Centro: terminar el paso 8 ter** (`docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`): (a) barra superior «Tipo · Centro» del centro activo con selector si hay varios centros y nombre de la UO si no hay ninguno (TF-TCE-43); (b) selector de centro con `centrosEnAmbito()` en la bandeja de asignaciones, el reparto, el cuadrante y Mi equipo (TF-TCE-44); los dos con `npm run build` y `ui:auditar`; (c) TF-TCE-39 llamando a las acciones Livewire; (d) medir `MisCasos` antes y después del ámbito (8 bis.4). Después: paso 8 (permisos, sin hacer), 8 quater (protegidos), 8 quinquies (bajas), 9 (interfaz) y 10 (cierre con suite completa). **Ojo:** la BD local es la de staging; las migraciones de la fase se aplican allí con el push. Los tests que hagan atender a un profesional necesitan que su UO tenga centro (`$this->centroParaUo($uo)`). Después, la fase 3 (`2026-11-fase3-circuito-intervencion.md`). Pendiente aparte: probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (`decisiones-tecnicas.md` §14).
 1. **El desarrollador prueba en staging asignación y citas** (pendiente desde el 2026-10-01; las pantallas solo se han probado con tests).
    - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto. **Configurar igual todos los centros del mismo tipo:** el paso 3 de Tipo de Centro aborta si difieren.
    - Citas: bandeja de citación, cita directa, detalle con reprogramar y cancelar, agenda del profesional, «Solicitar cita» en Intervención, *Atender* → registro de atención → «Dar cita».

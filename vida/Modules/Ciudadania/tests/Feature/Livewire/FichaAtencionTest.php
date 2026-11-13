@@ -46,6 +46,13 @@ class FichaAtencionTest extends TestCase
         if ($rol) {
             $user->assignRole($rol);
         }
+        // RN-15: registrar atenciones y abrir historias exige estar adscrito a un centro
+        $uo = UnidadOrganizativa::factory()->create();
+        $this->centroParaUo($uo);
+        $user->adscripciones()->create([
+            'unidad_organizativa_id' => $uo->id,
+            'fecha_inicio' => now()->toDateString(),
+        ]);
         $this->actingAs($user);
 
         $ciudadano = Ciudadano::factory()->create();
@@ -169,13 +176,7 @@ class FichaAtencionTest extends TestCase
     // TF-LW-AT-10: abrirHistoriaSocial crea la HS y redirige
     public function test_abrir_historia_social_crea_hs(): void
     {
-        [$componente, $ciudadano, $user] = $this->montarFicha('intervencion');
-
-        $uo = UnidadOrganizativa::factory()->create();
-        $user->adscripciones()->create([
-            'unidad_organizativa_id' => $uo->id,
-            'fecha_inicio' => now()->toDateString(),
-        ]);
+        [$componente, $ciudadano] = $this->montarFicha('intervencion');
 
         $componente->call('abrirHistoriaSocial');
 

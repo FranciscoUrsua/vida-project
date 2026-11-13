@@ -17,6 +17,7 @@ use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Agenda\Services\CuadranteGeneratorService;
 use Modules\Agenda\Services\CuadrantePublicadorService;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 
 /**
  * Página de cuadrante mensual para el supervisor de centro.
@@ -237,8 +238,6 @@ class CuadranteSupervisorPage extends Component
      */
     private function centroDelSupervisor(): ?Centro
     {
-        $uoId = auth()->user()?->uosActivas()->first()?->id;
-
-        return $uoId ? Centro::where('unidad_organizativa_id', $uoId)->first() : null;
+        return app(CentroDeUsuario::class)->centroActivo(auth()->user());
     }
 }

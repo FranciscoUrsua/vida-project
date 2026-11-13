@@ -80,6 +80,8 @@ class CiudadanoPageTest extends TestCase
             'tipo_vinculo' => 'interno',
             'fecha_inicio' => today()->toDateString(),
         ]);
+        // RN-15: para registrar apuntes la UO del profesional tiene que ser la de un centro
+        $this->centroParaUo($this->uo);
 
         $this->ciudadano = Ciudadano::factory()->create();
 

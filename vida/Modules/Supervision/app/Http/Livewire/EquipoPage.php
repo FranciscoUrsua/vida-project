@@ -11,6 +11,7 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Usuarios\Models\Cargo;
 use Modules\Usuarios\Models\Profesional;
@@ -206,9 +207,7 @@ class EquipoPage extends Component
     #[Computed]
     public function centroActivo(): ?Centro
     {
-        $uoId = auth()->user()?->uosActivas()->first()?->id;
-
-        return $uoId ? Centro::where('unidad_organizativa_id', $uoId)->first() : null;
+        return app(CentroDeUsuario::class)->centroActivo(auth()->user());
     }
 
     /**

@@ -9,6 +9,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Sala;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Organizacion\Services\ConfiguracionService;
 
 /**
@@ -332,12 +333,6 @@ class ConfiguracionCentroPage extends Component
      */
     private function centroDelSupervisor(): ?Centro
     {
-        $uoId = auth()->user()?->uosActivas()->first()?->id;
-
-        if ($uoId === null) {
-            return null;
-        }
-
-        return Centro::where('unidad_organizativa_id', $uoId)->first();
+        return app(CentroDeUsuario::class)->centroActivo(auth()->user());
     }
 }

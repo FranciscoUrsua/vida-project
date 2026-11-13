@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-11-13 — Tipo de Centro: ámbito por las dos jerarquías, centro de trabajo y RN-15 en el servidor (fase 2, pasos 8 bis y 8 ter, parcial)
+
+### Cambios
+- `App\Services\AmbitoUsuario` (servicio `scoped`, cache por petición), único punto de cálculo del ámbito (RN-13): `uoIds()` (adscripciones vigentes con sus descendientes orgánicas, más las UO de los centros activos cuyo tipo tiene la UO funcional en ese subárbol), `incluyeCentro()`, `centrosEnAmbito()` y `olvidar()`. `AppServiceProvider` lo invalida al guardar o borrar `UsuarioUo`, `UnidadOrganizativa`, `Centro` y `TipoCentro`.
+- `TieneUO::uoSubtreeIds()` delega en `AmbitoUsuario::uoIds()`: así todos sus consumidores (scopes, policies, buscadores) pasan por el mismo cálculo sin tocarlos uno a uno.
+- `UnidadOrganizativa::centrosDependientes('organica'|'funcional'|'ambas')` para analítica. Docblock que faltaba en `isDescendantOf()`.
+- `CentroDeUsuario` reescrito (paso 8 ter): `centros()` (adscripciones directas vigentes), `centroActivo()` (sesión → perfil horario de hoy → único centro → `null`), `elegir()` (rechaza un centro ajeno), `supervisa()` (rol `supervision` y centro en el ámbito, D1.8), `adscritoA()` y `exigirAtencion()` (RN-15, con los dos mensajes de la instrucción).
+- Pantallas que calculaban el centro por la primera UO activa pasan a `centroActivo()`: Supervisión (`InicioPage`, `EquipoPage`, `CuadrantePage`, `ActividadesPage`, `ConfiguracionCentroPage`, `Sidebar`) y Agenda (`CuadranteSupervisorPage`, `Sidebar` del supervisor).
+- **RN-15 en el servidor:** `AperturaHistoriaService::abrir()` (la historia toma la UO del centro activo), `CitacionService::citar()`, `citarDirecto()`, `reprogramar()` y `cancelar()` (centro del slot o de la cita), y `creating` de `Apunte` y `RegistroAtencion` con usuario autenticado (centro de la cita si la hay; si no, el activo: TF-TCE-42).
+- `CentroService`: `PROPIEDADES_DEL_TIPO`; el alta y el nuevo `actualizar()` rechazan las propiedades «solo tipo» (TF-TCE-47).
+- Tests: `Modules/Centro/tests/Feature/TipoCentro/EstructuraAmbitoTest.php`, grupo I (TF-TCE-35 a 42 y 45 a 47). `tests/TestCase.php`: `centroParaUo()` (centro de la UO, lo crea si falta).
+- Tests adaptados a RN-15 (el profesional estaba en una UO sin centro o sin UO): `CiudadanoPageTest`, `RegistrarValoracionPageTest`, `AltaCiudadanoTest`, `FichaAtencionTest` y `FichaCiudadanoPageTest`. En `AltaCiudadanoTest` el tipo del centro asigna la referencia a quien abre: sin centro el modo era `null` (= quien abre) y el test comprueba ese caso.
+- Suites: Intervención, Agenda, Ciudadanía, Atención, Supervisión y `tests/Feature/Acceso` (unos 33 min): 645 passed, 1 incomplete (previo) y 23 fallos, todos la `DomainException` de RN-15 en los cinco ficheros citados. Tras adaptarlos, esos cinco ficheros y el grupo I: 99 passed (con `AltaCiudadanoTest` repetido aparte, 23 passed). `Modules/Centro/tests` y `Modules/Usuarios/tests`: 183 passed, 1 incomplete (previo).
+
+### Decisiones
+- `uoSubtreeIds()` delega en lugar de sustituirse en sus consumidores: es lo que menos toca (paso 8 bis, punto 2) y deja un solo cálculo.
+- RN-15 en `Apunte` y `RegistroAtencion` va en el modelo (`creating`) y solo con usuario autenticado: los procesos del sistema (seeders, comandos, mundos demo) no atienden y no se bloquean.
+
+### Pendiente del paso 8 ter (en SESSION y BACKLOG)
+- Barra superior «Tipo · Centro» con selector (TF-TCE-43); selector de centro en las pantallas de supervisión para quien supervisa más de uno (TF-TCE-44); TF-TCE-39 llamando a las acciones Livewire; medición de rendimiento del ámbito en `MisCasos` (8 bis, punto 4).
+
 ## 2026-11-12 — Cierre de `2026_11_estabilizacion_y_privacidad.md`
 
 - **Suite completa** (unos 61 min): 1318 passed, 12 incomplete, 1 skipped y 1 failed, el previo `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`, en el BACKLOG). **Sin fallos nuevos.**

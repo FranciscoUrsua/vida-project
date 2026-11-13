@@ -130,8 +130,7 @@ class Sidebar extends Component
             return 0;
         }
 
-        $uoId   = auth()->user()?->uosActivas()->first()?->id;
-        $centro = $uoId ? Centro::where('unidad_organizativa_id', $uoId)->first() : null;
+        $centro = app(CentroDeUsuario::class)->centroActivo(auth()->user());
 
         if ($centro === null) {
             return 0;

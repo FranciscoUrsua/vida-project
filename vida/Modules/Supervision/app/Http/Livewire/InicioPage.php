@@ -11,6 +11,7 @@ use Livewire\Component;
 use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Agenda\Models\Slot;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Organizacion\Services\ConfiguracionService;
 use Modules\Supervision\Services\IndicadoresCentroService;
 use Modules\Supervision\Services\SupervisionSidebarDataService;
@@ -63,8 +64,7 @@ class InicioPage extends Component
     #[Computed]
     public function cuadranteDeHoy(): SupportCollection
     {
-        $uoId = $this->uoIdSupervisor();
-        $centro = $uoId ? Centro::where('unidad_organizativa_id', $uoId)->first() : null;
+        $centro = app(CentroDeUsuario::class)->centroActivo(auth()->user());
 
         if ($centro === null) {
             return collect();
