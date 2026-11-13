@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-11-13 — Tipo de Centro: cierre de la fase (fase 2, paso 10)
+
+### Cambios
+- **TF-TCE-34** (`Modules/Centro/tests/Feature/TipoCentro/MigracionTipoCentroTest.php`): deshace las 11 migraciones desde `2026_11_12_100001`, carga datos con el esquema anterior (catálogo `centro.tipo`, centros con clave, `prestacion_tipo_centro` por clave, un `HorarioCentro`), vuelve a migrar y comprueba el estado (un tipo por clave con denominación, todo con tipo, catálogo antiguo inactivo, horarios intactos sin herencia, columnas de la addenda §6.2 fuera y `centros.horario` como accesor). Todo dentro de la transacción del test (DDL transaccional de PostgreSQL); el esquema de `vida_testing` queda intacto (comprobado). **En negativo:** sin desactivar el catálogo antiguo en la migración 100006, falla.
+- Corregida la `down()` de `2026_11_12_100006`: no volvía a crear el índice único `(prestacion_id, tipo_centro)` que su `up()` borra, y no se podía volver a migrar. Solo afecta a la vuelta atrás; nada aplicado cambia.
+- Tabla de estado de `2026-10-tipo-centro-tests.md` completa: TF-TCE-01 a 60 implementados y en verde.
+- Documentación (§11 del diseño): `modulo-centros.md` (§2.1, §2.2 con la UO instrumental, §4.1), `modulo-asignacion.md` §8 (configuración del tipo, RN-21 y 23), `modulo-agenda.md` §2.1 (herencia y cierres), `modulo-prestaciones.md` (`tipo_centro_id`, `centro.tipo` retirado), `modulo-intervencion.md` (tipos de plan y fichas por tipo de centro), `modulo-usuarios-permisos.md` (ámbito por UO, RN-13 a 23, y resolutor de accesos a protegidos), `propuesta-requisitos-y-tareas-guiadas.md` §3 (selector y centro por defecto, decididos) y `documentacion-proyecto.md` (User, Prestaciones, Centro y Agenda). `CLAUDE.md`: los dos ficheros de Tipo de Centro, hechos.
+- BACKLOG: cerrados «Tipo de Centro: en ejecución», «Bandeja de asignaciones con protegidos» (RN-19), lo de varias UO con varios centros de «Perfil horario por defecto: pendientes» (D1) y la extracción del centro del usuario (`CentroDeUsuario`); nuevo «Tipo de Centro: decisiones pendientes del diseño» con §13. «Borrar un usuario con casos vigentes» (D5) ya se cerró en el paso 8 quinquies.
+- **Suite completa** (unos 54 min): 1388 passed, 12 incomplete, 1 skipped y 1 failed: el previo de `AutorizacionDatosTest` (FK de `audits`). Sin fallos nuevos.
+
+### Criterios de finalización
+- **Rama:** A (la asignación estaba implementada). **Mapeo de tipos:** el del paso 0 (decisiones del 12 nov, entrada de ese día).
+- **Lectores fuera de `ConfiguracionEfectivaCentro`:** grep de `inscripcion_libre`, `centro_prestacion`, `centro_segmento_poblacion`, `centros.horario` y los campos de horario de `horarios_centro` en `app`, `Modules` y seeders, sin migraciones ni tests: solo quedan escrituras y definiciones (formularios de Filament, modelos, factories, `TipoCentroService` sobre los campos del propio tipo, `MigracionTipoCentro`) y lecturas a través del servicio (accesor `Centro::horario`, `CentroResource`, `PerfilHorarioPorDefectoService`). `HorarioLaboralService` de Mensajes usa su propio horario de catálogo, no el del centro.
+- **Datos en la BD compartida:** 0 centros sin tipo (de 3), 0 filas de `prestacion_tipo_centro` sin tipo, 0 asignaciones de referencia sin centro; las migraciones `2026_11_13_100002` y `100003` aplicadas en staging.
+- Ningún camino cambia `centros.tipo_centro_id` (inmutable en el modelo; el formulario no lo envía en edición) ni `tipos_centro.codigo` (el modelo lo rechaza; el formulario no lo envía).
+
 ## 2026-11-13 — Tipo de Centro: interfaz en Filament (fase 2, paso 9)
 
 ### Cambios

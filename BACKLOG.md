@@ -9,6 +9,17 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Tipo de Centro: decisiones pendientes del diseño** — 2026-11-13
+Módulo: Centro (de `docs/modulo-tipo-centro.md` §13)
+- Canales de cita por tipo (presencial, teléfono, Cita Previa): con la integración de Cita Previa.
+- Traslado en bloque de personas y casos al crear un tipo nuevo o mover prestaciones entre tipos.
+- Cargos habituales por tipo como ayuda al alta de profesionales.
+- Modelos de informe por tipo de centro.
+- Protocolos estructurados (hoy, texto).
+- Colores por tipo de centro en la barra superior (aplazado en `propuesta-requisitos-y-tareas-guiadas.md` §3).
+
+---
+
 **Tipo de Centro: interfaz, pendientes** — 2026-11-13
 Módulo: Centro
 - No hay acción para anular un cierre de calendario futuro (tipo o centro) registrado por error.
@@ -54,8 +65,7 @@ Módulos: Usuarios, Ciudadanía, Agenda, Documentos
 
 ---
 
-**Tipo de Centro: en ejecución** — 2026-11-10 (actualizado 2026-11-13)
-*2026-11-13: hechos los pasos 1 a 8, 8 bis, 8 ter y 8 quater. Quedan 8 quinquies (bajas), 9 (interfaz, con la parte de Filament de TF-TCE-31) y 10 (cierre).*
+**~~Tipo de Centro: en ejecución~~** — 2026-11-10 · **Cerrado el 2026-11-13** (pasos 1 a 10, TF-TCE-01 a 60; ver `CHANGELOG-112026.md`). Lo que queda va en «Tipo de Centro: decisiones pendientes del diseño» y «Tipo de Centro: interfaz, pendientes».
 Módulos: Centro, Organización, Prestaciones, Agenda, Intervención, Usuarios
 Diseño (`docs/modulo-tipo-centro.md`), instrucciones (`docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`) y tests TF-TCE-01 a 34 (`docs/instrucciones-cli/2026-10-tipo-centro-tests.md`) en el repo. Se sigue la rama A (la asignación ya está implementada). Depende de la decisión sobre varias UO con varios centros (ver «Perfil horario por defecto: pendientes») y de que los centros de un mismo tipo tengan la misma configuración de asignación (ver el aviso en «Asignación de centro y referencia: pendientes»).
 
@@ -73,7 +83,7 @@ Módulo: Ciudadanía / Intervención / Supervisión
 - ~~**`VerFichaPage` no comprueba que la ficha pertenezca a la historia**~~ Cerrado el 2026-11-12 (B2, TF-ACC-17, 18 y 18 bis): `Ficha::perteneceAHistoria()` en `mount()`; una ficha de otra historia responde 404 sin datos. Ver `CHANGELOG-112026.md`.
 - ~~**Búsqueda por documento en `BuscarCiudadanoPage`**~~ Cerrado el 2026-11-12 (B4, TF-ACC-21 a 22): coincidencia exacta por `CiudadanoIdentificador::hashDe()`, sin filtrar por UO; `hsu` filtra por `ni_hsu_cm`. Ver `CHANGELOG-112026.md`.
 - **Normalización de los documentos de identidad** (2026-11-12, visto en B4): el alta (`AltaCiudadano`, por `NormalizadorCiudadano::documento()`) guarda el NIF en mayúsculas sin espacios ni guiones y el NIE **con guiones** (`X-1234567-L`); la ficha (`FichaCiudadanoPage::guardarDocumento()`) guarda el valor tal como se escribe. Como `valor_hash` solo pasa a minúsculas, la búsqueda exacta (buscador, citas, matching, cita externa) encuentra o no según por dónde se guardó y cómo se escriba: `X1234567L` no encuentra un NIE dado de alta en el alta, y `12345678-Z` no encuentra `12345678Z`. Los 2 NIE de la BD compartida están sin guiones. Propuesta: una forma canónica única (mayúsculas, sin espacios ni guiones) en `hashDe()` y en lo guardado, con una migración que recalcule `valor_hash` de los existentes; no se ha hecho porque cambia lo guardado (instrucción B4).
-- **Bandeja de asignaciones con protegidos:** el supervisor ve «Persona con protección especial» y puede resolver la entrada sin saber de quién es. Decidir si la bandeja de la UO responsable debe verla siempre (hoy sin historia la policy pide acceso aprobado).
+- ~~**Bandeja de asignaciones con protegidos:**~~ Cerrado el 2026-11-13 (RN-19, TF-TCE-53): la supervisión adscrita al centro la ve con identidad y la resuelve; la de una UO superior la ve sin identidad y no puede resolverla. Antes: el supervisor veía «Persona con protección especial» y puede resolver la entrada sin saber de quién es. Decidir si la bandeja de la UO responsable debe verla siempre (hoy sin historia la policy pide acceso aprobado).
 - **`AuditarAccesoCiudadano`** ya no cubre ninguna ruta útil (la ficha audita en el servicio). Valorar retirarlo o aplicarlo a las rutas `{historia}` como red de seguridad sin duplicar filas.
 - ~~**`guardar()` de la ficha** sigue decidiendo por rol~~ Cerrado el 2026-11-12 (B3, TF-ACC-19 a 20 quater): `guardar()` autoriza con `Gate::authorize('update')` y `puedeEditar()` delega en la policy. Ver `CHANGELOG-112026.md`.
 - **Relaciones de la ficha fuera de la UO** (2026-11-12, visto en B3): `FichaCiudadanoPage::puedeEditarRelaciones()` sigue decidiendo por rol (`intervencion`, `tramitacion`), así que en consulta libre (nivel 2) se pueden crear, editar y cerrar relaciones de una persona de otra UO, aunque sus datos ya son de solo lectura. Decidir si pasa también por `CiudadanoPolicy::update` (y lo mismo para la UC del expediente).
@@ -108,10 +118,10 @@ Módulo: Usuarios / Asignación
 **Perfil horario por defecto: pendientes** — 2026-10-01
 Módulo: Agenda / Supervisión
 - El horario por defecto va de apertura a cierre sin pausa (en el CIAM son 45 h/semana). Valorar descontar una pausa o usar la jornada estándar del tipo de relación.
-- Si una UO llega a tener varios centros, el profesional recibe un perfil en cada uno; habría que decidir el centro de destino al adscribir.
-- «Mi equipo», el cuadrante y la asignación resuelven el centro con `Centro::where('unidad_organizativa_id', …)->first()` repetido en varias páginas: extraerlo a un único sitio.
+- ~~Si una UO llega a tener varios centros, el profesional recibe un perfil en cada uno; habría que decidir el centro de destino al adscribir.~~ Cerrado el 2026-11-13 (D1): una UO tiene como mucho un centro (RN-14); el perfil se crea por adscripción a centro.
+- ~~«Mi equipo», el cuadrante y la asignación resuelven el centro con `Centro::where('unidad_organizativa_id', …)->first()` repetido en varias páginas: extraerlo a un único sitio.~~ Cerrado el 2026-11-13: `CentroDeUsuario` (`centroActivo()`, `centroSupervisado()`).
 - ~~Las fichas de profesional sin cuenta de usuario no pueden tener horario ni entrar en el sorteo; Mi equipo no lo indica.~~ Resuelto el 2026-10-02: badge «Sin cuenta de usuario».
-- Varias UO con varios centros: el desarrollador lo está pensando (2026-10-02).
+- ~~Varias UO con varios centros: el desarrollador lo está pensando (2026-10-02).~~ Decidido el 2026-11-11 (D1 del plan de cierre) e implementado el 2026-11-13: UO de centro 1:1, ámbito por las jerarquías orgánica y funcional, profesional multicentro con centro activo.
 
 ---
 

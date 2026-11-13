@@ -91,10 +91,11 @@ Se refiere a dónde trabaja el profesional, no a dónde está vinculado el ciuda
 - El profesional siempre está asignado a una unidad organizativa: un centro, o una UO superior si trabaja en varios centros.
 - La barra superior muestra el tipo y el nombre del centro (p. ej. "CIAM · Puente de Vallecas"). Si el profesional está asignado a una UO superior, se muestra el nombre de esa UO.
 - Colores por tipo de centro: aplazado. Se valorará más adelante (accesibilidad, choque con colores de alerta y del banner de protegido, distinción entre muchos tipos).
+- **Selector de centro (addenda D1, 11 nov 2026; implementado el 13 nov):** quien está adscrito a más de un centro tiene un selector en ese mismo elemento de la barra superior. El centro por defecto es el elegido en la sesión; si no, el de su perfil horario de hoy; si no, el único que tenga (`CentroDeUsuario::centroActivo()`). Quien no tiene centro ve el nombre de su UO, sin selector, y no puede atender (RN-15).
 
 ### Por decidir
 
-Si un profesional con varios contextos necesita un selector en ese mismo elemento.
+Nada en este punto.
 
 ### Descartado o aparcado
 

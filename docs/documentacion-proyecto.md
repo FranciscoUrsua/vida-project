@@ -127,8 +127,9 @@ Un `User` casi siempre tiene un `Profesional` asociado (su perfil organizativo),
 | `password` | string | Cast `hashed` — no usar bcrypt() al crear |
 | `email_verified_at` | datetime | |
 | `primer_acceso` | boolean | `true` hasta que complete el onboarding |
+| `desactivado_en` | datetime nullable | Desactivación (RN-20): sin acceso. Los usuarios no se borran |
 
-**Filament:** `UsuarioResource` (grupo *Usuarios y Profesionales*)
+**Filament:** `UsuarioResource` (grupo *Usuarios y Profesionales*), con «Desactivar» en lugar de borrar. El proveedor de autenticación `eloquent_activos` deja fuera a los desactivados. Ver `docs/decisiones-tecnicas.md` §15.
 
 ---
 
@@ -224,7 +225,9 @@ Gestiona roles, permisos atómicos, adscripciones UO y acceso a colectivos prote
 
 Catálogo de ~112 prestaciones organizadas en 8 objetivos generales. 13 tests funcionales (TF-PRE-01..13). TF-PRE-13 con stub de integración de Intervención.
 
-**Selector de prestaciones en Centro (junio 2026):** `SelectorPrestacionesCentro` — componente Livewire con SlideOver en Filament. Layout dos columnas (catálogo 2/3 + seleccionadas 1/3), búsqueda por texto, filtros por segmento (pendiente de implementar), modal de detalle. El filtro por segmento tiene TODO: ver BACKLOG.
+**Tipos de centro (12 nov 2026):** `prestacion_tipo_centro` apunta a `TipoCentro` (`tipo_centro_id`); el grupo `centro.tipo` de `catalogos_sistema` se retiró (claves inactivas). Las prestaciones de un centro son las de su tipo menos sus exclusiones (`ConfiguracionEfectivaCentro::prestaciones()`).
+
+**Selector de prestaciones en Centro (junio 2026, sustituido):** `SelectorPrestacionesCentro` — componente Livewire con SlideOver en Filament. Layout dos columnas (catálogo 2/3 + seleccionadas 1/3), búsqueda por texto, filtros por segmento (pendiente de implementar), modal de detalle. El filtro por segmento tiene TODO: ver BACKLOG.
 
 ---
 
@@ -236,7 +239,9 @@ Gestiona centros de servicios sociales, redes de centros, espacios, actividades 
 
 **Entidad Servicio (mayo 2026):** Servicio ≠ Centro. El servicio no tiene infraestructura propia (Art. 53, Ley 12/2022). Implementado como entidad independiente relacionada opcionalmente con Centro.
 
-**Asignación de centro (2026-09-30, `docs/modulo-asignacion.md`):** cada centro tiene modo de asignación de referencia (`sorteo`, `libre_eleccion`, `quien_abre`), ventana de reparto y meses de inactividad de caso; los cargos, `puede_ser_referencia`; el horario del centro, `dias_ausencia_prolongada`. `ResolucionCentroService` resuelve el centro de una dirección por sección, barrio, distrito o ciudad completa (gana la más específica). `AsignacionCentroService` es el único que escribe en `asignaciones_centro` (historial aditivo, modo `geografico`, `eleccion` o `manual`) y en `asignaciones_pendientes` (bandeja del supervisor: sin centro, cambio de domicilio). `AmbitosTerritorialesRelationManager` impide solapamientos del mismo tipo y nivel; «Comprobar cobertura» en el listado de centros y `centros:comprobar-cobertura` listan las secciones sin centro.
+**Tipo de Centro (12 y 13 nov 2026, `docs/modulo-tipo-centro.md`):** `TipoCentro` es una entidad con código inmutable, denominaciones con vigencia (`denominaciones`, también para centros), UO funcional, público, catálogo (prestaciones, tipos de plan, fichas), horario por defecto con vigencia (`horarios_tipo_centro`), cierres comunes (`cierres_calendario`), reglas de asignación y protocolo. Cada centro tiene un tipo obligatorio e inmutable (`tipo_centro_id`, `centro_antecesor_id`), su UO instrumental 1:1 (RN-14) y hereda del tipo: lo «solo tipo» no se fija en el centro; horario y protocolo se pueden personalizar; los cierres se suman; el catálogo se restringe si el tipo lo permite (`centro_exclusiones_catalogo`). **Toda lectura de la configuración del centro pasa por `ConfiguracionEfectivaCentro`.** Servicios: `TipoCentroService`, `CentroService`, `CierreCalendarioService`, `ExclusionCatalogoService`; policies `TipoCentroPolicy` (escritura, administrador) y `CentroPolicy` (el director edita contacto, notas, protocolo, horario, cierres y exclusiones de su centro). Ámbito por dos jerarquías en `App\Services\AmbitoUsuario` (RN-13); centro activo, supervisado y RN-15 en `CentroDeUsuario`; personas protegidas solo para su centro (RN-17 a 19); bajas de profesionales en `SalidaCentroService` (RN-20 a 23). Filament: `TipoCentroResource` y `CentroResource`.
+
+**Asignación de centro (2026-09-30, `docs/modulo-asignacion.md`):** desde el 12 nov, la configuración es del tipo de centro. Cada tipo tiene modo de asignación de referencia (`sorteo`, `libre_eleccion`, `quien_abre`), ventana de reparto y meses de inactividad de caso; los cargos, `puede_ser_referencia`; el horario del centro, `dias_ausencia_prolongada`. `ResolucionCentroService` resuelve el centro de una dirección por sección, barrio, distrito o ciudad completa (gana la más específica). `AsignacionCentroService` es el único que escribe en `asignaciones_centro` (historial aditivo, modo `geografico`, `eleccion` o `manual`) y en `asignaciones_pendientes` (bandeja del supervisor: sin centro, cambio de domicilio). `AmbitosTerritorialesRelationManager` impide solapamientos del mismo tipo y nivel; «Comprobar cobertura» en el listado de centros y `centros:comprobar-cobertura` listan las secciones sin centro.
 
 **PrescripcionService:** `liberarPlaza()` usa un resolver inyectable para el TSR activo. En producción debe conectarse al módulo Ciudadanía cuando esté disponible. Actualmente devuelve null (ver BACKLOG).
 
@@ -299,6 +304,8 @@ Gestión de plantillas de informe, generación de documentos y merge tags.
 **Namespace:** `Modules\Agenda`
 
 Sistema de agenda configurable por centro con tres modos (básico, estándar, avanzado).
+
+**Horario y calendario efectivos (12 nov 2026):** un `HorarioCentro` hereda el horario del tipo (`hereda_horario_tipo`) o lo sustituye entero; los cierres del tipo y del centro se aplican al generar cuadrantes y slots (`ConfiguracionEfectivaCentro::dia()`). Un cierre no cancela citas. Al salir de un centro se cierran los perfiles horarios del profesional en él (RN-21).
 
 **Estado (2026-09-30):** dominio completo y subdominio **Citas** implementado (`docs/modulo-citas.md`, `docs/instrucciones-cli/2026-09-citas-implementacion.md`). Detalle de entidades y servicios en `docs/modulo-agenda.md`.
 

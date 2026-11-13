@@ -429,6 +429,8 @@ El Plan de Intervención es el acuerdo formal entre el profesional y el ciudadan
 - Si una usuaria con un plan de entrada directa recibe después un PISO, el plan de entrada directa **no** se vincula retroactivamente: ambos conviven como planes independientes de la misma Historia Social.
 - La regla la aplica el modelo (`PlanDeIntervencion::verificarOrigenPlanEspecializado()`, en el hook `saving`, lanza `DomainException`) y el invariante INV-02 de `DemoInvariantChecker`, que ignora los tipos con entrada directa. Antes de este cambio la exigencia de `plan_asp_id` solo existía en ese invariante de demo: no había regla en modelo, Policy ni base de datos.
 
+**Tipos de plan por tipo de centro** — *añadido 2026-11-12* (`docs/modulo-tipo-centro.md` §6.2): al abrir un plan solo se ofrecen los tipos de plan del tipo del centro (menos las exclusiones del centro, si el tipo lo permite), y `PlanDeIntervencionService` rechaza cualquier otro. Las fichas de valoración siguen la misma regla (sin fichas en el tipo, están todas). Ambos se leen con `ConfiguracionEfectivaCentro`.
+
 Una Historia Social puede tener varios planes activos simultáneamente, cada uno con su responsable y su ciclo de vida independiente.
 
 ### 5.2 Atributos

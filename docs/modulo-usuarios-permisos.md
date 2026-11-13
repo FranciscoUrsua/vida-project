@@ -72,6 +72,15 @@ La adscripción de un usuario a una UO es responsabilidad del **Administrador de
 
 Un usuario puede estar adscrito a más de una UO. La adscripción tiene fechas de vigencia para mantener el historial completo.
 
+**Ámbito por UO (Tipo de Centro, 12 y 13 nov 2026; `docs/modulo-tipo-centro.md` RN-13 a RN-23):**
+
+- **Dos jerarquías (RN-13).** El ámbito de un usuario es la unión de la jerarquía orgánica (sus UO de adscripción y sus descendientes) y la funcional (los centros cuyo tipo tiene como UO funcional una de esas UO). Un único punto de cálculo: `App\Services\AmbitoUsuario` (`User::uoSubtreeIds()` delega en él).
+- **UO del centro (RN-14).** Cada centro tiene su UO instrumental, 1:1 y sin hijas.
+- **Atender exige centro (RN-15).** Abrir una Historia Social, dar o atender citas, registrar atenciones y crear apuntes exige estar adscrito al centro de la operación; se comprueba en el servidor.
+- **Multicentro (RN-16).** Quien está adscrito a varios centros trabaja en el centro activo (selector de la barra superior; por defecto, el de su perfil horario de hoy). `CentroDeUsuario` resuelve el centro activo y el supervisado.
+- **Personas protegidas (RN-17 a RN-19).** Una persona protegida solo la gestiona el personal adscrito al centro de su historia (y `intervencion` de una UO superior con el centro en su ámbito); el resto necesita un acceso concedido por el director del centro (o, sin director, por la supervisión adscrita al centro). Ver §3.
+- **Bajas (RN-20 a RN-23).** Usuarios y profesionales no se borran: se desactivan (sin acceso, con su historial). Nadie sale de un centro ni se desactiva con casos de referencia o citas confirmadas pendientes en él; los casos son del centro. Ver `docs/decisiones-tecnicas.md` §15.
+
 ### 1.5 Tres niveles de acceso a Historias Sociales
 
 **Nivel 1 — Gestión completa:** el profesional tiene asignada esa Historia en su UO. Puede crear y editar todos los elementos del plan que le corresponden según su rol.
@@ -287,8 +296,8 @@ Los colectivos especialmente protegidos (actualmente mujeres víctimas de violen
 
 1. El profesional solicita acceso a la Historia de un ciudadano especialmente protegido fuera de su UO.
 2. El sistema muestra un formulario de solicitud con campo de **justificación obligatorio**.
-3. El sistema envía un **mensaje interno** al supervisor competente de la UO responsable (supervisor de VG o de infancia según el colectivo).
-4. El supervisor aprueba o deniega la solicitud. La resolución queda registrada.
+3. El sistema avisa al **resolutor del centro de la historia** (RN-18 de `docs/modulo-tipo-centro.md`, desde el 13 nov 2026): el director vigente del centro o, si no hay, la supervisión adscrita a la UO del centro. Nadie resuelve una solicitud propia.
+4. El resolutor aprueba (con fecha de caducidad; por defecto `dias_acceso_protegido`, 30 días) o deniega (con motivo) en Aprobaciones, pestaña «Accesos a expedientes». La resolución queda registrada y auditada.
 5. Si se aprueba, el acceso se habilita con las condiciones y duración indicadas. Queda registrado en la auditoría visible.
 6. Si se deniega, el profesional recibe notificación con la justificación del supervisor.
 

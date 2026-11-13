@@ -1,12 +1,14 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-13 (fase 2, Tipo de Centro: pasos 1 a 9 hechos; queda el 10)
+**Última actualización:** 2026-11-13 (fase 2, Tipo de Centro cerrada: pasos 1 a 10)
 
 ---
 
 ## Tarea completada
 
-**Fase 2, Tipo de Centro: interfaz en Filament (paso 9)** (2026-11-13): `TipoCentroResource` (solo administrador, con denominación, horario, cierres y baja por acciones) y `CentroResource` con lo que no es del director deshabilitado, herencia visible («Heredado del tipo»/«Personalizado» y volver al valor del tipo), cierres y exclusiones. Parte de Filament de TF-TCE-31 y 4 tests de interfaz (`InterfazTipoCentroTest`, comprobados en negativo). Detalle en `CHANGELOG-112026.md`.
+**Fase 2, Tipo de Centro: cierre (paso 10)** (2026-11-13): TF-TCE-34 implementado (los 60 en verde), documentación de §11 al día, BACKLOG cerrado y suite completa sin fallos nuevos (1388 passed, 12 incomplete, 1 skipped, 1 failed previo de `AutorizacionDatosTest`). **La fase 2 (Tipo de Centro) está terminada.** Detalle en `CHANGELOG-112026.md`.
+
+Antes: **Fase 2, Tipo de Centro: interfaz en Filament (paso 9)** (2026-11-13): `TipoCentroResource` (solo administrador, con denominación, horario, cierres y baja por acciones) y `CentroResource` con lo que no es del director deshabilitado, herencia visible («Heredado del tipo»/«Personalizado» y volver al valor del tipo), cierres y exclusiones. Parte de Filament de TF-TCE-31 y 4 tests de interfaz (`InterfazTipoCentroTest`, comprobados en negativo). Detalle en `CHANGELOG-112026.md`.
 
 Antes: **Fase 2, Tipo de Centro: bajas de profesionales (paso 8 quinquies)** (2026-11-13): sin borrado de usuarios ni profesionales (RN-20, «Desactivar» en Filament y Mi equipo, proveedor de auth `eloquent_activos`), salida de centro y desactivación bloqueadas con casos o citas pendientes (RN-21 y 22, en el modelo `UsuarioUo` y `SalidaCentroService`), `asignaciones_profesional.centro_id` obligatorio (RN-23). TF-TCE-55 a 59 (comprobados en negativo). Detalle en `CHANGELOG-112026.md`.
 
@@ -60,6 +62,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 - **Perfiles por defecto en el CIAM (UO 13):** se crean con `agenda:horarios-por-defecto --centro=13` tras el despliegue (ver CHANGELOG). Hecho: 9 perfiles pendientes de verificar + 1 previo (comprobado el 2026-10-02). Los demás centros no se completan por ahora: al desarrollador solo le preocupa el CIAM.
 - **AppArmor:** qpdf y gs están confinados; las reglas locales (`/etc/apparmor.d/local/{qpdf,gs}`) cubren `/var/www/.../storage/app/tmp` y, en el repositorio local, `storage/framework/testing` y `storage/app/tmp`. Revisar tras cada `apt upgrade` (BACKLOG).
 - **Tests:**
+  - 2026-11-13, **suite completa** tras los pasos 8 quinquies y 9: 1388 passed, 12 incomplete, 1 skipped, 1 failed (el previo de `AutorizacionDatosTest`). Unos 54 min. Después, TF-TCE-34: 1 passed.
   - 2026-11-13, interfaz (paso 9): `Modules/Centro/tests`, `HorarioCentroTest` y `FilamentPanelAccessTest`: 163 passed.
   - 2026-11-13, bajas de profesionales: Usuarios, Supervisión, Centro, Agenda, Auth, Demo, Acceso y `FilamentPanelAccessTest` en verde (previos incomplete/skipped); Intervención y Mensajes con 31 fallos de datos de prueba, corregidos y en verde. `ui:auditar` sin infracciones.
   - 2026-11-13, **suite completa** tras personas protegidas: 1373 passed, 12 incomplete, 1 skipped, 4 failed (el previo de `AutorizacionDatosTest` y tres tests desfasados, corregidos). Unos 46 min.
@@ -91,7 +94,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 
 ## Siguiente paso concreto recomendado
 
-0. **Fase 2, Tipo de Centro: paso 10 (cierre)** (`docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`): filtros de Centro, Agenda, Prestaciones, Intervención y TF-ASG; **suite completa** (la última es anterior a los pasos 8 quinquies y 9); la tabla de estado de `2026-10-tipo-centro-tests.md` (faltan A a F, H, I y J); documentos de `modulo-tipo-centro.md` §11 (`modulo-centros.md` §2.2, `modulo-usuarios-permisos.md` «Ámbito por UO», `propuesta-requisitos-y-tareas-guiadas.md` §3), `documentacion-proyecto.md`; grep de lectores fuera de `ConfiguracionEfectivaCentro` para el CHANGELOG; BACKLOG (§13 del diseño, D1, perfil horario con varias UO, RN-19, D5 ya cerrado); y añadir los dos ficheros de Tipo de Centro a la tabla de `CLAUDE.md` si falta algo. **Ojo:** la BD local es la de staging; las migraciones `2026_11_13_100002` (centro obligatorio en `asignaciones_profesional`) y `100003` (`users.desactivado_en`) se aplican con el push: comprobar en el despliegue que la 100002 pasó. Reglas en el código: nadie se borra (`delete()` lanza); en tests, una asignación de referencia necesita centro en la UO de la historia (`centroParaUo()`); al cambiar de usuario en un test de Filament, `flushSession()`.
+0. **Fase 3: circuito de intervención** (`docs/instrucciones-cli/2026-11-fase3-circuito-intervencion.md`; después, la 3 bis, `2026-11-fase3bis-solicitudes-expedientes.md`). Antes, que el desarrollador pruebe en staging lo de Tipo de Centro: `TipoCentroResource` y el formulario de centro como administrador y como directora, el selector de centro de la barra, la desactivación de un usuario con casos (debe rechazarse con enlaces) y las personas protegidas. Reglas que ya están en el código: atender exige centro (RN-15; en tests, `centroParaUo()`), toda lectura de configuración del centro por `ConfiguracionEfectivaCentro`, ámbito por `AmbitoUsuario`, centro por `CentroDeUsuario`, nadie se borra (`delete()` lanza), una asignación de referencia necesita centro y, al cambiar de usuario en un test de Filament, `flushSession()`. Pendiente aparte: probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (`decisiones-tecnicas.md` §14).
 1. **El desarrollador prueba en staging asignación y citas** (pendiente desde el 2026-10-01; las pantallas solo se han probado con tests).
    - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto. **Configurar igual todos los centros del mismo tipo:** el paso 3 de Tipo de Centro aborta si difieren.
    - Citas: bandeja de citación, cita directa, detalle con reprogramar y cancelar, agenda del profesional, «Solicitar cita» en Intervención, *Atender* → registro de atención → «Dar cita».

@@ -397,14 +397,14 @@ Sin casos, pero con una cita confirmada la semana próxima en un slot de `$ciamV
 
 | Grupo | Tests | Estado |
 |---|---|---|
-| A — Tipo de centro | TF-TCE-01..06 |  |
-| B — Centro y tipo | TF-TCE-07..11 |  |
-| C — Horario y calendario | TF-TCE-12..19 |  |
-| D — Catálogo | TF-TCE-20..26 |  |
-| E — Público destinatario | TF-TCE-27 |  |
-| F — Reglas de asignación | TF-TCE-28..30 |  |
+| A — Tipo de centro | TF-TCE-01..06 | ✅ 2026-11-12 (`TipoCentroTest`) |
+| B — Centro y tipo | TF-TCE-07..11 | ✅ 2026-11-12 (`CentroTipoTest`; 11 también en `ConfiguracionEfectivaTest`) |
+| C — Horario y calendario | TF-TCE-12..19 | ✅ 2026-11-12 (`HorarioCalendarioTest`) |
+| D — Catálogo | TF-TCE-20..26 | ✅ 2026-11-12 (`CatalogoEfectivoTest`; 20 y 25 en `ConfiguracionEfectivaTest`) |
+| E — Público destinatario | TF-TCE-27 | ✅ 2026-11-12 (`ConfiguracionEfectivaTest`) |
+| F — Reglas de asignación | TF-TCE-28..30 | ✅ 2026-11-12 (`ConfiguracionAsignacionTest`; rama A) |
 | G — Permisos | TF-TCE-31..33 | ✅ 2026-11-13 (`PermisosTest`; la parte de Filament de 31 en `InterfazTipoCentroTest`, comprobada en negativo) |
-| H — Migración | TF-TCE-34 |  |
-| I — Estructura, ámbito y centro de trabajo | TF-TCE-35..47 |  |
-| J — Personas protegidas | TF-TCE-48..54 y 60 |  |
+| H — Migración | TF-TCE-34 | ✅ 2026-11-13 (`MigracionTipoCentroTest`: deshace y rehace las migraciones de la fase dentro de la transacción; comprobado en negativo) |
+| I — Estructura, ámbito y centro de trabajo | TF-TCE-35..47 | ✅ 2026-11-13 (`EstructuraAmbitoTest`, `CentroTrabajoInterfazTest`; 39 y 44 comprobados en negativo) |
+| J — Personas protegidas | TF-TCE-48..54 y 60 | ✅ 2026-11-13 (`PersonasProtegidasTest`; 48, 53 y 60 comprobados en negativo) |
 | K — Bajas de profesionales | TF-TCE-55..59 | ✅ 2026-11-13 (`BajasProfesionalesTest`, con 56 bis y 58 bis; 55, 56 y 58 comprobados en negativo) |

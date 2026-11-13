@@ -31,10 +31,11 @@ Un centro es la entidad raíz de la parte de equipamientos del módulo. Se defin
 - Tiene un lugar físico con una dirección postal.
 - Pertenece a una Unidad Organizativa del sistema.
 - Tiene un ámbito territorial de atención que puede coincidir o no con el de su UO.
-- Está orientado a un segmento de población definido (puede ser más de uno).
-- Ofrece prestaciones concretas del catálogo de prestaciones del sistema.
+- Es de un **tipo de centro** (`TipoCentro`, ver `docs/modulo-tipo-centro.md`), que fija al alta y no cambia: el tipo define la UO funcional, el público destinatario, el catálogo de prestaciones, tipos de plan y fichas, las reglas de asignación y el horario y el protocolo por defecto.
+- Está orientado al público de su tipo (segmentos de población del tipo).
+- Ofrece las prestaciones del catálogo de su tipo, menos las que excluya si el tipo lo permite (RN-08).
 - Tiene personal profesional asignado (propio o externo).
-- Tiene un horario y días de funcionamiento.
+- Tiene un horario y días de funcionamiento: el de su tipo o uno propio, más los cierres de calendario del tipo y los suyos.
 - Puede gestionar plazas, actividades, o ambas cosas. También puede ofrecer únicamente atención por cita.
 
 Los centros se clasifican por tipo de gestión:
@@ -48,9 +49,9 @@ El tipo de gestión determina el nivel de integración en VIDA 360: los centros 
 
 ### 2.2 Pertenencia a Unidad Organizativa
 
-Todo centro pertenece a una Unidad Organizativa. Esta relación es la pertenencia **administrativa**: refleja de quién depende el centro en el organigrama municipal.
+Todo centro municipal tiene **su propia UO instrumental**, 1:1 y sin UO hijas (RN-14 de `docs/modulo-tipo-centro.md`). Esa UO cuelga orgánicamente de la UO de la que depende el centro en el organigrama municipal. La dependencia funcional (quién dirige el servicio) la da la UO funcional del tipo de centro; el ámbito de un usuario es la unión de las dos jerarquías (RN-13).
 
-La pertenencia a una UO es distinta del ámbito territorial de atención (ver 2.3). Un CSS de Vallecas depende administrativamente de la Junta de Distrito de Puente de Vallecas, pero su ámbito real de atención puede no coincidir exactamente con los límites del distrito.
+La pertenencia a una UO es distinta del ámbito territorial de atención (ver 2.3). La UO del CSS de Vallecas cuelga orgánicamente de la Junta de Distrito de Puente de Vallecas, pero su ámbito real de atención puede no coincidir exactamente con los límites del distrito.
 
 La FK `unidad_organizativa_id` en `centros` es nullable para permitir el registro de centros externos o privados puros que no forman parte del organigrama municipal.
 
@@ -160,21 +161,24 @@ Estados de `SolicitudServicio`: `pendiente` · `en_tramite` · `resuelta` · `de
 | nombre | string | |
 | nombre_corto | string | Para listados y referencias en la interfaz |
 | tipo_gestion | enum | `municipal_directo` · `municipal_concertado` · `privado_concertado` · `privado_puro` |
-| unidad_organizativa_id | FK | Nullable. UO a la que pertenece administrativamente |
+| tipo_centro_id | FK | Obligatorio e inmutable. Tipo de centro (`docs/modulo-tipo-centro.md`) |
+| centro_antecesor_id | FK | Nullable. Centro al que sustituye (baja y alta, RN-01) |
+| unidad_organizativa_id | FK | Nullable solo para centros externos. UO instrumental del centro, 1:1 (RN-14) |
 | direccion | string | |
 | codigo_postal | string | |
 | coordenadas | point | Nullable. Para geolocalización en mapa |
 | telefono | string | |
 | email | string | |
 | web | string | Nullable |
-| horario | json | Solo para visualización. Gestión completa en módulo de Agenda |
-| inscripcion_libre | boolean | `true` = libre elección · `false` = adscripción por domicilio |
+| protocolo | text | Nullable. Protocolo propio; vacío, rige el del tipo |
 | activo | boolean | |
 | fecha_alta | date | |
 | fecha_baja | date | Nullable |
 | notas | text | Nullable |
 
-Relaciones N:M: `centro_segmento_poblacion` · `centro_prestacion` · `red_centro`.
+`horario` ya no es una columna: es un accesor con el horario efectivo de hoy (`ConfiguracionEfectivaCentro`). `inscripcion_libre`, los segmentos (`centro_segmento_poblacion`) y las prestaciones (`centro_prestacion`) pasaron al tipo (12 nov 2026). Nombre y nombre corto guardan la denominación vigente; el historial está en `denominaciones`.
+
+Relaciones N:M: `red_centro`. Exclusiones de catálogo: `centro_exclusiones_catalogo`. Cierres propios: `cierres_calendario` (polimórfica con el tipo).
 Relaciones 1:N: `ambitos_territoriales` · `colecciones_plazas` · `actividades` · `directores` · `contactos` · `inscripciones`.
 
 > El campo `distrito_id` presente en versiones anteriores queda eliminado. El distrito se expresa como `AmbitoTerritorial` de tipo `demarcacion_oficial`.

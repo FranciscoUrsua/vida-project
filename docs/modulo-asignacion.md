@@ -205,15 +205,15 @@ Cada caso se resuelve con asignación manual y motivo.
 
 ## 8. Configuración
 
-> Cuando se implemente `docs/modulo-tipo-centro.md`, la adscripción, el modo de referencia, la ventana de reparto y los meses de inactividad pasan del centro al tipo (ver su §7).
+> Desde el 12 nov 2026 (`docs/modulo-tipo-centro.md` §7), la adscripción, el modo de referencia, la ventana de reparto y los meses de inactividad son del **tipo de centro** y se leen con `ConfiguracionEfectivaCentro`. Desde el 13 nov, toda asignación de referencia tiene centro (RN-23): el caso es del centro, y la salida de un profesional del centro exige repartir antes sus casos (RN-21).
 
 | Dónde | Qué | Por defecto |
 |---|---|---|
-| Centro | Tipo de centro | — |
-| Centro | Adscripción por domicilio o libre elección (`inscripcion_libre`, ya existe) | Domicilio |
-| Centro | Modo de asignación de referencia: sorteo, libre elección, sin asignación automática | Sorteo |
-| Centro | Ventana de reparto (meses) | 12 |
-| Centro | Meses sin apuntes para considerar un caso dormido | 6 |
+| Centro | Tipo de centro (al alta, inmutable) | — |
+| Tipo de centro | Adscripción por domicilio o libre elección (`inscripcion_libre`) | Domicilio |
+| Tipo de centro | Modo de asignación de referencia: sorteo, libre elección, sin asignación automática | Sorteo |
+| Tipo de centro | Ventana de reparto (meses) | 12 |
+| Tipo de centro | Meses sin apuntes para considerar un caso dormido | 6 |
 | Centro | Ámbito territorial (lista de unidades) | — |
 | Cargo | Elegible para referencia | Trabajador/a social |
 | Horario del centro | Umbral de ausencia prolongada (días; compartido con citas) | 15 |

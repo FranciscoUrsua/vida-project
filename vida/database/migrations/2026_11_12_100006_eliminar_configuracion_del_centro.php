@@ -79,6 +79,8 @@ return new class extends Migration
         });
         Schema::table('prestacion_tipo_centro', function (Blueprint $table) {
             $table->string('tipo_centro', 100)->nullable()->index();
+            // El up() lo borra: sin él no se puede volver a migrar (TF-TCE-34, 13 nov 2026)
+            $table->unique(['prestacion_id', 'tipo_centro']);
         });
         Schema::table('asignaciones_centro', function (Blueprint $table) {
             $table->string('tipo_centro', 100)->nullable();

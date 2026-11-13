@@ -84,6 +84,8 @@ Reserva de citas (Cita) — canal interno o API externa
 
 Un centro puede tener varios registros de horario a lo largo del tiempo (p. ej., horario de verano vs. invierno), pero solo uno puede estar vigente en cada momento.
 
+**Tipo de centro (12 nov 2026, `docs/modulo-tipo-centro.md` §5):** con `hereda_horario_tipo` (por defecto en los horarios nuevos), los días y horas son los del horario vigente del tipo (`horarios_tipo_centro`) y los campos de horario quedan vacíos; sin herencia, el horario propio sustituye entero al del tipo (RN-06). Los cierres de calendario (`cierres_calendario`, del tipo y del centro, acumulables; el del centro prevalece) se aplican al generar cuadrantes y slots, que leen siempre el día efectivo de `ConfiguracionEfectivaCentro::dia()`. Un cierre no cancela citas: avisa de las afectadas.
+
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | int PK | |

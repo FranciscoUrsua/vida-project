@@ -86,8 +86,10 @@ prestacion_tipo_centro
 ──────────────────────────────────────────────────────────────────
 id              bigint PK
 prestacion_id   bigint FK → prestaciones.id
-tipo_centro     varchar(100)    — clave de catalogos_sistema (grupo: 'centro.tipo')
+tipo_centro_id  bigint FK → tipos_centro.id   — único con prestacion_id
 ```
+
+> Desde el 12 nov 2026 (`docs/modulo-tipo-centro.md` §6.1) la relación apunta a la entidad `TipoCentro`; la antigua clave `tipo_centro` (grupo `centro.tipo` de `catalogos_sistema`) se migró y se eliminó. Las prestaciones de un centro son las de su tipo, menos las que el centro excluya si el tipo lo permite (`ConfiguracionEfectivaCentro::prestaciones()`).
 
 El módulo Centros consume esta tabla para filtrar qué prestaciones puede ofrecer un centro dado, y el SIA la consume para orientar al ciudadano hacia el recurso adecuado.
 
@@ -132,7 +134,7 @@ Los campos clasificatorios de las prestaciones se gestionan como entradas de la 
 | `prestacion.forma_gestion` | Cómo se gestiona | directa, indirecta, mixta |
 | `prestacion.financiacion` | Fuente de financiación | local, autonomica, cofinanciada |
 | `prestacion.poblacion` | Colectivos destinatarios | poblacion_general, infancia, juventud, familia, exclusion, discapacidad, vg, lgtbi, mayores, dependencia |
-| `centro.tipo` | Tipos de centro/recurso | css_general, centro_dia, residencia, servicio_especifico, recurso_educativo, etc. |
+| `centro.tipo` | **Retirado (12 nov 2026):** sustituido por la entidad `TipoCentro`; las claves se conservan inactivas | — |
 
 Los valores iniciales de cada grupo se cargan mediante seeders al instalar el sistema. Cada entidad puede ampliarlos o ajustar etiquetas desde el backoffice de Filament sin necesidad de desarrollo.
 
@@ -147,7 +149,7 @@ Se crea un recurso Filament `PrestacionResource` con las siguientes pantallas:
 **Formulario de creación/edición:** organizado en secciones:
 - *Identificación*: código, nombre, tipo (enum select), nivel de garantía (enum select).
 - *Clasificación*: objetivo general, categoría específica, nivel de atención, competencia, forma de gestión, financiación, población destinataria (multiselect), modalidades (multiselect). Todos los selects se poblan desde `catalogos_sistema`.
-- *Tipos de centro*: repeater o multiselect de `prestacion_tipo_centro` con los tipos definidos en `catalogos_sistema`.
+- *Tipos de centro*: multiselect de `prestacion_tipo_centro` con los tipos de centro (`TipoCentro`).
 - *Descripción*: finalidad, descripción, requisitos, procedimiento (campos de texto con editor básico).
 - *Condiciones*: condiciones de acceso, obligaciones, compatibilidad con otras prestaciones, aportación del usuario.
 - *Gestión y normativa*: plazo de concesión, duración máxima, proveedor, normativa, estándares de calidad.
