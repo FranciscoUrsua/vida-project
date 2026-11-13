@@ -4,6 +4,8 @@ namespace Modules\Centro\Services\TipoCentro;
 
 use App\Models\User;
 use DomainException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Gate;
 use Modules\Centro\Enums\ElementoCatalogo;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\ExclusionCatalogo;
@@ -28,9 +30,12 @@ class ExclusionCatalogoService
      * @return ExclusionCatalogo
      *
      * @throws DomainException Si el tipo no permite restricción o el elemento no es del tipo.
+     * @throws AuthorizationException Si el actor no es el administrador ni el director del centro.
      */
     public function excluir(Centro $centro, ElementoCatalogo $tipo, int $elementoId, ?User $actor): ExclusionCatalogo
     {
+        $this->autorizar($actor, $centro);
+
         $tipoCentro = $centro->tipoCentro;
 
         if (! $tipoCentro->permite_restriccion_en_centro) {
@@ -64,11 +69,33 @@ class ExclusionCatalogoService
      * @param Centro $centro Centro.
      * @param ElementoCatalogo $tipo Clase de elemento.
      * @param int $elementoId Id del elemento.
+     * @param User|null $actor Usuario que la quita (sin actor, proceso del sistema).
      *
      * @return void
+     *
+     * @throws AuthorizationException Si el actor no es el administrador ni el director del centro.
      */
-    public function quitar(Centro $centro, ElementoCatalogo $tipo, int $elementoId): void
+    public function quitar(Centro $centro, ElementoCatalogo $tipo, int $elementoId, ?User $actor = null): void
     {
+        $this->autorizar($actor, $centro);
+
         ExclusionCatalogo::where('centro_id', $centro->id)->where('elemento_tipo', $tipo)->where('elemento_id', $elementoId)->delete();
+    }
+
+    /**
+     * Comprueba CentroPolicy::excluirCatalogo() si hay actor.
+     *
+     * @param User|null $actor
+     * @param Centro $centro
+     *
+     * @return void
+     *
+     * @throws AuthorizationException
+     */
+    private function autorizar(?User $actor, Centro $centro): void
+    {
+        if ($actor !== null) {
+            Gate::forUser($actor)->authorize('excluirCatalogo', $centro);
+        }
     }
 }

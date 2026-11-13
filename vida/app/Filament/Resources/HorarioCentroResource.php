@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\HorarioCentroResource\Pages;
+use App\Models\User;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
@@ -20,6 +21,9 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Modules\Agenda\Enums\ModoAgenda;
 use Modules\Agenda\Models\HorarioCentro;
 use Modules\Centro\Models\Centro;
@@ -62,7 +66,8 @@ class HorarioCentroResource extends Resource
                 ->schema([
                     Select::make('centro_id')
                         ->label('Centro')
-                        ->options(fn () => Centro::where('activo', true)->orderBy('nombre')->pluck('nombre', 'id'))
+                        // El director solo elige su centro (§9 de docs/modulo-tipo-centro.md)
+                        ->options(fn () => static::centrosGestionables()->pluck('nombre', 'id'))
                         ->searchable()
                         ->required(),
 
@@ -285,6 +290,98 @@ class HorarioCentroResource extends Resource
                 DeleteAction::make(),
             ])
             ->defaultSort('nombre');
+    }
+
+    /**
+     * Ver el listado: los roles de gestión y los directores de centro (§9).
+     *
+     * @return bool
+     */
+    public static function canViewAny(): bool
+    {
+        $usuario = auth()->user();
+
+        return $usuario !== null && (static::esGestion($usuario) || Centro::dirigidosPor($usuario)->exists());
+    }
+
+    /**
+     * Crear un horario: quien pueda ver el listado (el centro se limita en el formulario y al guardar).
+     *
+     * @return bool
+     */
+    public static function canCreate(): bool
+    {
+        return static::canViewAny();
+    }
+
+    /**
+     * Editar un horario: gestión, o el director de su centro (CentroPolicy::gestionarCalendario).
+     *
+     * @param Model $record
+     *
+     * @return bool
+     */
+    public static function canEdit(Model $record): bool
+    {
+        $usuario = auth()->user();
+
+        return $usuario !== null && (static::esGestion($usuario) || ($record->centro !== null && $usuario->can('gestionarCalendario', $record->centro)));
+    }
+
+    /**
+     * Borrar un horario: lo mismo que editarlo.
+     *
+     * @param Model $record
+     *
+     * @return bool
+     */
+    public static function canDelete(Model $record): bool
+    {
+        return static::canEdit($record);
+    }
+
+    /**
+     * Los directores solo ven los horarios de los centros que dirigen.
+     *
+     * @return Builder<HorarioCentro>
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $usuario = auth()->user();
+
+        if ($usuario === null || static::esGestion($usuario)) {
+            return $query;
+        }
+
+        return $query->whereIn('centro_id', Centro::dirigidosPor($usuario)->select('id'));
+    }
+
+    /**
+     * Centros activos cuyo horario puede gestionar el usuario autenticado.
+     *
+     * @return Collection<int, Centro>
+     */
+    public static function centrosGestionables(): Collection
+    {
+        $usuario = auth()->user();
+        $query = Centro::where('activo', true)->orderBy('nombre');
+
+        return $usuario !== null && static::esGestion($usuario)
+            ? $query->get()
+            : $query->dirigidosPor($usuario)->get();
+    }
+
+    /**
+     * Roles de gestión con acceso a todos los horarios (los de AutorizaGestion).
+     *
+     * @param User $usuario
+     *
+     * @return bool
+     */
+    private static function esGestion(User $usuario): bool
+    {
+        return $usuario->hasAnyRole(['adm_sistema', 'adm_usuarios']);
     }
 
     /**

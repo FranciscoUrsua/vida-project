@@ -3,7 +3,9 @@
 namespace Modules\Centro\Services\TipoCentro;
 
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Gate;
 use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Models\Cita;
 use Modules\Centro\Models\Centro;
@@ -26,9 +28,16 @@ class CierreCalendarioService
      * @param User|null $actor Usuario que lo registra.
      *
      * @return array{cierre: CierreCalendario, avisos: list<string>} Avisos del tipo «3 citas afectadas en CSS Norte».
+     *
+     * @throws AuthorizationException Si el actor no gestiona el calendario del titular (§9).
      */
     public function crear(TipoCentro|Centro $titular, array $datos, ?User $actor): array
     {
+        // Cierres comunes del tipo: administrador; propios del centro: también su director (§9)
+        if ($actor !== null) {
+            Gate::forUser($actor)->authorize('gestionarCalendario', $titular);
+        }
+
         $cierre = CierreCalendario::create(array_merge($datos, [
             'titular_type' => $titular->getMorphClass(),
             'titular_id' => $titular->getKey(),

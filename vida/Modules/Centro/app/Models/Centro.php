@@ -4,6 +4,7 @@ namespace Modules\Centro\Models;
 
 use App\Contracts\DireccionableModel;
 use App\Models\UnidadOrganizativa;
+use App\Models\User;
 use App\Traits\TieneDireccion;
 use App\Traits\Versionable;
 use DomainException;
@@ -312,6 +313,38 @@ class Centro extends Model implements DireccionableModel
     public function directorActivo(): ?DirectorCentro
     {
         return $this->directores()->activo()->first();
+    }
+
+    /**
+     * Centros cuyo director vigente es el usuario.
+     *
+     * @param Builder<self> $query
+     * @param User $usuario
+     *
+     * @return Builder<self>
+     */
+    public function scopeDirigidosPor(Builder $query, User $usuario): Builder
+    {
+        if ($usuario->profesional_id === null) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->whereHas('directores', fn (Builder $d) => $d->whereNull('fecha_fin')->where('profesional_id', $usuario->profesional_id));
+    }
+
+    /**
+     * Si el usuario es el director vigente del centro (su profesional es el del
+     * DirectorCentro activo). Un director externo sin cuenta no dirige a nadie.
+     *
+     * @param User $usuario
+     *
+     * @return bool
+     */
+    public function esDirigidoPor(User $usuario): bool
+    {
+        $profesionalId = $this->directorActivo()?->profesional_id;
+
+        return $profesionalId !== null && $profesionalId === $usuario->profesional_id;
     }
 
     /**

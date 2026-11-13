@@ -298,7 +298,18 @@ class CentroResource extends Resource
     }
 
     /**
-     * Editar exige el permiso centro.gestionar.
+     * Dar de alta centros: solo el administrador (CentroPolicy::create).
+     *
+     * @return bool
+     */
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('create', Centro::class) ?? false;
+    }
+
+    /**
+     * Editar: el administrador o el director del centro (CentroPolicy::update);
+     * CentroService limita lo que cambia el director.
      *
      * @param Model $record
      *
@@ -306,11 +317,11 @@ class CentroResource extends Resource
      */
     public static function canEdit(Model $record): bool
     {
-        return auth()->user()?->can('centro.gestionar') ?? false;
+        return auth()->user()?->can('update', $record) ?? false;
     }
 
     /**
-     * Borrar exige el mismo permiso que editar.
+     * Los centros no se borran: se dan de baja (CentroPolicy::delete).
      *
      * @param Model $record
      *
@@ -318,7 +329,7 @@ class CentroResource extends Resource
      */
     public static function canDelete(Model $record): bool
     {
-        return static::canEdit($record);
+        return false;
     }
 
     /**

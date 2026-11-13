@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-11-13 — Tipo de Centro: permisos de tipos y centros (fase 2, paso 8)
+
+### Cambios
+- `Modules\Centro\Policies\TipoCentroPolicy` y `CentroPolicy`, registradas en `CentroServiceProvider`. Tipos: lectura para el backoffice; crear, modificar, renombrar, horario, cierres comunes y baja, solo administrador; borrar, nunca. Centros: alta, renombrado y baja, solo administrador; editar, cierres, horario y exclusiones, el administrador o el director vigente del centro; ver, administrador, director o quien lo supervisa (D1.8); borrar, nunca.
+- `Centro::esDirigidoPor()` y `scopeDirigidosPor()` (director vigente de `DirectorCentro` cuyo profesional es el del usuario). `User::accedeAlBackoffice()`, que ahora usa también `canAccessPanel()`.
+- Servicios con la policy cuando hay actor: `CentroService` (`darDeAlta`, `actualizar`, `darDeBaja` y el nuevo `renombrar`), `TipoCentroService` (`crear`, `programarHorario`, `darDeBaja` y los nuevos `actualizar` y `renombrar`), `CierreCalendarioService::crear()` y `ExclusionCatalogoService` (`excluir` y `quitar`, que recibe un actor opcional). `CentroService::actualizar()` limita al director a `CAMPOS_DEL_DIRECTOR` (teléfono, email, web, notas y protocolo) y rechaza el resto sin cambiar nada.
+- Filament: `CentroResource` crea y edita según la policy (antes, el permiso directo) y no borra; `EditCentro` guarda por `CentroService::actualizar()` solo los campos que cambian. `HorarioCentroResource` se abre al director, limitado a sus centros (listado, selector de centro y comprobación al guardar en `CreateHorarioCentro` y `EditHorarioCentro`).
+- Tests: `Modules/Centro/tests/Feature/TipoCentro/PermisosTest.php`, TF-TCE-31, 32 y 33. **En negativo** (sin la autorización de los servicios ni el registro de las policies) fallan los tres.
+- Suites: Centro, Prestaciones, Supervisión, Usuarios, Auth, acceso al panel y los tests de Filament de horarios, tipos de cita y retención: 354 passed, 2 incomplete y 1 skipped (previos).
+
+### Decisiones
+- **Administrador = permiso `centro.gestionar`** (solo lo tiene `adm_sistema`), el que ya usaba `CentroResource`, en lugar de comprobar el nombre del rol.
+- **Sin actor, sin comprobación:** los servicios aceptan `actor = null` para migraciones, seeders y comandos; las pantallas pasan siempre el usuario.
+- **Campos del director:** contacto (teléfono, email, web), descripción (`notas`) y protocolo. La dirección queda fuera: la usan la geocodificación y la asignación por domicilio.
+- El horario de otro centro devuelve 404 al director (el listado ya lo excluye), no 403.
+- La parte de Filament de TF-TCE-31 espera a `TipoCentroResource` (paso 9), igual que deshabilitar en el formulario de centro lo que el director no puede editar.
+
 ## 2026-11-13 — Tipo de Centro: centro de trabajo en la barra superior y centro supervisado (fase 2, paso 8 ter cerrado)
 
 ### Cambios

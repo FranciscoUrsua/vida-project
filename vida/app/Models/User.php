@@ -158,8 +158,21 @@ class User extends Authenticatable implements FilamentUser
      * Solo roles de gestión y supervisión pueden acceder al panel de administración.
      *
      * @param Panel $panel Panel de Filament a evaluar.
+     *
+     * @return bool
      */
     public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->accedeAlBackoffice();
+    }
+
+    /**
+     * Si el usuario entra al backoffice (roles de gestión y supervisión). Lo usan
+     * el panel y las policies de lectura del backoffice.
+     *
+     * @return bool
+     */
+    public function accedeAlBackoffice(): bool
     {
         return $this->hasAnyRole(['adm_sistema', 'supervision', 'adm_usuarios']);
     }
