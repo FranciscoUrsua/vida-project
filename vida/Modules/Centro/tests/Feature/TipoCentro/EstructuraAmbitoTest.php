@@ -11,6 +11,7 @@ use DomainException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
+use Livewire\Livewire;
 use Modules\Agenda\Database\Factories\SlotFactory;
 use Modules\Agenda\Enums\PedidoPor;
 use Modules\Agenda\Models\Cita;
@@ -22,6 +23,8 @@ use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Centro\Services\TipoCentro\CentroService;
 use Modules\Centro\Tests\Concerns\TipoCentroTestSetup;
+use Modules\Ciudadania\Http\Livewire\AltaCiudadano;
+use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
 use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\VisibilidadApunte;
 use Modules\Intervencion\Models\Apunte;
@@ -140,6 +143,46 @@ class EstructuraAmbitoTest extends TestCase
 
         // Consulta dentro de su ámbito (funcional: el CIAM depende de Igualdad, hija del Área)
         $this->assertTrue(Gate::forUser($this->tecnicaArea)->allows('view', $this->persona));
+    }
+
+    /**
+     * TF-TCE-39 (pantallas) — Las mismas operaciones desde las acciones Livewire se
+     * rechazan con el mensaje de RN-15, sin crear nada y sin error 500.
+     */
+    #[Test]
+    public function tf_tce_39_sin_centro_no_se_atiende_desde_las_pantallas(): void
+    {
+        $mensaje = 'Para atender a ciudadanos tienes que estar adscrito a un centro.';
+        $ciudadano = Ciudadano::factory()->create(['colectivo_extra_protegido' => false]);
+        $this->actingAs($this->tecnicaArea);
+
+        // Abrir la historia y registrar una atención desde la ficha
+        Livewire::test(FichaCiudadanoPage::class, ['ciudadano' => $ciudadano->id])
+            ->call('abrirHistoriaSocial')
+            ->assertHasErrors(['abrirHistoria'])
+            ->assertSee($mensaje)
+            ->assertNoRedirect()
+            ->call('abrirModalAtencion')
+            ->set('atencionDemanda', 'Pide información sobre ayudas')
+            ->call('guardarAtencion')
+            ->assertHasErrors(['atencion'])
+            ->assertSet('modalAtencionAbierto', true);
+
+        // Abrir la historia al terminar un alta
+        Livewire::test(AltaCiudadano::class)
+            ->set('fase', 'confirmacion')
+            ->set('ciudadanoIdCreado', $ciudadano->id)
+            ->set('abrirHistoria', true)
+            ->call('confirmarAlta')
+            ->assertHasErrors(['abrirHistoria'])
+            ->assertNoRedirect();
+
+        $this->assertFalse(HistoriaSocial::withoutGlobalScopes()->where('ciudadano_id', $ciudadano->id)->exists());
+        $this->assertFalse(RegistroAtencion::where('ciudadano_id', $ciudadano->id)->exists());
+
+        // Dar cita: las pantallas de citación no se abren sin centro
+        $this->get(route('agenda.citas.nueva'))->assertForbidden()->assertSee($mensaje);
+        $this->get(route('agenda.citas.bandeja'))->assertForbidden()->assertSee($mensaje);
     }
 
     /**

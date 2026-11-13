@@ -1010,7 +1010,9 @@ class FichaCiudadanoPage extends Component
     /**
      * Crea la Historia Social del ciudadano, asigna al profesional autenticado
      * como responsable y redirige a la pantalla de intervención.
-     * Solo ejecutable si el ciudadano no tiene historia social previa.
+     * Solo ejecutable si el ciudadano no tiene historia social previa. Si el
+     * usuario no está adscrito a un centro (RN-15), deja el motivo en el error
+     * `abrirHistoria`.
      *
      * @return void
      */
@@ -1024,7 +1026,14 @@ class FichaCiudadanoPage extends Component
 
         /** @var User $profesional */
         $profesional = auth()->user();
-        $historia = app(AperturaHistoriaService::class)->abrir($this->ciudadanoId, $profesional);
+        try {
+            $historia = app(AperturaHistoriaService::class)->abrir($this->ciudadanoId, $profesional);
+        } catch (\DomainException $e) {
+            // RN-15: sin adscripción al centro no se abre; se explica en la ficha
+            $this->addError('abrirHistoria', $e->getMessage());
+
+            return;
+        }
 
         $this->redirect(route('intervencion.ciudadano.show', $historia->id), navigate: true);
     }
@@ -1057,7 +1066,8 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Valida y persiste el nuevo registro de atención.
-     * Invalida el computed del historial para que se recargue.
+     * Invalida el computed del historial para que se recargue. Si el usuario no
+     * está adscrito al centro (RN-15), deja el motivo en el error `atencion`.
      *
      * @return void
      */
@@ -1076,18 +1086,25 @@ class FichaCiudadanoPage extends Component
             'atencionDemanda.min' => 'Describe la demanda con al menos 5 caracteres.',
         ]);
 
-        $registro = RegistroAtencion::create([
-            'ciudadano_id' => $this->ciudadanoId,
-            // Completa la cita si sigue siendo vinculable (docs/modulo-citas.md §3.5.2)
-            'cita_id' => $this->vincularCita ? $this->citaVinculable?->id : null,
-            'tipo' => $this->atencionTipo,
-            'fecha' => $this->atencionFecha,
-            'profesional_id' => auth()->id(),
-            'prestacion_id' => $this->atencionPrestacionId,
-            'demanda' => $this->atencionDemanda,
-            'respuesta' => $this->atencionRespuesta,
-            'origen' => 'manual',
-        ]);
+        try {
+            $registro = RegistroAtencion::create([
+                'ciudadano_id' => $this->ciudadanoId,
+                // Completa la cita si sigue siendo vinculable (docs/modulo-citas.md §3.5.2)
+                'cita_id' => $this->vincularCita ? $this->citaVinculable?->id : null,
+                'tipo' => $this->atencionTipo,
+                'fecha' => $this->atencionFecha,
+                'profesional_id' => auth()->id(),
+                'prestacion_id' => $this->atencionPrestacionId,
+                'demanda' => $this->atencionDemanda,
+                'respuesta' => $this->atencionRespuesta,
+                'origen' => 'manual',
+            ]);
+        } catch (\DomainException $e) {
+            // RN-15: sin adscripción al centro no se registra; el modal sigue abierto con el motivo
+            $this->addError('atencion', $e->getMessage());
+
+            return;
+        }
 
         $this->atencionMensaje = 'Atención registrada correctamente.';
         $this->ultimaAtencionId = $registro->id;

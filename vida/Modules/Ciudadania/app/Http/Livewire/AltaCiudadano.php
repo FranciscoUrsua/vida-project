@@ -393,7 +393,8 @@ class AltaCiudadano extends Component
      * de modo que el caso aparece en su «Mis casos». Es opcional (el alta nunca
      * abre historia de forma automática: docs/modulo-ciudadania.md) y solo para
      * el rol intervención; el servidor lo comprueba aunque el navegador mande
-     * `abrirHistoria = true`.
+     * `abrirHistoria = true`. Si no está adscrito a un centro (RN-15), no abre
+     * ni redirige: deja el motivo en el error `abrirHistoria`.
      *
      * @return void
      */
@@ -416,7 +417,15 @@ class AltaCiudadano extends Component
                 ? User::find($this->referenciaElegidaId)
                 : null;
 
-            $historia = app(AperturaHistoriaService::class)->abrir($this->ciudadanoIdCreado, $profesional, $elegido);
+            try {
+                $historia = app(AperturaHistoriaService::class)->abrir($this->ciudadanoIdCreado, $profesional, $elegido);
+            } catch (\DomainException $e) {
+                // RN-15: el alta ya está hecha; sin centro no se abre la historia. Se explica
+                // y se deja desmarcar la apertura para terminar.
+                $this->addError('abrirHistoria', $e->getMessage());
+
+                return;
+            }
             session()->flash('referencia-asignada', $this->textoReferencia($historia));
         }
 

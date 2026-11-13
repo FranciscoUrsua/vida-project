@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-11-13 — Tipo de Centro: RN-15 en las pantallas y medición del ámbito (fase 2, paso 8 ter y 8 bis.4)
+
+### Cambios
+- `FichaCiudadanoPage::abrirHistoriaSocial()` y `guardarAtencion()`, y `AltaCiudadano::confirmarAlta()`: recogen el rechazo de RN-15 (`DomainException`) y lo muestran (`alert-danger` junto a los botones de la ficha, en el pie del modal de atención y bajo el interruptor de apertura del alta); antes acababan en un error 500. En el alta, la persona ya está dada de alta: no se redirige y se indica que se desmarque la apertura para terminar.
+- `CitaDirectaPage` y `BandejaCitacionPage`: el 403 sin centro lleva el mensaje de RN-15 en lugar de «Tu unidad no tiene centro asociado». `citar()` ya recogía la `DomainException` del servicio (hereda de `LogicException`).
+- Test: `EstructuraAmbitoTest::tf_tce_39_sin_centro_no_se_atiende_desde_las_pantallas` (ficha, alta y pantallas de citación con `$tecnicaArea`; no se crea historia ni atención). **En negativo** (sin los cambios de las pantallas) falla con la `DomainException`.
+- `npm run build` + `ui:auditar` sin infracciones. `Modules/Ciudadania/tests`, `Modules/Agenda/tests/Feature/Citas` y `EstructuraAmbitoTest`: 183 passed.
+
+### Medición del ámbito (8 bis.4)
+En `vida_testing`, escenario de `TipoCentroTestSetup` con 60 historias; mediana de 5 rondas; «antes» es el cálculo previo de `uoSubtreeIds()` (adscripciones + `descendantsAndSelf()` por UO, sin cache).
+- `MisCasosPage` (psicóloga con 60 casos): 69 ms y 4 consultas antes y después. **Esa pantalla no calcula el ámbito:** lista los casos propios sin `AmbitoUoScope`, así que no sirve para medirlo.
+- `uoSubtreeIds()` + `HistoriaSocial::count()` con el scope: jefa de junta, 97 → 45 ms y 9 → 4 consultas; coordinación de igualdad, 109 → 44 ms y 9 → 4 consultas (ahora ve 60 historias por la funcional; antes, 0).
+
 ## 2026-11-13 — CI: Pint ya no borra los `@param`/`@return`
 
 - El workflow «Calidad de código» hizo su auto-commit de Pint tras el push de `c563617` (`db260c7`, 382 ficheros) y, por la regla `no_superfluous_phpdoc_tags` del preset `laravel`, quitó los `@param`/`@return` que exige `CLAUDE.md` §2.

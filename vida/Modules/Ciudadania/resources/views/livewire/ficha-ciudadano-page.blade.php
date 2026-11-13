@@ -60,6 +60,10 @@
         </button>
         @endif
 
+        @error('abrirHistoria')
+        <div class="alert alert-danger py-1 px-2 small mb-0" role="alert">{{ $message }}</div>
+        @enderror
+
         @if($this->puedeAbrirHistoria)
         <button
             wire:click="abrirHistoriaSocial"
@@ -829,6 +833,9 @@
             </div>
 
             <div class="modal-footer">
+                @error('atencion')
+                <div class="alert alert-danger py-2 small w-100 mb-2" role="alert">{{ $message }}</div>
+                @enderror
                 <button wire:click="cerrarModalAtencion" class="btn btn-outline-secondary btn-sm" type="button">Cancelar</button>
                 <button wire:click="guardarAtencion" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1" type="button">
                     <x-heroicon-o-check class="icon-14" aria-hidden="true"/>

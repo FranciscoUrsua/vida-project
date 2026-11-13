@@ -82,7 +82,8 @@ class BandejaCitacionPage extends Component
      */
     public function mount(): void
     {
-        abort_if($this->centroOrNull() === null, 403, 'Tu unidad no tiene centro asociado.');
+        // RN-15: sin centro no se cita (mismo mensaje que el servicio)
+        abort_if($this->centroOrNull() === null, 403, 'Para atender a ciudadanos tienes que estar adscrito a un centro.');
         Gate::authorize('verBandeja', [SolicitudCita::class, $this->centro]);
         $this->dia = today()->toDateString();
     }

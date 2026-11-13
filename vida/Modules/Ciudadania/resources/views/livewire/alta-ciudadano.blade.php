@@ -365,6 +365,10 @@
                         <p class="small text-body-secondary mb-0 mt-1">El centro asigna el profesional de referencia; al confirmar verás quién es. Desmárcalo si la persona solo necesita información o una gestión puntual.</p>
                     @endif
 
+                    @error('abrirHistoria')
+                        <div class="alert alert-danger py-2 small mt-2 mb-0" role="alert">{{ $message }} Desmarca la apertura para terminar el alta.</div>
+                    @enderror
+
                     @if($abrirHistoria && $this->profesionalesElegibles !== [])
                         <div class="mt-3">
                             <label for="alta-referencia-elegida" class="form-label small fw-semibold mb-1">Profesional que elige la persona (opcional)</label>

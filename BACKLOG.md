@@ -38,7 +38,7 @@ Módulos: Usuarios, Ciudadanía, Agenda, Documentos
 ---
 
 **Tipo de Centro: en ejecución** — 2026-11-10 (actualizado 2026-11-13)
-*2026-11-13: hechos los pasos 1 a 7, 8 bis y 8 ter salvo: barra superior «Tipo · Centro» con selector (TF-TCE-43), selector de centro en las pantallas de supervisión (TF-TCE-44), TF-TCE-39 por las acciones Livewire y la medición de rendimiento del ámbito (8 bis.4). Quedan también el paso 8 (permisos), 8 quater (protegidos), 8 quinquies (bajas), 9 (interfaz) y 10 (cierre).*
+*2026-11-13: hechos los pasos 1 a 7, 8 bis y 8 ter salvo: barra superior «Tipo · Centro» con selector (TF-TCE-43), selector de centro en las pantallas de supervisión (TF-TCE-44). Quedan también el paso 8 (permisos), 8 quater (protegidos), 8 quinquies (bajas), 9 (interfaz) y 10 (cierre).*
 Módulos: Centro, Organización, Prestaciones, Agenda, Intervención, Usuarios
 Diseño (`docs/modulo-tipo-centro.md`), instrucciones (`docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`) y tests TF-TCE-01 a 34 (`docs/instrucciones-cli/2026-10-tipo-centro-tests.md`) en el repo. Se sigue la rama A (la asignación ya está implementada). Depende de la decisión sobre varias UO con varios centros (ver «Perfil horario por defecto: pendientes») y de que los centros de un mismo tipo tengan la misma configuración de asignación (ver el aviso en «Asignación de centro y referencia: pendientes»).
 
