@@ -149,15 +149,17 @@ class AsignacionCentroService
      * @param Centro $centro
      * @param string $motivo Obligatorio.
      * @param User $supervisor
+     * @param Centro|null $desde Centro desde cuya bandeja se decide (traslado); por defecto, el asignado.
      *
      * @return AsignacionCentro
      *
-     * @throws AuthorizationException Si el usuario no tiene rol de supervisión.
+     * @throws AuthorizationException Si el usuario no supervisa el centro.
      * @throws InvalidArgumentException Si falta el motivo.
      */
-    public function asignarManual(Ciudadano $ciudadano, Centro $centro, string $motivo, User $supervisor): AsignacionCentro
+    public function asignarManual(Ciudadano $ciudadano, Centro $centro, string $motivo, User $supervisor, ?Centro $desde = null): AsignacionCentro
     {
-        $this->exigirSupervision($supervisor);
+        // Supervisa el centro asignado o, en un traslado, el centro de la bandeja (fase 3, E4)
+        $this->exigirSupervisionDe($supervisor, $desde ?? $centro);
         $motivo = $this->exigirMotivo($motivo);
 
         return DB::transaction(function () use ($ciudadano, $centro, $motivo, $supervisor) {
@@ -265,7 +267,7 @@ class AsignacionCentroService
             throw new LogicException('Solo se puede confirmar una propuesta de cambio de domicilio abierta.');
         }
 
-        return $this->asignarManual($propuesta->ciudadano, $propuesta->centroPropuesto, $motivo, $supervisor);
+        return $this->asignarManual($propuesta->ciudadano, $propuesta->centroPropuesto, $motivo, $supervisor, $propuesta->centro ?? $propuesta->centroPropuesto);
     }
 
     /**
@@ -277,12 +279,20 @@ class AsignacionCentroService
      *
      * @return void
      *
-     * @throws AuthorizationException Si el usuario no tiene rol de supervisión.
+     * @throws AuthorizationException Si el usuario no supervisa un centro de la bandeja de la entrada.
      * @throws InvalidArgumentException Si falta el motivo.
      */
     public function descartar(AsignacionPendiente $pendiente, string $motivo, User $supervisor): void
     {
         $this->exigirSupervision($supervisor);
+
+        // Solo quien supervisa un centro en cuya bandeja está la entrada (fase 3, E4)
+        $enSuBandeja = app(CentroDeUsuario::class)->centrosSupervisables($supervisor)
+            ->contains(fn (Centro $centro) => AsignacionPendiente::whereKey($pendiente->id)->visiblesPara($centro)->exists());
+
+        if (! $enSuBandeja) {
+            throw new AuthorizationException('Solo la supervisión de un centro de la bandeja puede descartar esta entrada.');
+        }
 
         $pendiente->update([
             'estado' => EstadoAsignacionPendiente::Descartada,
@@ -386,6 +396,23 @@ class AsignacionCentroService
     {
         if (! $usuario->hasRole('supervision')) {
             throw new AuthorizationException('Solo supervisión puede asignar o descartar manualmente.');
+        }
+    }
+
+    /**
+     * Exige que el usuario supervise el centro (rol `supervision` y el centro en su ámbito).
+     *
+     * @param User $usuario
+     * @param Centro $centro
+     *
+     * @return void
+     *
+     * @throws AuthorizationException
+     */
+    private function exigirSupervisionDe(User $usuario, Centro $centro): void
+    {
+        if (! app(CentroDeUsuario::class)->supervisa($usuario, $centro)) {
+            throw new AuthorizationException("Solo la supervisión de {$centro->nombre} puede asignar manualmente a ese centro.");
         }
     }
 

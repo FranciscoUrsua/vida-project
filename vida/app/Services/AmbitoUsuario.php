@@ -27,6 +27,14 @@ use Modules\Centro\Models\Centro;
  * la ve como «Persona con protección especial» y necesita un acceso aprobado
  * (RN-18). Restricción de dominio crítica (CLAUDE.md §3): las policies, el
  * AmbitoUoScope y el scope de apuntes la toman de aquí.
+ *
+ * Equipo del plan (fase 3, F3-3 y F3-4): el personal de los centros de los planes
+ * en curso de una persona (no cerrados) lee su Historia Social completa, aunque la
+ * historia sea de otro centro (p. ej. el CIAM con el PIA de una persona del CSS).
+ * Cuenta quien está adscrito directamente a ese centro y quien tiene rol
+ * `intervencion` y el centro en su ámbito: las mismas UO que `uoIdsProtegidos()`, por
+ * lo que la regla vale igual para personas protegidas (RN-17 ampliada). Esta vía da
+ * lectura, nunca gestión de la ficha ni de la historia (`gestionaHistoria()` no cambia).
  */
 class AmbitoUsuario
 {
@@ -35,6 +43,9 @@ class AmbitoUsuario
 
     /** @var array<int, list<int>> UO con nivel 1 sobre personas protegidas, por id de usuario */
     private array $cacheProtegidos = [];
+
+    /** @var array<int, list<int>> UO de los centros de los planes en curso, por id de historia */
+    private array $cachePlanes = [];
 
     /**
      * UO del ámbito del usuario (orgánica + funcional).
@@ -82,6 +93,7 @@ class AmbitoUsuario
     {
         $this->cache = [];
         $this->cacheProtegidos = [];
+        $this->cachePlanes = [];
     }
 
     /**
@@ -131,9 +143,70 @@ class AmbitoUsuario
     {
         $historia = $objetivo instanceof HistoriaSocial ? $objetivo : $this->historiaAbiertaDe($objetivo->id);
 
-        return $historia !== null
-            && $historia->unidad_organizativa_id !== null
-            && in_array($historia->unidad_organizativa_id, $this->uoIdsProtegidos($usuario), true);
+        if ($historia === null) {
+            return false;
+        }
+
+        $protegidos = $this->uoIdsProtegidos($usuario);
+
+        // La UO de la historia o la del centro de un plan en curso (F3-4).
+        return ($historia->unidad_organizativa_id !== null && in_array($historia->unidad_organizativa_id, $protegidos, true))
+            || array_intersect($this->uoIdsPlanesEnCurso($historia), $protegidos) !== [];
+    }
+
+    /**
+     * Si el usuario lee la historia por ser del equipo de un plan en curso de la persona (F3-3).
+     *
+     * Solo lectura: no da gestión de la ficha ni de la historia.
+     *
+     * @param User $usuario
+     * @param HistoriaSocial $historia
+     *
+     * @return bool
+     */
+    public function leePorPlan(User $usuario, HistoriaSocial $historia): bool
+    {
+        return array_intersect($this->uoIdsPlanesEnCurso($historia), $this->uoIdsProtegidos($usuario)) !== [];
+    }
+
+    /**
+     * Centros de la persona: el de su historia y los de sus planes en curso (F3-3, A3.1).
+     *
+     * @param Ciudadano|HistoriaSocial $objetivo
+     *
+     * @return Collection<int, Centro>
+     */
+    public function centrosDeLaPersona(Ciudadano|HistoriaSocial $objetivo): Collection
+    {
+        $historia = $objetivo instanceof HistoriaSocial ? $objetivo : $this->historiaAbiertaDe($objetivo->id);
+
+        if ($historia === null) {
+            return new Collection;
+        }
+
+        $uoIds = array_values(array_unique(array_filter([$historia->unidad_organizativa_id, ...$this->uoIdsPlanesEnCurso($historia)])));
+
+        return Centro::whereIn('unidad_organizativa_id', $uoIds)->orderBy('nombre')->get();
+    }
+
+    /**
+     * UO de los centros de los planes no cerrados de la historia.
+     *
+     * @param HistoriaSocial $historia
+     *
+     * @return list<int>
+     */
+    public function uoIdsPlanesEnCurso(HistoriaSocial $historia): array
+    {
+        return $this->cachePlanes[$historia->id] ??= array_values(array_map('intval', DB::table('planes_intervencion as p')
+            ->join('centros as c', 'c.id', '=', 'p.centro_id')
+            ->where('p.historia_id', $historia->id)
+            ->where('p.estado', '<>', 'cerrado')
+            ->whereNull('p.deleted_at')
+            ->whereNotNull('c.unidad_organizativa_id')
+            ->distinct()
+            ->pluck('c.unidad_organizativa_id')
+            ->all()));
     }
 
     /**
@@ -153,7 +226,9 @@ class AmbitoUsuario
     /**
      * Limita una subconsulta sobre `historias_sociales` a las que el usuario
      * gestiona (nivel 1): las de su ámbito no protegidas, más las de las UO
-     * donde gestiona protegidas (RN-17). La usan AmbitoUoScope y el scope de apuntes.
+     * donde gestiona protegidas (RN-17), más las de las personas con un plan en
+     * curso en un centro de su equipo (F3-3; lectura, las escrituras las decide la
+     * policy). La usan AmbitoUoScope y el scope de apuntes.
      *
      * @param QueryBuilder $historias Subconsulta sobre la tabla historias_sociales.
      * @param User $usuario
@@ -167,6 +242,14 @@ class AmbitoUsuario
 
         return $historias->where(function (QueryBuilder $q) use ($uoIds, $protegidas): void {
             $q->whereIn('historias_sociales.unidad_organizativa_id', $protegidas)
+                // Equipo de un plan en curso de la persona (F3-3, F3-4): lectura.
+                ->orWhereIn('historias_sociales.id', function (QueryBuilder $planes) use ($protegidas): void {
+                    $planes->select('p.historia_id')->from('planes_intervencion as p')
+                        ->join('centros as c', 'c.id', '=', 'p.centro_id')
+                        ->where('p.estado', '<>', 'cerrado')
+                        ->whereNull('p.deleted_at')
+                        ->whereIn('c.unidad_organizativa_id', $protegidas);
+                })
                 ->orWhere(function (QueryBuilder $libres) use ($uoIds): void {
                     $libres->whereIn('historias_sociales.unidad_organizativa_id', $uoIds)
                         ->where('historias_sociales.ciudadano_protegido', false)

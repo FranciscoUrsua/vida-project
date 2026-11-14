@@ -123,7 +123,7 @@ trait TipoCentroTestSetup
 
         $this->admin = $this->usuario('admin', 'adm_sistema', $this->uoArea);
 
-        $this->planPiso = TipoPlan::firstOrCreate(['slug' => 'piso'], ['nombre' => 'PISO', 'ambito' => 'asp', 'activo' => true]);
+        $this->planPiso = TipoPlan::updateOrCreate(['slug' => 'piso'], ['nombre' => 'PISO', 'ambito' => 'asp', 'es_principal' => true, 'activo' => true]);
         $this->planPia = TipoPlan::firstOrCreate(['slug' => 'pia'], ['nombre' => 'PIA', 'ambito' => 'especializado', 'activo' => true]);
         $general = SegmentoPoblacion::firstOrCreate(['slug' => 'poblacion_general'], ['nombre' => 'Población general', 'activo' => true]);
         $vg = SegmentoPoblacion::firstOrCreate(['slug' => 'vg'], ['nombre' => 'Mujeres víctimas de violencia de género', 'activo' => true]);

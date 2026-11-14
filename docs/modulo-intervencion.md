@@ -433,12 +433,19 @@ El Plan de Intervención es el acuerdo formal entre el profesional y el ciudadan
 
 Una Historia Social puede tener varios planes activos simultáneamente, cada uno con su responsable y su ciclo de vida independiente.
 
+**Varios tipos de plan y plan principal** — *añadido 2026-11-14, fase 3 (F3-1)*: en un mismo ámbito y centro puede haber varios tipos de plan (en ASP, el PISO, un plan psicológico, un plan socioeducativo…), cada uno con su responsable; quien abre el plan elige el tipo entre los que ofrece el centro. Uno de los tipos de ASP es el **plan principal** (`tipos_plan.es_principal`, el PISO): como máximo uno activo por historia, lo gestiona el TSR y es el origen de las derivaciones. Una historia tiene como máximo un plan vigente (borrador o activo) de cada tipo: lo comprueba `PlanDeIntervencionService` y lo garantiza el índice único parcial `planes_intervencion_un_vigente_por_tipo`. `tipo` (`general_asp`/`especializado`) se deriva del ámbito del tipo de plan en el modelo y un valor incoherente lanza `DomainException`; **nada decide «es el PISO» por `tipo`**, sino por el tipo principal (`PlanDeIntervencion::esPrincipal()`, scope `principal()`). Un plan nuevo de una persona exige tipo de plan.
+
+**Centro del plan y apertura** — *añadido 2026-11-14, fase 3 (F3-2, A2)*: todo plan tiene `centro_id`, el centro donde se abre, que debe ofrecer su tipo de plan. `PlanDeIntervencionService::crear()` aplica las reglas: el plan principal solo en el centro de la historia y lo abre el profesional de referencia vigente o la supervisión de ese centro (sin referencia vigente, cualquier profesional adscrito); los demás planes de ASP y los especializados con entrada directa, cualquier profesional adscrito al centro que los ofrece, que queda como responsable; un especializado sin entrada directa solo nace de una derivación (§5.7).
+
+**Acceso del equipo del plan** — *añadido 2026-11-14, fase 3 (F3-3, F3-4)*: el personal adscrito al centro de un plan en curso de la persona (y quien tiene rol `intervencion` con ese centro en su ámbito) ve sus planes y lee su Historia Social completa aunque sea de otro centro (`AmbitoUsuario::leePorPlan()`); no gestiona la ficha. Editan un plan su responsable, quien supervisa su centro (con rol `intervencion`) y, en el plan principal, el profesional de referencia vigente: el TSR ve los demás planes y no los edita. Las acciones de escritura de `PlanPage` lo comprueban en el servidor. **`supervision` por sí solo no lee ni edita planes** (decisión del 14 nov 2026; el rol perdió `plan.leer`): la dirección que los necesite tiene además `intervencion`. Personas protegidas: ver RN-17 ampliada en la addenda de Tipo de Centro.
+
 ### 5.2 Atributos
 
 - `id`
 - `historia_id` (FK)
 - `unidad_convivencia_id` (FK nullable — para planes de intervención familiar asignados a la UC. Exactamente uno de `ciudadano_id` (en historia_id→ciudadano) o `unidad_convivencia_id` debe determinar el destinatario del plan)
 - `tipo_plan_id` (FK nullable a `tipos_plan` — tipo de plan del catálogo configurable: `piso`, `pia`…)
+- `centro_id` (FK nullable a `centros` — centro donde se abre el plan; obligatorio para los planes nuevos, lo exige el servicio de creación. Rellenado el 14 nov 2026 con el centro de la UO de la historia)
 - `tipo` (enum: `general_asp`, `especializado`)
 - `servicio_especializado_id` (FK, nullable)
 - `profesional_responsable_id` (FK)
@@ -452,7 +459,7 @@ Una Historia Social puede tener varios planes activos simultáneamente, cada uno
 - `version` (integer — control de revisiones)
 - `created_at`, `updated_at`
 
-**Tipo de plan (`tipos_plan`)** — catálogo configurable desde `TipoPlanResource`: `slug`, `nombre`, `ambito` (`asp` / `especializado`), `admite_entrada_directa` (boolean, default `false`: el plan especializado de este tipo puede existir sin plan ASP previo, ver §5.1), `descripcion`, `activo`, `eliminable`. `TipoPlanSeeder` no escribe `admite_entrada_directa`, para no revertir en una re-ejecución lo configurado en backoffice.
+**Tipo de plan (`tipos_plan`)** — catálogo configurable desde `TipoPlanResource`: `slug`, `nombre`, `ambito` (`asp` / `especializado`), `admite_entrada_directa` (boolean, default `false`: el plan especializado de este tipo puede existir sin plan ASP previo, ver §5.1), `descripcion`, `activo`, `eliminable`, `es_principal` (boolean: el tipo del plan principal; uno como máximo y de ámbito `asp`, validado en el modelo y por índice único parcial). `TipoPlanSeeder` no escribe `admite_entrada_directa`, para no revertir en una re-ejecución lo configurado en backoffice; marca `asp_general` como principal solo si no hay ya uno (en staging lo es `piso`) y añade los tipos de ASP de ejemplo `asp_psicologico` y `asp_socioeducativo`, ofrecidos por `css_general`.
 
 **Motivos de cierre del plan:**
 
@@ -614,6 +621,14 @@ La distinción entre objetivos del catálogo y ex-novo se resuelve con los campo
 nullable: `objetivo_catalogo_id` null + `indicador_catalogo_id` null = creado
 libremente por el TSR, sin origen en el catálogo.
 
+**Historial de valoraciones** — *añadido 2026-11-14, fase 3 (F3-7)*: cada valoración de
+un indicador, en un seguimiento o al editar el plan, deja una fila en
+`plan_indicador_valoraciones` (`plan_objetivo_indicador_id`, `seguimiento_id` nullable,
+`valoracion`, `comentario`, `profesional_id`, `fecha`). Es de solo inserción (trigger que
+rechaza UPDATE y DELETE): corregir es valorar de nuevo. `valoracion_actual`,
+`fecha_valoracion` y `seguimiento_id` del indicador quedan como la última. La escribe
+`PlanObjetivoIndicador::registrarValoracion()`; la ficha del plan muestra la evolución.
+
 ### 5.4 Versionado y revisiones
 
 El plan no se edita destructivamente. Cuando se modifica, se incrementa `version` y la versión anterior queda archivada. La tabla `RevisionPlan` registra el historial de modificaciones: `plan_id`, `version_anterior`, `version_nueva`, `profesional_id`, `fecha`, `motivo_revision`, `seguimiento_id` (FK nullable — si la revisión tiene origen en un seguimiento concreto).
@@ -630,6 +645,37 @@ Un seguimiento puede concluir con la decisión de modificar el plan. El flujo es
 ### 5.6 Visibilidad entre niveles
 
 Los profesionales con rol de intervención tienen acceso de lectura a los planes de otros profesionales y servicios sobre el mismo ciudadano. Este principio es operativamente crítico: el TSR necesita saber lo acordado con Infancia, y el trabajador social de Infancia necesita ver si el ciudadano percibe una ayuda de comedor gestionada desde ASP. La restricción de acceso como mecanismo de "propiedad" profesional no está soportada por el sistema (ver `principios-vida360.md`, sección 3.4).
+
+### 5.7 Derivación a atención especializada
+
+*Añadido 2026-11-14, fase 3 (F3-5, F3-6).* La derivación es una prestación con vía de acceso
+`derivacion` (`prestaciones.via_acceso`), que indica en `tipo_plan_derivacion_id` el tipo de
+plan especializado que genera.
+
+1. **Derivar.** El TSR (quien puede editar el plan principal activo) deriva desde el plan
+   principal, y si quiere desde un objetivo, eligiendo la prestación de derivación y un centro
+   de destino entre los que ofrecen ese tipo de plan. No puede haber otra derivación pendiente
+   igual (misma persona, destino y tipo).
+2. **Bandeja del destino.** Cae en la bandeja de derivaciones del centro de destino
+   (Supervisión → Derivaciones), con persona, centro de origen, TSR, tipo de plan, motivo y
+   antigüedad. La identidad de una persona protegida solo la ve la supervisión adscrita al
+   destino (RN-19).
+3. **Resolver.** La dirección o la supervisión **adscrita** al centro de destino la acepta
+   asignando un profesional de intervención del centro (se abre el plan especializado en
+   borrador con `plan_asp_id`, centro y responsable) o la rechaza con motivo. Quien derivó o
+   la supervisión del centro de origen la anula mientras está pendiente.
+
+Entidad `derivaciones` (`historia_id`, `plan_origen_id`, `plan_objetivo_id`, `prestacion_id`,
+`tipo_plan_id` copiado de la prestación, `centro_destino_id`, `motivo` cifrado, `estado`
+`pendiente`/`aceptada`/`rechazada`/`anulada`, `derivada_por_id`, `resuelta_por_id`,
+`profesional_responsable_id`, `plan_especializado_id`, `motivo_rechazo` y `motivo_anulacion`
+cifrados, `resuelta_en`). Historial en `derivacion_eventos` (solo inserción, trigger). Solo
+escribe `DerivacionService`, que deja un apunte `derivacion` al derivar y al aceptar y avisa
+por `AlertaService` (a la supervisión del destino al derivar; al TSR y al responsable al
+aceptar; al TSR al rechazar). La herramienta «Derivación» de la caja de la Historia Social se
+retiró: derivar se hace solo desde el plan principal. Los apuntes `derivacion` antiguos se
+siguen mostrando. El plan especializado indica «Nace de la derivación del plan principal de
+[centro]».
 
 ---
 
@@ -657,6 +703,19 @@ El seguimiento es el registro de una sesión de revisión del Plan de Intervenci
 Cuando el TSR fija `fecha_siguiente_seguimiento`, el sistema solicita al módulo de Agenda la creación de una cita para esa fecha con el mismo profesional y ciudadano, usando el tipo de slot `entrevista_seguimiento`. La cita se crea en estado `reservado` en el slot correspondiente. Si no existe disponibilidad en esa fecha, el sistema advierte al TSR sin bloquear el guardado del seguimiento.
 
 La integración sigue el mismo mecanismo que cualquier otra cita del sistema: el módulo de Intervención solicita la cita al módulo de Agenda a través de su interfaz interna; no crea registros de agenda directamente.
+
+### 6.2 bis Evaluación de objetivos en el seguimiento
+
+*Añadido 2026-11-14, fase 3 (F3-7).* Al registrar un seguimiento desde la Historia Social
+(herramienta Entrevista con «Programar siguiente seguimiento»), se muestran los objetivos
+activos del plan en curso con su indicador, la valoración actual y su fecha. El profesional
+valora cada indicador (opcional, uno a uno) y, por cada objetivo valorado, se le **propone**
+un estado que confirma o cambia: `conseguido` y `si` → conseguido; `en_proceso`,
+`se_mantiene` y `favorable` → en proceso; `no_conseguido`, `desfavorable` y `no` → sin
+propuesta; `abandonado` siempre a mano. `EvaluacionObjetivosService` guarda el seguimiento,
+las valoraciones (con su historial) y los estados en una transacción, junto con la entrevista
+y su apunte. Solo registra seguimientos quien puede editar el plan. `objetivos_cumplidos`
+sigue como texto libre.
 
 ### 6.3 Nuevas prestaciones en el seguimiento
 

@@ -4,6 +4,7 @@ namespace Modules\Intervencion\Services\Asignacion;
 
 use App\Models\HistoriaSocial;
 use App\Models\User;
+use App\Services\AmbitoUsuario;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -14,10 +15,14 @@ use Modules\Centro\Enums\MotivoAsignacionPendiente;
 use Modules\Centro\Enums\TipoAsignacionPendiente;
 use Modules\Centro\Models\AsignacionPendiente;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 use Modules\Intervencion\Enums\OrigenAsignacionReferencia;
 use Modules\Intervencion\Models\AsignacionProfesional;
+use Modules\Mensajes\Enums\DestinatarioType;
+use Modules\Mensajes\Enums\TipoAlerta;
+use Modules\Mensajes\Services\AlertaService;
 
 /**
  * Asignación del profesional de referencia al abrir una Historia Social y sus
@@ -33,16 +38,24 @@ use Modules\Intervencion\Models\AsignacionProfesional;
  *
  * Historial aditivo: un cambio cierra la vigente y crea otra; nunca se cambia
  * el profesional de una asignación existente.
+ *
+ * Cambio manual (fase 3, bloque E): solo la supervisión adscrita al centro afectado,
+ * no la de UO superiores (TF-CIR-37; con persona protegida lo exige además RN-17/RN-19). El nuevo profesional debe poder ser referencia en el centro y se
+ * avisa al saliente y al entrante.
  */
 class AsignacionReferenciaService
 {
     /**
      * @param SorteoReferenciaService $sorteo
      * @param PoolReferenciaService $pool
+     * @param CentroDeUsuario $centrosUsuario
+     * @param AlertaService $alertas
      */
     public function __construct(
         private readonly SorteoReferenciaService $sorteo,
         private readonly PoolReferenciaService $pool,
+        private readonly CentroDeUsuario $centrosUsuario,
+        private readonly AlertaService $alertas,
     ) {}
 
     /**
@@ -150,19 +163,23 @@ class AsignacionReferenciaService
      *
      * @return AsignacionProfesional
      *
-     * @throws AuthorizationException Si el usuario no tiene rol de supervisión.
-     * @throws InvalidArgumentException Si falta el motivo.
+     * @throws AuthorizationException Si el usuario no supervisa el centro (o no está adscrito, con persona protegida).
+     * @throws InvalidArgumentException Si falta el motivo o el nuevo profesional no puede ser referencia en el centro.
      */
     public function cambiarManual(HistoriaSocial $historia, User $nuevo, string $motivo, User $supervisor, ?Centro $centro = null): AsignacionProfesional
     {
-        if (! $supervisor->hasRole('supervision')) {
-            throw new AuthorizationException('Solo supervisión puede cambiar el profesional de referencia.');
-        }
-
         $motivo = trim($motivo);
 
         if ($motivo === '') {
             throw new InvalidArgumentException('El cambio de referencia exige un motivo.');
+        }
+
+        $vigenteAntes = $this->vigente($historia);
+        $centro ??= $vigenteAntes?->centro_id !== null ? Centro::find($vigenteAntes->centro_id) : $historia->centro;
+        $this->exigirSupervisionDelCentro($supervisor, $centro, $historia);
+
+        if (! $this->pool->profesionalesReferencia($centro, today())->contains('id', $nuevo->id)) {
+            throw new InvalidArgumentException("{$nuevo->nombreVisible()} no puede ser profesional de referencia en {$centro->nombre}.");
         }
 
         return DB::transaction(function () use ($historia, $nuevo, $motivo, $supervisor, $centro) {
@@ -193,8 +210,64 @@ class AsignacionReferenciaService
                     'resuelta_en' => now(),
                 ]);
 
+            $this->avisarCambio($asignacion, $vigente?->profesional_id, $centro);
+
             return $asignacion;
         });
+    }
+
+    /**
+     * Exige rol `supervision` y adscripción directa al centro.
+     *
+     * @param User $usuario
+     * @param Centro|null $centro
+     * @param HistoriaSocial $historia
+     *
+     * @return void
+     *
+     * @throws AuthorizationException
+     */
+    private function exigirSupervisionDelCentro(User $usuario, ?Centro $centro, HistoriaSocial $historia): void
+    {
+        // La supervisión adscrita al centro, no la de UO superiores (TF-CIR-37); igual con
+        // persona protegida (RN-17/RN-19), donde además lo exige la regla de protegidos.
+        if ($centro === null || ! $usuario->hasRole('supervision') || ! $this->centrosUsuario->adscritoA($usuario, $centro)) {
+            throw new AuthorizationException(app(AmbitoUsuario::class)->historiaProtegida($historia)
+                ? 'La referencia de una persona con protección especial la cambia la supervisión del propio centro.'
+                : 'Solo la supervisión del centro puede cambiar el profesional de referencia.');
+        }
+    }
+
+    /**
+     * Avisa del cambio al profesional saliente y al entrante (sin nombrar a la persona).
+     *
+     * @param AsignacionProfesional $asignacion Nueva asignación.
+     * @param int|null $salienteId Profesional que deja de ser referencia.
+     * @param Centro $centro
+     *
+     * @return void
+     */
+    private function avisarCambio(AsignacionProfesional $asignacion, ?int $salienteId, Centro $centro): void
+    {
+        $avisos = [
+            $asignacion->profesional_id => ['Nuevo caso de referencia', "La supervisión de {$centro->nombre} te ha asignado un caso como profesional de referencia."],
+        ];
+
+        if ($salienteId !== null && $salienteId !== $asignacion->profesional_id) {
+            $avisos[$salienteId] = ['Cambio de profesional de referencia', "La supervisión de {$centro->nombre} ha asignado a otro profesional de referencia un caso tuyo."];
+        }
+
+        foreach ($avisos as $usuarioId => [$titulo, $cuerpo]) {
+            $this->alertas->crear([
+                'tipo' => TipoAlerta::Aviso,
+                'origen_type' => AsignacionProfesional::class,
+                'origen_id' => $asignacion->id,
+                'titulo' => $titulo,
+                'cuerpo' => $cuerpo,
+                'destinatario_type' => DestinatarioType::Usuario,
+                'destinatario_usuario_id' => $usuarioId,
+            ]);
+        }
     }
 
     /**

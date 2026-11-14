@@ -30,6 +30,7 @@ Cuatro ideas vertebran el diseño:
 | **Plaza** | Prescripción de una plaza o actividad, con lista de espera (flujo existente de `modulo-centros.md` §2.8) | Centro de día, residencia, actividad grupal |
 | **Tramitación interna** | Solicitud a una unidad municipal que la resuelve sin gestor externo | Prestaciones gestionadas por un servicio del Área |
 | **Expediente externo** | Solicitud que tramitación prepara y envía al gestor de expedientes | Ayudas económicas, ayuda a domicilio, teleasistencia… según el catálogo |
+| **Derivación** | *Añadida el 14 nov 2026 (fase 3, F3-5).* Derivación desde el plan principal a un centro de atención especializada, que al aceptarla abre un plan del tipo `tipo_plan_derivacion_id` (`modulo-intervencion.md` §5.7) | Derivación al PIA del CIAM |
 
 Las vías de tramitación interna y de expediente externo comparten la entidad **Solicitud de prestación** (§2.2) y se diferencian solo en el envío. La vía plaza conserva su flujo propio.
 

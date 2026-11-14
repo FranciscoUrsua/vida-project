@@ -19,10 +19,17 @@ use Modules\Intervencion\Database\Factories\TipoPlanFactory;
  * del CIAM, que es una puerta alternativa de entrada al sistema. Si es false,
  * el plan especializado debe nacer de una derivación desde un plan ASP.
  *
+ * es_principal (fase 3, F3-1): uno de los tipos de ámbito ASP es el plan principal
+ * (el PISO): como máximo un plan vigente por historia, lo gestiona el TSR y es el
+ * origen de las derivaciones. Solo puede haber un tipo principal y debe ser de
+ * ámbito ASP (validado aquí y por un índice único parcial). Nada decide «es el PISO»
+ * por `planes_intervencion.tipo`: se decide por este campo.
+ *
  * @property int $id
  * @property string $slug Identificador estable no editable
  * @property string $nombre
  * @property string $ambito 'asp' | 'especializado'
+ * @property bool $es_principal Tipo del plan principal (el PISO)
  * @property bool $admite_entrada_directa Admite planes especializados sin plan ASP previo
  * @property string|null $descripcion
  * @property bool $activo
@@ -33,6 +40,11 @@ class TipoPlan extends Model
     /** @use HasFactory<TipoPlanFactory> */
     use HasFactory;
 
+    /**
+     * Factoría del modelo.
+     *
+     * @return TipoPlanFactory
+     */
     protected static function newFactory(): TipoPlanFactory
     {
         return TipoPlanFactory::new();
@@ -41,21 +53,29 @@ class TipoPlan extends Model
     protected $table = 'tipos_plan';
 
     protected $fillable = [
-        'slug', 'nombre', 'ambito', 'admite_entrada_directa', 'descripcion', 'activo', 'eliminable',
+        'slug', 'nombre', 'ambito', 'es_principal', 'admite_entrada_directa', 'descripcion', 'activo', 'eliminable',
     ];
 
     protected $casts = [
         'activo' => 'boolean',
         'eliminable' => 'boolean',
         'admite_entrada_directa' => 'boolean',
+        'es_principal' => 'boolean',
     ];
 
     // -------------------------------------------------------------------------
     // Hooks
     // -------------------------------------------------------------------------
 
+    /**
+     * Registra las reglas del tipo: no se borran los del sistema y el principal es único y de ASP.
+     *
+     * @return void
+     */
     protected static function booted(): void
     {
+        static::saving(fn (self $tipo) => self::verificarPrincipal($tipo));
+
         static::deleting(function (self $tipo): void {
             if (! $tipo->eliminable) {
                 throw new \LogicException(
@@ -63,6 +83,42 @@ class TipoPlan extends Model
                 );
             }
         });
+    }
+
+    /**
+     * Impide un tipo principal que no sea de ASP o un segundo tipo principal (F3-1).
+     *
+     * @param TipoPlan $tipo Tipo que se va a guardar.
+     *
+     * @return void
+     *
+     * @throws \DomainException
+     */
+    private static function verificarPrincipal(self $tipo): void
+    {
+        if (! $tipo->es_principal) {
+            return;
+        }
+
+        if ($tipo->ambito !== 'asp') {
+            throw new \DomainException('Solo un tipo de plan de ámbito ASP puede ser el plan principal.');
+        }
+
+        $otro = static::query()->where('es_principal', true)->whereKeyNot($tipo->getKey())->value('nombre');
+
+        if ($otro !== null) {
+            throw new \DomainException("El plan principal ya es «{$otro}»: solo puede haber un tipo principal.");
+        }
+    }
+
+    /**
+     * Tipo de plan principal (el PISO), si está configurado.
+     *
+     * @return TipoPlan|null
+     */
+    public static function principal(): ?self
+    {
+        return static::query()->where('es_principal', true)->first();
     }
 
     // -------------------------------------------------------------------------

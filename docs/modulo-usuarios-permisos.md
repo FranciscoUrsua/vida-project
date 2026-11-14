@@ -130,7 +130,7 @@ Cada rol tiene configurado su **nivel de supervisión** para la asignación (ver
 **Perfil:** Directivos con responsabilidad de gestión: directores generales, jefes de departamento, concejales y similares.
 
 **Capacidades:**
-- Acceso de lectura a toda la información de su ámbito funcional (Historias Sociales, planes, apuntes, prestaciones, actividad de profesionales).
+- Acceso de lectura a la información de su ámbito funcional (Historias Sociales, apuntes, prestaciones, actividad de profesionales). **Sin planes de intervención** (decisión del 14 nov 2026, fase 3): `supervision` por sí solo no lee ni edita planes y no tiene `plan.*`; la dirección de un centro o un responsable superior que necesite planes tiene además el rol `intervencion`, y entonces edita los planes de los centros que supervisa.
 - Consulta de trazabilidad: informes de accesos a expedientes por parte de profesionales.
 - Validación de acceso a datos sensibles de ciudadanos especialmente protegidos en su DG.
 - Firma o rechazo de propuestas que requieran aprobación de supervisión.

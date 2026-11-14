@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\Prescripcion;
 use Modules\Escalas\Models\PaseEscala;
 use Modules\Intervencion\Models\AsignacionProfesional;
@@ -110,6 +111,16 @@ class HistoriaSocial extends Model implements AuditableModel
     public function unidadOrganizativa(): BelongsTo
     {
         return $this->belongsTo(UnidadOrganizativa::class, 'unidad_organizativa_id');
+    }
+
+    /**
+     * Centro de la historia: el de su UO (centro y UO 1:1, addenda D1 de Tipo de Centro).
+     *
+     * @return HasOne<Centro, $this>
+     */
+    public function centro(): HasOne
+    {
+        return $this->hasOne(Centro::class, 'unidad_organizativa_id', 'unidad_organizativa_id');
     }
 
     /**

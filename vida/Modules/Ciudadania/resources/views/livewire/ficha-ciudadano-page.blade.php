@@ -468,6 +468,11 @@
                     @endif
                 </dl>
 
+                {{-- Cambio de referencia por la supervisión del centro (fase 3, bloque E) --}}
+                @if($historiaSocial)
+                    @livewire('intervencion.cambio-referencia', ['historiaId' => $historiaSocial->id], key('cambio-referencia-'.$historiaSocial->id))
+                @endif
+
                 @if($historialAsig > 0)
                     <button type="button"
                             class="btn btn-link btn-sm p-0 mt-2 d-inline-flex align-items-center gap-1 collapsed"

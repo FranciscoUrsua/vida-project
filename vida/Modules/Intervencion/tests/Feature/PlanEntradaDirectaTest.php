@@ -9,6 +9,7 @@ use App\Models\User;
 use Database\Seeders\Demo\DemoInvariantChecker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Modules\Intervencion\Database\Factories\PlanDeIntervencionFactory;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\TipoPlan as TipoPlanEnum;
 use Modules\Intervencion\Models\PlanDeIntervencion;
@@ -93,7 +94,8 @@ class PlanEntradaDirectaTest extends TestCase
                 $this->crearPlanEspecializado($tipoPlanId);
                 $this->fail('Debe rechazarse un plan especializado sin plan ASP (tipo_plan_id='.var_export($tipoPlanId, true).').');
             } catch (\DomainException $e) {
-                $this->assertStringContainsString('derivación', $e->getMessage());
+                // Sin tipo de plan, desde la fase 3 ningún plan nuevo se crea (F3-1): otro mensaje, mismo rechazo.
+                $this->assertStringContainsString($tipoPlanId === null ? 'tipo de plan' : 'derivación', $e->getMessage());
             }
         }
 
@@ -103,6 +105,7 @@ class PlanEntradaDirectaTest extends TestCase
         $planAsp = PlanDeIntervencion::create([
             'historia_id' => $this->historia->id,
             'tipo' => TipoPlanEnum::GeneralAsp,
+            'tipo_plan_id' => PlanDeIntervencionFactory::tipoPlanPara(TipoPlanEnum::GeneralAsp),
             'profesional_responsable_id' => $this->profesional->id,
             'estado' => EstadoPlan::Borrador,
             'fecha_inicio' => today(),

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Modules\Centro\Models\Centro;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Intervencion\Database\Factories\PlanDeIntervencionFactory;
 use Modules\Intervencion\Enums\EstadoPlan;
@@ -33,9 +34,19 @@ use Modules\Intervencion\Enums\TipoPlan;
  * Un plan especializado requiere plan_asp_id salvo que su tipo de plan
  * admita entrada directa (ver verificarOrigenPlanEspecializado()).
  *
+ * Tipo y plan principal (fase 3, F3-1): `tipo` se deriva del ámbito del tipo de
+ * plan (ver derivarTipo()); un plan nuevo de una persona exige tipo de plan. Si
+ * el plan es el principal (el PISO) lo decide su tipo de plan (esPrincipal()),
+ * nunca `tipo`. Una historia no tiene dos planes vigentes del mismo tipo de plan
+ * (índice único parcial `planes_intervencion_un_vigente_por_tipo`).
+ *
+ * Centro (F3-2): `centro_id` es el centro donde se abre el plan; lo exige el
+ * servicio de creación (los planes antiguos pueden no tenerlo).
+ *
  * @property int $id
  * @property int $historia_id
  * @property int|null $tipo_plan_id
+ * @property int|null $centro_id
  * @property int|null $unidad_convivencia_id
  * @property TipoPlan $tipo
  * @property int|null $servicio_especializado_id
@@ -57,6 +68,11 @@ class PlanDeIntervencion extends Model
     use HasFactory;
     use SoftDeletes;
 
+    /**
+     * Factoría del modelo.
+     *
+     * @return PlanDeIntervencionFactory
+     */
     protected static function newFactory(): PlanDeIntervencionFactory
     {
         return PlanDeIntervencionFactory::new();
@@ -73,6 +89,7 @@ class PlanDeIntervencion extends Model
     protected $fillable = [
         'historia_id',
         'tipo_plan_id',
+        'centro_id',
         'unidad_convivencia_id',
         'tipo',
         'servicio_especializado_id',
@@ -116,8 +133,54 @@ class PlanDeIntervencion extends Model
                 }
             }
 
+            self::derivarTipo($plan);
             self::verificarOrigenPlanEspecializado($plan);
         });
+    }
+
+    /**
+     * Fija `tipo` desde el ámbito del tipo de plan y rechaza un `tipo` incoherente (F3-1).
+     *
+     * Un plan nuevo de una persona exige tipo de plan; los planes de unidad de
+     * convivencia quedan fuera (sin cambios en la fase 3). En actualizaciones solo se
+     * comprueba si cambia `tipo` o `tipo_plan_id`, para no bloquear planes antiguos sin tipo.
+     *
+     * @param PlanDeIntervencion $plan Plan que se va a guardar.
+     *
+     * @return void
+     *
+     * @throws \DomainException
+     */
+    private static function derivarTipo(PlanDeIntervencion $plan): void
+    {
+        if ($plan->exists && ! $plan->isDirty(['tipo', 'tipo_plan_id'])) {
+            return;
+        }
+
+        if ($plan->tipo_plan_id === null) {
+            if (! $plan->exists && $plan->unidad_convivencia_id === null) {
+                throw new \DomainException('Un plan nuevo necesita un tipo de plan.');
+            }
+
+            return;
+        }
+
+        $ambito = \Modules\Intervencion\Models\TipoPlan::whereKey($plan->tipo_plan_id)->value('ambito');
+        $esperado = $ambito === 'asp' ? TipoPlan::GeneralAsp : TipoPlan::Especializado;
+
+        // Sin tipo explícito se rellena; uno explícito distinto del ámbito es un error del llamante.
+        // En una actualización, «explícito» es que el llamante cambie `tipo`.
+        $explicito = $plan->exists ? $plan->isDirty('tipo') : ($plan->getAttributes()['tipo'] ?? null) !== null;
+
+        if ($explicito) {
+            if ($plan->tipo !== $esperado) {
+                throw new \DomainException('El tipo del plan no coincide con el ámbito de su tipo de plan.');
+            }
+
+            return;
+        }
+
+        $plan->tipo = $esperado;
     }
 
     /**
@@ -321,6 +384,53 @@ class PlanDeIntervencion extends Model
     public function tipoPlan(): BelongsTo
     {
         return $this->belongsTo(\Modules\Intervencion\Models\TipoPlan::class, 'tipo_plan_id');
+    }
+
+    /**
+     * Centro donde se abrió el plan (F3-2).
+     *
+     * @return BelongsTo<Centro, $this>
+     */
+    public function centro(): BelongsTo
+    {
+        return $this->belongsTo(Centro::class, 'centro_id');
+    }
+
+    /**
+     * Indica si es el plan principal (el PISO): lo decide su tipo de plan, nunca `tipo` (F3-1).
+     *
+     * @return bool
+     */
+    public function esPrincipal(): bool
+    {
+        return $this->tipo_plan_id !== null && (bool) $this->tipoPlan?->es_principal;
+    }
+
+    /**
+     * Solo planes del tipo de plan principal (el PISO).
+     *
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
+    public function scopePrincipal(Builder $query): Builder
+    {
+        return $query->whereIn(
+            $query->qualifyColumn('tipo_plan_id'),
+            \Modules\Intervencion\Models\TipoPlan::query()->select('id')->where('es_principal', true),
+        );
+    }
+
+    /**
+     * Solo planes vigentes: borrador o activo (los que cuentan para «un plan por tipo»).
+     *
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
+    public function scopeVigentes(Builder $query): Builder
+    {
+        return $query->whereIn($query->qualifyColumn('estado'), [EstadoPlan::Borrador->value, EstadoPlan::Activo->value]);
     }
 
     /**

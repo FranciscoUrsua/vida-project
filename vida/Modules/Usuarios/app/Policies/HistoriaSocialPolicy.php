@@ -72,6 +72,8 @@ class HistoriaSocialPolicy
      *
      * @param User $usuario Usuario autenticado.
      * @param HistoriaSocial $historia Historia social consultada.
+     *
+     * @return bool
      */
     public function view(User $usuario, HistoriaSocial $historia): bool
     {
@@ -82,6 +84,11 @@ class HistoriaSocialPolicy
 
         // Paso 2: Nivel 1 si gestiona la historia (ámbito, y RN-17 si la persona está protegida)
         if (app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia)) {
+            return true;
+        }
+
+        // Equipo de un plan en curso de la persona: lectura completa (fase 3, F3-3); no da `update`.
+        if (app(AmbitoUsuario::class)->leePorPlan($usuario, $historia)) {
             return true;
         }
 

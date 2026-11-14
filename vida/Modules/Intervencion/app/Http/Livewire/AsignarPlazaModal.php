@@ -2,11 +2,9 @@
 
 namespace Modules\Intervencion\Http\Livewire;
 
-use App\Models\HistoriaSocial;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -15,6 +13,7 @@ use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\ColeccionPlazas;
 use Modules\Centro\Models\Plaza;
 use Modules\Centro\Models\Prescripcion;
+use Modules\Intervencion\Services\AvisoPlazasService;
 use Modules\Usuarios\Models\Profesional;
 
 /**
@@ -189,36 +188,16 @@ class AsignarPlazaModal extends Component
     }
 
     /**
-     * Genera una alerta de aviso al TSR activo del ciudadano informando de la asignación.
-     * Si el ciudadano no tiene TSR activo, no se genera alerta y se registra un aviso en el log.
+     * Avisa de la asignación al profesional de referencia vigente o, sin él, a la supervisión
+     * del centro de la historia (fase 3, D2): por AlertaService, nunca solo en el log.
      *
      * @param Prescripcion $prescripcion Prescripción recién asignada.
+     *
+     * @return void
      */
     private function notificarTsr(Prescripcion $prescripcion): void
     {
-        $historia = HistoriaSocial::withoutGlobalScopes()
-            ->where('ciudadano_id', $prescripcion->ciudadano_id)
-            ->latest()
-            ->first();
-
-        if (! $historia) {
-            Log::warning('AsignarPlazaModal: no se encontró Historia Social para el ciudadano '.$prescripcion->ciudadano_id);
-
-            return;
-        }
-
-        $asignacion = $historia->asignacionVigente;
-        if (! $asignacion) {
-            Log::warning('AsignarPlazaModal: el ciudadano '.$prescripcion->ciudadano_id.' no tiene TSR activo; alerta no generada.');
-
-            return;
-        }
-
-        // Registro mínimo de alerta — el módulo de Mensajes gestionará el formato final
-        Log::info(
-            'AsignarPlazaModal: alerta enviada al profesional '.$asignacion->profesional_id.
-            ' por asignación de plaza en prescripción '.$prescripcion->id
-        );
+        app(AvisoPlazasService::class)->avisarAsignacion($prescripcion);
     }
 
     /**

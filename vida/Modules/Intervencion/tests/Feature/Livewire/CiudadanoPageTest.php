@@ -266,7 +266,7 @@ class CiudadanoPageTest extends TestCase
     }
 
     /**
-     * TF-LW-CIU-09 — pisoActivo devuelve el plan general_asp activo más reciente.
+     * TF-LW-CIU-09 — planPrincipalActivo devuelve el plan principal activo.
      */
     #[Test]
     public function piso_activo_devuelve_plan_activo(): void
@@ -274,12 +274,12 @@ class CiudadanoPageTest extends TestCase
         $componente = Livewire::actingAs($this->usuario)
             ->test(CiudadanoPage::class, ['historia' => $this->historia]);
 
-        $this->assertNotNull($componente->get('pisoActivo'));
-        $this->assertEquals($this->piso->id, $componente->get('pisoActivo')->id);
+        $this->assertNotNull($componente->get('planPrincipalActivo'));
+        $this->assertEquals($this->piso->id, $componente->get('planPrincipalActivo')->id);
     }
 
     /**
-     * TF-LW-CIU-10 — pisoActivo devuelve null si no hay plan activo.
+     * TF-LW-CIU-10 — planPrincipalActivo devuelve null si no hay plan activo.
      */
     #[Test]
     public function piso_activo_null_sin_plan_activo(): void
@@ -294,7 +294,7 @@ class CiudadanoPageTest extends TestCase
         $componente = Livewire::actingAs($this->usuario)
             ->test(CiudadanoPage::class, ['historia' => $historiaVacia]);
 
-        $this->assertNull($componente->get('pisoActivo'));
+        $this->assertNull($componente->get('planPrincipalActivo'));
     }
 
     // -------------------------------------------------------------------------
@@ -402,24 +402,8 @@ class CiudadanoPageTest extends TestCase
         $this->assertCount(0, $comp->get('apuntesHS'));
     }
 
-    /**
-     * TF-LW-CIU-15 — crearDerivacion crea Apunte de tipo derivacion.
-     */
-    #[Test]
-    public function crear_derivacion_crea_apunte_de_tipo_derivacion(): void
-    {
-        Livewire::actingAs($this->usuario)
-            ->test(CiudadanoPage::class, ['historia' => $this->historia])
-            ->set('formDerivacion.urgencia', 'preferente')
-            ->set('formDerivacion.motivo', 'Motivo de prueba.')
-            ->call('crearDerivacion');
-
-        $this->assertDatabaseHas('plan_apuntes', [
-            'plan_id' => $this->piso->id,
-            'tipo' => TipoApunte::Derivacion->value,
-            'autor_id' => $this->usuario->id,
-        ]);
-    }
+    // TF-LW-CIU-15 (crearDerivacion) retirado el 2026-11-14: la herramienta «Derivación» de la caja
+    // desapareció en la fase 3 (F3-6); lo sustituye TF-CIR-43 en Circuito/DerivacionTest.
 
     /**
      * TF-LW-CIU-16 — guardarGestion crea Apunte con los campos correctos.

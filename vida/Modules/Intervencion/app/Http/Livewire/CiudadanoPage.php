@@ -10,11 +10,14 @@ use App\Models\User;
 use App\Queries\AccesosExpedienteQuery;
 use App\Services\AccesoExpediente;
 use App\Services\PresentacionPersona;
+use DomainException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use InvalidArgumentException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
@@ -46,17 +49,18 @@ use Modules\Escalas\Models\TipoEscala;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\TipoEntrevista;
-use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Enums\VisibilidadApunte;
 use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\Entrevista;
 use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\PlanDeIntervencion;
+use Modules\Intervencion\Models\PlanObjetivo;
 use Modules\Intervencion\Models\SeguimientoPlan;
 use Modules\Intervencion\Models\TipoFicha;
 use Modules\Intervencion\Models\TipoValoracion;
 use Modules\Intervencion\Models\Valoracion;
 use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
+use Modules\Intervencion\Services\EvaluacionObjetivosService;
 use Modules\Intervencion\Services\PlanPdfService;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -72,7 +76,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  *
  * @property-read Ciudadano|null $ciudadano
  * @property-read Collection<int, Apunte> $apuntesHS
- * @property-read PlanDeIntervencion|null $pisoActivo
+ * @property-read PlanDeIntervencion|null $planPrincipalActivo
  * @property-read PlanDeIntervencion|null $planActivo
  * @property-read UnidadConvivencia|null $ucVigente
  * @property-read Collection<int, UnidadConvivenciaMiembro> $ucMiembrosActivos
@@ -170,6 +174,12 @@ class CiudadanoPage extends Component
         'tipo_cita_id' => '',
     ];
 
+    /** @var array<int|string, string> Valoración del seguimiento por id de indicador (fase 3, bloque C). */
+    public array $valoracionesSeguimiento = [];
+
+    /** @var array<int|string, string> Estado confirmado por id de objetivo (fase 3, bloque C). */
+    public array $estadosObjetivos = [];
+
     /** @var string|null Aviso tras solicitar una cita (o por qué no se pudo). */
     public ?string $avisoCita = null;
 
@@ -177,13 +187,6 @@ class CiudadanoPage extends Component
     public array $formAnotacion = [
         'contenido' => '',
         'visibilidad' => 'profesionales',
-    ];
-
-    /** @var array<string, mixed> */
-    public array $formDerivacion = [
-        'servicio_receptor_id' => '',
-        'urgencia' => 'ordinaria',
-        'motivo' => '',
     ];
 
     /** @var array<string, mixed> */
@@ -251,30 +254,78 @@ class CiudadanoPage extends Component
     }
 
     /**
-     * Plan general ASP activo más reciente de la Historia Social.
+     * Plan principal (el PISO) activo de la Historia Social.
+     *
+     * Antes `pisoActivo()`, que lo buscaba por `tipo = general_asp` y confundía con el
+     * PISO cualquier otro plan de ASP. Desde la fase 3 (F3-1) el plan principal lo
+     * decide su tipo de plan (`tipos_plan.es_principal`).
+     *
+     * @return PlanDeIntervencion|null
      */
     #[Computed]
-    public function pisoActivo(): ?PlanDeIntervencion
+    public function planPrincipalActivo(): ?PlanDeIntervencion
     {
         return PlanDeIntervencion::withoutGlobalScopes()
             ->where('historia_id', $this->historia->id)
-            ->where('tipo', TipoPlan::GeneralAsp)
+            ->principal()
             ->where('estado', EstadoPlan::Activo)
             ->latest()
             ->first();
     }
 
     /**
-     * Plan de intervención vigente (cualquier estado no cerrado) para navegar a PlanPage.
+     * Plan en curso al que se vinculan los apuntes y la cita de seguimiento de esta pantalla.
+     *
+     * Con varios planes por persona (fase 3, F3-1), el plan principal en curso; si no hay,
+     * el último en curso del que el usuario es responsable (p. ej. el PIA en el CIAM).
+     *
+     * @return PlanDeIntervencion|null
      */
     #[Computed]
     public function planActivo(): ?PlanDeIntervencion
     {
-        return PlanDeIntervencion::withoutGlobalScopes()
+        $enCurso = fn () => PlanDeIntervencion::withoutGlobalScopes()
             ->where('historia_id', $this->historia->id)
             ->whereIn('estado', ['borrador', 'activo', 'en_revision'])
+            ->latest();
+
+        return $enCurso()->principal()->first()
+            ?? $enCurso()->where('profesional_responsable_id', Auth::id())->first();
+    }
+
+    /**
+     * Planes en curso de la persona para el bloque «Planes de la persona» (fase 3, A3.5).
+     *
+     * Uno por tipo de plan (la versión vigente; la sustituida en revisión solo si no hay
+     * otra), el principal primero. El enlace solo se da a quien puede ver el plan.
+     *
+     * @return Collection<int, array{plan: PlanDeIntervencion, principal: bool, tipo: string, centro: string, responsable: string, estado: string, proximo_seguimiento: string|null, url: string|null}>
+     */
+    #[Computed]
+    public function planesDeLaPersona(): Collection
+    {
+        $usuario = Auth::user();
+
+        return PlanDeIntervencion::withoutGlobalScopes()
+            ->with(['tipoPlan', 'centro', 'profesionalResponsable.profesional'])
+            ->where('historia_id', $this->historia->id)
+            ->whereIn('estado', ['borrador', 'activo', 'en_revision'])
+            ->orderByRaw("CASE estado WHEN 'activo' THEN 0 WHEN 'borrador' THEN 1 ELSE 2 END")
             ->latest()
-            ->first();
+            ->get()
+            ->unique(fn (PlanDeIntervencion $plan) => $plan->tipo_plan_id ?? 'sin_tipo_'.$plan->id)
+            ->sortByDesc(fn (PlanDeIntervencion $plan) => $plan->esPrincipal())
+            ->map(fn (PlanDeIntervencion $plan) => [
+                'plan' => $plan,
+                'principal' => $plan->esPrincipal(),
+                'tipo' => $plan->tipoPlan->nombre ?? $this->planNombreCorto,
+                'centro' => $plan->centro->nombre_corto ?? $plan->centro->nombre ?? '—',
+                'responsable' => $plan->profesionalResponsable?->nombreVisible() ?? '—',
+                'estado' => $plan->estado->label(),
+                'proximo_seguimiento' => $plan->seguimientos()->latest()->value('fecha_siguiente_seguimiento'),
+                'url' => $usuario->can('view', $plan) ? route('intervencion.plan.show', $plan) : null,
+            ])
+            ->values();
     }
 
     /**
@@ -1057,7 +1108,6 @@ class CiudadanoPage extends Component
         $mapa = [
             'entrevista' => 'entrevista',
             'anotacion' => 'anotacion',
-            'derivacion' => 'derivacion',
             'gestion' => 'gestion',
             'valoracion' => 'valoracion',
             'escala' => 'escala',
@@ -1155,52 +1205,126 @@ class CiudadanoPage extends Component
     // -------------------------------------------------------------------------
 
     /**
+     * Si el usuario puede registrar seguimientos del plan en curso (lo edita, F3-3).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeSeguirPlan(): bool
+    {
+        return $this->planActivo !== null && Auth::user()->can('update', $this->planActivo);
+    }
+
+    /**
+     * Objetivos activos del plan en curso con su indicador, para evaluarlos en el seguimiento (F3-7).
+     *
+     * @return Collection<int, PlanObjetivo>
+     */
+    #[Computed]
+    public function objetivosParaEvaluar(): Collection
+    {
+        if (! $this->puedeSeguirPlan) {
+            return collect();
+        }
+
+        return PlanObjetivo::where('plan_id', $this->planActivo->id)
+            ->whereIn('estado', ['pendiente', 'en_proceso'])
+            ->with('indicador')
+            ->orderBy('orden')
+            ->get();
+    }
+
+    /**
+     * Al valorar un indicador, propone el estado de su objetivo (el profesional lo confirma o cambia).
+     *
+     * @param string|null $valor
+     * @param int|string $indicadorId
+     *
+     * @return void
+     */
+    public function updatedValoracionesSeguimiento(?string $valor, int|string $indicadorId): void
+    {
+        $objetivo = $this->objetivosParaEvaluar->first(fn (PlanObjetivo $o) => $o->indicador?->id === (int) $indicadorId);
+        $propuesta = $valor ? app(EvaluacionObjetivosService::class)->propuestaDeEstado($valor) : null;
+
+        if ($objetivo !== null && $propuesta !== null) {
+            $this->estadosObjetivos[$objetivo->id] = $propuesta;
+        }
+    }
+
+    /**
      * Guarda una entrevista y su apunte en la Historia Social.
-     * El apunte siempre se crea; plan_id se añade si hay un plan en curso.
+     *
+     * El apunte siempre se crea; plan_id se añade si hay un plan en curso. Si se programa
+     * el siguiente seguimiento, se registra con la evaluación de los objetivos (fase 3,
+     * bloque C): todo en una transacción, de modo que si falla una valoración no queda ni
+     * la entrevista ni el seguimiento a medias.
+     *
+     * @return void
      */
     public function guardarEntrevista(): void
     {
         $plan = $this->planActivo;
+        $conSeguimiento = $plan && $this->formEntrevista['programar_seguimiento'] && $this->formEntrevista['fecha_siguiente_seguimiento'];
 
-        $entrevista = Entrevista::create([
-            'historia_id' => $this->historia->id,
-            'profesional_id' => Auth::id(),
-            'cita_id' => $citaId = $this->citaParaApunte(),
-            'plan_intervencion_id' => $plan?->id,
-            'fecha_hora' => now()->toDateTimeString(),
-            'modalidad' => $this->formEntrevista['modalidad'],
-            'tipo' => TipoEntrevista::from($this->formEntrevista['tipo']),
-            'notas_generales' => $this->formEntrevista['notas'] ?: null,
-            'estado' => 'realizada',
-        ]);
+        if ($conSeguimiento && ! $this->puedeSeguirPlan) {
+            $this->addError('evaluacion', 'No puedes registrar seguimientos de este plan.');
 
-        Apunte::create([
-            'historia_id' => $this->historia->id,
-            'plan_id' => $plan?->id,
-            'autor_id' => Auth::id(),
-            'fecha' => today()->toDateString(),
-            'tipo' => TipoApunte::Entrevista,
-            'apuntable_type' => Entrevista::class,
-            'apuntable_id' => $entrevista->id,
-            'cita_id' => $citaId,
-            'contenido' => $this->formEntrevista['notas'] ?: null,
-            'visibilidad' => VisibilidadApunte::Profesionales,
-        ]);
-
-        if ($plan && $this->formEntrevista['programar_seguimiento'] && $this->formEntrevista['fecha_siguiente_seguimiento']) {
-            $seguimiento = SeguimientoPlan::create([
-                'plan_id' => $plan->id,
-                'entrevista_id' => $entrevista->id,
-                'profesional_id' => Auth::id(),
-                'fecha' => today()->toDateString(),
-                'fecha_siguiente_seguimiento' => $this->formEntrevista['fecha_siguiente_seguimiento'],
-            ]);
-
-            if ($this->formEntrevista['solicitar_cita']) {
-                $this->solicitarCitaSeguimiento($seguimiento);
-            }
+            return;
         }
 
+        try {
+            $seguimiento = DB::transaction(function () use ($plan, $conSeguimiento): ?SeguimientoPlan {
+                $entrevista = Entrevista::create([
+                    'historia_id' => $this->historia->id,
+                    'profesional_id' => Auth::id(),
+                    'cita_id' => $citaId = $this->citaParaApunte(),
+                    'plan_intervencion_id' => $plan?->id,
+                    'fecha_hora' => now()->toDateTimeString(),
+                    'modalidad' => $this->formEntrevista['modalidad'],
+                    'tipo' => TipoEntrevista::from($this->formEntrevista['tipo']),
+                    'notas_generales' => $this->formEntrevista['notas'] ?: null,
+                    'estado' => 'realizada',
+                ]);
+
+                Apunte::create([
+                    'historia_id' => $this->historia->id,
+                    'plan_id' => $plan?->id,
+                    'autor_id' => Auth::id(),
+                    'fecha' => today()->toDateString(),
+                    'tipo' => TipoApunte::Entrevista,
+                    'apuntable_type' => Entrevista::class,
+                    'apuntable_id' => $entrevista->id,
+                    'cita_id' => $citaId,
+                    'contenido' => $this->formEntrevista['notas'] ?: null,
+                    'visibilidad' => VisibilidadApunte::Profesionales,
+                ]);
+
+                if (! $conSeguimiento) {
+                    return null;
+                }
+
+                return app(EvaluacionObjetivosService::class)->registrarSeguimiento(
+                    $plan,
+                    ['entrevista_id' => $entrevista->id, 'fecha_siguiente_seguimiento' => $this->formEntrevista['fecha_siguiente_seguimiento']],
+                    $this->valoracionesSeguimiento,
+                    $this->estadosObjetivos,
+                    Auth::user(),
+                );
+            });
+        } catch (DomainException|InvalidArgumentException $e) {
+            $this->addError('evaluacion', $e->getMessage());
+
+            return;
+        }
+
+        if ($seguimiento !== null && $this->formEntrevista['solicitar_cita']) {
+            $this->solicitarCitaSeguimiento($seguimiento);
+        }
+
+        $this->valoracionesSeguimiento = [];
+        $this->estadosObjetivos = [];
+        unset($this->objetivosParaEvaluar);
         $this->formEntrevista = ['tipo' => 'seguimiento', 'modalidad' => 'presencial', 'notas' => '', 'generar_valoracion' => false, 'programar_seguimiento' => false, 'fecha_siguiente_seguimiento' => '', 'solicitar_cita' => false, 'tipo_cita_id' => ''];
         $this->herramientaActiva = null;
         unset($this->apuntesHS);
@@ -1225,33 +1349,6 @@ class CiudadanoPage extends Component
         ]);
 
         $this->formAnotacion = ['contenido' => '', 'visibilidad' => 'profesionales'];
-        $this->herramientaActiva = null;
-        unset($this->apuntesHS);
-        $this->olvidarCita();
-    }
-
-    /**
-     * Crea una derivación en la Historia Social (apunte de tipo derivacion).
-     * La tabla derivaciones no existe todavía — se registra como apunte.
-     * TODO: crear modelo Derivacion y tabla derivaciones cuando esté disponible.
-     */
-    public function crearDerivacion(): void
-    {
-        Apunte::create([
-            'historia_id' => $this->historia->id,
-            'plan_id' => $this->planActivo?->id,
-            'autor_id' => Auth::id(),
-            'fecha' => today()->toDateString(),
-            'tipo' => TipoApunte::Derivacion,
-            'cita_id' => $this->citaParaApunte(),
-            'contenido' => trim(
-                'Urgencia: '.($this->formDerivacion['urgencia'] ?? '')."\n".
-                'Motivo: '.($this->formDerivacion['motivo'] ?? '')
-            ),
-            'visibilidad' => VisibilidadApunte::Profesionales,
-        ]);
-
-        $this->formDerivacion = ['servicio_receptor_id' => '', 'urgencia' => 'ordinaria', 'motivo' => ''];
         $this->herramientaActiva = null;
         unset($this->apuntesHS);
         $this->olvidarCita();

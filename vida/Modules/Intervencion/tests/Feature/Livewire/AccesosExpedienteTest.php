@@ -13,6 +13,7 @@ use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
+use Modules\Intervencion\Database\Factories\PlanDeIntervencionFactory;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Http\Livewire\CiudadanoPage;
@@ -120,6 +121,7 @@ class AccesosExpedienteTest extends TestCase
         PlanDeIntervencion::withoutGlobalScopes()->create([
             'historia_id' => $this->historia->id,
             'tipo' => TipoPlan::GeneralAsp,
+            'tipo_plan_id' => PlanDeIntervencionFactory::tipoPlanPara(TipoPlan::GeneralAsp),
             'profesional_responsable_id' => $this->tsr->id,
             'estado' => EstadoPlan::Activo,
             'fecha_inicio' => today()->toDateString(),

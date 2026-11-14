@@ -7,6 +7,7 @@ use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
+use Modules\Intervencion\Database\Factories\PlanDeIntervencionFactory;
 use Modules\Intervencion\Enums\VisibilidadApunte;
 use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\PlanDeIntervencion;
@@ -55,6 +56,7 @@ class VisibilidadApuntesTest extends TestCase
         return PlanDeIntervencion::create([
             'historia_id' => $historia->id,
             'tipo' => 'general_asp',
+            'tipo_plan_id' => PlanDeIntervencionFactory::tipoPlanPara('general_asp'),
             'profesional_responsable_id' => User::factory()->create()->id,
             'estado' => 'borrador',
             'fecha_inicio' => today()->toDateString(),
@@ -205,6 +207,7 @@ class VisibilidadApuntesTest extends TestCase
         $plan = PlanDeIntervencion::create([
             'historia_id' => $historia->id,
             'tipo' => 'general_asp',
+            'tipo_plan_id' => PlanDeIntervencionFactory::tipoPlanPara('general_asp'),
             'profesional_responsable_id' => $profesionalA->id,
             'estado' => 'borrador',
             'fecha_inicio' => today()->toDateString(),

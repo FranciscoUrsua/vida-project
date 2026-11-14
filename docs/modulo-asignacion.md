@@ -166,6 +166,10 @@ El texto actual del alta ("quedar como profesional de referencia") solo se muest
 
 El supervisor puede cambiar la referencia de una persona con motivo (conflicto, parentesco, incompatibilidad, corrección). Genera una asignación `manual`, que no cuenta en el reparto.
 
+**Interfaz** (*añadido 2026-11-14, fase 3, bloque E*): acción «Cambiar referencia» en el bloque «Centro y referencia» de la ficha (componente `intervencion.cambio-referencia`). La ve y la ejecuta solo la supervisión **adscrita** al centro de la referencia vigente (o de la historia, si no hay), no la de UO superiores; con persona protegida, igual (RN-17/RN-19). El nuevo profesional debe poder ser referencia en el centro (perfil horario vigente y cargo con `puede_ser_referencia`). Motivo de un catálogo cerrado (`MotivoCambioReferencia`: conflicto, parentesco, incompatibilidad, corrección, otro), con texto obligatorio si es «otro». `AsignacionReferenciaService::cambiarManual()` comprueba todo en el servidor y avisa al profesional saliente y al entrante.
+
+**Autorización por centro en los servicios** (*fase 3, E4*): `cambiarManual()` exige supervisión adscrita al centro; `AsignacionCentroService::asignarManual()` exige supervisar el centro asignado (o, en un traslado por cambio de domicilio, el centro de la bandeja) y `descartar()`, supervisar un centro en cuya bandeja está la entrada.
+
 ---
 
 ## 5. Reparto por salida de un profesional

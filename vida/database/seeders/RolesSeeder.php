@@ -82,7 +82,8 @@ class RolesSeeder extends Seeder
             'historia.leer',
             'apunte.leer',
             'apunte.leer_ajeno',
-            'plan.leer',
+            // Sin `plan.leer` (fase 3, decisión del 14 nov 2026): supervision no lee ni edita
+            // planes; quien los necesite tiene además el rol `intervencion`.
             'trazabilidad.consultar',
             'colectivo_protegido.aprobar_acceso',
             'atencion.leer',

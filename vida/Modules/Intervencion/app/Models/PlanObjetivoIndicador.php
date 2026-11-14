@@ -5,6 +5,7 @@ namespace Modules\Intervencion\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Indicador de un objetivo real dentro de un Plan de Intervención.
@@ -99,9 +100,19 @@ class PlanObjetivoIndicador extends Model
     /**
      * Registra una nueva valoración verificando que el valor es válido para el tipo.
      *
+     * Deja una fila en el historial (`plan_indicador_valoraciones`, fase 3, F3-7) y
+     * actualiza la valoración actual; nunca sobrescribe sin dejar rastro.
+     *
+     * @param string $valor Valor válido para `tipo_valoracion`.
+     * @param int|null $seguimientoId Seguimiento en que se valora, si lo hay.
+     * @param int|null $profesionalId Quién valora; por defecto, el usuario autenticado.
+     * @param string|null $comentario
+     *
+     * @return void
+     *
      * @throws \InvalidArgumentException Si el valor no es válido para el tipo de valoración.
      */
-    public function registrarValoracion(string $valor, ?int $seguimientoId = null): void
+    public function registrarValoracion(string $valor, ?int $seguimientoId = null, ?int $profesionalId = null, ?string $comentario = null): void
     {
         $posibles = array_keys($this->valoresPosibles());
         if (! in_array($valor, $posibles)) {
@@ -110,10 +121,29 @@ class PlanObjetivoIndicador extends Model
             );
         }
 
+        PlanIndicadorValoracion::create([
+            'plan_objetivo_indicador_id' => $this->id,
+            'seguimiento_id' => $seguimientoId,
+            'valoracion' => $valor,
+            'comentario' => $comentario,
+            'profesional_id' => $profesionalId ?? auth()->id(),
+            'fecha' => now()->toDateString(),
+        ]);
+
         $this->update([
             'valoracion_actual' => $valor,
             'fecha_valoracion' => now()->toDateString(),
             'seguimiento_id' => $seguimientoId,
         ]);
+    }
+
+    /**
+     * Historial de valoraciones, de la más antigua a la más reciente.
+     *
+     * @return HasMany<PlanIndicadorValoracion, $this>
+     */
+    public function valoraciones(): HasMany
+    {
+        return $this->hasMany(PlanIndicadorValoracion::class, 'plan_objetivo_indicador_id')->orderBy('id');
     }
 }

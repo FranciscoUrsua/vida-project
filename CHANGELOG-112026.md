@@ -4,6 +4,58 @@
 
 ---
 
+## 2026-11-14 — Dependencias: Laravel 12.72.0 (CVE-2026-128083)
+
+### Cambios
+- El hook de pre-commit bloqueaba por `composer audit`: `laravel/framework` 12.69.3 afectado por CVE-2026-128083 (baja, «Task Output Injection - Concurrency Process», publicado el 13 nov; corregido en 12.71.0). `composer update laravel/framework --with-dependencies` con `--with` para mantener `symfony/clock`, `css-selector` y `translation` en 7.4 (la primera resolución los subía a 8.1; ver la entrada del 11 nov). Laravel 12.72.0; parches de Symfony 7.4, Carbon 3.15.1, Guzzle 7.16.1, `phpdotenv` 5.8.0 y otros menores. Solo cambia `composer.lock`. `composer audit`: sin avisos.
+- Tests tras la actualización: circuito de la fase 3, Acceso, Supervisión y Auth: 156 passed, 1 incomplete y 1 skipped (previos).
+
+---
+
+## 2026-11-14 — Fase 3: circuito de intervención completo (`2026-11-fase3-circuito-intervencion.md`)
+
+### Paso 0 — Verificación
+- Suites de referencia (Intervención, Centro, Ciudadanía, Mensajes, `tests/Feature/Acceso`): 710 passed, 1 incomplete, sin fallos previos. Piezas de la fase 2 presentes (`tiposPlan()`, `centroActivo()`, `gestionaProtegido()`, `TipoCentro`).
+- BD compartida: 0 planes con `tipo` incoherente; 396 sin `tipo_plan_id` (371 activos y 25 cerrados, todos `general_asp`, creados el 26 jun 2026); de los activos, 239 con historia en el CSS Entrevías y 132 en el CIAM Puente de Vallecas. 0 apuntes `derivacion` creados con la herramienta de la caja. **Ningún tipo de centro tenía tipos de plan** (`tipo_centro_tipo_plan` vacío): no se podía abrir ningún plan en staging.
+- Lectores que decidían «es el PISO» por `tipo`: `CiudadanoPage::pisoActivo()`, `MisCasosPage` (subconsulta del plan) y `RegistrarValoracionPage::registrarApunte()`; además `PlanPage::crearNuevoPlan()` fijaba `general_asp`. Nivel 1 por la UO de la historia en `PlanDeIntervencionPolicy`, `CiudadanoPolicy`, `HistoriaSocialPolicy` y `AmbitoUoScope` (todos por `AmbitoUsuario`). Alertas con enlace: `origen_type`/`origen_id` de `Alerta`.
+
+### Decisiones del desarrollador (14 nov)
+- Los planes **activos** sin tipo pasan a PISO, salvo los 132 cuya historia es del CIAM, que pasan a **PIA** (entrada directa, centro CIAM). Los cerrados sin tipo no se tocan.
+- PIA en el tipo de centro `ciam` y PISO en `css_general` (migración de datos).
+- **`supervision` por sí solo no lee ni edita planes**: la dirección o un responsable superior que los necesite tiene además `intervencion`. Se quita `plan.leer` al rol (RolesSeeder y migración `2026_11_14_100004`). Donde las instrucciones dicen «la supervisión del centro edita el plan», se entiende supervisión **con** `intervencion`.
+- La retirada de la herramienta «Derivación» de la caja, comentada con Claude Web, ya estaba en estas instrucciones (F3-6, B4.4).
+
+### Cambios
+- **Migraciones:** `2026_11_14_100001` (`tipos_plan.es_principal` + índice único parcial; marca `piso`), `100002` (corrección de datos y tipos de plan por tipo de centro), `100003` (`planes_intervencion.centro_id`, relleno por la UO de la historia, índice único parcial «un plan vigente por tipo»), `100004` (`plan.leer` fuera de `supervision`), `100005` (`prestaciones.via_acceso` y `tipo_plan_derivacion_id`), `100006` (`derivaciones` y `derivacion_eventos` con trigger de solo inserción), `100007` (`plan_indicador_valoraciones` con trigger).
+- **A — Tipos de plan:** `TipoPlan::es_principal` (uno, de ASP; modelo e índice) y `TipoPlan::principal()`; `PlanDeIntervencion` deriva `tipo` del ámbito, rechaza uno incoherente y exige tipo de plan en los planes nuevos; `esPrincipal()`, scopes `principal()` y `vigentes()`, relación `centro()`. `PlanDeIntervencionService::crear()` con todas las reglas de apertura (A2.2). `PlanPage` crea por el servicio, ofrece solo los tipos abribles y preselecciona si hay uno (botón «Crear plan»). `pisoActivo()` → `planPrincipalActivo()`; `MisCasos` y `RegistrarValoracionPage` por el tipo principal. `HistoriaSocial::centro()`. Seeder: tipos de ASP de ejemplo en `css_general`.
+- **A3 — Acceso del equipo del plan:** `AmbitoUsuario::leePorPlan()`, `centrosDeLaPersona()`, `uoIdsPlanesEnCurso()`; `gestionaProtegido()` y `restringirHistoriasGestionables()` incluyen los centros de los planes en curso. `CiudadanoPolicy::view` y `HistoriaSocialPolicy::view` leen por plan (sin `update`). `PlanDeIntervencionPolicy` reescrita: editan responsable, supervisión del centro (con `intervencion`) y, en el principal, la referencia vigente. **Todas las acciones de escritura de `PlanPage` comprueban la policy** (antes solo activar y cerrar). Ficha: bloque «Planes de la persona». `MisCasos`: «Otros planes de los que soy responsable».
+- **B — Derivación:** enum `ViaAcceso`, validación en `Prestacion`, campos en `PrestacionResource`, prestación de prueba `DER-PIA` en `PrestacionesSeeder`. Modelos `Derivacion`, `DerivacionEvento` (inmutable), enum `EstadoDerivacion`. `DerivacionService` (derivar, aceptar, rechazar, anular, con apuntes y alertas). Componente `DerivacionesPlan` en el plan principal (modal, historial, anulación), «Derivar» en cada objetivo y sus derivaciones, cabecera «Nace de la derivación…» en el especializado. Bandeja `supervision.derivaciones` (`DerivacionesPage`) con entrada en el menú. Retirada la herramienta «Derivación» y `CiudadanoPage::crearDerivacion()`.
+- **C — Evaluación de objetivos:** `PlanIndicadorValoracion` (inmutable); `PlanObjetivoIndicador::registrarValoracion()` deja historial; `EvaluacionObjetivosService` (propuesta de estado y seguimiento en transacción); evaluación en la herramienta Entrevista al programar el seguimiento (todo en una transacción con la entrevista); evolución de cada indicador en el plan.
+- **D — Plazas:** `AvisoPlazasService`; `PrescripcionService` con resolver del TSR vigente y aviso de plaza libre (configurados en `IntervencionServiceProvider`); `AsignarPlazaModal` avisa por `AlertaService` (antes solo `Log::info`).
+- **E — Referencia:** enum `MotivoCambioReferencia`, componente `CambioReferencia` en «Centro y referencia» de la ficha; `cambiarManual()` exige supervisión adscrita, profesional elegible y avisa al saliente y al entrante; `AsignacionCentroService::asignarManual()`/`descartar()` comprueban el centro.
+- **Tests:** `Modules/Intervencion/tests/Feature/Circuito/` (9 ficheros, trait `CircuitoTestSetup`): TF-CIR-01 a 43 en verde (03 y 07 en un solo test de migración). Ajustados tests antiguos que creaban planes sin tipo de plan (ahora obligatorio), `TipoCentroTestSetup` (PISO principal), la factoría de planes (tipo de plan por defecto), `PlanContenidoTest` (7 tipos del seeder), `CierrePlanTest` y `ObjetivosIndicadoresTest` (sin `TipoPlan::first()`, que tras la marca de principal devolvía otro tipo), `MigracionTipoCentroTest` (cuenta las migraciones por nombre) y retirado TF-LW-CIU-15 (`crearDerivacion`, sustituido por TF-CIR-43).
+- **Negativos comprobados** (quitando la protección, el test falla): TF-CIR-01, 02, 04, 08 (subconsulta del equipo en el scope), 10, 13, 17, 21, 24, 30, 34, 37, 40 y 43.
+- `npm run build` y `ui:auditar` sin infracciones.
+- Documentación: `modulo-intervencion.md` (§5.1, §5.2, §5.2.1, §5.7 «Derivación», §6.2 bis), `modulo-prestaciones.md`, `modulo-solicitudes-expedientes.md` RN-01, `modulo-asignacion.md` §4.5, addenda de Tipo de Centro (RN-17 ampliada), `modulo-usuarios-permisos.md` (rol `supervision`), `CLAUDE.md` §6 y tabla de estado de las instrucciones.
+
+### Decisiones de implementación no previstas
+- **Centro obligatorio en planes nuevos:** lo exige `PlanDeIntervencionService::crear()`, no el modelo, porque las factorías y los escenarios de demo crean planes sin centro (BACKLOG).
+- **Plan principal sin referencia vigente:** lo puede abrir cualquier profesional adscrito al centro de la historia (las instrucciones solo hablan del TSR o la supervisión).
+- **«Vigente» para «un plan por tipo»:** `borrador` o `activo`; `en_revision` es la versión sustituida de `crearNuevaVersion()` y no cuenta.
+- **Propuesta de estado para `si`:** conseguido (las instrucciones no lo decían).
+- **Resolver derivaciones y cambiar la referencia** exige supervisión **adscrita** al centro, no la de UO superiores: lo piden TF-CIR-21 y 37, aunque E1 citaba `supervisa()` (que incluye el ámbito). Puede afectar a la bandeja «sin referencia» resuelta por una coordinación superior (BACKLOG).
+- **Identidad en la bandeja de derivaciones:** la supervisión adscrita al destino ve siempre la identidad (RN-19) aunque todavía no tenga acceso a la historia.
+- **Lectura por plan para no protegidos:** también la da el rol `intervencion` con el centro del plan en su ámbito, igual que la salvedad de protegidos, para que la regla sea la misma.
+- **`planActivo()` de la ficha** (apuntes y cita de seguimiento) pasa a ser el plan principal en curso o, si no hay, el último del que el usuario es responsable.
+- **`Derivacion` sin `Versionable`:** el historial de `derivacion_eventos` cumple esa función, como en las citas. Motivos cifrados.
+- Las alertas de derivaciones, plazas y referencia **no nombran a la persona**.
+
+### Suite completa
+- Antes de los ajustes finales: 1417 passed, 14 failed, 12 incomplete, 2 skipped. De los 14: el previo de `AutorizacionDatosTest`; 2 de `CuadranteSupervisorTest` (Agenda) que **también fallan sin los cambios de esta fase** (comprobado con `git stash`, probablemente por la fecha; al BACKLOG); y 11 de tests antiguos afectados por la fase, ya corregidos (ver arriba).
+- **Tests de cierre** (tras los ajustes y Pint): Intervención, Ciudadanía, Supervisión, Prestaciones, `tests/Feature/Auditoria` y `tests/Feature/Acceso`: 592 passed, 1 incomplete (previo); unos 19 min.
+
+---
+
 ## 2026-11-13 — Tipo de Centro: cierre de la fase (fase 2, paso 10)
 
 ### Cambios

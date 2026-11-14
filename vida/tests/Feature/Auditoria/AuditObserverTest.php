@@ -10,6 +10,7 @@ use App\Models\User;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Modules\Intervencion\Database\Factories\PlanDeIntervencionFactory;
 use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use PHPUnit\Framework\Attributes\Test;
@@ -66,6 +67,7 @@ class AuditObserverTest extends TestCase
         $this->plan = PlanDeIntervencion::withoutGlobalScopes()->create([
             'historia_id' => $historia->id,
             'tipo' => 'general_asp',
+            'tipo_plan_id' => PlanDeIntervencionFactory::tipoPlanPara('general_asp'),
             'profesional_responsable_id' => $this->profesional->id,
             'estado' => 'borrador',
             'fecha_inicio' => today()->toDateString(),

@@ -13,7 +13,6 @@ use Modules\Agenda\Services\Citas\AtencionCitaService;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Intervencion\Enums\TipoApunte;
-use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Enums\VisibilidadApunte;
 use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\Ficha;
@@ -190,15 +189,17 @@ class RegistrarValoracionPage extends Component
 
     /**
      * Crea un apunte de tipo Valoración en la Historia Social.
-     * Si hay un plan en curso, se vincula también al plan.
+     * Si hay un plan principal en curso, se vincula también a él (por su tipo de plan, F3-1).
      *
      * @param Ficha $ficha Ficha recién guardada como definitiva.
+     *
+     * @return void
      */
     private function registrarApunte(Ficha $ficha): void
     {
         $plan = PlanDeIntervencion::withoutGlobalScopes()
             ->where('historia_id', $this->historiaId)
-            ->where('tipo', TipoPlan::GeneralAsp)
+            ->principal()
             ->whereIn('estado', ['borrador', 'activo', 'en_revision'])
             ->latest()
             ->first();

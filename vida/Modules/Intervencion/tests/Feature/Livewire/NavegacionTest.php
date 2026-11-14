@@ -15,6 +15,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
+use Modules\Intervencion\Database\Factories\PlanDeIntervencionFactory;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
@@ -430,6 +431,7 @@ class NavegacionTest extends TestCase
         DB::table('planes_intervencion')->insert([
             'historia_id' => $historia->id,
             'tipo' => 'general_asp',
+            'tipo_plan_id' => PlanDeIntervencionFactory::tipoPlanPara('general_asp'),
             'profesional_responsable_id' => $this->usuario->id,
             'estado' => 'activo',
             'fecha_inicio' => today()->toDateString(),
@@ -479,6 +481,7 @@ class NavegacionTest extends TestCase
         DB::table('planes_intervencion')->insert([
             'historia_id' => $historia->id,
             'tipo' => 'general_asp',
+            'tipo_plan_id' => PlanDeIntervencionFactory::tipoPlanPara('general_asp'),
             'profesional_responsable_id' => $this->usuario->id,
             'estado' => 'activo',
             'fecha_inicio' => today()->toDateString(),

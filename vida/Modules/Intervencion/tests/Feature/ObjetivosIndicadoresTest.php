@@ -26,7 +26,7 @@ class ObjetivosIndicadoresTest extends TestCase
         $this->seed(TipoPlanSeeder::class);
 
         return PlanDeIntervencion::factory()->create([
-            'tipo_plan_id' => TipoPlan::first()->id,
+            'tipo_plan_id' => TipoPlan::where('slug', 'asp_general')->value('id'),
         ]);
     }
 

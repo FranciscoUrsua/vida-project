@@ -28,17 +28,44 @@ class PrescripcionService
      */
     private $tsrResolver;
 
+    /**
+     * Aviso al profesional de una entrada de lista de espera cuando se libera una plaza.
+     * Lo configura IntervencionServiceProvider con AvisoPlazasService (fase 3, D3).
+     *
+     * @var callable(ListaEspera): void
+     */
+    private $avisoPlazaLibre;
+
+    /**
+     * Arranca sin resolución de TSR ni avisos hasta que se configuren.
+     */
     public function __construct()
     {
         // Por defecto no hay resolución de TSR hasta que se configure.
         $this->tsrResolver = fn (int $ciudadanoId): ?int => null;
+        $this->avisoPlazaLibre = fn (ListaEspera $entrada): null => null;
+    }
+
+    /**
+     * Inyecta el aviso de plaza libre a la lista de espera.
+     *
+     * @param callable(ListaEspera): void $aviso
+     *
+     * @return void
+     */
+    public function setAvisoPlazaLibre(callable $aviso): void
+    {
+        $this->avisoPlazaLibre = $aviso;
     }
 
     /**
      * Inyecta la función de resolución del TSR activo.
-     * Uso previsto: tests y adaptadores hacia el módulo Ciudadanía.
+     * La configura IntervencionServiceProvider con el profesional de referencia vigente
+     * (AvisoPlazasService, fase 3, D1); los tests pueden sustituirla.
      *
-     * @param callable(int): int|null $resolver
+     * @param callable(int): int|null $resolver Devuelve el id de la ficha de profesional.
+     *
+     * @return void
      */
     public function setTsrResolver(callable $resolver): void
     {
@@ -122,6 +149,8 @@ class PrescripcionService
             if ($tsrId !== null) {
                 $entrada->update(['profesional_alerta_id' => $tsrId]);
             }
+
+            ($this->avisoPlazaLibre)($entrada);
         }
     }
 

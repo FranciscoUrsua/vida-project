@@ -27,8 +27,8 @@ class MigracionTipoCentroTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** Migraciones desde `2026_11_12_100001_create_tipos_centro_table` hasta la última. */
-    private const MIGRACIONES_DESDE_LA_FASE = 11;
+    /** Primera migración de la fase; se deshace desde ella hasta la última (incluidas las posteriores). */
+    private const PRIMERA_MIGRACION_DE_LA_FASE = '2026_11_12_100001_create_tipos_centro_table';
 
     /** TF-TCE-34 — Tras migrar: un tipo por clave, todo con tipo, catálogo antiguo inactivo, horarios intactos y columnas antiguas fuera. */
     #[Test]
@@ -36,10 +36,10 @@ class MigracionTipoCentroTest extends TestCase
     {
         Carbon::setTestNow('2026-11-02 10:00');
 
-        $primera = DB::table('migrations')->orderByDesc('migration')->skip(self::MIGRACIONES_DESDE_LA_FASE - 1)->value('migration');
-        $this->assertSame('2026_11_12_100001_create_tipos_centro_table', $primera, 'Ajusta MIGRACIONES_DESDE_LA_FASE: hay migraciones nuevas.');
+        // Se cuentan por nombre para que las migraciones de fases posteriores no descuadren el paso.
+        $pasos = DB::table('migrations')->where('migration', '>=', self::PRIMERA_MIGRACION_DE_LA_FASE)->count();
 
-        Artisan::call('migrate:rollback', ['--step' => self::MIGRACIONES_DESDE_LA_FASE, '--force' => true]);
+        Artisan::call('migrate:rollback', ['--step' => $pasos, '--force' => true]);
         $this->assertTrue(Schema::hasColumn('centros', 'tipo_centro'));
         $this->assertFalse(Schema::hasTable('tipos_centro'));
 

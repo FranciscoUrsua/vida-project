@@ -12,6 +12,7 @@
         request()->routeIs('supervision.plazas')             => 'Plazas',
         request()->routeIs('supervision.equipo*')            => 'Mi equipo',
         request()->routeIs('supervision.asignaciones*')      => 'Asignaciones',
+        request()->routeIs('supervision.derivaciones')       => 'Derivaciones',
         request()->routeIs('agenda.citas*')                  => 'Citación',
         request()->routeIs('supervision.auditoria')          => 'Accesos',
         request()->routeIs('supervision.aprobaciones')       => 'Aprobaciones',

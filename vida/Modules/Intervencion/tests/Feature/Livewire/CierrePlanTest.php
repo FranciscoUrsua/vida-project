@@ -45,7 +45,7 @@ class CierrePlanTest extends TestCase
         $plan = PlanDeIntervencion::factory()->create([
             'historia_id' => $historia->id,
             'estado' => 'activo',
-            'tipo_plan_id' => TipoPlan::first()->id,
+            'tipo_plan_id' => TipoPlan::where('slug', 'asp_general')->value('id'),
             'profesional_responsable_id' => $user->id,
         ]);
 

@@ -70,6 +70,17 @@
 <div class="row g-3 align-items-start mx-0 p-3 p-lg-4">
 <div class="col d-flex flex-column gap-3">
 
+    {{-- Origen de un plan especializado nacido de una derivación (fase 3, B4.3) --}}
+    @if($this->origenDerivacion)
+    <div class="alert alert-info d-flex flex-wrap align-items-center gap-2 mb-0 small">
+        <x-heroicon-o-arrow-right-circle class="icon-16" aria-hidden="true"/>
+        Nace de la derivación del plan principal de {{ $this->origenDerivacion['centro'] }}.
+        @if($this->origenDerivacion['url'])
+        <a href="{{ $this->origenDerivacion['url'] }}" wire:navigate class="alert-link">Ver el plan principal</a>
+        @endif
+    </div>
+    @endif
+
     {{-- SECCIÓN 0: Datos de la persona --}}
     <div class="card" id="ps-datos"         x-on:focusin="seccionActiva = 'datos'"         x-on:click="seccionActiva = 'datos'">
         <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
@@ -149,12 +160,19 @@
                 <option value="{{ $id }}">{{ $nombre }}</option>
                 @endforeach
             </select>
-            <div class="form-text" wire:loading wire:target="updatedTipoPlanId">
+            <div class="form-text" wire:loading wire:target="updatedTipoPlanId,crearNuevoPlan">
                 Creando borrador…
             </div>
             @error('tipoPlanId')
             <div class="invalid-feedback">{{ $message }}</div>
             @enderror
+            @if(empty($this->tiposPlanes))
+            <p class="form-text mb-0">No hay ningún tipo de plan que puedas abrir en este centro para esta persona.</p>
+            @elseif($tipoPlanId)
+            <button type="button" wire:click="crearNuevoPlan" class="btn btn-primary btn-sm mt-3" wire:loading.attr="disabled">
+                Crear plan
+            </button>
+            @endif
         </div>
     </div>
     @endif
@@ -306,10 +324,32 @@
                                 </label>
                                 @endforeach
                             </div>
+                            @if($og->indicador->valoraciones->isNotEmpty())
+                            <div class="small text-body-secondary mt-2">
+                                <span class="fw-semibold">Evolución:</span>
+                                @foreach($og->indicador->valoraciones as $valoracionHistorica)
+                                <span class="text-nowrap" wire:key="val-{{ $valoracionHistorica->id }}">{{ $valoracionHistorica->fecha->format('d/m/Y') }} {{ $og->indicador->valoresPosibles()[$valoracionHistorica->valoracion] ?? $valoracionHistorica->valoracion }}@if(! $loop->last) → @endif</span>
+                                @endforeach
+                            </div>
+                            @endif
                         </div>
                         @endif
+
+                        {{-- Derivaciones hechas desde este objetivo (fase 3, TF-CIR-27) --}}
+                        @foreach($this->derivacionesPorObjetivo->get($og->id, collect()) as $derivacionObjetivo)
+                        <div class="small mt-2" wire:key="deriv-og-{{ $derivacionObjetivo->id }}">
+                            <span class="badge rounded-pill {{ $derivacionObjetivo->estado->tono()->clasesSuave() }}">{{ $derivacionObjetivo->estado->label() }}</span>
+                            Derivación a {{ $derivacionObjetivo->centroDestino->nombre }}
+                        </div>
+                        @endforeach
                     </div>
-                    <div class="card-footer d-flex justify-content-end">
+                    <div class="card-footer d-flex justify-content-end gap-2">
+                        @if($this->plan?->esPrincipal() && $this->plan->estado->value === 'activo' && $this->puedeEditar)
+                        <button type="button" wire:click="$dispatch('abrir-derivacion', { objetivoId: {{ $og->id }} })" class="btn btn-outline-secondary btn-sm">
+                            <x-heroicon-o-arrow-right-circle class="icon-14"/>
+                            Derivar
+                        </button>
+                        @endif
                         <button wire:click="abrirEditarObjetivo({{ $og->id }})" class="btn btn-outline-secondary btn-sm">
                             <x-heroicon-o-pencil-square class="icon-14"/>
                             Editar
@@ -375,6 +415,11 @@
             @endif
         </div>
     </div>
+
+    {{-- Derivaciones del plan principal (fase 3, B4.1) --}}
+    @if($this->plan?->esPrincipal())
+    @livewire('intervencion.derivaciones-plan', ['planId' => $this->plan->id], key('derivaciones-'.$this->plan->id))
+    @endif
 
     {{-- SECCIÓN 3: Compromisos del Ayuntamiento --}}
     <div class="card" id="ps-ayto"          x-on:focusin="seccionActiva = 'ayto'"          x-on:click="seccionActiva = 'ayto'">

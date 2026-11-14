@@ -4,6 +4,8 @@ namespace Modules\Prestaciones\Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Modules\Centro\Models\TipoCentro;
+use Modules\Intervencion\Models\TipoPlan;
+use Modules\Prestaciones\Enums\ViaAcceso;
 use Modules\Prestaciones\Models\Prestacion;
 
 /**
@@ -18,6 +20,11 @@ use Modules\Prestaciones\Models\Prestacion;
  */
 class PrestacionesSeeder extends Seeder
 {
+    /**
+     * Carga el catálogo y la prestación de derivación de prueba.
+     *
+     * @return void
+     */
     public function run(): void
     {
         foreach ($this->prestaciones() as $data) {
@@ -36,9 +43,46 @@ class PrestacionesSeeder extends Seeder
                 $prestacion->tiposCentro()->create(['tipo_centro_id' => $tipoId]);
             }
         }
+
+        $this->derivacionAlPia();
     }
 
     /**
+     * Prestación de derivación de prueba al PIA (fase 3, B1.4), si existe el tipo de plan `pia`.
+     *
+     * Con ella el TSR deriva desde el plan principal a un CIAM. Se ofrece en `css_general`,
+     * el tipo de centro desde el que se deriva.
+     *
+     * @return void
+     */
+    private function derivacionAlPia(): void
+    {
+        $pia = TipoPlan::where('slug', 'pia')->where('ambito', 'especializado')->value('id');
+
+        if ($pia === null) {
+            return;
+        }
+
+        $prestacion = Prestacion::updateOrCreate(['codigo' => 'DER-PIA'], [
+            'nombre' => 'Derivación a atención integral a la mujer (PIA)',
+            'tipo_prestacion' => 'servicio',
+            'nivel_garantia' => 'garantizada',
+            'via_acceso' => ViaAcceso::Derivacion,
+            'tipo_plan_derivacion_id' => $pia,
+            'nivel_atencion' => 'especializada',
+            'descripcion' => 'Derivación desde el plan principal a un Centro Integral de Atención a la Mujer, que abre un PIA.',
+            'activa' => true,
+        ]);
+
+        $prestacion->tiposCentro()->delete();
+        foreach (TipoCentro::where('codigo', 'css_general')->pluck('id') as $tipoId) {
+            $prestacion->tiposCentro()->create(['tipo_centro_id' => $tipoId]);
+        }
+    }
+
+    /**
+     * Catálogo oficial de prestaciones.
+     *
      * @return array<int, array<string, mixed>>
      */
     private function prestaciones(): array

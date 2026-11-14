@@ -20,6 +20,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Modules\Agenda\Models\Cita;
@@ -287,6 +288,17 @@ class FichaCiudadanoPage extends Component
             ->orderByDesc('id')
             ->get()
             ->toBase();
+    }
+
+    /**
+     * Refresca el bloque «Centro y referencia» tras un cambio de referencia (fase 3, bloque E).
+     *
+     * @return void
+     */
+    #[On('referencia-cambiada')]
+    public function refrescarReferencia(): void
+    {
+        unset($this->asignacionesReferencia);
     }
 
     /**

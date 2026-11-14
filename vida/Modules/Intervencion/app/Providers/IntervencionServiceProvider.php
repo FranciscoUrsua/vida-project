@@ -7,10 +7,13 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
+use Modules\Centro\Services\PrescripcionService;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\AsignarPlazaModal;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
+use Modules\Intervencion\Http\Livewire\CambioReferencia;
 use Modules\Intervencion\Http\Livewire\CiudadanoPage;
+use Modules\Intervencion\Http\Livewire\DerivacionesPlan;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
 use Modules\Intervencion\Http\Livewire\PrescribirRecursoModal;
 use Modules\Intervencion\Http\Livewire\RecursosPage;
@@ -21,6 +24,7 @@ use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Policies\ApuntePolicy;
 use Modules\Intervencion\Policies\PlanDeIntervencionPolicy;
+use Modules\Intervencion\Services\AvisoPlazasService;
 use Modules\Intervencion\Services\IntervencionSidebarDataService;
 use Random\Engine\Secure;
 use Random\Randomizer;
@@ -46,6 +50,13 @@ class IntervencionServiceProvider extends ServiceProvider
 
         // Azar del sorteo de referencias: seguro en producción; los tests fijan la semilla con app()->instance()
         $this->app->bind(Randomizer::class, fn () => new Randomizer(new Secure));
+
+        // Plazas y profesional de referencia (fase 3, bloque D): al liberar una plaza, la lista
+        // de espera apunta al TSR vigente y se le avisa por AlertaService.
+        $this->app->afterResolving(PrescripcionService::class, function ($prescripciones): void {
+            $prescripciones->setTsrResolver(fn (int $ciudadanoId): ?int => app(AvisoPlazasService::class)->profesionalReferenciaDe($ciudadanoId));
+            $prescripciones->setAvisoPlazaLibre(fn ($entrada) => app(AvisoPlazasService::class)->avisarPlazaLibre($entrada));
+        });
     }
 
     /**
@@ -75,6 +86,8 @@ class IntervencionServiceProvider extends ServiceProvider
         Livewire::component('intervencion.mis-casos-page', MisCasosPage::class);
         Livewire::component('intervencion.buscar-ciudadano-page', BuscarCiudadanoPage::class);
         Livewire::component('intervencion.ciudadano-page', CiudadanoPage::class);
+        Livewire::component('intervencion.derivaciones-plan', DerivacionesPlan::class);
+        Livewire::component('intervencion.cambio-referencia', CambioReferencia::class);
         Livewire::component('intervencion.registrar-valoracion-page', RegistrarValoracionPage::class);
         Livewire::component('intervencion.registrar-escala-page', RegistrarEscalaPage::class);
         Livewire::component('intervencion.recursos-page', RecursosPage::class);

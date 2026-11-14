@@ -64,9 +64,12 @@ class CiudadanoPolicy
      * Decide si el usuario puede consultar la ficha del ciudadano.
      *
      * Evaluación en tres pasos estándar más verificación de colectivo protegido.
+     * El equipo de un plan en curso de la persona también la consulta (fase 3, F3-3).
      *
      * @param User $usuario Usuario autenticado.
      * @param Ciudadano $ciudadano Ciudadano objetivo.
+     *
+     * @return bool
      */
     public function view(User $usuario, Ciudadano $ciudadano): bool
     {
@@ -79,6 +82,11 @@ class CiudadanoPolicy
         $historia = $this->obtenerHistoriaPrincipal($ciudadano);
 
         if ($historia !== null && app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia)) {
+            return true;
+        }
+
+        // Equipo de un plan en curso de la persona: lectura (fase 3, F3-3); no da `update`.
+        if ($historia !== null && app(AmbitoUsuario::class)->leePorPlan($usuario, $historia)) {
             return true;
         }
 

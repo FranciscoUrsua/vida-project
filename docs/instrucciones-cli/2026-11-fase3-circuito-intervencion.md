@@ -316,8 +316,8 @@ Eventos: `derivacion_eventos`, inmutable (trigger que rechaza UPDATE y DELETE, c
 
 | Grupo | Tests | Estado |
 |---|---|---|
-| A — Tipos de plan y centro del plan | TF-CIR-01..07, 39..41 | |
-| B — Acceso del equipo del plan | TF-CIR-08..14, 42 | |
-| C — Derivación | TF-CIR-15..27, 43 | |
-| D — Evaluación de objetivos | TF-CIR-28..33 | |
-| E — Plazas y referencia | TF-CIR-34..38 | |
+| A — Tipos de plan y centro del plan | TF-CIR-01..07, 39..41 | Hecho 2026-11-14 |
+| B — Acceso del equipo del plan | TF-CIR-08..14, 42 | Hecho 2026-11-14 |
+| C — Derivación | TF-CIR-15..27, 43 | Hecho 2026-11-14 |
+| D — Evaluación de objetivos | TF-CIR-28..33 | Hecho 2026-11-14 |
+| E — Plazas y referencia | TF-CIR-34..38 | Hecho 2026-11-14 |

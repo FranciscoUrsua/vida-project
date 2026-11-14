@@ -9,6 +9,7 @@ use Modules\Supervision\Http\Livewire\AsignacionesPage;
 use Modules\Supervision\Http\Livewire\AuditoriaPage;
 use Modules\Supervision\Http\Livewire\ConfiguracionCentroPage;
 use Modules\Supervision\Http\Livewire\CuadrantePage;
+use Modules\Supervision\Http\Livewire\DerivacionesPage;
 use Modules\Supervision\Http\Livewire\EquipoPage;
 use Modules\Supervision\Http\Livewire\InicioPage;
 use Modules\Supervision\Http\Livewire\PlazasPage;
@@ -41,6 +42,7 @@ Route::middleware(['web', 'auth', 'role:supervision'])->prefix('supervision')->n
     Route::get('/asignaciones/{pestana?}', AsignacionesPage::class)
         ->whereIn('pestana', ['pendientes', 'actividad'])
         ->name('asignaciones');
+    Route::get('/derivaciones', DerivacionesPage::class)->name('derivaciones');
     Route::get('/auditoria', AuditoriaPage::class)->name('auditoria');
     Route::get('/aprobaciones', AprobacionesPage::class)->name('aprobaciones');
     Route::get('/configuracion', ConfiguracionCentroPage::class)->name('configuracion');

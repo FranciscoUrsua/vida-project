@@ -6,6 +6,7 @@ use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Modules\Intervencion\Database\Factories\PlanDeIntervencionFactory;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Models\Entrevista;
@@ -59,6 +60,7 @@ class VersionadoPlanTest extends TestCase
         return PlanDeIntervencion::create([
             'historia_id' => $historia->id,
             'tipo' => TipoPlan::GeneralAsp,
+            'tipo_plan_id' => PlanDeIntervencionFactory::tipoPlanPara(TipoPlan::GeneralAsp),
             'profesional_responsable_id' => $this->profesional->id,
             'estado' => EstadoPlan::Activo->value,
             'fecha_inicio' => today()->toDateString(),
@@ -236,6 +238,7 @@ class VersionadoPlanTest extends TestCase
         $plan = PlanDeIntervencion::create([
             'historia_id' => $historia->id,
             'tipo' => TipoPlan::GeneralAsp,
+            'tipo_plan_id' => PlanDeIntervencionFactory::tipoPlanPara(TipoPlan::GeneralAsp),
             'profesional_responsable_id' => $this->profesional->id,
             'estado' => EstadoPlan::Borrador,
             'fecha_inicio' => today()->toDateString(),
@@ -265,6 +268,7 @@ class VersionadoPlanTest extends TestCase
         $planEspecializado = PlanDeIntervencion::create([
             'historia_id' => $historia->id,
             'tipo' => TipoPlan::Especializado,
+            'tipo_plan_id' => PlanDeIntervencionFactory::tipoPlanPara(TipoPlan::Especializado),
             'profesional_responsable_id' => $this->profesional->id,
             'plan_asp_id' => $planAsp->id,
             'estado' => EstadoPlan::Borrador,

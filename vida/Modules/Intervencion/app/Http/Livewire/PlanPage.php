@@ -9,11 +9,14 @@ use App\Models\User;
 use App\Services\AccesoExpediente;
 use App\Services\PresentacionPersona;
 use DomainException;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
+use Modules\Centro\Models\Centro;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Ciudadania\Models\CiudadanoRelacion;
@@ -21,9 +24,9 @@ use Modules\Ciudadania\Models\TipoRelacion;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\TipoApunte;
-use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Enums\VisibilidadApunte;
 use Modules\Intervencion\Models\Apunte;
+use Modules\Intervencion\Models\Derivacion;
 use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\FirmaPlan;
 use Modules\Intervencion\Models\ObjetivoCatalogo;
@@ -33,6 +36,7 @@ use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\PlanObjetivo;
 use Modules\Intervencion\Models\PlanObjetivoIndicador;
 use Modules\Intervencion\Models\PlanParticipante;
+use Modules\Intervencion\Models\TipoPlan;
 use Modules\Intervencion\Services\PlanDeIntervencionService;
 use Modules\Intervencion\Services\PlanPdfService;
 use Modules\Prestaciones\Models\Prestacion;
@@ -261,6 +265,11 @@ class PlanPage extends Component
                 $acceso->historia(auth()->user(), $this->historiaId);
             }
             $this->ucId = $uc ?? ((int) request()->query('uc') ?: null);
+
+            // Un solo tipo posible: se preselecciona, pero se muestra y hay que confirmarlo (A1.5).
+            if ($this->historiaId !== null && count($this->tiposPlanes) === 1) {
+                $this->tipoPlanId = (int) array_key_first($this->tiposPlanes);
+            }
         }
     }
 
@@ -396,7 +405,7 @@ class PlanPage extends Component
         }
 
         return $this->plan->objetivosGenerales()
-            ->with('indicador')
+            ->with('indicador.valoraciones') // con el historial para la evolución (fase 3, C5)
             ->get();
     }
 
@@ -537,13 +546,46 @@ class PlanPage extends Component
         // Solo los tipos de plan del centro en que se abre (docs/modulo-tipo-centro.md §6.2)
         $centro = app(CentroDeUsuario::class)->centroActivo(auth()->user());
         if ($centro !== null) {
-            return app(ConfiguracionEfectivaCentro::class)->tiposPlan($centro)->pluck('nombre', 'id')->toArray();
+            $tipos = app(ConfiguracionEfectivaCentro::class)->tiposPlan($centro);
+
+            // Al crear, solo los que se pueden abrir aquí (fase 3, A1.5); el servicio lo vuelve a comprobar.
+            if ($this->plan === null && $this->historiaId !== null) {
+                $tipos = $this->tiposAbribles($tipos, $centro);
+            }
+
+            return $tipos->pluck('nombre', 'id')->toArray();
         }
 
-        return \Modules\Intervencion\Models\TipoPlan::activos()
+        return TipoPlan::activos()
             ->orderBy('nombre')
             ->pluck('nombre', 'id')
             ->toArray();
+    }
+
+    /**
+     * Quita de los tipos del centro los que no se pueden abrir para esta historia (fase 3, A1.5).
+     *
+     * Fuera: los que ya tienen un plan vigente en la historia, el principal si el centro
+     * no es el de la historia y los especializados sin entrada directa (nacen de una derivación).
+     *
+     * @param EloquentCollection<int, TipoPlan> $tipos
+     * @param Centro $centro
+     *
+     * @return EloquentCollection<int, TipoPlan>
+     */
+    private function tiposAbribles(EloquentCollection $tipos, Centro $centro): EloquentCollection
+    {
+        $historia = HistoriaSocial::withoutGlobalScopes()->with('centro')->find($this->historiaId);
+        $vigentes = PlanDeIntervencion::withoutGlobalScopes()
+            ->where('historia_id', $this->historiaId)
+            ->vigentes()
+            ->pluck('tipo_plan_id')
+            ->filter()
+            ->all();
+
+        return $tipos->reject(fn ($tipo) => in_array($tipo->id, $vigentes, true)
+            || ($tipo->es_principal && $historia?->centro?->id !== $centro->id)
+            || ($tipo->ambito === 'especializado' && ! $tipo->admite_entrada_directa))->values();
     }
 
     /**
@@ -699,6 +741,7 @@ class PlanPage extends Component
      */
     public function aplicarSeleccionFichas(): void
     {
+        $this->exigirEdicion();
         // En modo creación: wire:model ya actualizó $fichasSeleccionadas; solo cerrar.
         if (! $this->plan) {
             unset($this->fichasDiagnostico);
@@ -761,6 +804,7 @@ class PlanPage extends Component
      */
     public function eliminarFichaDiagnostico(int $fichaId): void
     {
+        $this->exigirEdicion();
         if (! $this->plan) {
             // En modo creación: solo quitar del array local.
             $this->fichasSeleccionadas = array_values(
@@ -808,12 +852,14 @@ class PlanPage extends Component
      */
     public function guardarDiagnosticoDesdeEditor(string $html): void
     {
+        $this->exigirEdicion();
         $this->diagnosticoTexto = $html;
         $this->guardarDiagnostico();
     }
 
     public function guardarDiagnostico(): void
     {
+        $this->exigirEdicion();
         if (! $this->plan) {
             return;
         }
@@ -853,6 +899,7 @@ class PlanPage extends Component
      */
     public function guardarEdicionObjetivo(): void
     {
+        $this->exigirEdicion();
         $this->validate([
             'editarObjetivoTexto' => 'required|string|max:500',
         ]);
@@ -881,6 +928,7 @@ class PlanPage extends Component
      */
     public function eliminarObjetivo(): void
     {
+        $this->exigirEdicion();
         if (! $this->editarObjetivoId || ! $this->plan) {
             return;
         }
@@ -922,6 +970,7 @@ class PlanPage extends Component
      */
     public function guardarSeguimiento(): void
     {
+        $this->exigirEdicion();
         if (! $this->plan) {
             return;
         }
@@ -939,6 +988,7 @@ class PlanPage extends Component
      */
     public function marcarFirmaProfesional(bool $valor): void
     {
+        $this->exigirEdicion();
         if (! $this->plan || $this->plan->estado === EstadoPlan::Cerrado) {
             return;
         }
@@ -955,6 +1005,7 @@ class PlanPage extends Component
      */
     public function marcarFirmaCiudadano(bool $valor): void
     {
+        $this->exigirEdicion();
         if (! $this->plan || $this->plan->estado === EstadoPlan::Cerrado) {
             return;
         }
@@ -971,6 +1022,7 @@ class PlanPage extends Component
      */
     public function guardarFechaFirma(): void
     {
+        $this->exigirEdicion();
         if (! $this->plan) {
             return;
         }
@@ -1002,6 +1054,7 @@ class PlanPage extends Component
      */
     public function activarPlan(): void
     {
+        $this->exigirEdicion();
         if (! $this->plan || ! $this->puedeActivarse) {
             return;
         }
@@ -1037,6 +1090,7 @@ class PlanPage extends Component
      */
     public function confirmarCambioConMotivo(): void
     {
+        $this->exigirEdicion();
         if (empty(trim($this->motivoTexto))) {
             return;
         }
@@ -1107,28 +1161,23 @@ class PlanPage extends Component
 
         $historia = HistoriaSocial::findOrFail($this->historiaId);
 
+        // Todas las reglas de apertura (tipo del centro, plan principal, entrada directa,
+        // un plan vigente por tipo) están en el servicio (fase 3, A2.2).
         try {
-            app(PlanDeIntervencionService::class)->exigirTipoPlanDelCentro(
-                (int) $this->tipoPlanId,
-                app(CentroDeUsuario::class)->centroActivo(auth()->user()),
-            );
+            $plan = app(PlanDeIntervencionService::class)->crear([
+                'historia_id' => $historia->id,
+                'tipo_plan_id' => (int) $this->tipoPlanId,
+                'estado' => EstadoPlan::Borrador,
+                'fecha_inicio' => today()->toDateString(),
+                'version' => 1,
+                'diagnostico_social' => $this->diagnosticoTexto ?: null,
+                'periodicidad_seguimiento' => $this->periodicidadSeguimiento,
+            ]);
         } catch (DomainException $e) {
             $this->addError('tipoPlanId', $e->getMessage());
 
             return null;
         }
-
-        $plan = PlanDeIntervencion::create([
-            'historia_id' => $historia->id,
-            'tipo_plan_id' => $this->tipoPlanId,
-            'tipo' => TipoPlan::GeneralAsp,
-            'profesional_responsable_id' => auth()->id(),
-            'estado' => EstadoPlan::Borrador,
-            'fecha_inicio' => today()->toDateString(),
-            'version' => 1,
-            'diagnostico_social' => $this->diagnosticoTexto ?: null,
-            'periodicidad_seguimiento' => $this->periodicidadSeguimiento,
-        ]);
 
         foreach ($this->fichasSeleccionadas as $orden => $fichaId) {
             $plan->fichasDiagnostico()->create([
@@ -1146,6 +1195,7 @@ class PlanPage extends Component
      */
     public function asignarTipoPlan(): void
     {
+        $this->exigirEdicion();
         if (! $this->plan || ! $this->tipoPlanId) {
             return;
         }
@@ -1170,6 +1220,7 @@ class PlanPage extends Component
      */
     public function guardarPlan(): void
     {
+        $this->exigirEdicion();
         if (! $this->plan) {
             return;
         }
@@ -1220,6 +1271,7 @@ class PlanPage extends Component
      */
     public function guardarObjetivosDesdeCatalogo(): void
     {
+        $this->exigirEdicion();
         if (! $this->plan || empty($this->objetivosCatalogoSeleccionados)) {
             return;
         }
@@ -1287,6 +1339,7 @@ class PlanPage extends Component
      */
     public function guardarObjetivo(): void
     {
+        $this->exigirEdicion();
         if (! $this->plan) {
             return;
         }
@@ -1337,6 +1390,7 @@ class PlanPage extends Component
      */
     public function guardarEdicionCompromisoCiudadano(): void
     {
+        $this->exigirEdicion();
         $this->validate([
             'editarCompromisoCiudadanoDescripcion' => 'required|string|min:3|max:500',
         ]);
@@ -1363,6 +1417,7 @@ class PlanPage extends Component
      */
     public function eliminarCompromisoCiudadano(): void
     {
+        $this->exigirEdicion();
         if (! $this->editarCompromisoCiudadanoId || ! $this->plan) {
             return;
         }
@@ -1399,6 +1454,7 @@ class PlanPage extends Component
      */
     public function guardarCompromisoCiudadano(): void
     {
+        $this->exigirEdicion();
         if (! $this->plan) {
             return;
         }
@@ -1438,6 +1494,7 @@ class PlanPage extends Component
      */
     public function guardarActuacionAyto(): void
     {
+        $this->exigirEdicion();
         if (! $this->plan) {
             return;
         }
@@ -1487,6 +1544,7 @@ class PlanPage extends Component
      */
     public function guardarEdicionActuacionAyto(): void
     {
+        $this->exigirEdicion();
         $this->validate([
             'editarActuacionAytoPrestacionId' => 'required|exists:prestaciones,id',
         ]);
@@ -1517,6 +1575,7 @@ class PlanPage extends Component
      */
     public function eliminarActuacionAyto(): void
     {
+        $this->exigirEdicion();
         if (! $this->editarActuacionAytoId || ! $this->plan) {
             return;
         }
@@ -1559,6 +1618,7 @@ class PlanPage extends Component
      */
     public function guardarParticipante(): void
     {
+        $this->exigirEdicion();
         if (! $this->plan) {
             return;
         }
@@ -1610,6 +1670,7 @@ class PlanPage extends Component
      */
     public function confirmarCierrePlan(): void
     {
+        $this->exigirEdicion();
         if (! $this->plan || empty($this->motivoCierre)) {
             return;
         }
@@ -1659,6 +1720,7 @@ class PlanPage extends Component
      */
     public function guardarValoracionIndicador(int $indicadorId, string $valor): void
     {
+        $this->exigirEdicion();
         if (! $this->plan) {
             return;
         }
@@ -1700,6 +1762,89 @@ class PlanPage extends Component
     // =========================================================
     // RENDER
     // =========================================================
+
+    /**
+     * Origen de un plan especializado nacido de una derivación (fase 3, B4.3): centro del
+     * plan principal y si el usuario puede verlo.
+     *
+     * @return array{centro: string, url: string|null}|null
+     */
+    #[Computed]
+    public function origenDerivacion(): ?array
+    {
+        if ($this->plan?->plan_asp_id === null) {
+            return null;
+        }
+
+        $principal = PlanDeIntervencion::withoutGlobalScopes()->with('centro')->find($this->plan->plan_asp_id);
+
+        if ($principal === null) {
+            return null;
+        }
+
+        return [
+            'centro' => $principal->centro->nombre ?? 'su centro',
+            'url' => auth()->user()->can('view', $principal) ? route('intervencion.plan.show', $principal) : null,
+        ];
+    }
+
+    /**
+     * Derivaciones hechas desde cada objetivo del plan principal (fase 3, TF-CIR-27).
+     *
+     * @return Collection<int, Collection<int, Derivacion>>
+     */
+    #[Computed]
+    public function derivacionesPorObjetivo(): Collection
+    {
+        if ($this->plan === null) {
+            return collect();
+        }
+
+        return Derivacion::where('plan_origen_id', $this->plan->id)
+            ->whereNotNull('plan_objetivo_id')
+            ->with('centroDestino')
+            ->latest()
+            ->get()
+            ->groupBy('plan_objetivo_id');
+    }
+
+    /**
+     * Refresca lo que depende de las derivaciones cuando el componente de derivaciones avisa.
+     *
+     * @return void
+     */
+    #[On('derivaciones-cambiadas')]
+    public function refrescarDerivaciones(): void
+    {
+        unset($this->derivacionesPorObjetivo);
+    }
+
+    /**
+     * Rechaza en el servidor cualquier escritura sobre un plan que el usuario no puede editar (F3-3).
+     *
+     * Ocultar los botones no basta: quien ve un plan ajeno (el TSR ante el PIA, el
+     * psicólogo ante el PISO) no debe poder escribir llamando a la acción por Livewire.
+     * En modo creación (sin plan) no hay nada que comprobar todavía.
+     *
+     * @return void
+     */
+    private function exigirEdicion(): void
+    {
+        if ($this->plan !== null) {
+            $this->authorize('update', $this->plan);
+        }
+    }
+
+    /**
+     * Si el usuario puede editar el plan (para mostrar u ocultar las acciones).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeEditar(): bool
+    {
+        return $this->plan === null || auth()->user()->can('update', $this->plan);
+    }
 
     /**
      * Renderiza la vista del plan de intervención con el layout operativo.

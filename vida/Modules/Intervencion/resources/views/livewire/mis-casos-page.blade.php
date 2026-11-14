@@ -192,4 +192,39 @@
             </div>
         @endif
     </section>
+
+    {{-- Planes no principales de los que soy responsable (fase 3, A3.6) --}}
+    @if($this->otrosPlanes->isNotEmpty())
+        <section class="px-3 pb-3" aria-labelledby="titulo-otros-planes">
+            <div class="card">
+                <header class="card-header bg-transparent">
+                    <h2 id="titulo-otros-planes" class="h6 fw-bold mb-0">Otros planes de los que soy responsable</h2>
+                </header>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Ciudadano/a</th>
+                                <th scope="col">Plan</th>
+                                <th scope="col">Centro</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Próximo seguimiento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($this->otrosPlanes as $fila)
+                                <tr wire:key="otro-plan-{{ $fila['id'] }}">
+                                    <td><a href="{{ route('intervencion.plan.show', $fila['id']) }}" wire:navigate>{{ $fila['persona'] }}</a></td>
+                                    <td>{{ $fila['tipo'] }}</td>
+                                    <td class="text-body-secondary">{{ $fila['centro'] }}</td>
+                                    <td>{{ $fila['estado'] }}</td>
+                                    <td class="text-body-secondary">{{ $fila['proximo_seguimiento'] ? Carbon::parse($fila['proximo_seguimiento'])->format('d/m/Y') : '—' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    @endif
 </div>

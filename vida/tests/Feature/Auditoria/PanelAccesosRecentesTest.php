@@ -13,6 +13,7 @@ use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
+use Modules\Intervencion\Database\Factories\PlanDeIntervencionFactory;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -78,6 +79,7 @@ class PanelAccesosRecentesTest extends TestCase
         PlanDeIntervencion::withoutGlobalScopes()->create([
             'historia_id' => $historia->id,
             'tipo' => 'general_asp',
+            'tipo_plan_id' => PlanDeIntervencionFactory::tipoPlanPara('general_asp'),
             'profesional_responsable_id' => $this->tsr->id,
             'estado' => 'borrador',
             'fecha_inicio' => today()->toDateString(),

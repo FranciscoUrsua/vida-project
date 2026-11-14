@@ -4,7 +4,6 @@
     use Modules\Intervencion\Support\Ui\Tonos;
 
     $ciudadano = $this->ciudadano;
-    $piso      = $this->pisoActivo;
 
     $estadoEtiqueta = match($historia->estado) {
         'en_seguimiento' => 'En seguimiento',
@@ -15,7 +14,6 @@
     $herramientas = [
         ['id' => 'entrevista', 'label' => 'Entrevista',  'icon' => 'chat-bubble-left',         'fullpage' => false],
         ['id' => 'anotacion',  'label' => 'Anotación',   'icon' => 'pencil',                   'fullpage' => false],
-        ['id' => 'derivacion', 'label' => 'Derivación',  'icon' => 'arrow-right-circle',       'fullpage' => false],
         ['id' => 'gestion',    'label' => 'Gestión',     'icon' => 'share',                    'fullpage' => false],
         ['id' => 'valoracion', 'label' => 'Valoración',  'icon' => 'clipboard-document-check', 'fullpage' => true],
         ['id' => 'escala',     'label' => 'Escala',      'icon' => 'chart-bar',                'fullpage' => true],
@@ -32,26 +30,38 @@
     </div>
 
     {{-- ------------------------------------------------------------------ --}}
-    {{-- Banda del Plan de Intervención — ancho completo                    --}}
+    {{-- Planes de la persona — ancho completo (fase 3, A3.5)              --}}
+    {{-- El principal (PISO) primero; enlace solo a quien puede ver el plan --}}
     {{-- ------------------------------------------------------------------ --}}
-    @if($this->planActivo)
-        <div class="d-flex flex-wrap align-items-center gap-3 px-3 py-2 border-bottom bg-primary-subtle small">
-            <span class="fw-bold text-primary-emphasis">{{ $this->planNombreCorto }} · {{ $this->planActivo->estado->label() }}</span>
-            <span class="text-body-secondary">v{{ $this->planActivo->version }} · desde {{ Carbon::parse($this->planActivo->fecha_inicio)->format('d/m/Y') }}</span>
-            <a href="{{ route('intervencion.plan.show', $this->planActivo) }}" wire:navigate
-               class="btn btn-sm btn-outline-primary ms-auto">
-                Ver {{ $this->planNombreCorto }} →
-            </a>
-        </div>
-    @else
-        <div class="d-flex flex-wrap align-items-center gap-3 px-3 py-2 border-bottom bg-body small text-body-secondary">
-            Sin {{ $this->planNombreCorto }} activo
+    <section class="px-3 py-2 border-bottom bg-primary-subtle small" aria-labelledby="titulo-planes-persona">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <h2 id="titulo-planes-persona" class="small fw-bold text-primary-emphasis mb-0">Planes de la persona</h2>
             <a href="{{ route('intervencion.plan.crear', ['historia' => $this->historia->id]) }}" wire:navigate
                class="btn btn-sm btn-outline-primary ms-auto">
-                + Crear {{ $this->planNombreCorto }}
+                + Abrir plan
             </a>
         </div>
-    @endif
+        @forelse($this->planesDeLaPersona as $fila)
+            <div class="d-flex flex-wrap align-items-center gap-3 pt-2" wire:key="plan-persona-{{ $fila['plan']->id }}">
+                <span class="fw-semibold">
+                    {{ $fila['tipo'] }}
+                    @if($fila['principal'])
+                        <span class="badge rounded-pill text-bg-primary ms-1">Principal</span>
+                    @endif
+                </span>
+                <span class="text-body-secondary">{{ $fila['centro'] }} · {{ $fila['responsable'] }}</span>
+                <span class="text-body-secondary">{{ $fila['estado'] }} · v{{ $fila['plan']->version }}</span>
+                @if($fila['proximo_seguimiento'])
+                    <span class="text-body-secondary">Próximo seguimiento {{ Carbon::parse($fila['proximo_seguimiento'])->format('d/m/Y') }}</span>
+                @endif
+                @if($fila['url'])
+                    <a href="{{ $fila['url'] }}" wire:navigate class="btn btn-sm btn-link p-0 ms-auto">Ver plan →</a>
+                @endif
+            </div>
+        @empty
+            <p class="text-body-secondary mb-0 pt-2">Sin planes en curso.</p>
+        @endforelse
+    </section>
 
     {{-- ------------------------------------------------------------------ --}}
     {{-- Banda de recursos prescritos — visible si hay prescripciones activas --}}
@@ -380,7 +390,7 @@
                     </div>
                 @endif
 
-                @if(in_array($herramientaActiva, ['entrevista', 'anotacion', 'derivacion', 'gestion', 'valoracion'], true))
+                @if(in_array($herramientaActiva, ['entrevista', 'anotacion', 'gestion', 'valoracion'], true))
                     @include('intervencion::partials.vincular-cita')
                 @endif
 
@@ -424,7 +434,7 @@
                             <textarea id="entrevista-notas" wire:model="formEntrevista.notas" rows="3" class="form-control form-control-sm" placeholder="Observaciones de la entrevista..."></textarea>
                         </div>
                         <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="entrevista-programar" wire:model="formEntrevista.programar_seguimiento">
+                            <input class="form-check-input" type="checkbox" id="entrevista-programar" wire:model.live="formEntrevista.programar_seguimiento">
                             <label class="form-check-label small" for="entrevista-programar">Programar siguiente seguimiento</label>
                         </div>
                         @if($formEntrevista['programar_seguimiento'])
@@ -432,6 +442,43 @@
                                 <label for="entrevista-fecha-seguimiento" class="form-label small fw-semibold mb-1">Fecha siguiente seguimiento</label>
                                 <input id="entrevista-fecha-seguimiento" type="date" wire:model="formEntrevista.fecha_siguiente_seguimiento" class="form-control form-control-sm w-auto">
                             </div>
+
+                            {{-- Evaluación de objetivos en el seguimiento (fase 3, bloque C) --}}
+                            @if($this->objetivosParaEvaluar->isNotEmpty())
+                                <fieldset class="mb-3">
+                                    <legend class="small fw-semibold mb-2">Evaluación de objetivos <span class="fw-normal text-body-secondary">(opcional)</span></legend>
+                                    @foreach($this->objetivosParaEvaluar as $objetivo)
+                                        <div class="border rounded p-2 mb-2" wire:key="evaluar-objetivo-{{ $objetivo->id }}">
+                                            <p class="small mb-1">{{ $objetivo->texto }}</p>
+                                            @if($objetivo->indicador)
+                                                <p class="small text-body-secondary mb-1">
+                                                    {{ $objetivo->indicador->descripcion }}
+                                                    @if($objetivo->indicador->valoracion_actual)
+                                                        · Ahora: {{ $objetivo->indicador->valoresPosibles()[$objetivo->indicador->valoracion_actual] ?? $objetivo->indicador->valoracion_actual }}
+                                                        ({{ $objetivo->indicador->fecha_valoracion?->format('d/m/Y') }})
+                                                    @endif
+                                                </p>
+                                                <label for="valorar-{{ $objetivo->indicador->id }}" class="visually-hidden">Valoración del indicador</label>
+                                                <select id="valorar-{{ $objetivo->indicador->id }}" wire:model.live="valoracionesSeguimiento.{{ $objetivo->indicador->id }}" class="form-select form-select-sm w-auto d-inline-block">
+                                                    <option value="">Sin valorar</option>
+                                                    @foreach($objetivo->indicador->valoresPosibles() as $valor => $etiqueta)
+                                                        <option value="{{ $valor }}">{{ $etiqueta }}</option>
+                                                    @endforeach
+                                                </select>
+                                            @endif
+                                            <label for="estado-objetivo-{{ $objetivo->id }}" class="form-label small mb-0 ms-2">Estado</label>
+                                            <select id="estado-objetivo-{{ $objetivo->id }}" wire:model="estadosObjetivos.{{ $objetivo->id }}" class="form-select form-select-sm w-auto d-inline-block">
+                                                <option value="">Sin cambio ({{ str_replace('_', ' ', $objetivo->estado) }})</option>
+                                                <option value="pendiente">Pendiente</option>
+                                                <option value="en_proceso">En proceso</option>
+                                                <option value="conseguido">Conseguido</option>
+                                                <option value="abandonado">Abandonado</option>
+                                            </select>
+                                        </div>
+                                    @endforeach
+                                </fieldset>
+                            @endif
+                            @error('evaluacion') <div class="alert alert-danger py-2 small">{{ $message }}</div> @enderror
                             @if($this->planActivo && $this->puedeSolicitarCita)
                                 <div class="form-check mb-2">
                                     <input class="form-check-input" type="checkbox" id="entrevista-solicitar-cita" wire:model.live="formEntrevista.solicitar_cita">
@@ -476,27 +523,6 @@
                         </div>
                         <div class="d-flex gap-2">
                             <button type="button" wire:click="guardarAnotacion" class="btn btn-primary btn-sm">Guardar anotación</button>
-                            <button type="button" wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
-                        </div>
-                    </div>
-
-                @elseif($herramientaActiva === 'derivacion')
-                    <div class="card card-body mb-3">
-                        <h3 class="h6 fw-bold mb-3">Crear derivación</h3>
-                        <div class="mb-3">
-                            <label for="derivacion-urgencia" class="form-label small fw-semibold mb-1">Urgencia</label>
-                            <select id="derivacion-urgencia" wire:model="formDerivacion.urgencia" class="form-select form-select-sm">
-                                <option value="ordinaria">Ordinaria</option>
-                                <option value="preferente">Preferente</option>
-                                <option value="urgente">Urgente</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="derivacion-motivo" class="form-label small fw-semibold mb-1">Motivo</label>
-                            <textarea id="derivacion-motivo" wire:model="formDerivacion.motivo" rows="3" class="form-control form-control-sm" placeholder="Motivo de la derivación..."></textarea>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button type="button" wire:click="crearDerivacion" class="btn btn-primary btn-sm">Crear derivación</button>
                             <button type="button" wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                         </div>
                     </div>

@@ -20,6 +20,8 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\TipoCentro;
+use Modules\Intervencion\Models\TipoPlan;
+use Modules\Prestaciones\Enums\ViaAcceso;
 use Modules\Prestaciones\Models\Prestacion;
 
 /**
@@ -83,6 +85,21 @@ class PrestacionResource extends Resource
                             'condicionada' => 'Condicionada',
                         ])
                         ->required(),
+
+                    // Fase 3 (F3-5): de momento solo plaza y derivación; la 3 bis añade el resto.
+                    Select::make('via_acceso')
+                        ->label('Vía de acceso')
+                        ->options(collect(ViaAcceso::cases())->mapWithKeys(fn (ViaAcceso $via) => [$via->value => $via->label()])->all())
+                        ->placeholder('Sin definir')
+                        ->live()
+                        ->afterStateUpdated(fn ($set) => $set('tipo_plan_derivacion_id', null)),
+
+                    Select::make('tipo_plan_derivacion_id')
+                        ->label('Tipo de plan que genera la derivación')
+                        ->options(fn () => TipoPlan::activos()->especializados()->orderBy('nombre')->pluck('nombre', 'id')->all())
+                        ->visible(fn (Get $get) => self::esDerivacion($get('via_acceso')))
+                        ->required(fn (Get $get) => self::esDerivacion($get('via_acceso')))
+                        ->helperText('Al aceptarse la derivación se abre un plan de este tipo en el centro de destino.'),
                 ]),
 
             Section::make('Clasificación')
@@ -361,5 +378,17 @@ class PrestacionResource extends Resource
             'create' => Pages\CreatePrestacion::route('/create'),
             'edit' => Pages\EditPrestacion::route('/{record}/edit'),
         ];
+    }
+
+    /**
+     * Si el estado del campo «vía de acceso» es derivación (el estado puede llegar como enum o como valor).
+     *
+     * @param ViaAcceso|string|null $via
+     *
+     * @return bool
+     */
+    private static function esDerivacion(ViaAcceso|string|null $via): bool
+    {
+        return ($via instanceof ViaAcceso ? $via : ViaAcceso::tryFrom((string) $via)) === ViaAcceso::Derivacion;
     }
 }

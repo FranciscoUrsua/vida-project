@@ -1,12 +1,14 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-13 (fase 2, Tipo de Centro cerrada: pasos 1 a 10)
+**Última actualización:** 2026-11-14 (fase 3, circuito de intervención: bloques A a E, TF-CIR-01 a 43)
 
 ---
 
 ## Tarea completada
 
-**Fase 2, Tipo de Centro: cierre (paso 10)** (2026-11-13): TF-TCE-34 implementado (los 60 en verde), documentación de §11 al día, BACKLOG cerrado y suite completa sin fallos nuevos (1388 passed, 12 incomplete, 1 skipped, 1 failed previo de `AutorizacionDatosTest`). **La fase 2 (Tipo de Centro) está terminada.** Detalle en `CHANGELOG-112026.md`.
+**Fase 3, circuito de intervención** (2026-11-14, `docs/instrucciones-cli/2026-11-fase3-circuito-intervencion.md`): varios tipos de plan y plan principal (`tipos_plan.es_principal`), centro del plan y reglas de apertura en `PlanDeIntervencionService`, acceso del equipo del plan (lectura de la historia y RN-17 ampliada), derivación a atención especializada (`derivaciones`, bandeja `supervision.derivaciones`, herramienta de la caja retirada), evaluación de objetivos en el seguimiento con historial, avisos de plazas al TSR vigente y cambio de referencia desde la ficha. TF-CIR-01 a 43 en verde, 14 negativos comprobados. Decisiones del desarrollador: planes activos sin tipo → PISO (o PIA si la historia es del CIAM), PIA en `ciam` y PISO en `css_general`, y **`supervision` sola no lee ni edita planes** (perdió `plan.leer`). Detalle en `CHANGELOG-112026.md`.
+
+Antes: **Fase 2, Tipo de Centro: cierre (paso 10)** (2026-11-13): TF-TCE-34 implementado (los 60 en verde), documentación de §11 al día, BACKLOG cerrado y suite completa sin fallos nuevos (1388 passed, 12 incomplete, 1 skipped, 1 failed previo de `AutorizacionDatosTest`). **La fase 2 (Tipo de Centro) está terminada.** Detalle en `CHANGELOG-112026.md`.
 
 Antes: **Fase 2, Tipo de Centro: interfaz en Filament (paso 9)** (2026-11-13): `TipoCentroResource` (solo administrador, con denominación, horario, cierres y baja por acciones) y `CentroResource` con lo que no es del director deshabilitado, herencia visible («Heredado del tipo»/«Personalizado» y volver al valor del tipo), cierres y exclusiones. Parte de Filament de TF-TCE-31 y 4 tests de interfaz (`InterfazTipoCentroTest`, comprobados en negativo). Detalle en `CHANGELOG-112026.md`.
 
@@ -51,6 +53,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 ## Estado exacto del proyecto
 
 - **Únicos cambios de código desde el 2026-10-02:** `User::nombreVisible()` y vistas asociadas, el diagnóstico de fallos de `SaneadorPdf`, los rechazos `fichero_vacio`/`pdf_sin_contenido` de la ingesta, `PresentacionPersona` (todo 2026-11-11) la comprobación de historia de `VerFichaPage`, la edición de la ficha por `CiudadanoPolicy::update` y la búsqueda por documento (2026-11-12). Lo posterior (Tipo de Centro, roles `consulta_basica`/`tramitacion`, revisión de citas, requisitos y tareas guiadas) es solo análisis, ya incorporado a `docs/`. Lo que sigue describe el estado a 2026-10-02 y sigue vigente.
+- **Migraciones de la fase 3** (`2026_11_14_100001` a `100007`): **no aplicadas todavía en la BD compartida**; se aplican con el despliegue del push (o con `php artisan migrate` en local, que es lo mismo). Corrigen datos: 239 planes activos sin tipo → PISO, 132 → PIA (historia en el CIAM), PIA en `ciam` y PISO en `css_general`, `centro_id` de los planes, y quitan `plan.leer` a `supervision`.
 - **⚠️ La BD local y la de staging son la misma** (`vida@127.0.0.1`, ver `BACKLOG.md`). Todo lo que se migre o cargue «en local» ocurre en staging. **No lanzar `demo:reset` desde local.**
 - **Migraciones de citas** (`2026_09_30_120001` a `120006`): se aplican en la BD compartida con el push del 2026-10-01. Crean `tipos_cita` (con un tipo genérico `cita` para las citas existentes), `solicitudes_cita`, `cita_eventos` (trigger que rechaza UPDATE y DELETE) y `cita_acompanantes`; amplían `citas`, `plan_apuntes`, `registros_atencion` y `horarios_centro`; **eliminan `tipos_slot.genera_apunte_automatico`**; crean los permisos `citas.*`.
 - Para probar citas en staging: el centro necesita horario con tipos de slot enlazados a tipos de cita (Filament: `TipoCitaResource` y sección «Citas» de `HorarioCentroResource`), cuadrante publicado y slots; y el usuario, los permisos `citas.*` que correspondan. Los mundos demo no tienen agenda.
@@ -62,6 +65,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 - **Perfiles por defecto en el CIAM (UO 13):** se crean con `agenda:horarios-por-defecto --centro=13` tras el despliegue (ver CHANGELOG). Hecho: 9 perfiles pendientes de verificar + 1 previo (comprobado el 2026-10-02). Los demás centros no se completan por ahora: al desarrollador solo le preocupa el CIAM.
 - **AppArmor:** qpdf y gs están confinados; las reglas locales (`/etc/apparmor.d/local/{qpdf,gs}`) cubren `/var/www/.../storage/app/tmp` y, en el repositorio local, `storage/framework/testing` y `storage/app/tmp`. Revisar tras cada `apt upgrade` (BACKLOG).
 - **Tests:**
+  - 2026-11-14, fase 3: `Modules/Intervencion/tests/Feature/Circuito` 42 passed (TF-CIR-01 a 43). **Suite completa** antes de los ajustes finales: 1417 passed, 14 failed (el previo de `AutorizacionDatosTest`, 2 de `CuadranteSupervisorTest` que fallan igual sin la fase y 11 tests antiguos ya corregidos), 12 incomplete, 2 skipped; unos 49 min. Tras los ajustes: ver «Tests de cierre» en el CHANGELOG. `ui:auditar` sin infracciones.
   - 2026-11-13, **suite completa** tras los pasos 8 quinquies y 9: 1388 passed, 12 incomplete, 1 skipped, 1 failed (el previo de `AutorizacionDatosTest`). Unos 54 min. Después, TF-TCE-34: 1 passed.
   - 2026-11-13, interfaz (paso 9): `Modules/Centro/tests`, `HorarioCentroTest` y `FilamentPanelAccessTest`: 163 passed.
   - 2026-11-13, bajas de profesionales: Usuarios, Supervisión, Centro, Agenda, Auth, Demo, Acceso y `FilamentPanelAccessTest` en verde (previos incomplete/skipped); Intervención y Mensajes con 31 fallos de datos de prueba, corregidos y en verde. `ui:auditar` sin infracciones.
@@ -94,13 +98,11 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 
 ## Siguiente paso concreto recomendado
 
-0. **Fase 3: circuito de intervención** (`docs/instrucciones-cli/2026-11-fase3-circuito-intervencion.md`; después, la 3 bis, `2026-11-fase3bis-solicitudes-expedientes.md`). Antes, que el desarrollador pruebe en staging lo de Tipo de Centro: `TipoCentroResource` y el formulario de centro como administrador y como directora, el selector de centro de la barra, la desactivación de un usuario con casos (debe rechazarse con enlaces) y las personas protegidas. Reglas que ya están en el código: atender exige centro (RN-15; en tests, `centroParaUo()`), toda lectura de configuración del centro por `ConfiguracionEfectivaCentro`, ámbito por `AmbitoUsuario`, centro por `CentroDeUsuario`, nadie se borra (`delete()` lanza), una asignación de referencia necesita centro y, al cambiar de usuario en un test de Filament, `flushSession()`. Pendiente aparte: probar en staging la subida de `~/casos_limite/E04_pdf_corrupto_truncado.pdf` (debe rechazarse) y de un PDF y una imagen normales (`decisiones-tecnicas.md` §14).
+0. **Probar la fase 3 en staging** tras el despliegue: abrir un plan (el selector solo ofrece los tipos abribles), el bloque «Planes de la persona», derivar desde el PISO al CIAM (modal y «Derivar» en un objetivo), la bandeja Supervisión → Derivaciones como directora (aceptar asignando responsable, rechazar), el PIA nacido de la derivación, la evaluación de objetivos al programar un seguimiento, y «Cambiar referencia» en la ficha como supervisión del centro. Recordar que la directora necesita también el rol `intervencion` para ver planes. Después, **fase 3 bis** (`2026-11-fase3bis-solicitudes-expedientes.md`), y revisar los pendientes del BACKLOG «Fase 3: pendientes» (sobre todo la supervisión de UO superiores en la bandeja «sin referencia»).
 1. **El desarrollador prueba en staging asignación y citas** (pendiente desde el 2026-10-01; las pantallas solo se han probado con tests).
    - Asignación: centro con tipo, ámbito y modo `sorteo`; alta con dirección y apertura de historia; bloque «Centro y referencia»; bandeja «Asignaciones», actividad del equipo y reparto. **Configurar igual todos los centros del mismo tipo:** el paso 3 de Tipo de Centro aborta si difieren.
    - Citas: bandeja de citación, cita directa, detalle con reprogramar y cancelar, agenda del profesional, «Solicitar cita» en Intervención, *Atender* → registro de atención → «Dar cita».
 2. **Decidir el modelo de varias UO con varios centros** (BACKLOG «Perfil horario por defecto: pendientes»): condiciona Tipo de Centro y los requisitos de acción.
-3. **Ejecutar `docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md` (rama A)** con sus tests TF-TCE-01 a 34.
-4. **Corregir la creación de planes especializados (PIA):** `PlanPage::crearNuevoPlan()` fija `tipo = general_asp` (BACKLOG; prioritario para el CIAM).
 5. **Instrucciones del delta de citas y de `consulta_basica`** (BACKLOG «Citas: delta de la revisión del 30 sep» y «`consulta_basica`: diseño cerrado sin instrucciones»): §6 bis, ficha por rol, estado de la Historia Social, documentos propios del día.
 6. Revisar las dudas 3 a 5 de `CHANGELOG-112026.md` (la 1 y la 2 se resolvieron en A5).
 
@@ -108,6 +110,7 @@ Más atrás: Symfony fijado a `^7.4`, CI en PHP 8.5 y despliegue reparado (nvm, 
 
 ## Contexto para retomar sin fricción
 
+- **Planes (fase 3):** un plan nuevo se abre con `PlanDeIntervencionService::crear()` (tipo del centro, principal solo en el centro de la historia, entrada directa, uno vigente por tipo); `tipo` lo deriva el modelo; «es el PISO» = `esPrincipal()` / scope `principal()`, nunca `tipo`. Las derivaciones solo las escribe `DerivacionService`; las valoraciones de indicadores, `registrarValoracion()` (deja historial). Escrituras en `PlanPage` pasan por `exigirEdicion()`. En tests: trait `CircuitoTestSetup` y la factoría de planes pone tipo de plan por defecto (`PlanDeIntervencionFactory::tipoPlanPara()`).
 - Documentación al día a 2026-11-10: ver `docs/estado-proyecto-2026-11-10.md` y su sección Seguimiento.
 - **Acceso a expedientes (2026-10-02):** toda pantalla que abre a una persona usa `AccesoExpediente` (`ciudadano()`/`historia()` en `mount()`; en computed, `registrar: false`). No cargar `Ciudadano` ni `HistoriaSocial` con `withoutGlobalScope` en una página. Un protegido que la policy no deja ver no muestra nombre, documento ni alias en ningún listado.
 - **Citas (2026-09-30):**

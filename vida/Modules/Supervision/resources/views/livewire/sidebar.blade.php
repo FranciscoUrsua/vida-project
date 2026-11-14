@@ -107,6 +107,13 @@
             @endif
         </a>
 
+        <a href="{{ route('supervision.derivaciones') }}"
+           class="op-nav-item {{ request()->routeIs('supervision.derivaciones') ? 'op-nav-item--activo' : '' }}"
+           aria-current="{{ request()->routeIs('supervision.derivaciones') ? 'page' : 'false' }}">
+            <x-heroicon-o-arrow-right-circle class="op-nav-icon icon-18" aria-hidden="true"/>
+            <span>Derivaciones</span>
+        </a>
+
         <a href="{{ route('supervision.auditoria') }}"
            class="op-nav-item {{ request()->routeIs('supervision.auditoria') ? 'op-nav-item--activo' : '' }}"
            aria-current="{{ request()->routeIs('supervision.auditoria') ? 'page' : 'false' }}">

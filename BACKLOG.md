@@ -9,6 +9,20 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Fase 3 (circuito de intervención): pendientes** — 2026-11-14
+Módulos: Intervención, Supervisión, Centro, Prestaciones
+- **«Cambiar referencia» en Mi equipo y en la bandeja de asignaciones** (E1): de momento solo está en la ficha (`intervencion.cambio-referencia`). El componente se puede incrustar tal cual.
+- **Supervisión de UO superiores y referencias:** `cambiarManual()` exige ahora supervisión **adscrita** al centro (TF-CIR-37). La bandeja de asignaciones «sin referencia» deja de poder resolverla una coordinación de UO superior que entre por el selector de centro. Confirmar que es lo querido o abrir una excepción para la bandeja.
+- **Centro obligatorio en el modelo:** hoy lo exige `PlanDeIntervencionService::crear()`; las factorías y los escenarios de demo crean planes sin centro. Pasarlo al modelo cuando los escenarios de demo y las factorías lo den (y queden resueltos los planes antiguos sin centro deducible).
+- **`PlanPage::asignarTipoPlan()`** (planes antiguos sin tipo): no pasa por las reglas del servicio (tipo del centro, uno vigente por tipo); si choca con el índice único, salta una excepción de base de datos. Llevarlo al servicio.
+- **Datos antiguos tras la migración:** 25 planes cerrados sin tipo (no se tocan) y 1 PISO tipado con historia en el CIAM Puente de Vallecas (se queda como PISO).
+- **Contador de derivaciones pendientes en el menú de Supervisión** (como el de asignaciones).
+- **`AsignarPlazaModal::coleccionesDelCentro()`** decide el centro por `Profesional::unidad_organizativa_id` (dato antiguo) y no por `CentroDeUsuario`: un profesional sin ese campo no ve plazas.
+- **`CuadranteSupervisorTest` (Agenda) falla también sin la fase 3** (2 tests: «franjas atención muestran horas correctas» y «publicar dos veces no duplica slots»), visto el 14 nov 2026 (sábado): probablemente dependen de la fecha. Revisar con `Carbon::setTestNow()`.
+- **Avisos con destinatario «supervisión de la UO» sin UO:** si una persona con plaza no tiene historia, la alerta a la supervisión queda sin destinatarios (vencida y aviso en el log).
+
+---
+
 **Tipo de Centro: decisiones pendientes del diseño** — 2026-11-13
 Módulo: Centro (de `docs/modulo-tipo-centro.md` §13)
 - Canales de cita por tipo (presencial, teléfono, Cita Previa): con la integración de Cita Previa.
@@ -173,8 +187,8 @@ Módulos: Agenda, Atención, demo
 Módulos: Centro, Intervención, Ciudadanía, geocodificación
 - **Adaptador real de la BDC** (`BdcGeocodificador`): NDP, distrito, barrio y sección, código INE de la sección y conversión UTM (ETRS89 30N) → WGS84. Hoy solo el mock rellena los códigos. Ver `docs/geocodificacion.md` §6.
 - **Decisiones pendientes de `docs/modulo-asignacion.md` §11:** personas sin hogar (asignación por coordenadas de pernocta y zonificación de equipos de calle; hoy, «quien abre» y centro manual); asignación geográfica de profesionales (zonas por profesional); cambio a petición de la persona y cupos; fórmulas mixtas de centro (elegir dentro del distrito); procedimiento de revisión de secciones censales y reasignación por NDP.
-- **Cambiar la referencia de un caso ya asignado desde la interfaz:** el servicio existe (`AsignacionReferenciaService::cambiarManual()`, TF-ASG-30), pero la pantalla solo lo usa para historias sin referencia (bandeja) y en el reparto. Falta la acción del supervisor en la ficha o el expediente (conflicto, parentesco, corrección…).
-- **Autorización por centro en los servicios:** `AsignacionCentroService::asignarManual()/descartar()` y `AsignacionReferenciaService::cambiarManual()` exigen rol `supervision`, pero no que el supervisor lo sea del centro afectado; hoy lo garantiza la pantalla. Valorar moverlo al servicio, como ya hace `RepartoCasosService`.
+- ~~**Cambiar la referencia de un caso ya asignado desde la interfaz:**~~ Cerrado el 2026-11-14 (fase 3, bloque E, TF-CIR-36 a 38): acción en la ficha para la supervisión adscrita al centro. Antes: el servicio existe (`AsignacionReferenciaService::cambiarManual()`, TF-ASG-30), pero la pantalla solo lo usa para historias sin referencia (bandeja) y en el reparto. Falta la acción del supervisor en la ficha o el expediente (conflicto, parentesco, corrección…).
+- ~~**Autorización por centro en los servicios:**~~ Cerrado el 2026-11-14 (fase 3, E4): los tres métodos comprueban el centro. Antes: `AsignacionCentroService::asignarManual()/descartar()` y `AsignacionReferenciaService::cambiarManual()` exigen rol `supervision`, pero no que el supervisor lo sea del centro afectado; hoy lo garantiza la pantalla. Valorar moverlo al servicio, como ya hace `RepartoCasosService`.
 - ~~**Colectivos protegidos en la bandeja:**~~ Cerrado el 2026-10-02 (TF-ACC-10): sin nombre ni enlace si la policy no deja ver a la persona. Queda por decidir cómo resuelve el supervisor una entrada que no puede identificar (ver «Acceso a expedientes: pendientes»).
 - **Configurar los centros reales en staging:** tras el despliegue todos quedan en `quien_abre` y sin tipo. Para probar el sorteo hay que dar tipo, ámbito y modo a algún centro en Filament. **Aviso (2026-11-10):** el paso 3 de `docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md` aborta si dos centros del mismo tipo tienen distinto modo de asignación, ventana o segmentos. Al configurar centros para probar el sorteo, configurar igual todos los del tipo.
 
@@ -277,14 +291,14 @@ Detectado en la Fase 0 del mundo «Prueba CIAM»: `~/code/vida-project/vida/.env
 *2026-11-11: **aplazada por decisión del desarrollador** (A4 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`). Con un solo desarrollador, compartir la BD garantiza ver lo mismo en local y en staging y evita cambiar de contexto. Reconsiderar al cerrar la versión 1.0. Mientras tanto siguen vigentes las precauciones: nada de `demo:reset` ni `migrate:fresh` desde local.*
 ---
 
-**No existe asociación tipo de plan ↔ centro / UO / servicio** — 2026-09-24
+~~**No existe asociación tipo de plan ↔ centro / UO / servicio** — 2026-09-24~~ Cerrado el 2026-11-14 (fase 3): tipos de plan por tipo de centro desde la fase 2 y, con la fase 3, PIA en `ciam` y PISO en `css_general` en la BD compartida; `PlanDeIntervencionService` rechaza un tipo que el centro no ofrece (TF-CIR-04).
 Módulo: Intervención
 `PlanPage::tiposPlanes()` ofrece todos los tipos activos (`piso`, `pia`…) a cualquier profesional de cualquier centro. El punto 1.4 de `docs/instrucciones-cli/2026-09-demo-ciam-aditivo.md` (asociar `pia` al CIAM) se omitió por decisión del desarrollador: no se crea un mecanismo nuevo sin diseño. Decidir si el tipo de plan se restringe por centro, por UO (junto a `plan_nombre_*`) o por servicio especializado (`planes_intervencion.servicio_especializado_id`, hoy sin uso: la tabla `servicios` está vacía).
 *2026-11-10: resuelto en diseño por `docs/modulo-tipo-centro.md` (tipos de plan por tipo de centro, §6.2). Se cierra al implementar esa fase.*
 
 ---
 
-**La interfaz no permite crear planes especializados; `PlanPage` fija siempre `tipo = general_asp`** — 2026-09-24
+~~**La interfaz no permite crear planes especializados; `PlanPage` fija siempre `tipo = general_asp`** — 2026-09-24~~ Cerrado el 2026-11-14 (fase 3, bloque A): `tipo` se deriva del tipo de plan, el plan principal por `es_principal`, entrada directa y derivación (TF-CIR-01 a 07, 39 a 41).
 Módulo: Intervención
 `PlanPage::crearNuevoPlan()` guarda `tipo = TipoPlan::GeneralAsp` sea cual sea el `tipo_plan_id` elegido. Un «PIA» creado hoy desde la UI queda como plan general sin plan ASP, y `CiudadanoPage::pisoActivo()` / `MisCasosPage` lo tratan como el PISO de la persona. Los planes PIA del mundo «Prueba CIAM» sí son `especializado` (entrada directa). Pendiente: derivar `tipo` del `ambito` del tipo de plan al crear, y diseñar el flujo de creación de planes especializados (derivación desde PISO y entrada directa con `admite_entrada_directa`). Fuera del alcance de la sesión CIAM por instrucción explícita.
 *2026-11-10: Tipo de Centro no lo resuelve: solo filtra los tipos de plan ofrecidos. Prioritario para el CIAM.*
@@ -316,7 +330,7 @@ Módulo: Supervision
 Confirmado: la marca «Colectivo protegido» solo se pinta en las filas de accesos y el test no creaba ninguno (la página mostraba el estado vacío). El test registra ahora, con `AuditService::registrarAcceso()`, un acceso a un ciudadano protegido de la UO del supervisor. TF-SUP-F02 usa el mismo acceso, para que su negativo no pase en vacío.
 ---
 
-**Notificaciones reales al TSR tras asignación de plaza** — 2026-06-26
+~~**Notificaciones reales al TSR tras asignación de plaza** — 2026-06-26~~ Cerrado el 2026-11-14 (fase 3, bloque D): alerta por `AlertaService` al TSR vigente o a la supervisión; plaza libre también (TF-CIR-34 y 35).
 Módulo: Intervencion
 `AsignarPlazaModal::notificarTsr()` actualmente solo escribe en el log (`Log::info`). Pendiente implementar notificación real (alerta en bandeja o push) cuando se asigne una plaza a una prescripción de un ciudadano con TSR activo. El módulo de Mensajes deberá gestionar el formato final.
 
@@ -387,7 +401,7 @@ El botón "Ver ficha" en el bloque UC de `FichaCiudadanoPage` sigue apuntando a 
 
 ---
 
-**Tabla `derivaciones` pendiente de crear** — 2026-06-01
+~~**Tabla `derivaciones` pendiente de crear** — 2026-06-01~~ Cerrado el 2026-11-14 (fase 3, bloque B): `derivaciones` y `derivacion_eventos`, `DerivacionService`, bandeja del destino; la herramienta de la caja se retiró (TF-CIR-15 a 27 y 43).
 Módulo: Intervención
 `crearDerivacion()` en `CiudadanoPage` crea solo el Apunte (tipo `derivacion`); la tabla y modelo `Derivacion` no existen. Añadir cuando esté disponible.
 
@@ -678,7 +692,7 @@ Documentar en SESSION.md tras instalación.
 
 ---
 
-**Seguimiento del plan — UI** — 2026-06-18
+~~**Seguimiento del plan — UI** — 2026-06-18~~ Cerrado el 2026-11-14 (fase 3, bloque C): evaluación de objetivos con propuesta de estado e historial de valoraciones (TF-CIR-28 a 33).
 `Módulo: Intervención`
 El modelo SeguimientoPlan ya existe (tests TF-INT-C). Pendiente: integrar el
 seguimiento en la UI de CiudadanoPage, con evaluación de objetivos por estado

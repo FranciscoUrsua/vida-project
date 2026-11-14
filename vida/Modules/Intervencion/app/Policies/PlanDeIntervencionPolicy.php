@@ -7,7 +7,9 @@ use App\Models\User;
 use App\Policies\CiudadanoPolicy;
 use App\Services\AmbitoUsuario;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Intervencion\Models\PlanDeIntervencion;
+use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
 use Modules\Usuarios\Policies\HistoriaSocialPolicy;
 
 /**
@@ -23,8 +25,16 @@ use Modules\Usuarios\Policies\HistoriaSocialPolicy;
  *   Paso 3 — Colectivo protegido: solo en Nivel 2, verificar aprobación vigente
  *             (delegado a HistoriaSocialPolicy vía comprobación directa).
  *
- * Caso especial — supervision: solo lectura, nunca escritura.
- * Caso especial — adm_sistema: también debe pasar los filtros de UO y colectivo protegido.
+ * Equipo del plan (fase 3, F3-3): el personal del centro de un plan en curso de la
+ * persona ve sus planes y lee su historia aunque sea de otro centro. Editan un plan
+ * solo su responsable, quien supervisa su centro y, en el plan principal (el PISO),
+ * el profesional de referencia vigente. El TSR ve los demás planes y no los edita.
+ *
+ * Supervisión (decisión del 14 nov 2026): el rol `supervision` por sí solo no lee ni
+ * edita planes (no tiene `plan.*`); la dirección que los necesite tiene además
+ * `intervencion`, y entonces edita los planes de los centros que supervisa.
+ *
+ * Personas protegidas: la escritura exige además gestionarlas (RN-17 ampliada, F3-4).
  *
  * @see docs/modulo-intervencion.md
  * @see HistoriaSocialPolicy
@@ -47,6 +57,10 @@ class PlanDeIntervencionPolicy
 
     /**
      * Decide si el usuario puede listar Planes de Intervención.
+     *
+     * @param User $usuario
+     *
+     * @return bool
      */
     public function viewAny(User $usuario): bool
     {
@@ -56,105 +70,74 @@ class PlanDeIntervencionPolicy
     /**
      * Decide si el usuario puede consultar el Plan de Intervención.
      *
-     * Evaluación en tres pasos: permiso → ámbito UO → colectivo protegido.
+     * Permiso → gestión de la historia (ámbito y RN-17) o equipo de un plan en curso
+     * de la persona (F3-3) → consulta libre sujeta a colectivo protegido.
+     *
+     * @param User $usuario
+     * @param PlanDeIntervencion $plan
+     *
+     * @return bool
      */
     public function view(User $usuario, PlanDeIntervencion $plan): bool
     {
-        // Paso 1: Permiso atómico requerido
         if (! $usuario->can(self::PERMISO_LEER)) {
             return false;
         }
 
-        // Paso 2: Verificar ámbito de UO vía Historia Social
-        $historia = $plan->relationLoaded('historia')
-            ? $plan->historia
-            : $plan->historia()->first();
+        $historia = $this->historiaDe($plan);
 
         if ($historia === null) {
             return false;
         }
 
-        // Nivel 1 si gestiona la historia (ámbito, y RN-17 si la persona está protegida)
-        if (app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia)) {
+        $ambito = app(AmbitoUsuario::class);
+
+        if ($ambito->gestionaHistoria($usuario, $historia) || $ambito->leePorPlan($usuario, $historia)) {
             return true;
         }
 
-        // Paso 3: Nivel 2 — consulta libre sujeta a colectivo protegido
         return $this->resolverConsultaExterna($usuario, $historia);
     }
 
     /**
      * Decide si el usuario puede crear un Plan de Intervención.
      *
-     * El rol supervision no puede crear planes.
+     * Basta el permiso: dónde y qué tipo de plan lo decide PlanDeIntervencionService.
+     * `supervision` sin `intervencion` no tiene `plan.crear`.
+     *
+     * @param User $usuario
+     *
+     * @return bool
      */
     public function create(User $usuario): bool
     {
-        // supervision: solo lectura
-        if ($usuario->hasRole('supervision')) {
-            return false;
-        }
-
         return $usuario->can(self::PERMISO_CREAR);
     }
 
     /**
-     * Decide si el usuario puede editar el Plan de Intervención.
+     * Decide si el usuario puede editar el Plan de Intervención (F3-3).
      *
-     * La edición solo está permitida dentro del ámbito de UO del usuario.
-     * El rol supervision no puede editar.
+     * @param User $usuario
+     * @param PlanDeIntervencion $plan
+     *
+     * @return bool
      */
     public function update(User $usuario, PlanDeIntervencion $plan): bool
     {
-        // supervision: solo lectura
-        if ($usuario->hasRole('supervision')) {
-            return false;
-        }
-
-        // Paso 1: Permiso atómico requerido
-        if (! $usuario->can(self::PERMISO_EDITAR)) {
-            return false;
-        }
-
-        // Paso 2: Solo permite editar si el plan está en el ámbito de UO
-        $historia = $plan->relationLoaded('historia')
-            ? $plan->historia
-            : $plan->historia()->first();
-
-        if ($historia === null) {
-            return false;
-        }
-
-        return app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia);
+        return $usuario->can(self::PERMISO_EDITAR) && $this->escribe($usuario, $plan);
     }
 
     /**
-     * Decide si el usuario puede eliminar (baja lógica) el Plan de Intervención.
+     * Decide si el usuario puede eliminar (baja lógica) el Plan de Intervención; mismas reglas que editar.
      *
-     * La eliminación solo está permitida dentro del ámbito de UO del usuario.
+     * @param User $usuario
+     * @param PlanDeIntervencion $plan
+     *
+     * @return bool
      */
     public function delete(User $usuario, PlanDeIntervencion $plan): bool
     {
-        // supervision: solo lectura
-        if ($usuario->hasRole('supervision')) {
-            return false;
-        }
-
-        // Paso 1: Permiso atómico requerido
-        if (! $usuario->can(self::PERMISO_ELIMINAR)) {
-            return false;
-        }
-
-        // Paso 2: Solo permite eliminar si el plan está en el ámbito de UO
-        $historia = $plan->relationLoaded('historia')
-            ? $plan->historia
-            : $plan->historia()->first();
-
-        if ($historia === null) {
-            return false;
-        }
-
-        return app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia);
+        return $usuario->can(self::PERMISO_ELIMINAR) && $this->escribe($usuario, $plan);
     }
 
     // -------------------------------------------------------------------------
@@ -162,10 +145,68 @@ class PlanDeIntervencionPolicy
     // -------------------------------------------------------------------------
 
     /**
+     * Quién escribe en un plan (F3-3): su responsable, quien supervisa su centro y, en el
+     * plan principal, el profesional de referencia vigente. Con persona protegida, además,
+     * debe gestionarla (RN-17 ampliada, F3-4).
+     *
+     * @param User $usuario
+     * @param PlanDeIntervencion $plan
+     *
+     * @return bool
+     */
+    private function escribe(User $usuario, PlanDeIntervencion $plan): bool
+    {
+        $historia = $this->historiaDe($plan);
+
+        if ($historia === null) {
+            return false;
+        }
+
+        $ambito = app(AmbitoUsuario::class);
+
+        if ($ambito->historiaProtegida($historia) && ! $ambito->gestionaProtegido($usuario, $historia)) {
+            return false;
+        }
+
+        if ($plan->profesional_responsable_id === $usuario->id) {
+            return true;
+        }
+
+        // Planes antiguos sin centro: el de la historia.
+        $centro = $plan->centro ?? $historia->centro;
+
+        if ($centro !== null && app(CentroDeUsuario::class)->supervisa($usuario, $centro)) {
+            return true;
+        }
+
+        return $plan->esPrincipal()
+            && app(AsignacionReferenciaService::class)->vigente($historia)?->profesional_id === $usuario->id;
+    }
+
+    /**
+     * Historia del plan, sin scope (la policy decide el acceso, no el scope).
+     *
+     * @param PlanDeIntervencion $plan
+     *
+     * @return HistoriaSocial|null
+     */
+    private function historiaDe(PlanDeIntervencion $plan): ?HistoriaSocial
+    {
+        return $plan->relationLoaded('historia') && $plan->historia !== null
+            ? $plan->historia
+            : HistoriaSocial::withoutGlobalScopes()->find($plan->historia_id);
+    }
+
+    /**
      * Resuelve el acceso en consulta libre (Nivel 2) delegando en CiudadanoPolicy.
      *
      * El criterio de colectivo protegido vive en un solo sitio (CLAUDE.md §3):
      * CiudadanoPolicy::consultaExternaPermitida().
+     *
+     * @param User $usuario
+     * @param HistoriaSocial $historia
+     *
+     * @return bool
      */
     private function resolverConsultaExterna(User $usuario, HistoriaSocial $historia): bool
     {

@@ -5,6 +5,7 @@ namespace Modules\Intervencion\Http\Livewire;
 use App\Models\CatalogoSistema;
 use App\Models\Ciudadano;
 use App\Models\Scopes\AmbitoUoScope;
+use App\Services\PresentacionPersona;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Modules\Intervencion\Models\PlanDeIntervencion;
 
 /**
  * Pantalla "Mis casos" del interfaz operativo de Intervención.
@@ -156,10 +158,12 @@ class MisCasosPage extends Component
             ->orderBy('plan_id')
             ->orderByDesc('created_at');
 
-        // Subconsulta: plan general ASP más relevante por historia (activo > en_revision > borrador)
+        // Subconsulta: plan principal (el PISO) más relevante por historia (activo > en_revision > borrador).
+        // El plan principal lo decide su tipo de plan, no `tipo` (fase 3, F3-1).
         $subPlan = DB::table('planes_intervencion as pp')
             ->select(DB::raw('DISTINCT ON (pp.historia_id) pp.historia_id, pp.id as plan_id, pp.estado as plan_estado'))
-            ->where('pp.tipo', 'general_asp')
+            ->join('tipos_plan as tpp', 'tpp.id', '=', 'pp.tipo_plan_id')
+            ->where('tpp.es_principal', true)
             ->where('pp.estado', '!=', 'cerrado')
             ->whereNull('pp.deleted_at')
             ->orderBy('pp.historia_id')
@@ -298,6 +302,41 @@ class MisCasosPage extends Component
             ->whereIn('id', $ids)
             ->get()
             ->keyBy('id');
+    }
+
+    /**
+     * Planes no principales en curso de los que el profesional es responsable (fase 3, A3.6).
+     *
+     * Planes de ASP como el psicológico o especializados como el PIA: no salen de la
+     * referencia (la tabla de casos) sino de la responsabilidad del plan. Cada uno se
+     * identifica por su tipo de plan, nunca como el PISO.
+     *
+     * @return Collection<int, array{id: int, persona: string, tipo: string, centro: string, estado: string, proximo_seguimiento: string|null}>
+     */
+    #[Computed]
+    public function otrosPlanes(): Collection
+    {
+        $usuario = Auth::user();
+
+        return PlanDeIntervencion::withoutGlobalScopes()
+            ->with(['tipoPlan', 'centro', 'historia' => fn ($q) => $q->withoutGlobalScopes()])
+            ->where('profesional_responsable_id', $usuario->id)
+            ->vigentes()
+            ->whereNotIn('id', PlanDeIntervencion::withoutGlobalScopes()->select('id')->principal())
+            ->orderBy('fecha_inicio')
+            ->get()
+            ->map(function (PlanDeIntervencion $plan) use ($usuario): array {
+                $persona = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->find($plan->historia?->ciudadano_id);
+
+                return [
+                    'id' => $plan->id,
+                    'persona' => PresentacionPersona::paraListado($persona, $usuario)['nombre'],
+                    'tipo' => $plan->tipoPlan->nombre ?? 'Plan',
+                    'centro' => $plan->centro->nombre_corto ?? $plan->centro->nombre ?? '—',
+                    'estado' => $plan->estado->label(),
+                    'proximo_seguimiento' => $plan->seguimientos()->latest()->value('fecha_siguiente_seguimiento'),
+                ];
+            });
     }
 
     /**

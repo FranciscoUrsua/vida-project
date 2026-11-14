@@ -6,6 +6,7 @@ use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Modules\Intervencion\Database\Factories\PlanDeIntervencionFactory;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\TipoPlan;
 use Modules\Intervencion\Models\Entrevista;
@@ -54,6 +55,7 @@ class SeguimientoTest extends TestCase
         return PlanDeIntervencion::create([
             'historia_id' => $historia->id,
             'tipo' => TipoPlan::GeneralAsp,
+            'tipo_plan_id' => PlanDeIntervencionFactory::tipoPlanPara(TipoPlan::GeneralAsp),
             'profesional_responsable_id' => $this->profesional->id,
             'estado' => EstadoPlan::Activo->value,
             'fecha_inicio' => today()->toDateString(),

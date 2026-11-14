@@ -30,7 +30,8 @@ class PlanContenidoTest extends TestCase
      */
     private function crearPlan(): PlanDeIntervencion
     {
-        $tipoPlan = TipoPlan::factory()->create();
+        // De ASP: desde la fase 3 el `tipo` sale del ámbito y un especializado exige plan ASP.
+        $tipoPlan = TipoPlan::factory()->asp()->create();
 
         return PlanDeIntervencion::factory()->create([
             'tipo_plan_id' => $tipoPlan->id,
@@ -39,12 +40,12 @@ class PlanContenidoTest extends TestCase
 
     // --- TipoPlan ---
 
-    /** TF-PLAN-01: El seeder carga exactamente los 5 tipos iniciales del sistema. */
+    /** TF-PLAN-01: El seeder carga exactamente los 7 tipos iniciales del sistema (los 2 de ASP de ejemplo, desde la fase 3). */
     public function test_seeder_tipos_plan(): void
     {
         $this->seed(TipoPlanSeeder::class);
 
-        $this->assertEquals(5, TipoPlan::count());
+        $this->assertEquals(7, TipoPlan::count());
     }
 
     /** TF-PLAN-02: El seeder es idempotente: ejecutarlo dos veces no duplica tipos. */
@@ -53,7 +54,7 @@ class PlanContenidoTest extends TestCase
         $this->seed(TipoPlanSeeder::class);
         $this->seed(TipoPlanSeeder::class);
 
-        $this->assertEquals(5, TipoPlan::count());
+        $this->assertEquals(7, TipoPlan::count());
     }
 
     /** TF-PLAN-03: Intentar eliminar un tipo del sistema lanza LogicException. */
