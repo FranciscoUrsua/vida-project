@@ -32,6 +32,7 @@
 ### Tests de cierre
 - `Modules/Prestaciones/tests`: 91 passed.
 - Centro 137, Ciudadanía 105, Documentos 100, Usuarios 71 (1 incomplete), `tests/Feature/Auth` 40 (1 incomplete, 1 skipped), `tests/Feature/Acceso` 36, `FilamentPanelAccessTest` 16, Intervención 337 (1 incomplete): sin fallos; los incomplete y skipped son previos.
+- **Suite completa** (unos 49 min): 1466 passed, 3 failed, 12 incomplete, 2 skipped. Los 3 fallos son previos: `AutorizacionDatosTest` (FK de `audits`) y los 2 de `CuadranteSupervisorTest` anotados en el BACKLOG el 14 nov. Sin fallos nuevos.
 
 ---
 
