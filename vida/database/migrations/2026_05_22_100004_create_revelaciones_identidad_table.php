@@ -30,7 +30,7 @@ return new class extends Migration
             // Alias que se resolvió
             $table->string('alias', 20);
 
-            // Ciudadano cuya identidad se reveló (sin FK para no crear dependencia de integridad)
+            // Ciudadano cuya identidad se reveló (FK a ciudadanos añadida en 2026_11_15_120001)
             $table->unsignedBigInteger('ciudadano_id');
 
             // Justificación obligatoria — requerimiento legal

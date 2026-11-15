@@ -9,13 +9,6 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
-**FK a `ciudadanos` en `accesos_protegidos` y `revelaciones_identidad`** — 2026-11-15
-Módulo: Usuarios / Ciudadanía
-- Son las únicas columnas `ciudadano_id` que siguen sin FK (consulta a `information_schema` del 15 nov). La de `historias_sociales` se añadió ese día.
-- `AccesoProtegidoFactory` genera un `ciudadano_id` inventado (`fake()->numberBetween(1, 99999)`): corregirlo, y los tests que dependan de él, antes de añadir la FK. Comprobar antes las huérfanas en la BD compartida.
-
----
-
 **Fase 3 bis (solicitudes y expedientes): pendientes** — 2026-11-15
 Módulos: Prestaciones, Intervención, Documentos
 - **Endpoint HTTP de avisos del gestor de expedientes:** fuera de alcance (no hay capa de API ni gestor). El procesamiento está en `SolicitudPrestacionService::procesarAviso()`; falta la ruta, su autenticación y el adaptador real.

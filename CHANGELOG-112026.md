@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-11-15 — FK a `ciudadanos` en `accesos_protegidos` y `revelaciones_identidad`
+
+### Cambios
+- **Migración** `2026_11_15_120001_add_ciudadano_foreign_to_accesos_y_revelaciones`: FK con `restrictOnDelete` en las dos tablas. Antes comprueba las dos y, si alguna tiene filas cuyo ciudadano no existe, aborta sin tocar ninguna. En la BD compartida ambas están vacías (0 filas, consulta de solo lectura del 15 nov). Con esto **ninguna columna `ciudadano_id` del esquema queda sin FK**.
+- `AccesoProtegidoFactory`: `ciudadano_id` pasa de `fake()->numberBetween(1, 99999)` a `Ciudadano::factory()`. Ningún test usa la factory ahora mismo; los que crean accesos lo hacen con `AccesoProtegido::create()` y un ciudadano real.
+- Comentarios de las migraciones originales (`2026_03_11_153334` y `2026_05_22_100004`) actualizados para remitir a la nueva.
+- **Tests:** `tests/Feature/Acceso`, `tests/Feature/Anonimizacion`, `PersonasProtegidasTest` (Centro), `AccesoDocumentoTest`, `Modules/Usuarios/tests`, `Modules/Supervision/tests` y `Modules/Intervencion/tests`: 539 passed, 6 incomplete (previos). Las tres FK comprobadas en `vida_testing` (`pg_get_constraintdef`).
+
+### Decisiones de implementación
+- `revelaciones_identidad` se creó sin FK a propósito («para no crear dependencia de integridad»). Se añade igualmente: los ciudadanos solo tienen baja lógica y `audits`, que también es un registro legal, ya tenía esta FK, así que la restricción no impide nada legítimo. `RevelacionIdentidadService` siempre registra a un ciudadano que existe.
+
+---
+
 ## 2026-11-15 — FK `historias_sociales.ciudadano_id → ciudadanos` y tests con ciudadanos inventados
 
 ### Cambios

@@ -37,7 +37,7 @@ return new class extends Migration
                 ->comment('Profesional que solicita el acceso');
 
             // Ciudadano cuya Historia se quiere consultar
-            // TODO: reemplazar por FK a la tabla ciudadanos cuando se implemente
+            // FK a ciudadanos añadida en 2026_11_15_120001
             $table->unsignedBigInteger('ciudadano_id')
                 ->comment('Ciudadano especialmente protegido al que se solicita acceso');
 
