@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Tests\Feature;
 
+use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
@@ -46,7 +47,7 @@ class SeguimientoTest extends TestCase
     private function crearPlanActivo(): PlanDeIntervencion
     {
         $historia = HistoriaSocial::create([
-            'ciudadano_id' => fake()->numberBetween(1, 9999),
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $this->uo->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',

@@ -3,6 +3,7 @@
 namespace Modules\Usuarios\Tests\Feature\Policies;
 
 use App\Models\Apunte;
+use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
@@ -126,7 +127,7 @@ class ApuntePolicyTest extends TestCase
     public function apunte_no_privado_puede_ser_leido_por_otro_profesional(): void
     {
         $historia = HistoriaSocial::create([
-            'ciudadano_id' => 1,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $this->uo->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',
@@ -172,7 +173,7 @@ class ApuntePolicyTest extends TestCase
     private function crearApuntePrivado(User $autor): Apunte
     {
         $historia = HistoriaSocial::create([
-            'ciudadano_id' => fake()->numberBetween(1, 9999),
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $this->uo->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',

@@ -9,10 +9,10 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
-**FK `historias_sociales.ciudadano_id → ciudadanos`** — 2026-11-15
-Módulo: Intervención / Ciudadanía
-- La columna no tiene FK desde la migración `2026_03_11_153335` («TODO: FK a tabla ciudadanos cuando se implemente el módulo Ciudadanía»). La BD compartida tiene 0 historias huérfanas de 474 (comprobado el 2026-11-15), así que la migración es segura en datos.
-- Antes hay que corregir los tests que crean historias con un `ciudadano_id` inventado: `tests/Feature/AutorizacionDatosTest.php` (líneas 83 a 185, test del scope), `Modules/Escalas/tests/Feature/EscalaTest.php`, `Modules/Intervencion/tests/Feature/{VisibilidadApuntes,Seguimiento,ValoracionFichas,Entrevista,VersionadoPlan}Test.php` y `Modules/Usuarios/tests/Feature/Policies/{ApuntePolicy,HistoriaSocialPolicy}Test.php`. Son el mismo defecto que el fallo de `AutorizacionDatosTest` corregido el 2026-11-15: fallarán en cuanto auditen una edición de la historia.
+**FK a `ciudadanos` en `accesos_protegidos` y `revelaciones_identidad`** — 2026-11-15
+Módulo: Usuarios / Ciudadanía
+- Son las únicas columnas `ciudadano_id` que siguen sin FK (consulta a `information_schema` del 15 nov). La de `historias_sociales` se añadió ese día.
+- `AccesoProtegidoFactory` genera un `ciudadano_id` inventado (`fake()->numberBetween(1, 99999)`): corregirlo, y los tests que dependan de él, antes de añadir la FK. Comprobar antes las huérfanas en la BD compartida.
 
 ---
 

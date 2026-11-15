@@ -80,14 +80,14 @@ class AutorizacionDatosTest extends TestCase
 
         // Crear historias en ambas UOs — sin GlobalScope
         $historiaUoA = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id' => 1,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $this->uoA->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',
         ]);
 
         $historiaUoB = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id' => 2,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $this->uoB->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',
@@ -118,14 +118,14 @@ class AutorizacionDatosTest extends TestCase
         $profesional = $this->crearUsuarioEnUo('intervencion', $this->uoA);
 
         HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id' => 100,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $this->uoA->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',
         ]);
 
         HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id' => 200,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $this->uoB->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',
@@ -153,7 +153,7 @@ class AutorizacionDatosTest extends TestCase
         // No se le asigna ninguna UO
 
         HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id' => 999,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $this->uoA->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',
@@ -175,14 +175,14 @@ class AutorizacionDatosTest extends TestCase
     public function sin_usuario_autenticado_global_scope_no_filtra(): void
     {
         HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id' => 300,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $this->uoA->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',
         ]);
 
         HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id' => 400,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $this->uoB->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',
@@ -499,13 +499,8 @@ class AutorizacionDatosTest extends TestCase
         UnidadOrganizativa $uo,
         bool $ciudadanoProtegido = false
     ): HistoriaSocial {
-        // El titular tiene que existir: la auditoría de la historia guarda su
-        // ciudadano_id en audits, que tiene FK a ciudadanos.
-        $ciudadano = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
-            ->create(Ciudadano::factory()->raw());
-
         return HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id' => $ciudadano->id,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $uo->id,
             'ciudadano_protegido' => $ciudadanoProtegido,
             'estado' => 'abierta',

@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-11-15 — FK `historias_sociales.ciudadano_id → ciudadanos` y tests con ciudadanos inventados
+
+### Cambios
+- **Migración** `2026_11_15_110001_add_ciudadano_foreign_to_historias_sociales`: FK con `restrictOnDelete` (los ciudadanos solo tienen baja lógica). Antes de crearla cuenta las historias huérfanas y, si hay alguna, aborta con un mensaje claro. La BD compartida tenía 0 de 474 (comprobado el 15 nov, en solo lectura). Cierra el TODO de la migración de marzo.
+- **Tests y factory corregidos**, que creaban historias con un `ciudadano_id` inventado (literal o `fake()->numberBetween`) y ahora usan `Ciudadano::factory()->create()->id`: `AutorizacionDatosTest` (los 4 tests del scope y el helper), `EscalaTest`, `VisibilidadApuntesTest`, `ValoracionFichasTest`, `EntrevistaTest`, `SeguimientoTest`, `VersionadoPlanTest`, `HistoriaSocialPolicyTest`, `ApuntePolicyTest` y `EntrevistaFactory`.
+- **Negativo comprobado:** con la FK y sin corregir los fixtures fallaban 60 tests de esos ficheros, todos por la FK.
+- **Tests:** `AutorizacionDatosTest`, `Modules/Escalas/tests`, `Modules/Intervencion/tests` y `Modules/Usuarios/tests`: 444 passed, 2 incomplete (previos). `AusenciasSupervisorTest`, que crea historias con un id recibido por parámetro, 9 passed; `DemoAditivoTest` y `MigracionCircuitoTest` (insertan en `historias_sociales` directamente), en verde.
+
+### Decisiones de implementación
+- Las otras dos columnas `ciudadano_id` sin FK (`accesos_protegidos` y `revelaciones_identidad`) no se tocan: van al BACKLOG.
+
+---
+
 ## 2026-11-15 — Tests: fallo previo de `AutorizacionDatosTest` (FK de `audits`)
 
 ### Cambios

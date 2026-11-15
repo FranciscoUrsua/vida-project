@@ -3,6 +3,7 @@
 namespace Modules\Usuarios\Tests\Feature\Policies;
 
 use App\Models\AccesoProtegido;
+use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
@@ -194,7 +195,7 @@ class HistoriaSocialPolicyTest extends TestCase
     private function crearHistoria(UnidadOrganizativa $uo, bool $protegido): HistoriaSocial
     {
         return HistoriaSocial::create([
-            'ciudadano_id' => fake()->numberBetween(1, 9999),
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $uo->id,
             'ciudadano_protegido' => $protegido,
             'estado' => 'abierta',

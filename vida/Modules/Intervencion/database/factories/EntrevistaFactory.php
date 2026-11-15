@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Database\Factories;
 
+use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
@@ -24,7 +25,7 @@ class EntrevistaFactory extends Factory
         );
 
         $historia = HistoriaSocial::create([
-            'ciudadano_id' => fake()->numberBetween(1, 9999),
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $uo->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',

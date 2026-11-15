@@ -2,6 +2,7 @@
 
 namespace Modules\Escalas\Tests\Feature;
 
+use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
@@ -43,7 +44,7 @@ class EscalaTest extends TestCase
         $this->profesional = User::factory()->create();
 
         $this->historia = HistoriaSocial::create([
-            'ciudadano_id' => 1001,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $this->uo->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',
@@ -453,7 +454,7 @@ class EscalaTest extends TestCase
     public function pases_de_distintos_ciudadanos_no_se_mezclan(): void
     {
         $historia2 = HistoriaSocial::create([
-            'ciudadano_id' => 2002,
+            'ciudadano_id' => Ciudadano::factory()->create()->id,
             'unidad_organizativa_id' => $this->uo->id,
             'ciudadano_protegido' => false,
             'estado' => 'abierta',

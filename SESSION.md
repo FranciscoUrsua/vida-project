@@ -1,12 +1,12 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-15 (fallo previo de `AutorizacionDatosTest` corregido)
+**Última actualización:** 2026-11-15 (FK `historias_sociales.ciudadano_id` y tests con ciudadanos inventados)
 
 ---
 
 ## Tarea completada
 
-**Fallo previo de `AutorizacionDatosTest` (FK de `audits`)** (2026-11-15): el helper `crearHistoriaSinScope()` usaba un `ciudadano_id` inexistente y la auditoría de la edición rompía la FK de `audits`. Ahora crea un ciudadano real; el fichero, 18 passed. Solo cambia el test. Pendiente en el BACKLOG: la FK `historias_sociales.ciudadano_id` y los ~20 tests con ids inventados. **Fallos previos que quedan en la suite:** los 2 de `CuadranteSupervisorTest`.
+**FK `historias_sociales.ciudadano_id → ciudadanos`** (2026-11-15): migración `2026_11_15_110001`, que aborta si hay historias huérfanas (en la BD compartida no hay ninguna: 0 de 474). Se aplica en staging con el push. Corregidos los 9 ficheros de tests y `EntrevistaFactory` que creaban historias con ids inventados; antes, `AutorizacionDatosTest` creaba la historia de un ciudadano inexistente y rompía la FK de `audits`. Escalas, Intervención, Usuarios y `AutorizacionDatosTest`: 444 passed, 2 incomplete (previos). **Fallos previos que quedan en la suite:** los 2 de `CuadranteSupervisorTest`. Pendiente en el BACKLOG: FK en `accesos_protegidos` y `revelaciones_identidad`.
 
 Antes: **Fase 3 bis, solicitudes de prestación y expedientes** (2026-11-15, `docs/instrucciones-cli/2026-11-fase3bis-solicitudes-expedientes.md`): vía de acceso y unidad tramitadora por prestación, solicitud de prestación con historial inmutable, bandeja de tramitación por unidad (superficie propia del rol `tramitacion`), envío al gestor de expedientes (adaptadores manual, por defecto, y simulado), actualizaciones por las cuatro vías, incidencias, resolución con apunte automático, prestaciones de la persona (concedida/activa) y retirada de `SolicitudServicio`. TF-SOL-01 a 44 en verde. Decisión del desarrollador: vía inicial de las prestaciones existentes (ver CHANGELOG). Detalle en `CHANGELOG-112026.md`.
 
