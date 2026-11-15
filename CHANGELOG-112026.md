@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-11-15 — Tests: fallo previo de `AutorizacionDatosTest` (FK de `audits`)
+
+### Cambios
+- **Causa:** `crearHistoriaSinScope()` creaba la historia con un `ciudadano_id` aleatorio que no existe en `ciudadanos`. `historias_sociales.ciudadano_id` no tiene FK (TODO de la migración de marzo), pero `audits.ciudadano_id` sí, y `HistoriaSocialService::actualizar()` audita la edición con el titular de la historia. Por eso fallaba solo `servicio_historia_social_permite_actualizacion_con_permiso`, el único test del fichero que edita una historia.
+- **Corrección (solo en el test):** el helper crea antes un `Ciudadano` real (`Ciudadano::factory()->raw()` sin el scope de UO). No se toca la aplicación.
+- **Tests:** `tests/Feature/AutorizacionDatosTest.php`, 18 passed.
+
+### Decisiones de implementación
+- La FK `historias_sociales.ciudadano_id → ciudadanos` no se añade en esta sesión. La BD compartida no tiene historias huérfanas (0 de 474, consulta de solo lectura), pero unos 20 tests de 7 ficheros crean historias con ids inventados y fallarían. Va al BACKLOG.
+
+---
+
 ## 2026-11-15 — Fase 3 bis: solicitudes de prestación y expedientes (`2026-11-fase3bis-solicitudes-expedientes.md`)
 
 ### Decisiones del desarrollador (15 nov)

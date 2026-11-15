@@ -1,12 +1,14 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-15 (fase 3 bis, solicitudes de prestación y expedientes: TF-SOL-01 a 44)
+**Última actualización:** 2026-11-15 (fallo previo de `AutorizacionDatosTest` corregido)
 
 ---
 
 ## Tarea completada
 
-**Fase 3 bis, solicitudes de prestación y expedientes** (2026-11-15, `docs/instrucciones-cli/2026-11-fase3bis-solicitudes-expedientes.md`): vía de acceso y unidad tramitadora por prestación, solicitud de prestación con historial inmutable, bandeja de tramitación por unidad (superficie propia del rol `tramitacion`), envío al gestor de expedientes (adaptadores manual, por defecto, y simulado), actualizaciones por las cuatro vías, incidencias, resolución con apunte automático, prestaciones de la persona (concedida/activa) y retirada de `SolicitudServicio`. TF-SOL-01 a 44 en verde. Decisión del desarrollador: vía inicial de las prestaciones existentes (ver CHANGELOG). Detalle en `CHANGELOG-112026.md`.
+**Fallo previo de `AutorizacionDatosTest` (FK de `audits`)** (2026-11-15): el helper `crearHistoriaSinScope()` usaba un `ciudadano_id` inexistente y la auditoría de la edición rompía la FK de `audits`. Ahora crea un ciudadano real; el fichero, 18 passed. Solo cambia el test. Pendiente en el BACKLOG: la FK `historias_sociales.ciudadano_id` y los ~20 tests con ids inventados. **Fallos previos que quedan en la suite:** los 2 de `CuadranteSupervisorTest`.
+
+Antes: **Fase 3 bis, solicitudes de prestación y expedientes** (2026-11-15, `docs/instrucciones-cli/2026-11-fase3bis-solicitudes-expedientes.md`): vía de acceso y unidad tramitadora por prestación, solicitud de prestación con historial inmutable, bandeja de tramitación por unidad (superficie propia del rol `tramitacion`), envío al gestor de expedientes (adaptadores manual, por defecto, y simulado), actualizaciones por las cuatro vías, incidencias, resolución con apunte automático, prestaciones de la persona (concedida/activa) y retirada de `SolicitudServicio`. TF-SOL-01 a 44 en verde. Decisión del desarrollador: vía inicial de las prestaciones existentes (ver CHANGELOG). Detalle en `CHANGELOG-112026.md`.
 
 Antes: **Fase 3, circuito de intervención** (2026-11-14, `docs/instrucciones-cli/2026-11-fase3-circuito-intervencion.md`): varios tipos de plan y plan principal (`tipos_plan.es_principal`), centro del plan y reglas de apertura en `PlanDeIntervencionService`, acceso del equipo del plan (lectura de la historia y RN-17 ampliada), derivación a atención especializada (`derivaciones`, bandeja `supervision.derivaciones`, herramienta de la caja retirada), evaluación de objetivos en el seguimiento con historial, avisos de plazas al TSR vigente y cambio de referencia desde la ficha. TF-CIR-01 a 43 en verde, 14 negativos comprobados. Decisiones del desarrollador: planes activos sin tipo → PISO (o PIA si la historia es del CIAM), PIA en `ciam` y PISO en `css_general`, y **`supervision` sola no lee ni edita planes** (perdió `plan.leer`). Detalle en `CHANGELOG-112026.md`.
 

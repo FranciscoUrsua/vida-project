@@ -9,6 +9,13 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**FK `historias_sociales.ciudadano_id → ciudadanos`** — 2026-11-15
+Módulo: Intervención / Ciudadanía
+- La columna no tiene FK desde la migración `2026_03_11_153335` («TODO: FK a tabla ciudadanos cuando se implemente el módulo Ciudadanía»). La BD compartida tiene 0 historias huérfanas de 474 (comprobado el 2026-11-15), así que la migración es segura en datos.
+- Antes hay que corregir los tests que crean historias con un `ciudadano_id` inventado: `tests/Feature/AutorizacionDatosTest.php` (líneas 83 a 185, test del scope), `Modules/Escalas/tests/Feature/EscalaTest.php`, `Modules/Intervencion/tests/Feature/{VisibilidadApuntes,Seguimiento,ValoracionFichas,Entrevista,VersionadoPlan}Test.php` y `Modules/Usuarios/tests/Feature/Policies/{ApuntePolicy,HistoriaSocialPolicy}Test.php`. Son el mismo defecto que el fallo de `AutorizacionDatosTest` corregido el 2026-11-15: fallarán en cuanto auditen una edición de la historia.
+
+---
+
 **Fase 3 bis (solicitudes y expedientes): pendientes** — 2026-11-15
 Módulos: Prestaciones, Intervención, Documentos
 - **Endpoint HTTP de avisos del gestor de expedientes:** fuera de alcance (no hay capa de API ni gestor). El procesamiento está en `SolicitudPrestacionService::procesarAviso()`; falta la ruta, su autenticación y el adaptador real.
@@ -210,7 +217,7 @@ Módulos: Centro, Intervención, Ciudadanía, geocodificación
 Módulo: Frontend / Filament
 - **Tema de Filament con la paleta antigua:** `resources/css/filament/admin/theme.css` conserva `success` #4B8A5B, `warning` #B8852F, `danger` #B0432E e `info` #3F6E99, que no son los canónicos (ver anexo A de `docs/instrucciones-cli/2026-09-bootstrap-unico.md`) y en success/warning no llegan a AA. Filament queda fuera del plan; decidir si se alinea.
 - **R5 da por usada una clase que coincide con un nombre de vista o ruta.** Valorar excluir de la búsqueda de usos las cadenas `vista::…`/`route('…')`.
-- **Tests con fallo previo detectados al migrar**: TF-AUTH-16/17 (`User::name` devuelve el correo en la portada `inicio`), `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`), Agenda (columna `horario_centro_id` inexistente en `tipos_slot` en `vida_testing`; `foreach` sobre cadena en `cuadrante-supervisor-page`).
+- **Tests con fallo previo detectados al migrar**: TF-AUTH-16/17 (`User::name` devuelve el correo en la portada `inicio`), `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`; corregido el 2026-11-15), Agenda (columna `horario_centro_id` inexistente en `tipos_slot` en `vida_testing`; `foreach` sobre cadena en `cuadrante-supervisor-page`).
 - **Vistas públicas con clases sin definir:** `welcome-page__hero`, `welcome-page__summary-section` (welcome) y `auth-card__form` (login). Se resuelven en la fase 3.
 
 ---
@@ -259,6 +266,7 @@ Módulo: Mensajes
 
 **Suite completa con 75 fallos fuera de Documentos** — 2026-09-25
 *2026-11-12: suite completa con 1318 passed, 12 incomplete, 1 skipped y **un solo fallo**: `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`). Es lo único que queda de esta entrada.*
+*2026-11-15: corregido (el test creaba la historia con un ciudadano inexistente). Entrada cerrada; la FK que falta tiene entrada propia.*
 Módulos: Agenda, Mensajes, Ciudadanía, Autenticación, Intervención
 (2026-09-26: los 6 fallos de Mensajes están resueltos; `t_lw_09` se sustituyó por TF-MSG-PAN-10 al retirar `NuevoMensaje`.)
 Primera ejecución completa registrada (908 passed, 76 failed; el fallo de Documentos ya está corregido). Detalle por módulo en `CHANGELOG-092026.md` («Documentos: custodia v2, UI operativa y cierre»). La mayoría son de Agenda (esquema que no existe). En Ciudadanía, dos tests buscan un texto que ya no está en la ficha. Revisarlos antes de un merge a `main`.

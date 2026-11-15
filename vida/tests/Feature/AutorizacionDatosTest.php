@@ -499,8 +499,13 @@ class AutorizacionDatosTest extends TestCase
         UnidadOrganizativa $uo,
         bool $ciudadanoProtegido = false
     ): HistoriaSocial {
+        // El titular tiene que existir: la auditoría de la historia guarda su
+        // ciudadano_id en audits, que tiene FK a ciudadanos.
+        $ciudadano = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
+            ->create(Ciudadano::factory()->raw());
+
         return HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)->create([
-            'ciudadano_id' => fake()->unique()->numberBetween(1, 99999),
+            'ciudadano_id' => $ciudadano->id,
             'unidad_organizativa_id' => $uo->id,
             'ciudadano_protegido' => $ciudadanoProtegido,
             'estado' => 'abierta',
