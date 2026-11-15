@@ -14,6 +14,7 @@ use Modules\Documentos\Enums\OrigenEni;
 use Modules\Documentos\Enums\PoliticaVersiones;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\Valoracion;
+use Modules\Prestaciones\Models\SolicitudPrestacion;
 
 /**
  * Tipo documental: fija el comportamiento por defecto de los documentos de ese tipo.
@@ -187,6 +188,7 @@ class TipoDocumental extends Model
 
     /**
      * Indica si un documento de este tipo puede vincularse a una entidad de la clase dada.
+     * Una solicitud de prestación admite los tipos que admite la persona.
      *
      * @param class-string<Model> $clase Clase Eloquent de la entidad.
      *
@@ -194,6 +196,12 @@ class TipoDocumental extends Model
      */
     public function permiteVincularA(string $clase): bool
     {
+        // Un documento de la persona puede vincularse también a una solicitud suya (fase 3 bis,
+        // RN-04): es el mismo documento, que ya está en su carpeta; no hace falta otra clave.
+        if (is_a($clase, SolicitudPrestacion::class, true)) {
+            return $this->permiteVincularA(Ciudadano::class);
+        }
+
         foreach ($this->vinculables ?? [] as $clave) {
             if ((self::ENTIDADES_VINCULABLES[$clave] ?? null) === $clase) {
                 return true;

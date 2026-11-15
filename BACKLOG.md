@@ -9,6 +9,18 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Fase 3 bis (solicitudes y expedientes): pendientes** — 2026-11-15
+Módulos: Prestaciones, Intervención, Documentos
+- **Endpoint HTTP de avisos del gestor de expedientes:** fuera de alcance (no hay capa de API ni gestor). El procesamiento está en `SolicitudPrestacionService::procesarAviso()`; falta la ruta, su autenticación y el adaptador real.
+- **Unidades tramitadoras reales:** la migración dejó las prestaciones de expediente externo con unidad «centro de solicitud». Configurar en el panel la UO que tramita cada una (p. ej. un servicio central de SAD) y sus formularios y documentos exigidos.
+- **Pendientes del diseño (§8 de `modulo-solicitudes-expedientes.md`):** listas de espera de prestaciones con plaza, aviso por demora de inicio, integración con proveedores para el inicio efectivo, cofinanciación e HSU, indicadores.
+- **Reasignar una solicitud tomada** (la supervisión, según TF-SOL-12): no hay acción; hoy solo la suelta quien la tiene.
+- **Bandeja de tramitación sin buscador de personas ni enlace a la ficha:** tramitación ve la ficha por las rutas de Ciudadanía, pero su menú solo tiene la bandeja.
+- **Prescripciones de plaza abiertas desde Recursos** (sin pasar por «Solicitar prestación») no tienen prestación y no crean prestación de la persona al asignarse.
+- **Prestaciones de la persona en el expediente (`CiudadanoPage`):** solo el resumen de la cabecera; el bloque completo está en la ficha (Ciudadanía).
+
+---
+
 **Fase 3 (circuito de intervención): pendientes** — 2026-11-14
 Módulos: Intervención, Supervisión, Centro, Prestaciones
 - **«Cambiar referencia» en Mi equipo y en la bandeja de asignaciones** (E1): de momento solo está en la ficha (`intervencion.cambio-referencia`). El componente se puede incrustar tal cual.

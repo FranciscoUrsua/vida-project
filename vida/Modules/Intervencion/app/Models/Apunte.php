@@ -45,12 +45,18 @@ use Modules\Intervencion\Enums\VisibilidadApunte;
  * @property VisibilidadApunte $visibilidad
  * @property int|null $cita_id Cita que atiende.
  * @property int|null $evento_agenda_id Evento de agenda del que nace.
+ * @property string|null $fuente Origen de un apunte automático: gestor_expedientes | registro_manual (fase 3 bis).
  */
 class Apunte extends Model
 {
     use Auditable;
     use HasFactory;
 
+    /**
+     * Factoría del modelo (vive en el módulo, no en database/factories).
+     *
+     * @return ApunteFactory
+     */
     protected static function newFactory(): ApunteFactory
     {
         return ApunteFactory::new();
@@ -122,6 +128,7 @@ class Apunte extends Model
         'visibilidad',
         'cita_id',
         'evento_agenda_id',
+        'fuente',
     ];
 
     protected $casts = [

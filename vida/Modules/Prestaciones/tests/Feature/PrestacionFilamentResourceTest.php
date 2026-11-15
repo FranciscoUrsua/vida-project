@@ -52,6 +52,7 @@ class PrestacionFilamentResourceTest extends TestCase
             'tipo_prestacion' => 'servicio',
             'nivel_garantia' => 'garantizada',
             'activa' => true,
+            'via_acceso' => 'directa', // obligatoria en una prestación activa (fase 3 bis)
         ], $overrides);
     }
 
@@ -121,6 +122,7 @@ class PrestacionFilamentResourceTest extends TestCase
                 'nombre' => 'Servicio de información',
                 'tipo_prestacion' => 'servicio',
                 'nivel_garantia' => 'garantizada',
+                'via_acceso' => 'directa', // obligatoria en una prestación activa (fase 3 bis)
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -143,6 +145,7 @@ class PrestacionFilamentResourceTest extends TestCase
                 'nombre' => '',
                 'tipo_prestacion' => 'servicio',
                 'nivel_garantia' => 'garantizada',
+                'via_acceso' => 'directa', // obligatoria en una prestación activa (fase 3 bis)
             ])
             ->call('create')
             ->assertHasFormErrors(['nombre' => 'required']);
@@ -163,6 +166,7 @@ class PrestacionFilamentResourceTest extends TestCase
                 'nombre' => 'Otro servicio',
                 'tipo_prestacion' => 'servicio',
                 'nivel_garantia' => 'garantizada',
+                'via_acceso' => 'directa', // obligatoria en una prestación activa (fase 3 bis)
             ])
             ->call('create')
             ->assertHasFormErrors(['codigo']);

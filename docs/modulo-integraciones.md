@@ -81,11 +81,11 @@ El `IntegracionesServiceProvider` lee esta configuración y vincula cada interfa
 
 ### 4.3 Gestor de expedientes administrativos
 
-**Interfaz:** `GestorExpedientesInterface`
+**Interfaz:** `Modules\Prestaciones\Services\Gestor\AdaptadorGestorExpedientes` (fase 3 bis, 15 nov 2026)
 **Dirección:** bidireccional
 **Propósito:** tramitación de prestaciones que generan expediente administrativo
-**Proveedor:** sistema de gestión de expedientes del Ayuntamiento de Madrid
-**Estado:** pendiente de implementación — mock activo
+**Proveedor:** sistema de gestión de expedientes del Ayuntamiento de Madrid (no existe todavía)
+**Estado:** interfaz implementada con dos adaptadores: `GestorManual` (por defecto: registro manual en VIDA) y `GestorSimulado` (desarrollo y tests). Selección por `config('prestaciones.gestor_expedientes')`; mapeo de estados por adaptador en `config/prestaciones.php`. Operaciones reales: `iniciarSolicitud(SolicitudParaGestor): string`, `consultarEstado(string): ActualizacionExpediente`, `aportarDocumentacion(string, array): void`, `admite(string)`, `nombre()`. El aviso entrante lo procesa `SolicitudPrestacionService::procesarAviso()`; **el endpoint HTTP está pendiente** (no hay capa de API). Ver `docs/modulo-solicitudes-expedientes.md` §4 y §9.
 
 **Operaciones previstas:**
 - `iniciarSolicitud(array $datos): string` — devuelve número de expediente

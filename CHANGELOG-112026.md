@@ -4,6 +4,37 @@
 
 ---
 
+## 2026-11-15 — Fase 3 bis: solicitudes de prestación y expedientes (`2026-11-fase3bis-solicitudes-expedientes.md`)
+
+### Decisiones del desarrollador (15 nov)
+- **Vía inicial de las prestaciones existentes:** económicas, SAD, SAD intensivo, teleasistencia y ayuda a domicilio para familias → expediente externo (tramitadas por el centro de solicitud hasta configurar otra unidad); alojamientos, residencias, centros de día y acogidas → plaza; el resto → directa.
+
+### Cambios
+- **Migraciones:** `2026_11_15_100001` (unidad tramitadora, formulario de solicitud y código del gestor en `prestaciones`; `tipo_fichas.uso`; `prestacion_documentos_exigidos`; vía inicial de las prestaciones existentes), `100002` (`solicitudes_prestacion`, `solicitud_prestacion_personas`, `solicitud_prestacion_eventos` y `prestacion_persona_eventos` con trigger de solo inserción, `resoluciones_solicitud`, `resolucion_lineas`, `prestaciones_persona`; `prescripciones.prestacion_id` y `plan_apuntes.fuente`), `100003` (retira `solicitudes_servicio`, sin registros fuera de tests) y `100004` (permisos `solicitud.*` y `prestacion_persona.gestionar` en una BD ya sembrada).
+- **Modelos y servicios** (módulo Prestaciones): `SolicitudPrestacion`, `SolicitudPrestacionEvento`, `ResolucionSolicitud`, `ResolucionLinea`, `PrestacionPersona`, `PrestacionPersonaEvento`, `PrestacionDocumentoExigido`; enums `EstadoSolicitudPrestacion`, `AccionEventoSolicitud`, `OrigenActualizacion`, `SentidoResolucion`, `EstadoPrestacionPersona`. `SolicitudPrestacionService` (único punto de escritura; `registrarActualizacion()` idempotente para las cuatro vías de RN-07; `procesarAviso()`), `ResolucionService`, `PrestacionPersonaService`. Adaptador `Gestor\AdaptadorGestorExpedientes` con `GestorManual` (por defecto) y `GestorSimulado`; `config/prestaciones.php`; comando `expedientes:consultar` en el scheduler. Policies de la solicitud y de la prestación de la persona.
+- **Interfaz:** «Solicitar prestación» en la caja de herramientas de la Historia Social, en cada objetivo del plan y tras registrar un seguimiento; pantalla de la solicitud; bandeja de tramitación (`prestaciones.bandeja`) con layout y menú propios del rol `tramitacion`, que entra por ella (`User::destinoInicial()` y onboarding); bloque «Prestaciones» en la ficha; resumen en la cabecera de la Historia Social (`statPrestaciones()`, P-03 resuelta). `PrestacionResource` con vía, unidad tramitadora, formulario, código del gestor y documentos exigidos.
+- **Retirada de `SolicitudServicio`** (modelo, test y tabla).
+- **Tests:** `Modules/Prestaciones/tests/Feature/Solicitudes/` (7 ficheros): TF-SOL-01 a 44 en verde. `PrestacionFilamentResourceTest` adaptado: la vía de acceso es obligatoria en una prestación activa. Autoload de `Modules\Prestaciones\Tests` en `composer.json`.
+- **Negativos:** la sesión de implementación se cortó sin dejar constancia de qué tests se comprobaron en negativo; no se afirma ninguno.
+- Docblocks añadidos a métodos anteriores sin documentar en ficheros tocados (`PlanPage::guardarDiagnostico()`, `Apunte::newFactory()`, `TipoFicha::newFactory()` y `booted()`).
+- `npm run build` y `ui:auditar` sin infracciones.
+- Documentación: `modulo-solicitudes-expedientes.md` (estado y §9, implementación), `modulo-prestaciones.md`, `modulo-intervencion.md`, `modulo-centros.md`, `modulo-documentos.md`, `modulo-integraciones.md`, `roles-consulta-basica-tramitacion.md` §4, `decisiones-pendientes.md` (P-01 y P-03 resueltas), tabla de estado de las instrucciones y `CLAUDE.md` §6.
+
+### Decisiones de implementación no previstas
+- **Snapshot de configuración** en la solicitud (vía, unidad, formulario, código del gestor, documentos exigidos y número de versiones de la prestación) en lugar de un `prestacion_version_id`.
+- **Documentos:** un documento de la persona puede vincularse también a su solicitud; los subidos desde la solicitud entran por `CicloVidaDocumentoService::altaDocumento()` con los dos vínculos.
+- **Seguimiento → solicitud:** `solicitudes_prestacion.seguimiento_id` como campo de contexto, sin pivote.
+- **Apunte automático** de resolución con tipo `gestion_coordinacion` y `plan_apuntes.fuente` (`gestor_expedientes` o `registro_manual`).
+- **Plazas:** `prescripciones.prestacion_id` solo se rellena si la prescripción nace de «Solicitar prestación»; al asignarse la plaza se crea la prestación de la persona activa. Las prescripciones abiertas desde Recursos no crean ninguna (BACKLOG).
+- **Supervisión** recibe todos los permisos de solicitud (crear, ver, tramitar, registrar a mano, gestionar prestaciones de la persona).
+- Accesos a solicitudes de personas protegidas auditados como `acceso_restringido`; tramitación no ve la Historia Social.
+
+### Tests de cierre
+- `Modules/Prestaciones/tests`: 91 passed.
+- Centro 137, Ciudadanía 105, Documentos 100, Usuarios 71 (1 incomplete), `tests/Feature/Auth` 40 (1 incomplete, 1 skipped), `tests/Feature/Acceso` 36, `FilamentPanelAccessTest` 16, Intervención 337 (1 incomplete): sin fallos; los incomplete y skipped son previos.
+
+---
+
 ## 2026-11-14 — Dependencias: Laravel 12.72.0 (CVE-2026-128083)
 
 ### Cambios

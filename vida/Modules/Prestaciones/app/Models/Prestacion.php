@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Intervencion\Models\TipoFicha;
 use Modules\Intervencion\Models\TipoPlan;
 use Modules\Prestaciones\Database\Factories\PrestacionFactory;
 use Modules\Prestaciones\Enums\ViaAcceso;
@@ -30,6 +31,12 @@ use Modules\Prestaciones\Enums\ViaAcceso;
  * `tipo_plan_derivacion_id` el tipo de plan especializado que genera; es obligatorio
  * y debe ser de ámbito especializado (ver verificarDerivacion()).
  *
+ * Acceso y tramitación (fase 3 bis, RN-01 a RN-04): toda prestación activa tiene vía de
+ * acceso; las de tramitación tienen unidad tramitadora (una UO o «el centro de solicitud»),
+ * formulario de solicitud opcional y documentos exigidos; el código en el gestor solo tiene
+ * sentido en expediente externo (ver verificarAcceso()). Cada solicitud guarda una copia de
+ * esta configuración al crearse.
+ *
  * @property int $id
  * @property string $codigo
  * @property string $nombre
@@ -37,6 +44,10 @@ use Modules\Prestaciones\Enums\ViaAcceso;
  * @property string $nivel_garantia garantizada|condicionada
  * @property ViaAcceso|null $via_acceso
  * @property int|null $tipo_plan_derivacion_id
+ * @property string|null $unidad_tramitadora_tipo 'uo' | 'centro_solicitud' (solo vías de tramitación)
+ * @property int|null $unidad_tramitadora_id UO tramitadora si el tipo es 'uo'
+ * @property int|null $formulario_solicitud_id TipoFicha de uso 'solicitud'
+ * @property string|null $codigo_gestor Código en el gestor de expedientes (solo expediente externo)
  * @property string|null $objetivo_general
  * @property string|null $categoria_especifica
  * @property string|null $nivel_atencion
@@ -90,6 +101,10 @@ class Prestacion extends Model
         'nivel_garantia',
         'via_acceso',
         'tipo_plan_derivacion_id',
+        'unidad_tramitadora_tipo',
+        'unidad_tramitadora_id',
+        'formulario_solicitud_id',
+        'codigo_gestor',
         'objetivo_general',
         'categoria_especifica',
         'nivel_atencion',
@@ -131,7 +146,10 @@ class Prestacion extends Model
      */
     protected static function booted(): void
     {
-        static::saving(fn (self $prestacion) => self::verificarDerivacion($prestacion));
+        static::saving(function (self $prestacion): void {
+            self::verificarDerivacion($prestacion);
+            self::verificarAcceso($prestacion);
+        });
     }
 
     /**
@@ -163,6 +181,72 @@ class Prestacion extends Model
     // -------------------------------------------------------------------------
     // Relaciones
     // -------------------------------------------------------------------------
+
+    /**
+     * Coherencia de la vía de acceso (fase 3 bis, TF-SOL-01): unidad tramitadora solo y siempre
+     * en las vías de tramitación; código del gestor solo en expediente externo. Lo que no
+     * corresponde a la vía se rechaza, no se borra.
+     *
+     * @param Prestacion $prestacion
+     *
+     * @return void
+     *
+     * @throws \DomainException
+     */
+    private static function verificarAcceso(self $prestacion): void
+    {
+        $via = $prestacion->via_acceso;
+
+        // La vía es obligatoria en las prestaciones activas, pero eso lo exige el formulario
+        // del catálogo (PrestacionResource), como dicen las instrucciones; aquí, la coherencia.
+        if ($via === null) {
+            if ($prestacion->unidad_tramitadora_tipo !== null || ($prestacion->codigo_gestor ?? '') !== '') {
+                throw new \DomainException('Sin vía de acceso no hay unidad tramitadora ni código del gestor.');
+            }
+
+            return;
+        }
+
+        if ($via->esTramitacion()) {
+            if (! in_array($prestacion->unidad_tramitadora_tipo, ['uo', 'centro_solicitud'], true)) {
+                throw new \DomainException('Una prestación con tramitación necesita unidad tramitadora.');
+            }
+
+            if ($prestacion->unidad_tramitadora_tipo === 'uo' && $prestacion->unidad_tramitadora_id === null) {
+                throw new \DomainException('Indica la UO que tramita la prestación.');
+            }
+        } elseif ($prestacion->unidad_tramitadora_tipo !== null || $prestacion->unidad_tramitadora_id !== null) {
+            throw new \DomainException('Solo las prestaciones con tramitación tienen unidad tramitadora.');
+        }
+
+        if ($prestacion->unidad_tramitadora_tipo === 'centro_solicitud') {
+            $prestacion->unidad_tramitadora_id = null;
+        }
+
+        if ($prestacion->codigo_gestor !== null && $prestacion->codigo_gestor !== '' && $via !== ViaAcceso::ExpedienteExterno) {
+            throw new \DomainException('El código del gestor solo se indica en las prestaciones de expediente externo.');
+        }
+    }
+
+    /**
+     * Documentos que exige la prestación, en su orden.
+     *
+     * @return HasMany<PrestacionDocumentoExigido, $this>
+     */
+    public function documentosExigidos(): HasMany
+    {
+        return $this->hasMany(PrestacionDocumentoExigido::class, 'prestacion_id')->orderBy('orden');
+    }
+
+    /**
+     * Formulario de solicitud (TipoFicha de uso «solicitud»).
+     *
+     * @return BelongsTo<TipoFicha, $this>
+     */
+    public function formularioSolicitud(): BelongsTo
+    {
+        return $this->belongsTo(TipoFicha::class, 'formulario_solicitud_id');
+    }
 
     /**
      * Tipo de plan especializado que genera la derivación.

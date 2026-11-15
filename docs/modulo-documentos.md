@@ -51,7 +51,7 @@ Las tablas `informes.documento_id`, `piso_firmados.documento_id` y `firmas_plan.
 
 **Pendiente para los documentos propios del día de `consulta_basica`** (`docs/roles-consulta-basica-tramitacion.md` §3.3; revisado contra el código el 2026-11-10). Ya existen las versiones del fichero (`documento_versiones`, una vigente) y los vínculos n:M con baja lógica. Falta:
 - **Retirada lógica del documento** con quién, cuándo y motivo: `EstadoDocumento` solo tiene `pendiente_validacion`, `vigente`, `rechazado` y `destruido`.
-- **Vínculo con una solicitud administrativa:** los vínculos admiten `Ciudadano`, `PlanDeIntervencion` y `Valoracion`, no una solicitud.
+- ~~**Vínculo con una solicitud administrativa**~~ Hecho el 15 nov 2026 (fase 3 bis): un documento de la persona se vincula también a su solicitud de prestación (`DocumentoVinculo` polimórfico; `TipoDocumental::permiteVincularA()` acepta la solicitud para los tipos que admite la persona).
 
 **Custodia v1 (sustituida).** La tabla anterior (`documentable` morph, `tipo_documento_id` a `catalogos_sistema`, fichero en claro) se eliminó sin migrar datos porque no había ninguna fila. El grupo `documento.tipo` de `catalogos_sistema` se conserva hasta decidir su retirada.
 

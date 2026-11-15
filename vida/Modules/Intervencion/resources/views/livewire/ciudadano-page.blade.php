@@ -259,6 +259,14 @@
         {{-- ZONA SUPERIOR DERECHA — toolbox de herramientas --}}
         <div class="col-8 p-3">
 
+            {{-- Tras registrar un seguimiento: nuevas prestaciones desde él (fase 3 bis, paso 7) --}}
+            @if($ultimoSeguimientoId && auth()->user()->can('solicitud.crear'))
+                <div class="alert alert-light border d-flex flex-wrap align-items-center gap-2 py-2 small">
+                    Seguimiento registrado. ¿Hay nuevas prestaciones?
+                    @livewire('prestaciones.solicitar-prestacion', ['historiaId' => $historia->id, 'planId' => $this->planActivo?->id, 'seguimientoId' => $ultimoSeguimientoId], key('solicitar-seguimiento-'.$ultimoSeguimientoId))
+                </div>
+            @endif
+
             <div wire:key="toolbox-grid" class="row row-cols-4 g-2">
                 @foreach($herramientas as $h)
                     <div class="col">
@@ -281,6 +289,13 @@
                         </button>
                     </div>
                 @endforeach
+
+                {{-- «Solicitar prestación»: una sola puerta para todas las vías (fase 3 bis) --}}
+                @if($historiaAbierta && auth()->user()->can('solicitud.crear'))
+                    <div class="col">
+                        @livewire('prestaciones.solicitar-prestacion', ['historiaId' => $historia->id, 'herramienta' => true], key('solicitar-prestacion-'.$historia->id))
+                    </div>
+                @endif
 
                 {{-- Herramienta «Prescribir recurso» — visible solo con Historia Social abierta --}}
                 @if($historiaAbierta)

@@ -62,6 +62,7 @@ use Modules\Intervencion\Models\Valoracion;
 use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
 use Modules\Intervencion\Services\EvaluacionObjetivosService;
 use Modules\Intervencion\Services\PlanPdfService;
+use Modules\Prestaciones\Models\PrestacionPersona;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -179,6 +180,9 @@ class CiudadanoPage extends Component
 
     /** @var array<int|string, string> Estado confirmado por id de objetivo (fase 3, bloque C). */
     public array $estadosObjetivos = [];
+
+    /** Último seguimiento registrado aquí, para solicitar prestaciones desde él (fase 3 bis, paso 7). */
+    public ?int $ultimoSeguimientoId = null;
 
     /** @var string|null Aviso tras solicitar una cita (o por qué no se pudo). */
     public ?string $avisoCita = null;
@@ -341,7 +345,7 @@ class CiudadanoPage extends Component
 
         return $centro !== null
             ? app(ConfiguracionEfectivaCentro::class)->tiposFicha($centro)->sortBy('nombre')->values()
-            : TipoFicha::where('activo', true)->orderBy('nombre')->get();
+            : TipoFicha::where('activo', true)->deValoracion()->orderBy('nombre')->get();
     }
 
     /**
@@ -456,16 +460,27 @@ class CiudadanoPage extends Component
     }
 
     /**
-     * Prestaciones activas del ciudadano.
-     * Pendiente de integración real con el módulo Prestaciones.
+     * Resumen de las prestaciones de la persona para la cabecera (fase 3 bis, P-03 resuelta):
+     * activas y concedidas pendientes de inicio. Null si no tiene ninguna o el usuario no las ve.
      *
-     *
-     * @todo Integrar con módulo Prestaciones cuando esté disponible.
+     * @return string|null
      */
     #[Computed]
     public function statPrestaciones(): ?string
     {
-        return null;
+        if (! Auth::user()->can('solicitud.ver')) {
+            return null;
+        }
+
+        $porEstado = PrestacionPersona::where('ciudadano_id', $this->historia->ciudadano_id)
+            ->selectRaw('estado, count(*) as n')->groupBy('estado')->pluck('n', 'estado');
+
+        $partes = array_filter([
+            ($porEstado['activa'] ?? 0) > 0 ? $porEstado['activa'].' activa'.($porEstado['activa'] > 1 ? 's' : '') : null,
+            ($porEstado['concedida'] ?? 0) > 0 ? $porEstado['concedida'].' concedida'.($porEstado['concedida'] > 1 ? 's' : '').' sin empezar' : null,
+        ]);
+
+        return $partes === [] ? null : implode(' · ', $partes);
     }
 
     /**
@@ -1317,6 +1332,8 @@ class CiudadanoPage extends Component
 
             return;
         }
+
+        $this->ultimoSeguimientoId = $seguimiento?->id;
 
         if ($seguimiento !== null && $this->formEntrevista['solicitar_cita']) {
             $this->solicitarCitaSeguimiento($seguimiento);

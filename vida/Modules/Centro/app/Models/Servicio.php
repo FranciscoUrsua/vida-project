@@ -136,16 +136,6 @@ class Servicio extends Model
         );
     }
 
-    /**
-     * Solicitudes de tramitación dirigidas a este servicio.
-     *
-     * @return HasMany<SolicitudServicio, self>
-     */
-    public function solicitudes(): HasMany
-    {
-        return $this->hasMany(SolicitudServicio::class, 'servicio_id');
-    }
-
     // -------------------------------------------------------------------------
     // Métodos de dominio
     // -------------------------------------------------------------------------

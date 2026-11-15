@@ -386,7 +386,7 @@ class CentroResource extends Resource
             ElementoCatalogo::Prestacion->value => $tipo->prestaciones()->orderBy('prestaciones.nombre')->pluck('prestaciones.nombre', 'prestaciones.id')->all(),
             ElementoCatalogo::TipoPlan->value => $tipo->tiposPlan()->orderBy('tipos_plan.nombre')->pluck('tipos_plan.nombre', 'tipos_plan.id')->all(),
             // Sin fichas en el tipo, están todas: el centro puede excluir cualquiera
-            ElementoCatalogo::TipoFicha->value => ($fichas->isNotEmpty() ? $fichas : TipoFicha::where('activo', true)->orderBy('nombre')->pluck('nombre', 'id'))->all(),
+            ElementoCatalogo::TipoFicha->value => ($fichas->isNotEmpty() ? $fichas : TipoFicha::where('activo', true)->deValoracion()->orderBy('nombre')->pluck('nombre', 'id'))->all(),
         ];
     }
 

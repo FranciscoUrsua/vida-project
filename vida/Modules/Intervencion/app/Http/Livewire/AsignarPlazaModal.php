@@ -13,6 +13,7 @@ use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\ColeccionPlazas;
 use Modules\Centro\Models\Plaza;
 use Modules\Centro\Models\Prescripcion;
+use Modules\Centro\Services\PrescripcionService;
 use Modules\Intervencion\Services\AvisoPlazasService;
 use Modules\Usuarios\Models\Profesional;
 
@@ -143,6 +144,9 @@ class AsignarPlazaModal extends Component
 
             // Alerta al TSR de referencia del ciudadano
             $this->notificarTsr($prescripcion);
+
+            // Prestación de la persona activa, si la prescripción nació de una prestación (fase 3 bis)
+            app(PrescripcionService::class)->plazaAsignada($prescripcion->fresh());
         });
 
         $this->abierto = false;

@@ -8,6 +8,7 @@ use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use App\Services\AccesoExpediente;
 use App\Services\PresentacionPersona;
+use App\Support\Ui\Tono;
 use DomainException;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -40,6 +41,8 @@ use Modules\Intervencion\Models\TipoPlan;
 use Modules\Intervencion\Services\PlanDeIntervencionService;
 use Modules\Intervencion\Services\PlanPdfService;
 use Modules\Prestaciones\Models\Prestacion;
+use Modules\Prestaciones\Models\PrestacionPersona;
+use Modules\Prestaciones\Models\SolicitudPrestacion;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -857,6 +860,11 @@ class PlanPage extends Component
         $this->guardarDiagnostico();
     }
 
+    /**
+     * Guarda el diagnóstico social del plan (solo quien puede editarlo).
+     *
+     * @return void
+     */
     public function guardarDiagnostico(): void
     {
         $this->exigirEdicion();
@@ -1806,6 +1814,26 @@ class PlanPage extends Component
             ->latest()
             ->get()
             ->groupBy('plan_objetivo_id');
+    }
+
+    /**
+     * Solicitudes y prestaciones de la persona vinculadas a cada objetivo (fase 3 bis, paso 5.6).
+     *
+     * @return Collection<int, Collection<int, array{nombre: string, estado: string, tono: Tono, url: string|null}>>
+     */
+    #[Computed]
+    public function prestacionesPorObjetivo(): Collection
+    {
+        if ($this->plan === null || ! auth()->user()->can('solicitud.ver')) {
+            return collect();
+        }
+
+        $solicitudes = SolicitudPrestacion::with('prestacion')->where('plan_id', $this->plan->id)->whereNotNull('plan_objetivo_id')->get()
+            ->map(fn ($s) => ['objetivo' => $s->plan_objetivo_id, 'nombre' => 'Solicitud: '.$s->prestacion->nombre, 'estado' => $s->estado->label(), 'tono' => $s->estado->tono(), 'url' => route('prestaciones.solicitud', $s)]);
+        $prestaciones = PrestacionPersona::with('prestacion')->where('plan_id', $this->plan->id)->whereNotNull('plan_objetivo_id')->get()
+            ->map(fn ($p) => ['objetivo' => $p->plan_objetivo_id, 'nombre' => $p->prestacion->nombre, 'estado' => $p->estado->label(), 'tono' => $p->estado->tono(), 'url' => null]);
+
+        return $solicitudes->concat($prestaciones)->groupBy('objetivo');
     }
 
     /**

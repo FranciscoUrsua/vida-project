@@ -72,6 +72,13 @@ class PermisosSeeder extends Seeder
         // -----------------------------------------------------------------
         ['prestacion.asignar', 'Asignar prestaciones a una Historia Social'],
 
+        // Solicitudes de prestación (fase 3 bis, docs/modulo-solicitudes-expedientes.md §5)
+        ['solicitud.crear', 'Crear solicitudes de prestación y registrar prestaciones directas'],
+        ['solicitud.ver', 'Ver las solicitudes y prestaciones de las personas que se atienden'],
+        ['solicitud.tramitar', 'Tramitar solicitudes de la bandeja de su unidad'],
+        ['solicitud.registrar_manual', 'Registrar a mano estado, incidencias y resolución de un expediente'],
+        ['prestacion_persona.gestionar', 'Registrar inicio, suspensión o fin de una prestación de la persona'],
+
         // -----------------------------------------------------------------
         // Usuarios y administración
         // -----------------------------------------------------------------

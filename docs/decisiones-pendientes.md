@@ -68,9 +68,9 @@
 
 | # | Decisión | Tipo | Notas |
 |---|---|---|---|
-| P-01 | **Diseño de la entidad Solicitud de prestación** | 🔴 bloqueante | La solicitud es configurable por tipo de prestación. El diseño detallado está pendiente. Bloquea la implementación completa del flujo de prestaciones. |
+| P-01 | ~~**Diseño de la entidad Solicitud de prestación**~~ Resuelta e implementada el 15 nov 2026 (`modulo-solicitudes-expedientes.md`) | ✅ | La solicitud es configurable por tipo de prestación. El diseño detallado está pendiente. Bloquea la implementación completa del flujo de prestaciones. |
 | P-02 | **Completar TF-PRE-13 con integración real de Intervención** | 🔵 técnica | Resolución histórica de prestación desde un plan de intervención. Actualmente implementado con stub. Completar cuando el módulo Intervención esté disponible. Ref: `docs/instrucciones-cli/prestaciones-tests.md`. |
-| P-03 | **`statPrestaciones` en pantalla del ciudadano** | 🔵 técnica | El computed `statPrestaciones()` en `CiudadanoPage` devuelve `null` hasta que se implemente la integración con el módulo Prestaciones. |
+| P-03 | ~~**`statPrestaciones` en pantalla del ciudadano**~~ Resuelta el 15 nov 2026: resume las prestaciones de la persona | ✅ | El computed `statPrestaciones()` en `CiudadanoPage` devuelve `null` hasta que se implemente la integración con el módulo Prestaciones. |
 
 ---
 

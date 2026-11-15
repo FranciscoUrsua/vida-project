@@ -157,6 +157,11 @@ class User extends Authenticatable implements FilamentUser
             return route('intervencion.agenda.index');
         }
 
+        // Fase 3 bis: tramitación entra por su bandeja
+        if ($this->hasRole('tramitacion')) {
+            return route('prestaciones.bandeja');
+        }
+
         if ($this->roles()->count() === 0) {
             return route('sin-rol');
         }

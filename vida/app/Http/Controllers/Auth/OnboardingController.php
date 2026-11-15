@@ -47,6 +47,10 @@ class OnboardingController extends Controller
             return redirect()->route('intervencion.agenda.index');
         }
 
+        if ($usuario->hasRole('tramitacion')) {
+            return redirect()->route('prestaciones.bandeja');
+        }
+
         if ($usuario->roles()->count() === 0) {
             return redirect()->route('sin-rol');
         }

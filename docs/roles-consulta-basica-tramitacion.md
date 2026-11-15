@@ -63,7 +63,9 @@ Puede subir documentos a la carpeta del ciudadano o a un proceso administrativo 
 
 No edita la unidad de convivencia: su composición pertenece a la pantalla de intervención (`modulo-ciudadania.md` §3.4).
 
-## 4. Tramitación (`tramitacion`) — diferido
+## 4. Tramitación (`tramitacion`) — implantado en lo que toca a solicitudes (15 nov 2026)
+
+> **Fase 3 bis:** `tramitacion` tiene superficie propia (bandeja de tramitación, `prestaciones.bandeja`, por la que entra), toma, prepara, devuelve y envía las solicitudes de prestación de su unidad, registra a mano estado, incidencias y resolución, y gestiona inicio, suspensión y fin de las prestaciones de la persona. No ve la Historia Social. Resueltas las cuestiones 1 (la nota de tramitación es un evento de la solicitud), 2 (entrada por la bandeja de la unidad tramitadora), 3 (documentos exigidos por prestación) y 4 para las solicitudes. Sigue pendiente la 5 (traslados y fusiones). Ver `docs/modulo-solicitudes-expedientes.md`.
 
 Perfil: auxiliares administrativos, administrativos, jefes de negociado.
 

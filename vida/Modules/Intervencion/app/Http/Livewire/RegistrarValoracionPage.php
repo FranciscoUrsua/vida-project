@@ -109,7 +109,7 @@ class RegistrarValoracionPage extends Component
             return app(ConfiguracionEfectivaCentro::class)->tiposFicha($centro)->sortBy('nombre')->pluck('nombre', 'id')->toArray();
         }
 
-        return TipoFicha::activos()->orderBy('nombre')->pluck('nombre', 'id')->toArray();
+        return TipoFicha::activos()->deValoracion()->orderBy('nombre')->pluck('nombre', 'id')->toArray();
     }
 
     // -------------------------------------------------------------------------

@@ -45,6 +45,7 @@ class Prescripcion extends Model
     protected $fillable = [
         'profesional_id',
         'ciudadano_id',
+        'prestacion_id',
         'plan_intervencion_id',
         'compromiso_id',
         'tipo_destino',

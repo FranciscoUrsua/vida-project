@@ -721,6 +721,8 @@ sigue como texto libre.
 
 Las prestaciones iniciadas durante un seguimiento se registran como referencias al catálogo (`nuevas_prestaciones`), no como texto libre, para mantener la trazabilidad analítica. Cada prestación referenciada genera el mismo flujo que una prestación iniciada en cualquier otro contexto: se registra en la Historia Social y, si procede, se vincula al expediente administrativo correspondiente.
 
+
+*Actualizado 2026-11-15 (fase 3 bis, paso 7):* `nuevas_prestaciones` se conserva para los datos existentes, pero la interfaz ya no lo usa. Tras registrar un seguimiento desde la Historia Social aparece «Solicitar prestación» ligado a ese seguimiento: las solicitudes creadas desde él guardan `solicitudes_prestacion.seguimiento_id`. «Solicitar prestación» también está en la caja de herramientas y en cada objetivo del plan, que muestra sus solicitudes y prestaciones de la persona (`docs/modulo-solicitudes-expedientes.md`).
 ---
 
 ## 7. Entidad: Apunte

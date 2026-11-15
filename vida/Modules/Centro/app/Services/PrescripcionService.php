@@ -37,6 +37,14 @@ class PrescripcionService
     private $avisoPlazaLibre;
 
     /**
+     * Qué hacer cuando una prescripción queda con plaza asignada (fase 3 bis: crear la
+     * prestación de la persona). Lo configura PrestacionesServiceProvider.
+     *
+     * @var callable(Prescripcion): void
+     */
+    private $alAsignarPlaza;
+
+    /**
      * Arranca sin resolución de TSR ni avisos hasta que se configuren.
      */
     public function __construct()
@@ -44,6 +52,31 @@ class PrescripcionService
         // Por defecto no hay resolución de TSR hasta que se configure.
         $this->tsrResolver = fn (int $ciudadanoId): ?int => null;
         $this->avisoPlazaLibre = fn (ListaEspera $entrada): null => null;
+        $this->alAsignarPlaza = fn (Prescripcion $prescripcion): null => null;
+    }
+
+    /**
+     * Inyecta lo que se hace al asignar plaza a una prescripción.
+     *
+     * @param callable(Prescripcion): void $accion
+     *
+     * @return void
+     */
+    public function setAlAsignarPlaza(callable $accion): void
+    {
+        $this->alAsignarPlaza = $accion;
+    }
+
+    /**
+     * Avisa de que una prescripción ha quedado con plaza asignada (desde aquí o desde la pantalla).
+     *
+     * @param Prescripcion $prescripcion
+     *
+     * @return void
+     */
+    public function plazaAsignada(Prescripcion $prescripcion): void
+    {
+        ($this->alAsignarPlaza)($prescripcion);
     }
 
     /**
@@ -104,6 +137,10 @@ class PrescripcionService
         }
 
         $prescripcion = Prescripcion::create($datos);
+
+        if ($prescripcion->estado === 'asignada') {
+            $this->plazaAsignada($prescripcion);
+        }
 
         if ($prescripcion->estado === 'en_lista_espera') {
             $posicion = ListaEspera::where('coleccion_plazas_id', $coleccion->id)

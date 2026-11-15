@@ -110,7 +110,7 @@ class GestionarObjetivos extends Page implements HasTable
 
                         Select::make('tipo_ficha_id')
                             ->label('Área temática (tipo de ficha)')
-                            ->options(fn () => TipoFicha::activos()->pluck('nombre', 'id'))
+                            ->options(fn () => TipoFicha::activos()->deValoracion()->pluck('nombre', 'id'))
                             ->searchable()
                             ->nullable()
                             ->visible(fn (Get $get) => $get('nivel') === 'especifico')

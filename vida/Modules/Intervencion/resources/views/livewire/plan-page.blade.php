@@ -342,8 +342,23 @@
                             Derivación a {{ $derivacionObjetivo->centroDestino->nombre }}
                         </div>
                         @endforeach
+
+                        {{-- Solicitudes y prestaciones de la persona de este objetivo (fase 3 bis) --}}
+                        @foreach($this->prestacionesPorObjetivo->get($og->id, collect()) as $vinculo)
+                        <div class="small mt-1">
+                            <span class="badge rounded-pill {{ $vinculo['tono']->clasesSuave() }}">{{ $vinculo['estado'] }}</span>
+                            @if($vinculo['url'])
+                            <a href="{{ $vinculo['url'] }}" wire:navigate>{{ $vinculo['nombre'] }}</a>
+                            @else
+                            {{ $vinculo['nombre'] }}
+                            @endif
+                        </div>
+                        @endforeach
                     </div>
                     <div class="card-footer d-flex justify-content-end gap-2">
+                        @if($this->plan && $this->plan->estado->value !== 'cerrado' && $this->puedeEditar && auth()->user()->can('solicitud.crear'))
+                        @livewire('prestaciones.solicitar-prestacion', ['historiaId' => $this->plan->historia_id, 'planId' => $this->plan->id, 'objetivoId' => $og->id, 'etiqueta' => 'Prestación'], key('solicitar-og-'.$og->id))
+                        @endif
                         @if($this->plan?->esPrincipal() && $this->plan->estado->value === 'activo' && $this->puedeEditar)
                         <button type="button" wire:click="$dispatch('abrir-derivacion', { objetivoId: {{ $og->id }} })" class="btn btn-outline-secondary btn-sm">
                             <x-heroicon-o-arrow-right-circle class="icon-14"/>
@@ -415,6 +430,11 @@
             @endif
         </div>
     </div>
+
+    {{-- Prescripción de plaza desde «Solicitar prestación» en un objetivo (fase 3 bis) --}}
+    @if($this->plan)
+    @livewire('intervencion.prescribir-recurso-modal', ['historiaId' => $this->plan->historia_id], key('prescribir-plan-'.$this->plan->id))
+    @endif
 
     {{-- Derivaciones del plan principal (fase 3, B4.1) --}}
     @if($this->plan?->esPrincipal())

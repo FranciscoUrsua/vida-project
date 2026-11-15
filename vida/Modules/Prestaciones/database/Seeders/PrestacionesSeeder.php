@@ -30,6 +30,7 @@ class PrestacionesSeeder extends Seeder
         foreach ($this->prestaciones() as $data) {
             $tiposCentro = $data['tipos_centro'] ?? [];
             unset($data['tipos_centro']);
+            $data += $this->accesoInicial($data);
 
             $prestacion = Prestacion::updateOrCreate(
                 ['codigo' => $data['codigo']],
@@ -45,6 +46,28 @@ class PrestacionesSeeder extends Seeder
         }
 
         $this->derivacionAlPia();
+    }
+
+    /**
+     * Vía de acceso inicial (fase 3 bis, mapeo confirmado el 15 nov 2026): económicas, SAD,
+     * SAD intensivo, teleasistencia y ayuda a domicilio para familias → expediente externo
+     * (tramita el centro de solicitud); alojamientos, residencias, centros de día y acogidas →
+     * plaza; el resto → directa. Es el mismo mapeo que aplica la migración 2026_11_15_100001.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
+     */
+    private function accesoInicial(array $data): array
+    {
+        $externas = ['040101', '040102', '040301', '030102'];
+        $plazas = ['020102', '020103', '020104', '030203', '050101', '050102', '050201', '050301', '060202', '060203'];
+
+        if ($data['tipo_prestacion'] === 'economica' || in_array($data['codigo'], $externas, true)) {
+            return ['via_acceso' => ViaAcceso::ExpedienteExterno, 'unidad_tramitadora_tipo' => 'centro_solicitud'];
+        }
+
+        return ['via_acceso' => in_array($data['codigo'], $plazas, true) ? ViaAcceso::Plaza : ViaAcceso::Directa];
     }
 
     /**

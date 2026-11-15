@@ -303,8 +303,9 @@ class ConfiguracionEfectivaCentro
      */
     public function tiposFicha(Centro $centro): EloquentCollection
     {
-        $delTipo = $this->tipo($centro)->tiposFicha()->where('tipo_fichas.activo', true)->get();
-        $fichas = $delTipo->isNotEmpty() ? $delTipo : TipoFicha::where('activo', true)->get();
+        // Solo fichas de valoración: los formularios de solicitud no se ofrecen aquí (fase 3 bis)
+        $delTipo = $this->tipo($centro)->tiposFicha()->where('tipo_fichas.activo', true)->where('tipo_fichas.uso', 'valoracion')->get();
+        $fichas = $delTipo->isNotEmpty() ? $delTipo : TipoFicha::where('activo', true)->deValoracion()->get();
         $excluidas = $this->excluidos($centro, ElementoCatalogo::TipoFicha);
 
         return $fichas->reject(fn (TipoFicha $ficha) => in_array($ficha->id, $excluidas, true))->values();

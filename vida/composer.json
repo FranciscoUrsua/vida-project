@@ -116,6 +116,7 @@
         "Modules\\Ciudadania\\Tests\\": "Modules/Ciudadania/tests/",
             "Modules\\Atencion\\Tests\\": "Modules/Atencion/tests/",
             "Modules\\Supervision\\Tests\\": "Modules/Supervision/tests/",
+            "Modules\\Prestaciones\\Tests\\": "Modules/Prestaciones/tests/",
             "Modules\\Organizacion\\Tests\\": "Modules/Organizacion/tests/"
         }
     },

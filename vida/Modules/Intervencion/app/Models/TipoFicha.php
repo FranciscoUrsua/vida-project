@@ -28,6 +28,7 @@ use Modules\Intervencion\Database\Factories\TipoFichaFactory;
  * @property string|null $descripcion
  * @property array<string, mixed> $schema Definición de campos — estructura: {'campos': [{id, tipo, etiqueta, obligatorio, orden, ...}]}
  * @property bool $activo
+ * @property string $uso 'valoracion' | 'solicitud' (fase 3 bis): las de solicitud son formularios de prestación
  */
 class TipoFicha extends Model
 {
@@ -36,6 +37,11 @@ class TipoFicha extends Model
     /** Tipos de campo válidos en el schema JSON. */
     public const TIPOS_CAMPO = ['texto', 'numero', 'select', 'booleano', 'fecha', 'escala'];
 
+    /**
+     * Factoría del modelo (vive en el módulo, no en database/factories).
+     *
+     * @return TipoFichaFactory
+     */
     protected static function newFactory(): TipoFichaFactory
     {
         return TipoFichaFactory::new();
@@ -48,14 +54,23 @@ class TipoFicha extends Model
         'descripcion',
         'schema',
         'activo',
+        'uso',
     ];
 
     protected $casts = [
         'activo' => 'boolean',
     ];
 
+    /**
+     * Registra la validación del schema en cada guardado.
+     *
+     * @return void
+     *
+     * @throws ValidationException Si el schema no es válido (desde validarSchema())
+     */
     protected static function booted(): void
     {
+        // Ningún tipo de ficha se guarda con un schema inválido, venga de donde venga
         static::saving(function (TipoFicha $ficha): void {
             $ficha->validarSchema();
         });
@@ -251,5 +266,29 @@ class TipoFicha extends Model
     public function scopeActivos(Builder $query): Builder
     {
         return $query->where('activo', true);
+    }
+
+    /**
+     * Solo fichas de valoración (no los formularios de solicitud de prestación, fase 3 bis).
+     *
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
+    public function scopeDeValoracion(Builder $query): Builder
+    {
+        return $query->where($query->qualifyColumn('uso'), 'valoracion');
+    }
+
+    /**
+     * Solo formularios de solicitud de prestación (fase 3 bis, RN-04).
+     *
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
+    public function scopeDeSolicitud(Builder $query): Builder
+    {
+        return $query->where($query->qualifyColumn('uso'), 'solicitud');
     }
 }

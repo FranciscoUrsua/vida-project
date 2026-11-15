@@ -328,10 +328,10 @@ Design system y `2026-09-bootstrap-unico.md` antes de cualquier Blade.
 
 | Grupo | Tests | Estado |
 |---|---|---|
-| A — Catálogo | TF-SOL-01..03 | |
-| B — Ciclo | TF-SOL-04..15 | |
-| C — Envío | TF-SOL-16..20 | |
-| D — Actualizaciones | TF-SOL-21..28 | |
-| E — Resolución y prestaciones de la persona | TF-SOL-29..37 | |
-| F — Permisos y privacidad | TF-SOL-38..43 | |
-| G — Retirada de `SolicitudServicio` | TF-SOL-44 | |
+| A — Catálogo | TF-SOL-01..03 | Hecho 2026-11-15 |
+| B — Ciclo | TF-SOL-04..15 | Hecho 2026-11-15 |
+| C — Envío | TF-SOL-16..20 | Hecho 2026-11-15 |
+| D — Actualizaciones | TF-SOL-21..28 | Hecho 2026-11-15 |
+| E — Resolución y prestaciones de la persona | TF-SOL-29..37 | Hecho 2026-11-15 |
+| F — Permisos y privacidad | TF-SOL-38..43 | Hecho 2026-11-15 |
+| G — Retirada de `SolicitudServicio` | TF-SOL-44 | Hecho 2026-11-15 |

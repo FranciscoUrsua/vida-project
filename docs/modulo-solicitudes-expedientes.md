@@ -1,7 +1,7 @@
 # Solicitudes de prestación y expedientes — Diseño funcional
 
 **Módulos afectados:** `Prestaciones` (vía de acceso y configuración por prestación), `Centro` (sustituye a `SolicitudServicio`), `Intervencion` (solicitud desde la ficha y el plan, prestaciones de la persona), `Integraciones` (gestor de expedientes), `Documentos` (vínculo documento–solicitud), `Mensajes` (avisos), `Usuarios` (rol `tramitacion`).
-**Estado:** diseño funcional v1 cerrado. Sin implementar.
+**Estado:** implementado el 15 nov 2026 (fase 3 bis, `docs/instrucciones-cli/2026-11-fase3bis-solicitudes-expedientes.md`, TF-SOL-01 a 44). Decisiones de implementación en §9.
 **Fecha:** 11 noviembre 2026
 **Origen:** decisión D3 de `docs/plan-cierre-funcional-2026-11.md`. Resuelve la decisión pendiente P-01 («Diseño de la entidad Solicitud de prestación») y parte de lo pendiente del rol `tramitacion` (`docs/roles-consulta-basica-tramitacion.md` §4.2).
 
@@ -238,3 +238,19 @@ Tramitación accede a la persona solo a través de solicitudes de su unidad (RN-
 - **Integración con proveedores** (p. ej. empresa de ayuda a domicilio) para registrar el inicio efectivo automáticamente.
 - **Cofinanciación y HSU**: qué solicitudes y resoluciones se comparten con la Comunidad de Madrid.
 - **Indicadores** (tiempo hasta envío, hasta resolución y hasta inicio; tasa de concesión): con el módulo de analítica. El historial guarda lo necesario.
+
+---
+
+## 9. Implementación (15 nov 2026)
+
+- **Código:** módulo `Prestaciones`. Modelos `SolicitudPrestacion`, `SolicitudPrestacionEvento` (inmutable, trigger), `ResolucionSolicitud`, `ResolucionLinea`, `PrestacionPersona`, `PrestacionPersonaEvento` (inmutable), `PrestacionDocumentoExigido`. Servicios `SolicitudPrestacionService` (único punto de escritura de las solicitudes; `registrarActualizacion()` para las cuatro vías de RN-07, idempotente), `ResolucionService`, `PrestacionPersonaService`. Adaptador `Gestor\AdaptadorGestorExpedientes` con `GestorManual` (por defecto) y `GestorSimulado`; `config/prestaciones.php` (adaptador, mapeo de estados, frecuencia). Comando `expedientes:consultar` en el scheduler.
+- **Interfaz:** «Solicitar prestación» (`prestaciones.solicitar-prestacion`) en la caja de herramientas de la Historia Social, en cada objetivo del plan y tras registrar un seguimiento; pantalla de la solicitud (`prestaciones.solicitud`); bandeja de tramitación (`prestaciones.bandeja`, superficie y menú propios del rol `tramitacion`, que entra por ahí); bloque «Prestaciones» en la ficha; resumen en la cabecera de la Historia Social (`statPrestaciones()`).
+- **Vía inicial de las prestaciones existentes** (confirmada por el desarrollador): económicas, SAD, SAD intensivo, teleasistencia y ayuda a domicilio para familias → expediente externo, tramitadas por el centro de solicitud hasta configurar otra unidad; alojamientos, residencias, centros de día y acogidas → plaza; el resto → directa.
+- **Plazas:** `prescripciones.prestacion_id` (nullable). Se rellena cuando la prescripción nace de «Solicitar prestación»; al asignarse la plaza se crea la prestación de la persona activa con origen la prescripción. Las prescripciones sin prestación no crean ninguna.
+- **Snapshot:** `configuracion_snapshot` guarda vía, unidad tramitadora, formulario, código del gestor, documentos exigidos y el número de versiones de la prestación (no hay `prestacion_version_id`).
+- **Documentos:** un documento de la persona puede vincularse también a su solicitud (`TipoDocumental::permiteVincularA()` acepta la solicitud para los tipos que admite la persona); los subidos desde la solicitud entran por `CicloVidaDocumentoService::altaDocumento()` con los dos vínculos.
+- **Paso 7:** el seguimiento enlaza las solicitudes creadas desde él con `solicitudes_prestacion.seguimiento_id` (campo de contexto, no pivote).
+- **Apunte automático:** tipo `gestion_coordinacion` con `plan_apuntes.fuente` (`gestor_expedientes` o `registro_manual`), vinculado a la resolución.
+- **Permisos:** `solicitud.crear`, `solicitud.ver`, `solicitud.tramitar`, `solicitud.registrar_manual`, `prestacion_persona.gestionar` (seeders y migración `2026_11_15_100004`). Tramitación tramita las solicitudes cuya unidad está en sus adscripciones (o descendientes) y no ve la Historia Social; los accesos a solicitudes de personas protegidas se auditan como `acceso_restringido`.
+- **Pendiente:** endpoint HTTP de avisos del gestor (el procesamiento está en `procesarAviso()`), adaptador real y lo de §8.
+

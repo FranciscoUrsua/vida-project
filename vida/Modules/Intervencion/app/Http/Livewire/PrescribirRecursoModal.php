@@ -15,6 +15,7 @@ use Modules\Centro\Models\ColeccionPlazas;
 use Modules\Centro\Models\ListaEspera;
 use Modules\Centro\Models\Prescripcion;
 use Modules\Centro\Models\Red;
+use Modules\Centro\Services\PrescripcionService;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\VisibilidadApunte;
@@ -60,17 +61,25 @@ class PrescribirRecursoModal extends Component
     /** @var string Notas para el TS del centro receptor */
     public string $notas = '';
 
+    /** Prestación del catálogo, si la prescripción nace de «Solicitar prestación» (fase 3 bis). */
+    public ?int $prestacionId = null;
+
     // -------------------------------------------------------------------------
     // Eventos
     // -------------------------------------------------------------------------
 
     /**
-     * Abre el modal y resetea su estado interno.
+     * Abre el modal y resetea su estado interno; con prestación si viene de «Solicitar prestación».
+     *
+     * @param int|null $prestacionId
+     *
+     * @return void
      */
     #[On('abrir-prescribir-recurso')]
-    public function abrir(): void
+    public function abrir(?int $prestacionId = null): void
     {
         $this->reset(['paso', 'tipoRecurso', 'destinoId', 'tipoDestino', 'compromisoId', 'notas']);
+        $this->prestacionId = $prestacionId;
         $this->paso = 1;
         $this->tipoDestino = 'coleccion_plazas';
         $this->abierto = true;
@@ -270,6 +279,7 @@ class PrescribirRecursoModal extends Component
             $prescripcion = Prescripcion::create([
                 'profesional_id' => $profesionalId,
                 'ciudadano_id' => $historia->ciudadano_id,
+                'prestacion_id' => $this->prestacionId,
                 'plan_intervencion_id' => null,
                 'compromiso_id' => $this->compromisoId ?: null,
                 'tipo_destino' => $this->tipoDestino,
@@ -278,6 +288,11 @@ class PrescribirRecursoModal extends Component
                 'fecha_prescripcion' => today()->toDateString(),
                 'notas' => $this->notas ?: null,
             ]);
+
+            // Con plaza y prestación, la persona la tiene activa desde ya (fase 3 bis)
+            if ($estado === 'asignada') {
+                app(PrescripcionService::class)->plazaAsignada($prescripcion);
+            }
 
             if ($estado === 'en_lista_espera') {
                 $posicion = ListaEspera::where(

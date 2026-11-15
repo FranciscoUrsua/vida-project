@@ -45,6 +45,10 @@ tipo_prestacion             enum('servicio','economica')
 nivel_garantia              enum('garantizada','condicionada')
 via_acceso                  varchar(30) null — enum PHP ViaAcceso: 'plaza' | 'derivacion' (fase 3; la 3 bis añade el resto)
 tipo_plan_derivacion_id     bigint FK null   — tipos_plan; obligatorio y de ámbito especializado si via_acceso = 'derivacion'
+unidad_tramitadora_tipo     varchar null     — 'uo' | 'centro_solicitud'; obligatorio en las vías de tramitación (fase 3 bis)
+unidad_tramitadora_id       bigint FK null   — unidades_organizativas, si el tipo es 'uo'
+formulario_solicitud_id     bigint FK null   — tipo_fichas (uso 'solicitud')
+codigo_gestor               varchar null     — solo expediente externo
 objetivo_general            varchar(10)     — clave de catalogos_sistema (grupo: 'prestacion.objetivo_general')
 categoria_especifica        varchar(10)     — clave de catalogos_sistema (grupo: 'prestacion.categoria')
 nivel_atencion              varchar(50)     — clave de catalogos_sistema (grupo: 'prestacion.nivel_atencion')
@@ -76,6 +80,8 @@ updated_at
 **Sobre los enums:** `tipo_prestacion` y `nivel_garantia` son enums PHP/migración porque el sistema actúa de forma diferente según su valor: el tipo determina si la prestación implica tramitación económica externa; el nivel de garantía afecta a cómo se presenta la prestación al ciudadano y a su lógica de acceso. Cualquier otro campo clasificatorio usa `catalogos_sistema` (ver principio 3.10).
 
 **Vía de acceso** (*añadido 2026-11-14, fase 3, F3-5*): `via_acceso` también es enum (`Modules\Prestaciones\Enums\ViaAcceso`) porque el código decide con ella: una prestación de `derivacion` abre, al aceptarse la derivación, un plan especializado del tipo `tipo_plan_derivacion_id` en el centro de destino (`modulo-intervencion.md` §5.7). El modelo exige ese tipo de plan, de ámbito especializado, y lo vacía en las demás vías. `PrestacionResource` muestra los dos campos. En esta fase solo existen `plaza` y `derivacion`; el resto queda `null` hasta la fase 3 bis. `PrestacionesSeeder` añade la prestación de prueba `DER-PIA` (derivación al PIA, ofrecida en `css_general`) si existe el tipo de plan `pia`.
+
+**Acceso y tramitación** (*añadido 2026-11-15, fase 3 bis*): la vía de acceso tiene ahora cinco valores (`directa`, `plaza`, `tramitacion_interna`, `expediente_externo`, `derivacion`) y es obligatoria en las prestaciones activas (lo exige `PrestacionResource`). Las de tramitación tienen unidad tramitadora, formulario de solicitud opcional (un `TipoFicha` con `uso = solicitud`) y documentos exigidos (`prestacion_documentos_exigidos`: tipo documental, obligatorio, orden); el código del gestor solo vale en expediente externo. El modelo rechaza lo que no corresponde a la vía. `tipo_prestacion` se mantiene como clasificatorio (informes y filtros), pero **ya no decide el flujo**: lo decide `via_acceso`. Todo se edita en la sección «Acceso y tramitación» de `PrestacionResource` y se versiona con la prestación; cada solicitud guarda copia de la configuración. Ver `docs/modulo-solicitudes-expedientes.md`.
 
 **Sobre los campos de texto libre:** los campos descriptivos (finalidad, descripción, requisitos, procedimiento, etc.) se almacenan como texto sin estructurar adicional. Su contenido proviene directamente de las fichas del catálogo y puede actualizarse desde Filament. No se normalizan en subtablas porque no existe lógica de negocio que opere sobre su contenido interno.
 

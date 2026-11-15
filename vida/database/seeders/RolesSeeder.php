@@ -76,6 +76,11 @@ class RolesSeeder extends Seeder
         // Solo lectura sobre datos de ciudadanos — nunca escritura.
         // -----------------------------------------------------------------
         'supervision' => [
+            'solicitud.crear',
+            'solicitud.ver',
+            'solicitud.tramitar',
+            'solicitud.registrar_manual',
+            'prestacion_persona.gestionar',
             'ciudadano.ver_ficha',
             'ciudadano.ver_datos_contacto',
             'ciudadano.leer',
@@ -109,6 +114,9 @@ class RolesSeeder extends Seeder
         // Gestión completa de Historias en su UO; consulta libre fuera.
         // -----------------------------------------------------------------
         'intervencion' => [
+            'solicitud.crear',
+            'solicitud.ver',
+            'prestacion_persona.gestionar',
             'ciudadano.ver_ficha',
             'ciudadano.ver_datos_contacto',
             'ciudadano.leer',
@@ -143,6 +151,9 @@ class RolesSeeder extends Seeder
         // Sin acceso a contenido clínico/social ni apuntes profesionales.
         // -----------------------------------------------------------------
         'tramitacion' => [
+            'solicitud.tramitar',
+            'solicitud.registrar_manual',
+            'prestacion_persona.gestionar',
             'ciudadano.ver_ficha',
             'ciudadano.ver_datos_contacto',
             'ciudadano.leer',

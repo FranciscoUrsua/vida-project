@@ -20,3 +20,9 @@ Schedule::command('audit:purge')->dailyAt('03:00');
 
 // Denominaciones de tipos de centro y centros que entran en vigor hoy (docs/modulo-tipo-centro.md §8.1)
 Schedule::command('denominaciones:aplicar')->dailyAt('00:10');
+
+// Prestaciones: consulta del estado de los expedientes enviados (solo con un gestor que la admita)
+$minutosExpedientes = max(1, (int) config('prestaciones.consulta_minutos', 60));
+$minutosExpedientes >= 60
+    ? Schedule::command('expedientes:consultar')->hourly()
+    : Schedule::command('expedientes:consultar')->cron("*/{$minutosExpedientes} * * * *");

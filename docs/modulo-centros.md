@@ -136,7 +136,9 @@ Ejemplo: "Jefe de Servicio de Ayuda a Domicilio" es el cargo del Servicio de Ayu
 
 El historial de responsables sigue el patrón de `DirectorCentro`: registro con `fecha_inicio` y `fecha_fin`, siendo el activo el que tiene `fecha_fin = null`. A diferencia de `DirectorCentro`, el responsable del servicio es siempre un profesional de VIDA 360 (no hay figura de contacto externo).
 
-### 3.3 SolicitudServicio
+### 3.3 SolicitudServicio (retirada)
+
+> **Retirada el 15 nov 2026 (fase 3 bis):** la sustituye la solicitud de prestación con vía de tramitación interna y unidad tramitadora (`docs/modulo-solicitudes-expedientes.md`). La tabla y el modelo se eliminaron (no había registros); `Servicio` se mantiene y su UO puede ser unidad tramitadora de una prestación. Lo que sigue se conserva como historia del diseño.
 
 Cuando un TSR prescribe una prestación asociada a un servicio, se genera automáticamente una `SolicitudServicio`. Esta entidad:
 
@@ -435,7 +437,7 @@ Profesionales asignados al servicio. Sin atributos de carga ni agenda.
 
 Un profesional puede estar asignado a varios servicios simultáneamente.
 
-### 5.4 SolicitudServicio
+### 5.4 SolicitudServicio (retirada el 15 nov 2026, ver §3.3)
 
 Generada automáticamente cuando un TSR prescribe desde un plan de intervención una prestación asociada a un servicio.
 

@@ -500,6 +500,9 @@
                 @endif
             </div>
 
+            {{-- ——— Prestaciones de la persona y solicitudes (fase 3 bis; no para consulta_basica) ——— --}}
+            @livewire('prestaciones.prestaciones-persona', ['ciudadanoId' => $ciudadanoId], key('prestaciones-persona-'.$ciudadanoId))
+
             {{-- ——— Otras prestaciones ——— --}}
             @if($prestaciones->isNotEmpty())
                 <div class="card card-body mb-3">

@@ -6,9 +6,11 @@ use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\PrestacionResource\Pages;
 use App\Filament\Resources\PrestacionResource\RelationManagers\VersionesRelationManager;
 use App\Models\CatalogoSistema;
+use App\Models\UnidadOrganizativa;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -20,6 +22,8 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Centro\Models\TipoCentro;
+use Modules\Documentos\Models\TipoDocumental;
+use Modules\Intervencion\Models\TipoFicha;
 use Modules\Intervencion\Models\TipoPlan;
 use Modules\Prestaciones\Enums\ViaAcceso;
 use Modules\Prestaciones\Models\Prestacion;
@@ -86,20 +90,78 @@ class PrestacionResource extends Resource
                         ])
                         ->required(),
 
-                    // Fase 3 (F3-5): de momento solo plaza y derivación; la 3 bis añade el resto.
+                ]),
+
+            // Fase 3 bis (RN-01 a RN-04): la vía decide el camino de «Solicitar prestación».
+            Section::make('Acceso y tramitación')
+                ->columns(2)
+                ->schema([
                     Select::make('via_acceso')
                         ->label('Vía de acceso')
                         ->options(collect(ViaAcceso::cases())->mapWithKeys(fn (ViaAcceso $via) => [$via->value => $via->label()])->all())
-                        ->placeholder('Sin definir')
+                        ->required(fn (Get $get) => (bool) $get('activa'))
                         ->live()
-                        ->afterStateUpdated(fn ($set) => $set('tipo_plan_derivacion_id', null)),
+                        ->afterStateUpdated(function ($set, $state): void {
+                            $via = self::via($state);
+                            if ($via !== ViaAcceso::Derivacion) {
+                                $set('tipo_plan_derivacion_id', null);
+                            }
+                            if (! $via?->esTramitacion()) {
+                                $set('unidad_tramitadora_tipo', null);
+                                $set('unidad_tramitadora_id', null);
+                            }
+                            if ($via !== ViaAcceso::ExpedienteExterno) {
+                                $set('codigo_gestor', null);
+                            }
+                        }),
 
                     Select::make('tipo_plan_derivacion_id')
                         ->label('Tipo de plan que genera la derivación')
                         ->options(fn () => TipoPlan::activos()->especializados()->orderBy('nombre')->pluck('nombre', 'id')->all())
-                        ->visible(fn (Get $get) => self::esDerivacion($get('via_acceso')))
-                        ->required(fn (Get $get) => self::esDerivacion($get('via_acceso')))
+                        ->visible(fn (Get $get) => self::via($get('via_acceso')) === ViaAcceso::Derivacion)
+                        ->required(fn (Get $get) => self::via($get('via_acceso')) === ViaAcceso::Derivacion)
                         ->helperText('Al aceptarse la derivación se abre un plan de este tipo en el centro de destino.'),
+
+                    Select::make('unidad_tramitadora_tipo')
+                        ->label('Unidad tramitadora')
+                        ->options(['uo' => 'Una unidad organizativa', 'centro_solicitud' => 'El centro donde se solicita'])
+                        ->visible(fn (Get $get) => (bool) self::via($get('via_acceso'))?->esTramitacion())
+                        ->required(fn (Get $get) => (bool) self::via($get('via_acceso'))?->esTramitacion())
+                        ->live(),
+
+                    Select::make('unidad_tramitadora_id')
+                        ->label('Unidad organizativa que tramita')
+                        ->options(fn () => UnidadOrganizativa::where('activa', true)->orderBy('nombre')->pluck('nombre', 'id')->all())
+                        ->searchable()
+                        ->visible(fn (Get $get) => $get('unidad_tramitadora_tipo') === 'uo')
+                        ->required(fn (Get $get) => $get('unidad_tramitadora_tipo') === 'uo'),
+
+                    Select::make('formulario_solicitud_id')
+                        ->label('Formulario de solicitud')
+                        ->options(fn () => TipoFicha::activos()->deSolicitud()->orderBy('nombre')->pluck('nombre', 'id')->all())
+                        ->placeholder('Sin formulario')
+                        ->visible(fn (Get $get) => (bool) self::via($get('via_acceso'))?->esTramitacion())
+                        ->helperText('Se configura en Tipos de ficha con uso «Formulario de solicitud de prestación».'),
+
+                    TextInput::make('codigo_gestor')
+                        ->label('Código en el gestor de expedientes')
+                        ->maxLength(100)
+                        ->visible(fn (Get $get) => self::via($get('via_acceso')) === ViaAcceso::ExpedienteExterno),
+
+                    Repeater::make('documentosExigidos')
+                        ->label('Documentos exigidos')
+                        ->relationship('documentosExigidos')
+                        ->schema([
+                            Select::make('tipo_documental_id')
+                                ->label('Tipo documental')
+                                ->options(fn () => TipoDocumental::where('activo', true)->orderBy('nombre')->pluck('nombre', 'id')->all())
+                                ->required(),
+                            Toggle::make('obligatorio')->label('Obligatorio')->default(true),
+                        ])
+                        ->orderColumn('orden')
+                        ->columns(2)
+                        ->columnSpanFull()
+                        ->visible(fn (Get $get) => (bool) self::via($get('via_acceso'))?->esTramitacion()),
                 ]),
 
             Section::make('Clasificación')
@@ -381,14 +443,14 @@ class PrestacionResource extends Resource
     }
 
     /**
-     * Si el estado del campo «vía de acceso» es derivación (el estado puede llegar como enum o como valor).
+     * Vía de acceso del estado del formulario (puede llegar como enum o como valor).
      *
      * @param ViaAcceso|string|null $via
      *
-     * @return bool
+     * @return ViaAcceso|null
      */
-    private static function esDerivacion(ViaAcceso|string|null $via): bool
+    private static function via(ViaAcceso|string|null $via): ?ViaAcceso
     {
-        return ($via instanceof ViaAcceso ? $via : ViaAcceso::tryFrom((string) $via)) === ViaAcceso::Derivacion;
+        return $via instanceof ViaAcceso ? $via : ViaAcceso::tryFrom((string) $via);
     }
 }

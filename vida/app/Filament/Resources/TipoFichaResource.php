@@ -22,6 +22,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
@@ -77,6 +78,10 @@ class TipoFichaResource extends Resource
                     ->limit(80)
                     ->placeholder('—'),
 
+                TextColumn::make('uso')
+                    ->label('Uso')
+                    ->formatStateUsing(fn (string $state): string => $state === 'solicitud' ? 'Solicitud de prestación' : 'Valoración'),
+
                 TextColumn::make('num_campos')
                     ->label('Campos')
                     ->getStateUsing(fn (TipoFicha $record): int => count($record->schema['campos'] ?? [])),
@@ -90,6 +95,9 @@ class TipoFichaResource extends Resource
                     ->sortable(),
             ])
             ->filters([
+                SelectFilter::make('uso')
+                    ->label('Uso')
+                    ->options(['valoracion' => 'Valoración', 'solicitud' => 'Solicitud de prestación']),
                 TernaryFilter::make('activo')
                     ->label('Estado')
                     ->trueLabel('Activas')
@@ -128,6 +136,13 @@ class TipoFichaResource extends Resource
                                         ->label('Nombre de la ficha')
                                         ->required()
                                         ->maxLength(200),
+
+                                    // Fase 3 bis: los formularios de solicitud de prestación usan el mismo mecanismo
+                                    Select::make('uso')
+                                        ->label('Uso')
+                                        ->options(['valoracion' => 'Ficha de valoración', 'solicitud' => 'Formulario de solicitud de prestación'])
+                                        ->default('valoracion')
+                                        ->required(),
 
                                     Textarea::make('descripcion')
                                         ->label('Contexto y uso')
