@@ -9,6 +9,15 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Agenda: generación de cuadrantes y slots (incidencia del 16 nov)** — 2026-11-16
+Módulos: Agenda, Centro
+- **Nadie genera cuadrantes automáticamente:** `CuadranteGeneratorService::generarYPublicarAutomaticamente()` no tiene llamadas ni tarea programada. En staging se han publicado a mano noviembre y diciembre de 2026 (centros 13 y 14): **antes de enero hay que publicar el cuadrante de enero** (pantalla del supervisor o tarea programada mensual, pendiente de decidir).
+- **Slots solapados con varios tipos de slot:** `SlotMaterializadorService` crea, para cada franja, slots de cada tipo enlazado al horario. Con más de un tipo, un profesional tiene huecos superpuestos a la misma hora y podría recibir dos citas a la vez. Hoy los horarios de staging solo enlazan Entrevista. Decidir cómo reparte el cuadrante las franjas entre tipos.
+- **Vigencia del horario de Entrevías:** estaba en `2029-06-01` y se ha puesto en `2026-01-01` para poder dar citas; confirmar que era un error.
+- **Fallos silenciosos del materializador:** sin horario vigente o sin tipos de slot devuelve 0 sin avisar; la publicación debería advertirlo al supervisor.
+
+---
+
 **Fase 5 (informes desde la interfaz operativa): pendientes** — 2026-11-16
 Módulos: Documentos, Intervención
 - **Activar AutoFirma integrada** (F5-1 b): está preparada e inactiva (`DOCUMENTOS_AUTOFIRMA_ACTIVA=false`). Probarla en puestos reales con certificado de empleado público siguiendo `docs/decisiones-tecnicas.md` §17, copiar `autoscript.js` en `public/vendor/autofirma/` y activarla por entorno.

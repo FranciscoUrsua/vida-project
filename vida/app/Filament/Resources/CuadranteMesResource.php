@@ -18,6 +18,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Modules\Agenda\Enums\EstadoCuadrante;
 use Modules\Agenda\Models\CuadranteMes;
+use Modules\Agenda\Services\CuadrantePublicadorService;
 use Modules\Centro\Models\Centro;
 
 /**
@@ -186,14 +187,10 @@ class CuadranteMesResource extends Resource
                     ]))
                     ->requiresConfirmation()
                     ->modalHeading('Publicar cuadrante')
-                    ->modalDescription('Al publicar el cuadrante, quedará visible para el equipo. Esta acción no materializa los slots todavía (pendiente de implementación del SlotMaterializadorService).')
-                    ->action(function (CuadranteMes $record) {
-                        $record->update([
-                            'estado' => EstadoCuadrante::Publicado->value,
-                            'publicado_en' => now(),
-                            'publicado_por_id' => auth()->id(),
-                        ]);
-                    }),
+                    ->modalDescription('Al publicar el cuadrante, quedará visible para el equipo y se generarán los huecos de agenda en los que se pueden dar citas.')
+                    // Mismo camino que la pantalla del supervisor: publicar materializa los slots.
+                    // Antes solo cambiaba el estado y el cuadrante quedaba sin huecos.
+                    ->action(fn (CuadranteMes $record) => app(CuadrantePublicadorService::class)->publicar($record, (int) auth()->id())),
 
                 EditAction::make(),
                 DeleteAction::make(),

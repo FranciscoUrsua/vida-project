@@ -64,6 +64,9 @@ class BandejaCitacionPage extends Component
     /** @var list<array{slot_id: int, fecha: string, hora: string, profesional: string, modo: string, modo_valor: string}>|null */
     public ?array $propuestas = null;
 
+    /** @var bool El centro no tiene agenda publicada en la ventana de la búsqueda (sin cuadrante ni slots). */
+    public bool $sinAgenda = false;
+
     /** @var array{id: int|null, accion: string, texto: string} Soltar, desistir o anular: nota o motivo. */
     public array $cierre = ['id' => null, 'accion' => '', 'texto' => ''];
 
@@ -238,6 +241,8 @@ class BandejaCitacionPage extends Component
         $this->authorize('gestionar', $solicitud);
         $this->reiniciarPaneles();
         $this->solicitudCitando = $id;
+
+        $this->sinAgenda = ! app(BusquedaHuecosService::class)->hayAgendaPublicada($solicitud);
 
         $this->propuestas = app(BusquedaHuecosService::class)->buscar($solicitud)
             ->map(fn (PropuestaHueco $p) => [

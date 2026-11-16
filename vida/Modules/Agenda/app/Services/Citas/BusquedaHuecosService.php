@@ -87,6 +87,26 @@ class BusquedaHuecosService
     }
 
     /**
+     * Si el centro tiene agenda publicada (algún slot, libre u ocupado) en la ventana
+     * de la solicitud. Sin ella no puede haber huecos aunque nadie tenga citas: la
+     * interfaz lo dice en lugar de «no hay huecos», que hace pensar en un fallo.
+     *
+     * @param SolicitudCita $solicitud
+     *
+     * @return bool
+     */
+    public function hayAgendaPublicada(SolicitudCita $solicitud): bool
+    {
+        [$desde, $hasta] = $this->ventana($solicitud);
+
+        return Slot::query()
+            ->where('centro_id', $solicitud->centro_id)
+            ->whereDate('fecha', '>=', $desde->toDateString())
+            ->whereDate('fecha', '<=', $hasta->toDateString())
+            ->exists();
+    }
+
+    /**
      * Huecos para mover una cita: del mismo profesional o de cualquiera de su
      * perfil, con el tipo de cita y la urgencia de la solicitud original (las
      * externas, ordinaria). La ventana va de hoy a la fecha indicada o, si no, al

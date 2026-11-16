@@ -126,7 +126,11 @@
                             @if($solicitudCitando === $s->id && $propuestas !== null)
                                 <div class="mt-2">
                                     @if($propuestas === [])
-                                        <p class="small text-body-secondary mb-0">No hay huecos compatibles dentro del plazo. La solicitud sigue en la bandeja.</p>
+                                        @if($sinAgenda)
+                                            <p class="small text-body-secondary mb-0">El centro no tiene agenda publicada dentro del plazo: falta publicar el cuadrante del mes. La solicitud sigue en la bandeja.</p>
+                                        @else
+                                            <p class="small text-body-secondary mb-0">No hay huecos compatibles dentro del plazo. La solicitud sigue en la bandeja.</p>
+                                        @endif
                                     @else
                                         <div class="list-group">
                                             @foreach($propuestas as $p)

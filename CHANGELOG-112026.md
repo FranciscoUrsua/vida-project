@@ -4,6 +4,26 @@
 
 ---
 
+## 2026-11-16 — Agenda: la creación de citas nunca proponía huecos (incidencia)
+
+### Diagnóstico
+- La búsqueda de huecos (`BusquedaHuecosService`) funcionaba; en la BD compartida (staging) no había **ningún slot**: 0 cuadrantes, 0 líneas, 0 slots y 0 citas. Los slots solo nacen al publicar un cuadrante y nunca se había publicado ninguno.
+- Además, aunque se publicara: `horario_centro_tipo_slot` estaba vacía (el materializador devuelve 0 sin avisar) y los dos horarios tenían la vigencia mal (CIAM Puente de Vallecas, centro 13: `0006-01-01`; CSS Entrevías, centro 14: `2029-06-01`).
+- Publicar desde Filament (`CuadranteMesResource`) solo cambiaba el estado, sin materializar los slots (el texto de la acción lo decía).
+- El tipo genérico «cita» admitía cualquier tipo de slot activo, también los internos (Descanso, Trabajo propio, Mesa de trabajo).
+
+### Datos corregidos en la BD compartida (decisión del desarrollador: los dos centros; el genérico, solo Entrevista)
+- Vigencia de los horarios de los centros 13 y 14 desde el 2026-01-01; tipo de slot Entrevista enlazado a los dos horarios.
+- Cuadrantes de noviembre y diciembre de 2026 generados y publicados desde los perfiles horarios (`CuadranteGeneratorService::generarYPublicarAutomaticamente`): CIAM 3.318 + 3.824 slots, Entrevías 616 + 672. La búsqueda propone huecos en los dos centros.
+
+### Cambios de código
+- `CuadranteMesResource`: «Publicar» usa `CuadrantePublicadorService` (materializa los slots).
+- `TipoCita`: el genérico se limita a sus tipos de slot enlazados si tiene alguno (sin enlaces, cualquiera, como antes). Migración `2026_11_16_120001` que enlaza el genérico con Entrevista.
+- `BusquedaHuecosService::hayAgendaPublicada()`; la cita directa y la bandeja de citación dicen «el centro no tiene agenda publicada para estas fechas» en lugar de «no hay huecos» cuando no hay slots en la ventana.
+- Tests: `Modules/Agenda/tests/Feature/Citas/AgendaPublicadaTest.php` (3), con negativos comprobados (publicar sin materializar, genérico sin restricción). `ui:auditar` sin infracciones. Suite de Agenda: 197 passed.
+
+---
+
 ## 2026-11-16 — Fase 5: informes desde la interfaz operativa (`2026-11-fase5-informes.md`)
 
 ### Decisiones del desarrollador (16 nov)

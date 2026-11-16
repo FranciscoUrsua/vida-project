@@ -54,7 +54,11 @@
             <section class="card card-body" aria-labelledby="titulo-huecos">
                 <h2 id="titulo-huecos" class="h6 fw-bold mb-3">Huecos propuestos</h2>
                 @if($propuestas === [])
-                    <x-op.empty icono="calendar">No hay huecos compatibles. Prueba con otro destino o amplía la fecha límite.</x-op.empty>
+                    @if($sinAgenda)
+                        <x-op.empty icono="calendar">El centro no tiene agenda publicada para estas fechas: falta publicar el cuadrante del mes. Avisa a la supervisión del centro.</x-op.empty>
+                    @else
+                        <x-op.empty icono="calendar">No hay huecos compatibles. Prueba con otro destino o amplía la fecha límite.</x-op.empty>
+                    @endif
                 @else
                     <div class="list-group">
                         @foreach($propuestas as $p)

@@ -58,6 +58,9 @@ class CitaDirectaPage extends Component
     /** @var list<array{slot_id: int, fecha: string, hora: string, profesional: string, modo: string, modo_valor: string}>|null */
     public ?array $propuestas = null;
 
+    /** @var bool El centro no tiene agenda publicada en la ventana de la búsqueda (sin cuadrante ni slots). */
+    public bool $sinAgenda = false;
+
     /**
      * Solo quien da citas en su centro.
      *
@@ -136,6 +139,8 @@ class CitaDirectaPage extends Component
         }
 
         $borrador = app(SolicitudCitaService::class)->borrador($this->datos(), Auth::user());
+
+        $this->sinAgenda = ! app(BusquedaHuecosService::class)->hayAgendaPublicada($borrador);
 
         $this->propuestas = app(BusquedaHuecosService::class)->buscar($borrador)
             ->map(fn (PropuestaHueco $p) => [

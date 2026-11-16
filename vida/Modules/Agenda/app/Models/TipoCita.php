@@ -105,14 +105,16 @@ class TipoCita extends Model
 
     /**
      * Ids de los tipos de slot activos en los que puede darse. El tipo genérico
-     * admite cualquiera: es el de los centros en modo básico y el de las citas
-     * externas mientras no haya mapeo de servicios.
+     * (centros en modo básico y citas externas sin mapeo de servicios) admite los
+     * tipos enlazados si tiene alguno y, si no, cualquiera.
      *
      * @return list<int>
      */
     public function idsTiposSlotCompatibles(): array
     {
-        $consulta = $this->codigo === self::CODIGO_GENERICO ? TipoSlot::query() : $this->tiposSlot();
+        // El genérico se limita a sus tipos enlazados si los tiene (p. ej. solo Entrevista);
+        // sin ninguno, admite cualquiera (modo básico, citas externas sin mapeo).
+        $consulta = $this->esGenericoSinRestriccion() ? TipoSlot::query() : $this->tiposSlot();
 
         return $consulta->where('tipos_slot.activo', true)->pluck('tipos_slot.id')->all();
     }
@@ -126,7 +128,7 @@ class TipoCita extends Model
      */
     public function admiteTipoSlot(int $tipoSlotId): bool
     {
-        return $this->codigo === self::CODIGO_GENERICO || $this->tiposSlot()->whereKey($tipoSlotId)->exists();
+        return $this->esGenericoSinRestriccion() || $this->tiposSlot()->whereKey($tipoSlotId)->exists();
     }
 
     /**
@@ -174,5 +176,15 @@ class TipoCita extends Model
         if ($this->isDirty('codigo') && $this->citas()->withTrashed()->exists()) {
             throw new DomainException("El tipo de cita «{$this->getOriginal('codigo')}» tiene citas: su código no puede cambiar.");
         }
+    }
+
+    /**
+     * Si es el tipo genérico sin tipos de slot enlazados, que admite cualquier tipo de slot.
+     *
+     * @return bool
+     */
+    private function esGenericoSinRestriccion(): bool
+    {
+        return $this->codigo === self::CODIGO_GENERICO && ! $this->tiposSlot()->exists();
     }
 }
