@@ -4,6 +4,43 @@
 
 ---
 
+## 2026-11-16 — Fase 5: informes desde la interfaz operativa (`2026-11-fase5-informes.md`)
+
+### Decisiones del desarrollador (16 nov)
+- **F5-1 confirmada:** dos formas de firmar; la subida del PDF firmado fuera de VIDA es la activa y AutoFirma integrada queda preparada e inactiva por configuración.
+- **F5-2 confirmada:** validación mínima (firma íntegra con `pdfsig`, mismas páginas, identificador en el pie) y se guarda el titular del certificado.
+- **`ResolverFuentesInforme::resolver()` se implementa en esta fase:** era un stub que devolvía `[]` (todas las secciones automáticas salían vacías y TF-INF-06 no podía pasar).
+
+### Paso 0 — Verificación
+- Suites de partida: Documentos 107 passed; Intervención 337 passed y 1 incomplete (previo).
+- `pdfsig` 26.01 instalado; staging está en la misma máquina y ningún perfil de AppArmor confina `pdfsig`.
+- Plantillas en la BD compartida: #1 «Certificado vulnerabilidad» (`informe_social`, 4 secciones automáticas) y #2 «Informe psicológico» (`informe_psicologico`). 0 informes. `generarBorrador()` funcionaba con las dos, pero con las secciones automáticas vacías, los merge tags sin sustituir y sin identificador en el pie.
+
+### Cambios
+- **Migraciones:** `2026_11_16_100001` (`informes.firmante_certificado` y `deleted_at`; `piso_firmados.sustituido_en`, índice único parcial por plan activo en lugar del `unique`, FK a `planes_intervencion`, documento sin borrado en cascada; tipo documental `piso_firmado` vinculable a persona y plan) y `2026_11_16_100002` (`parametros_informe`).
+- **Generación del PDF:** `generarBorrador()` (con la marca «BORRADOR · sin validez») y `generarParaFirmar()`; «Ref. INF-000123» en el pie de cada página (`Informe::identificador()`); secciones automáticas como tabla etiqueta → valor; texto libre saneado (`SaneadorHtmlInforme`, `symfony/html-sanitizer`) y con merge tags; estilo de la primera adscripción vigente del autor (antes se leía `users.unidad_organizativa_id`, que no existe, y se aplicaba siempre el de la UO 1).
+- **Firma (paso 3):** `MetodoFirma::PdfFirmadoExternamente`; contrato `FirmadorInforme` con `FirmaExternaSubida` (activa) y `FirmaAutoFirma` (`documentos.firma.autofirma_activa`, por defecto `false`); `ValidadorFirmaPdf` (`pdfinfo`, `pdfsig`, `pdftotext`, con `LC_ALL=C`) y `FirmaRechazadaException`; `ServicioFirmaInforme::firmar(Informe, MetodoFirma, pdf, actor)` valida, custodia sin reescribir, guarda método y titular y deja un apunte `documento` en la historia; `anular()` exige motivo. `FirmadorSimulado` para tests (PAdES en PHP con `openssl_cms_sign`).
+- **Interfaz (pasos 1, 2 y 4):** `InformesHistorial` en la caja de herramientas «Informes» de `CiudadanoPage` (sustituye a «Módulo de informes en construcción») y en `PlanPage`; `NuevoInformeWizard` (rutas `intervencion.informes.nuevo` y `editar`) con plantilla, redacción con guardado automático, vista previa e iframe, y firma; `InformePdfController` (vista previa y PDF para firmar, solo el autor, auditado); `PisoFirmadoUpload` en «Seguimiento y firmas» de `PlanPage` con `PisoFirmadoService` (sustitución = versión nueva del mismo documento).
+- **Permisos (paso 5):** `InformePolicy` (ver por `HistoriaSocialPolicy::view`; crear por escritura en la historia o responsable/equipo de un plan activo; editar, firmar y eliminar el autor sobre su borrador; anular el autor sobre su firmado) y `PisoFirmadoPolicy`. `DocumentoPolicy`: el PDF de un informe solo con `InformePolicy::view`.
+- **Variables auxiliares (paso 6):** `ParametroInforme` (caché), `ParametroInformeSeeder` (desde `DocumentosSeeder`), `VariablesDinamicas`, `MergeTagsCatalogo` con las tres categorías, `ParametroInformeResource` (edita solo `adm_sistema`; la supervisión consulta).
+- **Tests:** TF-INF-01 a 28 en `Modules/Documentos/tests/Feature/Informes/` (6 ficheros, trait `InformesTestSetup`; 36 tests con 8 casos base del validador) y TF-DOC-22 a 25 en `VariablesAuxiliaresTest`. 21 negativos comprobados (lista en el fichero de instrucciones). Tests antiguos adaptados: `DocumentosTest` (TF-DOC-13 a 16 y 20 firman con `FirmadorSimulado`; TF-DOC-17 y 18 con planes reales por la FK nueva) y `RetencionDestruccionTest`.
+- `npm run build` y `ui:auditar` sin infracciones. PHPStan limpio en los ficheros nuevos y reescritos.
+- SUITE_COMPLETA_PENDIENTE
+
+### Decisiones de implementación no previstas en las instrucciones
+- **Identificador** `INF-{id con 6 dígitos}` dibujado en el lienzo de cada página, con o sin estilo de UO. La vista previa lleva la marca de borrador y el validador rechaza un PDF que la contenga (`es_borrador`), para que no se firme la vista previa por error.
+- **Borradores con baja lógica** (`SoftDeletes`) en vez de borrado físico (CLAUDE.md: no hay hard deletes).
+- **PISO firmado:** tipo documental propio `piso_firmado` creado por migración; sustituir crea versión nueva del mismo documento y un `PisoFirmado` nuevo, y el anterior queda con `sustituido_en` (el pasado no se sobrescribe).
+- **`DocumentoPolicy`:** el PDF de un informe solo lo ve quien puede ver el informe, aunque otra vía (p. ej. la de tramitación por sus solicitudes) diera acceso al documento.
+- **`InformePolicy` registrada:** la página «Ver» de `InformeResource` (Filament) pasa por ella; `adm_sistema` necesita también poder leer la historia (coherente con «adm_sistema no tiene acceso privilegiado a datos de ciudadanos»).
+- **Plantillas del asistente:** las activas de las UO de las adscripciones del profesional y sus ancestros (`visiblesParaUo`).
+- **Editor de texto libre:** el `contenteditable` de la síntesis del plan (clase `plan-editor-area`, descripción del catálogo ampliada), con guardado a los 1,5 s sin escribir y al salir del campo.
+- **Organigrama de los tests:** `InformesTestSetup` cuelga las juntas y el Área de una UO «Ayuntamiento» (como en producción) para que una plantilla sea visible para el CSS y el CIAM.
+- **Prioridad de las variables auxiliares:** contextuales > dinámicas > parámetros, como el `array_merge` de las instrucciones y `modulo-documentos.md` (el texto de las instrucciones decía que los parámetros ganaban a las dinámicas).
+- **TF-DOC-22 a 25** van en `VariablesAuxiliaresTest` (con `DocumentosTestSetup`, que siembra roles y `adm_sistema`) y no en `DocumentosTest`.
+
+---
+
 ## 2026-11-15 — Fase 4: atención administrativa (`consulta_basica`) y delta de citas (`2026-11-fase4-consulta-basica.md`)
 
 ### Decisiones del desarrollador (15 nov)

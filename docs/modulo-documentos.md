@@ -3,7 +3,7 @@
 **Módulo:** `Documentos`
 **Namespace:** `Modules\Documentos\Models`
 **Directorio:** `vida/Modules/Documentos/`
-**Estado:** Parcial (revisado el 2026-09-25 contra el código). Backend de estilos, plantillas e informes implementado; custodia v2 implementada (pasos 1 a 7) con la tarjeta «Documentos» en la ficha del ciudadano; 88 tests pasan. **Sin UI operativa de informes ni PISO** (sección 4) y **sin variables auxiliares** (2.6). La custodia v2 (`docs/instrucciones-cli/documentos-custodia-implementacion.md`) sustituye a la custodia v1.
+**Estado:** Implementado (revisado el 2026-11-16, fase 5). Backend de estilos, plantillas e informes; custodia v2 con la tarjeta «Documentos» de la ficha; **interfaz operativa de informes** (historial, asistente y firma por subida del PDF firmado, con AutoFirma integrada preparada e inactiva) y **PISO firmado** (sección 4); **variables auxiliares** (2.6). Pendientes: validación criptográfica completa de la firma, número de colegiado y activar AutoFirma (BACKLOG). La custodia v2 (`docs/instrucciones-cli/documentos-custodia-implementacion.md`) sustituye a la custodia v1.
 
 > **Revisión 2026-09-25.** Versiones anteriores de este documento daban por implementados las variables auxiliares (TF-DOC-22 a 25), `ParametroInformeResource`, `ConfiguracionTipografiaResource` y los componentes Livewire de la sección 4. No existen en el código ni en el historial de git. Se marcan abajo como ⏳ pendientes.
 
@@ -155,32 +155,37 @@ El campo `contenido_plantilla` de las secciones de tipo `texto_libre` almacena H
 | `contenido` | jsonb | Mapa `seccion_id → texto` con el contenido del informe |
 | `documento_id` | bigint FK nullable | PDF firmado; null hasta firma |
 | `firmado_en` | timestamp nullable | |
-| `metodo_firma` | enum nullable | `autofirma_certificado_empleado_publico` |
-| `numero_colegiado_firmante` | varchar nullable | |
+| `metodo_firma` | enum nullable | `pdf_firmado_externamente` (subida del PDF firmado fuera de VIDA, el activo) o `autofirma_certificado_empleado_publico` (AutoFirma integrada, inactiva por configuración) |
+| `firmante_certificado` | text nullable | Titular (nombre común) del certificado de la firma, según `pdfsig` (fase 5, F5-2) |
+| `numero_colegiado_firmante` | varchar nullable | Sin rellenar: la extracción del número de colegiado está pendiente (BACKLOG) |
 | `motivo_anulacion` | text nullable | Obligatorio si estado = `anulado` |
 | `anulado_en` | timestamp nullable | |
 | `created_at` / `updated_at` | timestamp | |
+| `deleted_at` | timestamp nullable | Baja lógica de un borrador eliminado por su autor (fase 5) |
 
-**Transiciones:** `borrador → firmado` (requiere PDF y certificado válido) · `firmado → anulado` (solo el autor, con motivo). Un informe anulado no puede reabrirse.
+**Identificador:** `Informe::identificador()` = `INF-` + id con 6 dígitos. Se imprime en el pie de cada página del PDF («Ref. INF-000123») y el validador de firma lo busca en el PDF subido.
+
+**Transiciones:** `borrador → firmado` (PDF firmado que supera `ValidadorFirmaPdf`, solo el autor) · `firmado → anulado` (solo el autor, con motivo). Un informe anulado no puede reabrirse. Un borrador puede eliminarlo su autor (baja lógica); un firmado o anulado, no.
 
 ### 2.5 PisoFirmado
 
 **Tabla:** `piso_firmados`
-**Descripción:** Custodia del PISO con doble firma manuscrita escaneada. Un `PlanDeIntervencion` puede tener como máximo un `PisoFirmado` activo.
+**Descripción:** Custodia del PISO con doble firma manuscrita escaneada. Un `PlanDeIntervencion` puede tener como máximo un `PisoFirmado` activo (índice único parcial sobre `sustituido_en IS NULL`, desde la fase 5). Subir uno nuevo no borra el anterior: el registro queda con `sustituido_en` y el escaneo nuevo es una **versión nueva del mismo documento** (tipo documental `piso_firmado`, vinculado a la persona y al plan). Solo escribe `PisoFirmadoService`.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | bigint PK | |
-| `plan_de_intervencion_id` | bigint FK | |
-| `documento_id` | bigint FK | PDF escaneado |
+| `plan_de_intervencion_id` | bigint FK | Ref. `planes_intervencion` (FK desde la fase 5) |
+| `documento_id` | bigint FK | PDF escaneado (sin borrado en cascada desde la fase 5) |
 | `subido_por` | bigint FK | Ref. `users` |
 | `metodo_conformidad_ciudadano` | enum | `manuscrita_escaneada` |
 | `observaciones` | text nullable | |
+| `sustituido_en` | timestamp nullable | Cuándo lo sustituyó otro; null = activo |
 | `created_at` / `updated_at` | timestamp | |
 
-### 2.6 ParametroInforme — ⏳ no implementado
+### 2.6 ParametroInforme — ✅ implementado (fase 5, paso 6)
 
-> Diseño pendiente de implementar según `docs/instrucciones-cli/documentos-variables-auxiliares.md`. No existen la tabla, el modelo ni el recurso.
+> Implementado el 2026-11-16 según `docs/instrucciones-cli/documentos-variables-auxiliares.md`: tabla, modelo (`comoMapa()`, `comoEtiquetas()`, caché invalidada al guardar o borrar), `ParametroInformeSeeder` (desde `DocumentosSeeder`) y `ParametroInformeResource`.
 
 **Tabla:** `parametros_informe`
 **Descripción:** Par clave/valor configurable por el administrador. Permite crear variables auxiliares en plantillas de informe sin modificar código. Los valores se cachean con TTL de 1 hora; la caché se invalida automáticamente al guardar o borrar un parámetro.
@@ -234,11 +239,44 @@ Los parámetros son **globales** (un único valor por instalación). La variante
 
 ### ServicioGeneracionPDF
 
-Genera el PDF a partir del contenido del informe y la plantilla. Combina datos automáticos (vía `ResolverFuentesInforme`) con texto libre del profesional, aplica cabecera y pie de `EstiloInforme`, produce el PDF mediante `barryvdh/laravel-dompdf`. El PDF de borrador es sobrescribible; el PDF firmado es inmutable.
+Genera el PDF a partir del contenido del informe y la plantilla con `barryvdh/laravel-dompdf`:
+- **`generarBorrador()`**: vista previa, con la marca «BORRADOR · sin validez» en cada página. No se persiste.
+- **`generarParaFirmar()`**: la misma maquetación sin la marca; es el PDF que el autor descarga para firmarlo.
+- **`generarFinal()`**: custodia el PDF firmado ya validado (tipo `informe_profesional`, canal `generado`, sin reescribirlo).
+- Secciones automáticas: tabla etiqueta → valor (`ResolverFuentesInforme::resolver()`). Texto libre: HTML saneado (`SaneadorHtmlInforme`: solo `p`, `br`, `div`, `strong`, `b`, `em`, `i`, `u`, `ul`, `ol`, `li`) con los merge tags sustituidos.
+- Estilo: el de la primera adscripción vigente del autor (`EstiloInforme` con herencia por campos). Hasta la fase 5 se leía un atributo inexistente de `users` y se aplicaba siempre el de la UO 1, que queda como último recurso.
+- En el lienzo de cada página (dompdf `page_text`), siempre: «Ref. INF-000123». Con el marcador del estilo, también «Página X».
 
 ### ServicioFirmaInforme
 
-Coordina la firma con AutoFirma (integración Livewire pendiente). Recibe el PDF firmado y lo custodia con `CicloVidaDocumentoService` (tipo `informe_profesional`, canal `generado`, vinculado al ciudadano del informe, con informe y plantilla de origen en la versión). La validación de la firma y la extracción del número de colegiado siguen pendientes.
+`firmar(Informe, MetodoFirma, string $pdfFirmado, User $actor)`: exige borrador y autor, que el método esté activo y que el PDF supere `ValidadorFirmaPdf` (fuera de la transacción, porque lanza procesos). Después, con el informe bloqueado, lo custodia (`generarFinal`), guarda `metodo_firma`, `firmante_certificado` y `firmado_en`, y deja en la Historia Social un apunte de tipo `documento` que enlaza el informe (`apuntable`). Un rechazo no cambia el estado. `anular()`: solo el autor, con motivo no vacío; el documento sigue en la custodia. `firmador(MetodoFirma)` devuelve el `FirmadorInforme` de cada método.
+
+### Firmadores (`FirmadorInforme`, fase 5, F5-1)
+
+Contrato que traduce lo que llega del navegador al PDF firmado:
+- **`FirmaExternaSubida`** (activo): el fichero subido en el paso «Firma» del asistente.
+- **`FirmaAutoFirma`** (preparado, inactivo): el PDF en base64 que devuelve AutoFirma (`autoscript.js`, PAdES). Solo con `documentos.firma.autofirma_activa` (`DOCUMENTOS_AUTOFIRMA_ACTIVA`, por defecto `false`); inactivo, ni se ofrece ni admite peticiones. Cómo probarlo: `docs/decisiones-tecnicas.md`, sección 17.
+- **`FirmadorSimulado`** (solo tests, `Modules/Documentos/tests/Support`): firma PAdES `adbe.pkcs7.detached` en PHP (actualización incremental y `openssl_cms_sign`) con un certificado autofirmado generado en el propio test.
+
+### ValidadorFirmaPdf (fase 5, F5-2)
+
+Validación mínima con poppler-utils, ejecutados con `LC_ALL=C` y el timeout `documentos.firma.timeout_segundos`:
+1. `pdfinfo` abre el PDF (si no, `pdf_ilegible`).
+2. `pdfsig`: al menos una firma con «Signature is Valid» (`sin_firma` o `firma_no_integra`). Devuelve el titular («Signer Certificate Common Name»). `pdfsig` sale con 1 tanto si una firma es inválida como si no puede abrir el fichero, así que se interpreta la salida, no el código.
+3. Mismo número de páginas que el PDF para firmar generado ahora, el identificador del informe en todas las páginas y sin la marca de borrador (`pdftotext`; `no_corresponde` o `es_borrador`).
+
+Rechaza con `FirmaRechazadaException` (código estable y mensaje llano). Un fallo de binario es `fallo_tecnico` con la causa (`FalloHerramientaExterna`) como excepción previa; el asistente la registra con `report()`. No valida la cadena de confianza (CRL/OCSP) ni extrae el número de colegiado (BACKLOG).
+
+### InformeService y PisoFirmadoService (fase 5)
+
+- **`InformeService`**: `crear()` (plantilla activa; el texto libre parte de `contenido_plantilla`), `guardarSeccion()` (solo secciones de texto libre; una automática o inexistente se ignora), `obligatoriasVacias()` y `eliminarBorrador()`. Cada método autoriza con `InformePolicy`.
+- **`PisoFirmadoService`**: `activo()` y `subir()` (ingesta normal por el canal `escaneo`; si ya hay uno activo, versión nueva del mismo documento y nuevo `PisoFirmado`; si el documento anterior ya no está vigente, documento nuevo).
+
+### InformePolicy y PisoFirmadoPolicy (fase 5, paso 5)
+
+- **`InformePolicy`**: `view` = `HistoriaSocialPolicy::view` de la historia del informe (incluye el equipo de un plan en curso y RN-17 ampliada; sin `historia.leer` no se ven informes). `crear` = escritura en la historia o `plan.editar` y ser responsable o equipo (adscrito a la UO del centro) de un plan **activo** de la persona (F5-3). `update`, `firmar` y `delete`: autor y borrador. `anular`: autor y firmado.
+- **`PisoFirmadoPolicy`**: `subir` solo en el plan principal activo, por su responsable o la supervisión de su centro, y con RN-17 si la persona está protegida. `ver` = ver el plan.
+- **`DocumentoPolicy`**: el PDF de un informe solo lo ve quien supera `InformePolicy::view`, aunque otra vía (carpeta, tramitación) diera acceso al documento.
 
 ### ResolverFuentesInforme
 
@@ -246,19 +284,23 @@ Resuelve todas las variables que pueden aparecer en las plantillas de informe. O
 
 **1. Tags contextuales** (mayor prioridad) — dependen del ciudadano, profesional y fecha del informe concreto. Se construyen en `construirMapaValores()` a partir de las entidades del expediente. Incluyen: datos del ciudadano, del expediente, de las escalas de valoración (último pase de Barthel, Pfeiffer y Lawton-Brody), del plan de intervención activo, del profesional autor y del centro.
 
-**2. Variables dinámicas de sistema** (⏳ no implementado) — calculadas en tiempo de ejecución, iguales para todos los informes. Implementadas en `VariablesDinamicas::resolver()`. Variables disponibles: `fecha_hoy` (dd/mm/aaaa), `año_actual`, `mes_actual` (nombre del mes en español).
+**2. Variables dinámicas de sistema** (✅ fase 5) — calculadas en tiempo de ejecución, iguales para todos los informes. Implementadas en `VariablesDinamicas::resolver()`. Variables disponibles: `fecha_hoy` (dd/mm/aaaa), `año_actual`, `mes_actual` (nombre del mes en español).
 
-**3. Parámetros configurables** (⏳ no implementado; menor prioridad) — leídos de `parametros_informe` vía `ParametroInforme::comoMapa()` con caché de 1 hora. Ejemplos: `ciudad`, `web_municipal`, `telefono_atencion`.
+**3. Parámetros configurables** (✅ fase 5; menor prioridad) — leídos de `parametros_informe` vía `ParametroInforme::comoMapa()` con caché de 1 hora. Ejemplos: `ciudad`, `web_municipal`, `telefono_atencion`.
 
 En caso de colisión de clave, los tags contextuales siempre ganan frente a los parámetros configurables. Esto garantiza que ningún administrador puede romper un informe creando un parámetro `nombre_ciudadano`.
 
 El método `resolverMergeTags(string $html, int $ciudadanoId, int $profesionalId, Carbon $fechaInforme): string` sustituye todos los tags en el HTML de una sección y devuelve el HTML con los valores reales.
 
+**`resolver(string $fuente, int $ciudadanoId, ?int $profesionalId)`** (fase 5; hasta entonces devolvía `[]`): pares etiqueta → valor de una fuente automática, a partir del mismo mapa de los merge tags. Resueltas: `ciudadano.datos_basicos`, `ciudadano.datos_contacto`, `historia_social.resumen`, `historia_social.prestaciones_activas` (prestaciones concedidas o activas de la persona), `escalas.barthel_ultimo`, `escalas.pfeiffer_ultimo`, `escalas.lawton_ultimo` y `profesional.datos`. El resto (`ciudadano.unidad_convivencia`, `historia_social.prestaciones_historico`, `historia_social.plan_activo`, `escalas.historico_barthel`) devuelve `[]` («Sin datos disponibles», BACKLOG).
+
+**Variables auxiliares.** Además de los tags contextuales (ciudadano, profesional, escalas), el resolver incluye dos categorías adicionales con menor prioridad: variables dinámicas de sistema (fecha_hoy, año_actual, mes_actual — calculadas en tiempo de ejecución mediante `VariablesDinamicas::resolver()`) y parámetros configurables almacenados en `parametros_informe` y gestionados desde el backoffice (`ParametroInformeResource`). En caso de colisión de clave, los tags contextuales siempre tienen prioridad.
+
 ### MergeTagsCatalogo
 
-Clase de soporte que centraliza el catálogo de variables disponibles en el editor de plantillas. `todos()` devuelve el array `['clave' => 'etiqueta']` que consume `RichEditor::mergeTags()` en Filament. Hoy solo incluye los tags contextuales. Las variables dinámicas y los parámetros configurables llegarán con las variables auxiliares (⏳).
+Clase de soporte que centraliza el catálogo de variables disponibles en el editor de plantillas. `todos()` devuelve el array `['clave' => 'etiqueta']` que consume `RichEditor::mergeTags()` en Filament y la lista de variables del asistente operativo. Incluye las tres categorías: contextuales, dinámicas de sistema y parámetros configurables (con el prefijo «Parámetro — »).
 
-### VariablesDinamicas — ⏳ no implementado
+### VariablesDinamicas — ✅ implementado (fase 5)
 
 Clase de soporte sin estado. `etiquetas()` devuelve el mapa de claves y descripciones para el editor. `resolver()` devuelve el mapa de claves y valores calculados en tiempo de ejecución.
 
@@ -275,7 +317,8 @@ Grupo de navegación **«Informes y Plantillas»** (accesible a supervisores y a
 - **`InformeResource`** — listado de informes con filtros por estado y autor.
 - **`DocumentoResource`** — listado de documentos custodiados.
 - **`TipoEscalaResource`** — ver módulo Escalas.
-- ⏳ **`ParametroInformeResource`** (no implementado) — gestión de parámetros configurables de plantillas. Accesible solo a `adm_sistema`. Formulario con validación de formato de clave (`/^[a-z][a-z0-9_]*$/`).
+- ✅ **`ParametroInformeResource`** (fase 5) — gestión de parámetros configurables de plantillas. Crear, editar y borrar solo `adm_sistema`; la supervisión los consulta. Formulario con validación de formato de clave (`/^[a-z][a-z0-9_]*$/`).
+- **`InformeResource`**: desde la fase 5 «Ver» pasa por `InformePolicy::view` (registrada): también `adm_sistema` necesita poder leer la historia de la persona.
 
 Grupo **«Sistema»** (solo administradores):
 
@@ -293,11 +336,9 @@ Grupo **«Sistema»** (solo administradores):
   - **Modal de subida** (Bootstrap, controlado por Livewire, como «Nueva atención»): tipo documental (activos y vinculables a personas), fichero, cómo se ha recibido (presencial o escaneo), descripción, fecha de emisión, órgano emisor, metadatos adicionales que exige el tipo y casillas para asociar a otros miembros activos de la unidad de convivencia (solo se aceptan miembros reales). Los rechazos de la ingesta se muestran en el modal con su mensaje.
   - **Límite de subida:** `DOCUMENTOS_MAX_SUBIDA_KB` (50 MB por defecto, como `client_max_body_size` de nginx). El provider sube a ese valor el límite temporal de Livewire (12 MB por defecto); el tipo documental aplica después su propio límite.
 
-⏳ No implementados (hoy un profesional no puede redactar ni firmar informes ni subir el PISO desde la superficie operativa; solo hay visores en Filament):
-
-- **`NuevoInformeWizard`** — asistente en 4 pasos: selección de plantilla → edición de secciones de texto libre → vista previa PDF → firma con AutoFirma. Las secciones `automatico` se pre-cargan y no son editables. No avanza al paso 4 si hay secciones `obligatorio: true` vacías.
-- **`InformesHistorialComponent`** — listado de informes de una Historia Social. Acciones sobre informes firmados: ver PDF, anular (solo el autor, con motivo obligatorio).
-- **`PisoFirmadoUploadComponent`** — subida del PISO escaneado con doble firma manuscrita.
+- ✅ **`InformesHistorial`** (`documentos.informes-historial`, fase 5): informes de la persona en la caja de herramientas «Informes» de la Historia Social (`CiudadanoPage`) y en `PlanPage`. Plantilla, tipo, referencia, autor, estado (tono de `EstadoInforme`) y fechas. Acciones: «Continuar» y «Eliminar borrador» (autor, borrador), «Ver PDF» (URL firmada a `documentos.ver`, quien puede ver el informe) y «Anular» (autor, firmado; modal con motivo de al menos 10 caracteres). «+ Nuevo informe» con `InformePolicy::crear`. Sin `historia.leer` se pinta vacío.
+- ✅ **`NuevoInformeWizard`** (página completa, rutas `intervencion.informes.nuevo` y `intervencion.informes.editar`, fase 5): (1) plantillas activas visibles para las UO del profesional (las de sus adscripciones y sus ancestros), filtrables por tipo; (2) redacción: secciones automáticas en lectura, texto libre en un editor `contenteditable` (negrita, cursiva, lista) con guardado automático (a los 1,5 s sin escribir y al salir del campo) y la lista de variables; (3) vista previa en un `iframe` (`documentos.informes.vista-previa`); no se pasa a la firma con secciones obligatorias vacías; (4) firma: «Descargar PDF para firmar» (`documentos.informes.para-firmar`) y subida del firmado; con AutoFirma activa, además el botón de AutoFirma (carga `public/vendor/autofirma/autoscript.js`). Los PDF del borrador los sirve `InformePdfController` (solo el autor, auditado como «exportar» sobre el informe). Tras firmar vuelve a la Historia Social con la herramienta «Informes» abierta.
+- ✅ **`PisoFirmadoUpload`** (`documentos.piso-firmado-upload`, fase 5): en «Seguimiento y firmas» de `PlanPage`, solo en el plan principal. «PISO firmado el [fecha], subido por [usuario]» con enlace al documento, y «Subir» o «Sustituir PISO firmado» (modal con fichero y observaciones) para el responsable o la supervisión del centro en un PISO activo.
 
 ---
 
@@ -327,7 +368,7 @@ Grupo **«Sistema»** (solo administradores):
 
 Ficheros: `Modules/Documentos/tests/Feature/DocumentosTest.php` (TF-DOC-01 a 21 y 79 a 81) y un fichero por grupo de la custodia v2. Fixtures en `Modules/Documentos/tests/fixtures/` (`generar-fixtures.sh`).
 
-### Estado de ejecución — revisado 2026-09-25
+### Estado de ejecución — revisado 2026-11-16
 
 | Área | Tests | Estado |
 |---|---|---|
@@ -338,7 +379,7 @@ Ficheros: `Modules/Documentos/tests/Feature/DocumentosTest.php` (TF-DOC-01 a 21 
 | PISO firmado (TF-DOC-17, 18) | 2 | ✅ |
 | Configuración y visibilidad (TF-DOC-19, 20) | 2 | ✅ |
 | Merge tags contextuales (TF-DOC-21) | 1 | ✅ |
-| Variables auxiliares (TF-DOC-22 a 25) | 4 | ⏳ no implementado |
+| Variables auxiliares (TF-DOC-22 a 25) | 4 | ✅ `VariablesAuxiliaresTest` (fase 5) |
 | Custodia v2 — tipos documentales (TF-DOC-26 a 31) | 6 | ✅ `TiposDocumentalesTest` |
 | Custodia v2 — modelo y vínculos n:M (TF-DOC-32 a 38) | 7 | ✅ `VinculosDocumentoTest` |
 | Custodia v2 — almacenamiento y cifrado (TF-DOC-39 a 45) | 7 | ✅ `AlmacenamientoCifradoTest` |
@@ -348,7 +389,8 @@ Ficheros: `Modules/Documentos/tests/Feature/DocumentosTest.php` (TF-DOC-01 a 21 
 | Custodia v2 — acceso y auditoría (TF-DOC-74 a 78) | 5 | ✅ `AccesoDocumentoTest` (TF-DOC-75 adaptado a la regla de acceso amplio) |
 | Pie con número de página y logo único (TF-DOC-79 a 81) | 3 | ✅ |
 | UI operativa: tarjeta «Documentos» de la ficha (sin numerar) | 10 | ✅ `DocumentosCiudadanoTest` |
-| **Total implementado** | **87** | **87 ✅** |
+| Informes operativos y PISO firmado (TF-INF-01 a 28, fase 5) | 36 | ✅ `tests/Feature/Informes/` (28 TF-INF más 8 casos base del validador; 21 negativos comprobados) |
+| **Total de esta tabla** | **127** | **127 ✅** |
 
 TF-DOC-79 a 81 se llamaban TF-DOC-26, 27 y 29 (2026-09-24); se renumeraron el 2026-09-25 para no chocar con la numeración de la custodia v2.
 
@@ -360,19 +402,19 @@ TF-DOC-79 a 81 se llamaban TF-DOC-26, 27 y 29 (2026-09-24); se renumeraron el 20
 
 Dado un ciudadano «María López» con expediente «EXP-2026-001» y un `PaseEscala` Barthel completado con `score_total=75`; una sección `texto_libre` con `contenido_plantilla` que contiene `{{ nombre_ciudadano }}`, `{{ numero_expediente }}` y `{{ score_barthel }}`. Cuando se llama a `ResolverFuentesInforme::resolverMergeTags()`. Entonces el HTML resultante contiene «María López», «EXP-2026-001» y «75»; no contiene ningún tag sin sustituir.
 
-### ⏳ TF-DOC-22 — Variables dinámicas de sistema se resuelven correctamente
+### ✅ TF-DOC-22 — Variables dinámicas de sistema se resuelven correctamente
 
 Dado ningún parámetro en BD; HTML con `{{ fecha_hoy }}` y `{{ año_actual }}`. Cuando se llama a `resolverMergeTags()`. Entonces `{{ fecha_hoy }}` se sustituye por la fecha de hoy en formato dd/mm/aaaa; `{{ año_actual }}` por el año actual como string de 4 dígitos.
 
-### ⏳ TF-DOC-23 — Parámetro configurable se resuelve en el informe
+### ✅ TF-DOC-23 — Parámetro configurable se resuelve en el informe
 
 Dado un `ParametroInforme` con `clave='ciudad'` y `valor='Madrid'`; HTML con `{{ ciudad }}`. Cuando se llama a `resolverMergeTags()`. Entonces `{{ ciudad }}` se sustituye por «Madrid».
 
-### ⏳ TF-DOC-24 — Tag contextual tiene prioridad sobre parámetro configurable
+### ✅ TF-DOC-24 — Tag contextual tiene prioridad sobre parámetro configurable
 
 Dado un `ParametroInforme` con `clave='nombre_ciudadano'` y `valor='VALOR_TRAMPA'`; ciudadano con nombre «María López». Cuando se llama a `resolverMergeTags()` con HTML que contiene `{{ nombre_ciudadano }}`. Entonces el resultado contiene «María López», no «VALOR_TRAMPA».
 
-### ⏳ TF-DOC-25 — Clave de parámetro con formato inválido no puede guardarse
+### ✅ TF-DOC-25 — Clave de parámetro con formato inválido no puede guardarse
 
 Dado ningún parámetro existente. Cuando se intenta crear un `ParametroInforme` con `clave='Mi Ciudad'` (contiene espacio). Entonces falla la validación; no se crea ningún registro.
 

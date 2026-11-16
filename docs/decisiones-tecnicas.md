@@ -472,6 +472,8 @@ Fecha: 2026-11-11
 | `qpdf` | Saber si un PDF pide contraseña; forma expandida para buscar contenido activo | `qpdf` |
 | `gs` (Ghostscript) | Saneado a PDF/A-2b, recompresión y medición de tinta (`inkcov`) | `ghostscript` |
 | `pdfinfo` | Número de páginas | `poppler-utils` |
+| `pdfsig` | Firma de informes (fase 5): comprobar que el PDF subido tiene una firma íntegra y leer su titular | `poppler-utils` |
+| `pdftotext` | Firma de informes (fase 5): buscar el identificador del informe y la marca de borrador en el PDF subido | `poppler-utils` |
 | `soffice` (LibreOffice headless) | Conversión de ODT y DOCX a PDF | `libreoffice-writer-nogui` |
 | Imagick | Conversión de JPEG, PNG y HEIC a PDF | `php8.5-imagick` (con la política de ImageMagick que limita memoria y área) |
 | clamd (ClamAV) | Antivirus por socket (`binarios.clamd_socket`) | `clamav-daemon` |
@@ -511,3 +513,28 @@ Fecha de decisión: 2026-11-15 (fase 4, `docs/instrucciones-cli/2026-11-fase4-co
 **`RolesSeeder` es aditivo.** Antes sincronizaba (`syncPermissions`): re-ejecutarlo quitaba a cada rol lo que se hubiera configurado en el backoffice. Ahora solo añade los permisos que faltan (TF-CBA-29). Retirar un permiso de un rol se hace con una migración de datos, como la que quitó `plan.leer` a `supervision` en la fase 3. En la BD compartida los permisos nuevos los añade siempre una migración (`2026_11_15_100004`, `2026_11_15_130001`), porque los seeders no se ejecutan al desplegar.
 
 **Documentos: contrato `AccesoDocumentoAdicional`.** `DocumentoPolicy` decide la lectura por tres vías: carpeta completa (`documento.ver_carpeta`), propios del día (`documento.gestionar_propios`) y las que aportan otros módulos implementando `Modules\Documentos\Contracts\AccesoDocumentoAdicional`, registradas con la etiqueta `DocumentoPolicy::ETIQUETA_ACCESOS`. Así Documentos no conoce a Prestaciones (principio 3.4 de este documento): Prestaciones registra `AccesoDocumentosTramitacion` (tramitación lee los documentos de las personas cuyas solicitudes tramita). Toda vía nueva de lectura de documentos se añade así, no en la policy.
+
+---
+
+## Sección 17 — Firma de informes: PDF firmado externamente, `pdfsig` y AutoFirma preparada
+
+Fecha de decisión: 2026-11-16 (fase 5, `docs/instrucciones-cli/2026-11-fase5-informes.md`; F5-1 y F5-2 confirmadas por el desarrollador)
+
+**Dos formas de firmar (F5-1).** (a) **Activa:** el autor descarga el «PDF para firmar» (el PDF final sin marca de borrador y con «Ref. INF-000123» en el pie de cada página), lo firma con su certificado fuera de VIDA (AutoFirma de escritorio u otra herramienta PAdES) y lo sube en el paso «Firma» del asistente. (b) **Preparada e inactiva:** AutoFirma integrada desde el navegador, tras el contrato `FirmadorInforme` (`FirmaAutoFirma`), activable con `DOCUMENTOS_AUTOFIRMA_ACTIVA=true` cuando se haya probado en puestos reales.
+
+**Validación mínima (F5-2).** `ValidadorFirmaPdf` exige al menos una firma íntegra según `pdfsig`, el mismo número de páginas que el PDF para firmar generado en ese momento y el identificador del informe en todas las páginas, sin la marca de borrador. Guarda el titular del certificado (`informes.firmante_certificado`). **No** valida la cadena de confianza (CRL/OCSP) ni extrae el número de colegiado: pendiente (BACKLOG). `pdfsig` y `pdftotext` se ejecutan con `LC_ALL=C` (se interpreta su salida en inglés). El aviso `NSS_Init failed: security library: bad database` de `pdfsig` es inocuo: verifica la integridad sin base de datos NSS.
+
+**El PDF firmado no se reescribe.** Entra en la custodia por el canal `generado` (sin conversión, saneado PDF/A ni recompresión, que invalidarían la firma). TF-INF-15 comprueba que el fichero custodiado es byte a byte el subido y que `pdfsig` lo sigue dando por íntegro.
+
+**`pdfsig` en el servidor.** Es del paquete `poppler-utils` (el mismo que `pdfinfo`), instalado en local y en staging (la misma máquina). A 2026-11-16 ningún perfil de AppArmor lo confina, a diferencia de `qpdf` y `gs` (sección 14). Los ficheros de trabajo van a `storage/app/tmp/firma/{uuid}` (0700/0600) y se borran al terminar. Si una actualización lo confinara, el síntoma es «No se ha podido comprobar la firma del PDF» y `FalloHerramientaExterna` con `pdfsig` en `storage/logs/laravel.log`; la solución es una regla local como las de `qpdf` y `gs`.
+
+**Tests sin dependencias externas.** `FirmadorSimulado` (`Modules/Documentos/tests/Support`) firma PAdES `adbe.pkcs7.detached` en PHP: actualización incremental con diccionario de firma, campo invisible y `/AcroForm`, y CMS con `openssl_cms_sign` sobre un certificado autofirmado generado en el test (no se versionan certificados). Pensado para los PDF de dompdf (xref clásica).
+
+**Cómo probar AutoFirma integrada antes de activarla:**
+1. En un puesto con AutoFirma instalada (versión 1.8 o posterior) y un certificado de empleado público (o uno de pruebas de la FNMT) en el almacén del sistema o del navegador.
+2. Copiar el cliente JavaScript de AutoFirma (`autoscript.js`, del paquete de integración del Gobierno de España) en `vida/public/vendor/autofirma/autoscript.js`. No se carga desde CDN.
+3. Poner `DOCUMENTOS_AUTOFIRMA_ACTIVA=true` en el `.env` del entorno de pruebas y `php artisan config:cache`.
+4. Redactar un informe, ir a «Firma» y pulsar «Firmar con AutoFirma». El navegador descarga el PDF para firmar, llama a `AutoScript.sign(…, 'SHA256withRSA', 'PAdES', 'signatureSubFilter=ETSI.CAdES.detached', …)` y envía el resultado en base64 a `NuevoInformeWizard::firmarConAutoFirma()`, que pasa la misma validación que la subida.
+5. Comprobar el informe firmado (`metodo_firma = autofirma_certificado_empleado_publico`), el titular guardado y que el PDF de la carpeta se abre con la firma válida en un lector PDF.
+6. Si funciona en los puestos reales, activar en staging y después en producción. Mientras esté inactiva, el botón no se muestra y el endpoint responde 403 (TF-INF-19).
+

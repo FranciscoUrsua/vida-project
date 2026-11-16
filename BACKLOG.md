@@ -9,6 +9,20 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Fase 5 (informes desde la interfaz operativa): pendientes** — 2026-11-16
+Módulos: Documentos, Intervención
+- **Activar AutoFirma integrada** (F5-1 b): está preparada e inactiva (`DOCUMENTOS_AUTOFIRMA_ACTIVA=false`). Probarla en puestos reales con certificado de empleado público siguiendo `docs/decisiones-tecnicas.md` §17, copiar `autoscript.js` en `public/vendor/autofirma/` y activarla por entorno.
+- **Validación criptográfica completa y número de colegiado:** `ValidadorFirmaPdf` solo comprueba integridad, páginas e identificador (F5-2). Falta la cadena de confianza (CA de la FNMT o @firma, CRL/OCSP), comprobar que el titular del certificado es el autor y extraer el número de colegiado (`informes.numero_colegiado_firmante`, hoy vacío). Valorar el servicio @firma de la AGE como validador.
+- **Probar en staging** tras el despliegue: redactar un informe desde la caja de herramientas «Informes» de la Historia Social, vista previa, descargar el PDF para firmar, firmarlo con AutoFirma de escritorio y subirlo; anularlo; subir y sustituir el PISO firmado desde un plan principal. La migración `2026_11_16_100001` (firmante, baja lógica de borradores, `piso_firmados` con sustitución y tipo `piso_firmado`) y la `100002` (`parametros_informe`) se aplican con el despliegue; los parámetros de ejemplo, con `php artisan db:seed --class="Modules\Documentos\Database\Seeders\ParametroInformeSeeder"` si se quieren.
+- **Fuentes automáticas sin resolver:** `ciudadano.unidad_convivencia`, `historia_social.prestaciones_historico`, `historia_social.plan_activo` y `escalas.historico_barthel` salen «Sin datos disponibles». También siguen a «—» los merge tags de expediente, plan, centro y número de colegiado (`construirMapaValores()`).
+- **Plantillas de staging:** las dos que hay (#1 «Certificado vulnerabilidad», #2 «Informe psicológico») están en la UO 3. El asistente solo ofrece las de las UO del profesional y sus ancestros: comprobar que llegan a los centros donde se van a usar.
+- **Editor de texto libre:** es el `contenteditable` de la síntesis del plan (negrita, cursiva, lista, `document.execCommand`, en desuso en los navegadores). Si se necesita más (tablas, insertar variables con un clic), valorar un editor de verdad empaquetado con Vite.
+- **El autor como firmante:** hoy cualquier certificado íntegro vale; ligar el titular del certificado al profesional (DNI del certificado frente al de la ficha) cuando se haga la validación completa.
+- **Parámetros configurables por UO** — actualmente los parámetros de `parametros_informe` son globales. Variables como `{{ distrito }}` o `{{ nombre_centro }}` podrían necesitar valores distintos según la UO del autor del informe. Diseño previsto: añadir `unidad_organizativa_id nullable` a `parametros_informe` y aplicar resolución jerárquica igual que en `EstiloInforme` — buscar en la UO del autor y subir por la jerarquía hasta encontrar valor. Si no hay valor en ningún nivel, usar el parámetro global (sin UO).
+- **Job «Calidad de código» en rojo desde antes de la fase** (ya fallaba en el commit de la fase 4): el paso de PHPStan da errores en otros módulos (p. ej. `Modules/Agenda/app/Models/Cita.php`, `SemanaTypoComponent`, `PerfilHorarioComponent`). Además, la entrada del baseline de `Modules/Documentos/config/documentos.php` espera 5 llamadas a `env()` y hay 19 antes de la fase (23 después). No bloquea el despliegue (workflow aparte). Los ficheros nuevos y reescritos de la fase 5 pasan PHPStan.
+
+---
+
 **Fase 4 (atención administrativa): pendientes** — 2026-11-15
 Módulos: Ciudadanía, Agenda, Documentos, Intervención, Prestaciones
 - **Probar en staging** con un usuario `consulta_basica` y otro `tramitacion` adscritos a un centro: inicio en el buscador, ficha (estado de la historia, citas, documentos del día), alta, relaciones, citación y retirada de un documento. La migración de permisos y la de retirada se aplican con el despliegue.

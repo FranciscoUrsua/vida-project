@@ -1,5 +1,7 @@
 # Instrucciones CLI — Fase 5: informes desde la interfaz operativa
 
+**Estado:** hecha el 2026-11-16 (pasos 0 a 6). F5-1 y F5-2 confirmadas por el desarrollador el 2026-11-16.
+
 **Plan:** `docs/plan-cierre-funcional-2026-11.md`, fase 5.
 **Diseño funcional:** `docs/modulo-documentos.md` §2.2 a §2.6, §3 (`ServicioGeneracionPDF`, `ServicioFirmaInforme`, `ResolverFuentesInforme`) y §4 «Livewire (operativo)».
 **Requisito previo:** fase 3 (centro del plan y acceso del equipo del plan) terminada.
@@ -188,9 +190,11 @@ Ejecuta `docs/instrucciones-cli/documentos-variables-auxiliares.md` tal como est
 
 | Grupo | Tests | Estado |
 |---|---|---|
-| A — Historial | TF-INF-01..04 | |
-| B — Asistente | TF-INF-05..10 | |
-| C — Firma | TF-INF-11..20 | |
-| D — PISO firmado | TF-INF-21..24 | |
-| E — Permisos | TF-INF-25..28 | |
-| Variables auxiliares | TF-DOC-22..25 | |
+| A — Historial | TF-INF-01..04 | ✅ `HistorialInformesTest` (2026-11-16) |
+| B — Asistente | TF-INF-05..10 | ✅ `NuevoInformeWizardTest` |
+| C — Firma | TF-INF-11..20 | ✅ `FirmaInformeTest`; TF-INF-13, 14 y 18 también en `ValidadorFirmaPdfTest` (con 5 casos base más) |
+| D — PISO firmado | TF-INF-21..24 | ✅ `PisoFirmadoTest` |
+| E — Permisos | TF-INF-25..28 | ✅ `PermisosInformeTest` |
+| Variables auxiliares | TF-DOC-22..25 | ✅ `VariablesAuxiliaresTest` |
+
+Negativos comprobados (2026-11-16): sin cada protección falla su test (21 casos: regla de informe en `DocumentoPolicy`, secciones automáticas, obligatorias en la vista previa y al firmar, sin firma, firma no íntegra, identificador, páginas, solo el autor, protegida, sin relación, solo plan activo, quién sube el PISO, solo plan general activo, endpoint de AutoFirma, eliminar solo borradores, motivo de anulación, solo borradores, prioridad de los parámetros y formato de la clave).
