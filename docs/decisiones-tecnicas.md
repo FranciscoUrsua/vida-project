@@ -538,3 +538,27 @@ Fecha de decisión: 2026-11-16 (fase 5, `docs/instrucciones-cli/2026-11-fase5-in
 5. Comprobar el informe firmado (`metodo_firma = autofirma_certificado_empleado_publico`), el titular guardado y que el PDF de la carpeta se abre con la firma válida en un lector PDF.
 6. Si funciona en los puestos reales, activar en staging y después en producción. Mientras esté inactiva, el botón no se muestra y el endpoint responde 403 (TF-INF-19).
 
+
+---
+
+## Sección 18 — Procesos en segundo plano en el servidor: planificador por cron y cola con PM2
+
+Fecha de decisión: 2026-11-16
+
+**Contexto:** el servidor de staging (que es también el de desarrollo local, sección 17) no tenía ninguna entrada de cron para `schedule:run`: ni en `/etc/cron.d` ni en el crontab de `www-data` ni en el de `jupiter`. Las tareas programadas no se ejecutaban nunca, aunque la cola sí: `queue:work` corría bajo PM2. Nada de esto figuraba en el repositorio. A 2026-11-16 el planificador registra siete tareas (`php artisan schedule:list`): `EscalarAlertasVencidasJob` (cada 15 min), `expedientes:consultar` (cada hora), `denominaciones:aplicar` (00:10), `audit:purge` (03:00), `CitaCierreJob` (19:45, lunes a viernes), `SlotExpirationJob` (20:00) y `agenda:publicar-cuadrantes` (día 20, 02:30).
+
+### Decisiones concretas
+
+**El planificador se lanza desde el crontab de `jupiter`**, el usuario de despliegue y el mismo con el que corre la cola:
+
+```
+* * * * * cd /var/www/vida-project/vida && php artisan schedule:run >> /dev/null 2>&1
+```
+
+No se usa `www-data`, porque haría falta sudo y la cola ya corre como `jupiter`. No hay problema de permisos entre usuarios: caché, sesiones y cola están en Redis (`CACHE_STORE`, `SESSION_DRIVER` y `QUEUE_CONNECTION=redis`), así que `withoutOverlapping` y los bloqueos no escriben ficheros, y `storage/logs/laravel.log` es escribible por el grupo `www-data`.
+
+**La cola corre con PM2 como `jupiter`** (`php artisan queue:work --sleep=3 --tries=3`). El servicio systemd `pm2-jupiter` está habilitado y la recupera tras un reinicio. Las tareas `$schedule->job(...)` solo encolan en Redis: sin el worker, el cron por sí solo no ejecuta los jobs.
+
+**Comprobación tras montar o migrar un servidor:** `crontab -l` (como `jupiter`) debe mostrar la línea de arriba; `ps aux | grep queue:work` debe mostrar el worker; `php artisan schedule:list` lista las tareas y su próxima ejecución.
+
+**Pendiente (BACKLOG):** el script de despliegue (`.github/workflows/ci.yml`) no ejecuta `php artisan queue:restart`. El worker sigue con el código que cargó al arrancar hasta que se reinicia a mano, y los jobs se ejecutan con código desfasado tras cada push. En producción, el cron y el worker irán en la configuración del servidor (cron.d y supervisor o systemd), no en el crontab de un usuario personal.
