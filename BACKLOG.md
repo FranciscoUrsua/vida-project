@@ -781,6 +781,6 @@ cuando el módulo Agenda exponga una API de creación de citas simplificada.
 
 ---
 
-**`queue:restart` en el despliegue** — 2026-11-16
+**Cron y worker de la cola en producción** — 2026-11-16 (el `queue:restart` del despliegue, ✅ resuelto el mismo día)
 `Área: CI/CD / Infraestructura`
-El script de despliegue de `ci.yml` no reinicia el worker de la cola (PM2, usuario `jupiter`), así que tras cada push los jobs se siguen ejecutando con el código anterior. Añadir `php artisan queue:restart` al final del deploy: PM2 relanza el proceso al salir. Para producción, decidir cómo se gestionan el cron de `schedule:run` y el worker (cron.d y supervisor o systemd), en lugar del crontab y PM2 de un usuario personal. Ver sección 18 de `docs/decisiones-tecnicas.md`.
+El despliegue ya ejecuta `php artisan queue:restart`. Para producción, decidir cómo se gestionan el cron de `schedule:run` y el worker (cron.d y supervisor o systemd), en lugar del crontab y PM2 de un usuario personal. Ver sección 18 de `docs/decisiones-tecnicas.md`.

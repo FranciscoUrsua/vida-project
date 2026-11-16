@@ -92,3 +92,6 @@ jobs:
             php artisan route:cache
             php artisan view:cache
             sudo systemctl restart php8.5-fpm
+            # El worker de la cola (PM2, usuario jupiter) guarda el código que cargó al arrancar:
+            # queue:restart lo hace terminar tras el job en curso y PM2 lo relanza con el código nuevo.
+            php artisan queue:restart

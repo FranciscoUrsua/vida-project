@@ -561,4 +561,6 @@ No se usa `www-data`, porque haría falta sudo y la cola ya corre como `jupiter`
 
 **Comprobación tras montar o migrar un servidor:** `crontab -l` (como `jupiter`) debe mostrar la línea de arriba; `ps aux | grep queue:work` debe mostrar el worker; `php artisan schedule:list` lista las tareas y su próxima ejecución.
 
-**Pendiente (BACKLOG):** el script de despliegue (`.github/workflows/ci.yml`) no ejecuta `php artisan queue:restart`. El worker sigue con el código que cargó al arrancar hasta que se reinicia a mano, y los jobs se ejecutan con código desfasado tras cada push. En producción, el cron y el worker irán en la configuración del servidor (cron.d y supervisor o systemd), no en el crontab de un usuario personal.
+**El despliegue reinicia el worker.** El script de `.github/workflows/ci.yml` termina con `php artisan queue:restart`: el worker acaba el job en curso, sale y PM2 lo relanza con el código nuevo. Sin esto, los jobs seguían ejecutándose con el código cargado al arrancar. La señal se guarda en la caché (Redis), que comparten la web y el worker.
+
+**Pendiente (BACKLOG):** en producción, el cron y el worker irán en la configuración del servidor (cron.d y supervisor o systemd), no en el crontab y PM2 de un usuario personal.
