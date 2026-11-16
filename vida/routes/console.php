@@ -15,6 +15,10 @@ Artisan::command('inspire', function () {
 Schedule::job(CitaCierreJob::class)->weekdays()->dailyAt('19:45');
 Schedule::job(SlotExpirationJob::class)->dailyAt('20:00');
 
+// Agenda: publica el cuadrante del mes siguiente en los centros que no lo tienen (sin
+// cuadrante publicado no hay huecos para citar). El día 20 deja margen a la supervisión.
+Schedule::command('agenda:publicar-cuadrantes')->monthlyOn(20, '02:30');
+
 // Auditoría: purga registros que superan el período de retención (defecto 5 años)
 Schedule::command('audit:purge')->dailyAt('03:00');
 

@@ -20,6 +20,8 @@
 - `CuadranteMesResource`: «Publicar» usa `CuadrantePublicadorService` (materializa los slots).
 - `TipoCita`: el genérico se limita a sus tipos de slot enlazados si tiene alguno (sin enlaces, cualquiera, como antes). Migración `2026_11_16_120001` que enlaza el genérico con Entrevista.
 - `BusquedaHuecosService::hayAgendaPublicada()`; la cita directa y la bandeja de citación dicen «el centro no tiene agenda publicada para estas fechas» en lugar de «no hay huecos» cuando no hay slots en la ventana.
+- **Publicación automática del cuadrante (decisión del desarrollador):** servicio `PublicacionAutomaticaCuadrantes`, comando `agenda:publicar-cuadrantes [--mes=AAAA-MM] [--centro=ID]` y tarea programada el día 20 de cada mes a las 02:30 para el mes siguiente (`routes/console.php`). No toca centros que ya tienen cuadrante ese mes (en cualquier estado) ni publica cuadrantes que nacerían vacíos (sin horario vigente, sin tipos de slot o sin perfiles activos). Tests: `PublicacionAutomaticaCuadrantesTest` (5), negativos comprobados (no pisar el cuadrante existente, no publicar vacío).
+- **Entrevías:** vigencia del horario corregida a `2019-06-01` (el `2029` era una errata, confirmado por el desarrollador).
 - Tests: `Modules/Agenda/tests/Feature/Citas/AgendaPublicadaTest.php` (3), con negativos comprobados (publicar sin materializar, genérico sin restricción). `ui:auditar` sin infracciones. Suite de Agenda: 197 passed.
 
 ---
