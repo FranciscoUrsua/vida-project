@@ -44,7 +44,8 @@ class AutenticacionTest extends TestCase
         ]);
 
         // Sin rol, el login y la ruta / redirigen a /sin-rol en lugar de a inicio.
-        // consulta_basica es el rol mínimo que conduce a route('inicio').
+        // consulta_basica es el rol mínimo: desde la fase 4 su inicio es la búsqueda de
+        // ciudadanos (User::destinoInicial()), adonde llevan el login y la ruta /.
         $this->usuario->assignRole('consulta_basica');
     }
 
@@ -82,7 +83,7 @@ class AutenticacionTest extends TestCase
             'password' => 'secreto123',
         ]);
 
-        $respuesta->assertRedirect(route('inicio'));
+        $respuesta->assertRedirect(route('ciudadania.buscar'));
         $this->assertTrue(Auth::check());
     }
 
@@ -231,7 +232,7 @@ class AutenticacionTest extends TestCase
         ]);
 
         // Si el throttle fuera solo por IP, usuario_b estaría bloqueado
-        $respuesta->assertRedirect(route('inicio'));
+        $respuesta->assertRedirect(route('ciudadania.buscar'));
         $this->assertTrue(Auth::check());
     }
 
@@ -274,7 +275,7 @@ class AutenticacionTest extends TestCase
     #[Test]
     public function tf_auth_15_usuario_autenticado_puede_acceder_a_inicio(): void
     {
-        $respuesta = $this->actingAs($this->usuario)->get('/');
+        $respuesta = $this->followingRedirects()->actingAs($this->usuario)->get('/');
 
         $respuesta->assertStatus(200);
     }
@@ -286,7 +287,7 @@ class AutenticacionTest extends TestCase
     #[Test]
     public function tf_auth_16_el_nombre_del_usuario_aparece_en_la_ui(): void
     {
-        $respuesta = $this->actingAs($this->usuario)->get('/');
+        $respuesta = $this->followingRedirects()->actingAs($this->usuario)->get('/');
 
         $respuesta->assertStatus(200);
         // Debe contener el nombre, no el email
@@ -297,7 +298,7 @@ class AutenticacionTest extends TestCase
     #[Test]
     public function tf_auth_17_las_iniciales_del_avatar_son_las_dos_primeras_letras_del_name(): void
     {
-        $respuesta = $this->actingAs($this->usuario)->get('/');
+        $respuesta = $this->followingRedirects()->actingAs($this->usuario)->get('/');
 
         $respuesta->assertStatus(200);
         $respuesta->assertSee('JL');
@@ -315,7 +316,7 @@ class AutenticacionTest extends TestCase
         ]);
         $tecnico->assignRole('consulta_basica');
 
-        $respuesta = $this->actingAs($tecnico)->get('/');
+        $respuesta = $this->followingRedirects()->actingAs($tecnico)->get('/');
 
         $respuesta->assertStatus(200);
         $respuesta->assertSee('soporte@madrid.es');
@@ -351,7 +352,7 @@ class AutenticacionTest extends TestCase
             'password' => 'secreto123',
         ]);
 
-        $respuesta->assertRedirect(route('inicio'));
+        $respuesta->assertRedirect(route('ciudadania.buscar'));
     }
 
     #[Test]

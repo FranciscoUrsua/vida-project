@@ -2,6 +2,7 @@
     $seccion = match(true) {
         request()->routeIs('prestaciones.bandeja')   => 'Bandeja de tramitación',
         request()->routeIs('prestaciones.solicitud') => 'Solicitud de prestación',
+        request()->routeIs('agenda.citas*')          => 'Citación',
         default                                      => '',
     };
 @endphp

@@ -83,7 +83,7 @@
             <x-heroicon-o-folder-open class="icon-14" aria-hidden="true"/>
             Ir a HS
         </a>
-        @elseif($historiaSocial)
+        @elseif($historiaSocial && $this->puedeVerDetalleHistoria)
         <span class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1 disabled" aria-disabled="true">
             <x-heroicon-o-folder-open class="icon-14" aria-hidden="true"/>
             Ir a HS
@@ -424,15 +424,42 @@
             {{-- ——— Documentos (módulo Documentos, custodia v2) ——— --}}
             <livewire:documentos.documentos-ciudadano :ciudadano-id="$ciudadanoId" :key="'documentos-'.$ciudadanoId" />
 
+            {{-- ——— Historial de citas, de cualquier centro (docs/modulo-citas.md §6 bis) ——— --}}
+            @if($this->puedeVerHistorialCitas)
+                <livewire:agenda.historial-citas-ficha :ciudadano-id="$ciudadanoId" :key="'citas-'.$ciudadanoId" />
+            @endif
+
         </div>{{-- /col-lg-8 --}}
 
         {{-- ===================== COLUMNA LATERAL ===================== --}}
         <div class="col-lg-4">
 
+            {{-- ——— Historia Social: existencia, estado y referencia; nada más (fase 4, TF-CBA-02) ——— --}}
+            @if($this->puedeVerEstadoHistoria)
+                @php $estadoHs = $this->estadoHistoria; @endphp
+                <div class="card card-body mb-3" id="ficha-estado-historia">
+                    <h2 class="h6 fw-semibold d-flex align-items-center gap-2 mb-2">
+                        <x-heroicon-o-folder class="icon-16" aria-hidden="true"/>
+                        Historia Social
+                    </h2>
+                    @if($estadoHs === null)
+                        <p class="small text-body-secondary mb-0">No tiene Historia Social.</p>
+                    @else
+                        <dl class="small mb-0">
+                            <dt class="text-body-secondary fw-normal">Estado</dt>
+                            <dd class="mb-2 fw-semibold">{{ $estadoHs['estado'] }}</dd>
+                            <dt class="text-body-secondary fw-normal">Profesional de referencia</dt>
+                            <dd class="mb-0">{{ $estadoHs['referencia'] ?? 'Sin profesional de referencia' }}</dd>
+                        </dl>
+                    @endif
+                </div>
+            @endif
+
             {{-- ——— Centro y profesional de referencia (docs/modulo-asignacion.md) ——— --}}
+            {{-- La referencia con su origen, fechas e historial solo con historia.leer --}}
             @php
                 $centrosAsig = $this->asignacionesCentro;
-                $referencias = $this->asignacionesReferencia;
+                $referencias = $this->puedeVerDetalleHistoria ? $this->asignacionesReferencia : collect();
                 $referenciaVigente = $referencias->first(fn ($a) => $a->fecha_fin === null);
                 $historialAsig = $centrosAsig->whereNotNull('fecha_fin')->count() + $referencias->whereNotNull('fecha_fin')->count();
             @endphp
@@ -453,7 +480,7 @@
                         <dd class="mb-2">Sin centro asignado</dd>
                     @endforelse
 
-                    @if($historiaSocial)
+                    @if($historiaSocial && $this->puedeVerDetalleHistoria)
                         <dt class="text-body-secondary fw-normal">Profesional de referencia</dt>
                         <dd class="mb-0">
                             @if($referenciaVigente)
@@ -469,7 +496,7 @@
                 </dl>
 
                 {{-- Cambio de referencia por la supervisión del centro (fase 3, bloque E) --}}
-                @if($historiaSocial)
+                @if($historiaSocial && $this->puedeVerDetalleHistoria)
                     @livewire('intervencion.cambio-referencia', ['historiaId' => $historiaSocial->id], key('cambio-referencia-'.$historiaSocial->id))
                 @endif
 
@@ -504,7 +531,7 @@
             @livewire('prestaciones.prestaciones-persona', ['ciudadanoId' => $ciudadanoId], key('prestaciones-persona-'.$ciudadanoId))
 
             {{-- ——— Otras prestaciones ——— --}}
-            @if($prestaciones->isNotEmpty())
+            @if($this->puedeVerPrestaciones && $prestaciones->isNotEmpty())
                 <div class="card card-body mb-3">
                     <h2 class="h6 fw-semibold d-flex align-items-center gap-2 mb-2">
                         <x-heroicon-o-squares-2x2 class="icon-16" aria-hidden="true"/>

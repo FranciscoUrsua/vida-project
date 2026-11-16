@@ -182,4 +182,20 @@ class HistoriaSocial extends Model implements AuditableModel
 
         $this->update(['estado' => 'cerrada']);
     }
+
+    /**
+     * Etiqueta del estado para mostrarlo a quien solo ve la existencia de la historia
+     * (fase 4, `historia.ver_estado`).
+     *
+     * @return string
+     */
+    public function etiquetaEstado(): string
+    {
+        return match ($this->estado) {
+            'abierta' => 'Abierta',
+            'en_seguimiento' => 'En seguimiento',
+            'cerrada' => 'Cerrada',
+            default => ucfirst(str_replace('_', ' ', $this->estado)),
+        };
+    }
 }

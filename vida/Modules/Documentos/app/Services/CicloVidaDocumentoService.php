@@ -2,9 +2,11 @@
 
 namespace Modules\Documentos\Services;
 
+use App\Models\Ciudadano;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Documentos\Data\DatosIngesta;
@@ -203,6 +205,116 @@ class CicloVidaDocumentoService
         ]);
 
         return $vinculo;
+    }
+
+    /**
+     * Retira un documento: baja lógica con quién, cuándo y por qué (principio 4.3).
+     *
+     * El documento y sus versiones se conservan: deja de listarse y de servirse, pero
+     * queda en el historial y en la auditoría (fase 4, docs/roles-consulta-basica-tramitacion.md §3.3).
+     *
+     * @param Documento $documento Documento vigente.
+     * @param User $usuario Quien lo retira.
+     * @param string $motivo Motivo de la retirada (obligatorio).
+     *
+     * @return Documento
+     *
+     * @throws \DomainException si falta el motivo o el documento no está vigente
+     */
+    public function retirar(Documento $documento, User $usuario, string $motivo): Documento
+    {
+        $motivo = trim($motivo);
+        if ($motivo === '') {
+            throw new \DomainException('Indica el motivo de la retirada.');
+        }
+
+        if ($documento->estado !== EstadoDocumento::Vigente) {
+            throw new \DomainException('Solo se puede retirar un documento vigente.');
+        }
+
+        $documento->update([
+            'estado' => EstadoDocumento::Retirado,
+            'retirado_en' => now(),
+            'retirado_por_id' => $usuario->id,
+            'motivo_retirada' => $motivo,
+        ]);
+
+        return $documento;
+    }
+
+    /**
+     * Cambia los datos de un documento: tipo, descripción, emisión, metadatos y personas vinculadas.
+     *
+     * Las personas de `$datos->vinculos` sustituyen a las vinculadas hoy: las nuevas se
+     * vinculan y las que ya no están se desvinculan (baja lógica del vínculo). Los vínculos
+     * con otras entidades (solicitudes, planes) no se tocan. Si cambia el tipo, la validez
+     * se recalcula desde la fecha de alta.
+     *
+     * @param Documento $documento Documento vigente.
+     * @param DatosIngesta $datos Nuevos datos; `vinculos` son las personas que quedan vinculadas.
+     *
+     * @return Documento
+     *
+     * @throws ValidationException si faltan metadatos exigidos por el tipo
+     * @throws \DomainException si el documento no está vigente, el tipo está inactivo, no admite
+     *                          alguna persona o no queda ninguna persona vinculada
+     */
+    public function actualizarDatos(Documento $documento, DatosIngesta $datos): Documento
+    {
+        if ($documento->estado !== EstadoDocumento::Vigente) {
+            throw new \DomainException('Solo se pueden cambiar los datos de un documento vigente.');
+        }
+
+        if (! $datos->tipo->activo) {
+            throw new \DomainException("El tipo documental «{$datos->tipo->codigo}» está desactivado.");
+        }
+
+        if ($datos->vinculos === []) {
+            throw new \DomainException('El documento tiene que quedar vinculado al menos a una persona.');
+        }
+
+        foreach ($datos->vinculos as $entidad) {
+            $this->validarVinculable($datos, $entidad);
+        }
+
+        $this->validarMetadatos($datos);
+
+        DB::transaction(function () use ($documento, $datos): void {
+            $cambiaTipo = $documento->tipo_documental_id !== $datos->tipo->id;
+
+            $documento->update([
+                'tipo_documental_id' => $datos->tipo->id,
+                'titulo' => $datos->titulo,
+                'fecha_emision' => $datos->fechaEmision,
+                'organo_emisor' => $datos->organoEmisor,
+                'metadatos' => $datos->metadatos,
+                'fecha_validez' => $cambiaTipo
+                    ? $datos->tipo->fechaValidezDesde($documento->created_at)
+                    : $documento->fecha_validez,
+            ]);
+
+            $morphCiudadano = (new Ciudadano)->getMorphClass();
+            $actuales = $documento->vinculosActivos()->where('vinculable_type', $morphCiudadano)->get();
+            $nuevos = collect($datos->vinculos)->map(fn (Model $e): int => (int) $e->getKey());
+
+            // Uno a uno (no update masivo) para que cada baja quede en la auditoría
+            $actuales->reject(fn (DocumentoVinculo $v): bool => $nuevos->contains((int) $v->vinculable_id))
+                ->each(fn (DocumentoVinculo $v) => $v->update(['activo' => false, 'fecha_baja' => now(), 'baja_por' => $datos->usuario->id]));
+
+            foreach ($datos->vinculos as $entidad) {
+                if (! $actuales->contains(fn (DocumentoVinculo $v): bool => (int) $v->vinculable_id === (int) $entidad->getKey())) {
+                    $documento->vinculos()->create([
+                        'vinculable_type' => $entidad->getMorphClass(),
+                        'vinculable_id' => $entidad->getKey(),
+                        'activo' => true,
+                        'fecha_alta' => now(),
+                        'creado_por' => $datos->usuario->id,
+                    ]);
+                }
+            }
+        });
+
+        return $documento->refresh();
     }
 
     /**

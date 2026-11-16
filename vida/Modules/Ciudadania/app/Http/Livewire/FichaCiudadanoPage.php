@@ -36,6 +36,7 @@ use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 use Modules\Ciudadania\Services\NormalizadorCiudadano;
 use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Intervencion\Services\AperturaHistoriaService;
+use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
 
 /**
  * Ficha del ciudadano: vista y edición de Capa 1 (datos identificativos y de contacto).
@@ -56,6 +57,11 @@ use Modules\Intervencion\Services\AperturaHistoriaService;
  * @property-read Ciudadano $ciudadano
  * @property-read HistoriaSocial|null $historiaSocial
  * @property-read bool $puedeVerHistoria
+ * @property-read bool $puedeVerDetalleHistoria
+ * @property-read bool $puedeVerEstadoHistoria
+ * @property-read array{estado: string, referencia: string|null}|null $estadoHistoria
+ * @property-read bool $puedeVerPrestaciones
+ * @property-read bool $puedeVerHistorialCitas
  * @property-read Collection<int, AsignacionCentro> $asignacionesCentro
  * @property-read Collection<int, AsignacionProfesional> $asignacionesReferencia
  * @property-read Collection<int, CiudadanoIdentificador> $documentos
@@ -323,7 +329,10 @@ class FichaCiudadanoPage extends Component
     }
 
     /**
-     * Solo el rol intervencion puede navegar a la historia social.
+     * Si se ofrece el enlace a la historia social.
+     *
+     * Mira el rol porque reproduce el middleware `role:intervencion` de las rutas de
+     * Intervención: con otro rol el enlace llevaría a un 403.
      *
      * @return bool
      */
@@ -334,6 +343,76 @@ class FichaCiudadanoPage extends Component
         $user = auth()->user();
 
         return $user->hasRole('intervencion');
+    }
+
+    /**
+     * Si el usuario ve el detalle de la historia en la ficha: la referencia con su
+     * origen, fechas e historial. Sin `historia.leer` (consulta básica, tramitación)
+     * solo se ve el estado (fase 4, TF-CBA-02).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeVerDetalleHistoria(): bool
+    {
+        return auth()->user()->can('historia.leer');
+    }
+
+    /**
+     * Si el usuario ve el bloque «Historia Social» (existencia, estado y referencia).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeVerEstadoHistoria(): bool
+    {
+        return auth()->user()->can('historia.ver_estado');
+    }
+
+    /**
+     * Estado de la historia y profesional de referencia vigente, o null si no tiene.
+     *
+     * Solo eso: ni número, ni fechas, ni planes (docs/roles-consulta-basica-tramitacion.md §3.1).
+     *
+     * @return array{estado: string, referencia: string|null}|null
+     */
+    #[Computed]
+    public function estadoHistoria(): ?array
+    {
+        $historia = $this->historiaSocial;
+        if ($historia === null) {
+            return null;
+        }
+
+        $referencia = app(AsignacionReferenciaService::class)->vigente($historia);
+
+        return [
+            'estado' => $historia->etiquetaEstado(),
+            'referencia' => $referencia?->profesional?->nombre_completo,
+        ];
+    }
+
+    /**
+     * Si el usuario ve las prestaciones de la persona (bloque «Otras prestaciones»).
+     * Consulta básica y tramitación no las ven en la ficha (fase 4, §3.1).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeVerPrestaciones(): bool
+    {
+        return auth()->user()->can('solicitud.ver');
+    }
+
+    /**
+     * Si el usuario ve el historial de citas de la persona (modulo-citas.md §6 bis).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeVerHistorialCitas(): bool
+    {
+        return auth()->user()->can('cita.ver_historial');
     }
 
     /**
@@ -395,14 +474,15 @@ class FichaCiudadanoPage extends Component
     }
 
     /**
-     * Solo los roles con competencia de tramitación o intervención pueden crear o editar relaciones.
+     * Si el usuario puede crear, editar y cerrar relaciones: `ciudadano.editar_relaciones`
+     * y la regla de operación de su UO (CiudadanoPolicy::editarRelaciones).
      *
      * @return bool
      */
     #[Computed]
     public function puedeEditarRelaciones(): bool
     {
-        return auth()->user()->hasAnyRole(['intervencion', 'tramitacion']);
+        return Gate::allows('editarRelaciones', $this->ciudadano);
     }
 
     /**
@@ -420,15 +500,15 @@ class FichaCiudadanoPage extends Component
     }
 
     /**
-     * El panel de accesos es visible solo para roles con competencia de intervención o supervisión.
-     * Revelar metadatos de acceso a roles sin competencia es una fuga de información sobre el caso.
+     * El panel de accesos solo lo ve quien lee la Historia Social (`historia.leer`).
+     * Revelar metadatos de acceso a quien no la lee es una fuga de información sobre el caso.
      *
      * @return bool
      */
     #[Computed]
     public function puedeVerAccesos(): bool
     {
-        return auth()->user()->hasAnyRole(['adm_sistema', 'supervision', 'intervencion']);
+        return auth()->user()->can('historia.leer');
     }
 
     /**
@@ -795,7 +875,7 @@ class FichaCiudadanoPage extends Component
     /**
      * Crea o actualiza una relación entre ciudadanos.
      * Si $relacionId es null, crea; si es int, actualiza solo las observaciones.
-     * Requiere permiso de tramitación o intervención; aborta con 403 si no.
+     * Requiere CiudadanoPolicy::editarRelaciones; aborta con 403 si no.
      *
      *
      * @return void
@@ -875,7 +955,7 @@ class FichaCiudadanoPage extends Component
     /**
      * Cierra una relación vigente estableciendo fecha_fin = hoy.
      * El modelo propaga el cierre al registro recíproco automáticamente.
-     * Requiere permiso de tramitación o intervención; aborta con 403 si no.
+     * Requiere CiudadanoPolicy::editarRelaciones; aborta con 403 si no.
      *
      * @param int $relacionId ID de la relación a cerrar.
      *

@@ -5,6 +5,7 @@
         request()->routeIs('intervencion.casos*')      => 'Mis casos',
         request()->routeIs('intervencion.mensajes*')   => 'Alertas y mensajes',
         request()->routeIs('intervencion.buscar*')     => 'Buscar ciudadano/a',
+        request()->routeIs('ciudadania.buscar')        => 'Buscar ciudadano/a',
         request()->routeIs('intervencion.valoracion*') => 'Valoración',
         request()->routeIs('intervencion.escala*')     => 'Escala',
         request()->routeIs('intervencion.plan*')       => 'Plan de Intervención',

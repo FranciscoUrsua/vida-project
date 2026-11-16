@@ -52,7 +52,7 @@ Los datos del ciudadano se organizan en tres capas con distintos niveles de acce
 ### Capa 1 — Identificación y contacto (cabecera)
 Nombre, fecha de nacimiento, sexo, domicilio, teléfono, email, documentos de identidad. Accesible para un conjunto amplio de roles: `tramitacion`, `consulta_basica`, `intervencion` y superiores. Es la capa que permite citar a una persona, verificar su identidad o localizarla.
 
-Para `consulta_basica` y `tramitacion` la ficha es accesible **sin ámbito de UO**: pueden abrir la de cualquier ciudadano, tenga o no Historia Social en su UO; el ámbito limita solo la operación (citas, documentos, modificaciones). Diseño cerrado, sin implementar (`docs/roles-consulta-basica-tramitacion.md` §2; `tramitacion`, implantación diferida).
+Para `consulta_basica` y `tramitacion` la ficha es accesible **sin ámbito de UO**: pueden abrir la de cualquier ciudadano, tenga o no Historia Social en su UO; el ámbito limita solo la operación (citas, documentos, modificaciones). Implementado en la fase 4 (15 nov 2026; `docs/roles-consulta-basica-tramitacion.md` §2). Personas protegidas: solo con datos desde el centro de su historia o de un plan en curso (F4-1, RN-17).
 
 ### Capa 2 — Situación social
 Situación familiar, económica, laboral, de vivienda, de salud relevante para la intervención. La situación social refleja el estado del mundo en un momento dado. Es versionada: cada cambio genera una nueva versión con fecha de inicio, y la anterior recibe fecha de fin. 
@@ -148,7 +148,7 @@ La reciprocidad automática la gestiona el trait TieneRelacionesReciprocas aplic
 Esta tabla es la fuente única de verdad sobre el vínculo entre dos ciudadanos. No existe ningún otro lugar en el modelo donde se registre el rol de una persona respecto a otra.
 
 **Dónde se gestionan**: las relaciones se crean y editan en la **ficha del ciudadano** (módulo Ciudadanía, FichaCiudadanoPage), no en la pantalla de intervención. Las razones:
-- Pueden ser editadas por cualquier usuario con permiso ciudadano.editar (rol tramitación incluido, y también `consulta_basica`: diseño cerrado, sin implementar, ver `docs/roles-consulta-basica-tramitacion.md` §3.4), sin necesitar a un trabajador social.
+- Las crea, edita y cierra quien tiene `ciudadano.editar_relaciones` (`intervencion`, `tramitacion` y `consulta_basica`; fase 4), sin necesitar a un trabajador social, con la regla de operación de la Capa 1: en su ámbito o sobre una persona sin historia (`CiudadanoPolicy::editarRelaciones()`). Fuera de él, solo lectura.
 - Tienen utilidad administrativa y de comunicación más allá del diagnóstico social (p. ej., saber quién es el representante legal de un ciudadano a efectos de notificaciones). 
 - La pantalla de intervención ya tiene suficiente densidad funcional.
 
@@ -238,7 +238,7 @@ ciudadano_fichas
 
 El alta de un ciudadano sigue un flujo estructurado que garantiza la unicidad del registro y la calidad de los datos.
 
-`consulta_basica` también puede dar altas, con el mismo control de duplicados (diseño cerrado, sin implementar: hoy el rol no tiene `ciudadano.crear`; ver `docs/roles-consulta-basica-tramitacion.md` §3.4).
+`consulta_basica` también puede dar altas, con el mismo control de duplicados (fase 4: el rol tiene `ciudadano.crear`). `AltaCiudadano` autoriza con `CiudadanoPolicy::create` al abrirse y al guardar, así que supervisión sola ya no da altas.
 
 ```
 1. El profesional selecciona el contexto de alta
@@ -363,7 +363,7 @@ Dos protecciones específicas en el alta:
 
 **Domicilio protegido:** el domicilio registrado en VIDA puede ser diferente al del padrón (por ejemplo, un recurso de acogida). Esta diferencia es intencionada y está protegida. El domicilio real no se comparte con otros sistemas mediante sincronización automática.
 
-**Banner de colectivo protegido:** la ficha de identificación y contacto no muestra el banner de protegido. El banner es solo para `intervencion`, cuando intenta acceder a datos sensibles (situación social, salud, contenido de la Historia Social); mostrarlo en la ficha revelaría por sí mismo la protección. Vale para todos los colectivos especialmente protegidos, no solo VVG (`docs/roles-consulta-basica-tramitacion.md` §3.2; diseño cerrado, sin implementar).
+**Banner de colectivo protegido:** la ficha de identificación y contacto no muestra el banner de protegido. El banner es solo para `intervencion`, cuando intenta acceder a datos sensibles (situación social, salud, contenido de la Historia Social); mostrarlo en la ficha revelaría por sí mismo la protección. Vale para todos los colectivos especialmente protegidos, no solo VVG (`docs/roles-consulta-basica-tramitacion.md` §3.2). La ficha no tiene banner; TF-CBA-08 comprueba que la respuesta no contiene ningún texto que indique la protección.
 
 **Personas relacionadas protegidas (2026-11-11):** en la ficha y el expediente, un conviviente, una relación o un representante de un colectivo protegido que la policy no deja ver al usuario aparece como «Persona con protección especial»: consta que la relación existe y su tipo, pero no su nombre, documento, fecha de nacimiento, domicilio, alias, contacto ni enlace a su ficha, y no se ofrecen acciones sobre él (editar o cerrar la relación, baja o verificación en la UC); el servidor las rechaza aunque lleguen. Quien puede verla la ve como siempre. Un único presentador decide qué se muestra: `App\Services\PresentacionPersona` (criterio de `CiudadanoPolicy::view()`); lo usan también los buscadores, la bandeja de asignaciones, el PDF y la pantalla del plan, y el alta de documentos (que no ofrece vincular a esa persona).
 
@@ -414,7 +414,20 @@ En entornos de desarrollo y pruebas, los adaptadores mock devuelven datos fictic
 - `Modules\Ciudadania\Traits\TieneRelacionesReciprocas`
 - `App\Filament\Resources\TipoRelacionResource`
 - `Modules\Ciudadania\Database\Seeders\TipoRelacionSeeder`
-- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage` — ficha del ciudadano. **Bloques por rol** (diseño cerrado, sin implementar; `docs/roles-consulta-basica-tramitacion.md` §3.1): para `consulta_basica` (y `tramitacion`, diferido), identificación y contacto (lectura y edición), unidad de convivencia (lectura), relaciones (lectura y edición), un bloque de **estado de la Historia Social** (existencia, estado y profesional de referencia, nada más), un bloque de **historial de citas** (pasadas y programadas, de cualquier centro; `docs/modulo-citas.md` §6 bis) y sus documentos del día. El widget de prestaciones se oculta para `consulta_basica`; tampoco ve la situación social ni los accesos recientes.
+- `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage` — ficha del ciudadano. **Bloques por permiso** (fase 4, 15 nov 2026; `docs/roles-consulta-basica-tramitacion.md` §3.1). Cada bloque lo decide un permiso o una policy, no el nombre del rol:
+
+  | Bloque | Lo decide |
+  |---|---|
+  | Edición de la Capa 1 y documentos de identidad | `CiudadanoPolicy::update` |
+  | Relaciones (alta, edición, cierre) | `CiudadanoPolicy::editarRelaciones` (`ciudadano.editar_relaciones` y ámbito) |
+  | **Historia Social** (`#ficha-estado-historia`): estado y profesional de referencia, nada más | `historia.ver_estado` |
+  | Referencia con origen, fechas e historial; cambio de referencia | `historia.leer` |
+  | **Citas** (`agenda.historial-citas-ficha`, `docs/modulo-citas.md` §6 bis) | `cita.ver_historial` |
+  | Documentos: carpeta completa o solo los propios del día | `documento.ver_carpeta` / `documento.gestionar_propios` |
+  | Prestaciones de la persona (fase 3 bis) y «Otras prestaciones» | `solicitud.ver` |
+  | Accesos recientes | `historia.leer` |
+
+  Con los permisos de los roles, `consulta_basica` y `tramitacion` ven identificación y contacto, unidad de convivencia (lectura), relaciones, el estado de la historia, las citas y sus documentos del día; no ven prestaciones, situación social ni accesos recientes. El enlace «Ir a HS» sigue mirando el rol `intervencion` porque reproduce el middleware de las rutas de Intervención.
 
 ---
 

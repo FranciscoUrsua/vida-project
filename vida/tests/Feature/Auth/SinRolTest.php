@@ -206,9 +206,10 @@ class SinRolTest extends TestCase
         ]);
         $usuario->assignRole('consulta_basica');
 
+        // Con rol, «/» lleva a su destino (consulta básica: la búsqueda, fase 4), no a /sin-rol
         $this->actingAs($usuario)
             ->get(route('inicio'))
-            ->assertOk();
+            ->assertRedirect(route('ciudadania.buscar'));
     }
 
     /**

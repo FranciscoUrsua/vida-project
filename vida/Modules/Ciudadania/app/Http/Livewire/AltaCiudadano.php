@@ -9,6 +9,7 @@ use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
@@ -135,6 +136,17 @@ class AltaCiudadano extends Component
     // -------------------------------------------------------------------------
     // Métodos de flujo
     // -------------------------------------------------------------------------
+
+    /**
+     * Comprueba que el usuario puede dar altas (CiudadanoPolicy::create: `ciudadano.crear`,
+     * nunca supervisión sola). Consulta básica las da desde la fase 4.
+     *
+     * @return void
+     */
+    public function mount(): void
+    {
+        Gate::authorize('create', Ciudadano::class);
+    }
 
     /**
      * Busca posibles duplicados usando el motor de matching.
@@ -296,6 +308,8 @@ class AltaCiudadano extends Component
      */
     public function guardar(): void
     {
+        Gate::authorize('create', Ciudadano::class);
+
         $this->validate($this->rules());
 
         $datosNormalizados = NormalizadorCiudadano::normalizar([

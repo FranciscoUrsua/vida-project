@@ -4,6 +4,42 @@
 
 ---
 
+## 2026-11-15 — Fase 4: atención administrativa (`consulta_basica`) y delta de citas (`2026-11-fase4-consulta-basica.md`)
+
+### Decisiones del desarrollador (15 nov)
+- **F4-1 confirmada:** `consulta_basica` ve los datos objetivos de una persona protegida solo si está adscrita al centro de su historia o de un plan en curso (D4 y RN-17 sobre §3.2 del documento de roles). Ya lo cumplía `CiudadanoPolicy` por RN-17; queda probado (TF-CBA-09 y 10).
+- **Documentos de `tramitacion`:** en la ficha, solo sus documentos del día; además abre los documentos de las personas cuyas solicitudes tramita, y en la página de la solicitud sigue viendo la carpeta de la persona para vincular (RN-10 de la fase 3 bis, que chocaba con «no ven la carpeta completa»).
+- **Permiso nuevo `documento.ver_carpeta`** para decidir quién ve la carpeta completa (no estaba en las instrucciones): se da a `adm_sistema`, `supervision`, `intervencion` y `consulta_profesional`, los que la veían.
+
+### Paso 0 — Verificación
+- **Suites de partida:** la ejecución quedó contaminada (se editó código mientras corría y se lanzó un test en paralelo sobre `vida_testing`): 17 fallos al final, en Acceso y Documentos, que desaparecen al relanzar esas suites con el código terminado (Acceso 36 passed, Documentos 100 passed). Según SESSION no había fallos previos en estos módulos.
+- **Bloques de `FichaCiudadanoPage` antes del cambio:** edición de Capa 1 por `CiudadanoPolicy::update`; relaciones por rol (`intervencion`, `tramitacion`); «Ir a HS» por rol `intervencion`; referencia con fechas e historial y «Otras prestaciones» sin condición; prestaciones de la persona por `solicitud.ver`; accesos recientes por rol (y sin pintar). No había banner de protegido en la ficha ni bloques de citas o de estado de la historia.
+- **Subida de documentos:** `CicloVidaDocumentoService::altaDocumento()` → `IngestaDocumentoService`; `documentos.created_by` guarda quién lo subió y cada versión su autor. Sin retirada lógica.
+
+### Cambios
+- **Permisos (paso 1):** migración `2026_11_15_130001_permisos_consulta_basica_fase4` (solo añade) y `PermisosSeeder`/`RolesSeeder`. Nuevos: `ciudadano.editar_relaciones`, `historia.ver_estado`, `cita.ver_historial`, `documento.ver_carpeta`, `documento.subir`, `documento.gestionar_propios`. `consulta_basica` gana además `ciudadano.crear`; `tramitacion`, `citas.solicitar` y `citas.gestionar`. Reparto por rol en `modulo-usuarios-permisos.md` §4.4. **`RolesSeeder` pasa a ser aditivo** (antes `syncPermissions`).
+- **Ficha por permiso (paso 2):** bloque «Historia Social» (`historia.ver_estado`: estado y referencia vigente, nada más; `HistoriaSocial::etiquetaEstado()`); la referencia con origen, fechas e historial y el cambio de referencia, solo con `historia.leer`; «Otras prestaciones», con `solicitud.ver`; accesos recientes, con `historia.leer`; relaciones con `CiudadanoPolicy::editarRelaciones()` (permiso y regla de operación de la UO, que antes no se aplicaba a las relaciones). `AltaCiudadano` autoriza con `CiudadanoPolicy::create` al montar y al guardar.
+- **Historial de citas (paso 3):** componente `Modules\Agenda\Livewire\Citas\HistorialCitasFicha` (`agenda.historial-citas-ficha`), reprogramadas agrupadas con su sustituta, todas las futuras y las 10 pasadas más recientes con «Ver más»; «Reprogramar o cancelar» lleva a `CitaPage`.
+- **Documentos propios del día (paso 4):** estado `retirado` y columnas `retirado_en`, `retirado_por_id`, `motivo_retirada` (migración `2026_11_15_130002`, rehace el CHECK de `documentos.estado`); `Documento::disponibles()`, `estaDisponible()`, `esPropioDelDia()`; `CicloVidaDocumentoService::retirar()` y `actualizarDatos()`; `DocumentoPolicy` con `gestionarPropio()` y vías de otros módulos (`AccesoDocumentoAdicional`, `AccesoDocumentosTramitacion` en Prestaciones); `DocumentoController` autoriza con la policy; `DocumentosCiudadano` con las dos vistas y «Sustituir fichero», «Cambiar datos» y «Retirar». Las solicitudes de prestación excluyen los retirados (listas, envío, aportación y vinculación).
+- **Citas para `tramitacion` (paso 5):** avisos de solicitud creada a `consulta_basica` y `tramitacion` del centro; la citación usa el layout de cada rol (`User::layoutOperativo()`); «Citación» y «Buscar ciudadano/a» en el menú de tramitación.
+- **Superficie (paso 6):** quien da citas sin otra superficie entra por la búsqueda de ciudadanos (`User::destinoInicial()`, por `citas.gestionar`). El menú operativo oculta agenda, casos, mensajes y recursos a quien no tiene `intervencion` (reproduce el middleware de esas rutas), lleva la búsqueda a `ciudadania.buscar` y el alta a quien puede crear ciudadanos.
+- **Tests:** TF-CBA-01 a 30 en verde, más TF-CBA-21 ter (documentos de tramitación por la solicitud) y 29 bis (migración de permisos): `Modules/Ciudadania/tests/Feature/ConsultaBasica/` (5 ficheros y el trait `ConsultaBasicaTestSetup`), `Modules/Agenda/tests/Feature/Citas/HistorialFichaTest.php` y `TramitacionCitasTest.php`, `Modules/Documentos/tests/Feature/DocumentosPropiosTest.php`, `Modules/Prestaciones/tests/Feature/Solicitudes/DocumentosTramitacionTest.php`.
+- **Negativos comprobados** (se quitó la protección y el test falló): TF-CBA-02 (detalle de la referencia), 04 (regla de UO en relaciones), 10 (consulta externa de protegidos), 14 (nombre interno y motivo), 16 y 17 (acciones del historial por policy), 21 (`DocumentoPolicy` por propios), 22 (día natural) y 25 (motivo obligatorio). TF-CBA-08 y 30 descansan en protecciones que ya existían (la ficha no tiene banner; middleware `role:intervencion`) y no se han mutado.
+- **Tests antiguos adaptados al diseño nuevo:** `AutenticacionTest` (TF-AUTH-03, 11, 15, 16, 16b, 17 y 19) y `SinRolTest`: `consulta_basica`, rol mínimo de los tests de autenticación, entra ahora por la búsqueda de ciudadanos; `NavegacionTest` TF-LW-NAV-22: tramitación ya no ve «Ir a HS» ni deshabilitado; `RelacionesCiudadanoTest` TF-LW-REL-06 y 17: `consulta_basica` edita relaciones y el caso sin permiso pasa a supervisión. Nota en `decisiones-tecnicas.md` §1.4.
+- **Suite completa:** 1485 passed, 16 failed, 12 incomplete, 2 skipped (unos 51 min). De los 16: los 2 previos de `CuadranteSupervisorTest`; los 11 tests antiguos de la línea anterior (corregidos: Auth, la navegación y las relaciones de Ciudadanía dan 85 passed, 2 incomplete y 1 skipped previos); y TF-CBA-02, 13 y 14, que fallaban por una vista Blade compilada obsoleta: al comprobar el negativo de TF-CBA-14 se restauró la vista con `mv` desde la copia (conserva la fecha antigua) y Laravel siguió sirviendo la mutada. Con `php artisan view:clear` pasan los diez de `HistorialFichaTest` y `EstadoHistoriaTest`. No se ha relanzado la suite completa.
+- `npm run build` y `ui:auditar` sin infracciones.
+- Documentación: `roles-consulta-basica-tramitacion.md`, `modulo-citas.md`, `modulo-ciudadania.md`, `modulo-documentos.md`, `modulo-usuarios-permisos.md`, `decisiones-tecnicas.md` (sección 16), tabla de estado de las instrucciones y `CLAUDE.md` §6.
+
+### Decisiones de implementación
+- **Retirada como estado** (no solo columnas): «no se lista ni se sirve» ya se decidía por el estado, como `destruido`.
+- **El historial de citas es un componente de Agenda** incrustado en la ficha, sin acciones propias: reprogramar y cancelar siguen en `CitaPage` y `CitacionService`.
+- **«Cambiar datos»** edita también descripción, emisión y metadatos del tipo (no solo el tipo y las personas), porque un tipo nuevo puede exigir metadatos que no tenía. Asociar a alguien que no es de la unidad de convivencia se rechaza con error (en el alta se sigue filtrando en silencio).
+- **Relaciones con la regla de UO:** también para `intervencion`, que antes editaba relaciones de cualquier persona.
+- **Avisos de cita a dos roles:** las alertas van dirigidas a rol y UO, así que se crea una por rol.
+- **Quedan decisiones de interfaz por rol** documentadas: «Ir a HS» y el menú operativo (reproducen `role:intervencion`), el tipo de atención del modal de atención y las excepciones PSH/VVG del alta (BACKLOG).
+
+---
+
 ## 2026-11-15 — FK a `ciudadanos` en `accesos_protegidos` y `revelaciones_identidad`
 
 ### Cambios

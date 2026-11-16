@@ -14,6 +14,8 @@ enum EstadoDocumento: string
     case Vigente = 'vigente';
     case Rechazado = 'rechazado';
     case Destruido = 'destruido';
+    /** Baja lógica con quién, cuándo y motivo (fase 4): no se lista ni se sirve, queda en el historial. */
+    case Retirado = 'retirado';
 
     /**
      * Etiqueta legible para la interfaz.
@@ -27,6 +29,7 @@ enum EstadoDocumento: string
             self::Vigente => 'Vigente',
             self::Rechazado => 'Rechazado',
             self::Destruido => 'Destruido',
+            self::Retirado => 'Retirado',
         };
     }
 

@@ -1,6 +1,6 @@
 # Módulo Citas — Diseño funcional
 
-Módulo Laravel: `Modules\Agenda` (subdominio Citas). No se crea un módulo nuevo: Cita, Slot y `EventoAgenda` ya viven en Agenda (principio 4.11). Estado: diseño funcional v1 cerrado. Implementado el 2026-09-30 sobre la revisión anterior de este documento. Pendiente de implementar lo añadido el 30 sep por la tarde: §6 bis (historial de citas en la ficha del ciudadano para `consulta_basica` y `tramitacion`, con reprogramar y cancelar desde ella las de su UO) y el permiso `cita.ver_historial`; los permisos `citas.*` de `tramitacion` siguen la implantación diferida del rol. RN-05 ter ya la cumple el código (`CitaPolicy` y `SolicitudCitaPolicy` limitan la gestión a centros de las UO activas del usuario). Ver `BACKLOG.md`. Los permisos del rol `tramitacion` están definidos pero su implantación está diferida (ver `docs/roles-consulta-basica-tramitacion.md`). Última revisión: 30 septiembre 2026 Dependencias: Módulo Agenda (slots, disponibilidad, eventos), Módulo Intervención (apuntes, entrevistas, planes), Módulo Atención (`RegistroAtencion`), Módulo Mensajes (alertas y mensajes), Módulo Ciudadanía, Módulo Integraciones (cita previa del Ayuntamiento), Módulo Auditoría.
+Módulo Laravel: `Modules\Agenda` (subdominio Citas). No se crea un módulo nuevo: Cita, Slot y `EventoAgenda` ya viven en Agenda (principio 4.11). Estado: diseño funcional v1 cerrado. Implementado el 2026-09-30 sobre la revisión anterior de este documento. Lo añadido el 30 sep por la tarde, implementado el 15 nov 2026 (fase 4, `docs/instrucciones-cli/2026-11-fase4-consulta-basica.md`): §6 bis (historial de citas en la ficha, componente `agenda.historial-citas-ficha`, con el permiso `cita.ver_historial`) y los permisos `citas.solicitar` y `citas.gestionar` de `tramitacion`, que además recibe los avisos de solicitud creada de su centro y tiene la citación en su menú. RN-05 ter la cumple el código (`CitaPolicy` y `SolicitudCitaPolicy` limitan la gestión a centros de las UO activas del usuario). Última revisión: 15 noviembre 2026 Dependencias: Módulo Agenda (slots, disponibilidad, eventos), Módulo Intervención (apuntes, entrevistas, planes), Módulo Atención (`RegistroAtencion`), Módulo Mensajes (alertas y mensajes), Módulo Ciudadanía, Módulo Integraciones (cita previa del Ayuntamiento), Módulo Auditoría.
 
 Documentos relacionados:
 
@@ -244,9 +244,11 @@ La ficha del ciudadano (`FichaCiudadanoPage`) muestra a `consulta_basica` y `tra
 - Nunca el motivo de la solicitud, el nombre interno del tipo ni la intervención vinculada.
 - Sobre las citas programadas de su UO pueden reprogramar y cancelar (salvo las propias, RN-05 bis). Las de otras UO son solo de consulta.
 
+**Implementado (15 nov 2026):** `Modules\Agenda\Livewire\Citas\HistorialCitasFicha`, en la ficha para quien tiene `cita.ver_historial` (también `intervencion` y `supervision`, que ven el nombre interno del tipo como en el resto de pantallas: `TipoCita::nombreParaUsuario()`). Muestra todas las programadas y las 10 pasadas más recientes, con «Ver más». «Reprogramar o cancelar» lleva al detalle de la cita (`CitaPage`), que aplica `CitaPolicy` y `CitacionService`: el bloque no tiene acciones propias.
+
 ## 7. Permisos
 
-| Acción | `consulta_basica` | `tramitacion` ⏸ | `intervencion` | `supervision` |
+| Acción | `consulta_basica` | `tramitacion` | `intervencion` | `supervision` |
 |---|---|---|---|---|
 | Ver bandeja de citación | ✅ | ✅ | — | ✅ |
 | Crear solicitud de cita | ✅ | ✅ | ✅ | ✅ |
@@ -262,7 +264,7 @@ La ficha del ciudadano (`FichaCiudadanoPage`) muestra a `consulta_basica` y `tra
 
 "Propias" significa citas en la agenda del propio usuario.
 
-⏸ `tramitacion`: permisos definidos, implantación diferida junto con el resto del rol.
+`tramitacion`: implantado el 15 nov 2026 (fase 4), con los mismos permisos de citas que `consulta_basica`.
 
 ## 8. Configuración por centro
 
@@ -307,7 +309,7 @@ Ningún valor en código (principio 3.1). Se configuran por centro, junto al hor
 | Intentos de contacto | Sin límite ni registro en VIDA; criterio de la persona o protocolo del centro |
 | Incomparecencias reiteradas | Sin avisos; las revisa el profesional |
 | Citas externas sin identificar | Cita pendiente de identificar; sin ciudadanos provisionales |
-| `tramitacion` y citas | Gestiona citas con los mismos permisos que `consulta_basica`. Implantación diferida con el resto del rol |
+| `tramitacion` y citas | Gestiona citas con los mismos permisos que `consulta_basica`. Implantado el 15 nov 2026 (fase 4) |
 | Ámbito de la gestión de citas | Se da, reprograma y cancela solo en la UO del usuario; el historial se consulta de cualquier centro |
 | Historial de citas en la ficha | Pasadas y programadas, con etiqueta pública del tipo y centro. Mostrar que una cita es de un CIAM no es sensible |
 

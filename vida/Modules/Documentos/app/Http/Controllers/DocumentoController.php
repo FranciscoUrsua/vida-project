@@ -4,6 +4,7 @@ namespace Modules\Documentos\Http\Controllers;
 
 use App\Enums\AccionAuditEnum;
 use App\Models\Ciudadano;
+use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use App\Services\AuditService;
 use Illuminate\Http\Request;
@@ -66,9 +67,16 @@ class DocumentoController extends Controller
     {
         /** @var User $usuario */
         $usuario = $request->user();
-        $ciudadano = app(DocumentoPolicy::class)->ciudadanoAccesible($usuario, $documento);
+        $policy = app(DocumentoPolicy::class);
 
-        abort_if($ciudadano === null, 403, 'No tienes acceso a ninguna de las personas vinculadas a este documento.');
+        // La policy decide (carpeta, propios del día o vías de otros módulos); un retirado no se sirve
+        abort_unless($policy->view($usuario, $documento), 403, 'No tienes acceso a este documento.');
+
+        // Persona de la fila de auditoría: la primera que el usuario puede ver o, si entra
+        // por otra vía (p. ej. tramitación por la solicitud), la primera vinculada
+        $ciudadano = $policy->ciudadanoAccesible($usuario, $documento)
+            ?? Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->find($documento->getCiudadanoId());
+        abort_if($ciudadano === null, 403, 'El documento no está vinculado a ninguna persona.');
 
         $version = $documento->versionVigente;
         abort_if($version === null, 404, 'El documento no tiene una versión disponible.');

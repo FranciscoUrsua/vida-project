@@ -7,6 +7,7 @@ use App\Models\UsuarioUo;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
+use Modules\Agenda\Livewire\Citas\HistorialCitasFicha;
 use Modules\Agenda\Livewire\CuadranteMesComponent;
 use Modules\Agenda\Livewire\ExcepcionesComponent;
 use Modules\Agenda\Livewire\PerfilHorarioComponent;
@@ -96,5 +97,7 @@ class AgendaServiceProvider extends ServiceProvider
         Livewire::component('agenda.perfil-horario', PerfilHorarioComponent::class);
         Livewire::component('agenda.excepciones', ExcepcionesComponent::class);
         Livewire::component('agenda.cuadrante-mes', CuadranteMesComponent::class);
+        // Historial de citas en la ficha del ciudadano (docs/modulo-citas.md §6 bis)
+        Livewire::component('agenda.historial-citas-ficha', HistorialCitasFicha::class);
     }
 }

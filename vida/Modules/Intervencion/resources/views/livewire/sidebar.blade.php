@@ -5,12 +5,14 @@
     {{-- Navegación principal --}}
     <nav class="op-nav" aria-label="Navegación principal">
 
+        @if($this->accedeAIntervencion)
         <a href="{{ route('intervencion.agenda.index') }}"
            class="op-nav-item {{ request()->routeIs('intervencion.agenda*') ? 'op-nav-item--activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.agenda*') ? 'page' : 'false' }}">
             <x-heroicon-o-calendar class="op-nav-icon icon-18" aria-hidden="true"/>
             <span>Agenda</span>
         </a>
+        @endif
 
         @if(auth()->user()->can('citas.gestionar') || auth()->user()->can('citas.supervisar'))
         <a href="{{ route('agenda.citas.bandeja') }}"
@@ -21,6 +23,7 @@
         </a>
         @endif
 
+        @if($this->accedeAIntervencion)
         <a href="{{ route('intervencion.casos.index') }}"
            class="op-nav-item {{ request()->routeIs('intervencion.casos*') ? 'op-nav-item--activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.casos*') ? 'page' : 'false' }}">
@@ -35,8 +38,9 @@
             'ruta' => 'intervencion.mensajes.index',
             'contadores' => $this->datos,
         ])
+        @endif
 
-        @if($this->tienePlazas)
+        @if($this->accedeAIntervencion && $this->tienePlazas)
         <a href="{{ route('intervencion.recursos.index') }}"
            class="op-nav-item {{ request()->routeIs('intervencion.recursos*') ? 'op-nav-item--activo' : '' }}"
            aria-current="{{ request()->routeIs('intervencion.recursos*') ? 'page' : 'false' }}">
@@ -45,19 +49,22 @@
         </a>
         @endif
 
-        <a href="{{ route('intervencion.buscar.index') }}"
-           class="op-nav-item {{ request()->routeIs('intervencion.buscar*') ? 'op-nav-item--activo' : '' }}"
-           aria-current="{{ request()->routeIs('intervencion.buscar*') ? 'page' : 'false' }}">
+        @php $rutaBuscar = $this->accedeAIntervencion ? 'intervencion.buscar.index' : 'ciudadania.buscar'; @endphp
+        <a href="{{ route($rutaBuscar) }}"
+           class="op-nav-item {{ request()->routeIs($rutaBuscar) ? 'op-nav-item--activo' : '' }}"
+           aria-current="{{ request()->routeIs($rutaBuscar) ? 'page' : 'false' }}">
             <x-heroicon-o-magnifying-glass class="op-nav-icon icon-18" aria-hidden="true"/>
             <span>Buscar ciudadano/a</span>
         </a>
 
+        @can('create', \App\Models\Ciudadano::class)
         <a href="{{ route('ciudadania.alta') }}"
            class="op-nav-item {{ request()->routeIs('ciudadania.alta') ? 'op-nav-item--activo' : '' }}"
            aria-current="{{ request()->routeIs('ciudadania.alta') ? 'page' : 'false' }}">
             <x-heroicon-o-user-plus class="op-nav-icon icon-18" aria-hidden="true"/>
             <span>Alta de ciudadano/a</span>
         </a>
+        @endcan
 
     </nav>
 

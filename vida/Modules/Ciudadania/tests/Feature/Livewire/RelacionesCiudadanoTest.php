@@ -214,13 +214,15 @@ class RelacionesCiudadanoTest extends TestCase
     }
 
     /**
-     * TF-LW-REL-06 — Botón "+ Añadir relación" ausente para usuario con rol consulta_basica.
+     * TF-LW-REL-06 — Botón "+ Añadir relación": consulta_basica lo tiene desde la fase 4
+     * (`ciudadano.editar_relaciones`); supervisión sola, no.
      */
     #[Test]
-    public function boton_añadir_ausente_para_consulta_basica(): void
+    public function boton_añadir_segun_permiso_editar_relaciones(): void
     {
-        $user = $this->crearUsuarioConRol('consulta_basica');
-        $this->montarFicha($user)
+        $this->montarFicha($this->crearUsuarioConRol('consulta_basica'))
+            ->assertSee('Añadir relación');
+        $this->montarFicha($this->crearUsuarioConRol('supervision'))
             ->assertDontSee('Añadir relación');
     }
 
@@ -447,7 +449,8 @@ class RelacionesCiudadanoTest extends TestCase
     #[Test]
     public function usuario_sin_permiso_no_puede_guardar_relacion(): void
     {
-        $consulta = $this->crearUsuarioConRol('consulta_basica');
+        // Supervisión sola no tiene `ciudadano.editar_relaciones` (consulta_basica sí, desde la fase 4)
+        $consulta = $this->crearUsuarioConRol('supervision');
         $otro = $this->crearCiudadano('Pedro', 'Ruiz');
 
         // Livewire 4 intercepta abort(403) y lo convierte en respuesta de error del componente

@@ -21,7 +21,8 @@ trait ConLayoutDeCitas
      */
     protected function vistaConLayout(string $vista): View
     {
-        $layout = Auth::user()?->hasRole('supervision') ? 'layouts.supervision' : 'layouts.operativo';
+        // Cada rol trabaja la citación dentro de su superficie (User::layoutOperativo())
+        $layout = Auth::user()?->layoutOperativo() ?? 'layouts.operativo';
 
         return view($vista)->layout($layout);
     }

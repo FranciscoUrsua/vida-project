@@ -192,7 +192,7 @@ class SolicitudPrestacionPage extends Component
     #[Computed]
     public function documentosVinculados(): Collection
     {
-        return Documento::with('tipo')->whereIn('id', $this->solicitud->vinculosDocumentos()->pluck('documento_id'))->get();
+        return Documento::with('tipo')->disponibles()->whereIn('id', $this->solicitud->vinculosDocumentos()->pluck('documento_id'))->get();
     }
 
     /**
@@ -207,7 +207,7 @@ class SolicitudPrestacionPage extends Component
             ->where('vinculable_type', (new Ciudadano)->getMorphClass())->where('vinculable_id', $this->solicitud->ciudadano_id)
             ->pluck('documento_id');
 
-        return Documento::with('tipo')->whereIn('id', $ids)->whereNotIn('id', $this->documentosVinculados->pluck('id'))->orderByDesc('id')->get();
+        return Documento::with('tipo')->disponibles()->whereIn('id', $ids)->whereNotIn('id', $this->documentosVinculados->pluck('id'))->orderByDesc('id')->get();
     }
 
     /**

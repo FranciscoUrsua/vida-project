@@ -1,6 +1,6 @@
 # Roles de atención administrativa: consulta básica y tramitación — VIDA 360
 
-Estado: `consulta_basica` con diseño funcional cerrado, sin implementar. `tramitacion` diferido: capacidades de alto nivel definidas, detalle pendiente. Última revisión: 30 septiembre 2026 Documentos relacionados: `docs/modulo-usuarios-permisos.md` (roles 5 y 7), `docs/modulo-ciudadania.md` (capas de datos, ficha), `docs/modulo-citas.md` (§6 bis y §7), `docs/modulo-documentos.md`.
+Estado: `consulta_basica` **implementado** (fase 4, 15 nov 2026, `docs/instrucciones-cli/2026-11-fase4-consulta-basica.md`, TF-CBA-01 a 30). `tramitacion`: implantado en solicitudes (fase 3 bis) y en ficha, citas y documentos (fase 4); siguen pendientes los traslados y las fusiones. Última revisión: 15 noviembre 2026 Documentos relacionados: `docs/modulo-usuarios-permisos.md` (roles 5 y 7), `docs/modulo-ciudadania.md` (capas de datos, ficha), `docs/modulo-citas.md` (§6 bis y §7), `docs/modulo-documentos.md`.
 
 ## 1. Propósito
 
@@ -38,6 +38,8 @@ Perfil: ordenanzas, personal de información y control, personal auxiliar de pro
 
 Para ciudadanos de colectivos especialmente protegidos, la ficha de consulta básica muestra solo datos objetivos: los mismos bloques de §3.1. No se muestra información que permita deducir la protección ni su motivo.
 
+**F4-1 (confirmada el 15 nov 2026):** se aplica la decisión D4 del 11 nov, posterior a este documento. `consulta_basica` ve los datos objetivos de una persona protegida **solo si está adscrita al centro de su historia o de un plan en curso** (`AmbitoUsuario::gestionaProtegido()`, RN-17). Desde otro centro la ve como cualquier persona protegida fuera de ámbito: «Persona con protección especial», sin datos, y puede orientarla a su centro.
+
 El banner de colectivo protegido no se muestra a `consulta_basica`. El banner solo aparece a profesionales con rol `intervencion` cuando intentan acceder a datos sensibles (situación social, datos de salud, contenido de la Historia Social). Mostrarlo en la ficha de identificación revelaría por sí mismo que la persona pertenece a un colectivo protegido.
 
 ### 3.3 Documentos que sube
@@ -63,7 +65,9 @@ Puede subir documentos a la carpeta del ciudadano o a un proceso administrativo 
 
 No edita la unidad de convivencia: su composición pertenece a la pantalla de intervención (`modulo-ciudadania.md` §3.4).
 
-## 4. Tramitación (`tramitacion`) — implantado en lo que toca a solicitudes (15 nov 2026)
+## 4. Tramitación (`tramitacion`) — implantado en solicitudes, ficha, citas y documentos (15 nov 2026)
+
+> **Fase 4:** ve la ficha como `consulta_basica` (§3.1), gestiona citas en su UO con los permisos de `modulo-citas.md` §7, recibe los avisos de solicitud de cita de su centro y tiene la citación y el buscador en su menú. En la ficha solo ve sus documentos del día; los de las personas cuyas solicitudes tramita los abre desde la solicitud, donde sigue viendo la carpeta de la persona para vincular documentos (decisión del desarrollador del 15 nov 2026). Resuelta la cuestión 4 (visibilidad de documentos y prestaciones).
 
 > **Fase 3 bis:** `tramitacion` tiene superficie propia (bandeja de tramitación, `prestaciones.bandeja`, por la que entra), toma, prepara, devuelve y envía las solicitudes de prestación de su unidad, registra a mano estado, incidencias y resolución, y gestiona inicio, suspensión y fin de las prestaciones de la persona. No ve la Historia Social. Resueltas las cuestiones 1 (la nota de tramitación es un evento de la solicitud), 2 (entrada por la bandeja de la unidad tramitadora), 3 (documentos exigidos por prestación) y 4 para las solicitudes. Sigue pendiente la 5 (traslados y fusiones). Ver `docs/modulo-solicitudes-expedientes.md`.
 
@@ -89,17 +93,21 @@ El lienzo de diseño incluye una primera propuesta de pantallas (T1 a T4), que s
 
 ## 5. Permisos atómicos
 
-Lista orientativa, a cerrar en las instrucciones de implementación (`modulo-usuarios-permisos.md` §4.4 y §6):
+Lista cerrada en la fase 4 (`modulo-usuarios-permisos.md` §4.4):
 
-| Permiso | Uso | `consulta_basica` | `tramitacion` ⏸ |
+| Permiso | Uso | `consulta_basica` | `tramitacion` |
 |---|---|---|---|
 | `ciudadano.ver_ficha` | Abrir la ficha de cualquier ciudadano | ✅ | ✅ |
 | `ciudadano.crear` | Alta de ciudadanos con control de duplicados | ✅ | ✅ |
-| `ciudadano.editar` | Editar Capa 1 y relaciones | ✅ | ✅ |
+| `ciudadano.editar` | Editar Capa 1 | ✅ | ✅ |
+| `ciudadano.editar_relaciones` | Crear, editar y cerrar relaciones (nuevo, fase 4) | ✅ | ✅ |
 | `historia.ver_estado` | Ver existencia, estado y profesional de referencia (nuevo) | ✅ | ✅ |
 | `cita.ver_historial` | Historial de citas en la ficha (nuevo) | ✅ | ✅ |
 | `documento.subir` | Subir a carpeta o a solicitud | ✅ | ✅ |
 | `documento.gestionar_propios` | Ver, sustituir, recatalogar y retirar los propios del día (nuevo) | ✅ | ✅ |
+| `documento.ver_carpeta` | Carpeta completa (nuevo, fase 4; lo tienen los demás roles que la veían) | — | — |
+
+Implementados en la fase 4; la lista definitiva por rol está en `modulo-usuarios-permisos.md` §4.4.
 
 ## 6. Impacto en otros documentos
 

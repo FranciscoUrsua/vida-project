@@ -68,6 +68,8 @@ class RolesSeeder extends Seeder
             'trazabilidad.consultar',
             'colectivo_protegido.solicitar_acceso',
             'colectivo_protegido.aprobar_acceso',
+            'documento.ver_carpeta',
+            'documento.subir',
         ],
 
         // -----------------------------------------------------------------
@@ -97,6 +99,9 @@ class RolesSeeder extends Seeder
             'citas.gestionar',
             'citas.atender',
             'citas.supervisar',
+            'historia.ver_estado',
+            'cita.ver_historial',
+            'documento.ver_carpeta',
         ],
 
         // -----------------------------------------------------------------
@@ -143,6 +148,11 @@ class RolesSeeder extends Seeder
             'atencion.leer_ajeno',
             'citas.solicitar',
             'citas.atender',
+            'ciudadano.editar_relaciones',
+            'historia.ver_estado',
+            'cita.ver_historial',
+            'documento.ver_carpeta',
+            'documento.subir',
         ],
 
         // -----------------------------------------------------------------
@@ -164,6 +174,13 @@ class RolesSeeder extends Seeder
             'historia.cerrar',
             'prestacion.asignar',
             'atencion.leer',
+            'ciudadano.editar_relaciones',
+            'historia.ver_estado',
+            'cita.ver_historial',
+            'citas.solicitar',
+            'citas.gestionar',
+            'documento.subir',
+            'documento.gestionar_propios',
         ],
 
         // -----------------------------------------------------------------
@@ -178,6 +195,7 @@ class RolesSeeder extends Seeder
             'apunte.leer',
             'apunte.leer_propio',
             'plan.leer',
+            'documento.ver_carpeta',
         ],
 
         // -----------------------------------------------------------------
@@ -193,12 +211,23 @@ class RolesSeeder extends Seeder
             'atencion.leer',
             'citas.solicitar',
             'citas.gestionar',
+            'ciudadano.crear',
+            'ciudadano.editar_relaciones',
+            'historia.ver_estado',
+            'cita.ver_historial',
+            'documento.subir',
+            'documento.gestionar_propios',
         ],
     ];
 
     /**
-     * Crea los roles y asigna sus permisos.
-     * Si el rol ya existe, solo sincroniza sus permisos.
+     * Crea los roles y les añade los permisos que les falten.
+     *
+     * Es aditivo (fase 4, TF-CBA-29): re-ejecutarlo no quita los permisos que se hayan
+     * configurado en el backoffice. Retirar un permiso de un rol se hace con una
+     * migración de datos, como la que quitó `plan.leer` a `supervision`.
+     *
+     * @return void
      */
     public function run(): void
     {
@@ -209,9 +238,11 @@ class RolesSeeder extends Seeder
                 ['name' => $nombreRol, 'guard_name' => 'web'],
             );
 
-            // syncPermissions garantiza idempotencia: añade los nuevos
-            // y elimina los que ya no correspondan al rol
-            $rol->syncPermissions($permisos);
+            // givePermissionTo no duplica los que ya tiene; solo se pasan los que faltan
+            $faltan = array_values(array_diff($permisos, $rol->permissions()->pluck('name')->all()));
+            if ($faltan !== []) {
+                $rol->givePermissionTo($faltan);
+            }
         }
 
         $this->command->info('✓ '.count(self::ROLES).' roles creados o actualizados con sus permisos.');

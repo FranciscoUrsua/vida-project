@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Modules\Centro\Services\PrescripcionService;
+use Modules\Documentos\Policies\DocumentoPolicy;
 use Modules\Prestaciones\Console\ConsultarExpedientes;
 use Modules\Prestaciones\Http\Livewire\BandejaTramitacionPage;
 use Modules\Prestaciones\Http\Livewire\PrestacionesPersona;
@@ -17,6 +18,7 @@ use Modules\Prestaciones\Models\PrestacionPersona;
 use Modules\Prestaciones\Models\SolicitudPrestacion;
 use Modules\Prestaciones\Policies\PrestacionPersonaPolicy;
 use Modules\Prestaciones\Policies\SolicitudPrestacionPolicy;
+use Modules\Prestaciones\Services\AccesoDocumentosTramitacion;
 use Modules\Prestaciones\Services\Gestor\AdaptadorGestorExpedientes;
 use Modules\Prestaciones\Services\Gestor\GestorManual;
 use Modules\Prestaciones\Services\Gestor\GestorSimulado;
@@ -45,6 +47,9 @@ class PrestacionesServiceProvider extends ServiceProvider
             'simulado' => new GestorSimulado,
             default => new GestorManual,
         });
+
+        // Tramitación ve los documentos de las personas cuyas solicitudes tramita (fase 4)
+        $this->app->tag([AccesoDocumentosTramitacion::class], DocumentoPolicy::ETIQUETA_ACCESOS);
 
         // Al asignar una plaza a una prescripción nacida de una prestación, prestación de la persona activa
         $this->app->afterResolving(PrescripcionService::class, function (PrescripcionService $prescripciones): void {

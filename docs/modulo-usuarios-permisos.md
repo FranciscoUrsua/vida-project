@@ -183,7 +183,7 @@ Este rol reúne titulaciones distintas y no distingue entre ellas. Qué actos co
 
 ### ROL 5 — Tramitación (`tramitacion`)
 
-> Implantación diferida. Lo decidido y lo pendiente está en `docs/roles-consulta-basica-tramitacion.md` §4.
+> Implantado en lo que toca a solicitudes (fase 3 bis, 15 nov 2026) y a la ficha, las citas y los documentos (fase 4, 15 nov 2026): ve la ficha como `consulta_basica`, gestiona citas en su UO y recibe los avisos de solicitud de cita de su centro, y en la ficha solo ve sus documentos del día; los de las personas cuyas solicitudes tramita los abre desde la solicitud. Sigue diferido lo de traslados y fusiones. Ver `docs/roles-consulta-basica-tramitacion.md` §4.
 
 **Perfil:** Auxiliares administrativos, administrativos, jefes de negociado.
 
@@ -224,7 +224,7 @@ El rol depende del servicio, no de la titulación: las abogadas integradas en el
 
 **Perfil:** Ordenanzas, personal de información y control, personal auxiliar de programas temporales de empleo en servicios de gestión directa, personal auxiliar de gestión indirecta.
 
-**Capacidades** (diseño cerrado, sin implementar; detalle en `docs/roles-consulta-basica-tramitacion.md` §3):
+**Capacidades** (implementadas en la fase 4, 15 nov 2026; detalle en `docs/roles-consulta-basica-tramitacion.md` §3):
 - Buscar ciudadanos y abrir su ficha: identificación y contacto, unidad de convivencia (solo lectura), relaciones, existencia y estado de la Historia Social con su profesional de referencia, e historial de citas. Sin prestaciones, situación social ni contenido de la Historia Social.
 - Dar de alta ciudadanos, con el control de duplicados del flujo existente (`AltaCiudadano`).
 - Modificar datos de identificación y contacto.
@@ -232,7 +232,9 @@ El rol depende del servicio, no de la titulación: las abogadas integradas en el
 - Gestionar citas según `docs/modulo-citas.md` §7: bandeja de citación, dar citas, reprogramar y cancelar (no las propias), identificar citas externas pendientes.
 - Subir documentos a la carpeta del ciudadano o a una solicitud, y gestionar solo los suyos durante el día de la subida (sustituir, recatalogar, retirar).
 
-**Ámbito por UO:** Limita la operación (citas, documentos, modificaciones), no la consulta: puede abrir la ficha de cualquier ciudadano (ver documento de roles §2).
+**Ámbito por UO:** Limita la operación (citas, documentos, modificaciones), no la consulta: puede abrir la ficha de cualquier ciudadano (ver documento de roles §2). Personas protegidas: solo las ve con datos si está adscrito al centro de su historia o de un plan en curso (F4-1, RN-17); desde otro centro, «Persona con protección especial».
+
+**Inicio:** la búsqueda de ciudadanos (`User::destinoInicial()`, por `citas.gestionar`), con la bandeja de citación en el menú.
 
 **Nivel de supervisión:** Alerta supervisada con reconocimiento obligatorio.
 
@@ -422,13 +424,27 @@ colectivo_protegido.solicitar_acceso
 colectivo_protegido.aprobar_acceso
 ```
 
-Permisos nuevos previstos para `consulta_basica` y `tramitacion` (`docs/roles-consulta-basica-tramitacion.md` §5). **No implementados:**
+Permisos de la atención administrativa (fase 4, 15 nov 2026; `docs/roles-consulta-basica-tramitacion.md` §5). En una BD ya sembrada los añade la migración `2026_11_15_130001`:
 
 ```
+ciudadano.editar_relaciones  # crear, editar y cerrar relaciones (antes, por rol: intervencion y tramitacion)
 historia.ver_estado          # existencia, estado y profesional de referencia de la Historia Social
 cita.ver_historial           # historial de citas en la ficha del ciudadano
+documento.ver_carpeta        # carpeta completa de documentos de las personas que puede consultar
+documento.subir              # subir a la carpeta de la persona o a una solicitud
 documento.gestionar_propios  # ver, sustituir, recatalogar y retirar los documentos propios del día
 ```
+
+| Rol | Permisos añadidos en la fase 4 |
+|---|---|
+| `consulta_basica` | `ciudadano.crear`, `ciudadano.editar_relaciones`, `historia.ver_estado`, `cita.ver_historial`, `documento.subir`, `documento.gestionar_propios` |
+| `tramitacion` | `ciudadano.editar_relaciones`, `historia.ver_estado`, `cita.ver_historial`, `citas.solicitar`, `citas.gestionar`, `documento.subir`, `documento.gestionar_propios` |
+| `intervencion` | `ciudadano.editar_relaciones`, `historia.ver_estado`, `cita.ver_historial`, `documento.ver_carpeta`, `documento.subir` |
+| `supervision` | `historia.ver_estado`, `cita.ver_historial`, `documento.ver_carpeta` |
+| `adm_sistema` | `documento.ver_carpeta`, `documento.subir` |
+| `consulta_profesional` | `documento.ver_carpeta` |
+
+`RolesSeeder` es **aditivo** desde la fase 4: añade a cada rol los permisos que le falten y no quita los configurados en el backoffice. Retirar un permiso de un rol se hace con una migración de datos.
 
 Los **roles** son configurables desde el backoffice: el administrador del sistema puede ver qué permisos tiene cada rol, añadir o quitar permisos de un rol, y crear nuevos roles asignándoles permisos existentes. Crear un permiso nuevo sigue requiriendo código porque implica implementar la verificación correspondiente en el sistema.
 

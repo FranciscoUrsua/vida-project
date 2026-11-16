@@ -23,7 +23,7 @@
 
 ## Decisión de coherencia (pendiente de confirmar)
 
-⚑ **F4-1 — Personas protegidas y `consulta_basica`.** `roles-consulta-basica-tramitacion.md` §3.2 dice que `consulta_basica` ve los datos objetivos de cualquier persona protegida. La decisión D4 (11 nov) dice que nadie de fuera del centro ve la identidad de una persona protegida sin acceso concedido. Se aplica D4, que es posterior: `consulta_basica` ve los datos objetivos de una persona protegida **solo si está adscrita al centro de su historia o de un plan activo suyo** (`gestionaProtegido()`). Desde otro centro, la ve como cualquier otra persona protegida fuera de ámbito: «Persona con protección especial», sin datos, y puede orientar a la persona a su centro. **Si no consta en `SESSION.md` la confirmación del Delegado Digital, pregunta antes del paso 2.**
+⚑ **F4-1 — Personas protegidas y `consulta_basica`.** `roles-consulta-basica-tramitacion.md` §3.2 dice que `consulta_basica` ve los datos objetivos de cualquier persona protegida. La decisión D4 (11 nov) dice que nadie de fuera del centro ve la identidad de una persona protegida sin acceso concedido. Se aplica D4, que es posterior: `consulta_basica` ve los datos objetivos de una persona protegida **solo si está adscrita al centro de su historia o de un plan activo suyo** (`gestionaProtegido()`). Desde otro centro, la ve como cualquier otra persona protegida fuera de ámbito: «Persona con protección especial», sin datos, y puede orientar a la persona a su centro. **Si no consta en `SESSION.md` la confirmación del Delegado Digital, pregunta antes del paso 2.** *Confirmada por el desarrollador el 15 nov 2026.*
 
 ---
 
@@ -212,7 +212,7 @@ Si `consulta_basica` no tiene página de inicio propia, su inicio es la búsqued
 
 | Grupo | Tests | Estado |
 |---|---|---|
-| A — Ficha por rol | TF-CBA-01..12 | |
-| B — Historial de citas | TF-CBA-13..19 | |
-| C — Documentos propios del día | TF-CBA-20..26 | |
-| D — `tramitacion` y permisos | TF-CBA-27..30 | |
+| A — Ficha por rol | TF-CBA-01..12 | Hecho 2026-11-15 |
+| B — Historial de citas | TF-CBA-13..19 | Hecho 2026-11-15 |
+| C — Documentos propios del día | TF-CBA-20..26 | Hecho 2026-11-15 (y TF-CBA-21 ter, documentos de tramitación por la solicitud) |
+| D — `tramitacion` y permisos | TF-CBA-27..30 | Hecho 2026-11-15 (y TF-CBA-29 bis, migración de permisos) |

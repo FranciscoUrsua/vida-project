@@ -40,6 +40,20 @@ class Sidebar extends Component
     }
 
     /**
+     * Si el usuario entra en las pantallas de Intervención (agenda, casos, mensajes, recursos).
+     *
+     * Mira el rol porque reproduce el middleware `role:intervencion` de esas rutas: quien
+     * usa este menú sin el rol (consulta básica) solo ve búsqueda, alta y citación (fase 4).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function accedeAIntervencion(): bool
+    {
+        return auth()->user()->hasRole('intervencion');
+    }
+
+    /**
      * Indica si el centro tiene plazas configuradas.
      * Determina la visibilidad del ítem «Recursos» en el sidebar.
      */

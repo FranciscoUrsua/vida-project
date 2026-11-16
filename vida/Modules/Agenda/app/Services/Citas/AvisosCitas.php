@@ -27,7 +27,9 @@ class AvisosCitas
     public function __construct(private readonly AlertaService $alertas) {}
 
     /**
-     * Solicitud nueva: a quienes dan citas en el centro (`consulta_basica`).
+     * Solicitud nueva: a quienes dan citas en el centro, `consulta_basica` y `tramitacion`
+     * (docs/modulo-citas.md §3.1; `tramitacion` desde la fase 4). No va a una persona
+     * concreta, para que no se pierda por ausencias.
      *
      * @param SolicitudCita $solicitud
      *
@@ -35,9 +37,11 @@ class AvisosCitas
      */
     public function solicitudCreada(SolicitudCita $solicitud): void
     {
-        $this->aRol($solicitud->centro, 'consulta_basica', $solicitud,
-            'Nueva solicitud de cita',
-            "Solicitud {$solicitud->urgencia->label()} de «{$solicitud->tipoCita->etiqueta_publica}», con fecha límite {$solicitud->no_despues_de->format('d/m/Y')}. Está en la bandeja de citación.");
+        foreach (['consulta_basica', 'tramitacion'] as $rol) {
+            $this->aRol($solicitud->centro, $rol, $solicitud,
+                'Nueva solicitud de cita',
+                "Solicitud {$solicitud->urgencia->label()} de «{$solicitud->tipoCita->etiqueta_publica}», con fecha límite {$solicitud->no_despues_de->format('d/m/Y')}. Está en la bandeja de citación.");
+        }
     }
 
     /**

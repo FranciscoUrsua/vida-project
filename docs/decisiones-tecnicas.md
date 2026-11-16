@@ -58,6 +58,8 @@ El bloque de código incluye solo la firma (no el cuerpo). El cuerpo lo genera e
 
 **Implementación:** en el `setUp()` de la clase de test: `PermisosSeeder + RolesSeeder` sembrados; luego `$this->usuario->assignRole('consulta_basica')`.
 
+**Actualización (2026-11-15, fase 4):** el inicio de `consulta_basica` es ahora la búsqueda de ciudadanos (`User::destinoInicial()`). Los tests de login esperan `route('ciudadania.buscar')` y los que abren «/» siguen la redirección (`followingRedirects()`).
+
 ---
 
 ## 2. Paquetes y librerías
@@ -499,3 +501,13 @@ Fecha de decisión: 2026-11-13 (addenda D5 de Tipo de Centro, RN-20 a RN-23 de `
 
 **Datos anteriores:** las 13 cuentas y 6 profesionales con `deleted_at` (todos de prueba) se dejan como están, por decisión del desarrollador: el trait `SoftDeletes` se conserva solo para que sigan ocultos, y el índice único parcial del email no cambia.
 
+
+---
+
+## Sección 16 — Permisos: `RolesSeeder` aditivo; documentos: vías de acceso de otros módulos
+
+Fecha de decisión: 2026-11-15 (fase 4, `docs/instrucciones-cli/2026-11-fase4-consulta-basica.md`)
+
+**`RolesSeeder` es aditivo.** Antes sincronizaba (`syncPermissions`): re-ejecutarlo quitaba a cada rol lo que se hubiera configurado en el backoffice. Ahora solo añade los permisos que faltan (TF-CBA-29). Retirar un permiso de un rol se hace con una migración de datos, como la que quitó `plan.leer` a `supervision` en la fase 3. En la BD compartida los permisos nuevos los añade siempre una migración (`2026_11_15_100004`, `2026_11_15_130001`), porque los seeders no se ejecutan al desplegar.
+
+**Documentos: contrato `AccesoDocumentoAdicional`.** `DocumentoPolicy` decide la lectura por tres vías: carpeta completa (`documento.ver_carpeta`), propios del día (`documento.gestionar_propios`) y las que aportan otros módulos implementando `Modules\Documentos\Contracts\AccesoDocumentoAdicional`, registradas con la etiqueta `DocumentoPolicy::ETIQUETA_ACCESOS`. Así Documentos no conoce a Prestaciones (principio 3.4 de este documento): Prestaciones registra `AccesoDocumentosTramitacion` (tramitación lee los documentos de las personas cuyas solicitudes tramita). Toda vía nueva de lectura de documentos se añade así, no en la policy.

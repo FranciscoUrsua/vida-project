@@ -561,9 +561,10 @@ class NavegacionTest extends TestCase
     }
 
     /**
-     * TF-LW-NAV-22 — FichaCiudadanoPage: banner HS no clicable para tramitacion.
+     * TF-LW-NAV-22 — FichaCiudadanoPage: tramitación no tiene enlace a la HS.
      *
-     * puedeVerHistoria() = false para tramitacion → se renderiza <span> sin enlace a HS.
+     * Desde la fase 4 (TF-CBA-02) quien no lee la historia no ve el botón «Ir a HS»
+     * (ni deshabilitado): ve el bloque «Historia Social» con su estado.
      */
     #[Test]
     public function ficha_ciudadano_banner_hs_no_clicable_para_tramitacion(): void
@@ -599,7 +600,8 @@ class NavegacionTest extends TestCase
 
         Livewire::actingAs($tramitacion)
             ->test(FichaCiudadanoPage::class, ['ciudadano' => $ciudadano->id])
-            ->assertSee('Ir a HS')
+            ->assertDontSee('Ir a HS')
+            ->assertSee('id="ficha-estado-historia"', false)
             ->assertDontSee(route('intervencion.ciudadano.show', $historia->id));
     }
 

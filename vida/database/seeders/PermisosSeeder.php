@@ -38,6 +38,7 @@ class PermisosSeeder extends Seeder
         ['ciudadano.crear',              'Dar de alta un nuevo ciudadano en el sistema'],
         ['ciudadano.editar',             'Modificar datos de identificación del ciudadano'],
         ['ciudadano.eliminar',           'Eliminar (baja lógica) un ciudadano del sistema'],
+        ['ciudadano.editar_relaciones',  'Crear, editar y cerrar relaciones entre ciudadanos'],
 
         // -----------------------------------------------------------------
         // Historia Social
@@ -48,6 +49,7 @@ class PermisosSeeder extends Seeder
         ['historia.editar', 'Editar el contenido de una Historia Social asignada'],
         ['historia.cerrar', 'Cerrar o reactivar una Historia Social'],
         ['historia.eliminar', 'Eliminar (baja lógica) una Historia Social'],
+        ['historia.ver_estado', 'Ver si la persona tiene Historia Social, su estado y el profesional de referencia'],
 
         // -----------------------------------------------------------------
         // Apunte (acto profesional)
@@ -119,6 +121,12 @@ class PermisosSeeder extends Seeder
         ['citas.gestionar',  'Dar, reprogramar y cancelar citas; bandeja de citación'],
         ['citas.atender',    'Marcar incomparecencias, registrar acompañantes y pedir cambios en las citas propias'],
         ['citas.supervisar', 'Reasignar por ausencia, cancelación retroactiva y correcciones de marcado'],
+        ['cita.ver_historial', 'Ver el historial de citas de la persona en su ficha, de cualquier centro'],
+
+        // Documentos de la persona (fase 4, docs/roles-consulta-basica-tramitacion.md §3.3)
+        ['documento.ver_carpeta', 'Ver la carpeta completa de documentos de las personas que puede consultar'],
+        ['documento.subir', 'Subir documentos a la carpeta de la persona o a una solicitud'],
+        ['documento.gestionar_propios', 'Ver, sustituir, recatalogar y retirar los documentos propios durante el día de la subida'],
     ];
 
     /**

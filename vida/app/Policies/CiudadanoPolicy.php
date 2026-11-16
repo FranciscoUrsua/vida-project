@@ -149,6 +149,30 @@ class CiudadanoPolicy
     }
 
     /**
+     * Decide si el usuario puede crear, editar y cerrar relaciones del ciudadano.
+     *
+     * Las relaciones son datos objetivos (fase 4, docs/roles-consulta-basica-tramitacion.md
+     * §3.1): las edita quien tiene `ciudadano.editar_relaciones`, con la misma regla de
+     * operación que la Capa 1: dentro de su ámbito (y RN-17 si la persona está protegida)
+     * o sobre una persona sin historia. Fuera de él, solo lectura.
+     *
+     * @param User $usuario Usuario autenticado.
+     * @param Ciudadano $ciudadano Ciudadano titular de las relaciones.
+     *
+     * @return bool
+     */
+    public function editarRelaciones(User $usuario, Ciudadano $ciudadano): bool
+    {
+        if (! $usuario->can('ciudadano.editar_relaciones')) {
+            return false;
+        }
+
+        $historia = $this->obtenerHistoriaPrincipal($ciudadano);
+
+        return $historia === null || app(AmbitoUsuario::class)->gestionaHistoria($usuario, $historia);
+    }
+
+    /**
      * Decide si el usuario puede eliminar (baja lógica) el ciudadano.
      *
      * La eliminación solo está permitida dentro del ámbito de UO del usuario.

@@ -135,7 +135,9 @@ class User extends Authenticatable implements FilamentUser
      *   y no en el backoffice, al que sigue pudiendo acceder (canAccessPanel).
      * - adm_usuarios → /admin.
      * - intervencion → agenda operativa.
+     * - tramitacion → su bandeja (fase 3 bis).
      * - sin roles → pantalla «sin rol».
+     * - quien da citas sin otra superficie (consulta básica) → búsqueda de ciudadanos (fase 4, paso 6).
      *
      * @return string|null URL de destino, o null si corresponde la pantalla de inicio genérica
      */
@@ -166,7 +168,32 @@ class User extends Authenticatable implements FilamentUser
             return route('sin-rol');
         }
 
+        // Quien da citas sin otra superficie (consulta básica): su trabajo empieza buscando a
+        // la persona, con la bandeja de citación en el menú
+        if ($this->can('citas.gestionar')) {
+            return route('ciudadania.buscar');
+        }
+
         return null;
+    }
+
+    /**
+     * Superficie operativa (layout) en la que trabaja el usuario en las pantallas compartidas
+     * entre roles, como la citación: la misma prioridad que destinoInicial().
+     *
+     * @return string Nombre del layout: `layouts.supervision`, `layouts.operativo` o `layouts.tramitacion`.
+     */
+    public function layoutOperativo(): string
+    {
+        if ($this->hasRole('supervision')) {
+            return 'layouts.supervision';
+        }
+
+        if (! $this->hasRole('intervencion') && $this->hasRole('tramitacion')) {
+            return 'layouts.tramitacion';
+        }
+
+        return 'layouts.operativo';
     }
 
     /**

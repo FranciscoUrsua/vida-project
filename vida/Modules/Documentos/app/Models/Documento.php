@@ -37,6 +37,9 @@ use Modules\Documentos\Enums\EstadoVersion;
  * @property EstadoDocumento $estado
  * @property array<string, mixed> $metadatos
  * @property int $created_by
+ * @property Carbon|null $retirado_en
+ * @property int|null $retirado_por_id
+ * @property string|null $motivo_retirada
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read TipoDocumental $tipo
@@ -62,6 +65,9 @@ class Documento extends Model
         'estado',
         'metadatos',
         'created_by',
+        'retirado_en',
+        'retirado_por_id',
+        'motivo_retirada',
     ];
 
     /** @var array<string, string> */
@@ -71,6 +77,7 @@ class Documento extends Model
         'visible_ciudadano' => 'boolean',
         'estado' => EstadoDocumento::class,
         'metadatos' => 'array',
+        'retirado_en' => 'datetime',
     ];
 
     /**
@@ -151,6 +158,16 @@ class Documento extends Model
     }
 
     /**
+     * Quien retiró el documento, si está retirado.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function retiradoPor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'retirado_por_id');
+    }
+
+    /**
      * Usuario que dio de alta el documento.
      *
      * @return BelongsTo<User, $this>
@@ -190,6 +207,18 @@ class Documento extends Model
     }
 
     /**
+     * Documentos que se listan y se sirven: ni destruidos ni retirados.
+     *
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
+    public function scopeDisponibles(Builder $query): Builder
+    {
+        return $query->whereNotIn('estado', [EstadoDocumento::Destruido->value, EstadoDocumento::Retirado->value]);
+    }
+
+    /**
      * Documentos caducados: con fecha de validez anterior a hoy.
      *
      * @param Builder<self> $query
@@ -213,6 +242,30 @@ class Documento extends Model
     public function estaCaducado(): bool
     {
         return $this->fecha_validez !== null && $this->fecha_validez->lt(today());
+    }
+
+    /**
+     * Indica si el documento se puede listar y servir (ni destruido ni retirado).
+     *
+     * @return bool
+     */
+    public function estaDisponible(): bool
+    {
+        return ! in_array($this->estado, [EstadoDocumento::Destruido, EstadoDocumento::Retirado], true);
+    }
+
+    /**
+     * Indica si lo subió el usuario hoy (día natural, zona horaria de la aplicación).
+     *
+     * Base de la gestión de los documentos propios del día (fase 4, documento.gestionar_propios).
+     *
+     * @param User $usuario Usuario.
+     *
+     * @return bool
+     */
+    public function esPropioDelDia(User $usuario): bool
+    {
+        return $this->created_by === $usuario->id && $this->created_at->isSameDay(now());
     }
 
     /**

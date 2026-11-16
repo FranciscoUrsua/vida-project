@@ -9,13 +9,24 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Fase 4 (atención administrativa): pendientes** — 2026-11-15
+Módulos: Ciudadanía, Agenda, Documentos, Intervención, Prestaciones
+- **Probar en staging** con un usuario `consulta_basica` y otro `tramitacion` adscritos a un centro: inicio en el buscador, ficha (estado de la historia, citas, documentos del día), alta, relaciones, citación y retirada de un documento. La migración de permisos y la de retirada se aplican con el despliegue.
+- **Layout de la ficha y del buscador para `tramitacion`:** `FichaCiudadanoPage`, `BuscarCiudadanoPage` y `AltaCiudadano` fijan `layouts.operativo`, así que tramitación los ve con el menú operativo (que ya solo muestra búsqueda, alta y citación sin `intervencion`). La citación ya usa su layout (`User::layoutOperativo()`); extenderlo a esas tres pantallas.
+- **Decisiones de interfaz que aún miran el rol en la ficha y el alta:** «Ir a HS» y el menú operativo reproducen el middleware `role:intervencion` de las rutas de Intervención (documentado); el tipo de atención del modal «Nueva atención» se oculta a `consulta_basica` por rol, y `AltaCiudadano` ofrece las excepciones de padrón PSH y VVG por rol (`intervencion`/`supervision`). Pasarlos a permisos cuando se revise el registro de atención.
+- **Bandeja de alertas y mensajes para `consulta_basica`:** recibe los avisos de solicitud de cita como toast, pero la bandeja de mensajes vive en rutas `role:intervencion` y no la tiene en su menú.
+- **Retirar documentos fuera del día:** solo se retiran los propios del día. Si hace falta que intervención o supervisión retiren un documento subido por error, decidir quién y añadir la acción (el servicio ya existe: `CicloVidaDocumentoService::retirar()`).
+- **Avisos duplicados:** un usuario con `consulta_basica` y `tramitacion` a la vez recibe dos avisos por cada solicitud de cita (uno por rol, `AvisosCitas::solicitudCreada()`).
+
+---
+
 **Fase 3 bis (solicitudes y expedientes): pendientes** — 2026-11-15
 Módulos: Prestaciones, Intervención, Documentos
 - **Endpoint HTTP de avisos del gestor de expedientes:** fuera de alcance (no hay capa de API ni gestor). El procesamiento está en `SolicitudPrestacionService::procesarAviso()`; falta la ruta, su autenticación y el adaptador real.
 - **Unidades tramitadoras reales:** la migración dejó las prestaciones de expediente externo con unidad «centro de solicitud». Configurar en el panel la UO que tramita cada una (p. ej. un servicio central de SAD) y sus formularios y documentos exigidos.
 - **Pendientes del diseño (§8 de `modulo-solicitudes-expedientes.md`):** listas de espera de prestaciones con plaza, aviso por demora de inicio, integración con proveedores para el inicio efectivo, cofinanciación e HSU, indicadores.
 - **Reasignar una solicitud tomada** (la supervisión, según TF-SOL-12): no hay acción; hoy solo la suelta quien la tiene.
-- **Bandeja de tramitación sin buscador de personas ni enlace a la ficha:** tramitación ve la ficha por las rutas de Ciudadanía, pero su menú solo tiene la bandeja.
+- ~~**Bandeja de tramitación sin buscador de personas ni enlace a la ficha**~~ Hecho el 2026-11-15 (fase 4): el menú de tramitación tiene «Citación» y «Buscar ciudadano/a».
 - **Prescripciones de plaza abiertas desde Recursos** (sin pasar por «Solicitar prestación») no tienen prestación y no crean prestación de la persona al asignarse.
 - **Prestaciones de la persona en el expediente (`CiudadanoPage`):** solo el resumen de la cabecera; el bloque completo está en la ficha (Ciudadanía).
 
@@ -75,7 +86,7 @@ Módulo: transversal / dependencias
 
 ---
 
-**Citas: delta de la revisión del 30 sep** — 2026-11-10
+**~~Citas: delta de la revisión del 30 sep~~** — 2026-11-10 · **Cerrado el 2026-11-15** (fase 4: historial de citas en la ficha, `cita.ver_historial` y permisos `citas.*` de `tramitacion`; ver `CHANGELOG-112026.md`).
 Módulos: Agenda, Ciudadanía
 `docs/modulo-citas.md` se implementó el 2026-09-30 sobre la versión de la mañana; la revisión de la tarde (incorporada al repo el 2026-11-10) añade reglas que no están en el código:
 - **§6 bis — historial de citas en la ficha del ciudadano** para `consulta_basica` y `tramitacion`: pasadas y programadas de cualquier centro, con etiqueta pública, centro, profesional, modalidad y estado; reprogramadas agrupadas con su sustituta; reprogramar y cancelar desde ahí las de su UO (no las propias). `FichaCiudadanoPage` no tiene ese bloque: solo usa citas para vincular el registro de atención (`citaVinculable()`, línea 1069) y el botón «Dar cita» (`puedeDarCita()`, línea 1081). Falta también el permiso `cita.ver_historial` (`docs/roles-consulta-basica-tramitacion.md` §5).
@@ -85,7 +96,7 @@ Se implementa junto con `consulta_basica` (ver la entrada siguiente).
 
 ---
 
-**`consulta_basica`: diseño cerrado sin instrucciones de implementación** — 2026-11-10
+**~~`consulta_basica`: diseño cerrado sin instrucciones de implementación~~** — 2026-11-10 · **Cerrado el 2026-11-15** (fase 4, `docs/instrucciones-cli/2026-11-fase4-consulta-basica.md`, TF-CBA-01 a 30; ver `CHANGELOG-112026.md`).
 Módulos: Usuarios, Ciudadanía, Agenda, Documentos
 `docs/roles-consulta-basica-tramitacion.md` §3. Faltan instrucciones CLI y tests. Incluye la ficha por rol (§3.1: sin prestaciones ni situación social, sin banner de protegido), el bloque de estado de la Historia Social con profesional de referencia, el historial de citas (`docs/modulo-citas.md` §6 bis), el alta de ciudadanos, la edición de relaciones, los documentos propios del día (retirada lógica y vínculo con solicitud aún no existen en la custodia v2: `docs/modulo-documentos.md` §2.1) y los permisos nuevos de §5.
 

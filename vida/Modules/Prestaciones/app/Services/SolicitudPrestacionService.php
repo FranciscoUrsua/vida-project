@@ -189,6 +189,11 @@ class SolicitudPrestacionService
     {
         $this->exigirDocumentos($solicitud, $actor);
 
+        // Un documento retirado (fase 4) o destruido ya no se vincula
+        if (! $documento->estaDisponible()) {
+            throw new DomainException('El documento ya no está disponible.');
+        }
+
         $dePersona = DocumentoVinculo::query()->activos()->where('documento_id', $documento->id)
             ->where('vinculable_type', (new Ciudadano)->getMorphClass())->where('vinculable_id', $solicitud->ciudadano_id)->exists();
         if (! $dePersona) {
@@ -595,7 +600,7 @@ class SolicitudPrestacionService
         }
 
         DB::transaction(function () use ($solicitud, $incidenciaEventoId, $actor, $documentoIds): void {
-            foreach (Documento::whereIn('id', $documentoIds)->get() as $documento) {
+            foreach (Documento::disponibles()->whereIn('id', $documentoIds)->get() as $documento) {
                 $this->vincularDocumento($solicitud, $documento, $actor);
             }
 
@@ -670,7 +675,7 @@ class SolicitudPrestacionService
      */
     public function documentosObligatoriosPendientes(SolicitudPrestacion $solicitud): array
     {
-        $aportados = Documento::whereIn('id', $solicitud->vinculosDocumentos()->pluck('documento_id'))->pluck('tipo_documental_id')->all();
+        $aportados = Documento::disponibles()->whereIn('id', $solicitud->vinculosDocumentos()->pluck('documento_id'))->pluck('tipo_documental_id')->all();
 
         return collect($solicitud->configuracion_snapshot['documentos'] ?? [])
             ->filter(fn (array $d) => $d['obligatorio'] && ! in_array($d['tipo_documental_id'], $aportados, true))

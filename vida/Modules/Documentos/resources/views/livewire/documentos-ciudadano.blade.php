@@ -5,7 +5,7 @@
             <x-heroicon-o-paper-clip class="icon-16" aria-hidden="true"/>
             Documentos
         </h2>
-        @if($this->puedeEditar)
+        @if($this->puedeSubir)
             <button type="button" wire:click="abrirAlta" class="btn btn-outline-primary btn-sm">
                 <x-heroicon-o-arrow-up-tray class="icon-14" aria-hidden="true"/>
                 Subir documento
@@ -17,8 +17,12 @@
         <div class="alert alert-success py-2 small" role="status">{{ session('documentos-ok') }}</div>
     @endif
 
+    @unless($this->veCarpeta)
+        <p class="small text-body-secondary">Solo ves los documentos que has subido hoy. Mañana dejarán de aparecer aquí.</p>
+    @endunless
+
     @if($this->documentos->isEmpty())
-        <x-op.empty icono="document-text">No hay documentos asociados a esta persona.</x-op.empty>
+        <x-op.empty icono="document-text">{{ $this->veCarpeta ? 'No hay documentos asociados a esta persona.' : 'Hoy no has subido documentos de esta persona.' }}</x-op.empty>
     @else
         <ul class="list-group list-group-flush">
             @foreach($this->documentos as $documento)
@@ -68,12 +72,21 @@
                                     <x-heroicon-o-arrow-down-tray class="icon-14" aria-hidden="true"/> Descargar
                                 </a>
                             @endif
-                            @if($this->puedeEditar && $this->admiteVersiones($documento))
+                            @php $propio = $this->esPropio($documento); @endphp
+                            @if(($this->puedeGestionarCarpeta || $propio) && $this->admiteVersiones($documento))
                                 <button type="button" wire:click="abrirNuevaVersion({{ $documento->id }})" class="btn btn-outline-secondary btn-sm">
-                                    <x-heroicon-o-arrow-path class="icon-14" aria-hidden="true"/> Nueva versión
+                                    <x-heroicon-o-arrow-path class="icon-14" aria-hidden="true"/> {{ $propio && ! $this->puedeGestionarCarpeta ? 'Sustituir fichero' : 'Nueva versión' }}
                                 </button>
                             @endif
-                            @if($this->puedeEditar)
+                            @if($propio)
+                                <button type="button" wire:click="abrirEdicion({{ $documento->id }})" class="btn btn-outline-secondary btn-sm">
+                                    <x-heroicon-o-pencil class="icon-14" aria-hidden="true"/> Cambiar datos
+                                </button>
+                                <button type="button" wire:click="abrirRetirada({{ $documento->id }})" class="btn btn-outline-danger btn-sm">
+                                    <x-heroicon-o-archive-box-x-mark class="icon-14" aria-hidden="true"/> Retirar
+                                </button>
+                            @endif
+                            @if($this->puedeGestionarCarpeta)
                                 <button type="button"
                                         wire:click="desvincular({{ $documento->id }})"
                                         wire:confirm="El documento dejará de estar asociado a esta persona. No se borra y las demás personas vinculadas lo seguirán viendo. ¿Continuar?"
@@ -120,7 +133,7 @@
                 <form class="modal-content border-0 shadow" wire:submit="guardar">
                     <div class="modal-header">
                         <h2 id="modal-documento-titulo" class="modal-title fs-6">
-                            {{ $documentoVersionId ? 'Subir nueva versión' : 'Subir documento' }}
+                            {{ $documentoEdicionId ? 'Cambiar datos del documento' : ($documentoVersionId ? 'Subir nueva versión' : 'Subir documento') }}
                         </h2>
                         <button type="button" wire:click="cerrarModal" aria-label="Cerrar" class="btn-close"></button>
                     </div>
@@ -147,6 +160,7 @@
                             </div>
                         @endif
 
+                        @unless($documentoEdicionId)
                         <div>
                             <label class="form-label" for="doc-fichero">Fichero</label>
                             <input type="file" id="doc-fichero" wire:model="fichero"
@@ -163,6 +177,7 @@
                                 <option value="escaneo">Escaneado en el centro</option>
                             </select>
                         </div>
+                        @endunless
 
                         @unless($documentoVersionId)
                             <div>
@@ -202,6 +217,7 @@
                                 </div>
                             @endforeach
 
+                            @error('otrosVinculados') <div class="alert alert-danger py-2 mb-0" role="alert">{{ $message }}</div> @enderror
                             @if($this->otrosMiembros->isNotEmpty())
                                 <fieldset>
                                     <legend class="form-label fs-6 mb-1">Asociar también a otros miembros de la unidad de convivencia</legend>
@@ -227,6 +243,43 @@
                             </span>
                             <span wire:loading wire:target="guardar">Comprobando y guardando…</span>
                         </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    @endif
+
+    {{-- ===== MODAL RETIRAR DOCUMENTO (propios del día) ===== --}}
+    @if($documentoRetiradaId)
+        <div class="modal fade show d-block"
+             wire:click.self="cerrarRetirada"
+             x-data
+             x-on:keydown.escape.window="$wire.cerrarRetirada()"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="modal-retirada-titulo"
+             tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <form class="modal-content border-0 shadow" wire:submit="retirar">
+                    <div class="modal-header">
+                        <h2 id="modal-retirada-titulo" class="modal-title fs-6">Retirar documento</h2>
+                        <button type="button" wire:click="cerrarRetirada" aria-label="Cerrar" class="btn-close"></button>
+                    </div>
+                    <div class="modal-body d-flex flex-column gap-2">
+                        <p class="small text-body-secondary mb-0">
+                            El documento deja de estar disponible. No se borra: queda en el historial con quién lo retiró, cuándo y por qué.
+                        </p>
+                        <div>
+                            <label class="form-label" for="doc-motivo-retirada">Motivo</label>
+                            <textarea id="doc-motivo-retirada" wire:model="motivoRetirada" rows="2" maxlength="1000"
+                                      class="form-control form-control-sm @error('motivoRetirada') is-invalid @enderror"></textarea>
+                            @error('motivoRetirada') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" wire:click="cerrarRetirada" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                        <button type="submit" class="btn btn-danger btn-sm">Retirar</button>
                     </div>
                 </form>
             </div>
