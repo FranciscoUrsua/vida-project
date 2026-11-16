@@ -31,6 +31,9 @@ use Modules\Documentos\Services\CicloVidaDocumentoService;
 use Modules\Documentos\Services\DestruccionDocumentosService;
 use Modules\Documentos\Services\RetencionService;
 use Modules\Documentos\Services\ServicioFirmaInforme;
+use Modules\Documentos\Services\ServicioGeneracionPDF;
+use Modules\Documentos\Tests\Support\FirmadorSimulado;
+use Modules\Documentos\Enums\MetodoFirma;
 use Modules\Documentos\Tests\Concerns\DocumentosTestSetup;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -136,7 +139,8 @@ class RetencionDestruccionTest extends TestCase
 
         // Como en TF-DOC-11 a 16, sin sesión: el ámbito de acceso a ciudadanos llega con el grupo G.
         auth()->forgetGuards();
-        $firmado = app(ServicioFirmaInforme::class)->firmar($informe, base64_encode((string) file_get_contents($this->fixture('valido.pdf'))));
+        $pdf = (new FirmadorSimulado)->firmar(app(ServicioGeneracionPDF::class)->generarParaFirmar($informe->fresh()));
+        $firmado = app(ServicioFirmaInforme::class)->firmar($informe, MetodoFirma::PdfFirmadoExternamente, $pdf, $this->profesional);
         $this->actingAs($this->profesional);
 
         return $firmado;

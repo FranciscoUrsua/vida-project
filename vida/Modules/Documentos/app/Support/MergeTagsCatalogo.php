@@ -2,6 +2,8 @@
 
 namespace Modules\Documentos\Support;
 
+use Modules\Documentos\Models\ParametroInforme;
+
 /**
  * Catálogo centralizado de merge tags disponibles en plantillas de informe.
  * Las claves son los identificadores que se insertan en el contenido ({{ clave }}).
@@ -16,9 +18,35 @@ class MergeTagsCatalogo
      * Devuelve el array de merge tags en el formato que espera RichEditor::mergeTags().
      * Formato: ['clave' => 'Etiqueta legible'].
      *
+     * Tres categorías (variables auxiliares): contextuales, dinámicas de sistema y
+     * parámetros configurables. En una colisión de clave se queda la etiqueta de la
+     * categoría que gana al resolver (contextual > dinámica > parámetro).
+     *
      * @return array<string, string>
      */
     public static function todos(): array
+    {
+        return array_merge(self::etiquetasParametros(), VariablesDinamicas::etiquetas(), self::contextuales());
+    }
+
+    /**
+     * Etiquetas de los parámetros configurables, con prefijo de grupo.
+     *
+     * @return array<string, string>
+     */
+    private static function etiquetasParametros(): array
+    {
+        return collect(ParametroInforme::comoEtiquetas())
+            ->mapWithKeys(fn (string $etiqueta, string $clave): array => [$clave => 'Parámetro — '.$etiqueta])
+            ->all();
+    }
+
+    /**
+     * Tags contextuales: datos del ciudadano, expediente, escalas, plan, profesional e informe.
+     *
+     * @return array<string, string>
+     */
+    private static function contextuales(): array
     {
         return [
             // Ciudadano

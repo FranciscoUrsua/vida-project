@@ -34,7 +34,10 @@ use Modules\Documentos\Services\LecturaDocumentoService;
 use Modules\Documentos\Services\ResolverEstiloInforme;
 use Modules\Documentos\Services\ResolverFuentesInforme;
 use Modules\Documentos\Services\ServicioFirmaInforme;
+use Modules\Documentos\Tests\Support\FirmadorSimulado;
+use Modules\Documentos\Enums\MetodoFirma;
 use Modules\Documentos\Services\ServicioGeneracionPDF;
+use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Escalas\Enums\EstadoPase;
 use Modules\Escalas\Models\PaseEscala;
 use Modules\Escalas\Models\TipoEscala;
@@ -181,13 +184,18 @@ class DocumentosTest extends TestCase
     }
 
     /**
-     * PDF firmado de prueba en base64 (stub de AutoFirma).
+     * Firma el informe como lo haría su autor (fase 5): PDF para firmar firmado con un
+     * certificado de prueba y subido por el método activo.
      *
-     * @return string
+     * @param Informe $informe Borrador.
+     *
+     * @return Informe
      */
-    private function pdfBase64(): string
+    private function firmarInforme(Informe $informe): Informe
     {
-        return base64_encode((string) file_get_contents($this->fixture('valido.pdf')));
+        $pdf = (new FirmadorSimulado)->firmar(app(ServicioGeneracionPDF::class)->generarParaFirmar($informe->fresh()));
+
+        return app(ServicioFirmaInforme::class)->firmar($informe, MetodoFirma::PdfFirmadoExternamente, $pdf, $informe->autor);
     }
 
     /**
@@ -740,9 +748,9 @@ class DocumentosTest extends TestCase
         $plantilla = $this->crearPlantilla($uo->id);
         $informe = $this->crearInformeBorrador($plantilla, $ciudadano, $usuario);
 
-        // En tests pasamos directamente el PDF en base64 (stub de AutoFirma)
+        // El autor firma el PDF para firmar con su certificado (FirmadorSimulado) y lo sube
         $servicio = app(ServicioFirmaInforme::class);
-        $firmado = $servicio->firmar($informe, $this->pdfBase64());
+        $firmado = $this->firmarInforme($informe);
 
         $this->assertEquals(EstadoInforme::Firmado, $firmado->estado);
         $this->assertNotNull($firmado->firmado_en);
@@ -776,11 +784,11 @@ class DocumentosTest extends TestCase
         $informe = $this->crearInformeBorrador($plantilla, $ciudadano, $usuario);
 
         $servicio = app(ServicioFirmaInforme::class);
-        $firmado = $servicio->firmar($informe, $this->pdfBase64());
+        $firmado = $this->firmarInforme($informe);
 
         // Intentar firmar de nuevo un informe ya firmado debe lanzar excepción
         $this->expectException(\DomainException::class);
-        $servicio->firmar($firmado, $this->pdfBase64());
+        $servicio->firmar($firmado, MetodoFirma::PdfFirmadoExternamente, 'x', $firmado->autor);
     }
 
     // =========================================================================
@@ -799,7 +807,7 @@ class DocumentosTest extends TestCase
         $informe = $this->crearInformeBorrador($plantilla, $ciudadano, $usuario);
 
         $servicio = app(ServicioFirmaInforme::class);
-        $firmado = $servicio->firmar($informe, $this->pdfBase64());
+        $firmado = $this->firmarInforme($informe);
         $docId = $firmado->documento_id;
 
         // El autor anula el informe con motivo
@@ -831,7 +839,7 @@ class DocumentosTest extends TestCase
         $informe = $this->crearInformeBorrador($plantilla, $ciudadano, $autor);
 
         $servicio = app(ServicioFirmaInforme::class);
-        $firmado = $servicio->firmar($informe, $this->pdfBase64());
+        $firmado = $this->firmarInforme($informe);
 
         // Otro profesional intenta anular el informe del autor → excepción
         $this->expectException(\DomainException::class);
@@ -857,9 +865,8 @@ class DocumentosTest extends TestCase
         // Subir el PDF escaneado del PISO con firmas manuscritas, vinculado al ciudadano
         $documento = $this->altaDocumento($usuario, $ciudadano, 'piso_firmado.pdf');
 
-        // Crear el registro PisoFirmado
-        // plan_de_intervencion_id sin FK: tabla planes_de_intervencion aún no existe (módulo Intervención pendiente)
-        $planId = 42;
+        // Crear el registro PisoFirmado (FK a planes_intervencion desde la fase 5)
+        $planId = PlanDeIntervencion::factory()->create()->id;
         $piso = PisoFirmado::create([
             'plan_de_intervencion_id' => $planId,
             'documento_id' => $documento->id,
@@ -888,7 +895,7 @@ class DocumentosTest extends TestCase
         $doc1 = $this->altaDocumento($usuario, $ciudadano, 'piso1.pdf');
         $doc2 = $this->altaDocumento($usuario, $ciudadano, 'piso2.pdf');
 
-        $planId = 99;
+        $planId = PlanDeIntervencion::factory()->create()->id;
 
         // Primer PISO: se crea sin problema
         PisoFirmado::create([
@@ -898,7 +905,7 @@ class DocumentosTest extends TestCase
             'metodo_conformidad_ciudadano' => MetodoConformidadCiudadano::ManuscritaEscaneada->value,
         ]);
 
-        // Segundo PISO para el mismo plan: debe violar la restricción unique
+        // Segundo PISO activo para el mismo plan: viola el índice único parcial (sustituido_en nulo)
         $this->expectException(QueryException::class);
 
         PisoFirmado::create([
@@ -1013,7 +1020,7 @@ class DocumentosTest extends TestCase
 
         // Firmamos el borrador del autor1
         $servicio = app(ServicioFirmaInforme::class);
-        $firmado = $servicio->firmar($borrador1, $this->pdfBase64());
+        $firmado = $this->firmarInforme($borrador1);
 
         // Los informes firmados son visibles para cualquier consulta (no filtran por autor)
         $informesFirmados = Informe::firmados()->get();

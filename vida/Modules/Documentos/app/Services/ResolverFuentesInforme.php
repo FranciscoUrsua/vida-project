@@ -7,7 +7,9 @@ use App\Models\HistoriaSocial;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
+use Modules\Documentos\Models\ParametroInforme;
 use Modules\Documentos\Support\MergeTagsCatalogo;
+use Modules\Documentos\Support\VariablesDinamicas;
 use Modules\Escalas\Enums\EstadoPase;
 use Modules\Escalas\Models\PaseEscala;
 use Modules\Escalas\Models\TipoEscala;
@@ -193,7 +195,7 @@ class ResolverFuentesInforme
             ? Carbon::parse($ciudadano->fecha_nacimiento)
             : null;
 
-        return [
+        $valores = [
             // Ciudadano
             'nombre_ciudadano' => $nombreCompleto ?: '—',
             'fecha_nacimiento' => $fechaNac?->format('d/m/Y') ?? '—',
@@ -238,6 +240,13 @@ class ResolverFuentesInforme
             // Informe
             'fecha_informe' => $fechaInforme->format('d/m/Y'),
         ];
+
+        // Variables auxiliares (documentos-variables-auxiliares.md §6). array_merge deja
+        // ganar a la derecha: contextuales > dinámicas de sistema > parámetros configurables,
+        // así un parámetro `nombre_ciudadano` no puede romper un informe.
+        $valores = array_merge(VariablesDinamicas::resolver(), $valores);
+
+        return array_merge(ParametroInforme::comoMapa(), $valores);
     }
 
     /**

@@ -4,10 +4,20 @@ namespace Modules\Documentos\Tests\Feature\Informes;
 
 use App\Enums\AccionAuditEnum;
 use App\Models\HistoriaSocial;
+use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Livewire;
+use Modules\Documentos\Contracts\AccesoDocumentoAdicional;
+use Modules\Documentos\Data\DatosIngesta;
+use Modules\Documentos\Enums\CanalCaptura;
+use Modules\Documentos\Enums\FamiliaDocumental;
+use Modules\Documentos\Enums\OrigenEni;
+use Modules\Documentos\Models\Documento;
+use Modules\Documentos\Models\TipoDocumental;
+use Modules\Documentos\Policies\DocumentoPolicy;
+use Modules\Documentos\Services\CicloVidaDocumentoService;
 use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Enums\MetodoFirma;
 use Modules\Documentos\Http\Livewire\InformesHistorial;
@@ -139,8 +149,30 @@ class PermisosInformeTest extends TestCase
             'accion' => AccionAuditEnum::Ver->value,
         ]);
 
-        // tramitación, aunque una vía de documentos le diera acceso, no ve el PDF de un informe
+        // tramitación, aunque una vía de documentos le dé acceso (como la de sus solicitudes),
+        // no ve el PDF de un informe: es contenido de la Historia Social
         $adminNorte = $this->profesionalCon('admin.norte', 'tramitacion', $this->cssNorte, 'Auxiliar administrativo');
-        $this->assertFalse(Gate::forUser($adminNorte)->allows('view', $firmado->documento));
+        $via = new class($adminNorte->id) implements AccesoDocumentoAdicional
+        {
+            public function __construct(private int $usuarioId) {}
+
+            public function permite(User $usuario, Documento $documento): bool
+            {
+                return $usuario->id === $this->usuarioId;
+            }
+        };
+        app()->instance('acceso.prueba', $via);
+        app()->tag(['acceso.prueba'], DocumentoPolicy::ETIQUETA_ACCESOS);
+
+        $tipo = TipoDocumental::create(['codigo' => 'certificado_prueba', 'nombre' => 'Certificado', 'familia' => FamiliaDocumental::AportadoCiudadano, 'origen_eni' => OrigenEni::Ciudadano]);
+        $normal = app(CicloVidaDocumentoService::class)->altaDocumento(
+            (string) file_get_contents(module_path('Documentos', 'tests/fixtures/valido.pdf')),
+            new DatosIngesta(tipo: $tipo, usuario: $this->tsNorte, canal: CanalCaptura::Presencial, vinculos: [$this->ana]),
+            esContenido: true,
+        );
+
+        $this->assertTrue(Gate::forUser($adminNorte)->allows('view', $normal), 'La vía da acceso a los documentos de la persona');
+        $this->assertFalse(Gate::forUser($adminNorte)->allows('view', $firmado->documento), 'pero no al PDF de un informe');
+        $this->actingAs($adminNorte)->get(app(LecturaDocumentoService::class)->urlTemporal($firmado->documento))->assertForbidden();
     }
 }
