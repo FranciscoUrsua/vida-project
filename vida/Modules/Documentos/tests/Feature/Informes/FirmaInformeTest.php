@@ -5,11 +5,13 @@ namespace Modules\Documentos\Tests\Feature\Informes;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Process;
+use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Modules\Documentos\Enums\EstadoDocumento;
 use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Enums\MetodoFirma;
 use Modules\Documentos\Exceptions\FalloHerramientaExterna;
+use Modules\Documentos\Exceptions\FirmaRechazadaException;
 use Modules\Documentos\Http\Livewire\InformesHistorial;
 use Modules\Documentos\Http\Livewire\NuevoInformeWizard;
 use Modules\Documentos\Models\Documento;
@@ -186,7 +188,7 @@ class FirmaInformeTest extends TestCase
         try {
             app(ServicioFirmaInforme::class)->firmar($informe, MetodoFirma::AutofirmaCertificadoEmpleadoPublico, base64_decode($base64), $this->tsNorte);
             $this->fail('Con AutoFirma inactiva no se firma');
-        } catch (\Modules\Documentos\Exceptions\FirmaRechazadaException $e) {
+        } catch (FirmaRechazadaException $e) {
             $this->assertSame('metodo_inactivo', $e->codigo);
         }
 
@@ -244,7 +246,7 @@ class FirmaInformeTest extends TestCase
      *
      * @param Informe $informe
      *
-     * @return \Livewire\Features\SupportTesting\Testable
+     * @return Testable
      */
     private function enPasoDeFirma(Informe $informe)
     {

@@ -64,7 +64,7 @@ return [
 
         // resources/scss/_op-plan.scss
         'plan-index' => ['tipo' => 'pantalla', 'estado' => 'aprobada', 'descripcion' => 'Índice lateral del plan, fijo por debajo de la barra superior del plan (sticky-top lo taparía).'],
-        'plan-editor-area' => ['tipo' => 'pantalla', 'estado' => 'aprobada', 'descripcion' => 'Alto mínimo del editor contenteditable de la síntesis, montado sobre .form-control.'],
+        'plan-editor-area' => ['tipo' => 'pantalla', 'estado' => 'aprobada', 'descripcion' => 'Alto mínimo de los editores contenteditable (síntesis del plan y texto libre de los informes), montado sobre .form-control.'],
 
         // resources/scss/_op-utilities.scss
         'icon-12' => ['tipo' => 'componente', 'estado' => 'aprobada', 'descripcion' => 'Tamaño de icono Heroicons de 12px. Bootstrap no dimensiona SVG.'],

@@ -188,7 +188,7 @@ class ServicioFirmaInforme
             'tipo' => TipoApunte::Documento,
             'apuntable_type' => $informe->getMorphClass(),
             'apuntable_id' => $informe->id,
-            'contenido' => 'Informe firmado: '.($informe->plantilla?->nombre ?? 'informe').' ('.$informe->identificador().').',
+            'contenido' => 'Informe firmado: '.$informe->plantilla->nombre.' ('.$informe->identificador().').',
             'visibilidad' => VisibilidadApunte::Profesionales,
         ]);
     }

@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Process;
 use Modules\Documentos\Exceptions\FalloHerramientaExterna;
 use Modules\Documentos\Exceptions\FirmaRechazadaException;
+use Modules\Documentos\Models\Informe;
 use Modules\Documentos\Services\Firma\ValidadorFirmaPdf;
 use Modules\Documentos\Services\ServicioGeneracionPDF;
 use Modules\Documentos\Tests\Concerns\InformesTestSetup;
@@ -131,7 +132,7 @@ class ValidadorFirmaPdfTest extends TestCase
      *
      * @param string $codigo
      * @param string $pdf
-     * @param \Modules\Documentos\Models\Informe $informe
+     * @param Informe $informe
      *
      * @return void
      */

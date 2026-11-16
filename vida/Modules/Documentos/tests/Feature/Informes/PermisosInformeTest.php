@@ -5,6 +5,7 @@ namespace Modules\Documentos\Tests\Feature\Informes;
 use App\Enums\AccionAuditEnum;
 use App\Models\HistoriaSocial;
 use App\Models\User;
+use App\Services\AmbitoUsuario;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
@@ -12,17 +13,17 @@ use Livewire\Livewire;
 use Modules\Documentos\Contracts\AccesoDocumentoAdicional;
 use Modules\Documentos\Data\DatosIngesta;
 use Modules\Documentos\Enums\CanalCaptura;
+use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Enums\FamiliaDocumental;
+use Modules\Documentos\Enums\MetodoFirma;
 use Modules\Documentos\Enums\OrigenEni;
+use Modules\Documentos\Http\Livewire\InformesHistorial;
+use Modules\Documentos\Http\Livewire\NuevoInformeWizard;
 use Modules\Documentos\Models\Documento;
+use Modules\Documentos\Models\Informe;
 use Modules\Documentos\Models\TipoDocumental;
 use Modules\Documentos\Policies\DocumentoPolicy;
 use Modules\Documentos\Services\CicloVidaDocumentoService;
-use Modules\Documentos\Enums\EstadoInforme;
-use Modules\Documentos\Enums\MetodoFirma;
-use Modules\Documentos\Http\Livewire\InformesHistorial;
-use Modules\Documentos\Http\Livewire\NuevoInformeWizard;
-use Modules\Documentos\Models\Informe;
 use Modules\Documentos\Services\InformeService;
 use Modules\Documentos\Services\LecturaDocumentoService;
 use Modules\Documentos\Services\ServicioFirmaInforme;
@@ -121,7 +122,7 @@ class PermisosInformeTest extends TestCase
 
         // Con un plan activo suyo en el CIAM, el equipo del CIAM sí
         $this->planActivo($this->historiaMarta, $this->planPia, $this->ciamVallecas, $this->psicologaVallecas, $this->pisoMarta);
-        app(\App\Services\AmbitoUsuario::class)->olvidar();
+        app(AmbitoUsuario::class)->olvidar();
         $this->assertTrue(Gate::forUser($this->psicologaVallecas)->allows('view', $firmado->fresh()));
         $this->assertTrue(Gate::forUser($this->psicologaVallecas)->allows('crear', [Informe::class, HistoriaSocial::withoutGlobalScopes()->find($this->historiaMarta->id)]));
     }

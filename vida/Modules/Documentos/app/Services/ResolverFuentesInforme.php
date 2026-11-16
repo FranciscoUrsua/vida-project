@@ -107,9 +107,9 @@ class ResolverFuentesInforme
 
         return [
             'Historia Social' => 'HS #'.$historia->id,
-            'Fecha de apertura' => $historia->created_at?->format('d/m/Y') ?? '—',
+            'Fecha de apertura' => $historia->created_at->format('d/m/Y'),
             'Estado' => ucfirst((string) $historia->estado),
-            'Centro' => $historia->centro?->nombre ?? '—',
+            'Centro' => $historia->centro->nombre ?? '—',
         ];
     }
 
@@ -129,7 +129,7 @@ class ResolverFuentesInforme
             ->orderBy('id')
             ->get()
             ->mapWithKeys(fn (PrestacionPersona $p): array => [
-                (string) $p->prestacion?->nombre => $p->estado->label()
+                (string) $p->prestacion->nombre => $p->estado->label()
                     .(($p->fecha_inicio ?? $p->fecha_concesion) ? ' desde el '.($p->fecha_inicio ?? $p->fecha_concesion)->format('d/m/Y') : ''),
             ])
             ->all();
@@ -229,7 +229,7 @@ class ResolverFuentesInforme
 
             // Profesional — campos extendidos pendientes de módulo Usuarios completo (BACKLOG)
             'nombre_profesional' => $profesional->profesional?->nombre_completo ?: $profesional->name,
-            'cargo_profesional' => $profesional->profesional?->cargo?->nombre ?? '—',
+            'cargo_profesional' => $profesional->profesional->cargo->nombre ?? '—',
             'numero_colegiado' => '—',
 
             // Centro — pendiente de relación User→Centro en módulo Usuarios (BACKLOG)

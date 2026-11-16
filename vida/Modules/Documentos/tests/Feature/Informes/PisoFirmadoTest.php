@@ -5,6 +5,7 @@ namespace Modules\Documentos\Tests\Feature\Informes;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Modules\Documentos\Enums\EstadoVersion;
 use Modules\Documentos\Http\Livewire\PisoFirmadoUpload;
@@ -130,7 +131,7 @@ class PisoFirmadoTest extends TestCase
      * @param PlanDeIntervencion $plan
      * @param string $observaciones
      *
-     * @return \Livewire\Features\SupportTesting\Testable
+     * @return Testable
      */
     private function subirComo(User $usuario, PlanDeIntervencion $plan, string $observaciones = '')
     {

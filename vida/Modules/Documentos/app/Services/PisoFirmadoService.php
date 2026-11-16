@@ -88,7 +88,7 @@ class PisoFirmadoService
             $anterior?->update(['sustituido_en' => now()]);
 
             // Si el documento anterior se retiró o destruyó, el nuevo escaneo abre otro documento.
-            if ($anterior !== null && $anterior->documento?->estado === EstadoDocumento::Vigente) {
+            if ($anterior !== null && $anterior->documento->estado === EstadoDocumento::Vigente) {
                 $this->cicloVida->nuevaVersion($anterior->documento, $fichero, $actor, CanalCaptura::Escaneo, $fichero->getClientOriginalName());
                 $documentoId = $anterior->documento_id;
             } else {
