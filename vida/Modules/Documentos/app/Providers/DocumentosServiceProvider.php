@@ -16,6 +16,9 @@ use Modules\Documentos\Contracts\EscanerAntivirus;
 use Modules\Documentos\Contracts\ProveedorClavesMaestras;
 use Modules\Documentos\Exceptions\ConfiguracionDocumentosException;
 use Modules\Documentos\Http\Livewire\DocumentosCiudadano;
+use Modules\Documentos\Http\Livewire\InformesHistorial;
+use Modules\Documentos\Http\Livewire\NuevoInformeWizard;
+use Modules\Documentos\Http\Livewire\PisoFirmadoUpload;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\EstiloInforme;
 use Modules\Documentos\Models\Informe;
@@ -111,6 +114,9 @@ class DocumentosServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(module_path($this->moduleName, 'routes/web.php'));
 
         Livewire::component('documentos.documentos-ciudadano', DocumentosCiudadano::class);
+        Livewire::component('documentos.nuevo-informe-wizard', NuevoInformeWizard::class);
+        Livewire::component('documentos.informes-historial', InformesHistorial::class);
+        Livewire::component('documentos.piso-firmado-upload', PisoFirmadoUpload::class);
 
         // Livewire limita por defecto las subidas temporales a 12 MB, menos que el máximo de
         // un tipo documental (20 MB). La validación de cada formulario sigue aplicándose.

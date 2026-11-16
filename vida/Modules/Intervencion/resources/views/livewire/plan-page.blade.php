@@ -682,8 +682,24 @@
                 El PDF puede generarse en cualquier momento desde el botón superior.
             </p>
 
+            {{-- PISO firmado escaneado (módulo Documentos, fase 5, F5-4); solo en el plan principal --}}
+            @if($this->plan)
+                <div class="mt-4">
+                    <livewire:documentos.piso-firmado-upload :plan-id="$this->plan->id" :key="'piso-firmado-'.$this->plan->id" />
+                </div>
+            @endif
+
         </div>
     </div>
+
+    {{-- Informes de la persona (módulo Documentos, fase 5) --}}
+    @if($this->plan)
+    <div class="card" id="ps-informes">
+        <div class="card-body">
+            <livewire:documentos.informes-historial :historia-id="$this->plan->historia_id" :key="'informes-plan-'.$this->plan->id" />
+        </div>
+    </div>
+    @endif
 
     {{-- BOTÓN PRINCIPAL --}}
     @if($this->plan && $this->plan->estado->value !== 'cerrado')

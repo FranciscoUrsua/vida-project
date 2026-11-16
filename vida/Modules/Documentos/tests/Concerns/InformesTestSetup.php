@@ -2,6 +2,7 @@
 
 namespace Modules\Documentos\Tests\Concerns;
 
+use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Services\AmbitoUsuario;
 use Illuminate\Http\UploadedFile;
@@ -67,7 +68,10 @@ trait InformesTestSetup
             'requiere_firma' => true,
         ]);
 
-        $uoRaiz = $this->cssNorte->unidadOrganizativa->ancestorsAndSelf()->get()->last();
+        // Las juntas y el Área son raíces en el organigrama de Tipo de Centro; en producción
+        // cuelgan del Ayuntamiento. Las plantillas, creadas en esa raíz, las ven todos.
+        $uoRaiz = UnidadOrganizativa::create(['nombre' => 'Ayuntamiento', 'tipo' => 'ayuntamiento', 'activa' => true]);
+        UnidadOrganizativa::whereNull('parent_id')->whereKeyNot($uoRaiz->id)->update(['parent_id' => $uoRaiz->id]);
 
         $this->plantillaSocial = PlantillaInforme::create([
             'unidad_organizativa_id' => $uoRaiz->id,

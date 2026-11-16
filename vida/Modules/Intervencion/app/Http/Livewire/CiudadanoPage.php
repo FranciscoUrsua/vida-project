@@ -968,7 +968,8 @@ class CiudadanoPage extends Component
 
         $herramienta = request()->query('herramienta');
 
-        if (in_array($herramienta, ['entrevista', 'valoracion', 'anotacion'], true)) {
+        // «informes»: vuelta desde el asistente de informes (fase 5)
+        if (in_array($herramienta, ['entrevista', 'valoracion', 'anotacion', 'informes'], true)) {
             $this->seleccionarHerramienta($herramienta);
         }
 

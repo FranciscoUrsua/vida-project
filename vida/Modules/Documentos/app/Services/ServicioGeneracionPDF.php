@@ -134,7 +134,7 @@ class ServicioGeneracionPDF
      */
     private function renderizar(Informe $informe, bool $borrador): string
     {
-        $estilo = $this->resolverEstilo->resolver($informe->autor->unidad_organizativa_id ?? 1);
+        $estilo = $this->resolverEstilo->resolver($this->uoDelAutor($informe));
 
         // Un único logo por organización (docs/decisiones-tecnicas.md Sección 12):
         // el de la identidad visual de la app (Sistema → Configuración), no el
@@ -164,6 +164,22 @@ class ServicioGeneracionPDF
         $this->dibujarMarcas($pdf, $tipografia, $informe, $borrador, $incluyeNumeroPagina);
 
         return $pdf->output();
+    }
+
+    /**
+     * UO cuyo estilo se aplica: la primera adscripción vigente del autor.
+     *
+     * `users` no tiene UO propia: hasta la fase 5 se leía un atributo inexistente y
+     * siempre se aplicaba el estilo de la UO 1. Se conserva la UO 1 como último recurso
+     * (autor sin adscripciones).
+     *
+     * @param Informe $informe Informe.
+     *
+     * @return int
+     */
+    private function uoDelAutor(Informe $informe): int
+    {
+        return (int) ($informe->autor?->adscripcionesVigentes()->orderBy('id')->value('unidad_organizativa_id') ?? 1);
     }
 
     /**

@@ -616,11 +616,10 @@
                     </div>
 
                 @elseif($herramientaActiva === 'informes')
+                    {{-- Historial de informes de la persona (módulo Documentos, fase 5) --}}
                     <div class="card card-body mb-3">
-                        <h3 class="h6 fw-bold mb-1">Informes</h3>
-                        {{-- TODO: conectar con módulo Documentos cuando implemente la vista de edición --}}
-                        <p class="small text-body-secondary mb-2">Módulo de informes en construcción.</p>
-                        <div>
+                        <livewire:documentos.informes-historial :historia-id="$historia->id" :key="'informes-'.$historia->id" />
+                        <div class="mt-2">
                             <button type="button" wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cerrar</button>
                         </div>
                     </div>
