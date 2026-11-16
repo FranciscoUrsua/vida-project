@@ -25,7 +25,7 @@
 - **Variables auxiliares (paso 6):** `ParametroInforme` (caché), `ParametroInformeSeeder` (desde `DocumentosSeeder`), `VariablesDinamicas`, `MergeTagsCatalogo` con las tres categorías, `ParametroInformeResource` (edita solo `adm_sistema`; la supervisión consulta).
 - **Tests:** TF-INF-01 a 28 en `Modules/Documentos/tests/Feature/Informes/` (6 ficheros, trait `InformesTestSetup`; 36 tests con 8 casos base del validador) y TF-DOC-22 a 25 en `VariablesAuxiliaresTest`. 21 negativos comprobados (lista en el fichero de instrucciones). Tests antiguos adaptados: `DocumentosTest` (TF-DOC-13 a 16 y 20 firman con `FirmadorSimulado`; TF-DOC-17 y 18 con planes reales por la FK nueva) y `RetencionDestruccionTest`.
 - `npm run build` y `ui:auditar` sin infracciones. PHPStan limpio en los ficheros nuevos y reescritos.
-- SUITE_COMPLETA_PENDIENTE
+- **Suite completa** (unos 80 min): 1540 passed, 12 incomplete, 1 skipped, 0 failed. Sin fallos nuevos (tampoco aparecen ya los 2 previos de `CuadranteSupervisorTest`).
 
 ### Decisiones de implementación no previstas en las instrucciones
 - **Identificador** `INF-{id con 6 dígitos}` dibujado en el lienzo de cada página, con o sin estilo de UO. La vista previa lleva la marca de borrador y el validador rechaza un PDF que la contenga (`es_borrador`), para que no se firme la vista previa por error.
