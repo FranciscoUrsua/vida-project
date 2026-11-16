@@ -37,12 +37,20 @@
         @if(($seccion['tipo'] ?? '') === 'automatico')
             @php $datos = $datosAuto[$seccion['id']] ?? [] @endphp
             @if(!empty($datos))
-                <pre>{{ json_encode($datos, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+                <table class="datos-automaticos">
+                    @foreach($datos as $etiqueta => $valor)
+                    <tr>
+                        <th>{{ $etiqueta }}</th>
+                        <td>{{ $valor }}</td>
+                    </tr>
+                    @endforeach
+                </table>
             @else
                 <p><em>Sin datos disponibles.</em></p>
             @endif
         @else
-            <p>{{ $contenido[$seccion['id']] ?? '' }}</p>
+            {{-- Saneado (SaneadorHtmlInforme: solo etiquetas de formato) y con merge tags sustituidos --}}
+            <div class="texto-libre">{!! $textos[$seccion['id']] ?? '' !!}</div>
         @endif
     </div>
     @endforeach

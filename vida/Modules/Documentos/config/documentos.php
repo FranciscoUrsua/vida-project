@@ -42,8 +42,18 @@ return [
         'pdfinfo' => env('DOCUMENTOS_BIN_PDFINFO', 'pdfinfo'),
         'gs' => env('DOCUMENTOS_BIN_GS', 'gs'),
         'qpdf' => env('DOCUMENTOS_BIN_QPDF', 'qpdf'),
+        // Firma de informes (fase 5): comprobar firmas y leer el texto del pie.
+        'pdfsig' => env('DOCUMENTOS_BIN_PDFSIG', 'pdfsig'),
+        'pdftotext' => env('DOCUMENTOS_BIN_PDFTOTEXT', 'pdftotext'),
         'soffice' => env('DOCUMENTOS_BIN_SOFFICE', 'soffice'),
         'clamd_socket' => env('DOCUMENTOS_CLAMD_SOCKET', '/var/run/clamav/clamd.ctl'),
+    ],
+
+    // Firma de informes (fase 5, F5-1). AutoFirma integrada queda preparada e inactiva
+    // hasta probarla en puestos reales con certificado (docs/decisiones-tecnicas.md).
+    'firma' => [
+        'autofirma_activa' => (bool) env('DOCUMENTOS_AUTOFIRMA_ACTIVA', false),
+        'timeout_segundos' => (int) env('DOCUMENTOS_FIRMA_TIMEOUT', 30),
     ],
 
     'cache_ttl_segundos' => env('DOCUMENTOS_CACHE_TTL', 3600),

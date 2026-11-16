@@ -2,73 +2,120 @@
 
 namespace Modules\Documentos\Services;
 
+use App\Models\HistoriaSocial;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Modules\Documentos\Contracts\FirmadorInforme;
 use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Enums\MetodoFirma;
+use Modules\Documentos\Exceptions\FirmaRechazadaException;
 use Modules\Documentos\Models\Informe;
+use Modules\Documentos\Services\Firma\FirmaAutoFirma;
+use Modules\Documentos\Services\Firma\FirmaExternaSubida;
+use Modules\Documentos\Services\Firma\ValidadorFirmaPdf;
+use Modules\Intervencion\Enums\TipoApunte;
+use Modules\Intervencion\Enums\VisibilidadApunte;
+use Modules\Intervencion\Models\Apunte;
 
 /**
- * Coordina el proceso de firma de un informe mediante AutoFirma.
+ * Coordina la firma y la anulación de un informe profesional (fase 5).
  *
- * Flujo:
- * 1. El profesional genera la vista previa del PDF (ServicioGeneracionPDF::generarBorrador)
- * 2. El cliente AutoFirma firma el PDF con el Certificado de Empleado Público
- * 3. El componente Livewire recibe el PDF firmado en base64 y llama a este servicio
- * 4. El servicio persiste el PDF y actualiza el estado del informe
+ * Flujo de firma:
+ * 1. El autor obtiene el PDF firmado con uno de los firmadores (`FirmadorInforme`):
+ *    subida del PDF firmado fuera de VIDA (activo) o AutoFirma integrada (preparada,
+ *    inactiva por configuración). F5-1.
+ * 2. `ValidadorFirmaPdf` comprueba firma íntegra, páginas, identificador y que no es la
+ *    vista previa (F5-2). Si no pasa, el informe sigue en borrador.
+ * 3. El PDF se custodia sin reescribirlo (canal `generado`), el informe pasa a firmado
+ *    con el método y el titular del certificado, y queda un apunte en la historia.
  *
- * La responsabilidad de autoría es personal: no existe fallback de firma manuscrita.
+ * La responsabilidad de autoría es personal: solo el autor firma y anula su informe
+ * (F5-3) y no existe fallback de firma manuscrita.
  */
 class ServicioFirmaInforme
 {
     /**
-     * Crea el servicio con el generador de PDFs.
+     * Crea el servicio.
      *
-     * @param ServicioGeneracionPDF $generacionPdf Generador de PDFs.
+     * @param ServicioGeneracionPDF $generacionPdf Generador y custodia de PDFs.
+     * @param ValidadorFirmaPdf $validador Validación mínima de la firma.
      */
-    public function __construct(private ServicioGeneracionPDF $generacionPdf) {}
+    public function __construct(
+        private ServicioGeneracionPDF $generacionPdf,
+        private ValidadorFirmaPdf $validador,
+    ) {}
 
     /**
-     * Firma un informe en estado borrador.
+     * Firmador que corresponde a un método de firma.
      *
-     * @param Informe $informe Informe en estado borrador
-     * @param string $pdfFirmadoBase64 PDF firmado por AutoFirma en base64
+     * @param MetodoFirma $metodo Método de firma.
      *
-     * @return Informe Informe actualizado a estado firmado
-     *
-     * @throws \DomainException si el informe no está en estado borrador
+     * @return FirmadorInforme
      */
-    public function firmar(Informe $informe, string $pdfFirmadoBase64): Informe
+    public function firmador(MetodoFirma $metodo): FirmadorInforme
     {
-        if ($informe->estado !== EstadoInforme::Borrador) {
-            throw new \DomainException(
-                'Solo se puede firmar un informe en estado borrador. '.
-                "El informe #{$informe->id} está en estado '{$informe->estado->label()}'."
-            );
-        }
-
-        // TODO: integración AutoFirma — invocar API JavaScript del cliente desde Livewire
-        // y recibir el PDF firmado. En esta fase se acepta directamente el PDF en base64.
-        // Validación de firma CAdES y extracción de número de colegiado pendientes.
-
-        $documento = $this->generacionPdf->generarFinal($informe, $pdfFirmadoBase64);
-
-        $informe->update([
-            'estado' => EstadoInforme::Firmado->value,
-            'documento_id' => $documento->id,
-            'firmado_en' => now(),
-            'metodo_firma' => MetodoFirma::AutofirmaCertificadoEmpleadoPublico->value,
-        ]);
-
-        return $informe->fresh();
+        return match ($metodo) {
+            MetodoFirma::PdfFirmadoExternamente => app(FirmaExternaSubida::class),
+            MetodoFirma::AutofirmaCertificadoEmpleadoPublico => app(FirmaAutoFirma::class),
+        };
     }
 
     /**
-     * Anula un informe firmado. Solo puede ejecutarlo el autor.
+     * Firma un informe en borrador con el PDF firmado que aporta su autor.
+     *
+     * @param Informe $informe Informe en estado borrador.
+     * @param MetodoFirma $metodo Método con el que se ha obtenido el PDF firmado.
+     * @param string $pdfFirmado Contenido binario del PDF firmado.
+     * @param User $actor Quien firma (debe ser el autor).
+     *
+     * @return Informe Informe actualizado a estado firmado.
+     *
+     * @throws \DomainException si el informe no está en borrador o el actor no es el autor
+     * @throws FirmaRechazadaException si el método no está activo o el PDF no supera la validación
+     */
+    public function firmar(Informe $informe, MetodoFirma $metodo, string $pdfFirmado, User $actor): Informe
+    {
+        $this->exigirBorradorDelAutor($informe, $actor);
+
+        if (! $this->firmador($metodo)->activo()) {
+            throw new FirmaRechazadaException('metodo_inactivo');
+        }
+
+        // Fuera de la transacción: lanza procesos externos (pdfsig, pdfinfo, pdftotext).
+        $titular = $this->validador->validar($pdfFirmado, $informe);
+
+        return DB::transaction(function () use ($informe, $metodo, $pdfFirmado, $actor, $titular): Informe {
+            $bloqueado = Informe::query()->lockForUpdate()->findOrFail($informe->id);
+            $this->exigirBorradorDelAutor($bloqueado, $actor);
+
+            $documento = $this->generacionPdf->generarFinal($bloqueado, $pdfFirmado);
+
+            $bloqueado->update([
+                'estado' => EstadoInforme::Firmado->value,
+                'documento_id' => $documento->id,
+                'firmado_en' => now(),
+                'metodo_firma' => $metodo->value,
+                'firmante_certificado' => $titular,
+            ]);
+
+            $this->apuntarEnHistoria($bloqueado, $actor);
+
+            return $bloqueado->fresh();
+        });
+    }
+
+    /**
+     * Anula un informe firmado. Solo puede ejecutarlo el autor, con motivo.
+     *
+     * El documento firmado sigue en la custodia. Un informe anulado no se reabre.
      *
      * @param Informe $informe Informe firmado que se anula.
      * @param int $usuarioId ID del usuario que solicita la anulación.
-     * @param string $motivo Motivo de anulación.
+     * @param string $motivo Motivo de anulación (obligatorio).
      *
-     * @throws \DomainException si el informe no está firmado o el usuario no es el autor
+     * @return Informe
+     *
+     * @throws \DomainException si el informe no está firmado, el usuario no es el autor o falta el motivo
      */
     public function anular(Informe $informe, int $usuarioId, string $motivo): Informe
     {
@@ -80,12 +127,69 @@ class ServicioFirmaInforme
             throw new \DomainException('Solo el autor puede anular su propio informe.');
         }
 
+        if (trim($motivo) === '') {
+            throw new \DomainException('El motivo de anulación es obligatorio.');
+        }
+
         $informe->update([
             'estado' => EstadoInforme::Anulado->value,
-            'motivo_anulacion' => $motivo,
+            'motivo_anulacion' => trim($motivo),
             'anulado_en' => now(),
         ]);
 
         return $informe->fresh();
+    }
+
+    /**
+     * Comprueba que el informe está en borrador y que quien actúa es su autor.
+     *
+     * @param Informe $informe Informe.
+     * @param User $actor Usuario que actúa.
+     *
+     * @return void
+     *
+     * @throws \DomainException si no se cumple
+     */
+    private function exigirBorradorDelAutor(Informe $informe, User $actor): void
+    {
+        if ($informe->estado !== EstadoInforme::Borrador) {
+            throw new \DomainException(
+                'Solo se puede firmar un informe en estado borrador. '.
+                "El informe #{$informe->id} está en estado '{$informe->estado->label()}'."
+            );
+        }
+
+        if ($informe->autor_id !== $actor->id) {
+            throw new \DomainException('Solo el autor puede firmar su informe.');
+        }
+    }
+
+    /**
+     * Deja en la Historia Social un apunte que enlaza el informe firmado.
+     *
+     * @param Informe $informe Informe recién firmado.
+     * @param User $actor Autor.
+     *
+     * @return void
+     */
+    private function apuntarEnHistoria(Informe $informe, User $actor): void
+    {
+        $historiaId = $informe->historia_social_id
+            ?? HistoriaSocial::withoutGlobalScopes()->where('ciudadano_id', $informe->ciudadano_id)->latest()->value('id');
+
+        if ($historiaId === null) {
+            return;
+        }
+
+        Apunte::create([
+            'historia_id' => $historiaId,
+            'autor_id' => $actor->id,
+            'fecha' => today()->toDateString(),
+            'tipo' => TipoApunte::Documento,
+            'apuntable_type' => $informe->getMorphClass(),
+            'apuntable_id' => $informe->id,
+            'contenido' => 'Informe firmado: '.($informe->plantilla?->nombre ?? 'informe').' ('.$informe->identificador().').',
+            'visibilidad' => VisibilidadApunte::Profesionales,
+        ]);
     }
 }

@@ -10,6 +10,7 @@ use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Enums\MetodoFirma;
@@ -18,7 +19,8 @@ use Modules\Documentos\Enums\MetodoFirma;
  * Instancia concreta de un informe profesional.
  *
  * Ciclo de vida: borrador → firmado → (anulado).
- * Un informe firmado es inmutable: no puede editarse ni eliminarse.
+ * Un informe firmado es inmutable: no puede editarse ni eliminarse. Un borrador sí
+ * puede eliminarlo su autor (baja lógica; no es un documento custodiado).
  * Solo puede ser anulado por el autor, con motivo obligatorio.
  * El fichero PDF firmado permanece en el sistema tras la anulación.
  *
@@ -35,6 +37,7 @@ use Modules\Documentos\Enums\MetodoFirma;
  * @property int|null $documento_id
  * @property Carbon|null $firmado_en
  * @property MetodoFirma|null $metodo_firma
+ * @property string|null $firmante_certificado Titular del certificado de la firma (F5-2).
  * @property string|null $numero_colegiado_firmante
  * @property string|null $motivo_anulacion
  * @property Carbon|null $anulado_en
@@ -42,7 +45,11 @@ use Modules\Documentos\Enums\MetodoFirma;
 class Informe extends Model
 {
     use Auditable;
+    use SoftDeletes;
     use Versionable;
+
+    /** Prefijo del identificador impreso en el pie del PDF. */
+    public const PREFIJO_IDENTIFICADOR = 'INF-';
 
     protected $table = 'informes';
 
@@ -78,6 +85,8 @@ class Informe extends Model
 
     /**
      * ID del ciudadano asociado al informe.
+     *
+     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {
@@ -152,7 +161,31 @@ class Informe extends Model
     }
 
     /**
+     * Identificador del informe que se imprime en el pie de cada página del PDF.
+     *
+     * Permite comprobar que un PDF firmado que se sube corresponde a este informe (F5-2).
+     *
+     * @return string
+     */
+    public function identificador(): string
+    {
+        return self::PREFIJO_IDENTIFICADOR.str_pad((string) $this->id, 6, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Indica si el informe está en borrador.
+     *
+     * @return bool
+     */
+    public function esBorrador(): bool
+    {
+        return $this->estado === EstadoInforme::Borrador;
+    }
+
+    /**
      * Indica si el informe está firmado.
+     *
+     * @return bool
      */
     public function estaFirmado(): bool
     {
@@ -161,6 +194,8 @@ class Informe extends Model
 
     /**
      * Indica si el informe está anulado.
+     *
+     * @return bool
      */
     public function estaAnulado(): bool
     {

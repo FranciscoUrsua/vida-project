@@ -18,8 +18,12 @@ use Modules\Documentos\Exceptions\ConfiguracionDocumentosException;
 use Modules\Documentos\Http\Livewire\DocumentosCiudadano;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\EstiloInforme;
+use Modules\Documentos\Models\Informe;
+use Modules\Documentos\Models\PisoFirmado;
 use Modules\Documentos\Observers\EstiloInformeObserver;
 use Modules\Documentos\Policies\DocumentoPolicy;
+use Modules\Documentos\Policies\InformePolicy;
+use Modules\Documentos\Policies\PisoFirmadoPolicy;
 use Modules\Documentos\Services\Almacenamiento\AlmacenFlysystem;
 use Modules\Documentos\Services\Almacenamiento\ProveedorClavesLocal;
 use Modules\Documentos\Services\CicloVidaDocumentoService;
@@ -94,6 +98,8 @@ class DocumentosServiceProvider extends ServiceProvider
         EstiloInforme::observe(EstiloInformeObserver::class);
 
         Gate::policy(Documento::class, DocumentoPolicy::class);
+        Gate::policy(Informe::class, InformePolicy::class);
+        Gate::policy(PisoFirmado::class, PisoFirmadoPolicy::class);
 
         // Baja de ciudadano (soft delete, CiudadanoService::eliminar): sus vínculos se
         // desactivan; los documentos siguen existiendo para las demás personas.

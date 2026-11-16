@@ -48,3 +48,27 @@ body {
     font-size: 8pt;
     color: #666;
 }
+
+/* Secciones automáticas: pares etiqueta → valor (ResolverFuentesInforme::resolver) */
+.datos-automaticos {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.datos-automaticos th {
+    width: 35%;
+    text-align: left;
+    font-weight: normal;
+    color: #555;
+    padding: 2px 8px 2px 0;
+    vertical-align: top;
+}
+
+.datos-automaticos td {
+    padding: 2px 0;
+    vertical-align: top;
+}
+
+.texto-libre p {
+    margin: 0 0 6px 0;
+}

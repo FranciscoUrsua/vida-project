@@ -4,6 +4,23 @@
 
 ---
 
+## Fase 5 (informes) — en curso
+
+`docs/instrucciones-cli/2026-11-fase5-informes.md`. **Paso 0 hecho (2026-11-16)**:
+- Suites de referencia: Documentos 107 passed; Intervención 337 passed, 1 incomplete (previo).
+- `pdfsig` 26.01 instalado (poppler-utils). Staging está en la misma máquina (`/var/www/vida-project`); ningún perfil de AppArmor confina `pdfsig`.
+- Plantillas en la BD compartida: #1 «Certificado vulnerabilidad» (`informe_social`, 4 secciones automáticas) y #2 «Informe psicológico» (`informe_psicologico`, 3 automáticas + `observaciones` libre obligatoria). 0 informes.
+- `generarBorrador()` funciona con las dos, pero: (1) `ResolverFuentesInforme::resolver()` era un stub (`[]`), con todas las secciones automáticas vacías; (2) los merge tags no se sustituyen en el borrador (`resolverMergeTags()` sin uso); (3) el pie solo aparece si se resuelve el estilo de la UO del autor y no lleva identificador; se dibujará en el lienzo como el número de página.
+
+**Decisiones confirmadas por el desarrollador (2026-11-16):** F5-1 confirmada (subida de PDF firmado externamente activa; AutoFirma preparada e inactiva). F5-2 confirmada (firma íntegra + mismas páginas + identificador en el pie; se guarda el titular). Se implementa `ResolverFuentesInforme::resolver()` para las 5 fuentes de las plantillas actuales, pintadas como tabla etiqueta/valor.
+
+**Diseño de implementación (decisiones propias, pasos 1 a 5):**
+- Identificador del informe `INF-{id con 6 dígitos}` dibujado en el lienzo de cada página (como el número de página), con o sin estilo de UO. La vista previa lleva además la marca «BORRADOR · sin validez», y el validador rechaza un PDF que la contenga.
+- `FirmadorSimulado` (tests): firma PAdES `adbe.pkcs7.detached` en PHP puro (actualización incremental + `openssl_cms_sign`) con un certificado autofirmado generado en el test. Comprobado con `pdfsig`: válido → salida 0; sin firma → 2; manipulado → 1, `Digest Mismatch`. Ejecutar `pdfsig` con `LC_ALL=C`.
+- PISO firmado: tipo documental nuevo `piso_firmado` (por migración, vinculable a persona y plan). Sustituir = nueva versión del mismo documento + nuevo `PisoFirmado`, y el anterior queda con `sustituido_en`. Índice único parcial por plan en lugar del `unique`; FK a `planes_intervencion`; el documento pasa de `cascadeOnDelete` a `restrict`.
+- `DocumentoPolicy::view`: un documento que procede de un informe solo lo ve quien supere `InformePolicy::view` (tramitación, por su vía de documentos de solicitudes, no ve informes).
+- Historial en la caja de herramientas de `CiudadanoPage` (el hueco «Módulo de informes en construcción») y en `PlanPage`; el asistente es una página completa bajo `intervencion.`.
+
 ## Tarea completada
 
 **Fase 4, atención administrativa (`consulta_basica`) y delta de citas** (2026-11-15/16, `docs/instrucciones-cli/2026-11-fase4-consulta-basica.md`): permisos nuevos (`ciudadano.editar_relaciones`, `historia.ver_estado`, `cita.ver_historial`, `documento.ver_carpeta`, `documento.subir`, `documento.gestionar_propios`; migración `2026_11_15_130001`, y `RolesSeeder` ahora aditivo), ficha por permiso con el bloque «Historia Social» (estado y referencia), historial de citas en la ficha (`agenda.historial-citas-ficha`), alta por `ciudadano.crear` y relaciones con la regla de UO, documentos propios del día con retirada lógica (estado `retirado`, migración `2026_11_15_130002`), citas y avisos para `tramitacion`, inicio de `consulta_basica` en el buscador y menús. TF-CBA-01 a 30 en verde (más 21 ter y 29 bis), 9 negativos comprobados. Decisiones del desarrollador: F4-1 confirmada; `tramitacion` abre los documentos de sus solicitudes y ve la carpeta desde la solicitud; permiso `documento.ver_carpeta`. Suite completa: sin fallos nuevos tras corregir 11 tests antiguos y una vista compilada obsoleta (ver CHANGELOG). Detalle en `CHANGELOG-112026.md`.

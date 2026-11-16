@@ -26,6 +26,9 @@ use Modules\Documentos\Models\Documento;
  *
  * Solo cuentan los vínculos a ciudadanos: los vínculos a planes o valoraciones no
  * dan acceso por sí mismos.
+ *
+ * Excepción (fase 5): el PDF de un informe firmado es contenido de la Historia Social
+ * y solo lo ve quien supera `InformePolicy::view`, con independencia de las vías de arriba.
  */
 class DocumentoPolicy
 {
@@ -44,6 +47,13 @@ class DocumentoPolicy
     {
         if (! $documento->estaDisponible()) {
             return false;
+        }
+
+        // El PDF de un informe es contenido de la Historia Social (fase 5): solo lo ve quien
+        // puede ver el informe, aunque otra vía (carpeta, tramitación…) diera acceso al documento.
+        $informe = $documento->informe;
+        if ($informe !== null) {
+            return Gate::forUser($usuario)->allows('view', $informe);
         }
 
         if ($usuario->can('documento.ver_carpeta')) {
