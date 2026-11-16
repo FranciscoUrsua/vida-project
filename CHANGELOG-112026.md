@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-11-16 — Infraestructura: planificador y cola en staging; citas de prueba en el CIAM
+
+### Infraestructura
+- El servidor no tenía cron para `schedule:run`: ninguna tarea programada se ejecutaba. El desarrollador añadió la entrada al crontab de `jupiter` (el mismo usuario que el worker de PM2). Queda documentado en la sección 18 de `docs/decisiones-tecnicas.md`.
+- `ci.yml`: el despliegue termina con `php artisan queue:restart`. Hasta ahora el worker seguía con el código cargado al arrancar (13 nov).
+- BACKLOG: cron y worker en la configuración del servidor para producción.
+
+### Datos de prueba en la BD compartida (CIAM Puente de Vallecas, centro 13)
+- 85 citas confirmadas del 17 nov al 7 dic de 2026: una por cada caso de referencia vigente en el centro de cada profesional con rol `intervencion` activo (dir.ciam 4, ts1 25, ts2 25, ts3 27, psicologa 4; aux2 no tiene casos). Tipo «Cita», presencial, urgencia ordinaria, destino y modo `referencia`, en huecos `disponible` (no de urgencia) elegidos al azar, con motivos variados.
+- Se crearon con `CitacionService::citarDirecto()` actuando como `adm1.ciam` (tramitación): cada cita tiene su solicitud citada y sus eventos (`cita_eventos`), y el slot queda reservado. Script desechable, no versionado. No están etiquetadas en `demo_world_registros`: `demo:reset` no las identifica como demo.
+
+---
+
 ## 2026-11-16 — Agenda: la creación de citas nunca proponía huecos (incidencia)
 
 ### Diagnóstico
