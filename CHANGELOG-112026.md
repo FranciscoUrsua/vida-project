@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-11-17 — Filament: guardar una ficha de valoración la dejaba sin campos (incidencia)
+
+### Causa
+- El Builder de campos de `TipoFichaResource` tenía un `dehydrateStateUsing` que devolvía `['campos' => [...]]`. Filament 5 sí aplica ese valor, pero lo reindexa como lista: a `mutateFormDataBeforeSave()` llegaba `[[...campos...]]`. `convertirSchemaBlocks()` descartaba en silencio todo bloque sin `type` y guardaba `['campos' => []]`, con el aviso «Guardado». Pasaba en cada guardado, hubiera cambios o no, también al crear. El comentario de las páginas suponía lo contrario (que Filament no aplicaba el valor).
+
+### Cambios
+- Fuera el `dehydrateStateUsing` del Builder: la única conversión es `TipoFichaResource::convertirSchemaBlocks()`, desde `mutateFormDataBeforeSave()`/`mutateFormDataBeforeCreate()`. Un bloque sin `type` y `data` lanza `LogicException` en lugar de descartarse.
+- Test nuevo `Modules/Intervencion/tests/Feature/Filament/EdicionTipoFichaTest.php` (6 tests: añadir un campo, guardar sin cambios, selección con opciones y orden, añadir a una ficha con datos, crear con campos y bloque inesperado). Los 6 fallan con el código anterior. Tests de fichas de Intervención: 33 passed.
+
+### Datos dañados en la BD compartida (staging)
+- Tres tipos de ficha con `{"campos": []}`: #1 «Situación económica» (4 fichas; vacía desde junio: las fichas desde el 30 sep tienen la copia vacía), #2 «Situación de vivienda» (7 fichas; vacía desde antes del 25 sep y guardada de nuevo hoy a las 10:09) y #4 «Madurez personal» (sin fichas, guardada el 14 nov).
+- Se pueden recuperar de `fichas.schema_snapshot`: #1 con 5 campos (ficha 9, 30 jun) y #2 con 6 campos (ficha 8, 29 jun). Lo añadido después y #4 no tienen copia. Pendiente de la decisión del desarrollador (BACKLOG).
+
+---
+
 ## 2026-11-17 — Fase 6: actividades grupales con inscripción (`2026-11-fase6-actividades.md`)
 
 ### Migración

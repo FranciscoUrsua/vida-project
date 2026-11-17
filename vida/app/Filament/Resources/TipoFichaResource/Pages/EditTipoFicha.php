@@ -13,9 +13,6 @@ use Modules\Intervencion\Models\TipoFicha;
 /**
  * Página de edición de tipos de ficha.
  */
-/**
- * Página de edición de tipos de ficha.
- */
 class EditTipoFicha extends EditRecord
 {
     protected static string $resource = TipoFichaResource::class;
@@ -32,9 +29,12 @@ class EditTipoFicha extends EditRecord
     }
 
     /**
-     * Convierte los bloques crudos del Builder al formato canónico del schema.
-     * En Filament 5, dehydrateStateUsing en un Builder no propaga su valor
-     * a $data automáticamente; la transformación debe hacerse aquí.
+     * Convierte los bloques crudos del Builder al schema canónico. Es la única
+     * conversión: el Builder no tiene dehydrateStateUsing (ver TipoFichaResource).
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
      */
     protected function mutateFormDataBeforeSave(array $data): array
     {

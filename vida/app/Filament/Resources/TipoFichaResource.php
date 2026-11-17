@@ -266,58 +266,11 @@ class TipoFichaResource extends Resource
                                     }
 
                                     $component->state([]);
-                                })
-                                ->dehydrateStateUsing(function (mixed $state): array {
-                                    if (empty($state) || ! is_array($state)) {
-                                        return ['campos' => []];
-                                    }
-
-                                    $idsUsados = [];
-
-                                    /** @var array<int, mixed> $blocks */
-                                    $blocks = $state;
-
-                                    $campos = collect($blocks)
-                                        ->values()
-                                        ->map(function (mixed $block, int $i) use (&$idsUsados): ?array {
-                                            if (! is_array($block) || ! isset($block['type'])) {
-                                                return null;
-                                            }
-                                            $tipo = $block['type'];
-                                            $data = $block['data'] ?? [];
-
-                                            if (! is_array($data)) {
-                                                return null;
-                                            }
-
-                                            // Generar id desde etiqueta si no existe
-                                            if (empty($data['id'])) {
-                                                $base = Str::slug($data['etiqueta'] ?? 'campo', '_');
-                                                $id = $base;
-                                                $n = 1;
-                                                while (in_array($id, $idsUsados, true)) {
-                                                    $id = $base.'_'.$n;
-                                                    $n++;
-                                                }
-                                                $data['id'] = $id;
-                                            }
-
-                                            $idsUsados[] = $data['id'];
-                                            $data['tipo'] = $tipo;
-                                            $data['orden'] = $i + 1;
-
-                                            if ($tipo === 'select' && isset($data['opciones']) && is_array($data['opciones'])) {
-                                                $data['opciones'] = self::normalizarOpcionesParaSchema($data['opciones']);
-                                            }
-
-                                            return $data;
-                                        })
-                                        ->filter()
-                                        ->values()
-                                        ->all();
-
-                                    return ['campos' => $campos];
                                 }),
+                            // Sin dehydrateStateUsing a propósito: Filament reindexa como lista lo que
+                            // devuelve y la clave 'campos' se perdía, con lo que se guardaba la ficha sin
+                            // campos (incidencia del 17 nov 2026). La conversión al schema canónico la
+                            // hacen solo las páginas, con convertirSchemaBlocks().
                         ]),
                 ]),
         ]);
@@ -346,18 +299,19 @@ class TipoFichaResource extends Resource
     // -------------------------------------------------------------------------
 
     /**
-     * Convierte el estado crudo del Builder (bloques con 'type'/'data')
-     * al formato canónico del schema del modelo ({'campos': [...]}).
-     * Si el estado ya está en formato canónico, lo devuelve sin modificar.
-     * Necesario porque en Filament 5 el valor de dehydrateStateUsing en
-     * un Builder NO se asigna automáticamente a $data en mutateFormDataBefore*.
-     */
-    /**
-     * Normaliza el schema JSON de bloques al formato canónico de la ficha.
+     * Convierte el estado crudo del Builder (bloques `type`/`data`, con clave uuid) al
+     * schema canónico del modelo (`['campos' => [...]]`). Es la única conversión: la
+     * llaman las páginas de creación y edición en `mutateFormDataBefore*()`. Si ya llega
+     * en formato canónico, lo devuelve tal cual.
+     *
+     * Un bloque con otra forma es un error, no un campo que se descarta: descartarlo en
+     * silencio guardaba la ficha sin campos.
      *
      * @param mixed $state Estado crudo del Builder.
      *
      * @return array{campos: array<int, array<string, mixed>>}
+     *
+     * @throws \LogicException Si algún bloque no tiene `type` y `data`.
      */
     public static function convertirSchemaBlocks(mixed $state): array
     {
@@ -369,49 +323,41 @@ class TipoFichaResource extends Resource
         if (empty($state) || ! is_array($state)) {
             return ['campos' => []];
         }
+
         $idsUsados = [];
+        $campos = [];
 
-        /** @var array<int, mixed> $blocks */
-        $blocks = $state;
+        foreach (array_values($state) as $i => $block) {
+            if (! is_array($block) || ! isset($block['type']) || ! is_array($block['data'] ?? null)) {
+                throw new \LogicException('El Builder de campos ha enviado un bloque con una forma inesperada: no se guarda para no perder campos.');
+            }
 
-        $campos = collect($blocks)
-            ->values()
-            ->map(function (mixed $block, int $i) use (&$idsUsados): ?array {
-                if (! is_array($block) || ! isset($block['type'])) {
-                    return null;
+            $tipo = $block['type'];
+            $data = $block['data'];
+
+            // Id estable desde la etiqueta si el campo es nuevo
+            if (empty($data['id'])) {
+                $base = Str::slug($data['etiqueta'] ?? 'campo', '_');
+                $id = $base;
+                $n = 1;
+                while (in_array($id, $idsUsados, true)) {
+                    $id = $base.'_'.$n;
+                    $n++;
                 }
-                $tipo = $block['type'];
-                $data = $block['data'] ?? [];
+                $data['id'] = $id;
+            }
 
-                if (! is_array($data)) {
-                    return null;
-                }
+            $idsUsados[] = $data['id'];
+            $data['tipo'] = $tipo;
+            $data['orden'] = $i + 1;
 
-                if (empty($data['id'])) {
-                    $base = Str::slug($data['etiqueta'] ?? 'campo', '_');
-                    $id = $base;
-                    $n = 1;
-                    while (in_array($id, $idsUsados, true)) {
-                        $id = $base.'_'.$n;
-                        $n++;
-                    }
-                    $data['id'] = $id;
-                }
+            // Opciones de select como array plano de strings
+            if ($tipo === 'select' && isset($data['opciones']) && is_array($data['opciones'])) {
+                $data['opciones'] = self::normalizarOpcionesParaSchema($data['opciones']);
+            }
 
-                $idsUsados[] = $data['id'];
-                $data['tipo'] = $tipo;
-                $data['orden'] = $i + 1;
-
-                // Normalizar opciones de select a array plano de strings
-                if ($tipo === 'select' && isset($data['opciones']) && is_array($data['opciones'])) {
-                    $data['opciones'] = self::normalizarOpcionesParaSchema($data['opciones']);
-                }
-
-                return $data;
-            })
-            ->filter()
-            ->values()
-            ->all();
+            $campos[] = $data;
+        }
 
         return ['campos' => $campos];
     }
@@ -445,7 +391,7 @@ class TipoFichaResource extends Resource
     /**
      * Normaliza las opciones de un campo select desde el formato interno del
      * Repeater ([['valor' => '...'], ...]) a strings planos (['...', ...]).
-     * Se aplica en dehydrateStateUsing y convertirSchemaBlocks como defensa
+     * Se aplica en convertirSchemaBlocks y al rehidratar el Builder, como defensa
      * ante ambos formatos posibles.
      *
      * @param array<mixed> $opciones
