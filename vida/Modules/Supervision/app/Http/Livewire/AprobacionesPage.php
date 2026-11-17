@@ -18,11 +18,9 @@ use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use Modules\Mensajes\Enums\DestinatarioType;
-use Modules\Mensajes\Enums\TipoAlerta;
-use Modules\Mensajes\Services\AlertaService;
 use Modules\Organizacion\Services\ConfiguracionService;
 use Modules\Usuarios\Models\UsuarioRol;
+use Modules\Usuarios\Services\ResolucionRolesService;
 
 /**
  * Pantalla de aprobaciones para el módulo de Supervisión.
@@ -184,27 +182,19 @@ class AprobacionesPage extends Component
     }
 
     /**
-     * Aprueba una solicitud de asignación de rol.
-     *
-     * Cambia el estado a activo y Spatie sincroniza en model_has_roles
-     * a través del UsuarioRolObserver. Verifica que la solicitud esté
-     * en el ámbito de UO del supervisor.
+     * Aprueba una solicitud de asignación de rol (ResolucionRolesService: ámbito y no la propia).
      *
      * @param int $solicitudId ID del registro UsuarioRol
+     *
+     * @return void
      */
     public function aprobarSolicitud(int $solicitudId): void
     {
-        $solicitud = UsuarioRol::findOrFail($solicitudId);
-
-        $this->verificarAmbito($solicitud);
-
-        $solicitud->update(['estado' => 'activo']);
-
-        // Spatie observer sincroniza; no duplicar aquí.
-        $this->notificarUsuario(
-            $solicitud,
-            'Tu solicitud de rol «'.$solicitud->rol?->name.'» ha sido aprobada.'
-        );
+        try {
+            app(ResolucionRolesService::class)->aprobar(UsuarioRol::findOrFail($solicitudId), auth()->user());
+        } catch (AuthorizationException $e) {
+            abort(403, $e->getMessage());
+        }
     }
 
     /**
@@ -212,6 +202,8 @@ class AprobacionesPage extends Component
      *
      * @param int $solicitudId ID del registro UsuarioRol
      * @param string $motivo Motivo de la denegación (requerido)
+     *
+     * @return void
      *
      * @throws ValidationException si el motivo es vacío
      */
@@ -223,21 +215,11 @@ class AprobacionesPage extends Component
             ]);
         }
 
-        $solicitud = UsuarioRol::findOrFail($solicitudId);
-
-        $this->verificarAmbito($solicitud);
-
-        $solicitud->update(['estado' => 'denegado']);
-
-        // Revocar el rol Spatie para que el acceso quede efectivamente bloqueado
-        if ($solicitud->rol !== null) {
-            $solicitud->usuario?->removeRole($solicitud->rol->name);
+        try {
+            app(ResolucionRolesService::class)->denegar(UsuarioRol::findOrFail($solicitudId), $motivo, auth()->user());
+        } catch (AuthorizationException $e) {
+            abort(403, $e->getMessage());
         }
-
-        $this->notificarUsuario(
-            $solicitud,
-            'Tu solicitud de rol «'.$solicitud->rol?->name.'» ha sido denegada. Motivo: '.$motivo
-        );
 
         $this->solicitudActivaId = null;
         $this->motivoDenegacion = '';
@@ -249,51 +231,5 @@ class AprobacionesPage extends Component
     public function render(): View
     {
         return view('supervision::livewire.aprobaciones-page');
-    }
-
-    /**
-     * Verifica que la solicitud pertenece al ámbito de UO del supervisor y no es suya.
-     *
-     * @param UsuarioRol $solicitud Solicitud a verificar
-     *
-     * @throws AuthorizationException si está fuera del ámbito o es del propio supervisor
-     */
-    private function verificarAmbito(UsuarioRol $solicitud): void
-    {
-        // Sin esta comprobación, quien tenga una solicitud propia pendiente y el
-        // rol supervision podría aprobársela y anular la aprobación previa (2.8).
-        if ($solicitud->usuario_id === auth()->id()) {
-            abort(403, 'No puedes resolver tus propias solicitudes de rol.');
-        }
-
-        $uoIds = auth()->user()?->uoSubtreeIds() ?? [];
-        $uoSolicitud = $solicitud->usuario?->adscripcionesVigentes()
-            ->pluck('unidad_organizativa_id')
-            ->toArray() ?? [];
-
-        $enAmbito = ! empty(array_intersect($uoIds, $uoSolicitud));
-
-        if (! $enAmbito) {
-            abort(403, 'La solicitud está fuera del ámbito de supervisión.');
-        }
-    }
-
-    /**
-     * Envía al solicitante un aviso con el resultado de su solicitud de rol.
-     *
-     * @param UsuarioRol $solicitud Solicitud resuelta; es el origen del aviso.
-     * @param string $titulo Título corto del aviso
-     */
-    private function notificarUsuario(UsuarioRol $solicitud, string $titulo): void
-    {
-        app(AlertaService::class)->crear([
-            'tipo' => TipoAlerta::Aviso,
-            'origen_type' => UsuarioRol::class,
-            'origen_id' => $solicitud->id,
-            'titulo' => $titulo,
-            'cuerpo' => $titulo,
-            'destinatario_type' => DestinatarioType::Usuario,
-            'destinatario_usuario_id' => $solicitud->usuario_id,
-        ]);
     }
 }

@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-11-17 — Usuarios: solicitudes de rol sin nadie que pudiera aprobarlas (incidencia)
+
+### Causa
+- `supervision` y `adm_sistema` tienen aprobación previa (§2.8): la resuelve la supervisión con la UO del usuario en su ámbito (misma UO o superior, por las dos jerarquías). En staging solo hay un supervisor, `dir.ciam@vida.local`, en la rama de Igualdad, así que la solicitud de `dir.css@vida.local` (CSS Entrevías, Atención Primaria) no la podía resolver nadie. Y el primer supervisor de una rama no se podía aprobar nunca. `dir.ciam` tiene el rol por un seeder.
+- Además, `RolesPendientesWidget` (escritorio de Filament) permitía a cualquier `adm_sistema` o `adm_usuarios` aprobar cualquier solicitud sin comprobación alguna, también la que acababa de asignar, incluso a sí mismo: un camino para saltarse §2.8.
+
+### Cambios
+- **Decisión del desarrollador:** sin supervisor competente, la solicitud la resuelve `adm_sistema`; nunca la suya ni una asignada por él.
+- `Modules\Usuarios\Services\ResolucionRolesService` (`supervisoresCompetentes()`, `puedeResolver()`, `aprobar()`, `denegar()`): único punto de resolución. `AprobacionesPage` delega en él (antes tenía la regla dentro) y conserva el 403.
+- `RolesPendientesWidget`: columna «La resuelve» (supervisores competentes o adm_sistema) y «Aprobar»/«Denegar» con motivo solo cuando `puedeResolver()` lo permite. `adm_usuarios` ya no aprueba.
+- Tests: `Modules/Usuarios/tests/Feature/ResolucionRolesTest.php` (7, negativos comprobados). Usuarios y Supervisión: 116 passed, 1 incomplete (de antes).
+
+### Para el desarrollador
+- Tras el despliegue, `admin@vida.local` ve la solicitud #35 de `dir.css@vida.local` en el escritorio de Filament y la puede aprobar. Con `dir.css` ya supervisor, las siguientes de su centro las resuelve él.
+
+---
+
 ## 2026-11-17 — Staging: limpieza de los usuarios @demo.es y sus casos
 
 A petición del desarrollador: todos los usuarios deben ser @vida.local; los @demo.es eran pruebas de una fase anterior.

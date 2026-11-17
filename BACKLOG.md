@@ -17,6 +17,13 @@ Módulos: Agenda, Centro
 
 ---
 
+**Aprobación de roles: pendientes** — 2026-11-17
+Módulos: Usuarios, Supervisión
+- §2.8 dice «el supervisor de la UO superior», pero la regla (desde antes) admite también la supervisión de la misma UO: la dirección de un centro aprueba al coordinador de su centro. Confirmar si se quiere así.
+- Un supervisor que además es `adm_usuarios` puede asignar un rol y aprobarlo él (no es su propia solicitud): solo `adm_sistema` tiene la regla de «no lo que asignó él». Valorar extenderla a todos.
+
+---
+
 **Tras la limpieza de @demo.es en staging (17 nov)** — 2026-11-17
 Módulos: Usuarios, Intervención
 - Copia previa en `~/backups/vida-20261117-1111-antes-limpieza-demo-es.dump`: borrarla cuando se confirme que no hace falta nada de lo borrado.

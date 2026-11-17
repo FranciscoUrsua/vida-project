@@ -253,6 +253,7 @@ El nivel de supervisión requerido por cada rol es un atributo configurable desd
 Reglas añadidas el 2026-09-25:
 
 - Los roles solo se asignan desde el formulario de usuarios (`AsignacionRolesService`). El «Historial de roles» (`/admin/usuario-roles`) es de solo lectura: no permite crear, editar ni borrar asignaciones, porque sería un camino para activar roles sin supervisión (incluso sobre uno mismo) y para reescribir el historial (principio 4.2).
+- **Sin supervisor competente** (2026-11-17): si ningún usuario con `supervision` tiene la UO del usuario en su ámbito (por ejemplo, el primer supervisor de una rama), la solicitud la resuelve `adm_sistema` desde el escritorio de Filament («Roles pendientes de aprobación», que muestra a quién le toca cada una). `adm_sistema` no resuelve una asignación que haya hecho él. Todo pasa por `ResolucionRolesService`.
 - Nadie resuelve su propia solicitud de rol: Supervisión → Aprobaciones no la muestra al interesado ni la cuenta en sus contadores, y aprobarla o denegarla directamente devuelve 403.
 - Todos los roles tienen el nivel configurado explícitamente en `configuracion_roles` (seeder `ConfiguracionRolesSeeder`, que no sobrescribe niveles ya configurados).
 

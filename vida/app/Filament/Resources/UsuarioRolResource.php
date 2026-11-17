@@ -15,7 +15,8 @@ use Modules\Usuarios\Models\UsuarioRol;
  *
  * Es de solo lectura. Los roles se asignan y retiran desde el formulario de
  * usuarios (AsignacionRolesService, con aprobación previa o alerta según 2.8) y
- * las solicitudes pendientes se resuelven en Supervisión → Aprobaciones. Crear
+ * las solicitudes pendientes se resuelven en Supervisión → Aprobaciones (o, sin supervisor
+ * competente, por adm_sistema en el escritorio: ResolucionRolesService). Crear
  * o editar filas aquí permitiría activar roles saltándose esa supervisión,
  * también sobre uno mismo, y reescribir el historial (principio 4.2).
  *

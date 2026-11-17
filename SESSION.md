@@ -6,7 +6,9 @@
 
 ## Tarea completada
 
-**Limpieza de staging** (2026-11-17): borrados físicamente los 14 usuarios @demo.es, sus profesionales y sus 365 casos exclusivos con todo lo que colgaba (copia previa en `~/backups/vida-20261117-1111-antes-limpieza-demo-es.dump`; detalle en `CHANGELOG-112026.md`). Quedan 15 usuarios, todos @vida.local, y 109 historias.
+**Aprobación de roles sin supervisor competente** (2026-11-17): la resuelve `adm_sistema` en el escritorio de Filament (nunca la suya ni la que asignó); cerrado el widget que dejaba aprobar cualquier solicitud a `adm_usuarios`. `ResolucionRolesService`, 7 tests. **Pendiente del desarrollador:** aprobar como `admin@vida.local` la solicitud #35 de `dir.css@vida.local`.
+
+Antes: **Limpieza de staging** (2026-11-17): borrados físicamente los 14 usuarios @demo.es, sus profesionales y sus 365 casos exclusivos con todo lo que colgaba (copia previa en `~/backups/vida-20261117-1111-antes-limpieza-demo-es.dump`; detalle en `CHANGELOG-112026.md`). Quedan 15 usuarios, todos @vida.local, y 109 historias.
 
 Antes: **Incidencia de Filament** (2026-11-17): guardar una ficha de valoración la dejaba sin campos (el `dehydrateStateUsing` del Builder llegaba reindexado y se descartaba). Arreglado, con `EdicionTipoFichaTest` (6 tests, fallan con el código anterior). Restaurados en staging #1 y #2 desde `fichas.schema_snapshot`; quedan a mano los campos nuevos de #2 y todo #4 (BACKLOG).
 
