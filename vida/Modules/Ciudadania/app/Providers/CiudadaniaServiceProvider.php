@@ -5,6 +5,7 @@ namespace Modules\Ciudadania\Providers;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Modules\Ciudadania\Contracts\FuenteIdentidadInterface;
+use Modules\Ciudadania\Http\Livewire\ActividadesPersona;
 use Modules\Ciudadania\Http\Livewire\AltaCiudadano;
 use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
 use Modules\Ciudadania\Services\MotorMatching;
@@ -45,5 +46,6 @@ class CiudadaniaServiceProvider extends ServiceProvider
 
         Livewire::component('ciudadania.alta-ciudadano', AltaCiudadano::class);
         Livewire::component('ciudadania.ficha-ciudadano-page', FichaCiudadanoPage::class);
+        Livewire::component('ciudadania.actividades-persona', ActividadesPersona::class);
     }
 }

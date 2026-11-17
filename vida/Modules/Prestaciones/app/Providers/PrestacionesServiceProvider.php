@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
+use Modules\Centro\Services\Actividades\InscripcionActividadService;
 use Modules\Centro\Services\PrescripcionService;
 use Modules\Documentos\Policies\DocumentoPolicy;
 use Modules\Prestaciones\Console\ConsultarExpedientes;
@@ -54,6 +55,11 @@ class PrestacionesServiceProvider extends ServiceProvider
         // Al asignar una plaza a una prescripción nacida de una prestación, prestación de la persona activa
         $this->app->afterResolving(PrescripcionService::class, function (PrescripcionService $prescripciones): void {
             $prescripciones->setAlAsignarPlaza(fn ($prescripcion) => app(PrestacionPersonaService::class)->desdePrescripcion($prescripcion));
+        });
+
+        // Inscribir en una actividad vinculada a una prestación crea la de la persona (fase 6, F6-10)
+        $this->app->afterResolving(InscripcionActividadService::class, function (InscripcionActividadService $inscripciones): void {
+            $inscripciones->setAlInscribir(fn ($inscripcion) => app(PrestacionPersonaService::class)->desdeInscripcion($inscripcion));
         });
     }
 

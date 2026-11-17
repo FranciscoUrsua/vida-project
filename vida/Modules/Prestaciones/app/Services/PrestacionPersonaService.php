@@ -10,6 +10,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Models\InscripcionSesion;
 use Modules\Centro\Models\Prescripcion;
 use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Intervencion\Models\PlanDeIntervencion;
@@ -121,6 +122,48 @@ class PrestacionPersonaService
             'plan_id' => $prescripcion->plan_intervencion_id,
             'fecha_inicio' => $prescripcion->fecha_inicio ?? $prescripcion->fecha_asignacion ?? today(),
         ], $registradaPor);
+    }
+
+    /**
+     * Crea la prestación activa de la persona al inscribirla en una actividad vinculada a
+     * una prestación (fase 6). Una por persona y actividad (F6-10): si ya tiene esa
+     * prestación sin finalizar, nacida de otra inscripción en la misma actividad, devuelve
+     * esa. Sin prestación vinculada, no hace nada.
+     *
+     * @param InscripcionSesion $inscripcion Inscripción recién creada.
+     *
+     * @return PrestacionPersona|null
+     */
+    public function desdeInscripcion(InscripcionSesion $inscripcion): ?PrestacionPersona
+    {
+        $sesion = $inscripcion->sesion;
+        $actividad = $sesion->actividad;
+
+        if ($actividad->prestacion_id === null) {
+            return null;
+        }
+
+        $inscripcionesDeLaActividad = InscripcionSesion::where('ciudadano_id', $inscripcion->ciudadano_id)
+            ->whereIn('sesion_actividad_id', $actividad->sesiones()->withTrashed()->select('id'))
+            ->select('id');
+
+        $existente = PrestacionPersona::where('ciudadano_id', $inscripcion->ciudadano_id)
+            ->where('prestacion_id', $actividad->prestacion_id)
+            ->where('origen_type', $inscripcion->getMorphClass())
+            ->whereIn('origen_id', $inscripcionesDeLaActividad)
+            ->where('estado', '!=', EstadoPrestacionPersona::Finalizada->value)
+            ->first();
+
+        if ($existente !== null) {
+            return $existente;
+        }
+
+        return $this->crear($inscripcion->ciudadano_id, $actividad->prestacion_id, EstadoPrestacionPersona::Activa, $inscripcion->inscritaPor, [
+            'origen_type' => $inscripcion->getMorphClass(),
+            'origen_id' => $inscripcion->id,
+            'plan_id' => $inscripcion->prescripcion?->plan_intervencion_id,
+            'fecha_inicio' => $sesion->fecha,
+        ]);
     }
 
     /**

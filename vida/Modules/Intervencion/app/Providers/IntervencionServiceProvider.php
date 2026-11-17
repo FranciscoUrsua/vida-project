@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
+use Modules\Centro\Services\Actividades\CicloVidaActividadService;
 use Modules\Centro\Services\PrescripcionService;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\AsignarPlazaModal;
@@ -24,6 +25,7 @@ use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Policies\ApuntePolicy;
 use Modules\Intervencion\Policies\PlanDeIntervencionPolicy;
+use Modules\Intervencion\Services\AvisoActividadesService;
 use Modules\Intervencion\Services\AvisoPlazasService;
 use Modules\Intervencion\Services\IntervencionSidebarDataService;
 use Random\Engine\Secure;
@@ -56,6 +58,11 @@ class IntervencionServiceProvider extends ServiceProvider
         $this->app->afterResolving(PrescripcionService::class, function ($prescripciones): void {
             $prescripciones->setTsrResolver(fn (int $ciudadanoId): ?int => app(AvisoPlazasService::class)->profesionalReferenciaDe($ciudadanoId));
             $prescripciones->setAvisoPlazaLibre(fn ($entrada) => app(AvisoPlazasService::class)->avisarPlazaLibre($entrada));
+        });
+
+        // Actividades (fase 6, F6-5): al cancelar una sesión se avisa a quien inscribió o prescribió
+        $this->app->afterResolving(CicloVidaActividadService::class, function (CicloVidaActividadService $ciclo): void {
+            $ciclo->setAvisoCancelacion(fn (int $usuarioId, $sesion, int $personas) => app(AvisoActividadesService::class)->avisarCancelacion($usuarioId, $sesion, $personas));
         });
     }
 

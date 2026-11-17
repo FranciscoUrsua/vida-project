@@ -4,6 +4,7 @@ namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
+use DomainException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -11,10 +12,14 @@ use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Modules\Centro\Enums\ViaInscripcion;
+use Modules\Centro\Models\Actividad;
 use Modules\Centro\Models\ColeccionPlazas;
 use Modules\Centro\Models\ListaEspera;
 use Modules\Centro\Models\Prescripcion;
 use Modules\Centro\Models\Red;
+use Modules\Centro\Models\SesionActividad;
+use Modules\Centro\Services\Actividades\InscripcionCentroRequerida;
 use Modules\Centro\Services\PrescripcionService;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\TipoApunte;
@@ -26,17 +31,29 @@ use Modules\Intervencion\Models\PlanDeIntervencion;
 /**
  * Modal de prescripción de recurso en tres pasos montado en CiudadanoPage.
  *
- * Paso 1 — Tipo de recurso (tipo_plaza de las colecciones disponibles).
- * Paso 2 — Selección de destino (ColeccionPlazas o Red).
+ * Paso 1 — Tipo de recurso (tipo_plaza de las colecciones disponibles, o «Actividad»).
+ * Paso 2 — Selección de destino (ColeccionPlazas o Red; en una actividad, la actividad y la sesión).
  * Paso 3 — Confirmación y vínculo opcional con compromiso del plan.
  *
+ * Actividad (fase 6, F6-7): actividades activas con prescripción o mixtas de cualquier
+ * centro (la prescripción puede hacerse desde otro centro, F6-2) y sus sesiones con plazas
+ * de prescripción libres. La crea PrescripcionService con su inscripción; sin plaza se
+ * rechaza (F6-3). Si la actividad exige inscripción en el centro, se pide el
+ * consentimiento para hacerla (F6-4).
+ *
  * @property-read Collection<int, string> $tiposRecurso
- * @property-read Collection<int, ColeccionPlazas>|Collection<int, Red> $opcionesDestino
+ * @property-read Collection<int, ColeccionPlazas>|Collection<int, Red>|Collection<int, SesionActividad> $opcionesDestino
+ * @property-read Collection<int, Actividad> $actividadesPrescribibles
+ * @property-read Actividad|null $actividadElegida
+ * @property-read bool $requiereInscripcionCentro
  * @property-read Collection<int, PlanActuacionAyuntamiento> $compromisosSugeridos
  * @property-read bool $hayPlazaDisponible
  */
 class PrescribirRecursoModal extends Component
 {
+    /** Tipo de recurso de las sesiones de actividad en el paso 1. */
+    public const RECURSO_ACTIVIDAD = 'actividad';
+
     /** @var int ID de la Historia Social del ciudadano */
     public int $historiaId;
 
@@ -52,7 +69,13 @@ class PrescribirRecursoModal extends Component
     /** @var int|null ID del destino seleccionado (ColeccionPlazas o Red) */
     public ?int $destinoId = null;
 
-    /** @var string Tipo de destino: 'coleccion_plazas' | 'red' */
+    /** @var int|null Actividad elegida en el paso 2 (tipo de recurso «Actividad»). */
+    public ?int $actividadId = null;
+
+    /** @var bool Consentimiento para inscribir a la persona en el centro de la actividad (F6-4). */
+    public bool $inscribirEnCentro = false;
+
+    /** @var string Tipo de destino: 'coleccion_plazas' | 'red' | 'sesion_actividad' */
     public string $tipoDestino = 'coleccion_plazas';
 
     /** @var int|null ID del compromiso del plan al que se vincula opcionalmente */
@@ -78,12 +101,34 @@ class PrescribirRecursoModal extends Component
     #[On('abrir-prescribir-recurso')]
     public function abrir(?int $prestacionId = null): void
     {
-        $this->reset(['paso', 'tipoRecurso', 'destinoId', 'tipoDestino', 'compromisoId', 'notas']);
+        $this->reset(['paso', 'tipoRecurso', 'destinoId', 'tipoDestino', 'compromisoId', 'notas', 'actividadId', 'inscribirEnCentro']);
         $this->prestacionId = $prestacionId;
         $this->paso = 1;
         $this->tipoDestino = 'coleccion_plazas';
         $this->abierto = true;
         unset($this->opcionesDestino, $this->compromisosSugeridos, $this->hayPlazaDisponible);
+    }
+
+    /**
+     * Al cambiar de tipo de recurso se vacía el destino elegido.
+     *
+     * @return void
+     */
+    public function updatedTipoRecurso(): void
+    {
+        $this->reset(['destinoId', 'actividadId', 'inscribirEnCentro']);
+        unset($this->opcionesDestino, $this->hayPlazaDisponible);
+    }
+
+    /**
+     * Al cambiar de actividad se vacía la sesión elegida.
+     *
+     * @return void
+     */
+    public function updatedActividadId(): void
+    {
+        $this->reset(['destinoId', 'inscribirEnCentro']);
+        unset($this->opcionesDestino, $this->hayPlazaDisponible, $this->actividadElegida, $this->requiereInscripcionCentro);
     }
 
     // -------------------------------------------------------------------------
@@ -98,10 +143,63 @@ class PrescribirRecursoModal extends Component
     #[Computed]
     public function tiposRecurso(): Collection
     {
-        return ColeccionPlazas::activas()
+        $tipos = ColeccionPlazas::activas()
             ->whereIn('modo_acceso', ['prescripcion_directa', 'prescripcion_lista_espera'])
             ->distinct()
             ->pluck('tipo_plaza');
+
+        if ($this->actividadesPrescribibles->isNotEmpty()) {
+            $tipos->push(self::RECURSO_ACTIVIDAD);
+        }
+
+        return $tipos;
+    }
+
+    /**
+     * Actividades activas, de cualquier centro, que admiten prescripción y tienen alguna
+     * sesión con plaza de prescripción libre.
+     *
+     * @return Collection<int, Actividad>
+     */
+    #[Computed]
+    public function actividadesPrescribibles(): Collection
+    {
+        return Actividad::where('activa', true)
+            ->whereNull('fecha_baja')
+            ->whereIn('modo_acceso', ['prescripcion', 'mixta'])
+            ->with('centro')
+            ->orderBy('nombre')
+            ->get()
+            ->filter(fn (Actividad $a) => $this->sesionesPrescribibles($a)->isNotEmpty())
+            ->values()
+            ->toBase();
+    }
+
+    /**
+     * Actividad elegida en el paso 2.
+     *
+     * @return Actividad|null
+     */
+    #[Computed]
+    public function actividadElegida(): ?Actividad
+    {
+        return $this->actividadesPrescribibles->firstWhere('id', $this->actividadId);
+    }
+
+    /**
+     * Si la actividad elegida exige inscripción en el centro y la persona no la tiene (F6-4).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function requiereInscripcionCentro(): bool
+    {
+        $actividad = $this->actividadElegida;
+        $ciudadano = $this->ciudadano();
+
+        return $actividad !== null && $ciudadano !== null
+            && $actividad->requiere_inscripcion_centro
+            && ! $actividad->ciudadanoInscritoEnCentro($ciudadano->id);
     }
 
     /**
@@ -118,6 +216,12 @@ class PrescribirRecursoModal extends Component
     {
         if (! $this->tipoRecurso) {
             return collect();
+        }
+
+        if ($this->tipoRecurso === self::RECURSO_ACTIVIDAD) {
+            $this->tipoDestino = 'sesion_actividad';
+
+            return $this->actividadElegida === null ? collect() : $this->sesionesPrescribibles($this->actividadElegida);
         }
 
         $ciudadano = $this->ciudadano();
@@ -212,6 +316,10 @@ class PrescribirRecursoModal extends Component
     #[Computed]
     public function hayPlazaDisponible(): bool
     {
+        if ($this->destinoId && $this->tipoDestino === 'sesion_actividad') {
+            return SesionActividad::find($this->destinoId)?->plazasLibres(ViaInscripcion::Prescripcion) !== 0;
+        }
+
         if (! $this->destinoId || $this->tipoDestino !== 'coleccion_plazas') {
             return false;
         }
@@ -272,6 +380,12 @@ class PrescribirRecursoModal extends Component
         $profesionalId = Auth::user()?->profesional_id;
         $userId = Auth::id();
 
+        if ($this->tipoDestino === 'sesion_actividad') {
+            $this->confirmarSesion($historia, $profesionalId);
+
+            return;
+        }
+
         DB::transaction(function () use ($historia, $profesionalId, $userId) {
             $hayPlaza = $this->hayPlazaDisponible;
             $estado = $hayPlaza ? 'asignada' : 'en_lista_espera';
@@ -328,12 +442,85 @@ class PrescribirRecursoModal extends Component
     }
 
     /**
+     * Prescripción a una sesión de actividad: la crea PrescripcionService con su inscripción
+     * por vía de prescripción, y deja el apunte. Sin plaza, o sin el consentimiento para la
+     * inscripción en el centro, no se crea nada y se muestra el motivo.
+     *
+     * @param HistoriaSocial $historia
+     * @param int|null $profesionalId
+     *
+     * @return void
+     */
+    private function confirmarSesion(HistoriaSocial $historia, ?int $profesionalId): void
+    {
+        $this->resetErrorBag('destino');
+
+        try {
+            DB::transaction(function () use ($historia, $profesionalId): void {
+                $prescripcion = app(PrescripcionService::class)->crear([
+                    'profesional_id' => $profesionalId,
+                    'ciudadano_id' => $historia->ciudadano_id,
+                    'prestacion_id' => $this->prestacionId,
+                    'plan_intervencion_id' => null,
+                    'compromiso_id' => $this->compromisoId ?: null,
+                    'tipo_destino' => 'sesion_actividad',
+                    'destino_id' => $this->destinoId,
+                    'fecha_prescripcion' => today()->toDateString(),
+                    'notas' => $this->notas ?: null,
+                ], Auth::user(), $this->inscribirEnCentro);
+
+                Apunte::create([
+                    'historia_id' => $historia->id,
+                    'autor_id' => Auth::id(),
+                    'fecha' => today()->toDateString(),
+                    'tipo' => TipoApunte::Derivacion,
+                    'contenido' => 'Prescripción de sesión de actividad registrada.',
+                    'visibilidad' => VisibilidadApunte::Profesionales,
+                    'apuntable_type' => Prescripcion::class,
+                    'apuntable_id' => $prescripcion->id,
+                ]);
+            });
+        } catch (InscripcionCentroRequerida $e) {
+            $this->addError('destino', $e->getMessage().' Marca la casilla para inscribirla.');
+
+            return;
+        } catch (DomainException $e) {
+            $this->addError('destino', $e->getMessage());
+
+            return;
+        }
+
+        $this->abierto = false;
+        $this->dispatch('prescripcion-creada');
+    }
+
+    /**
+     * Sesiones programadas futuras de una actividad con plaza de prescripción libre.
+     *
+     * @param Actividad $actividad
+     *
+     * @return Collection<int, SesionActividad>
+     */
+    private function sesionesPrescribibles(Actividad $actividad): Collection
+    {
+        return $actividad->sesiones()
+            ->where('estado', 'programada')
+            ->whereDate('fecha', '>=', today())
+            ->orderBy('fecha')
+            ->orderBy('hora_inicio')
+            ->get()
+            ->filter(fn (SesionActividad $s) => $s->admiteInscripciones() && $s->plazasLibres(ViaInscripcion::Prescripcion) !== 0)
+            ->values()
+            ->toBase();
+    }
+
+    /**
      * Cancela y cierra el modal sin guardar cambios.
      */
     public function cancelar(): void
     {
         $this->abierto = false;
-        $this->reset(['paso', 'tipoRecurso', 'destinoId', 'compromisoId', 'notas']);
+        $this->reset(['paso', 'tipoRecurso', 'destinoId', 'compromisoId', 'notas', 'actividadId', 'inscribirEnCentro']);
         $this->paso = 1;
     }
 

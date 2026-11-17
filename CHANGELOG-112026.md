@@ -4,6 +4,43 @@
 
 ---
 
+## 2026-11-17 — Fase 6: actividades grupales con inscripción (`2026-11-fase6-actividades.md`)
+
+### Migración
+- `2026_11_16_110001_create_inscripciones_sesion_table`: tabla `inscripciones_sesion` (vías `libre`/`prescripcion`, estado `inscrita`/`baja`, CHECK de vía, estado, prescripción obligatoria y motivo de baja; índice único parcial de una inscripción vigente por persona y sesión; trigger que rechaza el DELETE). `actividades.prestacion_id` y `motivo_baja`; `sesiones_actividad.motivo_cancelacion`, `fecha_cancelacion` y `cancelada_por_id`. F6-9: una inscripción por vía `prescripcion` por cada prescripción `activa` en una sesión `programada` (81 en la BD compartida, de mundos demo), inscrita por el usuario del profesional que prescribió. Se aplica con el despliegue.
+
+### Modelo y servicios (módulo Centro)
+- `InscripcionSesion` (con `Versionable`), enums `ViaInscripcion` y `EstadoInscripcionSesion`.
+- `SesionActividad`: `aforoEfectivo()`, `aforoPrescripcionEfectivo()`, `capacidad()`, `aforoCompartido()` (F6-8), `ocupadas()`, `ocupadasContra()`, `plazasLibres()`, `admiteInscripciones()`, `inicio()` y `tieneParticipantes()`. Retirado el accesor `aforo_disponible`, que nadie usaba. `Actividad`: `prestacion()`, `admiteInscripciones()` y `ciudadanoInscritoEnCentro()`.
+- `InscripcionActividadService`: `inscribir()` (acceso libre), `inscribirPorPrescripcion()`, `darDeBaja()` y `registrarBaja()`. Comprueba plazas y escribe con un bloqueo consultivo de PostgreSQL por sesión (`pg_advisory_xact_lock`), para que dos inscripciones simultáneas no superen el aforo. `InscripcionCentroRequerida` para F6-4.
+- `CicloVidaActividadService`: `darDeBajaActividad()`, `cancelarSesion()`, `eliminarSesion()` (solo sin inscripciones ni prescripciones) y `marcarCelebrada()`.
+- `PrescripcionService::crear()` admite `sesion_actividad` (F6-7): la prescripción nace `activa` con su inscripción, en la misma transacción, o no nace si no queda plaza. `cancelar()` da de baja la inscripción de la prescripción.
+- `InscripcionSesionPolicy`: `inscribir`/`inscribirEnCentro` (adscritos al centro, RN-15, con `intervencion`, `consulta_basica` o `supervision`), `darDeBaja` (además, quien hizo la inscripción), `verInscritos` (personal del centro y su supervisión) y `gestionarActividad` (supervisión con el centro en su ámbito).
+- Enganches como en las plazas: `PrestacionPersonaService::desdeInscripcion()` (F6-10, desde `PrestacionesServiceProvider`) y `AvisoActividadesService::avisarCancelacion()` (Intervención, por `AlertaService`; un aviso por profesional, sin nombres de personas).
+
+### Interfaz
+- Supervisión → Actividades: prestación vinculada, filtro «Ver también las dadas de baja», «Dar de baja» con motivo, sesiones con «Inscritos», «Cancelar» con motivo, «Marcar como celebrada» y «Eliminar» solo si está vacía. El estado de una sesión ya no se edita en el formulario (antes se podía poner «cancelada» a mano sin dar de baja a nadie) y el aforo no baja de lo ya ocupado. Vista de inscritos con vía, quién y cuándo, y aforo ocupado por vía, con `PresentacionPersona` (RN-17).
+- Ficha de la persona: bloque «Actividades» (`ciudadania.actividades-persona`) con las inscripciones próximas y anteriores, «Dar de baja» e «Inscribir en actividad» (actividades activas del centro activo con acceso libre o mixto y sesiones con plaza; inscripción en el centro con consentimiento).
+- `PrescribirRecursoModal`: tipo de recurso «Actividad grupal (sesión)», con la actividad (de cualquier centro), la sesión con las plazas de prescripción libres y la casilla de inscripción en el centro.
+
+### Tests
+- `Modules/Centro/tests/Feature/Actividades` (`AforoTest`, `InscripcionLibreTest`, `InscripcionPrescripcionTest`, `CicloVidaActividadTest`, `PermisosInscripcionTest`) y `Modules/Intervencion/tests/Feature/Actividades/InscripcionFichaTest`: TF-ACT-01 a 26 y 11 casos más (bolsa común, índice único, actividad de baja, protegida no visible, libre sin prescripción, formulario sin estado, aforo por debajo de lo ocupado, gestión solo por la supervisión, inscritos solo del centro, F6-4 en la ficha y TF-ACT-13 por el modal): 37 passed. Escenario en `Modules/Centro/tests/Concerns/ActividadesTestSetup.php`.
+- Negativos comprobados (el test falla sin la protección): TF-ACT-03, 04, 08, 14, 18, 22 y 24.
+- TF-ACT-04: con `RefreshDatabase`, los datos del test no se ven desde otra conexión, por eso el bloqueo es consultivo y no de fila; el test lo coge desde una segunda conexión y comprueba que la inscripción espera (`lock_timeout`).
+- Suites de Centro, Supervisión, Intervención, Ciudadanía y Prestaciones y `tests/Feature/Demo`: 781 passed y 6 incomplete (de antes), sin fallos (unos 38 min). No se ha pasado la suite completa.
+- `npm run build` y `ui:auditar`: sin infracciones.
+
+### Decisiones tomadas en la sesión
+- **F6-10 (desarrollador):** la prestación de la persona es una por persona y actividad, no una por inscripción; las bajas no la tocan.
+- «Supervisión del centro», al inscribir, es la adscrita al centro: la que llega desde una UO superior (p. ej. `$coordIgualdad` por la jerarquía funcional) no inscribe (TF-ACT-22). Sí gestiona la actividad, como el resto de la pantalla de Actividades.
+- La baja de una actividad cancela sus sesiones programadas futuras con «Actividad dada de baja: <motivo>» y avisa. Las instrucciones no lo decían: queda en el BACKLOG para confirmarlo.
+- La prestación de la persona empieza en la fecha de la sesión de la primera inscripción.
+- La inscripción por prescripción también pide la inscripción en el centro si la actividad la exige (F6-4 en el modal).
+- No se inscribe a una persona protegida que el usuario no puede ver (RN-17), aunque esté adscrito al centro.
+- El bloque «Actividades» va en la ficha de la persona (Ciudadanía) y no en la caja de herramientas de la Historia Social, para que lo usen `consulta_basica` y quien no lee la historia.
+
+---
+
 ## 2026-11-16 — Infraestructura: planificador y cola en staging; citas de prueba en el CIAM
 
 ### Infraestructura

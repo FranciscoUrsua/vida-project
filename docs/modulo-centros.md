@@ -98,6 +98,21 @@ Las actividades se materializan en **sesiones** convocadas explícitamente. La i
 
 Cada sesión puede asociarse a una **sala** del centro donde se celebra. La sala es informativa: VIDA 360 no gestiona disponibilidad ni conflictos de reserva (esto corresponde al módulo de Agenda).
 
+**Inscripción (fase 6, 17 nov 2026).** La persona se inscribe sesión a sesión (`inscripciones_sesion`, §4.9 bis); no hay inscripción en bloque en toda la actividad (F6-1). Dos vías:
+
+- **Acceso libre:** desde el bloque «Actividades» de la ficha de la persona, por el personal adscrito al centro de la actividad (RN-15) con `intervencion`, `consulta_basica` o `supervision`. La supervisión que llega al centro desde una UO superior no inscribe. El selector ofrece solo las actividades activas del centro activo con acceso libre o mixto y sesiones con plaza.
+- **Prescripción:** desde el plan (`PrescribirRecursoModal`, tipo de recurso «Actividad grupal»), por cualquier profesional que use el flujo de prescripción, también desde otro centro (F6-2). La prescripción nace `activa` con su inscripción por vía `prescripcion`.
+
+**Aforo.** El de la sesión sobrescribe el de la actividad; nulo es sin límite. En una actividad libre o solo de prescripción, todo el aforo es de esa vía. En una mixta con `aforo_prescripcion`, ese cupo es de prescripción y el resto de acceso libre; con `aforo_prescripcion` nulo, las dos vías comparten el aforo total (F6-8). **Con el aforo de la vía completo, la inscripción se rechaza** (F6-3): no hay lista de espera de actividades (pendiente, ver `modulo-solicitudes-expedientes.md` §8). Las inscripciones de una sesión se serializan con un bloqueo consultivo de PostgreSQL para que ninguna supere el aforo en concurrencia. El aforo de una sesión no puede editarse por debajo de lo ya ocupado.
+
+**Inscripción en el centro.** Si la actividad `requiere_inscripcion_centro` y la persona no está inscrita, el mismo flujo pide el consentimiento para inscribirla antes en el centro (F6-4).
+
+**Prestación.** Si la actividad tiene prestación vinculada (`actividades.prestacion_id`), inscribir crea la prestación de la persona activa, una por persona y actividad (F6-10). Las bajas no la tocan.
+
+**Ciclo de vida (F6-5): nada con personas se borra.** La baja de una inscripción es lógica y exige motivo; la de una inscripción por prescripción cancela la prescripción con el mismo motivo, y cancelar la prescripción da de baja la inscripción. Una actividad se da de baja con motivo (`activa = false`, `fecha_baja`, `motivo_baja`), deja de admitir inscripciones y sus sesiones programadas futuras se cancelan. Una sesión con inscripciones o prescripciones se cancela con motivo, nunca se borra: sus inscripciones pasan a baja con «Sesión cancelada» y se avisa a quien inscribió o prescribió a cada persona (un aviso por profesional, sin nombres). Solo una sesión sin ninguna se elimina. «Marcar como celebrada» no registra asistencia (F6-6). El estado de la sesión no se edita en el formulario: cambia solo por estas acciones, de la supervisión del centro (`InscripcionSesionPolicy::gestionarActividad`).
+
+**Inscritos.** La pantalla de Actividades de Supervisión muestra los inscritos de cada sesión (persona, vía, quién y cuándo) y el aforo ocupado por vía, al personal del centro y su supervisión; una persona protegida sale como «Persona con protección especial» para quien no la puede ver (RN-17).
+
 ### 2.7 Inscripción en centro
 
 Algunos centros requieren que el ciudadano esté registrado antes de acceder a sus actividades. La inscripción es indefinida y la baja es siempre explícita. El centro se configura como inscripción libre o por adscripción territorial.
@@ -286,9 +301,11 @@ referencian desde las sesiones de actividad como dato informativo de ubicación.
 | aforo_total | integer | Nullable |
 | aforo_prescripcion | integer | Nullable. Solo si `modo_acceso = mixta` |
 | requiere_inscripcion_centro | boolean | |
+| prestacion_id | FK | Nullable. Prestación del catálogo que se crea a la persona al inscribirla (fase 6, F6-10) |
 | activa | boolean | |
 | fecha_alta | date | |
 | fecha_baja | date | Nullable |
+| motivo_baja | text | Nullable. Obligatorio al dar de baja (fase 6) |
 | notas | text | Nullable |
 
 ### 4.9 SesionActividad
@@ -304,7 +321,26 @@ referencian desde las sesiones de actividad como dato informativo de ubicación.
 | aforo_prescripcion | integer | Nullable. Sobreescribe el de la actividad |
 | estado  | enum | `programada` · `celebrada` · `cancelada`                 |
 | sala_id | FK   | Nullable. FK → salas.id. Sala donde se celebra la sesión |
+| motivo_cancelacion | text | Nullable. Obligatorio al cancelar (fase 6) |
+| fecha_cancelacion | timestamp | Nullable |
+| cancelada_por_id | FK users | Nullable |
 | notas   | text | Nullable                                                 |
+
+### 4.9 bis InscripcionSesion (`inscripciones_sesion`, fase 6)
+
+| Atributo | Tipo | Notas |
+|---|---|---|
+| id | PK | |
+| sesion_actividad_id | FK | |
+| ciudadano_id | FK | Una sola inscripción `inscrita` por persona y sesión (índice único parcial) |
+| via | enum | `libre` · `prescripcion` |
+| prescripcion_id | FK | Nullable. Obligatoria si `via = prescripcion` (CHECK) |
+| estado | enum | `inscrita` · `baja`. Solo `inscrita` ocupa plaza |
+| inscrita_por_id | FK users | Quien inscribió o prescribió |
+| fecha_baja / motivo_baja / baja_por_id | | Nullable. Motivo obligatorio en la baja (CHECK) |
+| created_at / updated_at | timestamp | |
+
+Sin borrado: un trigger rechaza el DELETE. Se escribe solo desde `InscripcionActividadService`. La migración creó una inscripción por cada prescripción `activa` en una sesión `programada` (F6-9).
 
 ### 4.10 InscripcionCentro
 

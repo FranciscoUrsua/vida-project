@@ -234,6 +234,7 @@ Tramitación accede a la persona solo a través de solicitudes de su unidad (RN-
 ## 8. Decisiones pendientes
 
 - **Listas de espera de prestaciones con plazas limitadas**: el modelo de lista de espera de centros existe, pero su gestión completa está pendiente. Afecta al paso de concedida a activa en prestaciones con plaza.
+- **Lista de espera de actividades** (fase 6, F6-3): con el aforo de una sesión completo, la inscripción o la prescripción se rechaza. Una lista de espera por sesión queda pendiente, junto a la de plazas.
 - **Aviso por demora de inicio**: si una prestación concedida no empieza en un plazo configurable por prestación, ¿se avisa al trabajador social?
 - **Integración con proveedores** (p. ej. empresa de ayuda a domicilio) para registrar el inicio efectivo automáticamente.
 - **Cofinanciación y HSU**: qué solicitudes y resoluciones se comparten con la Comunidad de Madrid.

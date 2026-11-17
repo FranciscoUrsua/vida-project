@@ -2,16 +2,24 @@
 
 namespace Modules\Centro\Services;
 
+use App\Models\User;
+use DomainException;
+use Illuminate\Support\Facades\DB;
 use Modules\Centro\Models\ColeccionPlazas;
+use Modules\Centro\Models\InscripcionSesion;
 use Modules\Centro\Models\ListaEspera;
 use Modules\Centro\Models\Plaza;
 use Modules\Centro\Models\Prescripcion;
+use Modules\Centro\Services\Actividades\InscripcionActividadService;
+use Modules\Centro\Services\Actividades\InscripcionCentroRequerida;
 
 /**
- * Gestiona el ciclo de vida de las prescripciones de plazas.
+ * Gestiona el ciclo de vida de las prescripciones de plazas y de sesiones de actividad.
  *
  * Crea prescripciones asignando plaza disponible o entrando en lista de espera.
- * Gestiona la liberación de plazas y las cancelaciones.
+ * Gestiona la liberación de plazas y las cancelaciones. Una prescripción a una sesión
+ * nace activa con su inscripción por vía de prescripción, o no nace si no queda plaza de
+ * prescripción (fase 6, F6-3 y F6-7): las actividades no tienen lista de espera.
  *
  * La asignación nunca es automática cuando se libera una plaza: el sistema
  * actualiza el profesional de alerta y espera confirmación profesional.
@@ -106,21 +114,30 @@ class PrescripcionService
     }
 
     /**
-     * Crea una prescripción hacia una colección de plazas.
+     * Crea una prescripción hacia una colección de plazas o una sesión de actividad.
      *
-     * Si hay plaza libre y el modo lo permite, la asigna directamente.
-     * Si no hay disponibilidad y el modo es prescripcion_lista_espera,
-     * crea el registro de lista de espera.
+     * Colección: si hay plaza libre y el modo lo permite, la asigna directamente; si no hay
+     * disponibilidad, crea el registro de lista de espera.
+     * Sesión: ver crearEnSesion().
      *
      * @param array<string, mixed> $datos Atributos de la Prescripcion (sin estado, plaza_id, fecha_asignacion)
+     * @param User|null $actor Quien prescribe; obligatorio para las sesiones.
+     * @param bool $inscribirEnCentro Consentimiento para inscribir a la persona en el centro de la actividad (F6-4).
      *
-     * @throws \InvalidArgumentException Si el tipo_destino no es coleccion_plazas.
+     * @return Prescripcion
+     *
+     * @throws \InvalidArgumentException Si el tipo_destino no es coleccion_plazas ni sesion_actividad.
+     * @throws InscripcionCentroRequerida|DomainException En una sesión sin plaza o que no la admite.
      */
-    public function crear(array $datos): Prescripcion
+    public function crear(array $datos, ?User $actor = null, bool $inscribirEnCentro = false): Prescripcion
     {
+        if (($datos['tipo_destino'] ?? '') === 'sesion_actividad') {
+            return $this->crearEnSesion($datos, $actor ?? throw new \InvalidArgumentException('Prescribir una sesión exige el usuario que prescribe.'), $inscribirEnCentro);
+        }
+
         if (($datos['tipo_destino'] ?? '') !== 'coleccion_plazas') {
             throw new \InvalidArgumentException(
-                'PrescripcionService::crear() solo gestiona prescripciones de tipo coleccion_plazas.'
+                'PrescripcionService::crear() solo gestiona prescripciones de tipo coleccion_plazas o sesion_actividad.'
             );
         }
 
@@ -161,6 +178,34 @@ class PrescripcionService
     }
 
     /**
+     * Prescripción a una sesión de actividad: nace activa y con su inscripción por vía de
+     * prescripción, en la misma transacción. Si no queda plaza de prescripción, no se crea
+     * nada (F6-3).
+     *
+     * @param array<string, mixed> $datos
+     * @param User $actor
+     * @param bool $inscribirEnCentro
+     *
+     * @return Prescripcion
+     *
+     * @throws InscripcionCentroRequerida|DomainException
+     */
+    private function crearEnSesion(array $datos, User $actor, bool $inscribirEnCentro): Prescripcion
+    {
+        return DB::transaction(function () use ($datos, $actor, $inscribirEnCentro): Prescripcion {
+            $prescripcion = Prescripcion::create(array_merge($datos, [
+                'estado' => 'activa',
+                'plaza_id' => null,
+                'fecha_asignacion' => today()->toDateString(),
+            ]));
+
+            app(InscripcionActividadService::class)->inscribirPorPrescripcion($prescripcion, $actor, $inscribirEnCentro);
+
+            return $prescripcion;
+        });
+    }
+
+    /**
      * Marca una plaza como libre y actualiza el profesional de alerta en la lista de espera.
      *
      * No cambia el estado de las prescripciones en espera: la asignación es siempre
@@ -192,21 +237,33 @@ class PrescripcionService
     }
 
     /**
-     * Cancela una prescripción y libera la plaza si tenía una asignada.
+     * Cancela una prescripción y libera la plaza si tenía una asignada. En una sesión de
+     * actividad, da de baja su inscripción vigente (la plaza), con el mismo motivo.
      *
      * @param Prescripcion $prescripcion Prescripción que se cancela.
      * @param string|null $motivo Motivo opcional de la cancelación.
+     *
+     * @return void
      */
     public function cancelar(Prescripcion $prescripcion, ?string $motivo = null): void
     {
-        if ($prescripcion->plaza_id) {
-            Plaza::find($prescripcion->plaza_id)?->update(['estado' => 'libre']);
-        }
+        DB::transaction(function () use ($prescripcion, $motivo): void {
+            if ($prescripcion->plaza_id) {
+                Plaza::find($prescripcion->plaza_id)?->update(['estado' => 'libre']);
+            }
 
-        $prescripcion->update([
-            'estado' => 'cancelada',
-            'plaza_id' => null,
-            'motivo_cancelacion' => $motivo,
-        ]);
+            $prescripcion->update([
+                'estado' => 'cancelada',
+                'plaza_id' => null,
+                'motivo_cancelacion' => $motivo,
+            ]);
+
+            // Si la cancelación viene de la baja de la inscripción, esta ya no está vigente
+            $inscripcion = InscripcionSesion::where('prescripcion_id', $prescripcion->id)->vigentes()->first();
+
+            if ($inscripcion !== null) {
+                app(InscripcionActividadService::class)->registrarBaja($inscripcion, $motivo ?? 'Prescripción cancelada', auth()->user());
+            }
+        });
     }
 }

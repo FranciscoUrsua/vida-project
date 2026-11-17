@@ -36,7 +36,7 @@
                                     <button type="button"
                                             wire:click="$set('tipoRecurso', '{{ $tipo }}')"
                                             class="list-group-item list-group-item-action {{ $tipoRecurso === $tipo ? 'active' : '' }}">
-                                        {{ ucfirst($tipo) }}
+                                        {{ $tipo === \Modules\Intervencion\Http\Livewire\PrescribirRecursoModal::RECURSO_ACTIVIDAD ? 'Actividad grupal (sesión)' : ucfirst($tipo) }}
                                     </button>
                                 @endforeach
                             </div>
@@ -44,8 +44,52 @@
                     </div>
                 @endif
 
+                {{-- PASO 2 — Destino: actividad y sesión (fase 6, F6-7) --}}
+                @if($paso === 2 && $tipoRecurso === \Modules\Intervencion\Http\Livewire\PrescribirRecursoModal::RECURSO_ACTIVIDAD)
+                    <div wire:key="paso-2-actividad">
+                        <p class="text-body-secondary small mb-3">Actividades de cualquier centro que admiten prescripción, con plazas de prescripción libres.</p>
+                        <div class="mb-3">
+                            <label class="form-label" for="prescribir-actividad">Actividad</label>
+                            <select id="prescribir-actividad" class="form-select form-select-sm" wire:model.live="actividadId">
+                                <option value="">Elige una actividad…</option>
+                                @foreach($this->actividadesPrescribibles as $actividad)
+                                    <option value="{{ $actividad->id }}">{{ $actividad->nombre }} — {{ $actividad->centro?->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @if($actividadId)
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Sesión</th>
+                                            <th class="text-center">Plazas de prescripción libres</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($this->opcionesDestino as $sesion)
+                                            @php $libres = $sesion->plazasLibres(\Modules\Centro\Enums\ViaInscripcion::Prescripcion); @endphp
+                                            <tr @class(['table-primary' => $destinoId === $sesion->id])>
+                                                <td>{{ $sesion->fecha->format('d/m/Y') }} · {{ substr((string) $sesion->hora_inicio, 0, 5) }}</td>
+                                                <td class="text-center">{{ $libres ?? 'Sin límite' }}</td>
+                                                <td>
+                                                    <button type="button" wire:click="$set('destinoId', {{ $sesion->id }})"
+                                                            @class(['btn btn-sm', 'btn-primary' => $destinoId === $sesion->id, 'btn-outline-primary' => $destinoId !== $sesion->id])>
+                                                        {{ $destinoId === $sesion->id ? 'Seleccionada' : 'Seleccionar' }}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                    </div>
+                @endif
+
                 {{-- PASO 2 — Destino --}}
-                @if($paso === 2)
+                @if($paso === 2 && $tipoRecurso !== \Modules\Intervencion\Http\Livewire\PrescribirRecursoModal::RECURSO_ACTIVIDAD)
                     <div wire:key="paso-2">
                         <p class="text-body-secondary small mb-3">Selecciona el centro o red de destino.</p>
                         @if($this->opcionesDestino->isEmpty())
@@ -88,6 +132,31 @@
                 {{-- PASO 3 — Confirmación --}}
                 @if($paso === 3)
                     <div wire:key="paso-3">
+                        @if($tipoDestino === 'sesion_actividad')
+                        @php $sesionElegida = $this->opcionesDestino->firstWhere('id', $destinoId); @endphp
+                        <dl class="row mb-3">
+                            <dt class="col-sm-4">Actividad</dt>
+                            <dd class="col-sm-8">{{ $this->actividadElegida?->nombre ?? '—' }} — {{ $this->actividadElegida?->centro?->nombre }}</dd>
+                            <dt class="col-sm-4">Sesión</dt>
+                            <dd class="col-sm-8">{{ $sesionElegida?->fecha->format('d/m/Y') }} · {{ substr((string) $sesionElegida?->hora_inicio, 0, 5) }}</dd>
+                            <dt class="col-sm-4">Plazas de prescripción</dt>
+                            <dd class="col-sm-8">
+                                @if($this->hayPlazaDisponible)
+                                    <span class="badge bg-success-subtle text-success-emphasis">{{ $sesionElegida?->plazasLibres(\Modules\Centro\Enums\ViaInscripcion::Prescripcion) ?? 'Sin límite' }} libres</span>
+                                @else
+                                    <span class="badge bg-danger-subtle text-danger-emphasis">Sin plazas: no se puede prescribir</span>
+                                @endif
+                            </dd>
+                        </dl>
+                        @if($this->requiereInscripcionCentro)
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="prescribir-inscribir-centro" wire:model="inscribirEnCentro">
+                                <label class="form-check-label" for="prescribir-inscribir-centro">
+                                    La actividad exige estar inscrita en {{ $this->actividadElegida?->centro?->nombre }}: inscribirla también en el centro
+                                </label>
+                            </div>
+                        @endif
+                        @else
                         <dl class="row mb-3">
                             <dt class="col-sm-4">Tipo de recurso</dt>
                             <dd class="col-sm-8">{{ ucfirst($tipoRecurso ?? '—') }}</dd>
@@ -107,6 +176,7 @@
                                 @endif
                             </dd>
                         </dl>
+                        @endif
 
                         <div class="mb-3">
                             <label class="form-label">Notas para el TS del centro receptor <span class="text-body-secondary">(opcional)</span></label>

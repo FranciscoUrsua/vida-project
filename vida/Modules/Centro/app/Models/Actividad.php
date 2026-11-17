@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Modules\Prestaciones\Models\Prestacion;
 use Modules\Usuarios\Models\Profesional;
 
 /**
@@ -22,6 +23,7 @@ use Modules\Usuarios\Models\Profesional;
  * @property int $id
  * @property int $centro_id
  * @property int $tipo_actividad_id
+ * @property int|null $prestacion_id
  * @property string $nombre
  * @property string|null $descripcion
  * @property string $modo_acceso
@@ -31,6 +33,9 @@ use Modules\Usuarios\Models\Profesional;
  * @property bool $activa
  * @property Carbon $fecha_alta
  * @property Carbon|null $fecha_baja
+ * @property string|null $motivo_baja
+ * @property-read Centro $centro
+ * @property-read Prestacion|null $prestacion
  * @property-read Collection<int, Profesional> $profesionales
  */
 class Actividad extends Model
@@ -43,6 +48,7 @@ class Actividad extends Model
     protected $fillable = [
         'centro_id',
         'tipo_actividad_id',
+        'prestacion_id',
         'nombre',
         'descripcion',
         'modo_acceso',
@@ -52,6 +58,7 @@ class Actividad extends Model
         'activa',
         'fecha_alta',
         'fecha_baja',
+        'motivo_baja',
         'notas',
     ];
 
@@ -89,6 +96,17 @@ class Actividad extends Model
     }
 
     /**
+     * Prestación del catálogo vinculada: al inscribir a una persona se le crea la
+     * prestación activa (fase 6, paso 2). Sin prestación, no se crea nada.
+     *
+     * @return BelongsTo<Prestacion, $this>
+     */
+    public function prestacion(): BelongsTo
+    {
+        return $this->belongsTo(Prestacion::class, 'prestacion_id');
+    }
+
+    /**
      * Sesiones concretas planificadas para esta actividad.
      *
      * @return HasMany<SesionActividad, $this>
@@ -115,6 +133,51 @@ class Actividad extends Model
     // -------------------------------------------------------------------------
 
     /**
+     * Aforo total de la actividad; las sesiones pueden sobrescribirlo. Null = sin límite.
+     *
+     * @return int|null
+     */
+    public function aforoEfectivo(): ?int
+    {
+        return $this->aforo_total;
+    }
+
+    /**
+     * Cupo de prescripción; solo en las mixtas (en las demás, todo el aforo es de su vía).
+     *
+     * @return int|null
+     */
+    public function aforoPrescripcionEfectivo(): ?int
+    {
+        return $this->modo_acceso === 'mixta' ? $this->aforo_prescripcion : null;
+    }
+
+    /**
+     * Si admite inscripciones: activa y sin baja (F6-5).
+     *
+     * @return bool
+     */
+    public function admiteInscripciones(): bool
+    {
+        return $this->activa && $this->fecha_baja === null;
+    }
+
+    /**
+     * Si el ciudadano tiene inscripción activa en el centro de la actividad.
+     *
+     * @param int $ciudadanoId
+     *
+     * @return bool
+     */
+    public function ciudadanoInscritoEnCentro(int $ciudadanoId): bool
+    {
+        return InscripcionCentro::where('centro_id', $this->centro_id)
+            ->where('ciudadano_id', $ciudadanoId)
+            ->activas()
+            ->exists();
+    }
+
+    /**
      * Verifica que el ciudadano tiene inscripción activa en este centro.
      * Solo aplica si requiere_inscripcion_centro = true.
      *
@@ -128,12 +191,7 @@ class Actividad extends Model
             return;
         }
 
-        $tieneInscripcion = InscripcionCentro::where('centro_id', $this->centro_id)
-            ->where('ciudadano_id', $ciudadanoId)
-            ->activas()
-            ->exists();
-
-        if (! $tieneInscripcion) {
+        if (! $this->ciudadanoInscritoEnCentro($ciudadanoId)) {
             throw new \InvalidArgumentException(
                 'El ciudadano no tiene inscripción activa en el centro. La actividad requiere inscripción previa.'
             );

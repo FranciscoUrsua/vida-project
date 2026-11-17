@@ -1,6 +1,10 @@
 <div class="op-page">
 
     <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom">
+        <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" role="switch" id="act-ver-bajas" wire:model.live="verBajas">
+            <label class="form-check-label small" for="act-ver-bajas">Ver también las dadas de baja</label>
+        </div>
         <button type="button" class="btn btn-primary btn-sm ms-auto" wire:click="abrirModal">
             <x-heroicon-o-plus class="icon-16 me-1" aria-hidden="true"/>
             Nueva actividad
@@ -41,18 +45,25 @@
                             <td>{{ $actividad->aforo_total ?? '—' }}</td>
                             <td class="text-body-secondary small">{{ $actividad->fecha_alta?->format('d/m/Y') }}</td>
                             <td>
-                                @if($actividad->activa)
+                                @if($actividad->admiteInscripciones())
                                     <span class="badge bg-success-subtle text-success-emphasis">Activa</span>
                                 @else
-                                    <span class="badge bg-secondary-subtle text-secondary-emphasis">Inactiva</span>
+                                    <span class="badge bg-secondary-subtle text-secondary-emphasis"
+                                          title="{{ $actividad->motivo_baja }}">De baja{{ $actividad->fecha_baja ? ' desde el '.$actividad->fecha_baja->format('d/m/Y') : '' }}</span>
                                 @endif
                             </td>
-                            <td class="text-end">
+                            <td class="text-end text-nowrap">
                                 <button type="button" class="btn btn-outline-secondary btn-sm"
                                         wire:click="abrirSesiones({{ $actividad->id }})">
                                     <x-heroicon-o-calendar-days class="icon-14 me-1" aria-hidden="true"/>
                                     Sesiones
                                 </button>
+                                @if($actividad->admiteInscripciones())
+                                    <button type="button" class="btn btn-outline-danger btn-sm ms-1"
+                                            wire:click="abrirBaja({{ $actividad->id }})">
+                                        Dar de baja
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                         @endforeach
@@ -132,6 +143,19 @@
                         </div>
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label" for="act-prestacion">Prestación vinculada</label>
+                        <select id="act-prestacion" class="form-select @error('prestacionId') is-invalid @enderror"
+                                wire:model="prestacionId">
+                            <option value="">Sin prestación</option>
+                            @foreach($this->prestacionesDelCentro as $prestacion)
+                                <option value="{{ $prestacion->id }}">{{ $prestacion->nombre }}</option>
+                            @endforeach
+                        </select>
+                        <div class="form-text">Al inscribir a una persona se le registra esta prestación como activa.</div>
+                        @error('prestacionId') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
                     <div class="form-check mb-4">
                         <input class="form-check-input" type="checkbox" id="act-inscripcion"
                                wire:model="requiereInscripcion">
@@ -174,6 +198,40 @@
     @endif
 
     {{-- ================================================================ --}}
+    {{-- Modal baja de actividad                                           --}}
+    {{-- ================================================================ --}}
+    @if($bajaActividadId)
+    <div class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog"
+         aria-labelledby="modal-baja-titulo">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-baja-titulo">Dar de baja la actividad</h5>
+                    <button type="button" class="btn-close" wire:click="$set('bajaActividadId', null)" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-body-secondary">
+                        La actividad dejará de admitir inscripciones y sus sesiones programadas futuras se cancelarán:
+                        las personas inscritas se darán de baja y se avisará a quien las inscribió o prescribió.
+                        La actividad no se borra.
+                    </p>
+                    <label class="form-label" for="baja-motivo">Motivo <span class="text-danger">*</span></label>
+                    <textarea id="baja-motivo" class="form-control @error('motivoBaja') is-invalid @enderror"
+                              wire:model="motivoBaja" rows="2" maxlength="500"></textarea>
+                    @error('motivoBaja') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                            wire:click="$set('bajaActividadId', null)">Volver</button>
+                    <button type="button" class="btn btn-danger btn-sm" wire:click="confirmarBaja">Dar de baja</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+    @endif
+
+    {{-- ================================================================ --}}
     {{-- Modal sesiones                                                    --}}
     {{-- ================================================================ --}}
     @if($modalSesionesAbierto)
@@ -182,7 +240,7 @@
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header">
-                    @if($sesionesModo === 'formulario')
+                    @if($sesionesModo !== 'lista')
                     <button type="button" class="btn btn-link p-0 me-2 text-body"
                             wire:click="volverALista" aria-label="Volver al listado">
                         <x-heroicon-o-arrow-left class="icon-20" aria-hidden="true"/>
@@ -191,6 +249,8 @@
                     <h5 class="modal-title" id="modal-sesiones-titulo">
                         @if($sesionesModo === 'lista')
                             Sesiones — {{ $this->actividadParaSesiones?->nombre }}
+                        @elseif($sesionesModo === 'inscritos')
+                            Inscritos — {{ $this->sesionInscritos?->fecha->format('d/m/Y') }}, {{ $this->actividadParaSesiones?->nombre }}
                         @else
                             {{ $editandoSesionId ? 'Editar sesión' : 'Nueva sesión' }}
                         @endif
@@ -202,9 +262,13 @@
                 {{-- Vista: lista de sesiones --}}
                 @if($sesionesModo === 'lista')
                 <div class="modal-body p-0">
+                    @error('sesiones')
+                        <div class="alert alert-danger m-3 mb-0" role="alert">{{ $message }}</div>
+                    @enderror
                     <div class="p-3 border-bottom d-flex justify-content-end">
                         <button type="button" class="btn btn-primary btn-sm"
-                                wire:click="nuevaSesion">
+                                wire:click="nuevaSesion"
+                                @disabled(! $this->actividadParaSesiones?->admiteInscripciones())>
                             <x-heroicon-o-plus class="icon-16 me-1" aria-hidden="true"/>
                             Nueva sesión
                         </button>
@@ -221,6 +285,7 @@
                                         <th>Hora</th>
                                         <th>Sala</th>
                                         <th>Profesionales</th>
+                                        <th>Inscritas</th>
                                         <th>Estado</th>
                                         <th class="text-end">Acciones</th>
                                     </tr>
@@ -246,21 +311,72 @@
                                                 <span class="text-body-tertiary">—</span>
                                             @endif
                                         </td>
-                                        <td><span class="badge {{ \Modules\Supervision\Support\Ui\Tonos::estadoSesion($sesion->estado)->clasesSuave() }}">{{ $badgeLabel }}</span></td>
-                                        <td class="text-end">
+                                        <td class="small">
+                                            {{ $sesion->inscritas_count }}{{ $sesion->aforoEfectivo() !== null ? ' / '.$sesion->aforoEfectivo() : '' }}
+                                        </td>
+                                        <td>
+                                            <span class="badge {{ \Modules\Supervision\Support\Ui\Tonos::estadoSesion($sesion->estado)->clasesSuave() }}"
+                                                  title="{{ $sesion->motivo_cancelacion }}">{{ $badgeLabel }}</span>
+                                        </td>
+                                        <td class="text-end text-nowrap">
                                             <button type="button"
                                                     class="btn btn-link btn-sm p-0 me-3"
-                                                    wire:click="editarSesion({{ $sesion->id }})">
-                                                Editar
+                                                    wire:click="verInscritos({{ $sesion->id }})">
+                                                Inscritos
                                             </button>
-                                            <button type="button"
-                                                    class="btn btn-link btn-sm p-0 text-danger"
-                                                    wire:click="eliminarSesion({{ $sesion->id }})"
-                                                    wire:confirm="¿Eliminar la sesión del {{ $sesion->fecha->format('d/m/Y') }}?">
-                                                Eliminar
-                                            </button>
+                                            @if($sesion->estado === 'programada')
+                                                <button type="button"
+                                                        class="btn btn-link btn-sm p-0 me-3"
+                                                        wire:click="editarSesion({{ $sesion->id }})">
+                                                    Editar
+                                                </button>
+                                                @if($sesion->inicio()->isPast())
+                                                    <button type="button"
+                                                            class="btn btn-link btn-sm p-0 me-3"
+                                                            wire:click="marcarCelebrada({{ $sesion->id }})">
+                                                        Marcar como celebrada
+                                                    </button>
+                                                @endif
+                                                @if($sesion->tieneParticipantes())
+                                                    <button type="button"
+                                                            class="btn btn-link btn-sm p-0 text-danger"
+                                                            wire:click="abrirCancelacion({{ $sesion->id }})">
+                                                        Cancelar
+                                                    </button>
+                                                @else
+                                                    <button type="button"
+                                                            class="btn btn-link btn-sm p-0 me-3 text-danger"
+                                                            wire:click="abrirCancelacion({{ $sesion->id }})">
+                                                        Cancelar
+                                                    </button>
+                                                    <button type="button"
+                                                            class="btn btn-link btn-sm p-0 text-danger"
+                                                            wire:click="eliminarSesion({{ $sesion->id }})"
+                                                            wire:confirm="¿Eliminar la sesión del {{ $sesion->fecha->format('d/m/Y') }}?">
+                                                        Eliminar
+                                                    </button>
+                                                @endif
+                                            @endif
                                         </td>
                                     </tr>
+                                    @if($cancelandoSesionId === $sesion->id)
+                                    <tr>
+                                        <td colspan="7" class="bg-body-tertiary">
+                                            <label class="form-label small" for="cancelar-motivo">
+                                                Motivo de la cancelación <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="d-flex gap-2 align-items-start">
+                                                <input id="cancelar-motivo" type="text" maxlength="500"
+                                                       class="form-control form-control-sm" wire:model="motivoCancelacion">
+                                                <button type="button" class="btn btn-danger btn-sm text-nowrap"
+                                                        wire:click="confirmarCancelacion">Cancelar la sesión</button>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                        wire:click="$set('cancelandoSesionId', null)">Volver</button>
+                                            </div>
+                                            <div class="form-text">Las personas inscritas se darán de baja con «Sesión cancelada» y se avisará a quien las inscribió o prescribió.</div>
+                                        </td>
+                                    </tr>
+                                    @endif
                                     @endforeach
                                 </tbody>
                             </table>
@@ -270,6 +386,55 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary btn-sm"
                             wire:click="$set('modalSesionesAbierto', false)">Cerrar</button>
+                </div>
+                @endif
+
+                {{-- Vista: inscritos de una sesión --}}
+                @if($sesionesModo === 'inscritos')
+                <div class="modal-body">
+                    <div class="d-flex flex-wrap gap-3 mb-3">
+                        @foreach($this->ocupacionInscritos as $ocupacion)
+                            <div class="small">
+                                <span class="text-body-secondary">{{ $ocupacion['via']->label() }}:</span>
+                                <span class="fw-medium">{{ $ocupacion['ocupadas'] }} / {{ $ocupacion['total'] ?? 'sin límite' }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                    @if($this->inscritos === [])
+                        <x-op.empty icono="user-group">No hay personas inscritas en esta sesión.</x-op.empty>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Persona</th>
+                                        <th>Vía</th>
+                                        <th>Inscrita por</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($this->inscritos as $fila)
+                                    <tr>
+                                        <td>
+                                            @if($fila['persona']['visible'])
+                                                <a href="{{ $fila['persona']['url'] }}" class="text-decoration-none">{{ $fila['persona']['nombre'] }}</a>
+                                            @else
+                                                <span class="fst-italic text-body-secondary">{{ $fila['persona']['nombre'] }}</span>
+                                            @endif
+                                        </td>
+                                        <td class="small">{{ $fila['via']->label() }}</td>
+                                        <td class="small text-body-secondary">{{ $fila['inscrita_por'] }}</td>
+                                        <td class="small text-body-secondary">{{ $fila['fecha'] }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" wire:click="volverALista">Volver a las sesiones</button>
                 </div>
                 @endif
 
@@ -322,17 +487,6 @@
                                 </div>
                             @endif
                             @error('sesionSalaId') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-                        <div class="col-sm-6">
-                            <label class="form-label" for="ses-estado">Estado <span class="text-danger">*</span></label>
-                            <select id="ses-estado"
-                                    class="form-select @error('sesionEstado') is-invalid @enderror"
-                                    wire:model="sesionEstado">
-                                <option value="programada">Programada</option>
-                                <option value="celebrada">Celebrada</option>
-                                <option value="cancelada">Cancelada</option>
-                            </select>
-                            @error('sesionEstado') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                     </div>
 

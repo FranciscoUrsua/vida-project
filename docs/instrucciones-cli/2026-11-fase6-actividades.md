@@ -34,6 +34,15 @@
 | F6-5 | **Nada se borra:** una actividad se da de baja (`activa = false`, `fecha_baja`); una sesión con inscripciones o prescripciones se **cancela** (`estado = cancelada`) y solo se puede borrar si no tiene ninguna. Cancelar una sesión avisa a quien inscribió o prescribió a cada persona |
 | F6-6 | La asistencia y los certificados siguen siendo gestión interna del centro, fuera de VIDA (diseño §2.6) |
 
+**Confirmadas por el desarrollador el 2026-11-16:**
+
+- **F6-1 (cambiada):** no hay «Inscribir en la actividad» en bloque. La inscripción se hace **sesión a sesión**; no existe `inscribirEnActividad()` y TF-ACT-07 comprueba que inscribir en una sesión no inscribe en las demás.
+- **F6-3 (confirmada):** con el aforo completo, la inscripción se rechaza con un mensaje.
+- **F6-7 (nueva):** la prescripción a una sesión no existía en la interfaz (el modal solo ofrecía plazas y redes, y `PrescripcionService::crear()` rechazaba las sesiones). Se amplía `PrescribirRecursoModal` con el tipo de recurso «Actividad» (actividad activa con prescripción o mixta, de cualquier centro, y después la sesión con las plazas de prescripción libres), y la crea `PrescripcionService`.
+- **F6-8 (nueva):** en una actividad mixta con `aforo_prescripcion` nulo no hay cupo reservado: las dos vías comparten `aforo_total` (bolsa común).
+- **F6-9 (nueva):** la migración crea una inscripción por vía `prescripcion` por cada prescripción `activa` en una sesión `programada` (81 en la BD compartida, todas de mundos demo), inscrita por el autor de la prescripción.
+- **F6-10 (nueva, 2026-11-17):** la prestación de la persona es **una por persona y actividad**, no una por inscripción: si la persona ya tiene esa prestación sin finalizar, nacida de otra inscripción en la misma actividad, no se crea otra. Las bajas de inscripciones no tocan la prestación; la finaliza el profesional cuando proceda.
+
 ---
 
 ## Fuera de alcance
@@ -76,10 +85,10 @@ Sin borrado: la baja es lógica.
 ## Paso 2 — Servicio `InscripcionActividadService`
 
 - `inscribir(SesionActividad, Ciudadano, User $actor): InscripcionSesion` — vía `libre`: la actividad debe admitir acceso libre, la sesión estar `programada` y en el futuro, el actor adscrito al centro (RN-15), haber plaza (con bloqueo de fila para evitar sobreinscripción en concurrencia), y F6-4.
-- `inscribirEnActividad(Actividad, Ciudadano, User): ResultadoInscripcion` — F6-1: inscribe en las futuras con plaza y devuelve las no inscritas con su motivo.
+- ~~`inscribirEnActividad()`~~: no existe (F6-1 cambiada). La inscripción es sesión a sesión.
 - Prescripción a una sesión: al crear la prescripción (`PrescripcionService`), si hay plaza de prescripción se crea la inscripción con `via = prescripcion` y la prescripción pasa a `activa`; si no hay, se rechaza (F6-3). Ajusta `PrescripcionService` sin cambiar el flujo de plazas.
 - `darDeBaja(InscripcionSesion, string $motivo, User)` — libera la plaza. La baja de una inscripción por prescripción cancela la prescripción con el mismo motivo.
-- Al inscribir (cualquier vía) se crea, si la actividad está vinculada a una prestación del catálogo, una `PrestacionPersona` activa (fase 3 bis); si no hay prestación vinculada, no. Añade `actividades.prestacion_id` (FK nullable) para ello.
+- Al inscribir (cualquier vía) se crea, si la actividad está vinculada a una prestación del catálogo, una `PrestacionPersona` activa (fase 3 bis), una por persona y actividad (F6-10); si no hay prestación vinculada, no. Añade `actividades.prestacion_id` (FK nullable) para ello.
 
 ## Paso 3 — Ciclo de vida de actividades y sesiones (F6-5)
 
@@ -90,7 +99,7 @@ Sin borrado: la baja es lógica.
 
 ## Paso 4 — Interfaz de inscripción
 
-1. **Ficha de la persona** (caja de herramientas): «Inscribir en actividad» para el personal adscrito al centro: selector de actividades activas del centro activo con acceso libre o mixto, sesiones con plazas libres; opción de inscribir en todas las futuras.
+1. **Ficha de la persona** (caja de herramientas): «Inscribir en actividad» para el personal adscrito al centro: selector de actividades activas del centro activo con acceso libre o mixto, sesiones con plazas libres. Se inscribe sesión a sesión (F6-1).
 2. **Plan** (prescripción): el modal de prescripción a sesión existente muestra las plazas de prescripción disponibles.
 3. **Bloque «Actividades»** en la ficha: inscripciones vigentes y pasadas (actividad, centro, sesiones, vía) con «Dar de baja».
 4. `consulta_basica` puede inscribir en acceso libre (RN-15, si está adscrita) y ve el bloque «Actividades» de la persona, sin la vía de prescripción ni el plan.
@@ -141,7 +150,7 @@ Sin borrado: la baja es lógica.
 
 **TF-ACT-06 — Inscripción en el centro (F6-4)**: inscribir a `$ana` en `$tallerCiam` ofrece primero inscribirla en `$ciamVallecas`; aceptado → `InscripcionCentro` activa e inscripción en la sesión; rechazado → no se inscribe.
 
-**TF-ACT-07 — Todas las futuras (F6-1)**: «Inscribir en la actividad» inscribe en las sesiones del 9, 16 y 23, no en la pasada; si la del 16 está llena, informa de ella y se inscribe en las otras dos.
+**TF-ACT-07 — Sesión a sesión (F6-1)**: inscribir en la sesión del 9 no inscribe en las del 16 ni del 23; no existe la inscripción en bloque.
 
 **TF-ACT-08 — Sesión pasada, cancelada o celebrada** **[negativo]**: inscribir en la del 26 de octubre, en una cancelada o en una celebrada → rechazado.
 
@@ -151,7 +160,7 @@ Sin borrado: la baja es lógica.
 
 **TF-ACT-11 — Baja de una inscripción**: dar de baja con motivo libera la plaza; sin motivo → rechazado; la inscripción queda con estado `baja`, sin borrarse.
 
-**TF-ACT-12 — Prestación de la persona**: inscribir en `$tallerCiam` crea una `PrestacionPersona` activa de `$pTaller`; en `$charlaCss` (sin prestación), no.
+**TF-ACT-12 — Prestación de la persona**: inscribir en `$tallerCiam` crea una `PrestacionPersona` activa de `$pTaller`; inscribirla en otra sesión del taller no crea otra (F6-10); en `$charlaCss` (sin prestación), no.
 
 ## Grupo C — Prescripción
 
@@ -191,8 +200,8 @@ Sin borrado: la baja es lógica.
 
 | Grupo | Tests | Estado |
 |---|---|---|
-| A — Aforo | TF-ACT-01..04 | |
-| B — Inscripción libre | TF-ACT-05..12 | |
-| C — Prescripción | TF-ACT-13..16 | |
-| D — Ciclo de vida | TF-ACT-17..21 | |
-| E — Permisos e interfaz | TF-ACT-22..26 | |
+| A — Aforo | TF-ACT-01..04 | Hecho (2026-11-17) |
+| B — Inscripción libre | TF-ACT-05..12 | Hecho (2026-11-17) |
+| C — Prescripción | TF-ACT-13..16 | Hecho (2026-11-17) |
+| D — Ciclo de vida | TF-ACT-17..21 | Hecho (2026-11-17) |
+| E — Permisos e interfaz | TF-ACT-22..26 | Hecho (2026-11-17) |

@@ -26,7 +26,7 @@ use Modules\Prestaciones\Enums\EstadoPrestacionPersona;
  * @property int $id
  * @property int $ciudadano_id
  * @property int $prestacion_id
- * @property string|null $origen_type ResolucionLinea, Prescripcion o null (directa)
+ * @property string|null $origen_type ResolucionLinea, Prescripcion, InscripcionSesion (actividad, fase 6) o null (directa)
  * @property int|null $origen_id
  * @property int|null $plan_id
  * @property int|null $plan_objetivo_id

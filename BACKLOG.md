@@ -17,6 +17,17 @@ Módulos: Agenda, Centro
 
 ---
 
+**Fase 6 (actividades grupales con inscripción): pendientes** — 2026-11-17
+Módulos: Centro, Supervisión, Intervención, Ciudadanía
+- **Lista de espera de actividades** (F6-3): con el aforo de la vía completo, la inscripción o la prescripción se rechaza. Diseñar la lista de espera por sesión junto a la de plazas (`modulo-solicitudes-expedientes.md` §8).
+- **`demo:load` crea prescripciones a sesiones sin inscripción:** `DemoContextoAditivo::inscribirEnActividades()` escribe `Prescripcion::create()` directamente, sin `inscripciones_sesion` ni control de aforo. La migración de la fase migró las existentes (F6-9), pero una carga nueva vuelve a dejarlas sin plaza. Pasar el loader por `PrescripcionService::crear()` (o crear la inscripción) y añadir `inscripciones_sesion` a la futura purga por etiqueta.
+- **Quién puede prescribir:** `PrescribirRecursoModal` no comprueba permisos al confirmar (ni para plazas ni para sesiones); F6-2 dice «cualquier profesional que pueda editar el plan». Tampoco guarda `plan_intervencion_id` (siempre nulo), así que la prestación de la persona nacida de una prescripción no queda ligada al plan.
+- **Prestación de la persona al quedarse sin inscripciones** (F6-10): no se finaliza sola; la finaliza el profesional. Valorar un aviso cuando la persona ya no tiene inscripciones vigentes en la actividad.
+- **Baja de actividad con sesiones futuras:** se ha decidido que la baja cancela sus sesiones programadas futuras con «Actividad dada de baja: <motivo>» y avisa (las instrucciones no lo decían). Confirmar con el desarrollador.
+- **Probar en staging** tras el despliegue (migración `2026_11_16_110001`): en Supervisión → Actividades, vincular una prestación a una actividad, ver inscritos, cancelar una sesión y dar de baja una actividad; en la ficha de una persona, «Inscribir en actividad»; desde la Historia Social, «Prescribir recurso» → «Actividad grupal (sesión)».
+
+---
+
 **Fase 5 (informes desde la interfaz operativa): pendientes** — 2026-11-16
 Módulos: Documentos, Intervención
 - **Activar AutoFirma integrada** (F5-1 b): está preparada e inactiva (`DOCUMENTOS_AUTOFIRMA_ACTIVA=false`). Probarla en puestos reales con certificado de empleado público siguiendo `docs/decisiones-tecnicas.md` §17, copiar `autoscript.js` en `public/vendor/autofirma/` y activarla por entorno.
@@ -406,9 +417,7 @@ El campo `slug` se añadió como nullable para compatibilidad con datos existent
 
 ---
 
-**Actividades grupales — gestión completa** — 2026-06-25
-Módulo: Supervision / Centro
-El modal de alta de actividades está implementado. Pendiente: edición y baja de actividades, gestión de sesiones (`SesionActividad`), e inscripción de ciudadanos desde Intervención. El modelo `Actividad` ya tiene la estructura; falta la UI de ciclo de vida completo.
+**~~Actividades grupales — gestión completa~~** — 2026-06-25 · **Cerrado el 2026-11-17** (fase 6, `docs/instrucciones-cli/2026-11-fase6-actividades.md`, TF-ACT-01 a 26; ver `CHANGELOG-112026.md`). Lo que queda va en «Fase 6 (actividades): pendientes».
 
 ---
 

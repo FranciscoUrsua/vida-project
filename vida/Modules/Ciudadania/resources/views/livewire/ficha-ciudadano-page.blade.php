@@ -429,6 +429,9 @@
                 <livewire:agenda.historial-citas-ficha :ciudadano-id="$ciudadanoId" :key="'citas-'.$ciudadanoId" />
             @endif
 
+            {{-- ——— Actividades: inscripciones en sesiones, de cualquier centro (fase 6) ——— --}}
+            <livewire:ciudadania.actividades-persona :ciudadano-id="$ciudadanoId" :key="'actividades-'.$ciudadanoId" />
+
         </div>{{-- /col-lg-8 --}}
 
         {{-- ===================== COLUMNA LATERAL ===================== --}}
