@@ -2,6 +2,7 @@
 
 namespace Modules\Centro\Tests\Feature\Actividades;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Modules\Centro\Enums\EstadoInscripcionSesion;
@@ -234,8 +235,39 @@ class CicloVidaActividadTest extends TestCase
     #[Test]
     public function solo_la_supervision_del_centro_gestiona(): void
     {
-        $this->expectException(\Illuminate\Auth\Access\AuthorizationException::class);
+        $this->expectException(AuthorizationException::class);
 
         app(CicloVidaActividadService::class)->cancelarSesion($this->sesion9, 'Prueba', $this->psicologaVallecas);
+    }
+
+    /**
+     * Una sesión nueva lleva por defecto los profesionales de la actividad; se pueden
+     * cambiar, y editar una sesión mantiene los suyos.
+     *
+     * @return void
+     */
+    #[Test]
+    public function la_sesion_nueva_hereda_los_profesionales_de_la_actividad(): void
+    {
+        $responsables = [$this->psicologaVallecas->profesional_id, $this->directoraVallecas->profesional_id];
+        $this->tallerCiam->profesionales()->sync($responsables);
+        $this->sesion9->profesionales()->sync([$this->psicologaVallecas->profesional_id]);
+
+        $componente = Livewire::actingAs($this->directoraVallecas)->test(ActividadesPage::class)
+            ->call('abrirSesiones', $this->tallerCiam->id)
+            ->call('nuevaSesion');
+
+        $this->assertEqualsCanonicalizing($responsables, $componente->get('sesionProfesionalesIds'));
+
+        $componente->call('quitarSesionProfesional', $this->directoraVallecas->profesional_id)
+            ->set('sesionFecha', '2026-11-30')
+            ->call('guardarSesion')
+            ->assertHasNoErrors();
+
+        $nueva = SesionActividad::where('actividad_id', $this->tallerCiam->id)->whereDate('fecha', '2026-11-30')->sole();
+        $this->assertSame([$this->psicologaVallecas->profesional_id], $nueva->profesionales()->pluck('profesionales.id')->all());
+
+        $componente->call('editarSesion', $this->sesion9->id);
+        $this->assertSame([$this->psicologaVallecas->profesional_id], $componente->get('sesionProfesionalesIds'));
     }
 }

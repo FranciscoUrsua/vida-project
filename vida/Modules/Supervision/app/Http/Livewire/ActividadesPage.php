@@ -660,7 +660,8 @@ class ActividadesPage extends Component
     }
 
     /**
-     * Cambia el modal de sesiones al formulario en modo alta.
+     * Cambia el modal de sesiones al formulario en modo alta, con los profesionales de la
+     * actividad ya seleccionados.
      *
      * @return void
      */
@@ -673,6 +674,8 @@ class ActividadesPage extends Component
         ]);
         $this->sesionFecha = Carbon::today()->toDateString();
         $this->sesionHoraInicio = '09:00';
+        // Por defecto, los responsables de la actividad; se pueden quitar o añadir otros
+        $this->sesionProfesionalesIds = $this->actividadParaSesiones?->profesionales()->pluck('profesionales.id')->map(fn ($id) => (int) $id)->all() ?? [];
         $this->sesionesModo = 'formulario';
     }
 
