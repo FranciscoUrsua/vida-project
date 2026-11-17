@@ -19,6 +19,8 @@ Módulos: Agenda, Centro
 
 **Aprobación de roles: pendientes** — 2026-11-17
 Módulos: Usuarios, Supervisión
+- **Ergonomía (petición del desarrollador):** aprobar y denegar desde la pantalla de usuarios de Filament (p. ej. una acción en la fila del usuario o en su ficha con la solicitud pendiente), no solo desde el escritorio. Reutilizar `ResolucionRolesService`.
+- **Con un solo `adm_sistema`**, sus propias asignaciones con aprobación previa no las resuelve nadie cuando no hay supervisor competente (caso de #41, aprobada a mano el 17 nov). Opciones: un segundo `adm_sistema`, o que `adm_usuarios` haga las asignaciones y `adm_sistema` las apruebe.
 - §2.8 dice «el supervisor de la UO superior», pero la regla (desde antes) admite también la supervisión de la misma UO: la dirección de un centro aprueba al coordinador de su centro. Confirmar si se quiere así.
 - Un supervisor que además es `adm_usuarios` puede asignar un rol y aprobarlo él (no es su propia solicitud): solo `adm_sistema` tiene la regla de «no lo que asignó él». Valorar extenderla a todos.
 

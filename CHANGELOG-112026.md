@@ -16,6 +16,9 @@
 - `RolesPendientesWidget`: columna «La resuelve» (supervisores competentes o adm_sistema) y «Aprobar»/«Denegar» con motivo solo cuando `puedeResolver()` lo permite. `adm_usuarios` ya no aprueba.
 - Tests: `Modules/Usuarios/tests/Feature/ResolucionRolesTest.php` (7, negativos comprobados). Usuarios y Supervisión: 116 passed, 1 incomplete (de antes).
 
+### Aprobación manual en staging
+- Solicitud #41 (`coo.ciam@vida.local`, `supervision`, UO 16) aprobada a mano a petición del desarrollador, para pruebas: la asignó `admin@vida.local` y no hay supervisor competente, así que la regla nueva no deja resolverla a nadie (es lo esperado). Se cambió el estado por el modelo (el observer activó el rol en Spatie), sin tocar la lógica.
+
 ### Para el desarrollador
 - Tras el despliegue, `admin@vida.local` ve la solicitud #35 de `dir.css@vida.local` en el escritorio de Filament y la puede aprobar. Con `dir.css` ya supervisor, las siguientes de su centro las resuelve él.
 
