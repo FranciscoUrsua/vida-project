@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-11-17 — Staging: limpieza de los usuarios @demo.es y sus casos
+
+A petición del desarrollador: todos los usuarios deben ser @vida.local; los @demo.es eran pruebas de una fase anterior.
+
+- **Decisiones del desarrollador:** borrar solo los casos exclusivos de @demo.es (las 58 historias en que también son referencia ts1/ts2/ts3.ciam@vida.local se quedan; en ellas solo se quita lo hecho por los @demo.es) y **borrado físico con copia previa**. Es una excepción puntual a RN-20 (no borrar usuarios ni profesionales) y a las bajas lógicas, solo en staging.
+- **Copia previa:** `~/backups/vida-20261117-1111-antes-limpieza-demo-es.dump` (`pg_dump -Fc` de la BD `vida`). Script y salida: `~/backups/limpieza_demo_es-20261117.{php,log}`.
+- **Cómo:** una sola transacción. Desde las semillas (14 usuarios, sus 14 profesionales, 365 historias y sus 365 personas) recorre las claves foráneas y las parejas polimórficas: una referencia NOT NULL, o nullable a un caso, persona, plan o cita, borra la fila; una nullable a usuarios, profesionales o repartos se pone a NULL. `versiones.usuario_id`, sin FK, también se anula. Los triggers de inmutabilidad se desactivaron solo dentro de esa transacción. Simulado antes con rollback.
+- **Borrado:** 14 usuarios y profesionales, 365 historias y personas, 401 planes (con objetivos, indicadores, actuaciones, firmas y cambios), 1.642 entrevistas, 1.216 seguimientos, 423 asignaciones de referencia, 400 contactos SIA, 1.288 slots, 132 líneas de cuadrante, 18 apuntes, 6 fichas, 1 cita, 1 solicitud de cita y sus 2 eventos, 64 auditorías, alertas, adscripciones y roles. Ningún documento, prescripción ni inscripción en actividades.
+- **Queda:** 15 usuarios (todos @vida.local), 12 profesionales (2 sin usuario, de antes), 109 historias (89 abiertas, todas con referencia vigente) y 162 personas. Sin huérfanos; triggers activos.
+
+---
+
 ## 2026-11-17 — Filament: guardar una ficha de valoración la dejaba sin campos (incidencia)
 
 ### Causa

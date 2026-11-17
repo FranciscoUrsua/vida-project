@@ -6,7 +6,9 @@
 
 ## Tarea completada
 
-**Incidencia de Filament** (2026-11-17): guardar una ficha de valoración la dejaba sin campos (el `dehydrateStateUsing` del Builder llegaba reindexado y se descartaba). Arreglado, con `EdicionTipoFichaTest` (6 tests, fallan con el código anterior). Restaurados en staging #1 y #2 desde `fichas.schema_snapshot`; quedan a mano los campos nuevos de #2 y todo #4 (BACKLOG).
+**Limpieza de staging** (2026-11-17): borrados físicamente los 14 usuarios @demo.es, sus profesionales y sus 365 casos exclusivos con todo lo que colgaba (copia previa en `~/backups/vida-20261117-1111-antes-limpieza-demo-es.dump`; detalle en `CHANGELOG-112026.md`). Quedan 15 usuarios, todos @vida.local, y 109 historias.
+
+Antes: **Incidencia de Filament** (2026-11-17): guardar una ficha de valoración la dejaba sin campos (el `dehydrateStateUsing` del Builder llegaba reindexado y se descartaba). Arreglado, con `EdicionTipoFichaTest` (6 tests, fallan con el código anterior). Restaurados en staging #1 y #2 desde `fichas.schema_snapshot`; quedan a mano los campos nuevos de #2 y todo #4 (BACKLOG).
 
 Antes: **Fase 6, actividades grupales con inscripción** (2026-11-17, `docs/instrucciones-cli/2026-11-fase6-actividades.md`, pasos 0 a 5): `inscripciones_sesion` (sesión a sesión, vías `libre` y `prescripcion`, baja lógica, sin DELETE), aforo por vía con bloqueo consultivo por sesión y rechazo con aforo completo, inscripción en el centro con consentimiento, prestación de la persona una por persona y actividad (F6-10, decisión del desarrollador del 17 nov), prescripción a sesión desde el plan (`PrescribirRecursoModal`, «Actividad grupal (sesión)»), baja de actividades y cancelación de sesiones con aviso (nada con personas se borra), inscritos con RN-17 en Supervisión → Actividades, bloque «Actividades» de la ficha e `InscripcionSesionPolicy`. Migración `2026_11_16_110001` (se aplica con el despliegue). TF-ACT-01 a 26 en verde, 7 negativos comprobados. Detalle y decisiones en `CHANGELOG-112026.md`.
 
