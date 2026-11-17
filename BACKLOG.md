@@ -19,7 +19,7 @@ Módulos: Agenda, Centro
 
 **Fichas de valoración vaciadas por Filament (incidencia del 17 nov)** — 2026-11-17
 Módulos: Intervención, Filament
-- Arreglado el guardado (ver `CHANGELOG-112026.md`). **Datos de staging por decidir:** restaurar #1 «Situación económica» (5 campos, copia de la ficha 9) y #2 «Situación de vivienda» (6 campos, copia de la ficha 8) desde `fichas.schema_snapshot`; los campos añadidos después y los de #4 «Madurez personal» hay que volver a meterlos a mano. Las fichas 10 a 13 se cumplimentaron con el schema vacío.
+- Arreglado el guardado (ver `CHANGELOG-112026.md`). Restaurados el 17 nov, con la conformidad del desarrollador, #1 «Situación económica» (5 campos, copia de la ficha 9) y #2 «Situación de vivienda» (6 campos, copia de la ficha 8). **Pendiente, a mano en Filament:** los campos añadidos después a #2 y todo #4 «Madurez personal». Las fichas 10 a 13 se cumplimentaron con el schema vacío.
 - `TipoFicha` no tiene `Versionable` ni auditoría: un cambio de schema no deja rastro. Valorar versionarlo (principio 3.5).
 
 ---
