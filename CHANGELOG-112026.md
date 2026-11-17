@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-11-17 — Filament: el widget «Alertas del sistema» no mostraba texto ni dejaba abrirlas (incidencia)
+
+- **Causa:** la columna «Descripción» leía `mensaje`, que no existe en `Alerta` (los campos son `titulo` y `cuerpo`); el tipo salía como valor crudo; no había ninguna acción. Además listaba todas las alertas pendientes de origen sistema o asignación de roles, de cualquier destinatario: `admin@vida.local` veía las de la supervisión del CSS Entrevías y hasta el aviso personal «Tu solicitud de rol… ha sido aprobada» de `dir.css`, que no podía reconocer porque no era suyo.
+- **Cambio:** `AlertasSistemaWidget` lista solo las pendientes del usuario (`Alerta::pendientesPara()`, la regla del buzón y la bandeja), con tipo («Alerta»/«Aviso»), título y texto; «Ver» (también al pulsar la fila) abre la alerta y la reconoce o descarta por `AlertaService::reconocer()`; las de asignación de rol enlazan con la ficha del usuario («Ver usuario»).
+- Tests: `Modules/Usuarios/tests/Feature/AlertasSistemaWidgetTest.php` (2; fallan con el widget anterior). Usuarios y `FilamentPanelAccessTest`: 96 passed, 1 incomplete (de antes).
+
+---
+
 ## 2026-11-17 — Usuarios: solicitudes de rol sin nadie que pudiera aprobarlas (incidencia)
 
 ### Causa
