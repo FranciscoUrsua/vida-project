@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-11-18 — Personas de prueba PRUEBA y agenda del CSS Entrevías (datos de staging)
+
+- **Petición del desarrollador** para la batería de pruebas. Creadas en la BD compartida por los modelos y servicios de la aplicación (alta como `AltaCiudadano`, `AperturaHistoriaService`, `CitacionService::citarDirecto`, `AtencionCitaService`), todas con primer apellido PRUEBA:
+  - **Ana PRUEBA García** (1066): historia 959 en el CSS Entrevías (UO 14), referencia `ts1.css`. Citas con `ts1.css`: 5 nov (completada por un apunte), 12 nov (incomparecencia), 25 nov y 10 dic (confirmadas).
+  - **Marta PRUEBA López** (1067): `es_vvg` y `colectivo_extra_protegido` (RN-17), alta por la excepción VVG (sin padrón), historia 960 en el CIAM (UO 13), referencia `ts1.ciam`.
+  - **Familia en el CSS**: Laura PRUEBA Martín (1068, historia 961, referencia `ts1.css`), Carlos PRUEBA Ruiz (1069) y Hugo PRUEBA Martín (1070, nacido en 2017); Hugo hijo de los dos, Laura y Carlos cónyuges (recíprocas por el modelo); unidad de convivencia 3 con los tres. Solo Laura tiene historia (decisión de implementación).
+  - **Jorge PRUEBA Sánchez** (1071): sin historia.
+- **Agenda del CSS Entrevías (incidencia):** los cuadrantes de noviembre y diciembre (3 y 4) se publicaron el 16 nov sin líneas ni huecos, porque el personal del centro tiene perfil horario desde el 17 nov (alta tras la limpieza de usuarios). Los cuatro perfiles por defecto (pendientes de verificar) pasan a vigentes desde el 2 nov; los dos cuadrantes vuelven a borrador y se regeneran y publican con `CuadranteGeneratorService` y `CuadrantePublicadorService` (como supervisor, `dir.css`): 84 y 92 líneas, 3.360 y 3.680 huecos. Copia previa de perfiles y cuadrantes en `~/backups/vida-20261118-antes-personas-prueba.dump`.
+- Las citas pasadas se crearon hoy sobre huecos pasados: su historial (`cita_eventos`) lleva la fecha de hoy.
+
+---
+
 ## 2026-11-18 — Informes: las plantillas no se ofrecían en el CIAM (datos de staging)
 
 - **Causa:** las dos plantillas («Certificado vulnerabilidad» e «Informe psicológico») estaban en la UO 3 (Dirección General de Servicios Sociales). El asistente ofrece las de la UO del profesional y sus ancestros, como dice `modulo-documentos.md`; el CIAM Puente de Vallecas (UO 13) cuelga de Igualdad (13 → 16 → 15 → 2), no de la UO 3. El código es correcto.

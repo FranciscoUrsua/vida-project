@@ -6,7 +6,9 @@
 
 ## Tarea completada
 
-**Plantillas de informe en el CIAM** (2026-11-18): las dos plantillas pasan de la UO 3 a la UO 2 (ancestro común del CSS y del CIAM); el asistente ya las ofrece en ambos. Solo datos.
+**Personas de prueba PRUEBA** (2026-11-18): Ana (1066, HS en el CSS, citas pasadas y futuras con `ts1.css`), Marta (1067, protegida, HS en el CIAM), familia Laura/Carlos/Hugo (1068 a 1070, HS de Laura en el CSS, UC 3) y Jorge (1071, sin HS). Para las citas, regenerados los cuadrantes de nov/dic del CSS Entrevías, que estaban vacíos. Ver CHANGELOG y BACKLOG (cuadrante publicado sin personal nuevo; nadie marca `colectivo_extra_protegido`).
+
+Antes: **Plantillas de informe en el CIAM** (2026-11-18): las dos plantillas pasan de la UO 3 a la UO 2 (ancestro común del CSS y del CIAM); el asistente ya las ofrece en ambos. Solo datos.
 
 Antes: **Catálogo de prestaciones de la Guía 2026** (2026-11-18): en la BD compartida, borradas las 49 de prueba y cargadas las 113 fichas de `docs/referencia/Guiaprestaciones2026.pdf`, con sus códigos oficiales (datos extraídos en `docs/referencia/prestaciones-guia-2026.json`). Vías: 73 directas, 29 de plaza y 11 de expediente externo (6 económicas, SAD y teleasistencia); **ninguna de tramitación interna ni de derivación**. Migración `2026_11_18_100001` (textos largos), ya aplicada. **No ejecutar `db:seed`/`DatabaseSeeder`**: `PrestacionesSeeder` machacaría 25 prestaciones de la guía (BACKLOG). Copia previa en `~/backups/vida-20261118-antes-guia-prestaciones.dump`.
 

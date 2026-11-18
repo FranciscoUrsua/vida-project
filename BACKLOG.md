@@ -9,6 +9,13 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Agenda y protegidos: huecos encontrados al preparar las pruebas** — 2026-11-18
+Módulos: Agenda, Ciudadanía
+- **Un cuadrante publicado no incorpora al personal nuevo:** `CuadranteSupervisorPage::regenerar()` solo funciona en borrador, y `agenda:publicar-cuadrantes` no toca los centros que ya tienen cuadrante. Quien se incorpora a un centro a mitad de mes no tiene huecos hasta el mes siguiente (le pasó al CSS Entrevías: cuadrantes vacíos, corregidos a mano el 18 nov). Decidir cómo se añaden líneas y huecos a un cuadrante publicado sin tocar las citas que ya hay.
+- **Ninguna pantalla marca a una persona como protegida:** `colectivo_extra_protegido` (el indicador que manda en RN-17) solo se lee; el alta pone `es_vvg`, pero no el indicador de protección. A Marta PRUEBA se le puso por script. Decidir quién lo marca y dónde (¿el alta VVG debería ponerlo?).
+
+---
+
 **Prestaciones: el seeder ya no coincide con el catálogo de staging** — 2026-11-18
 Módulo: Prestaciones
 - **Riesgo:** `PrestacionesSeeder` (lo llama `DatabaseSeeder`) hace `updateOrCreate` por código con las 49 prestaciones de prueba. Si se ejecuta sobre la BD compartida, **sobrescribe 25 prestaciones de la guía** con otros datos (mismos códigos, otra prestación) y vuelve a crear las otras 24. No lanzar `db:seed` ni nada que llame a `DatabaseSeeder` en la BD compartida hasta resolverlo.
