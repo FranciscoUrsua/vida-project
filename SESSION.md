@@ -6,7 +6,9 @@
 
 ## Tarea completada
 
-**Catálogo de prestaciones de la Guía 2026** (2026-11-18): en la BD compartida, borradas las 49 de prueba y cargadas las 113 fichas de `docs/referencia/Guiaprestaciones2026.pdf`, con sus códigos oficiales (datos extraídos en `docs/referencia/prestaciones-guia-2026.json`). Vías: 73 directas, 29 de plaza y 11 de expediente externo (6 económicas, SAD y teleasistencia); **ninguna de tramitación interna ni de derivación**. Migración `2026_11_18_100001` (textos largos), ya aplicada. **No ejecutar `db:seed`/`DatabaseSeeder`**: `PrestacionesSeeder` machacaría 25 prestaciones de la guía (BACKLOG). Copia previa en `~/backups/vida-20261118-antes-guia-prestaciones.dump`.
+**Plantillas de informe en el CIAM** (2026-11-18): las dos plantillas pasan de la UO 3 a la UO 2 (ancestro común del CSS y del CIAM); el asistente ya las ofrece en ambos. Solo datos.
+
+Antes: **Catálogo de prestaciones de la Guía 2026** (2026-11-18): en la BD compartida, borradas las 49 de prueba y cargadas las 113 fichas de `docs/referencia/Guiaprestaciones2026.pdf`, con sus códigos oficiales (datos extraídos en `docs/referencia/prestaciones-guia-2026.json`). Vías: 73 directas, 29 de plaza y 11 de expediente externo (6 económicas, SAD y teleasistencia); **ninguna de tramitación interna ni de derivación**. Migración `2026_11_18_100001` (textos largos), ya aplicada. **No ejecutar `db:seed`/`DatabaseSeeder`**: `PrestacionesSeeder` machacaría 25 prestaciones de la guía (BACKLOG). Copia previa en `~/backups/vida-20261118-antes-guia-prestaciones.dump`.
 
 **Siguiente paso:** el desarrollador sigue con la batería de pruebas en staging. Para la prueba de prestaciones faltan, en Filament: una de tramitación interna, una de derivación al PIA y, en una de expediente externo, la UO 14 (CSS Entrevías, la de `adm1.css@vida.local`) como unidad tramitadora, un formulario de solicitud (no hay ninguna ficha de uso `solicitud`) y dos documentos exigidos, uno obligatorio.
 

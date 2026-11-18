@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-11-18 — Informes: las plantillas no se ofrecían en el CIAM (datos de staging)
+
+- **Causa:** las dos plantillas («Certificado vulnerabilidad» e «Informe psicológico») estaban en la UO 3 (Dirección General de Servicios Sociales). El asistente ofrece las de la UO del profesional y sus ancestros, como dice `modulo-documentos.md`; el CIAM Puente de Vallecas (UO 13) cuelga de Igualdad (13 → 16 → 15 → 2), no de la UO 3. El código es correcto.
+- **Cambio (solo datos, BD compartida):** las dos pasan a la UO 2 (Área de Gobierno de Políticas Sociales, Familia e Igualdad), el ancestro común del CSS y del CIAM, por el modelo (queda versión). Antes estaban en la UO 3. Comprobado con la regla del asistente para `dir.ciam` (UO 13) y `dir.css` (UO 14): ambos ven las dos. La edición de plantillas va por rol (`adm_sistema`, `adm_usuarios`), así que el cambio de UO no la afecta.
+
+---
+
 ## 2026-11-18 — Prestaciones: catálogo de staging sustituido por las 113 fichas de la Guía 2026
 
 - **Petición del desarrollador**, para la batería de pruebas en staging: completar el catálogo con `docs/referencia/Guiaprestaciones2026.pdf` sin duplicar. Al comprobarlo, las 49 prestaciones de la BD (las del `PrestacionesSeeder`) no eran las de la guía: nombres genéricos, códigos propios (25 coincidían con códigos de la guía, casi todos de otra prestación: 020301 era AES y en la guía es la red de centros de acogida) y algunas no municipales. **Decisión del desarrollador:** borrarlas y cargar la guía completa.
