@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-11-18 — Prestaciones: catálogo de staging sustituido por las 113 fichas de la Guía 2026
+
+- **Petición del desarrollador**, para la batería de pruebas en staging: completar el catálogo con `docs/referencia/Guiaprestaciones2026.pdf` sin duplicar. Al comprobarlo, las 49 prestaciones de la BD (las del `PrestacionesSeeder`) no eran las de la guía: nombres genéricos, códigos propios (25 coincidían con códigos de la guía, casi todos de otra prestación: 020301 era AES y en la guía es la red de centros de acogida) y algunas no municipales. **Decisión del desarrollador:** borrarlas y cargar la guía completa.
+- **BD compartida (staging):** copia previa en `~/backups/vida-20261118-antes-guia-prestaciones.dump` (prestaciones, vínculos, actividades, catálogos, versiones). Borradas físicamente las 49 y sus 4 versiones (los tipos de centro y documentos exigidos caen en cascada; no había solicitudes, prestaciones de persona, prescripciones ni registros que las usaran). Creadas las 113 por el modelo, con sus 160 vínculos de tipo de centro. La actividad 14 «Grupo de apoyo familiares VVG» pasa a 060312 (CIAM). Catálogo `prestacion.objetivo_general` con las etiquetas de la guía y `prestacion.categoria` sustituido por sus 22 categorías (0800 para el objetivo 08, que no tiene).
+- **Extracción:** `pdftotext` por secciones de la ficha y enlaces de «Información complementaria» sacados de las anotaciones del PDF (una URL por ficha; 060312 no tiene). Resultado completo en `docs/referencia/prestaciones-guia-2026.json` (base para el futuro seeder).
+- **Correspondencia con las columnas:** las secciones sin columna van etiquetadas en `condiciones_acceso` (población, perfil, criterios de prioridad y, en las económicas, cuantía, periodicidad, causas de extinción y reintegro), `obligaciones` (derechos y obligaciones específicos) y al final de `descripcion` (tipo y subtipo de centro, dispositivos técnicos).
+- **Vías de acceso (decisión de implementación):** las 6 económicas y el SAD y la teleasistencia (040302, 040303, 040402, 050201, 050202) → expediente externo, tramitado en el centro de solicitud, como en el catálogo anterior; 29 de alojamiento, residencia, centro de día o escuela infantil → plaza; las 73 restantes → directa. Ninguna de tramitación interna ni de derivación: se configuran en Filament para las pruebas.
+- **Tipos de centro (decisión de implementación):** el tipo donde se presta (según la ficha) y, además, `css_general` si se pide en el CSS (atención primaria, económicas o procedimiento por servicios sociales o trabajador social): 59; `ciam` para la categoría 0603 y 010306/010307: 14.
+- **Migración `2026_11_18_100001`:** `nombre` a 255 y `aportacion_usuario`, `plazo_concesion`, `duracion_maxima`, `proveedor` y `financiacion_detalle` a `text` (la guía trae textos de hasta ~830 caracteres y un nombre de 202); en `PrestacionResource`, esos cinco pasan a `Textarea`. Aplicada en la BD compartida. Tests en `PrestacionesTest` (2; el de textos largos falla sin la migración). `Modules/Prestaciones/tests`: 94 passed.
+- **Sin tocar** `PrestacionesSeeder` (decisión del desarrollador): ver BACKLOG.
+
+---
+
 ## 2026-11-17 — Actividades: las sesiones nuevas llevan por defecto los profesionales de la actividad
 
 - Petición del desarrollador. `ActividadesPage::nuevaSesion()` preselecciona los profesionales responsables de la actividad; se pueden quitar o añadir otros. Editar una sesión ya guardada mantiene los suyos.

@@ -1,12 +1,16 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-17 (fase 6: actividades grupales con inscripción)
+**Última actualización:** 2026-11-18 (catálogo de prestaciones de la Guía 2026 en staging)
 
 ---
 
 ## Tarea completada
 
-**Aprobación de roles sin supervisor competente** (2026-11-17): la resuelve `adm_sistema` en el escritorio de Filament (nunca la suya ni la que asignó); cerrado el widget que dejaba aprobar cualquier solicitud a `adm_usuarios`. `ResolucionRolesService`, 7 tests. **Pendiente del desarrollador:** aprobar como `admin@vida.local` la solicitud #35 de `dir.css@vida.local`.
+**Catálogo de prestaciones de la Guía 2026** (2026-11-18): en la BD compartida, borradas las 49 de prueba y cargadas las 113 fichas de `docs/referencia/Guiaprestaciones2026.pdf`, con sus códigos oficiales (datos extraídos en `docs/referencia/prestaciones-guia-2026.json`). Vías: 73 directas, 29 de plaza y 11 de expediente externo (6 económicas, SAD y teleasistencia); **ninguna de tramitación interna ni de derivación**. Migración `2026_11_18_100001` (textos largos), ya aplicada. **No ejecutar `db:seed`/`DatabaseSeeder`**: `PrestacionesSeeder` machacaría 25 prestaciones de la guía (BACKLOG). Copia previa en `~/backups/vida-20261118-antes-guia-prestaciones.dump`.
+
+**Siguiente paso:** el desarrollador sigue con la batería de pruebas en staging. Para la prueba de prestaciones faltan, en Filament: una de tramitación interna, una de derivación al PIA y, en una de expediente externo, la UO 14 (CSS Entrevías, la de `adm1.css@vida.local`) como unidad tramitadora, un formulario de solicitud (no hay ninguna ficha de uso `solicitud`) y dos documentos exigidos, uno obligatorio.
+
+Antes: **Aprobación de roles sin supervisor competente** (2026-11-17): la resuelve `adm_sistema` en el escritorio de Filament (nunca la suya ni la que asignó); cerrado el widget que dejaba aprobar cualquier solicitud a `adm_usuarios`. `ResolucionRolesService`, 7 tests. **Pendiente del desarrollador:** aprobar como `admin@vida.local` la solicitud #35 de `dir.css@vida.local`.
 
 Antes: **Limpieza de staging** (2026-11-17): borrados físicamente los 14 usuarios @demo.es, sus profesionales y sus 365 casos exclusivos con todo lo que colgaba (copia previa en `~/backups/vida-20261117-1111-antes-limpieza-demo-es.dump`; detalle en `CHANGELOG-112026.md`). Quedan 15 usuarios, todos @vida.local, y 109 historias.
 

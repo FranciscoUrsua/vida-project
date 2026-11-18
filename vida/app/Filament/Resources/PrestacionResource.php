@@ -268,30 +268,30 @@ class PrestacionResource extends Resource
                         ->label('Compatibilidad con otras prestaciones')
                         ->rows(3),
 
-                    TextInput::make('aportacion_usuario')
+                    Textarea::make('aportacion_usuario')
                         ->label('Aportación del usuario')
-                        ->maxLength(255)
+                        ->rows(2)
                         ->helperText("'Gratuito', importe o descripción libre"),
 
-                    TextInput::make('plazo_concesion')
+                    Textarea::make('plazo_concesion')
                         ->label('Plazo de concesión')
-                        ->maxLength(255),
+                        ->rows(2),
 
-                    TextInput::make('duracion_maxima')
+                    Textarea::make('duracion_maxima')
                         ->label('Duración máxima')
-                        ->maxLength(255),
+                        ->rows(2),
                 ]),
 
             Section::make('Gestión y normativa')
                 ->columns(2)
                 ->schema([
-                    TextInput::make('proveedor')
+                    Textarea::make('proveedor')
                         ->label('Proveedor')
-                        ->maxLength(255),
+                        ->rows(2),
 
-                    TextInput::make('financiacion_detalle')
+                    Textarea::make('financiacion_detalle')
                         ->label('Detalle de financiación')
-                        ->maxLength(255),
+                        ->rows(2),
 
                     Textarea::make('normativa')
                         ->label('Normativa de referencia')

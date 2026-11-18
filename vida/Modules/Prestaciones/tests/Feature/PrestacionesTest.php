@@ -444,4 +444,49 @@ class PrestacionesTest extends TestCase
 
         $this->assertTrue((bool) $version->datos['activa']);
     }
+
+    // -------------------------------------------------------------------------
+    // Textos de la guía oficial
+    // -------------------------------------------------------------------------
+
+    /**
+     * La guía 2026 trae aportaciones, plazos, duraciones, proveedores y financiaciones
+     * de más de 255 caracteres y un nombre de 202: se guardan enteros.
+     *
+     * @return void
+     */
+    #[Test]
+    public function guarda_los_textos_largos_de_la_guia_sin_recortarlos(): void
+    {
+        $largo = str_repeat('Ordenanza 10/2022, de 28 de junio, reguladora del servicio. ', 14);
+        $nombre = str_repeat('n', 255);
+
+        $prestacion = Prestacion::create($this->prestacionBase([
+            'nombre' => $nombre,
+            'aportacion_usuario' => $largo,
+            'plazo_concesion' => $largo,
+            'duracion_maxima' => $largo,
+            'proveedor' => $largo,
+            'financiacion_detalle' => $largo,
+        ]))->fresh();
+
+        $this->assertGreaterThan(800, mb_strlen($largo));
+        $this->assertSame($nombre, $prestacion->nombre);
+        foreach (['aportacion_usuario', 'plazo_concesion', 'duracion_maxima', 'proveedor', 'financiacion_detalle'] as $campo) {
+            $this->assertSame($largo, $prestacion->{$campo}, $campo);
+        }
+    }
+
+    /**
+     * El nombre sigue teniendo un máximo (255): uno más largo se rechaza.
+     *
+     * @return void
+     */
+    #[Test]
+    public function rechaza_un_nombre_de_mas_de_255_caracteres(): void
+    {
+        $this->expectException(QueryException::class);
+
+        Prestacion::create($this->prestacionBase(['nombre' => str_repeat('n', 256)]));
+    }
 }

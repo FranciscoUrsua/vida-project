@@ -9,6 +9,15 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Prestaciones: el seeder ya no coincide con el catálogo de staging** — 2026-11-18
+Módulo: Prestaciones
+- **Riesgo:** `PrestacionesSeeder` (lo llama `DatabaseSeeder`) hace `updateOrCreate` por código con las 49 prestaciones de prueba. Si se ejecuta sobre la BD compartida, **sobrescribe 25 prestaciones de la guía** con otros datos (mismos códigos, otra prestación) y vuelve a crear las otras 24. No lanzar `db:seed` ni nada que llame a `DatabaseSeeder` en la BD compartida hasta resolverlo.
+- Decidir si el seeder pasa a cargar `docs/referencia/prestaciones-guia-2026.json` (las 113 de la guía) o queda como conjunto de prueba con códigos propios que no choquen. Igual con el catálogo `prestacion.categoria` del seeder de catálogos, que tiene las categorías antiguas.
+- La prestación `DER-PIA` (derivación de prueba al PIA) que crea el seeder no está en staging: para probar la derivación hay que configurar una en Filament.
+- Revisar a mano las vías de acceso y los tipos de centro de las 113, asignados con una regla (ver CHANGELOG del 18 nov). La extracción del PDF puede tener algún párrafo colado entre columnas al cambiar de página; se corrigieron los detectados (060312, palabras partidas).
+
+---
+
 **Agenda: generación de cuadrantes y slots (incidencia del 16 nov)** — 2026-11-16
 Módulos: Agenda, Centro
 - ~~**Nadie genera cuadrantes automáticamente**~~ Hecho el 2026-11-16: `agenda:publicar-cuadrantes`, programado el día 20. **Comprobar que el servidor ejecuta el planificador** (`* * * * * cd /var/www/vida-project/vida && php artisan schedule:run` en el crontab de `www-data`); si no, ni esta tarea ni el cierre de citas ni la expiración de slots se ejecutan. Pendiente: avisar a la supervisión de los centros saltados (sin horario, sin tipos de slot o sin perfiles).
