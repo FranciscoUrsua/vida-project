@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\UsuarioResource\Pages;
 
 use App\Filament\Acciones\DesactivarAction;
+use App\Filament\Concerns\AvisaDireccionDelCentro;
 use App\Filament\Resources\UsuarioResource;
 use App\Models\User;
 use App\Models\UsuarioUo;
@@ -26,6 +27,9 @@ use Modules\Usuarios\Services\RolesSugeridosService;
  */
 class EditUsuario extends EditRecord
 {
+    // R3: botón «Avisar a la dirección del centro» de una desactivación bloqueada
+    use AvisaDireccionDelCentro;
+
     protected static string $resource = UsuarioResource::class;
 
     /**

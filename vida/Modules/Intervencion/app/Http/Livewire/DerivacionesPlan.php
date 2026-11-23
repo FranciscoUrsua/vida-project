@@ -12,6 +12,7 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Modules\Centro\Models\AsignacionCentro;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Intervencion\Enums\EstadoDerivacion;
 use Modules\Intervencion\Enums\EstadoPlan;
@@ -80,7 +81,9 @@ class DerivacionesPlan extends Component
     {
         return $this->plan->esPrincipal()
             && $this->plan->estado === EstadoPlan::Activo
-            && Auth::user()->can('update', $this->plan);
+            && Auth::user()->can('update', $this->plan)
+            // R1: derivar es una actuación en el centro del plan
+            && app(CentroDeUsuario::class)->puedeActuar(Auth::user(), $this->plan->centro);
     }
 
     /**
@@ -156,6 +159,9 @@ class DerivacionesPlan extends Component
     #[On('abrir-derivacion')]
     public function abrir(?int $objetivoId = null): void
     {
+        // R1: rechazo al abrir, con el mensaje de RN-15
+        app(CentroDeUsuario::class)->exigirActuacion(Auth::user(), $this->plan->centro);
+
         if (! $this->puedeDerivar) {
             return;
         }

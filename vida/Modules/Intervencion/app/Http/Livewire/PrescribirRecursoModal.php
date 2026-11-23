@@ -20,6 +20,7 @@ use Modules\Centro\Models\Prescripcion;
 use Modules\Centro\Models\Red;
 use Modules\Centro\Models\SesionActividad;
 use Modules\Centro\Services\Actividades\InscripcionCentroRequerida;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Centro\Services\PrescripcionService;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Enums\TipoApunte;
@@ -101,6 +102,9 @@ class PrescribirRecursoModal extends Component
     #[On('abrir-prescribir-recurso')]
     public function abrir(?int $prestacionId = null): void
     {
+        // R1: prescribir es una actuación; se rechaza al abrir, con el mensaje de RN-15
+        app(CentroDeUsuario::class)->exigirActuacion(Auth::user());
+
         $this->reset(['paso', 'tipoRecurso', 'destinoId', 'tipoDestino', 'compromisoId', 'notas', 'actividadId', 'inscribirEnCentro']);
         $this->prestacionId = $prestacionId;
         $this->paso = 1;
@@ -368,6 +372,9 @@ class PrescribirRecursoModal extends Component
      */
     public function confirmar(): void
     {
+        // R1: también al guardar
+        app(CentroDeUsuario::class)->exigirActuacion(Auth::user());
+
         // Verificar que el destino es válido (seguridad en servidor)
         $destinosValidos = $this->opcionesDestino->pluck('id')->toArray();
         if (! in_array($this->destinoId, $destinosValidos, true)) {

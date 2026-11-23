@@ -1,4 +1,9 @@
 @use('Modules\Intervencion\Support\Ui\Tonos')
+@php
+    // R1 y policy: quien no puede editar el plan (de otra profesional, o sin adscripción a su
+    // centro) lo ve en lectura, sin acciones de edición
+    $editable = $this->puedeEditar;
+@endphp
 <div
     class="op-page d-flex flex-column"
     x-data="{ seccionActiva: '' }"
@@ -35,7 +40,7 @@
         </button>
         @endif
 
-        @if($this->plan?->estado->value === 'borrador')
+        @if($editable && $this->plan?->estado->value === 'borrador')
         <button
             wire:click="activarPlan"
             class="btn btn-primary btn-sm"
@@ -46,7 +51,7 @@
         </button>
         @endif
 
-        @if($this->plan?->estado->value === 'activo')
+        @if($editable && $this->plan?->estado->value === 'activo')
         <button wire:click="abrirModalCierre" class="btn btn-outline-secondary btn-sm">
             <x-heroicon-o-x-circle class="icon-14"/>
             Cerrar plan
@@ -184,10 +189,12 @@
                 <x-heroicon-o-document-text class="icon-16"/>
                 Diagnóstico social
             </div>
+            @if($editable)
             <button wire:click="abrirDrawer" class="btn btn-outline-secondary btn-sm">
                 <x-heroicon-o-circle-stack class="icon-14"/>
                 Añadir fichas
             </button>
+            @endif
         </div>
         <div class="card-body">
 
@@ -209,6 +216,7 @@
                             </span>
                             <x-heroicon-o-chevron-down class="icon-12 op-toggle-icon ms-auto"/>
                         </button>
+                        @if($editable)
                         <button
                             wire:click="eliminarFichaDiagnostico({{ $pfd->ficha_id }})"
                             class="btn btn-outline-danger btn-sm p-1 lh-1 flex-shrink-0"
@@ -216,6 +224,7 @@
                         >
                             <x-heroicon-o-x-mark class="icon-12"/>
                         </button>
+                        @endif
                     </div>
                     <div class="collapse" id="pfd-content-{{ $pfd->id }}">
                     <div class="card-body py-2 px-3">
@@ -234,11 +243,13 @@
                 @empty
                 <p class="text-body-secondary mb-0">
                     Ninguna ficha añadida aún.
+                    @if($editable)
                     <button wire:click="abrirDrawer" class="btn btn-link btn-sm p-0 align-baseline">Añadir fichas del historial</button>
+                    @endif
                 </p>
                 @endforelse
 
-                @if($this->fichasDiagnostico->isNotEmpty())
+                @if($editable && $this->fichasDiagnostico->isNotEmpty())
                 <button wire:click="abrirDrawer" class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-1">
                     <x-heroicon-o-plus class="icon-14"/>
                     Añadir otra ficha
@@ -264,7 +275,7 @@
                 </div>
                 <div
                     class="form-control rounded-top-0 plan-editor-area"
-                    contenteditable="{{ $this->plan?->estado !== 'cerrado' ? 'true' : 'false' }}"
+                    contenteditable="{{ $editable && $this->plan?->estado !== 'cerrado' ? 'true' : 'false' }}"
                     x-data
                     x-on:blur="$wire.guardarDiagnosticoDesdeEditor($el.innerHTML)"
                 >{!! $diagnosticoTexto !!}</div>
@@ -280,10 +291,12 @@
                 <x-heroicon-o-viewfinder-circle class="icon-16"/>
                 Objetivos
             </div>
+            @if($editable)
             <button wire:click="abrirModalObjetivo" class="btn btn-outline-secondary btn-sm">
                 <x-heroicon-o-plus class="icon-14"/>
                 Añadir objetivo
             </button>
+            @endif
         </div>
         <div class="card-body">
             @php
@@ -316,7 +329,7 @@
                                     autocomplete="off"
                                     wire:click="guardarValoracionIndicador({{ $og->indicador->id }}, '{{ $valor }}')"
                                     {{ $og->indicador->valoracion_actual === $valor ? 'checked' : '' }}
-                                    @if($this->plan?->estado->value === 'cerrado') disabled @endif
+                                    @if(! $editable || $this->plan?->estado->value === 'cerrado') disabled @endif
                                 >
                                 <label for="indicador-{{ $og->indicador->id }}-{{ $valor }}"
                                        class="btn btn-sm rounded-pill py-0 {{ $og->indicador->valoracion_actual === $valor ? 'btn-dark' : 'btn-outline-secondary' }}">
@@ -365,10 +378,12 @@
                             Derivar
                         </button>
                         @endif
+                        @if($editable)
                         <button wire:click="abrirEditarObjetivo({{ $og->id }})" class="btn btn-outline-secondary btn-sm">
                             <x-heroicon-o-pencil-square class="icon-14"/>
                             Editar
                         </button>
+                        @endif
                     </div>
                 </div>
                 </div>
@@ -404,7 +419,7 @@
                                     autocomplete="off"
                                     wire:click="guardarValoracionIndicador({{ $oe->indicador->id }}, '{{ $valor }}')"
                                     {{ $oe->indicador->valoracion_actual === $valor ? 'checked' : '' }}
-                                    @if($this->plan?->estado->value === 'cerrado') disabled @endif
+                                    @if(! $editable || $this->plan?->estado->value === 'cerrado') disabled @endif
                                 >
                                 <label for="indicador-{{ $oe->indicador->id }}-{{ $valor }}"
                                        class="btn btn-sm rounded-pill py-0 {{ $oe->indicador->valoracion_actual === $valor ? 'btn-dark' : 'btn-outline-secondary' }}">
@@ -416,10 +431,12 @@
                         @endif
                     </div>
                     <div class="card-footer d-flex justify-content-end">
+                        @if($editable)
                         <button wire:click="abrirEditarObjetivo({{ $oe->id }})" class="btn btn-outline-secondary btn-sm">
                             <x-heroicon-o-pencil-square class="icon-14"/>
                             Editar
                         </button>
+                        @endif
                     </div>
                 </div>
                 </div>
@@ -448,10 +465,12 @@
                 <x-heroicon-o-building-office class="icon-16"/>
                 Compromisos del Ayuntamiento
             </div>
+            @if($editable)
             <button wire:click="abrirModalActuacionAyto" class="btn btn-outline-secondary btn-sm">
                 <x-heroicon-o-plus class="icon-14"/>
                 Añadir
             </button>
+            @endif
         </div>
         <div class="card-body p-0">
             @if($this->actuacionesAyuntamiento->isEmpty())
@@ -484,7 +503,7 @@
                         </td>
                         <td class="text-secondary">{{ $act->fecha_inicio_prevista?->format('d/m/Y') ?? '—' }}</td>
                         <td><span class="badge rounded-pill {{ Tonos::estadoActuacion($act->estado)->clasesSuave() }}">{{ ucfirst($act->estado) }}</span></td>
-                        <td><button wire:click="abrirEditarActuacionAyto({{ $act->id }})" class="btn btn-outline-secondary btn-sm"><x-heroicon-o-pencil-square class="icon-14"/> Editar</button></td>
+                        <td>@if($editable)<button wire:click="abrirEditarActuacionAyto({{ $act->id }})" class="btn btn-outline-secondary btn-sm"><x-heroicon-o-pencil-square class="icon-14"/> Editar</button>@endif</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -500,10 +519,12 @@
                 <x-heroicon-o-check-badge class="icon-16"/>
                 Compromisos de la persona
             </div>
+            @if($editable)
             <button wire:click="abrirModalCompromiso" class="btn btn-outline-secondary btn-sm">
                 <x-heroicon-o-plus class="icon-14"/>
                 Añadir
             </button>
+            @endif
         </div>
         <div class="card-body p-0">
             @if($this->actuacionesCiudadano->isEmpty())
@@ -519,10 +540,12 @@
                         <span class="badge rounded-pill bg-success-subtle text-success-emphasis fw-normal mt-1">{{ $act->prestacion->nombre }}</span>
                         @endif
                     </div>
+                    @if($editable)
                     <button wire:click="abrirEditarCompromisoCiudadano({{ $act->id }})" class="btn btn-outline-secondary btn-sm ms-auto flex-shrink-0">
                         <x-heroicon-o-pencil-square class="icon-14"/>
                         Editar
                     </button>
+                    @endif
                 </li>
                 @endforeach
             </ul>
@@ -537,10 +560,12 @@
                 <x-heroicon-o-users class="icon-16"/>
                 Profesionales participantes
             </div>
+            @if($editable)
             <button wire:click="abrirModalParticipante" class="btn btn-outline-secondary btn-sm">
                 <x-heroicon-o-plus class="icon-14"/>
                 Añadir
             </button>
+            @endif
         </div>
         <div class="card-body p-0">
             <ul class="list-group list-group-flush">
@@ -585,6 +610,7 @@
                     <select
                         wire:model.live="periodicidadSeguimiento"
                         class="form-select form-select-sm"
+                        @disabled(! $editable)
                     >
                         <option value="mensual">Mensual</option>
                         <option value="bimestral">Bimestral</option>
@@ -597,6 +623,7 @@
                     <label class="form-label small">Observaciones sobre el seguimiento</label>
                     <textarea
                         wire:model.lazy="observacionesSeguimiento"
+                        @disabled(! $editable)
                         class="form-control form-control-sm"
                         rows="2"
                         placeholder="Acuerdos sobre el seguimiento, condiciones especiales…"
@@ -620,7 +647,7 @@
                                 id="firma-profesional"
                                 wire:model.live="profesionalFirmado"
                                 wire:change="marcarFirmaProfesional($event.target.checked)"
-                                @if($this->plan?->estado->value === 'cerrado') disabled @endif
+                                @if(! $editable || $this->plan?->estado->value === 'cerrado') disabled @endif
                             >
                             <label class="form-check-label" for="firma-profesional">Ha firmado en papel</label>
                         </div>
@@ -645,7 +672,7 @@
                                 id="firma-ciudadano"
                                 wire:model.live="ciudadanoFirmado"
                                 wire:change="marcarFirmaCiudadano($event.target.checked)"
-                                @if($this->plan?->estado->value === 'cerrado') disabled @endif
+                                @if(! $editable || $this->plan?->estado->value === 'cerrado') disabled @endif
                             >
                             <label class="form-check-label" for="firma-ciudadano">Ha firmado en papel</label>
                         </div>
@@ -666,6 +693,7 @@
                     type="date"
                     wire:model.lazy="fechaFirmaPresencial"
                     wire:change="guardarFechaFirma"
+                    @disabled(! $editable)
                     class="form-control form-control-sm w-auto"
                 >
             </div>
@@ -702,7 +730,7 @@
     @endif
 
     {{-- BOTÓN PRINCIPAL --}}
-    @if($this->plan && $this->plan->estado->value !== 'cerrado')
+    @if($editable && $this->plan && $this->plan->estado->value !== 'cerrado')
     <div class="d-flex justify-content-end py-2">
         <button wire:click="guardarPlan" class="btn btn-primary">
             <x-heroicon-o-check class="icon-14"/>

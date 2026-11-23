@@ -17,6 +17,7 @@ use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 use Modules\Documentos\Data\DatosIngesta;
 use Modules\Documentos\Enums\CanalCaptura;
@@ -138,6 +139,18 @@ class DocumentosCiudadano extends Component
      */
     #[Computed]
     public function puedeSubir(): bool
+    {
+        // R1: subir documentos es una actuación; exige además adscripción al centro activo
+        return $this->puedeSubirPorPermiso() && app(CentroDeUsuario::class)->puedeActuar(auth()->user());
+    }
+
+    /**
+     * Si el usuario puede subir documentos por sus permisos y su ámbito, sin mirar su centro:
+     * lo que no se cumple es un 403; lo que sí, pero sin centro, un aviso con el motivo de RN-15.
+     *
+     * @return bool
+     */
+    private function puedeSubirPorPermiso(): bool
     {
         return auth()->user()->can('documento.subir') && Gate::allows('update', $this->ciudadano);
     }
@@ -316,7 +329,8 @@ class DocumentosCiudadano extends Component
      */
     public function abrirAlta(): void
     {
-        abort_unless($this->puedeSubir, 403);
+        abort_unless($this->puedeSubirPorPermiso(), 403);
+        app(CentroDeUsuario::class)->exigirActuacion(auth()->user());
         $this->limpiarFormulario();
         $this->modalAbierto = true;
     }
@@ -332,6 +346,7 @@ class DocumentosCiudadano extends Component
     {
         $documento = $this->documentoDeLaFicha($documentoId);
         $this->autorizarVersion($documento);
+        app(CentroDeUsuario::class)->exigirActuacion(auth()->user());
         $this->limpiarFormulario();
         $this->documentoVersionId = $documento->id;
         $this->modalAbierto = true;
@@ -458,8 +473,11 @@ class DocumentosCiudadano extends Component
         if ($this->documentoVersionId !== null) {
             $this->autorizarVersion($this->documentoDeLaFicha($this->documentoVersionId));
         } else {
-            abort_unless($this->puedeSubir, 403);
+            abort_unless($this->puedeSubirPorPermiso(), 403);
         }
+
+        // R1: una subida (alta o versión) es una actuación, también al guardar
+        app(CentroDeUsuario::class)->exigirActuacion(auth()->user());
         $this->errorIngesta = null;
 
         $maxKb = (int) config('documentos.max_subida_kb');

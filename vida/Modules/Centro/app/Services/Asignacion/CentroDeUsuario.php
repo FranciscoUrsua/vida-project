@@ -2,6 +2,7 @@
 
 namespace Modules\Centro\Services\Asignacion;
 
+use App\Exceptions\ActuacionNoPermitida;
 use App\Models\User;
 use App\Services\AmbitoUsuario;
 use DomainException;
@@ -225,8 +226,103 @@ class CentroDeUsuario
             return;
         }
 
-        throw new DomainException($this->centros($usuario)->isEmpty()
-            ? 'Para atender a ciudadanos tienes que estar adscrito a un centro.'
-            : 'Para atender a ciudadanos tienes que estar adscrito a este centro.');
+        throw new DomainException($this->motivoSinActuacion($usuario, $centro));
+    }
+
+    /**
+     * Si el usuario puede hacer una actuación sobre una persona en el centro de la operación
+     * (RN-15 ampliada por R1, 23 nov 2026): valoraciones, escalas, planes, seguimientos,
+     * derivaciones, solicitudes de prestación, prescripciones, informes, subida de documentos,
+     * además de abrir historias, citas, atención, apuntes e inscripciones.
+     *
+     * El centro de la operación es el de su contexto (el del plan, la cita, la actividad…) y, sin
+     * contexto, el centro activo del usuario (RN-16). Es la única comprobación de R1: la usan la
+     * interfaz, para no ofrecer la actuación, y el servidor, al abrir el formulario y al guardar.
+     *
+     * @param User|null $usuario Usuario que actúa.
+     * @param Centro|null $contexto Centro del contexto de la operación, si lo tiene.
+     *
+     * @return bool
+     */
+    public function puedeActuar(?User $usuario, ?Centro $contexto = null): bool
+    {
+        if ($usuario === null) {
+            return false;
+        }
+
+        $centro = $contexto ?? $this->centroActivo($usuario);
+
+        return $centro !== null && $this->adscritoA($usuario, $centro);
+    }
+
+    /**
+     * Rechaza la actuación si el usuario no puede hacerla en el centro de la operación (R1).
+     *
+     * @param User $usuario Usuario que actúa.
+     * @param Centro|null $contexto Centro del contexto de la operación, si lo tiene.
+     *
+     * @return void
+     *
+     * @throws DomainException Con el mensaje de RN-15.
+     */
+    public function exigirActuacion(User $usuario, ?Centro $contexto = null): void
+    {
+        $this->exigirAtencion($usuario, $contexto ?? $this->centroActivo($usuario));
+    }
+
+    /**
+     * Rechaza la apertura de una pantalla de actuación (R1: «al abrir el formulario») con un 403
+     * que muestra el mensaje de RN-15.
+     *
+     * @param User $usuario Usuario que actúa.
+     * @param Centro|null $contexto Centro del contexto de la operación, si lo tiene.
+     *
+     * @return void
+     *
+     * @throws ActuacionNoPermitida
+     */
+    public function exigirActuacionAlAbrir(User $usuario, ?Centro $contexto = null): void
+    {
+        $centro = $contexto ?? $this->centroActivo($usuario);
+
+        if (! $this->puedeActuar($usuario, $centro)) {
+            throw new ActuacionNoPermitida($this->motivoSinActuacion($usuario, $centro));
+        }
+    }
+
+    /**
+     * Si el usuario no está adscrito a ningún centro: la Historia Social y la ficha se le
+     * muestran en modo lectura, sin ninguna actuación (R1).
+     *
+     * @param User|null $usuario Usuario.
+     *
+     * @return bool
+     */
+    public function sinCentro(?User $usuario): bool
+    {
+        return $this->centros($usuario)->isEmpty();
+    }
+
+    /**
+     * Mensaje de RN-15 para un usuario que no puede actuar en un centro.
+     *
+     * Sin ningún centro, o con centros pero no este, los dos mensajes de la regla. Con varios
+     * centros y ninguno activo (sin perfil horario hoy ni elección en la sesión), se le pide
+     * que elija el centro de trabajo en la barra superior.
+     *
+     * @param User|null $usuario Usuario.
+     * @param Centro|null $centro Centro de la operación (null si no se ha podido resolver).
+     *
+     * @return string
+     */
+    public function motivoSinActuacion(?User $usuario, ?Centro $centro): string
+    {
+        if ($this->centros($usuario)->isEmpty()) {
+            return 'Para atender a ciudadanos tienes que estar adscrito a un centro.';
+        }
+
+        return $centro === null
+            ? 'Elige en la barra superior el centro en el que estás trabajando.'
+            : 'Para atender a ciudadanos tienes que estar adscrito a este centro.';
     }
 }

@@ -72,9 +72,15 @@
 
                         <div class="flex-grow-1 text-truncate">
                             <div>
-                                @if($resultado['nivel'] === 1 && $resultado['historia_id'])
-                                    {{-- Nivel 1 (propia UO): nombre clicable --}}
+                                @if($resultado['accion'] === 'historia')
+                                    {{-- Historia Social que gestiona: nombre clicable --}}
                                     <a href="{{ route('intervencion.ciudadano.show', $resultado['historia_id']) }}"
+                                       wire:navigate class="fw-semibold text-decoration-none">
+                                        {{ $resultado['nombre'] }}
+                                    </a>
+                                @elseif($resultado['accion'] === 'ficha')
+                                    {{-- Sin acceso a la Historia Social: el nombre lleva a la ficha (R-02) --}}
+                                    <a href="{{ route('ciudadania.ciudadano.ficha', $resultado['ciudadano_id']) }}"
                                        wire:navigate class="fw-semibold text-decoration-none">
                                         {{ $resultado['nombre'] }}
                                     </a>
@@ -88,31 +94,38 @@
                                     <span class="small text-body-secondary">({{ $resultado['alias'] }})</span>
                                 @endif
                             </div>
-                            @if($resultado['nivel'] === 2)
+                            @if($resultado['accion'] === 'historia_externa')
                                 <div class="small text-warning-emphasis">Historia Social en otra unidad organizativa. El acceso queda registrado.</div>
                             @elseif($resultado['nivel'] === 3)
                                 <div class="small text-protected-emphasis">Ciudadano/a de colectivo especialmente protegido. Requiere solicitud de acceso.</div>
+                            @elseif(! $resultado['historia_id'])
+                                <div class="small text-body-secondary">Sin Historia Social</div>
                             @endif
                         </div>
 
-                        {{-- Acciones según nivel --}}
-                        @if($resultado['nivel'] === 1 && $resultado['historia_id'])
+                        {{-- Acción decidida por las policies en BuscarCiudadanoPage::accionDe() (R-02) --}}
+                        @if($resultado['accion'] === 'historia')
                             <a href="{{ route('intervencion.ciudadano.show', $resultado['historia_id']) }}"
                                wire:navigate class="btn btn-link btn-sm fw-semibold text-decoration-none text-nowrap">
                                 Ir a Historia Social
                             </a>
-                        @elseif($resultado['nivel'] === 2 && $resultado['historia_id'])
+                        @elseif($resultado['accion'] === 'historia_externa')
                             <button type="button" wire:click="registrarAccesoNivel2({{ $resultado['historia_id'] }})"
                                     class="btn btn-outline-warning btn-sm text-nowrap">
                                 Ver Historia Social
                             </button>
-                        @elseif($resultado['nivel'] === 3)
+                        @elseif($resultado['accion'] === 'ficha')
+                            <a href="{{ route('ciudadania.ciudadano.ficha', $resultado['ciudadano_id']) }}"
+                               wire:navigate class="btn btn-link btn-sm fw-semibold text-decoration-none text-nowrap">
+                                Ir a la ficha de la persona
+                            </a>
+                        @elseif($resultado['accion'] === 'solicitar_acceso')
                             <button type="button" wire:click="abrirModalSolicitud({{ $resultado['ciudadano_id'] }})"
                                     class="btn btn-outline-protected btn-sm text-nowrap">
                                 Solicitar acceso
                             </button>
                         @else
-                            <span class="small text-body-secondary text-nowrap">Sin Historia Social</span>
+                            <span class="small text-body-secondary text-nowrap">Sin acceso</span>
                         @endif
                     </div>
                 </div>

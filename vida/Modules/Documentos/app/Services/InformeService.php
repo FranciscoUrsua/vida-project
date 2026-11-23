@@ -6,6 +6,7 @@ use App\Models\HistoriaSocial;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Gate;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Models\Informe;
 use Modules\Documentos\Models\PlantillaInforme;
@@ -48,6 +49,8 @@ class InformeService
     public function crear(PlantillaInforme $plantilla, HistoriaSocial $historia, User $autor): Informe
     {
         Gate::forUser($autor)->authorize('crear', [Informe::class, $historia]);
+        // R1: redactar un informe es una actuación (centro activo del autor)
+        app(CentroDeUsuario::class)->exigirActuacion($autor);
 
         if (! $plantilla->activa) {
             throw new \DomainException('La plantilla no está activa.');

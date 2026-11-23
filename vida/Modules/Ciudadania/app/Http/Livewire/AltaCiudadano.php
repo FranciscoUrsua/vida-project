@@ -8,6 +8,7 @@ use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
+use App\Services\EnlacePersona;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -191,7 +192,8 @@ class AltaCiudadano extends Component
     }
 
     /**
-     * Redirige a la ficha de un ciudadano existente.
+     * Lleva a una persona ya existente: su Historia Social si el usuario puede verla y, si no,
+     * su ficha (R-02). Antes pasaba el id de la persona como id de historia.
      *
      * @param int $ciudadanoId ID del ciudadano seleccionado.
      *
@@ -199,7 +201,7 @@ class AltaCiudadano extends Component
      */
     public function seleccionarExistente(int $ciudadanoId): void
     {
-        $this->redirectRoute('intervencion.ciudadano.show', $ciudadanoId);
+        $this->redirect(app(EnlacePersona::class)->url(auth()->user(), $ciudadanoId), navigate: true);
     }
 
     /**

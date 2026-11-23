@@ -211,7 +211,7 @@ class EquipoPage extends Component
     #[Computed]
     public function enlacesBaja(): array
     {
-        return $this->pendientesBaja === [] ? [] : (new SalidaCentroBloqueada($this->pendientesBaja, 'desactivar al usuario'))->enlaces();
+        return $this->pendientesBaja === [] ? [] : (new SalidaCentroBloqueada($this->pendientesBaja, 'desactivar al usuario'))->enlaces(auth()->user());
     }
 
     /**

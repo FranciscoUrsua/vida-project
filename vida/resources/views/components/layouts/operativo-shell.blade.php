@@ -100,6 +100,8 @@
     <livewire:mensajes-alerta-toast />
     <livewire:mensajes-panel-redaccion />
 @endauth
+<x-avisos-toast />
+
 @livewireScripts
 </body>
 </html>

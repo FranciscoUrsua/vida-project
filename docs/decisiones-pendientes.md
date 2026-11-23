@@ -1,7 +1,7 @@
 # Decisiones pendientes — VIDA 360
 
 > Inventario de decisiones pospostas durante el análisis funcional, organizado por módulo.
-> Generado: mayo 2026. Actualizado: 10 noviembre 2026. Fuente: revisión de `docs/`, `BACKLOG.md` y `CHANGELOG-*.md`.
+> Generado: mayo 2026. Actualizado: 23 noviembre 2026. Fuente: revisión de `docs/`, `BACKLOG.md` y `CHANGELOG-*.md`.
 
 **Total: 34 decisiones** — 4 bloqueantes · 16 técnicas/organizativas · 14 diferidas a fases posteriores
 
@@ -116,6 +116,9 @@
 | T-04 | **Integración con el RAG del SIA** | ⚪ diferida | Incorporación de la herramienta de asistencia al profesional del SIA como capa opcional de apoyo. |
 | T-05 | **Análisis de sesgo para componentes de IA** | ⚪ diferida | Metodología y criterios específicos para evaluar el impacto de cada componente de IA sobre los distintos colectivos atendidos. |
 | T-06 | **Compatibilidad ENI / ENS para adopción por otras administraciones** | 🔵 técnica | Revisar cumplimiento del Esquema Nacional de Interoperabilidad y del Esquema Nacional de Seguridad si el proyecto se adopta por otros ayuntamientos. Las decisiones de arquitectura actuales no deben cerrar esta puerta. |
+| R1 | ~~**RN-15 en toda actuación**~~ Decidida el 23 nov 2026 (Delegado Digital) e implementada | ✅ | Valoraciones, escalas, planes (crear y editar), seguimientos, derivaciones, solicitudes de prestación, prescripciones, informes y subida de documentos exigen adscripción al centro de la operación, como abrir HS, citas, atención, apuntes e inscripciones. Sin ningún centro, la Historia Social y la ficha se ven en modo lectura. Ref: `docs/instrucciones-cli/2026-11-correcciones-staging-ronda1.md`. |
+| R2 | ~~**Supervisión sola: ficha en lectura**~~ Decidida el 23 nov 2026 (Delegado Digital); pendiente de implementar (paso 6, en espera del diseño de superficies con varios roles) | ✅ | Buscador y ficha en lectura (identificación, contacto, convivencia, relaciones, estado de la HS y referencia, citas); sin edición, documentos, HS ni planes. Protegidas fuera de RN-17, enmascaradas con «Solicitar acceso». |
+| R3 | ~~**Desactivar un profesional desde administración**~~ Decidida el 23 nov 2026 (Delegado Digital) e implementada | ✅ | Los enlaces a reparto y ausencias solo a quien puede abrirlos; a los demás, la dirección del centro que debe hacerlo y el botón «Avisar a la dirección del centro». El reparto es de la dirección del centro (D5). |
 
 ---
 

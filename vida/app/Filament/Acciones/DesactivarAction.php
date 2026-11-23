@@ -6,6 +6,7 @@ use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Auth\Access\AuthorizationException;
+use Modules\Intervencion\Services\Asignacion\AvisoDireccionSalida;
 use Modules\Intervencion\Services\Asignacion\SalidaCentroBloqueada;
 use Modules\Intervencion\Services\Asignacion\SalidaCentroService;
 use Modules\Usuarios\Models\Profesional;
@@ -83,7 +84,12 @@ final class DesactivarAction
     }
 
     /**
-     * Notificación persistente con el motivo del rechazo y los enlaces para resolverlo.
+     * Notificación persistente con el motivo del rechazo y cómo resolverlo (R3).
+     *
+     * A quien puede resolverlo (la supervisión de alguno de los centros), los enlaces al reparto de
+     * casos y a la gestión de ausencias. A quien no (p. ej. `adm_sistema`), qué dirección de centro
+     * tiene que hacerlo y el botón «Avisar a la dirección del centro», que envía el aviso con el
+     * profesional y sus casos y citas (lo recibe `AvisaDireccionDelCentro` en la página).
      *
      * @param SalidaCentroBloqueada $e
      *
@@ -91,19 +97,39 @@ final class DesactivarAction
      */
     public static function notificarBloqueo(SalidaCentroBloqueada $e): void
     {
+        /** @var User $actor */
+        $actor = auth()->user();
         $acciones = [];
+        $cuerpo = $e->getMessage();
 
-        foreach ($e->enlaces() as $etiqueta => $url) {
+        foreach ($e->enlaces($actor) as $etiqueta => $url) {
             $acciones[] = Action::make(str($etiqueta)->slug()->toString())
                 ->label($etiqueta)
                 ->url($url)
                 ->openUrlInNewTab();
         }
 
+        if ($acciones === []) {
+            $cuerpo .= ' Lo tiene que resolver la dirección del centro: '
+                .app(AvisoDireccionSalida::class)->describirResponsables($e).'.';
+
+            if ($e->usuario !== null) {
+                $acciones[] = Action::make('avisar-direccion')
+                    ->label('Avisar a la dirección del centro')
+                    ->button()
+                    ->dispatch('avisar-direccion-salida', [
+                        'usuarioId' => $e->usuario->id,
+                        'accion' => $e->accion,
+                        'centroIds' => array_map(fn ($p) => $p->centro->id, $e->pendientes),
+                    ])
+                    ->close();
+            }
+        }
+
         Notification::make()
             ->danger()
             ->title('Hay casos o citas pendientes')
-            ->body($e->getMessage())
+            ->body($cuerpo)
             ->actions($acciones)
             ->persistent()
             ->send();

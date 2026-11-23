@@ -2,6 +2,7 @@
 
 namespace Modules\Agenda\Livewire\Citas;
 
+use App\Exceptions\ActuacionNoPermitida;
 use App\Models\Ciudadano;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Auth;
@@ -71,7 +72,10 @@ class CitaDirectaPage extends Component
     public function mount(): void
     {
         // RN-15: sin centro no se cita (mismo mensaje que el servicio)
-        abort_if($this->centro === null, 403, 'Para atender a ciudadanos tienes que estar adscrito a un centro.');
+        if ($this->centro === null) {
+            // 403 con el motivo de RN-15 a la vista (sin centro, o multicentro sin centro activo)
+            throw new ActuacionNoPermitida(app(CentroDeUsuario::class)->motivoSinActuacion(auth()->user(), null));
+        }
         Gate::authorize('verBandeja', [SolicitudCita::class, $this->centro]);
 
         // Sin referencia no se puede pedir para la referencia: por defecto, el primer libre

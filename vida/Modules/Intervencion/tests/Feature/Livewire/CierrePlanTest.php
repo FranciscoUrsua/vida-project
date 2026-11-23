@@ -6,6 +6,7 @@ use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
+use App\Models\UsuarioUo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Livewire;
@@ -47,7 +48,11 @@ class CierrePlanTest extends TestCase
             'estado' => 'activo',
             'tipo_plan_id' => TipoPlan::where('slug', 'asp_general')->value('id'),
             'profesional_responsable_id' => $user->id,
+            'centro_id' => $this->centroParaUo($uo)->id,
         ]);
+
+        // R1: editar un plan exige estar adscrito a su centro
+        UsuarioUo::create(['usuario_id' => $user->id, 'unidad_organizativa_id' => $uo->id, 'tipo_vinculo' => 'interno', 'fecha_inicio' => '2020-01-01']);
 
         return [$user, $plan];
     }

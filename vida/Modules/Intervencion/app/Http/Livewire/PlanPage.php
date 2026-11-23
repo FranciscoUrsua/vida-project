@@ -267,6 +267,9 @@ class PlanPage extends Component
             if ($this->historiaId !== null) {
                 $acceso->historia(auth()->user(), $this->historiaId);
             }
+
+            // R1: abrir un plan es una actuación; sin centro no se abre el formulario
+            app(CentroDeUsuario::class)->exigirActuacionAlAbrir(auth()->user());
             $this->ucId = $uc ?? ((int) request()->query('uc') ?: null);
 
             // Un solo tipo posible: se preselecciona, pero se muestra y hay que confirmarlo (A1.5).
@@ -1066,7 +1069,7 @@ class PlanPage extends Component
         if (! $this->plan || ! $this->puedeActivarse) {
             return;
         }
-        $this->authorize('update', $this->plan);
+        $this->exigirEdicion();
 
         $this->plan->update([
             'estado' => 'activo',
@@ -1682,7 +1685,7 @@ class PlanPage extends Component
         if (! $this->plan || empty($this->motivoCierre)) {
             return;
         }
-        $this->authorize('update', $this->plan);
+        $this->exigirEdicion();
 
         $this->plan->registrarCambio(
             auth()->id(),
@@ -1861,6 +1864,9 @@ class PlanPage extends Component
         if ($this->plan !== null) {
             $this->authorize('update', $this->plan);
         }
+
+        // R1: crear o editar un plan es una actuación en el centro del plan (o el activo, al crearlo)
+        app(CentroDeUsuario::class)->exigirActuacion(auth()->user(), $this->plan?->centro);
     }
 
     /**
@@ -1871,7 +1877,9 @@ class PlanPage extends Component
     #[Computed]
     public function puedeEditar(): bool
     {
-        return $this->plan === null || auth()->user()->can('update', $this->plan);
+        // R1: sin adscripción al centro del plan, el plan se ve en lectura
+        return app(CentroDeUsuario::class)->puedeActuar(auth()->user(), $this->plan?->centro)
+            && ($this->plan === null || auth()->user()->can('update', $this->plan));
     }
 
     /**

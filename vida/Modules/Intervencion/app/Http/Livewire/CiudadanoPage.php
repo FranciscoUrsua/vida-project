@@ -111,6 +111,9 @@ class CiudadanoPage extends Component
     /** @var string|null Herramienta activa */
     public ?string $herramientaActiva = null;
 
+    /** Herramientas de la caja que son actuaciones sobre la persona (R1): exigen poder actuar. */
+    private const HERRAMIENTAS_DE_ACTUACION = ['entrevista', 'anotacion', 'gestion', 'valoracion', 'escala', 'cita'];
+
     /** @var int|null Cita con la que se abrió el expediente desde la agenda (?cita=). */
     #[Url(as: 'cita', except: null)]
     public ?int $citaPedida = null;
@@ -940,6 +943,8 @@ class CiudadanoPage extends Component
             return;
         }
 
+        $this->exigirActuacion();
+
         $this->dispatch('abrir-prescribir-recurso');
     }
 
@@ -956,6 +961,57 @@ class CiudadanoPage extends Component
     }
 
     /**
+     * Si el usuario puede hacer actuaciones desde esta Historia Social (R1): está adscrito al
+     * centro de la operación, el activo (RN-16).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeActuar(): bool
+    {
+        return app(CentroDeUsuario::class)->puedeActuar(Auth::user());
+    }
+
+    /**
+     * Modo lectura (R1): el usuario no está adscrito a ningún centro, así que la Historia Social
+     * se muestra sin ninguna actuación (caja de herramientas, abrir plan, prescribir, solicitar).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function modoLectura(): bool
+    {
+        return app(CentroDeUsuario::class)->sinCentro(Auth::user());
+    }
+
+    /**
+     * Rechaza la actuación si el usuario no puede hacerla en el centro de la operación (R1).
+     *
+     * @param Centro|null $contexto Centro del contexto (la cita que se atiende), si lo hay.
+     *
+     * @return void
+     *
+     * @throws DomainException Con el mensaje de RN-15; se avisa sin perder el formulario.
+     */
+    private function exigirActuacion(?Centro $contexto = null): void
+    {
+        app(CentroDeUsuario::class)->exigirActuacion(Auth::user(), $contexto);
+    }
+
+    /**
+     * Centro de la cita que se vincula al apunte, si la hay: es el centro de la operación (RN-16),
+     * el mismo que comprueba `Apunte` al crearse.
+     *
+     * @return Centro|null
+     */
+    private function centroDeLaCita(): ?Centro
+    {
+        $citaId = $this->citaParaApunte();
+
+        return $citaId !== null ? Cita::find($citaId)?->centro : null;
+    }
+
+    /**
      * Abre la herramienta del tipo de cita cuando se entra desde la agenda (?herramienta=).
      *
      * @return void
@@ -969,7 +1025,8 @@ class CiudadanoPage extends Component
         $herramienta = request()->query('herramienta');
 
         // «informes»: vuelta desde el asistente de informes (fase 5)
-        if (in_array($herramienta, ['entrevista', 'valoracion', 'anotacion', 'informes'], true)) {
+        // Una herramienta de actuación solo se abre a quien puede actuar (R1); los informes se consultan
+        if ($herramienta === 'informes' || (in_array($herramienta, ['entrevista', 'valoracion', 'anotacion'], true) && $this->puedeActuar)) {
             $this->seleccionarHerramienta($herramienta);
         }
 
@@ -1035,6 +1092,7 @@ class CiudadanoPage extends Component
      */
     public function solicitarCita(): void
     {
+        $this->exigirActuacion();
         $centro = $this->centroDeLaSolicitud();
         abort_if($centro === null, 403);
 
@@ -1115,6 +1173,11 @@ class CiudadanoPage extends Component
      */
     public function seleccionarHerramienta(string $herramienta): void
     {
+        // R1: las herramientas de actuación se rechazan al abrirlas, no solo al guardar
+        if (in_array($herramienta, self::HERRAMIENTAS_DE_ACTUACION, true)) {
+            $this->exigirActuacion();
+        }
+
         $this->herramientaActiva = $herramienta;
 
         if ($herramienta === 'cita') {
@@ -1280,6 +1343,7 @@ class CiudadanoPage extends Component
      */
     public function guardarEntrevista(): void
     {
+        $this->exigirActuacion($this->centroDeLaCita());
         $plan = $this->planActivo;
         $conSeguimiento = $plan && $this->formEntrevista['programar_seguimiento'] && $this->formEntrevista['fecha_siguiente_seguimiento'];
 
@@ -1355,6 +1419,8 @@ class CiudadanoPage extends Component
      */
     public function guardarAnotacion(): void
     {
+        $this->exigirActuacion($this->centroDeLaCita());
+
         Apunte::create([
             'historia_id' => $this->historia->id,
             'plan_id' => $this->planActivo?->id,
@@ -1377,6 +1443,8 @@ class CiudadanoPage extends Component
      */
     public function guardarGestion(): void
     {
+        $this->exigirActuacion($this->centroDeLaCita());
+
         Apunte::create([
             'historia_id' => $this->historia->id,
             'plan_id' => $this->planActivo?->id,
@@ -1407,34 +1475,38 @@ class CiudadanoPage extends Component
      */
     public function guardarValoracion(int $tipoFichaId, array $datos, ?int $entrevistaId = null): void
     {
+        $this->exigirActuacion($this->centroDeLaCita());
         $tipoVal = TipoValoracion::first();
 
-        $valoracion = Valoracion::create([
-            'historia_id' => $this->historia->id,
-            'entrevista_id' => $entrevistaId,
-            'profesional_id' => Auth::id(),
-            'tipo_valoracion_id' => $tipoVal?->id ?? 1,
-            'fecha' => today()->toDateString(),
-            'estado' => 'completada',
-            'resumen' => implode(' | ', array_map(
-                fn ($k, $v) => "$k: $v",
-                array_keys($datos),
-                $datos
-            )),
-        ]);
+        // Valoración y apunte juntos: si el apunte se rechaza no queda la valoración a medias
+        DB::transaction(function () use ($datos, $entrevistaId, $tipoVal): void {
+            $valoracion = Valoracion::create([
+                'historia_id' => $this->historia->id,
+                'entrevista_id' => $entrevistaId,
+                'profesional_id' => Auth::id(),
+                'tipo_valoracion_id' => $tipoVal?->id ?? 1,
+                'fecha' => today()->toDateString(),
+                'estado' => 'completada',
+                'resumen' => implode(' | ', array_map(
+                    fn ($k, $v) => "$k: $v",
+                    array_keys($datos),
+                    $datos
+                )),
+            ]);
 
-        Apunte::create([
-            'historia_id' => $this->historia->id,
-            'plan_id' => $this->planActivo?->id,
-            'autor_id' => Auth::id(),
-            'fecha' => today()->toDateString(),
-            'tipo' => TipoApunte::Valoracion,
-            'cita_id' => $this->citaParaApunte(),
-            'apuntable_type' => Valoracion::class,
-            'apuntable_id' => $valoracion->id,
-            'contenido' => 'Valoración registrada.',
-            'visibilidad' => VisibilidadApunte::Profesionales,
-        ]);
+            Apunte::create([
+                'historia_id' => $this->historia->id,
+                'plan_id' => $this->planActivo?->id,
+                'autor_id' => Auth::id(),
+                'fecha' => today()->toDateString(),
+                'tipo' => TipoApunte::Valoracion,
+                'cita_id' => $this->citaParaApunte(),
+                'apuntable_type' => Valoracion::class,
+                'apuntable_id' => $valoracion->id,
+                'contenido' => 'Valoración registrada.',
+                'visibilidad' => VisibilidadApunte::Profesionales,
+            ]);
+        });
 
         $this->herramientaActiva = null;
         unset($this->apuntesHS);
@@ -1449,31 +1521,35 @@ class CiudadanoPage extends Component
      */
     public function guardarEscala(int $tipoEscalaId, array $respuestas): void
     {
+        $this->exigirActuacion($this->centroDeLaCita());
         $tipoEscala = TipoEscala::findOrFail($tipoEscalaId);
         $scoreTotal = $this->calcularScoreEscala($tipoEscala->schema, $respuestas);
 
-        $pase = PaseEscala::create([
-            'tipo_escala_id' => $tipoEscalaId,
-            'historia_id' => $this->historia->id,
-            'profesional_id' => Auth::id(),
-            'fecha' => today()->toDateString(),
-            'respuestas' => $respuestas,
-            'score_total' => $scoreTotal,
-            'estado' => EstadoPase::Completado,
-        ]);
+        // Pase y apunte juntos: si el apunte se rechaza no queda el pase a medias (EST-04)
+        DB::transaction(function () use ($tipoEscalaId, $tipoEscala, $respuestas, $scoreTotal): void {
+            $pase = PaseEscala::create([
+                'tipo_escala_id' => $tipoEscalaId,
+                'historia_id' => $this->historia->id,
+                'profesional_id' => Auth::id(),
+                'fecha' => today()->toDateString(),
+                'respuestas' => $respuestas,
+                'score_total' => $scoreTotal,
+                'estado' => EstadoPase::Completado,
+            ]);
 
-        Apunte::create([
-            'historia_id' => $this->historia->id,
-            'plan_id' => $this->planActivo?->id,
-            'autor_id' => Auth::id(),
-            'fecha' => today()->toDateString(),
-            'tipo' => TipoApunte::Escala,
-            'cita_id' => $this->citaParaApunte(),
-            'apuntable_type' => PaseEscala::class,
-            'apuntable_id' => $pase->id,
-            'contenido' => "{$tipoEscala->nombre}: puntuación {$scoreTotal}",
-            'visibilidad' => VisibilidadApunte::Profesionales,
-        ]);
+            Apunte::create([
+                'historia_id' => $this->historia->id,
+                'plan_id' => $this->planActivo?->id,
+                'autor_id' => Auth::id(),
+                'fecha' => today()->toDateString(),
+                'tipo' => TipoApunte::Escala,
+                'cita_id' => $this->citaParaApunte(),
+                'apuntable_type' => PaseEscala::class,
+                'apuntable_id' => $pase->id,
+                'contenido' => "{$tipoEscala->nombre}: puntuación {$scoreTotal}",
+                'visibilidad' => VisibilidadApunte::Profesionales,
+            ]);
+        });
 
         $this->herramientaActiva = null;
         unset($this->apuntesHS);

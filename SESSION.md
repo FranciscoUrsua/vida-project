@@ -1,6 +1,6 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-23 (en curso: correcciones de la ronda 1 de staging, paso 0 hecho)
+**Última actualización:** 2026-11-23 (correcciones de la ronda 1 de staging: pasos 0, 2, 3, 4, 5, 7 y 8)
 
 ---
 
@@ -8,20 +8,17 @@
 
 Decisiones confirmadas por el Delegado Digital el 23 nov 2026:
 
-- **R1 — RN-15 en toda actuación.** Valoraciones, escalas, planes (crear y editar), seguimientos, derivaciones, solicitudes de prestación, prescripciones, informes y subida de documentos exigen adscripción al centro de la operación, igual que abrir HS, citas, atención, apuntes e inscripciones. Sin centro, la Historia Social se ve en modo lectura.
-- **R2 — Supervisión sola.** Buscador y ficha en lectura (identificación, contacto, convivencia, relaciones, estado de la HS y referencia, citas); sin editar, sin documentos, sin HS ni planes. Protegidas fuera de RN-17, enmascaradas con «Solicitar acceso».
-- **R3 — Desactivar desde administración.** Enlaces a reparto y ausencias solo a quien puede usarlos; a los demás, la dirección del centro que debe hacerlo y el botón «Avisar a la dirección del centro».
+- **R1 — RN-15 en toda actuación.** Implementada: `CentroDeUsuario::puedeActuar()` / `exigirActuacion()` / `exigirActuacionAlAbrir()`; al abrir y al guardar; modo lectura sin centro en Historia Social y ficha; plan en lectura para quien no puede editarlo.
+- **R2 — Supervisión sola: ficha en lectura.** **Pendiente (paso 6).**
+- **R3 — Desactivar desde administración.** Implementada: enlaces solo a quien supervisa el centro; si no, la dirección del centro y «Avisar a la dirección del centro».
 
-Paso 0 hecho (sin la suite completa, por decisión del desarrollador). Hallazgos clave:
+**Hecho (23 nov):** pasos 0, 2 (buscador por policies, `EnlacePersona`), 3 (pantallas de error propias con identificador, avisos de `DomainException` en acciones, toasts), 4 (R1), 5 (era de datos: `tec.ciam` en la UO 16), 7 (R3) y 8 (no reproducido; fijado con tests). TF-STG-05 a 18 y 22 a 24 en verde, negativos comprobados. Detalle en `CHANGELOG-112026.md`.
 
-- EST-02: `consulta_profesional` no tiene superficie; `destinoInicial()` devuelve null y `/` muestra «Redirigiendo…» sin destino. El onboarding repite la prioridad entre roles con otro orden.
-- VEN-02: el buscador enlaza el nivel 1 a `intervencion.ciudadano.show` (`role:intervencion`); `consulta_basica` recibe el 403 de Spatie.
-- EST-04 (19 nov): `RegistrarValoracionPage` guarda la ficha antes del apunte sin transacción → ficha 14 huérfana (no borrada). La escala tiene el mismo defecto.
-- EST-09: era de datos. `tec.ciam` no tenía adscripción; el desarrollador la ha puesto en la UO 16 (23 nov) y ya ve a Marta.
-- Menú: cada página fija su layout y su menú; no hay unión por roles. `dir.ciam` entra en Supervisión, sin buscador.
-- RN-15: la interfaz no oculta nada sin centro; informe, subida de documentos, solicitud de cita y edición de plan no la comprueban.
+**Pendiente:** pasos 1 (primer acceso e inicio) y 6 (supervisión: menú, buscador, ficha) **en espera del diseño de superficies con varios roles** que el desarrollador está definiendo con Claude Web; con ellos, TF-STG-01 a 04 y 19 a 21, y la documentación de R2 (`modulo-usuarios-permisos.md` ROL 2 y menú con varios roles, `modulo-ciudadania.md`). Ver BACKLOG «Correcciones de la ronda 1 de staging: pendiente».
 
-**Pausado (23 nov):** antes del paso 1 el desarrollador va a definir el diseño de fondo con Claude Web: (1) destino y superficie de roles sin pantalla propia (`consulta_profesional`) y (2) superficie combinada para usuarios con varios roles (menú y página de inicio). Los pasos 1 y 6 dependen de esa decisión. **Siguiente paso:** retomar con el diseño decidido.
+**Tests 23 nov:** Intervención, Ciudadanía, Documentos, Prestaciones, Centro, Agenda, Supervisión, Usuarios, Acceso, Auth, UI, Errores y acceso al panel en verde (salvo incomplete/skipped previos). `npm run build` y `ui:auditar` sin infracciones. Suite completa sin pasar (decisión del desarrollador).
+
+**Siguiente paso:** las instrucciones nuevas que trae el pull del 23 nov y, cuando esté el diseño, los pasos 1 y 6.
 
 ---
 

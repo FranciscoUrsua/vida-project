@@ -20,6 +20,11 @@
         ['id' => 'informes',   'label' => 'Informes',    'icon' => 'document-text',            'fullpage' => true],
     ];
     $historiaAbierta = $historia->estado !== 'cerrada';
+    // R1: sin ningún centro, la Historia Social se consulta sin ninguna actuación
+    $modoLectura = $this->modoLectura;
+    if ($modoLectura) {
+        $herramientas = array_values(array_filter($herramientas, fn (array $h): bool => $h['id'] === 'informes'));
+    }
 @endphp
 
 <div class="op-page op-page--fill">
@@ -36,10 +41,12 @@
     <section class="px-3 py-2 border-bottom bg-primary-subtle small" aria-labelledby="titulo-planes-persona">
         <div class="d-flex flex-wrap align-items-center gap-2">
             <h2 id="titulo-planes-persona" class="small fw-bold text-primary-emphasis mb-0">Planes de la persona</h2>
+            @unless($modoLectura)
             <a href="{{ route('intervencion.plan.crear', ['historia' => $this->historia->id]) }}" wire:navigate
                class="btn btn-sm btn-outline-primary ms-auto">
                 + Abrir plan
             </a>
+            @endunless
         </div>
         @forelse($this->planesDeLaPersona as $fila)
             <div class="d-flex flex-wrap align-items-center gap-3 pt-2" wire:key="plan-persona-{{ $fila['plan']->id }}">
@@ -260,10 +267,17 @@
         <div class="col-8 p-3">
 
             {{-- Tras registrar un seguimiento: nuevas prestaciones desde él (fase 3 bis, paso 7) --}}
-            @if($ultimoSeguimientoId && auth()->user()->can('solicitud.crear'))
+            @if($ultimoSeguimientoId && ! $modoLectura && auth()->user()->can('solicitud.crear'))
                 <div class="alert alert-light border d-flex flex-wrap align-items-center gap-2 py-2 small">
                     Seguimiento registrado. ¿Hay nuevas prestaciones?
                     @livewire('prestaciones.solicitar-prestacion', ['historiaId' => $historia->id, 'planId' => $this->planActivo?->id, 'seguimientoId' => $ultimoSeguimientoId], key('solicitar-seguimiento-'.$ultimoSeguimientoId))
+                </div>
+            @endif
+
+            @if($modoLectura)
+                <div class="alert alert-info d-flex align-items-start gap-2 py-2 small" role="status">
+                    <x-heroicon-o-eye class="icon-16 flex-shrink-0 mt-1" aria-hidden="true"/>
+                    <span>Consulta en modo lectura. Para atender a ciudadanos tienes que estar adscrito a un centro.</span>
                 </div>
             @endif
 
@@ -291,14 +305,14 @@
                 @endforeach
 
                 {{-- «Solicitar prestación»: una sola puerta para todas las vías (fase 3 bis) --}}
-                @if($historiaAbierta && auth()->user()->can('solicitud.crear'))
+                @if($historiaAbierta && ! $modoLectura && auth()->user()->can('solicitud.crear'))
                     <div class="col">
                         @livewire('prestaciones.solicitar-prestacion', ['historiaId' => $historia->id, 'herramienta' => true], key('solicitar-prestacion-'.$historia->id))
                     </div>
                 @endif
 
                 {{-- Herramienta «Prescribir recurso» — visible solo con Historia Social abierta --}}
-                @if($historiaAbierta)
+                @if($historiaAbierta && ! $modoLectura)
                     <div class="col">
                         <button type="button"
                                 wire:click="abrirPrescribirRecurso"
@@ -310,7 +324,7 @@
                 @endif
 
                 {{-- Herramienta «Solicitar cita»: la solicitud cae en la bandeja de citación del centro --}}
-                @if($historiaAbierta && $this->puedeSolicitarCita)
+                @if($historiaAbierta && ! $modoLectura && $this->puedeSolicitarCita)
                     <div class="col">
                         <button type="button"
                                 wire:click="seleccionarHerramienta('cita')"

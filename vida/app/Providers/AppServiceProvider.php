@@ -5,12 +5,15 @@ namespace App\Providers;
 use App\Models\UnidadOrganizativa;
 use App\Models\UsuarioUo;
 use App\Services\AmbitoUsuario;
+use App\Support\Errores\AvisoExcepcionDominio;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Component;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\TipoCentro;
+use Throwable;
 
 /**
  * Proveedor de servicios de la aplicación: registra el cálculo del ámbito de
@@ -48,5 +51,11 @@ class AppServiceProvider extends ServiceProvider
         // Al filtrar en el proveedor vale para el login, la sesión, «recordarme» y Filament.
         Auth::provider('eloquent_activos', fn (Application $app, array $config) => (new EloquentUserProvider($app['hash'], $config['model']))
             ->withQuery(fn ($query) => $query->whereNull('desactivado_en')));
+
+        // R-03: una regla de negocio incumplida en una acción Livewire o Filament se avisa con su
+        // mensaje y conserva el formulario, en vez de llevar a una pantalla de error
+        \Livewire\on('exception', function (Component $componente, Throwable $excepcion, callable $detener): void {
+            app(AvisoExcepcionDominio::class)->manejar($componente, $excepcion, $detener);
+        });
     }
 }

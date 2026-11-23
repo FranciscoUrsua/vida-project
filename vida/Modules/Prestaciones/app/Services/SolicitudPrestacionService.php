@@ -102,9 +102,8 @@ class SolicitudPrestacionService
         }
 
         $centro = $contexto ?? app(CentroDeUsuario::class)->centroActivo($ts);
-        if ($centro === null) {
-            throw new DomainException('Para solicitar una prestación tienes que estar trabajando en un centro.');
-        }
+        // R1: solicitar una prestación es una actuación en el centro del contexto o el activo
+        app(CentroDeUsuario::class)->exigirAtencion($ts, $centro);
 
         if (! app(ConfiguracionEfectivaCentro::class)->prestaciones($centro)->contains('id', $prestacion->id)) {
             throw new DomainException("{$centro->nombre} no ofrece esa prestación.");

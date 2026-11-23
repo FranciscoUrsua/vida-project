@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ProfesionalResource\Pages;
 
 use App\Filament\Acciones\DesactivarAction;
+use App\Filament\Concerns\AvisaDireccionDelCentro;
 use App\Filament\Resources\ProfesionalResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
@@ -12,6 +13,9 @@ use Filament\Resources\Pages\EditRecord;
  */
 class EditProfesional extends EditRecord
 {
+    // R3: botón «Avisar a la dirección del centro» de una desactivación bloqueada
+    use AvisaDireccionDelCentro;
+
     protected static string $resource = ProfesionalResource::class;
 
     /**

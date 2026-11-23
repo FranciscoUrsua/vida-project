@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Documentos\Models\Informe;
 use Modules\Documentos\Services\InformeService;
 use Modules\Documentos\Services\LecturaDocumentoService;
@@ -73,7 +74,9 @@ class InformesHistorial extends Component
     {
         return $this->historia !== null
             && $this->historia->estado !== 'cerrada'
-            && Gate::forUser($this->usuario())->allows('crear', [Informe::class, $this->historia]);
+            && Gate::forUser($this->usuario())->allows('crear', [Informe::class, $this->historia])
+            // R1: redactar un informe es una actuación; exige adscripción al centro activo
+            && app(CentroDeUsuario::class)->puedeActuar($this->usuario());
     }
 
     /**

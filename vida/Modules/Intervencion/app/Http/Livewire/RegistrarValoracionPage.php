@@ -4,6 +4,7 @@ namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\HistoriaSocial;
 use App\Services\AccesoExpediente;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -65,6 +66,9 @@ class RegistrarValoracionPage extends Component
     {
         // El binding de {historia} carga sin scope: policy y auditoría antes de leer nada
         $this->historiaId = app(AccesoExpediente::class)->historia(auth()->user(), $historia->id)->id;
+
+        // R1: una valoración es una actuación; sin centro no se abre el formulario
+        app(CentroDeUsuario::class)->exigirActuacionAlAbrir(auth()->user());
 
         // Livewire 4 full-page: query string no llega a mount(), se lee directamente.
         $tipoFicha = request()->query('tipo_ficha');
@@ -161,8 +165,12 @@ class RegistrarValoracionPage extends Component
             $this->validate($reglas);
         }
 
-        $ficha = $this->persistirFicha();
-        $this->registrarApunte($ficha);
+        // Ficha y apunte juntos: el apunte comprueba RN-15 con el centro de la cita o el activo y, si
+        // lo rechaza, no queda una ficha huérfana (EST-04, ficha 14 de staging)
+        DB::transaction(function (): void {
+            $ficha = $this->persistirFicha();
+            $this->registrarApunte($ficha);
+        });
 
         return $this->redirect(route('intervencion.ciudadano.show', $this->historiaId), navigate: true);
     }

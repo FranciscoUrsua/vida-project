@@ -82,6 +82,9 @@ trait DocumentosTestSetup
 
         $this->uo = UnidadOrganizativa::create(['nombre' => 'CSS Documentos', 'tipo' => 'centro', 'activa' => true]);
         $this->otraUo = UnidadOrganizativa::create(['nombre' => 'CSS Ajeno', 'tipo' => 'centro', 'activa' => true]);
+        // R1 (RN-15 en toda actuación): subir documentos exige estar adscrito a un centro
+        $this->centroParaUo($this->uo);
+        $this->centroParaUo($this->otraUo);
 
         $this->admin = User::factory()->create();
         $this->admin->assignRole('adm_sistema');

@@ -162,7 +162,14 @@ class EstructuraAmbitoTest extends TestCase
             ->assertHasErrors(['abrirHistoria'])
             ->assertSee($mensaje)
             ->assertNoRedirect()
+            // R1: la atención se rechaza ya al abrir el formulario…
             ->call('abrirModalAtencion')
+            ->assertDispatched('toast', message: $mensaje, type: 'danger')
+            ->assertSet('modalAtencionAbierto', false)
+            // …y también al guardar, si el formulario llega abierto
+            ->set('modalAtencionAbierto', true)
+            ->set('atencionFecha', now()->toDateString())
+            ->set('atencionTipo', 'informacion')
             ->set('atencionDemanda', 'Pide información sobre ayudas')
             ->call('guardarAtencion')
             ->assertHasErrors(['atencion'])

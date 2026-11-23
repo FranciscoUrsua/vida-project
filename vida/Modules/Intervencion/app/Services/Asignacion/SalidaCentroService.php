@@ -79,7 +79,7 @@ class SalidaCentroService
             ->all();
 
         if ($pendientes !== []) {
-            throw new SalidaCentroBloqueada($pendientes, 'cerrar la adscripción al centro');
+            throw new SalidaCentroBloqueada($pendientes, 'cerrar la adscripción al centro', $usuario);
         }
     }
 
@@ -163,7 +163,7 @@ class SalidaCentroService
         $pendientes = $this->pendientesDeUsuario($usuario);
 
         if ($pendientes !== []) {
-            throw new SalidaCentroBloqueada($pendientes, 'desactivar al usuario');
+            throw new SalidaCentroBloqueada($pendientes, 'desactivar al usuario', $usuario);
         }
 
         return DB::transaction(function () use ($usuario, $actor, $adscripciones) {

@@ -9,6 +9,30 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Supervisión: pantalla «Ciudadanos del centro»** — 2026-11-23
+Módulo: Supervisión
+- Listado de las personas asignadas al centro, filtrable, con datos para la gestión: cita pendiente, fecha de la última atención, plan activo, colectivo (mayor, menor, mujer…). Sin acceso a la Historia Social salvo con `intervencion`. Pendiente de diseño. Origen: EST-08, ronda 1 de staging.
+
+---
+
+**Pruebas en staging, ronda 2** — 2026-11-23
+Transversal
+- Repetir INF-01, INF-08, EST-02 a EST-09 y VEN-01 a VEN-05 tras las correcciones de la ronda 1 (`docs/instrucciones-cli/2026-11-correcciones-staging-ronda1.md`). EST-02 (primer acceso), EST-05, EST-06 y EST-08 (supervisión) dependen de los pasos 1 y 6, en espera del diseño de superficies con varios roles.
+
+---
+
+**Correcciones de la ronda 1 de staging: pendiente** — 2026-11-23
+Módulos: Usuarios y permisos, Supervisión, transversal
+- **Pasos 1 y 6 en espera** del diseño de superficies que el desarrollador está definiendo: destino de los roles sin pantalla propia (`consulta_profesional`) y superficie combinada (menú y página de inicio) para varios roles. Hoy cada página fija su layout y su menú, y `destinoInicial()` elige un solo rol; el onboarding repite la prioridad con otro orden.
+- **`supervision` tiene `historia.leer`, `apunte.leer` y `apunte.leer_ajeno`** en el seeder (R2 dice que la supervisión sola no abre la Historia Social): hasta el paso 6, el buscador le ofrece «Ir a Historia Social» y la ruta le da 403. Informar antes de quitarlos (paso 6.3).
+- **Ficha 14 huérfana en staging:** valoración de `tec.ciam` del 19 nov guardada sin apunte (EST-04). No se ha borrado; el defecto que la produjo (sin transacción) está corregido.
+- **`adm1.css` tiene `consulta_basica` en Spatie pero no en `usuario_rol`**: datos de staging inconsistentes; no se han tocado.
+- **`APP_DEBUG=true` en staging:** un 500 sigue enseñando la traza de Laravel en vez de la pantalla propia. Cambiarlo, a decisión del desarrollador.
+- **Excepción `supervisa` al abrir el plan principal** (`PlanDeIntervencionService::exigirAperturaDelPrincipal`): la supervisión del centro lo abre sin estar adscrita. Con R1 la pantalla ya no se abre a quien no tiene centro; revisar si la excepción del servicio debe quedar.
+- **Otros `abort(403, 'mensaje')`** (informes, documentos, configuración de UO, equipo): la pantalla propia muestra el texto genérico. Si alguno debe enseñar su motivo, pasarlo a `ActuacionNoPermitida` o a una excepción equivalente.
+
+---
+
 **Agenda y protegidos: huecos encontrados al preparar las pruebas** — 2026-11-18
 Módulos: Agenda, Ciudadanía
 - **Un cuadrante publicado no incorpora al personal nuevo:** `CuadranteSupervisorPage::regenerar()` solo funciona en borrador, y `agenda:publicar-cuadrantes` no toca los centros que ya tienen cuadrante. Quien se incorpora a un centro a mitad de mes no tiene huecos hasta el mes siguiente (le pasó al CSS Entrevías: cuadrantes vacíos, corregidos a mano el 18 nov). Decidir cómo se añaden líneas y huecos a un cuadrante publicado sin tocar las citas que ya hay.

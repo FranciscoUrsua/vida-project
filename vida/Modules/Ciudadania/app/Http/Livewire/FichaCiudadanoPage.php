@@ -10,6 +10,7 @@ use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use App\Queries\AccesosExpedienteQuery;
 use App\Services\AccesoExpediente;
+use App\Services\EnlacePersona;
 use App\Services\PresentacionPersona;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Collection;
@@ -27,6 +28,8 @@ use Modules\Agenda\Models\Cita;
 use Modules\Agenda\Services\Citas\AtencionCitaService;
 use Modules\Atencion\Models\RegistroAtencion;
 use Modules\Centro\Models\AsignacionCentro;
+use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
 use Modules\Ciudadania\Models\CiudadanoPrestacionResumen;
 use Modules\Ciudadania\Models\CiudadanoRelacion;
@@ -1081,7 +1084,9 @@ class FichaCiudadanoPage extends Component
     #[Computed]
     public function puedeAbrirHistoria(): bool
     {
-        return auth()->user()->can('historia.abrir') && ! $this->historiaSocial;
+        return auth()->user()->can('historia.abrir') && ! $this->historiaSocial
+            // R1: sin ningún centro, la ficha se consulta sin actuaciones
+            && ! app(CentroDeUsuario::class)->sinCentro(auth()->user());
     }
 
     /**
@@ -1092,7 +1097,9 @@ class FichaCiudadanoPage extends Component
     #[Computed]
     public function puedeCrearAtencion(): bool
     {
-        return auth()->user()->can('atencion.crear');
+        return auth()->user()->can('atencion.crear')
+            // R1: sin ningún centro, la ficha se consulta sin actuaciones
+            && ! app(CentroDeUsuario::class)->sinCentro(auth()->user());
     }
 
     // -------------------------------------------------------------------------
@@ -1127,7 +1134,19 @@ class FichaCiudadanoPage extends Component
             return;
         }
 
-        $this->redirect(route('intervencion.ciudadano.show', $historia->id), navigate: true);
+        // Quien puede abrir la historia pero no leerla (tramitación) se queda en la ficha (R-02)
+        $this->redirect(app(EnlacePersona::class)->url($profesional, $historia->ciudadano_id), navigate: true);
+    }
+
+    /**
+     * Centro de la cita que se vincularía a la atención, si la hay: es el centro de la
+     * operación (RN-16), el mismo que comprueba `RegistroAtencion` al crearse.
+     *
+     * @return Centro|null
+     */
+    private function centroDeLaAtencion(): ?Centro
+    {
+        return $this->vincularCita ? $this->citaVinculable?->centro : null;
     }
 
     /**
@@ -1137,6 +1156,8 @@ class FichaCiudadanoPage extends Component
      */
     public function abrirModalAtencion(): void
     {
+        // RN-15: registrar una atención se rechaza al abrir el formulario, no solo al guardar (R1)
+        app(CentroDeUsuario::class)->exigirActuacion(auth()->user(), $this->centroDeLaAtencion());
         $this->modalAtencionAbierto = true;
         $this->atencionFecha = now()->toDateString();
         $this->atencionTipo = 'informacion';

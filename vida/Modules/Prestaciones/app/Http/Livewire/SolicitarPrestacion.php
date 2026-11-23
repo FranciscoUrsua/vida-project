@@ -105,6 +105,9 @@ class SolicitarPrestacion extends Component
      */
     public function abrir(): void
     {
+        // R1: solicitar una prestación es una actuación; se rechaza al abrir, con el mensaje de RN-15
+        app(CentroDeUsuario::class)->exigirActuacion(Auth::user());
+
         $this->reset(['busqueda', 'directaId', 'aviso', 'avisoUrl']);
         $this->resetErrorBag();
         $this->abierto = true;
@@ -129,6 +132,7 @@ class SolicitarPrestacion extends Component
      */
     public function elegir(int $prestacionId): mixed
     {
+        app(CentroDeUsuario::class)->exigirActuacion(Auth::user());
         $prestacion = $this->prestaciones->firstWhere('id', $prestacionId);
         if ($prestacion === null) {
             $this->addError('prestacion', 'Esa prestación no se ofrece en tu centro.');
@@ -151,6 +155,7 @@ class SolicitarPrestacion extends Component
      */
     public function registrarDirecta(): void
     {
+        app(CentroDeUsuario::class)->exigirActuacion(Auth::user());
         $prestacion = $this->prestaciones->firstWhere('id', $this->directaId);
         if ($prestacion === null) {
             return;

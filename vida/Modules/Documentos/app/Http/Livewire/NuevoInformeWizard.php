@@ -15,6 +15,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Documentos\Enums\MetodoFirma;
 use Modules\Documentos\Enums\TipoInforme;
 use Modules\Documentos\Exceptions\FirmaRechazadaException;
@@ -93,6 +94,8 @@ class NuevoInformeWizard extends Component
         abort_if($historia === null, 404);
         // El binding carga sin scope: se autoriza y audita la apertura antes de leer nada.
         $this->historia = app(AccesoExpediente::class)->historia($usuario, $historia->id);
+        // R1: sin adscripción al centro no se abre el asistente (antes que la policy, para dar el motivo)
+        app(CentroDeUsuario::class)->exigirActuacionAlAbrir($usuario);
         abort_unless(Gate::forUser($usuario)->allows('crear', [Informe::class, $this->historia]), 403);
     }
 

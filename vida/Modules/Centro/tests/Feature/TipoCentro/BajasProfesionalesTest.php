@@ -201,8 +201,10 @@ class BajasProfesionalesTest extends TestCase
             $this->fail('La salida con casos pendientes debe rechazarse.');
         } catch (SalidaCentroBloqueada $e) {
             $this->assertStringContainsString('CIAM Puente de Vallecas: 3 casos de referencia', $e->getMessage());
-            $this->assertArrayHasKey('Repartir casos', $e->enlaces());
-            $this->assertArrayNotHasKey('Reasignar citas', $e->enlaces());
+            // Los enlaces, a quien supervisa el centro (R3); la administración no los ve
+            $this->assertArrayHasKey('Repartir casos', $e->enlaces($this->jefaJuntaVallecas));
+            $this->assertArrayNotHasKey('Reasignar citas', $e->enlaces($this->jefaJuntaVallecas));
+            $this->assertSame([], $e->enlaces($this->admin));
         }
 
         // Tampoco por cualquier otro camino que cambie la fecha de fin (repeater de Filament)
@@ -297,8 +299,8 @@ class BajasProfesionalesTest extends TestCase
             $this->fail('La salida con citas confirmadas futuras debe rechazarse.');
         } catch (SalidaCentroBloqueada $e) {
             $this->assertStringContainsString('CIAM Puente de Vallecas: 1 cita confirmada', $e->getMessage());
-            $this->assertArrayHasKey('Reasignar citas', $e->enlaces());
-            $this->assertArrayNotHasKey('Repartir casos', $e->enlaces());
+            $this->assertArrayHasKey('Reasignar citas', $e->enlaces($this->jefaJuntaVallecas));
+            $this->assertArrayNotHasKey('Repartir casos', $e->enlaces($this->jefaJuntaVallecas));
         }
 
         $this->assertNull($this->adscripcionDeLaPsicologa($this->uoCiamVallecas->id)->fecha_fin);

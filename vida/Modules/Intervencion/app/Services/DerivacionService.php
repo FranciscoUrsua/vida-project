@@ -79,6 +79,9 @@ class DerivacionService
             throw new DomainException('Para derivar tienes que poder editar el plan principal.');
         }
 
+        // R1: derivar es una actuación en el centro del plan principal
+        $this->centros->exigirActuacion($actor, $principal->centro);
+
         if ($prestacion->via_acceso !== ViaAcceso::Derivacion || ! $prestacion->activa || $prestacion->tipo_plan_derivacion_id === null) {
             throw new DomainException('Elige una prestación de derivación.');
         }

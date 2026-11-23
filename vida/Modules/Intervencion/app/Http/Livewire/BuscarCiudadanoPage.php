@@ -29,6 +29,11 @@ use Modules\Mensajes\Services\AlertaService;
  *   Nivel 2 (otra UO): Historia Social en otra UO sin colectivo protegido.
  *   Nivel 3 (protegido): Ciudadano con colectivo_extra_protegido activo.
  *
+ * La acción de cada resultado la deciden las policies, no el rol (R-02 de la ronda 1 de
+ * staging): si `HistoriaSocialPolicy::view` lo permite, la Historia Social; si no y
+ * `CiudadanoPolicy::view` lo permite, la ficha de la persona; una persona protegida que
+ * la policy no deja ver, la solicitud de acceso.
+ *
  * Nota: la búsqueda por nombre opera sobre datos cifrados. Se implementa
  * cargando un máximo de 500 registros y filtrando en PHP — es aceptable
  * para el volumen esperado en una UO. Un índice hash búsqueda-eficiente
@@ -174,6 +179,7 @@ class BuscarCiudadanoPage extends Component
         if (! PresentacionPersona::visible($ciudadano, auth()->user())) {
             return [
                 'ciudadano_id' => $ciudadano->id,
+                'accion' => 'solicitar_acceso',
                 'nombre' => null,
                 'alias' => null,
                 'nivel' => 3,
@@ -198,12 +204,39 @@ class BuscarCiudadanoPage extends Component
 
         return [
             'ciudadano_id' => $ciudadano->id,
+            'accion' => $this->accionDe($ciudadano, $historia, $nivel),
             'nombre' => $ciudadano->nombre.' '.$ciudadano->apellido1.($ciudadano->apellido2 ? ' '.$ciudadano->apellido2 : ''),
             'alias' => $ciudadano->alias,
             'nivel' => $nivel,
             'historia_id' => $historia?->id,
             'domicilio' => $ciudadano->colectivo_extra_protegido ? null : null, // cifrado, TODO: mostrar si nivel 1
         ];
+    }
+
+    /**
+     * Acción que se ofrece en un resultado visible, decidida por las policies (R-02).
+     *
+     * - `historia`: Historia Social que el usuario gestiona (nivel 1).
+     * - `historia_externa`: Historia Social de otra UO que la policy deja consultar; se abre
+     *   por `registrarAccesoNivel2()`, que registra el acceso (nivel 2).
+     * - `ficha`: sin acceso a la Historia Social, ficha de la persona (`FichaCiudadanoPage`).
+     * - `ninguna`: ni lo uno ni lo otro.
+     *
+     * @param Ciudadano $ciudadano Persona del resultado.
+     * @param HistoriaSocial|null $historia Historia abierta más reciente, si la hay.
+     * @param int $nivel Nivel calculado por ámbito (1 o 2).
+     *
+     * @return string
+     */
+    private function accionDe(Ciudadano $ciudadano, ?HistoriaSocial $historia, int $nivel): string
+    {
+        $usuario = Auth::user();
+
+        if ($historia !== null && $usuario->can('view', $historia)) {
+            return $nivel === 1 ? 'historia' : 'historia_externa';
+        }
+
+        return $usuario->can('view', $ciudadano) ? 'ficha' : 'ninguna';
     }
 
     // -------------------------------------------------------------------------

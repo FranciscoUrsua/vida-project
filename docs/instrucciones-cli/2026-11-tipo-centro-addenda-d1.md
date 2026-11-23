@@ -36,6 +36,8 @@
    >
    > **RN-15 — Atención individual solo desde un centro.** Abrir Historia Social, dar o atender citas, registrar atención, hacer apuntes e inscribir en actividades exige que el usuario esté adscrito al centro en que se hace la operación. Un usuario sin centro consulta y supervisa según su rol, pero no atiende.
    >
+   > *Ampliada el 23 nov 2026 (R1): se aplica a toda actuación sobre una persona y, sin ningún centro, la Historia Social se ve en modo lectura. Ver `modulo-tipo-centro.md`, RN-15.*
+   >
    > **RN-16 — Centro de trabajo.** La operación toma el centro de su contexto; sin contexto, el centro activo del usuario (el elegido en la sesión o, por defecto, el de su perfil horario del día). Un profesional puede estar adscrito a varios centros, con un perfil horario en cada uno.
 4. **§2.2** («Para qué se usa la UO funcional en la v1») se sustituye por:
    - Ámbito de permisos de los usuarios de esa UO y de sus ascendientes sobre todos los centros del tipo (RN-13).

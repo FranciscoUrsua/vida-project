@@ -3,9 +3,11 @@
 namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\HistoriaSocial;
+use App\Services\AccesoExpediente;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Escalas\Models\TipoEscala;
 
 /**
@@ -34,7 +36,12 @@ class RegistrarEscalaPage extends Component
      */
     public function mount(HistoriaSocial $historia): void
     {
-        $this->historia = $historia;
+        // El binding de {historia} carga sin scope: policy y auditoría antes de nada (como la valoración)
+        $this->historia = app(AccesoExpediente::class)->historia(auth()->user(), $historia->id);
+
+        // R1: un pase de escala es una actuación; sin centro no se abre el formulario
+        app(CentroDeUsuario::class)->exigirActuacionAlAbrir(auth()->user());
+
         // Livewire 4 full-page components no reciben query string en mount(); se lee directamente.
         $tipoEscala = request()->query('tipo_escala');
         $this->tipoEscalaId = $tipoEscala ? (int) $tipoEscala : null;
