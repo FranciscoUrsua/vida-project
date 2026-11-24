@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-11-25 — Seguridad: contraseña de la BD fuera del repositorio y cambiada
+
+- `vida/phpunit.xml` (repositorio público) llevaba la contraseña de `vida_user`, la misma de la BD compartida local/staging. PostgreSQL solo escucha en `127.0.0.1`, pero la contraseña estaba publicada.
+- **Cambiada** la contraseña de `vida_user` (generada, sin mostrarla) en PostgreSQL y en los `.env` local y de staging. En staging, `config:cache` y `queue:restart`. Comprobado: la nueva entra, la vieja se rechaza, local y staging se conectan y el login de staging responde. La vieja sigue en el historial de git, pero ya no sirve.
+- **Usuario solo para tests** `vida_test` (`CREATEDB`, sin más privilegios), dueño de `vida_testing`. Lo crea con `sudo` el script de la sesión, porque `vida_user` no puede crear roles. Credenciales en `vida/.env.testing` (sin versionar, en los dos `.gitignore`), con plantilla `.env.testing.example`. Se borraron las BD de test antiguas de `vida_user`.
+- `phpunit.xml` sin usuario ni contraseña. La suite nocturna usa sus propias credenciales (sin cambios).
+- Retiradas de `.claude/settings.local.json` dos reglas de permisos que llevaban la contraseña vieja escrita.
+
+---
+
 ## 2026-11-25 — Suite nocturna en verde: AppArmor en CI y tests al día con R2 y R4
 
 - **Primeras ejecuciones del workflow** (1711 tests en unos 4 minutos con 4 procesos): 118 problemas, de tres orígenes.

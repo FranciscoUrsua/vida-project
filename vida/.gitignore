@@ -27,3 +27,4 @@ storage/test-results/
 # Cache de herramientas de calidad — NO incluir en git
 /.phpstan-cache/
 /.rector-cache/
+.env.testing

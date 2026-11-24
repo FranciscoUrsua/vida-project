@@ -9,12 +9,6 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
-**Contraseña de la BD compartida publicada en `phpunit.xml`** — 2026-11-25
-Transversal / seguridad
-- El repositorio es público y `vida/phpunit.xml` lleva `DB_USERNAME=vida_user` con la misma contraseña que usa el `.env` para la BD compartida local/staging (`vida`). PostgreSQL solo escucha en `127.0.0.1`, así que no da acceso desde fuera, pero conviene cambiar la contraseña de `vida_user`, crear un usuario solo para `vida_testing*` y sacar la contraseña de `phpunit.xml` (a `.env.testing`, sin versionar). El workflow nocturno ya usa credenciales propias. Pendiente de decisión del desarrollador: afecta a la configuración de staging.
-
----
-
 **Tablas operativas: pendientes tras la ordenación por cabecera** — 2026-11-25
 Transversal
 - Ordenación de prioridad media sin hacer: Actividades (nombre, tipo, fecha de alta, estado), Excepciones y Eventos del supervisor, Control de alertas (fecha, atendidas) y Mi equipo. Con `OrdenaPorColumnas` y `<x-op.th-orden>` es poco trabajo por tabla.

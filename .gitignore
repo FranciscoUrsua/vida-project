@@ -24,3 +24,4 @@ Thumbs.db
 
 # Claude Code worktrees (git worktrees temporales generados por Claude CLI)
 .claude/worktrees/
+.env.testing

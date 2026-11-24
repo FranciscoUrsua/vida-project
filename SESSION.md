@@ -4,6 +4,8 @@
 
 ---
 
+**Última tarea (25 nov, 4):** contraseña de `vida_user` cambiada (estaba publicada en `phpunit.xml`) en PostgreSQL y en los `.env` local y de staging; los tests usan su propio usuario `vida_test` con credenciales en `vida/.env.testing` (sin versionar; plantilla `.env.testing.example`). Quien monte el entorno de cero necesita crear `.env.testing` y el usuario `vida_test` (ver `docs/decisiones-tecnicas.md` §1.5).
+
 **Última tarea (25 nov, 3):** suite completa de noche en GitHub Actions (`nightly-tests.yml`, paratest con 4 procesos, unos 4 minutos) y nuevas reglas de tests en `CLAUDE.md` (paso 1 bis: revisar la noche al empezar). Corregidos el entorno de CI (AppArmor, locale) y los tests desfasados por R2 y R4; la supervisión sin `intervencion` ve el nombre interno del tipo de cita (decisión del 25 nov). Comprobar la ejecución lanzada tras el último push (`gh run list --workflow=nightly-tests.yml`).
 
 **Última tarea (25 nov, 2):** paginación y ordenación por cabecera: base común (`OrdenaPorColumnas`, `<x-op.th-orden>`), Recursos con paginadores separados, pie de Mis casos con `links()`, y ordenación en Tramitación, Derivaciones, Asignaciones, Mis casos («Otros planes») y Recursos → Activas. Pendiente: las tablas de prioridad media y la paginación de listados que crecen (BACKLOG).

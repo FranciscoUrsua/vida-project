@@ -70,6 +70,8 @@ El bloque de código incluye solo la firma (no el cuerpo). El cuerpo lo genera e
 
 **Implementación:** `brianium/paratest` en `require-dev`. Laravel crea una BD por proceso (`vida_testing_test_N`). Las carpetas temporales de los tests deben ser propias del proceso: `Tests\TestCase::carpetaTemporalDeTest()` (la zona de ingesta de Documentos y Prestaciones la compartían). En la máquina de desarrollo el paralelo no acelera (1 núcleo); en el runner, 4 procesos.
 
+**Credenciales de la BD de test (2026-11-25):** usuario propio `vida_test` (dueño de `vida_testing` y con `CREATEDB` para las `vida_testing_test_N` del paralelo; sin más privilegios). Sus credenciales están en `vida/.env.testing`, que no se versiona (plantilla en `.env.testing.example`); `phpunit.xml` solo lleva conexión, host, puerto y BD. Con `APP_ENV=testing` Laravel carga `.env.testing` en lugar de `.env`. Antes `phpunit.xml`, en un repositorio público, llevaba la contraseña de `vida_user`, la de la BD compartida local/staging: se cambió ese mismo día.
+
 ---
 
 ## 2. Paquetes y librerías

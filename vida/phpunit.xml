@@ -39,8 +39,8 @@
         <env name="DB_HOST" value="127.0.0.1"/>
         <env name="DB_PORT" value="5432"/>
         <env name="DB_DATABASE" value="vida_testing"/>
-        <env name="DB_USERNAME" value="vida_user"/>
-        <env name="DB_PASSWORD" value="!AtTheGates65"/>
+        <!-- Usuario y contraseña de la BD de test: en .env.testing (sin versionar; ver .env.testing.example).
+             En la suite nocturna los pone el workflow. -->
         <env name="MAIL_MAILER" value="array"/>
         <env name="DOCUMENTOS_CLAVE_MAESTRA" value="base64:dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHQ="/>
         <env name="DOCUMENTOS_RUTA" value="storage/framework/testing/disks/documentos"/>
