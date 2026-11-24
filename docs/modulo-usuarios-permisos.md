@@ -135,6 +135,7 @@ Cada rol tiene configurado su **nivel de supervisión** para la asignación (ver
 - Consulta de trazabilidad: informes de accesos a expedientes por parte de profesionales.
 - Validación de acceso a datos sensibles de ciudadanos especialmente protegidos en su DG.
 - Firma o rechazo de propuestas que requieran aprobación de supervisión.
+- En el backoffice (25 nov 2026): auditoría de accesos de todo el sistema; plantillas y estilos de informe de su ámbito (crea y edita los de su UO y las que dependen de ella; los demás, en solo lectura); parámetros de informe en solo lectura; tipos de slot. Los entornos demo son solo de `adm_sistema`.
 - No incluye las funcionalidades completas de gestión o intervención, salvo las estrictamente necesarias para sus responsabilidades.
 
 **Ámbito por UO:** Limitado a su DG / departamento y la estructura bajo ella.
@@ -153,7 +154,7 @@ Cada rol tiene configurado su **nivel de supervisión** para la asignación (ver
 - Gestión de agendas de los usuarios de su UO.
 - Gestión de suplencias.
 - No tiene acceso a la configuración de permisos por rol (responsabilidad de `adm_sistema`).
-- En el backoffice (desde el 25 nov 2026): usuarios, profesionales, historial de asignaciones de rol, perfiles horarios, excepciones y cuadrantes (trait `AutorizaGestionUsuarios`). Ningún catálogo ni configuración (trait `AutorizaGestion`, solo `adm_sistema`), ni documentos o informes de ciudadanos.
+- En el backoffice (desde el 25 nov 2026): usuarios, profesionales, historial de asignaciones de rol, perfiles horarios, excepciones y cuadrantes (trait `AutorizaGestionUsuarios`). Ningún catálogo ni configuración (trait `AutorizaGestion`, solo `adm_sistema`), ni documentos o informes de ciudadanos. Edita solo lo de su ámbito, su UO y las que dependen de ella (`App\Support\Ambito\AmbitoGestionUsuarios`): usuarios y profesionales por la adscripción vigente del usuario (o, sin cuenta, por la UO directa del profesional); perfiles horarios, excepciones y cuadrantes por el centro, que además limita el listado y los desplegables.
 - Puede asignar cualquier rol existente, pero la asignación de roles con aprobación requerida (`adm_sistema`, `supervision`) genera una solicitud que debe aprobar el supervisor competente antes de ser efectiva.
 
 **Ámbito por UO:** Limitado a su UO y la estructura bajo ella. No puede gestionar usuarios de UO superiores o paralelas.

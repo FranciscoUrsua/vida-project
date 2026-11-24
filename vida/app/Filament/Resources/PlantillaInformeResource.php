@@ -5,8 +5,10 @@ namespace App\Filament\Resources;
 use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\PlantillaInformeResource\Pages;
 use App\Models\UnidadOrganizativa;
+use App\Support\Ambito\AmbitoGestionUsuarios;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -255,9 +257,10 @@ class PlantillaInformeResource extends Resource
                 Tables\Filters\TernaryFilter::make('activa')->label('Estado'),
             ])
             ->actions([
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make()
-                    ->authorize(fn () => auth()->user()?->hasRole('adm_sistema') ?? false),
+                    ->authorize(fn (Model $record): bool => static::canDelete($record)),
             ])
             ->defaultSort('nombre');
     }
@@ -270,6 +273,7 @@ class PlantillaInformeResource extends Resource
         return [
             'index' => Pages\ListPlantillasInforme::route('/'),
             'create' => Pages\CreatePlantillaInforme::route('/create'),
+            'view' => Pages\ViewPlantillaInforme::route('/{record}'),
             'edit' => Pages\EditPlantillaInforme::route('/{record}/edit'),
         ];
     }
@@ -283,13 +287,31 @@ class PlantillaInformeResource extends Resource
     }
 
     /**
-     * Determina si el usuario puede editar una plantilla de informe.
+     * Alta: adm_sistema y la supervisión (esta, solo en su ámbito: el formulario no
+     * ofrece otras UO). Decisión del desarrollador, 25 nov 2026.
+     *
+     * @return bool
+     */
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'supervision']) ?? false;
+    }
+
+    /**
+     * Edición: adm_sistema, cualquiera; la supervisión, las de su UO y de las que
+     * dependen de ella. Las demás las abre en la página de solo lectura.
      *
      * @param Model $record Registro objetivo.
+     *
+     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
-        return auth()->user()?->hasRole('adm_sistema') ?? false;
+        $usuario = auth()->user();
+
+        return $usuario !== null
+            && $usuario->hasAnyRole(['adm_sistema', 'supervision'])
+            && app(AmbitoGestionUsuarios::class)->uoEnAmbito($usuario, $record->getAttribute('unidad_organizativa_id'));
     }
 
     /**
@@ -299,6 +321,6 @@ class PlantillaInformeResource extends Resource
      */
     public static function canDelete(Model $record): bool
     {
-        return auth()->user()?->hasRole('adm_sistema') ?? false;
+        return static::canEdit($record);
     }
 }

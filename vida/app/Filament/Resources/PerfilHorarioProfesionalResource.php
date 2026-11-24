@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Concerns\AutorizaGestionUsuarios;
 use App\Filament\Resources\PerfilHorarioProfesionalResource\Pages;
-use App\Models\User;
+use App\Support\Ambito\AmbitoGestionUsuarios;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
@@ -17,6 +17,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Centro\Models\Centro;
 
@@ -55,13 +57,13 @@ class PerfilHorarioProfesionalResource extends Resource
                 ->schema([
                     Select::make('usuario_id')
                         ->label('Profesional')
-                        ->options(fn () => User::orderBy('name')->pluck('name', 'id'))
+                        ->options(fn () => app(AmbitoGestionUsuarios::class)->opcionesUsuarios(auth()->user()))
                         ->searchable()
                         ->required(),
 
                     Select::make('centro_id')
                         ->label('Centro')
-                        ->options(fn () => Centro::where('activo', true)->orderBy('nombre')->pluck('nombre', 'id'))
+                        ->options(fn () => app(AmbitoGestionUsuarios::class)->opcionesCentros(auth()->user()))
                         ->searchable()
                         ->required(),
                 ]),
@@ -185,5 +187,61 @@ class PerfilHorarioProfesionalResource extends Resource
             'create' => Pages\CreatePerfilHorarioProfesional::route('/create'),
             'edit' => Pages\EditPerfilHorarioProfesional::route('/{record}/edit'),
         ];
+    }
+
+    /**
+     * Listado limitado a los centros del ámbito del usuario (adm_usuarios: su UO y las
+     * que dependen de ella; adm_sistema, todos).
+     *
+     * @return Builder<Model>
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        $usuario = auth()->user();
+        $query = parent::getEloquentQuery();
+
+        return $usuario === null
+            ? $query->whereRaw('1 = 0')
+            : app(AmbitoGestionUsuarios::class)->limitarPorCentro($query, $usuario);
+    }
+
+    /**
+     * Edición: gestión de usuarios y, además, centro del ámbito.
+     *
+     * @param Model $record
+     *
+     * @return bool
+     */
+    public static function canEdit(Model $record): bool
+    {
+        return static::gestionaElCentroDe($record);
+    }
+
+    /**
+     * Borrado: gestión de usuarios y, además, centro del ámbito.
+     *
+     * @param Model $record
+     *
+     * @return bool
+     */
+    public static function canDelete(Model $record): bool
+    {
+        return static::gestionaElCentroDe($record);
+    }
+
+    /**
+     * Si el usuario gestiona usuarios y el registro es de un centro de su ámbito.
+     *
+     * @param Model $record
+     *
+     * @return bool
+     */
+    private static function gestionaElCentroDe(Model $record): bool
+    {
+        $usuario = auth()->user();
+
+        return $usuario !== null
+            && $usuario->hasAnyRole(['adm_sistema', 'adm_usuarios'])
+            && app(AmbitoGestionUsuarios::class)->centroEnAmbito($usuario, $record->getAttribute('centro_id'));
     }
 }

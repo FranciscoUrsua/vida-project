@@ -48,13 +48,14 @@ class DemoWorldsPage extends Page implements HasActions
     protected string $view = 'filament.pages.demo-worlds-page';
 
     /**
-     * La página solo es accesible en entornos no productivos.
+     * Solo `adm_sistema` y solo fuera de producción: cargar o reiniciar un mundo
+     * borra y crea datos en la BD, que en desarrollo es la compartida con staging.
      *
-     * @return bool True si el entorno no es producción
+     * @return bool
      */
     public static function canAccess(): bool
     {
-        return ! app()->isProduction();
+        return ! app()->isProduction() && (auth()->user()?->hasRole('adm_sistema') ?? false);
     }
 
     /**
@@ -161,6 +162,8 @@ class DemoWorldsPage extends Page implements HasActions
         $nombre = $config['meta']['nombre'];
 
         return Action::make("cargar_{$worldId}")
+            // También en la acción: se puede invocar sin pasar por la carga de la página
+            ->authorize(fn (): bool => static::canAccess())
             ->label('Cargar (aditivo)')
             ->icon('heroicon-o-plus-circle')
             ->color('primary')
@@ -224,6 +227,7 @@ class DemoWorldsPage extends Page implements HasActions
         }
 
         return Action::make("reset_{$worldId}")
+            ->authorize(fn (): bool => static::canAccess())
             ->label('Cargar mundo')
             ->icon('heroicon-o-arrow-path')
             ->color('danger')

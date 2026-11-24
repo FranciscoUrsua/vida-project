@@ -4,6 +4,8 @@
 
 ---
 
+**Última tarea (25 nov, 5):** backoffice de la supervisión y de `adm_usuarios`: auditoría de accesos de todo el sistema (arreglado el error SQL), entornos demo solo para `adm_sistema`, profesionales, perfiles horarios, excepciones y cuadrantes limitados al ámbito de `adm_usuarios` (`AmbitoGestionUsuarios`), y plantillas y estilos de informe editables por la supervisión en su ámbito, con páginas de solo lectura para el resto.
+
 **Última tarea (25 nov, 4):** contraseña de `vida_user` cambiada (estaba publicada en `phpunit.xml`) en PostgreSQL y en los `.env` local y de staging; los tests usan su propio usuario `vida_test` con credenciales en `vida/.env.testing` (sin versionar; plantilla `.env.testing.example`). Quien monte el entorno de cero necesita crear `.env.testing` y el usuario `vida_test` (ver `docs/decisiones-tecnicas.md` §1.5).
 
 **Última tarea (25 nov, 3):** suite completa de noche en GitHub Actions (`nightly-tests.yml`, paratest con 4 procesos, unos 4 minutos) y nuevas reglas de tests en `CLAUDE.md` (paso 1 bis: revisar la noche al empezar). Corregidos el entorno de CI (AppArmor, locale) y los tests desfasados por R2 y R4; la supervisión sin `intervencion` ve el nombre interno del tipo de cita (decisión del 25 nov). Comprobar la ejecución lanzada tras el último push (`gh run list --workflow=nightly-tests.yml`).

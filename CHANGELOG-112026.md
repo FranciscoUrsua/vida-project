@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-11-25 — Backoffice: ámbito de la supervisión y de `adm_usuarios`
+
+Origen: pruebas en staging con una dirección de centro (`supervision` + `adm_usuarios` + `intervencion`).
+
+- **Auditoría de accesos** (`AuditResource`): daba un error SQL (errata `unidad_organizativas` en el filtro por UO). Se retira el filtro: la supervisión ve la auditoría de todo el sistema (decisión del desarrollador). El filtro de fechas abre con los últimos 30 días (sin fechas, la tabla salía vacía).
+- **Entornos demo** (`DemoWorldsPage`): solo `adm_sistema`, fuera de producción. Antes, cualquiera con acceso al panel. Las acciones de cargar y reiniciar comprueban lo mismo.
+- **Ámbito de `adm_usuarios`:** nuevo servicio `App\Support\Ambito\AmbitoGestionUsuarios` (su UO y las que dependen de ella, `uoSubtreeIds()`; `adm_sistema` sin límite).
+  - Profesionales: edita solo los de su ámbito, por la adscripción vigente de su usuario o, sin cuenta, por su UO directa.
+  - Perfiles horarios, excepciones y cuadrantes: listado, edición, borrado y desplegables del formulario (usuarios y centros) limitados a los centros de su ámbito.
+- **Informes** (decisión del desarrollador): la supervisión crea y edita plantillas y estilos de informe de su ámbito y abre los demás en solo lectura (páginas `View*` nuevas; antes cualquier registro daba error de permisos, porque solo había página de edición). Los parámetros (globales), en solo lectura. El formulario de estilos solo ofrece UO del ámbito.
+- **Tests:** `BackofficeAmbitoTest` (8 tests, comprobados en negativo con el código anterior). `FilamentPanelAccessTest` admite las altas de plantillas y estilos de la supervisión.
+- Documentación: `modulo-auditoria.md` §6 y `modulo-usuarios-permisos.md` (roles 2 y 3).
+
+---
+
 ## 2026-11-25 — Seguridad: contraseña de la BD fuera del repositorio y cambiada
 
 - `vida/phpunit.xml` (repositorio público) llevaba la contraseña de `vida_user`, la misma de la BD compartida local/staging. PostgreSQL solo escucha en `127.0.0.1`, pero la contraseña estaba publicada.

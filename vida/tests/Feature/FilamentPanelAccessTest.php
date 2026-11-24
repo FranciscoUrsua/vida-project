@@ -6,6 +6,7 @@ use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Concerns\AutorizaGestionUsuarios;
 use App\Filament\Resources\CentroResource;
 use App\Filament\Resources\DocumentoResource;
+use App\Filament\Resources\EstiloInformeResource;
 use App\Filament\Resources\InformeResource;
 use App\Filament\Resources\PlantillaInformeResource;
 use App\Filament\Resources\ProfesionalResource;
@@ -239,11 +240,14 @@ class FilamentPanelAccessTest extends TestCase
             $this->actingAs($usuario);
             foreach ($recursos as $recurso) {
                 // Los que sobrescriben canViewAny() abren la consulta a propósito (centros,
-                // redes, plantillas…); en todos, el alta es solo de adm_sistema.
+                // redes, plantillas…); los que sobrescriben canCreate() (plantillas y estilos
+                // de informe, que la supervisión crea en su ámbito) los cubre el test de altas.
                 if (! $this->sobrescribe($recurso, 'canViewAny')) {
                     $this->assertFalse($recurso::canViewAny(), "{$recurso}::canViewAny() para ".$usuario->getRoleNames()->first());
                 }
-                $this->assertFalse($recurso::canCreate(), "{$recurso}::canCreate() para ".$usuario->getRoleNames()->first());
+                if (! $this->sobrescribe($recurso, 'canCreate')) {
+                    $this->assertFalse($recurso::canCreate(), "{$recurso}::canCreate() para ".$usuario->getRoleNames()->first());
+                }
             }
         }
 
@@ -325,7 +329,8 @@ class FilamentPanelAccessTest extends TestCase
 
     /**
      * Ningún Resource deja crear a adm_usuarios ni a supervision salvo los de la
-     * gestión de usuarios (adm_usuarios) y los tipos de slot (supervision, T-AGS-02). Recorre todos: un Resource nuevo sin policy ni canCreate()
+     * gestión de usuarios (adm_usuarios), y los tipos de slot (T-AGS-02) y las plantillas
+     * y estilos de informe de su ámbito (supervision, 25 nov 2026). Recorre todos: un Resource nuevo sin policy ni canCreate()
      * queda abierto a cualquier usuario del panel, y este test lo detecta.
      */
     #[Test]
@@ -343,7 +348,8 @@ class FilamentPanelAccessTest extends TestCase
             $recurso = 'App\\Filament\\Resources\\'.basename($fichero, '.php');
 
             $this->actingAs($this->supervision);
-            $this->assertSame($recurso === TipoSlotResource::class, $recurso::canCreate(), "{$recurso}::canCreate() para supervision");
+            $deSupervision = [TipoSlotResource::class, PlantillaInformeResource::class, EstiloInformeResource::class];
+            $this->assertSame(in_array($recurso, $deSupervision, true), $recurso::canCreate(), "{$recurso}::canCreate() para supervision");
 
             $this->actingAs($this->admUsuarios);
             $this->assertSame(in_array($recurso, $deAdmUsuarios, true), $recurso::canCreate(), "{$recurso}::canCreate() para adm_usuarios");

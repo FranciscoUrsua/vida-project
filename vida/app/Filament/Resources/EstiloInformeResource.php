@@ -5,9 +5,11 @@ namespace App\Filament\Resources;
 use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\EstiloInformeResource\Pages;
 use App\Models\UnidadOrganizativa;
+use App\Support\Ambito\AmbitoGestionUsuarios;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -63,7 +65,12 @@ class EstiloInformeResource extends Resource
                 ->schema([
                     Select::make('unidad_organizativa_id')
                         ->label('Unidad Organizativa')
+                        // La supervisión solo elige UO de su ámbito (adm_sistema, todas)
                         ->options(fn () => UnidadOrganizativa::where('activa', true)
+                            ->when(
+                                ! app(AmbitoGestionUsuarios::class)->esGlobal(auth()->user()),
+                                fn ($q) => $q->whereIn('id', auth()->user()->uoSubtreeIds())
+                            )
                             ->orderBy('nombre')
                             ->pluck('nombre', 'id'))
                         ->searchable()
@@ -157,6 +164,7 @@ class EstiloInformeResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->actions([
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make()
                     ->authorize(fn (Model $record) => static::canDelete($record)),
@@ -172,6 +180,7 @@ class EstiloInformeResource extends Resource
         return [
             'index' => Pages\ListEstilosInforme::route('/'),
             'create' => Pages\CreateEstiloInforme::route('/create'),
+            'view' => Pages\ViewEstiloInforme::route('/{record}'),
             'edit' => Pages\EditEstiloInforme::route('/{record}/edit'),
         ];
     }
@@ -185,13 +194,31 @@ class EstiloInformeResource extends Resource
     }
 
     /**
-     * Determina si el usuario puede editar un estilo de informe.
+     * Alta: adm_sistema y la supervisión (esta, solo en su ámbito: el formulario no
+     * ofrece otras UO). Decisión del desarrollador, 25 nov 2026.
+     *
+     * @return bool
+     */
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'supervision']) ?? false;
+    }
+
+    /**
+     * Edición: adm_sistema, cualquiera; la supervisión, las de su UO y de las que
+     * dependen de ella. Las demás las abre en la página de solo lectura.
      *
      * @param Model $record Registro objetivo.
+     *
+     * @return bool
      */
     public static function canEdit(Model $record): bool
     {
-        return auth()->user()?->hasRole('adm_sistema') ?? false;
+        $usuario = auth()->user();
+
+        return $usuario !== null
+            && $usuario->hasAnyRole(['adm_sistema', 'supervision'])
+            && app(AmbitoGestionUsuarios::class)->uoEnAmbito($usuario, $record->getAttribute('unidad_organizativa_id'));
     }
 
     /**

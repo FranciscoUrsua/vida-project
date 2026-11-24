@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Acciones\DesactivarAction;
 use App\Filament\Resources\ProfesionalResource\Pages;
+use App\Support\Ambito\AmbitoGestionUsuarios;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -267,13 +268,20 @@ class ProfesionalResource extends Resource
     }
 
     /**
-     * Determina si el usuario puede editar profesionales.
+     * Determina si el usuario puede editar el profesional: `adm_sistema`, cualquiera;
+     * `adm_usuarios`, los de su ámbito (AmbitoGestionUsuarios).
      *
      * @param Model $record Registro objetivo.
      */
     public static function canEdit(Model $record): bool
     {
-        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
+        $usuario = auth()->user();
+
+        // adm_usuarios: solo los profesionales de su ámbito (como en Usuarios)
+        return $usuario !== null
+            && $usuario->hasAnyRole(['adm_sistema', 'adm_usuarios'])
+            && $record instanceof Profesional
+            && app(AmbitoGestionUsuarios::class)->profesionalEnAmbito($usuario, $record);
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ParametroInformeResource\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
@@ -113,6 +114,7 @@ class ParametroInformeResource extends Resource
                     ->sortable(),
             ])
             ->actions([
+                ViewAction::make(),
                 EditAction::make()->authorize(fn (Model $record) => static::canEdit($record)),
                 DeleteAction::make()->authorize(fn (Model $record) => static::canDelete($record)),
             ])
@@ -129,6 +131,7 @@ class ParametroInformeResource extends Resource
         return [
             'index' => Pages\ListParametrosInforme::route('/'),
             'create' => Pages\CreateParametroInforme::route('/create'),
+            'view' => Pages\ViewParametroInforme::route('/{record}'),
             'edit' => Pages\EditParametroInforme::route('/{record}/edit'),
         ];
     }

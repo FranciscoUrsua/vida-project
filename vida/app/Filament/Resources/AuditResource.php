@@ -18,9 +18,8 @@ use Illuminate\Support\Facades\Auth;
  * Visor de registros de auditoría para supervisores y administradores.
  *
  * Solo lectura: no hay CreateAction, EditAction ni DeleteAction.
- * El scope automático de UO limita los registros visibles al supervisor
- * a los de profesionales de su UO y descendientes.
- * El rol adm_sistema no tiene restricción de scope.
+ * La supervisión y adm_sistema ven los registros de todo el sistema (sin
+ * filtro por UO, decisión del 25 nov 2026).
  *
  * El filtro de rango de fechas es obligatorio para evitar cargas masivas
  * (máximo 90 días por consulta).
@@ -43,32 +42,18 @@ class AuditResource extends Resource
 
     protected static ?int $navigationSort = 6;
 
-    // -------------------------------------------------------------------------
-    // Scope de UO: el supervisor solo ve registros de su UO y descendientes
-    // -------------------------------------------------------------------------
     /**
-     * Restringe el listado a los registros visibles según la UO del usuario.
+     * Registros de auditoría, los más recientes primero, sin filtro por UO.
+     *
+     * La supervisión consulta la auditoría de accesos de todo el sistema, igual que
+     * `adm_sistema` (decisión del desarrollador, 25 nov 2026). Antes se filtraba por
+     * la UO del supervisor, y la consulta fallaba por una errata en la tabla.
+     *
+     * @return Builder<Audit>
      */
     public static function getEloquentQuery(): Builder
     {
-        $query = parent::getEloquentQuery()->latest('created_at');
-        $user = Auth::user();
-
-        if ($user && ! $user->hasRole('adm_sistema')) {
-            $uoIds = $user->unidadesOrganizativas()
-                ->get()
-                ->pluck('id')
-                ->toArray();
-
-            // Limitar a profesionales cuya UO activa esté en el árbol del supervisor
-            $query->whereHas('user', function (Builder $q) use ($uoIds): void {
-                $q->whereHas('unidadesOrganizativas', function (Builder $sub) use ($uoIds): void {
-                    $sub->whereIn('unidad_organizativas.id', $uoIds);
-                });
-            });
-        }
-
-        return $query;
+        return parent::getEloquentQuery()->latest('created_at');
     }
 
     // -------------------------------------------------------------------------
@@ -115,11 +100,14 @@ class AuditResource extends Resource
             ->filters([
                 Tables\Filters\Filter::make('rango_fechas')
                     ->form([
+                        // Por defecto, los últimos 30 días: sin fechas la tabla sale vacía
                         DatePicker::make('desde')
                             ->label('Desde')
+                            ->default(now()->subDays(30)->toDateString())
                             ->required(),
                         DatePicker::make('hasta')
                             ->label('Hasta')
+                            ->default(now()->toDateString())
                             ->required()
                             ->afterOrEqual('desde'),
                     ])

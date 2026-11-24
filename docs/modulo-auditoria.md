@@ -178,9 +178,9 @@ La restricción para roles no asignados es deliberada: ver que "otro profesional
 
 `AuditResource` en el panel Filament, grupo **Supervisión**. Visible exclusivamente para roles `supervision` y `adm_sistema`.
 
-### Scope automático de UO
+### Alcance: todo el sistema
 
-El supervisor solo visualiza registros de profesionales cuya UO de actuación sea su UO o cualquiera de sus UOs descendientes (usando `staudenmeier/laravel-adjacency-list`). El rol `adm_sistema` no tiene restricción de scope y ve todos los registros.
+La supervisión y `adm_sistema` ven los registros de **todo el sistema**, sin filtro por UO (decisión del desarrollador, 25 nov 2026). Antes la supervisión veía solo los de profesionales de su UO y descendientes; el filtro fallaba por una errata en la consulta y se retiró. La pantalla operativa Supervisión → Accesos sigue limitada a las personas con historia en el ámbito del supervisor. El filtro de fechas abre por defecto con los últimos 30 días.
 
 ### Columnas de la tabla
 
@@ -451,11 +451,12 @@ public function un_profesional_sin_rol_supervision_no_puede_acceder_al_audit_res
 
 ```php
 #[Test]
-public function el_supervisor_solo_ve_registros_de_su_uo_y_descendientes(): void
+public function la_supervision_ve_la_auditoria_de_todo_el_sistema(): void
 ```
-- **Dado** un registro de `$profesional` (UO hija del supervisor) y un registro de un profesional de una UO sin relación jerárquica.
+> Sustituye el 25 nov 2026 a «el supervisor solo ve registros de su UO y descendientes» (no implementado): la supervisión ve la auditoría de todo el sistema. Implementado en `tests/Feature/BackofficeAmbitoTest.php`.
+- **Dado** un registro de un profesional de una UO sin relación jerárquica con la del supervisor.
 - **Cuando** `$supervisor` lista el `AuditResource`.
-- **Entonces** solo aparece el registro de `$profesional`; el de la UO no relacionada no es visible.
+- **Entonces** la página se abre y el registro aparece.
 
 ---
 
