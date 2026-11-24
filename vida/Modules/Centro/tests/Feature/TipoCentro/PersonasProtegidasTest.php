@@ -139,6 +139,10 @@ class PersonasProtegidasTest extends TestCase
     #[Test]
     public function tf_tce_49_el_centro_si_la_ve(): void
     {
+        // La directora interviene (R2: la dirección que abre la Historia Social tiene
+        // además `intervencion`); la supervisión sola no la abre en ningún caso (TF-STG-21).
+        $this->directoraVallecas->assignRole('intervencion');
+
         foreach ([$this->tsVallecas, $this->directoraVallecas] as $usuario) {
             [$scopeHistoria, $scopePersona, $policyPersona, $policyHistoria, $nombre, $nivel] = $this->loQueVe($usuario, $this->protegida, $this->historia, '11111111H');
             $this->assertTrue($scopeHistoria && $scopePersona && $policyPersona && $policyHistoria, "{$usuario->email} debía verla");
@@ -168,9 +172,10 @@ class PersonasProtegidasTest extends TestCase
         $this->assertSame($this->directoraVallecas->id, $acceso->fresh()->aprobado_por);
         $this->assertTrue(Alerta::where('origen_type', AccesoProtegido::class)->where('origen_id', $acceso->id)->where('destinatario_usuario_id', $this->coordIgualdad->id)->exists());
 
-        // La ve hasta la caducidad, y su lectura queda como acceso restringido
+        // La ve hasta la caducidad, y su lectura queda como acceso restringido. Lee la ficha:
+        // la coordinación es solo supervisión y, desde R2, no abre la Historia Social.
         $this->assertTrue($this->loQueVe($this->coordIgualdad, $this->protegida, $this->historia, '11111111H')[2]);
-        app(AccesoExpediente::class)->historia($this->coordIgualdad, $this->historia->id);
+        app(AccesoExpediente::class)->ciudadano($this->coordIgualdad, $this->protegida->id);
         $this->assertTrue(Audit::where('user_id', $this->coordIgualdad->id)->where('accion', AccionAuditEnum::AccesoRestringido->value)->where('ciudadano_id', $this->protegida->id)->exists());
 
         $this->travelTo(Carbon::parse('2026-11-21 09:00'));

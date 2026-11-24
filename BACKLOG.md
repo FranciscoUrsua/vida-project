@@ -20,7 +20,6 @@ Transversal
 - Ordenación de prioridad media sin hacer: Actividades (nombre, tipo, fecha de alta, estado), Excepciones y Eventos del supervisor, Control de alertas (fecha, atendidas) y Mi equipo. Con `OrdenaPorColumnas` y `<x-op.th-orden>` es poco trabajo por tabla.
 - Listados sin paginar que crecen: la pestaña «Enviadas» de la bandeja de tramitación (acumula para siempre), el catálogo de Actividades, y Control de alertas, que en «Recientes» corta a 100 sin avisar.
 - `ui:auditar` no detecta clases decididas con un ternario dentro de `{{ }}` en un atributo `class` (lo había en el pie de Mis casos; sigue en el estado de Recursos → Activas, `recursos-page.blade.php`). Ampliar el auditor y pasar ese estado a `Tono`.
-- **Tests que contradicen R2** (además de `DocumentosCiudadanoTest`): TF-TCE-49 y 50 (`PersonasProtegidasTest`: la «directora» del fixture solo tiene `supervision` y ya no abre la Historia Social; según R2, la dirección que interviene tiene además `intervencion`) `AccesoPlanTest::tf_cir_14_bloque_planes_de_la_persona` y dos de accesos en `CiudadanoPage` («el supervisor de la UO ve todos los accesos…», «un supervisor de otra UO solo ve sus propios accesos»): una supervisión sola abre la Historia Social, que R2 le quitó; y `TiposCitaTest::nombre_interno_y_etiqueta_publica_segun_rol` (`TipoCita::nombreParaUsuario()` depende de `historia.leer`; la supervisión sola ve ahora la etiqueta pública). Decidir si cambia el fixture o el comportamiento.
 - `TipoSlotResource` es un catálogo global y lo modifica cualquier supervisión de centro (T-AGS-02). Confirmar si debe ser así o pasar a `adm_sistema`.
 
 ---
@@ -31,12 +30,6 @@ Módulo: Usuarios / Filament
 - **La edición de roles no se audita:** `RolResource` cambia `role_has_permissions` sin dejar rastro; así entraron sin explicación `centro.gestionar` y `configuracion.acceder` en `supervision`. Auditar los cambios de permisos de un rol y avisar cuando la BD se aparte de `RolesSeeder`.
 - **`DocumentoResource` para la supervisión:** lista los documentos dados de alta por usuarios de su UO, aunque desde R2 la supervisión sola no ve documentos en la ficha. Decidir si se cierra también aquí.
 - **Agendas sin ámbito:** `PerfilHorarioProfesionalResource`, `ExcepcionProfesionalResource` y `CuadranteMesResource` no filtran por la UO de `adm_usuarios` («gestión de agendas de los usuarios de su UO»).
-
----
-
-**`DocumentosCiudadanoTest` contradice R2** — 2026-11-24
-Módulo: Documentos
-- «supervision ve los documentos pero no puede subir ni desvincular» falla desde que `supervision` perdió `documento.ver_carpeta` (R2, ronda 1 de staging): la ficha ya no pinta el bloque de documentos a la supervisión sola. Reescribir el test al comportamiento nuevo (la supervisión sola no ve el bloque) o darle `intervencion` al usuario del test si lo que se quiere cubrir es el caso mixto.
 
 ---
 

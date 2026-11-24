@@ -260,8 +260,14 @@ class DocumentosCiudadanoTest extends TestCase
         $this->assertSame(1, Documento::vinculadosA($this->ciudadanoAjeno)->count());
     }
 
+    /**
+     * La supervisión sola no ve los documentos de la persona (R2, 24 nov 2026: sin
+     * `documento.ver_carpeta`) ni puede subir ni desvincular. [negativo]
+     *
+     * @return void
+     */
     #[Test]
-    public function supervision_ve_los_documentos_pero_no_puede_subir_ni_desvincular(): void
+    public function supervision_sola_no_ve_los_documentos_ni_puede_subir_ni_desvincular(): void
     {
         $documento = $this->alta([$this->ana]);
         $supervisor = User::factory()->create();
@@ -269,8 +275,8 @@ class DocumentosCiudadanoTest extends TestCase
         $this->actingAs($supervisor);
 
         Livewire::test(DocumentosCiudadano::class, ['ciudadanoId' => $this->ana->id])
-            ->assertSee($this->tipoDni->nombre)
-            ->assertSee('Descargar')
+            ->assertDontSee($this->tipoDni->nombre)
+            ->assertDontSee('Descargar')
             ->assertDontSee('Subir documento')
             ->assertDontSee('Desvincular')
             ->call('abrirAlta')

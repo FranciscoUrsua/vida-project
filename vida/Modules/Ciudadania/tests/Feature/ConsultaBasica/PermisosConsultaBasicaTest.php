@@ -28,7 +28,8 @@ class PermisosConsultaBasicaTest extends TestCase
         'consulta_basica' => ['ciudadano.crear', 'ciudadano.editar_relaciones', 'historia.ver_estado', 'cita.ver_historial', 'documento.subir', 'documento.gestionar_propios'],
         'tramitacion' => ['ciudadano.editar_relaciones', 'historia.ver_estado', 'cita.ver_historial', 'citas.solicitar', 'citas.gestionar', 'documento.subir', 'documento.gestionar_propios'],
         'intervencion' => ['historia.ver_estado', 'cita.ver_historial', 'ciudadano.editar_relaciones', 'documento.ver_carpeta', 'documento.subir'],
-        'supervision' => ['historia.ver_estado', 'cita.ver_historial', 'documento.ver_carpeta'],
+        // Sin `documento.ver_carpeta` desde R2 (24 nov 2026): la supervisión sola no ve documentos.
+        'supervision' => ['historia.ver_estado', 'cita.ver_historial'],
     ];
 
     /**
@@ -60,6 +61,8 @@ class PermisosConsultaBasicaTest extends TestCase
         // Consulta básica y tramitación no ven la carpeta completa
         $this->assertNotContains('documento.ver_carpeta', $this->permisosDe('consulta_basica'));
         $this->assertNotContains('documento.ver_carpeta', $this->permisosDe('tramitacion'));
+        // Ni la supervisión sola (R2)
+        $this->assertNotContains('documento.ver_carpeta', $this->permisosDe('supervision'));
 
         // Configuración del backoffice: se quita uno y se añade otro al rol
         Role::findByName('consulta_basica')->givePermissionTo('trazabilidad.consultar');

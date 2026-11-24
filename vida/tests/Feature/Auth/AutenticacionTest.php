@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\UnidadOrganizativa;
 use App\Models\User;
+use App\Models\UsuarioUo;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -44,9 +46,30 @@ class AutenticacionTest extends TestCase
         ]);
 
         // Sin rol, el login y la ruta / redirigen a /sin-rol en lugar de a inicio.
-        // consulta_basica es el rol mínimo: desde la fase 4 su inicio es la búsqueda de
-        // ciudadanos (User::destinoInicial()), adonde llevan el login y la ruta /.
+        // consulta_basica es el rol mínimo: desde R4 (24 nov 2026) su inicio es la bandeja
+        // de citación (DestinoInicial::para()), adonde llevan el login, el primer acceso y
+        // la ruta /. La bandeja exige centro (RN-15): el usuario está adscrito a uno.
         $this->usuario->assignRole('consulta_basica');
+        $this->adscribirACentro($this->usuario);
+    }
+
+    /**
+     * Adscribe al usuario a una UO con centro, para que pueda abrir la bandeja de citación.
+     *
+     * @param User $usuario
+     *
+     * @return void
+     */
+    private function adscribirACentro(User $usuario): void
+    {
+        $uo = UnidadOrganizativa::create(['nombre' => 'CSS Autenticación '.$usuario->id, 'tipo' => 'centro', 'activa' => true]);
+        $this->centroParaUo($uo);
+        UsuarioUo::create([
+            'usuario_id' => $usuario->id,
+            'unidad_organizativa_id' => $uo->id,
+            'tipo_vinculo' => 'interno',
+            'fecha_inicio' => today()->toDateString(),
+        ]);
     }
 
     // =========================================================================
@@ -83,7 +106,7 @@ class AutenticacionTest extends TestCase
             'password' => 'secreto123',
         ]);
 
-        $respuesta->assertRedirect(route('ciudadania.buscar'));
+        $respuesta->assertRedirect(route('agenda.citas.bandeja'));
         $this->assertTrue(Auth::check());
     }
 
@@ -232,7 +255,7 @@ class AutenticacionTest extends TestCase
         ]);
 
         // Si el throttle fuera solo por IP, usuario_b estaría bloqueado
-        $respuesta->assertRedirect(route('ciudadania.buscar'));
+        $respuesta->assertRedirect(route('agenda.citas.bandeja'));
         $this->assertTrue(Auth::check());
     }
 
@@ -315,6 +338,7 @@ class AutenticacionTest extends TestCase
             'primer_acceso' => false,
         ]);
         $tecnico->assignRole('consulta_basica');
+        $this->adscribirACentro($tecnico);
 
         $respuesta = $this->followingRedirects()->actingAs($tecnico)->get('/');
 
@@ -352,7 +376,7 @@ class AutenticacionTest extends TestCase
             'password' => 'secreto123',
         ]);
 
-        $respuesta->assertRedirect(route('ciudadania.buscar'));
+        $respuesta->assertRedirect(route('agenda.citas.bandeja'));
     }
 
     #[Test]
@@ -373,7 +397,8 @@ class AutenticacionTest extends TestCase
 
         $respuesta = $this->actingAs($nuevo)->post('/bienvenida');
 
-        $respuesta->assertRedirect(route('inicio'));
+        // R4.6: el primer acceso termina en el destino de DestinoInicial, no en «/».
+        $respuesta->assertRedirect(route('agenda.citas.bandeja'));
         $this->assertFalse($nuevo->fresh()->primer_acceso);
     }
 

@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-11-25 — Suite nocturna en verde: AppArmor en CI y tests al día con R2 y R4
+
+- **Primeras ejecuciones del workflow** (1711 tests en unos 4 minutos con 4 procesos): 118 problemas, de tres orígenes.
+  - Entorno: AppArmor del runner impedía a `qpdf` y `gs` leer la zona temporal de ingesta (como en staging, decisiones técnicas §14): reglas locales en el workflow con la ruta del runner. Además, `APP_LOCALE=es` (el `.env.example` trae `en`), directorio del disco de documentos de test y logs en el artefacto.
+  - R4 (sin actualizar el 24 nov): `AutenticacionTest`, `SinRolTest` y `DestinoTrasLoginTest` esperaban el inicio anterior. Ahora la bandeja de citación para `consulta_basica` (con el usuario adscrito a un centro, RN-15), el primer acceso termina en el destino de `DestinoInicial` y `adm_sistema` con `supervision` entra en Supervisión (solo `adm_sistema`, en el backoffice; TF-STG-25).
+  - R2: TF-CBA-29 (el seeder no da `documento.ver_carpeta` a `supervision`, con negativo), `DocumentosCiudadanoTest` (la supervisión sola no ve documentos, invertido), TF-TCE-49 (la directora interviene) y 50 (la coordinación aprobada lee la ficha, no la Historia Social), TF-CIR-14 (la supervisión sola recibe 403 en la Historia Social), TF-AUD-INT-02 y 04 y TF-AUD-13 (supervisores que intervienen) y `AutorizacionDatosTest` (invertido, con el caso con `intervencion`).
+- **Tipos de cita:** `TipoCita::nombreParaUsuario()` da el nombre interno también con `citas.supervisar`: la supervisión sin `intervencion` ve el tipo de cita (decisión del desarrollador, 25 nov 2026). TF-CIT-03 comprobado en negativo.
+
+---
+
 ## 2026-11-25 — Tests: suite nocturna en paralelo y nuevas reglas en CLAUDE.md
 
 - **`CLAUDE.md`:** paso 1 bis (revisar la suite nocturna con `gh` antes de empezar y corregir lo roto del día anterior); en «Tests», de día solo los ficheros de test de lo tocado (no módulos enteros), la suite completa de noche y nunca dos ejecuciones de tests a la vez contra la BD local.

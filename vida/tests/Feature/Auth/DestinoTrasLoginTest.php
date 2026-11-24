@@ -61,14 +61,17 @@ class DestinoTrasLoginTest extends TestCase
     }
 
     /**
-     * Dada una usuaria con adm_sistema y supervision; cuando visita «/»; entonces sigue yendo a /admin.
+     * Las superficies operativas van antes que la administración (R4.5, TF-STG-25):
+     * `adm_sistema` con `supervision` entra en Supervisión; `adm_sistema` solo, en el backoffice.
      */
     #[Test]
-    public function adm_sistema_entra_siempre_en_el_backoffice(): void
+    public function adm_sistema_con_supervision_entra_en_supervision_y_solo_en_el_backoffice(): void
     {
-        $sistema = $this->usuarioConRoles(['adm_sistema', 'supervision'], 'sis@test.es');
+        $conSupervision = $this->usuarioConRoles(['adm_sistema', 'supervision'], 'sis@test.es');
+        $this->actingAs($conSupervision)->get('/')->assertRedirect(route('supervision.inicio'));
 
-        $this->actingAs($sistema)->get('/')->assertRedirect('/admin');
+        $solo = $this->usuarioConRoles(['adm_sistema'], 'sis.solo@test.es');
+        $this->actingAs($solo)->get('/')->assertRedirect('/admin');
     }
 
     /**

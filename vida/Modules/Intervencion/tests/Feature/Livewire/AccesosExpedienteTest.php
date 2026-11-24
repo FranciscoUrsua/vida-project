@@ -182,6 +182,9 @@ class AccesosExpedienteTest extends TestCase
     #[Test]
     public function el_supervisor_de_la_uo_ve_todos_los_accesos_en_ciudadano_page(): void
     {
+        // Desde R2 (24 nov 2026) la supervisión sola no abre la Historia Social ni ve el panel de
+        // accesos de la ficha (los consulta en Supervisión → Accesos): este supervisor interviene.
+        $this->supervisor->assignRole('intervencion');
         $this->crearAcceso($this->tsr);
         $this->crearAcceso($this->otroTSR);
 
@@ -217,6 +220,9 @@ class AccesosExpedienteTest extends TestCase
     #[Test]
     public function un_supervisor_de_otra_uo_solo_ve_sus_propios_accesos(): void
     {
+        // Desde R2 (24 nov 2026) la supervisión sola no abre la Historia Social ni ve el panel de
+        // accesos de la ficha (los consulta en Supervisión → Accesos): este supervisor interviene.
+        $this->supervisorOtraUo->assignRole('intervencion');
         $this->crearAcceso($this->tsr);
         $this->crearAcceso($this->supervisorOtraUo);
 

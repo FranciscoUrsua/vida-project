@@ -195,11 +195,11 @@ class AccesoPlanTest extends TestCase
         $this->assertSame($this->psicologaVallecas->nombreVisible(), $filas[1]['responsable']);
         $this->assertNotNull($filas[1]['url'], 'El TSR ve el PIA');
 
-        // `supervision` sin `intervencion` ve la ficha, pero no los planes: sin enlace.
+        // `supervision` sin `intervencion` no abre la Historia Social desde R2 (TF-STG-21),
+        // así que tampoco ve este bloque. [negativo]
         $this->actingAs($this->supNorte);
         app(AmbitoUsuario::class)->olvidar();
-        $filas = Livewire::test(CiudadanoPage::class, ['historia' => $this->historiaAna])->get('planesDeLaPersona');
-        $this->assertSame([null, null], $filas->pluck('url')->all());
+        Livewire::test(CiudadanoPage::class, ['historia' => $this->historiaAna])->assertForbidden();
     }
 
     /**

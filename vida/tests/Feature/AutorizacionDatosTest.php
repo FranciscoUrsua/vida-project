@@ -238,17 +238,24 @@ class AutorizacionDatosTest extends TestCase
     }
 
     /**
-     * Supervisor puede view HistoriaSocial de su ámbito de UO.
+     * La supervisión sola no abre la Historia Social, ni siquiera de su ámbito (R2,
+     * 24 nov 2026: sin `historia.leer`); con `intervencion`, sí. [negativo]
      */
     #[Test]
-    public function supervisor_puede_ver_historia_de_su_ambito(): void
+    public function supervisor_solo_no_ve_historia_de_su_ambito_y_con_intervencion_si(): void
     {
         $supervisor = $this->crearUsuarioEnUo('supervision', $this->uoA);
         $historia = $this->crearHistoriaSinScope($this->uoA);
 
-        $this->assertTrue(
+        $this->assertFalse(
             $supervisor->can('view', $historia),
-            'Supervisor puede ver Historia Social de su ámbito de UO.'
+            'La supervisión sola no ve la Historia Social (R2).'
+        );
+
+        $supervisor->assignRole('intervencion');
+        $this->assertTrue(
+            $supervisor->fresh()->can('view', $historia),
+            'La supervisión que interviene ve la Historia Social de su ámbito.'
         );
     }
 
