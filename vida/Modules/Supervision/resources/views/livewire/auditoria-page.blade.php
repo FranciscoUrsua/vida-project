@@ -47,14 +47,14 @@
             <table class="table table-hover align-middle mb-0 small">
                 <thead class="table-light">
                     <tr>
-                        @include('supervision::livewire.partials.auditoria-th-ordenable', ['columna' => 'profesional', 'etiqueta' => 'Profesional'])
-                        @include('supervision::livewire.partials.auditoria-th-ordenable', ['columna' => 'ciudadano', 'etiqueta' => 'Ciudadano'])
+                        <x-op.th-orden columna="profesional" :actual="$ordenarPor" :direccion="$direccion">Profesional</x-op.th-orden>
+                        <x-op.th-orden columna="ciudadano" :actual="$ordenarPor" :direccion="$direccion">Ciudadano</x-op.th-orden>
                         @if($this->tieneColectivosProtegidos)
                         <th></th>
                         @endif
-                        @include('supervision::livewire.partials.auditoria-th-ordenable', ['columna' => 'fecha', 'etiqueta' => 'Fecha y hora'])
-                        @include('supervision::livewire.partials.auditoria-th-ordenable', ['columna' => 'accion', 'etiqueta' => 'Acción'])
-                        @include('supervision::livewire.partials.auditoria-th-ordenable', ['columna' => 'motivo', 'etiqueta' => 'Motivo declarado'])
+                        <x-op.th-orden columna="fecha" :actual="$ordenarPor" :direccion="$direccion">Fecha y hora</x-op.th-orden>
+                        <x-op.th-orden columna="accion" :actual="$ordenarPor" :direccion="$direccion">Acción</x-op.th-orden>
+                        <x-op.th-orden columna="motivo" :actual="$ordenarPor" :direccion="$direccion">Motivo declarado</x-op.th-orden>
                         @if($this->tieneColectivosProtegidos)
                         <th>Estado</th>
                         @endif

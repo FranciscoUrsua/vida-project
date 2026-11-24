@@ -4,6 +4,7 @@ namespace Tests;
 
 use App\Models\UnidadOrganizativa;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\ParallelTesting;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\TipoCentro;
 
@@ -12,6 +13,24 @@ use Modules\Centro\Models\TipoCentro;
  */
 abstract class TestCase extends BaseTestCase
 {
+    /**
+     * Carpeta temporal de tests propia del proceso.
+     *
+     * Con `php artisan test --parallel` cada proceso tiene su token: una carpeta fija
+     * compartida (p. ej. la zona de ingesta, que cada test vacía al empezar) haría que
+     * un proceso borrase los ficheros de otro.
+     *
+     * @param string $nombre Nombre de la carpeta bajo storage/framework/testing.
+     *
+     * @return string Ruta absoluta (no se crea).
+     */
+    protected function carpetaTemporalDeTest(string $nombre): string
+    {
+        $token = ParallelTesting::token();
+
+        return storage_path('framework/testing/'.$nombre.($token ? '_'.$token : ''));
+    }
+
     /**
      * Id de un tipo de centro de prueba con ese código; lo crea la primera vez.
      *

@@ -290,6 +290,49 @@ class MisCasosPageTest extends TestCase
     }
 
     /**
+     * TF-LW-CAS-ORD-01 — El pie de paginación es el de Livewire con Bootstrap
+     * (sustituye al hecho a mano, que pintaba un botón por página sin recortar).
+     */
+    #[Test]
+    public function pie_de_paginacion_usa_la_plantilla_bootstrap(): void
+    {
+        $usuario = $this->crearUsuario();
+        for ($i = 0; $i < 12; $i++) {
+            $this->crearPlan($usuario);
+        }
+
+        Livewire::actingAs($usuario)->test(MisCasosPage::class)
+            ->assertSeeHtml('class="pagination"')
+            ->assertSeeHtml('aria-current="page"')
+            ->assertSee('Mostrando')
+            ->assertDontSeeHtml('aria-label="Paginacion"');
+    }
+
+    /**
+     * TF-LW-CAS-ORD-02 — Ordenar por fecha de inicio y volver a pulsar invierte;
+     * una columna desconocida se ignora.
+     */
+    #[Test]
+    public function ordenar_por_inicio_y_columna_desconocida(): void
+    {
+        $usuario = $this->crearUsuario();
+        // «Inicio» es el inicio de la asignación del caso. El reciente se crea primero,
+        // para que el orden por id no coincida con el de la fecha.
+        $reciente = $this->crearPlan($usuario);
+        $antiguo = $this->crearPlan($usuario);
+        AsignacionProfesional::where('historia_id', $reciente->historia_id)->update(['fecha_inicio' => today()->subWeek()->toDateString()]);
+        AsignacionProfesional::where('historia_id', $antiguo->historia_id)->update(['fecha_inicio' => today()->subYear()->toDateString()]);
+
+        $componente = Livewire::actingAs($usuario)->test(MisCasosPage::class)->call('ordenar', 'inicio');
+        $this->assertSame([$antiguo->id, $reciente->id], collect($componente->get('casos')->items())->pluck('plan_id')->all());
+
+        $componente->call('ordenar', 'inicio');
+        $this->assertSame([$reciente->id, $antiguo->id], collect($componente->get('casos')->items())->pluck('plan_id')->all());
+
+        $componente->call('ordenar', 'nada')->assertSet('ordenarPor', 'inicio');
+    }
+
+    /**
      * TF-LW-CAS-07 — Orden por defecto es vencidos primero.
      */
     #[Test]

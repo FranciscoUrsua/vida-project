@@ -62,6 +62,14 @@ El bloque de código incluye solo la firma (no el cuerpo). El cuerpo lo genera e
 
 **Actualización (2026-11-24, R4):** el inicio lo decide `App\Support\Superficie\DestinoInicial::para()` por permisos de superficie; el de `consulta_basica` es la bandeja de citación (`route('agenda.citas.bandeja')`). `User::destinoInicial()` ya no existe. Ver `modulo-usuarios-permisos.md` §2.7 bis.
 
+### 1.5 Suite completa de noche, en paralelo; de día, solo lo tocado (2026-11-25)
+
+**Decisión:** la suite completa corre cada madrugada en GitHub Actions (`.github/workflows/nightly-tests.yml`, 02:00 UTC) con `php artisan test --parallel --processes=4`, sobre un PostgreSQL desechable del runner. No bloquea el despliegue. Durante el día solo se pasan los ficheros de test de lo que se ha tocado, y por la mañana se revisa la noche (`CLAUDE.md`, paso 1 bis).
+
+**Motivo:** la suite completa tardaba más de una hora en la máquina de desarrollo (un droplet de 1 núcleo y 1 GB), y un solo módulo, de 10 a 30 minutos. En fase de desarrollo se acepta que algo quede roto unas horas a cambio de no parar el trabajo.
+
+**Implementación:** `brianium/paratest` en `require-dev`. Laravel crea una BD por proceso (`vida_testing_test_N`). Las carpetas temporales de los tests deben ser propias del proceso: `Tests\TestCase::carpetaTemporalDeTest()` (la zona de ingesta de Documentos y Prestaciones la compartían). En la máquina de desarrollo el paralelo no acelera (1 núcleo); en el runner, 4 procesos.
+
 ---
 
 ## 2. Paquetes y librerías

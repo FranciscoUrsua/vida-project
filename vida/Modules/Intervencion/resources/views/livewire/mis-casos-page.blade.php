@@ -27,7 +27,7 @@
     $columnas = [
         ['ciudadano', 'Ciudadano/a'],
         ['historia', 'Historia Social'],
-        ['seg', 'Proximo seguimiento'],
+        ['seg', 'Próximo seguimiento'],
         [null, $nombrePlan],
         ['esp', 'Especializados'],
         ['inicio', 'Inicio'],
@@ -97,16 +97,7 @@
                                     @if($campo === null)
                                         <th scope="col" class="small text-body-secondary">{{ $etiqueta }}</th>
                                     @else
-                                        @php $activo = $this->ordenarPor === $campo; @endphp
-                                        <th scope="col" @if($activo) aria-sort="{{ $this->direccion === 'asc' ? 'ascending' : 'descending' }}" @endif>
-                                            <button wire:click="sortBy('{{ $campo }}')" type="button"
-                                                    @class(['btn btn-sm btn-link text-decoration-none p-0', 'fw-bold' => $activo, 'link-secondary' => ! $activo])>
-                                                {{ $etiqueta }}
-                                                @if($activo)
-                                                    <span aria-hidden="true">{{ $this->direccion === 'asc' ? '↑' : '↓' }}</span>
-                                                @endif
-                                            </button>
-                                        </th>
+                                        <x-op.th-orden :columna="$campo" :actual="$ordenarPor" :direccion="$direccion">{{ $etiqueta }}</x-op.th-orden>
                                     @endif
                                 @endforeach
                             </tr>
@@ -167,27 +158,13 @@
                     </table>
                 </div>
 
-                <footer class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2">
-                    <span class="small text-body-secondary">{{ $this->casos->firstItem() }}-{{ $this->casos->lastItem() }} de {{ $this->casos->total() }} casos</span>
-                    <nav aria-label="Paginacion">
-                        <ul class="pagination pagination-sm mb-0">
-                            @if($this->casos->onFirstPage())
-                                <li class="page-item disabled"><span class="page-link">‹</span></li>
-                            @else
-                                <li class="page-item"><button wire:click="previousPage" type="button" class="page-link" aria-label="Página anterior">‹</button></li>
-                            @endif
-
-                            @foreach(range(1, $this->casos->lastPage()) as $p)
-                                <li class="page-item {{ $this->casos->currentPage() === $p ? 'active' : '' }}"><button wire:click="gotoPage({{ $p }})" type="button" class="page-link">{{ $p }}</button></li>
-                            @endforeach
-
-                            @if($this->casos->hasMorePages())
-                                <li class="page-item"><button wire:click="nextPage" type="button" class="page-link" aria-label="Página siguiente">›</button></li>
-                            @else
-                                <li class="page-item disabled"><span class="page-link">›</span></li>
-                            @endif
-                        </ul>
-                    </nav>
+                <footer class="card-footer">
+                    {{-- Con varias páginas, la paginación de Livewire (Bootstrap) ya muestra «Mostrando x a y de N». --}}
+                    @if($this->casos->hasPages())
+                        {{ $this->casos->onEachSide(1)->links() }}
+                    @else
+                        <span class="small text-body-secondary">{{ $this->casos->total() }} {{ $this->casos->total() === 1 ? 'caso' : 'casos' }}</span>
+                    @endif
                 </footer>
             </div>
         @endif
@@ -204,11 +181,11 @@
                     <table class="table table-sm table-hover align-middle mb-0">
                         <thead>
                             <tr>
-                                <th scope="col">Ciudadano/a</th>
+                                <x-op.th-orden columna="persona" accion="ordenarOtros" :actual="$ordenOtros" :direccion="$direccionOtros">Ciudadano/a</x-op.th-orden>
                                 <th scope="col">Plan</th>
                                 <th scope="col">Centro</th>
-                                <th scope="col">Estado</th>
-                                <th scope="col">Próximo seguimiento</th>
+                                <x-op.th-orden columna="estado" accion="ordenarOtros" :actual="$ordenOtros" :direccion="$direccionOtros">Estado</x-op.th-orden>
+                                <x-op.th-orden columna="seguimiento" accion="ordenarOtros" :actual="$ordenOtros" :direccion="$direccionOtros">Próximo seguimiento</x-op.th-orden>
                             </tr>
                         </thead>
                         <tbody>

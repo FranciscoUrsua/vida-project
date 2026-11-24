@@ -8,6 +8,10 @@ Este fichero se aplica a todas las sesiones sin necesidad de repetirlo en cada p
 ## 1. Antes de tocar cualquier fichero
 
 1. `git pull origin master` — siempre como primer paso, sin excepciones.
+1 bis. Revisar la suite nocturna: `gh run list --workflow=nightly-tests.yml --limit 1`.
+   Si la última ejecución falló, leer los fallos (`gh run view <id> --log-failed`), corregir
+   los que vengan del desarrollo del día anterior antes de empezar la tarea y llevar al
+   `BACKLOG.md` los que requieran decisión. Ver «Tests».
 2. Leer `SESSION.md` — resume el estado actual y el siguiente paso recomendado.
 3. Leer `docs/principios-vida360.md` — referencia de decisiones arquitectónicas y restricciones de dominio.
 4. Leer `docs/decisiones-tecnicas.md` — decisiones técnicas que ya se han tomado, para no contradecirlas ni replantearlas inútilmente.
@@ -99,11 +103,17 @@ confirmar que cada clase y cada método público/protegido tienen su docblock an
 - Incluir casos que deben fallar, no solo happy path.
 - Para tests críticos de seguridad o dominio: verificar también en negativo (el test debe fallar
   si se elimina la restricción que protege).
-- Al finalizar una tarea, ejecutar únicamente los tests del módulo o grupo
-  correspondiente (`--filter=NombreModulo` o la ruta concreta del fichero).
-  No ejecutar la suite completa (`php artisan test` sin filtro) al finalizar.
-  La suite completa se pasa a discreción: antes de merge a main, tras sesiones
-  que hayan tocado código transversal, o cuando SESSION.md indique que procede.
+- **Durante el día, solo los ficheros de test de lo que se ha tocado**: los tests nuevos y
+  los ficheros que ejercitan el código modificado (ruta del fichero o `--filter`), con
+  `--parallel` si son varios ficheros. No lanzar módulos enteros ni la suite completa: un
+  módulo son de 10 a 30 minutos y rompe el flujo de trabajo.
+- **La suite completa corre cada madrugada** en GitHub Actions (`.github/workflows/nightly-tests.yml`,
+  3:00 hora de Madrid, sobre el último commit de `master`, en paralelo). No bloquea el despliegue:
+  estamos en desarrollo y se acepta que algo quede roto hasta la revisión de la mañana
+  (paso 1 bis de «Antes de tocar cualquier fichero»). Se puede lanzar a mano con
+  `gh workflow run nightly-tests.yml` cuando una sesión haya tocado código transversal.
+- **Nunca lanzar dos ejecuciones de tests a la vez** contra la BD de test local: comparten
+  `vida_testing` (y `vida_testing_test_N` en paralelo) y se rompen entre sí.
 - **Nunca ejecutar `php artisan migrate:fresh`** salvo que el usuario lo pida
   explícitamente en el prompt. Este comando destruye toda la base de datos de
   desarrollo. Para verificar seeders o datos demo usar `php artisan demo:reset`.

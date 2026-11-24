@@ -153,6 +153,7 @@ Cada rol tiene configurado su **nivel de supervisión** para la asignación (ver
 - Gestión de agendas de los usuarios de su UO.
 - Gestión de suplencias.
 - No tiene acceso a la configuración de permisos por rol (responsabilidad de `adm_sistema`).
+- En el backoffice (desde el 25 nov 2026): usuarios, profesionales, historial de asignaciones de rol, perfiles horarios, excepciones y cuadrantes (trait `AutorizaGestionUsuarios`). Ningún catálogo ni configuración (trait `AutorizaGestion`, solo `adm_sistema`), ni documentos o informes de ciudadanos.
 - Puede asignar cualquier rol existente, pero la asignación de roles con aprobación requerida (`adm_sistema`, `supervision`) genera una solicitud que debe aprobar el supervisor competente antes de ser efectiva.
 
 **Ámbito por UO:** Limitado a su UO y la estructura bajo ella. No puede gestionar usuarios de UO superiores o paralelas.

@@ -3,6 +3,7 @@
 namespace Modules\Supervision\Http\Livewire;
 
 use App\Enums\AccionAuditEnum;
+use App\Livewire\Concerns\OrdenaPorColumnas;
 use App\Models\Audit;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
@@ -46,6 +47,7 @@ use Modules\Organizacion\Services\ConfiguracionService;
 #[Layout('layouts.supervision')]
 class AuditoriaPage extends Component
 {
+    use OrdenaPorColumnas;
     use WithPagination;
 
     /** @var string Fecha de inicio del rango de filtro (por defecto: 30 días atrás) */
@@ -65,15 +67,6 @@ class AuditoriaPage extends Component
 
     /** @var string Texto buscado en el nombre del ciudadano; vacío = todos */
     public string $ciudadano = '';
-
-    /** @var string Columna de ordenación: profesional | ciudadano | fecha | accion | motivo */
-    public string $ordenarPor = 'fecha';
-
-    /** @var string Dirección de ordenación: asc | desc */
-    public string $direccion = 'desc';
-
-    /** @var list<string> Columnas por las que se puede ordenar */
-    private const COLUMNAS_ORDENABLES = ['profesional', 'ciudadano', 'fecha', 'accion', 'motivo'];
 
     /** @var array<int, string>|null Nombres descifrados del ámbito, memorizados durante la petición */
     private ?array $nombresCiudadanos = null;
@@ -130,29 +123,23 @@ class AuditoriaPage extends Component
     }
 
     /**
-     * Ordena por la columna indicada; si ya era la columna activa, invierte la dirección.
+     * Columnas ordenables: la fecha empieza en descendente (lo más reciente primero).
      *
-     * La fecha empieza en descendente (lo más reciente primero); el resto, en ascendente.
-     * Columnas fuera de la lista blanca se ignoran.
-     *
-     * @param string $columna profesional | ciudadano | fecha | accion | motivo
-     *
-     * @return void
+     * @return array<string, 'asc'|'desc'>
      */
-    public function ordenar(string $columna): void
+    protected function columnasOrdenables(): array
     {
-        if (! in_array($columna, self::COLUMNAS_ORDENABLES, true)) {
-            return;
-        }
+        return ['profesional' => 'asc', 'ciudadano' => 'asc', 'fecha' => 'desc', 'accion' => 'asc', 'motivo' => 'asc'];
+    }
 
-        if ($this->ordenarPor === $columna) {
-            $this->direccion = $this->direccion === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->ordenarPor = $columna;
-            $this->direccion = $columna === 'fecha' ? 'desc' : 'asc';
-        }
-
-        $this->resetPage();
+    /**
+     * Orden inicial: lo más reciente primero.
+     *
+     * @return array{0: string, 1: 'asc'|'desc'}
+     */
+    protected function ordenInicial(): array
+    {
+        return ['fecha', 'desc'];
     }
 
     /**
@@ -328,16 +315,10 @@ class AuditoriaPage extends Component
      */
     private function aplicarOrden(Builder $query, array $uoIds): void
     {
-        $dir = $this->direccion === 'asc' ? 'asc' : 'desc';
+        $dir = $this->direccionSql();
 
         match ($this->ordenarPor) {
-            'profesional' => $query
-                ->leftJoin('users as u_orden', 'u_orden.id', '=', 'audits.user_id')
-                ->leftJoin('profesionales as p_orden', 'p_orden.id', '=', 'u_orden.profesional_id')
-                // Mismo texto que se pinta en la columna: nombre del profesional o, si no tiene ficha, el email.
-                ->orderByRaw(
-                    "LOWER(COALESCE(NULLIF(CONCAT_WS(' ', p_orden.nombre, p_orden.apellido1, p_orden.apellido2), ''), u_orden.email)) {$dir} NULLS LAST"
-                ),
+            'profesional' => $this->ordenarPorNombreDeUsuario($query, 'audits.user_id', $dir),
             'ciudadano' => $this->ordenarPorCiudadano($query, $uoIds, $dir),
             'accion' => $this->ordenarPorAccion($query, $dir),
             'motivo' => $query->orderByRaw("audits.contexto->>'motivo' {$dir} NULLS LAST"),

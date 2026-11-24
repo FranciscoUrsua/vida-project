@@ -4,6 +4,57 @@
 
 ---
 
+## 2026-11-25 — Tests: suite nocturna en paralelo y nuevas reglas en CLAUDE.md
+
+- **`CLAUDE.md`:** paso 1 bis (revisar la suite nocturna con `gh` antes de empezar y corregir lo roto del día anterior); en «Tests», de día solo los ficheros de test de lo tocado (no módulos enteros), la suite completa de noche y nunca dos ejecuciones de tests a la vez contra la BD local.
+- **Workflow `nightly-tests.yml`:** cada día a las 02:00 UTC y a mano (`gh workflow run nightly-tests.yml`). PostgreSQL 18 desechable con credenciales propias (no las de `phpunit.xml`), qpdf, Ghostscript y poppler, build de assets y `php artisan test --parallel --processes=4`. Resumen de fallos en la página de la ejecución; JUnit y salida completa como artefacto (14 días). No bloquea el despliegue.
+- **Paralelo:** `brianium/paratest` ^7.8 en `require-dev`. `Tests\TestCase::carpetaTemporalDeTest()` da a cada proceso su carpeta temporal; la usan los setups de Documentos, Informes y Prestaciones, que compartían `storage/framework/testing/ingesta` y la vaciaban al empezar cada test. Comprobado en local con dos procesos (57 tests de Filament, ingesta y solicitudes, en verde).
+- **Decisión técnica 1.5** en `docs/decisiones-tecnicas.md`.
+- La batería de módulos de la tarde (Intervención, Prestaciones, Supervisión) se paró a los 206 tests: la sustituye la ejecución completa del workflow. Hasta ahí, 3 fallos, todos de una supervisión sola que abre la Historia Social (R2; ver BACKLOG).
+
+---
+
+## 2026-11-25 — Paginación y ordenación por cabecera en las tablas operativas
+
+- **Base común:** trait `App\Livewire\Concerns\OrdenaPorColumnas` (columna y dirección, lista blanca por componente con la dirección inicial de cada columna, orden inicial, vuelta a la primera página, y dos ayudas: `ordenarPorNombreCifrado()`, que descifra en PHP los nombres de la relación y ordena con `array_position`, y `ordenarPorNombreDeUsuario()`) y componente `<x-op.th-orden>` (cabecera con `aria-sort`; `accion=` para una segunda tabla del mismo componente). Accesos pasa a usarlos y se retira su parcial.
+- **Paginación:**
+  - Recursos: las pestañas paginaban con el mismo parámetro `page` (pasar de página en una movía la otra). Ahora `pendientes` y `activas`, y el cambio de pestaña reinicia las dos.
+  - Mis casos: el pie hecho a mano (un botón por página sin recortar, clase `active` interpolada con un ternario, sin `aria-current`, «Paginacion») se sustituye por `links()` de Livewire (Bootstrap, en español, con recorte). Con una sola página, «N casos».
+- **Ordenación por cabecera:**
+  - Bandeja de tramitación: persona, prestación, centro, estado (en el orden del circuito), responsable y último movimiento (por defecto, el más antiguo primero). En memoria: la bandeja no se pagina.
+  - Supervisión → Derivaciones: persona (el texto que se pinta, también el enmascarado), centro de origen, quién deriva, plan y antigüedad (por defecto, las más antiguas primero).
+  - Supervisión → Asignaciones (actividad): profesional (por defecto, por apellido, como antes), asignados, con actividad y dormidos (empiezan de mayor a menor).
+  - Mis casos: la tabla principal pasa al trait (antes `sortBy()` propio; mismas columnas y mismo orden por urgencia), y «Otros planes» se ordena por persona, estado y próximo seguimiento.
+  - Recursos → Activas: persona, plaza, fecha de asignación (por defecto, la más reciente), fecha fin y estado. «Pendientes» no se ordena: su orden es la posición en la lista de espera.
+- **Tests:** TF-REC-ORD-01 y 02, TF-LW-CAS-ORD-01 a 03, TF-CIR-ORD-01, TF-ASG-ORD-01 y TF-SOL-ORD-01. Comprobados en negativo: fallan con `ordenar()` anulado en el trait.
+- **Corrección del cambio anterior (backoffice):** `TipoSlotResource` vuelve a admitir altas y edición de la supervisión, que cubre T-AGS-02 (`UIAgendaSupervisorTest`); solo se le quita `adm_usuarios`.
+- `ui:auditar` sin infracciones.
+
+---
+
+## 2026-11-25 — Backoffice: la supervisión y `adm_usuarios` ya no administran el sistema; enlace de vuelta a la operativa
+
+Origen: tras el enlace «Administración» del menú de usuario (R4.3), en staging una dirección de centro entraba en casi todo Filament, incluida la edición de usuarios.
+
+- **Diagnóstico** (inventario de `canViewAny`/`canCreate`/`canEdit` de los 43 Resources con `coo.ciam`, `dir.css` y `dir.ciam`):
+  1. El trait `AutorizaGestion` (31 Resources: catálogos, UO, prestaciones, colectivos protegidos, configuración…) admitía `adm_sistema` **y `adm_usuarios`**. `dir.ciam` tiene `adm_usuarios` (activo desde el 24 sep), así que veía y editaba casi todo el backoffice. Contradice `modulo-usuarios-permisos.md` §2, rol 3: `adm_usuarios` gestiona usuarios, adscripciones y agendas y «no tiene acceso a la configuración».
+  2. En la BD compartida el rol `supervision` tenía `centro.gestionar` y `configuracion.acceder`, que `RolesSeeder` nunca le ha dado (añadidos a mano; la edición de roles no deja rastro en la auditoría). Con `centro.gestionar` cualquier dirección administraba todos los centros y tipos de centro (`CentroPolicy`/`TipoCentroPolicy::administra()`).
+  3. `adm_usuarios` veía sin filtro todos los documentos e informes de ciudadanos en Filament y podía anular informes firmados; editaba plantillas y estilos de informe, horarios de centro y el catálogo de tipos de slot.
+  4. `RelacionAcompananteResource` no tenía policy ni `canCreate`/`canEdit`: Filament abría el alta y la edición a cualquier usuario del panel.
+- **Cambios:**
+  - `AutorizaGestion` → solo `adm_sistema`. Nuevo trait `AutorizaGestionUsuarios` (`adm_sistema` y `adm_usuarios`) para `UsuarioRolResource`, `PerfilHorarioProfesionalResource`, `ExcepcionProfesionalResource` y `CuadranteMesResource`. `UsuarioResource` y `ProfesionalResource` no cambian.
+  - Fuera `adm_usuarios` de `DocumentoResource`, `InformeResource` (lectura, listado sin filtro y anulación), `EstiloInformeResource`, `PlantillaInformeResource`, `HorarioCentroResource` y `RedResource`. `TipoSlotResource`: fuera `adm_usuarios`; la supervisión lo sigue gestionando (T-AGS-02).
+  - `RelacionAcompananteResource`: `canCreate`/`canEdit` solo `adm_sistema`.
+  - Migración `2026_11_25_100001`: quita `centro.gestionar` y `configuracion.acceder` a `supervision`. La dirección sigue editando su centro por `Centro::esDirigidoPor()`.
+  - «Volver a VIDA» en el menú de usuario de Filament (`AdminPanelProvider::userMenuItems`), a `DestinoInicial::para()`, solo para quien tiene superficie operativa.
+- **Tests** en `FilamentPanelAccessTest` (grupos F y G, 9 nuevos): configuración solo para `adm_sistema` (recorre los Resources del trait), `adm_usuarios` conserva usuarios y agendas, sin documentos ni plantillas, la migración, el enlace de vuelta y uno que recorre **todos** los Resources y falla si alguno admite altas de `supervision` o de `adm_usuarios` fuera de la gestión de usuarios. Comprobados en negativo (fallan devolviendo `adm_usuarios` al trait y sin el enlace).
+- **Decisiones de implementación:**
+  1. Se mantienen las comprobaciones por nombre de rol, como el resto del backoffice; su paso a permisos va en el barrido `role:` → permisos (BACKLOG).
+  2. Las agendas de profesionales (perfiles horarios, excepciones y cuadrantes) siguen siendo de `adm_usuarios` porque su rol las incluye; los Resources no filtran por UO (BACKLOG).
+  3. Lecturas que se mantienen para la supervisión: auditoría, alertas, centros y tipos (consulta), plantillas y estilos de informe, parámetros, redes, profesionales y tipos de slot.
+
+---
+
 ## 2026-11-24 — Supervisión → Accesos: paginación, ordenación y filtros
 
 - **Paginación con iconos enormes (causa raíz):** sin `config/livewire.php`, Livewire usaba su plantilla de paginación de Tailwind (`w-5 h-5`), que en la superficie operativa (sin Tailwind) pinta los SVG de anterior/siguiente a todo el ancho. Nuevo `config/livewire.php` con solo `pagination_theme => 'bootstrap'`: arregla todas las paginaciones Livewire de la superficie operativa (Accesos y Recursos de Intervención). Filament no usa esa plantilla. Textos en español: `lang/es.json` («Mostrando… a… de… resultados») y `lang/es/pagination.php`.

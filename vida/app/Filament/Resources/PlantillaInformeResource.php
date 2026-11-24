@@ -257,7 +257,7 @@ class PlantillaInformeResource extends Resource
             ->actions([
                 EditAction::make(),
                 DeleteAction::make()
-                    ->authorize(fn () => auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false),
+                    ->authorize(fn () => auth()->user()?->hasRole('adm_sistema') ?? false),
             ])
             ->defaultSort('nombre');
     }
@@ -279,7 +279,7 @@ class PlantillaInformeResource extends Resource
      */
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'supervision']) ?? false;
     }
 
     /**
@@ -289,7 +289,7 @@ class PlantillaInformeResource extends Resource
      */
     public static function canEdit(Model $record): bool
     {
-        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
+        return auth()->user()?->hasRole('adm_sistema') ?? false;
     }
 
     /**
@@ -299,6 +299,6 @@ class PlantillaInformeResource extends Resource
      */
     public static function canDelete(Model $record): bool
     {
-        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
+        return auth()->user()?->hasRole('adm_sistema') ?? false;
     }
 }

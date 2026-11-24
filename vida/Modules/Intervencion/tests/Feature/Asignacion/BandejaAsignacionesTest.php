@@ -257,6 +257,40 @@ class BandejaAsignacionesTest extends TestCase
     }
 
     /**
+     * TF-ASG-ORD-01 — La actividad del equipo se ordena por número de casos asignados:
+     * primero de mayor a menor y, al volver a pulsar, al revés.
+     *
+     * @return void
+     */
+    #[Test]
+    public function actividad_del_equipo_se_ordena_por_asignados(): void
+    {
+        foreach (range(1, 3) as $i) {
+            $this->casoDeTs1($this->crearCiudadano("Caso {$i}"));
+        }
+        $historia = $this->historiaDe($this->crearCiudadano('Caso de ts2'));
+        AsignacionProfesional::create([
+            'historia_id' => $historia->id,
+            'profesional_id' => $this->ts2->id,
+            'centro_id' => $this->cssNorte->id,
+            'origen' => OrigenAsignacionReferencia::Sorteo,
+            'cuenta_en_reparto' => true,
+            'fecha_inicio' => '2026-01-15',
+        ]);
+
+        $this->actingAs($this->supervisor);
+        $componente = Livewire::test(AsignacionesPage::class, ['pestana' => 'actividad'])->call('ordenar', 'asignados');
+        $recuentos = fn () => $componente->get('actividad')->pluck('asignados')->all();
+
+        $desc = $recuentos();
+        $this->assertSame(3, $desc[0]);
+        $this->assertSame($desc, collect($desc)->sortDesc()->values()->all());
+
+        $componente->call('ordenar', 'asignados');
+        $this->assertSame(array_reverse($desc), $recuentos());
+    }
+
+    /**
      * Desde la actividad del equipo se prepara el reparto, que se revisa,
      * se modifica y se confirma en su pantalla.
      *

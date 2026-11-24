@@ -2,12 +2,14 @@
 
 namespace Modules\Supervision\Http\Livewire;
 
+use App\Livewire\Concerns\OrdenaPorColumnas;
 use App\Models\Ciudadano;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use App\Services\PresentacionPersona;
 use DomainException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -21,7 +23,8 @@ use Modules\Intervencion\Services\DerivacionService;
  * Bandeja de derivaciones del centro de destino (fase 3, B4.2).
  *
  * Lista las derivaciones pendientes del centro supervisado con persona, centro de
- * origen, TSR, tipo de plan, motivo y antigüedad. Aceptan (asignando un profesional
+ * origen, TSR, tipo de plan, motivo y antigüedad, ordenables por cabecera (por defecto,
+ * las más antiguas primero). Aceptan (asignando un profesional
  * de intervención del centro) o rechazan con motivo la dirección y la supervisión
  * adscritas al centro; la supervisión de UO superiores la ve, pero no resuelve.
  *
@@ -36,6 +39,8 @@ use Modules\Intervencion\Services\DerivacionService;
 #[Layout('layouts.supervision')]
 class DerivacionesPage extends Component
 {
+    use OrdenaPorColumnas;
+
     /** Derivación que se está aceptando. */
     public ?int $aceptarId = null;
 
@@ -75,7 +80,10 @@ class DerivacionesPage extends Component
     }
 
     /**
-     * Derivaciones pendientes del centro, las más antiguas primero.
+     * Derivaciones pendientes del centro, en el orden elegido (por defecto, las más antiguas primero).
+     *
+     * Se ordena en memoria sobre el texto que se pinta: la lista no se pagina y el
+     * nombre de la persona está cifrado (o enmascarado, si es protegida).
      *
      * @return Collection<int, array{derivacion: Derivacion, persona: string, origen: string, tsr: string, tipo: string, motivo: string, antiguedad: string}>
      */
@@ -105,7 +113,46 @@ class DerivacionesPage extends Component
                     'motivo' => $derivacion->motivo,
                     'antiguedad' => $derivacion->created_at->diffForHumans(),
                 ];
-            });
+            })
+            ->pipe(fn (Collection $filas) => $this->ordenarFilas($filas));
+    }
+
+    /**
+     * Columnas ordenables. «Antigüedad» ascendente es de la más reciente a la más antigua.
+     *
+     * @return array<string, 'asc'|'desc'>
+     */
+    protected function columnasOrdenables(): array
+    {
+        return ['persona' => 'asc', 'origen' => 'asc', 'tsr' => 'asc', 'tipo' => 'asc', 'antiguedad' => 'desc'];
+    }
+
+    /**
+     * Orden inicial: las más antiguas primero.
+     *
+     * @return array{0: string, 1: 'asc'|'desc'}
+     */
+    protected function ordenInicial(): array
+    {
+        return ['antiguedad', 'desc'];
+    }
+
+    /**
+     * Ordena las filas de la bandeja por la columna elegida.
+     *
+     * @param Collection<int, array<string, mixed>> $filas
+     *
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function ordenarFilas(Collection $filas): Collection
+    {
+        $clave = match ($this->ordenarPor) {
+            // Antigüedad = ahora − creación: a más reciente, menor antigüedad.
+            'antiguedad' => fn (array $fila) => -$fila['derivacion']->created_at->getTimestamp(),
+            default => fn (array $fila) => Str::lower(Str::ascii((string) $fila[$this->ordenarPor])),
+        };
+
+        return $filas->sortBy($clave, SORT_REGULAR, $this->direccionSql() === 'desc')->values();
     }
 
     /**

@@ -152,7 +152,7 @@ class InformeResource extends Resource
      */
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'supervision']) ?? false;
     }
 
     /**
@@ -165,7 +165,7 @@ class InformeResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $user = auth()->user();
-                if ($user->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
+                if ($user->hasRole('adm_sistema')) {
                     return;
                 }
                 // supervision: solo informes cuya plantilla pertenece a su subtree de UO
@@ -276,7 +276,7 @@ class InformeResource extends Resource
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->visible(fn (Informe $record) => $record->estaFirmado())
-                    ->authorize(fn () => auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false)
+                    ->authorize(fn () => auth()->user()?->hasRole('adm_sistema') ?? false)
                     ->form([
                         Textarea::make('motivo')
                             ->label('Motivo de anulación')

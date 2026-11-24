@@ -4,7 +4,11 @@
 
 ---
 
-**Última tarea (24 nov):** Supervisión → Accesos: paginación con la plantilla Bootstrap (`config/livewire.php`, causa de los iconos enormes; vale para todas las paginaciones Livewire), ordenación por cabecera y filtros por profesional y ciudadano. TF-SUP-F07 a F12 en verde. Detalle en `CHANGELOG-112026.md`. **Sin commit todavía**, junto con el trabajo de R4 de abajo, que tampoco estaba commiteado.
+**Última tarea (25 nov, 3):** suite completa de noche en GitHub Actions (`nightly-tests.yml`, en paralelo con paratest) y nuevas reglas de tests en `CLAUDE.md` (paso 1 bis: revisar la noche al empezar). **Primera revisión:** el resultado de la ejecución lanzada a mano el 25 nov tras el push (`gh run list --workflow=nightly-tests.yml`). Fallos ya conocidos que saldrán: los tests que contradicen R2 (BACKLOG).
+
+**Última tarea (25 nov, 2):** paginación y ordenación por cabecera: base común (`OrdenaPorColumnas`, `<x-op.th-orden>`), Recursos con paginadores separados, pie de Mis casos con `links()`, y ordenación en Tramitación, Derivaciones, Asignaciones, Mis casos («Otros planes») y Recursos → Activas. Pendiente: las tablas de prioridad media y la paginación de listados que crecen (BACKLOG).
+
+**Última tarea (25 nov):** backoffice cerrado: `AutorizaGestion` solo `adm_sistema` (antes también `adm_usuarios`, que por eso veía casi todo; lo tiene `dir.ciam`), `adm_usuarios` limitado a usuarios y agendas (`AutorizaGestionUsuarios`), sin documentos ni informes de ciudadanos, y migración `2026_11_25_100001` que quita a `supervision` `centro.gestionar` y `configuracion.acceder` (estaban en la BD, no en el seeder). «Volver a VIDA» en el menú de usuario de Filament. Hasta que el despliegue aplique la migración, la supervisión sigue pudiendo crear centros y tipos en staging. Pendiente de decisión: los permisos de apuntes de `tramitacion` en la BD (BACKLOG). Antes (24 nov): Supervisión → Accesos con orden, filtros y paginación Bootstrap.
 
 ---
 

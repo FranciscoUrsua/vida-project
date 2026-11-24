@@ -43,10 +43,10 @@
                     <table class="table align-middle">
                         <thead class="table-light">
                             <tr>
-                                <th scope="col">Profesional</th>
-                                <th scope="col" class="text-end">Asignados</th>
-                                <th scope="col" class="text-end">Con actividad</th>
-                                <th scope="col" class="text-end">Dormidos</th>
+                                <x-op.th-orden columna="profesional" :actual="$ordenarPor" :direccion="$direccion">Profesional</x-op.th-orden>
+                                <x-op.th-orden columna="asignados" :actual="$ordenarPor" :direccion="$direccion" class="text-end">Asignados</x-op.th-orden>
+                                <x-op.th-orden columna="con_actividad" :actual="$ordenarPor" :direccion="$direccion" class="text-end">Con actividad</x-op.th-orden>
+                                <x-op.th-orden columna="dormidos" :actual="$ordenarPor" :direccion="$direccion" class="text-end">Dormidos</x-op.th-orden>
                                 <th scope="col" class="text-end"><span class="visually-hidden">Acciones</span></th>
                             </tr>
                         </thead>

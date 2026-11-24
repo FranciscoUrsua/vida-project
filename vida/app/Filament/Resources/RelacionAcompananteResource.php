@@ -122,6 +122,29 @@ class RelacionAcompananteResource extends Resource
     }
 
     /**
+     * Solo adm_sistema. Sin esta comprobación Filament abría el alta a cualquier
+     * usuario del panel: el recurso no tiene policy.
+     *
+     * @return bool
+     */
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->hasRole('adm_sistema') ?? false;
+    }
+
+    /**
+     * Solo adm_sistema (mismo motivo que canCreate()).
+     *
+     * @param Model $record
+     *
+     * @return bool
+     */
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()?->hasRole('adm_sistema') ?? false;
+    }
+
+    /**
      * Los valores no se borran: se desactivan.
      *
      * @param Model $record

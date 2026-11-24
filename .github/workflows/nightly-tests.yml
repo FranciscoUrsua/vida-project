@@ -1,0 +1,126 @@
+name: Suite nocturna
+
+# Suite completa de tests cada madrugada sobre el último commit de master
+# (CLAUDE.md, «Tests»). No bloquea el despliegue: en desarrollo se acepta que algo
+# quede roto hasta la revisión de la mañana (paso 1 bis de «Antes de tocar cualquier
+# fichero»). Se lanza a mano con `gh workflow run nightly-tests.yml`.
+
+on:
+  schedule:
+    # GitHub usa UTC: 02:00 UTC son las 3:00 en Madrid en invierno y las 4:00 en verano.
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: nightly-tests
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest   # Repositorio público: 4 núcleos y 16 GB
+    timeout-minutes: 150
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          # BD desechable del runner: credenciales propias, no las de phpunit.xml.
+          POSTGRES_USER: vida_user
+          POSTGRES_PASSWORD: testing
+          POSTGRES_DB: vida_testing
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U vida_user"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      # Las variables del entorno tienen preferencia sobre las <env> de phpunit.xml
+      # (sin force) y sobre el .env (Dotenv inmutable).
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: vida_testing
+      DB_USERNAME: vida_user
+      DB_PASSWORD: testing
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      # Binarios que usa la custodia de documentos (ingesta, firma de informes).
+      - name: Binarios de PDF
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qpdf ghostscript poppler-utils
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: pdo_pgsql, pgsql, intl, gd, zip, bcmath, imagick, pcntl
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: vida/vendor
+          key: composer-${{ hashFiles('vida/composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install Composer Dependencies
+        env:
+          COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GITHUB_TOKEN }}"}}'
+        run: |
+          cd vida
+          composer install --no-progress --no-interaction --prefer-dist
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vida/package-lock.json
+
+      # Las vistas con @vite necesitan el manifiesto compilado.
+      - name: Entorno y assets
+        run: |
+          cd vida
+          cp .env.example .env
+          php artisan key:generate --no-interaction
+          npm ci --no-audit --no-fund
+          npm run build
+
+      # Laravel crea una BD por proceso (vida_testing_test_N); vida_user es el
+      # propietario del servidor, así que puede crearlas.
+      - name: Suite completa en paralelo
+        run: |
+          cd vida
+          set -o pipefail
+          php artisan test --parallel --processes=4 --log-junit=junit.xml 2>&1 | tee salida-tests.txt
+
+      - name: Resumen
+        if: always()
+        run: |
+          cd vida
+          {
+            echo '## Suite nocturna'
+            echo
+            echo '```'
+            # Salida de ParaTest: «There were N failures:», «1) Clase::método» y el total final.
+            grep -E '^There (was|were) [0-9]+|^[0-9]+\) [A-Za-z\\]+::|^(OK|FAILURES!|ERRORS!)|^Tests: |^Time: ' salida-tests.txt | head -200 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Informe JUnit y salida
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: suite-nocturna
+          path: |
+            vida/junit.xml
+            vida/salida-tests.txt
+          retention-days: 14

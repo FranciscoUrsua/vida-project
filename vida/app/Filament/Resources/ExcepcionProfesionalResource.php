@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Concerns\AutorizaGestion;
+use App\Filament\Concerns\AutorizaGestionUsuarios;
 use App\Filament\Resources\ExcepcionProfesionalResource\Pages;
 use App\Models\User;
 use Filament\Actions\DeleteAction;
@@ -27,7 +27,7 @@ use Modules\Centro\Models\Centro;
  */
 class ExcepcionProfesionalResource extends Resource
 {
-    use AutorizaGestion;
+    use AutorizaGestionUsuarios;
 
     protected static ?string $model = ExcepcionProfesional::class;
 

@@ -108,12 +108,12 @@
                 <table class="table table-sm table-hover">
                     <thead>
                         <tr>
-                            <th>Ciudadano/a</th>
-                            <th>Plaza</th>
-                            <th>Fecha asignación</th>
-                            <th>Fecha fin prevista</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
+                            <x-op.th-orden columna="ciudadano" :actual="$ordenarPor" :direccion="$direccion">Ciudadano/a</x-op.th-orden>
+                            <x-op.th-orden columna="plaza" :actual="$ordenarPor" :direccion="$direccion">Plaza</x-op.th-orden>
+                            <x-op.th-orden columna="asignacion" :actual="$ordenarPor" :direccion="$direccion">Fecha asignación</x-op.th-orden>
+                            <x-op.th-orden columna="fin" :actual="$ordenarPor" :direccion="$direccion">Fecha fin prevista</x-op.th-orden>
+                            <x-op.th-orden columna="estado" :actual="$ordenarPor" :direccion="$direccion">Estado</x-op.th-orden>
+                            <th scope="col">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>

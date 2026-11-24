@@ -52,12 +52,12 @@
                         <caption class="visually-hidden">{{ $pestanas[$pestana] }}</caption>
                         <thead>
                             <tr>
-                                <th scope="col">Persona</th>
-                                <th scope="col">Prestación</th>
-                                <th scope="col">Centro</th>
-                                <th scope="col">Estado</th>
-                                <th scope="col">Responsable</th>
-                                <th scope="col">Último movimiento</th>
+                                <x-op.th-orden columna="persona" :actual="$ordenarPor" :direccion="$direccion">Persona</x-op.th-orden>
+                                <x-op.th-orden columna="prestacion" :actual="$ordenarPor" :direccion="$direccion">Prestación</x-op.th-orden>
+                                <x-op.th-orden columna="centro" :actual="$ordenarPor" :direccion="$direccion">Centro</x-op.th-orden>
+                                <x-op.th-orden columna="estado" :actual="$ordenarPor" :direccion="$direccion">Estado</x-op.th-orden>
+                                <x-op.th-orden columna="responsable" :actual="$ordenarPor" :direccion="$direccion">Responsable</x-op.th-orden>
+                                <x-op.th-orden columna="movimiento" :actual="$ordenarPor" :direccion="$direccion">Último movimiento</x-op.th-orden>
                             </tr>
                         </thead>
                         <tbody>

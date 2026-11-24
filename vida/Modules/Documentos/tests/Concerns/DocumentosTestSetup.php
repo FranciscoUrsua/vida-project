@@ -73,7 +73,7 @@ trait DocumentosTestSetup
         Storage::fake('documentos');
 
         // Zona temporal de ingesta propia de los tests, vacía al empezar cada uno.
-        $temporal = storage_path('framework/testing/ingesta');
+        $temporal = $this->carpetaTemporalDeTest('ingesta');
         File::deleteDirectory($temporal);
         config(['documentos.ingesta.directorio_temporal' => $temporal]);
 

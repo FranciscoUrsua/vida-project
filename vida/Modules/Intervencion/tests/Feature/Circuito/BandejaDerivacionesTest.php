@@ -4,6 +4,7 @@ namespace Modules\Intervencion\Tests\Feature\Circuito;
 
 use App\Services\PresentacionPersona;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Intervencion\Enums\EstadoDerivacion;
@@ -61,6 +62,34 @@ class BandejaDerivacionesTest extends TestCase
             ->call('aceptar')
             ->assertHasNoErrors();
         $this->assertSame(EstadoDerivacion::Aceptada, $aVallecas->fresh()->estado);
+    }
+
+    /** TF-CIR-ORD-01 — La bandeja abre con las más antiguas primero y se ordena por persona y antigüedad. */
+    #[Test]
+    public function bandeja_de_derivaciones_ordenable(): void
+    {
+        $servicio = app(DerivacionService::class);
+        // La de Marta es la más antigua; la de Ana, la más reciente.
+        $this->travelTo(now()->subDays(3));
+        $deMarta = $servicio->derivar($this->pisoMarta, $this->derivPia, $this->ciamVallecas, 'Protocolo VG', null, $this->tsNorte);
+        $this->travelBack();
+        $deAna = $servicio->derivar($this->pisoAna, $this->derivPia, $this->ciamVallecas, 'Atención integral', null, $this->tsNorte);
+
+        $this->actingAs($this->directoraVallecas);
+        $componente = Livewire::test(DerivacionesPage::class);
+        $ids = fn () => $componente->get('pendientes')->pluck('derivacion.id')->all();
+
+        $this->assertSame([$deMarta->id, $deAna->id], $ids(), 'Por defecto, las más antiguas primero');
+
+        $componente->call('ordenar', 'antiguedad');
+        $this->assertSame([$deAna->id, $deMarta->id], $ids());
+
+        $porNombre = collect([$deAna->id => $this->ana->nombre_completo, $deMarta->id => $this->marta->nombre_completo])
+            ->sortBy(fn (string $n) => Str::lower(Str::ascii($n)))->keys()->all();
+        $componente->call('ordenar', 'persona');
+        $this->assertSame($porNombre, $ids());
+        $componente->call('ordenar', 'persona');
+        $this->assertSame(array_reverse($porNombre), $ids());
     }
 
     /** TF-CIR-26 — Persona protegida: la directora la ve; la coordinación por ámbito funcional, no, y no resuelve. */

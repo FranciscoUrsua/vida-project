@@ -2,11 +2,13 @@
 
 namespace Modules\Supervision\Http\Livewire;
 
+use App\Livewire\Concerns\OrdenaPorColumnas;
 use App\Models\User;
 use App\Services\PresentacionPersona;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use InvalidArgumentException;
 use Livewire\Attributes\Computed;
@@ -61,6 +63,8 @@ use Modules\Intervencion\Services\Asignacion\RepartoCasosService;
 #[Layout('layouts.supervision')]
 class AsignacionesPage extends Component
 {
+    use OrdenaPorColumnas;
+
     /** @var string Pestaña activa: pendientes o actividad. */
     public string $pestana = 'pendientes';
 
@@ -160,14 +164,46 @@ class AsignacionesPage extends Component
     }
 
     /**
-     * Resumen de actividad de los casos por profesional.
+     * Resumen de actividad de los casos por profesional, en el orden elegido en la cabecera.
      *
      * @return Collection<int, array{profesional: User, asignados: int, con_actividad: int, dormidos: int}>
      */
     #[Computed]
     public function actividad(): Collection
     {
-        return $this->centro ? app(ActividadCasosService::class)->resumen($this->centro) : collect();
+        if ($this->centro === null) {
+            return collect();
+        }
+
+        // Mismo criterio que el servicio para el nombre: primer apellido o, sin ficha, el email.
+        $clave = match ($this->ordenarPor) {
+            'asignados', 'con_actividad', 'dormidos' => fn (array $fila) => $fila[$this->ordenarPor],
+            default => fn (array $fila) => Str::lower(Str::ascii((string) ($fila['profesional']->profesional?->apellido1 ?? $fila['profesional']->email))),
+        };
+
+        return app(ActividadCasosService::class)->resumen($this->centro)
+            ->sortBy($clave, SORT_REGULAR, $this->direccionSql() === 'desc')
+            ->values();
+    }
+
+    /**
+     * Columnas ordenables de la actividad por profesional: los recuentos empiezan de mayor a menor.
+     *
+     * @return array<string, 'asc'|'desc'>
+     */
+    protected function columnasOrdenables(): array
+    {
+        return ['profesional' => 'asc', 'asignados' => 'desc', 'con_actividad' => 'desc', 'dormidos' => 'desc'];
+    }
+
+    /**
+     * Orden inicial: por profesional (el de antes).
+     *
+     * @return array{0: string, 1: 'asc'|'desc'}
+     */
+    protected function ordenInicial(): array
+    {
+        return ['profesional', 'asc'];
     }
 
     /**

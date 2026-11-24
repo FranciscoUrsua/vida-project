@@ -6,6 +6,7 @@ use DomainException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Documentos\Models\Documento;
@@ -228,6 +229,35 @@ class SolicitudCicloTest extends TestCase
             $this->assertSame([$solicitud->id], $bandeja->get('solicitudes')->pluck('id')->all());
         }
         $this->assertNull($solicitud->fresh()->responsable_id);
+    }
+
+    /** TF-SOL-ORD-01 — La bandeja abre con el movimiento más antiguo primero y se ordena por persona. */
+    #[Test]
+    public function bandeja_de_tramitacion_ordenable(): void
+    {
+        $this->travelTo(now()->subDays(2));
+        $deMarta = $this->servicio()->crear($this->marta, $this->pSad, $this->tsNorte, null, null, $this->cssNorte);
+        $this->servicio()->pasarABandeja($deMarta, $this->tsNorte);
+        $this->travelBack();
+        $deAna = $this->sadEnBandeja();
+
+        $this->actingAs($this->tramitadora1);
+        $bandeja = Livewire::test(BandejaTramitacionPage::class);
+        $ids = fn () => $bandeja->get('solicitudes')->pluck('id')->all();
+
+        $this->assertSame([$deMarta->id, $deAna->id], $ids(), 'Por defecto, lo que más espera primero');
+
+        $bandeja->call('ordenar', 'movimiento');
+        $this->assertSame([$deAna->id, $deMarta->id], $ids());
+
+        $porNombre = collect([$deAna->id => $this->ana->nombre_completo, $deMarta->id => $this->marta->nombre_completo])
+            ->sortBy(fn (string $n) => Str::lower(Str::ascii($n)))->keys()->all();
+        $bandeja->call('ordenar', 'persona');
+        $this->assertSame($porNombre, $ids());
+        $bandeja->call('ordenar', 'persona');
+        $this->assertSame(array_reverse($porNombre), $ids());
+
+        $bandeja->call('ordenar', 'nada')->assertSet('ordenarPor', 'persona');
     }
 
     /** TF-SOL-15 — Anular antes del envío; enviada, no. */

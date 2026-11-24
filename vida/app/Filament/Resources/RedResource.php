@@ -91,7 +91,7 @@ class RedResource extends Resource
      */
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'supervision']) ?? false;
     }
 
     /**

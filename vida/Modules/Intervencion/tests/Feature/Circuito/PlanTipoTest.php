@@ -95,6 +95,26 @@ class PlanTipoTest extends TestCase
         $this->assertNull($caso->plan_id, 'Ningún plan de la persona figura como su PISO');
     }
 
+    /** TF-LW-CAS-ORD-03 — «Otros planes» se ordena por persona (nombre descifrado, sin tildes). */
+    #[Test]
+    public function otros_planes_se_ordenan_por_persona(): void
+    {
+        $planes = [];
+        foreach (['Zoe', 'Álvaro', 'Marta'] as $nombre) {
+            [$persona, $historia] = $this->personaEnCentro($this->cssNorte, referencia: $this->tsNorte);
+            $persona->update(['nombre' => $nombre, 'apellido1' => 'Prueba', 'apellido2' => null]);
+            $planes[$nombre] = $this->planActivo($historia, $this->planPsicologico, $this->cssNorte, $this->psicologoNorte)->id;
+        }
+
+        $componente = Livewire::actingAs($this->psicologoNorte)->test(MisCasosPage::class)->call('ordenarOtros', 'persona');
+        $ids = fn () => $componente->get('otrosPlanes')->pluck('id')->intersect($planes)->values()->all();
+
+        $this->assertSame([$planes['Álvaro'], $planes['Marta'], $planes['Zoe']], $ids());
+
+        $componente->call('ordenarOtros', 'persona');
+        $this->assertSame([$planes['Zoe'], $planes['Marta'], $planes['Álvaro']], $ids());
+    }
+
     /** TF-CIR-39 — Varios tipos de plan en ASP: hay que elegir, y el principal no se ofrece si ya existe. */
     #[Test]
     public function tf_cir_39_varios_tipos_de_plan_en_asp(): void

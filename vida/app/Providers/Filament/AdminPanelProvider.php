@@ -3,6 +3,8 @@
 namespace App\Providers\Filament;
 
 use App\Http\Middleware\FilamentAuthenticate;
+use App\Support\Superficie\DestinoInicial;
+use Filament\Actions\Action;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -28,6 +30,8 @@ class AdminPanelProvider extends PanelProvider
      * Construye el panel de administración.
      *
      * @param Panel $panel Panel base.
+     *
+     * @return Panel
      */
     public function panel(Panel $panel): Panel
     {
@@ -42,6 +46,16 @@ class AdminPanelProvider extends PanelProvider
             // Sin selector claro/oscuro: el tema VIDA solo define variantes en modo claro
             // (docs/design-system/SKILL.md — "Don't produce dark-mode variants unless asked").
             ->darkMode(false)
+            // Vuelta a la superficie operativa, simétrica a «Administración» en el menú de
+            // usuario de la operativa (R4.3). Solo a quien tiene superficie operativa.
+            ->userMenuItems([
+                Action::make('volver-operativa')
+                    ->label('Volver a VIDA')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->url(fn (): string => DestinoInicial::para(auth()->user()))
+                    ->visible(fn (): bool => auth()->user() !== null
+                        && DestinoInicial::superficie(auth()->user()) !== null),
+            ])
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 function (): HtmlString {

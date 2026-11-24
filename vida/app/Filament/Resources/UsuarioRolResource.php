@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Concerns\AutorizaGestion;
+use App\Filament\Concerns\AutorizaGestionUsuarios;
 use App\Filament\Resources\UsuarioRolResource\Pages;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -24,7 +24,7 @@ use Modules\Usuarios\Models\UsuarioRol;
  */
 class UsuarioRolResource extends Resource
 {
-    use AutorizaGestion;
+    use AutorizaGestionUsuarios;
 
     protected static ?string $model = UsuarioRol::class;
 

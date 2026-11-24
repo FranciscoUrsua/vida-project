@@ -52,7 +52,7 @@ trait InformesTestSetup
     protected function montarInformes(): void
     {
         Storage::fake('documentos');
-        $temporal = storage_path('framework/testing/ingesta');
+        $temporal = $this->carpetaTemporalDeTest('ingesta');
         File::deleteDirectory($temporal);
         config(['documentos.ingesta.directorio_temporal' => $temporal]);
 

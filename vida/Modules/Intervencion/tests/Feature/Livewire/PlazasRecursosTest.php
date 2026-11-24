@@ -984,6 +984,83 @@ class PlazasRecursosTest extends TestCase
     // =========================================================================
 
     /**
+     * TF-REC-ORD-01 — Las pestañas paginan por separado: pasar de página en
+     * «Pendientes» no mueve «Activas». Antes compartían el parámetro `page`.
+     */
+    #[Test]
+    public function recursos_las_pestanas_paginan_por_separado(): void
+    {
+        $coleccion = $this->crearColeccion();
+        foreach (['en_lista_espera', 'asignada'] as $estado) {
+            for ($i = 0; $i < 21; $i++) {
+                Prescripcion::create([
+                    'profesional_id' => $this->profesional->id,
+                    'ciudadano_id' => $this->ciudadano->id,
+                    'tipo_destino' => 'coleccion_plazas',
+                    'destino_id' => $coleccion->id,
+                    'estado' => $estado,
+                    'fecha_prescripcion' => today()->toDateString(),
+                    'fecha_asignacion' => $estado === 'asignada' ? today()->toDateString() : null,
+                ]);
+            }
+        }
+
+        $this->actingAs($this->usuario);
+        $componente = Livewire::test(RecursosPage::class)->call('gotoPage', 2, 'pendientes');
+
+        $this->assertSame(2, $componente->get('prescripcionesPendientes')->currentPage());
+        $this->assertSame(1, $componente->get('prescripcionesActivas')->currentPage());
+    }
+
+    /**
+     * TF-REC-ORD-02 — «Activas» se ordena por el nombre (cifrado) de la persona y por
+     * fecha de asignación; por defecto, la asignación más reciente primero.
+     */
+    #[Test]
+    public function recursos_activas_se_ordenan_por_cabecera(): void
+    {
+        $coleccion = $this->crearColeccion();
+        $ids = [];
+        // Zoe, asignada hace 1 día; Marta, hace 3; Álvaro, hace 5. El orden por fecha
+        // es el inverso del alfabético, para que cada orden se distinga.
+        foreach (['Zoe' => 1, 'Álvaro' => 5, 'Marta' => 3] as $nombre => $dias) {
+            $ciudadano = Ciudadano::factory()->create(['nombre' => $nombre, 'apellido1' => 'Prueba', 'apellido2' => null]);
+            HistoriaSocial::create(['ciudadano_id' => $ciudadano->id, 'unidad_organizativa_id' => $this->uo->id, 'ciudadano_protegido' => false, 'estado' => 'abierta']);
+            $ids[$nombre] = Prescripcion::create([
+                'profesional_id' => $this->profesional->id,
+                'ciudadano_id' => $ciudadano->id,
+                'tipo_destino' => 'coleccion_plazas',
+                'destino_id' => $coleccion->id,
+                'estado' => 'asignada',
+                'fecha_prescripcion' => today()->subDays(10)->toDateString(),
+                'fecha_asignacion' => today()->subDays($dias)->toDateString(),
+            ])->id;
+        }
+
+        $this->actingAs($this->usuario);
+        $componente = Livewire::test(RecursosPage::class);
+        $orden = fn () => collect($componente->get('prescripcionesActivas')->items())->pluck('id')->all();
+
+        $porFecha = [$ids['Zoe'], $ids['Marta'], $ids['Álvaro']];
+        $alfabetico = [$ids['Álvaro'], $ids['Marta'], $ids['Zoe']];
+
+        $this->assertSame($porFecha, $orden());
+
+        $componente->call('ordenar', 'ciudadano');
+        $this->assertSame($alfabetico, $orden());
+        $componente->call('ordenar', 'ciudadano');
+        $this->assertSame($porFecha, $orden());
+
+        $componente->call('ordenar', 'asignacion');
+        $this->assertSame($porFecha, $orden());
+        $componente->call('ordenar', 'asignacion');
+        $this->assertSame($alfabetico, $orden());
+
+        // Una columna fuera de la lista blanca no cambia nada.
+        $componente->call('ordenar', 'id; DROP TABLE prescripciones')->assertSet('ordenarPor', 'asignacion');
+    }
+
+    /**
      * Crea una ColeccionPlazas activa de tipo pernocta para los tests.
      */
     private function crearColeccion(string $nombre = 'Colección Test'): ColeccionPlazas

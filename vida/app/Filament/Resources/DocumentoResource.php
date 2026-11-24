@@ -127,7 +127,7 @@ class DocumentoResource extends Resource
      */
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'supervision']) ?? false;
     }
 
     /**
@@ -142,7 +142,7 @@ class DocumentoResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $user = auth()->user();
-                if ($user->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
+                if ($user->hasRole('adm_sistema')) {
                     return;
                 }
                 // supervision: solo documentos dados de alta por usuarios de su subtree de UO

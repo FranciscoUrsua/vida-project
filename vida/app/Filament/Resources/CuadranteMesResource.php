@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Concerns\AutorizaGestion;
+use App\Filament\Concerns\AutorizaGestionUsuarios;
 use App\Filament\Resources\CuadranteMesResource\Pages;
 use App\Filament\Resources\CuadranteMesResource\RelationManagers\LineasCuadranteRelationManager;
 use Filament\Actions\Action;
@@ -26,7 +26,7 @@ use Modules\Centro\Models\Centro;
  */
 class CuadranteMesResource extends Resource
 {
-    use AutorizaGestion;
+    use AutorizaGestionUsuarios;
 
     protected static ?string $model = CuadranteMes::class;
 

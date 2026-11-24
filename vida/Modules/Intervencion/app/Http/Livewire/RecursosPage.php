@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Http\Livewire;
 
+use App\Livewire\Concerns\OrdenaPorColumnas;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +24,12 @@ use Modules\Usuarios\Models\Profesional;
  *
  * Solo visible para profesionales cuyo centro tiene plazas configuradas.
  * Pestaña «Pendientes»: prescripciones en estado pendiente o en_lista_espera.
- * Pestaña «Activas»: prescripciones en estado asignada o activa.
+ * Pestaña «Activas»: prescripciones en estado asignada o activa, ordenables por
+ * cabecera. Las pendientes no se ordenan: su orden es la posición en la lista de
+ * espera, que es la norma.
+ *
+ * Cada pestaña pagina con su propio parámetro (`pendientes` y `activas`): antes
+ * compartían `page` y pasar de página en una movía la otra.
  *
  * @property-read LengthAwarePaginator<int, Prescripcion> $prescripcionesPendientes
  * @property-read LengthAwarePaginator<int, Prescripcion> $prescripcionesActivas
@@ -32,6 +38,7 @@ use Modules\Usuarios\Models\Profesional;
 #[Layout('layouts.operativo')]
 class RecursosPage extends Component
 {
+    use OrdenaPorColumnas;
     use WithPagination;
 
     /** @var string Pestaña activa */
@@ -68,7 +75,7 @@ class RecursosPage extends Component
             ->orderByRaw('COALESCE(lista_espera.posicion, 9999) ASC')
             ->orderBy('prescripciones.fecha_prescripcion', 'asc')
             ->select('prescripciones.*')
-            ->paginate(20);
+            ->paginate(20, pageName: 'pendientes');
     }
 
     /**
@@ -81,12 +88,58 @@ class RecursosPage extends Component
     {
         $destinoIds = $this->destinoIdsDelCentro();
 
-        return Prescripcion::whereIn('estado', ['asignada', 'activa'])
-            ->where('tipo_destino', 'coleccion_plazas')
-            ->whereIn('destino_id', $destinoIds)
-            ->with(['ciudadano', 'plaza'])
-            ->orderBy('fecha_asignacion', 'desc')
-            ->paginate(20);
+        $query = Prescripcion::query()
+            ->select('prescripciones.*')
+            ->whereIn('prescripciones.estado', ['asignada', 'activa'])
+            ->where('prescripciones.tipo_destino', 'coleccion_plazas')
+            ->whereIn('prescripciones.destino_id', $destinoIds)
+            ->with(['ciudadano', 'plaza']);
+
+        $dir = $this->direccionSql();
+
+        match ($this->ordenarPor) {
+            'ciudadano' => $this->ordenarPorNombreCifrado($query, 'ciudadano', $dir),
+            'plaza' => $query->leftJoin('plazas as plaza_orden', 'plaza_orden.id', '=', 'prescripciones.plaza_id')
+                ->orderByRaw("LOWER(plaza_orden.nombre) {$dir} NULLS LAST"),
+            'fin' => $query->orderByRaw("prescripciones.fecha_fin {$dir} NULLS LAST"),
+            'estado' => $query->orderBy('prescripciones.estado', $dir),
+            default => $query->orderByRaw("prescripciones.fecha_asignacion {$dir} NULLS LAST"),
+        };
+
+        return $query
+            ->orderByDesc('prescripciones.fecha_asignacion')
+            ->orderByDesc('prescripciones.id')
+            ->paginate(20, pageName: 'activas');
+    }
+
+    /**
+     * Columnas ordenables de la pestaña «Activas».
+     *
+     * @return array<string, 'asc'|'desc'>
+     */
+    protected function columnasOrdenables(): array
+    {
+        return ['ciudadano' => 'asc', 'plaza' => 'asc', 'asignacion' => 'desc', 'fin' => 'asc', 'estado' => 'asc'];
+    }
+
+    /**
+     * Orden inicial: la asignación más reciente primero (el orden de antes).
+     *
+     * @return array{0: string, 1: 'asc'|'desc'}
+     */
+    protected function ordenInicial(): array
+    {
+        return ['asignacion', 'desc'];
+    }
+
+    /**
+     * La tabla ordenable es la de «Activas», que pagina con su propio nombre.
+     *
+     * @return string
+     */
+    protected function paginaDeLaTablaOrdenable(): string
+    {
+        return 'activas';
     }
 
     /**
@@ -224,11 +277,14 @@ class RecursosPage extends Component
      * Cambia la pestaña activa.
      *
      * @param string $pestana 'pendientes' | 'activas'
+     *
+     * @return void
      */
     public function cambiarPestana(string $pestana): void
     {
         $this->pestana = $pestana;
-        $this->resetPage();
+        $this->resetPage('pendientes');
+        $this->resetPage('activas');
     }
 
     /**

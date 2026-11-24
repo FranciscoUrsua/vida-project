@@ -181,7 +181,7 @@ class EstiloInformeResource extends Resource
      */
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios', 'supervision']) ?? false;
+        return auth()->user()?->hasAnyRole(['adm_sistema', 'supervision']) ?? false;
     }
 
     /**
@@ -191,7 +191,7 @@ class EstiloInformeResource extends Resource
      */
     public static function canEdit(Model $record): bool
     {
-        return auth()->user()?->hasAnyRole(['adm_sistema', 'adm_usuarios']) ?? false;
+        return auth()->user()?->hasRole('adm_sistema') ?? false;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Http\Livewire;
 
+use App\Livewire\Concerns\OrdenaPorColumnas;
 use App\Models\CatalogoSistema;
 use App\Models\Ciudadano;
 use App\Models\Scopes\AmbitoUoScope;
@@ -10,6 +11,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -29,6 +31,7 @@ use Modules\Intervencion\Models\PlanDeIntervencion;
 #[Layout('layouts.operativo')]
 class MisCasosPage extends Component
 {
+    use OrdenaPorColumnas;
     use WithPagination;
 
     /** @var string Búsqueda textual por nombre/apellido; se resuelve en memoria (datos cifrados) */
@@ -43,15 +46,11 @@ class MisCasosPage extends Component
     /** @var string Filtro por derivación especializada: '' | 'con' | 'sin' */
     public string $filtroEsp = '';
 
-    /**
-     * Campo de ordenación activo.
-     * Valores: 'seg' | 'inicio' | 'esp'
-     * ('seg' usa ordenación semántica por urgencia, no cronológica simple)
-     */
-    public string $ordenarPor = 'seg';
+    /** @var string Columna de ordenación de «Otros planes»: persona | estado | seguimiento */
+    public string $ordenOtros = 'seguimiento';
 
-    /** @var string Dirección de ordenación: 'asc' | 'desc' */
-    public string $direccion = 'asc';
+    /** @var string Dirección de ordenación de «Otros planes»: asc | desc */
+    public string $direccionOtros = 'asc';
 
     /** @var int Número de resultados por página */
     public int $porPagina = 10;
@@ -85,14 +84,6 @@ class MisCasosPage extends Component
     }
 
     /**
-     * Resetea la paginación al cambiar el criterio de ordenación.
-     */
-    public function updatedOrdenarPor(): void
-    {
-        $this->resetPage();
-    }
-
-    /**
      * Resetea la paginación al cambiar el texto de búsqueda.
      */
     public function updatedBusqueda(): void
@@ -101,26 +92,45 @@ class MisCasosPage extends Component
     }
 
     /**
-     * Cambia la columna de ordenación o alterna la dirección si ya está activa.
-     * Valores de campo permitidos: 'ciudadano', 'historia', 'seg', 'inicio', 'esp'.
-     * 'ciudadano' aplica ordenación en memoria (nombre cifrado, no ordenable en DB).
+     * Columnas ordenables de la tabla principal. 'seg' ordena por urgencia del
+     * seguimiento, no por fecha simple; 'ciudadano' se ordena en memoria (nombre cifrado).
      *
-     * @param string $campo Identificador de columna.
+     * @return array<string, 'asc'|'desc'>
      */
-    public function sortBy(string $campo): void
+    protected function columnasOrdenables(): array
     {
-        if (! in_array($campo, ['ciudadano', 'historia', 'seg', 'inicio', 'esp'], true)) {
+        return ['ciudadano' => 'asc', 'historia' => 'asc', 'seg' => 'asc', 'inicio' => 'asc', 'esp' => 'asc'];
+    }
+
+    /**
+     * Orden inicial: los seguimientos más urgentes primero.
+     *
+     * @return array{0: string, 1: 'asc'|'desc'}
+     */
+    protected function ordenInicial(): array
+    {
+        return ['seg', 'asc'];
+    }
+
+    /**
+     * Ordena la tabla «Otros planes»; si la columna ya era la activa, invierte la dirección.
+     *
+     * @param string $columna persona | estado | seguimiento
+     *
+     * @return void
+     */
+    public function ordenarOtros(string $columna): void
+    {
+        if (! in_array($columna, ['persona', 'estado', 'seguimiento'], true)) {
             return;
         }
 
-        if ($this->ordenarPor === $campo) {
-            $this->direccion = $this->direccion === 'asc' ? 'desc' : 'asc';
+        if ($this->ordenOtros === $columna) {
+            $this->direccionOtros = $this->direccionOtros === 'asc' ? 'desc' : 'asc';
         } else {
-            $this->ordenarPor = $campo;
-            $this->direccion = 'asc';
+            $this->ordenOtros = $columna;
+            $this->direccionOtros = 'asc';
         }
-
-        $this->resetPage();
     }
 
     // -------------------------------------------------------------------------
@@ -318,7 +328,7 @@ class MisCasosPage extends Component
     {
         $usuario = Auth::user();
 
-        return PlanDeIntervencion::withoutGlobalScopes()
+        $filas = PlanDeIntervencion::withoutGlobalScopes()
             ->with(['tipoPlan', 'centro', 'historia' => fn ($q) => $q->withoutGlobalScopes()])
             ->where('profesional_responsable_id', $usuario->id)
             ->vigentes()
@@ -337,6 +347,16 @@ class MisCasosPage extends Component
                     'proximo_seguimiento' => $plan->seguimientos()->latest()->value('fecha_siguiente_seguimiento'),
                 ];
             });
+
+        // Se ordena en memoria: el nombre de la persona está cifrado y la lista es corta.
+        // Sin fecha de seguimiento, al final en ambos sentidos.
+        $clave = match ($this->ordenOtros) {
+            'persona' => fn (array $fila) => Str::lower(Str::ascii($fila['persona'])),
+            'estado' => fn (array $fila) => Str::lower(Str::ascii($fila['estado'])),
+            default => fn (array $fila) => $fila['proximo_seguimiento'] ?? ($this->direccionOtros === 'asc' ? '9999-12-31' : '0000-01-01'),
+        };
+
+        return $filas->sortBy($clave, SORT_REGULAR, $this->direccionOtros === 'desc')->values();
     }
 
     /**

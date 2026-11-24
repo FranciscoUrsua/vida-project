@@ -26,12 +26,12 @@
                         <caption class="visually-hidden">Derivaciones pendientes de {{ $this->centro->nombre }}</caption>
                         <thead>
                             <tr>
-                                <th scope="col">Persona</th>
-                                <th scope="col">Centro de origen</th>
-                                <th scope="col">Deriva</th>
-                                <th scope="col">Plan</th>
+                                <x-op.th-orden columna="persona" :actual="$ordenarPor" :direccion="$direccion">Persona</x-op.th-orden>
+                                <x-op.th-orden columna="origen" :actual="$ordenarPor" :direccion="$direccion">Centro de origen</x-op.th-orden>
+                                <x-op.th-orden columna="tsr" :actual="$ordenarPor" :direccion="$direccion">Deriva</x-op.th-orden>
+                                <x-op.th-orden columna="tipo" :actual="$ordenarPor" :direccion="$direccion">Plan</x-op.th-orden>
                                 <th scope="col">Motivo</th>
-                                <th scope="col">Antigüedad</th>
+                                <x-op.th-orden columna="antiguedad" :actual="$ordenarPor" :direccion="$direccion">Antigüedad</x-op.th-orden>
                                 @if($this->resuelve)<th scope="col"><span class="visually-hidden">Acciones</span></th>@endif
                             </tr>
                         </thead>

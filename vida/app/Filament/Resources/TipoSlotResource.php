@@ -49,7 +49,7 @@ class TipoSlotResource extends Resource
      */
     public static function canViewAny(): bool
     {
-        return auth()->user()?->hasAnyRole(['supervision', 'adm_sistema', 'adm_usuarios']) ?? false;
+        return auth()->user()?->hasAnyRole(['supervision', 'adm_sistema']) ?? false;
     }
 
     /**
@@ -59,7 +59,7 @@ class TipoSlotResource extends Resource
      */
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasAnyRole(['supervision', 'adm_sistema', 'adm_usuarios']) ?? false;
+        return auth()->user()?->hasAnyRole(['supervision', 'adm_sistema']) ?? false;
     }
 
     /**
@@ -71,7 +71,7 @@ class TipoSlotResource extends Resource
      */
     public static function canEdit(Model $record): bool
     {
-        return auth()->user()?->hasAnyRole(['supervision', 'adm_sistema', 'adm_usuarios']) ?? false;
+        return auth()->user()?->hasAnyRole(['supervision', 'adm_sistema']) ?? false;
     }
 
     /**
@@ -83,7 +83,7 @@ class TipoSlotResource extends Resource
      */
     public static function canDelete(Model $record): bool
     {
-        return auth()->user()?->hasAnyRole(['supervision', 'adm_sistema', 'adm_usuarios']) ?? false;
+        return auth()->user()?->hasAnyRole(['supervision', 'adm_sistema']) ?? false;
     }
 
     /**

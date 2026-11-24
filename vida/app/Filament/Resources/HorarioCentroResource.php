@@ -381,7 +381,7 @@ class HorarioCentroResource extends Resource
      */
     private static function esGestion(User $usuario): bool
     {
-        return $usuario->hasAnyRole(['adm_sistema', 'adm_usuarios']);
+        return $usuario->hasRole('adm_sistema');
     }
 
     /**
