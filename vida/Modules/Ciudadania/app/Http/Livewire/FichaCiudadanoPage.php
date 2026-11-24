@@ -396,6 +396,22 @@ class FichaCiudadanoPage extends Component
     }
 
     /**
+     * Si el usuario ve el bloque de documentos: la carpeta completa, sus documentos del día o
+     * la subida. La supervisión sola no tiene ninguno de esos permisos y no ve documentos (R2).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeVerDocumentos(): bool
+    {
+        $usuario = auth()->user();
+
+        return $usuario->can('documento.ver_carpeta')
+            || $usuario->can('documento.gestionar_propios')
+            || $usuario->can('documento.subir');
+    }
+
+    /**
      * Si el usuario ve las prestaciones de la persona (bloque «Otras prestaciones»).
      * Consulta básica y tramitación no las ven en la ficha (fase 4, §3.1).
      *

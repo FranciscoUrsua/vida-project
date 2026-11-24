@@ -423,11 +423,13 @@ En entornos de desarrollo y pruebas, los adaptadores mock devuelven datos fictic
   | **Historia Social** (`#ficha-estado-historia`): estado y profesional de referencia, nada más | `historia.ver_estado` |
   | Referencia con origen, fechas e historial; cambio de referencia | `historia.leer` |
   | **Citas** (`agenda.historial-citas-ficha`, `docs/modulo-citas.md` §6 bis) | `cita.ver_historial` |
-  | Documentos: carpeta completa o solo los propios del día | `documento.ver_carpeta` / `documento.gestionar_propios` |
+  | Documentos: carpeta completa o solo los propios del día; sin ninguno de los dos ni `documento.subir`, el bloque no se pinta | `documento.ver_carpeta` / `documento.gestionar_propios` (`puedeVerDocumentos()`) |
   | Prestaciones de la persona (fase 3 bis) y «Otras prestaciones» | `solicitud.ver` |
   | Accesos recientes | `historia.leer` |
 
   Con los permisos de los roles, `consulta_basica` y `tramitacion` ven identificación y contacto, unidad de convivencia (lectura), relaciones, el estado de la historia, las citas y sus documentos del día; no ven prestaciones, situación social ni accesos recientes. El enlace «Ir a HS» sigue mirando el rol `intervencion` porque reproduce el middleware de las rutas de Intervención.
+
+  **Supervisión sola (R2, 23 nov 2026; implementada el 24 nov):** buscador y ficha en lectura con identificación, contacto, unidad de convivencia, relaciones, estado de la Historia Social y profesional de referencia, e historial de citas. No edita (sin `ciudadano.editar` ni `ciudadano.editar_relaciones`), no ve documentos (el rol ya no tiene `documento.ver_carpeta`) ni abre la Historia Social o los planes (sin `historia.leer`, `apunte.leer`, `apunte.leer_ajeno` ni `plan.*`): el buscador le lleva a la ficha. Sigue viendo prestaciones y atenciones, que dan `solicitud.ver` y `atencion.leer`, permisos que R2 no menciona. Las personas protegidas fuera de RN-17 aparecen enmascaradas, con «Solicitar acceso» (RN-18). Con `intervencion`, ve lo de ese rol. TF-STG-20 y 21.
 
 ---
 

@@ -130,7 +130,8 @@ Cada rol tiene configurado su **nivel de supervisión** para la asignación (ver
 **Perfil:** Directivos con responsabilidad de gestión: directores generales, jefes de departamento, concejales y similares.
 
 **Capacidades:**
-- Acceso de lectura a la información de su ámbito funcional (Historias Sociales, apuntes, prestaciones, actividad de profesionales). **Sin planes de intervención** (decisión del 14 nov 2026, fase 3): `supervision` por sí solo no lee ni edita planes y no tiene `plan.*`; la dirección de un centro o un responsable superior que necesite planes tiene además el rol `intervencion`, y entonces edita los planes de los centros que supervisa.
+- **Ficha de la persona en lectura** (R2, decidida el 23 nov 2026; sustituye a la antigua «lectura de Historias Sociales, planes, apuntes»): buscador y ficha con identificación, contacto, unidad de convivencia, relaciones, estado de la Historia Social y profesional de referencia, e historial de citas. No edita, no ve documentos y no abre la Historia Social, los apuntes ni los planes: el rol no tiene `historia.leer`, `apunte.leer`, `apunte.leer_ajeno`, `documento.ver_carpeta` ni `plan.*` (retirados el 14 nov, `plan.leer`, y el 24 nov, los otros cuatro, migración `2026_11_24_100002`). Las personas protegidas fuera de RN-17 aparecen enmascaradas, con «Solicitar acceso» (RN-18). La dirección de un centro o un responsable superior que necesite la Historia Social o los planes tiene además el rol `intervencion`, y entonces edita los planes de los centros que supervisa.
+- Actividad de profesionales y gestión del centro en su superficie de Supervisión (`supervision.panel`).
 - Consulta de trazabilidad: informes de accesos a expedientes por parte de profesionales.
 - Validación de acceso a datos sensibles de ciudadanos especialmente protegidos en su DG.
 - Firma o rechazo de propuestas que requieran aprobación de supervisión.
@@ -208,13 +209,15 @@ Este rol reúne titulaciones distintas y no distingue entre ellas. Qué actos co
 
 El rol depende del servicio, no de la titulación: las abogadas integradas en el equipo de un CIAM trabajan con rol *Intervención*, porque necesitan la Historia completa.
 
-**Capacidades:**
+> **Rediseñado el 23 nov 2026** (sin implementar): rol de quien trabaja por **encargo profesional** del TSR, sin la Historia Social completa, con la bandeja «Mis derivaciones», ficha en lectura de sus ciudadanos asignados (con histórico) y documentos propios. Ver `docs/rol-consulta-profesional.md`, que sustituye a las capacidades de abajo. Mientras no exista su superficie, quien solo tiene este rol ve la página «Tu usuario no tiene un perfil de trabajo configurado» (R4.5).
+
+**Capacidades (anteriores al rediseño):**
 - Consulta de informes, procesos abiertos, trámites y citas.
 - Registro del resultado de una cita como intervención puntual.
 - No puede consultar apuntes profesionales de otros agentes.
 - No tiene acceso a contenido de intervención de otras personas.
 
-**Ámbito por UO:** Limitado a los ciudadanos y procesos explícitamente asignados.
+**Ámbito por UO:** Limitado a los ciudadanos y procesos explícitamente asignados (con el rediseño: los de sus encargos, incluido el histórico).
 
 **Nivel de supervisión:** Alerta supervisada con reconocimiento obligatorio.
 
@@ -234,9 +237,34 @@ El rol depende del servicio, no de la titulación: las abogadas integradas en el
 
 **Ámbito por UO:** Limita la operación (citas, documentos, modificaciones), no la consulta: puede abrir la ficha de cualquier ciudadano (ver documento de roles §2). Personas protegidas: solo las ve con datos si está adscrito al centro de su historia o de un plan en curso (F4-1, RN-17); desde otro centro, «Persona con protección especial».
 
-**Inicio:** la búsqueda de ciudadanos (`User::destinoInicial()`, por `citas.gestionar`), con la bandeja de citación en el menú.
+**Inicio:** la bandeja de citación (R4.5, desde el 24 nov 2026; antes, la búsqueda de ciudadanos), con el buscador en el menú.
 
 **Nivel de supervisión:** Alerta supervisada con reconocimiento obligatorio.
+
+---
+
+### 2.7 bis Superficie operativa y página de inicio (R4, 23 nov 2026)
+
+Decidida por el Delegado Digital el 23 nov 2026 e implementada el 24 nov (`docs/instrucciones-cli/2026-11-correcciones-staging-ronda1.md`, R4).
+
+1. **Una sola superficie operativa con el menú combinado.** Con varios roles el usuario no cambia de superficie: ve la unión de las entradas que le dan sus permisos (los roles suman capacidades, principio 3.3).
+2. **El menú es del usuario, no de la página.** Un único registro, `App\Support\Menu\RegistroMenu`, pintado por el componente `menu-operativo` en todas las pantallas operativas. Secciones fijas: *Mi trabajo* (Agenda, Mis casos, Alertas, Avisos, Mensajes, Recursos), *Personas* (Buscador, Alta), *Citación*, *Tramitación* y *Supervisión* (Inicio, Control de alertas, Cuadrante, Ausencias, Excepciones, Eventos, Actividades, Plazas, Mi equipo, Asignaciones, Derivaciones, Accesos, Configuración). Cada entrada declara el permiso o la policy que la muestra; las secciones vacías no se pintan y una entrada aparece una sola vez. Las pantallas solo cambian el título de la barra superior.
+3. **La administración queda aparte** (`/admin`): quien tiene acceso al panel ve «Administración» en el menú de usuario, nunca en el menú operativo.
+4. **Rutas, menú y página de inicio por permisos o policies, no por rol.** Permisos de superficie (creados el 24 nov, migración `2026_11_24_100002`):
+
+   | Permiso | Superficie | Roles que lo reciben |
+   |---|---|---|
+   | `supervision.panel` | Supervisión (rutas `supervision.*` y `agenda.supervisor.*`) | `supervision` |
+   | `agenda.ver_propia` | Mi trabajo: agenda, casos, bandeja y recursos | `intervencion` |
+   | `tramitacion.bandeja` | Bandeja de tramitación (la ruta admite además `supervision.panel`, como antes) | `tramitacion` |
+   | `ciudadano.buscar` | Buscador y alta de personas (rutas `ciudadania.*`) | `intervencion`, `supervision`, `tramitacion`, `consulta_basica` |
+   | `citas.gestionar` / `citas.supervisar` | Bandeja de citación (ya existían) | — |
+
+   Lo que depende de una persona (Historia Social, ficha, plan) va por policy. Las rutas de la Historia Social y del plan siguen con `role:intervencion` hasta el barrido de rutas (BACKLOG).
+5. **Página de inicio por defecto**, por prioridad: Inicio de Supervisión (`supervision.panel`) → Agenda (`agenda.ver_propia`) → Bandeja de tramitación (`tramitacion.bandeja`) → Bandeja de citación (`citas.gestionar` o `citas.supervisar`) → Administración, solo sin ninguna superficie operativa → página «Tu usuario no tiene un perfil de trabajo configurado. Contacta con la administración de tu centro.» (`/sin-rol`, también para quien no tiene roles).
+6. **Preferencia de página de inicio** («Página de inicio» en el menú de usuario): «Automática» (por defecto) o una de las superficies a las que el usuario tiene acceso, entre Inicio de Supervisión, Agenda, Bandeja de tramitación, Bandeja de citación y Buscador. Administración no es elegible. Solo se ofrece con más de una superficie operativa de las del punto 5: el buscador es elegible, pero no cuenta como una más (la ventanilla, con citación y buscador, no ve la opción). Se guarda en `users.pagina_inicio` (`null` = Automática), solo la cambia el propio usuario y el servidor rechaza cualquier valor no accesible. Si la superficie guardada deja de ser accesible se aplica la prioridad sin aviso; la preferencia no se borra. No decide el centro (D1.6).
+7. **Un único resolutor**, `App\Support\Superficie\DestinoInicial::para()`: preferencia válida → prioridad → administración → página informativa. Lo usan el login, el primer acceso, la ruta `/` (logo de la barra superior) y «Volver al inicio» de las páginas de error.
+8. **Los enlaces directos mandan:** tras el login, si había un destino solicitado (enlace de una alerta o de un correo), se va a él. El primer acceso termina siempre en la página de inicio.
 
 ---
 

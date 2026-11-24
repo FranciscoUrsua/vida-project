@@ -10,7 +10,6 @@ use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
-use Modules\Intervencion\Http\Livewire\Sidebar as SidebarIntervencion;
 use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\EstadoAlerta;
 use Modules\Mensajes\Enums\TipoAlerta;
@@ -20,7 +19,6 @@ use Modules\Mensajes\Livewire\HiloMensajes;
 use Modules\Mensajes\Models\Alerta;
 use Modules\Mensajes\Services\AlertaService;
 use Modules\Mensajes\Services\MensajeriaService;
-use Modules\Supervision\Http\Livewire\Sidebar as SidebarSupervision;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -204,16 +202,16 @@ class BandejaAlertasYMensajesTest extends TestCase
         $this->crear($this->profesional, TipoAlerta::Aviso, 'V1');
         $this->crear($this->profesional, TipoAlerta::Aviso, 'V2');
 
-        $componente = Livewire::actingAs($this->profesional)->test(SidebarIntervencion::class);
+        $componente = Livewire::actingAs($this->profesional)->test('menu-operativo');
 
         $componente->assertSee(route('intervencion.mensajes.index', 'alertas'))
             ->assertSee(route('intervencion.mensajes.index', 'avisos'))
             ->assertSee(route('intervencion.mensajes.index', 'mensajes'));
 
-        $datos = $componente->instance()->datos;
-        $this->assertSame(1, $datos['alertas']);
-        $this->assertSame(2, $datos['avisos']);
-        $this->assertSame(0, $datos['mensajes']);
+        $menu = $componente->instance();
+        $this->assertSame(1, $menu->contador('alertas'));
+        $this->assertSame(2, $menu->contador('avisos'));
+        $this->assertSame(0, $menu->contador('mensajes'));
     }
 
     /** TF-MSG-BAN-10 — El menú de supervisión también tiene las tres entradas. */
@@ -221,7 +219,7 @@ class BandejaAlertasYMensajesTest extends TestCase
     public function menu_supervision_tiene_tres_entradas(): void
     {
         Livewire::actingAs($this->supervisor)
-            ->test(SidebarSupervision::class)
+            ->test('menu-operativo')
             ->assertSee(route('supervision.bandeja', 'alertas'))
             ->assertSee(route('supervision.bandeja', 'avisos'))
             ->assertSee(route('supervision.bandeja', 'mensajes'));

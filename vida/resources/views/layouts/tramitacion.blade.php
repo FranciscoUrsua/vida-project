@@ -12,7 +12,7 @@
     :title="config('app.name') . ' — Tramitación'"
     area="Tramitación"
     :section="$seccion"
-    sidebar="prestaciones.tramitacion-sidebar"
+    sidebar="menu-operativo"
 >
     {{ $slot }}
 </x-layouts.operativo-shell>

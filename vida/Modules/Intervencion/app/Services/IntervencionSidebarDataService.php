@@ -7,9 +7,9 @@ use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Mensajes\Services\ContadoresBandejaService;
 
 /**
- * Servicio de datos para el sidebar del interfaz operativo de Intervención.
+ * Contadores de «Mi trabajo» en el menú operativo (App\Livewire\MenuOperativo).
  *
- * Proporciona los contadores para los badges del sidebar:
+ * Proporciona:
  * - Alertas, avisos y mensajes pendientes (los mismos que la bandeja)
  * - Número de ciudadanos con plan activo asignados al profesional
  */

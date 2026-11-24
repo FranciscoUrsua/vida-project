@@ -9,22 +9,50 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**`DocumentosCiudadanoTest` contradice R2** — 2026-11-24
+Módulo: Documentos
+- «supervision ve los documentos pero no puede subir ni desvincular» falla desde que `supervision` perdió `documento.ver_carpeta` (R2, ronda 1 de staging): la ficha ya no pinta el bloque de documentos a la supervisión sola. Reescribir el test al comportamiento nuevo (la supervisión sola no ve el bloque) o darle `intervencion` al usuario del test si lo que se quiere cubrir es el caso mixto.
+
+---
+
+**Auditoría de accesos: escala del filtro por ciudadano** — 2026-11-24
+Módulo: Supervisión
+- El filtro y el orden por ciudadano descifran en PHP los nombres de todos los ciudadanos con historia en el ámbito del supervisor. Con miles de historias por UO convendrá un índice de búsqueda (blind index o tokens con hash), el mismo que necesitan el buscador y `MotorMatching` (TODO `fecha_nacimiento_hash`).
+
+---
+
 **Supervisión: pantalla «Ciudadanos del centro»** — 2026-11-23
 Módulo: Supervisión
 - Listado de las personas asignadas al centro, filtrable, con datos para la gestión: cita pendiente, fecha de la última atención, plan activo, colectivo (mayor, menor, mujer…). Sin acceso a la Historia Social salvo con `intervencion`. Pendiente de diseño. Origen: EST-08, ronda 1 de staging.
 
 ---
 
-**Pruebas en staging, ronda 2** — 2026-11-23
-Transversal
-- Repetir INF-01, INF-08, EST-02 a EST-09 y VEN-01 a VEN-05 tras las correcciones de la ronda 1 (`docs/instrucciones-cli/2026-11-correcciones-staging-ronda1.md`). EST-02 (primer acceso), EST-05, EST-06 y EST-08 (supervisión) dependen de los pasos 1 y 6, en espera del diseño de superficies con varios roles.
+**Barrido `role:` → permisos en todas las rutas operativas** — 2026-11-24
+Transversal (encargo siguiente a la ronda 1)
+- Con R4 pasaron a permisos las rutas de las pantallas del menú (`supervision.*`, `agenda.supervisor.*`, agenda/casos/mensajes/recursos de Intervención, `ciudadania.*`, bandeja de tramitación). Quedan con `role:`: Historia Social, plan, valoración, escala, ficha de valoración y `intervencion.buscar.index` (`Modules/Intervencion/routes/web.php`), informes (`Modules/Documentos/routes/web.php`) y la solicitud de prestación (`role:intervencion|supervision|tramitacion`).
+- Añadir un test de arquitectura que falle si una ruta operativa usa el middleware `role:`.
+- Quedan comprobaciones de rol dentro del código que deberían pasar a permiso o policy: `CiudadanoPolicy::create()` niega el alta a cualquiera con `supervision` aunque tenga `intervencion` (`dir.ciam` y `dir.css` no ven «Alta de ciudadano/a»), `FichaCiudadanoPage::puedeVerHistoria()` (`hasRole('intervencion')`), `User::layoutOperativo()` (solo el título de la barra) y `User::accedeAlBackoffice()`.
 
 ---
 
-**Correcciones de la ronda 1 de staging: pendiente** — 2026-11-23
+**`consulta_profesional` y encargo profesional** — 2026-11-24
+Módulos: Intervención (derivaciones), Usuarios y permisos, Agenda, Documentos
+- Según `docs/rol-consulta-profesional.md` (diseño del 23 nov, sin implementar). Al implantarlo, «Mis derivaciones» entra en la prioridad de R4.5 justo después de Agenda y como superficie elegible (`App\Support\Superficie\Superficie`), con su permiso de superficie (`derivacion.ver_asignadas`) y su entrada en `RegistroMenu`. Hasta entonces, `abogada.ciam` y `edu.css` ven la página «Tu usuario no tiene un perfil de trabajo configurado».
+- Revisar los permisos que el rol tiene hoy en el seeder (`historia.leer`, `apunte.leer`, `plan.leer`, `documento.ver_carpeta`), que no encajan con el diseño nuevo.
+
+---
+
+**Pruebas en staging, ronda 2** — 2026-11-23
+Transversal
+- Repetir INF-01, INF-08, EST-02 a EST-09 y VEN-01 a VEN-05 tras las correcciones de la ronda 1 (`docs/instrucciones-cli/2026-11-correcciones-staging-ronda1.md`). Desde el 24 nov (pasos 1 y 6, R4) se pueden repetir todos. Comprobar además la preferencia de página de inicio con `dir.ciam` y `dir.css`, y que `coo.ciam` ve la ficha en lectura sin documentos ni enlace a la Historia Social.
+
+---
+
+**Correcciones de la ronda 1 de staging: pendiente** — 2026-11-23 (actualizada el 2026-11-24)
 Módulos: Usuarios y permisos, Supervisión, transversal
-- **Pasos 1 y 6 en espera** del diseño de superficies que el desarrollador está definiendo: destino de los roles sin pantalla propia (`consulta_profesional`) y superficie combinada (menú y página de inicio) para varios roles. Hoy cada página fija su layout y su menú, y `destinoInicial()` elige un solo rol; el onboarding repite la prioridad con otro orden.
-- **`supervision` tiene `historia.leer`, `apunte.leer` y `apunte.leer_ajeno`** en el seeder (R2 dice que la supervisión sola no abre la Historia Social): hasta el paso 6, el buscador le ofrece «Ir a Historia Social» y la ruta le da 403. Informar antes de quitarlos (paso 6.3).
+- ~~**Pasos 1 y 6 en espera** del diseño de superficies~~ Hechos el 2026-11-24 con R4 (ver CHANGELOG).
+- ~~**`supervision` tiene `historia.leer`, `apunte.leer` y `apunte.leer_ajeno`**~~ Retirados el 2026-11-24 junto con `documento.ver_carpeta` (decisión del desarrollador, migración `2026_11_24_100002`).
+- **Supervisión sola sigue viendo prestaciones y atenciones en la ficha** (`solicitud.ver`, `atencion.leer`): R2 no los incluye en su lista de bloques, pero tampoco los excluye. Decidir si se ocultan.
 - **Ficha 14 huérfana en staging:** valoración de `tec.ciam` del 19 nov guardada sin apunte (EST-04). No se ha borrado; el defecto que la produjo (sin transacción) está corregido.
 - **`adm1.css` tiene `consulta_basica` en Spatie pero no en `usuario_rol`**: datos de staging inconsistentes; no se han tocado.
 - **`APP_DEBUG=true` en staging:** un 500 sigue enseñando la traza de Laravel en vez de la pantalla propia. Cambiarlo, a decisión del desarrollador.

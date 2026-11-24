@@ -21,7 +21,6 @@ use Modules\Mensajes\Livewire\NuevoAvisoSupervisor;
 use Modules\Mensajes\Models\Alerta;
 use Modules\Mensajes\Models\AlertaDestinatario;
 use Modules\Mensajes\Services\AlertaService;
-use Modules\Supervision\Http\Livewire\Sidebar as SidebarSupervision;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -357,7 +356,7 @@ class ControlAlertasSupervisorTest extends TestCase
         $pagina->assertSee('0 de 2');
 
         Livewire::actingAs($this->supervisor)
-            ->test(SidebarSupervision::class)
+            ->test('menu-operativo')
             ->assertSee(route('supervision.control-alertas'));
         $this->assertSame(1, AlertaDestinatario::escaladasA($this->supervisor)->count());
     }

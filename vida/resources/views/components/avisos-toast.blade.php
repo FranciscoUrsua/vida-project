@@ -3,9 +3,14 @@
     ({ message, type }) que lanzan los componentes con `$this->dispatch('toast', …)`, incluidas
     las reglas de negocio rechazadas en una acción (App\Support\Errores\AvisoExcepcionDominio).
     Tipos: `danger`, `success`; cualquier otro se pinta como informativo.
+    También pinta el aviso que deja en la sesión una acción con redirección (`with('toast', …)`),
+    como guardar la página de inicio.
 --}}
 <div class="toast-container position-fixed bottom-0 end-0 p-3"
      x-data="{ avisos: [] }"
+     @if(session('toast'))
+     x-init="avisos.push({ id: 0, mensaje: @js(session('toast')), tipo: 'success' }); setTimeout(() => avisos = avisos.filter(a => a.id !== 0), 8000)"
+     @endif
      x-on:toast.window="
         const aviso = { id: Date.now() + Math.random(), mensaje: $event.detail.message, tipo: $event.detail.type ?? 'info' };
         avisos.push(aviso);

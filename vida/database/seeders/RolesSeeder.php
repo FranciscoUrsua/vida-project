@@ -74,10 +74,12 @@ class RolesSeeder extends Seeder
 
         // -----------------------------------------------------------------
         // ROL 2: Supervisión
-        // Lectura de su ámbito, auditoría, aprobación de accesos protegidos.
-        // Solo lectura sobre datos de ciudadanos — nunca escritura.
+        // Gestión del centro, auditoría, aprobación de accesos protegidos.
+        // Ficha de la persona en lectura, sin Historia Social, planes ni documentos (R2).
         // -----------------------------------------------------------------
         'supervision' => [
+            'supervision.panel',
+            'ciudadano.buscar',
             'solicitud.crear',
             'solicitud.ver',
             'solicitud.tramitar',
@@ -86,11 +88,9 @@ class RolesSeeder extends Seeder
             'ciudadano.ver_ficha',
             'ciudadano.ver_datos_contacto',
             'ciudadano.leer',
-            'historia.leer',
-            'apunte.leer',
-            'apunte.leer_ajeno',
-            // Sin `plan.leer` (fase 3, decisión del 14 nov 2026): supervision no lee ni edita
-            // planes; quien los necesite tiene además el rol `intervencion`.
+            // Sin `plan.leer` (fase 3, decisión del 14 nov 2026) ni `historia.leer`, `apunte.leer`,
+            // `apunte.leer_ajeno` y `documento.ver_carpeta` (R2, 23 nov 2026): la supervisión sola
+            // ve la ficha en lectura; quien necesite la Historia Social tiene además `intervencion`.
             'trazabilidad.consultar',
             'colectivo_protegido.aprobar_acceso',
             'atencion.leer',
@@ -101,7 +101,6 @@ class RolesSeeder extends Seeder
             'citas.supervisar',
             'historia.ver_estado',
             'cita.ver_historial',
-            'documento.ver_carpeta',
         ],
 
         // -----------------------------------------------------------------
@@ -119,6 +118,8 @@ class RolesSeeder extends Seeder
         // Gestión completa de Historias en su UO; consulta libre fuera.
         // -----------------------------------------------------------------
         'intervencion' => [
+            'agenda.ver_propia',
+            'ciudadano.buscar',
             'solicitud.crear',
             'solicitud.ver',
             'prestacion_persona.gestionar',
@@ -161,6 +162,8 @@ class RolesSeeder extends Seeder
         // Sin acceso a contenido clínico/social ni apuntes profesionales.
         // -----------------------------------------------------------------
         'tramitacion' => [
+            'tramitacion.bandeja',
+            'ciudadano.buscar',
             'solicitud.tramitar',
             'solicitud.registrar_manual',
             'prestacion_persona.gestionar',
@@ -203,6 +206,7 @@ class RolesSeeder extends Seeder
         // Ficha del ciudadano y citas. Sin acceso a Historia ni apuntes.
         // -----------------------------------------------------------------
         'consulta_basica' => [
+            'ciudadano.buscar',
             'ciudadano.ver_ficha',
             'ciudadano.ver_datos_contacto',
             'ciudadano.leer',

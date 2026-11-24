@@ -22,10 +22,8 @@ use Modules\Mensajes\Http\Livewire\BandejaAlertasYMensajes;
 |
 */
 
-Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion'])->prefix('intervencion')->name('intervencion.')->group(function () {
-    Route::get('/plan/crear', PlanPage::class)->name('plan.crear');
-    Route::get('/plan/{plan}', PlanPage::class)->name('plan.show');
-
+// Pantallas del menú «Mi trabajo»: por el permiso de superficie, no por rol (R4.4)
+Route::middleware(['web', 'auth', 'tiene.rol', 'permission:agenda.ver_propia'])->prefix('intervencion')->name('intervencion.')->group(function () {
     Route::get('/', fn () => redirect()->route('intervencion.agenda.index'));
     Route::get('/agenda', AgendaPage::class)->name('agenda.index');
     Route::get('/recursos', RecursosPage::class)->name('recursos.index');
@@ -33,6 +31,12 @@ Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion'])->prefix('in
     Route::get('/mensajes/{pestana?}', BandejaAlertasYMensajes::class)
         ->whereIn('pestana', ['alertas', 'avisos', 'mensajes'])
         ->name('mensajes.index');
+});
+
+// Historia Social, plan y actuaciones: siguen con `role:` hasta el barrido de rutas (BACKLOG)
+Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion'])->prefix('intervencion')->name('intervencion.')->group(function () {
+    Route::get('/plan/crear', PlanPage::class)->name('plan.crear');
+    Route::get('/plan/{plan}', PlanPage::class)->name('plan.show');
     Route::get('/buscar', BuscarCiudadanoPage::class)->name('buscar.index');
     // Sin can:view: CiudadanoPage autoriza en AccesoExpediente para auditar también el 403
     Route::get('/ciudadano/{historia}', CiudadanoPage::class)

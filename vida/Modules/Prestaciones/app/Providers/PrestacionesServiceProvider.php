@@ -14,7 +14,6 @@ use Modules\Prestaciones\Http\Livewire\BandejaTramitacionPage;
 use Modules\Prestaciones\Http\Livewire\PrestacionesPersona;
 use Modules\Prestaciones\Http\Livewire\SolicitarPrestacion;
 use Modules\Prestaciones\Http\Livewire\SolicitudPrestacionPage;
-use Modules\Prestaciones\Http\Livewire\TramitacionSidebar;
 use Modules\Prestaciones\Models\PrestacionPersona;
 use Modules\Prestaciones\Models\SolicitudPrestacion;
 use Modules\Prestaciones\Policies\PrestacionPersonaPolicy;
@@ -82,7 +81,6 @@ class PrestacionesServiceProvider extends ServiceProvider
         Livewire::component('prestaciones.bandeja-tramitacion', BandejaTramitacionPage::class);
         Livewire::component('prestaciones.solicitar-prestacion', SolicitarPrestacion::class);
         Livewire::component('prestaciones.prestaciones-persona', PrestacionesPersona::class);
-        Livewire::component('prestaciones.tramitacion-sidebar', TramitacionSidebar::class);
 
         if ($this->app->runningInConsole()) {
             $this->commands([ConsultarExpedientes::class]);

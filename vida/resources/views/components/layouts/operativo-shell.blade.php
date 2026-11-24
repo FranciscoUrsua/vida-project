@@ -21,7 +21,8 @@
     @endif
 
     <header class="op-topbar">
-        <div class="topbar__logo">
+        {{-- El logo lleva a la página de inicio del usuario (DestinoInicial, R4.7) --}}
+        <a href="{{ route('inicio') }}" class="topbar__logo text-decoration-none text-reset" aria-label="Ir al inicio">
             @php
                 $logoUrl = \Modules\Organizacion\Models\Configuracion::logoUrl();
                 $nombreApp = \Modules\Organizacion\Models\Configuracion::nombreAplicacion();
@@ -36,7 +37,7 @@
                 <x-heroicon-o-heart class="icon-20" aria-hidden="true"/>
                 <span class="topbar__logo-text">VIDA360</span>
             @endif
-        </div>
+        </a>
 
         <div class="flex-grow-1 d-flex align-items-center justify-content-center px-3 overflow-hidden" aria-label="Sección actual">
             <h1 class="d-inline-flex align-items-center gap-2 mw-100 overflow-hidden text-nowrap h5 mb-0 fw-semibold text-body">
@@ -78,6 +79,37 @@
                 </div>
 
                 <hr class="dropdown-divider m-0">
+
+                @php
+                    $usuarioMenu = Auth::user();
+                    $opcionesInicio = \App\Support\Superficie\DestinoInicial::opcionesPreferencia($usuarioMenu);
+                @endphp
+
+                {{-- Preferencia de página de inicio (R4.6): solo con más de una superficie --}}
+                @if($opcionesInicio !== [])
+                    <div class="px-3 pt-2 pb-1 small fw-semibold text-body-secondary" id="menu-pagina-inicio">Página de inicio</div>
+                    <form method="POST" action="{{ route('preferencias.pagina-inicio') }}" aria-labelledby="menu-pagina-inicio">
+                        @csrf
+                        @foreach([\App\Http\Controllers\PaginaInicioController::AUTOMATICA => 'Automática'] + collect($opcionesInicio)->mapWithKeys(fn ($s) => [$s->value => $s->etiqueta()])->all() as $valor => $etiqueta)
+                            @php $elegida = ($usuarioMenu->pagina_inicio ?? \App\Http\Controllers\PaginaInicioController::AUTOMATICA) === $valor; @endphp
+                            <button type="submit" name="pagina_inicio" value="{{ $valor }}"
+                                    @class(['dropdown-item d-flex align-items-center gap-2 py-1 small', 'active' => $elegida])
+                                    @if($elegida) aria-current="true" @endif>
+                                {{ $etiqueta }}
+                            </button>
+                        @endforeach
+                    </form>
+                    <hr class="dropdown-divider m-0">
+                @endif
+
+                {{-- La administración va aparte del menú operativo (R4.3) --}}
+                @if($usuarioMenu->canAccessPanel(filament()->getPanel('admin')))
+                    <a href="{{ url('/admin') }}" class="dropdown-item d-flex align-items-center gap-2 py-2">
+                        <x-heroicon-o-wrench-screwdriver class="icon-16" aria-hidden="true"/>
+                        Administración
+                    </a>
+                    <hr class="dropdown-divider m-0">
+                @endif
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

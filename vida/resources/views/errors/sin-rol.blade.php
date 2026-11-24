@@ -1,4 +1,4 @@
-@extends('layouts.public', ['title' => 'Sin perfil de acceso — ' . config('app.name'), 'bodyClass' => 'd-flex align-items-center min-vh-100 py-4'])
+@extends('layouts.public', ['title' => 'Sin perfil de trabajo — ' . config('app.name'), 'bodyClass' => 'd-flex align-items-center min-vh-100 py-4'])
 
 @section('content')
 @php
@@ -19,10 +19,10 @@
 
                     <header class="text-center mb-4">
                         <div class="small fw-bold text-uppercase mb-2">VIDA 360</div>
-                        <h1 class="h4 fw-bold mb-2">Sin perfil de acceso</h1>
+                        <h1 class="h4 fw-bold mb-2">Sin perfil de trabajo</h1>
+                        {{-- R4.5: también para quien tiene roles sin superficie de trabajo (p. ej. consulta_profesional) --}}
                         <p class="text-body-secondary mb-0">
-                            Tu cuenta no tiene un perfil de acceso asignado. Para acceder a la aplicación,
-                            contacta con tu responsable de unidad y solicita la asignación de perfil.
+                            Tu usuario no tiene un perfil de trabajo configurado. Contacta con la administración de tu centro.
                         </p>
                     </header>
 

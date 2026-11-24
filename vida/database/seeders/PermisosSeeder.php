@@ -127,6 +127,13 @@ class PermisosSeeder extends Seeder
         ['documento.ver_carpeta', 'Ver la carpeta completa de documentos de las personas que puede consultar'],
         ['documento.subir', 'Subir documentos a la carpeta de la persona o a una solicitud'],
         ['documento.gestionar_propios', 'Ver, sustituir, recatalogar y retirar los documentos propios durante el día de la subida'],
+
+        // Superficies operativas y su menú (R4.4, ronda 1 de staging): deciden rutas, menú y
+        // página de inicio sin mirar el rol
+        ['supervision.panel', 'Entrar en la superficie de Supervisión (inicio, equipo, cuadrante, reparto, accesos…)'],
+        ['agenda.ver_propia', 'Entrar en la superficie de trabajo propia: agenda, casos, bandeja y recursos'],
+        ['tramitacion.bandeja', 'Entrar en la bandeja de tramitación de solicitudes'],
+        ['ciudadano.buscar', 'Usar el buscador de personas'],
     ];
 
     /**

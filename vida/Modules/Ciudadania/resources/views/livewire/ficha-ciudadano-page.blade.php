@@ -422,7 +422,9 @@
             @endif
 
             {{-- ——— Documentos (módulo Documentos, custodia v2) ——— --}}
-            <livewire:documentos.documentos-ciudadano :ciudadano-id="$ciudadanoId" :key="'documentos-'.$ciudadanoId" />
+            @if($this->puedeVerDocumentos)
+                <livewire:documentos.documentos-ciudadano :ciudadano-id="$ciudadanoId" :key="'documentos-'.$ciudadanoId" />
+            @endif
 
             {{-- ——— Historial de citas, de cualquier centro (docs/modulo-citas.md §6 bis) ——— --}}
             @if($this->puedeVerHistorialCitas)

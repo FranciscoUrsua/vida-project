@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Support\Superficie\DestinoInicial;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +27,7 @@ class OnboardingController extends Controller
     }
 
     /**
-     * Marca el onboarding como completado y redirige al destino según rol.
+     * Marca el onboarding como completado y lleva al usuario a su página de inicio (DestinoInicial).
      *
      * @param Request $request Petición entrante.
      */
@@ -35,26 +36,10 @@ class OnboardingController extends Controller
         $usuario = Auth::user();
         $usuario->update(['primer_acceso' => false]);
 
-        if ($usuario->hasAnyRole(['adm_sistema', 'adm_usuarios'])) {
-            return redirect('/admin');
-        }
+        // El primer acceso termina siempre en la página de inicio (paso 1.6), no en un
+        // destino solicitado antes del login
+        $request->session()->forget('url.intended');
 
-        if ($usuario->hasRole('supervision')) {
-            return redirect()->route('supervision.inicio');
-        }
-
-        if ($usuario->hasRole('intervencion')) {
-            return redirect()->route('intervencion.agenda.index');
-        }
-
-        if ($usuario->hasRole('tramitacion')) {
-            return redirect()->route('prestaciones.bandeja');
-        }
-
-        if ($usuario->roles()->count() === 0) {
-            return redirect()->route('sin-rol');
-        }
-
-        return redirect()->route('inicio');
+        return redirect(DestinoInicial::para($usuario));
     }
 }

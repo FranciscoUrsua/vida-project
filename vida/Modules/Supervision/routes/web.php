@@ -20,12 +20,13 @@ use Modules\Supervision\Http\Livewire\RepartoCasosPage;
 | Rutas web del módulo Supervisión — interfaz operativo
 |--------------------------------------------------------------------------
 |
-| Rutas protegidas por auth + role:supervision.
+| Rutas protegidas por auth + permiso `supervision.panel` (R4.4).
 | El backoffice Filament (/admin) no usa estas rutas.
 |
 */
 
-Route::middleware(['web', 'auth', 'role:supervision'])->prefix('supervision')->name('supervision.')->group(function () {
+// Superficie de Supervisión por permiso, no por rol (R4.4)
+Route::middleware(['web', 'auth', 'permission:supervision.panel'])->prefix('supervision')->name('supervision.')->group(function () {
     Route::redirect('/', '/supervision/inicio');
     Route::get('/inicio', InicioPage::class)->name('inicio');
     Route::get('/bandeja/{pestana?}', BandejaAlertasYMensajes::class)

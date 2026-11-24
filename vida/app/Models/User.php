@@ -46,6 +46,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $password
  * @property string|null $remember_token
  * @property bool $primer_acceso
+ * @property string|null $pagina_inicio Superficie elegida como página de inicio (\App\Support\Superficie\Superficie); null = automática (R4.6)
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon|null $desactivado_en Desactivación (RN-20): sin acceso; null si está activo
@@ -126,60 +127,9 @@ class User extends Authenticatable implements FilamentUser
     // -------------------------------------------------------------------------
 
     /**
-     * Ruta a la que se envía al usuario tras el login o al visitar «/», según sus roles.
-     *
-     * Orden de prioridad:
-     * - adm_sistema → /admin (backoffice Filament).
-     * - supervision → supervisión operativa (Livewire). Va antes que adm_usuarios para que la
-     *   dirección de un centro (supervision + adm_usuarios) entre en su superficie de trabajo
-     *   y no en el backoffice, al que sigue pudiendo acceder (canAccessPanel).
-     * - adm_usuarios → /admin.
-     * - intervencion → agenda operativa.
-     * - tramitacion → su bandeja (fase 3 bis).
-     * - sin roles → pantalla «sin rol».
-     * - quien da citas sin otra superficie (consulta básica) → búsqueda de ciudadanos (fase 4, paso 6).
-     *
-     * @return string|null URL de destino, o null si corresponde la pantalla de inicio genérica
-     */
-    public function destinoInicial(): ?string
-    {
-        if ($this->hasRole('adm_sistema')) {
-            return '/admin';
-        }
-
-        if ($this->hasRole('supervision')) {
-            return route('supervision.inicio');
-        }
-
-        if ($this->hasRole('adm_usuarios')) {
-            return '/admin';
-        }
-
-        if ($this->hasRole('intervencion')) {
-            return route('intervencion.agenda.index');
-        }
-
-        // Fase 3 bis: tramitación entra por su bandeja
-        if ($this->hasRole('tramitacion')) {
-            return route('prestaciones.bandeja');
-        }
-
-        if ($this->roles()->count() === 0) {
-            return route('sin-rol');
-        }
-
-        // Quien da citas sin otra superficie (consulta básica): su trabajo empieza buscando a
-        // la persona, con la bandeja de citación en el menú
-        if ($this->can('citas.gestionar')) {
-            return route('ciudadania.buscar');
-        }
-
-        return null;
-    }
-
-    /**
      * Superficie operativa (layout) en la que trabaja el usuario en las pantallas compartidas
-     * entre roles, como la citación: la misma prioridad que destinoInicial().
+     * entre roles, como la citación. Solo cambia el título de la barra superior: el menú
+     * es el mismo en todas las pantallas operativas (R4.2).
      *
      * @return string Nombre del layout: `layouts.supervision`, `layouts.operativo` o `layouts.tramitacion`.
      */

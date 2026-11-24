@@ -22,7 +22,6 @@ use Modules\Supervision\Http\Livewire\AuditoriaPage;
 use Modules\Supervision\Http\Livewire\ConfiguracionCentroPage;
 use Modules\Supervision\Http\Livewire\EquipoPage;
 use Modules\Supervision\Http\Livewire\InicioPage;
-use Modules\Supervision\Http\Livewire\Sidebar;
 use Modules\Supervision\Services\IndicadoresCentroService;
 use Modules\Supervision\Services\SupervisionSidebarDataService;
 use Modules\Usuarios\Models\Cargo;
@@ -148,13 +147,18 @@ class SupervisionTest extends TestCase
     }
 
     /**
-     * Crea una historia social abierta para el ciudadano dado en la UO indicada.
+     * Crea una historia social abierta para un ciudadano nuevo en la UO indicada.
+     *
+     * @param UnidadOrganizativa $uo UO de la historia.
+     * @param string $apellido Primer apellido del ciudadano («Ciudadano {apellido}»).
+     *
+     * @return HistoriaSocial
      */
-    private function crearHistoriaSocial(UnidadOrganizativa $uo): HistoriaSocial
+    private function crearHistoriaSocial(UnidadOrganizativa $uo, string $apellido = 'Test'): HistoriaSocial
     {
         $ciudadano = Ciudadano::create([
             'nombre' => 'Ciudadano',
-            'apellido1' => 'Test',
+            'apellido1' => $apellido,
             'sexo' => 'M',
             'fecha_nacimiento' => '1980-01-01',
         ]);
@@ -255,7 +259,10 @@ class SupervisionTest extends TestCase
     // =========================================================================
 
     /**
-     * TF-SUP-B01 — Sidebar sin plazas configuradas no muestra el ítem Plazas.
+     * TF-SUP-B01 — Menú operativo sin plazas configuradas: no muestra el ítem Plazas.
+     *
+     * Desde R4 (ronda 1 de staging) el menú es el único `menu-operativo`, que pinta la
+     * sección «Supervisión» a quien tiene `supervision.panel`.
      *
      * «Aprobaciones» no está en el menú desde el 2026-06-29 (3eb4458): se llega desde la
      * zona de aprobaciones de Inicio y desde las alertas. Decisión confirmada el 2026-11-11.
@@ -264,7 +271,7 @@ class SupervisionTest extends TestCase
     public function sidebar_sin_plazas_no_muestra_item_plazas(): void
     {
         // Sin configuración tiene_plazas → defecto false
-        $this->montarComponente(Sidebar::class)
+        $this->montarComponente('menu-operativo')
             ->assertDontSee('Plazas')
             ->assertSee('Inicio')
             ->assertSee('Cuadrante del centro')
@@ -276,7 +283,7 @@ class SupervisionTest extends TestCase
     }
 
     /**
-     * TF-SUP-B02 — Sidebar con tiene_plazas=true muestra el ítem Plazas.
+     * TF-SUP-B02 — Menú operativo con tiene_plazas=true: muestra el ítem Plazas.
      */
     #[Test]
     public function sidebar_con_plazas_muestra_item_plazas(): void
@@ -286,7 +293,7 @@ class SupervisionTest extends TestCase
         // Limpiar singleton para que el Computed se re-evalúe
         app()->forgetInstance(ConfiguracionService::class);
 
-        $this->montarComponente(Sidebar::class)
+        $this->montarComponente('menu-operativo')
             ->assertSee('Plazas');
     }
 
@@ -903,6 +910,161 @@ class SupervisionTest extends TestCase
 
         $this->montarComponente(AuditoriaPage::class)
             ->assertSee('Sin autorización');
+    }
+
+    /**
+     * TF-SUP-F07 — La paginación de la auditoría usa la plantilla Bootstrap.
+     *
+     * Con la plantilla Tailwind por defecto de Livewire los iconos de anterior y
+     * siguiente se pintaban sin estilos (a todo el ancho) en la superficie operativa.
+     */
+    #[Test]
+    public function auditoria_paginacion_usa_plantilla_bootstrap(): void
+    {
+        $historia = $this->crearHistoriaSocial($this->uoHija, 'Paginada');
+        $profesional = $this->crearUsuarioEnUo($this->uoHija, 'pagina@vida360.test');
+
+        for ($i = 0; $i < 51; $i++) {
+            $this->registrarAccesoDe($profesional, $historia);
+        }
+
+        $this->montarComponente(AuditoriaPage::class)
+            ->assertSeeHtml('class="pagination"')
+            ->assertSeeHtml('page-link')
+            ->assertDontSeeHtml('w-5 h-5');
+    }
+
+    /**
+     * TF-SUP-F08 — El filtro por profesional muestra solo sus accesos y el desplegable
+     * ofrece solo profesionales que han accedido a ciudadanos del ámbito.
+     */
+    #[Test]
+    public function auditoria_filtra_por_profesional(): void
+    {
+        $ana = $this->crearUsuarioEnUo($this->uoHija, 'ana@vida360.test');
+        $berta = $this->crearUsuarioEnUo($this->uoHija, 'berta@vida360.test');
+        $ajena = $this->crearUsuarioEnUo($this->uoParalela, 'ajena@vida360.test');
+
+        $this->registrarAccesoDe($ana, $this->crearHistoriaSocial($this->uoHija, 'Alfa'));
+        $this->registrarAccesoDe($berta, $this->crearHistoriaSocial($this->uoHija, 'Beta'));
+        // Acceso a un ciudadano fuera del ámbito del supervisor: no debe aparecer en ningún sitio.
+        $this->registrarAccesoDe($ajena, $this->crearHistoriaSocial($this->uoParalela, 'Gamma'));
+
+        $componente = $this->montarComponente(AuditoriaPage::class);
+
+        $this->assertSame(
+            [$ana->id, $berta->id],
+            array_keys($componente->instance()->profesionales)
+        );
+
+        $componente->set('profesionalId', (string) $ana->id)
+            ->assertSee('Ciudadano Alfa')
+            ->assertDontSee('Ciudadano Beta')
+            ->assertDontSee('Ciudadano Gamma');
+    }
+
+    /**
+     * TF-SUP-F09 — El filtro por ciudadano busca en el nombre descifrado sin
+     * distinguir mayúsculas ni tildes.
+     */
+    #[Test]
+    public function auditoria_filtra_por_ciudadano_sin_tildes(): void
+    {
+        $profesional = $this->crearUsuarioEnUo($this->uoHija, 'filtro@vida360.test');
+        $this->registrarAccesoDe($profesional, $this->crearHistoriaSocial($this->uoHija, 'Pérez'));
+        $this->registrarAccesoDe($profesional, $this->crearHistoriaSocial($this->uoHija, 'Gómez'));
+
+        $componente = $this->montarComponente(AuditoriaPage::class)->set('ciudadano', 'PEREZ');
+
+        // Se comprueba sobre los datos: la respuesta de Livewire escapa las tildes en JSON.
+        $this->assertSame(
+            ['Ciudadano Pérez'],
+            $componente->instance()->accesos->map(fn ($a) => $a->ciudadano->nombre_completo)->all()
+        );
+
+        $componente->set('ciudadano', 'nadie')
+            ->assertSee('No hay accesos que coincidan');
+    }
+
+    /**
+     * TF-SUP-F10 — Ordenar por ciudadano usa el nombre descifrado; un segundo clic invierte.
+     */
+    #[Test]
+    public function auditoria_ordena_por_ciudadano(): void
+    {
+        $profesional = $this->crearUsuarioEnUo($this->uoHija, 'orden@vida360.test');
+        // Se crean en orden distinto al alfabético para que el orden por id no coincida.
+        foreach (['Zamora', 'Álvarez', 'Martín'] as $apellido) {
+            $this->registrarAccesoDe($profesional, $this->crearHistoriaSocial($this->uoHija, $apellido));
+        }
+
+        // Se comprueba sobre los datos: la respuesta de Livewire escapa las tildes en JSON.
+        $orden = fn ($componente) => $componente->instance()->accesos
+            ->map(fn ($acceso) => $acceso->ciudadano->nombre_completo)
+            ->all();
+
+        $componente = $this->montarComponente(AuditoriaPage::class)->call('ordenar', 'ciudadano');
+        $this->assertSame(['Ciudadano Álvarez', 'Ciudadano Martín', 'Ciudadano Zamora'], $orden($componente));
+
+        $componente->call('ordenar', 'ciudadano');
+        $this->assertSame(['Ciudadano Zamora', 'Ciudadano Martín', 'Ciudadano Álvarez'], $orden($componente));
+    }
+
+    /**
+     * TF-SUP-F11 — Ordenar por profesional; por defecto, la fecha más reciente primero.
+     */
+    #[Test]
+    public function auditoria_ordena_por_profesional_y_por_fecha(): void
+    {
+        $zoe = $this->crearUsuarioEnUo($this->uoHija, 'zoe@vida360.test');
+        $alba = $this->crearUsuarioEnUo($this->uoHija, 'alba@vida360.test');
+
+        $this->travelTo(now()->subDays(2));
+        $this->registrarAccesoDe($alba, $this->crearHistoriaSocial($this->uoHija, 'Antiguo'));
+        $this->travelBack();
+        $this->registrarAccesoDe($zoe, $this->crearHistoriaSocial($this->uoHija, 'Reciente'));
+
+        $componente = $this->montarComponente(AuditoriaPage::class)
+            ->assertSeeInOrder(['Ciudadano Reciente', 'Ciudadano Antiguo']);
+
+        $componente->call('ordenar', 'fecha')
+            ->assertSeeInOrder(['Ciudadano Antiguo', 'Ciudadano Reciente']);
+
+        $componente->call('ordenar', 'profesional')
+            ->assertSeeInOrder(['alba@vida360.test', 'zoe@vida360.test'])
+            ->call('ordenar', 'profesional')
+            ->assertSeeInOrder(['zoe@vida360.test', 'alba@vida360.test']);
+    }
+
+    /**
+     * TF-SUP-F12 — Una columna fuera de la lista blanca no cambia el orden (no llega a SQL).
+     */
+    #[Test]
+    public function auditoria_ignora_columna_de_orden_desconocida(): void
+    {
+        $this->montarComponente(AuditoriaPage::class)
+            ->call('ordenar', 'id; DROP TABLE audits')
+            ->assertSet('ordenarPor', 'fecha')
+            ->assertSet('direccion', 'desc')
+            ->assertOk();
+    }
+
+    /**
+     * Registra un acceso de lectura del usuario a la historia indicada.
+     *
+     * @param User $user Profesional que accede.
+     * @param HistoriaSocial $historia Historia del ciudadano accedido.
+     *
+     * @return void
+     */
+    private function registrarAccesoDe(User $user, HistoriaSocial $historia): void
+    {
+        app(AuditService::class)->registrarAcceso(
+            user: $user,
+            modelo: $historia->ciudadano,
+            accion: AccionAuditEnum::Ver,
+            ciudadanoId: $historia->ciudadano_id,
+        );
     }
 
     // =========================================================================

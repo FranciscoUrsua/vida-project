@@ -20,7 +20,7 @@
     :title="config('app.name') . ' — Intervención'"
     area="Intervención"
     :section="$seccion"
-    sidebar="intervencion.sidebar"
+    sidebar="menu-operativo"
 >
     {{ $slot }}
 </x-layouts.operativo-shell>

@@ -19,6 +19,7 @@ Route::middleware(['web', 'auth', 'tiene.rol'])->group(function () {
         ->name('prestaciones.solicitud');
 
     Route::get('/tramitacion', BandejaTramitacionPage::class)
-        ->middleware('role:tramitacion|supervision')
+        // Superficie de tramitación (R4.4); la supervisión sigue entrando, como hasta ahora
+        ->middleware('permission:tramitacion.bandeja|supervision.panel')
         ->name('prestaciones.bandeja');
 });

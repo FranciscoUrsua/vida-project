@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Support\Superficie\DestinoInicial;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,21 +50,9 @@ class LoginController extends Controller
             return redirect()->route('onboarding');
         }
 
-        if (Auth::user()->profesional_id !== null && Auth::user()->roles()->count() === 0) {
-            return redirect()->route('sin-rol');
-        }
-
-        return redirect($this->destino());
-    }
-
-    /**
-     * Determina la ruta de destino tras el login según los roles del usuario.
-     *
-     * La prioridad entre roles está centralizada en User::destinoInicial().
-     */
-    private function destino(): string
-    {
-        return Auth::user()->destinoInicial() ?? route('inicio');
+        // Un enlace directo (alerta, correo) manda sobre la página de inicio (R4.8). Sin él,
+        // el único resolutor, que también lleva al usuario sin roles a su página informativa.
+        return redirect()->intended(DestinoInicial::para(Auth::user()));
     }
 
     /**

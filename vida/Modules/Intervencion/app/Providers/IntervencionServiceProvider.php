@@ -20,7 +20,6 @@ use Modules\Intervencion\Http\Livewire\PrescribirRecursoModal;
 use Modules\Intervencion\Http\Livewire\RecursosPage;
 use Modules\Intervencion\Http\Livewire\RegistrarEscalaPage;
 use Modules\Intervencion\Http\Livewire\RegistrarValoracionPage;
-use Modules\Intervencion\Http\Livewire\Sidebar;
 use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Policies\ApuntePolicy;
@@ -88,7 +87,6 @@ class IntervencionServiceProvider extends ServiceProvider
         Gate::policy(Apunte::class, ApuntePolicy::class);
         Gate::policy(PlanDeIntervencion::class, PlanDeIntervencionPolicy::class);
 
-        Livewire::component('intervencion.sidebar', Sidebar::class);
         Livewire::component('intervencion.agenda-page', AgendaPage::class);
         Livewire::component('intervencion.mis-casos-page', MisCasosPage::class);
         Livewire::component('intervencion.buscar-ciudadano-page', BuscarCiudadanoPage::class);

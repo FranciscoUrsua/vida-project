@@ -1,24 +1,29 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-23 (correcciones de la ronda 1 de staging: pasos 0, 2, 3, 4, 5, 7 y 8)
+**Última actualización:** 2026-11-24 (correcciones de la ronda 1 de staging: pasos 1 y 6, superficie operativa única)
 
 ---
 
-## En curso: `docs/instrucciones-cli/2026-11-correcciones-staging-ronda1.md`
+**Última tarea (24 nov):** Supervisión → Accesos: paginación con la plantilla Bootstrap (`config/livewire.php`, causa de los iconos enormes; vale para todas las paginaciones Livewire), ordenación por cabecera y filtros por profesional y ciudadano. TF-SUP-F07 a F12 en verde. Detalle en `CHANGELOG-112026.md`. **Sin commit todavía**, junto con el trabajo de R4 de abajo, que tampoco estaba commiteado.
 
-Decisiones confirmadas por el Delegado Digital el 23 nov 2026:
+---
 
-- **R1 — RN-15 en toda actuación.** Implementada: `CentroDeUsuario::puedeActuar()` / `exigirActuacion()` / `exigirActuacionAlAbrir()`; al abrir y al guardar; modo lectura sin centro en Historia Social y ficha; plan en lectura para quien no puede editarlo.
-- **R2 — Supervisión sola: ficha en lectura.** **Pendiente (paso 6).**
-- **R3 — Desactivar desde administración.** Implementada: enlaces solo a quien supervisa el centro; si no, la dirección del centro y «Avisar a la dirección del centro».
+## En curso: cierre de `docs/instrucciones-cli/2026-11-correcciones-staging-ronda1.md`
 
-**Hecho (23 nov):** pasos 0, 2 (buscador por policies, `EnlacePersona`), 3 (pantallas de error propias con identificador, avisos de `DomainException` en acciones, toasts), 4 (R1), 5 (era de datos: `tec.ciam` en la UO 16), 7 (R3) y 8 (no reproducido; fijado con tests). TF-STG-05 a 18 y 22 a 24 en verde, negativos comprobados. Detalle en `CHANGELOG-112026.md`.
+Decisiones confirmadas por el Delegado Digital el 23 nov 2026, todas implementadas:
 
-**Pendiente:** pasos 1 (primer acceso e inicio) y 6 (supervisión: menú, buscador, ficha) **en espera del diseño de superficies con varios roles** que el desarrollador está definiendo con Claude Web; con ellos, TF-STG-01 a 04 y 19 a 21, y la documentación de R2 (`modulo-usuarios-permisos.md` ROL 2 y menú con varios roles, `modulo-ciudadania.md`). Ver BACKLOG «Correcciones de la ronda 1 de staging: pendiente».
+- **R1 — RN-15 en toda actuación** (23 nov): `CentroDeUsuario::puedeActuar()` / `exigirActuacion()`; al abrir y al guardar; modo lectura sin centro.
+- **R2 — Supervisión sola: ficha en lectura** (24 nov): `supervision` pierde `historia.leer`, `apunte.leer`, `apunte.leer_ajeno` y `documento.ver_carpeta` (confirmado por el desarrollador); la ficha no pinta documentos sin permiso de documentos.
+- **R3 — Desactivar desde administración** (23 nov): enlaces solo a quien supervisa el centro; si no, «Avisar a la dirección del centro».
+- **R4 — Superficie operativa única** (24 nov): menú único `menu-operativo` (`App\Support\Menu\RegistroMenu`) con la unión de entradas por permisos; permisos de superficie `supervision.panel`, `agenda.ver_propia`, `tramitacion.bandeja`, `ciudadano.buscar`; `DestinoInicial::para()` (prioridad Supervisión → Agenda → Tramitación → Citación → Administración → `/sin-rol`); preferencia en `users.pagina_inicio`; enlace directo tras el login; «Administración» en el menú de usuario.
 
-**Tests 23 nov:** Intervención, Ciudadanía, Documentos, Prestaciones, Centro, Agenda, Supervisión, Usuarios, Acceso, Auth, UI, Errores y acceso al panel en verde (salvo incomplete/skipped previos). `npm run build` y `ui:auditar` sin infracciones. Suite completa sin pasar (decisión del desarrollador).
+**Tarea completada (24 nov):** pasos 1 y 6, TF-STG-01 a 04, 19 a 21 y 25 a 31 en verde, con negativos comprobados. Con los del 23 nov, **TF-STG-01 a 31 en verde**. Detalle y decisiones de implementación en `CHANGELOG-112026.md`.
 
-**Siguiente paso:** las instrucciones nuevas que trae el pull del 23 nov y, cuando esté el diseño, los pasos 1 y 6.
+**Migraciones nuevas** `2026_11_24_100001` (columna `users.pagina_inicio`) y `2026_11_24_100002` (permisos de superficie y R2): **no aplicadas en local**, porque la BD es la compartida; se aplican con el despliegue del push.
+
+**Siguiente paso:** comprobar el despliegue y avisar al desarrollador de que puede repetir la ronda 2 (INF-01, INF-08, EST-02 a EST-09, VEN-01 a VEN-05). Después, el encargo siguiente: barrido `role:` → permisos (BACKLOG).
+
+**Contexto para retomar:** en staging, `abogada.ciam` y `edu.css` (solo `consulta_profesional`) verán «Tu usuario no tiene un perfil de trabajo configurado» hasta que exista su superficie (`docs/rol-consulta-profesional.md`, BACKLOG). `coo.ciam` es la única supervisión sola. Quedan en el BACKLOG de la ronda 1 la ficha 14 huérfana, `adm1.css` (Spatie ≠ `usuario_rol`), `APP_DEBUG=true` en staging y si la supervisión sola debe ver prestaciones y atenciones en la ficha.
 
 ---
 

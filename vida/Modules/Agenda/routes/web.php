@@ -16,12 +16,12 @@ use Modules\Agenda\Livewire\Supervisor\ExcepcionesSupervisorPage;
 | Rutas web del módulo Agenda — supervisor de centro
 |--------------------------------------------------------------------------
 |
-| Protegidas por auth + role:supervision (Spatie).
+| Protegidas por auth + permiso `supervision.panel` (R4.4).
 | La vista por defecto al acceder al módulo es ausencias (pantalla de guardia).
 |
 */
 
-Route::middleware(['web', 'auth', 'role:supervision'])
+Route::middleware(['web', 'auth', 'permission:supervision.panel'])
     ->prefix('agenda/supervisor')
     ->name('agenda.supervisor.')
     ->group(function () {

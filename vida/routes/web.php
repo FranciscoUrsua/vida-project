@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OnboardingController;
+use App\Http\Controllers\PaginaInicioController;
+use App\Support\Superficie\DestinoInicial;
 use Illuminate\Support\Facades\Route;
 
 // Autenticación
@@ -17,17 +19,16 @@ Route::post('/bienvenida', [OnboardingController::class, 'completar'])
     ->name('onboarding.completar')
     ->middleware(['auth', 'primer.acceso']);
 
-// Raíz protegida — redirige según rol del usuario autenticado
-Route::middleware(['web', 'auth'])->get('/', function () {
-    // Prioridad entre roles centralizada en User::destinoInicial() (misma lógica que el login).
-    $destino = auth()->user()->destinoInicial();
+// Raíz protegida: la página de inicio del usuario (R4.7, único resolutor). Siempre hay
+// destino; la antigua vista «Redirigiendo…» dejaba en bucle a quien no tenía superficie (EST-02).
+Route::middleware(['web', 'auth'])
+    ->get('/', fn () => redirect(DestinoInicial::para(auth()->user())))
+    ->name('inicio');
 
-    if ($destino !== null) {
-        return redirect($destino);
-    }
-
-    return view('inicio');
-})->name('inicio');
+// Preferencia de página de inicio (R4.6): solo la cambia el propio usuario
+Route::middleware(['web', 'auth'])
+    ->post('/preferencias/pagina-inicio', [PaginaInicioController::class, 'guardar'])
+    ->name('preferencias.pagina-inicio');
 
 // Pantalla de usuario sin rol — accesible con auth pero sin middleware tiene.rol
 Route::middleware('auth')->get('/sin-rol', fn () => view('errors.sin-rol'))->name('sin-rol');

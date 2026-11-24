@@ -4,6 +4,49 @@
 
 ---
 
+## 2026-11-24 — Supervisión → Accesos: paginación, ordenación y filtros
+
+- **Paginación con iconos enormes (causa raíz):** sin `config/livewire.php`, Livewire usaba su plantilla de paginación de Tailwind (`w-5 h-5`), que en la superficie operativa (sin Tailwind) pinta los SVG de anterior/siguiente a todo el ancho. Nuevo `config/livewire.php` con solo `pagination_theme => 'bootstrap'`: arregla todas las paginaciones Livewire de la superficie operativa (Accesos y Recursos de Intervención). Filament no usa esa plantilla. Textos en español: `lang/es.json` («Mostrando… a… de… resultados») y `lang/es/pagination.php`.
+- **Ordenación por cabecera** en `AuditoriaPage` (`ordenar()`, lista blanca): profesional (nombre del profesional o, sin ficha, el email, igual que se pinta), ciudadano, fecha y hora (por defecto, descendente), acción (por la etiqueta visible) y motivo declarado. Un segundo clic invierte; desempate por fecha descendente. Parcial `supervision::livewire.partials.auditoria-th-ordenable`, mismo patrón que Mis casos.
+- **Filtros:** profesional (desplegable con quienes han accedido a ciudadanos del ámbito) y ciudadano (texto, sin mayúsculas ni tildes, con debounce).
+- **Tests** TF-SUP-F07 a F12 en `SupervisionTest` (paginación Bootstrap, filtro por profesional y ámbito, filtro por ciudadano sin tildes, orden por ciudadano, por profesional y por fecha, columna desconocida ignorada). F07 a F11 comprobados en negativo (fallan sin la configuración, sin los filtros y sin el orden). `crearHistoriaSocial()` del test admite el apellido.
+- **Decisiones de implementación:**
+  1. El nombre del ciudadano está cifrado: el filtro y el orden descifran en PHP los nombres de los ciudadanos con historia en el ámbito y pasan a SQL solo la lista de ids (`whereIn` y `array_position(?::bigint[], ciudadano_id)`), de modo que la paginación sigue en la BD. Se cargan con `AmbitoUoScope`, las mismas reglas que la relación `ciudadano` de cada fila.
+  2. El desplegable de profesionales se calcula sobre todo el histórico del ámbito, no solo sobre el rango de fechas, para que el elegido no desaparezca al cambiar las fechas.
+  3. Ningún cambio en qué accesos ve la supervisión: solo filtros y orden sobre la consulta existente.
+- `ui:auditar` sin infracciones. Supervisión y Recursos: 124 passed; 1 fallo ajeno (`DocumentosCiudadanoTest`, ver BACKLOG).
+
+---
+
+## 2026-11-24 — Correcciones de la ronda 1 de staging: pasos 1 y 6 (superficie operativa única, R2 y R4)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-correcciones-staging-ronda1.md`, versión con R4 (superficie operativa única, decidida por el Delegado Digital el 23 nov).
+
+- **Paso 0.5 (diagnóstico):** un solo panel de Filament (`/admin`); los tres menús operativos eran componentes Livewire (`intervencion.sidebar`, `supervision.sidebar`, `prestaciones.tramitacion-sidebar`) que fijaba cada layout Blade (`layouts.operativo`, `layouts.supervision`, `layouts.tramitacion`, `agenda::layouts.agenda-supervisor`). R4.2 no obligaba a fusionar paneles, así que no hacía falta esperar confirmación. `role:` en las rutas de Supervisión, Agenda (supervisor), Intervención, Ciudadanía, Prestaciones y Documentos (informes).
+- **Paso 0.8 (inventario):** solo existían `citas.gestionar`/`citas.supervisar` (citación) y la policy `create` de `Ciudadano` (alta); no había permisos para Supervisión, Agenda, Tramitación ni el buscador.
+- **Paso 1 (inicio, R4.5 a R4.8):**
+  - `App\Support\Superficie\Superficie` (enum: prioridad, acceso por permiso, URL) y `DestinoInicial::para()`, el único resolutor, que sustituye a `User::destinoInicial()`. Lo usan el login (con `redirect()->intended()`), el primer acceso, la ruta `/` (logo) y «Volver al inicio».
+  - Causa del bucle de EST-02: `/` pintaba «Redirigiendo…» (`inicio.blade.php`, retirada) cuando ningún rol daba destino. Ahora siempre hay destino: sin superficie ni administración, `/sin-rol` con el texto de R4.5.6.
+  - El onboarding tenía su propia prioridad (administración primero): ahora usa `DestinoInicial` y descarta el destino solicitado antes del login.
+  - Preferencia de página de inicio: `users.pagina_inicio` (migración `2026_11_24_100001`), «Página de inicio» en el menú de usuario y `PaginaInicioController` con validación en el servidor. Avisos de sesión (`with('toast')`) en `<x-avisos-toast>`.
+  - Multicentro sin perfil horario: ya entraba con «Elige centro» en la barra superior; fijado con tests.
+- **Paso 6 (menú único, R2, R4.1 a R4.4):**
+  - `App\Support\Menu\RegistroMenu` (secciones fijas y entradas con su permiso o policy) y `EntradaMenu`; componente `menu-operativo` (`App\Livewire\MenuOperativo`, con los contadores de los tres menús anteriores) en todos los layouts. Eliminados los tres sidebars y `mensajes::partials.nav-bandeja`. Logo enlazado al inicio y «Administración» en el menú de usuario.
+  - Permisos de superficie (migración `2026_11_24_100002`, `PermisosSeeder`, `RolesSeeder`): `supervision.panel` (supervision), `agenda.ver_propia` (intervencion), `tramitacion.bandeja` (tramitacion) y `ciudadano.buscar` (los cuatro roles que entraban en `ciudadania.*`). Se dan a los roles que ya entraban por `role:`, así que nadie gana ni pierde acceso.
+  - Rutas a permisos: `supervision.*` y `agenda.supervisor.*` → `supervision.panel`; agenda, casos, mensajes y recursos de Intervención → `agenda.ver_propia` (Historia Social y plan siguen con `role:`, en un grupo aparte); `ciudadania.*` → `ciudadano.buscar`; bandeja de tramitación → `tramitacion.bandeja|supervision.panel`.
+  - R2: se retiran a `supervision` `historia.leer`, `apunte.leer`, `apunte.leer_ajeno` y `documento.ver_carpeta` (decisión del desarrollador del 24 nov, paso 6.3; misma migración). La ficha no pinta el bloque de documentos sin permiso de documentos (`FichaCiudadanoPage::puedeVerDocumentos()`). En staging afecta a `coo.ciam`; `dir.ciam` y `dir.css` los conservan por `intervencion`.
+- **Decisiones de implementación:**
+  1. R4.6 dice «si solo tiene una superficie operativa, la opción no se muestra», pero `consulta_basica` sola accede a la citación y al buscador, y TF-STG-28 dice que no ve la opción. Solo cuentan las superficies de la prioridad (R4.5); el buscador es elegible pero no cuenta como una más.
+  2. La bandeja de alertas, avisos y mensajes tiene dos rutas (supervisión e intervención). En el menú sale una sola vez, en «Mi trabajo», con la ruta de Supervisión a quien tiene `supervision.panel`.
+  3. La bandeja de tramitación sigue abierta a la supervisión por la ruta (`|supervision.panel`), como antes, pero solo sale en el menú con `tramitacion.bandeja`.
+  4. El buscador del menú es siempre `ciudadania.buscar` (`intervencion.buscar.index` se mantiene para los enlaces que lo usen).
+  5. «Citación» pasa a llamarse «Bandeja de citación» en el menú, bajo la sección «Citación».
+  6. `/sin-rol` sirve también para quien tiene roles sin superficie: título «Sin perfil de trabajo» y el texto de R4.5.6.
+- **Tests:** `tests/Feature/Inicio/PaginaInicioTest.php` (TF-STG-01 a 04, 25 a 29 y 31) y `tests/Feature/Inicio/MenuYSupervisionTest.php` (TF-STG-19 a 21 y 30): 35 en verde. Negativos comprobados (TF-STG-01, 20, 21, 27 y 30). Adaptados al menú único TF-SUP-B01/B02, TF-MSG-BAN-09/10 y el de control de alertas. `npm run build` y `ui:auditar` sin infracciones.
+- **Documentación:** `modulo-usuarios-permisos.md` (ROL 2 según R2, ROL 6 remite a `rol-consulta-profesional.md`, ROL 7 y nueva §2.7 bis «Superficie operativa y página de inicio»), `modulo-ciudadania.md` (ficha para supervisión), `decisiones-pendientes.md` (R2 implementada, R4), `decisiones-tecnicas.md` §1.4 y BACKLOG (barrido `role:`, `consulta_profesional`, ronda 2).
+
+---
+
 ## 2026-11-23 — Correcciones de la ronda 1 de staging (pasos 0, 2, 3, 4, 5, 7 y 8)
 
 Instrucciones: `docs/instrucciones-cli/2026-11-correcciones-staging-ronda1.md`. Decisiones R1–R3 del Delegado Digital (23 nov). **Pasos 1 y 6 en espera** del diseño de superficies con varios roles (decisión del desarrollador).

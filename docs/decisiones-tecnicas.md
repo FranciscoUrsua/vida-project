@@ -60,6 +60,8 @@ El bloque de código incluye solo la firma (no el cuerpo). El cuerpo lo genera e
 
 **Actualización (2026-11-15, fase 4):** el inicio de `consulta_basica` es ahora la búsqueda de ciudadanos (`User::destinoInicial()`). Los tests de login esperan `route('ciudadania.buscar')` y los que abren «/» siguen la redirección (`followingRedirects()`).
 
+**Actualización (2026-11-24, R4):** el inicio lo decide `App\Support\Superficie\DestinoInicial::para()` por permisos de superficie; el de `consulta_basica` es la bandeja de citación (`route('agenda.citas.bandeja')`). `User::destinoInicial()` ya no existe. Ver `modulo-usuarios-permisos.md` §2.7 bis.
+
 ---
 
 ## 2. Paquetes y librerías

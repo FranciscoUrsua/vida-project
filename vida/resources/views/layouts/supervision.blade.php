@@ -25,7 +25,7 @@
     :title="config('app.name') . ' — Supervisión'"
     area="Supervisión"
     :section="$seccion"
-    sidebar="supervision.sidebar"
+    sidebar="menu-operativo"
 >
     {{ $slot }}
 </x-layouts.operativo-shell>

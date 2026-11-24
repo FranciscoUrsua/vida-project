@@ -11,6 +11,20 @@
                 <label class="form-label small" for="fechaHasta">Hasta</label>
                 <input id="fechaHasta" type="date" class="form-control form-control-sm" wire:model.live="fechaHasta">
             </div>
+            <div>
+                <label class="form-label small" for="profesionalId">Profesional</label>
+                <select id="profesionalId" class="form-select form-select-sm" wire:model.live="profesionalId">
+                    <option value="">Todos</option>
+                    @foreach($this->profesionales as $id => $nombre)
+                        <option value="{{ $id }}">{{ $nombre }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="form-label small" for="ciudadano">Ciudadano</label>
+                <input id="ciudadano" type="search" class="form-control form-control-sm"
+                       placeholder="Nombre o apellidos" wire:model.live.debounce.400ms="ciudadano">
+            </div>
             @if($this->tieneColectivosProtegidos)
             <div class="form-check align-self-end pb-1">
                 <input class="form-check-input" type="checkbox" id="soloProtegidos" wire:model.live="soloProtegidos">
@@ -27,20 +41,20 @@
     {{-- Tabla de accesos --}}
     <section class="p-3">
         @if($this->accesos->isEmpty())
-            <x-op.empty icono="shield-check">No hay accesos registrados en el periodo seleccionado.</x-op.empty>
+            <x-op.empty icono="shield-check">No hay accesos que coincidan con los filtros seleccionados.</x-op.empty>
         @else
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 small">
                 <thead class="table-light">
                     <tr>
-                        <th>Profesional</th>
-                        <th>Ciudadano</th>
+                        @include('supervision::livewire.partials.auditoria-th-ordenable', ['columna' => 'profesional', 'etiqueta' => 'Profesional'])
+                        @include('supervision::livewire.partials.auditoria-th-ordenable', ['columna' => 'ciudadano', 'etiqueta' => 'Ciudadano'])
                         @if($this->tieneColectivosProtegidos)
                         <th></th>
                         @endif
-                        <th>Fecha y hora</th>
-                        <th>Acción</th>
-                        <th>Motivo declarado</th>
+                        @include('supervision::livewire.partials.auditoria-th-ordenable', ['columna' => 'fecha', 'etiqueta' => 'Fecha y hora'])
+                        @include('supervision::livewire.partials.auditoria-th-ordenable', ['columna' => 'accion', 'etiqueta' => 'Acción'])
+                        @include('supervision::livewire.partials.auditoria-th-ordenable', ['columna' => 'motivo', 'etiqueta' => 'Motivo declarado'])
                         @if($this->tieneColectivosProtegidos)
                         <th>Estado</th>
                         @endif
