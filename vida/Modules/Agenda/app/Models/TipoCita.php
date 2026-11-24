@@ -155,7 +155,13 @@ class TipoCita extends Model
 
     /**
      * Nombre que puede ver el usuario: el interno si tiene acceso a la Historia
-     * Social (permiso `historia.leer`); si no, la etiqueta pública.
+     * Social (`historia.leer`) o supervisa las citas (`citas.supervisar`); si no,
+     * la etiqueta pública.
+     *
+     * El nombre interno puede revelar la situación de la persona («Seguimiento PIA
+     * violencia de género»): la ventanilla ve solo la etiqueta pública. La
+     * supervisión sin `intervencion` perdió `historia.leer` con R2, pero sigue
+     * viendo el tipo de cita (decisión del desarrollador, 25 nov 2026).
      *
      * @param User|null $usuario
      *
@@ -163,7 +169,10 @@ class TipoCita extends Model
      */
     public function nombreParaUsuario(?User $usuario): string
     {
-        return $usuario?->can('historia.leer') ? $this->nombre : $this->etiqueta_publica;
+        $veNombreInterno = $usuario !== null
+            && ($usuario->can('historia.leer') || $usuario->can('citas.supervisar'));
+
+        return $veNombreInterno ? $this->nombre : $this->etiqueta_publica;
     }
 
     /**

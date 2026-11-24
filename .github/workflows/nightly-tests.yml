@@ -61,6 +61,19 @@ jobs:
           qpdf --version | head -1
           echo "Ghostscript $(gs --version)"
 
+      # Ubuntu confina qpdf y gs con AppArmor y no les deja leer la zona temporal de
+      # ingesta («Permission denied»). Mismas reglas locales que en staging
+      # (docs/decisiones-tecnicas.md, sección 14), con la ruta del runner.
+      - name: AppArmor para qpdf y gs
+        run: |
+          for perfil in qpdf gs; do
+            if [ -f "/etc/apparmor.d/$perfil" ]; then
+              echo "${GITHUB_WORKSPACE}/** rwk," | sudo tee -a "/etc/apparmor.d/local/$perfil" > /dev/null
+              sudo apparmor_parser -r "/etc/apparmor.d/$perfil"
+              echo "Regla local añadida al perfil $perfil"
+            fi
+          done
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:

@@ -88,8 +88,9 @@ class TiposCitaTest extends TestCase
     }
 
     /**
-     * TF-CIT-03 — Nombre interno para quien accede a la Historia Social; etiqueta
-     * pública para el resto. [negativo]
+     * TF-CIT-03 — Nombre interno para quien accede a la Historia Social y para la
+     * supervisión (también sin `intervencion`, decisión del 25 nov 2026); etiqueta
+     * pública para la ventanilla y sin usuario. [negativo]
      *
      * @return void
      */
