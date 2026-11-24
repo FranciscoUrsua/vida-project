@@ -45,6 +45,8 @@ jobs:
       DB_DATABASE: vida_testing
       DB_USERNAME: vida_user
       DB_PASSWORD: testing
+      # El .env.example trae APP_LOCALE=en; la aplicación y sus tests están en español.
+      APP_LOCALE: es
 
     steps:
       - uses: actions/checkout@v5
@@ -56,6 +58,8 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq qpdf ghostscript poppler-utils
+          qpdf --version | head -1
+          echo "Ghostscript $(gs --version)"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -93,6 +97,9 @@ jobs:
           php artisan key:generate --no-interaction
           npm ci --no-audit --no-fund
           npm run build
+          # Disco de documentos de los tests (DOCUMENTOS_RUTA en phpunit.xml): en local
+          # ya existe; en un checkout limpio no.
+          mkdir -p storage/framework/testing/disks/documentos
 
       # Laravel crea una BD por proceso (vida_testing_test_N); vida_user es el
       # propietario del servidor, así que puede crearlas.
@@ -123,4 +130,5 @@ jobs:
           path: |
             vida/junit.xml
             vida/salida-tests.txt
+            vida/storage/logs/*.log
           retention-days: 14
