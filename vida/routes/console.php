@@ -30,3 +30,7 @@ $minutosExpedientes = max(1, (int) config('prestaciones.consulta_minutos', 60));
 $minutosExpedientes >= 60
     ? Schedule::command('expedientes:consultar')->hourly()
     : Schedule::command('expedientes:consultar')->cron("*/{$minutosExpedientes} * * * *");
+
+// Geocodificación: copia local del callejero oficial de Madrid. El fichero es mensual;
+// semanal para recogerlo a los pocos días (docs/instrucciones-cli/2026-11-callejero-madrid.md)
+Schedule::command('callejero:importar')->weeklyOn(0, '04:30')->withoutOverlapping();

@@ -21,6 +21,9 @@ Transversal
 **Domicilio con el callejero oficial de Madrid** — 2026-11-25
 Ciudadanía / Centro (asignación)
 - Hasta que se implemente `docs/instrucciones-cli/2026-11-callejero-madrid.md`, ninguna dirección se normaliza fuera de los tests y la asignación de centro por domicilio no puede resolver: queda pendiente de hacerse a mano.
+- (24 nov) Pasos 0 y 1 hechos. Primera carga en staging tras el despliegue: `php artisan callejero:importar` (si no, el domingo a las 04:30).
+- (24 nov) Sin aviso si la importación semanal deja de funcionar: `callejero_importaciones` registra cada carga, pero nadie mira si la última tiene más de 40 días. Añadirlo a la vigilancia del sistema cuando exista.
+- (24 nov) Fuera del municipio, sin normalizar (decisión 4 de las instrucciones); los números del callejero cambian de mes a mes, y las direcciones ya normalizadas no se revisan si su portal desaparece.
 
 ---
 

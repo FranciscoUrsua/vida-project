@@ -1,6 +1,6 @@
 # Domicilio con el callejero oficial de Madrid
 
-**Fecha:** 25 nov 2026 · **Estado:** pendiente · **Módulos:** Ciudadanía, Centro (asignación), infraestructura de geocodificación
+**Fecha:** 25 nov 2026 · **Estado:** en curso (pasos 0 y 1 hechos el 24 nov 2026; fuente corregida) · **Módulos:** Ciudadanía, Centro (asignación), infraestructura de geocodificación
 
 Instrucciones para sustituir la «normalización» de direcciones, que hoy no existe, por un geocodificador local basado en el callejero oficial del Ayuntamiento de Madrid, con autocompletado del domicilio en los formularios.
 
@@ -11,7 +11,12 @@ Instrucciones para sustituir la «normalización» de direcciones, que hoy no ex
 - **No hay geocodificador real.** El único adaptador que existía era el simulador (`MockGeocodificador`): daba por buena cualquier dirección e inventaba coordenadas y sección censal. Desde el 25 nov 2026 solo se usa en los tests. Fuera de ellos, el adaptador es `ninguno` (`SinGeocodificador`), la dirección queda como texto libre sin normalizar y no se encolan reintentos (`GeocodificadorService::proveedorActivo()` / `hayGeocodificador()`). La migración `2026_11_25_100002` retiró los datos inventados de la BD compartida (7 personas).
 - **La asignación de centro por domicilio depende de la sección censal** (`ResolucionCentroService`, `ciudadanos.seccion_censal_codigo`). Sin sección, la asignación queda pendiente de hacerse a mano. Esta tarea es lo que la hace funcionar de verdad.
 - **Arquitectura ya decidida** (decisiones técnicas §9, `docs/geocodificacion.md`): `GeocodificadorInterface`, adaptadores intercambiables por `geocoder.proveedor`, `DireccionObserver` al guardar, `NormalizarDireccionJob` de reintento, trait `TieneDireccion` con el modelo canónico (`direccion_texto` siempre se conserva). No se cambia el contrato: se añade un adaptador.
-- **El callejero oficial es un conjunto de datos abierto** (datos.madrid.es, conjunto 213605, «Callejero oficial del Ayuntamiento de Madrid», CC BY 4.0, actualización diaria). Incluye las direcciones vigentes con código de portal (`COD_NDP`), distrito, barrio y coordenadas UTM ETRS89 huso 30N; el fichero de direcciones postales incluye además la sección censal. Es el extracto público de la Base de Datos Ciudad, que `docs/geocodificacion.md` ya señala como referencia para producción.
+- **Fuente: conjunto 200075 de datos.madrid.es** («Callejero. Información adicional asociada», CC BY 4.0, actualización **mensual**), recurso `200075-1-callejero-csv` (`callejero_vigente_numeraciones_AAAAMM.csv`). Es el extracto público de la Base de Datos Ciudad y el único fichero abierto con la **sección censal** de cada número. **No se usa el conjunto 213605** («Callejero oficial»), que citaba la primera versión de estas instrucciones: no trae la sección censal y le faltan 1.336 números, unos 900 de ellos de la Cañada Real (sectores 2 a 6) (paso 0, decisión del desarrollador del 24 nov 2026).
+- **Formato del fichero (comprobado el 24 nov 2026, versión 202611):** CSV con `;`, todos los campos entre comillas y rellenos de espacios, latin-1, CRLF; unas 215.600 filas. Columnas usadas: «Codigo de numero» (= `COD_NDP`, único), «Codigo de via», «Clase de la via», «Partícula de la vía», «Nombre de la vía» (mayúsculas sin tildes), «Literal de numeracion» (`NUM000002`, `NUM000076 B`, `KM.001000EN`), «Codigo de distrito», «Codigo de barrio», «Seccion censal» (3 cifras dentro del distrito), «Codigo postal», «Direccion completa para el numero» (con tildes: de ahí sale el nombre para mostrar), «Longitud/Latitud en S R ETRS89 WGS84» (grados, minutos y segundos, `3º36'5.49'' W`) y «Tipologia del numero» (Portal, Frente fachada, Parcela, Garaje, Jardín o parque público). El nombre del fichero cambia cada mes: la URL se resuelve con la API CKAN del portal (`package_show`), no se fija en la configuración.
+- **Los códigos casan con el catálogo de Organización** (comprobado): distrito `DD`; barrio `DD` + número de barrio (`011`); sección `28079` + `DD` + sección (`2807901001`). Los 131 barrios y las 2.462 secciones del catálogo están en el fichero, y el barrio de cada número coincide siempre con el de su sección en el catálogo. La sección `000` (3 números: una parcela de la Cañada Real y la cárcel provisional de Carabanchel) se trata como «sin sección».
+- **Coordenadas:** se toman las WGS84 del fichero (conversión de grados, minutos y segundos a decimal); no hace falta convertir desde UTM. Diferencia con la conversión desde UTM ETRS89: menos de 0,3 m.
+- **Se importan todos los tipos de número** (decisión del desarrollador del 24 nov 2026): en la Cañada Real hay viviendas registradas como «Parcela». Se guarda el tipo de cada uno.
+- **Homónimos reales:** 348 nombres de vía existen con varias clases (p. ej. calle Mayor y plaza Mayor, ambas con número 15).
 
 ## Decisiones de esta tarea
 
@@ -30,15 +35,15 @@ Instrucciones para sustituir la «normalización» de direcciones, que hoy no ex
 
 ## Paso 0 — Verificación (antes de escribir código)
 
-1. Descargar los ficheros del conjunto 213605 y comprobar las cabeceras reales: dónde está la sección censal (fichero de direcciones con coordenadas o fichero de direcciones postales), formato de los códigos de distrito, barrio y sección (deben casar con `distritos`, `barrios` y `secciones_censales` del catálogo de Organización), codificación del CSV y separador.
-2. Comprobar que la extensión `pg_trgm` y `unaccent` se pueden crear con el usuario de la aplicación (son extensiones «trusted» desde PostgreSQL 13; si no, pedirlo al desarrollador con `sudo`).
-3. Informar al desarrollador del resultado antes de seguir si algo no coincide con estas instrucciones.
+**Hecho el 24 nov 2026.** Resultado en «Hechos que no hay que redescubrir»: la sección censal no está en el conjunto 213605 sino en el 200075, que pasa a ser la única fuente. `pg_trgm` y `unaccent` son «trusted» en PostgreSQL 18 y se crean con `vida_user` (BD `vida`) y con `vida_test` (BD `vida_testing`); en la suite nocturna el usuario es superusuario.
 
 ## Paso 1 — Modelo e importación
 
-- Tabla `callejero_portales` (sin `SoftDeletes`: es una copia de un dato externo que se reemplaza): `cod_ndp` (único), `cod_via`, `clase_via`, `nombre_via`, `nombre_via_busqueda` (minúsculas, sin tildes, con índice trigram), `numero`, `calificador` (bis, letra…), `codigo_postal`, `distrito_codigo`, `barrio_codigo`, `seccion_censal_codigo`, `lat`, `lng` (WGS84, convertidas desde UTM ETRS89 30N al importar), `importado_en`.
-- Comando `callejero:importar`: descarga, valida cabeceras (falla con mensaje claro si cambian), carga en una tabla temporal y sustituye en una transacción. Idempotente. Registra el número de portales y la fecha. Planificado semanalmente en el `schedule`.
-- La URL del fichero va en `config/geocodificacion.php` (no es un secreto). Sin claves ni `.env` nuevos.
+**Hecho el 24 nov 2026.** Migración `2026_11_25_100003`, modelos `App\Models\Callejero\CallejeroPortal` y `CallejeroImportacion`, enum `TipoNumeroCallejero`, `App\Services\Geocodificacion\Callejero\{FuenteCallejero, ImportadorCallejero, TextoBusqueda}` y comando `callejero:importar` (domingos a las 04:30). Diferencias con lo previsto: la sustitución se hace en una sola transacción (borrar e insertar por lotes) en vez de con una tabla temporal, con la misma garantía (si falla, la copia anterior queda intacta, y las lecturas siguen viéndola mientras dura), y se aborta si más del 1 % de las filas son ilegibles. La Ñ también es calificador (8 números). Prueba con el fichero real: 215.605 números, ninguno descartado, unos 2,5 minutos.
+
+- Tabla `callejero_portales` (sin `SoftDeletes`: es una copia de un dato externo que se reemplaza): `cod_ndp` (único), `cod_via`, `clase_via`, `particula_via`, `nombre_via` (como viene, sin tildes), `nombre_via_mostrar` (con tildes, de «Direccion completa»), `nombre_via_busqueda` (minúsculas, sin tildes, con índice trigram), `clase_numero` (`numero` / `km`), `numero`, `calificador` (letra, `EN`/`SA` en kilómetros…), `tipo_numero` (portal, frente de fachada, parcela, garaje, jardín), `codigo_postal`, `distrito_codigo`, `barrio_codigo`, `seccion_censal_codigo` (null con la sección `000`), `lat`, `lng` (WGS84 del fichero), `importado_en`.
+- Comando `callejero:importar`: resuelve la URL del recurso con la API CKAN, descarga, valida cabeceras (falla con mensaje claro si cambian), carga en una tabla temporal y sustituye en una transacción. Idempotente. Opción `--fichero=` para importar un CSV local (tests y emergencias). Registra el número de números importados, la fecha y la versión del fichero. Planificado semanalmente en el `schedule` (el fichero es mensual: así se recoge en pocos días).
+- La URL de la API, el conjunto y el recurso van en `config/geocodificacion.php` (no son secretos). Sin claves ni `.env` nuevos.
 
 ## Paso 2 — Adaptador `callejero`
 
@@ -56,7 +61,7 @@ Instrucciones para sustituir la «normalización» de direcciones, que hoy no ex
 
 ## Paso 4 — Direcciones existentes
 
-- `php artisan direcciones:normalizar --pendientes` (ya existe) pasa las direcciones de texto libre por el adaptador `callejero`. Las ambiguas quedan como están.
+- `php artisan vida:normalizar-direcciones --pendientes` (ya existe) pasa las direcciones de texto libre por el adaptador `callejero`. Las ambiguas quedan como están.
 
 ## Paso 5 — Asignación de centro
 
@@ -77,7 +82,7 @@ Instrucciones para sustituir la «normalización» de direcciones, que hoy no ex
 
 ## Tests
 
-**TF-CAL-01 — Importación:** un CSV de prueba con 3 portales se importa; los campos y las coordenadas (UTM → WGS84, tolerancia de 1 m) son correctos.
+**TF-CAL-01 — Importación:** un CSV de prueba con el formato real (latin-1, `;`, comillas y relleno de espacios) y 3 números se importa; los campos (códigos de barrio y sección compuestos, nombre con tildes, número y calificador, tipo) y las coordenadas (grados, minutos y segundos → decimal, tolerancia de 1 m) son correctos; un número con sección `000` queda sin sección.
 
 **TF-CAL-02 — Importación idempotente:** importar dos veces el mismo fichero deja los mismos portales; un portal que desaparece del fichero desaparece de la tabla.
 

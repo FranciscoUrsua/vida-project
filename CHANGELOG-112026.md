@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-11-24 — Callejero oficial de Madrid: verificación de la fuente e importación (pasos 0 y 1)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-callejero-madrid.md`.
+
+- **Paso 0, verificación.** La sección censal no está en el conjunto 213605 («Callejero oficial»), que citaban las instrucciones, sino en el **200075** («Información adicional asociada», fichero de numeraciones, mensual). Al 213605 le faltan 1.336 números: unos 900 de la Cañada Real (sectores 2 a 6) y unos 430 más, sobre todo recintos militares. **Decisiones del desarrollador:** el 200075 es la única fuente y se importan todos los tipos de número (portal, fachada, parcela, garaje, jardín). Los códigos casan con el catálogo de Organización (21 distritos, 131 barrios, 2.462 secciones, y el barrio de cada número coincide con el de su sección); la sección `000` se trata como «sin sección». `pg_trgm` y `unaccent` se crean sin superusuario. Instrucciones corregidas con el formato real del fichero.
+- **Paso 1, importación.** Migración `2026_11_25_100003` (extensiones `pg_trgm` y `unaccent`, tablas `callejero_portales` con índice trigram y `callejero_importaciones`). Modelos `App\Models\Callejero\CallejeroPortal` y `CallejeroImportacion`; enum `TipoNumeroCallejero`; `FuenteCallejero` (resuelve con la API CKAN del portal la URL del fichero vigente, cuyo nombre cambia cada mes, y lo descarga), `ImportadorCallejero` y `TextoBusqueda`; comando `callejero:importar [--fichero=]`, planificado los domingos a las 04:30; `config/geocodificacion.php`.
+- **Decisiones de implementación:** sustitución en una sola transacción en vez de tabla temporal (misma garantía); se aborta con más del 1 % de filas ilegibles; coordenadas WGS84 del propio fichero (grados, minutos y segundos), sin convertir desde UTM; nombre con tildes deducido de «Direccion completa»; la Ñ como calificador.
+- **Tests:** `tests/Feature/Callejero/ImportacionCallejeroTest.php`, TF-CAL-01 (con bis y ter), 02, 03 y 03 bis, en verde; 4 negativos comprobados quitando cada protección. Generador de ficheros con el formato real en `tests/Support/FicheroCallejeroDePrueba.php`. Prueba real contra la BD de test: 215.605 números, 0 descartados, unos 2,5 minutos; la búsqueda por similitud responde en unos 50 ms.
+- La migración se aplica en staging con el despliegue; la primera carga se hace con `php artisan callejero:importar` (o espera al domingo).
+
+---
+
 ## 2026-11-25 — Geocodificación: el simulador ya no inventa direcciones fuera de los tests
 
 - **Diagnóstico** (a petición del desarrollador): no existía normalización real del domicilio. El único adaptador era el simulador, que daba por buena cualquier dirección, marcaba `direccion_normalizada` e inventaba coordenadas, distrito, barrio y sección censal (aleatoria y fija por dirección, tomada del catálogo real). La asignación de centro por domicilio decide con esa sección. En la BD compartida: 7 personas normalizadas por el simulador; la única asignación de centro vigente era por elección.
