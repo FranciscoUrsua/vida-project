@@ -1,6 +1,6 @@
 # Domicilio con el callejero oficial de Madrid
 
-**Fecha:** 25 nov 2026 · **Estado:** en curso (pasos 0 y 1 hechos el 24 nov 2026; fuente corregida) · **Módulos:** Ciudadanía, Centro (asignación), infraestructura de geocodificación
+**Fecha:** 25 nov 2026 · **Estado:** en curso (pasos 0 a 2 hechos el 24 nov 2026; fuente corregida) · **Módulos:** Ciudadanía, Centro (asignación), infraestructura de geocodificación
 
 Instrucciones para sustituir la «normalización» de direcciones, que hoy no existe, por un geocodificador local basado en el callejero oficial del Ayuntamiento de Madrid, con autocompletado del domicilio en los formularios.
 
@@ -46,6 +46,15 @@ Instrucciones para sustituir la «normalización» de direcciones, que hoy no ex
 - La URL de la API, el conjunto y el recurso van en `config/geocodificacion.php` (no son secretos). Sin claves ni `.env` nuevos.
 
 ## Paso 2 — Adaptador `callejero`
+
+**Hecho el 24 nov 2026**, salvo activarlo en staging. `ParserDireccion` (con `DireccionAnalizada`) extraído del simulador, que ahora lo usa; `CallejeroMadridGeocodificador` registrado como `callejero`. Decisiones de implementación:
+- **Erratas por distancia de edición, no por trigramas.** En el callejero real «Mayro» está más cerca de «Mayo» (0,375) que de «Mayor» (0,333) por trigramas, y las dos calles existen. Los trigramas solo preseleccionan (`umbral_similitud`, 0,3); decide la distancia de edición con transposiciones (1 errata en nombres de 5 a 9 letras, 2 a partir de 10, ninguna por debajo). La vía tiene que tener ese número, y si dos nombres empatan, la dirección es ambigua (TF-CAL-06 bis).
+- **Solo se buscan erratas si no existe una vía con ese nombre exacto:** «Calle Mayor 99» no acaba en «Calle Mayo 99» (TF-CAL-08 bis).
+- **Fuera de Madrid:** localidad escrita distinta de Madrid, o código postal que no aparece en el callejero.
+- **Reintentos:** un «no existe», «ambigua» o «fuera de Madrid» es definitivo; `ResultadoGeocodificacion::$reintentable` distingue los errores transitorios y `NormalizarDireccionJob` ya no deja un trabajo fallido por cada dirección que no casa (TF-CAL-08 ter).
+- El nombre para mostrar lleva la partícula y mayúscula inicial («Paseo de la Castellana»); el parser reconoce también «2º B», «bajo», «ático», «15B» (calificador) y la localidad.
+- **Datos reales:** «Mayor 15» sin clase es ambigua (calle Mayor 15 y plaza Mayor 15 existen), y «Avenida de la Albufera 120» no existe (hay 119 y 121). Los tests usan su propio callejero.
+- **Sin activar en staging:** al normalizarse una dirección se dispara la asignación de centro, y el paso 5 (una persona con asignación vigente no se reasigna) está sin comprobar. Se activa al cerrar el paso 5.
 
 - `CallejeroMadridGeocodificador implements GeocodificadorInterface`, registrado en `GeocodificadorService::ADAPTADORES` como `callejero`.
 - Extraer a una clase propia (`ParserDireccion`) el análisis del texto que hoy está dentro de `MockGeocodificador` (tipo de vía, nombre, número, complementos, código postal) y usarla en los dos adaptadores.

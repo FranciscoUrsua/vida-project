@@ -56,7 +56,7 @@ class ResultadoGeocodificacion
 |---|---|---|
 | `ninguno` | Sin geocodificador: la dirección queda como texto libre sin normalizar | Implementado; **por defecto fuera de los tests** (25 nov 2026) |
 | `mock` | Parser de texto libre + coordenadas aleatorias y sección censal inventada | Implementado; **solo en los tests** |
-| `callejero` | Callejero oficial del Ayuntamiento de Madrid (conjunto 200075 de datos.madrid.es), cargado en `callejero_portales` con `callejero:importar` | En curso: importación hecha (24 nov 2026); adaptador y autocompletado pendientes (`docs/instrucciones-cli/2026-11-callejero-madrid.md`) |
+| `callejero` | Callejero oficial del Ayuntamiento de Madrid (conjunto 200075 de datos.madrid.es), cargado en `callejero_portales` con `callejero:importar` | Implementado (24 nov 2026), sin activar hasta comprobar la asignación de centro (paso 5); autocompletado pendiente (`docs/instrucciones-cli/2026-11-callejero-madrid.md`) |
 | `bdc` | Base de Datos Ciudad del Ayuntamiento de Madrid (API interna) | Pendiente |
 | `osm` | OpenStreetMap / Nominatim | Descartado (25 nov 2026): datos de personas a un tercero; la política del servicio público desaconseja el uso continuo |
 | `gmaps` | Google Maps Geocoding API | Descartado (25 nov 2026): datos de personas a un tercero; solo permite guardar coordenadas 30 días |

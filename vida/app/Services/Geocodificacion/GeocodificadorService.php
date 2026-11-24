@@ -2,6 +2,7 @@
 
 namespace App\Services\Geocodificacion;
 
+use App\Services\Geocodificacion\Adaptadores\CallejeroMadridGeocodificador;
 use App\Services\Geocodificacion\Adaptadores\MockGeocodificador;
 use App\Services\Geocodificacion\Adaptadores\SinGeocodificador;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -33,7 +34,7 @@ class GeocodificadorService implements GeocodificadorInterface
     private const ADAPTADORES = [
         SinGeocodificador::IDENTIFICADOR => SinGeocodificador::class,
         'mock' => MockGeocodificador::class,
-        // 'callejero' => CallejeroMadridGeocodificador::class, // pendiente (callejero oficial de Madrid)
+        CallejeroMadridGeocodificador::IDENTIFICADOR => CallejeroMadridGeocodificador::class,
         // 'bdc'   => BdcGeocodificador::class,   // pendiente
     ];
 

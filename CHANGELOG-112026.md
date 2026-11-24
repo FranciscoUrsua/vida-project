@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-11-24 — Callejero oficial de Madrid: adaptador `callejero` (paso 2)
+
+- **Primera carga en staging** (a petición del desarrollador): 215.605 números, versión 202611, 0 descartados.
+- `App\Services\Geocodificacion\ParserDireccion` y `DireccionAnalizada`: análisis del texto extraído del simulador (que ahora lo usa), con el tipo de vía a null si no se escribe, calificador pegado al número («15B»), puerta tras el piso («2º B»), «bajo», «ático» y localidad.
+- `CallejeroMadridGeocodificador` (identificador `callejero`, registrado en `GeocodificadorService`): normaliza solo con un único número del callejero; ambigua, inexistente, sin número o de otro municipio queda sin normalizar. Erratas por distancia de edición con transposiciones tras preseleccionar por trigramas (en el callejero real «Mayro» está más cerca de «Mayo» que de «Mayor» por trigramas); solo si no existe una vía con el nombre exacto. Config `geocodificacion.callejero.umbral_similitud`.
+- `ResultadoGeocodificacion::$reintentable`: `NormalizarDireccionJob` solo marca como fallido un error transitorio; una respuesta definitiva («no existe», «ambigua») no deja trabajo fallido.
+- **Tests:** `tests/Feature/Callejero/GeocodificadorCallejeroTest.php`, TF-CAL-04 a 09 (con 05 bis, 06 bis, 08 bis y 08 ter) y parte de TF-CAL-11, en verde; negativos comprobados quitando cada protección. Siguen en verde `MockGeocodificadorParserTest`, `DireccionObserverTest`, `GeocodificacionCodigosTest` y `AsignacionCentroTest`. Prueba con direcciones reales contra el callejero de staging: casan en pocos ms; «Mayor 15» sin clase sale ambigua (calle y plaza).
+- **No activado en staging** (`geocoder.proveedor` sigue sin configurar): normalizar dispara la asignación de centro y el paso 5 está sin comprobar.
+
+---
+
 ## 2026-11-24 — Callejero oficial de Madrid: verificación de la fuente e importación (pasos 0 y 1)
 
 Instrucciones: `docs/instrucciones-cli/2026-11-callejero-madrid.md`.

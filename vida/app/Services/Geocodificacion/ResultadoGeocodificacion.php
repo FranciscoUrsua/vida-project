@@ -32,6 +32,7 @@ use App\Enums\TipoNumeracion;
  * @property-read string|null         $codigoDistrito Dos dígitos, ej: 21
  * @property-read string|null         $codigoBarrio   Código municipal completo, ej: 214
  * @property-read string|null         $seccionCensal  Código INE de 10 dígitos, ej: 2807921028
+ * @property-read bool                $reintentable   Si un fallo puede resolverse reintentando (error transitorio)
  *
  * Los cuatro códigos territoriales llegan ya normalizados: el adaptador es
  * quien compone el código de barrio completo y el código INE de la sección a
@@ -61,6 +62,8 @@ final class ResultadoGeocodificacion
      * @param string|null $codigoDistrito Código de distrito (dos dígitos).
      * @param string|null $codigoBarrio Código de barrio completo (tres dígitos).
      * @param string|null $seccionCensal Código INE de la sección (diez dígitos).
+     * @param bool $reintentable Si el fallo es transitorio (proveedor caído) y merece reintento; un
+     *                           «no existe» o «ambigua» es definitivo y no se reintenta.
      */
     public function __construct(
         public readonly bool $exito,
@@ -82,6 +85,7 @@ final class ResultadoGeocodificacion
         public readonly ?string $codigoDistrito = null,
         public readonly ?string $codigoBarrio = null,
         public readonly ?string $seccionCensal = null,
+        public readonly bool $reintentable = false,
     ) {}
 
     /**
@@ -89,10 +93,11 @@ final class ResultadoGeocodificacion
      *
      * @param string $proveedor Identificador del adaptador.
      * @param string $errorMensaje Descripción del fallo.
+     * @param bool $reintentable Si es un error transitorio que merece reintento.
      *
      * @return self
      */
-    public static function fallo(string $proveedor, string $errorMensaje): self
+    public static function fallo(string $proveedor, string $errorMensaje, bool $reintentable = false): self
     {
         return new self(
             exito: false,
@@ -114,6 +119,7 @@ final class ResultadoGeocodificacion
             codigoDistrito: null,
             codigoBarrio: null,
             seccionCensal: null,
+            reintentable: $reintentable,
         );
     }
 

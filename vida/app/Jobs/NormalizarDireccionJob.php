@@ -88,7 +88,11 @@ class NormalizarDireccionJob implements ShouldQueue
         $resultado = $geocodificador->normalizar((string) $modelo->direccion_texto);
 
         if (! $resultado->exito) {
-            $this->fail(new \RuntimeException($resultado->errorMensaje ?? 'Error desconocido del geocoder'));
+            // «No existe», «ambigua» o «fuera de Madrid» son respuestas definitivas, no errores:
+            // la dirección se queda sin normalizar sin dejar un trabajo fallido
+            if ($resultado->reintentable) {
+                $this->fail(new \RuntimeException($resultado->errorMensaje ?? 'Error desconocido del geocoder'));
+            }
 
             return;
         }

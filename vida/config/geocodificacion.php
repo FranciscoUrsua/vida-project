@@ -25,6 +25,10 @@ return [
 
         // Proporción máxima de filas ilegibles; por encima se aborta (cambio de formato)
         'max_descartados' => 0.01,
+
+        // Similitud por trigramas mínima para considerar una vía al buscar erratas. Solo
+        // preselecciona: decide la distancia de edición (CallejeroMadridGeocodificador).
+        'umbral_similitud' => 0.3,
     ],
 
 ];
