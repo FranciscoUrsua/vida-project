@@ -1,6 +1,6 @@
 # Domicilio con el callejero oficial de Madrid
 
-**Fecha:** 25 nov 2026 · **Estado:** en curso (pasos 0 a 2 hechos el 24 nov 2026; fuente corregida) · **Módulos:** Ciudadanía, Centro (asignación), infraestructura de geocodificación
+**Fecha:** 25 nov 2026 · **Estado:** en curso (pasos 0, 1, 2 y 5 hechos el 24 nov 2026; fuente corregida) · **Módulos:** Ciudadanía, Centro (asignación), infraestructura de geocodificación
 
 Instrucciones para sustituir la «normalización» de direcciones, que hoy no existe, por un geocodificador local basado en el callejero oficial del Ayuntamiento de Madrid, con autocompletado del domicilio en los formularios.
 
@@ -54,7 +54,7 @@ Instrucciones para sustituir la «normalización» de direcciones, que hoy no ex
 - **Reintentos:** un «no existe», «ambigua» o «fuera de Madrid» es definitivo; `ResultadoGeocodificacion::$reintentable` distingue los errores transitorios y `NormalizarDireccionJob` ya no deja un trabajo fallido por cada dirección que no casa (TF-CAL-08 ter).
 - El nombre para mostrar lleva la partícula y mayúscula inicial («Paseo de la Castellana»); el parser reconoce también «2º B», «bajo», «ático», «15B» (calificador) y la localidad.
 - **Datos reales:** «Mayor 15» sin clase es ambigua (calle Mayor 15 y plaza Mayor 15 existen), y «Avenida de la Albufera 120» no existe (hay 119 y 121). Los tests usan su propio callejero.
-- **Sin activar en staging:** al normalizarse una dirección se dispara la asignación de centro, y el paso 5 (una persona con asignación vigente no se reasigna) está sin comprobar. Se activa al cerrar el paso 5.
+- **Activación:** migración `2026_11_25_100004`, que pone `geocoder.proveedor = callejero` solo si el callejero está importado y no hay otro proveedor configurado (en staging se activa con el despliegue; en un entorno nuevo, tras la primera importación, a mano). Se hizo después de cerrar el paso 5.
 
 - `CallejeroMadridGeocodificador implements GeocodificadorInterface`, registrado en `GeocodificadorService::ADAPTADORES` como `callejero`.
 - Extraer a una clase propia (`ParserDireccion`) el análisis del texto que hoy está dentro de `MockGeocodificador` (tipo de vía, nombre, número, complementos, código postal) y usarla en los dos adaptadores.
@@ -73,6 +73,8 @@ Instrucciones para sustituir la «normalización» de direcciones, que hoy no ex
 - `php artisan vida:normalizar-direcciones --pendientes` (ya existe) pasa las direcciones de texto libre por el adaptador `callejero`. Las ambiguas quedan como están.
 
 ## Paso 5 — Asignación de centro
+
+**Hecho el 24 nov 2026.** No hizo falta código: `AsignarCentroPorDireccion` ya asignaba a quien no tiene centro y, con asignación geográfica vigente, `evaluarCambioDomicilio()` crea una propuesta de traslado en la bandeja del supervisor (RN-10) sin reasignar. Una asignación por elección o manual no genera propuesta (quien eligió centro lo conserva; `modulo-asignacion.md` §3.5). TF-CAL-12 (con bis y ter) de punta a punta con el adaptador del callejero, en `Modules/Centro/tests/Feature/Asignacion/AsignacionPorCallejeroTest.php`; negativo comprobado.
 
 - Al normalizarse una dirección ya se dispara `DireccionCiudadanoNormalizada`. Comprobar que la asignación por domicilio usa la sección del callejero y que una persona sin asignación vigente pasa a tenerla; una persona con asignación vigente distinta de la que daría el domicilio **no se reasigna**: se avisa a la bandeja de asignaciones del supervisor.
 

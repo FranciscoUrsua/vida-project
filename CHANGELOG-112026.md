@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-11-24 — Callejero oficial de Madrid: asignación de centro y activación (paso 5)
+
+- **Comprobado sin cambiar código:** con el adaptador del callejero, una persona sin centro queda asignada por la sección oficial; con asignación geográfica vigente, un domicilio de otro centro no la reasigna y deja la propuesta en la bandeja del supervisor (RN-10); una dirección que no casa no asigna nada. Las asignaciones por elección o manuales no generan propuesta (diseño de `modulo-asignacion.md` §3.5).
+- **Tests:** `Modules/Centro/tests/Feature/Asignacion/AsignacionPorCallejeroTest.php`, TF-CAL-12 (con bis y ter), en verde; el bis falla si el listener reasigna directamente.
+- **Activación:** migración `2026_11_25_100004`: `geocoder.proveedor = callejero` si `callejero_portales` tiene datos y no hay proveedor configurado. En staging se activa con este despliegue; en los tests y en un entorno nuevo no cambia nada hasta importar.
+- Las direcciones existentes siguen sin normalizar hasta el paso 4 (`vida:normalizar-direcciones --pendientes`).
+
+---
+
 ## 2026-11-24 — Callejero oficial de Madrid: adaptador `callejero` (paso 2)
 
 - **Primera carga en staging** (a petición del desarrollador): 215.605 números, versión 202611, 0 descartados.

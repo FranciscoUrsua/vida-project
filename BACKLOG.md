@@ -21,7 +21,7 @@ Transversal
 **Domicilio con el callejero oficial de Madrid** — 2026-11-25
 Ciudadanía / Centro (asignación)
 - Hasta que se implemente `docs/instrucciones-cli/2026-11-callejero-madrid.md`, ninguna dirección se normaliza fuera de los tests y la asignación de centro por domicilio no puede resolver: queda pendiente de hacerse a mano.
-- (24 nov) Pasos 0 a 2 hechos; callejero cargado en staging. **El adaptador no está activado** (`geocoder.proveedor = callejero`): activarlo al cerrar el paso 5, cuando esté comprobado que una persona con asignación vigente no se reasigna al normalizarse su dirección.
+- (24 nov) Pasos 0, 1, 2 y 5 hechos; callejero cargado y adaptador activo en staging. En producción: primera importación y después activar `geocoder.proveedor = callejero` (la migración `2026_11_25_100004` solo lo hace si el callejero ya está cargado).
 - (24 nov) Los nombres de vía con cifras («Cañada Real Sector 6», «26 de Abril») no se analizan bien en texto libre: el parser toma la primera cifra como número. Se resuelven con el autocompletado (paso 3).
 - (24 nov) Sin aviso si la importación semanal deja de funcionar: `callejero_importaciones` registra cada carga, pero nadie mira si la última tiene más de 40 días. Añadirlo a la vigilancia del sistema cuando exista.
 - (24 nov) Fuera del municipio, sin normalizar (decisión 4 de las instrucciones); los números del callejero cambian de mes a mes, y las direcciones ya normalizadas no se revisan si su portal desaparece.
