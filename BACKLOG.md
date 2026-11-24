@@ -18,6 +18,12 @@ Transversal
 
 ---
 
+**Domicilio con el callejero oficial de Madrid** — 2026-11-25
+Ciudadanía / Centro (asignación)
+- Hasta que se implemente `docs/instrucciones-cli/2026-11-callejero-madrid.md`, ninguna dirección se normaliza fuera de los tests y la asignación de centro por domicilio no puede resolver: queda pendiente de hacerse a mano.
+
+---
+
 **Backoffice: restos tras cerrar la configuración a `adm_usuarios` y la supervisión** — 2026-11-25
 Módulo: Usuarios / Filament
 - **`tramitacion` con permisos de apuntes en la BD compartida:** tiene `apunte.leer`, `apunte.leer_propio`, `apunte.leer_ajeno`, `atencion.crear` y `atencion.leer_ajeno`, que `RolesSeeder` no le da y que contradicen `roles-consulta-basica-tramitacion.md` («sin acceso a apuntes»). Pendiente de confirmar con el desarrollador antes de retirarlos (migración como la `2026_11_25_100001`).

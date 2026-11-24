@@ -3,6 +3,7 @@
 namespace App\Services\Geocodificacion;
 
 use App\Services\Geocodificacion\Adaptadores\MockGeocodificador;
+use App\Services\Geocodificacion\Adaptadores\SinGeocodificador;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
@@ -15,6 +16,11 @@ use Illuminate\Contracts\Container\BindingResolutionException;
  * El proveedor se configura en backoffice con la clave 'geocoder.proveedor'.
  * Cambiar de proveedor no requiere código ni despliegue.
  *
+ * El simulador (`mock`) inventa coordenadas y sección censal: solo se usa en los
+ * tests. Fuera de ellos, si no hay un proveedor real configurado, el adaptador es
+ * `ninguno` (SinGeocodificador) y la dirección queda como texto libre sin
+ * normalizar (decisión del 25 nov 2026).
+ *
  * Ver docs/geocodificacion.md § 2.3.
  */
 class GeocodificadorService implements GeocodificadorInterface
@@ -25,41 +31,71 @@ class GeocodificadorService implements GeocodificadorInterface
      * @var array<string, class-string<GeocodificadorInterface>>
      */
     private const ADAPTADORES = [
+        SinGeocodificador::IDENTIFICADOR => SinGeocodificador::class,
         'mock' => MockGeocodificador::class,
+        // 'callejero' => CallejeroMadridGeocodificador::class, // pendiente (callejero oficial de Madrid)
         // 'bdc'   => BdcGeocodificador::class,   // pendiente
-        // 'osm'   => OsmGeocodificador::class,    // pendiente
-        // 'gmaps' => GmapsGeocodificador::class,  // pendiente
     ];
 
     /**
      * Normaliza la dirección delegando en el adaptador activo.
      *
      * @param string $direccionTexto Texto libre tal como lo introduce el profesional.
+     *
+     * @return ResultadoGeocodificacion
      */
     public function normalizar(string $direccionTexto): ResultadoGeocodificacion
     {
-        $proveedor = configuracion_sistema('geocoder.proveedor', 'mock');
-        $adaptador = $this->resolverAdaptador((string) $proveedor);
+        return $this->resolverAdaptador(self::proveedorActivo())->normalizar($direccionTexto);
+    }
 
-        return $adaptador->normalizar($direccionTexto);
+    /**
+     * Proveedor que se usa de verdad: el configurado si tiene adaptador; el simulador
+     * solo en los tests; en cualquier otro caso, `ninguno`.
+     *
+     * @return string
+     */
+    public static function proveedorActivo(): string
+    {
+        $porDefecto = app()->environment('testing') ? 'mock' : SinGeocodificador::IDENTIFICADOR;
+        $configurado = (string) configuracion_sistema('geocoder.proveedor', $porDefecto);
+
+        if (! isset(self::ADAPTADORES[$configurado])) {
+            return $porDefecto;
+        }
+
+        // El simulador inventa datos territoriales: nunca fuera de los tests
+        if ($configurado === 'mock' && ! app()->environment('testing')) {
+            return SinGeocodificador::IDENTIFICADOR;
+        }
+
+        return $configurado;
+    }
+
+    /**
+     * Si hay un geocodificador que pueda normalizar. Sin él no tiene sentido encolar
+     * reintentos: fallarían siempre.
+     *
+     * @return bool
+     */
+    public static function hayGeocodificador(): bool
+    {
+        return self::proveedorActivo() !== SinGeocodificador::IDENTIFICADOR;
     }
 
     /**
      * Resuelve el adaptador correspondiente a la clave de proveedor.
      *
-     * Si el proveedor configurado no tiene adaptador registrado, cae al mock
-     * para no bloquear el sistema.
-     *
      * @param string $proveedor Clave de configuración del proveedor.
+     *
+     * @return GeocodificadorInterface
      */
     private function resolverAdaptador(string $proveedor): GeocodificadorInterface
     {
-        $clase = self::ADAPTADORES[$proveedor] ?? self::ADAPTADORES['mock'];
-
         try {
-            return app($clase);
+            return app(self::ADAPTADORES[$proveedor]);
         } catch (BindingResolutionException) {
-            return new MockGeocodificador;
+            return new SinGeocodificador;
         }
     }
 }

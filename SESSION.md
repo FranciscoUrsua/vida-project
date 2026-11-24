@@ -4,6 +4,8 @@
 
 ---
 
+**Última tarea (25 nov, 6):** geocodificación: el simulador solo actúa en los tests (fuera, adaptador `ninguno`, sin normalizar y sin reintentos) y se retiraron sus datos inventados (migración `2026_11_25_100002`). **Siguiente paso propuesto:** `docs/instrucciones-cli/2026-11-callejero-madrid.md` (geocodificador local con el callejero oficial de Madrid y autocompletado del domicilio); hasta entonces, la asignación de centro por domicilio no resuelve.
+
 **Última tarea (25 nov, 5):** backoffice de la supervisión y de `adm_usuarios`: auditoría de accesos de todo el sistema (arreglado el error SQL), entornos demo solo para `adm_sistema`, profesionales, perfiles horarios, excepciones y cuadrantes limitados al ámbito de `adm_usuarios` (`AmbitoGestionUsuarios`), y plantillas y estilos de informe editables por la supervisión en su ámbito, con páginas de solo lectura para el resto.
 
 **Última tarea (25 nov, 4):** contraseña de `vida_user` cambiada (estaba publicada en `phpunit.xml`) en PostgreSQL y en los `.env` local y de staging; los tests usan su propio usuario `vida_test` con credenciales en `vida/.env.testing` (sin versionar; plantilla `.env.testing.example`). Quien monte el entorno de cero necesita crear `.env.testing` y el usuario `vida_test` (ver `docs/decisiones-tecnicas.md` §1.5).

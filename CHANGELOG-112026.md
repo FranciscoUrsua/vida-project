@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-11-25 — Geocodificación: el simulador ya no inventa direcciones fuera de los tests
+
+- **Diagnóstico** (a petición del desarrollador): no existía normalización real del domicilio. El único adaptador era el simulador, que daba por buena cualquier dirección, marcaba `direccion_normalizada` e inventaba coordenadas, distrito, barrio y sección censal (aleatoria y fija por dirección, tomada del catálogo real). La asignación de centro por domicilio decide con esa sección. En la BD compartida: 7 personas normalizadas por el simulador; la única asignación de centro vigente era por elección.
+- **Cambios:** adaptador `ninguno` (`SinGeocodificador`), por defecto fuera de los tests; `GeocodificadorService::proveedorActivo()` usa el simulador solo con `APP_ENV=testing`, aunque esté configurado. Sin geocodificador real no se encolan reintentos (observer, `NormalizarDireccionJob` y `direcciones:normalizar` no hacen nada). Migración `2026_11_25_100002`: deja sin normalizar las direcciones del simulador y conserva el texto y el código postal.
+- **Tests:** dos nuevos en `DireccionObserverTest` (fuera de los tests no se inventan datos ni se encolan reintentos, comprobado en negativo; la migración limpia y conserva el texto).
+- **Propuesta del proveedor real** (aceptada): geocodificador local sobre el callejero oficial de Madrid con autocompletado, sin enviar direcciones a terceros. Instrucciones en `docs/instrucciones-cli/2026-11-callejero-madrid.md` (TF-CAL-01 a 12). Google y Nominatim público descartados (`geocodificacion.md` §2.2).
+- Decisiones técnicas §9 y §10 al día (geocodificación; auditoría de la supervisión en el backoffice).
+
+---
+
 ## 2026-11-25 — Backoffice: ámbito de la supervisión y de `adm_usuarios`
 
 Origen: pruebas en staging con una dirección de centro (`supervision` + `adm_usuarios` + `intervencion`).

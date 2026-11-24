@@ -7,6 +7,7 @@ use App\Events\DireccionCiudadanoNormalizada;
 use App\Models\Ciudadano;
 use App\Observers\DireccionObserver;
 use App\Services\Geocodificacion\GeocodificadorInterface;
+use App\Services\Geocodificacion\GeocodificadorService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -79,7 +80,8 @@ class NormalizarDireccionJob implements ShouldQueue
         /** @var Ciudadano|Centro|null $modelo */
         $modelo = ($this->claseModelo)::find($this->modeloId);
 
-        if ($modelo === null || $modelo->direccion_normalizada || empty($modelo->direccion_texto)) {
+        // Sin geocodificador real no hay nada que reintentar (los encolados antes del cambio)
+        if ($modelo === null || $modelo->direccion_normalizada || empty($modelo->direccion_texto) || ! GeocodificadorService::hayGeocodificador()) {
             return;
         }
 

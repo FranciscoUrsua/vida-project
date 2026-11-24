@@ -390,6 +390,8 @@ Ver docs/geocodificacion.md para la especificación completa.
 
 **Geocoder mock para v1.** El adaptador MockGeocodificador implementa un parser de texto libre con reglas para extraer tipo de vía, nombre y número, más coordenadas aleatorias dentro del bbox de Madrid (lat: 40.31–40.53, lng: -3.83– -3.52). Permite desarrollar y testear toda la lógica dependiente de coordenadas sin servicios externos. Ver docs/geocodificacion.md, sección 5.
 
+**Actualización (2026-11-25): el simulador, solo en los tests; geocodificador local con el callejero oficial.** El simulador inventaba la sección censal y daba por normalizada cualquier dirección, de modo que la asignación de centro por domicilio habría decidido con datos falsos sin que nada lo indicara. Fuera de los tests el adaptador por defecto es `ninguno` (sin normalizar). El proveedor real será un geocodificador local sobre el callejero oficial del Ayuntamiento de Madrid (datos abiertos, CC BY 4.0), con autocompletado del domicilio: ninguna dirección de una persona sale de VIDA. Se descartan Google y Nominatim público por privacidad y por sus condiciones de uso. Ver `docs/instrucciones-cli/2026-11-callejero-madrid.md`.
+
 ---
 
 ## Sección 10 — Auditoría: modelo `Audit` inmutable e `AuditService` como punto único
@@ -407,6 +409,8 @@ Fecha de decisión: 2026-06-14
 **`getCiudadanoId()` en modelos con scopes de UO usa `withoutGlobalScopes()`.** Los modelos Apunte, PlanDeIntervencion, Valoracion y Entrevista tienen AmbitoUoScope activo. La resolución de ciudadano_id para auditoría es una operación interna del sistema, no un acceso de datos de usuario, y debe funcionar independientemente del contexto de UO del usuario autenticado.
 
 **El supervisor de auditoría requiere adscripción al árbol de UOs (comportamiento más restrictivo).** Cualquier usuario con rol `supervision` puede ver accesos a expedientes, pero solo los de su subtree de UO. Más seguro que el comportamiento anterior (supervision veía todos los accesos).
+
+**Actualización (2026-11-25):** en el backoffice (`AuditResource`) la supervisión vuelve a ver la auditoría de accesos de todo el sistema, por decisión del desarrollador; el filtro por UO además fallaba por una errata. La pantalla operativa Supervisión → Accesos sigue limitada al ámbito del supervisor. Ver `modulo-auditoria.md` §6.
 
 **`uoSubtreeIds()` devuelve `array`, no `Collection`.** Por ello se usa `in_array()` en vez de `->contains()` en las verificaciones de auditoría.
 

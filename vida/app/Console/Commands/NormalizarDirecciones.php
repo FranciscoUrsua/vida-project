@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Ciudadano;
 use App\Services\Geocodificacion\GeocodificadorInterface;
+use App\Services\Geocodificacion\GeocodificadorService;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 use Modules\Centro\Models\Centro;
@@ -50,6 +51,12 @@ class NormalizarDirecciones extends Command
     {
         $entidadClave = $this->option('entidad');
         $soloPendientes = (bool) $this->option('pendientes');
+
+        if (! GeocodificadorService::hayGeocodificador()) {
+            $this->warn('No hay geocodificador configurado (geocoder.proveedor): no se normaliza nada.');
+
+            return self::SUCCESS;
+        }
 
         $entidades = $this->resolverEntidades($entidadClave);
 

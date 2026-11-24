@@ -7,6 +7,7 @@ use App\Events\DireccionCiudadanoNormalizada;
 use App\Jobs\NormalizarDireccionJob;
 use App\Models\Ciudadano;
 use App\Services\Geocodificacion\GeocodificadorInterface;
+use App\Services\Geocodificacion\GeocodificadorService;
 use App\Services\Geocodificacion\ResultadoGeocodificacion;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Centro\Models\Centro;
@@ -147,7 +148,8 @@ class DireccionObserver
      */
     private function encolarSiPendiente(Model $model): void
     {
-        if ($this->debeGeocodificar($model) && ! $model->direccion_normalizada) {
+        // Sin geocodificador real, el reintento fallaría siempre
+        if ($this->debeGeocodificar($model) && ! $model->direccion_normalizada && GeocodificadorService::hayGeocodificador()) {
             NormalizarDireccionJob::dispatch(get_class($model), $model->getKey())
                 ->onQueue('low');
         }

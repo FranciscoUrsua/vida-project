@@ -4,8 +4,14 @@ namespace Tests\Feature;
 
 use App\Enums\OrigenDireccion;
 use App\Enums\TipoNumeracion;
+use App\Jobs\NormalizarDireccionJob;
 use App\Models\Ciudadano;
+use App\Services\Geocodificacion\Adaptadores\SinGeocodificador;
+use App\Services\Geocodificacion\GeocodificadorService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
+use Modules\Organizacion\Models\Configuracion;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -151,5 +157,70 @@ class DireccionObserverTest extends TestCase
         $this->assertTrue($ciudadano->direccion_normalizada);
         $this->assertNotNull($ciudadano->tipo_via);
         $this->assertEquals('mock', $ciudadano->geocoder_proveedor);
+    }
+
+    // -------------------------------------------------------------------------
+    // Simulador solo en tests (25 nov 2026)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Fuera de los tests no se usa el simulador, aunque esté configurado: la dirección
+     * queda sin normalizar, sin coordenadas ni sección censal inventadas, y no se encola
+     * ningún reintento. [negativo]
+     */
+    #[Test]
+    public function fuera_de_los_tests_el_simulador_no_inventa_datos(): void
+    {
+        Queue::fake();
+        app()->detectEnvironment(fn () => 'staging');
+        Configuracion::create(['clave' => 'geocoder.proveedor', 'valor' => 'mock', 'tipo' => 'texto']);
+
+        try {
+            $this->assertSame(SinGeocodificador::IDENTIFICADOR, GeocodificadorService::proveedorActivo());
+            $this->assertFalse(GeocodificadorService::hayGeocodificador());
+
+            $ciudadano = Ciudadano::create([
+                'nombre' => 'Lucía',
+                'apellido1' => 'Prueba',
+                'fecha_nacimiento' => '1990-01-01',
+                'sexo' => 'mujer',
+                'direccion_texto' => 'C/ Mayor 15, Madrid 28013',
+                'origen_direccion' => OrigenDireccion::Profesional,
+                'activo' => true,
+            ]);
+        } finally {
+            app()->detectEnvironment(fn () => 'testing');
+        }
+
+        $this->assertFalse($ciudadano->direccion_normalizada);
+        $this->assertNull($ciudadano->seccion_censal_codigo);
+        $this->assertNull($ciudadano->coordenadas_lat);
+        $this->assertSame('C/ Mayor 15, Madrid 28013', $ciudadano->direccion_texto);
+        Queue::assertNotPushed(NormalizarDireccionJob::class);
+    }
+
+    /** La migración del 25 nov deja sin normalizar lo que normalizó el simulador y conserva el texto. */
+    #[Test]
+    public function la_migracion_retira_las_direcciones_del_simulador(): void
+    {
+        $ciudadano = Ciudadano::create([
+            'nombre' => 'Pedro',
+            'apellido1' => 'Prueba',
+            'fecha_nacimiento' => '1990-01-01',
+            'sexo' => 'hombre',
+            'direccion_texto' => 'Avda. de la Albufera 120, 28038 Madrid',
+            'origen_direccion' => OrigenDireccion::Profesional,
+            'activo' => true,
+        ]);
+        $this->assertSame('mock', $ciudadano->geocoder_proveedor);
+
+        (require database_path('migrations/2026_11_25_100002_retira_direcciones_normalizadas_por_el_simulador.php'))->up();
+
+        $fila = DB::table('ciudadanos')->where('id', $ciudadano->id)->first();
+        $this->assertFalse((bool) $fila->direccion_normalizada);
+        $this->assertNull($fila->geocoder_proveedor);
+        $this->assertNull($fila->coordenadas_lat);
+        $this->assertNull($fila->seccion_censal_codigo);
+        $this->assertSame('Avda. de la Albufera 120, 28038 Madrid', Ciudadano::withoutGlobalScopes()->find($ciudadano->id)->direccion_texto);
     }
 }

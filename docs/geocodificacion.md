@@ -54,12 +54,16 @@ class ResultadoGeocodificacion
 
 | Identificador | Descripción | Estado |
 |---|---|---|
-| `mock` | Parser de texto libre + coordenadas aleatorias en bbox de Madrid | Implementado (v1) |
-| `bdc` | Base de Datos Ciudad del Ayuntamiento de Madrid | Pendiente |
-| `osm` | OpenStreetMap / Nominatim | Pendiente |
-| `gmaps` | Google Maps Geocoding API | Pendiente |
+| `ninguno` | Sin geocodificador: la dirección queda como texto libre sin normalizar | Implementado; **por defecto fuera de los tests** (25 nov 2026) |
+| `mock` | Parser de texto libre + coordenadas aleatorias y sección censal inventada | Implementado; **solo en los tests** |
+| `callejero` | Callejero oficial del Ayuntamiento de Madrid, cargado en la BD de VIDA | Pendiente: `docs/instrucciones-cli/2026-11-callejero-madrid.md` |
+| `bdc` | Base de Datos Ciudad del Ayuntamiento de Madrid (API interna) | Pendiente |
+| `osm` | OpenStreetMap / Nominatim | Descartado (25 nov 2026): datos de personas a un tercero; la política del servicio público desaconseja el uso continuo |
+| `gmaps` | Google Maps Geocoding API | Descartado (25 nov 2026): datos de personas a un tercero; solo permite guardar coordenadas 30 días |
 
 El adaptador activo se configura en `configuracion_sistema` con la clave `geocoder.proveedor`. Cambiar de proveedor es una operación de backoffice — no requiere código ni despliegue.
+
+**Simulador solo en los tests (25 nov 2026).** El simulador daba por buena cualquier dirección e inventaba la sección censal, con la que decide la asignación de centro por domicilio. `GeocodificadorService::proveedorActivo()` lo usa solo con `APP_ENV=testing`; fuera, aunque esté configurado, usa `ninguno`. Sin geocodificador real no se encolan reintentos (`hayGeocodificador()`). La migración `2026_11_25_100002` retiró de la BD las direcciones que había normalizado.
 
 ### 2.3 Resolución del adaptador
 
