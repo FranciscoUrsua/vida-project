@@ -6,7 +6,7 @@
 #
 # Herramientas necesarias:
 #   PHP:  composer (>=2.4), local-php-security-checker (~/bin/)
-#   JS:   npm, eslint + eslint-plugin-security (npm install --save-dev)
+#   JS:   npm, eslint + eslint-plugin-security (devDependencies; reglas en eslint.config.js)
 #
 # Como hook pre-commit:
 #   cp security-check.sh .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
@@ -114,39 +114,18 @@ fi
 # ── 4. ANÁLISIS ESTÁTICO JS (ESLint security) ────────────────────────────────
 header "Análisis de seguridad JS (ESLint)"
 
-# Requiere: npm install --save-dev eslint eslint-plugin-security
+# Reglas: vida/eslint.config.js (eslint, eslint-plugin-security, @eslint/js y globals en devDependencies)
 
 if [[ -f "$VIDA_DIR/package.json" ]]; then
-  if [[ -f "$VIDA_DIR/node_modules/.bin/eslint" ]]; then
-    ESLINT_VERSION=$("$VIDA_DIR/node_modules/.bin/eslint" --version 2>/dev/null | sed 's/v//')
-    ESLINT_MAJOR="${ESLINT_VERSION%%.*}"
-    if [[ "$ESLINT_MAJOR" -ge 9 ]]; then
-      # ESLint v9+ usa flat config; los flags --no-eslintrc/--plugin inline fueron eliminados.
-      warn "ESLint v${ESLINT_VERSION} (flat config): configura eslint-plugin-security en eslint.config.js para análisis inline"
+  if [[ -f "$VIDA_DIR/node_modules/.bin/eslint" && -f "$VIDA_DIR/eslint.config.js" ]]; then
+    # Reglas en vida/eslint.config.js (flat config), las mismas que usa el CI
+    if (cd "$VIDA_DIR" && ./node_modules/.bin/eslint . 2>&1); then
+      ok "ESLint: sin problemas de seguridad en JS"
     else
-      if "$VIDA_DIR/node_modules/.bin/eslint" \
-          --ext .js,.ts \
-          --no-eslintrc \
-          --plugin security \
-          --rule 'security/detect-eval-with-expression: error' \
-          --rule 'security/detect-unsafe-regex: error' \
-          --rule 'security/detect-no-csrf-before-method-override: error' \
-          --rule 'security/detect-buffer-noassert: error' \
-          --rule 'security/detect-disable-mustache-escape: error' \
-          --rule 'security/detect-new-buffer: error' \
-          --rule 'security/detect-non-literal-regexp: warn' \
-          --rule 'security/detect-non-literal-require: warn' \
-          --rule 'security/detect-possible-timing-attacks: warn' \
-          --rule 'security/detect-object-injection: warn' \
-          --rule 'security/detect-child-process: warn' \
-          resources/js/ 2>&1; then
-        ok "ESLint: sin problemas de seguridad en JS"
-      else
-        fail "ESLint detectó problemas de seguridad en JS"
-      fi
+      fail "ESLint detectó problemas de seguridad en JS"
     fi
   else
-    warn "ESLint no instalado: npm install --save-dev eslint eslint-plugin-security"
+    warn "ESLint no instalado o sin eslint.config.js: npm install en vida/"
   fi
 fi
 

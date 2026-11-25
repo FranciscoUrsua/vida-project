@@ -4,12 +4,20 @@
 
 ---
 
+## 2026-11-25 — ESLint de seguridad: configuración plana y en funcionamiento
+
+- **Problema:** el análisis de seguridad del JS no se hacía en ningún sitio. El hook de pre-commit (`vida/security-check.sh`) solo avisaba («configura eslint-plugin-security en eslint.config.js») y el job «JS Security» de `.github/workflows/security.yml` usaba flags de ESLint 8 (`--ext`, `--plugin`, `--rule` en línea) que ESLint 9 eliminó; el paso salía en verde sin analizar nada.
+- **Cambio:** `vida/eslint.config.js` (flat config) con `eslint-plugin-security` y `@eslint/js` recomendado, para `resources/js` y `Modules/*/resources/js`. Errores (bloquean): eval con expresión, regex inseguras, CSRF antes de method-override, Buffer sin aserción o `new Buffer`, escape de mustache desactivado, `pseudoRandomBytes`, caracteres bidi e invisibles. Avisos: regex, `require` y rutas no literales, posibles ataques de tiempo, inyección por objeto y `child_process`. El hook y el CI ejecutan `eslint .` con esa configuración. Nuevas devDependencies `@eslint/js` y `globals`. Actualizado el hook instalado (`.git/hooks/pre-commit`, copia del script).
+- **Comprobado:** el JS actual pasa sin avisos; con un fichero temporal con `eval(x)` y `/(a+)+$/` falla con 2 errores (borrado después). Las plantillas Blade con `<script>` en línea no las analiza ESLint.
+
+---
+
 ## 2026-11-25 — Dependencias: 27 avisos de Dependabot y `league/csv`
 
 - **Dependabot (27 avisos abiertos, 1 crítico, 14 altos, 11 moderados y 1 bajo):** todos de npm, en `package-lock.json`. Paquetes: `shell-quote` (de `concurrently`), `axios` y `follow-redirects`, `brace-expansion` y `minimatch` (de `eslint`), `immutable` y `source-map-js` (de `sass`), `postcss` y `vite`. Todos son herramientas de compilación salvo `axios`, que sí va en el bundle del navegador (`resources/js/bootstrap.js`); sus avisos afectan sobre todo a los adaptadores de Node y fetch, no al XHR del navegador.
 - **Cambio:** `npm update` dentro de los rangos de `package.json` (sin cambiar `package.json`): axios 1.21.1, follow-redirects 1.16.3, shell-quote 1.12.0, brace-expansion 5.1.0, minimatch 11.0.9, immutable 5.2.1, postcss 8.5.33, source-map-js 1.2.4, vite 7.3.8 (y el resto de dependencias a su última versión compatible). `npm audit`: 0 vulnerabilidades. `npm run build` y `ui:auditar` en verde.
 - **`league/csv` 9.29.1** (commit aparte, antes): aviso GHSA-m9j4-54gj-jvf8; llega por `filament/actions`. `composer audit` sin avisos.
-- **Sin cambio:** ESLint no tiene `eslint.config.js` y falla al ejecutarse (ya pasaba antes; el hook de seguridad lo avisa).
+- **ESLint** (resuelto a continuación, ver la entrada siguiente).
 
 ---
 

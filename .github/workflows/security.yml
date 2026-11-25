@@ -82,30 +82,10 @@ jobs:
       - name: npm audit
         run: npm audit --audit-level=moderate --omit=dev
 
-      # ESLint con plugin de seguridad
-      # Requiere: npm install --save-dev eslint eslint-plugin-security
+      # ESLint con plugin de seguridad: reglas en vida/eslint.config.js (flat config),
+      # las mismas que el hook de pre-commit. Falla con cualquier error.
       - name: ESLint security
-        run: |
-          if [ -f node_modules/.bin/eslint ]; then
-            npx eslint \
-              --ext .js,.ts \
-              --no-config-lookup \
-              --plugin security \
-              --rule 'security/detect-eval-with-expression: error' \
-              --rule 'security/detect-unsafe-regex: error' \
-              --rule 'security/detect-no-csrf-before-method-override: error' \
-              --rule 'security/detect-buffer-noassert: error' \
-              --rule 'security/detect-disable-mustache-escape: error' \
-              --rule 'security/detect-new-buffer: error' \
-              --rule 'security/detect-non-literal-regexp: warn' \
-              --rule 'security/detect-non-literal-require: warn' \
-              --rule 'security/detect-possible-timing-attacks: warn' \
-              --rule 'security/detect-object-injection: warn' \
-              --rule 'security/detect-child-process: warn' \
-              resources/js/
-          else
-            echo "::warning::ESLint no instalado. Ejecuta: npm install --save-dev eslint eslint-plugin-security"
-          fi
+        run: npx eslint .
 
   # ───────────────────────────────────────────────────────────────────────────
   # JOB 3: Secretos hardcodeados (Gitleaks)
