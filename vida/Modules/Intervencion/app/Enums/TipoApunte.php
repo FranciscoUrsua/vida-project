@@ -19,6 +19,8 @@ enum TipoApunte: string
     case Escala = 'escala';
     case GestionCoordinacion = 'gestion_coordinacion';
     case PlanIntervencion = 'plan_intervencion';
+    // Resultado de un encargo profesional (EP-5)
+    case Encargo = 'encargo';
 
     /**
      * Etiqueta legible para mostrar el tipo de apunte.
@@ -35,6 +37,7 @@ enum TipoApunte: string
             self::Escala => 'Escala',
             self::GestionCoordinacion => 'Gestión / coordinación',
             self::PlanIntervencion => 'Plan de intervención',
+            self::Encargo => 'Encargo profesional',
         };
     }
 
@@ -47,7 +50,7 @@ enum TipoApunte: string
     {
         return match ($this) {
             self::Entrevista, self::Escala, self::Seguimiento => Tono::Primario,
-            self::Valoracion, self::Derivacion => Tono::Exito,
+            self::Valoracion, self::Derivacion, self::Encargo => Tono::Exito,
             self::PlanIntervencion => Tono::Aviso,
             self::Anotacion, self::GestionCoordinacion, self::Documento => Tono::Neutro,
         };

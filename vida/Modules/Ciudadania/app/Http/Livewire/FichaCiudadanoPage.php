@@ -66,6 +66,7 @@ use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
  * @property-read bool $puedeVerEstadoHistoria
  * @property-read array{estado: string, referencia: string|null}|null $estadoHistoria
  * @property-read bool $puedeVerPrestaciones
+ * @property-read bool $soloPorEncargo
  * @property-read bool $puedeVerHistorialCitas
  * @property-read Collection<int, AsignacionCentro> $asignacionesCentro
  * @property-read Collection<int, AsignacionProfesional> $asignacionesReferencia
@@ -214,8 +215,10 @@ class FichaCiudadanoPage extends Component
         $user = auth()->user();
         $acceso = app(AccesoExpediente::class);
 
-        // El rol se comprueba aquí y no en la ruta para que el intento quede auditado
-        if (! $user->hasAnyRole(['intervencion', 'tramitacion', 'consulta_basica', 'supervision'])) {
+        // El rol se comprueba aquí y no en la ruta para que el intento quede auditado. El
+        // profesional de encargo entra por permiso: la policy lo limita a sus personas (EP-6)
+        if (! $user->hasAnyRole(['intervencion', 'tramitacion', 'consulta_basica', 'supervision'])
+            && ! $user->can('ciudadano.leer_por_encargo')) {
             $acceso->denegarCiudadano($user, $ciudadano);
         }
 
@@ -406,8 +409,24 @@ class FichaCiudadanoPage extends Component
     }
 
     /**
+     * Si el usuario solo ve a la persona por sus encargos profesionales (EP-6): ficha en
+     * lectura con identificación, contacto, unidad de convivencia y relaciones; nada de
+     * centro y referencia, prestaciones, actividades ni carpeta.
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function soloPorEncargo(): bool
+    {
+        $usuario = auth()->user();
+
+        return $usuario->can('ciudadano.leer_por_encargo') && ! $usuario->can('ciudadano.leer');
+    }
+
+    /**
      * Si el usuario ve el bloque de documentos: la carpeta completa, sus documentos del día o
      * la subida. La supervisión sola no tiene ninguno de esos permisos y no ve documentos (R2).
+     * El profesional de encargo trabaja los documentos desde el encargo (bloque D), no aquí.
      *
      * @return bool
      */
@@ -415,6 +434,10 @@ class FichaCiudadanoPage extends Component
     public function puedeVerDocumentos(): bool
     {
         $usuario = auth()->user();
+
+        if ($this->soloPorEncargo) {
+            return false;
+        }
 
         return $usuario->can('documento.ver_carpeta')
             || $usuario->can('documento.gestionar_propios')

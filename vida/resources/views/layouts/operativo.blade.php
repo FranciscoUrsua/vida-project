@@ -3,6 +3,7 @@
         request()->routeIs('intervencion.agenda*')     => 'Agenda',
         request()->routeIs('agenda.citas*')            => 'Citación',
         request()->routeIs('intervencion.casos*')      => 'Mis casos',
+        request()->routeIs('intervencion.encargos*')   => 'Mis derivaciones',
         request()->routeIs('intervencion.mensajes*')   => 'Alertas y mensajes',
         request()->routeIs('intervencion.buscar*')     => 'Buscar ciudadano/a',
         request()->routeIs('ciudadania.buscar')        => 'Buscar ciudadano/a',

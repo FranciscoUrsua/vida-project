@@ -17,6 +17,8 @@ enum EstadoDerivacion: string
     case Aceptada = 'aceptada';
     case Rechazada = 'rechazada';
     case Anulada = 'anulada';
+    // Solo los encargos profesionales: el profesional lo cierra con su resultado (EP-4)
+    case Cerrada = 'cerrada';
 
     /**
      * Etiqueta para la interfaz.
@@ -30,6 +32,7 @@ enum EstadoDerivacion: string
             self::Aceptada => 'Aceptada',
             self::Rechazada => 'Rechazada',
             self::Anulada => 'Anulada',
+            self::Cerrada => 'Cerrada',
         };
     }
 
@@ -45,6 +48,7 @@ enum EstadoDerivacion: string
             self::Aceptada => Tono::Exito,
             self::Rechazada => Tono::Peligro,
             self::Anulada => Tono::Neutro,
+            self::Cerrada => Tono::Info,
         };
     }
 }

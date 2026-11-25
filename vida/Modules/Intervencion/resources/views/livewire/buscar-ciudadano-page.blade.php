@@ -132,7 +132,8 @@
             @endforeach
         @endif
 
-        {{-- Pie: dar de alta --}}
+        {{-- Pie: dar de alta (solo quien puede dar altas; no el profesional de encargo) --}}
+        @can('create', \App\Models\Ciudadano::class)
         <div class="card bg-body-tertiary mt-4">
             <div class="card-body d-flex flex-wrap align-items-center justify-content-center gap-2 text-body-secondary">
                 ¿No está la persona que buscas?
@@ -141,6 +142,7 @@
                 </a>
             </div>
         </div>
+        @endcan
     </div>
 
     {{-- Modal solicitud de acceso (nivel 3) --}}

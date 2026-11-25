@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\AmbitoUsuario;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Database\Eloquent\Builder;
+use Modules\Intervencion\Services\EncargosDeUsuario;
 
 /**
  * Policy de autorización para el modelo Ciudadano.
@@ -29,6 +30,11 @@ use Illuminate\Database\Eloquent\Builder;
  * La UO se determina vía la Historia Social activa del ciudadano. Si el ciudadano
  * no tiene Historia Social, el acceso corresponde a la UO del usuario activo.
  *
+ * Encargo profesional (`ciudadano.leer_por_encargo`, EP-6 y EP-7 de
+ * docs/instrucciones-cli/2026-11-encargo-profesional.md): el profesional de encargo
+ * lee la ficha de las personas de sus encargos aceptados o cerrados, y de una persona
+ * protegida solo mientras el encargo está aceptado (EncargosDeUsuario). No da `update`.
+ *
  * Caso especial — supervision: solo lectura, nunca escritura sobre datos de ciudadanos.
  * Caso especial — adm_sistema: también debe pasar los filtros de UO y colectivo protegido.
  *
@@ -40,6 +46,9 @@ class CiudadanoPolicy
 
     /** Permiso requerido para leer la ficha del ciudadano. */
     private const PERMISO_LEER = 'ciudadano.leer';
+
+    /** Lectura limitada a las personas de los encargos profesionales del usuario (EP-6). */
+    private const PERMISO_LEER_POR_ENCARGO = 'ciudadano.leer_por_encargo';
 
     /** Permiso requerido para crear un ciudadano. */
     private const PERMISO_CREAR = 'ciudadano.crear';
@@ -64,7 +73,8 @@ class CiudadanoPolicy
      * Decide si el usuario puede consultar la ficha del ciudadano.
      *
      * Evaluación en tres pasos estándar más verificación de colectivo protegido.
-     * El equipo de un plan en curso de la persona también la consulta (fase 3, F3-3).
+     * El equipo de un plan en curso de la persona también la consulta (fase 3, F3-3), y el
+     * profesional de encargo a las personas de sus encargos (EP-6, EP-7).
      *
      * @param User $usuario Usuario autenticado.
      * @param Ciudadano $ciudadano Ciudadano objetivo.
@@ -73,6 +83,11 @@ class CiudadanoPolicy
      */
     public function view(User $usuario, Ciudadano $ciudadano): bool
     {
+        // Encargo profesional: sus personas asignadas, con la regla de protegidas de EP-7
+        if ($usuario->can(self::PERMISO_LEER_POR_ENCARGO) && app(EncargosDeUsuario::class)->ve($usuario, $ciudadano)) {
+            return true;
+        }
+
         // Paso 1: Permiso atómico requerido
         if (! $usuario->can(self::PERMISO_LEER)) {
             return false;

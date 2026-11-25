@@ -1,8 +1,10 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-24 (correcciones de la ronda 1 de staging: pasos 1 y 6, superficie operativa única)
+**Última actualización:** 2026-11-25 (encargo profesional: bloque C, superficie de `consulta_profesional`)
 
 ---
+
+**Última tarea (25 nov, 7):** encargo profesional, bloque C (`docs/instrucciones-cli/2026-11-encargo-profesional.md`) y el código del bloque A: `consulta_profesional` entra en «Mis derivaciones» (`Superficie::Encargos`), con ficha en lectura y buscador limitados a las personas de sus encargos (`EncargosDeUsuario`, `CiudadanoPolicy`), `EncargoPage` para registrar el resultado y cerrar, y permisos nuevos (retira `ciudadano.leer`, `historia.leer`, `apunte.*`, `plan.leer`, `documento.ver_carpeta`). Migraciones `2026_11_25_200001` y `200002` **no aplicadas en local**: se aplican con el despliegue. TF-ENC-19 a 29 en verde. **Ojo:** el TSR aún no puede crear encargos desde la interfaz ni la supervisión aceptarlos (bloque B), así que en staging `edu.css` y `abogada.ciam` verán «Mis derivaciones» vacía. **Siguiente paso:** tests del bloque A (TF-ENC-01 a 13) y bloque B (herramienta «Encargo profesional» en la Historia Social y el plan, y aceptación en `DerivacionesPage` asignando profesional); después D, E y F.
 
 **Última tarea (25 nov, 6):** el enlace directo tras el login ya no se hereda de la sesión caducada de otro usuario (cookie `vida_ultimo_usuario` en `LoginController`; TF-STG-29 bis y ter). Era lo que llevaba a `edu.css` a la ficha 449. `edu.css` (`consulta_profesional`) ve ahora la página informativa hasta que exista el encargo profesional. **Siguiente paso:** el desarrollador repite la entrada de `edu.css` en staging; después, la supervisión del CIAM reparte los casos de `abogada.ciam` y se decide el siguiente encargo (encargo profesional de `consulta_profesional` o barrido `role:` → permisos).
 
@@ -51,7 +53,7 @@ Decisiones confirmadas por el Delegado Digital el 23 nov 2026, todas implementad
 
 **Siguiente paso:** comprobar el despliegue y avisar al desarrollador de que puede repetir la ronda 2 (INF-01, INF-08, EST-02 a EST-09, VEN-01 a VEN-05). Después, el encargo siguiente: barrido `role:` → permisos (BACKLOG).
 
-**Contexto para retomar:** en staging, `abogada.ciam` y `edu.css` (solo `consulta_profesional`) verán «Tu usuario no tiene un perfil de trabajo configurado» hasta que exista su superficie (`docs/rol-consulta-profesional.md`, BACKLOG). `coo.ciam` es la única supervisión sola. Quedan en el BACKLOG de la ronda 1 la ficha 14 huérfana, `adm1.css` (Spatie ≠ `usuario_rol`), `APP_DEBUG=true` en staging y si la supervisión sola debe ver prestaciones y atenciones en la ficha.
+**Contexto para retomar:** en staging, `abogada.ciam` y `edu.css` (solo `consulta_profesional`) entran en «Mis derivaciones» desde el encargo profesional (bloque C, 25 nov); sin bloque B no tendrán encargos. `coo.ciam` es la única supervisión sola. Quedan en el BACKLOG de la ronda 1 la ficha 14 huérfana, `adm1.css` (Spatie ≠ `usuario_rol`), `APP_DEBUG=true` en staging y si la supervisión sola debe ver prestaciones y atenciones en la ficha.
 
 ---
 

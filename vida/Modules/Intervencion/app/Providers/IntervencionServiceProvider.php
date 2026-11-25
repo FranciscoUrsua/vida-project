@@ -15,7 +15,9 @@ use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\CambioReferencia;
 use Modules\Intervencion\Http\Livewire\CiudadanoPage;
 use Modules\Intervencion\Http\Livewire\DerivacionesPlan;
+use Modules\Intervencion\Http\Livewire\EncargoPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
+use Modules\Intervencion\Http\Livewire\MisEncargosPage;
 use Modules\Intervencion\Http\Livewire\PrescribirRecursoModal;
 use Modules\Intervencion\Http\Livewire\RecursosPage;
 use Modules\Intervencion\Http\Livewire\RegistrarEscalaPage;
@@ -89,6 +91,8 @@ class IntervencionServiceProvider extends ServiceProvider
 
         Livewire::component('intervencion.agenda-page', AgendaPage::class);
         Livewire::component('intervencion.mis-casos-page', MisCasosPage::class);
+        Livewire::component('intervencion.mis-encargos-page', MisEncargosPage::class);
+        Livewire::component('intervencion.encargo-page', EncargoPage::class);
         Livewire::component('intervencion.buscar-ciudadano-page', BuscarCiudadanoPage::class);
         Livewire::component('intervencion.ciudadano-page', CiudadanoPage::class);
         Livewire::component('intervencion.derivaciones-plan', DerivacionesPlan::class);

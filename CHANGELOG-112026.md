@@ -4,6 +4,28 @@
 
 ---
 
+## 2026-11-25 — Encargo profesional: superficie, ámbito y permisos de `consulta_profesional` (bloque C)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloque C (y el código del bloque A, que estaba hecho sin commitear).
+
+- **Bloque A (sin tests aún):** migración `2026_11_25_200001` (`derivaciones.modalidad`, plan/prestación/tipo nullable con `CHECK` para las de plan especializado, estado `cerrada`, `resultado` cifrado, `cerrada_en`, `cerrada_por_id`), `ModalidadDerivacion`, `EstadoDerivacion::Cerrada`, `TipoApunte::Encargo`, `Derivacion::esEncargo()` y scopes `encargos()`/`deProfesional()`, `EncargoService` (encargar, aceptar, cerrar, profesionales y centros de destino); `DerivacionService::aceptar()` rechaza un encargo; `TipoDocumental` admite vincular a un encargo.
+- **C1, permisos:** `derivacion.ver_asignadas`, `derivacion.registrar_resultado`, `ciudadano.leer_por_encargo` (`PermisosSeeder`). `consulta_profesional` queda con `ciudadano.ver_ficha`, `ciudadano.leer_por_encargo`, `derivacion.ver_asignadas`, `derivacion.registrar_resultado` y `documento.subir`, y pierde `ciudadano.leer`, `historia.leer`, `apunte.*`, `plan.leer` y `documento.ver_carpeta` (`RolesSeeder` y migración de datos `2026_11_25_200002`). **Migraciones no aplicadas en local** (BD compartida): se aplican con el despliegue.
+- **C2, `EncargosDeUsuario`:** personas de los encargos aceptados o cerrados del profesional; protegidas solo con el encargo aceptado o con acceso protegido vigente (EP-7).
+- **C3, `CiudadanoPolicy::view`:** con `ciudadano.leer_por_encargo`, las personas de `EncargosDeUsuario`. No da `update`.
+- **C4, ficha:** la abre también quien tiene `ciudadano.leer_por_encargo` (antes, solo cuatro roles). Con solo ese permiso (`soloPorEncargo`) no se pintan centro y referencia, prestaciones, actividades, historial de atenciones, primera demanda ni documentos.
+- **C5, buscador:** `ciudadania.buscar` admite `ciudadano.buscar|derivacion.ver_asignadas`; sin `ciudadano.buscar`, la consulta se limita a las personas de sus encargos (antes del tope de 500 de la búsqueda por nombre). El pie «Dar de alta» solo se muestra a quien puede crear ciudadanos.
+- **C6, superficie:** `Superficie::Encargos` («Mis derivaciones», `derivacion.ver_asignadas`), prioridad Supervisión → Agenda → Encargos → Tramitación → Citación; entrada «Mis derivaciones» en «Mi trabajo»; el buscador del menú también para `derivacion.ver_asignadas`.
+- **C7, páginas:** `MisEncargosPage` (`/intervencion/encargos`, en curso e histórico) y `EncargoPage` (`/intervencion/encargos/{id}`: motivo, TSR, documentos adjuntos y registro del resultado con `EncargoService::cerrar`).
+- **Defensivo:** `DerivacionesPage` (bandeja de Supervisión) ya no falla con un encargo pendiente (sin tipo de plan); la bandeja completa del encargo es el bloque B.
+- **Tests:** `Modules/Intervencion/tests/Feature/Encargo/SuperficieEncargoTest.php`, TF-ENC-19 a 29 más 19 bis (migración = seeder), 20 bis (`/` no lleva a `/sin-rol`) y un avance de TF-ENC-33 (protegida: aceptado sí, cerrado enmascarada y 403). En verde; negativos comprobados (sin el límite del buscador fallan 26 y 27; sin la regla de protegidas, la de protegidas). Actualizado `PaginaInicioTest` (TF-STG-01, 04 y 25 usaban `consulta_profesional` como rol sin superficie: ahora entra en «Mis derivaciones»; TF-STG-01 usa un rol sin permisos creado en el test). En verde los 252 tests de los ficheros que ejercitan lo tocado (ficha, consulta básica, buscador, navegación, derivaciones, protegidas, Acceso, Inicio, Auth). `npm run build` y `ui:auditar` sin infracciones.
+- **Decisiones de implementación:**
+  - `EncargoPage` de una persona protegida con el encargo cerrado responde 403 (el motivo y el resultado la identifican); en «Mis derivaciones» aparece enmascarada, sin enlace y sin motivo. «Solicitar acceso» desde ahí queda para el bloque D.
+  - La ficha del profesional de encargo no muestra documentos hasta el bloque D (la vía `AccesoDocumentosEncargo` aún no existe); los adjuntos del encargo se listan en `EncargoPage`, con enlace solo si `DocumentoPolicy` lo permite.
+  - El permiso de la ruta de la ficha se mira por permiso (`ciudadano.leer_por_encargo`), no añadiendo `consulta_profesional` a la lista de roles.
+- **Documentación:** `rol-consulta-profesional.md` (estado), `modulo-usuarios-permisos.md` (ROL 6), tabla de estado de las instrucciones y `CLAUDE.md` §6.
+
+---
+
 ## 2026-11-25 — El enlace directo tras el login no se hereda de otro usuario
 
 - **Síntoma (staging):** `edu.css` (multicentro, solo `consulta_profesional`) entraba directamente en la ficha de la persona 449, con «No tienes permiso» y sin menú. No la tiene asignada: su referencia es `ts3.ciam`.

@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\CiudadanoPage;
+use Modules\Intervencion\Http\Livewire\EncargoPage;
+use Modules\Intervencion\Http\Livewire\MisEncargosPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
 use Modules\Intervencion\Http\Livewire\PlanPage;
 use Modules\Intervencion\Http\Livewire\RecursosPage;
@@ -31,6 +33,13 @@ Route::middleware(['web', 'auth', 'tiene.rol', 'permission:agenda.ver_propia'])-
     Route::get('/mensajes/{pestana?}', BandejaAlertasYMensajes::class)
         ->whereIn('pestana', ['alertas', 'avisos', 'mensajes'])
         ->name('mensajes.index');
+});
+
+// «Mis derivaciones»: encargos profesionales asignados (EP-10 de 2026-11-encargo-profesional.md).
+// EncargoPage solo abre los encargos del propio profesional.
+Route::middleware(['web', 'auth', 'tiene.rol', 'permission:derivacion.ver_asignadas'])->prefix('intervencion')->name('intervencion.')->group(function () {
+    Route::get('/encargos', MisEncargosPage::class)->name('encargos.index');
+    Route::get('/encargos/{encargo}', EncargoPage::class)->whereNumber('encargo')->name('encargos.show');
 });
 
 // Historia Social, plan y actuaciones: siguen con `role:` hasta el barrido de rutas (BACKLOG)

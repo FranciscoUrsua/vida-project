@@ -1,6 +1,6 @@
 # Rol de consulta profesional (`consulta_profesional`) y encargo profesional — VIDA 360
 
-**Estado:** diseño funcional cerrado el 23 nov 2026, sin implementar. Depende de una modalidad nueva de derivación (el **encargo profesional**, §3). Hasta que exista, el rol ve la página informativa de R4 (`docs/instrucciones-cli/2026-11-correcciones-staging-ronda1.md`).
+**Estado:** diseño funcional cerrado el 23 nov 2026; pendientes del §11 resueltos el 25 nov 2026 en `docs/instrucciones-cli/2026-11-encargo-profesional.md`. Implementados el modelo y servicio del encargo (bloque A, sin sus tests) y la superficie, el ámbito y los permisos (bloque C, 25 nov 2026): el rol entra en «Mis derivaciones». Pendientes los bloques B (interfaz del TSR y bandeja), D (documentos), E (agenda y citas) y F (mensajes y centro activo).
 **Origen:** pruebas en staging, ronda 1 (EST-02: el rol no tenía superficie y se quedaba en «Redirigiendo…»).
 **Documentos relacionados:** `docs/modulo-usuarios-permisos.md` (ROL 6), `docs/instrucciones-cli/2026-11-fase3-circuito-intervencion.md` (F3-3 a F3-6, derivaciones), `docs/instrucciones-cli/2026-11-tipo-centro-addenda-d1.md` (D1.5, D1.6, RN-15 a RN-19), `docs/roles-consulta-basica-tramitacion.md`, `docs/modulo-agenda.md`, `docs/modulo-documentos.md`, `docs/modulo-mensajes.md`.
 

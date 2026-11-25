@@ -15,9 +15,13 @@ use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 |
 */
 
+// El buscador lo abre también el profesional de encargo, que solo encuentra a las personas
+// de sus encargos (BuscarCiudadanoPage, EP-6 de 2026-11-encargo-profesional.md)
+Route::middleware(['web', 'auth', 'tiene.rol', 'permission:ciudadano.buscar|derivacion.ver_asignadas', 'audit.ciudadano'])
+    ->get('/ciudadania/buscar', BuscarCiudadanoPage::class)->name('ciudadania.buscar');
+
 Route::middleware(['web', 'auth', 'tiene.rol', 'permission:ciudadano.buscar', 'audit.ciudadano'])
     ->group(function () {
-        Route::get('/ciudadania/buscar', BuscarCiudadanoPage::class)->name('ciudadania.buscar');
         Route::get('/ciudadania/alta', AltaCiudadano::class)->name('ciudadania.alta');
 
         // Tras el alta, «dar cita» lleva a la cita directa de Agenda con la persona elegida

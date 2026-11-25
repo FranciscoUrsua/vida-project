@@ -14,6 +14,7 @@ use Modules\Documentos\Enums\OrigenEni;
 use Modules\Documentos\Enums\PoliticaVersiones;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\Valoracion;
+use Modules\Intervencion\Models\Derivacion;
 use Modules\Prestaciones\Models\SolicitudPrestacion;
 
 /**
@@ -198,7 +199,8 @@ class TipoDocumental extends Model
     {
         // Un documento de la persona puede vincularse también a una solicitud suya (fase 3 bis,
         // RN-04): es el mismo documento, que ya está en su carpeta; no hace falta otra clave.
-        if (is_a($clase, SolicitudPrestacion::class, true)) {
+        // Igual con un encargo profesional (docs/instrucciones-cli/2026-11-encargo-profesional.md, EP-8)
+        if (is_a($clase, SolicitudPrestacion::class, true) || is_a($clase, Derivacion::class, true)) {
             return $this->permiteVincularA(Ciudadano::class);
         }
 

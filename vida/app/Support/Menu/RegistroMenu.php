@@ -64,6 +64,9 @@ final class RegistroMenu
                 fn () => route('intervencion.agenda.index'), $ruta('intervencion.agenda*'), $trabajoPropio),
             new EntradaMenu('casos', 'mi_trabajo', 'Mis casos', 'users',
                 fn () => route('intervencion.casos.index'), $ruta('intervencion.casos*'), $trabajoPropio, 'casos'),
+            // Encargos profesionales asignados (EP-10 de 2026-11-encargo-profesional.md)
+            new EntradaMenu('encargos', 'mi_trabajo', 'Mis derivaciones', 'clipboard-document-list',
+                fn () => route('intervencion.encargos.index'), $ruta('intervencion.encargos*'), $permiso('derivacion.ver_asignadas')),
             ...self::bandeja($supervisa, $trabajoPropio),
             new EntradaMenu('recursos', 'mi_trabajo', 'Recursos', 'building-office-2',
                 fn () => route('intervencion.recursos.index'), $ruta('intervencion.recursos*'),
@@ -71,7 +74,9 @@ final class RegistroMenu
 
             // Personas
             new EntradaMenu('buscador', 'personas', 'Buscar ciudadano/a', 'magnifying-glass',
-                fn () => route('ciudadania.buscar'), $ruta('ciudadania.buscar', 'intervencion.buscar*'), $permiso('ciudadano.buscar')),
+                fn () => route('ciudadania.buscar'), $ruta('ciudadania.buscar', 'intervencion.buscar*'),
+                // El profesional de encargo busca entre las personas de sus encargos (EP-6)
+                fn (User $u) => $u->can('ciudadano.buscar') || $u->can('derivacion.ver_asignadas')),
             new EntradaMenu('alta', 'personas', 'Alta de ciudadano/a', 'user-plus',
                 fn () => route('ciudadania.alta'), $ruta('ciudadania.alta'), fn (User $u) => $u->can('create', Ciudadano::class)),
 

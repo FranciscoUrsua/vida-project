@@ -19,19 +19,20 @@ enum Superficie: string
 {
     case Supervision = 'supervision';
     case Agenda = 'agenda';
+    case Encargos = 'encargos';
     case Tramitacion = 'tramitacion';
     case Citacion = 'citacion';
     case Buscador = 'buscador';
 
     /**
      * Orden de la página de inicio por defecto (R4.5). El buscador no entra: solo es elegible
-     * como preferencia.
+     * como preferencia. «Mis derivaciones» va después de Agenda (EP-10 del encargo profesional).
      *
      * @return list<self>
      */
     public static function prioridad(): array
     {
-        return [self::Supervision, self::Agenda, self::Tramitacion, self::Citacion];
+        return [self::Supervision, self::Agenda, self::Encargos, self::Tramitacion, self::Citacion];
     }
 
     /**
@@ -56,6 +57,7 @@ enum Superficie: string
         return match ($this) {
             self::Supervision => 'Inicio de Supervisión',
             self::Agenda => 'Agenda',
+            self::Encargos => 'Mis derivaciones',
             self::Tramitacion => 'Bandeja de tramitación',
             self::Citacion => 'Bandeja de citación',
             self::Buscador => 'Buscador',
@@ -74,6 +76,7 @@ enum Superficie: string
         return match ($this) {
             self::Supervision => $usuario->can('supervision.panel'),
             self::Agenda => $usuario->can('agenda.ver_propia'),
+            self::Encargos => $usuario->can('derivacion.ver_asignadas'),
             self::Tramitacion => $usuario->can('tramitacion.bandeja'),
             // La bandeja de citación la abre quien da citas o quien las supervisa
             self::Citacion => $usuario->can('citas.gestionar') || $usuario->can('citas.supervisar'),
@@ -91,6 +94,7 @@ enum Superficie: string
         return match ($this) {
             self::Supervision => route('supervision.inicio'),
             self::Agenda => route('intervencion.agenda.index'),
+            self::Encargos => route('intervencion.encargos.index'),
             self::Tramitacion => route('prestaciones.bandeja'),
             self::Citacion => route('agenda.citas.bandeja'),
             self::Buscador => route('ciudadania.buscar'),

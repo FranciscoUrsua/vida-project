@@ -109,7 +109,8 @@ class DerivacionesPage extends Component
                     'persona' => $this->nombrePersona($persona, $usuario),
                     'origen' => $derivacion->planOrigen?->centro?->nombre ?? '—',
                     'tsr' => $derivacion->derivadaPor?->nombreVisible() ?? '—',
-                    'tipo' => $derivacion->tipoPlan->nombre,
+                    // Un encargo profesional no tiene tipo de plan (EP-1); la bandeja completa es el bloque B
+                    'tipo' => $derivacion->tipoPlan?->nombre ?? $derivacion->modalidad->label(),
                     'motivo' => $derivacion->motivo,
                     'antiguedad' => $derivacion->created_at->diffForHumans(),
                 ];

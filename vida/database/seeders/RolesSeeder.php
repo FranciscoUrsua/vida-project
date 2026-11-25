@@ -186,18 +186,18 @@ class RolesSeeder extends Seeder
         ],
 
         // -----------------------------------------------------------------
-        // ROL 6: Consulta Profesional Puntual
-        // Acceso acotado a los ciudadanos y procesos asignados explícitamente.
+        // ROL 6: Consulta Profesional (encargo profesional)
+        // Trabaja con las personas de sus encargos sin acceso a la Historia Social
+        // (docs/rol-consulta-profesional.md): ficha en lectura solo de esas personas,
+        // resultado del encargo y documentos propios. Sin ciudadano.leer (que daría la
+        // consulta libre de cualquier persona), historia, apuntes, planes ni carpeta.
         // -----------------------------------------------------------------
         'consulta_profesional' => [
             'ciudadano.ver_ficha',
-            'ciudadano.leer',
-            'historia.leer',
-            'apunte.crear',      // Registro de resultado de cita como intervención puntual
-            'apunte.leer',
-            'apunte.leer_propio',
-            'plan.leer',
-            'documento.ver_carpeta',
+            'ciudadano.leer_por_encargo',
+            'derivacion.ver_asignadas',
+            'derivacion.registrar_resultado',
+            'documento.subir',
         ],
 
         // -----------------------------------------------------------------

@@ -134,6 +134,11 @@ class PermisosSeeder extends Seeder
         ['agenda.ver_propia', 'Entrar en la superficie de trabajo propia: agenda, casos, bandeja y recursos'],
         ['tramitacion.bandeja', 'Entrar en la bandeja de tramitación de solicitudes'],
         ['ciudadano.buscar', 'Usar el buscador de personas'],
+
+        // Encargo profesional (docs/instrucciones-cli/2026-11-encargo-profesional.md, C1)
+        ['derivacion.ver_asignadas', 'Entrar en «Mis derivaciones»: los encargos profesionales asignados'],
+        ['derivacion.registrar_resultado', 'Recibir encargos profesionales, registrar su resultado y cerrarlos'],
+        ['ciudadano.leer_por_encargo', 'Ver en lectura la ficha de las personas de sus encargos profesionales'],
     ];
 
     /**

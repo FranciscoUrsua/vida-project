@@ -231,7 +231,7 @@
                 </div>
 
                 {{-- Primera demanda (inmutable) --}}
-                @if($ciudadano->primera_demanda)
+                @if($ciudadano->primera_demanda && ! $this->soloPorEncargo)
                     <figure class="bg-body-tertiary rounded p-3 mt-3 mb-0">
                         <figcaption class="small text-uppercase fw-semibold text-body-secondary mb-1">Primera demanda registrada en el alta</figcaption>
                         <blockquote class="fst-italic mb-0">
@@ -430,7 +430,9 @@
             @endif
 
             {{-- ——— Actividades: inscripciones en sesiones, de cualquier centro (fase 6) ——— --}}
-            <livewire:ciudadania.actividades-persona :ciudadano-id="$ciudadanoId" :key="'actividades-'.$ciudadanoId" />
+            @unless($this->soloPorEncargo)
+                <livewire:ciudadania.actividades-persona :ciudadano-id="$ciudadanoId" :key="'actividades-'.$ciudadanoId" />
+            @endunless
 
         </div>{{-- /col-lg-8 --}}
 
@@ -458,6 +460,8 @@
                 </div>
             @endif
 
+            {{-- El profesional de encargo no ve centro, referencia ni prestaciones (EP-6) --}}
+            @unless($this->soloPorEncargo)
             {{-- ——— Centro y profesional de referencia (docs/modulo-asignacion.md) ——— --}}
             {{-- La referencia con su origen, fechas e historial solo con historia.leer --}}
             @php
@@ -532,6 +536,7 @@
 
             {{-- ——— Prestaciones de la persona y solicitudes (fase 3 bis; no para consulta_basica) ——— --}}
             @livewire('prestaciones.prestaciones-persona', ['ciudadanoId' => $ciudadanoId], key('prestaciones-persona-'.$ciudadanoId))
+            @endunless
 
             {{-- ——— Otras prestaciones ——— --}}
             @if($this->puedeVerPrestaciones && $prestaciones->isNotEmpty())
@@ -565,7 +570,7 @@
             @endif
 
             {{-- ——— Historial de atenciones ——— --}}
-            @if($this->historialAtenciones->isNotEmpty() || $this->puedeCrearAtencion)
+            @if(! $this->soloPorEncargo && ($this->historialAtenciones->isNotEmpty() || $this->puedeCrearAtencion))
             <div class="card mb-3" id="ficha-atencion-historial">
                 <div class="card-header d-flex align-items-center gap-2">
                     <x-heroicon-o-arrow-path class="icon-14" aria-hidden="true"/>

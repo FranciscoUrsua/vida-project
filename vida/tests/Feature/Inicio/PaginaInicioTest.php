@@ -10,6 +10,7 @@ use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Centro\Tests\Concerns\TipoCentroTestSetup;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
@@ -77,7 +78,9 @@ class PaginaInicioTest extends TestCase
             'consulta_basica sola' => [['consulta_basica'], 'agenda.citas.bandeja'],
             'supervisión sola' => [['supervision'], 'supervision.inicio'],
             'adm_sistema solo' => [['adm_sistema'], 'admin'],
-            'consulta_profesional sola' => [['consulta_profesional'], 'sin-rol'],
+            // Desde el encargo profesional (25 nov 2026) tiene superficie: «Mis derivaciones»
+            'consulta_profesional sola' => [['consulta_profesional'], 'intervencion.encargos.index'],
+            'consulta_profesional + intervención' => [['consulta_profesional', 'intervencion'], 'intervencion.agenda.index'],
             'intervención sola' => [['intervencion'], 'intervencion.agenda.index'],
             'tramitación sola' => [['tramitacion'], 'prestaciones.bandeja'],
             'adm_usuarios solo' => [['adm_usuarios'], 'admin'],
@@ -101,7 +104,10 @@ class PaginaInicioTest extends TestCase
     #[Test]
     public function tf_stg_01_rol_sin_superficie_ve_la_pagina_informativa(): void
     {
-        $usuario = $this->conRoles(['consulta_profesional']);
+        // Rol configurado en el backoffice sin ningún permiso de superficie (antes servía de
+        // ejemplo `consulta_profesional`, que ya tiene «Mis derivaciones»)
+        Role::create(['name' => 'rol_sin_superficie', 'guard_name' => 'web']);
+        $usuario = $this->conRoles(['rol_sin_superficie']);
 
         $this->post(route('login.post'), ['email' => $usuario->email, 'password' => 'secreto'])
             ->assertRedirect(route('sin-rol'));

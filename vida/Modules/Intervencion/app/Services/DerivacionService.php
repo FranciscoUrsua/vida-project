@@ -26,6 +26,7 @@ use Modules\Prestaciones\Models\Prestacion;
 
 /**
  * Único punto de escritura de las derivaciones a atención especializada (fase 3, F3-6, B3).
+ * Rechazar y anular valen también para los encargos profesionales (EncargoService).
  *
  * Flujo: el TSR deriva desde el plan principal activo a un centro que ofrece el tipo de
  * plan de la prestación; la dirección o la supervisión adscrita al centro de destino la
@@ -152,6 +153,11 @@ class DerivacionService
      */
     public function aceptar(Derivacion $derivacion, User $responsable, User $actor): PlanDeIntervencion
     {
+        // Un encargo profesional no abre plan: se acepta con EncargoService (EP-1)
+        if ($derivacion->esEncargo()) {
+            throw new DomainException('Es un encargo profesional: se asigna a un profesional, no abre plan.');
+        }
+
         $this->exigirPendiente($derivacion);
         $this->exigirDestino($derivacion, $actor);
 

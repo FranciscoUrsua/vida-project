@@ -17,6 +17,7 @@ use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
+use Modules\Intervencion\Services\EncargosDeUsuario;
 use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Services\AlertaService;
@@ -84,10 +85,15 @@ class BuscarCiudadanoPage extends Component
 
         $termino = trim($this->query);
 
+        // Sin `ciudadano.buscar`, el profesional de encargo solo encuentra a las personas de sus
+        // encargos (EP-6); las protegidas de encargos cerrados salen enmascaradas (EP-7). El
+        // límite va en la consulta, antes del tope de registros de la búsqueda por nombre.
+        $limite = $this->personasPermitidas();
+
         $ciudadanos = match ($this->campoBusqueda) {
-            'alias' => $this->buscarPorAlias($termino),
-            'doc', 'hsu' => $this->buscarPorIdentificador($termino, $this->campoBusqueda),
-            default => $this->buscarPorNombre($termino),
+            'alias' => $this->buscarPorAlias($termino, $limite),
+            'doc', 'hsu' => $this->buscarPorIdentificador($termino, $this->campoBusqueda, $limite),
+            default => $this->buscarPorNombre($termino, $limite),
         };
 
         foreach ($ciudadanos as $ciudadano) {
@@ -96,13 +102,37 @@ class BuscarCiudadanoPage extends Component
     }
 
     /**
+     * Personas a las que se limita la búsqueda, o null si no hay límite.
+     *
+     * Solo hay límite para quien entra por `derivacion.ver_asignadas` sin `ciudadano.buscar`:
+     * las personas de sus encargos aceptados o cerrados (EncargosDeUsuario).
+     *
+     * @return list<int>|null
+     */
+    private function personasPermitidas(): ?array
+    {
+        /** @var User $usuario */
+        $usuario = Auth::user();
+
+        if ($usuario->can('ciudadano.buscar')) {
+            return null;
+        }
+
+        return app(EncargosDeUsuario::class)->todasLasPersonaIds($usuario);
+    }
+
+    /**
      * Busca ciudadanos cuyo alias contiene el término dado.
+     *
+     * @param string $termino
+     * @param list<int>|null $limite Personas a las que se limita la búsqueda (null: sin límite).
      *
      * @return Collection<int, Ciudadano>
      */
-    private function buscarPorAlias(string $termino): Collection
+    private function buscarPorAlias(string $termino, ?array $limite): Collection
     {
         return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
+            ->when($limite !== null, fn ($q) => $q->whereKey($limite))
             ->where('alias', 'ilike', '%'.$termino.'%')
             ->where('activo', true)
             ->limit(50)
@@ -115,13 +145,17 @@ class BuscarCiudadanoPage extends Component
      *
      * TODO: reemplazar por búsqueda en índice hash cuando esté disponible.
      *
+     * @param string $termino
+     * @param list<int>|null $limite Personas a las que se limita la búsqueda (null: sin límite).
+     *
      * @return array<int, Ciudadano>
      */
-    private function buscarPorNombre(string $termino): array
+    private function buscarPorNombre(string $termino, ?array $limite): array
     {
         $terminoNorm = mb_strtolower($termino);
 
         return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
+            ->when($limite !== null, fn ($q) => $q->whereKey($limite))
             ->where('activo', true)
             ->limit(500)
             ->get()
@@ -148,10 +182,11 @@ class BuscarCiudadanoPage extends Component
      *
      * @param string $termino Texto introducido, ya sin espacios alrededor.
      * @param string $tipo 'doc' | 'hsu'
+     * @param list<int>|null $limite Personas a las que se limita la búsqueda (null: sin límite).
      *
      * @return Collection<int, Ciudadano>
      */
-    private function buscarPorIdentificador(string $termino, string $tipo): Collection
+    private function buscarPorIdentificador(string $termino, string $tipo, ?array $limite): Collection
     {
         $ids = CiudadanoIdentificador::query()
             ->where('valor_hash', CiudadanoIdentificador::hashDe(trim($termino)))
@@ -161,6 +196,7 @@ class BuscarCiudadanoPage extends Component
 
         return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
             ->whereKey($ids)
+            ->when($limite !== null, fn ($q) => $q->whereKey($limite))
             ->where('activo', true)
             ->limit(50)
             ->get();

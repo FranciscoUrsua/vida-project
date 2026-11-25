@@ -66,10 +66,11 @@ Transversal (encargo siguiente a la ronda 1)
 
 ---
 
-**`consulta_profesional` y encargo profesional** — 2026-11-24
-Módulos: Intervención (derivaciones), Usuarios y permisos, Agenda, Documentos
-- Según `docs/rol-consulta-profesional.md` (diseño del 23 nov, sin implementar). Al implantarlo, «Mis derivaciones» entra en la prioridad de R4.5 justo después de Agenda y como superficie elegible (`App\Support\Superficie\Superficie`), con su permiso de superficie (`derivacion.ver_asignadas`) y su entrada en `RegistroMenu`. Hasta entonces, `abogada.ciam` y `edu.css` ven la página «Tu usuario no tiene un perfil de trabajo configurado».
-- Revisar los permisos que el rol tiene hoy en el seeder (`historia.leer`, `apunte.leer`, `plan.leer`, `documento.ver_carpeta`), que no encajan con el diseño nuevo.
+**`consulta_profesional` y encargo profesional: bloques pendientes** — 2026-11-25 (antes 2026-11-24)
+Módulos: Intervención (derivaciones), Supervisión, Documentos, Agenda, Mensajes
+- Hechos el código del bloque A y el bloque C (`docs/instrucciones-cli/2026-11-encargo-profesional.md`): `consulta_profesional` entra en «Mis derivaciones», con ficha y buscador limitados a sus encargos. Permisos retirados por la migración `2026_11_25_200002`.
+- Pendientes: tests del bloque A (TF-ENC-01 a 13); bloque B (el TSR aún **no puede crear encargos desde la interfaz** y la bandeja de Supervisión no los acepta asignando profesional: hasta entonces «Mis derivaciones» estará vacía en staging); D (documentos del encargo, `AccesoDocumentosEncargo`, subida desde el encargo, «Solicitar acceso» para protegidas cerradas); E (agenda y citas); F (Mensajes en el menú, contexto `encargo`, centro activo por la hora).
+- Fuera de alcance, para cuando haga falta: reasignar un encargo aceptado a otro profesional (hoy se anula y se encarga de nuevo).
 
 ---
 

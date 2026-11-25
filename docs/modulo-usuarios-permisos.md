@@ -213,15 +213,19 @@ Este rol reúne titulaciones distintas y no distingue entre ellas. Qué actos co
 
 El rol depende del servicio, no de la titulación: las abogadas integradas en el equipo de un CIAM trabajan con rol *Intervención*, porque necesitan la Historia completa.
 
-> **Rediseñado el 23 nov 2026** (sin implementar): rol de quien trabaja por **encargo profesional** del TSR, sin la Historia Social completa, con la bandeja «Mis derivaciones», ficha en lectura de sus ciudadanos asignados (con histórico) y documentos propios. Ver `docs/rol-consulta-profesional.md`, que sustituye a las capacidades de abajo. Mientras no exista su superficie, quien solo tiene este rol ve la página «Tu usuario no tiene un perfil de trabajo configurado» (R4.5).
+> **Rediseñado el 23 nov 2026; superficie, ámbito y permisos implementados el 25 nov 2026** (bloque C de `docs/instrucciones-cli/2026-11-encargo-profesional.md`): rol de quien trabaja por **encargo profesional** del TSR, sin la Historia Social completa. Ver `docs/rol-consulta-profesional.md`.
 
-**Capacidades (anteriores al rediseño):**
-- Consulta de informes, procesos abiertos, trámites y citas.
-- Registro del resultado de una cita como intervención puntual.
-- No puede consultar apuntes profesionales de otros agentes.
-- No tiene acceso a contenido de intervención de otras personas.
+**Capacidades:**
+- Página de inicio «Mis derivaciones» (`derivacion.ver_asignadas`, superficie `Encargos`, después de Agenda en la prioridad): sus encargos en curso y el histórico.
+- Detalle del encargo (motivo, TSR, documentos adjuntos) y registro del resultado, que lo cierra (`derivacion.registrar_resultado`); el resultado queda como apunte `encargo` en la Historia Social.
+- Ficha en lectura de las personas de sus encargos (`ciudadano.leer_por_encargo`): identificación, contacto, unidad de convivencia y relaciones. Sin centro y referencia, prestaciones, actividades, atenciones ni carpeta.
+- Buscador limitado a las personas de sus encargos.
+- Sin Historia Social, apuntes, planes ni carpeta completa: no tiene `ciudadano.leer`, `historia.leer`, `apunte.*`, `plan.leer` ni `documento.ver_carpeta` (migración `2026_11_25_200002`).
+- Pendiente: documentos del encargo (bloque D), agenda y citas (bloque E), mensajes y centro activo por la hora (bloque F).
 
-**Ámbito por UO:** Limitado a los ciudadanos y procesos explícitamente asignados (con el rediseño: los de sus encargos, incluido el histórico).
+**Permisos:** `ciudadano.ver_ficha`, `ciudadano.leer_por_encargo`, `derivacion.ver_asignadas`, `derivacion.registrar_resultado`, `documento.subir`.
+
+**Ámbito:** las personas de los encargos en los que es o ha sido el profesional asignado (aceptados o cerrados), con histórico (`EncargosDeUsuario`). Una persona protegida, solo mientras el encargo está aceptado (RN-17 ampliada, EP-7); cerrado, aparece enmascarada.
 
 **Nivel de supervisión:** Alerta supervisada con reconocimiento obligatorio.
 
@@ -475,7 +479,7 @@ documento.gestionar_propios  # ver, sustituir, recatalogar y retirar los documen
 | `intervencion` | `ciudadano.editar_relaciones`, `historia.ver_estado`, `cita.ver_historial`, `documento.ver_carpeta`, `documento.subir` |
 | `supervision` | `historia.ver_estado`, `cita.ver_historial`, `documento.ver_carpeta` |
 | `adm_sistema` | `documento.ver_carpeta`, `documento.subir` |
-| `consulta_profesional` | `documento.ver_carpeta` |
+| `consulta_profesional` | `documento.ver_carpeta` (retirado el 25 nov 2026 con el encargo profesional) |
 
 `RolesSeeder` es **aditivo** desde la fase 4: añade a cada rol los permisos que le falten y no quita los configurados en el backoffice. Retirar un permiso de un rol se hace con una migración de datos.
 
