@@ -1,6 +1,6 @@
 # Domicilio con el callejero oficial de Madrid
 
-**Fecha:** 25 nov 2026 · **Estado:** en curso (pasos 0, 1, 2, 3 y 5 hechos el 24-25 nov 2026; falta el paso 4) · **Módulos:** Ciudadanía, Centro (asignación), infraestructura de geocodificación
+**Fecha:** 25 nov 2026 · **Estado:** completada el 25 nov 2026 (pasos 0 a 5; fuente corregida al conjunto 200075) · **Módulos:** Ciudadanía, Centro (asignación), infraestructura de geocodificación
 
 Instrucciones para sustituir la «normalización» de direcciones, que hoy no existe, por un geocodificador local basado en el callejero oficial del Ayuntamiento de Madrid, con autocompletado del domicilio en los formularios.
 
@@ -78,6 +78,10 @@ Instrucciones para sustituir la «normalización» de direcciones, que hoy no ex
 
 - `php artisan vida:normalizar-direcciones --pendientes` (ya existe) pasa las direcciones de texto libre por el adaptador `callejero`. Las ambiguas quedan como están.
 
+**Hecho el 25 nov 2026.** El comando tenía tres defectos que se corrigieron antes de ejecutarlo: no guardaba los códigos territoriales (habría dejado direcciones «normalizadas» sin sección), no disparaba `DireccionCiudadanoNormalizada` ni fijaba el origen (no habría asignado centro) y procesaba también las del padrón (§3.3). Ahora usa `ResultadoGeocodificacion::atributosDireccion()`, pone origen `geocodificacion`, avisa a la asignación, solo toma origen `profesional` o sin origen (cargas antiguas), no espera entre lotes con el callejero local y resume los motivos de fallo. TF-CAL-13 a 15.
+
+Ejecutado en la BD compartida tras una simulación de solo lectura: 171 pendientes, **73 normalizadas** con sección, 96 sin normalizar (58 sin número, 38 no encontradas en el callejero). Ninguna asignación ni propuesta: en staging los dos centros con adscripción por domicilio (CSS Arganzuela y CSS Entrevías) no tienen ámbitos territoriales, y sin ellos la asignación por domicilio no resuelve a nadie (BACKLOG).
+
 ## Paso 5 — Asignación de centro
 
 **Hecho el 24 nov 2026.** No hizo falta código: `AsignarCentroPorDireccion` ya asignaba a quien no tiene centro y, con asignación geográfica vigente, `evaluarCambioDomicilio()` crea una propuesta de traslado en la bandeja del supervisor (RN-10) sin reasignar. Una asignación por elección o manual no genera propuesta (quien eligió centro lo conserva; `modulo-asignacion.md` §3.5). TF-CAL-12 (con bis y ter) de punta a punta con el adaptador del callejero, en `Modules/Centro/tests/Feature/Asignacion/AsignacionPorCallejeroTest.php`; negativo comprobado.
@@ -92,7 +96,7 @@ Instrucciones para sustituir la «normalización» de direcciones, que hoy no ex
 ## Criterios de finalización
 
 - Ninguna petición a servicios externos con direcciones de personas.
-- En staging, una dirección elegida en el autocompletado queda normalizada con la sección censal oficial, y la asignación por domicilio la usa.
+- En staging, una dirección elegida en el autocompletado queda normalizada con la sección censal oficial (comprobado a mano por el desarrollador el 25 nov 2026), y la asignación por domicilio la usa (comprobado en TF-CAL-12; en staging falta configurar los ámbitos territoriales de los centros).
 - Tests TF-CAL-01 a 12 en verde, con los negativos comprobados.
 
 ---
@@ -120,5 +124,11 @@ Instrucciones para sustituir la «normalización» de direcciones, que hoy no ex
 **TF-CAL-10 — Autocompletado:** el profesional busca «albuf», elige «Avenida de la Albufera» y el número 120; se guarda con `origen_direccion = callejero` y los datos del portal, sin llamar al geocodificador de texto.
 
 **TF-CAL-11 — Texto libre como alternativa:** «Sin domicilio fijo» se guarda como texto libre, sin normalizar y sin error.
+
+**TF-CAL-13 — Direcciones pendientes (paso 4):** una dirección de texto libre guardada sin geocodificador queda normalizada con `vida:normalizar-direcciones --pendientes`, con los códigos del callejero, origen `geocodificacion`, el texto original y la asignación de centro por su sección.
+
+**TF-CAL-14 — Pendiente que no casa** **[negativo]**: queda como estaba, sin sección ni asignación.
+
+**TF-CAL-15 — Origen** **[negativo]**: una dirección sin origen (carga antigua) se normaliza; una del padrón no se toca.
 
 **TF-CAL-12 — Asignación de centro:** una persona sin centro con domicilio normalizado en una sección asignada a un centro queda asignada a ese centro; una persona con asignación vigente distinta no se reasigna y genera el aviso al supervisor **[negativo]**.

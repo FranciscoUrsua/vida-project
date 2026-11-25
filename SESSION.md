@@ -4,6 +4,8 @@
 
 ---
 
+**Última tarea (25 nov, 2):** callejero, paso 4 y cierre de `docs/instrucciones-cli/2026-11-callejero-madrid.md` (pasos 0 a 5 hechos). `vida:normalizar-direcciones` corregido (códigos territoriales, origen, aviso a la asignación, sin tocar el padrón; TF-CAL-13 a 15) y ejecutado en staging: 73 de 171 normalizadas. **Siguiente paso:** configurar en Filament los ámbitos territoriales de CSS Arganzuela y CSS Entrevías (sin ellos la asignación por domicilio no resuelve a nadie) y reevaluar a las personas con domicilio normalizado; después, el encargo que siga (barrido `role:` → permisos, BACKLOG).
+
 **Última tarea (25 nov, 1):** callejero, paso 3: autocompletado del domicilio (`ciudadania.domicilio-callejero`) en el alta y la ficha, `SeleccionDomicilio`, origen `callejero`. TF-CAL-10 y 11 en verde con negativos; `ui:auditar` sin infracciones. Sin probar a mano en el navegador. **Siguiente paso:** el desarrollador prueba el alta y la ficha en staging; después, paso 4 (`vida:normalizar-direcciones --pendientes` sobre las direcciones de texto libre, en la BD compartida) y cierre de las instrucciones.
 
 **Última tarea (24 nov, 9):** callejero, paso 5: TF-CAL-12 de punta a punta (asigna por la sección oficial; con asignación vigente propone el traslado en la bandeja, no reasigna), sin cambios de código. Adaptador activado en staging con la migración `2026_11_25_100004` (solo si el callejero está importado). **Siguiente paso:** paso 3, autocompletado del domicilio (`ciudadania.domicilio-callejero`, TF-CAL-10 y 11); después el paso 4.

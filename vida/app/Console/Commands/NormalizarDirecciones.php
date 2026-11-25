@@ -2,18 +2,27 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\OrigenDireccion;
+use App\Events\DireccionCiudadanoNormalizada;
 use App\Models\Ciudadano;
+use App\Services\Geocodificacion\Adaptadores\CallejeroMadridGeocodificador;
 use App\Services\Geocodificacion\GeocodificadorInterface;
 use App\Services\Geocodificacion\GeocodificadorService;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Collection;
 use Modules\Centro\Models\Centro;
 
 /**
  * Comando artisan para normalización masiva de direcciones pendientes.
  *
- * Procesa en batches de 100 registros con throttling de 1 segundo entre
- * batches para no saturar el proveedor de geocoding ni el sistema.
+ * Procesa en batches de 100 registros. Con un proveedor externo espera 1 segundo
+ * entre batches para no saturarlo; con el callejero local no hace falta.
+ *
+ * Solo toca direcciones escritas por un profesional (o sin origen, de cargas
+ * antiguas): las del padrón no pasan por el geocodificador (geocodificacion.md
+ * § 3.3). Una dirección que casa guarda también los códigos territoriales y, en
+ * una persona, dispara la asignación de centro, igual que el reintento
+ * (NormalizarDireccionJob). Corregido el 25 nov 2026: antes no guardaba los
+ * códigos ni avisaba a la asignación, y procesaba también las del padrón.
  *
  * Uso:
  *   php artisan vida:normalizar-direcciones --entidad=ciudadano --pendientes
@@ -86,11 +95,16 @@ class NormalizarDirecciones extends Command
     ): void {
         $this->info("Procesando entidad: {$clave}");
 
-        $consulta = $claseModelo::query();
+        // Proceso del sistema: sin el filtro de ámbito del usuario
+        $consulta = $claseModelo::query()->withoutGlobalScopes()
+            ->where(fn ($q) => $q->whereNull('origen_direccion')->orWhere('origen_direccion', OrigenDireccion::Profesional));
 
         if ($soloPendientes) {
             $consulta->sinNormalizar();
         }
+
+        $pausar = GeocodificadorService::proveedorActivo() !== CallejeroMadridGeocodificador::IDENTIFICADOR;
+        $motivos = [];
 
         $total = $consulta->count();
         $procesados = 0;
@@ -108,7 +122,7 @@ class NormalizarDirecciones extends Command
         $barra->start();
 
         $consulta->chunkById(self::BATCH_SIZE, function ($registros) use (
-            $geocodificador, &$procesados, &$exitosos, &$fallidos, $barra
+            $geocodificador, &$procesados, &$exitosos, &$fallidos, &$motivos, $barra, $pausar
         ) {
             foreach ($registros as $registro) {
                 if (empty($registro->direccion_texto)) {
@@ -122,27 +136,23 @@ class NormalizarDirecciones extends Command
                     $resultado = $geocodificador->normalizar((string) $registro->direccion_texto);
 
                     if ($resultado->exito) {
-                        $registro->withoutEvents(function () use ($registro, $resultado) {
-                            $registro->update([
-                                'direccion_normalizada' => true,
-                                'tipo_via' => $resultado->tipoVia,
-                                'nombre_via' => $resultado->nombreVia,
-                                'tipo_numeracion' => $resultado->tipoNumeracion,
-                                'numero' => $resultado->numero,
-                                'portal' => $resultado->portal,
-                                'escalera' => $resultado->escalera,
-                                'piso' => $resultado->piso,
-                                'puerta' => $resultado->puerta,
-                                'codigo_postal' => $resultado->codigoPostal ?? $registro->codigo_postal,
-                                'municipio' => $resultado->municipio,
-                                'coordenadas_lat' => $resultado->latitud,
-                                'coordenadas_lng' => $resultado->longitud,
-                                'geocoder_proveedor' => $resultado->proveedor,
-                            ]);
-                        });
+                        // Sin eventos para no volver a geocodificar; la asignación se avisa aparte
+                        $registro->withoutEvents(fn () => $registro->update([
+                            ...$resultado->atributosDireccion(),
+                            'codigo_postal' => $resultado->codigoPostal ?? $registro->codigo_postal,
+                            'origen_direccion' => OrigenDireccion::Geocodificacion,
+                        ]));
+
+                        if ($registro instanceof Ciudadano) {
+                            DireccionCiudadanoNormalizada::dispatch($registro);
+                        }
+
                         $exitosos++;
                     } else {
                         $fallidos++;
+                        // Motivo sin los datos de la dirección, para el resumen
+                        $motivo = (string) preg_replace('/\s*\(.*\)|\d+/', '', (string) $resultado->errorMensaje);
+                        $motivos[$motivo] = ($motivos[$motivo] ?? 0) + 1;
                     }
                 } catch (\Throwable) {
                     $fallidos++;
@@ -152,8 +162,8 @@ class NormalizarDirecciones extends Command
                 $barra->advance();
             }
 
-            // Throttling entre batches: evita saturar el proveedor de geocoding
-            if ($procesados < $this->getTotalRegistros($registros)) {
+            // Pausa entre batches solo con un proveedor externo
+            if ($pausar) {
                 sleep(1);
             }
         });
@@ -161,6 +171,11 @@ class NormalizarDirecciones extends Command
         $barra->finish();
         $this->newLine();
         $this->line("  Exitosos: {$exitosos} | Fallidos: {$fallidos} | Total: {$procesados}");
+
+        arsort($motivos);
+        foreach ($motivos as $motivo => $cuantos) {
+            $this->line("    {$cuantos} × {$motivo}");
+        }
     }
 
     /**
@@ -183,15 +198,5 @@ class NormalizarDirecciones extends Command
         }
 
         return [$claveLower => self::ENTIDADES[$claveLower]];
-    }
-
-    /**
-     * Devuelve el total de registros en la colección para el throttle condicional.
-     *
-     * @param Collection $registros
-     */
-    private function getTotalRegistros($registros): int
-    {
-        return $registros->count();
     }
 }

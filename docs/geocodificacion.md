@@ -168,7 +168,7 @@ Para migraciones o importaciones masivas de entidades sin normalizar, existe el 
 php artisan vida:normalizar-direcciones --entidad=ciudadano --pendientes
 ```
 
-Procesa en batches con throttling para no saturar el proveedor de geocoding ni el sistema.
+Procesa en batches; solo con un proveedor externo espera entre ellos. Solo toca direcciones de origen `profesional` o sin origen (cargas antiguas), nunca las del padrón. Una dirección que casa guarda los códigos territoriales, pasa a origen `geocodificacion` y, en una persona, dispara la asignación de centro (`DireccionCiudadanoNormalizada`), igual que el job de reintento. Al terminar resume los motivos de fallo. Corregido el 25 nov 2026; ejecutado ese día en staging con el callejero (73 de 171 normalizadas).
 
 ---
 

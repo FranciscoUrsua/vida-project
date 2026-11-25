@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-11-25 — Callejero oficial de Madrid: direcciones existentes (paso 4) y cierre
+
+- **`vida:normalizar-direcciones` corregido** antes de usarlo: no guardaba los códigos territoriales, no fijaba el origen ni disparaba `DireccionCiudadanoNormalizada` (no habría asignado centro) y procesaba también las direcciones del padrón. Ahora usa `ResultadoGeocodificacion::atributosDireccion()`, origen `geocodificacion`, avisa a la asignación, solo toma origen `profesional` o sin origen, sin la pausa entre lotes con el callejero local y con resumen de motivos de fallo. Retirado el método `getTotalRegistros()`, que solo servía a la pausa.
+- **Tests:** `Modules/Centro/tests/Feature/Asignacion/NormalizarPendientesCallejeroTest.php`, TF-CAL-13 a 15 (nuevos, añadidos a las instrucciones), en verde; 13 y 15 fallaban con el comando anterior y 13 falla sin el aviso a la asignación.
+- **Ejecutado en la BD compartida** tras simularlo en solo lectura: 171 direcciones pendientes (7 de origen profesional, 162 sin origen, de cargas antiguas), 73 normalizadas con sección, 96 sin normalizar (58 sin número, 38 no encontradas). Ninguna asignación ni propuesta: los centros con adscripción por domicilio de staging no tienen ámbitos territoriales.
+- **Cierre de las instrucciones** del callejero (pasos 0 a 5): `geocodificacion.md` §4.3 y decisiones técnicas §9 al día. Comprobado a mano por el desarrollador el autocompletado y la normalización al guardar.
+
+---
+
 ## 2026-11-25 — Callejero oficial de Madrid: autocompletado del domicilio (paso 3)
 
 - **Componente** `ciudadania.domicilio-callejero` en el alta (`AltaCiudadano`) y en la edición de la ficha (`FichaCiudadanoPage`): vía desde 3 letras, número, y portal, escalera, piso y puerta aparte; «Escribir la dirección a mano» para el texto libre. Sustituye al campo de texto libre `direccionTexto` (las dos pantallas guardan ahora el estado `domicilio`).
