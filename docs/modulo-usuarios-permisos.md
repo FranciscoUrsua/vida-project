@@ -194,7 +194,8 @@ Este rol reúne titulaciones distintas y no distingue entre ellas. Qué actos co
 **Capacidades:**
 - Alta y modificación de ciudadanos en el sistema.
 - Gestión de citas y agendas. Gestiona citas con los permisos de `docs/modulo-citas.md` §7 (los mismos que `consulta_basica`).
-- **No abre Historias Sociales** ni puede ser profesional de referencia: solo `intervencion`. Lo que decía este documento hasta el 25 nov 2026 («Apertura, cierre y reactivación de Historias Sociales») era un error; el rol perdió `historia.abrir` e `historia.crear` (migración `2026_11_25_100005`). Sigue con `historia.cerrar`.
+- **No abre ni cierra Historias Sociales** ni puede ser profesional de referencia: solo `intervencion`. Lo que decía este documento hasta el 25 nov 2026 («Apertura, cierre y reactivación de Historias Sociales») era un error; el rol perdió `historia.abrir` e `historia.crear` (migración `2026_11_25_100005`) y `historia.cerrar` (migración `2026_11_25_100006`). Consulta el estado de la historia (`historia.ver_estado`).
+- Puede tener **ciudadanos asignados para su cometido** (las solicitudes de prestación que toma, `responsable_id`), que no es lo mismo que ser profesional de referencia: la persona tiene un único profesional de referencia, siempre de intervención (RN-03 bis, `modulo-asignacion.md`).
 - Incorporación de personas a unidades de convivencia.
 - Gestión de traslados y fusiones de registros.
 - Tramitación de solicitudes de prestaciones: inicio de procesos administrativos, subida de documentos, seguimiento de estado.

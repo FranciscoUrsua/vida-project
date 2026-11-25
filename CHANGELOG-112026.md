@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-11-25 — Tramitación tampoco cierra Historias Sociales
+
+- **Decisión del desarrollador:** `tramitacion` no cierra ni reactiva Historias Sociales; sí consulta su estado (`historia.ver_estado`). Ser profesional de referencia (único por persona, siempre `intervencion`) se distingue de tener ciudadanos asignados para un cometido (solicitudes de prestación que toma un tramitador, encargos de `consulta_profesional`).
+- **Cambios:** `RolesSeeder` sin `historia.cerrar` para `tramitacion`; migración `2026_11_25_100006` que se lo retira en la BD. El permiso no se comprueba hoy en ningún punto del código (no hay acción de cierre en la interfaz), así que el cambio deja los permisos coherentes con la regla antes de que exista.
+- **Tests:** TF-REF-07 en `ReferenciaSoloIntervencionTest`, en verde; negativo comprobado (con el permiso de vuelta en el seeder, falla).
+- **Documentación:** `modulo-usuarios-permisos.md` (rol 5), `roles-consulta-basica-tramitacion.md` §4.2 y `modulo-asignacion.md` (RN-03 bis, distinción referencia / ciudadanos asignados).
+
 ## 2026-11-25 — Solo intervención abre Historias Sociales y es profesional de referencia
 
 Origen: prueba en staging del desarrollador. `adm1.ciam@vida.local` (`tramitacion`) dio de alta a una persona, le asignó el centro y le abrió la Historia Social desde la ficha (HS 962), quedando como profesional de referencia (centro «quien abre»).

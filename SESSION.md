@@ -4,6 +4,8 @@
 
 ---
 
+**Última tarea (25 nov, 4):** `tramitacion` pierde `historia.cerrar` (migración `2026_11_25_100006`, TF-REF-07); conserva `historia.ver_estado`. Documentada la distinción referencia (única, intervención) / ciudadanos asignados para un cometido (tramitación, `consulta_profesional`). **Siguiente paso:** decisión del desarrollador sobre las 5 referencias de staging sin intervención (HS 962 de `adm1.ciam`; HS 941 a 944 de `abogada.ciam`) y sobre bloquear la retirada del rol intervención con referencias vigentes (BACKLOG).
+
 **Última tarea (25 nov, 3):** solo intervención abre Historias Sociales y es profesional de referencia (policy, invariante en `AsignacionProfesional`, reparto por rol, `tramitacion` sin `historia.abrir`/`historia.crear`, migración `2026_11_25_100005`; TF-REF-01 a 06; documentación corregida). Suite completa en verde tras corregir un test. **Siguiente paso:** decisión del desarrollador sobre las 5 referencias vigentes sin intervención de staging y sobre `historia.cerrar` en tramitación (BACKLOG).
 
 **Última tarea (25 nov, 2):** callejero, paso 4 y cierre de `docs/instrucciones-cli/2026-11-callejero-madrid.md` (pasos 0 a 5 hechos). `vida:normalizar-direcciones` corregido (códigos territoriales, origen, aviso a la asignación, sin tocar el padrón; TF-CAL-13 a 15) y ejecutado en staging: 73 de 171 normalizadas. **Siguiente paso:** configurar en Filament los ámbitos territoriales de CSS Arganzuela y CSS Entrevías (sin ellos la asignación por domicilio no resuelve a nadie) y reevaluar a las personas con domicilio normalizado; después, el encargo que siga (barrido `role:` → permisos, BACKLOG).

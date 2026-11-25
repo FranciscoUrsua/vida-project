@@ -301,7 +301,7 @@ class AutorizacionDatosTest extends TestCase
     #[Test]
     public function verificacion_negativa_restriccion_permiso_es_obligatoria(): void
     {
-        // tramitacion tiene historia.abrir/cerrar pero NO historia.editar
+        // tramitacion solo consulta el estado de la historia: NO historia.editar
         $tramitacion = $this->crearUsuarioEnUo('tramitacion', $this->uoA);
         $historia = $this->crearHistoriaSinScope($this->uoA);
 

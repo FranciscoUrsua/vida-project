@@ -85,7 +85,7 @@ La implantación se difiere: hay varias cuestiones por definir y otras prioridad
 ### 4.2 Pendiente
 
 - Nota de tramitación. Las anotaciones sobre una solicitud de servicio pertenecen a Intervención (`modulo-centros.md` §3.3), pero tramitación no tiene acceso a apuntes. Hay que decidir dónde vive la nota de un cambio de estado y quién la ve.
-- Entrada de peticiones. Cómo llegan a tramitación las peticiones de apertura, cierre o reactivación de Historia Social y de incorporación a la unidad de convivencia.
+- Entrada de peticiones. Cómo llegan a tramitación las peticiones de incorporación a la unidad de convivencia. La apertura, el cierre y la reactivación de la Historia Social no pasan por tramitación: son del trabajador social (`intervencion`, decisiones del 25 nov 2026).
 - Documentación requerida por prestación. El catálogo de prestaciones no define hoy qué documentos exige cada una.
 - Visibilidad de documentos y prestaciones. Qué parte de la carpeta y del resumen de prestaciones ve tramitación.
 - Traslados y fusiones. Flujo, aprobación y efectos sobre citas, documentos e Historia Social.

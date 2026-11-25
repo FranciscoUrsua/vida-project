@@ -12,7 +12,7 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 **Referencias de profesionales sin rol intervención en staging** — 2026-11-25
 Intervención / Asignación
 - Desde el 25 nov solo intervención abre Historias Sociales y es referencia (RN-03 bis), pero quedan 5 referencias vigentes de antes: HS 962 (`adm1.ciam`, tramitación, abierta por error el 25 nov) y HS 941 a 944 (`abogada.ciam`, solo `consulta_profesional`, «quien abre», dic 2025 a jun 2026). Pendiente de decisión del desarrollador: cerrarlas y dejarlas en la bandeja de asignaciones para que la dirección asigne referencia, o dar a esa abogada el rol intervención si trabaja con la Historia completa (`modulo-usuarios-permisos.md` rol 6).
-- `tramitacion` conserva `historia.cerrar` (cierre de Historias). Confirmar si también debe ser solo de intervención.
+- Distinción confirmada (25 nov): la referencia es única y de intervención; tramitación y `consulta_profesional` tienen ciudadanos asignados para su cometido (solicitudes que toman; encargos, sin implementar), no referencias. Falta decidir qué se hace con las 5 filas y si quitar el rol intervención con referencias vigentes debe bloquearse hasta repartir, como la salida del centro (RN-21).
 
 ---
 

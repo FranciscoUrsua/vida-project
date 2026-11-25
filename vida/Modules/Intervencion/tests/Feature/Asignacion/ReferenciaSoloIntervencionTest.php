@@ -23,7 +23,8 @@ use Tests\TestCase;
 
 /**
  * Solo un profesional con rol intervención abre Historias Sociales y es profesional de
- * referencia (TF-REF-01 a 06).
+ * referencia (TF-REF-01 a 06). Tramitación tampoco cierra historias; sí consulta su
+ * estado (TF-REF-07).
  *
  * En staging, un usuario de `tramitacion` abrió una historia desde la ficha de la
  * persona y quedó como referencia (25 nov 2026): la policy solo miraba el permiso, que
@@ -177,5 +178,15 @@ class ReferenciaSoloIntervencionTest extends TestCase
             'fecha_inicio' => today(),
         ]);
         $this->assertTrue(AsignacionProfesional::where('historia_id', $historia->id)->exists());
+    }
+
+    #[Test]
+    public function tf_ref_07_tramitacion_consulta_el_estado_de_la_historia_pero_no_la_cierra(): void
+    {
+        $this->assertTrue($this->tramitador->can('historia.ver_estado'));
+        $this->assertFalse($this->tramitador->can('historia.cerrar'));
+
+        // Quien la cierra es el trabajador social
+        $this->assertTrue($this->ts->can('historia.cerrar'));
     }
 }
