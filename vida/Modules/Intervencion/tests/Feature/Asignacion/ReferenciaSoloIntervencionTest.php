@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Tests\Feature\Asignacion;
 
+use App\Filament\Resources\UsuarioResource\Pages\EditUsuario;
 use App\Models\HistoriaSocial;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -18,13 +19,18 @@ use Modules\Intervencion\Enums\OrigenAsignacionReferencia;
 use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Intervencion\Services\AperturaHistoriaService;
 use Modules\Intervencion\Services\Asignacion\PoolReferenciaService;
+use Modules\Intervencion\Services\Asignacion\SalidaCentroBloqueada;
+use Modules\Usuarios\Models\UsuarioRol;
+use Modules\Usuarios\Services\AsignacionRolesService;
 use PHPUnit\Framework\Attributes\Test;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 /**
  * Solo un profesional con rol intervención abre Historias Sociales y es profesional de
  * referencia (TF-REF-01 a 06). Tramitación tampoco cierra historias; sí consulta su
- * estado (TF-REF-07).
+ * estado (TF-REF-07). Y a quien es referencia de alguien no se le retira el rol
+ * intervención hasta repartir sus casos, como en la salida del centro (TF-REF-08 a 11).
  *
  * En staging, un usuario de `tramitacion` abrió una historia desde la ficha de la
  * persona y quedó como referencia (25 nov 2026): la policy solo miraba el permiso, que
@@ -188,5 +194,91 @@ class ReferenciaSoloIntervencionTest extends TestCase
 
         // Quien la cierra es el trabajador social
         $this->assertTrue($this->ts->can('historia.cerrar'));
+    }
+
+    /**
+     * Referencia vigente de la trabajadora social sobre una historia nueva, con el rol
+     * intervención registrado también en el historial (usuario_rol).
+     *
+     * @return AsignacionProfesional
+     */
+    private function referenciaVigenteDeLaTs(): AsignacionProfesional
+    {
+        UsuarioRol::create([
+            'usuario_id' => $this->ts->id,
+            'rol_id' => Role::findByName('intervencion')->id,
+            'fecha_inicio' => '2025-01-01',
+            'estado' => 'activo',
+        ]);
+
+        return AsignacionProfesional::create([
+            'historia_id' => $this->historiaDe($this->pedro, $this->cssQuienAbre)->id,
+            'profesional_id' => $this->ts->id,
+            'centro_id' => $this->cssQuienAbre->id,
+            'origen' => OrigenAsignacionReferencia::QuienAbre,
+            'fecha_inicio' => today(),
+        ]);
+    }
+
+    #[Test]
+    public function tf_ref_08_no_se_retira_el_rol_intervencion_a_quien_es_referencia(): void
+    {
+        $this->referenciaVigenteDeLaTs();
+
+        try {
+            app(AsignacionRolesService::class)->retirar($this->ts, Role::where('name', 'intervencion')->firstOrFail());
+            $this->fail('Se ha retirado el rol intervención a un profesional con casos de referencia.');
+        } catch (SalidaCentroBloqueada $e) {
+            $this->assertStringContainsString('1 caso de referencia', $e->getMessage());
+        }
+
+        $this->assertTrue($this->ts->fresh()->hasRole('intervencion'));
+        $this->assertTrue(UsuarioRol::where('usuario_id', $this->ts->id)->where('estado', 'activo')->exists());
+    }
+
+    #[Test]
+    public function tf_ref_09_tampoco_revocando_su_registro_de_rol(): void
+    {
+        $this->referenciaVigenteDeLaTs();
+        $registro = UsuarioRol::where('usuario_id', $this->ts->id)->firstOrFail();
+
+        $this->expectException(SalidaCentroBloqueada::class);
+
+        try {
+            $registro->update(['estado' => 'inactivo', 'fecha_fin' => today()]);
+        } finally {
+            $this->assertSame('activo', $registro->fresh()->estado);
+            $this->assertTrue($this->ts->fresh()->hasRole('intervencion'));
+        }
+    }
+
+    #[Test]
+    public function tf_ref_10_sin_casos_vigentes_el_rol_se_retira(): void
+    {
+        $referencia = $this->referenciaVigenteDeLaTs();
+        // El caso ya se ha repartido: la referencia está cerrada
+        $referencia->update(['fecha_fin' => today()]);
+
+        app(AsignacionRolesService::class)->retirar($this->ts, Role::where('name', 'intervencion')->firstOrFail());
+
+        $this->assertFalse($this->ts->fresh()->hasRole('intervencion'));
+    }
+
+    #[Test]
+    public function tf_ref_11_la_edicion_del_usuario_avisa_y_no_guarda_nada(): void
+    {
+        $this->referenciaVigenteDeLaTs();
+        $admin = $this->crearUsuario('admin.qa', $this->cssQuienAbre, 'adm_sistema');
+
+        Livewire::actingAs($admin)
+            ->test(EditUsuario::class, ['record' => $this->ts->getKey()])
+            ->set('data.roles', [Role::findByName('consulta_profesional')->id])
+            ->set('data.email', 'cambiado@vida360.test')
+            ->call('save')
+            ->assertNotified('Hay casos o citas pendientes');
+
+        $this->assertTrue($this->ts->fresh()->hasRole('intervencion'));
+        $this->assertFalse($this->ts->fresh()->hasRole('consulta_profesional'));
+        $this->assertSame('ts.qa@vida360.test', $this->ts->fresh()->email);
     }
 }

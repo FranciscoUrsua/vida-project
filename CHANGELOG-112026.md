@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-11-25 — Sin rol intervención no se es referencia: retirada bloqueada y HS 962 retirada
+
+- **Decisión del desarrollador:** quitar el rol `intervencion` a quien es referencia de algún caso se bloquea hasta repartir sus casos, como la salida del centro (RN-21). Los casos de `abogada.ciam` (HS 941 a 944) los reparte la supervisión del CIAM con el flujo existente. La HS 962 era una prueba y se retira.
+- **Cambios:** `SalidaCentroService::exigirRetiradaIntervencion()` (casos de referencia vigentes por centro, sin historias retiradas); lo llaman `AsignacionRolesService::retirar()` (también para roles sin historial), `UsuarioRolObserver::updating()` (revocación o caducidad del último registro vigente de intervención) y `EditUsuario::beforeSave()` (aviso con «Repartir casos» sin guardar nada). `SalidaCentroBloqueada` solo indica lo que queda pendiente (casos, citas o ambos).
+- **Datos:** migración `2026_11_25_100007`, baja lógica de la HS 962 y de su referencia (solo si siguen siendo las de la prueba de `adm1.ciam`); la persona 1073 no se toca. Ensayada con rollback sobre la BD compartida.
+- **Tests:** TF-REF-08 a 11, en verde; negativos comprobados (sin la comprobación central fallan 08, 09 y 11; sin la del formulario, 11). En verde los ficheros que ejercitan roles, bajas y salida (Bajas, Desactivar, Supervisión, roles, usuario_rol, demo aditivo).
+- **Documentación:** `modulo-asignacion.md` (RN-03 bis) y `modulo-tipo-centro.md` (RN-22).
+
+---
+
 ## 2026-11-25 — Tramitación tampoco cierra Historias Sociales
 
 - **Decisión del desarrollador:** `tramitacion` no cierra ni reactiva Historias Sociales; sí consulta su estado (`historia.ver_estado`). Ser profesional de referencia (único por persona, siempre `intervencion`) se distingue de tener ciudadanos asignados para un cometido (solicitudes de prestación que toma un tramitador, encargos de `consulta_profesional`).

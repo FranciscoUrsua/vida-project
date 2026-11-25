@@ -6,6 +6,8 @@ use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Modules\Intervencion\Services\Asignacion\SalidaCentroBloqueada;
+use Modules\Intervencion\Services\Asignacion\SalidaCentroService;
 use Modules\Mensajes\Enums\DestinatarioType;
 use Modules\Mensajes\Enums\TipoAlerta;
 use Modules\Mensajes\Services\AlertaService;
@@ -115,11 +117,23 @@ class AsignacionRolesService
     /**
      * Retira un rol: cierra sus asignaciones vigentes o pendientes y lo quita de Spatie.
      *
+     * El rol intervención no se retira a quien es referencia de algún caso hasta
+     * repartirlos (RN-03 bis).
+     *
      * @param User $usuario Usuario afectado.
      * @param Role $rol Rol retirado.
+     *
+     * @return void
+     *
+     * @throws SalidaCentroBloqueada Si se retira intervención a un profesional con casos de referencia.
      */
     public function retirar(User $usuario, Role $rol): void
     {
+        // También cubre los roles sin historial, que no pasan por el observer de usuario_rol
+        if ($rol->name === 'intervencion') {
+            app(SalidaCentroService::class)->exigirRetiradaIntervencion($usuario);
+        }
+
         $abiertas = $usuario->historialRoles()
             ->where('rol_id', $rol->id)
             ->whereIn('estado', ['activo', 'pendiente_aprobacion'])

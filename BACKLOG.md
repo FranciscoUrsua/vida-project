@@ -9,10 +9,9 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
-**Referencias de profesionales sin rol intervención en staging** — 2026-11-25
+**Casos de `abogada.ciam` pendientes de reparto en staging** — 2026-11-25
 Intervención / Asignación
-- Desde el 25 nov solo intervención abre Historias Sociales y es referencia (RN-03 bis), pero quedan 5 referencias vigentes de antes: HS 962 (`adm1.ciam`, tramitación, abierta por error el 25 nov) y HS 941 a 944 (`abogada.ciam`, solo `consulta_profesional`, «quien abre», dic 2025 a jun 2026). Pendiente de decisión del desarrollador: cerrarlas y dejarlas en la bandeja de asignaciones para que la dirección asigne referencia, o dar a esa abogada el rol intervención si trabaja con la Historia completa (`modulo-usuarios-permisos.md` rol 6).
-- Distinción confirmada (25 nov): la referencia es única y de intervención; tramitación y `consulta_profesional` tienen ciudadanos asignados para su cometido (solicitudes que toman; encargos, sin implementar), no referencias. Falta decidir qué se hace con las 5 filas y si quitar el rol intervención con referencias vigentes debe bloquearse hasta repartir, como la salida del centro (RN-21).
+- HS 941 a 944 tienen como referencia a `abogada.ciam`, que ya no tiene rol intervención (se lo quitaron antes de que existiera el bloqueo de RN-03 bis). Decidido: la supervisión del CIAM Puente de Vallecas (p. ej. `dir.ciam`) reparte sus casos desde Supervisión → Asignaciones → actividad (ensayado: propone a `ts1`, `ts2` y `ts3`). La relación de la abogada con esas personas será un encargo cuando se implemente `docs/rol-consulta-profesional.md`.
 
 ---
 

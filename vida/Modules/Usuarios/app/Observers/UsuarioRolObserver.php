@@ -3,6 +3,8 @@
 namespace Modules\Usuarios\Observers;
 
 use Illuminate\Support\Carbon;
+use Modules\Intervencion\Services\Asignacion\SalidaCentroBloqueada;
+use Modules\Intervencion\Services\Asignacion\SalidaCentroService;
 use Modules\Usuarios\Models\UsuarioRol;
 
 /**
@@ -18,6 +20,9 @@ use Modules\Usuarios\Models\UsuarioRol;
  * - Al aprobar una asignación (estado: pendiente_aprobacion → activo) → assignRole.
  * - Al revocar (estado → inactivo) o caducar (fecha_fin en el pasado) → removeRole
  *   si no hay otro UsuarioRol vigente para ese rol en ese usuario.
+ * - Antes de revocar o caducar el último registro vigente del rol intervención, exige
+ *   que el profesional no sea referencia de ningún caso (RN-03 bis): vale para
+ *   cualquier camino que toque usuario_rol, no solo para AsignacionRolesService.
  *
  * @see UsuarioRol
  * @see docs/modulo-usuarios-permisos.md sección 4.3
@@ -40,6 +45,42 @@ class UsuarioRolObserver
 
         if ($this->esVigente($usuarioRol)) {
             $usuarioRol->usuario->assignRole($usuarioRol->rol);
+        }
+    }
+
+    /**
+     * Rechaza, antes de guardar, la revocación o caducidad del último registro vigente
+     * del rol intervención de un profesional que es referencia de algún caso.
+     *
+     * @param UsuarioRol $usuarioRol Asignación que se va a actualizar.
+     *
+     * @return void
+     *
+     * @throws SalidaCentroBloqueada Si es referencia de algún caso.
+     */
+    public function updating(UsuarioRol $usuarioRol): void
+    {
+        if ($usuarioRol->rol?->name !== 'intervencion' || $usuarioRol->getOriginal('estado') !== 'activo') {
+            return;
+        }
+
+        $seRevoca = $usuarioRol->isDirty('estado') && $usuarioRol->estado !== 'activo';
+        $seCaduca = $usuarioRol->isDirty('fecha_fin')
+            && $usuarioRol->fecha_fin !== null
+            && ! Carbon::parse($usuarioRol->fecha_fin)->isFuture();
+
+        if (! $seRevoca && ! $seCaduca) {
+            return;
+        }
+
+        $hayOtroVigente = UsuarioRol::where('usuario_id', $usuarioRol->usuario_id)
+            ->where('rol_id', $usuarioRol->rol_id)
+            ->where('id', '!=', $usuarioRol->id)
+            ->vigentes()
+            ->exists();
+
+        if (! $hayOtroVigente) {
+            app(SalidaCentroService::class)->exigirRetiradaIntervencion($usuarioRol->usuario);
         }
     }
 

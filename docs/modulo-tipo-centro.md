@@ -78,7 +78,7 @@ Este diseño convierte el tipo de centro en una entidad propia. Cuatro ideas lo 
 
 **RN-21 — Salida de un centro.** Cerrar la adscripción de un profesional a la UO de un centro exige que no tenga asignaciones de referencia vigentes en ese centro ni citas confirmadas futuras en sus slots de ese centro. Si las tiene, la acción ofrece «Repartir casos» (reparto por salida) y «Reasignar citas» (flujo de ausencia existente), y solo cierra la adscripción cuando las dos cosas están resueltas.
 
-**RN-22 — Desactivación.** Desactivar un usuario exige lo mismo de RN-21 en todos sus centros.
+**RN-22 — Desactivación.** Desactivar un usuario exige lo mismo de RN-21 en todos sus centros. Y retirarle el rol `intervencion` exige no tener asignaciones de referencia vigentes en ningún centro (RN-03 bis de `modulo-asignacion.md`, 25 nov 2026).
 
 **RN-23 — El caso pertenece al centro.** La asignación de referencia es de una historia en un centro. Ningún cambio de adscripción del profesional mueve, cierra ni reasigna casos automáticamente.
 

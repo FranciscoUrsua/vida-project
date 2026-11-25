@@ -13,6 +13,7 @@ use Modules\Intervencion\Services\Asignacion\SalidaCentroBloqueada;
 use Modules\Intervencion\Services\Asignacion\SalidaCentroService;
 use Modules\Usuarios\Services\AsignacionRolesService;
 use Modules\Usuarios\Services\RolesSugeridosService;
+use Spatie\Permission\Models\Role;
 
 /**
  * Página de edición de usuarios.
@@ -23,7 +24,8 @@ use Modules\Usuarios\Services\RolesSugeridosService;
  * los roles o al descartarlo.
  *
  * Cerrar desde el formulario la adscripción a la UO de un centro exige RN-21: se
- * comprueba antes de guardar nada, y el modelo UsuarioUo lo vuelve a exigir.
+ * comprueba antes de guardar nada, y el modelo UsuarioUo lo vuelve a exigir. Lo mismo
+ * al quitar el rol intervención a quien es referencia de algún caso (RN-03 bis).
  */
 class EditUsuario extends EditRecord
 {
@@ -87,13 +89,28 @@ class EditUsuario extends EditRecord
     }
 
     /**
-     * Antes de guardar, rechaza el cierre de una adscripción a un centro con casos o
+     * Antes de guardar, rechaza la retirada del rol intervención a quien es referencia
+     * de algún caso (RN-03 bis) y el cierre de una adscripción a un centro con casos o
      * citas pendientes (RN-21), para no guardar el resto del formulario a medias.
      *
      * @return void
      */
     protected function beforeSave(): void
     {
+        // RN-03 bis: quitar intervención a quien es referencia de algún caso, igual que el
+        // cierre de adscripción, se rechaza antes de guardar nada
+        $intervencion = Role::findByName('intervencion');
+        $loTiene = in_array($intervencion->id, app(AsignacionRolesService::class)->rolesSeleccionados($this->usuario()), true);
+
+        if ($loTiene && ! in_array($intervencion->id, $this->rolesMarcados, true)) {
+            try {
+                app(SalidaCentroService::class)->exigirRetiradaIntervencion($this->usuario());
+            } catch (SalidaCentroBloqueada $e) {
+                DesactivarAction::notificarBloqueo($e);
+                $this->halt();
+            }
+        }
+
         $estado = $this->form->getRawState()['adscripciones'] ?? [];
 
         foreach ($estado as $clave => $fila) {

@@ -4,6 +4,8 @@
 
 ---
 
+**Última tarea (25 nov, 5):** a quien es referencia no se le retira el rol intervención hasta repartir sus casos (`SalidaCentroService::exigirRetiradaIntervencion()`, en retirada de roles, observer de `usuario_rol` y edición de usuario; TF-REF-08 a 11) y baja lógica de la HS 962 de prueba (migración `2026_11_25_100007`, se aplica con el despliegue). **Siguiente paso:** la supervisión del CIAM reparte los 4 casos de `abogada.ciam` (Supervisión → Asignaciones → actividad); después, el encargo que siga (barrido `role:` → permisos o el encargo profesional de `consulta_profesional`).
+
 **Última tarea (25 nov, 4):** `tramitacion` pierde `historia.cerrar` (migración `2026_11_25_100006`, TF-REF-07); conserva `historia.ver_estado`. Documentada la distinción referencia (única, intervención) / ciudadanos asignados para un cometido (tramitación, `consulta_profesional`). **Siguiente paso:** decisión del desarrollador sobre las 5 referencias de staging sin intervención (HS 962 de `adm1.ciam`; HS 941 a 944 de `abogada.ciam`) y sobre bloquear la retirada del rol intervención con referencias vigentes (BACKLOG).
 
 **Última tarea (25 nov, 3):** solo intervención abre Historias Sociales y es profesional de referencia (policy, invariante en `AsignacionProfesional`, reparto por rol, `tramitacion` sin `historia.abrir`/`historia.crear`, migración `2026_11_25_100005`; TF-REF-01 a 06; documentación corregida). Suite completa en verde tras corregir un test. **Siguiente paso:** decisión del desarrollador sobre las 5 referencias vigentes sin intervención de staging y sobre `historia.cerrar` en tramitación (BACKLOG).

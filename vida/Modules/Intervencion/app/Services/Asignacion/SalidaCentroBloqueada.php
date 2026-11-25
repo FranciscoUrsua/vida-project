@@ -16,15 +16,23 @@ class SalidaCentroBloqueada extends DomainException
 {
     /**
      * @param list<PendientesSalida> $pendientes Centros con algo pendiente.
-     * @param string $accion «salir del centro» o «desactivar al usuario», para el mensaje.
+     * @param string $accion «cerrar la adscripción al centro», «desactivar al usuario» o «retirar el rol intervención», para el mensaje.
      * @param User|null $usuario Profesional al que se intenta desactivar o sacar del centro.
      */
     public function __construct(public readonly array $pendientes, public readonly string $accion, public readonly ?User $usuario = null)
     {
         $detalle = implode('; ', array_map(fn (PendientesSalida $p) => $p->descripcion(), $pendientes));
 
-        parent::__construct("No se puede {$accion} mientras tenga casos o citas pendientes ({$detalle}). "
-            .'Reparte antes sus casos y reasigna sus citas desde la gestión de ausencias.');
+        // La indicación solo nombra lo que de verdad queda pendiente
+        $hayCitas = collect($pendientes)->contains(fn (PendientesSalida $p) => $p->citas > 0);
+        $hayCasos = collect($pendientes)->contains(fn (PendientesSalida $p) => $p->casos > 0);
+        $indicacion = match (true) {
+            $hayCasos && $hayCitas => 'Reparte antes sus casos y reasigna sus citas desde la gestión de ausencias.',
+            $hayCitas => 'Reasigna antes sus citas desde la gestión de ausencias.',
+            default => 'Reparte antes sus casos.',
+        };
+
+        parent::__construct("No se puede {$accion} mientras tenga casos o citas pendientes ({$detalle}). {$indicacion}");
     }
 
     /**

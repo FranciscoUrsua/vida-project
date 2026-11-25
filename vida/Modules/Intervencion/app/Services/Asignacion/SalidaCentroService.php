@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Modules\Agenda\Models\Cita;
 use Modules\Agenda\Models\PerfilHorarioProfesional;
 use Modules\Centro\Models\Centro;
+use Modules\Intervencion\Models\AsignacionProfesional;
 use Modules\Usuarios\Models\Profesional;
 
 /**
@@ -24,6 +25,10 @@ use Modules\Usuarios\Models\Profesional;
  * reasigna citas: lo hace el supervisor con el reparto por salida y la gestión
  * de ausencias. El cierre de adscripciones se comprueba aquí, y el modelo
  * UsuarioUo lo exige en cualquier camino que cambie su fecha de fin.
+ *
+ * Por la misma razón, a quien es referencia de algún caso no se le retira el rol
+ * intervención (RN-03 bis: la referencia es siempre de intervención) hasta repartir
+ * sus casos: si no, la persona quedaría con una referencia que no puede serlo.
  */
 class SalidaCentroService
 {
@@ -195,6 +200,38 @@ class SalidaCentroService
             ->reject(fn (PendientesSalida $p) => $p->libre())
             ->values()
             ->all();
+    }
+
+    /**
+     * Exige RN-03 bis al retirar el rol intervención: el profesional no puede ser
+     * referencia vigente de ningún caso, en ningún centro. Lo llaman la retirada de
+     * roles y el observer de usuario_rol, para que valga en cualquier camino.
+     *
+     * @param User $usuario Profesional al que se retira el rol.
+     *
+     * @return void
+     *
+     * @throws SalidaCentroBloqueada Si es referencia de algún caso.
+     */
+    public function exigirRetiradaIntervencion(User $usuario): void
+    {
+        $casosPorCentro = AsignacionProfesional::vigente()
+            ->where('profesional_id', $usuario->id)
+            // Una historia retirada no es un caso que repartir (mismo criterio que el reparto)
+            ->whereIn('historia_id', DB::table('historias_sociales')->whereNull('deleted_at')->select('id'))
+            ->get(['centro_id'])
+            ->countBy('centro_id');
+
+        if ($casosPorCentro->isEmpty()) {
+            return;
+        }
+
+        $pendientes = Centro::whereIn('id', $casosPorCentro->keys())->get()
+            ->map(fn (Centro $centro) => new PendientesSalida($centro, (int) $casosPorCentro[$centro->id], 0))
+            ->values()
+            ->all();
+
+        throw new SalidaCentroBloqueada($pendientes, 'retirar el rol intervención', $usuario);
     }
 
     /**
