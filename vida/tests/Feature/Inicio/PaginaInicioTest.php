@@ -277,6 +277,45 @@ class PaginaInicioTest extends TestCase
             ->assertRedirect(route('intervencion.casos.index'));
     }
 
+    /**
+     * TF-STG-29 bis — El enlace directo que dejó en el navegador la sesión caducada de otro
+     * usuario no se hereda: quien entra va a su página de inicio. El del mismo usuario, sí.
+     *
+     * En staging (25 nov 2026), la sesión de la directora del CIAM caducó con la ficha de una
+     * persona abierta; a la mañana siguiente, un usuario de consulta profesional entró en el
+     * mismo navegador y aterrizó en esa ficha, sin permiso.
+     */
+    #[Test]
+    public function tf_stg_29_bis_el_enlace_directo_de_otro_usuario_no_se_hereda(): void
+    {
+        $otro = $this->conRoles(['supervision']);
+
+        // El otro usuario entra en este navegador y su sesión acaba caducando
+        $this->post(route('login.post'), ['email' => $otro->email, 'password' => 'secreto'])
+            ->assertCookie('vida_ultimo_usuario', (string) $otro->id);
+        auth()->logout();
+        session()->flush();
+
+        // La pestaña que quedó abierta pide la página sin sesión y la deja como enlace directo
+        $this->get(route('intervencion.casos.index'))->assertRedirect(route('login'));
+
+        $this->withCookie('vida_ultimo_usuario', (string) $otro->id)
+            ->post(route('login.post'), ['email' => $this->psicologa->email, 'password' => 'secreto'])
+            ->assertRedirect(DestinoInicial::para($this->psicologa));
+        $this->assertNull(session('url.intended'));
+    }
+
+    /** TF-STG-29 ter — Si el enlace directo es del mismo usuario que entra, manda. */
+    #[Test]
+    public function tf_stg_29_ter_el_enlace_directo_propio_se_conserva(): void
+    {
+        $this->get(route('intervencion.casos.index'))->assertRedirect(route('login'));
+
+        $this->withCookie('vida_ultimo_usuario', (string) $this->psicologa->id)
+            ->post(route('login.post'), ['email' => $this->psicologa->email, 'password' => 'secreto'])
+            ->assertRedirect(route('intervencion.casos.index'));
+    }
+
     /** TF-STG-31 — «Administración» en el menú de usuario, nunca en el menú operativo. */
     #[Test]
     public function tf_stg_31_administracion_aparte(): void

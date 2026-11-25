@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-11-25 — El enlace directo tras el login no se hereda de otro usuario
+
+- **Síntoma (staging):** `edu.css` (multicentro, solo `consulta_profesional`) entraba directamente en la ficha de la persona 449, con «No tienes permiso» y sin menú. No la tiene asignada: su referencia es `ts3.ciam`.
+- **Causa:** la auditoría muestra que `dir.ciam` abrió esa ficha el 24 nov a las 13:19 en el mismo navegador. Su sesión caducó con la página abierta, la página quedó como enlace directo (`url.intended`) y `redirect()->intended()` del login se lo dio al siguiente usuario.
+- **Cambio:** `LoginController` guarda en una cookie cifrada (`vida_ultimo_usuario`, un año) quién entró por última vez en el navegador y descarta el enlace directo si es de otro usuario. Sin cookie (primer login en ese navegador) el enlace se respeta, como los de alertas y correos (R4.8).
+- **Tests:** TF-STG-29 bis y ter en `PaginaInicioTest`, en verde; negativo comprobado. En verde `tests/Feature/Auth` y `PaginaInicioTest`.
+- **Pendiente, sin cambio:** `edu.css` entra ahora en la página informativa «sin perfil de trabajo», porque `consulta_profesional` no tiene superficie hasta que se implemente el encargo profesional (`docs/rol-consulta-profesional.md`). Las páginas de error no llevan menú lateral, como el resto de páginas de error propias; «Volver al inicio» lleva a la página de inicio.
+- **Documentación:** `modulo-usuarios-permisos.md` §2.7 bis, punto 8.
+
+---
+
 ## 2026-11-25 — Sin rol intervención no se es referencia: retirada bloqueada y HS 962 retirada
 
 - **Decisión del desarrollador:** quitar el rol `intervencion` a quien es referencia de algún caso se bloquea hasta repartir sus casos, como la salida del centro (RN-21). Los casos de `abogada.ciam` (HS 941 a 944) los reparte la supervisión del CIAM con el flujo existente. La HS 962 era una prueba y se retira.

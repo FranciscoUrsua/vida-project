@@ -4,6 +4,8 @@
 
 ---
 
+**Última tarea (25 nov, 6):** el enlace directo tras el login ya no se hereda de la sesión caducada de otro usuario (cookie `vida_ultimo_usuario` en `LoginController`; TF-STG-29 bis y ter). Era lo que llevaba a `edu.css` a la ficha 449. `edu.css` (`consulta_profesional`) ve ahora la página informativa hasta que exista el encargo profesional. **Siguiente paso:** el desarrollador repite la entrada de `edu.css` en staging; después, la supervisión del CIAM reparte los casos de `abogada.ciam` y se decide el siguiente encargo (encargo profesional de `consulta_profesional` o barrido `role:` → permisos).
+
 **Última tarea (25 nov, 5):** a quien es referencia no se le retira el rol intervención hasta repartir sus casos (`SalidaCentroService::exigirRetiradaIntervencion()`, en retirada de roles, observer de `usuario_rol` y edición de usuario; TF-REF-08 a 11) y baja lógica de la HS 962 de prueba (migración `2026_11_25_100007`, se aplica con el despliegue). **Siguiente paso:** la supervisión del CIAM reparte los 4 casos de `abogada.ciam` (Supervisión → Asignaciones → actividad); después, el encargo que siga (barrido `role:` → permisos o el encargo profesional de `consulta_profesional`).
 
 **Última tarea (25 nov, 4):** `tramitacion` pierde `historia.cerrar` (migración `2026_11_25_100006`, TF-REF-07); conserva `historia.ver_estado`. Documentada la distinción referencia (única, intervención) / ciudadanos asignados para un cometido (tramitación, `consulta_profesional`). **Siguiente paso:** decisión del desarrollador sobre las 5 referencias de staging sin intervención (HS 962 de `adm1.ciam`; HS 941 a 944 de `abogada.ciam`) y sobre bloquear la retirada del rol intervención con referencias vigentes (BACKLOG).
