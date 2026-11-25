@@ -1,6 +1,12 @@
 {{-- «Mis derivaciones»: encargos profesionales asignados (EP-10, 2026-11-encargo-profesional.md) --}}
 <div class="op-page">
     <section class="p-3">
+        @if($aviso)
+            <div class="alert alert-success d-flex align-items-start gap-2" role="status">
+                <x-heroicon-o-check-circle class="icon-20 flex-shrink-0" aria-hidden="true"/>
+                <span>{{ $aviso }}</span>
+            </div>
+        @endif
 
         <h2 class="h6 fw-semibold mb-2">En curso</h2>
         @if($this->activos->isEmpty())

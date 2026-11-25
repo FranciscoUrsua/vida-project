@@ -190,6 +190,6 @@ Diseño del 23 nov 2026 y pendientes resueltos por el desarrollador el 25 nov 20
 | A — Modelo y servicio | TF-ENC-01..13 | Hecho (25 nov) |
 | B — Interfaz del TSR y bandeja | TF-ENC-14..18 | Hecho (25 nov), con 14 bis y 15 bis |
 | C — Superficie, ámbito y permisos | TF-ENC-19..29 | Hecho (25 nov), con 19 bis y 20 bis |
-| D — Documentos y protegidas | TF-ENC-30..33 | Pendiente |
+| D — Documentos y protegidas | TF-ENC-30..33 | Hecho (25 nov), con 31 bis y 33 bis |
 | E — Agenda y citas | TF-ENC-34..37 | Pendiente |
 | F — Mensajes y centro activo | TF-ENC-38..40 | Pendiente |

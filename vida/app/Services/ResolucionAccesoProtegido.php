@@ -46,6 +46,69 @@ class ResolucionAccesoProtegido
         private readonly AlertaService $alertas,
     ) {}
 
+    /** Longitud mínima de la justificación de una solicitud. */
+    public const MIN_JUSTIFICACION = 20;
+
+    /**
+     * Registra una solicitud de acceso a una persona protegida y avisa a quien la resuelve
+     * (RN-18): el director del centro de su Historia Social o, sin director, la supervisión
+     * adscrita al centro. Nadie recibe el aviso de su propia solicitud.
+     *
+     * @param User $solicitante Quien pide el acceso (y quien lo tendrá si se aprueba).
+     * @param int $ciudadanoId Persona protegida.
+     * @param string $justificacion Motivo asistencial (al menos MIN_JUSTIFICACION caracteres).
+     *
+     * @return AccesoProtegido
+     *
+     * @throws DomainException
+     */
+    public function solicitar(User $solicitante, int $ciudadanoId, string $justificacion): AccesoProtegido
+    {
+        $justificacion = trim($justificacion);
+        if (mb_strlen($justificacion) < self::MIN_JUSTIFICACION) {
+            throw new DomainException('La justificación debe tener al menos '.self::MIN_JUSTIFICACION.' caracteres.');
+        }
+
+        $acceso = AccesoProtegido::create([
+            'usuario_id' => $solicitante->id,
+            'ciudadano_id' => $ciudadanoId,
+            'solicitante_id' => $solicitante->id,
+            'justificacion' => $justificacion,
+            'estado' => 'pendiente',
+        ]);
+
+        foreach ($this->resolutores($ciudadanoId)->reject(fn (User $u) => $u->id === $solicitante->id) as $resolutor) {
+            // Por AlertaService: calcula expira_en, sin el cual el job no escala nunca.
+            $this->alertas->crear([
+                'tipo' => TipoAlerta::Alerta,
+                'origen_type' => AccesoProtegido::class,
+                'origen_id' => $acceso->id,
+                'titulo' => 'Solicitud de acceso a ciudadano protegido',
+                'cuerpo' => 'El profesional '.$solicitante->nombreVisible().' solicita acceso. Justificación: '.$justificacion,
+                'destinatario_type' => DestinatarioType::Usuario,
+                'destinatario_usuario_id' => $resolutor->id,
+            ]);
+        }
+
+        return $acceso;
+    }
+
+    /**
+     * Si el usuario ya tiene una solicitud pendiente sobre la persona.
+     *
+     * @param User $usuario
+     * @param int $ciudadanoId
+     *
+     * @return bool
+     */
+    public function tienePendiente(User $usuario, int $ciudadanoId): bool
+    {
+        return AccesoProtegido::where('usuario_id', $usuario->id)
+            ->where('ciudadano_id', $ciudadanoId)
+            ->where('estado', 'pendiente')
+            ->exists();
+    }
+
     /**
      * Usuarios que pueden resolver solicitudes sobre una persona (RN-18).
      *

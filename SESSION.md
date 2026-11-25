@@ -1,8 +1,10 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-25 (encargo profesional: bloque B y tests del bloque A)
+**Última actualización:** 2026-11-25 (encargo profesional: bloque D)
 
 ---
+
+**Última tarea (25 nov, 9):** encargo profesional, bloque D. `AccesoDocumentosEncargo` (vía adicional de `DocumentoPolicy`): el profesional de encargo abre los documentos de sus encargos y los que sube él sobre sus personas, nunca de una protegida con el encargo cerrado. Subida desde `EncargoPage` (carpeta de la persona y vínculo al encargo, RN-15). En el histórico de «Mis derivaciones», la protegida cerrada sale enmascarada con «Solicitar acceso» (`ResolucionAccesoProtegido::solicitar()`, compartido con el buscador). TF-ENC-30 a 33 (más 31 bis y 33 bis) en verde con negativos; `ui:auditar` sin infracciones. Sin migraciones. **Siguiente paso:** bloque E (agenda y citas de `consulta_profesional`: `agenda.ver_propia`, `citas.solicitar`, `citas.atender`; «Mis casos» y «Recursos» exigen además `plan.leer`; cita desde el encargo; atender lleva al encargo; TF-ENC-34 a 37); después F.
 
 **Última tarea (25 nov, 8):** encargo profesional, bloque B y tests del bloque A. El TSR encarga desde la herramienta «Encargo profesional» de la Historia Social o desde el plan principal (`EncargosProfesionales`, con objetivo opcional y documentos de la carpeta), y la bandeja de Supervisión (`DerivacionesPage`) asigna el encargo a un profesional con `derivacion.registrar_resultado`. Corregido `DerivacionesPlan`, que habría fallado con un encargo hecho desde el plan. TF-ENC-01 a 18 en verde, con negativos comprobados; `ui:auditar` sin infracciones. Con el despliegue (migraciones `2026_11_25_200001` y `200002`), el circuito completo se puede probar en staging: un TSR del CSS encarga al CIAM, `dir.ciam` lo asigna a `abogada.ciam` y ella lo cierra desde «Mis derivaciones». **Siguiente paso:** bloque D (documentos del encargo con `AccesoDocumentosEncargo`, subida desde `EncargoPage`, protegidas cerradas con «Solicitar acceso»; TF-ENC-30 a 33); después E y F.
 
@@ -55,7 +57,7 @@ Decisiones confirmadas por el Delegado Digital el 23 nov 2026, todas implementad
 
 **Siguiente paso:** comprobar el despliegue y avisar al desarrollador de que puede repetir la ronda 2 (INF-01, INF-08, EST-02 a EST-09, VEN-01 a VEN-05). Después, el encargo siguiente: barrido `role:` → permisos (BACKLOG).
 
-**Contexto para retomar:** en staging, `abogada.ciam` y `edu.css` (solo `consulta_profesional`) entran en «Mis derivaciones» desde el encargo profesional (bloque C, 25 nov); desde el bloque B (25 nov) ya se pueden crear y asignar encargos. Hasta el bloque D, puede que no abran los documentos adjuntos. `coo.ciam` es la única supervisión sola. Quedan en el BACKLOG de la ronda 1 la ficha 14 huérfana, `adm1.css` (Spatie ≠ `usuario_rol`), `APP_DEBUG=true` en staging y si la supervisión sola debe ver prestaciones y atenciones en la ficha.
+**Contexto para retomar:** en staging, `abogada.ciam` y `edu.css` (solo `consulta_profesional`) entran en «Mis derivaciones» desde el encargo profesional (bloque C, 25 nov); desde el bloque B (25 nov) ya se pueden crear y asignar encargos. `coo.ciam` es la única supervisión sola. Quedan en el BACKLOG de la ronda 1 la ficha 14 huérfana, `adm1.css` (Spatie ≠ `usuario_rol`), `APP_DEBUG=true` en staging y si la supervisión sola debe ver prestaciones y atenciones en la ficha.
 
 ---
 

@@ -1,5 +1,6 @@
 {{-- Tabla de encargos de «Mis derivaciones». Una persona protegida que ya no se puede ver
-     sale enmascarada y sin enlace (EP-7). Variables: $filas, $titulo, $cerrados. --}}
+     sale enmascarada y sin enlace (EP-7); en el histórico, con «Solicitar acceso» (RN-18).
+     Variables: $filas, $titulo, $cerrados (y $solicitarDe del componente). --}}
 <div class="card">
     <div class="table-responsive">
         <table class="table table-sm align-middle mb-0">
@@ -23,6 +24,13 @@
                                 <a href="{{ route('intervencion.encargos.show', $encargo->id) }}" wire:navigate>{{ $fila['persona']['nombre'] }}</a>
                             @else
                                 <span class="text-body-secondary fst-italic">{{ $fila['persona']['nombre'] }}</span>
+                                @if($cerrados)
+                                    @if($fila['solicitado'])
+                                        <span class="d-block small text-body-secondary">Acceso solicitado</span>
+                                    @else
+                                        <button type="button" wire:click="prepararSolicitud({{ $encargo->id }})" class="btn btn-outline-protected btn-sm d-block mt-1 text-nowrap">Solicitar acceso</button>
+                                    @endif
+                                @endif
                             @endif
                         </td>
                         <td class="text-body-secondary">{{ $encargo->centroDestino?->nombre }}</td>
@@ -40,6 +48,24 @@
                             {{ $cerrados ? $encargo->cerrada_en?->format('d/m/Y') : ($encargo->resuelta_en ?? $encargo->created_at)->diffForHumans() }}
                         </td>
                     </tr>
+                    @if($cerrados && $solicitarDe === $encargo->id)
+                        <tr wire:key="solicitud-{{ $encargo->id }}">
+                            <td colspan="6" class="bg-body-tertiary">
+                                <label for="justificacion-{{ $encargo->id }}" class="form-label small fw-semibold mb-1">
+                                    Justificación <span class="fw-normal text-body-secondary">(mínimo 20 caracteres)</span>
+                                </label>
+                                <textarea id="justificacion-{{ $encargo->id }}" wire:model="justificacion" rows="3"
+                                          class="form-control form-control-sm @error('justificacion') is-invalid @enderror"
+                                          placeholder="Motivo profesional por el que necesitas volver a ver a esta persona"></textarea>
+                                @error('justificacion') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <p class="form-text mb-2">La resuelve la dirección del centro de la persona.</p>
+                                <div class="d-flex gap-2">
+                                    <button type="button" wire:click="solicitarAcceso" class="btn btn-primary btn-sm">Enviar solicitud</button>
+                                    <button type="button" wire:click="cancelarSolicitud" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
                 @endforeach
             </tbody>
         </table>

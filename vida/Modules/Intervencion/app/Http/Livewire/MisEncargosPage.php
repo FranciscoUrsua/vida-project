@@ -6,6 +6,8 @@ use App\Models\Ciudadano;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use App\Services\PresentacionPersona;
+use App\Services\ResolucionAccesoProtegido;
+use DomainException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -25,18 +27,28 @@ use Modules\Intervencion\Models\Derivacion;
  *
  * Restricción de dominio (EP-7, RN-17 ampliada): una persona protegida de un encargo
  * cerrado aparece como «Persona con protección especial», sin enlace al encargo ni a su
- * ficha (PresentacionPersona decide con CiudadanoPolicy).
+ * ficha (PresentacionPersona decide con CiudadanoPolicy), con «Solicitar acceso» (RN-18). La
+ * solicitud se pide por el encargo, no por la persona: la página no envía al navegador el id
+ * de una persona que el usuario ya no puede ver.
  *
- * @property-read Collection<int, array{encargo: Derivacion, persona: array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}}> $activos
- * @property-read Collection<int, array{encargo: Derivacion, persona: array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}}> $historico
+ * @property-read Collection<int, array{encargo: Derivacion, persona: array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}, solicitado: bool}> $activos
+ * @property-read Collection<int, array{encargo: Derivacion, persona: array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}, solicitado: bool}> $historico
  */
 #[Layout('layouts.operativo')]
 class MisEncargosPage extends Component
 {
+    /** Encargo cuya persona protegida se pide ver («Solicitar acceso»). */
+    public ?int $solicitarDe = null;
+
+    public string $justificacion = '';
+
+    /** Confirmación tras enviar la solicitud. */
+    public ?string $aviso = null;
+
     /**
      * Encargos en curso (aceptados), los más antiguos primero.
      *
-     * @return Collection<int, array{encargo: Derivacion, persona: array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}}>
+     * @return Collection<int, array{encargo: Derivacion, persona: array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}, solicitado: bool}>
      */
     #[Computed]
     public function activos(): Collection
@@ -47,12 +59,63 @@ class MisEncargosPage extends Component
     /**
      * Encargos cerrados, los más recientes primero.
      *
-     * @return Collection<int, array{encargo: Derivacion, persona: array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}}>
+     * @return Collection<int, array{encargo: Derivacion, persona: array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}, solicitado: bool}>
      */
     #[Computed]
     public function historico(): Collection
     {
         return $this->filas(EstadoDerivacion::Cerrada, 'desc');
+    }
+
+    /**
+     * Abre el formulario de solicitud de acceso para la persona de un encargo cerrado.
+     *
+     * @param int $encargoId
+     *
+     * @return void
+     */
+    public function prepararSolicitud(int $encargoId): void
+    {
+        $this->personaEnmascaradaDe($encargoId);
+        $this->solicitarDe = $encargoId;
+        $this->justificacion = '';
+        $this->aviso = null;
+        $this->resetErrorBag();
+    }
+
+    /**
+     * Cierra el formulario de solicitud sin enviarla.
+     *
+     * @return void
+     */
+    public function cancelarSolicitud(): void
+    {
+        $this->solicitarDe = null;
+        $this->justificacion = '';
+        $this->resetErrorBag();
+    }
+
+    /**
+     * Envía la solicitud de acceso a la persona protegida del encargo (RN-18).
+     *
+     * @return void
+     */
+    public function solicitarAcceso(): void
+    {
+        abort_if($this->solicitarDe === null, 404);
+        $ciudadanoId = $this->personaEnmascaradaDe($this->solicitarDe);
+
+        try {
+            app(ResolucionAccesoProtegido::class)->solicitar(auth()->user(), $ciudadanoId, $this->justificacion);
+        } catch (DomainException $e) {
+            $this->addError('justificacion', $e->getMessage());
+
+            return;
+        }
+
+        $this->cancelarSolicitud();
+        $this->aviso = 'Solicitud enviada. Te avisaremos cuando la dirección del centro la resuelva.';
+        unset($this->historico);
     }
 
     /**
@@ -74,7 +137,7 @@ class MisEncargosPage extends Component
      * @param EstadoDerivacion $estado
      * @param string $orden 'asc' | 'desc'
      *
-     * @return Collection<int, array{encargo: Derivacion, persona: array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}}>
+     * @return Collection<int, array{encargo: Derivacion, persona: array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}, solicitado: bool}>
      */
     private function filas(EstadoDerivacion $estado, string $orden): Collection
     {
@@ -96,9 +159,42 @@ class MisEncargosPage extends Component
             ->get()
             ->keyBy('id');
 
-        return $encargos->map(fn (Derivacion $encargo) => [
-            'encargo' => $encargo,
-            'persona' => PresentacionPersona::paraListado($personas->get($ciudadanoDe->get($encargo->historia_id)), $usuario),
-        ])->toBase();
+        $resolucion = app(ResolucionAccesoProtegido::class);
+
+        return $encargos->map(function (Derivacion $encargo) use ($personas, $ciudadanoDe, $usuario, $resolucion): array {
+            $persona = $personas->get($ciudadanoDe->get($encargo->historia_id));
+            $presentacion = PresentacionPersona::paraListado($persona, $usuario);
+
+            return [
+                'encargo' => $encargo,
+                'persona' => $presentacion,
+                // Solo para la persona enmascarada: si ya hay una solicitud de acceso esperando
+                'solicitado' => ! $presentacion['visible'] && $persona !== null && $resolucion->tienePendiente($usuario, $persona->id),
+            ];
+        })->toBase();
+    }
+
+    /**
+     * Persona de un encargo cerrado del usuario que ya no puede ver; si no lo es, 403.
+     *
+     * @param int $encargoId
+     *
+     * @return int Id de la persona.
+     */
+    private function personaEnmascaradaDe(int $encargoId): int
+    {
+        /** @var User $usuario */
+        $usuario = auth()->user();
+
+        $encargo = Derivacion::query()->deProfesional($usuario)
+            ->where('estado', EstadoDerivacion::Cerrada->value)
+            ->find($encargoId);
+        abort_if($encargo === null, 403);
+
+        $ciudadanoId = (int) DB::table('historias_sociales')->where('id', $encargo->historia_id)->value('ciudadano_id');
+        $persona = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->findOrFail($ciudadanoId);
+        abort_if(PresentacionPersona::visible($persona, $usuario), 403);
+
+        return $ciudadanoId;
     }
 }

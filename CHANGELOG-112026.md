@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-11-25 — Encargo profesional: documentos del encargo y personas protegidas (bloque D)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloque D.
+
+- **D1, `AccesoDocumentosEncargo`** (Intervención, vía adicional de `DocumentoPolicy` etiquetada en `IntervencionServiceProvider`): con `derivacion.registrar_resultado`, el profesional abre los documentos vinculados a un encargo suyo (aceptado o cerrado) y los que subió él vinculados a una persona de sus encargos, sin límite de día. En los dos casos tiene que seguir viendo a la persona (`EncargosDeUsuario`): de una protegida con el encargo cerrado no abre nada (EP-7), salvo acceso aprobado.
+- **D2, subida desde `EncargoPage`:** formulario «Subir un documento» (tipo, fichero, descripción, fecha de emisión y órgano emisor) con el encargo en curso, `documento.subir` y RN-15 en el centro del encargo (también al guardar). Pasa por la tubería de entrada (`CicloVidaDocumentoService::altaDocumento`) y queda vinculado a la persona y al encargo, en su carpeta; lo ve quien tiene acceso a ella. Tipos ofrecidos: los activos vinculables a persona.
+- **D3, «Solicitar acceso» en el histórico de «Mis derivaciones»:** la persona protegida de un encargo cerrado sale enmascarada, sin enlace, con el botón; la justificación se escribe en línea y, enviada, la fila muestra «Acceso solicitado». La solicitud se pide por el id del encargo, no de la persona, para no mandar al navegador el id de alguien que ya no puede ver; solo de sus encargos cerrados con la persona enmascarada.
+- **`ResolucionAccesoProtegido::solicitar()` y `tienePendiente()`:** la creación de la solicitud (justificación mínima de 20 caracteres, `AccesoProtegido`, alertas a quien resuelve por RN-18) sale de `BuscarCiudadanoPage` al servicio; el buscador y «Mis derivaciones» la comparten.
+- **Tests:** `DocumentosEncargoTest` (TF-ENC-30 a 33, más 31 bis, «sin encargo en curso no sube», y 33 bis, «solo de sus encargos enmascarados»). En verde con `EncargoServiceTest`, `InterfazEncargoTest`, `SuperficieEncargoTest`, `PersonasProtegidasTest` y `BuscarCiudadanoPageTest` (60 tests). Negativos comprobados: sin la vía registrada fallan 30, 31 y 32; sin la comprobación de persona visible en la vía, 32 (se reforzó el test con otro encargo en curso, porque con el ámbito vacío lo tapaba la salida anticipada). `npm run build` y `ui:auditar` sin infracciones.
+- **Decisiones no previstas en las instrucciones:** canal de captura `presencial` para la subida desde el encargo; la solicitud de acceso va en una fila desplegable de la tabla, no en un modal.
+
+---
+
 ## 2026-11-25 — Encargo profesional: interfaz del TSR y bandeja (bloque B) y tests del bloque A
 
 Instrucciones: `docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloques A (tests) y B.

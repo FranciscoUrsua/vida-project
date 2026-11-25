@@ -7,16 +7,27 @@ use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use App\Services\PresentacionPersona;
 use DomainException;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\WithFileUploads;
+use Modules\Centro\Services\Asignacion\CentroDeUsuario;
+use Modules\Documentos\Data\DatosIngesta;
+use Modules\Documentos\Enums\CanalCaptura;
+use Modules\Documentos\Exceptions\IngestaRechazadaException;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\DocumentoVinculo;
+use Modules\Documentos\Models\TipoDocumental;
+use Modules\Documentos\Services\CicloVidaDocumentoService;
 use Modules\Documentos\Services\LecturaDocumentoService;
 use Modules\Intervencion\Enums\EstadoDerivacion;
 use Modules\Intervencion\Models\Derivacion;
@@ -28,6 +39,10 @@ use Modules\Intervencion\Services\EncargoService;
  * encarga, documentos adjuntos y registro del resultado, que cierra el encargo
  * (EncargoService::cerrar, EP-4 y EP-5).
  *
+ * Con el encargo en curso, el profesional sube documentos (bloque D, EP-8): van a la carpeta
+ * de la persona y quedan vinculados al encargo; sin el límite del día de la consulta básica.
+ * Los abre por AccesoDocumentosEncargo.
+ *
  * Solo lo abre el profesional asignado y con el encargo aceptado o cerrado; el resto, 403.
  * Restricción de dominio (EP-7, RN-17 ampliada): si la persona es protegida y el encargo
  * ya está cerrado, deja de verla (salvo acceso protegido aprobado) y la página responde 403,
@@ -37,10 +52,28 @@ use Modules\Intervencion\Services\EncargoService;
  * @property-read Ciudadano $persona
  * @property-read Collection<int, Documento> $documentos
  * @property-read bool $puedeCerrar
+ * @property-read bool $puedeSubir
+ * @property-read Collection<int, TipoDocumental> $tipos
  */
 #[Layout('layouts.operativo')]
 class EncargoPage extends Component
 {
+    use WithFileUploads;
+
+    /** @var TemporaryUploadedFile|null Fichero que se sube. */
+    public $fichero = null;
+
+    public ?int $tipoId = null;
+
+    public string $titulo = '';
+
+    public string $fechaEmision = '';
+
+    public string $organoEmisor = '';
+
+    /** Mensaje de rechazo de la tubería de entrada. */
+    public ?string $errorIngesta = null;
+
     /** @var int Encargo (parámetro de ruta). */
     #[Locked]
     public int $encargoId;
@@ -121,7 +154,7 @@ class EncargoPage extends Component
     }
 
     /**
-     * Si el documento se puede abrir (DocumentoPolicy; la vía del encargo llega en el bloque D).
+     * Si el documento se puede abrir (DocumentoPolicy, con la vía AccesoDocumentosEncargo).
      *
      * @param Documento $documento
      *
@@ -176,7 +209,122 @@ class EncargoPage extends Component
 
         $this->resultado = '';
         $this->aviso = 'Encargo cerrado. El resultado ya está en la Historia Social y el TSR tiene un aviso.';
-        unset($this->encargo, $this->puedeCerrar);
+        unset($this->encargo, $this->puedeCerrar, $this->puedeSubir);
+    }
+
+    /**
+     * Si se ofrece subir documentos: encargo en curso, `documento.subir` y adscripción al
+     * centro del encargo (RN-15; se vuelve a comprobar al guardar).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeSubir(): bool
+    {
+        return $this->encargo->estado === EstadoDerivacion::Aceptada
+            && auth()->user()->can('documento.subir')
+            && app(CentroDeUsuario::class)->puedeActuar(auth()->user(), $this->encargo->centroDestino);
+    }
+
+    /**
+     * Tipos documentales activos que admiten vincularse a una persona (y, por tanto, al encargo).
+     *
+     * @return Collection<int, TipoDocumental>
+     */
+    #[Computed]
+    public function tipos(): Collection
+    {
+        return TipoDocumental::query()->activos()->orderBy('nombre')->get()
+            ->filter(fn (TipoDocumental $tipo): bool => $tipo->permiteVincularA(Derivacion::class))
+            ->values()
+            ->toBase();
+    }
+
+    /**
+     * Sube un documento a la carpeta de la persona vinculado al encargo. Los rechazos de la
+     * tubería de entrada se muestran sin perder el formulario.
+     *
+     * @return void
+     */
+    public function subir(): void
+    {
+        abort_unless($this->puedeSubir, 403);
+        // R1: subir es una actuación en el centro del encargo, también al guardar
+        app(CentroDeUsuario::class)->exigirActuacion(auth()->user(), $this->encargo->centroDestino);
+        $this->errorIngesta = null;
+
+        $maxKb = (int) config('documentos.max_subida_kb');
+        $this->validate(
+            [
+                // Sin «min:1»: Laravel mide en KB con decimales y rechazaría todo fichero de menos de 1 KB.
+                'fichero' => ['required', 'file', "max:{$maxKb}", $this->reglaNoVacio(...)],
+                'tipoId' => ['required', 'integer'],
+                'fechaEmision' => ['nullable', 'date', 'before_or_equal:today'],
+            ],
+            [
+                'fichero.required' => 'Elige el fichero que quieres subir.',
+                'fichero.max' => 'El fichero supera el tamaño máximo de subida.',
+                'tipoId.required' => 'Elige el tipo de documento.',
+                'fechaEmision.before_or_equal' => 'La fecha de emisión no puede ser futura.',
+            ],
+        );
+
+        $tipo = $this->tipos->firstWhere('id', $this->tipoId);
+        if ($tipo === null) {
+            $this->addError('tipoId', 'Elige un tipo de documento válido.');
+
+            return;
+        }
+
+        /** @var User $usuario */
+        $usuario = auth()->user();
+
+        try {
+            app(CicloVidaDocumentoService::class)->altaDocumento($this->fichero, new DatosIngesta(
+                tipo: $tipo,
+                usuario: $usuario,
+                canal: CanalCaptura::Presencial,
+                vinculos: [$this->persona, $this->encargo],
+                nombreOriginal: $this->fichero->getClientOriginalName(),
+                titulo: $this->titulo !== '' ? $this->titulo : null,
+                fechaEmision: $this->fechaEmision !== '' ? Carbon::parse($this->fechaEmision) : null,
+                organoEmisor: $this->organoEmisor !== '' ? $this->organoEmisor : null,
+            ));
+        } catch (IngestaRechazadaException|DomainException $e) {
+            // Un rechazo con causa técnica no es culpa del fichero: se registra para diagnosticarlo
+            if ($e instanceof IngestaRechazadaException && $e->getPrevious() !== null) {
+                report($e->getPrevious());
+            }
+            $this->errorIngesta = $e->getMessage();
+
+            return;
+        } catch (ValidationException $e) {
+            // Metadatos que exige el tipo: los propios del formulario van a su campo; el resto, al tipo
+            $campos = ['fecha_emision' => 'fechaEmision', 'organo_emisor' => 'organoEmisor', 'titulo' => 'titulo'];
+            throw ValidationException::withMessages(collect($e->errors())
+                ->mapWithKeys(fn (array $mensajes, string $clave): array => [$campos[$clave] ?? 'tipoId' => $mensajes])
+                ->all());
+        }
+
+        $this->reset(['fichero', 'tipoId', 'titulo', 'fechaEmision', 'organoEmisor']);
+        $this->aviso = 'Documento guardado en la carpeta de la persona y vinculado al encargo.';
+        unset($this->documentos);
+    }
+
+    /**
+     * Regla de validación: el fichero subido no puede tener 0 bytes.
+     *
+     * @param string $atributo Nombre del campo.
+     * @param mixed $valor Fichero subido.
+     * @param \Closure(string): mixed $fallo Callback de error de la validación.
+     *
+     * @return void
+     */
+    private function reglaNoVacio(string $atributo, mixed $valor, \Closure $fallo): void
+    {
+        if ($valor instanceof UploadedFile && $valor->getSize() === 0) {
+            $fallo('El fichero está vacío.');
+        }
     }
 
     /**

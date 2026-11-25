@@ -95,6 +95,24 @@ trait EncargoTestSetup
     }
 
     /**
+     * Tipo documental «Informe externo», vinculable a personas (y, por tanto, a encargos).
+     *
+     * @return TipoDocumental
+     */
+    protected function tipoInformeExterno(): TipoDocumental
+    {
+        return TipoDocumental::firstOrCreate(['codigo' => 'informe_externo'], [
+            'nombre' => 'Informe externo',
+            'familia' => FamiliaDocumental::AportadoCiudadano,
+            'origen_eni' => OrigenEni::Ciudadano,
+            'caduca' => false,
+            'politica_versiones' => PoliticaVersiones::Conservar,
+            'vinculables' => ['ciudadano'],
+            'activo' => true,
+        ]);
+    }
+
+    /**
      * Documento vigente en la carpeta de una persona (sin fichero: basta para vínculos y listados).
      *
      * @param Ciudadano $persona
@@ -104,15 +122,7 @@ trait EncargoTestSetup
      */
     protected function documentoEnCarpeta(Ciudadano $persona, string $titulo): Documento
     {
-        $tipo = TipoDocumental::firstOrCreate(['codigo' => 'informe_externo'], [
-            'nombre' => 'Informe externo',
-            'familia' => FamiliaDocumental::AportadoCiudadano,
-            'origen_eni' => OrigenEni::Ciudadano,
-            'caduca' => false,
-            'politica_versiones' => PoliticaVersiones::Conservar,
-            'vinculables' => ['ciudadano'],
-            'activo' => true,
-        ]);
+        $tipo = $this->tipoInformeExterno();
 
         $documento = Documento::create([
             'tipo_documental_id' => $tipo->id,

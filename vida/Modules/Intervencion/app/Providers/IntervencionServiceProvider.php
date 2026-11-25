@@ -9,6 +9,7 @@ use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Modules\Centro\Services\Actividades\CicloVidaActividadService;
 use Modules\Centro\Services\PrescripcionService;
+use Modules\Documentos\Policies\DocumentoPolicy;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\AsignarPlazaModal;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
@@ -27,6 +28,7 @@ use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Policies\ApuntePolicy;
 use Modules\Intervencion\Policies\PlanDeIntervencionPolicy;
+use Modules\Intervencion\Services\AccesoDocumentosEncargo;
 use Modules\Intervencion\Services\AvisoActividadesService;
 use Modules\Intervencion\Services\AvisoPlazasService;
 use Modules\Intervencion\Services\IntervencionSidebarDataService;
@@ -54,6 +56,9 @@ class IntervencionServiceProvider extends ServiceProvider
 
         // Azar del sorteo de referencias: seguro en producción; los tests fijan la semilla con app()->instance()
         $this->app->bind(Randomizer::class, fn () => new Randomizer(new Secure));
+
+        // El profesional de encargo ve los documentos de sus encargos (encargo profesional, bloque D)
+        $this->app->tag([AccesoDocumentosEncargo::class], DocumentoPolicy::ETIQUETA_ACCESOS);
 
         // Plazas y profesional de referencia (fase 3, bloque D): al liberar una plaza, la lista
         // de espera apunta al TSR vigente y se le avisa por AlertaService.

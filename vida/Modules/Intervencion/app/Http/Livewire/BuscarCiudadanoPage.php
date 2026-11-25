@@ -2,7 +2,6 @@
 
 namespace Modules\Intervencion\Http\Livewire;
 
-use App\Models\AccesoProtegido;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
@@ -18,9 +17,6 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
 use Modules\Intervencion\Services\EncargosDeUsuario;
-use Modules\Mensajes\Enums\DestinatarioType;
-use Modules\Mensajes\Enums\TipoAlerta;
-use Modules\Mensajes\Services\AlertaService;
 
 /**
  * Pantalla de búsqueda de ciudadanos del interfaz operativo de Intervención.
@@ -325,53 +321,21 @@ class BuscarCiudadanoPage extends Component
     /**
      * Crea la solicitud de acceso a un ciudadano protegido.
      *
-     * Registra el AccesoProtegido y avisa a quien la resuelve (RN-18): el
-     * director del centro de la Historia Social o, sin director, su supervisión.
+     * La registra y avisa a quien la resuelve ResolucionAccesoProtegido::solicitar() (RN-18).
      *
      * @param int $ciudadanoId ID del ciudadano protegido.
      * @param string $justificacion Justificación profesional de acceso.
+     *
+     * @return void
      */
     public function solicitarAcceso(int $ciudadanoId, string $justificacion): void
     {
-        if (strlen(trim($justificacion)) < 20) {
-            $this->addError('justificacion', 'La justificación debe tener al menos 20 caracteres.');
+        try {
+            app(ResolucionAccesoProtegido::class)->solicitar(Auth::user(), $ciudadanoId, $justificacion);
+        } catch (\DomainException $e) {
+            $this->addError('justificacion', $e->getMessage());
 
             return;
-        }
-
-        $historia = HistoriaSocial::withoutGlobalScope(AmbitoUoScope::class)
-            ->where('ciudadano_id', $ciudadanoId)
-            ->where('estado', '!=', 'cerrada')
-            ->latest()
-            ->first();
-
-        // Registrar la solicitud
-        $acceso = AccesoProtegido::create([
-            'usuario_id' => Auth::id(),
-            'ciudadano_id' => $ciudadanoId,
-            'solicitante_id' => Auth::id(),
-            'justificacion' => $justificacion,
-            'estado' => 'pendiente',
-        ]);
-
-        // Avisar a quien resuelve (RN-18): el director del centro de la persona o, sin
-        // director, la supervisión adscrita al centro; no «al supervisor de la UO»
-        if ($historia !== null) {
-            $resolutores = app(ResolucionAccesoProtegido::class)->resolutores($ciudadanoId)
-                ->reject(fn (User $u) => $u->id === Auth::id());
-
-            foreach ($resolutores as $resolutor) {
-                // Por AlertaService: calcula expira_en, sin el cual el job no escala nunca.
-                app(AlertaService::class)->crear([
-                    'tipo' => TipoAlerta::Alerta,
-                    'origen_type' => AccesoProtegido::class,
-                    'origen_id' => $acceso->id,
-                    'titulo' => 'Solicitud de acceso a ciudadano protegido',
-                    'cuerpo' => 'El profesional '.Auth::user()->nombreVisible().' solicita acceso. Justificación: '.$justificacion,
-                    'destinatario_type' => DestinatarioType::Usuario,
-                    'destinatario_usuario_id' => $resolutor->id,
-                ]);
-            }
         }
 
         $this->modalSolicitud = false;

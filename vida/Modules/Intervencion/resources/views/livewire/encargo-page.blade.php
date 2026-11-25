@@ -86,6 +86,51 @@
                             @endforeach
                         </ul>
                     @endif
+
+                    @if($this->puedeSubir)
+                        <form wire:submit="subir" class="border-top pt-3 mt-3 d-flex flex-column gap-2" id="encargo-subir">
+                            <h4 class="small fw-semibold mb-0">Subir un documento</h4>
+                            @if($errorIngesta)
+                                <div class="alert alert-danger py-2 px-3 mb-0 small" role="alert">{{ $errorIngesta }}</div>
+                            @endif
+                            <div>
+                                <label for="encargo-tipo" class="form-label small mb-1">Tipo de documento</label>
+                                <select id="encargo-tipo" wire:model="tipoId" class="form-select form-select-sm @error('tipoId') is-invalid @enderror">
+                                    <option value="">— Elige el tipo —</option>
+                                    @foreach($this->tipos as $tipo)
+                                        <option value="{{ $tipo->id }}">{{ $tipo->nombre }}</option>
+                                    @endforeach
+                                </select>
+                                @error('tipoId') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <div>
+                                <label for="encargo-fichero" class="form-label small mb-1">Fichero</label>
+                                <input id="encargo-fichero" type="file" wire:model="fichero" class="form-control form-control-sm @error('fichero') is-invalid @enderror">
+                                @error('fichero') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <div>
+                                <label for="encargo-titulo" class="form-label small mb-1">Descripción (opcional)</label>
+                                <input id="encargo-titulo" type="text" wire:model="titulo" maxlength="255" class="form-control form-control-sm @error('titulo') is-invalid @enderror">
+                                @error('titulo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-sm-6">
+                                    <label for="encargo-fecha-emision" class="form-label small mb-1">Fecha de emisión</label>
+                                    <input id="encargo-fecha-emision" type="date" wire:model="fechaEmision" class="form-control form-control-sm @error('fechaEmision') is-invalid @enderror">
+                                    @error('fechaEmision') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="encargo-organo" class="form-label small mb-1">Órgano emisor</label>
+                                    <input id="encargo-organo" type="text" wire:model="organoEmisor" class="form-control form-control-sm @error('organoEmisor') is-invalid @enderror">
+                                    @error('organoEmisor') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                            <p class="form-text mb-0">Queda en la carpeta de la persona y vinculado a este encargo; lo verá el TSR.</p>
+                            <div>
+                                <button type="submit" class="btn btn-primary btn-sm" wire:loading.attr="disabled" wire:target="fichero,subir">Subir documento</button>
+                            </div>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>

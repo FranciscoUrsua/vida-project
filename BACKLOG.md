@@ -68,10 +68,9 @@ Transversal (encargo siguiente a la ronda 1)
 
 **`consulta_profesional` y encargo profesional: bloques pendientes** — 2026-11-25 (antes 2026-11-24)
 Módulos: Intervención (derivaciones), Supervisión, Documentos, Agenda, Mensajes
-- Hechos los bloques A, B y C (`docs/instrucciones-cli/2026-11-encargo-profesional.md`): el TSR encarga desde la Historia Social o el plan principal, la supervisión del destino asigna en la bandeja y `consulta_profesional` lo trabaja en «Mis derivaciones», con ficha y buscador limitados a sus encargos. Permisos retirados por la migración `2026_11_25_200002`.
-- Pendientes: D (documentos del encargo, `AccesoDocumentosEncargo`, subida desde el encargo, «Solicitar acceso» para protegidas cerradas); E (agenda y citas); F (Mensajes en el menú, contexto `encargo`, centro activo por la hora).
+- Hechos los bloques A, B, C y D (`docs/instrucciones-cli/2026-11-encargo-profesional.md`): el TSR encarga desde la Historia Social o el plan principal, la supervisión del destino asigna en la bandeja y `consulta_profesional` lo trabaja en «Mis derivaciones», con ficha y buscador limitados a sus encargos. Permisos retirados por la migración `2026_11_25_200002`.
+- Pendientes: E (agenda y citas); F (Mensajes en el menú, contexto `encargo`, centro activo por la hora).
 - Fuera de alcance, para cuando haga falta: reasignar un encargo aceptado a otro profesional (hoy se anula y se encarga de nuevo).
-- Hasta el bloque D, la abogada ve en `EncargoPage` los documentos que el TSR adjunta, pero puede que no pueda abrirlos (`DocumentoPolicy` aún no tiene la vía `AccesoDocumentosEncargo`).
 
 ---
 
