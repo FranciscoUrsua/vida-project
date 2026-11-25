@@ -213,7 +213,7 @@ Este rol reúne titulaciones distintas y no distingue entre ellas. Qué actos co
 
 El rol depende del servicio, no de la titulación: las abogadas integradas en el equipo de un CIAM trabajan con rol *Intervención*, porque necesitan la Historia completa.
 
-> **Rediseñado el 23 nov 2026; superficie, ámbito y permisos implementados el 25 nov 2026** (bloque C de `docs/instrucciones-cli/2026-11-encargo-profesional.md`): rol de quien trabaja por **encargo profesional** del TSR, sin la Historia Social completa. Ver `docs/rol-consulta-profesional.md`.
+> **Rediseñado el 23 nov 2026; implementado el 25 nov 2026** (bloques A a F de `docs/instrucciones-cli/2026-11-encargo-profesional.md`): rol de quien trabaja por **encargo profesional** del TSR, sin la Historia Social completa. Ver `docs/rol-consulta-profesional.md`.
 
 **Capacidades:**
 - Página de inicio «Mis derivaciones» (`derivacion.ver_asignadas`, superficie `Encargos`, después de Agenda en la prioridad): sus encargos en curso y el histórico.
@@ -223,7 +223,8 @@ El rol depende del servicio, no de la titulación: las abogadas integradas en el
 - Sin Historia Social, apuntes, planes ni carpeta completa: no tiene `ciudadano.leer`, `historia.leer`, `apunte.*`, `plan.leer` ni `documento.ver_carpeta` (migración `2026_11_25_200002`).
 - Documentos del encargo (bloque D): ve los que el TSR vincula al encargo y los que sube él sobre las personas de sus encargos (`AccesoDocumentosEncargo`); sube desde el encargo, sin el límite del día.
 - Agenda y citas (bloque E, 25 nov 2026, migración `2026_11_25_200003`): agenda propia (`agenda.ver_propia`), sin «Mis casos» ni «Recursos», que exigen además `plan.leer`. Cita desde el encargo en sus propios huecos del centro del encargo (`CitaPolicy::citarEnAgendaPropia`, excepción acotada a la matriz de citas: no gestiona citas ni mueve o anula las suyas, RN-05); la ventanilla también le cita (`citas.atender`). «Atender» lleva al encargo. Con agenda, su página de inicio sigue siendo «Mis derivaciones»: la agenda solo es inicio por defecto para quien además tiene `plan.leer` (decisión del 25 nov 2026); puede elegirla como preferencia.
-- Pendiente: mensajes y centro activo por la hora (bloque F). Con `agenda.ver_propia` ya ve Alertas, Avisos y Mensajes en el menú.
+- Mensajes (bloque F, 25 nov 2026): Alertas, Avisos y Mensajes en el menú también por `derivacion.ver_asignadas`; «Escribir al TSR» desde el encargo, con el encargo como contexto y el TSR que encargó como destinatario sugerido.
+- Con perfiles horarios en varios centros, el centro activo es el de la franja de la hora actual (`CentroDeUsuario::centroActivo()`).
 
 **Permisos:** `ciudadano.ver_ficha`, `ciudadano.leer_por_encargo`, `derivacion.ver_asignadas`, `derivacion.registrar_resultado`, `documento.subir`, `agenda.ver_propia`, `citas.solicitar`, `citas.atender`.
 

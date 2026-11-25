@@ -1,6 +1,6 @@
 # Rol de consulta profesional (`consulta_profesional`) y encargo profesional — VIDA 360
 
-**Estado:** diseño funcional cerrado el 23 nov 2026; pendientes del §11 resueltos el 25 nov 2026 en `docs/instrucciones-cli/2026-11-encargo-profesional.md`. Implementados el modelo y servicio del encargo (bloque A, sin sus tests) y la superficie, el ámbito y los permisos (bloque C, 25 nov 2026): el rol entra en «Mis derivaciones». Después, el 25 nov 2026, los bloques B (interfaz del TSR y bandeja), D (documentos y protegidas) y E (agenda y citas). Pendiente el bloque F (mensajes y centro activo).
+**Estado:** implementado (25 nov 2026, `docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloques A a F; TF-ENC-01 a 40). Diseño funcional cerrado el 23 nov 2026; pendientes del §11 resueltos el 25 nov 2026.
 **Origen:** pruebas en staging, ronda 1 (EST-02: el rol no tenía superficie y se quedaba en «Redirigiendo…»).
 **Documentos relacionados:** `docs/modulo-usuarios-permisos.md` (ROL 6), `docs/instrucciones-cli/2026-11-fase3-circuito-intervencion.md` (F3-3 a F3-6, derivaciones), `docs/instrucciones-cli/2026-11-tipo-centro-addenda-d1.md` (D1.5, D1.6, RN-15 a RN-19), `docs/roles-consulta-basica-tramitacion.md`, `docs/modulo-agenda.md`, `docs/modulo-documentos.md`, `docs/modulo-mensajes.md`.
 
@@ -132,12 +132,12 @@ La limitación a sus ciudadanos asignados va en las policies (`CiudadanoPolicy`)
 
 ---
 
-## 11. Pendiente
+## 11. Pendiente (resuelto el 25 nov 2026)
 
-1. **Origen del encargo:** desde el plan principal (como F3-6) o también desde la Historia Social.
-2. **Citas:** quién las da (§8).
-3. **Histórico de personas protegidas:** confirmar el enmascaramiento tras el cierre (§5.1).
-4. **Franjas horarias el mismo día:** verificación técnica (§7).
+1. **Origen del encargo:** desde el plan principal y también desde la Historia Social (EP-2).
+2. **Citas:** ambos; el propio profesional desde el encargo y la ventanilla del centro, en sus huecos (EP-9). Queda por decidir cómo se cierran sus citas (BACKLOG).
+3. **Histórico de personas protegidas:** enmascaradas tras el cierre, con «Solicitar acceso» (EP-7).
+4. **Franjas horarias el mismo día:** el centro activo es el del perfil cuya franja contiene la hora actual; sin franja a esa hora, el primer perfil con franjas hoy (bloque F2).
 
 ---
 

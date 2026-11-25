@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-11-25 — Encargo profesional: mensajes y centro activo por la hora (bloque F) y cierre de las instrucciones
+
+Instrucciones: `docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloque F y «Cierre».
+
+- **F1, mensajes:** Alertas, Avisos y Mensajes en el menú también por `derivacion.ver_asignadas` (aunque el rol se configure sin agenda); la ruta de la bandeja admite `agenda.ver_propia|derivacion.ver_asignadas`. Nuevo contexto `TipoContextoMensaje::Encargo`. `ContextoMensajeService::deEncargo()` lo resuelve: el profesional asignado, mientras siga viendo a la persona (EP-7), recibe al TSR que encargó como destinatario sugerido y el enlace al encargo; quien abre la Historia Social recibe al profesional asignado y la herramienta «Encargo profesional». Botón «Escribir al TSR» en `EncargoPage` (el parcial `boton-escribir-mensaje` admite un texto propio).
+- **F2, centro activo:** `CentroDeUsuario::centroActivo()`, con varios perfiles con franjas hoy, elige el de la franja que contiene la hora actual; sin franja a esa hora, el primero con franjas hoy. La consulta se ordena por id, porque antes «el primero» dependía del orden de la base de datos.
+- **Tests:** `MensajesCentroEncargoTest` (TF-ENC-38 a 40, más 38 bis: protegida con el encargo cerrado, sin contexto). Negativos comprobados: sin `derivacion.ver_asignadas` en el menú falla 38; sin comprobar que el encargo es suyo, 38; sin EP-7 en el contexto, 38 bis; sin la hora, 39. Regresión de centro activo, agenda, mensajes, menú, página de inicio y encargo (306 tests) en verde: 79 errores de infraestructura del PostgreSQL local (`max_locks_per_transaction` con 4 procesos) se repitieron con 2 procesos y pasan (BACKLOG). `npm run build` y `ui:auditar` sin infracciones.
+- **Cierre de las instrucciones:** TF-ENC-01 a 40 hechos. Documentación: `rol-consulta-profesional.md` (implementado, §11 resuelto), `modulo-usuarios-permisos.md` (rol 6), `modulo-intervencion.md` (§5.7.1, modalidad encargo), `modulo-documentos.md` (`AccesoDocumentosEncargo`), addenda RN-17 (encargo aceptado), `modulo-citas.md` (RN-05 quater) y `CLAUDE.md` §6.
+
+---
+
 ## 2026-11-25 — Encargo profesional: agenda y citas de `consulta_profesional` (bloque E)
 
 Instrucciones: `docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloque E.

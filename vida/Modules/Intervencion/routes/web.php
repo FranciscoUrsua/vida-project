@@ -31,6 +31,10 @@ Route::middleware(['web', 'auth', 'tiene.rol', 'permission:agenda.ver_propia'])-
     // Casos y recursos exigen además llevar planes (bloque E del encargo profesional)
     Route::get('/recursos', RecursosPage::class)->name('recursos.index')->middleware('permission:plan.leer');
     Route::get('/casos', MisCasosPage::class)->name('casos.index')->middleware('permission:plan.leer');
+});
+
+// Bandeja de alertas, avisos y mensajes: también para el profesional de encargo (bloque F1)
+Route::middleware(['web', 'auth', 'tiene.rol', 'permission:agenda.ver_propia|derivacion.ver_asignadas'])->prefix('intervencion')->name('intervencion.')->group(function () {
     Route::get('/mensajes/{pestana?}', BandejaAlertasYMensajes::class)
         ->whereIn('pestana', ['alertas', 'avisos', 'mensajes'])
         ->name('mensajes.index');

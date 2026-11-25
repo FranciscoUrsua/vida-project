@@ -681,6 +681,31 @@ retiró: derivar se hace solo desde el plan principal. Los apuntes `derivacion` 
 siguen mostrando. El plan especializado indica «Nace de la derivación del plan principal de
 [centro]».
 
+#### 5.7.1 Modalidad encargo profesional
+
+*Añadido 2026-11-25 (`docs/instrucciones-cli/2026-11-encargo-profesional.md`, EP-1 a EP-10;
+diseño en `docs/rol-consulta-profesional.md`).* `derivaciones.modalidad` distingue
+`plan_especializado` (lo anterior) de `encargo`: un trabajo concreto que el TSR pide a un
+profesional de otro centro sin abrir plan especializado, sin prestación ni tipo de plan.
+
+1. **Encargar.** Desde la herramienta «Encargo profesional» de la Historia Social o desde el
+   plan principal (opcionalmente desde un objetivo): quien gestiona la historia o edita el plan
+   principal, con RN-15. Centro de destino, motivo obligatorio y documentos de la carpeta. Sin
+   duplicados pendientes o aceptados al mismo centro.
+2. **Asignar.** En la bandeja de derivaciones del destino, la dirección o la supervisión adscrita
+   lo acepta asignando un profesional del centro con `derivacion.registrar_resultado` (no abre
+   plan) o lo rechaza con motivo.
+3. **Trabajar y cerrar.** El profesional lo ve en «Mis derivaciones» (`EncargoPage`): motivo,
+   documentos (los del TSR y los que sube él, `AccesoDocumentosEncargo`), cita a la persona en
+   sus huecos del centro del encargo (`CitasEncargo`), escribe al TSR con el encargo como
+   contexto de mensaje (`TipoContextoMensaje::Encargo`) y cierra con un resultado obligatorio
+   (estado `cerrada`, `resultado` cifrado), que queda como apunte `encargo` en la Historia
+   Social y avisa al TSR. No lee la Historia ni los apuntes.
+4. **Personas protegidas.** Identidad visible mientras el encargo está aceptado; cerrado, el
+   profesional la ve enmascarada con «Solicitar acceso» (EP-7, RN-17 ampliada, RN-18).
+
+Escribe solo `EncargoService` (sobre `DerivacionService`), con eventos en `derivacion_eventos`.
+
 ---
 
 ## 6. Entidad: SeguimientoPlan

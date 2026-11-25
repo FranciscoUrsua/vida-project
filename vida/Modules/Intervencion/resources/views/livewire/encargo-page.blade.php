@@ -22,6 +22,9 @@
                             <a href="{{ route('ciudadania.ciudadano.ficha', $this->persona->id) }}" wire:navigate>{{ $this->persona->nombre_completo }}</a>
                         </h2>
                         <span class="badge {{ $encargo->estado->tono()->clasesSuave() }}">{{ $encargo->estado->label() }}</span>
+                        <span class="ms-auto">
+                            @include('mensajes::partials.boton-escribir-mensaje', ['tipo' => 'encargo', 'id' => $encargo->id, 'texto' => 'Escribir al TSR'])
+                        </span>
                     </div>
 
                     <h3 class="h6 fw-semibold mb-1">Motivo y contexto del encargo</h3>

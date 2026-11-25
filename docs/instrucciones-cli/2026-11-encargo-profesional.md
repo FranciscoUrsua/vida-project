@@ -192,4 +192,4 @@ Diseño del 23 nov 2026 y pendientes resueltos por el desarrollador el 25 nov 20
 | C — Superficie, ámbito y permisos | TF-ENC-19..29 | Hecho (25 nov), con 19 bis y 20 bis |
 | D — Documentos y protegidas | TF-ENC-30..33 | Hecho (25 nov), con 31 bis y 33 bis |
 | E — Agenda y citas | TF-ENC-34..37 | Hecho (25 nov), con 35 bis |
-| F — Mensajes y centro activo | TF-ENC-38..40 | Pendiente |
+| F — Mensajes y centro activo | TF-ENC-38..40 | Hecho (25 nov), con 38 bis |

@@ -2,12 +2,16 @@
 
 namespace Modules\Mensajes\Services;
 
+use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
+use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
+use App\Services\PresentacionPersona;
 use Illuminate\Support\Facades\Gate;
 use Modules\Agenda\Models\Cita;
 use Modules\Agenda\Models\Slot;
 use Modules\Agenda\Policies\AlcanceCentro;
+use Modules\Intervencion\Models\Derivacion;
 use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Mensajes\Enums\TipoContextoMensaje;
@@ -19,6 +23,7 @@ use Modules\Mensajes\Enums\TipoContextoMensaje;
  * El navegador solo envía tipo e id: la etiqueta, el ciudadano, el autor que
  * se sugiere como destinatario y el enlace salen de aquí, y solo si el
  * usuario puede ver la Historia Social del elemento (`HistoriaSocialPolicy::view`).
+ * El encargo profesional se autoriza aparte (deEncargo()): su profesional no abre la Historia.
  * La etiqueta no lleva datos personales: la leerá el destinatario aunque no
  * tenga acceso al expediente.
  */
@@ -44,6 +49,10 @@ class ContextoMensajeService
         // Cita y slot de agenda no se autorizan por la Historia Social sino por la agenda
         if (in_array($tipoContexto, [TipoContextoMensaje::Cita, TipoContextoMensaje::Slot], true)) {
             return $this->deAgenda($tipoContexto, $id, $usuario);
+        }
+
+        if ($tipoContexto === TipoContextoMensaje::Encargo) {
+            return $this->deEncargo($id, $usuario);
         }
 
         [$historia, $autorId, $url] = match ($tipoContexto) {
@@ -159,6 +168,52 @@ class ContextoMensajeService
             'ciudadano_id' => null,
             'autor_id' => $slot->usuario_id,
             'url' => $usuario->hasRole('supervision') ? route('agenda.supervisor.cuadrante') : route('intervencion.agenda.index'),
+        ];
+    }
+
+    /**
+     * Encargo profesional: lo ve su profesional mientras siga viendo a la persona (EP-7) y
+     * quien abre la Historia Social (el TSR que encargó). Al profesional se le sugiere el TSR
+     * que encargó y el enlace va al encargo; al resto, el profesional asignado y la herramienta
+     * «Encargo profesional» de la Historia Social.
+     *
+     * @param int $id
+     * @param User $usuario
+     *
+     * @return array{tipo: string, id: int, etiqueta: string, ciudadano_id: int|null, autor_id: int|null, url: string}|null
+     */
+    private function deEncargo(int $id, User $usuario): ?array
+    {
+        $encargo = Derivacion::query()->encargos()->find($id);
+        if ($encargo === null) {
+            return null;
+        }
+
+        $historia = HistoriaSocial::withoutGlobalScopes()->find($encargo->historia_id);
+        if ($historia === null) {
+            return null;
+        }
+
+        $tipo = TipoContextoMensaje::Encargo;
+        $datos = ['tipo' => $tipo->value, 'id' => $id, 'etiqueta' => $tipo->etiqueta().' #'.$id, 'ciudadano_id' => $historia->ciudadano_id];
+
+        $esSuyo = Derivacion::query()->deProfesional($usuario)->whereKey($id)->exists();
+        if ($esSuyo) {
+            $persona = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->find($historia->ciudadano_id);
+            if ($persona === null || ! PresentacionPersona::visible($persona, $usuario)) {
+                return null;
+            }
+
+            return $datos + ['autor_id' => $encargo->derivada_por_id, 'url' => route('intervencion.encargos.show', $id)];
+        }
+
+        if (! Gate::forUser($usuario)->allows('view', $historia)) {
+            return null;
+        }
+
+        return $datos + [
+            'autor_id' => $encargo->profesional_responsable_id,
+            'url' => route('intervencion.ciudadano.show', ['historia' => $historia->id, 'herramienta' => 'encargo']),
         ];
     }
 }

@@ -137,7 +137,8 @@ final class RegistroMenu
     private static function bandeja(\Closure $supervisa, \Closure $trabajoPropio): array
     {
         $rutaDe = fn (User $u) => $u->can('supervision.panel') ? 'supervision.bandeja' : 'intervencion.mensajes.index';
-        $visible = fn (User $u) => $supervisa($u) || $trabajoPropio($u);
+        // El profesional de encargo tiene Mensajes aunque no tenga agenda (bloque F1 del encargo profesional)
+        $visible = fn (User $u) => $supervisa($u) || $trabajoPropio($u) || $u->can('derivacion.ver_asignadas');
 
         $entradas = [];
         foreach (['alertas' => ['Alertas', 'exclamation-triangle'], 'avisos' => ['Avisos', 'bell'], 'mensajes' => ['Mensajes', 'chat-bubble-left-right']] as $pestana => [$etiqueta, $icono]) {

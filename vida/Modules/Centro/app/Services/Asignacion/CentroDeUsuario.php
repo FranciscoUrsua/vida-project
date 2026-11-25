@@ -60,7 +60,8 @@ class CentroDeUsuario
      * Centro en que trabaja el usuario cuando la operación no tiene centro de contexto.
      *
      * Orden: el elegido en la sesión si sigue entre sus centros; el de su perfil
-     * horario de hoy; el único que tenga; si no, null.
+     * horario de hoy (con varios, el de la franja de la hora actual); el único que
+     * tenga; si no, null.
      *
      * @param User|null $usuario
      *
@@ -78,15 +79,26 @@ class CentroDeUsuario
             return $centro;
         }
 
-        // Perfil horario con franjas hoy (los keys del JSON son el día ISO como cadena)
+        // Perfiles horarios con franjas hoy (los keys del JSON son el día ISO como cadena)
         $hoy = (string) today()->isoWeekday();
-        $deHoy = PerfilHorarioProfesional::activos()
+        $conFranjasHoy = PerfilHorarioProfesional::activos()
             ->where('usuario_id', $usuario->id)
             ->whereIn('centro_id', $centros->pluck('id'))
             ->whereDate('vigente_desde', '<=', today()->toDateString())
             ->where(fn ($q) => $q->whereNull('vigente_hasta')->orWhereDate('vigente_hasta', '>=', today()->toDateString()))
+            // Orden fijo: «el primero» es el más antiguo, no el que devuelva la base de datos
+            ->orderBy('id')
             ->get()
-            ->first(fn (PerfilHorarioProfesional $perfil) => ! empty($perfil->horario_habitual[$hoy] ?? null));
+            ->filter(fn (PerfilHorarioProfesional $perfil) => ! empty($perfil->horario_habitual[$hoy] ?? null));
+
+        // Con varios (mañana en un centro, tarde en otro), el de la franja que contiene la hora
+        // actual; sin franja a esta hora, el primero con franjas hoy (bloque F2 del encargo profesional)
+        $ahora = now()->format('H:i');
+        $deHoy = $conFranjasHoy->first(fn (PerfilHorarioProfesional $perfil) => collect($perfil->horario_habitual[$hoy])
+            ->contains(fn ($franja) => is_array($franja)
+                && isset($franja['inicio'], $franja['fin'])
+                && $franja['inicio'] <= $ahora && $ahora < $franja['fin']))
+            ?? $conFranjasHoy->first();
         if ($deHoy !== null) {
             return $centros->firstWhere('id', $deHoy->centro_id);
         }

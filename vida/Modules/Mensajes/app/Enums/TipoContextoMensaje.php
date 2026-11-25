@@ -4,7 +4,8 @@ namespace Modules\Mensajes\Enums;
 
 /**
  * Tipos de elemento que pueden vincularse a una conversación desde el panel
- * de redacción, o desde la agenda al pedir un cambio (cita y slot). Es enum
+ * de redacción, o desde la agenda al pedir un cambio (cita y slot), o desde un
+ * encargo profesional (bloque F de 2026-11-encargo-profesional.md). Es enum
  * porque el código decide con él qué modelo cargar, qué permiso comprobar, a
  * quién sugerir como destinatario y a qué ruta enlazar.
  */
@@ -15,6 +16,7 @@ enum TipoContextoMensaje: string
     case Plan = 'plan';
     case Cita = 'cita';
     case Slot = 'slot';
+    case Encargo = 'encargo';
 
     /**
      * Nombre del tipo de elemento para la interfaz.
@@ -29,6 +31,7 @@ enum TipoContextoMensaje: string
             self::Plan => 'Plan de intervención',
             self::Cita => 'Cita',
             self::Slot => 'Hueco de agenda',
+            self::Encargo => 'Encargo profesional',
         };
     }
 }

@@ -1,8 +1,10 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-25 (encargo profesional: bloque E)
+**Última actualización:** 2026-11-25 (encargo profesional: bloque F y cierre)
 
 ---
+
+**Última tarea (25 nov, 11):** encargo profesional, bloque F y cierre de `docs/instrucciones-cli/2026-11-encargo-profesional.md` (bloques A a F, TF-ENC-01 a 40). Mensajes en el menú por `derivacion.ver_asignadas`, contexto `encargo` en el panel de redacción con «Escribir al TSR» y el TSR sugerido, y `centroActivo()` por la franja de la hora actual. Documentación de cierre hecha. **En staging** (tras el despliegue, migraciones `2026_11_25_200001` a `200003`), el circuito completo: un TSR del CSS encarga al CIAM, `dir.ciam` asigna a `abogada.ciam`, que ve documentos, cita, escribe al TSR y cierra. **Pendiente de decisión (BACKLOG):** cómo se cierran las citas del profesional de encargo. **Siguiente paso:** que el desarrollador pruebe el circuito en staging; después, el encargo que siga (barrido `role:` → permisos, BACKLOG).
 
 **Última tarea (25 nov, 10):** encargo profesional, bloque E. `consulta_profesional` tiene agenda (`agenda.ver_propia`, `citas.solicitar`, `citas.atender`; migración `2026_11_25_200003`, se aplica con el despliegue) sin «Mis casos» ni «Recursos» (exigen `plan.leer`) y sigue entrando en «Mis derivaciones» (decisión del 25 nov). Cita desde el encargo en sus propios huecos del centro del encargo (`CitasEncargo`, `CitacionService::citarEnAgendaPropia`, `CitaPolicy::citarEnAgendaPropia`); la ventanilla también le cita; «Atender» lleva al encargo. TF-ENC-34 a 37 (más 35 bis) en verde con negativos. **Pendiente de decisión (BACKLOG):** cómo se cierran las citas del encargo. **Siguiente paso:** bloque F (contexto `encargo` en el panel de mensajes con el TSR sugerido; `centroActivo()` por la hora; TF-ENC-38 a 40) y el cierre de las instrucciones.
 

@@ -66,11 +66,11 @@ Transversal (encargo siguiente a la ronda 1)
 
 ---
 
-**`consulta_profesional` y encargo profesional: bloques pendientes** — 2026-11-25 (antes 2026-11-24)
+**`consulta_profesional` y encargo profesional: lo que queda** — 2026-11-25 (antes 2026-11-24)
 Módulos: Intervención (derivaciones), Supervisión, Documentos, Agenda, Mensajes
-- Hechos los bloques A, B, C, D y E (`docs/instrucciones-cli/2026-11-encargo-profesional.md`): el TSR encarga desde la Historia Social o el plan principal, la supervisión del destino asigna en la bandeja y `consulta_profesional` lo trabaja en «Mis derivaciones», con ficha y buscador limitados a sus encargos. Permisos retirados por la migración `2026_11_25_200002`.
-- Pendiente: F (Mensajes en el menú, contexto `encargo`, centro activo por la hora). Con `agenda.ver_propia` (bloque E) el rol ya ve Alertas, Avisos y Mensajes en el menú; falta el contexto `encargo` y «Escribir al TSR».
+- Hechos los bloques A a F (`docs/instrucciones-cli/2026-11-encargo-profesional.md`, cerrada el 25 nov): el TSR encarga desde la Historia Social o el plan principal, la supervisión del destino asigna en la bandeja y `consulta_profesional` lo trabaja en «Mis derivaciones», con ficha y buscador limitados a sus encargos. Permisos retirados por la migración `2026_11_25_200002`.
 - **Decisión pendiente (bloque E):** las citas del profesional de encargo no se cierran solas. Una cita se completa por un apunte o un registro de atención (`AtencionCitaService`), y él no hace ninguna de las dos cosas: tras la hora quedan «pendientes de cierre» salvo incomparecencia. Opciones: completar la cita al cerrar el encargo (solo la última), un botón «Atendida» en el encargo o vincularla al apunte `encargo`.
+- **PostgreSQL local: `max_locks_per_transaction`.** Con 4 procesos de paratest, el borrado de tablas de las BD paralelas falla a veces con «out of shared memory» (25 nov, 79 errores antes de ejecutar los tests; con 2 procesos, todo en verde). Subir `max_locks_per_transaction` en el PostgreSQL local (p. ej. 256) o usar 2 procesos en local.
 - **Test inestable TF-AUTH-17** (`tests/Feature/Auth/AutenticacionTest.php`): `assertDontSee('JU')` busca en toda la página, token CSRF aleatorio incluido; falló una vez el 25 nov y pasó al repetirlo. Acotarlo al avatar.
 - Bloque E, detalle menor: en la agenda, la cita de una persona protegida cuyo encargo ya se cerró sigue mostrando su nombre (la agenda no enmascara; «Atender» lleva a un encargo que responde 403).
 - Fuera de alcance, para cuando haga falta: reasignar un encargo aceptado a otro profesional (hoy se anula y se encarga de nuevo).
